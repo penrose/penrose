@@ -3,9 +3,10 @@ import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import * as path from "path";
+import { A } from "types/ast";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
-import { SubstanceEnv } from "types/substance";
+import { ApplyPredicate, SubstanceEnv } from "types/substance";
 import { Result, showError, showType } from "utils/Error";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
@@ -17,7 +18,7 @@ const outputDir = "/tmp/contexts";
 const subPaths = [
   // "linear-algebra-domain/twoVectorsPerp.sub",
   ["set-theory-domain/setTheory.dsl", "set-theory-domain/tree.sub"],
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/continuousmap.sub"],
+  ["set-theory-domain/functions.dsl", "set-theory-domain/continuousmap.sub"],
   ["set-theory-domain/setTheory.dsl", "set-theory-domain/twosets-simple.sub"],
   ["set-theory-domain/setTheory.dsl", "set-theory-domain/multisets.sub"],
   ["set-theory-domain/setTheory.dsl", "set-theory-domain/nested.sub"],
@@ -27,7 +28,7 @@ const subPaths = [
 ];
 
 const hasVars = (env: Env, vars: [string, string][]) => {
-  vars.map(([name, type]: [string, string]) => {
+  vars.forEach(([name, type]: [string, string]) => {
     expect(env.vars.has(name)).toBe(true);
     expect(showType(env.vars.get(name)!)).toEqual(type);
   });
@@ -85,7 +86,7 @@ const envOrError = (prog: string): Env => {
 const compileOrError = (prog: string, env: Env) => {
   const res = compileSubstance(prog, env);
   if (res.isOk()) {
-    return;
+    return res;
   } else {
     fail(`unexpected error ${showError(res.error)}`);
   }
@@ -155,7 +156,7 @@ NoLabel D, E
         ["E", "", "NoLabel"],
       ];
       const labelMap = res.value[0].labels;
-      expected.map(([id, value, type]) => {
+      expected.forEach(([id, value, type]) => {
         const label = labelMap.get(id)!;
         expect(label.value).toEqual(value);
         expect(label.type).toEqual(type);
@@ -322,13 +323,23 @@ AutoLabel All
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DuplicateName");
   });
-  test("type not found", () => {
+  test("decl type not found", () => {
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
 List(Set) l
 Alien a
 NotExistentType b
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeNotFound");
+  });
+  test("func type not found", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C
+List(Set) l
+C := NotExistentFunc(A, B)
     `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeNotFound");
@@ -495,6 +506,28 @@ l := Cons(A, nil)
     compileOrError(prog, env);
   });
 });
+describe("Ambiguous expressions", () => {
+  test("nested predicates and functions parsed as Func", () => {
+    const env = envOrError(domainProg);
+    const prog = `Set A, B
+Point p
+Not(Intersecting(A, B))
+Empty(Subset(A, B))
+Empty(AddPoint(p, A))`;
+    const res = compileOrError(prog, env);
+    if (res.isOk()) {
+      expect(
+        (res.value[0].ast.statements[3] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyPredicate");
+      expect(
+        (res.value[0].ast.statements[4] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyConstructor");
+      expect(
+        (res.value[0].ast.statements[5] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyFunction");
+    }
+  });
+});
 
 describe("Real Programs", () => {
   // create output folder
@@ -502,7 +535,7 @@ describe("Real Programs", () => {
     fs.mkdirSync(outputDir);
   }
 
-  subPaths.map(([domainPath, examplePath]) => {
+  subPaths.forEach(([domainPath, examplePath]) => {
     // a bit hacky, only works with 2-part paths
     const [domPart0, domPart1] = domainPath.split("/");
     const [subPart0, subPart1] = examplePath.split("/");
@@ -546,6 +579,8 @@ l := Cons(Z, nil)
 Empty(C)
 IsSubset(D, E)
 IsSubset(D, A)
+Not(IsSubset(D, A))
+Not(Intersecting(B, C))
 IsSubset(A, B) <-> IsSubset(B, C)
 Subset(A, B) = Subset(B, C)
 AutoLabel All

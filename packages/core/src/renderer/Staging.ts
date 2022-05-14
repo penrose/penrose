@@ -1,10 +1,10 @@
-import { IVarAD } from "../types/ad";
+import * as ad from "../types/ad";
 import { Shape } from "../types/shape";
 import { State } from "../types/state";
 import { FieldExpr } from "../types/value";
 
 // local typedefs for ease of typing expressions
-type StringObjPair = [string, { [k: string]: FieldExpr<IVarAD> }];
+type StringObjPair = [string, { [k: string]: FieldExpr<ad.Num> }];
 
 /**
  * Returns a list of states, one state per diagram in a series of staged diagrams
@@ -33,8 +33,8 @@ export const getListOfStagedStates = (state: State): State[] => {
 // determines if an object has any GPI tagged properties
 const hasGPIProperties = (elem: StringObjPair) => {
   const arr = elem[1];
-  const objArr: [string, FieldExpr<IVarAD>][] = Object.entries(arr);
-  const hasGPIAsTag = (object: [string, FieldExpr<IVarAD>]) => {
+  const objArr: [string, FieldExpr<ad.Num>][] = Object.entries(arr);
+  const hasGPIAsTag = (object: [string, FieldExpr<ad.Num>]) => {
     return object[1].tag === "FGPI";
   };
   return (

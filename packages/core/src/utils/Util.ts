@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import { times } from "lodash";
 import seedrandom from "seedrandom";
 import { ILine } from "shapes/Line";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Properties } from "types/shape";
 import { Fn, Seeds, State } from "types/state";
@@ -65,7 +65,7 @@ export const zip3 = <T1, T2, T3>(
   a3: T3[]
 ): [T1, T2, T3][] => {
   const l = a1.length;
-  if (!(l === a2.length || l === a3.length)) {
+  if (l !== a2.length || l !== a3.length) {
     throw Error("expected same # elements in all three arrays");
   }
   const a: [T1, T2, T3][] = [];
@@ -256,10 +256,6 @@ export const round2 = (n: number): number => roundTo(n, 2);
 export const roundTo = (n: number, digits: number): number => {
   let negative = false;
 
-  if (digits === undefined) {
-    digits = 0;
-  }
-
   if (n < 0) {
     negative = true;
     n = n * -1;
@@ -336,7 +332,7 @@ export const bBoxDims = (
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
   } else if (shapeType === "Polyline") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (properties.width && properties.height) {
+  } else if ("width" in properties && "height" in properties) {
     [w, h] = [
       properties.width.contents as number,
       properties.height.contents as number,
@@ -353,7 +349,9 @@ export const scalev = (c: number, xs: number[]): number[] =>
 export const addv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
-    throw Error("can't add vectors of different length");
+    throw Error(
+      `can't add vectors of different length: ${xs.length} vs ${ys.length}`
+    );
   }
 
   return _.zipWith(xs, ys, (x, y) => x + y);
@@ -362,7 +360,9 @@ export const addv = (xs: number[], ys: number[]): number[] => {
 export const subv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
-    throw Error("can't sub vectors of different length");
+    throw Error(
+      `can't sub vectors of different length: ${xs.length} vs ${ys.length}`
+    );
   }
 
   return _.zipWith(xs, ys, (x, y) => x - y);
@@ -373,7 +373,9 @@ export const negv = (xs: number[]): number[] => _.map(xs, (e) => -e);
 export const dot = (xs: number[], ys: number[]): number => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
-    throw Error("can't dot vectors of different length");
+    throw Error(
+      `can't dot vectors of different length: ${xs.length} vs ${ys.length}`
+    );
   }
 
   let acc = 0;
@@ -483,7 +485,7 @@ export const prettyPrintFns = (state: State): string[] =>
 //#region autodiff
 
 // From Evaluator
-export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
+export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
   tag: "Val",
   contents: {
     tag: "FloatV",
@@ -491,13 +493,13 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
   },
 });
 
-export const linePts = ({ start, end }: ILine): [VarAD[], VarAD[]] => [
+export const linePts = ({ start, end }: ILine): [ad.Num[], ad.Num[]] => [
   start.contents,
   end.contents,
 ];
 
-export const getStart = ({ start }: ILine): VarAD[] => start.contents;
+export const getStart = ({ start }: ILine): ad.Num[] => start.contents;
 
-export const getEnd = ({ end }: ILine): VarAD[] => end.contents;
+export const getEnd = ({ end }: ILine): ad.Num[] => end.contents;
 
 //#endregion

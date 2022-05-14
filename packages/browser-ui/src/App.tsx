@@ -14,22 +14,20 @@ import {
   variationSeeds,
 } from "@penrose/core";
 import animalNameList from "animals";
-import colorNameList from "color-name-list";
-import Inspector from "inspector/Inspector";
+import colorNameList from "color-name-list/dist/colornames.json";
 import { isEqual } from "lodash";
 import * as React from "react";
 import SplitPane from "react-split-pane";
-import ButtonBar from "ui/ButtonBar";
-import { FileSocket, FileSocketResult } from "ui/FileSocket";
+import Inspector from "./inspector/Inspector";
+import ButtonBar from "./ui/ButtonBar";
+import { FileSocket, FileSocketResult } from "./ui/FileSocket";
 
 //#region variation generation
 
 // TODO: maybe factor this code out into its own module
 
 // all one-word colors
-const colors: string[] = ((colorNameList as unknown) as {
-  colorNameList: { name: string }[];
-}).colorNameList // TypeScript is weird about this import so we must assert :(
+const colors: string[] = colorNameList
   .map(({ name }) => name)
   .filter((color) => /^[A-Z][a-z]+$/.test(color));
 
@@ -148,11 +146,15 @@ class App extends React.Component<unknown, ICanvasState> {
   };
   public downloadSVG = async (): Promise<void> => {
     if (this.state.fileSocket) {
-      const rendering = await RenderStatic(
-        this.state.currentState,
-        this.state.fileSocket.getFile
-      );
-      DownloadSVG(rendering);
+      if (this.state.currentState) {
+        const rendering = await RenderStatic(
+          this.state.currentState,
+          this.state.fileSocket.getFile
+        );
+        DownloadSVG(rendering);
+      } else {
+        console.error("current state is undefined");
+      }
     } else {
       console.error("File socket uninitialized");
     }

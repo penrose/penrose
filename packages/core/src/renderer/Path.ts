@@ -17,13 +17,16 @@ const toPathString = (
         return "";
       }
       const pathStr = flatten(
-        contents.map((c: ISubPath<number>) => {
-          if (c.tag === "CoordV")
-            return toScreen(c.contents as [number, number], canvasSize);
-          else if (c.tag === "ValueV") return c.contents;
-          else {
-            console.error("WARNING: improperly formed pathData");
-            return;
+        // the `number[]` type annotation is necessary to ensure that a compile
+        // error occurs here if more `ISubPath` subtypes are added in the future
+        contents.map((c: ISubPath<number>): number[] => {
+          switch (c.tag) {
+            case "CoordV": {
+              return toScreen(c.contents as [number, number], canvasSize);
+            }
+            case "ValueV": {
+              return c.contents;
+            }
           }
         })
       ).join(" ");

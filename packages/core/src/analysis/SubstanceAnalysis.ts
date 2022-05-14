@@ -3,11 +3,13 @@ import { Map } from "immutable";
 import {
   cloneDeep,
   cloneDeepWith,
+  compact,
   filter,
   intersectionWith,
   isEqual,
   isEqualWith,
   sortBy,
+  uniq,
 } from "lodash";
 import { A, AbstractNode, C, Identifier, metaProps } from "types/ast";
 import {
@@ -78,8 +80,8 @@ export const argMatches = (
     | Bind<A>,
   env: Env
 ): ArgStmtDecl<C>[] => {
-  const options = (s: any) => {
-    const [st] = findDecl(s.name.value, env);
+  const options = (s: SubExpr<A> | ApplyPredicate<A>) => {
+    const [st] = "name" in s ? findDecl(s.name.value, env) : [undefined];
     return st
       ? [
           matchDecls(st, env.constructors, signatureArgsEqual),
@@ -135,7 +137,6 @@ export const replaceStmt = <T>(
 export const getStmt = <T>(prog: SubProg<T>, index: number): SubStmt<T> =>
   prog.statements[index];
 
-//#region Helpers
 /**
  * Find all signatures that match a reference statement. NOTE: returns an empty list if
  * no matches are found; does not include the reference statement in list of matches.
@@ -215,9 +216,8 @@ export const getSignature = (decl: ArgStmtDecl<A>): Signature => {
     });
   }
   // see if there is an output field:
-  const d = decl as ConstructorDecl<A>;
-  if (d.output && d.output.type.tag === "TypeConstructor") {
-    outType = d.output.type.name.value;
+  if ("output" in decl && decl.output.type.tag === "TypeConstructor") {
+    outType = decl.output.type.name.value;
   }
   return {
     args: argTypes,
@@ -338,14 +338,11 @@ export const cascadingDelete = <T>(
   return [...removedStmts.values()];
 };
 
-//#endregion
-
 export const printStmts = (
   stmts: PredicateDecl<A>[] | ConstructorDecl<A>[] | FunctionDecl<A>[]
 ): void => {
   let outStr = "";
-  const s = stmts as PredicateDecl<A>[];
-  s.forEach((stmt) => {
+  stmts.forEach((stmt) => {
     outStr += stmt.name.value + " ";
   });
   console.log(`[${outStr}]`);
@@ -381,7 +378,6 @@ export const applyConstructor = (
     tag: "ApplyConstructor",
     name,
     nodeType: "SyntheticSubstance",
-    children: [],
     args,
   };
 };
@@ -395,7 +391,6 @@ export const applyFunction = (
     tag: "ApplyFunction",
     name,
     nodeType: "SyntheticSubstance",
-    children: [],
     args,
   };
 };
@@ -409,7 +404,6 @@ export const applyPredicate = (
     tag: "ApplyPredicate",
     name,
     nodeType: "SyntheticSubstance",
-    children: [],
     args,
   };
 };
@@ -417,7 +411,6 @@ export const applyPredicate = (
 export const subProg = (statements: SubStmt<A>[]): SubProg<A> => ({
   tag: "SubProg",
   statements,
-  children: statements,
   nodeType: "SyntheticSubstance",
 });
 
@@ -432,7 +425,6 @@ export const applyBind = (
   expr: SubExpr<A>
 ): Bind<A> => ({
   tag: "Bind",
-  children: [],
   nodeType: "SyntheticSubstance",
   variable,
   expr,
@@ -441,7 +433,6 @@ export const applyBind = (
 export const nullaryTypeCons = (name: Identifier<A>): TypeConsApp<A> => ({
   tag: "TypeConstructor",
   nodeType: "SyntheticSubstance",
-  children: [],
   name,
   args: [],
 });
@@ -451,14 +442,12 @@ export const autoLabelStmt: AutoLabel<A> = {
   option: {
     tag: "DefaultLabels",
     nodeType: "SyntheticSubstance",
-    children: [],
   },
   nodeType: "SyntheticSubstance",
-  children: [],
 };
 
 /**
- * Compare two AST nodes by their contents, ignoring structural properties such as `children` and positional properties like `start` and `end`.
+ * Compare two AST nodes by their contents, ignoring structural properties such as `nodeType` and positional properties like `start` and `end`.
  *
  * @param node1 the first AST node
  * @param node2 the second AST node
@@ -469,6 +458,26 @@ export const nodesEqual = (node1: AbstractNode, node2: AbstractNode): boolean =>
     return isEqual(cleanNode(node1), cleanNode(node2));
   });
 
+/**
+ * Compare all statements of two ASTs by their contents, ignoring structural properties such as `nodeType` and positional properties like `start` and `end`.
+ *
+ * @param left the first Substance program
+ * @param right the second Substance program
+ * @returns a boolean value
+ */
+export const progsEqual = <T>(left: SubProg<T>, right: SubProg<T>): boolean =>
+  isEqualWith(
+    left.statements,
+    right.statements,
+    (node1: SubStmt<T>, node2: SubStmt<T>) => nodesEqual(node1, node2)
+  );
+
+/**
+ * Find all common statements between `left` and `right` Substance programs.
+ * @param left the first Substance program
+ * @param right the second Substance program
+ * @returns a list of Substacne statements
+ */
 export const intersection = <T>(
   left: SubProg<T>,
   right: SubProg<T>
@@ -510,7 +519,7 @@ export const cleanNode = (prog: AbstractNode): AbstractNode =>
  * @returns
  */
 export const typeOf = (id: string, env: Env): string | undefined =>
-  env.vars.get(id)!.name.value;
+  env.vars.get(id)?.name.value;
 
 // helper function for omitting properties in an object
 const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
@@ -526,4 +535,65 @@ const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
   return cloneDeepWith(collection, omitFn);
 };
 
-//#endregion
+export type SubStmtKind = "type" | "predicate" | "constructor" | "function";
+type SubStmtKindMap = {
+  [t in SubStmtKind]: string[];
+};
+type TypeWithKind = {
+  kind: SubStmtKind;
+  name: string;
+};
+
+/**
+ * Given a Substance program, find out the types, constructors, functions, and predicates used in the program.
+ */
+export const findTypes = <T>(prog: SubProg<T>): SubStmtKindMap => {
+  const typeList: TypeWithKind[] = compact(prog.statements.map(findType));
+  const getNames = (ts: TypeWithKind[], k: SubStmtKind): string[] =>
+    uniq(ts.filter((t) => t.kind === k).map((t) => t.name));
+  return {
+    type: getNames(typeList, "type"),
+    predicate: getNames(typeList, "predicate"),
+    function: getNames(typeList, "function"),
+    constructor: getNames(typeList, "constructor"),
+  };
+};
+
+export const mergeKindMaps = (
+  m1: SubStmtKindMap,
+  m2: SubStmtKindMap
+): SubStmtKindMap => ({
+  type: [...m1.type, ...m2.type],
+  predicate: [...m1.predicate, ...m2.predicate],
+  constructor: [...m1.constructor, ...m2.constructor],
+  function: [...m1.function, ...m2.function],
+});
+
+const findType = <T>(stmt: SubStmt<T>): TypeWithKind | undefined => {
+  switch (stmt.tag) {
+    case "Decl":
+      return {
+        kind: "type",
+        name: stmt.type.name.value,
+      };
+    case "ApplyPredicate":
+      return {
+        kind: "predicate",
+        name: stmt.name.value,
+      };
+    case "Bind": {
+      if (stmt.expr.tag === "ApplyConstructor") {
+        return {
+          kind: "constructor",
+          name: stmt.expr.name.value,
+        };
+      } else if (stmt.expr.tag === "ApplyFunction") {
+        return {
+          kind: "function",
+          name: stmt.expr.name.value,
+        };
+      }
+    }
+  }
+  return undefined;
+};

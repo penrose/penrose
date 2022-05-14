@@ -1,0 +1,4047 @@
+<!DOCTYPE html>
+<head lang="en">
+  <meta charset="utf-8" />
+
+  <!-- <meta name="viewport" content="width=device-width"> -->
+  <!-- initial-scale=1, maximum-scale=1, user-scalable=yes"> -->
+
+  <link rel="icon" href="favicon.ico?" type="image/x-icon" />
+
+  <!-- FONTS -->
+  <!-- <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;lang=en" /> -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@200;300;400;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,600;0,700;0,800;1,800&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- twitter card -->
+  <meta name="twitter:card" data-rh="true" content="summary_large_image" />
+  <meta name="twitter:site" data-rh="true" content="@hypotext" />
+  <meta name="twitter:creator" data-rh="true" content="@hypotext" />
+  <meta
+    name="twitter:title"
+    data-rh="true"
+    content="Penrose: from mathematical notation to beautiful diagrams"
+  />
+  <meta
+    name="twitter:description"
+    data-rh="true"
+    content="Materials from our SIGGRAPH '20 paper."
+  />
+  <meta
+    name="twitter:image"
+    data-rh="true"
+    content="/media/PenroseTwitterCard_16x9.png"
+  />
+  <!-- <meta name="twitter:image" data-rh="true" content="/media/figures/teaser2.jpg"> -->
+  <!-- <meta name="twitter:image" data-rh="true" content="/media/figures/fig1-penrose-siggraph.png"> -->
+  <meta
+    name="twitter:image:alt"
+    data-rh="true"
+    content="Penrose is a framework for specifying how mathematical statements should be interpreted as visual diagrams."
+  />
+
+  <title>Penrose: from mathematical notation to beautiful diagrams</title>
+  <link
+    href="resources/paper-style.css?rnd=28"
+    rel="stylesheet"
+    type="text/css"
+  />
+
+  <!-- <link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7.css" rel="stylesheet" type="text/css"> -->
+  <!-- TODO start local server and use linked CSS -->
+  <link href="form.css" rel="stylesheet" type="text/css" />
+  <style type="text/css">
+    #mc_embed_signup {
+      background: #fff;
+      clear: left;
+      font: 14px Helvetica, Arial, sans-serif;
+      width: 100%;
+    }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+     We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+  </style>
+</head>
+
+<body>
+  <div id="top"></div>
+
+  <div id="inner-body">
+    <!-- TODO: remove .html from url -->
+    <!-- TODO: standardize references to names like Penrose -->
+    <!-- TODO: improve CSS, styling -->
+    <!-- TODO: fix unicode in listings and site -->
+
+    <div id="content">
+      <h1>
+        <i>Penrose:</i><br />
+        from mathematical notation to beautiful diagrams
+      </h1>
+
+      <div>
+        <p>
+          by Katherine Ye<sup>1</sup>, Wode Ni<sup>1</sup>, Max
+          Krieger<sup>1</sup>, Dor Ma'ayan<sup>1, 2</sup>, Jenna
+          Wise<sup>1</sup>, Jonathan Aldrich<sup>1</sup>, Joshua
+          Sunshine<sup>1</sup>, and Keenan Crane<sup>1</sup>
+        </p>
+
+        <!-- TODO: Use superscripts -->
+        <p>
+          <i><sup>1</sup>Carnegie Mellon University, <sup>2</sup>Technion</i>
+        </p>
+
+        <p>appearing in SIGGRAPH 2020</p>
+      </div>
+
+      <h2>Paper</h2>
+
+      <div class="center-img">
+        <div class="brightness">
+          <a href="media/Penrose_SIGGRAPH2020a.pdf"
+            ><img
+              src="media/front-page.png"
+              id="paper"
+              style="
+                filter: drop-shadow(-6px 6px 4px #40b4f7);
+                border: 1px solid gray;
+              "
+              alt="front page of SIGGRAPH '20 paper"
+          /></a>
+        </div>
+      </div>
+
+      <h2>Talk</h2>
+
+      <iframe
+        width="560"
+        height="315"
+        src="https://www.youtube.com/embed/OyD4LIv2PDc"
+        frameborder="0"
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+
+      <h2>Teaser video</h2>
+
+      <iframe
+        src="https://player.vimeo.com/video/416822487"
+        width="100%"
+        height="360"
+        frameborder="0"
+        allow="autoplay; fullscreen"
+        allowfullscreen
+      ></iframe>
+
+      <h2>Abstract</h2>
+
+      <p>
+        We introduce a system called <i>Penrose</i> for creating mathematical
+        diagrams. Its basic functionality is to translate abstract statements
+        written in familiar math-like notation into one or more possible visual
+        representations. Rather than rely on a fixed library of visualization
+        tools, the visual representation is user-defined in a constraint-based
+        specification language; diagrams are then generated automatically via
+        constrained numerical optimization. The system is user-extensible to
+        many domains of mathematics, and is fast enough for iterative design
+        exploration. In contrast to tools that specify diagrams via direct
+        manipulation or low-level graphics programming, <i>Penrose</i> enables
+        rapid creation and exploration of diagrams that faithfully preserve the
+        underlying mathematical meaning. We demonstrate the effectiveness and
+        generality of the system by showing how it can be used to illustrate a
+        diverse set of concepts from mathematics and computer graphics.
+      </p>
+
+      <h2>Want to use <i>Penrose</i> or collaborate?</h2>
+
+      <p>
+        Please note that <i>Penrose</i> is an early-stage system that is still
+        in development. Our system is not ready for contributions or public use
+        yet, but we're working on it!
+      </p>
+
+      <p>
+        Want to be the first to hear about our system as we build it? Join our
+        mailing list:
+      </p>
+
+      <!-- Begin MailChimp Signup Form -->
+
+      <div id="footer">
+        <div id="mc_embed_signup">
+          <form
+            action="//ink.us15.list-manage.com/subscribe/post?u=1ad08ade826f51dbb3d12f421&amp;id=9ea410da69"
+            method="post"
+            id="mc-embedded-subscribe-form"
+            name="mc-embedded-subscribe-form"
+            class="validate"
+            target="_blank"
+            novalidate
+          >
+            <div id="mc_embed_signup_scroll">
+              <label for="mce-EMAIL"></label>
+              <input
+                type="email"
+                value=""
+                name="EMAIL"
+                class="email"
+                id="mce-EMAIL"
+                placeholder="email address"
+                required
+              />
+              <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+              <div style="position: absolute; left: -5000px" aria-hidden="true">
+                <input
+                  type="text"
+                  name="b_1ad08ade826f51dbb3d12f421_9ea410da69"
+                  tabindex="-1"
+                  value=""
+                />
+              </div>
+              <div class="clear">
+                <input
+                  type="submit"
+                  value="Subscribe"
+                  name="subscribe"
+                  id="mc-embedded-subscribe"
+                  class="button"
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <p>
+        And reach out to us on Twitter:
+
+        <a href="https://www.twitter.com/UsePenrose">@UsePenrose</a>
+      </p>
+
+      <p>
+        We're especially looking to talk with authors, educators, and expert
+        illustrators who might be interested in collaborating on building a
+        <i>Penrose</i> library for their area of expertise. Please fill out the
+        form below (also accessible
+        <a href="https://forms.gle/vU9ofpLpiotwXrce8">here</a>) if interested.
+      </p>
+
+      <iframe
+        src="https://docs.google.com/forms/d/e/1FAIpQLSfyIDS6vF_H14RMAWdej6-XZclQkmjE7nX_cHFPJjBXMsitMQ/viewform?embedded=true"
+        width="100%"
+        height="500"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        >Loading…</iframe
+      >
+
+      <!--End mc_embed_signup-->
+
+      <!-- TODO: Link twitter thread -->
+
+      <h2>Selected figures</h2>
+
+      <!-- TODO: Make figures more responsive -->
+
+      <!-- Figures:
+1. teaser <<
+2. sets-inconsistent
+3. HighLevelPipeline
+4. Retargeting <<
+5. NoviceExpertUsers
+6. domain-interop
+7. MathProse (+ prose, code listing) <<
+8. sets-color-opt <<
+9. enumeration <<
+10. (code listing)
+11. (2 code listings) + substance-linalg
+12. (code listing)
+13. CompilationPipeline
+14. build_computation_graph
+15. optimization_computation_graph
+16. OptimizationProgress
+17. PenroseIDE <<
+    ExponentialGrowth (inset)
+18. (3 code listings) + set-styles <<
+19. (3 code listings) + func-continuous-discrete-vert <<
+20. (code listing) + FunctionComposition
+    EuclideanStyleInspiration (inset)
+21. ThreeEuclideanStyles
+22. byrne-stages <<
+    LinearAlgebra1D (inset)
+23. (2 code listings) + linearmap-add-scale
+24. (code listing) + mesh-figure <<
+25. (2 code listings) + mesh-examples (but it includes the code listings...)
+26. rt-multiple-paths
+27. optimization-graph
+28. compilation-graph
+29. GeometrySamples <<    -->
+
+      <div class="figure">
+        <!-- <div class="container" style="display: flex;"> -->
+        <!-- <div style="width: 50%; background: none;"> -->
+        <div>
+          <p class="code">
+            <b>Point</b> p, q, r, s<br />
+            <b>Segment</b> a := {p, q}<br />
+            <b>Segment</b> b := {p, r}<br />
+            <b>Point</b> m := <b>Midpoint</b>(a)<br />
+            <b>Angle</b> theta := ∠(q, p, r)<br />
+            <b>Triangle</b> t := {p, r, s}<br />
+            <b>Ray</b> w := <b>Bisector</b>(theta)<br />
+            <b>Ray</b> h := <b>PerpendicularBisector</b>(a)<br />
+          </p>
+        </div>
+
+        <!-- <div style="flex-grow: 1; background: none;"> -->
+        <div>
+          <img src="media/figures/teaser.svg" alt="See caption below" />
+        </div>
+        <!-- </div> -->
+
+        <div class="caption">
+          <p>
+            <i>Fig. 1.</i> <i>Penrose</i> is a framework for specifying how
+            mathematical statements should be interpreted as visual diagrams. A
+            clean separation between abstract mathematical objects and their
+            visual representation provides new capabilities beyond existing
+            code- or GUI-based tools. Here, for instance, the same set of
+            statements is given three different visual interpretations, via
+            Euclidean, spherical, and hyperbolic geometry. (Further samples are
+            shown in <i>Fig. 29.</i>)
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="container" style="display: flex">
+          <div style="width: 40%; background: none">
+            <p class="code">
+              <b>PathType</b> t <br />
+              <b>HasForm</b>(t,"L(D|S)S*E") <br />
+              <b>Path</b> p := <b>Sample</b>(t)
+            </p>
+          </div>
+
+          <div style="flex-grow: 1; background: none">
+            <!-- <img src="media/figures/Retargeting.svg" width="500px" alt="See caption below"> -->
+            <!-- NOTE: You have to directly embed this SVG because of the xlinks -->
+
+            <?xml version="1.0" encoding="utf-8"?>
+            <!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+            <svg
+              class="img"
+              version="1.1"
+              id="Layer_1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              x="0px"
+              y="0px"
+              viewBox="0 0 240 191.7928925"
+              style="enable-background: new 0 0 240 191.7928925"
+              xml:space="preserve"
+            >
+              <style type="text/css">
+                .st0 {
+                  fill: none;
+                }
+                .st1 {
+                  fill: #ff9900;
+                }
+                .st2 {
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.2929195;
+                }
+                .st3 {
+                  fill: #cccccc;
+                }
+                .st4 {
+                  fill: #ffffff;
+                }
+                .st5 {
+                  fill: #ffa600;
+                }
+                .st6 {
+                  fill: #ffdb2d;
+                }
+                .st7 {
+                  fill: #ffca00;
+                }
+                .st8 {
+                  fill: #ffffff;
+                  stroke: #9d9d9d;
+                  stroke-width: 0.6351058;
+                  stroke-miterlimit: 10;
+                }
+                .st9 {
+                  fill: none;
+                  stroke: #9d9d9d;
+                  stroke-width: 0.6351058;
+                  stroke-miterlimit: 10;
+                }
+                .st10 {
+                  opacity: 0.5;
+                  fill: #9c9c9c;
+                  stroke: #9d9d9d;
+                  stroke-width: 0.6351058;
+                  stroke-miterlimit: 10;
+                }
+                .st11 {
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.2681202;
+                }
+                .st12 {
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.2705902;
+                }
+                .st13 {
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.2936333;
+                }
+                .st14 {
+                  clip-path: url(#SVGID_2_);
+                  fill: #ff9900;
+                }
+                .st15 {
+                  clip-path: url(#SVGID_2_);
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.4432851;
+                }
+                .st16 {
+                  clip-path: url(#SVGID_4_);
+                }
+                .st17 {
+                  clip-path: url(#SVGID_6_);
+                  fill: #ff9900;
+                }
+                .st18 {
+                  clip-path: url(#SVGID_8_);
+                  fill: #ff9900;
+                }
+                .st19 {
+                  clip-path: url(#SVGID_8_);
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.4432851;
+                }
+                .st20 {
+                  clip-path: url(#SVGID_10_);
+                }
+                .st21 {
+                  clip-path: url(#SVGID_12_);
+                  fill: #ff9900;
+                }
+                .st22 {
+                  clip-path: url(#SVGID_14_);
+                  fill: #ff9900;
+                }
+                .st23 {
+                  clip-path: url(#SVGID_14_);
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.4432851;
+                }
+                .st24 {
+                  clip-path: url(#SVGID_16_);
+                }
+                .st25 {
+                  clip-path: url(#SVGID_18_);
+                  fill: #ff9900;
+                }
+                .st26 {
+                  clip-path: url(#SVGID_20_);
+                  fill: #ff9900;
+                }
+                .st27 {
+                  clip-path: url(#SVGID_20_);
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.4432851;
+                }
+                .st28 {
+                  clip-path: url(#SVGID_22_);
+                }
+                .st29 {
+                  clip-path: url(#SVGID_24_);
+                  fill: #ff9900;
+                }
+                .st30 {
+                  clip-path: url(#SVGID_26_);
+                  fill: #ff9900;
+                }
+                .st31 {
+                  clip-path: url(#SVGID_26_);
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.4432851;
+                }
+                .st32 {
+                  clip-path: url(#SVGID_28_);
+                }
+                .st33 {
+                  clip-path: url(#SVGID_30_);
+                  fill: #ff9900;
+                }
+                .st34 {
+                  clip-path: url(#SVGID_32_);
+                  fill: #ff9900;
+                }
+                .st35 {
+                  clip-path: url(#SVGID_32_);
+                  fill: none;
+                  stroke: #ff9900;
+                  stroke-width: 0.4432851;
+                }
+                .st36 {
+                  clip-path: url(#SVGID_34_);
+                }
+                .st37 {
+                  clip-path: url(#SVGID_36_);
+                  fill: #ff9900;
+                }
+                .st38 {
+                  clip-path: url(#SVGID_38_);
+                }
+                .st39 {
+                  clip-path: url(#SVGID_40_);
+                  fill: #cccccc;
+                }
+                .st40 {
+                  clip-path: url(#SVGID_40_);
+                  fill: #ffffff;
+                }
+                .st41 {
+                  clip-path: url(#SVGID_42_);
+                }
+                .st42 {
+                  clip-path: url(#SVGID_44_);
+                  fill: #cccccc;
+                }
+                .st43 {
+                  clip-path: url(#SVGID_44_);
+                  fill: #ffffff;
+                }
+                .st44 {
+                  clip-path: url(#SVGID_46_);
+                }
+                .st45 {
+                  clip-path: url(#SVGID_48_);
+                  fill: #cccccc;
+                }
+                .st46 {
+                  clip-path: url(#SVGID_48_);
+                  fill: #ffffff;
+                }
+                .st47 {
+                  clip-path: url(#SVGID_50_);
+                }
+                .st48 {
+                  clip-path: url(#SVGID_52_);
+                  fill: #cccccc;
+                }
+                .st49 {
+                  clip-path: url(#SVGID_52_);
+                  fill: #ffffff;
+                }
+                .st50 {
+                  clip-path: url(#SVGID_54_);
+                }
+                .st51 {
+                  clip-path: url(#SVGID_56_);
+                  fill: #ffa600;
+                }
+                .st52 {
+                  clip-path: url(#SVGID_56_);
+                  fill: #ffdb2d;
+                }
+                .st53 {
+                  clip-path: url(#SVGID_56_);
+                  fill: #ffca00;
+                }
+                .st54 {
+                  clip-path: url(#SVGID_58_);
+                }
+                .st55 {
+                  clip-path: url(#SVGID_60_);
+                }
+                .st56 {
+                  clip-path: url(#SVGID_62_);
+                }
+                .st57 {
+                  clip-path: url(#SVGID_64_);
+                }
+              </style>
+              <g>
+                <image
+                  style="overflow: visible"
+                  width="1804"
+                  height="860"
+                  id="AYsMQA_1_"
+                  xlink:href="media/figures/F75DB855702DF854.jpg"
+                  transform="matrix(0.1326151 0 0 0.1326151 0.3055292 0.5235458)"
+                ></image>
+              </g>
+              <rect
+                x="3.2649157"
+                y="2.6605625"
+                class="st0"
+                width="118.2564087"
+                height="66.3247299"
+              />
+              <rect
+                x="3.2649157"
+                y="2.6605625"
+                class="st0"
+                width="118.2564087"
+                height="66.3247299"
+              />
+              <image
+                style="overflow: visible"
+                width="855"
+                height="967"
+                xlink:href="media/figures/F75DB855702DF854.png"
+                transform="matrix(0.0455809 0.0190458 -0.0321044 0.0516486 161.9198608 5.1374664)"
+              ></image>
+              <g>
+                <g>
+                  <line
+                    class="st1"
+                    x1="209.1811829"
+                    y1="85.9485168"
+                    x2="228.0105896"
+                    y2="63.4193535"
+                  />
+                  <line
+                    class="st2"
+                    x1="209.1811829"
+                    y1="85.9485168"
+                    x2="228.0105896"
+                    y2="63.4193535"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <g>
+                      <polygon
+                        class="st1"
+                        points="229.0086212,62.2252197 228.3390198,64.3245087 228.0105896,63.4193535 227.0615082,63.256794 				
+					"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <line
+                    class="st1"
+                    x1="222.3319397"
+                    y1="52.5544624"
+                    x2="209.7514191"
+                    y2="84.500473"
+                  />
+                  <line
+                    class="st2"
+                    x1="222.3319397"
+                    y1="52.5544624"
+                    x2="209.7514191"
+                    y2="84.500473"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <g>
+                      <polygon
+                        class="st1"
+                        points="209.1811829,85.9485168 209.1541595,83.7451859 209.7514191,84.500473 210.7033081,84.3552551 				
+					"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <line
+                    class="st1"
+                    x1="224.9701843"
+                    y1="98.957077"
+                    x2="222.4202728"
+                    y2="54.1082306"
+                  />
+                  <line
+                    class="st2"
+                    x1="224.9701843"
+                    y1="98.957077"
+                    x2="222.4202728"
+                    y2="54.1082306"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <g>
+                      <polygon
+                        class="st1"
+                        points="222.3319397,52.5544624 223.2788849,54.5440941 222.4202728,54.1082306 221.6166077,54.6386032 
+									"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <g>
+                      <polygon
+                        class="st3"
+                        points="207.463974,87.4234467 214.6994476,89.4547729 213.320816,88.6327057 206.0836792,86.6041641 				
+					"
+                      />
+                      <polygon
+                        class="st3"
+                        points="217.6329041,93.4630508 218.6279755,91.7865753 215.6829834,90.0385666 208.4475098,88.0072327 
+									"
+                      />
+                      <polygon
+                        class="st3"
+                        points="205.0610352,85.9971695 205.1728058,86.0635071 205.178299,86.0478821 212.362442,88.0638504 
+					206.0561218,84.3207016 				"
+                      />
+                      <polygon
+                        class="st4"
+                        points="207.4511414,87.4196091 208.4374695,88.005043 208.4475098,88.0072327 215.6829834,90.0385666 
+					215.6930237,90.040741 214.7094879,89.4569626 214.6994476,89.4547729 207.463974,87.4234467 				"
+                      />
+                      <polygon
+                        class="st4"
+                        points="205.1728058,86.0635071 205.1711426,86.0663071 206.0708466,86.6003189 206.0836792,86.6041641 
+					213.320816,88.6327057 213.3291931,88.6376801 212.3680267,88.0671768 212.362442,88.0638504 205.178299,86.0478821 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <g>
+                      <polygon
+                        class="st3"
+                        points="225.2273865,50.8470039 217.7518311,51.6181107 219.3361511,51.8757362 226.8122253,51.1014328 
+									"
+                      />
+                      <polygon
+                        class="st3"
+                        points="213.5501709,48.9690742 213.2411499,50.8939667 216.6225586,51.4368172 224.098114,50.6657104 				
+					"
+                      />
+                      <polygon
+                        class="st3"
+                        points="227.9864044,51.2899284 227.858078,51.2693329 227.8587189,51.2858925 220.436554,52.0524063 
+					227.6773834,53.2148323 				"
+                      />
+                      <polygon
+                        class="st4"
+                        points="225.2407379,50.8458595 224.1082458,50.6640434 224.098114,50.6657104 216.6225586,51.4368172 
+					216.6124268,51.4384842 217.7416992,51.6197662 217.7518311,51.6181107 225.2273865,50.8470039 				"
+                      />
+                      <polygon
+                        class="st4"
+                        points="227.858078,51.2693329 227.8585968,51.2661209 226.8255615,51.1002731 226.8122253,51.1014328 
+					219.3361511,51.8757362 219.3265228,51.8741951 220.4301453,52.0513725 220.436554,52.0524063 227.8587189,51.2858925 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <g>
+                      <path
+                        class="st5"
+                        d="M221.1281586,98.2612839l0.835556,0.7370529l-0.806015,0.768898
+					c-0.0296021,0.0282593-0.0417938,0.0700531-0.0320129,0.1096802c0.0097961,0.0396118,0.0401001,0.0710068,0.0794983,0.0823975
+					l1.0727539,0.3095779l-0.3964844,1.0382767c-0.0145569,0.0381393-0.0075531,0.0811005,0.0183716,0.1127319
+					c0.0259399,0.0316086,0.066864,0.0470581,0.1073761,0.040535l1.1026306-0.1777649l0.0896759,1.1070023
+					c0.0032959,0.0406723,0.0281525,0.0765076,0.0652161,0.0939941s0.080719,0.0139847,0.1144867-0.0091705l0.9194336-0.630722
+					l0.5585175,0.9618149c0.0205078,0.0353394,0.0584259,0.0570908,0.0994568,0.0570908
+					c0.0410461,0,0.078949-0.0217514,0.0994568-0.0570908l0.6411133-1.1040649l1.1089783,0.6400452
+					c0.0355072,0.0204849,0.0792847,0.0205841,0.1148529,0.0002823c0.0355835-0.0203094,0.0575562-0.0579605,0.057663-0.0987549
+					l0.0026855-1.1105728l1.1131744,0.0917435c0.040802,0.0033646,0.0804749-0.0152054,0.1038513-0.0487213
+					s0.0270081-0.0769043,0.0094757-0.1138l-0.4766235-1.0043869l1.0452423-0.3917999
+					c0.0383911-0.0143814,0.0661316-0.0480576,0.0728149-0.0883102s-0.0087585-0.080986-0.0405121-0.1068497l-0.8638-0.7041092
+					l0.7752228-0.7995758c0.0284729-0.0293655,0.0390472-0.0716095,0.02771-0.1108246
+					c-0.0113525-0.0392075-0.0428772-0.0694122-0.0826874-0.0792389l-1.0840302-0.2677689l0.3554077-1.0528336
+					c0.0130463-0.038681,0.004364-0.081337-0.0227966-0.1119308c-0.0271759-0.0305786-0.0686798-0.0444336-0.1088867-0.0363235
+					l-1.0947876,0.2203369l-0.1330414-1.1026917c-0.0048676-0.0405045-0.0311432-0.0753326-0.0688629-0.0913849
+					c-0.037735-0.0160522-0.0812073-0.0108643-0.1140289,0.0135956l-0.8939667,0.6658859l-0.5958252-0.9087448
+					c-0.0210876-0.0332489-0.0578003-0.0532837-0.0971375-0.0532837c-0.0014954,0-0.0029907,0.0000305-0.0045013,0.0000916
+					c-0.0409851,0.0015945-0.0780334,0.0248108-0.0971527,0.0609055l-0.52034,0.9520645l-0.9434357-0.5945969
+					c-0.034668-0.021843-0.0783691-0.0236435-0.1147461-0.0047302c-0.0363464,0.0189209-0.0597992,0.055687-0.0614929,0.0964584
+					l-0.0462341,1.1096344l-1.1087341-0.1348572c-0.0406494-0.0049438-0.0810089,0.0120621-0.1056976,0.0446548
+					c-0.0246735,0.0325928-0.0299835,0.0758057-0.0139465,0.1133575l0.4368896,1.0221176l-1.0597839,0.3509445
+					c-0.0389252,0.012886-0.0679779,0.0454407-0.0762329,0.0854187
+					C221.0836334,98.1929016,221.0974731,98.2342072,221.1281586,98.2612839z"
+                      />
+                      <path
+                        class="st6"
+                        d="M222.6295929,98.9770584c0-0.15522,0.015152-0.3089371,0.0454559-0.4611816
+					c0.030304-0.1522293,0.0751801-0.3000565,0.1346283-0.4434586s0.1323242-0.2796326,0.2186279-0.4086914
+					c0.0862885-0.1290588,0.1843719-0.2484665,0.2942047-0.3582306c0.109848-0.1097488,0.2293396-0.2077408,0.3585052-0.2939835
+					c0.1291504-0.0862274,0.2654877-0.1590424,0.4090118-0.2184448c0.1435089-0.0593948,0.2914429-0.1042404,0.4438019-0.1345291
+					c0.1523438-0.0302734,0.3061981-0.0454178,0.4615326-0.0454178s0.3091888,0.0151443,0.4615326,0.0454178
+					c0.152359,0.0302887,0.300293,0.0751343,0.4438019,0.1345291c0.1435242,0.0594025,0.2798615,0.1322174,0.4090118,0.2184448
+					c0.1291656,0.0862427,0.2486572,0.1842346,0.3585052,0.2939835c0.1098328,0.1097641,0.2079163,0.2291718,0.29422,0.3582306
+					c0.0862885,0.1290588,0.1591644,0.2652893,0.2186127,0.4086914s0.1043243,0.2912292,0.1346283,0.4434586
+					c0.030304,0.1522446,0.0454559,0.3059616,0.0454559,0.4611816c0,0.1552124-0.015152,0.3089447-0.0454559,0.4611816
+					s-0.0751801,0.3000565-0.1346283,0.4434586s-0.1323242,0.2796402-0.2186127,0.408699
+					c-0.0863037,0.1290588-0.1843872,0.2484589-0.29422,0.3582153c-0.109848,0.1097488-0.2293396,0.2077484-0.3585052,0.2939835
+					c-0.1291504,0.086235-0.2654877,0.15905-0.4090118,0.2184525c-0.1435089,0.0594025-0.2914429,0.1042328-0.4438019,0.1345215
+					c-0.1523438,0.0302811-0.3061981,0.0454254-0.4615326,0.0454254s-0.3091888-0.0151443-0.4615326-0.0454254
+					c-0.152359-0.0302887-0.300293-0.075119-0.4438019-0.1345215c-0.1435242-0.0594025-0.2798615-0.1322174-0.4090118-0.2184525
+					c-0.1291656-0.086235-0.2486572-0.1842346-0.3585052-0.2939835c-0.1098328-0.1097565-0.2079163-0.2291565-0.2942047-0.3582153
+					c-0.0863037-0.1290588-0.1591797-0.2652969-0.2186279-0.408699s-0.1043243-0.2912216-0.1346283-0.4434586
+					S222.6295929,99.1322708,222.6295929,98.9770584z"
+                      />
+                      <path
+                        class="st7"
+                        d="M224.9953003,101.3409729c0.0592499,0,0.1179657-0.0022354,0.1761017-0.0065231
+					c-1.2243195-0.0900269-2.1896515-1.1110382-2.1896515-2.3574066c0-1.2463531,0.965332-2.2673645,2.1896515-2.3574066
+					c-0.058136-0.0042725-0.1168671-0.0065308-0.1761017-0.0065308c-1.3065643,0-2.3657532,1.0583649-2.3657532,2.3639221
+					C222.6295471,100.282608,223.688736,101.3409729,224.9953003,101.3409729z"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <path
+                    d="M224.6118011,97.995575c-0.0720367,0-0.1101837-0.0042343-0.1144257-0.0127182
+			c-0.002121-0.0042343-0.0031738-0.0127106-0.0031738-0.0254211c0-0.0508575,0.0116577-0.0858154,0.0349579-0.1048965
+			c0.0042419-0.0021133,0.0201416-0.0031738,0.0476837-0.0031738c0.1144257,0.0063629,0.2489777,0.0095367,0.4036713,0.0095367
+			c0.2987823,0,0.4704285-0.0031738,0.5149384-0.0095367h0.0381317c0.0127106,0.0127106,0.0190735,0.0222549,0.0190735,0.0286102
+			s-0.002121,0.0254211-0.0063629,0.0572052c-0.0105896,0.0317841-0.0201263,0.0519257-0.028595,0.0603943h-0.1207886
+			c-0.1462097,0.002121-0.2320404,0.0116577-0.2574615,0.0286026c-0.0148315,0.0084763-0.0296631,0.0381393-0.0445099,0.0890045
+			c-0.0148315,0.0508575-0.0858154,0.330574-0.2129517,0.8391418c-0.033905,0.1377411-0.069931,0.2839432-0.108078,0.4386368
+			s-0.0667419,0.2712326-0.0858154,0.3496399l-0.0286102,0.1144333c0,0.0084763,0.0095367,0.0127106,0.0286102,0.0127106
+			s0.0815735,0.002121,0.1875305,0.0063629h0.0540314c0.0678101,0,0.1218414-0.0010681,0.1621094-0.0031815
+			c0.0402679-0.0021286,0.0921783-0.0095291,0.1557465-0.0222549c0.0635681-0.0127182,0.1165466-0.0317917,0.1589355-0.0572128
+			c0.0423737-0.0254288,0.0890045-0.0614548,0.1398468-0.1080704c0.0508575-0.0466156,0.0953674-0.1048889,0.1334991-0.1748199
+			c0.033905-0.0635757,0.0657043-0.134552,0.0953674-0.2129593s0.0476685-0.1229095,0.0540314-0.1335068
+			c0.0105896-0.0063553,0.0286102-0.0095367,0.0540314-0.0095367h0.0413208
+			c0.0127258,0.0190735,0.0190735,0.0307388,0.0190735,0.0349731s-0.0211945,0.0667496-0.0635681,0.1875305
+			c-0.0423737,0.1207886-0.0890045,0.2479324-0.1398621,0.381424c-0.0508575,0.1335068-0.0783997,0.2119064-0.0826416,0.2352142
+			c-0.0042267,0.0105972-0.0084686,0.0169601-0.0127106,0.0190735c-0.0042419,0.002121-0.0211945,0.0052948-0.0508575,0.0095367
+			s-0.0752258,0.0052948-0.136673,0.0031738c-0.0233154,0-0.1038361,0-0.2415771,0s-0.2691193-0.0010605-0.3941345-0.0031738
+			h-0.5657806c-0.178009,0-0.2669983-0.0105896-0.2669983-0.0317917c0-0.0148239,0.0021057-0.0296707,0.0063477-0.0444946
+			c0.0106049-0.0402603,0.0211945-0.0625153,0.0317841-0.0667572c0.0084839-0.0021133,0.0243683-0.0031662,0.0476837-0.0031662
+			h0.0190735c0.0572052,0,0.1207886-0.0031815,0.1907043-0.0095367c0.0296783-0.0063629,0.0498047-0.0190659,0.0603943-0.0381546
+			c0.0063629-0.0084686,0.0826416-0.303009,0.2288666-0.8836288c0.1462097-0.5806198,0.2193146-0.8868179,0.2193146-0.9186096
+			C224.792984,98.0093536,224.7325897,97.9998169,224.6118011,97.995575z"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <g>
+                      <path
+                        d="M229.2783051,60.6195679c0.0405121,0.0839233,0.1238708,0.0692902,0.1745605,0.1063805
+					c0.1482849,0.1083679,0.2889252,0.2259026,0.4218903,0.3526077c0.2241211,0.1990623,0.4143066,0.4264908,0.5705261,0.6823273
+					c0.0139465,0.011673,0.0084686,0.0466042,0.0434265,0.0362968c0.0349579-0.0102959,0.0246277-0.0294724,0.0282898-0.0527534
+					c0.0224304-0.1182518,0.0381165-0.2316093,0.0675354-0.3519249c0.060318-0.2786484,0.1387024-0.5521164,0.2351685-0.8204041
+					c0.0527649-0.1482391,0.1070709-0.2951736,0.1657715-0.4410629c0.0722961-0.1144066,0.1132812-0.239109,0.1229706-0.3740959
+					c-0.5614929,0.389225-1.1711121,0.6762466-1.8288422,0.8610878L229.2783051,60.6195679z M227.8116608,60.8770638
+					c-0.0406342-0.0290489-0.0570526-0.0682411-0.0492706-0.1175842c0.0114594-0.0483742,0.0453796-0.054287,0.0909271-0.0583534
+					c0.3106842-0.0564957,0.6089783-0.1391525,0.9173126-0.1897011c0.1181946-0.0245247,0.2338562-0.0578308,0.3469849-0.0999298
+					c0.2257996-0.0747223,0.4547119-0.1468735,0.6758728-0.2255058c0.2964783-0.12043,0.5857086-0.256321,0.8676605-0.407692
+					c0.131897-0.0688438,0.2562561-0.149334,0.3730621-0.241478c0.1309204-0.0759125,0.2515869-0.165638,0.3619843-0.2691765
+					c0.0201721-0.0224228,0.0453339-0.0344353,0.0754547-0.0360107c0.0301361-0.0015717,0.0564117,0.00774,0.0788116,0.0279541
+					c0.0527344,0.0440826,0.0355682,0.1087646,0.008316,0.1571236c-0.1168671,0.216877-0.2213135,0.4395866-0.3133698,0.6681099
+					c-0.1171112,0.2630615-0.1897278,0.5422325-0.2889862,0.8122978c-0.0615997,0.1941071-0.1089935,0.3916092-0.1421814,0.5925293
+					c-0.0652008,0.3459587-0.1236725,0.6870155-0.1782837,1.0392036c-0.0319214,0.2367821-0.0483246,0.4865303-0.0709381,0.7310905
+					c0.0005341,0.0385704-0.0091858,0.0743675-0.0291443,0.1073761c-0.019516,0.0312347-0.0476685,0.045742-0.0844421,0.0435333
+					c-0.0367584-0.0022087-0.0629578-0.019989-0.078598-0.0533485c-0.0190887-0.0350342-0.0281677-0.0724831-0.0272827-0.1123695
+					c-0.009903-0.30336,0.0505524-0.5900612,0.068573-0.8858795c0.0026703-0.0504646-0.0011749-0.0773926-0.0521545-0.085743
+					c-0.247818-0.0527878-0.4649811-0.1649208-0.6515045-0.3363838c-0.154953-0.1217804-0.2953949-0.2584763-0.4213104-0.4100838
+					c-0.0780182-0.1020889-0.1656189-0.1990128-0.2451935-0.3024063c-0.0978851-0.1258469-0.1546173-0.2681122-0.1702118-0.4267921
+					c-0.006134-0.0525551-0.0198364-0.0613747-0.0697937-0.058342c-0.1619568,0.0215492-0.3210144,0.0563545-0.4771729,0.1043968
+					c-0.1346436,0.0350075-0.2847595,0.0254745-0.4082794,0.072403
+					C227.8690491,60.9250259,227.8463287,60.8797035,227.8116608,60.8770638z"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <path
+                    d="M233.1982117,58.1879654c-0.0421143,0-0.0631714-0.0136833-0.0631714-0.04105
+			c0-0.0084229,0.0052643-0.0336914,0.0157928-0.0758057c0.0105286-0.0421104,0.0157928-0.0789642,0.0157928-0.1105423
+			c0-0.0652847-0.02211-0.1052856-0.06633-0.1200333c-0.0442047-0.0147285-0.1463318-0.0221024-0.306366-0.0221024h-0.1642303
+			c-0.0021057,0.0042114-0.0389557,0.1494942-0.1105499,0.4358635c-0.0715942,0.2863731-0.1073914,0.433754-0.1073914,0.4421768
+			s0.0115814,0.0126343,0.0347443,0.0126343s0.1073914,0.0021133,0.2526855,0.0063248
+			c0.1979218,0,0.328476-0.0021133,0.3916321-0.0063248c0.0631714-0.0042114,0.1263428-0.0178947,0.1895142-0.0410461
+			c0.1031799-0.0336914,0.188446-0.0926514,0.2558289-0.1768799c0.0673828-0.0842247,0.1421356-0.2221527,0.2242432-0.4137611
+			c0.0210724-0.0463219,0.0347443-0.0715904,0.0410614-0.0758018c0.01474-0.0042114,0.0305328-0.0063095,0.0473785-0.0063095
+			c0.0421143,0,0.0631714,0.0136833,0.0631714,0.0410652c-0.2210846,0.5348244-0.3368988,0.8074989-0.3474274,0.8180161
+			c-0.0063171,0.0042114-0.3074188,0.0063286-0.9033051,0.0063286h-0.5969543c-0.2147675,0-0.3221588-0.0115852-0.3221588-0.0347404
+			c0-0.0042114,0.0031586-0.018959,0.0094757-0.0442276c0.0084229-0.0336914,0.0168457-0.0526352,0.0252686-0.0568466
+			s0.0326385-0.0073738,0.0726471-0.0094719c0.0568542,0,0.1200256-0.0031624,0.1895142-0.0094872
+			c0.0294647-0.0063095,0.049469-0.0189438,0.0599976-0.0378838c0.0042114-0.0105362,0.0789642-0.3063812,0.2242584-0.8875313
+			c0.1452789-0.5811501,0.2189789-0.8759308,0.2210846-0.8843536c0-0.0147476-0.0042114-0.0221214-0.0126343-0.0221214
+			c-0.0168457-0.0063095-0.0726471-0.01157-0.1674042-0.0157814h-0.0979004
+			c-0.0126343-0.0126343-0.0189514-0.0210571-0.0189514-0.0252686s0.0021057-0.0221024,0.0063171-0.0536957
+			c0.0084229-0.0357895,0.0189514-0.0579109,0.0315857-0.0663185h1.7497711c0.01474,0.0084076,0.02211,0.0199928,0.02211,0.0347404
+			c0,0.0105209-0.0136871,0.128437-0.0410614,0.3537369s-0.0421143,0.3411026-0.04422,0.3474274
+			c-0.0042114,0.0147476-0.0252686,0.0221062-0.0631714,0.0221062h-0.0379028
+			c-0.01474-0.0105209-0.02211-0.0242043-0.02211-0.0410461l0.0094757-0.0726585
+			c0.0063171-0.0505371,0.0094757-0.1052704,0.0094757-0.1642265c0-0.0631714-0.00737-0.1158218-0.02211-0.1579361
+			c-0.01474-0.0420952-0.0347443-0.0747375-0.0600128-0.097908c-0.0252686-0.0231552-0.0621033-0.0400009-0.1105347-0.0505219
+			c-0.0484314-0.0105362-0.0979156-0.01791-0.1484528-0.0221214s-0.1179047-0.0063095-0.2021332-0.0063095h-0.1484528
+			c-0.1852875,0.0020981-0.2832031,0.0052605-0.2937317,0.0094719c-0.0084229,0.0042114-0.01474,0.0136833-0.0189514,0.0284309
+			c-0.0021057,0.0063095-0.0347443,0.1358109-0.0979004,0.3884773c-0.0631714,0.2526817-0.0958099,0.3811188-0.0979156,0.3853302
+			c0.0484161,0.0021133,0.0989532,0.0031624,0.1515961,0.0031624h0.0821228c0.1389618,0,0.2347717-0.0157967,0.2874146-0.0473709
+			c0.0526428-0.0315933,0.1000214-0.1168709,0.1421356-0.2558441c0.0084229-0.0336761,0.01474-0.0526352,0.0189514-0.0568466
+			s0.02211-0.0073738,0.0536804-0.0094719c0.0105438,0,0.0189514,0,0.0252686,0s0.0115814,0.001049,0.0157928,0.0031471
+			c0.0042114,0.0021133,0.0063171,0.0031624,0.0063171,0.0031624s0.0021057,0.0042114,0.0063171,0.0126343
+			s0.00737,0.0126343,0.0094757,0.0126343l-0.1042175,0.4169235c-0.0694885,0.2800484-0.1073914,0.4221687-0.1137085,0.4263802
+			C233.2424316,58.1848183,233.2255859,58.1879654,233.1982117,58.1879654z"
+                  />
+                </g>
+              </g>
+              <g>
+                <g>
+                  <rect
+                    x="72.4124298"
+                    y="96.0558777"
+                    class="st8"
+                    width="66.0510025"
+                    height="94.4186401"
+                  />
+                  <rect
+                    x="0.9388803"
+                    y="96.0558777"
+                    class="st8"
+                    width="66.0510101"
+                    height="94.4186401"
+                  />
+                  <rect
+                    x="6.4420724"
+                    y="101.9826889"
+                    class="st9"
+                    width="54.6197357"
+                    height="32.1993103"
+                  />
+                  <rect
+                    x="6.6541977"
+                    y="143.0524445"
+                    class="st9"
+                    width="18.8410492"
+                    height="23.2867908"
+                  />
+                  <rect
+                    x="78.4930649"
+                    y="101.9826889"
+                    class="st9"
+                    width="53.5610161"
+                    height="59.2756958"
+                  />
+                  <rect
+                    x="78.4930649"
+                    y="166.3392334"
+                    class="st10"
+                    width="54.0906944"
+                    height="2.0132854"
+                  />
+                  <rect
+                    x="78.2288589"
+                    y="172.0589905"
+                    class="st10"
+                    width="54.0906944"
+                    height="2.0131586"
+                  />
+                  <rect
+                    x="78.4930649"
+                    y="177.7711334"
+                    class="st10"
+                    width="54.0906944"
+                    height="2.0132854"
+                  />
+                  <rect
+                    x="78.4930649"
+                    y="183.648407"
+                    class="st10"
+                    width="54.0906944"
+                    height="2.0132854"
+                  />
+                  <rect
+                    x="6.7869349"
+                    y="137.6249542"
+                    class="st10"
+                    width="54.0906944"
+                    height="2.0132854"
+                  />
+                  <rect
+                    x="6.8390136"
+                    y="170.1226807"
+                    class="st10"
+                    width="54.0906944"
+                    height="2.0131586"
+                  />
+                  <rect
+                    x="6.5748096"
+                    y="175.8423157"
+                    class="st10"
+                    width="54.0906944"
+                    height="2.0131586"
+                  />
+                  <rect
+                    x="6.8390136"
+                    y="181.5545959"
+                    class="st10"
+                    width="54.0906944"
+                    height="2.0131586"
+                  />
+                  <rect
+                    x="30.2585411"
+                    y="143.2645721"
+                    class="st10"
+                    width="30.8832912"
+                    height="2.0132854"
+                  />
+                  <rect
+                    x="30.2585411"
+                    y="148.5575409"
+                    class="st10"
+                    width="30.8832912"
+                    height="2.0132854"
+                  />
+                  <rect
+                    x="30.2585411"
+                    y="153.6893158"
+                    class="st10"
+                    width="30.8832912"
+                    height="2.0131586"
+                  />
+                  <rect
+                    x="30.2585411"
+                    y="158.6125336"
+                    class="st10"
+                    width="30.8832912"
+                    height="2.0132854"
+                  />
+                  <rect
+                    x="29.7822113"
+                    y="164.3260803"
+                    class="st10"
+                    width="30.8832912"
+                    height="2.0131586"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="11.3243332"
+                      y1="125.8319092"
+                      x2="48.9889259"
+                      y2="109.7352371"
+                    />
+                    <line
+                      class="st11"
+                      x1="11.3243332"
+                      y1="125.8319092"
+                      x2="48.9889259"
+                      y2="109.7352371"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="50.2988396,109.175415 48.8810844,110.6099854 48.9889297,109.7352371 48.282177,109.2086105 
+											"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="55.8623314"
+                      y1="127.3630142"
+                      x2="12.7480135"
+                      y2="125.8808594"
+                    />
+                    <line
+                      class="st11"
+                      x1="55.8623314"
+                      y1="127.3630142"
+                      x2="12.7480135"
+                      y2="125.8808594"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="11.3243332,125.8319168 13.2168674,125.1345367 12.7480135,125.8808594 13.1645069,126.6576233 
+											"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="16.0300751"
+                      y1="114.8388138"
+                      x2="54.5034027"
+                      y2="126.93573"
+                    />
+                    <line
+                      class="st11"
+                      x1="16.0300751"
+                      y1="114.8388138"
+                      x2="54.5034027"
+                      y2="126.93573"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="55.8623314,127.3630142 53.8523064,127.5297852 54.5033989,126.93573 54.3094177,126.0759735 
+											"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st3"
+                          points="11.2161894,126.2424393 8.2443953,120.0385437 8.5113792,121.4833069 11.4860973,127.6866684 
+											"
+                        />
+                        <polygon
+                          class="st3"
+                          points="9.23032,115.6002197 7.4761968,115.9280319 8.0520725,119.0094528 11.0238667,125.2133636 					
+						"
+                        />
+                        <polygon
+                          class="st3"
+                          points="11.6860685,128.7566833 11.6642151,128.63974 11.6501436,128.645401 8.6987848,122.486084 
+						9.9319468,129.0845184 					"
+                        />
+                        <polygon
+                          class="st4"
+                          points="11.2212992,126.2535934 11.028429,125.2215805 11.0238667,125.2133636 8.0520725,119.0094528 
+						8.0475092,119.0012207 8.2398329,120.0303116 8.2443953,120.0385437 11.2161894,126.2424393 					"
+                        />
+                        <polygon
+                          class="st4"
+                          points="11.6642151,128.63974 11.6671381,128.6392059 11.4912062,127.6978149 11.4860973,127.6866684 
+						8.5113792,121.4833069 8.5097399,121.4745407 8.6976919,122.4802322 8.6987848,122.486084 11.6501436,128.645401 					"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st3"
+                          points="57.5042725,118.8462448 58.1394463,125.6958084 58.3902206,124.2481308 57.7521172,117.398056 
+											"
+                        />
+                        <polygon
+                          class="st3"
+                          points="55.6751251,129.5165253 57.4340401,129.8175507 57.9628448,126.7277145 57.3276711,119.8781357 
+											"
+                        />
+                        <polygon
+                          class="st3"
+                          points="57.9357452,116.3251266 57.9156761,116.4423828 57.9308395,116.4419632 58.5623055,123.2426147 
+						59.694664,116.626152 					"
+                        />
+                        <polygon
+                          class="st4"
+                          points="57.5033493,118.8340073 57.3262482,119.8688431 57.3276711,119.8781357 57.9628448,126.7277145 
+						57.9642639,126.7370071 58.1408691,125.705101 58.1394463,125.6958084 57.5042725,118.8462448 					"
+                        />
+                        <polygon
+                          class="st4"
+                          points="57.9156761,116.4423828 57.9127464,116.4418716 57.7511978,117.3858337 57.7521172,117.398056 
+						58.3902206,124.2481308 58.3887138,124.2569275 58.5613022,123.2484741 58.5623055,123.2426147 57.9308395,116.4419632 					
+						"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <path
+                          class="st5"
+                          d="M12.5133162,114.2019272l0.7648258,0.6746445l-0.7377758,0.703804
+						c-0.0271053,0.0258636-0.0382633,0.0641174-0.0293121,0.1004028c0.0089655,0.0362625,0.0367126,0.0649872,0.0727701,0.0754166
+						l0.9819336,0.283371l-0.3629122,0.9503784c-0.0133362,0.0349045-0.0069122,0.0742264,0.0168123,0.1031723
+						c0.0237398,0.0289383,0.0612068,0.0430908,0.0982838,0.0371094l1.0092764-0.1627197l0.0820847,1.013298
+						c0.0030165,0.0372238,0.0257778,0.0700226,0.0596981,0.0860214c0.0339203,0.0160065,0.0738869,0.0128021,0.1047907-0.0083923
+						l0.8415909-0.5773163l0.5112286,0.8803787c0.0187817,0.0323334,0.053484,0.0522537,0.0910492,0.0522537
+						c0.0375633,0,0.0722542-0.0199203,0.0910339-0.0522537l0.5868359-1.010582l1.0150852,0.5858536
+						c0.0324955,0.0187531,0.0725765,0.018837,0.1051254,0.0002518c0.0325794-0.0185928,0.0526886-0.0530548,0.0527859-0.0903931
+						l0.0024586-1.0165482l1.0189247,0.0839767c0.0373554,0.003067,0.0736637-0.0139236,0.0950584-0.0446014
+						c0.0214062-0.0306778,0.0247307-0.0704041,0.0086861-0.1041718l-0.4362831-0.9193497l0.9567566-0.3586273
+						c0.0351353-0.0131607,0.0605373-0.0439835,0.0666542-0.0808487c0.0061169-0.0368271-0.0080299-0.0741119-0.0370903-0.0977783
+						l-0.7906609-0.6444931l0.7095833-0.7318954c0.0260582-0.0268784,0.0357361-0.0655441,0.0253601-0.1014404
+						c-0.0103912-0.0358887-0.0392399-0.0635452-0.075676-0.0725327l-0.9922543-0.2450943l0.3253059-0.9636993
+						c0.0119534-0.035408,0.0039921-0.0744476-0.0208645-0.1024551c-0.0248699-0.0279999-0.0628662-0.0406723-0.0996647-0.0332489
+						l-1.0020981,0.201683l-0.1217861-1.0093307c-0.0044537-0.0370789-0.0285015-0.0689697-0.0630226-0.0836411
+						c-0.0345478-0.0146942-0.0743332-0.0099487-0.1043854,0.0124359l-0.8182678,0.6095123l-0.5453882-0.83181
+						c-0.0192976-0.0304337-0.0529108-0.0487747-0.0889111-0.0487747c-0.0013695,0-0.002739,0.0000305-0.0041208,0.0000839
+						c-0.0375223,0.0014572-0.0714283,0.0227051-0.0889263,0.0557404l-0.4762907,0.8714676l-0.863555-0.5442581
+						c-0.0317421-0.0199966-0.0717373-0.0216446-0.1050415-0.0043182c-0.0332642,0.0173111-0.0547276,0.050972-0.0562782,0.0882797
+						l-0.0423269,1.0156937l-1.0148621-0.1234436c-0.0372019-0.0045242-0.074152,0.0110397-0.0967464,0.0408783
+						c-0.0225954,0.0298309-0.0274544,0.0693893-0.012764,0.1037598l0.3998899,0.935585l-0.9700508,0.321228
+						c-0.0356379,0.011795-0.0622263,0.0415878-0.0697813,0.078186
+						C12.4725685,114.139328,12.4852333,114.1771393,12.5133162,114.2019272z"
+                        />
+                        <path
+                          class="st6"
+                          d="M13.887641,114.8570938c0-0.1420746,0.0138702-0.2827835,0.0416088-0.4221344
+						c0.0277395-0.1393433,0.0688152-0.2746506,0.12323-0.4059219c0.0544109-0.1312485,0.1211157-0.2559433,0.2001104-0.3740845
+						c0.0789957-0.1181335,0.1687641-0.2274246,0.2693052-0.3278961c0.1005411-0.1004562,0.2099237-0.1901627,0.3281479-0.2690964
+						c0.1182241-0.0789261,0.2430182-0.1455765,0.374382-0.1999512s0.2667723-0.0954132,0.40623-0.1231384
+						c0.1394529-0.02771,0.2802734-0.0415726,0.4224606-0.0415726s0.2830086,0.0138626,0.4224644,0.0415726
+						c0.1394539,0.0277252,0.2748642,0.0687637,0.4062271,0.1231384s0.2561569,0.1210251,0.374382,0.1999512
+						c0.1182251,0.0789337,0.2276077,0.1686401,0.3281498,0.2690964c0.1005421,0.1004715,0.1903095,0.2097626,0.2693043,0.3278961
+						c0.0789948,0.1181412,0.1456985,0.242836,0.2001114,0.3740845c0.0544128,0.1312714,0.0954876,0.2665787,0.1232281,0.4059219
+						c0.0277386,0.1393509,0.0416088,0.2800598,0.0416088,0.4221344s-0.0138702,0.2827835-0.0416088,0.422142
+						c-0.0277405,0.1393356-0.0688152,0.2746506-0.1232281,0.4059143c-0.0544128,0.1312561-0.1211166,0.2559509-0.2001114,0.3740921
+						c-0.0789948,0.1181335-0.1687622,0.2274246-0.2693043,0.3278961c-0.1005421,0.1004562-0.2099247,0.1901627-0.3281498,0.2690887
+						c-0.1182251,0.0789337-0.2430191,0.1455841-0.374382,0.1999588s-0.2667732,0.0954132-0.4062271,0.1231384
+						c-0.1394558,0.02771-0.2802773,0.0415726-0.4224644,0.0415726s-0.2830076-0.0138626-0.4224606-0.0415726
+						c-0.1394577-0.0277252-0.2748661-0.0687637-0.40623-0.1231384s-0.2561579-0.1210251-0.374382-0.1999588
+						c-0.1182241-0.0789261-0.2276068-0.1686325-0.3281479-0.2690887c-0.1005411-0.1004715-0.1903095-0.2097626-0.2693052-0.3278961
+						c-0.0789948-0.1181412-0.1456995-0.242836-0.2001104-0.3740921c-0.0544147-0.1312637-0.0954905-0.2665787-0.12323-0.4059143
+						C13.9015112,115.1398773,13.887641,114.9991684,13.887641,114.8570938z"
+                        />
+                        <path
+                          class="st7"
+                          d="M16.0530605,117.0208817c0.0542374,0,0.107975-0.0020523,0.1611919-0.0059814
+						c-1.1206579-0.0824051-2.0042677-1.0169678-2.0042677-2.1578217c0-1.140831,0.8836098-2.0753937,2.0042677-2.157814
+						c-0.0532169-0.0039139-0.1069679-0.0059814-0.1611919-0.0059814c-1.1959419,0-2.1654615,0.9687653-2.1654615,2.1637878
+						C13.887599,116.0521164,14.8571186,117.0208817,16.0530605,117.0208817z"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <path
+                      d="M15.702034,113.9587097c-0.0659475,0-0.1008615-0.0038834-0.1047411-0.0116425
+				c-0.0019407-0.0038834-0.0029078-0.0116348-0.0029078-0.0232697c0-0.0465469,0.0106659-0.0785522,0.0320024-0.0960236
+				c0.0038776-0.0019302,0.0184259-0.0029068,0.0436411-0.0029068c0.1047411,0.0058289,0.2279081,0.0087433,0.3695011,0.0087433
+				c0.2734871,0,0.4305992-0.0029144,0.4713306-0.0087433h0.034914c0.0116386,0.0116348,0.0174561,0.0203781,0.0174561,0.0261993
+				c0,0.0058136-0.0019379,0.0232697-0.0058174,0.0523682c-0.0096989,0.0290909-0.0184269,0.0475235-0.026186,0.055275h-0.1105576
+				c-0.1338348,0.0019302-0.2123909,0.0106583-0.2356663,0.0261841c-0.0135765,0.0077515-0.0271549,0.0349121-0.0407333,0.081459
+				c-0.0135765,0.0465622-0.0785542,0.302597-0.1949329,0.7680969c-0.0310335,0.1260757-0.0640068,0.2599106-0.0989199,0.4015121
+				c-0.034915,0.1415939-0.0610991,0.2482605-0.0785561,0.3200302l-0.026186,0.1047363
+				c0,0.0077667,0.008728,0.0116425,0.026186,0.0116425c0.017457,0,0.0746756,0.0019455,0.1716566,0.0058289H15.99298
+				c0.0620661,0,0.1115274-0.0009766,0.1483831-0.0029068c0.03685-0.0019531,0.0843716-0.0087433,0.142561-0.0203781
+				c0.0581875-0.0116425,0.1066799-0.0290985,0.1454735-0.0523682c0.0387917-0.0232773,0.0814629-0.0562515,0.1280155-0.0989151
+				c0.0465508-0.0426788,0.0872841-0.0960083,0.1221962-0.1600266c0.0310345-0.0581894,0.0601311-0.1231689,0.0872841-0.1949387
+				c0.027153-0.0717545,0.0436401-0.1124878,0.0494614-0.1221924c0.0096989-0.0058136,0.0261841-0.008728,0.0494614-0.008728
+				h0.0378227c0.0116367,0.0174561,0.0174541,0.0281372,0.0174541,0.0320053c0,0.0038834-0.0193958,0.0610962-0.0581894,0.1716614
+				c-0.0387917,0.1105499-0.0814629,0.2269363-0.1280136,0.3491287c-0.0465527,0.1222076-0.0717678,0.1939621-0.0756474,0.2153015
+				c-0.0038776,0.0097046-0.0077572,0.0155258-0.0116367,0.0174561c-0.0038795,0.0019379-0.0193977,0.0048447-0.0465508,0.008728
+				c-0.0271549,0.0038834-0.0688572,0.0048447-0.1251087,0.0029068c-0.0213356,0-0.0950413,0-0.2211189,0
+				c-0.1260757,0-0.2463322-0.0009689-0.3607693-0.0029068h-0.5178823c-0.1629314,0-0.2443953-0.0097046-0.2443953-0.0290909
+				c0-0.0135727,0.0019398-0.0271606,0.0058184-0.0407333c0.0096989-0.0368576,0.0193958-0.0572205,0.0290947-0.0611115
+				c0.0077591-0.0019302,0.0223055-0.0028915,0.0436411-0.0028915h0.017458c0.052371,0,0.1105604-0.0029068,0.1745682-0.0087433
+				c0.0271549-0.0058136,0.0455799-0.0174561,0.0552788-0.0349121c0.0058184-0.0077515,0.0756464-0.2773514,0.2094812-0.8088226
+				c0.1338348-0.531456,0.2007523-0.8117371,0.2007523-0.8408279
+				C15.8678732,113.9713211,15.8125925,113.9625931,15.702034,113.9587097z"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <path
+                          d="M51.185421,107.9775162c-0.0017853,0.0852661,0.0722961,0.1079483,0.0982399,0.1592407
+						c0.0759811,0.149971,0.1419144,0.3042374,0.1977921,0.4628067c0.1001968,0.2554321,0.1609116,0.5199203,0.1821442,0.7934799
+						c0.006546,0.0153046-0.0124321,0.0415268,0.0203629,0.0476379s0.0323296-0.0138168,0.0449829-0.0313034
+						c0.0673904-0.0871429,0.127243-0.1731033,0.2011948-0.2590408c0.1648827-0.2022705,0.3423615-0.3928299,0.5324364-0.5716476
+						c0.1045723-0.0990143,0.2098808-0.1963348,0.3183365-0.2909851c0.106472-0.063324,0.1916809-0.1480255,0.255619-0.2541275
+						c-0.6196442,0.0844116-1.2361107,0.0654907-1.8494072-0.0567932L51.185421,107.9775162z M49.8820648,107.5786972
+						c-0.0210876-0.0405731-0.0182152-0.0793533,0.008625-0.1163712c0.0294342-0.0347137,0.0595512-0.0254593,0.0984077-0.0098648
+						c0.2769012,0.0828857,0.554554,0.1392975,0.8270721,0.2260666c0.1066017,0.0290604,0.2147789,0.0499039,0.324543,0.0625305
+						c0.2152367,0.0327759,0.4319267,0.0689545,0.6449776,0.0966339c0.2918701,0.0248337,0.5842285,0.0340424,0.8770866,0.0276108
+						c0.1361732-0.0014114,0.2710304-0.0154343,0.4045792-0.0421143c0.1383209-0.007576,0.2740059-0.0306931,0.4070396-0.069313
+						c0.0257759-0.0099182,0.0512848-0.0092621,0.076519,0.0019531c0.0252342,0.0112305,0.0427933,0.0297318,0.052681,0.0555191
+						c0.0247269,0.0578537-0.01614,0.1034851-0.0584412,0.1316299c-0.1853752,0.128418-0.3630447,0.2667236-0.5330086,0.4149399
+						c-0.2047462,0.1659775-0.3798828,0.3635712-0.5729828,0.5426865c-0.1308289,0.1327667-0.2514877,0.2742157-0.3619652,0.4243317
+						c-0.1968193,0.2551575-0.3861046,0.5091095-0.5768623,0.7737579c-0.1243401,0.1799088-0.2414055,0.3768387-0.3613815,0.5669632
+						c-0.015583,0.0316772-0.0383644,0.0568466-0.0683479,0.0754929c-0.0288963,0.0173721-0.0578804,0.0175323-0.0869598,0.0004501
+						c-0.0290794-0.0170593-0.0430679-0.0424423-0.0419807-0.076149c-0.0010223-0.036499,0.0071144-0.0708237,0.0244026-0.1029892
+						c0.1178513-0.2515945,0.2861977-0.4603806,0.4237137-0.6942139c0.0231209-0.040062,0.0311584-0.0636292-0.0069542-0.0916138
+						c-0.1802444-0.1459274-0.3108635-0.3275604-0.3918419-0.5448837c-0.0758476-0.1636734-0.1336594-0.3334732-0.1734467-0.5094299
+						c-0.0212631-0.1156693-0.0524864-0.2311096-0.0744743-0.3484879c-0.0276108-0.1433105-0.0148354-0.2829285,0.0383263-0.4188385
+						c0.0168114-0.0454254,0.0092888-0.0583038-0.0327225-0.0765686c-0.1410675-0.0496521-0.2852745-0.0872955-0.4326134-0.1129379
+						c-0.1243706-0.0273361-0.2428665-0.097435-0.3631172-0.1104279
+						C49.9089699,107.6416473,49.9092598,107.5952454,49.8820648,107.5786972z"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <path
+                      d="M55.1103592,106.6668243c-0.0385475,0-0.0578194-0.0125275-0.0578194-0.03759
+				c0-0.0077133,0.004818-0.030838,0.0144539-0.0693893c0.0096397-0.0385437,0.0144577-0.0722656,0.0144577-0.101181
+				c0-0.0597458-0.0202408-0.0963745-0.0607147-0.1098557c-0.0404739-0.013504-0.1339493-0.0202332-0.2804298-0.0202332h-0.1503296
+				c-0.0019264,0.0038528-0.0356598,0.1368332-0.1011887,0.3989487c-0.0655289,0.2621231-0.0982933,0.3970413-0.0982933,0.4047546
+				c0,0.0077057,0.010601,0.0115662,0.0317993,0.0115662s0.0982971,0.001915,0.2312813,0.0057755
+				c0.1811714,0,0.3006706-0.0019226,0.3584862-0.0057755c0.0578232-0.0038605,0.1156464-0.0163956,0.1734657-0.03759
+				c0.0944366-0.030838,0.1724968-0.0848083,0.2341728-0.1619034c0.0616722-0.077095,0.1300964-0.203331,0.2052612-0.3787155
+				c0.0192719-0.0424042,0.0318031-0.0655289,0.0375862-0.0693893c0.0134888-0.0038528,0.0279427-0.0057831,0.0433617-0.0057831
+				c0.0385513,0,0.0578194,0.0125351,0.0578194,0.0375824c-0.2023697,0.4895477-0.3083763,0.7391357-0.3180084,0.7487793
+				c-0.0057831,0.0038528-0.281395,0.0057755-0.8268356,0.0057755h-0.5464058c-0.1965904,0-0.2948837-0.0105896-0.2948837-0.0317993
+				c0-0.0038528,0.0028915-0.0173416,0.0086708-0.0404663c0.0077095-0.030838,0.015419-0.0481949,0.0231285-0.0520477
+				s0.0298767-0.0067368,0.066494-0.008667c0.0520401,0,0.1098595-0.0028992,0.1734619-0.0086746
+				c0.0269852-0.0057907,0.0452957-0.0173492,0.0549278-0.0346909c0.0038528-0.0096436,0.0722771-0.280426,0.2052689-0.8123779
+				c0.1329842-0.5319443,0.2004433-0.8017807,0.2023697-0.809494c0-0.0134811-0.0038567-0.0202332-0.01157-0.0202332
+				c-0.0154152-0.0057755-0.0664902-0.0106049-0.1532211-0.0144577h-0.0896187
+				c-0.01157-0.0115662-0.0173454-0.0192719-0.0173454-0.0231323c0-0.0038528,0.0019264-0.0202332,0.0057755-0.0491333
+				c0.0077133-0.0327759,0.0173531-0.053009,0.0289116-0.0607224h1.6016312
+				c0.0134964,0.0077133,0.0202408,0.0183182,0.0202408,0.0317993c0,0.0096436-0.0125275,0.117569-0.0375862,0.3238068
+				c-0.0250549,0.2062225-0.0385475,0.3122253-0.0404739,0.3180008c-0.0038528,0.0134964-0.0231247,0.0202484-0.0578232,0.0202484
+				h-0.034687c-0.0134926-0.0096436-0.0202408-0.022171-0.0202408-0.03759l0.0086746-0.0664902
+				c0.0057831-0.046257,0.0086746-0.0963745,0.0086746-0.1503372c0-0.0578232-0.0067482-0.1060028-0.020237-0.1445465
+				c-0.0134926-0.0385513-0.0318031-0.068428-0.0549316-0.0896225c-0.0231285-0.0212097-0.0568542-0.0366287-0.101181-0.046257
+				c-0.0443344-0.0096436-0.0896301-0.0163803-0.1358833-0.0202332c-0.046257-0.0038605-0.107933-0.0057907-0.1850281-0.0057907
+				h-0.1358795c-0.1696053,0.0019302-0.2592278,0.0048141-0.2688599,0.0086823
+				c-0.0077095,0.0038376-0.0134964,0.0125275-0.0173492,0.0260086c-0.0019264,0.0057907-0.0317993,0.1243134-0.0896225,0.3556061
+				c-0.0578194,0.2312698-0.0876923,0.3488541-0.0896187,0.3527069c0.0443268,0.001915,0.0905838,0.0028763,0.1387672,0.0028763
+				h0.0751648c0.1272049,0,0.2149048-0.0144424,0.2630882-0.0433578c0.0481834-0.0289078,0.0915489-0.1069641,0.1300926-0.234169
+				c0.0077133-0.030838,0.0134926-0.0481949,0.0173454-0.0520477c0.0038567-0.0038605,0.020237-0.0067368,0.0491486-0.0086746
+				c0.0096397,0,0.0173454,0,0.0231285,0s0.010601,0.0009613,0.0144577,0.0028992
+				c0.003849,0.001915,0.0057793,0.0028915,0.0057793,0.0028915s0.0019264,0.0038528,0.0057831,0.0115662
+				s0.0067482,0.0115662,0.0086746,0.0115662l-0.0954056,0.3816071c-0.0636024,0.25634-0.0982933,0.3864441-0.1040764,0.3902969
+				C55.1508369,106.6639252,55.1354141,106.6668243,55.1103592,106.6668243z"
+                    />
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="18.769743"
+                      y1="161.927002"
+                      x2="13.2169695"
+                      y2="148.8003845"
+                    />
+                    <line
+                      class="st12"
+                      x1="18.769743"
+                      y1="161.927002"
+                      x2="13.2169695"
+                      y2="148.8003845"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="12.6568727,147.4763336 14.0993776,148.9124908 13.2169695,148.8003845 12.682868,149.5116882 
+											"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <path
+                          class="st5"
+                          d="M15.2205858,161.2842407l0.7718716,0.6808777l-0.7445736,0.7102814
+						c-0.0273552,0.0261078-0.0386143,0.0646973-0.029582,0.1013031c0.0090485,0.0366058,0.0370522,0.0656128,0.0734406,0.0761261
+						l0.9909801,0.2859802l-0.3662558,0.9591217c-0.0134583,0.0352325-0.0069752,0.0749207,0.0169687,0.1041412
+						c0.0239592,0.0292053,0.0617714,0.0434723,0.0991879,0.0374451l1.0185757-0.1642151l0.08284,1.0226288
+						c0.0030441,0.0375671,0.0260162,0.0706787,0.0602474,0.0868225c0.0342331,0.0161591,0.0745678,0.0129242,0.1057568-0.0084686
+						l0.8493423-0.5826416l0.5159397,0.8884888c0.0189552,0.0326385,0.0539761,0.0527344,0.0918884,0.0527344
+						c0.0379105,0,0.0729179-0.0200958,0.0918732-0.0527344l0.5922413-1.0198975l1.024437,0.5912476
+						c0.032795,0.0189362,0.0732422,0.0190125,0.1060925,0.0002594c0.0328808-0.0187531,0.053175-0.0535431,0.0532742-0.091217
+						l0.0024796-1.0259247l1.0283127,0.0847626c0.0377007,0.0030975,0.0743427-0.0140533,0.0959339-0.0450134
+						c0.0216045-0.0309601,0.0249596-0.0710449,0.0087662-0.1051178l-0.4403019-0.9278412l0.9655704-0.3619232
+						c0.0354576-0.0132904,0.0610924-0.0443878,0.0672665-0.0815887c0.0061722-0.0371704-0.0081043-0.0747986-0.0374317-0.0986938
+						l-0.797945-0.6504364l0.7161217-0.7386169c0.0262966-0.0271301,0.0360641-0.0661621,0.0255928-0.1023865
+						c-0.0104866-0.0362091-0.0396023-0.0641174-0.0763721-0.0731964l-1.0013943-0.247345l0.3283005-0.9725952
+						c0.012064-0.0357208,0.0040321-0.075119-0.0210552-0.1033783c-0.0250988-0.0282593-0.063446-0.0410614-0.1005821-0.0335693
+						l-1.0113316,0.203537l-0.1229076-1.0186157c-0.0044956-0.0374146-0.0287647-0.0695953-0.0636024-0.0844269
+						c-0.0348663-0.0148315-0.0750179-0.010025-0.1053467,0.012558l-0.8258076,0.6151276l-0.5504112-0.8394775
+						c-0.0194778-0.0307159-0.0534-0.0492096-0.0897312-0.0492096c-0.0013828,0-0.0027637,0.0000305-0.004158,0.0000916
+						c-0.0378704,0.0014648-0.0720863,0.0229034-0.0897465,0.0562439l-0.4806767,0.8795013l-0.8715134-0.5492706
+						c-0.0320339-0.0201874-0.0723953-0.0218506-0.1060085-0.0043793c-0.0335693,0.0174713-0.0552311,0.0514374-0.0567951,0.0890961
+						l-0.042717,1.0250702l-1.0242128-0.124588c-0.0375443-0.0045776-0.0748358,0.0111389-0.0976381,0.0412598
+						c-0.0228033,0.0301056-0.0277071,0.0700226-0.0128813,0.1046906l0.4035749,0.9442139l-0.9789886,0.3241882
+						c-0.035965,0.0119019-0.0627985,0.0419769-0.0704222,0.0789032
+						C15.1794615,161.2210693,15.1922445,161.2592316,15.2205858,161.2842407z"
+                        />
+                        <path
+                          class="st6"
+                          d="M16.6075726,161.9454498c0-0.1433868,0.0139961-0.2854004,0.0419922-0.4260254
+						c0.0279942-0.1406403,0.0694485-0.2771759,0.1243629-0.4096527c0.0549126-0.1324768,0.1222324-0.258316,0.2019539-0.377533
+						c0.0797234-0.1192169,0.1703186-0.229538,0.2717857-0.3309174c0.101469-0.1013947,0.2118587-0.1919098,0.3311729-0.2715759
+						c0.1193123-0.0796661,0.2452564-0.1469269,0.3778305-0.2017975s0.2692318-0.0962982,0.4099693-0.1242676
+						c0.1407413-0.0279846,0.2828579-0.0419769,0.4263554-0.0419769s0.2856159,0.0139923,0.4263554,0.0419769
+						c0.1407413,0.0279694,0.2773972,0.069397,0.4099712,0.1242676s0.2585182,0.1221313,0.3778305,0.2017975
+						c0.1193142,0.0796661,0.2297039,0.1701813,0.331171,0.2715759c0.101469,0.1013794,0.1920643,0.2117004,0.2717857,0.3309174
+						c0.0797234,0.1192169,0.1470413,0.2450562,0.2019558,0.377533s0.0963688,0.2690125,0.1243629,0.4096527
+						c0.0279942,0.140625,0.0419922,0.2826385,0.0419922,0.4260254s-0.013998,0.2854004-0.0419922,0.4260254
+						c-0.0279942,0.1406403-0.0694485,0.2771759-0.1243629,0.4096527s-0.1222324,0.258316-0.2019558,0.377533
+						c-0.0797215,0.1192322-0.1703167,0.229538-0.2717857,0.3309174c-0.1014671,0.1013947-0.2118568,0.1919098-0.331171,0.2715759
+						c-0.1193123,0.0796661-0.2452564,0.1469269-0.3778305,0.2017975c-0.1325741,0.0548859-0.2692299,0.0962982-0.4099712,0.1242676
+						c-0.1407394,0.0279846-0.2828579,0.0419617-0.4263554,0.0419617s-0.285614-0.0139771-0.4263554-0.0419617
+						c-0.1407375-0.0279694-0.2773952-0.0693817-0.4099693-0.1242676c-0.1325741-0.0548706-0.2585182-0.1221313-0.3778305-0.2017975
+						c-0.1193142-0.0796661-0.2297039-0.1701813-0.3311729-0.2715759c-0.1014671-0.1013794-0.1920624-0.2116852-0.2717857-0.3309174
+						c-0.0797215-0.1192169-0.1470413-0.2450562-0.2019539-0.377533c-0.0549145-0.1324768-0.0963688-0.2690125-0.1243629-0.4096527
+						C16.6215687,162.2308502,16.6075726,162.0888367,16.6075726,161.9454498z"
+                        />
+                        <path
+                          class="st7"
+                          d="M18.7929401,164.1291809c0.0547371,0,0.1089687-0.0020752,0.1626778-0.0060425
+						c-1.1309814-0.0831604-2.0227318-1.0263367-2.0227318-2.1777039c0-1.1513367,0.8917503-2.0945282,2.0227318-2.1777039
+						c-0.053709-0.0039368-0.107954-0.0060272-0.1626778-0.0060272c-1.2069588,0-2.1854115,0.9776917-2.1854115,2.1837311
+						S17.5859814,164.1291809,18.7929401,164.1291809z"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <path
+                      d="M18.4386806,161.0387878c-0.066555,0-0.1017895-0.0039215-0.1057053-0.011734
+				c-0.0019569-0.0039215-0.0029354-0.0117493-0.0029354-0.0234985c0-0.0469666,0.010767-0.0792847,0.032299-0.0969086
+				c0.0039139-0.0019531,0.0185966-0.0029297,0.0440445-0.0029297c0.1057034,0.0058746,0.2300053,0.0088043,0.3729038,0.0088043
+				c0.2760067,0,0.4345646-0.0029297,0.4756737-0.0088043h0.0352345c0.0117455,0.0117493,0.0176182,0.0205536,0.0176182,0.0264282
+				s-0.0019569,0.0234833-0.0058727,0.0528564c-0.0097885,0.0293732-0.0185966,0.0479584-0.0264263,0.0557861h-0.111578
+				c-0.135067,0.0019531-0.2143459,0.0107727-0.2378368,0.0264282c-0.0137024,0.0078278-0.0274048,0.0352325-0.0411072,0.0822144
+				s-0.0792789,0.3053741-0.1967297,0.775177c-0.0313206,0.1272278-0.0645981,0.2622986-0.0998325,0.4051971
+				s-0.0616608,0.2505493-0.0792789,0.3229828l-0.0264263,0.1057129c0,0.0078278,0.0088081,0.0117493,0.0264263,0.0117493
+				s0.0753632,0.0019531,0.1732388,0.0058746h0.0499172c0.0626392,0,0.1125565-0.0009766,0.1497478-0.0029449
+				c0.0371933-0.0019531,0.0851517-0.0088196,0.143877-0.0205536c0.0587254-0.0117493,0.1076641-0.0293579,0.1468124-0.0528564
+				c0.0391502-0.0234833,0.0822163-0.0567627,0.1291962-0.099823c0.0469799-0.0430756,0.0880871-0.0968933,0.1233215-0.161499
+				c0.0313206-0.0587311,0.0606842-0.1242981,0.088089-0.1967316c0.0274048-0.0724182,0.0440426-0.1135406,0.0499153-0.1233215
+				c0.0097885-0.0058746,0.0264263-0.0088043,0.0499172-0.0088043h0.0381718
+				c0.0117455,0.0176086,0.0176163,0.0283813,0.0176163,0.0323029c0,0.0039062-0.0195751,0.0616455-0.0587234,0.173233
+				c-0.0391502,0.1115723-0.0822163,0.2290192-0.1291962,0.352356c-0.0469799,0.1233215-0.0724277,0.1957397-0.0763435,0.2172852
+				c-0.0039139,0.0097809-0.0078297,0.0156555-0.0117435,0.0176086c-0.0039158,0.0019531-0.0195751,0.0048828-0.0469799,0.0088043
+				c-0.0274067,0.0039215-0.0694923,0.0048981-0.1262608,0.0029449c-0.0215321,0-0.0959167,0-0.2231541,0
+				c-0.1272392,0-0.2486038-0.0009918-0.3640976-0.0029449h-0.5226517c-0.1644306,0-0.246645-0.0097809-0.246645-0.0293579
+				c0-0.0137024,0.0019569-0.0274048,0.0058708-0.0411072c0.0097885-0.0372009,0.0195751-0.0577545,0.0293636-0.0616608
+				c0.0078297-0.0019531,0.0225105-0.0029297,0.0440426-0.0029297h0.0176182c0.0528526,0,0.111578-0.0029449,0.1761761-0.0088196
+				c0.0274029-0.0058746,0.0460014-0.0176086,0.055788-0.0352325c0.0058727-0.0078278,0.0763435-0.2799225,0.2114105-0.8162842
+				c0.1350689-0.5363464,0.2026024-0.8192139,0.2026024-0.8485718
+				C18.6060486,161.0514984,18.5502586,161.0426941,18.4386806,161.0387878z"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <path
+                          d="M11.4512453,146.5771332c0.0860577,0.002121,0.1092138-0.0725708,0.1610746-0.0985718
+						c0.1516361-0.0761108,0.3075724-0.1420746,0.4678068-0.197876c0.2581511-0.100174,0.5253029-0.1604614,0.8014536-0.1808777
+						c0.0154791-0.006546,0.0418711,0.0127106,0.0481567-0.0203705c0.0062866-0.0330658-0.0138235-0.0326843-0.0314178-0.045517
+						c-0.0877075-0.0683289-0.1742258-0.1290436-0.2606773-0.20401c-0.2035303-0.1671448-0.3951731-0.3469696-0.5749273-0.5394592
+						c-0.0995474-0.1059113-0.1973743-0.2125397-0.2924891-0.3223572c-0.0635042-0.1076813-0.1486769-0.193985-0.2555151-0.2588959
+						c0.0828886,0.6256409,0.061491,1.2477264-0.0641928,1.8661957L11.4512453,146.5771332z M11.0439072,147.8910065
+						c-0.0410185,0.0211182-0.0801554,0.0180817-0.1174116-0.0091553c-0.0349245-0.0298309-0.0254641-0.0601807-0.0095863-0.0993347
+						c0.0846834-0.2791443,0.142643-0.5591431,0.2312288-0.833847c0.0297251-0.1074829,0.0511627-0.216568,0.064312-0.327301
+						c0.0338783-0.2171021,0.0711966-0.4356384,0.0999165-0.6505585c0.0261564-0.2944489,0.0365343-0.5894775,0.0311346-0.8850555
+						c-0.0009136-0.1374359-0.0145779-0.2735748-0.0409908-0.4084625c-0.0071449-0.1396332-0.0299597-0.2766418-0.0684414-0.4110413
+						c-0.0099201-0.026062-0.0091686-0.0517883,0.0022545-0.0772095c0.0114222-0.0254364,0.0301638-0.0430756,0.0562267-0.0529785
+						c0.0584755-0.0247345,0.1043797,0.0166779,0.1326227,0.059494c0.1289072,0.1875458,0.2678299,0.3673553,0.416769,0.539444
+						c0.166748,0.2072449,0.3655119,0.3847351,0.5455561,0.5802765c0.1335001,0.1325378,0.2757998,0.2548218,0.426898,0.3668823
+						c0.2567749,0.1995697,0.5123596,0.3915558,0.7787266,0.5850372c0.1811056,0.1261597,0.3794107,0.2450409,0.5708351,0.3668213
+						c0.0319195,0.0158386,0.0572309,0.0389404,0.0759344,0.0692596c0.0174284,0.0292358,0.0174751,0.0584717,0.0001402,0.0877686
+						c-0.0173349,0.0292816-0.043005,0.0433044-0.0770111,0.0420837c-0.0368395,0.0009003-0.071456-0.0074463-0.1038504-0.0250092
+						c-0.2534714-0.119873-0.4635477-0.2905426-0.6990261-0.4302063c-0.040349-0.0234833-0.0640955-0.0316772-0.0924749,0.0066833
+						c-0.1479521,0.181366-0.3317385,0.3125-0.5513601,0.3934174c-0.1654606,0.0759277-0.3370514,0.1336517-0.5147705,0.1731415
+						c-0.1168184,0.0210419-0.2334375,0.052124-0.3519754,0.0738831c-0.1447296,0.0273285-0.2855797,0.013916-0.4225492-0.0402527
+						c-0.0457735-0.0171204-0.0588055-0.0095978-0.0773945,0.0327454c-0.0506334,0.1421814-0.08916,0.2875824-0.1155815,0.4361725
+						c-0.0280542,0.125412-0.0992346,0.2447357-0.1128006,0.3660583
+						C11.107542,147.8640747,11.06071,147.8636169,11.0439072,147.8910065z"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <path
+                      d="M11.2710409,149.6350098c-0.0389023,0-0.0583534-0.0126343-0.0583534-0.0379333
+				c0-0.007782,0.0048628-0.0311127,0.0145884-0.0700226c0.0097246-0.0389099,0.0145884-0.072937,0.0145884-0.1021118
+				c0-0.0603027-0.0204239-0.0972595-0.0612707-0.1108704c-0.0408478-0.0136261-0.1351852-0.0204163-0.2830133-0.0204163h-0.1517191
+				c-0.0019445,0.003891-0.035984,0.138092-0.1021175,0.4026184c-0.0661345,0.2645416-0.0992012,0.4007111-0.0992012,0.4084778
+				c0,0.007782,0.0106983,0.011673,0.032095,0.011673c0.0213957,0,0.0992002,0.0019379,0.2334127,0.0058289
+				c0.1828403,0,0.3034372-0.0019379,0.3617897-0.0058289c0.0583544-0.003891,0.1167068-0.0165405,0.1750603-0.0379333
+				c0.0953102-0.0311127,0.1740875-0.0855865,0.23633-0.1633911c0.0622444-0.0778046,0.1312952-0.2052002,0.2071543-0.3822021
+				c0.0194511-0.0428009,0.032095-0.0661316,0.0379295-0.0700226c0.0136156-0.003891,0.028204-0.0058441,0.0437651-0.0058441
+				c0.0389023,0,0.0583534,0.0126495,0.0583534,0.0379333c-0.204236,0.4940491-0.3112173,0.7459412-0.3209429,0.7556763
+				c-0.0058355,0.003891-0.2839861,0.0058289-0.8344517,0.0058289h-0.5514383c-0.1984005,0-0.2976017-0.0106964-0.2976017-0.0320892
+				c0-0.003891,0.0029182-0.0175018,0.0087528-0.0408478c0.007781-0.0311279,0.0155611-0.0486298,0.0233421-0.0525208
+				c0.0077801-0.003891,0.0301495-0.0068054,0.0671062-0.0087585c0.0525179,0,0.1108704-0.0029144,0.1750593-0.0087433
+				c0.0272322-0.0058441,0.0457106-0.0175018,0.0554361-0.0350189c0.00389-0.0097198,0.0729408-0.2830048,0.2071533-0.8198547
+				s0.2022915-0.8091736,0.204237-0.8169556c0-0.0136108-0.003891-0.0204163-0.0116711-0.0204163
+				c-0.0155611-0.0058289-0.0671062-0.0107117-0.1546354-0.0145874h-0.0904484
+				c-0.0116701-0.011673-0.0175056-0.019455-0.0175056-0.0233459s0.0019455-0.0204163,0.0058355-0.0495911
+				c0.0077801-0.0330811,0.0175056-0.0534973,0.0291767-0.0612793h1.6163845
+				c0.0136156,0.007782,0.0204239,0.0184784,0.0204239,0.0320892c0,0.0097351-0.0126429,0.1186676-0.0379295,0.3267822
+				c-0.0252867,0.2081299-0.0389023,0.3151093-0.0408478,0.3209534c-0.0038891,0.0136108-0.0233412,0.0204163-0.0583534,0.0204163
+				h-0.0350113c-0.0136156-0.0097351-0.0204239-0.0223694-0.0204239-0.0379333l0.0087528-0.0671082
+				c0.0058355-0.0466766,0.0087538-0.0972595,0.0087538-0.1517181c0-0.0583496-0.0068083-0.1069794-0.0204239-0.145874
+				c-0.0136156-0.0389099-0.032094-0.0690613-0.0554361-0.0904541c-0.0233412-0.0213928-0.0573797-0.0369415-0.1021175-0.0466766
+				c-0.0447378-0.0097198-0.0904474-0.0165405-0.1371307-0.0204315c-0.0466824-0.003891-0.1089258-0.0058289-0.1867304-0.0058289
+				H11.250617c-0.1711693,0.0019379-0.2616167,0.0048676-0.2713423,0.0087585
+				c-0.007781,0.003891-0.0136166,0.0126343-0.0175066,0.0262451c-0.0019445,0.0058441-0.032094,0.1254578-0.0904474,0.3588867
+				c-0.0583534,0.2333984-0.0885019,0.352066-0.0904474,0.355957c0.0447378,0.0019379,0.0914202,0.0028992,0.140048,0.0028992
+				h0.0758591c0.128377,0,0.2168798-0.0145721,0.2655077-0.0437622c0.0486269-0.0291748,0.092392-0.1079407,0.1312943-0.2363281
+				c0.0077801-0.0311127,0.0136156-0.0486298,0.0175066-0.0525055c0.00389-0.003891,0.0204229-0.0068207,0.0495996-0.0087738
+				c0.0097256,0,0.0175056,0,0.0233412,0s0.0106983,0.0009918,0.0145884,0.0029297
+				c0.00389,0.0019531,0.0058355,0.0029144,0.0058355,0.0029144s0.0019455,0.003891,0.0058355,0.011673
+				s0.0068073,0.011673,0.0087528,0.011673l-0.096283,0.3851318c-0.064188,0.2586975-0.0992002,0.3899994-0.1050358,0.3938904
+				C11.3118877,149.6320953,11.2963266,149.6350098,11.2710409,149.6350098z"
+                    />
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="98.4220505"
+                      y1="115.2524109"
+                      x2="118.7949448"
+                      y2="144.2389069"
+                    />
+                    <line
+                      class="st13"
+                      x1="98.4220505"
+                      y1="115.2524109"
+                      x2="118.7949448"
+                      y2="144.2389069"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="119.6920166,145.5152588 117.8332672,144.3218994 118.7949448,144.2388916 
+						119.1987534,143.3621826 					"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="109.6978378"
+                      y1="156.9140167"
+                      x2="98.829628"
+                      y2="116.758316"
+                    />
+                    <line
+                      class="st13"
+                      x1="109.6978378"
+                      y1="156.9140167"
+                      x2="98.829628"
+                      y2="116.758316"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="98.4220505,115.2524261 99.761879,117.0085373 98.829628,116.758316 98.1508331,117.4445648 					
+						"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="131.7419128"
+                      y1="109.9745789"
+                      x2="110.3610077"
+                      y2="155.5019073"
+                    />
+                    <line
+                      class="st13"
+                      x1="131.7419128"
+                      y1="109.9745789"
+                      x2="110.3610077"
+                      y2="155.5019073"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="109.6978378,156.9140167 109.8118515,154.7080994 110.3610077,155.5019073 
+						111.3225708,155.417572 					"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="78.8867493"
+                      y1="137.3533325"
+                      x2="130.3566437"
+                      y2="110.6921463"
+                    />
+                    <line
+                      class="st13"
+                      x1="78.8867493"
+                      y1="137.3533325"
+                      x2="130.3566437"
+                      y2="110.6921463"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="131.7419128,109.9745789 130.3097534,111.65625 130.3566437,110.6921463 129.542099,110.1742554 
+											"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <line
+                      class="st1"
+                      x1="92.5327454"
+                      y1="150.7891846"
+                      x2="79.9984131"
+                      y2="138.447876"
+                    />
+                    <line
+                      class="st13"
+                      x1="92.5327454"
+                      y1="150.7891846"
+                      x2="79.9984131"
+                      y2="138.447876"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st1"
+                          points="78.8867493,137.3533325 80.9295578,138.1935577 79.9984131,138.447876 79.7585831,139.3828583 
+											"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st3"
+                          points="89.4148254,119.2562714 95.1746368,114.4004898 93.7164307,115.0806808 87.9580002,119.9394073 
+											"
+                        />
+                        <polygon
+                          class="st3"
+                          points="100.1506958,114.2256241 99.3209839,112.456192 96.2126999,113.9137344 90.4528885,118.7695084 
+											"
+                        />
+                        <polygon
+                          class="st3"
+                          points="86.8786545,120.4455261 86.9966125,120.390213 86.9867554,120.3768463 92.7049103,115.5550003 
+						86.0489426,118.6761093 					"
+                        />
+                        <polygon
+                          class="st4"
+                          points="89.4044113,119.2647476 90.4454193,118.7766037 90.4528885,118.7695084 96.2126999,113.9137344 
+						96.2201614,113.9066238 95.182106,114.3934021 95.1746368,114.4004898 89.4148254,119.2562714 					"
+                        />
+                        <polygon
+                          class="st4"
+                          points="86.9966125,120.390213 86.9980011,120.393158 87.9475861,119.9478836 87.9580002,119.9394073 
+						93.7164307,115.0806808 93.7252808,115.0765228 92.7108154,115.5522308 92.7049103,115.5550003 86.9867554,120.3768463 					
+						"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <polygon
+                          class="st3"
+                          points="117.2630386,157.7764435 109.8440475,159.0851135 111.4466629,159.2287445 
+						118.8659363,157.9168396 					"
+                        />
+                        <polygon
+                          class="st3"
+                          points="105.4524689,156.7386627 105.2819443,158.6855164 108.7018967,158.9850769 
+						116.1208878,157.6764069 					"
+                        />
+                        <polygon
+                          class="st3"
+                          points="120.0535126,158.0208588 119.9237213,158.009491 119.9255447,158.026001 112.5596085,159.3262329 
+						119.882988,159.9677124 					"
+                        />
+                        <polygon
+                          class="st4"
+                          points="117.2762985,157.7743378 116.1309052,157.673996 116.1208878,157.6764069 
+						108.7018967,158.9850769 108.6918793,158.9874725 109.8340302,159.0875092 109.8440475,159.0851135 117.2630386,157.7764435 
+											"
+                        />
+                        <polygon
+                          class="st4"
+                          points="119.9237213,158.009491 119.9240112,158.0062561 118.8792038,157.9147339 
+						118.8659363,157.9168396 111.4466629,159.2287445 111.4369278,159.2279053 112.5531158,159.3256683 112.5596085,159.3262329 
+						119.9255447,158.026001 					"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <path
+                          class="st5"
+                          d="M88.6813507,150.0916748l0.8376007,0.7388611l-0.8079758,0.7707825
+						c-0.029686,0.0283203-0.0419083,0.0702057-0.0321045,0.1099243c0.009819,0.0397186,0.0402069,0.0711975,0.0796967,0.0826111
+						l1.0753708,0.3103333l-0.3974457,1.040802c-0.0146027,0.0382385-0.0075684,0.0812988,0.0184097,0.1130066
+						c0.026001,0.0316925,0.0670319,0.0471802,0.1076355,0.0406342l1.1053162-0.1781921l0.0898972,1.1096954
+						c0.0033035,0.0407715,0.0282288,0.0766907,0.0653763,0.094223s0.0809174,0.0140228,0.1147614-0.0091858l0.9216766-0.6322632
+						l0.5598755,0.9641571c0.0205688,0.0354156,0.0585709,0.0572357,0.0997086,0.0572357
+						c0.0411453,0,0.0791321-0.0218201,0.0997009-0.0572357l0.6426697-1.1067505l1.1116791,0.6416016
+						c0.0355911,0.0205383,0.079483,0.0206299,0.1151276,0.0002747c0.0356827-0.0203552,0.0577011-0.0580902,0.0578079-0.0989838
+						l0.0026932-1.1132965l1.1158829,0.09198c0.0409088,0.0033722,0.0806732-0.0152435,0.1041031-0.0488434
+						c0.0234451-0.0335999,0.0270844-0.0771027,0.0095139-0.1140747l-0.4777985-1.0068512l1.0477982-0.392746
+						c0.038475-0.0144196,0.0662994-0.048172,0.072998-0.0885315c0.0066986-0.0403442-0.0087967-0.0811768-0.0406189-0.1071014
+						l-0.8658981-0.7058258l0.7770996-0.8015137c0.0285416-0.0294495,0.0391388-0.0717926,0.0277786-0.1110992
+						c-0.0113831-0.0392914-0.0429764-0.0695801-0.0828781-0.079422l-1.0866776-0.2684174l0.3562622-1.0554199
+						c0.013092-0.0387573,0.0043716-0.0815277-0.02285-0.1121826c-0.0272369-0.0306702-0.0688477-0.0445557-0.1091461-0.036438
+						l-1.0974503,0.2208862l-0.1333771-1.1053772c-0.0048752-0.0406036-0.0312119-0.0755157-0.0690155-0.0916138
+						c-0.0378418-0.0160828-0.0814133-0.0108795-0.1143188,0.0136261l-0.8961334,0.667511l-0.5972824-0.910965
+						c-0.0211411-0.0333252-0.0579453-0.0534058-0.097374-0.0534058c-0.001503,0-0.0029984,0.0000458-0.004509,0.0000916
+						c-0.0410995,0.0016022-0.0782318,0.0248718-0.0973892,0.0610504l-0.5216141,0.9543915l-0.9457321-0.5960541
+						c-0.0347595-0.0218964-0.0785599-0.0236969-0.115036-0.0047302c-0.0364227,0.0189667-0.0599365,0.0558167-0.0616302,0.0966797
+						l-0.0463562,1.1123505l-1.1114349-0.1351929c-0.040741-0.0049591-0.0812073,0.0121002-0.1059494,0.0447693
+						c-0.0247421,0.0326843-0.0300674,0.0759888-0.0139771,0.1136169l0.4379425,1.0246277l-1.062355,0.3517914
+						c-0.039032,0.0129089-0.0681458,0.0455475-0.0764236,0.0856171
+						C88.6367264,150.0231476,88.6505966,150.0645294,88.6813507,150.0916748z"
+                        />
+                        <path
+                          class="st6"
+                          d="M90.1864471,150.8092041c0-0.1555939,0.0151901-0.3097076,0.0455704-0.4623108
+						s0.0753632-0.3007812,0.1349564-0.4445343c0.0595856-0.1437531,0.132637-0.2803192,0.2191544-0.4096832
+						c0.0865097-0.1293793,0.1848221-0.2490845,0.2949295-0.3591003c0.1101074-0.1100311,0.2298965-0.208252,0.359375-0.2947083
+						c0.1294708-0.086441,0.2661438-0.1594391,0.4100037-0.2189789c0.1438675-0.0595398,0.29216-0.1044922,0.4448853-0.1348419
+						c0.1527252-0.030365,0.3069458-0.0455322,0.4626617-0.0455322s0.3099365,0.0151672,0.4626617,0.0455322
+						c0.1527252,0.0303497,0.3010178,0.0753021,0.4448853,0.1348419c0.1438599,0.0595398,0.2805252,0.1325378,0.4100037,0.2189789
+						c0.1294708,0.0864563,0.2492676,0.1846771,0.359375,0.2947083c0.1101074,0.1100159,0.2084198,0.2297211,0.2949295,0.3591003
+						c0.0865097,0.129364,0.1595612,0.2659302,0.2191544,0.4096832c0.0595856,0.1437531,0.1045761,0.2919312,0.1349564,0.4445343
+						c0.0303726,0.1526031,0.0455627,0.3067169,0.0455627,0.4623108s-0.0151901,0.3096924-0.0455627,0.4623108
+						c-0.0303802,0.1526031-0.0753708,0.3007812-0.1349564,0.4445343c-0.0595932,0.1437531-0.1326447,0.280304-0.2191544,0.4096832
+						s-0.1848221,0.2490692-0.2949295,0.3591003s-0.2299042,0.208252-0.359375,0.2947083
+						c-0.1294785,0.086441-0.2661438,0.1594391-0.4100037,0.2189789c-0.1438675,0.0595398-0.29216,0.1044922-0.4448853,0.1348419
+						c-0.1527252,0.030365-0.3069458,0.0455475-0.4626617,0.0455475s-0.3099365-0.0151825-0.4626617-0.0455475
+						c-0.1527252-0.0303497-0.3010178-0.0753021-0.4448853-0.1348419c-0.1438599-0.0595398-0.2805328-0.1325378-0.4100037-0.2189789
+						c-0.1294785-0.0864563-0.2492676-0.1846771-0.359375-0.2947083s-0.2084198-0.2297211-0.2949295-0.3591003
+						c-0.0865173-0.1293793-0.1595688-0.2659302-0.2191544-0.4096832c-0.0595932-0.1437531-0.1045761-0.2919312-0.1349564-0.4445343
+						C90.2016373,151.1188965,90.1864471,150.964798,90.1864471,150.8092041z"
+                        />
+                        <path
+                          class="st7"
+                          d="M92.5579224,153.178894c0.0593948,0,0.118248-0.002243,0.1765289-0.006546
+						c-1.2272949-0.0902557-2.1949844-1.1137543-2.1949844-2.3631592c0-1.2493896,0.9676895-2.2728882,2.1949844-2.3631439
+						c-0.0582809-0.0042877-0.1171494-0.006546-0.1765289-0.006546c-1.3097458,0-2.371521,1.0609436-2.371521,2.3696747
+						C90.1864014,152.1179504,91.2481766,153.178894,92.5579224,153.178894z"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <path
+                      d="M92.1734924,149.8253174c-0.0722275,0-0.1104584-0.0042419-0.1147079-0.0127411
+				c-0.0021286-0.0042419-0.0031891-0.0127411-0.0031891-0.0254974c0-0.0509644,0.0116806-0.0860138,0.0350494-0.1051331
+				c0.0042496-0.0021362,0.0201797-0.0031891,0.0477982-0.0031891c0.1147003,0.0063782,0.249588,0.009552,0.4046555,0.009552
+				c0.2995148,0,0.4715729-0.0031738,0.5161819-0.009552h0.0382385c0.0127411,0.0127411,0.0191193,0.0223083,0.0191193,0.0286713
+				c0,0.0063782-0.0021286,0.0254974-0.0063782,0.0573578c-0.0106201,0.0318604-0.0201797,0.0520477-0.0286713,0.0605316h-0.1210861
+				c-0.1465683,0.0021362-0.2325974,0.0116882-0.2580872,0.0286865c-0.0148697,0.0084991-0.0297394,0.0382385-0.0446091,0.0892181
+				s-0.0860291,0.3313751-0.2134781,0.8411865c-0.033989,0.1380615-0.0700989,0.2846375-0.1083374,0.4396973
+				c-0.0382385,0.1550751-0.0669098,0.2719116-0.0860291,0.3504944l-0.0286789,0.1147156
+				c0,0.0084839,0.0095596,0.0127411,0.0286789,0.0127411s0.0817795,0.002121,0.1879883,0.0063782h0.0541687
+				c0.0679779,0,0.122139-0.0010681,0.1625061-0.0031891c0.0403595-0.002121,0.0923996-0.0095673,0.1561279-0.0223083
+				c0.0637207-0.0127411,0.1168289-0.0318604,0.1593094-0.0573425c0.0424881-0.0254974,0.0892181-0.061615,0.1401978-0.1083527
+				c0.0509796-0.0467224,0.0955887-0.1051331,0.1338272-0.1752319c0.033989-0.063736,0.0658493-0.1348877,0.0955887-0.2134857
+				s0.0477905-0.1232147,0.0541687-0.1338196c0.0106201-0.0063782,0.0286789-0.0095673,0.0541687-0.0095673h0.04142
+				c0.0127411,0.0191193,0.0191193,0.0308075,0.0191193,0.0350494s-0.0212479,0.0669098-0.0637283,0.1879883
+				c-0.0424805,0.1210938-0.0892181,0.2485352-0.1401978,0.3823547c-0.0509796,0.1338348-0.078598,0.2124329-0.0828476,0.2357941
+				c-0.0042419,0.0106201-0.0084915,0.016983-0.0127411,0.0191193c-0.0042496,0.002121-0.0212402,0.0053101-0.0509796,0.0095673
+				c-0.0297394,0.0042419-0.0754089,0.0052948-0.1370087,0.0031738c-0.0233688,0-0.1040878,0-0.2421646,0
+				c-0.1380692,0-0.2697754-0.0010529-0.3951035-0.0031738h-0.5671539c-0.1784363,0-0.2676544-0.0106354-0.2676544-0.0318756
+				c0-0.0148621,0.002121-0.0297394,0.0063705-0.0446167c0.0106277-0.0403442,0.0212479-0.0626526,0.031868-0.0669098
+				c0.0084991-0.0021057,0.0244293-0.0031738,0.0477905-0.0031738h0.0191193c0.0573578,0,0.1210785-0.0031891,0.1911774-0.0095673
+				c0.0297394-0.0063629,0.0499191-0.0191193,0.0605392-0.0382233c0.0063705-0.0084991,0.0828476-0.303772,0.2294159-0.8858032
+				s0.2198563-0.8889771,0.2198563-0.9208374C92.3551102,149.8391266,92.2945709,149.8295746,92.1734924,149.8253174z"
+                    />
+                  </g>
+                  <g>
+                    <g>
+                      <g>
+                        <path
+                          d="M121.176651,146.1932526c-0.091774,0.0174408-0.0992508,0.1019592-0.1483154,0.1414032
+						c-0.1434326,0.115448-0.2937469,0.2210999-0.4509583,0.3169556c-0.2509155,0.1652985-0.5205078,0.29039-0.8087616,0.3752289
+						c-0.0149231,0.0104828-0.0473251-0.003891-0.0464249,0.0326233c0.0009003,0.0365295,0.0221405,0.0314941,0.0437393,0.0410919
+						c0.1086731,0.0524139,0.2143402,0.0970459,0.3231964,0.1567688c0.2541428,0.1307373,0.4985733,0.2776337,0.7332916,0.4406891
+						c0.1298294,0.0895691,0.2579956,0.1802979,0.3840179,0.2750244c0.0920029,0.0997009,0.202095,0.1717529,0.3302841,0.2161865
+						c-0.2310791-0.6447296-0.3507156-1.3094788-0.358902-1.9943085L121.176651,146.1932526z M121.3081207,144.7063446
+						c0.038681-0.0317993,0.0808945-0.0375061,0.1266327-0.0171661c0.0438766,0.0236511,0.0407867,0.0580292,0.0329056,0.1031952
+						c-0.0259628,0.3154755-0.0233765,0.6257477-0.0544891,0.9374237c-0.0069427,0.1208038-0.0047226,0.2414246,0.0066605,0.3618927
+						c0.0137329,0.2380371,0.0241547,0.4784088,0.0428619,0.7129517c0.0396271,0.3183289,0.0961227,0.6336517,0.1694794,0.9459534
+						c0.0324097,0.1455688,0.0780563,0.2868805,0.1369324,0.4239044c0.0395279,0.1464691,0.0950775,0.2865906,0.1666489,0.4203644
+						c0.0164871,0.0253601,0.0215759,0.0528259,0.015274,0.0824127c-0.0062943,0.0295868-0.0221405,0.0526123-0.0475235,0.0690613
+						c-0.056366,0.0395966-0.1145325,0.0061798-0.1542816-0.0327454c-0.179657-0.1694641-0.3681641-0.3284302-0.5655289-0.4768982
+						c-0.2242966-0.1816864-0.4757538-0.3244629-0.7114716-0.4907074c-0.171936-0.1100311-0.3508682-0.2071838-0.5367813-0.2914734
+						c-0.3180389-0.1529694-0.6330795-0.2981262-0.9599075-0.4424438c-0.2209702-0.0923615-0.4585266-0.173111-0.6894455-0.2584991
+						c-0.0374832-0.009491-0.0696182-0.0281982-0.0963974-0.0560913c-0.0251694-0.0270081-0.0319214-0.0580292-0.0202255-0.0930634
+						c0.0116882-0.0350189,0.0357056-0.0557709,0.0720596-0.0622559c0.0388718-0.0093689,0.0774994-0.0084534,0.1158829,0.0027771
+						c0.2963028,0.0691528,0.5581894,0.2021332,0.8399277,0.2963867c0.0481796,0.015686,0.0752411,0.0189514,0.0965729-0.028244
+						c0.1154404-0.2262268,0.2803955-0.4073944,0.4948425-0.5434723c0.1581421-0.1184082,0.3269501-0.2188873,0.5064392-0.3014374
+						c0.1191025-0.0490417,0.2356949-0.1087036,0.3564529-0.1588898c0.1472778-0.0621185,0.2997513-0.0801086,0.4574356-0.0540161
+						c0.052475,0.0077209,0.0645752-0.0032654,0.0746078-0.0524292c0.0211792-0.1624146,0.0287781-0.3254395,0.0228119-0.4891052
+						c0.0010605-0.1394653,0.049263-0.2823334,0.0358963-0.4141235
+						C121.2467804,144.7494659,121.2965622,144.7392426,121.3081207,144.7063446z"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g>
+                    <path
+                      d="M124.0806808,150.1144867c-0.0422211,0-0.063324-0.0137329-0.063324-0.041153
+				c0-0.0084534,0.0052719-0.033783,0.015831-0.0759888c0.0105515-0.0422211,0.015831-0.0791626,0.015831-0.1108246
+				c0-0.0654297-0.0221634-0.1055298-0.0664902-0.1203003c-0.0443344-0.0147858-0.146698-0.022171-0.3071136-0.022171h-0.1646423
+				c-0.0021057,0.0042267-0.0390472,0.1498718-0.110817,0.4369202c-0.0717621,0.2870636-0.1076431,0.4348145-0.1076431,0.4432678
+				c0,0.0084381,0.0116043,0.0126648,0.0348282,0.0126648c0.0232162,0,0.1076431,0.0021057,0.2532883,0.0063324
+				c0.19841,0,0.329277-0.002121,0.392601-0.0063324c0.063324-0.0042267,0.1266479-0.0179443,0.1899643-0.0411682
+				c0.1034241-0.0337677,0.1889114-0.092865,0.2564545-0.1773071c0.0675507-0.0844269,0.1424789-0.2226715,0.2248001-0.4147491
+				c0.0211029-0.0464478,0.0348282-0.0717621,0.0411606-0.0759888c0.0147705-0.0042267,0.0306015-0.0063324,0.0474854-0.0063324
+				c0.0422211,0,0.063324,0.0137177,0.063324,0.041153c-0.2216263,0.5361328-0.3377151,0.8094788-0.3482742,0.8200378
+				c-0.0063248,0.0042114-0.3081665,0.0063171-0.9055099,0.0063171h-0.5983963
+				c-0.2152939,0-0.3229446-0.0115967-0.3229446-0.0348206c0-0.0042267,0.0031662-0.0189972,0.0094986-0.0443268
+				c0.0084381-0.0337677,0.0168839-0.0527649,0.0253296-0.0569916c0.0084381-0.0042267,0.0327148-0.0073853,0.0728226-0.009491
+				c0.0569839,0,0.1203079-0.0031738,0.1899643-0.0095062c0.0295486-0.0063324,0.0495987-0.0189972,0.0601578-0.0379944
+				c0.0042191-0.0105591,0.079155-0.3071136,0.2247925-0.889679s0.2195206-0.878067,0.2216263-0.8865204
+				c0-0.0147705-0.0042114-0.0221558-0.0126648-0.0221558c-0.0168839-0.0063324-0.0728149-0.0116119-0.1678009-0.0158386h-0.0981522
+				c-0.0126648-0.0126648-0.0189972-0.0211029-0.0189972-0.0253296c0-0.0042114,0.0021133-0.0221558,0.0063324-0.0538177
+				c0.0084457-0.0358887,0.0189972-0.0580444,0.031662-0.0664825h1.7540359
+				c0.0147781,0.0084381,0.0221634,0.02005,0.0221634,0.0348206c0,0.0105591-0.0137177,0.1287537-0.0411606,0.3546143
+				c-0.0274353,0.2258453-0.0422134,0.3419342-0.0443268,0.3482666c-0.0042191,0.0147858-0.0253296,0.0221558-0.063324,0.0221558
+				h-0.0379944c-0.0147705-0.0105438-0.0221634-0.0242615-0.0221634-0.041153l0.0095062-0.0728149
+				c0.0063248-0.0506592,0.009491-0.105545,0.009491-0.1646423c0-0.063324-0.0073853-0.1160889-0.0221634-0.1583099
+				c-0.0147705-0.0422058-0.0348206-0.0749359-0.0601501-0.0981445c-0.0253296-0.0232239-0.0622711-0.0401001-0.110817-0.0506592
+				s-0.0981522-0.0179291-0.1488037-0.022171c-0.0506592-0.0042114-0.1182098-0.0063324-0.2026367-0.0063324h-0.1488037
+				c-0.1857529,0.002121-0.2838974,0.0052795-0.2944565,0.0095062c-0.0084381,0.0042267-0.0147705,0.0137177-0.0189972,0.0284882
+				c-0.0021057,0.0063324-0.0348282,0.1361542-0.0981445,0.3894348c-0.063324,0.2532959-0.0960388,0.3820496-0.0981522,0.3862762
+				c0.0485458,0.0021057,0.099205,0.0031586,0.1519775,0.0031586h0.0823135c0.1393127,0,0.2353516-0.0158234,0.2881241-0.0474854
+				c0.0527649-0.031662,0.1002579-0.117157,0.1424713-0.2564545c0.0084457-0.0337677,0.0147781-0.0527802,0.0189972-0.0570068
+				c0.0042191-0.0042114,0.0221634-0.00737,0.0538254-0.009491c0.0105515,0,0.0189972,0,0.0253296,0
+				s0.0116043,0.0010681,0.015831,0.0031738c0.0042191,0.0021057,0.0063324,0.0031586,0.0063324,0.0031586
+				s0.0021057,0.0042267,0.0063324,0.0126648c0.0042191,0.0084534,0.0073853,0.0126648,0.0094986,0.0126648l-0.1044846,0.4179382
+				c-0.0696564,0.2807312-0.1076508,0.4231873-0.1139755,0.4274139
+				C124.1250076,150.1113281,124.1081161,150.1144867,124.0806808,150.1144867z"
+                    />
+                  </g>
+                </g>
+              </g>
+              <g>
+                <g>
+                  <defs>
+                    <rect
+                      id="SVGID_1_"
+                      x="6.3143692"
+                      y="3.3153546"
+                      width="118.209343"
+                      height="65.0151443"
+                    />
+                  </defs>
+                  <clipPath id="SVGID_2_">
+                    <use xlink:href="#SVGID_1_" style="overflow: visible" />
+                  </clipPath>
+                  <line
+                    class="st14"
+                    x1="74.8235168"
+                    y1="57.8972855"
+                    x2="38.7407646"
+                    y2="29.8179684"
+                  />
+                  <line
+                    class="st15"
+                    x1="74.8235168"
+                    y1="57.8972855"
+                    x2="38.7407646"
+                    y2="29.8179684"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_3_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_4_">
+                      <use xlink:href="#SVGID_3_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st16">
+                      <defs>
+                        <rect
+                          id="SVGID_5_"
+                          x="36.8405685"
+                          y="27.7759075"
+                          transform="matrix(0.6141438 -0.7891942 0.7891942 0.6141438 -8.4376221 41.3817711)"
+                          width="2.5196357"
+                          height="3.0874772"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_6_">
+                        <use xlink:href="#SVGID_5_" style="overflow: visible" />
+                      </clipPath>
+                      <polygon
+                        class="st17"
+                        points="36.8820763,28.3715687 40.0924034,29.2734814 38.7407646,29.8179684 38.5449867,31.2619648 				
+					"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <defs>
+                    <rect
+                      id="SVGID_7_"
+                      x="6.3143692"
+                      y="3.3153546"
+                      width="118.209343"
+                      height="65.0151443"
+                    />
+                  </defs>
+                  <clipPath id="SVGID_8_">
+                    <use xlink:href="#SVGID_7_" style="overflow: visible" />
+                  </clipPath>
+                  <line
+                    class="st18"
+                    x1="107.0412903"
+                    y1="35.6966667"
+                    x2="76.7628403"
+                    y2="56.560936"
+                  />
+                  <line
+                    class="st19"
+                    x1="107.0412903"
+                    y1="35.6966667"
+                    x2="76.7628403"
+                    y2="56.560936"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_9_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_10_">
+                      <use xlink:href="#SVGID_9_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st20">
+                      <defs>
+                        <rect
+                          id="SVGID_11_"
+                          x="74.5509415"
+                          y="55.7615395"
+                          transform="matrix(0.8234335 -0.5674127 0.5674127 0.8234335 -18.9188747 53.2451515)"
+                          width="3.0874863"
+                          height="2.5196307"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_12_">
+                        <use
+                          xlink:href="#SVGID_11_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st21"
+                        points="74.8235168,57.8972855 76.6510162,55.1080437 76.7628403,56.560936 78.0806885,57.1827888 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <defs>
+                    <rect
+                      id="SVGID_13_"
+                      x="6.3143692"
+                      y="3.3153546"
+                      width="118.209343"
+                      height="65.0151443"
+                    />
+                  </defs>
+                  <clipPath id="SVGID_14_">
+                    <use xlink:href="#SVGID_13_" style="overflow: visible" />
+                  </clipPath>
+                  <line
+                    class="st22"
+                    x1="10.6298828"
+                    y1="49.3965149"
+                    x2="104.7095337"
+                    y2="36.0279999"
+                  />
+                  <line
+                    class="st23"
+                    x1="10.6298828"
+                    y1="49.3965149"
+                    x2="104.7095337"
+                    y2="36.0279999"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_15_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_16_">
+                      <use xlink:href="#SVGID_15_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st24">
+                      <defs>
+                        <rect
+                          id="SVGID_17_"
+                          x="103.9691544"
+                          y="34.654026"
+                          transform="matrix(0.9900544 -0.1406852 0.1406852 0.9900544 -4.0031562 15.2012901)"
+                          width="3.0874789"
+                          height="2.519645"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_18_">
+                        <use
+                          xlink:href="#SVGID_17_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st25"
+                        points="107.041275,35.6966667 104.1617355,37.3783226 104.7095337,36.0279999 103.8072662,34.8837357 
+									"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <defs>
+                    <rect
+                      id="SVGID_19_"
+                      x="6.3143692"
+                      y="3.3153546"
+                      width="118.209343"
+                      height="65.0151443"
+                    />
+                  </defs>
+                  <clipPath id="SVGID_20_">
+                    <use xlink:href="#SVGID_19_" style="overflow: visible" />
+                  </clipPath>
+                  <line
+                    class="st26"
+                    x1="40.8384552"
+                    y1="60.5706177"
+                    x2="12.8387833"
+                    y2="50.2135811"
+                  />
+                  <line
+                    class="st27"
+                    x1="40.8384552"
+                    y1="60.5706177"
+                    x2="12.8387833"
+                    y2="50.2135811"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_21_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_22_">
+                      <use xlink:href="#SVGID_21_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st28">
+                      <defs>
+                        <rect
+                          id="SVGID_23_"
+                          x="10.8179312"
+                          y="48.3883324"
+                          transform="matrix(0.3469262 -0.9378924 0.9378924 0.3469262 -38.9432526 43.9369545)"
+                          width="2.5196288"
+                          height="3.087481"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_24_">
+                        <use
+                          xlink:href="#SVGID_23_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st29"
+                        points="10.6298828,49.3965149 13.9626703,49.2860641 12.8387823,50.2135811 13.0885458,51.6492081 				
+					"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <defs>
+                    <rect
+                      id="SVGID_25_"
+                      x="6.3143692"
+                      y="3.3153546"
+                      width="118.209343"
+                      height="65.0151443"
+                    />
+                  </defs>
+                  <clipPath id="SVGID_26_">
+                    <use xlink:href="#SVGID_25_" style="overflow: visible" />
+                  </clipPath>
+                  <line
+                    class="st30"
+                    x1="80.9617844"
+                    y1="3.3155949"
+                    x2="42.1900711"
+                    y2="58.6419144"
+                  />
+                  <line
+                    class="st31"
+                    x1="80.9617844"
+                    y1="3.3155949"
+                    x2="42.1900711"
+                    y2="58.6419144"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_27_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_28_">
+                      <use xlink:href="#SVGID_27_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st32">
+                      <defs>
+                        <rect
+                          id="SVGID_29_"
+                          x="40.1806602"
+                          y="58.0465965"
+                          transform="matrix(0.5738919 -0.8189311 0.8189311 0.5738919 -30.7887573 59.4403496)"
+                          width="3.087477"
+                          height="2.5196309"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_30_">
+                        <use
+                          xlink:href="#SVGID_29_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st33"
+                        points="40.838459,60.5706177 41.5786362,57.3192024 42.1900711,58.6419029 43.6420403,58.7651939 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <defs>
+                    <rect
+                      id="SVGID_31_"
+                      x="6.3143692"
+                      y="3.3153546"
+                      width="118.209343"
+                      height="65.0151443"
+                    />
+                  </defs>
+                  <clipPath id="SVGID_32_">
+                    <use xlink:href="#SVGID_31_" style="overflow: visible" />
+                  </clipPath>
+                  <line
+                    class="st34"
+                    x1="95.3031464"
+                    y1="23.538866"
+                    x2="82.3241653"
+                    y2="5.2367377"
+                  />
+                  <line
+                    class="st35"
+                    x1="95.3031464"
+                    y1="23.538866"
+                    x2="82.3241653"
+                    y2="5.2367377"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_33_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_34_">
+                      <use xlink:href="#SVGID_33_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st36">
+                      <defs>
+                        <rect
+                          id="SVGID_35_"
+                          x="80.5949707"
+                          y="3.0310988"
+                          transform="matrix(0.8157099 -0.5784612 0.5784612 0.8157099 12.4386578 48.1929131)"
+                          width="2.5196359"
+                          height="3.0874829"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_36_">
+                        <use
+                          xlink:href="#SVGID_35_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st37"
+                        points="80.9617844,3.3155949 83.7754211,5.1053295 82.3241653,5.2367377 81.7201385,6.5628409 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_37_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_38_">
+                      <use xlink:href="#SVGID_37_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st38">
+                      <defs>
+                        <rect
+                          id="SVGID_39_"
+                          x="72.9529343"
+                          y="44.8836136"
+                          transform="matrix(0.0289669 -0.9995804 0.9995804 0.0289669 12.63978 132.3309479)"
+                          width="2.9552355"
+                          height="29.5523376"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_40_">
+                        <use
+                          xlink:href="#SVGID_39_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st39"
+                        points="81.3052368,58.3856888 70.2395248,61.0116425 72.66745,61.0869179 83.7333069,58.4560585 				"
+                      />
+                      <polygon
+                        class="st39"
+                        points="63.4143105,57.8623047 63.3288422,60.8113823 68.5093918,60.9615135 79.5751114,58.3355446 				
+					"
+                      />
+                      <polygon
+                        class="st39"
+                        points="85.5322495,58.5081711 85.33564,58.5024719 85.3398438,58.527195 74.3533325,61.1357765 
+					85.4467926,61.4572487 				"
+                      />
+                      <polygon
+                        class="st40"
+                        points="81.3250427,58.3813324 79.590004,58.3310585 79.5751114,58.3355446 68.5093918,60.9615135 
+					68.4945068,60.9659843 70.2246323,61.0161285 70.2395248,61.0116425 81.3052368,58.3856888 				"
+                      />
+                      <polygon
+                        class="st40"
+                        points="85.33564,58.5024719 85.3357849,58.4975662 83.7531128,58.4517021 83.7333069,58.4560585 
+					72.66745,61.0869179 72.6527023,61.0864983 74.3435135,61.1354866 74.3533325,61.1357765 85.3398438,58.527195 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_41_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_42_">
+                      <use xlink:href="#SVGID_41_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st41">
+                      <defs>
+                        <rect
+                          id="SVGID_43_"
+                          x="109.8375168"
+                          y="26.9910927"
+                          transform="matrix(0.9315091 -0.363718 0.363718 0.9315091 -7.5674305 43.3479919)"
+                          width="2.9552293"
+                          height="29.55233"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_44_">
+                        <use
+                          xlink:href="#SVGID_43_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st42"
+                        points="107.4573212,35.9361305 114.1964264,45.097477 113.3175049,42.832962 106.5738068,33.6734085 				
+					"
+                      />
+                      <polygon
+                        class="st42"
+                        points="113.9627838,52.6106186 116.7110214,51.5375328 114.8259735,46.7097816 108.0868607,37.5484276 
+									"
+                      />
+                      <polygon
+                        class="st42"
+                        points="105.9192352,31.996973 105.9907684,32.1802063 106.0118866,32.1666679 112.7040558,41.2618752 
+					108.6674728,30.9238968 				"
+                      />
+                      <polygon
+                        class="st43"
+                        points="107.4455719,35.9196091 108.0769196,37.5364723 108.0868607,37.5484276 114.8259735,46.7097816 
+					114.835907,46.7217369 114.2063828,45.1094284 114.1964264,45.097477 107.4573212,35.9361305 				"
+                      />
+                      <polygon
+                        class="st43"
+                        points="105.9907684,32.1802063 105.9861908,32.1819878 106.5620804,33.6568642 106.5738068,33.6734085 
+					113.3175049,42.832962 113.3228683,42.8467064 112.7076416,41.2710381 112.7040558,41.2618752 106.0118866,32.1666679 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_45_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_46_">
+                      <use xlink:href="#SVGID_45_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st44">
+                      <defs>
+                        <rect
+                          id="SVGID_47_"
+                          x="-5.4559846"
+                          y="43.492054"
+                          transform="matrix(0.1063675 -0.9943269 0.9943269 0.1063675 -36.3857346 49.4536705)"
+                          width="29.5523357"
+                          height="2.9552348"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_48_">
+                        <use
+                          xlink:href="#SVGID_47_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st45"
+                        points="10.0575171,51.9224472 8.2972755,40.6864624 8.034009,43.1012497 9.7991409,54.3377533 				"
+                      />
+                      <polygon
+                        class="st45"
+                        points="11.9662342,34.1259308 9.0326548,33.8121033 8.4813814,38.9654121 10.2416239,50.2014122 				"
+                      />
+                      <polygon
+                        class="st45"
+                        points="9.6077118,56.1272469 9.6286335,55.931675 9.6036634,55.9339485 7.85461,44.7782745 
+					6.6741328,55.8134232 				"
+                      />
+                      <polygon
+                        class="st46"
+                        points="10.0603142,51.9425278 10.2449436,50.2165985 10.2416239,50.2014122 8.4813814,38.9654121 
+					8.4780617,38.9502373 8.2939548,40.6712608 8.2972755,40.6864624 10.0575171,51.9224472 				"
+                      />
+                      <polygon
+                        class="st46"
+                        points="9.6286335,55.931675 9.633523,55.9321899 9.8019381,54.3578339 9.7991409,54.3377533 
+					8.034009,43.1012497 8.0355787,43.0865784 7.8556561,44.7684975 7.85461,44.7782745 9.6036634,55.9339485 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_49_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_50_">
+                      <use xlink:href="#SVGID_49_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st47">
+                      <defs>
+                        <rect
+                          id="SVGID_51_"
+                          x="27.1272392"
+                          y="60.6180611"
+                          transform="matrix(0.9545567 -0.2980294 0.2980294 0.9545567 -16.602108 15.3102808)"
+                          width="29.5523415"
+                          height="2.9552362"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_52_">
+                        <use
+                          xlink:href="#SVGID_51_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <polygon
+                        class="st48"
+                        points="47.9888039,58.6529045 38.3807983,64.7383118 40.7009697,64.0190506 50.3075104,57.9289589 				
+					"
+                      />
+                      <polygon
+                        class="st48"
+                        points="30.9021206,63.9825211 31.7813988,66.7987518 36.7285995,65.2541504 46.3366051,59.1687469 				
+					"
+                      />
+                      <polygon
+                        class="st48"
+                        points="52.0254173,57.392601 51.8376694,57.4512215 51.8496895,57.4732285 42.3109245,63.5164146 
+					52.9046974,60.2088509 				"
+                      />
+                      <polygon
+                        class="st49"
+                        points="48.0061111,58.6423454 46.3492203,59.1596565 46.3366051,59.1687469 36.7285995,65.2541504 
+					36.7159882,65.2632446 38.3681831,64.7473984 38.3807983,64.7383118 47.9888039,58.6529045 				"
+                      />
+                      <polygon
+                        class="st49"
+                        points="51.8376694,57.4512215 51.8362045,57.4465332 50.3248215,57.9183998 50.3075104,57.9289589 
+					40.7009697,64.0190506 40.6868896,64.0234528 42.3015404,63.5193367 42.3109245,63.5164146 51.8496895,57.4732285 				"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_53_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_54_">
+                      <use xlink:href="#SVGID_53_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st50">
+                      <defs>
+                        <rect
+                          id="SVGID_55_"
+                          x="89.3926773"
+                          y="17.6283989"
+                          width="11.8209362"
+                          height="11.8209362"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_56_">
+                        <use
+                          xlink:href="#SVGID_55_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <path
+                        class="st51"
+                        d="M89.4888535,22.4858723l1.2644958,1.1154022l-1.2197723,1.1636238
+					c-0.0448151,0.0427608-0.0632553,0.1059875-0.0484619,0.1659679c0.0148239,0.0599556,0.0606995,0.1074772,0.1203079,0.1246967
+					l1.6234436,0.4684906l-0.6000061,1.5712662c-0.022049,0.0577202-0.0114288,0.1227264,0.0277939,0.1705856
+					c0.0392532,0.0478344,0.1011963,0.0712357,0.1624985,0.0613499l1.6686401-0.2690201l0.1357117,1.6752815
+					c0.0049896,0.0615444,0.0426178,0.1157761,0.0987015,0.142231c0.056076,0.0264778,0.1221542,0.0211868,0.1732483-0.0138779
+					l1.3914032-0.9544849l0.8452225,1.4555378c0.0310593,0.0534878,0.0884247,0.0864105,0.1505356,0.0864105
+					c0.0621033,0,0.1194534-0.0329227,0.1505127-0.0864105l0.9702148-1.6708088l1.6782532,0.968605
+					c0.0537186,0.0310001,0.1199875,0.0311432,0.1737976,0.0004082c0.0538635-0.030735,0.0871124-0.0877094,0.0872726-0.1494446
+					l0.0040665-1.6806698l1.6846008,0.1388645c0.0617599,0.0050735,0.121788-0.0230408,0.1571579-0.073761
+					c0.0353851-0.0507221,0.0408859-0.1163769,0.0143585-0.1721973l-0.7213058-1.5199928l1.5818024-0.5929222
+					c0.0580902-0.0217648,0.1000824-0.0727253,0.110199-0.1336441c0.0101089-0.0609188-0.0132751-0.1225567-0.0613251-0.1616859
+					l-1.3071976-1.0655499l1.1731644-1.2100391c0.0430756-0.0444431,0.059082-0.1083679,0.0419235-0.1676979
+					c-0.0171814-0.0593319-0.0648727-0.1050491-0.1251144-0.1199131l-1.6405029-0.4052143l0.5378265-1.5933208
+					c0.0197678-0.0585365,0.0066071-0.123085-0.0344925-0.1693573c-0.0411148-0.0462952-0.1039352-0.0672665-0.164772-0.0550022
+					l-1.6567764,0.3334503l-0.201355-1.6687412c-0.0073624-0.0613022-0.0471191-0.1139946-0.1041946-0.1382847
+					c-0.0571136-0.0242901-0.1228943-0.0164509-0.1725769,0.0205612l-1.3528519,1.0077095l-0.9016953-1.3752365
+					c-0.0319061-0.050312-0.087471-0.080616-0.1469955-0.080616c-0.0022659,0-0.0045319,0.0000477-0.006813,0.0001202
+					c-0.0620346,0.0024052-0.1180878,0.0375423-0.1470261,0.0921841l-0.7874527,1.4407711l-1.4277191-0.8997974
+					c-0.0524826-0.0330677-0.1186066-0.0357857-0.1736679-0.0071659c-0.0550003,0.0286198-0.0904846,0.0842705-0.0930405,0.1459579
+					l-0.0699844,1.6792736l-1.6778793-0.2041092c-0.0615082-0.0074806-0.1225967,0.0182762-0.1599503,0.0675793
+					c-0.0373611,0.0493507-0.0453873,0.1147175-0.0211029,0.1715469l0.6611404,1.5468082l-1.6037903,0.5310898
+					c-0.0589218,0.0195045-0.1028824,0.0687828-0.1153717,0.1292686
+					C89.4214859,22.3823853,89.4424286,22.444891,89.4888535,22.4858723z"
+                      />
+                      <path
+                        class="st52"
+                        d="M91.7610397,23.5690727c0-0.2348938,0.022934-0.4675274,0.0687943-0.6979237
+					c0.0458603-0.2303734,0.1137695-0.4540844,0.2037354-0.6710854c0.0899582-0.2170238,0.2002411-0.4231796,0.3308411-0.6184864
+					c0.1306076-0.1953087,0.2790222-0.3760185,0.4452438-0.5421295c0.1662292-0.1660881,0.3470688-0.3143787,0.5425339-0.4448967
+					c0.1954575-0.1304951,0.4017868-0.2406902,0.6189651-0.3305874c0.217186-0.0898743,0.4410629-0.1577435,0.6716232-0.2035828
+					c0.2305603-0.0458145,0.4633789-0.0687332,0.6984634-0.0687332c0.2350693,0,0.4678955,0.0229187,0.6984558,0.0687332
+					c0.2305679,0.0458393,0.4544373,0.1137085,0.6716232,0.2035828c0.217186,0.0898972,0.4235077,0.2000923,0.6189651,0.3305874
+					c0.1954651,0.130518,0.3763046,0.2788086,0.5425339,0.4448967c0.1662292,0.166111,0.3146439,0.3468208,0.4452438,0.5421295
+					c0.1306,0.1953068,0.2408905,0.4014626,0.3308487,0.6184864c0.0899658,0.217001,0.1578674,0.440712,0.2037277,0.6710854
+					c0.0458679,0.2303963,0.0687943,0.4630299,0.0687943,0.6979237s-0.0229263,0.4675503-0.0687943,0.6979237
+					c-0.0458603,0.2303963-0.1137619,0.4540844-0.2037277,0.6711082c-0.0899582,0.2170258-0.2002487,0.4231796-0.3308487,0.6184883
+					c-0.1306,0.1953068-0.2790146,0.3760166-0.4452438,0.5421047c-0.1662292,0.1661129-0.3470688,0.3144035-0.5425339,0.4448967
+					c-0.1954575,0.130518-0.4017792,0.240715-0.6189651,0.3305874c-0.217186,0.0898991-0.4410553,0.1577663-0.6716232,0.2035828
+					c-0.2305603,0.0458374-0.4633865,0.0687332-0.6984558,0.0687332c-0.2350845,0-0.4679031-0.0228958-0.6984634-0.0687332
+					c-0.2305603-0.0458164-0.4544373-0.1136837-0.6716232-0.2035828c-0.2171783-0.0898724-0.4235077-0.2000694-0.6189651-0.3305874
+					c-0.1954651-0.1304932-0.3763046-0.2787838-0.5425339-0.4448967c-0.1662216-0.1660881-0.3146362-0.3467979-0.4452438-0.5421047
+					c-0.1306-0.1953087-0.2408829-0.4014626-0.3308411-0.6184883c-0.0899658-0.2170238-0.1578751-0.440712-0.2037354-0.6711082
+					C91.7839737,24.036623,91.7610397,23.8039665,91.7610397,23.5690727z"
+                      />
+                      <path
+                        class="st53"
+                        d="M95.3411407,27.1464977c0.0896759,0,0.1785126-0.0034142,0.2665024-0.0098839
+					c-1.8527908-0.1362419-3.3136749-1.6813908-3.3136749-3.5675659c0-1.8861504,1.4608841-3.4312744,3.3136749-3.5675392
+					c-0.0879898-0.0064697-0.1768494-0.0098858-0.2665024-0.0098858c-1.9772568,0-3.5801697,1.6016655-3.5801697,3.5774021
+					C91.7609711,25.5448074,93.363884,27.1464977,95.3411407,27.1464977z"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <defs>
+                    <rect
+                      id="SVGID_57_"
+                      x="93.4036713"
+                      y="21.4252529"
+                      width="3.7989476"
+                      height="4.2272253"
+                    />
+                  </defs>
+                  <clipPath id="SVGID_58_">
+                    <use xlink:href="#SVGID_57_" style="overflow: visible" />
+                  </clipPath>
+                  <path
+                    class="st54"
+                    d="M94.7607956,22.0837593c-0.1090317,0-0.166748-0.0063972-0.173172-0.0192394
+			c-0.0032043-0.0063972-0.0048065-0.0192394-0.0048065-0.0384789c0-0.0769596,0.0176392-0.1298695,0.0529175-0.1587296
+			c0.0064087-0.0031986,0.0304642-0.0048103,0.0721512-0.0048103c0.173172,0.0096207,0.3768005,0.014431,0.6108932,0.014431
+			c0.4521637,0,0.7119141-0.0048103,0.7792587-0.014431h0.057724c0.0192413,0.0192413,0.028862,0.0336704,0.028862,0.0432911
+			c0,0.0096188-0.0032043,0.0384789-0.0096207,0.0865784c-0.0160294,0.0480995-0.0304642,0.0785713-0.0432892,0.0913887h-0.1827927
+			c-0.2212677,0.0032234-0.3511429,0.0176525-0.3896332,0.043314c-0.0224457,0.0128193-0.0448837,0.0577202-0.067337,0.1346779
+			c-0.0224457,0.0769596-0.1298752,0.5002594-0.3222809,1.2698994c-0.0513153,0.2084408-0.1058273,0.429697-0.1635513,0.6637974
+			s-0.1010132,0.4104824-0.1298752,0.5291424l-0.0432892,0.1731586c0,0.0128193,0.0144272,0.0192394,0.0432892,0.0192394
+			s0.1234589,0.0031986,0.2838058,0.0096207h0.0817719c0.1026154,0,0.1843872-0.0016117,0.2453232-0.0048103
+			c0.0609283-0.0031986,0.1394958-0.0144291,0.2356949-0.0336685c0.0962067-0.0192413,0.1763763-0.0480995,0.240509-0.0865803
+			c0.0641403-0.0384789,0.1346893-0.0930004,0.2116547-0.1635628c0.0769653-0.0705376,0.1443024-0.1587276,0.2020264-0.2645473
+			c0.0513077-0.096199,0.099411-0.2036285,0.1443024-0.3222904c0.044899-0.1186619,0.0721588-0.1860008,0.0817871-0.2020168
+			c0.0160294-0.0096207,0.0432892-0.014431,0.0817642-0.014431h0.0625381
+			c0.0192413,0.0288601,0.028862,0.0464897,0.028862,0.0529099c0,0.0063972-0.032074,0.1010094-0.0962067,0.2837868
+			c-0.0641327,0.1828022-0.1346893,0.3752003-0.2116547,0.5772419c-0.0769653,0.2020187-0.1186523,0.3206806-0.125061,0.355938
+			c-0.0064163,0.0160408-0.012825,0.0256596-0.0192413,0.028883c-0.0064163,0.0031986-0.0320663,0.008009-0.0769653,0.0144291
+			c-0.0448914,0.0063972-0.1138458,0.008009-0.2068405,0.0048103c-0.0352707,0-0.157135,0-0.3655777,0
+			s-0.4072571-0.0016117-0.5964661-0.0048103h-0.8562088c-0.2693863,0-0.4040604-0.0160408-0.4040604-0.0481224
+			c0-0.022438,0.0032043-0.044878,0.009613-0.0673389c0.016037-0.0609188,0.0320663-0.0945892,0.0481033-0.1010094
+			c0.0128326-0.0031986,0.0368729-0.0048103,0.0721588-0.0048103h0.0288544c0.086586,0,0.1827927-0.0048103,0.28862-0.0144291
+			c0.0448837-0.0096207,0.0753479-0.0288601,0.0913849-0.0577202c0.0096283-0.0128193,0.1250687-0.45858,0.346344-1.3372383
+			c0.2212677-0.8786812,0.3319016-1.3420486,0.3319016-1.3901482
+			C95.0349808,22.1046104,94.9435883,22.0901814,94.7607956,22.0837593z"
+                  />
+                </g>
+                <g>
+                  <g>
+                    <defs>
+                      <rect
+                        id="SVGID_59_"
+                        x="6.3143692"
+                        y="3.3153546"
+                        width="118.2093582"
+                        height="65.0151443"
+                      />
+                    </defs>
+                    <clipPath id="SVGID_60_">
+                      <use xlink:href="#SVGID_59_" style="overflow: visible" />
+                    </clipPath>
+                    <g class="st55">
+                      <defs>
+                        <rect
+                          id="SVGID_61_"
+                          x="31.5945892"
+                          y="23.601387"
+                          transform="matrix(0.6141466 -0.789192 0.789192 0.6141466 -7.6271057 37.5134087)"
+                          width="5.910471"
+                          height="5.9104738"
+                        />
+                      </defs>
+                      <clipPath id="SVGID_62_">
+                        <use
+                          xlink:href="#SVGID_61_"
+                          style="overflow: visible"
+                        />
+                      </clipPath>
+                      <path
+                        class="st56"
+                        d="M34.4394302,28.0484123c0.1247864-0.0657043,0.0982513-0.1910038,0.1516685-0.269598
+					c0.1560783-0.2300129,0.3264275-0.4489136,0.5110397-0.6567039c0.2892227-0.3494892,0.6231689-0.6491013,1.0018463-0.8988819
+					c0.0169106-0.0217171,0.0700302-0.0152721,0.0526085-0.0675812c-0.0174294-0.0523319-0.0458717-0.0357132-0.0812874-0.0400181
+					c-0.1800346-0.0276814-0.3522873-0.0454292-0.5358047-0.0835724c-0.4246216-0.0765038-0.8423576-0.1806393-1.253212-0.3123837
+					c-0.2269783-0.0719566-0.4520721-0.1463413-0.6758232-0.227438c-0.1768456-0.1032944-0.3676033-0.1587048-0.5722733-0.1662312
+					c0.6183014,0.8286819,1.0845757,1.7355251,1.3988228,2.7205315L34.4394302,28.0484123z M34.9062653,30.2530041
+					c-0.04179,0.0629864-0.1002007,0.0898991-0.1752319,0.0807114c-0.0737801-0.0147667-0.0844994-0.065752-0.0930672-0.1344376
+					c-0.101841-0.4669018-0.242588-0.9136753-0.3353043-1.3773537c-0.0433273-0.1774635-0.0998077-0.3506222-0.169445-0.5194988
+					c-0.1249428-0.3375626-0.2461319-0.6799583-0.3767166-1.0102825c-0.1977921-0.4420815-0.4185944-0.8723316-0.6623993-1.2907734
+					c-0.1110878-0.1958389-0.2393837-0.3796749-0.3848915-0.5514851c-0.1217461-0.1939869-0.2638168-0.3717384-0.4262123-0.5332565
+					c-0.034996-0.0293159-0.0544777-0.0667381-0.0584488-0.112215c-0.0039711-0.0455017,0.0087357-0.0857143,0.0381165-0.1206818
+					c0.0638771-0.0820827,0.1626129-0.0595226,0.2371941-0.0208511c0.3341866,0.1652927,0.6765137,0.3115158,1.0269928,0.4386673
+					c0.4040375,0.16325,0.8300934,0.2583427,1.2437973,0.3942242c0.2968102,0.082922,0.5980186,0.1441784,0.9036369,0.1837635
+					c0.52668,0.0803509,1.045578,0.1507912,1.5811157,0.2147884c0.3597984,0.0357609,0.7383919,0.0474014,1.1094627,0.0686855
+					c0.0583115-0.0028381,0.1129494,0.0099812,0.163929,0.0384312c0.0482712,0.027874,0.0717049,0.0696735,0.0702972,0.1253967
+					c-0.0014038,0.0557461-0.0269165,0.0962944-0.0765343,0.1217155c-0.0519753,0.0307121-0.1081467,0.0464401-0.1685104,0.0471611
+					c-0.4582901,0.0310249-0.8950844-0.0452862-1.3434334-0.0569496c-0.0764694-0.0013466-0.1169853,0.0058689-0.1269341,0.0834045
+					c-0.0667534,0.3775806-0.2248764,0.7119694-0.474369,1.0031147c-0.1760025,0.2407875-0.3753281,0.4603844-0.5979767,0.6588192
+					c-0.1502838,0.1233997-0.2922554,0.2609882-0.4444275,0.3867931c-0.185173,0.1546879-0.3973465,0.248024-0.6365128,0.2799625
+					c-0.0791512,0.0120487-0.0917702,0.0332375-0.0845413,0.1086578c0.0411453,0.2437916,0.102169,0.4825096,0.183075,0.7161522
+					c0.0600471,0.2018013,0.0535469,0.4293365,0.1310425,0.613678
+					C34.9757805,30.1636829,34.9084244,30.200407,34.9062653,30.2530041z"
+                      />
+                    </g>
+                  </g>
+                </g>
+                <g>
+                  <defs>
+                    <rect
+                      id="SVGID_63_"
+                      x="35.936779"
+                      y="19.8083153"
+                      width="4.5278416"
+                      height="4.200458"
+                    />
+                  </defs>
+                  <clipPath id="SVGID_64_">
+                    <use xlink:href="#SVGID_63_" style="overflow: visible" />
+                  </clipPath>
+                  <path
+                    class="st57"
+                    d="M38.7252808,22.4892864c-0.0637321,0-0.0955963-0.0207062-0.0955963-0.0621452
+			c0-0.0127449,0.0079651-0.0509853,0.0238991-0.1147156c0.0159302-0.0637321,0.0238991-0.1194801,0.0238991-0.1672916
+			c0-0.098772-0.0334587-0.1593285-0.1003799-0.1816235c-0.0669136-0.0223179-0.2214584-0.033453-0.4636345-0.033453h-0.2485466
+			c-0.0031853,0.0063725-0.0589523,0.2262363-0.1672897,0.6595879c-0.1083412,0.4333782-0.1625137,0.6564388-0.1625137,0.6691856
+			s0.0175247,0.0191193,0.052578,0.0191193c0.0350494,0,0.1625099,0.0031738,0.3823814,0.0095482
+			c0.29953,0,0.497097-0.0031757,0.5926895-0.0095482c0.0955963-0.0063725,0.1911888-0.0271034,0.2867851-0.0621452
+			c0.1561394-0.0509853,0.2851906-0.1402092,0.3871613-0.2676735c0.1019669-0.1274624,0.2150879-0.3361664,0.3393593-0.6261349
+			c0.0318718-0.0701046,0.0525818-0.108345,0.0621414-0.1147175c0.0223045-0.0063725,0.0462036-0.0095711,0.0716934-0.0095711
+			c0.0637321,0,0.0955963,0.020731,0.0955963,0.0621433c-0.3345795,0.8093719-0.5098419,1.2220173-0.5257721,1.2379608
+			c-0.0095596,0.0063744-0.465229,0.009573-1.367012,0.009573H37.009346c-0.3250237,0-0.4875374-0.0175323-0.4875374-0.052597
+			c0-0.0063725,0.0047798-0.0286674,0.0143356-0.066906c0.0127525-0.0509853,0.0254974-0.0796776,0.0382423-0.08605
+			c0.0127487-0.0063744,0.0493889-0.0111351,0.1099358-0.0143337c0.0860367,0,0.1816292-0.0047855,0.2867851-0.0143337
+			c0.0446091-0.0095482,0.0748825-0.0286922,0.0908127-0.0573597c0.0063744-0.0159206,0.1194954-0.4636307,0.3393631-1.3431053
+			c0.2198715-0.8794765,0.331398-1.3255997,0.3345833-1.3383465c0-0.0222931-0.0063705-0.033453-0.0191193-0.033453
+			c-0.0254898-0.0095463-0.1099319-0.0175323-0.2533264-0.0239048h-0.1481705
+			c-0.0191193-0.0191193-0.0286789-0.0318661-0.0286789-0.0382385c0-0.0063744,0.0031853-0.033453,0.0095596-0.0812397
+			c0.0127449-0.0541859,0.0286751-0.0876389,0.0477943-0.1003838h2.6479912
+			c0.0223045,0.0127449,0.0334587,0.0302773,0.0334587,0.0525723c0,0.0159454-0.0207138,0.1943932-0.0621376,0.535347
+			c-0.0414276,0.3409538-0.0637321,0.5162048-0.0669174,0.5257759c-0.0063744,0.022295-0.0382347,0.033453-0.0955925,0.033453
+			h-0.0573578c-0.0223045-0.0159454-0.0334625-0.0366516-0.0334625-0.0621433l0.0143433-0.1099319
+			c0.0095558-0.076479,0.0143356-0.1593304,0.0143356-0.2485542c0-0.0955982-0.0111504-0.175251-0.0334549-0.2389832
+			c-0.0223083-0.0637321-0.052578-0.1131306-0.0908165-0.1481705c-0.0382423-0.0350647-0.0940018-0.0605564-0.1672935-0.0764771
+			c-0.073288-0.0159225-0.1481705-0.0270805-0.2246475-0.0334549c-0.0764732-0.0063725-0.1784439-0.0095711-0.3059044-0.0095711
+			h-0.2246513c-0.2804108,0.0031986-0.4285812,0.0079842-0.4445152,0.0143585
+			c-0.0127449,0.0063477-0.0223045,0.0207062-0.0286789,0.0429993c-0.0031853,0.009573-0.0525742,0.2055302-0.1481705,0.5879211
+			c-0.0955963,0.3823681-0.144989,0.5767612-0.1481743,0.5831337c0.073288,0.0031757,0.149765,0.0047626,0.2294273,0.0047626
+			h0.1242752c0.2103081,0,0.3552933-0.0238819,0.4349556-0.0716915c0.0796661-0.0477867,0.1513596-0.1768379,0.2150917-0.3871536
+			c0.0127449-0.0509853,0.0223045-0.0796528,0.0286789-0.0860252c0.0063705-0.0063744,0.0334587-0.0111599,0.0812531-0.0143585
+			c0.0159378,0,0.0286789,0,0.0382385,0s0.0175285,0.0016117,0.0238991,0.0047855
+			c0.0063744,0.0031986,0.0095596,0.0047855,0.0095596,0.0047855s0.0031853,0.0063744,0.0095596,0.0191212
+			c0.0063744,0.0127449,0.0111542,0.0191193,0.0143394,0.0191193l-0.1577301,0.6309204
+			c-0.1051559,0.4238052-0.1625137,0.6389065-0.1720695,0.6452789
+			C38.7921982,22.4845009,38.7667046,22.4892864,38.7252808,22.4892864z"
+                  />
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="caption">
+          <p>
+            <i>Fig. 4.</i> By specifying diagrams in terms of abstract
+            relationships rather than explicit graphical directives, they are
+            easily adapted to a wide variety of use cases. Here we use identical
+            <i>Penrose</i> code to generate ray tracing diagrams for several
+            targets (Sec 5.6). Though the arrangement and number of objects
+            changes in each example, the meaning remains the same.
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="container" style="display: flex">
+          <div style="width: 30%; background: none; margin-right: 3%">
+            <p>
+              For any vector space <i>X</i>, let <i>u, v ∈ X</i> be orthogonal
+              vectors of equal length, and let <i>w = u + v</i>. Then
+              <i>u</i> and <i>w</i> make a 45◦ angle.
+            </p>
+          </div>
+
+          <div style="width: 33%">
+            <p class="code">
+              <b>VectorSpace</b> X<br />
+              <b>Vector</b> u, v ∈ X <br />
+              <b>Orthogonal</b>(u, v) <br />
+              <b>EqualLength</b>(u, v) <br />
+              <b>Vector</b> w ∈ X<br />
+              w := u + v<br />
+            </p>
+          </div>
+
+          <div style="flex-grow: 1; background: none">
+            <img src="media/figures/MathProse.svg" alt="See caption below" />
+          </div>
+        </div>
+
+        <div class="caption">
+          <p>
+            <i>Fig. 7.</i> Extensibility enables users to adopt conventions and
+            notation that reflect the way they naturally write mathematical
+            prose. Here, the resulting diagram plays the role of the concluding
+            statement.
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <img src="media/figures/sets-color-opt.png" alt="See caption below" />
+
+        <div class="caption">
+          <p>
+            <i>Fig. 8.</i> An optimization-based approach makes it possible to
+            jointly optimize visual attributes that are difficult to coordinate
+            by hand. Here for instance we optimize color contrast according to
+            the spatial proximity of adjacent disks <i>(left to right)</i>,
+            ultimately discovering a two-color solution <i>(far right)</i>. The
+            system can also be used to debug the optimization process itself—in
+            this case by drawing the hue of each disk as a dot on a color wheel.
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div style="flex-grow: 1; background: none">
+          <!-- <img width="700px" src="media/figures/enumeration.png" alt="See caption below"> -->
+          <img src="media/figures/enumeration.svg" alt="See caption below" />
+        </div>
+
+        <div class="caption">
+          <p>
+            <i>Fig. 9.</i> A language-based design makes it easy to build tools
+            on top of <i>Penrose</i> that provide additional power. Here we use
+            standard techniques from program synthesis (Sec. 5.7) to
+            automatically enumerate how the given relationships can be realized.
+            Generating such examples helps to see important corner cases that
+            might be missed when drawing diagrams by hand (where perhaps the
+            top-left diagram most easily comes to mind).
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <img src="media/figures/PenroseIDE.png" alt="See caption below" />
+
+        <div class="caption">
+          <p>
+            <i>Fig. 17.</i> Our system supports integration with web-based
+            applications. Here a <i>Penrose</i> IDE provides automatic syntax
+            highlighting and autocomplete for any user-defined domain.
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div style="flex-grow: 1; background: none">
+          <p class="code">
+            -- Sets.dsl <br />
+            <b>type</b> Set <br />
+            <b>predicate</b> Intersecting : Set s1 * Set s2<br />
+            <b>predicate</b> IsSubset : Set s1 * Set s2 <br />
+            <b>predicate</b> Not : Prop p <br />
+            <b>notation</b> "A ⊂ B" ~ "IsSubset(A, B)" <br />
+            <b>notation</b> "A ∩ B = ∅" ~ "Not(Intersecting(A, B))" <br />
+          </p>
+
+          <p class="code">
+            -- Sets.sub <br />
+            <b>Set</b> A, B, C, D, E, F, G <br />
+            B ⊂ A <br />
+            C ⊂ A <br />
+            D ⊂ B <br />
+            E ⊂ B <br />
+            F ⊂ C <br />
+            G ⊂ C <br />
+            E ∩ D = ∅ <br />
+            F ∩ G = ∅ <br />
+            B ∩ C = ∅
+          </p>
+
+          <p class="code" style="margin-bottom: 0">
+            -- Sets-Disks.sty <br />
+            <b>forall</b> Set x {
+          </p>
+
+          <div class="indent">
+            x.shape = Circle { strokeWidth : 0.0 }<br />
+            x.text = Text { string : x.label } <br />
+            <b>ensure</b> contains(x.shape, x.text) <br />
+            <b>encourage</b> sameCenter(x.text, x.shape) <br />
+            <b>layer</b> x.shape <b>below</b> x.text <br />
+          </div>
+
+          <p class="code" style="margin-top: 0">}</p>
+          <p></p>
+
+          <p class="code" style="margin-bottom: 0">
+            <b>forall</b> Set x; Set y <br />
+            <b>where</b> IsSubset(x, y) { <br />
+          </p>
+
+          <div class="indent">
+            <b>ensure</b> contains(y.shape, x.shape) <br />
+            <b>ensure</b> smallerThan(x.shape, y.shape) <br />
+            <b>ensure</b> outsideOf(y.text, x.shape) <br />
+            <b>layer</b> x.shape <b>above</b> y.shape <br />
+            <b>layer</b> y.text <b>below</b> x.shape <br />
+          </div>
+
+          <p class="code" style="margin-top: 0">}</p>
+          <p></p>
+
+          <p class="code" style="margin-bottom: 0">
+            <b>forall</b> Set x; Set y <br />
+            <b>where</b> NotIntersecting(x, y) { <br />
+          </p>
+
+          <div class="indent">
+            <b>ensure</b> disjoint(x.shape, y.shape) <br />
+          </div>
+          <p class="code" style="margin-top: 0">}</p>
+          <p></p>
+
+          <img src="media/figures/set-styles.svg" alt="See caption below" />
+        </div>
+
+        <div class="caption">
+          <p>
+            <i>Fig. 18.</i> Here, some <i>Substance</i> code is used to specify
+            set relationships. Different <i>Style</i> programs not only tweak
+            the visual style (<i>e.g.</i>, flat vs. shaded disks), but allow one
+            to use a completely different visual representation (<i>e.g.</i>, a
+            tree showing set inclusions). <i>Sets.sty</i> above describes the
+            flat disk style.
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="container" style="display: flex">
+          <div style="width: 30%; background: none; margin-right: 3%">
+            <p class="code">
+              -- Injection.sub<br />
+              <b>Set</b> A, B<br />
+              f: A -> B<br />
+              <b>Injection</b>(f)<br />
+              <b>Not</b>(<b>Surjection</b>(f))
+            </p>
+          </div>
+
+          <div style="width: 33%">
+            <p class="code">
+              -- Surjection.sub<br />
+              <b>Set</b> A, B<br />
+              f: A -> B<br />
+              <b>Surjection</b>(f)<br />
+              <b>Not</b>(<b>Injection</b>(f))<br />
+            </p>
+          </div>
+
+          <div style="width: 33%">
+            <p class="code">
+              -- Bijection.sub<br />
+              <b>Set</b> A, B<br />
+              f: A -> B<br />
+              <b>Surjection</b>(f)<br />
+              <b>Injection</b>(f)<br />
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <img
+            src="media/figures/func-continuous-discrete-vert.png"
+            alt="See caption below"
+          />
+        </div>
+
+        <div class="caption">
+          <p>
+            <i>Fig. 19.</i> Different visual representations provide different
+            ways of thinking about an idea. Here, the notion of injections,
+            bijections, and surjections is illustrated in both discrete
+            <i>(left)</i> and continuous <i>(right)</i> styles. In the former,
+            functions with the desired properties are randomly generated by an
+            SMT solver, allowing the user to learn from many different examples.
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div style="flex-grow: 1; background: none">
+          <!-- <img src="media/figures/byrne-stages.png" alt="See caption below"> -->
+          <!-- <img src="media/figures/byrne-stages.svg" alt="See caption below"> -->
+
+          <?xml version="1.0" encoding="utf-8"?>
+          <!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+          <svg
+            class="img"
+            version="1.1"
+            id="Layer_1"
+            focusable="false"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            x="0px"
+            y="0px"
+            viewBox="0 0 240 72.21035"
+            style="enable-background: new 0 0 240 72.21035"
+            xml:space="preserve"
+          >
+            <style type="text/css">
+              .sst0 {
+                fill: #fdf4da;
+              }
+              .sst1 {
+                fill: #0f638f;
+              }
+              .sst2 {
+                fill: #fbc22b;
+              }
+              .sst3 {
+                stroke: #fdf4da;
+                stroke-width: 0.746277;
+              }
+              .sst4 {
+                fill: #d52a22;
+              }
+              .sst5 {
+                fill-opacity: 0;
+              }
+              .sst6 {
+                fill: none;
+                stroke: #0f638f;
+                stroke-width: 0.746277;
+                stroke-dasharray: 1.3059849, 0.9328463;
+              }
+              .sst7 {
+                stroke: #fbc22b;
+                stroke-width: 0.746277;
+              }
+              .sst8 {
+                stroke: #d52a22;
+                stroke-width: 0.746277;
+              }
+              .sst9 {
+                fill: none;
+                stroke: #000000;
+                stroke-width: 0.746277;
+                stroke-dasharray: 1.3059849, 0.9328463;
+              }
+              .sst10 {
+                fill-opacity: 0;
+                stroke: #000000;
+                stroke-width: 0.746277;
+                stroke-opacity: 0;
+                stroke-dasharray: 1.3059849, 0.9328463;
+              }
+              .sst11 {
+                fill: none;
+                stroke: #d52a22;
+                stroke-width: 0.746277;
+                stroke-dasharray: 1.3059849, 0.9328463;
+              }
+              .sst12 {
+                stroke: #000000;
+                stroke-width: 0.746277;
+              }
+              .sst13 {
+                fill-opacity: 0;
+                stroke: #000000;
+                stroke-width: 0.746277;
+                stroke-opacity: 0;
+              }
+              .sst14 {
+                stroke: #0f638f;
+                stroke-width: 0.746277;
+              }
+            </style>
+            <desc>
+              This diagram was created with Penrose
+              (https://penrose.cs.cmu.edu/) on 2020-01-16. If you have any
+              suggestions on making this diagram more accessible, please contact
+              us.
+            </desc>
+            <g>
+              <g transform="translate(0,0)">
+                <rect
+                  x="121.7507782"
+                  y="0.3095647"
+                  class="sst0"
+                  width="57.8230362"
+                  height="71.9007874"
+                >
+                  <title>const.plane</title>
+                </rect>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst1"
+                    d="M135.7367554,38.1801376h29.8510742v29.8510818h-29.8510742V38.1801376z			"
+                  >
+                    <title>CBDE.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst2"
+                    d="M135.7367554,38.1801376h5.5970764v29.8510818h-5.5970764V38.1801376z			"
+                  >
+                    <title>CKLE.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst1"
+                    d="M165.5878296,38.1801376v29.8510818h-24.2539978V38.1801376H165.5878296z			"
+                  >
+                    <title>BDLK.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst3"
+                    d="M165.5878296,68.0312195V38.1801376			"
+                  >
+                    <title>DB.shape2</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst4"
+                    d="M165.5878296,38.1801376l-24.2539978-11.6536484L152.9874725,2.272486
+				l24.2539978,11.6536493L165.5878296,38.1801376z			"
+                  >
+                    <title>BAGF.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst3"
+                    d="M165.5878296,38.1801376l11.6536407-24.2540016			"
+                  >
+                    <title>BF.shape2</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst3"
+                    d="M141.3338318,26.5264893v41.5047302			"
+                  >
+                    <title>AL.shape2</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    d="M141.3338318,26.5264893l-5.5970764,11.6536484l-11.6536484-5.5970764
+				l5.5970688-11.6536503L141.3338318,26.5264893z			"
+                  >
+                    <title>ACIH.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst5"
+                    d="M141.3338318,26.5264893l24.2539978,11.6536484h-29.8510742
+				L141.3338318,26.5264893z			"
+                  >
+                    <title>ABC.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst2"
+                    d="M165.5878296,38.1801376h-5.5970764l0.0156555,0.4182739l0.0468597,0.4159317
+				l0.0778198,0.4112625l0.1083374,0.4043007l0.1382294,0.3950729l0.1673889,0.3836403l0.1955719,0.3700562l0.2226868,0.3544083
+				l0.2485504,0.3367729l0.2730408,0.3172607l0.2959595,0.2959671l0.3172607,0.2730255l0.3367767,0.2485504l0.3544006,0.2226906
+				l0.3700562,0.1955757l0.3836365,0.1673813l0.3950806,0.1382446l0.4042969,0.1083298l0.4112701,0.077816l0.4159241,0.0468636
+				l0.4182739,0.0156517V38.1801376z			"
+                  >
+                    <title>CBD.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    d="M165.5878296,38.1801376h-5.5970764l0.0012817-0.1193733l0.0038147-0.1193161
+				l0.0063629-0.1192055l0.0088959-0.1190491l0.0114441-0.1188316l0.0139771-0.1185608l0.0164948-0.1182289l0.0190125-0.1178551
+				l0.0215302-0.1174202l0.0240173-0.1169357l0.0265198-0.1164017l0.0289917-0.1158028l0.0314484-0.1151619l0.033905-0.1144638
+				l0.0363312-0.1137123l0.0387573-0.1129189l0.0411377-0.1120605l0.0435333-0.1111565l0.0458984-0.1102066l0.048233-0.1092033
+				l0.0505524-0.1081467L165.5878296,38.1801376z			"
+                  >
+                    <title>CBA.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst2"
+                    d="M165.5878296,38.1801376l2.4240112-5.0449409l-0.3837891-0.1670418
+				l-0.3951874-0.1378937l-0.4044037-0.107975l-0.4113312-0.0774498l-0.4159698-0.0464935l-0.4182892-0.0152817
+				l-0.4182587,0.0160217l-0.4158783,0.0472336l-0.4111938,0.0781784l-0.4042053,0.1086922l-0.3949585,0.138588
+				l-0.3834991,0.1677246l-0.369873,0.1959076l-0.3542175,0.2230034l-0.3365479,0.2488518l-0.3170166,0.2733002
+				l-0.2957001,0.2962341l-0.2727509,0.3175011l-0.2482452,0.3369942l-0.2223816,0.3546066l-0.1952515,0.3702278
+				L165.5878296,38.1801376z			"
+                  >
+                    <title>FBA.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst5"
+                    d="M143.5199738,27.5768909l-1.0500641,2.1863136l-2.186142-1.0504036
+				l1.0500641-2.1863117L143.5199738,27.5768909z			"
+                  >
+                    <title>CAB.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst6"
+                    d="M165.5878296,38.1801376l11.6536407-24.2540016			"
+                  >
+                    <title>BF.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst7"
+                    d="M135.7367554,38.1801376l5.5970764-11.6536484			"
+                  >
+                    <title>CA.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst8"
+                    d="M165.5878296,38.1801376h-29.8510742			"
+                  >
+                    <title>BC.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst9"
+                    d="M141.3338318,26.5264893v41.5047302			"
+                  >
+                    <title>AL.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst10"
+                    d="M141.3338318,38.1801376v29.8510818			"
+                  >
+                    <title>KL.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst11"
+                    d="M165.5878296,68.0312195V38.1801376			"
+                  >
+                    <title>DB.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst12"
+                    d="M141.3338318,26.5264893l24.2539978,41.5047302			"
+                  >
+                    <title>AD.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst13"
+                    d="M165.5878296,68.0312195h-29.8510742			"
+                  >
+                    <title>DE.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="141.3338318,38.1801376 141.3338318,38.1801376 141.3338318,38.1801376 141.3338318,38.1801376 		"
+                >
+                  <title>K.shape</title>
+                  <desc>Circle representing K.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="124.083107,32.5830612 124.083107,32.5830612 124.083107,32.5830612 124.083107,32.5830612 		"
+                >
+                  <title>I.shape</title>
+                  <desc>Circle representing I.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="129.6801758,20.9294109 129.6801758,20.9294109 129.6801758,20.9294109 129.6801758,20.9294109 		"
+                >
+                  <title>H.shape</title>
+                  <desc>Circle representing H.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="152.9874725,2.272486 152.9874725,2.272486 152.9874725,2.272486 152.9874725,2.272486 		"
+                >
+                  <title>G.shape</title>
+                  <desc>Circle representing G.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="135.7367554,68.0312195 135.7367554,68.0312195 135.7367554,68.0312195 135.7367554,68.0312195 		"
+                >
+                  <title>E.shape</title>
+                  <desc>Circle representing E.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="165.5878296,68.0312195 165.5878296,68.0312195 165.5878296,68.0312195 165.5878296,68.0312195 		"
+                >
+                  <title>D.shape</title>
+                  <desc>Circle representing D.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="141.3338318,68.0312195 141.3338318,68.0312195 141.3338318,68.0312195 141.3338318,68.0312195 		"
+                >
+                  <title>L.shape</title>
+                  <desc>Circle representing L.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst14"
+                    d="M141.3338318,26.5264893l24.2539978,11.6536484			"
+                  >
+                    <title>AB.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <g>
+                  <path
+                    marker-start=""
+                    marker-end=""
+                    class="sst12"
+                    d="M135.7367554,38.1801376l41.504715-24.2540016			"
+                  >
+                    <title>CF.shape</title>
+                  </path>
+                </g>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="177.2414703,13.9261351 177.2414703,13.9261351 177.2414703,13.9261351 177.2414703,13.9261351 		"
+                >
+                  <title>F.shape</title>
+                  <desc>Circle representing F.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="135.7367554,38.1801376 135.7367554,38.1801376 135.7367554,38.1801376 135.7367554,38.1801376 		"
+                >
+                  <title>C.shape</title>
+                  <desc>Circle representing C.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="165.5878296,38.1801376 165.5878296,38.1801376 165.5878296,38.1801376 165.5878296,38.1801376 		"
+                >
+                  <title>B.shape</title>
+                  <desc>Circle representing B.shape</desc>
+                </polygon>
+              </g>
+              <g transform="translate(0,0)">
+                <polygon
+                  points="141.3338318,26.5264893 141.3338318,26.5264893 141.3338318,26.5264893 141.3338318,26.5264893 		"
+                >
+                  <title>A.shape</title>
+                  <desc>Circle representing A.shape</desc>
+                </polygon>
+              </g>
+              <g>
+                <g transform="translate(0,0)">
+                  <rect
+                    x="0.3117312"
+                    class="sst0"
+                    width="57.8230362"
+                    height="71.9007874"
+                  >
+                    <title>const.plane</title>
+                  </rect>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(575,175)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst5"
+                      d="M19.8947868,26.5924606l24.2540016,11.6512527H14.2977085
+					L19.8947868,26.5924606z				"
+                    >
+                      <title>ABC.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst5"
+                      d="M22.0810146,27.6426926l-1.0502319,2.1862259l-2.1862221-1.0502319
+					l1.0502262-2.1862259L22.0810146,27.6426926z				"
+                    >
+                      <title>CAB.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst7"
+                      d="M14.2977085,38.2437134l5.5970783-11.6512527				"
+                    >
+                      <title>CA.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst8"
+                      d="M44.1487885,38.2437134H14.2977085				"
+                    >
+                      <title>BC.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(322.132132066627,59.10993993521305)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="14.2977085,38.2437134 14.2977085,38.2437134 14.2977085,38.2437134 14.2977085,38.2437134 			"
+                  >
+                    <title>C.shape</title>
+                    <desc>Circle representing C.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(269.6909692119074,594.2155709833523)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst14"
+                      d="M19.8947868,26.5924606l24.2540016,11.6512527				"
+                    >
+                      <title>AB.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="44.1487885,38.2437134 44.1487885,38.2437134 44.1487885,38.2437134 44.1487885,38.2437134 			"
+                  >
+                    <title>B.shape</title>
+                    <desc>Circle representing B.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(753.9323542247873,615.2159986293036)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="19.8947868,26.5924606 19.8947868,26.5924606 19.8947868,26.5924606 19.8947868,26.5924606 			"
+                  >
+                    <title>A.shape</title>
+                    <desc>Circle representing A.shape</desc>
+                  </polygon>
+                </g>
+              </g>
+              <g>
+                <g transform="translate(0,0)">
+                  <rect
+                    x="60.9674034"
+                    y="0.0770462"
+                    class="sst0"
+                    width="57.8230362"
+                    height="71.9007874"
+                  >
+                    <title>const.plane</title>
+                  </rect>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(575,175)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst1"
+                      d="M74.9533844,38.3207588h29.8510818v29.851078H74.9533844V38.3207588z				"
+                    >
+                      <title>CBDE.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst4"
+                      d="M104.8044662,38.3207588L80.5504608,26.6704235L92.200798,2.4164224
+					l24.2539978,11.6503334L104.8044662,38.3207588z				"
+                    >
+                      <title>BAGF.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      d="M80.5504608,26.6704235l-5.5970764,11.6503353l-11.6503372-5.5970802
+					l5.5970764-11.6503334L80.5504608,26.6704235z				"
+                    >
+                      <title>ACIH.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst5"
+                      d="M80.5504608,26.6704235l24.2540054,11.6503353H74.9533844
+					L80.5504608,26.6704235z				"
+                    >
+                      <title>ABC.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst5"
+                      d="M82.7367172,27.7205868l-1.050293,2.1861935l-2.1862564-1.0501595
+					l1.050293-2.1861973L82.7367172,27.7205868z				"
+                    >
+                      <title>CAB.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst7"
+                      d="M74.9533844,38.3207588l5.5970764-11.6503353				"
+                    >
+                      <title>CA.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst8"
+                      d="M104.8044662,38.3207588H74.9533844				"
+                    >
+                      <title>BC.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(255.40987774957577,239.773995438844)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="63.3030472,32.7236786 63.3030472,32.7236786 63.3030472,32.7236786 63.3030472,32.7236786 			"
+                  >
+                    <title>I.shape</title>
+                    <desc>Circle representing I.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(679.7562172106764,272.26899245952086)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="68.9001236,21.0733452 68.9001236,21.0733452 68.9001236,21.0733452 68.9001236,21.0733452 			"
+                  >
+                    <title>H.shape</title>
+                    <desc>Circle representing H.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="92.200798,2.4164224 92.200798,2.4164224 92.200798,2.4164224 92.200798,2.4164224 			"
+                  >
+                    <title>G.shape</title>
+                    <desc>Circle representing G.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="116.4547958,14.0667553 116.4547958,14.0667553 116.4547958,14.0667553 116.4547958,14.0667553 			"
+                  >
+                    <title>F.shape</title>
+                    <desc>Circle representing F.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(578.86162175346,86.15553680168182)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="74.9533844,68.1718369 74.9533844,68.1718369 74.9533844,68.1718369 74.9533844,68.1718369 			"
+                  >
+                    <title>E.shape</title>
+                    <desc>Circle representing E.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(750.7893347231164,258.64761377684437)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="104.8044662,68.1718369 104.8044662,68.1718369 104.8044662,68.1718369 104.8044662,68.1718369 			"
+                  >
+                    <title>D.shape</title>
+                    <desc>Circle representing D.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="74.9533844,38.3207588 74.9533844,38.3207588 74.9533844,38.3207588 74.9533844,38.3207588 			"
+                  >
+                    <title>C.shape</title>
+                    <desc>Circle representing C.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <g
+                    pointer-events="bounding-box"
+                    transform="translate(269.69097651493723,594.2155535178019)"
+                  >
+                    <g>
+                      <g transform="matrix(1 0 0 -1 0 0)"></g>
+                    </g>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <g>
+                    <path
+                      marker-start=""
+                      marker-end=""
+                      class="sst14"
+                      d="M80.5504608,26.6704235l24.2540054,11.6503353				"
+                    >
+                      <title>AB.shape</title>
+                    </path>
+                  </g>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="104.8044662,38.3207588 104.8044662,38.3207588 104.8044662,38.3207588 104.8044662,38.3207588 			"
+                  >
+                    <title>B.shape</title>
+                    <desc>Circle representing B.shape</desc>
+                  </polygon>
+                </g>
+                <g transform="translate(0,0)">
+                  <polygon
+                    points="80.5504608,26.6704235 80.5504608,26.6704235 80.5504608,26.6704235 80.5504608,26.6704235 			"
+                  >
+                    <title>A.shape</title>
+                    <desc>Circle representing A.shape</desc>
+                  </polygon>
+                </g>
+              </g>
+              <g>
+                <image
+                  style="overflow: visible"
+                  width="251"
+                  height="312"
+                  id="OMp57P_1_"
+                  xlink:href="media/figures/21FA75BB055F7BD4.jpg"
+                  transform="matrix(0.2288833 0 0 0.2288833 182.550293 0.137592)"
+                ></image>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="caption">
+          <p>
+            <i>Fig. 22.</i> Once a complex diagram has been built, it can be
+            easily broken into pieces or stages by, <i>e.g.</i>, commenting out
+            lines of <i>Substance</i> code. Here we illustrate steps in Euclid's
+            proof of the Pythagorean theorem, turning Byrne's static figure
+            <i>(far right)</i> into a progressive "comic strip."
+          </p>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div>
+          <p class="code">
+            <b>SimplicialComplex</b> K <br />
+            <b>Edge</b> e ∈ K<br />
+            <br />
+            <b>Subcomplex</b> E ⊆ K<br />
+            E := <b>Closure</b>(e) <br />
+            <br />
+            <b>SimplicialSet</b> StE ⊆ K <br />
+            StE := Star(E) <br />
+            <br />
+            <b>Subcomplex</b> ClStE ⊆ K<br />
+            ClStE := <b>Closure</b>(StE) <br />
+            <br />
+            <b>Subcomplex</b> ClE ⊆ K<br />
+            ClE := <b>Closure</b>(E) <br />
+            <br />
+            <b>SimplicialSet</b> StClE ⊆ K <br />
+            StClE := <b>Star</b>(ClE) <br />
+            <br />
+            <b>SimplicialSet</b> LkE ⊆ K<br />
+            LkE := <b>SetMinus</b>(ClStE, StClE)<br />
+          </p>
+          <br />
+        </div>
+
+        <div>
+          <img src="media/figures/mesh-figure.svg" alt="See caption below" />
+        </div>
+
+        <div class="caption">
+          <p>
+            <i>Fig. 24.</i> A language-based specification makes it easy to
+            visually inspect data structures or assemble progressive diagrams
+            with only minor changes to program code. Here we draw the simplicial
+            <i>link</i> by building it up from simpler constituent operations.
+          </p>
+        </div>
+      </div>
+
+      <div class="figure" style="margin-bottom: 0px">
+        <div style="flex-grow: 1; background: none">
+          <img
+            src="media/figures/GeometrySamples.png"
+            alt="See caption below"
+          />
+        </div>
+
+        <div class="caption">
+          <p>
+            <i>Fig. 29.</i> Though the energy in the objective function can help
+            guide a sampling strategy, choosing which diagram looks "best" to a
+            given user is necessarily a subjective decision. The ability to
+            automatically generate many alternatives makes it easier to find a
+            satisfactory diagram. Here we show a gallery of
+            automatically-generated variants of <i>Fig. 1.</i>
+          </p>
+        </div>
+      </div>
+
+      <h2>More information</h2>
+
+      <ul>
+        <li>
+          <p>
+            <a href="https://twitter.com/hypotext/status/1268218080993386497"
+              >Twitter thread</a
+            >
+          </p>
+        </li>
+
+        <li>
+          <p><a href="https://github.com/penrose/penrose">Code on GitHub</a></p>
+        </li>
+
+        <li>
+          <p>
+            <a href="media/Penrose_SIGGRAPH2020_TalkSlides.pdf">Talk slides</a>
+          </p>
+        </li>
+
+        <li>
+          <p>
+            <a href="media/Penrose_SIGGRAPH2020_Supplemental_LA_Listing.pdf"
+              >Linear algebra code listing</a
+            >
+          </p>
+        </li>
+
+        <li>
+          <p>
+            <a href="media/Penrose_SIGGRAPH2020_Supplemental_Grammars.pdf"
+              >Grammars for languages</a
+            >
+          </p>
+        </li>
+
+        <li>
+          <p>
+            Check out our CHI paper on
+            <a
+              href="http://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf"
+              >natural diagramming</a
+            >!
+          </p>
+        </li>
+      </ul>
+
+      <h2>Press</h2>
+
+      <ul>
+        <li>
+          <p>
+            <a href="https://www.nature.com/articles/d41586-020-01689-8"
+              ><i>Nature</i></a
+            >
+          </p>
+        </li>
+        <li>
+          <p>
+            <a
+              href="https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/"
+              ><i>Popular Mechanics</i></a
+            >
+          </p>
+        </li>
+      </ul>
+
+      <h2>Acknowledgments</h2>
+
+      <p>
+        We thank Lily Shellhammer and Yumeng Du for their help. The first author
+        was supported by a Microsoft Research PhD Fellowship and ARCS Foundation
+        Fellowship while completing this work; the last author was supported by
+        a Packard Fellowship. This material is based upon work supported by the
+        National Science Foundation under grants DMS-1439786 and CCF-1910264,
+        the AFRL and DARPA under agreement FA8750-16-2-0042, and the Alfred P.
+        Sloan Foundation under award G-2019-11406.
+      </p>
+
+      <h2>How to cite</h2>
+
+      <p><b>ACM reference format</b></p>
+
+      <p>
+        Katherine Ye, Wode Ni, Max Krieger, Dor Ma’ayan, Jenna Wise, Jonathan
+        Aldrich, Joshua Sunshine, and Keenan Crane. 2020. Penrose: From
+        Mathematical Notation to Beautiful Diagrams.
+        <i>ACM Trans. Graph.</i> 39, 4, Article 144 (July 2020), 16 pages.
+        https://doi.org/10.1145/3386569.3392375
+      </p>
+
+      <p><b>BibTeX</b></p>
+
+      <div class="code">@article{Ye:2020:Penrose,</div>
+      <div class="indent">
+        author = {Ye, Katherine and Ni, Wode and Krieger, Max and Ma'ayan, Dor
+        and Wise, Jenna and Aldrich, Jonathan and Sunshine, Jonathan and Crane,
+        Keenan},<br />
+        title = {Penrose: From Mathematical Notation to Beautiful Diagrams},<br />
+        journal = {ACM Trans. Graph.},<br />
+        volume = {39},<br />
+        number = {4},<br />
+        year = {2020},<br />
+        publisher = {ACM},<br />
+        address = {New York, NY, USA}
+      </div>
+      <div class="code">}</div>
+
+      <p><b>Project link</b></p>
+
+      <div class="code">http://penrose.cs.cmu.edu/</div>
+    </div>
+  </div>
+  <!-- inner-body -->
+
+  <!-- <div id="bottom"></div> -->
+</body>

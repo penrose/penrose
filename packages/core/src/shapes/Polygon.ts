@@ -1,4 +1,3 @@
-import { constOf } from "engine/Autodiff";
 import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "types/shapes";
 import {
   BoolV,
@@ -24,14 +23,12 @@ export const samplePolygon = (
   strokeColor: sampleNoPaint(),
   strokeDasharray: StrV(""),
   fillColor: sampleColor(rng),
-  scale: FloatV(constOf(1)),
-  points: PtListV(
-    [
-      [0, 0],
-      [0, 10],
-      [10, 0],
-    ].map((p) => p.map(constOf))
-  ),
+  scale: FloatV(1),
+  points: PtListV([
+    [0, 0],
+    [0, 10],
+    [10, 0],
+  ]),
   ensureOnCanvas: BoolV(true),
 });
 

@@ -1,5 +1,6 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
+import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
 
 // Hack bc penrose doesn't work in SSR??
@@ -9,9 +10,10 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 export default function DemoWrapper(props) {
+  const { isDarkTheme } = useColorMode();
   return (
     <BrowserOnly fallback={<div>Loading...</div>}>
-      {() => <Demo {...props} />}
+      {() => <Demo {...props} darkMode={isDarkTheme} />}
     </BrowserOnly>
   );
 }

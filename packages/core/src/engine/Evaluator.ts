@@ -8,21 +8,20 @@ import {
 } from "engine/EngineUtils";
 import { mapValues } from "lodash";
 // For deep-cloning the translation
-// Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
+// Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the `ad.Num`s).
 import rfdc from "rfdc";
 import seedrandom from "seedrandom";
-import { IVarAD, OptDebugInfo, VarAD } from "types/ad";
-import { A, SourceLoc } from "types/ast";
+import * as ad from "types/ad";
+import { A } from "types/ast";
 import { ShapeAD } from "types/shape";
 import { Fn, FnDone, State, VaryMap } from "types/state";
-import { BinaryOp, Expr, IPropertyPath, Path, UnaryOp } from "types/style";
+import { BinaryOp, Expr, IPropertyPath, Path } from "types/style";
 import {
   ArgVal,
   GPI,
   IFGPI,
   IFloatV,
   IIntV,
-  ILListV,
   IVal,
   IVectorV,
   TagExpr,
@@ -30,7 +29,7 @@ import {
   Value,
 } from "types/value";
 import { floatVal, prettyPrintPath, zip2 } from "utils/Util";
-import { constOf, constOfIf, differentiable, numOf, ops } from "./Autodiff";
+import { ops } from "./Autodiff";
 import { add, div, mul, neg, sub } from "./AutodiffFunctions";
 
 const clone = rfdc({ proto: false, circles: false });
@@ -44,11 +43,6 @@ const log = consola.create({ level: LogLevel.Warn }).withScope("Evaluator");
  * - Analyze the comp graph first and mark all non-varying props or fields (including those that don't depend on varying vals) permanantly "Done".
  */
 
-// COMBAK: Import the dummy functions from Style -> EngineUtils
-const dummySourceLoc = (): SourceLoc => {
-  return { line: -1, col: -1 };
-};
-
 /**
  * Evaluate all shapes in the `State` by walking the `Translation` data structure, finding out all shape expressions (`FGPI` expressions computed by the Style compiler), and evaluating every property in each shape.
  *
@@ -58,9 +52,9 @@ const dummySourceLoc = (): SourceLoc => {
  */
 export const evalShapes = (rng: seedrandom.prng, s: State): ShapeAD[] => {
   // Update the stale varyingMap from the translation
-  // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
+  // TODO: Evaluating the shapes for display is still done via interpretation on `ad.Num`s; not compiled
 
-  const varyingValuesDiff = s.varyingValues.map(differentiable);
+  const varyingValuesDiff = [...s.varyingValues];
   s.varyingMap = genPathMap(s.varyingPaths, varyingValuesDiff);
 
   const varyingMapList = zip2(s.varyingPaths, varyingValuesDiff);
@@ -76,22 +70,19 @@ export const evalShapes = (rng: seedrandom.prng, s: State): ShapeAD[] => {
   // Insert all varying vals
   const transWithVarying = insertVaryings(s.translation, varyingMapList);
 
-  // Clone translation to use in this top-level call, because it mutates the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
+  // Clone translation to use in this top-level call, because it mutates the translation while interpreting the energy function in order to cache/reuse ad.Num (computation) results
   const trans = clone(transWithVarying);
 
   // Find out all the GPI expressions in the translation
-  const shapeExprs: IFGPI<VarAD>[] = s.shapePaths.map(
-    (p: Path<A>) => findExprSafe(trans, p) as IFGPI<VarAD>
+  const shapeExprs: IFGPI<ad.Num>[] = s.shapePaths.map(
+    (p: Path<A>) => findExprSafe(trans, p) as IFGPI<ad.Num>
   );
 
   log.info("shapePaths", s.shapePaths.map(prettyPrintPath));
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
-  const [shapesEvaled, transEvaled]: [
-    ShapeAD[],
-    Translation
-  ] = shapeExprs.reduce(
-    ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<VarAD>) =>
+  const [shapesEvaled]: [ShapeAD[], Translation] = shapeExprs.reduce(
+    ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<ad.Num>) =>
       evalShape(rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
   );
@@ -120,7 +111,7 @@ const sameName = <T>(given: Value<T>, expected: string): boolean => {
   return given.contents === expected;
 };
 
-const doneFloat = (n: VarAD): TagExpr<VarAD> => ({
+const doneFloat = (n: ad.Num): TagExpr<ad.Num> => ({
   tag: "Done",
   contents: { tag: "FloatV", contents: n },
 });
@@ -134,10 +125,10 @@ const doneFloat = (n: VarAD): TagExpr<VarAD> => ({
  */
 export const insertVaryings = (
   trans: Translation,
-  varyingMap: [Path<A>, VarAD][]
+  varyingMap: [Path<A>, ad.Num][]
 ): Translation => {
   return varyingMap.reduce(
-    (tr: Translation, [path, val]: [Path<A>, VarAD]) =>
+    (tr: Translation, [path, val]: [Path<A>, ad.Num]) =>
       insertExpr(path, doneFloat(val), tr),
     trans
   );
@@ -154,15 +145,15 @@ export const evalFns = (
   rng: seedrandom.prng,
   fns: Fn[],
   trans: Translation,
-  varyingMap: VaryMap<VarAD>
-): FnDone<VarAD>[] => fns.map((f) => evalFn(rng, f, trans, varyingMap));
+  varyingMap: VaryMap<ad.Num>
+): FnDone<ad.Num>[] => fns.map((f) => evalFn(rng, f, trans, varyingMap));
 
 export const evalFn = (
   rng: seedrandom.prng,
   fn: Fn,
   trans: Translation,
-  varyingMap: VaryMap<VarAD>
-): FnDone<VarAD> => {
+  varyingMap: VaryMap<ad.Num>
+): FnDone<ad.Num> => {
   const noOptDebugInfo = {
     gradient: new Map(),
     gradientPreconditioned: new Map(),
@@ -186,37 +177,39 @@ export const evalFn = (
  */
 export const evalShape = (
   rng: seedrandom.prng,
-  shapeExpr: IFGPI<VarAD>,
+  shapeExpr: IFGPI<ad.Num>,
   trans: Translation,
   varyingVars: VaryMap,
   shapes: ShapeAD[],
-  optDebugInfo: OptDebugInfo
+  optDebugInfo: ad.OptDebugInfo
 ): [ShapeAD[], Translation] => {
   const [shapeType, propExprs] = shapeExpr.contents;
 
   // Make sure all props are evaluated to values instead of shapes
   const props = mapValues(
     propExprs,
-    (prop: TagExpr<VarAD>): Value<VarAD> => {
+    (prop: TagExpr<ad.Num>): Value<ad.Num> => {
       // TODO: Refactor these cases to be more concise
-      if (prop.tag === "OptEval") {
-        // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
-        // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
-        const res: Value<VarAD> = (evalExpr(
-          rng,
-          prop.contents,
-          trans,
-          varyingVars,
-          optDebugInfo
-        ) as IVal<VarAD>).contents;
-        return res;
-      } else if (prop.tag === "Done") {
-        return prop.contents;
-      } else if (prop.tag === "Pending") {
-        // Pending expressions are just converted because they get converted back to numbers later
-        return prop.contents;
-      } else {
-        throw Error("unknown tag");
+      switch (prop.tag) {
+        case "OptEval": {
+          // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
+          // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
+          const res: Value<ad.Num> = (evalExpr(
+            rng,
+            prop.contents,
+            trans,
+            varyingVars,
+            optDebugInfo
+          ) as IVal<ad.Num>).contents;
+          return res;
+        }
+        case "Done": {
+          return prop.contents;
+        }
+        case "Pending": {
+          // Pending expressions are just converted because they get converted back to numbers later
+          return prop.contents;
+        }
       }
     }
   );
@@ -238,18 +231,18 @@ export const evalExprs = (
   rng: seedrandom.prng,
   es: Expr<A>[],
   trans: Translation,
-  varyingVars?: VaryMap<VarAD>,
-  optDebugInfo?: OptDebugInfo
-): ArgVal<VarAD>[] =>
+  varyingVars?: VaryMap<ad.Num>,
+  optDebugInfo?: ad.OptDebugInfo
+): ArgVal<ad.Num>[] =>
   es.map((e) => evalExpr(rng, e, trans, varyingVars, optDebugInfo));
 
-function toFloatVal(a: ArgVal<VarAD>): VarAD {
+function toFloatVal(a: ArgVal<ad.Num>): ad.Num {
   if (a.tag === "Val") {
     const res = a.contents;
     if (res.tag === "FloatV") {
       return res.contents;
     } else if (res.tag === "IntV") {
-      return constOf(res.contents);
+      return res.contents;
     } else {
       console.log("res", res);
       throw Error("Expected floating type in list");
@@ -290,9 +283,9 @@ export const evalExpr = (
   rng: seedrandom.prng,
   e: Expr<A>,
   trans: Translation,
-  varyingVars?: VaryMap<VarAD>,
-  optDebugInfo?: OptDebugInfo
-): ArgVal<VarAD> => {
+  varyingVars?: VaryMap<ad.Num>,
+  optDebugInfo?: ad.OptDebugInfo
+): ArgVal<ad.Num> => {
   // console.log("evalExpr", e);
 
   switch (e.tag) {
@@ -310,7 +303,7 @@ export const evalExpr = (
     }
 
     case "VaryAD": {
-      // This VarAD had already been converted to an Expr as it was inserted in the translation during accesspath initialization; they are only generated by `floatValToExpr`. Now we just convert it back to a value.
+      // This ad.Num had already been converted to an Expr as it was inserted in the translation during accesspath initialization; they are only generated by `floatValToExpr`. Now we just convert it back to a value.
       return { tag: "Val", contents: { tag: "FloatV", contents: e.contents } };
     }
 
@@ -327,13 +320,13 @@ export const evalExpr = (
     case "Fix": {
       const val = e.contents;
 
-      // Don't convert to VarAD if it's already been converted
+      // Don't convert to ad.Num if it's already been converted
       return {
         tag: "Val",
         // Fixed number is stored in translation as number, made differentiable when encountered
         contents: {
           tag: "FloatV",
-          contents: constOfIf(val),
+          contents: val,
         },
       };
     }
@@ -346,7 +339,7 @@ export const evalExpr = (
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalUOp(uOp, arg as IFloatV<VarAD> | IIntV),
+        contents: evalUOp(uOp, arg as IFloatV<ad.Num> | IIntV),
       };
     }
 
@@ -363,8 +356,8 @@ export const evalExpr = (
 
       const res = evalBinOp(
         binOp,
-        val1.contents as Value<VarAD>,
-        val2.contents as Value<VarAD>
+        val1.contents as Value<ad.Num>,
+        val2.contents as Value<ad.Num>
       );
 
       return {
@@ -411,7 +404,7 @@ export const evalExpr = (
           tag: "Val",
           contents: {
             tag: "ListV",
-            contents: [] as VarAD[],
+            contents: [],
           },
         };
       }
@@ -433,7 +426,7 @@ export const evalExpr = (
             contents: {
               tag: "LListV", // NOTE: The type has changed from ListV to LListV! That's because ListV's `T` is "not parametric enough" to represent a list of elements
               contents: argVals.map(toVecVal),
-            } as ILListV<VarAD>,
+            },
           };
         } else {
           throw Error("unknown tag");
@@ -506,10 +499,13 @@ export const evalExpr = (
       // COMBAK: Do float to int conversion in a more principled way. For now, convert float to int on demand
       if (v2.contents.tag === "FloatV") {
         // COMBAK: (ISSUE): Indices should not have "Fix"
-        const iObj: IVarAD = v2.contents.contents;
+        const iObj: ad.Num = v2.contents.contents;
+        if (typeof iObj !== "number") {
+          throw Error("only constant vector element indices are supported");
+        }
         v2.contents = {
           tag: "IntV",
-          contents: Math.floor(numOf(iObj)),
+          contents: Math.floor(iObj),
         };
       }
 
@@ -612,7 +608,6 @@ export const evalExpr = (
           p = {
             // convert to AccessPath schema
             nodeType: "SyntheticStyle",
-            children: [],
             tag: "AccessPath",
             // contents: [p.contents[0], [p.contents[1].contents]],
             path: p.contents[0],
@@ -622,7 +617,6 @@ export const evalExpr = (
           p = {
             // convert to AccessPath schema
             nodeType: "SyntheticStyle",
-            children: [],
             tag: "AccessPath",
             path: p.contents[0],
             indices: p.contents[1],
@@ -633,7 +627,7 @@ export const evalExpr = (
           tag: "Val",
           contents: compDict[fnName](
             { rng },
-            optDebugInfo as OptDebugInfo,
+            optDebugInfo!,
             prettyPrintPath(p) // COMBAK: Test that derivatives still work
           ),
         };
@@ -671,9 +665,9 @@ export const resolvePath = (
   rng: seedrandom.prng,
   path: Path<A>,
   trans: Translation,
-  varyingMap?: VaryMap<VarAD>,
-  optDebugInfo?: OptDebugInfo
-): ArgVal<VarAD> => {
+  varyingMap?: VaryMap<ad.Num>,
+  optDebugInfo?: ad.OptDebugInfo
+): ArgVal<ad.Num> => {
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
   let varyingVal;
   if (varyingMap) {
@@ -742,19 +736,14 @@ export const resolvePath = (
             // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
             // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
             // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
-            const propertyPathExpr = propertyPath as Path<A>;
-            const val: Value<VarAD> = (evalExpr(
+            const val: Value<ad.Num> = (evalExpr(
               rng,
-              propertyPathExpr,
+              propertyPath,
               trans,
               varyingMap,
               optDebugInfo
-            ) as IVal<VarAD>).contents;
-            const transNew = insertExpr(
-              propertyPath,
-              { tag: "Done", contents: val },
-              trans
-            );
+            ) as IVal<ad.Num>).contents;
+            insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
             return val;
           } else {
             // Look up in varyingMap to see if there is a fresh value
@@ -773,17 +762,17 @@ export const resolvePath = (
         // No need to cache evaluated GPI as each of its individual properties should have been cached on evaluation
         return {
           tag: "GPI",
-          contents: [type, evaledProps] as GPI<VarAD>,
+          contents: [type, evaledProps] as GPI<ad.Num>,
         };
       }
 
       // Otherwise, either evaluate or return the expression
       default: {
-        const expr: TagExpr<VarAD> = gpiOrExpr;
+        const expr: TagExpr<ad.Num> = gpiOrExpr;
 
         if (expr.tag === "OptEval") {
           // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
-          const res: ArgVal<VarAD> = evalExpr(
+          const res: ArgVal<ad.Num> = evalExpr(
             rng,
             expr.contents,
             trans,
@@ -792,11 +781,7 @@ export const resolvePath = (
           );
 
           if (res.tag === "Val") {
-            const transNew = insertExpr(
-              path,
-              { tag: "Done", contents: res.contents },
-              trans
-            );
+            insertExpr(path, { tag: "Done", contents: res.contents }, trans);
             return res;
           } else if (res.tag === "GPI") {
             throw Error(
@@ -817,7 +802,7 @@ export const resolvePath = (
 };
 
 // HACK: remove the type wrapper for the argument
-export const argValue = (e: ArgVal<VarAD>) => {
+export const argValue = (e: ArgVal<ad.Num>) => {
   switch (e.tag) {
     case "GPI": // strip the `GPI` tag
       return e.contents;
@@ -826,8 +811,8 @@ export const argValue = (e: ArgVal<VarAD>) => {
   }
 };
 
-export const intToFloat = (v: IIntV): IFloatV<VarAD> => {
-  return { tag: "FloatV", contents: constOf(v.contents) };
+export const intToFloat = (v: IIntV): IFloatV<ad.Num> => {
+  return { tag: "FloatV", contents: v.contents };
 };
 
 /**
@@ -838,9 +823,9 @@ export const intToFloat = (v: IIntV): IFloatV<VarAD> => {
  */
 export const evalBinOp = (
   op: BinaryOp,
-  v1: Value<VarAD>,
-  v2: Value<VarAD>
-): Value<VarAD> => {
+  v1: Value<ad.Num>,
+  v2: Value<ad.Num>
+): Value<ad.Num> => {
   // Promote int to float
   if (v1.tag === "IntV" && v2.tag === "FloatV") {
     return evalBinOp(op, intToFloat(v1), v2);
@@ -882,7 +867,6 @@ export const evalBinOp = (
 
     return { tag: "FloatV", contents: res };
   } else if (v1.tag === "IntV" && v2.tag === "IntV") {
-    const returnType = "IntV";
     let res;
 
     switch (op) {
@@ -903,7 +887,7 @@ export const evalBinOp = (
 
       case "Divide": {
         res = v1.contents / v2.contents;
-        return { tag: "FloatV", contents: constOf(res) };
+        return { tag: "FloatV", contents: res };
       }
 
       case "Exp": {
@@ -914,7 +898,7 @@ export const evalBinOp = (
 
     return { tag: "IntV", contents: res };
   } else if (v1.tag === "VectorV" && v2.tag === "VectorV") {
-    let res;
+    let res: ad.Num[] | undefined;
 
     switch (op) {
       case "BPlus": {
@@ -928,9 +912,9 @@ export const evalBinOp = (
       }
     }
 
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
   } else if (v1.tag === "FloatV" && v2.tag === "VectorV") {
-    let res;
+    let res: ad.Num[] | undefined;
 
     switch (op) {
       case "Multiply": {
@@ -938,9 +922,9 @@ export const evalBinOp = (
         break;
       }
     }
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
   } else if (v1.tag === "VectorV" && v2.tag === "FloatV") {
-    let res;
+    let res: ad.Num[] | undefined;
 
     switch (op) {
       case "Divide": {
@@ -954,7 +938,12 @@ export const evalBinOp = (
       }
     }
 
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
+  } else if (v1.tag === "StrV" && v2.tag === "StrV") {
+    switch (op) {
+      case "BPlus":
+        return { tag: "StrV", contents: v1.contents + v2.contents };
+    }
   } else {
     throw new Error(
       `the types of two operands to ${op} are not supported: ${v1.tag}, ${v2.tag}`
@@ -971,33 +960,26 @@ export const evalBinOp = (
  * @param arg the argument, must be float or int
  */
 export const evalUOp = (
-  op: UnaryOp,
-  arg: IFloatV<VarAD> | IIntV | IVectorV<VarAD>
-): Value<VarAD> => {
-  if (arg.tag === "FloatV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: neg(arg.contents) };
+  op: "UMinus", // this line will cause a type error if the UnaryOp type changes
+  arg: IFloatV<ad.Num> | IIntV | IVectorV<ad.Num>
+): Value<ad.Num> => {
+  switch (arg.tag) {
+    case "FloatV": {
+      return { ...arg, contents: neg(arg.contents) };
     }
-  } else if (arg.tag === "IntV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: -arg.contents };
+    case "IntV": {
+      return { ...arg, contents: -arg.contents };
     }
-  } else if (arg.tag === "VectorV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: ops.vneg(arg.contents) };
+    case "VectorV": {
+      return { ...arg, contents: ops.vneg(arg.contents) };
     }
-  } else {
-    throw Error("unary op undefined on type ${arg.tag}, op ${op}");
   }
 };
 
 // Generate a map from paths to values, where the key is the JSON stringified version of the path
 export function genPathMap<T>(
   paths: Path<A>[],
-  vals: T[] // TODO: Distinguish between VarAD variables and constants?
+  vals: T[] // TODO: Distinguish between ad.Num variables and constants?
 ): Map<string, T> {
   if (!paths || !vals) {
     return new Map(); // Empty, e.g. when the state is decoded, there is no gradient

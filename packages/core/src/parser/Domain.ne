@@ -29,10 +29,7 @@ const lexer = moo.compile({
   }
 });
 
-const nodeData = (children: ConcreteNode[]) => ({
-  nodeType: "Domain" as const,
-  children
-});
+const nodeData = { nodeType: "Domain" as const };
 
 %} # end of lexer
 
@@ -46,7 +43,7 @@ const nodeData = (children: ConcreteNode[]) => ({
 
 input -> statements {% 
   ([statements]): DomainProg<C> => ({
-    ...nodeData(statements),
+    ...nodeData,
     ...rangeFrom(statements),
     tag: "DomainProg",
     statements
@@ -73,12 +70,12 @@ statement
   |  subtype     {% id %}
 
 # not to be confused with `type`, defined below
-type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1[type, ","]):? {%
+type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1[type_constructor, ","]):? {%
   ([typ, , name, ps, sub]): TypeDecl<C> => {
     const params = ps ? ps[3] : [];
     const superTypes = sub ? sub[3] : [];
     return { 
-      ...nodeData([name, ...params, ...superTypes]),
+      ...nodeData,
       ...rangeBetween(typ, name),
       tag: "TypeDecl", name, params, superTypes
     };
@@ -87,7 +84,7 @@ type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1
 
 predicate -> "predicate" __ identifier type_params_list args_list {%
   ([kw, , name, params, args]): PredicateDecl<C> => ({
-    ...nodeData([name, ...params, ...args]),
+    ...nodeData,
     ...rangeFrom([rangeOf(kw), ...args, ...params]),
     tag: "PredicateDecl", name, params, args
   })
@@ -100,7 +97,7 @@ function
       const params = optional(ps, []);
       const args   = optional(as, []);
       return {
-        ...nodeData([name, output, ...params, ...args]),
+        ...nodeData,
         ...rangeBetween(rangeOf(kw), output),
         tag: "FunctionDecl", name, output, params, args
       };
@@ -115,16 +112,16 @@ constructor_decl
       const params = optional(ps, []);
       const args   = optional(as, []);
       return {
-        ...nodeData([name, output, ...params, ...args]),
+        ...nodeData,
         ...rangeBetween(rangeOf(kw), output),
         tag: "ConstructorDecl", name, output, params, args
       }
     }
   %}
 
-prelude -> "value" __ var _ ":" _ type {%
+prelude -> "value" __ var _ ":" _ type_constructor {%
   ([kw, , name, , , , type]): PreludeDecl<C> => ({
-    ...nodeData([name, type]),
+    ...nodeData,
     ...rangeBetween(rangeOf(kw), type),
     tag: "PreludeDecl", name, type
   })
@@ -132,15 +129,15 @@ prelude -> "value" __ var _ ":" _ type {%
 
 notation -> "notation" _  string_lit  _ "~" _ string_lit {%
   ([kw, , from, , , , to]): NotationDecl<C> => ({
-    ...nodeData([from, to]),
+    ...nodeData,
     ...rangeBetween(rangeOf(kw), to),
     tag: "NotationDecl", from, to
   })
 %} 
 
-subtype -> type _ "<:" _ type {%
+subtype -> type_constructor _ "<:" _ type_constructor {%
   ([subType, , , , superType]): SubTypeDecl<C> => ({
-    ...nodeData([subType, superType]),
+    ...nodeData,
     ...rangeBetween(subType, superType),
     tag: "SubTypeDecl", subType, superType
   })
@@ -165,7 +162,7 @@ var -> identifier {% id %}
 # TODO: without `'`, type_var will look the same as 0-arg type_constructor
 type_var -> "'" identifier {% 
   ([a, name]) => ({ 
-    ...nodeData([name]),
+    ...nodeData,
     ...rangeBetween(a, name), 
     tag: "TypeVar", name 
   }) 
@@ -180,7 +177,7 @@ type_constructor -> identifier type_arg_list:? {%
   ([name, a]): TypeConstructor<C> => {
     const args = optional(a, []);
     return {
-      ...nodeData([name, ...args]),
+      ...nodeData,
       ...rangeFrom([name, ...args]),
       tag: "TypeConstructor", name, args 
     };
@@ -203,7 +200,7 @@ arg -> type (__ var):? {%
     const variable = v ? v[1] : undefined;
     const range = variable ? rangeBetween(variable, type) : rangeOf(type);
     return { 
-      ...nodeData(variable ? [variable, type] : [type]),
+      ...nodeData,
       ...range, 
       tag: "Arg", variable, type 
     };
@@ -213,7 +210,7 @@ named_args_list
   -> _ "(" _ sepBy[named_arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => flatten(d) %}
 named_arg -> type __ var {% 
   ([type, , variable]): Arg<C> => ({
-     ...nodeData([type, variable]),
+     ...nodeData,
      ...rangeBetween(type, variable), 
      tag: "Arg", variable, type 
   })
@@ -221,7 +218,7 @@ named_arg -> type __ var {%
 
 prop -> "Prop" {% 
   ([kw]): Prop<C> => ({
-     ...nodeData([]),
+     ...nodeData,
      ...rangeOf(kw), 
      tag: "Prop" 
   })  
@@ -231,7 +228,7 @@ prop -> "Prop" {%
 
 string_lit -> %string_literal {%
   ([d]): IStringLit<C> => ({
-    ...nodeData([]),
+    ...nodeData,
     ...rangeOf(d),
     tag: 'StringLit',
     contents: d.value
@@ -240,7 +237,7 @@ string_lit -> %string_literal {%
 
 identifier -> %identifier {% 
   ([d]) => ({
-    ...nodeData([]),
+    ...nodeData,
     ...rangeOf(d),
     tag: 'Identifier',
     value: d.text,

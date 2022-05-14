@@ -1,14 +1,12 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { constOfIf, numOf, varOf } from "engine/Autodiff";
 import { mapValues } from "lodash";
 import rfdc from "rfdc";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
-import { IVarAD, VarAD } from "types/ad";
+import * as ad from "types/ad";
 import {
   A,
   ASTNode,
-  C,
   ConcreteNode,
   Identifier,
   NodeType,
@@ -18,14 +16,7 @@ import {
 import { StyleError, Warning } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
 import { LbfgsParams } from "types/state";
-import {
-  AnnoFloat,
-  Expr,
-  IPropertyPath,
-  IVector,
-  Path,
-  PropertyDecl,
-} from "types/style";
+import { AnnoFloat, Expr, IVector, Path, PropertyDecl } from "types/style";
 import {
   Color,
   FieldExpr,
@@ -53,6 +44,8 @@ import {
   Value,
 } from "types/value";
 import { showError } from "utils/Error";
+import { safe } from "utils/Util";
+import { genCode, secondaryGraph } from "./Autodiff";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -164,7 +157,7 @@ function mapHMatrix<T, S>(f: (arg: T) => S, v: IHMatrixV<T>): IHMatrixV<S> {
   };
 }
 
-// convert all IVarADs to numbers for use in Shape def
+// convert all `ad.Num`s to numbers for use in Shape def
 function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
   return {
     tag: "PathDataV",
@@ -187,9 +180,9 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
   switch (v.tag) {
     case "RGBA":
-      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+      return { tag: v.tag, contents: mapTuple(f, v.contents) };
     case "HSVA":
-      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+      return { tag: v.tag, contents: mapTuple(f, v.contents) };
     case "NONE":
       return { tag: v.tag };
   }
@@ -211,92 +204,154 @@ function mapPalette<T, S>(f: (arg: T) => S, v: IPaletteV<T>): IPaletteV<S> {
 
 // Utils for converting types of values
 
-// Expects `f` to be a function between numeric types (e.g. number -> VarAD, VarAD -> number, AD var -> VarAD ...)
+// Expects `f` to be a function between numeric types (e.g. number -> ad.Num, ad.Num -> number, AD var -> ad.Num ...)
 // Coerces any non-numeric types
 export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
-  const nonnumericValueTypes = [
-    "BoolV",
-    "StrV",
-    "ColorV",
-    "PaletteV",
-    "FileV",
-    "StyleV",
-    "IntV",
-  ];
-
-  if (v.tag === "FloatV") {
-    return mapFloat(f, v);
-  } else if (v.tag === "PtV") {
-    return mapPt(f, v);
-  } else if (v.tag === "PtListV") {
-    return mapPtList(f, v);
-  } else if (v.tag === "ListV") {
-    return mapList(f, v);
-  } else if (v.tag === "VectorV") {
-    return mapVector(f, v);
-  } else if (v.tag === "MatrixV") {
-    return mapMatrix(f, v);
-  } else if (v.tag === "TupV") {
-    return mapTup(f, v);
-  } else if (v.tag === "LListV") {
-    return mapLList(f, v);
-  } else if (v.tag === "HMatrixV") {
-    return mapHMatrix(f, v);
-  } else if (v.tag === "ColorV") {
-    return mapColor(f, v);
-  } else if (v.tag === "PaletteV") {
-    return mapPalette(f, v);
-  } else if (v.tag === "PathDataV") {
-    return mapPathData(f, v);
-  } else if (nonnumericValueTypes.includes(v.tag)) {
-    return v as Value<S>;
-  } else {
-    throw Error(
-      `unimplemented conversion from autodiff types for numeric types for value type '${v.tag}'`
-    );
+  switch (v.tag) {
+    case "FloatV":
+      return mapFloat(f, v);
+    case "PtV":
+      return mapPt(f, v);
+    case "PtListV":
+      return mapPtList(f, v);
+    case "ListV":
+      return mapList(f, v);
+    case "VectorV":
+      return mapVector(f, v);
+    case "MatrixV":
+      return mapMatrix(f, v);
+    case "TupV":
+      return mapTup(f, v);
+    case "LListV":
+      return mapLList(f, v);
+    case "HMatrixV":
+      return mapHMatrix(f, v);
+    case "ColorV":
+      return mapColor(f, v);
+    case "PaletteV":
+      return mapPalette(f, v);
+    case "PathDataV":
+      return mapPathData(f, v);
+    // non-numeric Value types
+    case "BoolV":
+    case "StrV":
+    case "FileV":
+    case "StyleV":
+    case "IntV":
+      return v;
   }
 }
 
-export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] =>
-  shapes.map((s: ShapeAD) => ({
+const numOf = (x: ad.Num): number => {
+  if (typeof x === "number") {
+    return x;
+  } else {
+    throw Error("tried to call numOf on a non-constant ad.Num");
+  }
+};
+
+export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] => {
+  const vars = [];
+  for (const s of shapes) {
+    for (const v of Object.values(s.properties)) {
+      vars.push(...valueADNums(v));
+    }
+  }
+  const g = secondaryGraph(vars);
+  const inputs = [];
+  for (const v of g.nodes.keys()) {
+    if (typeof v !== "number" && v.tag === "Input") {
+      inputs[v.key] = v.val;
+    }
+  }
+  const numbers = genCode(g)(inputs).secondary;
+  const m = new Map(g.secondary.map((id, i) => [id, numbers[i]]));
+  return shapes.map((s: ShapeAD) => ({
     ...s,
-    properties: mapValues(s.properties, (p: Value<VarAD>) =>
-      valueAutodiffToNumber(p)
+    properties: mapValues(s.properties, (p: Value<ad.Num>) =>
+      mapValueNumeric(
+        (x) =>
+          safe(m.get(safe(g.nodes.get(x), "missing node")), "missing output"),
+        p
+      )
     ),
   }));
+};
 
-export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
+const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
+  switch (v.tag) {
+    case "FloatV": {
+      return [v.contents];
+    }
+    case "IntV":
+    case "BoolV":
+    case "StrV":
+    case "FileV":
+    case "StyleV": {
+      return [];
+    }
+    case "PtV":
+    case "ListV":
+    case "VectorV":
+    case "TupV": {
+      return v.contents;
+    }
+    case "PathDataV": {
+      return v.contents.flatMap((pathCmd) =>
+        pathCmd.contents.flatMap((subPath) => subPath.contents)
+      );
+    }
+    case "PtListV":
+    case "MatrixV":
+    case "LListV": {
+      return v.contents.flat();
+    }
+    case "ColorV": {
+      return colorADNums(v.contents);
+    }
+    case "PaletteV": {
+      return v.contents.flatMap(colorADNums);
+    }
+    case "HMatrixV": {
+      return Object.values(v.contents);
+    }
+  }
+};
+
+const colorADNums = (c: Color<ad.Num>): ad.Num[] => {
+  switch (c.tag) {
+    case "RGBA":
+    case "HSVA": {
+      return c.contents;
+    }
+    case "NONE": {
+      return [];
+    }
+  }
+};
+
+export const valueAutodiffToNumber = (v: Value<ad.Num>): Value<number> =>
   mapValueNumeric(numOf, v);
 
-export const valueNumberToAutodiff = (v: Value<number>): Value<VarAD> =>
-  mapValueNumeric(varOf, v);
-
-export const valueNumberToAutodiffConst = (v: Value<number>): Value<VarAD> =>
-  mapValueNumeric(constOfIf, v); // COMBAK: Really this should be constOf... I don't know why some inputs are already converted to VarADs?
-
-export const tagExprNumberToAutodiff = (v: TagExpr<number>): TagExpr<VarAD> =>
-  mapTagExpr(constOfIf, v);
-
-// Walk translation to convert all TagExprs (tagged Done or Pending) in the state to VarADs
-// (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)
+// Walk translation to convert all TagExprs (tagged Done or Pending) in the state to `ad.Num`s
+// (This is because, when decoded from backend, it's not yet in ad.Num form -- although this code could be phased out if the translation becomes completely generated in the frontend)
 
 export function mapTagExpr<T, S>(f: (arg: T) => S, e: TagExpr<T>): TagExpr<S> {
-  if (e.tag === "Done") {
-    return {
-      tag: "Done",
-      contents: mapValueNumeric(f, e.contents),
-    };
-  } else if (e.tag === "Pending") {
-    return {
-      tag: "Pending",
-      contents: mapValueNumeric(f, e.contents),
-    };
-  } else if (e.tag === "OptEval") {
-    // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to VarAD) as needed
-    // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
-    return e;
-  } else {
-    throw Error("unrecognized tag");
+  switch (e.tag) {
+    case "Done":
+      return {
+        tag: "Done",
+        contents: mapValueNumeric(f, e.contents),
+      };
+    case "Pending":
+      return {
+        tag: "Pending",
+        contents: mapValueNumeric(f, e.contents),
+      };
+    case "OptEval":
+      // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to ad.Num) as needed
+      // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
+      return e;
   }
 }
 
@@ -313,17 +368,25 @@ export function mapTranslation<T, S>(
   f: (arg: T) => S,
   trans: ITrans<T>
 ): ITrans<S> {
-  const newTrMap = Object.entries(trans.trMap).map(([name, fdict]) => {
-    const fdict2 = Object.entries(fdict).map(([prop, val]) => {
-      if (val.tag === "FExpr") {
-        return [prop, { tag: "FExpr", contents: mapTagExpr(f, val.contents) }];
-      } else if (val.tag === "FGPI") {
-        return [prop, { tag: "FGPI", contents: mapGPIExpr(f, val.contents) }];
-      } else {
-        console.log(prop, val);
-        throw Error("unknown tag on field expr");
+  const newTrMap: [string, { [k: string]: FieldExpr<S> }][] = Object.entries(
+    trans.trMap
+  ).map(([name, fdict]) => {
+    const fdict2: [string, FieldExpr<S>][] = Object.entries(fdict).map(
+      ([prop, val]): [string, FieldExpr<S>] => {
+        switch (val.tag) {
+          case "FExpr":
+            return [
+              prop,
+              { tag: "FExpr", contents: mapTagExpr(f, val.contents) },
+            ];
+          case "FGPI":
+            return [
+              prop,
+              { tag: "FGPI", contents: mapGPIExpr(f, val.contents) },
+            ];
+        }
       }
-    });
+    );
 
     return [name, Object.fromEntries(fdict2)];
   });
@@ -333,11 +396,6 @@ export function mapTranslation<T, S>(
     trMap: Object.fromEntries(newTrMap),
   };
 }
-
-// TODO: Check the input type?
-export const makeTranslationDifferentiable = (trans: any): Translation => {
-  return mapTranslation(varOf, trans);
-};
 
 export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
   return mapTranslation(numOf, trans);
@@ -368,21 +426,19 @@ export const dummyIdentifier = (
 ): Identifier<A> => {
   return {
     nodeType,
-    children: [],
     type: "value",
     value: name,
     tag: "Identifier",
   };
 };
 
-const floatValToExpr = (e: Value<VarAD>): Expr<A> => {
+const floatValToExpr = (e: Value<ad.Num>): Expr<A> => {
   if (e.tag !== "FloatV") {
     throw Error("expected to insert vector elem of type float");
   }
 
   return {
     nodeType: "SyntheticStyle",
-    children: [],
     tag: "VaryAD",
     contents: e.contents,
   };
@@ -390,7 +446,7 @@ const floatValToExpr = (e: Value<VarAD>): Expr<A> => {
 
 const mkPropertyDict = (
   decls: PropertyDecl<A>[]
-): { [k: string]: TagExpr<VarAD> } => {
+): { [k: string]: TagExpr<ad.Num> } => {
   const gpi = {};
 
   for (const decl of decls) {
@@ -412,7 +468,7 @@ const mkPropertyDict = (
 // TODO: Test this
 export const insertGPI = (
   path: Path<A>,
-  gpi: IFGPI<VarAD>,
+  gpi: IFGPI<ad.Num>,
   trans: Translation
 ): Translation => {
   let name, field;
@@ -455,7 +511,7 @@ export const propertiesOf = (
   shapeType: ShapeTypeStr
 ): PropID[] => {
   const shapedef: ShapeDef = shapedefs[shapeType];
-  const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
+  const shapeInfo: [string, Value<ad.Num>["tag"]][] = Object.entries(
     shapedef.propTags
   );
   return shapeInfo
@@ -469,7 +525,7 @@ export const propertiesNotOf = (
   shapeType: ShapeTypeStr
 ): PropID[] => {
   const shapedef: ShapeDef = shapedefs[shapeType];
-  const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
+  const shapeInfo: [string, Value<ad.Num>["tag"]][] = Object.entries(
     shapedef.propTags
   );
   return shapeInfo
@@ -483,7 +539,7 @@ export const propertiesNotOf = (
 // TODO(error): rewrite to use the same pattern as `findExprSafe`
 export const insertExpr = (
   path: Path<A>,
-  expr: TagExpr<VarAD>,
+  expr: TagExpr<ad.Num>,
   initTrans: Translation,
   compiling = false,
   override = false
@@ -496,11 +552,11 @@ export const insertExpr = (
       [name, field] = [path.name, path.field];
 
       // Initialize the field dict if it hasn't been initialized
-      if (!trans.trMap[name.contents.value]) {
+      if (!(name.contents.value in trans.trMap)) {
         trans.trMap[name.contents.value] = {};
       }
 
-      let fexpr: FieldExpr<VarAD> = { tag: "FExpr", contents: expr };
+      let fexpr: FieldExpr<ad.Num> = { tag: "FExpr", contents: expr };
 
       // If it's a GPI, instantiate it (rule Line-Set-Ctor); otherwise put it in the translation as-is
       if (expr.tag === "OptEval") {
@@ -522,7 +578,10 @@ export const insertExpr = (
       if (
         compiling &&
         !override &&
-        trans.trMap[name.contents.value].hasOwnProperty(field.value)
+        Object.prototype.hasOwnProperty.call(
+          trans.trMap[name.contents.value],
+          field.value
+        )
       ) {
         trans = addWarn(trans, {
           tag: "InsertedPathWithoutOverrideError",
@@ -539,11 +598,11 @@ export const insertExpr = (
     case "PropertyPath": {
       [name, field, prop] = [path.name, path.field, path.property];
 
-      if (!trans.trMap[name.contents.value]) {
+      if (!(name.contents.value in trans.trMap)) {
         trans.trMap[name.contents.value] = {};
       }
 
-      const fieldRes: FieldExpr<IVarAD> =
+      const fieldRes: FieldExpr<ad.Num> =
         trans.trMap[name.contents.value][field.value];
 
       // TODO(errors): Catch error if SubObj, etc don't exist -- but should these kinds of errors be caught by block statics rather than failing at runtime?
@@ -607,7 +666,11 @@ export const insertExpr = (
 
         // TODO(error): check for field/property overrides of paths that don't already exist
         // TODO(error): if there are multiple matches, override errors behave oddly...
-        if (compiling && !override && properties.hasOwnProperty(prop.value)) {
+        if (
+          compiling &&
+          !override &&
+          Object.prototype.hasOwnProperty.call(properties, prop.value)
+        ) {
           trans = addWarn(trans, {
             tag: "InsertedPathWithoutOverrideError",
             path,
@@ -640,7 +703,7 @@ export const insertExpr = (
             const err = "did not expect GPI in vector access";
             throw Error(err);
           }
-          const res2: TagExpr<IVarAD> = res.contents;
+          const res2: TagExpr<ad.Num> = res.contents;
 
           // Deal with vector expressions
           if (res2.tag === "OptEval") {
@@ -675,7 +738,7 @@ export const insertExpr = (
             return trans;
           } else if (res2.tag === "Done") {
             // Deal with vector values
-            const res3: Value<IVarAD> = res2.contents;
+            const res3: Value<ad.Num> = res2.contents;
             if (res3.tag !== "VectorV") {
               const err = "expected Vector";
               if (compiling) {
@@ -686,7 +749,7 @@ export const insertExpr = (
               }
               throw Error(err);
             }
-            const res4: IVarAD[] = res3.contents;
+            const res4: ad.Num[] = res3.contents;
 
             if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
               res4[exprToNumber(indices[0])] = expr.contents.contents;
@@ -716,12 +779,12 @@ export const insertExpr = (
         }
 
         case "PropertyPath": {
-          const ip = innerPath as IPropertyPath<C>;
+          const ip = innerPath;
           // a.x.y[0] = e
           [name, field, prop] = [ip.name, ip.field, ip.property];
           const gpi = trans.trMap[name.contents.value][
             field.value
-          ] as IFGPI<VarAD>;
+          ] as IFGPI<ad.Num>;
           const [gpiType, properties] = gpi.contents;
 
           // Right now, a property may not have been initialized (e.g. during the Style interpretation phase, when we are creating a translation).
@@ -826,7 +889,7 @@ export const insertExpr = (
 // Mutates translation
 export const insertExprs = (
   ps: Path<A>[],
-  es: TagExpr<VarAD>[],
+  es: TagExpr<ad.Num>[],
   tr: Translation,
   compiling = false,
   override = false
@@ -844,7 +907,9 @@ export const insertExprs = (
   return tr2;
 };
 
-export const isTagExpr = (e: any): e is TagExpr<VarAD> => {
+export const isTagExpr = (
+  e: TagExpr<ad.Num> | StyleError
+): e is TagExpr<ad.Num> => {
   return e.tag === "OptEval" || e.tag === "Done" || e.tag === "Pending";
 };
 
@@ -852,7 +917,7 @@ export const isTagExpr = (e: any): e is TagExpr<VarAD> => {
 export const findExprSafe = (
   trans: Translation,
   path: Path<A>
-): TagExpr<VarAD> | IFGPI<VarAD> => {
+): TagExpr<ad.Num> | IFGPI<ad.Num> => {
   const res = findExpr(trans, path);
   if (res.tag !== "FGPI" && !isTagExpr(res)) {
     // Is an error
@@ -873,7 +938,7 @@ export const findExprSafe = (
 export const findExpr = (
   trans: Translation,
   path: Path<A>
-): TagExpr<VarAD> | IFGPI<VarAD> | StyleError => {
+): TagExpr<ad.Num> | IFGPI<ad.Num> | StyleError => {
   let name, field, prop;
 
   switch (path.tag) {
@@ -962,7 +1027,7 @@ export const findExpr = (
         }
       } else if (res.tag === "Done") {
         if (res.contents.tag === "VectorV") {
-          const inner: VarAD = res.contents.contents[i];
+          const inner: ad.Num = res.contents.contents[i];
           return { tag: "Done", contents: { tag: "FloatV", contents: inner } };
         } else {
           return { tag: "InvalidAccessPathError", path };
@@ -994,7 +1059,6 @@ export const exprToNumber = (e: Expr<A>): number => {
 export const numToExpr = (n: number): Expr<A> => {
   return {
     nodeType: "SyntheticStyle",
-    children: [],
     tag: "Fix",
     contents: n,
   };

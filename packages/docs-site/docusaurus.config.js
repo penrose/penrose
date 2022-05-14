@@ -3,13 +3,15 @@
 
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+const math = require("remark-math");
+const katex = require("rehype-katex");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Penrose",
   tagline:
     "Create beautiful diagrams just by typing math notation in plain text.",
-  url: "https://penrose.ink",
+  url: "https://penrose.cs.cmu.edu",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -23,6 +25,8 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          remarkPlugins: [math],
+          rehypePlugins: [katex],
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl:
@@ -33,6 +37,15 @@ const config = {
         },
       }),
     ],
+  ],
+  stylesheets: [
+    {
+      href: "https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css",
+      type: "text/css",
+      integrity:
+        "sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM",
+      crossorigin: "anonymous",
+    },
   ],
 
   themeConfig:
@@ -58,6 +71,11 @@ const config = {
             label: "Documentation",
           },
           {
+            href: "pathname:///try/",
+            label: "Try Penrose",
+            position: "left",
+          },
+          {
             type: "doc",
             docId: "team",
             position: "right",
@@ -68,23 +86,40 @@ const config = {
             label: "GitHub",
             position: "right",
           },
+          {
+            href: "https://twitter.com/UsePenrose",
+            label: "Twitter",
+            position: "right",
+          },
         ],
       },
       footer: {
         style: "dark",
         links: [
           {
-            title: "Docs",
+            title: "Using Penrose",
             items: [
               {
-                label: "Reference",
+                label: "Learn Penrose",
+                to: "/docs/tutorial/welcome",
+              },
+              {
+                label: "Documentation",
                 to: "/docs/ref",
+              },
+              {
+                label: "Try Penrose",
+                to: "pathname:///try/",
               },
             ],
           },
           {
-            title: "Community",
+            title: "Project",
             items: [
+              {
+                label: "GitHub",
+                href: "https://github.com/penrose",
+              },
               {
                 label: "Twitter",
                 href: "https://twitter.com/UsePenrose",
@@ -92,11 +127,21 @@ const config = {
             ],
           },
           {
-            title: "More",
+            title: "News",
             items: [
               {
-                label: "GitHub",
-                href: "https://github.com/penrose",
+                label: "SIGGRAPH'20 Paper",
+                to: "pathname:///siggraph20.html",
+              },
+              {
+                label: "CHI'20 Paper",
+                href:
+                  "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
+              },
+              {
+                label: "Popular Mechanics",
+                href:
+                  "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
               },
             ],
           },

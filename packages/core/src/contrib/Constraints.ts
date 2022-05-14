@@ -16,7 +16,7 @@ import {
 } from "contrib/ConstraintsUtils";
 import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
 import { inRange, overlap1D } from "contrib/Utils";
-import { constOf, constOfIf, ops } from "engine/Autodiff";
+import { ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -33,58 +33,61 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 
 // -------- Simple constraints
-// Do not require shape quaries, operate directly with `VarAD` parameters.
+// Do not require shape quaries, operate directly with `ad.Num` parameters.
 const constrDictSimple = {
   /**
    * Require that the value `x` is equal to the value `y`
    */
-  equal: (x: VarAD, y: VarAD) => {
+  equal: (x: ad.Num, y: ad.Num) => {
     return absVal(sub(x, y));
   },
 
   /**
    * Require that the value `x` is less than the value `y` with optional padding `padding`
    */
-  lessThan: (x: VarAD, y: VarAD, padding = 0) => {
-    return add(sub(x, y), constOfIf(padding));
+  lessThan: (x: ad.Num, y: ad.Num, padding = 0) => {
+    return add(sub(x, y), padding);
   },
 
   /**
    * Require that the value `x` is greater than the value `y` with optional padding `padding`
    */
-  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
-    return add(sub(y, x), constOfIf(padding));
+  greaterThan: (x: ad.Num, y: ad.Num, padding = 0) => {
+    return add(sub(y, x), padding);
   },
 
   /**
    * Require that the value `x` is less than the value `y`, with steeper penalty
    */
-  lessThanSq: (x: VarAD, y: VarAD) => {
+  lessThanSq: (x: ad.Num, y: ad.Num) => {
     // if x < y then 0 else (x - y)^2
-    return ifCond(lt(x, y), constOf(0), squared(sub(x, y)));
+    return ifCond(lt(x, y), 0, squared(sub(x, y)));
   },
 
   /**
    * Require that the value `x` is greater than the value `y`, with steeper penalty
    */
-  greaterThanSq: (x: VarAD, y: VarAD) => {
-    return ifCond(lt(y, x), constOf(0), squared(sub(y, x)));
+  greaterThanSq: (x: ad.Num, y: ad.Num) => {
+    return ifCond(lt(y, x), 0, squared(sub(y, x)));
   },
 
   /**
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
-  inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
+  inRange: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
     return mul(sub(x, x0), sub(x, x1));
   },
 
   /**
    * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
    */
-  contains1D: ([l1, r1]: [VarAD, VarAD], [l2, r2]: [VarAD, VarAD]): VarAD => {
+  contains1D: (
+    [l1, r1]: [ad.Num, ad.Num],
+    [l2, r2]: [ad.Num, ad.Num]
+  ): ad.Num => {
     // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
     return add(
       constrDictSimple.lessThanSq(l1, l2),
@@ -95,21 +98,17 @@ const constrDictSimple = {
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
-  disjointScalar: (c: any, left: any, right: any) => {
-    const d = (x: VarAD, y: VarAD) => absVal(sub(x, y));
+  disjointScalar: (c: ad.Num, left: ad.Num, right: ad.Num) => {
+    const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
 
     // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
-    return ifCond(
-      inRange(c, left, right),
-      min(d(c, left), d(c, right)),
-      constOf(0)
-    );
+    return ifCond(inRange(c, left, right), min(d(c, left), d(c, right)), 0);
   },
 
   /**
    * Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.
    */
-  perpendicular: (q: VarAD[], p: VarAD[], r: VarAD[]): VarAD => {
+  perpendicular: (q: ad.Num[], p: ad.Num[], r: ad.Num[]): ad.Num => {
     const v1 = ops.vsub(q, p);
     const v2 = ops.vsub(r, p);
     const dotProd = ops.vdot(v1, v2);
@@ -120,30 +119,27 @@ const constrDictSimple = {
    * Require that three points be collinear.
    * Depends on the specific ordering of points.
    */
-  collinear: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
+  collinear: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vsub(c1, c2);
     const v2 = ops.vsub(c2, c3);
     const v3 = ops.vsub(c1, c3);
 
     // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(
-      constOf(0),
-      sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3))
-    );
+    return max(0, sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3)));
   },
 
   /**
    * Require that three points be collinear.
    * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
    */
-  collinearUnordered: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
+  collinearUnordered: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vnorm(ops.vsub(c1, c2));
     const v2 = ops.vnorm(ops.vsub(c2, c3));
     const v3 = ops.vnorm(ops.vsub(c1, c3));
 
     // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
     return max(
-      constOf(0),
+      0,
       minN([sub(add(v1, v2), v3), sub(add(v1, v3), v2), sub(add(v2, v3), v1)])
     );
   },
@@ -155,17 +151,17 @@ const constrDictGeneral = {
   /** Require that `shape` is on the canvas */
   onCanvas: (
     [shapeType, props]: any,
-    canvasWidth: VarAD,
-    canvasHeight: VarAD
+    canvasWidth: ad.Num,
+    canvasHeight: ad.Num
   ) => {
     const box = bboxFromShape([shapeType, props]);
-    const canvasXRange: [VarAD, VarAD] = [
-      mul(canvasWidth, constOf(-0.5)),
-      div(canvasWidth, constOf(2)),
+    const canvasXRange: [ad.Num, ad.Num] = [
+      mul(canvasWidth, -0.5),
+      div(canvasWidth, 2),
     ];
-    const canvasYRange: [VarAD, VarAD] = [
-      mul(canvasHeight, constOf(-0.5)),
-      div(canvasHeight, constOf(2)),
+    const canvasYRange: [ad.Num, ad.Num] = [
+      mul(canvasHeight, -0.5),
+      div(canvasHeight, 2),
     ];
     return add(
       constrDict.contains1D(canvasXRange, BBox.xRange(box)),
@@ -176,14 +172,14 @@ const constrDictGeneral = {
    * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
    */
   minSize: ([shapeType, props]: [string, any], limit = 50) => {
-    return sub(constOfIf(limit), shapeSize([shapeType, props]));
+    return sub(limit, shapeSize([shapeType, props]));
   },
 
   /**
    * Require that a shape have a size less than some constant maximum, based on the type of the shape.
    */
-  maxSize: ([shapeType, props]: [string, any], limit: number | VarAD) => {
-    return sub(shapeSize([shapeType, props]), constOfIf(limit));
+  maxSize: ([shapeType, props]: [string, any], limit: ad.Num) => {
+    return sub(shapeSize([shapeType, props]), limit);
   },
 
   /**
@@ -198,28 +194,28 @@ const constrDictGeneral = {
   ) => {
     // Same shapes
     if (t1 === "Circle" && t2 === "Circle")
-      return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
+      return overlappingCircles([t1, s1], [t2, s2], padding);
     else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
-      return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
+      return overlappingAABBs([t1, s1], [t2, s2], padding);
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
-      return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
+      return overlappingPolygons([t1, s1], [t2, s2], padding);
     // Rectangle x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
-      return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
+      return overlappingRectlikeCircle([t1, s1], [t2, s2], padding);
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
-      return overlappingRectlikeCircle([t2, s2], [t1, s1], constOfIf(padding));
+      return overlappingRectlikeCircle([t2, s2], [t1, s1], padding);
     // Polygon x Ellipse
     else if (shapedefs[t1].isPolygonlike && t2 === "Ellipse")
-      return overlappingPolygonEllipse([t1, s1], [t2, s2], constOfIf(padding));
+      return overlappingPolygonEllipse([t1, s1], [t2, s2], padding);
     else if (t1 === "Ellipse" && shapedefs[t2].isPolygonlike)
-      return overlappingPolygonEllipse([t2, s2], [t1, s1], constOfIf(padding));
+      return overlappingPolygonEllipse([t2, s2], [t1, s1], padding);
     // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
-      return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
+      return overlappingCircleLine([t1, s1], [t2, s2], padding);
     else if (t1 === "Line" && t2 === "Circle")
-      return overlappingCircleLine([t2, s2], [t1, s1], constOfIf(padding));
+      return overlappingCircleLine([t2, s2], [t1, s1], padding);
     // Default to axis-aligned bounding boxes
-    else return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
+    else return overlappingAABBs([t1, s1], [t2, s2], padding);
   },
 
   /**
@@ -259,18 +255,18 @@ const constrDictGeneral = {
     padding = 0.0
   ) => {
     if (t1 === "Circle" && t2 === "Circle")
-      return containsCircles([t1, s1], [t2, s2], constOfIf(padding));
+      return containsCircles([t1, s1], [t2, s2], padding);
     else if (t1 === "Polygon" && t2 === "Polygon")
-      return containsPolygonPolygon([t1, s1], [t2, s2], constOfIf(padding));
+      return containsPolygonPolygon([t1, s1], [t2, s2], padding);
     else if (t1 === "Polygon" && t2 === "Circle")
-      return containsPolygonCircle([t1, s1], [t2, s2], constOfIf(padding));
+      return containsPolygonCircle([t1, s1], [t2, s2], padding);
     else if (t1 === "Circle" && t2 === "Polygon")
-      return containsCirclePolygon([t1, s1], [t2, s2], constOfIf(padding));
+      return containsCirclePolygon([t1, s1], [t2, s2], padding);
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
-      return containsCircleRectlike([t1, s1], [t2, s2], constOfIf(padding));
+      return containsCircleRectlike([t1, s1], [t2, s2], padding);
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
-      return containsRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
+      return containsRectlikeCircle([t1, s1], [t2, s2], padding);
+    else return containsAABBs([t1, s1], [t2, s2], padding);
   },
 
   /**
@@ -282,7 +278,7 @@ const constrDictGeneral = {
     distance: number
   ) => {
     if (shapedefs[t2].isRectlike)
-      return atDistLabel([t1, s1], [t2, s2], constOfIf(distance));
+      return atDistLabel([t1, s1], [t2, s2], distance);
     else return constrDictGeneral.touching([t1, s1], [t2, s2], distance);
   },
 
@@ -297,7 +293,7 @@ const constrDictGeneral = {
     // s1 is smaller than s2
     const size1 = shapeSize([t1, s1]);
     const size2 = shapeSize([t2, s2]);
-    const padding = mul(constOfIf(relativePadding), size2);
+    const padding = mul(relativePadding, size2);
     return sub(sub(size1, size2), padding);
   },
 };
@@ -305,7 +301,7 @@ const constrDictGeneral = {
 // -------- Specific constraints
 // Defined only for specific use-case or specific shapes.
 const constrDictSpecific = {
-  ptCircleIntersect: (p: VarAD[], [t, s]: [string, any]) => {
+  ptCircleIntersect: (p: ad.Num[], [t, s]: [string, any]) => {
     if (t === "Circle") {
       const r = s.r.contents;
       const c = shapeCenter([t, s]);
@@ -328,7 +324,7 @@ const constrDictSpecific = {
 };
 
 export const constrDict = {
-  ...constrDictSimple, // Do not require shape quaries, operate directly with `VarAD` parameters.
+  ...constrDictSimple, // Do not require shape quaries, operate directly with `ad.Num` parameters.
   ...constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
   ...constrDictSpecific, // Defined only for specific use-case or specific shapes.
 };
