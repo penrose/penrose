@@ -39,12 +39,11 @@ import { LbfgsParams } from "./state";
 
 //#region Types for implicit autodiff graph
 
-export type Expr = Bool | VarAD | Vec;
+export type Expr = Bool | Num | Vec;
 
 export type Bool = Comp | Logic;
 
-// this type name is a relic, doesn't follow our current convention
-export type VarAD =
+export type Num =
   | number
   | Input
   | Unary
@@ -57,7 +56,7 @@ export type VarAD =
 export type Vec = PolyRoots;
 
 export interface Input extends InputNode {
-  // HACK: Historically, every VarAD contained a `val` field which would hold
+  // HACK: Historically, every Num contained a `val` field which would hold
   // the "value of this node at the time the computational graph was created".
   // In particular, every function in `engine/AutodiffFunctions` contained code
   // to compute the initial value of a node based on the initial values of its
@@ -86,17 +85,17 @@ export interface Input extends InputNode {
 }
 
 export interface Unary extends UnaryNode {
-  param: VarAD;
+  param: Num;
 }
 
 export interface Binary extends BinaryNode {
-  left: VarAD;
-  right: VarAD;
+  left: Num;
+  right: Num;
 }
 
 export interface Comp extends CompNode {
-  left: VarAD;
-  right: VarAD;
+  left: Num;
+  right: Num;
 }
 
 export interface Logic extends LogicNode {
@@ -106,17 +105,17 @@ export interface Logic extends LogicNode {
 
 export interface Ternary extends TernaryNode {
   cond: Bool;
-  then: VarAD;
-  els: VarAD;
+  then: Num;
+  els: Num;
 }
 
 export interface Nary extends NaryNode {
-  params: VarAD[];
+  params: Num[];
 }
 
 export interface PolyRoots extends PolyRootsNode {
   // coefficients of a monic polynomial with degree `coeffs.length`
-  coeffs: VarAD[];
+  coeffs: Num[];
 }
 
 export interface Index extends IndexNode {
@@ -124,7 +123,7 @@ export interface Index extends IndexNode {
 }
 
 export interface Debug extends DebugNode {
-  node: VarAD;
+  node: Num;
 }
 
 //#endregion
@@ -265,17 +264,15 @@ export type Compiled = (inputs: number[]) => Outputs<number>;
 
 //#region Types for generalizing our system autodiff
 
-export type VecAD = VarAD[];
+export type Pt2 = [Num, Num];
 
-export type Pt2 = [VarAD, VarAD];
-
-export const isPt2 = (vec: VarAD[]): vec is Pt2 => vec.length === 2;
+export const isPt2 = (vec: Num[]): vec is Pt2 => vec.length === 2;
 
 export type GradGraphs = IGradGraphs;
 
 export interface IGradGraphs {
-  inputs: VarAD[];
-  weight: VarAD | undefined; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
+  inputs: Num[];
+  weight: Num | undefined; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
 }
 
 export type OptInfo = IOptInfo;

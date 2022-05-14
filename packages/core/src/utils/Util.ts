@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import { times } from "lodash";
 import seedrandom from "seedrandom";
 import { ILine } from "shapes/Line";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
@@ -490,7 +490,7 @@ export const prettyPrintFns = (state: State): string[] =>
 //#region autodiff
 
 // From Evaluator
-export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
+export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
   tag: "Val",
   contents: {
     tag: "FloatV",
@@ -498,14 +498,14 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
   },
 });
 
-export const linePts = ({ start, end }: ILine): [VarAD[], VarAD[]] => [
+export const linePts = ({ start, end }: ILine): [ad.Num[], ad.Num[]] => [
   start.contents,
   end.contents,
 ];
 
-export const getStart = ({ start }: ILine): VarAD[] => start.contents;
+export const getStart = ({ start }: ILine): ad.Num[] => start.contents;
 
-export const getEnd = ({ end }: ILine): VarAD[] => end.contents;
+export const getEnd = ({ end }: ILine): ad.Num[] => end.contents;
 
 //#endregion
 

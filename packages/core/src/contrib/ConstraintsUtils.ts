@@ -30,7 +30,7 @@ import { Polygon } from "shapes/Polygon";
 import { Rectangle } from "shapes/Rectangle";
 import { shapedefs } from "shapes/Shapes";
 import { Text } from "shapes/Text";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 
 // -------- Ovelapping helpers
 
@@ -40,8 +40,8 @@ import { VarAD } from "types/ad";
 export const overlappingCircles = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Circle],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   const o = [s1.r.contents, s2.r.contents, padding];
   return sub(d, addN(o));
@@ -53,8 +53,8 @@ export const overlappingCircles = (
 export const overlappingPolygons = (
   [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
   [t2, s2]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   return overlappingPolygonPoints(
     polygonLikePoints([t1, s1]),
     polygonLikePoints([t2, s2]),
@@ -68,8 +68,8 @@ export const overlappingPolygons = (
 export const overlappingAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   // Prepare axis-aligned bounding boxes
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
@@ -85,8 +85,8 @@ export const overlappingAABBs = (
 export const overlappingRectlikeCircle = (
   [t1, s1]: [string, Rectangle | Text | Equation | Image],
   [t2, s2]: [string, Circle],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   // Prepare axis-aligned bounding boxes
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
@@ -104,8 +104,8 @@ export const overlappingRectlikeCircle = (
 export const overlappingCircleLine = (
   [, s1]: [string, Circle],
   [, s2]: [string, Line],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   // collect constants
   const c = s1.center.contents;
   const r = s1.r.contents;
@@ -136,8 +136,8 @@ export const overlappingCircleLine = (
 export const atDistLabel = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  distance: VarAD
-): VarAD => {
+  distance: ad.Num
+): ad.Num => {
   let pt;
   if (shapedefs[t1].isLinelike) {
     // Position label close to the arrow's end
@@ -167,8 +167,8 @@ export const atDistLabel = (
 export const containsCircles = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Circle],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   const o = padding
     ? sub(sub(s1.r.contents, s2.r.contents), padding)
@@ -183,8 +183,8 @@ export const containsCircles = (
 export const containsCircleRectlike = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Rectangle | Text | Equation | Image],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   // TODO: Remake using Minkowski penalties
   const s2BBox = bboxFromShape([t2, s2]);
   const d = ops.vdist(shapeCenter([t1, s1]), s2BBox.center);
@@ -198,8 +198,8 @@ export const containsCircleRectlike = (
 export const containsRectlikeCircle = (
   [, s1]: [string, Rectangle | Text | Equation | Image],
   [, s2]: [string, Circle],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   // TODO: Remake using Minkowski penalties
 
   // collect constants
@@ -228,8 +228,8 @@ export const containsRectlikeCircle = (
 export const containsAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   // TODO: Remake using Minkowski penalties
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
@@ -249,8 +249,8 @@ export const containsAABBs = (
 export const containsPolygonPolygon = (
   [, s1]: [string, Polygon],
   [, s2]: [string, Polygon],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   return maxN(
     s2.points.contents.map((x) =>
       containsPolygonPoints(s1.points.contents, x, padding)
@@ -264,8 +264,8 @@ export const containsPolygonPolygon = (
 export const containsPolygonCircle = (
   [, s1]: [string, Polygon],
   [, s2]: [string, Circle],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   return containsPolygonPoints(
     s1.points.contents,
     s2.center.contents,
@@ -279,8 +279,8 @@ export const containsPolygonCircle = (
 export const containsCirclePolygon = (
   [, s1]: [string, Circle],
   [, s2]: [string, Polygon],
-  padding: VarAD = 0
-): VarAD => {
+  padding: ad.Num = 0
+): ad.Num => {
   return maxN(
     s2.points.contents.map((x) =>
       sub(add(ops.vdist(x, s1.center.contents), padding), s1.r.contents)

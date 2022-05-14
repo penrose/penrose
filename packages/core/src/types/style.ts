@@ -1,7 +1,7 @@
 //#region Style AST
 // TODO: unify type name convention (e.g. stop using `I` for interfaces and drop some of the Haskell ported types)
 
-import { VarAD } from "./ad";
+import * as ad from "./ad";
 import { ASTNode, Identifier, IStringLit } from "./ast";
 import { LabelType } from "./substance";
 
@@ -353,7 +353,7 @@ export type IVaryInit<T> = ASTNode<T> & {
 
 export type IVaryAD<T> = ASTNode<T> & {
   tag: "VaryAD";
-  contents: VarAD;
+  contents: ad.Num;
 };
 
 export type PropertyDecl<T> = ASTNode<T> & {

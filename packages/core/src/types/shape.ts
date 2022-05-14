@@ -1,8 +1,8 @@
-import { VarAD } from "./ad";
+import * as ad from "./ad";
 import { Value } from "./value";
 
 export type Shape = IShape<number>;
-export type ShapeAD = IShape<VarAD>;
+export type ShapeAD = IShape<ad.Num>;
 
 export type Properties<T> = { [k: string]: Value<T> };
 

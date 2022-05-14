@@ -16,7 +16,7 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { convexPartition, isClockwise } from "poly-partition";
-import { Pt2, VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { safe } from "utils/Util";
 
 /**
@@ -30,8 +30,8 @@ import { safe } from "utils/Util";
 export const rectangleDifference = (
   box1: BBox.BBox,
   box2: BBox.BBox,
-  padding: VarAD
-): [Pt2, Pt2] => {
+  padding: ad.Num
+): [ad.Pt2, ad.Pt2] => {
   // Prepare coordinates
   const [xa1, xa2, ya1, ya2] = [
     BBox.minX(box1),
@@ -58,7 +58,7 @@ export const rectangleDifference = (
 /**
  * Return -1.0 for negative number, +1.0 otherwise.
  */
-const signOf = (x: VarAD): VarAD => {
+const signOf = (x: ad.Num): ad.Num => {
   const negative = lt(x, 0);
   return ifCond(negative, -1, 1);
 };
@@ -69,9 +69,9 @@ const signOf = (x: VarAD): VarAD => {
  * @param insidePoint Any point inside of the half-plane.
  */
 export const outwardUnitNormal = (
-  lineSegment: VarAD[][],
-  insidePoint: VarAD[]
-): VarAD[] => {
+  lineSegment: ad.Num[][],
+  insidePoint: ad.Num[]
+): ad.Num[] => {
   const normal = ops.vnormalize(
     ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
   );
@@ -87,11 +87,11 @@ export const outwardUnitNormal = (
  * @param padding Padding added to the half-plane.
  */
 export const halfPlaneSDF = (
-  lineSegment: VarAD[][],
-  otherPoints: VarAD[][],
-  insidePoint: VarAD[],
-  padding: VarAD
-): VarAD => {
+  lineSegment: ad.Num[][],
+  otherPoints: ad.Num[][],
+  insidePoint: ad.Num[],
+  padding: ad.Num
+): ad.Num => {
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   const alpha = ops.vdot(normal, lineSegment[0]);
   const alphaOther = maxN(otherPoints.map((p) => ops.vdot(normal, p)));
@@ -106,17 +106,17 @@ export const halfPlaneSDF = (
  * @param padding Padding around the Minkowski sum.
  */
 const convexPolygonMinkowskiSDFOneSided = (
-  p1: VarAD[][],
-  p2: VarAD[][],
-  padding: VarAD
-): VarAD => {
+  p1: ad.Num[][],
+  p2: ad.Num[][],
+  padding: ad.Num
+): ad.Num => {
   const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
-  const sdfs = sides.map((s: VarAD[][]) =>
+  const sdfs = sides.map((s: ad.Num[][]) =>
     halfPlaneSDF(s, p2, center, padding)
   );
   return maxN(sdfs);
@@ -129,10 +129,10 @@ const convexPolygonMinkowskiSDFOneSided = (
  * @param padding Padding around the Minkowski sum.
  */
 export const convexPolygonMinkowskiSDF = (
-  p1: VarAD[][],
-  p2: VarAD[][],
-  padding: VarAD
-): VarAD => {
+  p1: ad.Num[][],
+  p2: ad.Num[][],
+  padding: ad.Num
+): ad.Num => {
   return max(
     convexPolygonMinkowskiSDFOneSided(p1, p2, padding),
     convexPolygonMinkowskiSDFOneSided(p2, p1, padding)
@@ -145,7 +145,7 @@ export const convexPolygonMinkowskiSDF = (
  * transformations can be applied, but vertices cannot change independently.
  * @param p Sequence of points defining a simple polygon.
  */
-export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
+export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
   if (p.length <= 3) {
     return [p];
   }
@@ -154,9 +154,9 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   // enough to let us run a convex partitioning algorithm inside the optimizer
   // loop, so instead, here we compile enough of the computation graph to
   // compute the initial positions of the polygon vertices, evaluate that using
-  // the input values embedded in the children of the VarADs we were passed, run
-  // a convex partitioning algorithm on those vertex positions, and cross our
-  // fingers that this remains a valid convex partition as we optimize
+  // the input values embedded in the children of the `ad.Num`s we were passed,
+  // run a convex partitioning algorithm on those vertex positions, and cross
+  // our fingers that this remains a valid convex partition as we optimize
   const g = secondaryGraph(p.flat());
   const inputs = [];
   for (const v of g.nodes.keys()) {
@@ -199,12 +199,14 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
  * @param padding Padding applied to one of the polygons.
  */
 export const overlappingPolygonPoints = (
-  polygonPoints1: VarAD[][],
-  polygonPoints2: VarAD[][],
-  padding: VarAD = 0
-): VarAD => {
+  polygonPoints1: ad.Num[][],
+  polygonPoints2: ad.Num[][],
+  padding: ad.Num = 0
+): ad.Num => {
   const cp1 = convexPartitions(polygonPoints1);
-  const cp2 = convexPartitions(polygonPoints2.map((p: VarAD[]) => ops.vneg(p)));
+  const cp2 = convexPartitions(
+    polygonPoints2.map((p: ad.Num[]) => ops.vneg(p))
+  );
   return maxN(
     cp1.map((p1) =>
       minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding)))
@@ -216,9 +218,9 @@ export const overlappingPolygonPoints = (
  * Returns the signed distance from a rectangle at the origin.
  */
 export const rectangleSignedDistance = (
-  bottomLeft: Pt2,
-  topRight: Pt2
-): VarAD => {
+  bottomLeft: ad.Pt2,
+  topRight: ad.Pt2
+): ad.Num => {
   // Calculate relative coordinates for rectangle signed distance
   const [xp, yp] = ops
     .vmul(0.5, ops.vadd(bottomLeft, topRight))
@@ -242,17 +244,17 @@ export const rectangleSignedDistance = (
  * @param padding Padding applied to the polygon.
  */
 const containsConvexPolygonPoints = (
-  p1: VarAD[][],
-  p2: VarAD[],
-  padding: VarAD
-): VarAD => {
+  p1: ad.Num[][],
+  p2: ad.Num[],
+  padding: ad.Num
+): ad.Num => {
   const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
-  const sdfs = sides.map((s: VarAD[][]) =>
+  const sdfs = sides.map((s: ad.Num[][]) =>
     halfPlaneSDF(s, [ops.vneg(p2)], center, padding)
   );
   return maxN(sdfs);
@@ -265,10 +267,10 @@ const containsConvexPolygonPoints = (
  * @param padding Padding applied to the polygon.
  */
 export const containsPolygonPoints = (
-  polygonPoints: VarAD[][],
-  point: VarAD[],
-  padding: VarAD = 0
-): VarAD => {
+  polygonPoints: ad.Num[][],
+  point: ad.Num[],
+  padding: ad.Num = 0
+): ad.Num => {
   const cp1 = convexPartitions(polygonPoints);
   return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
 };

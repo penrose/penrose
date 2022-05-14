@@ -1,7 +1,7 @@
 import { mul, sqrt } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
-import { Pt2, VarAD } from "types/ad";
+import * as ad from "types/ad";
 
 /**
  * Return bounding box from any provided shape.
@@ -14,7 +14,7 @@ export const bboxFromShape = ([t, s]: [string, any]): BBox.BBox => {
  * Return center of the shape `shape`.
  * For shapes without the property `center`, the center of their bounding box is returned.
  */
-export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
+export const shapeCenter = ([t, s]: [string, any]): ad.Pt2 => {
   if ("center" in s) {
     return s.center.contents;
   } else {
@@ -29,7 +29,7 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
  * - `radius` for circles.
  * - `sqrt( w * h )`, where `w` and `h` are the width and height of the bounding box, for all other shapes.
  */
-export const shapeSize = ([t, s]: [string, any]): VarAD => {
+export const shapeSize = ([t, s]: [string, any]): ad.Num => {
   if (t === "Circle") {
     return mul(2, s.r.contents);
   } else {
@@ -41,7 +41,7 @@ export const shapeSize = ([t, s]: [string, any]): VarAD => {
 /**
  * Return vertices of polygon-like shapes.
  */
-export const polygonLikePoints = ([t, s]: [string, any]): Pt2[] => {
+export const polygonLikePoints = ([t, s]: [string, any]): ad.Pt2[] => {
   if (t === "Polygon") return s.points.contents;
   else if (shapedefs[t].isLinelike) return [s.start.contents, s.end.contents];
   else if (shapedefs[t].isRectlike) {

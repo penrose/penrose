@@ -3,7 +3,6 @@ import consola, { LogLevel } from "consola";
 import * as _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "types/ad";
-import { GradGraphs, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
 import { Multidigraph } from "utils/Graph";
 import { safe, zip2 } from "utils/Util";
@@ -50,7 +49,7 @@ export const input = ({ key, val }: Omit<ad.Input, "tag">): ad.Input => ({
 export const makeADInputVars = (xs: number[], start = 0): ad.Input[] =>
   xs.map((val, i) => input({ key: start + i, val }));
 
-// every VarAD is already an ad.Node, but this function returns a new object
+// every ad.Num is already an ad.Node, but this function returns a new object
 // with all the children removed
 const makeNode = (x: ad.Expr): ad.Node => {
   if (typeof x === "number") {
@@ -100,7 +99,7 @@ const makeNode = (x: ad.Expr): ad.Node => {
   }
 };
 
-const unarySensitivity = (z: ad.Unary): VarAD => {
+const unarySensitivity = (z: ad.Unary): ad.Num => {
   const { unop, param: v } = z;
   switch (unop) {
     case "neg": {
@@ -187,7 +186,7 @@ const unarySensitivity = (z: ad.Unary): VarAD => {
   }
 };
 
-const binarySensitivities = (z: ad.Binary): { left: VarAD; right: VarAD } => {
+const binarySensitivities = (z: ad.Binary): { left: ad.Num; right: ad.Num } => {
   const { binop, left: v, right: w } = z;
   switch (binop) {
     case "+": {
@@ -250,7 +249,7 @@ const rankEdge = (edge: ad.Edge): number => {
 interface Child {
   child: ad.Expr;
   name: ad.Edge;
-  sensitivity: VarAD[][]; // rows for parent, columns for child
+  sensitivity: ad.Num[][]; // rows for parent, columns for child
 }
 
 // note that this function constructs the sensitivities even when we don't need
@@ -313,17 +312,17 @@ const children = (x: ad.Expr): Child[] => {
       // https://www.skewray.com/articles/how-do-the-roots-of-a-polynomial-depend-on-the-coefficients
 
       const n = x.coeffs.length;
-      const derivCoeffs: VarAD[] = x.coeffs.map((c, i) => mul(i, c));
+      const derivCoeffs: ad.Num[] = x.coeffs.map((c, i) => mul(i, c));
       derivCoeffs.shift();
       // the polynomial is assumed monic, so `x.coeffs` doesn't include the
       // coefficient 1 on the highest-degree term
       derivCoeffs.push(n);
 
-      const sensitivities: VarAD[][] = x.coeffs.map((_, index) => {
-        const t: VarAD = { tag: "Index", index, vec: x }; // a root
+      const sensitivities: ad.Num[][] = x.coeffs.map((_, index) => {
+        const t: ad.Num = { tag: "Index", index, vec: x }; // a root
 
-        let power: VarAD = 1;
-        const powers: VarAD[] = [power];
+        let power: ad.Num = 1;
+        const powers: ad.Num[] = [power];
         for (let i = 1; i < n; i++) {
           power = mul(power, t);
           powers.push(power);
@@ -385,7 +384,7 @@ const getInputs = (
  * to any given gradient node are added up according to that total order.
  */
 export const makeGraph = (
-  outputs: Omit<ad.Outputs<VarAD>, "gradient">
+  outputs: Omit<ad.Outputs<ad.Num>, "gradient">
 ): ad.Graph => {
   const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
@@ -452,7 +451,7 @@ export const makeGraph = (
   // concatenation doesn't cause any problems, because no stringified Edge
   // contains an underscore, and every Id starts with an underscore, so it's
   // essentially just three components separated by underscores
-  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, VarAD[][]>();
+  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, ad.Num[][]>();
   while (!edges.isEmpty()) {
     const [{ child, name, sensitivity }, parent] = edges.dequeue();
     const [v, w] = addEdge(child, parent, name);
@@ -585,14 +584,14 @@ export const makeGraph = (
 /**
  * Construct a graph with a primary output but no secondary outputs.
  */
-export const primaryGraph = (output: VarAD): ad.Graph =>
+export const primaryGraph = (output: ad.Num): ad.Graph =>
   makeGraph({ primary: output, secondary: [] });
 
 /**
  * Construct a graph from an array of only secondary outputs, for which we don't
  * care about the gradient. The primary output is just the constant 1.
  */
-export const secondaryGraph = (outputs: VarAD[]): ad.Graph =>
+export const secondaryGraph = (outputs: ad.Num[]): ad.Graph =>
   // use 1 because makeGraph always constructs a constant gradient node 1 for
   // the primary output, and so if that's already present in the graph then we
   // have one fewer node total
@@ -604,7 +603,7 @@ export const secondaryGraph = (outputs: VarAD[]): ad.Graph =>
  * Creates a wrapper node around a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
  * For more documentation on how to use this function, see the Penrose wiki page.
  */
-export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
+export const debug = (v: ad.Num, info = "no additional info"): ad.Debug => ({
   tag: "Debug",
   node: v,
   info,
@@ -613,7 +612,7 @@ export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
 // ----------------- Other ops
 
 /**
- * Some vector operations that can be used on `VarAD`.
+ * Some vector operations that can be used on `ad.Num`.
  */
 export const ops = {
   // Note that these ops MUST use the custom var ops for grads
@@ -622,17 +621,17 @@ export const ops = {
   /**
    * Return the norm of the 2-vector `[c1, c2]`.
    */
-  norm: (c1: VarAD, c2: VarAD): VarAD => ops.vnorm([c1, c2]),
+  norm: (c1: ad.Num, c2: ad.Num): ad.Num => ops.vnorm([c1, c2]),
 
   /**
    * Return the Euclidean distance between scalars `c1, c2`.
    */
-  dist: (c1: VarAD, c2: VarAD): VarAD => ops.vnorm([c1, c2]),
+  dist: (c1: ad.Num, c2: ad.Num): ad.Num => ops.vnorm([c1, c2]),
 
   /**
    * Return the sum of vectors `v1, v2.
    */
-  vadd: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+  vadd: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
     if (v1.length !== v2.length) {
       throw Error("expected vectors of same length");
     }
@@ -644,7 +643,7 @@ export const ops = {
   /**
    * Return the difference of vectors `v1, v2.
    */
-  vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+  vsub: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
     if (v1.length !== v2.length) {
       throw Error("expected vectors of same length");
     }
@@ -656,16 +655,16 @@ export const ops = {
   /**
    * Return the Euclidean norm squared of vector `v`.
    */
-  vnormsq: (v: VarAD[]): VarAD => {
+  vnormsq: (v: ad.Num[]): ad.Num => {
     const res = v.map((e) => squared(e));
-    return _.reduce(res, (x: VarAD, y) => add(x, y), 0);
+    return _.reduce(res, (x: ad.Num, y) => add(x, y), 0);
     // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
   },
 
   /**
    * Return the Euclidean norm of vector `v`.
    */
-  vnorm: (v: VarAD[]): VarAD => {
+  vnorm: (v: ad.Num[]): ad.Num => {
     const res = ops.vnormsq(v);
     return sqrt(res);
   },
@@ -673,28 +672,28 @@ export const ops = {
   /**
    * Return the vector `v` multiplied by scalar `c`.
    */
-  vmul: (c: VarAD, v: VarAD[]): VarAD[] => {
+  vmul: (c: ad.Num, v: ad.Num[]): ad.Num[] => {
     return v.map((e) => mul(c, e));
   },
 
   /**
    * Return the vector `v`, scaled by `-1`.
    */
-  vneg: (v: VarAD[]): VarAD[] => {
+  vneg: (v: ad.Num[]): ad.Num[] => {
     return ops.vmul(-1, v);
   },
 
   /**
    * Return the vector `v` divided by scalar `c`.
    */
-  vdiv: (v: VarAD[], c: VarAD): VarAD[] => {
+  vdiv: (v: ad.Num[], c: ad.Num): ad.Num[] => {
     return v.map((e) => div(e, c));
   },
 
   /**
    * Return the vector `v`, normalized.
    */
-  vnormalize: (v: VarAD[]): VarAD[] => {
+  vnormalize: (v: ad.Num[]): ad.Num[] => {
     const vsize = add(ops.vnorm(v), EPS_DENOM);
     return ops.vdiv(v, vsize);
   },
@@ -702,7 +701,7 @@ export const ops = {
   /**
    * Return the Euclidean distance between vectors `v` and `w`.
    */
-  vdist: (v: VarAD[], w: VarAD[]): VarAD => {
+  vdist: (v: ad.Num[], w: ad.Num[]): ad.Num => {
     if (v.length !== w.length) {
       throw Error("expected vectors of same length");
     }
@@ -712,7 +711,7 @@ export const ops = {
   /**
    * Return the Euclidean distance squared between vectors `v` and `w`.
    */
-  vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
+  vdistsq: (v: ad.Num[], w: ad.Num[]): ad.Num => {
     if (v.length !== w.length) {
       throw Error("expected vectors of same length");
     }
@@ -724,13 +723,13 @@ export const ops = {
    * Return the dot product of vectors `v1, v2`.
    * Note: if you want to compute a norm squared, use `vnormsq` instead, it generates a smaller computational graph
    */
-  vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
+  vdot: (v1: ad.Num[], v2: ad.Num[]): ad.Num => {
     if (v1.length !== v2.length) {
       throw Error("expected vectors of same length");
     }
 
     const res = _.zipWith(v1, v2, mul);
-    return _.reduce(res, (x: VarAD, y) => add(x, y), 0);
+    return _.reduce(res, (x: ad.Num, y) => add(x, y), 0);
   },
 
   /**
@@ -738,7 +737,7 @@ export const ops = {
    * Assumes that both u and v have nonzero magnitude.
    * The returned value will be in the range [0,pi].
    */
-  angleBetween: (u: VarAD[], v: VarAD[]): VarAD => {
+  angleBetween: (u: ad.Num[], v: ad.Num[]): ad.Num => {
     if (u.length !== v.length) {
       throw Error("expected vectors of same length");
     }
@@ -758,7 +757,7 @@ export const ops = {
    * Assumes that both u and v are 2D vectors and have nonzero magnitude.
    * The returned value will be in the range [-pi,pi].
    */
-  angleFrom: (u: VarAD[], v: VarAD[]): VarAD => {
+  angleFrom: (u: ad.Num[], v: ad.Num[]): ad.Num => {
     if (u.length !== v.length) {
       throw Error("expected vectors of same length");
     }
@@ -772,28 +771,28 @@ export const ops = {
   /**
    * Return the sum of elements in vector `v`.
    */
-  vsum: (v: VarAD[]): VarAD => {
-    return _.reduce(v, (x: VarAD, y) => add(x, y), 0);
+  vsum: (v: ad.Num[]): ad.Num => {
+    return _.reduce(v, (x: ad.Num, y) => add(x, y), 0);
   },
 
   /**
    * Return `v + c * u`.
    */
-  vmove: (v: VarAD[], c: VarAD, u: VarAD[]): VarAD[] => {
+  vmove: (v: ad.Num[], c: ad.Num, u: ad.Num[]): ad.Num[] => {
     return ops.vadd(v, ops.vmul(c, u));
   },
 
   /**
    * Rotate a 2D point `[x, y]` by 90 degrees counterclockwise.
    */
-  rot90: ([x, y]: VarAD[]): VarAD[] => {
+  rot90: ([x, y]: ad.Num[]): ad.Num[] => {
     return [neg(y), x];
   },
 
   /**
    * Rotate a 2D point `[x, y]` by a degrees counterclockwise.
    */
-  vrot: ([x, y]: VarAD[], a: VarAD): VarAD[] => {
+  vrot: ([x, y]: ad.Num[], a: ad.Num): ad.Num[] => {
     const angle = div(mul(a, Math.PI), 180);
     const x2 = sub(mul(cos(angle), x), mul(sin(angle), y));
     const y2 = add(mul(sin(angle), x), mul(cos(angle), y));
@@ -803,7 +802,7 @@ export const ops = {
   /**
    * Return 2D determinant/cross product of 2D vectors
    */
-  cross2: (u: VarAD[], v: VarAD[]): VarAD => {
+  cross2: (u: ad.Num[], v: ad.Num[]): ad.Num => {
     if (u.length !== 2 || v.length !== 2) {
       throw Error("expected two 2-vectors");
     }
@@ -813,7 +812,7 @@ export const ops = {
   /**
    * Return 3D cross product of 3D vectors
    */
-  cross3: (u: VarAD[], v: VarAD[]): VarAD[] => {
+  cross3: (u: ad.Num[], v: ad.Num[]): ad.Num[] => {
     if (u.length !== 3 || v.length !== 3) {
       throw Error("expected two 3-vectors");
     }
@@ -829,7 +828,7 @@ export const ops = {
    * From https://github.com/thi-ng/umbrella/blob/develop/packages/vectors/src/angle-between.ts#L11
    * NOTE: This function has not been thoroughly tested
    */
-  angleBetween2: (v: VarAD[], w: VarAD[]): VarAD => {
+  angleBetween2: (v: ad.Num[], w: ad.Num[]): ad.Num => {
     if (v.length !== 2 || w.length !== 2) {
       throw Error("expected two 2-vectors");
     }
@@ -842,14 +841,14 @@ export const fns = {
   /**
    * Return the penalty `max(x, 0)`.
    */
-  toPenalty: (x: VarAD): VarAD => {
+  toPenalty: (x: ad.Num): ad.Num => {
     return squared(max(x, 0));
   },
 
   /**
    * Return the center of a shape.
    */
-  center: (props: any): VarAD[] => {
+  center: (props: any): ad.Num[] => {
     return props.center.contents;
   },
 };
@@ -1088,10 +1087,10 @@ const setWeights = (info: WeightInfo) => {
 export const energyAndGradCompiled = (
   xs: number[],
   xsVars: ad.Input[],
-  energyGraph: VarAD,
-  individualEnergies: VarAD[],
+  energyGraph: ad.Num,
+  individualEnergies: ad.Num[],
   weightInfo: WeightInfo | undefined
-): { graphs: GradGraphs; f: ad.Compiled } => {
+): { graphs: ad.GradGraphs; f: ad.Compiled } => {
   // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
   if (weightInfo !== undefined) {
     setWeights(weightInfo);
@@ -1100,16 +1099,16 @@ export const energyAndGradCompiled = (
   // Set the leaves of the graph to have the new input values
   setInputs(xsVars, xs);
 
-  // Build an actual graph from the implicit VarAD structure
+  // Build an actual graph from the implicit ad.Num structure
   // Build symbolic gradient of f at xs on the energy graph
   const explicitGraph = makeGraph({
     primary: energyGraph,
     secondary: individualEnergies,
   });
 
-  const epWeightNode: VarAD | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
+  const epWeightNode: ad.Num | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
 
-  const graphs: GradGraphs = {
+  const graphs: ad.GradGraphs = {
     inputs: xsVars,
     weight: epWeightNode,
   };
