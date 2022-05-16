@@ -208,6 +208,7 @@ export const prepareState = async (state: State): Promise<State> => {
 
   // generate evaluation function
   const varyingVars = makeADInputVars(state.varyingValues);
+
   const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
 
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)

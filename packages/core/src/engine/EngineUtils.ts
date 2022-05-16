@@ -1,7 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 import { mapValues } from "lodash";
-import rfdc from "rfdc";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
@@ -44,9 +43,6 @@ import {
 import { showError } from "utils/Error";
 import { safe } from "utils/Util";
 import { genCode, secondaryGraph } from "./Autodiff";
-
-// For deep-cloning the translation
-const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -268,7 +264,9 @@ export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
         mapValueNumeric(
           (x) =>
             safe(
-              m.get(safe(compGraph.nodes.get(x), "missing node")),
+              m.get(
+                safe(compGraph.nodes.get(x), `missing node for value ${p.tag}`)
+              ),
               "missing output"
             ),
           p
@@ -536,10 +534,9 @@ export const insertExpr = (
               const err = `path was aliased to itself`;
               throw Error(err);
             }
-            const newPath = clone(path);
             return insertExpr(
               {
-                ...newPath,
+                ...path,
                 tag: "PropertyPath",
                 name: p.name, // Note use of alias
                 field: p.field, // Note use of alias

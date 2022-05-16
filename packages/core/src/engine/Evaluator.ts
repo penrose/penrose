@@ -28,7 +28,7 @@ import {
   Value,
   VectorV,
 } from "types/value";
-import { floatVal, prettyPrintPath, zip2 } from "utils/Util";
+import { prettyPrintPath, zip2 } from "utils/Util";
 import { ops } from "./Autodiff";
 import { add, div, mul, neg, sub } from "./AutodiffFunctions";
 
@@ -671,134 +671,112 @@ export const resolvePath = (
   varyingMap?: VaryMap<ad.Num>,
   optDebugInfo?: ad.OptDebugInfo
 ): ArgVal<ad.Num> => {
-  // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
-  let varyingVal;
-  if (varyingMap) {
-    varyingVal = varyingMap.get(prettyPrintPath(path));
+  // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
+  // NOTE: varyingMap includes vars of form AccessPath but not Vector/Matrix access
+  if (path.tag === "AccessPath") {
+    // Evaluate it as Vector or Matrix access as appropriate (COMBAK: Deprecate Vector/Matrix access on second pass, and also remove Vector/Matrix conversion to accesspath for derivative debugging computations)
+    if (path.indices.length === 1) {
+      // Vector
+      const e: Expr<A> = {
+        ...path,
+        tag: "VectorAccess",
+        contents: [path.path, path.indices[0]],
+      };
+      return evalExpr(rng, e, trans, varyingMap, optDebugInfo);
+    } else if (path.indices.length === 2) {
+      // Matrix
+      const e: Expr<A> = {
+        ...path,
+        tag: "MatrixAccess",
+        contents: [path.path, path.indices],
+      };
+      return evalExpr(rng, e, trans, varyingMap, optDebugInfo);
+    } else throw Error("unsupported number of indices in AccessPath");
   }
 
-  if (varyingVal) {
-    return floatVal(varyingVal);
-  } else {
-    // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
-    // NOTE: varyingMap includes vars of form AccessPath but not Vector/Matrix access
-    if (path.tag === "AccessPath") {
-      // Evaluate it as Vector or Matrix access as appropriate (COMBAK: Deprecate Vector/Matrix access on second pass, and also remove Vector/Matrix conversion to accesspath for derivative debugging computations)
+  if (path.tag === "InternalLocalVar" || path.tag === "LocalVar") {
+    throw Error("should not encounter local var in evaluation");
+  }
 
-      // console.log("path", path);
-      // console.log("trans", trans);
-      // console.log("varyingMap", varyingMap);
+  const gpiOrExpr = findExprSafe(trans, path);
 
-      if (path.indices.length === 1) {
-        // Vector
+  switch (gpiOrExpr.tag) {
+    case "FGPI": {
+      const [type, props] = gpiOrExpr.contents;
 
-        // if (path.path.tag === "FieldPath") {
-        //   if (path.path.field.value === "markerLine") {
-        //     debugger;
-        //   }
-        // }
-
-        const e: Expr<A> = {
+      // Evaluate GPI (i.e. each property path in GPI -- NOT necessarily the path's expression)
+      const evaledProps = mapValues(props, (p, propName) => {
+        const propertyPath: PropertyPath<A> = {
           ...path,
-          tag: "VectorAccess",
-          contents: [path.path, path.indices[0]],
+          tag: "PropertyPath",
+          name: path.name,
+          field: path.field,
+          property: dummyIdentifier(propName, "SyntheticStyle"),
         };
-        return evalExpr(rng, e, trans, varyingMap, optDebugInfo);
-      } else if (path.indices.length === 2) {
-        // Matrix
-        const e: Expr<A> = {
-          ...path,
-          tag: "MatrixAccess",
-          contents: [path.path, path.indices],
-        };
-        return evalExpr(rng, e, trans, varyingMap, optDebugInfo);
-      } else throw Error("unsupported number of indices in AccessPath");
-    }
 
-    if (path.tag === "InternalLocalVar" || path.tag === "LocalVar") {
-      throw Error("should not encounter local var in evaluation");
-    }
-
-    const gpiOrExpr = findExprSafe(trans, path);
-
-    switch (gpiOrExpr.tag) {
-      case "FGPI": {
-        const [type, props] = gpiOrExpr.contents;
-
-        // Evaluate GPI (i.e. each property path in GPI -- NOT necessarily the path's expression)
-        const evaledProps = mapValues(props, (p, propName) => {
-          const propertyPath: PropertyPath<A> = {
-            ...path,
-            tag: "PropertyPath",
-            name: path.name,
-            field: path.field,
-            property: dummyIdentifier(propName, "SyntheticStyle"),
-          };
-
-          if (p.tag === "OptEval") {
-            // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
-            // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
-            // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
-            const val: Value<ad.Num> = (evalExpr(
-              rng,
-              propertyPath,
-              trans,
-              varyingMap,
-              optDebugInfo
-            ) as Val<ad.Num>).contents;
-            insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
-            return val;
-          } else {
-            // Look up in varyingMap to see if there is a fresh value
-            let varyingVal;
-            if (varyingMap) {
-              varyingVal = varyingMap.get(prettyPrintPath(propertyPath));
-            }
-            if (varyingVal) {
-              return { tag: "FloatV", contents: varyingVal };
-            } else {
-              return p.contents;
-            }
-          }
-        });
-
-        // No need to cache evaluated GPI as each of its individual properties should have been cached on evaluation
-        return {
-          tag: "GPI",
-          contents: [type, evaledProps] as GPI<ad.Num>["contents"],
-        };
-      }
-
-      // Otherwise, either evaluate or return the expression
-      default: {
-        const expr: TagExpr<ad.Num> = gpiOrExpr;
-
-        if (expr.tag === "OptEval") {
-          // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
-          const res: ArgVal<ad.Num> = evalExpr(
+        if (p.tag === "OptEval") {
+          // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
+          // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
+          // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
+          const val: Value<ad.Num> = (evalExpr(
             rng,
-            expr.contents,
+            propertyPath,
             trans,
             varyingMap,
             optDebugInfo
-          );
-
-          if (res.tag === "Val") {
-            insertExpr(path, { tag: "Done", contents: res.contents }, trans);
-            return res;
-          } else if (res.tag === "GPI") {
-            throw Error(
-              "Field expression evaluated to GPI when this case was eliminated"
-            );
-          } else {
-            throw Error("Unknown tag");
-          }
-        } else if (expr.tag === "Done" || expr.tag === "Pending") {
-          // Already done, just return results of lookup -- this is a cache hit
-          return { tag: "Val", contents: expr.contents };
+          ) as Val<ad.Num>).contents;
+          // insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
+          return val;
         } else {
-          throw Error("Unexpected tag");
+          // Look up in varyingMap to see if there is a fresh value
+          let varyingVal;
+          if (varyingMap) {
+            varyingVal = varyingMap.get(prettyPrintPath(propertyPath));
+          }
+          if (varyingVal) {
+            return { tag: "FloatV", contents: varyingVal };
+          } else {
+            return p.contents;
+          }
         }
+      });
+
+      // No need to cache evaluated GPI as each of its individual properties should have been cached on evaluation
+      return {
+        tag: "GPI",
+        contents: [type, evaledProps] as GPI<ad.Num>["contents"],
+      };
+    }
+
+    // Otherwise, either evaluate or return the expression
+    default: {
+      const expr: TagExpr<ad.Num> = gpiOrExpr;
+
+      if (expr.tag === "OptEval") {
+        // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
+        const res: ArgVal<ad.Num> = evalExpr(
+          rng,
+          expr.contents,
+          trans,
+          varyingMap,
+          optDebugInfo
+        );
+
+        if (res.tag === "Val") {
+          // insertExpr(path, { tag: "Done", contents: res.contents }, trans);
+          return res;
+        } else if (res.tag === "GPI") {
+          throw Error(
+            "Field expression evaluated to GPI when this case was eliminated"
+          );
+        } else {
+          throw Error("Unknown tag");
+        }
+      } else if (expr.tag === "Done" || expr.tag === "Pending") {
+        // Already done, just return results of lookup -- this is a cache hit
+        return { tag: "Val", contents: expr.contents };
+      } else {
+        throw Error("Unexpected tag");
       }
     }
   }
