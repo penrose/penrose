@@ -1,24 +1,24 @@
 import * as ad from "types/ad";
-import { IPathDataV, ISubPath } from "types/value";
+import { PathDataV, SubPath } from "types/value";
 
 /**
  * Class for building SVG paths
  */
 export class PathBuilder {
-  private path: IPathDataV<ad.Num>;
+  private path: PathDataV<ad.Num>;
   constructor() {
     this.path = {
       tag: "PathDataV",
       contents: [],
     };
   }
-  private newCoord = (x: ad.Num, y: ad.Num): ISubPath<ad.Num> => {
+  private newCoord = (x: ad.Num, y: ad.Num): SubPath<ad.Num> => {
     return {
       tag: "CoordV",
       contents: [x, y],
     };
   };
-  private newValue = (v: ad.Num[]): ISubPath<ad.Num> => {
+  private newValue = (v: ad.Num[]): SubPath<ad.Num> => {
     return {
       tag: "ValueV",
       contents: v,

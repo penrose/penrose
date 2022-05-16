@@ -2,20 +2,20 @@ import { Canvas, Shape, Value } from "@penrose/core";
 import * as React from "react";
 import LabeledInput from "./LabeledInput";
 
-interface IProps {
+interface Props {
   shape: Shape;
-  sAttrs: IShapeDef;
+  sAttrs: ShapeDef;
   modAttr(attrname: string, attrval: Value.Value<any>): void;
   canvas: Canvas;
 }
 
-interface IShapeDef {
+interface ShapeDef {
   shapeType: string;
   properties: any;
 }
 
 // Q - should this update shape properties in state? not really necessary functionally but maybe ideologically
-class AttrPicker extends React.Component<IProps> {
+class AttrPicker extends React.Component<Props> {
   public render() {
     const { sAttrs, shape, modAttr, canvas } = this.props;
     if (!sAttrs.hasOwnProperty("properties")) {

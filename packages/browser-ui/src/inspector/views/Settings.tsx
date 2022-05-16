@@ -1,10 +1,10 @@
 import * as React from "react";
-import IViewProps from "./IViewProps";
-const Settings: React.FC<IViewProps> = ({
+import ViewProps from "./ViewProps";
+const Settings: React.FC<ViewProps> = ({
   settings,
   setSettings,
   reset,
-}: IViewProps) => {
+}: ViewProps) => {
   const onAutostepChange = React.useCallback(
     (e) => {
       setSettings({ ...settings, autoStepSize: parseInt(e.target.value, 10) });

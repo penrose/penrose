@@ -7,7 +7,7 @@
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
-import { C, ConcreteNode, IStringLit } from "types/ast";
+import { C, ConcreteNode, StringLit } from "types/ast";
 import { DomainProg, TypeDecl, PredicateDecl, FunctionDecl, ConstructorDecl, PreludeDecl, NotationDecl, SubTypeDecl, TypeConstructor, Type, Arg, Prop } from "types/domain";
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -227,7 +227,7 @@ prop -> "Prop" {%
 # Common 
 
 string_lit -> %string_literal {%
-  ([d]): IStringLit<C> => ({
+  ([d]): StringLit<C> => ({
     ...nodeData,
     ...rangeOf(d),
     tag: 'StringLit',

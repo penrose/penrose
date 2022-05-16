@@ -1,67 +1,67 @@
 import * as ad from "types/ad";
-import { IBoolV, IColorV, IFloatV, IPtListV, IStrV, IVectorV } from "./value";
+import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value";
 
 //#region shape hierarchy interfaces
-export interface INamed {
-  name: IStrV;
-  style: IStrV; // TODO: very temporary; remove this and just use passthrough
-  ensureOnCanvas: IBoolV<ad.Num>;
+export interface Named {
+  name: StrV;
+  style: StrV; // TODO: very temporary; remove this and just use passthrough
+  ensureOnCanvas: BoolV<ad.Num>;
 }
 
-export interface IStroke {
-  strokeWidth: IFloatV<ad.Num>;
-  strokeStyle: IStrV;
-  strokeColor: IColorV<ad.Num>;
-  strokeDasharray: IStrV;
+export interface Stroke {
+  strokeWidth: FloatV<ad.Num>;
+  strokeStyle: StrV;
+  strokeColor: ColorV<ad.Num>;
+  strokeDasharray: StrV;
 }
 
-export interface IFill {
-  fillColor: IColorV<ad.Num>;
+export interface Fill {
+  fillColor: ColorV<ad.Num>;
 }
 
-export interface ICenter {
-  center: IVectorV<ad.Num>; // corresponds to (cx, cy), or other things, in SVG
+export interface Center {
+  center: VectorV<ad.Num>; // corresponds to (cx, cy), or other things, in SVG
 }
 
-export interface IRect {
-  width: IFloatV<ad.Num>;
-  height: IFloatV<ad.Num>;
+export interface Rect {
+  width: FloatV<ad.Num>;
+  height: FloatV<ad.Num>;
 }
 
-export interface IArrow {
-  arrowheadSize: IFloatV<ad.Num>;
-  arrowheadStyle: IStrV;
-  startArrowhead: IBoolV<ad.Num>;
-  endArrowhead: IBoolV<ad.Num>;
+export interface Arrow {
+  arrowheadSize: FloatV<ad.Num>;
+  arrowheadStyle: StrV;
+  startArrowhead: BoolV<ad.Num>;
+  endArrowhead: BoolV<ad.Num>;
 }
 
-export interface ICorner {
-  cornerRadius: IFloatV<ad.Num>; // note: corresponds to rx in SVG
+export interface Corner {
+  cornerRadius: FloatV<ad.Num>; // note: corresponds to rx in SVG
 }
 
 // TODO: don't use these
-export interface IRotate {
-  rotation: IFloatV<ad.Num>; // about the top-left corner
+export interface Rotate {
+  rotation: FloatV<ad.Num>; // about the top-left corner
 }
-export interface IScale {
-  scale: IFloatV<ad.Num>; // doesn't work correctly
+export interface Scale {
+  scale: FloatV<ad.Num>; // doesn't work correctly
 }
 
 // // TODO: use this
-// export interface ITransform {
-//   matrix: IMatrixV<ad.Num>;
+// export interface Transform {
+//   matrix: MatrixV<ad.Num>;
 // }
 
-export interface IPoly {
-  points: IPtListV<ad.Num>;
+export interface Poly {
+  points: PtListV<ad.Num>;
 }
 
-export interface IString {
-  string: IStrV;
-  fontSize: IStrV;
+export interface String {
+  string: StrV;
+  fontSize: StrV;
 }
 
-export interface IShape {
+export interface Shape {
   shapeType: string;
 }
 

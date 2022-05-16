@@ -7,8 +7,8 @@
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
-import { C, ConcreteNode, Identifier, IStringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, IAnonAssign, Delete, IOverride, PathAssign, StyType, BindingForm, Path, ILayering, BinaryOp, Expr, IBinOp, SubVar, StyVar, IPropertyPath, IFieldPath, LocalVar, IAccessPath, IUOp, IList, ITuple, IVector, IBoolLit, IVary, IFix, ICompApp, IObjFn, IConstrFn, GPIDecl, PropertyDecl, 
+import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, PropertyPath, FieldPath, LocalVar, AccessPath, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
 } from "types/style";
 
 const styleTypes: string[] =
@@ -92,13 +92,13 @@ const selector = (
   };
 }
 
-const layering = (kw: any, below: Path<C>, above: Path<C>): ILayering<C> => ({
+const layering = (kw: any, below: Path<C>, above: Path<C>): Layering<C> => ({
   ...nodeData,
   ...rangeFrom(kw ? [rangeOf(kw), above, below] : [above, below]),
   tag: 'Layering', above, below
 })
 
-const binop = (op: BinaryOp, left: Expr<C>, right: Expr<C>): IBinOp<C> => ({
+const binop = (op: BinaryOp, left: Expr<C>, right: Expr<C>): BinOp<C> => ({
   ...nodeData,
   ...rangeBetween(left, right),
   tag: 'BinOp', op, left, right
@@ -317,7 +317,7 @@ statement
   -> delete {% id %}
   |  override {% id %}
   |  path_assign {% id %}
-  |  anonymous_expr {% ([contents]): IAnonAssign<C> => 
+  |  anonymous_expr {% ([contents]): AnonAssign<C> => 
     ({
       ...nodeData,
       ...rangeOf(contents), 
@@ -335,7 +335,7 @@ delete -> "delete" __ path {%
 %}
 
 override -> "override" __ path _ "=" _ assign_expr {%
-  ([kw, , path, , , , value]): IOverride<C> => ({ 
+  ([kw, , path, , , , value]): Override<C> => ({ 
     ...nodeData,
     ...rangeBetween(kw, value),
     tag: "Override", path, value
@@ -375,7 +375,7 @@ entity_path
   |  localVar      {% id %}
 
 propertyPath -> binding_form "." identifier "." identifier {%
-  ([name, , field, , property]): IPropertyPath<C> => ({
+  ([name, , field, , property]): PropertyPath<C> => ({
     ...nodeData,
     ...rangeFrom([name, field, property]),
     tag: "PropertyPath", name, field, property
@@ -383,7 +383,7 @@ propertyPath -> binding_form "." identifier "." identifier {%
 %}
 
 fieldPath -> binding_form "." identifier {%
-  ([name, , field]): IFieldPath<C> => ({
+  ([name, , field]): FieldPath<C> => ({
     ...nodeData,
     ...rangeFrom([name, field]),
     tag: "FieldPath", name, field
@@ -401,7 +401,7 @@ localVar -> identifier {%
 # NOTE: not a subrule of entity_path so we can parse all indices into a list
 # TODO: capture the range more accurately, now it's missing the last bracket
 access_path -> entity_path _ access_ops {%
-  ([path, , indices]): IAccessPath<C> => {
+  ([path, , indices]): AccessPath<C> => {
     const lastIndex: moo.Token = last(indices)!;
     return {
       ...nodeData, // TODO: model access op as an AST node to solve the range and child node issue
@@ -443,7 +443,7 @@ parenthesized
 
 # Unary ops 
 unary 
-  -> "-" _ parenthesized  {% (d): IUOp<C> => 
+  -> "-" _ parenthesized  {% (d): UOp<C> => 
     ({
       ...nodeData,
       ...rangeBetween(d[0], d[2]),
@@ -454,19 +454,19 @@ unary
 
 # Exponents
 factor 
-  -> unary _ "^" _ factor {% (d): IBinOp<C> => binop('Exp', d[0], d[4]) %}
+  -> unary _ "^" _ factor {% (d): BinOp<C> => binop('Exp', d[0], d[4]) %}
   |  unary                {% id %}
 
 # Multiplication and division
 term 
-  -> term _ "*" _ factor  {% (d): IBinOp<C> => binop('Multiply', d[0], d[4]) %}
-  |  term _ "/" _ factor  {% (d): IBinOp<C> => binop('Divide', d[0], d[4]) %}
+  -> term _ "*" _ factor  {% (d): BinOp<C> => binop('Multiply', d[0], d[4]) %}
+  |  term _ "/" _ factor  {% (d): BinOp<C> => binop('Divide', d[0], d[4]) %}
   |  factor               {% id %}
 
 # Addition and subtraction
 arithmeticExpr 
-  -> arithmeticExpr _ "+" _ term {% (d): IBinOp<C> => binop('BPlus', d[0], d[4]) %}
-  |  arithmeticExpr _ "-" _ term {% (d): IBinOp<C> => binop('BMinus', d[0], d[4]) %}
+  -> arithmeticExpr _ "+" _ term {% (d): BinOp<C> => binop('BPlus', d[0], d[4]) %}
+  |  arithmeticExpr _ "-" _ term {% (d): BinOp<C> => binop('BMinus', d[0], d[4]) %}
   |  term                        {% id %}
 
 # NOTE: all of the expr_literal can be operands of inline computation 
@@ -484,7 +484,7 @@ expr_literal
   # |  transformExpr 
 
 list -> "[" _ expr_list _ "]" {% 
-  ([lbracket, , exprs, , rbracket]): IList<C> => ({
+  ([lbracket, , exprs, , rbracket]): List<C> => ({
     ...nodeData,
     ...rangeBetween(lbracket, rbracket),
     tag: 'List',
@@ -494,7 +494,7 @@ list -> "[" _ expr_list _ "]" {%
 
 # NOTE: we only allow 2 tuples and enforce this rule during parsing
 tuple -> "{" _ expr _ "," _ expr _ "}" {% 
-  ([lbrace, , e1, , , , e2, , rbrace]): ITuple<C> => ({
+  ([lbrace, , e1, , , , e2, , rbrace]): Tuple<C> => ({
     ...nodeData,
     ...rangeBetween(lbrace, rbrace),
     tag: 'Tuple',
@@ -504,7 +504,7 @@ tuple -> "{" _ expr _ "," _ expr _ "}" {%
 
 # NOTE: the extra expr makes sure a vector will always have >1 components.
 vector -> "(" _ expr  _ "," expr_list ")" {% 
-  ([lparen, , first, , , rest, rparen]): IVector<C> => ({
+  ([lparen, , first, , , rest, rparen]): Vector<C> => ({
     ...nodeData,
     ...rangeBetween(lparen, rparen),
     tag: 'Vector',
@@ -514,7 +514,7 @@ vector -> "(" _ expr  _ "," expr_list ")" {%
 
 # NOTE: not used since `vector` will include this case. Actual type will be resolved by the compiler.
 # matrix -> "(" _ sepBy1[vector, ","] _ ")" {% 
-#   ([lparen, , exprs, , rparen]): IMatrix => ({
+#   ([lparen, , exprs, , rparen]): Matrix => ({
 #     ...rangeBetween(lparen, rparen),
 #     tag: 'Matrix',
 #     contents: exprs
@@ -522,7 +522,7 @@ vector -> "(" _ expr  _ "," expr_list ")" {%
 # %}
 
 bool_lit -> ("true" | "false") {%
-  ([[d]]): IBoolLit<C> => ({
+  ([[d]]): BoolLit<C> => ({
     ...nodeData,
     ...rangeOf(d),
     tag: 'BoolLit',
@@ -531,7 +531,7 @@ bool_lit -> ("true" | "false") {%
 %}
 
 string_lit -> %string_literal {%
-  ([d]): IStringLit<C> => ({
+  ([d]): StringLit<C> => ({
     ...nodeData,
     ...rangeOf(d),
     tag: 'StringLit',
@@ -540,21 +540,21 @@ string_lit -> %string_literal {%
 %}
 
 annotated_float 
-  -> "?" {% ([d]): IVary<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Vary' }) %}
+  -> "?" {% ([d]): Vary<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Vary' }) %}
   |  %float_literal {% 
-    ([d]): IFix<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
+    ([d]): Fix<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
   %}
 
 layering
   -> layer_keyword:? path __ "below" __ path 
-    {% (d): ILayering<C> => layering(d[0], d[1], d[5]) %}
+    {% (d): Layering<C> => layering(d[0], d[1], d[5]) %}
   |  layer_keyword:? path __ "above" __ path 
-    {% (d): ILayering<C> => layering(d[0], d[5], d[1]) %}
+    {% (d): Layering<C> => layering(d[0], d[5], d[1]) %}
 
 layer_keyword -> "layer" __ {% nth(0) %}
 
 computation_function -> identifier _ "(" expr_list ")" {% 
-  ([name, , , args, rparen]): ICompApp<C> => ({
+  ([name, , , args, rparen]): CompApp<C> => ({
     ...nodeData,
     ...rangeBetween(name, rparen),
     tag: "CompApp",
@@ -563,7 +563,7 @@ computation_function -> identifier _ "(" expr_list ")" {%
 %}
 
 objective -> "encourage" __ identifier _ "(" expr_list ")" {% 
-  ([kw, , name, , , args, rparen]): IObjFn<C> => ({
+  ([kw, , name, , , args, rparen]): ObjFn<C> => ({
     ...nodeData,
     ...rangeBetween(kw, rparen),
     tag: "ObjFn",
@@ -572,7 +572,7 @@ objective -> "encourage" __ identifier _ "(" expr_list ")" {%
 %}
 
 constraint -> "ensure" __ identifier _ "(" expr_list ")" {% 
-  ([kw, , name, , , args, rparen]): IConstrFn<C> => ({
+  ([kw, , name, , , args, rparen]): ConstrFn<C> => ({
     ...nodeData,
     ...rangeBetween(kw, rparen),
     tag: "ConstrFn",

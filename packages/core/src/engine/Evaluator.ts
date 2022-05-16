@@ -15,18 +15,18 @@ import * as ad from "types/ad";
 import { A } from "types/ast";
 import { ShapeAD } from "types/shape";
 import { Fn, FnDone, State, VaryMap } from "types/state";
-import { BinaryOp, Expr, IPropertyPath, Path } from "types/style";
+import { BinaryOp, Expr, Path, PropertyPath } from "types/style";
 import {
   ArgVal,
+  FGPI,
+  FloatV,
   GPI,
-  IFGPI,
-  IFloatV,
-  IIntV,
-  IVal,
-  IVectorV,
+  IntV,
   TagExpr,
   Translation,
+  Val,
   Value,
+  VectorV,
 } from "types/value";
 import { floatVal, prettyPrintPath, zip2 } from "utils/Util";
 import { ops } from "./Autodiff";
@@ -74,15 +74,15 @@ export const evalShapes = (rng: seedrandom.prng, s: State): ShapeAD[] => {
   const trans = clone(transWithVarying);
 
   // Find out all the GPI expressions in the translation
-  const shapeExprs: IFGPI<ad.Num>[] = s.shapePaths.map(
-    (p: Path<A>) => findExprSafe(trans, p) as IFGPI<ad.Num>
+  const shapeExprs: FGPI<ad.Num>[] = s.shapePaths.map(
+    (p: Path<A>) => findExprSafe(trans, p) as FGPI<ad.Num>
   );
 
   log.info("shapePaths", s.shapePaths.map(prettyPrintPath));
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled]: [ShapeAD[], Translation] = shapeExprs.reduce(
-    ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<ad.Num>) =>
+    ([currShapes, tr]: [ShapeAD[], Translation], e: FGPI<ad.Num>) =>
       evalShape(rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
   );
@@ -177,7 +177,7 @@ export const evalFn = (
  */
 export const evalShape = (
   rng: seedrandom.prng,
-  shapeExpr: IFGPI<ad.Num>,
+  shapeExpr: FGPI<ad.Num>,
   trans: Translation,
   varyingVars: VaryMap,
   shapes: ShapeAD[],
@@ -200,7 +200,7 @@ export const evalShape = (
             trans,
             varyingVars,
             optDebugInfo
-          ) as IVal<ad.Num>).contents;
+          ) as Val<ad.Num>).contents;
           return res;
         }
         case "Done": {
@@ -339,7 +339,7 @@ export const evalExpr = (
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalUOp(uOp, arg as IFloatV<ad.Num> | IIntV),
+        contents: evalUOp(uOp, arg as FloatV<ad.Num> | IntV),
       };
     }
 
@@ -724,7 +724,7 @@ export const resolvePath = (
 
         // Evaluate GPI (i.e. each property path in GPI -- NOT necessarily the path's expression)
         const evaledProps = mapValues(props, (p, propName) => {
-          const propertyPath: IPropertyPath<A> = {
+          const propertyPath: PropertyPath<A> = {
             ...path,
             tag: "PropertyPath",
             name: path.name,
@@ -742,7 +742,7 @@ export const resolvePath = (
               trans,
               varyingMap,
               optDebugInfo
-            ) as IVal<ad.Num>).contents;
+            ) as Val<ad.Num>).contents;
             insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
             return val;
           } else {
@@ -762,7 +762,7 @@ export const resolvePath = (
         // No need to cache evaluated GPI as each of its individual properties should have been cached on evaluation
         return {
           tag: "GPI",
-          contents: [type, evaledProps] as GPI<ad.Num>,
+          contents: [type, evaledProps] as GPI<ad.Num>["contents"],
         };
       }
 
@@ -811,7 +811,7 @@ export const argValue = (e: ArgVal<ad.Num>) => {
   }
 };
 
-export const intToFloat = (v: IIntV): IFloatV<ad.Num> => {
+export const intToFloat = (v: IntV): FloatV<ad.Num> => {
   return { tag: "FloatV", contents: v.contents };
 };
 
@@ -961,7 +961,7 @@ export const evalBinOp = (
  */
 export const evalUOp = (
   op: "UMinus", // this line will cause a type error if the UnaryOp type changes
-  arg: IFloatV<ad.Num> | IIntV | IVectorV<ad.Num>
+  arg: FloatV<ad.Num> | IntV | VectorV<ad.Num>
 ): Value<ad.Num> => {
   switch (arg.tag) {
     case "FloatV": {

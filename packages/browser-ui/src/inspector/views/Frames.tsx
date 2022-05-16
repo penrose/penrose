@@ -1,8 +1,8 @@
 import * as React from "react";
 import { ObjectInspector } from "react-inspector";
-import IViewProps from "./IViewProps";
+import ViewProps from "./ViewProps";
 // https://goessner.net/articles/JsonPath/
-class Frames extends React.Component<IViewProps> {
+class Frames extends React.Component<ViewProps> {
   public render(): JSX.Element {
     const { /*history,*/ frame } = this.props;
     if (frame === undefined) {
