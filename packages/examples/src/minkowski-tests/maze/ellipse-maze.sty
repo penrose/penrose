@@ -18,19 +18,15 @@ forall Triangle x {
     x.a = (x.x - 100.0, x.y)
     x.b = (x.x, x.y + 150.0)
     x.c = (x.x + 100.0, x.y)
+
     x.icon = Polygon {
         points: [ x.a, x.b, x.c ]
     }
 
-    -- Try getting close to the center
     encourage lessThan(x.x, 400.0)
     encourage lessThan(-400.0, x.x)
     encourage lessThan(x.x, 400.0)
     encourage lessThan(-400.0, x.y)
-}
-
-Triangle x; Triangle y {
---    ensure disjoint(x.icon, y.icon)
 }
 
 Triangle x; Maze y {
