@@ -19,6 +19,7 @@
     "dev": "vite",
     "watch": "vite",
     "start": "vite",
+    "prebuild": "tsc --noEmit",
     "build": "vite build",
     "test": "echo NO TESTS",
     "prepack": "yarn build",

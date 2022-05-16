@@ -6,9 +6,9 @@ import {
   _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
 import { genCode, secondaryGraph } from "engine/Autodiff";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 
-const numOf = (x: VarAD) => {
+const numOf = (x: ad.Num) => {
   const g = secondaryGraph([x]);
   const f = genCode(g);
   const [y] = f([]).secondary; // no inputs, so, empty array
@@ -175,13 +175,13 @@ describe("simple constraint", () => {
 });
 
 describe("general constraints", () => {
-  const expectSatified = (x: VarAD) => {
+  const expectSatified = (x: ad.Num) => {
     expect(numOf(x)).toBeLessThanOrEqual(1e-5);
   };
-  const expectJustSatified = (x: VarAD) => {
+  const expectJustSatified = (x: ad.Num) => {
     expect(numOf(x)).toBeCloseTo(0, 5);
   };
-  const expectNotSatisfied = (x: VarAD) => {
+  const expectNotSatisfied = (x: ad.Num) => {
     expect(numOf(x)).toBeGreaterThan(5);
   };
 

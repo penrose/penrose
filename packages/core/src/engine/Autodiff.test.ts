@@ -3,6 +3,7 @@ import {
   genCode,
   input,
   logAD,
+  makeGraph,
   primaryGraph,
   secondaryGraph,
 } from "engine/Autodiff";
@@ -12,12 +13,18 @@ import * as ad from "types/ad";
 import { eqList, randList } from "utils/Util";
 import {
   add,
+  addN,
   div,
+  eq,
   ifCond,
   lt,
   max,
+  min,
   mul,
+  neg,
+  polyRoots,
   sin,
+  sqrt,
   squared,
   sub,
 } from "./AutodiffFunctions";
@@ -25,8 +32,8 @@ import {
 describe("makeGraph tests", () => {
   test("secondary outputs", () => {
     // the values 0 don't matter for this test
-    const x = input({ index: 0, val: 0 });
-    const y = input({ index: 1, val: 0 });
+    const x = input({ key: 0, val: 0 });
+    const y = input({ key: 1, val: 0 });
     const sum = add(x, y);
     const product = mul(x, y);
     const difference = sub(x, y);
@@ -48,7 +55,7 @@ describe("makeGraph tests", () => {
 
   test("no expression swell", () => {
     // https://arxiv.org/pdf/1904.02990.pdf Figure 2
-    const x1 = input({ index: 0, val: 0 }); // 0, doesn't matter for this test
+    const x1 = input({ key: 0, val: 0 }); // 0, doesn't matter for this test
     const t1 = mul(x1, x1);
     const t2 = mul(t1, t1);
     const f = mul(t2, t2);
@@ -117,10 +124,13 @@ describe("symbolic differentiation tests", () => {
   test("graph 7", () => {
     testGradSymbolic(7, gradGraph7());
   });
+
+  test("graph 8", () => {
+    testGradSymbolic(8, gradGraph8());
+  });
 });
 
-/// TESTING CODE FROM HERE OUT
-// ----- Functions for testing numeric and symbolic gradients
+//#region Functions for testing numeric and symbolic gradients
 
 const assert = (b: boolean, s: any[]) => {
   const res = b ? "passed" : "failed";
@@ -152,8 +162,8 @@ const testGradFiniteDiff = () => {
 
 const gradGraph1 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ val: -5, index: 0 });
-  const x1 = input({ val: 6, index: 1 });
+  const x0 = input({ val: -5, key: 0 });
+  const x1 = input({ val: 6, key: 1 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = sin(a);
@@ -164,8 +174,8 @@ const gradGraph1 = (): ad.Graph => {
 // Test addition of consts to graph (`c`)
 const gradGraph2 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ val: -5, index: 0 });
-  const x1 = input({ val: 6, index: 1 });
+  const x0 = input({ val: -5, key: 0 });
+  const x1 = input({ val: 6, key: 1 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = add(a, 3);
@@ -176,8 +186,8 @@ const gradGraph2 = (): ad.Graph => {
 // Test vars w/ no grad
 const gradGraph3 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ val: 100, index: 0 });
-  const x1 = input({ val: -100, index: 1 });
+  const x0 = input({ val: 100, key: 0 });
+  const x1 = input({ val: -100, key: 1 });
   const head = squared(x0);
   return primaryGraph(head);
 };
@@ -185,7 +195,7 @@ const gradGraph3 = (): ad.Graph => {
 // Test toPenalty
 const gradGraph4 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ val: 100, index: 0 });
+  const x0 = input({ val: 100, key: 0 });
   const head = fns.toPenalty(x0);
   return primaryGraph(head);
 };
@@ -195,8 +205,8 @@ const gradGraph5 = (): ad.Graph => {
   logAD.info("test ifCond");
 
   // Build energy/gradient graph
-  const x0 = input({ val: 100, index: 0 });
-  const x1 = input({ val: -100, index: 1 });
+  const x0 = input({ val: 100, key: 0 });
+  const x1 = input({ val: -100, key: 1 });
   const head = ifCond(lt(x0, 33), squared(x1), squared(x0));
   return primaryGraph(head);
 };
@@ -206,7 +216,7 @@ const gradGraph6 = (): ad.Graph => {
   logAD.info("test max");
 
   // Build energy/gradient graph
-  const x0 = input({ val: 100, index: 0 });
+  const x0 = input({ val: 100, key: 0 });
   const head = max(squared(x0), 0);
   return primaryGraph(head);
 };
@@ -217,9 +227,24 @@ const gradGraph7 = (): ad.Graph => {
   logAD.info("test div");
 
   // Build energy graph
-  const x0 = input({ val: 100, index: 0 });
-  const x1 = input({ val: -100, index: 1 });
+  const x0 = input({ val: 100, key: 0 });
+  const x1 = input({ val: -100, key: 1 });
   const head = div(x0, x1);
+  return primaryGraph(head);
+};
+
+// Test polyRoots
+const gradGraph8 = (): ad.Graph => {
+  logAD.info("test polyRoots");
+
+  // Build energy/gradient graph
+  const x0 = input({ val: 0, key: 0 });
+  const x1 = input({ val: 0, key: 1 });
+  const x2 = input({ val: 0, key: 2 });
+  const x3 = input({ val: 0, key: 3 });
+  const x4 = input({ val: 0, key: 4 });
+  const roots = polyRoots([x0, x1, x2, x3, x4]);
+  const head = addN(roots.map((r) => ifCond(eq(r, r), r, 0)));
   return primaryGraph(head);
 };
 
@@ -257,7 +282,7 @@ const gradGraph0 = (): ad.Graph => {
 
   // f(x) = x^2, where x is 100
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-  const ref = input({ val: 100, index: 0 });
+  const ref = input({ val: 100, key: 0 });
   const head = squared(ref);
   const graph = primaryGraph(head);
 
@@ -270,3 +295,92 @@ const gradGraph0 = (): ad.Graph => {
 
   return graph;
 };
+
+//#endregion
+
+describe("polyRoots tests", () => {
+  test("degree 1", () => {
+    const [z] = polyRoots([input({ key: 0, val: 0 })]);
+    const g = primaryGraph(z);
+    const f = genCode(g);
+    const x = 42;
+    expect(f([x])).toEqual({ gradient: [-1], primary: -x, secondary: [] });
+  });
+
+  type F = (v: ad.Num, w: ad.Num) => ad.Num;
+
+  // check that `polyRoots` gives the same answer as just doing symbolic
+  // differentiation on the quadratic formula
+  const testQuadratic = (f1: F, f2: F) => {
+    const a = 1;
+    const b = input({ key: 1, val: 0 });
+    const c = input({ key: 0, val: 0 });
+
+    const closedForm = genCode(
+      primaryGraph(
+        // c + bx + ax²
+        div(f1(neg(b), sqrt(sub(squared(b), mul(4, mul(a, c))))), mul(2, a))
+      )
+    );
+
+    const [r1, r2] = polyRoots([c, b]); // c + bx + x²; recall that a = 1
+    const implicit = genCode(primaryGraph(f2(r1, r2)));
+
+    const x1 = Math.PI;
+    const x2 = Math.E;
+    const inputs = [x1 * x2, -(x1 + x2)];
+
+    const received = implicit(inputs);
+    const expected = closedForm(inputs);
+
+    expect(received.primary).toBeCloseTo(expected.primary);
+    expect(received.gradient[0]).toBeCloseTo(expected.gradient[0]);
+    expect(received.gradient[1]).toBeCloseTo(expected.gradient[1]);
+  };
+
+  test("quadratic formula min root", () => {
+    testQuadratic(sub, min);
+  });
+
+  test("quadratic formula max root", () => {
+    testQuadratic(add, max);
+  });
+
+  test("cubic with only one real root", () => {
+    const [c0, c1, c2] = _.range(3).map((key) => input({ key, val: 0 }));
+    const [r1, r2, r3] = polyRoots([c0, c1, c2]);
+
+    // get the first real root we can find
+    const z = ifCond(eq(r1, r1), r1, ifCond(eq(r2, r2), r2, r3));
+
+    const f = genCode(makeGraph({ primary: z, secondary: [r1, r2, r3] }));
+
+    const { gradient, primary, secondary } = f([8, 0, 0]);
+
+    expect(secondary.filter(Number.isNaN).length).toBe(2);
+    const realRoots = secondary.filter((x) => !Number.isNaN(x));
+    expect(realRoots.length).toBe(1);
+    const [x] = realRoots;
+    expect(x).toBeCloseTo(-2);
+
+    expect(primary).toBeCloseTo(-2);
+
+    expect(gradient[0]).toBeCloseTo(-1 / 12);
+    expect(gradient[1]).toBeCloseTo(1 / 6);
+    expect(gradient[2]).toBeCloseTo(-1 / 3);
+  });
+
+  test("quintic", () => {
+    const [c0, c1, c2, c3, c4] = _.range(5).map((key) =>
+      input({ key, val: 0 })
+    );
+    const f = genCode(secondaryGraph(polyRoots([c0, c1, c2, c3, c4])));
+    const { secondary } = f([-120, 274, -225, 85, -15]);
+    const roots = [...secondary].sort((a, b) => a - b);
+    expect(roots[0]).toBeCloseTo(1);
+    expect(roots[1]).toBeCloseTo(2);
+    expect(roots[2]).toBeCloseTo(3);
+    expect(roots[3]).toBeCloseTo(4);
+    expect(roots[4]).toBeCloseTo(5);
+  });
+});

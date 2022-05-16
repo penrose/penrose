@@ -1,7 +1,7 @@
 import { PenroseError, PenroseState } from "@penrose/core";
-import { ISettings } from "App";
+import { Settings } from "App";
 
-export interface IViewProps {
+export interface ViewProps {
   // Switches the current frame to index in history
   selectFrame(frame: number): void;
   // Gives access to the full history of frames
@@ -12,8 +12,8 @@ export interface IViewProps {
   frameIndex: number;
   modShapes(state: PenroseState): void; // todo - null check
   error: PenroseError | undefined;
-  settings: ISettings;
-  setSettings(settings: ISettings): void;
+  settings: Settings;
+  setSettings(settings: Settings): void;
   reset(): void;
 }
-export default IViewProps;
+export default ViewProps;

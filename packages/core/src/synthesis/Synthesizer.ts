@@ -332,7 +332,6 @@ export class Synthesizer {
       this.template = {
         tag: "SubProg",
         statements: [],
-        children: [],
         nodeType: "SyntheticSubstance",
       };
     }
@@ -696,10 +695,10 @@ export class Synthesizer {
         possibleOps = del ? [del] : [];
       }
     }
-    if (possibleOps) {
+    if (possibleOps.length > 0) {
       log.debug(`Found mutations for delete:\n${showMutations(possibleOps)}`);
-      return possibleOps;
-    } else return [];
+    }
+    return possibleOps;
   };
 
   // TODO: add an option to distinguish between edited vs original statements?
@@ -744,7 +743,7 @@ export const generateArgStmt = (
   // NOTE: if arguments are supplied explicitly, the caller must have the right types for the arguments.
   switch (decl.tag) {
     case "PredicateDecl":
-      return generatePredicate(decl, ctx, args as SubPredArg<A>[]);
+      return generatePredicate(decl, ctx, args);
     case "FunctionDecl":
       return generateFunction(decl, ctx, args as SubExpr<A>[]);
     case "ConstructorDecl":
@@ -761,7 +760,6 @@ const generateDecl = (
   const stmt: Decl<A> = {
     tag: "Decl",
     nodeType: "SyntheticSubstance",
-    children: [],
     type: typeCons,
     name,
   };
@@ -779,7 +777,6 @@ const generateDeclFromType = (
   const stmt: Decl<A> = {
     tag: "Decl",
     nodeType: "SyntheticSubstance",
-    children: [],
     type: typeCons,
     name,
   };
@@ -931,7 +928,7 @@ const generateArg = (
           };
         }
       }
-      case "generated":
+      case "generated": {
         const argTypeDecl = ctx.env.types.get(argType.name.value);
         if (argTypeDecl) {
           const { res: decl, ctx: newCtx } = generateDecl(argTypeDecl, ctx);
@@ -946,6 +943,7 @@ const generateArg = (
             `${argType.name.value} not found in the candidate list`
           );
         }
+      }
       case "mixed":
         return generateArg(
           arg,

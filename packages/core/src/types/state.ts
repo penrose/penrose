@@ -1,16 +1,15 @@
-import eig from "eigen";
+import { Matrix } from "ml-matrix";
 import { Canvas } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { GradGraphs, VarAD } from "./ad";
 import { A } from "./ast";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
-import { ArgVal, IFloatV, Translation } from "./value";
+import { ArgVal, FloatV, Translation } from "./value";
 
 /**
  * The diagram state modeling the original Haskell types
  */
-export interface IState {
+export interface State {
   seeds: Seeds;
   varyingPaths: Path<A>[];
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
@@ -32,7 +31,6 @@ export interface IState {
   varyingMap: VaryMap;
   canvas: Canvas;
 }
-export type State = IState;
 
 // Some compDict functions (currently only sampleColor) need a prng, so we need
 // to keep a seed around in the state to allow us to recreate it at every step
@@ -66,36 +64,33 @@ export interface Seeds {
 export type LabelData = EquationData | TextData;
 export interface EquationData {
   tag: "EquationData";
-  width: IFloatV<number>;
-  height: IFloatV<number>;
+  width: FloatV<number>;
+  height: FloatV<number>;
   rendered: HTMLElement;
 }
 
 export interface TextData {
   tag: "TextData";
-  width: IFloatV<number>;
-  height: IFloatV<number>;
-  descent: IFloatV<number>;
-  ascent: IFloatV<number>;
+  width: FloatV<number>;
+  height: FloatV<number>;
+  descent: FloatV<number>;
+  ascent: FloatV<number>;
 }
 
 export type LabelCache = [string, LabelData][];
 
-export type VaryMap<T = VarAD> = Map<string, T>;
+export type VaryMap<T = ad.Num> = Map<string, T>;
 
-export type FnDone<T> = IFnDone<T>;
-export interface IFnDone<T> {
+export interface FnDone<T> {
   name: string;
   args: ArgVal<T>[];
   optType: OptType;
 }
 
-export type Fn = IFn;
-
 /**
  * Generic export interface for constraint or objective functions
  */
-export interface IFn {
+export interface Fn {
   fname: string;
   fargs: Expr<A>[];
   optType: OptType;
@@ -109,14 +104,12 @@ export type OptStatus =
   | "EPConverged"
   | "Error";
 
-export type LbfgsParams = ILbfgsParams;
-
 // `n` is the size of the varying state
-export interface ILbfgsParams {
-  lastState: eig.Matrix | undefined; // nx1 (col vec)
-  lastGrad: eig.Matrix | undefined; // nx1 (col vec)
-  s_list: eig.Matrix[]; // list of nx1 col vecs
-  y_list: eig.Matrix[]; // list of nx1 col vecs
+export interface LbfgsParams {
+  lastState: Matrix | undefined; // nx1 (col vec)
+  lastGrad: Matrix | undefined; // nx1 (col vec)
+  s_list: Matrix[]; // list of nx1 col vecs
+  y_list: Matrix[]; // list of nx1 col vecs
   numUnconstrSteps: number;
   memSize: number;
 }
@@ -126,9 +119,7 @@ export interface FnEvaled {
   gradf: number[];
 }
 
-export type Params = IParams;
-
-export interface IParams {
+export interface Params {
   optStatus: OptStatus;
   /** Constraint weight for exterior point method **/
   weight: number;
@@ -148,10 +139,10 @@ export interface IParams {
   // For L-BFGS
   lbfgsInfo: LbfgsParams;
 
-  xsVars: VarAD[]; // Computational graph (leaf vars), from the bottom up
+  xsVars: ad.Num[]; // Computational graph (leaf vars), from the bottom up
 
   // For energy/gradient compilation
-  graphs: GradGraphs;
+  graphs: ad.GradGraphs;
 
   functionsCompiled: boolean;
 
@@ -162,8 +153,8 @@ export interface IParams {
   currObjectiveAndGradient(xs: number[]): FnEvaled;
 
   // `xsVars` are all the leaves of the energy graph
-  energyGraph: VarAD; // This is the top of the energy graph (parent node)
-  epWeightNode: VarAD; // Handle to node for EP weight (so it can be set as the weight changes)
+  energyGraph: ad.Num; // This is the top of the energy graph (parent node)
+  epWeightNode: ad.Num; // Handle to node for EP weight (so it can be set as the weight changes)
 
   // Cached versions of compiling each objective and constraint into a function and gradient
   objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
@@ -173,9 +164,7 @@ export interface IParams {
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
 export type FnCached = (xs: number[]) => FnEvaled;
 
-export type WeightInfo = IWeightInfo;
-
-export interface IWeightInfo {
+export interface WeightInfo {
   epWeightNode: ad.Input;
   epWeight: number;
 }

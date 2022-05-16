@@ -6,7 +6,8 @@
     "dev": "vite",
     "watch": "vite",
     "start": "vite",
-    "build": "tsc && NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "prebuild": "tsc --noEmit",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
   "dependencies": {

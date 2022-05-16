@@ -8,7 +8,7 @@ import {
   SubstanceLanguageTokens,
 } from "./editing/languages/SubstanceConfig";
 
-export const monacoOptions: editor.IStandaloneEditorConstructionOptions = {
+export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions = {
   automaticLayout: true,
   readOnly: true,
   minimap: { enabled: false },
@@ -27,11 +27,13 @@ const Listing = ({
   substance,
   width,
   height,
+  monacoOptions,
 }: {
   domain: string;
   substance: string;
   width: string;
   height: string;
+  monacoOptions?: editor.IStandaloneEditorConstructionOptions;
 }) => {
   const env = compileDomain(domain).unsafelyUnwrap();
   const monaco = useMonaco();
@@ -77,7 +79,11 @@ const Listing = ({
       width={width}
       height={height}
       defaultLanguage="substance"
-      options={monacoOptions}
+      options={
+        monacoOptions
+          ? { ...monacoOptions, ...defaultMonacoOptions }
+          : defaultMonacoOptions
+      }
     />
   );
 };

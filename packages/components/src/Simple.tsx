@@ -1,5 +1,6 @@
 import {
   compileTrio,
+  PenroseError,
   PenroseState,
   prepareState,
   RenderInteractive,
@@ -14,7 +15,7 @@ import {
 import React from "react";
 import fetchResolver from "./fetchPathResolver";
 
-export interface ISimpleProps {
+export interface SimpleProps {
   domain: string;
   substance: string;
   style: string;
@@ -23,10 +24,21 @@ export interface ISimpleProps {
   animate?: boolean; // considered false by default
 }
 
-class Simple extends React.Component<ISimpleProps> {
+export interface SimpleState {
+  error?: PenroseError;
+}
+
+class Simple extends React.Component<SimpleProps, SimpleState> {
   readonly canvasRef = React.createRef<HTMLDivElement>();
   penroseState: PenroseState | undefined = undefined;
   timerID: number | undefined = undefined; // for animation
+
+  constructor(props: SimpleProps) {
+    super(props);
+    this.state = {
+      error: undefined,
+    };
+  }
 
   compile = async (): Promise<void> => {
     this.penroseState = undefined;
@@ -35,7 +47,7 @@ class Simple extends React.Component<ISimpleProps> {
       // resample because initial sampling did not use the special sampling seed
       this.penroseState = resample(await prepareState(compilerResult.value));
     } else {
-      console.log(showError(compilerResult.error));
+      this.setState({ error: compilerResult.error });
     }
   };
 
@@ -45,7 +57,7 @@ class Simple extends React.Component<ISimpleProps> {
       if (stepped.isOk()) {
         this.penroseState = stepped.value;
       } else {
-        console.log(showError(stepped.error));
+        this.setState({ error: stepped.error });
       }
     }
   };
@@ -70,30 +82,36 @@ class Simple extends React.Component<ISimpleProps> {
     this.timerID = window.setInterval(() => this.tick(), 1000 / 60);
   };
 
-  componentDidUpdate = async (prevProps: ISimpleProps) => {
+  componentDidUpdate = async (prevProps: SimpleProps) => {
+    // re-compile if the programs change
     if (
       this.props.domain !== prevProps.domain ||
       this.props.substance !== prevProps.substance ||
-      this.props.style !== prevProps.style ||
-      !this.penroseState
+      this.props.style !== prevProps.style
     ) {
       await this.compile();
       if (!this.props.animate) {
         await this.converge();
       }
       this.renderCanvas();
-    } else if (
-      this.props.variation !== prevProps.variation ||
-      this.props.animate !== prevProps.animate
-    ) {
-      this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
-      this.penroseState = resample(this.penroseState);
-      if (!this.props.animate) {
-        await this.converge();
+    }
+
+    // update the component only if there's no error
+    // in the case of an error, they component should not attempt to re-render
+    if (this.penroseState && !this.state.error) {
+      if (
+        this.props.variation !== prevProps.variation ||
+        this.props.animate !== prevProps.animate
+      ) {
+        this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
+        this.penroseState = resample(this.penroseState);
+        if (!this.props.animate) {
+          await this.converge();
+        }
+        this.renderCanvas();
+      } else if (this.props.interactive !== prevProps.interactive) {
+        this.renderCanvas();
       }
-      this.renderCanvas();
-    } else if (this.props.interactive !== prevProps.interactive) {
-      this.renderCanvas();
     }
   };
 
@@ -133,8 +151,28 @@ class Simple extends React.Component<ISimpleProps> {
   };
 
   render = () => {
+    const { error } = this.state;
     return (
-      <div style={{ width: "100%", height: "100%" }} ref={this.canvasRef} />
+      <div style={{ width: "100%", height: "100%" }}>
+        {!error && (
+          <div style={{ width: "100%", height: "100%" }} ref={this.canvasRef} />
+        )}
+        {error && (
+          <div style={{ padding: "1em", height: "100%" }}>
+            <div style={{ fontWeight: 700 }}>1 error:</div>
+            <div style={{ fontFamily: "monospace" }}>
+              {showError(error)
+                .toString()
+                .split("\n")
+                .map((line: string, key: number) => (
+                  <p key={`err-ln-${key}`} style={{ margin: 0 }}>
+                    {line}
+                  </p>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 }

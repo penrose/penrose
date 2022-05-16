@@ -11,7 +11,6 @@ import {
   stmtExists,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { range, without } from "lodash";
 import { A, Identifier } from "types/ast";
@@ -21,8 +20,6 @@ import {
   ApplyPredicate,
   Bind,
   Func,
-  SubExpr,
-  SubPredArg,
   SubProg,
   SubStmt,
 } from "types/substance";
@@ -34,17 +31,13 @@ import {
   WithContext,
 } from "./Synthesizer";
 
-const log = consola
-  .create({ level: LogLevel.Info })
-  .withScope("Substance mutation");
-
 //#region Mutation types
 
 export type MutationGroup = Mutation[];
 export type Mutation = Add | Delete | Update;
 export type MutationType = Mutation["tag"];
 
-export interface IMutation {
+export interface MutationBase {
   tag: MutationType;
   additionalMutations?: Mutation[];
   mutate: (
@@ -64,23 +57,23 @@ export type Update =
   | ChangeStmtType
   | ChangeExprType;
 
-export interface Add extends IMutation {
+export interface Add extends MutationBase {
   tag: "Add";
   stmt: SubStmt<A>;
 }
-export interface Delete extends IMutation {
+export interface Delete extends MutationBase {
   tag: "Delete";
   stmt: SubStmt<A>;
 }
 
-export interface SwapStmtArgs extends IMutation {
+export interface SwapStmtArgs extends MutationBase {
   tag: "SwapStmtArgs";
   stmt: ApplyPredicate<A>;
   elem1: number;
   elem2: number;
 }
 
-export interface SwapExprArgs extends IMutation {
+export interface SwapExprArgs extends MutationBase {
   tag: "SwapExprArgs";
   stmt: Bind<A>;
   expr: ArgExpr<A>;
@@ -88,14 +81,14 @@ export interface SwapExprArgs extends IMutation {
   elem2: number;
 }
 
-export interface SwapInStmtArgs extends IMutation {
+export interface SwapInStmtArgs extends MutationBase {
   tag: "SwapInStmtArgs";
   stmt: ApplyPredicate<A>;
   elem: number;
   swap: Identifier<A>;
 }
 
-export interface SwapInExprArgs extends IMutation {
+export interface SwapInExprArgs extends MutationBase {
   tag: "SwapInExprArgs";
   stmt: Bind<A>;
   expr: ArgExpr<A>;
@@ -103,26 +96,26 @@ export interface SwapInExprArgs extends IMutation {
   swap: Identifier<A>;
 }
 
-export interface ReplaceStmtName extends IMutation {
+export interface ReplaceStmtName extends MutationBase {
   tag: "ReplaceStmtName";
   stmt: ApplyPredicate<A>;
   newName: string;
 }
 
-export interface ReplaceExprName extends IMutation {
+export interface ReplaceExprName extends MutationBase {
   tag: "ReplaceExprName";
   stmt: Bind<A>;
   expr: ArgExpr<A>;
   newName: string;
 }
-export interface ChangeStmtType extends IMutation {
+export interface ChangeStmtType extends MutationBase {
   tag: "ChangeStmtType";
   stmt: ApplyPredicate<A>;
   newStmt: SubStmt<A>;
   additionalMutations: Mutation[];
 }
 
-export interface ChangeExprType extends IMutation {
+export interface ChangeExprType extends MutationBase {
   tag: "ChangeExprType";
   stmt: Bind<A>;
   expr: ArgExpr<A>;
@@ -331,7 +324,7 @@ export const checkSwapExprArgs = (
             expr: {
               ...expr,
               args: swap(expr.args, elem1, elem2),
-            } as SubExpr<A>, // TODO: fix types to avoid casting
+            },
           };
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
         },
@@ -372,7 +365,7 @@ export const checkSwapInStmtArgs = (
           const newStmt: SubStmt<A> = {
             ...stmt,
             args: stmt.args.map((arg, idx) => {
-              return (idx === elem ? swap : arg) as SubPredArg<A>;
+              return idx === elem ? swap : arg;
             }),
           };
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
@@ -426,7 +419,7 @@ export const checkSwapInExprArgs = (
               expr: {
                 ...expr,
                 args: expr.args.map((arg, idx) => {
-                  return (idx === elem ? swap : arg) as SubExpr<A>;
+                  return idx === elem ? swap : arg;
                 }),
               },
             };
@@ -511,7 +504,7 @@ export const checkDeleteStmt = (
 };
 
 const changeType = (
-  { stmt, newStmt, additionalMutations }: ChangeStmtType | ChangeExprType,
+  { newStmt, additionalMutations }: ChangeStmtType | ChangeExprType,
   prog: SubProg<A>,
   ctx: SynthesisContext
 ) => {
@@ -642,7 +635,7 @@ export const enumSwapExprArgs = (stmt: SubStmt<A>): SwapExprArgs[] => {
             expr: {
               ...expr,
               args: swap(expr.args, elem1, elem2),
-            } as SubExpr<A>, // TODO: fix types to avoid casting
+            },
           };
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
         },

@@ -34,8 +34,6 @@ import {
   duplicateName,
   err,
   every as everyResult,
-  notTypeConsInPrelude,
-  notTypeConsInSubtype,
   ok,
   parseError,
   Result,
@@ -52,7 +50,7 @@ export const parseDomain = (
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
     if (results.length > 0) {
-      const ast: DomainProg<C> = results[0] as DomainProg<C>;
+      const ast: DomainProg<C> = results[0];
       return ok(ast);
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
@@ -96,7 +94,6 @@ const builtinTypes: [string, TypeDecl<C>][] = [
       start: { line: 1, col: 1 },
       end: { line: 1, col: 1 },
       nodeType: "Substance",
-      children: [],
       tag: "TypeDecl",
       name: idOf("String", "Domain"),
       params: [],
@@ -141,8 +138,9 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // NOTE: params are not reused, so no need to check
       const { name, superTypes } = stmt;
       // check name duplicate
-      if (env.types.has(name.value))
-        return err(duplicateName(name, stmt, env.types.get(name.value)!));
+      const existing = env.types.get(name.value);
+      if (existing !== undefined)
+        return err(duplicateName(name, stmt, existing));
       // insert type into env
       const updatedEnv: CheckerResult = ok({
         ...env,
@@ -152,9 +150,8 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       const subType: TypeConstructor<C> = {
         tag: "TypeConstructor",
         nodeType: "Substance",
-        children: [name],
-        start: stmt.start,
-        end: stmt.end,
+        start: name.start,
+        end: name.end,
         name,
         args: [],
       };
@@ -172,10 +169,9 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
         typeVars: Map(keyBy(params, "name.value")),
       };
       // check name duplicate
-      if (env.constructors.has(name.value))
-        return err(
-          duplicateName(name, stmt, env.constructors.get(name.value)!)
-        );
+      const existing = env.constructors.get(name.value);
+      if (existing !== undefined)
+        return err(duplicateName(name, stmt, existing));
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
@@ -195,8 +191,9 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
         typeVars: Map(keyBy(params, "name.value")),
       };
       // check name duplicate
-      if (env.functions.has(name.value))
-        return err(duplicateName(name, stmt, env.functions.get(name.value)!));
+      const existing = env.functions.get(name.value);
+      if (existing !== undefined)
+        return err(duplicateName(name, stmt, existing));
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
@@ -216,8 +213,8 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
         typeVars: Map(keyBy(params, "name.value")),
       };
       // check name duplicate
-      if (env.predicates.has(name.value))
-        return err(duplicateName(name, stmt, env.predicates.get(name.value)!));
+      const existing = env.predicates.get(name.value);
+      if (existing) return err(duplicateName(name, stmt, existing));
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // insert predicate into env
@@ -234,9 +231,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
     case "PreludeDecl": {
       const { name, type } = stmt;
       const typeOk = checkType(type, env);
-      // make sure only type cons are involved in the prelude decl
-      if (type.tag !== "TypeConstructor")
-        return err(notTypeConsInPrelude(type));
       const updatedEnv: CheckerResult = ok({
         ...env,
         preludeValues: env.preludeValues.set(name.value, type),
@@ -245,9 +239,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
-      // make sure only type cons are involved in the subtyping relation
-      if (subType.tag !== "TypeConstructor")
-        return err(notTypeConsInSubtype(subType));
       const subOk = checkType(subType, env);
       const updatedEnv = addSubtype(subType, superType, env);
       return everyResult(subOk, updatedEnv);
@@ -307,12 +298,9 @@ const checkArg = (arg: Arg<C>, env: Env): CheckerResult =>
 
 const addSubtype = (
   subType: TypeConstructor<C>, // assume already checked
-  superType: Type<C>,
+  superType: TypeConstructor<C>,
   env: Env
 ): CheckerResult => {
-  // make sure only type cons are involved in the subtyping relation
-  if (superType.tag !== "TypeConstructor")
-    return err(notTypeConsInSubtype(superType));
   const superOk = checkType(superType, env);
   const updatedEnv: CheckerResult = ok({
     ...env,
@@ -324,9 +312,9 @@ const addSubtype = (
 const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
   const [...typeNames] = types.keys();
-  typeNames.map((t: string) => typeGraph.setNode(t, t));
+  typeNames.forEach((t: string) => typeGraph.setNode(t, t));
   // NOTE: since we search for super types upstream, subtyping arrow points to supertype
-  subTypes.map(
+  subTypes.forEach(
     ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) =>
       typeGraph.setEdge(subType.name.value, superType.name.value)
   );
@@ -395,7 +383,6 @@ const topName = idOf("type", "Domain");
 export const topType: TypeConsApp<A> = {
   tag: "TypeConstructor",
   nodeType: "Domain",
-  children: [topName],
   name: topName,
   args: [],
 };
@@ -404,7 +391,6 @@ const bottomName = idOf("void", "Domain");
 export const bottomType: TypeConsApp<A> = {
   tag: "TypeConstructor",
   nodeType: "Domain",
-  children: [bottomName],
   name: bottomName,
   args: [],
 };

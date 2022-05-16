@@ -2,11 +2,11 @@ import { evalFns, normList, prettyPrintFn } from "@penrose/core";
 import { zipWith } from "lodash";
 import * as React from "react";
 import DataTable from "react-data-table-component";
-import IViewProps from "./IViewProps";
+import ViewProps from "./ViewProps";
 
 export const EPS = 10e-3;
 
-const Opt: React.FC<IViewProps> = ({ frame /*, history*/ }: IViewProps) => {
+const Opt: React.FC<ViewProps> = ({ frame /*, history*/ }: ViewProps) => {
   if (!frame) {
     return (
       <div style={{ padding: "1em", fontSize: "1em", color: "#4f4f4f" }}>

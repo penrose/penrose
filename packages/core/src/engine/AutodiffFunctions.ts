@@ -1,14 +1,13 @@
 import * as ad from "types/ad";
-import { VarAD } from "types/ad";
 
 const binary = (binop: ad.Binary["binop"]) => (
-  v: VarAD,
-  w: VarAD
+  v: ad.Num,
+  w: ad.Num
 ): ad.Binary => ({ tag: "Binary", binop, left: v, right: w });
 
-const nary = (op: ad.Nary["op"], bin: (v: VarAD, w: VarAD) => ad.Binary) => (
-  xs: VarAD[]
-): VarAD => {
+const nary = (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Binary) => (
+  xs: ad.Num[]
+): ad.Num => {
   // interestingly, special-casing 1 and 2 args like this actually affects the
   // gradient by a nontrivial amount in some cases
   switch (xs.length) {
@@ -74,7 +73,7 @@ export const minN = nary("minN", min);
  * describes the angle made by a vector (x,y) with the x-axis.
  * Returns a value in radians, in the range [-pi,pi].
  */
-export const atan2 = (y: VarAD, x: VarAD): ad.Binary => ({
+export const atan2 = (y: ad.Num, x: ad.Num): ad.Binary => ({
   tag: "Binary",
   binop: "atan2",
   left: y,
@@ -88,7 +87,7 @@ export const pow = binary("pow");
 
 // --- Unary ops
 
-const unary = (unop: ad.Unary["unop"]) => (v: VarAD): ad.Unary => ({
+const unary = (unop: ad.Unary["unop"]) => (v: ad.Num): ad.Unary => ({
   tag: "Unary",
   unop,
   param: v,
@@ -241,37 +240,61 @@ export const trunc = unary("trunc");
 
 // ------- Discontinuous / noGrad ops
 
+const comp = (binop: ad.Comp["binop"]) => (v: ad.Num, w: ad.Num): ad.Comp => ({
+  tag: "Comp",
+  binop,
+  left: v,
+  right: w,
+});
+
 /**
  * Return a conditional `v > w`.
  */
-export const gt = binary(">");
+export const gt = comp(">");
 
 /**
  * Return a conditional `v < w`.
  */
-export const lt = binary("<");
+export const lt = comp("<");
 
 /**
  * Return a conditional `v == w`. (TODO: Maybe check if they are equal up to a tolerance?)
  */
-export const eq = binary("===");
+export const eq = comp("===");
+
+const logic = (binop: ad.Logic["binop"]) => (
+  v: ad.Bool,
+  w: ad.Bool
+): ad.Logic => ({ tag: "Logic", binop, left: v, right: w });
 
 /**
  * Return a boolean `v && w`
  */
-export const and = binary("&&");
+export const and = logic("&&");
 
 /**
  * Return a boolean `v || w`
  */
-export const or = binary("||");
+export const or = logic("||");
 
 /**
  * Return a conditional `if(cond) then v else w`.
  */
-export const ifCond = (cond: VarAD, v: VarAD, w: VarAD): ad.Ternary => ({
+export const ifCond = (cond: ad.Bool, v: ad.Num, w: ad.Num): ad.Ternary => ({
   tag: "Ternary",
   cond,
   then: v,
   els: w,
 });
+
+// --- Vector ops
+
+/**
+ * Return the roots of the monic polynomial with degree `coeffs.length` where
+ * the coefficient on the term with degree `i` is `coeffs[i]`. Any root with a
+ * nonzero imaginary component is replaced with `NaN`.
+ */
+export const polyRoots = (coeffs: ad.Num[]): ad.Num[] => {
+  const nexus: ad.PolyRoots = { tag: "PolyRoots", coeffs };
+  return coeffs.map((coeff, index) => ({ tag: "Index", index, vec: nexus }));
+};

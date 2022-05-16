@@ -216,7 +216,7 @@ const singleProcess = async (
         fs.writeFileSync(filename, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${filename}`));
       };
-      listOfCanvasData.map(writeFileOut);
+      listOfCanvasData.forEach(writeFileOut);
     } else {
       // not staged --> just need one diagram
       fs.writeFileSync(
@@ -247,7 +247,7 @@ const singleProcess = async (
         fs.writeFileSync(newStr, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${newStr}`));
       };
-      listOfCanvasData.map(writeFileOut);
+      listOfCanvasData.forEach(writeFileOut);
     } else {
       // just the final diagram
       fs.writeFileSync(out, prettier.format(canvas, { parser: "html" }));

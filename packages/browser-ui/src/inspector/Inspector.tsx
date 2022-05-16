@@ -1,30 +1,30 @@
 import { PenroseError, PenroseState } from "@penrose/core";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
 import "@reach/tabs/styles.css";
-import { ISettings } from "App";
+import { Settings } from "App";
 import * as React from "react";
 import ErrorBoundary from "./ErrorBoundary";
-import IViewProps from "./views/IViewProps";
 import viewMap from "./views/viewMap";
+import ViewProps from "./views/ViewProps";
 
-interface IProps {
+interface Props {
   currentState: PenroseState | undefined;
   history: PenroseState[];
   error: PenroseError | undefined;
   onClose(): void;
   modCanvas(state: PenroseState): void;
-  settings: ISettings;
-  setSettings(ISettings): void;
+  settings: Settings;
+  setSettings(settings: Settings): void;
   reset(): void;
 }
 
-export interface IInspectState {
+export interface InspectState {
   // connectionLog: Array<ConnectionStatus | string>;
   selectedFrame: number;
   selectedView: number;
 }
 
-class Inspector extends React.Component<IProps, IInspectState> {
+class Inspector extends React.Component<Props, InspectState> {
   public readonly state = {
     // connectionLog: [],
     selectedFrame: -1,
@@ -56,7 +56,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       setSettings,
       reset,
     } = this.props;
-    const commonProps: IViewProps = {
+    const commonProps: ViewProps = {
       selectFrame: this.selectFrame,
       // frame: currentFrame,
       frame: currentState, // HACK: since history is disabled, we pass in the current state so the tab always shows the current state

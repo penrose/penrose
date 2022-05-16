@@ -32,36 +32,36 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 
 // -------- Simple constraints
-// Do not require shape quaries, operate directly with `VarAD` parameters.
+// Do not require shape quaries, operate directly with `ad.Num` parameters.
 const constrDictSimple = {
   /**
    * Require that the value `x` is equal to the value `y`
    */
-  equal: (x: VarAD, y: VarAD) => {
+  equal: (x: ad.Num, y: ad.Num) => {
     return absVal(sub(x, y));
   },
 
   /**
    * Require that the value `x` is less than the value `y` with optional padding `padding`
    */
-  lessThan: (x: VarAD, y: VarAD, padding = 0) => {
+  lessThan: (x: ad.Num, y: ad.Num, padding = 0) => {
     return add(sub(x, y), padding);
   },
 
   /**
    * Require that the value `x` is greater than the value `y` with optional padding `padding`
    */
-  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
+  greaterThan: (x: ad.Num, y: ad.Num, padding = 0) => {
     return add(sub(y, x), padding);
   },
 
   /**
    * Require that the value `x` is less than the value `y`, with steeper penalty
    */
-  lessThanSq: (x: VarAD, y: VarAD) => {
+  lessThanSq: (x: ad.Num, y: ad.Num) => {
     // if x < y then 0 else (x - y)^2
     return ifCond(lt(x, y), 0, squared(sub(x, y)));
   },
@@ -69,21 +69,24 @@ const constrDictSimple = {
   /**
    * Require that the value `x` is greater than the value `y`, with steeper penalty
    */
-  greaterThanSq: (x: VarAD, y: VarAD) => {
+  greaterThanSq: (x: ad.Num, y: ad.Num) => {
     return ifCond(lt(y, x), 0, squared(sub(y, x)));
   },
 
   /**
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
-  inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
+  inRange: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
     return mul(sub(x, x0), sub(x, x1));
   },
 
   /**
    * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
    */
-  contains1D: ([l1, r1]: [VarAD, VarAD], [l2, r2]: [VarAD, VarAD]): VarAD => {
+  contains1D: (
+    [l1, r1]: [ad.Num, ad.Num],
+    [l2, r2]: [ad.Num, ad.Num]
+  ): ad.Num => {
     // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
     return add(
       constrDictSimple.lessThanSq(l1, l2),
@@ -94,8 +97,8 @@ const constrDictSimple = {
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
-  disjointScalar: (c: any, left: any, right: any) => {
-    const d = (x: VarAD, y: VarAD) => absVal(sub(x, y));
+  disjointScalar: (c: ad.Num, left: ad.Num, right: ad.Num) => {
+    const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
 
     // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
     return ifCond(inRange(c, left, right), min(d(c, left), d(c, right)), 0);
@@ -104,7 +107,7 @@ const constrDictSimple = {
   /**
    * Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.
    */
-  perpendicular: (q: VarAD[], p: VarAD[], r: VarAD[]): VarAD => {
+  perpendicular: (q: ad.Num[], p: ad.Num[], r: ad.Num[]): ad.Num => {
     const v1 = ops.vsub(q, p);
     const v2 = ops.vsub(r, p);
     const dotProd = ops.vdot(v1, v2);
@@ -115,7 +118,7 @@ const constrDictSimple = {
    * Require that three points be collinear.
    * Depends on the specific ordering of points.
    */
-  collinear: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
+  collinear: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vsub(c1, c2);
     const v2 = ops.vsub(c2, c3);
     const v3 = ops.vsub(c1, c3);
@@ -128,7 +131,7 @@ const constrDictSimple = {
    * Require that three points be collinear.
    * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
    */
-  collinearUnordered: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
+  collinearUnordered: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vnorm(ops.vsub(c1, c2));
     const v2 = ops.vnorm(ops.vsub(c2, c3));
     const v3 = ops.vnorm(ops.vsub(c1, c3));
@@ -147,15 +150,15 @@ const constrDictGeneral = {
   /** Require that `shape` is on the canvas */
   onCanvas: (
     [shapeType, props]: any,
-    canvasWidth: VarAD,
-    canvasHeight: VarAD
+    canvasWidth: ad.Num,
+    canvasHeight: ad.Num
   ) => {
     const box = bboxFromShape([shapeType, props]);
-    const canvasXRange: [VarAD, VarAD] = [
+    const canvasXRange: [ad.Num, ad.Num] = [
       mul(canvasWidth, -0.5),
       div(canvasWidth, 2),
     ];
-    const canvasYRange: [VarAD, VarAD] = [
+    const canvasYRange: [ad.Num, ad.Num] = [
       mul(canvasHeight, -0.5),
       div(canvasHeight, 2),
     ];
@@ -174,7 +177,7 @@ const constrDictGeneral = {
   /**
    * Require that a shape have a size less than some constant maximum, based on the type of the shape.
    */
-  maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
+  maxSize: ([shapeType, props]: [string, any], limit: ad.Num) => {
     return sub(shapeSize([shapeType, props]), limit);
   },
 
@@ -292,7 +295,7 @@ const constrDictGeneral = {
 // -------- Specific constraints
 // Defined only for specific use-case or specific shapes.
 const constrDictSpecific = {
-  ptCircleIntersect: (p: VarAD[], [t, s]: [string, any]) => {
+  ptCircleIntersect: (p: ad.Num[], [t, s]: [string, any]) => {
     if (t === "Circle") {
       const r = s.r.contents;
       const c = shapeCenter([t, s]);
@@ -315,7 +318,7 @@ const constrDictSpecific = {
 };
 
 export const constrDict = {
-  ...constrDictSimple, // Do not require shape quaries, operate directly with `VarAD` parameters.
+  ...constrDictSimple, // Do not require shape quaries, operate directly with `ad.Num` parameters.
   ...constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
   ...constrDictSpecific, // Defined only for specific use-case or specific shapes.
 };

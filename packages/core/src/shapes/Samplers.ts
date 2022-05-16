@@ -1,23 +1,23 @@
 import seedrandom from "seedrandom";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import {
+  BoolV,
   Color,
-  IBoolV,
-  IColorV,
-  IFileV,
-  IFloatV,
-  IIntV,
-  IListV,
-  IMatrixV,
-  IPaletteV,
-  IPathCmd,
-  IPathDataV,
-  IPtListV,
-  IPtV,
-  IStrV,
-  IStyleV,
-  ITupV,
-  IVectorV,
+  ColorV,
+  FileV,
+  FloatV,
+  IntV,
+  ListV,
+  MatrixV,
+  PaletteV,
+  PathCmd,
+  PathDataV,
+  PtListV,
+  PtV,
+  StrV,
+  StyleV,
+  TupV,
+  VectorV,
 } from "types/value";
 import { randFloat } from "utils/Util";
 
@@ -28,15 +28,13 @@ type Range = [number, number];
 // export const canvasSize: [number, number] = [800, 700];
 // export const canvasXRange: Range = [-canvasSize[0] / 2, canvasSize[0] / 2];
 // export const canvasYRange: Range = [-canvasSize[1] / 2, canvasSize[1] / 2];
-export interface ICanvas {
+export interface Canvas {
   width: number;
   height: number;
   size: [number, number];
   xRange: Range;
   yRange: Range;
 }
-
-export type Canvas = ICanvas;
 
 export const makeCanvas = (width: number, height: number): Canvas => ({
   width,
@@ -46,63 +44,63 @@ export const makeCanvas = (width: number, height: number): Canvas => ({
   yRange: [-height / 2, height / 2],
 });
 
-export const FloatV = (contents: VarAD): IFloatV<VarAD> => ({
+export const floatV = (contents: ad.Num): FloatV<ad.Num> => ({
   tag: "FloatV",
   contents,
 });
-export const IntV = (contents: number): IIntV => ({
+export const intV = (contents: number): IntV => ({
   tag: "IntV",
   contents,
 });
-export const BoolV = (contents: boolean): IBoolV<VarAD> => ({
+export const boolV = (contents: boolean): BoolV<ad.Num> => ({
   tag: "BoolV",
   contents,
 });
-export const StrV = (contents: string): IStrV => ({
+export const strV = (contents: string): StrV => ({
   tag: "StrV",
   contents,
 });
-export const PtV = (contents: VarAD[]): IPtV<VarAD> => ({
+export const ptV = (contents: ad.Num[]): PtV<ad.Num> => ({
   tag: "PtV",
   contents,
 });
-export const PathDataV = (contents: IPathCmd<VarAD>[]): IPathDataV<VarAD> => ({
+export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
   tag: "PathDataV",
   contents,
 });
-export const PtListV = (contents: VarAD[][]): IPtListV<VarAD> => ({
+export const ptListV = (contents: ad.Num[][]): PtListV<ad.Num> => ({
   tag: "PtListV",
   contents,
 });
-export const ColorV = (contents: Color<VarAD>): IColorV<VarAD> => ({
+export const colorV = (contents: Color<ad.Num>): ColorV<ad.Num> => ({
   tag: "ColorV",
   contents,
 });
-export const PaletteV = (contents: Color<VarAD>[]): IPaletteV<VarAD> => ({
+export const paletteV = (contents: Color<ad.Num>[]): PaletteV<ad.Num> => ({
   tag: "PaletteV",
   contents,
 });
-export const FileV = (contents: string): IFileV<VarAD> => ({
+export const fileV = (contents: string): FileV<ad.Num> => ({
   tag: "FileV",
   contents,
 });
-export const StyleV = (contents: string): IStyleV<VarAD> => ({
+export const styleV = (contents: string): StyleV<ad.Num> => ({
   tag: "StyleV",
   contents,
 });
-export const ListV = (contents: VarAD[]): IListV<VarAD> => ({
+export const listV = (contents: ad.Num[]): ListV<ad.Num> => ({
   tag: "ListV",
   contents,
 });
-export const VectorV = (contents: VarAD[]): IVectorV<VarAD> => ({
+export const vectorV = (contents: ad.Num[]): VectorV<ad.Num> => ({
   tag: "VectorV",
   contents,
 });
-export const MatrixV = (contents: VarAD[][]): IMatrixV<VarAD> => ({
+export const matrixV = (contents: ad.Num[][]): MatrixV<ad.Num> => ({
   tag: "MatrixV",
   contents,
 });
-export const TupV = (contents: VarAD[]): ITupV<VarAD> => ({
+export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
   tag: "TupV",
   contents,
 });
@@ -111,26 +109,26 @@ export const sampleFloatIn = (
   rng: seedrandom.prng,
   min: number,
   max: number
-): IFloatV<VarAD> => FloatV(randFloat(rng, min, max));
+): FloatV<ad.Num> => floatV(randFloat(rng, min, max));
 export const sampleVector = (
   rng: seedrandom.prng,
   canvas: Canvas
-): IVectorV<VarAD> =>
-  VectorV([randFloat(rng, ...canvas.xRange), randFloat(rng, ...canvas.yRange)]);
+): VectorV<ad.Num> =>
+  vectorV([randFloat(rng, ...canvas.xRange), randFloat(rng, ...canvas.yRange)]);
 export const sampleWidth = (
   rng: seedrandom.prng,
   canvas: Canvas
-): IFloatV<VarAD> => FloatV(randFloat(rng, 3, canvas.width / 6));
-export const sampleZero = (): IFloatV<VarAD> => FloatV(0);
+): FloatV<ad.Num> => floatV(randFloat(rng, 3, canvas.width / 6));
+export const sampleZero = (): FloatV<ad.Num> => floatV(0);
 export const sampleHeight = (
   rng: seedrandom.prng,
   canvas: Canvas
-): IFloatV<VarAD> => FloatV(randFloat(rng, 3, canvas.height / 6));
-export const sampleStroke = (rng: seedrandom.prng): IFloatV<VarAD> =>
-  FloatV(randFloat(rng, 0.5, 3));
-export const sampleColor = (rng: seedrandom.prng): IColorV<VarAD> => {
+): FloatV<ad.Num> => floatV(randFloat(rng, 3, canvas.height / 6));
+export const sampleStroke = (rng: seedrandom.prng): FloatV<ad.Num> =>
+  floatV(randFloat(rng, 0.5, 3));
+export const sampleColor = (rng: seedrandom.prng): ColorV<ad.Num> => {
   const [min, max] = [0.1, 0.9];
-  return ColorV({
+  return colorV({
     tag: "RGBA",
     contents: [
       randFloat(rng, min, max),
@@ -140,6 +138,6 @@ export const sampleColor = (rng: seedrandom.prng): IColorV<VarAD> => {
     ],
   });
 };
-export const sampleBlack = (): IColorV<VarAD> =>
-  ColorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
-export const sampleNoPaint = (): IColorV<VarAD> => ColorV({ tag: "NONE" });
+export const sampleBlack = (): ColorV<ad.Num> =>
+  colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
+export const sampleNoPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });

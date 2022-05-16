@@ -1,71 +1,100 @@
 # Penrose [![Build](https://github.com/penrose/penrose/actions/workflows/build.yml/badge.svg)](https://github.com/penrose/penrose/actions/workflows/build.yml) [![codecov](https://codecov.io/gh/penrose/penrose/branch/main/graph/badge.svg?token=opGTmY4rkK)](https://codecov.io/gh/penrose/penrose) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier) [![license](https://img.shields.io/github/license/penrose/penrose)](LICENSE) [![Twitter: @UsePenrose](https://img.shields.io/twitter/follow/UsePenrose?style=social)](https://twitter.com/UsePenrose)
 
-**Penrose is an early-stage system that is still in development.** Our system is not ready for contributions or public use yet, but hopefully will be soon. Send us an email if you're interested in collaborating.
+[Penrose](https://penrose.cs.cmu.edu/) is a platform that enables people to
+**create beautiful diagrams just by typing mathematical notation in plain
+text.** The goal is to make it easy for non-experts to create and explore
+high-quality diagrams and provide deeper insight into challenging technical
+concepts. We aim to democratize the process of creating visual intuition.
 
-- See [the site](http://www.penrose.ink/) for more information and examples.
-- See the [wiki](https://github.com/penrose/penrose/wiki) for more system-specific information on building, running, testing, and debugging the system.
-- For even more documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-public/blob/master/penrose/archive/ramp-down.md).
+Check out our [SIGGRAPH '20 paper](https://penrose.cs.cmu.edu/siggraph20) and
+[video](https://vimeo.com/416822487) on Penrose!
 
-### Example
+## Usage
+
+You can [try Penrose in your browser](https://penrose.cs.cmu.edu/try/) without
+any installation. For a more detailed step-by-step introduction, check out our
+[tutorials](https://penrose.cs.cmu.edu/docs/tutorial/welcome). Or, for more
+reference-style information, take a look at our
+[documentation](https://penrose.cs.cmu.edu/docs/ref/).
+
+## Example
 
 Here's a simple Penrose visualization in the domain of set theory.
 
-<img src="https://i.imgur.com/3JHZeaX.png" width=300>
+<img src="diagrams/tree-venn.svg" width=500>
 
-It's specified by the following Substance and Style programs.
+It's specified by the following trio of Domain, Substance, and Style programs
+(with variation `CasalViper643`):
 
-- `tree.sub`
-  ```
-  Set A
-  Set B
-  Set C
-  Set D
-  Set E
-  Set F
-  Set G
-  Subset B A
-  Subset C A
-  Subset D B
-  Subset E B
-  Subset F C
-  Subset G C
-  NoIntersect E D
-  NoIntersect F G
-  NoIntersect B C
-  ```
-- `venn.sty`
+- `setTheory.dsl`:
 
   ```
-  Set x {
-      shape = Circle { }
-      constraint contains(x, x.label)
-  }
-
-  Intersect x y {
-      constraint overlapping(x, y)
-      constraint disjoint(y.label, x)
-      constraint disjoint(x.label, y)
-  }
-
-  NoIntersect x y {
-      constraint nonOverlapping(x, y)
-  }
-
-  Subset x y {
-      constraint contains(y, x)
-      constraint smallerThan(x, y)
-      constraint disjoint(y.label, x)
-  }
-
-  NoSubset x y {
-      objective repel(x, y)
-      constraint disjoint(x, y)
-      constraint disjoint(y.label, x)
-      constraint disjoint(x.label, y)
-      constraint nonOverlapping(x, y)
-  }
+  type Set
+  
+  predicate Not(Prop p1)
+  predicate Intersecting(Set s1, Set s2)
+  predicate IsSubset(Set s1, Set s2)
   ```
 
-Here's how the optimization looks live in the UI.
+- `tree.sub`:
 
-<img src="https://i.imgur.com/Q27Xgbn.gif" width=500>
+  ```
+  Set A, B, C, D, E, F, G
+  
+  IsSubset(B, A)
+  IsSubset(C, A)
+  IsSubset(D, B)
+  IsSubset(E, B)
+  IsSubset(F, C)
+  IsSubset(G, C)
+  
+  Not(Intersecting(E, D))
+  Not(Intersecting(F, G))
+  Not(Intersecting(B, C))
+  
+  AutoLabel All
+  ```
+
+- `venn.sty`:
+
+  ```
+  canvas {
+    width = 800
+    height = 700
+  }
+  
+  forall Set x {
+    x.icon = Circle {
+      strokeWidth : 0
+    }
+  
+    x.text = Equation {
+      string : x.label
+      fontSize : "25px"
+    }
+  
+    ensure contains(x.icon, x.text)
+    encourage sameCenter(x.text, x.icon)
+    x.textLayering = x.text above x.icon
+  }
+  
+  forall Set x; Set y
+  where IsSubset(x, y) {
+    ensure smallerThan(x.icon, y.icon)
+    ensure disjoint(y.text, x.icon, 10)
+    ensure contains(y.icon, x.icon, 5)
+    x.icon above y.icon
+  }
+  
+  forall Set x; Set y
+  where Not(Intersecting(x, y)) {
+    ensure disjoint(x.icon, y.icon)
+  }
+  
+  forall Set x; Set y
+  where Intersecting(x, y) {
+    ensure overlapping(x.icon, y.icon)
+    ensure disjoint(y.text, x.icon)
+    ensure disjoint(x.text, y.icon)
+  }
+  ```

@@ -1,8 +1,8 @@
 import * as _ from "lodash";
 import { times } from "lodash";
 import seedrandom from "seedrandom";
-import { ILine } from "shapes/Line";
-import { VarAD } from "types/ad";
+import { LineProps } from "shapes/Line";
+import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Properties } from "types/shape";
 import { Fn, Seeds, State } from "types/state";
@@ -256,10 +256,6 @@ export const round2 = (n: number): number => roundTo(n, 2);
 export const roundTo = (n: number, digits: number): number => {
   let negative = false;
 
-  if (digits === undefined) {
-    digits = 0;
-  }
-
   if (n < 0) {
     negative = true;
     n = n * -1;
@@ -336,7 +332,7 @@ export const bBoxDims = (
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
   } else if (shapeType === "Polyline") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (properties.width && properties.height) {
+  } else if ("width" in properties && "height" in properties) {
     [w, h] = [
       properties.width.contents as number,
       properties.height.contents as number,
@@ -489,7 +485,7 @@ export const prettyPrintFns = (state: State): string[] =>
 //#region autodiff
 
 // From Evaluator
-export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
+export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
   tag: "Val",
   contents: {
     tag: "FloatV",
@@ -497,13 +493,13 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
   },
 });
 
-export const linePts = ({ start, end }: ILine): [VarAD[], VarAD[]] => [
+export const linePts = ({ start, end }: LineProps): [ad.Num[], ad.Num[]] => [
   start.contents,
   end.contents,
 ];
 
-export const getStart = ({ start }: ILine): VarAD[] => start.contents;
+export const getStart = ({ start }: LineProps): ad.Num[] => start.contents;
 
-export const getEnd = ({ end }: ILine): VarAD[] => end.contents;
+export const getEnd = ({ end }: LineProps): ad.Num[] => end.contents;
 
 //#endregion
