@@ -1,6 +1,10 @@
-import MonacoEditor, { Monaco, useMonaco } from "@monaco-editor/react";
+import MonacoEditor, { useMonaco } from "@monaco-editor/react";
+import { Env } from "@penrose/core";
 import { editor } from "monaco-editor";
 import { useEffect, useRef } from "react";
+import { SetupDomainMonaco } from "./languages/DomainConfig";
+import { SetupStyleMonaco } from "./languages/StyleConfig";
+import { SetupSubstanceMonaco } from "./languages/SubstanceConfig";
 
 const monacoOptions: editor.IEditorConstructionOptions = {
   automaticLayout: true,
@@ -12,35 +16,35 @@ const monacoOptions: editor.IEditorConstructionOptions = {
   glyphMargin: false,
 };
 
-const abbrevMap = {
-  domain: "dsl",
-  substance: "sub",
-  style: "sty",
-};
 export default function EditorPane({
   value,
   onChange,
   vimMode,
   languageType,
-  setupMonaco,
+  domainCache,
 }: {
   value: string;
   vimMode: boolean;
   onChange(value: string): void;
-  languageType: keyof typeof abbrevMap;
-  setupMonaco(monaco: Monaco): () => void;
+  languageType: "substance" | "style" | "domain";
+  domainCache: Env | null;
 }) {
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (monaco) {
-      const dispose = setupMonaco(monaco);
+      const dispose =
+        languageType === "domain"
+          ? SetupDomainMonaco(monaco)
+          : languageType === "style"
+          ? SetupStyleMonaco(monaco)
+          : SetupSubstanceMonaco(domainCache)(monaco);
       return () => {
         dispose();
       };
     }
-  }, [monaco, setupMonaco, vimMode]);
+  }, [monaco, vimMode, languageType]);
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };
@@ -57,7 +61,7 @@ export default function EditorPane({
         onMount={onEditorMount as any}
       />
       <div
-        // ref={statusBarRef}
+        ref={statusBarRef}
         style={{ position: "absolute", bottom: 0, backgroundColor: "white" }}
       />
     </div>
