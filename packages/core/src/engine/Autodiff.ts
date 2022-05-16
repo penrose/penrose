@@ -569,9 +569,7 @@ export const makeGraph = (
     label: { key },
   } of getInputs(graph)) {
     if (key in gradient) {
-      throw Error(
-        `duplicate Input key: ${key} node: ${JSON.stringify(graph.node(id))}`
-      );
+      throw Error(`duplicate Input key: ${key}`);
     }
     // note that it's very easy for the set of Input indices to not be
     // contiguous, e.g. if some inputs end up not being used in any of the
