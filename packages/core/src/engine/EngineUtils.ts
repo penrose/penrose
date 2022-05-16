@@ -258,13 +258,7 @@ export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] => {
     }
   }
   const g = secondaryGraph(vars);
-  const inputs = [];
-  for (const v of g.nodes.keys()) {
-    if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.key] = v.val;
-    }
-  }
-  const numbers = genCode(g)(inputs).secondary;
+  const numbers = genCode(g)([]).secondary;
   const m = new Map(g.secondary.map((id, i) => [id, numbers[i]]));
   return shapes.map((s: ShapeAD) => ({
     ...s,
