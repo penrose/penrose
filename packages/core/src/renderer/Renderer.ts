@@ -7,7 +7,7 @@
 import { shapedefs } from "shapes/Shapes";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
-import { IStrV } from "types/value";
+import { StrV } from "types/value";
 import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
 
@@ -109,7 +109,7 @@ export const DraggableShape = async (
       g.setAttribute("opacity", "1");
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
-      onDrag((shapeProps.shape.properties.name as IStrV).contents, dx, dy);
+      onDrag((shapeProps.shape.properties.name as StrV).contents, dx, dy);
     };
     document.addEventListener("mouseup", onMouseUp);
     document.addEventListener("mousemove", onMouseMove);

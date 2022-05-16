@@ -1,12 +1,12 @@
 import { flatten } from "lodash";
-import { IColorV, IFloatV, IPathCmd, IStrV, ISubPath } from "types/value";
+import { ColorV, FloatV, PathCmd, StrV, SubPath } from "types/value";
 import { toScreen, toSvgOpacityProperty, toSvgPaintProperty } from "utils/Util";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { arrowHead } from "./Line";
 import { ShapeProps } from "./Renderer";
 
 const toPathString = (
-  pathData: IPathCmd<number>[],
+  pathData: PathCmd<number>[],
   canvasSize: [number, number]
 ) =>
   pathData
@@ -18,8 +18,8 @@ const toPathString = (
       }
       const pathStr = flatten(
         // the `number[]` type annotation is necessary to ensure that a compile
-        // error occurs here if more `ISubPath` subtypes are added in the future
-        contents.map((c: ISubPath<number>): number[] => {
+        // error occurs here if more `SubPath` subtypes are added in the future
+        contents.map((c: SubPath<number>): number[] => {
           switch (c.tag) {
             case "CoordV": {
               return toScreen(c.contents as [number, number], canvasSize);
@@ -62,22 +62,21 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
   const shadowId = shape.properties.name.contents + "-shadow";
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const strokeWidth = (shape.properties.strokeWidth as IFloatV<number>)
-    .contents;
+  const strokeWidth = (shape.properties.strokeWidth as FloatV<number>).contents;
   const strokeColor = toSvgPaintProperty(
-    (shape.properties.strokeColor as IColorV<number>).contents
+    (shape.properties.strokeColor as ColorV<number>).contents
   );
   const strokeOpacity = toSvgOpacityProperty(
-    (shape.properties.strokeColor as IColorV<number>).contents
+    (shape.properties.strokeColor as ColorV<number>).contents
   );
   const fillColor = toSvgPaintProperty(
-    (shape.properties.fillColor as IColorV<number>).contents
+    (shape.properties.fillColor as ColorV<number>).contents
   );
   const fillOpacity = toSvgOpacityProperty(
-    (shape.properties.fillColor as IColorV<number>).contents
+    (shape.properties.fillColor as ColorV<number>).contents
   );
-  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
-  const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
+  const arrowheadStyle = (shape.properties.arrowheadStyle as StrV).contents;
+  const arrowheadSize = (shape.properties.arrowheadSize as FloatV<number>)
     .contents;
 
   // Keep track of which input properties we programatically mapped
@@ -123,14 +122,14 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
 
   // Stroke opacity and width only relevant if paint is present
   if (
-    (shape.properties.strokeColor as IColorV<number>).contents.tag !== "NONE"
+    (shape.properties.strokeColor as ColorV<number>).contents.tag !== "NONE"
   ) {
     path.setAttribute("stroke-width", strokeWidth.toString());
     path.setAttribute("stroke-opacity", strokeOpacity.toString());
     attrToNotAutoMap.push("strokeColor", "strokeWidth");
   }
   // Fill opacity only relevant if paint is present
-  if ((shape.properties.fillColor as IColorV<number>).contents.tag !== "NONE") {
+  if ((shape.properties.fillColor as ColorV<number>).contents.tag !== "NONE") {
     path.setAttribute("fill-opacity", fillOpacity.toString());
     attrToNotAutoMap.push("fillColor");
   }
@@ -141,7 +140,7 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   ) {
     path.setAttribute(
       "stroke-dasharray",
-      (shape.properties.strokeDasharray as IStrV).contents
+      (shape.properties.strokeDasharray as StrV).contents
     );
   } else if (shape.properties.strokeStyle.contents === "dashed") {
     path.setAttribute("stroke-dasharray", DASH_ARRAY.toString());

@@ -1,10 +1,10 @@
-import { ICircle } from "shapes/Circle";
-import { IEllipse } from "shapes/Ellipse";
-import { ILine } from "shapes/Line";
-import { IPath } from "shapes/Path";
-import { IRectangle } from "shapes/Rectangle";
+import { CircleProps } from "shapes/Circle";
+import { EllipseProps } from "shapes/Ellipse";
+import { LineProps } from "shapes/Line";
+import { PathProps } from "shapes/Path";
+import { RectangleProps } from "shapes/Rectangle";
 import * as ad from "types/ad";
-import { ICenter, IPoly, IRect, IRotate, IScale } from "types/shapes";
+import { Center, Poly, Rect, Rotate, Scale } from "types/shapes";
 import { ops } from "./Autodiff";
 import {
   absVal,
@@ -22,38 +22,30 @@ import {
   sub,
 } from "./AutodiffFunctions";
 
-export interface IBBox {
+export interface BBox {
   width: ad.Num;
   height: ad.Num;
   center: ad.Pt2;
 }
 
-interface ICorners {
+export interface Corners {
   topRight: ad.Pt2;
   topLeft: ad.Pt2;
   bottomLeft: ad.Pt2;
   bottomRight: ad.Pt2;
 }
 
-interface IIntervals {
+export interface Intervals {
   xRange: [ad.Num, ad.Num];
   yRange: [ad.Num, ad.Num];
 }
 
-interface IEdges {
+export interface Edges {
   top: [ad.Pt2, ad.Pt2];
   bot: [ad.Pt2, ad.Pt2];
   left: [ad.Pt2, ad.Pt2];
   right: [ad.Pt2, ad.Pt2];
 }
-
-export type BBox = IBBox;
-
-export type Corners = ICorners;
-
-export type Intervals = IIntervals;
-
-export type Edges = IEdges;
 
 /**
  * Input: A width, height, and center.
@@ -215,7 +207,11 @@ export const bboxFromRotatedRect = (
   return bboxFromPoints([topLeft, topRight, botLeft, botRight]);
 };
 
-export const bboxFromCircle = ({ r, center, strokeWidth }: ICircle): BBox => {
+export const bboxFromCircle = ({
+  r,
+  center,
+  strokeWidth,
+}: CircleProps): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
@@ -232,7 +228,7 @@ export const bboxFromEllipse = ({
   ry,
   center,
   strokeWidth,
-}: IEllipse): BBox => {
+}: EllipseProps): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
@@ -254,7 +250,7 @@ export const bboxFromRect = ({
   height,
   center,
   strokeWidth,
-}: IRectangle): BBox => {
+}: RectangleProps): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
@@ -275,7 +271,7 @@ export const bboxFromRectlike = ({
   width,
   height,
   rotation,
-}: ICenter & IRect & IRotate): BBox => {
+}: Center & Rect & Rotate): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
@@ -292,7 +288,7 @@ export const bboxFromRectlike = ({
   );
 };
 
-export const bboxFromPolygon = ({ points, scale }: IPoly & IScale): BBox => {
+export const bboxFromPolygon = ({ points, scale }: Poly & Scale): BBox => {
   return bboxFromPoints(
     points.contents.map((point) => {
       const pt = ops.vmul(scale.contents, point);
@@ -307,7 +303,11 @@ export const bboxFromPolygon = ({ points, scale }: IPoly & IScale): BBox => {
   );
 };
 
-export const bboxFromLinelike = ({ start, end, strokeWidth }: ILine): BBox => {
+export const bboxFromLinelike = ({
+  start,
+  end,
+  strokeWidth,
+}: LineProps): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(start.contents)) {
     throw new Error(
@@ -340,7 +340,7 @@ export const bboxFromLinelike = ({ start, end, strokeWidth }: ILine): BBox => {
   );
 };
 
-export const bboxFromPath = ({ d }: IPath): BBox => {
+export const bboxFromPath = ({ d }: PathProps): BBox => {
   const p = d.contents;
   if (p.length < 1) {
     throw new Error("bboxFromPath expected pathData to be nonempty");

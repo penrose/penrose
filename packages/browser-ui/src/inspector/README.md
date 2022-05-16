@@ -4,7 +4,7 @@ The inspector is a resizable pane in the "vanilla" Penrose renderer that provide
 
 You can think of each inspector view as a variation on the original Canvas svg renderer; both have access to the same data but present it in different ways.
 
-Each view in the inspector is indexed in `views/viewMap.tsx`. The key is the name that appears as a tab in the pane and the value is the component class of that view. Every view has access to the same data and events defined in `views/IViewProps.tsx`.
+Each view in the inspector is indexed in `views/viewMap.tsx`. The key is the name that appears as a tab in the pane and the value is the component class of that view. Every view has access to the same data and events defined in `views/ViewProps.tsx`.
 
 ## Data
 
@@ -18,7 +18,7 @@ This interaction model is handy but annoying to deal with when you're implementi
 
 ## Adding a view
 
-Make a new component that accepts `IViewProps`, and then put it in `views/viewMap.tsx`.
+Make a new component that accepts `ViewProps`, and then put it in `views/viewMap.tsx`.
 
 A useful library component is `import { ObjectInspector } from "react-inspector";`, which gives a chrome-style JSON tree you can inspect.
 
@@ -63,5 +63,5 @@ After creating the mod file, add it to `mod/defmap.tsx`.
 
 ### Mod
 
-- The `pathData` attribute is only modifiable if it contains a list of `IPt`. Currently does not work with Bezier curves.
-- If the types in `types.d.ts` change form, `LabeledInput.tsx` will likely need to be modified. For example, if the structure of `IPathData` is changed, attempting to modify the `pathData` attribute will result in a crash.
+- The `pathData` attribute is only modifiable if it contains a list of `Pt`. Currently does not work with Bezier curves.
+- If the types in `types.d.ts` change form, `LabeledInput.tsx` will likely need to be modified. For example, if the structure of `PathData` is changed, attempting to modify the `pathData` attribute will result in a crash.

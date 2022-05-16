@@ -1,4 +1,4 @@
-import { IStrV } from "types/value";
+import { StrV } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
 import {
   attrAutoFillSvg,
@@ -21,7 +21,7 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  const name = shape.properties.name as IStrV;
+  const name = shape.properties.name as StrV;
   const retrievedLabel = retrieveLabel(name.contents, labels);
   attrToNotAutoMap.push("name");
 
@@ -41,7 +41,7 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
     renderedLabel
       .getElementsByTagName("g")[0]
       .setAttribute("stroke-width", "0");
-    const fontSize = shape.properties.fontSize as IStrV;
+    const fontSize = shape.properties.fontSize as StrV;
     renderedLabel.setAttribute(
       "style",
       `font-size: ${fontSize.contents.toString()}`
