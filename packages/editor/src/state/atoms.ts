@@ -394,8 +394,11 @@ const _compileDiagram = async (
       },
     }));
   } else {
-    toast.error("Couldn't compile domain");
-    // set metadata error
+    diagramFile.metadata.error = compiledDomain.error;
+    set(fileContentsState, (state: FileContents) => ({
+      ...state,
+      [diagramFile.id]: diagramFile,
+    }));
     return;
   }
   const compileResult = compileTrio({

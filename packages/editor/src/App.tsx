@@ -95,6 +95,8 @@ function App() {
           return <ExamplesPanel openFileInWorkspace={openFileInWorkspace} />;
         case "settings":
           return <div>settings</div>;
+        case "files":
+          return <div>files</div>;
         default:
           console.error("unhandled node type", node.getComponent());
           return <div />;
