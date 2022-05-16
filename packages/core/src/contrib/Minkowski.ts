@@ -360,10 +360,7 @@ export const halfPlaneEllipseSDF = (
     add(mul(ei.b, squared(hpi.a)), mul(ei.a, squared(hpi.b))),
     mul(
       mul(ei.a, ei.b),
-      mul(4, add(add(
-        mul(ei.x, hpi.a), mul(ei.y, hpi.b)), 
-        sub(ei.c, hpi.c))
-      )
+      mul(4, add(add(mul(ei.x, hpi.a), mul(ei.y, hpi.b)), sub(ei.c, hpi.c)))
     )
   );
   const ed = sqrt(div(e, add(1, e)));

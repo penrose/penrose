@@ -13,34 +13,24 @@ forall Maze x {
 }
 
 forall Triangle x {
-    x.a = (?, ?)
-    x.b = (?, ?)
-    x.c = (?, ?)
+    x.x = ? 
+    x.y = ?
+    x.a = (x.x - 100.0, x.y)
+    x.b = (x.x, x.y + 150.0)
+    x.c = (x.x + 100.0, x.y)
     x.icon = Polygon {
         points: [ x.a, x.b, x.c ]
     }
-    
-    -- Compute area
-    x.ab = sqrt((x.b[0] - x.a[0]) * (x.b[0] - x.a[0]) + (x.b[1] - x.a[1]) * (x.b[1] - x.a[1]))
-    x.bc = sqrt((x.c[0] - x.b[0]) * (x.c[0] - x.b[0]) + (x.c[1] - x.b[1]) * (x.c[1] - x.b[1]))
-    x.ca = sqrt((x.a[0] - x.c[0]) * (x.a[0] - x.c[0]) + (x.a[1] - x.c[1]) * (x.a[1] - x.c[1]))
-    x.area = 0.25 * sqrt((x.ab + x.bc + x.ca) * (-x.ab + x.bc + x.ca) * (x.ab - x.bc + x.ca) * (x.ab + x.bc - x.ca))
-    
-    -- Prescribed area
-    encourage equal(x.area, 1000.0)
-    
-    -- Try to be equilateral
-    encourage equal(x.ab, x.bc)
-    encourage equal(x.bc, x.ca)
-    encourage equal(x.ca, x.ab)
 
     -- Try getting close to the center
-    encourage equal(0.0, x.a[0])
-    encourage equal(0.0, x.a[1])
+    encourage lessThan(x.x, 400.0)
+    encourage lessThan(-400.0, x.x)
+    encourage lessThan(x.x, 400.0)
+    encourage lessThan(-400.0, x.y)
 }
 
 Triangle x; Triangle y {
-   ensure disjoint(x.icon, y.icon)
+--    ensure disjoint(x.icon, y.icon)
 }
 
 Triangle x; Maze y {
