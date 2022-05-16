@@ -1,9 +1,9 @@
-// const grammar = require("./Style.ne");
+import { examples } from "@penrose/examples";
 import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import * as path from "path";
-import { C, ConcreteNode } from "types/ast";
+import { C } from "types/ast";
 import { StyProg } from "types/style";
 import grammar from "./StyleParser";
 
@@ -20,18 +20,6 @@ const sameASTs = (results: any[]) => {
 // printAST(results[0])
 const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
-};
-
-export const traverseTree = (root: ConcreteNode) => {
-  const { nodeType, children } = root;
-  if (!nodeType) console.log(root);
-  expect(nodeType).toEqual("Style");
-  expect(children).not.toBe(undefined);
-  children.map((node) => {
-    if (!node) console.log(root);
-    expect(node).not.toBe(undefined);
-    traverseTree(node);
-  });
 };
 
 const styPaths = [
@@ -460,13 +448,13 @@ describe("Real Programs", () => {
     fs.mkdirSync(outputDir);
   }
 
-  styPaths.map((examplePath) => {
-    const file = path.join("../../examples/", examplePath);
-    const prog = fs.readFileSync(file, "utf8");
+  styPaths.forEach((examplePath) => {
+    // a bit hacky, only works with 2-part paths
+    const [part0, part1] = examplePath.split("/");
+    const prog = examples[part0][part1];
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);
-      traverseTree(results[0]);
       // write to output folder
       if (saveASTs) {
         const exampleName = path.basename(examplePath, ".sty");

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
+    "baseUrl": "./",
     "outDir": "build/dist",
     "module": "es2015",
     "target": "es5",
@@ -25,7 +25,19 @@
     "isolatedModules": true,
     "strict": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "paths": {
+      "analysis/*": ["./src/analysis/*"],
+      "compiler/*": ["./src/compiler/*"],
+      "contrib/*": ["./src/contrib/*"],
+      "engine/*": ["./src/engine/*"],
+      "parser/*": ["./src/parser/*"],
+      "renderer/*": ["./src/renderer/*"],
+      "shapes/*": ["./src/shapes/*"],
+      "synthesis/*": ["./src/synthesis/*"],
+      "types/*": ["./src/types/*"],
+      "utils/*": ["./src/utils/*"]
+    }
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
@@ -61,15 +73,13 @@
     "webpack"
   ],
   "typedocOptions": {
-    "inputFiles": ["./src"],
-    "mode": "modules",
-    "out": "doc",
+    "entryPoints": ["./src"],
+    "out": "docs/html",
     "exclude": [
       "**/*.test.ts",
       "**/*.test.tsx",
       "**/*__*/**",
       "**/node_modules/**"
-    ],
-    "includeDeclarations": true
+    ]
   }
 }

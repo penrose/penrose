@@ -1,4 +1,4 @@
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { ICenter, IFill, INamed, IShape, IStroke } from "types/shapes";
 import { IFloatV } from "types/value";
 import {
@@ -13,7 +13,7 @@ import {
 } from "./Samplers";
 
 export interface ICircle extends INamed, IStroke, IFill, ICenter {
-  r: IFloatV<VarAD>;
+  r: IFloatV<ad.Num>;
 }
 
 export const sampleCircle = (

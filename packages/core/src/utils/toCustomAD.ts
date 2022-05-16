@@ -33,7 +33,7 @@ interface Transform {
 
 // jscodeshift tests.ts -t toCustomAD.ts -p -d
 
-export default function (fileInfo: FileInfo, api: API) {
+export default function (fileInfo: FileInfo, api: API): string {
   const j = api.jscodeshift; // DO NOT REMOVE
 
   const KWTYPS: string[] = [
@@ -96,14 +96,9 @@ export default function (fileInfo: FileInfo, api: API) {
     node.name = target;
     return node;
   };
-  // identifier to identifier
-  const ID2ID = (target: string, node: any): Identifier => {
-    node.name = target;
-    return node;
-  };
   // ternary to call expression
   const TERN2CE = (target: string, node: any): CallExpression => {
-    const ternNode = node as ConditionalExpression;
+    const ternNode: ConditionalExpression = node;
     const test = ternNode.test;
     const consequent = ternNode.consequent;
     const alternate = ternNode.alternate;
@@ -249,7 +244,7 @@ export default function (fileInfo: FileInfo, api: API) {
   };
   const TYPS: { [k: string]: Transform } = {
     TSNumberKeyword: {
-      newName: "VarAD",
+      newName: "ad.Num",
       transformMethod: TYPSUB, // TYPSUB - method to perform type substitution. This will practically always be the method used to transform any type.
       matchTargetFn: getTypeRefName,
     },
@@ -377,7 +372,7 @@ export default function (fileInfo: FileInfo, api: API) {
     // todo the next line excludes qualified types e.g. Foo.Bar as a type. fix this
     else if (node.type === "TSTypeReference") {
       // transform custom types
-      const matchKey = hasMatch(node as TSTypeReference, TYPS);
+      const matchKey = hasMatch(node, TYPS);
       return matchKey ? TYPS[matchKey] : false;
     } else if (node.type in TYPS) return TYPS[node.type];
     // keyword types //todo doublecheck

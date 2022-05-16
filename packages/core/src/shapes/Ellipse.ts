@@ -1,4 +1,4 @@
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { ICenter, IFill, INamed, IShape, IStroke } from "types/shapes";
 import { IFloatV } from "types/value";
 import {
@@ -14,8 +14,8 @@ import {
 } from "./Samplers";
 
 export interface IEllipse extends INamed, IStroke, IFill, ICenter {
-  rx: IFloatV<VarAD>;
-  ry: IFloatV<VarAD>;
+  rx: IFloatV<ad.Num>;
+  ry: IFloatV<ad.Num>;
 }
 
 export const sampleEllipse = (

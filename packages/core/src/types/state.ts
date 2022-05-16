@@ -1,5 +1,6 @@
+import { Matrix } from "ml-matrix";
 import { Canvas } from "shapes/Samplers";
-import { GradGraphs, VarAD } from "./ad";
+import * as ad from "types/ad";
 import { A } from "./ast";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
@@ -79,7 +80,7 @@ export interface TextData {
 
 export type LabelCache = [string, LabelData][];
 
-export type VaryMap<T = VarAD> = Map<string, T>;
+export type VaryMap<T = ad.Num> = Map<string, T>;
 
 export type FnDone<T> = IFnDone<T>;
 export interface IFnDone<T> {
@@ -111,13 +112,17 @@ export type LbfgsParams = ILbfgsParams;
 
 // `n` is the size of the varying state
 export interface ILbfgsParams {
-  // TODO: Store as matrix types
-  lastState: any | undefined; // nx1 (col vec)
-  lastGrad: any | undefined; // nx1 (col vec)
-  s_list: any[]; // list of nx1 col vecs
-  y_list: any[]; // list of nx1 col vecs
+  lastState: Matrix | undefined; // nx1 (col vec)
+  lastGrad: Matrix | undefined; // nx1 (col vec)
+  s_list: Matrix[]; // list of nx1 col vecs
+  y_list: Matrix[]; // list of nx1 col vecs
   numUnconstrSteps: number;
   memSize: number;
+}
+
+export interface FnEvaled {
+  f: number;
+  gradf: number[];
 }
 
 export type Params = IParams;
@@ -142,44 +147,34 @@ export interface IParams {
   // For L-BFGS
   lbfgsInfo: LbfgsParams;
 
-  xsVars: VarAD[]; // Computational graph (leaf vars), from the bottom up
+  xsVars: ad.Num[]; // Computational graph (leaf vars), from the bottom up
 
   // For energy/gradient compilation
-  graphs: GradGraphs;
+  graphs: ad.GradGraphs;
 
   functionsCompiled: boolean;
 
   // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
-  objective: (epWeight: number) => (xs: number[]) => number;
-  gradient: (epWeight: number) => (xs: number[]) => number[];
+  objectiveAndGradient: (epWeight: number) => (xs: number[]) => FnEvaled;
 
   // Applied with weight (or hyperparameters in general) -- may change with the EP round
-  currObjective(xs: number[]): number;
-  currGradient(xs: number[]): number[];
+  currObjectiveAndGradient(xs: number[]): FnEvaled;
 
   // `xsVars` are all the leaves of the energy graph
-  energyGraph: VarAD; // This is the top of the energy graph (parent node)
-  constrWeightNode: VarAD; // Handle to node for constraint weight (so it can be set as the weight changes)
-  epWeightNode: VarAD; // similar to constrWeightNode
+  energyGraph: ad.Num; // This is the top of the energy graph (parent node)
+  epWeightNode: ad.Num; // Handle to node for EP weight (so it can be set as the weight changes)
 
   // Cached versions of compiling each objective and constraint into a function and gradient
   objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
   constrFnCache: { [k: string]: FnCached }; // This is kept separate from objfns because objs/constrs may have the same names (=> clashing keys if in same dict)
 }
 
-export type FnCached = IFnCached;
-
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
-export interface IFnCached {
-  f(xs: number[]): number;
-  gradf(xs: number[]): number[];
-}
+export type FnCached = (xs: number[]) => FnEvaled;
 
 export type WeightInfo = IWeightInfo;
 
 export interface IWeightInfo {
-  constrWeightNode: VarAD; // Constant
-  epWeightNode: VarAD; // Changes (input in optimization, but we do NOT need the gradient WRT it)
-  constrWeight: number;
+  epWeightNode: ad.Input;
   epWeight: number;
 }

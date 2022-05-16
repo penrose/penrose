@@ -9,7 +9,10 @@
     "dev": "vite",
     "watch": "vite build --watch",
     "build": "cross-env vite build && tsc",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "clean": "rimraf dist storybook-static"
   },
   "peerDependencies": {
     "react": "^17.0.2",

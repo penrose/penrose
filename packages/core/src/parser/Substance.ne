@@ -31,10 +31,7 @@ const lexer = moo.compile({
   }
 });
 
-const nodeData = (children: ConcreteNode[]) => ({
-  nodeType: "Substance" as const,
-  children
-});
+const nodeData = { nodeType: "Substance" as const };
 
 %} # end of lexer
 
@@ -49,7 +46,7 @@ const nodeData = (children: ConcreteNode[]) => ({
 input -> statements {% 
   ([d]): SubProg<C> => {
     const statements = flatten(d) as SubStmt<C>[];
-    return { ...nodeData(statements), ...rangeFrom(statements), tag: "SubProg", statements };
+    return { ...nodeData, ...rangeFrom(statements), tag: "SubProg", statements };
   }
 %}
 
@@ -75,7 +72,7 @@ statement
 
 decl -> type_constructor __ sepBy1[identifier, ","] {%
   ([type, , ids]): Decl<C>[] => ids.map((name: Identifier<C>): Decl<C> => ({
-    ...nodeData([type, name]),
+    ...nodeData,
     ...rangeBetween(type, name),
     tag: "Decl", type, name
   }))
@@ -83,7 +80,7 @@ decl -> type_constructor __ sepBy1[identifier, ","] {%
 
 bind -> identifier _ ":=" _ sub_expr {%
   ([variable, , , , expr]): Bind<C> => ({
-    ...nodeData([variable, expr]),
+    ...nodeData,
     ...rangeBetween(variable, expr),
     tag: "Bind", variable, expr
   })
@@ -92,12 +89,12 @@ bind -> identifier _ ":=" _ sub_expr {%
 decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
   ([type, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
     const decl: Decl<C> = {
-      ...nodeData([type, variable]),
+      ...nodeData,
       ...rangeBetween(type, variable),
       tag: "Decl", type, name: variable
     };
     const bind: Bind<C> = {
-      ...nodeData([variable, expr]),
+      ...nodeData,
       ...rangeBetween(variable, expr),
       tag: "Bind", variable, expr
     };
@@ -107,7 +104,7 @@ decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
 
 apply_predicate -> identifier _ "(" _ sepBy1[pred_arg, ","] _ ")" {%
   ([name, , , , args]): ApplyPredicate<C> => ({
-    ...nodeData([name, ...args]),
+    ...nodeData,
     ...rangeFrom([name, ...args]),
     tag: "ApplyPredicate", name, args
   })
@@ -123,7 +120,7 @@ sub_expr
 
 deconstructor -> identifier _ "." _ identifier {%
   ([variable, , , , field]): Deconstructor<C> => ({
-    ...nodeData([variable, field]),
+    ...nodeData,
     ...rangeBetween(variable, field),
     tag: "Deconstructor", variable, field
   })
@@ -132,7 +129,7 @@ deconstructor -> identifier _ "." _ identifier {%
 # NOTE: generic func type for consturction, predicate, or function
 func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
   ([name, , , , args]): Func<C> => ({
-    ...nodeData([name, ...args]),
+    ...nodeData,
     ...rangeFrom([name, ...args]),
     tag: "Func", name, args
   })
@@ -140,7 +137,7 @@ func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
 
 equal_exprs -> sub_expr _ "=" _ sub_expr {%
   ([left, , , , right]): EqualExprs<C> => ({
-    ...nodeData([left, right]),
+    ...nodeData,
     ...rangeBetween(left, right),
     tag: "EqualExprs", left, right
   })
@@ -148,7 +145,7 @@ equal_exprs -> sub_expr _ "=" _ sub_expr {%
 
 equal_predicates -> apply_predicate _ "<->" _ apply_predicate {%
   ([left, , , , right]): EqualPredicates<C> => ({
-    ...nodeData([left, right]),
+    ...nodeData,
     ...rangeBetween(left, right),
     tag: "EqualPredicates", left, right
   })
@@ -162,7 +159,7 @@ label_stmt
 label_decl 
   -> "Label" __ identifier __ tex_literal {%
     ([kw, , variable, , label]): LabelDecl<C> => ({
-      ...nodeData([variable, label]),
+      ...nodeData,
       ...rangeBetween(rangeOf(kw), label),
       tag: "LabelDecl", 
       labelType: "MathLabel",
@@ -171,7 +168,7 @@ label_decl
   %}
  |  "Label" __ identifier __ string_lit {%
     ([kw, , variable, , label]): LabelDecl<C> => ({
-      ...nodeData([variable, label]),
+      ...nodeData,
       ...rangeBetween(rangeOf(kw), label),
       tag: "LabelDecl", 
       labelType: "TextLabel",
@@ -181,7 +178,7 @@ label_decl
 
 no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
   ([kw, , args]): NoLabel<C> => ({
-    ...nodeData([...args]),
+    ...nodeData,
     ...rangeFrom([rangeOf(kw), ...args]),
     tag: "NoLabel", args
   })
@@ -189,16 +186,16 @@ no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
 
 auto_label -> "AutoLabel" __ label_option {%
   ([kw, , option]): AutoLabel<C> => ({
-    ...nodeData([option]),
+    ...nodeData,
     ...rangeBetween(kw, option),
     tag: "AutoLabel", option 
   })
 %}
 
 label_option 
-  -> "All" {% ([kw]): LabelOption<C> => ({ ...nodeData([]), ...rangeOf(kw), tag: "DefaultLabels" }) %}
+  -> "All" {% ([kw]): LabelOption<C> => ({ ...nodeData, ...rangeOf(kw), tag: "DefaultLabels" }) %}
   |  sepBy1[identifier, ","] {% 
-       ([variables]): LabelOption<C> => ({ ...nodeData([]), ...rangeFrom(variables), tag: "LabelIDs", variables }) 
+       ([variables]): LabelOption<C> => ({ ...nodeData, ...rangeFrom(variables), tag: "LabelIDs", variables }) 
      %}
 
 # Grammar from Domain
@@ -207,7 +204,7 @@ type_constructor -> identifier type_arg_list:? {%
   ([name, a]): TypeConsApp<C> => {
     const args = optional(a, []);
     return {
-      ...nodeData([name, ...args]),
+      ...nodeData,
       ...rangeFrom([name, ...args]),
       tag: "TypeConstructor", name, args 
     };
@@ -223,7 +220,7 @@ type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {%
 
 string_lit -> %string_literal {%
   ([d]): IStringLit<C> => ({
-    ...nodeData([]),
+    ...nodeData,
     ...rangeOf(d),
     tag: 'StringLit',
     contents: d.value
@@ -232,7 +229,7 @@ string_lit -> %string_literal {%
 
 tex_literal -> %tex_literal {% 
   ([d]): IStringLit<C> => ({
-    ...nodeData([]),
+    ...nodeData,
     ...rangeOf(d),
     tag: 'StringLit',
     contents: d.text.substring(1, d.text.length - 1), // NOTE: remove dollars
@@ -241,7 +238,7 @@ tex_literal -> %tex_literal {%
 
 identifier -> %identifier {% 
   ([d]) => ({
-    ...nodeData([]),
+    ...nodeData,
     ...rangeOf(d),
     tag: 'Identifier',
     value: d.text,

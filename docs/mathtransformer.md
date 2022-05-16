@@ -1,6 +1,7 @@
 # Math Transformer
 
 ## Prerequisities
+
 You must install [jscodeshift](https://www.npmjs.com/package/jscodeshift) by running `npm i jscodeshift`. If you want to run the JSCodeshift tests, run it in the `__tests__` directory. You may also want to install the corresponding types module: `npm i @types/jscodeshift`.
 
 ## Code Breakdown
@@ -17,7 +18,7 @@ This section contains all the use-case-specific code. In most cases, this is the
 
 #### Subsection 1: Transformation Methods
 
-This section contains instructions on how to transform one type of node to another node. For example, the function `BO2CE` takes in a binary expression and transforms it into a call expression. You shouldn't need to modify any of the existing code, but if you want to transform a node in a way that's not already defined, you may need to define new functions here. You can also place custom transforms here. For example, the function `squaredTransform` is custom written to transform the expression `Math.pow(x, 2)` into `squared(x)`. The dropping of an argument necessitates a custom transform, since in most cases you want to preserve all arguments when condensing a call expression. 
+This section contains instructions on how to transform one type of node to another node. For example, the function `BO2CE` takes in a binary expression and transforms it into a call expression. You shouldn't need to modify any of the existing code, but if you want to transform a node in a way that's not already defined, you may need to define new functions here. You can also place custom transforms here. For example, the function `squaredTransform` is custom written to transform the expression `Math.pow(x, 2)` into `squared(x)`. The dropping of an argument necessitates a custom transform, since in most cases you want to preserve all arguments when condensing a call expression.
 
 #### Subsection 2: Match Target Functions
 
@@ -41,24 +42,21 @@ This section contains everything specific to JSCodeshift and is the only section
 
 ## Current Functionality
 
-Currently the following transforms will occur (you can see this in more detail in Section 1.3 of the code): 
+Currently the following transforms will occur (you can see this in more detail in Section 1.3 of the code):
 
-|Original   | AD |
-|-----------|----|
-| x + y     | add(x, y)|
-| x - y     | sub(x, y)|
-| x * y     | mul(x, y)|
-| x / y     | div(x, y)|
-| -x        | neg(x)|
-| x: number | x: VarAD|
-| Math.pow(x, y) | pow(x, y)|
-| Math.pow(x, 2) | squared(x)|
-| x ? y : z | ifCond(x, y, z) |
-
-
+| Original       | AD              |
+| -------------- | --------------- |
+| x + y          | add(x, y)       |
+| x - y          | sub(x, y)       |
+| x \* y         | mul(x, y)       |
+| x / y          | div(x, y)       |
+| -x             | neg(x)          |
+| x: number      | x: ad.Num       |
+| Math.pow(x, y) | pow(x, y)       |
+| Math.pow(x, 2) | squared(x)      |
+| x ? y : z      | ifCond(x, y, z) |
 
 NB - Due to a bug in jscodeshift, the program currently does not transform type names when they appear in an array pattern (i.e. types declared like this: `([t1, s1]: [string, any], [t2, s2]: [string, any])`). You must manually translate these names yourself (though the program will translate the same type name for you in all other contexts)
-
 
 ## Marking nodes to transform
 
@@ -71,8 +69,6 @@ CLI usage for jscodeshift can be found [here](https://github.com/facebook/jscode
 You can run the default JSCodeshift tests by running `npm test` from the `__tests__` directory. If you're getting errors, make sure you've installed JSCodeshift in the `__tests__` directory.
 
 Template: `jscodeshift YOURFILE.ts -t toCustomAD.ts -p -d`
-
-
 
 ### IMPORTANT NOTE - JSCODESHIFT MODIFIES THE INPUT FILE!
 
@@ -91,9 +87,10 @@ JSCodeshift will modify your input file in place. If this is undesirable behavio
     }
 
 ## Sample Output
+
     export const objDict = {
         // autodiff
-        equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+        equal: (x: ad.Num, y: ad.Num) => squared(sub(x, y)),
 
         // autodiff
         above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>

@@ -1,5 +1,4 @@
-import { constOf } from "engine/Autodiff";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { IArrow, INamed, IShape, IStroke } from "types/shapes";
 import { IStrV, IVectorV } from "types/value";
 import {
@@ -12,19 +11,19 @@ import {
 } from "./Samplers";
 
 export interface ILine extends INamed, IStroke, IArrow {
-  start: IVectorV<VarAD>;
-  end: IVectorV<VarAD>;
+  start: IVectorV<ad.Num>;
+  end: IVectorV<ad.Num>;
   strokeLinecap: IStrV;
 }
 
 export const sampleLine = (rng: seedrandom.prng, canvas: Canvas): ILine => ({
   name: StrV("defaultLine"),
   style: StrV(""),
-  strokeWidth: FloatV(constOf(1)),
+  strokeWidth: FloatV(1),
   strokeStyle: StrV("solid"),
   strokeColor: sampleColor(rng),
   strokeDasharray: StrV(""),
-  arrowheadSize: FloatV(constOf(1)),
+  arrowheadSize: FloatV(1),
   arrowheadStyle: StrV("arrowhead-2"),
   startArrowhead: BoolV(false),
   endArrowhead: BoolV(false),

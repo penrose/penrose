@@ -19,12 +19,12 @@ In particular, we are visualizing vector addition. Below is the goal diagram for
 
 ## Starter Code
 
-The starter code for this tutorial has some helpful constants to draw a vector space with its x and y axis. In your cloned `tutorials` repository, navigate to `./code/tutorial3` to find the starter code.
+The starter code for this tutorial has some helpful constants to draw a vector space with its x and y axis. In your cloned `penrose` repository, navigate to `./packages/examples/src/code/tutorial3` to find the starter code.
 
-Check that the starter code compiles by using the same build command pattern that we have used in the previous two examples. Make sure to change the file names and update the path! The command should look something like this (assuming that you have saved the `tutorials` repo in your Home directory):
+Check that the starter code compiles by using the same build command pattern that we have used in the previous two examples. Make sure to change the file names and update the path! The command should look something like this (assuming that you have saved the `penrose` repo in your Home directory):
 
 ```
-npx roger watch ~/tutorials/code/tutorial3/vector.sub ~/tutorials/code/tutorial3/vector.sty ~tutorials/code/tutorial3/linearAlgebra.dsl
+npx roger watch ~/penrose/packages/examples/src/tutorials/code/tutorial3/vector.sub ~/penrose/packages/examples/src/tutorials/code/tutorial3/vector.sty ~/penrose/packages/examples/src/tutorials/code/tutorial3/linearAlgebra.dsl
 ```
 
 If everything is working, you should see a vector space labeled `U` with its x-axis and y-axis in your Penrose window. It should look something like this:
@@ -33,7 +33,7 @@ If everything is working, you should see a vector space labeled `U` with its x-a
 
 There are comments in the starter code that document each block briefly. In this exercise we are mainly working on the `.sty` file, so the given `.dsl` and `.sub` file contains almost everything we need. This will be a common occurrence for you if you are a domain expert, crafting different visualizations for a domain.
 
-For more in-depth explanations on the starter code, we prepared a separate document [here](https://github.com/penrose/tutorials/blob/main/supplementary/tutorial3/walkthrough.md).
+For more in-depth explanations on the starter code, we prepared a separate document [here](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/supplementary/tutorial3/walkthrough.md).
 
 ## Task 1: Vectors In Vector Space
 
@@ -106,7 +106,7 @@ layer u.text above U.xAxis
 layer u.text above U.yAxis
 ```
 
-🔥 Yes! We are halfway there. Now you should see something similar to the following diagram. If you want to check your code, you can find the solution [here](https://github.com/penrose/tutorials/blob/main/solutions/tutorial3.md#task-1). Look for the section in the `.sty` file marked with "Task 1".
+🔥 Yes! We are halfway there. Now you should see something similar to the following diagram. If you want to check your code, you can find the solution [here](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/solutions/tutorial3.md#task-1). Look for the section in the `.sty` file marked with "Task 1".
 
 ![Your new Penrose diagram should look something like this!](/img/tutorial/2vectors_wg.png)
 
@@ -150,7 +150,7 @@ AutoLabel All
 
 Though we have declared our function `addV` in the Domain program and defined that we want our `Vector u` to be the result of `addV(v, w)` in our Substance program, Penrose will not know how to visually represent the relationship `u := addV(v, w)` unless we make some changes to our Style program. If you re-compile your triple in its current state, you'll see that it is plotting 3 vectors arbitrarily, like this:
 
-![](</img/tutorial/Screenshot from 2021-06-04 13-13-38.png>)
+![](/img/tutorial/3vectors_wg.png)
 
 Again, we start with writing a selector. We have a bit more work to do, since we have 3 vectors and 1 vector space involved. We also need to make sure that `u,v,w` are all in the same vector space. Therefore, our selector will be the following:
 
@@ -175,13 +175,13 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 }
 ```
 
-This is easier than you expected, right? You're all done with this tutorial! Take a sip of water and come back to solidify your knowledge with the following exercises. 🌴 [Complete code for the example](https://github.com/penrose/tutorials/blob/main/solutions/tutorial3.md#task-2).
+This is easier than you expected, right? You're all done with this tutorial! Take a sip of water and come back to solidify your knowledge with the following exercises. 🌴 [Complete code for the example](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/solutions/tutorial3.md#task-2).
 
 ## Exercises
 
 _FYI: All the sample goal diagrams are only a single sampling of many possible variations._
 
-We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. As a reminder, documentation for the pre-defined shapes that are available in Penrose can be found [here](/docs/api/).
+We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. As a reminder, documentation for the pre-defined shapes that are available in Penrose can be found [here](/docs/ref/).
 
 - **Exercise 1:** Create a new function that computes vector subtraction, and draws the difference vector, i.e. `u = v - w`.
 
@@ -202,7 +202,7 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 
 ![Exercise 3 Goal](/img/tutorial/parallelogram.jpeg)
 
-[Sample Solutions](https://github.com/penrose/tutorials/blob/main/solutions/tutorial3.md)
+[Sample Solutions](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/solutions/tutorial3.md)
 
 ## Takeaways
 

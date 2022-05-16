@@ -18,3 +18,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Include style docs folder
+!Style
+!Substance
+
+# Build-generated files
+/static/try/*

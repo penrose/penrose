@@ -3,14 +3,13 @@ import {
   insertExpr,
   shapeAutodiffToNumber,
   valueAutodiffToNumber,
-  valueNumberToAutodiff,
 } from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
 import { mapValues } from "lodash";
 import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Shape } from "types/shape";
 import { State } from "types/state";
@@ -85,7 +84,7 @@ const sampleProperty = (
   // TODO: don't resample all the properties every time for each property
   const props = shapedef.sampler(rng, canvas);
   if (property in props) {
-    // TODO: don't make VarAD only to immediately convert back to number
+    // TODO: don't make ad.Num only to immediately convert back to number
     return valueAutodiffToNumber(props[property]);
   } else {
     throw new Error(
@@ -167,18 +166,14 @@ export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
   // update the translation with all uninitialized values (converted to `Done` values)
   const uninitMap: [
     Path<A>,
-    TagExpr<VarAD>
+    TagExpr<ad.Num>
   ][] = uninitializedPaths.map((p: Path<A>) => [
     p,
-    val2Expr(
-      valueNumberToAutodiff(
-        samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
-      )
-    ),
+    val2Expr(samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)),
   ]);
 
   const translation: Translation = uninitMap.reduce(
-    (tr: Translation, [p, e]: [Path<A>, TagExpr<VarAD>]) =>
+    (tr: Translation, [p, e]: [Path<A>, TagExpr<ad.Num>]) =>
       insertExpr(p, e, tr),
     state.translation
   );

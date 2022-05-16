@@ -1,12 +1,8 @@
-import {
-  exprToNumber,
-  insertExpr,
-  valueNumberToAutodiff,
-} from "engine/EngineUtils";
+import { exprToNumber, insertExpr } from "engine/EngineUtils";
 import { A } from "types/ast";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
-import { IAccessPath, IPropertyPath, Path } from "types/style";
+import { IPropertyPath, Path } from "types/style";
 import { Translation, Value } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
 
@@ -20,7 +16,7 @@ import { retrieveLabel } from "utils/CollectLabels";
 const findShapeProperty = (shapes: any, path: Path<A>): Value<number> | any => {
   const getProperty = (path: IPropertyPath<A>) => {
     const [subName, field, prop]: [string, string, string] = [
-      (path as IPropertyPath<A>).name.contents.value,
+      path.name.contents.value,
       path.field.value,
       path.property.value,
     ];
@@ -50,10 +46,7 @@ const findShapeProperty = (shapes: any, path: Path<A>): Value<number> | any => {
       return getProperty(path);
     }
     case "AccessPath": {
-      const [propertyPath, indices] = [
-        (path as IAccessPath<A>).path,
-        path.indices,
-      ];
+      const { path: propertyPath, indices } = path;
       if (propertyPath.tag === "PropertyPath") {
         const property = getProperty(propertyPath);
         // walk the structure to access all indices
@@ -120,14 +113,13 @@ export const insertPending = (state: State): State => {
     pendingPaths: [],
     // for each of the pending paths, update the translation using the updated shapes with new label dimensions etc.
     translation: state.pendingPaths
-      .map((p: Path<A>) => [p, findLabelValue(p, state.labelCache)])
+      .map((p: Path<A>): [Path<A>, Value<number>] => [
+        p,
+        findLabelValue(p, state.labelCache),
+      ])
       .reduce(
-        (trans: Translation, [path, v]: any) =>
-          insertExpr(
-            path,
-            { tag: "Done", contents: valueNumberToAutodiff(v) },
-            trans
-          ),
+        (trans: Translation, [path, v]) =>
+          insertExpr(path, { tag: "Done", contents: v }, trans),
         state.translation
       ),
   };

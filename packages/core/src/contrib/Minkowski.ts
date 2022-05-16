@@ -1,4 +1,4 @@
-import { constOf, ops, varOf } from "engine/Autodiff";
+import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -15,7 +15,9 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import { Pt2, VarAD } from "types/ad";
+import { convexPartition, isClockwise } from "poly-partition";
+import * as ad from "types/ad";
+import { safe } from "utils/Util";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -28,8 +30,8 @@ import { Pt2, VarAD } from "types/ad";
 export const rectangleDifference = (
   box1: BBox.BBox,
   box2: BBox.BBox,
-  padding: VarAD
-): [Pt2, Pt2] => {
+  padding: ad.Num
+): [ad.Pt2, ad.Pt2] => {
   // Prepare coordinates
   const [xa1, xa2, ya1, ya2] = [
     BBox.minX(box1),
@@ -56,9 +58,9 @@ export const rectangleDifference = (
 /**
  * Return -1.0 for negative number, +1.0 otherwise.
  */
-const signOf = (x: VarAD): VarAD => {
-  const negative = lt(x, constOf(0.0));
-  return ifCond(negative, constOf(-1.0), constOf(1.0));
+const signOf = (x: ad.Num): ad.Num => {
+  const negative = lt(x, 0);
+  return ifCond(negative, -1, 1);
 };
 
 /**
@@ -67,9 +69,9 @@ const signOf = (x: VarAD): VarAD => {
  * @param insidePoint Any point inside of the half-plane.
  */
 export const outwardUnitNormal = (
-  lineSegment: VarAD[][],
-  insidePoint: VarAD[]
-): VarAD[] => {
+  lineSegment: ad.Num[][],
+  insidePoint: ad.Num[]
+): ad.Num[] => {
   const normal = ops.vnormalize(
     ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
   );
@@ -85,11 +87,11 @@ export const outwardUnitNormal = (
  * @param padding Padding added to the half-plane.
  */
 export const halfPlaneSDF = (
-  lineSegment: VarAD[][],
-  otherPoints: VarAD[][],
-  insidePoint: VarAD[],
-  padding: VarAD
-): VarAD => {
+  lineSegment: ad.Num[][],
+  otherPoints: ad.Num[][],
+  insidePoint: ad.Num[],
+  padding: ad.Num
+): ad.Num => {
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   const alpha = ops.vdot(normal, lineSegment[0]);
   const alphaOther = maxN(otherPoints.map((p) => ops.vdot(normal, p)));
@@ -104,17 +106,17 @@ export const halfPlaneSDF = (
  * @param padding Padding around the Minkowski sum.
  */
 const convexPolygonMinkowskiSDFOneSided = (
-  p1: VarAD[][],
-  p2: VarAD[][],
-  padding: VarAD
-): VarAD => {
-  const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
+  p1: ad.Num[][],
+  p2: ad.Num[][],
+  padding: ad.Num
+): ad.Num => {
+  const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
-  const sdfs = sides.map((s: VarAD[][]) =>
+  const sdfs = sides.map((s: ad.Num[][]) =>
     halfPlaneSDF(s, p2, center, padding)
   );
   return maxN(sdfs);
@@ -127,10 +129,10 @@ const convexPolygonMinkowskiSDFOneSided = (
  * @param padding Padding around the Minkowski sum.
  */
 export const convexPolygonMinkowskiSDF = (
-  p1: VarAD[][],
-  p2: VarAD[][],
-  padding: VarAD
-): VarAD => {
+  p1: ad.Num[][],
+  p2: ad.Num[][],
+  padding: ad.Num
+): ad.Num => {
   return max(
     convexPolygonMinkowskiSDFOneSided(p1, p2, padding),
     convexPolygonMinkowskiSDFOneSided(p2, p1, padding)
@@ -138,13 +140,56 @@ export const convexPolygonMinkowskiSDF = (
 };
 
 /**
- * Returns list of convex polygons comprising the original polygon.
- * @param p Sequence of points defining a polygon.
+ * Returns list of convex polygons comprising the original polygon. Assumes that
+ * the polygon shape remains fixed after this function is called; that is, some
+ * transformations can be applied, but vertices cannot change independently.
+ * @param p Sequence of points defining a simple polygon.
  */
-export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
-  // TODO: Add convex partitioning algorithm for polygons.
-  // See e.g.: https://doc.cgal.org/Manual/3.2/doc_html/cgal_manual/Partition_2/Chapter_main.html#Section_9.3
-  return [p];
+export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
+  if (p.length <= 3) {
+    return [p];
+  }
+
+  // HACK (see also the note in types/ad): our autodiff engine isn't powerful
+  // enough to let us run a convex partitioning algorithm inside the optimizer
+  // loop, so instead, here we compile enough of the computation graph to
+  // compute the initial positions of the polygon vertices, evaluate that using
+  // the input values embedded in the children of the `ad.Num`s we were passed,
+  // run a convex partitioning algorithm on those vertex positions, and cross
+  // our fingers that this remains a valid convex partition as we optimize
+  const g = secondaryGraph(p.flat());
+  const inputs = [];
+  for (const v of g.nodes.keys()) {
+    if (typeof v !== "number" && v.tag === "Input") {
+      inputs[v.key] = v.val;
+    }
+  }
+  const coords = genCode(g)(inputs).secondary;
+
+  // map each point back to its original VecAD object; note, this depends on the
+  // fact that two points with the same contents are considered different as
+  // keys in a JavaScript Map, very scary!
+  const pointMap = new Map(
+    p.map((point, i) => {
+      const j = 2 * i;
+      return [{ x: coords[j], y: coords[j + 1] }, point];
+    })
+  );
+
+  const contour = [...pointMap.keys()];
+  if (isClockwise(contour)) {
+    contour.reverse();
+  }
+  const convexPolygons = convexPartition(contour);
+
+  return convexPolygons.map((poly) =>
+    poly.map((point) =>
+      safe(
+        pointMap.get(point),
+        "polygon decomposition unexpectedly created a new point"
+      )
+    )
+  );
 };
 
 /**
@@ -154,12 +199,14 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
  * @param padding Padding applied to one of the polygons.
  */
 export const overlappingPolygonPoints = (
-  polygonPoints1: VarAD[][],
-  polygonPoints2: VarAD[][],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
+  polygonPoints1: ad.Num[][],
+  polygonPoints2: ad.Num[][],
+  padding: ad.Num = 0
+): ad.Num => {
   const cp1 = convexPartitions(polygonPoints1);
-  const cp2 = convexPartitions(polygonPoints2.map((p: VarAD[]) => ops.vneg(p)));
+  const cp2 = convexPartitions(
+    polygonPoints2.map((p: ad.Num[]) => ops.vneg(p))
+  );
   return maxN(
     cp1.map((p1) =>
       minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding)))
@@ -171,24 +218,21 @@ export const overlappingPolygonPoints = (
  * Returns the signed distance from a rectangle at the origin.
  */
 export const rectangleSignedDistance = (
-  bottomLeft: Pt2,
-  topRight: Pt2
-): VarAD => {
+  bottomLeft: ad.Pt2,
+  topRight: ad.Pt2
+): ad.Num => {
   // Calculate relative coordinates for rectangle signed distance
   const [xp, yp] = ops
-    .vmul(constOf(0.5), ops.vadd(bottomLeft, topRight))
+    .vmul(0.5, ops.vadd(bottomLeft, topRight))
     .map((x) => absVal(x));
-  const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(topRight, bottomLeft));
+  const [xr, yr] = ops.vmul(0.5, ops.vsub(topRight, bottomLeft));
   const [xq, yq] = ops.vsub([xp, yp], [xr, yr]);
   // Positive distance (nonzero when the rectangle does not contain the origin)
   const e1 = sqrt(
-    add(
-      squared(max(sub(xp, xr), constOf(0.0))),
-      squared(max(sub(yp, yr), constOf(0.0)))
-    )
+    add(squared(max(sub(xp, xr), 0)), squared(max(sub(yp, yr), 0)))
   );
   // Negative distance (nonzero when the rectangle does contain the origin)
-  const ne2 = min(max(xq, yq), constOf(0.0));
+  const ne2 = min(max(xq, yq), 0);
   // Return the signed distance
   return add(e1, ne2);
 };
@@ -200,17 +244,17 @@ export const rectangleSignedDistance = (
  * @param padding Padding applied to the polygon.
  */
 const containsConvexPolygonPoints = (
-  p1: VarAD[][],
-  p2: VarAD[],
-  padding: VarAD
-): VarAD => {
-  const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
+  p1: ad.Num[][],
+  p2: ad.Num[],
+  padding: ad.Num
+): ad.Num => {
+  const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
-  const sdfs = sides.map((s: VarAD[][]) =>
+  const sdfs = sides.map((s: ad.Num[][]) =>
     halfPlaneSDF(s, [ops.vneg(p2)], center, padding)
   );
   return maxN(sdfs);
@@ -223,10 +267,10 @@ const containsConvexPolygonPoints = (
  * @param padding Padding applied to the polygon.
  */
 export const containsPolygonPoints = (
-  polygonPoints: VarAD[][],
-  point: VarAD[],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
+  polygonPoints: ad.Num[][],
+  point: ad.Num[],
+  padding: ad.Num = 0
+): ad.Num => {
   const cp1 = convexPartitions(polygonPoints);
   return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
 };

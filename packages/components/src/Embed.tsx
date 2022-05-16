@@ -35,19 +35,33 @@ const Heart = () => (
     💜
   </span>
 );
-class Embed extends React.Component<ISimpleProps> {
-  public readonly simpleRef = React.createRef<Simple>();
+
+interface IEmbedState {
+  variation: string;
+}
+
+// variation from ISimpleProps is just the initial variation; the actual
+// variation is stored in state, can be changed by resampling
+class Embed extends React.Component<ISimpleProps, IEmbedState> {
+  constructor(props: ISimpleProps) {
+    super(props);
+    this.state = { variation: props.variation };
+  }
 
   resample = () => {
-    if (this.simpleRef.current) {
-      this.simpleRef.current.resampleState();
-    }
+    this.setState({ variation: Math.random().toString() });
   };
 
   render = () => {
     return (
       <div className="embed-container" style={containerStyle}>
-        <Simple {...this.props} ref={this.simpleRef} />
+        <Simple
+          domain={this.props.domain}
+          substance={this.props.substance}
+          style={this.props.style}
+          variation={this.state.variation}
+          interactive={this.props.interactive}
+        />
         <div style={{ width: "100%", height: "100%" }} />
         <div className="embed-footer" style={footerStyle}>
           <a href="https://penrose.ink">

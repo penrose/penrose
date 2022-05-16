@@ -1,14 +1,9 @@
 // Must be run from penrose-web for loading files
 
+import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
-import {
-  compileSubstance,
-  disambiguateFunctions,
-  parseSubstance,
-} from "compiler/Substance";
-import * as fs from "fs";
+import { compileSubstance, parseSubstance } from "compiler/Substance";
 import _ from "lodash";
-import * as path from "path";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
@@ -22,8 +17,9 @@ import { compileDomain } from "./Domain";
 
 // Load file in format "domain-dir/file.extension"
 const loadFile = (examplePath: string): string => {
-  const file = path.join("../../examples/", examplePath);
-  const prog = fs.readFileSync(file, "utf8");
+  // a bit hacky, only works with 2-part paths
+  const [part0, part1] = examplePath.split("/");
+  const prog = examples[part0][part1];
   return prog;
 };
 
@@ -33,7 +29,6 @@ const loadFiles = (paths: string[]): string[] => {
 
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
 // files must follow schema: { domain, substance, style }
-// Disambiguates functions as well
 export const loadProgs = ([domainStr, subStr, styStr]: [
   string,
   string,
@@ -59,7 +54,6 @@ export const loadProgs = ([domainStr, subStr, styStr]: [
     styProg,
   ];
 
-  disambiguateFunctions(varEnv, subProg);
   return res;
 };
 
@@ -380,7 +374,7 @@ describe("Compiler", () => {
 
   describe("Expected Style errors", () => {
     const subProg = loadFile("set-theory-domain/twosets-simple.sub");
-    const domainProg = loadFile("set-theory-domain/setTheory.dsl");
+    const domainProg = loadFile("set-theory-domain/functions.dsl");
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.sty";
 

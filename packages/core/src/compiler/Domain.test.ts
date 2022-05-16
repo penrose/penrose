@@ -1,3 +1,4 @@
+import { examples } from "@penrose/examples";
 import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
 import * as nearley from "nearley";
@@ -26,10 +27,10 @@ const contextHas = (
   if (res.isOk()) {
     const { types, typeVars, constructors, functions, predicates } = res.value;
     expect(typeVars.size).toBe(0);
-    expectedTypes.map((t) => expect(types.has(t)).toBe(true));
-    expectedConstructors.map((c) => expect(constructors.has(c)).toBe(true));
-    expectedFunctions.map((f) => expect(functions.has(f)).toBe(true));
-    expectedPredicates.map((p) => expect(predicates.has(p)).toBe(true));
+    expectedTypes.forEach((t) => expect(types.has(t)).toBe(true));
+    expectedConstructors.forEach((c) => expect(constructors.has(c)).toBe(true));
+    expectedFunctions.forEach((f) => expect(functions.has(f)).toBe(true));
+    expectedPredicates.forEach((p) => expect(predicates.has(p)).toBe(true));
   } else {
     fail(showError(res.error));
   }
@@ -182,13 +183,13 @@ constructor Cons ['X] ('X head, List('X) tail) -> List('X)
   type Set
   Prop <: Set
     `;
-    expectErrorOf(prog, "NotTypeConsInSubtype");
+    expectErrorOf(prog, "ParseError");
   });
   test("type var in subtyping relation", () => {
     const prog = `
   'T <: 'V
     `;
-    expectErrorOf(prog, "NotTypeConsInSubtype");
+    expectErrorOf(prog, "ParseError");
   });
   test("subtype cycle", () => {
     const prog = `
@@ -215,8 +216,9 @@ describe("Real Programs", () => {
   }
 
   domainPaths.map((examplePath) => {
-    const file = path.join("../../examples/", examplePath);
-    const prog = fs.readFileSync(file, "utf8");
+    // a bit hacky, only works with 2-part paths
+    const [part0, part1] = examplePath.split("/");
+    const prog = examples[part0][part1];
     test(examplePath, () => {
       const res = compileDomain(prog);
       expect(res.isOk()).toBe(true);

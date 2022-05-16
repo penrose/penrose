@@ -10,7 +10,7 @@ import {
   prettySubstance,
 } from "./compiler/Substance";
 import { evalShapes } from "./engine/Evaluator";
-import { genFns, genOptProblem, initializeMat, step } from "./engine/Optimizer";
+import { genFns, genOptProblem, step } from "./engine/Optimizer";
 import { insertPending } from "./engine/PropagateUpdate";
 import {
   PathResolver,
@@ -26,7 +26,7 @@ import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
-import { Fn, LabelCache, State } from "./types/state";
+import { Fn, FnEvaled, LabelCache, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
 import { FieldDict, Translation } from "./types/value";
 import { collectLabels } from "./utils/CollectLabels";
@@ -150,7 +150,7 @@ export const interactiveDiagram = async (
       updateData,
       pathResolver
     );
-    node.replaceChild(rendering, node.firstChild as Node);
+    node.replaceChild(rendering, node.firstChild!);
   };
   const res = compileTrio(prog);
   if (res.isOk()) {
@@ -203,8 +203,6 @@ export const compileTrio = (prog: {
  */
 export const prepareState = async (state: State): Promise<State> => {
   const rng = seedrandom(state.seeds.prepare);
-
-  await initializeMat();
 
   // TODO: errors
   const stateAD = {
@@ -283,14 +281,14 @@ export const readRegistry = (registry: Registry): Trio[] => {
 };
 
 /**
- * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objective` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
+ * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objectiveAndGradient` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
  * @param s a state with or without an optimization problem initialized
  * @returns a scalar value of the current energy
  */
 export const evalEnergy = (s: State): number => {
-  const { objective, weight } = s.params;
+  const { objectiveAndGradient, weight } = s.params;
   // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
-  if (!objective) {
+  if (!objectiveAndGradient) {
     log.debug(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
     );
@@ -298,15 +296,9 @@ export const evalEnergy = (s: State): number => {
     // TODO: caching
     return evalEnergy(newState);
   }
-  return objective(weight)(s.varyingValues);
+  // TODO: maybe don't also compute the gradient, just to throw it away
+  return objectiveAndGradient(weight)(s.varyingValues).f;
 };
-
-export type FnEvaled = IFnEvaled;
-
-export interface IFnEvaled {
-  f: number;
-  gradf: number[];
-}
 
 /**
  * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. If the `State` doesn't have the constraints/objectives compiled, it will generate them first. Otherwise, it will evaluate the cached functions.
@@ -340,10 +332,7 @@ export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
       );
     }
     const cachedFnInfo = fnsCached[fnStr];
-    return {
-      f: cachedFnInfo.f(xs),
-      gradf: cachedFnInfo.gradf(xs),
-    };
+    return cachedFnInfo(xs);
   });
 };
 
@@ -353,6 +342,7 @@ export type PenroseFn = Fn;
 export { constrDict } from "./contrib/Constraints";
 export { compDict } from "./contrib/Functions";
 export { objDict } from "./contrib/Objectives";
+export { secondaryGraph } from "./engine/Autodiff";
 export type { PathResolver } from "./renderer/Renderer";
 export { makeCanvas } from "./shapes/Samplers";
 export { shapedefs } from "./shapes/Shapes";
@@ -378,7 +368,6 @@ export {
   RenderStatic,
   bBoxDims,
   prettySubstance,
-  initializeMat,
   showError,
   prettyPrintFn,
   prettyPrintPath,
@@ -388,6 +377,7 @@ export {
   toSvgPaintProperty,
   variationSeeds,
 };
+export type { FnEvaled };
 export type { Registry, Trio };
 export type { Env };
 export type { SubProg };

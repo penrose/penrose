@@ -1,0 +1,3 @@
+
+type Maze
+type Triangle

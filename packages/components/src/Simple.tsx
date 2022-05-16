@@ -1,94 +1,144 @@
 import {
   compileTrio,
+  PenroseError,
   PenroseState,
   prepareState,
   RenderInteractive,
+  RenderStatic,
   resample,
   showError,
+  stateConverged,
+  stepState,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
 import React from "react";
 import fetchResolver from "./fetchPathResolver";
 
 export interface ISimpleProps {
-  domainString: string;
-  substanceString: string;
-  styleString: string;
+  domain: string;
+  substance: string;
+  style: string;
   variation: string;
-  initState?: PenroseState;
+  interactive?: boolean; // considered true by default
+  animate?: boolean; // considered false by default
 }
 
-interface ISimpleState {
-  state?: PenroseState;
+export interface ISimpleState {
+  error?: PenroseError;
 }
 
 class Simple extends React.Component<ISimpleProps, ISimpleState> {
-  public readonly canvasRef = React.createRef<HTMLDivElement>();
+  readonly canvasRef = React.createRef<HTMLDivElement>();
+  penroseState: PenroseState | undefined = undefined;
+  timerID: number | undefined = undefined; // for animation
+
   constructor(props: ISimpleProps) {
     super(props);
-    this.state = { state: undefined };
+    this.state = {
+      error: undefined,
+    };
   }
-  getInitState = async (
-    dsl: string,
-    sub: string,
-    sty: string,
-    variation: string
-  ): Promise<PenroseState | undefined> => {
-    const compilerResult = compileTrio({
-      substance: sub,
-      style: sty,
-      domain: dsl,
-      variation,
-    });
+
+  compile = async (): Promise<void> => {
+    this.penroseState = undefined;
+    const compilerResult = compileTrio(this.props);
     if (compilerResult.isOk()) {
       // resample because initial sampling did not use the special sampling seed
-      const initState: PenroseState = resample(
-        await prepareState(compilerResult.value)
-      );
-      const stepped = stepUntilConvergence(initState);
-      if (stepped.isOk()) {
-        return stepped.value;
-      } else {
-        console.log(showError(stepped.error));
-      }
+      this.penroseState = resample(await prepareState(compilerResult.value));
     } else {
-      console.log(showError(compilerResult.error));
+      this.setState({ error: compilerResult.error });
     }
   };
-  componentDidMount = async () => {
-    const {
-      substanceString,
-      styleString,
-      domainString,
-      variation,
-    } = this.props;
-    const state: PenroseState | undefined = await this.getInitState(
-      domainString,
-      substanceString,
-      styleString,
-      variation
-    );
-    this.setState({ state });
-    this.renderCanvas(state);
+
+  converge = async (): Promise<void> => {
+    if (this.penroseState) {
+      const stepped = stepUntilConvergence(this.penroseState);
+      if (stepped.isOk()) {
+        this.penroseState = stepped.value;
+      } else {
+        this.setState({ error: stepped.error });
+      }
+    }
   };
 
-  renderCanvas = async (state: PenroseState | undefined) => {
+  tick = () => {
+    if (
+      this.props.animate &&
+      this.penroseState &&
+      !stateConverged(this.penroseState)
+    ) {
+      this.penroseState = stepState(this.penroseState, 1);
+      this.renderCanvas();
+    }
+  };
+
+  componentDidMount = async () => {
+    await this.compile();
+    if (!this.props.animate) {
+      await this.converge();
+    }
+    this.renderCanvas();
+    this.timerID = window.setInterval(() => this.tick(), 1000 / 60);
+  };
+
+  componentDidUpdate = async (prevProps: ISimpleProps) => {
+    // re-compile if the programs change
+    if (
+      this.props.domain !== prevProps.domain ||
+      this.props.substance !== prevProps.substance ||
+      this.props.style !== prevProps.style
+    ) {
+      await this.compile();
+      if (!this.props.animate) {
+        await this.converge();
+      }
+      this.renderCanvas();
+    }
+
+    // update the component only if there's no error
+    // in the case of an error, they component should not attempt to re-render
+    if (this.penroseState && !this.state.error) {
+      if (
+        this.props.variation !== prevProps.variation ||
+        this.props.animate !== prevProps.animate
+      ) {
+        this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
+        this.penroseState = resample(this.penroseState);
+        if (!this.props.animate) {
+          await this.converge();
+        }
+        this.renderCanvas();
+      } else if (this.props.interactive !== prevProps.interactive) {
+        this.renderCanvas();
+      }
+    }
+  };
+
+  componentWillUnmount = () => {
+    clearInterval(this.timerID);
+  };
+
+  renderCanvas = async () => {
     if (this.canvasRef.current === null) {
       return <div>rendering...</div>;
     } else {
       const node = this.canvasRef.current;
-      if (state) {
-        // if (!stateConverged(state)) {
-        const newState = stepUntilConvergence(state).unsafelyUnwrap();
-        this.setState({
-          state: newState,
-        });
-        // }
-        const renderedState: SVGSVGElement = await RenderInteractive(
-          newState,
-          this.updateState,
-          fetchResolver
-        );
+      if (this.penroseState) {
+        const renderedState: SVGSVGElement = await (this.props.interactive ===
+        false
+          ? RenderStatic(this.penroseState, fetchResolver)
+          : RenderInteractive(
+              this.penroseState,
+              async (newState) => {
+                this.penroseState = newState;
+                if (!this.props.animate) {
+                  await this.converge();
+                }
+                this.renderCanvas();
+              },
+              fetchResolver
+            ));
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);
         } else {
@@ -100,25 +150,29 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
     }
   };
 
-  updateState = (state: PenroseState): void => {
-    this.setState({ state });
-    this.renderCanvas(state);
-  };
-
-  resampleState = (): void => {
-    const { state: oldState } = this.state;
-    if (oldState) {
-      const resampled = resample(oldState);
-      const converged = stepUntilConvergence(resampled);
-      const newState = converged.unsafelyUnwrap();
-      this.setState({ state: newState });
-      this.renderCanvas(newState);
-    }
-  };
-
   render = () => {
+    const { error } = this.state;
     return (
-      <div style={{ width: "100%", height: "100%" }} ref={this.canvasRef} />
+      <div style={{ width: "100%", height: "100%" }}>
+        {!error && (
+          <div style={{ width: "100%", height: "100%" }} ref={this.canvasRef} />
+        )}
+        {error && (
+          <div style={{ padding: "1em", height: "100%" }}>
+            <div style={{ fontWeight: 700 }}>1 error:</div>
+            <div style={{ fontFamily: "monospace" }}>
+              {showError(error)
+                .toString()
+                .split("\n")
+                .map((line: string, key: number) => (
+                  <p key={`err-ln-${key}`} style={{ margin: 0 }}>
+                    {line}
+                  </p>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 }

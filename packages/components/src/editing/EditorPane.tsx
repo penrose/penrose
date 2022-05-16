@@ -1,6 +1,6 @@
-import MonacoEditor, { useMonaco, Monaco } from "@monaco-editor/react";
-import { initVimMode } from "monaco-vim";
+import MonacoEditor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
+import { initVimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
 
 const monacoOptions: editor.IEditorConstructionOptions = {

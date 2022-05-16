@@ -6,7 +6,7 @@ import {
   repelPoint,
   sampleSeg,
 } from "contrib/Utils";
-import { constOf, constOfIf, ops, varOf } from "engine/Autodiff";
+import { ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -22,49 +22,49 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import { shapedefs } from "shapes/Shapes";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { linePts } from "utils/Util";
 
 // -------- Simple objective functions
-// Do not require shape quaries, operate directly with `VarAD` parameters.
+// Do not require shape quaries, operate directly with `ad.Num` parameters.
 export const objDictSimple = {
   /**
    * Encourage the input value to be close to negative infinity
    */
-  minimal: (x: VarAD) => x,
+  minimal: (x: ad.Num): ad.Num => x,
 
   /**
    * Encourage the input value to be close to infinity
    */
-  maximal: (x: VarAD) => neg(x),
+  maximal: (x: ad.Num): ad.Num => neg(x),
 
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
-  equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+  equal: (x: ad.Num, y: ad.Num): ad.Num => squared(sub(x, y)),
 
   /**
    * Encourage x to be greater than or equal to y: `max(0,y - x)^2`
    */
-  greaterThan: (x: VarAD, y: VarAD) => squared(max(constOf(0), sub(y, x))),
+  greaterThan: (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(y, x))),
 
   /**
    * Encourage x to be less than or equal to y: `max(0,x - y)^2`
    */
-  lessThan: (x: VarAD, y: VarAD) => squared(max(constOf(0), sub(x, y))),
+  lessThan: (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(x, y))),
 
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
-  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) =>
+  repelPt: (weight: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
     mul(weight, inverse(ops.vdistsq(a, b))),
 
   /**
    * Repel scalar `c` from another scalar `d`.
    */
-  repelScalar: (c: number | VarAD, d: number | VarAD) => {
+  repelScalar: (c: ad.Num, d: ad.Num): ad.Num => {
     // 1/(c-d)^2
-    return inverse(squared(sub(constOfIf(c), constOfIf(d))));
+    return inverse(squared(sub(c, d)));
   },
 };
 
@@ -79,13 +79,8 @@ export const objDictGeneral = {
     [tBottom, sBottom]: [string, any],
     [tTop, sTop]: [string, any],
     offset = 100
-  ) => {
-    return inDirection(
-      [tBottom, sBottom],
-      [tTop, sTop],
-      [constOf(0.0), constOf(1.0)],
-      constOfIf(offset)
-    );
+  ): ad.Num => {
+    return inDirection([tBottom, sBottom], [tTop, sTop], [0, 1], offset);
   },
 
   /**
@@ -95,13 +90,8 @@ export const objDictGeneral = {
     [tTop, sTop]: [string, any],
     [tBottom, sBottom]: [string, any],
     offset = 100
-  ) => {
-    return inDirection(
-      [tTop, sTop],
-      [tBottom, sBottom],
-      [constOf(0.0), constOf(1.0)],
-      constOfIf(offset)
-    );
+  ): ad.Num => {
+    return inDirection([tTop, sTop], [tBottom, sBottom], [0, 1], offset);
   },
 
   /**
@@ -111,13 +101,8 @@ export const objDictGeneral = {
     [tLeft, sLeft]: [string, any],
     [tRight, sRight]: [string, any],
     offset = 100
-  ) => {
-    return inDirection(
-      [tLeft, sLeft],
-      [tRight, sRight],
-      [constOf(1.0), constOf(0.0)],
-      constOfIf(offset)
-    );
+  ): ad.Num => {
+    return inDirection([tLeft, sLeft], [tRight, sRight], [1, 0], offset);
   },
 
   /**
@@ -127,19 +112,14 @@ export const objDictGeneral = {
     [tRight, sRight]: [string, any],
     [tLeft, sLeft]: [string, any],
     offset = 100
-  ) => {
-    return inDirection(
-      [tRight, sRight],
-      [tLeft, sLeft],
-      [constOf(1.0), constOf(0.0)],
-      constOfIf(offset)
-    );
+  ): ad.Num => {
+    return inDirection([tRight, sRight], [tLeft, sLeft], [1, 0], offset);
   },
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`.
    */
-  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]): ad.Num => {
     const center1 = shapeCenter([t1, s1]);
     const center2 = shapeCenter([t2, s2]);
     return ops.vdistsq(center1, center2);
@@ -148,7 +128,11 @@ export const objDictGeneral = {
   /**
    * Try to repel shapes `s1` and `s2` with some weight.
    */
-  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
+  repel: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    weight = 10.0
+  ): ad.Num => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
     // TODO: find this out programmatically
     const repelWeight = 10e6;
@@ -161,33 +145,37 @@ export const objDictGeneral = {
       const c2 = shapeCenter([t2, s2]);
       const lineSamplePts = sampleSeg(linePts(line));
       const allForces = addN(
-        lineSamplePts.map((p) => repelPoint(constOfIf(weight), c2, p))
+        lineSamplePts.map((p) => repelPoint(weight, c2, p))
       );
-      res = mul(constOfIf(weight), allForces);
+      res = mul(weight, allForces);
     } else {
       // Repel any two shapes with a center.
       // 1 / (d^2(cx, cy) + eps)
       res = inverse(ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])));
     }
 
-    return mul(res, constOf(repelWeight));
+    return mul(res, repelWeight);
   },
 
   /**
    * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
    */
-  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
+  near: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    offset = 10.0
+  ): ad.Num => {
     const res = absVal(
       ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2]))
     );
-    return sub(res, squared(constOfIf(offset)));
+    return sub(res, squared(offset));
   },
 
   /**
    * Try to place shape `s1` near a location `(x, y)`.
    */
-  nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
-    return ops.vdistsq(shapeCenter([t1, s1]), [constOfIf(x), constOfIf(y)]);
+  nearPt: ([t1, s1]: [string, any], x: any, y: any): ad.Num => {
+    return ops.vdistsq(shapeCenter([t1, s1]), [x, y]);
   },
 
   /**
@@ -200,7 +188,7 @@ export const objDictGeneral = {
     [t2, p2]: [string, any],
     strength = 20,
     range = 10
-  ) => {
+  ): ad.Num => {
     const c0 = shapeCenter([t0, p0]);
     const c1 = shapeCenter([t1, p1]);
     const c2 = shapeCenter([t2, p2]);
@@ -210,9 +198,9 @@ export const objDictGeneral = {
     const cosine = absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2)));
     // angles that are more than `range` deg from 0 or 180 do not need to be pushed
     return ifCond(
-      lt(cosine, varOf(range * (Math.PI / 180))),
-      constOf(0.0),
-      mul(constOfIf(strength), cosine)
+      lt(cosine, range * (Math.PI / 180)),
+      0,
+      mul(strength, cosine)
     );
   },
 };
@@ -227,8 +215,8 @@ export const objDictSpecific = {
     [t1, arr]: [string, any],
     [t2, s2]: [string, any],
     [t3, s3]: [string, any]
-  ): VarAD => {
-    const spacing = constOf(1.1); // arbitrary
+  ): ad.Num => {
+    const spacing = 1.1; // arbitrary
 
     if (
       shapedefs[t1].isLinelike &&
@@ -250,25 +238,19 @@ export const objDictSpecific = {
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     w: number
-  ): VarAD => {
+  ): ad.Num => {
     if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike) {
       const [arr, text] = [s1, s2];
-      const mx = div(
-        add(arr.start.contents[0], arr.end.contents[0]),
-        constOf(2.0)
-      );
-      const my = div(
-        add(arr.start.contents[1], arr.end.contents[1]),
-        constOf(2.0)
-      );
+      const mx = div(add(arr.start.contents[0], arr.end.contents[0]), 2);
+      const my = div(add(arr.start.contents[1], arr.end.contents[1]), 2);
 
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
       const textBB = bboxFromShape([t2, text]);
       const lh = squared(sub(mx, textBB.center[0]));
       const rh = squared(
-        sub(add(my, mul(textBB.height, constOf(1.1))), textBB.center[1])
+        sub(add(my, mul(textBB.height, 1.1)), textBB.center[1])
       );
-      return mul(add(lh, rh), constOfIf(w));
+      return mul(add(lh, rh), w);
     } else throw Error("unsupported shapes");
   },
 
@@ -280,19 +262,16 @@ export const objDictSpecific = {
     [t2, s2]: [string, any],
     w: number,
     padding = 10
-  ): VarAD => {
+  ): ad.Num => {
     if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike) {
       // The distance between the midpoint of the arrow and the center of the text should be approx. the label's "radius" plus some padding
       const [arr, text] = [s1, s2];
-      const midpt = ops.vdiv(
-        ops.vadd(arr.start.contents, arr.end.contents),
-        constOf(2.0)
-      );
+      const midpt = ops.vdiv(ops.vadd(arr.start.contents, arr.end.contents), 2);
       const textBB = bboxFromShape([t2, text]);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
         sub(ops.vdistsq(midpt, textBB.center), squared(textBB.width)),
-        squared(constOfIf(padding))
+        squared(padding)
       );
     } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
       // Try to center label in the rectangle
@@ -304,7 +283,11 @@ export const objDictSpecific = {
   /**
    * try to make distance between a point and a segment `s1` = padding.
    */
-  pointLineDist: (point: VarAD[], [t1, s1]: [string, any], padding: VarAD) => {
+  pointLineDist: (
+    point: ad.Num[],
+    [t1, s1]: [string, any],
+    padding: ad.Num
+  ): ad.Num => {
     if (!shapedefs[t1].isLinelike) {
       throw new Error(`pointLineDist: expected a point and a line, got ${t1}`);
     }
@@ -321,7 +304,7 @@ export const objDictSpecific = {
 };
 
 export const objDict = {
-  ...objDictSimple, // Do not require shape quaries, operate directly with `VarAD` parameters.
+  ...objDictSimple, // Do not require shape quaries, operate directly with `ad.Num` parameters.
   ...objDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
   ...objDictSpecific, // Defined only for specific use-case or specific shapes.
 };
