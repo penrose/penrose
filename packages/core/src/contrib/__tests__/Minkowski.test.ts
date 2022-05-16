@@ -126,7 +126,6 @@ describe("outwardUnitNormal", () => {
 });
 
 describe("halfPlaneSDF", () => {
-
   test("without padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
     expect(numOf(result)).toBeCloseTo(-3, digitPrecision);
