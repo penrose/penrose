@@ -197,8 +197,8 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
 
 /**
  * Overlapping constraint function for polygon points with padding `padding`.
- * @param polygonPoints1 Sequence of points defining a polygon.
- * @param polygonPoints2 Sequence of points defining a polygon.
+ * @param polygonPoints1 Sequence of points defining the first polygon.
+ * @param polygonPoints2 Sequence of points defining the second polygon.
  * @param padding Padding applied to one of the polygons.
  */
 export const overlappingPolygonPoints = (
@@ -278,6 +278,10 @@ export const containsPolygonPoints = (
   return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
 };
 
+/**
+ * Parameters of implicitly defined ellipse:
+ * `a * (X - x)^2 + b * (Y - y)^2 = c`
+ */
 interface ImplicitEllipse {
   a: ad.Num;
   b: ad.Num;
@@ -286,12 +290,22 @@ interface ImplicitEllipse {
   y: ad.Num;
 }
 
+/**
+ * Parameters of implicitly defined half-plane:
+ * `a * X + b * Y <= c`
+ */
 interface ImplicitHalfPlane {
   a: ad.Num;
   b: ad.Num;
   c: ad.Num;
 }
 
+/**
+ * Evaluate the implicit function for an ellipse at point with coordinates `x` and `y`.
+ * @param ei Implicit ellipse parameters.
+ * @param x X-coordinate.
+ * @param y Y-coordinate.
+ */
 const implicitEllipseFunc = (
   ei: ImplicitEllipse,
   x: ad.Num,
@@ -303,6 +317,12 @@ const implicitEllipseFunc = (
   );
 };
 
+/**
+ * Evaluate the implicit function for an half-plane at point with coordinates `x` and `y`.
+ * @param hpi Implicit half-plane parameters.
+ * @param x X-coordinate.
+ * @param y Y-coordinate.
+ */
 const implicitHalfPlaneFunc = (
   hpi: ImplicitHalfPlane,
   x: ad.Num,
@@ -311,6 +331,12 @@ const implicitHalfPlaneFunc = (
   return sub(add(mul(hpi.a, x), mul(hpi.b, y)), hpi.c);
 };
 
+/**
+ * Return implicit half-plane parameters given a line and a point inside the half-plane.
+ * @param lineSegment Two points defining the line segment.
+ * @param insidePoint Any point inside of the half-plane.
+ * @param padding Padding around the Half-plane.
+ */
 const halfPlaneToImplicit = (
   lineSegment: ad.Num[][],
   insidePoint: ad.Num[],
@@ -320,10 +346,14 @@ const halfPlaneToImplicit = (
   return {
     a: normal[0],
     b: normal[1],
-    c: sub(ops.vdot(normal, lineSegment[0]), padding), // ±padding?
+    c: sub(ops.vdot(normal, lineSegment[0]), padding),
   };
 };
 
+/**
+ * Return implicit ellipse parameters from an explicit representation.
+ * @param ellipse Explicit ellipse shape.
+ */
 const ellipseToImplicit = (ellipse: Ellipse): ImplicitEllipse => {
   const rx = ellipse.rx.contents;
   const ry = ellipse.ry.contents;
@@ -336,7 +366,13 @@ const ellipseToImplicit = (ellipse: Ellipse): ImplicitEllipse => {
   };
 };
 
-const pointCandidate = (
+/**
+ * Return candidates for extremal points of the implicit functions.
+ * @param ei Implicit ellipse parameters.
+ * @param hpi Implicit half-plane parameters.
+ * @param lambda Solution to the quadratic formula.
+ */
+const pointCandidates = (
   ei: ImplicitEllipse,
   hpi: ImplicitHalfPlane,
   lambda: ad.Num
@@ -348,6 +384,13 @@ const pointCandidate = (
   ];
 };
 
+/**
+ * Helper for Signed Distance Function (SFD) of a polygon and ellipse.
+ * @param lineSegment Two points defining the line segment.
+ * @param ellipse Ellipse shape.
+ * @param insidePoint Any point inside of the half-plane.
+ * @param padding Padding around the Minkowski sum.
+ */
 export const halfPlaneEllipseSDF = (
   lineSegment: ad.Num[][],
   ellipse: Ellipse,
@@ -364,10 +407,8 @@ export const halfPlaneEllipseSDF = (
     )
   );
   const ed = sqrt(div(e, add(1, e)));
-  const lambda1 = add(1, ed);
-  const lambda2 = sub(1, ed);
-  const point1 = pointCandidate(ei, hpi, lambda1);
-  const point2 = pointCandidate(ei, hpi, lambda2);
+  const point1 = pointCandidates(ei, hpi, add(1, ed));
+  const point2 = pointCandidates(ei, hpi, sub(1, ed));
   const m1 = min(
     implicitHalfPlaneFunc(hpi, point1[0], point1[1]),
     implicitHalfPlaneFunc(hpi, point2[0], point2[1])
@@ -379,6 +420,12 @@ export const halfPlaneEllipseSDF = (
   return min(m1, m2);
 };
 
+/**
+ * Overlapping constraint function for polygon points and ellipse with padding `padding`.
+ * @param polygonPoints Sequence of points defining a polygon.
+ * @param ellipse Ellipse shape.
+ * @param padding Padding around the Minkowski sum.
+ */
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: ad.Num[][],
   ellipse: Ellipse,
