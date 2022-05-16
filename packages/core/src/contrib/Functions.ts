@@ -1470,6 +1470,48 @@ export const compDict = {
     const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
     return { tag: "VectorV", contents: [X, Y] };
   },
+
+  distanceShapeToPoint: (
+    _context: Context,
+    [t, s]: [string, any],
+    p: ad.Num[]
+  ): IFloatV<ad.Num> => {
+    // https://iquilezles.org/articles/distfunctions2d/
+    //
+    // axis-aligned rectangle:
+    // float sdBox( in vec2 p, in vec2 b )
+    // {
+    //   vec2 d = abs(p)-b;
+    //   return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    // }
+    if (t === "Rectangle") {
+      const absp = ops.vabs(ops.vsub(p, s.center.contents));
+      const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
+      const d = ops.vsub(absp, b);
+      const result = add(
+        ops.vnorm(ops.vmax(d, [0.0, 0.0])),
+        min(max(d[0], d[1]), 0.0)
+      );
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    }
+    // float sdCircle( vec2 p, float r )
+    // {
+    //   return length(p) - r;
+    // }
+    else if (t === "Circle") {
+      const pOffset = ops.vsub(p, s.center.contents);
+      const result = sub(ops.vnorm(pOffset), s.radius.contents);
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    } else {
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+    }
+  },
 };
 
 // _compDictVals causes TypeScript to enforce that every function in compDict

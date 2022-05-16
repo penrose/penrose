@@ -7,6 +7,7 @@ import { WeightInfo } from "types/state";
 import { Multidigraph } from "utils/Graph";
 import { safe, zip2 } from "utils/Util";
 import {
+  absVal,
   acos,
   add,
   addN,
@@ -674,6 +675,24 @@ export const ops = {
    */
   vmul: (c: ad.Num, v: ad.Num[]): ad.Num[] => {
     return v.map((e) => mul(c, e));
+  },
+
+  /**
+   * Return the absolute value of the vector `v`
+   */
+  vabs: (v: ad.Num[]): ad.Num[] => {
+    return v.map((e) => absVal(e));
+  },
+
+  /**
+   * Return the maximum value of each component of the vectors `v1` and `v2`
+   */
+  vmax: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    const vresult = [];
+    for (let i = 0; i < v1.length; i++) {
+      vresult[i] = max(v1[i], v2[i]);
+    }
+    return vresult;
   },
 
   /**
