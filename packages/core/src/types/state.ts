@@ -6,6 +6,8 @@ import { Shape } from "./shape";
 import { Expr, Path } from "./style";
 import { ArgVal, FloatV, Translation } from "./value";
 
+export type ShapeFn = (xs: number[]) => Shape[];
+
 /**
  * The diagram state modeling the original Haskell types
  */
@@ -26,6 +28,7 @@ export interface State {
   shapes: Shape[];
   varyingMap: VaryMap;
   canvas: Canvas;
+  computeShapes: ShapeFn;
 }
 
 // Some compDict functions (currently only sampleColor) need a prng, so we need

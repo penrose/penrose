@@ -9,9 +9,9 @@ import {
   ops,
 } from "engine/Autodiff";
 import {
+  compileCompGraph,
   defaultLbfgsParams,
   initConstraintWeight,
-  shapeAutodiffToNumber,
 } from "engine/EngineUtils";
 import {
   argValue,
@@ -351,7 +351,7 @@ export const step = (
     newState.varyingValues = varyingValues;
     newState = {
       ...newState,
-      shapes: shapeAutodiffToNumber(evalShapes(rng, newState)),
+      shapes: state.computeShapes(xs),
     };
   }
 
@@ -947,6 +947,10 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     };
   };
 
+  // generate evaluation function
+  const varyingVars = makeADInputVars(state.varyingValues);
+  const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
+
   const newParams: Params = {
     ...state.params,
     xsVars,
@@ -971,7 +975,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     lbfgsInfo: defaultLbfgsParams,
   };
 
-  return { ...state, params: newParams };
+  return { ...state, computeShapes, params: newParams };
 };
 
 const containsNaN = (numberList: number[]): boolean => {

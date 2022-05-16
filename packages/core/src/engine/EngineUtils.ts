@@ -15,7 +15,7 @@ import {
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
-import { LbfgsParams } from "types/state";
+import { LbfgsParams, ShapeFn } from "types/state";
 import { AnnoFloat, Expr, Path, PropertyDecl, Vector } from "types/style";
 import {
   Color,
@@ -250,26 +250,32 @@ const numOf = (x: ad.Num): number => {
   }
 };
 
-export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] => {
+export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
   const vars = [];
   for (const s of shapes) {
     for (const v of Object.values(s.properties)) {
       vars.push(...valueADNums(v));
     }
   }
-  const g = secondaryGraph(vars);
-  const numbers = genCode(g)([]).secondary;
-  const m = new Map(g.secondary.map((id, i) => [id, numbers[i]]));
-  return shapes.map((s: ShapeAD) => ({
-    ...s,
-    properties: mapValues(s.properties, (p: Value<ad.Num>) =>
-      mapValueNumeric(
-        (x) =>
-          safe(m.get(safe(g.nodes.get(x), "missing node")), "missing output"),
-        p
-      )
-    ),
-  }));
+  const compGraph: ad.Graph = secondaryGraph(vars);
+  const evalFn: ad.Compiled = genCode(compGraph);
+  return (xs: number[]): Shape[] => {
+    const numbers = evalFn(xs).secondary;
+    const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
+    return shapes.map((s: ShapeAD) => ({
+      ...s,
+      properties: mapValues(s.properties, (p: Value<ad.Num>) =>
+        mapValueNumeric(
+          (x) =>
+            safe(
+              m.get(safe(compGraph.nodes.get(x), "missing node")),
+              "missing output"
+            ),
+          p
+        )
+      ),
+    }));
+  };
 };
 
 const valueADNums = (v: Value<ad.Num>): ad.Num[] => {

@@ -1,5 +1,5 @@
 import consola, { LogLevel } from "consola";
-import { shapeAutodiffToNumber } from "engine/EngineUtils";
+import { compileCompGraph } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -9,6 +9,7 @@ import {
   parseSubstance,
   prettySubstance,
 } from "./compiler/Substance";
+import { makeADInputVars } from "./engine/Autodiff";
 import { evalShapes } from "./engine/Evaluator";
 import { genOptProblem, step } from "./engine/Optimizer";
 import { insertPending } from "./engine/PropagateUpdate";
@@ -205,11 +206,16 @@ export const compileTrio = (prog: {
 export const prepareState = async (state: State): Promise<State> => {
   const rng = seedrandom(state.seeds.prepare);
 
+  // generate evaluation function
+  const varyingVars = makeADInputVars(state.varyingValues);
+  const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
+
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = {
     ...state,
-    shapes: shapeAutodiffToNumber(evalShapes(rng, state)),
+    computeShapes,
+    shapes: computeShapes(state.varyingValues),
   };
 
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(

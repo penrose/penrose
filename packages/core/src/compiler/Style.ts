@@ -3235,6 +3235,7 @@ const genState = (
     varyingMap: new Map(), // TODO: Should this be empty?
 
     canvas,
+    computeShapes: (undefined as unknown) as any,
   };
 
   return ok(initState);
