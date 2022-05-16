@@ -15,7 +15,6 @@ import {
 } from "engine/EngineUtils";
 import {
   argValue,
-  evalFn,
   evalFns,
   evalShapes,
   genPathMap,
@@ -28,7 +27,6 @@ import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { A } from "types/ast";
 import {
-  Fn,
   FnCached,
   FnDone,
   LbfgsParams,
@@ -974,30 +972,6 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   };
 
   return { ...state, params: newParams };
-};
-
-// Eval a single function on the state (using `ad.Num`s). Based off of `evalEnergyOfCustom` -- see that function for comments.
-const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
-  const dict = fn.optType === "ObjFn" ? objDict : constrDict;
-
-  return (...xsVars: ad.Input[]): ad.Num => {
-    const { varyingPaths } = s;
-
-    const varyingMapList = zip2(varyingPaths, xsVars);
-    const translation = insertVaryings(clone(s.translation), varyingMapList);
-    const varyingMap: VaryMap<ad.Num> = genPathMap(varyingPaths, xsVars);
-
-    // NOTE: This will mutate the var inputs
-    const fnArgsEvaled: FnDone<ad.Num> = evalFn(
-      rng,
-      fn,
-      translation,
-      varyingMap
-    );
-    const fnEnergy: ad.Num = applyFn(fnArgsEvaled, dict);
-
-    return fnEnergy;
-  };
 };
 
 const containsNaN = (numberList: number[]): boolean => {
