@@ -802,7 +802,9 @@ export const resolvePath = (
 };
 
 // HACK: remove the type wrapper for the argument
-export const argValue = (e: ArgVal<ad.Num>) => {
+export const argValue = (
+  e: ArgVal<ad.Num>
+): (GPI<ad.Num> | Value<ad.Num>)["contents"] => {
   switch (e.tag) {
     case "GPI": // strip the `GPI` tag
       return e.contents;
@@ -996,8 +998,5 @@ export function genPathMap<T>(
   }
   const res = new Map();
   paths.forEach((path, index) => res.set(prettyPrintPath(path), vals[index]));
-
-  // console.log("gen path map", res);
-  // throw Error("TODO");
   return res;
 }

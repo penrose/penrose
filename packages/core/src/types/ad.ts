@@ -277,6 +277,8 @@ export interface GradGraphs {
 export interface OptInfo {
   xs: number[];
   energyVal: number;
+  objEngs: number[];
+  constrEngs: number[];
   normGrad: number;
   newLbfgsInfo: LbfgsParams;
   gradient: number[];

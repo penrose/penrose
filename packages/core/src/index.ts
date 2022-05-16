@@ -10,7 +10,7 @@ import {
   prettySubstance,
 } from "./compiler/Substance";
 import { evalShapes } from "./engine/Evaluator";
-import { genFns, genOptProblem, step } from "./engine/Optimizer";
+import { genOptProblem, step } from "./engine/Optimizer";
 import { insertPending } from "./engine/PropagateUpdate";
 import {
   PathResolver,
@@ -39,6 +39,7 @@ import {
   prettyPrintPath,
   toSvgPaintProperty,
   variationSeeds,
+  zip2,
 } from "./utils/Util";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -204,17 +205,11 @@ export const compileTrio = (prog: {
 export const prepareState = async (state: State): Promise<State> => {
   const rng = seedrandom(state.seeds.prepare);
 
-  // TODO: errors
-  const stateAD = {
-    ...state,
-    originalTranslation: state.originalTranslation,
-  };
-
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = {
-    ...stateAD,
-    shapes: shapeAutodiffToNumber(evalShapes(rng, stateAD)),
+    ...state,
+    shapes: shapeAutodiffToNumber(evalShapes(rng, state)),
   };
 
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
@@ -306,34 +301,20 @@ export const evalEnergy = (s: State): number => {
  * @param s a state with or without its opt functions cached
  * @returns a list of the energies and gradients of the requested functions, evaluated at the `varyingValues` in the `State`
  */
-export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
-  const { objFnCache, constrFnCache } = s.params;
-
-  // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
-  if (!objFnCache || !constrFnCache) {
-    log.warn(
-      "State is not prepared for energy evaluation. Call `prepareState` to initialize the cached objective/constraint functions first."
-    );
-    const newState = genFns(seedrandom(s.seeds.evalFns), s);
-    // TODO: caching
-    return evalFns(fns, newState);
-  }
-
+export const evalFns = (
+  s: State
+): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  const xs = s.varyingValues;
-  return fns.map((fn: Fn) => {
-    const fnsCached = fn.optType === "ObjFn" ? objFnCache : constrFnCache;
-    const fnStr = prettyPrintFn(fn);
-
-    if (!(fnStr in fnsCached)) {
-      console.log("fns", fnsCached);
-      throw Error(
-        `Internal error: could not find ${fn.optType} ${fnStr} in cached functions`
-      );
-    }
-    const cachedFnInfo = fnsCached[fnStr];
-    return cachedFnInfo(xs);
-  });
+  const { lastConstrEnergies, lastObjEnergies } = s.params;
+  if (!lastConstrEnergies || !lastObjEnergies) {
+    // TODO: handle errors somehow
+  }
+  return {
+    constrEngs: new Map(
+      zip2(s.constrFns.map(prettyPrintFn), lastConstrEnergies)
+    ),
+    objEngs: new Map(zip2(s.objFns.map(prettyPrintFn), lastObjEnergies)),
+  };
 };
 
 export type PenroseState = State;
