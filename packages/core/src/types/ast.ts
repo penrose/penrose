@@ -44,7 +44,7 @@ export type Identifier<T> = ASTNode<T> & {
   type: string; // meta-info: either `value` or `type-identifier` according to the parser
   value: string; // the actual value
 };
-export type IStringLit<T> = ASTNode<T> & {
+export type StringLit<T> = ASTNode<T> & {
   tag: "StringLit";
   contents: string;
 };

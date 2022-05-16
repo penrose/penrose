@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import { times } from "lodash";
 import seedrandom from "seedrandom";
-import { ILine } from "shapes/Line";
+import { LineProps } from "shapes/Line";
 import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Properties } from "types/shape";
@@ -493,13 +493,13 @@ export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
   },
 });
 
-export const linePts = ({ start, end }: ILine): [ad.Num[], ad.Num[]] => [
+export const linePts = ({ start, end }: LineProps): [ad.Num[], ad.Num[]] => [
   start.contents,
   end.contents,
 ];
 
-export const getStart = ({ start }: ILine): ad.Num[] => start.contents;
+export const getStart = ({ start }: LineProps): ad.Num[] => start.contents;
 
-export const getEnd = ({ end }: ILine): ad.Num[] => end.contents;
+export const getEnd = ({ end }: LineProps): ad.Num[] => end.contents;
 
 //#endregion

@@ -45,18 +45,18 @@ import {
 } from "types/errors";
 import { Fn, OptType, Params, State } from "types/state";
 import {
+  AccessPath,
   BindingForm,
   Block,
+  CompApp,
+  ConstrFn,
   DeclPattern,
   Expr,
   GPIDecl,
   Header,
   HeaderBlock,
-  IAccessPath,
-  ICompApp,
-  IConstrFn,
-  ILayering,
-  IObjFn,
+  Layering,
+  ObjFn,
   Path,
   PredArg,
   PropertyDecl,
@@ -83,13 +83,13 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
+  FGPI,
   Field,
   FieldDict,
   FieldExpr,
   GPIMap,
   GPIProps,
-  IFGPI,
-  IOptEval,
+  OptEval,
   Property,
   PropID,
   ShapeTypeStr,
@@ -1890,7 +1890,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl<A>): StyleResults => {
 // Check that every function, objective, and constraint exists (below) -- parametrically over the kind of function
 const checkFunctionName = (
   selEnv: SelEnv,
-  expr: ICompApp<A> | IObjFn<A> | IConstrFn<A>
+  expr: CompApp<A> | ObjFn<A> | ConstrFn<A>
 ): StyleResults => {
   const fnDict = FN_DICT[expr.tag];
   const fnNames: string[] = _.keys(fnDict); // Names of built-in functions of that kind
@@ -2350,7 +2350,7 @@ const findNestedVarying = (e: TagExpr<ad.Num>, p: Path<A>): Path<A>[] => {
         .map((e: Expr<A>, i): [Expr<A>, number] => [e, i])
         .filter((e: [Expr<A>, number]): boolean => isVarying(e[0]))
         .map(
-          ([, i]: [Expr<A>, number]): IAccessPath<A> => ({
+          ([, i]: [Expr<A>, number]): AccessPath<A> => ({
             nodeType: "SyntheticStyle",
             tag: "AccessPath",
             path: p,
@@ -2615,7 +2615,7 @@ const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
 
 // Extract number from a more complicated type
 // also ported from `lookupPaths`
-const getNum = (e: TagExpr<ad.Num> | IFGPI<ad.Num>): number => {
+const getNum = (e: TagExpr<ad.Num> | FGPI<ad.Num>): number => {
   switch (e.tag) {
     case "OptEval": {
       if (e.contents.tag === "Fix") {
@@ -2852,7 +2852,7 @@ const initShape = (
         contents: shapeName,
       },
     };
-    const gpi: IFGPI<ad.Num> = {
+    const gpi: FGPI<ad.Num> = {
       tag: "FGPI",
       contents: [stype, instantiatedGPIProps],
     };
@@ -2874,12 +2874,12 @@ const findLayeringExpr = (
   name: string,
   field: Field,
   fexpr: FieldExpr<ad.Num>,
-  acc: ILayering<A>[]
-): ILayering<A>[] => {
+  acc: Layering<A>[]
+): Layering<A>[] => {
   if (fexpr.tag === "FExpr") {
     if (fexpr.contents.tag === "OptEval") {
       if (fexpr.contents.contents.tag === "Layering") {
-        const layering: ILayering<A> = fexpr.contents.contents;
+        const layering: Layering<A> = fexpr.contents.contents;
         return [layering].concat(acc);
       }
     }
@@ -2887,7 +2887,7 @@ const findLayeringExpr = (
   return acc;
 };
 
-const findLayeringExprs = (tr: Translation): ILayering<A>[] => {
+const findLayeringExprs = (tr: Translation): Layering<A>[] => {
   return foldSubObjs(findLayeringExpr, tr);
 };
 
@@ -2900,7 +2900,7 @@ const lookupGPIName = (p: Path<A>, tr: Translation): string => {
   }
 };
 
-const findNames = (e: ILayering<A>, tr: Translation): [string, string] => [
+const findNames = (e: Layering<A>, tr: Translation): [string, string] => [
   lookupGPIName(e.below, tr),
   lookupGPIName(e.above, tr),
 ];
@@ -2966,7 +2966,7 @@ const computeShapeOrdering = (tr: Translation): string[] => {
   const partialOrderings: [
     string,
     string
-  ][] = layeringExprs.map((e: ILayering<A>): [string, string] =>
+  ][] = layeringExprs.map((e: Layering<A>): [string, string] =>
     findNames(e, tr)
   );
 
@@ -3124,7 +3124,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
 
 //#region Checking translation
 
-const isStyErr = (res: TagExpr<ad.Num> | IFGPI<ad.Num> | StyleError): boolean =>
+const isStyErr = (res: TagExpr<ad.Num> | FGPI<ad.Num> | StyleError): boolean =>
   res.tag !== "FGPI" && !isTagExpr(res);
 
 const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
@@ -3210,8 +3210,8 @@ const findPathsField = (
       const propExprs: Expr<A>[] = Object.entries(fexpr.contents[1])
         .map((e) => e[1])
         .filter((e: TagExpr<ad.Num>): boolean => e.tag === "OptEval")
-        .map((e) => e as IOptEval<ad.Num>) // Have to cast because TypeScript doesn't know the type changed from the filter above
-        .map((e: IOptEval<ad.Num>): Expr<A> => e.contents);
+        .map((e) => e as OptEval<ad.Num>) // Have to cast because TypeScript doesn't know the type changed from the filter above
+        .map((e: OptEval<ad.Num>): Expr<A> => e.contents);
       const res: Path<A>[] = _.flatMap(propExprs, findPathsExpr);
       return acc.concat(res);
     }

@@ -32,14 +32,14 @@ export interface GithubUser {
   access_token: string;
   avatar: string;
 }
-export interface ISettings {
+export interface Settings {
   githubUser: GithubUser | undefined;
   vimMode: boolean;
 }
 
 export interface State {
   openPanes: PaneState;
-  settings: ISettings;
+  settings: Settings;
   currentInstance: CurrentInstance;
 }
 

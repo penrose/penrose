@@ -2,8 +2,8 @@ import { Canvas, toSvgPaintProperty, Value } from "@penrose/core";
 import { cloneDeep, round } from "lodash";
 import * as React from "react";
 
-interface IProps {
-  inputProps: IInputProps;
+interface Props {
+  inputProps: InputProps;
   eAttr: string;
   eValue: Value.Value<any>; // is this the best typing?
   modAttr(attrname: string, attrval: Value.Value<any>): void;
@@ -21,7 +21,7 @@ type InputType =
   | "url"
   | "ptrange";
 
-interface IInputProps {
+interface InputProps {
   inputType: InputType;
   showValue?: "true" | "false";
   min?: string;
@@ -56,11 +56,11 @@ const toCanvas = (jsonVal: string, canvas: Canvas): string => {
   }
 };
 
-class LabeledInput extends React.Component<IProps> {
+class LabeledInput extends React.Component<Props> {
   public readonly state = {
     eValue: this.props.eValue,
   };
-  public componentDidUpdate(prevProps: IProps) {
+  public componentDidUpdate(prevProps: Props) {
     if (this.props !== prevProps) {
       this.setState({
         eValue: this.props.eValue,
@@ -74,7 +74,7 @@ class LabeledInput extends React.Component<IProps> {
       | number
       | Value.Color<number>
       | boolean
-      | Value.ISubPath<number>[]
+      | Value.SubPath<number>[]
   ) => {
     const newstate = {
       eValue: {
@@ -216,12 +216,12 @@ class LabeledInput extends React.Component<IProps> {
     // todo - refactor the whole file so you can call makerange() and makelabel() with params
     return (
       <React.Fragment>
-        {subpaths.map((subpath: Value.IPathCmd<number>, index: number) => {
+        {subpaths.map((subpath: Value.PathCmd<number>, index: number) => {
           const ptarray = subpath.contents;
           // note - prob will crash on bezier stuff
           return (
             <React.Fragment key={"S" + index}>
-              {ptarray.map((pt: Value.ISubPath<number>, subindex: number) => {
+              {ptarray.map((pt: Value.SubPath<number>, subindex: number) => {
                 // todo clean up following lines
                 const xid = [
                   "S",

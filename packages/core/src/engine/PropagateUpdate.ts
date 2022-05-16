@@ -2,7 +2,7 @@ import { exprToNumber, insertExpr } from "engine/EngineUtils";
 import { A } from "types/ast";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
-import { IPropertyPath, Path } from "types/style";
+import { Path, PropertyPath } from "types/style";
 import { Translation, Value } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
 
@@ -14,7 +14,7 @@ import { retrieveLabel } from "utils/CollectLabels";
  */
 // the `any` is to accomodate `collectLabels` storing updated property values in a new property that's not in the type system
 const findShapeProperty = (shapes: any, path: Path<A>): Value<number> | any => {
-  const getProperty = (path: IPropertyPath<A>) => {
+  const getProperty = (path: PropertyPath<A>) => {
     const [subName, field, prop]: [string, string, string] = [
       path.name.contents.value,
       path.field.value,

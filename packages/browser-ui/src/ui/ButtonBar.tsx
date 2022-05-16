@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FileSocketResult } from "./FileSocket";
 
-interface IProps {
+interface Props {
   converged: boolean;
   autostep: boolean;
   initial: boolean;
@@ -22,7 +22,7 @@ interface IProps {
   resample(): void;
   reconnect(): void;
 }
-class ButtonBar extends React.Component<IProps> {
+class ButtonBar extends React.Component<Props> {
   public render(): JSX.Element {
     const {
       converged,

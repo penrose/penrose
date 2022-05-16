@@ -9,13 +9,13 @@ import { makePolygon } from "shapes/Polygon";
 import { makePolyline } from "shapes/Polyline";
 import { makeRectangle } from "shapes/Rectangle";
 import {
-  FloatV,
+  floatV,
   makeCanvas,
-  PtListV,
+  ptListV,
   sampleBlack,
-  VectorV,
+  vectorV,
 } from "shapes/Samplers";
-import { IPoly, IScale } from "types/shapes";
+import { Poly, Scale } from "types/shapes";
 import { genCode, secondaryGraph } from "./Autodiff";
 import {
   BBox,
@@ -48,8 +48,8 @@ const expectBbox = (
   expect(y).toBeCloseTo(expected.center[1]);
 };
 
-const polyProps = (): IPoly & IScale => ({
-  points: PtListV(
+const polyProps = (): Poly & Scale => ({
+  points: ptListV(
     // https://en.wikipedia.org/wiki/Polygon#/media/File:Assorted_polygons.svg
     [
       [564, 24],
@@ -66,15 +66,15 @@ const polyProps = (): IPoly & IScale => ({
       [528, 129],
     ]
   ),
-  scale: FloatV(0.5),
+  scale: floatV(0.5),
 });
 
 describe("bbox", () => {
   test("Circle", () => {
     const shape = makeCircle(seedrandom("bbox Circle"), canvas, {
-      r: FloatV(100),
-      center: VectorV([42, 121]),
-      strokeWidth: FloatV(50),
+      r: floatV(100),
+      center: vectorV([42, 121]),
+      strokeWidth: floatV(50),
       strokeColor: sampleBlack(),
     });
     expectBbox(bboxFromCircle(shape), {
@@ -86,10 +86,10 @@ describe("bbox", () => {
 
   test("Ellipse", () => {
     const shape = makeEllipse(seedrandom("bbox Ellipse"), canvas, {
-      rx: FloatV(200),
-      ry: FloatV(100),
-      center: VectorV([42, 121]),
-      strokeWidth: FloatV(50),
+      rx: floatV(200),
+      ry: floatV(100),
+      center: vectorV([42, 121]),
+      strokeWidth: floatV(50),
       strokeColor: sampleBlack(),
     });
     expectBbox(bboxFromEllipse(shape), {
@@ -101,10 +101,10 @@ describe("bbox", () => {
 
   test("Rectangle", () => {
     const shape = makeRectangle(seedrandom("bbox Rectangle"), canvas, {
-      center: VectorV([0, 0]),
-      width: FloatV(150),
-      height: FloatV(200),
-      strokeWidth: FloatV(50),
+      center: vectorV([0, 0]),
+      width: floatV(150),
+      height: floatV(200),
+      strokeWidth: floatV(50),
       strokeColor: sampleBlack(),
     });
     expectBbox(bboxFromRect(shape), {
@@ -138,9 +138,9 @@ describe("bbox", () => {
 
   test("Image", () => {
     const shape = makeImage(seedrandom("bbox Image"), canvas, {
-      center: VectorV([0, 0]),
-      width: FloatV(150),
-      height: FloatV(200),
+      center: vectorV([0, 0]),
+      width: floatV(150),
+      height: floatV(200),
     });
     expectBbox(bboxFromRectlike(shape), {
       width: 150,
@@ -151,9 +151,9 @@ describe("bbox", () => {
 
   test("Line", () => {
     const shape = makeLine(seedrandom("bbox Line"), canvas, {
-      start: VectorV([-300, 200]),
-      end: VectorV([100, -150]),
-      strokeWidth: FloatV(50),
+      start: vectorV([-300, 200]),
+      end: vectorV([100, -150]),
+      strokeWidth: floatV(50),
     });
     expectBbox(bboxFromLinelike(shape), {
       width: 432.925,
