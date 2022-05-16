@@ -47,7 +47,7 @@ export class Debugger {
    * @returns The current instance of the debugger
    */
   public static getInstance(): Debugger {
-    if (this.theInstance == undefined) {
+    if (this.theInstance === undefined) {
       return Debugger.newInstance();
     } else {
       return this.theInstance;
@@ -157,7 +157,7 @@ export class Debugger {
         const blockVars = theBlock.substs[i];
         allVarsMatch = true;
         for (const j in relVars) {
-          if (j in blockVars && blockVars[j] == relVars[j]) {
+          if (j in blockVars && blockVars[j] === relVars[j]) {
             // Do nothing
           } else {
             allVarsMatch = false;
@@ -265,15 +265,15 @@ export class Debugger {
         );
       if (this.styAst === undefined)
         throw new Error("Unable to accept debug queries: no Style AST loaded");
-      if (this.domSrc == "")
+      if (this.domSrc === "")
         throw new Error(
           "Unable to accept debug queries: no Domain Source File loaded"
         );
-      if (this.subSrc == "")
+      if (this.subSrc === "")
         throw new Error(
           "Unable to accept debug queries: no Substance Source File loaded"
         );
-      if (this.stySrc == "")
+      if (this.stySrc === "")
         throw new Error(
           "Unable to accept debug queries: no Style Source File loaded"
         );
@@ -335,7 +335,7 @@ export class Debugger {
     relVars: Subst
   ): boolean => {
     // Throw an exception if provided an empty query
-    if (relVars == {}) {
+    if (relVars === {}) {
       throw new Error(`Debug query has no Style variable substitution`);
     }
 
@@ -401,15 +401,15 @@ export class Debugger {
     // Loop over the lines in the source to find the source Text
     for (let i = startLine; i < endLine + 1; i++) {
       if (i >= startLine && i <= endLine) {
-        if (startLine == endLine) {
+        if (startLine === endLine) {
           if (startCol <= endCol) {
             outLines.push(lines[i].substring(startCol, endCol));
           } else {
             outLines.push(lines[i].substring(startCol));
           }
-        } else if (i == startLine) {
+        } else if (i === startLine) {
           outLines.push(lines[i].substring(startCol));
-        } else if (i == endLine) {
+        } else if (i === endLine) {
           outLines.push(lines[i].substring(0, endCol));
         } else {
           outLines.push(lines[i]);

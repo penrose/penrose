@@ -1589,7 +1589,7 @@ const findSubstsSel = (
       // Track which substitutions matched the selection block for debugging
       const dbgStyBlock: DebugStyleBlock = {
         blockRef: Debugger.getSourceRefFromAstNode(sel),
-        hasWhereClause: !(rels.length == 0),
+        hasWhereClause: !(rels.length === 0),
         substs: [],
         sats: [],
         unsats: [],
