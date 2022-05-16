@@ -1,15 +1,27 @@
 import {
   convexPartitions,
+  ellipseToImplicit,
   halfPlaneSDF,
+  halfPlaneToImplicit,
   outwardUnitNormal,
   rectangleDifference,
 } from "contrib/Minkowski";
 import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
+import seedrandom from "seedrandom";
+import { makeEllipse } from "shapes/Ellipse";
+import { FloatV, makeCanvas, sampleBlack, VectorV } from "shapes/Samplers";
 import * as ad from "types/ad";
 
 const digitPrecision = 4;
+
+const numOf = (x: ad.Num) => {
+  const g = secondaryGraph([x]);
+  const f = genCode(g);
+  const [y] = f([]).secondary; // no inputs, so, empty array
+  return y;
+};
 
 describe("rectangleDifference", () => {
   const expectRectDiff = (
@@ -114,12 +126,6 @@ describe("outwardUnitNormal", () => {
 });
 
 describe("halfPlaneSDF", () => {
-  const numOf = (x: ad.Num) => {
-    const g = secondaryGraph([x]);
-    const f = genCode(g);
-    const [y] = f([]).secondary; // no inputs, so, empty array
-    return y;
-  };
 
   test("without padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
@@ -210,5 +216,51 @@ describe("convexPartitions", () => {
       [p[0], p[1], p[2]],
       [p[0], p[2], p[3]],
     ]);
+  });
+});
+
+describe("toImplicit", () => {
+  test("halfPlaneToImplicit", async () => {
+    let result = halfPlaneToImplicit(
+      [
+        [1, 2],
+        [2, 3],
+      ],
+      [1, 6],
+      0
+    );
+    expect(numOf(result.a)).toBeCloseTo(1 / Math.sqrt(2), 4);
+    expect(numOf(result.b)).toBeCloseTo(-1 / Math.sqrt(2), 4);
+    expect(numOf(result.c)).toBeCloseTo(-1 / Math.sqrt(2), 4);
+  });
+
+  test("halfPlaneToImplicit with padding", async () => {
+    let result = halfPlaneToImplicit(
+      [
+        [1, 2],
+        [3, 4],
+      ],
+      [5, 6],
+      1
+    );
+    expect(numOf(result.a)).toBeCloseTo(1 / Math.sqrt(2), 4);
+    expect(numOf(result.b)).toBeCloseTo(-1 / Math.sqrt(2), 4);
+    expect(numOf(result.c)).toBeCloseTo(-1 / Math.sqrt(2) - 1, 4);
+  });
+
+  test("ellipseToImplicit", async () => {
+    let ellipse = makeEllipse(seedrandom("Test"), makeCanvas(800, 700), {
+      rx: FloatV(6),
+      ry: FloatV(3),
+      center: VectorV([-11, 22]),
+      strokeWidth: FloatV(0),
+      strokeColor: sampleBlack(),
+    });
+    let result = ellipseToImplicit(ellipse);
+    expect(numOf(result.a)).toEqual(0.5);
+    expect(numOf(result.b)).toEqual(2);
+    expect(numOf(result.c)).toEqual(18);
+    expect(numOf(result.x)).toEqual(-11);
+    expect(numOf(result.y)).toEqual(22);
   });
 });

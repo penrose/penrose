@@ -337,7 +337,7 @@ const implicitHalfPlaneFunc = (
  * @param insidePoint Any point inside of the half-plane.
  * @param padding Padding around the Half-plane.
  */
-const halfPlaneToImplicit = (
+export const halfPlaneToImplicit = (
   lineSegment: ad.Num[][],
   insidePoint: ad.Num[],
   padding: ad.Num
@@ -354,7 +354,7 @@ const halfPlaneToImplicit = (
  * Return implicit ellipse parameters from an explicit representation.
  * @param ellipse Explicit ellipse shape.
  */
-const ellipseToImplicit = (ellipse: Ellipse): ImplicitEllipse => {
+export const ellipseToImplicit = (ellipse: Ellipse): ImplicitEllipse => {
   const rx = ellipse.rx.contents;
   const ry = ellipse.ry.contents;
   return {
