@@ -1,6 +1,7 @@
 import { compDict } from "contrib/Functions";
 import { genCode, secondaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
+import { makeCircle } from "shapes/Circle";
 import { makeRectangle } from "shapes/Rectangle";
 import { FloatV, makeCanvas, sampleBlack, VectorV } from "shapes/Samplers";
 import * as ad from "types/ad";
@@ -44,6 +45,23 @@ const testRectangle = (
   compareDistance("Rectangle", shape, pt, expected);
 };
 
+const testCircle = (
+  center: number[],
+  radius: number,
+  strokeWidth: number,
+  pt: number[],
+  expected: number
+) => {
+  const seed = seedrandom("bbox Rectangle");
+  const shape = makeCircle(seed, canvas, {
+    center: VectorV(center),
+    r: FloatV(radius),
+    strokeWidth: FloatV(strokeWidth),
+    strokeColor: sampleBlack(),
+  });
+  compareDistance("Circle", shape, pt, expected);
+};
+
 describe("sdf", () => {
   test("CenteredRectange", () => {
     testRectangle([0, 0], 8, 4, 0, [5, 0], 1);
@@ -66,5 +84,18 @@ describe("sdf", () => {
   test("OffCenterSquare", () => {
     testRectangle([-2, -2], 5, 4, 0, [0, 0], 0);
     testRectangle([-2, -2], 5, 4, 0, [-2, -2], -2);
+  });
+
+  test("Circle", () => {
+    testCircle([0, 0], 3, 0, [0, 0], -3);
+    testCircle([0, 0], 3, 0, [3, 0], 0);
+    testCircle([0, 0], 3, 0, [4, 0], 1);
+    testCircle([0, 0], 3, 0, [-5, 0], 2);
+  });
+
+  test("OffsetCircle", () => {
+    testCircle([3, 3], 3, 0, [3, 3], -3);
+    testCircle([3, 3], 3, 0, [3, 6], 0);
+    testCircle([3, 3], 3, 0, [3, 0], 0);
   });
 });

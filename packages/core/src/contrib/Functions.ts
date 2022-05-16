@@ -1,5 +1,5 @@
 import { bboxFromShape } from "contrib/Queries";
-import { inRange } from "contrib/Utils";
+import { clamp, inRange } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -7,6 +7,7 @@ import {
   acosh,
   add,
   addN,
+  and,
   asin,
   asinh,
   atan,
@@ -22,11 +23,13 @@ import {
   expm1,
   floor,
   gt,
+  gte,
   ifCond,
   ln,
   log10,
   log1p,
   log2,
+  lt,
   max,
   min,
   mul,
@@ -1476,14 +1479,17 @@ export const compDict = {
     [t, s]: [string, any],
     p: ad.Num[]
   ): IFloatV<ad.Num> => {
-    // https://iquilezles.org/articles/distfunctions2d/
-    //
-    // axis-aligned rectangle:
-    // float sdBox( in vec2 p, in vec2 b )
-    // {
-    //   vec2 d = abs(p)-b;
-    //   return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
-    // }
+    /*  
+    All math borrowed from:
+    https://iquilezles.org/articles/distfunctions2d/
+    
+    axis-aligned rectangle:
+    float sdBox( in vec2 p, in vec2 b )
+    {
+      vec2 d = abs(p)-b;
+      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    } 
+    */
     if (t === "Rectangle") {
       const absp = ops.vabs(ops.vsub(p, s.center.contents));
       const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
@@ -1496,17 +1502,59 @@ export const compDict = {
         tag: "FloatV",
         contents: result,
       };
-    }
-    // float sdCircle( vec2 p, float r )
-    // {
-    //   return length(p) - r;
-    // }
-    else if (t === "Circle") {
+    } else if (t === "Circle") {
+      /*     
+    float sdCircle( vec2 p, float r )
+    {
+      return length(p) - r;
+    } 
+    */
       const pOffset = ops.vsub(p, s.center.contents);
-      const result = sub(ops.vnorm(pOffset), s.radius.contents);
+      const result = sub(ops.vnorm(pOffset), s.r.contents);
       return {
         tag: "FloatV",
         contents: result,
+      };
+    } else if (t === "Polygon") {
+      /*
+    float sdPolygon( in vec2[N] v, in vec2 p )
+    {
+        float d = dot(p-v[0],p-v[0]);
+        float s = 1.0;
+        for( int i=0, j=N-1; i<N; j=i, i++ )
+        {
+            vec2 e = v[j] - v[i];
+            vec2 w =    p - v[i];
+            vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
+            d = min( d, dot(b,b) );
+            bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
+            if( all(c) || all(not(c)) ) s*=-1.0;  
+        }
+        return s*sqrt(d);
+    }
+    */
+      const pOffset = ops.vsub(p, s.center.contents);
+      const v = s.points.contents;
+      let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
+      const ess = 1.0;
+      let j = v.length - 1;
+      for (let i = 0; i < v.length; i++) {
+        const e = ops.vsub(v[j], v[i]);
+        const w = ops.vsub(p, v[i]);
+        const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
+        const b = ops.vsub(w, ops.vmul(clampedVal, e));
+        d = min(d, ops.vdot(b, b));
+        const c1 = gte(p[1], v[i][1]);
+        const c2 = lt(p[1], v[j][1]);
+        const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
+        const c4 = and(and(c1, c2), c3);
+        const c5 =
+          // last line to match for loop in code we are borrowing from
+          (j = i);
+      }
+      return {
+        tag: "FloatV",
+        contents: 0.0,
       };
     } else {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);

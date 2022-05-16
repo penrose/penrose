@@ -263,6 +263,15 @@ const children = (x: ad.Expr): Child[] => {
     case "Input": {
       return [];
     }
+    case "Not": {
+      return [
+        {
+          child: x.param,
+          name: undefined,
+          sensitivity: [],
+        },
+      ];
+    }
     case "Unary": {
       return [
         {
@@ -939,6 +948,8 @@ const compileBinary = (
     case "/":
     case ">":
     case "<":
+    case ">=":
+    case "<=":
     case "===":
     case "&&":
     case "||": {
@@ -993,6 +1004,10 @@ const compileNode = (
     return `${node}`;
   }
   switch (node.tag) {
+    case "Not": {
+      const child = safe(preds.get(undefined), "missing node");
+      return `!${child}`;
+    }
     case "Unary": {
       return compileUnary(node, safe(preds.get(undefined), "missing param"));
     }

@@ -41,7 +41,7 @@ import { LbfgsParams } from "./state";
 
 export type Expr = Bool | Num | Vec;
 
-export type Bool = Comp | Logic;
+export type Bool = Comp | Logic | Not;
 
 export type Num =
   | number
@@ -103,6 +103,10 @@ export interface Logic extends LogicNode {
   right: Bool;
 }
 
+export interface Not extends NotNode {
+  param: Bool;
+}
+
 export interface Ternary extends TernaryNode {
   cond: Bool;
   then: Num;
@@ -141,6 +145,7 @@ export type Node =
   | NaryNode
   | PolyRootsNode
   | IndexNode
+  | NotNode
   | DebugNode;
 
 export interface InputNode {
@@ -189,7 +194,11 @@ export interface BinaryNode {
 
 export interface CompNode {
   tag: "Comp";
-  binop: ">" | "<" | "===";
+  binop: ">" | "<" | "===" | ">=" | "<=";
+}
+
+export interface NotNode {
+  tag: "Not";
 }
 
 export interface LogicNode {
@@ -229,7 +238,8 @@ export type Edge =
   | NaryEdge
   | PolyRootsEdge
   | IndexEdge
-  | DebugEdge;
+  | DebugEdge
+  | NotEdge;
 
 export type UnaryEdge = undefined;
 export type BinaryEdge = "left" | "right";
@@ -240,6 +250,7 @@ export type NaryEdge = `${number}`;
 export type PolyRootsEdge = NaryEdge;
 export type IndexEdge = UnaryEdge;
 export type DebugEdge = UnaryEdge;
+export type NotEdge = UnaryEdge;
 
 export type Id = `_${number}`; // subset of valid JavaScript identifiers
 
