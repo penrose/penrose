@@ -105,7 +105,7 @@ export const overlappingRectlikeCircle = (
 /**
  * Require that polygon `s1` overlaps ellipse `s2` with some padding `padding`.
  */
- export const overlappingPolygonEllipse = (
+export const overlappingPolygonEllipse = (
   [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
   [t2, s2]: [string, Ellipse],
   padding: ad.Num = 0
