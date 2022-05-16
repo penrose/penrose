@@ -1,4 +1,4 @@
-import { Env } from "@penrose/core";
+import { Env, PenroseError, PenroseState } from "@penrose/core";
 import { atom } from "recoil";
 import { v4 as uuid } from "uuid";
 
@@ -59,4 +59,17 @@ export const domainCacheState = atom<Env | null>({
   default: null,
 });
 
-// rendered diagram / error state / seed
+export type Diagram = {
+  state: PenroseState | null;
+  error: PenroseError | null;
+  variation: string;
+};
+
+export const diagramState = atom<Diagram>({
+  key: "diagramState",
+  default: {
+    state: null,
+    error: null,
+    variation: "",
+  },
+});

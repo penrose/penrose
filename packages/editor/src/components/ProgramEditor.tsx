@@ -11,6 +11,7 @@ export default function ProgramEditor({
 }: {
   kind: "substance" | "style" | "domain";
 }) {
+  // TODO: if substance, selector the domainCache. Don't need a state i doint think. Derived state!
   const [programState, setProgramState] = useRecoilState(
     kind === "domain"
       ? domainFileState

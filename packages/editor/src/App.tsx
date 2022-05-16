@@ -1,6 +1,8 @@
 import { Layout, Model, TabNode } from "flexlayout-react";
 import { useCallback } from "react";
+import DiagramPanel from "./components/DiagramPanel";
 import ProgramEditor from "./components/ProgramEditor";
+import { useCompileDiagram } from "./state/callbacks";
 
 const layoutModel = Model.fromJson({
   global: {
@@ -57,18 +59,19 @@ const layoutModel = Model.fromJson({
 });
 
 function App() {
+  const compileDiagram = useCompileDiagram();
   const panelFactory = useCallback((node: TabNode) => {
     switch (node.getComponent()) {
       case "programEditor":
         return <ProgramEditor kind={node.getConfig().kind} />;
       case "diagram":
-        return <div>diagram</div>;
+        return <DiagramPanel />;
     }
     return <div>Placeholder</div>;
   }, []);
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      Penrose!!!
+      Penrose!!! <button onClick={() => compileDiagram()}>run</button>
       <div style={{ position: "relative", flex: 1 }}>
         <Layout model={layoutModel} factory={panelFactory} />
       </div>
