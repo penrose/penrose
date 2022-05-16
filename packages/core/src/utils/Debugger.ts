@@ -334,11 +334,6 @@ export class Debugger {
     block: DebugStyleBlock,
     relVars: Subst
   ): boolean => {
-    // Throw an exception if provided an empty query
-    if (relVars === {}) {
-      throw new Error(`Debug query has no Style variable substitution`);
-    }
-
     // Loop over the substitution pairs in the query
     for (const k in relVars) {
       // If the queried style variable exists in the block...
