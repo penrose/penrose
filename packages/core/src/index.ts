@@ -290,7 +290,7 @@ export const evalEnergy = (s: State): number => {
   // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
   if (!objectiveAndGradient) {
     log.debug(
-      "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
+      "State is not prepared for energy evaluation. Call `genOptProblem` to initialize the optimization problem first."
     );
     const newState = genOptProblem(seedrandom(s.seeds.evalEnergy), s);
     // TODO: caching
