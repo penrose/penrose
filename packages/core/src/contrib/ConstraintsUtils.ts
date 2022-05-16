@@ -84,19 +84,6 @@ export const overlappingAABBs = (
 };
 
 /**
- * Require that polygon `s1` overlaps ellipse `s2` with some padding `padding`.
- */
-export const overlappingPolygonEllipse = (
-  [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
-  [t2, s2]: [string, Ellipse],
-  padding: ad.Num = 0
-): ad.Num => {
-  const points = polygonLikePoints([t1, s1]);
-  const cp = convexPartitions(points);
-  return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, padding)));
-};
-
-/**
  * Require that rectangle `s1` overlaps circle `s2` with some padding `padding`.
  */
 export const overlappingRectlikeCircle = (
@@ -113,6 +100,19 @@ export const overlappingRectlikeCircle = (
   // Return the signed distance
   const innerSDF = rectangleSignedDistance(bottomLeft, topRight);
   return sub(innerSDF, s2.r.contents);
+};
+
+/**
+ * Require that polygon `s1` overlaps ellipse `s2` with some padding `padding`.
+ */
+ export const overlappingPolygonEllipse = (
+  [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
+  [t2, s2]: [string, Ellipse],
+  padding: ad.Num = 0
+): ad.Num => {
+  const points = polygonLikePoints([t1, s1]);
+  const cp = convexPartitions(points);
+  return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, padding)));
 };
 
 /**
