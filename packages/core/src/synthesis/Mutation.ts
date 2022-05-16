@@ -37,7 +37,7 @@ export type MutationGroup = Mutation[];
 export type Mutation = Add | Delete | Update;
 export type MutationType = Mutation["tag"];
 
-export interface IMutation {
+export interface MutationBase {
   tag: MutationType;
   additionalMutations?: Mutation[];
   mutate: (
@@ -57,23 +57,23 @@ export type Update =
   | ChangeStmtType
   | ChangeExprType;
 
-export interface Add extends IMutation {
+export interface Add extends MutationBase {
   tag: "Add";
   stmt: SubStmt<A>;
 }
-export interface Delete extends IMutation {
+export interface Delete extends MutationBase {
   tag: "Delete";
   stmt: SubStmt<A>;
 }
 
-export interface SwapStmtArgs extends IMutation {
+export interface SwapStmtArgs extends MutationBase {
   tag: "SwapStmtArgs";
   stmt: ApplyPredicate<A>;
   elem1: number;
   elem2: number;
 }
 
-export interface SwapExprArgs extends IMutation {
+export interface SwapExprArgs extends MutationBase {
   tag: "SwapExprArgs";
   stmt: Bind<A>;
   expr: ArgExpr<A>;
@@ -81,14 +81,14 @@ export interface SwapExprArgs extends IMutation {
   elem2: number;
 }
 
-export interface SwapInStmtArgs extends IMutation {
+export interface SwapInStmtArgs extends MutationBase {
   tag: "SwapInStmtArgs";
   stmt: ApplyPredicate<A>;
   elem: number;
   swap: Identifier<A>;
 }
 
-export interface SwapInExprArgs extends IMutation {
+export interface SwapInExprArgs extends MutationBase {
   tag: "SwapInExprArgs";
   stmt: Bind<A>;
   expr: ArgExpr<A>;
@@ -96,26 +96,26 @@ export interface SwapInExprArgs extends IMutation {
   swap: Identifier<A>;
 }
 
-export interface ReplaceStmtName extends IMutation {
+export interface ReplaceStmtName extends MutationBase {
   tag: "ReplaceStmtName";
   stmt: ApplyPredicate<A>;
   newName: string;
 }
 
-export interface ReplaceExprName extends IMutation {
+export interface ReplaceExprName extends MutationBase {
   tag: "ReplaceExprName";
   stmt: Bind<A>;
   expr: ArgExpr<A>;
   newName: string;
 }
-export interface ChangeStmtType extends IMutation {
+export interface ChangeStmtType extends MutationBase {
   tag: "ChangeStmtType";
   stmt: ApplyPredicate<A>;
   newStmt: SubStmt<A>;
   additionalMutations: Mutation[];
 }
 
-export interface ChangeExprType extends IMutation {
+export interface ChangeExprType extends MutationBase {
   tag: "ChangeExprType";
   stmt: Bind<A>;
   expr: ArgExpr<A>;

@@ -268,17 +268,13 @@ export type Pt2 = [Num, Num];
 
 export const isPt2 = (vec: Num[]): vec is Pt2 => vec.length === 2;
 
-export type GradGraphs = IGradGraphs;
-
-export interface IGradGraphs {
+export interface GradGraphs {
   inputs: Num[];
   weight: Num | undefined; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
 }
 
-export type OptInfo = IOptInfo;
 // Returned after a call to `minimize`
-
-export interface IOptInfo {
+export interface OptInfo {
   xs: number[];
   energyVal: number;
   objEngs: number[];
@@ -290,11 +286,9 @@ export interface IOptInfo {
   failed: boolean;
 }
 
-export type OptDebugInfo = IOptDebugInfo;
-
 export type NumMap = Map<string, number>;
 
-export interface IOptDebugInfo {
+export interface OptDebugInfo {
   gradient: NumMap;
   gradientPreconditioned: NumMap;
 }

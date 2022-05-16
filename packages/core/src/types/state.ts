@@ -4,12 +4,12 @@ import * as ad from "types/ad";
 import { A } from "./ast";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
-import { ArgVal, IFloatV, Translation } from "./value";
+import { ArgVal, FloatV, Translation } from "./value";
 
 /**
  * The diagram state modeling the original Haskell types
  */
-export interface IState {
+export interface State {
   seeds: Seeds;
   varyingPaths: Path<A>[];
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
@@ -27,7 +27,6 @@ export interface IState {
   varyingMap: VaryMap;
   canvas: Canvas;
 }
-export type State = IState;
 
 // Some compDict functions (currently only sampleColor) need a prng, so we need
 // to keep a seed around in the state to allow us to recreate it at every step
@@ -61,36 +60,33 @@ export interface Seeds {
 export type LabelData = EquationData | TextData;
 export interface EquationData {
   tag: "EquationData";
-  width: IFloatV<number>;
-  height: IFloatV<number>;
+  width: FloatV<number>;
+  height: FloatV<number>;
   rendered: HTMLElement;
 }
 
 export interface TextData {
   tag: "TextData";
-  width: IFloatV<number>;
-  height: IFloatV<number>;
-  descent: IFloatV<number>;
-  ascent: IFloatV<number>;
+  width: FloatV<number>;
+  height: FloatV<number>;
+  descent: FloatV<number>;
+  ascent: FloatV<number>;
 }
 
 export type LabelCache = [string, LabelData][];
 
 export type VaryMap<T = ad.Num> = Map<string, T>;
 
-export type FnDone<T> = IFnDone<T>;
-export interface IFnDone<T> {
+export interface FnDone<T> {
   name: string;
   args: ArgVal<T>[];
   optType: OptType;
 }
 
-export type Fn = IFn;
-
 /**
  * Generic export interface for constraint or objective functions
  */
-export interface IFn {
+export interface Fn {
   fname: string;
   fargs: Expr<A>[];
   optType: OptType;
@@ -104,10 +100,8 @@ export type OptStatus =
   | "EPConverged"
   | "Error";
 
-export type LbfgsParams = ILbfgsParams;
-
 // `n` is the size of the varying state
-export interface ILbfgsParams {
+export interface LbfgsParams {
   lastState: Matrix | undefined; // nx1 (col vec)
   lastGrad: Matrix | undefined; // nx1 (col vec)
   s_list: Matrix[]; // list of nx1 col vecs
@@ -123,9 +117,7 @@ export interface FnEvaled {
   constrEngs: number[];
 }
 
-export type Params = IParams;
-
-export interface IParams {
+export interface Params {
   optStatus: OptStatus;
   /** Constraint weight for exterior point method **/
   weight: number;
@@ -169,9 +161,7 @@ export interface IParams {
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
 export type FnCached = (xs: number[]) => FnEvaled;
 
-export type WeightInfo = IWeightInfo;
-
-export interface IWeightInfo {
+export interface WeightInfo {
   epWeightNode: ad.Input;
   epWeight: number;
 }

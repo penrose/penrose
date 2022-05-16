@@ -1,15 +1,15 @@
 import { PenroseState, Value } from "@penrose/core";
 import makeViewBoxes from "inspector/makeViewBoxes";
 import * as React from "react";
-import IViewProps from "./IViewProps";
 import AttrPicker from "./mod/AttrPicker";
 import defmap from "./mod/defmap";
+import ViewProps from "./ViewProps";
 
-interface IState {
+interface State {
   selectedShape: number;
 }
 
-class Mod extends React.Component<IViewProps, IState> {
+class Mod extends React.Component<ViewProps, State> {
   public readonly state = { selectedShape: 0 };
   public setSelectedShape = (key: number) => {
     this.setState({ selectedShape: key });

@@ -16,30 +16,30 @@ import {
 import { StyleError, Warning } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
 import { LbfgsParams } from "types/state";
-import { AnnoFloat, Expr, IVector, Path, PropertyDecl } from "types/style";
+import { AnnoFloat, Expr, Path, PropertyDecl, Vector } from "types/style";
 import {
   Color,
+  ColorV,
+  FGPI,
   FieldExpr,
-  IColorV,
-  IFGPI,
-  IFloatV,
-  IHMatrixV,
-  IListV,
-  ILListV,
-  IMatrixV,
-  IPaletteV,
-  IPathCmd,
-  IPathDataV,
-  IPtListV,
-  IPtV,
-  ISubPath,
-  ITupV,
-  IVectorV,
+  FloatV,
+  HMatrixV,
+  ListV,
+  LListV,
+  MatrixV,
+  PaletteV,
+  PathCmd,
+  PathDataV,
   PropID,
+  PtListV,
+  PtV,
   ShapeTypeStr,
+  SubPath,
   TagExpr,
   Translation,
+  TupV,
   Value,
+  VectorV,
 } from "types/value";
 import { showError } from "utils/Error";
 import { safe } from "utils/Util";
@@ -85,63 +85,63 @@ export function mapTupNested<T, S>(f: (arg: T) => S, t: T[][]): S[][] {
 
 // Mapping over values
 
-function mapFloat<T, S>(f: (arg: T) => S, v: IFloatV<T>): IFloatV<S> {
+function mapFloat<T, S>(f: (arg: T) => S, v: FloatV<T>): FloatV<S> {
   return {
     tag: "FloatV",
     contents: f(v.contents),
   };
 }
 
-function mapPt<T, S>(f: (arg: T) => S, v: IPtV<T>): IPtV<S> {
+function mapPt<T, S>(f: (arg: T) => S, v: PtV<T>): PtV<S> {
   return {
     tag: "PtV",
     contents: mapTuple(f, v.contents),
   };
 }
 
-function mapPtList<T, S>(f: (arg: T) => S, v: IPtListV<T>): IPtListV<S> {
+function mapPtList<T, S>(f: (arg: T) => S, v: PtListV<T>): PtListV<S> {
   return {
     tag: "PtListV",
     contents: mapTupNested(f, v.contents),
   };
 }
 
-function mapList<T, S>(f: (arg: T) => S, v: IListV<T>): IListV<S> {
+function mapList<T, S>(f: (arg: T) => S, v: ListV<T>): ListV<S> {
   return {
     tag: "ListV",
     contents: v.contents.map(f),
   };
 }
 
-function mapVector<T, S>(f: (arg: T) => S, v: IVectorV<T>): IVectorV<S> {
+function mapVector<T, S>(f: (arg: T) => S, v: VectorV<T>): VectorV<S> {
   return {
     tag: "VectorV",
     contents: v.contents.map(f),
   };
 }
 
-function mapTup<T, S>(f: (arg: T) => S, v: ITupV<T>): ITupV<S> {
+function mapTup<T, S>(f: (arg: T) => S, v: TupV<T>): TupV<S> {
   return {
     tag: "TupV",
     contents: mapTuple(f, v.contents),
   };
 }
 
-function mapLList<T, S>(f: (arg: T) => S, v: ILListV<T>): ILListV<S> {
+function mapLList<T, S>(f: (arg: T) => S, v: LListV<T>): LListV<S> {
   return {
     tag: "LListV",
     contents: v.contents.map((e) => e.map(f)),
   };
 }
 
-function mapMatrix<T, S>(f: (arg: T) => S, v: IMatrixV<T>): IMatrixV<S> {
+function mapMatrix<T, S>(f: (arg: T) => S, v: MatrixV<T>): MatrixV<S> {
   return {
     tag: "MatrixV",
     contents: v.contents.map((e) => e.map(f)),
   };
 }
 
-function mapHMatrix<T, S>(f: (arg: T) => S, v: IHMatrixV<T>): IHMatrixV<S> {
+function mapHMatrix<T, S>(f: (arg: T) => S, v: HMatrixV<T>): HMatrixV<S> {
   const m = v.contents;
   return {
     tag: "HMatrixV",
@@ -158,14 +158,14 @@ function mapHMatrix<T, S>(f: (arg: T) => S, v: IHMatrixV<T>): IHMatrixV<S> {
 }
 
 // convert all `ad.Num`s to numbers for use in Shape def
-function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
+function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
   return {
     tag: "PathDataV",
-    contents: v.contents.map((pathCmd: IPathCmd<T>) => {
+    contents: v.contents.map((pathCmd: PathCmd<T>) => {
       return {
         cmd: pathCmd.cmd,
         contents: pathCmd.contents.map(
-          (subCmd: ISubPath<T>): ISubPath<S> => {
+          (subCmd: SubPath<T>): SubPath<S> => {
             return {
               tag: subCmd.tag,
               contents: mapTuple(f, subCmd.contents),
@@ -188,14 +188,14 @@ function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
   }
 }
 
-function mapColor<T, S>(f: (arg: T) => S, v: IColorV<T>): IColorV<S> {
+function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   return {
     tag: "ColorV",
     contents: mapColorInner(f, v.contents),
   };
 }
 
-function mapPalette<T, S>(f: (arg: T) => S, v: IPaletteV<T>): IPaletteV<S> {
+function mapPalette<T, S>(f: (arg: T) => S, v: PaletteV<T>): PaletteV<S> {
   return {
     tag: "PaletteV",
     contents: v.contents.map((e) => mapColorInner(f, e)),
@@ -398,7 +398,7 @@ const defaultVec2 = (): Expr<A> => {
     ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vary",
   };
-  const v2: IVector<A> = {
+  const v2: Vector<A> = {
     ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vector",
     contents: [e1, e2],
@@ -686,7 +686,7 @@ export const insertExpr = (
           [name, field, prop] = [ip.name, ip.field, ip.property];
           const gpi = trans.trMap[name.contents.value][
             field.value
-          ] as IFGPI<ad.Num>;
+          ] as FGPI<ad.Num>;
           const [gpiType, properties] = gpi.contents;
 
           // Right now, a property may not have been initialized (e.g. during the Style interpretation phase, when we are creating a translation).
@@ -819,7 +819,7 @@ export const isTagExpr = (
 export const findExprSafe = (
   trans: Translation,
   path: Path<A>
-): TagExpr<ad.Num> | IFGPI<ad.Num> => {
+): TagExpr<ad.Num> | FGPI<ad.Num> => {
   const res = findExpr(trans, path);
   if (res.tag !== "FGPI" && !isTagExpr(res)) {
     // Is an error
@@ -840,7 +840,7 @@ export const findExprSafe = (
 export const findExpr = (
   trans: Translation,
   path: Path<A>
-): TagExpr<ad.Num> | IFGPI<ad.Num> | StyleError => {
+): TagExpr<ad.Num> | FGPI<ad.Num> | StyleError => {
   let name, field, prop;
 
   switch (path.tag) {

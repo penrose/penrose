@@ -7,7 +7,7 @@ import { SVG } from "mathjax-full/js/output/svg.js";
 import { PenroseError } from "types/errors";
 import { Shape } from "types/shape";
 import { EquationData, LabelCache, LabelData, TextData } from "types/state";
-import { IFloatV } from "types/value";
+import { FloatV } from "types/value";
 import { err, ok, Result } from "./Error";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
@@ -102,7 +102,7 @@ export const retrieveLabel = (
   }
 };
 
-const floatV = (contents: number): IFloatV<number> => ({
+const floatV = (contents: number): FloatV<number> => ({
   tag: "FloatV",
   contents,
 });

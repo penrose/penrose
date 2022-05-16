@@ -4,11 +4,11 @@ import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
 import {
-  FloatV,
+  floatV,
   makeCanvas,
-  PtListV,
+  ptListV,
   sampleBlack,
-  VectorV,
+  vectorV,
 } from "shapes/Samplers";
 
 const rng = seedrandom("TestShapes.input");
@@ -21,10 +21,10 @@ export const _rectangles = [
   { center: [0, 300], width: 200, height: 200 },
 ].map((x) =>
   makeRectangle(rng, canvas, {
-    center: VectorV(x.center),
-    width: FloatV(x.width),
-    height: FloatV(x.height),
-    strokeWidth: FloatV(0),
+    center: vectorV(x.center),
+    width: floatV(x.width),
+    height: floatV(x.height),
+    strokeWidth: floatV(0),
     strokeColor: sampleBlack(),
   })
 );
@@ -39,9 +39,9 @@ export const _circles = [
   { center: [150, 150], r: 100 },
 ].map((x) =>
   makeCircle(rng, canvas, {
-    r: FloatV(x.r),
-    center: VectorV(x.center),
-    strokeWidth: FloatV(0),
+    r: floatV(x.r),
+    center: vectorV(x.center),
+    strokeWidth: floatV(0),
     strokeColor: sampleBlack(),
   })
 );
@@ -53,9 +53,9 @@ export const _lines = [
   { start: [200, 400], end: [300, 100] },
 ].map((x) =>
   makeLine(rng, canvas, {
-    start: VectorV(x.start),
-    end: VectorV(x.end),
-    strokeWidth: FloatV(0),
+    start: vectorV(x.start),
+    end: vectorV(x.end),
+    strokeWidth: floatV(0),
   })
 );
 
@@ -91,7 +91,7 @@ export const _polygons = [
   ],
 ].map((pts) =>
   makePolygon(rng, canvas, {
-    points: PtListV(pts),
-    scale: FloatV(1),
+    points: ptListV(pts),
+    scale: floatV(1),
   })
 );

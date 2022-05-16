@@ -2,7 +2,7 @@ import React, { CSSProperties } from "react";
 import "./Embed.css";
 import Logo from "./icons/Logo";
 import Resample from "./icons/Resample";
-import { ISimpleProps, Simple } from "./Simple";
+import { Simple, SimpleProps } from "./Simple";
 
 const footerStyle: CSSProperties = {
   display: "flex",
@@ -36,14 +36,14 @@ const Heart = () => (
   </span>
 );
 
-interface IEmbedState {
+interface EmbedState {
   variation: string;
 }
 
-// variation from ISimpleProps is just the initial variation; the actual
+// variation from SimpleProps is just the initial variation; the actual
 // variation is stored in state, can be changed by resampling
-class Embed extends React.Component<ISimpleProps, IEmbedState> {
-  constructor(props: ISimpleProps) {
+class Embed extends React.Component<SimpleProps, EmbedState> {
+  constructor(props: SimpleProps) {
     super(props);
     this.state = { variation: props.variation };
   }

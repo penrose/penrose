@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import IViewProps from "./IViewProps";
+import ViewProps from "./ViewProps";
 
 const LogLine = styled.li`
   list-style-type: none;
@@ -11,7 +11,7 @@ const LogLine = styled.li`
   border-bottom: 1px solid gray;
 `;
 
-class LogView extends React.Component<IViewProps> {
+class LogView extends React.Component<ViewProps> {
   public render() {
     // const { connectionLog } = this.props;
     return <ul style={{ padding: 0 }}></ul>;

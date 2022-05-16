@@ -13,19 +13,19 @@ import { BindingForm, Header, StyT } from "./style";
 // }
 // TODO why doesn't this work
 
-export type ProgType = ISubProgT | IStyProgT;
+export type ProgType = SubProgT | StyProgT;
 
-export interface ISubProgT {
+export interface SubProgT {
   tag: "SubProgT";
 }
 
-export interface IStyProgT {
+export interface StyProgT {
   tag: "StyProgT";
 }
 
 // g ::= B => |T
 // Assumes nullary type constructors (i.e. Style type = Substance type)
-export interface ISelEnv {
+export interface SelEnv {
   // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
   // Variable => Type
   sTypeVarMap: { [k: string]: StyT<A> }; // B : |T
@@ -37,8 +37,6 @@ export interface ISelEnv {
   errors: StyleErrors;
 }
 // Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
-
-export type SelEnv = ISelEnv;
 
 //#endregion
 //#region Selector dynamic semantics (matching)

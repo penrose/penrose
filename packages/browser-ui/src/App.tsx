@@ -77,14 +77,14 @@ export const DownloadSVG = (
 
 const LOCALSTORAGE_SETTINGS = "browser-ui-settings-penrose";
 
-export interface ISettings {
+export interface Settings {
   showInspector: boolean;
   autostep: boolean;
   autoStepSize: number;
   variation: string;
 }
 
-interface ICanvasState {
+interface CanvasState {
   currentState: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined
   error: PenroseError | undefined;
   processedInitial: boolean;
@@ -92,13 +92,13 @@ interface ICanvasState {
   history: PenroseState[];
   files: FileSocketResult | undefined;
   connected: boolean;
-  settings: ISettings;
+  settings: Settings;
   fileSocket: FileSocket | undefined;
 }
 
 const socketAddress = "ws://localhost:9160";
-class App extends React.Component<unknown, ICanvasState> {
-  public readonly state: ICanvasState = {
+class App extends React.Component<unknown, CanvasState> {
+  public readonly state: CanvasState = {
     currentState: undefined,
     fileSocket: undefined,
     error: undefined,
@@ -190,7 +190,7 @@ class App extends React.Component<unknown, ICanvasState> {
       );
     }
   };
-  public setSettings = (settings: ISettings): void => {
+  public setSettings = (settings: Settings): void => {
     this.setState({ settings });
     localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
   };

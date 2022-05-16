@@ -1,15 +1,15 @@
 import {
-  ICenter,
-  ICorner,
-  IFill,
-  INamed,
-  IRect,
-  IRotate,
-  IShape,
-  IStroke,
+  Center,
+  Corner,
+  Fill,
+  Named,
+  Rect,
+  Rotate,
+  Shape,
+  Stroke,
 } from "types/shapes";
 import {
-  BoolV,
+  boolV,
   Canvas,
   sampleColor,
   sampleHeight,
@@ -17,44 +17,43 @@ import {
   sampleVector,
   sampleWidth,
   sampleZero,
-  StrV,
+  strV,
 } from "./Samplers";
 
-// not to be confused with IRect... need to rename maybe?
-export interface IRectangle
-  extends INamed,
-    IStroke,
-    IFill,
-    ICenter,
-    IRotate,
-    IRect,
-    ICorner {}
+export interface RectangleProps
+  extends Named,
+    Stroke,
+    Fill,
+    Center,
+    Rotate,
+    Rect,
+    Corner {}
 
 export const sampleRectangle = (
   rng: seedrandom.prng,
   canvas: Canvas
-): IRectangle => ({
-  name: StrV("defaultRectangle"),
-  style: StrV(""),
+): RectangleProps => ({
+  name: strV("defaultRectangle"),
+  style: strV(""),
   strokeWidth: sampleZero(),
-  strokeStyle: StrV("solid"),
+  strokeStyle: strV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDasharray: StrV(""),
+  strokeDasharray: strV(""),
   fillColor: sampleColor(rng),
   center: sampleVector(rng, canvas),
   width: sampleWidth(rng, canvas),
   height: sampleHeight(rng, canvas),
   cornerRadius: sampleZero(),
   rotation: sampleZero(),
-  ensureOnCanvas: BoolV(true),
+  ensureOnCanvas: boolV(true),
 });
 
-export type Rectangle = IShape & { shapeType: "Rectangle" } & IRectangle;
+export type Rectangle = Shape & { shapeType: "Rectangle" } & RectangleProps;
 
 export const makeRectangle = (
   rng: seedrandom.prng,
   canvas: Canvas,
-  properties: Partial<IRectangle>
+  properties: Partial<RectangleProps>
 ): Rectangle => ({
   ...sampleRectangle(rng, canvas),
   ...properties,
