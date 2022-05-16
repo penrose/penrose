@@ -13,6 +13,7 @@ export const constructLayout = (children: IJsonTabSetNode[]): Model =>
           {
             type: "tab",
             name: "files",
+            component: "files",
             enableClose: false,
           },
           {
@@ -200,6 +201,7 @@ export interface IWorkspaceJSON extends Omit<IWorkspace, "layout"> {
 
 /**
  * We separate the filePointers so they're easier to enumerate in the UI
+ * These are stored in localStorage/indexedDB
  */
 export interface ILocalFileSystem {
   workspace: { [id: string]: IWorkspacePointer };

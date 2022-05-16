@@ -1,3 +1,7 @@
+/**
+ * This is where our state lives!
+ */
+
 import {
   compileDomain,
   compileTrio,
@@ -14,7 +18,7 @@ import {
   TabSetNode,
 } from "flexlayout-react";
 import localForage from "localforage";
-import { debounce, isEmpty, isEqual, memoize } from "lodash";
+import { debounce, isEmpty, memoize } from "lodash";
 import { toast } from "react-toastify";
 import { atom, AtomEffect, CallbackInterface, useRecoilCallback } from "recoil";
 import { v4 } from "uuid";
@@ -29,7 +33,9 @@ import {
   FileLocation,
   FilePointer,
   ILocalFileSystem,
+  ILocalLocation,
   IWorkspace,
+  IWorkspacePointer,
   SavedFile,
   StyleFile,
   StyleFilePointer,
@@ -39,7 +45,7 @@ import {
   WorkspacePointer,
 } from "../types/FileSystem";
 import { retrieveFileFromPointer } from "./fileSystemActions";
-// derived state with file contents and pointer both
+// maybe TODO? derived state with file contents and pointer both
 
 // Adapted from https://stackoverflow.com/questions/34401098/remove-a-property-in-an-object-immutably#comment83640640_47227198
 export const deleteProperty = (obj: any, key: string) => {
@@ -63,43 +69,9 @@ const debouncedSave = memoize((key: string) =>
     } else if (saveFile.type === "domain_file") {
       saveFile.cache = null;
     }
-    await localForage.setItem(key, JSON.stringify(saveFile));
+    await localForage.setItem(key, saveFile);
   }, 500)
 );
-
-// TODO: actually dont make this an effect
-const saveWorkspaceEffect: AtomEffect<IWorkspace> = ({ setSelf, onSet }) => {
-  onSet(async (newWorkspace, _oldWorkspace) => {
-    // HACK
-    const oldWorkspace = _oldWorkspace as IWorkspace;
-    // If updating a workspace that isn't saved yet to disk
-    // TODO: does this prematurely save?
-    if (
-      newWorkspace.location.type !== "local" &&
-      !isEqual(oldWorkspace.openFiles, newWorkspace.openFiles)
-    ) {
-      console.log("forking");
-      const name = `fork of ${oldWorkspace.name}`;
-      const location: FileLocation = {
-        type: "local",
-        localStorageKey: `workspace-${newWorkspace.id}`,
-      };
-      const saved = { ...newWorkspace, name, location };
-      setSelf(saved);
-      //   If updating a local workspace, save it
-    } else if (
-      newWorkspace.location.type === "local" &&
-      !isEmpty(newWorkspace.openFiles)
-    ) {
-      const saveFile: WorkspaceFile = {
-        type: "workspace_file",
-        contents: newWorkspace,
-        id: newWorkspace.id,
-      };
-      await debouncedSave(saveFile.id)(saveFile);
-    }
-  });
-};
 
 const defaultModel = constructLayout([
   {
@@ -112,14 +84,55 @@ const defaultModel = constructLayout([
 export const layoutState = atom<Model>({
   key: "layoutState",
   default: defaultModel,
-  //   necessary due to react flex layout
+  //   necessary due to react flex layout mutating stuff all the time
   dangerouslyAllowMutability: true,
 });
 
+// When user changes a workspace property, conduct side effects
+const _editWorkspace = async (set: any, workspace: IWorkspace) => {
+  if (workspace.location.type !== "local") {
+    // If updating a workspace that isn't "local" yet, save it
+    toast.info("Forking new workspace...");
+    const name = `fork of ${workspace.name}`;
+    const location: FileLocation = {
+      type: "local",
+      localStorageKey: `workspace-${workspace.id}`,
+    };
+    const saved = { ...workspace, name, location };
+    set(workspaceState, saved);
+
+    const saveFile: WorkspaceFile = {
+      type: "workspace_file",
+      contents: saved,
+      id: saved.id,
+    };
+    await debouncedSave(saved.location.localStorageKey)(saveFile);
+    const pointer: IWorkspacePointer = {
+      type: "workspace",
+      id: saved.id,
+      location,
+      name,
+    };
+    _addLocalFileToFileSystem(set, pointer);
+  } else if (
+    workspace.location.type === "local" &&
+    !isEmpty(workspace.openFiles)
+  ) {
+    //   If updating an already-local workspace, save it
+    const saveFile: WorkspaceFile = {
+      type: "workspace_file",
+      contents: workspace,
+      id: workspace.id,
+    };
+    await debouncedSave(saveFile.id)(saveFile);
+  }
+};
+
 export const useSetLayout = () =>
-  useRecoilCallback(({ set }) => (model: Model) => {
+  useRecoilCallback(({ set, snapshot }) => (model: Model) => {
     set(layoutState, model);
-    set(workspaceState, (state) => ({ ...state, layout: model.toJson() }));
+    const workspace = snapshot.getLoadable(workspaceState).contents!;
+    _editWorkspace(set, { ...workspace, layout: model.toJson() });
   });
 
 export const workspaceState = atom<IWorkspace>({
@@ -136,7 +149,7 @@ export const workspaceState = atom<IWorkspace>({
     forkedFrom: null,
     layout: defaultModel.toJson(),
   },
-  effects: [saveWorkspaceEffect],
+  effects: [],
 });
 
 export const fileContentsState = atom<FileContents>({
@@ -149,16 +162,17 @@ export const fileContentsState = atom<FileContents>({
 const saveLocalFileSystemEffect: AtomEffect<ILocalFileSystem> = ({
   setSelf,
   onSet,
+  trigger,
 }) => {
-  /*
-  setSelf(
-    localForage
-      .getItem("localFileSystem")
-      .then(
-        (val) => (val !== null ? val : new DefaultValue()) as ILocalFileSystem
-      )
-  );
-  */
+  const loadFileSystem = async () => {
+    const fileSystem = await localForage.getItem("localFileSystem");
+    if (fileSystem !== null) {
+      setSelf(fileSystem as ILocalFileSystem);
+    }
+  };
+  if (trigger === "get") {
+    loadFileSystem();
+  }
   //  TODO: do this init in a useEffect,sorry
   onSet((newFileSystem) => {
     localForage.setItem("localFileSystem", newFileSystem);
@@ -233,7 +247,7 @@ export const useOpenFileInWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (pointer: FilePointer) => {
     const workspace: IWorkspace = snapshot.getLoadable(workspaceState).contents;
     const layout = snapshot.getLoadable(layoutState).contents;
-    // If file already open, jump to it
+    // If file already open in workspace, jump to it (focus it)
     if (pointer.id in workspace.openFiles) {
       layout.visitNodes((node: any) => {
         layout.visitNodes((node: any) => {
@@ -253,10 +267,10 @@ export const useOpenFileInWorkspace = () =>
           ...state,
           [pointer.id]: loadedFile,
         }));
-        set(workspaceState, (state) => ({
-          ...state,
-          openFiles: { ...state.openFiles, [pointer.id]: pointer },
-        }));
+        _editWorkspace(set, {
+          ...workspace,
+          openFiles: { ...workspace.openFiles, [pointer.id]: pointer },
+        });
         if (!layout.getActiveTabset()) {
           layout.doAction(
             Actions.setActiveTabset(
@@ -313,29 +327,29 @@ export const useNewFileCreatorTab = () =>
     [layoutState]
   );
 
-const _closeWorkspaceFile = (set: any, id: string) => {
-  set(workspaceState, (state: IWorkspace) => ({
-    ...state,
-    openFiles: deleteProperty(state.openFiles, id),
-  }));
-  set(fileContentsState, (fileContents: FileContents) =>
-    deleteProperty(fileContents, id)
-  );
-};
-
 export const useCloseWorkspaceFile = () =>
-  useRecoilCallback(({ set }) => (id: string) => _closeWorkspaceFile(set, id));
+  useRecoilCallback(({ set, snapshot }) => (id: string) => {
+    // TODO: check if file has dependents in the workspace, and prevent closing if so
+    const workspace = snapshot.getLoadable(workspaceState).contents;
+    _editWorkspace(set, {
+      ...workspace,
+      openFiles: deleteProperty(workspace.openFiles, id),
+    });
+    set(fileContentsState, (fileContents: FileContents) =>
+      deleteProperty(fileContents, id)
+    );
+  });
 
 export const useUpdateFile = () =>
   useRecoilCallback(
     ({ set, snapshot }) => async (id: string, contents: string) => {
-      const pointer: FilePointer = snapshot.getLoadable(workspaceState).contents
+      let pointer: FilePointer = snapshot.getLoadable(workspaceState).contents
         .openFiles[id];
       const file = snapshot.getLoadable(fileContentsState).contents[id];
       const updated = { ...file, contents };
       if (pointer.location.type !== "local") {
-        // Make it local!
-        const newPointer: FilePointer = {
+        // Makes it local!
+        pointer = {
           ...pointer,
           name: `fork of ${pointer.name}`,
           location: {
@@ -343,17 +357,21 @@ export const useUpdateFile = () =>
             localStorageKey: `${pointer.type}-${pointer.id}`,
           },
         };
-        set(workspaceState, (state) => ({
-          ...state,
-          openFiles: { ...state.openFiles, [newPointer.id]: newPointer },
-        }));
-        _addLocalFileToFileSystem(set, newPointer);
+        const workspace = snapshot.getLoadable(workspaceState).contents;
+        _editWorkspace(set, {
+          ...workspace,
+          openFiles: { ...workspace.openFiles, [pointer.id]: pointer },
+        });
+
+        _addLocalFileToFileSystem(set, pointer);
       }
       set(fileContentsState, (state) => ({
         ...state,
         [file.id]: updated,
       }));
-      await debouncedSave(file.id)(updated);
+      await debouncedSave((pointer.location as ILocalLocation).localStorageKey)(
+        updated
+      );
     }
   );
 
@@ -462,13 +480,14 @@ export const useUpdateNodeToNewDiagram = () =>
         ...state,
         [diagramFile.id]: diagramFile,
       }));
-      set(workspaceState, (state) => ({
-        ...state,
+      const workspace = snapshot.getLoadable(workspaceState).contents;
+      _editWorkspace(set, {
+        ...workspace,
         openFiles: {
-          ...state.openFiles,
+          ...workspace.openFiles,
           [diagramPointer.id]: diagramPointer,
         },
-      }));
+      });
       _addLocalFileToFileSystem(set, diagramPointer);
       const layout: Model = snapshot.getLoadable(layoutState).contents;
       layout.doAction(

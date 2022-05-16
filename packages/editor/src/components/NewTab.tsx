@@ -59,6 +59,11 @@ export default function NewTab({ node }: { node: TabNode }) {
           onClick={() => setCurrentView("diagram")}
         />
         <FileTypeButton
+          label="substance"
+          icon={<FileExtension>.sub</FileExtension>}
+          onClick={() => setCurrentView("diagram")}
+        />
+        <FileTypeButton
           label="trio"
           icon={<FileExtension>,,,</FileExtension>}
           onClick={() => setCurrentView("diagram")}

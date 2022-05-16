@@ -1,5 +1,6 @@
 import { compileDomain } from "@penrose/core";
 import { Model } from "flexlayout-react";
+import localforage from "localforage";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import {
@@ -156,25 +157,23 @@ function processExamplePointerContents(
  */
 function processLocalPointerContents(
   pointer: FilePointer,
-  value: string
+  value: any
 ): SavedFile {
-  const parsed = JSON.parse(value);
   switch (pointer.type) {
     case "substance":
     case "style":
     case "diagram_state":
-      return parsed;
+      return value;
     case "domain":
-      const value = parsed.contents;
-      const compiledDomain = compileDomain(value);
+      const compiledDomain = compileDomain(value.contents);
       const cache = compiledDomain.isOk() ? compiledDomain.value : null;
-      return { ...parsed, cache };
+      return { ...value, cache };
     case "workspace":
       return {
-        ...parsed,
+        ...value,
         contents: {
-          ...parsed.contents,
-          layout: Model.fromJson(parsed.contents.layout),
+          ...value.contents,
+          layout: Model.fromJson(value.contents.layout),
         },
       };
   }
@@ -288,9 +287,13 @@ export async function retrieveFileFromPointer(
 ): Promise<SavedFile | null> {
   switch (pointer.location.type) {
     case "local":
-      const stored = localStorage.getItem(pointer.location.localStorageKey);
-      if (stored) {
-        return processLocalPointerContents(pointer, stored);
+      const stored = await localforage.getItem(
+        pointer.location.localStorageKey
+      );
+      console.log(stored);
+      if (stored !== null) {
+        console.log(stored);
+        // return processLocalPointerContents(pointer, stored);
       }
       break;
     case "example":
@@ -325,5 +328,6 @@ export async function retrieveFileFromPointer(
     default:
       break;
   }
+  console.error(`Retrieval error for`, pointer);
   return null;
 }

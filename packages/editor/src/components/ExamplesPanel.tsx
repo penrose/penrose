@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
-import { useLoadWorkspace } from "../state/atoms";
+import { useLoadWorkspace, useOpenFileInWorkspace } from "../state/atoms";
 import { fetchExamples } from "../state/fileSystemActions";
-import { FilePointer, IExamples } from "../types/FileSystem";
+import { IExamples } from "../types/FileSystem";
 import FileButton from "./FileButton";
 
-export default function ExamplesPanel({
-  openFileInWorkspace,
-}: {
-  openFileInWorkspace(pointer: FilePointer): void;
-}) {
+export default function ExamplesPanel() {
   const [examples, setExamples] = useState<IExamples | null>();
   const loadWorkspace = useLoadWorkspace();
   useEffect(() => {
@@ -17,6 +13,7 @@ export default function ExamplesPanel({
       setExamples(ex);
     })();
   }, []);
+  const openFileInWorkspace = useOpenFileInWorkspace();
   if (!examples) {
     return (
       <div>

@@ -17,13 +17,13 @@ import { useRecoilState } from "recoil";
 import { SquareBlueButton } from "./components/BlueButton";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesPanel from "./components/ExamplesPanel";
+import FileBrowser from "./components/FileBrowser";
 import NewTab from "./components/NewTab";
 import {
   fileContentsState,
   layoutState,
   useCloseWorkspaceFile,
   useNewFileCreatorTab,
-  useOpenFileInWorkspace,
   useSetLayout,
   useUpdateFile,
   workspaceState,
@@ -35,7 +35,6 @@ function App() {
   const [layout] = useRecoilState(layoutState);
   const [fileContents] = useRecoilState(fileContentsState);
 
-  const openFileInWorkspace = useOpenFileInWorkspace();
   const setLayout = useSetLayout();
 
   const newFileCreatorTab = useNewFileCreatorTab();
@@ -92,11 +91,11 @@ function App() {
         case "new_tab":
           return <NewTab node={node} />;
         case "examples":
-          return <ExamplesPanel openFileInWorkspace={openFileInWorkspace} />;
+          return <ExamplesPanel />;
         case "settings":
           return <div>settings</div>;
         case "files":
-          return <div>files</div>;
+          return <FileBrowser />;
         default:
           console.error("unhandled node type", node.getComponent());
           return <div />;
