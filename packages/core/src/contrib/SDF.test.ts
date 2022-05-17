@@ -22,7 +22,7 @@ const compareDistance = (
   p: ad.Num[],
   expected: number
 ) => {
-  const result = compDict.distanceShapeToPoint(
+  const result = compDict.signedDistance(
     { rng: seedrandom("shape") },
     [shapeType, shape],
     p
