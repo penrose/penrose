@@ -2217,9 +2217,7 @@ const mkPath = (strs: string[]): Path<A> => {
 };
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
-  if (s === "Equation") return ["width", "height"];
-  if (s === "Text") return ["width", "height", "ascent", "descent"];
-  return [];
+  return shapedefs[s].pendingProps;
 };
 
 const isVarying = (e: Expr<A>): boolean => {

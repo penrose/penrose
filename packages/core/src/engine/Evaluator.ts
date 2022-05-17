@@ -725,8 +725,6 @@ export const resolvePath = (
         // Already done, just return results of lookup -- this is a cache hit
         return { tag: "Val", contents: expr.contents };
       } else {
-        console.log(expr);
-
         throw Error("Unexpected tag");
       }
     }
