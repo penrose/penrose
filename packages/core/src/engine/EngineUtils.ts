@@ -22,16 +22,13 @@ import {
   FGPI,
   FieldExpr,
   FloatV,
-  HMatrixV,
   ListV,
   LListV,
   MatrixV,
-  PaletteV,
   PathCmd,
   PathDataV,
   PropID,
   PtListV,
-  PtV,
   ShapeTypeStr,
   SubPath,
   TagExpr,
@@ -88,13 +85,6 @@ function mapFloat<T, S>(f: (arg: T) => S, v: FloatV<T>): FloatV<S> {
   };
 }
 
-function mapPt<T, S>(f: (arg: T) => S, v: PtV<T>): PtV<S> {
-  return {
-    tag: "PtV",
-    contents: mapTuple(f, v.contents),
-  };
-}
-
 function mapPtList<T, S>(f: (arg: T) => S, v: PtListV<T>): PtListV<S> {
   return {
     tag: "PtListV",
@@ -137,22 +127,6 @@ function mapMatrix<T, S>(f: (arg: T) => S, v: MatrixV<T>): MatrixV<S> {
   };
 }
 
-function mapHMatrix<T, S>(f: (arg: T) => S, v: HMatrixV<T>): HMatrixV<S> {
-  const m = v.contents;
-  return {
-    tag: "HMatrixV",
-    contents: {
-      // TODO: This could probably be a generic map over object values
-      xScale: f(m.xScale),
-      xSkew: f(m.xSkew),
-      yScale: f(m.yScale),
-      ySkew: f(m.ySkew),
-      dx: f(m.dx),
-      dy: f(m.dy),
-    },
-  };
-}
-
 // convert all `ad.Num`s to numbers for use in Shape def
 function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
   return {
@@ -191,13 +165,6 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
-function mapPalette<T, S>(f: (arg: T) => S, v: PaletteV<T>): PaletteV<S> {
-  return {
-    tag: "PaletteV",
-    contents: v.contents.map((e) => mapColorInner(f, e)),
-  };
-}
-
 // Utils for converting types of values
 
 // Expects `f` to be a function between numeric types (e.g. number -> ad.Num, ad.Num -> number, AD var -> ad.Num ...)
@@ -206,8 +173,6 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   switch (v.tag) {
     case "FloatV":
       return mapFloat(f, v);
-    case "PtV":
-      return mapPt(f, v);
     case "PtListV":
       return mapPtList(f, v);
     case "ListV":
@@ -220,19 +185,13 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapTup(f, v);
     case "LListV":
       return mapLList(f, v);
-    case "HMatrixV":
-      return mapHMatrix(f, v);
     case "ColorV":
       return mapColor(f, v);
-    case "PaletteV":
-      return mapPalette(f, v);
     case "PathDataV":
       return mapPathData(f, v);
     // non-numeric Value types
     case "BoolV":
     case "StrV":
-    case "FileV":
-    case "StyleV":
     case "IntV":
       return v;
   }
@@ -283,12 +242,9 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
     }
     case "IntV":
     case "BoolV":
-    case "StrV":
-    case "FileV":
-    case "StyleV": {
+    case "StrV": {
       return [];
     }
-    case "PtV":
     case "ListV":
     case "VectorV":
     case "TupV": {
@@ -306,12 +262,6 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
     }
     case "ColorV": {
       return colorADNums(v.contents);
-    }
-    case "PaletteV": {
-      return v.contents.flatMap(colorADNums);
-    }
-    case "HMatrixV": {
-      return Object.values(v.contents);
     }
   }
 };

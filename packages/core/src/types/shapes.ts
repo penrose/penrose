@@ -47,11 +47,6 @@ export interface Scale {
   scale: FloatV<ad.Num>; // doesn't work correctly
 }
 
-// // TODO: use this
-// export interface Transform {
-//   matrix: MatrixV<ad.Num>;
-// }
-
 export interface Poly {
   points: PtListV<ad.Num>;
 }
