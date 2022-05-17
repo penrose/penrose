@@ -16,11 +16,10 @@ import * as ad from "types/ad";
 
 const digitPrecision = 4;
 
-const numOf = (x: ad.Num) => {
-  const g = secondaryGraph([x]);
+const numsOf = (xs: ad.Num[]) => {
+  const g = secondaryGraph(xs);
   const f = genCode(g);
-  const [y] = f([]).secondary; // no inputs, so, empty array
-  return y;
+  return f([]).secondary;
 };
 
 describe("rectangleDifference", () => {
@@ -128,17 +127,17 @@ describe("outwardUnitNormal", () => {
 describe("halfPlaneSDF", () => {
   test("without padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
-    expect(numOf(result)).toBeCloseTo(-3, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(-3, digitPrecision);
   });
 
   test("with padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
-    expect(numOf(result)).toBeCloseTo(-13, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(-13, digitPrecision);
   });
 
   test("zero outside", async () => {
     let result = halfPlaneSDF([point2, point3], [point5], point1, 0);
-    expect(numOf(result)).toBeCloseTo(1, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(1, digitPrecision);
   });
 });
 
@@ -228,9 +227,10 @@ describe("toImplicit", () => {
       [1, 6],
       0
     );
-    expect(numOf(result.a)).toBeCloseTo(1 / Math.sqrt(2), 4);
-    expect(numOf(result.b)).toBeCloseTo(-1 / Math.sqrt(2), 4);
-    expect(numOf(result.c)).toBeCloseTo(-1 / Math.sqrt(2), 4);
+    let [a, b, c] = numsOf([result.a, result.b, result.c])
+    expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
+    expect(b).toBeCloseTo(-1 / Math.sqrt(2), 4);
+    expect(c).toBeCloseTo(-1 / Math.sqrt(2), 4);
   });
 
   test("halfPlaneToImplicit with padding", async () => {
@@ -242,9 +242,10 @@ describe("toImplicit", () => {
       [5, 6],
       1
     );
-    expect(numOf(result.a)).toBeCloseTo(1 / Math.sqrt(2), 4);
-    expect(numOf(result.b)).toBeCloseTo(-1 / Math.sqrt(2), 4);
-    expect(numOf(result.c)).toBeCloseTo(-1 / Math.sqrt(2) - 1, 4);
+    let [a, b, c] = numsOf([result.a, result.b, result.c])
+    expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
+    expect(b).toBeCloseTo(-1 / Math.sqrt(2), 4);
+    expect(c).toBeCloseTo(-1 / Math.sqrt(2) - 1, 4);
   });
 
   test("ellipseToImplicit", async () => {
@@ -256,10 +257,11 @@ describe("toImplicit", () => {
       strokeColor: sampleBlack(),
     });
     let result = ellipseToImplicit(ellipse);
-    expect(numOf(result.a)).toEqual(0.5);
-    expect(numOf(result.b)).toEqual(2);
-    expect(numOf(result.c)).toEqual(18);
-    expect(numOf(result.x)).toEqual(-11);
-    expect(numOf(result.y)).toEqual(22);
+    let [a, b, c, x, y] = numsOf([result.a, result.b, result.c, result.x, result.y])
+    expect(a).toEqual(0.5);
+    expect(b).toEqual(2);
+    expect(c).toEqual(18);
+    expect(x).toEqual(-11);
+    expect(y).toEqual(22);
   });
 });
