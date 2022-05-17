@@ -83,7 +83,7 @@ export const outwardUnitNormal = (
 };
 
 /**
- * Return value of the Signed Distance Function (SFD) of a half-plane evaluated at the origin.
+ * Return value of the Signed Distance Function (SDF) of a half-plane evaluated at the origin.
  * @param lineSegment Two points defining a side of the first polygon.
  * @param otherPoints All vertices of the second polygon.
  * @param insidePoint Point inside of the half-plane.
@@ -385,7 +385,7 @@ const pointCandidates = (
 };
 
 /**
- * Helper for Signed Distance Function (SFD) of a polygon and ellipse.
+ * Helper for Signed Distance Function (SDF) of a polygon and ellipse.
  * @param lineSegment Two points defining the line segment.
  * @param ellipse Ellipse shape.
  * @param insidePoint Any point inside of the half-plane.
