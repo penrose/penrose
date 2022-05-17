@@ -1,3 +1,4 @@
+import { findShapeNames, mkPath } from "compiler/Style";
 import consola, { LogLevel } from "consola";
 import { checkComp, compDict } from "contrib/Functions";
 import {
@@ -70,8 +71,11 @@ export const evalShapes = (
   // Insert all varying vals
   const trans = insertVaryings(clone(s.translation), varyingMapList);
 
+  const shapePathList: [string, string][] = findShapeNames(trans);
+  const shapePaths = shapePathList.map(mkPath);
+
   // Find out all the GPI expressions in the translation
-  const shapeExprs: FGPI<ad.Num>[] = s.shapePaths.map(
+  const shapeExprs: FGPI<ad.Num>[] = shapePaths.map(
     (p: Path<A>) => findExprSafe(trans, p) as FGPI<ad.Num>
   );
 
@@ -173,12 +177,16 @@ export const evalShape = (
   const [shapeType, propExprs] = shapeExpr.contents;
 
   // Make sure all props are evaluated to values instead of shapes
-  const props = mapValues(
-    propExprs,
-    (prop: TagExpr<ad.Num>): Value<ad.Num> => {
+  const props = Object.fromEntries(
+    Object.entries(propExprs).map(([name, prop]: [string, TagExpr<ad.Num>]): [
+      string,
+      Value<ad.Num>
+    ] => {
       // TODO: Refactor these cases to be more concise
       switch (prop.tag) {
         case "OptEval": {
+          console.log(name);
+
           // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
           // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
           const res: Value<ad.Num> = (evalExpr(
@@ -187,17 +195,17 @@ export const evalShape = (
             trans,
             optDebugInfo
           ) as Val<ad.Num>).contents;
-          return res;
+          return [name, res];
         }
         case "Done": {
-          return prop.contents;
+          return [name, prop.contents];
         }
         case "Pending": {
           // Pending expressions are just converted because they get converted back to numbers later
-          return prop.contents;
+          return [name, prop.contents];
         }
       }
-    }
+    })
   );
 
   const shape: ShapeAD = { shapeType, properties: props };

@@ -13,22 +13,20 @@ export type ShapeFn = (xs: number[]) => Shape[];
  */
 export interface State {
   seeds: Seeds;
-  varyingPaths: Path<A>[];
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
-  shapePaths: Path<A>[];
+  varyingPaths: Path<A>[];
   uninitializedPaths: Path<A>[];
-  params: Params;
+  pendingPaths: Path<A>[];
   objFns: Fn[];
   constrFns: Fn[];
-  pendingPaths: Path<A>[];
   varyingValues: number[];
   translation: Translation;
   shapeOrdering: string[];
   labelCache: LabelCache;
   shapes: Shape[];
-  varyingMap: VaryMap;
   canvas: Canvas;
   computeShapes: ShapeFn;
+  params: Params;
 }
 
 // Some compDict functions (currently only sampleColor) need a prng, so we need
