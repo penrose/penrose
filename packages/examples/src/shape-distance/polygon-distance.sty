@@ -1,0 +1,34 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Point p {
+    p.icon = Circle {
+        strokeWidth : 0
+        fillColor: rgba(0,0,0,1)
+        r: 2
+    }
+}
+
+forall ReverseL g {
+    g.icon = Polygon {
+        strokeWidth : 1
+        fillColor: rgba(68/255,114/255,148/255,1)
+        points: [(-200,-200), (-200,0), (0,0), (0,200), (200,200), (200,-200)]
+    }
+}
+
+forall Star s {
+    g.icon = Polygon {
+        strokeWidth : 1
+        fillColor: rgba(68/255,114/255,148/255,1)
+        points: [(-200,-200), (0,200), (200,-300), (-200,150), (250,150)]
+        fillRule : "evenodd"
+    }
+}
+
+forall Point p; Polygon g
+where Around(p, g) {
+    ensure equal(distanceShapeToPoint(g.icon, p.icon.center), 20)
+}

@@ -1,0 +1,2003 @@
+Star g
+
+Point p0
+Around(p0,g)
+Point p1
+Around(p1,g)
+Point p2
+Around(p2,g)
+Point p3
+Around(p3,g)
+Point p4
+Around(p4,g)
+Point p5
+Around(p5,g)
+Point p6
+Around(p6,g)
+Point p7
+Around(p7,g)
+Point p8
+Around(p8,g)
+Point p9
+Around(p9,g)
+Point p10
+Around(p10,g)
+Point p11
+Around(p11,g)
+Point p12
+Around(p12,g)
+Point p13
+Around(p13,g)
+Point p14
+Around(p14,g)
+Point p15
+Around(p15,g)
+Point p16
+Around(p16,g)
+Point p17
+Around(p17,g)
+Point p18
+Around(p18,g)
+Point p19
+Around(p19,g)
+Point p20
+Around(p20,g)
+Point p21
+Around(p21,g)
+Point p22
+Around(p22,g)
+Point p23
+Around(p23,g)
+Point p24
+Around(p24,g)
+Point p25
+Around(p25,g)
+Point p26
+Around(p26,g)
+Point p27
+Around(p27,g)
+Point p28
+Around(p28,g)
+Point p29
+Around(p29,g)
+Point p30
+Around(p30,g)
+Point p31
+Around(p31,g)
+Point p32
+Around(p32,g)
+Point p33
+Around(p33,g)
+Point p34
+Around(p34,g)
+Point p35
+Around(p35,g)
+Point p36
+Around(p36,g)
+Point p37
+Around(p37,g)
+Point p38
+Around(p38,g)
+Point p39
+Around(p39,g)
+Point p40
+Around(p40,g)
+Point p41
+Around(p41,g)
+Point p42
+Around(p42,g)
+Point p43
+Around(p43,g)
+Point p44
+Around(p44,g)
+Point p45
+Around(p45,g)
+Point p46
+Around(p46,g)
+Point p47
+Around(p47,g)
+Point p48
+Around(p48,g)
+Point p49
+Around(p49,g)
+Point p50
+Around(p50,g)
+Point p51
+Around(p51,g)
+Point p52
+Around(p52,g)
+Point p53
+Around(p53,g)
+Point p54
+Around(p54,g)
+Point p55
+Around(p55,g)
+Point p56
+Around(p56,g)
+Point p57
+Around(p57,g)
+Point p58
+Around(p58,g)
+Point p59
+Around(p59,g)
+Point p60
+Around(p60,g)
+Point p61
+Around(p61,g)
+Point p62
+Around(p62,g)
+Point p63
+Around(p63,g)
+Point p64
+Around(p64,g)
+Point p65
+Around(p65,g)
+Point p66
+Around(p66,g)
+Point p67
+Around(p67,g)
+Point p68
+Around(p68,g)
+Point p69
+Around(p69,g)
+Point p70
+Around(p70,g)
+Point p71
+Around(p71,g)
+Point p72
+Around(p72,g)
+Point p73
+Around(p73,g)
+Point p74
+Around(p74,g)
+Point p75
+Around(p75,g)
+Point p76
+Around(p76,g)
+Point p77
+Around(p77,g)
+Point p78
+Around(p78,g)
+Point p79
+Around(p79,g)
+Point p80
+Around(p80,g)
+Point p81
+Around(p81,g)
+Point p82
+Around(p82,g)
+Point p83
+Around(p83,g)
+Point p84
+Around(p84,g)
+Point p85
+Around(p85,g)
+Point p86
+Around(p86,g)
+Point p87
+Around(p87,g)
+Point p88
+Around(p88,g)
+Point p89
+Around(p89,g)
+Point p90
+Around(p90,g)
+Point p91
+Around(p91,g)
+Point p92
+Around(p92,g)
+Point p93
+Around(p93,g)
+Point p94
+Around(p94,g)
+Point p95
+Around(p95,g)
+Point p96
+Around(p96,g)
+Point p97
+Around(p97,g)
+Point p98
+Around(p98,g)
+Point p99
+Around(p99,g)
+/*
+Point p100
+Around(p100,g)
+Point p101
+Around(p101,g)
+Point p102
+Around(p102,g)
+Point p103
+Around(p103,g)
+Point p104
+Around(p104,g)
+Point p105
+Around(p105,g)
+Point p106
+Around(p106,g)
+Point p107
+Around(p107,g)
+Point p108
+Around(p108,g)
+Point p109
+Around(p109,g)
+Point p110
+Around(p110,g)
+Point p111
+Around(p111,g)
+Point p112
+Around(p112,g)
+Point p113
+Around(p113,g)
+Point p114
+Around(p114,g)
+Point p115
+Around(p115,g)
+Point p116
+Around(p116,g)
+Point p117
+Around(p117,g)
+Point p118
+Around(p118,g)
+Point p119
+Around(p119,g)
+Point p120
+Around(p120,g)
+Point p121
+Around(p121,g)
+Point p122
+Around(p122,g)
+Point p123
+Around(p123,g)
+Point p124
+Around(p124,g)
+Point p125
+Around(p125,g)
+Point p126
+Around(p126,g)
+Point p127
+Around(p127,g)
+Point p128
+Around(p128,g)
+Point p129
+Around(p129,g)
+Point p130
+Around(p130,g)
+Point p131
+Around(p131,g)
+Point p132
+Around(p132,g)
+Point p133
+Around(p133,g)
+Point p134
+Around(p134,g)
+Point p135
+Around(p135,g)
+Point p136
+Around(p136,g)
+Point p137
+Around(p137,g)
+Point p138
+Around(p138,g)
+Point p139
+Around(p139,g)
+Point p140
+Around(p140,g)
+Point p141
+Around(p141,g)
+Point p142
+Around(p142,g)
+Point p143
+Around(p143,g)
+Point p144
+Around(p144,g)
+Point p145
+Around(p145,g)
+Point p146
+Around(p146,g)
+Point p147
+Around(p147,g)
+Point p148
+Around(p148,g)
+Point p149
+Around(p149,g)
+Point p150
+Around(p150,g)
+Point p151
+Around(p151,g)
+Point p152
+Around(p152,g)
+Point p153
+Around(p153,g)
+Point p154
+Around(p154,g)
+Point p155
+Around(p155,g)
+Point p156
+Around(p156,g)
+Point p157
+Around(p157,g)
+Point p158
+Around(p158,g)
+Point p159
+Around(p159,g)
+Point p160
+Around(p160,g)
+Point p161
+Around(p161,g)
+Point p162
+Around(p162,g)
+Point p163
+Around(p163,g)
+Point p164
+Around(p164,g)
+Point p165
+Around(p165,g)
+Point p166
+Around(p166,g)
+Point p167
+Around(p167,g)
+Point p168
+Around(p168,g)
+Point p169
+Around(p169,g)
+Point p170
+Around(p170,g)
+Point p171
+Around(p171,g)
+Point p172
+Around(p172,g)
+Point p173
+Around(p173,g)
+Point p174
+Around(p174,g)
+Point p175
+Around(p175,g)
+Point p176
+Around(p176,g)
+Point p177
+Around(p177,g)
+Point p178
+Around(p178,g)
+Point p179
+Around(p179,g)
+Point p180
+Around(p180,g)
+Point p181
+Around(p181,g)
+Point p182
+Around(p182,g)
+Point p183
+Around(p183,g)
+Point p184
+Around(p184,g)
+Point p185
+Around(p185,g)
+Point p186
+Around(p186,g)
+Point p187
+Around(p187,g)
+Point p188
+Around(p188,g)
+Point p189
+Around(p189,g)
+Point p190
+Around(p190,g)
+Point p191
+Around(p191,g)
+Point p192
+Around(p192,g)
+Point p193
+Around(p193,g)
+Point p194
+Around(p194,g)
+Point p195
+Around(p195,g)
+Point p196
+Around(p196,g)
+Point p197
+Around(p197,g)
+Point p198
+Around(p198,g)
+Point p199
+Around(p199,g)
+Point p200
+Around(p200,g)
+Point p201
+Around(p201,g)
+Point p202
+Around(p202,g)
+Point p203
+Around(p203,g)
+Point p204
+Around(p204,g)
+Point p205
+Around(p205,g)
+Point p206
+Around(p206,g)
+Point p207
+Around(p207,g)
+Point p208
+Around(p208,g)
+Point p209
+Around(p209,g)
+Point p210
+Around(p210,g)
+Point p211
+Around(p211,g)
+Point p212
+Around(p212,g)
+Point p213
+Around(p213,g)
+Point p214
+Around(p214,g)
+Point p215
+Around(p215,g)
+Point p216
+Around(p216,g)
+Point p217
+Around(p217,g)
+Point p218
+Around(p218,g)
+Point p219
+Around(p219,g)
+Point p220
+Around(p220,g)
+Point p221
+Around(p221,g)
+Point p222
+Around(p222,g)
+Point p223
+Around(p223,g)
+Point p224
+Around(p224,g)
+Point p225
+Around(p225,g)
+Point p226
+Around(p226,g)
+Point p227
+Around(p227,g)
+Point p228
+Around(p228,g)
+Point p229
+Around(p229,g)
+Point p230
+Around(p230,g)
+Point p231
+Around(p231,g)
+Point p232
+Around(p232,g)
+Point p233
+Around(p233,g)
+Point p234
+Around(p234,g)
+Point p235
+Around(p235,g)
+Point p236
+Around(p236,g)
+Point p237
+Around(p237,g)
+Point p238
+Around(p238,g)
+Point p239
+Around(p239,g)
+Point p240
+Around(p240,g)
+Point p241
+Around(p241,g)
+Point p242
+Around(p242,g)
+Point p243
+Around(p243,g)
+Point p244
+Around(p244,g)
+Point p245
+Around(p245,g)
+Point p246
+Around(p246,g)
+Point p247
+Around(p247,g)
+Point p248
+Around(p248,g)
+Point p249
+Around(p249,g)
+Point p250
+Around(p250,g)
+Point p251
+Around(p251,g)
+Point p252
+Around(p252,g)
+Point p253
+Around(p253,g)
+Point p254
+Around(p254,g)
+Point p255
+Around(p255,g)
+Point p256
+Around(p256,g)
+Point p257
+Around(p257,g)
+Point p258
+Around(p258,g)
+Point p259
+Around(p259,g)
+Point p260
+Around(p260,g)
+Point p261
+Around(p261,g)
+Point p262
+Around(p262,g)
+Point p263
+Around(p263,g)
+Point p264
+Around(p264,g)
+Point p265
+Around(p265,g)
+Point p266
+Around(p266,g)
+Point p267
+Around(p267,g)
+Point p268
+Around(p268,g)
+Point p269
+Around(p269,g)
+Point p270
+Around(p270,g)
+Point p271
+Around(p271,g)
+Point p272
+Around(p272,g)
+Point p273
+Around(p273,g)
+Point p274
+Around(p274,g)
+Point p275
+Around(p275,g)
+Point p276
+Around(p276,g)
+Point p277
+Around(p277,g)
+Point p278
+Around(p278,g)
+Point p279
+Around(p279,g)
+Point p280
+Around(p280,g)
+Point p281
+Around(p281,g)
+Point p282
+Around(p282,g)
+Point p283
+Around(p283,g)
+Point p284
+Around(p284,g)
+Point p285
+Around(p285,g)
+Point p286
+Around(p286,g)
+Point p287
+Around(p287,g)
+Point p288
+Around(p288,g)
+Point p289
+Around(p289,g)
+Point p290
+Around(p290,g)
+Point p291
+Around(p291,g)
+Point p292
+Around(p292,g)
+Point p293
+Around(p293,g)
+Point p294
+Around(p294,g)
+Point p295
+Around(p295,g)
+Point p296
+Around(p296,g)
+Point p297
+Around(p297,g)
+Point p298
+Around(p298,g)
+Point p299
+Around(p299,g)
+Point p300
+Around(p300,g)
+Point p301
+Around(p301,g)
+Point p302
+Around(p302,g)
+Point p303
+Around(p303,g)
+Point p304
+Around(p304,g)
+Point p305
+Around(p305,g)
+Point p306
+Around(p306,g)
+Point p307
+Around(p307,g)
+Point p308
+Around(p308,g)
+Point p309
+Around(p309,g)
+Point p310
+Around(p310,g)
+Point p311
+Around(p311,g)
+Point p312
+Around(p312,g)
+Point p313
+Around(p313,g)
+Point p314
+Around(p314,g)
+Point p315
+Around(p315,g)
+Point p316
+Around(p316,g)
+Point p317
+Around(p317,g)
+Point p318
+Around(p318,g)
+Point p319
+Around(p319,g)
+Point p320
+Around(p320,g)
+Point p321
+Around(p321,g)
+Point p322
+Around(p322,g)
+Point p323
+Around(p323,g)
+Point p324
+Around(p324,g)
+Point p325
+Around(p325,g)
+Point p326
+Around(p326,g)
+Point p327
+Around(p327,g)
+Point p328
+Around(p328,g)
+Point p329
+Around(p329,g)
+Point p330
+Around(p330,g)
+Point p331
+Around(p331,g)
+Point p332
+Around(p332,g)
+Point p333
+Around(p333,g)
+Point p334
+Around(p334,g)
+Point p335
+Around(p335,g)
+Point p336
+Around(p336,g)
+Point p337
+Around(p337,g)
+Point p338
+Around(p338,g)
+Point p339
+Around(p339,g)
+Point p340
+Around(p340,g)
+Point p341
+Around(p341,g)
+Point p342
+Around(p342,g)
+Point p343
+Around(p343,g)
+Point p344
+Around(p344,g)
+Point p345
+Around(p345,g)
+Point p346
+Around(p346,g)
+Point p347
+Around(p347,g)
+Point p348
+Around(p348,g)
+Point p349
+Around(p349,g)
+Point p350
+Around(p350,g)
+Point p351
+Around(p351,g)
+Point p352
+Around(p352,g)
+Point p353
+Around(p353,g)
+Point p354
+Around(p354,g)
+Point p355
+Around(p355,g)
+Point p356
+Around(p356,g)
+Point p357
+Around(p357,g)
+Point p358
+Around(p358,g)
+Point p359
+Around(p359,g)
+Point p360
+Around(p360,g)
+Point p361
+Around(p361,g)
+Point p362
+Around(p362,g)
+Point p363
+Around(p363,g)
+Point p364
+Around(p364,g)
+Point p365
+Around(p365,g)
+Point p366
+Around(p366,g)
+Point p367
+Around(p367,g)
+Point p368
+Around(p368,g)
+Point p369
+Around(p369,g)
+Point p370
+Around(p370,g)
+Point p371
+Around(p371,g)
+Point p372
+Around(p372,g)
+Point p373
+Around(p373,g)
+Point p374
+Around(p374,g)
+Point p375
+Around(p375,g)
+Point p376
+Around(p376,g)
+Point p377
+Around(p377,g)
+Point p378
+Around(p378,g)
+Point p379
+Around(p379,g)
+Point p380
+Around(p380,g)
+Point p381
+Around(p381,g)
+Point p382
+Around(p382,g)
+Point p383
+Around(p383,g)
+Point p384
+Around(p384,g)
+Point p385
+Around(p385,g)
+Point p386
+Around(p386,g)
+Point p387
+Around(p387,g)
+Point p388
+Around(p388,g)
+Point p389
+Around(p389,g)
+Point p390
+Around(p390,g)
+Point p391
+Around(p391,g)
+Point p392
+Around(p392,g)
+Point p393
+Around(p393,g)
+Point p394
+Around(p394,g)
+Point p395
+Around(p395,g)
+Point p396
+Around(p396,g)
+Point p397
+Around(p397,g)
+Point p398
+Around(p398,g)
+Point p399
+Around(p399,g)
+Point p400
+Around(p400,g)
+Point p401
+Around(p401,g)
+Point p402
+Around(p402,g)
+Point p403
+Around(p403,g)
+Point p404
+Around(p404,g)
+Point p405
+Around(p405,g)
+Point p406
+Around(p406,g)
+Point p407
+Around(p407,g)
+Point p408
+Around(p408,g)
+Point p409
+Around(p409,g)
+Point p410
+Around(p410,g)
+Point p411
+Around(p411,g)
+Point p412
+Around(p412,g)
+Point p413
+Around(p413,g)
+Point p414
+Around(p414,g)
+Point p415
+Around(p415,g)
+Point p416
+Around(p416,g)
+Point p417
+Around(p417,g)
+Point p418
+Around(p418,g)
+Point p419
+Around(p419,g)
+Point p420
+Around(p420,g)
+Point p421
+Around(p421,g)
+Point p422
+Around(p422,g)
+Point p423
+Around(p423,g)
+Point p424
+Around(p424,g)
+Point p425
+Around(p425,g)
+Point p426
+Around(p426,g)
+Point p427
+Around(p427,g)
+Point p428
+Around(p428,g)
+Point p429
+Around(p429,g)
+Point p430
+Around(p430,g)
+Point p431
+Around(p431,g)
+Point p432
+Around(p432,g)
+Point p433
+Around(p433,g)
+Point p434
+Around(p434,g)
+Point p435
+Around(p435,g)
+Point p436
+Around(p436,g)
+Point p437
+Around(p437,g)
+Point p438
+Around(p438,g)
+Point p439
+Around(p439,g)
+Point p440
+Around(p440,g)
+Point p441
+Around(p441,g)
+Point p442
+Around(p442,g)
+Point p443
+Around(p443,g)
+Point p444
+Around(p444,g)
+Point p445
+Around(p445,g)
+Point p446
+Around(p446,g)
+Point p447
+Around(p447,g)
+Point p448
+Around(p448,g)
+Point p449
+Around(p449,g)
+Point p450
+Around(p450,g)
+Point p451
+Around(p451,g)
+Point p452
+Around(p452,g)
+Point p453
+Around(p453,g)
+Point p454
+Around(p454,g)
+Point p455
+Around(p455,g)
+Point p456
+Around(p456,g)
+Point p457
+Around(p457,g)
+Point p458
+Around(p458,g)
+Point p459
+Around(p459,g)
+Point p460
+Around(p460,g)
+Point p461
+Around(p461,g)
+Point p462
+Around(p462,g)
+Point p463
+Around(p463,g)
+Point p464
+Around(p464,g)
+Point p465
+Around(p465,g)
+Point p466
+Around(p466,g)
+Point p467
+Around(p467,g)
+Point p468
+Around(p468,g)
+Point p469
+Around(p469,g)
+Point p470
+Around(p470,g)
+Point p471
+Around(p471,g)
+Point p472
+Around(p472,g)
+Point p473
+Around(p473,g)
+Point p474
+Around(p474,g)
+Point p475
+Around(p475,g)
+Point p476
+Around(p476,g)
+Point p477
+Around(p477,g)
+Point p478
+Around(p478,g)
+Point p479
+Around(p479,g)
+Point p480
+Around(p480,g)
+Point p481
+Around(p481,g)
+Point p482
+Around(p482,g)
+Point p483
+Around(p483,g)
+Point p484
+Around(p484,g)
+Point p485
+Around(p485,g)
+Point p486
+Around(p486,g)
+Point p487
+Around(p487,g)
+Point p488
+Around(p488,g)
+Point p489
+Around(p489,g)
+Point p490
+Around(p490,g)
+Point p491
+Around(p491,g)
+Point p492
+Around(p492,g)
+Point p493
+Around(p493,g)
+Point p494
+Around(p494,g)
+Point p495
+Around(p495,g)
+Point p496
+Around(p496,g)
+Point p497
+Around(p497,g)
+Point p498
+Around(p498,g)
+Point p499
+Around(p499,g)
+Point p500
+Around(p500,g)
+Point p501
+Around(p501,g)
+Point p502
+Around(p502,g)
+Point p503
+Around(p503,g)
+Point p504
+Around(p504,g)
+Point p505
+Around(p505,g)
+Point p506
+Around(p506,g)
+Point p507
+Around(p507,g)
+Point p508
+Around(p508,g)
+Point p509
+Around(p509,g)
+Point p510
+Around(p510,g)
+Point p511
+Around(p511,g)
+Point p512
+Around(p512,g)
+Point p513
+Around(p513,g)
+Point p514
+Around(p514,g)
+Point p515
+Around(p515,g)
+Point p516
+Around(p516,g)
+Point p517
+Around(p517,g)
+Point p518
+Around(p518,g)
+Point p519
+Around(p519,g)
+Point p520
+Around(p520,g)
+Point p521
+Around(p521,g)
+Point p522
+Around(p522,g)
+Point p523
+Around(p523,g)
+Point p524
+Around(p524,g)
+Point p525
+Around(p525,g)
+Point p526
+Around(p526,g)
+Point p527
+Around(p527,g)
+Point p528
+Around(p528,g)
+Point p529
+Around(p529,g)
+Point p530
+Around(p530,g)
+Point p531
+Around(p531,g)
+Point p532
+Around(p532,g)
+Point p533
+Around(p533,g)
+Point p534
+Around(p534,g)
+Point p535
+Around(p535,g)
+Point p536
+Around(p536,g)
+Point p537
+Around(p537,g)
+Point p538
+Around(p538,g)
+Point p539
+Around(p539,g)
+Point p540
+Around(p540,g)
+Point p541
+Around(p541,g)
+Point p542
+Around(p542,g)
+Point p543
+Around(p543,g)
+Point p544
+Around(p544,g)
+Point p545
+Around(p545,g)
+Point p546
+Around(p546,g)
+Point p547
+Around(p547,g)
+Point p548
+Around(p548,g)
+Point p549
+Around(p549,g)
+Point p550
+Around(p550,g)
+Point p551
+Around(p551,g)
+Point p552
+Around(p552,g)
+Point p553
+Around(p553,g)
+Point p554
+Around(p554,g)
+Point p555
+Around(p555,g)
+Point p556
+Around(p556,g)
+Point p557
+Around(p557,g)
+Point p558
+Around(p558,g)
+Point p559
+Around(p559,g)
+Point p560
+Around(p560,g)
+Point p561
+Around(p561,g)
+Point p562
+Around(p562,g)
+Point p563
+Around(p563,g)
+Point p564
+Around(p564,g)
+Point p565
+Around(p565,g)
+Point p566
+Around(p566,g)
+Point p567
+Around(p567,g)
+Point p568
+Around(p568,g)
+Point p569
+Around(p569,g)
+Point p570
+Around(p570,g)
+Point p571
+Around(p571,g)
+Point p572
+Around(p572,g)
+Point p573
+Around(p573,g)
+Point p574
+Around(p574,g)
+Point p575
+Around(p575,g)
+Point p576
+Around(p576,g)
+Point p577
+Around(p577,g)
+Point p578
+Around(p578,g)
+Point p579
+Around(p579,g)
+Point p580
+Around(p580,g)
+Point p581
+Around(p581,g)
+Point p582
+Around(p582,g)
+Point p583
+Around(p583,g)
+Point p584
+Around(p584,g)
+Point p585
+Around(p585,g)
+Point p586
+Around(p586,g)
+Point p587
+Around(p587,g)
+Point p588
+Around(p588,g)
+Point p589
+Around(p589,g)
+Point p590
+Around(p590,g)
+Point p591
+Around(p591,g)
+Point p592
+Around(p592,g)
+Point p593
+Around(p593,g)
+Point p594
+Around(p594,g)
+Point p595
+Around(p595,g)
+Point p596
+Around(p596,g)
+Point p597
+Around(p597,g)
+Point p598
+Around(p598,g)
+Point p599
+Around(p599,g)
+Point p600
+Around(p600,g)
+Point p601
+Around(p601,g)
+Point p602
+Around(p602,g)
+Point p603
+Around(p603,g)
+Point p604
+Around(p604,g)
+Point p605
+Around(p605,g)
+Point p606
+Around(p606,g)
+Point p607
+Around(p607,g)
+Point p608
+Around(p608,g)
+Point p609
+Around(p609,g)
+Point p610
+Around(p610,g)
+Point p611
+Around(p611,g)
+Point p612
+Around(p612,g)
+Point p613
+Around(p613,g)
+Point p614
+Around(p614,g)
+Point p615
+Around(p615,g)
+Point p616
+Around(p616,g)
+Point p617
+Around(p617,g)
+Point p618
+Around(p618,g)
+Point p619
+Around(p619,g)
+Point p620
+Around(p620,g)
+Point p621
+Around(p621,g)
+Point p622
+Around(p622,g)
+Point p623
+Around(p623,g)
+Point p624
+Around(p624,g)
+Point p625
+Around(p625,g)
+Point p626
+Around(p626,g)
+Point p627
+Around(p627,g)
+Point p628
+Around(p628,g)
+Point p629
+Around(p629,g)
+Point p630
+Around(p630,g)
+Point p631
+Around(p631,g)
+Point p632
+Around(p632,g)
+Point p633
+Around(p633,g)
+Point p634
+Around(p634,g)
+Point p635
+Around(p635,g)
+Point p636
+Around(p636,g)
+Point p637
+Around(p637,g)
+Point p638
+Around(p638,g)
+Point p639
+Around(p639,g)
+Point p640
+Around(p640,g)
+Point p641
+Around(p641,g)
+Point p642
+Around(p642,g)
+Point p643
+Around(p643,g)
+Point p644
+Around(p644,g)
+Point p645
+Around(p645,g)
+Point p646
+Around(p646,g)
+Point p647
+Around(p647,g)
+Point p648
+Around(p648,g)
+Point p649
+Around(p649,g)
+Point p650
+Around(p650,g)
+Point p651
+Around(p651,g)
+Point p652
+Around(p652,g)
+Point p653
+Around(p653,g)
+Point p654
+Around(p654,g)
+Point p655
+Around(p655,g)
+Point p656
+Around(p656,g)
+Point p657
+Around(p657,g)
+Point p658
+Around(p658,g)
+Point p659
+Around(p659,g)
+Point p660
+Around(p660,g)
+Point p661
+Around(p661,g)
+Point p662
+Around(p662,g)
+Point p663
+Around(p663,g)
+Point p664
+Around(p664,g)
+Point p665
+Around(p665,g)
+Point p666
+Around(p666,g)
+Point p667
+Around(p667,g)
+Point p668
+Around(p668,g)
+Point p669
+Around(p669,g)
+Point p670
+Around(p670,g)
+Point p671
+Around(p671,g)
+Point p672
+Around(p672,g)
+Point p673
+Around(p673,g)
+Point p674
+Around(p674,g)
+Point p675
+Around(p675,g)
+Point p676
+Around(p676,g)
+Point p677
+Around(p677,g)
+Point p678
+Around(p678,g)
+Point p679
+Around(p679,g)
+Point p680
+Around(p680,g)
+Point p681
+Around(p681,g)
+Point p682
+Around(p682,g)
+Point p683
+Around(p683,g)
+Point p684
+Around(p684,g)
+Point p685
+Around(p685,g)
+Point p686
+Around(p686,g)
+Point p687
+Around(p687,g)
+Point p688
+Around(p688,g)
+Point p689
+Around(p689,g)
+Point p690
+Around(p690,g)
+Point p691
+Around(p691,g)
+Point p692
+Around(p692,g)
+Point p693
+Around(p693,g)
+Point p694
+Around(p694,g)
+Point p695
+Around(p695,g)
+Point p696
+Around(p696,g)
+Point p697
+Around(p697,g)
+Point p698
+Around(p698,g)
+Point p699
+Around(p699,g)
+Point p700
+Around(p700,g)
+Point p701
+Around(p701,g)
+Point p702
+Around(p702,g)
+Point p703
+Around(p703,g)
+Point p704
+Around(p704,g)
+Point p705
+Around(p705,g)
+Point p706
+Around(p706,g)
+Point p707
+Around(p707,g)
+Point p708
+Around(p708,g)
+Point p709
+Around(p709,g)
+Point p710
+Around(p710,g)
+Point p711
+Around(p711,g)
+Point p712
+Around(p712,g)
+Point p713
+Around(p713,g)
+Point p714
+Around(p714,g)
+Point p715
+Around(p715,g)
+Point p716
+Around(p716,g)
+Point p717
+Around(p717,g)
+Point p718
+Around(p718,g)
+Point p719
+Around(p719,g)
+Point p720
+Around(p720,g)
+Point p721
+Around(p721,g)
+Point p722
+Around(p722,g)
+Point p723
+Around(p723,g)
+Point p724
+Around(p724,g)
+Point p725
+Around(p725,g)
+Point p726
+Around(p726,g)
+Point p727
+Around(p727,g)
+Point p728
+Around(p728,g)
+Point p729
+Around(p729,g)
+Point p730
+Around(p730,g)
+Point p731
+Around(p731,g)
+Point p732
+Around(p732,g)
+Point p733
+Around(p733,g)
+Point p734
+Around(p734,g)
+Point p735
+Around(p735,g)
+Point p736
+Around(p736,g)
+Point p737
+Around(p737,g)
+Point p738
+Around(p738,g)
+Point p739
+Around(p739,g)
+Point p740
+Around(p740,g)
+Point p741
+Around(p741,g)
+Point p742
+Around(p742,g)
+Point p743
+Around(p743,g)
+Point p744
+Around(p744,g)
+Point p745
+Around(p745,g)
+Point p746
+Around(p746,g)
+Point p747
+Around(p747,g)
+Point p748
+Around(p748,g)
+Point p749
+Around(p749,g)
+Point p750
+Around(p750,g)
+Point p751
+Around(p751,g)
+Point p752
+Around(p752,g)
+Point p753
+Around(p753,g)
+Point p754
+Around(p754,g)
+Point p755
+Around(p755,g)
+Point p756
+Around(p756,g)
+Point p757
+Around(p757,g)
+Point p758
+Around(p758,g)
+Point p759
+Around(p759,g)
+Point p760
+Around(p760,g)
+Point p761
+Around(p761,g)
+Point p762
+Around(p762,g)
+Point p763
+Around(p763,g)
+Point p764
+Around(p764,g)
+Point p765
+Around(p765,g)
+Point p766
+Around(p766,g)
+Point p767
+Around(p767,g)
+Point p768
+Around(p768,g)
+Point p769
+Around(p769,g)
+Point p770
+Around(p770,g)
+Point p771
+Around(p771,g)
+Point p772
+Around(p772,g)
+Point p773
+Around(p773,g)
+Point p774
+Around(p774,g)
+Point p775
+Around(p775,g)
+Point p776
+Around(p776,g)
+Point p777
+Around(p777,g)
+Point p778
+Around(p778,g)
+Point p779
+Around(p779,g)
+Point p780
+Around(p780,g)
+Point p781
+Around(p781,g)
+Point p782
+Around(p782,g)
+Point p783
+Around(p783,g)
+Point p784
+Around(p784,g)
+Point p785
+Around(p785,g)
+Point p786
+Around(p786,g)
+Point p787
+Around(p787,g)
+Point p788
+Around(p788,g)
+Point p789
+Around(p789,g)
+Point p790
+Around(p790,g)
+Point p791
+Around(p791,g)
+Point p792
+Around(p792,g)
+Point p793
+Around(p793,g)
+Point p794
+Around(p794,g)
+Point p795
+Around(p795,g)
+Point p796
+Around(p796,g)
+Point p797
+Around(p797,g)
+Point p798
+Around(p798,g)
+Point p799
+Around(p799,g)
+Point p800
+Around(p800,g)
+Point p801
+Around(p801,g)
+Point p802
+Around(p802,g)
+Point p803
+Around(p803,g)
+Point p804
+Around(p804,g)
+Point p805
+Around(p805,g)
+Point p806
+Around(p806,g)
+Point p807
+Around(p807,g)
+Point p808
+Around(p808,g)
+Point p809
+Around(p809,g)
+Point p810
+Around(p810,g)
+Point p811
+Around(p811,g)
+Point p812
+Around(p812,g)
+Point p813
+Around(p813,g)
+Point p814
+Around(p814,g)
+Point p815
+Around(p815,g)
+Point p816
+Around(p816,g)
+Point p817
+Around(p817,g)
+Point p818
+Around(p818,g)
+Point p819
+Around(p819,g)
+Point p820
+Around(p820,g)
+Point p821
+Around(p821,g)
+Point p822
+Around(p822,g)
+Point p823
+Around(p823,g)
+Point p824
+Around(p824,g)
+Point p825
+Around(p825,g)
+Point p826
+Around(p826,g)
+Point p827
+Around(p827,g)
+Point p828
+Around(p828,g)
+Point p829
+Around(p829,g)
+Point p830
+Around(p830,g)
+Point p831
+Around(p831,g)
+Point p832
+Around(p832,g)
+Point p833
+Around(p833,g)
+Point p834
+Around(p834,g)
+Point p835
+Around(p835,g)
+Point p836
+Around(p836,g)
+Point p837
+Around(p837,g)
+Point p838
+Around(p838,g)
+Point p839
+Around(p839,g)
+Point p840
+Around(p840,g)
+Point p841
+Around(p841,g)
+Point p842
+Around(p842,g)
+Point p843
+Around(p843,g)
+Point p844
+Around(p844,g)
+Point p845
+Around(p845,g)
+Point p846
+Around(p846,g)
+Point p847
+Around(p847,g)
+Point p848
+Around(p848,g)
+Point p849
+Around(p849,g)
+Point p850
+Around(p850,g)
+Point p851
+Around(p851,g)
+Point p852
+Around(p852,g)
+Point p853
+Around(p853,g)
+Point p854
+Around(p854,g)
+Point p855
+Around(p855,g)
+Point p856
+Around(p856,g)
+Point p857
+Around(p857,g)
+Point p858
+Around(p858,g)
+Point p859
+Around(p859,g)
+Point p860
+Around(p860,g)
+Point p861
+Around(p861,g)
+Point p862
+Around(p862,g)
+Point p863
+Around(p863,g)
+Point p864
+Around(p864,g)
+Point p865
+Around(p865,g)
+Point p866
+Around(p866,g)
+Point p867
+Around(p867,g)
+Point p868
+Around(p868,g)
+Point p869
+Around(p869,g)
+Point p870
+Around(p870,g)
+Point p871
+Around(p871,g)
+Point p872
+Around(p872,g)
+Point p873
+Around(p873,g)
+Point p874
+Around(p874,g)
+Point p875
+Around(p875,g)
+Point p876
+Around(p876,g)
+Point p877
+Around(p877,g)
+Point p878
+Around(p878,g)
+Point p879
+Around(p879,g)
+Point p880
+Around(p880,g)
+Point p881
+Around(p881,g)
+Point p882
+Around(p882,g)
+Point p883
+Around(p883,g)
+Point p884
+Around(p884,g)
+Point p885
+Around(p885,g)
+Point p886
+Around(p886,g)
+Point p887
+Around(p887,g)
+Point p888
+Around(p888,g)
+Point p889
+Around(p889,g)
+Point p890
+Around(p890,g)
+Point p891
+Around(p891,g)
+Point p892
+Around(p892,g)
+Point p893
+Around(p893,g)
+Point p894
+Around(p894,g)
+Point p895
+Around(p895,g)
+Point p896
+Around(p896,g)
+Point p897
+Around(p897,g)
+Point p898
+Around(p898,g)
+Point p899
+Around(p899,g)
+Point p900
+Around(p900,g)
+Point p901
+Around(p901,g)
+Point p902
+Around(p902,g)
+Point p903
+Around(p903,g)
+Point p904
+Around(p904,g)
+Point p905
+Around(p905,g)
+Point p906
+Around(p906,g)
+Point p907
+Around(p907,g)
+Point p908
+Around(p908,g)
+Point p909
+Around(p909,g)
+Point p910
+Around(p910,g)
+Point p911
+Around(p911,g)
+Point p912
+Around(p912,g)
+Point p913
+Around(p913,g)
+Point p914
+Around(p914,g)
+Point p915
+Around(p915,g)
+Point p916
+Around(p916,g)
+Point p917
+Around(p917,g)
+Point p918
+Around(p918,g)
+Point p919
+Around(p919,g)
+Point p920
+Around(p920,g)
+Point p921
+Around(p921,g)
+Point p922
+Around(p922,g)
+Point p923
+Around(p923,g)
+Point p924
+Around(p924,g)
+Point p925
+Around(p925,g)
+Point p926
+Around(p926,g)
+Point p927
+Around(p927,g)
+Point p928
+Around(p928,g)
+Point p929
+Around(p929,g)
+Point p930
+Around(p930,g)
+Point p931
+Around(p931,g)
+Point p932
+Around(p932,g)
+Point p933
+Around(p933,g)
+Point p934
+Around(p934,g)
+Point p935
+Around(p935,g)
+Point p936
+Around(p936,g)
+Point p937
+Around(p937,g)
+Point p938
+Around(p938,g)
+Point p939
+Around(p939,g)
+Point p940
+Around(p940,g)
+Point p941
+Around(p941,g)
+Point p942
+Around(p942,g)
+Point p943
+Around(p943,g)
+Point p944
+Around(p944,g)
+Point p945
+Around(p945,g)
+Point p946
+Around(p946,g)
+Point p947
+Around(p947,g)
+Point p948
+Around(p948,g)
+Point p949
+Around(p949,g)
+Point p950
+Around(p950,g)
+Point p951
+Around(p951,g)
+Point p952
+Around(p952,g)
+Point p953
+Around(p953,g)
+Point p954
+Around(p954,g)
+Point p955
+Around(p955,g)
+Point p956
+Around(p956,g)
+Point p957
+Around(p957,g)
+Point p958
+Around(p958,g)
+Point p959
+Around(p959,g)
+Point p960
+Around(p960,g)
+Point p961
+Around(p961,g)
+Point p962
+Around(p962,g)
+Point p963
+Around(p963,g)
+Point p964
+Around(p964,g)
+Point p965
+Around(p965,g)
+Point p966
+Around(p966,g)
+Point p967
+Around(p967,g)
+Point p968
+Around(p968,g)
+Point p969
+Around(p969,g)
+Point p970
+Around(p970,g)
+Point p971
+Around(p971,g)
+Point p972
+Around(p972,g)
+Point p973
+Around(p973,g)
+Point p974
+Around(p974,g)
+Point p975
+Around(p975,g)
+Point p976
+Around(p976,g)
+Point p977
+Around(p977,g)
+Point p978
+Around(p978,g)
+Point p979
+Around(p979,g)
+Point p980
+Around(p980,g)
+Point p981
+Around(p981,g)
+Point p982
+Around(p982,g)
+Point p983
+Around(p983,g)
+Point p984
+Around(p984,g)
+Point p985
+Around(p985,g)
+Point p986
+Around(p986,g)
+Point p987
+Around(p987,g)
+Point p988
+Around(p988,g)
+Point p989
+Around(p989,g)
+Point p990
+Around(p990,g)
+Point p991
+Around(p991,g)
+Point p992
+Around(p992,g)
+Point p993
+Around(p993,g)
+Point p994
+Around(p994,g)
+Point p995
+Around(p995,g)
+Point p996
+Around(p996,g)
+Point p997
+Around(p997,g)
+Point p998
+Around(p998,g)
+Point p999
+Around(p999,g) */

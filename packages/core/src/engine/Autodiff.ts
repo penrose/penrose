@@ -63,6 +63,9 @@ const makeNode = (x: ad.Expr): ad.Node => {
       const { key } = node;
       return { tag, key };
     }
+    case "Not": {
+      return { tag };
+    }
     case "Unary": {
       const { unop } = node;
       return { tag, unop };

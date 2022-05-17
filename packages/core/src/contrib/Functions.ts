@@ -34,6 +34,8 @@ import {
   min,
   mul,
   neg,
+  not,
+  or,
   pow,
   round,
   sign,
@@ -1533,10 +1535,9 @@ export const compDict = {
         return s*sqrt(d);
     }
     */
-      const pOffset = ops.vsub(p, s.center.contents);
       const v = s.points.contents;
       let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
-      const ess = 1.0;
+      let ess: ad.Num = 1.0;
       let j = v.length - 1;
       for (let i = 0; i < v.length; i++) {
         const e = ops.vsub(v[j], v[i]);
@@ -1548,13 +1549,19 @@ export const compDict = {
         const c2 = lt(p[1], v[j][1]);
         const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
         const c4 = and(and(c1, c2), c3);
-        const c5 =
-          // last line to match for loop in code we are borrowing from
-          (j = i);
+        const c5 = not(c1);
+        const c6 = not(c2);
+        const c7 = not(c3);
+        const c8 = and(and(c5, c6), c7);
+        const negEss = mul(-1, ess);
+        ess = ifCond(or(c4, c8), negEss, ess);
+        // last line to match for loop in code we are borrowing from
+        j = i;
       }
+      const result = mul(ess, sqrt(d));
       return {
         tag: "FloatV",
-        contents: 0.0,
+        contents: result,
       };
     } else {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
