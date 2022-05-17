@@ -337,6 +337,22 @@ export const overlappingPolygonPointsEllipse = (
 };
 
 /**
+ * Return candidates for extremal points of the implicit functions for ellipse-ellipse case.
+ * @param ei1 Implicit ellipse parameters.
+ * @param ei2 Implicit ellipse parameters.
+ * @param lambda Solution to the quadratic formula.
+ */
+ const pointCandidatesEllipseEllipse = (
+  ei1: ImplicitEllipse,
+  ei2: ImplicitEllipse,
+  lambda: ad.Num
+): [ad.Num, ad.Num] => {
+  const x = 0;  // TODO
+  const y = 0;  // TODO
+  return [x, y];
+};
+
+/**
  * Overlapping constraint function for polygon points and ellipse with padding `padding`.
  * @param polygonPoints Sequence of points defining a polygon.
  * @param ellipse Ellipse shape.
@@ -350,17 +366,12 @@ export const overlappingEllipses = (
   const ei1 = ellipseToImplicit(ellipse1);
   const ei2 = ellipseToImplicit(ellipse2);
   const poly = ellipsePolynomial(ei1, ei2);
-  const roots = []; // TODO
-  const m1 = 0; // TODO
+  const roots = [1, 2]; // TODO
+  const candidates = roots.map((lambda: ad.Num) => pointCandidatesEllipseEllipse(ei1, ei2, lambda));
+  const m1 = minN(candidates.map(([x, y]: [ad.Num, ad.Num]) => implicitEllipseFunc(ei1, x, y)));
   const m2 = min(
-    max(
-      implicitEllipseFunc(ei1, ei1.x, ei1.y),
-      implicitEllipseFunc(ei2, ei1.x, ei1.y),
-    ),
-    max(
-      implicitEllipseFunc(ei1, ei2.x, ei2.y),
-      implicitEllipseFunc(ei2, ei2.x, ei2.y),
-    )
+    max(implicitEllipseFunc(ei1, ei1.x, ei1.y), implicitEllipseFunc(ei2, ei1.x, ei1.y)),
+    max(implicitEllipseFunc(ei1, ei2.x, ei2.y), implicitEllipseFunc(ei2, ei2.x, ei2.y))
   );
   return min(m1, m2);
 };
