@@ -233,7 +233,7 @@ describe("general constraints", () => {
       (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
       _ellipses[4],
       _rectangles[2],
-    ], // NEW
+    ],
   ])(
     "overlapping %p and %p with padding %p",
     (
