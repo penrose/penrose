@@ -3,6 +3,7 @@ import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
+import { makeEllipse } from "../../shapes/Ellipse";
 import {
   floatV,
   makeCanvas,
@@ -93,5 +94,24 @@ export const _polygons = [
   makePolygon(rng, canvas, {
     points: ptListV(pts),
     scale: floatV(1),
+  })
+);
+
+export const _ellipses = [
+  // Circles
+  { rx: 200, ry: 200, center: [0, 0] },
+  { rx: 100, ry: 100, center: [0, 0] },
+  { rx: 100, ry: 100, center: [200, 0] },
+  { rx: 100, ry: 100, center: [0, 300] },
+  { rx: 100, ry: 100, center: [0, 200] },
+  { rx: 50, ry: 50, center: [150, 150] },
+  { rx: 100, ry: 100, center: [150, 150] },
+].map((x) =>
+  makeEllipse(rng, canvas, {
+    rx: floatV(x.rx),
+    ry: floatV(x.ry),
+    center: vectorV(x.center),
+    strokeWidth: floatV(0),
+    strokeColor: sampleBlack(),
   })
 );
