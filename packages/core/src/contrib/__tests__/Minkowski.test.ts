@@ -1,15 +1,12 @@
 import {
   convexPartitions,
   halfPlaneSDF,
-  outwardUnitNormal,
   rectangleDifference,
 } from "contrib/Minkowski";
 import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import * as ad from "types/ad";
-
-const digitPrecision = 4;
 
 describe("rectangleDifference", () => {
   const expectRectDiff = (
@@ -66,54 +63,13 @@ describe("rectangleDifference", () => {
   });
 });
 
-let point1 = [2, 3];
-let point2 = [1, 2];
-let point3 = [1, 4];
-let point4 = [2, 2];
-let point5 = [0, 0];
-let lineSegment = [point3, point4];
-
-describe("outwardUnitNormal", () => {
-  test("inside point above", async () => {
-    let result = outwardUnitNormal(lineSegment, point1);
-
-    const [norm, dot, diff] = genCode(
-      secondaryGraph([
-        ops.vnorm(result),
-        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
-        sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
-      ])
-    )([]).secondary;
-
-    // It is unit
-    expect(norm).toBeCloseTo(1, digitPrecision);
-    // It is orthogonal to the line segment
-    expect(dot).toBeCloseTo(0, digitPrecision);
-    // `insidePoint1` is inside
-    expect(diff).toBeLessThan(0);
-  });
-
-  test("inside point below", async () => {
-    let result = outwardUnitNormal(lineSegment, point2);
-
-    const [norm, dot, diff] = genCode(
-      secondaryGraph([
-        ops.vnorm(result),
-        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
-        sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
-      ])
-    )([]).secondary;
-
-    // It is unit
-    expect(norm).toBeCloseTo(1, digitPrecision);
-    // It is orthogonal to the line segment
-    expect(dot).toBeCloseTo(0, digitPrecision);
-    // `insidePoint2` is inside
-    expect(diff).toBeLessThan(0);
-  });
-});
-
 describe("halfPlaneSDF", () => {
+  let point1 = [2, 3];
+  let point2 = [1, 2];
+  let point3 = [1, 4];
+  let point4 = [2, 2];
+  let point5 = [0, 0];
+  
   const numOf = (x: ad.Num) => {
     const g = secondaryGraph([x]);
     const f = genCode(g);
@@ -123,17 +79,17 @@ describe("halfPlaneSDF", () => {
 
   test("without padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
-    expect(numOf(result)).toBeCloseTo(-3, digitPrecision);
+    expect(numOf(result)).toBeCloseTo(-3, 4);
   });
 
   test("with padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
-    expect(numOf(result)).toBeCloseTo(-13, digitPrecision);
+    expect(numOf(result)).toBeCloseTo(-13, 4);
   });
 
   test("zero outside", async () => {
     let result = halfPlaneSDF([point2, point3], [point5], point1, 0);
-    expect(numOf(result)).toBeCloseTo(1, digitPrecision);
+    expect(numOf(result)).toBeCloseTo(1, 4);
   });
 });
 

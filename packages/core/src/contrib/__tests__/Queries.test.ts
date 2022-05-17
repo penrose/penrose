@@ -1,11 +1,13 @@
 import { compDict } from "contrib/Functions";
 import {
   bboxFromShape,
+  outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
   shapeSize,
 } from "contrib/Queries";
-import { genCode, secondaryGraph } from "engine/Autodiff";
+import { genCode, ops, secondaryGraph } from "engine/Autodiff";
+import { sub } from "engine/AutodiffFunctions";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -167,4 +169,50 @@ describe("polygonLikePoints", () => {
       expect(() => polygonLikePoints([shapeType, shape])).toThrowError();
     }
   );
+});
+
+describe("outwardUnitNormal", () => {
+  let point1 = [2, 3];
+  let point2 = [1, 2];
+  let point3 = [1, 4];
+  let point4 = [2, 2];
+  let lineSegment = [point3, point4];
+
+  test("inside point above", async () => {
+    let result = outwardUnitNormal(lineSegment, point1);
+
+    const [norm, dot, diff] = genCode(
+      secondaryGraph([
+        ops.vnorm(result),
+        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+        sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
+      ])
+    )([]).secondary;
+
+    // It is unit
+    expect(norm).toBeCloseTo(1, 4);
+    // It is orthogonal to the line segment
+    expect(dot).toBeCloseTo(0, 4);
+    // `insidePoint1` is inside
+    expect(diff).toBeLessThan(0);
+  });
+
+  test("inside point below", async () => {
+    let result = outwardUnitNormal(lineSegment, point2);
+
+    const [norm, dot, diff] = genCode(
+      secondaryGraph([
+        ops.vnorm(result),
+        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+        sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
+      ])
+    )([]).secondary;
+
+    // It is unit
+    expect(norm).toBeCloseTo(1, 4);
+    // It is orthogonal to the line segment
+    expect(dot).toBeCloseTo(0, 4);
+    // `insidePoint2` is inside
+    expect(diff).toBeLessThan(0);
+  });
 });
