@@ -1476,7 +1476,7 @@ export const compDict = {
     return { tag: "VectorV", contents: [X, Y] };
   },
 
-  distanceShapeToPoint: (
+  signedDistance: (
     _context: Context,
     [t, s]: [string, any],
     p: ad.Num[]

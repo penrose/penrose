@@ -30,5 +30,5 @@ forall Star s {
 
 forall Point p; Polygon g
 where Around(p, g) {
-    ensure equal(distanceShapeToPoint(g.icon, p.icon.center), 20)
+    ensure equal(signedDistance(g.icon, p.icon.center), 20)
 }
