@@ -3164,7 +3164,7 @@ const genState = (
 
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
-  const transInitShapes = initShapes(rng, trans, shapePathList);
+  const transInitShapes = initShapes(rng, trans, findShapeNames(trans));
 
   // sample varying fields and access paths, and put them in the translation
   const transInitAll = initFieldsAndAccessPaths(
@@ -3192,7 +3192,7 @@ const genState = (
 
   const initVaryingState: number[] = lookupNumericPaths(
     varyingPaths,
-    transEvaled
+    transInitAll
   );
 
   const pendingPaths = findPending(transInitAll);
@@ -3202,7 +3202,6 @@ const genState = (
     seeds,
 
     shapes: [], // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
-    shapePaths,
     shapeOrdering,
 
     translation: transInitAll, // This is the result of the data processing

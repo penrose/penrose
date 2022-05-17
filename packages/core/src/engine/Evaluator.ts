@@ -79,7 +79,7 @@ export const evalShapes = (
     (p: Path<A>) => findExprSafe(trans, p) as FGPI<ad.Num>
   );
 
-  log.info("shapePaths", s.shapePaths.map(prettyPrintPath));
+  log.info("shapePaths", shapePaths.map(prettyPrintPath));
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled]: [ShapeAD[], Translation] = shapeExprs.reduce(
