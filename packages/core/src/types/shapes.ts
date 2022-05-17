@@ -47,6 +47,11 @@ export interface Scale {
   scale: FloatV<ad.Num>; // doesn't work correctly
 }
 
+// // TODO: use this: https://github.com/penrose/penrose/issues/713
+// export interface Transform {
+//   matrix: MatrixV<ad.Num>;
+// }
+
 export interface Poly {
   points: PtListV<ad.Num>;
 }
