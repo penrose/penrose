@@ -339,7 +339,6 @@ export const step = (
   if (evaluate) {
     const varyingValues = xs;
     // log.info("evaluating state with varying values", varyingValues);
-    // log.info("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
 
     newState.translation = insertVaryings(
       state.translation,

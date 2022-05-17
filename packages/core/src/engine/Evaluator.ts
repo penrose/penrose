@@ -55,9 +55,7 @@ export const evalShapes = (
   s: State,
   xsVars: ad.Input[]
 ): ShapeAD[] => {
-  // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on `ad.Num`s; not compiled
-  s.varyingMap = genPathMap(s.varyingPaths, xsVars);
 
   const varyingMapList = zip2(s.varyingPaths, xsVars);
 
@@ -138,7 +136,6 @@ export const insertVaryings = (
  *
  * @param fns A list of function expressions
  * @param trans The current translation
- * @param varyingMap Varying paths and values
  */
 export const evalFns = (
   rng: seedrandom.prng,
@@ -151,14 +148,9 @@ export const evalFn = (
   fn: Fn,
   trans: Translation
 ): FnDone<ad.Num> => {
-  const noOptDebugInfo = {
-    gradient: new Map(),
-    gradientPreconditioned: new Map(),
-  };
-
   return {
     name: fn.fname,
-    args: evalExprs(rng, fn.fargs, trans, noOptDebugInfo),
+    args: evalExprs(rng, fn.fargs, trans),
     optType: fn.optType,
   };
 };
@@ -631,7 +623,6 @@ export const resolvePath = (
   optDebugInfo?: ad.OptDebugInfo
 ): ArgVal<ad.Num> => {
   // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
-  // NOTE: varyingMap includes vars of form AccessPath but not Vector/Matrix access
   if (path.tag === "AccessPath") {
     // Evaluate it as Vector or Matrix access as appropriate (COMBAK: Deprecate Vector/Matrix access on second pass, and also remove Vector/Matrix conversion to accesspath for derivative debugging computations)
     if (path.indices.length === 1) {

@@ -3097,8 +3097,8 @@ const findPathsField = (
       const propExprs: Expr<A>[] = Object.entries(fexpr.contents[1])
         .map((e) => e[1])
         .filter((e: TagExpr<ad.Num>): boolean => e.tag === "OptEval")
-        .map((e) => e as OptEval<ad.Num>) // Have to cast because TypeScript doesn't know the type changed from the filter above
-        .map((e: OptEval<ad.Num>): Expr<A> => e.contents);
+        .map((e) => e as OptEval) // Have to cast because TypeScript doesn't know the type changed from the filter above
+        .map((e: OptEval): Expr<A> => e.contents);
       const res: Path<A>[] = _.flatMap(propExprs, findPathsExpr);
       return acc.concat(res);
     }
@@ -3230,8 +3230,6 @@ const genState = (
     } as unknown) as Params,
 
     labelCache: [],
-    varyingMap: new Map(), // TODO: Should this be empty?
-
     canvas,
     computeShapes: (undefined as unknown) as any,
   };

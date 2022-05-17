@@ -32,7 +32,6 @@ export type FieldDict = { [k: string]: FieldExpr<ad.Num> };
 
 export type StyleOptFn = [string, Expr<A>[]]; // Objective or constraint
 
-// NOTE: To make a deep clone, use `clone` from `rfdc`
 /**
  * Translation represents the computational graph compiled from a trio of Penrose programs.
  */
@@ -61,9 +60,9 @@ export interface FGPI<T> {
 export type GPIProps<T> = { [k: string]: TagExpr<T> };
 
 export type GPIExpr<T> = [string, { [k: string]: TagExpr<T> }];
-export type TagExpr<T> = OptEval<T> | Done<T> | Pending<T>;
+export type TagExpr<T> = OptEval | Done<T> | Pending<T>;
 
-export interface OptEval<T> {
+export interface OptEval {
   tag: "OptEval";
   contents: Expr<A>;
 }
