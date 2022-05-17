@@ -209,6 +209,8 @@ describe("general constraints", () => {
     ["Rectangle", "Rectangle", 150, _rectangles[3], _rectangles[1]],
     ["Rectangle", "Circle", 150, _rectangles[3], _circles[1]],
     ["Circle", "Rectangle", 150, _circles[3], _rectangles[1]],
+    ["Rectangle", "Ellipse", 150, _rectangles[3], _ellipses[1]], // NEW
+    ["Ellipse", "Rectangle", 150, _ellipses[3], _rectangles[1]], // NEW
     ["Circle", "Circle", 150, _circles[3], _circles[1]],
     ["Line", "Line", 200, _lines[1], _lines[3]],
     ["Polygon", "Polygon", 100, _polygons[1], _polygons[2]],
@@ -225,6 +227,13 @@ describe("general constraints", () => {
       _circles[4],
       _rectangles[2],
     ],
+    [
+      "Ellipse",
+      "Rectangle",
+      (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
+      _ellipses[4],
+      _rectangles[2],
+    ], // NEW
   ])(
     "overlapping %p and %p with padding %p",
     (
@@ -327,6 +336,8 @@ describe("general constraints", () => {
     ["Rectangle", "Rectangle", 100, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
     ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
+    ["Rectangle", "Ellipse", 100, _rectangles[1], _ellipses[3]], // NEW
+    ["Ellipse", "Rectangle", 100, _ellipses[1], _rectangles[3]], // NEW
     ["Circle", "Circle", 100, _circles[1], _circles[3]],
     ["Line", "Line", 100, _lines[1], _lines[2]],
     [
