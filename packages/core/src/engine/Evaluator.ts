@@ -176,8 +176,6 @@ export const evalShape = (
       // TODO: Refactor these cases to be more concise
       switch (prop.tag) {
         case "OptEval": {
-          console.log(name);
-
           // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
           // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
           const res: Value<ad.Num> = (evalExpr(
