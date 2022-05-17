@@ -1,4 +1,4 @@
-import { outwardUnitNormal } from "contrib/Minkowski";
+import { outwardUnitNormal } from "contrib/Queries";
 import { ops } from "engine/Autodiff";
 import { add, div, mul, neg, squared, sub } from "engine/AutodiffFunctions";
 import { Ellipse } from "shapes/Ellipse";

@@ -1,14 +1,15 @@
+import { outwardUnitNormal } from "contrib/Queries";
 import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
   addN,
-  ifCond,
-  lt,
+  div,
   max,
   maxN,
   min,
   minN,
+  mul,
   neg,
   sqrt,
   squared,
@@ -16,6 +17,7 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { convexPartition, isClockwise } from "poly-partition";
+import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
 import { safe } from "utils/Util";
 
@@ -53,30 +55,6 @@ export const rectangleDifference = (
     [sub(minN(xs), padding), sub(minN(ys), padding)], // Bottom left corner
     [add(maxN(xs), padding), add(maxN(ys), padding)], // Top right corner
   ];
-};
-
-/**
- * Return -1.0 for negative number, +1.0 otherwise.
- */
-const signOf = (x: ad.Num): ad.Num => {
-  const negative = lt(x, 0);
-  return ifCond(negative, -1, 1);
-};
-
-/**
- * Return outward unit normal vector to `lineSegment` with respect to `insidePoint`.
- * @param lineSegment Two points defining the line segment.
- * @param insidePoint Any point inside of the half-plane.
- */
-export const outwardUnitNormal = (
-  lineSegment: ad.Num[][],
-  insidePoint: ad.Num[]
-): ad.Num[] => {
-  const normal = ops.vnormalize(
-    ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
-  );
-  const insideValue = ops.vdot(ops.vsub(insidePoint, lineSegment[0]), normal);
-  return ops.vmul(neg(signOf(insideValue)), normal);
 };
 
 /**
