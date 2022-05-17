@@ -14,7 +14,7 @@ import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { A } from "types/ast";
 import { ShapeAD } from "types/shape";
-import { Fn, FnDone, State, VaryMap } from "types/state";
+import { Fn, FnDone, State } from "types/state";
 import { BinaryOp, Expr, Path, PropertyPath } from "types/style";
 import {
   ArgVal,
@@ -57,7 +57,6 @@ export const evalShapes = (
 ): ShapeAD[] => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on `ad.Num`s; not compiled
-
   s.varyingMap = genPathMap(s.varyingPaths, xsVars);
 
   const varyingMapList = zip2(s.varyingPaths, xsVars);
@@ -71,10 +70,7 @@ export const evalShapes = (
   };
 
   // Insert all varying vals
-  const transWithVarying = insertVaryings(s.translation, varyingMapList);
-
-  // Clone translation to use in this top-level call, because it mutates the translation while interpreting the energy function in order to cache/reuse ad.Num (computation) results
-  const trans = clone(transWithVarying);
+  const trans = insertVaryings(clone(s.translation), varyingMapList);
 
   // Find out all the GPI expressions in the translation
   const shapeExprs: FGPI<ad.Num>[] = s.shapePaths.map(
@@ -86,7 +82,7 @@ export const evalShapes = (
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled]: [ShapeAD[], Translation] = shapeExprs.reduce(
     ([currShapes, tr]: [ShapeAD[], Translation], e: FGPI<ad.Num>) =>
-      evalShape(rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
+      evalShape(rng, e, tr, currShapes, optDebugInfo),
     [[], trans]
   );
 
@@ -147,15 +143,13 @@ export const insertVaryings = (
 export const evalFns = (
   rng: seedrandom.prng,
   fns: Fn[],
-  trans: Translation,
-  varyingMap: VaryMap<ad.Num>
-): FnDone<ad.Num>[] => fns.map((f) => evalFn(rng, f, trans, varyingMap));
+  trans: Translation
+): FnDone<ad.Num>[] => fns.map((f) => evalFn(rng, f, trans));
 
 export const evalFn = (
   rng: seedrandom.prng,
   fn: Fn,
-  trans: Translation,
-  varyingMap: VaryMap<ad.Num>
+  trans: Translation
 ): FnDone<ad.Num> => {
   const noOptDebugInfo = {
     gradient: new Map(),
@@ -164,7 +158,7 @@ export const evalFn = (
 
   return {
     name: fn.fname,
-    args: evalExprs(rng, fn.fargs, trans, varyingMap, noOptDebugInfo),
+    args: evalExprs(rng, fn.fargs, trans, noOptDebugInfo),
     optType: fn.optType,
   };
 };
@@ -174,7 +168,6 @@ export const evalFn = (
  *
  * @param shapeExpr unevaluated shape expression, where all props are expressions
  * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
- * @param varyingVars varying variables and their values
  * @param shapes current list of shapes (for folding)
  *
  */
@@ -182,7 +175,6 @@ export const evalShape = (
   rng: seedrandom.prng,
   shapeExpr: FGPI<ad.Num>,
   trans: Translation,
-  varyingVars: VaryMap,
   shapes: ShapeAD[],
   optDebugInfo: ad.OptDebugInfo
 ): [ShapeAD[], Translation] => {
@@ -201,7 +193,6 @@ export const evalShape = (
             rng,
             prop.contents,
             trans,
-            varyingVars,
             optDebugInfo
           ) as Val<ad.Num>).contents;
           return res;
@@ -227,17 +218,14 @@ export const evalShape = (
  *
  * @param es a list of expressions
  * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
- * @param varyingVars varying variables and their values
  *
  */
 export const evalExprs = (
   rng: seedrandom.prng,
   es: Expr<A>[],
   trans: Translation,
-  varyingVars?: VaryMap<ad.Num>,
   optDebugInfo?: ad.OptDebugInfo
-): ArgVal<ad.Num>[] =>
-  es.map((e) => evalExpr(rng, e, trans, varyingVars, optDebugInfo));
+): ArgVal<ad.Num>[] => es.map((e) => evalExpr(rng, e, trans, optDebugInfo));
 
 function toFloatVal(a: ArgVal<ad.Num>): ad.Num {
   if (a.tag === "Val") {
@@ -276,7 +264,6 @@ function toVecVal<T>(a: ArgVal<T>): T[] {
  *
  * @param e the expression to be evaluated.
  * @param trans the `Translation` so far (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
- * @param varyingVars pairs of (path, value) for all optimized/"varying" values.
  *
  * NOTE: This implementation needs the `Done` status of the values for optimizing evaluation and breaking cycles
  * TODO: maybe use a more OOP approach to encode current value and done status
@@ -286,7 +273,6 @@ export const evalExpr = (
   rng: seedrandom.prng,
   e: Expr<A>,
   trans: Translation,
-  varyingVars?: VaryMap<ad.Num>,
   optDebugInfo?: ad.OptDebugInfo
 ): ArgVal<ad.Num> => {
   // console.log("evalExpr", e);
@@ -311,12 +297,12 @@ export const evalExpr = (
     }
 
     case "Vary": {
-      console.error("expr", e, "trans", trans, "varyingVars", varyingVars);
+      console.error("expr", e, "trans", trans);
       throw new Error("encountered an unsubstituted varying value");
     }
 
     case "VaryInit": {
-      console.error("expr", e, "trans", trans, "varyingVars", varyingVars);
+      console.error("expr", e, "trans", trans);
       throw new Error("encountered an unsubstituted varying (with init) value");
     }
 
@@ -337,8 +323,7 @@ export const evalExpr = (
     case "UOp": {
       const [uOp, expr] = [e.op, e.arg];
       // TODO: use the type system to narrow down Value to Float and Int?
-      const arg = evalExpr(rng, expr, trans, varyingVars, optDebugInfo)
-        .contents;
+      const arg = evalExpr(rng, expr, trans, optDebugInfo).contents;
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
@@ -349,13 +334,7 @@ export const evalExpr = (
     case "BinOp": {
       const [binOp, e1, e2] = [e.op, e.left, e.right];
 
-      const [val1, val2] = evalExprs(
-        rng,
-        [e1, e2],
-        trans,
-        varyingVars,
-        optDebugInfo
-      );
+      const [val1, val2] = evalExprs(rng, [e1, e2], trans, optDebugInfo);
 
       const res = evalBinOp(
         binOp,
@@ -371,13 +350,7 @@ export const evalExpr = (
     }
 
     case "Tuple": {
-      const argVals = evalExprs(
-        rng,
-        e.contents,
-        trans,
-        varyingVars,
-        optDebugInfo
-      );
+      const argVals = evalExprs(rng, e.contents, trans, optDebugInfo);
       if (argVals.length !== 2) {
         console.log(argVals);
         throw Error("Expected tuple of length 2");
@@ -391,13 +364,7 @@ export const evalExpr = (
       };
     }
     case "List": {
-      const argVals = evalExprs(
-        rng,
-        e.contents,
-        trans,
-        varyingVars,
-        optDebugInfo
-      );
+      const argVals = evalExprs(rng, e.contents, trans, optDebugInfo);
 
       // The below code makes a type assumption about the whole list, based on the first elements
       // Is there a better way to implement parametric lists in typescript?
@@ -445,13 +412,7 @@ export const evalExpr = (
     }
 
     case "Vector": {
-      const argVals = evalExprs(
-        rng,
-        e.contents,
-        trans,
-        varyingVars,
-        optDebugInfo
-      );
+      const argVals = evalExprs(rng, e.contents, trans, optDebugInfo);
 
       // Matrices are parsed as a list of vectors, so when we encounter vectors as elements, we assume it's a matrix, and convert it to a matrix of lists
       if (argVals[0].tag !== "Val") {
@@ -489,8 +450,8 @@ export const evalExpr = (
 
       const [e1, e2] = e.contents;
 
-      const v1 = resolvePath(rng, e1, trans, varyingVars, optDebugInfo);
-      const v2 = evalExpr(rng, e2, trans, varyingVars, optDebugInfo);
+      const v1 = resolvePath(rng, e1, trans, optDebugInfo);
+      const v2 = evalExpr(rng, e2, trans, optDebugInfo);
 
       if (v1.tag !== "Val") {
         throw Error("expected val");
@@ -544,8 +505,8 @@ export const evalExpr = (
       // throw Error("deprecated");
 
       const [e1, e2] = e.contents;
-      const v1 = resolvePath(rng, e1, trans, varyingVars, optDebugInfo);
-      const v2s = evalExprs(rng, e2, trans, varyingVars, optDebugInfo);
+      const v1 = resolvePath(rng, e1, trans, optDebugInfo);
+      const v2s = evalExprs(rng, e2, trans, optDebugInfo);
 
       const indices: number[] = v2s.map((v2) => {
         if (v2.tag !== "Val") {
@@ -637,7 +598,7 @@ export const evalExpr = (
       }
 
       // eval all args
-      const args = evalExprs(rng, argExprs, trans, varyingVars, optDebugInfo);
+      const args = evalExprs(rng, argExprs, trans, optDebugInfo);
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
 
@@ -647,7 +608,7 @@ export const evalExpr = (
 
     default: {
       if (isPath(e)) {
-        return resolvePath(rng, e, trans, varyingVars, optDebugInfo);
+        return resolvePath(rng, e, trans, optDebugInfo);
       }
 
       throw new Error(`cannot evaluate expression of type ${e.tag}`);
@@ -660,7 +621,6 @@ export const evalExpr = (
  *
  * @param path path to a field (GPI or Expr) or a property (Expr only)
  * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
- * @param varyingMap list of varying variables and their values
  *
  * Looks up varying vars first
  */
@@ -668,7 +628,6 @@ export const resolvePath = (
   rng: seedrandom.prng,
   path: Path<A>,
   trans: Translation,
-  varyingMap?: VaryMap<ad.Num>,
   optDebugInfo?: ad.OptDebugInfo
 ): ArgVal<ad.Num> => {
   // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
@@ -682,7 +641,7 @@ export const resolvePath = (
         tag: "VectorAccess",
         contents: [path.path, path.indices[0]],
       };
-      return evalExpr(rng, e, trans, varyingMap, optDebugInfo);
+      return evalExpr(rng, e, trans, optDebugInfo);
     } else if (path.indices.length === 2) {
       // Matrix
       const e: Expr<A> = {
@@ -690,7 +649,7 @@ export const resolvePath = (
         tag: "MatrixAccess",
         contents: [path.path, path.indices],
       };
-      return evalExpr(rng, e, trans, varyingMap, optDebugInfo);
+      return evalExpr(rng, e, trans, optDebugInfo);
     } else throw Error("unsupported number of indices in AccessPath");
   }
 
@@ -722,22 +681,13 @@ export const resolvePath = (
             rng,
             propertyPath,
             trans,
-            varyingMap,
+
             optDebugInfo
           ) as Val<ad.Num>).contents;
           insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
           return val;
         } else {
-          // Look up in varyingMap to see if there is a fresh value
-          let varyingVal;
-          if (varyingMap) {
-            varyingVal = varyingMap.get(prettyPrintPath(propertyPath));
-          }
-          if (varyingVal) {
-            return { tag: "FloatV", contents: varyingVal };
-          } else {
-            return p.contents;
-          }
+          return p.contents;
         }
       });
 
@@ -758,7 +708,6 @@ export const resolvePath = (
           rng,
           expr.contents,
           trans,
-          varyingMap,
           optDebugInfo
         );
 
@@ -776,6 +725,8 @@ export const resolvePath = (
         // Already done, just return results of lookup -- this is a cache hit
         return { tag: "Val", contents: expr.contents };
       } else {
+        console.log(expr);
+
         throw Error("Unexpected tag");
       }
     }

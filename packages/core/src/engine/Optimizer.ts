@@ -17,7 +17,6 @@ import {
   argValue,
   evalFns,
   evalShapes,
-  genPathMap,
   insertVaryings,
 } from "engine/Evaluator";
 import * as _ from "lodash";
@@ -32,7 +31,6 @@ import {
   LbfgsParams,
   Params,
   State,
-  VaryMap,
   WeightInfo,
 } from "types/state";
 import { Path } from "types/style";
@@ -854,12 +852,8 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
       varyingMapList
     );
 
-    // construct a new varying map
-    const varyingMap: VaryMap<ad.Num> = genPathMap(varyingPaths, xsVars);
-
-    // NOTE: This will mutate the var inputs
-    const objEvaled = evalFns(rng, objFns, translation, varyingMap);
-    const constrEvaled = evalFns(rng, constrFns, translation, varyingMap);
+    const objEvaled = evalFns(rng, objFns, translation);
+    const constrEvaled = evalFns(rng, constrFns, translation);
 
     const objEngs: ad.Num[] = objEvaled.map((o) => applyFn(o, objDict));
     const constrEngs: ad.Num[] = constrEvaled.map((c) =>
