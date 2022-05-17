@@ -28,6 +28,7 @@
     "build:esbuild": "node build.js",
     "watch:esbuild": "node build.js -watch",
     "build-decls": "tsc --declaration --outDir build/dist && tsc-alias -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
     "docs": "typedoc --plugin none --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
     "coverage": "yarn test --coverage --watchAll=false",

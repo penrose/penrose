@@ -6,7 +6,8 @@
     "dev": "vite",
     "watch": "vite",
     "start": "vite",
-    "prebuild": "tsc --noEmit",
+    "prebuild": "yarn typecheck",
+    "typecheck": "tsc --noEmit",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
