@@ -49,6 +49,8 @@ jobs:
           fetch-depth: 0
       - name: Install packages
         uses: ./.github/actions/packages
+      - name: Typecheck all packages
+        run: yarn typecheck
       - name: Run all builds
         run: yarn build
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
