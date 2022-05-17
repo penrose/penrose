@@ -60,14 +60,6 @@ export const evalShapes = (
 
   const varyingMapList = zip2(s.varyingPaths, xsVars);
 
-  const optDebugInfo = {
-    gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
-    gradientPreconditioned: genPathMap(
-      s.varyingPaths,
-      s.params.lastGradientPreconditioned
-    ),
-  };
-
   // Insert all varying vals
   const trans = insertVaryings(clone(s.translation), varyingMapList);
 
@@ -84,7 +76,7 @@ export const evalShapes = (
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled]: [ShapeAD[], Translation] = shapeExprs.reduce(
     ([currShapes, tr]: [ShapeAD[], Translation], e: FGPI<ad.Num>) =>
-      evalShape(rng, e, tr, currShapes, optDebugInfo),
+      evalShape(rng, e, tr, currShapes),
     [[], trans]
   );
 
@@ -171,8 +163,7 @@ export const evalShape = (
   rng: seedrandom.prng,
   shapeExpr: FGPI<ad.Num>,
   trans: Translation,
-  shapes: ShapeAD[],
-  optDebugInfo: ad.OptDebugInfo
+  shapes: ShapeAD[]
 ): [ShapeAD[], Translation] => {
   const [shapeType, propExprs] = shapeExpr.contents;
 
@@ -192,8 +183,7 @@ export const evalShape = (
           const res: Value<ad.Num> = (evalExpr(
             rng,
             prop.contents,
-            trans,
-            optDebugInfo
+            trans
           ) as Val<ad.Num>).contents;
           return [name, res];
         }
@@ -225,7 +215,7 @@ export const evalExprs = (
   es: Expr<A>[],
   trans: Translation,
   optDebugInfo?: ad.OptDebugInfo
-): ArgVal<ad.Num>[] => es.map((e) => evalExpr(rng, e, trans, optDebugInfo));
+): ArgVal<ad.Num>[] => es.map((e) => evalExpr(rng, e, trans));
 
 function toFloatVal(a: ArgVal<ad.Num>): ad.Num {
   if (a.tag === "Val") {
@@ -272,8 +262,7 @@ function toVecVal<T>(a: ArgVal<T>): T[] {
 export const evalExpr = (
   rng: seedrandom.prng,
   e: Expr<A>,
-  trans: Translation,
-  optDebugInfo?: ad.OptDebugInfo
+  trans: Translation
 ): ArgVal<ad.Num> => {
   // console.log("evalExpr", e);
 
@@ -323,7 +312,7 @@ export const evalExpr = (
     case "UOp": {
       const [uOp, expr] = [e.op, e.arg];
       // TODO: use the type system to narrow down Value to Float and Int?
-      const arg = evalExpr(rng, expr, trans, optDebugInfo).contents;
+      const arg = evalExpr(rng, expr, trans).contents;
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
@@ -334,7 +323,7 @@ export const evalExpr = (
     case "BinOp": {
       const [binOp, e1, e2] = [e.op, e.left, e.right];
 
-      const [val1, val2] = evalExprs(rng, [e1, e2], trans, optDebugInfo);
+      const [val1, val2] = evalExprs(rng, [e1, e2], trans);
 
       const res = evalBinOp(
         binOp,
@@ -350,7 +339,7 @@ export const evalExpr = (
     }
 
     case "Tuple": {
-      const argVals = evalExprs(rng, e.contents, trans, optDebugInfo);
+      const argVals = evalExprs(rng, e.contents, trans);
       if (argVals.length !== 2) {
         console.log(argVals);
         throw Error("Expected tuple of length 2");
@@ -364,7 +353,7 @@ export const evalExpr = (
       };
     }
     case "List": {
-      const argVals = evalExprs(rng, e.contents, trans, optDebugInfo);
+      const argVals = evalExprs(rng, e.contents, trans);
 
       // The below code makes a type assumption about the whole list, based on the first elements
       // Is there a better way to implement parametric lists in typescript?
@@ -412,7 +401,7 @@ export const evalExpr = (
     }
 
     case "Vector": {
-      const argVals = evalExprs(rng, e.contents, trans, optDebugInfo);
+      const argVals = evalExprs(rng, e.contents, trans);
 
       // Matrices are parsed as a list of vectors, so when we encounter vectors as elements, we assume it's a matrix, and convert it to a matrix of lists
       if (argVals[0].tag !== "Val") {
@@ -450,8 +439,8 @@ export const evalExpr = (
 
       const [e1, e2] = e.contents;
 
-      const v1 = resolvePath(rng, e1, trans, optDebugInfo);
-      const v2 = evalExpr(rng, e2, trans, optDebugInfo);
+      const v1 = resolvePath(rng, e1, trans);
+      const v2 = evalExpr(rng, e2, trans);
 
       if (v1.tag !== "Val") {
         throw Error("expected val");
@@ -505,8 +494,8 @@ export const evalExpr = (
       // throw Error("deprecated");
 
       const [e1, e2] = e.contents;
-      const v1 = resolvePath(rng, e1, trans, optDebugInfo);
-      const v2s = evalExprs(rng, e2, trans, optDebugInfo);
+      const v1 = resolvePath(rng, e1, trans);
+      const v2s = evalExprs(rng, e2, trans);
 
       const indices: number[] = v2s.map((v2) => {
         if (v2.tag !== "Val") {
@@ -547,58 +536,8 @@ export const evalExpr = (
     case "CompApp": {
       const [fnName, argExprs] = [e.name.value, e.args];
 
-      if (fnName === "derivative" || fnName === "derivativePreconditioned") {
-        // Special function: don't look up the path's value, but its gradient's value
-
-        if (argExprs.length !== 1) {
-          throw Error(
-            `expected 1 argument to ${fnName}; got ${argExprs.length}`
-          );
-        }
-
-        let p = argExprs[0]; // special function can only have one argument
-
-        // Vector and matrix accesses are the only way to refer to an anon varying var
-        // p.tag !== "EPath"
-        if (
-          !isPath(p) &&
-          p.tag !== "VectorAccess" &&
-          p.tag !== "MatrixAccess"
-        ) {
-          throw Error(`expected 1 path as argument to ${fnName}; got ${p.tag}`);
-        }
-
-        if (p.tag === "VectorAccess") {
-          p = {
-            // convert to AccessPath schema
-            nodeType: "SyntheticStyle",
-            tag: "AccessPath",
-            // contents: [p.contents[0], [p.contents[1].contents]],
-            path: p.contents[0],
-            indices: [p.contents[1]],
-          };
-        } else if (p.tag === "MatrixAccess") {
-          p = {
-            // convert to AccessPath schema
-            nodeType: "SyntheticStyle",
-            tag: "AccessPath",
-            path: p.contents[0],
-            indices: p.contents[1],
-          };
-        }
-
-        return {
-          tag: "Val",
-          contents: compDict[fnName](
-            { rng },
-            optDebugInfo!,
-            prettyPrintPath(p) // COMBAK: Test that derivatives still work
-          ),
-        };
-      }
-
       // eval all args
-      const args = evalExprs(rng, argExprs, trans, optDebugInfo);
+      const args = evalExprs(rng, argExprs, trans);
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
 
@@ -608,7 +547,7 @@ export const evalExpr = (
 
     default: {
       if (isPath(e)) {
-        return resolvePath(rng, e, trans, optDebugInfo);
+        return resolvePath(rng, e, trans);
       }
 
       throw new Error(`cannot evaluate expression of type ${e.tag}`);
@@ -640,7 +579,7 @@ export const resolvePath = (
         tag: "VectorAccess",
         contents: [path.path, path.indices[0]],
       };
-      return evalExpr(rng, e, trans, optDebugInfo);
+      return evalExpr(rng, e, trans);
     } else if (path.indices.length === 2) {
       // Matrix
       const e: Expr<A> = {
@@ -648,7 +587,7 @@ export const resolvePath = (
         tag: "MatrixAccess",
         contents: [path.path, path.indices],
       };
-      return evalExpr(rng, e, trans, optDebugInfo);
+      return evalExpr(rng, e, trans);
     } else throw Error("unsupported number of indices in AccessPath");
   }
 
@@ -679,9 +618,7 @@ export const resolvePath = (
           const val: Value<ad.Num> = (evalExpr(
             rng,
             propertyPath,
-            trans,
-
-            optDebugInfo
+            trans
           ) as Val<ad.Num>).contents;
           insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
           return val;
@@ -703,12 +640,7 @@ export const resolvePath = (
 
       if (expr.tag === "OptEval") {
         // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
-        const res: ArgVal<ad.Num> = evalExpr(
-          rng,
-          expr.contents,
-          trans,
-          optDebugInfo
-        );
+        const res: ArgVal<ad.Num> = evalExpr(rng, expr.contents, trans);
 
         if (res.tag === "Val") {
           insertExpr(path, { tag: "Done", contents: res.contents }, trans);
