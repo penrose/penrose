@@ -8,6 +8,7 @@ import {
   containsPolygonPolygon,
   containsRectlikeCircle,
   overlappingAABBs,
+  overlappingEllipse,
   overlappingCircleLine,
   overlappingCircles,
   overlappingPolygons,
@@ -198,6 +199,8 @@ const constrDictGeneral = {
       return overlappingAABBs([t1, s1], [t2, s2], padding);
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], padding);
+    else if (t1 === "Ellipse" && t2 === "Ellipse")
+      return overlappingEllipse([t1, s1], [t2, s2], padding);
     // Rectangle x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], padding);

@@ -27,6 +27,7 @@ import { Equation } from "shapes/Equation";
 import { Image } from "shapes/Image";
 import { Line } from "shapes/Line";
 import { Polygon } from "shapes/Polygon";
+import { Ellipse } from "shapes/Ellipse";
 import { Rectangle } from "shapes/Rectangle";
 import { shapedefs } from "shapes/Shapes";
 import { Text } from "shapes/Text";
@@ -77,6 +78,18 @@ export const overlappingAABBs = (
   const [bottomLeft, topRight] = rectangleDifference(box1, box2, padding);
   // Return the signed distance
   return rectangleSignedDistance(bottomLeft, topRight);
+};
+
+/**
+ * Require that ellipse `s1` overlaps ellipse `s2` with some padding `padding`.
+ */
+export const overlappingEllipse = (
+  [t1, s1]: [string, Ellipse],
+  [t2, s2]: [string, Ellipse],
+  padding: ad.Num = 0
+): ad.Num => {
+  // TODO
+  return 0;
 };
 
 /**
