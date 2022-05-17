@@ -106,6 +106,9 @@ export const _ellipses = [
   { rx: 100, ry: 100, center: [0, 200] },
   { rx: 50, ry: 50, center: [150, 150] },
   { rx: 100, ry: 100, center: [150, 150] },
+  // Non circles
+  { rx: 200, ry: 100, center: [0, 0] },
+  { rx: 50, ry: 150, center: [50, 150] },
 ].map((x) =>
   makeEllipse(rng, canvas, {
     rx: floatV(x.rx),

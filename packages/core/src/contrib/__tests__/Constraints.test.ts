@@ -204,6 +204,7 @@ describe("general constraints", () => {
     ["Rectangle", "Line", 0, _rectangles[0], _lines[0]],
     ["Rectangle", "Polygon", 0, _rectangles[2], _polygons[2]],
     ["Rectangle", "Polygon", 0, _rectangles[0], _polygons[0]],
+    ["Ellipse", "Line", 0, _ellipses[6], _lines[0]],
     // With padding
     ["Rectangle", "Rectangle", 150, _rectangles[3], _rectangles[1]],
     ["Rectangle", "Circle", 150, _rectangles[3], _circles[1]],
@@ -267,6 +268,7 @@ describe("general constraints", () => {
     ["Rectangle", "Line", 0, _rectangles[2], _lines[2]],
     ["Circle", "Rectangle", 0, _circles[3], _rectangles[2]],
     ["Ellipse", "Rectangle", 0, _ellipses[3], _rectangles[2]],
+    ["Ellipse", "Line", 0, _ellipses[7], _lines[2]],
     // With padding
     ["Rectangle", "Rectangle", 10, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 10, _rectangles[1], _circles[3]],
