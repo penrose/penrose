@@ -9,7 +9,7 @@
     "dev": "vite",
     "watch": "vite build --watch",
     "build": "vite build && tsc --declaration",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --declaration",
     "preview": "vite preview",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
