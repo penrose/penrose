@@ -352,6 +352,15 @@ export const overlappingEllipses = (
   const poly = ellipsePolynomial(ei1, ei2);
   const roots = []; // TODO
   const m1 = 0; // TODO
-  const m2 = 0; // TODO
+  const m2 = min(
+    max(
+      implicitEllipseFunc(ei1, ei1.x, ei1.y),
+      implicitEllipseFunc(ei2, ei1.x, ei1.y),
+    ),
+    max(
+      implicitEllipseFunc(ei1, ei2.x, ei2.y),
+      implicitEllipseFunc(ei2, ei2.x, ei2.y),
+    )
+  );
   return min(m1, m2);
 };

@@ -7,8 +7,6 @@ import { genCode, secondaryGraph } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
 import * as ad from "types/ad";
 
-const digitPrecision = 4;
-
 const numsOf = (xs: ad.Num[]) => {
   const g = secondaryGraph(xs);
   const f = genCode(g);
@@ -77,17 +75,17 @@ describe("halfPlaneSDF", () => {
 
   test("without padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
-    expect(numsOf([result])[0]).toBeCloseTo(-3, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(-3, 4);
   });
 
   test("with padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
-    expect(numsOf([result])[0]).toBeCloseTo(-13, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(-13, 4);
   });
 
   test("zero outside", async () => {
     let result = halfPlaneSDF([point2, point3], [point5], point1, 0);
-    expect(numsOf([result])[0]).toBeCloseTo(1, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(1, 4);
   });
 });
 
