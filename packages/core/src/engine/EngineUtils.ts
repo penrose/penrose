@@ -312,6 +312,18 @@ export const dummyIdentifier = (
   };
 };
 
+const floatValToExpr = (e: Value<ad.Num>): Expr<A> => {
+  if (e.tag !== "FloatV") {
+    throw Error("expected to insert vector elem of type float");
+  }
+
+  return {
+    nodeType: "SyntheticStyle",
+    tag: "VaryAD",
+    contents: e.contents,
+  };
+};
+
 const mkPropertyDict = (
   decls: PropertyDecl<A>[]
 ): { [k: string]: TagExpr<ad.Num> } => {
@@ -560,8 +572,7 @@ export const insertExpr = (
             if (expr.tag === "OptEval") {
               res4[exprToNumber(indices[0])] = expr.contents;
             } else if (expr.tag === "Done") {
-              throw Error("helo");
-              // res4[exprToNumber(indices[0])] = expr.contents;
+              res4[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
               if (compiling) {
                 return addWarn(
@@ -666,8 +677,7 @@ export const insertExpr = (
             if (expr.tag === "OptEval") {
               res3[exprToNumber(indices[0])] = expr.contents;
             } else if (expr.tag === "Done") {
-              throw Error("helo2");
-              // res3[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
+              res3[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
               if (compiling) {
                 return addWarn(

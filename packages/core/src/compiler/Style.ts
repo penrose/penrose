@@ -804,6 +804,28 @@ const substituteBlockExpr = (
       case "CompApp":
       case "ObjFn":
       case "ConstrFn": {
+        // substitute out occurrences of `VARYING_INIT(i)` (the computation) for `VaryingInit(i)` (the `AnnoFloat`) as there is currently no special syntax for this
+
+        // note that this is a hack; instead of shoehorning it into `substituteBlockExpr`, it should be done more cleanly as a compiler pass on the Style block AST at some point. doesn't really matter when this is done as long as it's before the varying float initialization in `genState
+        if (expr.tag === "CompApp") {
+          if (expr.name.value === VARYING_INIT_FN_NAME) {
+            // TODO(err): Typecheck VARYING_INIT properly and return an error. This will be unnecessary if parsed with special syntax.
+            if (expr.args.length !== 1) {
+              throw Error("expected one argument to VARYING_INIT");
+            }
+
+            if (expr.args[0].tag !== "Fix") {
+              throw Error("expected float argument to VARYING_INIT");
+            }
+
+            return {
+              ...dummyASTNode({}, "SyntheticStyle"),
+              tag: "VaryInit",
+              contents: expr.args[0].contents,
+            };
+          }
+        }
+
         return {
           ...expr,
           args: expr.args.map((arg: Expr<A>) =>
@@ -897,6 +919,8 @@ const substituteBlockExpr = (
       }
       case "Fix":
       case "Vary":
+      case "VaryAD":
+      case "VaryInit":
       case "StringLit":
       case "BoolLit": {
         // No substitution for literals
@@ -1872,9 +1896,14 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleResults => {
       }
       case "Fix":
       case "Vary":
+      case "VaryInit":
       case "StringLit":
       case "BoolLit": {
         return emptyErrs();
+      }
+      case "VaryAD": {
+        console.error("expr", expr);
+        throw Error("unknown tag");
       }
     }
   }
@@ -2192,7 +2221,7 @@ const pendingProperties = (s: ShapeTypeStr): PropID[] => {
 };
 
 const isVarying = (e: Expr<A>): boolean => {
-  return e.tag === "Vary";
+  return e.tag === "Vary" || e.tag === "VaryInit";
 };
 
 const isPending = (s: ShapeTypeStr, p: PropID): boolean => {
@@ -2496,6 +2525,12 @@ const getNum = (e: TagExpr<ad.Num> | FGPI<ad.Num>): number => {
     case "OptEval": {
       if (e.contents.tag === "Fix") {
         return e.contents.contents;
+      }
+      if (e.contents.tag === "VaryAD") {
+        if (typeof e.contents.contents !== "number") {
+          throw Error("varying value cannot be a computed expression");
+        }
+        return e.contents.contents;
       } else {
         throw Error("internal error: invalid varying path");
       }
@@ -2589,7 +2624,17 @@ const initFieldsAndAccessPaths = (
   const initVals = varyingFieldsAndAccessPaths.map(
     (p: Path<A>): TagExpr<ad.Num> => {
       // by default, sample randomly in canvas X range
-      const initVal = randFloat(rng, ...canvas.xRange);
+      let initVal = randFloat(rng, ...canvas.xRange);
+
+      // unless it's a VaryInit, in which case, don't sample, set to the init value
+      // TODO: This could technically use `varyingInitPathsAndVals`?
+      const res = findExpr(tr, p); // Some varying paths may not be in the translation. That's OK.
+      if (res.tag === "OptEval") {
+        if (res.contents.tag === "VaryInit") {
+          initVal = res.contents.contents;
+        }
+      }
+
       return {
         tag: "Done",
         contents: {
@@ -2627,6 +2672,15 @@ const initProperty = (
     case "OptEval": {
       if (styleSetting.contents.tag === "Vary") {
         return undefined;
+      } else if (styleSetting.contents.tag === "VaryInit") {
+        // Initialize the varying variable to the property specified in Style
+        return {
+          tag: "Done",
+          contents: {
+            tag: "FloatV",
+            contents: styleSetting.contents.contents,
+          },
+        };
       } else if (styleSetting.contents.tag === "Vector") {
         const v: Expr<A>[] = styleSetting.contents.contents;
         if (v.length === 2) {
@@ -2718,6 +2772,20 @@ const initShapes = (
   pths: [string, string][]
 ): Translation => {
   return pths.reduce((tr, pth) => initShape(rng, tr, pth), tr);
+};
+
+const isVaryingInitPath = <T>(
+  p: Path<T>,
+  tr: Translation
+): [Path<T>, number | undefined] => {
+  const res = findExpr(tr, p); // Some varying paths may not be in the translation. That's OK.
+  if (res.tag === "OptEval") {
+    if (res.contents.tag === "VaryInit") {
+      return [p, res.contents.contents];
+    }
+  }
+
+  return [p, undefined];
 };
 
 //#endregion
@@ -2996,6 +3064,8 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       }
       case "Fix":
       case "Vary":
+      case "VaryInit":
+      case "VaryAD":
       case "StringLit":
       case "BoolLit": {
         return [];
@@ -3072,8 +3142,17 @@ const genState = (
   const { rng, seeds } = variationSeeds(variation);
 
   const varyingPaths = findVarying(trans);
-
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
+  const varyingInitPathsAndVals: [Path<A>, number][] = varyingPaths
+    .map((p) => isVaryingInitPath(p, trans))
+    .filter(
+      (tup: [Path<A>, number | undefined]): tup is [Path<A>, number] =>
+        tup[1] !== undefined
+    ); // TODO: Not sure how to get typescript to understand `filter`...
+  const varyingInitInfo: { [pathStr: string]: number } = Object.fromEntries(
+    varyingInitPathsAndVals.map((e) => [prettyPrintPath(e[0]), e[1]])
+  );
+
   const uninitializedPaths = findUninitialized(trans);
 
   const canvasErrs = checkCanvas(trans);
@@ -3129,6 +3208,7 @@ const genState = (
 
     varyingPaths,
     varyingValues: initVaryingState,
+    varyingInitInfo,
 
     uninitializedPaths,
     pendingPaths,

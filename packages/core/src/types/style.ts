@@ -1,6 +1,7 @@
 //#region Style AST
 // TODO: unify type name convention (e.g. stop using `I` for interfaces and drop some of the Haskell ported types)
 
+import * as ad from "./ad";
 import { ASTNode, Identifier, StringLit } from "./ast";
 import { LabelType } from "./substance";
 
@@ -329,7 +330,7 @@ export type ThenOp<T> = ASTNode<T> & {
   contents: [Expr<T>, Expr<T>];
 };
 
-export type AnnoFloat<T> = Fix<T> | Vary<T>;
+export type AnnoFloat<T> = Fix<T> | Vary<T> | VaryInit<T> | VaryAD<T>;
 
 export type Fix<T> = ASTNode<T> & {
   tag: "Fix";
@@ -338,6 +339,17 @@ export type Fix<T> = ASTNode<T> & {
 
 export type Vary<T> = ASTNode<T> & {
   tag: "Vary";
+};
+
+// Varying float that is initialized at some number as specified by the style-writer
+export type VaryInit<T> = ASTNode<T> & {
+  tag: "VaryInit";
+  contents: number;
+};
+
+export type VaryAD<T> = ASTNode<T> & {
+  tag: "VaryAD";
+  contents: ad.Num;
 };
 
 export type PropertyDecl<T> = ASTNode<T> & {

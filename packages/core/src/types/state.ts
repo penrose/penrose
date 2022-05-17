@@ -13,6 +13,7 @@ export type ShapeFn = (xs: number[]) => Shape[];
  */
 export interface State {
   seeds: Seeds;
+  varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
   varyingPaths: Path<A>[];
   uninitializedPaths: Path<A>[];
   pendingPaths: Path<A>[];
