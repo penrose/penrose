@@ -11,6 +11,7 @@ import {
   overlappingEllipse,
   overlappingCircleLine,
   overlappingCircles,
+  overlappingPolygonEllipse,
   overlappingPolygons,
   overlappingRectlikeCircle,
 } from "contrib/ConstraintsUtils";
@@ -195,7 +196,7 @@ const constrDictGeneral = {
     // Same shapes
     if (t1 === "Circle" && t2 === "Circle")
       return overlappingCircles([t1, s1], [t2, s2], padding);
-    if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
+    else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
       return overlappingAABBs([t1, s1], [t2, s2], padding);
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], padding);
@@ -206,6 +207,11 @@ const constrDictGeneral = {
       return overlappingRectlikeCircle([t1, s1], [t2, s2], padding);
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return overlappingRectlikeCircle([t2, s2], [t1, s1], padding);
+    // Polygon x Ellipse
+    else if (shapedefs[t1].isPolygonlike && t2 === "Ellipse")
+      return overlappingPolygonEllipse([t1, s1], [t2, s2], padding);
+    else if (t1 === "Ellipse" && shapedefs[t2].isPolygonlike)
+      return overlappingPolygonEllipse([t2, s2], [t1, s1], padding);
     // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
       return overlappingCircleLine([t1, s1], [t2, s2], padding);
