@@ -196,11 +196,11 @@ export const ellipsePolynomial = (
   b: ImplicitEllipse
 ): ad.Num[] => {
   const beta = ellipsePolynomailBeta(a, b);
+  const alpha4 = ellipsePolynomailAlpha4(a, b, beta);
   return [
-    ellipsePolynomailAlpha0(a, b),
-    ellipsePolynomailAlpha1(a, b),
-    ellipsePolynomailAlpha2(a, b),
-    ellipsePolynomailAlpha3(a, b, beta),
-    ellipsePolynomailAlpha4(a, b, beta),
+    div(ellipsePolynomailAlpha3(a, b, beta), alpha4),
+    div(ellipsePolynomailAlpha2(a, b), alpha4),
+    div(ellipsePolynomailAlpha1(a, b), alpha4),
+    div(ellipsePolynomailAlpha0(a, b), alpha4),
   ];
 };
