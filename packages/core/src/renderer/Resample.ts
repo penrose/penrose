@@ -16,7 +16,7 @@ import { Shape } from "types/shape";
 import { State } from "types/state";
 import { Path } from "types/style";
 import { TagExpr, Translation, Value } from "types/value";
-import { prettyPrintPath, randFloat, randFloats, safe } from "utils/Util";
+import { randFloat, randFloats, safe } from "utils/Util";
 
 //#region shape conversion helpers
 const val2float = (val: Value<number>): number => {
@@ -115,19 +115,10 @@ const samplePath = (
   rng: seedrandom.prng,
   path: Path<A>,
   shapes: Shape[],
-  varyingInitInfo: { [pathStr: string]: number },
   canvas: Canvas
 ): Value<number> => {
   if (path.tag === "LocalVar" || path.tag === "InternalLocalVar") {
     throw Error("local path shouldn't appear in GPI");
-  }
-
-  const pathStr = prettyPrintPath(path);
-  if (pathStr in varyingInitInfo) {
-    return {
-      tag: "FloatV",
-      contents: varyingInitInfo[pathStr],
-    };
   }
 
   // HACK: for access and field paths, sample within the canvas width
@@ -161,7 +152,7 @@ export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
   // resample all the uninitialized and varying values
   const { varyingPaths, shapes, uninitializedPaths, params } = state;
   const varyingValues: Value<number>[] = varyingPaths.map((p: Path<A>) =>
-    samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
+    samplePath(rng, p, shapes, state.canvas)
   );
 
   // update the translation with all uninitialized values (converted to `Done` values)
@@ -170,7 +161,7 @@ export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
     TagExpr<ad.Num>
   ][] = uninitializedPaths.map((p: Path<A>) => [
     p,
-    val2Expr(samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)),
+    val2Expr(samplePath(rng, p, shapes, state.canvas)),
   ]);
 
   const translation: Translation = uninitMap.reduce(
