@@ -31,7 +31,6 @@ import { Equation } from "shapes/Equation";
 import { Image } from "shapes/Image";
 import { Line } from "shapes/Line";
 import { Polygon } from "shapes/Polygon";
-import { Ellipse } from "shapes/Ellipse";
 import { Rectangle } from "shapes/Rectangle";
 import { shapedefs } from "shapes/Shapes";
 import { Text } from "shapes/Text";

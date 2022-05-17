@@ -5,8 +5,6 @@ import {
   add,
   addN,
   div,
-  ifCond,
-  lt,
   max,
   maxN,
   min,
@@ -22,7 +20,15 @@ import { convexPartition, isClockwise } from "poly-partition";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
 import { safe } from "utils/Util";
-import { ellipsePolynomial, ellipseToImplicit } from "./ImplicitShapes";
+import {
+  ellipsePolynomial,
+  ellipseToImplicit,
+  halfPlaneToImplicit,
+  ImplicitEllipse,
+  implicitEllipseFunc,
+  ImplicitHalfPlane,
+  implicitHalfPlaneFunc,
+} from "./ImplicitShapes";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -257,94 +263,6 @@ export const containsPolygonPoints = (
 };
 
 /**
- * Parameters of implicitly defined ellipse:
- * `a * (X - x)^2 + b * (Y - y)^2 = c`
- */
-interface ImplicitEllipse {
-  a: ad.Num;
-  b: ad.Num;
-  c: ad.Num;
-  x: ad.Num;
-  y: ad.Num;
-}
-
-/**
- * Parameters of implicitly defined half-plane:
- * `a * X + b * Y <= c`
- */
-interface ImplicitHalfPlane {
-  a: ad.Num;
-  b: ad.Num;
-  c: ad.Num;
-}
-
-/**
- * Evaluate the implicit function for an ellipse at point with coordinates `x` and `y`.
- * @param ei Implicit ellipse parameters.
- * @param x X-coordinate.
- * @param y Y-coordinate.
- */
-const implicitEllipseFunc = (
-  ei: ImplicitEllipse,
-  x: ad.Num,
-  y: ad.Num
-): ad.Num => {
-  return sub(
-    add(mul(ei.a, squared(sub(x, ei.x))), mul(ei.b, squared(sub(y, ei.y)))),
-    ei.c
-  );
-};
-
-/**
- * Evaluate the implicit function for an half-plane at point with coordinates `x` and `y`.
- * @param hpi Implicit half-plane parameters.
- * @param x X-coordinate.
- * @param y Y-coordinate.
- */
-const implicitHalfPlaneFunc = (
-  hpi: ImplicitHalfPlane,
-  x: ad.Num,
-  y: ad.Num
-): ad.Num => {
-  return sub(add(mul(hpi.a, x), mul(hpi.b, y)), hpi.c);
-};
-
-/**
- * Return implicit half-plane parameters given a line and a point inside the half-plane.
- * @param lineSegment Two points defining the line segment.
- * @param insidePoint Any point inside of the half-plane.
- * @param padding Padding around the Half-plane.
- */
-export const halfPlaneToImplicit = (
-  lineSegment: ad.Num[][],
-  insidePoint: ad.Num[],
-  padding: ad.Num
-): ImplicitHalfPlane => {
-  const normal = outwardUnitNormal(lineSegment, insidePoint);
-  return {
-    a: normal[0],
-    b: normal[1],
-    c: sub(ops.vdot(normal, lineSegment[0]), padding),
-  };
-};
-
-/**
- * Return implicit ellipse parameters from an explicit representation.
- * @param ellipse Explicit ellipse shape.
- */
-export const ellipseToImplicit = (ellipse: Ellipse): ImplicitEllipse => {
-  const rx = ellipse.rx.contents;
-  const ry = ellipse.ry.contents;
-  return {
-    a: div(ry, rx),
-    b: div(rx, ry),
-    c: mul(rx, ry),
-    x: ellipse.center.contents[0],
-    y: ellipse.center.contents[1],
-  };
-};
-
-/**
  * Return candidates for extremal points of the implicit functions.
  * @param ei Implicit ellipse parameters.
  * @param hpi Implicit half-plane parameters.
@@ -433,7 +351,7 @@ export const overlappingEllipses = (
   const ei2 = ellipseToImplicit(ellipse2);
   const poly = ellipsePolynomial(ei1, ei2);
   const roots = []; // TODO
-  const m1 = 0;  // TODO
-  const m2 = 0;  // TODO
+  const m1 = 0; // TODO
+  const m2 = 0; // TODO
   return min(m1, m2);
 };

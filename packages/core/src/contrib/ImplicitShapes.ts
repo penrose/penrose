@@ -8,7 +8,7 @@ import * as ad from "types/ad";
  * Parameters of implicitly defined ellipse:
  * `a * (X - x)^2 + b * (Y - y)^2 = c`
  */
-interface ImplicitEllipse {
+export interface ImplicitEllipse {
   a: ad.Num;
   b: ad.Num;
   c: ad.Num;
@@ -20,7 +20,7 @@ interface ImplicitEllipse {
  * Parameters of implicitly defined half-plane:
  * `a * X + b * Y <= c`
  */
-interface ImplicitHalfPlane {
+export interface ImplicitHalfPlane {
   a: ad.Num;
   b: ad.Num;
   c: ad.Num;
@@ -32,7 +32,7 @@ interface ImplicitHalfPlane {
  * @param x X-coordinate.
  * @param y Y-coordinate.
  */
-const implicitEllipseFunc = (
+export const implicitEllipseFunc = (
   ei: ImplicitEllipse,
   x: ad.Num,
   y: ad.Num
@@ -49,7 +49,7 @@ const implicitEllipseFunc = (
  * @param x X-coordinate.
  * @param y Y-coordinate.
  */
-const implicitHalfPlaneFunc = (
+export const implicitHalfPlaneFunc = (
   hpi: ImplicitHalfPlane,
   x: ad.Num,
   y: ad.Num
