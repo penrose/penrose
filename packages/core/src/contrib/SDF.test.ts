@@ -2,6 +2,7 @@ import { compDict } from "contrib/Functions";
 import { genCode, secondaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
+import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
 import {
@@ -83,6 +84,23 @@ const testPolygon = (
   });
   compareDistance("Polygon", shape, pt, expected);
 };
+
+function testLine(
+  start: number[],
+  end: number[],
+  strokeWidth: number,
+  pt: number[],
+  expected: number
+) {
+  const seed = seedrandom("Polygon");
+  const shape = makeLine(seed, canvas, {
+    strokeWidth: FloatV(strokeWidth),
+    strokeColor: sampleBlack(),
+    start: VectorV(start),
+    end: VectorV(end),
+  });
+  compareDistance("Line", shape, pt, expected);
+}
 
 describe("sdf", () => {
   test("CenteredRectange", () => {
@@ -173,4 +191,10 @@ test("convexHeptagon", () => {
     [3, 6],
     1
   );
+});
+
+test("line", () => {
+  testLine([0, 0], [8, 0], 0, [4, 0], 0);
+  testLine([0, 0], [8, 0], 0, [0, 4], 4);
+  testLine([0, 0], [8, 8], 0, [0, 4], Math.cos(Math.PI / 4) * 4);
 });

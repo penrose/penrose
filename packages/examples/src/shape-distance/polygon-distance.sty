@@ -28,7 +28,15 @@ forall Star s {
     }
 }
 
-forall Point p; Polygon g
+forall Line l {
+    g.icon = Line {
+        strokeWidth : 8
+        start : (-200,-100)
+        end : (250, 100)
+    }
+}
+
+forall Point p; Shape s
 where Around(p, g) {
     ensure equal(signedDistance(g.icon, p.icon.center), 20)
 }

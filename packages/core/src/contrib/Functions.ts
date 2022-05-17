@@ -1506,11 +1506,11 @@ export const compDict = {
       };
     } else if (t === "Circle") {
       /*     
-    float sdCircle( vec2 p, float r )
-    {
-      return length(p) - r;
-    } 
-    */
+      float sdCircle( vec2 p, float r )
+      {
+        return length(p) - r;
+      } 
+      */
       const pOffset = ops.vsub(p, s.center.contents);
       const result = sub(ops.vnorm(pOffset), s.r.contents);
       return {
@@ -1519,22 +1519,22 @@ export const compDict = {
       };
     } else if (t === "Polygon") {
       /*
-    float sdPolygon( in vec2[N] v, in vec2 p )
-    {
-        float d = dot(p-v[0],p-v[0]);
-        float s = 1.0;
-        for( int i=0, j=N-1; i<N; j=i, i++ )
-        {
-            vec2 e = v[j] - v[i];
-            vec2 w =    p - v[i];
-            vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
-            d = min( d, dot(b,b) );
-            bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
-            if( all(c) || all(not(c)) ) s*=-1.0;  
-        }
-        return s*sqrt(d);
-    }
-    */
+      float sdPolygon( in vec2[N] v, in vec2 p )
+      {
+          float d = dot(p-v[0],p-v[0]);
+          float s = 1.0;
+          for( int i=0, j=N-1; i<N; j=i, i++ )
+          {
+              vec2 e = v[j] - v[i];
+              vec2 w =    p - v[i];
+              vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
+              d = min( d, dot(b,b) );
+              bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
+              if( all(c) || all(not(c)) ) s*=-1.0;  
+          }
+          return s*sqrt(d);
+      }
+      */
       const v = s.points.contents;
       let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
       let ess: ad.Num = 1.0;
@@ -1559,6 +1559,25 @@ export const compDict = {
         j = i;
       }
       const result = mul(ess, sqrt(d));
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    } else if (t === "Line") {
+      /*
+      float sdSegment( in vec2 p, in vec2 a, in vec2 b )
+      {
+          vec2 pa = p-a, ba = b-a;
+          float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+          return length( pa - ba*h );
+      }
+      */
+      const a = s.start.contents;
+      const b = s.end.contents;
+      const pa = ops.vsub(p, a);
+      const ba = ops.vsub(b, a);
+      const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
+      const result = ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
       return {
         tag: "FloatV",
         contents: result,

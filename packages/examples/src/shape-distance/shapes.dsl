@@ -1,10 +1,12 @@
 type ReverseL
-type Polygon
+type Shape
 type Point
 type Star
+type Line
 
-ReverseL <: Polygon
-Star <: Polygon
+ReverseL <: Shape
+Star <: Shape
+Line <: Shape
 
-predicate Around(Point p, Polygon g)
+predicate Around(Point p, Shape s)
 
