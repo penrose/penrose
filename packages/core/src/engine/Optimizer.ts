@@ -9,15 +9,14 @@ import {
   ops,
 } from "engine/Autodiff";
 import {
+  compileCompGraph,
   defaultLbfgsParams,
   initConstraintWeight,
-  shapeAutodiffToNumber,
 } from "engine/EngineUtils";
 import {
   argValue,
   evalFns,
   evalShapes,
-  genPathMap,
   insertVaryings,
 } from "engine/Evaluator";
 import * as _ from "lodash";
@@ -32,7 +31,6 @@ import {
   LbfgsParams,
   Params,
   State,
-  VaryMap,
   WeightInfo,
 } from "types/state";
 import { Path } from "types/style";
@@ -341,7 +339,6 @@ export const step = (
   if (evaluate) {
     const varyingValues = xs;
     // log.info("evaluating state with varying values", varyingValues);
-    // log.info("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
 
     newState.translation = insertVaryings(
       state.translation,
@@ -351,7 +348,7 @@ export const step = (
     newState.varyingValues = varyingValues;
     newState = {
       ...newState,
-      shapes: shapeAutodiffToNumber(evalShapes(rng, newState)),
+      shapes: state.computeShapes(xs),
     };
   }
 
@@ -854,12 +851,8 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
       varyingMapList
     );
 
-    // construct a new varying map
-    const varyingMap: VaryMap<ad.Num> = genPathMap(varyingPaths, xsVars);
-
-    // NOTE: This will mutate the var inputs
-    const objEvaled = evalFns(rng, objFns, translation, varyingMap);
-    const constrEvaled = evalFns(rng, constrFns, translation, varyingMap);
+    const objEvaled = evalFns(rng, objFns, translation);
+    const constrEvaled = evalFns(rng, constrFns, translation);
 
     const objEngs: ad.Num[] = objEvaled.map((o) => applyFn(o, objDict));
     const constrEngs: ad.Num[] = constrEvaled.map((c) =>
@@ -947,6 +940,10 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     };
   };
 
+  // generate evaluation function
+  const varyingVars = makeADInputVars(state.varyingValues);
+  const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
+
   const newParams: Params = {
     ...state.params,
     xsVars,
@@ -971,7 +968,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     lbfgsInfo: defaultLbfgsParams,
   };
 
-  return { ...state, params: newParams };
+  return { ...state, computeShapes, params: newParams };
 };
 
 const containsNaN = (numberList: number[]): boolean => {

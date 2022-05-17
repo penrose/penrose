@@ -1,7 +1,8 @@
+import { makeADInputVars } from "engine/Autodiff";
 import {
+  compileCompGraph,
   initConstraintWeight,
   insertExpr,
-  shapeAutodiffToNumber,
   valueAutodiffToNumber,
 } from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
@@ -189,8 +190,18 @@ export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
     },
     // pendingPaths: findPending(translation),
   };
+
+  // re-compile comp graph
+  const varyingVars = makeADInputVars(sampledState.varyingValues);
+  const computeShapes = compileCompGraph(
+    evalShapes(rng, sampledState, varyingVars)
+  );
+
+  // NOTE: we don't re-generate the optimization graph because all floating-point values that could've changed by re-sampling are automatically included in the varying values. Therefore, coincidentally, the opt graph and resampled values can never go out of sync. Also, because non-float values do not participate in optimization at all, they don't cause any problems.
+
   return {
     ...sampledState,
-    shapes: shapeAutodiffToNumber(evalShapes(rng, sampledState)),
+    computeShapes,
+    shapes: computeShapes(sampledState.varyingValues),
   };
 };
