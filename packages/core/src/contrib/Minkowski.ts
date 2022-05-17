@@ -348,8 +348,20 @@ const pointCandidatesEllipseEllipse = (
   ei2: ImplicitEllipse,
   lambda: ad.Num
 ): [ad.Num, ad.Num] => {
-  const x = 0; // TODO
-  const y = 0; // TODO
+  const x = div(
+    add(
+      mul(ei1.x, ei1.a),
+      mul(lambda, sub(mul(ei2.x, ei2.a), mul(ei1.x, ei1.a)))
+    ),
+    add(ei1.a, mul(lambda, sub(ei2.a, ei1.a)))
+  );
+  const y = div(
+    add(
+      mul(ei1.y, ei1.b),
+      mul(lambda, sub(mul(ei2.y, ei2.b), mul(ei1.y, ei1.b)))
+    ),
+    add(ei1.b, mul(lambda, sub(ei2.b, ei1.b)))
+  );
   return [x, y];
 };
 
