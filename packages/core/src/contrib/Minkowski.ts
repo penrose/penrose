@@ -293,8 +293,8 @@ export const halfPlaneEllipseSDF = (
   insidePoint: ad.Num[],
   padding: ad.Num
 ): ad.Num => {
-  const hpi = halfPlaneToImplicit(lineSegment, insidePoint, padding);
-  const ei = ellipseToImplicit(ellipse);
+  const hpi = halfPlaneToImplicit(lineSegment, insidePoint, 0);
+  const ei = ellipseToImplicit(ellipse, padding);
   const e = div(
     add(mul(ei.b, squared(hpi.a)), mul(ei.a, squared(hpi.b))),
     mul(
@@ -363,8 +363,8 @@ export const overlappingEllipses = (
   ellipse2: Ellipse,
   padding: ad.Num // TODO: how to deal with padding?
 ): ad.Num => {
-  const ei1 = ellipseToImplicit(ellipse1);
-  const ei2 = ellipseToImplicit(ellipse2);
+  const ei1 = ellipseToImplicit(ellipse1, padding);
+  const ei2 = ellipseToImplicit(ellipse2, 0);
   const poly = ellipsePolynomial(ei1, ei2);
   const roots = [1, 2]; // TODO
   const candidates = roots.map((lambda: ad.Num) => pointCandidatesEllipseEllipse(ei1, ei2, lambda));

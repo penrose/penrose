@@ -80,9 +80,12 @@ export const halfPlaneToImplicit = (
  * Return implicit ellipse parameters from an explicit representation.
  * @param ellipse Explicit ellipse shape.
  */
-export const ellipseToImplicit = (ellipse: Ellipse): ImplicitEllipse => {
-  const rx = ellipse.rx.contents;
-  const ry = ellipse.ry.contents;
+export const ellipseToImplicit = (
+  ellipse: Ellipse,
+  padding: ad.Num
+): ImplicitEllipse => {
+  const rx = add(ellipse.rx.contents, padding);
+  const ry = add(ellipse.ry.contents, padding);
   return {
     a: div(ry, rx),
     b: div(rx, ry),

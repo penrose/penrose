@@ -54,7 +54,7 @@ describe("toImplicit", () => {
         strokeColor: sampleBlack(),
       }
     );
-    let result = ellipseToImplicit(ellipse);
+    let result = ellipseToImplicit(ellipse, 0);
     let [a, b, c, x, y] = numsOf([
       result.a,
       result.b,
@@ -65,6 +65,33 @@ describe("toImplicit", () => {
     expect(a).toEqual(0.5);
     expect(b).toEqual(2);
     expect(c).toEqual(18);
+    expect(x).toEqual(-11);
+    expect(y).toEqual(22);
+  });
+
+  test("ellipseToImplicit with padding", async () => {
+    let ellipse = makeEllipse(
+      seedrandom("ImplicitShapes.test"),
+      makeCanvas(800, 700),
+      {
+        rx: floatV(1),
+        ry: floatV(7),
+        center: vectorV([-11, 22]),
+        strokeWidth: floatV(0),
+        strokeColor: sampleBlack(),
+      }
+    );
+    let result = ellipseToImplicit(ellipse, 1);
+    let [a, b, c, x, y] = numsOf([
+      result.a,
+      result.b,
+      result.c,
+      result.x,
+      result.y,
+    ]);
+    expect(a).toEqual(4);
+    expect(b).toEqual(0.25);
+    expect(c).toEqual(16);
     expect(x).toEqual(-11);
     expect(y).toEqual(22);
   });
