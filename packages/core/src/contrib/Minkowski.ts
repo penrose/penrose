@@ -20,6 +20,7 @@ import { convexPartition, isClockwise } from "poly-partition";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
 import { safe } from "utils/Util";
+import { ellipsePolynomial, ellipseToImplicit } from "./ImplicitShapes";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -251,4 +252,24 @@ export const containsPolygonPoints = (
 ): ad.Num => {
   const cp1 = convexPartitions(polygonPoints);
   return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
+};
+
+/**
+ * Overlapping constraint function for polygon points and ellipse with padding `padding`.
+ * @param polygonPoints Sequence of points defining a polygon.
+ * @param ellipse Ellipse shape.
+ * @param padding Padding around the Minkowski sum.
+ */
+ export const overlappingEllipses = (
+  ellipse1: Ellipse,
+  ellipse2: Ellipse,
+  padding: ad.Num // TODO: how to deal with padding?
+): ad.Num => {
+  const ei1 = ellipseToImplicit(ellipse1);
+  const ei2 = ellipseToImplicit(ellipse2);
+  const poly = ellipsePolynomial(ei1, ei2);
+  const roots = []; // TODO
+  const m1 = 0;  // TODO
+  const m2 = 0;  // TODO
+  return min(m1, m2);
 };

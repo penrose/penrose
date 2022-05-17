@@ -188,7 +188,7 @@ const ellipsePolynomailBeta = (
   );
 };
 
-const ellipsePolynomial = (
+export const ellipsePolynomial = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
 ): ad.Num[] => {
