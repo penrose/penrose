@@ -86,10 +86,10 @@ export const ShapeDef = (shapedef: {
     propTags,
 
     bbox: shapedef.bbox,
-    isLinelike: shapedef.isLinelike || false,
-    isRectlike: shapedef.isRectlike || false,
-    isPolygonlike: shapedef.isPolygonlike || false,
-    pendingProps: shapedef.pendingProps || [],
+    isLinelike: shapedef.isLinelike ?? false,
+    isRectlike: shapedef.isRectlike ?? false,
+    isPolygonlike: shapedef.isPolygonlike ?? false,
+    pendingProps: shapedef.pendingProps ?? [],
   };
 };
 
