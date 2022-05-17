@@ -379,8 +379,8 @@ const pointCandidates = (
 ): [ad.Num, ad.Num] => {
   const c = div(lambda, mul(2, sub(lambda, 1)));
   return [
-    sub(ei.x, mul(c, div(hpi.a, ei.a))),
-    sub(ei.y, mul(c, div(hpi.b, ei.b))),
+    add(ei.x, mul(c, div(hpi.a, ei.a))),
+    add(ei.y, mul(c, div(hpi.b, ei.b))),
   ];
 };
 
