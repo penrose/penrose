@@ -227,7 +227,7 @@ describe("toImplicit", () => {
       [1, 6],
       0
     );
-    let [a, b, c] = numsOf([result.a, result.b, result.c])
+    let [a, b, c] = numsOf([result.a, result.b, result.c]);
     expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
     expect(b).toBeCloseTo(-1 / Math.sqrt(2), 4);
     expect(c).toBeCloseTo(-1 / Math.sqrt(2), 4);
@@ -242,7 +242,7 @@ describe("toImplicit", () => {
       [5, 6],
       1
     );
-    let [a, b, c] = numsOf([result.a, result.b, result.c])
+    let [a, b, c] = numsOf([result.a, result.b, result.c]);
     expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
     expect(b).toBeCloseTo(-1 / Math.sqrt(2), 4);
     expect(c).toBeCloseTo(-1 / Math.sqrt(2) - 1, 4);
@@ -257,7 +257,13 @@ describe("toImplicit", () => {
       strokeColor: sampleBlack(),
     });
     let result = ellipseToImplicit(ellipse);
-    let [a, b, c, x, y] = numsOf([result.a, result.b, result.c, result.x, result.y])
+    let [a, b, c, x, y] = numsOf([
+      result.a,
+      result.b,
+      result.c,
+      result.x,
+      result.y,
+    ]);
     expect(a).toEqual(0.5);
     expect(b).toEqual(2);
     expect(c).toEqual(18);

@@ -3,7 +3,6 @@ import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
-import { makeEllipse } from "../../shapes/Ellipse";
 import {
   floatV,
   makeCanvas,
@@ -11,6 +10,7 @@ import {
   sampleBlack,
   vectorV,
 } from "shapes/Samplers";
+import { makeEllipse } from "../../shapes/Ellipse";
 
 const rng = seedrandom("TestShapes.input");
 const canvas = makeCanvas(800, 700);
