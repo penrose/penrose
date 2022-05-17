@@ -10,6 +10,7 @@ import {
   sampleBlack,
   vectorV,
 } from "shapes/Samplers";
+import { makeEllipse } from "../../shapes/Ellipse";
 
 const rng = seedrandom("TestShapes.input");
 const canvas = makeCanvas(800, 700);
@@ -93,5 +94,27 @@ export const _polygons = [
   makePolygon(rng, canvas, {
     points: ptListV(pts),
     scale: floatV(1),
+  })
+);
+
+export const _ellipses = [
+  // Circles
+  { rx: 200, ry: 200, center: [0, 0] },
+  { rx: 100, ry: 100, center: [0, 0] },
+  { rx: 100, ry: 100, center: [200, 0] },
+  { rx: 100, ry: 100, center: [0, 300] },
+  { rx: 100, ry: 100, center: [0, 200] },
+  { rx: 50, ry: 50, center: [150, 150] },
+  { rx: 100, ry: 100, center: [150, 150] },
+  // Non circles
+  { rx: 200, ry: 100, center: [0, 0] },
+  { rx: 50, ry: 150, center: [50, 150] },
+].map((x) =>
+  makeEllipse(rng, canvas, {
+    rx: floatV(x.rx),
+    ry: floatV(x.ry),
+    center: vectorV(x.center),
+    strokeWidth: floatV(0),
+    strokeColor: sampleBlack(),
   })
 );
