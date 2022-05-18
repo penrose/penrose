@@ -5,7 +5,7 @@ import { diagramState } from "../state/atoms";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const { state, error, variation } = useRecoilValue(diagramState);
+  const { state, error, metadata } = useRecoilValue(diagramState);
 
   useEffect(() => {
     const cur = canvasRef.current;

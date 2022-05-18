@@ -6,7 +6,12 @@ import {
 } from "@penrose/core";
 import localforage from "localforage";
 import { useRecoilCallback } from "recoil";
-import { currentWorkspaceState, diagramState, Workspace } from "./atoms";
+import {
+  currentWorkspaceState,
+  Diagram,
+  diagramState,
+  Workspace,
+} from "./atoms";
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
@@ -15,7 +20,7 @@ export const useCompileDiagram = () =>
     const domainFile = workspace.files.domain.contents;
     const substanceFile = workspace.files.substance.contents;
     const styleFile = workspace.files.style.contents;
-    const diagram = snapshot.getLoadable(diagramState).contents;
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
     const compiledDomain = compileDomain(domainFile);
     if (compiledDomain.isErr()) {
       set(diagramState, (state) => ({ ...state, error: compiledDomain.error }));
@@ -25,7 +30,7 @@ export const useCompileDiagram = () =>
       domain: domainFile,
       substance: substanceFile,
       style: styleFile,
-      variation: diagram.variation,
+      variation: diagram.metadata.variation,
     });
     if (compileResult.isErr()) {
       set(diagramState, (state) => ({ ...state, error: compileResult.error }));
@@ -37,7 +42,7 @@ export const useCompileDiagram = () =>
       error: null,
       state: initialState,
     }));
-    if (diagram.autostep) {
+    if (diagram.metadata.autostep) {
       const stepResult = stepUntilConvergence(initialState);
       if (stepResult.isErr()) {
         set(diagramState, (state) => ({ ...state, error: stepResult.error }));
@@ -52,11 +57,12 @@ export const useCompileDiagram = () =>
   });
 
 export const useLoadLocalWorkspace = () =>
-  useRecoilCallback(({ set }) => async (id: string) => {
+  useRecoilCallback(({ set, reset }) => async (id: string) => {
     const workspace = await localforage.getItem(id);
     if (workspace === null) {
       console.error("Could not retrieve workspace", id);
       return;
     }
     set(currentWorkspaceState, workspace as Workspace);
+    reset(diagramState);
   });

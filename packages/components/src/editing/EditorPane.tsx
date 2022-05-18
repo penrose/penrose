@@ -44,7 +44,7 @@ export default function EditorPane({
         dispose();
       };
     }
-  }, [monaco, vimMode, languageType]);
+  }, [monaco, vimMode, languageType, domainCache]);
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };

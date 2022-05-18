@@ -1,4 +1,4 @@
-import { Env, PenroseError, PenroseState } from "@penrose/core";
+import { compileDomain, Env, PenroseError, PenroseState } from "@penrose/core";
 import localforage from "localforage";
 import { debounce } from "lodash";
 import { atom, AtomEffect, selector, selectorFamily } from "recoil";
@@ -140,7 +140,7 @@ export const fileContentsSelector = selectorFamily<ProgramFile, ProgramType>({
  * Auto updates the localStorage via effects.
  */
 export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
-  key: "fileContents",
+  key: "workspaceMetadata",
   get: ({ get }) => {
     return get(currentWorkspaceState).metadata;
   },
@@ -160,16 +160,27 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = atom<Env | null>({
+export const domainCacheState = selector<Env | null>({
   key: "domainCache",
-  default: null,
+  get: ({ get }) => {
+    const domainProgram = get(fileContentsSelector("domain")).contents;
+    const compiledDomain = compileDomain(domainProgram);
+    if (compiledDomain.isOk()) {
+      return compiledDomain.value;
+    }
+    return null;
+  },
 });
+
+export type DiagramMetadata = {
+  variation: string;
+  autostep: boolean;
+};
 
 export type Diagram = {
   state: PenroseState | null;
   error: PenroseError | null;
-  variation: string;
-  autostep: boolean;
+  metadata: DiagramMetadata;
 };
 
 // TODO we COULD prepopulate the default with a compilation of the source, assuming it doesnt error
@@ -178,7 +189,28 @@ export const diagramState = atom<Diagram>({
   default: {
     state: null,
     error: null,
-    variation: uuid(),
-    autostep: true,
+    metadata: {
+      variation: uuid(),
+      autostep: true,
+    },
+  },
+
+  //   necessary due to diagram extension
+  dangerouslyAllowMutability: true,
+});
+
+/**
+ * Pulls out just the metadata for efficiency
+ */
+export const diagramMetadataSelector = selector<DiagramMetadata>({
+  key: "diagramMetadata",
+  get: ({ get }) => {
+    return get(diagramState).metadata;
+  },
+  set: ({ set }, newValue) => {
+    set(diagramState, (state) => ({
+      ...state,
+      metadata: newValue as DiagramMetadata,
+    }));
   },
 });
