@@ -20,7 +20,7 @@ import * as BBox from "engine/BBox";
 import { convexPartition, isClockwise } from "poly-partition";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
-import { safe } from "utils/Util";
+import { safe, zip2 } from "utils/Util";
 import {
   ellipsePolynomial,
   ellipseToImplicit,
@@ -30,6 +30,7 @@ import {
   ImplicitHalfPlane,
   implicitHalfPlaneFunc,
 } from "./ImplicitShapes";
+import { numsOf } from "./Utils";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -376,8 +377,11 @@ export const overlappingImplicitEllipses = (
 ): ad.Num => {
   const poly = ellipsePolynomial(ei1, ei2);
   const roots = polyRoots(poly);
+  const lambdas = zip2(roots, numsOf(roots))
+    .filter(([_, rn]) => !Number.isNaN(rn))
+    .map(([r, _]) => r);
   const m1 = minN(
-    roots
+    lambdas
       .map((lambda: ad.Num) => pointCandidatesEllipse(ei1, ei2, lambda))
       .map(([x, y]: [ad.Num, ad.Num]) => implicitEllipseFunc(ei1, x, y))
   );
