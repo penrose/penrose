@@ -1,6 +1,5 @@
 import * as ad from "./ad";
 import { A } from "./ast";
-import { StyleError } from "./errors";
 import { Expr } from "./style";
 
 /**
@@ -31,19 +30,6 @@ export type GPIMap = { [k: string]: TagExpr<ad.Num> };
 export type FieldDict = { [k: string]: FieldExpr<ad.Num> };
 
 export type StyleOptFn = [string, Expr<A>[]]; // Objective or constraint
-
-/**
- * Translation represents the computational graph compiled from a trio of Penrose programs.
- */
-export type Translation = Trans<ad.Num>;
-
-export type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
-
-export interface Trans<T> {
-  // TODO: compGraph
-  trMap: TrMap<T>;
-  warnings: StyleError[];
-}
 
 export type FieldExpr<T> = FExpr<T> | FGPI<T>;
 
