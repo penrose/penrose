@@ -4,21 +4,20 @@ import { StyleError } from "./errors";
 import { Expr } from "./style";
 
 /**
- * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`IGPI`) or a value (`IVal`).
+ * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`GPI`) or a value (`Val`).
  */
-export type ArgVal<T> = IGPI<T> | IVal<T>;
+export type ArgVal<T> = GPI<T> | Val<T>;
 
-export interface IGPI<T> {
+export interface GPI<T> {
   tag: "GPI";
-  contents: GPI<T>;
+
+  /**
+   * A shape (Graphical Primitive Instance, aka GPI) in penrose has a type (_e.g._ `Circle`) and a set of properties (_e.g._ `center`). Each property this a value tagged with its type.
+   */
+  contents: [string, { [k: string]: Value<T> }];
 }
 
-/**
- * A shape (Graphical Primitive Instance, aka GPI) in penrose has a type (_e.g._ `Circle`) and a set of properties (_e.g._ `center`). Each property this a value tagged with its type.
- */
-export type GPI<T> = [string, { [k: string]: Value<T> }];
-
-export interface IVal<T> {
+export interface Val<T> {
   tag: "Val";
   contents: Value<T>;
 }
@@ -26,7 +25,6 @@ export interface IVal<T> {
 export type Field = string;
 export type Name = string;
 export type Property = string;
-export type FExpr = FieldExpr<ad.Num>;
 export type ShapeTypeStr = string;
 export type PropID = string;
 export type GPIMap = { [k: string]: TagExpr<ad.Num> };
@@ -34,30 +32,27 @@ export type FieldDict = { [k: string]: FieldExpr<ad.Num> };
 
 export type StyleOptFn = [string, Expr<A>[]]; // Objective or constraint
 
-// NOTE: To make a deep clone, use `clone` from `rfdc`
 /**
  * Translation represents the computational graph compiled from a trio of Penrose programs.
  */
-export type Translation = ITrans<ad.Num>;
-
-export type Trans = TrMap<ad.Num>;
+export type Translation = Trans<ad.Num>;
 
 export type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
 
-export interface ITrans<T> {
+export interface Trans<T> {
   // TODO: compGraph
   trMap: TrMap<T>;
   warnings: StyleError[];
 }
 
-export type FieldExpr<T> = IFExpr<T> | IFGPI<T>;
+export type FieldExpr<T> = FExpr<T> | FGPI<T>;
 
-export interface IFExpr<T> {
+export interface FExpr<T> {
   tag: "FExpr";
   contents: TagExpr<T>;
 }
 
-export interface IFGPI<T> {
+export interface FGPI<T> {
   tag: "FGPI";
   contents: GPIExpr<T>;
 }
@@ -65,19 +60,19 @@ export interface IFGPI<T> {
 export type GPIProps<T> = { [k: string]: TagExpr<T> };
 
 export type GPIExpr<T> = [string, { [k: string]: TagExpr<T> }];
-export type TagExpr<T> = IOptEval<T> | IDone<T> | IPending<T>;
+export type TagExpr<T> = OptEval | Done<T> | Pending<T>;
 
-export interface IOptEval<T> {
+export interface OptEval {
   tag: "OptEval";
   contents: Expr<A>;
 }
 
-export interface IDone<T> {
+export interface Done<T> {
   tag: "Done";
   contents: Value<T>;
 }
 
-export interface IPending<T> {
+export interface Pending<T> {
   tag: "Pending";
   contents: Value<T>;
 }
@@ -86,174 +81,121 @@ export interface IPending<T> {
  * A value in the penrose system.
  */
 export type Value<T> =
-  | IFloatV<T>
-  | IIntV
-  | IBoolV<T>
-  | IStrV
-  | IPtV<T>
-  | IPathDataV<T>
-  | IPtListV<T>
-  | IColorV<T>
-  | IPaletteV<T>
-  | IFileV<T>
-  | IStyleV<T>
-  | IListV<T>
-  | IVectorV<T>
-  | IMatrixV<T>
-  | ITupV<T>
-  | ILListV<T>
-  | IHMatrixV<T>;
-
-// Unused
-// interface ITypePropertyPath {
-//   tag: "TypePropertyPath";
-// }
+  | FloatV<T>
+  | IntV
+  | BoolV<T>
+  | StrV
+  | PathDataV<T>
+  | PtListV<T>
+  | ColorV<T>
+  | ListV<T>
+  | VectorV<T>
+  | MatrixV<T>
+  | TupV<T>
+  | LListV<T>;
 
 /** A floating point number **/
-export interface IFloatV<T> {
+export interface FloatV<T> {
   tag: "FloatV";
   contents: T;
 }
 
 /** An integer **/
-export interface IIntV {
+export interface IntV {
   tag: "IntV";
   contents: number;
 }
 
 /** A boolean expression (`True` or `False`) **/
-export interface IBoolV<T> {
+export interface BoolV<T> {
   tag: "BoolV";
   contents: boolean;
 }
 
 /** A string literal **/
-export interface IStrV {
+export interface StrV {
   tag: "StrV";
   contents: string;
 }
 
-/** A point in 2D **/
-export interface IPtV<T> {
-  tag: "PtV";
-  contents: T[];
-}
-
 /** A path, similar to an [SVG path](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths) **/
-export interface IPathDataV<T> {
+export interface PathDataV<T> {
   tag: "PathDataV";
-  contents: IPathCmd<T>[];
+  contents: PathCmd<T>[];
 }
 
 /** A list of points **/
-export interface IPtListV<T> {
+export interface PtListV<T> {
   tag: "PtListV";
   contents: T[][];
 }
 
-/** A list of colors **/
-export interface IPaletteV<T> {
-  tag: "PaletteV";
-  contents: Color<T>[];
-}
-
 /** A color encoded in RGB or HSV **/
-export interface IColorV<T> {
+export interface ColorV<T> {
   tag: "ColorV";
   contents: Color<T>;
 }
 
-/** A path to a file **/
-export interface IFileV<T> {
-  tag: "FileV";
-  contents: string;
-}
-
-/** A string literal for shape styling (e.g. `dotted`) **/
-export interface IStyleV<T> {
-  tag: "StyleV";
-  contents: string;
-}
-
 /** A list **/
-export interface IListV<T> {
+export interface ListV<T> {
   tag: "ListV";
   contents: T[];
 }
 
 /** A vector of floating-point numbers **/
-export interface IVectorV<T> {
+export interface VectorV<T> {
   tag: "VectorV";
   contents: T[];
 }
 
 /** A 2D matrix **/
-export interface IMatrixV<T> {
+export interface MatrixV<T> {
   tag: "MatrixV";
   contents: T[][];
 }
 
 /** A 2-tuple **/
-export interface ITupV<T> {
+export interface TupV<T> {
   tag: "TupV";
   contents: T[];
 }
 
 /** A list of lists **/
-export interface ILListV<T> {
+export interface LListV<T> {
   tag: "LListV";
   contents: T[][];
 }
 
-/**
- * @deprecated
- */
-export interface IHMatrixV<T> {
-  tag: "HMatrixV";
-  contents: HMatrix<T>;
-}
+export type Color<T> = RGBA<T> | HSVA<T> | NoPaint;
 
-export type HMatrix<T> = IHMatrix<T>;
-
-export interface IHMatrix<T> {
-  xScale: T;
-  xSkew: T;
-  ySkew: T;
-  yScale: T;
-  dx: T;
-  dy: T;
-}
-
-export type Color<T> = IRGBA<T> | IHSVA<T> | INoPaint;
-
-export interface IRGBA<T> {
+export interface RGBA<T> {
   tag: "RGBA";
   contents: T[];
 }
 
-export interface IHSVA<T> {
+export interface HSVA<T> {
   tag: "HSVA";
   contents: T[];
 }
 
-export interface INoPaint {
+export interface NoPaint {
   tag: "NONE";
 }
 
 // SVG spec types
-export type ISubPath<T> = IValueV<T> | ICoordV<T>;
+export type SubPath<T> = ValueV<T> | CoordV<T>;
 
-export interface IPathCmd<T> {
+export interface PathCmd<T> {
   cmd: string;
-  contents: ISubPath<T>[];
+  contents: SubPath<T>[];
 }
 
-export interface IValueV<T> {
+export interface ValueV<T> {
   tag: "ValueV";
   contents: T[];
 }
 
-export interface ICoordV<T> {
+export interface CoordV<T> {
   tag: "CoordV";
   contents: T[];
 }

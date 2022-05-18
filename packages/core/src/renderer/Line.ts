@@ -1,5 +1,5 @@
 import { Shape } from "types/shape";
-import { IColorV, IFloatV, IStrV, IVectorV } from "types/value";
+import { ColorV, FloatV, StrV, VectorV } from "types/value";
 import {
   arrowheads,
   round2,
@@ -45,15 +45,15 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
   // Keep a list of which input properties we programatically mapped
   const attrMapped: string[] = [];
 
-  const [lineSX, lineSY] = (shape.properties.start as IVectorV<number>)
+  const [lineSX, lineSY] = (shape.properties.start as VectorV<number>)
     .contents as [number, number];
-  const [lineEX, lineEY] = (shape.properties.end as IVectorV<number>)
+  const [lineEX, lineEY] = (shape.properties.end as VectorV<number>)
     .contents as [number, number];
 
-  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
-  const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
+  const arrowheadStyle = (shape.properties.arrowheadStyle as StrV).contents;
+  const arrowheadSize = (shape.properties.arrowheadSize as FloatV<number>)
     .contents;
-  const thickness = (shape.properties.strokeWidth as IFloatV<number>).contents;
+  const thickness = (shape.properties.strokeWidth as FloatV<number>).contents;
   attrMapped.push(
     "start",
     "end",
@@ -111,16 +111,16 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
   const color = toSvgPaintProperty(
-    (shape.properties.strokeColor as IColorV<number>).contents
+    (shape.properties.strokeColor as ColorV<number>).contents
   );
-  const thickness = (shape.properties.strokeWidth as IFloatV<number>).contents;
+  const thickness = (shape.properties.strokeWidth as FloatV<number>).contents;
   const opacity = toSvgOpacityProperty(
-    (shape.properties.strokeColor as IColorV<number>).contents
+    (shape.properties.strokeColor as ColorV<number>).contents
   );
   const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
   const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
-  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
-  const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
+  const arrowheadStyle = (shape.properties.arrowheadStyle as StrV).contents;
+  const arrowheadSize = (shape.properties.arrowheadSize as FloatV<number>)
     .contents;
 
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -146,7 +146,7 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
 
   // Opacity and width only relevant if stroke is present
   if (
-    (shape.properties.strokeColor as IColorV<number>).contents.tag !== "NONE"
+    (shape.properties.strokeColor as ColorV<number>).contents.tag !== "NONE"
   ) {
     pathElem.setAttribute("stroke-opacity", opacity.toString());
     pathElem.setAttribute("stroke-width", thickness.toString());
@@ -160,7 +160,7 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   ) {
     pathElem.setAttribute(
       "stroke-dasharray",
-      (shape.properties.strokeDasharray as IStrV).contents
+      (shape.properties.strokeDasharray as StrV).contents
     );
   } else if (shape.properties.strokeStyle.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
@@ -173,7 +173,7 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   ) {
     pathElem.setAttribute(
       "stroke-linecap",
-      (shape.properties.strokeLinecap as IStrV).contents
+      (shape.properties.strokeLinecap as StrV).contents
     );
   } else {
     pathElem.setAttribute("stroke-linecap", "butt"); // same default as SVG

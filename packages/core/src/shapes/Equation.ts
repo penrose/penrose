@@ -1,51 +1,43 @@
+import { Center, Fill, Named, Rect, Rotate, Shape, String } from "types/shapes";
 import {
-  ICenter,
-  IFill,
-  INamed,
-  IRect,
-  IRotate,
-  IShape,
-  IString,
-} from "types/shapes";
-import {
-  BoolV,
+  boolV,
   Canvas,
   sampleBlack,
   sampleVector,
   sampleZero,
-  StrV,
+  strV,
 } from "./Samplers";
 
-export interface IEquation
-  extends INamed,
-    IFill,
-    ICenter,
-    IRect,
-    IRotate,
-    IString {}
+export interface EquationProps
+  extends Named,
+    Fill,
+    Center,
+    Rect,
+    Rotate,
+    String {}
 
 export const sampleEquation = (
   rng: seedrandom.prng,
   canvas: Canvas
-): IEquation => ({
-  name: StrV("defaultEquation"),
-  style: StrV(""),
+): EquationProps => ({
+  name: strV("defaultEquation"),
+  style: strV(""),
   fillColor: sampleBlack(),
   center: sampleVector(rng, canvas),
   width: sampleZero(),
   height: sampleZero(),
   rotation: sampleZero(),
-  string: StrV("defaultLabelText"),
-  fontSize: StrV("12pt"),
-  ensureOnCanvas: BoolV(true),
+  string: strV("defaultLabelText"),
+  fontSize: strV("12pt"),
+  ensureOnCanvas: boolV(true),
 });
 
-export type Equation = IShape & { shapeType: "Equation" } & IEquation;
+export type Equation = Shape & { shapeType: "Equation" } & EquationProps;
 
 export const makeEquation = (
   rng: seedrandom.prng,
   canvas: Canvas,
-  properties: Partial<IEquation>
+  properties: Partial<EquationProps>
 ): Equation => ({
   ...sampleEquation(rng, canvas),
   ...properties,

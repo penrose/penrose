@@ -1,42 +1,42 @@
-import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "types/shapes";
+import { Fill, Named, Poly, Scale, Shape, Stroke } from "types/shapes";
 import {
-  BoolV,
+  boolV,
   Canvas,
-  FloatV,
-  PtListV,
+  floatV,
+  ptListV,
   sampleBlack,
   sampleNoPaint,
-  StrV,
+  strV,
 } from "./Samplers";
 
-export interface IPolyline extends INamed, IStroke, IFill, IScale, IPoly {}
+export interface PolylineProps extends Named, Stroke, Fill, Scale, Poly {}
 
 export const samplePolyline = (
   _rng: seedrandom.prng,
   _canvas: Canvas
-): IPolyline => ({
-  name: StrV("defaultPolyline"),
-  style: StrV(""),
-  strokeWidth: FloatV(1),
-  strokeStyle: StrV("solid"),
+): PolylineProps => ({
+  name: strV("defaultPolyline"),
+  style: strV(""),
+  strokeWidth: floatV(1),
+  strokeStyle: strV("solid"),
   strokeColor: sampleBlack(),
-  strokeDasharray: StrV(""),
+  strokeDasharray: strV(""),
   fillColor: sampleNoPaint(),
-  scale: FloatV(1),
-  points: PtListV([
+  scale: floatV(1),
+  points: ptListV([
     [0, 0],
     [0, 10],
     [10, 0],
   ]),
-  ensureOnCanvas: BoolV(true),
+  ensureOnCanvas: boolV(true),
 });
 
-export type Polyline = IShape & { shapeType: "Polyline" } & IPolyline;
+export type Polyline = Shape & { shapeType: "Polyline" } & PolylineProps;
 
 export const makePolyline = (
   rng: seedrandom.prng,
   canvas: Canvas,
-  properties: Partial<IPolyline>
+  properties: Partial<PolylineProps>
 ): Polyline => ({
   ...samplePolyline(rng, canvas),
   ...properties,

@@ -1,43 +1,43 @@
 import * as ad from "types/ad";
-import { ICenter, IFill, INamed, IShape, IStroke } from "types/shapes";
-import { IFloatV } from "types/value";
+import { Center, Fill, Named, Shape, Stroke } from "types/shapes";
+import { FloatV } from "types/value";
 import {
-  BoolV,
+  boolV,
   Canvas,
   sampleColor,
   sampleNoPaint,
   sampleVector,
   sampleWidth,
   sampleZero,
-  StrV,
+  strV,
 } from "./Samplers";
 
-export interface ICircle extends INamed, IStroke, IFill, ICenter {
-  r: IFloatV<ad.Num>;
+export interface CircleProps extends Named, Stroke, Fill, Center {
+  r: FloatV<ad.Num>;
 }
 
 export const sampleCircle = (
   rng: seedrandom.prng,
   canvas: Canvas
-): ICircle => ({
-  name: StrV("defaultCircle"),
-  style: StrV(""),
+): CircleProps => ({
+  name: strV("defaultCircle"),
+  style: strV(""),
   strokeWidth: sampleZero(),
-  strokeStyle: StrV("solid"),
+  strokeStyle: strV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDasharray: StrV(""),
+  strokeDasharray: strV(""),
   fillColor: sampleColor(rng),
   center: sampleVector(rng, canvas),
   r: sampleWidth(rng, canvas),
-  ensureOnCanvas: BoolV(true),
+  ensureOnCanvas: boolV(true),
 });
 
-export type Circle = IShape & { shapeType: "Circle" } & ICircle;
+export type Circle = Shape & { shapeType: "Circle" } & CircleProps;
 
 export const makeCircle = (
   rng: seedrandom.prng,
   canvas: Canvas,
-  properties: Partial<ICircle>
+  properties: Partial<CircleProps>
 ): Circle => ({
   ...sampleCircle(rng, canvas),
   ...properties,

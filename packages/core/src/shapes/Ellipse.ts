@@ -1,8 +1,8 @@
 import * as ad from "types/ad";
-import { ICenter, IFill, INamed, IShape, IStroke } from "types/shapes";
-import { IFloatV } from "types/value";
+import { Center, Fill, Named, Shape, Stroke } from "types/shapes";
+import { FloatV } from "types/value";
 import {
-  BoolV,
+  boolV,
   Canvas,
   sampleColor,
   sampleHeight,
@@ -10,37 +10,37 @@ import {
   sampleVector,
   sampleWidth,
   sampleZero,
-  StrV,
+  strV,
 } from "./Samplers";
 
-export interface IEllipse extends INamed, IStroke, IFill, ICenter {
-  rx: IFloatV<ad.Num>;
-  ry: IFloatV<ad.Num>;
+export interface EllipseProps extends Named, Stroke, Fill, Center {
+  rx: FloatV<ad.Num>;
+  ry: FloatV<ad.Num>;
 }
 
 export const sampleEllipse = (
   rng: seedrandom.prng,
   canvas: Canvas
-): IEllipse => ({
-  name: StrV("defaultEllipse"),
-  style: StrV(""),
+): EllipseProps => ({
+  name: strV("defaultEllipse"),
+  style: strV(""),
   strokeWidth: sampleZero(),
-  strokeStyle: StrV("solid"),
+  strokeStyle: strV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDasharray: StrV(""),
+  strokeDasharray: strV(""),
   fillColor: sampleColor(rng),
   center: sampleVector(rng, canvas),
   rx: sampleWidth(rng, canvas),
   ry: sampleHeight(rng, canvas),
-  ensureOnCanvas: BoolV(true),
+  ensureOnCanvas: boolV(true),
 });
 
-export type Ellipse = IShape & { shapeType: "Ellipse" } & IEllipse;
+export type Ellipse = Shape & { shapeType: "Ellipse" } & EllipseProps;
 
 export const makeEllipse = (
   rng: seedrandom.prng,
   canvas: Canvas,
-  properties: Partial<IEllipse>
+  properties: Partial<EllipseProps>
 ): Ellipse => ({
   ...sampleEllipse(rng, canvas),
   ...properties,

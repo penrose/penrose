@@ -1,42 +1,45 @@
 import * as ad from "types/ad";
-import { IArrow, IFill, INamed, IShape, IStroke } from "types/shapes";
-import { IPathDataV } from "types/value";
+import { Arrow, Fill, Named, Shape, Stroke } from "types/shapes";
+import { PathDataV } from "types/value";
 import {
-  BoolV,
+  boolV,
   Canvas,
-  FloatV,
-  PathDataV,
+  floatV,
+  pathDataV,
   sampleColor,
   sampleNoPaint,
-  StrV,
+  strV,
 } from "./Samplers";
 
-export interface IPath extends INamed, IStroke, IFill, IArrow {
-  d: IPathDataV<ad.Num>;
+export interface PathProps extends Named, Stroke, Fill, Arrow {
+  d: PathDataV<ad.Num>;
 }
 
-export const samplePath = (rng: seedrandom.prng, _canvas: Canvas): IPath => ({
-  name: StrV("defaultPath"),
-  style: StrV(""),
-  strokeWidth: FloatV(1),
-  strokeStyle: StrV("solid"),
+export const samplePath = (
+  rng: seedrandom.prng,
+  _canvas: Canvas
+): PathProps => ({
+  name: strV("defaultPath"),
+  style: strV(""),
+  strokeWidth: floatV(1),
+  strokeStyle: strV("solid"),
   strokeColor: sampleColor(rng),
-  strokeDasharray: StrV(""),
+  strokeDasharray: strV(""),
   fillColor: sampleNoPaint(),
-  arrowheadSize: FloatV(1),
-  arrowheadStyle: StrV("arrowhead-2"),
-  startArrowhead: BoolV(false),
-  endArrowhead: BoolV(false),
-  d: PathDataV([]),
-  ensureOnCanvas: BoolV(true),
+  arrowheadSize: floatV(1),
+  arrowheadStyle: strV("arrowhead-2"),
+  startArrowhead: boolV(false),
+  endArrowhead: boolV(false),
+  d: pathDataV([]),
+  ensureOnCanvas: boolV(true),
 });
 
-export type Path = IShape & { shapeType: "Path" } & IPath;
+export type Path = Shape & { shapeType: "Path" } & PathProps;
 
 export const makePath = (
   rng: seedrandom.prng,
   canvas: Canvas,
-  properties: Partial<IPath>
+  properties: Partial<PathProps>
 ): Path => ({
   ...samplePath(rng, canvas),
   ...properties,

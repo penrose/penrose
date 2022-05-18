@@ -2,7 +2,7 @@ import { PenroseState, RenderStatic } from "@penrose/core";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import IViewProps from "./IViewProps";
+import ViewProps from "./ViewProps";
 
 const TimelineStyled = styled.ul`
   background-color: rgba(0, 0, 0, 0.05);
@@ -36,7 +36,7 @@ const TimelineItem = styled.li<any>`
   box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 3px 0px;
 `;
 
-function Timeline({ frameIndex, history, selectFrame }: IViewProps) {
+function Timeline({ frameIndex, history, selectFrame }: ViewProps) {
   const ref = useRef<any>(null);
   useEffect(() => {
     if (history.length !== history.length && ref.current !== null) {

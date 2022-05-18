@@ -1,6 +1,6 @@
 // TODO: This is the file with the most final version of CompGraph vis
 
-import { IState } from "@penrose/core/build/dist/types/state";
+import { State } from "@penrose/core/build/dist/types/state";
 import cytoscape from "cytoscape";
 import * as React from "react";
 import {
@@ -9,7 +9,7 @@ import {
   toGraphOpt,
   traverseUnique,
 } from "./GraphUtils";
-import IViewProps from "./IViewProps";
+import ViewProps from "./ViewProps";
 
 // TODO: Style edges to DOF vs edges to constants differently
 
@@ -62,7 +62,7 @@ const style = [
   },
 ];
 
-const makeGraph = (frame: IState, value: string): PGraph => {
+const makeGraph = (frame: State, value: string): PGraph => {
   let graph;
 
   if (value === "opt") {
@@ -89,9 +89,7 @@ const makeGraph = (frame: IState, value: string): PGraph => {
   return graph;
 };
 
-const CompGraph: React.FC<IViewProps> = ({
-  frame /*,history*/,
-}: IViewProps) => {
+const CompGraph: React.FC<ViewProps> = ({ frame /*,history*/ }: ViewProps) => {
   if (!frame) {
     return (
       <div style={{ padding: "1em", fontSize: "1em", color: "#4f4f4f" }}>

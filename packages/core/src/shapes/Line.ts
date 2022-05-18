@@ -1,44 +1,47 @@
 import * as ad from "types/ad";
-import { IArrow, INamed, IShape, IStroke } from "types/shapes";
-import { IStrV, IVectorV } from "types/value";
+import { Arrow, Named, Shape, Stroke } from "types/shapes";
+import { StrV, VectorV } from "types/value";
 import {
-  BoolV,
+  boolV,
   Canvas,
-  FloatV,
+  floatV,
   sampleColor,
   sampleVector,
-  StrV,
+  strV,
 } from "./Samplers";
 
-export interface ILine extends INamed, IStroke, IArrow {
-  start: IVectorV<ad.Num>;
-  end: IVectorV<ad.Num>;
-  strokeLinecap: IStrV;
+export interface LineProps extends Named, Stroke, Arrow {
+  start: VectorV<ad.Num>;
+  end: VectorV<ad.Num>;
+  strokeLinecap: StrV;
 }
 
-export const sampleLine = (rng: seedrandom.prng, canvas: Canvas): ILine => ({
-  name: StrV("defaultLine"),
-  style: StrV(""),
-  strokeWidth: FloatV(1),
-  strokeStyle: StrV("solid"),
+export const sampleLine = (
+  rng: seedrandom.prng,
+  canvas: Canvas
+): LineProps => ({
+  name: strV("defaultLine"),
+  style: strV(""),
+  strokeWidth: floatV(1),
+  strokeStyle: strV("solid"),
   strokeColor: sampleColor(rng),
-  strokeDasharray: StrV(""),
-  arrowheadSize: FloatV(1),
-  arrowheadStyle: StrV("arrowhead-2"),
-  startArrowhead: BoolV(false),
-  endArrowhead: BoolV(false),
+  strokeDasharray: strV(""),
+  arrowheadSize: floatV(1),
+  arrowheadStyle: strV("arrowhead-2"),
+  startArrowhead: boolV(false),
+  endArrowhead: boolV(false),
   start: sampleVector(rng, canvas),
   end: sampleVector(rng, canvas),
-  strokeLinecap: StrV(""),
-  ensureOnCanvas: BoolV(true),
+  strokeLinecap: strV(""),
+  ensureOnCanvas: boolV(true),
 });
 
-export type Line = IShape & { shapeType: "Line" } & ILine;
+export type Line = Shape & { shapeType: "Line" } & LineProps;
 
 export const makeLine = (
   rng: seedrandom.prng,
   canvas: Canvas,
-  properties: Partial<ILine>
+  properties: Partial<LineProps>
 ): Line => ({
   ...sampleLine(rng, canvas),
   ...properties,

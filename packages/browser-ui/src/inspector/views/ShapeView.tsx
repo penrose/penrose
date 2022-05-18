@@ -1,13 +1,13 @@
 import * as React from "react";
 import { ObjectInspector } from "react-inspector";
 import makeViewBoxes from "../../inspector/makeViewBoxes";
-import IViewProps from "./IViewProps";
+import ViewProps from "./ViewProps";
 
-interface IState {
+interface State {
   selectedShape: number;
 }
 
-class ShapeView extends React.Component<IViewProps, IState> {
+class ShapeView extends React.Component<ViewProps, State> {
   public readonly state = { selectedShape: -1 };
   public setSelectedShape = (key: number): void => {
     this.setState({ selectedShape: key });

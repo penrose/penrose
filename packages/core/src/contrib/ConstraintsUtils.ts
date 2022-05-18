@@ -1,6 +1,8 @@
 import {
   containsPolygonPoints,
+  convexPartitions,
   overlappingPolygonPoints,
+  overlappingPolygonPointsEllipse,
   rectangleDifference,
   rectangleSignedDistance,
 } from "contrib/Minkowski";
@@ -17,12 +19,14 @@ import {
   max,
   maxN,
   min,
+  minN,
   mul,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { Circle } from "shapes/Circle";
+import { Ellipse } from "shapes/Ellipse";
 import { Equation } from "shapes/Equation";
 import { Image } from "shapes/Image";
 import { Line } from "shapes/Line";
@@ -96,6 +100,19 @@ export const overlappingRectlikeCircle = (
   // Return the signed distance
   const innerSDF = rectangleSignedDistance(bottomLeft, topRight);
   return sub(innerSDF, s2.r.contents);
+};
+
+/**
+ * Require that polygon `s1` overlaps ellipse `s2` with some padding `padding`.
+ */
+export const overlappingPolygonEllipse = (
+  [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
+  [, s2]: [string, Ellipse],
+  padding: ad.Num = 0
+): ad.Num => {
+  const points = polygonLikePoints([t1, s1]);
+  const cp = convexPartitions(points);
+  return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, padding)));
 };
 
 /**

@@ -15,7 +15,7 @@ import {
 import React from "react";
 import fetchResolver from "./fetchPathResolver";
 
-export interface ISimpleProps {
+export interface SimpleProps {
   domain: string;
   substance: string;
   style: string;
@@ -24,16 +24,16 @@ export interface ISimpleProps {
   animate?: boolean; // considered false by default
 }
 
-export interface ISimpleState {
+export interface SimpleState {
   error?: PenroseError;
 }
 
-class Simple extends React.Component<ISimpleProps, ISimpleState> {
+class Simple extends React.Component<SimpleProps, SimpleState> {
   readonly canvasRef = React.createRef<HTMLDivElement>();
   penroseState: PenroseState | undefined = undefined;
   timerID: number | undefined = undefined; // for animation
 
-  constructor(props: ISimpleProps) {
+  constructor(props: SimpleProps) {
     super(props);
     this.state = {
       error: undefined,
@@ -82,7 +82,7 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
     this.timerID = window.setInterval(() => this.tick(), 1000 / 60);
   };
 
-  componentDidUpdate = async (prevProps: ISimpleProps) => {
+  componentDidUpdate = async (prevProps: SimpleProps) => {
     // re-compile if the programs change
     if (
       this.props.domain !== prevProps.domain ||

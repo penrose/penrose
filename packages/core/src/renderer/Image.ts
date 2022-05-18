@@ -1,4 +1,4 @@
-import { IStrV } from "types/value";
+import { StrV } from "types/value";
 import {
   attrAutoFillSvg,
   attrRotation,
@@ -18,7 +18,7 @@ const Image = async ({
   const attrToNotAutoMap: string[] = [];
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  const path = (shape.properties.href as IStrV).contents;
+  const path = (shape.properties.href as StrV).contents;
   let rawSVG = await pathResolver(path);
   if (rawSVG === undefined) {
     console.error(`Could not resolve image path ${path}`);
@@ -42,7 +42,7 @@ const Image = async ({
           `[*|href="#${node.id}"]:not([href])`
         );
         users.forEach((user) => {
-          const unique = `${(shape.properties.name as IStrV).contents}-ns-${
+          const unique = `${(shape.properties.name as StrV).contents}-ns-${
             node.id
           }`;
           user.setAttributeNS(
