@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "build": "lerna run build --stream --concurrency 1",
+    "typecheck": "lerna run typecheck",
     "clean": "lerna clean && lerna run clean --stream",
     "prestart": "lerna run build --scope=@penrose/examples --scope=@penrose/core",
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",

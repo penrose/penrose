@@ -12,9 +12,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Install packages
         uses: ./.github/actions/packages
-      - name: Build @penrose/examples
-        run: yarn build
-        working-directory: packages/examples/
       - name: Build @penrose/core
         run: yarn build
         working-directory: packages/core/
@@ -49,6 +46,8 @@ jobs:
           fetch-depth: 0
       - name: Install packages
         uses: ./.github/actions/packages
+      - name: Typecheck all packages
+        run: yarn typecheck
       - name: Run all builds
         run: yarn build
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -112,9 +111,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Install packages
         uses: ./.github/actions/packages
-      - name: Build @penrose/examples
-        run: yarn build
-        working-directory: packages/examples/
       - name: Build @penrose/core
         run: yarn build
         working-directory: packages/core/
@@ -196,9 +192,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Install packages
         uses: ./.github/actions/packages
-      - name: Build @penrose/examples
-        run: yarn build
-        working-directory: packages/examples/
       - name: Build docs
         run: yarn docs
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'

@@ -7,7 +7,8 @@
     "start": "ts-node ./index.tsx",
     "test": "echo \"no test specified for automator\" && exit 0",
     "generate-site": "yarn clean && yarn start batch registry.json artifacts --render=browser --src-prefix=progs --folders --cross-energy",
-    "clean": "rimraf artifacts browser"
+    "clean": "rimraf artifacts browser",
+    "typecheck": "tsc --noEmit"
   },
   "author": "Penrose Team (https://penrose.ink)",
   "license": "MIT",
