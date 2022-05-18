@@ -2183,7 +2183,7 @@ const declaredVarying = (t: TagExpr<ad.Num>): boolean => {
   return false;
 };
 
-const mkPath = (strs: string[]): Path<A> => {
+export const mkPath = (strs: string[]): Path<A> => {
   if (strs.length === 2) {
     const [name, field] = strs;
     return {
@@ -2217,9 +2217,7 @@ const mkPath = (strs: string[]): Path<A> => {
 };
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
-  if (s === "Equation") return ["width", "height"];
-  if (s === "Text") return ["width", "height", "ascent", "descent"];
-  return [];
+  return shapedefs[s].pendingProps;
 };
 
 const isVarying = (e: Expr<A>): boolean => {
@@ -2413,7 +2411,7 @@ const findGPIName = (
 };
 
 // Find shapes and their properties
-const findShapeNames = (tr: Translation): [string, string][] => {
+export const findShapeNames = (tr: Translation): [string, string][] => {
   return foldSubObjs(findGPIName, tr);
 };
 
@@ -3099,8 +3097,8 @@ const findPathsField = (
       const propExprs: Expr<A>[] = Object.entries(fexpr.contents[1])
         .map((e) => e[1])
         .filter((e: TagExpr<ad.Num>): boolean => e.tag === "OptEval")
-        .map((e) => e as OptEval<ad.Num>) // Have to cast because TypeScript doesn't know the type changed from the filter above
-        .map((e: OptEval<ad.Num>): Expr<A> => e.contents);
+        .map((e) => e as OptEval) // Have to cast because TypeScript doesn't know the type changed from the filter above
+        .map((e: OptEval): Expr<A> => e.contents);
       const res: Path<A>[] = _.flatMap(propExprs, findPathsExpr);
       return acc.concat(res);
     }
@@ -3156,8 +3154,6 @@ const genState = (
   );
 
   const uninitializedPaths = findUninitialized(trans);
-  const shapePathList: [string, string][] = findShapeNames(trans);
-  const shapePaths = shapePathList.map(mkPath);
 
   const canvasErrs = checkCanvas(trans);
   if (canvasErrs.length > 0) {
@@ -3168,7 +3164,7 @@ const genState = (
 
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
-  const transInitShapes = initShapes(rng, trans, shapePathList);
+  const transInitShapes = initShapes(rng, trans, findShapeNames(trans));
 
   // sample varying fields and access paths, and put them in the translation
   const transInitAll = initFieldsAndAccessPaths(
@@ -3194,10 +3190,9 @@ const genState = (
   log.debug("Objectives", objFns.map(prettyPrintFn));
   log.debug("Constraints", constrFns.map(prettyPrintFn));
 
-  const [initialGPIs, transEvaled] = [[], transInitAll];
   const initVaryingState: number[] = lookupNumericPaths(
     varyingPaths,
-    transEvaled
+    transInitAll
   );
 
   const pendingPaths = findPending(transInitAll);
@@ -3206,8 +3201,7 @@ const genState = (
   const initState: State = {
     seeds,
 
-    shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
-    shapePaths,
+    shapes: [], // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
     shapeOrdering,
 
     translation: transInitAll, // This is the result of the data processing
@@ -3232,9 +3226,8 @@ const genState = (
     } as unknown) as Params,
 
     labelCache: [],
-    varyingMap: new Map(), // TODO: Should this be empty?
-
     canvas,
+    computeShapes: (undefined as unknown) as any,
   };
 
   return ok(initState);

@@ -103,6 +103,7 @@
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
 
+    "editor.formatOnSave": true,
     "files.insertFinalNewline": false,
     "files.trimFinalNewlines": false,
     "files.trimTrailingWhitespace": false,

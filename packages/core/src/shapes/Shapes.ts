@@ -51,6 +51,7 @@ export interface ShapeDef {
   isLinelike: boolean; // TODO: use type predicate instead
   isRectlike: boolean; // TODO: remove this
   isPolygonlike: boolean; // TODO: remove this
+  pendingProps: string[];
 }
 
 // hack to satisfy the typechecker
@@ -65,6 +66,7 @@ export const ShapeDef = (shapedef: {
   isLinelike?: boolean;
   isRectlike?: boolean;
   isPolygonlike?: boolean;
+  pendingProps?: string[];
 }): ShapeDef => {
   const sampler = (rng: seedrandom.prng, canvas: Canvas) =>
     <Properties>shapedef.sampler(rng, canvas);
@@ -84,9 +86,10 @@ export const ShapeDef = (shapedef: {
     propTags,
 
     bbox: shapedef.bbox,
-    isLinelike: shapedef.isLinelike || false,
-    isRectlike: shapedef.isRectlike || false,
-    isPolygonlike: shapedef.isPolygonlike || false,
+    isLinelike: shapedef.isLinelike ?? false,
+    isRectlike: shapedef.isRectlike ?? false,
+    isPolygonlike: shapedef.isPolygonlike ?? false,
+    pendingProps: shapedef.pendingProps ?? [],
   };
 };
 
@@ -114,6 +117,7 @@ const Equation = ShapeDef({
   bbox: BBox.bboxFromRectlike,
   isRectlike: true,
   isPolygonlike: true,
+  pendingProps: ["width", "height"],
 });
 
 const Image = ShapeDef({
@@ -172,6 +176,7 @@ const Text = ShapeDef({
   bbox: BBox.bboxFromRectlike, // assumes w and h correspond to string
   isRectlike: true,
   isPolygonlike: true,
+  pendingProps: ["width", "height", "ascent", "descent"],
 });
 
 // TODO: figure out how to not have the result be type `any` when indexing into
