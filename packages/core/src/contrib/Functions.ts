@@ -59,6 +59,7 @@ import {
   PtListV,
   StrV,
   TupV,
+  Value,
   VectorV,
 } from "types/value";
 import { getStart, linePts, randFloat } from "utils/Util";
@@ -1397,7 +1398,7 @@ export const compDict = {
 const _compDictVals: ((
   context: Context,
   ...rest: never[]
-) => unknown)[] = Object.values(compDict);
+) => Value<ad.Num>)[] = Object.values(compDict);
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
