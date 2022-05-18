@@ -1,12 +1,11 @@
 import { useCallback, useState } from "react";
-import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
   diagramMetadataSelector,
-  WorkspaceLocation,
   workspaceMetadataSelector,
 } from "../state/atoms";
-import { useCompileDiagram } from "../state/callbacks";
+import { useCompileDiagram, useSaveLocally } from "../state/callbacks";
 import BlueButton from "./BlueButton";
 
 const TitleBox = styled.div`
@@ -67,20 +66,13 @@ function EditableTitle() {
 
 export default function TopBar() {
   const compileDiagram = useCompileDiagram();
-  const [workspaceMetadata, setWorkspaceMetadata] = useRecoilState(
-    workspaceMetadataSelector
-  );
+  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const diagramMetadata = useRecoilValue(diagramMetadataSelector);
+  const saveLocally = useSaveLocally();
   const toggleAutostep = useRecoilCallback(({ set }) => () => {
     set(diagramMetadataSelector, (metadata) => ({
       ...metadata,
       autostep: !metadata.autostep,
-    }));
-  });
-  const saveLocally = useRecoilCallback(({ set }) => () => {
-    set(workspaceMetadataSelector, (state) => ({
-      ...state,
-      location: { kind: "local", saved: true } as WorkspaceLocation,
     }));
   });
 

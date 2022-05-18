@@ -1,4 +1,11 @@
-import { compileDomain, Env, PenroseError, PenroseState } from "@penrose/core";
+import {
+  compileDomain,
+  Env,
+  PenroseError,
+  PenroseState,
+  readRegistry,
+  Trio,
+} from "@penrose/core";
 import localforage from "localforage";
 import { debounce } from "lodash";
 import { atom, AtomEffect, selector, selectorFamily } from "recoil";
@@ -14,7 +21,10 @@ export type WorkspaceLocation =
        */
       saved: boolean;
     }
-  | { kind: "gist"; id: string; author: string };
+  | { kind: "gist"; id: string; author: string }
+  | {
+      kind: "example";
+    };
 
 export type WorkspaceMetadata = {
   name: string;
@@ -63,23 +73,29 @@ const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
 export const localFilesState = atom<LocalWorkspaces>({
   key: "localFiles",
   default: {},
-  /*default: selector<LocalWorkspaces>({
-    key: "localFiles/default",
-    get: async () => {
-      const locals = await localforage.getItem("local_files");
-      return (locals !== null ? locals : {}) as LocalWorkspaces;
-    },
-  }),*/
   effects: [localFilesEffect],
 });
 
 /**
  * On any state change to the workspace, if it's being saved, autosave it (debounced)
  */
-const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet }) => {
+const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
   onSet(
     // HACK: this isn't typesafe
     debounce(async (newValue: Workspace, oldValue, isReset) => {
+      // If edit is made on something that isnt already local
+      if (
+        newValue.metadata.id === oldValue.metadata.id &&
+        newValue.metadata.location.kind !== "local"
+      ) {
+        setSelf((workspace) => ({
+          ...(workspace as Workspace),
+          metadata: {
+            ...(workspace as Workspace).metadata,
+            location: { kind: "local", saved: false },
+          } as WorkspaceMetadata,
+        }));
+      }
       // If the workspace is already in localStorage
       if (
         newValue.metadata.location.kind === "local" &&
@@ -213,4 +229,28 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
       metadata: newValue as DiagramMetadata,
     }));
   },
+});
+
+export const exampleTriosAtom = atom<Trio[]>({
+  key: "exampleTrios",
+  default: selector({
+    key: "exampleTrios/default",
+    get: async () => {
+      try {
+        const res = await fetch(
+          "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/registry.json"
+        );
+        const registry = await res.json();
+        const trios = readRegistry(registry).map((trio: Trio) => ({
+          ...trio,
+          substanceURI: registry.root + trio.substanceURI,
+          styleURI: registry.root + trio.styleURI,
+          domainURI: registry.root + trio.domainURI,
+        }));
+        return trios;
+      } catch (err) {
+        return [];
+      }
+    },
+  }),
 });

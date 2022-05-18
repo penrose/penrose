@@ -2,6 +2,7 @@ import { Action, Actions, Layout, Model, TabNode } from "flexlayout-react";
 import { useCallback } from "react";
 import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
 import DiagramPanel from "./components/DiagramPanel";
+import ExamplesBrowser from "./components/ExamplesBrowser";
 import LocalFilesBrowser from "./components/LocalFilesBrowser";
 import ProgramEditor from "./components/ProgramEditor";
 import TopBar from "./components/TopBar";
@@ -20,6 +21,11 @@ const layoutModel = Model.fromJson({
           type: "tab",
           name: "local files",
           component: "localFiles",
+        },
+        {
+          type: "tab",
+          name: "examples",
+          component: "examplesPanel",
         },
       ],
     },
@@ -82,6 +88,8 @@ function App() {
         return <DiagramPanel />;
       case "localFiles":
         return <LocalFilesBrowser />;
+      case "examplesPanel":
+        return <ExamplesBrowser />;
     }
     return <div>Placeholder</div>;
   }, []);
