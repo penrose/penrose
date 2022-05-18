@@ -7,7 +7,7 @@ import _ from "lodash";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
-import { PenroseError, StyleErrors } from "types/errors";
+import { PenroseError, StyleError } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
@@ -195,7 +195,7 @@ describe("Compiler", () => {
 
   //   const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
-  //   const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
+  //   const selErrs: StyleError[] = _.flatMap(selEnvs, (e) =>
   //     e.warnings.concat(e.errors)
   //   );
 
@@ -230,7 +230,7 @@ describe("Compiler", () => {
     ] = loadProgs(loadFiles(triple) as [string, string, string]);
 
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
-    const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
+    const selErrs: StyleError[] = _.flatMap(selEnvs, (e) =>
       e.warnings.concat(e.errors)
     );
 

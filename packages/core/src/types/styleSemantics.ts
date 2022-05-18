@@ -1,7 +1,7 @@
 //#region Style semantics
 
 import { A } from "./ast";
-import { StyleErrors } from "./errors";
+import { StyleError } from "./errors";
 import { BindingForm, Header, StyT } from "./style";
 
 // Style static semantics for selectors
@@ -33,8 +33,8 @@ export interface SelEnv {
   // Variable => [Substance or Style variable, original data structure with program locs etc]
   skipBlock: boolean;
   header: Header<A> | undefined; // Just for debugging
-  warnings: StyleErrors;
-  errors: StyleErrors;
+  warnings: StyleError[];
+  errors: StyleError[];
 }
 // Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
 

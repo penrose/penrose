@@ -36,9 +36,8 @@ import {
   ParseError,
   PenroseError,
   StyleError,
-  StyleErrors,
   StyleResults,
-  StyleWarnings,
+  StyleWarning,
   SubstanceError,
 } from "types/errors";
 import { Fn, OptType, Params, State } from "types/state";
@@ -351,7 +350,10 @@ const checkDeclPatternsAndMakeEnv = (
 
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
-const checkRelPattern = (varEnv: Env, rel: RelationPattern<A>): StyleErrors => {
+const checkRelPattern = (
+  varEnv: Env,
+  rel: RelationPattern<A>
+): StyleError[] => {
   // rule Bind-Context
   switch (rel.tag) {
     case "RelBind": {
@@ -427,10 +429,9 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern<A>): StyleErrors => {
 const checkRelPatterns = (
   varEnv: Env,
   rels: RelationPattern<A>[]
-): StyleErrors => {
-  return _.flatMap(
-    rels,
-    (rel: RelationPattern<A>): StyleErrors => checkRelPattern(varEnv, rel)
+): StyleError[] => {
+  return _.flatMap(rels, (rel: RelationPattern<A>): StyleError[] =>
+    checkRelPattern(varEnv, rel)
   );
 };
 
@@ -1679,7 +1680,7 @@ const deleteField = (
 const deletePath = (
   trans: Translation,
   path: Path<A>
-): Either<StyleErrors, Translation> => {
+): Either<StyleError[], Translation> => {
   switch (path.tag) {
     case "FieldPath": {
       const transWithWarnings = deleteField(trans, path, path.name, path.field);
@@ -1717,7 +1718,7 @@ const addPath = (
   trans: Translation,
   path: Path<A>,
   expr: TagExpr<ad.Num>
-): Either<StyleErrors, Translation> => {
+): Either<StyleError[], Translation> => {
   // Extended `insertExpr` with an optional flag to deal with errors and warnings
   // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
 
@@ -1733,7 +1734,7 @@ const addPath = (
 const translateLine = (
   trans: Translation,
   stmt: Stmt<A>
-): Either<StyleErrors, Translation> => {
+): Either<StyleError[], Translation> => {
   switch (stmt.tag) {
     case "PathAssign": {
       return addPath(false, trans, stmt.path, {
@@ -1762,7 +1763,7 @@ const translateBlock = (
   blockWithNum: [Block<A>, number],
   trans: Translation,
   substWithNum: [Subst, number]
-): Either<StyleErrors, Translation> => {
+): Either<StyleError[], Translation> => {
   const blockSubsted: Block<A> = substituteBlock(
     substWithNum,
     blockWithNum,
@@ -1777,7 +1778,7 @@ const translateSubstsBlock = (
   trans: Translation,
   substsNum: [Subst, number][],
   blockWithNum: [Block<A>, number]
-): Either<StyleErrors, Translation> => {
+): Either<StyleError[], Translation> => {
   return foldM(
     substsNum,
     (trans, substNum) =>
@@ -1813,8 +1814,8 @@ const flatErrs = (es: StyleResults[]): StyleResults => {
 const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl<A>): StyleResults => {
   const styName: string = expr.shapeName.value;
 
-  const errors: StyleErrors = [];
-  const warnings: StyleWarnings = [];
+  const errors: StyleError[] = [];
+  const warnings: StyleWarning[] = [];
 
   if (!(styName in shapedefs)) {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
@@ -1943,7 +1944,7 @@ const checkLine = (
   }
 };
 
-const checkBlock = (selEnv: SelEnv, block: Block<A>): StyleErrors => {
+const checkBlock = (selEnv: SelEnv, block: Block<A>): StyleError[] => {
   // Block checking; static semantics
   // The below properties are checked in one pass (a fold) over the Style AST:
 
@@ -1976,7 +1977,7 @@ const translatePair = (
   trans: Translation,
   hb: HeaderBlock<A>,
   blockNum: number
-): Either<StyleErrors, Translation> => {
+): Either<StyleError[], Translation> => {
   switch (hb.header.tag) {
     case "Namespace": {
       const selEnv = initSelEnv();
@@ -2103,7 +2104,7 @@ const translateStyProg = (
   styProg: StyProg<A>,
   labelMap: LabelMap,
   styVals: number[]
-): Either<StyleErrors, Translation> => {
+): Either<StyleError[], Translation> => {
   // COMBAK: Deal with styVals
 
   const res = foldM(
@@ -2904,8 +2905,8 @@ const canvasWidthPath: Path<A> = mkPath(["canvas", "width"]);
 const canvasHeightPath: Path<A> = mkPath(["canvas", "height"]);
 
 // Check that canvas dimensions exist and have the proper type.
-const checkCanvas = (tr: Translation): StyleErrors => {
-  const errs: StyleErrors = [];
+const checkCanvas = (tr: Translation): StyleError[] => {
+  const errs: StyleError[] = [];
 
   if (!("canvas" in tr.trMap)) {
     errs.push({
@@ -3106,13 +3107,13 @@ const findPathsField = (
 };
 
 // Check translation integrity
-const checkTranslation = (trans: Translation): StyleErrors => {
+const checkTranslation = (trans: Translation): StyleError[] => {
   // Look up all paths used anywhere in the translation's expressions and verify they exist in the translation
   const allPaths: Path<A>[] = foldSubObjs(findPathsField, trans);
   const allPathsUniq: Path<A>[] = _.uniqBy(allPaths, prettyPrintPath);
   const exprs = allPathsUniq.map((p) => findExpr(trans, p));
   const errs = exprs.filter(isStyErr);
-  return errs as StyleErrors; // Should be true due to the filter above, though you can't use booleans and the `res is StyleError` assertion together.
+  return errs as StyleError[]; // Should be true due to the filter above, though you can't use booleans and the `res is StyleError` assertion together.
 };
 
 //#endregion Checking translation
@@ -3138,7 +3139,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
 const genState = (
   variation: string,
   trans: Translation
-): Result<State, StyleErrors> => {
+): Result<State, StyleError[]> => {
   const { rng, seeds } = variationSeeds(variation);
 
   const varyingPaths = findVarying(trans);
@@ -3260,7 +3261,7 @@ export const compileStyle = (
   const selEnvs = checkSelsAndMakeEnv(varEnv, styProg.blocks);
 
   // TODO(errors/warn): distinguish between errors and warnings
-  const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
+  const selErrs: StyleError[] = _.flatMap(selEnvs, (e) =>
     e.warnings.concat(e.errors)
   );
 
@@ -3298,7 +3299,7 @@ export const compileStyle = (
   }
 
   // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState: Result<State, StyleErrors> = genState(variation, trans);
+  const initState: Result<State, StyleError[]> = genState(variation, trans);
   log.info("init state from GenOptProblem", initState);
 
   if (initState.isErr()) {
