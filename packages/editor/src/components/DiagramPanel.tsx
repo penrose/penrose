@@ -1,4 +1,4 @@
-import { RenderStatic } from "@penrose/core";
+import { RenderStatic, showError } from "@penrose/core";
 import { useEffect, useRef } from "react";
 import { useRecoilValue } from "recoil";
 import { diagramState } from "../state/atoms";
@@ -22,15 +22,35 @@ export default function DiagramPanel() {
   }, [state]);
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        overflow: "auto",
-        backgroundColor: "#FFFFFF",
-        border: "1px solid gray",
-      }}
-      ref={canvasRef}
-    />
+    <div>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          overflow: "auto",
+          backgroundColor: "#FFFFFF",
+          border: "1px solid gray",
+        }}
+        ref={canvasRef}
+      />
+      {error && (
+        <div
+          style={{
+            bottom: 0,
+            backgroundColor: "#ffdada",
+            maxHeight: "100%",
+            maxWidth: "100%",
+            overflow: "auto",
+            padding: "10px",
+            boxSizing: "border-box",
+          }}
+        >
+          <span style={{ fontWeight: "bold", color: "#ee4e4e", fontSize: 14 }}>
+            error ({error.errorType})
+          </span>
+          <pre>{showError(error).toString()}</pre>
+        </div>
+      )}
+    </div>
   );
 }

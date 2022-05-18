@@ -2,22 +2,13 @@ import { EditorPane } from "@penrose/components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   domainCacheState,
-  domainFileState,
-  styleFileState,
-  substanceFileState,
+  fileContentsSelector,
+  ProgramType,
 } from "../state/atoms";
-export default function ProgramEditor({
-  kind,
-}: {
-  kind: "substance" | "style" | "domain";
-}) {
+export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   // TODO: if substance, selector the domainCache. Don't need a state i doint think. Derived state!
   const [programState, setProgramState] = useRecoilState(
-    kind === "domain"
-      ? domainFileState
-      : kind === "style"
-      ? styleFileState
-      : substanceFileState
+    fileContentsSelector(kind)
   );
   const domainCache = useRecoilValue(domainCacheState);
   return (
@@ -26,7 +17,9 @@ export default function ProgramEditor({
       vimMode={false}
       languageType={kind}
       domainCache={domainCache}
-      onChange={(v) => setProgramState((state) => ({ ...state, contents: v }))}
+      onChange={(v: string) =>
+        setProgramState((state) => ({ ...state, contents: v }))
+      }
     />
   );
 }

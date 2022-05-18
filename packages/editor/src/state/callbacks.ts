@@ -1,27 +1,30 @@
-import { compileDomain, compileTrio, prepareState } from "@penrose/core";
-import { useRecoilCallback } from "recoil";
 import {
-  diagramState,
-  domainFileState,
-  styleFileState,
-  substanceFileState,
-} from "./atoms";
+  compileDomain,
+  compileTrio,
+  prepareState,
+  stepUntilConvergence,
+} from "@penrose/core";
+import localforage from "localforage";
+import { useRecoilCallback } from "recoil";
+import { currentWorkspaceState, diagramState, Workspace } from "./atoms";
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
-    const domainFile = snapshot.getLoadable(domainFileState).contents;
-    const substanceFile = snapshot.getLoadable(substanceFileState).contents;
-    const styleFile = snapshot.getLoadable(styleFileState).contents;
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const domainFile = workspace.files.domain.contents;
+    const substanceFile = workspace.files.substance.contents;
+    const styleFile = workspace.files.style.contents;
     const diagram = snapshot.getLoadable(diagramState).contents;
-    const compiledDomain = compileDomain(domainFile.contents);
+    const compiledDomain = compileDomain(domainFile);
     if (compiledDomain.isErr()) {
       set(diagramState, (state) => ({ ...state, error: compiledDomain.error }));
       return;
     }
     const compileResult = compileTrio({
-      domain: domainFile.contents,
-      substance: substanceFile.contents,
-      style: styleFile.contents,
+      domain: domainFile,
+      substance: substanceFile,
+      style: styleFile,
       variation: diagram.variation,
     });
     if (compileResult.isErr()) {
@@ -34,7 +37,26 @@ export const useCompileDiagram = () =>
       error: null,
       state: initialState,
     }));
-    /* if (diagramFile.metadata.autostep) {
-        _autostepToConverge(diagramFile, set);
-      } */
+    if (diagram.autostep) {
+      const stepResult = stepUntilConvergence(initialState);
+      if (stepResult.isErr()) {
+        set(diagramState, (state) => ({ ...state, error: stepResult.error }));
+        return;
+      }
+      set(diagramState, (state) => ({
+        ...state,
+        error: null,
+        state: stepResult.value,
+      }));
+    }
+  });
+
+export const useLoadLocalWorkspace = () =>
+  useRecoilCallback(({ set }) => async (id: string) => {
+    const workspace = await localforage.getItem(id);
+    if (workspace === null) {
+      console.error("Could not retrieve workspace", id);
+      return;
+    }
+    set(currentWorkspaceState, workspace as Workspace);
   });

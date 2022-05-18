@@ -6,7 +6,7 @@
     "packages/core",
     "packages/docs-site",
     "packages/examples",
-    "packages/panels",
+    "packages/editor",
     "packages/roger",
     "packages/synthesizer",
     "packages/synthesizer-ui"
