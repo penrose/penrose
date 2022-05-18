@@ -24,7 +24,7 @@
     "dev": "vite",
     "watch": "vite",
     "start": "vite",
-    "prebuild": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "build": "vite build",
     "test": "echo NO TESTS",
     "lint": "eslint --ext js,ts,tsx src",
