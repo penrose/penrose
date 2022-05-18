@@ -25,7 +25,6 @@
     "watch": "vite",
     "start": "vite",
     "typecheck": "tsc --noEmit",
-    "prebuild": "yarn typecheck",
     "build": "vite build",
     "test": "echo NO TESTS",
     "lint": "eslint --ext js,ts,tsx src",
