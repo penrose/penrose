@@ -1,6 +1,11 @@
-import { ellipseToImplicit, halfPlaneToImplicit } from "contrib/ImplicitShapes";
+import {
+  circleToImplicitEllipse,
+  ellipseToImplicit,
+  halfPlaneToImplicit,
+} from "contrib/ImplicitShapes";
 import { numsOf } from "contrib/Utils";
 import seedrandom from "seedrandom";
+import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
 import { floatV, makeCanvas, sampleBlack, vectorV } from "shapes/Samplers";
 
@@ -87,5 +92,57 @@ describe("toImplicit", () => {
     expect(c).toEqual(16);
     expect(x).toEqual(-11);
     expect(y).toEqual(22);
+  });
+
+  test("circleToImplicitEllipse", async () => {
+    let circle = makeCircle(
+      seedrandom("ImplicitShapes.test"),
+      makeCanvas(800, 700),
+      {
+        r: floatV(2),
+        center: vectorV([3, 4]),
+        strokeWidth: floatV(0),
+        strokeColor: sampleBlack(),
+      }
+    );
+    let result = circleToImplicitEllipse(circle, 0);
+    let [a, b, c, x, y] = numsOf([
+      result.a,
+      result.b,
+      result.c,
+      result.x,
+      result.y,
+    ]);
+    expect(a).toEqual(1);
+    expect(b).toEqual(1);
+    expect(c).toEqual(4);
+    expect(x).toEqual(3);
+    expect(y).toEqual(4);
+  });
+
+  test("circleToImplicitEllipse with padding", async () => {
+    let circle = makeCircle(
+      seedrandom("ImplicitShapes.test"),
+      makeCanvas(800, 700),
+      {
+        r: floatV(2),
+        center: vectorV([3, 4]),
+        strokeWidth: floatV(0),
+        strokeColor: sampleBlack(),
+      }
+    );
+    let result = circleToImplicitEllipse(circle, 1);
+    let [a, b, c, x, y] = numsOf([
+      result.a,
+      result.b,
+      result.c,
+      result.x,
+      result.y,
+    ]);
+    expect(a).toEqual(1);
+    expect(b).toEqual(1);
+    expect(c).toEqual(9);
+    expect(x).toEqual(3);
+    expect(y).toEqual(4);
   });
 });
