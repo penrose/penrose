@@ -1,9 +1,9 @@
 import {
   containsPolygonPoints,
   convexPartitions,
+  overlappingImplicitEllipses,
   overlappingPolygonPoints,
   overlappingPolygonPointsEllipse,
-  pointCandidatesEllipse,
   rectangleDifference,
   rectangleSignedDistance,
 } from "contrib/Minkowski";
@@ -22,7 +22,6 @@ import {
   min,
   minN,
   mul,
-  polyRoots,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
@@ -37,11 +36,7 @@ import { Rectangle } from "shapes/Rectangle";
 import { shapedefs } from "shapes/Shapes";
 import { Text } from "shapes/Text";
 import * as ad from "types/ad";
-import {
-  ellipsePolynomial,
-  ellipseToImplicit,
-  implicitEllipseFunc,
-} from "./ImplicitShapes";
+import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
 
 // -------- Ovelapping helpers
 
@@ -100,24 +95,7 @@ export const overlappingEllipse = (
 ): ad.Num => {
   const ei1 = ellipseToImplicit(s1, padding);
   const ei2 = ellipseToImplicit(s2, 0);
-  const poly = ellipsePolynomial(ei1, ei2);
-  const roots = polyRoots(poly);
-  const m1 = minN(
-    roots
-      .map((lambda: ad.Num) => pointCandidatesEllipse(ei1, ei2, lambda))
-      .map(([x, y]: [ad.Num, ad.Num]) => implicitEllipseFunc(ei1, x, y))
-  );
-  const m2 = min(
-    max(
-      implicitEllipseFunc(ei1, ei1.x, ei1.y),
-      implicitEllipseFunc(ei2, ei1.x, ei1.y)
-    ),
-    max(
-      implicitEllipseFunc(ei1, ei2.x, ei2.y),
-      implicitEllipseFunc(ei2, ei2.x, ei2.y)
-    )
-  );
-  return min(m1, m2);
+  return overlappingImplicitEllipses(ei1, ei2);
 };
 
 /**
@@ -150,6 +128,19 @@ export const overlappingPolygonEllipse = (
   const points = polygonLikePoints([t1, s1]);
   const cp = convexPartitions(points);
   return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, padding)));
+};
+
+/**
+ * Require that circle `s1` overlaps ellipse `s2` with some padding `padding`.
+ */
+export const overlappingCircleEllipse = (
+  [, s1]: [string, Circle],
+  [, s2]: [string, Ellipse],
+  padding: ad.Num = 0
+): ad.Num => {
+  const ei1 = circleToImplicitEllipse(s1, padding);
+  const ei2 = ellipseToImplicit(s2, 0);
+  return overlappingImplicitEllipses(ei1, ei2);
 };
 
 /**

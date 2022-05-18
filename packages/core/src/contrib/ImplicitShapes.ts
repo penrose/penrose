@@ -1,6 +1,7 @@
 import { outwardUnitNormal } from "contrib/Queries";
 import { ops } from "engine/Autodiff";
 import { add, div, mul, neg, squared, sub } from "engine/AutodiffFunctions";
+import { Circle } from "shapes/Circle";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
 
@@ -92,6 +93,23 @@ export const ellipseToImplicit = (
     c: mul(rx, ry),
     x: ellipse.center.contents[0],
     y: ellipse.center.contents[1],
+  };
+};
+
+/**
+ * Return implicit ellipse parameters from an explicit circle.
+ * @param circle Explicit circle shape.
+ */
+export const circleToImplicitEllipse = (
+  circle: Circle,
+  padding: ad.Num
+): ImplicitEllipse => {
+  return {
+    a: 1,
+    b: 1,
+    c: squared(add(circle.r.contents, padding)),
+    x: circle.center.contents[0],
+    y: circle.center.contents[1],
   };
 };
 

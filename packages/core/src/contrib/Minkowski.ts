@@ -11,6 +11,7 @@ import {
   minN,
   mul,
   neg,
+  polyRoots,
   sqrt,
   squared,
   sub,
@@ -21,6 +22,7 @@ import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
 import { safe } from "utils/Util";
 import {
+  ellipsePolynomial,
   ellipseToImplicit,
   halfPlaneToImplicit,
   ImplicitEllipse,
@@ -361,4 +363,33 @@ export const pointCandidatesEllipse = (
     add(ei1.b, mul(lambda, sub(ei2.b, ei1.b)))
   );
   return [x, y];
+};
+
+/**
+ * Overlapping constraint function for two implicit ellipses.
+ * @param ei1 First implicit ellipse.
+ * @param ei2 Second implicit ellipse.
+ */
+export const overlappingImplicitEllipses = (
+  ei1: ImplicitEllipse,
+  ei2: ImplicitEllipse
+): ad.Num => {
+  const poly = ellipsePolynomial(ei1, ei2);
+  const roots = polyRoots(poly);
+  const m1 = minN(
+    roots
+      .map((lambda: ad.Num) => pointCandidatesEllipse(ei1, ei2, lambda))
+      .map(([x, y]: [ad.Num, ad.Num]) => implicitEllipseFunc(ei1, x, y))
+  );
+  const m2 = min(
+    max(
+      implicitEllipseFunc(ei1, ei1.x, ei1.y),
+      implicitEllipseFunc(ei2, ei1.x, ei1.y)
+    ),
+    max(
+      implicitEllipseFunc(ei1, ei2.x, ei2.y),
+      implicitEllipseFunc(ei2, ei2.x, ei2.y)
+    )
+  );
+  return min(m1, m2);
 };
