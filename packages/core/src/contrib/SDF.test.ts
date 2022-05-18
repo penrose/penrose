@@ -1,4 +1,3 @@
-import { compDict } from "contrib/Functions";
 import { genCode, secondaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
@@ -6,20 +5,21 @@ import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
 import {
-  FloatV,
+  floatV,
   makeCanvas,
-  PtListV,
+  ptListV,
   sampleBlack,
-  VectorV,
+  vectorV,
 } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { IShape } from "types/shapes";
+import { Shape } from "types/shapes";
+import { compDict } from "./Functions";
 
 const canvas = makeCanvas(800, 700);
 
 const compareDistance = (
   shapeType: string,
-  shape: IShape,
+  shape: Shape,
   p: ad.Num[],
   expected: number
 ) => {
@@ -44,10 +44,10 @@ const testRectangle = (
 ) => {
   const seed = seedrandom("bbox Rectangle");
   const shape = makeRectangle(seed, canvas, {
-    center: VectorV(center),
-    width: FloatV(width),
-    height: FloatV(height),
-    strokeWidth: FloatV(strokeWidth),
+    center: vectorV(center),
+    width: floatV(width),
+    height: floatV(height),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: sampleBlack(),
   });
   compareDistance("Rectangle", shape, pt, expected);
@@ -62,9 +62,9 @@ const testCircle = (
 ) => {
   const seed = seedrandom("bbox Rectangle");
   const shape = makeCircle(seed, canvas, {
-    center: VectorV(center),
-    r: FloatV(radius),
-    strokeWidth: FloatV(strokeWidth),
+    center: vectorV(center),
+    r: floatV(radius),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: sampleBlack(),
   });
   compareDistance("Circle", shape, pt, expected);
@@ -78,9 +78,9 @@ const testPolygon = (
 ) => {
   const seed = seedrandom("Polygon");
   const shape = makePolygon(seed, canvas, {
-    strokeWidth: FloatV(strokeWidth),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: sampleBlack(),
-    points: PtListV(points),
+    points: ptListV(points),
   });
   compareDistance("Polygon", shape, pt, expected);
 };
@@ -94,10 +94,10 @@ function testLine(
 ) {
   const seed = seedrandom("Polygon");
   const shape = makeLine(seed, canvas, {
-    strokeWidth: FloatV(strokeWidth),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: sampleBlack(),
-    start: VectorV(start),
-    end: VectorV(end),
+    start: vectorV(start),
+    end: vectorV(end),
   });
   compareDistance("Line", shape, pt, expected);
 }

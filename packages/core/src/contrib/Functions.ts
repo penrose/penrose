@@ -1402,7 +1402,7 @@ export const compDict = {
     _context: Context,
     [t, s]: [string, any],
     p: ad.Num[]
-  ): IFloatV<ad.Num> => {
+  ): FloatV<ad.Num> => {
     /*  
     All math borrowed from:
     https://iquilezles.org/articles/distfunctions2d/
