@@ -3,15 +3,9 @@ import {
   halfPlaneSDF,
   rectangleDifference,
 } from "contrib/Minkowski";
-import { genCode, secondaryGraph } from "engine/Autodiff";
+import { numsOf } from "contrib/Utils";
 import * as BBox from "engine/BBox";
 import * as ad from "types/ad";
-
-const numsOf = (xs: ad.Num[]) => {
-  const g = secondaryGraph(xs);
-  const f = genCode(g);
-  return f([]).secondary;
-};
 
 describe("rectangleDifference", () => {
   const expectRectDiff = (

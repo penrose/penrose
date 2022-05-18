@@ -1,4 +1,4 @@
-import { EPS_DENOM, ops } from "engine/Autodiff";
+import { EPS_DENOM, genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -187,4 +187,14 @@ export const closestPt_PtSeg = (
 
   // v +: (t' *: dir) -- walk along vector of line seg
   return ops.vadd(start, ops.vmul(t1, dir));
+};
+
+export const numsOf = (xs: ad.Num[]) => {
+  const g = secondaryGraph(xs);
+  const f = genCode(g);
+  return f([]).secondary;
+};
+
+export const numOf = (x: ad.Num) => {
+  return numsOf([x])[0];
 };

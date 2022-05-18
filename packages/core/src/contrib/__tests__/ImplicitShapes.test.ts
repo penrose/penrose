@@ -1,15 +1,8 @@
 import { ellipseToImplicit, halfPlaneToImplicit } from "contrib/ImplicitShapes";
-import { genCode, secondaryGraph } from "engine/Autodiff";
+import { numsOf } from "contrib/Utils";
 import seedrandom from "seedrandom";
 import { makeEllipse } from "shapes/Ellipse";
 import { floatV, makeCanvas, sampleBlack, vectorV } from "shapes/Samplers";
-import * as ad from "types/ad";
-
-const numsOf = (xs: ad.Num[]) => {
-  const g = secondaryGraph(xs);
-  const f = genCode(g);
-  return f([]).secondary;
-};
 
 describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {
