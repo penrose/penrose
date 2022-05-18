@@ -18,11 +18,14 @@ export default function DiagramPanel() {
           cur.appendChild(rendered);
         }
       })();
+    } else if (state === null && cur !== null) {
+      cur.innerHTML = "";
     }
   }, [state]);
 
   return (
     <div>
+      {state === null && <span>press compile to see diagram</span>}
       <div
         style={{
           width: "100%",
