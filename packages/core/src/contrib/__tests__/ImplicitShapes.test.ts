@@ -7,7 +7,7 @@ import {
 } from "contrib/ImplicitShapes";
 import { pointCandidatesEllipse } from "contrib/Minkowski";
 import { numOf, numsOf } from "contrib/Utils";
-import { polyRoots, sub } from "engine/AutodiffFunctions";
+import { addN, mul, polyRoots, sub } from "engine/AutodiffFunctions";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -153,20 +153,45 @@ describe("toImplicit", () => {
   });
 });
 
-test("ellipsePolynomial produces points on the constraint manifold", async () => {
-  const e1 = { a: 0.5, b: 2, c: 100, x: -11, y: 22 };
-  const e2 = { a: 4, b: 0.25, c: 200, x: 33, y: -44 };
-  const poly = ellipsePolynomial(e1, e2);
-  const roots = polyRoots(poly);
-  const lambdas = zip2(roots, numsOf(roots))
-    .filter(([_, rn]) => !Number.isNaN(rn))
-    .map(([r, _]) => r);
-  const points = lambdas.map((lambda: ad.Num) =>
-    pointCandidatesEllipse(e1, e2, lambda)
-  );
-  points.forEach(function ([x, y]) {
-    expect(
-      numOf(sub(implicitEllipseFunc(e1, x, y), implicitEllipseFunc(e2, x, y)))
-    ).toBeCloseTo(0, 4);
+describe("ellipsePolynomial", () => {
+  const ellipse1 = { a: 0.5, b: 2, c: 100, x: -11, y: 22 };
+  const ellipse2 = { a: 4, b: 0.25, c: 200, x: 33, y: -44 };
+
+  test("ellipsePolynomial produces points on the constraint manifold", async () => {
+    const poly = ellipsePolynomial(ellipse1, ellipse2);
+    const roots = polyRoots(poly);
+    const lambdas = zip2(roots, numsOf(roots))
+      .filter(([_, rn]) => !Number.isNaN(rn))
+      .map(([r, _]) => r);
+    const points = lambdas.map((lambda: ad.Num) =>
+      pointCandidatesEllipse(ellipse1, ellipse2, lambda)
+    );
+    points.forEach(function ([x, y]) {
+      const result = sub(
+        implicitEllipseFunc(ellipse1, x, y),
+        implicitEllipseFunc(ellipse2, x, y)
+      );
+      expect(numOf(result)).toBeCloseTo(0, 4);
+    });
+  });
+
+  test("roots of ellipsePolynomial", async () => {
+    const poly = ellipsePolynomial(ellipse1, ellipse2);
+    const roots = polyRoots(poly);
+    const lambdas = zip2(roots, numsOf(roots))
+      .filter(([_, rn]) => !Number.isNaN(rn))
+      .map(([r, _]) => r);
+    lambdas.forEach(function (lambda) {
+      let power: ad.Num = 1;
+      const powers: ad.Num[] = [power];
+      for (let i = 1; i <= poly.length; i++) {
+        power = mul(power, lambda);
+        powers.push(power);
+      }
+      const result = addN(
+        zip2([...poly, 1], powers).map(([c, p]) => mul(c, p))
+      );
+      expect(numOf(result)).toBeCloseTo(0, 4);
+    });
   });
 });
