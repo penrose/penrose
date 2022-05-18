@@ -32,6 +32,7 @@ import {
   lt,
   max,
   min,
+  minN,
   mul,
   neg,
   not,
@@ -53,6 +54,8 @@ import * as _ from "lodash";
 import { range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
 import seedrandom from "seedrandom";
+import { Line } from "shapes/Line";
+import { Polyline } from "shapes/Polyline";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
@@ -1492,7 +1495,12 @@ export const compDict = {
       return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
     } 
     */
-    if (t === "Rectangle") {
+    if (
+      t === "Rectangle" ||
+      t === "Text" ||
+      t === "Equation" ||
+      t === "Image"
+    ) {
       const absp = ops.vabs(ops.vsub(p, s.center.contents));
       const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
       const d = ops.vsub(absp, b);
@@ -1564,28 +1572,49 @@ export const compDict = {
         contents: result,
       };
     } else if (t === "Line") {
-      /*
-      float sdSegment( in vec2 p, in vec2 a, in vec2 b )
-      {
-          vec2 pa = p-a, ba = b-a;
-          float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
-          return length( pa - ba*h );
-      }
-      */
-      const a = s.start.contents;
-      const b = s.end.contents;
-      const pa = ops.vsub(p, a);
-      const ba = ops.vsub(b, a);
-      const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
-      const result = ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
       return {
         tag: "FloatV",
-        contents: result,
+        contents: sdLine(s, p),
       };
+    } else if (t === "Polyline") {
+      return {
+        tag: "FloatV",
+        contents: sdPolyline(s, p),
+      };
+    } else if (t === "Ellipse" || t === "Path") {
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
     } else {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
     }
   },
+};
+
+/*
+  Computes the signed distance for a line 
+  float sdSegment( in vec2 p, in vec2 a, in vec2 b )
+  {
+    vec2 pa = p-a, ba = b-a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h );
+  }
+*/
+const sdLine = (s: Line, p: ad.Num[]): ad.Num => {
+  return sdLineAsNums(s.start.contents, s.end.contents, p);
+};
+
+const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
+  const pa = ops.vsub(p, a);
+  const ba = ops.vsub(b, a);
+  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
+  return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
+};
+
+const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
+  const dists: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    dists[i] = sdLineAsNums(s.points.contents[i], s.points.contents[i + 1], p);
+  }
+  return minN(dists);
 };
 
 // _compDictVals causes TypeScript to enforce that every function in compDict

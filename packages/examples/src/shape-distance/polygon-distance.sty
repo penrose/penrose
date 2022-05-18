@@ -7,7 +7,7 @@ forall Point p {
     p.icon = Circle {
         strokeWidth : 0
         fillColor: rgba(0,0,0,1)
-        r: 2
+        r: 3
     }
 }
 
@@ -20,7 +20,7 @@ forall ReverseL g {
 }
 
 forall Star s {
-    g.icon = Polygon {
+    s.icon = Polygon {
         strokeWidth : 1
         fillColor: rgba(68/255,114/255,148/255,1)
         points: [(-200,-200), (0,200), (200,-300), (-200,150), (250,150)]
@@ -29,14 +29,32 @@ forall Star s {
 }
 
 forall Line l {
-    g.icon = Line {
+    l.icon = Line {
         strokeWidth : 8
         start : (-200,-100)
         end : (250, 100)
     }
 }
 
+forall Polyline l {
+    l.icon = Polyline {
+        strokeWidth : 8
+        points : [(-200,-200), (0,200), (200,-300), (-200,150), (250,150)]
+    }
+}
+
+forall Text t {
+    shape t.icon = Text {
+      string: "Hello Nimo"
+      center: (0,0)
+      fillColor: rgba(0.,0.,0.,1.)
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fontSize: "128px"
+   }
+}
+
 forall Point p; Shape s
-where Around(p, g) {
-    ensure equal(signedDistance(g.icon, p.icon.center), 20)
+where Around(p, s) {
+    ensure equal(signedDistance(s.icon, p.icon.center), 20)
 }
