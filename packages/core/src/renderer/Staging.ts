@@ -10,24 +10,7 @@ type StringObjPair = [string, { [k: string]: FieldExpr<ad.Num> }];
  * Returns a list of states, one state per diagram in a series of staged diagrams
  */
 export const getListOfStagedStates = (state: State): State[] => {
-  // encodes the order in which the user defines GPIs in substance as obj properties
-  let objArr = Object.entries(state.translation.trMap);
-  objArr = objArr.filter(hasGPIProperties);
-
-  // each element in listOfStagedObjArrs is a list of objs to draw
-  // in a panel in the comic
-  // ex. for a final diagram with objects A,B,C
-  // listOfStagedObjArrs = [[A], [A,B], [A,B,C]]
-  const listOfStagedObjArrs = objArr.map(tabulateObjArrs);
-
-  const getStateFromObjArr = (arr: StringObjPair[]) => {
-    return getStateFromObjArrAndLocalState(arr, state);
-  };
-
-  // map each object array to a state (modify the shapelist of the og state)
-  const listOfStagedStates = listOfStagedObjArrs.map(getStateFromObjArr);
-
-  return listOfStagedStates;
+  return [state]; // TODO: reimplement this function
 };
 
 // determines if an object has any GPI tagged properties

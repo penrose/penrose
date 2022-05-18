@@ -29,7 +29,7 @@ import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
 import { Fn, FnEvaled, LabelCache, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
-import { FieldDict, Translation } from "./types/value";
+import { FieldDict } from "./types/value";
 import { collectLabels } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
@@ -371,4 +371,3 @@ export type { Env };
 export type { SubProg };
 export type { Canvas };
 export type { FieldDict };
-export type { Translation };

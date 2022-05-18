@@ -2,7 +2,6 @@ import { makeADInputVars } from "engine/Autodiff";
 import {
   compileCompGraph,
   initConstraintWeight,
-  insertExpr,
   valueAutodiffToNumber,
 } from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
@@ -10,12 +9,11 @@ import { mapValues } from "lodash";
 import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Shape } from "types/shape";
 import { State } from "types/state";
 import { Path } from "types/style";
-import { TagExpr, Translation, Value } from "types/value";
+import { TagExpr, Value } from "types/value";
 import { prettyPrintPath, randFloat, randFloats, safe } from "utils/Util";
 
 //#region shape conversion helpers
@@ -159,30 +157,14 @@ const samplePath = (
 
 export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
   // resample all the uninitialized and varying values
-  const { varyingPaths, shapes, uninitializedPaths, params } = state;
+  const { varyingPaths, shapes, params } = state;
   const varyingValues: Value<number>[] = varyingPaths.map((p: Path<A>) =>
     samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
-  );
-
-  // update the translation with all uninitialized values (converted to `Done` values)
-  const uninitMap: [
-    Path<A>,
-    TagExpr<ad.Num>
-  ][] = uninitializedPaths.map((p: Path<A>) => [
-    p,
-    val2Expr(samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)),
-  ]);
-
-  const translation: Translation = uninitMap.reduce(
-    (tr: Translation, [p, e]: [Path<A>, TagExpr<ad.Num>]) =>
-      insertExpr(p, e, tr),
-    state.translation
   );
 
   const sampledState: State = {
     ...state,
     varyingValues: varyingValues.map((v) => val2float(v)),
-    translation,
     params: {
       ...params,
       weight: initConstraintWeight,

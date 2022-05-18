@@ -1,11 +1,13 @@
 import * as ad from "./ad";
 import { StyleResults } from "./errors";
-import { ArgVal, GPI } from "./value";
+import { ShapeAD } from "./shape";
+import { ArgVal } from "./value";
 
 export interface Translation {
   diagnostics: StyleResults;
   symbols: Map<string, Named>;
-  shapes: GPI<ad.Num>["contents"][];
+  shapes: ShapeAD[];
+  varying: ad.Input[];
   objectives: ad.Num[];
   constraints: ad.Num[];
   layering: [string, string][];

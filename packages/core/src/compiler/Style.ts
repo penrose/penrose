@@ -1272,7 +1272,7 @@ const translateStyProg = (
   styProg: StyProg<A>,
   labelMap: LabelMap
 ): Translation => {
-  // TODO write the compiler
+  // TODO: write the compiler
   return {
     diagnostics: { errors: [], warnings: [] },
     symbols: new Map(),

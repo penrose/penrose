@@ -1,10 +1,9 @@
-import { exprToNumber, insertExpr } from "engine/EngineUtils";
+import { exprToNumber } from "engine/EngineUtils";
 import { A } from "types/ast";
 import { Shape } from "types/shape";
-import { LabelCache, State } from "types/state";
+import { State } from "types/state";
 import { Path, PropertyPath } from "types/style";
-import { Translation, Value } from "types/value";
-import { retrieveLabel } from "utils/CollectLabels";
+import { Value } from "types/value";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.
@@ -81,47 +80,11 @@ export const getShapeName = (p: Path<A>): string => {
  *
  */
 export const insertPending = (state: State): State => {
-  const findLabelValue = (p: Path<A>, labels: LabelCache): Value<number> => {
-    if (p.tag === "PropertyPath") {
-      const { property } = p;
-      const prop: string = property.value;
-      const labelData = retrieveLabel(getShapeName(p), labels);
-
-      if (labelData) {
-        if (prop === "width") return labelData.width;
-        else if (prop === "height") return labelData.height;
-        else if (labelData.tag === "TextData" && prop === "ascent")
-          return labelData.ascent;
-        else if (labelData.tag === "TextData" && prop === "descent")
-          return labelData.descent;
-        else {
-          throw new Error(`Cached label data do not contain property ${prop}`);
-        }
-      } else {
-        throw new Error(`Label data not found for ${getShapeName(p)}`);
-      }
-    } else {
-      throw new Error(
-        `Pending value must be a property of a shape. Got a ${p.tag} instead.`
-      );
-    }
-  };
-
   return {
     ...state,
     // clear up pending paths now that they are updated properly
     pendingPaths: [],
-    // for each of the pending paths, update the translation using the updated shapes with new label dimensions etc.
-    translation: state.pendingPaths
-      .map((p: Path<A>): [Path<A>, Value<number>] => [
-        p,
-        findLabelValue(p, state.labelCache),
-      ])
-      .reduce(
-        (trans: Translation, [path, v]) =>
-          insertExpr(path, { tag: "Done", contents: v }, trans),
-        state.translation
-      ),
+    // TODO: write the rest of this function
   };
 };
 

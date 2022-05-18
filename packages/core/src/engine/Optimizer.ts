@@ -1,9 +1,6 @@
 import consola, { LogLevel } from "consola";
-import { constrDict } from "contrib/Constraints";
-import { objDict } from "contrib/Objectives";
 import {
   energyAndGradCompiled,
-  fns,
   input,
   makeADInputVars,
   ops,
@@ -13,26 +10,13 @@ import {
   defaultLbfgsParams,
   initConstraintWeight,
 } from "engine/EngineUtils";
-import {
-  argValue,
-  evalFns,
-  evalShapes,
-  insertVaryings,
-} from "engine/Evaluator";
 import * as _ from "lodash";
 import { Matrix } from "ml-matrix";
 import rfdc from "rfdc";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { A } from "types/ast";
-import {
-  FnCached,
-  FnDone,
-  LbfgsParams,
-  Params,
-  State,
-  WeightInfo,
-} from "types/state";
+import { FnCached, LbfgsParams, Params, State, WeightInfo } from "types/state";
 import { Path } from "types/style";
 import {
   addv,
@@ -116,16 +100,6 @@ const epConverged2 = (
   );
 
   return stateChange < epStop || energyChange < epStop;
-};
-
-const applyFn = (f: FnDone<ad.Num>, dict: any) => {
-  if (dict[f.name]) {
-    return dict[f.name](...f.args.map(argValue));
-  } else {
-    throw new Error(
-      `constraint or objective ${f.name} not found in dirctionary`
-    );
-  }
 };
 
 /**
@@ -339,11 +313,6 @@ export const step = (
   if (evaluate) {
     const varyingValues = xs;
     // log.info("evaluating state with varying values", varyingValues);
-
-    newState.translation = insertVaryings(
-      state.translation,
-      zip2(state.varyingPaths, varyingValues)
-    );
 
     newState.varyingValues = varyingValues;
     newState = {
@@ -841,23 +810,9 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     epWeightNode: ad.Input;
   } => {
     // TODO: Could this line be causing a memory leak?
-    const { objFns, constrFns, varyingPaths } = state;
-
-    const varyingMapList = zip2(varyingPaths, xsVars);
-    // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
-    const translation = insertVaryings(
-      // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse `ad.Num` (computation) results
-      clone(state.translation),
-      varyingMapList
-    );
-
-    const objEvaled = evalFns(rng, objFns, translation);
-    const constrEvaled = evalFns(rng, constrFns, translation);
-
-    const objEngs: ad.Num[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: ad.Num[] = constrEvaled.map((c) =>
-      fns.toPenalty(applyFn(c, constrDict))
-    );
+    const {
+      translation: { objectives: objEngs, constraints: constrEngs },
+    } = state;
 
     // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
     // The energies are in the val field of the results (w/o grads)
@@ -941,8 +896,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   };
 
   // generate evaluation function
-  const varyingVars = makeADInputVars(state.varyingValues);
-  const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
+  const computeShapes = compileCompGraph(state.translation.shapes);
 
   const newParams: Params = {
     ...state.params,
