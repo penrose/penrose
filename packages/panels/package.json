@@ -19,7 +19,6 @@
     "dev": "vite",
     "watch": "vite",
     "start": "vite",
-    "prebuild": "yarn typecheck",
     "typecheck": "tsc --noEmit",
     "build": "vite build",
     "test": "echo NO TESTS",
