@@ -1,13 +1,19 @@
 import {
   circleToImplicitEllipse,
+  ellipsePolynomial,
   ellipseToImplicit,
   halfPlaneToImplicit,
+  implicitEllipseFunc,
 } from "contrib/ImplicitShapes";
-import { numsOf } from "contrib/Utils";
+import { pointCandidatesEllipse } from "contrib/Minkowski";
+import { numOf, numsOf } from "contrib/Utils";
+import { polyRoots, sub } from "engine/AutodiffFunctions";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
 import { floatV, makeCanvas, sampleBlack, vectorV } from "shapes/Samplers";
+import * as ad from "types/ad";
+import { zip2 } from "utils/Util";
 
 describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {
@@ -144,5 +150,23 @@ describe("toImplicit", () => {
     expect(c).toEqual(9);
     expect(x).toEqual(3);
     expect(y).toEqual(4);
+  });
+});
+
+test("ellipsePolynomial produces points on the constraint manifold", async () => {
+  const e1 = { a: 0.5, b: 2, c: 100, x: -11, y: 22 };
+  const e2 = { a: 4, b: 0.25, c: 200, x: 33, y: -44 };
+  const poly = ellipsePolynomial(e1, e2);
+  const roots = polyRoots(poly);
+  const lambdas = zip2(roots, numsOf(roots))
+    .filter(([_, rn]) => !Number.isNaN(rn))
+    .map(([r, _]) => r);
+  const points = lambdas.map((lambda: ad.Num) =>
+    pointCandidatesEllipse(e1, e2, lambda)
+  );
+  points.forEach(function ([x, y]) {
+    expect(
+      numOf(sub(implicitEllipseFunc(e1, x, y), implicitEllipseFunc(e2, x, y)))
+    ).toBeCloseTo(0, 4);
   });
 });
