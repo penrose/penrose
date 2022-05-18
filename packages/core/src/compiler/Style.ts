@@ -13,7 +13,6 @@ import {
   findExpr,
   findExprSafe,
   initConstraintWeight,
-  insertExpr,
   insertExprs,
   isPath,
   isTagExpr,
@@ -31,7 +30,7 @@ import { ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A, C, Identifier } from "types/ast";
 import { Either } from "types/common";
-import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
+import { Env, TypeConstructor } from "types/domain";
 import {
   ParseError,
   PenroseError,
@@ -44,7 +43,6 @@ import { Fn, OptType, Params, State } from "types/state";
 import {
   AccessPath,
   BindingForm,
-  Block,
   CompApp,
   ConstrFn,
   DeclPattern,
@@ -63,26 +61,23 @@ import {
   RelPred,
   Selector,
   SelExpr,
-  Stmt,
   StyProg,
   StyT,
 } from "types/style";
 import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
 import {
-  ApplyConstructor,
   ApplyPredicate,
   LabelMap,
   SubExpr,
   SubPredArg,
   SubProg,
   SubstanceEnv,
-  SubStmt,
   TypeConsApp,
 } from "types/substance";
+import { Translation } from "types/translation";
 import {
   FGPI,
   Field,
-  FieldDict,
   FieldExpr,
   GPIMap,
   GPIProps,
@@ -91,7 +86,6 @@ import {
   ShapeTypeStr,
   StyleOptFn,
   TagExpr,
-  Translation,
   Value,
 } from "types/value";
 import {
@@ -104,14 +98,10 @@ import {
   toStyleErrors,
 } from "utils/Error";
 import {
-  foldM,
-  isLeft,
   prettyPrintFn,
   prettyPrintPath,
   randFloat,
-  toLeft,
   ToLeft,
-  toRight,
   ToRight,
   variationSeeds,
   zip2,
@@ -123,9 +113,7 @@ const log = consola
   .withScope("Style Compiler");
 
 //#region consts
-const ANON_KEYWORD = "ANON";
 const LOCAL_KEYWORD = "$LOCAL";
-const LABEL_FIELD = "label";
 const VARYING_INIT_FN_NAME = "VARYING_INIT";
 
 // For statically checking existence
@@ -156,14 +144,6 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
 
 const toString = (x: BindingForm<A>): string => x.contents.value;
-
-// https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-const cartesianProduct = <T>(...a: T[][]): T[][] =>
-  a.reduce(
-    (tuples: T[][], set) =>
-      tuples.flatMap((prefix: T[]) => set.map((x: T) => [...prefix, x])),
-    [[]]
-  );
 
 const getShapeName = (s: string, f: Field): string => {
   return `${s}.${f}`;
@@ -571,17 +551,6 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
   return Object.keys(valsSet).length === vals.length;
 };
 
-// Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
-const couldMatchRels = (
-  typeEnv: Env,
-  rels: RelationPattern<A>[],
-  stmt: SubStmt<A>
-): boolean => {
-  // TODO < (this is an optimization; will only implement if needed)
-  // see also https://github.com/penrose/penrose/issues/566
-  return true;
-};
-
 //#region (subregion? TODO fix) Applying a substitution
 // // Apply a substitution to various parts of Style (relational statements, exprs, blocks)
 
@@ -931,59 +900,6 @@ const substituteBlockExpr = (
   }
 };
 
-const substituteLine = (
-  lv: LocalVarSubst,
-  subst: Subst,
-  line: Stmt<A>
-): Stmt<A> => {
-  switch (line.tag) {
-    case "PathAssign": {
-      return {
-        ...line,
-        path: substitutePath(lv, subst, line.path),
-        value: substituteBlockExpr(lv, subst, line.value),
-      };
-    }
-    case "Override": {
-      return {
-        ...line,
-        path: substitutePath(lv, subst, line.path),
-        value: substituteBlockExpr(lv, subst, line.value),
-      };
-    }
-    case "Delete": {
-      return {
-        ...line,
-        contents: substitutePath(lv, subst, line.contents),
-      };
-    }
-    case "AnonAssign": {
-      throw Error(
-        "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
-      );
-    }
-  }
-};
-
-// Assumes a full substitution
-const substituteBlock = (
-  [subst, si]: [Subst, number],
-  [block, bi]: [Block<A>, number],
-  name: string | undefined
-): Block<A> => {
-  const lvSubst: LocalVarSubst =
-    name === undefined
-      ? { tag: "LocalVarId", contents: [bi, si] }
-      : { tag: "NamespaceId", contents: name };
-
-  return {
-    ...block,
-    statements: block.statements.map((line) =>
-      substituteLine(lvSubst, subst, line)
-    ),
-  };
-};
-
 //#endregion Applying a substitution to a block
 
 // Convert Style expression to Substance expression (for ease of comparison in matching)
@@ -1057,10 +973,6 @@ const varsEq = (v1: Identifier<A>, v2: Identifier<A>): boolean => {
   return v1.value === v2.value;
 };
 
-const subVarsEq = (v1: Identifier<A>, v2: Identifier<A>): boolean => {
-  return v1.value === v2.value;
-};
-
 const argsEq = (a1: SubPredArg<A>, a2: SubPredArg<A>): boolean => {
   if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
     return subFnsEq(a1, a2);
@@ -1105,28 +1017,6 @@ const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>): boolean => {
   return false;
 };
 
-const exprToVar = <T>(e: SubExpr<T>): Identifier<T> => {
-  if (e.tag === "Identifier") {
-    return e;
-  } else {
-    // TODO(errors)
-    throw Error(
-      "internal error: Style expression matching doesn't yet handle nested exprssions"
-    );
-  }
-};
-
-const toTypeList = <T>(c: ConstructorDecl<T>): TypeConstructor<T>[] => {
-  return c.args.map((p) => {
-    if (p.type.tag === "TypeConstructor") {
-      return p.type;
-    }
-    throw Error(
-      "internal error: expected TypeConstructor in type (expected nullary type)"
-    );
-  });
-};
-
 // TODO: Test this
 // For existing judgment G |- T1 <: T2,
 // this rule (SUBTYPE-ARROW) checks if the first arrow type (i.e. function or value constructor type) is a subtype of the second
@@ -1151,398 +1041,9 @@ const isSubtypeArrow = (
   ); // Covariant in return type
 };
 
-/**
- * Match Substance and Style selector constructor expressions on 3 ccnditions:
- * - If the names of the constructors are the same
- * - If the substituted args match with the original in number and value
- * - If the argument types are matching w.r.t. contravariance
- *
- * @param varEnv the environment
- * @param subE the Substance constructor expr
- * @param styE the substituted Style constructor expr
- * @returns if the two exprs match
- */
-const exprsMatchArr = (
-  varEnv: Env,
-  subE: ApplyConstructor<A>,
-  styE: ApplyConstructor<A>
-): boolean => {
-  const subArrType = varEnv.constructors.get(subE.name.value);
-  if (!subArrType) {
-    // TODO(errors)
-    throw Error("internal error: sub arr type doesn't exist");
-  }
-
-  const styArrType = varEnv.constructors.get(styE.name.value);
-  if (!styArrType) {
-    // TODO(errors)
-    throw Error("internal error: sty arr type doesn't exist");
-  }
-
-  if (subE.args.length !== styE.args.length) {
-    return false;
-  }
-
-  const subArrTypes = toTypeList(subArrType);
-  const styArrTypes = toTypeList(styArrType);
-  const subVarArgs = subE.args.map(exprToVar);
-  const styVarArgs = styE.args.map(exprToVar);
-
-  return (
-    subE.name.value === styE.name.value &&
-    isSubtypeArrow(subArrTypes, styArrTypes, varEnv) &&
-    zip2(subVarArgs, styVarArgs).every(([a1, a2]) => varsEq(a1, a2))
-  );
-  // `as` is fine bc of preceding length check
-};
-
-// New judgment (number?): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
-// We assume the latter expression has already had a substitution applied
-const exprsMatch = (
-  typeEnv: Env,
-  subE: SubExpr<A>,
-  selE: SubExpr<A>
-): boolean => {
-  // We match value constructor applications if one val ctor is a subtype of another
-  // whereas for function applications, we match only if the exprs are equal (for now)
-  // This is because a val ctor doesn't "do" anything besides wrap its values
-  // whereas functions with the same type could do very different things, so we don't
-  // necessarily want to match them by subtyping
-  // (e.g. think of the infinite functions from Vector -> Vector)
-
-  // rule Match-Expr-Var
-  if (subE.tag === "Identifier" && selE.tag === "Identifier") {
-    return subVarsEq(subE, selE);
-  } else if (subE.tag === "ApplyFunction" && selE.tag === "ApplyFunction") {
-    // rule Match-Expr-Fnapp
-    return subExprsEq(subE, selE);
-  } else if (
-    subE.tag === "ApplyConstructor" &&
-    selE.tag === "ApplyConstructor"
-  ) {
-    // rule Match-Expr-Vconsapp
-    return exprsMatchArr(typeEnv, subE, selE);
-  } else {
-    return false;
-  }
-};
-
-// Judgment 11. b; theta |- S <| |S_r
-// After all Substance variables from a Style substitution are substituted in, check if
-const relMatchesLine = (
-  typeEnv: Env,
-  subEnv: SubstanceEnv,
-  s1: SubStmt<A>,
-  s2: RelationPattern<A>
-): boolean => {
-  if (s1.tag === "Bind" && s2.tag === "RelBind") {
-    // rule Bind-Match
-    switch (s2.id.tag) {
-      case "StyVar": {
-        // internal error
-        throw Error(
-          `Style variable ${
-            s2.id.contents.value
-          } found in relational statement ${ppRel(s2)}. Should not be present!`
-        );
-      }
-      case "SubVar": {
-        // B |- E = |E
-        const [subVar, sVar] = [s1.variable, s2.id.contents.value];
-        const selExpr = toSubExpr(typeEnv, s2.expr);
-        const subExpr = s1.expr;
-        return (
-          subVarsEq(subVar, dummyId(sVar)) &&
-          exprsMatch(typeEnv, subExpr, selExpr)
-        );
-        // COMBAK: Add this condition when this is implemented in the Substance typechecker
-        // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
-      }
-    }
-  } else if (s1.tag === "ApplyPredicate" && s2.tag === "RelPred") {
-    // rule Pred-Match
-    const [pred, sPred] = [s1, s2];
-    const selPred = toSubPred(sPred);
-    return subFnsEq(pred, selPred);
-    // COMBAK: Add this condition when the Substance typechecker is implemented -- where is the equivalent function to `predsDeclaredEqual` in the new code?
-    // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
-  } else {
-    return false; // Only match two bind lines or two predicate lines
-  }
-};
-
-// Judgment 13. b |- [S] <| |S_r
-const relMatchesProg = (
-  typeEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  rel: RelationPattern<A>
-): boolean => {
-  if (rel.tag === "RelField") {
-    // the current pattern matches on a Style field
-    const subName = rel.name.contents.value;
-    const fieldDesc = rel.fieldDescriptor;
-    const label = subEnv.labels.get(subName);
-
-    if (label) {
-      // check if the label type matches with the descriptor
-      if (fieldDesc) {
-        // NOTE: empty labels have a specific `NoLabel` type, so even if the entry exists, no existing field descriptors will match on it.
-        return label.type === fieldDesc;
-      } else return label.value.length > 0;
-    } else {
-      return false;
-    }
-  } else {
-    return subProg.statements.some((line) =>
-      relMatchesLine(typeEnv, subEnv, line, rel)
-    );
-  }
-};
-
-// Judgment 15. b |- [S] <| [|S_r]
-const allRelsMatch = (
-  typeEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  rels: RelationPattern<A>[]
-): boolean => {
-  return rels.every((rel) => relMatchesProg(typeEnv, subEnv, subProg, rel));
-};
-
-// Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
-// Folds over [theta]
-const filterRels = (
-  typeEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  rels: RelationPattern<A>[],
-  substs: Subst[]
-): Subst[] => {
-  const subProgFiltered: SubProg<A> = {
-    ...subProg,
-    statements: subProg.statements.filter((line) =>
-      couldMatchRels(typeEnv, rels, line)
-    ),
-  };
-
-  return substs.filter((subst) =>
-    allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))
-  );
-};
-
-// // Match declaration statements
-
-// // Substitution helper functions
-// (+) operator combines two substitutions: subst -> subst -> subst
-const combine = (s1: Subst, s2: Subst): Subst => {
-  return { ...s1, ...s2 };
-};
-
-// TODO check for duplicate keys (and vals)
-// (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
-// the way merge is used, I think each subst in the second argument only contains one mapping
-const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
-  if (s2.length === 0) {
-    return s1;
-  }
-  if (s1.length === 0) {
-    return s2;
-  }
-  return cartesianProduct(s1, s2).map(([a, b]: Subst[]) => combine(a, b));
-};
-
-// Judgment 9. G; theta |- T <| |T
-// Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
-// Ported from `matchType`
-const typesMatched = (
-  varEnv: Env,
-  substanceType: TypeConsApp<A>,
-  styleType: StyT<A>
-): boolean => {
-  if (substanceType.args.length === 0) {
-    // Style type needs to be more generic than Style type
-    return isDeclaredSubtype(substanceType, toSubstanceType(styleType), varEnv);
-  }
-
-  // TODO(errors)
-  throw Error(
-    "internal error: expected two nullary types (parametrized types to be implemented)"
-  );
-};
-
-// Judgment 10. theta |- x <| B
-const matchBvar = (
-  subVar: Identifier<A>,
-  bf: BindingForm<A>
-): Subst | undefined => {
-  switch (bf.tag) {
-    case "StyVar": {
-      const newSubst = {};
-      newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
-      return newSubst;
-    }
-    case "SubVar": {
-      if (subVar.value === bf.contents.value) {
-        // Substance variables matched; comparing string equality
-        return {};
-      } else {
-        return undefined; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
-      }
-    }
-  }
-};
-
-// Judgment 12. G; theta |- S <| |S_o
-const matchDeclLine = (
-  varEnv: Env,
-  line: SubStmt<A>,
-  decl: DeclPattern<A>
-): Subst | undefined => {
-  if (line.tag === "Decl") {
-    const [subT, subVar] = [line.type, line.name];
-    const [styT, bvar] = [decl.type, decl.id];
-
-    // substitution is only valid if types matched first
-    if (typesMatched(varEnv, subT, styT)) {
-      return matchBvar(subVar, bvar);
-    }
-  }
-
-  // Sty decls only match Sub decls
-  return undefined;
-};
-
-// Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
-const matchDecl = (
-  varEnv: Env,
-  subProg: SubProg<A>,
-  initSubsts: Subst[],
-  decl: DeclPattern<A>
-): Subst[] => {
-  // Judgment 14. G; [theta] |- [S] <| |S_o
-  const newSubsts = subProg.statements.map((line) =>
-    matchDeclLine(varEnv, line, decl)
-  );
-  const res = merge(
-    initSubsts,
-    newSubsts.filter((x): x is Subst => x !== undefined)
-  ); // TODO inline
-  // COMBAK: Inline this
-  // console.log("substs to combine:", initSubsts, justs(newSubsts));
-  // console.log("res", res);
-  return res;
-};
-
-// Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
-// Folds over [|S_o]
-const matchDecls = (
-  varEnv: Env,
-  subProg: SubProg<A>,
-  decls: DeclPattern<A>[],
-  initSubsts: Subst[]
-): Subst[] => {
-  return decls.reduce(
-    (substs, decl) => matchDecl(varEnv, subProg, substs, decl),
-    initSubsts
-  );
-};
-
-// Judgment 19. g; G; b; [theta] |- [S] <| Sel
-// NOTE: this uses little gamma (not in paper) to check substitution validity
-// ported from `find_substs_sel`
-const findSubstsSel = (
-  varEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  [header, selEnv]: [Header<A>, SelEnv]
-): Subst[] => {
-  switch (header.tag) {
-    case "Selector": {
-      const sel = header;
-      const decls = sel.head.contents.concat(safeContentsList(sel.with));
-      const rels = safeContentsList(sel.where);
-      const initSubsts: Subst[] = [];
-      const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
-      const substCandidates = rawSubsts.filter((subst) =>
-        fullSubst(selEnv, subst)
-      );
-      const filteredSubsts = filterRels(
-        varEnv,
-        subEnv,
-        subProg,
-        rels,
-        substCandidates
-      );
-      const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
-      return correctSubsts;
-    }
-    case "Namespace": {
-      // No substitutions for a namespace (not in paper)
-      return [];
-    }
-  }
-};
-
-//#endregion
-
-//#region Naming anon statements
-
-// Style AST preprocessing:
-// For any anonymous statement only (e.g. `encourage near(x.shape, y.shape)`),
-// replace it with a named statement (`local.<UNIQUE_ID> = encourage near(x.shape, y.shape)`)
-// Note the UNIQUE_ID only needs to be unique within a block (since local will assign another ID that's globally-unique)
-// Leave all other statements unchanged
-
-const nameAnonStatement = (i: number, s: Stmt<A>): [number, Stmt<A>] => {
-  // Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
-  if (s.tag === "AnonAssign") {
-    const stmt: Stmt<A> = {
-      ...s,
-      tag: "PathAssign",
-      type: {
-        tag: "TypeOf",
-        nodeType: "SyntheticStyle",
-        contents: "Nothing",
-      }, // TODO: Why is it parsed like this?
-      path: {
-        tag: "InternalLocalVar",
-        contents: `$${ANON_KEYWORD}_${i}`,
-        nodeType: "SyntheticStyle",
-      },
-      value: s.contents,
-    };
-    return [i + 1, stmt];
-  } else {
-    return [i, s];
-  }
-};
-
-const nameAnonBlock = (b: Block<A>): Block<A> => {
-  const statements: Stmt<A>[] = [];
-  b.statements.reduce((i1, s1) => {
-    const [i2, s2] = nameAnonStatement(i1, s1);
-    statements.push(s2);
-    return i2;
-  }, 0);
-  return { ...b, statements };
-};
-
-export const nameAnonStatements = (prog: StyProg<A>): StyProg<A> => {
-  const p = prog.blocks;
-  return {
-    ...prog,
-    blocks: p.map((hb) => ({ ...hb, block: nameAnonBlock(hb.block) })),
-  };
-};
-
 //#endregion
 
 //#region Translating Style program
-
-const initTrans = (): Translation => {
-  return { trMap: {}, warnings: [] };
-};
 
 // /////// Translation judgments
 /* Note: All of the folds below use foldM.
@@ -1640,153 +1141,6 @@ const deleteProperty = (
   }
 };
 
-// Note this mutates the translation, and we return the translation reference just as a courtesy
-const deleteField = (
-  trans: Translation,
-  path: Path<A>,
-  name: BindingForm<A>,
-  field: Identifier<A>
-): Translation => {
-  // TODO(errors): Pass in the original path for error reporting
-  const trn = trans.trMap;
-  const fieldDict = trn[name.contents.value];
-
-  if (!fieldDict) {
-    // TODO(errors / warnings)
-    return addWarn(trans, {
-      tag: "DeletedNonexistentFieldError",
-      subObj: name,
-      field,
-      path,
-    });
-  }
-
-  if (!(field.value in fieldDict)) {
-    // TODO(errors / warnings)
-    return addWarn(trans, {
-      tag: "DeletedNonexistentFieldError",
-      subObj: name,
-      field,
-      path,
-    });
-  }
-
-  delete fieldDict[field.value];
-  return trans;
-};
-
-// NOTE: This function mutates the translation
-// rule Line-delete
-const deletePath = (
-  trans: Translation,
-  path: Path<A>
-): Either<StyleError[], Translation> => {
-  switch (path.tag) {
-    case "FieldPath": {
-      const transWithWarnings = deleteField(trans, path, path.name, path.field);
-      return toRight(transWithWarnings);
-    }
-    case "PropertyPath": {
-      const transWithWarnings = deleteProperty(
-        trans,
-        path,
-        path.name,
-        path.field,
-        path.property
-      );
-      return toRight(transWithWarnings);
-    }
-    case "AccessPath": {
-      // TODO(error)
-      const err: StyleError = { tag: "DeletedVectorElemError", path };
-      return toLeft([err]);
-    }
-    case "InternalLocalVar": {
-      throw Error(
-        "Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass"
-      );
-    }
-    case "LocalVar": {
-      throw Error("unknown tag");
-    }
-  }
-};
-
-// NOTE: This function mutates the translation
-const addPath = (
-  override: boolean,
-  trans: Translation,
-  path: Path<A>,
-  expr: TagExpr<ad.Num>
-): Either<StyleError[], Translation> => {
-  // Extended `insertExpr` with an optional flag to deal with errors and warnings
-  // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
-
-  // Check insertExpr's errors and warnings first
-  const tr2 = insertExpr(path, expr, trans, true, override);
-  if (tr2.warnings.length > 0) {
-    return toLeft(tr2.warnings);
-  }
-
-  return toRight(tr2);
-};
-
-const translateLine = (
-  trans: Translation,
-  stmt: Stmt<A>
-): Either<StyleError[], Translation> => {
-  switch (stmt.tag) {
-    case "PathAssign": {
-      return addPath(false, trans, stmt.path, {
-        tag: "OptEval",
-        contents: stmt.value,
-      });
-    }
-    case "Override": {
-      return addPath(true, trans, stmt.path, {
-        tag: "OptEval",
-        contents: stmt.value,
-      });
-    }
-    case "Delete": {
-      return deletePath(trans, stmt.contents);
-    }
-    case "AnonAssign": {
-      throw Error("unknown tag");
-    }
-  }
-};
-
-// Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
-const translateBlock = (
-  name: string | undefined,
-  blockWithNum: [Block<A>, number],
-  trans: Translation,
-  substWithNum: [Subst, number]
-): Either<StyleError[], Translation> => {
-  const blockSubsted: Block<A> = substituteBlock(
-    substWithNum,
-    blockWithNum,
-    name
-  );
-  return foldM(blockSubsted.statements, translateLine, trans);
-};
-
-// Judgment 24. [theta]; D |- |B ~> D'
-// This is a selector, not a namespace, so we substitute local vars with the subst/block IDs
-const translateSubstsBlock = (
-  trans: Translation,
-  substsNum: [Subst, number][],
-  blockWithNum: [Block<A>, number]
-): Either<StyleError[], Translation> => {
-  return foldM(
-    substsNum,
-    (trans, substNum) =>
-      translateBlock(undefined, blockWithNum, trans, substNum),
-    trans
-  );
-};
-
 //#region Block statics
 const emptyErrs = () => {
   return { errors: [], warnings: [] };
@@ -1794,13 +1148,6 @@ const emptyErrs = () => {
 
 const oneErr = (err: StyleError): StyleResults => {
   return { errors: [err], warnings: [] };
-};
-
-const combineErrs = (e1: StyleResults, e2: StyleResults): StyleResults => {
-  return {
-    errors: e1.errors.concat(e2.errors),
-    warnings: e1.warnings.concat(e2.warnings),
-  };
 };
 
 const flatErrs = (es: StyleResults[]): StyleResults => {
@@ -1916,216 +1263,24 @@ const checkBlockPath = (selEnv: SelEnv, path: Path<A>): StyleResults => {
   return emptyErrs();
 };
 
-const checkLine = (
-  selEnv: SelEnv,
-  line: Stmt<A>,
-  acc: StyleResults
-): StyleResults => {
-  switch (line.tag) {
-    case "PathAssign": {
-      const pErrs = checkBlockPath(selEnv, line.path);
-      const eErrs = checkBlockExpr(selEnv, line.value);
-      return combineErrs(combineErrs(acc, pErrs), eErrs);
-    }
-    case "Override": {
-      const pErrs = checkBlockPath(selEnv, line.path);
-      const eErrs = checkBlockExpr(selEnv, line.value);
-      return combineErrs(combineErrs(acc, pErrs), eErrs);
-    }
-    case "Delete": {
-      const pErrs = checkBlockPath(selEnv, line.contents);
-      return combineErrs(acc, pErrs);
-    }
-    case "AnonAssign": {
-      throw Error(
-        "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
-      );
-    }
-  }
-};
-
-const checkBlock = (selEnv: SelEnv, block: Block<A>): StyleError[] => {
-  // Block checking; static semantics
-  // The below properties are checked in one pass (a fold) over the Style AST:
-
-  // Check that every shape name and shape property name in a shape constructor exists
-  // Check that every function, objective, and constraint exists
-  // NOT CHECKED as this requires more advanced env-building work: At path construction time, check that every Substance object exists in the environment of the block + selector, or that it's defined as a local variable
-
-  const res: StyleResults = block.statements.reduce(
-    (acc: StyleResults, stmt: Stmt<A>): StyleResults =>
-      checkLine(selEnv, stmt, acc),
-    emptyErrs()
-  );
-
-  // TODO(errors): Return warnings (non-fatally); currently there are no warnings though
-  if (res.warnings.length > 0) {
-    console.error("warnings", res.warnings);
-    throw Error("Internal error: report these warnings");
-  }
-
-  return res.errors;
-};
-
 //#endregion Block statics
-
-// Judgment 23, contd.
-const translatePair = (
-  varEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  trans: Translation,
-  hb: HeaderBlock<A>,
-  blockNum: number
-): Either<StyleError[], Translation> => {
-  switch (hb.header.tag) {
-    case "Namespace": {
-      const selEnv = initSelEnv();
-      const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
-
-      if (selEnv.errors.length > 0 || bErrs.length > 0) {
-        // This is a namespace, not selector, so we substitute local vars with the namespace's name
-        // skip transSubstsBlock; only one subst
-        return {
-          tag: "Left",
-          contents: selEnv.errors.concat(bErrs),
-        };
-      }
-
-      const subst = {};
-      // COMBAK / errors: Keep the AST node from `hb.header` for error reporting?
-      return translateBlock(
-        hb.header.contents.contents.value,
-        [hb.block, blockNum],
-        trans,
-        [subst, 0]
-      );
-    }
-    case "Selector": {
-      const selEnv = checkHeader(varEnv, hb.header);
-      const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
-
-      // If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`),
-      // skip this block (because the Substance variable won't exist in the translation)
-
-      if (selEnv.skipBlock) {
-        return toRight(trans);
-      }
-
-      if (selEnv.errors.length > 0 || bErrs.length > 0) {
-        return {
-          tag: "Left",
-          contents: selEnv.errors.concat(bErrs),
-        };
-      }
-
-      // For creating unique local var names
-      const substs = findSubstsSel(varEnv, subEnv, subProg, [
-        hb.header,
-        selEnv,
-      ]);
-      log.debug("Translating block", hb, "with substitutions", substs);
-      return translateSubstsBlock(trans, numbered(substs), [
-        hb.block,
-        blockNum,
-      ]);
-    }
-  }
-};
-
-// Map a function over the translation
-const mapTrans = (
-  trans: Translation,
-  f: (name: string, fieldDict: FieldDict) => [string, FieldDict]
-): Translation => {
-  return {
-    ...trans,
-    trMap: Object.fromEntries(
-      Object.entries(trans.trMap).map(([n, fd]) => f(n, fd))
-    ),
-  };
-};
-
-// Note, this mutates the translation
-const insertNames = (trans: Translation): Translation => {
-  const insertName = (
-    name: string,
-    fieldDict: FieldDict
-  ): [string, FieldDict] => {
-    fieldDict.name = {
-      tag: "FExpr",
-      contents: {
-        tag: "Done",
-        contents: { tag: "StrV", contents: name },
-      },
-    };
-    return [name, fieldDict];
-  };
-
-  return mapTrans(trans, insertName);
-};
-
-/**
- * Add label strings to the translation, regardless if the Substance object is selected in the Style program
- * NOTE: this function mutates `trans`.
- *
- * @param trans `Translation` without labels
- * @param labels the label map from the Substance compiler
- */
-const insertLabels = (trans: Translation, labels: LabelMap): void => {
-  for (const labelData of labels) {
-    const [name, label] = labelData;
-    const labelValue: TagExpr<ad.Num> = {
-      tag: "Done",
-      contents: {
-        tag: "StrV",
-        contents: label.value,
-      },
-    };
-    const labelExpr: FieldExpr<ad.Num> = {
-      tag: "FExpr",
-      contents: labelValue,
-    };
-    const fieldDict = trans.trMap[name];
-    if (fieldDict !== undefined) {
-      fieldDict[LABEL_FIELD] = labelExpr;
-    } else {
-      trans[name] = {
-        [LABEL_FIELD]: labelExpr,
-      };
-    }
-  }
-};
 
 const translateStyProg = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   styProg: StyProg<A>,
-  labelMap: LabelMap,
-  styVals: number[]
-): Either<StyleError[], Translation> => {
-  // COMBAK: Deal with styVals
-
-  const res = foldM(
-    styProg.blocks,
-    (trans, hb, i) => translatePair(varEnv, subEnv, subProg, trans, hb, i),
-    initTrans()
-  );
-
-  if (isLeft(res)) {
-    return res;
-  } // Return errors
-
-  const trans = res.contents;
-  const transWithNames = insertNames(trans);
-  insertLabels(transWithNames, labelMap); // NOTE: mutates `transWithNames`
-
-  // COMBAK: Do this with plugins
-  // const styValMap = styJsonToMap(styVals);
-  // const transWithPlugins = evalPluginAccess(styValMap, transWithNamesAndLabels);
-  // return Right(transWithPlugins);
-  return toRight(transWithNames);
+  labelMap: LabelMap
+): Translation => {
+  // TODO write the compiler
+  return {
+    diagnostics: { errors: [], warnings: [] },
+    symbols: new Map(),
+    shapes: [],
+    objectives: [],
+    constraints: [],
+    layering: [],
+  };
 };
 
 //#endregion
@@ -3243,19 +2398,15 @@ export const compileStyle = (
   const subProg = subEnv.ast;
 
   const astOk = parseStyle(stySource);
-  let styProgInit;
+  let styProg;
   if (astOk.isOk()) {
-    styProgInit = astOk.value;
+    styProg = astOk.value;
   } else {
     return err({ ...astOk.error, errorType: "StyleError" });
   }
   const labelMap = subEnv.labels;
 
-  // Name anon statements
-  const styProg: StyProg<A> = nameAnonStatements(styProgInit);
-
-  log.info("old prog", styProgInit);
-  log.info("new prog, with named anon statements", styProg);
+  log.info("prog", styProg);
 
   // Check selectors; return list of selector environments (`checkSels`)
   const selEnvs = checkSelsAndMakeEnv(varEnv, styProg.blocks);
@@ -3273,33 +2424,25 @@ export const compileStyle = (
   log.info("selEnvs", selEnvs);
 
   // Translate style program
-  const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
-  const translateRes = translateStyProg(
+  const translation = translateStyProg(
     varEnv,
     subEnv,
     subProg,
     styProg,
-    labelMap,
-    styVals
+    labelMap
   );
 
-  log.info("translation (before genOptProblem)", translateRes);
+  log.info("translation (before genOptProblem)", translation);
 
-  // Translation failed somewhere
-  if (translateRes.tag === "Left") {
-    return err(toStyleErrors(translateRes.contents));
-  }
-
-  const trans = translateRes.contents;
-
-  if (trans.warnings.length > 0) {
-    // TODO(errors): these errors are currently returned as warnings -- maybe systematize it
-    log.info("Returning warnings as errors");
-    return err(toStyleErrors(trans.warnings));
+  if (translation.diagnostics.errors.length > 0) {
+    return err(toStyleErrors(translation.diagnostics.errors));
   }
 
   // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState: Result<State, StyleError[]> = genState(variation, trans);
+  const initState: Result<State, StyleError[]> = genState(
+    variation,
+    translation
+  );
   log.info("init state from GenOptProblem", initState);
 
   if (initState.isErr()) {
