@@ -53,13 +53,6 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
    vec2 pjk = mjk.icon.center
    vec2 pki = mki.icon.center
 
-   -- for each edge, compute the middle control point
-   -- for a quadratic Bézier curve that interpolates
-   -- the two endpoints and the midpoints
-   vec2 qij = 2.*pij - (pi+pj)/2.
-   vec2 qjk = 2.*pjk - (pj+pk)/2.
-   vec2 qki = 2.*pki - (pk+pi)/2.
-
    scalar thetaIJ = ?
    scalar thetaJK = ?
    scalar thetaKI = ?
@@ -81,19 +74,19 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
    override mki.icon.strokeWidth = 1.
 
    e.curveIJ = Path {
-      d: quadraticCurveFromPoints("open", [pi,qij,pj])
+      d: interpolateQuadraticFromPoints("open", [pi,pij,pj])
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false
    }
    e.curveJK = Path {
-      d: quadraticCurveFromPoints("open", [pj,qjk,pk])
+      d: interpolateQuadraticFromPoints("open", [pj,pjk,pk])
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false
    }
    e.curveKI = Path {
-      d: quadraticCurveFromPoints("open", [pk,qki,pi])
+      d: interpolateQuadraticFromPoints("open", [pk,pki,pi])
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false
@@ -108,15 +101,16 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
 }
 
 forall Node x
-where x has label {
+where x has math label {
 
    scalar theta = ?
 
-   x.labelText = Text {
-      center: x.icon.center + 8.*unitVector(theta)
+   x.labelText = Equation {
+      center: x.icon.center + 10.*unitVector(theta)
       string: x.label
-      fontFamily: "Palatino"
-      fontStyle: "italic"
+      --fontFamily: "Palatino"
+      --fontStyle: "italic"
+      fontSize: 6
       fillColor: Colors.black
    }
 }
