@@ -3,7 +3,12 @@ import * as ad from "types/ad";
 const binary = (binop: ad.Binary["binop"]) => (
   v: ad.Num,
   w: ad.Num
-): ad.Binary => ({ tag: "Binary", binop, left: v, right: w });
+): ad.Binary => ({
+  tag: "Binary",
+  binop,
+  left: v,
+  right: w,
+});
 
 const nary = (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Binary) => (
   xs: ad.Num[]
@@ -265,7 +270,12 @@ export const eq = comp("===");
 const logic = (binop: ad.Logic["binop"]) => (
   v: ad.Bool,
   w: ad.Bool
-): ad.Logic => ({ tag: "Logic", binop, left: v, right: w });
+): ad.Logic => ({
+  tag: "Logic",
+  binop,
+  left: v,
+  right: w,
+});
 
 /**
  * Return a boolean `v && w`

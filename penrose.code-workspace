@@ -35,12 +35,12 @@
       "path": "packages/docs-site"
     },
     {
-      "name": "📦 @penrose/examples",
-      "path": "packages/examples"
+      "name": "📦 @penrose/editor",
+      "path": "packages/editor"
     },
     {
-      "name": "📦 @penrose/panels",
-      "path": "packages/panels"
+      "name": "📦 @penrose/examples",
+      "path": "packages/examples"
     },
     {
       "name": "📦 @penrose/roger",
