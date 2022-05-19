@@ -126,7 +126,7 @@ const _confirmDirtyWorkspace = (workspace: Workspace, set: any) => {
 };
 
 export const useLoadLocalWorkspace = () =>
-  useRecoilCallback(({ set, reset, snapshot }) => async (id: string) => {
+  useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
     _confirmDirtyWorkspace(currentWorkspace, set);
@@ -152,9 +152,11 @@ export const useLoadExampleWorkspace = () =>
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents;
     _confirmDirtyWorkspace(currentWorkspace, set);
+    const id = toast.loading("Loading example...");
     const domainReq = await fetch(trio.domainURI);
     const styleReq = await fetch(trio.styleURI);
     const substanceReq = await fetch(trio.substanceURI);
+    toast.dismiss(id);
     const domain = await domainReq.text();
     const style = await styleReq.text();
     const substance = await substanceReq.text();
@@ -206,6 +208,7 @@ export const useCheckURL = () =>
       }));
     } else if ("gist" in parsed) {
       // Loading a gist
+      const id = toast.loading("Loading gist...");
       const res = await fetch(
         `https://api.github.com/gists/${parsed["gist"]}`,
         {
@@ -214,6 +217,7 @@ export const useCheckURL = () =>
           },
         }
       );
+      toast.dismiss(id);
       if (res.status !== 200) {
         console.error(res);
         toast.error(`Could not load gist: ${res.status}`);
