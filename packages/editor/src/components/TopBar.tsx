@@ -10,6 +10,7 @@ import {
 import {
   useCompileDiagram,
   usePublishGist,
+  useResampleDiagram,
   useSaveLocally,
 } from "../state/callbacks";
 import BlueButton from "./BlueButton";
@@ -92,6 +93,7 @@ function EditableTitle() {
 
 export default function TopBar() {
   const compileDiagram = useCompileDiagram();
+  const resampleDiagram = useResampleDiagram();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const diagramMetadata = useRecoilValue(diagramMetadataSelector);
   const settings = useRecoilValue(settingsState);
@@ -152,6 +154,7 @@ export default function TopBar() {
       </div>
       <div>
         <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
+        <BlueButton onClick={resampleDiagram}>resample</BlueButton>
         <BlueButton onClick={toggleAutostep}>
           autostep ({diagramMetadata.autostep ? "on" : "off"})
         </BlueButton>

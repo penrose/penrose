@@ -2,8 +2,10 @@ import {
   compileDomain,
   compileTrio,
   prepareState,
+  resample,
   stepUntilConvergence,
   Trio,
+  variationSeeds,
 } from "@penrose/core";
 import localforage from "localforage";
 import queryString from "query-string";
@@ -92,6 +94,39 @@ export const useCompileDiagram = () =>
       diagram.metadata.autostep,
       set
     );
+  });
+
+export const useResampleDiagram = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram: Diagram = snapshot.getLoadable(diagramState)
+      .contents as Diagram;
+    if (diagram.state === null) {
+      toast.error("Cannot resample unrendered diagram");
+      return;
+    }
+    const variation = uuid();
+    const seeds = variationSeeds(variation).seeds;
+    const resampled = resample({ ...diagram.state, seeds });
+    set(diagramState, (state) => ({
+      ...state,
+      metadata: { ...state.metadata, variation },
+      state: resampled,
+    }));
+    if (diagram.metadata.autostep) {
+      const stepResult = stepUntilConvergence(resampled);
+      if (stepResult.isErr()) {
+        set(diagramState, (state: Diagram) => ({
+          ...state,
+          error: stepResult.error,
+        }));
+        return;
+      }
+      set(diagramState, (state: Diagram) => ({
+        ...state,
+        error: null,
+        state: stepResult.value,
+      }));
+    }
   });
 
 const _saveLocally = (set: any) => {
