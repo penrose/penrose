@@ -1,6 +1,10 @@
 import { useRecoilValue } from "recoil";
 import { localFilesState, workspaceMetadataSelector } from "../state/atoms";
-import { useLoadLocalWorkspace, useSaveLocally } from "../state/callbacks";
+import {
+  useDeleteLocalFile,
+  useLoadLocalWorkspace,
+  useSaveLocally,
+} from "../state/callbacks";
 import BlueButton from "./BlueButton";
 import FileButton from "./FileButton";
 
@@ -10,6 +14,7 @@ export default function LocalFilesBrowser() {
   const loadWorkspace = useLoadLocalWorkspace();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const saveLocally = useSaveLocally();
+  const onDelete = useDeleteLocalFile();
   return (
     <div>
       {Object.values(localFiles).map((file) => (
@@ -17,6 +22,7 @@ export default function LocalFilesBrowser() {
           key={file.id}
           onClick={() => loadWorkspace(file.id)}
           isFocused={file.id === currentWorkspaceMetadata.id}
+          onDelete={() => onDelete(file)}
         >
           {file.name}
         </FileButton>

@@ -14,6 +14,7 @@ import {
   currentWorkspaceState,
   Diagram,
   diagramState,
+  localFilesState,
   LocalGithubUser,
   Settings,
   settingsState,
@@ -107,7 +108,7 @@ export const useSaveLocally = () =>
     _saveLocally(set);
   });
 
-const _confirmDirtyWorkspace = (workspace: Workspace, set: any) => {
+const _confirmDirtyWorkspace = (workspace: Workspace): boolean => {
   if (
     workspace.metadata.location.kind === "local" &&
     !workspace.metadata.location.saved &&
@@ -117,19 +118,18 @@ const _confirmDirtyWorkspace = (workspace: Workspace, set: any) => {
       workspace.files.substance.contents === ""
     )
   ) {
-    const confirmation = confirm("Your current workspace is unsaved. Save it?");
-    if (confirmation) {
-      _saveLocally(set);
-      // TODO: does not complete save side effects
-    }
+    return confirm("Your current workspace is unsaved. Overwrite it?");
   }
+  return true;
 };
 
 export const useLoadLocalWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    _confirmDirtyWorkspace(currentWorkspace, set);
+    if (!_confirmDirtyWorkspace(currentWorkspace)) {
+      return;
+    }
     const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
     if (loadedWorkspace === null) {
       console.error("Could not retrieve workspace", id);
@@ -151,7 +151,9 @@ export const useLoadExampleWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (trio: Trio) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents;
-    _confirmDirtyWorkspace(currentWorkspace, set);
+    if (!_confirmDirtyWorkspace(currentWorkspace)) {
+      return;
+    }
     const id = toast.loading("Loading example...");
     const domainReq = await fetch(trio.domainURI);
     const styleReq = await fetch(trio.styleURI);
@@ -262,7 +264,7 @@ export const useCheckURL = () =>
   });
 
 export const usePublishGist = () =>
-  useRecoilCallback(({ set, snapshot }) => async () => {
+  useRecoilCallback(({ snapshot }) => async () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
     const settings = snapshot.getLoadable(settingsState).contents as Settings;
@@ -321,8 +323,35 @@ export const usePublishGist = () =>
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    _confirmDirtyWorkspace(workspace, set);
+    if (!_confirmDirtyWorkspace(workspace)) {
+      return;
+    }
     window.location.replace(
       "https://penrose-gh-auth.vercel.app/connect/github"
     );
   });
+
+export const useDeleteLocalFile = () =>
+  useRecoilCallback(
+    ({ set, snapshot, reset }) => async (
+      workspaceMetadata: WorkspaceMetadata
+    ) => {
+      const { id, name } = workspaceMetadata;
+      const shouldDelete = confirm(`Delete ${name}?`);
+      if (!shouldDelete) {
+        return;
+      }
+      const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
+        .contents;
+      // removes from index
+      set(localFilesState, (localFiles) => {
+        const { [id]: removedFile, ...newFiles } = localFiles;
+        return newFiles;
+      });
+      await localforage.removeItem(id);
+      if (currentWorkspace.metadata.id === id) {
+        reset(currentWorkspaceState);
+      }
+      toast.success(`Removed ${name}`);
+    }
+  );
