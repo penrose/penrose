@@ -82,6 +82,7 @@ export interface Settings {
   autostep: boolean;
   autoStepSize: number;
   variation: string;
+  weightScaleFactor: number;
 }
 
 interface CanvasState {
@@ -112,6 +113,7 @@ class App extends React.Component<unknown, CanvasState> {
       showInspector: true,
       autoStepSize: 50,
       variation: "ChartreuseEchidna7291",
+      weightScaleFactor: 1,
     },
   };
   public readonly buttons = React.createRef<ButtonBar>();
@@ -139,9 +141,9 @@ class App extends React.Component<unknown, CanvasState> {
       error: undefined,
     });
     this.renderCanvas(canvasState);
-    const { settings } = this.state;
-    if (settings.autostep && !stateConverged(canvasState)) {
-      await this.step(this.state.settings.autoStepSize);
+    const { autostep, autoStepSize, weightScaleFactor } = this.state.settings;
+    if (autostep && !stateConverged(canvasState)) {
+      await this.step(autoStepSize, weightScaleFactor);
     }
   };
   public downloadSVG = async (): Promise<void> => {
@@ -208,10 +210,17 @@ class App extends React.Component<unknown, CanvasState> {
     }
   };
 
-  public step = (numSteps: number): void => {
+  public step = (numSteps: number, weightScaleFactor: number): void => {
     if (this.state.currentState) {
       try {
-        const stepped = stepState(this.state.currentState, numSteps);
+        const currentState: PenroseState = {
+          ...this.state.currentState,
+          params: {
+            ...this.state.currentState.params,
+            weight: this.state.currentState.params.weight * weightScaleFactor,
+          },
+        };
+        const stepped = stepState(currentState, numSteps);
         void this.onCanvasState(stepped);
       } catch (e) {
         const error: PenroseError = {
@@ -257,7 +266,11 @@ class App extends React.Component<unknown, CanvasState> {
 
   public resample = async (): Promise<void> => {
     const variation = generateVariation();
-    const newSettings = { ...this.state.settings, variation };
+    const newSettings = {
+      ...this.state.settings,
+      variation,
+      weightScaleFactor: 1,
+    };
     this.setSettings(newSettings);
     const oldState = this.state.currentState;
     if (oldState) {
@@ -333,7 +346,7 @@ class App extends React.Component<unknown, CanvasState> {
       );
     } else {
       const parsed = JSON.parse(settings);
-      this.setState({ settings: parsed });
+      this.setState({ settings: { ...parsed, weightScaleFactor: 1 } });
     }
     this.connectToSocket();
   }
