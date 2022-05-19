@@ -1,10 +1,5 @@
 import consola, { LogLevel } from "consola";
-import {
-  energyAndGradCompiled,
-  input,
-  makeADInputVars,
-  ops,
-} from "engine/Autodiff";
+import { energyAndGradCompiled, input, ops } from "engine/Autodiff";
 import {
   compileCompGraph,
   defaultLbfgsParams,
@@ -800,53 +795,55 @@ const minimize = (
  * @param {State} state
  * @returns a function that takes in a list of `ad.Num`s and return a `Scalar`
  */
-export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
-  return (
-    ...xsVars: ad.Input[]
-  ): {
-    energyGraph: ad.Num;
-    objEngs: ad.Num[];
-    constrEngs: ad.Num[];
-    epWeightNode: ad.Input;
-  } => {
-    // TODO: Could this line be causing a memory leak?
-    const {
-      translation: { objectives: objEngs, constraints: constrEngs },
-    } = state;
+export const evalEnergyOnCustom = (
+  rng: seedrandom.prng,
+  state: State
+): {
+  energyGraph: ad.Num;
+  objEngs: ad.Num[];
+  constrEngs: ad.Num[];
+  epWeightNode: ad.Input;
+} => {
+  // TODO: Could this line be causing a memory leak?
+  const {
+    translation: { objectives, constraints },
+  } = state;
 
-    // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
-    // The energies are in the val field of the results (w/o grads)
-    // log.info("objEngs", objFns, objEngs);
-    // log.info("vars", varyingValuesTF);
+  const objEngs = [...objectives];
+  const constrEngs = [...constraints];
 
-    if (objEngs.length === 0 && constrEngs.length === 0) {
-      log.info("WARNING: no objectives and no constraints");
-    }
+  // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
+  // The energies are in the val field of the results (w/o grads)
+  // log.info("objEngs", objFns, objEngs);
+  // log.info("vars", varyingValuesTF);
 
-    // This is fixed during the whole optimization
-    const constrWeightNode: ad.Num = constraintWeight;
+  if (objEngs.length === 0 && constrEngs.length === 0) {
+    log.info("WARNING: no objectives and no constraints");
+  }
 
-    // This changes with the EP round, gets bigger to weight the constraints
-    // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
-    const epWeightNode = input({
-      val: state.params.weight,
-      key: 0, // xsVars keys must start at 1 to accommodate this
-    });
+  // This is fixed during the whole optimization
+  const constrWeightNode: ad.Num = constraintWeight;
 
-    const objEng: ad.Num = ops.vsum(objEngs);
-    const constrEng: ad.Num = ops.vsum(constrEngs);
-    // F(x) = o(x) + c0 * penalty * c(x)
-    const overallEng: ad.Num = add(
-      objEng,
-      mul(constrEng, mul(constrWeightNode, epWeightNode))
-    );
+  // This changes with the EP round, gets bigger to weight the constraints
+  // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
+  const epWeightNode = input({
+    val: state.params.weight,
+    key: 0, // other input keys must start at 1 to accommodate this
+  });
 
-    return {
-      energyGraph: overallEng,
-      objEngs,
-      constrEngs,
-      epWeightNode,
-    };
+  const objEng: ad.Num = ops.vsum(objEngs);
+  const constrEng: ad.Num = ops.vsum(constrEngs);
+  // F(x) = o(x) + c0 * penalty * c(x)
+  const overallEng: ad.Num = add(
+    objEng,
+    mul(constrEng, mul(constrWeightNode, epWeightNode))
+  );
+
+  return {
+    energyGraph: overallEng,
+    objEngs,
+    constrEngs,
+    epWeightNode,
   };
 };
 
@@ -862,9 +859,8 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   // `overallEnergy` is a partially applied function, waiting for an input.
   // When applied, it will interpret the energy via lookups on the computational graph
   // TODO: Could save the interpreted energy graph across amples
-  const overallObjective = evalEnergyOnCustom(rng, state);
-  const xsVars: ad.Input[] = makeADInputVars(xs, 1); // ep weight is index 0
-  const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+  const xsVars = [...state.translation.varying];
+  const res = evalEnergyOnCustom(rng, state);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
 
   log.info("interpreted energy graph", res.energyGraph);
@@ -896,7 +892,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   };
 
   // generate evaluation function
-  const computeShapes = compileCompGraph(state.translation.shapes);
+  const computeShapes = compileCompGraph([...state.translation.shapes]);
 
   const newParams: Params = {
     ...state.params,

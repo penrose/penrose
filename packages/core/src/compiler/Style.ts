@@ -6,14 +6,10 @@ import { constrDict } from "contrib/Constraints";
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import {
-  addWarn,
   defaultLbfgsParams,
   dummyASTNode,
   dummyIdentifier,
-  findExpr,
-  findExprSafe,
   initConstraintWeight,
-  insertExprs,
   isPath,
   isTagExpr,
   propertiesNotOf,
@@ -1090,88 +1086,6 @@ const insertLabels = (labels: LabelMap, symbols: StyleSymbols): StyleSymbols =>
 
 const fieldPath = (subName: string, field: string): string =>
   `${subName}.${field}`;
-
-// Note this mutates the translation, and we return the translation reference just as a courtesy
-const deleteProperty = (
-  trans: Translation,
-  path: Path<A>, // used for ASTNode info
-  name: BindingForm<A>,
-  field: Identifier<A>,
-  property: Identifier<A>
-): Translation => {
-  const trn = trans.trMap;
-
-  const nm = name.contents.value;
-  const fld = field.value;
-
-  const fieldDict = trn[nm];
-
-  if (!fieldDict) {
-    // TODO(errors / warnings): Should this be fatal?
-    return addWarn(trans, {
-      tag: "DeletedPropWithNoSubObjError",
-      subObj: name,
-      path,
-    });
-  }
-
-  const prop: FieldExpr<ad.Num> = fieldDict[fld];
-
-  if (!prop) {
-    // TODO(errors / warnings): Should this be fatal?
-    return addWarn(trans, {
-      tag: "DeletedPropWithNoFieldError",
-      subObj: name,
-      field,
-      path,
-    });
-  }
-
-  switch (prop.tag) {
-    case "FExpr": {
-      // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
-      // COMBAK: should path aliasing have destructive effects on the translation (e.g. add or delete)? maybe it should only happen in lookup? Deleting an aliased path should just delete the alias, not its referent?
-      // TODO: Test this
-
-      if (prop.contents.tag === "OptEval") {
-        if (prop.contents.contents.tag === "FieldPath") {
-          const p = prop.contents.contents;
-          if (
-            varsEq(p.name.contents, name.contents) &&
-            varsEq(p.field, field)
-          ) {
-            // TODO(error)
-            return addWarn(trans, {
-              tag: "CircularPathAlias",
-              path: {
-                tag: "FieldPath",
-                nodeType: "SyntheticStyle",
-                name,
-                field,
-              },
-            });
-          }
-          return deleteProperty(trans, p, p.name, p.field, property);
-        }
-      }
-
-      // TODO(error)
-      return addWarn(trans, {
-        tag: "DeletedPropWithNoGPIError",
-        subObj: name,
-        field,
-        property,
-        path,
-      });
-    }
-    case "FGPI": {
-      // TODO(error, warning): check if the property is member of properties of GPI
-      const gpiDict = prop.contents[1];
-      delete gpiDict.prp;
-      return trans;
-    }
-  }
-};
 
 //#region Block statics
 const emptyErrs = () => {
