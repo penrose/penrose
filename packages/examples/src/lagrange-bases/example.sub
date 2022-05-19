@@ -1,7 +1,10 @@
-Node a, b, c --, d
-Node x, y, z --, u, v
+Node a, b, c, d
+Node x, y, z, u, v
 Element t1 := QuadraticTriangle( a, b, c, x, y, z )
--- Element t2 := QuadraticTriangle( a, b, d, x, u, v )
+Element t2 := QuadraticTriangle( a, b, d, x, u, v )
 
 Label a "i"
+Label b "j"
+Label c "k"
+Label d "l"
 

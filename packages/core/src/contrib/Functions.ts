@@ -1472,13 +1472,12 @@ export const compDict = {
    * Construct a unit vector u in the direction of the
    * given angle theta (in radians).
    */
-
   unitVector: (
     _context: Context,
     theta: ad.Num
   ): VectorV<ad.Num> => {
+     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
   }
-
 
 };
 

@@ -109,8 +109,11 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
 
 forall Node x
 where x has label {
+
+   scalar theta = ?
+
    x.labelText = Text {
-      center: x.icon.center -- + 8.*unitVector(0.)
+      center: x.icon.center + 8.*unitVector(theta)
       string: x.label
       fontFamily: "Palatino"
       fontStyle: "italic"
