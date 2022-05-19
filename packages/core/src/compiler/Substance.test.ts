@@ -514,18 +514,16 @@ Point p
 Not(Intersecting(A, B))
 Empty(Subset(A, B))
 Empty(AddPoint(p, A))`;
-    const res = subEnvOrError(prog, env);
-    if (res.isOk()) {
-      expect(
-        (res.value[0].ast.statements[3] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyPredicate");
-      expect(
-        (res.value[0].ast.statements[4] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyConstructor");
-      expect(
-        (res.value[0].ast.statements[5] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyFunction");
-    }
+    const [subEnv] = subEnvOrError(prog, env);
+    expect((subEnv.ast.statements[3] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyPredicate"
+    );
+    expect((subEnv.ast.statements[4] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyConstructor"
+    );
+    expect((subEnv.ast.statements[5] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyFunction"
+    );
   });
 });
 
