@@ -376,16 +376,14 @@ export const pointCandidatesEllipse = (
 
 /**
  * Overlapping constraint function for two implicit ellipses.
- * This function may return NaN when the polynomial does not have the expected degree.
- * @param poly Monic polynomial coefficients.
  * @param ei1 First implicit ellipse.
  * @param ei2 Second implicit ellipse.
  */
-export const overlappingImplicitEllipsesFromPoly = (
-  poly: ad.Num[],
+export const overlappingImplicitEllipses = (
   ei1: ImplicitEllipse,
   ei2: ImplicitEllipse
 ): ad.Num => {
+  const poly = ellipsePolynomial(ei1, ei2);
   const roots = polyRoots(poly).map((r) => ifCond(eq(r, r), r, 0));
   const points = roots.map((root: ad.Num) =>
     pointCandidatesEllipse(ei1, ei2, root)
@@ -400,24 +398,4 @@ export const overlappingImplicitEllipsesFromPoly = (
     implicitIntersectionOfEllipsesFunc(ei1, ei2, ei2.x, ei2.y)
   );
   return min(m1, m2);
-};
-
-/**
- * Overlapping constraint function for two implicit ellipses.
- * @param ei1 First implicit ellipse.
- * @param ei2 Second implicit ellipse.
- */
-export const overlappingImplicitEllipses = (
-  ei1: ImplicitEllipse,
-  ei2: ImplicitEllipse
-): ad.Num => {
-  const polys = [4, 2, 1].map((i) => ellipsePolynomial(ei1, ei2, i));
-  const res = polys.map((poly) =>
-    overlappingImplicitEllipsesFromPoly(poly, ei1, ei2)
-  );
-  return ifCond(
-    eq(res[0], res[0]),
-    res[0],
-    ifCond(eq(res[1], res[1]), res[1], res[2])
-  );
 };

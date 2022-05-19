@@ -1,8 +1,10 @@
 import { outwardUnitNormal } from "contrib/Queries";
-import { ops } from "engine/Autodiff";
+import { EPS_DENOM, ops } from "engine/Autodiff";
 import {
   add,
   div,
+  eq,
+  ifCond,
   max,
   mul,
   neg,
@@ -261,9 +263,10 @@ const ellipsePolynomialParams = (
 export const ellipsePolynomial = (
   a: ImplicitEllipse,
   b: ImplicitEllipse,
-  order: number
+  order: number = 4
 ): ad.Num[] => {
   const params = ellipsePolynomialParams(a, b);
+  params[order] = ifCond(eq(params[order], 0), EPS_DENOM, params[order]);
   return Array.from(Array(order).keys()).map((i) =>
     div(params[i], params[order])
   );
