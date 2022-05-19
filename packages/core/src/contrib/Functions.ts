@@ -1467,6 +1467,19 @@ export const compDict = {
     const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
     return { tag: "VectorV", contents: [X, Y] };
   },
+
+  /**
+   * Construct a unit vector u in the direction of the
+   * given angle theta (in radians).
+   */
+
+  unitVector: (
+    _context: Context,
+    theta: ad.Num
+  ): VectorV<ad.Num> => {
+  }
+
+
 };
 
 // _compDictVals causes TypeScript to enforce that every function in compDict

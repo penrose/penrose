@@ -1,0 +1,121 @@
+canvas {
+   width = 240
+   height = 180
+}
+
+Global {
+   shape box = Rectangle {
+      fillColor: rgba( .1, .9, .1, .25 )
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      ensureOnCanvas: false
+   }
+}
+
+Colors {
+   color black = rgba(0,0,0,1)
+   color white = rgba(1,1,1,1)
+   color lightGray = rgba(0,0,0,.1)
+}
+
+forall Node x {
+   shape x.icon = Circle {
+      center: (?,?)
+      r: 3.
+      fillColor: Colors.black
+   }
+
+   layer x.icon above Global.box
+}
+
+forall Element e; Node vi; Node vj; Node vk; Node mij; Node mjk; Node mki
+where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
+
+   -- shape e.edgeIJ = Line {
+   --    start: vi.icon.center
+   --    end: vj.icon.center
+   -- }
+   -- shape e.edgeJK = Line {
+   --    start: vj.icon.center
+   --    end: vk.icon.center
+   -- }
+   -- shape e.edgeKI = Line {
+   --    start: vk.icon.center
+   --    end: vi.icon.center
+   -- }
+
+   -- grab node locations (for convenience)
+   vec2 pi = vi.icon.center
+   vec2 pj = vj.icon.center
+   vec2 pk = vk.icon.center
+   vec2 pij = mij.icon.center
+   vec2 pjk = mjk.icon.center
+   vec2 pki = mki.icon.center
+
+   -- for each edge, compute the middle control point
+   -- for a quadratic Bézier curve that interpolates
+   -- the two endpoints and the midpoints
+   vec2 qij = 2.*pij - (pi+pj)/2.
+   vec2 qjk = 2.*pjk - (pj+pk)/2.
+   vec2 qki = 2.*pki - (pk+pi)/2.
+
+   scalar thetaIJ = ?
+   scalar thetaJK = ?
+   scalar thetaKI = ?
+   override mij.icon.center = (pi+pj)/2. + 12.*(cos(thetaIJ),sin(thetaIJ))
+   override mjk.icon.center = (pj+pk)/2. + 12.*(cos(thetaJK),sin(thetaJK))
+   override mki.icon.center = (pk+pi)/2. + 12.*(cos(thetaKI),sin(thetaKI))
+
+   override mij.icon.r = 2.
+   override mjk.icon.r = 2.
+   override mki.icon.r = 2.
+   override mij.icon.fillColor = Colors.white
+   override mij.icon.strokeColor = Colors.black
+   override mij.icon.strokeWidth = 1.
+   override mjk.icon.fillColor = Colors.white
+   override mjk.icon.strokeColor = Colors.black
+   override mjk.icon.strokeWidth = 1.
+   override mki.icon.fillColor = Colors.white
+   override mki.icon.strokeColor = Colors.black
+   override mki.icon.strokeWidth = 1.
+
+   e.curveIJ = Path {
+      d: quadraticCurveFromPoints("open", [pi,qij,pj])
+      strokeColor: Colors.black
+      strokeWidth: 1.5
+      ensureOnCanvas: false
+   }
+   e.curveJK = Path {
+      d: quadraticCurveFromPoints("open", [pj,qjk,pk])
+      strokeColor: Colors.black
+      strokeWidth: 1.5
+      ensureOnCanvas: false
+   }
+   e.curveKI = Path {
+      d: quadraticCurveFromPoints("open", [pk,qki,pi])
+      strokeColor: Colors.black
+      strokeWidth: 1.5
+      ensureOnCanvas: false
+   }
+
+   e.MiddleTri = Path {
+      d: pathFromPoints("closed", [pij,pjk,pki])
+      strokeColor: Colors.lightGray
+      strokeWidth: 1.0
+      ensureOnCanvas: false
+   }
+}
+
+forall Node x
+where x has label {
+   x.labelText = Text {
+      center: x.icon.center -- + 8.*unitVector(0.)
+      string: x.label
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fillColor: Colors.black
+   }
+}
+
+
