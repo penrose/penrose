@@ -2989,10 +2989,11 @@ export const compileStyle = (
 
   log.info("prog", styProg);
 
-  // first pass: use the
-
-  // Translate style program
+  // first pass: generate Substance substitutions and use the `override` and
+  // `delete` statements to construct a mapping from Substance-substituted paths
+  // to Style expression ASTs, plus a dependency graph among those expressions
   const translation = translateStyProg(varEnv, subEnv, styProg);
+  // second pass: compile all expressions in topological sorted order
 
   log.info("translation (before genOptProblem)", translation);
 
