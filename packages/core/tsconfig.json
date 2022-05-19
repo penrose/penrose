@@ -67,7 +67,6 @@
     "docs",
     "dist",
     "src/__tests__",
-    "src/**/*.test.ts",
     "src/__testfixtures__",
     "scripts",
     "acceptance-tests",
