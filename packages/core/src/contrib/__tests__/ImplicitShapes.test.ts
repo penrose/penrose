@@ -4,6 +4,7 @@ import {
   ellipseToImplicit,
   halfPlaneToImplicit,
   implicitEllipseFunc,
+  polyOrder,
 } from "contrib/ImplicitShapes";
 import { pointCandidatesEllipse } from "contrib/Minkowski";
 import { numOf, numsOf } from "contrib/Utils";
@@ -194,4 +195,21 @@ describe("ellipsePolynomial", () => {
       expect(numOf(result)).toBeCloseTo(0, 4);
     });
   });
+});
+
+describe("polyOrder", () => {
+  it.each([
+    ["empty list", [], 0],
+    ["zero polynomial", [0], 0],
+    ["zero polynomial with more coefficients", [0, 0, 0], 0],
+    ["constant polynomial", [1, 0, 0], 0],
+    ["linear polynomial", [1, 1], 1],
+    ["linear polynomial with more coefficients", [1, 1, 0, 0, 0, 0], 1],
+    ["quadratic polynomial", [0, 0, 2, 0], 2],
+  ])(
+    "bboxFromShape for %p",
+    (description: string, poly: number[], order: number) => {
+      expect(polyOrder(poly)).toEqual(order);
+    }
+  );
 });

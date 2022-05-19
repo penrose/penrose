@@ -218,6 +218,8 @@ const ellipsePolynomailAlpha4 = (
   );
 };
 
+// Coefficients of the ellipse-ellipse polynomial
+// (ordered from the lowest by their corresponding deggree)
 const ellipsePolynomialParams = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
@@ -231,13 +233,17 @@ const ellipsePolynomialParams = (
   ];
 };
 
-const polyOrder = (poly: number[]): number => {
+// Return order of a polynomial given by its coefficients
+// (ordered from the lowest by their corresponding deggree)
+export const polyOrder = (poly: number[]): number => {
   for (let i = poly.length - 1; i > 0; i--) {
     if (poly[i] !== 0) return i;
   }
   return 0;
 };
 
+// Return monic polynomial coefficients
+// (the highest order coefficient is ommited and assumed to be 1)
 export const ellipsePolynomial = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
