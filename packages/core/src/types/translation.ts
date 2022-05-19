@@ -1,4 +1,4 @@
-import * as im from "immutable";
+import im from "immutable";
 import * as ad from "./ad";
 import { StyleResults } from "./errors";
 import { ShapeAD } from "./shape";

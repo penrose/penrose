@@ -20,7 +20,7 @@ import {
   propertiesOf,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
-import * as im from "immutable";
+import im from "immutable";
 import _, { range } from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
