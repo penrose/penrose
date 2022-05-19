@@ -8,7 +8,23 @@ import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
 import { Fn, Seeds, State } from "types/state";
 import { Expr, Path } from "types/style";
-import { ArgVal, Color, Val, Value } from "types/value";
+import {
+  BoolV,
+  Color,
+  ColorV,
+  FloatV,
+  IntV,
+  ListV,
+  MatrixV,
+  PathCmd,
+  PathDataV,
+  PtListV,
+  StrV,
+  TupV,
+  Val,
+  Value,
+  VectorV,
+} from "types/value";
 
 //#region general
 
@@ -392,6 +408,56 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 //#endregion
 
+//#region Value
+
+export const floatV = (contents: ad.Num): FloatV<ad.Num> => ({
+  tag: "FloatV",
+  contents,
+});
+export const intV = (contents: number): IntV => ({
+  tag: "IntV",
+  contents,
+});
+export const boolV = (contents: boolean): BoolV => ({
+  tag: "BoolV",
+  contents,
+});
+export const strV = (contents: string): StrV => ({
+  tag: "StrV",
+  contents,
+});
+export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
+  tag: "PathDataV",
+  contents,
+});
+export const ptListV = (contents: ad.Num[][]): PtListV<ad.Num> => ({
+  tag: "PtListV",
+  contents,
+});
+export const colorV = (contents: Color<ad.Num>): ColorV<ad.Num> => ({
+  tag: "ColorV",
+  contents,
+});
+
+export const listV = (contents: ad.Num[]): ListV<ad.Num> => ({
+  tag: "ListV",
+  contents,
+});
+export const vectorV = (contents: ad.Num[]): VectorV<ad.Num> => ({
+  tag: "VectorV",
+  contents,
+});
+export const matrixV = (contents: ad.Num[][]): MatrixV<ad.Num> => ({
+  tag: "MatrixV",
+  contents,
+});
+export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
+  tag: "TupV",
+  contents,
+});
+
+//#endregion
+
 //#region Style
 
 // COMBAK: Copied from `EngineUtils`; consolidate
@@ -401,23 +467,36 @@ export const isPath = <T>(expr: Expr<T>): expr is Path<T> => {
   );
 };
 
-export const prettyPrintPath = (p: Expr<A>): string => {
-  if (p.tag === "FieldPath") {
-    const varName = p.name.contents.value;
-    const varField = p.field.value;
-    return [varName, varField].join(".");
-  } else if (p.tag === "PropertyPath") {
-    const varName = p.name.contents.value;
-    const varField = p.field.value;
-    const property = p.property.value;
-    return [varName, varField, property].join(".");
-  } else if (p.tag === "AccessPath") {
-    const pstr: string = prettyPrintPath(p.path);
-    const indices: string[] = p.indices.map(prettyPrintExpr);
-    return `${pstr}[${indices.toString()}]`;
-  } else {
-    console.error("unexpected path type in", p);
-    return JSON.stringify(p);
+const fieldPath = (subName: string, field: string): string =>
+  `${subName}.${field}`;
+
+const propertyPath = (
+  subName: string,
+  field: string,
+  property: string
+): string => `${subName}.${field}.${property}`;
+
+export const prettyPrintPath = (p: Path<A>): string => {
+  switch (p.tag) {
+    case "LocalVar": {
+      return p.contents.value;
+    }
+    case "FieldPath": {
+      const varName = p.name.contents.value;
+      const varField = p.field.value;
+      return fieldPath(varName, varField);
+    }
+    case "PropertyPath": {
+      const varName = p.name.contents.value;
+      const varField = p.field.value;
+      const property = p.property.value;
+      return propertyPath(varName, varField, property);
+    }
+    case "AccessPath": {
+      const pstr: string = prettyPrintPath(p.path);
+      const indices: string[] = p.indices.map(prettyPrintExpr);
+      return `${pstr}[${indices.toString()}]`;
+    }
   }
 };
 
@@ -493,20 +572,6 @@ export const prettyPrintFns = (state: State): string[] =>
 export const val = (v: Value<ad.Num>): Val<ad.Num> => ({
   tag: "Val",
   contents: v,
-});
-
-export const strVal = (contents: string): Val<ad.Num> =>
-  val({
-    tag: "StrV",
-    contents,
-  });
-
-export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
-  tag: "Val",
-  contents: {
-    tag: "FloatV",
-    contents: v,
-  },
 });
 
 export const linePts = ({ start, end }: LineProps): [ad.Num[], ad.Num[]] => [

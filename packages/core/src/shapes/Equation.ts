@@ -1,12 +1,6 @@
 import { Center, Fill, Named, Rect, Rotate, Shape, String } from "types/shapes";
-import {
-  boolV,
-  Canvas,
-  sampleBlack,
-  sampleVector,
-  sampleZero,
-  strV,
-} from "./Samplers";
+import { boolV, strV } from "utils/Util";
+import { Canvas, sampleBlack, sampleVector, sampleZero } from "./Samplers";
 
 export interface EquationProps
   extends Named,

@@ -8,14 +8,9 @@ import { makePath } from "shapes/Path";
 import { makePolygon } from "shapes/Polygon";
 import { makePolyline } from "shapes/Polyline";
 import { makeRectangle } from "shapes/Rectangle";
-import {
-  floatV,
-  makeCanvas,
-  ptListV,
-  sampleBlack,
-  vectorV,
-} from "shapes/Samplers";
+import { makeCanvas, sampleBlack } from "shapes/Samplers";
 import { Poly, Scale } from "types/shapes";
+import { floatV, ptListV, vectorV } from "utils/Util";
 import { genCode, secondaryGraph } from "./Autodiff";
 import {
   BBox,

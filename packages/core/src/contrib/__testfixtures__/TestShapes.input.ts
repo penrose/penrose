@@ -3,13 +3,8 @@ import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
-import {
-  floatV,
-  makeCanvas,
-  ptListV,
-  sampleBlack,
-  vectorV,
-} from "shapes/Samplers";
+import { makeCanvas, sampleBlack } from "shapes/Samplers";
+import { floatV, ptListV, vectorV } from "utils/Util";
 import { makeEllipse } from "../../shapes/Ellipse";
 
 const rng = seedrandom("TestShapes.input");

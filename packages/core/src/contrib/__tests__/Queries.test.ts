@@ -13,14 +13,9 @@ import { makeLine } from "shapes/Line";
 import { makePath } from "shapes/Path";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
-import {
-  floatV,
-  makeCanvas,
-  ptListV,
-  sampleBlack,
-  vectorV,
-} from "shapes/Samplers";
+import { makeCanvas, sampleBlack } from "shapes/Samplers";
 import { Pt2 } from "types/ad";
+import { floatV, ptListV, vectorV } from "utils/Util";
 
 const rng = seedrandom("Queries");
 const canvas = makeCanvas(800, 700);

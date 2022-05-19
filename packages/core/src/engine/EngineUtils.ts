@@ -308,18 +308,6 @@ export const dummyIdentifier = (
   };
 };
 
-const floatValToExpr = (e: Value<ad.Num>): Expr<A> => {
-  if (e.tag !== "FloatV") {
-    throw Error("expected to insert vector elem of type float");
-  }
-
-  return {
-    nodeType: "SyntheticStyle",
-    tag: "VaryAD",
-    contents: e.contents,
-  };
-};
-
 const mkPropertyDict = (
   decls: PropertyDecl<A>[]
 ): { [k: string]: TagExpr<ad.Num> } => {

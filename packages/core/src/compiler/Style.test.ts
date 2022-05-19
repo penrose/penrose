@@ -12,7 +12,7 @@ import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
 import { andThen, Result, unsafelyUnwrap } from "utils/Error";
-import { foldM, strVal, toLeft, ToRight } from "utils/Util";
+import { foldM, toLeft, ToRight } from "utils/Util";
 import { compileDomain } from "./Domain";
 import { envOrError, subEnvOrError } from "./Substance.test";
 // TODO: Reorganize and name tests by compiler stage

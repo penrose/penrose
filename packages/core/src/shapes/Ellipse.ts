@@ -1,8 +1,8 @@
 import * as ad from "types/ad";
 import { Center, Fill, Named, Shape, Stroke } from "types/shapes";
 import { FloatV } from "types/value";
+import { boolV, strV } from "utils/Util";
 import {
-  boolV,
   Canvas,
   sampleColor,
   sampleHeight,
@@ -10,7 +10,6 @@ import {
   sampleVector,
   sampleWidth,
   sampleZero,
-  strV,
 } from "./Samplers";
 
 export interface EllipseProps extends Named, Stroke, Fill, Center {

@@ -1,4 +1,5 @@
 //#region ErrorTypes
+import im from "immutable";
 import { A, AbstractNode, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
@@ -172,9 +173,9 @@ export type StyleError =
 
 export type StyleWarning = IntOrFloat;
 
-export interface StyleResults {
-  errors: StyleError[];
-  warnings: StyleWarning[];
+export interface StyleDiagnostics {
+  errors: im.List<StyleError>;
+  warnings: im.List<StyleWarning>;
 }
 
 export interface IntOrFloat {

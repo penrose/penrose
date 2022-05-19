@@ -8,8 +8,8 @@ import {
   Shape,
   Stroke,
 } from "types/shapes";
+import { boolV, strV } from "utils/Util";
 import {
-  boolV,
   Canvas,
   sampleColor,
   sampleHeight,
@@ -17,7 +17,6 @@ import {
   sampleVector,
   sampleWidth,
   sampleZero,
-  strV,
 } from "./Samplers";
 
 export interface RectangleProps

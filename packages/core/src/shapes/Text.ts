@@ -10,14 +10,13 @@ import {
   Stroke,
 } from "types/shapes";
 import { FloatV, StrV } from "types/value";
+import { boolV, strV } from "utils/Util";
 import {
-  boolV,
   Canvas,
   sampleColor,
   sampleNoPaint,
   sampleVector,
   sampleZero,
-  strV,
 } from "./Samplers";
 
 export interface TextProps

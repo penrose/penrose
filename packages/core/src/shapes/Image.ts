@@ -1,13 +1,12 @@
 import { Center, Named, Rect, Rotate, Shape } from "types/shapes";
 import { StrV } from "types/value";
+import { boolV, strV } from "utils/Util";
 import {
-  boolV,
   Canvas,
   sampleHeight,
   sampleVector,
   sampleWidth,
   sampleZero,
-  strV,
 } from "./Samplers";
 
 export interface ImageProps extends Named, Center, Rect, Rotate {

@@ -11,8 +11,9 @@ import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import seedrandom from "seedrandom";
 import { makeEllipse } from "shapes/Ellipse";
-import { floatV, makeCanvas, sampleBlack, vectorV } from "shapes/Samplers";
+import { makeCanvas, sampleBlack } from "shapes/Samplers";
 import * as ad from "types/ad";
+import { floatV, vectorV } from "utils/Util";
 
 const digitPrecision = 4;
 

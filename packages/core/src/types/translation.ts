@@ -1,12 +1,12 @@
 import im from "immutable";
 import * as ad from "./ad";
-import { StyleResults } from "./errors";
+import { StyleDiagnostics } from "./errors";
 import { ShapeAD } from "./shape";
 import { ArgVal } from "./value";
 
-export type StyleSymbols = im.Map<string, Named>;
+export type StyleSymbols = im.Map<string, Nameable>;
 export interface Translation {
-  diagnostics: StyleResults;
+  diagnostics: StyleDiagnostics;
   symbols: StyleSymbols;
   shapes: im.List<ShapeAD>;
   varying: im.List<ad.Input>;
@@ -15,7 +15,7 @@ export interface Translation {
   layering: im.List<[string, string]>;
 }
 
-export type Named = ArgVal<ad.Num> | Obj | Constr | Layer;
+export type Nameable = ArgVal<ad.Num> | Obj | Constr | Layer;
 
 export interface Obj {
   tag: "Obj";

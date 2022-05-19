@@ -1,14 +1,6 @@
 import { Fill, Named, Poly, Scale, Shape, Stroke } from "types/shapes";
-import {
-  boolV,
-  Canvas,
-  floatV,
-  ptListV,
-  sampleColor,
-  sampleNoPaint,
-  sampleZero,
-  strV,
-} from "./Samplers";
+import { boolV, floatV, ptListV, strV } from "utils/Util";
+import { Canvas, sampleColor, sampleNoPaint, sampleZero } from "./Samplers";
 
 export interface PolygonProps extends Named, Stroke, Fill, Scale, Poly {}
 
