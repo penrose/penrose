@@ -6,7 +6,8 @@
     "start": "vite",
     "dev": "vite",
     "watch": "vite",
-    "build": "tsc && vite build",
+    "typecheck": "tsc",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -114,7 +114,10 @@ function App() {
         const { kind } = node.getConfig();
         const program = snapshot.getLoadable(fileContentsSelector(kind))
           .contents;
-        set(fileContentsSelector(kind), { ...program, name: action.data.text });
+        set(fileContentsSelector(kind), {
+          ...program,
+          name: action.data.text,
+        });
       }
       return action;
     },

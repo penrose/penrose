@@ -101,7 +101,7 @@ export const useResampleDiagram = () =>
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
     if (diagram.state === null) {
-      toast.error("Cannot resample unrendered diagram");
+      toast.error("Cannot resample uncompiled diagram");
       return;
     }
     const variation = uuid();
