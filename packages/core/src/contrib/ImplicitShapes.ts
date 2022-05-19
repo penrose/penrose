@@ -262,12 +262,9 @@ const ellipsePolynomialParams = (
 // (the highest order coefficient is ommited and assumed to be 1)
 export const ellipsePolynomial = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse,
-  order: number = 4
+  b: ImplicitEllipse
 ): ad.Num[] => {
   const params = ellipsePolynomialParams(a, b);
-  params[order] = ifCond(eq(params[order], 0), EPS_DENOM, params[order]);
-  return Array.from(Array(order).keys()).map((i) =>
-    div(params[i], params[order])
-  );
+  params[4] = ifCond(eq(params[4], 0), EPS_DENOM, params[4]);
+  return Array.from(Array(4).keys()).map((i) => div(params[i], params[4]));
 };
