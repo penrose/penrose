@@ -5,6 +5,8 @@ import {
   add,
   addN,
   div,
+  eq,
+  ifCond,
   max,
   maxN,
   min,
@@ -20,7 +22,7 @@ import * as BBox from "engine/BBox";
 import { convexPartition, isClockwise } from "poly-partition";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
-import { safe, zip2 } from "utils/Util";
+import { safe } from "utils/Util";
 import {
   ellipsePolynomial,
   ellipseToImplicit,
@@ -29,8 +31,8 @@ import {
   implicitEllipseFunc,
   ImplicitHalfPlane,
   implicitHalfPlaneFunc,
+  implicitIntersectionOfEllipsesFunc,
 } from "./ImplicitShapes";
-import { numsOf } from "./Utils";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -318,6 +320,12 @@ export const halfPlaneEllipseSDF = (
   return min(m1, m2);
 };
 
+/**
+ * Overlapping constraint function for of a polygon and ellipse.
+ * @param polygonPoints Sequence of points defining a polygon.
+ * @param ellipse Ellipse shape.
+ * @param padding Padding applied to the ellipse.
+ */
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: ad.Num[][],
   ellipse: Ellipse,
@@ -368,6 +376,34 @@ export const pointCandidatesEllipse = (
 
 /**
  * Overlapping constraint function for two implicit ellipses.
+ * This function may return NaN when the polynomial does not have the expected degree.
+ * @param poly Monic polynomial coefficients.
+ * @param ei1 First implicit ellipse.
+ * @param ei2 Second implicit ellipse.
+ */
+export const overlappingImplicitEllipsesFromPoly = (
+  poly: ad.Num[],
+  ei1: ImplicitEllipse,
+  ei2: ImplicitEllipse
+): ad.Num => {
+  const roots = polyRoots(poly).map((r) => ifCond(eq(r, r), r, 0));
+  const points = roots.map((root: ad.Num) =>
+    pointCandidatesEllipse(ei1, ei2, root)
+  );
+  const m1 = minN(
+    points.map(([x, y]: [ad.Num, ad.Num]) =>
+      implicitIntersectionOfEllipsesFunc(ei1, ei2, x, y)
+    )
+  );
+  const m2 = min(
+    implicitIntersectionOfEllipsesFunc(ei1, ei2, ei1.x, ei1.y),
+    implicitIntersectionOfEllipsesFunc(ei1, ei2, ei2.x, ei2.y)
+  );
+  return min(m1, m2);
+};
+
+/**
+ * Overlapping constraint function for two implicit ellipses.
  * @param ei1 First implicit ellipse.
  * @param ei2 Second implicit ellipse.
  */
@@ -375,25 +411,13 @@ export const overlappingImplicitEllipses = (
   ei1: ImplicitEllipse,
   ei2: ImplicitEllipse
 ): ad.Num => {
-  const poly = ellipsePolynomial(ei1, ei2);
-  const roots = polyRoots(poly);
-  const lambdas = zip2(roots, numsOf(roots))
-    .filter(([_, rn]) => !Number.isNaN(rn))
-    .map(([r, _]) => r);
-  const m1 = minN(
-    lambdas
-      .map((lambda: ad.Num) => pointCandidatesEllipse(ei1, ei2, lambda))
-      .map(([x, y]: [ad.Num, ad.Num]) => implicitEllipseFunc(ei1, x, y))
+  const polys = [4, 2, 1].map((i) => ellipsePolynomial(ei1, ei2, i));
+  const res = polys.map((poly) =>
+    overlappingImplicitEllipsesFromPoly(poly, ei1, ei2)
   );
-  const m2 = min(
-    max(
-      implicitEllipseFunc(ei1, ei1.x, ei1.y),
-      implicitEllipseFunc(ei2, ei1.x, ei1.y)
-    ),
-    max(
-      implicitEllipseFunc(ei1, ei2.x, ei2.y),
-      implicitEllipseFunc(ei2, ei2.x, ei2.y)
-    )
+  return ifCond(
+    eq(res[0], res[0]),
+    res[0],
+    ifCond(eq(res[1], res[1]), res[1], res[2])
   );
-  return min(m1, m2);
 };

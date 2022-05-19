@@ -1,10 +1,17 @@
 import { outwardUnitNormal } from "contrib/Queries";
 import { ops } from "engine/Autodiff";
-import { add, div, mul, neg, squared, sub } from "engine/AutodiffFunctions";
+import {
+  add,
+  div,
+  max,
+  mul,
+  neg,
+  squared,
+  sub,
+} from "engine/AutodiffFunctions";
 import { Circle } from "shapes/Circle";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
-import { numsOf } from "./Utils";
 
 /**
  * Parameters of implicitly defined ellipse:
@@ -43,6 +50,22 @@ export const implicitEllipseFunc = (
     add(mul(ei.a, squared(sub(x, ei.x))), mul(ei.b, squared(sub(y, ei.y)))),
     ei.c
   );
+};
+
+/**
+ * Evaluate the implicit function for an intersection of 2 ellipses at point with coordinates `x` and `y`.
+ * @param ei1 First implicit ellipse parameters.
+ * @param ei2 Second implicit ellipse parameters.
+ * @param x X-coordinate.
+ * @param y Y-coordinate.
+ */
+export const implicitIntersectionOfEllipsesFunc = (
+  ei1: ImplicitEllipse,
+  ei2: ImplicitEllipse,
+  x: ad.Num,
+  y: ad.Num
+): ad.Num => {
+  return max(implicitEllipseFunc(ei1, x, y), implicitEllipseFunc(ei2, x, y));
 };
 
 /**
@@ -233,23 +256,14 @@ const ellipsePolynomialParams = (
   ];
 };
 
-// Return order of a polynomial given by its coefficients
-// (ordered from the lowest by their corresponding deggree)
-export const polyOrder = (poly: number[]): number => {
-  for (let i = poly.length - 1; i > 0; i--) {
-    if (poly[i] !== 0) return i;
-  }
-  return 0;
-};
-
 // Return monic polynomial coefficients
 // (the highest order coefficient is ommited and assumed to be 1)
 export const ellipsePolynomial = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse
+  b: ImplicitEllipse,
+  order: number
 ): ad.Num[] => {
   const params = ellipsePolynomialParams(a, b);
-  const order = polyOrder(numsOf(params));
   return Array.from(Array(order).keys()).map((i) =>
     div(params[i], params[order])
   );
