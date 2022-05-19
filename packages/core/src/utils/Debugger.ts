@@ -293,7 +293,7 @@ export class Debugger {
    * @returns true if the Debugger is listening for system input; false otherwise
    */
   public isListening(): boolean {
-    return !Boolean(this.state);
+    return !this.state;
   }
 
   /**
