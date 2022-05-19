@@ -21,7 +21,7 @@ In particular, we are visualizing vector addition. Below is the goal diagram for
 
 The starter code for this tutorial has some helpful constants to draw a vector space with its x and y axis. In your cloned `penrose` repository, navigate to `./packages/examples/src/code/tutorial3` to find the starter code.
 
-Check that the starter code compiles by using the same build command pattern that we have used in the previous two examples. Make sure to change the file names and update the path! The command should look something like this (assuming that you have saved the `penrose` repo in your Home directory):
+Check that the starterjjj code compiles by using the same build command pattern that we have used in the previous two examples. Make sure to change the file names and update the path! The command should look something like this (assuming that you have saved the `penrose` repo in your Home directory):
 
 ```
 npx roger watch ~/penrose/packages/examples/src/tutorials/code/tutorial3/vector.sub ~/penrose/packages/examples/src/tutorials/code/tutorial3/vector.sty ~/penrose/packages/examples/src/tutorials/code/tutorial3/linearAlgebra.dsl
