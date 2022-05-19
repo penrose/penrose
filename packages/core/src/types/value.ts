@@ -69,7 +69,7 @@ export interface Pending<T> {
 export type Value<T> =
   | FloatV<T>
   | IntV
-  | BoolV<T>
+  | BoolV
   | StrV
   | PathDataV<T>
   | PtListV<T>
@@ -93,7 +93,7 @@ export interface IntV {
 }
 
 /** A boolean expression (`True` or `False`) **/
-export interface BoolV<T> {
+export interface BoolV {
   tag: "BoolV";
   contents: boolean;
 }

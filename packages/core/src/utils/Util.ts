@@ -8,7 +8,7 @@ import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
 import { Fn, Seeds, State } from "types/state";
 import { Expr, Path } from "types/style";
-import { ArgVal, Color } from "types/value";
+import { ArgVal, Color, Val, Value } from "types/value";
 
 //#region general
 
@@ -490,6 +490,17 @@ export const prettyPrintFns = (state: State): string[] =>
 //#region autodiff
 
 // From Evaluator
+export const val = (v: Value<ad.Num>): Val<ad.Num> => ({
+  tag: "Val",
+  contents: v,
+});
+
+export const strVal = (contents: string): Val<ad.Num> =>
+  val({
+    tag: "StrV",
+    contents,
+  });
+
 export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
   tag: "Val",
   contents: {

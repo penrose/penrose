@@ -2,7 +2,8 @@
 
 import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
-import { compileSubstance, parseSubstance } from "compiler/Substance";
+import { translateStyProg } from "compiler/Style";
+import { compileSubstance } from "compiler/Substance";
 import _ from "lodash";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
@@ -12,8 +13,9 @@ import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
 import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
-import { foldM, toLeft, ToRight } from "utils/Util";
+import { foldM, strVal, toLeft, ToRight } from "utils/Util";
 import { compileDomain } from "./Domain";
+import { envOrError, subEnvOrError } from "./Substance.test";
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"
@@ -24,38 +26,46 @@ const loadFile = (examplePath: string): string => {
   return prog;
 };
 
-const loadFiles = (paths: string[]): string[] => {
-  return paths.map(loadFile);
-};
+interface Trio {
+  sub: string;
+  dsl: string;
+  sty: string;
+}
+
+const loadFiles = ({
+  dslPath,
+  subPath,
+  styPath,
+}: {
+  dslPath: string;
+  subPath: string;
+  styPath: string;
+}): Trio => ({
+  dsl: loadFile(dslPath),
+  sub: loadFile(subPath),
+  sty: loadFile(styPath),
+});
 
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
-// files must follow schema: { domain, substance, style }
-export const loadProgs = ([domainStr, subStr, styStr]: [
-  string,
-  string,
-  string
-]): [Env, SubstanceEnv, SubProg<C>, StyProg<C>] => {
-  const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
-  const env0: Env = unsafelyUnwrap(domainProgRes);
-
-  // TODO: Could be more efficient if compileSubstance also outputs parsed Sub program
-  const subProg: SubProg<C> = unsafelyUnwrap(parseSubstance(subStr));
-  const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(
-    subStr,
-    env0
-  );
-
-  const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
-  const styProg: StyProg<C> = unsafelyUnwrap(S.parseStyle(styStr));
-
-  const res: [Env, SubstanceEnv, SubProg<C>, StyProg<C>] = [
-    varEnv,
+export const loadProgs = ({
+  dsl,
+  sub,
+  sty,
+}: Trio): {
+  env: Env;
+  subEnv: SubstanceEnv;
+  subProg: SubProg<A>;
+  styProg: StyProg<C>;
+} => {
+  const env: Env = envOrError(dsl);
+  const [subEnv, varEnv]: [SubstanceEnv, Env] = subEnvOrError(sub, env);
+  const styProg: StyProg<C> = unsafelyUnwrap(S.parseStyle(sty));
+  return {
+    env: varEnv,
     subEnv,
-    subProg,
+    subProg: subEnv.ast,
     styProg,
-  ];
-
-  return res;
+  };
 };
 
 const canvasPreamble = `canvas {
@@ -110,6 +120,22 @@ describe("Layering computation", () => {
 });
 
 describe("Compiler", () => {
+  test("Label insertion", () => {
+    const { env, subEnv, styProg } = loadProgs({
+      dsl: "type Set",
+      sub: `
+      Set A, B, C
+      Autolabel All
+      Label A $aaa$
+      NoLabel B
+      `,
+      sty: ``,
+    });
+    const { symbols } = translateStyProg(env, subEnv, styProg, subEnv.labels);
+    expect(symbols.includes(strVal("aaa"))).toBe(true);
+    expect(symbols.includes(strVal("C"))).toBe(true);
+    expect(symbols.includes(strVal("C"))).toBe(false);
+  });
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
   // // Each possible substitution should be full WRT its selector
   // test("substitution: S.fullSubst true", () => {
@@ -216,18 +242,15 @@ describe("Compiler", () => {
 
   // There are no AnonAssign statements, i.e. they have all been substituted out (proxy test for `S.nameAnonStatements` working)
   test("There are no anonymous statements", () => {
-    const triple: [string, string, string] = [
-      "linear-algebra-domain/linear-algebra.dsl",
-      "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
-      "linear-algebra-domain/linear-algebra-paper-simple.sty",
-    ];
+    const triple = {
+      dslPath: "linear-algebra-domain/linear-algebra.dsl",
+      subPath: "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
+      styPath: "linear-algebra-domain/linear-algebra-paper-simple.sty",
+    };
 
-    const [varEnv, subEnv, subProg, styProgInit]: [
-      Env,
-      SubstanceEnv,
-      SubProg<C>,
-      StyProg<C>
-    ] = loadProgs(loadFiles(triple) as [string, string, string]);
+    const { env: varEnv, subEnv, subProg, styProg: styProgInit } = loadProgs(
+      loadFiles(triple)
+    );
 
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
     const selErrs: StyleError[] = _.flatMap(selEnvs, (e) =>

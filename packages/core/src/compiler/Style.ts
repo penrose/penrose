@@ -20,6 +20,7 @@ import {
   propertiesOf,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
+import * as im from "immutable";
 import _, { range } from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
@@ -68,13 +69,13 @@ import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
 import {
   ApplyPredicate,
   LabelMap,
+  LabelValue,
   SubExpr,
   SubPredArg,
-  SubProg,
   SubstanceEnv,
   TypeConsApp,
 } from "types/substance";
-import { Translation } from "types/translation";
+import { StyleSymbols, Translation } from "types/translation";
 import {
   FGPI,
   Field,
@@ -101,6 +102,7 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   randFloat,
+  strVal,
   ToLeft,
   ToRight,
   variationSeeds,
@@ -114,6 +116,7 @@ const log = consola
 
 //#region consts
 const LOCAL_KEYWORD = "$LOCAL";
+const LABEL_FIELD = "label";
 const VARYING_INIT_FN_NAME = "VARYING_INIT";
 
 // For statically checking existence
@@ -1045,19 +1048,50 @@ const isSubtypeArrow = (
 
 //#region Translating Style program
 
-// /////// Translation judgments
-/* Note: All of the folds below use foldM.
-   foldM stops accumulating when the first fatal error is reached, using "Either [Error]" as a monad
-   (Non-fatal errors are stored as warnings in the translation)
-   foldM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
-   example:
-   f acc elem = if elem < 0 then Left ["wrong " ++ show elem] else Right $ elem : acc
-   foldM f [] [1, 9, -1, 2, -2] = Left ["wrong -1"]
-   foldM f [] [1, 9] = Right [9,1]  */
-// Judgment 26. D |- phi ~> D'
-// This is where interesting things actually happen (each line is interpreted and added to the translation)
+export const translateStyProg = (
+  varEnv: Env,
+  subEnv: SubstanceEnv,
+  styProg: StyProg<A>,
+  labelMap: LabelMap
+): Translation => {
+  // insert Substance label string
+  const withLabels = insertLabels(subEnv.labels, im.Map());
 
-// Related functions in `Evaluator`: findExprSafe, insertExpr
+  // TODO: write the compiler
+  return {
+    diagnostics: { errors: [], warnings: [] },
+    symbols: withLabels,
+    shapes: im.List(),
+    objectives: im.List(),
+    constraints: im.List(),
+    layering: im.List(),
+    varying: im.List(),
+  };
+};
+
+const translateBlock = (
+  block: HeaderBlock<A>,
+  trans: Translation
+): Translation => {
+  // Run static checks first
+  // TODO: finish
+  return trans;
+};
+
+/**
+ * Insert Substance label strings into the Style symbol table
+ */
+const insertLabels = (labels: LabelMap, symbols: StyleSymbols): StyleSymbols =>
+  labels.reduce(
+    (currSymbols: StyleSymbols, label: LabelValue, subName: string) =>
+      currSymbols.set(fieldPath(subName, LABEL_FIELD), strVal(label.value)),
+    symbols
+  );
+
+const fieldPath = (subName: string, field: string): string =>
+  `${subName}.${field}`;
+
+// Judgment 26. D |- phi ~> D'
 
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteProperty = (
@@ -1164,7 +1198,11 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl<A>): StyleResults => {
   const errors: StyleError[] = [];
   const warnings: StyleWarning[] = [];
 
-  if (!(styName in shapedefs)) {
+  if (styName in shapedefs) {
+    const shapedef: ShapeDef = shapedefs[styName];
+    // TODO: do shape property checks
+    shapedef;
+  } else {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
     return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
   }
@@ -1264,24 +1302,6 @@ const checkBlockPath = (selEnv: SelEnv, path: Path<A>): StyleResults => {
 };
 
 //#endregion Block statics
-
-const translateStyProg = (
-  varEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  styProg: StyProg<A>,
-  labelMap: LabelMap
-): Translation => {
-  // TODO: write the compiler
-  return {
-    diagnostics: { errors: [], warnings: [] },
-    symbols: new Map(),
-    shapes: [],
-    objectives: [],
-    constraints: [],
-    layering: [],
-  };
-};
 
 //#endregion
 
@@ -2395,8 +2415,6 @@ export const compileStyle = (
   subEnv: SubstanceEnv,
   varEnv: Env
 ): Result<State, PenroseError> => {
-  const subProg = subEnv.ast;
-
   const astOk = parseStyle(stySource);
   let styProg;
   if (astOk.isOk()) {
@@ -2424,13 +2442,7 @@ export const compileStyle = (
   log.info("selEnvs", selEnvs);
 
   // Translate style program
-  const translation = translateStyProg(
-    varEnv,
-    subEnv,
-    subProg,
-    styProg,
-    labelMap
-  );
+  const translation = translateStyProg(varEnv, subEnv, styProg, labelMap);
 
   log.info("translation (before genOptProblem)", translation);
 
