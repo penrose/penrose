@@ -4,6 +4,7 @@ import { add, div, mul, neg, squared, sub } from "engine/AutodiffFunctions";
 import { Circle } from "shapes/Circle";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
+import { numsOf } from "./Utils";
 
 /**
  * Parameters of implicitly defined ellipse:
@@ -177,48 +178,73 @@ const ellipsePolynomailAlpha2 = (
 // Cubic coefficient from the ellipse-ellipse polynomial
 const ellipsePolynomailAlpha3 = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse,
-  beta: ad.Num
+  b: ImplicitEllipse
 ): ad.Num => {
+  const factor = mul(
+    2,
+    sub(mul(2, mul(a.a, a.b)), add(mul(a.b, b.a), mul(a.a, b.b)))
+  );
   return mul(
-    sub(mul(2, mul(a.a, a.b)), add(mul(a.b, b.a), mul(a.a, b.b))),
-    mul(mul(2, beta), mul(sub(b.a, a.a), sub(b.b, a.b)))
+    factor,
+    add(
+      mul(mul(sub(b.a, a.a), sub(b.b, a.b)), sub(b.c, a.c)),
+      add(
+        mul(mul(a.a, b.a), mul(squared(sub(b.x, a.x)), sub(b.b, a.b))),
+        mul(mul(a.b, b.b), mul(squared(sub(b.y, a.y)), sub(b.a, a.a)))
+      )
+    )
   );
 };
 
 // Quintic coefficient from the ellipse-ellipse polynomial
 const ellipsePolynomailAlpha4 = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse,
-  beta: ad.Num
-): ad.Num => {
-  return mul(neg(beta), mul(squared(sub(b.a, a.a)), squared(sub(b.b, a.b))));
-};
-
-// Helper function for the ellipse-ellipse polynomial
-const ellipsePolynomailBeta = (
-  a: ImplicitEllipse,
   b: ImplicitEllipse
 ): ad.Num => {
-  return add(
-    sub(b.c, a.c),
+  return neg(
     add(
-      div(mul(mul(a.a, b.a), squared(sub(b.x, a.x))), sub(b.a, a.a)),
-      div(mul(mul(a.b, b.b), squared(sub(b.y, a.y))), sub(b.b, a.b))
+      mul(mul(squared(sub(b.a, a.a)), squared(sub(b.b, a.b))), sub(b.c, a.c)),
+      add(
+        mul(
+          mul(mul(a.a, b.a), squared(sub(b.x, a.x))),
+          mul(sub(b.a, a.a), squared(sub(b.b, a.b)))
+        ),
+        mul(
+          mul(mul(a.b, b.b), squared(sub(b.y, a.y))),
+          mul(squared(sub(b.a, a.a)), sub(b.b, a.b))
+        )
+      )
     )
   );
+};
+
+const ellipsePolynomialParams = (
+  a: ImplicitEllipse,
+  b: ImplicitEllipse
+): ad.Num[] => {
+  return [
+    ellipsePolynomailAlpha0(a, b),
+    ellipsePolynomailAlpha1(a, b),
+    ellipsePolynomailAlpha2(a, b),
+    ellipsePolynomailAlpha3(a, b),
+    ellipsePolynomailAlpha4(a, b),
+  ];
+};
+
+const polyOrder = (poly: number[]): number => {
+  for (let i = poly.length - 1; i > 0; i--) {
+    if (poly[i] !== 0) return i;
+  }
+  return 0;
 };
 
 export const ellipsePolynomial = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
 ): ad.Num[] => {
-  const beta = ellipsePolynomailBeta(a, b);
-  const alpha4 = ellipsePolynomailAlpha4(a, b, beta);
-  return [
-    div(ellipsePolynomailAlpha0(a, b), alpha4),
-    div(ellipsePolynomailAlpha1(a, b), alpha4),
-    div(ellipsePolynomailAlpha2(a, b), alpha4),
-    div(ellipsePolynomailAlpha3(a, b, beta), alpha4),
-  ];
+  const params = ellipsePolynomialParams(a, b);
+  const order = polyOrder(numsOf(params));
+  return Array.from(Array(order).keys()).map((i) =>
+    div(params[i], params[order])
+  );
 };
