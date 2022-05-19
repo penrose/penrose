@@ -7,6 +7,7 @@
 *#
 *~
 /.vscode/
+/docker/
 build/
 dist/
 node_modules/

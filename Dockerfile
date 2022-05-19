@@ -10,3 +10,6 @@ RUN apt-get update && apt-get install -y \
     libpango1.0-dev \
     librsvg2-dev \
     && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /penrose
+ENTRYPOINT yarn
