@@ -286,6 +286,26 @@ export class Debugger {
     }
   }
 
+  /**
+   * Indicates the Debugger is currently listening to the system for input;
+   * that is, it has not yet received a user API query.
+   *
+   * @returns true if the Debugger is listening for system input; false otherwise
+   */
+  public isListening(): boolean {
+    return !Boolean(this.state);
+  }
+
+  /**
+   * Indicates the Debugger is currently answering user API calls;
+   * that is, it is not currently listening for input from the system.
+   *
+   * @returns true if the Debugger is answering API queries; false otherwise
+   */
+  public isAnswering(): boolean {
+    return Boolean(this.state);
+  }
+
   // ------------------------- Helper Functions ----------------------------//
 
   /**
