@@ -48,7 +48,7 @@ export const intV = (contents: number): IntV => ({
   tag: "IntV",
   contents,
 });
-export const boolV = (contents: boolean): BoolV<ad.Num> => ({
+export const boolV = (contents: boolean): BoolV => ({
   tag: "BoolV",
   contents,
 });

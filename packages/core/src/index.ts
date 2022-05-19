@@ -10,7 +10,6 @@ import {
   prettySubstance,
 } from "./compiler/Substance";
 import { makeADInputVars } from "./engine/Autodiff";
-import { evalShapes } from "./engine/Evaluator";
 import { genOptProblem, step } from "./engine/Optimizer";
 import { insertPending } from "./engine/PropagateUpdate";
 import {

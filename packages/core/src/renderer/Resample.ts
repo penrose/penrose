@@ -4,7 +4,6 @@ import {
   initConstraintWeight,
   valueAutodiffToNumber,
 } from "engine/EngineUtils";
-import { evalShapes } from "engine/Evaluator";
 import { mapValues } from "lodash";
 import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";

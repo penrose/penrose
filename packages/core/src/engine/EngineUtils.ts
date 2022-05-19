@@ -32,7 +32,6 @@ import {
   ShapeTypeStr,
   SubPath,
   TagExpr,
-  Translation,
   TupV,
   Value,
   VectorV,
