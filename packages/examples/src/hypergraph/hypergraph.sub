@@ -1,0 +1,55 @@
+
+-- Graph
+
+Graph G
+Node N1, N2, N3, N4, N5
+
+GraphHasNode(G, N1)
+GraphHasNode(G, N2)
+GraphHasNode(G, N3)
+GraphHasNode(G, N4)
+GraphHasNode(G, N5)
+
+-- First layer
+Layer1 L1
+GraphHasLayer1(G, L1)
+Edge E11, E12, E13
+
+Layer1HasEdge(L1, E11)
+Layer1HasEdge(L1, E12)
+Layer1HasEdge(L1, E13)
+
+EdgeHasNodeInLayer1(E11, N1)
+EdgeHasNodeInLayer1(E11, N2)
+EdgeHasNodeInLayer1(E11, N3)
+EdgeHasNodeInLayer1(E12, N4)
+EdgeHasNodeInLayer1(E13, N5)
+
+-- Second layer
+Layer2 L2
+GraphHasLayer2(G, L2)
+Edge E21, E22, E23
+
+Layer2HasEdge(L2, E21)
+Layer2HasEdge(L2, E22)
+Layer2HasEdge(L2, E23)
+
+EdgeHasNodeInLayer2(E21, N1)
+EdgeHasNodeInLayer2(E22, N2)
+EdgeHasNodeInLayer2(E22, N3)
+EdgeHasNodeInLayer2(E23, N4)
+EdgeHasNodeInLayer2(E23, N5)
+
+-- Third layer
+Layer3 L3
+GraphHasLayer3(G, L3)
+Edge E31, E32
+
+Layer3HasEdge(L3, E31)
+Layer3HasEdge(L3, E32)
+
+EdgeHasNodeInLayer3(E31, N1)
+EdgeHasNodeInLayer3(E32, N2)
+EdgeHasNodeInLayer3(E32, N3)
+EdgeHasNodeInLayer3(E32, N4)
+EdgeHasNodeInLayer3(E31, N5)
