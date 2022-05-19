@@ -32,7 +32,6 @@ export type FieldDict = { [k: string]: FieldExpr<ad.Num> };
 
 export type StyleOptFn = [string, Expr<A>[]]; // Objective or constraint
 
-// NOTE: To make a deep clone, use `clone` from `rfdc`
 /**
  * Translation represents the computational graph compiled from a trio of Penrose programs.
  */
@@ -61,9 +60,9 @@ export interface FGPI<T> {
 export type GPIProps<T> = { [k: string]: TagExpr<T> };
 
 export type GPIExpr<T> = [string, { [k: string]: TagExpr<T> }];
-export type TagExpr<T> = OptEval<T> | Done<T> | Pending<T>;
+export type TagExpr<T> = OptEval | Done<T> | Pending<T>;
 
-export interface OptEval<T> {
+export interface OptEval {
   tag: "OptEval";
   contents: Expr<A>;
 }
@@ -86,24 +85,14 @@ export type Value<T> =
   | IntV
   | BoolV<T>
   | StrV
-  | PtV<T>
   | PathDataV<T>
   | PtListV<T>
   | ColorV<T>
-  | PaletteV<T>
-  | FileV<T>
-  | StyleV<T>
   | ListV<T>
   | VectorV<T>
   | MatrixV<T>
   | TupV<T>
-  | LListV<T>
-  | HMatrixV<T>;
-
-// Unused
-// interface TypePropertyPath {
-//   tag: "TypePropertyPath";
-// }
+  | LListV<T>;
 
 /** A floating point number **/
 export interface FloatV<T> {
@@ -129,12 +118,6 @@ export interface StrV {
   contents: string;
 }
 
-/** A point in 2D **/
-export interface PtV<T> {
-  tag: "PtV";
-  contents: T[];
-}
-
 /** A path, similar to an [SVG path](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths) **/
 export interface PathDataV<T> {
   tag: "PathDataV";
@@ -147,28 +130,10 @@ export interface PtListV<T> {
   contents: T[][];
 }
 
-/** A list of colors **/
-export interface PaletteV<T> {
-  tag: "PaletteV";
-  contents: Color<T>[];
-}
-
 /** A color encoded in RGB or HSV **/
 export interface ColorV<T> {
   tag: "ColorV";
   contents: Color<T>;
-}
-
-/** A path to a file **/
-export interface FileV<T> {
-  tag: "FileV";
-  contents: string;
-}
-
-/** A string literal for shape styling (e.g. `dotted`) **/
-export interface StyleV<T> {
-  tag: "StyleV";
-  contents: string;
 }
 
 /** A list **/
@@ -199,23 +164,6 @@ export interface TupV<T> {
 export interface LListV<T> {
   tag: "LListV";
   contents: T[][];
-}
-
-/**
- * @deprecated
- */
-export interface HMatrixV<T> {
-  tag: "HMatrixV";
-  contents: HMatrix<T>;
-}
-
-export interface HMatrix<T> {
-  xScale: T;
-  xSkew: T;
-  ySkew: T;
-  yScale: T;
-  dx: T;
-  dy: T;
 }
 
 export type Color<T> = RGBA<T> | HSVA<T> | NoPaint;

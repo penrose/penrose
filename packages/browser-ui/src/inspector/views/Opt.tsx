@@ -1,5 +1,4 @@
-import { evalFns, normList, prettyPrintFn } from "@penrose/core";
-import { zipWith } from "lodash";
+import { evalFns } from "@penrose/core";
 import * as React from "react";
 import DataTable from "react-data-table-component";
 import ViewProps from "./ViewProps";
@@ -15,29 +14,28 @@ const Opt: React.FC<ViewProps> = ({ frame /*, history*/ }: ViewProps) => {
     );
   }
 
-  const constrInfos = zipWith(
-    frame.constrFns.map(prettyPrintFn),
-    evalFns(frame.constrFns, frame),
-    (name, fnEvaled) => {
-      const energy = Math.max(fnEvaled.f, 0);
-      return {
-        name,
-        energy,
-        sat: energy <= EPS ? "yes" : "no",
-      };
-    }
-  );
-  const objInfos = zipWith(
-    frame.objFns.map(prettyPrintFn),
-    evalFns(frame.objFns, frame),
-    (name, fnEvaled) => {
-      const gradientNorm = normList(fnEvaled.gradf);
-      return {
-        name,
-        gradientNorm,
-      };
-    }
-  );
+  const { constrEngs, objEngs } = evalFns(frame);
+  const constrInfos = [...constrEngs.entries()].map(([name, fnEvaled]) => {
+    const energy = Math.max(fnEvaled, 0);
+    return {
+      name,
+      energy,
+      sat: energy <= EPS ? "yes" : "no",
+    };
+  });
+
+  // COMBAK: objective gradient norms are currently deprecated, because the
+  // secondary outputs of the overall energy graph doesn't carry gradients of
+  // intermediate nodes w.r.t. the inputs
+  const objInfos = [...objEngs.entries()].map(([name, fnEvaled]) => {
+    const energy = fnEvaled;
+    // const gradientNorm = normList(fnEvaled.gradf);
+    return {
+      name,
+      energy,
+      // gradientNorm,
+    };
+  });
 
   // TODO: hyperlink the shapes
   return (
@@ -70,7 +68,8 @@ const Opt: React.FC<ViewProps> = ({ frame /*, history*/ }: ViewProps) => {
         striped={true}
         columns={[
           { name: "Expression", selector: "name", sortable: true },
-          { name: "Gradient Norm", selector: "gradientNorm", sortable: true },
+          { name: "Energy", selector: "energy", sortable: true },
+          // { name: "Gradient Norm", selector: "gradientNorm", sortable: true },
         ]}
       />
     </div>

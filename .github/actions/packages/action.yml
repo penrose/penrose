@@ -8,7 +8,7 @@ runs:
       with:
         path: |
           node_modules
-          */*/node_modules
+          packages/*/node_modules
         # obviously we need to hash yarn.lock because that specifies all our
         # external dependencies, but we also need to hash lerna.json because
         # Lerna creates symlinks under node_modules/@penrose/ for each of our

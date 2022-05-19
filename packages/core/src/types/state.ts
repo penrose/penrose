@@ -6,30 +6,27 @@ import { Shape } from "./shape";
 import { Expr, Path } from "./style";
 import { ArgVal, FloatV, Translation } from "./value";
 
+export type ShapeFn = (xs: number[]) => Shape[];
+
 /**
  * The diagram state modeling the original Haskell types
  */
 export interface State {
   seeds: Seeds;
-  varyingPaths: Path<A>[];
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
-  shapePaths: Path<A>[];
-  shapeProperties: any; // TODO: types
+  varyingPaths: Path<A>[];
   uninitializedPaths: Path<A>[];
-  params: Params;
+  pendingPaths: Path<A>[];
   objFns: Fn[];
   constrFns: Fn[];
-  policyParams: any; // TODO: types
-  oConfig: any; // TODO: types
-  pendingPaths: Path<A>[];
   varyingValues: number[];
   translation: Translation;
-  originalTranslation: Translation;
   shapeOrdering: string[];
   labelCache: LabelCache;
   shapes: Shape[];
-  varyingMap: VaryMap;
   canvas: Canvas;
+  computeShapes: ShapeFn;
+  params: Params;
 }
 
 // Some compDict functions (currently only sampleColor) need a prng, so we need
@@ -117,6 +114,8 @@ export interface LbfgsParams {
 export interface FnEvaled {
   f: number;
   gradf: number[];
+  objEngs: number[];
+  constrEngs: number[];
 }
 
 export interface Params {
@@ -127,6 +126,9 @@ export interface Params {
   UOround: number;
   lastUOstate: number[];
   lastUOenergy: number;
+  lastObjEnergies: number[];
+  lastConstrEnergies: number[];
+
   /** Info for exterior point method **/
   EPround: number;
   lastEPstate: number[];
@@ -155,10 +157,6 @@ export interface Params {
   // `xsVars` are all the leaves of the energy graph
   energyGraph: ad.Num; // This is the top of the energy graph (parent node)
   epWeightNode: ad.Num; // Handle to node for EP weight (so it can be set as the weight changes)
-
-  // Cached versions of compiling each objective and constraint into a function and gradient
-  objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
-  constrFnCache: { [k: string]: FnCached }; // This is kept separate from objfns because objs/constrs may have the same names (=> clashing keys if in same dict)
 }
 
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.

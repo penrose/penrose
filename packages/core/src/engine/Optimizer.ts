@@ -9,17 +9,14 @@ import {
   ops,
 } from "engine/Autodiff";
 import {
+  compileCompGraph,
   defaultLbfgsParams,
   initConstraintWeight,
-  makeTranslationNumeric,
-  shapeAutodiffToNumber,
 } from "engine/EngineUtils";
 import {
   argValue,
-  evalFn,
   evalFns,
   evalShapes,
-  genPathMap,
   insertVaryings,
 } from "engine/Evaluator";
 import * as _ from "lodash";
@@ -29,13 +26,11 @@ import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { A } from "types/ast";
 import {
-  Fn,
   FnCached,
   FnDone,
   LbfgsParams,
   Params,
   State,
-  VaryMap,
   WeightInfo,
 } from "types/state";
 import { Path } from "types/style";
@@ -44,7 +39,6 @@ import {
   dot,
   negv,
   normList,
-  prettyPrintFn,
   prettyPrintFns,
   prettyPrintPath,
   repeat,
@@ -233,6 +227,8 @@ export const step = (
         gradient,
         gradientPreconditioned,
         failed,
+        objEngs,
+        constrEngs,
       } = res;
 
       optParams.lastUOstate = xs;
@@ -241,6 +237,8 @@ export const step = (
       optParams.lbfgsInfo = newLbfgsInfo;
       optParams.lastGradient = gradient;
       optParams.lastGradientPreconditioned = gradientPreconditioned;
+      optParams.lastConstrEnergies = constrEngs;
+      optParams.lastObjEnergies = objEngs;
 
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
@@ -341,7 +339,6 @@ export const step = (
   if (evaluate) {
     const varyingValues = xs;
     // log.info("evaluating state with varying values", varyingValues);
-    // log.info("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
 
     newState.translation = insertVaryings(
       state.translation,
@@ -351,7 +348,7 @@ export const step = (
     newState.varyingValues = varyingValues;
     newState = {
       ...newState,
-      shapes: shapeAutodiffToNumber(evalShapes(rng, newState)),
+      shapes: state.computeShapes(xs),
     };
   }
 
@@ -710,6 +707,11 @@ const minimize = (
   log.info("-------------------------------------");
   log.info("minimize, num steps", numSteps);
 
+  const MIN_STEPS = 1;
+  if (numSteps < MIN_STEPS) {
+    throw Error(`must step at least ${MIN_STEPS} times in the optimizer`);
+  }
+
   // (10,000 steps / 100ms) * (10 ms / s) (???) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
   // this is just a factor of 5 slowdown over the compiled energy function
 
@@ -722,6 +724,10 @@ const minimize = (
   let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
   let failed = false;
 
+  // these will be overwritten so it's OK that they're the wrong length at first
+  let objEngs: number[] = [];
+  let constrEngs: number[] = [];
+
   let newLbfgsInfo = { ...lbfgsInfo };
 
   while (i < numSteps) {
@@ -729,7 +735,7 @@ const minimize = (
       log.info("xs", xs);
       throw Error("NaN in xs");
     }
-    ({ f: fxs, gradf: gradfxs } = f(xs));
+    ({ f: fxs, gradf: gradfxs, objEngs, constrEngs } = f(xs));
     if (containsNaN(gradfxs)) {
       log.info("gradfxs", gradfxs);
       throw Error("NaN in gradfxs");
@@ -814,6 +820,8 @@ const minimize = (
     gradient: gradfxs,
     gradientPreconditioned,
     failed: failed,
+    objEngs,
+    constrEngs,
   };
 };
 
@@ -828,24 +836,23 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     ...xsVars: ad.Input[]
   ): {
     energyGraph: ad.Num;
+    objEngs: ad.Num[];
+    constrEngs: ad.Num[];
     epWeightNode: ad.Input;
   } => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, varyingPaths } = state;
 
-    // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse ad.Num (computation) results
-    // Note that we have to do a "round trip" on the translation types, from ad.Num to number to ad.Num, to clear the computational graph of the `ad.Num`s. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the `ad.Num`s, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the `ad.Num`s should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
-    const translationInit = clone(makeTranslationNumeric(state.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
     // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
-    const translation = insertVaryings(translationInit, varyingMapList);
+    const translation = insertVaryings(
+      // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse `ad.Num` (computation) results
+      clone(state.translation),
+      varyingMapList
+    );
 
-    // construct a new varying map
-    const varyingMap: VaryMap<ad.Num> = genPathMap(varyingPaths, xsVars);
-
-    // NOTE: This will mutate the var inputs
-    const objEvaled = evalFns(rng, objFns, translation, varyingMap);
-    const constrEvaled = evalFns(rng, constrFns, translation, varyingMap);
+    const objEvaled = evalFns(rng, objFns, translation);
+    const constrEvaled = evalFns(rng, constrFns, translation);
 
     const objEngs: ad.Num[] = objEvaled.map((o) => applyFn(o, objDict));
     const constrEngs: ad.Num[] = constrEvaled.map((c) =>
@@ -857,8 +864,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     // log.info("objEngs", objFns, objEngs);
     // log.info("vars", varyingValuesTF);
 
-    // TODO make this check more robust to empty lists of objectives/constraints
-    if (!objEngs[0] && !constrEngs[0]) {
+    if (objEngs.length === 0 && constrEngs.length === 0) {
       log.info("WARNING: no objectives and no constraints");
     }
 
@@ -880,7 +886,12 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
       mul(constrEng, mul(constrWeightNode, epWeightNode))
     );
 
-    return { energyGraph: overallEng, epWeightNode };
+    return {
+      energyGraph: overallEng,
+      objEngs,
+      constrEngs,
+      epWeightNode,
+    };
   };
 };
 
@@ -910,17 +921,28 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     epWeight: initConstraintWeight,
   };
 
+  const individualEnergies = [...res.objEngs, ...res.constrEngs];
   const { graphs, f } = energyAndGradCompiled(
     xs,
     xsVars,
     res.energyGraph,
+    individualEnergies,
     weightInfo
   );
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
-    const { primary, gradient } = f([epWeight, ...xs]);
-    return { f: primary, gradf: gradient.slice(1) }; // ignore epWeight gradient
+    const { primary, gradient, secondary } = f([epWeight, ...xs]);
+    return {
+      f: primary,
+      gradf: gradient.slice(1), // ignore epWeight gradient
+      objEngs: secondary.slice(0, res.objEngs.length),
+      constrEngs: secondary.slice(res.objEngs.length),
+    };
   };
+
+  // generate evaluation function
+  const varyingVars = makeADInputVars(state.varyingValues);
+  const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
 
   const newParams: Params = {
     ...state.params,
@@ -946,71 +968,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     lbfgsInfo: defaultLbfgsParams,
   };
 
-  return { ...state, params: newParams };
-};
-
-// Eval a single function on the state (using `ad.Num`s). Based off of `evalEnergyOfCustom` -- see that function for comments.
-const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
-  const dict = fn.optType === "ObjFn" ? objDict : constrDict;
-
-  return (...xsVars: ad.Input[]): ad.Num => {
-    const { varyingPaths } = s;
-
-    const translationInit = clone(makeTranslationNumeric(s.translation));
-    const varyingMapList = zip2(varyingPaths, xsVars);
-    const translation = insertVaryings(translationInit, varyingMapList);
-    const varyingMap: VaryMap<ad.Num> = genPathMap(varyingPaths, xsVars);
-
-    // NOTE: This will mutate the var inputs
-    const fnArgsEvaled: FnDone<ad.Num> = evalFn(
-      rng,
-      fn,
-      translation,
-      varyingMap
-    );
-    const fnEnergy: ad.Num = applyFn(fnArgsEvaled, dict);
-
-    return fnEnergy;
-  };
-};
-
-// For a given objective or constraint, precompile it and its gradient, without any weights. (variation on `genOptProblem`)
-const genFn = (rng: seedrandom.prng, fn: Fn, s: State): FnCached => {
-  const xs: number[] = clone(s.varyingValues);
-
-  const overallObjective = evalFnOn(rng, fn, s);
-  const xsVars: ad.Input[] = makeADInputVars(xs);
-  const energyGraph: ad.Num = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
-
-  const weightInfo: WeightInfo | undefined = undefined;
-
-  const { f } = energyAndGradCompiled(xs, xsVars, energyGraph, weightInfo);
-
-  // Note this throws away the energy/gradient graphs (`ad.Num`s). Presumably not needed?
-  return (xs: number[]) => {
-    const { primary, gradient } = f(xs);
-    return { f: primary, gradf: gradient };
-  };
-};
-
-// For each objective and constraint, precompile it and its gradient and cache it in the state.
-export const genFns = (rng: seedrandom.prng, s: State): State => {
-  const p = s.params;
-  const objCache = {};
-  const constrCache = {};
-
-  for (const f of s.objFns) {
-    objCache[prettyPrintFn(f)] = genFn(rng, f, s);
-  }
-
-  for (const f of s.constrFns) {
-    constrCache[prettyPrintFn(f)] = genFn(rng, f, s);
-  }
-
-  p.objFnCache = objCache;
-  p.constrFnCache = constrCache;
-
-  return s;
+  return { ...state, computeShapes, params: newParams };
 };
 
 const containsNaN = (numberList: number[]): boolean => {

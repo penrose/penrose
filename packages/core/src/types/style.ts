@@ -324,6 +324,7 @@ export type GPIDecl<T> = ASTNode<T> & {
   properties: PropertyDecl<T>[];
 };
 
+// TODO: limit `below` and `above` to `FieldPath`
 export type Layering<T> = ASTNode<T> & {
   tag: "Layering";
   below: Path<T>;
