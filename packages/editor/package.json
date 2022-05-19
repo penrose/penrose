@@ -7,7 +7,7 @@
     "dev": "vite",
     "watch": "vite",
     "typecheck": "tsc",
-    "build": "vite build",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
   "dependencies": {
