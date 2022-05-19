@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
     "watch": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "build": "rm -f ./static/try/*;cp ../panels/public/* ./static/try/;NODE_OPTIONS='--max-old-space-size=8192' docusaurus build",
+    "build": "mkdir -p ./static/try/;mv ../editor/dist/ ./static/try/;NODE_OPTIONS='--max-old-space-size=8192' docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
