@@ -14,7 +14,7 @@ import {
 } from "./state/atoms";
 import { useCheckURL } from "./state/callbacks";
 
-const layoutModel = Model.fromJson({
+export const layoutModel = Model.fromJson({
   global: {
     tabEnableClose: false,
   },
@@ -107,12 +107,11 @@ function App() {
     }
     return <div>Placeholder</div>;
   }, []);
-  // TODO: name tabs on load if loading from gist
   const onAction = useRecoilCallback(
     ({ set, snapshot }) => (action: Action) => {
       if (action.type === Actions.RENAME_TAB) {
         const node = layoutModel.getNodeById(action.data.node) as TabNode;
-        const { kind } = node.getConfig().kind;
+        const { kind } = node.getConfig();
         const program = snapshot.getLoadable(fileContentsSelector(kind))
           .contents;
         set(fileContentsSelector(kind), { ...program, name: action.data.text });
@@ -130,6 +129,7 @@ function App() {
       checkURL();
     }
   }, [settings.state]);
+
   if (localFiles.state !== "hasValue") {
     return <div>Loading local files...</div>;
   }

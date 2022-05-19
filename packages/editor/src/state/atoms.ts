@@ -6,6 +6,7 @@ import {
   readRegistry,
   Trio,
 } from "@penrose/core";
+import { Actions, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce } from "lodash";
 import toast from "react-hot-toast";
@@ -17,6 +18,7 @@ import {
   selectorFamily,
 } from "recoil";
 import { v4 as uuid } from "uuid";
+import { layoutModel } from "../App";
 
 export type ProgramType = "substance" | "style" | "domain";
 
@@ -44,7 +46,7 @@ export type WorkspaceMetadata = {
   name: string;
   lastModified: string;
   id: string;
-  forkedFromGist?: string;
+  forkedFromGist: string | null;
   editorVersion: number;
   location: WorkspaceLocation;
 };
@@ -107,6 +109,10 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
           metadata: {
             ...(workspace as Workspace).metadata,
             location: { kind: "local", saved: false },
+            forkedFromGist:
+              newValue.metadata.location.kind === "gist"
+                ? newValue.metadata.location.id
+                : null,
           } as WorkspaceMetadata,
         }));
       }
@@ -121,6 +127,27 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
   );
 };
 
+/**
+ * When workspace is loaded in, sync the fileNames with the layout
+ */
+const syncFilenamesEffect: AtomEffect<Workspace> = ({ onSet }) => {
+  onSet((newValue: Workspace, oldValue: Workspace | DefaultValue) => {
+    if (oldValue instanceof DefaultValue) {
+      return;
+    }
+    if (newValue.metadata.id !== oldValue.metadata.id) {
+      layoutModel.visitNodes((node) => {
+        if (node.getType() === "tab" && (node as TabNode).getConfig()) {
+          const kind = (node as TabNode).getConfig().kind as ProgramType;
+          layoutModel.doAction(
+            Actions.renameTab(node.getId(), newValue.files[kind].name)
+          );
+        }
+      });
+    }
+  });
+};
+
 export const currentWorkspaceState = atom<Workspace>({
   key: "currentWorkspace",
   default: {
@@ -130,6 +157,7 @@ export const currentWorkspaceState = atom<Workspace>({
       lastModified: new Date().toISOString(),
       editorVersion: 0.1,
       location: { kind: "local", saved: false },
+      forkedFromGist: null,
     },
     files: {
       substance: {
@@ -146,7 +174,7 @@ export const currentWorkspaceState = atom<Workspace>({
       },
     },
   },
-  effects: [saveWorkspaceEffect],
+  effects: [saveWorkspaceEffect, syncFilenamesEffect],
 });
 
 /**

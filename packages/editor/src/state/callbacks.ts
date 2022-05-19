@@ -94,6 +94,7 @@ export const useCompileDiagram = () =>
   });
 
 const _saveLocally = (set: any) => {
+  console.info("saving locally...");
   set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
     ...state,
     id: uuid(),
@@ -166,6 +167,7 @@ export const useLoadExampleWorkspace = () =>
         location: {
           kind: "example",
         },
+        forkedFromGist: null,
       },
       files: {
         domain: {
@@ -225,6 +227,7 @@ export const useCheckURL = () =>
         id: uuid(),
         lastModified: json.created_at,
         editorVersion: gistMetadata.editorVersion,
+        forkedFromGist: null,
         location: {
           kind: "gist",
           id: json.id,
@@ -235,15 +238,15 @@ export const useCheckURL = () =>
       const files = {
         domain: {
           contents: gistFiles["domain"].content,
-          name: ".dsl",
+          name: gistMetadata.fileNames.domain,
         },
         style: {
           contents: gistFiles["style"].content,
-          name: ".sty",
+          name: gistMetadata.fileNames.style,
         },
         substance: {
           contents: gistFiles["substance"].content,
-          name: ".sub",
+          name: gistMetadata.fileNames.substance,
         },
       };
       const workspace: Workspace = {
@@ -281,6 +284,11 @@ export const usePublishGist = () =>
             content: JSON.stringify({
               name: workspace.metadata.name,
               editorVersion: workspace.metadata.editorVersion,
+              fileNames: {
+                domain: workspace.files.domain.name,
+                style: workspace.files.style.name,
+                substance: workspace.files.substance.name,
+              },
             }),
           },
           domain: {

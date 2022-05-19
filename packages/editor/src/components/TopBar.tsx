@@ -4,6 +4,7 @@ import styled from "styled-components";
 import {
   diagramMetadataSelector,
   settingsState,
+  WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "../state/atoms";
 import {
@@ -50,12 +51,18 @@ const InputBox = styled.input`
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
+  const saveLocally = useSaveLocally();
   const onChange = useRecoilCallback(
-    ({ set }) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    ({ set, snapshot }) => (e: React.ChangeEvent<HTMLInputElement>) => {
       set(workspaceMetadataSelector, (state) => ({
         ...state,
         name: e.target.value,
       }));
+      const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+        .contents as WorkspaceMetadata;
+      if (metadata.location.kind !== "local" || !metadata.location.saved) {
+        saveLocally();
+      }
     }
   );
   const onKey = useCallback((e: React.KeyboardEvent) => {
@@ -114,7 +121,10 @@ export default function TopBar() {
       >
         <EditableTitle />
         {workspaceMetadata.location.kind === "gist" && (
-          <a href={`https://github.com/${workspaceMetadata.location.author}`}>
+          <a
+            style={{ textDecoration: "none", color: "inherit" }}
+            href={`https://github.com/${workspaceMetadata.location.author}`}
+          >
             <AuthorBox>
               <div
                 style={{
