@@ -1,7 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 import { mapValues } from "lodash";
-import rfdc from "rfdc";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
@@ -15,7 +14,7 @@ import {
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
-import { LbfgsParams } from "types/state";
+import { LbfgsParams, ShapeFn } from "types/state";
 import { AnnoFloat, Expr, Path, PropertyDecl, Vector } from "types/style";
 import {
   Color,
@@ -23,16 +22,13 @@ import {
   FGPI,
   FieldExpr,
   FloatV,
-  HMatrixV,
   ListV,
   LListV,
   MatrixV,
-  PaletteV,
   PathCmd,
   PathDataV,
   PropID,
   PtListV,
-  PtV,
   ShapeTypeStr,
   SubPath,
   TagExpr,
@@ -44,9 +40,6 @@ import {
 import { showError } from "utils/Error";
 import { safe } from "utils/Util";
 import { genCode, secondaryGraph } from "./Autodiff";
-
-// For deep-cloning the translation
-const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -92,13 +85,6 @@ function mapFloat<T, S>(f: (arg: T) => S, v: FloatV<T>): FloatV<S> {
   };
 }
 
-function mapPt<T, S>(f: (arg: T) => S, v: PtV<T>): PtV<S> {
-  return {
-    tag: "PtV",
-    contents: mapTuple(f, v.contents),
-  };
-}
-
 function mapPtList<T, S>(f: (arg: T) => S, v: PtListV<T>): PtListV<S> {
   return {
     tag: "PtListV",
@@ -141,22 +127,6 @@ function mapMatrix<T, S>(f: (arg: T) => S, v: MatrixV<T>): MatrixV<S> {
   };
 }
 
-function mapHMatrix<T, S>(f: (arg: T) => S, v: HMatrixV<T>): HMatrixV<S> {
-  const m = v.contents;
-  return {
-    tag: "HMatrixV",
-    contents: {
-      // TODO: This could probably be a generic map over object values
-      xScale: f(m.xScale),
-      xSkew: f(m.xSkew),
-      yScale: f(m.yScale),
-      ySkew: f(m.ySkew),
-      dx: f(m.dx),
-      dy: f(m.dy),
-    },
-  };
-}
-
 // convert all `ad.Num`s to numbers for use in Shape def
 function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
   return {
@@ -195,13 +165,6 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
-function mapPalette<T, S>(f: (arg: T) => S, v: PaletteV<T>): PaletteV<S> {
-  return {
-    tag: "PaletteV",
-    contents: v.contents.map((e) => mapColorInner(f, e)),
-  };
-}
-
 // Utils for converting types of values
 
 // Expects `f` to be a function between numeric types (e.g. number -> ad.Num, ad.Num -> number, AD var -> ad.Num ...)
@@ -210,8 +173,6 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   switch (v.tag) {
     case "FloatV":
       return mapFloat(f, v);
-    case "PtV":
-      return mapPt(f, v);
     case "PtListV":
       return mapPtList(f, v);
     case "ListV":
@@ -224,19 +185,13 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapTup(f, v);
     case "LListV":
       return mapLList(f, v);
-    case "HMatrixV":
-      return mapHMatrix(f, v);
     case "ColorV":
       return mapColor(f, v);
-    case "PaletteV":
-      return mapPalette(f, v);
     case "PathDataV":
       return mapPathData(f, v);
     // non-numeric Value types
     case "BoolV":
     case "StrV":
-    case "FileV":
-    case "StyleV":
     case "IntV":
       return v;
   }
@@ -250,32 +205,34 @@ const numOf = (x: ad.Num): number => {
   }
 };
 
-export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] => {
+export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
   const vars = [];
   for (const s of shapes) {
     for (const v of Object.values(s.properties)) {
       vars.push(...valueADNums(v));
     }
   }
-  const g = secondaryGraph(vars);
-  const inputs = [];
-  for (const v of g.nodes.keys()) {
-    if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.key] = v.val;
-    }
-  }
-  const numbers = genCode(g)(inputs).secondary;
-  const m = new Map(g.secondary.map((id, i) => [id, numbers[i]]));
-  return shapes.map((s: ShapeAD) => ({
-    ...s,
-    properties: mapValues(s.properties, (p: Value<ad.Num>) =>
-      mapValueNumeric(
-        (x) =>
-          safe(m.get(safe(g.nodes.get(x), "missing node")), "missing output"),
-        p
-      )
-    ),
-  }));
+  const compGraph: ad.Graph = secondaryGraph(vars);
+  const evalFn: ad.Compiled = genCode(compGraph);
+  return (xs: number[]): Shape[] => {
+    const numbers = evalFn(xs).secondary;
+    const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
+    return shapes.map((s: ShapeAD) => ({
+      ...s,
+      properties: mapValues(s.properties, (p: Value<ad.Num>) =>
+        mapValueNumeric(
+          (x) =>
+            safe(
+              m.get(
+                safe(compGraph.nodes.get(x), `missing node for value ${p.tag}`)
+              ),
+              "missing output"
+            ),
+          p
+        )
+      ),
+    }));
+  };
 };
 
 const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
@@ -285,12 +242,9 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
     }
     case "IntV":
     case "BoolV":
-    case "StrV":
-    case "FileV":
-    case "StyleV": {
+    case "StrV": {
       return [];
     }
-    case "PtV":
     case "ListV":
     case "VectorV":
     case "TupV": {
@@ -308,12 +262,6 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
     }
     case "ColorV": {
       return colorADNums(v.contents);
-    }
-    case "PaletteV": {
-      return v.contents.flatMap(colorADNums);
-    }
-    case "HMatrixV": {
-      return Object.values(v.contents);
     }
   }
 };
@@ -536,10 +484,9 @@ export const insertExpr = (
               const err = `path was aliased to itself`;
               throw Error(err);
             }
-            const newPath = clone(path);
             return insertExpr(
               {
-                ...newPath,
+                ...path,
                 tag: "PropertyPath",
                 name: p.name, // Note use of alias
                 field: p.field, // Note use of alias

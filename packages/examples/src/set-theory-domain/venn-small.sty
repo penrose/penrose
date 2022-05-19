@@ -17,27 +17,7 @@ forall Set x {
 
     c = 20.0
 
-    x.debugShape = Line {
-        start: x.text.center
-        end: (x.text.center[0] + c * derivative(x.text.center[0]), x.text.center[1] + c * derivative(x.text.center[1]))
-        strokeColor: rgba(1.0, 0.0, 0.0, 0.5)
-        endArrowhead: true
-        arrowheadSize: 0.5
-        strokeWidth: 3.0
-        style: "dashed"
-    }
-
     d = 20.0
-
-    x.debugShape2 = Line {
-        start: x.text.center
-        end: (x.text.center[0] + c * derivativePreconditioned(x.text.center[0]), x.text.center[1] + c * derivativePreconditioned(x.text.center[1]))
-        strokeColor: rgba(0.0, 0.0, 1.0, 0.5)
-        endArrowhead: true
-        arrowheadSize: 0.5
-        strokeWidth: 3.0
-        style: "dashed"
-    }
 
     x.containFn = ensure contains(x.icon, x.text)
     ensure contains(x.icon, x.text)
