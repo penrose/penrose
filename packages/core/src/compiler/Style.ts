@@ -1091,8 +1091,6 @@ const insertLabels = (labels: LabelMap, symbols: StyleSymbols): StyleSymbols =>
 const fieldPath = (subName: string, field: string): string =>
   `${subName}.${field}`;
 
-// Judgment 26. D |- phi ~> D'
-
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteProperty = (
   trans: Translation,

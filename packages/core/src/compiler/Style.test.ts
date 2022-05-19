@@ -4,15 +4,14 @@ import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
 import { translateStyProg } from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
-import _ from "lodash";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
-import { PenroseError, StyleError } from "types/errors";
+import { PenroseError } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
-import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
+import { andThen, Result, unsafelyUnwrap } from "utils/Error";
 import { foldM, strVal, toLeft, ToRight } from "utils/Util";
 import { compileDomain } from "./Domain";
 import { envOrError, subEnvOrError } from "./Substance.test";
@@ -239,38 +238,6 @@ describe("Compiler", () => {
   //     expect(res).toEqual(expected);
   //   }
   // });
-
-  // There are no AnonAssign statements, i.e. they have all been substituted out (proxy test for `S.nameAnonStatements` working)
-  test("There are no anonymous statements", () => {
-    const triple = {
-      dslPath: "linear-algebra-domain/linear-algebra.dsl",
-      subPath: "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
-      styPath: "linear-algebra-domain/linear-algebra-paper-simple.sty",
-    };
-
-    const { env: varEnv, subEnv, subProg, styProg: styProgInit } = loadProgs(
-      loadFiles(triple)
-    );
-
-    const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
-    const selErrs: StyleError[] = _.flatMap(selEnvs, (e) =>
-      e.warnings.concat(e.errors)
-    );
-
-    if (selErrs.length > 0) {
-      const err = `Could not compile. Error(s) in Style while checking selectors`;
-      console.log([err].concat(selErrs.map((e) => showError(e))));
-      expect(false).toEqual(true);
-    }
-
-    const styProg: StyProg<A> = S.nameAnonStatements(styProgInit);
-
-    for (const hb of styProg.blocks) {
-      for (const stmt of hb.block.statements) {
-        expect(stmt.tag).not.toEqual("AnonAssign");
-      }
-    }
-  });
 
   const sum = (acc: number, n: number, i: number): Either<string, number> =>
     i > 2 ? toLeft("error") : ToRight(acc + n);
