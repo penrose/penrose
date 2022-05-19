@@ -1,11 +1,12 @@
 import { RenderStatic, showError } from "@penrose/core";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { diagramState } from "../state/atoms";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { state, error, metadata } = useRecoilValue(diagramState);
+  const [showEasterEgg, setShowEasterEgg] = useState(false);
 
   useEffect(() => {
     const cur = canvasRef.current;
@@ -25,7 +26,11 @@ export default function DiagramPanel() {
 
   return (
     <div>
-      {state === null && <span>press compile to see diagram</span>}
+      {state === null && (
+        <span onClick={() => setShowEasterEgg((s) => !s)}>
+          press compile to see diagram
+        </span>
+      )}
       <div
         style={{
           width: "100%",
@@ -53,6 +58,16 @@ export default function DiagramPanel() {
           </span>
           <pre>{showError(error).toString()}</pre>
         </div>
+      )}
+      {showEasterEgg && (
+        <iframe
+          width="100%"
+          height="300"
+          src="https://www.youtube.com/embed/6j928wBZ_Bo?controls=0&amp;start=9&amp;autoplay=1"
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        ></iframe>
       )}
     </div>
   );

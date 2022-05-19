@@ -11316,6 +11316,11 @@ globby@^9.2.0:
     pify "^4.0.1"
     slash "^2.0.0"
 
+goober@^2.1.1:
+  version "2.1.9"
+  resolved "https://registry.yarnpkg.com/goober/-/goober-2.1.9.tgz#0faee08fab1a5d55b23e9ec043bb5a1b46fa025a"
+  integrity sha512-PAtnJbrWtHbfpJUIveG5PJIB6Mc9Kd0gimu9wZwPyA+wQUSeOeA4x4Ug16lyaaUUKZ/G6QEH1xunKOuXP1F4Vw==
+
 got@^9.6.0:
   version "9.6.0"
   resolved "https://registry.yarnpkg.com/got/-/got-9.6.0.tgz#edf45e7d67f99545705de1f7bbeeeb121765ed85"
@@ -14778,6 +14783,11 @@ monaco-editor@^0.22.3:
   resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.22.3.tgz#69b42451d3116c6c08d9b8e052007ff891fd85d7"
   integrity sha512-RM559z2CJbczZ3k2b+ouacMINkAYWwRit4/vs0g2X/lkYefDiu0k2GmgWjAuiIpQi+AqASPOKvXNmYc8KUSvVQ==
 
+monaco-vim@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/monaco-vim/-/monaco-vim-0.3.4.tgz#141d3e1129a563e63a7286a1472ccfe72b758abe"
+  integrity sha512-IVogmrQ6fRwW2PD9XRHFysOZBFj8qcRhgabu7GlGiNR14ApKMHz3pYOL1hDq1ctVPj1DS6hZd98vZrFxWr5d6A==
+
 moo@^0.5.0, moo@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/moo/-/moo-0.5.1.tgz#7aae7f384b9b09f620b6abf6f74ebbcd1b65dbc4"
@@ -17216,6 +17226,13 @@ react-helmet@^6.1.0:
     prop-types "^15.7.2"
     react-fast-compare "^3.1.1"
     react-side-effect "^2.1.0"
+
+react-hot-toast@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/react-hot-toast/-/react-hot-toast-2.2.0.tgz#ab6f4caed4214b9534f94bb8cfaaf21b051e62b9"
+  integrity sha512-248rXw13uhf/6TNDVzagX+y7R8J183rp7MwUMNkcrBRyHj/jWOggfXTGlM8zAOuh701WyVW+eUaWG2LeSufX9g==
+  dependencies:
+    goober "^2.1.1"
 
 react-inspector@^2.2.2:
   version "2.3.1"

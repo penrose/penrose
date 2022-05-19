@@ -1,6 +1,7 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { Env } from "@penrose/core";
 import { editor } from "monaco-editor";
+import { initVimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
 import { SetupDomainMonaco } from "./languages/DomainConfig";
 import { SetupStyleMonaco } from "./languages/StyleConfig";
@@ -34,17 +35,22 @@ export default function EditorPane({
   const statusBarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (monaco) {
+      let vim = { dispose: () => {} };
       const dispose =
         languageType === "domain"
           ? SetupDomainMonaco(monaco)
           : languageType === "style"
           ? SetupStyleMonaco(monaco)
           : SetupSubstanceMonaco(domainCache)(monaco);
+      if (vimMode && editorRef.current) {
+        vim = initVimMode(editorRef.current, statusBarRef.current);
+      }
       return () => {
         dispose();
+        vim.dispose();
       };
     }
-  }, [monaco, vimMode, languageType, domainCache]);
+  }, [monaco, vimMode, languageType, domainCache, editorRef.current]);
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };

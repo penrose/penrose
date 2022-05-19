@@ -8,10 +8,24 @@ import {
 } from "@penrose/core";
 import localforage from "localforage";
 import { debounce } from "lodash";
-import { atom, AtomEffect, selector, selectorFamily } from "recoil";
+import toast from "react-hot-toast";
+import {
+  atom,
+  AtomEffect,
+  DefaultValue,
+  selector,
+  selectorFamily,
+} from "recoil";
 import { v4 as uuid } from "uuid";
 
 export type ProgramType = "substance" | "style" | "domain";
+
+export type GistLocation = {
+  kind: "gist";
+  id: string;
+  author: string;
+  avatar: string;
+};
 
 export type WorkspaceLocation =
   | {
@@ -21,7 +35,7 @@ export type WorkspaceLocation =
        */
       saved: boolean;
     }
-  | { kind: "gist"; id: string; author: string }
+  | GistLocation
   | {
       kind: "example";
     };
@@ -30,8 +44,8 @@ export type WorkspaceMetadata = {
   name: string;
   lastModified: string;
   id: string;
-  forked_from_id?: string;
-  editor_version: number;
+  forkedFromGist?: string;
+  editorVersion: number;
   location: WorkspaceLocation;
 };
 
@@ -114,7 +128,7 @@ export const currentWorkspaceState = atom<Workspace>({
       name: "Untitled Diagram",
       id: uuid(),
       lastModified: new Date().toISOString(),
-      editor_version: 0.1,
+      editorVersion: 0.1,
       location: { kind: "local", saved: false },
     },
     files: {
@@ -231,7 +245,7 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
   },
 });
 
-export const exampleTriosAtom = atom<Trio[]>({
+export const exampleTriosState = atom<Trio[]>({
   key: "exampleTrios",
   default: selector({
     key: "exampleTrios/default",
@@ -249,8 +263,46 @@ export const exampleTriosAtom = atom<Trio[]>({
         }));
         return trios;
       } catch (err) {
+        toast.error(`Could not retrieve example: ${err}`);
         return [];
       }
     },
   }),
+});
+
+export type LocalGithubUser = {
+  username: string;
+  avatar: string;
+  accessToken: string;
+};
+
+export type Settings = {
+  github: LocalGithubUser | null;
+  vimMode: boolean;
+};
+
+const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
+  setSelf(
+    localforage
+      .getItem("settings")
+      .then(
+        (savedValue) =>
+          (savedValue != null ? savedValue : new DefaultValue()) as Settings
+      )
+  );
+
+  onSet((newValue, _, isReset) => {
+    isReset
+      ? localforage.removeItem("settings")
+      : localforage.setItem("settings", newValue);
+  });
+};
+
+export const settingsState = atom<Settings>({
+  key: "settings",
+  default: {
+    github: null,
+    vimMode: false,
+  },
+  effects: [settingsEffect],
 });

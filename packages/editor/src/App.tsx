@@ -1,12 +1,18 @@
 import { Action, Actions, Layout, Model, TabNode } from "flexlayout-react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesBrowser from "./components/ExamplesBrowser";
 import LocalFilesBrowser from "./components/LocalFilesBrowser";
 import ProgramEditor from "./components/ProgramEditor";
+import Settings from "./components/Settings";
 import TopBar from "./components/TopBar";
-import { fileContentsSelector, localFilesState } from "./state/atoms";
+import {
+  fileContentsSelector,
+  localFilesState,
+  settingsState,
+} from "./state/atoms";
+import { useCheckURL } from "./state/callbacks";
 
 const layoutModel = Model.fromJson({
   global: {
@@ -26,6 +32,11 @@ const layoutModel = Model.fromJson({
           type: "tab",
           name: "examples",
           component: "examplesPanel",
+        },
+        {
+          type: "tab",
+          name: "settings",
+          component: "settingsPanel",
         },
       ],
     },
@@ -72,6 +83,7 @@ const layoutModel = Model.fromJson({
             type: "tab",
             name: "Diagram",
             component: "diagram",
+            enableRename: false,
           },
         ],
       },
@@ -90,6 +102,8 @@ function App() {
         return <LocalFilesBrowser />;
       case "examplesPanel":
         return <ExamplesBrowser />;
+      case "settingsPanel":
+        return <Settings />;
     }
     return <div>Placeholder</div>;
   }, []);
@@ -108,7 +122,14 @@ function App() {
     []
   );
 
+  const checkURL = useCheckURL();
   const localFiles = useRecoilValueLoadable(localFilesState);
+  const settings = useRecoilValueLoadable(settingsState);
+  useEffect(() => {
+    if (settings.state === "hasValue") {
+      checkURL();
+    }
+  }, [settings.state]);
   if (localFiles.state !== "hasValue") {
     return <div>Loading local files...</div>;
   }

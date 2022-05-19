@@ -6,12 +6,17 @@ import {
   Trio,
 } from "@penrose/core";
 import localforage from "localforage";
+import queryString from "query-string";
+import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   currentWorkspaceState,
   Diagram,
   diagramState,
+  LocalGithubUser,
+  Settings,
+  settingsState,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
@@ -127,6 +132,7 @@ export const useLoadLocalWorkspace = () =>
     const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
     if (loadedWorkspace === null) {
       console.error("Could not retrieve workspace", id);
+      toast.error(`Could not retrieve workspace ${id}`);
       return;
     }
     set(currentWorkspaceState, loadedWorkspace as Workspace);
@@ -156,7 +162,7 @@ export const useLoadExampleWorkspace = () =>
         id: uuid(),
         name: trio.name,
         lastModified: new Date().toISOString(),
-        editor_version: 0.1,
+        editorVersion: 0.1,
         location: {
           kind: "example",
         },
@@ -177,4 +183,134 @@ export const useLoadExampleWorkspace = () =>
       },
     });
     await _compileDiagram(substance, style, domain, trio.variation, true, set);
+  });
+
+export const useCheckURL = () =>
+  useRecoilCallback(({ set }) => async () => {
+    const parsed = queryString.parse(window.location.search);
+    if (
+      "access_token" in parsed &&
+      "profile[login]" in parsed &&
+      "profile[avatar_url]" in parsed
+    ) {
+      // Signed into GitHub
+      set(settingsState, (state) => ({
+        ...state,
+        github: {
+          username: parsed["profile[login]"],
+          accessToken: parsed["access_token"],
+          avatar: parsed["profile[avatar_url]"],
+        } as LocalGithubUser,
+      }));
+    } else if ("gist" in parsed) {
+      // Loading a gist
+      const res = await fetch(
+        `https://api.github.com/gists/${parsed["gist"]}`,
+        {
+          headers: {
+            accept: "application/vnd.github.v3+json",
+          },
+        }
+      );
+      if (res.status !== 200) {
+        console.error(res);
+        toast.error(`Could not load gist: ${res.status}`);
+        return;
+      }
+      const json = await res.json();
+      const gistFiles = json.files;
+      const gistMetadata = JSON.parse(gistFiles["metadata.json"].content);
+      const metadata: WorkspaceMetadata = {
+        name: gistMetadata.name,
+        id: uuid(),
+        lastModified: json.created_at,
+        editorVersion: gistMetadata.editorVersion,
+        location: {
+          kind: "gist",
+          id: json.id,
+          author: json.owner.login,
+          avatar: json.owner.avatar_url,
+        },
+      };
+      const files = {
+        domain: {
+          contents: gistFiles["domain"].content,
+          name: ".dsl",
+        },
+        style: {
+          contents: gistFiles["style"].content,
+          name: ".sty",
+        },
+        substance: {
+          contents: gistFiles["substance"].content,
+          name: ".sub",
+        },
+      };
+      const workspace: Workspace = {
+        metadata,
+        files,
+      };
+      set(currentWorkspaceState, workspace);
+    }
+  });
+
+export const usePublishGist = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const settings = snapshot.getLoadable(settingsState).contents as Settings;
+    if (settings.github === null) {
+      console.error(`Not authorized with GitHub`);
+      toast.error(`Not authorized with GitHub`);
+      return;
+    }
+    const res = await fetch("https://api.github.com/gists", {
+      method: "POST",
+      headers: {
+        accept: "application/vnd.github.v3+json",
+        Authorization: `token ${settings.github.accessToken}`,
+      },
+      body: JSON.stringify({
+        description: workspace.metadata.name,
+        files: {
+          // https://stackoverflow.com/a/20949455/10833799
+          ["_" + workspace.metadata.name]: {
+            content: "a Penrose gist",
+          },
+          "metadata.json": {
+            content: JSON.stringify({
+              name: workspace.metadata.name,
+              editorVersion: workspace.metadata.editorVersion,
+            }),
+          },
+          domain: {
+            content: workspace.files.domain.contents,
+          },
+          style: {
+            content: workspace.files.style.contents,
+          },
+          substance: {
+            content: workspace.files.substance.contents,
+          },
+        },
+        public: false,
+      }),
+    });
+    const json = await res.json();
+    if (res.status !== 201) {
+      console.error(`Could not publish gist: ${res.status}`);
+      toast.error(`Could not publish gist: ${res.status} ${json.message}`);
+      return;
+    }
+    toast.success(`Published gist, redirecting...`);
+    window.location.search = queryString.stringify({ gist: json.id });
+  });
+
+export const useSignIn = () =>
+  useRecoilCallback(({ set, snapshot }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
+    _confirmDirtyWorkspace(workspace, set);
+    window.location.replace(
+      "https://penrose-gh-auth.vercel.app/connect/github"
+    );
   });

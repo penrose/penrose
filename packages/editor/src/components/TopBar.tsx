@@ -3,9 +3,14 @@ import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
   diagramMetadataSelector,
+  settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms";
-import { useCompileDiagram, useSaveLocally } from "../state/callbacks";
+import {
+  useCompileDiagram,
+  usePublishGist,
+  useSaveLocally,
+} from "../state/callbacks";
 import BlueButton from "./BlueButton";
 
 const TitleBox = styled.div`
@@ -17,6 +22,20 @@ const TitleBox = styled.div`
   :hover {
     border: 1px solid gray;
     border-radius: 5px;
+  }
+`;
+
+const AuthorBox = styled.div`
+  border-radius: 5px;
+  transition: 0.2s;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 2px;
+  padding: 2px 5px;
+  :hover {
+    transition: 0.2s;
+    background-color: rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -68,7 +87,9 @@ export default function TopBar() {
   const compileDiagram = useCompileDiagram();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const diagramMetadata = useRecoilValue(diagramMetadataSelector);
+  const settings = useRecoilValue(settingsState);
   const saveLocally = useSaveLocally();
+  const publishGist = usePublishGist();
   const toggleAutostep = useRecoilCallback(({ set }) => () => {
     set(diagramMetadataSelector, (metadata) => ({
       ...metadata,
@@ -88,15 +109,39 @@ export default function TopBar() {
         boxSizing: "border-box",
       }}
     >
-      <div>
+      <div
+        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+      >
         <EditableTitle />
+        {workspaceMetadata.location.kind === "gist" && (
+          <a href={`https://github.com/${workspaceMetadata.location.author}`}>
+            <AuthorBox>
+              <div
+                style={{
+                  width: "25px",
+                  height: "25px",
+                  margin: "5px",
+                  backgroundImage: `url(${workspaceMetadata.location.avatar})`,
+                  borderRadius: "50%",
+                  backgroundSize: "cover",
+                  display: "inline-block",
+                }}
+              />{" "}
+              {workspaceMetadata.location.author}
+            </AuthorBox>
+          </a>
+        )}
+        {workspaceMetadata.location.kind === "local" &&
+          !workspaceMetadata.location.saved && (
+            <BlueButton onClick={saveLocally}>save locally</BlueButton>
+          )}
+        {workspaceMetadata.location.kind === "local" &&
+          settings.github !== null && (
+            <BlueButton onClick={publishGist}>publish</BlueButton>
+          )}
       </div>
       <div>
         <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
-        {(workspaceMetadata.location.kind === "gist" ||
-          !workspaceMetadata.location.saved) && (
-          <BlueButton onClick={saveLocally}>save locally</BlueButton>
-        )}
         <BlueButton onClick={toggleAutostep}>
           autostep ({diagramMetadata.autostep ? "on" : "off"})
         </BlueButton>
