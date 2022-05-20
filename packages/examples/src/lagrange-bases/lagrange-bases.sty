@@ -48,7 +48,6 @@ where x has math label {
       string: x.label
       fontSize: Global.labelSize
       fillColor: Colors.black
-      ensureOnCanvas: false
    }
 }
 
@@ -162,6 +161,31 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
    override mjk.icon.center = (pj+pk)/2. + offsetSize * unitVector(thetaJK)
    override mki.icon.center = (pk+pi)/2. + offsetSize * unitVector(thetaKI)
 
+   -- offset the midpoint labels so they don't cross the edges
+   -- (since we don't yet support disjoint constraints for Bézier
+   -- curves, just push the vertex away from both segments to the midpoint)
+   vec2 cij = mij.icon.center
+   vec2 nij = unit(unit(cij-pi) + unit(cij-pj))
+   override mij.labelText.center = cij + 12.*nij
+
+   vec2 cjk = mjk.icon.center
+   vec2 njk = unit(unit(cjk-pj) + unit(cjk-pk))
+   override mjk.labelText.center = cjk + 12.*njk
+
+   vec2 cki = mki.icon.center
+   vec2 nki = unit(unit(cki-pk) + unit(cki-pi))
+   override mki.labelText.center = cki + 12.*nki
+
+   -- similarly, offset the vertex labels so they don't cross the edges
+   vec2 ni = unit(unit(pi-pij) + unit(pi-pki))
+   override vi.labelText.center = pi + 10.*ni
+
+   vec2 nj = unit(unit(pj-pjk) + unit(pj-pij))
+   override vj.labelText.center = pj + 10.*nj
+
+   vec2 nk = unit(unit(pk-pki) + unit(pk-pjk))
+   override vk.labelText.center = pk + 10.*nk
+
    -- draw the midpoints in a different style
    override mij.icon.r = Global.smallDotSize
    override mij.icon.fillColor = Colors.white
@@ -202,7 +226,7 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
    -- the signed corner angles aren't too small (we don't
    -- need to worry about the final angle since the
    -- angles of any triangle sum to π
-   scalar minAngle = toRadians( 30. )
+   scalar minAngle = toRadians( 50. )
    ensure greaterThan( angleFrom(pj-pi,pk-pi), minAngle )
    ensure greaterThan( angleFrom(pk-pj,pi-pj), minAngle )
 }
