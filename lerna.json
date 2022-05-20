@@ -5,8 +5,8 @@
     "packages/components",
     "packages/core",
     "packages/docs-site",
+    "packages/editor",
     "packages/examples",
-    "packages/panels",
     "packages/roger",
     "packages/synthesizer",
     "packages/synthesizer-ui"

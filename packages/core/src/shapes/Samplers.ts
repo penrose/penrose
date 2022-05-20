@@ -4,18 +4,14 @@ import {
   BoolV,
   Color,
   ColorV,
-  FileV,
   FloatV,
   IntV,
   ListV,
   MatrixV,
-  PaletteV,
   PathCmd,
   PathDataV,
   PtListV,
-  PtV,
   StrV,
-  StyleV,
   TupV,
   VectorV,
 } from "types/value";
@@ -60,10 +56,6 @@ export const strV = (contents: string): StrV => ({
   tag: "StrV",
   contents,
 });
-export const ptV = (contents: ad.Num[]): PtV<ad.Num> => ({
-  tag: "PtV",
-  contents,
-});
 export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
   tag: "PathDataV",
   contents,
@@ -76,18 +68,7 @@ export const colorV = (contents: Color<ad.Num>): ColorV<ad.Num> => ({
   tag: "ColorV",
   contents,
 });
-export const paletteV = (contents: Color<ad.Num>[]): PaletteV<ad.Num> => ({
-  tag: "PaletteV",
-  contents,
-});
-export const fileV = (contents: string): FileV<ad.Num> => ({
-  tag: "FileV",
-  contents,
-});
-export const styleV = (contents: string): StyleV<ad.Num> => ({
-  tag: "StyleV",
-  contents,
-});
+
 export const listV = (contents: ad.Num[]): ListV<ad.Num> => ({
   tag: "ListV",
   contents,
