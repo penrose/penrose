@@ -342,7 +342,7 @@ describe("Debug API", () => {
 
     // queryExplainStyleBlockApplication(21,{'x':'B','y':'C'}) == Error (style variable z does not exist)
     expect(() => {
-      dbg.queryExplainStyleBlockApplication(11, { z: "B" });
+      dbg.queryExplainStyleBlockApplication(21, { z: "B" });
     }).toThrowError();
 
     // queryExplainStyleBlockApplication(21,{'x':'B','y':'C'}) == Error (no style block @ line 1)
@@ -352,7 +352,7 @@ describe("Debug API", () => {
 
     // queryExplainStyleBlockApplication(21,{}) == Error (empty query)
     expect(() => {
-      dbg.queryExplainStyleBlockApplication(1, {});
+      dbg.queryExplainStyleBlockApplication(21, {});
     }).toThrowError();
   });
 });
