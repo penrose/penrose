@@ -211,6 +211,17 @@ describe("Debug API", () => {
       });
     }).toThrowError();
 
+    // getSourceText() w/startLine > last source line  == (Error - out of range)
+    expect(() => {
+      Debugger.getSourceText(styleSrc, {
+        origin: DebugProgramType.STYLE,
+        lineStart: 1,
+        lineEnd: 999, // Error!
+        colStart: 0,
+        colEnd: 1,
+      });
+    }).toThrowError();
+
     // ---------------------------- Live Debugger Tests ----------------------------- //
 
     // Get a live Debugger instance
