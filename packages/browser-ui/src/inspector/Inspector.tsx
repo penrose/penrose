@@ -26,12 +26,9 @@ export interface InspectState {
 
 class Inspector extends React.Component<Props, InspectState> {
   public readonly state = {
-    // connectionLog: [],
     selectedFrame: -1,
     selectedView: 0,
   };
-  // public appendToConnectionLog = (status: ConnectionStatus | string) =>
-  // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
   public selectFrame = (frame: number): void => {
     this.setState({

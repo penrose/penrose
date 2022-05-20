@@ -8,7 +8,7 @@ import {
 import BlueButton from "./BlueButton";
 import FileButton from "./FileButton";
 
-export default function LocalFilesBrowser() {
+export default function SavedFilesBrowser() {
   const localFiles = useRecoilValue(localFilesState);
   const currentWorkspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const loadWorkspace = useLoadLocalWorkspace();
@@ -30,9 +30,7 @@ export default function LocalFilesBrowser() {
       <div>
         {(workspaceMetadata.location.kind !== "local" ||
           !workspaceMetadata.location.saved) && (
-          <BlueButton onClick={saveLocally}>
-            save current workspace locally
-          </BlueButton>
+          <BlueButton onClick={saveLocally}>save current workspace</BlueButton>
         )}
       </div>
     </div>

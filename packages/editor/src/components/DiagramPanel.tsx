@@ -1,7 +1,33 @@
 import { RenderStatic, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { diagramState } from "../state/atoms";
+import { useRecoilCallback, useRecoilValue } from "recoil";
+import {
+  diagramState,
+  WorkspaceMetadata,
+  workspaceMetadataSelector,
+} from "../state/atoms";
+import BlueButton from "./BlueButton";
+
+/**
+ * (browser-only) Downloads any given exported SVG to the user's computer
+ * @param svg
+ * @param title the filename
+ */
+export const DownloadSVG = (
+  svg: SVGSVGElement,
+  title = "illustration"
+): void => {
+  const blob = new Blob([svg.outerHTML], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = url;
+  downloadLink.download = `${title}.svg`;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+};
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -24,6 +50,20 @@ export default function DiagramPanel() {
     }
   }, [state]);
 
+  const download = useRecoilCallback(
+    ({ snapshot }) => () => {
+      if (canvasRef.current !== null) {
+        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+        if (svg !== null) {
+          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+            .contents as WorkspaceMetadata;
+          DownloadSVG(svg, metadata.name);
+        }
+      }
+    },
+    [metadata]
+  );
+
   return (
     <div>
       {state === null && (
@@ -41,6 +81,7 @@ export default function DiagramPanel() {
         }}
         ref={canvasRef}
       />
+      {state && <BlueButton onClick={download}>SVG</BlueButton>}
       {error && (
         <div
           style={{

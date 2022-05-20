@@ -62,7 +62,9 @@ const _compileDiagram = async (
     state: initialState,
   }));
   if (autostep) {
+    const steppingLoading = toast.loading("Stepping...");
     const stepResult = stepUntilConvergence(initialState);
+    toast.dismiss(steppingLoading);
     if (stepResult.isErr()) {
       set(diagramState, (state: Diagram) => ({
         ...state,
@@ -105,6 +107,7 @@ export const useResampleDiagram = () =>
       return;
     }
     const variation = uuid();
+    const resamplingLoading = toast.loading("Resampling...");
     const seeds = variationSeeds(variation).seeds;
     const resampled = resample({ ...diagram.state, seeds });
     set(diagramState, (state) => ({
@@ -112,8 +115,11 @@ export const useResampleDiagram = () =>
       metadata: { ...state.metadata, variation },
       state: resampled,
     }));
+    toast.dismiss(resamplingLoading);
     if (diagram.metadata.autostep) {
+      const steppingLoading = toast.loading("Stepping...");
       const stepResult = stepUntilConvergence(resampled);
+      toast.dismiss(steppingLoading);
       if (stepResult.isErr()) {
         set(diagramState, (state: Diagram) => ({
           ...state,
@@ -183,7 +189,7 @@ export const useLoadLocalWorkspace = () =>
   });
 
 export const useLoadExampleWorkspace = () =>
-  useRecoilCallback(({ set, snapshot }) => async (trio: Trio) => {
+  useRecoilCallback(({ set, reset, snapshot }) => async (trio: Trio) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents;
     if (!_confirmDirtyWorkspace(currentWorkspace)) {
@@ -223,12 +229,14 @@ export const useLoadExampleWorkspace = () =>
         },
       },
     });
+    reset(diagramState);
     await _compileDiagram(substance, style, domain, trio.variation, true, set);
   });
 
 export const useCheckURL = () =>
   useRecoilCallback(({ set }) => async () => {
     const parsed = queryString.parse(window.location.search);
+    console.log(parsed);
     if (
       "access_token" in parsed &&
       "profile[login]" in parsed &&
@@ -355,15 +363,17 @@ export const usePublishGist = () =>
     window.location.search = queryString.stringify({ gist: json.id });
   });
 
+const REDIRECT_URL =
+  process.env.NODE_ENV === "development"
+    ? "https://penrose-gh-auth-zeta.vercel.app/connect/github"
+    : "https://penrose-gh-auth.vercel.app/connect/github";
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
     if (!_confirmDirtyWorkspace(workspace)) {
       return;
     }
-    window.location.replace(
-      "https://penrose-gh-auth.vercel.app/connect/github"
-    );
+    window.location.replace(REDIRECT_URL);
   });
 
 export const useDeleteLocalFile = () =>

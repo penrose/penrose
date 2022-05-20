@@ -1,10 +1,11 @@
 import { Action, Actions, Layout, Model, TabNode } from "flexlayout-react";
 import { useCallback, useEffect } from "react";
 import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
+import DiagramOptions from "./components/DiagramOptions";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesBrowser from "./components/ExamplesBrowser";
-import LocalFilesBrowser from "./components/LocalFilesBrowser";
 import ProgramEditor from "./components/ProgramEditor";
+import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
 import TopBar from "./components/TopBar";
 import {
@@ -25,8 +26,8 @@ export const layoutModel = Model.fromJson({
       children: [
         {
           type: "tab",
-          name: "local files",
-          component: "localFiles",
+          name: "saved",
+          component: "savedFiles",
         },
         {
           type: "tab",
@@ -37,6 +38,17 @@ export const layoutModel = Model.fromJson({
           type: "tab",
           name: "settings",
           component: "settingsPanel",
+        },
+      ],
+    },
+    {
+      type: "border",
+      location: "right",
+      children: [
+        {
+          type: "tab",
+          name: "options",
+          component: "diagramOptions",
         },
       ],
     },
@@ -98,12 +110,14 @@ function App() {
         return <ProgramEditor kind={node.getConfig().kind} />;
       case "diagram":
         return <DiagramPanel />;
-      case "localFiles":
-        return <LocalFilesBrowser />;
+      case "savedFiles":
+        return <SavedFilesBrowser />;
       case "examplesPanel":
         return <ExamplesBrowser />;
       case "settingsPanel":
         return <Settings />;
+      case "diagramOptions":
+        return <DiagramOptions />;
     }
     return <div>Placeholder</div>;
   }, []);

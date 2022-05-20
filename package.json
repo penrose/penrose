@@ -14,7 +14,7 @@
     "build:docs-site": "lerna run build --stream --scope=@penrose/examples --scope=@penrose/core --scope=@penrose/components --scope=@penrose/editor --scope=@penrose/docs-site",
     "start:docs-site": "lerna run watch --stream --parallel --scope=@penrose/components --scope=@penrose/docs-site",
     "prestart:ide": "lerna run build --scope=@penrose/examples --scope=@penrose/core --scope=@penrose/components",
-    "start:ide": "lerna run watch --stream --scope=@penrose/editor",
+    "start:ide": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/editor",
     "build:ide": "lerna run build --stream --scope=@penrose/core --scope=@penrose/components --scope=@penrose/editor  --include-dependencies",
     "test": "lerna run test --stream",
     "docs": "lerna run docs --stream",

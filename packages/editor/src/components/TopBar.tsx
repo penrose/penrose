@@ -145,11 +145,11 @@ export default function TopBar() {
         )}
         {workspaceMetadata.location.kind === "local" &&
           !workspaceMetadata.location.saved && (
-            <BlueButton onClick={saveLocally}>save locally</BlueButton>
+            <BlueButton onClick={saveLocally}>save</BlueButton>
           )}
         {workspaceMetadata.location.kind === "local" &&
           settings.github !== null && (
-            <BlueButton onClick={publishGist}>publish</BlueButton>
+            <BlueButton onClick={publishGist}>share</BlueButton>
           )}
       </div>
       <div>
