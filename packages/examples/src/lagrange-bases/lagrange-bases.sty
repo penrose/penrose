@@ -28,10 +28,24 @@ forall Node x {
       center: (?,?)
       r: Global.dotSize
       fillColor: Colors.black
-      -- ensureOnCanvas: false
    }
 
    layer x.icon above Global.box
+}
+
+-- put text near a node if it has a label
+forall Node x
+where x has math label {
+
+   scalar theta = ?
+
+   x.labelText = Equation {
+      center: x.icon.center + 10.*unitVector(theta)
+      string: x.label
+      fontSize: 6
+      fillColor: Colors.black
+      ensureOnCanvas: false
+   }
 }
 
 forall Element e; Node vi; Node vj; Node vk
@@ -188,19 +202,85 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
    ensure greaterThan( angleFrom(pk-pj,pi-pj), minAngle )
 }
 
-forall Node x
-where x has math label {
-
-   scalar theta = ?
-
-   x.labelText = Equation {
-      center: x.icon.center + 10.*unitVector(theta)
-      string: x.label
-      --fontFamily: "Palatino"
-      --fontStyle: "italic"
-      fontSize: 6
-      fillColor: Colors.black
-   }
-}
-
-
+-- forall Element e; Node vi; Node vj; Node vk; Node vl; Node mij; Node mjk; Node mkl; Node mli
+-- where e := QuadraticQuad( vi, vj, vk, vl, mij, mjk, mkl, mli ) {
+-- 
+--    override mjk.icon.fillColor = Colors.white
+-- 
+--    -- -- grab node locations (for convenience)
+--    -- vec2 pi = vi.icon.center
+--    -- vec2 pj = vj.icon.center
+--    -- vec2 pk = vk.icon.center
+--    -- vec2 pl = vk.icon.center
+--    -- vec2 pij = mij.icon.center
+--    -- vec2 pjk = mjk.icon.center
+--    -- vec2 pkl = mkl.icon.center
+--    -- vec2 pli = mli.icon.center
+-- 
+--    -- -- offset the middle nodes in some random direction from the
+--    -- -- geometric midpoints between the triangle vertices
+--    -- -- scalar offsetSize = 20.
+--    -- -- scalar thetaIJ = ?
+--    -- -- scalar thetaJK = ?
+--    -- -- scalar thetaKL = ?
+--    -- -- scalar thetaLI = ?
+--    -- -- override mij.icon.center = (pi+pj)/2. + offsetSize * unitVector(thetaIJ)
+--    -- -- override mjk.icon.center = (pj+pk)/2. + offsetSize * unitVector(thetaJK)
+--    -- -- override mkl.icon.center = (pk+pl)/2. + offsetSize * unitVector(thetaKL)
+--    -- -- override mli.icon.center = (pl+pi)/2. + offsetSize * unitVector(thetaLI)
+-- 
+--    -- override mij.icon.r = Global.smallDotSize
+--    -- override mij.icon.fillColor = Colors.white
+--    -- override mij.icon.strokeColor = Colors.black
+--    -- override mij.icon.strokeWidth = 1.
+-- 
+--    -- override mjk.icon.r = Global.smallDotSize
+--    -- override mjk.icon.fillColor = Colors.white
+--    -- override mjk.icon.strokeColor = Colors.black
+--    -- override mjk.icon.strokeWidth = 1.
+-- 
+--    -- override mkl.icon.r = Global.smallDotSize
+--    -- override mkl.icon.fillColor = Colors.white
+--    -- override mkl.icon.strokeColor = Colors.black
+--    -- override mkl.icon.strokeWidth = 1.
+-- 
+--    -- override mli.icon.r = Global.smallDotSize
+--    -- override mli.icon.fillColor = Colors.white
+--    -- override mli.icon.strokeColor = Colors.black
+--    -- override mli.icon.strokeWidth = 1.
+-- 
+--    -- -- draw edges as quadratic Bézier curves
+--    -- shape e.curveIJ = Path {
+--    --    d: interpolateQuadraticFromPoints("open", [pi,pij,pj])
+--    --    strokeColor: Colors.black
+--    --    strokeWidth: 1.5
+--    --    ensureOnCanvas: false
+--    -- }
+--    -- shape e.curveJK = Path {
+--    --    d: interpolateQuadraticFromPoints("open", [pj,pjk,pk])
+--    --    strokeColor: Colors.black
+--    --    strokeWidth: 1.5
+--    --    ensureOnCanvas: false
+--    -- }
+--    -- shape e.curveKL = Path {
+--    --    d: interpolateQuadraticFromPoints("open", [pk,pkl,pl])
+--    --    strokeColor: Colors.black
+--    --    strokeWidth: 1.5
+--    --    ensureOnCanvas: false
+--    -- }
+--    -- shape e.curveLI = Path {
+--    --    d: interpolateQuadraticFromPoints("open", [pl,pli,pi])
+--    --    strokeColor: Colors.black
+--    --    strokeWidth: 1.5
+--    --    ensureOnCanvas: false
+--    -- }
+-- 
+--    -- make sure quads are reasonably nice by ensuring
+--    -- the signed corner angles aren't too small (we don't
+--    -- need to worry about the final angle since the
+--    -- angles of any quad sum to 2π
+--    ---- scalar minAngle = toRadians( 30. )
+--    ---- ensure greaterThan( angleFrom(pj-pi,pl-pi), minAngle )
+--    ---- ensure greaterThan( angleFrom(pk-pj,pi-pj), minAngle )
+--    ---- ensure greaterThan( angleFrom(pl-pk,pj-pk), minAngle )
+-- }
