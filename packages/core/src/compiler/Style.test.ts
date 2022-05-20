@@ -2,7 +2,7 @@
 
 import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
-import { translateStyProg } from "compiler/Style";
+import { buildAssignment } from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
@@ -130,11 +130,19 @@ describe("Compiler", () => {
       `,
       sty: ``,
     });
-    const { symbols } = translateStyProg(env, subEnv, styProg, subEnv.labels);
-    expect(symbols.includes(strVal("aaa"))).toBe(true);
-    expect(symbols.includes(strVal("C"))).toBe(true);
-    expect(symbols.includes(strVal("C"))).toBe(false);
+    const { objects } = buildAssignment(env, subEnv, styProg);
+    for (const [name, label] of [
+      ["A", "aaa"],
+      ["C", "C"],
+    ]) {
+      const v = objects.get(name)?.get("label");
+      if (v?.tag === "OtherSource" && v?.expr.tag === "StringLit") {
+        expect(v.expr.contents).toBe(label);
+      }
+    }
+    expect(objects.has("B")).toBe(false);
   });
+
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
   // // Each possible substitution should be full WRT its selector
   // test("substitution: S.fullSubst true", () => {

@@ -4,7 +4,7 @@ import * as ad from "types/ad";
 import { A } from "./ast";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
-import { Translation } from "./translation";
+import { Translation } from "./styleSemantics";
 import { ArgVal, FloatV } from "./value";
 
 export type ShapeFn = (xs: number[]) => Shape[];

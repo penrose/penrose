@@ -23,7 +23,7 @@ import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
-import { ShapeDef, shapedefs } from "shapes/Shapes";
+import { isShapeType, ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A, C, Identifier } from "types/ast";
 import { Either } from "types/common";
@@ -63,12 +63,20 @@ import {
   StyProg,
   StyT,
 } from "types/style";
-import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
+import {
+  Assignment,
+  FieldSource,
+  LocalVarSubst,
+  Nameable,
+  ProgType,
+  SelEnv,
+  StyleSymbols,
+  Subst,
+  Translation,
+} from "types/styleSemantics";
 import {
   ApplyConstructor,
   ApplyPredicate,
-  LabelMap,
-  LabelValue,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -76,13 +84,13 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
-import { Nameable, StyleSymbols, Translation } from "types/translation";
 import {
   FGPI,
   Field,
   FieldExpr,
   GPIMap,
   GPIProps,
+  Name,
   OptEval,
   PropID,
   ShapeTypeStr,
@@ -105,7 +113,6 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   randFloat,
-  strV,
   ToLeft,
   ToRight,
   val,
@@ -119,8 +126,9 @@ const log = consola
   .withScope("Style Compiler");
 
 //#region consts
+const ANON_KEYWORD = "ANON";
 const LOCAL_KEYWORD = "$LOCAL";
-const LABEL_FIELD = "label";
+const LABEL_FIELD: Field = "label";
 const VARYING_INIT_FN_NAME = "VARYING_INIT";
 
 // For statically checking existence
@@ -1442,107 +1450,310 @@ const findSubstsSel = (
 
 //#endregion
 
-//#region Translating Style program
+//#region first pass
 
-export const translateStyProg = (
+export const buildAssignment = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   styProg: StyProg<C>
-): Translation => {
+): Assignment => {
   // insert Substance label string
-  const withLabels = insertLabels(subEnv.labels, im.Map());
-  const init: Translation = {
-    diagnostics: { errors: [], warnings: [] },
-    symbols: withLabels,
+  const assignment: Assignment = {
+    diagnostics: { errors: im.List(), warnings: im.List() },
+    objects: subEnv.labels.map((label) =>
+      im.Map([
+        [
+          LABEL_FIELD,
+          {
+            tag: "OtherSource",
+            expr: {
+              tag: "StringLit",
+              nodeType: "SyntheticStyle",
+              contents: label.value,
+            },
+          },
+        ],
+      ])
+    ),
+  };
+  return styProg.blocks.reduce(
+    (assignment, block) => processBlock(varEnv, subEnv, block, assignment),
+    assignment
+  );
+};
+
+const processBlock = (
+  varEnv: Env,
+  subEnv: SubstanceEnv,
+  hb: HeaderBlock<C>,
+  assignment: Assignment
+): Assignment => {
+  // Run static checks first
+  const selEnv = checkHeader(varEnv, hb.header);
+  const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
+  // OPTIMIZE: maybe we should just compile the block once into something
+  // parametric, and then substitute the Substance variables
+  return substs.reduce((assignment, subst, index) => {
+    // Translate each statement in the block
+    return hb.block.statements.reduce(
+      (assignment, stmt) => processStmt(subst, index, stmt, assignment),
+      assignment
+    );
+  }, addDiags({ errors: im.List(selEnv.errors), warnings: im.List() }, assignment));
+};
+
+const processStmt = (
+  subst: Subst,
+  index: number,
+  stmt: Stmt<C>,
+  assignment: Assignment
+): Assignment => {
+  switch (stmt.tag) {
+    case "PathAssign": {
+      // TODO: check stmt.type
+      return insertExpr(subst, stmt.path, stmt.value, assignment);
+    }
+    case "Override": {
+      return insertExpr(
+        subst,
+        stmt.path,
+        stmt.value,
+        deleteExpr(subst, stmt.path, assignment)
+      );
+    }
+    case "Delete": {
+      return deleteExpr(subst, stmt.contents, assignment);
+    }
+    case "AnonAssign": {
+      return insertExpr(
+        subst,
+        {
+          tag: "InternalLocalVar",
+          contents: `$${ANON_KEYWORD}_${index}`,
+          nodeType: "SyntheticStyle",
+        },
+        stmt.contents,
+        assignment
+      );
+    }
+  }
+};
+
+const getSubName = (subst: Subst, name: BindingForm<A>): Name => {
+  const { value } = name.contents;
+  switch (name.tag) {
+    case "StyVar": {
+      // TODO: look for global or local if not in `subst`
+      return value in subst ? subst[value] : value;
+    }
+    case "SubVar": {
+      return value;
+    }
+  }
+};
+
+const processExpr = (expr: Expr<C>): Result<FieldSource, StyleError> => {
+  switch (expr.tag) {
+    case "GPIDecl": {
+      const shapeType = expr.shapeName.value;
+      if (!isShapeType(shapeType)) {
+        return err({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
+      }
+      return ok({
+        tag: "ShapeSource",
+        shapeType,
+        props: im.Map(
+          // TODO: error on duplicate property name
+          expr.properties.map(({ name, value }) => [name.value, value])
+        ),
+      });
+    }
+    case "AccessPath":
+    case "BinOp":
+    case "BoolLit":
+    case "CompApp":
+    case "ConstrFn":
+    case "FieldPath":
+    case "Fix":
+    case "InternalLocalVar":
+    case "Layering":
+    case "List":
+    case "LocalVar":
+    case "Matrix":
+    case "ObjFn":
+    case "PropertyPath":
+    case "StringLit":
+    case "Tuple":
+    case "UOp":
+    case "Vary":
+    case "Vector": {
+      return ok({ tag: "OtherSource", expr });
+    }
+  }
+};
+
+const insertExpr = (
+  subst: Subst,
+  path: Path<A>, // abstract, could be an `InternalLocalVar` from `AnonAssign`
+  value: Expr<C>,
+  assignment: Assignment
+): Assignment => {
+  switch (path.tag) {
+    case "FieldPath": {
+      const name = getSubName(subst, path.name);
+      const subObj = assignment.objects.get(name) ?? im.Map();
+      const warns: StyleWarning[] = [];
+      if (subObj.has(path.field.value)) {
+        warns.push({ tag: "ImplicitOverrideWarning", path });
+      }
+      const source = processExpr(value);
+      if (source.isErr()) {
+        return addDiags(oneErr(source.error), assignment);
+      }
+      return addDiags(warnings(warns), {
+        ...assignment,
+        objects: assignment.objects.set(
+          name,
+          subObj.set(path.field.value, source.value)
+        ),
+      });
+    }
+    case "PropertyPath": {
+      const name = getSubName(subst, path.name);
+      const subObj = assignment.objects.get(name);
+      if (subObj === undefined) {
+        return addDiags(oneErr({ tag: "MissingShapeError", path }), assignment);
+      }
+      const field = subObj.get(path.field.value);
+      if (field === undefined) {
+        return addDiags(oneErr({ tag: "MissingShapeError", path }), assignment);
+      }
+      if (field.tag !== "ShapeSource") {
+        return addDiags(oneErr({ tag: "NotShapeError", path }), assignment);
+      }
+      const warns: StyleWarning[] = [];
+      if (field.props.has(path.property.value)) {
+        warns.push({ tag: "ImplicitOverrideWarning", path });
+      }
+      if (value.tag === "GPIDecl") {
+        return addDiags(
+          oneErr({ tag: "NestedShapeError", path, expr: value }),
+          assignment
+        );
+      }
+      return addDiags(warnings(warns), {
+        ...assignment,
+        objects: assignment.objects.set(
+          name,
+          subObj.set(path.field.value, {
+            ...field,
+            props: field.props.set(path.property.value, value),
+          })
+        ),
+      });
+    }
+    case "AccessPath": {
+      return addDiags(oneErr({ tag: "AssignAccessError", path }), assignment);
+    }
+    case "LocalVar": {
+      throw Error("TODO");
+    }
+    case "InternalLocalVar": {
+      throw Error("TODO");
+    }
+  }
+};
+
+const deleteExpr = (
+  subst: Subst,
+  path: Path<C>,
+  assignment: Assignment
+): Assignment => {
+  switch (path.tag) {
+    case "FieldPath": {
+      const name = getSubName(subst, path.name);
+      const subObj = assignment.objects.get(name);
+      if (subObj === undefined || !subObj.has(path.field.value)) {
+        return addDiags(
+          warnings([{ tag: "NoopDeleteWarning", path }]),
+          assignment
+        );
+      }
+      return {
+        ...assignment,
+        objects: assignment.objects.set(name, subObj.remove(path.field.value)),
+      };
+    }
+    case "PropertyPath": {
+      const name = getSubName(subst, path.name);
+      const subObj = assignment.objects.get(name);
+      if (subObj === undefined || !subObj.has(path.field.value)) {
+        return addDiags(
+          warnings([{ tag: "NoopDeleteWarning", path }]),
+          assignment
+        );
+      }
+      const field = subObj.get(path.field.value);
+      if (field === undefined) {
+        return addDiags(oneErr({ tag: "MissingShapeError", path }), assignment);
+      }
+      if (field.tag !== "ShapeSource") {
+        return addDiags(oneErr({ tag: "NotShapeError", path }), assignment);
+      }
+      if (!field.props.has(path.property.value)) {
+        return addDiags(
+          warnings([{ tag: "NoopDeleteWarning", path }]),
+          assignment
+        );
+      }
+      return {
+        ...assignment,
+        objects: assignment.objects.set(
+          name,
+          subObj.set(path.field.value, {
+            ...field,
+            props: field.props.remove(path.property.value),
+          })
+        ),
+      };
+    }
+    case "AccessPath": {
+      return addDiags(oneErr({ tag: "DeleteAccessError", path }), assignment);
+    }
+    case "LocalVar": {
+      throw Error("TODO");
+    }
+    case "InternalLocalVar": {
+      throw Error("TODO");
+    }
+  }
+};
+
+//#endregion
+
+//#region second pass
+
+// TODO
+const gatherDependencies = (assignment: Assignment): Graph => new Graph();
+
+//#endregion
+
+//#region third pass
+
+export const translateAssignment = (
+  assignment: Assignment,
+  graph: Graph
+): Translation => {
+  // TODO
+  return {
+    diagnostics: { errors: im.List(), warnings: im.List() },
+    symbols: im.Map(),
     shapes: im.List(),
     objectives: im.List(),
     constraints: im.List(),
     layering: im.List(),
     varying: im.List(),
   };
-  return styProg.blocks.reduce(
-    (trans, block) => translateBlock(varEnv, subEnv, block, trans),
-    init
-  );
-};
-
-const translateBlock = (
-  varEnv: Env,
-  subEnv: SubstanceEnv,
-  hb: HeaderBlock<C>,
-  trans: Translation
-): Translation => {
-  // Run static checks first
-  const selEnv = checkHeader(varEnv, hb.header);
-  const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
-  // Translate each statement in the block
-  // OPTIMIZE: we should really just compile the block once into something parametric,
-  // and then substitute the Substance variables.
-  return substs.reduce((trans, subst) => {
-    const locals: StyleSymbols = im.Map();
-    return hb.block.statements.reduce(
-      (trans, stmt) => translateStmt(subst, stmt, locals, trans),
-      trans
-    );
-  }, addDiags({ errors: im.List(selEnv.errors), warnings: im.List() }, trans));
-};
-
-const translateStmt = (
-  subst: Subst,
-  stmt: Stmt<C>,
-  locals: StyleSymbols,
-  trans: Translation
-): Translation => {
-  switch (stmt.tag) {
-    case "PathAssign": {
-      const res = insertExpr(stmt.value, trans);
-      if (res.isErr()) {
-        return addDiags(res.error, trans);
-      }
-      return insertNamed(stmt.path, res.value.nameable, res.value.trans);
-    }
-    case "Override": {
-      throw Error("TODO");
-    }
-    case "Delete": {
-      throw Error("TODO");
-    }
-    case "AnonAssign": {
-      const res = insertExpr(stmt.contents, trans);
-      if (res.isErr()) {
-        return addDiags(res.error, trans);
-      }
-      return res.value.trans;
-    }
-  }
-};
-
-const insertExpr = (
-  expr: Expr<C>,
-  trans: Translation
-): Result<{ nameable: Nameable; trans: Translation }, StyleDiagnostics> => {
-  // TODO: check that stmt.type is OK
-  const typ = typecheck(expr, trans);
-  if (typ.isErr()) {
-    return err(typ.error);
-  }
-  // TODO: compare typ to stmt.type
-  const nameable = translateExpr(expr);
-  if (nameable.isErr()) {
-    return err(nameable.error);
-  }
-  return ok({
-    nameable: nameable.value,
-    trans: insertNameable(nameable.value, trans),
-  });
-};
-
-// TODO: add a type for Style types and implement this
-const typecheck = (
-  expr: Expr<C>,
-  trans: Translation
-): Result<"", StyleDiagnostics> => {
-  return ok("");
 };
 
 const translateExpr = (expr: Expr<C>): Result<Nameable, StyleDiagnostics> => {
@@ -1610,73 +1821,17 @@ const translateExpr = (expr: Expr<C>): Result<Nameable, StyleDiagnostics> => {
   }
 };
 
-const insertNameable = (
-  nameable: Nameable,
-  trans: Translation
-): Translation => {
-  switch (nameable.tag) {
-    case "GPI": {
-      throw Error("TODO");
-    }
-    case "Val": {
-      throw Error("TODO");
-    }
-    case "Obj": {
-      throw Error("TODO");
-    }
-    case "Constr": {
-      throw Error("TODO");
-    }
-    case "Layer": {
-      throw Error("TODO");
-    }
-  }
-};
-
-const insertNamed = (
-  path: Path<C>,
-  nameable: Nameable,
-  trans: Translation
-): Translation => {
-  switch (nameable.tag) {
-    case "GPI": {
-      throw Error("TODO");
-    }
-    case "Val": {
-      throw Error("TODO");
-    }
-    case "Obj": {
-      throw Error("TODO");
-    }
-    case "Constr": {
-      throw Error("TODO");
-    }
-    case "Layer": {
-      throw Error("TODO");
-    }
-  }
-};
-
-/**
- * Insert Substance label strings into the Style symbol table
- */
-const insertLabels = (labels: LabelMap, symbols: StyleSymbols): StyleSymbols =>
-  labels.reduce(
-    (currSymbols: StyleSymbols, label: LabelValue, subName: string) =>
-      currSymbols.set(fieldPath(subName, LABEL_FIELD), val(strV(label.value))),
-    symbols
-  );
-
-const fieldPath = (subName: string, field: string): string =>
-  `${subName}.${field}`;
-
 //#region Block statics
-const emptyErrs = () => {
-  return { errors: [], warnings: [] };
+const emptyErrs = (): StyleDiagnostics => {
+  return { errors: im.List(), warnings: im.List() };
 };
 
 const oneErr = (err: StyleError): StyleDiagnostics => {
-  return { errors: [err], warnings: [] };
+  return { errors: im.List([err]), warnings: im.List() };
+};
+
+const warnings = (warns: StyleWarning[]): StyleDiagnostics => {
+  return { errors: im.List(), warnings: im.List(warns) };
 };
 
 const flatErrs = (es: StyleDiagnostics[]): StyleDiagnostics => {
@@ -1686,15 +1841,15 @@ const flatErrs = (es: StyleDiagnostics[]): StyleDiagnostics => {
   };
 };
 
-const addDiags = (
+const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
   { errors, warnings }: StyleDiagnostics,
-  trans: Translation
-): Translation => ({
-  ...trans,
+  x: T
+): T => ({
+  ...x,
   diagnostics: {
-    ...trans.diagnostics,
-    errors: trans.diagnostics.errors.concat(errors),
-    warnings: trans.diagnostics.warnings.concat(warnings),
+    ...x.diagnostics,
+    errors: x.diagnostics.errors.concat(errors),
+    warnings: x.diagnostics.warnings.concat(warnings),
   },
 });
 
@@ -2907,9 +3062,14 @@ export const compileStyle = (
 
   // first pass: generate Substance substitutions and use the `override` and
   // `delete` statements to construct a mapping from Substance-substituted paths
-  // to Style expression ASTs, plus a dependency graph among those expressions
-  const translation = translateStyProg(varEnv, subEnv, styProg);
-  // second pass: compile all expressions in topological sorted order
+  // to Style expression ASTs
+  const assignment = buildAssignment(varEnv, subEnv, styProg);
+
+  // second pass: plus a dependency graph among those expressions
+  const graph = gatherDependencies(assignment);
+
+  // third pass: compile all expressions in topological sorted order
+  const translation = translateAssignment(assignment, graph);
 
   log.info("translation (before genOptProblem)", translation);
 

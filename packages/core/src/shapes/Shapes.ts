@@ -181,7 +181,7 @@ const Text = ShapeDef({
 
 // TODO: figure out how to not have the result be type `any` when indexing into
 // this object using a string key
-export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
+export const shapedefs: { [k in ShapeType]: ShapeDef } = {
   Circle,
   Ellipse,
   Equation,
@@ -193,5 +193,9 @@ export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
   Rectangle,
   Text,
 };
+
+// TODO: don't use a type predicate for this
+export const isShapeType = (shapeType: string): shapeType is ShapeType =>
+  shapeType in shapedefs;
 
 //#endregion

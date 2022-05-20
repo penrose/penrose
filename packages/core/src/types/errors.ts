@@ -3,7 +3,7 @@ import im from "immutable";
 import { A, AbstractNode, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
-import { BindingForm, Path } from "./style";
+import { AccessPath, BindingForm, GPIDecl, Path, PropertyPath } from "./style";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
 
 // type PenroseError = LanguageError | RuntimeError;
@@ -148,30 +148,20 @@ export type StyleError =
   | InvalidFunctionNameError
   | InvalidObjectiveNameError
   | InvalidConstraintNameError
-  // Translation errors (deletion)
-  | DeletedPropWithNoSubObjError
-  | DeletedPropWithNoFieldError
-  | DeletedPropWithNoGPIError
-  | CircularPathAlias
-  | DeletedNonexistentFieldError
-  | DeletedVectorElemError
-  // Translation errors (insertion)
-  | InsertedPathWithoutOverrideError
-  | InsertedPropWithNoFieldError
-  | InsertedPropWithNoGPIError
-  // Translation validation errors
-  | NonexistentNameError
-  | NonexistentFieldError
-  | NonexistentGPIError
-  | NonexistentPropertyError
-  | ExpectedGPIGotFieldError
-  | InvalidAccessPathError
-  | CanvasNonexistentError
-  | CanvasNonexistentDimsError
+  // Compilation errors
+  | MissingShapeError
+  | NotShapeError
+  | NestedShapeError
+  | AssignAccessError
+  | DeleteAccessError
   // Runtime errors
   | RuntimeValueTypeError;
 
-export type StyleWarning = IntOrFloat;
+export type StyleWarning =
+  | IntOrFloat
+  // Compilation warnings
+  | ImplicitOverrideWarning
+  | NoopDeleteWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -182,6 +172,20 @@ export interface IntOrFloat {
   tag: "IntOrFloat";
   message: string;
 } // COMBAK: Use this in block checking
+
+//#region compilation warnings
+
+export interface ImplicitOverrideWarning {
+  tag: "ImplicitOverrideWarning";
+  path: Path<A>;
+}
+
+export interface NoopDeleteWarning {
+  tag: "NoopDeleteWarning";
+  path: Path<A>;
+}
+
+//#endregion
 
 export interface GenericStyleError {
   tag: "GenericStyleError";
@@ -261,114 +265,35 @@ export interface InvalidConstraintNameError {
 
 //#endregion Block statics
 
-export interface DeletedPropWithNoSubObjError {
-  tag: "DeletedPropWithNoSubObjError";
-  subObj: BindingForm<A>;
-  path: Path<A>;
+//#region compilation errors
+
+export interface MissingShapeError {
+  tag: "MissingShapeError";
+  path: PropertyPath<A>;
 }
 
-export interface DeletedPropWithNoFieldError {
-  tag: "DeletedPropWithNoFieldError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  path: Path<A>;
+export interface NotShapeError {
+  tag: "NotShapeError";
+  path: PropertyPath<A>;
 }
 
-export interface CircularPathAlias {
-  tag: "CircularPathAlias";
-  path: Path<A>;
+export interface NestedShapeError {
+  tag: "NestedShapeError";
+  path: PropertyPath<A>;
+  expr: GPIDecl<A>;
 }
 
-export interface DeletedPropWithNoGPIError {
-  tag: "DeletedPropWithNoGPIError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  property: Identifier<A>;
-  path: Path<A>;
+export interface AssignAccessError {
+  tag: "AssignAccessError";
+  path: AccessPath<A>;
 }
 
-export interface DeletedNonexistentFieldError {
-  tag: "DeletedNonexistentFieldError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  path: Path<A>;
+export interface DeleteAccessError {
+  tag: "DeleteAccessError";
+  path: AccessPath<A>;
 }
 
-export interface DeletedVectorElemError {
-  tag: "DeletedVectorElemError";
-  path: Path<A>;
-}
-
-export interface InsertedPathWithoutOverrideError {
-  tag: "InsertedPathWithoutOverrideError";
-  path: Path<A>;
-}
-
-export interface InsertedPropWithNoFieldError {
-  tag: "InsertedPropWithNoFieldError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  property: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface InsertedPropWithNoGPIError {
-  tag: "InsertedPropWithNoGPIError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  property: Identifier<A>;
-  path: Path<A>;
-}
-
-//#region Translation validation errors
-
-export interface NonexistentNameError {
-  tag: "NonexistentNameError";
-  name: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface NonexistentFieldError {
-  tag: "NonexistentFieldError";
-  field: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface NonexistentGPIError {
-  tag: "NonexistentGPIError";
-  gpi: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface NonexistentPropertyError {
-  tag: "NonexistentPropertyError";
-  property: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface ExpectedGPIGotFieldError {
-  tag: "ExpectedGPIGotFieldError";
-  field: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface InvalidAccessPathError {
-  tag: "InvalidAccessPathError";
-  path: Path<A>;
-}
-
-export interface CanvasNonexistentError {
-  tag: "CanvasNonexistentError";
-}
-
-export interface CanvasNonexistentDimsError {
-  tag: "CanvasNonexistentDimsError";
-  attr: "width" | "height";
-  kind: "missing" | "GPI" | "uninitialized" | "wrong type";
-  type?: string;
-}
-
-//#endregion Translation validation errors
+//#endregion
 
 // TODO(errors): use identifiers here
 export interface RuntimeValueTypeError {
