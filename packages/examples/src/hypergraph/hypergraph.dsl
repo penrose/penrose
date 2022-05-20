@@ -1,12 +1,12 @@
 
-type Graph  -- Dataset
+type Graph
 
-type Layer1  -- Feature 1
-type Layer2  -- Feature 2
-type Layer3  -- Feature 3
+type Layer1
+type Layer2
+type Layer3
 
-type Node  -- Row
-type Edge  -- Value
+type Node
+type Edge
 
 predicate GraphHasLayer1(Graph g, Layer1 l)
 predicate GraphHasLayer2(Graph g, Layer2 l)

@@ -5,190 +5,131 @@ canvas {
 }
 
 forall Graph g {
-  -- x-coordinates
   g.xl = ?
   g.x1 = ?
   g.x2 = ?
   g.x3 = ?
   g.xr = ?
-  -- y-coordinates
   g.yb = ?
   g.yt = ?
-  -- background
-  -- g.rect = Rectangle{
-  --   width: g.xr - g.xl
-  --   height: g.yt - g.yb
-  --   center: [ 0.5 * (g.xl + g.xr), 0.5 * (g.yb + g.yt) ]
-  -- }
-  -- minimize size
   encourage equal(g.xl, g.xr)
   encourage equal(g.yb, g.yt)
-
   ensure lessThan(100, g.x1 - g.xl)
   ensure lessThan(100, g.x2 - g.x1)
   ensure lessThan(100, g.x3 - g.x2)
   ensure lessThan(100, g.xr - g.x3)
-
   encourage equal(g.xl + g.xr, 0)
   encourage equal(g.yb + g.yt, 0)
 }
 
 forall Node n {
-  -- style
   n.r = 5
   n.w = 3
-  -- n.c = rgba(0.1, 0.4, 0.5, 1.0)
-  -- x-coordinates
   n.xl = ?
   n.x1 = ?
   n.x2 = ?
   n.x3 = ?
   n.xr = ?
-  -- y-coordinates
-  n.y = ?
+  n.yl = ?
   n.y1 = ?
   n.y2 = ?
   n.y3 = ?
-  -- dots
+  n.yr = ?
   n.dotl = Circle{ 
     r: n.r
-    center: [n.xl, n.y]
-    -- fillColor: n.c
+    center: [n.xl, n.yl]
   }
-
   n.dotlP = Circle{ 
     r: n.r
-    center: [n.xl, n.y]
+    center: [n.xl, n.yl]
     fillColor: n.dotl.fillColor
   }
-
   n.dot1 = Circle{ 
     r: n.r
     center: [n.x1, n.y1]
-    fillColor: n.dotl.fillColor -- n.c
+    fillColor: n.dotl.fillColor
   }
   n.dot1P = Circle{ 
     r: n.r
     center: [n.x1, n.y1]
     fillColor: n.dotl.fillColor
   }
-
   n.dot2 = Circle{ 
     r: n.r
     center: [n.x2, n.y2]
-    fillColor: n.dotl.fillColor -- n.c
+    fillColor: n.dotl.fillColor
   }
   n.dot2P = Circle{ 
     r: n.r
     center: [n.x2, n.y2]
-    fillColor: n.dotl.fillColor -- n.c
+    fillColor: n.dotl.fillColor
   }
-
   n.dot3 = Circle{ 
     r: n.r
     center: [n.x3, n.y3]
-    fillColor: n.dotl.fillColor -- n.c
+    fillColor: n.dotl.fillColor
   }
   n.dot3P = Circle{ 
     r: n.r
     center: [n.x3, n.y3]
-    fillColor: n.dotl.fillColor -- n.c
+    fillColor: n.dotl.fillColor
   }
-
   n.dotr = Circle{ 
     r: n.r
-    center: [n.xr, n.y]
-    fillColor: n.dotl.fillColor -- n.c
+    center: [n.xr, n.yr]
+    fillColor: n.dotl.fillColor
   }
   n.dotrP = Circle{ 
     r: n.r
-    center: [n.xr, n.y]
-    fillColor: n.dotl.fillColor -- n.c
+    center: [n.xr, n.yr]
+    fillColor: n.dotl.fillColor
   }
-
-  -- lines
-  n.linel1 = Line{ 
+  n.linel1 = Path{
+    d: makePath((n.xl, n.yl), (n.x1, n.y1) , 20, 0)
     strokeWidth: n.w
-    start: n.dotl.center
-    end: n.dot1.center
-    -- fillColor: n.dotl.fillColor -- n.c
-    strokeColor: n.dotl.fillColor -- n.c
+    strokeColor: n.dotl.fillColor
   }
-  n.line12 = Line{ 
+  n.line12 = Path{ 
+    d: makePath((n.x1, n.y1), (n.x2, n.y2) , 20, 0)
     strokeWidth: n.w
-    start: n.dot1.center
-    end: n.dot2.center
-    -- fillColor: n.dotl.fillColor -- n.c
-    strokeColor: n.dotl.fillColor -- n.c
+    strokeColor: n.dotl.fillColor
   }
-  n.line23 = Line{ 
+  n.line23 = Path{ 
+    d: makePath((n.x2, n.y2), (n.x3, n.y3) , 20, 0)
     strokeWidth: n.w
-    start: n.dot2.center
-    end: n.dot3.center
-    -- fillColor: n.dotl.fillColor -- n.c
-    strokeColor: n.dotl.fillColor -- n.c
+    strokeColor: n.dotl.fillColor
   }
-  n.line3r = Line{
+  n.line3r = Path{
+    d: makePath((n.x3, n.y3), (n.xr, n.yr) , 20, 0)
     strokeWidth: n.w
-    start: n.dot3.center
-    end: n.dotr.center
-    -- fillColor: n.dotl.fillColor -- n.c
-    strokeColor: n.dotl.fillColor -- n.c
+    strokeColor: n.dotl.fillColor
   }
-  encourage equal(vdist(n.linel1.start, n.linel1.end), 0)
-  encourage equal(vdist(n.line12.start, n.line12.end), 0)
-  encourage equal(vdist(n.line23.start, n.line23.end), 0)
-  encourage equal(vdist(n.line3r.start, n.line3r.end), 0)
+  encourage equal(abs(n.y1 - n.yl), 50)
+  encourage equal(abs(n.y1 - n.y2), 50)
+  encourage equal(abs(n.y3 - n.y2), 50)
+  encourage equal(abs(n.y3 - n.yr), 50)
 }
 
 forall Layer1 l {
-  -- coordinates
   l.x = ?
   l.yb = ?
   l.yt = ?
-  -- line
-  l.line = Line{ 
-    strokeWidth: 30
-    start: [l.x, l.yb - 20]
-    end: [l.x, l.yt + 20]
-    strokeColor: rgba(0.0, 0.0, 0.0, 0.1)
-  }
 }
 
 forall Layer2 l {
-  -- coordinates
   l.x = ?
   l.yb = ?
   l.yt = ?
-  -- line
-  l.line = Line{ 
-    strokeWidth: 30
-    start: [l.x, l.yb - 20]
-    end: [l.x, l.yt + 20]
-    strokeColor: rgba(0.0, 0.0, 0.0, 0.1)
-  }
 }
 
 forall Layer3 l {
-  -- coordinates
   l.x = ?
   l.yb = ?
   l.yt = ?
-  -- line
-  l.line = Line{ 
-    strokeWidth: 30
-    start: [l.x, l.yb - 20]
-    end: [l.x, l.yt + 20]
-    strokeColor: rgba(0.0, 0.0, 0.0, 0.1)
-  }
 }
 
 Graph g; Layer1 l
 where GraphHasLayer1(g, l) {
-  -- ensure equal(l.x, g.x1)
-  -- ensure equal(l.yb, g.yb)
-  -- ensure equal(l.yt, g.yt)
-
   override l.x = g.x1
   override l.yb = g.yb
   override l.yt = g.yt
@@ -196,10 +137,6 @@ where GraphHasLayer1(g, l) {
 
 Graph g; Layer2 l
 where GraphHasLayer2(g, l) {
-  -- ensure equal(l.x, g.x2)
-  -- ensure equal(l.yb, g.yb)
-  -- ensure equal(l.yt, g.yt)
-
   override l.x = g.x2
   override l.yb = g.yb
   override l.yt = g.yt
@@ -207,10 +144,6 @@ where GraphHasLayer2(g, l) {
 
 Graph g; Layer3 l
 where GraphHasLayer3(g, l) {
-  -- ensure equal(l.x, g.x3)
-  -- ensure equal(l.yb, g.yb)
-  -- ensure equal(l.yt, g.yt)
-
   override l.x = g.x3
   override l.yb = g.yb
   override l.yt = g.yt
@@ -218,32 +151,23 @@ where GraphHasLayer3(g, l) {
 
 Graph g; Node n
 where GraphHasNode(g, n) {
-  -- ensure equal(g.xl, n.xl)
-  -- ensure equal(g.x1, n.x1)
-  -- ensure equal(g.x2, n.x2)
-  -- ensure equal(g.x3, n.x3)
-  -- ensure equal(g.xr, n.xr)
-
   override n.xl = g.xl
   override n.x1 = g.x1
   override n.x2 = g.x2
   override n.x3 = g.x3
   override n.xr = g.xr
-
-  ensure lessThan(g.yb, n.y)
-  ensure lessThan(n.y, g.yt)
+  ensure lessThan(g.yb, n.yr)
+  ensure lessThan(n.yr, g.yt)
+  ensure lessThan(g.yb, n.yl)
+  ensure lessThan(n.yl, g.yt)
 }
 
 forall Node n1; Node n2 {
-  -- ensure lessThan(50.0, abs(n2.y - n1.y))
-  -- ensure lessThan(50.0, abs(n2.y1 - n1.y1))
-  -- ensure lessThan(50.0, abs(n2.y2 - n1.y2))
-  -- ensure lessThan(50.0, abs(n2.y3 - n1.y3))
-
-  encourage lessThan(50.0, abs(n2.y - n1.y))
+  encourage lessThan(50.0, abs(n2.yl - n1.yl))
   encourage lessThan(50.0, abs(n2.y1 - n1.y1))
   encourage lessThan(50.0, abs(n2.y2 - n1.y2))
   encourage lessThan(50.0, abs(n2.y3 - n1.y3))
+  encourage lessThan(50.0, abs(n2.yr - n1.yr))
 }
 
 forall Edge e {
@@ -269,7 +193,6 @@ forall Edge e {
 
 Layer1 l; Edge e
 where Layer1HasEdge(l, e) {
-  -- ensure equal(l.x, e.x)
   override e.x = l.x
   ensure lessThan(l.yb, e.yb)
   ensure lessThan(e.yt, l.yt)
@@ -277,7 +200,6 @@ where Layer1HasEdge(l, e) {
 
 Layer2 l; Edge e
 where Layer2HasEdge(l, e) {
-  -- ensure equal(l.x, e.x)
   override e.x = l.x
   ensure lessThan(l.yb, e.yb)
   ensure lessThan(e.yt, l.yt)
@@ -285,7 +207,6 @@ where Layer2HasEdge(l, e) {
 
 Layer3 l; Edge e
 where Layer3HasEdge(l, e) {
-  -- ensure equal(l.x, e.x)
   override e.x = l.x
   ensure lessThan(l.yb, e.yb)
   ensure lessThan(e.yt, l.yt)
@@ -293,31 +214,20 @@ where Layer3HasEdge(l, e) {
 
 Edge e; Node n
 where EdgeHasNodeInLayer1(e, n) {
-  -- ensure lessThan(e.yb, n.y1)
-  -- ensure lessThan(n.y1, e.yt)
   ensure contains(e.rect, n.dot1, 4)
 }
 
 Edge e; Node n
 where EdgeHasNodeInLayer2(e, n) {
-  -- ensure lessThan(e.yb, n.y2)
-  -- ensure lessThan(n.y2, e.yt)
   ensure contains(e.rect, n.dot2, 4)
 }
 
 Edge e; Node n
 where EdgeHasNodeInLayer3(e, n) {
-  -- ensure lessThan(e.yb, n.y3)
-  -- ensure lessThan(n.y3, e.yt)
   ensure contains(e.rect, n.dot3, 4)
 }
 
 forall Edge e1; Edge e2 {
   ensure disjoint(e1.rect, e2.rect, 20)
+  encourage lessThan(abs(e1.yt - e1.yb) + abs(e2.yt - e2.yb), abs(e1.yt + e1.yb - e2.yt - e2.yb))
 }
-
-
-
--- WreathDonkey250
--- AeroBeaver1057
--- MeatbunWhale97165
