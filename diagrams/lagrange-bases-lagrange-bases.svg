@@ -1,4 +1,18 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180">
+  <rect
+    x="0"
+    y="0"
+    width="240"
+    height="180"
+    fill="#e6ffe6"
+    fill-opacity="1"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 0, 0)"
+    ensureOnCanvas="false"
+  >
+    <title>Global.box</title>
+  </rect>
   <g ensureOnCanvas="false">
     <filter id="e.curveKI-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
@@ -214,20 +228,6 @@
       </g>
     </svg>
   </g>
-  <rect
-    x="0"
-    y="0"
-    width="240"
-    height="180"
-    fill="#1acc1a"
-    fill-opacity="0.25"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 0, 0)"
-    ensureOnCanvas="false"
-  >
-    <title>Global.box</title>
-  </rect>
   <circle
     fill="#ffffff"
     fill-opacity="1"

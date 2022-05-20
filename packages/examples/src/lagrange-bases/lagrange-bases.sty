@@ -6,7 +6,7 @@ canvas {
 Global {
    -- background color
    shape box = Rectangle {
-      fillColor: rgba( .1, .8, .1, .25 )
+      fillColor: rgba( .9, 1, .9, 1 )
       center: (0,0)
       width: canvas.width
       height: canvas.height
@@ -221,6 +221,10 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
       strokeWidth: 1.5
       ensureOnCanvas: false
    }
+
+   layer e.curveIJ above Global.box
+   layer e.curveJK above Global.box
+   layer e.curveKI above Global.box
 
    -- make sure triangles are reasonably nice by ensuring
    -- the signed corner angles aren't too small (we don't
