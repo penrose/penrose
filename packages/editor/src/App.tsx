@@ -7,6 +7,7 @@ import ExamplesBrowser from "./components/ExamplesBrowser";
 import ProgramEditor from "./components/ProgramEditor";
 import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
+import StateInspector from "./components/StateInspector";
 import TopBar from "./components/TopBar";
 import {
   fileContentsSelector,
@@ -50,6 +51,7 @@ export const layoutModel = Model.fromJson({
           name: "options",
           component: "diagramOptions",
         },
+        { type: "tab", name: "state", component: "stateInspector" },
       ],
     },
   ],
@@ -118,6 +120,8 @@ function App() {
         return <Settings />;
       case "diagramOptions":
         return <DiagramOptions />;
+      case "stateInspector":
+        return <StateInspector />;
     }
     return <div>Placeholder</div>;
   }, []);
