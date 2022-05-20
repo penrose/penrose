@@ -130,17 +130,17 @@ describe("Compiler", () => {
       `,
       sty: ``,
     });
-    const { objects } = buildAssignment(env, subEnv, styProg);
+    const { substances } = buildAssignment(env, subEnv, styProg);
     for (const [name, label] of [
       ["A", "aaa"],
       ["C", "C"],
     ]) {
-      const v = objects.get(name)?.get("label");
+      const v = substances.get(name)?.get("label");
       if (v?.tag === "OtherSource" && v?.expr.tag === "StringLit") {
         expect(v.expr.contents).toBe(label);
       }
     }
-    expect(objects.has("B")).toBe(false);
+    expect(substances.has("B")).toBe(false);
   });
 
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).

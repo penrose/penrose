@@ -72,13 +72,23 @@ export interface NamespaceId {
 
 //#region first Style compiler pass: selector matching, `override` and `delete`
 
+export type StyleName = Name;
+export type SubstanceName = Name;
+
 // TODO: come up with a better name
 export interface Assignment {
   diagnostics: StyleDiagnostics;
-  objects: im.Map<Name, SubstanceObject>;
+  globals: im.Map<StyleName, Fielded>;
+  substances: im.Map<SubstanceName, Fielded>;
 }
 
-export type SubstanceObject = im.Map<Field, FieldSource>;
+// TODO: come up with a better name
+export interface BlockAssignment extends Assignment {
+  locals: im.Map<StyleName, FieldSource>;
+}
+
+// TODO: come up with a better name
+export type Fielded = im.Map<Field, FieldSource>;
 
 // NOTE: This representation makes a fundamental assumption that we never
 // `override` or `delete` a subpath of a path that points to an opaque object.
@@ -92,6 +102,7 @@ export type SubstanceObject = im.Map<Field, FieldSource>;
 // something we would like to support eventually:
 // https://github.com/penrose/penrose/issues/924#issuecomment-1076951074
 
+// TODO: come up with a better name
 export type FieldSource = ShapeSource | OtherSource;
 
 export interface ShapeSource {

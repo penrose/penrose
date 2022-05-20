@@ -65,6 +65,7 @@ import {
 } from "types/style";
 import {
   Assignment,
+  BlockAssignment,
   FieldSource,
   LocalVarSubst,
   Nameable,
@@ -1460,7 +1461,7 @@ export const buildAssignment = (
   // insert Substance label string
   const assignment: Assignment = {
     diagnostics: { errors: im.List(), warnings: im.List() },
-    objects: subEnv.labels.map((label) =>
+    substances: subEnv.labels.map((label) =>
       im.Map([
         [
           LABEL_FIELD,
@@ -1475,6 +1476,7 @@ export const buildAssignment = (
         ],
       ])
     ),
+    globals: im.Map(),
   };
   return styProg.blocks.reduce(
     (assignment, block) => processBlock(varEnv, subEnv, block, assignment),
@@ -1495,10 +1497,15 @@ const processBlock = (
   // parametric, and then substitute the Substance variables
   return substs.reduce((assignment, subst, index) => {
     // Translate each statement in the block
-    return hb.block.statements.reduce(
-      (assignment, stmt) => processStmt(subst, index, stmt, assignment),
-      assignment
-    );
+    return hb.block.statements.reduce((assignment, stmt) => {
+      const { diagnostics, globals, substances } = processStmt(
+        subst,
+        index,
+        stmt,
+        { ...assignment, locals: im.Map() }
+      );
+      return { diagnostics, globals, substances };
+    }, assignment);
   }, addDiags({ errors: im.List(selEnv.errors), warnings: im.List() }, assignment));
 };
 
@@ -1506,8 +1513,8 @@ const processStmt = (
   subst: Subst,
   index: number,
   stmt: Stmt<C>,
-  assignment: Assignment
-): Assignment => {
+  assignment: BlockAssignment
+): BlockAssignment => {
   switch (stmt.tag) {
     case "PathAssign": {
       // TODO: check stmt.type
@@ -1528,9 +1535,20 @@ const processStmt = (
       return insertExpr(
         subst,
         {
-          tag: "InternalLocalVar",
-          contents: `$${ANON_KEYWORD}_${index}`,
+          tag: "Path",
           nodeType: "SyntheticStyle",
+          name: {
+            tag: "StyVar",
+            nodeType: "SyntheticStyle",
+            contents: {
+              tag: "Identifier",
+              nodeType: "SyntheticStyle",
+              type: "Identifier",
+              value: `$${ANON_KEYWORD}_${index}`,
+            },
+          },
+          members: [],
+          indices: [],
         },
         stmt.contents,
         assignment
@@ -1543,8 +1561,12 @@ const getSubName = (subst: Subst, name: BindingForm<A>): Name => {
   const { value } = name.contents;
   switch (name.tag) {
     case "StyVar": {
-      // TODO: look for global or local if not in `subst`
-      return value in subst ? subst[value] : value;
+      if (value in subst) {
+        return subst[value];
+      } else {
+        // TODO: look for global or local
+        return value;
+      }
     }
     case "SubVar": {
       return value;
@@ -1568,20 +1590,16 @@ const processExpr = (expr: Expr<C>): Result<FieldSource, StyleError> => {
         ),
       });
     }
-    case "AccessPath":
     case "BinOp":
     case "BoolLit":
     case "CompApp":
     case "ConstrFn":
-    case "FieldPath":
     case "Fix":
-    case "InternalLocalVar":
     case "Layering":
     case "List":
-    case "LocalVar":
     case "Matrix":
     case "ObjFn":
-    case "PropertyPath":
+    case "Path":
     case "StringLit":
     case "Tuple":
     case "UOp":
@@ -1596,12 +1614,15 @@ const insertExpr = (
   subst: Subst,
   path: Path<A>, // abstract, could be an `InternalLocalVar` from `AnonAssign`
   value: Expr<C>,
-  assignment: Assignment
-): Assignment => {
+  assignment: BlockAssignment
+): BlockAssignment => {
+  if (path.indices.length > 0) {
+    return addDiags(oneErr({ tag: "AssignAccessError", path }), assignment);
+  }
   switch (path.tag) {
     case "FieldPath": {
       const name = getSubName(subst, path.name);
-      const subObj = assignment.objects.get(name) ?? im.Map();
+      const subObj = assignment.substances.get(name) ?? im.Map();
       const warns: StyleWarning[] = [];
       if (subObj.has(path.field.value)) {
         warns.push({ tag: "ImplicitOverrideWarning", path });
@@ -1612,7 +1633,7 @@ const insertExpr = (
       }
       return addDiags(warnings(warns), {
         ...assignment,
-        objects: assignment.objects.set(
+        objects: assignment.substances.set(
           name,
           subObj.set(path.field.value, source.value)
         ),
@@ -1620,7 +1641,7 @@ const insertExpr = (
     }
     case "PropertyPath": {
       const name = getSubName(subst, path.name);
-      const subObj = assignment.objects.get(name);
+      const subObj = assignment.substances.get(name);
       if (subObj === undefined) {
         return addDiags(oneErr({ tag: "MissingShapeError", path }), assignment);
       }
@@ -1643,7 +1664,7 @@ const insertExpr = (
       }
       return addDiags(warnings(warns), {
         ...assignment,
-        objects: assignment.objects.set(
+        objects: assignment.substances.set(
           name,
           subObj.set(path.field.value, {
             ...field,
@@ -1667,12 +1688,12 @@ const insertExpr = (
 const deleteExpr = (
   subst: Subst,
   path: Path<C>,
-  assignment: Assignment
-): Assignment => {
+  assignment: BlockAssignment
+): BlockAssignment => {
   switch (path.tag) {
     case "FieldPath": {
       const name = getSubName(subst, path.name);
-      const subObj = assignment.objects.get(name);
+      const subObj = assignment.substances.get(name);
       if (subObj === undefined || !subObj.has(path.field.value)) {
         return addDiags(
           warnings([{ tag: "NoopDeleteWarning", path }]),
@@ -1681,12 +1702,15 @@ const deleteExpr = (
       }
       return {
         ...assignment,
-        objects: assignment.objects.set(name, subObj.remove(path.field.value)),
+        substances: assignment.substances.set(
+          name,
+          subObj.remove(path.field.value)
+        ),
       };
     }
     case "PropertyPath": {
       const name = getSubName(subst, path.name);
-      const subObj = assignment.objects.get(name);
+      const subObj = assignment.substances.get(name);
       if (subObj === undefined || !subObj.has(path.field.value)) {
         return addDiags(
           warnings([{ tag: "NoopDeleteWarning", path }]),
@@ -1708,7 +1732,7 @@ const deleteExpr = (
       }
       return {
         ...assignment,
-        objects: assignment.objects.set(
+        substances: assignment.substances.set(
           name,
           subObj.set(path.field.value, {
             ...field,

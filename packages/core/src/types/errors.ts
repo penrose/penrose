@@ -3,7 +3,7 @@ import im from "immutable";
 import { A, AbstractNode, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
-import { AccessPath, BindingForm, GPIDecl, Path, PropertyPath } from "./style";
+import { BindingForm, GPIDecl, Path } from "./style";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
 
 // type PenroseError = LanguageError | RuntimeError;
@@ -269,28 +269,28 @@ export interface InvalidConstraintNameError {
 
 export interface MissingShapeError {
   tag: "MissingShapeError";
-  path: PropertyPath<A>;
+  path: Path<A>;
 }
 
 export interface NotShapeError {
   tag: "NotShapeError";
-  path: PropertyPath<A>;
+  path: Path<A>;
 }
 
 export interface NestedShapeError {
   tag: "NestedShapeError";
-  path: PropertyPath<A>;
+  path: Path<A>;
   expr: GPIDecl<A>;
 }
 
 export interface AssignAccessError {
   tag: "AssignAccessError";
-  path: AccessPath<A>;
+  path: Path<A>;
 }
 
 export interface DeleteAccessError {
   tag: "DeleteAccessError";
-  path: AccessPath<A>;
+  path: Path<A>;
 }
 
 //#endregion

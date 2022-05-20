@@ -313,41 +313,11 @@ export type PropertyDecl<T> = ASTNode<T> & {
   value: Expr<T>;
 };
 
-export type Path<T> =
-  | FieldPath<T>
-  | PropertyPath<T>
-  | AccessPath<T>
-  | LocalVar<T> // LocalVar is only used internally by the compiler
-  | InternalLocalVar<T>;
-
-export type FieldPath<T> = ASTNode<T> & {
-  tag: "FieldPath";
+export type Path<T> = ASTNode<T> & {
+  tag: "Path";
   name: BindingForm<T>;
-  field: Identifier<T>;
-};
-
-export type PropertyPath<T> = ASTNode<T> & {
-  tag: "PropertyPath";
-  name: BindingForm<T>;
-  field: Identifier<T>;
-  property: Identifier<T>;
-};
-
-export type AccessPath<T> = ASTNode<T> & {
-  tag: "AccessPath";
-  path: Path<T>;
+  members: Identifier<T>[];
   indices: Expr<T>[];
-};
-
-export type LocalVar<T> = ASTNode<T> & {
-  tag: "LocalVar";
-  contents: Identifier<T>;
-};
-
-export type InternalLocalVar<T> = ASTNode<T> & {
-  // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
-  tag: "InternalLocalVar";
-  contents: string;
 };
 
 //#endregion
