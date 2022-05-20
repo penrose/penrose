@@ -635,9 +635,10 @@ export const compDict = {
     // (This expression can be derived by expressing the
     // interpolation condition in terms of the quadratic
     // Bernstein basis.)
-    const q1 = ops.vsub(ops.vmul(2.0,p1),ops.vmul(0.5,ops.vadd(p0,p2)));
-    if (!ad.isPt2(q1)) { // XXX kludge to force TypeScript to know that q1 has length 2; see GitHub issue #715
-       throw new Error("vector ops did not preserve dimension");
+    const q1 = ops.vsub(ops.vmul(2.0, p1), ops.vmul(0.5, ops.vadd(p0, p2)));
+    if (!ad.isPt2(q1)) {
+      // XXX kludge to force TypeScript to know that q1 has length 2; see GitHub issue #715
+      throw new Error("vector ops did not preserve dimension");
     }
     path.quadraticCurveTo(q1, p2);
     tailpts.forEach((pt: ad.Pt2) => path.quadraticCurveJoin(pt));
@@ -1503,13 +1504,9 @@ export const compDict = {
    * Construct a unit vector u in the direction of the
    * given angle theta (in radians).
    */
-  unitVector: (
-    _context: Context,
-    theta: ad.Num
-  ): VectorV<ad.Num> => {
-     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
-  }
-
+  unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
+    return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
+  },
 };
 
 // _compDictVals causes TypeScript to enforce that every function in compDict
