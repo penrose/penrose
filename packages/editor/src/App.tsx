@@ -4,6 +4,7 @@ import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
 import DiagramOptions from "./components/DiagramOptions";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesBrowser from "./components/ExamplesBrowser";
+import Opt from "./components/Opt";
 import ProgramEditor from "./components/ProgramEditor";
 import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
@@ -52,6 +53,7 @@ export const layoutModel = Model.fromJson({
           component: "diagramOptions",
         },
         { type: "tab", name: "state", component: "stateInspector" },
+        { type: "tab", name: "state", component: "optInspector" },
       ],
     },
   ],
@@ -122,6 +124,8 @@ function App() {
         return <DiagramOptions />;
       case "stateInspector":
         return <StateInspector />;
+      case "optInspector":
+        return <Opt />;
     }
     return <div>Placeholder</div>;
   }, []);

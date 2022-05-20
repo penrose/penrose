@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ObjectInspector } from "react-inspector";
-import makeViewBoxes from "../../inspector/makeViewBoxes";
+import makeViewBoxes from "../makeViewBoxes";
 import ViewProps from "./ViewProps";
 
 interface State {
