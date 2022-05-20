@@ -11,6 +11,10 @@ Global {
       height: canvas.height
       ensureOnCanvas: false
    }
+
+   scalar dotSize = 2.5
+   scalar smallDotSize = 2.
+   scalar edgeWidth = 1.5
 }
 
 Colors {
@@ -22,28 +26,105 @@ Colors {
 forall Node x {
    shape x.icon = Circle {
       center: (?,?)
-      r: 3.
+      r: Global.dotSize
       fillColor: Colors.black
+      -- ensureOnCanvas: false
    }
 
    layer x.icon above Global.box
 }
 
+forall Element e; Node vi; Node vj; Node vk
+where e := LinearTriangle( vi, vj, vk ) {
+
+   -- grab node locations (for convenience)
+   vec2 pi = vi.icon.center
+   vec2 pj = vj.icon.center
+   vec2 pk = vk.icon.center
+
+   -- draw edges as straight lines
+   shape e.curveIJ = Line {
+      start: pi
+      end: pj
+      strokeColor: Colors.black
+      strokeWidth: Global.edgeWidth
+      ensureOnCanvas: false
+   }
+   shape e.curveJK = Line {
+      start: pj
+      end: pk
+      strokeColor: Colors.black
+      strokeWidth: Global.edgeWidth
+      ensureOnCanvas: false
+   }
+   shape e.curveKI = Line {
+      start: pk
+      end: pi
+      strokeColor: Colors.black
+      strokeWidth: Global.edgeWidth
+      ensureOnCanvas: false
+   }
+
+   -- make sure triangles are reasonably nice by ensuring
+   -- the signed corner angles aren't too small (we don't
+   -- need to worry about the final angle since the
+   -- angles of any triangle sum to π
+   scalar minAngle = toRadians( 30. )
+   ensure greaterThan( angleFrom(pj-pi,pk-pi), minAngle )
+   ensure greaterThan( angleFrom(pk-pj,pi-pj), minAngle )
+}
+
+forall Element e; Node vi; Node vj; Node vk; Node vl
+where e := LinearQuad( vi, vj, vk, vl ) {
+
+   -- grab node locations (for convenience)
+   vec2 pi = vi.icon.center
+   vec2 pj = vj.icon.center
+   vec2 pk = vk.icon.center
+   vec2 pl = vl.icon.center
+
+   -- draw edges as straight lines
+   shape e.curveIJ = Line {
+      start: pi
+      end: pj
+      strokeColor: Colors.black
+      strokeWidth: Global.edgeWidth
+      ensureOnCanvas: false
+   }
+   shape e.curveJK = Line {
+      start: pj
+      end: pk
+      strokeColor: Colors.black
+      strokeWidth: Global.edgeWidth
+      ensureOnCanvas: false
+   }
+   shape e.curveKL = Line {
+      start: pk
+      end: pl
+      strokeColor: Colors.black
+      strokeWidth: Global.edgeWidth
+      ensureOnCanvas: false
+   }
+   shape e.curveLI = Line {
+      start: pl
+      end: pi
+      strokeColor: Colors.black
+      strokeWidth: Global.edgeWidth
+      ensureOnCanvas: false
+   }
+
+   -- make sure quads are reasonably nice by ensuring
+   -- the signed corner angles aren't too small (we don't
+   -- need to worry about the final angle since the
+   -- angles of any quad sum to 2π
+   scalar minAngle = toRadians( 30. )
+   ensure greaterThan( angleFrom(pj-pi,pl-pi), minAngle )
+   ensure greaterThan( angleFrom(pk-pj,pi-pj), minAngle )
+   ensure greaterThan( angleFrom(pl-pk,pj-pk), minAngle )
+}
+
 forall Element e; Node vi; Node vj; Node vk; Node mij; Node mjk; Node mki
 where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
-
-   -- shape e.edgeIJ = Line {
-   --    start: vi.icon.center
-   --    end: vj.icon.center
-   -- }
-   -- shape e.edgeJK = Line {
-   --    start: vj.icon.center
-   --    end: vk.icon.center
-   -- }
-   -- shape e.edgeKI = Line {
-   --    start: vk.icon.center
-   --    end: vi.icon.center
-   -- }
 
    -- grab node locations (for convenience)
    vec2 pi = vi.icon.center
@@ -53,51 +134,58 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
    vec2 pjk = mjk.icon.center
    vec2 pki = mki.icon.center
 
+   -- offset the middle nodes in some random direction from the
+   -- geometric midpoints between the triangle vertices
+   scalar offsetSize = 20.
    scalar thetaIJ = ?
    scalar thetaJK = ?
    scalar thetaKI = ?
-   override mij.icon.center = (pi+pj)/2. + 12.*(cos(thetaIJ),sin(thetaIJ))
-   override mjk.icon.center = (pj+pk)/2. + 12.*(cos(thetaJK),sin(thetaJK))
-   override mki.icon.center = (pk+pi)/2. + 12.*(cos(thetaKI),sin(thetaKI))
+   override mij.icon.center = (pi+pj)/2. + offsetSize * unitVector(thetaIJ)
+   override mjk.icon.center = (pj+pk)/2. + offsetSize * unitVector(thetaJK)
+   override mki.icon.center = (pk+pi)/2. + offsetSize * unitVector(thetaKI)
 
-   override mij.icon.r = 2.
-   override mjk.icon.r = 2.
-   override mki.icon.r = 2.
+   override mij.icon.r = Global.smallDotSize
    override mij.icon.fillColor = Colors.white
    override mij.icon.strokeColor = Colors.black
    override mij.icon.strokeWidth = 1.
+
+   override mjk.icon.r = Global.smallDotSize
    override mjk.icon.fillColor = Colors.white
    override mjk.icon.strokeColor = Colors.black
    override mjk.icon.strokeWidth = 1.
+
+   override mki.icon.r = Global.smallDotSize
    override mki.icon.fillColor = Colors.white
    override mki.icon.strokeColor = Colors.black
    override mki.icon.strokeWidth = 1.
 
-   e.curveIJ = Path {
+   -- draw edges as quadratic Bézier curves
+   shape e.curveIJ = Path {
       d: interpolateQuadraticFromPoints("open", [pi,pij,pj])
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false
    }
-   e.curveJK = Path {
+   shape e.curveJK = Path {
       d: interpolateQuadraticFromPoints("open", [pj,pjk,pk])
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false
    }
-   e.curveKI = Path {
+   shape e.curveKI = Path {
       d: interpolateQuadraticFromPoints("open", [pk,pki,pi])
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false
    }
 
-   e.MiddleTri = Path {
-      d: pathFromPoints("closed", [pij,pjk,pki])
-      strokeColor: Colors.lightGray
-      strokeWidth: 1.0
-      ensureOnCanvas: false
-   }
+   -- make sure triangles are reasonably nice by ensuring
+   -- the signed corner angles aren't too small (we don't
+   -- need to worry about the final angle since the
+   -- angles of any triangle sum to π
+   scalar minAngle = toRadians( 30. )
+   ensure greaterThan( angleFrom(pj-pi,pk-pi), minAngle )
+   ensure greaterThan( angleFrom(pk-pj,pi-pj), minAngle )
 }
 
 forall Node x
