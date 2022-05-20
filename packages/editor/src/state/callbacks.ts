@@ -56,11 +56,15 @@ const _compileDiagram = async (
     return;
   }
   const initialState = await prepareState(compileResult.value);
-  set(diagramState, (state: Diagram) => ({
-    ...state,
-    error: null,
-    state: initialState,
-  }));
+  set(
+    diagramState,
+    (state: Diagram): Diagram => ({
+      ...state,
+      error: null,
+      metadata: { ...state.metadata, variation },
+      state: initialState,
+    })
+  );
   if (autostep) {
     const steppingLoading = toast.loading("Stepping...");
     const stepResult = stepUntilConvergence(initialState);
@@ -236,7 +240,6 @@ export const useLoadExampleWorkspace = () =>
 export const useCheckURL = () =>
   useRecoilCallback(({ set }) => async () => {
     const parsed = queryString.parse(window.location.search);
-    console.log(parsed);
     if (
       "access_token" in parsed &&
       "profile[login]" in parsed &&
@@ -265,7 +268,7 @@ export const useCheckURL = () =>
       toast.dismiss(id);
       if (res.status !== 200) {
         console.error(res);
-        toast.error(`Could not load gist: ${res.status}`);
+        toast.error(`Could not load gist: ${res.statusText}`);
         return;
       }
       const json = await res.json();
@@ -355,8 +358,8 @@ export const usePublishGist = () =>
     });
     const json = await res.json();
     if (res.status !== 201) {
-      console.error(`Could not publish gist: ${res.status}`);
-      toast.error(`Could not publish gist: ${res.status} ${json.message}`);
+      console.error(`Could not publish gist: ${res.statusText}`);
+      toast.error(`Could not publish gist: ${res.statusText} ${json.message}`);
       return;
     }
     toast.success(`Published gist, redirecting...`);

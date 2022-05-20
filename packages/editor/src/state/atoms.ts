@@ -232,6 +232,7 @@ export const domainCacheState = selector<Env | null>({
 
 export type DiagramMetadata = {
   variation: string;
+  stepSize: number;
   autostep: boolean;
 };
 
@@ -241,7 +242,6 @@ export type Diagram = {
   metadata: DiagramMetadata;
 };
 
-// TODO we COULD prepopulate the default with a compilation of the source, assuming it doesnt error
 export const diagramState = atom<Diagram>({
   key: "diagramState",
   default: {
@@ -249,6 +249,7 @@ export const diagramState = atom<Diagram>({
     error: null,
     metadata: {
       variation: uuid(),
+      stepSize: 10000,
       autostep: true,
     },
   },
@@ -282,6 +283,10 @@ export const exampleTriosState = atom<Trio[]>({
         const res = await fetch(
           "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/registry.json"
         );
+        if (!res.ok) {
+          toast.error(`Could not retrieve examples: ${res.statusText}`);
+          return [];
+        }
         const registry = await res.json();
         const trios = readRegistry(registry).map((trio: Trio) => ({
           ...trio,
@@ -291,7 +296,7 @@ export const exampleTriosState = atom<Trio[]>({
         }));
         return trios;
       } catch (err) {
-        toast.error(`Could not retrieve example: ${err}`);
+        toast.error(`Could not retrieve examples: ${err}`);
         return [];
       }
     },
