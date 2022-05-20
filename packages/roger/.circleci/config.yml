@@ -1,0 +1,30 @@
+---
+version: 2.1
+
+orbs:
+  release-management: salesforce/npm-release-management@4
+
+workflows:
+  version: 2
+  test-and-release:
+    jobs:
+      - release-management/test-package:
+          matrix:
+            parameters:
+              os:
+                - linux
+                - windows
+              node_version:
+                - latest
+                - lts
+                - maintenance
+  dependabot-automerge:
+    triggers:
+      - schedule:
+          cron: '0 2,5,8,11 * * *'
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - release-management/dependabot-automerge

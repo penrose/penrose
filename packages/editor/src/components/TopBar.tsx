@@ -112,40 +112,48 @@ export default function TopBar() {
         boxSizing: "border-box",
       }}
     >
-      <div
-        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <EditableTitle />
-        {workspaceMetadata.location.kind === "gist" && (
-          <a
-            style={{ textDecoration: "none", color: "inherit" }}
-            href={`https://github.com/${workspaceMetadata.location.author}`}
-          >
-            <AuthorBox>
-              <div
-                style={{
-                  width: "25px",
-                  height: "25px",
-                  margin: "5px",
-                  backgroundImage: `url(${workspaceMetadata.location.avatar})`,
-                  borderRadius: "50%",
-                  backgroundSize: "cover",
-                  display: "inline-block",
-                }}
-              />{" "}
-              {workspaceMetadata.location.author}
-            </AuthorBox>
-          </a>
-        )}
-        {workspaceMetadata.location.kind === "local" &&
-          !workspaceMetadata.location.saved && (
-            <BlueButton onClick={saveLocally}>save</BlueButton>
+      {workspaceMetadata.location.kind === "roger" ? (
+        <div>loaded from filesystem via Roger</div>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <EditableTitle />
+          {workspaceMetadata.location.kind === "gist" && (
+            <a
+              style={{ textDecoration: "none", color: "inherit" }}
+              href={`https://github.com/${workspaceMetadata.location.author}`}
+            >
+              <AuthorBox>
+                <div
+                  style={{
+                    width: "25px",
+                    height: "25px",
+                    margin: "5px",
+                    backgroundImage: `url(${workspaceMetadata.location.avatar})`,
+                    borderRadius: "50%",
+                    backgroundSize: "cover",
+                    display: "inline-block",
+                  }}
+                />{" "}
+                {workspaceMetadata.location.author}
+              </AuthorBox>
+            </a>
           )}
-        {workspaceMetadata.location.kind === "local" &&
-          settings.github !== null && (
-            <BlueButton onClick={publishGist}>share</BlueButton>
-          )}
-      </div>
+          {workspaceMetadata.location.kind === "local" &&
+            !workspaceMetadata.location.saved && (
+              <BlueButton onClick={saveLocally}>save</BlueButton>
+            )}
+          {workspaceMetadata.location.kind === "local" &&
+            settings.github !== null && (
+              <BlueButton onClick={publishGist}>share</BlueButton>
+            )}
+        </div>
+      )}
       <div>
         <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
         <BlueButton onClick={resampleDiagram}>resample</BlueButton>

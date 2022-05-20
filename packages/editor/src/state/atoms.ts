@@ -40,7 +40,8 @@ export type WorkspaceLocation =
   | GistLocation
   | {
       kind: "example";
-    };
+    }
+  | { kind: "roger" };
 
 export type WorkspaceMetadata = {
   name: string;
@@ -102,7 +103,8 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
       // If edit is made on something that isnt already local
       if (
         newValue.metadata.id === oldValue.metadata.id &&
-        newValue.metadata.location.kind !== "local"
+        newValue.metadata.location.kind !== "local" &&
+        newValue.metadata.location.kind !== "roger"
       ) {
         setSelf((workspace) => ({
           ...(workspace as Workspace),
