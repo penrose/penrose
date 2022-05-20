@@ -2,7 +2,6 @@ import * as React from "react";
 import ViewProps from "./ViewProps";
 const Settings: React.FC<ViewProps> = ({
   settings,
-  frame,
   setSettings,
   reset,
 }: ViewProps) => {
@@ -18,12 +17,6 @@ const Settings: React.FC<ViewProps> = ({
     },
     [setSettings, settings]
   );
-  const onScaleChange = React.useCallback(() => {
-    setSettings({
-      ...settings,
-      weightScaleFactor: settings.weightScaleFactor * 10,
-    });
-  }, [setSettings, settings]);
   return (
     <div style={{ boxSizing: "border-box", padding: "1em" }}>
       <div>
@@ -35,14 +28,6 @@ const Settings: React.FC<ViewProps> = ({
             value={settings.autoStepSize}
             onChange={onAutostepChange}
           />
-        </label>
-      </div>
-      <div>
-        <label>
-          constraint weight: {frame?.params.weight}
-          <button onClick={onScaleChange}>
-            Scale weight by {settings.weightScaleFactor}x
-          </button>
         </label>
       </div>
       <div>

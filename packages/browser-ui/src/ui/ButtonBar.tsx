@@ -16,7 +16,7 @@ interface Props {
   downloadSVG?(): void;
   downloadState?(): void;
   autoStepToggle?(): void;
-  step(numSteps: number, weightScaleFactor: number): void;
+  step(numSteps: number): void;
   stepUntilConvergence(): void;
   reset(): void;
   resample(): void;
@@ -50,7 +50,7 @@ class ButtonBar extends React.Component<Props> {
             autostep {autostep ? "(on)" : "(off)"}
           </button>
         )}
-        <button onClick={() => step(1, 1)}>x1 optimization step</button>
+        <button onClick={() => step(1)}>x1 optimization step</button>
         <button onClick={stepUntilConvergence}>step until convergence</button>
         <button
           onClick={reset}
