@@ -204,19 +204,19 @@ where e := QuadraticTriangle( vi, vj, vk, mij, mjk, mki ) {
 
    -- draw edges as quadratic Bézier curves
    shape e.curveIJ = Path {
-      d: interpolateQuadraticFromPoints("open", [pi,pij,pj])
+      d: interpolateQuadraticFromPoints("open", pi, pij, pj)
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false
    }
    shape e.curveJK = Path {
-      d: interpolateQuadraticFromPoints("open", [pj,pjk,pk])
+      d: interpolateQuadraticFromPoints("open", pj, pjk, pk)
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false
    }
    shape e.curveKI = Path {
-      d: interpolateQuadraticFromPoints("open", [pk,pki,pi])
+      d: interpolateQuadraticFromPoints("open", pk, pki, pi)
       strokeColor: Colors.black
       strokeWidth: 1.5
       ensureOnCanvas: false

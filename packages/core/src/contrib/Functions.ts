@@ -546,10 +546,11 @@ export const compDict = {
   interpolateQuadraticFromPoints: (
     _context: Context,
     pathType: string,
-    pts: ad.Pt2[]
+    p0: ad.Pt2,
+    p1: ad.Pt2,
+    p2: ad.Pt2
   ): PathDataV<ad.Num> => {
     const path = new PathBuilder();
-    const [p0, p1, p2, ...tailpts] = pts;
     path.moveTo(p0);
     // Compute the control point location q1 such that the
     // quadratic curve interpolates the midpoint p1, namely,
@@ -563,7 +564,6 @@ export const compDict = {
       throw new Error("vector ops did not preserve dimension");
     }
     path.quadraticCurveTo(q1, p2);
-    tailpts.forEach((pt: ad.Pt2) => path.quadraticCurveJoin(pt));
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
