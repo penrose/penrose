@@ -134,19 +134,19 @@ describe("Debug API", () => {
     }).toThrowError();
 
     // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    dbgEmpty.setDomSrc(domainSrc);
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
     dbgEmpty.setSubSrc(substanceSrc);
     expect(() => {
       dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
     }).toThrowError();
 
-    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete AST)
     dbgEmpty.setStySrc(styleSrc);
-    expect(() => {
-      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
-    }).toThrowError();
-
-    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
-    dbgEmpty.setDomSrc(domainSrc);
     expect(() => {
       dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
     }).toThrowError();
