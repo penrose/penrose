@@ -3,6 +3,7 @@ import {
   compileTrio,
   prepareState,
   resample,
+  stepState,
   stepUntilConvergence,
   Trio,
   variationSeeds,
@@ -83,6 +84,20 @@ const _compileDiagram = async (
     }));
   }
 };
+
+export const useStepDiagram = () =>
+  useRecoilCallback(({ set }) => () =>
+    set(diagramState, (diagram: Diagram) => {
+      if (diagram.state === null) {
+        toast.error(`No diagram`);
+        return diagram;
+      }
+      return {
+        ...diagram,
+        state: stepState(diagram.state, diagram.metadata.stepSize),
+      };
+    })
+  );
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
