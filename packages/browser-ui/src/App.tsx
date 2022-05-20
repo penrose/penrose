@@ -142,6 +142,7 @@ class App extends React.Component<unknown, CanvasState> {
     const { settings } = this.state;
     if (settings.autostep && !stateConverged(canvasState)) {
       await this.step(this.state.settings.autoStepSize);
+    }
   };
   public downloadSVG = async (): Promise<void> => {
     if (this.state.fileSocket) {
