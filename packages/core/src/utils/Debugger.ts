@@ -20,7 +20,7 @@ import { SubProg } from "types/substance";
  */
 export class Debugger {
   private state = 0; // 0=Listening, 1=Answering
-  private static theInstance: Debugger; // The singleton instance is created lazily
+  private static theInstance: Debugger | undefined; // The singleton instance is created lazily
   private rep: DebugStyleBlock[] = []; // Style blocks
   private domSrc = ""; // Source code of the Domain program
   private subSrc = ""; // Source code of the Substance program
@@ -47,10 +47,10 @@ export class Debugger {
    * @returns The current instance of the debugger
    */
   public static getInstance(): Debugger {
-    if (this.theInstance === undefined) {
+    if (Debugger.theInstance === undefined) {
       return Debugger.newInstance();
     } else {
-      return this.theInstance;
+      return Debugger.theInstance;
     }
   }
 
@@ -229,11 +229,7 @@ export class Debugger {
       return JSON.parse(
         JSON.stringify(
           conds.filter((rel) =>
-            this.hasMatchingSubstitution(
-              rel,
-              theBlock as DebugStyleBlock,
-              relVars
-            )
+            this.hasMatchingSubstitution(rel, theBlock, relVars)
           )
         )
       );
@@ -316,7 +312,7 @@ export class Debugger {
     this.rep.forEach((block) => {
       // Resolve Block Ref
       if (block.blockRef.srcText === undefined) {
-        block.blockRef.srcText = this.getSourceText(
+        block.blockRef.srcText = Debugger.getSourceText(
           this.stySrc,
           block.blockRef
         );
@@ -326,14 +322,14 @@ export class Debugger {
       block.unsats.concat(block.sats).forEach((sat) => {
         // Resolve source for the relation
         if (sat.relRef.srcText === undefined) {
-          sat.relRef.srcText = this.getSourceText(this.stySrc, sat.relRef);
+          sat.relRef.srcText = Debugger.getSourceText(this.stySrc, sat.relRef);
         }
 
         // Resolve source for each reason
         sat.reasons.forEach((reason) => {
           reason.srcRef.forEach((srcRef) => {
             if (srcRef.srcText === undefined) {
-              srcRef.srcText = this.getSourceText(this.subSrc, srcRef);
+              srcRef.srcText = Debugger.getSourceText(this.subSrc, srcRef);
             }
           });
         });
@@ -407,7 +403,10 @@ export class Debugger {
    * @param srcRef Reference to lines and columns to return from source
    * @returns Source text
    */
-  private getSourceText(pgmSrc: string, srcRef: DebugSourceRef): string[] {
+  public static getSourceText(
+    pgmSrc: string,
+    srcRef: DebugSourceRef
+  ): string[] {
     // Locally adjust the lines and columns from the AST for processing here
     const startLine: number = srcRef.lineStart - 1;
     const startCol: number = srcRef.colStart;
@@ -418,11 +417,22 @@ export class Debugger {
     const lines = pgmSrc.split(/\r?\n/);
     const outLines: string[] = [];
 
+    // Check that the inputs are in range
+    if (srcRef.lineStart < 1 || srcRef.lineStart > srcRef.lineEnd) {
+      throw Error("Invalid Source Ref: startLine must be > 0 and < endLine");
+    }
+    if (srcRef.lineEnd > lines.length) {
+      throw Error(`Invalid Source Ref: endLine must be <= last source line)`);
+    }
+    if (srcRef.colStart < 0) {
+      throw Error("Invalid Source Ref: colStart must be >= 0");
+    }
+
     // Loop over the lines in the source to find the source Text
     for (let i = startLine; i < endLine + 1; i++) {
       if (i >= startLine && i <= endLine) {
         if (startLine === endLine) {
-          if (startCol <= endCol) {
+          if (startCol <= endCol - 1) {
             outLines.push(lines[i].substring(startCol, endCol));
           } else {
             outLines.push(lines[i].substring(startCol));
@@ -457,7 +467,9 @@ export class Debugger {
     ) {
       // Do nothing
     } else {
-      throw new Error(`Invalid AST Node lacks start/end source refs: ${node}`);
+      throw new Error(
+        `Invalid AST Node lacks start/end source refs: ${JSON.stringify(node)}`
+      );
     }
 
     // Determine the origin program of the node based on its type
@@ -517,9 +529,9 @@ export type DebugReason = {
 // A reference to a specific section of a source program
 export type DebugSourceRef = {
   origin: DebugProgramType; // e.g. DOMAIN, SUBSTANCE, STYLE
-  lineStart: number; // Start line number of the source reference
+  lineStart: number; // Start line number of the source reference (minimum=1)
   lineEnd: number; // Ending line number of the source reference
-  colStart: number; // Start column number of the source reference
+  colStart: number; // Start column number of the source reference (minimum=0)
   colEnd: number; // Ending column number of the source reference
   srcText?: string[]; // Source text of the entity
 };

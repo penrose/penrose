@@ -1,5 +1,8 @@
 import { examples, registry } from "@penrose/examples";
+import { A } from "types/ast";
+import { DomainProg } from "types/domain";
 import { State } from "types/state";
+import { StyProg } from "types/style";
 import {
   compileTrio,
   Debugger,
@@ -7,8 +10,9 @@ import {
   RenderStatic,
   showError,
   stepUntilConvergence,
+  SubProg,
 } from "../index";
-import { DebugStyleBlock } from "./Debugger";
+import { DebugProgramType, DebugStyleBlock } from "./Debugger";
 
 /**
  * Load source code of example program
@@ -81,6 +85,21 @@ describe("Debug API", () => {
   const domainSrc = exampleFromURI(registry.domains["set-theory"].URI);
   const substanceSrc = exampleFromURI(registry.substances["tree"].URI);
   const variation = "determinism";
+  const dummyDomainAst: DomainProg<A> = {
+    tag: "DomainProg",
+    nodeType: "Domain",
+    statements: [],
+  };
+  const dummySubstanceAst: SubProg<A> = {
+    tag: "SubProg",
+    nodeType: "Substance",
+    statements: [],
+  };
+  const dummyStyleAst: StyProg<A> = {
+    tag: "StyProg",
+    nodeType: "Style",
+    blocks: [],
+  };
 
   // Get an empty Debugger instance
   const dbgEmpty = Debugger.newInstance();
@@ -91,6 +110,109 @@ describe("Debug API", () => {
     // Ensure: no blocks found in empty Debugger
     expect(dbgEmpty.getBlocks()).toEqual([]);
 
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    dbgEmpty.setDomAst(dummyDomainAst);
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    dbgEmpty.setSubAst(dummySubstanceAst);
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    dbgEmpty.setStyAst(dummyStyleAst);
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    dbgEmpty.setSubSrc(substanceSrc);
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    dbgEmpty.setStySrc(styleSrc);
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    dbgEmpty.setDomSrc(domainSrc);
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // getSourceRefFromAstNode(dummyStyleAst) == Error (no source ref in dummy AST)
+    expect(() => {
+      Debugger.getSourceRefFromAstNode(dummyStyleAst);
+    }).toThrowError();
+
+    // getSourceText() w/complete lines == (see text below)
+    expect(
+      Debugger.getSourceText(styleSrc, {
+        origin: DebugProgramType.STYLE,
+        lineStart: 1,
+        lineEnd: 4,
+        colStart: 0,
+        colEnd: 1,
+      })
+    ).toEqual(["canvas {", "  width = 800", "  height = 700", "}"]);
+
+    // getSourceText() w/endCol < startCol == (see text below)
+    expect(
+      Debugger.getSourceText(styleSrc, {
+        origin: DebugProgramType.STYLE,
+        lineStart: 1,
+        lineEnd: 1,
+        colStart: 0,
+        colEnd: -1,
+      })
+    ).toEqual(["canvas {"]);
+
+    // getSourceText() w/startCol < 1  == (Error - out of range)
+    expect(() => {
+      Debugger.getSourceText(styleSrc, {
+        origin: DebugProgramType.STYLE,
+        lineStart: 1,
+        lineEnd: 1,
+        colStart: -1, // Error!
+        colEnd: 1,
+      });
+    }).toThrowError();
+
+    // getSourceText() w/startLine < 1  == (Error - out of range)
+    expect(() => {
+      Debugger.getSourceText(styleSrc, {
+        origin: DebugProgramType.STYLE,
+        lineStart: 0, // Error!
+        lineEnd: 1,
+        colStart: 1,
+        colEnd: 1,
+      });
+    }).toThrowError();
+
+    // getSourceText() w/startLine > endLine  == (Error - out of range)
+    expect(() => {
+      Debugger.getSourceText(styleSrc, {
+        origin: DebugProgramType.STYLE,
+        lineStart: 2, // Error!
+        lineEnd: 1, // Error!
+        colStart: 0,
+        colEnd: 1,
+      });
+    }).toThrowError();
+
+    // ---------------------------- Live Debugger Tests ----------------------------- //
+
     // Get a live Debugger instance
     const dbg = await getLiveDebugger(
       styleSrc,
@@ -98,11 +220,6 @@ describe("Debug API", () => {
       substanceSrc,
       variation
     );
-
-    // queryDoesStyleBlockHaveWhereClause(21) == Error (empty debugger cannot answer)
-    expect(() => {
-      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
-    }).toThrowError();
 
     // Debugger should be in listening mode -- no user queries received yet
     expect(dbg.isListening()).toEqual<boolean>(true);
@@ -223,9 +340,19 @@ describe("Debug API", () => {
       )
     );
 
+    // queryExplainStyleBlockApplication(21,{'x':'B','y':'C'}) == Error (style variable z does not exist)
+    expect(() => {
+      dbg.queryExplainStyleBlockApplication(11, { z: "B" });
+    }).toThrowError();
+
     // queryExplainStyleBlockApplication(21,{'x':'B','y':'C'}) == Error (no style block @ line 1)
     expect(() => {
       dbg.queryExplainStyleBlockApplication(1, { x: "B", y: "C" });
+    }).toThrowError();
+
+    // queryExplainStyleBlockApplication(21,{}) == Error (empty query)
+    expect(() => {
+      dbg.queryExplainStyleBlockApplication(1, {});
     }).toThrowError();
   });
 });
