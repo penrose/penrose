@@ -852,15 +852,6 @@ const substituteBlockExpr = (
           ),
         };
       }
-      case "ListAccess": {
-        return {
-          ...expr,
-          contents: [
-            substitutePath(lv, subst, expr.contents[0]),
-            expr.contents[1],
-          ],
-        };
-      }
       case "GPIDecl": {
         return {
           ...expr,
@@ -876,16 +867,6 @@ const substituteBlockExpr = (
           above: substitutePath(lv, subst, expr.above),
         };
       }
-      case "PluginAccess": {
-        return {
-          ...expr,
-          contents: [
-            expr.contents[0],
-            substituteBlockExpr(lv, subst, expr.contents[1]),
-            substituteBlockExpr(lv, subst, expr.contents[2]),
-          ],
-        };
-      }
       case "Tuple": {
         return {
           ...expr,
@@ -895,28 +876,8 @@ const substituteBlockExpr = (
           ],
         };
       }
-      case "VectorAccess": {
-        return {
-          ...expr,
-          contents: [
-            substitutePath(lv, subst, expr.contents[0]),
-            substituteBlockExpr(lv, subst, expr.contents[1]),
-          ],
-        };
-      }
-      case "MatrixAccess": {
-        return {
-          ...expr,
-          contents: [
-            substitutePath(lv, subst, expr.contents[0]),
-            expr.contents[1].map((e) => substituteBlockExpr(lv, subst, e)),
-          ],
-        };
-      }
       case "Fix":
       case "Vary":
-      case "VaryAD":
-      case "VaryInit":
       case "StringLit":
       case "BoolLit": {
         // No substitution for literals
@@ -1619,22 +1580,13 @@ const translateExpr = (expr: Expr<C>): Result<Nameable, StyleDiagnostics> => {
     case "List": {
       throw Error("TODO");
     }
-    case "ListAccess": {
-      throw Error("TODO");
-    }
     case "LocalVar": {
       throw Error("TODO");
     }
     case "Matrix": {
       throw Error("TODO");
     }
-    case "MatrixAccess": {
-      throw Error("TODO");
-    }
     case "ObjFn": {
-      throw Error("TODO");
-    }
-    case "PluginAccess": {
       throw Error("TODO");
     }
     case "PropertyPath": {
@@ -1653,9 +1605,6 @@ const translateExpr = (expr: Expr<C>): Result<Nameable, StyleDiagnostics> => {
       throw Error("TODO");
     }
     case "Vector": {
-      throw Error("TODO");
-    }
-    case "VectorAccess": {
       throw Error("TODO");
     }
   }
@@ -1819,9 +1768,6 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleDiagnostics => {
       case "Matrix": {
         return flatErrs(expr.contents.map(check));
       }
-      case "ListAccess": {
-        return emptyErrs();
-      }
       case "GPIDecl": {
         const e1: StyleDiagnostics = checkGPIInfo(selEnv, expr);
         const e2: StyleDiagnostics[] = expr.properties.map((p) =>
@@ -1832,28 +1778,14 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleDiagnostics => {
       case "Layering": {
         return flatErrs([check(expr.below), check(expr.above)]);
       }
-      case "PluginAccess": {
-        return flatErrs([check(expr.contents[1]), check(expr.contents[2])]);
-      }
       case "Tuple": {
         return flatErrs([check(expr.contents[0]), check(expr.contents[1])]);
       }
-      case "VectorAccess": {
-        return check(expr.contents[1]);
-      }
-      case "MatrixAccess": {
-        return flatErrs(expr.contents[1].map(check));
-      }
       case "Fix":
       case "Vary":
-      case "VaryInit":
       case "StringLit":
       case "BoolLit": {
         return emptyErrs();
-      }
-      case "VaryAD": {
-        console.error("expr", expr);
-        throw Error("unknown tag");
       }
     }
   }
@@ -2776,9 +2708,6 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       case "Matrix": {
         return _.flatMap(expr.contents, findPathsExpr);
       }
-      case "ListAccess": {
-        return [expr.contents[0]];
-      }
       case "GPIDecl": {
         return _.flatMap(
           expr.properties.map((p) => p.value),
@@ -2788,24 +2717,11 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       case "Layering": {
         return [expr.below, expr.above];
       }
-      case "PluginAccess": {
-        return _.flatMap([expr.contents[1], expr.contents[2]], findPathsExpr);
-      }
       case "Tuple": {
         return _.flatMap([expr.contents[0], expr.contents[1]], findPathsExpr);
       }
-      case "VectorAccess": {
-        return [expr.contents[0]].concat(findPathsExpr(expr.contents[1]));
-      }
-      case "MatrixAccess": {
-        return [expr.contents[0]].concat(
-          _.flatMap(expr.contents[1], findPathsExpr)
-        );
-      }
       case "Fix":
       case "Vary":
-      case "VaryInit":
-      case "VaryAD":
       case "StringLit":
       case "BoolLit": {
         return [];

@@ -1,5 +1,4 @@
 //#region Style AST
-// TODO: unify type name convention (e.g. stop using `I` for interfaces and drop some of the Haskell ported types)
 
 import { ASTNode, Identifier, StringLit } from "./ast";
 import { LabelType } from "./substance";
@@ -10,7 +9,6 @@ export type StyProg<T> = ASTNode<T> & {
   blocks: HeaderBlock<T>[];
 };
 
-// type HeaderBlock = [Header, Block];
 export type HeaderBlock<T> = ASTNode<T> & {
   tag: "HeaderBlock";
   header: Header<T>;
@@ -32,7 +30,6 @@ export type Selector<T> = ASTNode<T> & {
   namespace?: Namespace<T>;
 };
 
-// NOTE: Instead of a js array typed child. I explicitly wrap them in an ASTNode so location and ancestry info can be better preserved.
 // TODO: consider dropping the suffix pattern. It's a bit confusing, and DeclList would have been clearer.
 export type DeclPatterns<T> = ASTNode<T> & {
   tag: "DeclPatterns";
@@ -80,7 +77,6 @@ export type PredArg<T> = SEBind<T> | RelPred<T>;
 
 // NOTE: the original type is unnecessarily nested and contain type constructor, which is deprecated.
 export type StyT<T> = Identifier<T>;
-// type StyT = STTypeVar | STCtor;
 
 export type STTypeVar<T> = ASTNode<T> & {
   tag: "STTypeVar";
@@ -137,6 +133,7 @@ export type SEValCons<T> = ASTNode<T> & {
   name: Identifier<T>;
   args: SelExpr<T>[];
 };
+
 // NOTE: This type is used by the style compiler; since the grammar is ambiguous, the compiler will need to narrow down the type of this node when checking the AST.
 export type SEFuncOrValCons<T> = ASTNode<T> & {
   tag: "SEFuncOrValCons";
@@ -194,38 +191,26 @@ export type StyVar<T> = ASTNode<T> & {
 };
 
 export type Expr<T> =
-  // | IntLit<T>
   | AnnoFloat<T>
   | StringLit<T>
   | BoolLit<T>
-  | Path<T> // NOTE: changed from EPath
+  | Path<T>
   | CompApp<T>
   | ObjFn<T>
   | ConstrFn<T>
-  // | AvoidFn<T> // TODO: unimplemented
   | BinOp<T>
   | UOp<T>
   | List<T>
   | Tuple<T>
   | Vector<T>
   | Matrix<T>
-  | VectorAccess<T>
-  | MatrixAccess<T>
-  | ListAccess<T>
   | GPIDecl<T>
-  | Layering<T>
-  | PluginAccess<T>;
-// | ThenOp<T>; // TODO: deprecated transformation exprs
+  | Layering<T>;
 
 export type IntLit<T> = ASTNode<T> & {
   tag: "IntLit";
   contents: number;
 };
-
-// export type AFloat<T> = ASTNode<T> & {
-//     tag: "AFloat";
-//     contents: AnnoFloat<T>;
-// };
 
 export type BoolLit<T> = ASTNode<T> & {
   tag: "BoolLit";
@@ -259,12 +244,14 @@ export type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
 
 // NOTE: unary + operator not parsed, as they don't change values
 export type UnaryOp = "UMinus";
+
 export type BinOp<T> = ASTNode<T> & {
   tag: "BinOp";
   op: BinaryOp;
   left: Expr<T>;
   right: Expr<T>;
 };
+
 export type UOp<T> = ASTNode<T> & {
   tag: "UOp";
   op: UnaryOp;
@@ -291,21 +278,6 @@ export type Matrix<T> = ASTNode<T> & {
   contents: Expr<T>[];
 };
 
-export type VectorAccess<T> = ASTNode<T> & {
-  tag: "VectorAccess";
-  contents: [Path<T>, Expr<T>];
-};
-
-export type MatrixAccess<T> = ASTNode<T> & {
-  tag: "MatrixAccess";
-  contents: [Path<T>, Expr<T>[]];
-};
-
-export type ListAccess<T> = ASTNode<T> & {
-  tag: "ListAccess";
-  contents: [Path<T>, number];
-};
-
 export type GPIDecl<T> = ASTNode<T> & {
   tag: "GPIDecl";
   shapeName: Identifier<T>;
@@ -317,11 +289,6 @@ export type Layering<T> = ASTNode<T> & {
   tag: "Layering";
   below: Path<T>;
   above: Path<T>;
-};
-
-export type PluginAccess<T> = ASTNode<T> & {
-  tag: "PluginAccess";
-  contents: [string, Expr<T>, Expr<T>];
 };
 
 export type ThenOp<T> = ASTNode<T> & {
@@ -346,16 +313,12 @@ export type PropertyDecl<T> = ASTNode<T> & {
   value: Expr<T>;
 };
 
-// TODO: check how the evaluator/compiler should interact with ASTNode
 export type Path<T> =
   | FieldPath<T>
   | PropertyPath<T>
   | AccessPath<T>
-  | LocalVar<T>
+  | LocalVar<T> // LocalVar is only used internally by the compiler
   | InternalLocalVar<T>;
-// LocalVar is only used internally by the compiler
-// Unused
-// | TypePropertyPath<T>;
 
 export type FieldPath<T> = ASTNode<T> & {
   tag: "FieldPath";
@@ -386,4 +349,5 @@ export type InternalLocalVar<T> = ASTNode<T> & {
   tag: "InternalLocalVar";
   contents: string;
 };
+
 //#endregion
