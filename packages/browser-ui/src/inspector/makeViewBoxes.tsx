@@ -1,6 +1,5 @@
-import { bBoxDims, RenderShape, Shape } from "@penrose/core";
+import { Shape } from "@penrose/core";
 import * as React from "react";
-import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 // styling for shape inside viewbox - see ShapeView or Mod
@@ -38,28 +37,28 @@ const makeViewBoxes = (
         {shapes.map(({ properties, shapeType }: Shape, key: number) => {
           // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
           // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
-          const [w, h] = bBoxDims(properties, shapeType);
+          // const [w, h] = bBoxDims(properties, shapeType);
 
           // HACK: stateful due to asynchronicity (could probably do it another way)
-          const [shapeHTML, setShapeHTML] = useState("");
-          useEffect(() => {
-            (async () => {
-              const shape = await RenderShape({
-                shape: { properties, shapeType },
-                labels: [],
-                canvasSize: [w, h],
-                pathResolver: async () => undefined,
-              });
-              setShapeHTML(shape.outerHTML);
-            })();
-          }, []);
+          // const [shapeHTML, setShapeHTML] = useState("");
+          // useEffect(() => {
+          //   (async () => {
+          //     const shape = await RenderShape({
+          //       shape: { properties, shapeType },
+          //       labels: [],
+          //       canvasSize: [w, h],
+          //       pathResolver: async () => undefined,
+          //     });
+          //     setShapeHTML(shape.outerHTML);
+          //   })();
+          // }, []);
           return (
             <ShapeItem
               key={`shapePreview-${key}`}
               selected={selectedShape === key}
               onClick={() => setSelectedShape(key)}
             >
-              <div>
+              {/* <div>
                 <svg
                   viewBox={`0 0 ${w} ${h}`}
                   width="50"
@@ -68,7 +67,7 @@ const makeViewBoxes = (
                     __html: shapeHTML,
                   }}
                 />
-              </div>
+              </div> */}
               <div style={{ margin: "0.5em" }}>
                 <span>{properties.name.contents}</span>
               </div>
