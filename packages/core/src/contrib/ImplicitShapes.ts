@@ -109,14 +109,15 @@ export const halfPlaneToImplicit = (
  */
 export const ellipseToImplicit = (
   ellipse: Ellipse,
-  padding: ad.Num
+  padding: ad.Num,
+  factor: ad.Num = 1
 ): ImplicitEllipse => {
   const rx = add(ellipse.rx.contents, padding);
   const ry = add(ellipse.ry.contents, padding);
   return {
-    a: div(ry, rx),
-    b: div(rx, ry),
-    c: mul(rx, ry),
+    a: mul(factor, div(ry, rx)),
+    b: mul(factor, div(rx, ry)),
+    c: mul(factor, mul(rx, ry)),
     x: ellipse.center.contents[0],
     y: ellipse.center.contents[1],
   };
@@ -128,12 +129,13 @@ export const ellipseToImplicit = (
  */
 export const circleToImplicitEllipse = (
   circle: Circle,
-  padding: ad.Num
+  padding: ad.Num,
+  factor: ad.Num = 1
 ): ImplicitEllipse => {
   return {
-    a: 1,
-    b: 1,
-    c: squared(add(circle.r.contents, padding)),
+    a: factor,
+    b: factor,
+    c: mul(factor, squared(add(circle.r.contents, padding))),
     x: circle.center.contents[0],
     y: circle.center.contents[1],
   };
@@ -265,6 +267,8 @@ export const ellipsePolynomial = (
   b: ImplicitEllipse
 ): ad.Num[] => {
   const params = ellipsePolynomialParams(a, b);
+  // Prevent division by zero (note that `params[4]` being close 0
+  // may still cause to instability in the root solver later)
   params[4] = ifCond(eq(params[4], 0), EPS_DENOM, params[4]);
   return Array.from(Array(4).keys()).map((i) => div(params[i], params[4]));
 };

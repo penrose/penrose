@@ -93,7 +93,10 @@ export const overlappingEllipse = (
   [, s2]: [string, Ellipse],
   padding: ad.Num
 ): ad.Num => {
-  const ei1 = ellipseToImplicit(s1, padding);
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const ei1 = ellipseToImplicit(s1, padding, Math.PI / 3);
   const ei2 = ellipseToImplicit(s2, 0);
   return overlappingImplicitEllipses(ei1, ei2);
 };
@@ -138,7 +141,10 @@ export const overlappingCircleEllipse = (
   [, s2]: [string, Ellipse],
   padding: ad.Num = 0
 ): ad.Num => {
-  const ei1 = circleToImplicitEllipse(s1, padding);
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const ei1 = circleToImplicitEllipse(s1, padding, Math.PI / 3);
   const ei2 = ellipseToImplicit(s2, 0);
   return overlappingImplicitEllipses(ei1, ei2);
 };
