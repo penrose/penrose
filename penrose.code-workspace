@@ -19,10 +19,6 @@
       "path": "packages/automator"
     },
     {
-      "name": "📦 @penrose/browser-ui",
-      "path": "packages/browser-ui"
-    },
-    {
       "name": "📦 @penrose/components",
       "path": "packages/components"
     },

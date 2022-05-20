@@ -293,14 +293,17 @@ DESCRIPTION
 
 ## `roger watch`
 
-Watch the given folder for files & changes
+Watch the current folder for files & changes (must end in .sub,.sty,.dsl)
 
 ```
 USAGE
-  $ roger watch
+  $ roger watch [-p <value>]
+
+FLAGS
+  -p, --port=<value>  [default: 9160] websocket port to serve to frontend
 
 DESCRIPTION
-  Watch the given folder for files & changes
+  Watch the current folder for files & changes (must end in .sub,.sty,.dsl)
 
 EXAMPLES
   $ roger watch
