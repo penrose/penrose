@@ -1,7 +1,7 @@
 import im from "immutable";
 import { ShapeType } from "shapes/Shapes";
 import * as ad from "./ad";
-import { A, C } from "./ast";
+import { A, C, Identifier, SourceRange } from "./ast";
 import { StyleDiagnostics, StyleError } from "./errors";
 import { ShapeAD } from "./shape";
 import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style";
@@ -113,7 +113,16 @@ export interface ShapeSource {
 
 export interface OtherSource {
   tag: "OtherSource";
-  expr: Exclude<Expr<A>, GPIDecl<A>>; // abstract: can include implicit labels
+  expr: Exclude<Expr<C>, GPIDecl<C>>;
+}
+
+export interface ResolvedName {
+  tag: "Global" | "Local" | "Substance";
+  name: string;
+}
+
+export interface ResolvedPath extends SourceRange, ResolvedName {
+  members: Identifier<C>[];
 }
 
 //#endregion

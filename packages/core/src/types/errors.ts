@@ -1,9 +1,10 @@
 //#region ErrorTypes
 import im from "immutable";
-import { A, AbstractNode, Identifier, SourceLoc } from "./ast";
+import { A, AbstractNode, C, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
 import { BindingForm, GPIDecl, Path } from "./style";
+import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
 
 // type PenroseError = LanguageError | RuntimeError;
@@ -149,11 +150,16 @@ export type StyleError =
   | InvalidObjectiveNameError
   | InvalidConstraintNameError
   // Compilation errors
-  | MissingShapeError
-  | NotShapeError
-  | NestedShapeError
   | AssignAccessError
+  | AssignGlobalError
+  | AssignSubstanceError
   | DeleteAccessError
+  | DeleteGlobalError
+  | DeleteSubstanceError
+  | MissingShapeError
+  | NestedShapeError
+  | NotShapeError
+  | PropertyMemberError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -177,12 +183,12 @@ export interface IntOrFloat {
 
 export interface ImplicitOverrideWarning {
   tag: "ImplicitOverrideWarning";
-  path: Path<A>;
+  path: ResolvedPath;
 }
 
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
-  path: Path<A>;
+  path: ResolvedPath;
 }
 
 //#endregion
@@ -267,30 +273,55 @@ export interface InvalidConstraintNameError {
 
 //#region compilation errors
 
-export interface MissingShapeError {
-  tag: "MissingShapeError";
-  path: Path<A>;
-}
-
-export interface NotShapeError {
-  tag: "NotShapeError";
-  path: Path<A>;
-}
-
-export interface NestedShapeError {
-  tag: "NestedShapeError";
-  path: Path<A>;
-  expr: GPIDecl<A>;
-}
-
 export interface AssignAccessError {
   tag: "AssignAccessError";
-  path: Path<A>;
+  path: Path<C>;
+}
+
+export interface AssignGlobalError {
+  tag: "AssignGlobalError";
+  path: ResolvedPath;
+}
+
+export interface AssignSubstanceError {
+  tag: "AssignSubstanceError";
+  path: ResolvedPath;
 }
 
 export interface DeleteAccessError {
   tag: "DeleteAccessError";
-  path: Path<A>;
+  path: Path<C>;
+}
+
+export interface DeleteGlobalError {
+  tag: "DeleteGlobalError";
+  path: ResolvedPath;
+}
+
+export interface DeleteSubstanceError {
+  tag: "DeleteSubstanceError";
+  path: ResolvedPath;
+}
+
+export interface MissingShapeError {
+  tag: "MissingShapeError";
+  path: ResolvedPath;
+}
+
+export interface NestedShapeError {
+  tag: "NestedShapeError";
+  path: ResolvedPath;
+  expr: GPIDecl<C>;
+}
+
+export interface NotShapeError {
+  tag: "NotShapeError";
+  path: ResolvedPath;
+}
+
+export interface PropertyMemberError {
+  tag: "PropertyMemberError";
+  path: ResolvedPath;
 }
 
 //#endregion

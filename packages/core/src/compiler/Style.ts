@@ -25,7 +25,7 @@ import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { isShapeType, ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
-import { A, C, Identifier } from "types/ast";
+import { A, C, Identifier, SourceRange } from "types/ast";
 import { Either } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
@@ -38,7 +38,6 @@ import {
 } from "types/errors";
 import { Fn, OptType, Params, State } from "types/state";
 import {
-  AccessPath,
   BindingForm,
   Block,
   CompApp,
@@ -66,10 +65,13 @@ import {
 import {
   Assignment,
   BlockAssignment,
+  Fielded,
   FieldSource,
   LocalVarSubst,
   Nameable,
   ProgType,
+  ResolvedName,
+  ResolvedPath,
   SelEnv,
   StyleSymbols,
   Subst,
@@ -91,7 +93,6 @@ import {
   FieldExpr,
   GPIMap,
   GPIProps,
-  Name,
   OptEval,
   PropID,
   ShapeTypeStr,
@@ -1458,7 +1459,12 @@ export const buildAssignment = (
   subEnv: SubstanceEnv,
   styProg: StyProg<C>
 ): Assignment => {
-  // insert Substance label string
+  // insert Substance label string; use dummy AST node location pattern from
+  // `engine/ParserUtil`
+  const range: SourceRange = {
+    start: { line: 1, col: 1 },
+    end: { line: 1, col: 1 },
+  };
   const assignment: Assignment = {
     diagnostics: { errors: im.List(), warnings: im.List() },
     substances: subEnv.labels.map((label) =>
@@ -1466,8 +1472,10 @@ export const buildAssignment = (
         [
           LABEL_FIELD,
           {
+            ...range,
             tag: "OtherSource",
             expr: {
+              ...range,
               tag: "StringLit",
               nodeType: "SyntheticStyle",
               contents: label.value,
@@ -1509,6 +1517,44 @@ const processBlock = (
   }, addDiags({ errors: im.List(selEnv.errors), warnings: im.List() }, assignment));
 };
 
+const resolveName = (
+  assignment: BlockAssignment,
+  subst: Subst,
+  name: BindingForm<C>
+): ResolvedName => {
+  const { value } = name.contents;
+  switch (name.tag) {
+    case "StyVar": {
+      if (assignment.locals.has(value)) {
+        // locals shadow selector match names
+        return { tag: "Local", name: value };
+      } else if (value in subst) {
+        // selector match names shadow globals
+        return { tag: "Substance", name: subst[value] };
+      } else if (assignment.globals.has(value)) {
+        return { tag: "Global", name: value };
+      } else {
+        // if undefined, we may be defining for the first time, must be a local
+        return { tag: "Local", name: value };
+      }
+    }
+    case "SubVar": {
+      return { tag: "Substance", name: value };
+    }
+  }
+};
+
+const resolvePath = (
+  assignment: BlockAssignment,
+  subst: Subst,
+  path: Path<C>
+): Result<ResolvedPath, StyleError> => {
+  const { start, end, name, members, indices } = path;
+  return indices.length > 0
+    ? err({ tag: "AssignAccessError", path })
+    : ok({ start, end, ...resolveName(assignment, subst, name), members });
+};
+
 const processStmt = (
   subst: Subst,
   index: number,
@@ -1517,59 +1563,47 @@ const processStmt = (
 ): BlockAssignment => {
   switch (stmt.tag) {
     case "PathAssign": {
-      // TODO: check stmt.type
-      return insertExpr(subst, stmt.path, stmt.value, assignment);
+      // TODO: check `stmt.type`
+      const path = resolvePath(assignment, subst, stmt.path);
+      if (path.isErr()) {
+        return addDiags(oneErr(path.error), assignment);
+      }
+      return insertExpr(path.value, stmt.value, assignment);
     }
     case "Override": {
+      // resolve just once, not again between deleting and inserting
+      const path = resolvePath(assignment, subst, stmt.path);
+      if (path.isErr()) {
+        return addDiags(oneErr(path.error), assignment);
+      }
       return insertExpr(
-        subst,
-        stmt.path,
+        path.value,
         stmt.value,
-        deleteExpr(subst, stmt.path, assignment)
+        deleteExpr(path.value, assignment)
       );
     }
     case "Delete": {
-      return deleteExpr(subst, stmt.contents, assignment);
+      const path = resolvePath(assignment, subst, stmt.contents);
+      if (path.isErr()) {
+        return addDiags(oneErr(path.error), assignment);
+      }
+      return deleteExpr(path.value, assignment);
     }
     case "AnonAssign": {
+      const { start } = stmt;
+      // act as if the synthetic name we create is from the beginning of the
+      // anonymous assignment statement
+      const range: SourceRange = { start, end: start };
       return insertExpr(
-        subst,
         {
-          tag: "Path",
-          nodeType: "SyntheticStyle",
-          name: {
-            tag: "StyVar",
-            nodeType: "SyntheticStyle",
-            contents: {
-              tag: "Identifier",
-              nodeType: "SyntheticStyle",
-              type: "Identifier",
-              value: `$${ANON_KEYWORD}_${index}`,
-            },
-          },
+          ...range,
+          tag: "Local",
+          name: `$${ANON_KEYWORD}_${index}`,
           members: [],
-          indices: [],
         },
         stmt.contents,
         assignment
       );
-    }
-  }
-};
-
-const getSubName = (subst: Subst, name: BindingForm<A>): Name => {
-  const { value } = name.contents;
-  switch (name.tag) {
-    case "StyVar": {
-      if (value in subst) {
-        return subst[value];
-      } else {
-        // TODO: look for global or local
-        return value;
-      }
-    }
-    case "SubVar": {
-      return value;
     }
   }
 };
@@ -1611,144 +1645,139 @@ const processExpr = (expr: Expr<C>): Result<FieldSource, StyleError> => {
 };
 
 const insertExpr = (
-  subst: Subst,
-  path: Path<A>, // abstract, could be an `InternalLocalVar` from `AnonAssign`
-  value: Expr<C>,
+  path: ResolvedPath,
+  expr: Expr<C>,
   assignment: BlockAssignment
-): BlockAssignment => {
-  if (path.indices.length > 0) {
-    return addDiags(oneErr({ tag: "AssignAccessError", path }), assignment);
-  }
-  switch (path.tag) {
-    case "FieldPath": {
-      const name = getSubName(subst, path.name);
-      const subObj = assignment.substances.get(name) ?? im.Map();
-      const warns: StyleWarning[] = [];
-      if (subObj.has(path.field.value)) {
-        warns.push({ tag: "ImplicitOverrideWarning", path });
-      }
-      const source = processExpr(value);
+): BlockAssignment =>
+  updateExpr(path, assignment, "Assign", (path, field, prop, fielded) => {
+    const warns: StyleWarning[] = [];
+    if (prop === undefined) {
+      const source = processExpr(expr);
       if (source.isErr()) {
-        return addDiags(oneErr(source.error), assignment);
+        return err(source.error);
       }
-      return addDiags(warnings(warns), {
-        ...assignment,
-        objects: assignment.substances.set(
-          name,
-          subObj.set(path.field.value, source.value)
-        ),
-      });
-    }
-    case "PropertyPath": {
-      const name = getSubName(subst, path.name);
-      const subObj = assignment.substances.get(name);
-      if (subObj === undefined) {
-        return addDiags(oneErr({ tag: "MissingShapeError", path }), assignment);
-      }
-      const field = subObj.get(path.field.value);
-      if (field === undefined) {
-        return addDiags(oneErr({ tag: "MissingShapeError", path }), assignment);
-      }
-      if (field.tag !== "ShapeSource") {
-        return addDiags(oneErr({ tag: "NotShapeError", path }), assignment);
-      }
-      const warns: StyleWarning[] = [];
-      if (field.props.has(path.property.value)) {
+      if (fielded.has(field)) {
         warns.push({ tag: "ImplicitOverrideWarning", path });
       }
-      if (value.tag === "GPIDecl") {
-        return addDiags(
-          oneErr({ tag: "NestedShapeError", path, expr: value }),
-          assignment
-        );
+      return ok({ dict: fielded.set(field, source.value), warns });
+    } else {
+      if (expr.tag === "GPIDecl") {
+        return err({ tag: "NestedShapeError", path, expr });
       }
-      return addDiags(warnings(warns), {
-        ...assignment,
-        objects: assignment.substances.set(
-          name,
-          subObj.set(path.field.value, {
-            ...field,
-            props: field.props.set(path.property.value, value),
-          })
-        ),
+      const shape = fielded.get(field);
+      if (shape === undefined) {
+        return err({ tag: "MissingShapeError", path });
+      }
+      if (shape.tag !== "ShapeSource") {
+        return err({ tag: "NotShapeError", path });
+      }
+      if (shape.props.has(prop)) {
+        warns.push({ tag: "ImplicitOverrideWarning", path });
+      }
+      return ok({
+        dict: fielded.set(field, {
+          ...shape,
+          props: shape.props.set(prop, expr),
+        }),
+        warns,
       });
     }
-    case "AccessPath": {
-      return addDiags(oneErr({ tag: "AssignAccessError", path }), assignment);
-    }
-    case "LocalVar": {
-      throw Error("TODO");
-    }
-    case "InternalLocalVar": {
-      throw Error("TODO");
-    }
-  }
-};
+  });
 
 const deleteExpr = (
-  subst: Subst,
-  path: Path<C>,
+  path: ResolvedPath,
   assignment: BlockAssignment
+): BlockAssignment =>
+  updateExpr(path, assignment, "Delete", (path, field, prop, fielded) => {
+    const warns: StyleWarning[] = [];
+    if (prop === undefined) {
+      if (!fielded.has(field)) {
+        warns.push({ tag: "NoopDeleteWarning", path });
+      }
+      return ok({ dict: fielded.remove(field), warns });
+    } else {
+      const shape = fielded.get(field);
+      if (shape === undefined) {
+        return err({ tag: "MissingShapeError", path });
+      }
+      if (shape.tag !== "ShapeSource") {
+        return err({ tag: "NotShapeError", path });
+      }
+      if (!shape.props.has(prop)) {
+        warns.push({ tag: "NoopDeleteWarning", path });
+      }
+      return ok({
+        dict: fielded.set(field, {
+          ...shape,
+          props: shape.props.remove(prop),
+        }),
+        warns,
+      });
+    }
+  });
+
+type FieldedRes = Result<{ dict: Fielded; warns: StyleWarning[] }, StyleError>;
+
+const updateExpr = (
+  path: ResolvedPath,
+  assignment: BlockAssignment,
+  errTagPrefix: "Assign" | "Delete",
+  f: (
+    path: ResolvedPath,
+    field: Field,
+    prop: PropID | undefined,
+    fielded: Fielded
+  ) => FieldedRes
 ): BlockAssignment => {
   switch (path.tag) {
-    case "FieldPath": {
-      const name = getSubName(subst, path.name);
-      const subObj = assignment.substances.get(name);
-      if (subObj === undefined || !subObj.has(path.field.value)) {
+    case "Global": {
+      return addDiags(
+        oneErr({ tag: `${errTagPrefix}GlobalError`, path }),
+        assignment
+      );
+    }
+    case "Local": {
+      if (path.members.length > 1) {
         return addDiags(
-          warnings([{ tag: "NoopDeleteWarning", path }]),
+          oneErr({ tag: "PropertyMemberError", path }),
           assignment
         );
       }
-      return {
+      // remember, we don't use `--noUncheckedIndexedAccess`
+      const prop = path.members.length > 0 ? path.members[0].value : undefined;
+      // coincidentally, `BlockAssignment["locals"]` looks just like `Fielded`
+      const res = f(path, path.name, prop, assignment.locals);
+      if (res.isErr()) {
+        return addDiags(oneErr(res.error), assignment);
+      }
+      const { dict: locals, warns } = res.value;
+      return addDiags(warnings(warns), { ...assignment, locals });
+    }
+    case "Substance": {
+      if (path.members.length < 1) {
+        return addDiags(
+          oneErr({ tag: `${errTagPrefix}SubstanceError`, path }),
+          assignment
+        );
+      } else if (path.members.length > 2) {
+        return addDiags(
+          oneErr({ tag: "PropertyMemberError", path }),
+          assignment
+        );
+      }
+      const field = path.members[0].value;
+      // remember, we don't use `--noUncheckedIndexedAccess`
+      const prop = path.members.length > 1 ? path.members[1].value : undefined;
+      const subObj = assignment.substances.get(path.name) ?? im.Map();
+      const res = f(path, field, prop, subObj);
+      if (res.isErr()) {
+        return addDiags(oneErr(res.error), assignment);
+      }
+      const { dict, warns } = res.value;
+      return addDiags(warnings(warns), {
         ...assignment,
-        substances: assignment.substances.set(
-          name,
-          subObj.remove(path.field.value)
-        ),
-      };
-    }
-    case "PropertyPath": {
-      const name = getSubName(subst, path.name);
-      const subObj = assignment.substances.get(name);
-      if (subObj === undefined || !subObj.has(path.field.value)) {
-        return addDiags(
-          warnings([{ tag: "NoopDeleteWarning", path }]),
-          assignment
-        );
-      }
-      const field = subObj.get(path.field.value);
-      if (field === undefined) {
-        return addDiags(oneErr({ tag: "MissingShapeError", path }), assignment);
-      }
-      if (field.tag !== "ShapeSource") {
-        return addDiags(oneErr({ tag: "NotShapeError", path }), assignment);
-      }
-      if (!field.props.has(path.property.value)) {
-        return addDiags(
-          warnings([{ tag: "NoopDeleteWarning", path }]),
-          assignment
-        );
-      }
-      return {
-        ...assignment,
-        substances: assignment.substances.set(
-          name,
-          subObj.set(path.field.value, {
-            ...field,
-            props: field.props.remove(path.property.value),
-          })
-        ),
-      };
-    }
-    case "AccessPath": {
-      return addDiags(oneErr({ tag: "DeleteAccessError", path }), assignment);
-    }
-    case "LocalVar": {
-      throw Error("TODO");
-    }
-    case "InternalLocalVar": {
-      throw Error("TODO");
+        substances: assignment.substances.set(path.name, dict),
+      });
     }
   }
 };

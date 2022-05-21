@@ -1,5 +1,3 @@
-//#region Style AST
-
 import { ASTNode, Identifier, StringLit } from "./ast";
 import { LabelType } from "./substance";
 
@@ -319,5 +317,3 @@ export type Path<T> = ASTNode<T> & {
   members: Identifier<T>[];
   indices: Expr<T>[];
 };
-
-//#endregion
