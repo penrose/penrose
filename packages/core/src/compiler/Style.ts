@@ -1467,6 +1467,8 @@ export const buildAssignment = (
   };
   const assignment: Assignment = {
     diagnostics: { errors: im.List(), warnings: im.List() },
+    globals: im.Map(),
+    unnamed: im.List(),
     substances: subEnv.labels.map((label) =>
       im.Map([
         [
@@ -1484,7 +1486,6 @@ export const buildAssignment = (
         ],
       ])
     ),
-    globals: im.Map(),
   };
   return styProg.blocks.reduce(
     (assignment, block) => processBlock(varEnv, subEnv, block, assignment),
@@ -1503,18 +1504,47 @@ const processBlock = (
   const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
   // OPTIMIZE: maybe we should just compile the block once into something
   // parametric, and then substitute the Substance variables
-  return substs.reduce((assignment, subst, index) => {
-    // Translate each statement in the block
-    return hb.block.statements.reduce((assignment, stmt) => {
-      const { diagnostics, globals, substances } = processStmt(
-        subst,
-        index,
-        stmt,
-        { ...assignment, locals: im.Map() }
+  return substs.reduce(
+    (assignment, subst, index) => {
+      const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
+      // Translate each statement in the block
+      const {
+        diagnostics,
+        globals,
+        unnamed,
+        substances,
+        locals,
+      } = hb.block.statements.reduce(
+        (assignment, stmt) => processStmt(subst, index, stmt, assignment),
+        withLocals
       );
-      return { diagnostics, globals, substances };
-    }, assignment);
-  }, addDiags({ errors: im.List(selEnv.errors), warnings: im.List() }, assignment));
+      switch (hb.header.tag) {
+        case "Selector": {
+          return {
+            diagnostics,
+            globals,
+            unnamed: unnamed.push(locals),
+            substances,
+          };
+        }
+        case "Namespace": {
+          return {
+            diagnostics,
+            globals: globals.set(hb.header.contents.contents.value, locals),
+            unnamed,
+            substances,
+          };
+        }
+      }
+    },
+    addDiags(
+      {
+        errors: im.List(selEnv.errors),
+        warnings: im.List(),
+      },
+      assignment
+    )
+  );
 };
 
 const resolveName = (
@@ -1782,7 +1812,10 @@ const updateExpr = (
 //#region second pass
 
 // TODO
-const gatherDependencies = (assignment: Assignment): Graph => new Graph();
+const gatherDependencies = (assignment: Assignment): Graph => {
+  const graph = new Graph();
+  return graph;
+};
 
 //#endregion
 

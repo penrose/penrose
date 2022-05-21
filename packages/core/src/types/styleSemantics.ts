@@ -79,6 +79,7 @@ export type SubstanceName = Name;
 export interface Assignment {
   diagnostics: StyleDiagnostics;
   globals: im.Map<StyleName, Fielded>;
+  unnamed: im.List<Fielded>;
   substances: im.Map<SubstanceName, Fielded>;
 }
 
