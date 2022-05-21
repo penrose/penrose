@@ -1444,8 +1444,9 @@ const findSubstsSel = (
       return correctSubsts;
     }
     case "Namespace": {
-      // No substitutions for a namespace (not in paper)
-      return [];
+      // must return one empty substitution, so the block gets processed exactly
+      // once in the first compiler pass
+      return [{}];
     }
   }
 };
@@ -1528,6 +1529,7 @@ const processBlock = (
           };
         }
         case "Namespace": {
+          // TODO: check that `substs` is a singleton list
           return {
             diagnostics,
             globals: globals.set(hb.header.contents.contents.value, locals),
