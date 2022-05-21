@@ -108,8 +108,8 @@ describe("simple constraint", () => {
     [1, 4, 2, 4, 0],
     [1, 4, 2, 5, 1],
     [1, 4, 0, 3, 1],
-    [1, 4, 6, 7, 9],
-    [1, 4, -2, -1, 9],
+    [1, 4, 6, 7, 3],
+    [1, 4, -2, -1, 3],
   ])(
     "contains1D([%p, %p], [%p, %p]) should return %p",
     (l1: number, r1: number, l2: number, r2: number, expected: number) => {

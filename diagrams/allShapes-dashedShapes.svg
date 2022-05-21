@@ -130,9 +130,9 @@
     <title>L.icon</title>
   </g>
   <rect
-    x="726.4839694022653"
+    x="10.5452332147903"
     y="408.9659586607471"
-    width="65.1769202023942"
+    width="-406.09798464016694"
     height="66.85387499236943"
     fill="#6bdb7b"
     fill-opacity="0.5"
@@ -142,7 +142,7 @@
     stroke-dasharray="30 30"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 726.4839694022653, 408.9659586607471)"
+    transform="rotate(0, 10.5452332147903, 408.9659586607471)"
     ensureOnCanvas="true"
   >
     <title>R.icon</title>
