@@ -1649,7 +1649,7 @@ const insertExpr = (
   expr: Expr<C>,
   assignment: BlockAssignment
 ): BlockAssignment =>
-  updateExpr(path, assignment, "Assign", (path, field, prop, fielded) => {
+  updateExpr(path, assignment, "Assign", (field, prop, fielded) => {
     const warns: StyleWarning[] = [];
     if (prop === undefined) {
       const source = processExpr(expr);
@@ -1688,7 +1688,7 @@ const deleteExpr = (
   path: ResolvedPath,
   assignment: BlockAssignment
 ): BlockAssignment =>
-  updateExpr(path, assignment, "Delete", (path, field, prop, fielded) => {
+  updateExpr(path, assignment, "Delete", (field, prop, fielded) => {
     const warns: StyleWarning[] = [];
     if (prop === undefined) {
       if (!fielded.has(field)) {
@@ -1722,12 +1722,7 @@ const updateExpr = (
   path: ResolvedPath,
   assignment: BlockAssignment,
   errTagPrefix: "Assign" | "Delete",
-  f: (
-    path: ResolvedPath,
-    field: Field,
-    prop: PropID | undefined,
-    fielded: Fielded
-  ) => FieldedRes
+  f: (field: Field, prop: PropID | undefined, fielded: Fielded) => FieldedRes
 ): BlockAssignment => {
   switch (path.tag) {
     case "Global": {
@@ -1746,7 +1741,7 @@ const updateExpr = (
       // remember, we don't use `--noUncheckedIndexedAccess`
       const prop = path.members.length > 0 ? path.members[0].value : undefined;
       // coincidentally, `BlockAssignment["locals"]` looks just like `Fielded`
-      const res = f(path, path.name, prop, assignment.locals);
+      const res = f(path.name, prop, assignment.locals);
       if (res.isErr()) {
         return addDiags(oneErr(res.error), assignment);
       }
@@ -1769,7 +1764,7 @@ const updateExpr = (
       // remember, we don't use `--noUncheckedIndexedAccess`
       const prop = path.members.length > 1 ? path.members[1].value : undefined;
       const subObj = assignment.substances.get(path.name) ?? im.Map();
-      const res = f(path, field, prop, subObj);
+      const res = f(field, prop, subObj);
       if (res.isErr()) {
         return addDiags(oneErr(res.error), assignment);
       }
