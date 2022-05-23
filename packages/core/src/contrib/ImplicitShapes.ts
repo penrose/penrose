@@ -142,7 +142,7 @@ export const circleToImplicitEllipse = (
 };
 
 // Constant coefficient from the ellipse-ellipse polynomial
-const ellipsePolynomailAlpha0 = (
+const ellipsePolynomialAlpha0 = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
 ): ad.Num => {
