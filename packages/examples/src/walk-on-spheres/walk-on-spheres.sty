@@ -8,11 +8,14 @@ Colors {
    color white = rgba(1,1,1,1)
    color darkGray = rgba(.5,.5,.5,1)
    color lightGray = rgba(.9,.9,.9,1)
+
+   color walkColor = rgba( 0, 0, .7, 1 )
 }
 
 Global {
    shape domain = Polygon {
       points: ((-117,-57.3), (2.6,-89), (118.6,-48), (97.8,89), (-18.4,67.7), (-80.5,89))
+      --points: ((-117.1,17.2), (-120,2.4), (-119.1,-12.6), (-114.9,-27.3), (-107.8,-41.4), (-98.5,-54.5), (-87.4,-66), (-75.1,-75.7), (-62.1,-83.1), (-37.8,-90), (-13.9,-89.6), (9,-83.8), (29.9,-74.4), (48.3,-63.3), (63.2,-52.2), (73.8,-43.1), (79.5,-37.7), (86.4,-30.9), (94,-23), (101.5,-14.1), (108.5,-4.3), (114.4,6.4), (118.4,17.8), (120,29.8), (118.6,42.3), (115.3,51.8), (110.4,60.8), (104.1,68.9), (96.7,76.1), (88.5,81.9), (79.8,86.2), (70.8,88.7), (61.9,89.1), (53.1,87), (45.9,82.9), (39.6,77.4), (27.5,64.6), (20.6,58.6), (12.3,53.9), (2,51), (-6.2,50.5), (-13.3,51.6), (-19.7,53.8), (-31.9,59.3), (-38.6,61.8), (-46.2,63.3), (-55.3,63.5), (-64.9,62), (-74.4,59.1), (-83.7,54.8), (-92.4,49.2), (-100.4,42.6), (-107.3,34.9), (-112.9,26.4))
       fillColor: Colors.lightGray
       strokeColor: Colors.darkGray
       strokeWidth: 2.
@@ -48,7 +51,7 @@ forall Step s {
 
    -- signedDistance( shape, vec2 )
 
-   shape s.centerDot = Circle {
+   shape s.dot = Circle {
       center: s.boundary.center
       r: 2.5
       fillColor: Colors.black
@@ -74,7 +77,7 @@ forall Step s {
    }
 
    layer s.boundary above Global.domain
-   layer s.centerDot above Global.domain
+   layer s.dot above Global.domain
    layer s.ball above Global.domain
    layer s.ball below s.boundary
 }
@@ -95,21 +98,79 @@ where s has label {
       paintOrder: "stroke"
    }
 
-   encourage near( s.labelText, s.centerDot )
-   ensure disjoint( s.labelText, s.centerDot, 2. )
+   encourage near( s.labelText, s.dot )
+   ensure disjoint( s.labelText, s.dot, 2. )
 
    layer s.labelText above s.boundary
 }
+
+forall Sample y; Step x
+where y := sourceSample( x ) {
+
+   shape y.dot = Circle {
+      center: (?,?)
+      fillColor: Colors.white
+      strokeColor: Colors.black
+      strokeWidth: 1.
+      r: 2.
+   }
+
+   ensure contains( x.boundary, y.dot )
+   encourage equal( norm(y.dot.center-x.boundary.center), x.boundary.r/2. )
+
+   layer y.dot above Global.domain
+   layer y.dot above x.ball
+}
+
+forall Sample y; Step x
+where y has label; y := sourceSample(x) {
+
+   shape y.labelText = Text {
+      string: y.label
+      center: (?,?)
+      fontSize: "9px"
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fillColor: Colors.black
+   }
+
+   encourage near( y.labelText, y.dot )
+   ensure disjoint( y.labelText, y.dot, 2. )
+
+   layer y.labelText above x.boundary
+}
+
 
 forall Step x0; Step x1
 where Next(x0,x1) {
    ensure equal( norm(x1.boundary.center-x0.boundary.center), x0.boundary.r )
    layer x1.boundary above x0.boundary
 
+   shape walkLine = Line {
+      start: x0.boundary.center
+      end: x1.boundary.center
+      strokeWidth: 2.
+      strokeColor: Colors.walkColor
+   }
+   layer walkLine above Global.domain
+
    ensure equal( x1.boundary.r, .55*x0.boundary.r )
+}
+
+-- make sure the sample point isn't covered
+-- by the next or previous ball in the walk
+forall Step x0; Step x1; Sample y0
+where Next(x0,x1); y0 := sourceSample(x0) {
+   ensure disjoint( x1.boundary, y0.dot )
+}
+forall Step x0; Step x1; Sample y1
+where Next(x0,x1); y1 := sourceSample(x1) {
+   ensure disjoint( x0.boundary, y1.dot )
 }
 
 forall Step x {
    ensure disjoint( Global.domainName, x.boundary, 10. )
 }
+
+
 
