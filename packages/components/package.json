@@ -26,6 +26,7 @@
     "monaco-vim": "^0.3.4"
   },
   "devDependencies": {
+    "@penrose/core": "^1.3.0",
     "@storybook/addon-actions": "^6.3.12",
     "@storybook/addon-essentials": "^6.3.12",
     "@storybook/addon-links": "^6.3.12",

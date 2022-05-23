@@ -5636,6 +5636,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/cytoscape@^3.14.12":
+  version "3.19.4"
+  resolved "https://registry.yarnpkg.com/@types/cytoscape/-/cytoscape-3.19.4.tgz#f41214103b80ff3d7d8741bacc32265ed90e45b5"
+  integrity sha512-0IozTg1vdZrA3nuAK5o9Pa8nl2INUnTaXwcGwoiALDcsD8/TiVnp0Zi+R1IiPRG6edoy0Ya61/3osFLtfkhhmw==
+
 "@types/eslint-scope@^3.7.3":
   version "3.7.3"
   resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.3.tgz#125b88504b61e3c8bc6f870882003253005c3224"
@@ -5963,6 +5968,14 @@
   integrity sha512-FgTtbqPOCI3dzZPZoC2T/sx3L34qxy99ITWn4eoSA95qPyXDMH0ALoAqUp49ITniiJFsXUVBtalh/KffMpg21Q==
   dependencies:
     "@types/react" "*"
+
+"@types/react-inspector@^4.0.0":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@types/react-inspector/-/react-inspector-4.0.2.tgz#cf6b4b305f33d7aa5df7d4fb5db2e437b01daf23"
+  integrity sha512-qU+yzQzsq5ywoLq+6ZGpGpNXDr376YPHz6jp/4nvahqtomk81rNZYkOfVx19JzxUQCoVHU1veFvygZhRfEFQOw==
+  dependencies:
+    "@types/react" "*"
+    csstype "^3.0.2"
 
 "@types/react-router-config@*":
   version "5.0.6"

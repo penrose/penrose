@@ -64,7 +64,8 @@
     "prepack": "yarn build && oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md",
-    "install-global": "npm link"
+    "install-global": "npm link",
+    "clean": "rimraf dist"
   },
   "engines": {
     "node": ">=12.0.0"
