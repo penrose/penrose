@@ -252,11 +252,11 @@ const ellipsePolynomialParams = (
   b: ImplicitEllipse
 ): ad.Num[] => {
   return [
-    ellipsePolynomailAlpha0(a, b),
-    ellipsePolynomailAlpha1(a, b),
-    ellipsePolynomailAlpha2(a, b),
-    ellipsePolynomailAlpha3(a, b),
-    ellipsePolynomailAlpha4(a, b),
+    ellipsePolynomialAlpha0(a, b),
+    ellipsePolynomialAlpha1(a, b),
+    ellipsePolynomialAlpha2(a, b),
+    ellipsePolynomialAlpha3(a, b),
+    ellipsePolynomialAlpha4(a, b),
   ];
 };
 
