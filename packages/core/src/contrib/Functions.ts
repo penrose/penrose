@@ -1,5 +1,5 @@
 import { bboxFromShape } from "contrib/Queries";
-import { inRange } from "contrib/Utils";
+import { clamp, inRange } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -7,6 +7,7 @@ import {
   acosh,
   add,
   addN,
+  and,
   asin,
   asinh,
   atan,
@@ -22,15 +23,20 @@ import {
   expm1,
   floor,
   gt,
+  gte,
   ifCond,
   ln,
   log10,
   log1p,
   log2,
+  lt,
   max,
   min,
+  minN,
   mul,
   neg,
+  not,
+  or,
   pow,
   round,
   sign,
@@ -48,6 +54,9 @@ import * as _ from "lodash";
 import { range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
 import seedrandom from "seedrandom";
+import { Ellipse } from "shapes/Ellipse";
+import { Line } from "shapes/Line";
+import { Polyline } from "shapes/Polyline";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
@@ -1422,6 +1431,120 @@ export const compDict = {
     return { tag: "VectorV", contents: [X, Y] };
   },
 
+  signedDistance: (
+    _context: Context,
+    [t, s]: [string, any],
+    p: ad.Num[]
+  ): FloatV<ad.Num> => {
+    /*  
+    All math borrowed from:
+    https://iquilezles.org/articles/distfunctions2d/
+    
+    axis-aligned rectangle:
+    float sdBox( in vec2 p, in vec2 b )
+    {
+      vec2 d = abs(p)-b;
+      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    } 
+    */
+    if (
+      t === "Rectangle" ||
+      t === "Text" ||
+      t === "Equation" ||
+      t === "Image"
+    ) {
+      const absp = ops.vabs(ops.vsub(p, s.center.contents));
+      const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
+      const d = ops.vsub(absp, b);
+      const result = add(
+        ops.vnorm(ops.vmax(d, [0.0, 0.0])),
+        min(max(d[0], d[1]), 0.0)
+      );
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    } else if (t === "Circle") {
+      /*     
+      float sdCircle( vec2 p, float r )
+      {
+        return length(p) - r;
+      } 
+      */
+      const pOffset = ops.vsub(p, s.center.contents);
+      const result = sub(ops.vnorm(pOffset), s.r.contents);
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    } else if (t === "Polygon") {
+      /*
+      float sdPolygon( in vec2[N] v, in vec2 p )
+      {
+          float d = dot(p-v[0],p-v[0]);
+          float s = 1.0;
+          for( int i=0, j=N-1; i<N; j=i, i++ )
+          {
+              vec2 e = v[j] - v[i];
+              vec2 w =    p - v[i];
+              vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
+              d = min( d, dot(b,b) );
+              bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
+              if( all(c) || all(not(c)) ) s*=-1.0;  
+          }
+          return s*sqrt(d);
+      }
+      */
+      const v = s.points.contents;
+      let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
+      let ess: ad.Num = 1.0;
+      let j = v.length - 1;
+      for (let i = 0; i < v.length; i++) {
+        const e = ops.vsub(v[j], v[i]);
+        const w = ops.vsub(p, v[i]);
+        const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
+        const b = ops.vsub(w, ops.vmul(clampedVal, e));
+        d = min(d, ops.vdot(b, b));
+        const c1 = gte(p[1], v[i][1]);
+        const c2 = lt(p[1], v[j][1]);
+        const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
+        const c4 = and(and(c1, c2), c3);
+        const c5 = not(c1);
+        const c6 = not(c2);
+        const c7 = not(c3);
+        const c8 = and(and(c5, c6), c7);
+        const negEss = mul(-1, ess);
+        ess = ifCond(or(c4, c8), negEss, ess);
+        // last line to match for loop in code we are borrowing from
+        j = i;
+      }
+      const result = mul(ess, sqrt(d));
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    } else if (t === "Line") {
+      return {
+        tag: "FloatV",
+        contents: sdLine(s, p),
+      };
+    } else if (t === "Polyline") {
+      return {
+        tag: "FloatV",
+        contents: sdPolyline(s, p),
+      };
+    } else if (t === "Ellipse") {
+      return {
+        tag: "FloatV",
+        contents: sdEllipse(s, p),
+      };
+    } else if (t === "Path") {
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+    } else {
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+    }
+  },
+
   /**
    * Construct a unit vector u in the direction of the
    * given angle theta (in radians).
@@ -1429,6 +1552,178 @@ export const compDict = {
   unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
   },
+};
+
+/*
+  Computes the signed distance for a line 
+  float sdSegment( in vec2 p, in vec2 a, in vec2 b )
+  {
+    vec2 pa = p-a, ba = b-a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h );
+  }
+*/
+const sdLine = (s: Line, p: ad.Num[]): ad.Num => {
+  return sdLineAsNums(s.start.contents, s.end.contents, p);
+};
+
+const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
+  const pa = ops.vsub(p, a);
+  const ba = ops.vsub(b, a);
+  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
+  return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
+};
+
+const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
+  const dists: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    dists[i] = sdLineAsNums(s.points.contents[i], s.points.contents[i + 1], p);
+  }
+  return minN(dists);
+};
+
+const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
+  return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
+};
+
+/*
+  float msign(in float x) { return (x<0.0)?-1.0:1.0; }
+  TODO: merge with Jiri's signOf function
+  */
+const msign = (x: ad.Num): ad.Num => {
+  return ifCond(lt(x, 0), -1, 1);
+};
+
+/*
+p = abs( p ); 
+  if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
+	
+	float l = ab.y*ab.y - ab.x*ab.x;
+	
+  float m = ab.x*p.x/l; 
+	float n = ab.y*p.y/l; 
+	float m2 = m*m;
+	float n2 = n*n;
+	
+    float c = (m2+n2-1.0)/3.0; 
+	float c3 = c*c*c;
+
+    float d = c3 + m2*n2;
+    float q = d  + m2*n2;
+    float g = m  + m *n2;
+
+    float co;
+
+    if( d<0.0 )
+    {
+        float h = acos(q/c3)/3.0;
+        float s = cos(h) + 2.0;
+        float t = sin(h) * sqrt(3.0);
+        float rx = sqrt( m2-c*(s+t) );
+        float ry = sqrt( m2-c*(s-t) );
+        co = ry + sign(l)*rx + abs(g)/(rx*ry);
+    }
+    else
+    {
+        float h = 2.0*m*n*sqrt(d);
+        float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+        float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
+        float rx = -(s+t) - c*4.0 + 2.0*m2;
+        float ry =  (s-t)*sqrt(3.0);
+        float rm = sqrt( rx*rx + ry*ry );
+        co = ry/sqrt(rm-rx) + 2.0*g/rm;
+    }
+    co = (co-m)/2.0;
+
+    float si = sqrt( max(1.0-co*co,0.0) );
+ 
+    vec2 r = ab * vec2(co,si);
+	
+    return length(r-p) * msign(p.y-r.y);
+}
+*/
+export const sdEllipseAsNums = (
+  radiusx: ad.Num,
+  radiusy: ad.Num,
+  center: ad.Num[],
+  pInput: ad.Num[]
+): ad.Num => {
+  const pOffset = ops.vsub(pInput, center);
+  const p = ops.vabs(pOffset);
+  const ab = [radiusx, radiusy];
+  p[0] = ifCond(gt(p[0], p[1]), p[1], p[0]);
+  p[1] = ifCond(gt(p[0], p[1]), p[0], p[1]);
+  ab[0] = ifCond(gt(p[0], p[1]), ab[0], ab[0]);
+  ab[1] = ifCond(gt(p[0], p[1]), ab[0], ab[1]);
+  // float l = ab.y*ab.y - ab.x*ab.x;
+  const l = sub(mul(ab[1], ab[1]), mul(ab[0], ab[0]));
+  // float m = ab.x*p.x/l;
+  const m = mul(ab[0], div(p[0], l));
+  // float m2 = m*m;
+  const m2 = mul(m, m);
+  // float n = ab.y*p.y/l;
+  const n = mul(ab[1], div(p[1], l));
+  // float n2 = n*n;
+  const n2 = mul(n, n);
+  // float c = (m2+n2-1.0)/3.0; float c3 = c*c*c;
+  const c = div(add(m2, sub(n2, 1)), 3);
+  const c3 = mul(mul(c, c), c);
+  // float q = c3 + m2*n2*2.0;
+  const q = add(c3, mul(m2, mul(n2, 2)));
+  // float d = c3 + m2*n2;
+  const d = add(c3, mul(m2, n2));
+  // float g = m + m*n2;
+  const g = add(m, mul(m, n2));
+
+  //if branch
+  // float h = acos(q/c3)/3.0;
+  const hif = div(acos(div(q, c3)), 3);
+  // float s = cos(h);
+  const sif = add(cos(hif), 2);
+  // float t = sin(h)*sqrt(3.0);
+  const tif = mul(sin(hif), sqrt(3));
+  // float rx = sqrt( m2-c*(s+t) );
+  const rxif = sqrt(sub(m2, mul(c, add(sif, tif))));
+  // float ry = sqrt( m2-c*(s-t) );
+  const ryif = sqrt(sub(m2, mul(c, sub(sif, tif))));
+  // co = ry + sign(l)*rx + abs(g)/(rx*ry);
+  const coif = add(
+    add(ryif, mul(sign(l), rxif)),
+    div(absVal(g), mul(rxif, ryif))
+  );
+  // elsebranch
+  /*
+   float h = 2.0*m*n*sqrt(d);
+   float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+   float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
+   float rx = -(s+t) - c*4.0 + 2.0*m2;
+   float ry =  (s-t)*sqrt(3.0);
+   float rm = sqrt( rx*rx + ry*ry );
+   co = ry/sqrt(rm-rx) + 2.0*g/rm;
+  */
+  // float h = 2.0*m*n*sqrt(d);
+  const h = mul(2, mul(m, mul(n, sqrt(d))));
+  // float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+  const onethird = div(1, 3);
+  const s = mul(msign(add(q, h)), pow(absVal(add(q, h)), onethird));
+  // float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
+  const t = mul(msign(sub(q, h)), pow(absVal(sub(q, h)), onethird));
+  // float rx = -(s+t) - c*4.0 + 2.0*m2;
+  const rx = add(sub(neg(add(s, t)), mul(c, 4)), mul(2, m2));
+  // float ry =  (s-t)*sqrt(3.0);
+  const ry = mul(sub(s, t), sqrt(3));
+  // float rm = sqrt( rx*rx + ry*ry );
+  const rm = sqrt(add(mul(rx, rx), mul(ry, ry)));
+  // co = ry/sqrt(rm-rx) + 2.0*g/rm;
+  const coelse = add(div(ry, sqrt(sub(rm, rx))), mul(2, div(g, rm)));
+
+  // if (d<0.0)
+  const co = ifCond(lt(d, 0), coif, coelse);
+
+  // vec2 r = ab * vec2(co, sqrt(1.0-co*co));
+  const r = ops.vproduct(ab, [co, sqrt(sub(1, mul(co, co)))]);
+  // return length(r-p) * sign(p.y-r.y);
+  return sub(ops.vnorm(ops.vsub(r, p)), sign(sub(p[1], r[1])));
 };
 
 // _compDictVals causes TypeScript to enforce that every function in compDict
