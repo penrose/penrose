@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.0.11",
-    "monaco-editor": "^0.33.0",
+    "monaco-editor": "^0.22.3",
     "monaco-vim": "^0.3.4"
   },
   "devDependencies": {
