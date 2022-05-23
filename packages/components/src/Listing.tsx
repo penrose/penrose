@@ -1,12 +1,8 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { compileDomain } from "@penrose/core";
-import { editor, IRange } from "monaco-editor";
-import { useCallback, useEffect } from "react";
-import {
-  SubstanceCompletions,
-  SubstanceConfig,
-  SubstanceLanguageTokens,
-} from "./editing/languages/SubstanceConfig";
+import { editor } from "monaco-editor";
+import { useEffect } from "react";
+import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig";
 
 export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions = {
   automaticLayout: true,
@@ -16,7 +12,7 @@ export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions =
   lineNumbers: "off",
   fontSize: 16,
   scrollbar: {
-    handleMouseWheel: false,
+    handleMouseWheel: true,
   },
   scrollBeyondLastLine: false,
   renderLineHighlight: "none",
@@ -37,42 +33,17 @@ const Listing = ({
 }) => {
   const env = compileDomain(domain).unsafelyUnwrap();
   const monaco = useMonaco();
-  const provideCompletion = useCallback(
-    (model, position) => {
-      const word = model.getWordUntilPosition(position);
-      const range: IRange = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-      return { suggestions: SubstanceCompletions(range, env) };
-    },
-    [env]
-  );
   useEffect(() => {
     if (monaco) {
-      monaco.languages.register({ id: "substance" });
-      monaco.languages.setLanguageConfiguration("substance", SubstanceConfig);
       if (env) {
-        monaco.languages.setMonarchTokensProvider(
-          "substance",
-          SubstanceLanguageTokens(env)
-        );
-        const dispose = monaco.languages.registerCompletionItemProvider(
-          "substance",
-          {
-            // HACK:
-            provideCompletionItems: provideCompletion as any,
-          }
-        );
+        const dispose = SetupSubstanceMonaco(env)(monaco);
         return () => {
           // prevents duplicates
-          dispose.dispose();
+          dispose();
         };
       }
     }
-  }, [monaco, provideCompletion, env]);
+  }, [monaco, env]);
   return (
     <MonacoEditor
       value={substance}
@@ -81,7 +52,7 @@ const Listing = ({
       defaultLanguage="substance"
       options={
         monacoOptions
-          ? { ...monacoOptions, ...defaultMonacoOptions }
+          ? { ...defaultMonacoOptions, ...monacoOptions }
           : defaultMonacoOptions
       }
     />

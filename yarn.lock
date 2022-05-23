@@ -16448,10 +16448,10 @@ monaco-editor@^0.22.3:
   resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.22.3.tgz#69b42451d3116c6c08d9b8e052007ff891fd85d7"
   integrity sha512-RM559z2CJbczZ3k2b+ouacMINkAYWwRit4/vs0g2X/lkYefDiu0k2GmgWjAuiIpQi+AqASPOKvXNmYc8KUSvVQ==
 
-monaco-vim@^0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/monaco-vim/-/monaco-vim-0.3.4.tgz#141d3e1129a563e63a7286a1472ccfe72b758abe"
-  integrity sha512-IVogmrQ6fRwW2PD9XRHFysOZBFj8qcRhgabu7GlGiNR14ApKMHz3pYOL1hDq1ctVPj1DS6hZd98vZrFxWr5d6A==
+monaco-vim@^0.1.8:
+  version "0.1.19"
+  resolved "https://registry.yarnpkg.com/monaco-vim/-/monaco-vim-0.1.19.tgz#b7413ba35a8d35161b099abdc85de5ed5967b1ab"
+  integrity sha512-FtFh1NYCtHbNb2mQ+j4jZTetOnlNWl/yII2Yn5lyqdR12qWpmysJ5AaRnEeTFgYDbByoliySzExu/eNKT55gsA==
 
 moo@^0.5.0, moo@^0.5.1:
   version "0.5.1"
