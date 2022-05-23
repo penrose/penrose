@@ -1694,15 +1694,6 @@ export const sdEllipseAsNums = (
     div(absVal(g), mul(rxif, ryif))
   );
   // elsebranch
-  /*
-   float h = 2.0*m*n*sqrt(d);
-   float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
-   float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
-   float rx = -(s+t) - c*4.0 + 2.0*m2;
-   float ry =  (s-t)*sqrt(3.0);
-   float rm = sqrt( rx*rx + ry*ry );
-   co = ry/sqrt(rm-rx) + 2.0*g/rm;
-  */
   // float h = 2.0*m*n*sqrt(d);
   const h = mul(2, mul(m, mul(n, sqrt(d))));
   // float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
