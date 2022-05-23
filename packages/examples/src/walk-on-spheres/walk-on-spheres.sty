@@ -120,6 +120,8 @@ forall Step s {
    layer s.shading below s.boundary
    layer s.ball above s.shading
    layer s.boundary above s.ball
+
+   scalar s.shrinkFactor = .55
 }
 
 forall Step s
@@ -149,41 +151,26 @@ where isNested( s ) {
    override s.ball.fillColor = rgba( 1, 1, 1, .4 )
    override s.dot.fillColor = Colors.white
    override s.boundary.strokeColor = Colors.white
+
+   override s.shrinkFactor = .45
 }
 
-forall Sample y; Step x
+forall Step y; Step x
 where y := sourceSample( x ) {
 
-   shape y.dot = Circle {
-      center: (?,?)
-      fillColor: Colors.white
-      strokeColor: Colors.black
-      strokeWidth: 1.
-      r: 2.
-   }
+   override y.dot.fillColor = Colors.white
+   override y.dot.strokeColor = Colors.black
+   override y.dot.strokeWidth = 1.
+   override y.dot.r = 2.
 
-   ensure contains( x.boundary, y.dot )
-   encourage equal( norm(y.dot.center-x.boundary.center), x.boundary.r/2. )
-
-   layer y.dot above Global.domain
-   layer y.dot above x.shading
+   scalar R = norm(y.dot.center-x.boundary.center)
+   scalar r = x.boundary.r
+   ensure inRange( R, .2*r, .8*r )
+   ensure equal( y.boundary.r, .4 * x.boundary.r )
 }
 
-forall Sample y; Step x
+forall Step y; Step x
 where y has label; y := sourceSample(x) {
-
-   shape y.labelText = Text {
-      string: y.label
-      center: (?,?)
-      fontSize: Global.labelSize
-      fontFamily: Global.labelFont
-      fillColor: Global.labelColor
-      fontStyle: "italic"
-   }
-
-   encourage near( y.labelText, y.dot )
-   ensure disjoint( y.labelText, y.dot, 2. )
-
    layer y.labelText above x.boundary
 }
 
@@ -206,17 +193,16 @@ where Next(x0,x1) {
    -- draw later steps of the walk as smaller
    -- balls (which will typically, but not always,
    -- be the behavior of the WoS algorithm)
-   scalar shrinkFactor = .55
-   ensure equal( x1.boundary.r, shrinkFactor * x0.boundary.r )
+   ensure equal( x1.boundary.r, x1.shrinkFactor * x0.boundary.r )
 }
 
 -- make sure the sample point isn't covered
 -- by the next or previous shading in the walk
-forall Step x0; Step x1; Sample y0
+forall Step x0; Step x1; Step y0
 where Next(x0,x1); y0 := sourceSample(x0) {
    ensure disjoint( x1.boundary, y0.dot )
 }
-forall Step x0; Step x1; Sample y1
+forall Step x0; Step x1; Step y1
 where Next(x0,x1); y1 := sourceSample(x1) {
    ensure disjoint( x0.boundary, y1.dot )
 }
@@ -224,5 +210,4 @@ where Next(x0,x1); y1 := sourceSample(x1) {
 forall Step x {
    ensure disjoint( Global.domainName, x.boundary, 10. )
 }
-
 
