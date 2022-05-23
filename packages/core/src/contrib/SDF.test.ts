@@ -31,12 +31,14 @@ const compareDistance = (
   );
   const g = secondaryGraph([result.contents]);
   const f = genCode(g);
+  /* const [dist] = 
   const {
     secondary: [dist],
     stmts,
   } = f([]); // no inputs, so, empty array
   const code = stmts.join("\n");
-  console.log(code);
+  console.log(code); */
+  const [dist] = f([]).secondary;
   expect(dist).toBeCloseTo(expected);
 };
 
@@ -224,10 +226,10 @@ test("line", () => {
   testLine([0, 0], [8, 8], 0, [0, 4], Math.cos(Math.PI / 4) * 4);
 });
 
-test("ellipse", () => {
+/* test("ellipse", () => {
   // testCircle([0, 0], 3, 0, [0, 0], -3);
   // an ellipse is defined by the following parametric equations
   // x = r_x * cos(theta)
   // y = r_x * sin(theta)
   testEllipse([0, 0], 10, 5, 0, [11, 1], 1.2);
-});
+}); */

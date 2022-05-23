@@ -1109,7 +1109,7 @@ export const genCode = ({
   ];
   stmts.push(`return { ${fields.join(", ")} };`);
   const f = new Function("polyRoots", "inputs", stmts.join("\n"));
-  return (inputs) => ({ ...f(polyRoots, inputs), stmts });
+  return (inputs) => f(polyRoots, inputs);
 };
 
 // Mutates xsVars (leaf nodes) to set their values to the inputs in xs (and name them accordingly by value)
