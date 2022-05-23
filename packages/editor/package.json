@@ -27,6 +27,8 @@
     "react-select": "^5.3.2",
     "recoil": "^0.7.3-alpha.2",
     "styled-components": "^5.3.5",
+    "animals": "^0.0.3",
+    "color-name-list": "^8.38.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

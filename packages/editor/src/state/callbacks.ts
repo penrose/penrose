@@ -26,6 +26,7 @@ import {
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "./atoms";
+import { generateVariation } from "./variation";
 
 const _compileDiagram = async (
   substance: string,
@@ -125,7 +126,7 @@ export const useResampleDiagram = () =>
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
-    const variation = uuid();
+    const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
     const seeds = variationSeeds(variation).seeds;
     const resampled = resample({ ...diagram.state, seeds });

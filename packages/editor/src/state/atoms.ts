@@ -19,6 +19,7 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App";
+import { generateVariation } from "./variation";
 
 export type ProgramType = "substance" | "style" | "domain";
 
@@ -250,7 +251,7 @@ export const diagramState = atom<Diagram>({
     state: null,
     error: null,
     metadata: {
-      variation: uuid(),
+      variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
     },

@@ -4,11 +4,7 @@ import Select from "react-select";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import { RogerState } from "../App";
-import {
-  currentWorkspaceState,
-  ProgramType,
-  WorkspaceMetadata,
-} from "../state/atoms";
+import { currentWorkspaceState, ProgramType } from "../state/atoms";
 export default function RogerPanel({
   rogerState,
   ws,
@@ -34,9 +30,9 @@ export default function RogerPanel({
           ...state,
           metadata: {
             ...state.metadata,
-            location: { kind: "roger" },
+            location: { kind: "roger" as const },
             id: uuid(),
-          } as WorkspaceMetadata,
+          },
           files,
         };
       });
