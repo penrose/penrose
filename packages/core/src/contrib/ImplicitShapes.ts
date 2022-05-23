@@ -156,7 +156,7 @@ const ellipsePolynomailAlpha0 = (
 };
 
 // Linear coefficient from the ellipse-ellipse polynomial
-const ellipsePolynomailAlpha1 = (
+const ellipsePolynomialAlpha1 = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
 ): ad.Num => {
