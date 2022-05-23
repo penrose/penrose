@@ -42,7 +42,7 @@ Global {
    }
 
    shape domain = Polygon {
-      points: ( (100,-80)+p0, (0,-80)+p1, (-100,-80)+p2, (-100,80)+p3, (0,80)+p4, (100,80)+p5)
+      points: ( (150,-110)+p0, (0,-110)+p1, (-150,-110)+p2, (-150,110)+p3, (0,110)+p4, (150,110)+p5)
       --points: ((-117.1,17.2), (-120,2.4), (-119.1,-12.6), (-114.9,-27.3), (-107.8,-41.4), (-98.5,-54.5), (-87.4,-66), (-75.1,-75.7), (-62.1,-83.1), (-37.8,-90), (-13.9,-89.6), (9,-83.8), (29.9,-74.4), (48.3,-63.3), (63.2,-52.2), (73.8,-43.1), (79.5,-37.7), (86.4,-30.9), (94,-23), (101.5,-14.1), (108.5,-4.3), (114.4,6.4), (118.4,17.8), (120,29.8), (118.6,42.3), (115.3,51.8), (110.4,60.8), (104.1,68.9), (96.7,76.1), (88.5,81.9), (79.8,86.2), (70.8,88.7), (61.9,89.1), (53.1,87), (45.9,82.9), (39.6,77.4), (27.5,64.6), (20.6,58.6), (12.3,53.9), (2,51), (-6.2,50.5), (-13.3,51.6), (-19.7,53.8), (-31.9,59.3), (-38.6,61.8), (-46.2,63.3), (-55.3,63.5), (-64.9,62), (-74.4,59.1), (-83.7,54.8), (-92.4,49.2), (-100.4,42.6), (-107.3,34.9), (-112.9,26.4))
       fillColor: Colors.lightGray
       strokeColor: Colors.darkGray
@@ -99,7 +99,7 @@ forall Step s {
    ensure inRange( c[0], -w/2, w/2 )
    ensure inRange( c[1], -h/2, h/2 )
 
-   shape s.ball = Image {
+   shape s.shading = Image {
       center: s.boundary.center 
       width: s.boundary.r * 2.0
       height: s.boundary.r * 2.0
@@ -107,10 +107,19 @@ forall Step s {
       ensureOnCanvas: false
    }
 
+   shape s.ball = Circle {
+      center: s.boundary.center
+      r: s.boundary.r
+      fillColor: rgba( .2, .8, .2, .15 )
+      strokeColor: none()
+   }
+
    layer s.boundary above Global.domain
    layer s.dot above Global.domain
-   layer s.ball above Global.domain
-   layer s.ball below s.boundary
+   layer s.shading above Global.domain
+   layer s.shading below s.boundary
+   layer s.ball above s.shading
+   layer s.boundary above s.ball
 }
 
 forall Step s
@@ -135,6 +144,13 @@ where s has label {
    layer s.labelText above s.boundary
 }
 
+forall Step s
+where isNested( s ) {
+   override s.ball.fillColor = rgba( 1, 1, 1, .4 )
+   override s.dot.fillColor = Colors.white
+   override s.boundary.strokeColor = Colors.white
+}
+
 forall Sample y; Step x
 where y := sourceSample( x ) {
 
@@ -150,7 +166,7 @@ where y := sourceSample( x ) {
    encourage equal( norm(y.dot.center-x.boundary.center), x.boundary.r/2. )
 
    layer y.dot above Global.domain
-   layer y.dot above x.ball
+   layer y.dot above x.shading
 }
 
 forall Sample y; Step x
@@ -195,7 +211,7 @@ where Next(x0,x1) {
 }
 
 -- make sure the sample point isn't covered
--- by the next or previous ball in the walk
+-- by the next or previous shading in the walk
 forall Step x0; Step x1; Sample y0
 where Next(x0,x1); y0 := sourceSample(x0) {
    ensure disjoint( x1.boundary, y0.dot )

@@ -1,0 +1,40 @@
+-- variation: MelodyFlamingo9735
+
+-- Describe a short walk used to estimate the solution to
+-- a basic Laplace equation Δu = 0, which involves both
+-- boundary samples x and source samples y.
+
+Step x0, x1, x2, x3, x4
+Step y00, y01, y02, y03
+Step y10, y11, y12, y13
+
+Next(x0,x1)
+Next(x1,x2)
+Next(x2,x3)
+Next(x3,x4)
+
+Next(x0,y00)
+Next(y00,y01)
+Next(y01,y02)
+Next(y02,y03)
+isNested(y00)
+isNested(y01)
+isNested(y02)
+isNested(y03)
+
+Next(x1,y10)
+Next(y10,y11)
+Next(y11,y12)
+Next(y12,y13)
+isNested(y10)
+isNested(y11)
+isNested(y12)
+isNested(y13)
+
+Label x0 "x0"
+Label x1 "x1"
+Label x2 "x2"
+Label x3 "…"
+Label x4 "xk"
+
+

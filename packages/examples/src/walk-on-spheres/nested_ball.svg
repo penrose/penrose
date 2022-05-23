@@ -7,8 +7,8 @@
 </style>
 <radialGradient id="SVGID_1_" cx="75.4328" cy="151.0149" r="157.9341" gradientTransform="matrix(1 0 0 -1 0 222)" gradientUnits="userSpaceOnUse">
 	<stop  offset="0" style="stop-color:#FFFFFF"/>
-	<stop  offset="0.7844" style="stop-color:#5F5F5F"/>
-	<stop  offset="1" style="stop-color:#7F7F7F"/>
+	<stop  offset="0.7844" style="stop-color:#47475F"/>
+	<stop  offset="1" style="stop-color:#5F5F7F"/>
 </radialGradient>
 <circle class="st0" cx="110.9" cy="110.9" r="110.9"/>
 </svg>
