@@ -3,7 +3,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "references": [
-    {"path": ".."}
-  ]
+  "references": [{ "path": ".." }]
 }

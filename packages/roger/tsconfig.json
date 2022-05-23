@@ -11,7 +11,5 @@
     "target": "es2019",
     "noImplicitAny": false
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

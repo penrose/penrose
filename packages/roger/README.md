@@ -1,5 +1,4 @@
-oclif-hello-world
-=================
+# oclif-hello-world
 
 oclif example Hello World CLI
 
@@ -10,11 +9,15 @@ oclif example Hello World CLI
 [![License](https://img.shields.io/npm/l/oclif-hello-world.svg)](https://github.com/oclif/hello-world/blob/main/package.json)
 
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @penrose/roger
 $ roger COMMAND
@@ -26,20 +29,24 @@ USAGE
   $ roger COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
-* [`roger help [COMMAND]`](#roger-help-command)
-* [`roger plugins`](#roger-plugins)
-* [`roger plugins:install PLUGIN...`](#roger-pluginsinstall-plugin)
-* [`roger plugins:inspect PLUGIN...`](#roger-pluginsinspect-plugin)
-* [`roger plugins:install PLUGIN...`](#roger-pluginsinstall-plugin-1)
-* [`roger plugins:link PLUGIN`](#roger-pluginslink-plugin)
-* [`roger plugins:uninstall PLUGIN...`](#roger-pluginsuninstall-plugin)
-* [`roger plugins:uninstall PLUGIN...`](#roger-pluginsuninstall-plugin-1)
-* [`roger plugins:uninstall PLUGIN...`](#roger-pluginsuninstall-plugin-2)
-* [`roger plugins update`](#roger-plugins-update)
-* [`roger watch`](#roger-watch)
+
+- [`roger help [COMMAND]`](#roger-help-command)
+- [`roger plugins`](#roger-plugins)
+- [`roger plugins:install PLUGIN...`](#roger-pluginsinstall-plugin)
+- [`roger plugins:inspect PLUGIN...`](#roger-pluginsinspect-plugin)
+- [`roger plugins:install PLUGIN...`](#roger-pluginsinstall-plugin-1)
+- [`roger plugins:link PLUGIN`](#roger-pluginslink-plugin)
+- [`roger plugins:uninstall PLUGIN...`](#roger-pluginsuninstall-plugin)
+- [`roger plugins:uninstall PLUGIN...`](#roger-pluginsuninstall-plugin-1)
+- [`roger plugins:uninstall PLUGIN...`](#roger-pluginsuninstall-plugin-2)
+- [`roger plugins update`](#roger-plugins-update)
+- [`roger watch`](#roger-watch)
 
 ## `roger help [COMMAND]`
 
@@ -112,7 +119,7 @@ ALIASES
   $ roger plugins add
 
 EXAMPLES
-  $ roger plugins:install myplugin 
+  $ roger plugins:install myplugin
 
   $ roger plugins:install https://github.com/someuser/someplugin
 
@@ -172,7 +179,7 @@ ALIASES
   $ roger plugins add
 
 EXAMPLES
-  $ roger plugins:install myplugin 
+  $ roger plugins:install myplugin
 
   $ roger plugins:install https://github.com/someuser/someplugin
 
@@ -310,4 +317,5 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/watch.ts](https://github.com/penrose/penrose/blob/v1.3.0/dist/commands/watch.ts)_
+
 <!-- commandsstop -->
