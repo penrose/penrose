@@ -66,6 +66,7 @@ import {
   BlockAssignment,
   BlockInfo,
   Context,
+  DepGraph,
   Fielded,
   FieldSource,
   LocalVarSubst,
@@ -113,6 +114,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
+import { Digraph } from "utils/Graph";
 import {
   boolV,
   floatV,
@@ -1906,31 +1908,41 @@ const prettyPrintResolvedName = ({
 const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
   [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
 
-const makeExprEdges = (v: string, expr: WithContext<Expr<C>>): Edge[] =>
-  findPathsWithContext(expr).map((p) => ({
-    v,
-    w: prettyPrintResolvedPath(resolveRhsPath(p)),
-  }));
+const gatherExpr = (
+  graph: DepGraph,
+  v: string,
+  expr: WithContext<NotShape>
+): void => {
+  graph.setNode(v, expr);
+  for (const p of findPathsWithContext(expr)) {
+    graph.setEdge({
+      v,
+      w: prettyPrintResolvedPath(resolveRhsPath(p)),
+    });
+  }
+};
 
-const makeEdges = (lhs: string, rhs: FieldSource): Edge[] => {
+const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
   switch (rhs.tag) {
     case "ShapeSource": {
-      return [...rhs.props.entries()].flatMap(([k, expr]) =>
-        makeExprEdges(`${lhs}.${k}`, expr)
-      );
+      for (const [k, expr] of rhs.props) {
+        gatherExpr(graph, `${lhs}.${k}`, expr);
+      }
+      return;
     }
     case "OtherSource": {
-      return makeExprEdges(lhs, rhs.expr);
+      gatherExpr(graph, lhs, rhs.expr);
+      return;
     }
   }
 };
 
-const gatherDependencies = (assignment: Assignment): Graph => {
-  const edges = [];
+const gatherDependencies = (assignment: Assignment): DepGraph => {
+  const graph = new Digraph<string, WithContext<NotShape>>();
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
-      edges.push(...makeEdges(`${blockName}.${fieldName}`, field));
+      gatherField(graph, `${blockName}.${fieldName}`, field);
     }
   }
 
@@ -1943,20 +1955,16 @@ const gatherDependencies = (assignment: Assignment): Graph => {
         block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
         members: [],
       };
-      edges.push(...makeEdges(prettyPrintResolvedPath(p), field));
+      gatherField(graph, prettyPrintResolvedPath(p), field);
     }
   }
 
   for (const [substanceName, fields] of assignment.substances) {
     for (const [fieldName, field] of fields) {
-      edges.push(...makeEdges(`\`${substanceName}\`.${fieldName}`, field));
+      gatherField(graph, `\`${substanceName}\`.${fieldName}`, field);
     }
   }
 
-  const graph = new Graph();
-  for (const e of edges) {
-    graph.setEdge(e);
-  }
   return graph;
 };
 
@@ -1966,7 +1974,7 @@ const gatherDependencies = (assignment: Assignment): Graph => {
 
 const translateExpr = (
   path: string,
-  expr: NotShape,
+  { expr }: WithContext<NotShape>,
   trans: Translation
 ): Translation => {
   switch (expr.tag) {
@@ -2024,13 +2032,7 @@ const translateExpr = (
   }
 };
 
-const parsePath = (path: string): NotShape => path; // TODO
-
-const translateAssignment = (
-  assignment: Assignment,
-  graph: Graph
-): Translation => {
-  const lookup = new Map(graph.nodes().map((n) => [n, parsePath(n)]));
+const translate = (graph: DepGraph): Translation => {
   const trans: Translation = {
     diagnostics: { errors: im.List(), warnings: im.List() },
     symbols: im.Map(),
@@ -2040,12 +2042,12 @@ const translateAssignment = (
     layering: im.List(),
     varying: im.List(),
   };
-  return alg.topsort(graph).reduce((trans, path) => {
-    const expr = lookup.get(path);
-    return expr === undefined
-      ? addDiags(oneErr({ tag: "MissingPathError", path }), trans)
-      : translateExpr(path, expr, trans);
-  }, trans);
+  return graph
+    .topsort()
+    .reduce(
+      (trans, path) => translateExpr(path, graph.node(path), trans),
+      trans
+    );
 };
 
 //#region Block statics
@@ -3291,12 +3293,13 @@ export const compileStyle = (
   // `delete` statements to construct a mapping from Substance-substituted paths
   // to Style expression ASTs
   const assignment = buildAssignment(varEnv, subEnv, styProg);
+  // TODO: report errors in assignment
 
   // second pass: construct a dependency graph among those expressions
   const graph = gatherDependencies(assignment);
 
   // third pass: compile all expressions in topological sorted order
-  const translation = translateAssignment(assignment, graph);
+  const translation = translate(graph);
 
   log.info("translation (before genOptProblem)", translation);
 
