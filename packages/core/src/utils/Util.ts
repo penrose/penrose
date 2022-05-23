@@ -460,15 +460,6 @@ export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
 
 //#region Style
 
-const fieldPath = (subName: string, field: string): string =>
-  `${subName}.${field}`;
-
-const propertyPath = (
-  subName: string,
-  field: string,
-  property: string
-): string => `${subName}.${field}.${property}`;
-
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
   switch (bf.tag) {
     case "StyVar": {
@@ -485,8 +476,8 @@ export const prettyPrintPath = (p: Path<A>): string => {
     prettyPrintBindingForm(p.name),
     ...p.members.map((m) => m.value),
   ].join(".");
-  const indices: string = p.indices.map(prettyPrintExpr).join("");
-  return `${base}${indices}`;
+  const indices: string[] = p.indices.map((i) => `[${prettyPrintExpr(i)}]`);
+  return [base, ...indices].join("");
 };
 
 export const prettyPrintExpr = (arg: Expr<A>): string => {
