@@ -6,30 +6,31 @@ canvas {
 Colors {
    color black = rgba(0,0,0,1)
    color white = rgba(1,1,1,1)
-   color darkGray = rgba(0,0,0,.5)
+   color darkGray = rgba(.5,.5,.5,1)
    color lightGray = rgba(.9,.9,.9,1)
 }
 
 Global {
-   -- background color
-   shape box = Rectangle {
+   shape domain = Polygon {
+      points: ((-117,-57.3), (2.6,-89), (118.6,-48), (97.8,89), (-18.4,67.7), (-80.5,89))
       fillColor: Colors.lightGray
-      center: (0,0)
-      width: canvas.width
-      height: canvas.height
+      strokeColor: Colors.darkGray
+      strokeWidth: 2.
       ensureOnCanvas: false
       cornerRadius: 10.
    }
 
    shape domainName = Text {
       string: "Ω"
-      center: (-canvas.width/2,-canvas.height/2) + (14,14)
-      fontSize: "12px"
+      center: (?,?)
+      fontSize: "9px"
       fontFamily: "Palatino"
       fillColor: Colors.darkGray
    }
 
-   layer domainName above box
+   layer domainName above domain
+
+   ensure lessThan( signedDistance( domain, Global.domainName.center ), -10. )
 
    baseWidth = 1.5
 }
@@ -45,6 +46,8 @@ forall Step s {
       ensureOnCanvas: false
    }
 
+   -- signedDistance( shape, vec2 )
+
    shape s.centerDot = Circle {
       center: s.boundary.center
       r: 2.5
@@ -55,7 +58,8 @@ forall Step s {
    vec2 c = s.boundary.center
    scalar w = canvas.width
    scalar h = canvas.height
-   scalar R = min( min( min( w/2-c[0], c[0]+w/2. ), h/2-c[1] ), c[1]+h/2. )
+   --scalar R = min( min( min( w/2-c[0], c[0]+w/2. ), h/2-c[1] ), c[1]+h/2. )
+   scalar R = -signedDistance( Global.domain, c )
    override s.boundary.r = R - Global.baseWidth/2.
 
    ensure inRange( c[0], -w/2, w/2 )
@@ -69,9 +73,9 @@ forall Step s {
       ensureOnCanvas: false
    }
 
-   layer s.boundary above Global.box
-   layer s.centerDot above Global.box
-   layer s.ball above Global.box
+   layer s.boundary above Global.domain
+   layer s.centerDot above Global.domain
+   layer s.ball above Global.domain
    layer s.ball below s.boundary
 }
 
@@ -81,12 +85,13 @@ where s has label {
    shape s.labelText = Text {
       string: s.label
       center: (?,?)
-      fontSize: "12px"
+      fontSize: "9px"
       fontFamily: "Palatino"
       fontStyle: "italic"
       fillColor: Colors.black
       strokeColor: Colors.white
-      strokeWidth: 3
+      strokeWidth: 2.5
+      strokeLinejoin: "round"
       paintOrder: "stroke"
    }
 
@@ -102,5 +107,9 @@ where Next(x0,x1) {
    layer x1.boundary above x0.boundary
 
    ensure equal( x1.boundary.r, .55*x0.boundary.r )
+}
+
+forall Step x {
+   ensure disjoint( Global.domainName, x.boundary, 10. )
 }
 
