@@ -1,4 +1,4 @@
--- variation: GlacierHuman21660
+-- variation: FireballLemur167
 
 Step x0, x1, x2, x3
 
@@ -10,8 +10,4 @@ Label x0 "x0"
 Label x1 "x1"
 Label x2 "…"
 Label x3 "xk"
-
-
-
-
 

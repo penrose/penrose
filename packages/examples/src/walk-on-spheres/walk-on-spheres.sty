@@ -6,6 +6,7 @@ canvas {
 Colors {
    color black = rgba(0,0,0,1)
    color white = rgba(1,1,1,1)
+   color darkGray = rgba(0,0,0,.5)
    color lightGray = rgba(.9,.9,.9,1)
 }
 
@@ -17,7 +18,18 @@ Global {
       width: canvas.width
       height: canvas.height
       ensureOnCanvas: false
+      cornerRadius: 10.
    }
+
+   shape domainName = Text {
+      string: "Ω"
+      center: (-canvas.width/2,-canvas.height/2) + (14,14)
+      fontSize: "12px"
+      fontFamily: "Palatino"
+      fillColor: Colors.darkGray
+   }
+
+   layer domainName above box
 
    baseWidth = 1.5
 }
