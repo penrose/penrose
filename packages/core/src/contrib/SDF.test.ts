@@ -114,7 +114,6 @@ function testEllipse(
   center: number[],
   rx: number,
   ry: number,
-  strokeWidth: number,
   pt: number[],
   expected: number
 ) {
@@ -123,7 +122,6 @@ function testEllipse(
     center: vectorV(center),
     rx: floatV(rx),
     ry: floatV(ry),
-    strokeWidth: floatV(strokeWidth),
     strokeColor: sampleBlack(),
   });
   compareDistance("Ellipse", shape, pt, expected);
@@ -226,10 +224,17 @@ test("line", () => {
   testLine([0, 0], [8, 8], 0, [0, 4], Math.cos(Math.PI / 4) * 4);
 });
 
-/* test("ellipse", () => {
+test("ellipse", () => {
   // testCircle([0, 0], 3, 0, [0, 0], -3);
   // an ellipse is defined by the following parametric equations
   // x = r_x * cos(theta)
   // y = r_x * sin(theta)
-  testEllipse([0, 0], 10, 5, 0, [11, 1], 1.2);
-}); */
+  testEllipse([0, 0], 100, 50, [0, 60], 10);
+  testEllipse([0, 0], 100, 50, [0, 0], -50);
+  testEllipse([0, 0], 100, 50, [0, 10], -40);
+  testEllipse([0, 0], 100, 50, [0, -50], 0);
+  testEllipse([0, 0], 50, 100, [0, -100], 0);
+  // testEllipse([0, 0], 50, 100, [60, 0], 10);
+  // testEllipse([0, 0], 50, 100, [200, 200], 10);
+  // testEllipse([0, 0], 100, 50, [100, 0], 10);
+});

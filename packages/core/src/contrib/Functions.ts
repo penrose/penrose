@@ -1595,7 +1595,7 @@ const msign = (x: ad.Num): ad.Num => {
 };
 
 /*
-p = abs( p ); 
+  p = abs( p ); 
   if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
 	
 	float l = ab.y*ab.y - ab.x*ab.x;
@@ -1648,12 +1648,14 @@ export const sdEllipseAsNums = (
   center: ad.Num[],
   pInput: ad.Num[]
 ): ad.Num => {
+  // if = abs( p );
+  // if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
   const pOffset = ops.vsub(pInput, center);
   const p = ops.vabs(pOffset);
   const ab = [radiusx, radiusy];
   p[0] = ifCond(gt(p[0], p[1]), p[1], p[0]);
   p[1] = ifCond(gt(p[0], p[1]), p[0], p[1]);
-  ab[0] = ifCond(gt(p[0], p[1]), ab[0], ab[0]);
+  ab[0] = ifCond(gt(p[0], p[1]), ab[1], ab[0]);
   ab[1] = ifCond(gt(p[0], p[1]), ab[0], ab[1]);
   // float l = ab.y*ab.y - ab.x*ab.x;
   const l = sub(mul(ab[1], ab[1]), mul(ab[0], ab[0]));
@@ -1717,13 +1719,17 @@ export const sdEllipseAsNums = (
   // co = ry/sqrt(rm-rx) + 2.0*g/rm;
   const coelse = add(div(ry, sqrt(sub(rm, rx))), mul(2, div(g, rm)));
 
+  // co = (co-m)/2.0;
   // if (d<0.0)
-  const co = ifCond(lt(d, 0), coif, coelse);
+  const co_pred = ifCond(lt(d, 0), coif, coelse);
+  const co = div(min(co_pred, m), 2);
 
-  // vec2 r = ab * vec2(co, sqrt(1.0-co*co));
-  const r = ops.vproduct(ab, [co, sqrt(sub(1, mul(co, co)))]);
-  // return length(r-p) * sign(p.y-r.y);
-  return sub(ops.vnorm(ops.vsub(r, p)), sign(sub(p[1], r[1])));
+  // float si = sqrt( max(1.0-co*co,0.0) );
+  const si = sqrt(max(sub(1, mul(co, co)), 0));
+  // vec2 r = ab * vec2(co,si);
+  const r = ops.vproduct(ab, [co, si]);
+  // return length(r-p) * msign(p.y-r.y);
+  return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
 // _compDictVals causes TypeScript to enforce that every function in compDict
