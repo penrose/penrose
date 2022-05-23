@@ -174,7 +174,7 @@ const ellipsePolynomialAlpha1 = (
 };
 
 // Quadratic coefficient from the ellipse-ellipse polynomial
-const ellipsePolynomailAlpha2 = (
+const ellipsePolynomialAlpha2 = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
 ): ad.Num => {
