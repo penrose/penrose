@@ -155,28 +155,59 @@ where isNested( s ) {
    override s.shrinkFactor = .45
 }
 
-forall Step y; Step x
-where y := sourceSample( x ) {
+forall Sample y; Step x
+where y := sampleSource( x ) {
 
-   override y.dot.fillColor = Colors.white
-   override y.dot.strokeColor = Colors.black
-   override y.dot.strokeWidth = 1.
-   override y.dot.r = 2.
+   shape y.dot = Circle {
+      center: (?,?)
+      r: 2
+      fillColor: Colors.white
+      strokeColor: Colors.black
+      strokeWidth: 1
+   }
 
    scalar R = norm(y.dot.center-x.boundary.center)
    scalar r = x.boundary.r
    ensure inRange( R, .2*r, .8*r )
-   ensure equal( y.boundary.r, .4 * x.boundary.r )
 }
 
 forall Step y; Step x
-where y has label; y := sourceSample(x) {
+where y := sampleInterior( x ) {
+   scalar R = norm(y.dot.center-x.boundary.center)
+   scalar r = x.boundary.r
+   ensure inRange( R, .2*r, .8*r )
+
+   ensure equal( y.boundary.r, .3 * x.boundary.r )
+}
+
+forall Sample y; Step x
+where y := sampleSource( x ); y has label {
+
+   shape y.labelText = Text {
+      string: y.label
+      center: (?,?)
+      fontSize: Global.labelSize
+      fontFamily: Global.labelFont
+      fontStyle: "italic"
+      fillColor: Global.labelColor
+      strokeColor: Colors.white
+      strokeWidth: 2.5
+      strokeLinejoin: "round"
+      paintOrder: "stroke"
+   }
+
+   encourage near( y.labelText, y.dot )
+   ensure disjoint( y.labelText, y.dot, 2. )
+}
+
+forall Sample y; Step x
+where y has label; y := sampleSource(x) {
    layer y.labelText above x.boundary
 }
 
 
 forall Step x0; Step x1
-where Next(x0,x1) {
+where x1 := sampleBoundary(x0) {
    ensure equal( norm(x1.boundary.center-x0.boundary.center), x0.boundary.r )
    layer x1.boundary above x0.boundary
 
@@ -198,12 +229,12 @@ where Next(x0,x1) {
 
 -- make sure the sample point isn't covered
 -- by the next or previous shading in the walk
-forall Step x0; Step x1; Step y0
-where Next(x0,x1); y0 := sourceSample(x0) {
+forall Step x0; Step x1; Sample y0
+where x1 := sampleBoundary(x0); y0 := sampleSource(x0) {
    ensure disjoint( x1.boundary, y0.dot )
 }
-forall Step x0; Step x1; Step y1
-where Next(x0,x1); y1 := sourceSample(x1) {
+forall Step x0; Step x1; Sample y1
+where x1 := sampleBoundary(x0); y1 := sampleSource(x1) {
    ensure disjoint( x0.boundary, y1.dot )
 }
 

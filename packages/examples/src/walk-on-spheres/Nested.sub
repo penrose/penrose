@@ -1,4 +1,4 @@
--- variation: LaserDinosaur06821
+-- variation: RhythmRat9336
 
 -- Describe a short walk used to estimate the solution to
 -- a basic Laplace equation Δu = 0, which involves both
@@ -8,30 +8,26 @@ Step x0, x1, x2, x3
 Step y00, y01, y02
 Step y10, y11, y12
 
-Next(x0,x1)
-Next(x1,x2)
-Next(x2,x3)
+x1 := sampleBoundary( x0 )
+x2 := sampleBoundary( x1 )
+x3 := sampleBoundary( x2 )
 
-y00 := sourceSample(x0)
-Next(y00,y01)
-Next(y01,y02)
-isNested(y00)
-isNested(y01)
-isNested(y02)
+y00 := sampleInterior( x0 )
+y01 := sampleBoundary( y00 )
+y02 := sampleBoundary( y01 )
+isNested( y00 )
+isNested( y01 )
+isNested( y02 )
 
-y10 := sourceSample(x1)
-Next(y10,y11)
-Next(y11,y12)
-isNested(y10)
-isNested(y11)
-isNested(y12)
+y10 := sampleInterior( x1 )
+y11 := sampleBoundary( y10 )
+y12 := sampleBoundary( y11 )
+isNested( y10 )
+isNested( y11 )
+isNested( y12 )
 
 Label x0 "x0"
 Label x1 "x1"
 Label x2 "…"
 Label x3 "xk"
-
---Label y00 "y0"
---Label y10 "y1"
-
 
