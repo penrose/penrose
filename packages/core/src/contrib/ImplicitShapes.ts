@@ -224,7 +224,7 @@ const ellipsePolynomailAlpha3 = (
 };
 
 // Quintic coefficient from the ellipse-ellipse polynomial
-const ellipsePolynomailAlpha4 = (
+const ellipsePolynomialAlpha4 = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
 ): ad.Num => {
