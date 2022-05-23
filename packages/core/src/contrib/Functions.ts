@@ -1547,6 +1547,14 @@ const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
 };
 
 /*
+  float msign(in float x) { return (x<0.0)?-1.0:1.0; }
+  TODO: merge with Jiri's signOf function
+  */
+const msign = (x: ad.Num): ad.Num => {
+  return ifCond(lt(x, 0), -1, 1);
+};
+
+/*
 p = abs( p ); 
   if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
 	
@@ -1645,32 +1653,29 @@ export const sdEllipseAsNums = (
   );
   // elsebranch
   /*
-  float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
-  float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
-  float rx = -(s+t) - c*4.0 + 2.0*m2;
-  float ry =  (s-t)*sqrt(3.0);
-  float rm = sqrt( rx*rx + ry*ry );
-  co = ry/sqrt(rm-rx) + 2.0*g/rm;
+   float h = 2.0*m*n*sqrt(d);
+   float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+   float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
+   float rx = -(s+t) - c*4.0 + 2.0*m2;
+   float ry =  (s-t)*sqrt(3.0);
+   float rm = sqrt( rx*rx + ry*ry );
+   co = ry/sqrt(rm-rx) + 2.0*g/rm;
   */
   // float h = 2.0*m*n*sqrt(d);
   const h = mul(2, mul(m, mul(n, sqrt(d))));
-  // float s = sign(q+h)*pow(abs(q+h), 1.0/3.0);
-  const onethird = 0.3333333333333333333;
-  const s = mul(sign(add(q, h)), pow(absVal(add(q, h)), onethird));
-  // float u = sign(q-h)*pow(abs(q-h), 1.0/3.0);
-  const u = mul(sign(sub(q, h)), pow(absVal(sub(q, h)), onethird));
-  // float rx = -s - u - c*4.0 + 2.0*m2;
-  const rx = add(sub(neg(s), sub(u, mul(c, 4))), mul(2, m2));
-  // float ry = (s - u)*sqrt(3.0);
-  const ry = mul(sub(s, u), sqrt(3));
+  // float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+  const onethird = div(1, 3);
+  const s = mul(msign(add(q, h)), pow(absVal(add(q, h)), onethird));
+  // float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
+  const t = mul(msign(sub(q, h)), pow(absVal(sub(q, h)), onethird));
+  // float rx = -(s+t) - c*4.0 + 2.0*m2;
+  const rx = add(sub(neg(add(s, t)), mul(c, 4)), mul(2, m2));
+  // float ry =  (s-t)*sqrt(3.0);
+  const ry = mul(sub(s, t), sqrt(3));
   // float rm = sqrt( rx*rx + ry*ry );
   const rm = sqrt(add(mul(rx, rx), mul(ry, ry)));
-  // co = (ry/sqrt(rm-rx)+2.0*g/rm-m)/2.0;
-  const cosqrt = sqrt(sub(rm, rx));
-  const codiv1 = div(ry, cosqrt);
-  const codiv2 = div(mul(2, g), rm);
-  const copart1 = sub(add(codiv1, codiv2), m);
-  const coelse = div(copart1, 2);
+  // co = ry/sqrt(rm-rx) + 2.0*g/rm;
+  const coelse = add(div(ry, sqrt(sub(rm, rx))), mul(2, div(g, rm)));
 
   // if (d<0.0)
   const co = ifCond(lt(d, 0), coif, coelse);
