@@ -1,0 +1,18 @@
+-- variation: PlumeClam41497
+
+-- Describe a short walk used to estimate the solution to
+-- a basic Laplace equation Δu = 0, which involves both
+-- boundary samples x and source samples y.
+
+Step x0, x1, x2, x3, x4
+
+Next(x0,x1)
+Next(x1,x2)
+Next(x2,x3)
+Next(x3,x4)
+
+AutoLabel All
+Label x3 "…"
+Label x4 "xk"
+
+

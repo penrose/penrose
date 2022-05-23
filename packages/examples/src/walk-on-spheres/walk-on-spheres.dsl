@@ -1,5 +1,5 @@
-type Step
-type Sample
+type Step -- a step in a walk
+type Sample -- a sample point used somewhere along the walk
 
 -- Next(a,b) asserts that b follows a in a walk
 predicate Next( Step a, Step b )

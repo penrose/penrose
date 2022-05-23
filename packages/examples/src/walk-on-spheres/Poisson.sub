@@ -1,7 +1,7 @@
 -- variation: PlumeClam41497
 
 -- Describe a short walk used to estimate the solution to
--- a basic Poisson equation, which involves both boundary
+-- a Poisson equation Δu = f, which involves both boundary
 -- samples x and source samples y.
 
 Step x0, x1, x2, x3

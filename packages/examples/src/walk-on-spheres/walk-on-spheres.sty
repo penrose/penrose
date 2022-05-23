@@ -1,20 +1,48 @@
+-- diagram dimensions (in px)
 canvas {
-   width = 240
-   height = 180
+   width = 320
+   height = 240
 }
 
+-- some colors re-used throughout
 Colors {
    color black = rgba(0,0,0,1)
    color white = rgba(1,1,1,1)
    color darkGray = rgba(.5,.5,.5,1)
    color lightGray = rgba(.9,.9,.9,1)
-
-   color walkColor = rgba( 0, 0, .7, 1 )
 }
 
 Global {
+   -- default appearance for label text
+   string labelFont = "Palatino"
+   string labelSize = "12px"
+   color labelColor = Colors.black
+
+   vec2 p0 = (?,?)
+   vec2 p1 = (?,?)
+   vec2 p2 = (?,?)
+   vec2 p3 = (?,?)
+   vec2 p4 = (?,?)
+   vec2 p5 = (?,?)
+
+   scalar maxPerturbation = 30.
+   ensure lessThan( norm(p0), maxPerturbation )
+   ensure lessThan( norm(p1), maxPerturbation )
+   ensure lessThan( norm(p2), maxPerturbation )
+   ensure lessThan( norm(p3), maxPerturbation )
+   ensure lessThan( norm(p4), maxPerturbation )
+   ensure lessThan( norm(p5), maxPerturbation )
+
+   shape box = Rectangle {
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      fillColor: none()
+      stroke: none()
+   }
+
    shape domain = Polygon {
-      points: ((-117,-57.3), (2.6,-89), (118.6,-48), (97.8,89), (-18.4,67.7), (-80.5,89))
+      points: ( (100,-80)+p0, (0,-80)+p1, (-100,-80)+p2, (-100,80)+p3, (0,80)+p4, (100,80)+p5)
       --points: ((-117.1,17.2), (-120,2.4), (-119.1,-12.6), (-114.9,-27.3), (-107.8,-41.4), (-98.5,-54.5), (-87.4,-66), (-75.1,-75.7), (-62.1,-83.1), (-37.8,-90), (-13.9,-89.6), (9,-83.8), (29.9,-74.4), (48.3,-63.3), (63.2,-52.2), (73.8,-43.1), (79.5,-37.7), (86.4,-30.9), (94,-23), (101.5,-14.1), (108.5,-4.3), (114.4,6.4), (118.4,17.8), (120,29.8), (118.6,42.3), (115.3,51.8), (110.4,60.8), (104.1,68.9), (96.7,76.1), (88.5,81.9), (79.8,86.2), (70.8,88.7), (61.9,89.1), (53.1,87), (45.9,82.9), (39.6,77.4), (27.5,64.6), (20.6,58.6), (12.3,53.9), (2,51), (-6.2,50.5), (-13.3,51.6), (-19.7,53.8), (-31.9,59.3), (-38.6,61.8), (-46.2,63.3), (-55.3,63.5), (-64.9,62), (-74.4,59.1), (-83.7,54.8), (-92.4,49.2), (-100.4,42.6), (-107.3,34.9), (-112.9,26.4))
       fillColor: Colors.lightGray
       strokeColor: Colors.darkGray
@@ -23,15 +51,18 @@ Global {
       cornerRadius: 10.
    }
 
+   ensure contains( Global.box, Global.domain )
+
    shape domainName = Text {
       string: "Ω"
       center: (?,?)
-      fontSize: "9px"
-      fontFamily: "Palatino"
+      fontSize: Global.labelSize
+      fontFamily: Global.labelFont
       fillColor: Colors.darkGray
    }
 
    layer domainName above domain
+   layer box below domain
 
    ensure lessThan( signedDistance( domain, Global.domainName.center ), -10. )
 
@@ -88,10 +119,10 @@ where s has label {
    shape s.labelText = Text {
       string: s.label
       center: (?,?)
-      fontSize: "9px"
-      fontFamily: "Palatino"
+      fontSize: Global.labelSize
+      fontFamily: Global.labelFont
       fontStyle: "italic"
-      fillColor: Colors.black
+      fillColor: Global.labelColor
       strokeColor: Colors.white
       strokeWidth: 2.5
       strokeLinejoin: "round"
@@ -128,10 +159,10 @@ where y has label; y := sourceSample(x) {
    shape y.labelText = Text {
       string: y.label
       center: (?,?)
-      fontSize: "9px"
-      fontFamily: "Palatino"
+      fontSize: Global.labelSize
+      fontFamily: Global.labelFont
+      fillColor: Global.labelColor
       fontStyle: "italic"
-      fillColor: Colors.black
    }
 
    encourage near( y.labelText, y.dot )
@@ -146,15 +177,21 @@ where Next(x0,x1) {
    ensure equal( norm(x1.boundary.center-x0.boundary.center), x0.boundary.r )
    layer x1.boundary above x0.boundary
 
+   color walkColor = rgba( 0, 0, .7, 1 )
+
    shape walkLine = Line {
       start: x0.boundary.center
       end: x1.boundary.center
       strokeWidth: 2.
-      strokeColor: Colors.walkColor
+      strokeColor: walkColor
    }
    layer walkLine above Global.domain
 
-   ensure equal( x1.boundary.r, .55*x0.boundary.r )
+   -- draw later steps of the walk as smaller
+   -- balls (which will typically, but not always,
+   -- be the behavior of the WoS algorithm)
+   scalar shrinkFactor = .55
+   ensure equal( x1.boundary.r, shrinkFactor * x0.boundary.r )
 }
 
 -- make sure the sample point isn't covered
@@ -171,6 +208,5 @@ where Next(x0,x1); y1 := sourceSample(x1) {
 forall Step x {
    ensure disjoint( Global.domainName, x.boundary, 10. )
 }
-
 
 
