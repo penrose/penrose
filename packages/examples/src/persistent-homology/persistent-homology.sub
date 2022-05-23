@@ -1,12 +1,15 @@
 
 Frames F
-
 Point P1, P2, P3, P4, P5, P6, P7, P8, P9, P10
 
 ConnectedOnFrame2(P1, P2)
 ConnectedOnFrame2(P2, P3)
 ConnectedOnFrame2(P3, P1)
 ConnectedOnFrame2(P4, P5)
+Connection C2P1P2 := MakeConnection2(P1, P2)
+Connection C2P2P3 := MakeConnection2(P2, P3)
+Connection C2P3P1 := MakeConnection2(P3, P1)
+Connection C2P4P5 := MakeConnection2(P4, P5)
 
 ConnectedOnFrame3(P1, P2)
 ConnectedOnFrame3(P2, P3)
@@ -22,12 +25,6 @@ ConnectedOnFrame3(P7, P9)
 ConnectedOnFrame3(P8, P9)
 ConnectedOnFrame3(P9, P10)
 ConnectedOnFrame3(P10, P1)
-
-Connection C2P1P2 := MakeConnection2(P1, P2)
-Connection C2P2P3 := MakeConnection2(P2, P3)
-Connection C2P3P1 := MakeConnection2(P3, P1)
-Connection C2P4P5 := MakeConnection2(P4, P5)
-
 Connection C3P1P2 := MakeConnection3(P1, P2)
 Connection C3P2P3 := MakeConnection3(P2, P3)
 Connection C3P3P1 := MakeConnection3(P3, P1)
@@ -42,6 +39,8 @@ Connection C3P7P9 := MakeConnection3(P7, P9)
 Connection C3P8P9 := MakeConnection3(P8, P9)
 Connection C3P9P10 := MakeConnection3(P9, P10)
 Connection C3P10P1 := MakeConnection3(P10, P1)
+
+-- This can be deleted in the future (after issue #775 is resolved)
 
 NotConnectedOnFrame1(P1, P2)
 NotConnectedOnFrame1(P1, P3)
