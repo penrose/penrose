@@ -537,6 +537,38 @@ export const compDict = {
   },
 
   /**
+   * Draw a curve interpolating three given points.
+   * (Note that this is different from specifying the
+   * three control points of a quadratic Bézier curve,
+   * since a Bézier does not interpolate the middle
+   * control point.)
+   */
+  interpolateQuadraticFromPoints: (
+    _context: Context,
+    pathType: string,
+    p0: ad.Pt2,
+    p1: ad.Pt2,
+    p2: ad.Pt2
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    path.moveTo(p0);
+    // Compute the control point location q1 such that the
+    // quadratic curve interpolates the midpoint p1, namely,
+    //    q1 = 2 p1 - (p0+p2)/2
+    // (This expression can be derived by expressing the
+    // interpolation condition in terms of the quadratic
+    // Bernstein basis.)
+    const q1 = ops.vsub(ops.vmul(2.0, p1), ops.vmul(0.5, ops.vadd(p0, p2)));
+    if (!ad.isPt2(q1)) {
+      // XXX kludge to force TypeScript to know that q1 has length 2; see GitHub issue #715
+      throw new Error("vector ops did not preserve dimension");
+    }
+    path.quadraticCurveTo(q1, p2);
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
+  },
+
+  /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
   cubicCurveFromPoints: (
@@ -1388,6 +1420,14 @@ export const compDict = {
     const X = add(mul(cos(theta), x), mul(sin(theta), y));
     const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
     return { tag: "VectorV", contents: [X, Y] };
+  },
+
+  /**
+   * Construct a unit vector u in the direction of the
+   * given angle theta (in radians).
+   */
+  unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
+    return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
   },
 };
 
