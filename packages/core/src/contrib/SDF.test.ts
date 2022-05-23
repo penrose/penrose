@@ -1,6 +1,7 @@
 import { genCode, secondaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
+import { makeEllipse } from "shapes/Ellipse";
 import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
@@ -30,7 +31,12 @@ const compareDistance = (
   );
   const g = secondaryGraph([result.contents]);
   const f = genCode(g);
-  const [dist] = f([]).secondary; // no inputs, so, empty array
+  const {
+    secondary: [dist],
+    stmts,
+  } = f([]); // no inputs, so, empty array
+  const code = stmts.join("\n");
+  console.log(code);
   expect(dist).toBeCloseTo(expected);
 };
 
@@ -100,6 +106,25 @@ function testLine(
     end: vectorV(end),
   });
   compareDistance("Line", shape, pt, expected);
+}
+
+function testEllipse(
+  center: number[],
+  rx: number,
+  ry: number,
+  strokeWidth: number,
+  pt: number[],
+  expected: number
+) {
+  const seed = seedrandom("bbox Rectangle");
+  const shape = makeEllipse(seed, canvas, {
+    center: vectorV(center),
+    rx: floatV(rx),
+    ry: floatV(ry),
+    strokeWidth: floatV(strokeWidth),
+    strokeColor: sampleBlack(),
+  });
+  compareDistance("Ellipse", shape, pt, expected);
 }
 
 describe("sdf", () => {
@@ -197,4 +222,12 @@ test("line", () => {
   testLine([0, 0], [8, 0], 0, [4, 0], 0);
   testLine([0, 0], [8, 0], 0, [0, 4], 4);
   testLine([0, 0], [8, 8], 0, [0, 4], Math.cos(Math.PI / 4) * 4);
+});
+
+test("ellipse", () => {
+  // testCircle([0, 0], 3, 0, [0, 0], -3);
+  // an ellipse is defined by the following parametric equations
+  // x = r_x * cos(theta)
+  // y = r_x * sin(theta)
+  testEllipse([0, 0], 10, 5, 0, [11, 1], 1.2);
 });

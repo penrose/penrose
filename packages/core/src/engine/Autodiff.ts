@@ -654,7 +654,7 @@ export const ops = {
   },
 
   /**
-   * Return the difference of vectors `v1, v2.
+   * Return the difference of vectors `v1` and `v2`.
    */
   vsub: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
     if (v1.length !== v2.length) {
@@ -687,6 +687,17 @@ export const ops = {
    */
   vmul: (c: ad.Num, v: ad.Num[]): ad.Num[] => {
     return v.map((e) => mul(c, e));
+  },
+
+  /**
+   * Returns the entrywise product of two vectors, `v1` and `v2`
+   */
+  vproduct: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    const vresult = [];
+    for (let i = 0; i < v1.length; i++) {
+      vresult[i] = mul(v1[i], v2[i]);
+    }
+    return vresult;
   },
 
   /**
@@ -1098,7 +1109,7 @@ export const genCode = ({
   ];
   stmts.push(`return { ${fields.join(", ")} };`);
   const f = new Function("polyRoots", "inputs", stmts.join("\n"));
-  return (inputs) => f(polyRoots, inputs);
+  return (inputs) => ({ ...f(polyRoots, inputs), stmts });
 };
 
 // Mutates xsVars (leaf nodes) to set their values to the inputs in xs (and name them accordingly by value)

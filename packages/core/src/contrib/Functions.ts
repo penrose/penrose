@@ -54,6 +54,7 @@ import * as _ from "lodash";
 import { range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
 import seedrandom from "seedrandom";
+import { Ellipse } from "shapes/Ellipse";
 import { Line } from "shapes/Line";
 import { Polyline } from "shapes/Polyline";
 import { shapedefs } from "shapes/Shapes";
@@ -1500,7 +1501,12 @@ export const compDict = {
         tag: "FloatV",
         contents: sdPolyline(s, p),
       };
-    } else if (t === "Ellipse" || t === "Path") {
+    } else if (t === "Ellipse") {
+      return {
+        tag: "FloatV",
+        contents: sdEllipse(s, p),
+      };
+    } else if (t === "Path") {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
     } else {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
@@ -1534,6 +1540,145 @@ const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
     dists[i] = sdLineAsNums(s.points.contents[i], s.points.contents[i + 1], p);
   }
   return minN(dists);
+};
+
+const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
+  return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
+};
+
+/*
+p = abs( p ); 
+  if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
+	
+	float l = ab.y*ab.y - ab.x*ab.x;
+	
+  float m = ab.x*p.x/l; 
+	float n = ab.y*p.y/l; 
+	float m2 = m*m;
+	float n2 = n*n;
+	
+    float c = (m2+n2-1.0)/3.0; 
+	float c3 = c*c*c;
+
+    float d = c3 + m2*n2;
+    float q = d  + m2*n2;
+    float g = m  + m *n2;
+
+    float co;
+
+    if( d<0.0 )
+    {
+        float h = acos(q/c3)/3.0;
+        float s = cos(h) + 2.0;
+        float t = sin(h) * sqrt(3.0);
+        float rx = sqrt( m2-c*(s+t) );
+        float ry = sqrt( m2-c*(s-t) );
+        co = ry + sign(l)*rx + abs(g)/(rx*ry);
+    }
+    else
+    {
+        float h = 2.0*m*n*sqrt(d);
+        float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+        float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
+        float rx = -(s+t) - c*4.0 + 2.0*m2;
+        float ry =  (s-t)*sqrt(3.0);
+        float rm = sqrt( rx*rx + ry*ry );
+        co = ry/sqrt(rm-rx) + 2.0*g/rm;
+    }
+    co = (co-m)/2.0;
+
+    float si = sqrt( max(1.0-co*co,0.0) );
+ 
+    vec2 r = ab * vec2(co,si);
+	
+    return length(r-p) * msign(p.y-r.y);
+}
+*/
+export const sdEllipseAsNums = (
+  radiusx: ad.Num,
+  radiusy: ad.Num,
+  center: ad.Num[],
+  pInput: ad.Num[]
+): ad.Num => {
+  const pOffset = ops.vsub(pInput, center);
+  const p = ops.vabs(pOffset);
+  const ab = [radiusx, radiusy];
+  p[0] = ifCond(gt(p[0], p[1]), p[1], p[0]);
+  p[1] = ifCond(gt(p[0], p[1]), p[0], p[1]);
+  ab[0] = ifCond(gt(p[0], p[1]), ab[0], ab[0]);
+  ab[1] = ifCond(gt(p[0], p[1]), ab[0], ab[1]);
+  // float l = ab.y*ab.y - ab.x*ab.x;
+  const l = sub(mul(ab[1], ab[1]), mul(ab[0], ab[0]));
+  // float m = ab.x*p.x/l;
+  const m = mul(ab[0], div(p[0], l));
+  // float m2 = m*m;
+  const m2 = mul(m, m);
+  // float n = ab.y*p.y/l;
+  const n = mul(ab[1], div(p[1], l));
+  // float n2 = n*n;
+  const n2 = mul(n, n);
+  // float c = (m2+n2-1.0)/3.0; float c3 = c*c*c;
+  const c = div(add(m2, sub(n2, 1)), 3);
+  const c3 = mul(mul(c, c), c);
+  // float q = c3 + m2*n2*2.0;
+  const q = add(c3, mul(m2, mul(n2, 2)));
+  // float d = c3 + m2*n2;
+  const d = add(c3, mul(m2, n2));
+  // float g = m + m*n2;
+  const g = add(m, mul(m, n2));
+
+  //if branch
+  // float h = acos(q/c3)/3.0;
+  const hif = div(acos(div(q, c3)), 3);
+  // float s = cos(h);
+  const sif = add(cos(hif), 2);
+  // float t = sin(h)*sqrt(3.0);
+  const tif = mul(sin(hif), sqrt(3));
+  // float rx = sqrt( m2-c*(s+t) );
+  const rxif = sqrt(sub(m2, mul(c, add(sif, tif))));
+  // float ry = sqrt( m2-c*(s-t) );
+  const ryif = sqrt(sub(m2, mul(c, sub(sif, tif))));
+  // co = ry + sign(l)*rx + abs(g)/(rx*ry);
+  const coif = add(
+    add(ryif, mul(sign(l), rxif)),
+    div(absVal(g), mul(rxif, ryif))
+  );
+  // elsebranch
+  /*
+  float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+  float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
+  float rx = -(s+t) - c*4.0 + 2.0*m2;
+  float ry =  (s-t)*sqrt(3.0);
+  float rm = sqrt( rx*rx + ry*ry );
+  co = ry/sqrt(rm-rx) + 2.0*g/rm;
+  */
+  // float h = 2.0*m*n*sqrt(d);
+  const h = mul(2, mul(m, mul(n, sqrt(d))));
+  // float s = sign(q+h)*pow(abs(q+h), 1.0/3.0);
+  const onethird = 0.3333333333333333333;
+  const s = mul(sign(add(q, h)), pow(absVal(add(q, h)), onethird));
+  // float u = sign(q-h)*pow(abs(q-h), 1.0/3.0);
+  const u = mul(sign(sub(q, h)), pow(absVal(sub(q, h)), onethird));
+  // float rx = -s - u - c*4.0 + 2.0*m2;
+  const rx = add(sub(neg(s), sub(u, mul(c, 4))), mul(2, m2));
+  // float ry = (s - u)*sqrt(3.0);
+  const ry = mul(sub(s, u), sqrt(3));
+  // float rm = sqrt( rx*rx + ry*ry );
+  const rm = sqrt(add(mul(rx, rx), mul(ry, ry)));
+  // co = (ry/sqrt(rm-rx)+2.0*g/rm-m)/2.0;
+  const cosqrt = sqrt(sub(rm, rx));
+  const codiv1 = div(ry, cosqrt);
+  const codiv2 = div(mul(2, g), rm);
+  const copart1 = sub(add(codiv1, codiv2), m);
+  const coelse = div(copart1, 2);
+
+  // if (d<0.0)
+  const co = ifCond(lt(d, 0), coif, coelse);
+
+  // vec2 r = ab * vec2(co, sqrt(1.0-co*co));
+  const r = ops.vproduct(ab, [co, sqrt(sub(1, mul(co, co)))]);
+  // return length(r-p) * sign(p.y-r.y);
+  return sub(ops.vnorm(ops.vsub(r, p)), sign(sub(p[1], r[1])));
 };
 
 // _compDictVals causes TypeScript to enforce that every function in compDict
