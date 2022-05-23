@@ -7,7 +7,7 @@ import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
 import { Fn, Seeds, State } from "types/state";
-import { Expr, Path } from "types/style";
+import { BindingForm, Expr, Path } from "types/style";
 import {
   BoolV,
   Color,
@@ -460,13 +460,6 @@ export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
 
 //#region Style
 
-// COMBAK: Copied from `EngineUtils`; consolidate
-export const isPath = <T>(expr: Expr<T>): expr is Path<T> => {
-  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
-    expr.tag
-  );
-};
-
 const fieldPath = (subName: string, field: string): string =>
   `${subName}.${field}`;
 
@@ -476,33 +469,29 @@ const propertyPath = (
   property: string
 ): string => `${subName}.${field}.${property}`;
 
-export const prettyPrintPath = (p: Path<A>): string => {
-  switch (p.tag) {
-    case "LocalVar": {
-      return p.contents.value;
+const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
+  switch (bf.tag) {
+    case "StyVar": {
+      return `\`${bf.contents.value}\``;
     }
-    case "FieldPath": {
-      const varName = p.name.contents.value;
-      const varField = p.field.value;
-      return fieldPath(varName, varField);
-    }
-    case "PropertyPath": {
-      const varName = p.name.contents.value;
-      const varField = p.field.value;
-      const property = p.property.value;
-      return propertyPath(varName, varField, property);
-    }
-    case "AccessPath": {
-      const pstr: string = prettyPrintPath(p.path);
-      const indices: string[] = p.indices.map(prettyPrintExpr);
-      return `${pstr}[${indices.toString()}]`;
+    case "SubVar": {
+      return bf.contents.value;
     }
   }
 };
 
+export const prettyPrintPath = (p: Path<A>): string => {
+  const base: string = [
+    prettyPrintBindingForm(p.name),
+    ...p.members.map((m) => m.value),
+  ].join(".");
+  const indices: string = p.indices.map(prettyPrintExpr).join("");
+  return `${base}${indices}`;
+};
+
 export const prettyPrintExpr = (arg: Expr<A>): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
-  if (isPath(arg)) {
+  if (arg.tag === "Path") {
     return prettyPrintPath(arg);
   } else if (arg.tag === "Fix") {
     const val = arg.contents;

@@ -65,6 +65,7 @@ import {
 import {
   Assignment,
   BlockAssignment,
+  DepGraph,
   Fielded,
   FieldSource,
   LocalVarSubst,
@@ -109,6 +110,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
+import { Digraph } from "utils/Graph";
 import {
   boolV,
   floatV,
@@ -1814,8 +1816,8 @@ const updateExpr = (
 //#region second pass
 
 // TODO
-const gatherDependencies = (assignment: Assignment): Graph => {
-  const graph = new Graph();
+const gatherDependencies = (assignment: Assignment): DepGraph => {
+  const graph = new Digraph<string, Path<C>>();
   return graph;
 };
 
@@ -1825,7 +1827,7 @@ const gatherDependencies = (assignment: Assignment): Graph => {
 
 export const translateAssignment = (
   assignment: Assignment,
-  graph: Graph
+  graph: DepGraph
 ): Translation => {
   // TODO
   return {
@@ -3148,7 +3150,7 @@ export const compileStyle = (
   // to Style expression ASTs
   const assignment = buildAssignment(varEnv, subEnv, styProg);
 
-  // second pass: plus a dependency graph among those expressions
+  // second pass: construct a dependency graph among those expressions
   const graph = gatherDependencies(assignment);
 
   // third pass: compile all expressions in topological sorted order

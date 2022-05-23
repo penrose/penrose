@@ -375,12 +375,6 @@ export const isTagExpr = (
 
 //#endregion
 
-export const isPath = <T>(expr: Expr<T>): expr is Path<T> => {
-  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
-    expr.tag
-  );
-};
-
 export const exprToNumber = (e: Expr<A>): number => {
   if (e.tag === "Fix") {
     return e.contents;

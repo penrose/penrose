@@ -1,10 +1,11 @@
 import im from "immutable";
 import { ShapeType } from "shapes/Shapes";
+import { Digraph } from "utils/Graph";
 import * as ad from "./ad";
 import { A, C, Identifier, SourceRange } from "./ast";
 import { StyleDiagnostics, StyleError } from "./errors";
 import { ShapeAD } from "./shape";
-import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style";
+import { BindingForm, Expr, GPIDecl, Header, Path, StyT } from "./style";
 import { ArgVal, Field, Name, PropID } from "./value";
 
 //#region Style semantics
@@ -125,6 +126,12 @@ export interface ResolvedName {
 export interface ResolvedPath extends SourceRange, ResolvedName {
   members: Identifier<C>[];
 }
+
+//#endregion
+
+//#region second Style compiler pass: dependency graph
+
+export type DepGraph = Digraph<string, Path<C>>;
 
 //#endregion
 
