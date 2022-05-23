@@ -1,9 +1,15 @@
 
 type Graph
 
+type Layer
+
 type Layer1
 type Layer2
 type Layer3
+
+Layer1 <: Layer
+Layer2 <: Layer
+Layer3 <: Layer
 
 type Node
 type Edge
