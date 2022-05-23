@@ -1577,7 +1577,9 @@ const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
 const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
   const dists: ad.Num[] = [];
   for (let i = 0; i < s.points.contents.length - 1; i++) {
-    dists[i] = sdLineAsNums(s.points.contents[i], s.points.contents[i + 1], p);
+    const start = s.points.contents[i];
+    const end = s.points.contents[i + 1];
+    dists[i] = sdLineAsNums(start, end, p);
   }
   return minN(dists);
 };
@@ -1658,15 +1660,15 @@ export const sdEllipseAsNums = (
   ab[0] = ifCond(gt(p[0], p[1]), ab[1], ab[0]);
   ab[1] = ifCond(gt(p[0], p[1]), ab[0], ab[1]);
   // float l = ab.y*ab.y - ab.x*ab.x;
-  const l = sub(mul(ab[1], ab[1]), mul(ab[0], ab[0]));
+  const l = sub(squared(ab[1]), squared(ab[0]));
   // float m = ab.x*p.x/l;
   const m = mul(ab[0], div(p[0], l));
   // float m2 = m*m;
-  const m2 = mul(m, m);
+  const m2 = squared(m);
   // float n = ab.y*p.y/l;
   const n = mul(ab[1], div(p[1], l));
   // float n2 = n*n;
-  const n2 = mul(n, n);
+  const n2 = squared(n);
   // float c = (m2+n2-1.0)/3.0; float c3 = c*c*c;
   const c = div(add(m2, sub(n2, 1)), 3);
   const c3 = mul(mul(c, c), c);
@@ -1680,7 +1682,7 @@ export const sdEllipseAsNums = (
   //if branch
   // float h = acos(q/c3)/3.0;
   const hif = div(acos(div(q, c3)), 3);
-  // float s = cos(h);
+  // float s = cos(h) + 2.0;
   const sif = add(cos(hif), 2);
   // float t = sin(h)*sqrt(3.0);
   const tif = mul(sin(hif), sqrt(3));
@@ -1713,10 +1715,10 @@ export const sdEllipseAsNums = (
   // co = (co-m)/2.0;
   // if (d<0.0)
   const co_pred = ifCond(lt(d, 0), coif, coelse);
-  const co = div(min(co_pred, m), 2);
+  const co = div(sub(co_pred, m), 2);
 
   // float si = sqrt( max(1.0-co*co,0.0) );
-  const si = sqrt(max(sub(1, mul(co, co)), 0));
+  const si = sqrt(max(sub(1, squared(co)), 0));
   // vec2 r = ab * vec2(co,si);
   const r = ops.vproduct(ab, [co, si]);
   // return length(r-p) * msign(p.y-r.y);

@@ -12,7 +12,6 @@ import {
   sampleBlack,
   vectorV,
 } from "shapes/Samplers";
-import * as ad from "types/ad";
 import { Shape } from "types/shapes";
 import { compDict } from "./Functions";
 
@@ -21,7 +20,7 @@ const canvas = makeCanvas(800, 700);
 const compareDistance = (
   shapeType: string,
   shape: Shape,
-  p: ad.Num[],
+  p: number[],
   expected: number
 ) => {
   const result = compDict.signedDistance(
@@ -234,7 +233,8 @@ test("ellipse", () => {
   testEllipse([0, 0], 100, 50, [0, 10], -40);
   testEllipse([0, 0], 100, 50, [0, -50], 0);
   testEllipse([0, 0], 50, 100, [0, -100], 0);
-  // testEllipse([0, 0], 50, 100, [60, 0], 10);
-  // testEllipse([0, 0], 50, 100, [200, 200], 10);
-  // testEllipse([0, 0], 100, 50, [100, 0], 10);
+  //testEllipse([0, 0], 50, 100, [60, 0], 10);
+  //testEllipse([0, 0], 50, 100, [60, 110], 17);
+  //testEllipse([0, 0], 100, 50, [100, 0], 0);
+  //testEllipse([0, 0], 100, 50, [80, 0], 0);
 });
