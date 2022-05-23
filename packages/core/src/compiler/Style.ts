@@ -69,11 +69,12 @@ import {
   Fielded,
   FieldSource,
   LocalVarSubst,
-  Nameable,
+  NotShape,
   ProgType,
   ResolvedName,
   ResolvedPath,
   SelEnv,
+  ShapeSource,
   StyleSymbols,
   Subst,
   Translation,
@@ -102,11 +103,13 @@ import {
   Value,
 } from "types/value";
 import {
+  andThen,
   err,
   isErr,
   ok,
   parseError,
   Result,
+  safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
@@ -1519,44 +1522,27 @@ const updateExpr = (
 
 const processExpr = (
   context: Context,
+  path: ResolvedPath<C>,
   expr: Expr<C>
 ): Result<FieldSource, StyleError> => {
-  switch (expr.tag) {
-    case "GPIDecl": {
-      const shapeType = expr.shapeName.value;
-      if (!isShapeType(shapeType)) {
-        return err({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
-      }
-      return ok({
-        tag: "ShapeSource",
-        shapeType,
-        props: im.Map(
-          // TODO: error on duplicate property name
-          expr.properties.map(({ name, value }) => [
-            name.value,
-            { context, expr: value },
-          ])
-        ),
-      });
-    }
-    case "BinOp":
-    case "BoolLit":
-    case "CompApp":
-    case "ConstrFn":
-    case "Fix":
-    case "Layering":
-    case "List":
-    case "Matrix":
-    case "ObjFn":
-    case "Path":
-    case "StringLit":
-    case "Tuple":
-    case "UOp":
-    case "Vary":
-    case "Vector": {
-      return ok({ tag: "OtherSource", expr: { context, expr } });
-    }
+  if (expr.tag !== "GPIDecl") {
+    return ok({ tag: "OtherSource", expr: { context, expr } });
   }
+  const shapeType = expr.shapeName.value;
+  if (!isShapeType(shapeType)) {
+    return err({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
+  }
+  const res: Result<ShapeSource["props"], StyleError> = safeChain(
+    expr.properties,
+    ({ name, value }, m) => {
+      if (value.tag === "GPIDecl") {
+        return err({ tag: "NestedShapeError", path, expr: value });
+      }
+      return ok(m.set(name.value, { context, expr: value }));
+    },
+    ok(im.Map())
+  );
+  return andThen((props) => ok({ tag: "ShapeSource", shapeType, props }), res);
 };
 
 const insertExpr = (
@@ -1568,7 +1554,11 @@ const insertExpr = (
   updateExpr(path, assignment, "Assign", (field, prop, fielded) => {
     const warns: StyleWarning[] = [];
     if (prop === undefined) {
-      const source = processExpr({ ...block, locals: assignment.locals }, expr);
+      const source = processExpr(
+        { ...block, locals: assignment.locals },
+        path,
+        expr
+      );
       if (source.isErr()) {
         return err(source.error);
       }
@@ -1974,58 +1964,37 @@ const gatherDependencies = (assignment: Assignment): Graph => {
 
 //#region third pass
 
-export const translateAssignment = (
-  assignment: Assignment,
-  graph: Graph
+const translateExpr = (
+  path: string,
+  expr: NotShape,
+  trans: Translation
 ): Translation => {
-  // TODO
-  return {
-    diagnostics: { errors: im.List(), warnings: im.List() },
-    symbols: im.Map(),
-    shapes: im.List(),
-    objectives: im.List(),
-    constraints: im.List(),
-    layering: im.List(),
-    varying: im.List(),
-  };
-};
-
-const translateExpr = (expr: Expr<C>): Result<Nameable, StyleDiagnostics> => {
   switch (expr.tag) {
-    case "AccessPath": {
-      throw Error("TODO");
-    }
     case "BinOp": {
       throw Error("TODO");
     }
     case "BoolLit": {
-      return ok(val(boolV(expr.contents)));
+      return {
+        ...trans,
+        symbols: trans.symbols.set(path, val(boolV(expr.contents))),
+      };
     }
     case "CompApp": {
-      throw Error("TODO");
-    }
-    case "GPIDecl": {
       throw Error("TODO");
     }
     case "ConstrFn": {
       throw Error("TODO");
     }
-    case "FieldPath": {
-      throw Error("TODO");
-    }
     case "Fix": {
-      return ok(val(floatV(expr.contents)));
-    }
-    case "InternalLocalVar": {
-      throw Error("TODO");
+      return {
+        ...trans,
+        symbols: trans.symbols.set(path, val(floatV(expr.contents))),
+      };
     }
     case "Layering": {
       throw Error("TODO");
     }
     case "List": {
-      throw Error("TODO");
-    }
-    case "LocalVar": {
       throw Error("TODO");
     }
     case "Matrix": {
@@ -2034,7 +2003,7 @@ const translateExpr = (expr: Expr<C>): Result<Nameable, StyleDiagnostics> => {
     case "ObjFn": {
       throw Error("TODO");
     }
-    case "PropertyPath": {
+    case "Path": {
       throw Error("TODO");
     }
     case "StringLit": {
@@ -2053,6 +2022,30 @@ const translateExpr = (expr: Expr<C>): Result<Nameable, StyleDiagnostics> => {
       throw Error("TODO");
     }
   }
+};
+
+const parsePath = (path: string): NotShape => path; // TODO
+
+const translateAssignment = (
+  assignment: Assignment,
+  graph: Graph
+): Translation => {
+  const lookup = new Map(graph.nodes().map((n) => [n, parsePath(n)]));
+  const trans: Translation = {
+    diagnostics: { errors: im.List(), warnings: im.List() },
+    symbols: im.Map(),
+    shapes: im.List(),
+    objectives: im.List(),
+    constraints: im.List(),
+    layering: im.List(),
+    varying: im.List(),
+  };
+  return alg.topsort(graph).reduce((trans, path) => {
+    const expr = lookup.get(path);
+    return expr === undefined
+      ? addDiags(oneErr({ tag: "MissingPathError", path }), trans)
+      : translateExpr(path, expr, trans);
+  }, trans);
 };
 
 //#region Block statics

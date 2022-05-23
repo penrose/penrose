@@ -93,15 +93,17 @@ export interface WithContext<T> {
   expr: T;
 }
 
+export type NotShape = Exclude<Expr<C>, GPIDecl<C>>;
+
 export interface ShapeSource {
   tag: "ShapeSource";
   shapeType: ShapeType;
-  props: im.Map<PropID, WithContext<Expr<C>>>;
+  props: im.Map<PropID, WithContext<NotShape>>;
 }
 
 export interface OtherSource {
   tag: "OtherSource";
-  expr: WithContext<Exclude<Expr<C>, GPIDecl<C>>>;
+  expr: WithContext<NotShape>;
 }
 
 export type FieldSource = ShapeSource | OtherSource;

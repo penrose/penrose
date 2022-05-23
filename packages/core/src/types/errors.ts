@@ -156,6 +156,7 @@ export type StyleError =
   | DeleteAccessError
   | DeleteGlobalError
   | DeleteSubstanceError
+  | MissingPathError
   | MissingShapeError
   | NestedShapeError
   | NotShapeError
@@ -183,12 +184,12 @@ export interface IntOrFloat {
 
 export interface ImplicitOverrideWarning {
   tag: "ImplicitOverrideWarning";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
 }
 
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
 }
 
 //#endregion
@@ -280,12 +281,12 @@ export interface AssignAccessError {
 
 export interface AssignGlobalError {
   tag: "AssignGlobalError";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
 }
 
 export interface AssignSubstanceError {
   tag: "AssignSubstanceError";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
 }
 
 export interface DeleteAccessError {
@@ -295,33 +296,38 @@ export interface DeleteAccessError {
 
 export interface DeleteGlobalError {
   tag: "DeleteGlobalError";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
 }
 
 export interface DeleteSubstanceError {
   tag: "DeleteSubstanceError";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
+}
+
+export interface MissingPathError {
+  tag: "MissingPathError";
+  path: string;
 }
 
 export interface MissingShapeError {
   tag: "MissingShapeError";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
 }
 
 export interface NestedShapeError {
   tag: "NestedShapeError";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
   expr: GPIDecl<C>;
 }
 
 export interface NotShapeError {
   tag: "NotShapeError";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
 }
 
 export interface PropertyMemberError {
   tag: "PropertyMemberError";
-  path: ResolvedPath;
+  path: ResolvedPath<C>;
 }
 
 //#endregion
