@@ -19,6 +19,7 @@
     "test": "lerna run test --stream",
     "docs": "lerna run docs --stream",
     "lint": "lerna run lint --stream",
+    "lint:fix": "lerna run lint --stream -- --fix",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
     "new-version:prerelease": "lerna version --conventional-prerelease",
