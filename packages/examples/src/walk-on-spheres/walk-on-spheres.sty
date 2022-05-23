@@ -1,0 +1,94 @@
+canvas {
+   width = 240
+   height = 180
+}
+
+Colors {
+   color black = rgba(0,0,0,1)
+   color white = rgba(1,1,1,1)
+   color lightGray = rgba(.9,.9,.9,1)
+}
+
+Global {
+   -- background color
+   shape box = Rectangle {
+      fillColor: Colors.lightGray
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      ensureOnCanvas: false
+   }
+
+   baseWidth = 1.5
+}
+
+forall Step s {
+   shape s.ball = Circle {
+      center: (?,?)
+      r: 1.
+      --fillColor: rgba( .2, .6, .2, .2 )
+      fillColor: none()
+      strokeColor: Colors.black
+      strokeWidth: Global.baseWidth
+      ensureOnCanvas: false
+   }
+
+   shape s.centerDot = Circle {
+      center: s.ball.center
+      r: 2.5
+      fillColor: Colors.black
+      ensureOnCanvas: false
+   }
+
+   vec2 c = s.ball.center
+   scalar w = canvas.width
+   scalar h = canvas.height
+   scalar R = min( min( min( w/2-c[0], c[0]+w/2. ), h/2-c[1] ), c[1]+h/2. )
+   override s.ball.r = R - Global.baseWidth/2.
+
+   ensure inRange( c[0], -w/2, w/2 )
+   ensure inRange( c[1], -h/2, h/2 )
+
+   shape s.shading = Image {
+      center : s.ball.center 
+      width : s.ball.r * 2.0
+      height : s.ball.r * 2.0
+      href : "ball.svg"
+      ensureOnCanvas: false
+   }
+
+   layer s.ball above Global.box
+   layer s.centerDot above Global.box
+   layer s.shading above Global.box
+   layer s.shading below s.ball
+}
+
+forall Step s
+where s has label {
+
+   shape s.labelText = Text {
+      string: s.label
+      center: (?,?)
+      fontSize: "12px"
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fillColor: Colors.black
+      strokeColor: Colors.white
+      strokeWidth: 3
+      paintOrder: "stroke"
+   }
+
+   encourage near( s.labelText, s.centerDot )
+   ensure disjoint( s.labelText, s.centerDot, 2. )
+
+   layer s.labelText above s.ball
+}
+
+forall Step x0; Step x1
+where Next(x0,x1) {
+   ensure equal( norm(x1.ball.center-x0.ball.center), x0.ball.r )
+   layer x1.ball above x0.ball
+
+   ensure equal( x1.ball.r, .55*x0.ball.r )
+}
+
