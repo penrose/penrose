@@ -203,7 +203,7 @@ const ellipsePolynomialAlpha2 = (
 };
 
 // Cubic coefficient from the ellipse-ellipse polynomial
-const ellipsePolynomailAlpha3 = (
+const ellipsePolynomialAlpha3 = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
 ): ad.Num => {
