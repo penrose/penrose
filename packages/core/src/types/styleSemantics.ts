@@ -1,11 +1,10 @@
 import im from "immutable";
 import { ShapeType } from "shapes/Shapes";
-import { Digraph } from "utils/Graph";
 import * as ad from "./ad";
-import { A, C, Identifier, SourceRange } from "./ast";
+import { A, C, Identifier } from "./ast";
 import { StyleDiagnostics, StyleError } from "./errors";
 import { ShapeAD } from "./shape";
-import { BindingForm, Expr, GPIDecl, Header, Path, StyT } from "./style";
+import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style";
 import { ArgVal, Field, Name, PropID } from "./value";
 
 //#region Style semantics
@@ -52,6 +51,7 @@ export interface SelEnv {
 
 // A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
 // COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
+// TODO: make this an `im.Map`
 export type Subst = { [k: string]: string };
 
 export type LocalVarSubst = LocalVarId | NamespaceId;
@@ -76,22 +76,6 @@ export interface NamespaceId {
 export type StyleName = Name;
 export type SubstanceName = Name;
 
-// TODO: come up with a better name
-export interface Assignment {
-  diagnostics: StyleDiagnostics;
-  globals: im.Map<StyleName, Fielded>;
-  unnamed: im.List<Fielded>;
-  substances: im.Map<SubstanceName, Fielded>;
-}
-
-// TODO: come up with a better name
-export interface BlockAssignment extends Assignment {
-  locals: im.Map<StyleName, FieldSource>;
-}
-
-// TODO: come up with a better name
-export type Fielded = im.Map<Field, FieldSource>;
-
 // NOTE: This representation makes a fundamental assumption that we never
 // `override` or `delete` a subpath of a path that points to an opaque object.
 // In particular, there are two ways you could imagine that assumption being
@@ -104,53 +88,60 @@ export type Fielded = im.Map<Field, FieldSource>;
 // something we would like to support eventually:
 // https://github.com/penrose/penrose/issues/924#issuecomment-1076951074
 
-// TODO: come up with a better name
-export type FieldSource = ShapeSource | OtherSource;
+export interface WithContext<T> {
+  context: Context;
+  expr: T;
+}
 
 export interface ShapeSource {
   tag: "ShapeSource";
   shapeType: ShapeType;
-  props: im.Map<PropID, Expr<C>>;
+  props: im.Map<PropID, WithContext<Expr<C>>>;
 }
 
 export interface OtherSource {
   tag: "OtherSource";
-  expr: Exclude<Expr<C>, GPIDecl<C>>;
+  expr: WithContext<Exclude<Expr<C>, GPIDecl<C>>>;
 }
+
+export type FieldSource = ShapeSource | OtherSource;
+
+export type Fielded = im.Map<Field, FieldSource>;
+
+export interface Assignment {
+  diagnostics: StyleDiagnostics;
+  globals: im.Map<StyleName, Fielded>;
+  unnamed: im.Map<im.List<number>, Fielded>; // indexed by block/subst indices
+  substances: im.Map<SubstanceName, Fielded>;
+}
+
+export interface Locals {
+  locals: im.Map<StyleName, FieldSource>;
+}
+
+export interface BlockAssignment extends Assignment, Locals {}
+
+export interface BlockInfo {
+  block: LocalVarSubst;
+  subst: Subst;
+}
+
+export interface Context extends BlockInfo, Locals {}
 
 export interface ResolvedName {
   tag: "Global" | "Local" | "Substance";
+  block: LocalVarSubst;
   name: string;
 }
 
-export interface ResolvedPath extends SourceRange, ResolvedName {
-  members: Identifier<C>[];
-}
-
-//#endregion
-
-//#region second Style compiler pass: dependency graph
-
-export type DepGraph = Digraph<string, Path<C>>;
+export type ResolvedPath<T> = T &
+  ResolvedName & {
+    members: Identifier<T>[];
+  };
 
 //#endregion
 
 //#region third Style compiler pass: expression compilation
-
-export type StyleSymbols = im.Map<string, Nameable>;
-
-// TODO: come up with a better name
-export interface Translation {
-  diagnostics: StyleDiagnostics;
-  symbols: StyleSymbols;
-  shapes: im.List<ShapeAD>;
-  varying: im.List<ad.Input>;
-  objectives: im.List<ad.Num>;
-  constraints: im.List<ad.Num>;
-  layering: im.List<[string, string]>;
-}
-
-export type Nameable = ArgVal<ad.Num> | Obj | Constr | Layer;
 
 export interface Obj {
   tag: "Obj";
@@ -166,6 +157,20 @@ export interface Layer {
   tag: "Layer";
   below: string;
   above: string;
+}
+
+export type Nameable = ArgVal<ad.Num> | Obj | Constr | Layer;
+
+export type StyleSymbols = im.Map<string, Nameable>;
+
+export interface Translation {
+  diagnostics: StyleDiagnostics;
+  symbols: StyleSymbols;
+  shapes: im.List<ShapeAD>;
+  varying: im.List<ad.Input>;
+  objectives: im.List<ad.Num>;
+  constraints: im.List<ad.Num>;
+  layering: im.List<[string, string]>;
 }
 
 //#endregion

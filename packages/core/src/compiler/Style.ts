@@ -10,7 +10,6 @@ import {
   dummyASTNode,
   dummyIdentifier,
   initConstraintWeight,
-  isPath,
   isTagExpr,
   propertiesNotOf,
   propertiesOf,
@@ -65,7 +64,8 @@ import {
 import {
   Assignment,
   BlockAssignment,
-  DepGraph,
+  BlockInfo,
+  Context,
   Fielded,
   FieldSource,
   LocalVarSubst,
@@ -77,6 +77,7 @@ import {
   StyleSymbols,
   Subst,
   Translation,
+  WithContext,
 } from "types/styleSemantics";
 import {
   ApplyConstructor,
@@ -94,7 +95,6 @@ import {
   FieldExpr,
   GPIMap,
   GPIProps,
-  OptEval,
   PropID,
   ShapeTypeStr,
   StyleOptFn,
@@ -110,7 +110,6 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { Digraph } from "utils/Graph";
 import {
   boolV,
   floatV,
@@ -1457,303 +1456,10 @@ const findSubstsSel = (
 
 //#region first pass
 
-export const buildAssignment = (
-  varEnv: Env,
-  subEnv: SubstanceEnv,
-  styProg: StyProg<C>
-): Assignment => {
-  // insert Substance label string; use dummy AST node location pattern from
-  // `engine/ParserUtil`
-  const range: SourceRange = {
-    start: { line: 1, col: 1 },
-    end: { line: 1, col: 1 },
-  };
-  const assignment: Assignment = {
-    diagnostics: { errors: im.List(), warnings: im.List() },
-    globals: im.Map(),
-    unnamed: im.List(),
-    substances: subEnv.labels.map((label) =>
-      im.Map([
-        [
-          LABEL_FIELD,
-          {
-            ...range,
-            tag: "OtherSource",
-            expr: {
-              ...range,
-              tag: "StringLit",
-              nodeType: "SyntheticStyle",
-              contents: label.value,
-            },
-          },
-        ],
-      ])
-    ),
-  };
-  return styProg.blocks.reduce(
-    (assignment, block) => processBlock(varEnv, subEnv, block, assignment),
-    assignment
-  );
-};
-
-const processBlock = (
-  varEnv: Env,
-  subEnv: SubstanceEnv,
-  hb: HeaderBlock<C>,
-  assignment: Assignment
-): Assignment => {
-  // Run static checks first
-  const selEnv = checkHeader(varEnv, hb.header);
-  const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
-  // OPTIMIZE: maybe we should just compile the block once into something
-  // parametric, and then substitute the Substance variables
-  return substs.reduce(
-    (assignment, subst, index) => {
-      const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
-      // Translate each statement in the block
-      const {
-        diagnostics,
-        globals,
-        unnamed,
-        substances,
-        locals,
-      } = hb.block.statements.reduce(
-        (assignment, stmt) => processStmt(subst, index, stmt, assignment),
-        withLocals
-      );
-      switch (hb.header.tag) {
-        case "Selector": {
-          return {
-            diagnostics,
-            globals,
-            unnamed: unnamed.push(locals),
-            substances,
-          };
-        }
-        case "Namespace": {
-          // TODO: check that `substs` is a singleton list
-          return {
-            diagnostics,
-            globals: globals.set(hb.header.contents.contents.value, locals),
-            unnamed,
-            substances,
-          };
-        }
-      }
-    },
-    addDiags(
-      {
-        errors: im.List(selEnv.errors),
-        warnings: im.List(),
-      },
-      assignment
-    )
-  );
-};
-
-const resolveName = (
-  assignment: BlockAssignment,
-  subst: Subst,
-  name: BindingForm<C>
-): ResolvedName => {
-  const { value } = name.contents;
-  switch (name.tag) {
-    case "StyVar": {
-      if (assignment.locals.has(value)) {
-        // locals shadow selector match names
-        return { tag: "Local", name: value };
-      } else if (value in subst) {
-        // selector match names shadow globals
-        return { tag: "Substance", name: subst[value] };
-      } else if (assignment.globals.has(value)) {
-        return { tag: "Global", name: value };
-      } else {
-        // if undefined, we may be defining for the first time, must be a local
-        return { tag: "Local", name: value };
-      }
-    }
-    case "SubVar": {
-      return { tag: "Substance", name: value };
-    }
-  }
-};
-
-const resolvePath = (
-  assignment: BlockAssignment,
-  subst: Subst,
-  path: Path<C>
-): Result<ResolvedPath, StyleError> => {
-  const { start, end, name, members, indices } = path;
-  return indices.length > 0
-    ? err({ tag: "AssignAccessError", path })
-    : ok({ start, end, ...resolveName(assignment, subst, name), members });
-};
-
-const processStmt = (
-  subst: Subst,
-  index: number,
-  stmt: Stmt<C>,
-  assignment: BlockAssignment
-): BlockAssignment => {
-  switch (stmt.tag) {
-    case "PathAssign": {
-      // TODO: check `stmt.type`
-      const path = resolvePath(assignment, subst, stmt.path);
-      if (path.isErr()) {
-        return addDiags(oneErr(path.error), assignment);
-      }
-      return insertExpr(path.value, stmt.value, assignment);
-    }
-    case "Override": {
-      // resolve just once, not again between deleting and inserting
-      const path = resolvePath(assignment, subst, stmt.path);
-      if (path.isErr()) {
-        return addDiags(oneErr(path.error), assignment);
-      }
-      return insertExpr(
-        path.value,
-        stmt.value,
-        deleteExpr(path.value, assignment)
-      );
-    }
-    case "Delete": {
-      const path = resolvePath(assignment, subst, stmt.contents);
-      if (path.isErr()) {
-        return addDiags(oneErr(path.error), assignment);
-      }
-      return deleteExpr(path.value, assignment);
-    }
-    case "AnonAssign": {
-      const { start } = stmt;
-      // act as if the synthetic name we create is from the beginning of the
-      // anonymous assignment statement
-      const range: SourceRange = { start, end: start };
-      return insertExpr(
-        {
-          ...range,
-          tag: "Local",
-          name: `$${ANON_KEYWORD}_${index}`,
-          members: [],
-        },
-        stmt.contents,
-        assignment
-      );
-    }
-  }
-};
-
-const processExpr = (expr: Expr<C>): Result<FieldSource, StyleError> => {
-  switch (expr.tag) {
-    case "GPIDecl": {
-      const shapeType = expr.shapeName.value;
-      if (!isShapeType(shapeType)) {
-        return err({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
-      }
-      return ok({
-        tag: "ShapeSource",
-        shapeType,
-        props: im.Map(
-          // TODO: error on duplicate property name
-          expr.properties.map(({ name, value }) => [name.value, value])
-        ),
-      });
-    }
-    case "BinOp":
-    case "BoolLit":
-    case "CompApp":
-    case "ConstrFn":
-    case "Fix":
-    case "Layering":
-    case "List":
-    case "Matrix":
-    case "ObjFn":
-    case "Path":
-    case "StringLit":
-    case "Tuple":
-    case "UOp":
-    case "Vary":
-    case "Vector": {
-      return ok({ tag: "OtherSource", expr });
-    }
-  }
-};
-
-const insertExpr = (
-  path: ResolvedPath,
-  expr: Expr<C>,
-  assignment: BlockAssignment
-): BlockAssignment =>
-  updateExpr(path, assignment, "Assign", (field, prop, fielded) => {
-    const warns: StyleWarning[] = [];
-    if (prop === undefined) {
-      const source = processExpr(expr);
-      if (source.isErr()) {
-        return err(source.error);
-      }
-      if (fielded.has(field)) {
-        warns.push({ tag: "ImplicitOverrideWarning", path });
-      }
-      return ok({ dict: fielded.set(field, source.value), warns });
-    } else {
-      if (expr.tag === "GPIDecl") {
-        return err({ tag: "NestedShapeError", path, expr });
-      }
-      const shape = fielded.get(field);
-      if (shape === undefined) {
-        return err({ tag: "MissingShapeError", path });
-      }
-      if (shape.tag !== "ShapeSource") {
-        return err({ tag: "NotShapeError", path });
-      }
-      if (shape.props.has(prop)) {
-        warns.push({ tag: "ImplicitOverrideWarning", path });
-      }
-      return ok({
-        dict: fielded.set(field, {
-          ...shape,
-          props: shape.props.set(prop, expr),
-        }),
-        warns,
-      });
-    }
-  });
-
-const deleteExpr = (
-  path: ResolvedPath,
-  assignment: BlockAssignment
-): BlockAssignment =>
-  updateExpr(path, assignment, "Delete", (field, prop, fielded) => {
-    const warns: StyleWarning[] = [];
-    if (prop === undefined) {
-      if (!fielded.has(field)) {
-        warns.push({ tag: "NoopDeleteWarning", path });
-      }
-      return ok({ dict: fielded.remove(field), warns });
-    } else {
-      const shape = fielded.get(field);
-      if (shape === undefined) {
-        return err({ tag: "MissingShapeError", path });
-      }
-      if (shape.tag !== "ShapeSource") {
-        return err({ tag: "NotShapeError", path });
-      }
-      if (!shape.props.has(prop)) {
-        warns.push({ tag: "NoopDeleteWarning", path });
-      }
-      return ok({
-        dict: fielded.set(field, {
-          ...shape,
-          props: shape.props.remove(prop),
-        }),
-        warns,
-      });
-    }
-  });
-
 type FieldedRes = Result<{ dict: Fielded; warns: StyleWarning[] }, StyleError>;
 
 const updateExpr = (
-  path: ResolvedPath,
+  path: ResolvedPath<C>,
   assignment: BlockAssignment,
   errTagPrefix: "Assign" | "Delete",
   f: (field: Field, prop: PropID | undefined, fielded: Fielded) => FieldedRes
@@ -1811,13 +1517,456 @@ const updateExpr = (
   }
 };
 
+const processExpr = (
+  context: Context,
+  expr: Expr<C>
+): Result<FieldSource, StyleError> => {
+  switch (expr.tag) {
+    case "GPIDecl": {
+      const shapeType = expr.shapeName.value;
+      if (!isShapeType(shapeType)) {
+        return err({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
+      }
+      return ok({
+        tag: "ShapeSource",
+        shapeType,
+        props: im.Map(
+          // TODO: error on duplicate property name
+          expr.properties.map(({ name, value }) => [
+            name.value,
+            { context, expr: value },
+          ])
+        ),
+      });
+    }
+    case "BinOp":
+    case "BoolLit":
+    case "CompApp":
+    case "ConstrFn":
+    case "Fix":
+    case "Layering":
+    case "List":
+    case "Matrix":
+    case "ObjFn":
+    case "Path":
+    case "StringLit":
+    case "Tuple":
+    case "UOp":
+    case "Vary":
+    case "Vector": {
+      return ok({ tag: "OtherSource", expr: { context, expr } });
+    }
+  }
+};
+
+const insertExpr = (
+  block: BlockInfo,
+  path: ResolvedPath<C>,
+  expr: Expr<C>,
+  assignment: BlockAssignment
+): BlockAssignment =>
+  updateExpr(path, assignment, "Assign", (field, prop, fielded) => {
+    const warns: StyleWarning[] = [];
+    if (prop === undefined) {
+      const source = processExpr({ ...block, locals: assignment.locals }, expr);
+      if (source.isErr()) {
+        return err(source.error);
+      }
+      if (fielded.has(field)) {
+        warns.push({ tag: "ImplicitOverrideWarning", path });
+      }
+      return ok({ dict: fielded.set(field, source.value), warns });
+    } else {
+      if (expr.tag === "GPIDecl") {
+        return err({ tag: "NestedShapeError", path, expr });
+      }
+      const shape = fielded.get(field);
+      if (shape === undefined) {
+        return err({ tag: "MissingShapeError", path });
+      }
+      if (shape.tag !== "ShapeSource") {
+        return err({ tag: "NotShapeError", path });
+      }
+      if (shape.props.has(prop)) {
+        warns.push({ tag: "ImplicitOverrideWarning", path });
+      }
+      return ok({
+        dict: fielded.set(field, {
+          ...shape,
+          props: shape.props.set(prop, {
+            context: { ...block, locals: assignment.locals },
+            expr,
+          }),
+        }),
+        warns,
+      });
+    }
+  });
+
+const deleteExpr = (
+  path: ResolvedPath<C>,
+  assignment: BlockAssignment
+): BlockAssignment =>
+  updateExpr(path, assignment, "Delete", (field, prop, fielded) => {
+    const warns: StyleWarning[] = [];
+    if (prop === undefined) {
+      if (!fielded.has(field)) {
+        warns.push({ tag: "NoopDeleteWarning", path });
+      }
+      return ok({ dict: fielded.remove(field), warns });
+    } else {
+      const shape = fielded.get(field);
+      if (shape === undefined) {
+        return err({ tag: "MissingShapeError", path });
+      }
+      if (shape.tag !== "ShapeSource") {
+        return err({ tag: "NotShapeError", path });
+      }
+      if (!shape.props.has(prop)) {
+        warns.push({ tag: "NoopDeleteWarning", path });
+      }
+      return ok({
+        dict: fielded.set(field, {
+          ...shape,
+          props: shape.props.remove(prop),
+        }),
+        warns,
+      });
+    }
+  });
+
+const resolveLhsName = (
+  { block, subst }: BlockInfo,
+  assignment: BlockAssignment,
+  name: BindingForm<C>
+): ResolvedName => {
+  const { value } = name.contents;
+  switch (name.tag) {
+    case "StyVar": {
+      if (assignment.locals.has(value)) {
+        // locals shadow selector match names
+        return { tag: "Local", block, name: value };
+      } else if (value in subst) {
+        // selector match names shadow globals
+        return { tag: "Substance", block, name: subst[value] };
+      } else if (assignment.globals.has(value)) {
+        return { tag: "Global", block, name: value };
+      } else {
+        // if undefined, we may be defining for the first time, must be a local
+        return { tag: "Local", block, name: value };
+      }
+    }
+    case "SubVar": {
+      return { tag: "Substance", block, name: value };
+    }
+  }
+};
+
+const resolveLhsPath = (
+  block: BlockInfo,
+  assignment: BlockAssignment,
+  path: Path<C>
+): Result<ResolvedPath<C>, StyleError> => {
+  const { start, end, name, members, indices } = path;
+  return indices.length > 0
+    ? err({ tag: "AssignAccessError", path })
+    : ok({ start, end, ...resolveLhsName(block, assignment, name), members });
+};
+
+const processStmt = (
+  block: BlockInfo,
+  index: number,
+  stmt: Stmt<C>,
+  assignment: BlockAssignment
+): BlockAssignment => {
+  switch (stmt.tag) {
+    case "PathAssign": {
+      // TODO: check `stmt.type`
+      const path = resolveLhsPath(block, assignment, stmt.path);
+      if (path.isErr()) {
+        return addDiags(oneErr(path.error), assignment);
+      }
+      return insertExpr(block, path.value, stmt.value, assignment);
+    }
+    case "Override": {
+      // resolve just once, not again between deleting and inserting
+      const path = resolveLhsPath(block, assignment, stmt.path);
+      if (path.isErr()) {
+        return addDiags(oneErr(path.error), assignment);
+      }
+      return insertExpr(
+        block,
+        path.value,
+        stmt.value,
+        deleteExpr(path.value, assignment)
+      );
+    }
+    case "Delete": {
+      const path = resolveLhsPath(block, assignment, stmt.contents);
+      if (path.isErr()) {
+        return addDiags(oneErr(path.error), assignment);
+      }
+      return deleteExpr(path.value, assignment);
+    }
+    case "AnonAssign": {
+      const { start } = stmt;
+      // act as if the synthetic name we create is from the beginning of the
+      // anonymous assignment statement
+      const range: SourceRange = { start, end: start };
+      return insertExpr(
+        block,
+        {
+          ...range,
+          tag: "Local",
+          block: block.block,
+          name: `$${ANON_KEYWORD}_${index}`,
+          members: [],
+        },
+        stmt.contents,
+        assignment
+      );
+    }
+  }
+};
+
+const blockId = (
+  blockIndex: number,
+  substIndex: number,
+  header: Header<A>
+): LocalVarSubst => {
+  switch (header.tag) {
+    case "Selector": {
+      return { tag: "LocalVarId", contents: [blockIndex, substIndex] };
+    }
+    case "Namespace": {
+      return { tag: "NamespaceId", contents: header.contents.contents.value };
+    }
+  }
+};
+
+const processBlock = (
+  varEnv: Env,
+  subEnv: SubstanceEnv,
+  blockIndex: number,
+  hb: HeaderBlock<C>,
+  assignment: Assignment
+): Assignment => {
+  // Run static checks first
+  const selEnv = checkHeader(varEnv, hb.header);
+  const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
+  // OPTIMIZE: maybe we should just compile the block once into something
+  // parametric, and then substitute the Substance variables
+  return substs.reduce(
+    (assignment, subst, index) => {
+      const block = blockId(blockIndex, index, hb.header);
+      const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
+      // Translate each statement in the block
+      const {
+        diagnostics,
+        globals,
+        unnamed,
+        substances,
+        locals,
+      } = hb.block.statements.reduce(
+        (assignment, stmt) =>
+          processStmt({ block, subst }, index, stmt, assignment),
+        withLocals
+      );
+      switch (block.tag) {
+        case "LocalVarId": {
+          return {
+            diagnostics,
+            globals,
+            unnamed: unnamed.set(im.List(block.contents), locals),
+            substances,
+          };
+        }
+        case "NamespaceId": {
+          // TODO: check that `substs` is a singleton list
+          return {
+            diagnostics,
+            globals: globals.set(block.contents, locals),
+            unnamed,
+            substances,
+          };
+        }
+      }
+    },
+    addDiags(
+      {
+        errors: im.List(selEnv.errors),
+        warnings: im.List(),
+      },
+      assignment
+    )
+  );
+};
+
+export const buildAssignment = (
+  varEnv: Env,
+  subEnv: SubstanceEnv,
+  styProg: StyProg<C>
+): Assignment => {
+  // insert Substance label string; use dummy AST node location pattern from
+  // `engine/ParserUtil`
+  const range: SourceRange = {
+    start: { line: 1, col: 1 },
+    end: { line: 1, col: 1 },
+  };
+  const assignment: Assignment = {
+    diagnostics: { errors: im.List(), warnings: im.List() },
+    globals: im.Map(),
+    unnamed: im.Map(),
+    substances: subEnv.labels.map((label) =>
+      im.Map([
+        [
+          LABEL_FIELD,
+          {
+            ...range,
+            tag: "OtherSource",
+            expr: {
+              context: {
+                block: { tag: "NamespaceId", contents: "" }, // HACK
+                subst: {},
+                locals: im.Map(),
+              },
+              expr: {
+                ...range,
+                tag: "StringLit",
+                nodeType: "SyntheticStyle",
+                contents: label.value,
+              },
+            },
+          },
+        ],
+      ])
+    ),
+  };
+  return styProg.blocks.reduce(
+    (assignment, block, index) =>
+      processBlock(varEnv, subEnv, index, block, assignment),
+    assignment
+  );
+};
+
 //#endregion
 
 //#region second pass
 
-// TODO
-const gatherDependencies = (assignment: Assignment): DepGraph => {
-  const graph = new Digraph<string, Path<C>>();
+const resolveRhsName = (
+  { block, subst, locals }: Context,
+  name: BindingForm<C>
+): ResolvedName => {
+  const { value } = name.contents;
+  switch (name.tag) {
+    case "StyVar": {
+      if (locals.has(value)) {
+        // locals shadow selector match names
+        return { tag: "Local", block, name: value };
+      } else if (value in subst) {
+        // selector match names shadow globals
+        return { tag: "Substance", block, name: subst[value] };
+      } else {
+        // couldn't find it in context, must be a glboal
+        return { tag: "Global", block, name: value };
+      }
+    }
+    case "SubVar": {
+      return { tag: "Substance", block, name: value };
+    }
+  }
+};
+
+const resolveRhsPath = (p: WithContext<Path<C>>): ResolvedPath<C> => {
+  const { start, end, name, members } = p.expr; // drop `indices`
+  return { start, end, ...resolveRhsName(p.context, name), members };
+};
+
+const blockPrefix = ({ tag, contents }: LocalVarSubst): string => {
+  switch (tag) {
+    case "LocalVarId": {
+      const [i, j] = contents;
+      return `${i}:${j}:`;
+    }
+    case "NamespaceId": {
+      // locals in a global block point to globals
+      return `${contents}.`;
+    }
+  }
+};
+
+const prettyPrintResolvedName = ({
+  tag,
+  block,
+  name,
+}: ResolvedName): string => {
+  switch (tag) {
+    case "Global": {
+      return name;
+    }
+    case "Local": {
+      return `${blockPrefix(block)}${name}`;
+    }
+    case "Substance": {
+      return `\`${name}\``;
+    }
+  }
+};
+
+const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
+  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
+
+const makeExprEdges = (v: string, expr: WithContext<Expr<C>>): Edge[] =>
+  findPathsWithContext(expr).map((p) => ({
+    v,
+    w: prettyPrintResolvedPath(resolveRhsPath(p)),
+  }));
+
+const makeEdges = (lhs: string, rhs: FieldSource): Edge[] => {
+  switch (rhs.tag) {
+    case "ShapeSource": {
+      return [...rhs.props.entries()].flatMap(([k, expr]) =>
+        makeExprEdges(`${lhs}.${k}`, expr)
+      );
+    }
+    case "OtherSource": {
+      return makeExprEdges(lhs, rhs.expr);
+    }
+  }
+};
+
+const gatherDependencies = (assignment: Assignment): Graph => {
+  const edges = [];
+
+  for (const [blockName, fields] of assignment.globals) {
+    for (const [fieldName, field] of fields) {
+      edges.push(...makeEdges(`${blockName}.${fieldName}`, field));
+    }
+  }
+
+  for (const [indices, fields] of assignment.unnamed) {
+    for (const [fieldName, field] of fields) {
+      const [blockIndex, substIndex] = indices;
+      const p: ResolvedPath<A> = {
+        tag: "Local",
+        name: fieldName,
+        block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
+        members: [],
+      };
+      edges.push(...makeEdges(prettyPrintResolvedPath(p), field));
+    }
+  }
+
+  for (const [substanceName, fields] of assignment.substances) {
+    for (const [fieldName, field] of fields) {
+      edges.push(...makeEdges(`\`${substanceName}\`.${fieldName}`, field));
+    }
+  }
+
+  const graph = new Graph();
+  for (const e of edges) {
+    graph.setEdge(e);
+  }
   return graph;
 };
 
@@ -1827,7 +1976,7 @@ const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 export const translateAssignment = (
   assignment: Assignment,
-  graph: DepGraph
+  graph: Graph
 ): Translation => {
   // TODO
   return {
@@ -2928,47 +3077,47 @@ const isStyErr = (res: TagExpr<ad.Num> | FGPI<ad.Num> | StyleError): boolean =>
 
 const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
   // TODO: Factor the expression-folding pattern out from here and `checkBlockExpr`
-  if (isPath(expr)) {
-    return [expr];
-  } else {
-    switch (expr.tag) {
-      case "CompApp":
-      case "ObjFn":
-      case "ConstrFn": {
-        return _.flatMap(expr.args, findPathsExpr);
-      }
-      case "BinOp": {
-        return _.flatMap([expr.left, expr.right], findPathsExpr);
-      }
-      case "UOp": {
-        return findPathsExpr(expr.arg);
-      }
-      case "List":
-      case "Vector":
-      case "Matrix": {
-        return _.flatMap(expr.contents, findPathsExpr);
-      }
-      case "GPIDecl": {
-        return _.flatMap(
-          expr.properties.map((p) => p.value),
-          findPathsExpr
-        );
-      }
-      case "Layering": {
-        return [expr.below, expr.above];
-      }
-      case "Tuple": {
-        return _.flatMap([expr.contents[0], expr.contents[1]], findPathsExpr);
-      }
-      case "Fix":
-      case "Vary":
-      case "StringLit":
-      case "BoolLit": {
-        return [];
-      }
+  switch (expr.tag) {
+    case "BinOp": {
+      return [expr.left, expr.right].flatMap(findPathsExpr);
+    }
+    case "BoolLit":
+    case "Fix":
+    case "StringLit":
+    case "Vary": {
+      return [];
+    }
+    case "CompApp":
+    case "ConstrFn":
+    case "ObjFn": {
+      return expr.args.flatMap(findPathsExpr);
+    }
+    case "GPIDecl": {
+      return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
+    }
+    case "Layering": {
+      return [expr.below, expr.above];
+    }
+    case "List":
+    case "Matrix":
+    case "Tuple":
+    case "Vector": {
+      return expr.contents.flatMap(findPathsExpr);
+    }
+    case "Path": {
+      return [expr];
+    }
+    case "UOp": {
+      return findPathsExpr(expr.arg);
     }
   }
 };
+
+const findPathsWithContext = <T>({
+  context,
+  expr,
+}: WithContext<Expr<T>>): WithContext<Path<T>>[] =>
+  findPathsExpr(expr).map((p) => ({ context, expr: p }));
 
 // Find all paths given explicitly anywhere in an expression in the translation.
 // (e.g. `x.shape above y.shape` <-- return [`x.shape`, `y.shape`])

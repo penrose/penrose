@@ -73,7 +73,6 @@ export type RelPred<T> = ASTNode<T> & {
 
 export type PredArg<T> = SEBind<T> | RelPred<T>;
 
-// NOTE: the original type is unnecessarily nested and contain type constructor, which is deprecated.
 export type StyT<T> = Identifier<T>;
 
 export type STTypeVar<T> = ASTNode<T> & {
@@ -282,7 +281,6 @@ export type GPIDecl<T> = ASTNode<T> & {
   properties: PropertyDecl<T>[];
 };
 
-// TODO: limit `below` and `above` to `FieldPath`
 export type Layering<T> = ASTNode<T> & {
   tag: "Layering";
   below: Path<T>;
