@@ -96,6 +96,12 @@
       "style": "non-convex",
       "domain": "non-convex",
       "variation": ""
+    },
+    {
+      "substance": "lagrange-bases",
+      "style": "lagrange-bases",
+      "domain": "lagrange-bases",
+      "variation": "TimberwolfSquirrel25242"
     }
   ],
   "domains": {
@@ -126,6 +132,10 @@
     "non-convex": {
       "name": "Non-convex Shape",
       "URI": "minkowski-tests/maze/maze.dsl"
+    },
+    "lagrange-bases": {
+      "name": "Lagrange Bases",
+      "URI": "lagrange-bases/lagrange-bases.dsl"
     }
   },
   "styles": {
@@ -193,6 +203,11 @@
       "domain": "non-convex",
       "name": "Non-convex Shape",
       "URI": "minkowski-tests/maze/maze.sty"
+    },
+    "lagrange-bases": {
+      "domain": "lagrange-bases",
+      "name": "Lagrange Bases",
+      "URI": "lagrange-bases/lagrange-bases.sty"
     }
   },
   "substances": {
@@ -260,6 +275,11 @@
       "domain": "non-convex",
       "name": "Non-convex Shape",
       "URI": "minkowski-tests/maze/maze.sub"
+    },
+    "lagrange-bases": {
+      "domain": "lagrange-bases",
+      "name": "Lagrange Bases",
+      "URI": "lagrange-bases/example.sub"
     }
   }
 }
