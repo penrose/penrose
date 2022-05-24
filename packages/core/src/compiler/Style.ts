@@ -1909,6 +1909,9 @@ const evalBinOp = (
   }
 };
 
+const isValidIndex = (a: unknown[], i: number): boolean =>
+  Number.isInteger(i) && 0 <= i && i < a.length;
+
 const evalAccess = (
   expr: Path<C>,
   coll: Value<ad.Num>,
@@ -1922,7 +1925,7 @@ const evalAccess = (
         return err({ tag: "BadIndexError", expr });
       }
       const [i] = indices;
-      if (!(Number.isInteger(i) && i >= 0 && i < coll.contents.length)) {
+      if (!isValidIndex(coll.contents, i)) {
         return err({ tag: "OutOfBoundsError", expr, indices });
       }
       return ok(floatV(coll.contents[i]));
@@ -1934,11 +1937,11 @@ const evalAccess = (
         return err({ tag: "BadIndexError", expr });
       }
       const [i, j] = indices;
-      if (!(Number.isInteger(i) && i >= 0 && i < coll.contents.length)) {
+      if (!isValidIndex(coll.contents, i)) {
         return err({ tag: "OutOfBoundsError", expr, indices });
       }
       const row = coll.contents[i];
-      if (!(Number.isInteger(j) && j >= 0 && j < row.length)) {
+      if (!isValidIndex(row, j)) {
         return err({ tag: "OutOfBoundsError", expr, indices });
       }
       return ok(floatV(row[j]));
