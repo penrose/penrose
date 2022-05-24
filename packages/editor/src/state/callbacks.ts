@@ -1,10 +1,12 @@
 import {
   compileDomain,
   compileTrio,
+  PenroseState,
   prepareState,
   resample,
+  stateConverged,
   stepState,
-  stepUntilConvergence,
+  stepStateSafe,
   Trio,
   variationSeeds,
 } from "@penrose/core";
@@ -34,6 +36,7 @@ const _compileDiagram = async (
   domain: string,
   variation: string,
   autostep: boolean,
+  stepSize: number,
   set: any
 ) => {
   const compiledDomain = compileDomain(domain);
@@ -67,22 +70,37 @@ const _compileDiagram = async (
       state: initialState,
     })
   );
+  _stepDiagram(autostep, stepSize, initialState, set);
+};
+
+export const _stepDiagram = async (
+  autostep: boolean,
+  stepSize: number,
+  initialState: PenroseState,
+  set: any
+) => {
   if (autostep) {
     const steppingLoading = toast.loading("Stepping...");
-    const stepResult = stepUntilConvergence(initialState);
-    toast.dismiss(steppingLoading);
-    if (stepResult.isErr()) {
-      set(diagramState, (state: Diagram) => ({
-        ...state,
-        error: stepResult.error,
-      }));
-      return;
+    let currentState = initialState;
+    while (!stateConverged(currentState)) {
+      const stepResult = stepStateSafe(currentState, stepSize);
+      if (stepResult.isErr()) {
+        set(diagramState, (state: Diagram) => ({
+          ...state,
+          error: stepResult.error,
+        }));
+        return;
+      } else {
+        await new Promise((r) => setTimeout(r, 1));
+        set(diagramState, (state: Diagram) => ({
+          ...state,
+          error: null,
+          state: stepResult.value,
+        }));
+        currentState = stepResult.value;
+      }
     }
-    set(diagramState, (state: Diagram) => ({
-      ...state,
-      error: null,
-      state: stepResult.value,
-    }));
+    toast.dismiss(steppingLoading);
   }
 };
 
@@ -114,6 +132,7 @@ export const useCompileDiagram = () =>
       domainFile,
       diagram.metadata.variation,
       diagram.metadata.autostep,
+      diagram.metadata.stepSize,
       set
     );
   });
@@ -136,23 +155,8 @@ export const useResampleDiagram = () =>
       state: resampled,
     }));
     toast.dismiss(resamplingLoading);
-    if (diagram.metadata.autostep) {
-      const steppingLoading = toast.loading("Stepping...");
-      const stepResult = stepUntilConvergence(resampled);
-      toast.dismiss(steppingLoading);
-      if (stepResult.isErr()) {
-        set(diagramState, (state: Diagram) => ({
-          ...state,
-          error: stepResult.error,
-        }));
-        return;
-      }
-      set(diagramState, (state: Diagram) => ({
-        ...state,
-        error: null,
-        state: stepResult.value,
-      }));
-    }
+    const { autostep, stepSize } = diagram.metadata;
+    _stepDiagram(autostep, stepSize, resampled, set);
   });
 
 const _saveLocally = (set: any) => {
@@ -204,6 +208,7 @@ export const useLoadLocalWorkspace = () =>
       loadedWorkspace.files.domain.contents,
       uuid(),
       true,
+      10000, // COMBAK: figure out the right default
       set
     );
   });
@@ -250,7 +255,15 @@ export const useLoadExampleWorkspace = () =>
       },
     });
     reset(diagramState);
-    await _compileDiagram(substance, style, domain, trio.variation, true, set);
+    await _compileDiagram(
+      substance,
+      style,
+      domain,
+      trio.variation,
+      true,
+      10000, // COMBAK: figure out the right default
+      set
+    );
   });
 
 export const useCheckURL = () =>

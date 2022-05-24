@@ -28,34 +28,31 @@ export default function DiagramOptions() {
       </label>
       <div>
         <BlueButton
-          onClick={() =>
+          onClick={() => {
             setDiagramMetadata((metadata) => ({
               ...metadata,
               autostep: !metadata.autostep,
-            }))
-          }
+            }));
+          }}
         >
           autostep ({diagramMetadata.autostep ? "on" : "off"})
         </BlueButton>
-        {!diagramMetadata.autostep && (
-          <div>
-            <BlueButton onClick={stepDiagram}>step</BlueButton>
-            <label>
-              step size:{" "}
-              <input
-                type="number"
-                value={diagramMetadata.stepSize}
-                onChange={(e) =>
-                  setDiagramMetadata((metadata) => ({
-                    ...metadata,
-                    stepSize: parseInt(e.target.value, 10),
-                  }))
-                }
-                onBlur={compileDiagram}
-              />
-            </label>
-          </div>
-        )}
+        <div>
+          <BlueButton onClick={stepDiagram}>step</BlueButton>
+          <label>
+            step size:{" "}
+            <input
+              type="number"
+              value={diagramMetadata.stepSize}
+              onChange={(e) =>
+                setDiagramMetadata((metadata) => ({
+                  ...metadata,
+                  stepSize: parseInt(e.target.value, 10),
+                }))
+              }
+            />
+          </label>
+        </div>
       </div>
     </div>
   );
