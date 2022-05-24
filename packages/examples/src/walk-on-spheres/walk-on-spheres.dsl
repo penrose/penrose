@@ -1,5 +1,6 @@
+type Domain -- a region in ℝⁿ
 type Step -- a step in a walk
-type Sample
+type Sample -- a sample point used for an estimator
 
 -- x1 := sampleBoundary(x0) takes a step in the walk by sampling the boundary
 constructor sampleBoundary( Step x0 ) -> Step x1

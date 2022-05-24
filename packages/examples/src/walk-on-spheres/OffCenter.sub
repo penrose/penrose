@@ -1,8 +1,10 @@
--- variation: ArmorOryx5711
+-- variation: CivaraPanther034
 
 -- Describe a short walk used to estimate the solution to
 -- a basic Laplace equation Δu = 0, using off-centered
 -- rather than on-centered steps.
+
+Domain U
 
 Step x0, x1, x2, x3, x4
 
@@ -18,6 +20,7 @@ offCenter( x3 )
 offCenter( x4 )
 
 AutoLabel All
+Label U "Ω"
 Label x3 "…"
 Label x4 "xk"
 

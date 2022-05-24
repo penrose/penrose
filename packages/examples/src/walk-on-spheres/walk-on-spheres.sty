@@ -12,27 +12,19 @@ Colors {
    color lightGray = rgba(.9,.9,.9,1)
 }
 
+-- global shapes and constants
 Global {
    -- default appearance for label text
    string labelFont = "Palatino"
    string labelSize = "12px"
    color labelColor = Colors.black
 
-   vec2 p0 = (?,?)
-   vec2 p1 = (?,?)
-   vec2 p2 = (?,?)
-   vec2 p3 = (?,?)
-   vec2 p4 = (?,?)
-   vec2 p5 = (?,?)
+   -- line thickness for basic shapes
+   scalar sphereStrokeWidth = 1.5
+   scalar domainStrokeWidth = 2
 
-   scalar maxPerturbation = 30.
-   ensure lessThan( norm(p0), maxPerturbation )
-   ensure lessThan( norm(p1), maxPerturbation )
-   ensure lessThan( norm(p2), maxPerturbation )
-   ensure lessThan( norm(p3), maxPerturbation )
-   ensure lessThan( norm(p4), maxPerturbation )
-   ensure lessThan( norm(p5), maxPerturbation )
 
+   -- invisible box around the canvas (used for reference/constraints)
    shape box = Rectangle {
       center: (0,0)
       width: canvas.width
@@ -41,99 +33,158 @@ Global {
       stroke: none()
    }
 
+   -- draw the domain as a polygon with some random variation, by
+   -- perturbing the vertices of a hexagon by some bounded amount
+   -- Note: if the domain shape is changed to something else (like
+   -- an ellipse or a rectangle), things _should_ still work as
+   -- expected, since later methods just make a call to `signedDistance`
+   -- to determine ball radii.  However, signed distance may not yet
+   -- be supported for all shapes (like arbitrary Bézier curves).
+   vec2 p0 = (?,?)
+   vec2 p1 = (?,?)
+   vec2 p2 = (?,?)
+   vec2 p3 = (?,?)
+   vec2 p4 = (?,?)
+   vec2 p5 = (?,?)
+   scalar maxPerturbation = 30.
+   ensure lessThan( norm(p0), maxPerturbation )
+   ensure lessThan( norm(p1), maxPerturbation )
+   ensure lessThan( norm(p2), maxPerturbation )
+   ensure lessThan( norm(p3), maxPerturbation )
+   ensure lessThan( norm(p4), maxPerturbation )
+   ensure lessThan( norm(p5), maxPerturbation )
    shape domain = Polygon {
       points: ( (150,-110)+p0, (0,-110)+p1, (-150,-110)+p2, (-150,110)+p3, (0,110)+p4, (150,110)+p5)
-      --points: ((-117.1,17.2), (-120,2.4), (-119.1,-12.6), (-114.9,-27.3), (-107.8,-41.4), (-98.5,-54.5), (-87.4,-66), (-75.1,-75.7), (-62.1,-83.1), (-37.8,-90), (-13.9,-89.6), (9,-83.8), (29.9,-74.4), (48.3,-63.3), (63.2,-52.2), (73.8,-43.1), (79.5,-37.7), (86.4,-30.9), (94,-23), (101.5,-14.1), (108.5,-4.3), (114.4,6.4), (118.4,17.8), (120,29.8), (118.6,42.3), (115.3,51.8), (110.4,60.8), (104.1,68.9), (96.7,76.1), (88.5,81.9), (79.8,86.2), (70.8,88.7), (61.9,89.1), (53.1,87), (45.9,82.9), (39.6,77.4), (27.5,64.6), (20.6,58.6), (12.3,53.9), (2,51), (-6.2,50.5), (-13.3,51.6), (-19.7,53.8), (-31.9,59.3), (-38.6,61.8), (-46.2,63.3), (-55.3,63.5), (-64.9,62), (-74.4,59.1), (-83.7,54.8), (-92.4,49.2), (-100.4,42.6), (-107.3,34.9), (-112.9,26.4))
       fillColor: Colors.lightGray
       strokeColor: Colors.darkGray
-      strokeWidth: 2.
+      strokeWidth: Global.domainStrokeWidth
       ensureOnCanvas: false
-      cornerRadius: 10.
    }
+   ensure contains( Global.box, Global.domain ) -- make sure the domain shape stays on the canvas
+   layer box below domain
+}
 
-   ensure contains( Global.box, Global.domain )
-
-   shape domainName = Text {
-      string: "Ω"
+-- label the domain if it was assigned a label in the Substance program
+forall Domain U
+where U has label {
+   shape U.labelText = Text {
+      string: U.label
       center: (?,?)
       fontSize: Global.labelSize
       fontFamily: Global.labelFont
       fillColor: Colors.darkGray
    }
+   ensure lessThan( signedDistance( Global.domain, U.labelText.center ), -10. )
 
-   layer domainName above domain
-   layer box below domain
-
-   ensure lessThan( signedDistance( domain, Global.domainName.center ), -10. )
-
-   baseWidth = 1.5
+   layer U.labelText above Global.domain -- make sure the label doesn't get covered by the domain shape
 }
 
+-- draw each step of a walk as a ball tangent to the domain boundary
 forall Step s {
-   shape s.boundary = Circle {
+
+   -- The `ball` shape is a flat-shaded semi-transparent
+   -- disk that determines the color of the ball; its center
+   -- and radius are used as a reference for all other shapes
+   -- related to this ball.  Note that we don't need to
+   -- explicitly enforce that the ball remains on the canvas,
+   -- since the domain shape already has an onCanvas constraint,
+   -- and the balls are always contained in the domain shape, by
+   -- construction.
+   shape s.ball = Circle {
       center: (?,?)
-      r: 1.
-      fillColor: none()
-      strokeColor: Colors.black
-      strokeWidth: Global.baseWidth
+      fillColor: rgba( .2, .8, .2, .15 )
+      strokeColor: none()
       ensureOnCanvas: false
    }
 
+   -- Make sure that the ball center is inside the problem domain.
+   scalar R = signedDistance( Global.domain, s.ball.center )
+   ensure lessThan( R, 0. )
+
+   -- Also set the ball radius equal to the distance from the
+   -- ball center to the closest point on the domain boundary
+   -- (just as in the WoS algorithm!).  We also subtract half
+   -- the stroke widths,
+   s.ball.r = -R - Global.sphereStrokeWidth/2 - Global.domainStrokeWidth/2.
+
+   -- The `sphere` shape represents the boundary of the ball,
+   -- and is drawn as an empty circle with a thick line.
+   shape s.sphere = Circle {
+      center: s.ball.center
+      r: s.ball.r
+      fillColor: none()
+      strokeColor: rgba( .4, .5, .4, 1 )
+      strokeWidth: Global.sphereStrokeWidth
+      ensureOnCanvas: false
+   }
+
+   -- The `dot` shape represents the sample point associated
+   -- with the ball.  Ordinarily this point will be at the
+   -- center of the ball, but in general it could be at a
+   -- different location (e.g., for an off-center walk).
    shape s.dot = Circle {
-      center: s.boundary.center
+      center: s.ball.center
       r: 2.5
       fillColor: Colors.black
       ensureOnCanvas: false
    }
 
-   vec2 c = s.boundary.center
-   scalar w = canvas.width
-   scalar h = canvas.height
-   --scalar R = min( min( min( w/2-c[0], c[0]+w/2. ), h/2-c[1] ), c[1]+h/2. )
-   scalar R = -signedDistance( Global.domain, c )
-   override s.boundary.r = R - Global.baseWidth/2.
-
-   ensure inRange( c[0], -w/2, w/2 )
-   ensure inRange( c[1], -h/2, h/2 )
-
+   -- To give the balls a three-dimensional appearance, blend
+   -- a shading image behind the flat colored disk.
    shape s.shading = Image {
-      center: s.boundary.center 
-      width: s.boundary.r * 2.0
-      height: s.boundary.r * 2.0
+      center: s.ball.center 
+      width: s.ball.r * 2.0
+      height: s.ball.r * 2.0
       href: "ball.svg"
       ensureOnCanvas: false
    }
 
-   shape s.ball = Circle {
-      center: s.boundary.center
-      r: s.boundary.r
-      fillColor: rgba( .2, .8, .2, .15 )
-      strokeColor: none()
-   }
-
-   layer s.boundary above Global.domain
-   layer s.dot above Global.domain
+   -- Make sure all components of the ball get drawn in the
+   -- proper order, and are not covered up by the domain shape.
    layer s.shading above Global.domain
-   layer s.shading below s.boundary
    layer s.ball above s.shading
-   layer s.boundary above s.ball
+   layer s.sphere above s.ball
+   layer s.dot above s.ball
 
+   -- This constant will be used to determine how much balls
+   -- shrink from one step of the walk to the next.  We define
+   -- it here so that specialized types of balls (say, those
+   -- coming from a nested walk) can use a different factor.
    scalar s.shrinkFactor = .55
 }
 
-forall Step s
-where offCenter(s) {
-   override s.dot.center = (?,?)
-
-   ensure lessThan( norm(s.dot.center-s.boundary.center), .75*s.boundary.r )
+-- Make sure the domain's label isn't covered up by a ball.
+forall Step x; Domain U
+where U has label {
+   ensure disjoint( U.labelText, x.sphere, 10. )
 }
 
+
+-- For a step of an off-centered walk, we want to clearly
+-- indicate that the sample point may not be at the ball center.
+forall Step s
+where offCenter(s) {
+
+   -- We can no longer just copy the dot center from the ball center,
+   -- but will instead let the layout engine figure out its location.
+   override s.dot.center = (?,?)
+
+   -- Still keep the center within the middle 75% of the ball, since
+   -- the dot may be hard to see if it gets too close to the boundary
+   -- (especially for very small balls).
+   ensure lessThan( norm(s.dot.center-s.ball.center), .75*s.ball.r )
+}
+
+-- If the step has a label, draw a label string near the sample point.
 forall Step s
 where s has label {
 
+   -- Draw the text as black with a thick white outline, which helps in
+   -- situations where there's no great placement for the label (and it
+   -- overlaps, say, a dark line used to draw the ball boundary).
    shape s.labelText = Text {
       string: s.label
-      center: (?,?)
+      center: (?,?) -- the layout engine will determine the exact placement
       fontSize: Global.labelSize
       fontFamily: Global.labelFont
       fontStyle: "italic"
@@ -144,79 +195,48 @@ where s has label {
       paintOrder: "stroke"
    }
 
+   -- We want the label to be near the dot, but don't want it
+   -- to overlap the dot (which makes it hard to read).
    encourage near( s.labelText, s.dot )
    ensure disjoint( s.labelText, s.dot, 2. )
 
-   layer s.labelText above s.boundary
+   -- Make sure the label doesn't get covered by the ball or
+   -- its boundary by layering it above the topmost shape.
+   layer s.labelText above s.sphere
 }
 
+-- Draw steps that belong to a nested walk in a different style.
 forall Step s
 where nested( s ) {
+   -- Change to a color palette that is more white & opaque.
    override s.ball.fillColor = rgba( 1, 1, 1, .4 )
    override s.dot.fillColor = Colors.white
-   override s.boundary.strokeColor = Colors.white
+   override s.sphere.strokeColor = Colors.white
 
-   override s.shrinkFactor = .45
+   -- Since nested walks are usually secondary in the overall
+   -- diagram, draw them smaller by making them shrink faster.
+   override s.shrinkFactor = .7
 }
 
-forall Sample y; Step x
-where y := sampleSource( x ) {
-
-   shape y.dot = Circle {
-      center: (?,?)
-      r: 2
-      fillColor: Colors.white
-      strokeColor: Colors.black
-      strokeWidth: 1
-   }
-
-   scalar R = norm(y.dot.center-x.boundary.center)
-   scalar r = x.boundary.r
-   ensure inRange( R, .2*r, .8*r )
-}
-
-forall Step y; Step x
-where y := sampleInterior( x ) {
-   scalar R = norm(y.dot.center-x.boundary.center)
-   scalar r = x.boundary.r
-   ensure inRange( R, .2*r, .8*r )
-
-   ensure equal( y.boundary.r, .3 * x.boundary.r )
-}
-
-forall Sample y; Step x
-where y := sampleSource( x ); y has label {
-
-   shape y.labelText = Text {
-      string: y.label
-      center: (?,?)
-      fontSize: Global.labelSize
-      fontFamily: Global.labelFont
-      fontStyle: "italic"
-      fillColor: Global.labelColor
-      strokeColor: Colors.white
-      strokeWidth: 2.5
-      strokeLinejoin: "round"
-      paintOrder: "stroke"
-   }
-
-   encourage near( y.labelText, y.dot )
-   ensure disjoint( y.labelText, y.dot, 2. )
-}
-
-forall Sample y; Step x
-where y has label; y := sampleSource(x) {
-   layer y.labelText above x.boundary
-}
-
-
+-- If a step x1 is sampled from the boundary of another step x0,
+-- draw the sample point on the sphere around x0.
 forall Step x0; Step x1
 where x1 := sampleBoundary(x0) {
-   ensure equal( norm(x1.boundary.center-x0.boundary.center), x0.boundary.r )
-   layer x1.boundary above x0.boundary
 
+   ensure equal( norm(x1.dot.center-x0.ball.center), x0.ball.r )
+
+   -- draw later steps of the walk as smaller
+   -- balls (which will typically, but not always,
+   -- be the behavior of the WoS algorithm)
+   ensure equal( x1.ball.r, x1.shrinkFactor * x0.ball.r )
+
+   -- It's typically easier to see labels, etc., if later, smaller
+   -- balls are drawn on top of earlier, bigger ones.
+   layer x1.shading above x0.sphere
+
+   -- Also draw a line between the sample points, to help
+   -- illustrate the path along the walk.
    color walkColor = rgba( 0, 0, .7, 1 )
-
    shape walkLine = Line {
       start: x0.dot.center
       end: x1.dot.center
@@ -225,24 +245,103 @@ where x1 := sampleBoundary(x0) {
    }
    layer walkLine above Global.domain
 
-   -- draw later steps of the walk as smaller
-   -- balls (which will typically, but not always,
-   -- be the behavior of the WoS algorithm)
-   ensure equal( x1.boundary.r, x1.shrinkFactor * x0.boundary.r )
+   -- Use layering to help clarify the direction of the
+   -- walk, by always drawing the line above x0 and below x1.
+   layer walkLine above x0.shading
+   layer walkLine below x1.shading
 }
 
--- make sure the sample point isn't covered
+-- The next step in a walk might also be sampled from
+-- the ball interior (e.g., to estimate a value expressed
+-- in terms of a source term).
+forall Step y; Step x
+where y := sampleInterior( x ) {
+
+   -- Put the center of the next ball somewhere inside
+   -- the current ball, between 20% and 80% of the
+   -- radial distance from the center.
+   scalar R = norm(y.dot.center-x.ball.center)
+   scalar r = x.ball.r
+   ensure inRange( R, .2*r, .8*r )
+
+   -- Since these samples tend to be the start of a
+   -- secondary, "nested" walk, we'll draw this ball
+   -- much smaller than its parent in the walk.
+   ensure equal( y.ball.r, .1 * x.ball.r )
+
+   -- Make sure the smaller ball gets drawn on top
+   -- of the bigger ball by putting the lowest layer
+   -- of the former above the highest layer of the latter.
+   layer y.shading above x.sphere
+}
+
+-- Draw sample points that are used to estimate the source term
+-- as just dots contained in the ball of interest.  These sample
+-- points are different from steps of a walk, since we never
+-- need to consider a ball around these points (and hence do not
+-- want to draw one).
+forall Sample p; Step x
+where p := sampleSource( x ) {
+
+   shape p.dot = Circle {
+      center: (?,?)
+      r: 2
+      fillColor: Colors.white
+      strokeColor: Colors.black
+      strokeWidth: 1
+   }
+
+   -- Put the sample point somewhere between 20% and
+   -- 80% away from the center, so that it's clearly visible
+   -- and doesn't run into the center point or the boundary.
+   scalar R = norm( p.dot.center - x.ball.center )
+   scalar r = x.ball.r
+   ensure inRange( R, .2*r, .8*r )
+
+   -- Make sure the dot is not covered by the ball.
+   layer p.dot above x.ball
+}
+
+-- Label a sample point if it a label string was specified
+-- in the Substance program.
+forall Sample p
+where p has label {
+
+   shape p.labelText = Text {
+      string: p.label
+      center: (?,?)
+      fontSize: Global.labelSize
+      fontFamily: Global.labelFont
+      fontStyle: "italic"
+      fillColor: Global.labelColor
+      strokeColor: Colors.white
+      strokeWidth: 2.5
+      strokeLinejoin: "round"
+      paintOrder: "stroke"
+   }
+
+   -- Put the label near the dot, but don't allow
+   -- it to cover up the dot (or vice versa).
+   encourage near( p.labelText, p.dot )
+   ensure disjoint( p.labelText, p.dot, 2. )
+}
+
+-- If this sample was drawn from a ball around x,
+-- make sure the sample's label is drawn on top
+-- of that ball.
+forall Sample y; Step x
+where y has label; y := sampleSource(x) {
+   layer y.labelText above x.sphere
+}
+
+-- Also make sure the sample point isn't covered
 -- by the next or previous shading in the walk
 forall Step x0; Step x1; Sample y0
 where x1 := sampleBoundary(x0); y0 := sampleSource(x0) {
-   ensure disjoint( x1.boundary, y0.dot )
+   ensure disjoint( x1.sphere, y0.dot )
 }
 forall Step x0; Step x1; Sample y1
 where x1 := sampleBoundary(x0); y1 := sampleSource(x1) {
-   ensure disjoint( x0.boundary, y1.dot )
-}
-
-forall Step x {
-   ensure disjoint( Global.domainName, x.boundary, 10. )
+   ensure disjoint( x0.sphere, y1.dot )
 }
 

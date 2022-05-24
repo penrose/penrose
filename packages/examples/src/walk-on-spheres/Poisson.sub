@@ -1,9 +1,10 @@
--- variation: LakefrontFox116
+-- variation: SunbathedStingray28254
 
 -- Describe a short walk used to estimate the solution to
 -- a Poisson equation Δu = f, which involves both boundary
 -- samples x and source samples y.
 
+Domain U
 Step x0, x1, x2, x3
 Sample y0, y1, y2, y3
 
@@ -16,6 +17,7 @@ y2 := sampleSource(x2)
 y3 := sampleSource(x3)
 
 AutoLabel All
+Label U "Ω"
 Label x2 "…"
 Label x3 "xk"
 NoLabel y2
