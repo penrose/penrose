@@ -47,6 +47,7 @@ import {
   Header,
   HeaderBlock,
   Layering,
+  List,
   Path,
   PredArg,
   RelationPattern,
@@ -99,6 +100,8 @@ import {
   GPIMap,
   GPIProps,
   IntV,
+  ListV,
+  LListV,
   MatrixV,
   PropID,
   ShapeTypeStr,
@@ -123,6 +126,8 @@ import { Digraph } from "utils/Graph";
 import {
   boolV,
   floatV,
+  listV,
+  llistV,
   matrixV,
   prettyPrintFn,
   prettyPrintPath,
@@ -1986,11 +1991,11 @@ const evalAccess = (
   }
 };
 
-const evalVector = (
-  coll: Vector<C>,
+const eval1D = (
+  coll: List<C> | Vector<C>,
   first: FloatV<ad.Num> | IntV,
   rest: Value<ad.Num>[]
-): Result<VectorV<ad.Num>, StyleDiagnostics> => {
+): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
     if (v.tag === "FloatV" || v.tag === "IntV") {
@@ -1999,14 +2004,21 @@ const evalVector = (
       return err(oneErr({ tag: "BadElementError", coll }));
     }
   }
-  return ok(vectorV(elems));
+  switch (coll.tag) {
+    case "List": {
+      return ok(listV(elems));
+    }
+    case "Vector": {
+      return ok(vectorV(elems));
+    }
+  }
 };
 
-const evalMatrix = (
-  coll: Vector<C>,
+const eval2D = (
+  coll: List<C> | Vector<C>,
   first: VectorV<ad.Num>,
   rest: Value<ad.Num>[]
-): Result<MatrixV<ad.Num>, StyleDiagnostics> => {
+): Result<LListV<ad.Num> | MatrixV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
     if (v.tag === "VectorV") {
@@ -2015,7 +2027,54 @@ const evalMatrix = (
       return err(oneErr({ tag: "BadElementError", coll }));
     }
   }
-  return ok(matrixV(elems));
+  switch (coll.tag) {
+    case "List": {
+      return ok(llistV(elems));
+    }
+    case "Vector": {
+      return ok(matrixV(elems));
+    }
+  }
+};
+
+const evalListOrVector = (
+  context: Context,
+  expr: List<C> | Vector<C>,
+  trans: Translation
+): Result<Value<ad.Num>, StyleDiagnostics> => {
+  return evalVals(context, expr.contents, trans).andThen((vals) => {
+    if (vals.length === 0) {
+      switch (expr.tag) {
+        case "List": {
+          return ok(listV([]));
+        }
+        case "Vector": {
+          return ok(vectorV([]));
+        }
+      }
+    }
+    const [first, ...rest] = vals;
+    switch (first.tag) {
+      case "FloatV":
+      case "IntV": {
+        return eval1D(expr, first, rest);
+      }
+      case "VectorV": {
+        return eval2D(expr, first, rest);
+      }
+      case "BoolV":
+      case "ColorV":
+      case "ListV":
+      case "LListV":
+      case "MatrixV":
+      case "PathDataV":
+      case "PtListV":
+      case "StrV":
+      case "TupV": {
+        return err(oneErr({ tag: "NotCollError", expr }));
+      }
+    }
+  });
 };
 
 const evalExpr = (
@@ -2062,8 +2121,9 @@ const evalExpr = (
     case "Fix": {
       return ok(val(floatV(expr.contents)));
     }
-    case "List": {
-      throw Error("TODO");
+    case "List":
+    case "Vector": {
+      return evalListOrVector(context, expr, trans).map(val);
     }
     case "Path": {
       const path = prettyPrintResolvedPath(resolveRhsPath({ context, expr }));
@@ -2123,34 +2183,6 @@ const evalExpr = (
     }
     case "Vary": {
       return ok(val(floatV(input({ key: 0, val: 0 })))); // COMBAK
-    }
-    case "Vector": {
-      return evalVals(context, expr.contents, trans).andThen((vals) => {
-        if (vals.length === 0) {
-          return ok(val(vectorV([])));
-        }
-        const [first, ...rest] = vals;
-        switch (first.tag) {
-          case "FloatV":
-          case "IntV": {
-            return evalVector(expr, first, rest).map(val);
-          }
-          case "VectorV": {
-            return evalMatrix(expr, first, rest).map(val);
-          }
-          case "BoolV":
-          case "ColorV":
-          case "ListV":
-          case "LListV":
-          case "MatrixV":
-          case "PathDataV":
-          case "PtListV":
-          case "StrV":
-          case "TupV": {
-            return err(oneErr({ tag: "NotCollError", expr }));
-          }
-        }
-      });
     }
   }
 };

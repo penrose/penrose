@@ -15,6 +15,7 @@ import {
   FloatV,
   IntV,
   ListV,
+  LListV,
   MatrixV,
   PathCmd,
   PathDataV,
@@ -453,6 +454,10 @@ export const matrixV = (contents: ad.Num[][]): MatrixV<ad.Num> => ({
 });
 export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
   tag: "TupV",
+  contents,
+});
+export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
+  tag: "LListV",
   contents,
 });
 
