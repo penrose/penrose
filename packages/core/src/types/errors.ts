@@ -156,6 +156,7 @@ export type StyleError =
   | AssignAccessError
   | AssignGlobalError
   | AssignSubstanceError
+  | BadElementError
   | BadIndexError
   | BinOpTypeError
   | DeleteAccessError
@@ -295,6 +296,11 @@ export interface AssignGlobalError {
 export interface AssignSubstanceError {
   tag: "AssignSubstanceError";
   path: ResolvedPath<C>;
+}
+
+export interface BadElementError {
+  tag: "BadElementError";
+  coll: Expr<C>;
 }
 
 export interface BadIndexError {

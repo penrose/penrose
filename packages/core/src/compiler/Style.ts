@@ -58,6 +58,7 @@ import {
   Stmt,
   StyProg,
   StyT,
+  Vector,
 } from "types/style";
 import {
   Assignment,
@@ -97,11 +98,14 @@ import {
   GPI,
   GPIMap,
   GPIProps,
+  IntV,
+  MatrixV,
   PropID,
   ShapeTypeStr,
   StyleOptFn,
   TagExpr,
   Value,
+  VectorV,
 } from "types/value";
 import {
   all,
@@ -119,6 +123,7 @@ import { Digraph } from "utils/Graph";
 import {
   boolV,
   floatV,
+  matrixV,
   prettyPrintFn,
   prettyPrintPath,
   randFloat,
@@ -1741,17 +1746,20 @@ const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 //#region third pass
 
+const evalExprs = (
+  context: Context,
+  args: Expr<C>[],
+  trans: Translation
+): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
+  all(args.map((expr) => evalExpr({ context, expr }, trans))).mapErr(flatErrs);
+
 const argValues = (
   context: Context,
   args: Expr<C>[],
   trans: Translation
-): Result<(GPI<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> => {
-  const res = all(args.map((expr) => evalExpr({ context, expr }, trans)));
-  if (res.isErr()) {
-    return err(flatErrs(res.error));
-  }
-  return ok(
-    res.value.map((arg) => {
+): Result<(GPI<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
+  evalExprs(context, args, trans).map((argVals) =>
+    argVals.map((arg) => {
       switch (arg.tag) {
         case "GPI": // strip the `GPI` tag
           return arg.contents;
@@ -1760,7 +1768,28 @@ const argValues = (
       }
     })
   );
-};
+
+const evalVals = (
+  context: Context,
+  args: Expr<C>[],
+  trans: Translation
+): Result<Value<ad.Num>[], StyleDiagnostics> =>
+  evalExprs(context, args, trans).andThen((argVals) =>
+    all(
+      argVals.map(
+        (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
+          switch (argVal.tag) {
+            case "GPI": {
+              return err(oneErr({ tag: "NotValueError", expr: args[i] }));
+            }
+            case "Val": {
+              return ok(argVal.contents);
+            }
+          }
+        }
+      )
+    ).mapErr(flatErrs)
+  );
 
 const evalBinOpScalars = (
   op: BinaryOp,
@@ -1957,31 +1986,53 @@ const evalAccess = (
   }
 };
 
+const evalVector = (
+  coll: Vector<C>,
+  first: FloatV<ad.Num> | IntV,
+  rest: Value<ad.Num>[]
+): Result<VectorV<ad.Num>, StyleDiagnostics> => {
+  const elems = [first.contents];
+  for (const v of rest) {
+    if (v.tag === "FloatV" || v.tag === "IntV") {
+      elems.push(v.contents);
+    } else {
+      return err(oneErr({ tag: "BadElementError", coll }));
+    }
+  }
+  return ok(vectorV(elems));
+};
+
+const evalMatrix = (
+  coll: Vector<C>,
+  first: VectorV<ad.Num>,
+  rest: Value<ad.Num>[]
+): Result<MatrixV<ad.Num>, StyleDiagnostics> => {
+  const elems = [first.contents];
+  for (const v of rest) {
+    if (v.tag === "VectorV") {
+      elems.push(v.contents);
+    } else {
+      return err(oneErr({ tag: "BadElementError", coll }));
+    }
+  }
+  return ok(matrixV(elems));
+};
+
 const evalExpr = (
   { context, expr }: WithContext<Expr<C>>,
   trans: Translation
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   switch (expr.tag) {
     case "BinOp": {
-      const left = evalExpr({ context, expr: expr.left }, trans);
-      if (left.isErr()) {
-        return err(left.error);
-      }
-      if (left.value.tag === "GPI") {
-        return err(oneErr({ tag: "NotValueError", expr: expr.left }));
-      }
-      const right = evalExpr({ context, expr: expr.left }, trans);
-      if (right.isErr()) {
-        return err(right.error);
-      }
-      if (right.value.tag === "GPI") {
-        return err(oneErr({ tag: "NotValueError", expr: expr.left }));
-      }
-      const res = evalBinOp(expr, left.value.contents, right.value.contents);
-      if (res.isErr()) {
-        return err(oneErr(res.error));
-      }
-      return ok(val(res.value));
+      return evalVals(context, [expr.left, expr.right], trans).andThen(
+        ([left, right]) => {
+          const res = evalBinOp(expr, left, right);
+          if (res.isErr()) {
+            return err(oneErr(res.error));
+          }
+          return ok(val(res.value));
+        }
+      );
     }
     case "BoolLit": {
       return ok(val(boolV(expr.contents)));
@@ -2074,7 +2125,32 @@ const evalExpr = (
       return ok(val(floatV(input({ key: 0, val: 0 })))); // COMBAK
     }
     case "Vector": {
-      throw Error("TODO");
+      return evalVals(context, expr.contents, trans).andThen((vals) => {
+        if (vals.length === 0) {
+          return ok(val(vectorV([])));
+        }
+        const [first, ...rest] = vals;
+        switch (first.tag) {
+          case "FloatV":
+          case "IntV": {
+            return evalVector(expr, first, rest).map(val);
+          }
+          case "VectorV": {
+            return evalMatrix(expr, first, rest).map(val);
+          }
+          case "BoolV":
+          case "ColorV":
+          case "ListV":
+          case "LListV":
+          case "MatrixV":
+          case "PathDataV":
+          case "PtListV":
+          case "StrV":
+          case "TupV": {
+            return err(oneErr({ tag: "NotCollError", expr }));
+          }
+        }
+      });
     }
   }
 };
