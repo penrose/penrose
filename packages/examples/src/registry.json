@@ -104,6 +104,12 @@
       "variation": "TimberwolfSquirrel25242"
     },
     {
+      "substance": "hypergraph",
+      "style": "hypergraph",
+      "domain": "hypergraph",
+      "variation": "ConchSpoonbill0283"
+    },
+    {
       "substance": "persistent-homology",
       "style": "persistent-homology",
       "domain": "persistent-homology",
@@ -142,6 +148,10 @@
     "lagrange-bases": {
       "name": "Lagrange Bases",
       "URI": "lagrange-bases/lagrange-bases.dsl"
+    },
+    "hypergraph": {
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.dsl"
     },
     "persistent-homology": {
       "name": "Persistent Homology",
@@ -219,6 +229,11 @@
       "name": "Lagrange Bases",
       "URI": "lagrange-bases/lagrange-bases.sty"
     },
+    "hypergraph": {
+      "domain": "hypergraph",
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.sty"
+    },
     "persistent-homology": {
       "domain": "persistent-homology",
       "name": "Persistent Homology",
@@ -295,6 +310,11 @@
       "domain": "lagrange-bases",
       "name": "Lagrange Bases",
       "URI": "lagrange-bases/example.sub"
+    },
+    "hypergraph": {
+      "domain": "hypergraph",
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.sub"
     },
     "persistent-homology": {
       "domain": "persistent-homology",
