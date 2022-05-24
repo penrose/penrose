@@ -3,42 +3,42 @@ Point p0
 Around(p0,e1)
 Point p1
 Around(p1,e1)
-Point p2
-Around(p2,e1)
-Point p3
-Around(p3,e1)
-Point p4
-Around(p4,e1)
-Point p5
-Around(p5,e1)
-Point p6
-Around(p6,e1)
-Point p7
-Around(p7,e1)
-Point p8
-Around(p8,e1)
-Point p9
-Around(p9,e1)
-Point p10
-Around(p10,e1)
-Point p11
-Around(p11,e1)
-Point p12
-Around(p12,e1)
-Point p13
-Around(p13,e1)
-Point p14
-Around(p14,e1)
-Point p15
-Around(p15,e1)
-Point p16
-Around(p16,e1)
-Point p17
-Around(p17,e1)
-Point p18
-Around(p18,e1)
-Point p19
-Around(p19,e1)
-Point p20
-Around(p20,e1)
+-- Point p2
+-- Around(p2,e1)
+-- Point p3
+-- Around(p3,e1)
+-- Point p4
+-- Around(p4,e1)
+-- Point p5
+-- Around(p5,e1)
+-- Point p6
+-- Around(p6,e1)
+-- Point p7
+-- Around(p7,e1)
+-- Point p8
+-- Around(p8,e1)
+-- Point p9
+-- Around(p9,e1)
+-- Point p10
+-- Around(p10,e1)
+-- Point p11
+-- Around(p11,e1)
+-- Point p12
+-- Around(p12,e1)
+-- Point p13
+-- Around(p13,e1)
+-- Point p14
+-- Around(p14,e1)
+-- Point p15
+-- Around(p15,e1)
+-- Point p16
+-- Around(p16,e1)
+-- Point p17
+-- Around(p17,e1)
+-- Point p18
+-- Around(p18,e1)
+-- Point p19
+-- Around(p19,e1)
+-- Point p20
+-- Around(p20,e1)
 AutoLabel All

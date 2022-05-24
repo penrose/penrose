@@ -1,4 +1,5 @@
-import { genCode, secondaryGraph } from "engine/Autodiff";
+import { genCode, makeADInputVars, primaryGraph } from "engine/Autodiff";
+import { _gradFiniteDiff } from "engine/Autodiff.test";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -12,6 +13,7 @@ import {
   sampleBlack,
   vectorV,
 } from "shapes/Samplers";
+import * as ad from "types/ad";
 import { Shape } from "types/shapes";
 import { compDict } from "./Functions";
 
@@ -20,7 +22,7 @@ const canvas = makeCanvas(800, 700);
 const compareDistance = (
   shapeType: string,
   shape: Shape,
-  p: number[],
+  p: ad.Input[],
   expected: number
 ) => {
   const result = compDict.signedDistance(
@@ -28,7 +30,8 @@ const compareDistance = (
     [shapeType, shape],
     p
   );
-  const g = secondaryGraph([result.contents]);
+  const g = primaryGraph(result.contents);
+  //const g = secondaryGraph([result.contents]);
   const f = genCode(g);
   /* const [dist] = 
   const {
@@ -37,7 +40,11 @@ const compareDistance = (
   } = f([]); // no inputs, so, empty array
   const code = stmts.join("\n");
   console.log(code); */
-  const [dist] = f([]).secondary;
+  const { primary: dist, gradient } = f([p[0].val, p[1].val]);
+
+  const newfun = (xs: number[]) => f(xs).primary;
+  const foo = _gradFiniteDiff(newfun)([p[0].val, p[1].val]);
+  console.log("symbolic gradient", gradient, "computed gradient:", foo);
   expect(dist).toBeCloseTo(expected);
 };
 
@@ -57,7 +64,7 @@ const testRectangle = (
     strokeWidth: floatV(strokeWidth),
     strokeColor: sampleBlack(),
   });
-  compareDistance("Rectangle", shape, pt, expected);
+  compareDistance("Rectangle", shape, makeADInputVars(pt), expected);
 };
 
 const testCircle = (
@@ -74,7 +81,7 @@ const testCircle = (
     strokeWidth: floatV(strokeWidth),
     strokeColor: sampleBlack(),
   });
-  compareDistance("Circle", shape, pt, expected);
+  compareDistance("Circle", shape, makeADInputVars(pt), expected);
 };
 
 const testPolygon = (
@@ -89,7 +96,7 @@ const testPolygon = (
     strokeColor: sampleBlack(),
     points: ptListV(points),
   });
-  compareDistance("Polygon", shape, pt, expected);
+  compareDistance("Polygon", shape, makeADInputVars(pt), expected);
 };
 
 function testLine(
@@ -106,7 +113,7 @@ function testLine(
     start: vectorV(start),
     end: vectorV(end),
   });
-  compareDistance("Line", shape, pt, expected);
+  compareDistance("Line", shape, makeADInputVars(pt), expected);
 }
 
 function testEllipse(
@@ -123,7 +130,7 @@ function testEllipse(
     ry: floatV(ry),
     strokeColor: sampleBlack(),
   });
-  compareDistance("Ellipse", shape, pt, expected);
+  compareDistance("Ellipse", shape, makeADInputVars(pt), expected);
 }
 
 describe("sdf", () => {
@@ -233,8 +240,18 @@ test("ellipse", () => {
   testEllipse([0, 0], 100, 50, [0, 10], -40);
   testEllipse([0, 0], 100, 50, [0, -50], 0);
   testEllipse([0, 0], 50, 100, [0, -100], 0);
-  //testEllipse([0, 0], 50, 100, [60, 0], 10);
-  //testEllipse([0, 0], 50, 100, [60, 110], 17);
-  //testEllipse([0, 0], 100, 50, [100, 0], 0);
-  //testEllipse([0, 0], 100, 50, [80, 0], 0);
+  testEllipse([0, 0], 100, 50, [0, 110], 60);
+  testEllipse([0, 0], 100, 50, [200, 200], 208.06713155931837);
+  testEllipse([0, 0], 100, 50, [100, 100], 70.94005207582373);
+  testEllipse([0, 0], 50, 100, [10, 10], -39.68665679900546);
+  testEllipse([0, 0], 50, 100, [-10, -15], -39.292580918351725);
+  testEllipse([0, 0], 50, 100, [-10, -15], -39.292580918351725);
+  testEllipse([0, 0], 50, 100, [20, -30], -27.29927445733961);
+  testEllipse([0, 0], 50, 100, [10, -30], -37.1165176575388);
+  testEllipse([0, 0], 50, 100, [35, -30], -12.53117223937538);
+  testEllipse([0, 0], 100, 50, [200, 0], 100);
+  testEllipse([0, 0], 50, 100, [-60, 10], 10.238345931161755);
+  testEllipse([0, 0], 50, 100, [-40, 10], -9.736448344260499);
+  testEllipse([0, 0], 50, 100, [80, -30], 31.969826845944244);
+  testEllipse([0, 0], 100, 50, [100, 0], 0);
 });

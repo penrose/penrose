@@ -1653,24 +1653,42 @@ export const sdEllipseAsNums = (
   // if = abs( p );
   // if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
   const pOffset = ops.vsub(pInput, center);
-  const p = ops.vabs(pOffset);
-  const ab = [radiusx, radiusy];
-  p[0] = ifCond(gt(p[0], p[1]), p[1], p[0]);
-  p[1] = ifCond(gt(p[0], p[1]), p[0], p[1]);
-  ab[0] = ifCond(gt(p[0], p[1]), ab[1], ab[0]);
-  ab[1] = ifCond(gt(p[0], p[1]), ab[0], ab[1]);
+  const pUnswizzled = ops.vabs(pOffset);
+  const abUnswizzled = [radiusx, radiusy];
+  const p = [];
+  const ab = [];
+  p[0] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    pUnswizzled[1],
+    pUnswizzled[0]
+  );
+  p[1] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    pUnswizzled[0],
+    pUnswizzled[1]
+  );
+  ab[0] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    abUnswizzled[1],
+    abUnswizzled[0]
+  );
+  ab[1] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    abUnswizzled[0],
+    abUnswizzled[1]
+  );
   // float l = ab.y*ab.y - ab.x*ab.x;
   const l = sub(squared(ab[1]), squared(ab[0]));
   // float m = ab.x*p.x/l;
-  const m = mul(ab[0], div(p[0], l));
+  const m = div(mul(ab[0], p[0]), l);
   // float m2 = m*m;
   const m2 = squared(m);
   // float n = ab.y*p.y/l;
-  const n = mul(ab[1], div(p[1], l));
+  const n = div(mul(ab[1], p[1]), l);
   // float n2 = n*n;
   const n2 = squared(n);
   // float c = (m2+n2-1.0)/3.0; float c3 = c*c*c;
-  const c = div(add(m2, sub(n2, 1)), 3);
+  const c = div(sub(add(m2, n2), 1), 3);
   const c3 = mul(mul(c, c), c);
   // float q = c3 + m2*n2*2.0;
   const q = add(c3, mul(m2, mul(n2, 2)));
@@ -1708,7 +1726,7 @@ export const sdEllipseAsNums = (
   // float ry =  (s-t)*sqrt(3.0);
   const ry = mul(sub(s, t), sqrt(3));
   // float rm = sqrt( rx*rx + ry*ry );
-  const rm = sqrt(add(mul(rx, rx), mul(ry, ry)));
+  const rm = sqrt(add(squared(rx), squared(ry)));
   // co = ry/sqrt(rm-rx) + 2.0*g/rm;
   const coelse = add(div(ry, sqrt(sub(rm, rx))), mul(2, div(g, rm)));
 

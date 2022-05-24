@@ -70,7 +70,7 @@ describe("makeGraph tests", () => {
 });
 
 // df/f[x] with finite differences about xi
-const _gradFiniteDiff = (f: (args: number[]) => number) => {
+export const _gradFiniteDiff = (f: (args: number[]) => number) => {
   return (xs: number[]): number[] => {
     const EPSG = 10e-5;
 
