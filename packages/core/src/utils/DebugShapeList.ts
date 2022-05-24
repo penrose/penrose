@@ -1,3 +1,4 @@
+import { Queue } from "@datastructures-js/queue";
 import { constrDict } from "contrib/Constraints";
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
@@ -8,9 +9,19 @@ import { FieldPath } from "types/style";
 import { FieldExpr, StrV, TrMap, Value } from "types/value";
 
 /**
+ * A list of shapes organized in three levels:
+ *   (1) objects,
+ *   (2) fields,
+ *   (3) properties
+ */
+export type DebugShapeList = Record<string, Record<string, Shape>>;
+
+/**
  * Accepts a diagram state as input and builds a list of shapes, including
- * output values and function applications.  Function application semantcis
+ * output values and function applications.  Function application semantics
  * are goverened by the rules defined in debugFunctionRegistry.
+ *
+ * !!! TODO Routine is too long; split it up
  *
  * @param state Diagram State
  * @returns DebugShapeList
@@ -20,14 +31,6 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
   const shapes: Shape[] = state.shapes; // Ref. to Shapes in diagram state
   const shapeList: DebugShapeList = {}; // List of Shapes to output
   const compList: FieldExpr<A>[] = []; // List of computations to process
-  const transitiveList: {
-    comp: FieldExpr<A>;
-    done: boolean;
-    incoming: Shape;
-    outgoing: Shape[];
-    fnName: string;
-    fnDef: DebugFunctionDef;
-  }[] = []; // List of transitive functions (post-process)
   const cascadeList: {
     comp: FieldExpr<A>;
     done: boolean;
@@ -182,11 +185,6 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
           )}`
         ); // !!!
 
-        // Defer transitives
-        if (fnDef.transitive) {
-          // !!!
-        }
-
         // Defer cascades until after we process all the uni-directional properties.
         cascadeList.push({
           comp: thisComp,
@@ -205,7 +203,86 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
   // Propogate properties such as contains() that are transitive.  For example, if
   // A.contains(B) and B.contains(C) then A.contains(C) is also true.
 
-  // !!!
+  // Get the list of transitive functions and their shapes
+  const tfns = Object.keys(debugFunctionRegistry).filter(
+    (fnName) => debugFunctionRegistry[fnName].transitive
+  );
+
+  // Build list of shapes with transitive functions and a map
+  // of the transitive shape functions
+  const tfnShapes: Set<Shape> = new Set();
+  const tfnMap = new DebugFunctionMap(); // Forward map
+  for (const obj in shapeList) {
+    for (const field in shapeList[obj]) {
+      const thisShape = shapeList[obj][field];
+      for (const fn in tfns) {
+        const fnName = tfns[fn];
+        if (fnName + "[]" in thisShape.properties) {
+          getStrPropertyValue(thisShape, fnName + "[]")
+            .split(";")
+            .forEach((e) => {
+              tfnMap.add(
+                shapeList[obj][field],
+                fnName,
+                resolveFieldPathString(e, shapeList)
+              );
+            });
+          tfnShapes.add(thisShape);
+        }
+      }
+    }
+  }
+
+  // Process the worklist of shapes to create transitive propertes.
+  const workList: Queue<Shape> = new Queue([...tfnShapes]);
+  while (!workList.isEmpty()) {
+    const thisShape = workList.dequeue();
+
+    // Repeat this process for each transitive function
+    // Performance: should do this inside the shape traversal !!!
+    for (const fn in tfns) {
+      // Follow the function through each shape it points to.
+      // Stop when the chain ends and add each object we find
+      // to the fn property of thisShape
+      const fnName = tfns[fn];
+      const fnPropName = fnName + "[]";
+      const shapesOutput: Queue<Shape> = new Queue();
+      const shapeWorkList: Queue<Shape> = new Queue([
+        ...tfnMap.get(thisShape, fnName),
+      ]);
+      while (!shapeWorkList.isEmpty()) {
+        const rShape = shapeWorkList.dequeue();
+
+        // Stop a cycle if we detect one
+        if (rShape === thisShape) {
+          console.error(
+            `Stopped cycle in transitive fn ${fnName} on ${getShapeName(
+              thisShape
+            )} at ${getShapeName(rShape)}`
+          );
+          continue;
+        }
+
+        // Add this shape to our list of output shapes
+        shapesOutput.enqueue(rShape);
+
+        // Enqueue any shapes rShape.fn[] points to
+        tfnMap.get(rShape, fnName).forEach((e) => {
+          shapeWorkList.enqueue(e);
+        });
+      }
+
+      // Update the function property value
+      setStrPropertyValue(
+        thisShape,
+        fnPropName,
+        shapesOutput
+          .toArray()
+          .map((e) => getShapeName(e))
+          .join(";")
+      );
+    }
+  }
 
   // Cascading properties
   // --------------------
@@ -214,7 +291,6 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
   // items that need to be processed.  When an item does not change, it is marked as done.
   // If an item changes, any outbound edges are marked as not done and are worked in the
   // next cycle.
-  // TODO: Check for cycles !!!
   let workRemains = true;
   while (workRemains) {
     console.log("---------Cascade Pass Begins---------"); // !!!
@@ -230,7 +306,6 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
       for (const cascadeFn in thisCascade.fnDef.cascadeUp) {
         const fnPropName = thisCascade.fnDef.cascadeUp[cascadeFn] + "[]";
         const fnProperties = thisCascade.incoming.properties;
-        console.log(` - cascadeFn: ${fnPropName}`); // !!!
 
         if (
           !(
@@ -238,10 +313,10 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
             fnProperties[fnPropName].tag === "StrV"
           )
         ) {
-          console.log(`   - Skipping`);
           continue;
         }
 
+        console.log(` - cascadeFn: ${fnPropName}`); // !!!
         for (const j in thisCascade.outgoing) {
           console.log(
             `    - shape ${JSON.stringify(
@@ -481,6 +556,33 @@ const resolveFieldPath = (
 };
 
 /**
+ * Resolves a field path string to a shape
+ *
+ * @param fieldPath string representing fieldPath to Shape
+ * @param shapeList List of Shapes
+ * @returns Shape that corresponds to fieldPath
+ */
+const resolveFieldPathString = (
+  fieldPath: string,
+  shapeList: DebugShapeList
+): Shape => {
+  const fieldParts = fieldPath.split(".");
+  if (fieldParts.length !== 2)
+    throw new Error(`FieldPath string is invalid ${fieldPath}`);
+
+  const objName = fieldParts[0];
+  const fieldName = fieldParts[1];
+
+  if (objName in shapeList && fieldName in shapeList[objName]) {
+    return shapeList[objName][fieldName];
+  } else {
+    throw new Error(
+      `Unable to field fieldPath ${objName}.${fieldName} in ShapeList`
+    );
+  }
+};
+
+/**
  * Compares the debugFunctionRegistry to the main three function dictionaries
  * to ensure (1) functions in both sets completely overlap and (2) the internal
  * configuration within debugFunctionRegistry is consistent.
@@ -592,12 +694,110 @@ export const getInconsistentDebugFunctions = (): string[] => {
 };
 
 /**
- * A list of shapes organized in three levels:
- *   (1) object,
- *   (2) field,
- *   (3) property
+ * Gets the name of a shape.
+ *
+ * @param shape Shape to query for its name
+ * @returns string Name of shape
  */
-export type DebugShapeList = Record<string, Record<string, Shape>>;
+const getShapeName = (shape: Shape): string => {
+  if (shape.properties.name.tag !== "StrV")
+    throw new Error(`Shape property name is not StrV ${JSON.stringify(shape)}`);
+  return shape.properties.name.contents;
+};
+
+/**
+ * Gets the property value from a shape.  Requires that the property value exist
+ * and be of type StrV, otherwise an exception is thrown.
+ *
+ * @param shape Shape to query for its property value
+ * @param propName string Property name
+ * @returns string Property Value
+ */
+const getStrPropertyValue = (shape: Shape, propName: string): string => {
+  if (!(propName in shape.properties))
+    throw new Error(`${getShapeName(shape)}.${propName} does not exist`);
+  const thisProp = shape.properties[propName];
+  if (thisProp.tag !== "StrV")
+    throw new Error(`${getShapeName(shape)}.${propName}.tag !== "StrV"`);
+  return thisProp.contents;
+};
+
+/**
+ * Sets the property value of a shape.  If the property does not exist, it will be
+ * created.  If the merge option is used, the two values will be merged with duplicates
+ * removed.
+ *
+ * @param shape Shape where the property will be set
+ * @param propName string Property name
+ * @param propValue string Property value
+ * @mparam merge boolean If true, the two values will be merged
+ * @returns string Property Value
+ */
+const setStrPropertyValue = (
+  shape: Shape,
+  propName: string,
+  propValue: string,
+  merge?: boolean
+): void => {
+  let newValue = propValue;
+  if (
+    merge &&
+    propName in shape.properties &&
+    shape.properties[propName].tag === "StrV"
+  ) {
+    // Use the Set to eliminate any duplicates
+    newValue = [
+      ...new Set([
+        ...getStrPropertyValue(shape, propName).split(";"),
+        ...propName.split(";"),
+      ]),
+    ].join(";");
+  }
+  shape.properties[propName] = {
+    tag: "StrV",
+    contents: newValue,
+  };
+};
+
+/**
+ * !!!
+ */
+class DebugFunctionMap {
+  private rep: { [k: string]: Map<Shape, Set<Shape>> } = {};
+
+  /**
+   * !!!
+   *
+   * @param lShape
+   * @param fn
+   * @param rShape
+   */
+  public add(lShape: Shape, fn: string, rShape: Shape) {
+    if (!(fn in this.rep)) this.rep[fn] = new Map();
+    if (!this.rep[fn].has(lShape)) {
+      this.rep[fn].set(lShape, new Set([rShape]));
+    } else {
+      this.rep[fn].get(lShape)?.add(rShape);
+    }
+  }
+
+  /**
+   * !!!
+   *
+   * @param lShape
+   * @param fn
+   * @returns
+   */
+  public get(lShape: Shape, fn: string): Shape[] {
+    if (!(fn in this.rep)) return [];
+    const retVal = this.rep[fn].get(lShape);
+    if (retVal === undefined) {
+      return [];
+    } else {
+      return [...retVal];
+    }
+  }
+}
 
 /**
  * A Debug Function Definition that configures how functions are applied to
