@@ -3,7 +3,7 @@ import * as ad from "types/ad";
 import { A, AbstractNode, C, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
-import { BindingForm, BinOp, Expr, GPIDecl, Path } from "./style";
+import { BindingForm, BinOp, Expr, GPIDecl, Path, UOp } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
 import { Value } from "./value";
@@ -170,6 +170,7 @@ export type StyleError =
   | NotValueError
   | OutOfBoundsError
   | PropertyMemberError
+  | UOpTypeError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -369,6 +370,12 @@ export interface OutOfBoundsError {
 export interface PropertyMemberError {
   tag: "PropertyMemberError";
   path: ResolvedPath<C>;
+}
+
+export interface UOpTypeError {
+  tag: "UOpTypeError";
+  expr: UOp<C>;
+  arg: Value<ad.Num>["tag"];
 }
 
 //#endregion

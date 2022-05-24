@@ -5,7 +5,7 @@ import { constrDict } from "contrib/Constraints";
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
-import { add, div, mul, pow, sub } from "engine/AutodiffFunctions";
+import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
 import {
   defaultLbfgsParams,
   dummyASTNode,
@@ -59,6 +59,7 @@ import {
   Stmt,
   StyProg,
   StyT,
+  UOp,
   Vector,
 } from "types/style";
 import {
@@ -1943,54 +1944,6 @@ const evalBinOp = (
   }
 };
 
-const isValidIndex = (a: unknown[], i: number): boolean =>
-  Number.isInteger(i) && 0 <= i && i < a.length;
-
-const evalAccess = (
-  expr: Path<C>,
-  coll: Value<ad.Num>,
-  indices: number[]
-): Result<FloatV<ad.Num>, StyleError> => {
-  switch (coll.tag) {
-    case "ListV":
-    case "TupV":
-    case "VectorV": {
-      if (indices.length !== 1) {
-        return err({ tag: "BadIndexError", expr });
-      }
-      const [i] = indices;
-      if (!isValidIndex(coll.contents, i)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      return ok(floatV(coll.contents[i]));
-    }
-    case "LListV":
-    case "MatrixV":
-    case "PtListV": {
-      if (indices.length !== 2) {
-        return err({ tag: "BadIndexError", expr });
-      }
-      const [i, j] = indices;
-      if (!isValidIndex(coll.contents, i)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      const row = coll.contents[i];
-      if (!isValidIndex(row, j)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      return ok(floatV(row[j]));
-    }
-    case "BoolV":
-    case "ColorV":
-    case "FloatV":
-    case "IntV":
-    case "PathDataV":
-    case "StrV": {
-      return err({ tag: "NotCollError", expr });
-    }
-  }
-};
-
 const eval1D = (
   coll: List<C> | Vector<C>,
   first: FloatV<ad.Num> | IntV,
@@ -2075,6 +2028,80 @@ const evalListOrVector = (
       }
     }
   });
+};
+
+const isValidIndex = (a: unknown[], i: number): boolean =>
+  Number.isInteger(i) && 0 <= i && i < a.length;
+
+const evalAccess = (
+  expr: Path<C>,
+  coll: Value<ad.Num>,
+  indices: number[]
+): Result<FloatV<ad.Num>, StyleError> => {
+  switch (coll.tag) {
+    case "ListV":
+    case "TupV":
+    case "VectorV": {
+      if (indices.length !== 1) {
+        return err({ tag: "BadIndexError", expr });
+      }
+      const [i] = indices;
+      if (!isValidIndex(coll.contents, i)) {
+        return err({ tag: "OutOfBoundsError", expr, indices });
+      }
+      return ok(floatV(coll.contents[i]));
+    }
+    case "LListV":
+    case "MatrixV":
+    case "PtListV": {
+      if (indices.length !== 2) {
+        return err({ tag: "BadIndexError", expr });
+      }
+      const [i, j] = indices;
+      if (!isValidIndex(coll.contents, i)) {
+        return err({ tag: "OutOfBoundsError", expr, indices });
+      }
+      const row = coll.contents[i];
+      if (!isValidIndex(row, j)) {
+        return err({ tag: "OutOfBoundsError", expr, indices });
+      }
+      return ok(floatV(row[j]));
+    }
+    case "BoolV":
+    case "ColorV":
+    case "FloatV":
+    case "IntV":
+    case "PathDataV":
+    case "StrV": {
+      return err({ tag: "NotCollError", expr });
+    }
+  }
+};
+
+const evalUMinus = (
+  expr: UOp<C>,
+  arg: Value<ad.Num>
+): Result<Value<ad.Num>, StyleError> => {
+  switch (arg.tag) {
+    case "FloatV":
+    case "IntV": {
+      return ok(floatV(neg(arg.contents)));
+    }
+    case "VectorV": {
+      return ok(vectorV(ops.vneg(arg.contents)));
+    }
+    case "BoolV":
+    case "ListV":
+    case "ColorV":
+    case "LListV":
+    case "MatrixV":
+    case "PathDataV":
+    case "PtListV":
+    case "StrV":
+    case "TupV": {
+      return err({ tag: "UOpTypeError", expr, arg: arg.tag });
+    }
+  }
 };
 
 const evalExpr = (
@@ -2179,7 +2206,20 @@ const evalExpr = (
       throw Error("TODO");
     }
     case "UOp": {
-      throw Error("TODO");
+      return evalExpr({ context, expr: expr.arg }, trans).andThen((argVal) => {
+        if (argVal.tag === "GPI") {
+          return err(oneErr({ tag: "NotValueError", expr }));
+        }
+        switch (expr.op) {
+          case "UMinus": {
+            const res = evalUMinus(expr, argVal.contents);
+            if (res.isErr()) {
+              return err(oneErr(res.error));
+            }
+            return ok(val(res.value));
+          }
+        }
+      });
     }
     case "Vary": {
       return ok(val(floatV(input({ key: 0, val: 0 })))); // COMBAK
