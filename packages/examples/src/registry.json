@@ -102,6 +102,12 @@
       "style": "lagrange-bases",
       "domain": "lagrange-bases",
       "variation": "TimberwolfSquirrel25242"
+    },
+    {
+      "substance": "hypergraph",
+      "style": "hypergraph",
+      "domain": "hypergraph",
+      "variation": "ConchSpoonbill0283"
     }
   ],
   "domains": {
@@ -136,6 +142,10 @@
     "lagrange-bases": {
       "name": "Lagrange Bases",
       "URI": "lagrange-bases/lagrange-bases.dsl"
+    },
+    "hypergraph": {
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.dsl"
     }
   },
   "styles": {
@@ -208,6 +218,11 @@
       "domain": "lagrange-bases",
       "name": "Lagrange Bases",
       "URI": "lagrange-bases/lagrange-bases.sty"
+    },
+    "hypergraph": {
+      "domain": "hypergraph",
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.sty"
     }
   },
   "substances": {
@@ -280,6 +295,11 @@
       "domain": "lagrange-bases",
       "name": "Lagrange Bases",
       "URI": "lagrange-bases/example.sub"
+    },
+    "hypergraph": {
+      "domain": "hypergraph",
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.sub"
     }
   }
 }
