@@ -2,8 +2,6 @@ import { CustomHeap } from "@datastructures-js/heap";
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
-// Dicts (runtime data)
-import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import { input } from "engine/Autodiff";
 import {
@@ -39,19 +37,13 @@ import {
 import { Fn, OptType, Params, State } from "types/state";
 import {
   BindingForm,
-  Block,
-  CompApp,
-  ConstrFn,
   DeclPattern,
   Expr,
-  GPIDecl,
   Header,
   HeaderBlock,
   Layering,
-  ObjFn,
   Path,
   PredArg,
-  PropertyDecl,
   RelationPattern,
   RelBind,
   RelField,
@@ -77,7 +69,6 @@ import {
   ResolvedPath,
   SelEnv,
   ShapeSource,
-  StyleSymbols,
   Subst,
   Translation,
   WithContext,
@@ -140,22 +131,15 @@ const log = consola
 
 //#region consts
 const ANON_KEYWORD = "ANON";
-const LOCAL_KEYWORD = "$LOCAL";
 const LABEL_FIELD: Field = "label";
-const VARYING_INIT_FN_NAME = "VARYING_INIT";
 
-// For statically checking existence
-const FN_DICT = {
-  CompApp: compDict,
-  ObjFn: objDict,
-  ConstrFn: constrDict,
-};
+const FN_KEY = { ConstrFn: "constraints", ObjFn: "objectives" };
+const FN_DICT = { ObjFn: objDict, ConstrFn: constrDict };
 
 const FN_ERR_TYPE = {
-  CompApp: "InvalidFunctionNameError" as const,
-  ObjFn: "InvalidObjectiveNameError" as const,
-  ConstrFn: "InvalidConstraintNameError" as const,
-};
+  ObjFn: "InvalidObjectiveNameError",
+  ConstrFn: "InvalidConstraintNameError",
+} as const;
 
 //#endregion
 
@@ -184,6 +168,26 @@ const cartesianProduct = <T>(...a: T[][]): T[][] =>
 const getShapeName = (s: string, f: Field): string => {
   return `${s}.${f}`;
 };
+
+const oneErr = (err: StyleError): StyleDiagnostics => {
+  return { errors: im.List([err]), warnings: im.List() };
+};
+
+const warnings = (warns: StyleWarning[]): StyleDiagnostics => {
+  return { errors: im.List(), warnings: im.List(warns) };
+};
+
+const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
+  { errors, warnings }: StyleDiagnostics,
+  x: T
+): T => ({
+  ...x,
+  diagnostics: {
+    ...x.diagnostics,
+    errors: x.diagnostics.errors.concat(errors),
+    warnings: x.diagnostics.warnings.concat(warnings),
+  },
+});
 
 //#endregion
 
@@ -720,248 +724,6 @@ const substituteRels = (
 };
 
 //#endregion (subregion? TODO fix)
-
-//#region Applying a substitution to a block
-
-// // Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
-
-const mkLocalVarName = (lv: LocalVarSubst): string => {
-  switch (lv.tag) {
-    case "LocalVarId": {
-      const [blockNum, substNum] = lv.contents;
-      return `${LOCAL_KEYWORD}_block${blockNum}_subst${substNum}`;
-    }
-    case "NamespaceId": {
-      return lv.contents;
-    }
-  }
-};
-
-const substitutePath = (
-  lv: LocalVarSubst,
-  subst: Subst,
-  path: Path<A>
-): Path<A> => {
-  switch (path.tag) {
-    case "FieldPath": {
-      return {
-        ...path,
-        name: substituteBform(lv, subst, path.name),
-      };
-    }
-    case "PropertyPath": {
-      return {
-        ...path,
-        name: substituteBform(lv, subst, path.name),
-      };
-    }
-    case "LocalVar": {
-      return {
-        nodeType: "SyntheticStyle",
-        tag: "FieldPath",
-        name: {
-          nodeType: "SyntheticStyle",
-          tag: "SubVar",
-          contents: {
-            ...dummyId(mkLocalVarName(lv)),
-          },
-        },
-        field: path.contents,
-      };
-    }
-    case "InternalLocalVar": {
-      // Note that the local var becomes a path
-      // Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference '$LOCAL_<ids>.v'
-      // where <ids> is a string generated to be unique to this selector match for this block
-
-      // COMBAK / HACK: Is there some way to get rid of all these dummy values?
-      return {
-        nodeType: "SyntheticStyle",
-        tag: "FieldPath",
-        name: {
-          nodeType: "SyntheticStyle",
-          tag: "SubVar",
-          contents: {
-            ...dummyId(mkLocalVarName(lv)),
-          },
-        },
-        field: dummyId(path.contents),
-      };
-    }
-    case "AccessPath": {
-      // COMBAK: Check if this works / is needed (wasn't present in original code)
-      return {
-        ...path,
-        path: substitutePath(lv, subst, path.path),
-      };
-    }
-  }
-};
-
-const substituteField = (
-  lv: LocalVarSubst,
-  subst: Subst,
-  field: PropertyDecl<A>
-): PropertyDecl<A> => {
-  return {
-    ...field,
-    value: substituteBlockExpr(lv, subst, field.value),
-  };
-};
-
-const substituteBlockExpr = (
-  lv: LocalVarSubst,
-  subst: Subst,
-  expr: Expr<A>
-): Expr<A> => {
-  if (isPath(expr)) {
-    return substitutePath(lv, subst, expr);
-  } else {
-    switch (expr.tag) {
-      case "CompApp":
-      case "ObjFn":
-      case "ConstrFn": {
-        // substitute out occurrences of `VARYING_INIT(i)` (the computation) for `VaryingInit(i)` (the `AnnoFloat`) as there is currently no special syntax for this
-
-        // note that this is a hack; instead of shoehorning it into `substituteBlockExpr`, it should be done more cleanly as a compiler pass on the Style block AST at some point. doesn't really matter when this is done as long as it's before the varying float initialization in `genState
-        if (expr.tag === "CompApp") {
-          if (expr.name.value === VARYING_INIT_FN_NAME) {
-            // TODO(err): Typecheck VARYING_INIT properly and return an error. This will be unnecessary if parsed with special syntax.
-            if (expr.args.length !== 1) {
-              throw Error("expected one argument to VARYING_INIT");
-            }
-
-            if (expr.args[0].tag !== "Fix") {
-              throw Error("expected float argument to VARYING_INIT");
-            }
-
-            return {
-              ...dummyASTNode({}, "SyntheticStyle"),
-              tag: "VaryInit",
-              contents: expr.args[0].contents,
-            };
-          }
-        }
-
-        return {
-          ...expr,
-          args: expr.args.map((arg: Expr<A>) =>
-            substituteBlockExpr(lv, subst, arg)
-          ),
-        };
-      }
-      case "BinOp": {
-        return {
-          ...expr,
-          left: substituteBlockExpr(lv, subst, expr.left),
-          right: substituteBlockExpr(lv, subst, expr.right),
-        };
-      }
-      case "UOp": {
-        return {
-          ...expr,
-          arg: substituteBlockExpr(lv, subst, expr.arg),
-        };
-      }
-      case "List":
-      case "Vector":
-      case "Matrix": {
-        return {
-          ...expr,
-          contents: expr.contents.map((e: Expr<A>) =>
-            substituteBlockExpr(lv, subst, e)
-          ),
-        };
-      }
-      case "GPIDecl": {
-        return {
-          ...expr,
-          properties: expr.properties.map((p: PropertyDecl<A>) =>
-            substituteField(lv, subst, p)
-          ),
-        };
-      }
-      case "Layering": {
-        return {
-          ...expr,
-          below: substitutePath(lv, subst, expr.below),
-          above: substitutePath(lv, subst, expr.above),
-        };
-      }
-      case "Tuple": {
-        return {
-          ...expr,
-          contents: [
-            substituteBlockExpr(lv, subst, expr.contents[0]),
-            substituteBlockExpr(lv, subst, expr.contents[1]),
-          ],
-        };
-      }
-      case "Fix":
-      case "Vary":
-      case "StringLit":
-      case "BoolLit": {
-        // No substitution for literals
-        return expr;
-      }
-    }
-  }
-};
-
-const substituteLine = (
-  lv: LocalVarSubst,
-  subst: Subst,
-  line: Stmt<A>
-): Stmt<A> => {
-  switch (line.tag) {
-    case "PathAssign": {
-      return {
-        ...line,
-        path: substitutePath(lv, subst, line.path),
-        value: substituteBlockExpr(lv, subst, line.value),
-      };
-    }
-    case "Override": {
-      return {
-        ...line,
-        path: substitutePath(lv, subst, line.path),
-        value: substituteBlockExpr(lv, subst, line.value),
-      };
-    }
-    case "Delete": {
-      return {
-        ...line,
-        contents: substitutePath(lv, subst, line.contents),
-      };
-    }
-    case "AnonAssign": {
-      throw Error(
-        "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
-      );
-    }
-  }
-};
-
-// Assumes a full substitution
-const substituteBlock = (
-  [subst, si]: [Subst, number],
-  [block, bi]: [Block<A>, number],
-  name: string | undefined
-): Block<A> => {
-  const lvSubst: LocalVarSubst =
-    name === undefined
-      ? { tag: "LocalVarId", contents: [bi, si] }
-      : { tag: "NamespaceId", contents: name };
-
-  return {
-    ...block,
-    statements: block.statements.map((line) =>
-      substituteLine(lvSubst, subst, line)
-    ),
-  };
-};
-
-//#endregion Applying a substitution to a block
 
 // Convert Style expression to Substance expression (for ease of comparison in matching)
 // Note: the env is needed to disambiguate SEFuncOrValCons
@@ -1992,15 +1754,12 @@ const evalExpr = (
       return err({ tag: "NotValueError", expr });
     }
     case "GPIDecl": {
-      throw Error("TODO");
+      return err({ tag: "NotValueError", expr });
     }
     case "Fix": {
       return ok(val(floatV(expr.contents)));
     }
     case "List": {
-      throw Error("TODO");
-    }
-    case "Matrix": {
       throw Error("TODO");
     }
     case "Path": {
@@ -2058,7 +1817,6 @@ const translateExpr = (
     case "CompApp":
     case "Fix":
     case "List":
-    case "Matrix":
     case "Path":
     case "StringLit":
     case "Tuple":
@@ -2089,16 +1847,21 @@ const translateExpr = (
       }
 
       // TODO: typecheck this part better
-      const m = {
-        ConstrFn: { key: "constraints", dict: constrDict },
-        ObjF: { key: "objectives", dict: objDict },
-      };
-      const { key, dict } = m[e.expr.tag];
+      const key = FN_KEY[e.expr.tag];
+      const dict = FN_DICT[e.expr.tag];
+      const { name } = e.expr;
+      if (!(name.value in dict)) {
+        return addDiags(
+          oneErr({
+            tag: FN_ERR_TYPE[e.expr.tag],
+            givenName: e.expr.name,
+          }),
+          trans
+        );
+      }
       return {
         ...trans,
-        [key]: trans[key].push(
-          dict[e.expr.tag][e.expr.name.value](...args.value.map(argValue))
-        ),
+        [key]: trans[key].push(dict[name.value](...args.value.map(argValue))),
       };
     }
     case "Layering": {
@@ -2133,139 +1896,6 @@ const translate = (graph: DepGraph): Translation => {
       trans
     );
 };
-
-//#region Block statics
-const emptyErrs = (): StyleDiagnostics => {
-  return { errors: im.List(), warnings: im.List() };
-};
-
-const oneErr = (err: StyleError): StyleDiagnostics => {
-  return { errors: im.List([err]), warnings: im.List() };
-};
-
-const warnings = (warns: StyleWarning[]): StyleDiagnostics => {
-  return { errors: im.List(), warnings: im.List(warns) };
-};
-
-const flatErrs = (es: StyleDiagnostics[]): StyleDiagnostics => {
-  return {
-    errors: _.flatMap(es, (e) => e.errors),
-    warnings: _.flatMap(es, (e) => e.warnings),
-  };
-};
-
-const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
-  { errors, warnings }: StyleDiagnostics,
-  x: T
-): T => ({
-  ...x,
-  diagnostics: {
-    ...x.diagnostics,
-    errors: x.diagnostics.errors.concat(errors),
-    warnings: x.diagnostics.warnings.concat(warnings),
-  },
-});
-
-/** Merge two Style symbol tables, where the symbols in `right` shadow those in `left */
-const mergeSymbols = (left: StyleSymbols, right: StyleSymbols): StyleSymbols =>
-  left.merge(right);
-
-// Check that every shape name and shape property name in a shape constructor exists
-const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl<A>): StyleDiagnostics => {
-  const styName: string = expr.shapeName.value;
-
-  const errors: StyleError[] = [];
-  const warnings: StyleWarning[] = [];
-
-  if (styName in shapedefs) {
-    const shapedef: ShapeDef = shapedefs[styName];
-    // TODO: do shape property checks
-    shapedef;
-  } else {
-    // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
-    return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
-  }
-
-  return { errors, warnings };
-};
-
-// Check that every function, objective, and constraint exists (below) -- parametrically over the kind of function
-const checkFunctionName = (
-  selEnv: SelEnv,
-  expr: CompApp<A> | ObjFn<A> | ConstrFn<A>
-): StyleDiagnostics => {
-  const fnDict = FN_DICT[expr.tag];
-  const fnNames: string[] = _.keys(fnDict); // Names of built-in functions of that kind
-  const givenFnName: Identifier<A> = expr.name;
-
-  if (
-    !fnNames.includes(givenFnName.value) &&
-    givenFnName.value !== VARYING_INIT_FN_NAME
-  ) {
-    const fnErrorType = FN_ERR_TYPE[expr.tag];
-    return oneErr({ tag: fnErrorType, givenName: givenFnName });
-  }
-
-  return emptyErrs();
-};
-
-// Written recursively on exprs, just accumulating possible expr errors
-const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleDiagnostics => {
-  // Closure for brevity
-  const check = (e: Expr<A>): StyleDiagnostics => checkBlockExpr(selEnv, e);
-
-  if (isPath(expr)) {
-    return checkBlockPath(selEnv, expr);
-  } else {
-    switch (expr.tag) {
-      case "CompApp":
-      case "ObjFn":
-      case "ConstrFn": {
-        const e1 = checkFunctionName(selEnv, expr);
-        const e2 = expr.args.map(check);
-        return flatErrs([e1].concat(e2));
-      }
-      case "BinOp": {
-        return flatErrs([check(expr.left), check(expr.right)]);
-      }
-      case "UOp": {
-        return check(expr.arg);
-      }
-      case "List":
-      case "Vector":
-      case "Matrix": {
-        return flatErrs(expr.contents.map(check));
-      }
-      case "GPIDecl": {
-        const e1: StyleDiagnostics = checkGPIInfo(selEnv, expr);
-        const e2: StyleDiagnostics[] = expr.properties.map((p) =>
-          check(p.value)
-        );
-        return flatErrs([e1].concat(e2));
-      }
-      case "Layering": {
-        return flatErrs([check(expr.below), check(expr.above)]);
-      }
-      case "Tuple": {
-        return flatErrs([check(expr.contents[0]), check(expr.contents[1])]);
-      }
-      case "Fix":
-      case "Vary":
-      case "StringLit":
-      case "BoolLit": {
-        return emptyErrs();
-      }
-    }
-  }
-};
-
-const checkBlockPath = (selEnv: SelEnv, path: Path<A>): StyleDiagnostics => {
-  // TODO(errors) / Block statics
-  // Currently there is nothing to check for paths
-  return emptyErrs();
-};
-
-//#endregion Block statics
 
 //#endregion
 
@@ -3178,7 +2808,6 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       return [expr.below, expr.above];
     }
     case "List":
-    case "Matrix":
     case "Tuple":
     case "Vector": {
       return expr.contents.flatMap(findPathsExpr);

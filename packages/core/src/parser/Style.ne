@@ -479,7 +479,6 @@ expr_literal
   |  list {% id %}
   |  tuple {% id %}
   |  vector {% id %}
-  # |  matrix {% id %} # NOTE: we liberally parse vectors to include the matrix case instead. All matrices are vectors of vectors.
   # TODO: 
   # |  transformExpr 
 
@@ -511,15 +510,6 @@ vector -> "(" _ expr  _ "," expr_list ")" {%
     contents: [first, ...rest]
   })
 %}
-
-# NOTE: not used since `vector` will include this case. Actual type will be resolved by the compiler.
-# matrix -> "(" _ sepBy1[vector, ","] _ ")" {% 
-#   ([lparen, , exprs, , rparen]): Matrix => ({
-#     ...rangeBetween(lparen, rparen),
-#     tag: 'Matrix',
-#     contents: exprs
-#   })
-# %}
 
 bool_lit -> ("true" | "false") {%
   ([[d]]): BoolLit<C> => ({

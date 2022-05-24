@@ -200,7 +200,6 @@ export type Expr<T> =
   | List<T>
   | Tuple<T>
   | Vector<T>
-  | Matrix<T>
   | GPIDecl<T>
   | Layering<T>;
 
@@ -267,11 +266,6 @@ export type Tuple<T> = ASTNode<T> & {
 
 export type Vector<T> = ASTNode<T> & {
   tag: "Vector";
-  contents: Expr<T>[];
-};
-
-export type Matrix<T> = ASTNode<T> & {
-  tag: "Matrix";
   contents: Expr<T>[];
 };
 
