@@ -210,7 +210,7 @@ export const overlappingPolygonPoints = (
   const cp2 = convexPartitions(
     polygonPoints2.map((p: ad.Num[]) => ops.vneg(p))
   );
-  return maxN(
+  return minN(
     cp1.map((p1) =>
       minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding)))
     )

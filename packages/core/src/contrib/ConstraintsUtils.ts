@@ -21,6 +21,7 @@ import {
   min,
   minN,
   mul,
+  neg,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
@@ -264,15 +265,22 @@ export const containsAABBs = (
  * Require that a polygon `s1` contains another polygon `s2`.
  */
 export const containsPolygonPolygon = (
-  [, s1]: [string, Polygon],
-  [, s2]: [string, Polygon],
+  [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
+  [t2, s2]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
   padding: ad.Num = 0
 ): ad.Num => {
-  return maxN(
-    s2.points.contents.map((x) =>
-      containsPolygonPoints(s1.points.contents, x, padding)
-    )
+  const pts1 = polygonLikePoints([t1, s1]);
+  const pts2 = polygonLikePoints([t2, s2]);
+  const overlapInside = overlappingPolygonPoints(pts1, pts2, padding);
+  const sides = Array.from(
+    { length: pts1.length },
+    (_, key) => key
+  ).map((i) => [pts1[i], pts1[i > 0 ? i - 1 : pts1.length - 1], pts1[i]]);
+  const sdfs = sides.map((side: ad.Num[][]) =>
+    overlappingPolygonPoints(side, pts2, add(padding, 0))
   );
+  const disjointBoundary = neg(maxN(sdfs));
+  return max(overlapInside, disjointBoundary);
 };
 
 /**

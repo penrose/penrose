@@ -250,18 +250,24 @@ const constrDictGeneral = {
     [t2, s2]: [string, any],
     padding = 0.0
   ) => {
+    // Same shapes
     if (t1 === "Circle" && t2 === "Circle")
       return containsCircles([t1, s1], [t2, s2], padding);
-    else if (t1 === "Polygon" && t2 === "Polygon")
+    else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
+      return containsAABBs([t1, s1], [t2, s2], padding);
+    else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return containsPolygonPolygon([t1, s1], [t2, s2], padding);
-    else if (t1 === "Polygon" && t2 === "Circle")
-      return containsPolygonCircle([t1, s1], [t2, s2], padding);
-    else if (t1 === "Circle" && t2 === "Polygon")
-      return containsCirclePolygon([t1, s1], [t2, s2], padding);
+    // Circle x Rectangle
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return containsCircleRectlike([t1, s1], [t2, s2], padding);
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return containsRectlikeCircle([t1, s1], [t2, s2], padding);
+    // Circle x Polygon
+    else if (shapedefs[t2].isPolygonlike && t2 === "Circle")
+      return containsPolygonCircle([t1, s1], [t2, s2], padding);
+    else if (t1 === "Circle" && shapedefs[t2].isPolygonlike)
+      return containsCirclePolygon([t1, s1], [t2, s2], padding);
+    // Default to axis-aligned bounding boxes
     else return containsAABBs([t1, s1], [t2, s2], padding);
   },
 
