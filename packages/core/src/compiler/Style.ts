@@ -1753,19 +1753,32 @@ const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 //#region third pass
 
+// HACK: the third pass needs a mutable PRNG to pass to `compDict`, and is also
+// structured in such a way that we gather the varying values by appending to an
+// array. These are the only two impure parts of this pass, so we package them
+// up into a single type here to pass around.
+interface MutableContext {
+  rng: seedrandom.prng;
+  varying: ad.Input[];
+}
+
 const evalExprs = (
+  mut: MutableContext,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
-  all(args.map((expr) => evalExpr({ context, expr }, trans))).mapErr(flatErrs);
+  all(args.map((expr) => evalExpr(mut, { context, expr }, trans))).mapErr(
+    flatErrs
+  );
 
 const argValues = (
+  mut: MutableContext,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<(GPI<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
-  evalExprs(context, args, trans).map((argVals) =>
+  evalExprs(mut, context, args, trans).map((argVals) =>
     argVals.map((arg) => {
       switch (arg.tag) {
         case "GPI": // strip the `GPI` tag
@@ -1777,11 +1790,12 @@ const argValues = (
   );
 
 const evalVals = (
+  mut: MutableContext,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
-  evalExprs(context, args, trans).andThen((argVals) =>
+  evalExprs(mut, context, args, trans).andThen((argVals) =>
     all(
       argVals.map(
         (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
@@ -1992,11 +2006,12 @@ const eval2D = (
 };
 
 const evalListOrVector = (
+  mut: MutableContext,
   context: Context,
   expr: List<C> | Vector<C>,
   trans: Translation
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
-  return evalVals(context, expr.contents, trans).andThen((vals) => {
+  return evalVals(mut, context, expr.contents, trans).andThen((vals) => {
     if (vals.length === 0) {
       switch (expr.tag) {
         case "List": {
@@ -2106,12 +2121,13 @@ const evalUMinus = (
 };
 
 const evalExpr = (
+  mut: MutableContext,
   { context, expr }: WithContext<Expr<C>>,
   trans: Translation
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   switch (expr.tag) {
     case "BinOp": {
-      return evalVals(context, [expr.left, expr.right], trans).andThen(
+      return evalVals(mut, context, [expr.left, expr.right], trans).andThen(
         ([left, right]) => {
           const res = evalBinOp(expr, left, right);
           if (res.isErr()) {
@@ -2125,7 +2141,7 @@ const evalExpr = (
       return ok(val(boolV(expr.contents)));
     }
     case "CompApp": {
-      const args = argValues(context, expr.args, trans);
+      const args = argValues(mut, context, expr.args, trans);
       if (args.isErr()) {
         return err(args.error);
       }
@@ -2135,7 +2151,10 @@ const evalExpr = (
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
       }
-      const x: Value<ad.Num> = compDict[name.value]({ rng }, ...args.value);
+      const x: Value<ad.Num> = compDict[name.value](
+        { rng: mut.rng },
+        ...args.value
+      );
       return ok(val(x));
     }
     case "ConstrFn":
@@ -2151,7 +2170,7 @@ const evalExpr = (
     }
     case "List":
     case "Vector": {
-      return evalListOrVector(context, expr, trans).map(val);
+      return evalListOrVector(mut, context, expr, trans).map(val);
     }
     case "Path": {
       const path = prettyPrintResolvedPath(resolveRhsPath({ context, expr }));
@@ -2175,7 +2194,7 @@ const evalExpr = (
       }
       const res = all(
         expr.indices.map((e) =>
-          evalExpr({ context, expr: e }, trans).andThen<number>((i) => {
+          evalExpr(mut, { context, expr: e }, trans).andThen<number>((i) => {
             if (i.tag === "GPI") {
               return err(oneErr({ tag: "NotValueError", expr: e }));
             } else if (i.contents.tag === "IntV") {
@@ -2204,7 +2223,7 @@ const evalExpr = (
       return ok(val(strV(expr.contents)));
     }
     case "Tuple": {
-      return evalVals(context, expr.contents, trans).andThen(
+      return evalVals(mut, context, expr.contents, trans).andThen(
         ([left, right]) => {
           if (
             (left.tag === "IntV" || left.tag === "FloatV") &&
@@ -2218,28 +2237,33 @@ const evalExpr = (
       );
     }
     case "UOp": {
-      return evalExpr({ context, expr: expr.arg }, trans).andThen((argVal) => {
-        if (argVal.tag === "GPI") {
-          return err(oneErr({ tag: "NotValueError", expr }));
-        }
-        switch (expr.op) {
-          case "UMinus": {
-            const res = evalUMinus(expr, argVal.contents);
-            if (res.isErr()) {
-              return err(oneErr(res.error));
+      return evalExpr(mut, { context, expr: expr.arg }, trans).andThen(
+        (argVal) => {
+          if (argVal.tag === "GPI") {
+            return err(oneErr({ tag: "NotValueError", expr }));
+          }
+          switch (expr.op) {
+            case "UMinus": {
+              const res = evalUMinus(expr, argVal.contents);
+              if (res.isErr()) {
+                return err(oneErr(res.error));
+              }
+              return ok(val(res.value));
             }
-            return ok(val(res.value));
           }
         }
-      });
+      );
     }
     case "Vary": {
-      return ok(val(floatV(input({ key: 0, val: 0 })))); // COMBAK
+      const x = input({ key: mut.varying.length, val: 0 }); // TODO: set `val`
+      mut.varying.push(x);
+      return ok(val(floatV(x)));
     }
   }
 };
 
 const translateExpr = (
+  mut: MutableContext,
   path: string,
   e: WithContext<NotShape>,
   trans: Translation
@@ -2256,7 +2280,7 @@ const translateExpr = (
     case "UOp":
     case "Vary":
     case "Vector": {
-      const res = evalExpr(e, trans);
+      const res = evalExpr(mut, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
       }
@@ -2266,7 +2290,7 @@ const translateExpr = (
       };
     }
     case "ConstrFn": {
-      const args = argValues(e.context, e.expr.args, trans);
+      const args = argValues(mut, e.context, e.expr.args, trans);
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
@@ -2285,7 +2309,7 @@ const translateExpr = (
       };
     }
     case "ObjFn": {
-      const args = argValues(e.context, e.expr.args, trans);
+      const args = argValues(mut, e.context, e.expr.args, trans);
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
@@ -2316,8 +2340,8 @@ const translateExpr = (
   }
 };
 
-const translate = (graph: DepGraph): Translation => {
-  const trans: Translation = {
+const translate = (rng: seedrandom.prng, graph: DepGraph): Translation => {
+  const init: Translation = {
     diagnostics: { errors: im.List(), warnings: im.List() },
     symbols: im.Map(),
     shapes: im.List(),
@@ -2326,12 +2350,15 @@ const translate = (graph: DepGraph): Translation => {
     layering: im.List(),
     varying: im.List(),
   };
-  return graph
+  const varying: ad.Input[] = [];
+  const trans = graph
     .topsort()
     .reduce(
-      (trans, path) => translateExpr(path, graph.node(path), trans),
-      trans
+      (trans, path) =>
+        translateExpr({ rng, varying }, path, graph.node(path), trans),
+      init
     );
+  return { ...trans, varying: im.List(varying) };
 };
 
 //#endregion
@@ -3326,11 +3353,9 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
 
 // COMBAK: Add optConfig as param?
 const genState = (
-  variation: string,
+  seeds: Seeds,
   trans: Translation
 ): Result<State, StyleError[]> => {
-  const { rng, seeds } = variationSeeds(variation);
-
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
   const varyingInitPathsAndVals: [Path<A>, number][] = varyingPaths
@@ -3449,7 +3474,8 @@ export const compileStyle = (
   const graph = gatherDependencies(assignment);
 
   // third pass: compile all expressions in topological sorted order
-  const translation = translate(graph);
+  const { rng, seeds } = variationSeeds(variation);
+  const translation = translate(rng, graph);
 
   log.info("translation (before genOptProblem)", translation);
 
@@ -3458,10 +3484,7 @@ export const compileStyle = (
   }
 
   // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState: Result<State, StyleError[]> = genState(
-    variation,
-    translation
-  );
+  const initState: Result<State, StyleError[]> = genState(seeds, translation);
   log.info("init state from GenOptProblem", initState);
 
   if (initState.isErr()) {
