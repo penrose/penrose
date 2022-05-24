@@ -1,0 +1,27 @@
+--- This .sty file is intended for debugging purposes only
+
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Maze x {
+    x.icon = Ellipse {
+        center: [0.0, 0.0]
+        rx: 150.0
+        ry: 80.0
+    }
+}
+
+forall Triangle x {
+    x.icon = Ellipse{}
+    ensure lessThan(x.icon.rx, 300)
+    ensure lessThan(50.0, x.icon.rx)
+    ensure lessThan(x.icon.ry, 300)
+    ensure lessThan(50.0, x.icon.ry)
+    encourage equal(x.icon.rx, x.icon.rx)
+}
+
+Triangle x; Maze y {
+    ensure disjoint(x.icon, y.icon)
+}
