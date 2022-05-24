@@ -156,6 +156,7 @@ export type StyleError =
   | AssignAccessError
   | AssignGlobalError
   | AssignSubstanceError
+  | BadIndexError
   | BinOpTypeError
   | DeleteAccessError
   | DeleteGlobalError
@@ -163,8 +164,10 @@ export type StyleError =
   | MissingPathError
   | MissingShapeError
   | NestedShapeError
+  | NotCollError
   | NotShapeError
   | NotValueError
+  | OutOfBoundsError
   | PropertyMemberError
   // Runtime errors
   | RuntimeValueTypeError;
@@ -294,6 +297,11 @@ export interface AssignSubstanceError {
   path: ResolvedPath<C>;
 }
 
+export interface BadIndexError {
+  tag: "BadIndexError";
+  expr: Expr<C>;
+}
+
 export interface BinOpTypeError {
   tag: "BinOpTypeError";
   expr: BinOp<C>;
@@ -331,6 +339,11 @@ export interface NestedShapeError {
   expr: GPIDecl<C>;
 }
 
+export interface NotCollError {
+  tag: "NotCollError";
+  expr: Expr<C>;
+}
+
 export interface NotShapeError {
   tag: "NotShapeError";
   path: ResolvedPath<C>;
@@ -339,6 +352,12 @@ export interface NotShapeError {
 export interface NotValueError {
   tag: "NotValueError";
   expr: Expr<C>;
+}
+
+export interface OutOfBoundsError {
+  tag: "OutOfBoundsError";
+  expr: Path<C>;
+  indices: number[];
 }
 
 export interface PropertyMemberError {

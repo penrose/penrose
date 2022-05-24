@@ -93,6 +93,7 @@ import {
   FGPI,
   Field,
   FieldExpr,
+  FloatV,
   GPI,
   GPIMap,
   GPIProps,
@@ -1908,6 +1909,51 @@ const evalBinOp = (
   }
 };
 
+const evalAccess = (
+  expr: Path<C>,
+  coll: Value<ad.Num>,
+  indices: number[]
+): Result<FloatV<ad.Num>, StyleError> => {
+  switch (coll.tag) {
+    case "ListV":
+    case "TupV":
+    case "VectorV": {
+      if (indices.length !== 1) {
+        return err({ tag: "BadIndexError", expr });
+      }
+      const [i] = indices;
+      if (!(Number.isInteger(i) && i >= 0 && i < coll.contents.length)) {
+        return err({ tag: "OutOfBoundsError", expr, indices });
+      }
+      return ok(floatV(coll.contents[i]));
+    }
+    case "LListV":
+    case "MatrixV":
+    case "PtListV": {
+      if (indices.length !== 2) {
+        return err({ tag: "BadIndexError", expr });
+      }
+      const [i, j] = indices;
+      if (!(Number.isInteger(i) && i >= 0 && i < coll.contents.length)) {
+        return err({ tag: "OutOfBoundsError", expr, indices });
+      }
+      const row = coll.contents[i];
+      if (!(Number.isInteger(j) && j >= 0 && j < row.length)) {
+        return err({ tag: "OutOfBoundsError", expr, indices });
+      }
+      return ok(floatV(row[j]));
+    }
+    case "BoolV":
+    case "ColorV":
+    case "FloatV":
+    case "IntV":
+    case "PathDataV":
+    case "StrV": {
+      return err({ tag: "NotCollError", expr });
+    }
+  }
+};
+
 const evalExpr = (
   { context, expr }: WithContext<Expr<C>>,
   trans: Translation
@@ -1978,7 +2024,39 @@ const evalExpr = (
       ) {
         return err(oneErr({ tag: "NotValueError", expr }));
       }
-      return ok(resolved);
+
+      if (expr.indices.length === 0) {
+        return ok(resolved);
+      }
+      if (resolved.tag === "GPI") {
+        return err(oneErr({ tag: "NotValueError", expr }));
+      }
+      const res = all(
+        expr.indices.map((e) =>
+          evalExpr({ context, expr: e }, trans).andThen<number>((i) => {
+            if (i.tag === "GPI") {
+              return err(oneErr({ tag: "NotValueError", expr: e }));
+            } else if (i.contents.tag === "IntV") {
+              return ok(i.contents.contents);
+            } else if (
+              i.contents.tag === "FloatV" &&
+              typeof i.contents.contents === "number"
+            ) {
+              return ok(i.contents.contents);
+            } else {
+              return err(oneErr({ tag: "BadIndexError", expr: e }));
+            }
+          })
+        )
+      );
+      if (res.isErr()) {
+        return err(flatErrs(res.error));
+      }
+      const elem = evalAccess(expr, resolved.contents, res.value);
+      if (elem.isErr()) {
+        return err(oneErr(elem.error));
+      }
+      return ok(val(elem.value));
     }
     case "StringLit": {
       return ok(val(strV(expr.contents)));
