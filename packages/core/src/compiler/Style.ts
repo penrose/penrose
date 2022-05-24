@@ -2,8 +2,10 @@ import { CustomHeap } from "@datastructures-js/heap";
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
+import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
-import { input } from "engine/Autodiff";
+import { input, ops } from "engine/Autodiff";
+import { add, div, mul, pow, sub } from "engine/AutodiffFunctions";
 import {
   defaultLbfgsParams,
   dummyASTNode,
@@ -27,6 +29,7 @@ import { A, C, Identifier, SourceRange } from "types/ast";
 import { Either } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
+  BinOpTypeError,
   ParseError,
   PenroseError,
   StyleDiagnostics,
@@ -36,7 +39,9 @@ import {
 } from "types/errors";
 import { Fn, OptType, Params, State } from "types/state";
 import {
+  BinaryOp,
   BindingForm,
+  BinOp,
   DeclPattern,
   Expr,
   Header,
@@ -121,6 +126,7 @@ import {
   ToRight,
   val,
   variationSeeds,
+  vectorV,
   zip2,
 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
@@ -132,14 +138,6 @@ const log = consola
 //#region consts
 const ANON_KEYWORD = "ANON";
 const LABEL_FIELD: Field = "label";
-
-const FN_KEY = { ConstrFn: "constraints", ObjFn: "objectives" };
-const FN_DICT = { ObjFn: objDict, ConstrFn: constrDict };
-
-const FN_ERR_TYPE = {
-  ObjFn: "InvalidObjectiveNameError",
-  ConstrFn: "InvalidConstraintNameError",
-} as const;
 
 //#endregion
 
@@ -175,6 +173,14 @@ const oneErr = (err: StyleError): StyleDiagnostics => {
 
 const warnings = (warns: StyleWarning[]): StyleDiagnostics => {
   return { errors: im.List(), warnings: im.List(warns) };
+};
+
+const flatErrs = (es: StyleDiagnostics[]): StyleDiagnostics => {
+  const l = im.List(es);
+  return {
+    errors: l.flatMap((e) => e.errors),
+    warnings: l.flatMap((e) => e.warnings),
+  };
 };
 
 const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
@@ -1734,27 +1740,224 @@ const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 //#region third pass
 
+const argValues = (
+  context: Context,
+  args: Expr<C>[],
+  trans: Translation
+): Result<(GPI<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> => {
+  const res = all(args.map((expr) => evalExpr({ context, expr }, trans)));
+  if (res.isErr()) {
+    return err(flatErrs(res.error));
+  }
+  return ok(
+    res.value.map((arg) => {
+      switch (arg.tag) {
+        case "GPI": // strip the `GPI` tag
+          return arg.contents;
+        case "Val": // strip both `Val` and type annotation like `FloatV`
+          return arg.contents.contents;
+      }
+    })
+  );
+};
+
+const evalBinOpScalars = (
+  op: BinaryOp,
+  left: ad.Num,
+  right: ad.Num
+): ad.Num => {
+  switch (op) {
+    case "BPlus": {
+      return add(left, right);
+    }
+    case "BMinus": {
+      return sub(left, right);
+    }
+    case "Multiply": {
+      return mul(left, right);
+    }
+    case "Divide": {
+      return div(left, right);
+    }
+    case "Exp": {
+      return pow(left, right);
+    }
+  }
+};
+
+const evalBinOpVectors = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[],
+  right: ad.Num[]
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "BPlus": {
+      return ok(ops.vadd(left, right));
+    }
+    case "BMinus": {
+      return ok(ops.vsub(left, right));
+    }
+    case "Multiply":
+    case "Divide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpScalarVector = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num,
+  right: ad.Num[]
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.vmul(left, right));
+    }
+    case "BPlus":
+    case "BMinus":
+    case "Divide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpVectorScalar = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[],
+  right: ad.Num
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.vmul(right, left));
+    }
+    case "Divide": {
+      return ok(ops.vdiv(left, right));
+    }
+    case "BPlus":
+    case "BMinus":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpStrings = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: string,
+  right: string
+): Result<string, StyleError> => {
+  switch (op) {
+    case "BPlus": {
+      return ok(left + right);
+    }
+    case "BMinus":
+    case "Multiply":
+    case "Divide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOp = (
+  expr: BinOp<C>,
+  left: Value<ad.Num>,
+  right: Value<ad.Num>
+): Result<Value<ad.Num>, StyleError> => {
+  const error: BinOpTypeError = {
+    tag: "BinOpTypeError",
+    expr,
+    left: left.tag,
+    right: right.tag,
+  };
+  if (
+    (left.tag === "IntV" || left.tag === "FloatV") &&
+    (right.tag === "IntV" || right.tag === "FloatV")
+  ) {
+    return ok(floatV(evalBinOpScalars(expr.op, left.contents, right.contents)));
+  } else if (left.tag === "VectorV" && right.tag === "VectorV") {
+    return evalBinOpVectors(error, expr.op, left.contents, right.contents).map(
+      vectorV
+    );
+  } else if (left.tag === "FloatV" && right.tag === "VectorV") {
+    return evalBinOpScalarVector(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(vectorV);
+  } else if (left.tag === "VectorV" && right.tag === "FloatV") {
+    return evalBinOpVectorScalar(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(vectorV);
+  } else if (left.tag === "StrV" && right.tag === "StrV") {
+    return evalBinOpStrings(error, expr.op, left.contents, right.contents).map(
+      strV
+    );
+  } else {
+    return err(error);
+  }
+};
+
 const evalExpr = (
   { context, expr }: WithContext<Expr<C>>,
   trans: Translation
-): Result<ArgVal<ad.Num>, StyleError> => {
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   switch (expr.tag) {
     case "BinOp": {
-      throw Error("TODO");
+      const left = evalExpr({ context, expr: expr.left }, trans);
+      if (left.isErr()) {
+        return err(left.error);
+      }
+      if (left.value.tag === "GPI") {
+        return err(oneErr({ tag: "NotValueError", expr: expr.left }));
+      }
+      const right = evalExpr({ context, expr: expr.left }, trans);
+      if (right.isErr()) {
+        return err(right.error);
+      }
+      if (right.value.tag === "GPI") {
+        return err(oneErr({ tag: "NotValueError", expr: expr.left }));
+      }
+      const res = evalBinOp(expr, left.value.contents, right.value.contents);
+      if (res.isErr()) {
+        return err(oneErr(res.error));
+      }
+      return ok(val(res.value));
     }
     case "BoolLit": {
       return ok(val(boolV(expr.contents)));
     }
     case "CompApp": {
-      throw Error("TODO");
+      const args = argValues(context, expr.args, trans);
+      if (args.isErr()) {
+        return err(args.error);
+      }
+      const { name } = expr;
+      if (!(name.value in compDict)) {
+        return err(
+          oneErr({ tag: "InvalidFunctionNameError", givenName: name })
+        );
+      }
+      const x: Value<ad.Num> = compDict[name.value]({ rng }, ...args.value);
+      return ok(val(x));
     }
     case "ConstrFn":
     case "Layering":
     case "ObjFn": {
-      return err({ tag: "NotValueError", expr });
+      return err(oneErr({ tag: "NotValueError", expr }));
     }
     case "GPIDecl": {
-      return err({ tag: "NotValueError", expr });
+      return err(oneErr({ tag: "NotValueError", expr }));
     }
     case "Fix": {
       return ok(val(floatV(expr.contents)));
@@ -1766,14 +1969,14 @@ const evalExpr = (
       const path = prettyPrintResolvedPath(resolveRhsPath({ context, expr }));
       const resolved = trans.symbols.get(path);
       if (resolved === undefined) {
-        return err({ tag: "MissingPathError", path });
+        return err(oneErr({ tag: "MissingPathError", path }));
       }
       if (
         resolved.tag === "Obj" ||
         resolved.tag === "Constr" ||
         resolved.tag === "Layer"
       ) {
-        return err({ tag: "NotValueError", expr });
+        return err(oneErr({ tag: "NotValueError", expr }));
       }
       return ok(resolved);
     }
@@ -1792,17 +1995,6 @@ const evalExpr = (
     case "Vector": {
       throw Error("TODO");
     }
-  }
-};
-
-const argValue = (
-  e: ArgVal<ad.Num>
-): (GPI<ad.Num> | Value<ad.Num>)["contents"] => {
-  switch (e.tag) {
-    case "GPI": // strip the `GPI` tag
-      return e.contents;
-    case "Val": // strip both `Val` and type annotation like `FloatV`
-      return e.contents.contents;
   }
 };
 
@@ -1825,43 +2017,47 @@ const translateExpr = (
     case "Vector": {
       const res = evalExpr(e, trans);
       if (res.isErr()) {
-        return addDiags(oneErr(res.error), trans);
+        return addDiags(res.error, trans);
       }
       return {
         ...trans,
         symbols: trans.symbols.set(path, res.value),
       };
     }
-    case "ConstrFn":
-    case "ObjFn": {
-      const args = all(
-        e.expr.args.map((arg) =>
-          evalExpr({ context: e.context, expr: arg }, trans)
-        )
-      );
+    case "ConstrFn": {
+      const args = argValues(e.context, e.expr.args, trans);
       if (args.isErr()) {
-        return addDiags(
-          { errors: im.List(args.error), warnings: im.List() },
-          trans
-        );
+        return addDiags(args.error, trans);
       }
-
-      // TODO: typecheck this part better
-      const key = FN_KEY[e.expr.tag];
-      const dict = FN_DICT[e.expr.tag];
       const { name } = e.expr;
-      if (!(name.value in dict)) {
+      if (!(name.value in constrDict)) {
         return addDiags(
-          oneErr({
-            tag: FN_ERR_TYPE[e.expr.tag],
-            givenName: e.expr.name,
-          }),
+          oneErr({ tag: "InvalidConstraintNameError", givenName: name }),
           trans
         );
       }
       return {
         ...trans,
-        [key]: trans[key].push(dict[name.value](...args.value.map(argValue))),
+        constraints: trans.constraints.push(
+          constrDict[name.value](...args.value)
+        ),
+      };
+    }
+    case "ObjFn": {
+      const args = argValues(e.context, e.expr.args, trans);
+      if (args.isErr()) {
+        return addDiags(args.error, trans);
+      }
+      const { name } = e.expr;
+      if (!(name.value in objDict)) {
+        return addDiags(
+          oneErr({ tag: "InvalidObjectiveNameError", givenName: name }),
+          trans
+        );
+      }
+      return {
+        ...trans,
+        objectives: trans.objectives.push(objDict[name.value](...args.value)),
       };
     }
     case "Layering": {

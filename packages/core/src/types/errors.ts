@@ -1,11 +1,14 @@
-//#region ErrorTypes
 import im from "immutable";
+import * as ad from "types/ad";
 import { A, AbstractNode, C, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
-import { BindingForm, Expr, GPIDecl, Path } from "./style";
+import { BindingForm, BinOp, Expr, GPIDecl, Path } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
+import { Value } from "./value";
+
+//#region ErrorTypes
 
 // type PenroseError = LanguageError | RuntimeError;
 // type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
@@ -153,6 +156,7 @@ export type StyleError =
   | AssignAccessError
   | AssignGlobalError
   | AssignSubstanceError
+  | BinOpTypeError
   | DeleteAccessError
   | DeleteGlobalError
   | DeleteSubstanceError
@@ -288,6 +292,13 @@ export interface AssignGlobalError {
 export interface AssignSubstanceError {
   tag: "AssignSubstanceError";
   path: ResolvedPath<C>;
+}
+
+export interface BinOpTypeError {
+  tag: "BinOpTypeError";
+  expr: BinOp<C>;
+  left: Value<ad.Num>["tag"];
+  right: Value<ad.Num>["tag"];
 }
 
 export interface DeleteAccessError {
