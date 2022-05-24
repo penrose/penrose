@@ -1,0 +1,29 @@
+canvas {
+  width = 400
+  height = 400
+}
+
+forall Arrow a {
+    a.x = (?, ?)
+    a.icon = Line {
+        start: a.x
+        end: (a.x[0] + 0.2 * a.x[1], a.x[1] - 0.2 * a.x[0])
+        endArrowhead: true
+        strokeColor: rgba(0,0,0,1)
+    }
+}
+
+forall Ball b {
+    b.icon = Circle {
+        r: 100
+    }
+}
+
+forall Arrow a1, a2 {
+    encourage lessThan(60, vdist(a1.x, a2.x))
+}
+
+forall Arrow a; Ball b {
+    ensure disjoint(a.icon, b.icon, 20)
+}
+
