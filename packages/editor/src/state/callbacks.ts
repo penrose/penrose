@@ -1,9 +1,12 @@
 import {
   compileDomain,
   compileTrio,
+  PenroseState,
   prepareState,
   resample,
-  stepUntilConvergence,
+  stateConverged,
+  stepState,
+  stepStateSafe,
   Trio,
   variationSeeds,
 } from "@penrose/core";
@@ -25,6 +28,7 @@ import {
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "./atoms";
+import { generateVariation } from "./variation";
 
 const _compileDiagram = async (
   substance: string,
@@ -32,6 +36,7 @@ const _compileDiagram = async (
   domain: string,
   variation: string,
   autostep: boolean,
+  stepSize: number,
   set: any
 ) => {
   const compiledDomain = compileDomain(domain);
@@ -55,28 +60,63 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const initialState = await prepareState(compileResult.value);
-  set(diagramState, (state: Diagram) => ({
-    ...state,
-    error: null,
-    state: initialState,
-  }));
-  if (autostep) {
-    const stepResult = stepUntilConvergence(initialState);
-    if (stepResult.isErr()) {
-      set(diagramState, (state: Diagram) => ({
-        ...state,
-        error: stepResult.error,
-      }));
-      return;
-    }
-    set(diagramState, (state: Diagram) => ({
+  const initialState = resample(await prepareState(compileResult.value));
+  set(
+    diagramState,
+    (state: Diagram): Diagram => ({
       ...state,
       error: null,
-      state: stepResult.value,
-    }));
+      metadata: { ...state.metadata, variation },
+      state: initialState,
+    })
+  );
+  _stepDiagram(autostep, stepSize, initialState, set);
+};
+
+export const _stepDiagram = async (
+  autostep: boolean,
+  stepSize: number,
+  initialState: PenroseState,
+  set: any
+) => {
+  if (autostep) {
+    const steppingLoading = toast.loading("Stepping...");
+    let currentState = initialState;
+    while (!stateConverged(currentState)) {
+      const stepResult = stepStateSafe(currentState, stepSize);
+      if (stepResult.isErr()) {
+        set(diagramState, (state: Diagram) => ({
+          ...state,
+          error: stepResult.error,
+        }));
+        return;
+      } else {
+        await new Promise((r) => setTimeout(r, 1));
+        set(diagramState, (state: Diagram) => ({
+          ...state,
+          error: null,
+          state: stepResult.value,
+        }));
+        currentState = stepResult.value;
+      }
+    }
+    toast.dismiss(steppingLoading);
   }
 };
+
+export const useStepDiagram = () =>
+  useRecoilCallback(({ set }) => () =>
+    set(diagramState, (diagram: Diagram) => {
+      if (diagram.state === null) {
+        toast.error(`No diagram`);
+        return diagram;
+      }
+      return {
+        ...diagram,
+        state: stepState(diagram.state, diagram.metadata.stepSize),
+      };
+    })
+  );
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
@@ -92,6 +132,7 @@ export const useCompileDiagram = () =>
       domainFile,
       diagram.metadata.variation,
       diagram.metadata.autostep,
+      diagram.metadata.stepSize,
       set
     );
   });
@@ -104,7 +145,8 @@ export const useResampleDiagram = () =>
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
-    const variation = uuid();
+    const variation = generateVariation();
+    const resamplingLoading = toast.loading("Resampling...");
     const seeds = variationSeeds(variation).seeds;
     const resampled = resample({ ...diagram.state, seeds });
     set(diagramState, (state) => ({
@@ -112,21 +154,9 @@ export const useResampleDiagram = () =>
       metadata: { ...state.metadata, variation },
       state: resampled,
     }));
-    if (diagram.metadata.autostep) {
-      const stepResult = stepUntilConvergence(resampled);
-      if (stepResult.isErr()) {
-        set(diagramState, (state: Diagram) => ({
-          ...state,
-          error: stepResult.error,
-        }));
-        return;
-      }
-      set(diagramState, (state: Diagram) => ({
-        ...state,
-        error: null,
-        state: stepResult.value,
-      }));
-    }
+    toast.dismiss(resamplingLoading);
+    const { autostep, stepSize } = diagram.metadata;
+    _stepDiagram(autostep, stepSize, resampled, set);
   });
 
 const _saveLocally = (set: any) => {
@@ -178,12 +208,13 @@ export const useLoadLocalWorkspace = () =>
       loadedWorkspace.files.domain.contents,
       uuid(),
       true,
+      10000, // COMBAK: figure out the right default
       set
     );
   });
 
 export const useLoadExampleWorkspace = () =>
-  useRecoilCallback(({ set, snapshot }) => async (trio: Trio) => {
+  useRecoilCallback(({ set, reset, snapshot }) => async (trio: Trio) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents;
     if (!_confirmDirtyWorkspace(currentWorkspace)) {
@@ -223,7 +254,16 @@ export const useLoadExampleWorkspace = () =>
         },
       },
     });
-    await _compileDiagram(substance, style, domain, trio.variation, true, set);
+    reset(diagramState);
+    await _compileDiagram(
+      substance,
+      style,
+      domain,
+      trio.variation,
+      true,
+      10000, // COMBAK: figure out the right default
+      set
+    );
   });
 
 export const useCheckURL = () =>
@@ -257,7 +297,7 @@ export const useCheckURL = () =>
       toast.dismiss(id);
       if (res.status !== 200) {
         console.error(res);
-        toast.error(`Could not load gist: ${res.status}`);
+        toast.error(`Could not load gist: ${res.statusText}`);
         return;
       }
       const json = await res.json();
@@ -347,23 +387,25 @@ export const usePublishGist = () =>
     });
     const json = await res.json();
     if (res.status !== 201) {
-      console.error(`Could not publish gist: ${res.status}`);
-      toast.error(`Could not publish gist: ${res.status} ${json.message}`);
+      console.error(`Could not publish gist: ${res.statusText}`);
+      toast.error(`Could not publish gist: ${res.statusText} ${json.message}`);
       return;
     }
     toast.success(`Published gist, redirecting...`);
     window.location.search = queryString.stringify({ gist: json.id });
   });
 
+const REDIRECT_URL =
+  process.env.NODE_ENV === "development"
+    ? "https://penrose-gh-auth-zeta.vercel.app/connect/github"
+    : "https://penrose-gh-auth.vercel.app/connect/github";
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
     if (!_confirmDirtyWorkspace(workspace)) {
       return;
     }
-    window.location.replace(
-      "https://penrose-gh-auth.vercel.app/connect/github"
-    );
+    window.location.replace(REDIRECT_URL);
   });
 
 export const useDeleteLocalFile = () =>

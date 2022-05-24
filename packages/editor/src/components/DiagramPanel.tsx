@@ -1,7 +1,34 @@
 import { RenderStatic, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { diagramState } from "../state/atoms";
+import toast from "react-hot-toast";
+import { useRecoilCallback, useRecoilValue } from "recoil";
+import {
+  diagramState,
+  WorkspaceMetadata,
+  workspaceMetadataSelector,
+} from "../state/atoms";
+import BlueButton from "./BlueButton";
+
+/**
+ * (browser-only) Downloads any given exported SVG to the user's computer
+ * @param svg
+ * @param title the filename
+ */
+export const DownloadSVG = (
+  svg: SVGSVGElement,
+  title = "illustration"
+): void => {
+  const blob = new Blob([svg.outerHTML], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = url;
+  downloadLink.download = `${title}.svg`;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+};
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -24,6 +51,47 @@ export default function DiagramPanel() {
     }
   }, [state]);
 
+  const downloadSvg = useRecoilCallback(({ snapshot }) => () => {
+    if (canvasRef.current !== null) {
+      const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        DownloadSVG(svg, metadata.name);
+      }
+    }
+  });
+
+  const downloadPdf = useRecoilCallback(
+    ({ snapshot }) => () => {
+      if (canvasRef.current !== null) {
+        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+        if (svg !== null && state) {
+          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+            .contents as WorkspaceMetadata;
+          const openedWindow = window.open(
+            "",
+            "PRINT",
+            `height=${state.canvas.height},width=${state.canvas.width}`
+          );
+          if (openedWindow === null) {
+            toast.error("Couldn't open popup to print");
+            return;
+          }
+          openedWindow.document.write(
+            `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+          );
+          openedWindow.document.write(svg.outerHTML);
+          openedWindow.document.write("</body></html>");
+          openedWindow.document.close();
+          openedWindow.focus();
+          openedWindow.print();
+        }
+      }
+    },
+    [state]
+  );
+
   return (
     <div>
       {state === null && (
@@ -41,6 +109,12 @@ export default function DiagramPanel() {
         }}
         ref={canvasRef}
       />
+      {state && (
+        <div>
+          <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+          <BlueButton onClick={downloadPdf}>PDF</BlueButton>
+        </div>
+      )}
       {error && (
         <div
           style={{
