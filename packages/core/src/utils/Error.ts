@@ -436,27 +436,22 @@ export const safeChain = <Item, Ok, Error>(
     initialResult
   );
 
-/**
- * Hand-written version of `Result.all`.
- */
 export const all = <Ok, Error>(
   results: Result<Ok, Error>[]
-): Result<Ok[], Error> => {
-  return results.reduce(
-    (
-      currentResults: Result<Ok[], Error>,
-      nextResult: Result<Ok, Error>
-    ): Result<Ok[], Error> =>
-      currentResults.match({
-        Ok: (current: Ok[]) =>
-          nextResult.match({
-            Ok: (next: Ok) => ok([...current, next]),
-            Err: (e: Error) => err(e),
-          }),
-        Err: (e: Error) => err(e),
-      }),
-    ok([])
-  );
+): Result<Ok[], Error[]> => {
+  const oks = [];
+  const errs = [];
+  for (const res of results) {
+    if (res.isOk()) {
+      oks.push(res.value);
+    } else {
+      errs.push(res.error);
+    }
+  }
+  if (errs.length > 0) {
+    return err(errs);
+  }
+  return ok(oks);
 };
 
 // NOTE: re-export all true-myth types to reduce boilerplate

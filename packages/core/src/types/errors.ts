@@ -3,7 +3,7 @@ import im from "immutable";
 import { A, AbstractNode, C, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
-import { BindingForm, GPIDecl, Path } from "./style";
+import { BindingForm, Expr, GPIDecl, Path } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
 
@@ -160,6 +160,7 @@ export type StyleError =
   | MissingShapeError
   | NestedShapeError
   | NotShapeError
+  | NotValueError
   | PropertyMemberError
   // Runtime errors
   | RuntimeValueTypeError;
@@ -316,13 +317,17 @@ export interface MissingShapeError {
 
 export interface NestedShapeError {
   tag: "NestedShapeError";
-  path: ResolvedPath<C>;
   expr: GPIDecl<C>;
 }
 
 export interface NotShapeError {
   tag: "NotShapeError";
   path: ResolvedPath<C>;
+}
+
+export interface NotValueError {
+  tag: "NotValueError";
+  expr: Expr<C>;
 }
 
 export interface PropertyMemberError {

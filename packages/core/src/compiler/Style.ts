@@ -5,6 +5,7 @@ import { constrDict } from "contrib/Constraints";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
+import { input } from "engine/Autodiff";
 import {
   defaultLbfgsParams,
   dummyASTNode,
@@ -92,9 +93,11 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
+  ArgVal,
   FGPI,
   Field,
   FieldExpr,
+  GPI,
   GPIMap,
   GPIProps,
   PropID,
@@ -104,6 +107,7 @@ import {
   Value,
 } from "types/value";
 import {
+  all,
   andThen,
   err,
   isErr,
@@ -121,6 +125,7 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   randFloat,
+  strV,
   ToLeft,
   ToRight,
   val,
@@ -1524,7 +1529,6 @@ const updateExpr = (
 
 const processExpr = (
   context: Context,
-  path: ResolvedPath<C>,
   expr: Expr<C>
 ): Result<FieldSource, StyleError> => {
   if (expr.tag !== "GPIDecl") {
@@ -1538,7 +1542,7 @@ const processExpr = (
     expr.properties,
     ({ name, value }, m) => {
       if (value.tag === "GPIDecl") {
-        return err({ tag: "NestedShapeError", path, expr: value });
+        return err({ tag: "NestedShapeError", expr: value });
       }
       return ok(m.set(name.value, { context, expr: value }));
     },
@@ -1556,11 +1560,7 @@ const insertExpr = (
   updateExpr(path, assignment, "Assign", (field, prop, fielded) => {
     const warns: StyleWarning[] = [];
     if (prop === undefined) {
-      const source = processExpr(
-        { ...block, locals: assignment.locals },
-        path,
-        expr
-      );
+      const source = processExpr({ ...block, locals: assignment.locals }, expr);
       if (source.isErr()) {
         return err(source.error);
       }
@@ -1570,7 +1570,7 @@ const insertExpr = (
       return ok({ dict: fielded.set(field, source.value), warns });
     } else {
       if (expr.tag === "GPIDecl") {
-        return err({ tag: "NestedShapeError", path, expr });
+        return err({ tag: "NestedShapeError", expr });
       }
       const shape = fielded.get(field);
       if (shape === undefined) {
@@ -1972,35 +1972,30 @@ const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 //#region third pass
 
-const translateExpr = (
-  path: string,
-  { expr }: WithContext<NotShape>,
+const evalExpr = (
+  { context, expr }: WithContext<Expr<C>>,
   trans: Translation
-): Translation => {
+): Result<ArgVal<ad.Num>, StyleError> => {
   switch (expr.tag) {
     case "BinOp": {
       throw Error("TODO");
     }
     case "BoolLit": {
-      return {
-        ...trans,
-        symbols: trans.symbols.set(path, val(boolV(expr.contents))),
-      };
+      return ok(val(boolV(expr.contents)));
     }
     case "CompApp": {
       throw Error("TODO");
     }
-    case "ConstrFn": {
+    case "ConstrFn":
+    case "Layering":
+    case "ObjFn": {
+      return err({ tag: "NotValueError", expr });
+    }
+    case "GPIDecl": {
       throw Error("TODO");
     }
     case "Fix": {
-      return {
-        ...trans,
-        symbols: trans.symbols.set(path, val(floatV(expr.contents))),
-      };
-    }
-    case "Layering": {
-      throw Error("TODO");
+      return ok(val(floatV(expr.contents)));
     }
     case "List": {
       throw Error("TODO");
@@ -2008,14 +2003,23 @@ const translateExpr = (
     case "Matrix": {
       throw Error("TODO");
     }
-    case "ObjFn": {
-      throw Error("TODO");
-    }
     case "Path": {
-      throw Error("TODO");
+      const path = prettyPrintResolvedPath(resolveRhsPath({ context, expr }));
+      const resolved = trans.symbols.get(path);
+      if (resolved === undefined) {
+        return err({ tag: "MissingPathError", path });
+      }
+      if (
+        resolved.tag === "Obj" ||
+        resolved.tag === "Constr" ||
+        resolved.tag === "Layer"
+      ) {
+        return err({ tag: "NotValueError", expr });
+      }
+      return ok(resolved);
     }
     case "StringLit": {
-      throw Error("TODO");
+      return ok(val(strV(expr.contents)));
     }
     case "Tuple": {
       throw Error("TODO");
@@ -2024,10 +2028,90 @@ const translateExpr = (
       throw Error("TODO");
     }
     case "Vary": {
-      throw Error("TODO");
+      return ok(val(floatV(input({ key: 0, val: 0 })))); // COMBAK
     }
     case "Vector": {
       throw Error("TODO");
+    }
+  }
+};
+
+const argValue = (
+  e: ArgVal<ad.Num>
+): (GPI<ad.Num> | Value<ad.Num>)["contents"] => {
+  switch (e.tag) {
+    case "GPI": // strip the `GPI` tag
+      return e.contents;
+    case "Val": // strip both `Val` and type annotation like `FloatV`
+      return e.contents.contents;
+  }
+};
+
+const translateExpr = (
+  path: string,
+  e: WithContext<NotShape>,
+  trans: Translation
+): Translation => {
+  switch (e.expr.tag) {
+    case "BinOp":
+    case "BoolLit":
+    case "CompApp":
+    case "Fix":
+    case "List":
+    case "Matrix":
+    case "Path":
+    case "StringLit":
+    case "Tuple":
+    case "UOp":
+    case "Vary":
+    case "Vector": {
+      const res = evalExpr(e, trans);
+      if (res.isErr()) {
+        return addDiags(oneErr(res.error), trans);
+      }
+      return {
+        ...trans,
+        symbols: trans.symbols.set(path, res.value),
+      };
+    }
+    case "ConstrFn":
+    case "ObjFn": {
+      const args = all(
+        e.expr.args.map((arg) =>
+          evalExpr({ context: e.context, expr: arg }, trans)
+        )
+      );
+      if (args.isErr()) {
+        return addDiags(
+          { errors: im.List(args.error), warnings: im.List() },
+          trans
+        );
+      }
+
+      // TODO: typecheck this part better
+      const m = {
+        ConstrFn: { key: "constraints", dict: constrDict },
+        ObjF: { key: "objectives", dict: objDict },
+      };
+      const { key, dict } = m[e.expr.tag];
+      return {
+        ...trans,
+        [key]: trans[key].push(
+          dict[e.expr.tag][e.expr.name.value](...args.value.map(argValue))
+        ),
+      };
+    }
+    case "Layering": {
+      const below = prettyPrintResolvedPath(
+        resolveRhsPath({ context: e.context, expr: e.expr.below })
+      );
+      const above = prettyPrintResolvedPath(
+        resolveRhsPath({ context: e.context, expr: e.expr.above })
+      );
+      return {
+        ...trans,
+        layering: trans.layering.push({ below, above }),
+      };
     }
   }
 };

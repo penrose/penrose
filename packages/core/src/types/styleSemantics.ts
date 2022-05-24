@@ -179,7 +179,7 @@ export interface Translation {
   varying: im.List<ad.Input>;
   objectives: im.List<ad.Num>;
   constraints: im.List<ad.Num>;
-  layering: im.List<[string, string]>;
+  layering: im.List<Omit<Layer, "tag">>;
 }
 
 //#endregion

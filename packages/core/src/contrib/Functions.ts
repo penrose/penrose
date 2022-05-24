@@ -1392,9 +1392,8 @@ export const compDict = {
   },
 };
 
-// _compDictVals causes TypeScript to enforce that every function in compDict
-// takes a Context as its first parameter
-
+// `_compDictVals` causes TypeScript to enforce that every function in
+// `compDict` takes a `Context` as its first parameter and returns a `Value`
 const _compDictVals: ((
   context: Context,
   ...rest: never[]
