@@ -1534,10 +1534,11 @@ export const compDict = {
         contents: sdPolyline(s, p),
       };
     } else if (t === "Ellipse") {
-      return {
-        tag: "FloatV",
-        contents: sdEllipse(s, p),
-      };
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+      // return {
+      //   tag: "FloatV",
+      //   contents: sdEllipse(s, p),
+      // };
     } else if (t === "Path") {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
     } else {
@@ -1584,7 +1585,7 @@ const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
   return minN(dists);
 };
 
-const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
+export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
   return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
 };
 
