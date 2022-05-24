@@ -73,14 +73,11 @@ forall Step s {
    shape s.boundary = Circle {
       center: (?,?)
       r: 1.
-      --fillColor: rgba( .2, .6, .2, .2 )
       fillColor: none()
       strokeColor: Colors.black
       strokeWidth: Global.baseWidth
       ensureOnCanvas: false
    }
-
-   -- signedDistance( shape, vec2 )
 
    shape s.dot = Circle {
       center: s.boundary.center
@@ -125,6 +122,13 @@ forall Step s {
 }
 
 forall Step s
+where offCenter(s) {
+   override s.dot.center = (?,?)
+
+   ensure lessThan( norm(s.dot.center-s.boundary.center), .75*s.boundary.r )
+}
+
+forall Step s
 where s has label {
 
    shape s.labelText = Text {
@@ -147,7 +151,7 @@ where s has label {
 }
 
 forall Step s
-where isNested( s ) {
+where nested( s ) {
    override s.ball.fillColor = rgba( 1, 1, 1, .4 )
    override s.dot.fillColor = Colors.white
    override s.boundary.strokeColor = Colors.white
@@ -214,8 +218,8 @@ where x1 := sampleBoundary(x0) {
    color walkColor = rgba( 0, 0, .7, 1 )
 
    shape walkLine = Line {
-      start: x0.boundary.center
-      end: x1.boundary.center
+      start: x0.dot.center
+      end: x1.dot.center
       strokeWidth: 2.
       strokeColor: walkColor
    }
