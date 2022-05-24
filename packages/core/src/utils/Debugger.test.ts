@@ -13,6 +13,7 @@ import {
   SubProg,
 } from "../index";
 import { DebugProgramType, DebugStyleBlock } from "./Debugger";
+import { getInconsistentDebugFunctions } from "./DebugShapeList";
 
 /**
  * Load source code of example program
@@ -108,7 +109,7 @@ describe("Debug API", () => {
 
   test("Debug State Control", async () => {
     // Ensure debugger function registry is consistent
-    expect(Debugger.checkFunctionRegistryConsistenvy()).toEqual([]);
+    expect(getInconsistentDebugFunctions()).toEqual([]);
 
     // Ensure: no blocks found in empty Debugger
     expect(dbgEmpty.getBlocks()).toEqual([]);
