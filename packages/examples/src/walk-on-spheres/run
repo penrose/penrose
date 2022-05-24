@@ -1,1 +1,1 @@
-npx roger watch $(PWD)/Poisson.sub $(PWD)/walk-on-spheres.dsl $(PWD)/walk-on-spheres.sty
+npx roger watch $(PWD)/OffCenter.sub $(PWD)/walk-on-spheres.dsl $(PWD)/walk-on-spheres.sty
