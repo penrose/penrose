@@ -107,6 +107,9 @@ describe("Debug API", () => {
   // -------------------------- Test internal state control ------------------------- //
 
   test("Debug State Control", async () => {
+    // Ensure debugger function registry is consistent
+    expect(Debugger.checkFunctionRegistryConsistenvy()).toEqual([]);
+
     // Ensure: no blocks found in empty Debugger
     expect(dbgEmpty.getBlocks()).toEqual([]);
 
@@ -145,7 +148,7 @@ describe("Debug API", () => {
       dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
     }).toThrowError();
 
-    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete AST)
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
     dbgEmpty.setStySrc(styleSrc);
     expect(() => {
       dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
@@ -365,5 +368,20 @@ describe("Debug API", () => {
     expect(() => {
       dbg.queryExplainStyleBlockApplication(21, {});
     }).toThrowError();
+  });
+
+  // ------------------------- Question 4: queryShapeFields() ----------------------- //
+
+  test("Debug queryShapeFields", async () => {
+    // Get a live Debugger instance
+    const dbg = await getLiveDebugger(
+      styleSrc,
+      domainSrc,
+      substanceSrc,
+      variation
+    );
+
+    // queryShapeFields() == (see below)
+    // !!! expect(dbg.queryShapeFields()).toEqual([]); // !!!
   });
 });

@@ -60,7 +60,9 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(seedrandom(state.seeds.step), state, numSteps, true);
+  const stepState = step(seedrandom(state.seeds.step), state, numSteps, true);
+  Debugger.getInstance().setState(stepState); // Update the Debugger w/state
+  return stepState;
 };
 
 /**
