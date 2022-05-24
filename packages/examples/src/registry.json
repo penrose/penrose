@@ -108,6 +108,12 @@
       "style": "hypergraph",
       "domain": "hypergraph",
       "variation": "ConchSpoonbill0283"
+    },
+    {
+      "substance": "persistent-homology",
+      "style": "persistent-homology",
+      "domain": "persistent-homology",
+      "variation": "RainmakerMarten88256"
     }
   ],
   "domains": {
@@ -146,6 +152,10 @@
     "hypergraph": {
       "name": "Hypergraph",
       "URI": "hypergraph/hypergraph.dsl"
+    },
+    "persistent-homology": {
+      "name": "Persistent Homology",
+      "URI": "persistent-homology/persistent-homology.dsl"
     }
   },
   "styles": {
@@ -223,6 +233,11 @@
       "domain": "hypergraph",
       "name": "Hypergraph",
       "URI": "hypergraph/hypergraph.sty"
+    },
+    "persistent-homology": {
+      "domain": "persistent-homology",
+      "name": "Persistent Homology",
+      "URI": "persistent-homology/persistent-homology.sty"
     }
   },
   "substances": {
@@ -300,6 +315,11 @@
       "domain": "hypergraph",
       "name": "Hypergraph",
       "URI": "hypergraph/hypergraph.sub"
+    },
+    "persistent-homology": {
+      "domain": "persistent-homology",
+      "name": "Persistent Homology",
+      "URI": "persistent-homology/persistent-homology.sub"
     }
   }
 }
