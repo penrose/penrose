@@ -415,26 +415,32 @@ export const floatV = (contents: ad.Num): FloatV<ad.Num> => ({
   tag: "FloatV",
   contents,
 });
+
 export const intV = (contents: number): IntV => ({
   tag: "IntV",
   contents,
 });
+
 export const boolV = (contents: boolean): BoolV => ({
   tag: "BoolV",
   contents,
 });
+
 export const strV = (contents: string): StrV => ({
   tag: "StrV",
   contents,
 });
+
 export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
   tag: "PathDataV",
   contents,
 });
+
 export const ptListV = (contents: ad.Num[][]): PtListV<ad.Num> => ({
   tag: "PtListV",
   contents,
 });
+
 export const colorV = (contents: Color<ad.Num>): ColorV<ad.Num> => ({
   tag: "ColorV",
   contents,
@@ -444,18 +450,22 @@ export const listV = (contents: ad.Num[]): ListV<ad.Num> => ({
   tag: "ListV",
   contents,
 });
+
 export const vectorV = (contents: ad.Num[]): VectorV<ad.Num> => ({
   tag: "VectorV",
   contents,
 });
+
 export const matrixV = (contents: ad.Num[][]): MatrixV<ad.Num> => ({
   tag: "MatrixV",
   contents,
 });
+
 export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
   tag: "TupV",
   contents,
 });
+
 export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
   tag: "LListV",
   contents,
