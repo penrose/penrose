@@ -136,6 +136,7 @@ import {
   strV,
   ToLeft,
   ToRight,
+  tupV,
   val,
   variationSeeds,
   vectorV,
@@ -2203,7 +2204,18 @@ const evalExpr = (
       return ok(val(strV(expr.contents)));
     }
     case "Tuple": {
-      throw Error("TODO");
+      return evalVals(context, expr.contents, trans).andThen(
+        ([left, right]) => {
+          if (
+            (left.tag === "IntV" || left.tag === "FloatV") &&
+            (right.tag === "IntV" || right.tag === "FloatV")
+          ) {
+            return ok(val(tupV([left.contents, right.contents])));
+          } else {
+            return err(oneErr({ tag: "BadElementError", coll: expr }));
+          }
+        }
+      );
     }
     case "UOp": {
       return evalExpr({ context, expr: expr.arg }, trans).andThen((argVal) => {
