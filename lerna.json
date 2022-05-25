@@ -1,7 +1,6 @@
 {
   "packages": [
     "packages/automator",
-    "packages/browser-ui",
     "packages/components",
     "packages/core",
     "packages/docs-site",

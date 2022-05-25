@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "node build.js",
+    "clean": "rimraf dist",
     "typecheck": "yarn build"
   }
 }
