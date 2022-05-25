@@ -20,8 +20,8 @@ offCenter( x3 )
 offCenter( x4 )
 
 AutoLabel All
-Label U "Ω"
-Label x3 "…"
-Label x4 "xk"
+Label U $\Omega$
+Label x3 $\ldots$
+Label x4 $x_k$
 
 

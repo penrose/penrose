@@ -17,9 +17,9 @@ y2 := sampleSource(x2)
 y3 := sampleSource(x3)
 
 AutoLabel All
-Label U "Ω"
-Label x2 "…"
-Label x3 "xk"
+Label U $\Omega$
+Label x2 $\ldots$
+Label x3 $x_k$
 NoLabel y2
 NoLabel y3
 

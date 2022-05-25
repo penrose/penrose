@@ -29,11 +29,11 @@ nested( y10 )
 nested( y11 )
 nested( y12 )
 
-Label U "Ω"
-Label x0 "x0"
-Label x1 "x1"
-Label x2 "…"
-Label x3 "xk"
-Label y00 "y0"
-Label y10 "y1"
+Label U $\Omega$
+Label x0 $x_0$
+Label x1 $x_1$
+Label x2 $\ldots$
+Label x3 $x_k$
+Label y00 $y_0$
+Label y10 $y_1$
 
