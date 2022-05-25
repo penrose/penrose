@@ -43,7 +43,10 @@ export type WorkspaceLocation =
       kind: "example";
       root: string; // URL to the parent folder of the Style file
     }
-  | { kind: "roger" };
+  | {
+      kind: "roger";
+      root: string; // URL to the parent folder of the Style file
+    };
 
 export type WorkspaceMetadata = {
   name: string;
@@ -71,6 +74,18 @@ export type Workspace = {
 export type LocalWorkspaces = {
   [id: string]: WorkspaceMetadata;
 };
+
+export type RogerState =
+  | {
+      kind: "disconnected";
+    }
+  | {
+      kind: "connected";
+      ws: WebSocket;
+      substance: string[];
+      style: string[];
+      domain: string[];
+    };
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
   setSelf(
@@ -179,6 +194,11 @@ export const currentWorkspaceState = atom<Workspace>({
     },
   },
   effects: [saveWorkspaceEffect, syncFilenamesEffect],
+});
+
+export const currentRogerState = atom<RogerState>({
+  key: "currentRogerState",
+  default: { kind: "disconnected" },
 });
 
 /**

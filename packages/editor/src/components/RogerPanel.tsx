@@ -30,7 +30,15 @@ export default function RogerPanel({
           ...state,
           metadata: {
             ...state.metadata,
-            location: { kind: "roger" as const },
+            location: {
+              kind: "roger" as const,
+              // TODO: only set the root of the location if a style file is selected
+              // TODO: do path processing in a more principled way
+              root: val.substring(
+                0,
+                Math.max(val.lastIndexOf("\\"), val.lastIndexOf("/")) + 1
+              ),
+            },
             id: uuid(),
           },
           files,

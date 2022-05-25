@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import {
+  currentRogerState,
   diagramState,
   WorkspaceMetadata,
   workspaceMetadataSelector,
@@ -41,6 +42,7 @@ export default function DiagramPanel() {
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const { location } = useRecoilValue(workspaceMetadataSelector);
+  const rogerState = useRecoilValue(currentRogerState);
 
   const requestRef = useRef<number>();
 
@@ -129,19 +131,38 @@ export default function DiagramPanel() {
     [state]
   );
 
-  const pathResolver = async (relativePath: string): Promise<string> => {
+  const pathResolver = async (
+    relativePath: string
+  ): Promise<string | undefined> => {
     switch (location.kind) {
-      case "example":
+      case "example": {
         const fileURL = new URL(relativePath, location.root).href;
-
         const fileReq = await fetch(fileURL);
         return fileReq.text();
-      case "roger":
-      case "gist":
+      }
+      case "roger": {
+        if (rogerState.kind === "connected") {
+          const { ws } = rogerState;
+          // TODO: do path joining in a more principled way
+          const fileURL = location.root + relativePath;
+          return new Promise((resolve /*, reject*/) => {
+            ws.addEventListener("message", (e) => {
+              const parsed = JSON.parse(e.data);
+              if (parsed.kind === "file_change") {
+                return resolve(parsed.contents);
+              }
+            });
+            ws.send(
+              JSON.stringify({ kind: "retrieve_file", fileName: fileURL })
+            );
+          });
+        }
+      }
       // TODO: publish images in the gist
+      case "gist":
+      // TODO: cache images in local storage?
       case "local":
-        // TODO: cache images in local storage?
-        return "";
+        return undefined;
     }
   };
 
