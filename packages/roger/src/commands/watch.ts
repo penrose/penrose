@@ -72,7 +72,6 @@ export default class Watch extends Command {
             break;
           case "retrieve_file_from_style":
             const { stylePath, relativePath, token } = parsed;
-            console.log(`resolving image ${relativePath} from ${stylePath}`);
             const parentDir = parse(stylePath).dir;
             const joined = resolve(parentDir, relativePath);
             this.broadcastFileChange(joined, token);
