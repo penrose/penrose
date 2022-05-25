@@ -26,6 +26,17 @@ export default function RogerPanel({
           style: files.style.name,
           domain: files.domain.name,
         });
+        const { location } = state.metadata;
+
+        const fileLocations =
+          location.kind === "roger"
+            ? { ...location, [key]: val }
+            : {
+                substance: undefined,
+                style: undefined,
+                domain: undefined,
+              };
+
         return {
           ...state,
           metadata: {
@@ -34,10 +45,7 @@ export default function RogerPanel({
               kind: "roger" as const,
               // TODO: only set the root of the location if a style file is selected
               // TODO: do path processing in a more principled way
-              root: val.substring(
-                0,
-                Math.max(val.lastIndexOf("\\"), val.lastIndexOf("/")) + 1
-              ),
+              ...fileLocations,
             },
             id: uuid(),
           },

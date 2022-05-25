@@ -7,6 +7,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { v4 as uuid } from "uuid";
 import {
   currentRogerState,
   diagramState,
@@ -143,17 +144,21 @@ export default function DiagramPanel() {
       case "roger": {
         if (rogerState.kind === "connected") {
           const { ws } = rogerState;
-          // TODO: do path joining in a more principled way
-          const fileURL = location.root + relativePath;
           return new Promise((resolve /*, reject*/) => {
+            const token = uuid();
             ws.addEventListener("message", (e) => {
               const parsed = JSON.parse(e.data);
-              if (parsed.kind === "file_change") {
+              if (parsed.kind === "file_change" && parsed.token === token) {
                 return resolve(parsed.contents);
               }
             });
             ws.send(
-              JSON.stringify({ kind: "retrieve_file", fileName: fileURL })
+              JSON.stringify({
+                kind: "retrieve_file_from_style",
+                relativePath,
+                stylePath: location.style,
+                token,
+              })
             );
           });
         }

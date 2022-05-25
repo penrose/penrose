@@ -45,7 +45,9 @@ export type WorkspaceLocation =
     }
   | {
       kind: "roger";
-      root: string; // URL to the parent folder of the Style file
+      style?: string; // path to the Style file
+      substance?: string; // path to the Substance file
+      domain?: string; // path to the Domain file
     };
 
 export type WorkspaceMetadata = {

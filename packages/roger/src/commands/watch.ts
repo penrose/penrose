@@ -1,6 +1,7 @@
 import { Command, Flags } from "@oclif/core";
 import chokidar from "chokidar";
 import { promises as fs } from "node:fs";
+import { parse, resolve } from "path";
 import WebSocket from "ws";
 
 export default class Watch extends Command {
@@ -39,12 +40,14 @@ export default class Watch extends Command {
     }
   }
 
-  async broadcastFileChange(fileName: string) {
+  async broadcastFileChange(fileName: string, token?: string) {
     try {
       const contents = await fs.readFile(fileName, "utf8");
       if (this.wss) {
         for (const ws of this.wss.clients) {
-          ws.send(JSON.stringify({ kind: "file_change", fileName, contents }));
+          ws.send(
+            JSON.stringify({ kind: "file_change", fileName, contents, token })
+          );
         }
       } else {
         console.warn("Websocket server not defined");
@@ -66,6 +69,13 @@ export default class Watch extends Command {
         switch (parsed.kind) {
           case "retrieve_file":
             this.broadcastFileChange(parsed.fileName);
+            break;
+          case "retrieve_file_from_style":
+            const { stylePath, relativePath, token } = parsed;
+            console.log(`resolving image ${relativePath} from ${stylePath}`);
+            const parentDir = parse(stylePath).dir;
+            const joined = resolve(parentDir, relativePath);
+            this.broadcastFileChange(joined, token);
             break;
           default:
             console.error(`unknown message kind: ${parsed.kind}`);
