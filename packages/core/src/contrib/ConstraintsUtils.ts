@@ -97,8 +97,9 @@ export const overlappingEllipse = (
   // to minimize the probability of obtaining a lower degree
   // polynomial in the Minkowski penalty for implicit shapes.
   const d = ops.vdist(s1.center.contents, s2.center.contents);
-  const ei1 = ellipseToImplicit(s1, padding, div(Math.PI / 3, d));
-  const ei2 = ellipseToImplicit(s2, 0, div(1, d));
+  const factor = div(1, add(1, d));
+  const ei1 = ellipseToImplicit(s1, padding, mul(Math.PI / 3, factor));
+  const ei2 = ellipseToImplicit(s2, 0, factor);
   return overlappingImplicitEllipses(ei1, ei2);
 };
 
@@ -146,8 +147,9 @@ export const overlappingCircleEllipse = (
   // to minimize the probability of obtaining a lower degree
   // polynomial in the Minkowski penalty for implicit shapes.
   const d = ops.vdist(s1.center.contents, s2.center.contents);
-  const ei1 = circleToImplicitEllipse(s1, padding, div(Math.PI / 3, d));
-  const ei2 = ellipseToImplicit(s2, 0, div(1, d));
+  const factor = div(1, add(1, d));
+  const ei1 = circleToImplicitEllipse(s1, padding, mul(Math.PI / 3, factor));
+  const ei2 = ellipseToImplicit(s2, 0, factor);
   return overlappingImplicitEllipses(ei1, ei2);
 };
 
