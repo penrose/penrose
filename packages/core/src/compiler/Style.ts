@@ -37,7 +37,7 @@ import {
   StyleWarning,
   SubstanceError,
 } from "types/errors";
-import { Fn, OptType, Params, State } from "types/state";
+import { Fn, OptType, Params, Seeds, State } from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -70,12 +70,14 @@ import {
   DepGraph,
   Fielded,
   FieldSource,
+  Gathering,
   LocalVarSubst,
   NotShape,
   ProgType,
   ResolvedName,
   ResolvedPath,
   SelEnv,
+  ShapePath,
   ShapeSource,
   Subst,
   Translation,
@@ -1626,6 +1628,48 @@ export const buildAssignment = (
 
 //#region second pass
 
+const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
+  switch (expr.tag) {
+    case "BinOp": {
+      return [expr.left, expr.right].flatMap(findPathsExpr);
+    }
+    case "BoolLit":
+    case "Fix":
+    case "StringLit":
+    case "Vary": {
+      return [];
+    }
+    case "CompApp":
+    case "ConstrFn":
+    case "ObjFn": {
+      return expr.args.flatMap(findPathsExpr);
+    }
+    case "GPIDecl": {
+      return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
+    }
+    case "Layering": {
+      return [expr.below, expr.above];
+    }
+    case "List":
+    case "Tuple":
+    case "Vector": {
+      return expr.contents.flatMap(findPathsExpr);
+    }
+    case "Path": {
+      return [expr];
+    }
+    case "UOp": {
+      return findPathsExpr(expr.arg);
+    }
+  }
+};
+
+const findPathsWithContext = <T>({
+  context,
+  expr,
+}: WithContext<Expr<T>>): WithContext<Path<T>>[] =>
+  findPathsExpr(expr).map((p) => ({ context, expr: p }));
+
 const resolveRhsName = (
   { block, subst, locals }: Context,
   name: BindingForm<C>
@@ -1703,27 +1747,33 @@ const gatherExpr = (
   }
 };
 
-const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
+const gatherField = (
+  graph: DepGraph,
+  lhs: string,
+  rhs: FieldSource
+): ShapePath[] => {
   switch (rhs.tag) {
     case "ShapeSource": {
       for (const [k, expr] of rhs.props) {
         gatherExpr(graph, `${lhs}.${k}`, expr);
       }
-      return;
+      const { shapeType } = rhs;
+      return [{ shapeType, path: lhs }];
     }
     case "OtherSource": {
       gatherExpr(graph, lhs, rhs.expr);
-      return;
+      return [];
     }
   }
 };
 
-const gatherDependencies = (assignment: Assignment): DepGraph => {
+const gatherDependencies = (assignment: Assignment): Gathering => {
   const graph = new Digraph<string, WithContext<NotShape>>();
+  const shapes = [];
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
-      gatherField(graph, `${blockName}.${fieldName}`, field);
+      shapes.push(...gatherField(graph, `${blockName}.${fieldName}`, field));
     }
   }
 
@@ -1736,17 +1786,19 @@ const gatherDependencies = (assignment: Assignment): DepGraph => {
         block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
         members: [],
       };
-      gatherField(graph, prettyPrintResolvedPath(p), field);
+      shapes.push(...gatherField(graph, prettyPrintResolvedPath(p), field));
     }
   }
 
   for (const [substanceName, fields] of assignment.substances) {
     for (const [fieldName, field] of fields) {
-      gatherField(graph, `\`${substanceName}\`.${fieldName}`, field);
+      shapes.push(
+        ...gatherField(graph, `\`${substanceName}\`.${fieldName}`, field)
+      );
     }
   }
 
-  return graph;
+  return { graph, shapes: im.List(shapes) };
 };
 
 //#endregion
@@ -2340,7 +2392,7 @@ const translateExpr = (
   }
 };
 
-const translate = (rng: seedrandom.prng, graph: DepGraph): Translation => {
+const translate = (rng: seedrandom.prng, { graph }: Gathering): Translation => {
   const init: Translation = {
     diagnostics: { errors: im.List(), warnings: im.List() },
     symbols: im.Map(),
@@ -3242,49 +3294,6 @@ export const getCanvas = (tr: Translation): Canvas => {
 const isStyErr = (res: TagExpr<ad.Num> | FGPI<ad.Num> | StyleError): boolean =>
   res.tag !== "FGPI" && !isTagExpr(res);
 
-const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
-  // TODO: Factor the expression-folding pattern out from here and `checkBlockExpr`
-  switch (expr.tag) {
-    case "BinOp": {
-      return [expr.left, expr.right].flatMap(findPathsExpr);
-    }
-    case "BoolLit":
-    case "Fix":
-    case "StringLit":
-    case "Vary": {
-      return [];
-    }
-    case "CompApp":
-    case "ConstrFn":
-    case "ObjFn": {
-      return expr.args.flatMap(findPathsExpr);
-    }
-    case "GPIDecl": {
-      return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
-    }
-    case "Layering": {
-      return [expr.below, expr.above];
-    }
-    case "List":
-    case "Tuple":
-    case "Vector": {
-      return expr.contents.flatMap(findPathsExpr);
-    }
-    case "Path": {
-      return [expr];
-    }
-    case "UOp": {
-      return findPathsExpr(expr.arg);
-    }
-  }
-};
-
-const findPathsWithContext = <T>({
-  context,
-  expr,
-}: WithContext<Expr<T>>): WithContext<Path<T>>[] =>
-  findPathsExpr(expr).map((p) => ({ context, expr: p }));
-
 // Find all paths given explicitly anywhere in an expression in the translation.
 // (e.g. `x.shape above y.shape` <-- return [`x.shape`, `y.shape`])
 const findPathsField = (
@@ -3465,11 +3474,11 @@ export const compileStyle = (
   // TODO: report errors in assignment
 
   // second pass: construct a dependency graph among those expressions
-  const graph = gatherDependencies(assignment);
+  const gathering = gatherDependencies(assignment);
 
   // third pass: compile all expressions in topological sorted order
   const { rng, seeds } = variationSeeds(variation);
-  const translation = translate(rng, graph);
+  const translation = translate(rng, gathering);
 
   log.info("translation (before genOptProblem)", translation);
 

@@ -148,6 +148,16 @@ export type ResolvedPath<T> = T &
 
 export type DepGraph = Digraph<string, WithContext<NotShape>>;
 
+export interface ShapePath {
+  shapeType: ShapeType;
+  path: string;
+}
+
+export interface Gathering {
+  graph: DepGraph;
+  shapes: im.List<ShapePath>;
+}
+
 //#endregion
 
 //#region third Style compiler pass: expression compilation
