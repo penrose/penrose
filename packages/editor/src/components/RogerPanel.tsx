@@ -3,8 +3,7 @@ import { useEffect } from "react";
 import Select from "react-select";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
-import { RogerState } from "../App";
-import { currentWorkspaceState, ProgramType } from "../state/atoms";
+import { currentWorkspaceState, ProgramType, RogerState } from "../state/atoms";
 export default function RogerPanel({
   rogerState,
   ws,
