@@ -1,4 +1,9 @@
-import { RenderStatic, showError } from "@penrose/core";
+import {
+  RenderStatic,
+  showError,
+  stateConverged,
+  stepStateSafe,
+} from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState } from "recoil";
@@ -7,7 +12,6 @@ import {
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "../state/atoms";
-import { stepDiagram } from "../state/callbacks";
 import BlueButton from "./BlueButton";
 
 /**
@@ -37,6 +41,8 @@ export default function DiagramPanel() {
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
 
+  const requestRef = useRef<number>();
+
   useEffect(() => {
     const cur = canvasRef.current;
     if (state !== null && cur !== null) {
@@ -48,15 +54,38 @@ export default function DiagramPanel() {
         } else {
           cur.appendChild(rendered);
         }
-        // request the next frame
-        if (metadata.autostep) {
-          stepDiagram(metadata.stepSize, state, setDiagram);
-        }
       })();
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
     }
-  }, [state]);
+  }, [diagram.state]);
+
+  useEffect(() => {
+    // request the next frame if the diagram state updates
+    requestRef.current = requestAnimationFrame(step);
+    // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
+    return () => cancelAnimationFrame(requestRef.current!);
+  }, [diagram.state]);
+
+  const step = () => {
+    if (state) {
+      if (!stateConverged(state) && metadata.autostep) {
+        const stepResult = stepStateSafe(state, metadata.stepSize);
+        if (stepResult.isErr()) {
+          setDiagram({
+            ...diagram,
+            error: stepResult.error,
+          });
+        } else {
+          setDiagram({
+            ...diagram,
+            error: null,
+            state: stepResult.value,
+          });
+        }
+      }
+    }
+  };
 
   const downloadSvg = useRecoilCallback(({ snapshot }) => () => {
     if (canvasRef.current !== null) {

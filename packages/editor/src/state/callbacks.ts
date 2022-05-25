@@ -72,33 +72,6 @@ const _compileDiagram = async (
   );
 };
 
-export const stepDiagram = async (
-  stepSize: number,
-  initialState: PenroseState,
-  set: any
-) => {
-  const steppingLoading = toast.loading("Stepping...");
-  let currentState = initialState;
-  while (!stateConverged(currentState)) {
-    const stepResult = stepStateSafe(currentState, stepSize);
-    if (stepResult.isErr()) {
-      set(diagramState, (state: Diagram) => ({
-        ...state,
-        error: stepResult.error,
-      }));
-      return;
-    } else {
-      set(diagramState, (state: Diagram) => ({
-        ...state,
-        error: null,
-        state: stepResult.value,
-      }));
-      currentState = stepResult.value;
-    }
-  }
-  toast.dismiss(steppingLoading);
-};
-
 export const useStepDiagram = () =>
   useRecoilCallback(({ set }) => () =>
     set(diagramState, (diagram: Diagram) => {
