@@ -5,11 +5,13 @@ import {
   fileContentsSelector,
   ProgramType,
   settingsState,
+  workspaceMetadataSelector,
 } from "../state/atoms";
 export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const [programState, setProgramState] = useRecoilState(
     fileContentsSelector(kind)
   );
+  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const domainCache = useRecoilValue(domainCacheState);
   const settings = useRecoilValueLoadable(settingsState);
   if (settings.state !== "hasValue") {
@@ -24,6 +26,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
       onChange={(v: string) =>
         setProgramState((state) => ({ ...state, contents: v }))
       }
+      readOnly={workspaceMetadata.location.kind === "roger"}
     />
   );
 }

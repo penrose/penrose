@@ -7,6 +7,7 @@ import { WeightInfo } from "types/state";
 import { Multidigraph } from "utils/Graph";
 import { safe, zip2 } from "utils/Util";
 import {
+  absVal,
   acos,
   add,
   addN,
@@ -61,6 +62,9 @@ const makeNode = (x: ad.Expr): ad.Node => {
     case "Input": {
       const { key } = node;
       return { tag, key };
+    }
+    case "Not": {
+      return { tag };
     }
     case "Unary": {
       const { unop } = node;
@@ -261,6 +265,15 @@ const children = (x: ad.Expr): Child[] => {
   switch (x.tag) {
     case "Input": {
       return [];
+    }
+    case "Not": {
+      return [
+        {
+          child: x.param,
+          name: undefined,
+          sensitivity: [],
+        },
+      ];
     }
     case "Unary": {
       return [
@@ -641,7 +654,7 @@ export const ops = {
   },
 
   /**
-   * Return the difference of vectors `v1, v2.
+   * Return the difference of vectors `v1` and `v2`.
    */
   vsub: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
     if (v1.length !== v2.length) {
@@ -674,6 +687,35 @@ export const ops = {
    */
   vmul: (c: ad.Num, v: ad.Num[]): ad.Num[] => {
     return v.map((e) => mul(c, e));
+  },
+
+  /**
+   * Returns the entrywise product of two vectors, `v1` and `v2`
+   */
+  vproduct: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    const vresult = [];
+    for (let i = 0; i < v1.length; i++) {
+      vresult[i] = mul(v1[i], v2[i]);
+    }
+    return vresult;
+  },
+
+  /**
+   * Return the absolute value of the vector `v`
+   */
+  vabs: (v: ad.Num[]): ad.Num[] => {
+    return v.map((e) => absVal(e));
+  },
+
+  /**
+   * Return the maximum value of each component of the vectors `v1` and `v2`
+   */
+  vmax: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    const vresult = [];
+    for (let i = 0; i < v1.length; i++) {
+      vresult[i] = max(v1[i], v2[i]);
+    }
+    return vresult;
   },
 
   /**
@@ -920,6 +962,8 @@ const compileBinary = (
     case "/":
     case ">":
     case "<":
+    case ">=":
+    case "<=":
     case "===":
     case "&&":
     case "||": {
@@ -974,6 +1018,10 @@ const compileNode = (
     return `${node}`;
   }
   switch (node.tag) {
+    case "Not": {
+      const child = safe(preds.get(undefined), "missing node");
+      return `!${child}`;
+    }
     case "Unary": {
       return compileUnary(node, safe(preds.get(undefined), "missing param"));
     }
