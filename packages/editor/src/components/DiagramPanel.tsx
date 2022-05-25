@@ -1,12 +1,13 @@
 import { RenderStatic, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import {
   diagramState,
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "../state/atoms";
+import { stepDiagram } from "../state/callbacks";
 import BlueButton from "./BlueButton";
 
 /**
@@ -32,18 +33,24 @@ export const DownloadSVG = (
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const { state, error, metadata } = useRecoilValue(diagramState);
+  const [diagram, setDiagram] = useRecoilState(diagramState);
+  const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
 
   useEffect(() => {
     const cur = canvasRef.current;
     if (state !== null && cur !== null) {
       (async () => {
+        // render the current frame
         const rendered = await RenderStatic(state, async () => undefined);
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
           cur.appendChild(rendered);
+        }
+        // request the next frame
+        if (metadata.autostep) {
+          stepDiagram(metadata.stepSize, state, setDiagram);
         }
       })();
     } else if (state === null && cur !== null) {

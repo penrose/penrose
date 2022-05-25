@@ -70,38 +70,33 @@ const _compileDiagram = async (
       state: initialState,
     })
   );
-  _stepDiagram(autostep, stepSize, initialState, set);
 };
 
-export const _stepDiagram = async (
-  autostep: boolean,
+export const stepDiagram = async (
   stepSize: number,
   initialState: PenroseState,
   set: any
 ) => {
-  if (autostep) {
-    const steppingLoading = toast.loading("Stepping...");
-    let currentState = initialState;
-    while (!stateConverged(currentState)) {
-      const stepResult = stepStateSafe(currentState, stepSize);
-      if (stepResult.isErr()) {
-        set(diagramState, (state: Diagram) => ({
-          ...state,
-          error: stepResult.error,
-        }));
-        return;
-      } else {
-        await new Promise((r) => setTimeout(r, 1));
-        set(diagramState, (state: Diagram) => ({
-          ...state,
-          error: null,
-          state: stepResult.value,
-        }));
-        currentState = stepResult.value;
-      }
+  const steppingLoading = toast.loading("Stepping...");
+  let currentState = initialState;
+  while (!stateConverged(currentState)) {
+    const stepResult = stepStateSafe(currentState, stepSize);
+    if (stepResult.isErr()) {
+      set(diagramState, (state: Diagram) => ({
+        ...state,
+        error: stepResult.error,
+      }));
+      return;
+    } else {
+      set(diagramState, (state: Diagram) => ({
+        ...state,
+        error: null,
+        state: stepResult.value,
+      }));
+      currentState = stepResult.value;
     }
-    toast.dismiss(steppingLoading);
   }
+  toast.dismiss(steppingLoading);
 };
 
 export const useStepDiagram = () =>
@@ -155,8 +150,6 @@ export const useResampleDiagram = () =>
       state: resampled,
     }));
     toast.dismiss(resamplingLoading);
-    const { autostep, stepSize } = diagram.metadata;
-    _stepDiagram(autostep, stepSize, resampled, set);
   });
 
 const _saveLocally = (set: any) => {
