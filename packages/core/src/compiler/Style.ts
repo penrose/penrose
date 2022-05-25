@@ -22,7 +22,7 @@ import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import seedrandom from "seedrandom";
-import { Canvas } from "shapes/Samplers";
+import { Canvas, makeCanvas } from "shapes/Samplers";
 import { isShapeType, ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A, C, Identifier, SourceRange } from "types/ast";
@@ -3232,13 +3232,7 @@ export const getCanvas = (tr: Translation): Canvas => {
     .contents as Value<ad.Num>).contents as number;
   const height = ((tr.trMap.canvas.height.contents as TagExpr<ad.Num>)
     .contents as Value<ad.Num>).contents as number;
-  return {
-    width,
-    height,
-    size: [width, height],
-    xRange: [-width / 2, width / 2],
-    yRange: [-height / 2, height / 2],
-  };
+  return makeCanvas(width, height);
 };
 
 //#endregion
