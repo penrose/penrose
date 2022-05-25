@@ -61,7 +61,14 @@ export default function RogerPanel({
     }
   }, [rogerState.kind]);
   if (rogerState.kind === "disconnected") {
-    return <h1>disconnected</h1>;
+    return (
+      <div>
+        <h1>Local development mode</h1>
+        <p>
+          Run <code>roger watch</code> to start serving your local Penrose trio.
+        </p>
+      </div>
+    );
   }
   return (
     <div>
