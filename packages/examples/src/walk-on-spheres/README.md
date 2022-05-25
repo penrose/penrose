@@ -24,16 +24,16 @@ The `.sub` examples show how to illustrate estimators for basic Laplace, Poisson
 
 `Laplace.sub`
 
-<img src="../../../../diagrams/wos-laplace-estimator-walk-on-spheres.svg" width="480">
+<img src="images/wos-laplace-estimator-walk-on-spheres.svg" width="480">
 
 `Poisson.sub`
 
-<img src="../../../../diagrams/wos-poisson-estimator-walk-on-spheres.svg" width="480">
+<img src="images/wos-poisson-estimator-walk-on-spheres.svg" width="480">
 
 `Nested.sub`
 
-<img src="../../../../diagrams/wos-nested-estimator-walk-on-spheres.svg" width="480">
+<img src="images/wos-nested-estimator-walk-on-spheres.svg" width="480">
 
 `OffCenter.sub`
 
-<img src="../../../../diagrams/wos-offcenter-estimator-walk-on-spheres.svg" width="480">
+<img src="images/wos-offcenter-estimator-walk-on-spheres.svg" width="480">

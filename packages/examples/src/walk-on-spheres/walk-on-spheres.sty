@@ -17,6 +17,7 @@ Global {
    -- default appearance for label text
    string labelFont = "Palatino"
    string labelSize = "12px"
+   scalar equationSize = 12
    color labelColor = Colors.black
 
    -- line thickness for basic shapes
@@ -67,13 +68,26 @@ Global {
 -- label the domain if it was assigned a label in the Substance program
 forall Domain U
 where U has label {
-   shape U.labelText = Text {
+
+   -- Draw the label as an equation, typeset via MathJax
+   -- (Note that MathJax has only one font, and doesn't support features
+   -- like text outlines, which can help with legibility of labels; see
+   -- below for an alternative using Text rather than Equation).
+   shape U.labelText = Equation {
       string: U.label
-      center: (?,?)
-      fontSize: Global.labelSize
-      fontFamily: Global.labelFont
+      center: (?,?) -- the layout engine will determine the exact placement
+      fontSize: Global.equationSize
       fillColor: Colors.darkGray
    }
+
+   -- shape U.labelText = Text {
+   --    string: U.label
+   --    center: (?,?)
+   --    fontSize: Global.labelSize
+   --    fontFamily: Global.labelFont
+   --    fillColor: Colors.darkGray
+   -- }
+
    ensure lessThan( signedDistance( Global.domain, U.labelText.center ), -10. )
 
    layer U.labelText above Global.domain -- make sure the label doesn't get covered by the domain shape
@@ -179,21 +193,32 @@ where offCenter(s) {
 forall Step s
 where s has label {
 
-   -- Draw the text as black with a thick white outline, which helps in
-   -- situations where there's no great placement for the label (and it
-   -- overlaps, say, a dark line used to draw the ball boundary).
-   shape s.labelText = Text {
+   -- Draw the label as an equation, typeset via MathJax
+   -- (Note that MathJax has only one font, and doesn't support features
+   -- like text outlines, which can help with legibility of labels; see
+   -- below for an alternative using Text rather than Equation).
+   shape s.labelText = Equation {
       string: s.label
       center: (?,?) -- the layout engine will determine the exact placement
-      fontSize: Global.labelSize
-      fontFamily: Global.labelFont
-      fontStyle: "italic"
+      fontSize: Global.equationSize
       fillColor: Global.labelColor
-      strokeColor: Colors.white
-      strokeWidth: 2.5
-      strokeLinejoin: "round"
-      paintOrder: "stroke"
    }
+
+   -- -- Draw the label as black with a thick white outline, which helps in
+   -- -- situations where there's no great placement for the label (and it
+   -- -- overlaps, say, a dark line used to draw the ball boundary).
+   -- shape s.labelText = Text {
+   --    string: s.label
+   --    center: (?,?) -- the layout engine will determine the exact placement
+   --    fontSize: Global.labelSize
+   --    fontFamily: Global.labelFont
+   --    fontStyle: "italic"
+   --    fillColor: Global.labelColor
+   --    strokeColor: Colors.white
+   --    strokeWidth: 2.5
+   --    strokeLinejoin: "round"
+   --    paintOrder: "stroke"
+   -- }
 
    -- We want the label to be near the dot, but don't want it
    -- to overlap the dot (which makes it hard to read).
@@ -307,18 +332,29 @@ where p := sampleSource( x ) {
 forall Sample p
 where p has label {
 
-   shape p.labelText = Text {
+   -- Draw the label as an equation, typeset via MathJax
+   -- (Note that MathJax has only one font, and doesn't support features
+   -- like text outlines, which can help with legibility of labels; see
+   -- below for an alternative using Text rather than Equation).
+   shape p.labelText = Equation {
       string: p.label
-      center: (?,?)
-      fontSize: Global.labelSize
-      fontFamily: Global.labelFont
-      fontStyle: "italic"
+      center: (?,?) -- the layout engine will determine the exact placement
+      fontSize: Global.equationSize
       fillColor: Global.labelColor
-      strokeColor: Colors.white
-      strokeWidth: 2.5
-      strokeLinejoin: "round"
-      paintOrder: "stroke"
    }
+
+   -- shape p.labelText = Text {
+   --    string: p.label
+   --    center: (?,?)
+   --    fontSize: Global.labelSize
+   --    fontFamily: Global.labelFont
+   --    fontStyle: "italic"
+   --    fillColor: Global.labelColor
+   --    strokeColor: Colors.white
+   --    strokeWidth: 2.5
+   --    strokeLinejoin: "round"
+   --    paintOrder: "stroke"
+   -- }
 
    -- Put the label near the dot, but don't allow
    -- it to cover up the dot (or vice versa).
