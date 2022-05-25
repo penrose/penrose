@@ -1,12 +1,9 @@
 import {
   compileDomain,
   compileTrio,
-  PenroseState,
   prepareState,
   resample,
-  stateConverged,
   stepState,
-  stepStateSafe,
   Trio,
   variationSeeds,
 } from "@penrose/core";
