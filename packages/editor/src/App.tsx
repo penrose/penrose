@@ -205,12 +205,18 @@ function App() {
   const connectRoger = useCallback(() => {
     ws.current = new WebSocket("ws://localhost:9160");
     ws.current.onclose = () => {
-      toast.error("Roger connection closed");
-      console.warn("Roger connection closed");
+      if (rogerState.kind === "connected") {
+        setRogerState({ kind: "disconnected" });
+        toast.error("Roger connection closed");
+        console.warn("Roger connection closed");
+      }
     };
     ws.current.onerror = (e) => {
-      console.error("Couldn't connect to Roger", e);
-      toast.error("Couldn't connect to Roger");
+      if (rogerState.kind === "connected") {
+        setRogerState({ kind: "disconnected" });
+        console.error("Couldn't connect to Roger", e);
+        toast.error("Couldn't connect to Roger");
+      }
     };
     ws.current.onopen = () => {
       toast.success("Connected to Roger");

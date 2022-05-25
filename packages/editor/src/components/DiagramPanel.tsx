@@ -1,7 +1,12 @@
-import { RenderStatic, showError } from "@penrose/core";
+import {
+  RenderStatic,
+  showError,
+  stateConverged,
+  stepStateSafe,
+} from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import {
   diagramState,
   WorkspaceMetadata,
@@ -32,13 +37,17 @@ export const DownloadSVG = (
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const { state, error, metadata } = useRecoilValue(diagramState);
+  const [diagram, setDiagram] = useRecoilState(diagramState);
+  const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+
+  const requestRef = useRef<number>();
 
   useEffect(() => {
     const cur = canvasRef.current;
     if (state !== null && cur !== null) {
       (async () => {
+        // render the current frame
         const rendered = await RenderStatic(state, async () => undefined);
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
@@ -49,7 +58,34 @@ export default function DiagramPanel() {
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
     }
-  }, [state]);
+  }, [diagram.state]);
+
+  useEffect(() => {
+    // request the next frame if the diagram state updates
+    requestRef.current = requestAnimationFrame(step);
+    // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
+    return () => cancelAnimationFrame(requestRef.current!);
+  }, [diagram.state]);
+
+  const step = () => {
+    if (state) {
+      if (!stateConverged(state) && metadata.autostep) {
+        const stepResult = stepStateSafe(state, metadata.stepSize);
+        if (stepResult.isErr()) {
+          setDiagram({
+            ...diagram,
+            error: stepResult.error,
+          });
+        } else {
+          setDiagram({
+            ...diagram,
+            error: null,
+            state: stepResult.value,
+          });
+        }
+      }
+    }
+  };
 
   const downloadSvg = useRecoilCallback(({ snapshot }) => () => {
     if (canvasRef.current !== null) {
