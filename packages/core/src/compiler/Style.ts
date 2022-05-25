@@ -120,7 +120,7 @@ import {
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
-  .create({ level: LogLevel.Debug })
+  .create({ level: LogLevel.Warn })
   .withScope("Style Compiler");
 
 //#region consts
