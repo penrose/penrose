@@ -20,13 +20,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     transform="scale(1)"
-    points="287.25016469418006,233.08096451792022,179.05322522858393,206.8293227581829,7.2865910873548785,237.19865131128645,1.3907381820613978,2.801539594930901,151.5272941701612,2.7932325343222573,281.4844272754509,6.758664350411522"
+    points="292.20834793572055,240.04029264830575,180.97730956211294,208.5534061250131,12.634865344885327,239.94066708664272,1.261806748200513,0.0086582755254625,152.46515347306928,-0.02668095403723214,280.0236962909606,11.19478491164513"
     ensureOnCanvas="false"
   >
     <title>Global.domain</title>
   </polygon>
   <g
-    transform="rotate(0, 21.514851933723605, 4.544701507378761)translate(21.514851933723605, 4.544701507378761)"
+    transform="rotate(0, 13.538815436238721, 1.7400557982652316)translate(13.538815436238721, 1.7400557982652316)"
     name="x0.shading"
     ensureOnCanvas="false"
   >
@@ -42,8 +42,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="206.93212742986117"
-      height="206.93212742986117"
+      width="214.4156136477282"
+      height="214.4156136477282"
     >
       <style type="text/css">
         .st0 {
@@ -101,7 +101,7 @@
       ></path>
     </marker>
     <path
-      d="M 124.98091564865419 108.01076522230935 L 225.96262743001705 130.54781245432014"
+      d="M 120.74662226010282 108.94786262212934 L 225.61413079782034 131.22588331757458"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -112,29 +112,29 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="124.98091564865419"
-    cy="108.01076522230935"
+    cx="120.74662226010282"
+    cy="108.94786262212934"
     stroke="none"
-    r="103.46606371493058"
+    r="107.2078068238641"
     ensureOnCanvas="false"
   >
     <title>x0.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="124.98091564865419"
-    cy="108.01076522230935"
+    cx="120.74662226010282"
+    cy="108.94786262212934"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="103.46606371493058"
+    r="107.2078068238641"
     ensureOnCanvas="false"
   >
     <title>x0.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 169.05623368712327, 73.64141871142637)translate(169.05623368712327, 73.64141871142637)"
+    transform="rotate(0, 166.64962834942088, 72.26138086917513)translate(166.64962834942088, 72.26138086917513)"
     name="x1.shading"
     ensureOnCanvas="false"
   >
@@ -150,8 +150,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="113.81278748578754"
-      height="113.81278748578754"
+      width="117.92900489679892"
+      height="117.92900489679892"
     >
       <style type="text/css">
         .st0 {
@@ -209,7 +209,7 @@
       ></path>
     </marker>
     <path
-      d="M 225.96262743001705 130.54781245432014 L 235.81715002137383 186.59448501153122"
+      d="M 225.61413079782034 131.22588331757458 L 237.39872938452245 189.0006922522756"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -220,29 +220,29 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="225.96262743001705"
-    cy="130.54781245432014"
+    cx="225.61413079782034"
+    cy="131.22588331757458"
     stroke="none"
-    r="56.90639374289377"
+    r="58.96450244839946"
     ensureOnCanvas="false"
   >
     <title>x1.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="225.96262743001705"
-    cy="130.54781245432014"
+    cx="225.61413079782034"
+    cy="131.22588331757458"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="56.90639374289377"
+    r="58.96450244839946"
     ensureOnCanvas="false"
   >
     <title>x1.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 204.51862536613012, 155.2959603562875)translate(204.51862536613012, 155.2959603562875)"
+    transform="rotate(0, 204.96755980834993, 156.56952267610308)translate(204.96755980834993, 156.56952267610308)"
     name="x2.shading"
     ensureOnCanvas="false"
   >
@@ -258,8 +258,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="62.59704931048742"
-      height="62.59704931048742"
+      width="64.86233915234503"
+      height="64.86233915234503"
     >
       <style type="text/css">
         .st0 {
@@ -317,7 +317,7 @@
       ></path>
     </marker>
     <path
-      d="M 235.81715002137383 186.59448501153122 L 267.04014770361664 184.42079107699158"
+      d="M 237.39872938452245 189.0006922522756 L 269.7679513363581 186.98646945432853"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -328,29 +328,29 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="235.81715002137383"
-    cy="186.59448501153122"
+    cx="237.39872938452245"
+    cy="189.0006922522756"
     stroke="none"
-    r="31.29852465524371"
+    r="32.431169576172515"
     ensureOnCanvas="false"
   >
     <title>x2.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="235.81715002137383"
-    cy="186.59448501153122"
+    cx="237.39872938452245"
+    cy="189.0006922522756"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="31.29852465524371"
+    r="32.431169576172515"
     ensureOnCanvas="false"
   >
     <title>x2.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 249.82593968250876, 167.2065830558837)translate(249.82593968250876, 167.2065830558837)"
+    transform="rotate(0, 251.9300982201766, 169.148616338147)translate(251.9300982201766, 169.148616338147)"
     name="x3.shading"
     ensureOnCanvas="false"
   >
@@ -366,8 +366,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="34.42841604221577"
-      height="34.42841604221577"
+      width="35.675706232363055"
+      height="35.675706232363055"
     >
       <style type="text/css">
         .st0 {
@@ -425,7 +425,7 @@
       ></path>
     </marker>
     <path
-      d="M 267.04014770361664 184.42079107699158 L 274.3925480097661 168.85575267643696"
+      d="M 269.7679513363581 186.98646945432853 L 276.936565829082 170.65240904272537"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -436,29 +436,29 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="267.04014770361664"
-    cy="184.42079107699158"
+    cx="269.7679513363581"
+    cy="186.98646945432853"
     stroke="none"
-    r="17.214208021107886"
+    r="17.837853116181527"
     ensureOnCanvas="false"
   >
     <title>x3.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="267.04014770361664"
-    cy="184.42079107699158"
+    cx="269.7679513363581"
+    cy="186.98646945432853"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="17.214208021107886"
+    r="17.837853116181527"
     ensureOnCanvas="false"
   >
     <title>x3.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 264.92475844395193, 159.38796311062282)translate(264.92475844395193, 159.38796311062282)"
+    transform="rotate(0, 267.1256481959175, 160.8414914095609)translate(267.1256481959175, 160.8414914095609)"
     name="x4.shading"
     ensureOnCanvas="false"
   >
@@ -474,8 +474,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="18.935579131628273"
-      height="18.935579131628273"
+      width="19.621835266328944"
+      height="19.621835266328944"
     >
       <style type="text/css">
         .st0 {
@@ -502,225 +502,343 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="274.3925480097661"
-    cy="168.85575267643696"
+    cx="276.936565829082"
+    cy="170.65240904272537"
     stroke="none"
-    r="9.467789565814137"
+    r="9.810917633164472"
     ensureOnCanvas="false"
   >
     <title>x4.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="274.3925480097661"
-    cy="168.85575267643696"
+    cx="276.936565829082"
+    cy="170.65240904272537"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="9.467789565814137"
+    r="9.810917633164472"
     ensureOnCanvas="false"
   >
     <title>x4.sphere</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 268.7552908563324, 155.51945457638567)"
-    style="font: italic 12px Palatino"
-    x="274.4623221063324"
-    y="164.20890770138567"
-    width="11.4140625"
-    height="8.8359375"
-    ascent="8.689453125"
-    descent="0.146484375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 265.95022715672707, 148.49241106941864)translate(265.95022715672707, 148.49241106941864)"
+    string="x_k"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x4.labelText</title>
-    xk
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="18.073244"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1023.4 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D465"
+                      d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mi"
+                    transform="translate(605,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="1D458"
+                      d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="274.3925480097661"
-    cy="168.85575267643696"
+    cx="276.936565829082"
+    cy="170.65240904272537"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x4.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 261.3363717642534, 178.5028478595414)"
-    style="font: italic 12px Palatino"
-    x="267.0756295767534"
-    y="179.8622228595414"
-    width="11.478515625"
-    height="1.41796875"
-    ascent="1.359375"
-    descent="0.05859375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 257.00633329897255, 164.82650335736614)translate(257.00633329897255, 164.82650335736614)"
+    string="\ldots"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x3.labelText</title>
-    …
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="20.697519999999997"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1172 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mo">
+                  <path
+                    data-c="2026"
+                    d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60ZM525 60Q525 84 542 102T585 120Q609 120 627 104T646 61Q646 36 629 18T586 0T543 17T525 60ZM972 60Q972 84 989 102T1032 120Q1056 120 1074 104T1093 61Q1093 36 1076 18T1033 0T990 17T972 60Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="267.04014770361664"
-    cy="184.42079107699158"
+    cx="269.7679513363581"
+    cy="186.98646945432853"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x3.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 230.34131953771703, 191.09448568439382)"
-    style="font: italic 12px Palatino"
-    x="235.90479610021703"
-    y="199.32104818439382"
-    width="11.126953125"
-    height="8.373046875"
-    ascent="8.2265625"
-    descent="0.146484375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 226.41099470204256, 193.5006800919422)translate(226.41099470204256, 193.5006800919422)"
+    string="x2"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x2.labelText</title>
-    x2
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="18.93152"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1072 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D465"
+                    d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mn" transform="translate(572,0)">
+                  <path
+                    data-c="32"
+                    d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="235.81715002137383"
-    cy="186.59448501153122"
+    cx="237.39872938452245"
+    cy="189.0006922522756"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x2.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 220.67193655743583, 135.0477783419941)"
-    style="font: italic 12px Palatino"
-    x="226.00982718243583"
-    y="143.3622314669941"
-    width="10.67578125"
-    height="8.4609375"
-    ascent="8.314453125"
-    descent="0.146484375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 216.112144838488, 135.7258635136206)translate(216.112144838488, 135.7258635136206)"
+    string="x1"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x1.labelText</title>
-    x1
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="18.93152"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1072 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D465"
+                    d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mn" transform="translate(572,0)">
+                  <path
+                    data-c="31"
+                    d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="225.96262743001705"
-    cy="130.54781245432014"
+    cx="225.61413079782034"
+    cy="131.22588331757458"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x1.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 129.48123535030996, 103.72382229967113)"
-    style="font: italic 12px Palatino"
-    x="135.29666503780996"
-    y="111.99725979967113"
-    width="11.630859375"
-    height="8.419921875"
-    ascent="8.2734375"
-    descent="0.146484375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 125.24664418435147, 99.04281678454261)translate(125.24664418435147, 99.04281678454261)"
+    string="x0"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x0.labelText</title>
-    x0
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="18.93152"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1072 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D465"
+                    d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mn" transform="translate(572,0)">
+                  <path
+                    data-c="30"
+                    d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="124.98091564865419"
-    cy="108.01076522230935"
+    cx="120.74662226010282"
+    cy="108.94786262212934"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x0.dot</title>
   </circle>
-  <text
-    fill="#808080"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 271.8219307245297, 215.83431074453287)"
-    style="font: 12px Palatino"
-    x="276.7731025995297"
-    y="224.28352949453287"
-    width="9.90234375"
-    height="8.53125"
-    ascent="8.44921875"
-    descent="0.08203125"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 275.10485754362753, 217.7814185973393)translate(275.10485754362753, 217.7814185973393)"
+    string="\Omega"
     ensureOnCanvas="true"
   >
     <title>U.labelText</title>
-    Ω
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.75052"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 722 1000"
+    >
+      <g
+        stroke="none"
+        fill="#808080"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="3A9"
+                    d="M55 454Q55 503 75 546T127 617T197 665T272 695T337 704H352Q396 704 404 703Q527 687 596 615T666 454Q666 392 635 330T559 200T499 83V80H543Q589 81 600 83T617 93Q622 102 629 135T636 172L637 177H677V175L660 89Q645 3 644 2V0H552H488Q461 0 456 3T451 20Q451 89 499 235T548 455Q548 512 530 555T483 622T424 656T361 668Q332 668 303 658T243 626T193 560T174 456Q174 380 222 233T270 20Q270 7 263 0H77V2Q76 3 61 89L44 175V177H84L85 172Q85 171 88 155T96 119T104 93Q109 86 120 84T178 80H222V83Q206 132 162 199T87 329T55 454Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
 </svg>

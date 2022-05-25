@@ -20,13 +20,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     transform="scale(1)"
-    points="296.28377590462225,223.30334661732962,167.45384394066394,191.46679081535206,-1.0749913509293378,240.25814703637968,-1.0749913132735571,-0.2830729157056311,164.9868013036671,47.87845313555988,319.18031505073105,39.05300740691263"
+    points="297.02799609062856,220.837287393556,163.30661205200312,191.44250947830233,8.61243495293985,199.69558840840716,-0.951648738682195,-0.39636143421748216,163.57372599651347,50.09954618123116,304.58912130455263,38.849038177320196"
     ensureOnCanvas="false"
   >
     <title>Global.domain</title>
   </polygon>
   <g
-    transform="rotate(0, 0.67500867569062, 31.399296489982717)translate(0.67500867569062, 31.399296489982717)"
+    transform="rotate(0, 6.30802340698726, 32.160703696875544)translate(6.30802340698726, 32.160703696875544)"
     name="x0.shading"
     ensureOnCanvas="false"
   >
@@ -42,8 +42,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="177.23520099545576"
-      height="177.23520099545576"
+      width="161.48288072437396"
+      height="161.48288072437396"
     >
       <style type="text/css">
         .st0 {
@@ -101,7 +101,7 @@
       ></path>
     </marker>
     <path
-      d="M 89.2926091734185 120.0168969877106 L 175.96044894099032 121.551437481426"
+      d="M 87.04946376917424 112.90214405906252 L 166.09988140964091 123.31092753392441"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -112,29 +112,29 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="89.2926091734185"
-    cy="120.0168969877106"
+    cx="87.04946376917424"
+    cy="112.90214405906252"
     stroke="none"
-    r="88.61760049772788"
+    r="80.74144036218698"
     ensureOnCanvas="false"
   >
     <title>x0.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="89.2926091734185"
-    cy="120.0168969877106"
+    cx="87.04946376917424"
+    cy="112.90214405906252"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="88.61760049772788"
+    r="80.74144036218698"
     ensureOnCanvas="false"
   >
     <title>x0.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 107.27949721918476, 52.87048575962045)translate(107.27949721918476, 52.87048575962045)"
+    transform="rotate(0, 99.6610640570295, 56.872110181313005)translate(99.6610640570295, 56.872110181313005)"
     name="x1.shading"
     ensureOnCanvas="false"
   >
@@ -150,8 +150,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="137.3619034436111"
-      height="137.3619034436111"
+      width="132.87763470522282"
+      height="132.87763470522282"
     >
       <style type="text/css">
         .st0 {
@@ -178,29 +178,29 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="175.96044894099032"
-    cy="121.551437481426"
+    cx="166.09988140964091"
+    cy="123.31092753392441"
     stroke="none"
-    r="68.68095172180556"
+    r="66.43881735261141"
     ensureOnCanvas="false"
   >
     <title>x1.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="175.96044894099032"
-    cy="121.551437481426"
+    cx="166.09988140964091"
+    cy="123.31092753392441"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="68.68095172180556"
+    r="66.43881735261141"
     ensureOnCanvas="false"
   >
     <title>x1.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 155.347860671204, 49.211199934342645)translate(155.347860671204, 49.211199934342645)"
+    transform="rotate(0, 145.73482414549918, 51.843102186985156)translate(145.73482414549918, 51.843102186985156)"
     name="y10.shading"
     ensureOnCanvas="false"
   >
@@ -216,8 +216,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="34.957618612593784"
-      height="34.957618612593784"
+      width="36.69560271469537"
+      height="36.69560271469537"
     >
       <style type="text/css">
         .st0 {
@@ -275,7 +275,7 @@
       ></path>
     </marker>
     <path
-      d="M 172.82666997750087 66.69000924063954 L 189.19501892950237 60.53075290230686"
+      d="M 164.08262550284687 70.19090354433284 L 180.99500081083593 63.40967550306293"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -286,29 +286,29 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="172.82666997750087"
-    cy="66.69000924063954"
+    cx="164.08262550284687"
+    cy="70.19090354433284"
     stroke="none"
-    r="17.478809306296892"
+    r="18.347801357347684"
     ensureOnCanvas="false"
   >
     <title>y10.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="172.82666997750087"
-    cy="66.69000924063954"
+    cx="164.08262550284687"
+    cy="70.19090354433284"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="17.478809306296892"
+    r="18.347801357347684"
     ensureOnCanvas="false"
   >
     <title>y10.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 176.93007113770926, 48.26580511051375)translate(176.93007113770926, 48.26580511051375)"
+    transform="rotate(0, 168.0915272282601, 50.50620192048711)translate(168.0915272282601, 50.50620192048711)"
     name="y11.shading"
     ensureOnCanvas="false"
   >
@@ -324,8 +324,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="24.529895583586207"
-      height="24.529895583586207"
+      width="25.806947165151644"
+      height="25.806947165151644"
     >
       <style type="text/css">
         .st0 {
@@ -383,7 +383,7 @@
       ></path>
     </marker>
     <path
-      d="M 189.19501892950237 60.53075290230686 L 200.66759866700113 56.23179552366312"
+      d="M 180.99500081083593 63.40967550306293 L 192.88358540198016 58.57606505349018"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -394,29 +394,29 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="189.19501892950237"
-    cy="60.53075290230686"
+    cx="180.99500081083593"
+    cy="63.40967550306293"
     stroke="none"
-    r="12.264947791793103"
+    r="12.903473582575822"
     ensureOnCanvas="false"
   >
     <title>y11.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="189.19501892950237"
-    cy="60.53075290230686"
+    cx="180.99500081083593"
+    cy="63.40967550306293"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="12.264947791793103"
+    r="12.903473582575822"
     ensureOnCanvas="false"
   >
     <title>y11.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 192.03901031412363, 47.603207170785616)translate(192.03901031412363, 47.603207170785616)"
+    transform="rotate(0, 183.85291969505866, 49.54539934656869)translate(183.85291969505866, 49.54539934656869)"
     name="y12.shading"
     ensureOnCanvas="false"
   >
@@ -432,8 +432,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="17.25717670575501"
-      height="17.25717670575501"
+      width="18.061331413842975"
+      height="18.061331413842975"
     >
       <style type="text/css">
         .st0 {
@@ -460,10 +460,10 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="200.66759866700113"
-    cy="56.23179552366312"
+    cx="192.88358540198016"
+    cy="58.57606505349018"
     stroke="none"
-    r="8.628588352877506"
+    r="9.030665706921488"
     ensureOnCanvas="false"
   >
     <title>y12.ball</title>
@@ -471,8 +471,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="200.66759866700113"
-    cy="56.23179552366312"
+    cx="192.88358540198016"
+    cy="58.57606505349018"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
@@ -481,13 +481,13 @@
   </circle>
   <circle
     fill="none"
-    cx="200.66759866700113"
-    cy="56.23179552366312"
+    cx="192.88358540198016"
+    cy="58.57606505349018"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="8.628588352877506"
+    r="9.030665706921488"
     ensureOnCanvas="false"
   >
     <title>y12.sphere</title>
@@ -495,44 +495,69 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="189.19501892950237"
-    cy="60.53075290230686"
+    cx="180.99500081083593"
+    cy="63.40967550306293"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>y11.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 157.6362368119688, 61.39091640110101)"
-    style="font: italic 12px Palatino"
-    x="163.0004946244688"
-    y="69.70536952610101"
-    width="10.728515625"
-    height="11.625"
-    ascent="8.314453125"
-    descent="3.310546875"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 142.01106117342607, 62.30224941869521)translate(142.01106117342607, 62.30224941869521)"
+    string="y_1"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>y10.labelText</title>
-    y1
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16.363756"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 926.6 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D466"
+                      d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(523,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="31"
+                      d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="172.82666997750087"
-    cy="66.69000924063954"
+    cx="164.08262550284687"
+    cy="70.19090354433284"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
@@ -540,7 +565,7 @@
     <title>y10.dot</title>
   </circle>
   <g
-    transform="rotate(0, 91.305562553112, 170.39184996431962)translate(91.305562553112, 170.39184996431962)"
+    transform="rotate(0, 33.53133565953685, 146.06490618831205)translate(33.53133565953685, 146.06490618831205)"
     name="y00.shading"
     ensureOnCanvas="false"
   >
@@ -556,8 +581,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="35.440995529327395"
-      height="35.440995529327395"
+      width="49.20129351195727"
+      height="49.20129351195727"
     >
       <style type="text/css">
         .st0 {
@@ -615,7 +640,7 @@
       ></path>
     </marker>
     <path
-      d="M 109.0260603177757 188.1123477289833 L 94.30192289061763 197.85582942722155"
+      d="M 58.13198241551548 170.66555294429068 L 29.000338349505427 166.51924770054762"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -626,29 +651,29 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="109.0260603177757"
-    cy="188.1123477289833"
+    cx="58.13198241551548"
+    cy="170.66555294429068"
     stroke="none"
-    r="17.720497764663698"
+    r="24.600646755978634"
     ensureOnCanvas="false"
   >
     <title>y00.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="109.0260603177757"
-    cy="188.1123477289833"
+    cx="58.13198241551548"
+    cy="170.66555294429068"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="17.720497764663698"
+    r="24.600646755978634"
     ensureOnCanvas="false"
   >
     <title>y00.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 81.84588254636945, 185.39978908297337)translate(81.84588254636945, 185.39978908297337)"
+    transform="rotate(0, 8.801716124361619, 146.3206254754038)translate(8.801716124361619, 146.3206254754038)"
     name="y01.shading"
     ensureOnCanvas="false"
   >
@@ -664,8 +689,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="24.91208068849636"
-      height="24.91208068849636"
+      width="40.397244450287616"
+      height="40.397244450287616"
     >
       <style type="text/css">
         .st0 {
@@ -723,7 +748,7 @@
       ></path>
     </marker>
     <path
-      d="M 94.30192289061763 197.85582942722155 L 83.90337681253462 204.76582632712876"
+      d="M 29.000338349505427 166.51924770054762 L 22.375117338999985 184.46668384299363"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -734,29 +759,29 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="94.30192289061763"
-    cy="197.85582942722155"
+    cx="29.000338349505427"
+    cy="166.51924770054762"
     stroke="none"
-    r="12.45604034424818"
+    r="20.198622225143808"
     ensureOnCanvas="false"
   >
     <title>y01.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="94.30192289061763"
-    cy="197.85582942722155"
+    cx="29.000338349505427"
+    cy="166.51924770054762"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="12.45604034424818"
+    r="20.198622225143808"
     ensureOnCanvas="false"
   >
     <title>y01.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 75.19299639283018, 196.0554459074243)translate(75.19299639283018, 196.0554459074243)"
+    transform="rotate(0, 9.651049036082734, 171.74261554007637)translate(9.651049036082734, 171.74261554007637)"
     name="y02.shading"
     ensureOnCanvas="false"
   >
@@ -772,8 +797,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="17.42076083940887"
-      height="17.42076083940887"
+      width="25.448136605834502"
+      height="25.448136605834502"
     >
       <style type="text/css">
         .st0 {
@@ -800,10 +825,10 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="83.90337681253462"
-    cy="204.76582632712876"
+    cx="22.375117338999985"
+    cy="184.46668384299363"
     stroke="none"
-    r="8.710380419704435"
+    r="12.724068302917251"
     ensureOnCanvas="false"
   >
     <title>y02.ball</title>
@@ -811,8 +836,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="83.90337681253462"
-    cy="204.76582632712876"
+    cx="22.375117338999985"
+    cy="184.46668384299363"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
@@ -821,13 +846,13 @@
   </circle>
   <circle
     fill="none"
-    cx="83.90337681253462"
-    cy="204.76582632712876"
+    cx="22.375117338999985"
+    cy="184.46668384299363"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="8.710380419704435"
+    r="12.724068302917251"
     ensureOnCanvas="false"
   >
     <title>y02.sphere</title>
@@ -835,44 +860,69 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="94.30192289061763"
-    cy="197.85582942722155"
+    cx="29.000338349505427"
+    cy="166.51924770054762"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>y01.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 122.69872494642095, 178.03914539134425)"
-    style="font: italic 12px Palatino"
-    x="128.54052182142095"
-    y="186.31258289134425"
-    width="11.68359375"
-    height="11.583984375"
-    ascent="8.2734375"
-    descent="3.310546875"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 82.28404772423005, 160.42668644658272)translate(82.28404772423005, 160.42668644658272)"
+    string="y_0"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>y00.labelText</title>
-    y0
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16.363756"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 926.6 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D466"
+                      d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(523,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="30"
+                      d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="109.0260603177757"
-    cy="188.1123477289833"
+    cx="58.13198241551548"
+    cy="170.66555294429068"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
@@ -913,7 +963,7 @@
       ></path>
     </marker>
     <path
-      d="M 175.96044894099032 121.551437481426 L 232.9349962718888 83.40291609351337"
+      d="M 166.09988140964091 123.31092753392441 L 219.7620357127326 84.1228564652694"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -922,7 +972,7 @@
     <title>$LOCAL_block9_subst1.walkLine</title>
   </g>
   <g
-    transform="rotate(0, 195.33583986907038, 45.80375969069497)translate(195.33583986907038, 45.80375969069497)"
+    transform="rotate(0, 183.1278700650752, 47.48869081761199)translate(183.1278700650752, 47.48869081761199)"
     name="x2.shading"
     ensureOnCanvas="false"
   >
@@ -938,8 +988,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="75.1983128056368"
-      height="75.1983128056368"
+      width="73.26833129531481"
+      height="73.26833129531481"
     >
       <style type="text/css">
         .st0 {
@@ -997,7 +1047,7 @@
       ></path>
     </marker>
     <path
-      d="M 232.9349962718888 83.40291609351337 L 265.33793693893153 64.52099509789348"
+      d="M 219.7620357127326 84.1228564652694 L 250.88135034575183 65.10643648152487"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -1008,29 +1058,29 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="232.9349962718888"
-    cy="83.40291609351337"
+    cx="219.7620357127326"
+    cy="84.1228564652694"
     stroke="none"
-    r="37.5991564028184"
+    r="36.634165647657404"
     ensureOnCanvas="false"
   >
     <title>x2.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="232.9349962718888"
-    cy="83.40291609351337"
+    cx="219.7620357127326"
+    cy="84.1228564652694"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="37.5991564028184"
+    r="36.634165647657404"
     ensureOnCanvas="false"
   >
     <title>x2.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 244.73825920453115, 43.92131736349308)translate(244.73825920453115, 43.92131736349308)"
+    transform="rotate(0, 230.7284695769919, 44.95355571276493)translate(230.7284695769919, 44.95355571276493)"
     name="x3.shading"
     ensureOnCanvas="false"
   >
@@ -1046,8 +1096,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="41.19935546880079"
-      height="41.19935546880079"
+      width="40.30576153751987"
+      height="40.30576153751987"
     >
       <style type="text/css">
         .st0 {
@@ -1074,189 +1124,297 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="265.33793693893153"
-    cy="64.52099509789348"
+    cx="250.88135034575183"
+    cy="65.10643648152487"
     stroke="none"
-    r="20.599677734400395"
+    r="20.152880768759935"
     ensureOnCanvas="false"
   >
     <title>x3.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="265.33793693893153"
-    cy="64.52099509789348"
+    cx="250.88135034575183"
+    cy="65.10643648152487"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="20.599677734400395"
+    r="20.152880768759935"
     ensureOnCanvas="false"
   >
     <title>x3.sphere</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 252.0741283347453, 73.50827813506436)"
-    style="font: italic 12px Palatino"
-    x="257.7811595847453"
-    y="82.19773126006436"
-    width="11.4140625"
-    height="8.8359375"
-    ascent="8.689453125"
-    descent="0.146484375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 237.10203576363708, 69.56753387752178)translate(237.10203576363708, 69.56753387752178)"
+    string="x_k"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x3.labelText</title>
-    xk
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="18.073244"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1023.4 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D465"
+                      d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mi"
+                    transform="translate(605,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="1D458"
+                      d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="265.33793693893153"
-    cy="64.52099509789348"
+    cx="250.88135034575183"
+    cy="65.10643648152487"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x3.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 217.64148810331608, 74.63108062967251)"
-    style="font: italic 12px Palatino"
-    x="223.38074591581608"
-    y="75.99045562967251"
-    width="11.478515625"
-    height="1.41796875"
-    ascent="1.359375"
-    descent="0.05859375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 202.2677115278435, 62.195959577890136)translate(202.2677115278435, 62.195959577890136)"
+    string="\ldots"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x2.labelText</title>
-    …
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="20.697519999999997"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1172 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mo">
+                  <path
+                    data-c="2026"
+                    d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60ZM525 60Q525 84 542 102T585 120Q609 120 627 104T646 61Q646 36 629 18T586 0T543 17T525 60ZM972 60Q972 84 989 102T1032 120Q1056 120 1074 104T1093 61Q1093 36 1076 18T1033 0T990 17T972 60Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="232.9349962718888"
-    cy="83.40291609351337"
+    cx="219.7620357127326"
+    cy="84.1228564652694"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x2.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 170.30306705769584, 125.96773413269685)"
-    style="font: italic 12px Palatino"
-    x="175.64095768269584"
-    y="134.28218725769685"
-    width="10.67578125"
-    height="8.4609375"
-    ascent="8.314453125"
-    descent="0.146484375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 161.15572834180088, 128.97554959482386)translate(161.15572834180088, 128.97554959482386)"
+    string="x_1"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x1.labelText</title>
-    x1
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.811875999999998"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1008.6 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D465"
+                      d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(605,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="31"
+                      d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="175.96044894099032"
-    cy="121.551437481426"
+    cx="166.09988140964091"
+    cy="123.31092753392441"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x1.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    stroke-linecap="butt"
-    transform="rotate(0, 98.13762803831992, 105.77722463995396)"
-    style="font: italic 12px Palatino"
-    x="103.95305772581992"
-    y="114.05066213995396"
-    width="11.630859375"
-    height="8.419921875"
-    ascent="8.2734375"
-    descent="0.146484375"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 98.60552050208062, 95.51141844407259)translate(98.60552050208062, 95.51141844407259)"
+    string="x_0"
     ensureOnCanvas="true"
-    stroke-linejoin="round"
-    paint-order="stroke"
   >
     <title>x0.labelText</title>
-    x0
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.811875999999998"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1008.6 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D465"
+                      d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(605,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="30"
+                      d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="89.2926091734185"
-    cy="120.0168969877106"
+    cx="87.04946376917424"
+    cy="112.90214405906252"
     stroke="none"
     r="2.5"
     ensureOnCanvas="false"
   >
     <title>x0.dot</title>
   </circle>
-  <text
-    fill="#808080"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 291.20278609544437, 139.35985130372416)"
-    style="font: 12px Palatino"
-    x="296.15395797044437"
-    y="147.80907005372416"
-    width="9.90234375"
-    height="8.53125"
-    ascent="8.44921875"
-    descent="0.08203125"
-    text-anchor="middle"
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
+  <g
+    transform="rotate(0, 277.26713754209925, 113.29442237613158)translate(277.26713754209925, 113.29442237613158)"
+    string="\Omega"
     ensureOnCanvas="true"
   >
     <title>U.labelText</title>
-    Ω
-  </text>
+    <svg
+      style="font-size: 12"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.75052"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 722 1000"
+    >
+      <g
+        stroke="none"
+        fill="#808080"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="3A9"
+                    d="M55 454Q55 503 75 546T127 617T197 665T272 695T337 704H352Q396 704 404 703Q527 687 596 615T666 454Q666 392 635 330T559 200T499 83V80H543Q589 81 600 83T617 93Q622 102 629 135T636 172L637 177H677V175L660 89Q645 3 644 2V0H552H488Q461 0 456 3T451 20Q451 89 499 235T548 455Q548 512 530 555T483 622T424 656T361 668Q332 668 303 658T243 626T193 560T174 456Q174 380 222 233T270 20Q270 7 263 0H77V2Q76 3 61 89L44 175V177H84L85 172Q85 171 88 155T96 119T104 93Q109 86 120 84T178 80H222V83Q206 132 162 199T87 329T55 454Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
 </svg>
