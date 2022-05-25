@@ -41,6 +41,7 @@ export type WorkspaceLocation =
   | GistLocation
   | {
       kind: "example";
+      root: string; // URL to the parent folder of the Style file
     }
   | { kind: "roger" };
 

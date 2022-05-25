@@ -6,7 +6,7 @@ import {
 } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useRecoilCallback, useRecoilState } from "recoil";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import {
   diagramState,
   WorkspaceMetadata,
@@ -40,6 +40,7 @@ export default function DiagramPanel() {
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const { location } = useRecoilValue(workspaceMetadataSelector);
 
   const requestRef = useRef<number>();
 
@@ -48,7 +49,7 @@ export default function DiagramPanel() {
     if (state !== null && cur !== null) {
       (async () => {
         // render the current frame
-        const rendered = await RenderStatic(state, async () => undefined);
+        const rendered = await RenderStatic(state, pathResolver);
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -127,6 +128,22 @@ export default function DiagramPanel() {
     },
     [state]
   );
+
+  const pathResolver = async (relativePath: string): Promise<string> => {
+    switch (location.kind) {
+      case "example":
+        const fileURL = new URL(relativePath, location.root).href;
+
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      case "roger":
+      case "gist":
+      // TODO: publish images in the gist
+      case "local":
+        // TODO: cache images in local storage?
+        return "";
+    }
+  };
 
   return (
     <div>
