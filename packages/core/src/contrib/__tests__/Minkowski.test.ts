@@ -11,9 +11,9 @@ import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import seedrandom from "seedrandom";
 import { makeEllipse } from "shapes/Ellipse";
-import { makeCanvas, sampleBlack } from "shapes/Samplers";
+import { makeCanvas } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { floatV, vectorV } from "utils/Util";
+import { black, floatV, vectorV } from "utils/Util";
 
 const digitPrecision = 4;
 
@@ -255,7 +255,7 @@ describe("toImplicit", () => {
       ry: floatV(3),
       center: vectorV([-11, 22]),
       strokeWidth: floatV(0),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     });
     let result = ellipseToImplicit(ellipse);
     let [a, b, c, x, y] = numsOf([

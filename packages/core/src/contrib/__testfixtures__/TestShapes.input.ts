@@ -3,8 +3,8 @@ import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
-import { makeCanvas, sampleBlack } from "shapes/Samplers";
-import { floatV, ptListV, vectorV } from "utils/Util";
+import { makeCanvas } from "shapes/Samplers";
+import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { makeEllipse } from "../../shapes/Ellipse";
 
 const rng = seedrandom("TestShapes.input");
@@ -21,7 +21,7 @@ export const _rectangles = [
     width: floatV(x.width),
     height: floatV(x.height),
     strokeWidth: floatV(0),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   })
 );
 
@@ -38,7 +38,7 @@ export const _circles = [
     r: floatV(x.r),
     center: vectorV(x.center),
     strokeWidth: floatV(0),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   })
 );
 
@@ -110,6 +110,6 @@ export const _ellipses = [
     ry: floatV(x.ry),
     center: vectorV(x.center),
     strokeWidth: floatV(0),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   })
 );

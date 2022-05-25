@@ -8,15 +8,14 @@ import {
   Shape,
   Stroke,
 } from "types/shapes";
-import { boolV, strV } from "utils/Util";
+import { boolV, floatV, noPaint, strV } from "utils/Util";
 import {
   Canvas,
+  Context,
   sampleColor,
   sampleHeight,
-  sampleNoPaint,
   sampleVector,
   sampleWidth,
-  sampleZero,
 } from "./Samplers";
 
 export interface RectangleProps
@@ -29,32 +28,32 @@ export interface RectangleProps
     Corner {}
 
 export const sampleRectangle = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas
 ): RectangleProps => ({
   name: strV("defaultRectangle"),
   style: strV(""),
-  strokeWidth: sampleZero(),
+  strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
-  strokeColor: sampleNoPaint(),
+  strokeColor: noPaint(),
   strokeDasharray: strV(""),
-  fillColor: sampleColor(rng),
-  center: sampleVector(rng, canvas),
-  width: sampleWidth(rng, canvas),
-  height: sampleHeight(rng, canvas),
-  cornerRadius: sampleZero(),
-  rotation: sampleZero(),
+  fillColor: sampleColor(context),
+  center: sampleVector(context, canvas),
+  width: sampleWidth(context, canvas),
+  height: sampleHeight(context, canvas),
+  cornerRadius: floatV(0),
+  rotation: floatV(0),
   ensureOnCanvas: boolV(true),
 });
 
 export type Rectangle = Shape & { shapeType: "Rectangle" } & RectangleProps;
 
 export const makeRectangle = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas,
   properties: Partial<RectangleProps>
 ): Rectangle => ({
-  ...sampleRectangle(rng, canvas),
+  ...sampleRectangle(context, canvas),
   ...properties,
   shapeType: "Rectangle",
 });

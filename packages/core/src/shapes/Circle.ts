@@ -1,44 +1,42 @@
 import * as ad from "types/ad";
 import { Center, Fill, Named, Shape, Stroke } from "types/shapes";
 import { FloatV } from "types/value";
-import { boolV, strV } from "utils/Util";
+import { boolV, floatV, noPaint, strV } from "utils/Util";
 import {
   Canvas,
+  Context,
   sampleColor,
-  sampleNoPaint,
   sampleVector,
   sampleWidth,
-  sampleZero,
 } from "./Samplers";
 
 export interface CircleProps extends Named, Stroke, Fill, Center {
   r: FloatV<ad.Num>;
 }
 
-export const sampleCircle = (
-  rng: seedrandom.prng,
-  canvas: Canvas
-): CircleProps => ({
-  name: strV("defaultCircle"),
-  style: strV(""),
-  strokeWidth: sampleZero(),
-  strokeStyle: strV("solid"),
-  strokeColor: sampleNoPaint(),
-  strokeDasharray: strV(""),
-  fillColor: sampleColor(rng),
-  center: sampleVector(rng, canvas),
-  r: sampleWidth(rng, canvas),
-  ensureOnCanvas: boolV(true),
-});
+export const sampleCircle = (context: Context, canvas: Canvas): CircleProps => {
+  return {
+    name: strV("defaultCircle"),
+    style: strV(""),
+    strokeWidth: floatV(0),
+    strokeStyle: strV("solid"),
+    strokeColor: noPaint(),
+    strokeDasharray: strV(""),
+    fillColor: sampleColor(context),
+    center: sampleVector(context, canvas),
+    r: sampleWidth(context, canvas),
+    ensureOnCanvas: boolV(true),
+  };
+};
 
 export type Circle = Shape & { shapeType: "Circle" } & CircleProps;
 
 export const makeCircle = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas,
   properties: Partial<CircleProps>
 ): Circle => ({
-  ...sampleCircle(rng, canvas),
+  ...sampleCircle(context, canvas),
   ...properties,
   shapeType: "Circle",
 });

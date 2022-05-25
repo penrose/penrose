@@ -26,39 +26,48 @@ export const makeCanvas = (width: number, height: number): Canvas => ({
   yRange: [-height / 2, height / 2],
 });
 
-export const sampleFloatIn = (
-  rng: seedrandom.prng,
-  min: number,
-  max: number
-): FloatV<ad.Num> => floatV(randFloat(rng, min, max));
+export type Sampler = (rng: seedrandom.prng) => number;
+export type InputFactory = (sampler: Sampler) => ad.Input; // NOTE: stateful!
+
+export interface Context {
+  makeInput: InputFactory;
+}
+
+export const uniform = (min: number, max: number): Sampler => (
+  rng: seedrandom.prng
+) => randFloat(rng, min, max);
+
 export const sampleVector = (
-  rng: seedrandom.prng,
+  { makeInput }: Context,
   canvas: Canvas
 ): VectorV<ad.Num> =>
-  vectorV([randFloat(rng, ...canvas.xRange), randFloat(rng, ...canvas.yRange)]);
+  vectorV([
+    makeInput(uniform(...canvas.xRange)),
+    makeInput(uniform(...canvas.yRange)),
+  ]);
+
 export const sampleWidth = (
-  rng: seedrandom.prng,
+  { makeInput }: Context,
   canvas: Canvas
-): FloatV<ad.Num> => floatV(randFloat(rng, 3, canvas.width / 6));
-export const sampleZero = (): FloatV<ad.Num> => floatV(0);
+): FloatV<ad.Num> => floatV(makeInput(uniform(3, canvas.width / 6)));
+
 export const sampleHeight = (
-  rng: seedrandom.prng,
+  { makeInput }: Context,
   canvas: Canvas
-): FloatV<ad.Num> => floatV(randFloat(rng, 3, canvas.height / 6));
-export const sampleStroke = (rng: seedrandom.prng): FloatV<ad.Num> =>
-  floatV(randFloat(rng, 0.5, 3));
-export const sampleColor = (rng: seedrandom.prng): ColorV<ad.Num> => {
+): FloatV<ad.Num> => floatV(makeInput(uniform(3, canvas.height / 6)));
+
+export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
+  floatV(makeInput(uniform(0.5, 3)));
+
+export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
   const [min, max] = [0.1, 0.9];
   return colorV({
     tag: "RGBA",
     contents: [
-      randFloat(rng, min, max),
-      randFloat(rng, min, max),
-      randFloat(rng, min, max),
+      makeInput(uniform(min, max)),
+      makeInput(uniform(min, max)),
+      makeInput(uniform(min, max)),
       0.5,
     ],
   });
 };
-export const sampleBlack = (): ColorV<ad.Num> =>
-  colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
-export const sampleNoPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });

@@ -13,9 +13,9 @@ import { makeLine } from "shapes/Line";
 import { makePath } from "shapes/Path";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
-import { makeCanvas, sampleBlack } from "shapes/Samplers";
+import { makeCanvas } from "shapes/Samplers";
 import { Pt2 } from "types/ad";
-import { floatV, ptListV, vectorV } from "utils/Util";
+import { black, floatV, ptListV, vectorV } from "utils/Util";
 
 const rng = seedrandom("Queries");
 const canvas = makeCanvas(800, 700);
@@ -30,7 +30,7 @@ const shapes: [string, any][] = [
       width: floatV(44),
       height: floatV(44),
       strokeWidth: floatV(0),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     }),
   ],
   // shapes[1]
@@ -40,7 +40,7 @@ const shapes: [string, any][] = [
       r: floatV(22),
       center: vectorV([11, 22]),
       strokeWidth: floatV(0),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     }),
   ],
   // shapes[2]
@@ -51,7 +51,7 @@ const shapes: [string, any][] = [
       ry: floatV(22),
       center: vectorV([11, 22]),
       strokeWidth: floatV(0),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     }),
   ],
   // shapes[3]

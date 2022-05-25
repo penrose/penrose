@@ -47,7 +47,7 @@ import * as BBox from "engine/BBox";
 import * as _ from "lodash";
 import { range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
-import seedrandom from "seedrandom";
+import { Context, uniform } from "shapes/Samplers";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
@@ -62,17 +62,13 @@ import {
   Value,
   VectorV,
 } from "types/value";
-import { getStart, linePts, randFloat } from "utils/Util";
+import { getStart, linePts } from "utils/Util";
 
 /**
  * Static dictionary of computation functions
  * TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
  * TODO: think about user extension of computation dict and evaluation of functions in there
  */
-
-export interface Context {
-  rng: seedrandom.prng;
-}
 
 // NOTE: These all need to be written in terms of autodiff types
 // These all return a Value<ad.Num>
@@ -1022,7 +1018,7 @@ export const compDict = {
     colorType: string
   ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
-      const rgb = range(3).map(() => randFloat(context.rng, 0.1, 0.9));
+      const rgb = range(3).map(() => context.makeInput(uniform(0.1, 0.9)));
 
       return {
         tag: "ColorV",
@@ -1032,7 +1028,7 @@ export const compDict = {
         },
       };
     } else if (colorType === "hsv") {
-      const h = randFloat(context.rng, 0, 360);
+      const h = context.makeInput(uniform(0, 360));
       return {
         tag: "ColorV",
         contents: {

@@ -22,7 +22,13 @@ import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import seedrandom from "seedrandom";
-import { Canvas, makeCanvas } from "shapes/Samplers";
+import {
+  Canvas,
+  Context as MutableContext,
+  makeCanvas,
+  Sampler,
+  uniform,
+} from "shapes/Samplers";
 import { isShapeType, ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A, C, Identifier, SourceRange } from "types/ast";
@@ -1805,15 +1811,6 @@ const gatherDependencies = (assignment: Assignment): Gathering => {
 
 //#region third pass
 
-// HACK: the third pass needs a mutable PRNG to pass to `compDict`, and is also
-// structured in such a way that we gather the varying values by appending to an
-// array. These are the only two impure parts of this pass, so we package them
-// up into a single type here to pass around.
-interface MutableContext {
-  rng: seedrandom.prng;
-  varying: ad.Input[];
-}
-
 const evalExprs = (
   mut: MutableContext,
   context: Context,
@@ -2203,10 +2200,7 @@ const evalExpr = (
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
       }
-      const x: Value<ad.Num> = compDict[name.value](
-        { rng: mut.rng },
-        ...args.value
-      );
+      const x: Value<ad.Num> = compDict[name.value](mut, ...args.value);
       return ok(val(x));
     }
     case "ConstrFn":
@@ -2307,9 +2301,7 @@ const evalExpr = (
       );
     }
     case "Vary": {
-      const x = input({ key: mut.varying.length, val: 0 }); // TODO: set `val`
-      mut.varying.push(x);
-      return ok(val(floatV(x)));
+      return ok(val(floatV(mut.makeInput(uniform(...canvas.xRange)))));
     }
   }
 };
@@ -2392,7 +2384,19 @@ const translateExpr = (
   }
 };
 
-const translate = (rng: seedrandom.prng, { graph }: Gathering): Translation => {
+const translate = (variation: string, { graph }: Gathering): Translation => {
+  const rng = seedrandom(variation);
+  const varying: ad.Input[] = [];
+  const samplers = [];
+  let inputIndex = 0;
+  const makeInput = (sampler: Sampler) => {
+    const x = input({ key: inputIndex, val: sampler(rng) });
+    varying.push(x);
+    samplers.push(sampler);
+    ++inputIndex;
+    return x;
+  };
+
   const init: Translation = {
     diagnostics: { errors: im.List(), warnings: im.List() },
     symbols: im.Map(),
@@ -2402,12 +2406,11 @@ const translate = (rng: seedrandom.prng, { graph }: Gathering): Translation => {
     layering: im.List(),
     varying: im.List(),
   };
-  const varying: ad.Input[] = [];
   const trans = graph
     .topsort()
     .reduce(
       (trans, path) =>
-        translateExpr({ rng, varying }, path, graph.node(path), trans),
+        translateExpr({ makeInput }, path, graph.node(path), trans),
       init
     );
   return { ...trans, varying: im.List(varying) };

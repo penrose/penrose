@@ -8,9 +8,9 @@ import { makePath } from "shapes/Path";
 import { makePolygon } from "shapes/Polygon";
 import { makePolyline } from "shapes/Polyline";
 import { makeRectangle } from "shapes/Rectangle";
-import { makeCanvas, sampleBlack } from "shapes/Samplers";
+import { makeCanvas } from "shapes/Samplers";
 import { Poly, Scale } from "types/shapes";
-import { floatV, ptListV, vectorV } from "utils/Util";
+import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { genCode, secondaryGraph } from "./Autodiff";
 import {
   BBox,
@@ -70,7 +70,7 @@ describe("bbox", () => {
       r: floatV(100),
       center: vectorV([42, 121]),
       strokeWidth: floatV(50),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     });
     expectBbox(bboxFromCircle(shape), {
       width: 250,
@@ -85,7 +85,7 @@ describe("bbox", () => {
       ry: floatV(100),
       center: vectorV([42, 121]),
       strokeWidth: floatV(50),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     });
     expectBbox(bboxFromEllipse(shape), {
       width: 450,
@@ -100,7 +100,7 @@ describe("bbox", () => {
       width: floatV(150),
       height: floatV(200),
       strokeWidth: floatV(50),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     });
     expectBbox(bboxFromRect(shape), {
       width: 200,

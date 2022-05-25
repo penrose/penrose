@@ -1,5 +1,5 @@
+import { input } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
-import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { Value } from "types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
@@ -11,7 +11,7 @@ import { makePath, Path, samplePath } from "./Path";
 import { makePolygon, Polygon, samplePolygon } from "./Polygon";
 import { makePolyline, Polyline, samplePolyline } from "./Polyline";
 import { makeRectangle, Rectangle, sampleRectangle } from "./Rectangle";
-import { Canvas, makeCanvas } from "./Samplers";
+import { Canvas, Context, makeCanvas } from "./Samplers";
 import { makeText, sampleText, Text } from "./Text";
 
 //#region other shape types/globals
@@ -36,12 +36,8 @@ export type Shape =
 export type ShapeType = Shape["shapeType"];
 
 export interface ShapeDef {
-  sampler: (rng: seedrandom.prng, canvas: Canvas) => Properties;
-  constr: (
-    rng: seedrandom.prng,
-    canvas: Canvas,
-    properties: Properties
-  ) => Shape;
+  sampler: (context: Context, canvas: Canvas) => Properties;
+  constr: (context: Context, canvas: Canvas, properties: Properties) => Shape;
 
   // TODO: maybe get rid of this?
   propTags: { [prop: string]: Value<ad.Num>["tag"] };
@@ -56,27 +52,28 @@ export interface ShapeDef {
 
 // hack to satisfy the typechecker
 export const ShapeDef = (shapedef: {
-  sampler: (rng: seedrandom.prng, canvas: Canvas) => unknown;
-  constr: (
-    rng: seedrandom.prng,
-    canvas: Canvas,
-    properties: Properties
-  ) => Shape;
+  sampler: (context: Context, canvas: Canvas) => unknown;
+  constr: (context: Context, canvas: Canvas, properties: Properties) => Shape;
   bbox: (properties: any) => BBox.BBox;
   isLinelike?: boolean;
   isRectlike?: boolean;
   isPolygonlike?: boolean;
   pendingProps?: string[];
 }): ShapeDef => {
-  const sampler = (rng: seedrandom.prng, canvas: Canvas) =>
-    <Properties>shapedef.sampler(rng, canvas);
+  const sampler = (context: Context, canvas: Canvas) =>
+    shapedef.sampler(context, canvas) as Properties;
 
-  const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
+  let key = 0;
+  const makeInput = () => {
+    const x = input({ key, val: 0 });
+    ++key;
+    return x;
+  };
   const propTags = Object.fromEntries(
-    // TODO: make this much less jank than first sampling an entire shape
-    Object.entries(
-      sampler(seedrandom("propTags"), makeCanvas(size, size))
-    ).map(([x, y]) => [x, y.tag])
+    Object.entries(sampler({ makeInput }, makeCanvas(0, 0))).map(([x, y]) => [
+      x,
+      y.tag,
+    ])
   );
 
   return {
