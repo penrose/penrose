@@ -269,9 +269,7 @@ export interface Outputs<T> {
   secondary: T[];
 }
 
-export type Compiled = (
-  inputs: number[]
-) => Outputs<number> & { stmts: string[] };
+export type Compiled = (inputs: number[]) => Outputs<number>;
 
 //#endregion
 
