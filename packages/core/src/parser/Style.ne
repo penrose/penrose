@@ -8,7 +8,7 @@ import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, PropertyPath, FieldPath, LocalVar, AccessPath, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
 } from "types/style";
 
 const styleTypes: string[] =
@@ -365,52 +365,18 @@ type
     }) 
   %}
 
-path 
-  -> entity_path   {% id %}
-  |  access_path   {% id %}
-
-entity_path
-  -> propertyPath  {% id %}
-  |  fieldPath     {% id %}
-  |  localVar      {% id %}
-
-propertyPath -> binding_form "." identifier "." identifier {%
-  ([name, , field, , property]): PropertyPath<C> => ({
-    ...nodeData,
-    ...rangeFrom([name, field, property]),
-    tag: "PropertyPath", name, field, property
-  })
-%}
-
-fieldPath -> binding_form "." identifier {%
-  ([name, , field]): FieldPath<C> => ({
-    ...nodeData,
-    ...rangeFrom([name, field]),
-    tag: "FieldPath", name, field
-  })
-%}
-
-localVar -> identifier {%
-  ([contents]): LocalVar<C> => ({
-    ...nodeData,
-    ...rangeOf(contents),
-    tag: "LocalVar", contents
-  })
-%}
-
-# NOTE: not a subrule of entity_path so we can parse all indices into a list
-# TODO: capture the range more accurately, now it's missing the last bracket
-access_path -> entity_path _ access_ops {%
-  ([path, , indices]): AccessPath<C> => {
-    const lastIndex: moo.Token = last(indices)!;
+path -> binding_form ("." identifier):* access_ops:? {%
+  ([name, dotParts, indices]) => {
+    const members = dotParts.map((d: [unknown, Expr<C>]) => d[1]);
     return {
-      ...nodeData, // TODO: model access op as an AST node to solve the range and child node issue
-      ...rangeBetween(path, lastIndex),
-      tag: "AccessPath", path, indices
-    }
+      ...nodeData,
+      ...rangeFrom([name, ...members, ...indices]),
+      tag: "Path", name, members, indices
+    };
   }
 %}
 
+# TODO: capture the range more accurately, now it's missing the last bracket
 access_ops 
   -> access_op  
   |  access_op _ access_ops {% (d: any[]) => [d[0], ...d[2]] %}
