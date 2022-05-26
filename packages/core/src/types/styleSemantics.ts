@@ -1,11 +1,10 @@
 import im from "immutable";
-import { Canvas, Sampler } from "shapes/Samplers";
 import { ShapeType } from "shapes/Shapes";
 import { Digraph } from "utils/Graph";
 import * as ad from "./ad";
 import { A, C, Identifier } from "./ast";
 import { StyleDiagnostics, StyleError } from "./errors";
-import { ShapeAD } from "./shape";
+import { Fn } from "./state";
 import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style";
 import { ArgVal, Field, Name, PropID } from "./value";
 
@@ -160,35 +159,17 @@ export interface Gathering {
 
 //#region third Style compiler pass: expression compilation
 
-export interface Obj {
-  tag: "Obj";
-  output: ad.Num;
-}
-
-export interface Constr {
-  tag: "Constr";
-  output: ad.Num;
-}
-
 export interface Layer {
-  tag: "Layer";
   below: string;
   above: string;
 }
 
-export type Nameable = ArgVal<ad.Num> | Obj | Constr | Layer;
-
-export type StyleSymbols = im.Map<string, Nameable>;
-
 export interface Translation {
   diagnostics: StyleDiagnostics;
-  canvas: Canvas;
-  symbols: StyleSymbols;
-  shapes: im.List<ShapeAD>;
-  samplers: im.List<Sampler>;
-  objectives: im.List<ad.Num>;
-  constraints: im.List<ad.Num>;
-  layering: im.List<Omit<Layer, "tag">>;
+  symbols: im.Map<string, ArgVal<ad.Num>>;
+  objectives: im.List<Fn>;
+  constraints: im.List<Fn>;
+  layering: im.List<Layer>;
 }
 
 //#endregion
