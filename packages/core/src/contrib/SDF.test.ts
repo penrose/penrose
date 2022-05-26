@@ -51,7 +51,7 @@ const getResult = (
   s: any,
   p: ad.Input[]
 ): FloatV<ad.Num> => {
-  if (shapeType === "Elipse") {
+  if (shapeType === "Ellipse") {
     return {
       tag: "FloatV",
       contents: sdEllipse(s, p),
@@ -246,13 +246,8 @@ describe("sdf", () => {
     testLine([0, 0], [8, 0], 0, [0, 4], 4);
     testLine([0, 0], [8, 8], 0, [0, 4], Math.cos(Math.PI / 4) * 4);
   });
-  /* 
-  Comment out these tests temporarily while we resolve the gradient problem.
+
   test("ellipse", () => {
-    // testCircle([0, 0], 3, 0, [0, 0], -3);
-    // an ellipse is defined by the following parametric equations
-    // x = r_x * cos(theta)
-    // y = r_x * sin(theta)
     testEllipse([0, 0], 100, 50, [0, 60], 10);
     testEllipse([0, 0], 100, 50, [0, 0], -50);
     testEllipse([0, 0], 100, 50, [0, 10], -40);
@@ -272,5 +267,5 @@ describe("sdf", () => {
     testEllipse([0, 0], 50, 100, [-40, 10], -9.736448344260499);
     testEllipse([0, 0], 50, 100, [80, -30], 31.969826845944244);
     testEllipse([0, 0], 100, 50, [100, 0], 0);
-  }); */
+  });
 });
