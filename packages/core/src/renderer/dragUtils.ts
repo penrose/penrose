@@ -1,4 +1,3 @@
-import { updateVaryingValues } from "engine/PropagateUpdate";
 import { Properties, Shape } from "types/shape";
 import { State } from "types/state";
 
@@ -21,9 +20,7 @@ export const dragUpdate = (
       return { shapeType, properties };
     }),
   };
-  // TODO: need to retrofit this implementation to the new State type
-  const updatedWithVaryingState = updateVaryingValues(updated);
-  return updatedWithVaryingState;
+  return updated;
 };
 
 // TODO: factor out position props in shapedef
