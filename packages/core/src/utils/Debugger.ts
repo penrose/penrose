@@ -246,7 +246,16 @@ export class Debugger {
     }
   }
 
-  // !!!
+  /**
+   * Returns the set of GPIs and properties based on Substance object, field,
+   * or property name.  If no selection parameters are provided, then all object,
+   * fields, and properties are returned.
+   *
+   * @param inObjName The Substance object name to query
+   * @param inFieldName The field name to query
+   * @param inPropName The property name to query
+   * @returns DebugShapeList of the GPIs and properties, according to the query
+   */
   public queryShapeFields(
     inObjName?: string,
     inFieldName?: string,
@@ -266,18 +275,21 @@ export class Debugger {
       this.shapeListCache = buildDebugShapeList(this.diagramState);
     }
 
+    // ------------------------ Select by Object -----------------------
     // Prune the tree as needed, based on the query parameters
     if (inObjName === undefined) {
-      // No object specified - return all objects
+      // No object specified - return the entire tree
       return JSON.parse(JSON.stringify(this.shapeListCache)); // Protect the Rep
     } else if (!(inObjName in this.shapeListCache)) {
-      // Object specified but not found
+      // Object was specified but not found
       return {};
     } else if (inFieldName === undefined) {
-      // Object specified, but no field - return all fields
+      // Object specified, but no field - return all fields for object
       return JSON.parse(
         JSON.stringify({ [inObjName]: this.shapeListCache[inObjName] }) // Protect the Rep
       );
+
+      // -------------------- Select by Object, Field --------------------
     } else if (!(inFieldName in this.shapeListCache[inObjName])) {
       // Object and field specified but not found
       return {};
@@ -290,7 +302,11 @@ export class Debugger {
           },
         })
       );
-    } else if (!(inPropName in this.shapeListCache[inObjName][inFieldName])) {
+
+      // --------------- Select by Object, Field, Property ---------------
+    } else if (
+      !(inPropName in this.shapeListCache[inObjName][inFieldName].properties)
+    ) {
       // Object, Field, and Property specified but not found
       return {};
     } else {
@@ -300,9 +316,8 @@ export class Debugger {
         JSON.stringify({
           [inObjName]: {
             [inFieldName]: {
-              [inPropName]: this.shapeListCache[inObjName][inFieldName][
-                inPropName
-              ],
+              [inPropName]: this.shapeListCache[inObjName][inFieldName]
+                .properties[inPropName],
             },
           },
         })

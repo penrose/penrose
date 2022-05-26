@@ -70,13 +70,13 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
   console.log("---Functions---"); // !!!
   addFunctionPropertiesToShapeList(shapeList, compQueue);
 
-  // Add function properties for functions that are transitive.
+  // Add function properties implied by function transitivity.
   // For example, if A.contains(B) and B.contains(C), then
   // A.contains(C) should also be true.
   console.log("--Transitives--"); // !!!
   addTransitivesToShapeList(shapeList);
 
-  // Add function properties for functions that cascade.
+  // Add function properties implied by cascading function semantics.
   // For example, if A.contains(B) and A.disjoint(C), then
   // B.disjoint(C) should also be true.
   console.log("---Cascades---"); // !!!
@@ -108,15 +108,14 @@ const addFunctionPropertiesToShapeList = (
         thisComp.tag === "FExpr" &&
         thisComp.contents.tag === "OptEval" &&
         (thisComp.contents.contents.tag === "ObjFn" ||
-          thisComp.contents.contents.tag === "ConstrFn") &&
-        thisComp.contents.contents.name.value in debugFunctionRegistry
+          thisComp.contents.contents.tag === "ConstrFn")
       )
     ) {
       continue;
     }
 
     const fnName = thisComp.contents.contents.name.value; // Function name
-    const fnDef = debugFunctionRegistry[fnName]; // Function definition in debugger
+    const fnDef = getFnDef(fnName); // Function definition in debugger
     const fnPropName = fnName + "[]"; // Name of the function property
 
     // Accumulate the function's shape arguments
@@ -183,7 +182,6 @@ const addFunctionPropertiesToShapeList = (
         if (thisShape === undefined) continue; // Happify tsc
 
         // Add the shape arguments to property thisShapeArg[fnPropName]
-        //const fnShapeArgs
         console.log(
           `Unidi Was: ${getShapeName(
             thisShape
@@ -353,6 +351,21 @@ const addCascadesToShapeList = (shapeList: DebugShapeList): void => {
       } // for: cfns
     } // for: fns
   } // while: work exists
+};
+
+/**
+ * Returns the DebugFunctionDef for a function.  If a definition is
+ * not found, then the default definition is returned.
+ *
+ * @param fnName Function Name
+ * @returns DebugFunctionDef
+ */
+const getFnDef = (fnName: string): DebugFunctionDef => {
+  if (fnName in debugFunctionRegistry) {
+    return debugFunctionRegistry[fnName];
+  } else {
+    return {}; // default: no special defintion
+  }
 };
 
 /**
