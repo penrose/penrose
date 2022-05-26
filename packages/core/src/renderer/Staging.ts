@@ -1,69 +1,26 @@
-import * as ad from "../types/ad";
 import { Shape } from "../types/shape";
 import { State } from "../types/state";
-import { FieldExpr } from "../types/value";
-
-// local typedefs for ease of typing expressions
-type StringObjPair = [string, { [k: string]: FieldExpr<ad.Num> }];
 
 /**
  * Returns a list of states, one state per diagram in a series of staged diagrams
  */
 export const getListOfStagedStates = (state: State): State[] => {
-  return [state]; // TODO: reimplement this function
-};
-
-// determines if an object has any GPI tagged properties
-const hasGPIProperties = (elem: StringObjPair) => {
-  const arr = elem[1];
-  const objArr: [string, FieldExpr<ad.Num>][] = Object.entries(arr);
-  const hasGPIAsTag = (object: [string, FieldExpr<ad.Num>]) => {
-    return object[1].tag === "FGPI";
-  };
-  return (
-    objArr.filter((elem) => {
-      return hasGPIAsTag(elem);
-    }).length !== 0
-  );
-};
-
-// used to make list of objects for each "comic panel"
-// used as the fn for .map
-const tabulateObjArrs = (
-  objArr: StringObjPair,
-  index: number,
-  arr: StringObjPair[]
-): StringObjPair[] => {
-  return arr.slice(0, index + 1);
-};
-
-// returns a modified state RES, where only shapes
-// that belong to objects in arr are kept in RES.shape (the state's shapelist)
-const getStateFromObjArrAndLocalState = (
-  arr: StringObjPair[],
-  state: State
-): State => {
-  const shapeNamesToInclude = arr.map((elem) => {
-    return elem[0];
-  });
-
-  const includeShape = (shape: Shape): boolean => {
-    const shapePropPathName = shape.properties.name.contents as string;
-    const dotIndex = shapePropPathName.indexOf(".");
-    if (dotIndex === -1) {
-      throw new Error("shape property doesn't have a .");
+  const grouped = new Map<string, Shape[]>();
+  for (const shape of state.computeShapes(state.varyingValues)) {
+    const { name } = shape.properties;
+    if (name.tag === "StrV") {
+      // note that `subName` is delimited with backticks but that doesn't matter
+      const subName = name.contents.slice(0, name.contents.indexOf("."));
+      const arr = grouped.get(subName) ?? [];
+      arr.push(shape);
+      grouped.set(subName, arr);
     }
-    const shapeName = shapePropPathName.slice(0, dotIndex);
-    return shapeNamesToInclude.includes(shapeName);
-  };
-
-  const newShapeList = state.shapes.filter(includeShape);
-
-  // to be cleaner, i should technically update shapeOrdering as well
-  // but not modifying that doesn't seem to affect the creation of the SVG
-
-  return {
-    ...state,
-    shapes: newShapeList,
-  };
+  }
+  const cumulative: Shape[] = [];
+  // TODO: how to sort the Substance objects?
+  return [...grouped.values()].map((shapes) => {
+    cumulative.push(...shapes);
+    const soFar = [...cumulative];
+    return { ...state, computeShapes: () => soFar };
+  });
 };

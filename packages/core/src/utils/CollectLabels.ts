@@ -94,7 +94,7 @@ export const retrieveLabel = (
   shapeName: string,
   labels: LabelCache
 ): LabelData | undefined => {
-  const res = labels.find(([name]) => name === shapeName);
+  const res = labels.get(shapeName);
   if (res) {
     return res[1];
   } else {
@@ -167,7 +167,7 @@ export const toFontRule = ({ properties }: Shape): string => {
 export const collectLabels = async (
   allShapes: Shape[]
 ): Promise<Result<LabelCache, PenroseError>> => {
-  const labels: LabelCache = [];
+  const labels: LabelCache = new Map();
   for (const s of allShapes) {
     const { shapeType, properties } = s;
     if (shapeType === "Equation" || shapeType === "EquationTransform") {
@@ -196,7 +196,7 @@ export const collectLabels = async (
         height === Infinity ? 0 : height,
         body
       );
-      labels.push([shapeName, label]);
+      labels.set(shapeName, label);
     } else if (shapeType === "Text") {
       const shapeName: string = properties.name.contents as string;
       let label: TextData;
@@ -217,7 +217,7 @@ export const collectLabels = async (
       } else {
         label = textData(0, 0, 0, 0);
       }
-      labels.push([shapeName, label]);
+      labels.set(shapeName, label);
     }
   }
   return ok(labels);

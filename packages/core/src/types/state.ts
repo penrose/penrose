@@ -43,7 +43,7 @@ export interface TextData {
   ascent: FloatV<number>;
 }
 
-export type LabelCache = [string, LabelData][];
+export type LabelCache = Map<string, LabelData>;
 
 /**
  * Generic export interface for constraint or objective functions

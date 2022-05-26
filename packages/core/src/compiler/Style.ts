@@ -2520,6 +2520,7 @@ const getShapes = (
       }
       const shape = props.get(start) ?? { shapeType, properties: {} };
       shape.properties[path.slice(i + 1)] = argVal.contents;
+      props.set(start, shape);
     }
   }
   return all(
@@ -2528,6 +2529,7 @@ const getShapes = (
       if (shape === undefined) {
         return err({ tag: "MissingPathError", path });
       }
+      shape.properties.name = strV(path);
       return ok(shape);
     })
   );
@@ -2603,7 +2605,7 @@ export const compileStyle = (
     constrFns: [...translation.constraints],
     varyingValues,
     samplers,
-    labelCache: [],
+    labelCache: new Map(),
     canvas: canvas.value,
     computeShapes: compileCompGraph(shapes.value),
 
