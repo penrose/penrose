@@ -30,7 +30,11 @@ export const attrAutoFillSvg = (
   attrAlreadyMapped: string[]
 ): void => {
   // Internal properties to never auto-map to SVG
-  const attrToNeverAutoMap: string[] = ["strokeStyle"];
+  const attrToNeverAutoMap: string[] = [
+    "strokeStyle",
+    "name",
+    "ensureOnCanvas",
+  ];
 
   // Merge the mapped and never-map properties.  Convert to Set
   const attrToNotAutoMap = new Set<string>(
@@ -39,7 +43,11 @@ export const attrAutoFillSvg = (
 
   // Map unknown/unseen attributes with values to SVG output.
   // This is the "escape hatch" for properties we don't support.
-  // NOTE: `style` is handled as a special case, because some of the built-in properties will write to it __and__ the user should be able to append to it. Therefore, we check if there's an existing value in `style` and append to it if true.
+  //
+  // NOTE: `style` is handled as a special case, because some of
+  // the built-in properties will write to it __and__ the user
+  // should be able to append to it. Therefore, we check if there's
+  // an existing value in `style` and append to it if true.
   for (const propName in properties) {
     const propValue: string = properties[propName].contents.toString();
 

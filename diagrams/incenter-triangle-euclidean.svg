@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="PLM.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -41,7 +41,7 @@
     ></path>
     <title>PLM.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="PLM.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -83,7 +83,7 @@
     ></path>
     <title>PLM.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="PLM.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -134,11 +134,10 @@
     stroke-width="1.75"
     stroke-linecap="butt"
     r="57.196721426910706"
-    ensureOnCanvas="true"
   >
     <title>JKL.icon</title>
   </circle>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="JKL.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -180,7 +179,7 @@
     ></path>
     <title>JKL.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="JKL.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -222,7 +221,7 @@
     ></path>
     <title>JKL.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="JKL.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -264,7 +263,7 @@
     ></path>
     <title>JKL.PQ</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="PML.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -290,7 +289,7 @@
     ></path>
     <title>PML.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="PML.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -332,7 +331,7 @@
     ></path>
     <title>PML.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="PML.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -377,7 +376,6 @@
   <g
     transform="rotate(0, 572.471601864324, 346.4819806620216)translate(572.471601864324, 346.4819806620216)"
     string="m"
-    ensureOnCanvas="true"
   >
     <title>m.text</title>
     <svg
@@ -423,14 +421,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>m.icon</title>
   </circle>
   <g
     transform="rotate(0, 590.0281471729925, 321.1266475454333)translate(590.0281471729925, 321.1266475454333)"
     string="P"
-    ensureOnCanvas="true"
   >
     <title>P.text</title>
     <svg
@@ -476,14 +472,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>P.icon</title>
   </circle>
   <g
     transform="rotate(0, 464.37099288559955, 355.36292535321996)translate(464.37099288559955, 355.36292535321996)"
     string="L"
-    ensureOnCanvas="true"
   >
     <title>L.text</title>
     <svg
@@ -519,7 +513,7 @@
       </g>
     </svg>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="KL.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -571,14 +565,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>L.icon</title>
   </circle>
   <g
     transform="rotate(0, 649.268712150358, 358.37760650881825)translate(649.268712150358, 358.37760650881825)"
     string="K"
-    ensureOnCanvas="true"
   >
     <title>K.text</title>
     <svg
@@ -624,14 +616,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>K.icon</title>
   </circle>
   <g
     transform="rotate(0, 637.7335815370504, 95.18725735838588)translate(637.7335815370504, 95.18725735838588)"
     string="J"
-    ensureOnCanvas="true"
   >
     <title>J.text</title>
     <svg
@@ -677,7 +667,6 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>J.icon</title>
   </circle>

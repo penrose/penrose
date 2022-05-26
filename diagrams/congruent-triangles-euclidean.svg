@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XYZ.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -41,7 +41,7 @@
     ></path>
     <title>XYZ.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XYZ.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -83,7 +83,7 @@
     ></path>
     <title>XYZ.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XYZ.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -125,7 +125,7 @@
     ></path>
     <title>XYZ.PQ</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTS.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -167,7 +167,7 @@
     ></path>
     <title>UTS.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTS.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -209,7 +209,7 @@
     ></path>
     <title>UTS.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTS.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -251,7 +251,7 @@
     ></path>
     <title>UTS.PQ</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTV.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -293,7 +293,7 @@
     ></path>
     <title>UTV.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTV.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -335,7 +335,7 @@
     ></path>
     <title>UTV.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTV.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -377,7 +377,7 @@
     ></path>
     <title>UTV.PQ</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aZXY.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -403,7 +403,7 @@
     ></path>
     <title>aZXY.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aZXY.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -445,7 +445,7 @@
     ></path>
     <title>aZXY.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aZXY.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -487,7 +487,7 @@
     ></path>
     <title>aZXY.side1</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aYZX.mark3-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -513,7 +513,7 @@
     ></path>
     <title>aYZX.mark3</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aYZX.mark2-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -539,7 +539,7 @@
     ></path>
     <title>aYZX.mark2</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aYZX.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -565,7 +565,7 @@
     ></path>
     <title>aYZX.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aYZX.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -607,7 +607,7 @@
     ></path>
     <title>aYZX.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aYZX.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -649,7 +649,7 @@
     ></path>
     <title>aYZX.side1</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aXYZ.mark2-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -675,7 +675,7 @@
     ></path>
     <title>aXYZ.mark2</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aXYZ.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -701,7 +701,7 @@
     ></path>
     <title>aXYZ.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aXYZ.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -743,7 +743,7 @@
     ></path>
     <title>aXYZ.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aXYZ.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -785,7 +785,7 @@
     ></path>
     <title>aXYZ.side1</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aUTS.mark2-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -811,7 +811,7 @@
     ></path>
     <title>aUTS.mark2</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aUTS.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -837,7 +837,7 @@
     ></path>
     <title>aUTS.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aUTS.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -879,7 +879,7 @@
     ></path>
     <title>aUTS.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aUTS.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -921,7 +921,7 @@
     ></path>
     <title>aUTS.side1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aUST.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -963,7 +963,7 @@
     ></path>
     <title>aUST.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aUST.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1005,7 +1005,7 @@
     ></path>
     <title>aUST.side1</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aTUS.mark3-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1031,7 +1031,7 @@
     ></path>
     <title>aTUS.mark3</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aTUS.mark2-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1057,7 +1057,7 @@
     ></path>
     <title>aTUS.mark2</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aTUS.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1083,7 +1083,7 @@
     ></path>
     <title>aTUS.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aTUS.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1125,7 +1125,7 @@
     ></path>
     <title>aTUS.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aTUS.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1167,7 +1167,7 @@
     ></path>
     <title>aTUS.side1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="ZY.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1209,7 +1209,7 @@
     ></path>
     <title>ZY.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="ZY.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1235,7 +1235,7 @@
     ></path>
     <title>ZY.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XY.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1277,7 +1277,7 @@
     ></path>
     <title>XY.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="XY.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1303,7 +1303,7 @@
     ></path>
     <title>XY.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XZ.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1345,7 +1345,7 @@
     ></path>
     <title>XZ.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="XZ.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1371,7 +1371,7 @@
     ></path>
     <title>XZ.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="ST.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1413,7 +1413,7 @@
     ></path>
     <title>ST.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="ST.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1439,7 +1439,7 @@
     ></path>
     <title>ST.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="US.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1481,7 +1481,7 @@
     ></path>
     <title>US.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="US.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1507,7 +1507,7 @@
     ></path>
     <title>US.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UT.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1549,7 +1549,7 @@
     ></path>
     <title>UT.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="UT.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1575,7 +1575,7 @@
     ></path>
     <title>UT.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="VT.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1617,7 +1617,7 @@
     ></path>
     <title>VT.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="VT.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1643,7 +1643,7 @@
     ></path>
     <title>VT.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UV.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1685,7 +1685,7 @@
     ></path>
     <title>UV.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="UV.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1714,7 +1714,6 @@
   <g
     transform="rotate(0, 580.4073291959978, 370.08595314241353)translate(580.4073291959978, 370.08595314241353)"
     string="Z"
-    ensureOnCanvas="true"
   >
     <title>Z.text</title>
     <svg
@@ -1760,14 +1759,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>Z.icon</title>
   </circle>
   <g
     transform="rotate(0, 701.0275825608333, 301.23031347516036)translate(701.0275825608333, 301.23031347516036)"
     string="Y"
-    ensureOnCanvas="true"
   >
     <title>Y.text</title>
     <svg
@@ -1813,14 +1810,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>Y.icon</title>
   </circle>
   <g
     transform="rotate(0, 408.60495201156346, 339.41306932288535)translate(408.60495201156346, 339.41306932288535)"
     string="X"
-    ensureOnCanvas="true"
   >
     <title>X.text</title>
     <svg
@@ -1866,14 +1861,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>X.icon</title>
   </circle>
   <g
     transform="rotate(0, 634.9482096549992, 300.343840366036)translate(634.9482096549992, 300.343840366036)"
     string="V"
-    ensureOnCanvas="true"
   >
     <title>V.text</title>
     <svg
@@ -1919,14 +1912,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>V.icon</title>
   </circle>
   <g
     transform="rotate(0, 593.5227118036482, 116.70821406754875)translate(593.5227118036482, 116.70821406754875)"
     string="T"
-    ensureOnCanvas="true"
   >
     <title>T.text</title>
     <svg
@@ -1972,14 +1963,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>T.icon</title>
   </circle>
   <g
     transform="rotate(0, 358.4369045857339, 364.39694385258076)translate(358.4369045857339, 364.39694385258076)"
     string="S"
-    ensureOnCanvas="true"
   >
     <title>S.text</title>
     <svg
@@ -2025,14 +2014,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>S.icon</title>
   </circle>
   <g
     transform="rotate(0, 472.2887471941858, 208.835179859595)translate(472.2887471941858, 208.835179859595)"
     string="U"
-    ensureOnCanvas="true"
   >
     <title>U.text</title>
     <svg
@@ -2078,7 +2065,6 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>U.icon</title>
   </circle>

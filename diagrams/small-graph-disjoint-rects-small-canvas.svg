@@ -11,7 +11,6 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 0, 0)"
-    ensureOnCanvas="true"
   >
     <title>global.box</title>
   </rect>
@@ -27,14 +26,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 100.77054149395585, -1.5441349494034284)"
-    ensureOnCanvas="true"
   >
     <title>v5.shape</title>
   </rect>
   <g
     transform="rotate(0, 142.07299149395584, 69.62586505059657)translate(142.07299149395584, 69.62586505059657)"
     string="v5"
-    ensureOnCanvas="true"
   >
     <title>v5.text</title>
     <svg
@@ -88,14 +85,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 200.66150990544216, -1.5441314880732762)"
-    ensureOnCanvas="true"
   >
     <title>v4.shape</title>
   </rect>
   <g
     transform="rotate(0, 241.96395990544215, 69.62586851192673)translate(241.96395990544215, 69.62586851192673)"
     string="v4"
-    ensureOnCanvas="true"
   >
     <title>v4.text</title>
     <svg
@@ -149,14 +144,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 300.5524889713203, 24.654375851897072)"
-    ensureOnCanvas="true"
   >
     <title>v3.shape</title>
   </rect>
   <g
     transform="rotate(0, 341.85493897132034, 95.82437585189707)translate(341.85493897132034, 95.82437585189707)"
     string="v3"
-    ensureOnCanvas="true"
   >
     <title>v3.text</title>
     <svg
@@ -210,14 +203,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 0.879491610254604, -1.5394722983692617)"
-    ensureOnCanvas="true"
   >
     <title>v2.shape</title>
   </rect>
   <g
     transform="rotate(0, 42.181941610254604, 69.63052770163074)translate(42.181941610254604, 69.63052770163074)"
     string="v2"
-    ensureOnCanvas="true"
   >
     <title>v2.text</title>
     <svg
@@ -271,14 +262,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 0.9615234561867396, 142.71663886569024)"
-    ensureOnCanvas="true"
   >
     <title>v1.shape</title>
   </rect>
   <g
     transform="rotate(0, 142.26397345618673, 213.88663886569023)translate(142.26397345618673, 213.88663886569023)"
     string="v1"
-    ensureOnCanvas="true"
   >
     <title>v1.text</title>
     <svg

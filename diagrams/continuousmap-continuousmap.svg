@@ -2,7 +2,6 @@
   <g
     transform="rotate(0, 477.63485654403405, 291.9826498186605)translate(477.63485654403405, 291.9826498186605)"
     string="f"
-    ensureOnCanvas="true"
   >
     <title>f.text</title>
     <svg
@@ -38,7 +37,7 @@
       </g>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="f.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -94,14 +93,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 565.8305550536727, 203.57187366730346)"
-    ensureOnCanvas="true"
   >
     <title>Rm.icon</title>
   </rect>
   <g
     transform="rotate(0, 766.5740743870059, 214.74187366730345)translate(766.5740743870059, 214.74187366730345)"
     string="\mathbb{R}^m"
-    ensureOnCanvas="true"
   >
     <title>Rm.text</title>
     <svg
@@ -160,7 +157,6 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="91.22740396548782"
-    ensureOnCanvas="true"
   >
     <title>B.icon</title>
   </circle>
@@ -175,14 +171,12 @@
     stroke-dasharray="7,5"
     stroke-linecap="butt"
     r="31.12505575915866"
-    ensureOnCanvas="true"
   >
     <title>V.icon</title>
   </circle>
   <g
     transform="rotate(0, 681.6266234085524, 338.8120216431009)translate(681.6266234085524, 338.8120216431009)"
     string="V"
-    ensureOnCanvas="true"
   >
     <title>V.text</title>
     <svg
@@ -221,7 +215,6 @@
   <g
     transform="rotate(0, 642.8022852316777, 387.0894431029373)translate(642.8022852316777, 387.0894431029373)"
     string="B"
-    ensureOnCanvas="true"
   >
     <title>B.text</title>
     <svg
@@ -270,14 +263,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 165.83055505367264, 203.57187366730346)"
-    ensureOnCanvas="true"
   >
     <title>Rn.icon</title>
   </rect>
   <g
     transform="rotate(0, 368.309169387006, 214.74187366730345)translate(368.309169387006, 214.74187366730345)"
     string="\mathbb{R}^n"
-    ensureOnCanvas="true"
   >
     <title>Rn.text</title>
     <svg
@@ -336,7 +327,6 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="99.15661450818331"
-    ensureOnCanvas="true"
   >
     <title>A.icon</title>
   </circle>
@@ -351,14 +341,12 @@
     stroke-dasharray="7,5"
     stroke-linecap="butt"
     r="54.85613013483959"
-    ensureOnCanvas="true"
   >
     <title>U.icon</title>
   </circle>
   <g
     transform="rotate(0, 242.22781909588252, 333.5063574627136)translate(242.22781909588252, 333.5063574627136)"
     string="f^{-1}(V)"
-    ensureOnCanvas="true"
   >
     <title>U.text</title>
     <svg
@@ -435,7 +423,6 @@
   <g
     transform="rotate(0, 291.810199292552, 396.4545246896622)translate(291.810199292552, 396.4545246896622)"
     string="A"
-    ensureOnCanvas="true"
   >
     <title>A.text</title>
     <svg

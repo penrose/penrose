@@ -2,7 +2,6 @@
   <g
     transform="rotate(0, 663.3803743716985, 226.90156992130287)translate(663.3803743716985, 226.90156992130287)"
     string="e5"
-    ensureOnCanvas="true"
   >
     <title>e5.text</title>
     <svg
@@ -44,7 +43,7 @@
       </g>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="e5.shape-leftArrowhead"
       markerUnits="strokeWidth"
@@ -89,7 +88,6 @@
   <g
     transform="rotate(0, 629.0977857622881, 632.9176764401428)translate(629.0977857622881, 632.9176764401428)"
     string="e4"
-    ensureOnCanvas="true"
   >
     <title>e4.text</title>
     <svg
@@ -131,7 +129,7 @@
       </g>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="e4.shape-leftArrowhead"
       markerUnits="strokeWidth"
@@ -176,7 +174,6 @@
   <g
     transform="rotate(0, 265.514866621983, 48.93633806960479)translate(265.514866621983, 48.93633806960479)"
     string="e3"
-    ensureOnCanvas="true"
   >
     <title>e3.text</title>
     <svg
@@ -218,7 +215,7 @@
       </g>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="e3.shape-leftArrowhead"
       markerUnits="strokeWidth"
@@ -263,7 +260,6 @@
   <g
     transform="rotate(0, 614.4651426608625, 180.93316706760098)translate(614.4651426608625, 180.93316706760098)"
     string="e2"
-    ensureOnCanvas="true"
   >
     <title>e2.text</title>
     <svg
@@ -305,7 +301,7 @@
       </g>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="e2.shape-leftArrowhead"
       markerUnits="strokeWidth"
@@ -350,7 +346,6 @@
   <g
     transform="rotate(0, 604.5073684663705, 474.19115274873775)translate(604.5073684663705, 474.19115274873775)"
     string="e1"
-    ensureOnCanvas="true"
   >
     <title>e1.text</title>
     <svg
@@ -392,7 +387,7 @@
       </g>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="e1.shape-leftArrowhead"
       markerUnits="strokeWidth"
@@ -446,7 +441,6 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, -50, 50)"
-    ensureOnCanvas="true"
   >
     <title>global.box</title>
   </rect>
@@ -462,14 +456,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 694.4659141614104, 74.73141402859241)"
-    ensureOnCanvas="true"
   >
     <title>v5.shape</title>
   </rect>
   <g
     transform="rotate(0, 735.7683641614104, 145.9014140285924)translate(735.7683641614104, 145.9014140285924)"
     string="v5"
-    ensureOnCanvas="true"
   >
     <title>v5.text</title>
     <svg
@@ -523,14 +515,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 399.41143689644167, 55.60463000511959)"
-    ensureOnCanvas="true"
   >
     <title>v4.shape</title>
   </rect>
   <g
     transform="rotate(0, 440.7138868964417, 126.77463000511959)translate(440.7138868964417, 126.77463000511959)"
     string="v4"
-    ensureOnCanvas="true"
   >
     <title>v4.text</title>
     <svg
@@ -584,14 +574,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 251.20733352010262, 485.6759133113061)"
-    ensureOnCanvas="true"
   >
     <title>v3.shape</title>
   </rect>
   <g
     transform="rotate(0, 292.50978352010264, 556.845913311306)translate(292.50978352010264, 556.845913311306)"
     string="v3"
-    ensureOnCanvas="true"
   >
     <title>v3.text</title>
     <svg
@@ -645,14 +633,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 353.22651941690486, 485.66969549234386)"
-    ensureOnCanvas="true"
   >
     <title>v2.shape</title>
   </rect>
   <g
     transform="rotate(0, 394.5289694169049, 556.8396954923438)translate(394.5289694169049, 556.8396954923438)"
     string="v2"
-    ensureOnCanvas="true"
   >
     <title>v2.text</title>
     <svg
@@ -706,14 +692,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 197.49623849161344, 313.28306133930454)"
-    ensureOnCanvas="true"
   >
     <title>v1.shape</title>
   </rect>
   <g
     transform="rotate(0, 438.79868849161346, 384.45306133930455)translate(438.79868849161346, 384.45306133930455)"
     string="v1"
-    ensureOnCanvas="true"
   >
     <title>v1.text</title>
     <svg
