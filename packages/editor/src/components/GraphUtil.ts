@@ -35,9 +35,6 @@ const labelNode = (node: ad.Node): string => {
     case "Input": {
       return `x${node.key}`;
     }
-    case "Not": {
-      return "!";
-    }
     case "Unary": {
       return node.unop;
     }
