@@ -20,7 +20,7 @@ Note that by default, labels are currently drawn using `Equation` shapes (which 
 
 #### Substance
 
-The `.sub` examples show how to illustrate estimators for basic Laplace, Poisson, and nested equations, but the package could easily be extended to accommodate other use cases, as discussed above.
+The `.sub` examples show how to illustrate estimators for basic Laplace, Poisson, and nested equations, as well as off-centered walks, but the package could easily be extended to accommodate other use cases, as discussed above.
 
 `Laplace.sub`
 
