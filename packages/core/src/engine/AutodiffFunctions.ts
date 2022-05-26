@@ -263,16 +263,6 @@ export const gt = comp(">");
 export const lt = comp("<");
 
 /**
- * Return a conditional `v >= w`.
- */
-export const gte = comp(">=");
-
-/**
- * Return a conditional `v <= w`.
- */
-export const lte = comp("<=");
-
-/**
  * Return a conditional `v == w`. (TODO: Maybe check if they are equal up to a tolerance?)
  */
 export const eq = comp("===");
@@ -296,8 +286,6 @@ export const and = logic("&&");
  * Return a boolean `v || w`
  */
 export const or = logic("||");
-
-export const not = (v: ad.Bool): ad.Not => ({ tag: "Not", param: v });
 
 /**
  * Return a conditional `if(cond) then v else w`.
