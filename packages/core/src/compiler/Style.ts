@@ -43,7 +43,7 @@ import {
   StyleWarning,
   SubstanceError,
 } from "types/errors";
-import { Fn, OptType, Params, Seeds, State } from "types/state";
+import { Params, State } from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -146,7 +146,6 @@ import {
   ToRight,
   tupV,
   val,
-  variationSeeds,
   vectorV,
   zip2,
 } from "utils/Util";
@@ -3358,10 +3357,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
 };
 
 // COMBAK: Add optConfig as param?
-const genState = (
-  seeds: Seeds,
-  trans: Translation
-): Result<State, StyleError[]> => {
+const genState = (trans: Translation): Result<State, StyleError[]> => {
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
   const varyingInitPathsAndVals: [Path<A>, number][] = varyingPaths
@@ -3420,19 +3416,9 @@ const genState = (
   const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
 
   const initState: State = {
-    seeds,
-
-    shapes: [], // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
-    shapeOrdering,
-
     translation: transInitAll, // This is the result of the data processing
 
-    varyingPaths,
     varyingValues: initVaryingState,
-    varyingInitInfo,
-
-    uninitializedPaths,
-    pendingPaths,
 
     objFns,
     constrFns,
@@ -3480,8 +3466,7 @@ export const compileStyle = (
   const gathering = gatherDependencies(assignment);
 
   // third pass: compile all expressions in topological sorted order
-  const { rng, seeds } = variationSeeds(variation);
-  const translation = translate(rng, gathering);
+  const translation = translate(variation, gathering);
 
   log.info("translation (before genOptProblem)", translation);
 
@@ -3490,7 +3475,7 @@ export const compileStyle = (
   }
 
   // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState: Result<State, StyleError[]> = genState(seeds, translation);
+  const initState: Result<State, StyleError[]> = genState(translation);
   log.info("init state from GenOptProblem", initState);
 
   if (initState.isErr()) {

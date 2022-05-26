@@ -7,7 +7,6 @@ import {
 } from "engine/EngineUtils";
 import * as _ from "lodash";
 import { Matrix } from "ml-matrix";
-import rfdc from "rfdc";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { A } from "types/ast";
@@ -31,9 +30,6 @@ import { add, mul } from "./AutodiffFunctions";
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
-
-// For deep-cloning the translation
-const clone = rfdc({ proto: false, circles: false });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
