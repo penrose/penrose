@@ -150,7 +150,7 @@ export const showError = (
     }
     case "DeconstructNonconstructor": {
       const { variable, field } = error.deconstructor;
-      return `Becuase ${variable.value} is not bound to a constructor, ${
+      return `Because ${variable.value} is not bound to a constructor, ${
         variable.value
       }.${field.value} (at ${loc(
         error.deconstructor

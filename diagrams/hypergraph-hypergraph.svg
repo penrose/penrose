@@ -1,0 +1,2240 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="487.3097297750402"
+    cy="367.64242204336597"
+    stroke="none"
+    rx="10"
+    ry="22.18372612036552"
+    ensureOnCanvas="true"
+  >
+    <title>E33.ellipse</title>
+  </ellipse>
+  <rect
+    x="477.3097297750402"
+    y="345.45869592300045"
+    width="20"
+    height="44.36745224073104"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 477.3097297750402, 345.45869592300045)"
+    ensureOnCanvas="true"
+  >
+    <title>E33.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="487.3097297758135"
+    cy="308.12136078132295"
+    stroke="none"
+    rx="10"
+    ry="16.093862537452377"
+    ensureOnCanvas="true"
+  >
+    <title>E32.ellipse</title>
+  </ellipse>
+  <rect
+    x="477.3097297758135"
+    y="292.0274982438706"
+    width="20"
+    height="32.187725074904755"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 477.3097297758135, 292.0274982438706)"
+    ensureOnCanvas="true"
+  >
+    <title>E32.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="487.3097297754624"
+    cy="430.3426541891869"
+    stroke="none"
+    rx="10"
+    ry="11.683287469896513"
+    ensureOnCanvas="true"
+  >
+    <title>E31.ellipse</title>
+  </ellipse>
+  <rect
+    x="477.3097297754624"
+    y="418.65936671929035"
+    width="20"
+    height="23.366574939793026"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 477.3097297754624, 418.65936671929035)"
+    ensureOnCanvas="true"
+  >
+    <title>E31.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="387.3097309342099"
+    cy="326.09765677413804"
+    stroke="none"
+    rx="10"
+    ry="21.02833228256567"
+    ensureOnCanvas="true"
+  >
+    <title>E24.ellipse</title>
+  </ellipse>
+  <rect
+    x="377.3097309342099"
+    y="305.0693244915724"
+    width="20"
+    height="42.05666456513134"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 377.3097309342099, 305.0693244915724)"
+    ensureOnCanvas="true"
+  >
+    <title>E24.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="387.3097309341629"
+    cy="399.1667454262816"
+    stroke="none"
+    rx="10"
+    ry="13.697436572357162"
+    ensureOnCanvas="true"
+  >
+    <title>E23.ellipse</title>
+  </ellipse>
+  <rect
+    x="377.3097309341629"
+    y="385.4693088539244"
+    width="20"
+    height="27.394873144714325"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 377.3097309341629, 385.4693088539244)"
+    ensureOnCanvas="true"
+  >
+    <title>E23.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="387.3097309339915"
+    cy="271.55334964102997"
+    stroke="none"
+    rx="10"
+    ry="13.358792518565174"
+    ensureOnCanvas="true"
+  >
+    <title>E22.ellipse</title>
+  </ellipse>
+  <rect
+    x="377.3097309339915"
+    y="258.1945571224648"
+    width="20"
+    height="26.71758503713035"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 377.3097309339915, 258.1945571224648)"
+    ensureOnCanvas="true"
+  >
+    <title>E22.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="387.3097309335482"
+    cy="441.8641930547201"
+    stroke="none"
+    rx="10"
+    ry="9.000002946148633"
+    ensureOnCanvas="true"
+  >
+    <title>E21.ellipse</title>
+  </ellipse>
+  <rect
+    x="377.3097309335482"
+    y="432.86419010857145"
+    width="20"
+    height="18.000005892297267"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 377.3097309335482, 432.86419010857145)"
+    ensureOnCanvas="true"
+  >
+    <title>E21.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="287.30973471483924"
+    cy="293.67267691821354"
+    stroke="none"
+    rx="10"
+    ry="10.042027610530589"
+    ensureOnCanvas="true"
+  >
+    <title>E15.ellipse</title>
+  </ellipse>
+  <rect
+    x="277.30973471483924"
+    y="283.630649307683"
+    width="20"
+    height="20.084055221061178"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 277.30973471483924, 283.630649307683)"
+    ensureOnCanvas="true"
+  >
+    <title>E15.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="287.30973471645393"
+    cy="252.80649184072593"
+    stroke="none"
+    rx="10"
+    ry="10.824145585663807"
+    ensureOnCanvas="true"
+  >
+    <title>E14.ellipse</title>
+  </ellipse>
+  <rect
+    x="277.30973471645393"
+    y="241.9823462550621"
+    width="20"
+    height="21.648291171327614"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 277.30973471645393, 241.9823462550621)"
+    ensureOnCanvas="true"
+  >
+    <title>E14.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="287.3097347187831"
+    cy="386.9008363679073"
+    stroke="none"
+    rx="10"
+    ry="8.999995411561724"
+    ensureOnCanvas="true"
+  >
+    <title>E13.ellipse</title>
+  </ellipse>
+  <rect
+    x="277.3097347187831"
+    y="377.9008409563456"
+    width="20"
+    height="17.999990823123447"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 277.3097347187831, 377.9008409563456)"
+    ensureOnCanvas="true"
+  >
+    <title>E13.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="287.3097347310168"
+    cy="424.9008360049831"
+    stroke="none"
+    rx="10"
+    ry="8.999999597478748"
+    ensureOnCanvas="true"
+  >
+    <title>E12.ellipse</title>
+  </ellipse>
+  <rect
+    x="277.3097347310168"
+    y="415.90083640750436"
+    width="20"
+    height="17.999999194957496"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 277.3097347310168, 415.90083640750436)"
+    ensureOnCanvas="true"
+  >
+    <title>E12.rect</title>
+  </rect>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="287.3097347259015"
+    cy="343.48325927766876"
+    stroke="none"
+    rx="10"
+    ry="14.417582684211524"
+    ensureOnCanvas="true"
+  >
+    <title>E11.ellipse</title>
+  </ellipse>
+  <rect
+    x="277.3097347259015"
+    y="329.0656765934572"
+    width="20"
+    height="28.83516536842305"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 277.3097347259015, 329.0656765934572)"
+    ensureOnCanvas="true"
+  >
+    <title>E11.rect</title>
+  </rect>
+  <g ensureOnCanvas="true">
+    <filter id="N9.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#bd4f99"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 379.60261568002676 Q 549.1818374775778 358.8166788750439 587.3097271497335 305.84049789299644"
+    ></path>
+    <title>N9.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N9.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#bd4f99"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 338.1259907130881 Q 429.6473529196858 377.3382820177502 487.30972909224766 379.60261568002676"
+    ></path>
+    <title>N9.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N9.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#bd4f99"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 294.7147054824365 Q 329.34555194716484 334.76623947892756 387.3097322255305 338.1259907130881"
+    ></path>
+    <title>N9.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N9.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#bd4f99"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 257.2386499742978 Q 230.29120586271316 294.70473507013537 287.3097358091563 294.7147054824365"
+    ></path>
+    <title>N9.linel1</title>
+  </g>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="305.84049789299644"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dotrP</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="305.84049789299644"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dotr</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="379.60261568002676"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dot3P</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="379.60261568002676"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dot3</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="338.1259907130881"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dot2P</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="338.1259907130881"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dot2</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="294.7147054824365"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dot1P</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="294.7147054824365"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dot1</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="257.2386499742978"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dotlP</title>
+  </circle>
+  <circle
+    fill="#bd4f99"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="257.2386499742978"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N9.dotl</title>
+  </circle>
+  <g ensureOnCanvas="true">
+    <filter id="N8.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#352e54"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 360.8334356500684 Q 543.9051352383476 362.24915150452415 587.3097271497335 325.9024241418654"
+    ></path>
+    <title>N8.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N8.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#352e54"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 317.81724444560047 Q 429.406670324605 357.697644308963 487.30972909224766 360.8334356500684"
+    ></path>
+    <title>N8.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N8.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#352e54"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 292.6306488768425 Q 332.42497399379454 324.6182510296476 387.3097322255305 317.81724444560047"
+    ></path>
+    <title>N8.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N8.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#352e54"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 351.0302320732931 Q 247.39569789745713 339.1010323515111 287.3097358091563 292.6306488768425"
+    ></path>
+    <title>N8.linel1</title>
+  </g>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="325.9024241418654"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dotrP</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="325.9024241418654"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dotr</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="360.8334356500684"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dot3P</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="360.8334356500684"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dot3</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="317.81724444560047"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dot2P</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="317.81724444560047"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dot2</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="292.6306488768425"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dot1P</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="292.6306488768425"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dot1</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="351.0302320732931"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dotlP</title>
+  </circle>
+  <circle
+    fill="#352e54"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="351.0302320732931"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N8.dotl</title>
+  </circle>
+  <g ensureOnCanvas="true">
+    <filter id="N7.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#6fdcd6"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 380.82614959747985 Q 533.1580859445239 411.0007350468368 587.3097271497335 402.0466205954193"
+    ></path>
+    <title>N7.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N7.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#6fdcd6"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 334.5834194997355 Q 428.91527278875947 375.85782849320486 487.30972909224766 380.82614959747985"
+    ></path>
+    <title>N7.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N7.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#6fdcd6"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 254.6306380735017 Q 324.8203357535833 310.2280040610796 387.3097322255305 334.5834194997355"
+    ></path>
+    <title>N7.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N7.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#6fdcd6"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 241.98234801986928 Q 234.80008013204167 268.14840671557124 287.3097358091563 254.6306380735017"
+    ></path>
+    <title>N7.linel1</title>
+  </g>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="402.0466205954193"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dotrP</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="402.0466205954193"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dotr</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="380.82614959747985"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dot3P</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="380.82614959747985"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dot3</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="334.5834194997355"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dot2P</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="334.5834194997355"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dot2</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="254.6306380735017"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dot1P</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="254.6306380735017"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dot1</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="241.98234801986928"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dotlP</title>
+  </circle>
+  <circle
+    fill="#6fdcd6"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="241.98234801986928"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N7.dotl</title>
+  </circle>
+  <g ensureOnCanvas="true">
+    <filter id="N6.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#43a0ab"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 354.45869390829347 Q 549.4077407412825 332.40281692202143 587.3097271497335 278.49490534232336"
+    ></path>
+    <title>N6.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N6.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#43a0ab"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 314.06932211428176 Q 429.819716432048 352.8085385446721 487.30972909224766 354.45869390829347"
+    ></path>
+    <title>N6.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N6.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#43a0ab"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 250.98234499328782 Q 326.6384556723652 299.4410264531656 387.3097322255305 314.06932211428176"
+    ></path>
+    <title>N6.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N6.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#43a0ab"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 303.363326419441 Q 246.58988585171736 294.88946024068406 287.3097358091563 250.98234499328782"
+    ></path>
+    <title>N6.linel1</title>
+  </g>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="278.49490534232336"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dotrP</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="278.49490534232336"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dotr</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="354.45869390829347"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dot3P</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="354.45869390829347"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dot3</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="314.06932211428176"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dot2P</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="314.06932211428176"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dot2</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="250.98234499328782"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dot1P</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="250.98234499328782"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dot1</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="303.363326419441"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dotlP</title>
+  </circle>
+  <circle
+    fill="#43a0ab"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="303.363326419441"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N6.dotl</title>
+  </circle>
+  <g ensureOnCanvas="true">
+    <filter id="N5.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8eafac"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 433.02594247748004 Q 547.3405549520719 421.34227859893946 587.3097271497335 375.05327155641965"
+    ></path>
+    <title>N5.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N5.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8eafac"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 403.8641833212312 Q 431.7106042221983 437.6453156670921 487.30972909224766 433.02594247748004"
+    ></path>
+    <title>N5.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N5.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8eafac"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 386.9008343358235 Q 333.96485346210545 415.100817457768 387.3097322255305 403.8641833212312"
+    ></path>
+    <title>N5.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N5.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8eafac"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 448.9102968943273 Q 247.8496968243387 434.9028948136728 287.3097358091563 386.9008343358235"
+    ></path>
+    <title>N5.linel1</title>
+  </g>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="375.05327155641965"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dotrP</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="375.05327155641965"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dotr</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="433.02594247748004"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dot3P</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="433.02594247748004"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dot3</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="403.8641833212312"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dot2P</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="403.8641833212312"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dot2</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="386.9008343358235"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dot1P</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="386.9008343358235"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dot1</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="448.9102968943273"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dotlP</title>
+  </circle>
+  <circle
+    fill="#8eafac"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="448.9102968943273"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N5.dotl</title>
+  </circle>
+  <g ensureOnCanvas="true">
+    <filter id="N4.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#1adc46"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 301.02749722493775 Q 547.4784035318823 288.72722702809443 587.3097271497335 241.98291691141236"
+    ></path>
+    <title>N4.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N4.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#1adc46"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 394.46930763845546 Q 450.9645682136938 362.361593489749 487.30972909224766 301.02749722493775"
+    ></path>
+    <title>N4.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N4.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#1adc46"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 424.9008332365015 Q 343.13240039326536 428.8187182794384 387.3097322255305 394.46930763845546"
+    ></path>
+    <title>N4.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N4.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#1adc46"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 379.84030711106817 Q 229.0932725225253 420.60486813678006 287.3097358091563 424.9008332365015"
+    ></path>
+    <title>N4.linel1</title>
+  </g>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="241.98291691141236"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dotrP</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="241.98291691141236"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dotr</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="301.02749722493775"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dot3P</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="301.02749722493775"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dot3</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="394.46930763845546"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dot2P</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="394.46930763845546"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dot2</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="424.9008332365015"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dot1P</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="424.9008332365015"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dot1</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="379.84030711106817"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dotlP</title>
+  </circle>
+  <circle
+    fill="#1adc46"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="379.84030711106817"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N4.dotl</title>
+  </circle>
+  <g ensureOnCanvas="true">
+    <filter id="N3.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#697bdd"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 315.2152255379454 Q 523.0346013916402 380.17704583531895 587.3097271497335 417.12310622299105"
+    ></path>
+    <title>N3.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N3.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#697bdd"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 267.19455655989805 Q 428.6520858785916 309.2338986406388 487.30972909224766 315.2152255379454"
+    ></path>
+    <title>N3.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N3.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#697bdd"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 341.5780568952934 Q 349.2463269489432 320.4336642981076 387.3097322255305 267.19455655989805"
+    ></path>
+    <title>N3.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N3.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#697bdd"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 410.8971671742391 Q 248.7037550173779 392.6746528373097 287.3097358091563 341.5780568952934"
+    ></path>
+    <title>N3.linel1</title>
+  </g>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="417.12310622299105"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dotrP</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="417.12310622299105"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dotr</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="315.2152255379454"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dot3P</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="315.2152255379454"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dot3</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="267.19455655989805"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dot2P</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="267.19455655989805"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dot2</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="341.5780568952934"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dot1P</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="341.5780568952934"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dot1</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="410.8971671742391"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dotlP</title>
+  </circle>
+  <circle
+    fill="#697bdd"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="410.8971671742391"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N3.dotl</title>
+  </circle>
+  <g ensureOnCanvas="true">
+    <filter id="N2.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#39e493"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 308.7962855670079 Q 529.3617340879406 348.8024355868709 587.3097271497335 352.1027649544725"
+    ></path>
+    <title>N2.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N2.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#39e493"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 275.91214229723676 Q 431.0620402423573 311.3533267656932 487.30972909224766 308.7962855670079"
+    ></path>
+    <title>N2.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N2.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#39e493"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 338.0656751842571 Q 347.86736278180854 323.97526817784575 387.3097322255305 275.91214229723676"
+    ></path>
+    <title>N2.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N2.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#39e493"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 282.59159747148414 Q 227.60777516199155 327.81782862572004 287.3097358091563 338.0656751842571"
+    ></path>
+    <title>N2.linel1</title>
+  </g>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="352.1027649544725"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dotrP</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="352.1027649544725"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dotr</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="308.7962855670079"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dot3P</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="308.7962855670079"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dot3</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="275.91214229723676"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dot2P</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="275.91214229723676"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dot2</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="338.0656751842571"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dot1P</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="338.0656751842571"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dot1</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="282.59159747148414"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dotlP</title>
+  </circle>
+  <circle
+    fill="#39e493"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="282.59159747148414"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N2.dotl</title>
+  </circle>
+  <g ensureOnCanvas="true">
+    <filter id="N1.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#a9414c"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 487.30972909224766 427.65936553742745 Q 532.7893923546955 458.74288048138044 587.3097271497335 450.86146315899316"
+    ></path>
+    <title>N1.line3r</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N1.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#a9414c"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 387.3097322255305 441.86418871475 Q 440.1224645702879 454.56300054129207 487.30972909224766 427.65936553742745"
+    ></path>
+    <title>N1.line23</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N1.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#a9414c"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 287.3097358091563 348.9008465120011 Q 323.6923651731348 410.030630364456 387.3097322255305 441.86418871475"
+    ></path>
+    <title>N1.line12</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="N1.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#a9414c"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 187.3097401807441 324.62365587756346 Q 232.59136091665775 356.1977043668918 287.3097358091563 348.9008465120011"
+    ></path>
+    <title>N1.linel1</title>
+  </g>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="450.86146315899316"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dotrP</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="587.3097271497335"
+    cy="450.86146315899316"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dotr</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="427.65936553742745"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dot3P</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="487.30972909224766"
+    cy="427.65936553742745"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dot3</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="441.86418871475"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dot2P</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="387.3097322255305"
+    cy="441.86418871475"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dot2</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="348.9008465120011"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dot1P</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="287.3097358091563"
+    cy="348.9008465120011"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dot1</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="324.62365587756346"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dotlP</title>
+  </circle>
+  <circle
+    fill="#a9414c"
+    fill-opacity="0.5"
+    cx="187.3097401807441"
+    cy="324.62365587756346"
+    stroke="none"
+    r="5"
+    ensureOnCanvas="true"
+  >
+    <title>N1.dotl</title>
+  </circle>
+</svg>

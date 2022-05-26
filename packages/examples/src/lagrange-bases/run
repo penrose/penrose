@@ -1,0 +1,1 @@
+npx roger watch $(PWD)/example.sub $(PWD)/lagrange-bases.dsl $(PWD)/lagrange-bases.sty

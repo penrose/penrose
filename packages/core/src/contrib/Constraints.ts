@@ -20,7 +20,6 @@ import { ops } from "engine/Autodiff";
 import {
   absVal,
   add,
-  div,
   ifCond,
   lt,
   max,
@@ -89,10 +88,7 @@ const constrDictSimple = {
     [l2, r2]: [ad.Num, ad.Num]
   ): ad.Num => {
     // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
-    return add(
-      constrDictSimple.lessThanSq(l1, l2),
-      constrDictSimple.lessThanSq(r2, r1)
-    );
+    return add(max(0, sub(l1, l2)), max(0, sub(r2, r1)));
   },
 
   /**
@@ -157,11 +153,11 @@ const constrDictGeneral = {
     const box = bboxFromShape([shapeType, props]);
     const canvasXRange: [ad.Num, ad.Num] = [
       mul(canvasWidth, -0.5),
-      div(canvasWidth, 2),
+      mul(canvasWidth, 0.5),
     ];
     const canvasYRange: [ad.Num, ad.Num] = [
       mul(canvasHeight, -0.5),
-      div(canvasHeight, 2),
+      mul(canvasHeight, 0.5),
     ];
     return add(
       constrDict.contains1D(canvasXRange, BBox.xRange(box)),

@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
     "watch": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "build": "rm -f ./static/try/*;cp ../panels/public/* ./static/try/;NODE_OPTIONS='--max-old-space-size=8192' docusaurus build",
+    "build": "mkdir -p ./static/try/;mv ../editor/dist/* ./static/try;NODE_OPTIONS='--max-old-space-size=8192' docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -16,11 +16,12 @@
     "clean": "rimraf .docusaurus build"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-beta.15",
-    "@docusaurus/preset-classic": "2.0.0-beta.15",
+    "@docusaurus/core": "2.0.0-beta.20",
+    "@docusaurus/preset-classic": "2.0.0-beta.20",
     "@mdx-js/react": "^1.6.21",
     "@penrose/components": "^1.3.0",
     "@penrose/core": "^1.3.0",
+    "@penrose/editor": "^1.3.0",
     "@penrose/examples": "^1.3.0",
     "clsx": "^1.1.1",
     "hast-util-is-element": "1.1.0",
