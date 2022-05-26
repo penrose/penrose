@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="EA.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -41,7 +41,7 @@
     ></path>
     <title>EA.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="Fb.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -67,7 +67,7 @@
     ></path>
     <title>Fb.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="Fb.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -109,7 +109,7 @@
     ></path>
     <title>Fb.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="Fd.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -135,7 +135,7 @@
     ></path>
     <title>Fd.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="Fd.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -177,7 +177,7 @@
     ></path>
     <title>Fd.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="FC.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -219,7 +219,7 @@
     ></path>
     <title>FC.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="FD.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -261,7 +261,7 @@
     ></path>
     <title>FD.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="FB.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -303,7 +303,7 @@
     ></path>
     <title>FB.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="EC.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -345,7 +345,7 @@
     ></path>
     <title>EC.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="AC.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -390,7 +390,6 @@
   <g
     transform="rotate(0, 406.3607263945962, 228.21579372933596)translate(406.3607263945962, 228.21579372933596)"
     string="b"
-    ensureOnCanvas="true"
   >
     <title>b.text</title>
     <svg
@@ -436,14 +435,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>b.icon</title>
   </circle>
   <g
     transform="rotate(0, 579.8997199284421, 267.6928240613698)translate(579.8997199284421, 267.6928240613698)"
     string="d"
-    ensureOnCanvas="true"
   >
     <title>d.text</title>
     <svg
@@ -489,14 +486,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>d.icon</title>
   </circle>
   <g
     transform="rotate(0, 526.3677828145509, 186.12665801301586)translate(526.3677828145509, 186.12665801301586)"
     string="F"
-    ensureOnCanvas="true"
   >
     <title>F.text</title>
     <svg
@@ -542,14 +537,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>F.icon</title>
   </circle>
   <g
     transform="rotate(0, 715.9029128292341, 222.05457454065157)translate(715.9029128292341, 222.05457454065157)"
     string="E"
-    ensureOnCanvas="true"
   >
     <title>E.text</title>
     <svg
@@ -594,7 +587,6 @@
     stroke-width="1.75"
     stroke-linecap="butt"
     r="179.93906542154207"
-    ensureOnCanvas="true"
   >
     <title>c.icon</title>
   </circle>
@@ -608,14 +600,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>E.icon</title>
   </circle>
   <g
     transform="rotate(0, 588.357413706449, 325.07923588883625)translate(588.357413706449, 325.07923588883625)"
     string="D"
-    ensureOnCanvas="true"
   >
     <title>D.text</title>
     <svg
@@ -661,14 +651,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>D.icon</title>
   </circle>
   <g
     transform="rotate(0, 451.12593811305163, 314.06761827468546)translate(451.12593811305163, 314.06761827468546)"
     string="C"
-    ensureOnCanvas="true"
   >
     <title>C.text</title>
     <svg
@@ -714,14 +702,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>C.icon</title>
   </circle>
   <g
     transform="rotate(0, 371.8856620890399, 216.05086554310955)translate(371.8856620890399, 216.05086554310955)"
     string="B"
-    ensureOnCanvas="true"
   >
     <title>B.text</title>
     <svg
@@ -767,14 +753,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>B.icon</title>
   </circle>
   <g
     transform="rotate(0, 374.14040954331057, 83.99730703552574)translate(374.14040954331057, 83.99730703552574)"
     string="A"
-    ensureOnCanvas="true"
   >
     <title>A.text</title>
     <svg
@@ -820,7 +804,6 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>A.icon</title>
   </circle>
