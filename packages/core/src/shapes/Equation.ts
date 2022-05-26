@@ -1,8 +1,18 @@
-import { Center, Fill, Named, Rect, Rotate, Shape, String } from "types/shapes";
+import {
+  Center,
+  Fill,
+  Named,
+  Rect,
+  Rotate,
+  Shape,
+  String,
+  Stroke,
+} from "types/shapes";
 import {
   boolV,
   Canvas,
   sampleBlack,
+  sampleNoPaint,
   sampleVector,
   sampleZero,
   strV,
@@ -11,6 +21,7 @@ import {
 export interface EquationProps
   extends Named,
     Fill,
+    Stroke,
     Center,
     Rect,
     Rotate,
@@ -27,6 +38,10 @@ export const sampleEquation = (
   width: sampleZero(),
   height: sampleZero(),
   rotation: sampleZero(),
+  strokeColor: sampleNoPaint(),
+  strokeWidth: sampleZero(),
+  strokeStyle: strV("solid"),
+  strokeDasharray: strV(""),
   string: strV("defaultLabelText"),
   fontSize: strV("12pt"),
   ensureOnCanvas: boolV(true),

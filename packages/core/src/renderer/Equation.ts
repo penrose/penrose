@@ -1,9 +1,10 @@
-import { StrV } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
 import {
   attrAutoFillSvg,
   attrFill,
+  attrFont,
   attrRotation,
+  attrStroke,
   attrTitle,
   attrTransformCoords,
   attrWH,
@@ -21,41 +22,60 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  const name = shape.properties.name as StrV;
-  const retrievedLabel = retrieveLabel(name.contents, labels);
-  attrToNotAutoMap.push("name");
+  // Indicator: label was rendered and found
+  let labelFound = false;
 
-  if (
-    retrievedLabel &&
-    retrievedLabel.tag === "EquationData" &&
-    retrievedLabel.rendered
-  ) {
-    const renderedLabel = retrievedLabel.rendered;
+  if (shape.properties.name.tag === "StrV") {
+    const name = shape.properties.name;
+    const retrievedLabel = retrieveLabel(name.contents, labels);
 
-    attrToNotAutoMap.push(
-      ...attrFill(shape, renderedLabel.getElementsByTagName("g")[0])
-    );
-    attrToNotAutoMap.push(...attrWH(shape, renderedLabel as any));
+    if (retrievedLabel && retrievedLabel.tag === "EquationData") {
+      const renderedLabel = retrievedLabel.rendered;
+      const g = renderedLabel.getElementsByTagName("g")[0];
+      const paths = g.getElementsByTagName("path");
 
-    renderedLabel.getElementsByTagName("g")[0].setAttribute("stroke", "none");
-    renderedLabel
-      .getElementsByTagName("g")[0]
-      .setAttribute("stroke-width", "0");
-    const fontSize = shape.properties.fontSize as StrV;
-    renderedLabel.setAttribute(
-      "style",
-      `font-size: ${fontSize.contents.toString()}`
-    );
-    elem.appendChild(renderedLabel);
-    attrToNotAutoMap.push("fontSize");
-  } else {
-    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    txt.textContent = shape.properties.string.contents as string;
-    elem.appendChild(txt);
-    attrToNotAutoMap.push("string");
+      // Map Fill and Width/Height
+      attrToNotAutoMap.push(...attrFill(shape, g));
+      attrToNotAutoMap.push(...attrWH(shape, renderedLabel));
+
+      // Map Stroke
+      for (const path in paths) {
+        const thisPath = paths[path];
+        if (typeof thisPath === "object") {
+          attrToNotAutoMap.push(...attrStroke(shape, thisPath));
+        }
+      }
+
+      // Map Font Size
+      if (shape.properties.fontSize.tag === "StrV") {
+        renderedLabel.setAttribute(
+          "style",
+          `font-size: ${shape.properties.fontSize.contents}`
+        );
+        attrToNotAutoMap.push("fontSize");
+      }
+      elem.appendChild(renderedLabel);
+
+      // Indicate the rendered label was found
+      labelFound = true;
+    }
   }
 
-  // Directrly Map across any "unknown" SVG properties
+  if (!labelFound && shape.properties.string.tag === "StrV") {
+    // Fallback case: generate plain-text (non-rendered) label from string
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.textContent = shape.properties.string.contents;
+    attrToNotAutoMap.push("string");
+    elem.appendChild(txt);
+
+    // Map the attributes we have
+    attrToNotAutoMap.push(...attrFill(shape, elem));
+    attrToNotAutoMap.push(...attrWH(shape, elem));
+    attrToNotAutoMap.push(...attrStroke(shape, elem));
+    attrToNotAutoMap.push(...attrFont(shape, elem));
+  }
+
+  // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;
