@@ -5,7 +5,6 @@ import {
   resample,
   stepState,
   Trio,
-  variationSeeds,
 } from "@penrose/core";
 import localforage from "localforage";
 import queryString from "query-string";
@@ -112,8 +111,7 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    const seeds = variationSeeds(variation).seeds;
-    const resampled = resample({ ...diagram.state, seeds });
+    const resampled = resample({ ...diagram.state, variation });
     set(diagramState, (state) => ({
       ...state,
       metadata: { ...state.metadata, variation },

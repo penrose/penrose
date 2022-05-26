@@ -8,7 +8,6 @@ import {
   resample,
   showError,
   stepUntilConvergence,
-  variationSeeds,
 } from "../index";
 import { State } from "../types/state";
 
@@ -96,7 +95,7 @@ describe("Determinism", () => {
     const state1Opt = resOptimize1.value;
     const svg1Opt = await render(state1Opt);
 
-    state1Opt.seeds = variationSeeds(variation).seeds;
+    state1Opt.variation = variation;
 
     const state2NotOpt = resample(state1Opt);
     const svg2NotOpt = await render(state2NotOpt);

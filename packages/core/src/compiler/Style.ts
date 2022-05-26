@@ -2385,12 +2385,10 @@ const translateExpr = (
 
 const translate = (variation: string, { graph }: Gathering): Translation => {
   const rng = seedrandom(variation);
-  const varying: ad.Input[] = [];
-  const samplers = [];
+  const samplers: Sampler[] = [];
   let inputIndex = 0;
   const makeInput = (sampler: Sampler) => {
     const x = input({ key: inputIndex, val: sampler(rng) });
-    varying.push(x);
     samplers.push(sampler);
     ++inputIndex;
     return x;
@@ -2400,10 +2398,10 @@ const translate = (variation: string, { graph }: Gathering): Translation => {
     diagnostics: { errors: im.List(), warnings: im.List() },
     symbols: im.Map(),
     shapes: im.List(),
+    samplers: im.List(),
     objectives: im.List(),
     constraints: im.List(),
     layering: im.List(),
-    varying: im.List(),
   };
   const trans = graph
     .topsort()
@@ -2412,7 +2410,7 @@ const translate = (variation: string, { graph }: Gathering): Translation => {
         translateExpr({ makeInput }, path, graph.node(path), trans),
       init
     );
-  return { ...trans, varying: im.List(varying) };
+  return { ...trans, samplers: im.List(samplers) };
 };
 
 //#endregion

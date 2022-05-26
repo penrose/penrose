@@ -6,7 +6,7 @@ import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
-import { Fn, Seeds, State } from "types/state";
+import { Fn, State } from "types/state";
 import { BindingForm, Expr, Path } from "types/style";
 import {
   BoolV,
@@ -134,27 +134,6 @@ export const randFloat = (
 
 export const randList = (rng: seedrandom.prng, n: number): number[] => {
   return repeat(n, 0).map(() => RAND_RANGE * (rng() - 0.5));
-};
-
-/**
- * From a variation string, deterministically generate all the seeds we need to
- * keep around in the State, and also return the mutated PRNG to use for any
- * remaining setup. This is temporary, and should go away in the upcoming
- * rearchitecture.
- */
-export const variationSeeds = (
-  variation: string
-): { seeds: Seeds; rng: seedrandom.prng } => {
-  const rng = seedrandom(variation);
-  const seeds = {
-    // hacky way to get string seeds that we can reuse; note, order matters
-    resample: rng().toString(),
-    prepare: rng().toString(),
-    step: rng().toString(),
-    evalEnergy: rng().toString(),
-    evalFns: rng().toString(),
-  };
-  return { rng, seeds };
 };
 
 //#endregion

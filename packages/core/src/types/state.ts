@@ -1,10 +1,9 @@
 import { Matrix } from "ml-matrix";
-import { Canvas } from "shapes/Samplers";
+import { Canvas, Sampler } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { A } from "./ast";
 import { Shape } from "./shape";
 import { Expr } from "./style";
-import { Translation } from "./styleSemantics";
 import { FloatV } from "./value";
 
 export type ShapeFn = (xs: number[]) => Shape[];
@@ -13,10 +12,11 @@ export type ShapeFn = (xs: number[]) => Shape[];
  * The diagram state
  */
 export interface State {
+  variation: string;
   objFns: Fn[];
   constrFns: Fn[];
   varyingValues: number[];
-  translation: Translation;
+  samplers: Sampler[]; // same length as `varyingValues`
   labelCache: LabelCache;
   canvas: Canvas;
   computeShapes: ShapeFn;
@@ -52,6 +52,7 @@ export interface Fn {
   fname: string;
   fargs: Expr<A>[];
   optType: OptType;
+  output: ad.Num;
 }
 export type OptType = "ObjFn" | "ConstrFn";
 
@@ -102,11 +103,6 @@ export interface Params {
   // For L-BFGS
   lbfgsInfo: LbfgsParams;
 
-  xsVars: ad.Num[]; // Computational graph (leaf vars), from the bottom up
-
-  // For energy/gradient compilation
-  graphs: ad.GradGraphs;
-
   functionsCompiled: boolean;
 
   // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
@@ -115,15 +111,9 @@ export interface Params {
   // Applied with weight (or hyperparameters in general) -- may change with the EP round
   currObjectiveAndGradient(xs: number[]): FnEvaled;
 
-  // `xsVars` are all the leaves of the energy graph
   energyGraph: ad.Num; // This is the top of the energy graph (parent node)
   epWeightNode: ad.Num; // Handle to node for EP weight (so it can be set as the weight changes)
 }
 
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
 export type FnCached = (xs: number[]) => FnEvaled;
-
-export interface WeightInfo {
-  epWeightNode: ad.Input;
-  epWeight: number;
-}

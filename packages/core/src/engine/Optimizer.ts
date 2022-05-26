@@ -1,24 +1,16 @@
 import consola, { LogLevel } from "consola";
-import { energyAndGradCompiled, input, ops } from "engine/Autodiff";
-import {
-  compileCompGraph,
-  defaultLbfgsParams,
-  initConstraintWeight,
-} from "engine/EngineUtils";
+import { genCode, input, makeGraph, ops } from "engine/Autodiff";
+import { defaultLbfgsParams, initConstraintWeight } from "engine/EngineUtils";
 import * as _ from "lodash";
 import { Matrix } from "ml-matrix";
-import seedrandom from "seedrandom";
 import * as ad from "types/ad";
-import { A } from "types/ast";
-import { FnCached, LbfgsParams, Params, State, WeightInfo } from "types/state";
-import { Path } from "types/style";
+import { FnCached, LbfgsParams, Params, State } from "types/state";
 import {
   addv,
   dot,
   negv,
   normList,
   prettyPrintFns,
-  prettyPrintPath,
   repeat,
   scalev,
   subv,
@@ -113,16 +105,10 @@ const epConverged2 = (
 /**
  * @param state
  * @param steps
- * @param evaluate
  */
-export const step = (
-  rng: seedrandom.prng,
-  state: State,
-  steps: number,
-  evaluate = true
-): State => {
+export const step = (state: State, steps: number): State => {
   const { optStatus, weight } = state.params;
-  let newState = { ...state };
+  const newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
   let xs: number[] = state.varyingValues;
 
@@ -138,10 +124,6 @@ export const step = (
   log.info("params: ", optParams);
   // log.info("state: ", state);
   log.info("fns: ", prettyPrintFns(state));
-  log.info(
-    "variables: ",
-    state.varyingPaths.map((p: Path<A>): string => prettyPrintPath(p))
-  );
 
   switch (optStatus) {
     case "NewIter": {
@@ -151,7 +133,7 @@ export const step = (
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       const { objectiveAndGradient } = state.params;
       if (!objectiveAndGradient) {
-        return genOptProblem(rng, state);
+        return genOptProblem(state);
       } else {
         return {
           ...state,
@@ -178,7 +160,6 @@ export const step = (
         xs,
         state.params.currObjectiveAndGradient,
         state.params.lbfgsInfo,
-        state.varyingPaths.map((p) => prettyPrintPath(p)),
         steps
       );
       xs = res.xs;
@@ -298,18 +279,6 @@ export const step = (
       log.warn("step: Error");
       return state;
     }
-  }
-
-  // return the state with a new set of shapes
-  if (evaluate) {
-    const varyingValues = xs;
-    // log.info("evaluating state with varying values", varyingValues);
-
-    newState.varyingValues = varyingValues;
-    newState = {
-      ...newState,
-      shapes: state.computeShapes(xs),
-    };
   }
 
   return newState;
@@ -659,7 +628,6 @@ const minimize = (
   xs0: number[],
   f: FnCached,
   lbfgsInfo: LbfgsParams,
-  varyingPaths: string[],
   numSteps: number
 ): ad.OptInfo => {
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
@@ -744,13 +712,13 @@ const minimize = (
     if (Number.isNaN(fxs) || Number.isNaN(normGrad)) {
       log.info("-----");
 
-      const pathMap = zip3(varyingPaths, xs, gradfxs);
+      const pathMap = zip2(xs, gradfxs);
 
       log.info("[varying paths, current val, gradient of val]", pathMap);
 
-      for (const [name, x, dx] of pathMap) {
+      for (const [x, dx] of pathMap) {
         if (Number.isNaN(dx)) {
-          log.info("NaN in varying val's gradient", name, "(current val):", x);
+          log.info("NaN in varying val's gradient (current val):", x);
         }
       }
 
@@ -792,7 +760,6 @@ const minimize = (
  * @returns a function that takes in a list of `ad.Num`s and return a `Scalar`
  */
 export const evalEnergyOnCustom = (
-  rng: seedrandom.prng,
   state: State
 ): {
   energyGraph: ad.Num;
@@ -801,12 +768,10 @@ export const evalEnergyOnCustom = (
   epWeightNode: ad.Input;
 } => {
   // TODO: Could this line be causing a memory leak?
-  const {
-    translation: { objectives, constraints },
-  } = state;
+  const { objFns, constrFns } = state;
 
-  const objEngs = [...objectives];
-  const constrEngs = [...constraints];
+  const objEngs = objFns.map(({ output }) => output);
+  const constrEngs = constrFns.map(({ output }) => output);
 
   // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
   // The energies are in the val field of the results (w/o grads)
@@ -843,7 +808,7 @@ export const evalEnergyOnCustom = (
   };
 };
 
-export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
+export const genOptProblem = (state: State): State => {
   const xs: number[] = state.varyingValues;
   log.trace("step newIter, xs", xs);
 
@@ -852,52 +817,41 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   // Compile objective and gradient
   log.info("Compiling objective and gradient");
 
-  // `overallEnergy` is a partially applied function, waiting for an input.
-  // When applied, it will interpret the energy via lookups on the computational graph
-  // TODO: Could save the interpreted energy graph across amples
-  const xsVars = [...state.translation.varying];
-  const res = evalEnergyOnCustom(rng, state);
+  const res = evalEnergyOnCustom(state);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
 
   log.info("interpreted energy graph", res.energyGraph);
-  log.info("input vars", xsVars);
 
-  const weightInfo: WeightInfo = {
-    // TODO: factor out
-    epWeightNode: res.epWeightNode,
-    epWeight: initConstraintWeight,
-  };
+  // Build an actual graph from the implicit ad.Num structure
+  // Build symbolic gradient of f at xs on the energy graph
+  const explicitGraph = makeGraph({
+    primary: res.energyGraph,
+    secondary: [...res.objEngs, ...res.constrEngs],
+  });
 
-  const individualEnergies = [...res.objEngs, ...res.constrEngs];
-  const { graphs, f } = energyAndGradCompiled(
-    xs,
-    xsVars,
-    res.energyGraph,
-    individualEnergies,
-    weightInfo
-  );
+  const f = genCode(explicitGraph);
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
     const { primary, gradient, secondary } = f([epWeight, ...xs]);
     return {
       f: primary,
-      gradf: gradient.slice(1), // ignore epWeight gradient
+      gradf: xs.map((x, i) => {
+        const j = i + 1; // ignore epWeight gradient
+
+        // fill in any holes, in case some inputs weren't used in the graph
+        return j in gradient ? gradient[j] : 0;
+      }),
       objEngs: secondary.slice(0, res.objEngs.length),
       constrEngs: secondary.slice(res.objEngs.length),
     };
   };
 
-  // generate evaluation function
-  const computeShapes = compileCompGraph([...state.translation.shapes]);
-
   const newParams: Params = {
     ...state.params,
-    xsVars,
 
     lastGradient: repeat(xs.length, 0),
     lastGradientPreconditioned: repeat(xs.length, 0),
 
-    graphs,
     objectiveAndGradient,
 
     functionsCompiled: true,
@@ -914,7 +868,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     lbfgsInfo: defaultLbfgsParams,
   };
 
-  return { ...state, computeShapes, params: newParams };
+  return { ...state, params: newParams };
 };
 
 const containsNaN = (numberList: number[]): boolean => {

@@ -1,5 +1,4 @@
 import consola, { LogLevel } from "consola";
-import { compileCompGraph } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -17,7 +16,6 @@ import {
   RenderShape,
   RenderStatic,
 } from "./renderer/Renderer";
-import { resampleOnce } from "./renderer/Resample";
 import { getListOfStagedStates } from "./renderer/Staging";
 import { Canvas } from "./shapes/Samplers";
 import { showMutations } from "./synthesis/Mutation";
@@ -37,7 +35,6 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   toSvgPaintProperty,
-  variationSeeds,
   zip2,
 } from "./utils/Util";
 
@@ -48,7 +45,11 @@ const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
  * @param state current state
  */
 export const resample = (state: State): State => {
-  return resampleOnce(seedrandom(state.seeds.resample), state);
+  const rng = seedrandom(state.variation);
+  return {
+    ...state,
+    varyingValues: state.samplers.map((sampler) => sampler(rng)),
+  };
 };
 
 /**
@@ -57,7 +58,7 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(seedrandom(state.seeds.step), state, numSteps, true);
+  return step(state, numSteps);
 };
 
 /**
@@ -69,7 +70,7 @@ export const stepStateSafe = (
   state: State,
   numSteps = 10000
 ): Result<State, PenroseError> => {
-  const res = step(seedrandom(state.seeds.step), state, numSteps, true);
+  const res = step(state, numSteps);
   if (res.params.optStatus === "Error") {
     return err({
       errorType: "RuntimeError",
@@ -221,21 +222,8 @@ export const compileTrio = (prog: {
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
-  const rng = seedrandom(state.seeds.prepare);
-
-  // generate evaluation function
-  const computeShapes = compileCompGraph([...state.translation.shapes]);
-
-  // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
-  // The results of the pending values are then stored back in the translation as autodiff types
-  const stateEvaled: State = {
-    ...state,
-    computeShapes,
-    shapes: computeShapes(state.varyingValues),
-  };
-
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
-    stateEvaled.shapes
+    state.computeShapes(state.varyingValues)
   );
 
   if (labelCache.isErr()) {
@@ -243,12 +231,11 @@ export const prepareState = async (state: State): Promise<State> => {
   }
 
   const stateWithPendingProperties = insertPending({
-    ...stateEvaled,
+    ...state,
     labelCache: labelCache.value,
   });
 
-  const withOptProblem: State = genOptProblem(rng, stateWithPendingProperties);
-  return withOptProblem;
+  return genOptProblem(stateWithPendingProperties);
 };
 
 /**
@@ -309,7 +296,7 @@ export const evalEnergy = (s: State): number => {
     log.debug(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
     );
-    const newState = genOptProblem(seedrandom(s.seeds.evalEnergy), s);
+    const newState = genOptProblem(s);
     // TODO: caching
     return evalEnergy(newState);
   }
@@ -382,7 +369,6 @@ export {
   normList,
   getListOfStagedStates,
   toSvgPaintProperty,
-  variationSeeds,
 };
 export type { FnEvaled };
 export type { Registry, Trio };

@@ -1,4 +1,5 @@
 import im from "immutable";
+import { Sampler } from "shapes/Samplers";
 import { ShapeType } from "shapes/Shapes";
 import { Digraph } from "utils/Graph";
 import * as ad from "./ad";
@@ -186,7 +187,7 @@ export interface Translation {
   diagnostics: StyleDiagnostics;
   symbols: StyleSymbols;
   shapes: im.List<ShapeAD>;
-  varying: im.List<ad.Input>;
+  samplers: im.List<Sampler>;
   objectives: im.List<ad.Num>;
   constraints: im.List<ad.Num>;
   layering: im.List<Omit<Layer, "tag">>;

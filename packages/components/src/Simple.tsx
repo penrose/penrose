@@ -10,7 +10,6 @@ import {
   stateConverged,
   stepState,
   stepUntilConvergence,
-  variationSeeds,
 } from "@penrose/core";
 import React from "react";
 import fetchResolver from "./fetchPathResolver";
@@ -103,7 +102,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         this.props.variation !== prevProps.variation ||
         this.props.animate !== prevProps.animate
       ) {
-        this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
+        this.penroseState.variation = this.props.variation;
         this.penroseState = resample(this.penroseState);
         if (!this.props.animate) {
           await this.converge();
