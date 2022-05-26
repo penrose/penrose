@@ -1,3 +1,4 @@
+import { input } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { ColorV, FloatV, VectorV } from "types/value";
@@ -32,6 +33,17 @@ export type InputFactory = (sampler: Sampler) => ad.Input; // NOTE: stateful!
 export interface Context {
   makeInput: InputFactory;
 }
+
+/**
+ * Return a simple `Context` which starts with a `seedrandom` PRNG seeded with
+ * `variation`, and for each `makeInput` invocation, sets `val` by calling the
+ * sampler with that PRNG, then increments a counter for the `key` field.
+ */
+export const simpleContext = (variation: string): Context => {
+  const rng = seedrandom(variation);
+  let i = 0;
+  return { makeInput: (sampler) => input({ key: i++, val: sampler(rng) }) };
+};
 
 export const uniform = (min: number, max: number): Sampler => (
   rng: seedrandom.prng

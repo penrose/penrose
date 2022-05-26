@@ -136,8 +136,8 @@ describe("Compiler", () => {
       ["C", "C"],
     ]) {
       const v = substances.get(name)?.get("label");
-      if (v?.tag === "OtherSource" && v?.expr.tag === "StringLit") {
-        expect(v.expr.contents).toBe(label);
+      if (v?.tag === "OtherSource" && v?.expr.expr.tag === "StringLit") {
+        expect(v.expr.expr.contents).toBe(label);
       }
     }
     expect(substances.has("B")).toBe(false);
