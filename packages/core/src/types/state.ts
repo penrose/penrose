@@ -2,7 +2,7 @@ import { Matrix } from "ml-matrix";
 import { Canvas, Sampler } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { A } from "./ast";
-import { Shape } from "./shape";
+import { Shape, ShapeAD } from "./shape";
 import { Expr } from "./style";
 import { FloatV } from "./value";
 
@@ -18,6 +18,7 @@ export interface State {
   varyingValues: number[];
   samplers: Sampler[]; // same length as `varyingValues`
   labelCache: LabelCache;
+  shapes: ShapeAD[];
   canvas: Canvas;
   computeShapes: ShapeFn;
   params: Params;
@@ -86,15 +87,15 @@ export interface Params {
   weight: number;
   /** Info for unconstrained optimization **/
   UOround: number;
-  lastUOstate: number[];
-  lastUOenergy: number;
-  lastObjEnergies: number[];
-  lastConstrEnergies: number[];
+  lastUOstate?: number[];
+  lastUOenergy?: number;
+  lastObjEnergies?: number[];
+  lastConstrEnergies?: number[];
 
   /** Info for exterior point method **/
   EPround: number;
-  lastEPstate: number[];
-  lastEPenergy: number;
+  lastEPstate?: number[];
+  lastEPenergy?: number;
 
   lastGradient: number[]; // Value of gradient evaluated at the last state
   lastGradientPreconditioned: number[]; // Value of gradient evaluated at the last state, preconditioned by LBFGS
@@ -112,7 +113,6 @@ export interface Params {
   currObjectiveAndGradient(xs: number[]): FnEvaled;
 
   energyGraph: ad.Num; // This is the top of the energy graph (parent node)
-  epWeightNode: ad.Num; // Handle to node for EP weight (so it can be set as the weight changes)
 }
 
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.

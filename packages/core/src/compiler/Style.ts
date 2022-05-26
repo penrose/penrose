@@ -6,12 +6,8 @@ import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
-import {
-  compileCompGraph,
-  defaultLbfgsParams,
-  dummyIdentifier,
-  initConstraintWeight,
-} from "engine/EngineUtils";
+import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
+import { genOptProblem } from "engine/Optimizer";
 import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
 import _, { range } from "lodash";
@@ -40,7 +36,7 @@ import {
   SubstanceError,
 } from "types/errors";
 import { ShapeAD } from "types/shape";
-import { Params, State } from "types/state";
+import { State } from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -2574,7 +2570,10 @@ export const compileStyle = (
   const samplers: Sampler[] = [];
   const makeInput = (sampler: Sampler) => {
     const val = sampler(rng);
-    const x = input({ key: varyingValues.length, val });
+
+    // ep weight will be index 0, so start indexing at 1
+    const x = input({ key: varyingValues.length + 1, val });
+
     varyingValues.push(val);
     samplers.push(sampler);
     return x;
@@ -2599,25 +2598,28 @@ export const compileStyle = (
     return err(toStyleErrors(shapes.error));
   }
 
+  const objFns = [...translation.objectives];
+  const constrFns = [...translation.constraints];
+
+  const computeShapes = compileCompGraph(shapes.value);
+
+  const params = genOptProblem(
+    varyingValues,
+    objFns.map(({ output }) => output),
+    constrFns.map(({ output }) => output)
+  );
+
   const initState: State = {
     variation,
-    objFns: [...translation.objectives],
-    constrFns: [...translation.constraints],
+    objFns,
+    constrFns,
     varyingValues,
     samplers,
     labelCache: new Map(),
+    shapes: shapes.value,
     canvas: canvas.value,
-    computeShapes: compileCompGraph(shapes.value),
-
-    // `params` are initialized properly by optimization; the only thing it
-    // needs is the weight (for the objective function synthesis)
-    params: ({
-      optStatus: "NewIter" as const,
-      weight: initConstraintWeight,
-      lbfgsInfo: defaultLbfgsParams,
-      UOround: -1,
-      EPround: -1,
-    } as unknown) as Params,
+    computeShapes,
+    params,
   };
 
   log.info("init state from GenOptProblem", initState);

@@ -132,24 +132,18 @@ export const step = (state: State, steps: number): State => {
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       const { objectiveAndGradient } = state.params;
-      if (!objectiveAndGradient) {
-        return genOptProblem(state);
-      } else {
-        return {
-          ...state,
-          params: {
-            ...state.params,
-            currObjectiveAndGradient: objectiveAndGradient(
-              initConstraintWeight
-            ),
-            weight: initConstraintWeight,
-            UOround: 0,
-            EPround: 0,
-            optStatus: "UnconstrainedRunning" as const,
-            lbfgsInfo: defaultLbfgsParams,
-          },
-        };
-      }
+      return {
+        ...state,
+        params: {
+          ...state.params,
+          currObjectiveAndGradient: objectiveAndGradient(initConstraintWeight),
+          weight: initConstraintWeight,
+          UOround: 0,
+          EPround: 0,
+          optStatus: "UnconstrainedRunning" as const,
+          lbfgsInfo: defaultLbfgsParams,
+        },
+      };
     }
 
     case "UnconstrainedRunning": {
@@ -232,10 +226,10 @@ export const step = (state: State, steps: number): State => {
       if (
         optParams.EPround > 1 &&
         epConverged2(
-          optParams.lastEPstate,
-          optParams.lastUOstate,
-          optParams.lastEPenergy,
-          optParams.lastUOenergy
+          optParams.lastEPstate!,
+          optParams.lastUOstate!,
+          optParams.lastEPenergy!,
+          optParams.lastUOenergy!
         )
       ) {
         optParams.optStatus = "EPConverged";
@@ -760,19 +754,10 @@ const minimize = (
  * @returns a function that takes in a list of `ad.Num`s and return a `Scalar`
  */
 export const evalEnergyOnCustom = (
-  state: State
-): {
-  energyGraph: ad.Num;
-  objEngs: ad.Num[];
-  constrEngs: ad.Num[];
-  epWeightNode: ad.Input;
-} => {
-  // TODO: Could this line be causing a memory leak?
-  const { objFns, constrFns } = state;
-
-  const objEngs = objFns.map(({ output }) => output);
-  const constrEngs = constrFns.map(({ output }) => output);
-
+  weight: number,
+  objEngs: ad.Num[],
+  constrEngs: ad.Num[]
+): ad.Num => {
   // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
   // The energies are in the val field of the results (w/o grads)
   // log.info("objEngs", objFns, objEngs);
@@ -788,7 +773,7 @@ export const evalEnergyOnCustom = (
   // This changes with the EP round, gets bigger to weight the constraints
   // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
   const epWeightNode = input({
-    val: state.params.weight,
+    val: weight,
     key: 0, // other input keys must start at 1 to accommodate this
   });
 
@@ -800,16 +785,14 @@ export const evalEnergyOnCustom = (
     mul(constrEng, mul(constrWeightNode, epWeightNode))
   );
 
-  return {
-    energyGraph: overallEng,
-    objEngs,
-    constrEngs,
-    epWeightNode,
-  };
+  return overallEng;
 };
 
-export const genOptProblem = (state: State): State => {
-  const xs: number[] = state.varyingValues;
+export const genOptProblem = (
+  xs: number[],
+  objEngs: ad.Num[],
+  constrEngs: ad.Num[]
+): Params => {
   log.trace("step newIter, xs", xs);
 
   // if (!state.params.functionsCompiled) {
@@ -817,16 +800,17 @@ export const genOptProblem = (state: State): State => {
   // Compile objective and gradient
   log.info("Compiling objective and gradient");
 
-  const res = evalEnergyOnCustom(state);
+  const weight = initConstraintWeight;
+  const energyGraph = evalEnergyOnCustom(weight, objEngs, constrEngs);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
 
-  log.info("interpreted energy graph", res.energyGraph);
+  log.info("interpreted energy graph", energyGraph);
 
   // Build an actual graph from the implicit ad.Num structure
   // Build symbolic gradient of f at xs on the energy graph
   const explicitGraph = makeGraph({
-    primary: res.energyGraph,
-    secondary: [...res.objEngs, ...res.constrEngs],
+    primary: energyGraph,
+    secondary: [...objEngs, ...constrEngs],
   });
 
   const f = genCode(explicitGraph);
@@ -841,14 +825,12 @@ export const genOptProblem = (state: State): State => {
         // fill in any holes, in case some inputs weren't used in the graph
         return j in gradient ? gradient[j] : 0;
       }),
-      objEngs: secondary.slice(0, res.objEngs.length),
-      constrEngs: secondary.slice(res.objEngs.length),
+      objEngs: secondary.slice(0, objEngs.length),
+      constrEngs: secondary.slice(objEngs.length),
     };
   };
 
-  const newParams: Params = {
-    ...state.params,
-
+  const params: Params = {
     lastGradient: repeat(xs.length, 0),
     lastGradientPreconditioned: repeat(xs.length, 0),
 
@@ -858,9 +840,8 @@ export const genOptProblem = (state: State): State => {
 
     currObjectiveAndGradient: objectiveAndGradient(initConstraintWeight),
 
-    energyGraph: res.energyGraph,
-    epWeightNode: res.epWeightNode,
-    weight: initConstraintWeight,
+    energyGraph,
+    weight,
     UOround: 0,
     EPround: 0,
     optStatus: "UnconstrainedRunning",
@@ -868,7 +849,7 @@ export const genOptProblem = (state: State): State => {
     lbfgsInfo: defaultLbfgsParams,
   };
 
-  return { ...state, params: newParams };
+  return params;
 };
 
 const containsNaN = (numberList: number[]): boolean => {

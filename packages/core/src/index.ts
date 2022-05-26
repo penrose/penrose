@@ -8,7 +8,7 @@ import {
   parseSubstance,
   prettySubstance,
 } from "./compiler/Substance";
-import { genOptProblem, step } from "./engine/Optimizer";
+import { step } from "./engine/Optimizer";
 import { insertPending } from "./engine/PropagateUpdate";
 import {
   PathResolver,
@@ -218,7 +218,7 @@ export const compileTrio = (prog: {
 };
 
 /**
- * Generate all shapes, collect labels and images (if applicable), and generate the optimization problem given an initial `State`.
+ * Collect labels and images (if applicable).
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
@@ -230,12 +230,10 @@ export const prepareState = async (state: State): Promise<State> => {
     throw Error(showError(labelCache.error));
   }
 
-  const stateWithPendingProperties = insertPending({
+  return insertPending({
     ...state,
     labelCache: labelCache.value,
   });
-
-  return genOptProblem(stateWithPendingProperties);
 };
 
 /**
@@ -291,15 +289,6 @@ export const readRegistry = (registry: Registry): Trio[] => {
  */
 export const evalEnergy = (s: State): number => {
   const { objectiveAndGradient, weight } = s.params;
-  // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
-  if (!objectiveAndGradient) {
-    log.debug(
-      "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
-    );
-    const newState = genOptProblem(s);
-    // TODO: caching
-    return evalEnergy(newState);
-  }
   // TODO: maybe don't also compute the gradient, just to throw it away
   return objectiveAndGradient(weight)(s.varyingValues).f;
 };
