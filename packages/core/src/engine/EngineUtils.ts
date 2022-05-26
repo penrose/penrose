@@ -188,7 +188,6 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     // non-numeric Value types
     case "BoolV":
     case "StrV":
-    case "IntV":
       return v;
   }
 }
@@ -236,7 +235,6 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
     case "FloatV": {
       return [v.contents];
     }
-    case "IntV":
     case "BoolV":
     case "StrV": {
       return [];

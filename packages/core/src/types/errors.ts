@@ -159,6 +159,7 @@ export type StyleError =
   | BadElementError
   | BadIndexError
   | BinOpTypeError
+  | CanvasNonexistentDimsError
   | DeleteAccessError
   | DeleteGlobalError
   | DeleteSubstanceError
@@ -314,6 +315,13 @@ export interface BinOpTypeError {
   expr: BinOp<C>;
   left: Value<ad.Num>["tag"];
   right: Value<ad.Num>["tag"];
+}
+
+export interface CanvasNonexistentDimsError {
+  tag: "CanvasNonexistentDimsError";
+  attr: "width" | "height";
+  kind: "missing" | "wrong type";
+  type?: string;
 }
 
 export interface DeleteAccessError {

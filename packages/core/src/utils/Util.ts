@@ -13,7 +13,6 @@ import {
   Color,
   ColorV,
   FloatV,
-  IntV,
   ListV,
   LListV,
   MatrixV,
@@ -392,11 +391,6 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 export const floatV = (contents: ad.Num): FloatV<ad.Num> => ({
   tag: "FloatV",
-  contents,
-});
-
-export const intV = (contents: number): IntV => ({
-  tag: "IntV",
   contents,
 });
 

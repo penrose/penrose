@@ -83,7 +83,6 @@ import {
   ResolvedName,
   ResolvedPath,
   SelEnv,
-  ShapePath,
   ShapeSource,
   Subst,
   Translation,
@@ -108,7 +107,6 @@ import {
   GPI,
   GPIMap,
   GPIProps,
-  IntV,
   ListV,
   LListV,
   MatrixV,
@@ -1753,32 +1751,34 @@ const gatherExpr = (
 };
 
 const gatherField = (
-  graph: DepGraph,
+  { graph, shapes }: Gathering,
   lhs: string,
   rhs: FieldSource
-): ShapePath[] => {
+): void => {
   switch (rhs.tag) {
     case "ShapeSource": {
       for (const [k, expr] of rhs.props) {
         gatherExpr(graph, `${lhs}.${k}`, expr);
       }
-      const { shapeType } = rhs;
-      return [{ shapeType, path: lhs }];
+      shapes.set(lhs, rhs.shapeType);
+      return;
     }
     case "OtherSource": {
       gatherExpr(graph, lhs, rhs.expr);
-      return [];
+      return;
     }
   }
 };
 
 const gatherDependencies = (assignment: Assignment): Gathering => {
-  const graph = new Digraph<string, WithContext<NotShape>>();
-  const shapes = [];
+  const gathering: Gathering = {
+    graph: new Digraph<string, WithContext<NotShape>>(),
+    shapes: new Map(),
+  };
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
-      shapes.push(...gatherField(graph, `${blockName}.${fieldName}`, field));
+      gatherField(gathering, `${blockName}.${fieldName}`, field);
     }
   }
 
@@ -1791,19 +1791,17 @@ const gatherDependencies = (assignment: Assignment): Gathering => {
         block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
         members: [],
       };
-      shapes.push(...gatherField(graph, prettyPrintResolvedPath(p), field));
+      gatherField(gathering, prettyPrintResolvedPath(p), field);
     }
   }
 
   for (const [substanceName, fields] of assignment.substances) {
     for (const [fieldName, field] of fields) {
-      shapes.push(
-        ...gatherField(graph, `\`${substanceName}\`.${fieldName}`, field)
-      );
+      gatherField(gathering, `\`${substanceName}\`.${fieldName}`, field);
     }
   }
 
-  return { graph, shapes: im.List(shapes) };
+  return gathering;
 };
 
 //#endregion
@@ -1975,10 +1973,7 @@ const evalBinOp = (
     left: left.tag,
     right: right.tag,
   };
-  if (
-    (left.tag === "IntV" || left.tag === "FloatV") &&
-    (right.tag === "IntV" || right.tag === "FloatV")
-  ) {
+  if (left.tag === "FloatV" && right.tag === "FloatV") {
     return ok(floatV(evalBinOpScalars(expr.op, left.contents, right.contents)));
   } else if (left.tag === "VectorV" && right.tag === "VectorV") {
     return evalBinOpVectors(error, expr.op, left.contents, right.contents).map(
@@ -2009,12 +2004,12 @@ const evalBinOp = (
 
 const eval1D = (
   coll: List<C> | Vector<C>,
-  first: FloatV<ad.Num> | IntV,
+  first: FloatV<ad.Num>,
   rest: Value<ad.Num>[]
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
-    if (v.tag === "FloatV" || v.tag === "IntV") {
+    if (v.tag === "FloatV") {
       elems.push(v.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll }));
@@ -2072,8 +2067,7 @@ const evalListOrVector = (
     }
     const [first, ...rest] = vals;
     switch (first.tag) {
-      case "FloatV":
-      case "IntV": {
+      case "FloatV": {
         return eval1D(expr, first, rest);
       }
       case "VectorV": {
@@ -2134,7 +2128,6 @@ const evalAccess = (
     case "BoolV":
     case "ColorV":
     case "FloatV":
-    case "IntV":
     case "PathDataV":
     case "StrV": {
       return err({ tag: "NotCollError", expr });
@@ -2147,8 +2140,7 @@ const evalUMinus = (
   arg: Value<ad.Num>
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
-    case "FloatV":
-    case "IntV": {
+    case "FloatV": {
       return ok(floatV(neg(arg.contents)));
     }
     case "VectorV": {
@@ -2242,8 +2234,6 @@ const evalExpr = (
           evalExpr(mut, { context, expr: e }, trans).andThen<number>((i) => {
             if (i.tag === "GPI") {
               return err(oneErr({ tag: "NotValueError", expr: e }));
-            } else if (i.contents.tag === "IntV") {
-              return ok(i.contents.contents);
             } else if (
               i.contents.tag === "FloatV" &&
               typeof i.contents.contents === "number"
@@ -2270,10 +2260,7 @@ const evalExpr = (
     case "Tuple": {
       return evalVals(mut, context, expr.contents, trans).andThen(
         ([left, right]) => {
-          if (
-            (left.tag === "IntV" || left.tag === "FloatV") &&
-            (right.tag === "IntV" || right.tag === "FloatV")
-          ) {
+          if (left.tag === "FloatV" && right.tag === "FloatV") {
             return ok(val(tupV([left.contents, right.contents])));
           } else {
             return err(oneErr({ tag: "BadElementError", coll: expr }));
@@ -2300,7 +2287,7 @@ const evalExpr = (
       );
     }
     case "Vary": {
-      return ok(val(floatV(mut.makeInput(uniform(...canvas.xRange)))));
+      return ok(val(floatV(mut.makeInput(uniform(...trans.canvas.xRange)))));
     }
   }
 };
@@ -2383,7 +2370,11 @@ const translateExpr = (
   }
 };
 
-const translate = (variation: string, { graph }: Gathering): Translation => {
+const translate = (
+  variation: string,
+  canvas: Canvas,
+  { graph }: Gathering
+): Translation => {
   const rng = seedrandom(variation);
   const samplers: Sampler[] = [];
   let inputIndex = 0;
@@ -2396,6 +2387,7 @@ const translate = (variation: string, { graph }: Gathering): Translation => {
 
   const init: Translation = {
     diagnostics: { errors: im.List(), warnings: im.List() },
+    canvas,
     symbols: im.Map(),
     shapes: im.List(),
     samplers: im.List(),
@@ -2403,13 +2395,12 @@ const translate = (variation: string, { graph }: Gathering): Translation => {
     constraints: im.List(),
     layering: im.List(),
   };
-  const trans = graph
-    .topsort()
-    .reduce(
-      (trans, path) =>
-        translateExpr({ makeInput }, path, graph.node(path), trans),
-      init
-    );
+  const trans = graph.topsort().reduce((trans, path) => {
+    const e = graph.node(path);
+    return e === undefined
+      ? addDiags(oneErr({ tag: "MissingPathError", path }), trans)
+      : translateExpr({ makeInput }, path, e, trans);
+  }, init);
   return { ...trans, samplers: im.List(samplers) };
 };
 
@@ -3278,13 +3269,17 @@ const checkCanvas = (tr: Translation): StyleError[] => {
   return errs;
 };
 
-/* Precondition: checkCanvas returns without error */
-export const getCanvas = (tr: Translation): Canvas => {
-  const width = ((tr.trMap.canvas.width.contents as TagExpr<ad.Num>)
-    .contents as Value<ad.Num>).contents as number;
-  const height = ((tr.trMap.canvas.height.contents as TagExpr<ad.Num>)
-    .contents as Value<ad.Num>).contents as number;
-  return makeCanvas(width, height);
+const getCanvasDim = (
+  attr: "width" | "height",
+  graph: DepGraph
+): Result<number, StyleError> => {
+  const dim = graph.node(`canvas.${attr}`);
+  if (dim === undefined) {
+    return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
+  } else if (dim.expr.tag !== "Fix") {
+    return err({ tag: "CanvasNonexistentDimsError", attr, kind: "wrong type" });
+  }
+  return ok(dim.expr.contents);
 };
 
 //#endregion
@@ -3458,13 +3453,22 @@ export const compileStyle = (
   // `delete` statements to construct a mapping from Substance-substituted paths
   // to Style expression ASTs
   const assignment = buildAssignment(varEnv, subEnv, styProg);
-  // TODO: report errors in assignment
+  if (assignment.diagnostics.errors.size > 0) {
+    return err(toStyleErrors([...assignment.diagnostics.errors]));
+  }
 
   // second pass: construct a dependency graph among those expressions
   const gathering = gatherDependencies(assignment);
 
+  const canvas = getCanvasDim("width", gathering.graph).andThen((w) =>
+    getCanvasDim("height", gathering.graph).map((h) => makeCanvas(w, h))
+  );
+  if (canvas.isErr()) {
+    return err(toStyleErrors([canvas.error]));
+  }
+
   // third pass: compile all expressions in topological sorted order
-  const translation = translate(variation, gathering);
+  const translation = translate(variation, canvas.value, gathering);
 
   log.info("translation (before genOptProblem)", translation);
 

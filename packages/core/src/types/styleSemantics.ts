@@ -1,5 +1,5 @@
 import im from "immutable";
-import { Sampler } from "shapes/Samplers";
+import { Canvas, Sampler } from "shapes/Samplers";
 import { ShapeType } from "shapes/Shapes";
 import { Digraph } from "utils/Graph";
 import * as ad from "./ad";
@@ -147,16 +147,13 @@ export type ResolvedPath<T> = T &
 
 //#region second Style compiler pass: dependency graph
 
-export type DepGraph = Digraph<string, WithContext<NotShape>>;
-
-export interface ShapePath {
-  shapeType: ShapeType;
-  path: string;
-}
+// explicitly allow `undefined` so that when we get node labels out of the
+// graph, TypeScript tells us to check that the node actually had a label
+export type DepGraph = Digraph<string, WithContext<NotShape> | undefined>;
 
 export interface Gathering {
   graph: DepGraph;
-  shapes: im.List<ShapePath>;
+  shapes: Map<string, ShapeType>;
 }
 
 //#endregion
@@ -185,6 +182,7 @@ export type StyleSymbols = im.Map<string, Nameable>;
 
 export interface Translation {
   diagnostics: StyleDiagnostics;
+  canvas: Canvas;
   symbols: StyleSymbols;
   shapes: im.List<ShapeAD>;
   samplers: im.List<Sampler>;
