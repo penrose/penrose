@@ -1,4 +1,5 @@
-import { Properties, Shape } from "types/shape";
+import * as ad from "types/ad";
+import { Properties, ShapeAD } from "types/shape";
 import { State } from "types/state";
 
 /**
@@ -10,47 +11,43 @@ export const dragUpdate = (
   dx: number,
   dy: number
 ): State => {
+  const xs = [...state.varyingValues];
+  for (const shape of state.shapes) {
+    if (shape.properties.name.contents === id) {
+      dragShape(shape, [dx, dy], xs);
+    }
+  }
   const updated: State = {
     ...state,
     params: { ...state.params, optStatus: "NewIter" },
-    shapes: state.shapes.map(({ shapeType, properties }: Shape) => {
-      if (properties.name.contents === id) {
-        return dragShape({ shapeType, properties }, [dx, dy]);
-      }
-      return { shapeType, properties };
-    }),
+    varyingValues: xs,
   };
   return updated;
 };
 
 // TODO: factor out position props in shapedef
-const dragShape = (shape: Shape, offset: [number, number]): Shape => {
+const dragShape = (
+  shape: ShapeAD,
+  offset: [number, number],
+  xs: number[]
+): void => {
   const { shapeType, properties } = shape;
   switch (shapeType) {
     case "Path":
       console.log("Path drag unimplemented", shape); // Just to prevent crashing on accidental drag
-      return shape;
+      return;
     case "Polygon":
       console.log("Polygon drag unimplemented", shape); // Just to prevent crashing on accidental drag
-      return shape;
+      return;
     case "Polyline":
       console.log("Polyline drag unimplemented", shape); // Just to prevent crashing on accidental drag
-      return shape;
+      return;
     case "Line":
-      return {
-        ...shape,
-        properties: moveProperties(properties, ["start", "end"], offset),
-      };
-    case "Arrow":
-      return {
-        ...shape,
-        properties: moveProperties(properties, ["start", "end"], offset),
-      };
+      moveProperties(properties, ["start", "end"], offset, xs);
+      return;
     default:
-      return {
-        ...shape,
-        properties: moveProperties(properties, ["center"], offset),
-      };
+      moveProperties(properties, ["center"], offset, xs);
+      return;
   }
 };
 
@@ -58,14 +55,21 @@ const dragShape = (shape: Shape, offset: [number, number]): Shape => {
  * For each of the specified properties listed in `propPairs`, subtract a number from the original value.
  */
 const moveProperties = (
-  properties: Properties<number>,
+  properties: Properties<ad.Num>,
   propsToMove: string[],
-  [dx, dy]: [number, number]
-): Properties<number> => {
-  const moveProperty = (props: Properties<number>, propertyID: string) => {
-    const [x, y] = props[propertyID].contents as [number, number];
-    props[propertyID].contents = [x + dx, y + dy];
-    return props;
-  };
-  return propsToMove.reduce(moveProperty, properties);
+  [dx, dy]: [number, number],
+  xs: number[]
+): void => {
+  for (const propertyID of propsToMove) {
+    const value = properties[propertyID];
+    if (value.tag === "VectorV") {
+      const [x, y] = value.contents;
+      if (typeof x !== "number" && x.tag === "Input") {
+        xs[x.key] += dx;
+      }
+      if (typeof y !== "number" && y.tag === "Input") {
+        xs[y.key] += dy;
+      }
+    }
+  }
 };
