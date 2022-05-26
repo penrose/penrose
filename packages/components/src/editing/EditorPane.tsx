@@ -23,12 +23,14 @@ export default function EditorPane({
   vimMode,
   languageType,
   domainCache,
+  readOnly,
 }: {
   value: string;
   vimMode: boolean;
   onChange(value: string): void;
   languageType: "substance" | "style" | "domain";
   domainCache: Env | null;
+  readOnly?: boolean;
 }) {
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -63,7 +65,7 @@ export default function EditorPane({
         onChange={(v) => onChange(v ?? "")}
         defaultLanguage={languageType}
         // HACK
-        options={monacoOptions as any}
+        options={{ ...(monacoOptions as any), readOnly }}
         onMount={onEditorMount as any}
       />
       <div

@@ -1,25 +1,16 @@
-import { Command, flags } from "@oclif/command";
-import chalk from "chalk";
+import { Command, Flags } from "@oclif/core";
 import chokidar from "chokidar";
-import fs from "fs";
-import path from "path";
+import { promises as fs } from "node:fs";
 import WebSocket from "ws";
-// eslint-disable-next-line node/no-unsupported-features/node-builtins
-const fsp = fs.promises;
-
-interface Args {
-  [type: string]: string;
-}
 
 export default class Watch extends Command {
   static description =
-    "watches files for changes; files can be passed in any order";
+    "Watch the current folder for files & changes (must end in .sub,.sty,.dsl)";
 
-  static examples = [];
+  static examples = ["<%= config.bin %> <%= command.id %>"];
 
   static flags = {
-    help: flags.help({ char: "h" }),
-    port: flags.integer({
+    port: Flags.integer({
       char: "p",
       description: "websocket port to serve to frontend",
       default: 9160,
@@ -27,144 +18,103 @@ export default class Watch extends Command {
   };
 
   static args = [
-    { name: "substance", required: true },
-    { name: "style", required: true },
-    { name: "domain", required: true },
+    // { name: "file" }
   ];
 
-  current: Args = {
-    substance: "",
-    style: "",
-    domain: "",
+  wss: WebSocket.Server | null = null;
+
+  files: { substance: string[]; style: string[]; domain: string[] } = {
+    substance: [],
+    style: [],
+    domain: [],
   };
 
-  currentFilenames: Args = {
-    substance: "",
-    style: "",
-    domain: "",
-  };
-
-  wss: WebSocket.Server | undefined = undefined;
-
-  sendFiles = async () => {
-    const {
-      substance: substanceFilename,
-      style: styleFilename,
-      domain: domainFilename,
-    } = this.currentFilenames;
-    const { substance, style, domain } = this.current;
-    const result = {
-      type: "trio",
-      substance: {
-        fileName: substanceFilename,
-        contents: substance,
-      },
-      style: {
-        fileName: styleFilename,
-        contents: style,
-      },
-      domain: {
-        fileName: domainFilename,
-        contents: domain,
-      },
-    };
-    this.wss?.clients.forEach((client) => {
-      client.send(JSON.stringify(result));
-    });
-  };
-
-  reorder = (unordered: Args): Args => {
-    const ordered: Args = {};
-    for (const fakeType in unordered) {
-      const filename = unordered[fakeType];
-      const type = { ".sub": "substance", ".sty": "style", ".dsl": "domain" }[
-        path.extname(filename)
-      ];
-      if (!type) {
-        console.error(`❌ Unrecognized file extension: ${filename}`);
-        this.exit(1);
+  broadcastFiles() {
+    if (this.wss) {
+      for (const ws of this.wss.clients) {
+        ws.send(JSON.stringify({ kind: "files", files: this.files }));
       }
-      if (type in ordered) {
-        console.error(
-          `❌ Duplicate ${type} files: ${ordered[type]} and ${filename}`
-        );
-        this.exit(1);
-      }
-      ordered[type] = filename;
+    } else {
+      console.warn("Websocket server not defined");
     }
-    return ordered;
-  };
+  }
 
-  readFile = async (fileName: string): Promise<string | undefined> => {
+  async broadcastFileChange(fileName: string) {
     try {
-      const read = await fsp.readFile(fileName, "utf8");
-      return read;
-    } catch (error) {
-      console.error(`❌ Could not open ${fileName}: ${error}`);
-      return undefined;
-    }
-  };
-
-  watchFile = async (fileName: string, type: string) => {
-    const watcher = chokidar.watch(fileName, {
-      awaitWriteFinish: {
-        pollInterval: 100,
-        stabilityThreshold: 300, // increase to make file listen faster
-      },
-    });
-    this.currentFilenames[type] = fileName;
-    watcher.on("error", (err: Error) => {
-      console.error(`❌ Could not open ${fileName} ${type}: ${err}`);
-      this.exit(1);
-    });
-    watcher.on("change", async () => {
-      const str = await this.readFile(fileName);
-      if (str === undefined) {
-        this.exit(1);
-      }
-      this.current[type] = str;
-      console.info(
-        "✅",
-        chalk.blueBright(`${type}`) +
-          chalk.whiteBright(` ${fileName}`) +
-          chalk.blueBright(" updated, sending...")
-      );
-      this.sendFiles();
-    });
-    const str = await this.readFile(fileName);
-    if (str === undefined) {
-      this.exit(1);
-    }
-    this.current[type] = str;
-  };
-
-  async run() {
-    const { args: unorderedArgs, flags } = this.parse(Watch);
-    const args = this.reorder(unorderedArgs);
-
-    console.info(chalk.blue(`💂 starting on port ${flags.port}...`));
-
-    await this.watchFile(args.substance, "substance");
-    await this.watchFile(args.style, "style");
-    await this.watchFile(args.domain, "domain");
-
-    this.wss = new WebSocket.Server({
-      port: flags.port,
-    });
-
-    this.wss.on("connection", (ws) => {
-      this.sendFiles();
-      ws.on("message", async (m) => {
-        const parsed = JSON.parse(m as string);
-        if (parsed.type === "getFile") {
-          const parentDir = path.parse(args.style).dir;
-          const joined = path.resolve(parentDir, parsed.path);
-          const contents = await this.readFile(joined);
-          ws.send(JSON.stringify({ type: "gotFile", contents }));
+      const contents = await fs.readFile(fileName, "utf8");
+      if (this.wss) {
+        for (const ws of this.wss.clients) {
+          ws.send(JSON.stringify({ kind: "file_change", fileName, contents }));
         }
+      } else {
+        console.warn("Websocket server not defined");
+      }
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+
+  public async run(): Promise<void> {
+    const { flags } = await this.parse(Watch);
+    this.wss = new WebSocket.Server({ port: flags.port });
+    console.log(`watching on port ${flags.port}`);
+    this.wss.on("connection", (ws) => {
+      console.info("client connected");
+      this.broadcastFiles();
+      ws.on("message", async (data) => {
+        const parsed = JSON.parse(data.toString());
+        switch (parsed.kind) {
+          case "retrieve_file":
+            this.broadcastFileChange(parsed.fileName);
+            break;
+          default:
+            console.error(`unknown message kind: ${parsed.kind}`);
+        }
+      });
+      ws.on("close", () => {
+        console.info("client disconnected");
       });
     });
 
-    await this.sendFiles();
+    const watcher = chokidar.watch(".", { persistent: true });
+    watcher.on("add", (p) => {
+      switch (p.split(".").pop()) {
+        case "sub":
+          this.files.substance.push(p);
+          break;
+        case "sty":
+          this.files.style.push(p);
+          break;
+        case "dsl":
+          this.files.domain.push(p);
+          break;
+      }
+
+      this.broadcastFiles();
+    });
+    watcher.on("error", (err) => {
+      console.error(err);
+    });
+    watcher.on("change", async (p) => {
+      if (["sub", "sty", "dsl"].includes(p.split(".").pop() ?? "")) {
+        console.info(`file ${p} changed`);
+        this.broadcastFileChange(p);
+      }
+    });
+    watcher.on("unlink", (p) => {
+      switch (p.split(".").pop()) {
+        case "sub":
+          this.files.substance = this.files.substance.filter((f) => f !== p);
+          break;
+        case "sty":
+          this.files.style = this.files.style.filter((f) => f !== p);
+          break;
+        case "dsl":
+          this.files.domain = this.files.domain.filter((f) => f !== p);
+          break;
+      }
+
+      this.broadcastFiles();
+    });
   }
 }
