@@ -8,7 +8,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 0, 0)"
-    ensureOnCanvas="true"
   >
     <title>Global.box</title>
   </rect>
@@ -21,14 +20,11 @@
     stroke-linecap="butt"
     transform="scale(1)"
     points="307.0400110148217,232.83257151132693,133.23609130231077,235.86079014537853,29.33180608306489,219.05560706155038,33.27938204589083,15.588978905922431,136.85071689716017,5.4814599202878185,317.8137805908816,7.565210004037965"
-    ensureOnCanvas="false"
   >
     <title>Global.domain</title>
   </polygon>
   <g
     transform="rotate(0, 92.25055844438822, 8.067936019614365)translate(92.25055844438822, 8.067936019614365)"
-    name="x0.shading"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -67,7 +63,7 @@
       <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="$LOCAL_block9_subst0.walkLine-leftArrowhead"
       markerUnits="strokeWidth"
@@ -116,7 +112,6 @@
     cy="117.28730910080117"
     stroke="none"
     r="109.2193730811868"
-    ensureOnCanvas="false"
   >
     <title>x0.ball</title>
   </circle>
@@ -129,14 +124,11 @@
     stroke-width="1.5"
     stroke-linecap="butt"
     r="109.2193730811868"
-    ensureOnCanvas="false"
   >
     <title>x0.sphere</title>
   </circle>
   <g
     transform="rotate(0, 32.835995856907445, 69.16986102310771)translate(32.835995856907445, 69.16986102310771)"
-    name="x1.shading"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -175,7 +167,7 @@
       <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="$LOCAL_block9_subst1.walkLine-leftArrowhead"
       markerUnits="strokeWidth"
@@ -224,7 +216,6 @@
     cy="129.24051398687328"
     stroke="none"
     r="60.07065296376557"
-    ensureOnCanvas="false"
   >
     <title>x1.ball</title>
   </circle>
@@ -237,14 +228,11 @@
     stroke-width="1.5"
     stroke-linecap="butt"
     r="60.07065296376557"
-    ensureOnCanvas="false"
   >
     <title>x1.sphere</title>
   </circle>
   <g
     transform="rotate(0, 33.881680600125506, 42.04254465407536)translate(33.881680600125506, 42.04254465407536)"
-    name="x2.shading"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -283,7 +271,7 @@
       <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="$LOCAL_block9_subst2.walkLine-leftArrowhead"
       markerUnits="strokeWidth"
@@ -332,7 +320,6 @@
     cy="75.08144926768807"
     stroke="none"
     r="33.038904613612715"
-    ensureOnCanvas="false"
   >
     <title>x2.ball</title>
   </circle>
@@ -345,14 +332,11 @@
     stroke-width="1.5"
     stroke-linecap="butt"
     r="33.038904613612715"
-    ensureOnCanvas="false"
   >
     <title>x2.sphere</title>
   </circle>
   <g
     transform="rotate(0, 33.31214872775903, 86.12075134549275)translate(33.31214872775903, 86.12075134549275)"
-    name="x3.shading"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -398,7 +382,6 @@
     cy="104.29214428272063"
     stroke="none"
     r="18.17139293722787"
-    ensureOnCanvas="false"
   >
     <title>x3.ball</title>
   </circle>
@@ -412,7 +395,6 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>y3.dot</title>
   </circle>
@@ -426,14 +408,12 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>y2.dot</title>
   </circle>
   <g
     transform="rotate(0, 65.30598470224693, 154.9628589219555)translate(65.30598470224693, 154.9628589219555)"
     string="y1"
-    ensureOnCanvas="true"
   >
     <title>y1.labelText</title>
     <svg
@@ -485,14 +465,12 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>y1.dot</title>
   </circle>
   <g
     transform="rotate(0, 146.0985353548218, 47.971752364988156)translate(146.0985353548218, 47.971752364988156)"
     string="y0"
-    ensureOnCanvas="true"
   >
     <title>y0.labelText</title>
     <svg
@@ -544,7 +522,6 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>y0.dot</title>
   </circle>
@@ -557,14 +534,12 @@
     stroke-width="1.5"
     stroke-linecap="butt"
     r="18.17139293722787"
-    ensureOnCanvas="false"
   >
     <title>x3.sphere</title>
   </circle>
   <g
     transform="rotate(0, 42.70904848392737, 82.13219940118866)translate(42.70904848392737, 82.13219940118866)"
     string="x_k"
-    ensureOnCanvas="true"
   >
     <title>x3.labelText</title>
     <svg
@@ -618,14 +593,12 @@
     cy="104.29214428272063"
     stroke="none"
     r="2.5"
-    ensureOnCanvas="false"
   >
     <title>x3.dot</title>
   </circle>
   <g
     transform="rotate(0, 71.4207358479128, 65.92736696732634)translate(71.4207358479128, 65.92736696732634)"
     string="\ldots"
-    ensureOnCanvas="true"
   >
     <title>x2.labelText</title>
     <svg
@@ -668,14 +641,12 @@
     cy="75.08144926768807"
     stroke="none"
     r="2.5"
-    ensureOnCanvas="false"
   >
     <title>x2.dot</title>
   </circle>
   <g
     transform="rotate(0, 97.40665659403489, 120.47341627692181)translate(97.40665659403489, 120.47341627692181)"
     string="x1"
-    ensureOnCanvas="true"
   >
     <title>x1.labelText</title>
     <svg
@@ -724,14 +695,12 @@
     cy="129.24051398687328"
     stroke="none"
     r="2.5"
-    ensureOnCanvas="false"
   >
     <title>x1.dot</title>
   </circle>
   <g
     transform="rotate(0, 191.7702417546018, 121.78740788028291)translate(191.7702417546018, 121.78740788028291)"
     string="x0"
-    ensureOnCanvas="true"
   >
     <title>x0.labelText</title>
     <svg
@@ -780,14 +749,12 @@
     cy="117.28730910080117"
     stroke="none"
     r="2.5"
-    ensureOnCanvas="false"
   >
     <title>x0.dot</title>
   </circle>
   <g
     transform="rotate(0, 82.60674342041078, 12.206344974641707)translate(82.60674342041078, 12.206344974641707)"
     string="\Omega"
-    ensureOnCanvas="true"
   >
     <title>U.labelText</title>
     <svg
