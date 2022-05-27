@@ -61,7 +61,8 @@
     "postpack": "shx rm -f oclif.manifest.json",
     "prepack": "yarn build && oclif manifest && oclif readme",
     "version": "oclif readme && git add README.md",
-    "install-global": "npm link",
+    "preinstall-global": "yarn build",
+    "install-global": "yarn link",
     "clean": "rimraf dist"
   },
   "engines": {
