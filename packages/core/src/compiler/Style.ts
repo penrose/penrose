@@ -10,7 +10,7 @@ import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
 import { genOptProblem } from "engine/Optimizer";
 import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
-import _, { range } from "lodash";
+import _, { range, some } from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -1089,7 +1089,16 @@ const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
   if (s1.length === 0) {
     return s2;
   }
-  return cartesianProduct(s1, s2).map(([a, b]: Subst[]) => combine(a, b));
+  return cartesianProduct(s1, s2)
+    .filter(([a, b]: Subst[]) => uniqueSubsts(a, b))
+    .map(([a, b]: Subst[]) => combine(a, b));
+};
+
+// check if two substitutions map to the same substance objects
+const uniqueSubsts = (a: Subst, b: Subst): boolean => {
+  const aVals = Object.values(a);
+  const bVals = Object.values(b);
+  return !some(aVals, (a) => bVals.includes(a));
 };
 
 // Judgment 9. G; theta |- T <| |T
@@ -1167,10 +1176,8 @@ const matchDecl = (
   const res = merge(
     initSubsts,
     newSubsts.filter((x): x is Subst => x !== undefined)
-  ); // TODO inline
-  // COMBAK: Inline this
-  // console.log("substs to combine:", initSubsts, justs(newSubsts));
-  // console.log("res", res);
+  );
+  log.debug("substs to combine:", initSubsts, newSubsts);
   return res;
 };
 
@@ -1204,6 +1211,7 @@ const findSubstsSel = (
       const rels = safeContentsList(sel.where);
       const initSubsts: Subst[] = [];
       const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
+      log.debug("total number of raw substs: ", rawSubsts.length);
       const substCandidates = rawSubsts.filter((subst) =>
         fullSubst(selEnv, subst)
       );
@@ -1509,6 +1517,8 @@ const processBlock = (
   // Run static checks first
   const selEnv = checkHeader(varEnv, hb.header);
   const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
+  log.debug("Translating block", hb, "with substitutions", substs);
+  log.debug("total number of substs", substs.length);
   // OPTIMIZE: maybe we should just compile the block once into something
   // parametric, and then substitute the Substance variables
   return substs.reduce(
