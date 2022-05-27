@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="GJF.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -41,7 +41,7 @@
     ></path>
     <title>GJF.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="GJF.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -83,7 +83,7 @@
     ></path>
     <title>GJF.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="GJF.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -125,7 +125,7 @@
     ></path>
     <title>GJF.PQ</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="DEF.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -167,7 +167,7 @@
     ></path>
     <title>DEF.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="DEF.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -209,7 +209,7 @@
     ></path>
     <title>DEF.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="DEF.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -251,7 +251,7 @@
     ></path>
     <title>DEF.PQ</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aGFJ.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -293,7 +293,7 @@
     ></path>
     <title>aGFJ.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aGFJ.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -335,7 +335,7 @@
     ></path>
     <title>aGFJ.side1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="HK.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -377,7 +377,7 @@
     ></path>
     <title>HK.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="GJ.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -422,7 +422,6 @@
   <g
     transform="rotate(0, 534.1580015188998, 172.85956129872804)translate(534.1580015188998, 172.85956129872804)"
     string="K"
-    ensureOnCanvas="true"
   >
     <title>K.text</title>
     <svg
@@ -468,14 +467,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>K.icon</title>
   </circle>
   <g
     transform="rotate(0, 581.4141937352571, 125.24169772681562)translate(581.4141937352571, 125.24169772681562)"
     string="J"
-    ensureOnCanvas="true"
   >
     <title>J.text</title>
     <svg
@@ -521,14 +518,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>J.icon</title>
   </circle>
   <g
     transform="rotate(0, 496.69067985793953, 167.37103389323266)translate(496.69067985793953, 167.37103389323266)"
     string="H"
-    ensureOnCanvas="true"
   >
     <title>H.text</title>
     <svg
@@ -574,14 +569,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>H.icon</title>
   </circle>
   <g
     transform="rotate(0, 467.75741768366413, 261.95038797389776)translate(467.75741768366413, 261.95038797389776)"
     string="G"
-    ensureOnCanvas="true"
   >
     <title>G.text</title>
     <svg
@@ -627,14 +620,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>G.icon</title>
   </circle>
   <g
     transform="rotate(0, 628.9815020611866, 146.73679811676425)translate(628.9815020611866, 146.73679811676425)"
     string="F"
-    ensureOnCanvas="true"
   >
     <title>F.text</title>
     <svg
@@ -680,14 +671,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>F.icon</title>
   </circle>
   <g
     transform="rotate(0, 373.317876439614, 423.2620053843389)translate(373.317876439614, 423.2620053843389)"
     string="E"
-    ensureOnCanvas="true"
   >
     <title>E.text</title>
     <svg
@@ -733,14 +722,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>E.icon</title>
   </circle>
   <g
     transform="rotate(0, 513.1939952336211, 71.42127139031679)translate(513.1939952336211, 71.42127139031679)"
     string="D"
-    ensureOnCanvas="true"
   >
     <title>D.text</title>
     <svg
@@ -786,7 +773,6 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>D.icon</title>
   </circle>
