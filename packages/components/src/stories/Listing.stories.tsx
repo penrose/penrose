@@ -21,6 +21,17 @@ const Template: ComponentStory<typeof Listing> = (args) => (
   </div>
 );
 
+export const ContinuousMapDark = Template.bind({});
+ContinuousMapDark.args = {
+  domain: continuousMap.domain,
+  substance: continuousMap.substance,
+  width: "400px",
+  height: "300px",
+  monacoOptions: {
+    theme: "vs-dark",
+  },
+};
+
 export const ContinuousMap = Template.bind({});
 ContinuousMap.args = {
   domain: continuousMap.domain,

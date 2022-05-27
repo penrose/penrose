@@ -1,30 +1,18 @@
 import * as ad from "types/ad";
-import { VarAD } from "types/ad";
-
-// HACK: The previous implementation of the symbolic differentiation engine gave
-// each VarAD a `parentsAD` array, which determined the order in which the
-// partial derivatives for that node would be added together. This matters
-// because floating-point addition is not associative. On creation, each VarAD
-// would append itself to the `parentsAD` of each of its children, so each
-// `parentsAD` was sorted by node creation time. Therefore, in order to give the
-// exact same results as the previous engine, this new engine uses a global
-// counter to give (almost) every VarAD a unique index `i`, to use for sorting
-// edges while constructing gradient nodes. Obviously this is bad because it
-// means that the result of the optimizer depends not just on the structure of
-// the computation graph but also on the exact order in which its parts are
-// constructed. This should be immediately removed after the new engine is
-// merged into `main`, but for bookkeeping, it is nice for the initial rewrite
-// to produce diagrams identical to those produced by the previous engine.
-let count = 0;
 
 const binary = (binop: ad.Binary["binop"]) => (
-  v: VarAD,
-  w: VarAD
-): ad.Binary => ({ tag: "Binary", binop, i: count++, left: v, right: w });
+  v: ad.Num,
+  w: ad.Num
+): ad.Binary => ({
+  tag: "Binary",
+  binop,
+  left: v,
+  right: w,
+});
 
-const nary = (op: ad.Nary["op"], bin: (v: VarAD, w: VarAD) => ad.Binary) => (
-  xs: VarAD[]
-): VarAD => {
+const nary = (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Binary) => (
+  xs: ad.Num[]
+): ad.Num => {
   // interestingly, special-casing 1 and 2 args like this actually affects the
   // gradient by a nontrivial amount in some cases
   switch (xs.length) {
@@ -35,7 +23,7 @@ const nary = (op: ad.Nary["op"], bin: (v: VarAD, w: VarAD) => ad.Binary) => (
       return bin(xs[0], xs[1]);
     }
     default: {
-      return { tag: "Nary", i: count++, op, params: xs };
+      return { tag: "Nary", op, params: xs };
     }
   }
 };
@@ -90,9 +78,8 @@ export const minN = nary("minN", min);
  * describes the angle made by a vector (x,y) with the x-axis.
  * Returns a value in radians, in the range [-pi,pi].
  */
-export const atan2 = (y: VarAD, x: VarAD): ad.Binary => ({
+export const atan2 = (y: ad.Num, x: ad.Num): ad.Binary => ({
   tag: "Binary",
-  i: count++,
   binop: "atan2",
   left: y,
   right: x,
@@ -105,9 +92,8 @@ export const pow = binary("pow");
 
 // --- Unary ops
 
-const unary = (unop: ad.Unary["unop"]) => (v: VarAD): ad.Unary => ({
+const unary = (unop: ad.Unary["unop"]) => (v: ad.Num): ad.Unary => ({
   tag: "Unary",
-  i: count++,
   unop,
   param: v,
 });
@@ -259,38 +245,78 @@ export const trunc = unary("trunc");
 
 // ------- Discontinuous / noGrad ops
 
+const comp = (binop: ad.Comp["binop"]) => (v: ad.Num, w: ad.Num): ad.Comp => ({
+  tag: "Comp",
+  binop,
+  left: v,
+  right: w,
+});
+
 /**
  * Return a conditional `v > w`.
  */
-export const gt = binary(">");
+export const gt = comp(">");
 
 /**
  * Return a conditional `v < w`.
  */
-export const lt = binary("<");
+export const lt = comp("<");
+
+/**
+ * Return a conditional `v >= w`.
+ */
+export const gte = comp(">=");
+
+/**
+ * Return a conditional `v <= w`.
+ */
+export const lte = comp("<=");
 
 /**
  * Return a conditional `v == w`. (TODO: Maybe check if they are equal up to a tolerance?)
  */
-export const eq = binary("===");
+export const eq = comp("===");
+
+const logic = (binop: ad.Logic["binop"]) => (
+  v: ad.Bool,
+  w: ad.Bool
+): ad.Logic => ({
+  tag: "Logic",
+  binop,
+  left: v,
+  right: w,
+});
 
 /**
  * Return a boolean `v && w`
  */
-export const and = binary("&&");
+export const and = logic("&&");
 
 /**
  * Return a boolean `v || w`
  */
-export const or = binary("||");
+export const or = logic("||");
+
+export const not = (v: ad.Bool): ad.Not => ({ tag: "Not", param: v });
 
 /**
  * Return a conditional `if(cond) then v else w`.
  */
-export const ifCond = (cond: VarAD, v: VarAD, w: VarAD): ad.Ternary => ({
+export const ifCond = (cond: ad.Bool, v: ad.Num, w: ad.Num): ad.Ternary => ({
   tag: "Ternary",
-  i: count++,
   cond,
   then: v,
   els: w,
 });
+
+// --- Vector ops
+
+/**
+ * Return the roots of the monic polynomial with degree `coeffs.length` where
+ * the coefficient on the term with degree `i` is `coeffs[i]`. Any root with a
+ * nonzero imaginary component is replaced with `NaN`.
+ */
+export const polyRoots = (coeffs: ad.Num[]): ad.Num[] => {
+  const nexus: ad.PolyRoots = { tag: "PolyRoots", coeffs };
+  return coeffs.map((coeff, index) => ({ tag: "Index", index, vec: nexus }));
+};

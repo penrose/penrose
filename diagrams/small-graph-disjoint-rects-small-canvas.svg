@@ -11,13 +11,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 0, 0)"
-    ensureOnCanvas="true"
   >
     <title>global.box</title>
   </rect>
   <rect
-    x="100.61635335332872"
-    y="-1.1120859894931954"
+    x="100.77054149395585"
+    y="-1.5441349494034284"
     width="100"
     height="160"
     fill="none"
@@ -26,15 +25,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 100.61635335332872, -1.1120859894931954)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 100.77054149395585, -1.5441349494034284)"
   >
     <title>v5.shape</title>
   </rect>
   <g
-    transform="rotate(0, 141.9188033533287, 70.0579140105068)translate(141.9188033533287, 70.0579140105068)"
+    transform="rotate(0, 142.07299149395584, 69.62586505059657)translate(142.07299149395584, 69.62586505059657)"
     string="v5"
-    ensureOnCanvas="true"
   >
     <title>v5.text</title>
     <svg
@@ -77,8 +74,8 @@
     </svg>
   </g>
   <rect
-    x="200.47195669625813"
-    y="-1.1120860158082735"
+    x="200.66150990544216"
+    y="-1.5441314880732762"
     width="100"
     height="160"
     fill="none"
@@ -87,15 +84,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 200.47195669625813, -1.1120860158082735)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 200.66150990544216, -1.5441314880732762)"
   >
     <title>v4.shape</title>
   </rect>
   <g
-    transform="rotate(0, 241.77440669625813, 70.05791398419173)translate(241.77440669625813, 70.05791398419173)"
+    transform="rotate(0, 241.96395990544215, 69.62586851192673)translate(241.96395990544215, 69.62586851192673)"
     string="v4"
-    ensureOnCanvas="true"
   >
     <title>v4.text</title>
     <svg
@@ -138,8 +133,8 @@
     </svg>
   </g>
   <rect
-    x="300.3276288186938"
-    y="24.186216787931926"
+    x="300.5524889713203"
+    y="24.654375851897072"
     width="100"
     height="160"
     fill="none"
@@ -148,15 +143,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 300.3276288186938, 24.186216787931926)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 300.5524889713203, 24.654375851897072)"
   >
     <title>v3.shape</title>
   </rect>
   <g
-    transform="rotate(0, 341.63007881869385, 95.35621678793193)translate(341.63007881869385, 95.35621678793193)"
+    transform="rotate(0, 341.85493897132034, 95.82437585189707)translate(341.85493897132034, 95.82437585189707)"
     string="v3"
-    ensureOnCanvas="true"
   >
     <title>v3.text</title>
     <svg
@@ -199,8 +192,8 @@
     </svg>
   </g>
   <rect
-    x="0.7607390040373616"
-    y="-1.1033779359116522"
+    x="0.879491610254604"
+    y="-1.5394722983692617"
     width="100"
     height="160"
     fill="none"
@@ -209,15 +202,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 0.7607390040373616, -1.1033779359116522)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 0.879491610254604, -1.5394722983692617)"
   >
     <title>v2.shape</title>
   </rect>
   <g
-    transform="rotate(0, 42.06318900403736, 70.06662206408835)translate(42.06318900403736, 70.06662206408835)"
+    transform="rotate(0, 42.181941610254604, 69.63052770163074)translate(42.181941610254604, 69.63052770163074)"
     string="v2"
-    ensureOnCanvas="true"
   >
     <title>v2.text</title>
     <svg
@@ -260,8 +251,8 @@
     </svg>
   </g>
   <rect
-    x="0.8634625198098149"
-    y="142.044272802134"
+    x="0.9615234561867396"
+    y="142.71663886569024"
     width="300"
     height="160"
     fill="none"
@@ -270,15 +261,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 0.8634625198098149, 142.044272802134)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 0.9615234561867396, 142.71663886569024)"
   >
     <title>v1.shape</title>
   </rect>
   <g
-    transform="rotate(0, 142.1659125198098, 213.214272802134)translate(142.1659125198098, 213.214272802134)"
+    transform="rotate(0, 142.26397345618673, 213.88663886569023)translate(142.26397345618673, 213.88663886569023)"
     string="v1"
-    ensureOnCanvas="true"
   >
     <title>v1.text</title>
     <svg

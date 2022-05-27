@@ -2,7 +2,7 @@
 
 import { Graph } from "graphlib";
 import { Map } from "immutable";
-import { A, ASTNode, C, Identifier, IStringLit } from "./ast";
+import { A, ASTNode, C, Identifier, StringLit } from "./ast";
 import { ApplyConstructor, TypeConsApp } from "./substance";
 
 export type Var<T> = Identifier<T>;
@@ -47,7 +47,7 @@ export type TypeDecl<T> = ASTNode<T> & {
   tag: "TypeDecl";
   name: Identifier<T>;
   params: TypeVar<T>[];
-  superTypes: Type<T>[];
+  superTypes: TypeConstructor<T>[];
 };
 
 export type PredicateDecl<T> = ASTNode<T> & {
@@ -74,18 +74,18 @@ export type ConstructorDecl<T> = ASTNode<T> & {
 export type PreludeDecl<T> = ASTNode<T> & {
   tag: "PreludeDecl";
   name: Var<T>;
-  type: Type<T>;
+  type: TypeConstructor<T>;
 };
 // TODO: check if string type is enough
 export type NotationDecl<T> = ASTNode<T> & {
   tag: "NotationDecl";
-  from: IStringLit<T>;
-  to: IStringLit<T>;
+  from: StringLit<T>;
+  to: StringLit<T>;
 };
 export type SubTypeDecl<T> = ASTNode<T> & {
   tag: "SubTypeDecl";
-  subType: Type<T>;
-  superType: Type<T>;
+  subType: TypeConstructor<T>;
+  superType: TypeConstructor<T>;
 };
 
 //#endregion

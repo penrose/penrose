@@ -11,13 +11,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, -50, 50)"
-    ensureOnCanvas="true"
   >
     <title>global.box</title>
   </rect>
   <rect
     x="216.97884725126227"
-    y="51.83146735400322"
+    y="53.074661711222035"
     width="100"
     height="160"
     fill="none"
@@ -26,15 +25,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 216.97884725126227, 51.83146735400322)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 216.97884725126227, 53.074661711222035)"
   >
     <title>v5.shape</title>
   </rect>
   <g
-    transform="rotate(0, 258.2812972512623, 123.00146735400322)translate(258.2812972512623, 123.00146735400322)"
+    transform="rotate(0, 258.2812972512623, 124.24466171122204)translate(258.2812972512623, 124.24466171122204)"
     string="v5"
-    ensureOnCanvas="true"
   >
     <title>v5.text</title>
     <svg
@@ -78,7 +75,7 @@
   </g>
   <rect
     x="517.7880353404739"
-    y="51.945210633020906"
+    y="57.77516495168106"
     width="100"
     height="160"
     fill="none"
@@ -87,15 +84,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 517.7880353404739, 51.945210633020906)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 517.7880353404739, 57.77516495168106)"
   >
     <title>v4.shape</title>
   </rect>
   <g
-    transform="rotate(0, 559.090485340474, 123.11521063302091)translate(559.090485340474, 123.11521063302091)"
+    transform="rotate(0, 559.090485340474, 128.94516495168105)translate(559.090485340474, 128.94516495168105)"
     string="v4"
-    ensureOnCanvas="true"
   >
     <title>v4.text</title>
     <svg
@@ -138,8 +133,8 @@
     </svg>
   </g>
   <rect
-    x="697.9345517441416"
-    y="53.87557468805059"
+    x="698.9999984070421"
+    y="61.07128387284891"
     width="100"
     height="160"
     fill="none"
@@ -148,15 +143,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 697.9345517441416, 53.87557468805059)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 698.9999984070421, 61.07128387284891)"
   >
     <title>v3.shape</title>
   </rect>
   <g
-    transform="rotate(0, 739.2370017441416, 125.04557468805059)translate(739.2370017441416, 125.04557468805059)"
+    transform="rotate(0, 740.3024484070421, 132.2412838728489)translate(740.3024484070421, 132.2412838728489)"
     string="v3"
-    ensureOnCanvas="true"
   >
     <title>v3.text</title>
     <svg
@@ -210,14 +203,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 53.417286250797815, 241.93314433292903)"
-    ensureOnCanvas="true"
   >
     <title>v2.shape</title>
   </rect>
   <g
     transform="rotate(0, 94.71973625079781, 313.10314433292905)translate(94.71973625079781, 313.10314433292905)"
     string="v2"
-    ensureOnCanvas="true"
   >
     <title>v2.text</title>
     <svg
@@ -260,8 +251,8 @@
     </svg>
   </g>
   <rect
-    x="2.5055085375466035"
-    y="487.6551514682744"
+    x="1.000240930416112"
+    y="486.07861294262057"
     width="500"
     height="160"
     fill="none"
@@ -270,15 +261,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 2.5055085375466035, 487.6551514682744)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 1.000240930416112, 486.07861294262057)"
   >
     <title>v1.shape</title>
   </rect>
   <g
-    transform="rotate(0, 243.8079585375466, 558.8251514682744)translate(243.8079585375466, 558.8251514682744)"
+    transform="rotate(0, 242.3026909304161, 557.2486129426205)translate(242.3026909304161, 557.2486129426205)"
     string="v1"
-    ensureOnCanvas="true"
   >
     <title>v1.text</title>
     <svg

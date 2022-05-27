@@ -12,6 +12,7 @@ import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
 import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
+import { foldM, toLeft, ToRight } from "utils/Util";
 import { compileDomain } from "./Domain";
 // TODO: Reorganize and name tests by compiler stage
 
@@ -249,18 +250,18 @@ describe("Compiler", () => {
   });
 
   const sum = (acc: number, n: number, i: number): Either<string, number> =>
-    i > 2 ? S.toLeft("error") : S.ToRight(acc + n);
+    i > 2 ? toLeft("error") : ToRight(acc + n);
 
   test("S.foldM none", () => {
-    expect(S.foldM([], sum, -1)).toEqual(S.ToRight(-1));
+    expect(foldM([], sum, -1)).toEqual(ToRight(-1));
   });
 
   test("S.foldM right", () => {
-    expect(S.foldM([1, 2, 3], sum, -1)).toEqual(S.ToRight(5));
+    expect(foldM([1, 2, 3], sum, -1)).toEqual(ToRight(5));
   });
 
   test("S.foldM left", () => {
-    expect(S.foldM([1, 2, 3, 4], sum, -1)).toEqual(S.toLeft("error"));
+    expect(foldM([1, 2, 3, 4], sum, -1)).toEqual(toLeft("error"));
   });
 
   const xs = ["a", "b", "c"];
@@ -374,7 +375,7 @@ describe("Compiler", () => {
 
   describe("Expected Style errors", () => {
     const subProg = loadFile("set-theory-domain/twosets-simple.sub");
-    const domainProg = loadFile("set-theory-domain/setTheory.dsl");
+    const domainProg = loadFile("set-theory-domain/functions.dsl");
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.sty";
 

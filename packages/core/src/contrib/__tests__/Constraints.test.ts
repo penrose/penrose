@@ -1,14 +1,15 @@
 import { constrDict } from "contrib/Constraints";
 import {
   _circles,
+  _ellipses,
   _lines,
   _polygons,
   _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
 import { genCode, secondaryGraph } from "engine/Autodiff";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 
-const numOf = (x: VarAD) => {
+const numOf = (x: ad.Num) => {
   const g = secondaryGraph([x]);
   const f = genCode(g);
   const [y] = f([]).secondary; // no inputs, so, empty array
@@ -107,8 +108,8 @@ describe("simple constraint", () => {
     [1, 4, 2, 4, 0],
     [1, 4, 2, 5, 1],
     [1, 4, 0, 3, 1],
-    [1, 4, 6, 7, 9],
-    [1, 4, -2, -1, 9],
+    [1, 4, 6, 7, 3],
+    [1, 4, -2, -1, 3],
   ])(
     "contains1D([%p, %p], [%p, %p]) should return %p",
     (l1: number, r1: number, l2: number, r2: number, expected: number) => {
@@ -175,13 +176,13 @@ describe("simple constraint", () => {
 });
 
 describe("general constraints", () => {
-  const expectSatified = (x: VarAD) => {
+  const expectSatified = (x: ad.Num) => {
     expect(numOf(x)).toBeLessThanOrEqual(1e-5);
   };
-  const expectJustSatified = (x: VarAD) => {
+  const expectJustSatified = (x: ad.Num) => {
     expect(numOf(x)).toBeCloseTo(0, 5);
   };
-  const expectNotSatisfied = (x: VarAD) => {
+  const expectNotSatisfied = (x: ad.Num) => {
     expect(numOf(x)).toBeGreaterThan(5);
   };
 
@@ -192,6 +193,8 @@ describe("general constraints", () => {
     ["Rectangle", "Circle", 0, _rectangles[0], _circles[2]],
     ["Circle", "Rectangle", 0, _circles[0], _rectangles[2]],
     ["Circle", "Circle", 0, _circles[0], _circles[2]],
+    ["Rectangle", "Ellipse", 0, _rectangles[0], _ellipses[2]],
+    ["Ellipse", "Rectangle", 0, _ellipses[0], _rectangles[2]],
     ["Line", "Line", 0, _lines[2], _lines[3]],
     ["Polygon", "Polygon", 0, _polygons[2], _polygons[3]],
     ["Polygon", "Polygon", 0, _polygons[0], _polygons[3]],
@@ -201,6 +204,7 @@ describe("general constraints", () => {
     ["Rectangle", "Line", 0, _rectangles[0], _lines[0]],
     ["Rectangle", "Polygon", 0, _rectangles[2], _polygons[2]],
     ["Rectangle", "Polygon", 0, _rectangles[0], _polygons[0]],
+    ["Ellipse", "Line", 0, _ellipses[6], _lines[0]],
     // With padding
     ["Rectangle", "Rectangle", 150, _rectangles[3], _rectangles[1]],
     ["Rectangle", "Circle", 150, _rectangles[3], _circles[1]],
@@ -253,6 +257,8 @@ describe("general constraints", () => {
     ["Rectangle", "Rectangle", 0, _rectangles[2], _rectangles[3]],
     ["Rectangle", "Circle", 0, _rectangles[2], _circles[3]],
     ["Circle", "Rectangle", 0, _circles[2], _rectangles[3]],
+    ["Rectangle", "Ellipse", 0, _rectangles[2], _ellipses[3]],
+    ["Ellipse", "Rectangle", 0, _ellipses[2], _rectangles[3]],
     ["Circle", "Circle", 0, _circles[2], _circles[3]],
     ["Line", "Line", 0, _lines[0], _lines[3]],
     ["Line", "Line", 0, _lines[1], _lines[2]],
@@ -261,10 +267,14 @@ describe("general constraints", () => {
     ["Rectangle", "Polygon", 0, _rectangles[1], _polygons[3]],
     ["Rectangle", "Line", 0, _rectangles[2], _lines[2]],
     ["Circle", "Rectangle", 0, _circles[3], _rectangles[2]],
+    ["Ellipse", "Rectangle", 0, _ellipses[3], _rectangles[2]],
+    ["Ellipse", "Line", 0, _ellipses[7], _lines[2]],
     // With padding
     ["Rectangle", "Rectangle", 10, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 10, _rectangles[1], _circles[3]],
     ["Circle", "Rectangle", 10, _circles[1], _rectangles[3]],
+    ["Rectangle", "Ellipse", 10, _rectangles[1], _ellipses[3]],
+    ["Ellipse", "Rectangle", 10, _ellipses[1], _rectangles[3]],
     ["Circle", "Circle", 10, _circles[1], _circles[3]],
     ["Circle", "Circle", 110, _circles[2], _circles[3]],
     ["Line", "Line", 50, _lines[0], _lines[3]],
@@ -305,6 +315,8 @@ describe("general constraints", () => {
     ["Rectangle", "Rectangle", 0, _rectangles[1], _rectangles[2]],
     ["Rectangle", "Circle", 0, _rectangles[1], _circles[2]],
     ["Circle", "Rectangle", 0, _circles[1], _rectangles[2]],
+    ["Rectangle", "Ellipse", 0, _rectangles[1], _ellipses[2]],
+    ["Ellipse", "Rectangle", 0, _ellipses[1], _rectangles[2]],
     ["Circle", "Circle", 0, _circles[1], _circles[2]],
     ["Line", "Line", 0, _lines[0], _lines[1]],
     ["Line", "Line", 0, _lines[0], _lines[2]],
@@ -356,6 +368,8 @@ describe("general constraints", () => {
     ["Rectangle", "Rectangle", 0, _rectangles[0], _rectangles[1]],
     ["Rectangle", "Circle", 0, _rectangles[0], _circles[1]],
     ["Circle", "Rectangle", 0, _circles[0], _rectangles[1]],
+    ["Rectangle", "Ellipse", 0, _rectangles[0], _ellipses[1]],
+    ["Ellipse", "Rectangle", 0, _ellipses[0], _rectangles[1]],
     ["Circle", "Circle", 0, _circles[0], _circles[1]],
     ["Polygon", "Polygon", 0, _polygons[0], _polygons[1]],
     ["Polygon", "Line", 0, _polygons[0], _lines[1]],
@@ -363,10 +377,14 @@ describe("general constraints", () => {
     ["Rectangle", "Line", 0, _rectangles[0], _lines[1]],
     ["Polygon", "Circle", 0, _polygons[0], _circles[5]],
     ["Circle", "Polygon", 0, _circles[6], _polygons[1]],
+    ["Polygon", "Ellipse", 0, _polygons[0], _ellipses[5]],
+    ["Ellipse", "Polygon", 0, _ellipses[6], _polygons[1]],
     // With padding
     ["Rectangle", "Rectangle", 50, _rectangles[0], _rectangles[1]],
     ["Rectangle", "Circle", 50, _rectangles[0], _circles[1]],
     ["Circle", "Rectangle", 50, _circles[0], _rectangles[1]],
+    ["Rectangle", "Ellipse", 50, _rectangles[0], _ellipses[1]],
+    ["Ellipse", "Rectangle", 50, _ellipses[0], _rectangles[1]],
     ["Circle", "Circle", 50, _circles[0], _circles[1]],
     ["Polygon", "Polygon", 20, _polygons[0], _polygons[1]],
     ["Polygon", "Line", 20, _polygons[0], _lines[1]],

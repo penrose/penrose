@@ -1,4 +1,4 @@
-import { IStrV, IVectorV } from "types/value";
+import { StrV, VectorV } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
 import { toScreen } from "utils/Util";
 import {
@@ -29,10 +29,10 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   attrToNotAutoMap.push(...attrFont(shape, elem));
 
   // Get width/height of the text if available
-  const name = shape.properties.name as IStrV;
+  const name = shape.properties.name as StrV;
   const retrievedLabel = retrieveLabel(name.contents, labels);
   // Directly render the text with [x, y] in screen coordinates without transforming them using `width` and `height`
-  const center = shape.properties.center as IVectorV<number>;
+  const center = shape.properties.center as VectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   if (retrievedLabel && retrievedLabel.tag === "TextData") {
     // adjust the y-coordinate of the text center s.t. it's the center of the bbox

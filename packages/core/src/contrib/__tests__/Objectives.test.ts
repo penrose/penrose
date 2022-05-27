@@ -1,8 +1,8 @@
 import { objDict } from "contrib/Objectives";
 import { genCode, secondaryGraph } from "engine/Autodiff";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 
-const numOf = (x: VarAD) => {
+const numOf = (x: ad.Num) => {
   const g = secondaryGraph([x]);
   const f = genCode(g);
   const [y] = f([]).secondary; // no inputs, so, empty array

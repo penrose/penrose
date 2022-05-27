@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="EA.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -33,7 +33,7 @@
       ></path>
     </marker>
     <path
-      d="M 737.6636951223272 322.0262413580026 L 303.33968027122125 330.51822342726734"
+      d="M 712.7774165376368 247.47805811841 L 380.1638374841774 110.15730352633813"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -41,7 +41,7 @@
     ></path>
     <title>EA.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="Fb.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -63,11 +63,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 419.74372942916716 233.27499260106288 L 433.2678362383268 218.54073035354168 L 418.533573943504 205.01662357467973"
+      d="M 439.7469560422942 218.51720751799562 L 446.4222031493371 237.37035090474916 L 427.5690597394214 244.04559788585934"
     ></path>
     <title>Fb.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="Fb.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -101,7 +101,7 @@
       ></path>
     </marker>
     <path
-      d="M 520.4914395276204 325.74808485778266 L 405.00946718164596 219.75088579190324"
+      d="M 545.5459332111556 181.05744275692373 L 420.8938126555406 225.19245462503858"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -109,7 +109,7 @@
     ></path>
     <title>Fb.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="Fd.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -131,11 +131,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 608.6118443723838 230.2064720383906 L 593.910267091264 216.6468418035753 L 607.4698972986007 201.94526446285187"
+      d="M 580.2720758865149 275.09128995789837 L 561.5105339233388 282.01981625365374 L 568.4390600714949 300.7813583058433"
     ></path>
     <title>Fd.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="Fd.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -169,7 +169,7 @@
       ></path>
     </marker>
     <path
-      d="M 520.4914395276204 325.74808485778266 L 622.171474607199 215.50489475727088"
+      d="M 545.5459332111556 181.05744275692373 L 587.2006021822704 293.8528319210745"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -177,7 +177,7 @@
     ></path>
     <title>Fd.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="FC.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -211,7 +211,7 @@
       ></path>
     </marker>
     <path
-      d="M 520.4914395276204 325.74808485778266 L 506.67925409207066 108.98354815653911"
+      d="M 545.5459332111556 181.05744275692373 L 461.6237878269039 340.227605723739"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -219,7 +219,7 @@
     ></path>
     <title>FC.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="FD.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -253,7 +253,7 @@
       ></path>
     </marker>
     <path
-      d="M 520.4914395276204 325.74808485778266 L 664.4717463031564 163.2010557727346"
+      d="M 545.5459332111556 181.05744275692373 L 608.7533364347197 349.5745981221923"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -261,7 +261,7 @@
     ></path>
     <title>FD.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="FB.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -295,7 +295,7 @@
       ></path>
     </marker>
     <path
-      d="M 520.4914395276204 325.74808485778266 L 361.51292591477977 177.66586948415986"
+      d="M 545.5459332111556 181.05744275692373 L 376.2321480796312 242.21086707397876"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -303,7 +303,7 @@
     ></path>
     <title>FB.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="EC.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -337,7 +337,7 @@
       ></path>
     </marker>
     <path
-      d="M 737.6636951223272 322.0262413580026 L 506.67925409207066 108.98354815653911"
+      d="M 712.7774165376368 247.47805811841 L 461.6237878269039 340.227605723739"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -345,7 +345,7 @@
     ></path>
     <title>EC.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="AC.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -379,7 +379,7 @@
       ></path>
     </marker>
     <path
-      d="M 303.33968027122125 330.51822342726734 L 506.67925409207066 108.98354815653911"
+      d="M 380.1638374841774 110.15730352633813 L 461.6237878269039 340.227605723739"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -388,9 +388,8 @@
     <title>AC.icon</title>
   </g>
   <g
-    transform="rotate(0, 412.0094833825985, 206.59014532587685)translate(412.0094833825985, 206.59014532587685)"
+    transform="rotate(0, 406.3607263945962, 228.21579372933596)translate(406.3607263945962, 228.21579372933596)"
     string="b"
-    ensureOnCanvas="true"
   >
     <title>b.text</title>
     <svg
@@ -429,21 +428,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="405.00946718164596"
-    cy="219.75088579190324"
+    cx="420.8938126555406"
+    cy="225.19245462503858"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>b.icon</title>
   </circle>
   <g
-    transform="rotate(0, 605.208278395008, 199.36367724382907)translate(605.208278395008, 199.36367724382907)"
+    transform="rotate(0, 579.8997199284421, 267.6928240613698)translate(579.8997199284421, 267.6928240613698)"
     string="d"
-    ensureOnCanvas="true"
   >
     <title>d.text</title>
     <svg
@@ -482,21 +479,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="622.171474607199"
-    cy="215.50489475727088"
+    cx="587.2006021822704"
+    cy="293.8528319210745"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>d.icon</title>
   </circle>
   <g
-    transform="rotate(0, 516.2412288916115, 299.58809583076237)translate(516.2412288916115, 299.58809583076237)"
+    transform="rotate(0, 526.3677828145509, 186.12665801301586)translate(526.3677828145509, 186.12665801301586)"
     string="F"
-    ensureOnCanvas="true"
   >
     <title>F.text</title>
     <svg
@@ -535,21 +530,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="520.4914395276204"
-    cy="325.74808485778266"
+    cx="545.5459332111556"
+    cy="181.05744275692373"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>F.icon</title>
   </circle>
   <g
-    transform="rotate(0, 716.0254421160502, 321.6419661658749)translate(716.0254421160502, 321.6419661658749)"
+    transform="rotate(0, 715.9029128292341, 222.05457454065157)translate(715.9029128292341, 222.05457454065157)"
     string="E"
-    ensureOnCanvas="true"
   >
     <title>E.text</title>
     <svg
@@ -587,35 +580,32 @@
   </g>
   <circle
     fill="none"
-    cx="520.4914395276204"
-    cy="325.74808485778266"
+    cx="545.5459332111556"
+    cy="181.05744275692373"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.75"
     stroke-linecap="butt"
-    r="217.2041455355094"
-    ensureOnCanvas="true"
+    r="179.93906542154207"
   >
     <title>c.icon</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="737.6636951223272"
-    cy="322.0262413580026"
+    cx="712.7774165376368"
+    cy="247.47805811841"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>E.icon</title>
   </circle>
   <g
-    transform="rotate(0, 641.9099774625347, 165.2373235755763)translate(641.9099774625347, 165.2373235755763)"
+    transform="rotate(0, 588.357413706449, 325.07923588883625)translate(588.357413706449, 325.07923588883625)"
     string="D"
-    ensureOnCanvas="true"
   >
     <title>D.text</title>
     <svg
@@ -654,21 +644,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="664.4717463031564"
-    cy="163.2010557727346"
+    cx="608.7533364347197"
+    cy="349.5745981221923"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>D.icon</title>
   </circle>
   <g
-    transform="rotate(0, 503.46337806842354, 115.98353925662771)translate(503.46337806842354, 115.98353925662771)"
+    transform="rotate(0, 451.12593811305163, 314.06761827468546)translate(451.12593811305163, 314.06761827468546)"
     string="C"
-    ensureOnCanvas="true"
   >
     <title>C.text</title>
     <svg
@@ -707,21 +695,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="506.67925409207066"
-    cy="108.98354815653911"
+    cx="461.6237878269039"
+    cy="340.227605723739"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>C.icon</title>
   </circle>
   <g
-    transform="rotate(0, 361.34687968450316, 184.6658649461966)translate(361.34687968450316, 184.6658649461966)"
+    transform="rotate(0, 371.8856620890399, 216.05086554310955)translate(371.8856620890399, 216.05086554310955)"
     string="B"
-    ensureOnCanvas="true"
   >
     <title>B.text</title>
     <svg
@@ -760,21 +746,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="361.51292591477977"
-    cy="177.66586948415986"
+    cx="376.2321480796312"
+    cy="242.21086707397876"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>B.icon</title>
   </circle>
   <g
-    transform="rotate(0, 302.1695808251002, 304.3582346282676)translate(302.1695808251002, 304.3582346282676)"
+    transform="rotate(0, 374.14040954331057, 83.99730703552574)translate(374.14040954331057, 83.99730703552574)"
     string="A"
-    ensureOnCanvas="true"
   >
     <title>A.text</title>
     <svg
@@ -813,14 +797,13 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="303.33968027122125"
-    cy="330.51822342726734"
+    cx="380.1638374841774"
+    cy="110.15730352633813"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>A.icon</title>
   </circle>

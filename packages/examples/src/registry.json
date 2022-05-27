@@ -5,7 +5,7 @@
       "substance": "tree",
       "style": "venn",
       "domain": "set-theory",
-      "variation": ""
+      "variation": "CasalViper643"
     },
     {
       "substance": "tree",
@@ -16,7 +16,7 @@
     {
       "substance": "continuousmap",
       "style": "continuousmap",
-      "domain": "set-theory",
+      "domain": "functions",
       "variation": ""
     },
     {
@@ -96,12 +96,52 @@
       "style": "non-convex",
       "domain": "non-convex",
       "variation": ""
+    },
+    {
+      "substance": "lagrange-bases",
+      "style": "lagrange-bases",
+      "domain": "lagrange-bases",
+      "variation": "TimberwolfSquirrel25242"
+    },
+    {
+      "substance": "hypergraph",
+      "style": "hypergraph",
+      "domain": "hypergraph",
+      "variation": "ConchSpoonbill0283"
+    },
+    {
+      "substance": "persistent-homology",
+      "style": "persistent-homology",
+      "domain": "persistent-homology",
+      "variation": "RainmakerMarten88256"
+    },
+    {
+      "substance": "points-around-star",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "ReformLapwing68793"
+    },
+    {
+      "substance": "points-around-polyline",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "SharkskinWalrus24396"
+    },
+    {
+      "substance": "points-around-line",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "GalapagosLocust418"
     }
   ],
   "domains": {
     "set-theory": {
       "name": "Set Theory",
       "URI": "set-theory-domain/setTheory.dsl"
+    },
+    "functions": {
+      "name": "Functions",
+      "URI": "set-theory-domain/functions.dsl"
     },
     "linear-algebra": {
       "name": "Linear Algebra",
@@ -122,6 +162,22 @@
     "non-convex": {
       "name": "Non-convex Shape",
       "URI": "minkowski-tests/maze/maze.dsl"
+    },
+    "lagrange-bases": {
+      "name": "Lagrange Bases",
+      "URI": "lagrange-bases/lagrange-bases.dsl"
+    },
+    "hypergraph": {
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.dsl"
+    },
+    "persistent-homology": {
+      "name": "Persistent Homology",
+      "URI": "persistent-homology/persistent-homology.dsl"
+    },
+    "shape-distance": {
+      "name": "Signed Distance Function",
+      "URI": "shape-distance/shapes.dsl"
     }
   },
   "styles": {
@@ -189,6 +245,26 @@
       "domain": "non-convex",
       "name": "Non-convex Shape",
       "URI": "minkowski-tests/maze/maze.sty"
+    },
+    "lagrange-bases": {
+      "domain": "lagrange-bases",
+      "name": "Lagrange Bases",
+      "URI": "lagrange-bases/lagrange-bases.sty"
+    },
+    "hypergraph": {
+      "domain": "hypergraph",
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.sty"
+    },
+    "persistent-homology": {
+      "domain": "persistent-homology",
+      "name": "Persistent Homology",
+      "URI": "persistent-homology/persistent-homology.sty"
+    },
+    "shape-distance": {
+      "domain": "shape-distance",
+      "name": "Sign Distance Functions",
+      "URI": "shape-distance/shape-distance.sty"
     }
   },
   "substances": {
@@ -256,6 +332,36 @@
       "domain": "non-convex",
       "name": "Non-convex Shape",
       "URI": "minkowski-tests/maze/maze.sub"
+    },
+    "lagrange-bases": {
+      "domain": "lagrange-bases",
+      "name": "Lagrange Bases",
+      "URI": "lagrange-bases/example.sub"
+    },
+    "hypergraph": {
+      "domain": "hypergraph",
+      "name": "Hypergraph",
+      "URI": "hypergraph/hypergraph.sub"
+    },
+    "persistent-homology": {
+      "domain": "persistent-homology",
+      "name": "Persistent Homology",
+      "URI": "persistent-homology/persistent-homology.sub"
+    },
+    "points-around-star": {
+      "domain": "shape-distance",
+      "name": "Points around a Star",
+      "URI": "shape-distance/hundred-points-around-star.sub"
+    },
+    "points-around-polyline": {
+      "domain": "shape-distance",
+      "name": "Points around a Polyline",
+      "URI": "shape-distance/ninety-points-around-polyline.sub"
+    },
+    "points-around-line": {
+      "domain": "shape-distance",
+      "name": "Points around a Line",
+      "URI": "shape-distance/hundred-points-around-line.sub"
     }
   }
 }

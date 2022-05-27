@@ -1,5 +1,5 @@
 import { Map } from "immutable";
-import { A, ASTNode, Identifier, IStringLit } from "./ast";
+import { A, ASTNode, Identifier, StringLit } from "./ast";
 import { Env, TypeConstructor } from "./domain";
 
 export type SubRes = [SubstanceEnv, Env];
@@ -40,7 +40,7 @@ export interface LabelValue {
 export type LabelDecl<T> = ASTNode<T> & {
   tag: "LabelDecl";
   variable: Identifier<T>;
-  label: IStringLit<T>;
+  label: StringLit<T>;
   labelType: LabelType;
 };
 
@@ -92,7 +92,7 @@ export type SubExpr<T> =
   | ApplyConstructor<T>
   | Func<T> // NOTE: there's no syntactic difference between function and consturctor, so the parser will parse both into this type first
   | Deconstructor<T>
-  | IStringLit<T>;
+  | StringLit<T>;
 
 export type Func<T> = ASTNode<T> & {
   tag: "Func";
@@ -133,10 +133,3 @@ export type ApplyPredicate<T> = ASTNode<T> & {
 };
 
 export type SubPredArg<T> = SubExpr<T> | ApplyPredicate<T>; // NOTE: the parser only parse nested preds into `Func`, but the checker will look up and fix the type dynamically
-
-//#endregion
-//#region Substance context
-// export type SubOut = ISubOut;
-// export type ISubOut = [SubProg, [VarEnv, SubEnv], LabelMap];
-// export type SubEnv = ISubEnv;
-//#endregion

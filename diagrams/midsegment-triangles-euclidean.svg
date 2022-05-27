@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="GJF.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -33,7 +33,7 @@
       ></path>
     </marker>
     <path
-      d="M 622.7926679765144 142.53190513810304 L 463.52795132155825 234.13904184671742"
+      d="M 627.8796870539469 139.82405399600012 L 461.8373321867523 258.215069900891"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -41,7 +41,7 @@
     ></path>
     <title>GJF.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="GJF.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -75,7 +75,7 @@
       ></path>
     </marker>
     <path
-      d="M 571.6302061523331 105.88274559023762 L 622.7926679765144 142.53190513810304"
+      d="M 579.0443314970908 118.65506520409093 L 627.8796870539469 139.82405399600012"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -83,7 +83,7 @@
     ></path>
     <title>GJF.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="GJF.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -117,7 +117,7 @@
       ></path>
     </marker>
     <path
-      d="M 463.52795132155825 234.13904184671742 L 571.6302061523331 105.88274559023762"
+      d="M 461.8373321867523 258.215069900891 L 579.0443314970908 118.65506520409093"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -125,7 +125,7 @@
     ></path>
     <title>GJF.PQ</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="DEF.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -159,7 +159,7 @@
       ></path>
     </marker>
     <path
-      d="M 622.7926679765144 142.53190513810304 L 520.4677443281519 69.23358604237217"
+      d="M 627.8796870539469 139.82405399600012 L 530.2089759402345 97.48607641218177"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -167,7 +167,7 @@
     ></path>
     <title>DEF.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="DEF.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -201,7 +201,7 @@
       ></path>
     </marker>
     <path
-      d="M 406.5881583149646 399.04449765106267 L 622.7926679765144 142.53190513810304"
+      d="M 393.4656884332701 418.9440633896003 L 627.8796870539469 139.82405399600012"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -209,7 +209,7 @@
     ></path>
     <title>DEF.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="DEF.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -243,7 +243,7 @@
       ></path>
     </marker>
     <path
-      d="M 520.4677443281519 69.23358604237217 L 406.5881583149646 399.04449765106267"
+      d="M 530.2089759402345 97.48607641218177 L 393.4656884332701 418.9440633896003"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -251,7 +251,7 @@
     ></path>
     <title>DEF.PQ</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aGFJ.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -285,7 +285,7 @@
       ></path>
     </marker>
     <path
-      d="M 622.7926679765144 142.53190513810304 L 571.6302061523331 105.88274559023762"
+      d="M 627.8796870539469 139.82405399600012 L 579.0443314970908 118.65506520409093"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -293,7 +293,7 @@
     ></path>
     <title>aGFJ.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aGFJ.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -327,7 +327,7 @@
       ></path>
     </marker>
     <path
-      d="M 463.52795132155825 234.13904184671742 L 622.7926679765144 142.53190513810304"
+      d="M 461.8373321867523 258.215069900891 L 627.8796870539469 139.82405399600012"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -335,7 +335,7 @@
     ></path>
     <title>aGFJ.side1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="HK.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -369,7 +369,7 @@
       ></path>
     </marker>
     <path
-      d="M 517.5790787369457 170.01089371847752 L 543.1603096490363 188.33547349241022"
+      d="M 520.4408318419215 188.43506755249098 L 544.8585096203497 199.01956194844558"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -377,7 +377,7 @@
     ></path>
     <title>HK.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="GJ.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -411,7 +411,7 @@
       ></path>
     </marker>
     <path
-      d="M 463.52795132155825 234.13904184671742 L 571.6302061523331 105.88274559023762"
+      d="M 461.8373321867523 258.215069900891 L 579.0443314970908 118.65506520409093"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -420,9 +420,8 @@
     <title>GJ.icon</title>
   </g>
   <g
-    transform="rotate(0, 533.7744635683549, 162.17547266997047)translate(533.7744635683549, 162.17547266997047)"
+    transform="rotate(0, 534.1580015188998, 172.85956129872804)translate(534.1580015188998, 172.85956129872804)"
     string="K"
-    ensureOnCanvas="true"
   >
     <title>K.text</title>
     <svg
@@ -461,21 +460,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="543.1603096490363"
-    cy="188.33547349241022"
+    cx="544.8585096203497"
+    cy="199.01956194844558"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>K.icon</title>
   </circle>
   <g
-    transform="rotate(0, 573.9428473003733, 112.48968553522589)translate(573.9428473003733, 112.48968553522589)"
+    transform="rotate(0, 581.4141937352571, 125.24169772681562)translate(581.4141937352571, 125.24169772681562)"
     string="J"
-    ensureOnCanvas="true"
   >
     <title>J.text</title>
     <svg
@@ -514,21 +511,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="571.6302061523331"
-    cy="105.88274559023762"
+    cx="579.0443314970908"
+    cy="118.65506520409093"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>J.icon</title>
   </circle>
   <g
-    transform="rotate(0, 493.6853110947517, 149.558644164353)translate(493.6853110947517, 149.558644164353)"
+    transform="rotate(0, 496.69067985793953, 167.37103389323266)translate(496.69067985793953, 167.37103389323266)"
     string="H"
-    ensureOnCanvas="true"
   >
     <title>H.text</title>
     <svg
@@ -567,21 +562,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="517.5790787369457"
-    cy="170.01089371847752"
+    cx="520.4408318419215"
+    cy="188.43506755249098"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>H.icon</title>
   </circle>
   <g
-    transform="rotate(0, 469.50743072103535, 237.77852463562115)translate(469.50743072103535, 237.77852463562115)"
+    transform="rotate(0, 467.75741768366413, 261.95038797389776)translate(467.75741768366413, 261.95038797389776)"
     string="G"
-    ensureOnCanvas="true"
   >
     <title>G.text</title>
     <svg
@@ -620,21 +613,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="463.52795132155825"
-    cy="234.13904184671742"
+    cx="461.8373321867523"
+    cy="258.215069900891"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>G.icon</title>
   </circle>
   <g
-    transform="rotate(0, 625.3855332485828, 149.03398606744508)translate(625.3855332485828, 149.03398606744508)"
+    transform="rotate(0, 628.9815020611866, 146.73679811676425)translate(628.9815020611866, 146.73679811676425)"
     string="F"
-    ensureOnCanvas="true"
   >
     <title>F.text</title>
     <svg
@@ -673,21 +664,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="622.7926679765144"
-    cy="142.53190513810304"
+    cx="627.8796870539469"
+    cy="139.82405399600012"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>F.icon</title>
   </circle>
   <g
-    transform="rotate(0, 386.2660462001273, 403.13027824247615)translate(386.2660462001273, 403.13027824247615)"
+    transform="rotate(0, 373.317876439614, 423.2620053843389)translate(373.317876439614, 423.2620053843389)"
     string="E"
-    ensureOnCanvas="true"
   >
     <title>E.text</title>
     <svg
@@ -726,21 +715,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="406.5881583149646"
-    cy="399.04449765106267"
+    cx="393.4656884332701"
+    cy="418.9440633896003"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>E.icon</title>
   </circle>
   <g
-    transform="rotate(0, 508.02127598114464, 43.07358597599857)translate(508.02127598114464, 43.07358597599857)"
+    transform="rotate(0, 513.1939952336211, 71.42127139031679)translate(513.1939952336211, 71.42127139031679)"
     string="D"
-    ensureOnCanvas="true"
   >
     <title>D.text</title>
     <svg
@@ -779,14 +766,13 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="520.4677443281519"
-    cy="69.23358604237217"
+    cx="530.2089759402345"
+    cy="97.48607641218177"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>D.icon</title>
   </circle>

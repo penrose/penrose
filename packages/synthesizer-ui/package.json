@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "vite",
     "watch": "vite",
+    "clean": "rimraf dist",
     "start": "vite",
-    "build": "tsc && NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "typecheck": "tsc --noEmit",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
   "dependencies": {

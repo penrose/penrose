@@ -8,7 +8,25 @@
     "sourceMap": true,
     "outDir": "dist",
     "jsx": "react",
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "lib": ["es5", "es6", "es7", "esnext", "dom"],
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "noUnusedLocals": false,
+    "skipLibCheck": true,
+    "downlevelIteration": true,
+    "types": ["jest", "node", "tslib"],
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true
   },
-  "lib": ["es2015", "es7"]
+  "COMBAK-leftOffForNowDueToErrors": {
+    "noImplicitAny": true,
+    "strict": true
+  }
 }

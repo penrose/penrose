@@ -23,10 +23,10 @@ export const objDict = {
     testbops1: ([t1, s1]: [string, any]) => add(x, 3),
 
     //autodiff
-    testbops2: (x: VarAD) => sub(add(sub(add(x, 2), 3), div(mul(5, 7), 2)), (add(3, 4))),
+    testbops2: (x: ad.Num) => sub(add(sub(add(x, 2), 3), div(mul(5, 7), 2)), (add(3, 4))),
 
     //autodiff
-    testbops3: (x: VarAD) => add(add(x, 3), (add(2, (add(1, 4))))),
+    testbops3: (x: ad.Num) => add(add(x, 3), (add(2, (add(1, 4))))),
 
     // autodiff
     testsq1: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
@@ -49,19 +49,19 @@ export const objDict = {
     ops.vdistsq(add(2, (ifCond(x, 3, bob(squared(4)))))),
 
     //autodiff
-    testtyps1: (x : VarAD, y: VarAD) : VarAD => 3,
+    testtyps1: (x : ad.Num, y: ad.Num) : ad.Num => 3,
 
     //autodiff
-    testuops1: (x: VarAD) => neg(x),
+    testuops1: (x: ad.Num) => neg(x),
 
     //autodiff
-    testuops2: (x: VarAD) => neg(ops.vdistsq(3, 2)),
+    testuops2: (x: ad.Num) => neg(ops.vdistsq(3, 2)),
 
     //autodiff
-    testuops3: (x: VarAD) => -7,
+    testuops3: (x: ad.Num) => -7,
 
     //autodiff
-    testuops4: (x: VarAD) => neg((add(3, mul(-5, (ifCond(2, x, y)))))),
+    testuops4: (x: ad.Num) => neg((add(3, mul(-5, (ifCond(2, x, y)))))),
 
     //autodiff
     testtern1: (x: any) => ifCond(x, 3, sub(4, 2)),

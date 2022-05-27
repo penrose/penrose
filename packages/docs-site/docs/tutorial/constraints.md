@@ -96,10 +96,10 @@ The full list of autodiff functions can be found [here](https://github.com/penro
 
 ### 3. Special Number Types
 
-All numbers are required to be a special type called `VarAD` in order to be valid inputs for autodiff functions. We can convert between normal numbers and `VarAD` using the functions:
+All numbers are required to be a special type called `ad.Num` in order to be valid inputs for autodiff functions. We can convert between normal numbers and `ad.Num` using the functions:
 
-- `varOf: number -> VarAD` or `constOf: number -> VarAD` to convert from a `number` to a `VarAD`. These two functions are interchangeable.
-- `numOf: VarAD -> number` to convert from a `VarAD` to a `number`.
+- `varOf: number -> ad.Num` or `constOf: number -> ad.Num` to convert from a `number` to a `ad.Num`. These two functions are interchangeable.
+- `numOf: ad.Num -> number` to convert from a `ad.Num` to a `number`.
 
 The type `number` represents our common, constant numerical values like `1, 2, 3, ...`. For example, if we need to do `5 + 3` , the equivalent autodiff expression is `add(constOf(5), constOf(3))` or `add(varOf(5), varOf(5))`.
 
@@ -131,7 +131,7 @@ Previously, we've talked about how we convert everything to zero-based inequalit
 
 ### 6. Accessing a Value of a Shape's Field
 
-One common operation is to access the parameter of a shape via `shapeName.propertyName.contents`, which will return a `VarAD`. For example, if you have a circle `c` as input, and you want its radius, `c.r.contents` will give you something like `5.0` (of type `VarAD`).
+One common operation is to access the parameter of a shape via `shapeName.propertyName.contents`, which will return a `ad.Num`. For example, if you have a circle `c` as input, and you want its radius, `c.r.contents` will give you something like `5.0` (of type `ad.Num`).
 
 ## Constraints Example: minSize & maxSize
 
@@ -163,7 +163,7 @@ Going back to our `minSize` function, we see several things in play:
 - **Logic:** We want the input circle to have a minimum size (at least `r = 20`) as the function name suggests, so we want to express our returned answer in terms of energy, where `energy > 0` is bad (the constraint is unsatisfied), and `energy <= 0` is good (the constraint is satisfied). For example, with a small circle of `r = 1`, we will return 19 (not good), whereas with a big circle of `r = 30`, we will return -10, a negative number that satisfies the constraint.
 
 ```typescript
-maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
+maxSize: ([shapeType, props]: [string, any], limit: ad.Num) => {
   return sub(props.r.contents, div(limit, constOf(2)));
 };
 ```

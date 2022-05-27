@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="E.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -43,7 +43,7 @@
     ></path>
     <title>E.icon</title>
   </g>
-  <g style="dashed" ensureOnCanvas="true">
+  <g style="dashed">
     <marker
       id="D.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -86,7 +86,7 @@
     ></path>
     <title>D.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="L.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -130,9 +130,9 @@
     <title>L.icon</title>
   </g>
   <rect
-    x="726.4839694022653"
+    x="10.5452332147903"
     y="408.9659586607471"
-    width="65.1769202023942"
+    width="-406.09798464016694"
     height="66.85387499236943"
     fill="#6bdb7b"
     fill-opacity="0.5"
@@ -142,8 +142,7 @@
     stroke-dasharray="30 30"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 726.4839694022653, 408.9659586607471)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 10.5452332147903, 408.9659586607471)"
   >
     <title>R.icon</title>
   </rect>
@@ -157,11 +156,10 @@
     stroke-width="5"
     stroke-linecap="butt"
     r="34.38682661887841"
-    ensureOnCanvas="true"
   >
     <title>C.icon</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="P.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

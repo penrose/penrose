@@ -190,7 +190,7 @@ const writePrograms = (
       }
     }
 
-    // progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
+    // progs.forEach((prog) => console.log(prettySubstance(prog) + "\n-------"));
   } else {
     console.log(
       `Error when compiling the domain program:\n${showError(envOrError.error)}`

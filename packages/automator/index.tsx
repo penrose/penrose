@@ -119,7 +119,8 @@ const singleProcess = async (
   const reactRenderStart = process.hrtime();
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
-  let listOfCanvasData, canvas;
+  const listOfCanvasData: string[] = [];
+  let canvas;
   const resolvePath = async (filePath: string) => {
     const parentDir = parse(join(prefix, sty)).dir;
     const joined = resolve(parentDir, filePath);
@@ -150,7 +151,7 @@ const singleProcess = async (
     //   console.log("This instance has non-zero constraints: ");
     //   // return;
     // }
-    let crossEnergy = undefined;
+    let crossEnergy: number = Infinity;
     if (ciee) {
       console.log(chalk.yellow(`Computing cross energy...`));
       if (referenceState) {
@@ -215,7 +216,7 @@ const singleProcess = async (
         fs.writeFileSync(filename, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${filename}`));
       };
-      listOfCanvasData.map(writeFileOut);
+      listOfCanvasData.forEach(writeFileOut);
     } else {
       // not staged --> just need one diagram
       fs.writeFileSync(
@@ -246,10 +247,10 @@ const singleProcess = async (
         fs.writeFileSync(newStr, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${newStr}`));
       };
-      listOfCanvasData.map(writeFileOut);
+      listOfCanvasData.forEach(writeFileOut);
     } else {
       // just the final diagram
-      fs.writeFileSync(out, canvas);
+      fs.writeFileSync(out, prettier.format(canvas, { parser: "html" }));
       console.log(chalk.green(`The diagram has been saved as ${out}`));
     }
 
@@ -318,7 +319,7 @@ const batchProcess = async (
         referenceState,
         meta
       );
-      if (folders) {
+      if (folders && res !== undefined) {
         const { metadata, state } = res;
         if (referenceFlag) {
           referenceState = state;

@@ -1,19 +1,30 @@
 import {
   convexPartitions,
+  ellipseToImplicit,
   halfPlaneSDF,
+  halfPlaneToImplicit,
   outwardUnitNormal,
   rectangleDifference,
 } from "contrib/Minkowski";
 import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import { Pt2, VarAD } from "types/ad";
+import seedrandom from "seedrandom";
+import { makeEllipse } from "shapes/Ellipse";
+import { floatV, makeCanvas, sampleBlack, vectorV } from "shapes/Samplers";
+import * as ad from "types/ad";
 
 const digitPrecision = 4;
 
+const numsOf = (xs: ad.Num[]) => {
+  const g = secondaryGraph(xs);
+  const f = genCode(g);
+  return f([]).secondary;
+};
+
 describe("rectangleDifference", () => {
   const expectRectDiff = (
-    result: [Pt2, Pt2],
+    result: [ad.Pt2, ad.Pt2],
     expected: [[number, number], [number, number]]
   ) => {
     const g = secondaryGraph([
@@ -114,33 +125,26 @@ describe("outwardUnitNormal", () => {
 });
 
 describe("halfPlaneSDF", () => {
-  const numOf = (x: VarAD) => {
-    const g = secondaryGraph([x]);
-    const f = genCode(g);
-    const [y] = f([]).secondary; // no inputs, so, empty array
-    return y;
-  };
-
   test("without padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
-    expect(numOf(result)).toBeCloseTo(-3, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(-3, digitPrecision);
   });
 
   test("with padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
-    expect(numOf(result)).toBeCloseTo(-13, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(-13, digitPrecision);
   });
 
   test("zero outside", async () => {
     let result = halfPlaneSDF([point2, point3], [point5], point1, 0);
-    expect(numOf(result)).toBeCloseTo(1, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(1, digitPrecision);
   });
 });
 
 describe("convexPartitions", () => {
   // note: in each of these examples, we don't need to do anything special to
-  // convert VarADs to numbers because all the VarADs we're using happen to
-  // already be constants
+  // convert `ad.Num`s to numbers because all the `ad.Num`s we're using happen
+  // to already be constants
 
   // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
   // point locations approximated by tracing in Inkscape; also note, this
@@ -210,5 +214,60 @@ describe("convexPartitions", () => {
       [p[0], p[1], p[2]],
       [p[0], p[2], p[3]],
     ]);
+  });
+});
+
+describe("toImplicit", () => {
+  test("halfPlaneToImplicit", async () => {
+    let result = halfPlaneToImplicit(
+      [
+        [1, 2],
+        [2, 3],
+      ],
+      [1, 6],
+      0
+    );
+    let [a, b, c] = numsOf([result.a, result.b, result.c]);
+    expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
+    expect(b).toBeCloseTo(-1 / Math.sqrt(2), 4);
+    expect(c).toBeCloseTo(-1 / Math.sqrt(2), 4);
+  });
+
+  test("halfPlaneToImplicit with padding", async () => {
+    let result = halfPlaneToImplicit(
+      [
+        [1, 2],
+        [3, 4],
+      ],
+      [5, 6],
+      1
+    );
+    let [a, b, c] = numsOf([result.a, result.b, result.c]);
+    expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
+    expect(b).toBeCloseTo(-1 / Math.sqrt(2), 4);
+    expect(c).toBeCloseTo(-1 / Math.sqrt(2) - 1, 4);
+  });
+
+  test("ellipseToImplicit", async () => {
+    let ellipse = makeEllipse(seedrandom("Test"), makeCanvas(800, 700), {
+      rx: floatV(6),
+      ry: floatV(3),
+      center: vectorV([-11, 22]),
+      strokeWidth: floatV(0),
+      strokeColor: sampleBlack(),
+    });
+    let result = ellipseToImplicit(ellipse);
+    let [a, b, c, x, y] = numsOf([
+      result.a,
+      result.b,
+      result.c,
+      result.x,
+      result.y,
+    ]);
+    expect(a).toEqual(0.5);
+    expect(b).toEqual(2);
+    expect(c).toEqual(18);
+    expect(x).toEqual(-11);
+    expect(y).toEqual(22);
   });
 });

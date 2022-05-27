@@ -1,6 +1,6 @@
 import * as BBox from "engine/BBox";
 import seedrandom from "seedrandom";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { Value } from "types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
 import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
@@ -18,7 +18,7 @@ import { makeText, sampleText, Text } from "./Text";
 
 // TODO: fix this type, it's too restrictive
 export interface Properties {
-  [k: string]: Value<VarAD>;
+  [k: string]: Value<ad.Num>;
 }
 
 export type Shape =
@@ -44,13 +44,14 @@ export interface ShapeDef {
   ) => Shape;
 
   // TODO: maybe get rid of this?
-  propTags: { [prop: string]: Value<VarAD>["tag"] };
+  propTags: { [prop: string]: Value<ad.Num>["tag"] };
 
   // TODO: make these methods
   bbox: (properties: Properties) => BBox.BBox;
   isLinelike: boolean; // TODO: use type predicate instead
   isRectlike: boolean; // TODO: remove this
   isPolygonlike: boolean; // TODO: remove this
+  pendingProps: string[];
 }
 
 // hack to satisfy the typechecker
@@ -65,6 +66,7 @@ export const ShapeDef = (shapedef: {
   isLinelike?: boolean;
   isRectlike?: boolean;
   isPolygonlike?: boolean;
+  pendingProps?: string[];
 }): ShapeDef => {
   const sampler = (rng: seedrandom.prng, canvas: Canvas) =>
     <Properties>shapedef.sampler(rng, canvas);
@@ -84,9 +86,10 @@ export const ShapeDef = (shapedef: {
     propTags,
 
     bbox: shapedef.bbox,
-    isLinelike: shapedef.isLinelike || false,
-    isRectlike: shapedef.isRectlike || false,
-    isPolygonlike: shapedef.isPolygonlike || false,
+    isLinelike: shapedef.isLinelike ?? false,
+    isRectlike: shapedef.isRectlike ?? false,
+    isPolygonlike: shapedef.isPolygonlike ?? false,
+    pendingProps: shapedef.pendingProps ?? [],
   };
 };
 
@@ -114,6 +117,7 @@ const Equation = ShapeDef({
   bbox: BBox.bboxFromRectlike,
   isRectlike: true,
   isPolygonlike: true,
+  pendingProps: ["width", "height"],
 });
 
 const Image = ShapeDef({
@@ -172,6 +176,7 @@ const Text = ShapeDef({
   bbox: BBox.bboxFromRectlike, // assumes w and h correspond to string
   isRectlike: true,
   isPolygonlike: true,
+  pendingProps: ["width", "height", "ascent", "descent"],
 });
 
 // TODO: figure out how to not have the result be type `any` when indexing into

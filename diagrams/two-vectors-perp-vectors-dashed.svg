@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g ensureOnCanvas="true">
+  <g>
     <filter
       id="$LOCAL_block6_subst0.perpMark-shadow"
       x="0"
@@ -28,11 +28,11 @@
       stroke-width="1"
       stroke-opacity="1"
       fill-opacity="1"
-      d="M 400 350 L 418.88785521023186 343.42361199357714 L 412.31148067994286 324.5357520100994 L 393.42362546971106 331.11214001652223 Z "
+      d="M 400 350 L 418.9142102223211 343.49979958663573 L 412.41399722322177 324.58559361264514 L 393.4997870009006 331.08579402600947 Z "
     ></path>
     <title>$LOCAL_block6_subst0.perpMark</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="v.arrow-leftArrowhead"
       markerUnits="strokeWidth"
@@ -66,7 +66,7 @@
       ></path>
     </marker>
     <path
-      d="M 400 350 L 344.8298943001197 191.54715840260704"
+      d="M 400 350 L 345.54906914406206 191.55963476467264"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#1a1ae6"
@@ -76,7 +76,7 @@
     ></path>
     <title>v.arrow</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="V.yAxis-leftArrowhead"
       markerUnits="strokeWidth"
@@ -120,7 +120,7 @@
     ></path>
     <title>V.yAxis</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="V.xAxis-leftArrowhead"
       markerUnits="strokeWidth"
@@ -165,9 +165,8 @@
     <title>V.xAxis</title>
   </g>
   <g
-    transform="rotate(0, 315.8480181055203, 177.82476132436477)translate(315.8480181055203, 177.82476132436477)"
+    transform="rotate(0, 316.63631178457103, 177.84064714442584)translate(316.63631178457103, 177.84064714442584)"
     string="v"
-    ensureOnCanvas="true"
   >
     <title>v.text</title>
     <svg
@@ -203,7 +202,7 @@
       </g>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="u.arrow-leftArrowhead"
       markerUnits="strokeWidth"
@@ -237,7 +236,7 @@
       ></path>
     </marker>
     <path
-      d="M 400 350 L 546.9112239455126 298.84833664751966"
+      d="M 400 350 L 547.4492300590612 299.3264833733811"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#1a1ae6"
@@ -248,9 +247,8 @@
     <title>u.arrow</title>
   </g>
   <g
-    transform="rotate(0, 562.7175224286766, 260.581308008806)translate(562.7175224286766, 260.581308008806)"
+    transform="rotate(0, 562.698922747047, 261.1244122596918)translate(562.698922747047, 261.1244122596918)"
     string="u"
-    ensureOnCanvas="true"
   >
     <title>u.text</title>
     <svg
@@ -289,7 +287,6 @@
   <g
     transform="rotate(0, 218.20973, 166.17)translate(218.20973, 166.17)"
     string="V"
-    ensureOnCanvas="true"
   >
     <title>V.text</title>
     <svg
@@ -334,7 +331,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 225, 175)"
-    ensureOnCanvas="true"
   >
     <title>V.background</title>
   </rect>

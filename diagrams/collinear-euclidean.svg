@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="s2.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -33,7 +33,7 @@
       ></path>
     </marker>
     <path
-      d="M 703.4548024754108 268.13201241525496 L 616.6339996664303 57.183153582797104"
+      d="M 701.2518179408248 297.6749913514847 L 618.3346362147452 56.491227069513684"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -43,7 +43,7 @@
     ></path>
     <title>s2.icon</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="s1.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -77,7 +77,7 @@
       ></path>
     </marker>
     <path
-      d="M 691.746275967117 239.68375778475658 L 541.1975868936258 467.9763690482469"
+      d="M 691.250120059538 268.58274419589804 L 532.3051221418042 420.3763350795135"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -98,14 +98,12 @@
     stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 50, 0)"
-    ensureOnCanvas="true"
   >
     <title>R.icon</title>
   </rect>
   <g
-    transform="rotate(0, 565.1336612284828, 431.6039393818631)translate(565.1336612284828, 431.6039393818631)"
+    transform="rotate(0, 561.5529299404105, 381.68068612465356)translate(561.5529299404105, 381.68068612465356)"
     string="E"
-    ensureOnCanvas="true"
   >
     <title>E.text</title>
     <svg
@@ -144,21 +142,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="558.1336626767074"
-    cy="442.29443857863873"
+    cx="554.5529320062271"
+    cy="399.12952018846187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>E.icon</title>
   </circle>
   <g
-    transform="rotate(0, 601.2837059463715, 326.25972744169286)translate(601.2837059463715, 326.25972744169286)"
+    transform="rotate(0, 624.2764160735097, 311.7184549347246)translate(624.2764160735097, 311.7184549347246)"
     string="D"
-    ensureOnCanvas="true"
   >
     <title>D.text</title>
     <svg
@@ -197,21 +193,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="624.1481849601851"
-    cy="344.8020210647493"
+    cx="621.6602507070564"
+    cy="337.3711936664446"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>D.icon</title>
   </circle>
   <g
-    transform="rotate(0, 431.9826835373491, 322.3387926184844)translate(431.9826835373491, 322.3387926184844)"
+    transform="rotate(0, 431.2075773644264, 321.461700850776)translate(431.2075773644264, 321.461700850776)"
     string="C"
-    ensureOnCanvas="true"
   >
     <title>C.text</title>
     <svg
@@ -250,21 +244,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="451.179637475484"
-    cy="346.74412278668996"
+    cx="450.40453150011064"
+    cy="345.86703117715405"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>C.icon</title>
   </circle>
   <g
-    transform="rotate(0, 698.7462746819136, 226.33905517629015)translate(698.7462746819136, 226.33905517629015)"
+    transform="rotate(0, 691.1970506764831, 275.58274173443215)translate(691.1970506764831, 275.58274173443215)"
     string="B"
-    ensureOnCanvas="true"
   >
     <title>B.text</title>
     <svg
@@ -303,21 +295,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="691.746275967117"
-    cy="239.68375778475658"
+    cx="691.250120059538"
+    cy="268.58274419589804"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>B.icon</title>
   </circle>
   <g
-    transform="rotate(0, 627.2505828666758, 92.63139877574913)translate(627.2505828666758, 92.63139877574913)"
+    transform="rotate(0, 627.2505828639477, 92.58347329306376)translate(627.2505828639477, 92.58347329306376)"
     string="A"
-    ensureOnCanvas="true"
   >
     <title>A.text</title>
     <svg
@@ -356,21 +346,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="628.3425223687441"
-    cy="85.63139896589024"
+    cx="628.3363308448747"
+    cy="85.58346476835851"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>A.icon</title>
   </circle>
   <g
     transform="rotate(0, 717.72878, 15.42)translate(717.72878, 15.42)"
     string="R"
-    ensureOnCanvas="true"
   >
     <title>R.text</title>
     <svg

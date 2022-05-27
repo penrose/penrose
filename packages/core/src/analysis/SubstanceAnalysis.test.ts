@@ -6,8 +6,8 @@ import {
 } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { intersectionWith } from "lodash";
-import { similarMappings, similarNodes } from "synthesis/Search";
-import { A, ASTNode } from "types/ast";
+import { similarMappings, similarNodes, SubNode } from "synthesis/Search";
+import { A } from "types/ast";
 import { Env } from "types/domain";
 import { SubProg, SubStmt } from "types/substance";
 import {
@@ -33,8 +33,8 @@ const compile = (src: string): SubProg<A> =>
 
 describe("Substance AST queries", () => {
   test("Similar AST nodes", () => {
-    let node1: ASTNode<A>;
-    let node2: ASTNode<A>;
+    let node1: SubNode<A>;
+    let node2: SubNode<A>;
     node1 = compile("Set A");
     node2 = compile("Set B");
     expect(similarNodes(node1, node2)).toBe(true);
@@ -104,16 +104,14 @@ describe("Substance AST queries", () => {
   //   const id2 = dummyIdentifier("B", "SyntheticSubstance");
   //   expect(nodesEqual(id1, id2)).toBe(false);
   //   expect(nodesEqual(id2, id2)).toBe(true);
-  //   // create two SubStmts with different source locs and children and the equality check should still return true
+  //   // create two SubStmts with different source locs and the equality check should still return true
   //   const prog1: DefaultLabels = {
-  //     children: [],
   //     tag: "DefaultLabels",
   //     nodeType: "Substance",
   //     start: { line: 0, col: 0 },
   //     end: { line: 0, col: 0 },
   //   };
   //   const prog2: DefaultLabels = {
-  //     children: [prog1],
   //     tag: "DefaultLabels",
   //     nodeType: "Substance",
   //     start: { line: 5, col: 0 },
@@ -156,13 +154,11 @@ Set C`;
     const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
     const newStmt: SubStmt<A> = {
       nodeType: "SyntheticSubstance",
-      children: [],
       tag: "Decl",
       name: dummyIdentifier("C", "SyntheticSubstance"),
       type: {
         tag: "TypeConstructor",
         nodeType: "SyntheticSubstance",
-        children: [],
         args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },
@@ -190,13 +186,11 @@ Set ZZZ`;
     const toReplace = originalAST.statements[1];
     const newStmt: SubStmt<A> = {
       nodeType: "SyntheticSubstance",
-      children: [],
       tag: "Decl",
       name: dummyIdentifier("ZZZ", "SyntheticSubstance"),
       type: {
         tag: "TypeConstructor",
         nodeType: "SyntheticSubstance",
-        children: [],
         args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },

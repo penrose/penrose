@@ -1,43 +1,43 @@
-import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "types/shapes";
+import { Fill, Named, Poly, Scale, Shape, Stroke } from "types/shapes";
 import {
-  BoolV,
+  boolV,
   Canvas,
-  FloatV,
-  PtListV,
+  floatV,
+  ptListV,
   sampleColor,
   sampleNoPaint,
   sampleZero,
-  StrV,
+  strV,
 } from "./Samplers";
 
-export interface IPolygon extends INamed, IStroke, IFill, IScale, IPoly {}
+export interface PolygonProps extends Named, Stroke, Fill, Scale, Poly {}
 
 export const samplePolygon = (
   rng: seedrandom.prng,
   _canvas: Canvas
-): IPolygon => ({
-  name: StrV("defaultPolygon"),
-  style: StrV(""),
+): PolygonProps => ({
+  name: strV("defaultPolygon"),
+  style: strV(""),
   strokeWidth: sampleZero(),
-  strokeStyle: StrV("solid"),
+  strokeStyle: strV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDasharray: StrV(""),
+  strokeDasharray: strV(""),
   fillColor: sampleColor(rng),
-  scale: FloatV(1),
-  points: PtListV([
+  scale: floatV(1),
+  points: ptListV([
     [0, 0],
     [0, 10],
     [10, 0],
   ]),
-  ensureOnCanvas: BoolV(true),
+  ensureOnCanvas: boolV(true),
 });
 
-export type Polygon = IShape & { shapeType: "Polygon" } & IPolygon;
+export type Polygon = Shape & { shapeType: "Polygon" } & PolygonProps;
 
 export const makePolygon = (
   rng: seedrandom.prng,
   canvas: Canvas,
-  properties: Partial<IPolygon>
+  properties: Partial<PolygonProps>
 ): Polygon => ({
   ...samplePolygon(rng, canvas),
   ...properties,

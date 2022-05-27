@@ -1,9 +1,10 @@
 import * as _ from "lodash";
 import { times } from "lodash";
 import seedrandom from "seedrandom";
-import { ILine } from "shapes/Line";
-import { VarAD } from "types/ad";
+import { LineProps } from "shapes/Line";
+import * as ad from "types/ad";
 import { A } from "types/ast";
+import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
 import { Fn, Seeds, State } from "types/state";
 import { Expr, Path } from "types/style";
@@ -47,7 +48,9 @@ export const all = (xs: boolean[]): boolean =>
 export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
   const l = a1.length;
   if (l !== a2.length) {
-    throw Error("expected same # elements in both arrays");
+    throw Error(
+      `can't zip2 vectors of different length: ${a1.length} vs ${a2.length}`
+    );
   }
   const a: [T1, T2][] = [];
   for (let i = 0; i < l; i++) {
@@ -66,7 +69,9 @@ export const zip3 = <T1, T2, T3>(
 ): [T1, T2, T3][] => {
   const l = a1.length;
   if (l !== a2.length || l !== a3.length) {
-    throw Error("expected same # elements in all three arrays");
+    throw Error(
+      `can't zip3 vectors of different length: ${a1.length} vs ${a2.length} vs ${a3.length}`
+    );
   }
   const a: [T1, T2, T3][] = [];
   for (let i = 0; i < l; i++) {
@@ -256,10 +261,6 @@ export const round2 = (n: number): number => roundTo(n, 2);
 export const roundTo = (n: number, digits: number): number => {
   let negative = false;
 
-  if (digits === undefined) {
-    digits = 0;
-  }
-
   if (n < 0) {
     negative = true;
     n = n * -1;
@@ -336,7 +337,7 @@ export const bBoxDims = (
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
   } else if (shapeType === "Polyline") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (properties.width && properties.height) {
+  } else if ("width" in properties && "height" in properties) {
     [w, h] = [
       properties.width.contents as number,
       properties.height.contents as number,
@@ -489,7 +490,7 @@ export const prettyPrintFns = (state: State): string[] =>
 //#region autodiff
 
 // From Evaluator
-export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
+export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
   tag: "Val",
   contents: {
     tag: "FloatV",
@@ -497,13 +498,60 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
   },
 });
 
-export const linePts = ({ start, end }: ILine): [VarAD[], VarAD[]] => [
+export const linePts = ({ start, end }: LineProps): [ad.Num[], ad.Num[]] => [
   start.contents,
   end.contents,
 ];
 
-export const getStart = ({ start }: ILine): VarAD[] => start.contents;
+export const getStart = ({ start }: LineProps): ad.Num[] => start.contents;
 
-export const getEnd = ({ end }: ILine): VarAD[] => end.contents;
+export const getEnd = ({ end }: LineProps): ad.Num[] => end.contents;
+
+//#endregion
+
+//#region either monad
+
+export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
+  return val.tag === "Left";
+}
+
+export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
+  return val.tag === "Right";
+}
+
+export function toLeft<A>(val: A): Left<A> {
+  return { contents: val, tag: "Left" };
+}
+
+export function toRight<B>(val: B): Right<B> {
+  return { contents: val, tag: "Right" };
+}
+
+export function ToLeft<A, B>(val: A): Either<A, B> {
+  return { contents: val, tag: "Left" };
+}
+
+export function ToRight<A, B>(val: B): Either<A, B> {
+  return { contents: val, tag: "Right" };
+}
+
+export function foldM<A, B, C>(
+  xs: A[],
+  f: (acc: B, curr: A, i: number) => Either<C, B>,
+  init: B
+): Either<C, B> {
+  let res = init;
+  let resW: Either<C, B> = toRight(init); // wrapped
+
+  for (let i = 0; i < xs.length; i++) {
+    resW = f(res, xs[i], i);
+    if (resW.tag === "Left") {
+      return resW;
+    } // Stop fold early on first error and return it
+    res = resW.contents;
+  }
+
+  return resW;
+}
 
 //#endregion

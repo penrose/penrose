@@ -1,5 +1,5 @@
 import consola, { LogLevel } from "consola";
-import { shapeAutodiffToNumber } from "engine/EngineUtils";
+import { compileCompGraph } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -9,8 +9,9 @@ import {
   parseSubstance,
   prettySubstance,
 } from "./compiler/Substance";
+import { makeADInputVars } from "./engine/Autodiff";
 import { evalShapes } from "./engine/Evaluator";
-import { genFns, genOptProblem, initializeMat, step } from "./engine/Optimizer";
+import { genOptProblem, step } from "./engine/Optimizer";
 import { insertPending } from "./engine/PropagateUpdate";
 import {
   PathResolver,
@@ -39,6 +40,7 @@ import {
   prettyPrintPath,
   toSvgPaintProperty,
   variationSeeds,
+  zip2,
 } from "./utils/Util";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -58,6 +60,25 @@ export const resample = (state: State): State => {
  */
 export const stepState = (state: State, numSteps = 10000): State => {
   return step(seedrandom(state.seeds.step), state, numSteps, true);
+};
+
+/**
+ * Take n steps in the optimizer given the current state.
+ * @param state current state
+ * @param numSteps number of steps to take (default: 10000)
+ */
+export const stepStateSafe = (
+  state: State,
+  numSteps = 10000
+): Result<State, PenroseError> => {
+  const res = step(seedrandom(state.seeds.step), state, numSteps, true);
+  if (res.params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", res),
+    });
+  }
+  return ok(res);
 };
 
 /**
@@ -150,7 +171,7 @@ export const interactiveDiagram = async (
       updateData,
       pathResolver
     );
-    node.replaceChild(rendering, node.firstChild as Node);
+    node.replaceChild(rendering, node.firstChild!);
   };
   const res = compileTrio(prog);
   if (res.isOk()) {
@@ -204,19 +225,17 @@ export const compileTrio = (prog: {
 export const prepareState = async (state: State): Promise<State> => {
   const rng = seedrandom(state.seeds.prepare);
 
-  await initializeMat();
+  // generate evaluation function
+  const varyingVars = makeADInputVars(state.varyingValues);
 
-  // TODO: errors
-  const stateAD = {
-    ...state,
-    originalTranslation: state.originalTranslation,
-  };
+  const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
 
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = {
-    ...stateAD,
-    shapes: shapeAutodiffToNumber(evalShapes(rng, stateAD)),
+    ...state,
+    computeShapes,
+    shapes: computeShapes(state.varyingValues),
   };
 
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
@@ -303,39 +322,29 @@ export const evalEnergy = (s: State): number => {
 };
 
 /**
- * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. If the `State` doesn't have the constraints/objectives compiled, it will generate them first. Otherwise, it will evaluate the cached functions.
+ * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. This function assumes that the state already has the objectives and constraints compiled.
  * @param fns a list of constraints/objectives
- * @param s a state with or without its opt functions cached
- * @returns a list of the energies and gradients of the requested functions, evaluated at the `varyingValues` in the `State`
+ * @param s a state with its opt functions cached
+ * @returns a list of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
  */
-export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
-  const { objFnCache, constrFnCache } = s.params;
-
-  // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
-  if (!objFnCache || !constrFnCache) {
-    log.warn(
-      "State is not prepared for energy evaluation. Call `prepareState` to initialize the cached objective/constraint functions first."
-    );
-    const newState = genFns(seedrandom(s.seeds.evalFns), s);
-    // TODO: caching
-    return evalFns(fns, newState);
-  }
-
+export const evalFns = (
+  s: State
+): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  const xs = s.varyingValues;
-  return fns.map((fn: Fn) => {
-    const fnsCached = fn.optType === "ObjFn" ? objFnCache : constrFnCache;
-    const fnStr = prettyPrintFn(fn);
-
-    if (!(fnStr in fnsCached)) {
-      console.log("fns", fnsCached);
-      throw Error(
-        `Internal error: could not find ${fn.optType} ${fnStr} in cached functions`
-      );
-    }
-    const cachedFnInfo = fnsCached[fnStr];
-    return cachedFnInfo(xs);
-  });
+  let { lastConstrEnergies, lastObjEnergies } = s.params;
+  if (!lastConstrEnergies || !lastObjEnergies) {
+    const { objEngs, constrEngs } = s.params.objectiveAndGradient(
+      s.params.weight
+    )(s.varyingValues);
+    lastConstrEnergies = constrEngs;
+    lastObjEnergies = objEngs;
+  }
+  return {
+    constrEngs: new Map(
+      zip2(s.constrFns.map(prettyPrintFn), lastConstrEnergies)
+    ),
+    objEngs: new Map(zip2(s.objFns.map(prettyPrintFn), lastObjEnergies)),
+  };
 };
 
 export type PenroseState = State;
@@ -370,7 +379,6 @@ export {
   RenderStatic,
   bBoxDims,
   prettySubstance,
-  initializeMat,
   showError,
   prettyPrintFn,
   prettyPrintPath,

@@ -1,4 +1,4 @@
-import { IStrV } from "types/value";
+import { StrV } from "types/value";
 import {
   attrAutoFillSvg,
   attrRotation,
@@ -18,7 +18,7 @@ const Image = async ({
   const attrToNotAutoMap: string[] = [];
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  const path = (shape.properties.href as IStrV).contents;
+  const path = (shape.properties.href as StrV).contents;
   let rawSVG = await pathResolver(path);
   if (rawSVG === undefined) {
     console.error(`Could not resolve image path ${path}`);
@@ -27,7 +27,7 @@ const Image = async ({
   attrToNotAutoMap.push("href");
   elem.innerHTML = rawSVG;
   // We assume the first svg element in the file is the one to display
-  const svg = elem.querySelector("svg") as SVGSVGElement;
+  const svg = elem.querySelector("svg")!;
   const defs = svg.getElementsByTagName("defs");
   /**
    * HACK:
@@ -35,14 +35,14 @@ const Image = async ({
    * are integrated in one diagram.
    */
   if (defs.length > 0) {
-    defs[0].querySelectorAll("*").forEach((node: any) => {
+    defs[0].querySelectorAll("*").forEach((node) => {
       if (node.id !== "") {
         // BUG: not matching on fill="url(#...)", only hrefs
         const users = svg.querySelectorAll(
           `[*|href="#${node.id}"]:not([href])`
         );
-        users.forEach((user: any) => {
-          const unique = `${(shape.properties.name as IStrV).contents}-ns-${
+        users.forEach((user) => {
+          const unique = `${(shape.properties.name as StrV).contents}-ns-${
             node.id
           }`;
           user.setAttributeNS(

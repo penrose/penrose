@@ -1,7 +1,7 @@
 import { shapeCenter } from "contrib/Queries";
 import { ops } from "engine/Autodiff";
 import { squared, sub } from "engine/AutodiffFunctions";
-import { Pt2, VarAD } from "types/ad";
+import * as ad from "types/ad";
 
 /**
  * Encourage the center of the shape `shape` to be in the direction `direction` with respect to shape `shapeRef`.
@@ -10,9 +10,9 @@ import { Pt2, VarAD } from "types/ad";
 export const inDirection = (
   [t, shape]: [string, any],
   [tRef, shapeRef]: [string, any],
-  unitDirectionVector: Pt2,
-  offset: VarAD
-): VarAD => {
+  unitDirectionVector: ad.Pt2,
+  offset: ad.Num
+): ad.Num => {
   const center = shapeCenter([t, shape]);
   const centerRef = shapeCenter([tRef, shapeRef]);
   const dotProduct = ops.vdot(ops.vsub(center, centerRef), unitDirectionVector);

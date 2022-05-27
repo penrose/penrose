@@ -7,7 +7,7 @@
 import { shapedefs } from "shapes/Shapes";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
-import { IStrV } from "types/value";
+import { StrV } from "types/value";
 import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
 
@@ -109,7 +109,7 @@ export const DraggableShape = async (
       g.setAttribute("opacity", "1");
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
-      onDrag((shapeProps.shape.properties.name as IStrV).contents, dx, dy);
+      onDrag((shapeProps.shape.properties.name as StrV).contents, dx, dy);
     };
     document.addEventListener("mouseup", onMouseUp);
     document.addEventListener("mousemove", onMouseMove);
@@ -174,15 +174,19 @@ export const RenderStatic = async (
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
-  for (const shape of shapes) {
-    svg.appendChild(
-      await RenderShape({
+  return Promise.all(
+    shapes.map((shape) =>
+      RenderShape({
         shape,
         labels,
         canvasSize: canvas.size,
         pathResolver,
       })
-    );
-  }
-  return svg;
+    )
+  ).then((renderedShapes) => {
+    for (const shape of renderedShapes) {
+      svg.appendChild(shape);
+    }
+    return svg;
+  });
 };

@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XYZ.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -33,7 +33,7 @@
       ></path>
     </marker>
     <path
-      d="M 605.5292943401081 441.9065824007776 L 430.97888830288593 414.9616396325062"
+      d="M 581.5497719010782 396.2459535527046 L 401.6049510505271 347.3249445475406"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -41,7 +41,7 @@
     ></path>
     <title>XYZ.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XYZ.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -75,7 +75,7 @@
       ></path>
     </marker>
     <path
-      d="M 722.8950436685343 347.9888148291731 L 605.5292943401081 441.9065824007776"
+      d="M 718.3842620113735 326.83279426832974 L 581.5497719010782 396.2459535527046"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -83,7 +83,7 @@
     ></path>
     <title>XYZ.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XYZ.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -117,7 +117,7 @@
       ></path>
     </marker>
     <path
-      d="M 430.97888830288593 414.9616396325062 L 722.8950436685343 347.9888148291731"
+      d="M 401.6049510505271 347.3249445475406 L 718.3842620113735 326.83279426832974"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -125,7 +125,7 @@
     ></path>
     <title>XYZ.PQ</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTS.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -159,7 +159,7 @@
       ></path>
     </marker>
     <path
-      d="M 397.05886764651865 360.5466072113072 L 475.0096506118069 200.66458944612296"
+      d="M 374.9445460594958 358.7593783986264 L 470.7610273739089 202.00392359936257"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -167,7 +167,7 @@
     ></path>
     <title>UTS.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTS.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -201,7 +201,7 @@
       ></path>
     </marker>
     <path
-      d="M 613.706643156356 149.5829536041265 L 397.05886764651865 360.5466072113072"
+      d="M 610.0211634109153 142.18810392633256 L 374.9445460594958 358.7593783986264"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -209,7 +209,7 @@
     ></path>
     <title>UTS.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTS.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -243,7 +243,7 @@
       ></path>
     </marker>
     <path
-      d="M 475.0096506118069 200.66458944612296 L 613.706643156356 149.5829536041265"
+      d="M 470.7610273739089 202.00392359936257 L 610.0211634109153 142.18810392633256"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -251,7 +251,7 @@
     ></path>
     <title>UTS.PQ</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTV.RP-leftArrowhead"
       markerUnits="strokeWidth"
@@ -285,7 +285,7 @@
       ></path>
     </marker>
     <path
-      d="M 617.1062348167164 296.62658074983517 L 475.0096506118069 200.66458944612296"
+      d="M 631.1015472045731 294.49549046037816 L 470.7610273739089 202.00392359936257"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -293,7 +293,7 @@
     ></path>
     <title>UTV.RP</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTV.QR-leftArrowhead"
       markerUnits="strokeWidth"
@@ -327,7 +327,7 @@
       ></path>
     </marker>
     <path
-      d="M 613.706643156356 149.5829536041265 L 617.1062348167164 296.62658074983517"
+      d="M 610.0211634109153 142.18810392633256 L 631.1015472045731 294.49549046037816"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -335,7 +335,7 @@
     ></path>
     <title>UTV.QR</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UTV.PQ-leftArrowhead"
       markerUnits="strokeWidth"
@@ -369,7 +369,7 @@
       ></path>
     </marker>
     <path
-      d="M 475.0096506118069 200.66458944612296 L 613.706643156356 149.5829536041265"
+      d="M 470.7610273739089 202.00392359936257 L 610.0211634109153 142.18810392633256"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -377,7 +377,7 @@
     ></path>
     <title>UTV.PQ</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aZXY.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -399,11 +399,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 460.6277098021667 419.53845968455727 A 30 30 0 0 0 460.2192121633857 408.25318225148516"
+      d="M 430.5541787163088 355.19527624498056 A 30 30 0 0 0 431.5423763440109 345.38832117328707"
     ></path>
     <title>aZXY.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aZXY.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -437,7 +437,7 @@
       ></path>
     </marker>
     <path
-      d="M 430.97888830288593 414.9616396325062 L 722.8950436685343 347.9888148291731"
+      d="M 401.6049510505271 347.3249445475406 L 718.3842620113735 326.83279426832974"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -445,7 +445,7 @@
     ></path>
     <title>aZXY.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aZXY.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -479,7 +479,7 @@
       ></path>
     </marker>
     <path
-      d="M 605.5292943401081 441.9065824007776 L 430.97888830288593 414.9616396325062"
+      d="M 581.5497719010782 396.2459535527046 L 401.6049510505271 347.3249445475406"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -487,7 +487,7 @@
     ></path>
     <title>aZXY.side1</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aYZX.mark3-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -509,11 +509,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 644.5686481422531 410.666727694312 A 50 50 0 0 0 556.1145918413067 434.27854898069245"
+      d="M 626.1405578926775 373.62601812446945 A 50 50 0 0 0 533.3010591247754 383.1287340569713"
     ></path>
     <title>aYZX.mark3</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aYZX.mark2-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -535,11 +535,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 636.7607773818241 416.9146986356051 A 40 40 0 0 0 565.997532341067 435.80415566470947"
+      d="M 617.2224006943577 378.1500052101165 A 40 40 0 0 0 542.950801680036 385.752177956118"
     ></path>
     <title>aYZX.mark2</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aYZX.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -561,11 +561,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 628.9529066213952 423.1626695768982 A 30 30 0 0 0 575.8804728408273 437.32976234872655"
+      d="M 608.3042434960378 382.6739922957635 A 30 30 0 0 0 552.6005442352965 388.3756218552646"
     ></path>
     <title>aYZX.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aYZX.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -599,7 +599,7 @@
       ></path>
     </marker>
     <path
-      d="M 605.5292943401081 441.9065824007776 L 430.97888830288593 414.9616396325062"
+      d="M 581.5497719010782 396.2459535527046 L 401.6049510505271 347.3249445475406"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -607,7 +607,7 @@
     ></path>
     <title>aYZX.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aYZX.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -641,7 +641,7 @@
       ></path>
     </marker>
     <path
-      d="M 722.8950436685343 347.9888148291731 L 605.5292943401081 441.9065824007776"
+      d="M 718.3842620113735 326.83279426832974 L 581.5497719010782 396.2459535527046"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -649,7 +649,7 @@
     ></path>
     <title>aYZX.side1</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aXYZ.mark2-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -671,11 +671,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 683.9079451878679 356.9334246705345 A 40 40 0 0 0 691.6635606268183 372.9806985943456"
+      d="M 678.4676949533952 329.4149587673345 A 40 40 0 0 0 682.7116332180941 344.92874261091777"
     ></path>
     <title>aXYZ.mark2</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aXYZ.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -697,11 +697,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 693.6547198080345 354.69727221019417 A 30 30 0 0 0 699.4714313872472 366.73272765305245"
+      d="M 688.4468367178897 328.7694176425833 A 30 30 0 0 0 691.6297904164139 340.4047555252708"
     ></path>
     <title>aXYZ.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aXYZ.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -735,7 +735,7 @@
       ></path>
     </marker>
     <path
-      d="M 722.8950436685343 347.9888148291731 L 605.5292943401081 441.9065824007776"
+      d="M 718.3842620113735 326.83279426832974 L 581.5497719010782 396.2459535527046"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -743,7 +743,7 @@
     ></path>
     <title>aXYZ.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aXYZ.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -777,7 +777,7 @@
       ></path>
     </marker>
     <path
-      d="M 430.97888830288593 414.9616396325062 L 722.8950436685343 347.9888148291731"
+      d="M 401.6049510505271 347.3249445475406 L 718.3842620113735 326.83279426832974"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -785,7 +785,7 @@
     ></path>
     <title>aXYZ.side1</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aUTS.mark2-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -807,11 +807,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 576.1714063490358 163.40705506918735 A 40 40 0 0 0 585.0489295145646 177.48878351478783"
+      d="M 573.2680763845051 157.97450259403695 A 40 40 0 0 0 580.6026865283721 169.2907443474412"
     ></path>
     <title>aUTS.mark2</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aUTS.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -833,11 +833,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 585.5552155508658 159.95102970292214 A 30 30 0 0 0 592.2133579250125 170.51232603712248"
+      d="M 582.4563481411076 154.02790292711086 A 30 30 0 0 0 587.9573057490079 162.51508424216405"
     ></path>
     <title>aUTS.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aUTS.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -871,7 +871,7 @@
       ></path>
     </marker>
     <path
-      d="M 613.706643156356 149.5829536041265 L 397.05886764651865 360.5466072113072"
+      d="M 610.0211634109153 142.18810392633256 L 374.9445460594958 358.7593783986264"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -879,7 +879,7 @@
     ></path>
     <title>aUTS.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aUTS.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -913,7 +913,7 @@
       ></path>
     </marker>
     <path
-      d="M 475.0096506118069 200.66458944612296 L 613.706643156356 149.5829536041265"
+      d="M 470.7610273739089 202.00392359936257 L 610.0211634109153 142.18810392633256"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -921,7 +921,7 @@
     ></path>
     <title>aUTS.side1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aUST.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -955,7 +955,7 @@
       ></path>
     </marker>
     <path
-      d="M 397.05886764651865 360.5466072113072 L 613.706643156356 149.5829536041265"
+      d="M 374.9445460594958 358.7593783986264 L 610.0211634109153 142.18810392633256"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -963,7 +963,7 @@
     ></path>
     <title>aUST.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aUST.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -997,7 +997,7 @@
       ></path>
     </marker>
     <path
-      d="M 475.0096506118069 200.66458944612296 L 397.05886764651865 360.5466072113072"
+      d="M 470.7610273739089 202.00392359936257 L 374.9445460594958 358.7593783986264"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -1005,7 +1005,7 @@
     ></path>
     <title>aUST.side1</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aTUS.mark3-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1027,11 +1027,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 521.9286966209572 183.38446261479686 A 50 50 0 0 1 453.0976545389984 245.6074881844647"
+      d="M 516.7023861569216 182.27092526473206 A 50 50 0 0 1 444.68427191665614 244.66541153250333"
     ></path>
     <title>aTUS.mark3</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aTUS.mark2-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1053,11 +1053,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 512.5448874191272 186.8404879810621 A 40 40 0 0 1 457.4800537535601 236.61890843679635"
+      d="M 507.5141144003191 186.21752493165818 A 40 40 0 0 1 449.8996230081067 236.13311394587518"
     ></path>
     <title>aTUS.mark2</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="aTUS.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1079,11 +1079,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 503.16107821729713 190.2965133473273 A 30 30 0 0 1 461.86245296812183 227.63032868912802"
+      d="M 498.32584264371656 190.16412459858427 A 30 30 0 0 1 455.11497409955723 227.600816359247"
     ></path>
     <title>aTUS.mark</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aTUS.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1117,7 +1117,7 @@
       ></path>
     </marker>
     <path
-      d="M 475.0096506118069 200.66458944612296 L 397.05886764651865 360.5466072113072"
+      d="M 470.7610273739089 202.00392359936257 L 374.9445460594958 358.7593783986264"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -1125,7 +1125,7 @@
     ></path>
     <title>aTUS.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="aTUS.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1159,7 +1159,7 @@
       ></path>
     </marker>
     <path
-      d="M 613.706643156356 149.5829536041265 L 475.0096506118069 200.66458944612296"
+      d="M 610.0211634109153 142.18810392633256 L 470.7610273739089 202.00392359936257"
       stroke-opacity="0.4"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -1167,7 +1167,7 @@
     ></path>
     <title>aTUS.side1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="ZY.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1201,7 +1201,7 @@
       ></path>
     </marker>
     <path
-      d="M 605.5292943401081 441.9065824007776 L 722.8950436685343 347.9888148291731"
+      d="M 581.5497719010782 396.2459535527046 L 718.3842620113735 326.83279426832974"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -1209,7 +1209,7 @@
     ></path>
     <title>ZY.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="ZY.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1231,11 +1231,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 670.4601399456143 402.7555693754044 L 657.964198063028 387.1398278545463 M 682.1719460862578 393.38361296346466 L 669.6760042036715 377.76787144260663 M 658.7483338049708 412.12752578734404 L 646.2523919223845 396.511784266486"
+      d="M 654.4910040418729 370.457531108837 L 645.4430298705788 352.6212167121973 M 667.8682398393527 363.6715504803665 L 658.8202656680587 345.8352360837267 M 641.1137682443931 377.24351173730753 L 632.0657940730991 359.4071973406678"
     ></path>
     <title>ZY.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XY.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1269,7 +1269,7 @@
       ></path>
     </marker>
     <path
-      d="M 430.97888830288593 414.9616396325062 L 722.8950436685343 347.9888148291731"
+      d="M 401.6049510505271 347.3249445475406 L 718.3842620113735 326.83279426832974"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -1277,7 +1277,7 @@
     ></path>
     <title>XY.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="XY.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1299,11 +1299,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 579.1731184460505 391.2220018510062 L 574.7008135253698 371.72845261067306"
+      d="M 560.6401476557015 347.05801117242976 L 559.3490654061991 327.0997276434406"
     ></path>
     <title>XY.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="XZ.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1337,7 +1337,7 @@
       ></path>
     </marker>
     <path
-      d="M 430.97888830288593 414.9616396325062 L 605.5292943401081 441.9065824007776"
+      d="M 401.6049510505271 347.3249445475406 L 581.5497719010782 396.2459535527046"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -1345,7 +1345,7 @@
     ></path>
     <title>XZ.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="XZ.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1367,11 +1367,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 524.1406900123002 439.4612565294149 L 527.1919033803342 419.6953755298944 M 509.3162792626598 437.1728465033894 L 512.3674926306938 417.4069655038689"
+      d="M 496.1912244931014 383.40277452974317 L 501.4381122913947 364.10328941922205 M 481.71661066021056 379.4676086810232 L 486.96349845850386 360.1681235705021"
     ></path>
     <title>XZ.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="ST.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1405,7 +1405,7 @@
       ></path>
     </marker>
     <path
-      d="M 397.05886764651865 360.5466072113072 L 613.706643156356 149.5829536041265"
+      d="M 374.9445460594958 358.7593783986264 L 610.0211634109153 142.18810392633256"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -1413,7 +1413,7 @@
     ></path>
     <title>ST.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="ST.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1435,11 +1435,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 512.3592128791026 262.2292088181647 L 498.40629792377206 247.90035199726898"
+      d="M 499.2585148404827 257.8283603831153 L 485.7071946299283 243.1191219418437"
     ></path>
     <title>ST.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="US.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1473,7 +1473,7 @@
       ></path>
     </marker>
     <path
-      d="M 475.0096506118069 200.66458944612296 L 397.05886764651865 360.5466072113072"
+      d="M 470.7610273739089 202.00392359936257 L 374.9445460594958 358.7593783986264"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -1481,7 +1481,7 @@
     ></path>
     <title>US.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="US.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1503,11 +1503,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 423.75887997057316 282.96463392490466 L 441.73603946590987 291.729432354028 M 430.3324787924157 269.48176430340214 L 448.30963828775236 278.2465627325255"
+      d="M 410.4089758114863 281.56552309751504 L 427.4735709847426 291.9962252804162 M 418.2320024486621 268.7670767175728 L 435.2965976219184 279.19777890047396"
     ></path>
     <title>US.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UT.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1541,7 +1541,7 @@
       ></path>
     </marker>
     <path
-      d="M 475.0096506118069 200.66458944612296 L 613.706643156356 149.5829536041265"
+      d="M 470.7610273739089 202.00392359936257 L 610.0211634109153 142.18810392633256"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -1549,7 +1549,7 @@
     ></path>
     <title>UT.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="UT.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1571,11 +1571,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 547.8141722503467 184.50758072695479 L 540.9021215178162 165.73996232329463 M 561.8898860530918 179.32354267755696 L 554.9778353205613 160.5559242738968 M 533.7384584476015 189.6916187763526 L 526.8264077150711 170.92400037269246"
+      d="M 544.3376950593381 181.28428551945012 L 536.4444957254859 162.90774200624503 M 558.120102694242 175.364386019061 L 550.2269033603898 156.9878425058559 M 530.5552874244344 187.20418501983926 L 522.6620880905822 168.82764150663417"
     ></path>
     <title>UT.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="VT.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1609,7 +1609,7 @@
       ></path>
     </marker>
     <path
-      d="M 617.1062348167164 296.62658074983517 L 613.706643156356 149.5829536041265"
+      d="M 631.1015472045731 294.49549046037816 L 610.0211634109153 142.18810392633256"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -1617,7 +1617,7 @@
     ></path>
     <title>VT.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="VT.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1639,11 +1639,11 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 625.4037667953772 222.87363283335404 L 605.4091111776953 223.33590152060762 M 625.0570652799371 207.87764112009253 L 605.062409662255 208.33990980734612 M 625.7504683108175 237.86962454661554 L 605.7558126931355 238.33189323386912"
+      d="M 630.4669269293845 216.9707983453575 L 610.6557836861039 219.71279604135324 M 628.4104286573877 202.112440912897 L 608.599285414107 204.85443860889274 M 632.5234252013813 231.82915577781802 L 612.7122819581007 234.57115347381375"
     ></path>
     <title>VT.tick</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="UV.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1677,7 +1677,7 @@
       ></path>
     </marker>
     <path
-      d="M 475.0096506118069 200.66458944612296 L 617.1062348167164 296.62658074983517"
+      d="M 470.7610273739089 202.00392359936257 L 631.1015472045731 294.49549046037816"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -1685,7 +1685,7 @@
     ></path>
     <title>UV.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="UV.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1707,14 +1707,13 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 546.6767549998469 261.130257826164 L 557.8699610933553 244.55581693992542 M 534.245924335168 252.73535325603274 L 545.4391304286764 236.16091236979412"
+      d="M 552.431185049062 260.6593923533487 L 562.4246138270303 243.3350932898682 M 539.4379607514517 253.16432076987255 L 549.4313895294199 235.84002170639206"
     ></path>
     <title>UV.tick</title>
   </g>
   <g
-    transform="rotate(0, 591.4669812867495, 415.74972330415017)translate(591.4669812867495, 415.74972330415017)"
+    transform="rotate(0, 580.4073291959978, 370.08595314241353)translate(580.4073291959978, 370.08595314241353)"
     string="Z"
-    ensureOnCanvas="true"
   >
     <title>Z.text</title>
     <svg
@@ -1753,21 +1752,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="605.5292943401081"
-    cy="441.9065824007776"
+    cx="581.5497719010782"
+    cy="396.2459535527046"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>Z.icon</title>
   </circle>
   <g
-    transform="rotate(0, 726.6418896032098, 322.9160178394148)translate(726.6418896032098, 322.9160178394148)"
+    transform="rotate(0, 701.0275825608333, 301.23031347516036)translate(701.0275825608333, 301.23031347516036)"
     string="Y"
-    ensureOnCanvas="true"
   >
     <title>Y.text</title>
     <svg
@@ -1806,21 +1803,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="722.8950436685343"
-    cy="347.9888148291731"
+    cx="718.3842620113735"
+    cy="326.83279426832974"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>Y.icon</title>
   </circle>
   <g
-    transform="rotate(0, 410.10580376684675, 390.4810427122445)translate(410.10580376684675, 390.4810427122445)"
+    transform="rotate(0, 408.60495201156346, 339.41306932288535)translate(408.60495201156346, 339.41306932288535)"
     string="X"
-    ensureOnCanvas="true"
   >
     <title>X.text</title>
     <svg
@@ -1859,21 +1854,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="430.97888830288593"
-    cy="414.9616396325062"
+    cx="401.6049510505271"
+    cy="347.3249445475406"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>X.icon</title>
   </circle>
   <g
-    transform="rotate(0, 621.2864286002176, 302.24138264297375)translate(621.2864286002176, 302.24138264297375)"
+    transform="rotate(0, 634.9482096549992, 300.343840366036)translate(634.9482096549992, 300.343840366036)"
     string="V"
-    ensureOnCanvas="true"
   >
     <title>V.text</title>
     <svg
@@ -1912,21 +1905,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="617.1062348167164"
-    cy="296.62658074983517"
+    cx="631.1015472045731"
+    cy="294.49549046037816"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>V.icon</title>
   </circle>
   <g
-    transform="rotate(0, 597.0500464310903, 124.18083321840025)translate(597.0500464310903, 124.18083321840025)"
+    transform="rotate(0, 593.5227118036482, 116.70821406754875)translate(593.5227118036482, 116.70821406754875)"
     string="T"
-    ensureOnCanvas="true"
   >
     <title>T.text</title>
     <svg
@@ -1965,21 +1956,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="613.706643156356"
-    cy="149.5829536041265"
+    cx="610.0211634109153"
+    cy="142.18810392633256"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>T.icon</title>
   </circle>
   <g
-    transform="rotate(0, 381.05408396049535, 366.5217601789159)translate(381.05408396049535, 366.5217601789159)"
+    transform="rotate(0, 358.4369045857339, 364.39694385258076)translate(358.4369045857339, 364.39694385258076)"
     string="S"
-    ensureOnCanvas="true"
   >
     <title>S.text</title>
     <svg
@@ -2018,21 +2007,19 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="397.05886764651865"
-    cy="360.5466072113072"
+    cx="374.9445460594958"
+    cy="358.7593783986264"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>S.icon</title>
   </circle>
   <g
-    transform="rotate(0, 455.14110190876687, 176.7884616290415)translate(455.14110190876687, 176.7884616290415)"
+    transform="rotate(0, 472.2887471941858, 208.835179859595)translate(472.2887471941858, 208.835179859595)"
     string="U"
-    ensureOnCanvas="true"
   >
     <title>U.text</title>
     <svg
@@ -2071,14 +2058,13 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="475.0096506118069"
-    cy="200.66458944612296"
+    cx="470.7610273739089"
+    cy="202.00392359936257"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>U.icon</title>
   </circle>

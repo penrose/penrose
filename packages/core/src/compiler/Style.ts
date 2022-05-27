@@ -15,24 +15,22 @@ import {
   initConstraintWeight,
   insertExpr,
   insertExprs,
-  insertGPI,
   isPath,
   isTagExpr,
   propertiesNotOf,
   propertiesOf,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
-import _ from "lodash";
+import _, { range, some } from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
-import rfdc from "rfdc";
 import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { A, C, Identifier } from "types/ast";
-import { Either, Left, Right } from "types/common";
+import { Either } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
   ParseError,
@@ -45,18 +43,18 @@ import {
 } from "types/errors";
 import { Fn, OptType, Params, State } from "types/state";
 import {
+  AccessPath,
   BindingForm,
   Block,
+  CompApp,
+  ConstrFn,
   DeclPattern,
   Expr,
   GPIDecl,
   Header,
   HeaderBlock,
-  IAccessPath,
-  ICompApp,
-  IConstrFn,
-  ILayering,
-  IObjFn,
+  Layering,
+  ObjFn,
   Path,
   PredArg,
   PropertyDecl,
@@ -83,14 +81,13 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
+  FGPI,
   Field,
   FieldDict,
   FieldExpr,
   GPIMap,
   GPIProps,
-  IFGPI,
-  IOptEval,
-  Property,
+  OptEval,
   PropID,
   ShapeTypeStr,
   StyleOptFn,
@@ -108,25 +105,28 @@ import {
   toStyleErrors,
 } from "utils/Error";
 import {
+  foldM,
+  isLeft,
   prettyPrintFn,
   prettyPrintPath,
   randFloat,
+  toLeft,
+  ToLeft,
+  toRight,
+  ToRight,
   variationSeeds,
   zip2,
 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Warn })
   .withScope("Style Compiler");
-const clone = rfdc({ proto: false, circles: false });
 
 //#region consts
 const ANON_KEYWORD = "ANON";
 const LOCAL_KEYWORD = "$LOCAL";
-
 const LABEL_FIELD = "label";
-
 const VARYING_INIT_FN_NAME = "VARYING_INIT";
 
 // For statically checking existence
@@ -149,69 +149,8 @@ const FN_ERR_TYPE = {
 const dummyId = (name: string): Identifier<A> =>
   dummyIdentifier(name, "SyntheticStyle");
 
-// numbers from 0 to r-1 w/ increment of 1
-const numbers = (r: number): number[] => {
-  const l = 0;
-  if (l > r) {
-    throw Error("invalid range");
-  }
-  const arr = [];
-  for (let i = l; i < r; i++) {
-    arr.push(i);
-  }
-  return arr;
-};
-
 export function numbered<A>(xs: A[]): [A, number][] {
-  if (!xs) throw Error("fail");
-  return zip2(xs, numbers(xs.length));
-}
-
-// TODO move to util
-
-export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
-  if ((val as Left<A>).tag === "Left") return true;
-  return false;
-}
-
-export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
-  if ((val as Right<B>).tag === "Right") return true;
-  return false;
-}
-
-export function toLeft<A>(val: A): Left<A> {
-  return { contents: val, tag: "Left" };
-}
-
-export function toRight<B>(val: B): Right<B> {
-  return { contents: val, tag: "Right" };
-}
-
-export function ToLeft<A, B>(val: A): Either<A, B> {
-  return { contents: val, tag: "Left" };
-}
-
-export function ToRight<A, B>(val: B): Either<A, B> {
-  return { contents: val, tag: "Right" };
-}
-
-export function foldM<A, B, C>(
-  xs: A[],
-  f: (acc: B, curr: A, i: number) => Either<C, B>,
-  init: B
-): Either<C, B> {
-  let res = init;
-  let resW: Either<C, B> = toRight(init); // wrapped
-
-  for (let i = 0; i < xs.length; i++) {
-    resW = f(res, xs[i], i);
-    if (resW.tag === "Left") {
-      return resW;
-    } // Stop fold early on first error and return it
-    res = resW.contents;
-  }
-
-  return resW;
+  return zip2(xs, range(xs.length));
 }
 
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
@@ -348,7 +287,6 @@ const checkDeclPatternAndMakeEnv = (
 
   const typeErr = checkTypeConstructor(toSubstanceType(styType), varEnv);
   if (isErr(typeErr)) {
-    // TODO(errors)
     return addErrSel(selEnv, {
       tag: "TaggedSubstanceError",
       error: typeErr.error,
@@ -357,7 +295,6 @@ const checkDeclPatternAndMakeEnv = (
 
   const varName: string = bVar.contents.value;
 
-  // TODO(errors)
   if (Object.keys(selEnv.sTypeVarMap).includes(varName)) {
     return addErrSel(selEnv, { tag: "SelectorVarMultipleDecl", varName: bVar });
   }
@@ -387,7 +324,6 @@ const checkDeclPatternAndMakeEnv = (
       const declType = toSubstanceType(styType);
       if (!isDeclaredSubtype(substanceType, declType, varEnv)) {
         // COMBAK: Order?
-        // TODO(errors)
         return addErrSel(selEnv, {
           tag: "SelectorDeclTypeMismatch",
           subType: declType,
@@ -503,7 +439,6 @@ const toSubstanceType = (styT: StyT<A>): TypeConsApp<A> => {
   return {
     tag: "TypeConstructor",
     nodeType: "Substance",
-    children: [styT],
     name: styT,
     args: [],
   };
@@ -637,11 +572,8 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
 
 // Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
 const couldMatchRels = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   typeEnv: Env,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rels: RelationPattern<A>[],
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   stmt: SubStmt<A>
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
@@ -809,10 +741,8 @@ const substitutePath = (
     case "LocalVar": {
       return {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "FieldPath",
         name: {
-          children: [],
           nodeType: "SyntheticStyle",
           tag: "SubVar",
           contents: {
@@ -830,11 +760,9 @@ const substitutePath = (
       // COMBAK / HACK: Is there some way to get rid of all these dummy values?
       return {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "FieldPath",
         name: {
           nodeType: "SyntheticStyle",
-          children: [],
           tag: "SubVar",
           contents: {
             ...dummyId(mkLocalVarName(lv)),
@@ -1420,7 +1348,16 @@ const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
   if (s1.length === 0) {
     return s2;
   }
-  return cartesianProduct(s1, s2).map(([a, b]: Subst[]) => combine(a, b));
+  return cartesianProduct(s1, s2)
+    .filter(([a, b]: Subst[]) => uniqueSubsts(a, b))
+    .map(([a, b]: Subst[]) => combine(a, b));
+};
+
+// check if two substitutions map to the same substance objects
+const uniqueSubsts = (a: Subst, b: Subst): boolean => {
+  const aVals = Object.values(a);
+  const bVals = Object.values(b);
+  return !some(aVals, (a) => bVals.includes(a));
 };
 
 // Judgment 9. G; theta |- T <| |T
@@ -1431,10 +1368,7 @@ const typesMatched = (
   substanceType: TypeConsApp<A>,
   styleType: StyT<A>
 ): boolean => {
-  if (
-    substanceType.tag === "TypeConstructor" &&
-    substanceType.args.length === 0
-  ) {
+  if (substanceType.args.length === 0) {
     // Style type needs to be more generic than Style type
     return isDeclaredSubtype(substanceType, toSubstanceType(styleType), varEnv);
   }
@@ -1501,10 +1435,8 @@ const matchDecl = (
   const res = merge(
     initSubsts,
     newSubsts.filter((x): x is Subst => x !== undefined)
-  ); // TODO inline
-  // COMBAK: Inline this
-  // console.log("substs to combine:", initSubsts, justs(newSubsts));
-  // console.log("res", res);
+  );
+  log.debug("substs to combine:", initSubsts, newSubsts);
   return res;
 };
 
@@ -1538,6 +1470,7 @@ const findSubstsSel = (
       const rels = safeContentsList(sel.where);
       const initSubsts: Subst[] = [];
       const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
+      log.debug("total number of raw substs: ", rawSubsts.length);
       const substCandidates = rawSubsts.filter((subst) =>
         fullSubst(selEnv, subst)
       );
@@ -1577,14 +1510,12 @@ const nameAnonStatement = (i: number, s: Stmt<A>): [number, Stmt<A>] => {
       type: {
         tag: "TypeOf",
         nodeType: "SyntheticStyle",
-        children: [],
         contents: "Nothing",
       }, // TODO: Why is it parsed like this?
       path: {
         tag: "InternalLocalVar",
-        contents: `\$${ANON_KEYWORD}_${i}`,
+        contents: `$${ANON_KEYWORD}_${i}`,
         nodeType: "SyntheticStyle",
-        children: [], // Unused bc compiler internal
       },
       value: s.contents,
     };
@@ -1658,7 +1589,7 @@ const deleteProperty = (
     });
   }
 
-  const prop: FieldExpr<VarAD> = fieldDict[fld];
+  const prop: FieldExpr<ad.Num> = fieldDict[fld];
 
   if (!prop) {
     // TODO(errors / warnings): Should this be fatal?
@@ -1686,7 +1617,12 @@ const deleteProperty = (
             // TODO(error)
             return addWarn(trans, {
               tag: "CircularPathAlias",
-              path: { tag: "FieldPath", name, field } as Path<A>,
+              path: {
+                tag: "FieldPath",
+                nodeType: "SyntheticStyle",
+                name,
+                field,
+              },
             });
           }
           return deleteProperty(trans, p, p.name, p.field, property);
@@ -1788,7 +1724,7 @@ const addPath = (
   override: boolean,
   trans: Translation,
   path: Path<A>,
-  expr: TagExpr<VarAD>
+  expr: TagExpr<ad.Num>
 ): Either<StyleErrors, Translation> => {
   // Extended `insertExpr` with an optional flag to deal with errors and warnings
   // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
@@ -1899,7 +1835,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl<A>): StyleResults => {
 // Check that every function, objective, and constraint exists (below) -- parametrically over the kind of function
 const checkFunctionName = (
   selEnv: SelEnv,
-  expr: ICompApp<A> | IObjFn<A> | IConstrFn<A>
+  expr: CompApp<A> | ObjFn<A> | ConstrFn<A>
 ): StyleResults => {
   const fnDict = FN_DICT[expr.tag];
   const fnNames: string[] = _.keys(fnDict); // Names of built-in functions of that kind
@@ -1981,7 +1917,6 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleResults => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const checkBlockPath = (selEnv: SelEnv, path: Path<A>): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
@@ -2097,6 +2032,7 @@ const translatePair = (
         selEnv,
       ]);
       log.debug("Translating block", hb, "with substitutions", substs);
+      log.debug("total number of substs", substs.length);
       return translateSubstsBlock(trans, numbered(substs), [
         hb.block,
         blockNum,
@@ -2147,14 +2083,14 @@ const insertNames = (trans: Translation): Translation => {
 const insertLabels = (trans: Translation, labels: LabelMap): void => {
   for (const labelData of labels) {
     const [name, label] = labelData;
-    const labelValue: TagExpr<VarAD> = {
+    const labelValue: TagExpr<ad.Num> = {
       tag: "Done",
       contents: {
         tag: "StrV",
         contents: label.value,
       },
     };
-    const labelExpr: FieldExpr<VarAD> = {
+    const labelExpr: FieldExpr<ad.Num> = {
       tag: "FExpr",
       contents: labelValue,
     };
@@ -2175,7 +2111,6 @@ const translateStyProg = (
   subProg: SubProg<A>,
   styProg: StyProg<A>,
   labelMap: LabelMap,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   styVals: number[]
 ): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
@@ -2203,13 +2138,11 @@ const translateStyProg = (
 
 //#endregion
 
-// BEGIN GENOPTPROBLEM.HS PORT
-
 //#region Translation utilities -- TODO move to EngineUtils
 
 function foldFields<T>(
-  f: (s: string, field: Field, fexpr: FieldExpr<VarAD>, acc: T[]) => T[],
-  [name, fieldDict]: [string, { [k: string]: FieldExpr<VarAD> }],
+  f: (s: string, field: Field, fexpr: FieldExpr<ad.Num>, acc: T[]) => T[],
+  [name, fieldDict]: [string, { [k: string]: FieldExpr<ad.Num> }],
   acc: T[]
 ): T[] {
   const res: T[] = Object.entries(fieldDict).reduce(
@@ -2220,7 +2153,7 @@ function foldFields<T>(
 }
 
 function foldSubObjs<T>(
-  f: (s: string, f: Field, fexpr: FieldExpr<VarAD>, acc: T[]) => T[],
+  f: (s: string, f: Field, fexpr: FieldExpr<ad.Num>, acc: T[]) => T[],
   tr: Translation
 ): T[] {
   return Object.entries(tr.trMap).reduce(
@@ -2251,7 +2184,7 @@ const unoptimizedFloatProperties: string[] = [
 
 const optimizedVectorProperties: string[] = ["start", "end", "center"];
 
-const declaredVarying = (t: TagExpr<VarAD>): boolean => {
+const declaredVarying = (t: TagExpr<ad.Num>): boolean => {
   if (t.tag === "OptEval") {
     return isVarying(t.contents);
   }
@@ -2259,16 +2192,14 @@ const declaredVarying = (t: TagExpr<VarAD>): boolean => {
   return false;
 };
 
-const mkPath = (strs: string[]): Path<A> => {
+export const mkPath = (strs: string[]): Path<A> => {
   if (strs.length === 2) {
     const [name, field] = strs;
     return {
       tag: "FieldPath",
       nodeType: "SyntheticStyle",
-      children: [],
       name: {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "SubVar",
         contents: {
           ...dummyId(name),
@@ -2281,10 +2212,8 @@ const mkPath = (strs: string[]): Path<A> => {
     return {
       tag: "PropertyPath",
       nodeType: "SyntheticStyle",
-      children: [],
       name: {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "SubVar",
         contents: {
           ...dummyId(name),
@@ -2297,9 +2226,7 @@ const mkPath = (strs: string[]): Path<A> => {
 };
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
-  if (s === "Equation") return ["width", "height"];
-  if (s === "Text") return ["width", "height", "ascent", "descent"];
-  return [];
+  return shapedefs[s].pendingProps;
 };
 
 const isVarying = (e: Expr<A>): boolean => {
@@ -2315,7 +2242,7 @@ const isPending = (s: ShapeTypeStr, p: PropID): boolean => {
 const findPropertyVarying = (
   name: string,
   field: Field,
-  properties: { [k: string]: TagExpr<VarAD> },
+  properties: { [k: string]: TagExpr<ad.Num> },
   floatProperty: string,
   acc: Path<A>[]
 ): Path<A>[] => {
@@ -2328,11 +2255,10 @@ const findPropertyVarying = (
     }
 
     if (optimizedVectorProperties.includes(floatProperty)) {
-      const defaultVec2: TagExpr<VarAD> = {
+      const defaultVec2: TagExpr<ad.Num> = {
         tag: "OptEval",
         contents: {
           nodeType: "SyntheticStyle",
-          children: [],
           tag: "Vector",
           contents: [
             dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr<A>,
@@ -2357,7 +2283,7 @@ const findPropertyVarying = (
 };
 
 // Look for nested varying variables, given the path to its parent var (e.g. `x.r` => (-1.2, ?)) => `x.r`[1] is varying
-const findNestedVarying = (e: TagExpr<VarAD>, p: Path<A>): Path<A>[] => {
+const findNestedVarying = (e: TagExpr<ad.Num>, p: Path<A>): Path<A>[] => {
   if (e.tag === "OptEval") {
     const res = e.contents;
     if (res.tag === "Vector") {
@@ -2366,16 +2292,12 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path<A>): Path<A>[] => {
         .map((e: Expr<A>, i): [Expr<A>, number] => [e, i])
         .filter((e: [Expr<A>, number]): boolean => isVarying(e[0]))
         .map(
-          ([, i]: [Expr<A>, number]): IAccessPath<A> =>
-            ({
-              nodeType: "SyntheticStyle",
-              children: [],
-              tag: "AccessPath",
-              path: p,
-              indices: [
-                dummyASTNode({ tag: "Fix", contents: i }, "SyntheticStyle"),
-              ],
-            } as IAccessPath<A>)
+          ([, i]: [Expr<A>, number]): AccessPath<A> => ({
+            nodeType: "SyntheticStyle",
+            tag: "AccessPath",
+            path: p,
+            indices: [{ tag: "Fix", nodeType: "SyntheticStyle", contents: i }],
+          })
         );
 
       return indices;
@@ -2396,7 +2318,7 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path<A>): Path<A>[] => {
 const findFieldVarying = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Path<A>[]
 ): Path<A>[] => {
   switch (fexpr.tag) {
@@ -2450,12 +2372,12 @@ const findPropertyUninitialized = (
 const findFieldUninitialized = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Path<A>[]
 ): Path<A>[] => {
-  // NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
   switch (fexpr.tag) {
     case "FExpr": {
+      // NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
       return acc;
     }
     case "FGPI": {
@@ -2483,12 +2405,13 @@ const findUninitialized = (tr: Translation): Path<A>[] => {
 const findGPIName = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: [string, Field][]
 ): [string, Field][] => {
   switch (fexpr.tag) {
     case "FGPI": {
-      return ([[name, field]] as [string, Field][]).concat(acc);
+      const head: [string, Field] = [name, field];
+      return [head].concat(acc);
     }
     case "FExpr": {
       return acc;
@@ -2497,41 +2420,15 @@ const findGPIName = (
 };
 
 // Find shapes and their properties
-const findShapeNames = (tr: Translation): [string, string][] => {
+export const findShapeNames = (tr: Translation): [string, string][] => {
   return foldSubObjs(findGPIName, tr);
-};
-
-// Find paths that are the properties of shapes
-const findShapeProperties = (
-  name: string,
-  field: Field,
-  fexpr: FieldExpr<VarAD>,
-  acc: [string, Field, Property][]
-): [string, Field, Property][] => {
-  switch (fexpr.tag) {
-    case "FGPI": {
-      const properties = fexpr.contents[1];
-      const paths = Object.keys(properties).map(
-        (property) => [name, field, property] as [string, Field, Property]
-      );
-      return paths.concat(acc);
-    }
-    case "FExpr": {
-      return acc;
-    }
-  }
-};
-
-// Find paths that are the properties of shapes
-const findShapesProperties = (tr: Translation): [string, string, string][] => {
-  return foldSubObjs(findShapeProperties, tr);
 };
 
 // Find various kinds of functions
 const findFieldFns = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FExpr") {
@@ -2566,13 +2463,9 @@ const findUserAppliedFns = (tr: Translation): [Fn[], Fn[]] => {
 };
 
 const findFieldDefaultFns = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   name: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   field: Field,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  fexpr: FieldExpr<VarAD>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  fexpr: FieldExpr<ad.Num>,
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FGPI") {
@@ -2582,7 +2475,7 @@ const findFieldDefaultFns = (
     if (
       onCanvasProp &&
       onCanvasProp.contents.tag === "BoolV" &&
-      onCanvasProp.contents.contents === true
+      onCanvasProp.contents.contents
     ) {
       const onCanvasFn: StyleOptFn = [
         "onCanvas",
@@ -2618,10 +2511,16 @@ const toFns = ([objfns, constrfns]: [StyleOptFn[], StyleOptFn[]]): [
 
 // COMBAK: Move this to utils
 function partitionEithers<A, B>(es: Either<A, B>[]): [A[], B[]] {
-  return [
-    es.filter((e) => e.tag === "Left").map((e) => e.contents as A),
-    es.filter((e) => e.tag === "Right").map((e) => e.contents as B),
-  ];
+  const a: A[] = [];
+  const b: B[] = [];
+  for (const e of es) {
+    if (e.tag === "Left") {
+      a.push(e.contents);
+    } else {
+      b.push(e.contents);
+    }
+  }
+  return [a, b];
 }
 
 const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
@@ -2630,7 +2529,7 @@ const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
 
 // Extract number from a more complicated type
 // also ported from `lookupPaths`
-const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
+const getNum = (e: TagExpr<ad.Num> | FGPI<ad.Num>): number => {
   switch (e.tag) {
     case "OptEval": {
       if (e.contents.tag === "Fix") {
@@ -2676,7 +2575,7 @@ export const lookupNumericPaths = (
 const findFieldPending = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Path<A>[]
 ): Path<A>[] => {
   switch (fexpr.tag) {
@@ -2687,7 +2586,7 @@ const findFieldPending = (
       const properties = fexpr.contents[1];
       const pendingProps = Object.entries(properties)
         .filter(([, v]) => v.tag === "Pending")
-        .map((e: [string, TagExpr<VarAD>]) => e[0]);
+        .map((e: [string, TagExpr<ad.Num>]) => e[0]);
 
       // TODO: Pending properties currently don't support AccessPaths
       return pendingProps
@@ -2732,7 +2631,7 @@ const initFieldsAndAccessPaths = (
   const canvas = getCanvas(tr);
 
   const initVals = varyingFieldsAndAccessPaths.map(
-    (p: Path<A>): TagExpr<VarAD> => {
+    (p: Path<A>): TagExpr<ad.Num> => {
       // by default, sample randomly in canvas X range
       let initVal = randFloat(rng, ...canvas.xRange);
 
@@ -2775,8 +2674,8 @@ const initFieldsAndAccessPaths = (
 const initProperty = (
   shapeType: ShapeTypeStr,
   propName: string,
-  styleSetting: TagExpr<VarAD>
-): TagExpr<VarAD> | undefined => {
+  styleSetting: TagExpr<ad.Num>
+): TagExpr<ad.Num> | undefined => {
   // Property set in Style
   switch (styleSetting.tag) {
     case "OptEval": {
@@ -2817,10 +2716,6 @@ const initProperty = (
   }
 };
 
-const mkShapeName = (s: string, f: Field): string => {
-  return `${s}.${f}`;
-};
-
 // COMBAK: This will require `getNames` to work
 const initShape = (
   rng: seedrandom.prng,
@@ -2833,7 +2728,7 @@ const initShape = (
   if (res.tag === "FGPI") {
     const [stype, props] = res.contents;
     const shapedef: ShapeDef = shapedefs[stype];
-    const instantiatedGPIProps: GPIProps<VarAD> = {
+    const instantiatedGPIProps: GPIProps<ad.Num> = {
       // start by sampling all properties for the shape according to its shapedef
       ...Object.fromEntries(
         Object.entries(
@@ -2859,7 +2754,7 @@ const initShape = (
     // Insert the name of the shape into its prop dict
     // NOTE: getShapes resolves the names + we don't use the names of the shapes in the translation
     // The name-adding logic can be removed but is left in for debugging
-    const shapeName = mkShapeName(n, field);
+    const shapeName = getShapeName(n, field);
     instantiatedGPIProps.name = {
       tag: "Done",
       contents: {
@@ -2867,11 +2762,16 @@ const initShape = (
         contents: shapeName,
       },
     };
-    const gpi: IFGPI<VarAD> = {
+    const gpi: FGPI<ad.Num> = {
       tag: "FGPI",
       contents: [stype, instantiatedGPIProps],
     };
-    return insertGPI(path, gpi, tr);
+    if (path.tag === "FieldPath") {
+      const [name, field] = [path.name, path.field];
+      // TODO: warning / error here
+      tr.trMap[name.contents.value][field.value] = gpi;
+      return tr;
+    } else throw Error("expected GPI");
   } else throw Error("expected GPI but got field");
 };
 
@@ -2883,18 +2783,34 @@ const initShapes = (
   return pths.reduce((tr, pth) => initShape(rng, tr, pth), tr);
 };
 
+const isVaryingInitPath = <T>(
+  p: Path<T>,
+  tr: Translation
+): [Path<T>, number | undefined] => {
+  const res = findExpr(tr, p); // Some varying paths may not be in the translation. That's OK.
+  if (res.tag === "OptEval") {
+    if (res.contents.tag === "VaryInit") {
+      return [p, res.contents.contents];
+    }
+  }
+
+  return [p, undefined];
+};
+
+//#endregion
+
 //#region layering
 
 const findLayeringExpr = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
-  acc: ILayering<A>[]
-): ILayering<A>[] => {
+  fexpr: FieldExpr<ad.Num>,
+  acc: Layering<A>[]
+): Layering<A>[] => {
   if (fexpr.tag === "FExpr") {
     if (fexpr.contents.tag === "OptEval") {
       if (fexpr.contents.contents.tag === "Layering") {
-        const layering: ILayering<A> = fexpr.contents.contents;
+        const layering: Layering<A> = fexpr.contents.contents;
         return [layering].concat(acc);
       }
     }
@@ -2902,33 +2818,18 @@ const findLayeringExpr = (
   return acc;
 };
 
-const findLayeringExprs = (tr: Translation): ILayering<A>[] => {
+const findLayeringExprs = (tr: Translation): Layering<A>[] => {
   return foldSubObjs(findLayeringExpr, tr);
 };
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const lookupGPIName = (p: Path<A>, tr: Translation): string => {
-  if (p.tag === "FieldPath") {
-    // COMBAK: Deal with path synonyms / aliases by looking them up?
-    return getShapeName(p.name.contents.value, p.field.value);
-  } else {
-    throw Error("expected path to GPI");
-  }
-};
-
-const findNames = (e: ILayering<A>, tr: Translation): [string, string] => [
-  lookupGPIName(e.below, tr),
-  lookupGPIName(e.above, tr),
-];
 
 export const topSortLayering = (
   allGPINames: string[],
   partialOrderings: [string, string][]
 ): string[] => {
   const layerGraph: Graph = new Graph();
-  allGPINames.map((name: string) => layerGraph.setNode(name));
+  allGPINames.forEach((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
-  partialOrderings.map(([below, above]: [string, string]) =>
+  partialOrderings.forEach(([below, above]: [string, string]) =>
     layerGraph.setEdge(below, above)
   );
 
@@ -2961,7 +2862,7 @@ const pseudoTopsort = (graph: Graph): string[] => {
     else return aIn.length - bIn.length;
   });
   const res: string[] = [];
-  graph.nodes().map((n: string) => toVisit.insert(n));
+  graph.nodes().forEach((n: string) => toVisit.insert(n));
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
     const node: string = toVisit.extractRoot() as string;
@@ -2977,14 +2878,24 @@ const pseudoTopsort = (graph: Graph): string[] => {
 };
 
 const computeShapeOrdering = (tr: Translation): string[] => {
+  const lookupGPIName = (p: Path<A>): string => {
+    if (p.tag === "FieldPath") {
+      // COMBAK: Deal with path synonyms / aliases by looking them up?
+      return getShapeName(p.name.contents.value, p.field.value);
+    } else {
+      throw Error("expected path to GPI");
+    }
+  };
+  const findNames = (e: Layering<A>): [string, string] => [
+    lookupGPIName(e.below),
+    lookupGPIName(e.above),
+  ];
   const layeringExprs = findLayeringExprs(tr);
   // Returns list of layering specifications [below, above]
   const partialOrderings: [
     string,
     string
-  ][] = layeringExprs.map((e: ILayering<A>): [string, string] =>
-    findNames(e, tr)
-  );
+  ][] = layeringExprs.map((e: Layering<A>): [string, string] => findNames(e));
 
   const allGPINames: string[] = findShapeNames(
     tr
@@ -2994,245 +2905,12 @@ const computeShapeOrdering = (tr: Translation): string[] => {
   return shapeOrdering;
 };
 
-//#endregion
+//#endregion layering
 
-const isVaryingInitPath = <T>(
-  p: Path<T>,
-  tr: Translation
-): [Path<T>, number | undefined] => {
-  const res = findExpr(tr, p); // Some varying paths may not be in the translation. That's OK.
-  if (res.tag === "OptEval") {
-    if (res.contents.tag === "VaryInit") {
-      return [p, res.contents.contents];
-    }
-  }
+//#region Canvas
 
-  return [p, undefined];
-};
-
-// ---- MAIN FUNCTION
-
-// COMBAK: Add optConfig as param?
-const genState = (
-  variation: string,
-  trans: Translation
-): Result<State, StyleErrors> => {
-  const { rng, seeds } = variationSeeds(variation);
-
-  const varyingPaths = findVarying(trans);
-  // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
-  const varyingInitPathsAndVals: [Path<A>, number][] = varyingPaths
-    .map((p) => isVaryingInitPath(p, trans))
-    .filter(
-      (tup: [Path<A>, number | undefined]): tup is [Path<A>, number] =>
-        tup[1] !== undefined
-    ); // TODO: Not sure how to get typescript to understand `filter`...
-  const varyingInitInfo: { [pathStr: string]: number } = Object.fromEntries(
-    varyingInitPathsAndVals.map((e) => [prettyPrintPath(e[0]), e[1]])
-  );
-
-  const uninitializedPaths = findUninitialized(trans);
-  const shapePathList: [string, string][] = findShapeNames(trans);
-  const shapePaths = shapePathList.map(mkPath);
-
-  const canvasErrs = checkCanvas(trans);
-  if (canvasErrs.length > 0) {
-    return err(canvasErrs);
-  }
-
-  const canvas: Canvas = getCanvas(trans);
-
-  // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
-  // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
-  const transInitShapes = initShapes(rng, trans, shapePathList);
-
-  // sample varying fields and access paths, and put them in the translation
-  const transInitAll = initFieldsAndAccessPaths(
-    rng,
-    varyingPaths,
-    transInitShapes
-  );
-
-  // CHECK TRANSLATION
-  // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
-  const transErrs = checkTranslation(transInitAll);
-  if (transErrs.length > 0) {
-    return err(transErrs);
-  }
-
-  const shapeProperties = findShapesProperties(transInitAll);
-  const [objfnsDecl, constrfnsDecl] = findUserAppliedFns(transInitAll);
-  const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInitAll);
-
-  const [objFns, constrFns] = [
-    objfnsDecl.concat(objfnsDefault),
-    constrfnsDecl.concat(constrfnsDefault),
-  ];
-  log.debug("Objectives", objFns.map(prettyPrintFn));
-  log.debug("Constraints", constrFns.map(prettyPrintFn));
-
-  const [initialGPIs, transEvaled] = [[], transInitAll];
-  const initVaryingState: number[] = lookupNumericPaths(
-    varyingPaths,
-    transEvaled
-  );
-
-  const pendingPaths = findPending(transInitAll);
-  const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
-
-  const initState: State = {
-    seeds,
-
-    shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
-    shapePaths,
-    shapeProperties,
-    shapeOrdering,
-
-    translation: transInitAll, // This is the result of the data processing
-    originalTranslation: clone(trans),
-
-    varyingPaths,
-    varyingValues: initVaryingState,
-    varyingInitInfo,
-
-    uninitializedPaths,
-    pendingPaths,
-
-    objFns,
-    constrFns,
-
-    // `params` are initialized properly by optimization; the only thing it needs is the weight (for the objective function synthesis)
-    params: ({
-      optStatus: "NewIter" as const,
-      weight: initConstraintWeight,
-      lbfgsInfo: defaultLbfgsParams,
-      UOround: -1,
-      EPround: -1,
-    } as unknown) as Params,
-
-    labelCache: [],
-    policyParams: undefined,
-    oConfig: undefined,
-    varyingMap: new Map(), // TODO: Should this be empty?
-
-    canvas,
-  };
-
-  return ok(initState);
-};
-
-//#endregion
-
-export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
-  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(styleGrammar));
-  try {
-    const { results } = parser.feed(p).feed("\n");
-    if (results.length > 0) {
-      const ast: StyProg<C> = results[0] as StyProg<C>;
-      return ok(ast);
-    } else {
-      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
-    }
-  } catch (e: unknown) {
-    return err(parseError(<string>e, lastLocation(parser)));
-  }
-};
-
-//#region Checking translation
-
-const isStyErr = (res: TagExpr<VarAD> | IFGPI<VarAD> | StyleError): boolean =>
-  res.tag !== "FGPI" && !isTagExpr(res);
-
-const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
-  // TODO: Factor the expression-folding pattern out from here and `checkBlockExpr`
-  if (isPath(expr)) {
-    return [expr];
-  } else {
-    switch (expr.tag) {
-      case "CompApp":
-      case "ObjFn":
-      case "ConstrFn": {
-        return _.flatMap(expr.args, findPathsExpr);
-      }
-      case "BinOp": {
-        return _.flatMap([expr.left, expr.right], findPathsExpr);
-      }
-      case "UOp": {
-        return findPathsExpr(expr.arg);
-      }
-      case "List":
-      case "Vector":
-      case "Matrix": {
-        return _.flatMap(expr.contents, findPathsExpr);
-      }
-      case "ListAccess": {
-        return [expr.contents[0]];
-      }
-      case "GPIDecl": {
-        return _.flatMap(
-          expr.properties.map((p) => p.value),
-          findPathsExpr
-        );
-      }
-      case "Layering": {
-        return [expr.below, expr.above];
-      }
-      case "PluginAccess": {
-        return _.flatMap([expr.contents[1], expr.contents[2]], findPathsExpr);
-      }
-      case "Tuple": {
-        return _.flatMap([expr.contents[0], expr.contents[1]], findPathsExpr);
-      }
-      case "VectorAccess": {
-        return [expr.contents[0]].concat(findPathsExpr(expr.contents[1]));
-      }
-      case "MatrixAccess": {
-        return [expr.contents[0]].concat(
-          _.flatMap(expr.contents[1], findPathsExpr)
-        );
-      }
-      case "Fix":
-      case "Vary":
-      case "VaryInit":
-      case "VaryAD":
-      case "StringLit":
-      case "BoolLit": {
-        return [];
-      }
-    }
-  }
-};
-
-// Find all paths given explicitly anywhere in an expression in the translation.
-// (e.g. `x.shape above y.shape` <-- return [`x.shape`, `y.shape`])
-const findPathsField = (
-  name: string,
-  field: Field,
-  fexpr: FieldExpr<VarAD>,
-  acc: Path<A>[]
-): Path<A>[] => {
-  switch (fexpr.tag) {
-    case "FExpr": {
-      // Only look deeper in expressions, because that's where paths might be
-      if (fexpr.contents.tag === "OptEval") {
-        const res: Path<A>[] = findPathsExpr(fexpr.contents.contents);
-        return acc.concat(res);
-      } else {
-        return acc;
-      }
-    }
-    case "FGPI": {
-      // Get any exprs that the properties are set to
-      const propExprs: Expr<A>[] = Object.entries(fexpr.contents[1])
-        .map((e) => e[1])
-        .filter((e: TagExpr<VarAD>): boolean => e.tag === "OptEval")
-        .map((e) => e as IOptEval<VarAD>) // Have to cast because TypeScript doesn't know the type changed from the filter above
-        .map((e: IOptEval<VarAD>): Expr<A> => e.contents);
-      const res: Path<A>[] = _.flatMap(propExprs, findPathsExpr);
-      return acc.concat(res);
-    }
-  }
-};
+const canvasWidthPath: Path<A> = mkPath(["canvas", "width"]);
+const canvasHeightPath: Path<A> = mkPath(["canvas", "height"]);
 
 // Check that canvas dimensions exist and have the proper type.
 const checkCanvas = (tr: Translation): StyleErrors => {
@@ -3323,6 +3001,119 @@ const checkCanvas = (tr: Translation): StyleErrors => {
   return errs;
 };
 
+/* Precondition: checkCanvas returns without error */
+export const getCanvas = (tr: Translation): Canvas => {
+  const width = ((tr.trMap.canvas.width.contents as TagExpr<ad.Num>)
+    .contents as Value<ad.Num>).contents as number;
+  const height = ((tr.trMap.canvas.height.contents as TagExpr<ad.Num>)
+    .contents as Value<ad.Num>).contents as number;
+  return {
+    width,
+    height,
+    size: [width, height],
+    xRange: [-width / 2, width / 2],
+    yRange: [-height / 2, height / 2],
+  };
+};
+
+//#endregion
+
+//#region Checking translation
+
+const isStyErr = (res: TagExpr<ad.Num> | FGPI<ad.Num> | StyleError): boolean =>
+  res.tag !== "FGPI" && !isTagExpr(res);
+
+const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
+  // TODO: Factor the expression-folding pattern out from here and `checkBlockExpr`
+  if (isPath(expr)) {
+    return [expr];
+  } else {
+    switch (expr.tag) {
+      case "CompApp":
+      case "ObjFn":
+      case "ConstrFn": {
+        return _.flatMap(expr.args, findPathsExpr);
+      }
+      case "BinOp": {
+        return _.flatMap([expr.left, expr.right], findPathsExpr);
+      }
+      case "UOp": {
+        return findPathsExpr(expr.arg);
+      }
+      case "List":
+      case "Vector":
+      case "Matrix": {
+        return _.flatMap(expr.contents, findPathsExpr);
+      }
+      case "ListAccess": {
+        return [expr.contents[0]];
+      }
+      case "GPIDecl": {
+        return _.flatMap(
+          expr.properties.map((p) => p.value),
+          findPathsExpr
+        );
+      }
+      case "Layering": {
+        return [expr.below, expr.above];
+      }
+      case "PluginAccess": {
+        return _.flatMap([expr.contents[1], expr.contents[2]], findPathsExpr);
+      }
+      case "Tuple": {
+        return _.flatMap([expr.contents[0], expr.contents[1]], findPathsExpr);
+      }
+      case "VectorAccess": {
+        return [expr.contents[0]].concat(findPathsExpr(expr.contents[1]));
+      }
+      case "MatrixAccess": {
+        return [expr.contents[0]].concat(
+          _.flatMap(expr.contents[1], findPathsExpr)
+        );
+      }
+      case "Fix":
+      case "Vary":
+      case "VaryInit":
+      case "VaryAD":
+      case "StringLit":
+      case "BoolLit": {
+        return [];
+      }
+    }
+  }
+};
+
+// Find all paths given explicitly anywhere in an expression in the translation.
+// (e.g. `x.shape above y.shape` <-- return [`x.shape`, `y.shape`])
+const findPathsField = (
+  name: string,
+  field: Field,
+  fexpr: FieldExpr<ad.Num>,
+  acc: Path<A>[]
+): Path<A>[] => {
+  switch (fexpr.tag) {
+    case "FExpr": {
+      // Only look deeper in expressions, because that's where paths might be
+      if (fexpr.contents.tag === "OptEval") {
+        const res: Path<A>[] = findPathsExpr(fexpr.contents.contents);
+        return acc.concat(res);
+      } else {
+        return acc;
+      }
+    }
+    case "FGPI": {
+      // Get any exprs that the properties are set to
+      const propExprs: Expr<A>[] = Object.entries(fexpr.contents[1])
+        .map((e) => e[1])
+        .filter((e: TagExpr<ad.Num>): boolean => e.tag === "OptEval")
+        .map((e) => e as OptEval) // Have to cast because TypeScript doesn't know the type changed from the filter above
+        .map((e: OptEval): Expr<A> => e.contents);
+      const res: Path<A>[] = _.flatMap(propExprs, findPathsExpr);
+      return acc.concat(res);
+    }
+  }
+};
+
 // Check translation integrity
 const checkTranslation = (trans: Translation): StyleErrors => {
   // Look up all paths used anywhere in the translation's expressions and verify they exist in the translation
@@ -3335,22 +3126,120 @@ const checkTranslation = (trans: Translation): StyleErrors => {
 
 //#endregion Checking translation
 
-const canvasWidthPath: Path<A> = mkPath(["canvas", "width"]);
-const canvasHeightPath: Path<A> = mkPath(["canvas", "height"]);
+//#region Main functions
 
-/* Precondition: checkCanvas returns without error */
-export const getCanvas = (tr: Translation): Canvas => {
-  const width = ((tr.trMap.canvas.width.contents as TagExpr<VarAD>)
-    .contents as Value<VarAD>).contents as number;
-  const height = ((tr.trMap.canvas.height.contents as TagExpr<VarAD>)
-    .contents as Value<VarAD>).contents as number;
-  return {
-    width,
-    height,
-    size: [width, height],
-    xRange: [-width / 2, width / 2],
-    yRange: [-height / 2, height / 2],
+export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
+  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(styleGrammar));
+  try {
+    const { results } = parser.feed(p).feed("\n");
+    if (results.length > 0) {
+      const ast: StyProg<C> = results[0] as StyProg<C>;
+      return ok(ast);
+    } else {
+      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+    }
+  } catch (e: unknown) {
+    return err(parseError(<string>e, lastLocation(parser)));
+  }
+};
+
+// COMBAK: Add optConfig as param?
+const genState = (
+  variation: string,
+  trans: Translation
+): Result<State, StyleErrors> => {
+  const { rng, seeds } = variationSeeds(variation);
+
+  const varyingPaths = findVarying(trans);
+  // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
+  const varyingInitPathsAndVals: [Path<A>, number][] = varyingPaths
+    .map((p) => isVaryingInitPath(p, trans))
+    .filter(
+      (tup: [Path<A>, number | undefined]): tup is [Path<A>, number] =>
+        tup[1] !== undefined
+    ); // TODO: Not sure how to get typescript to understand `filter`...
+  const varyingInitInfo: { [pathStr: string]: number } = Object.fromEntries(
+    varyingInitPathsAndVals.map((e) => [prettyPrintPath(e[0]), e[1]])
+  );
+
+  const uninitializedPaths = findUninitialized(trans);
+
+  const canvasErrs = checkCanvas(trans);
+  if (canvasErrs.length > 0) {
+    return err(canvasErrs);
+  }
+
+  const canvas: Canvas = getCanvas(trans);
+
+  // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
+  // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
+  const transInitShapes = initShapes(rng, trans, findShapeNames(trans));
+
+  // sample varying fields and access paths, and put them in the translation
+  const transInitAll = initFieldsAndAccessPaths(
+    rng,
+    varyingPaths,
+    transInitShapes
+  );
+
+  // CHECK TRANSLATION
+  // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
+  const transErrs = checkTranslation(transInitAll);
+  if (transErrs.length > 0) {
+    return err(transErrs);
+  }
+
+  const [objfnsDecl, constrfnsDecl] = findUserAppliedFns(transInitAll);
+  const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInitAll);
+
+  const [objFns, constrFns] = [
+    objfnsDecl.concat(objfnsDefault),
+    constrfnsDecl.concat(constrfnsDefault),
+  ];
+  log.debug("Objectives", objFns.map(prettyPrintFn));
+  log.debug("Constraints", constrFns.map(prettyPrintFn));
+
+  const initVaryingState: number[] = lookupNumericPaths(
+    varyingPaths,
+    transInitAll
+  );
+
+  const pendingPaths = findPending(transInitAll);
+  const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
+
+  const initState: State = {
+    seeds,
+
+    shapes: [], // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
+    shapeOrdering,
+
+    translation: transInitAll, // This is the result of the data processing
+
+    varyingPaths,
+    varyingValues: initVaryingState,
+    varyingInitInfo,
+
+    uninitializedPaths,
+    pendingPaths,
+
+    objFns,
+    constrFns,
+
+    // `params` are initialized properly by optimization; the only thing it needs is the weight (for the objective function synthesis)
+    params: ({
+      optStatus: "NewIter" as const,
+      weight: initConstraintWeight,
+      lbfgsInfo: defaultLbfgsParams,
+      UOround: -1,
+      EPround: -1,
+    } as unknown) as Params,
+
+    labelCache: [],
+    canvas,
+    computeShapes: (undefined as unknown) as any,
   };
+
+  return ok(initState);
 };
 
 export const compileStyle = (
@@ -3427,3 +3316,5 @@ export const compileStyle = (
 
   return ok(initState.value);
 };
+
+//#endregion Main funcitons

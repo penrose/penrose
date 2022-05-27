@@ -1,5 +1,5 @@
 import { bboxFromShape } from "contrib/Queries";
-import { inRange } from "contrib/Utils";
+import { clamp, inRange } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -7,6 +7,7 @@ import {
   acosh,
   add,
   addN,
+  and,
   asin,
   asinh,
   atan,
@@ -22,15 +23,20 @@ import {
   expm1,
   floor,
   gt,
+  gte,
   ifCond,
   ln,
   log10,
   log1p,
   log2,
+  lt,
   max,
   min,
+  minN,
   mul,
   neg,
+  not,
+  or,
   pow,
   round,
   sign,
@@ -48,18 +54,21 @@ import * as _ from "lodash";
 import { range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
 import seedrandom from "seedrandom";
+import { Ellipse } from "shapes/Ellipse";
+import { Line } from "shapes/Line";
+import { Polyline } from "shapes/Polyline";
 import { shapedefs } from "shapes/Shapes";
-import { OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
+import * as ad from "types/ad";
 import {
   ArgVal,
   Color,
-  IColorV,
-  IFloatV,
-  IPathDataV,
-  IPtListV,
-  IStrV,
-  ITupV,
-  IVectorV,
+  ColorV,
+  FloatV,
+  PathDataV,
+  PtListV,
+  StrV,
+  TupV,
+  VectorV,
 } from "types/value";
 import { getStart, linePts, randFloat } from "utils/Util";
 
@@ -74,28 +83,28 @@ export interface Context {
 }
 
 // NOTE: These all need to be written in terms of autodiff types
-// These all return a Value<VarAD>
+// These all return a Value<ad.Num>
 export const compDict = {
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
 
   makePath: (
     _context: Context,
-    start: [VarAD, VarAD],
-    end: [VarAD, VarAD],
-    curveHeight: VarAD,
-    padding: VarAD
-  ): IPathDataV<VarAD> => {
+    start: [ad.Num, ad.Num],
+    end: [ad.Num, ad.Num],
+    curveHeight: ad.Num,
+    padding: ad.Num
+  ): PathDataV<ad.Num> => {
     // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
-    const unit: VarAD[] = ops.vnormalize(ops.vsub(start, end));
-    const normalVec: VarAD[] = rot90(toPt(unit));
+    const unit: ad.Num[] = ops.vnormalize(ops.vsub(start, end));
+    const normalVec: ad.Num[] = rot90(toPt(unit));
     // There's only one control point in a quadratic bezier curve, and we want it to be equidistant to both `start` and `end`
-    const halfLen: VarAD = div(ops.vdist(start, end), 2);
-    const controlPt: VarAD[] = ops.vmove(
+    const halfLen: ad.Num = div(ops.vdist(start, end), 2);
+    const controlPt: ad.Num[] = ops.vmove(
       ops.vmove(end, halfLen, unit),
       curveHeight,
       normalVec
     );
-    const curveEnd: VarAD[] = ops.vmove(end, padding, unit);
+    const curveEnd: ad.Num[] = ops.vmove(end, padding, unit);
     // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
     const path = new PathBuilder();
     return path
@@ -105,106 +114,9 @@ export const compDict = {
   },
 
   /**
-   * Orthonormalize two vectors
-   */
-  gramSchmidt: (
-    _context: Context,
-    a: IVectorV<VarAD>,
-    b: IVectorV<VarAD>
-  ): IVectorV<VarAD> => {
-    const proj_b_a = ops.vmul(
-      div(ops.vdot(a.contents, b.contents), ops.vdot(a.contents, a.contents)),
-      a.contents
-    );
-    const basis = ops.vsub(b.contents, proj_b_a);
-    return {
-      tag: "VectorV",
-      contents: ops.vnormalize(basis),
-    };
-  },
-
-  /**
-   * Return the derivative of `varName`.
-   * NOTE: This is a special system function. Don't change it!
-   */
-  derivative: (
-    _context: Context,
-    optDebugInfo: OptDebugInfo,
-    varName: string
-  ): IFloatV<any> => {
-    if (
-      !optDebugInfo ||
-      !("gradient" in optDebugInfo) ||
-      !optDebugInfo.gradient.size
-    ) {
-      console.log("optDebugInfo", optDebugInfo);
-      console.error(`no derivative found for '${varName}'; returning 0`);
-      return {
-        tag: "FloatV",
-        contents: 0,
-      };
-    }
-
-    if (optDebugInfo.gradient.has(varName)) {
-      return {
-        tag: "FloatV",
-        // TODO: Improve error if varName is not in map
-        contents: optDebugInfo.gradient.get(varName) as number,
-      };
-    }
-
-    console.error(
-      `variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`
-    );
-    return {
-      tag: "FloatV",
-      contents: 0,
-    };
-  },
-
-  /**
-   * Return the L-BFGS preconditioned derivative of `varName`.
-   * NOTE: This is a special system function. Don't change it!
-   */
-  derivativePreconditioned: (
-    _context: Context,
-    optDebugInfo: OptDebugInfo,
-    varName: string
-  ): IFloatV<any> => {
-    if (
-      !optDebugInfo ||
-      !("gradientPreconditioned" in optDebugInfo) ||
-      !optDebugInfo.gradientPreconditioned.size
-    ) {
-      console.log("optDebugInfo", optDebugInfo);
-      console.error(`no derivative found for '${varName}'; returning 0`);
-      return {
-        tag: "FloatV",
-        contents: 0,
-      };
-    }
-
-    if (optDebugInfo.gradientPreconditioned.has(varName)) {
-      return {
-        tag: "FloatV",
-        // TODO: Improve error if varName is not in map
-        contents: optDebugInfo.gradientPreconditioned.get(varName) as number,
-      };
-    }
-
-    console.error(
-      `variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`
-    );
-    return {
-      tag: "FloatV",
-      contents: 0,
-    };
-  },
-
-  /**
    * Return `i`th element of list `xs, assuming lists only hold floats.
    */
-  get: (_context: Context, xs: VarAD[], i: number): IFloatV<any> => {
+  get: (_context: Context, xs: ad.Num[], i: number): FloatV<ad.Num> => {
     const res = xs[i];
     return {
       tag: "FloatV",
@@ -217,11 +129,11 @@ export const compDict = {
    */
   rgba: (
     _context: Context,
-    r: VarAD,
-    g: VarAD,
-    b: VarAD,
-    a: VarAD
-  ): IColorV<VarAD> => {
+    r: ad.Num,
+    g: ad.Num,
+    b: ad.Num,
+    a: ad.Num
+  ): ColorV<ad.Num> => {
     return {
       tag: "ColorV",
       contents: {
@@ -233,10 +145,10 @@ export const compDict = {
 
   selectColor: (
     _context: Context,
-    color1: Color<VarAD>,
-    color2: Color<VarAD>,
-    level: VarAD
-  ): IColorV<VarAD> => {
+    color1: Color<ad.Num>,
+    color2: Color<ad.Num>,
+    level: ad.Num
+  ): ColorV<ad.Num> => {
     const half = div(level, 2);
     const even = eq(half, trunc(half)); // autodiff doesn't have a mod operator
     if (!(color1.tag === "RGBA" && color2.tag === "RGBA")) {
@@ -262,11 +174,11 @@ export const compDict = {
    */
   hsva: (
     _context: Context,
-    h: VarAD,
-    s: VarAD,
-    v: VarAD,
-    a: VarAD
-  ): IColorV<VarAD> => {
+    h: ad.Num,
+    s: ad.Num,
+    v: ad.Num,
+    a: ad.Num
+  ): ColorV<ad.Num> => {
     return {
       tag: "ColorV",
       contents: {
@@ -279,7 +191,7 @@ export const compDict = {
   /**
    * Return a paint of none (no paint)
    */
-  none: (_context: Context): IColorV<any> => {
+  none: (_context: Context): ColorV<ad.Num> => {
     return {
       tag: "ColorV",
       contents: {
@@ -291,7 +203,7 @@ export const compDict = {
   /**
    * Return `acosh(x)`.
    */
-  acosh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  acosh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: acosh(x),
@@ -301,7 +213,7 @@ export const compDict = {
   /**
    * Return `acos(x)`.
    */
-  acos: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  acos: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: acos(x),
@@ -311,7 +223,7 @@ export const compDict = {
   /**
    * Return `asin(x)`.
    */
-  asin: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  asin: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: asin(x),
@@ -321,7 +233,7 @@ export const compDict = {
   /**
    * Return `asinh(x)`.
    */
-  asinh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  asinh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: asinh(x),
@@ -331,7 +243,7 @@ export const compDict = {
   /**
    * Return `atan(x)`.
    */
-  atan: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  atan: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: atan(x),
@@ -341,7 +253,7 @@ export const compDict = {
   /**
    * Return `atan2(y,x)`.
    */
-  atan2: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
+  atan2: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: atan2(y, x),
@@ -351,7 +263,7 @@ export const compDict = {
   /**
    * Return `atanh(x)`.
    */
-  atanh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  atanh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: atanh(x),
@@ -361,7 +273,7 @@ export const compDict = {
   /**
    * Return `cbrt(x)`.
    */
-  cbrt: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  cbrt: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: cbrt(x),
@@ -371,7 +283,7 @@ export const compDict = {
   /**
    * Return `ceil(x)`.
    */
-  ceil: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  ceil: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: ceil(x),
@@ -381,7 +293,7 @@ export const compDict = {
   /**
    * Return `cos(x)`.
    */
-  cos: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  cos: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: cos(x),
@@ -391,7 +303,7 @@ export const compDict = {
   /**
    * Return `cosh(x)`.
    */
-  cosh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  cosh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: cosh(x),
@@ -401,7 +313,7 @@ export const compDict = {
   /**
    * Return `exp(x)`.
    */
-  exp: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  exp: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: exp(x),
@@ -411,7 +323,7 @@ export const compDict = {
   /**
    * Return `expm1(x)`.
    */
-  expm1: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  expm1: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: expm1(x),
@@ -421,7 +333,7 @@ export const compDict = {
   /**
    * Return `floor(x)`.
    */
-  floor: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  floor: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: floor(x),
@@ -431,7 +343,7 @@ export const compDict = {
   /**
    * Return `log(x)`.
    */
-  log: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  log: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: ln(x),
@@ -441,7 +353,7 @@ export const compDict = {
   /**
    * Return `log2(x)`.
    */
-  log2: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  log2: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: log2(x),
@@ -451,7 +363,7 @@ export const compDict = {
   /**
    * Return `log10(x)`.
    */
-  log10: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  log10: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: log10(x),
@@ -461,7 +373,7 @@ export const compDict = {
   /**
    * Return `log1p(x)`.
    */
-  log1p: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  log1p: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: log1p(x),
@@ -471,7 +383,7 @@ export const compDict = {
   /**
    * Return `pow(x,y)`.
    */
-  pow: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
+  pow: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: pow(x, y),
@@ -481,7 +393,7 @@ export const compDict = {
   /**
    * Return `round(x)`.
    */
-  round: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  round: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: round(x),
@@ -491,7 +403,7 @@ export const compDict = {
   /**
    * Return `sign(x)`.
    */
-  sign: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  sign: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: sign(x),
@@ -501,7 +413,7 @@ export const compDict = {
   /**
    * Return `sin(x)`.
    */
-  sin: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  sin: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: sin(x),
@@ -511,7 +423,7 @@ export const compDict = {
   /**
    * Return `sinh(x)`.
    */
-  sinh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  sinh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: sinh(x),
@@ -521,7 +433,7 @@ export const compDict = {
   /**
    * Return `tan(x)`.
    */
-  tan: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  tan: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: tan(x),
@@ -531,7 +443,7 @@ export const compDict = {
   /**
    * Return `tanh(x)`.
    */
-  tanh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  tanh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: tanh(x),
@@ -541,7 +453,7 @@ export const compDict = {
   /**
    * Return `trunc(x)`.
    */
-  trunc: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  trunc: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: trunc(x),
@@ -551,7 +463,7 @@ export const compDict = {
   /**
    * Return the dot product of `v` and `w`.
    */
-  dot: (_context: Context, v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+  dot: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: ops.vdot(v, w),
@@ -561,10 +473,7 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  lineLength: (
-    _context: Context,
-    [type, props]: [string, any]
-  ): IFloatV<VarAD> => {
+  lineLength: (_context: Context, [, props]: [string, any]): FloatV<ad.Num> => {
     const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
@@ -575,7 +484,7 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  len: (_context: Context, [type, props]: [string, any]): IFloatV<VarAD> => {
+  len: (_context: Context, [, props]: [string, any]): FloatV<ad.Num> => {
     const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
@@ -586,7 +495,7 @@ export const compDict = {
   /**
    * Concatenate a list of strings
    */
-  concat: (_context: Context, ...strings: string[]): IStrV => {
+  concat: (_context: Context, ...strings: string[]): StrV => {
     return {
       tag: "StrV",
       contents: strings.join(""),
@@ -596,7 +505,7 @@ export const compDict = {
   /**
    * Return the normalized version of vector `v`.
    */
-  normalize: (_context: Context, v: VarAD[]): IVectorV<VarAD> => {
+  normalize: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
     return {
       tag: "VectorV",
       contents: ops.vnormalize(v),
@@ -609,12 +518,12 @@ export const compDict = {
   pathFromPoints: (
     _context: Context,
     pathType: string,
-    pts: Pt2[]
-  ): IPathDataV<VarAD> => {
+    pts: ad.Pt2[]
+  ): PathDataV<ad.Num> => {
     const path = new PathBuilder();
     const [start, ...tailpts] = pts;
     path.moveTo(start);
-    tailpts.map((pt: Pt2) => path.lineTo(pt));
+    tailpts.forEach((pt: ad.Pt2) => path.lineTo(pt));
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
@@ -625,13 +534,45 @@ export const compDict = {
   quadraticCurveFromPoints: (
     _context: Context,
     pathType: string,
-    pts: Pt2[]
-  ): IPathDataV<VarAD> => {
+    pts: ad.Pt2[]
+  ): PathDataV<ad.Num> => {
     const path = new PathBuilder();
     const [start, cp, second, ...tailpts] = pts;
     path.moveTo(start);
     path.quadraticCurveTo(cp, second);
-    tailpts.map((pt: Pt2) => path.quadraticCurveJoin(pt));
+    tailpts.forEach((pt: ad.Pt2) => path.quadraticCurveJoin(pt));
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
+  },
+
+  /**
+   * Draw a curve interpolating three given points.
+   * (Note that this is different from specifying the
+   * three control points of a quadratic Bézier curve,
+   * since a Bézier does not interpolate the middle
+   * control point.)
+   */
+  interpolateQuadraticFromPoints: (
+    _context: Context,
+    pathType: string,
+    p0: ad.Pt2,
+    p1: ad.Pt2,
+    p2: ad.Pt2
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    path.moveTo(p0);
+    // Compute the control point location q1 such that the
+    // quadratic curve interpolates the midpoint p1, namely,
+    //    q1 = 2 p1 - (p0+p2)/2
+    // (This expression can be derived by expressing the
+    // interpolation condition in terms of the quadratic
+    // Bernstein basis.)
+    const q1 = ops.vsub(ops.vmul(2.0, p1), ops.vmul(0.5, ops.vadd(p0, p2)));
+    if (!ad.isPt2(q1)) {
+      // XXX kludge to force TypeScript to know that q1 has length 2; see GitHub issue #715
+      throw new Error("vector ops did not preserve dimension");
+    }
+    path.quadraticCurveTo(q1, p2);
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
@@ -642,13 +583,13 @@ export const compDict = {
   cubicCurveFromPoints: (
     _context: Context,
     pathType: string,
-    pts: Pt2[]
-  ): IPathDataV<VarAD> => {
+    pts: ad.Pt2[]
+  ): PathDataV<ad.Num> => {
     const path = new PathBuilder();
     const [start, cp1, cp2, second, ...tailpts] = pts;
     path.moveTo(start);
     path.bezierCurveTo(cp1, cp2, second);
-    _.chunk(tailpts, 2).map(([cp, pt]) => path.cubicCurveJoin(cp, pt));
+    _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
@@ -658,12 +599,12 @@ export const compDict = {
    */
   unitMark: (
     _context: Context,
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
+    [, s1]: [string, any],
+    [, s2]: [string, any],
     t: string,
-    padding: VarAD,
-    barSize: VarAD
-  ): IPtListV<VarAD> => {
+    padding: ad.Num,
+    barSize: ad.Num
+  ): PtListV<ad.Num> => {
     const [start1, end1] = linePts(s1);
     const [start2, end2] = linePts(s2);
 
@@ -683,11 +624,11 @@ export const compDict = {
    */
   unitMark2: (
     _context: Context,
-    [start, end]: [Pt2, Pt2],
+    [start, end]: [ad.Pt2, ad.Pt2],
     t: string,
-    padding: VarAD,
-    size: VarAD
-  ): IPtListV<VarAD> => {
+    padding: ad.Num,
+    size: ad.Num
+  ): PtListV<ad.Num> => {
     const dir = ops.vnormalize(ops.vsub(end, start));
     const normalDir = rot90(toPt(dir));
     const base = t === "start" ? start : end;
@@ -715,13 +656,13 @@ export const compDict = {
   arc: (
     _context: Context,
     pathType: string,
-    start: Pt2,
-    end: Pt2,
-    radius: Pt2,
-    rotation: VarAD,
-    largeArc: VarAD,
-    arcSweep: VarAD
-  ): IPathDataV<VarAD> => {
+    start: ad.Pt2,
+    end: ad.Pt2,
+    radius: ad.Pt2,
+    rotation: ad.Num,
+    largeArc: ad.Num,
+    arcSweep: ad.Num
+  ): PathDataV<ad.Num> => {
     const path = new PathBuilder();
     path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
     if (pathType === "closed") path.closePath();
@@ -740,14 +681,14 @@ export const compDict = {
    */
   wedge: (
     _context: Context,
-    center: Pt2,
-    start: Pt2,
-    end: Pt2,
-    radius: Pt2,
-    rotation: VarAD,
-    largeArc: VarAD,
-    arcSweep: VarAD
-  ): IPathDataV<VarAD> => {
+    center: ad.Pt2,
+    start: ad.Pt2,
+    end: ad.Pt2,
+    radius: ad.Pt2,
+    rotation: ad.Num,
+    largeArc: ad.Num,
+    arcSweep: ad.Num
+  ): PathDataV<ad.Num> => {
     const path = new PathBuilder();
     path
       .moveTo(start)
@@ -765,10 +706,10 @@ export const compDict = {
    */
   ptOnLine: (
     _context: Context,
-    p1: VarAD[],
-    p2: VarAD[],
-    r: VarAD
-  ): IVectorV<VarAD> => {
+    p1: ad.Num[],
+    p2: ad.Num[],
+    r: ad.Num
+  ): VectorV<ad.Num> => {
     // find unit vector pointing towards v2
     const unit = ops.vnormalize(ops.vsub(p2, p1));
     return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
@@ -782,10 +723,10 @@ export const compDict = {
    */
   arcSweepFlag: (
     _context: Context,
-    [x1, y1]: VarAD[],
-    start: Pt2,
-    end: Pt2
-  ): IFloatV<VarAD> => {
+    [x1, y1]: ad.Num[],
+    start: ad.Pt2,
+    end: ad.Pt2
+  ): FloatV<ad.Num> => {
     const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
     const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
     const cross = ops.cross2(st, en);
@@ -799,7 +740,11 @@ export const compDict = {
    * Assumes that both u and v have nonzero magnitude.
    * The returned value will be in the range [0,pi].
    */
-  angleBetween: (_context: Context, u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+  angleBetween: (
+    _context: Context,
+    u: ad.Num[],
+    v: ad.Num[]
+  ): FloatV<ad.Num> => {
     const theta = ops.angleBetween(u, v);
     return {
       tag: "FloatV",
@@ -811,7 +756,7 @@ export const compDict = {
    * Assumes that both u and v are 2D vectors and have nonzero magnitude.
    * The returned value will be in the range [-pi,pi].
    */
-  angleFrom: (_context: Context, u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+  angleFrom: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
     const theta = ops.angleFrom(u, v);
     return {
       tag: "FloatV",
@@ -821,7 +766,7 @@ export const compDict = {
   /**
    * Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
    */
-  cross2D: (_context: Context, u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+  cross2D: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
     const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
     return {
       tag: "FloatV",
@@ -834,11 +779,11 @@ export const compDict = {
    */
   lineLineIntersection: (
     _context: Context,
-    a0: VarAD[],
-    a1: VarAD[],
-    b0: VarAD[],
-    b1: VarAD[]
-  ): IVectorV<VarAD> => {
+    a0: ad.Num[],
+    a1: ad.Num[],
+    b0: ad.Num[],
+    b1: ad.Num[]
+  ): VectorV<ad.Num> => {
     const A0 = [a0[0], a0[1], 1];
     const A1 = [a1[0], a1[1], 1];
     const B0 = [b0[0], b0[1], 1];
@@ -855,9 +800,9 @@ export const compDict = {
    */
   midpoint: (
     _context: Context,
-    start: VarAD[],
-    end: VarAD[]
-  ): IVectorV<VarAD> => {
+    start: ad.Num[],
+    end: ad.Num[]
+  ): VectorV<ad.Num> => {
     const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
     return {
       tag: "VectorV",
@@ -870,8 +815,8 @@ export const compDict = {
   midpointOffset: (
     _context: Context,
     [t1, s1]: [string, any],
-    padding: VarAD
-  ): ITupV<VarAD> => {
+    padding: ad.Num
+  ): TupV<ad.Num> => {
     if (t1 === "Arrow" || t1 === "Line") {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
@@ -890,9 +835,9 @@ export const compDict = {
     _context: Context,
     // TODO reimplement with variable tick marks when #629 is merged
     [t1, s1]: [string, any],
-    padding: VarAD,
-    ticks: VarAD
-  ): IPtListV<VarAD> => {
+    padding: ad.Num,
+    ticks: ad.Num
+  ): PtListV<ad.Num> => {
     if (t1 === "Arrow" || t1 === "Line") {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
@@ -918,11 +863,11 @@ export const compDict = {
    */
   innerPointOffset: (
     _context: Context,
-    pt1: VarAD[],
-    pt2: VarAD[],
-    pt3: VarAD[],
-    padding: VarAD
-  ): IVectorV<VarAD> => {
+    pt1: ad.Num[],
+    pt2: ad.Num[],
+    pt3: ad.Num[],
+    padding: ad.Num
+  ): VectorV<ad.Num> => {
     // unit vector towards first corner
     const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
     const normalDir = ops.vneg(rot90v(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
@@ -955,12 +900,12 @@ export const compDict = {
    */
   ticksOnLine: (
     _context: Context,
-    pt1: VarAD[],
-    pt2: VarAD[],
-    spacing: VarAD,
-    numTicks: VarAD,
-    tickLength: VarAD
-  ) => {
+    pt1: ad.Num[],
+    pt2: ad.Num[],
+    spacing: ad.Num,
+    numTicks: ad.Num,
+    tickLength: ad.Num
+  ): PathDataV<ad.Num> => {
     if (typeof numTicks !== "number") {
       throw Error("numTicks must be a constant");
     }
@@ -977,7 +922,7 @@ export const compDict = {
     const [x1p, y1p] = ops.vmove(mid, tickLength, normalDir);
     const [x2p, y2p] = ops.vmove(mid, tickLength, ops.vneg(normalDir));
 
-    multipliers.map((multiplier) => {
+    multipliers.forEach((multiplier) => {
       const [sx, sy] = ops.vmove([x1p, y1p], multiplier, unit);
       const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
       path.moveTo([sx, sy]).lineTo([ex, ey]);
@@ -992,14 +937,14 @@ export const compDict = {
     _context: Context,
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    intersection: Pt2,
-    len: VarAD
-  ): IPathDataV<VarAD> => {
+    intersection: ad.Pt2,
+    len: ad.Num
+  ): PathDataV<ad.Num> => {
     if (
       (t1 === "Arrow" || t1 === "Line") &&
       (t2 === "Arrow" || t2 === "Line")
     ) {
-      const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
+      const [seg1, seg2] = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
       const path = new PathBuilder();
       return path
@@ -1010,7 +955,7 @@ export const compDict = {
         .closePath()
         .getPath();
     } else {
-      throw Error("orientedSquare undefined for types ${t1}, ${t2}");
+      throw Error(`orientedSquare undefined for types ${t1}, ${t2}`);
     }
   },
 
@@ -1021,10 +966,10 @@ export const compDict = {
            */
   intersectingSideSize: (
     _context: Context,
-    start: VecAD,
-    end: VecAD,
+    start: ad.Num[],
+    end: ad.Num[],
     [t1, s1]: [string, any]
-  ): IFloatV<VarAD> => {
+  ): FloatV<ad.Num> => {
     // if (s1.rotation.contents) { throw Error("assumed AABB"); }
     if (!shapedefs[t1].isRectlike) {
       throw Error("expected rect-like shape");
@@ -1062,7 +1007,7 @@ export const compDict = {
     [t1, l1]: any,
     [t2, l2]: any,
     [t3, l3]: any
-  ): IPathDataV<VarAD> => {
+  ): PathDataV<ad.Num> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
       const path = new PathBuilder();
       return path
@@ -1080,7 +1025,7 @@ export const compDict = {
   /**
    * Return the average of floats `x` and `y`.
    */
-  average2: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
+  average2: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: div(add(x, y), 2),
@@ -1090,7 +1035,7 @@ export const compDict = {
   /**
    * Return the average of the floats in the list `xs`.
    */
-  average: (_context: Context, xs: VarAD[]): IFloatV<VarAD> => {
+  average: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: div(addN(xs), max(1, xs.length)),
@@ -1101,7 +1046,7 @@ export const compDict = {
   /**
    * Return the normalized version of vector `v`.
    */
-  unit: (_context: Context, v: VarAD[]): IVectorV<VarAD> => {
+  unit: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
     return {
       tag: "VectorV",
       contents: ops.vnormalize(v),
@@ -1113,13 +1058,11 @@ export const compDict = {
    */
   sampleColor: (
     context: Context,
-    alpha: VarAD,
+    alpha: ad.Num,
     colorType: string
-  ): IColorV<VarAD> => {
-    checkFloat(alpha);
-
+  ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
-      const rgb = range(3).map((_) => randFloat(context.rng, 0.1, 0.9));
+      const rgb = range(3).map(() => randFloat(context.rng, 0.1, 0.9));
 
       return {
         tag: "ColorV",
@@ -1145,9 +1088,9 @@ export const compDict = {
    */
   setOpacity: (
     _context: Context,
-    color: Color<VarAD>,
-    frac: VarAD
-  ): IColorV<VarAD> => {
+    color: Color<ad.Num>,
+    frac: ad.Num
+  ): ColorV<ad.Num> => {
     // If paint=none, opacity is irreelevant
     if (color.tag === "NONE") {
       return {
@@ -1170,7 +1113,7 @@ export const compDict = {
   /**
    * Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).
    */
-  mul: (_context: Context, m: VarAD[][], v: VarAD[]): IVectorV<VarAD> => {
+  mul: (_context: Context, m: ad.Num[][], v: ad.Num[]): VectorV<ad.Num> => {
     if (!m.length) {
       throw Error("empty matrix");
     }
@@ -1191,10 +1134,10 @@ export const compDict = {
    */
   barycenter: (
     _context: Context,
-    a: VarAD[],
-    b: VarAD[],
-    c: VarAD[]
-  ): IVectorV<VarAD> => {
+    a: ad.Num[],
+    b: ad.Num[],
+    c: ad.Num[]
+  ): VectorV<ad.Num> => {
     const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
     return {
       tag: "VectorV",
@@ -1207,10 +1150,10 @@ export const compDict = {
    */
   circumcenter: (
     _context: Context,
-    p: VarAD[],
-    q: VarAD[],
-    r: VarAD[]
-  ): IVectorV<VarAD> => {
+    p: ad.Num[],
+    q: ad.Num[],
+    r: ad.Num[]
+  ): VectorV<ad.Num> => {
     // edge vectors
     const u = ops.vsub(r, q);
     const v = ops.vsub(p, r);
@@ -1249,10 +1192,10 @@ export const compDict = {
    */
   circumradius: (
     _context: Context,
-    p: VarAD[],
-    q: VarAD[],
-    r: VarAD[]
-  ): IFloatV<VarAD> => {
+    p: ad.Num[],
+    q: ad.Num[],
+    r: ad.Num[]
+  ): FloatV<ad.Num> => {
     // side lengths
     const a = ops.vnorm(ops.vsub(r, q));
     const b = ops.vnorm(ops.vsub(p, r));
@@ -1287,10 +1230,10 @@ export const compDict = {
    */
   incenter: (
     _context: Context,
-    p: VarAD[],
-    q: VarAD[],
-    r: VarAD[]
-  ): IVectorV<VarAD> => {
+    p: ad.Num[],
+    q: ad.Num[],
+    r: ad.Num[]
+  ): VectorV<ad.Num> => {
     // side lengths
     const a = ops.vnorm(ops.vsub(r, q));
     const b = ops.vnorm(ops.vsub(p, r));
@@ -1319,10 +1262,10 @@ export const compDict = {
    */
   inradius: (
     _context: Context,
-    p: VarAD[],
-    q: VarAD[],
-    r: VarAD[]
-  ): IFloatV<VarAD> => {
+    p: ad.Num[],
+    q: ad.Num[],
+    r: ad.Num[]
+  ): FloatV<ad.Num> => {
     // side lengths
     const a = ops.vnorm(ops.vsub(r, q));
     const b = ops.vnorm(ops.vsub(p, r));
@@ -1345,42 +1288,42 @@ export const compDict = {
   /**
    * Return the square of the number `x`.
    */
-  sqr: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  sqr: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: squared(x) };
   },
 
   /**
    * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
    */
-  sqrt: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  sqrt: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: sqrt(x) };
   },
 
   /**
    * Return the max of the numbers `x`, `y`.
    */
-  max: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
+  max: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: max(x, y) };
   },
 
   /**
    * Return the min of the numbers `x`, `y`.
    */
-  min: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
+  min: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: min(x, y) };
   },
 
   /**
    * Return the absolute value of the number `x`.
    */
-  abs: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+  abs: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: absVal(x) };
   },
 
   /**
    * Convert the angle `theta` from degrees to radians.
    */
-  toRadians: (_context: Context, theta: VarAD): IFloatV<VarAD> => {
+  toRadians: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: mul(Math.PI / 180, theta),
@@ -1390,7 +1333,7 @@ export const compDict = {
   /**
    * Convert the angle `theta` from radians to degrees.
    */
-  toDegrees: (_context: Context, theta: VarAD): IFloatV<VarAD> => {
+  toDegrees: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: mul(180 / Math.PI, theta),
@@ -1400,39 +1343,39 @@ export const compDict = {
   /**
    * Return the Euclidean norm of the vector `v`.
    */
-  norm: (_context: Context, v: VarAD[]): IFloatV<VarAD> => {
+  norm: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: ops.vnorm(v) };
   },
 
   /**
    * Return the Euclidean norm squared of the vector `v`.
    */
-  normsq: (_context: Context, v: VarAD[]): IFloatV<VarAD> => {
+  normsq: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: ops.vnormsq(v) };
   },
 
   /**
    * Return the Euclidean distance between the vectors `v` and `w`.
    */
-  vdist: (_context: Context, v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+  vdist: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: ops.vdist(v, w) };
   },
 
-  vmul: (_context: Context, s: VarAD, v: VarAD[]): IVectorV<VarAD> => {
+  vmul: (_context: Context, s: ad.Num, v: ad.Num[]): VectorV<ad.Num> => {
     return { tag: "VectorV", contents: ops.vmul(s, v) };
   },
 
   /**
    * Return the Euclidean distance squared between the vectors `v` and `w`.
    */
-  vdistsq: (_context: Context, v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+  vdistsq: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: ops.vdistsq(v, w) };
   },
 
   /**
    * Return the angle made by the vector `v` with the positive x-axis.
    */
-  angleOf: (_context: Context, v: VarAD[]): IFloatV<VarAD> => {
+  angleOf: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: atan2(v[1], v[0]) };
   },
 
@@ -1441,7 +1384,7 @@ export const compDict = {
   /**
    * Base e of the natural logarithm.
    */
-  MathE: (_context: Context): IFloatV<VarAD> => {
+  MathE: (_context: Context): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: Math.E,
@@ -1451,7 +1394,7 @@ export const compDict = {
   /**
    * Ratio of the circumference of a circle to its diameter.
    */
-  MathPI: (_context: Context): IFloatV<VarAD> => {
+  MathPI: (_context: Context): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: Math.PI,
@@ -1463,7 +1406,7 @@ export const compDict = {
   /**
    * Rotate a 2D vector `v` by 90 degrees counterclockwise.
    */
-  rot90: (_context: Context, v: VarAD[]) => {
+  rot90: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
     if (v.length !== 2) {
       throw Error("expected 2D vector in `rot90`");
     }
@@ -1474,7 +1417,11 @@ export const compDict = {
   /**
    * Rotate a 2D vector `v` by theta degrees counterclockwise.
    */
-  rotateBy: (_context: Context, v: VarAD[], theta: VarAD) => {
+  rotateBy: (
+    _context: Context,
+    v: ad.Num[],
+    theta: ad.Num
+  ): VectorV<ad.Num> => {
     if (v.length !== 2) {
       throw Error("expected 2D vector in `rotateBy`");
     }
@@ -1483,30 +1430,289 @@ export const compDict = {
     const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
     return { tag: "VectorV", contents: [X, Y] };
   },
+
+  signedDistance: (
+    _context: Context,
+    [t, s]: [string, any],
+    p: ad.Num[]
+  ): FloatV<ad.Num> => {
+    /*  
+    All math borrowed from:
+    https://iquilezles.org/articles/distfunctions2d/
+    
+    axis-aligned rectangle:
+    float sdBox( in vec2 p, in vec2 b )
+    {
+      vec2 d = abs(p)-b;
+      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    } 
+    */
+    if (
+      t === "Rectangle" ||
+      t === "Text" ||
+      t === "Equation" ||
+      t === "Image"
+    ) {
+      const absp = ops.vabs(ops.vsub(p, s.center.contents));
+      const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
+      const d = ops.vsub(absp, b);
+      const result = add(
+        ops.vnorm(ops.vmax(d, [0.0, 0.0])),
+        min(max(d[0], d[1]), 0.0)
+      );
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    } else if (t === "Circle") {
+      /*     
+      float sdCircle( vec2 p, float r )
+      {
+        return length(p) - r;
+      } 
+      */
+      const pOffset = ops.vsub(p, s.center.contents);
+      const result = sub(ops.vnorm(pOffset), s.r.contents);
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    } else if (t === "Polygon") {
+      /*
+      float sdPolygon( in vec2[N] v, in vec2 p )
+      {
+          float d = dot(p-v[0],p-v[0]);
+          float s = 1.0;
+          for( int i=0, j=N-1; i<N; j=i, i++ )
+          {
+              vec2 e = v[j] - v[i];
+              vec2 w =    p - v[i];
+              vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
+              d = min( d, dot(b,b) );
+              bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
+              if( all(c) || all(not(c)) ) s*=-1.0;  
+          }
+          return s*sqrt(d);
+      }
+      */
+      const v = s.points.contents;
+      let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
+      let ess: ad.Num = 1.0;
+      let j = v.length - 1;
+      for (let i = 0; i < v.length; i++) {
+        const e = ops.vsub(v[j], v[i]);
+        const w = ops.vsub(p, v[i]);
+        const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
+        const b = ops.vsub(w, ops.vmul(clampedVal, e));
+        d = min(d, ops.vdot(b, b));
+        const c1 = gte(p[1], v[i][1]);
+        const c2 = lt(p[1], v[j][1]);
+        const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
+        const c4 = and(and(c1, c2), c3);
+        const c5 = not(c1);
+        const c6 = not(c2);
+        const c7 = not(c3);
+        const c8 = and(and(c5, c6), c7);
+        const negEss = mul(-1, ess);
+        ess = ifCond(or(c4, c8), negEss, ess);
+        // last line to match for loop in code we are borrowing from
+        j = i;
+      }
+      const result = mul(ess, sqrt(d));
+      return {
+        tag: "FloatV",
+        contents: result,
+      };
+    } else if (t === "Line") {
+      return {
+        tag: "FloatV",
+        contents: sdLine(s, p),
+      };
+    } else if (t === "Polyline") {
+      return {
+        tag: "FloatV",
+        contents: sdPolyline(s, p),
+      };
+    } else if (t === "Ellipse") {
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+      // return {
+      //   tag: "FloatV",
+      //   contents: sdEllipse(s, p),
+      // };
+    } else if (t === "Path") {
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+    } else {
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+    }
+  },
+
+  /**
+   * Construct a unit vector u in the direction of the
+   * given angle theta (in radians).
+   */
+  unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
+    return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
+  },
+};
+
+/*
+  Computes the signed distance for a line 
+  float sdSegment( in vec2 p, in vec2 a, in vec2 b )
+  {
+    vec2 pa = p-a, ba = b-a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h );
+  }
+*/
+const sdLine = (s: Line, p: ad.Num[]): ad.Num => {
+  return sdLineAsNums(s.start.contents, s.end.contents, p);
+};
+
+const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
+  const pa = ops.vsub(p, a);
+  const ba = ops.vsub(b, a);
+  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
+  return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
+};
+
+const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
+  const dists: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    const start = s.points.contents[i];
+    const end = s.points.contents[i + 1];
+    dists[i] = sdLineAsNums(start, end, p);
+  }
+  return minN(dists);
+};
+
+export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
+  return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
+};
+
+/*
+  float msign(in float x) { return (x<0.0)?-1.0:1.0; }
+  TODO: merge with Jiri's signOf function
+  */
+const msign = (x: ad.Num): ad.Num => {
+  return ifCond(lt(x, 0), -1, 1);
+};
+
+/*
+  Ported code is here: https://www.shadertoy.com/view/4sS3zz
+*/
+export const sdEllipseAsNums = (
+  radiusx: ad.Num,
+  radiusy: ad.Num,
+  center: ad.Num[],
+  pInput: ad.Num[]
+): ad.Num => {
+  // if = abs( p );
+  // if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
+  const pOffset = ops.vsub(pInput, center);
+  const pUnswizzled = ops.vabs(pOffset);
+  const abUnswizzled = [radiusx, radiusy];
+  const p = [];
+  const ab = [];
+  p[0] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    pUnswizzled[1],
+    pUnswizzled[0]
+  );
+  p[1] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    pUnswizzled[0],
+    pUnswizzled[1]
+  );
+  ab[0] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    abUnswizzled[1],
+    abUnswizzled[0]
+  );
+  ab[1] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    abUnswizzled[0],
+    abUnswizzled[1]
+  );
+  // float l = ab.y*ab.y - ab.x*ab.x;
+  const l = sub(squared(ab[1]), squared(ab[0]));
+  // float m = ab.x*p.x/l;
+  const m = div(mul(ab[0], p[0]), l);
+  // float m2 = m*m;
+  const m2 = squared(m);
+  // float n = ab.y*p.y/l;
+  const n = div(mul(ab[1], p[1]), l);
+  // float n2 = n*n;
+  const n2 = squared(n);
+  // float c = (m2+n2-1.0)/3.0; float c3 = c*c*c;
+  const c = div(sub(add(m2, n2), 1), 3);
+  const c3 = mul(mul(c, c), c);
+  // float q = c3 + m2*n2*2.0;
+  const q = add(c3, mul(m2, mul(n2, 2)));
+  // float d = c3 + m2*n2;
+  const d = add(c3, mul(m2, n2));
+  // float g = m + m*n2;
+  const g = add(m, mul(m, n2));
+
+  //if branch
+  // float h = acos(q/c3)/3.0;
+  const hif = div(acos(div(q, c3)), 3);
+  // float s = cos(h) + 2.0;
+  const sif = add(cos(hif), 2);
+  // float t = sin(h)*sqrt(3.0);
+  const tif = mul(sin(hif), sqrt(3));
+  // float rx = sqrt( m2-c*(s+t) );
+  const rxif = sqrt(sub(m2, mul(c, add(sif, tif))));
+  // float ry = sqrt( m2-c*(s-t) );
+  const ryif = sqrt(sub(m2, mul(c, sub(sif, tif))));
+  // co = ry + sign(l)*rx + abs(g)/(rx*ry);
+  const coif = add(
+    add(ryif, mul(sign(l), rxif)),
+    div(absVal(g), mul(rxif, ryif))
+  );
+  // elsebranch
+  // float h = 2.0*m*n*sqrt(d);
+  const h = mul(2, mul(m, mul(n, sqrt(d))));
+  // float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+  const onethird = div(1, 3);
+  const s = mul(msign(add(q, h)), pow(absVal(add(q, h)), onethird));
+  // float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
+  const t = mul(msign(sub(q, h)), pow(absVal(sub(q, h)), onethird));
+  // float rx = -(s+t) - c*4.0 + 2.0*m2;
+  const rx = add(sub(neg(add(s, t)), mul(c, 4)), mul(2, m2));
+  // float ry =  (s-t)*sqrt(3.0);
+  const ry = mul(sub(s, t), sqrt(3));
+  // float rm = sqrt( rx*rx + ry*ry );
+  const rm = sqrt(add(squared(rx), squared(ry)));
+  // co = ry/sqrt(rm-rx) + 2.0*g/rm;
+  const coelse = add(div(ry, sqrt(sub(rm, rx))), mul(2, div(g, rm)));
+
+  // co = (co-m)/2.0;
+  // if (d<0.0)
+  const co_pred = ifCond(lt(d, 0), coif, coelse);
+  const co = div(sub(co_pred, m), 2);
+
+  // float si = sqrt( max(1.0-co*co,0.0) );
+  const si = sqrt(max(sub(1, squared(co)), 0));
+  // vec2 r = ab * vec2(co,si);
+  const r = ops.vproduct(ab, [co, si]);
+  // return length(r-p) * msign(p.y-r.y);
+  return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
 // _compDictVals causes TypeScript to enforce that every function in compDict
 // takes a Context as its first parameter
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _compDictVals: ((
   context: Context,
   ...rest: never[]
 ) => unknown)[] = Object.values(compDict);
 
 // Ignore this
-export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
+export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
 
-// Make sure all arguments are not numbers (they should be VarADs if floats)
-const checkFloat = (x: any) => {
-  if (typeof x === "number") {
-    throw Error("expected float converted to VarAD; got number (int?)");
-  }
-};
-
-const toPt = (v: VecAD): Pt2 => {
+const toPt = (v: ad.Num[]): ad.Pt2 => {
   if (v.length !== 2) {
     throw Error("expected vector of length 2");
   }
@@ -1517,10 +1723,10 @@ const toPt = (v: VecAD): Pt2 => {
  * Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a path that describes a perpendicular mark between them.
  */
 const perpPathFlat = (
-  len: VarAD,
-  [startR, endR]: [VecAD, VecAD],
-  [startL, endL]: [VecAD, VecAD]
-): [VecAD, VecAD, VecAD] => {
+  len: ad.Num,
+  [startR, endR]: [ad.Num[], ad.Num[]],
+  [startL, endL]: [ad.Num[], ad.Num[]]
+): [ad.Num[], ad.Num[], ad.Num[]] => {
   // perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
   // perpPathFlat size (startR, endR) (startL, endL) =
   //   let dirR = normalize' $ endR -: startR
@@ -1540,29 +1746,29 @@ const perpPathFlat = (
 /**
  * Rotate a 2D point `[x, y]` by 90 degrees counterclockwise.
  */
-const rot90 = ([x, y]: Pt2): Pt2 => {
+const rot90 = ([x, y]: ad.Pt2): ad.Pt2 => {
   return [neg(y), x];
 };
 
 /**
  * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
  */
-const rot90v = ([x, y]: VarAD[]): VarAD[] => {
+const rot90v = ([x, y]: ad.Num[]): ad.Num[] => {
   return [neg(y), x];
 };
 
 const tickPlacement = (
-  padding: VarAD,
+  padding: ad.Num,
   numPts: number,
-  multiplier: VarAD = 1
-): VarAD[] => {
+  multiplier: ad.Num = 1
+): ad.Num[] => {
   if (numPts <= 0) throw Error(`number of ticks must be greater than 0`);
   const even = numPts % 2 === 0;
-  const pts: VarAD[] = even ? [div(padding, 2)] : [0];
+  const pts: ad.Num[] = even ? [div(padding, 2)] : [0];
   for (let i = 1; i < numPts; i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =
-      i % 2 == 0
+      i % 2 === 0
         ? mul(padding, mul(neg(i), multiplier))
         : mul(padding, mul(i, multiplier));
     pts.push(add(pts[i - 1], shift));
