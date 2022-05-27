@@ -202,11 +202,11 @@ describe("Compiler", () => {
   //   if (selErrs.length > 0) {
   //     const err = `Could not compile. Error(s) in Style while checking selectors`;
   //     console.log([err].concat(selErrs.map((e) => showError(e))));
-  //     fail();
+  //     throw Error();
   //   }
 
   //   if (subss.length !== correctSubsts.length) {
-  //     fail();
+  //     throw Error();
   //   }
 
   //   for (const [res, expected] of _.zip(subss, correctSubsts)) {
@@ -331,7 +331,7 @@ describe("Compiler", () => {
       );
 
       if (!styRes.isOk()) {
-        fail(
+        throw Error(
           `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
         );
       } else {
@@ -352,13 +352,13 @@ describe("Compiler", () => {
     if (result.isErr()) {
       const res: PenroseError = result.error;
       if (res.errorType !== "StyleError") {
-        fail(
+        throw Error(
           `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`
         );
       }
 
       if (res.tag !== "StyleErrorList") {
-        fail(
+        throw Error(
           `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
         );
       }
@@ -369,7 +369,7 @@ describe("Compiler", () => {
 
       expect(res.errors[0].tag).toBe(errorType);
     } else {
-      fail(`Error ${errorType} was supposed to occur.`);
+      throw Error(`Error ${errorType} was supposed to occur.`);
     }
   };
 
