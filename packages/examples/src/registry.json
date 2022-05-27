@@ -92,6 +92,12 @@
       "variation": ""
     },
     {
+      "substance": "siggraph-teaser",
+      "style": "euclidean-teaser",
+      "domain": "geometry",
+      "variation": "ArboretumSpider16342"
+    },
+    {
       "substance": "non-convex",
       "style": "non-convex",
       "domain": "non-convex",
@@ -269,6 +275,11 @@
       "name": "Euclidean 2D Geometry",
       "URI": "geometry-domain/euclidean.sty"
     },
+    "euclidean-teaser": {
+      "domain": "geometry",
+      "name": "Euclidean - SIGGRAPH teaser",
+      "URI": "geometry-domain/euclidean-teaser.sty"
+    },
     "non-convex": {
       "domain": "non-convex",
       "name": "Non-convex Shape",
@@ -329,6 +340,11 @@
       "domain": "graph-theory",
       "name": "Small graph",
       "URI": "graph-domain/small-graph.sub"
+    },
+    "siggraph-teaser": {
+      "domain": "geometry",
+      "name": "SIGGRAPH teaser",
+      "URI": "geometry-domain/teaser.sub"
     },
     "collinear": {
       "domain": "geometry",
