@@ -5,7 +5,6 @@
     stroke="none"
     transform="scale(1)"
     points="200,550,400,150,600,650,200,200,650,200"
-    ensureOnCanvas="true"
     fill-rule="evenodd"
   >
     <title>g.icon</title>
@@ -17,7 +16,6 @@
     cy="244.92215870802164"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p99.icon</title>
   </circle>
@@ -28,7 +26,6 @@
     cy="536.1986291704137"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p98.icon</title>
   </circle>
@@ -39,7 +36,6 @@
     cy="543.6530796512732"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p97.icon</title>
   </circle>
@@ -50,7 +46,6 @@
     cy="341.96293733370004"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p96.icon</title>
   </circle>
@@ -61,7 +56,6 @@
     cy="453.8466840648053"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p95.icon</title>
   </circle>
@@ -72,7 +66,6 @@
     cy="558.0262182664172"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p94.icon</title>
   </circle>
@@ -83,7 +76,6 @@
     cy="589.3853616220301"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p93.icon</title>
   </circle>
@@ -94,7 +86,6 @@
     cy="238.43849946363184"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p92.icon</title>
   </circle>
@@ -105,7 +96,6 @@
     cy="271.4232036009846"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p91.icon</title>
   </circle>
@@ -116,7 +106,6 @@
     cy="590.4030764824765"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p90.icon</title>
   </circle>
@@ -127,7 +116,6 @@
     cy="180.00000180492427"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p89.icon</title>
   </circle>
@@ -138,7 +126,6 @@
     cy="179.99999692327393"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p88.icon</title>
   </circle>
@@ -149,7 +136,6 @@
     cy="213.54007304815858"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p87.icon</title>
   </circle>
@@ -160,7 +146,6 @@
     cy="180.0000023365901"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p86.icon</title>
   </circle>
@@ -171,7 +156,6 @@
     cy="319.4107699795384"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p85.icon</title>
   </circle>
@@ -182,7 +166,6 @@
     cy="179.99999845601465"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p84.icon</title>
   </circle>
@@ -193,7 +176,6 @@
     cy="351.5907404521361"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p83.icon</title>
   </circle>
@@ -204,7 +186,6 @@
     cy="245.93166281529085"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p82.icon</title>
   </circle>
@@ -215,7 +196,6 @@
     cy="132.1412174914534"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p81.icon</title>
   </circle>
@@ -226,7 +206,6 @@
     cy="418.82601077212774"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p80.icon</title>
   </circle>
@@ -237,7 +216,6 @@
     cy="572.7408675031666"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p79.icon</title>
   </circle>
@@ -248,7 +226,6 @@
     cy="498.0983539330946"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p78.icon</title>
   </circle>
@@ -259,7 +236,6 @@
     cy="388.7920838174037"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p77.icon</title>
   </circle>
@@ -270,7 +246,6 @@
     cy="232.8465263161279"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p76.icon</title>
   </circle>
@@ -281,7 +256,6 @@
     cy="234.68531346893673"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p75.icon</title>
   </circle>
@@ -292,7 +266,6 @@
     cy="180.00000181626714"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p74.icon</title>
   </circle>
@@ -303,7 +276,6 @@
     cy="326.1988058175606"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p73.icon</title>
   </circle>
@@ -314,7 +286,6 @@
     cy="450.85735283202564"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p72.icon</title>
   </circle>
@@ -325,7 +296,6 @@
     cy="269.347086208669"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p71.icon</title>
   </circle>
@@ -336,7 +306,6 @@
     cy="280.46452432047136"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p70.icon</title>
   </circle>
@@ -347,7 +316,6 @@
     cy="487.8292189647435"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p69.icon</title>
   </circle>
@@ -358,7 +326,6 @@
     cy="316.9726531457144"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p68.icon</title>
   </circle>
@@ -369,7 +336,6 @@
     cy="561.4633194512948"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p67.icon</title>
   </circle>
@@ -380,7 +346,6 @@
     cy="508.05111848337083"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p66.icon</title>
   </circle>
@@ -391,7 +356,6 @@
     cy="528.9706482838549"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p65.icon</title>
   </circle>
@@ -402,7 +366,6 @@
     cy="438.0639405830887"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p64.icon</title>
   </circle>
@@ -413,7 +376,6 @@
     cy="497.1573414531548"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p63.icon</title>
   </circle>
@@ -424,7 +386,6 @@
     cy="457.77190843339326"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p62.icon</title>
   </circle>
@@ -435,7 +396,6 @@
     cy="179.99999624361283"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p61.icon</title>
   </circle>
@@ -446,7 +406,6 @@
     cy="341.6246952309164"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p60.icon</title>
   </circle>
@@ -457,7 +416,6 @@
     cy="152.07019987777525"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p59.icon</title>
   </circle>
@@ -468,7 +426,6 @@
     cy="460.636200053005"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p58.icon</title>
   </circle>
@@ -479,7 +436,6 @@
     cy="565.0847660771329"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p57.icon</title>
   </circle>
@@ -490,7 +446,6 @@
     cy="180.00000214924893"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p56.icon</title>
   </circle>
@@ -501,7 +456,6 @@
     cy="472.487059687092"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p55.icon</title>
   </circle>
@@ -512,7 +466,6 @@
     cy="179.9999963046134"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p54.icon</title>
   </circle>
@@ -523,7 +476,6 @@
     cy="512.020370980272"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p53.icon</title>
   </circle>
@@ -534,7 +486,6 @@
     cy="305.72263501169573"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p52.icon</title>
   </circle>
@@ -545,7 +496,6 @@
     cy="179.99999644089021"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p51.icon</title>
   </circle>
@@ -556,7 +506,6 @@
     cy="312.77091204317685"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p50.icon</title>
   </circle>
@@ -567,7 +516,6 @@
     cy="266.6642561949685"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p49.icon</title>
   </circle>
@@ -578,7 +526,6 @@
     cy="179.9999970619287"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p48.icon</title>
   </circle>
@@ -589,7 +536,6 @@
     cy="416.05631862673437"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p47.icon</title>
   </circle>
@@ -600,7 +546,6 @@
     cy="498.4891258476545"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p46.icon</title>
   </circle>
@@ -611,7 +556,6 @@
     cy="153.1914838906493"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p45.icon</title>
   </circle>
@@ -622,7 +566,6 @@
     cy="335.2450789365265"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p44.icon</title>
   </circle>
@@ -633,7 +576,6 @@
     cy="521.0951381448579"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p43.icon</title>
   </circle>
@@ -644,7 +586,6 @@
     cy="179.9999981292172"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p42.icon</title>
   </circle>
@@ -655,7 +596,6 @@
     cy="180.00000184990438"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p41.icon</title>
   </circle>
@@ -666,7 +606,6 @@
     cy="457.74178009373804"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p40.icon</title>
   </circle>
@@ -677,7 +616,6 @@
     cy="488.87486575066464"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p39.icon</title>
   </circle>
@@ -688,7 +626,6 @@
     cy="149.63484282229643"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p38.icon</title>
   </circle>
@@ -699,7 +636,6 @@
     cy="461.1216668128209"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p37.icon</title>
   </circle>
@@ -710,7 +646,6 @@
     cy="179.9999964077408"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p36.icon</title>
   </circle>
@@ -721,7 +656,6 @@
     cy="266.04642916523267"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p35.icon</title>
   </circle>
@@ -732,7 +666,6 @@
     cy="353.07954247284414"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p34.icon</title>
   </circle>
@@ -743,7 +676,6 @@
     cy="526.3913459591398"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p33.icon</title>
   </circle>
@@ -754,7 +686,6 @@
     cy="261.02262882965454"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p32.icon</title>
   </circle>
@@ -765,7 +696,6 @@
     cy="492.74162256232955"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p31.icon</title>
   </circle>
@@ -776,7 +706,6 @@
     cy="298.10804336490395"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p30.icon</title>
   </circle>
@@ -787,7 +716,6 @@
     cy="490.728954978474"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p29.icon</title>
   </circle>
@@ -798,7 +726,6 @@
     cy="298.7904463348915"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p28.icon</title>
   </circle>
@@ -809,7 +736,6 @@
     cy="498.1626826535738"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p27.icon</title>
   </circle>
@@ -820,7 +746,6 @@
     cy="133.07403318179703"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p26.icon</title>
   </circle>
@@ -831,7 +756,6 @@
     cy="567.9029740773252"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p25.icon</title>
   </circle>
@@ -842,7 +766,6 @@
     cy="179.99999674125348"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p24.icon</title>
   </circle>
@@ -853,7 +776,6 @@
     cy="474.20425854119094"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p23.icon</title>
   </circle>
@@ -864,7 +786,6 @@
     cy="251.42632482387475"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p22.icon</title>
   </circle>
@@ -875,7 +796,6 @@
     cy="544.7898066517979"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p21.icon</title>
   </circle>
@@ -886,7 +806,6 @@
     cy="179.99999767468165"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p20.icon</title>
   </circle>
@@ -897,7 +816,6 @@
     cy="561.8095018858618"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p19.icon</title>
   </circle>
@@ -908,7 +826,6 @@
     cy="293.7623700470992"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p18.icon</title>
   </circle>
@@ -919,7 +836,6 @@
     cy="272.4102402756306"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p17.icon</title>
   </circle>
@@ -930,7 +846,6 @@
     cy="492.82033416678894"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p16.icon</title>
   </circle>
@@ -941,7 +856,6 @@
     cy="491.1544078697607"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p15.icon</title>
   </circle>
@@ -952,7 +866,6 @@
     cy="148.8882772154146"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p14.icon</title>
   </circle>
@@ -963,7 +876,6 @@
     cy="512.8043480035342"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p13.icon</title>
   </circle>
@@ -974,7 +886,6 @@
     cy="158.36067199592568"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p12.icon</title>
   </circle>
@@ -985,7 +896,6 @@
     cy="179.9999968801871"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p11.icon</title>
   </circle>
@@ -996,7 +906,6 @@
     cy="130.4810225982592"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p10.icon</title>
   </circle>
@@ -1007,7 +916,6 @@
     cy="483.16101569491695"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p9.icon</title>
   </circle>
@@ -1018,7 +926,6 @@
     cy="228.4327012773001"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p8.icon</title>
   </circle>
@@ -1029,7 +936,6 @@
     cy="160.6904370792108"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p7.icon</title>
   </circle>
@@ -1040,7 +946,6 @@
     cy="180.00000321540625"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p6.icon</title>
   </circle>
@@ -1051,7 +956,6 @@
     cy="252.5426322018516"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p5.icon</title>
   </circle>
@@ -1062,7 +966,6 @@
     cy="470.2292104473509"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p4.icon</title>
   </circle>
@@ -1073,7 +976,6 @@
     cy="355.6378624965357"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p3.icon</title>
   </circle>
@@ -1084,7 +986,6 @@
     cy="293.9307401278503"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p2.icon</title>
   </circle>
@@ -1095,7 +996,6 @@
     cy="569.0758638246355"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p1.icon</title>
   </circle>
@@ -1106,7 +1006,6 @@
     cy="179.99999697467373"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>p0.icon</title>
   </circle>
