@@ -365,9 +365,10 @@ type
     }) 
   %}
 
-path -> binding_form ("." identifier):* access_ops:? {%
-  ([name, dotParts, indices]) => {
+path -> binding_form ("." identifier):* (_ access_ops):? {%
+  ([name, dotParts, accesses]) => {
     const members = dotParts.map((d: [unknown, Expr<C>]) => d[1]);
+    const indices = accesses === null ? [] : accesses[1];
     return {
       ...nodeData,
       ...rangeFrom([name, ...members, ...indices]),
