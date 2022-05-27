@@ -210,7 +210,9 @@ export const showError = (
     }
 
     case "InvalidGPIPropertyError": {
-      return `Got invalid GPI property ${error.givenProperty.value}. Available properties: ${error.expectedProperties}`;
+      return `Got invalid GPI property ${error.givenProperty.value} at ${loc(
+        error.givenProperty
+      )}. Available properties: ${error.expectedProperties}`;
     }
 
     case "InvalidFunctionNameError": {

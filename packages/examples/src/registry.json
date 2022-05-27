@@ -92,6 +92,12 @@
       "variation": ""
     },
     {
+      "substance": "siggraph-teaser",
+      "style": "euclidean-teaser",
+      "domain": "geometry",
+      "variation": "ArboretumSpider16342"
+    },
+    {
       "substance": "non-convex",
       "style": "non-convex",
       "domain": "non-convex",
@@ -114,6 +120,30 @@
       "style": "persistent-homology",
       "domain": "persistent-homology",
       "variation": "RainmakerMarten88256"
+    },
+    {
+      "substance": "wos-laplace-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "GroundedMule26071"
+    },
+    {
+      "substance": "wos-poisson-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "SunbathedStingray28254"
+    },
+    {
+      "substance": "wos-nested-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "CamelliaBison2029"
+    },
+    {
+      "substance": "wos-offcenter-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "GumdropsElk9023"
     },
     {
       "substance": "points-around-star",
@@ -174,6 +204,10 @@
     "persistent-homology": {
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.dsl"
+    },
+    "walk-on-spheres": {
+      "name": "Walk on Spheres",
+      "URI": "walk-on-spheres/walk-on-spheres.dsl"
     },
     "shape-distance": {
       "name": "Signed Distance Function",
@@ -241,6 +275,11 @@
       "name": "Euclidean 2D Geometry",
       "URI": "geometry-domain/euclidean.sty"
     },
+    "euclidean-teaser": {
+      "domain": "geometry",
+      "name": "Euclidean - SIGGRAPH teaser",
+      "URI": "geometry-domain/euclidean-teaser.sty"
+    },
     "non-convex": {
       "domain": "non-convex",
       "name": "Non-convex Shape",
@@ -260,6 +299,10 @@
       "domain": "persistent-homology",
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.sty"
+    },
+    "walk-on-spheres": {
+      "name": "Walk on Spheres",
+      "URI": "walk-on-spheres/walk-on-spheres.sty"
     },
     "shape-distance": {
       "domain": "shape-distance",
@@ -297,6 +340,11 @@
       "domain": "graph-theory",
       "name": "Small graph",
       "URI": "graph-domain/small-graph.sub"
+    },
+    "siggraph-teaser": {
+      "domain": "geometry",
+      "name": "SIGGRAPH teaser",
+      "URI": "geometry-domain/teaser.sub"
     },
     "collinear": {
       "domain": "geometry",
@@ -347,6 +395,26 @@
       "domain": "persistent-homology",
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.sub"
+    },
+    "wos-laplace-estimator": {
+      "domain": "walk-on-spheres",
+      "name": "WoS Laplace Estimator",
+      "URI": "walk-on-spheres/Laplace.sub"
+    },
+    "wos-poisson-estimator": {
+      "domain": "walk-on-spheres",
+      "name": "WoS Laplace Estimator",
+      "URI": "walk-on-spheres/Poisson.sub"
+    },
+    "wos-nested-estimator": {
+      "domain": "walk-on-spheres",
+      "name": "WoS Laplace Estimator",
+      "URI": "walk-on-spheres/Nested.sub"
+    },
+    "wos-offcenter-estimator": {
+      "domain": "walk-on-spheres",
+      "name": "WoS Laplace Estimator",
+      "URI": "walk-on-spheres/OffCenter.sub"
     },
     "points-around-star": {
       "domain": "shape-distance",
