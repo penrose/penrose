@@ -35,14 +35,14 @@ describe("Determinism", () => {
   test("with initial optimization", async () => {
     const resCompile = compileTrio({ substance, style, domain, variation });
     if (resCompile.isErr()) {
-      fail(showError(resCompile.error));
+      throw Error(showError(resCompile.error));
     }
     const stateSample1NotOpt = await prepareState(resCompile.value);
     const svgSample1NotOpt = await render(stateSample1NotOpt);
 
     const resSample1Opt = stepUntilConvergence(stateSample1NotOpt);
     if (resSample1Opt.isErr()) {
-      fail(showError(resSample1Opt.error));
+      throw Error(showError(resSample1Opt.error));
     }
     const stateSample1Opt = resSample1Opt.value;
     const svgSample1Opt = await render(stateSample1Opt);
@@ -52,7 +52,7 @@ describe("Determinism", () => {
 
     const resSample2Opt = stepUntilConvergence(stateSample2NotOpt);
     if (resSample2Opt.isErr()) {
-      fail(showError(resSample2Opt.error));
+      throw Error(showError(resSample2Opt.error));
     }
     const stateSample2Opt = resSample2Opt.value;
     const svgSample2Opt = await render(stateSample2Opt);
@@ -62,7 +62,7 @@ describe("Determinism", () => {
 
     const resSample3Opt = stepUntilConvergence(stateSample3NotOpt);
     if (resSample3Opt.isErr()) {
-      fail(showError(resSample3Opt.error));
+      throw Error(showError(resSample3Opt.error));
     }
     const stateSample3Opt = resSample3Opt.value;
     const svgSample3Opt = await render(stateSample3Opt);
@@ -83,7 +83,7 @@ describe("Determinism", () => {
   test("without initial optimization", async () => {
     const resCompile = compileTrio({ substance, style, domain, variation });
     if (resCompile.isErr()) {
-      fail(showError(resCompile.error));
+      throw Error(showError(resCompile.error));
     }
 
     const state1NotOpt = resample(await prepareState(resCompile.value));
@@ -91,7 +91,7 @@ describe("Determinism", () => {
 
     const resOptimize1 = stepUntilConvergence(state1NotOpt);
     if (resOptimize1.isErr()) {
-      fail(showError(resOptimize1.error));
+      throw Error(showError(resOptimize1.error));
     }
     const state1Opt = resOptimize1.value;
     const svg1Opt = await render(state1Opt);
@@ -103,7 +103,7 @@ describe("Determinism", () => {
 
     const resOptimize2 = stepUntilConvergence(state2NotOpt);
     if (resOptimize2.isErr()) {
-      fail(showError(resOptimize2.error));
+      throw Error(showError(resOptimize2.error));
     }
     const state2Opt = resOptimize2.value;
     const svg2Opt = await render(state2Opt);
@@ -128,7 +128,7 @@ describe("Energy API", () => {
       const stateEvaled = resample(await prepareState(res.value));
       const stateOpt = stepUntilConvergence(stateEvaled);
       if (stateOpt.isErr()) {
-        fail("optimization failed");
+        throw Error("optimization failed");
       }
       const stateOptimized = stateOpt.value;
       const initEng = evalEnergy(stateEvaled);
@@ -199,10 +199,10 @@ describe("Cross-instance energy eval", () => {
         };
         expect(evalEnergy(await prepareState(crossState12))).toBeGreaterThan(0);
       } else {
-        fail("optimization failed");
+        throw Error("optimization failed");
       }
     } else {
-      fail("compilation failed");
+      throw Error("compilation failed");
     }
   });
 });
@@ -225,7 +225,7 @@ describe("Run individual functions", () => {
       const stateEvaled = resample(await prepareState(res.value));
       const stateOpt = stepUntilConvergence(stateEvaled);
       if (stateOpt.isErr()) {
-        fail("optimization failed");
+        throw Error("optimization failed");
       }
       const stateOptimizedValue = stateOpt.value;
 
