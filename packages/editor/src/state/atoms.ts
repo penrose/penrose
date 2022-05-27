@@ -359,8 +359,6 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
 };
 const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
   onSet((newValue, _, isReset) => {
-    console.log(newValue);
-
     layoutModel.visitNodes((node) => {
       if (
         node.getType() === "border" &&
