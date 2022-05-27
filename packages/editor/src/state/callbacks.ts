@@ -31,8 +31,6 @@ const _compileDiagram = async (
   style: string,
   domain: string,
   variation: string,
-  autostep: boolean,
-  stepSize: number,
   set: any
 ) => {
   const compiledDomain = compileDomain(domain);
@@ -95,8 +93,6 @@ export const useCompileDiagram = () =>
       styleFile,
       domainFile,
       diagram.metadata.variation,
-      diagram.metadata.autostep,
-      diagram.metadata.stepSize,
       set
     );
   });
@@ -168,8 +164,6 @@ export const useLoadLocalWorkspace = () =>
       loadedWorkspace.files.style.contents,
       loadedWorkspace.files.domain.contents,
       uuid(),
-      true,
-      10000, // COMBAK: figure out the right default
       set
     );
   });
@@ -189,6 +183,10 @@ export const useLoadExampleWorkspace = () =>
     const domain = await domainReq.text();
     const style = await styleReq.text();
     const substance = await substanceReq.text();
+    const styleParentURI = trio.styleURI.substring(
+      0,
+      trio.styleURI.lastIndexOf("/") + 1
+    );
     set(currentWorkspaceState, {
       metadata: {
         id: uuid(),
@@ -197,6 +195,7 @@ export const useLoadExampleWorkspace = () =>
         editorVersion: 0.1,
         location: {
           kind: "example",
+          root: styleParentURI,
         },
         forkedFromGist: null,
       },
@@ -216,15 +215,7 @@ export const useLoadExampleWorkspace = () =>
       },
     });
     reset(diagramState);
-    await _compileDiagram(
-      substance,
-      style,
-      domain,
-      trio.variation,
-      true,
-      10000, // COMBAK: figure out the right default
-      set
-    );
+    await _compileDiagram(substance, style, domain, trio.variation, set);
   });
 
 export const useCheckURL = () =>

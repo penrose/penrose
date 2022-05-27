@@ -16,6 +16,7 @@ export interface Trio {
  * Schema for the registry of working examples
  */
 export interface Registry {
+  root: string;
   substances: { [subID: string]: { name: string; URI: string } };
   styles: { [styID: string]: { name: string; URI: string } };
   domains: { [domID: string]: { name: string; URI: string } };

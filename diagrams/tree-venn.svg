@@ -6,7 +6,6 @@
     cy="408.28508092368395"
     stroke="none"
     r="276.8530657797345"
-    ensureOnCanvas="true"
   >
     <title>A.icon</title>
   </circle>
@@ -17,7 +16,6 @@
     cy="391.44962562078734"
     stroke="none"
     r="102.29097188972086"
-    ensureOnCanvas="true"
   >
     <title>C.icon</title>
   </circle>
@@ -28,14 +26,12 @@
     cy="428.61096134694526"
     stroke="none"
     r="32.9906223439819"
-    ensureOnCanvas="true"
   >
     <title>G.icon</title>
   </circle>
   <g
     transform="rotate(0, 393.39428562136584, 413.2835741171541)translate(393.39428562136584, 413.2835741171541)"
     string="G"
-    ensureOnCanvas="true"
   >
     <title>G.text</title>
     <svg
@@ -78,14 +74,12 @@
     cy="353.9406554497937"
     stroke="none"
     r="31.542928697341104"
-    ensureOnCanvas="true"
   >
     <title>F.icon</title>
   </circle>
   <g
     transform="rotate(0, 392.1257749008922, 338.71840582746444)translate(392.1257749008922, 338.71840582746444)"
     string="F"
-    ensureOnCanvas="true"
   >
     <title>F.text</title>
     <svg
@@ -128,7 +122,6 @@
     cy="278.4329865929171"
     stroke="none"
     r="113.63856076451177"
-    ensureOnCanvas="true"
   >
     <title>B.icon</title>
   </circle>
@@ -139,14 +132,12 @@
     cy="335.4609653074101"
     stroke="none"
     r="36.742533958244685"
-    ensureOnCanvas="true"
   >
     <title>E.icon</title>
   </circle>
   <g
     transform="rotate(0, 559.2583356218165, 320.12430898702706)translate(559.2583356218165, 320.12430898702706)"
     string="E"
-    ensureOnCanvas="true"
   >
     <title>E.text</title>
     <svg
@@ -189,14 +180,12 @@
     cy="273.949071096277"
     stroke="none"
     r="30.770461226133392"
-    ensureOnCanvas="true"
   >
     <title>D.icon</title>
   </circle>
   <g
     transform="rotate(0, 522.1416166564886, 258.61220471817404)translate(522.1416166564886, 258.61220471817404)"
     string="D"
-    ensureOnCanvas="true"
   >
     <title>D.text</title>
     <svg
@@ -235,7 +224,6 @@
   <g
     transform="rotate(0, 341.28769123417646, 376.1267735758373)translate(341.28769123417646, 376.1267735758373)"
     string="C"
-    ensureOnCanvas="true"
   >
     <title>C.text</title>
     <svg
@@ -274,7 +262,6 @@
   <g
     transform="rotate(0, 599.7068245657263, 263.13323540542194)translate(599.7068245657263, 263.13323540542194)"
     string="B"
-    ensureOnCanvas="true"
   >
     <title>B.text</title>
     <svg
@@ -313,7 +300,6 @@
   <g
     transform="rotate(0, 510.0777683723065, 393.00004347058206)translate(510.0777683723065, 393.00004347058206)"
     string="A"
-    ensureOnCanvas="true"
   >
     <title>A.text</title>
     <svg

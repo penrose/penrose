@@ -7,7 +7,6 @@
     stroke="none"
     rx="10"
     ry="22.18372612036552"
-    ensureOnCanvas="true"
   >
     <title>E33.ellipse</title>
   </ellipse>
@@ -21,7 +20,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 477.3097297750402, 345.45869592300045)"
-    ensureOnCanvas="true"
   >
     <title>E33.rect</title>
   </rect>
@@ -33,7 +31,6 @@
     stroke="none"
     rx="10"
     ry="16.093862537452377"
-    ensureOnCanvas="true"
   >
     <title>E32.ellipse</title>
   </ellipse>
@@ -47,7 +44,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 477.3097297758135, 292.0274982438706)"
-    ensureOnCanvas="true"
   >
     <title>E32.rect</title>
   </rect>
@@ -59,7 +55,6 @@
     stroke="none"
     rx="10"
     ry="11.683287469896513"
-    ensureOnCanvas="true"
   >
     <title>E31.ellipse</title>
   </ellipse>
@@ -73,7 +68,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 477.3097297754624, 418.65936671929035)"
-    ensureOnCanvas="true"
   >
     <title>E31.rect</title>
   </rect>
@@ -85,7 +79,6 @@
     stroke="none"
     rx="10"
     ry="21.02833228256567"
-    ensureOnCanvas="true"
   >
     <title>E24.ellipse</title>
   </ellipse>
@@ -99,7 +92,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 377.3097309342099, 305.0693244915724)"
-    ensureOnCanvas="true"
   >
     <title>E24.rect</title>
   </rect>
@@ -111,7 +103,6 @@
     stroke="none"
     rx="10"
     ry="13.697436572357162"
-    ensureOnCanvas="true"
   >
     <title>E23.ellipse</title>
   </ellipse>
@@ -125,7 +116,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 377.3097309341629, 385.4693088539244)"
-    ensureOnCanvas="true"
   >
     <title>E23.rect</title>
   </rect>
@@ -137,7 +127,6 @@
     stroke="none"
     rx="10"
     ry="13.358792518565174"
-    ensureOnCanvas="true"
   >
     <title>E22.ellipse</title>
   </ellipse>
@@ -151,7 +140,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 377.3097309339915, 258.1945571224648)"
-    ensureOnCanvas="true"
   >
     <title>E22.rect</title>
   </rect>
@@ -163,7 +151,6 @@
     stroke="none"
     rx="10"
     ry="9.000002946148633"
-    ensureOnCanvas="true"
   >
     <title>E21.ellipse</title>
   </ellipse>
@@ -177,7 +164,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 377.3097309335482, 432.86419010857145)"
-    ensureOnCanvas="true"
   >
     <title>E21.rect</title>
   </rect>
@@ -189,7 +175,6 @@
     stroke="none"
     rx="10"
     ry="10.042027610530589"
-    ensureOnCanvas="true"
   >
     <title>E15.ellipse</title>
   </ellipse>
@@ -203,7 +188,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 277.30973471483924, 283.630649307683)"
-    ensureOnCanvas="true"
   >
     <title>E15.rect</title>
   </rect>
@@ -215,7 +199,6 @@
     stroke="none"
     rx="10"
     ry="10.824145585663807"
-    ensureOnCanvas="true"
   >
     <title>E14.ellipse</title>
   </ellipse>
@@ -229,7 +212,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 277.30973471645393, 241.9823462550621)"
-    ensureOnCanvas="true"
   >
     <title>E14.rect</title>
   </rect>
@@ -241,7 +223,6 @@
     stroke="none"
     rx="10"
     ry="8.999995411561724"
-    ensureOnCanvas="true"
   >
     <title>E13.ellipse</title>
   </ellipse>
@@ -255,7 +236,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 277.3097347187831, 377.9008409563456)"
-    ensureOnCanvas="true"
   >
     <title>E13.rect</title>
   </rect>
@@ -267,7 +247,6 @@
     stroke="none"
     rx="10"
     ry="8.999999597478748"
-    ensureOnCanvas="true"
   >
     <title>E12.ellipse</title>
   </ellipse>
@@ -281,7 +260,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 277.3097347310168, 415.90083640750436)"
-    ensureOnCanvas="true"
   >
     <title>E12.rect</title>
   </rect>
@@ -293,7 +271,6 @@
     stroke="none"
     rx="10"
     ry="14.417582684211524"
-    ensureOnCanvas="true"
   >
     <title>E11.ellipse</title>
   </ellipse>
@@ -307,11 +284,10 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 277.3097347259015, 329.0656765934572)"
-    ensureOnCanvas="true"
   >
     <title>E11.rect</title>
   </rect>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N9.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -337,7 +313,7 @@
     ></path>
     <title>N9.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N9.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -363,7 +339,7 @@
     ></path>
     <title>N9.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N9.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -389,7 +365,7 @@
     ></path>
     <title>N9.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N9.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -422,7 +398,6 @@
     cy="305.84049789299644"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dotrP</title>
   </circle>
@@ -433,7 +408,6 @@
     cy="305.84049789299644"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dotr</title>
   </circle>
@@ -444,7 +418,6 @@
     cy="379.60261568002676"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dot3P</title>
   </circle>
@@ -455,7 +428,6 @@
     cy="379.60261568002676"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dot3</title>
   </circle>
@@ -466,7 +438,6 @@
     cy="338.1259907130881"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dot2P</title>
   </circle>
@@ -477,7 +448,6 @@
     cy="338.1259907130881"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dot2</title>
   </circle>
@@ -488,7 +458,6 @@
     cy="294.7147054824365"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dot1P</title>
   </circle>
@@ -499,7 +468,6 @@
     cy="294.7147054824365"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dot1</title>
   </circle>
@@ -510,7 +478,6 @@
     cy="257.2386499742978"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dotlP</title>
   </circle>
@@ -521,11 +488,10 @@
     cy="257.2386499742978"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N9.dotl</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N8.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -551,7 +517,7 @@
     ></path>
     <title>N8.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N8.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -577,7 +543,7 @@
     ></path>
     <title>N8.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N8.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -603,7 +569,7 @@
     ></path>
     <title>N8.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N8.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -636,7 +602,6 @@
     cy="325.9024241418654"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dotrP</title>
   </circle>
@@ -647,7 +612,6 @@
     cy="325.9024241418654"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dotr</title>
   </circle>
@@ -658,7 +622,6 @@
     cy="360.8334356500684"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dot3P</title>
   </circle>
@@ -669,7 +632,6 @@
     cy="360.8334356500684"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dot3</title>
   </circle>
@@ -680,7 +642,6 @@
     cy="317.81724444560047"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dot2P</title>
   </circle>
@@ -691,7 +652,6 @@
     cy="317.81724444560047"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dot2</title>
   </circle>
@@ -702,7 +662,6 @@
     cy="292.6306488768425"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dot1P</title>
   </circle>
@@ -713,7 +672,6 @@
     cy="292.6306488768425"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dot1</title>
   </circle>
@@ -724,7 +682,6 @@
     cy="351.0302320732931"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dotlP</title>
   </circle>
@@ -735,11 +692,10 @@
     cy="351.0302320732931"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N8.dotl</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N7.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -765,7 +721,7 @@
     ></path>
     <title>N7.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N7.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -791,7 +747,7 @@
     ></path>
     <title>N7.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N7.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -817,7 +773,7 @@
     ></path>
     <title>N7.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N7.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -850,7 +806,6 @@
     cy="402.0466205954193"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dotrP</title>
   </circle>
@@ -861,7 +816,6 @@
     cy="402.0466205954193"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dotr</title>
   </circle>
@@ -872,7 +826,6 @@
     cy="380.82614959747985"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dot3P</title>
   </circle>
@@ -883,7 +836,6 @@
     cy="380.82614959747985"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dot3</title>
   </circle>
@@ -894,7 +846,6 @@
     cy="334.5834194997355"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dot2P</title>
   </circle>
@@ -905,7 +856,6 @@
     cy="334.5834194997355"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dot2</title>
   </circle>
@@ -916,7 +866,6 @@
     cy="254.6306380735017"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dot1P</title>
   </circle>
@@ -927,7 +876,6 @@
     cy="254.6306380735017"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dot1</title>
   </circle>
@@ -938,7 +886,6 @@
     cy="241.98234801986928"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dotlP</title>
   </circle>
@@ -949,11 +896,10 @@
     cy="241.98234801986928"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N7.dotl</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N6.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -979,7 +925,7 @@
     ></path>
     <title>N6.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N6.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1005,7 +951,7 @@
     ></path>
     <title>N6.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N6.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1031,7 +977,7 @@
     ></path>
     <title>N6.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N6.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1064,7 +1010,6 @@
     cy="278.49490534232336"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dotrP</title>
   </circle>
@@ -1075,7 +1020,6 @@
     cy="278.49490534232336"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dotr</title>
   </circle>
@@ -1086,7 +1030,6 @@
     cy="354.45869390829347"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dot3P</title>
   </circle>
@@ -1097,7 +1040,6 @@
     cy="354.45869390829347"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dot3</title>
   </circle>
@@ -1108,7 +1050,6 @@
     cy="314.06932211428176"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dot2P</title>
   </circle>
@@ -1119,7 +1060,6 @@
     cy="314.06932211428176"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dot2</title>
   </circle>
@@ -1130,7 +1070,6 @@
     cy="250.98234499328782"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dot1P</title>
   </circle>
@@ -1141,7 +1080,6 @@
     cy="250.98234499328782"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dot1</title>
   </circle>
@@ -1152,7 +1090,6 @@
     cy="303.363326419441"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dotlP</title>
   </circle>
@@ -1163,11 +1100,10 @@
     cy="303.363326419441"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N6.dotl</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N5.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1193,7 +1129,7 @@
     ></path>
     <title>N5.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N5.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1219,7 +1155,7 @@
     ></path>
     <title>N5.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N5.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1245,7 +1181,7 @@
     ></path>
     <title>N5.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N5.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1278,7 +1214,6 @@
     cy="375.05327155641965"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dotrP</title>
   </circle>
@@ -1289,7 +1224,6 @@
     cy="375.05327155641965"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dotr</title>
   </circle>
@@ -1300,7 +1234,6 @@
     cy="433.02594247748004"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dot3P</title>
   </circle>
@@ -1311,7 +1244,6 @@
     cy="433.02594247748004"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dot3</title>
   </circle>
@@ -1322,7 +1254,6 @@
     cy="403.8641833212312"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dot2P</title>
   </circle>
@@ -1333,7 +1264,6 @@
     cy="403.8641833212312"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dot2</title>
   </circle>
@@ -1344,7 +1274,6 @@
     cy="386.9008343358235"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dot1P</title>
   </circle>
@@ -1355,7 +1284,6 @@
     cy="386.9008343358235"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dot1</title>
   </circle>
@@ -1366,7 +1294,6 @@
     cy="448.9102968943273"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dotlP</title>
   </circle>
@@ -1377,11 +1304,10 @@
     cy="448.9102968943273"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N5.dotl</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N4.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1407,7 +1333,7 @@
     ></path>
     <title>N4.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N4.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1433,7 +1359,7 @@
     ></path>
     <title>N4.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N4.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1459,7 +1385,7 @@
     ></path>
     <title>N4.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N4.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1492,7 +1418,6 @@
     cy="241.98291691141236"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dotrP</title>
   </circle>
@@ -1503,7 +1428,6 @@
     cy="241.98291691141236"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dotr</title>
   </circle>
@@ -1514,7 +1438,6 @@
     cy="301.02749722493775"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dot3P</title>
   </circle>
@@ -1525,7 +1448,6 @@
     cy="301.02749722493775"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dot3</title>
   </circle>
@@ -1536,7 +1458,6 @@
     cy="394.46930763845546"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dot2P</title>
   </circle>
@@ -1547,7 +1468,6 @@
     cy="394.46930763845546"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dot2</title>
   </circle>
@@ -1558,7 +1478,6 @@
     cy="424.9008332365015"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dot1P</title>
   </circle>
@@ -1569,7 +1488,6 @@
     cy="424.9008332365015"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dot1</title>
   </circle>
@@ -1580,7 +1498,6 @@
     cy="379.84030711106817"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dotlP</title>
   </circle>
@@ -1591,11 +1508,10 @@
     cy="379.84030711106817"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N4.dotl</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N3.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1621,7 +1537,7 @@
     ></path>
     <title>N3.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N3.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1647,7 +1563,7 @@
     ></path>
     <title>N3.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N3.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1673,7 +1589,7 @@
     ></path>
     <title>N3.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N3.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1706,7 +1622,6 @@
     cy="417.12310622299105"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dotrP</title>
   </circle>
@@ -1717,7 +1632,6 @@
     cy="417.12310622299105"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dotr</title>
   </circle>
@@ -1728,7 +1642,6 @@
     cy="315.2152255379454"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dot3P</title>
   </circle>
@@ -1739,7 +1652,6 @@
     cy="315.2152255379454"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dot3</title>
   </circle>
@@ -1750,7 +1662,6 @@
     cy="267.19455655989805"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dot2P</title>
   </circle>
@@ -1761,7 +1672,6 @@
     cy="267.19455655989805"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dot2</title>
   </circle>
@@ -1772,7 +1682,6 @@
     cy="341.5780568952934"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dot1P</title>
   </circle>
@@ -1783,7 +1692,6 @@
     cy="341.5780568952934"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dot1</title>
   </circle>
@@ -1794,7 +1702,6 @@
     cy="410.8971671742391"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dotlP</title>
   </circle>
@@ -1805,11 +1712,10 @@
     cy="410.8971671742391"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N3.dotl</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N2.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1835,7 +1741,7 @@
     ></path>
     <title>N2.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N2.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1861,7 +1767,7 @@
     ></path>
     <title>N2.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N2.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1887,7 +1793,7 @@
     ></path>
     <title>N2.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N2.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1920,7 +1826,6 @@
     cy="352.1027649544725"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dotrP</title>
   </circle>
@@ -1931,7 +1836,6 @@
     cy="352.1027649544725"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dotr</title>
   </circle>
@@ -1942,7 +1846,6 @@
     cy="308.7962855670079"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dot3P</title>
   </circle>
@@ -1953,7 +1856,6 @@
     cy="308.7962855670079"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dot3</title>
   </circle>
@@ -1964,7 +1866,6 @@
     cy="275.91214229723676"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dot2P</title>
   </circle>
@@ -1975,7 +1876,6 @@
     cy="275.91214229723676"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dot2</title>
   </circle>
@@ -1986,7 +1886,6 @@
     cy="338.0656751842571"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dot1P</title>
   </circle>
@@ -1997,7 +1896,6 @@
     cy="338.0656751842571"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dot1</title>
   </circle>
@@ -2008,7 +1906,6 @@
     cy="282.59159747148414"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dotlP</title>
   </circle>
@@ -2019,11 +1916,10 @@
     cy="282.59159747148414"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N2.dotl</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N1.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -2049,7 +1945,7 @@
     ></path>
     <title>N1.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N1.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -2075,7 +1971,7 @@
     ></path>
     <title>N1.line23</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N1.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -2101,7 +1997,7 @@
     ></path>
     <title>N1.line12</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="N1.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -2134,7 +2030,6 @@
     cy="450.86146315899316"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dotrP</title>
   </circle>
@@ -2145,7 +2040,6 @@
     cy="450.86146315899316"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dotr</title>
   </circle>
@@ -2156,7 +2050,6 @@
     cy="427.65936553742745"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dot3P</title>
   </circle>
@@ -2167,7 +2060,6 @@
     cy="427.65936553742745"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dot3</title>
   </circle>
@@ -2178,7 +2070,6 @@
     cy="441.86418871475"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dot2P</title>
   </circle>
@@ -2189,7 +2080,6 @@
     cy="441.86418871475"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dot2</title>
   </circle>
@@ -2200,7 +2090,6 @@
     cy="348.9008465120011"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dot1P</title>
   </circle>
@@ -2211,7 +2100,6 @@
     cy="348.9008465120011"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dot1</title>
   </circle>
@@ -2222,7 +2110,6 @@
     cy="324.62365587756346"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dotlP</title>
   </circle>
@@ -2233,7 +2120,6 @@
     cy="324.62365587756346"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
     <title>N1.dotl</title>
   </circle>

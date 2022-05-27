@@ -6,7 +6,6 @@
     cy="336.9399201011592"
     stroke="none"
     r="52.07322695552145"
-    ensureOnCanvas="true"
   >
     <title>P10.circle3</title>
   </circle>
@@ -17,7 +16,6 @@
     cy="354.4401776376829"
     stroke="none"
     r="52.09534207677081"
-    ensureOnCanvas="true"
   >
     <title>P9.circle3</title>
   </circle>
@@ -28,7 +26,6 @@
     cy="286.73247343579345"
     stroke="none"
     r="52.024016565473744"
-    ensureOnCanvas="true"
   >
     <title>P8.circle3</title>
   </circle>
@@ -39,7 +36,6 @@
     cy="360.21902339439754"
     stroke="none"
     r="52.06637360526497"
-    ensureOnCanvas="true"
   >
     <title>P7.circle3</title>
   </circle>
@@ -50,7 +46,6 @@
     cy="292.1771750244527"
     stroke="none"
     r="52.09432471639102"
-    ensureOnCanvas="true"
   >
     <title>P6.circle3</title>
   </circle>
@@ -61,7 +56,6 @@
     cy="195.0054854678316"
     stroke="none"
     r="52.065139213071944"
-    ensureOnCanvas="true"
   >
     <title>P5.circle3</title>
   </circle>
@@ -72,7 +66,6 @@
     cy="174.58303969197937"
     stroke="none"
     r="52.06727631712183"
-    ensureOnCanvas="true"
   >
     <title>P4.circle3</title>
   </circle>
@@ -83,7 +76,6 @@
     cy="199.0957749165581"
     stroke="none"
     r="52.068046393431544"
-    ensureOnCanvas="true"
   >
     <title>P3.circle3</title>
   </circle>
@@ -94,7 +86,6 @@
     cy="197.04298809741778"
     stroke="none"
     r="52.066308161373954"
-    ensureOnCanvas="true"
   >
     <title>P2.circle3</title>
   </circle>
@@ -105,14 +96,11 @@
     cy="239.80923914118796"
     stroke="none"
     r="52.06188990340551"
-    ensureOnCanvas="true"
   >
     <title>P1.circle3</title>
   </circle>
   <g
     transform="rotate(0, 524.0702664362191, 187.74734923778246)translate(524.0702664362191, 187.74734923778246)"
-    name="P1.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -165,7 +153,6 @@
     cy="336.9399201011592"
     stroke="none"
     r="29.054044549683272"
-    ensureOnCanvas="true"
   >
     <title>P10.circle2</title>
   </circle>
@@ -176,7 +163,6 @@
     cy="354.4401776376829"
     stroke="none"
     r="29.040956576764902"
-    ensureOnCanvas="true"
   >
     <title>P9.circle2</title>
   </circle>
@@ -187,7 +173,6 @@
     cy="286.73247343579345"
     stroke="none"
     r="29.02410565534539"
-    ensureOnCanvas="true"
   >
     <title>P8.circle2</title>
   </circle>
@@ -198,7 +183,6 @@
     cy="360.21902339439754"
     stroke="none"
     r="29.05411104428102"
-    ensureOnCanvas="true"
   >
     <title>P7.circle2</title>
   </circle>
@@ -209,7 +193,6 @@
     cy="292.1771750244527"
     stroke="none"
     r="29.03722597758778"
-    ensureOnCanvas="true"
   >
     <title>P6.circle2</title>
   </circle>
@@ -220,7 +203,6 @@
     cy="195.0054854678316"
     stroke="none"
     r="29.057864004359978"
-    ensureOnCanvas="true"
   >
     <title>P5.circle2</title>
   </circle>
@@ -231,7 +213,6 @@
     cy="174.58303969197937"
     stroke="none"
     r="29.05786461030455"
-    ensureOnCanvas="true"
   >
     <title>P4.circle2</title>
   </circle>
@@ -242,7 +223,6 @@
     cy="199.0957749165581"
     stroke="none"
     r="29.05774066848995"
-    ensureOnCanvas="true"
   >
     <title>P3.circle2</title>
   </circle>
@@ -253,7 +233,6 @@
     cy="197.04298809741778"
     stroke="none"
     r="29.054044954362226"
-    ensureOnCanvas="true"
   >
     <title>P2.circle2</title>
   </circle>
@@ -264,14 +243,11 @@
     cy="239.80923914118796"
     stroke="none"
     r="29.057746188704584"
-    ensureOnCanvas="true"
   >
     <title>P1.circle2</title>
   </circle>
   <g
     transform="rotate(0, 250.66800462920315, 210.75149295248337)translate(250.66800462920315, 210.75149295248337)"
-    name="P1.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -324,7 +300,6 @@
     cy="336.9399201011592"
     stroke="none"
     r="7.954893679376416"
-    ensureOnCanvas="true"
   >
     <title>P10.circle1</title>
   </circle>
@@ -335,7 +310,6 @@
     cy="354.4401776376829"
     stroke="none"
     r="7.954923519875253"
-    ensureOnCanvas="true"
   >
     <title>P9.circle1</title>
   </circle>
@@ -346,7 +320,6 @@
     cy="286.73247343579345"
     stroke="none"
     r="7.954921679635969"
-    ensureOnCanvas="true"
   >
     <title>P8.circle1</title>
   </circle>
@@ -357,7 +330,6 @@
     cy="360.21902339439754"
     stroke="none"
     r="7.954922486813676"
-    ensureOnCanvas="true"
   >
     <title>P7.circle1</title>
   </circle>
@@ -368,7 +340,6 @@
     cy="292.1771750244527"
     stroke="none"
     r="7.954923722196334"
-    ensureOnCanvas="true"
   >
     <title>P6.circle1</title>
   </circle>
@@ -379,7 +350,6 @@
     cy="195.0054854678316"
     stroke="none"
     r="7.954921596281423"
-    ensureOnCanvas="true"
   >
     <title>P5.circle1</title>
   </circle>
@@ -390,7 +360,6 @@
     cy="174.58303969197937"
     stroke="none"
     r="7.95492444223082"
-    ensureOnCanvas="true"
   >
     <title>P4.circle1</title>
   </circle>
@@ -401,7 +370,6 @@
     cy="199.0957749165581"
     stroke="none"
     r="7.954905072136665"
-    ensureOnCanvas="true"
   >
     <title>P3.circle1</title>
   </circle>
@@ -412,7 +380,6 @@
     cy="197.04298809741778"
     stroke="none"
     r="7.954918861759638"
-    ensureOnCanvas="true"
   >
     <title>P2.circle1</title>
   </circle>
@@ -423,14 +390,11 @@
     cy="239.80923914118796"
     stroke="none"
     r="7.952284552698781"
-    ensureOnCanvas="true"
   >
     <title>P1.circle1</title>
   </circle>
   <g
     transform="rotate(0, -0.0020755835688772706, 231.85695458848917)translate(-0.0020755835688772706, 231.85695458848917)"
-    name="P1.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -478,8 +442,6 @@
   </g>
   <g
     transform="rotate(0, 525.5921440677118, 284.8666931456378)translate(525.5921440677118, 284.8666931456378)"
-    name="P10.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -527,8 +489,6 @@
   </g>
   <g
     transform="rotate(0, 252.19374907420593, 307.8858755514759)translate(252.19374907420593, 307.8858755514759)"
-    name="P10.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -576,8 +536,6 @@
   </g>
   <g
     transform="rotate(0, 1.5186342372139263, 328.9850264217828)translate(1.5186342372139263, 328.9850264217828)"
-    name="P10.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -623,7 +581,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P10P1.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -667,8 +625,6 @@
   </g>
   <g
     transform="rotate(0, 621.161729666083, 302.3448355609121)translate(621.161729666083, 302.3448355609121)"
-    name="P9.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -716,8 +672,6 @@
   </g>
   <g
     transform="rotate(0, 347.7982404481832, 325.39922106091797)translate(347.7982404481832, 325.39922106091797)"
-    name="P9.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -765,8 +719,6 @@
   </g>
   <g
     transform="rotate(0, 97.1100154300239, 346.48525411780764)translate(97.1100154300239, 346.48525411780764)"
-    name="P9.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -812,7 +764,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P9P10.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -856,8 +808,6 @@
   </g>
   <g
     transform="rotate(0, 628.0842096428165, 234.7084568703197)translate(628.0842096428165, 234.7084568703197)"
-    name="P8.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -905,8 +855,6 @@
   </g>
   <g
     transform="rotate(0, 354.6519029066079, 257.70836778044804)translate(354.6519029066079, 257.70836778044804)"
-    name="P8.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -954,8 +902,6 @@
   </g>
   <g
     transform="rotate(0, 103.94682920982073, 278.7775517561575)translate(103.94682920982073, 278.7775517561575)"
-    name="P8.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1001,7 +947,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P8P9.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1045,8 +991,6 @@
   </g>
   <g
     transform="rotate(0, 691.087964928061, 308.15264978913257)translate(691.087964928061, 308.15264978913257)"
-    name="P7.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1094,8 +1038,6 @@
   </g>
   <g
     transform="rotate(0, 417.68325475772957, 331.16491235011654)translate(417.68325475772957, 331.16491235011654)"
-    name="P7.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1143,8 +1085,6 @@
   </g>
   <g
     transform="rotate(0, 167.0081856429644, 352.26410090758384)translate(167.0081856429644, 352.26410090758384)"
-    name="P7.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1190,7 +1130,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P7P9.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1232,7 +1172,7 @@
     ></path>
     <title>C3P7P9.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P7P8.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1276,8 +1216,6 @@
   </g>
   <g
     transform="rotate(0, 695.8118794370877, 240.0828503080617)translate(695.8118794370877, 240.0828503080617)"
-    name="P6.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1325,8 +1263,6 @@
   </g>
   <g
     transform="rotate(0, 422.46551598153906, 263.1399490468649)translate(422.46551598153906, 263.1399490468649)"
-    name="P6.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1374,8 +1310,6 @@
   </g>
   <g
     transform="rotate(0, 171.7723940184385, 284.2222513022564)translate(171.7723940184385, 284.2222513022564)"
-    name="P6.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1421,7 +1355,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P6P9.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1463,7 +1397,7 @@
     ></path>
     <title>C3P6P9.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P6P8.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1505,7 +1439,7 @@
     ></path>
     <title>C3P6P8.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P6P7.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1549,8 +1483,6 @@
   </g>
   <g
     transform="rotate(0, 695.8627862956845, 142.94034625475965)translate(695.8627862956845, 142.94034625475965)"
-    name="P5.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1598,8 +1530,6 @@
   </g>
   <g
     transform="rotate(0, 422.4452442621109, 165.94762146347162)translate(422.4452442621109, 165.94762146347162)"
-    name="P5.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1647,8 +1577,6 @@
   </g>
   <g
     transform="rotate(0, 171.77253268181636, 187.05056387155017)translate(171.77253268181636, 187.05056387155017)"
-    name="P5.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1694,7 +1622,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P5P6.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1738,8 +1666,6 @@
   </g>
   <g
     transform="rotate(0, 648.9866800175388, 122.51576337485753)translate(648.9866800175388, 122.51576337485753)"
-    name="P4.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1787,8 +1713,6 @@
   </g>
   <g
     transform="rotate(0, 375.5822785470509, 145.52517508167483)translate(375.5822785470509, 145.52517508167483)"
-    name="P4.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1836,8 +1760,6 @@
   </g>
   <g
     transform="rotate(0, 124.91096091521656, 166.62811524974853)translate(124.91096091521656, 166.62811524974853)"
-    name="P4.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1883,7 +1805,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P4P5.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -1927,8 +1849,6 @@
   </g>
   <g
     transform="rotate(0, 554.9900846090178, 147.02772852312654)translate(554.9900846090178, 147.02772852312654)"
-    name="P3.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1976,8 +1896,6 @@
   </g>
   <g
     transform="rotate(0, 281.58101620293246, 170.03803424806816)translate(281.58101620293246, 170.03803424806816)"
-    name="P3.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2025,8 +1943,6 @@
   </g>
   <g
     transform="rotate(0, 30.909605725663386, 191.14086984442145)translate(30.909605725663386, 191.14086984442145)"
-    name="P3.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2072,7 +1988,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P3P4.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -2114,7 +2030,7 @@
     ></path>
     <title>C3P3P4.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P3P1.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -2158,8 +2074,6 @@
   </g>
   <g
     transform="rotate(0, 525.0687912568907, 144.9766799360438)translate(525.0687912568907, 144.9766799360438)"
-    name="P2.shade3"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2207,8 +2121,6 @@
   </g>
   <g
     transform="rotate(0, 251.6640388321183, 167.98894314305556)translate(251.6640388321183, 167.98894314305556)"
-    name="P2.shade2"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2256,8 +2168,6 @@
   </g>
   <g
     transform="rotate(0, 0.9888734843450768, 189.08806923565814)translate(0.9888734843450768, 189.08806923565814)"
-    name="P2.shade1"
-    ensureOnCanvas="false"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2303,7 +2213,7 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P2P3.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -2345,7 +2255,7 @@
     ></path>
     <title>C3P2P3.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C3P1P2.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -2387,7 +2297,7 @@
     ></path>
     <title>C3P1P2.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C2P4P5.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -2429,7 +2339,7 @@
     ></path>
     <title>C2P4P5.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C2P3P1.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -2471,7 +2381,7 @@
     ></path>
     <title>C2P3P1.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C2P2P3.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -2513,7 +2423,7 @@
     ></path>
     <title>C2P2P3.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="C2P1P2.line-leftArrowhead"
       markerUnits="strokeWidth"
@@ -2562,7 +2472,6 @@
     cy="336.9399201011592"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P10.dot3</title>
   </circle>
@@ -2573,7 +2482,6 @@
     cy="336.9399201011592"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P10.dot2</title>
   </circle>
@@ -2584,7 +2492,6 @@
     cy="336.9399201011592"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P10.dot1</title>
   </circle>
@@ -2595,7 +2502,6 @@
     cy="354.4401776376829"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P9.dot3</title>
   </circle>
@@ -2606,7 +2512,6 @@
     cy="354.4401776376829"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P9.dot2</title>
   </circle>
@@ -2617,7 +2522,6 @@
     cy="354.4401776376829"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P9.dot1</title>
   </circle>
@@ -2628,7 +2532,6 @@
     cy="286.73247343579345"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P8.dot3</title>
   </circle>
@@ -2639,7 +2542,6 @@
     cy="286.73247343579345"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P8.dot2</title>
   </circle>
@@ -2650,7 +2552,6 @@
     cy="286.73247343579345"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P8.dot1</title>
   </circle>
@@ -2661,7 +2562,6 @@
     cy="360.21902339439754"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P7.dot3</title>
   </circle>
@@ -2672,7 +2572,6 @@
     cy="360.21902339439754"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P7.dot2</title>
   </circle>
@@ -2683,7 +2582,6 @@
     cy="360.21902339439754"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P7.dot1</title>
   </circle>
@@ -2694,7 +2592,6 @@
     cy="292.1771750244527"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P6.dot3</title>
   </circle>
@@ -2705,7 +2602,6 @@
     cy="292.1771750244527"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P6.dot2</title>
   </circle>
@@ -2716,7 +2612,6 @@
     cy="292.1771750244527"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P6.dot1</title>
   </circle>
@@ -2727,7 +2622,6 @@
     cy="195.0054854678316"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P5.dot3</title>
   </circle>
@@ -2738,7 +2632,6 @@
     cy="195.0054854678316"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P5.dot2</title>
   </circle>
@@ -2749,7 +2642,6 @@
     cy="195.0054854678316"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P5.dot1</title>
   </circle>
@@ -2760,7 +2652,6 @@
     cy="174.58303969197937"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P4.dot3</title>
   </circle>
@@ -2771,7 +2662,6 @@
     cy="174.58303969197937"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P4.dot2</title>
   </circle>
@@ -2782,7 +2672,6 @@
     cy="174.58303969197937"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P4.dot1</title>
   </circle>
@@ -2793,7 +2682,6 @@
     cy="199.0957749165581"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P3.dot3</title>
   </circle>
@@ -2804,7 +2692,6 @@
     cy="199.0957749165581"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P3.dot2</title>
   </circle>
@@ -2815,7 +2702,6 @@
     cy="199.0957749165581"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P3.dot1</title>
   </circle>
@@ -2826,7 +2712,6 @@
     cy="197.04298809741778"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P2.dot3</title>
   </circle>
@@ -2837,7 +2722,6 @@
     cy="197.04298809741778"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P2.dot2</title>
   </circle>
@@ -2848,7 +2732,6 @@
     cy="197.04298809741778"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P2.dot1</title>
   </circle>
@@ -2859,7 +2742,6 @@
     cy="239.80923914118796"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P1.dot3</title>
   </circle>
@@ -2870,7 +2752,6 @@
     cy="239.80923914118796"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P1.dot2</title>
   </circle>
@@ -2881,14 +2762,12 @@
     cy="239.80923914118796"
     stroke="none"
     r="3"
-    ensureOnCanvas="true"
   >
     <title>P1.dot1</title>
   </circle>
   <g
     transform="rotate(0, 645.9093443337188, 77.31261063309638)translate(645.9093443337188, 77.31261063309638)"
     string="X \oplus B_{\varepsilon_{3}}"
-    ensureOnCanvas="true"
   >
     <title>F.lab3</title>
     <svg
@@ -2967,7 +2846,6 @@
   <g
     transform="rotate(0, 349.1517571382442, 77.37761063309638)translate(349.1517571382442, 77.37761063309638)"
     string="X \oplus B_{\varepsilon_{2}}"
-    ensureOnCanvas="true"
   >
     <title>F.lab2</title>
     <svg
@@ -3046,7 +2924,6 @@
   <g
     transform="rotate(0, 77.37744585166493, 77.37761063309638)translate(77.37744585166493, 77.37761063309638)"
     string="X \oplus B_{\varepsilon_{1}}"
-    ensureOnCanvas="true"
   >
     <title>F.lab1</title>
     <svg
@@ -3125,7 +3002,6 @@
   <g
     transform="rotate(0, 704.6842474486534, 450.64894895191975)translate(704.6842474486534, 450.64894895191975)"
     string="\varepsilon_3"
-    ensureOnCanvas="true"
   >
     <title>F.eps3</title>
     <svg
@@ -3175,7 +3051,6 @@
   <g
     transform="rotate(0, 408.26729843254896, 450.64894895191975)translate(408.26729843254896, 450.64894895191975)"
     string="\varepsilon_2"
-    ensureOnCanvas="true"
   >
     <title>F.eps2</title>
     <svg
@@ -3225,7 +3100,6 @@
   <g
     transform="rotate(0, 136.49298714596966, 450.64894895191975)translate(136.49298714596966, 450.64894895191975)"
     string="\varepsilon_1"
-    ensureOnCanvas="true"
   >
     <title>F.eps1</title>
     <svg
@@ -3275,7 +3149,6 @@
   <g
     transform="rotate(0, 785.6764768108166, 430.64894895191975)translate(785.6764768108166, 430.64894895191975)"
     string="\varepsilon"
-    ensureOnCanvas="true"
   >
     <title>F.eps</title>
     <svg
@@ -3314,7 +3187,6 @@
   <g
     transform="rotate(0, -0.002256810816654742, 430.64894895191975)translate(-0.002256810816654742, 430.64894895191975)"
     string="0"
-    ensureOnCanvas="true"
   >
     <title>F.eps0</title>
     <svg
@@ -3357,7 +3229,6 @@
     cy="445.47894895191973"
     stroke="none"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>F.dot3</title>
   </circle>
@@ -3368,7 +3239,6 @@
     cy="445.47894895191973"
     stroke="none"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>F.dot2</title>
   </circle>
@@ -3379,7 +3249,6 @@
     cy="445.47894895191973"
     stroke="none"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>F.dot1</title>
   </circle>
@@ -3390,11 +3259,10 @@
     cy="445.47894895191973"
     stroke="none"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>F.dot0</title>
   </circle>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="F.axis-leftArrowhead"
       markerUnits="strokeWidth"

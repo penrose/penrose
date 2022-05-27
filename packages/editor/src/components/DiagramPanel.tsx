@@ -6,8 +6,10 @@ import {
 } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useRecoilCallback, useRecoilState } from "recoil";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { v4 as uuid } from "uuid";
 import {
+  currentRogerState,
   diagramState,
   WorkspaceMetadata,
   workspaceMetadataSelector,
@@ -40,6 +42,8 @@ export default function DiagramPanel() {
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const { location } = useRecoilValue(workspaceMetadataSelector);
+  const rogerState = useRecoilValue(currentRogerState);
 
   const requestRef = useRef<number>();
 
@@ -48,7 +52,7 @@ export default function DiagramPanel() {
     if (state !== null && cur !== null) {
       (async () => {
         // render the current frame
-        const rendered = await RenderStatic(state, async () => undefined);
+        const rendered = await RenderStatic(state, pathResolver);
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -127,6 +131,45 @@ export default function DiagramPanel() {
     },
     [state]
   );
+
+  const pathResolver = async (
+    relativePath: string
+  ): Promise<string | undefined> => {
+    switch (location.kind) {
+      case "example": {
+        const fileURL = new URL(relativePath, location.root).href;
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      }
+      case "roger": {
+        if (rogerState.kind === "connected") {
+          const { ws } = rogerState;
+          return new Promise((resolve /*, reject*/) => {
+            const token = uuid();
+            ws.addEventListener("message", (e) => {
+              const parsed = JSON.parse(e.data);
+              if (parsed.kind === "file_change" && parsed.token === token) {
+                return resolve(parsed.contents);
+              }
+            });
+            ws.send(
+              JSON.stringify({
+                kind: "retrieve_file_from_style",
+                relativePath,
+                stylePath: location.style,
+                token,
+              })
+            );
+          });
+        }
+      }
+      // TODO: publish images in the gist
+      case "gist":
+      // TODO: cache images in local storage?
+      case "local":
+        return undefined;
+    }
+  };
 
   return (
     <div>
