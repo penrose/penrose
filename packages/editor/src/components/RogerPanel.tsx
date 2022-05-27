@@ -3,8 +3,7 @@ import { useEffect } from "react";
 import Select from "react-select";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
-import { RogerState } from "../App";
-import { currentWorkspaceState, ProgramType } from "../state/atoms";
+import { currentWorkspaceState, ProgramType, RogerState } from "../state/atoms";
 export default function RogerPanel({
   rogerState,
   ws,
@@ -26,11 +25,27 @@ export default function RogerPanel({
           style: files.style.name,
           domain: files.domain.name,
         });
+        const { location } = state.metadata;
+
+        const fileLocations =
+          location.kind === "roger"
+            ? { ...location, [key]: val }
+            : {
+                substance: undefined,
+                style: undefined,
+                domain: undefined,
+              };
+
         return {
           ...state,
           metadata: {
             ...state.metadata,
-            location: { kind: "roger" as const },
+            location: {
+              kind: "roger" as const,
+              // TODO: only set the root of the location if a style file is selected
+              // TODO: do path processing in a more principled way
+              ...fileLocations,
+            },
             id: uuid(),
           },
           files,

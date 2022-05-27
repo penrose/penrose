@@ -701,7 +701,7 @@ export const ops = {
   },
 
   /**
-   * Return the absolute value of the vector `v`
+   * Return the entrywise absolute value of the vector `v`
    */
   vabs: (v: ad.Num[]): ad.Num[] => {
     return v.map((e) => absVal(e));

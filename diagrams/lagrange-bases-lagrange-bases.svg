@@ -9,11 +9,10 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 0, 0)"
-    ensureOnCanvas="false"
   >
     <title>Global.box</title>
   </rect>
-  <g ensureOnCanvas="false">
+  <g>
     <filter id="e.curveKI-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -39,7 +38,7 @@
     ></path>
     <title>e.curveKI</title>
   </g>
-  <g ensureOnCanvas="false">
+  <g>
     <filter id="e.curveJK-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -65,7 +64,7 @@
     ></path>
     <title>e.curveJK</title>
   </g>
-  <g ensureOnCanvas="false">
+  <g>
     <filter id="e.curveIJ-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -91,7 +90,7 @@
     ></path>
     <title>e.curveIJ</title>
   </g>
-  <g ensureOnCanvas="false">
+  <g>
     <filter id="t2.curveKI-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -117,7 +116,7 @@
     ></path>
     <title>t2.curveKI</title>
   </g>
-  <g ensureOnCanvas="false">
+  <g>
     <filter id="t2.curveJK-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -143,7 +142,7 @@
     ></path>
     <title>t2.curveJK</title>
   </g>
-  <g ensureOnCanvas="false">
+  <g>
     <filter id="t2.curveIJ-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -172,7 +171,6 @@
   <g
     transform="rotate(0, 89.26064917139793, 48.3025786142979)translate(89.26064917139793, 48.3025786142979)"
     string="m_{ki}"
-    ensureOnCanvas="true"
   >
     <title>z.labelText</title>
     <svg
@@ -238,14 +236,12 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>z.icon</title>
   </circle>
   <g
     transform="rotate(0, 109.08889059476698, 0.7509307881362712)translate(109.08889059476698, 0.7509307881362712)"
     string="m_{jk}"
-    ensureOnCanvas="true"
   >
     <title>y.labelText</title>
     <svg
@@ -311,14 +307,12 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>y.icon</title>
   </circle>
   <g
     transform="rotate(0, 124.57188759492986, 113.53217649761181)translate(124.57188759492986, 113.53217649761181)"
     string="m_{ij}"
-    ensureOnCanvas="true"
   >
     <title>x.labelText</title>
     <svg
@@ -384,14 +378,12 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>x.icon</title>
   </circle>
   <g
     transform="rotate(0, 176.72921262790018, 133.94308137023853)translate(176.72921262790018, 133.94308137023853)"
     string="m_{jl}"
-    ensureOnCanvas="true"
   >
     <title>v.labelText</title>
     <svg
@@ -457,14 +449,12 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>v.icon</title>
   </circle>
   <g
     transform="rotate(0, 153.296069217989, 164.24390572369637)translate(153.296069217989, 164.24390572369637)"
     string="m_{il}"
-    ensureOnCanvas="true"
   >
     <title>u.labelText</title>
     <svg
@@ -530,14 +520,12 @@
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
-    ensureOnCanvas="true"
   >
     <title>u.icon</title>
   </circle>
   <g
     transform="rotate(0, 230.65766967776008, 168.24635135868377)translate(230.65766967776008, 168.24635135868377)"
     string="p_l"
-    ensureOnCanvas="true"
   >
     <title>d.labelText</title>
     <svg
@@ -591,14 +579,12 @@
     cy="169.18707660461976"
     stroke="none"
     r="2.5"
-    ensureOnCanvas="true"
   >
     <title>d.icon</title>
   </circle>
   <g
     transform="rotate(0, 66.2197638008034, 1.1892235792419665)translate(66.2197638008034, 1.1892235792419665)"
     string="p_k"
-    ensureOnCanvas="true"
   >
     <title>c.labelText</title>
     <svg
@@ -652,14 +638,12 @@
     cy="13.854081476506337"
     stroke="none"
     r="2.5"
-    ensureOnCanvas="true"
   >
     <title>c.icon</title>
   </circle>
   <g
     transform="rotate(0, 161.77736258006001, 42.35945573997256)translate(161.77736258006001, 42.35945573997256)"
     string="p_j"
-    ensureOnCanvas="true"
   >
     <title>b.labelText</title>
     <svg
@@ -713,14 +697,12 @@
     cy="58.347473025419674"
     stroke="none"
     r="2.5"
-    ensureOnCanvas="true"
   >
     <title>b.icon</title>
   </circle>
   <g
     transform="rotate(0, 54.48312571193632, 119.25817654525822)translate(54.48312571193632, 119.25817654525822)"
     string="p_i"
-    ensureOnCanvas="true"
   >
     <title>a.labelText</title>
     <svg
@@ -774,7 +756,6 @@
     cy="125.4159621727965"
     stroke="none"
     r="2.5"
-    ensureOnCanvas="true"
   >
     <title>a.icon</title>
   </circle>

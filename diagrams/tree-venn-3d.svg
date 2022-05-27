@@ -1,8 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g
     transform="rotate(0, 149.12506440144062, 0.05698010310487689)translate(149.12506440144062, 0.05698010310487689)"
-    name="A.shadow"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -41,8 +39,6 @@
   </g>
   <g
     transform="rotate(0, 152.77911819629708, 2.005808793694996)translate(152.77911819629708, 2.005808793694996)"
-    name="A.shading"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -91,14 +87,12 @@
     cy="245.6093951174562"
     stroke="none"
     r="243.6035863237612"
-    ensureOnCanvas="true"
   >
     <title>A.shape</title>
   </circle>
   <g
     transform="rotate(0, 335.2667371598729, 184.71530235722523)translate(335.2667371598729, 184.71530235722523)"
     string="A"
-    ensureOnCanvas="true"
   >
     <title>A.text</title>
     <svg
@@ -136,8 +130,6 @@
   </g>
   <g
     transform="rotate(0, 254.81265014091855, 304.933374108782)translate(254.81265014091855, 304.933374108782)"
-    name="C.shadow"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -176,8 +168,6 @@
   </g>
   <g
     transform="rotate(0, 255.82672020565468, 305.4742114766412)translate(255.82672020565468, 305.4742114766412)"
-    name="C.shading"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -226,14 +216,12 @@
     cy="373.0788824590486"
     stroke="none"
     r="67.6046709824074"
-    ensureOnCanvas="true"
   >
     <title>C.shape</title>
   </circle>
   <g
     transform="rotate(0, 307.42369233784433, 356.3993080350703)translate(307.42369233784433, 356.3993080350703)"
     string="C"
-    ensureOnCanvas="true"
   >
     <title>C.text</title>
     <svg
@@ -271,8 +259,6 @@
   </g>
   <g
     transform="rotate(0, 278.5569876594177, 318.13448909223274)translate(278.5569876594177, 318.13448909223274)"
-    name="G.shadow"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -311,8 +297,6 @@
   </g>
   <g
     transform="rotate(0, 278.8571110090506, 318.2945548787036)translate(278.8571110090506, 318.2945548787036)"
-    name="G.shading"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -361,14 +345,12 @@
     cy="338.30277818756196"
     stroke="none"
     r="20.00822330885834"
-    ensureOnCanvas="true"
   >
     <title>G.shape</title>
   </circle>
   <g
     transform="rotate(0, 293.86326559441346, 333.343141865327)translate(293.86326559441346, 333.343141865327)"
     string="G"
-    ensureOnCanvas="true"
   >
     <title>G.text</title>
     <svg
@@ -406,8 +388,6 @@
   </g>
   <g
     transform="rotate(0, 321.21072226003946, 314.3870158784112)translate(321.21072226003946, 314.3870158784112)"
-    name="F.shadow"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -446,8 +426,6 @@
   </g>
   <g
     transform="rotate(0, 321.51150154595496, 314.5474314975661)translate(321.51150154595496, 314.5474314975661)"
-    name="F.shading"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -496,14 +474,12 @@
     cy="334.5993838919341"
     stroke="none"
     r="20.051952394367994"
-    ensureOnCanvas="true"
   >
     <title>F.shape</title>
   </circle>
   <g
     transform="rotate(0, 336.3486316399235, 329.67512767591006)translate(336.3486316399235, 329.67512767591006)"
     string="F"
-    ensureOnCanvas="true"
   >
     <title>F.text</title>
     <svg
@@ -541,8 +517,6 @@
   </g>
   <g
     transform="rotate(0, 382.8369948897035, 353.8058325825915)translate(382.8369948897035, 353.8058325825915)"
-    name="B.shadow"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -581,8 +555,6 @@
   </g>
   <g
     transform="rotate(0, 383.7597242606488, 354.2979549137624)translate(383.7597242606488, 354.2979549137624)"
-    name="B.shading"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -631,14 +603,12 @@
     cy="415.8132463101179"
     stroke="none"
     r="61.515291396355515"
-    ensureOnCanvas="true"
   >
     <title>B.shape</title>
   </circle>
   <g
     transform="rotate(0, 430.4475600280418, 400.78128541269)translate(430.4475600280418, 400.78128541269)"
     string="B"
-    ensureOnCanvas="true"
   >
     <title>B.text</title>
     <svg
@@ -676,8 +646,6 @@
   </g>
   <g
     transform="rotate(0, 390.1476054099487, 384.680724131423)translate(390.1476054099487, 384.680724131423)"
-    name="E.shadow"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -716,8 +684,6 @@
   </g>
   <g
     transform="rotate(0, 390.44760367833635, 384.84072320789636)translate(390.44760367833635, 384.84072320789636)"
-    name="E.shading"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -766,14 +732,12 @@
     cy="404.8406077670693"
     stroke="none"
     r="19.99988455917291"
-    ensureOnCanvas="true"
   >
     <title>E.shape</title>
   </circle>
   <g
     transform="rotate(0, 405.0943627607588, 399.33735288897907)translate(405.0943627607588, 399.33735288897907)"
     string="E"
-    ensureOnCanvas="true"
   >
     <title>E.text</title>
     <svg
@@ -811,8 +775,6 @@
   </g>
   <g
     transform="rotate(0, 461.1992506717864, 391.14483724243155)translate(461.1992506717864, 391.14483724243155)"
-    name="D.shadow"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -851,8 +813,6 @@
   </g>
   <g
     transform="rotate(0, 461.4993423129691, 391.304886117729)translate(461.4993423129691, 391.304886117729)"
-    name="D.shading"
-    ensureOnCanvas="true"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -901,14 +861,12 @@
     cy="411.31099552990725"
     stroke="none"
     r="20.006109412178258"
-    ensureOnCanvas="true"
   >
     <title>D.shape</title>
   </circle>
   <g
     transform="rotate(0, 476.5634122102169, 406.1799548584155)translate(476.5634122102169, 406.1799548584155)"
     string="D"
-    ensureOnCanvas="true"
   >
     <title>D.text</title>
     <svg

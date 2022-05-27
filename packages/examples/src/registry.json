@@ -138,6 +138,24 @@
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
       "variation": "GumdropsElk9023"
+    },
+    {
+      "substance": "points-around-star",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "ReformLapwing68793"
+    },
+    {
+      "substance": "points-around-polyline",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "SharkskinWalrus24396"
+    },
+    {
+      "substance": "points-around-line",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "GalapagosLocust418"
     }
   ],
   "domains": {
@@ -184,6 +202,10 @@
     "walk-on-spheres": {
       "name": "Walk on Spheres",
       "URI": "walk-on-spheres/walk-on-spheres.dsl"
+    },
+    "shape-distance": {
+      "name": "Signed Distance Function",
+      "URI": "shape-distance/shapes.dsl"
     }
   },
   "styles": {
@@ -270,6 +292,11 @@
     "walk-on-spheres": {
       "name": "Walk on Spheres",
       "URI": "walk-on-spheres/walk-on-spheres.sty"
+    },
+    "shape-distance": {
+      "domain": "shape-distance",
+      "name": "Sign Distance Functions",
+      "URI": "shape-distance/shape-distance.sty"
     }
   },
   "substances": {
@@ -372,6 +399,21 @@
       "domain": "walk-on-spheres",
       "name": "WoS Laplace Estimator",
       "URI": "walk-on-spheres/OffCenter.sub"
+    },
+    "points-around-star": {
+      "domain": "shape-distance",
+      "name": "Points around a Star",
+      "URI": "shape-distance/hundred-points-around-star.sub"
+    },
+    "points-around-polyline": {
+      "domain": "shape-distance",
+      "name": "Points around a Polyline",
+      "URI": "shape-distance/ninety-points-around-polyline.sub"
+    },
+    "points-around-line": {
+      "domain": "shape-distance",
+      "name": "Points around a Line",
+      "URI": "shape-distance/hundred-points-around-line.sub"
     }
   }
 }
