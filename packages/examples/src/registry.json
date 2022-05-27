@@ -114,6 +114,24 @@
       "style": "persistent-homology",
       "domain": "persistent-homology",
       "variation": "RainmakerMarten88256"
+    },
+    {
+      "substance": "points-around-star",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "ReformLapwing68793"
+    },
+    {
+      "substance": "points-around-polyline",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "SharkskinWalrus24396"
+    },
+    {
+      "substance": "points-around-line",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "GalapagosLocust418"
     }
   ],
   "domains": {
@@ -156,6 +174,10 @@
     "persistent-homology": {
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.dsl"
+    },
+    "shape-distance": {
+      "name": "Signed Distance Function",
+      "URI": "shape-distance/shapes.dsl"
     }
   },
   "styles": {
@@ -238,6 +260,11 @@
       "domain": "persistent-homology",
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.sty"
+    },
+    "shape-distance": {
+      "domain": "shape-distance",
+      "name": "Sign Distance Functions",
+      "URI": "shape-distance/shape-distance.sty"
     }
   },
   "substances": {
@@ -320,6 +347,21 @@
       "domain": "persistent-homology",
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.sub"
+    },
+    "points-around-star": {
+      "domain": "shape-distance",
+      "name": "Points around a Star",
+      "URI": "shape-distance/hundred-points-around-star.sub"
+    },
+    "points-around-polyline": {
+      "domain": "shape-distance",
+      "name": "Points around a Polyline",
+      "URI": "shape-distance/ninety-points-around-polyline.sub"
+    },
+    "points-around-line": {
+      "domain": "shape-distance",
+      "name": "Points around a Line",
+      "URI": "shape-distance/hundred-points-around-line.sub"
     }
   }
 }
