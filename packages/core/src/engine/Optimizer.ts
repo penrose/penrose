@@ -3,6 +3,7 @@ import { genCode, input, makeGraph, ops } from "engine/Autodiff";
 import { defaultLbfgsParams, initConstraintWeight } from "engine/EngineUtils";
 import * as _ from "lodash";
 import { Matrix } from "ml-matrix";
+import { InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { FnCached, LbfgsParams, Params, State } from "types/state";
 import {
@@ -789,12 +790,10 @@ export const evalEnergyOnCustom = (
 };
 
 export const genOptProblem = (
-  xs: number[],
+  inputs: InputMeta[],
   objEngs: ad.Num[],
   constrEngs: ad.Num[]
 ): Params => {
-  log.trace("step newIter, xs", xs);
-
   // if (!state.params.functionsCompiled) {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
@@ -822,8 +821,9 @@ export const genOptProblem = (
       gradf: xs.map((x, i) => {
         const j = i + 1; // ignore epWeight gradient
 
-        // fill in any holes, in case some inputs weren't used in the graph
-        return j in gradient ? gradient[j] : 0;
+        // fill in any holes in case some inputs weren't used in the graph, and
+        // also treat pending values as constants rather than optimizing them
+        return j in gradient && !("pending" in inputs[j]) ? gradient[j] : 0;
       }),
       objEngs: secondary.slice(0, objEngs.length),
       constrEngs: secondary.slice(objEngs.length),
@@ -831,8 +831,8 @@ export const genOptProblem = (
   };
 
   const params: Params = {
-    lastGradient: repeat(xs.length, 0),
-    lastGradientPreconditioned: repeat(xs.length, 0),
+    lastGradient: repeat(inputs.length, 0),
+    lastGradientPreconditioned: repeat(inputs.length, 0),
 
     objectiveAndGradient,
 

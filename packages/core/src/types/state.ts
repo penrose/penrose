@@ -1,5 +1,5 @@
 import { Matrix } from "ml-matrix";
-import { Canvas, Sampler } from "shapes/Samplers";
+import { Canvas, InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { A } from "./ast";
 import { Shape, ShapeAD } from "./shape";
@@ -16,7 +16,7 @@ export interface State {
   objFns: Fn[];
   constrFns: Fn[];
   varyingValues: number[];
-  samplers: Sampler[]; // same length as `varyingValues`
+  inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
   shapes: ShapeAD[];
   canvas: Canvas;

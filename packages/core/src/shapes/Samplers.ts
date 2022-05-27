@@ -28,7 +28,18 @@ export const makeCanvas = (width: number, height: number): Canvas => ({
 });
 
 export type Sampler = (rng: seedrandom.prng) => number;
-export type InputFactory = (sampler: Sampler) => ad.Input; // NOTE: stateful!
+
+export interface SamplerMeta {
+  sampler: Sampler;
+}
+
+export interface PendingMeta {
+  pending: number; // placeholder value to use until label collection completes
+}
+
+export type InputMeta = SamplerMeta | PendingMeta;
+
+export type InputFactory = (meta: InputMeta) => ad.Input; // NOTE: stateful!
 
 export interface Context {
   makeInput: InputFactory;
@@ -37,12 +48,19 @@ export interface Context {
 /**
  * Return a simple `Context` which starts with a `seedrandom` PRNG seeded with
  * `variation`, and for each `makeInput` invocation, sets `val` by calling the
- * sampler with that PRNG, then increments a counter for the `key` field.
+ * using the given `sampler` or placeholder `pending` value, then increments a
+ * counter for the `key` field.
  */
 export const simpleContext = (variation: string): Context => {
   const rng = seedrandom(variation);
   let i = 0;
-  return { makeInput: (sampler) => input({ key: i++, val: sampler(rng) }) };
+  return {
+    makeInput: (meta) =>
+      input({
+        key: i++,
+        val: "pending" in meta ? meta.pending : meta.sampler(rng),
+      }),
+  };
 };
 
 export const uniform = (min: number, max: number): Sampler => (
@@ -54,31 +72,33 @@ export const sampleVector = (
   canvas: Canvas
 ): VectorV<ad.Num> =>
   vectorV([
-    makeInput(uniform(...canvas.xRange)),
-    makeInput(uniform(...canvas.yRange)),
+    makeInput({ sampler: uniform(...canvas.xRange) }),
+    makeInput({ sampler: uniform(...canvas.yRange) }),
   ]);
 
 export const sampleWidth = (
   { makeInput }: Context,
   canvas: Canvas
-): FloatV<ad.Num> => floatV(makeInput(uniform(3, canvas.width / 6)));
+): FloatV<ad.Num> =>
+  floatV(makeInput({ sampler: uniform(3, canvas.width / 6) }));
 
 export const sampleHeight = (
   { makeInput }: Context,
   canvas: Canvas
-): FloatV<ad.Num> => floatV(makeInput(uniform(3, canvas.height / 6)));
+): FloatV<ad.Num> =>
+  floatV(makeInput({ sampler: uniform(3, canvas.height / 6) }));
 
 export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
-  floatV(makeInput(uniform(0.5, 3)));
+  floatV(makeInput({ sampler: uniform(0.5, 3) }));
 
 export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
   const [min, max] = [0.1, 0.9];
   return colorV({
     tag: "RGBA",
     contents: [
-      makeInput(uniform(min, max)),
-      makeInput(uniform(min, max)),
-      makeInput(uniform(min, max)),
+      makeInput({ sampler: uniform(min, max) }),
+      makeInput({ sampler: uniform(min, max) }),
+      makeInput({ sampler: uniform(min, max) }),
       0.5,
     ],
   });

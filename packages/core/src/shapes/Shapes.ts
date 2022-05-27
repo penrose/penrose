@@ -11,7 +11,7 @@ import { makePath, Path, samplePath } from "./Path";
 import { makePolygon, Polygon, samplePolygon } from "./Polygon";
 import { makePolyline, Polyline, samplePolyline } from "./Polyline";
 import { makeRectangle, Rectangle, sampleRectangle } from "./Rectangle";
-import { Canvas, Context, makeCanvas } from "./Samplers";
+import { Canvas, Context, InputMeta, makeCanvas } from "./Samplers";
 import { makeText, sampleText, Text } from "./Text";
 
 //#region other shape types/globals
@@ -58,23 +58,34 @@ export const ShapeDef = (shapedef: {
   isLinelike?: boolean;
   isRectlike?: boolean;
   isPolygonlike?: boolean;
-  pendingProps?: string[];
 }): ShapeDef => {
   const sampler = (context: Context, canvas: Canvas) =>
     shapedef.sampler(context, canvas) as Properties;
 
-  let key = 0;
-  const makeInput = () => {
-    const x = input({ key, val: 0 });
-    ++key;
+  const metas: InputMeta[] = [];
+  const makeInput = (meta: InputMeta) => {
+    const x = input({ key: metas.length, val: 0 });
+    metas.push(meta);
     return x;
   };
+
+  const ideal = sampler({ makeInput }, makeCanvas(0, 0));
+
   const propTags = Object.fromEntries(
-    Object.entries(sampler({ makeInput }, makeCanvas(0, 0))).map(([x, y]) => [
-      x,
-      y.tag,
-    ])
+    Object.entries(ideal).map(([x, y]) => [x, y.tag])
   );
+
+  const pendingProps = [];
+  for (const [key, value] of Object.entries(ideal)) {
+    if (
+      value.tag === "FloatV" &&
+      typeof value.contents !== "number" &&
+      value.contents.tag === "Input" &&
+      "pending" in metas[value.contents.key]
+    ) {
+      pendingProps.push(key);
+    }
+  }
 
   return {
     sampler,
@@ -86,7 +97,7 @@ export const ShapeDef = (shapedef: {
     isLinelike: shapedef.isLinelike ?? false,
     isRectlike: shapedef.isRectlike ?? false,
     isPolygonlike: shapedef.isPolygonlike ?? false,
-    pendingProps: shapedef.pendingProps ?? [],
+    pendingProps,
   };
 };
 
@@ -114,7 +125,6 @@ const Equation = ShapeDef({
   bbox: BBox.bboxFromRectlike,
   isRectlike: true,
   isPolygonlike: true,
-  pendingProps: ["width", "height"],
 });
 
 const Image = ShapeDef({
@@ -173,7 +183,6 @@ const Text = ShapeDef({
   bbox: BBox.bboxFromRectlike, // assumes w and h correspond to string
   isRectlike: true,
   isPolygonlike: true,
-  pendingProps: ["width", "height", "ascent", "descent"],
 });
 
 // TODO: figure out how to not have the result be type `any` when indexing into

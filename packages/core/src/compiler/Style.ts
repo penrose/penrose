@@ -18,8 +18,8 @@ import seedrandom from "seedrandom";
 import {
   Canvas,
   Context as MutableContext,
+  InputMeta,
   makeCanvas,
-  Sampler,
   uniform,
 } from "shapes/Samplers";
 import { isShapeType, ShapeDef, shapedefs } from "shapes/Shapes";
@@ -2270,7 +2270,9 @@ const evalExpr = (
       );
     }
     case "Vary": {
-      return ok(val(floatV(mut.makeInput(uniform(...canvas.xRange)))));
+      return ok(
+        val(floatV(mut.makeInput({ sampler: uniform(...canvas.xRange) })))
+      );
     }
   }
 };
@@ -2567,15 +2569,15 @@ export const compileStyle = (
 
   const rng = seedrandom(variation);
   const varyingValues: number[] = [];
-  const samplers: Sampler[] = [];
-  const makeInput = (sampler: Sampler) => {
-    const val = sampler(rng);
+  const inputs: InputMeta[] = [];
+  const makeInput = (meta: InputMeta) => {
+    const val = "pending" in meta ? meta.pending : meta.sampler(rng);
 
     // ep weight will be index 0, so start indexing at 1
     const x = input({ key: varyingValues.length + 1, val });
 
     varyingValues.push(val);
-    samplers.push(sampler);
+    inputs.push(meta);
     return x;
   };
 
@@ -2604,7 +2606,7 @@ export const compileStyle = (
   const computeShapes = compileCompGraph(shapes.value);
 
   const params = genOptProblem(
-    varyingValues,
+    inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
   );
@@ -2614,7 +2616,7 @@ export const compileStyle = (
     objFns,
     constrFns,
     varyingValues,
-    samplers,
+    inputs,
     labelCache: new Map(),
     shapes: shapes.value,
     canvas: canvas.value,

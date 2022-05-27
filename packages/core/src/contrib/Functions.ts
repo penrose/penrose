@@ -1045,12 +1045,12 @@ export const compDict = {
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
   sampleColor: (
-    context: Context,
+    { makeInput }: Context,
     alpha: ad.Num,
     colorType: string
   ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
-      const rgb = range(3).map(() => context.makeInput(uniform(0.1, 0.9)));
+      const rgb = range(3).map(() => makeInput({ sampler: uniform(0.1, 0.9) }));
 
       return {
         tag: "ColorV",
@@ -1060,7 +1060,7 @@ export const compDict = {
         },
       };
     } else if (colorType === "hsv") {
-      const h = context.makeInput(uniform(0, 360));
+      const h = makeInput({ sampler: uniform(0, 360) });
       return {
         tag: "ColorV",
         contents: {

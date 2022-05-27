@@ -9,7 +9,6 @@ import {
   prettySubstance,
 } from "./compiler/Substance";
 import { step } from "./engine/Optimizer";
-import { insertPending } from "./engine/PropagateUpdate";
 import {
   PathResolver,
   RenderInteractive,
@@ -26,7 +25,7 @@ import { Registry, Trio } from "./types/io";
 import { Fn, FnEvaled, LabelCache, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
 import { FieldDict } from "./types/value";
-import { collectLabels } from "./utils/CollectLabels";
+import { collectLabels, insertPending } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
   bBoxDims,
@@ -48,7 +47,9 @@ export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
   return {
     ...state,
-    varyingValues: state.samplers.map((sampler) => sampler(rng)),
+    varyingValues: state.inputs.map((meta, i) =>
+      "sampler" in meta ? meta.sampler(rng) : state.varyingValues[i]
+    ),
   };
 };
 
@@ -223,17 +224,14 @@ export const compileTrio = (prog: {
  */
 export const prepareState = async (state: State): Promise<State> => {
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
-    state.computeShapes(state.varyingValues)
+    state.shapes
   );
 
   if (labelCache.isErr()) {
     throw Error(showError(labelCache.error));
   }
 
-  return insertPending({
-    ...state,
-    labelCache: labelCache.value,
-  });
+  return insertPending({ ...state, labelCache: labelCache.value });
 };
 
 /**
