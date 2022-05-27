@@ -6,7 +6,7 @@ import {
   readRegistry,
   Trio,
 } from "@penrose/core";
-import { Actions, TabNode } from "flexlayout-react";
+import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce } from "lodash";
 import toast from "react-hot-toast";
@@ -338,6 +338,7 @@ export type LocalGithubUser = {
 export type Settings = {
   github: LocalGithubUser | null;
   vimMode: boolean;
+  debugMode: boolean;
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -356,12 +357,32 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
       : localforage.setItem("settings", newValue);
   });
 };
+const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
+  onSet((newValue, _, isReset) => {
+    console.log(newValue);
+
+    layoutModel.visitNodes((node) => {
+      if (
+        node.getType() === "border" &&
+        (node as BorderNode).getClassName() === "debugBorder"
+      ) {
+        layoutModel.doAction(
+          Actions.updateNodeAttributes(node.getId(), {
+            show: newValue.debugMode,
+          })
+        );
+      }
+    });
+  });
+};
 
 export const settingsState = atom<Settings>({
   key: "settings",
   default: {
     github: null,
     vimMode: false,
+    // debug mode is on by default in local dev mode
+    debugMode: process.env.NODE_ENV === "development",
   },
-  effects: [settingsEffect],
+  effects: [settingsEffect, debugModeEffect],
 });
