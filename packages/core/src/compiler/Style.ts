@@ -36,7 +36,7 @@ import {
   SubstanceError,
 } from "types/errors";
 import { ShapeAD } from "types/shape";
-import { State } from "types/state";
+import { Fn, State } from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -2543,6 +2543,45 @@ const getShapes = (
   );
 };
 
+const fakePath = (name: string, members: string[]): Path<A> => ({
+  tag: "Path",
+  nodeType: "SyntheticStyle",
+  name: { tag: "StyVar", nodeType: "SyntheticStyle", contents: dummyId(name) },
+  members: members.map(dummyId),
+  indices: [],
+});
+
+const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
+  const fns: Fn[] = [];
+  for (const shape of shapes) {
+    const name = shape.properties.name.contents;
+    if (
+      typeof name === "string" &&
+      shape.properties.ensureOnCanvas.contents === true
+    ) {
+      const output = constrDict.onCanvas(
+        [name, shape.properties],
+        canvas.width,
+        canvas.height
+      );
+      fns.push({
+        fname: "onCanvas",
+        fargs: [
+          // HACK: the right way to do this would be to parse `name` into the
+          // correct `Path`, but we don't really care as long as it
+          // pretty-prints into something that looks right
+          fakePath(name, []),
+          fakePath("canvas", ["width"]),
+          fakePath("canvas", ["height"]),
+        ],
+        optType: "ConstrFn",
+        output,
+      });
+    }
+  }
+  return fns;
+};
+
 export const compileStyle = (
   variation: string,
   stySource: string,
@@ -2611,7 +2650,10 @@ export const compileStyle = (
   }
 
   const objFns = [...translation.objectives];
-  const constrFns = [...translation.constraints];
+  const constrFns = [
+    ...translation.constraints,
+    ...onCanvases(canvas.value, shapes.value),
+  ];
 
   const computeShapes = compileCompGraph(shapes.value);
 
