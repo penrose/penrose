@@ -709,7 +709,7 @@ const minimize = (
 
       const pathMap = zip2(xs, gradfxs);
 
-      log.info("[varying paths, current val, gradient of val]", pathMap);
+      log.info("[current val, gradient of val]", pathMap);
 
       for (const [x, dx] of pathMap) {
         if (Number.isNaN(dx)) {
