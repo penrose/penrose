@@ -9,13 +9,7 @@ import { ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { PenroseError } from "types/errors";
 import { Properties, ShapeAD } from "types/shape";
-import {
-  EquationData,
-  LabelCache,
-  LabelData,
-  State,
-  TextData,
-} from "types/state";
+import { EquationData, LabelCache, State, TextData } from "types/state";
 import { FloatV } from "types/value";
 import { err, ok, Result } from "./Error";
 
@@ -98,18 +92,6 @@ const tex2svg = async (
     const scaledWidth = (constHeight / height) * width;
     resolve(ok({ body, width: scaledWidth, height: constHeight }));
   });
-
-export const retrieveLabel = (
-  shapeName: string,
-  labels: LabelCache
-): LabelData | undefined => {
-  const res = labels.get(shapeName);
-  if (res) {
-    return res[1];
-  } else {
-    return undefined;
-  }
-};
 
 const floatV = (contents: number): FloatV<number> => ({
   tag: "FloatV",
