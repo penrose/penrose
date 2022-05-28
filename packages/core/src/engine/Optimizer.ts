@@ -755,9 +755,10 @@ const minimize = (
  * @returns a function that takes in a list of `ad.Num`s and return a `Scalar`
  */
 export const evalEnergyOnCustom = (
-  weight: number,
+  inputs: InputMeta[],
   objEngs: ad.Num[],
-  constrEngs: ad.Num[]
+  constrEngs: ad.Num[],
+  weight: number
 ): ad.Num => {
   // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
   // The energies are in the val field of the results (w/o grads)
@@ -773,10 +774,7 @@ export const evalEnergyOnCustom = (
 
   // This changes with the EP round, gets bigger to weight the constraints
   // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
-  const epWeightNode = input({
-    val: weight,
-    key: 0, // other input keys must start at 1 to accommodate this
-  });
+  const epWeightNode = input({ val: weight, key: inputs.length });
 
   const objEng: ad.Num = ops.vsum(objEngs);
   const constrEng: ad.Num = ops.vsum(constrEngs);
@@ -800,7 +798,7 @@ export const genOptProblem = (
   log.info("Compiling objective and gradient");
 
   const weight = initConstraintWeight;
-  const energyGraph = evalEnergyOnCustom(weight, objEngs, constrEngs);
+  const energyGraph = evalEnergyOnCustom(inputs, objEngs, constrEngs, weight);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
 
   log.info("interpreted energy graph", energyGraph);
@@ -815,15 +813,13 @@ export const genOptProblem = (
   const f = genCode(explicitGraph);
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
-    const { primary, gradient, secondary } = f([epWeight, ...xs]);
+    const { primary, gradient, secondary } = f([...xs, epWeight]);
     return {
       f: primary,
       gradf: xs.map((x, i) => {
-        const j = i + 1; // ignore epWeight gradient
-
         // fill in any holes in case some inputs weren't used in the graph, and
         // also treat pending values as constants rather than optimizing them
-        return j in gradient && !("pending" in inputs[j]) ? gradient[j] : 0;
+        return i in gradient && !("pending" in inputs[i]) ? gradient[i] : 0;
       }),
       objEngs: secondary.slice(0, objEngs.length),
       constrEngs: secondary.slice(objEngs.length),

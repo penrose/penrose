@@ -2654,10 +2654,7 @@ export const compileStyle = (
   const inputs: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
     const val = "pending" in meta ? meta.pending : meta.sampler(rng);
-
-    // ep weight will be index 0, so start indexing at 1
-    const x = input({ key: varyingValues.length + 1, val });
-
+    const x = input({ key: varyingValues.length, val });
     varyingValues.push(val);
     inputs.push(meta);
     return x;
