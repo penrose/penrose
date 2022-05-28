@@ -276,6 +276,7 @@ export const step = (state: State, steps: number): State => {
     }
   }
 
+  newState.varyingValues = xs;
   return newState;
 };
 
