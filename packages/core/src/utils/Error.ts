@@ -242,9 +242,9 @@ export const showError = (
     // --- BEGIN COMPILATION ERRORS
 
     case "AssignAccessError": {
-      return `Cannot directly assign to or delete an index of a larger structure (at ${loc(
+      return `Cannot directly assign to or delete an index ${prettyPrintPath(
         error.path
-      )}).`;
+      )} of a larger structure (at ${loc(error.path)}).`;
     }
 
     case "AssignGlobalError": {
@@ -333,7 +333,9 @@ canvas {
     case "OutOfBoundsError": {
       return `Indices ${error.indices
         .map((i) => `[${i}]`)
-        .join("")} out of bounds (at ${loc(error.expr)}).`;
+        .join("")} of path ${prettyPrintPath(
+        error.expr
+      )} out of bounds (at ${loc(error.expr)}).`;
     }
 
     case "PropertyMemberError": {

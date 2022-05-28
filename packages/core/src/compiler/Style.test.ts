@@ -318,11 +318,12 @@ describe("Compiler", () => {
     );
 
     for (const styProg of styProgs) {
+      const fullProg = canvasPreamble + styProg;
       const styRes: Result<State, PenroseError> = andThen(
         (res) =>
           S.compileStyle(
             "Style compiler correctness test seed",
-            canvasPreamble + styProg,
+            fullProg,
             ...res
           ),
         subRes
@@ -330,7 +331,7 @@ describe("Compiler", () => {
 
       if (!styRes.isOk()) {
         throw Error(
-          `Expected Style program to work without errors. Got error: ${showError(
+          `Expected Style program to work without errors:\n\n${fullProg}\nGot error: ${showError(
             styRes.error
           )}`
         );
