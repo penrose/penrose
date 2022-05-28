@@ -56,6 +56,7 @@ export const layoutModel = Model.fromJson({
     },
     {
       type: "border",
+      className: "debugBorder",
       location: "right",
       children: [
         {
