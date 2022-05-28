@@ -298,10 +298,6 @@ canvas {
       )}).`;
     }
 
-    case "MissingPathError": {
-      return `Internal error: could not find path ${error.path}`;
-    }
-
     case "MissingShapeError": {
       return `Expected to find shape already defined (at ${locc(
         "Style",

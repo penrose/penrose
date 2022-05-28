@@ -1795,6 +1795,9 @@ const gatherDependencies = (assignment: Assignment): Gathering => {
 
 //#region third pass
 
+const missingPathError = (path: string) =>
+  Error(`Style internal error: could not find path ${path}`);
+
 const evalExprs = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2211,7 +2214,7 @@ const evalExpr = (
       const path = prettyPrintResolvedPath(resolveRhsPath({ context, expr }));
       const resolved = trans.symbols.get(path);
       if (resolved === undefined) {
-        return err(oneErr({ tag: "MissingPathError", path }));
+        throw missingPathError(path);
       }
 
       if (expr.indices.length === 0) {
@@ -2407,9 +2410,10 @@ const translate = (
   };
   return graph.topsort().reduce((trans, path) => {
     const e = graph.node(path);
-    return e === undefined
-      ? addDiags(oneErr({ tag: "MissingPathError", path }), trans)
-      : translateExpr(mut, canvas, path, e, trans);
+    if (e === undefined) {
+      throw missingPathError(path);
+    }
+    return translateExpr(mut, canvas, path, e, trans);
   }, trans);
 };
 
@@ -2522,7 +2526,7 @@ const getShapes = (
   { shapes }: Gathering,
   { symbols }: Translation,
   shapeOrdering: string[]
-): Result<ShapeAD[], StyleError[]> => {
+): ShapeAD[] => {
   const props = new Map<string, ShapeAD>();
   for (const [path, argVal] of symbols) {
     const i = path.lastIndexOf(".");
@@ -2530,23 +2534,21 @@ const getShapes = (
     if (shapes.has(start)) {
       const shapeType = shapes.get(start);
       if (shapeType === undefined || argVal.tag !== "Val") {
-        return err([{ tag: "MissingPathError", path: start }]);
+        throw missingPathError(path);
       }
       const shape = props.get(start) ?? { shapeType, properties: {} };
       shape.properties[path.slice(i + 1)] = argVal.contents;
       props.set(start, shape);
     }
   }
-  return all(
-    shapeOrdering.map((path) => {
-      const shape = props.get(path);
-      if (shape === undefined) {
-        return err({ tag: "MissingPathError", path });
-      }
-      shape.properties.name = strV(path);
-      return ok(shape);
-    })
-  );
+  return shapeOrdering.map((path) => {
+    const shape = props.get(path);
+    if (shape === undefined) {
+      throw missingPathError(path);
+    }
+    shape.properties.name = strV(path);
+    return shape;
+  });
 };
 
 const fakePath = (name: string, members: string[]): Path<A> => ({
@@ -2651,17 +2653,14 @@ export const compileStyle = (
   );
 
   const shapes = getShapes(gathering, translation, shapeOrdering);
-  if (shapes.isErr()) {
-    return err(toStyleErrors(shapes.error));
-  }
 
   const objFns = [...translation.objectives];
   const constrFns = [
     ...translation.constraints,
-    ...onCanvases(canvas.value, shapes.value),
+    ...onCanvases(canvas.value, shapes),
   ];
 
-  const computeShapes = compileCompGraph(shapes.value);
+  const computeShapes = compileCompGraph(shapes);
 
   const params = genOptProblem(
     inputs,
@@ -2676,7 +2675,7 @@ export const compileStyle = (
     varyingValues,
     inputs,
     labelCache: new Map(),
-    shapes: shapes.value,
+    shapes,
     canvas: canvas.value,
     computeShapes,
     params,

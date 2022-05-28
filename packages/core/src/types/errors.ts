@@ -162,7 +162,6 @@ export type StyleError =
   | CanvasNonexistentDimsError
   | DeleteGlobalError
   | DeleteSubstanceError
-  | MissingPathError
   | MissingShapeError
   | NestedShapeError
   | NotCollError
@@ -332,11 +331,6 @@ export interface DeleteGlobalError {
 export interface DeleteSubstanceError {
   tag: "DeleteSubstanceError";
   path: ResolvedPath<C>;
-}
-
-export interface MissingPathError {
-  tag: "MissingPathError";
-  path: string;
 }
 
 export interface MissingShapeError {
