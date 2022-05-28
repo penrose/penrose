@@ -43,8 +43,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     this.penroseState = undefined;
     const compilerResult = compileTrio(this.props);
     if (compilerResult.isOk()) {
-      // resample because initial sampling did not use the special sampling seed
-      this.penroseState = resample(await prepareState(compilerResult.value));
+      this.penroseState = await prepareState(compilerResult.value);
     } else {
       this.setState({ error: compilerResult.error });
     }

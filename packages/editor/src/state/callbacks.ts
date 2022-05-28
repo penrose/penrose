@@ -54,7 +54,7 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const initialState = resample(await prepareState(compileResult.value));
+  const initialState = await prepareState(compileResult.value);
   set(
     diagramState,
     (state: Diagram): Diagram => ({

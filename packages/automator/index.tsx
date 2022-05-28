@@ -5,7 +5,6 @@ import {
   getListOfStagedStates,
   prepareState,
   RenderStatic,
-  resample,
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
@@ -99,8 +98,7 @@ const singleProcess = async (
   const compiledState = compilerOutput.value;
 
   const labelStart = process.hrtime();
-  // resample because initial sampling did not use the special sampling seed
-  const initialState = resample(await prepareState(compiledState));
+  const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
 
   console.log(`Stepping for ${out} ...`);

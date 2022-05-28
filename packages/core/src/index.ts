@@ -1,4 +1,5 @@
 import consola, { LogLevel } from "consola";
+import { initConstraintWeight } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -50,6 +51,11 @@ export const resample = (state: State): State => {
     varyingValues: state.inputs.map((meta, i) =>
       "sampler" in meta ? meta.sampler(rng) : state.varyingValues[i]
     ),
+    params: {
+      ...state.params,
+      weight: initConstraintWeight,
+      optStatus: "NewIter",
+    },
   };
 };
 
@@ -134,8 +140,7 @@ export const diagram = async (
 ): Promise<void> => {
   const res = compileTrio(prog);
   if (res.isOk()) {
-    // resample because initial sampling did not use the special sampling seed
-    const state: State = resample(await prepareState(res.value));
+    const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendered = await RenderStatic(optimized, pathResolver);
     node.appendChild(rendered);
@@ -175,8 +180,7 @@ export const interactiveDiagram = async (
   };
   const res = compileTrio(prog);
   if (res.isOk()) {
-    // resample because initial sampling did not use the special sampling seed
-    const state: State = resample(await prepareState(res.value));
+    const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendering = await RenderInteractive(
       optimized,
