@@ -2333,7 +2333,7 @@ const translateExpr = (
         ...trans,
         constraints: trans.constraints.push({
           fname,
-          fargs: e.expr.args,
+          fargs: e.expr.args, // doesn't propagate path resolution for pprint
           optType: "ConstrFn",
           output,
         }),
@@ -2357,7 +2357,7 @@ const translateExpr = (
         ...trans,
         objectives: trans.objectives.push({
           fname,
-          fargs: e.expr.args,
+          fargs: e.expr.args, // doesn't propagate path resolution for pprint
           optType: "ObjFn",
           output,
         }),
