@@ -1,4 +1,5 @@
 import { examples, registry } from "@penrose/examples";
+import { genOptProblem } from "../engine/Optimizer";
 import {
   compileTrio,
   evalEnergy,
@@ -148,10 +149,19 @@ describe("Energy API", () => {
     if (res.isOk()) {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
+      console.log(state.constrFns.map((c) => c.fname));
       const smallerThanFns = state.constrFns.filter(
         (c) => c.fname === "smallerThan"
       );
-      const stateFiltered = { ...state, constrFns: smallerThanFns };
+      const stateFiltered = {
+        ...state,
+        constrFns: smallerThanFns,
+        params: genOptProblem(
+          state.inputs,
+          state.objFns.map(({ output }) => output),
+          smallerThanFns.map(({ output }) => output)
+        ),
+      };
       expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
     } else {
       console.log(showError(res.error));
