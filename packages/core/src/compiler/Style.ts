@@ -2593,7 +2593,7 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
       shape.properties.ensureOnCanvas.contents === true
     ) {
       const output = constrDict.onCanvas(
-        [name, shape.properties],
+        [shape.shapeType, shape.properties],
         canvas.width,
         canvas.height
       );
