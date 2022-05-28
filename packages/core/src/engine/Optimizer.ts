@@ -1,5 +1,5 @@
 import consola, { LogLevel } from "consola";
-import { genCode, input, makeGraph, ops } from "engine/Autodiff";
+import { fns, genCode, input, makeGraph, ops } from "engine/Autodiff";
 import { defaultLbfgsParams, initConstraintWeight } from "engine/EngineUtils";
 import * as _ from "lodash";
 import { Matrix } from "ml-matrix";
@@ -772,7 +772,7 @@ export const evalEnergyOnCustom = (
   const constrWeightNode: ad.Num = constraintWeight;
 
   const objEng: ad.Num = ops.vsum(objEngs);
-  const constrEng: ad.Num = ops.vsum(constrEngs);
+  const constrEng: ad.Num = ops.vsum(constrEngs.map(fns.toPenalty));
   // F(x) = o(x) + c0 * penalty * c(x)
   const overallEng: ad.Num = add(
     objEng,
