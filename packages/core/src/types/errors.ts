@@ -160,7 +160,6 @@ export type StyleError =
   | BadIndexError
   | BinOpTypeError
   | CanvasNonexistentDimsError
-  | DeleteAccessError
   | DeleteGlobalError
   | DeleteSubstanceError
   | MissingPathError
@@ -303,6 +302,7 @@ export interface AssignSubstanceError {
 export interface BadElementError {
   tag: "BadElementError";
   coll: Expr<C>;
+  index: number;
 }
 
 export interface BadIndexError {
@@ -321,12 +321,7 @@ export interface CanvasNonexistentDimsError {
   tag: "CanvasNonexistentDimsError";
   attr: "width" | "height";
   kind: "missing" | "wrong type";
-  type?: string;
-}
-
-export interface DeleteAccessError {
-  tag: "DeleteAccessError";
-  path: Path<C>;
+  type?: Expr<A>["tag"];
 }
 
 export interface DeleteGlobalError {

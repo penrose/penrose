@@ -2002,7 +2002,7 @@ const eval1D = (
     if (v.tag === "FloatV") {
       elems.push(v.contents);
     } else {
-      return err(oneErr({ tag: "BadElementError", coll }));
+      return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
     }
   }
   switch (coll.tag) {
@@ -2025,7 +2025,7 @@ const eval2D = (
     if (v.tag === "VectorV") {
       elems.push(v.contents);
     } else {
-      return err(oneErr({ tag: "BadElementError", coll }));
+      return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
     }
   }
   switch (coll.tag) {
@@ -2042,13 +2042,13 @@ const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
   context: Context,
-  expr: List<C> | Vector<C>,
+  coll: List<C> | Vector<C>,
   trans: Translation
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
-  return evalVals(mut, canvas, context, expr.contents, trans).andThen(
+  return evalVals(mut, canvas, context, coll.contents, trans).andThen(
     (vals) => {
       if (vals.length === 0) {
-        switch (expr.tag) {
+        switch (coll.tag) {
           case "List": {
             return ok(listV([]));
           }
@@ -2060,10 +2060,10 @@ const evalListOrVector = (
       const [first, ...rest] = vals;
       switch (first.tag) {
         case "FloatV": {
-          return eval1D(expr, first, rest);
+          return eval1D(coll, first, rest);
         }
         case "VectorV": {
-          return eval2D(expr, first, rest);
+          return eval2D(coll, first, rest);
         }
         case "BoolV":
         case "ColorV":
@@ -2074,7 +2074,7 @@ const evalListOrVector = (
         case "PtListV":
         case "StrV":
         case "TupV": {
-          return err(oneErr({ tag: "NotCollError", expr }));
+          return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
         }
       }
     }
@@ -2253,11 +2253,17 @@ const evalExpr = (
     case "Tuple": {
       return evalVals(mut, canvas, context, expr.contents, trans).andThen(
         ([left, right]) => {
-          if (left.tag === "FloatV" && right.tag === "FloatV") {
-            return ok(val(tupV([left.contents, right.contents])));
-          } else {
-            return err(oneErr({ tag: "BadElementError", coll: expr }));
+          if (left.tag !== "FloatV") {
+            return err(
+              oneErr({ tag: "BadElementError", coll: expr, index: 0 })
+            );
           }
+          if (right.tag !== "FloatV") {
+            return err(
+              oneErr({ tag: "BadElementError", coll: expr, index: 1 })
+            );
+          }
+          return ok(val(tupV([left.contents, right.contents])));
         }
       );
     }

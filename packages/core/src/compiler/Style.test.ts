@@ -11,7 +11,7 @@ import { PenroseError } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
-import { andThen, Result, unsafelyUnwrap } from "utils/Error";
+import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
 import { foldM, toLeft, ToRight } from "utils/Util";
 import { compileDomain } from "./Domain";
 import { envOrError, subEnvOrError } from "./Substance.test";
@@ -330,7 +330,9 @@ describe("Compiler", () => {
 
       if (!styRes.isOk()) {
         throw Error(
-          `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
+          `Expected Style program to work without errors. Got error: ${showError(
+            styRes.error
+          )}`
         );
       } else {
         expect(true).toEqual(true);

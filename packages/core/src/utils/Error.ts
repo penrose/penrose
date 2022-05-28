@@ -1,7 +1,14 @@
 import { isConcrete } from "engine/EngineUtils";
 import { shapedefs } from "shapes/Shapes";
 import { Result } from "true-myth";
-import { A, AbstractNode, Identifier, SourceLoc } from "types/ast";
+import {
+  A,
+  AbstractNode,
+  Identifier,
+  NodeType,
+  SourceLoc,
+  SourceRange,
+} from "types/ast";
 import { Arg, Type, TypeConstructor } from "types/domain";
 import {
   ArgLengthMismatch,
@@ -232,6 +239,118 @@ export const showError = (
 
     // --- END BLOCK STATIC ERRORS
 
+    // --- BEGIN COMPILATION ERRORS
+
+    case "AssignAccessError": {
+      return `Cannot directly assign to or delete an index of a larger structure (at ${loc(
+        error.path
+      )}).`;
+    }
+
+    case "AssignGlobalError": {
+      return `Cannot assign to a global (at ${locc("Style", error.path)}).`;
+    }
+
+    case "AssignSubstanceError": {
+      return `Cannot assign to a Substance object (at ${locc(
+        "Style",
+        error.path
+      )}).`;
+    }
+
+    case "BadElementError": {
+      return `Wrong element type at index ${
+        error.index
+      } in collection (at ${loc(error.coll)}).`;
+    }
+
+    case "BadIndexError": {
+      return `Invalid indexing (at ${loc(error.expr)}).`;
+    }
+
+    case "BinOpTypeError": {
+      return `Unsupported binary operation ${error.expr.op} on types ${
+        error.left
+      } and ${error.right} (at ${loc(error.expr)}).`;
+    }
+
+    case "CanvasNonexistentDimsError": {
+      switch (error.kind) {
+        case "missing":
+          return `Canvas ${error.attr} is not defined.\nTry adding:
+canvas {
+    ${error.attr} = <my desired ${error.attr}>
+}`;
+        case "wrong type":
+          return `Canvas ${error.attr} must be a numeric literal, but it has type ${error.type}.`;
+      }
+      break; // dead code to please ESLint
+    }
+
+    case "DeleteGlobalError": {
+      return `Cannot delete a global (at ${locc("Style", error.path)}).`;
+    }
+
+    case "DeleteSubstanceError": {
+      return `Cannot delete a Substance object (at ${locc(
+        "Style",
+        error.path
+      )}).`;
+    }
+
+    case "MissingPathError": {
+      return `Internal error: could not find path ${error.path}`;
+    }
+
+    case "MissingShapeError": {
+      return `Expected to find shape already defined (at ${locc(
+        "Style",
+        error.path
+      )}), found nothing.`;
+    }
+
+    case "NestedShapeError": {
+      return `Cannot define shape (at ${loc(
+        error.expr
+      )}) within another shape.`;
+    }
+
+    case "NotCollError": {
+      return `Cannot index into a non-collection (at ${loc(error.expr)}).`;
+    }
+
+    case "NotShapeError": {
+      return `Expected to find shape (at ${locc(
+        "Style",
+        error.path
+      )}), found something else.`;
+    }
+
+    case "NotValueError": {
+      return `Expected value (at ${loc(error.expr)}).`;
+    }
+
+    case "OutOfBoundsError": {
+      return `Indices ${error.indices
+        .map((i) => `[${i}]`)
+        .join("")} out of bounds (at ${loc(error.expr)}).`;
+    }
+
+    case "PropertyMemberError": {
+      return `Cannot assign to a member of a property (at ${locc(
+        "Style",
+        error.path
+      )}).`;
+    }
+
+    case "UOpTypeError": {
+      return `Unsupported unary operation ${error.expr.op} on type ${
+        error.arg
+      } (at ${loc(error.expr)}).`;
+    }
+
+    // --- END COMPILATION ERRORS
+
     // TODO(errors): use identifiers here
     case "RuntimeValueTypeError": {
       return `Runtime type error in looking up path '${prettyPrintPath(
@@ -245,12 +364,6 @@ export const showError = (
 
     case "Fatal": {
       return `FATAL: ${error.message}`;
-    }
-
-    default: {
-      return `Meta: Cannot render error with contents: ${JSON.stringify(
-        error
-      )}`;
     }
   }
 };
@@ -402,13 +515,18 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
   messages: messages.map(showError),
 });
 
-// const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
+// name stands for "`loc` concrete"
+const locc = (nodeType: NodeType, node: SourceRange): string => {
+  return `line ${node.start.line}, column ${
+    node.start.col + 1
+  } of ${nodeType} program`;
+};
+
+// const aloc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
 const loc = (node: AbstractNode): string => {
   if (isConcrete(node)) {
-    return `line ${node.start.line}, column ${node.start.col + 1} of ${
-      node.nodeType
-    } program`;
+    return locc(node.nodeType, node);
   } else {
     return `generated code by the compiler`; // TODO: better description of where the node is coming from
   }
