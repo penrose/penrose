@@ -456,10 +456,10 @@ export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
   switch (bf.tag) {
     case "StyVar": {
-      return `\`${bf.contents.value}\``;
+      return bf.contents.value;
     }
     case "SubVar": {
-      return bf.contents.value;
+      return `\`${bf.contents.value}\``;
     }
   }
 };
