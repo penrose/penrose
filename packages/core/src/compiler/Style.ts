@@ -1725,15 +1725,12 @@ const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
 
 const gatherExpr = (
   graph: DepGraph,
-  v: string,
+  w: string,
   expr: WithContext<NotShape>
 ): void => {
-  graph.setNode(v, expr);
+  graph.setNode(w, expr);
   for (const p of findPathsWithContext(expr)) {
-    graph.setEdge({
-      v,
-      w: prettyPrintResolvedPath(resolveRhsPath(p)),
-    });
+    graph.setEdge({ v: prettyPrintResolvedPath(resolveRhsPath(p)), w });
   }
 };
 
