@@ -104,8 +104,6 @@ export interface Params {
   // For L-BFGS
   lbfgsInfo: LbfgsParams;
 
-  functionsCompiled: boolean;
-
   // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
   objectiveAndGradient: (epWeight: number) => (xs: number[]) => FnEvaled;
 

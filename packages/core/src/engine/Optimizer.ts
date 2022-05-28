@@ -130,7 +130,6 @@ export const step = (state: State, steps: number): State => {
     case "NewIter": {
       log.trace("step newIter, xs", xs);
 
-      // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       const { objectiveAndGradient } = state.params;
       return {
@@ -788,7 +787,6 @@ export const genOptProblem = (
   objEngs: ad.Num[],
   constrEngs: ad.Num[]
 ): Params => {
-  // if (!state.params.functionsCompiled) {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
   log.info("Compiling objective and gradient");
@@ -831,8 +829,6 @@ export const genOptProblem = (
     lastGradientPreconditioned: repeat(inputs.length, 0),
 
     objectiveAndGradient,
-
-    functionsCompiled: true,
 
     currObjectiveAndGradient: objectiveAndGradient(weight),
 
