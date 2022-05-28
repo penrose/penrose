@@ -1521,8 +1521,8 @@ const processBlock = (
   // OPTIMIZE: maybe we should just compile the block once into something
   // parametric, and then substitute the Substance variables
   return substs.reduce(
-    (assignment, subst, index) => {
-      const block = blockId(blockIndex, index, hb.header);
+    (assignment, subst, substIndex) => {
+      const block = blockId(blockIndex, substIndex, hb.header);
       const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
       // Translate each statement in the block
       const {
@@ -1532,8 +1532,8 @@ const processBlock = (
         substances,
         locals,
       } = hb.block.statements.reduce(
-        (assignment, stmt) =>
-          processStmt({ block, subst }, index, stmt, assignment),
+        (assignment, stmt, stmtIndex) =>
+          processStmt({ block, subst }, stmtIndex, stmt, assignment),
         withLocals
       );
       switch (block.tag) {
