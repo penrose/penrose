@@ -2429,7 +2429,7 @@ const translate = (
   return graph.topsort().reduce((trans, path) => {
     const e = graph.node(path);
     if (e === undefined) {
-      throw missingPathError(path);
+      return trans;
     } else if (typeof e === "string") {
       return {
         ...trans,
