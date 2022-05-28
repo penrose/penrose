@@ -794,7 +794,8 @@ export const genOptProblem = (
 
   // This changes with the EP round, gets bigger to weight the constraints
   // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
-  const epWeightNode = input({ val: initConstraintWeight, key: inputs.length });
+  const weight = initConstraintWeight;
+  const epWeightNode = input({ val: weight, key: inputs.length });
 
   const energyGraph = evalEnergyOnCustom(epWeightNode, objEngs, constrEngs);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
@@ -832,7 +833,7 @@ export const genOptProblem = (
 
     functionsCompiled: true,
 
-    currObjectiveAndGradient: objectiveAndGradient(initConstraintWeight),
+    currObjectiveAndGradient: objectiveAndGradient(weight),
 
     energyGraph,
     weight,
