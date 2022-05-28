@@ -755,10 +755,9 @@ const minimize = (
  * @returns a function that takes in a list of `ad.Num`s and return a `Scalar`
  */
 export const evalEnergyOnCustom = (
-  inputs: InputMeta[],
+  epWeightNode: ad.Input,
   objEngs: ad.Num[],
-  constrEngs: ad.Num[],
-  weight: number
+  constrEngs: ad.Num[]
 ): ad.Num => {
   // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
   // The energies are in the val field of the results (w/o grads)
@@ -771,10 +770,6 @@ export const evalEnergyOnCustom = (
 
   // This is fixed during the whole optimization
   const constrWeightNode: ad.Num = constraintWeight;
-
-  // This changes with the EP round, gets bigger to weight the constraints
-  // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
-  const epWeightNode = input({ val: weight, key: inputs.length });
 
   const objEng: ad.Num = ops.vsum(objEngs);
   const constrEng: ad.Num = ops.vsum(constrEngs);
@@ -797,8 +792,11 @@ export const genOptProblem = (
   // Compile objective and gradient
   log.info("Compiling objective and gradient");
 
-  const weight = initConstraintWeight;
-  const energyGraph = evalEnergyOnCustom(inputs, objEngs, constrEngs, weight);
+  // This changes with the EP round, gets bigger to weight the constraints
+  // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
+  const epWeightNode = input({ val: initConstraintWeight, key: inputs.length });
+
+  const energyGraph = evalEnergyOnCustom(epWeightNode, objEngs, constrEngs);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
 
   log.info("interpreted energy graph", energyGraph);
