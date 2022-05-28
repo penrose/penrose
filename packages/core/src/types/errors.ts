@@ -319,7 +319,7 @@ export interface BinOpTypeError {
 export interface CanvasNonexistentDimsError {
   tag: "CanvasNonexistentDimsError";
   attr: "width" | "height";
-  kind: "missing" | "wrong type";
+  kind: "missing" | "GPI" | "wrong type";
   type?: Expr<A>["tag"];
 }
 

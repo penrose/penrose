@@ -276,6 +276,8 @@ export const showError = (
 
     case "CanvasNonexistentDimsError": {
       switch (error.kind) {
+        case "GPI":
+          return `Canvas ${error.attr} must be a numeric literal, but it is a shape.`;
         case "missing":
           return `Canvas ${error.attr} is not defined.\nTry adding:
 canvas {

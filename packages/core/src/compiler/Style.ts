@@ -22,7 +22,7 @@ import {
   makeCanvas,
   uniform,
 } from "shapes/Samplers";
-import { isShapeType, ShapeDef, shapedefs } from "shapes/Shapes";
+import { isShapeType, ShapeDef, shapedefs, ShapeType } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A, C, Identifier, SourceRange } from "types/ast";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
@@ -68,7 +68,6 @@ import {
   DepGraph,
   Fielded,
   FieldSource,
-  Gathering,
   Layer,
   LocalVarSubst,
   NotShape,
@@ -1734,17 +1733,15 @@ const gatherExpr = (
   }
 };
 
-const gatherField = (
-  { graph, shapes }: Gathering,
-  lhs: string,
-  rhs: FieldSource
-): void => {
+const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
   switch (rhs.tag) {
     case "ShapeSource": {
+      graph.setNode(lhs, rhs.shapeType);
       for (const [k, expr] of rhs.props) {
-        gatherExpr(graph, `${lhs}.${k}`, expr);
+        const p = `${lhs}.${k}`;
+        graph.setEdge({ v: p, w: lhs });
+        gatherExpr(graph, p, expr);
       }
-      shapes.set(lhs, rhs.shapeType);
       return;
     }
     case "OtherSource": {
@@ -1754,15 +1751,12 @@ const gatherField = (
   }
 };
 
-const gatherDependencies = (assignment: Assignment): Gathering => {
-  const gathering: Gathering = {
-    graph: new Digraph<string, WithContext<NotShape>>(),
-    shapes: new Map(),
-  };
+const gatherDependencies = (assignment: Assignment): DepGraph => {
+  const graph = new Digraph<string, WithContext<NotShape>>();
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
-      gatherField(gathering, `${blockName}.${fieldName}`, field);
+      gatherField(graph, `${blockName}.${fieldName}`, field);
     }
   }
 
@@ -1775,17 +1769,17 @@ const gatherDependencies = (assignment: Assignment): Gathering => {
         block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
         members: [],
       };
-      gatherField(gathering, prettyPrintResolvedPath(p), field);
+      gatherField(graph, prettyPrintResolvedPath(p), field);
     }
   }
 
   for (const [substanceName, fields] of assignment.substances) {
     for (const [fieldName, field] of fields) {
-      gatherField(gathering, `\`${substanceName}\`.${fieldName}`, field);
+      gatherField(graph, `\`${substanceName}\`.${fieldName}`, field);
     }
   }
 
-  return gathering;
+  return graph;
 };
 
 //#endregion
@@ -2384,23 +2378,50 @@ const translateExpr = (
   }
 };
 
+const evalGPI = (
+  path: string,
+  shapeType: ShapeType,
+  trans: Translation
+): GPI<ad.Num> => {
+  const shapedef: ShapeDef = shapedefs[shapeType];
+  return {
+    tag: "GPI",
+    contents: [
+      shapeType,
+      Object.fromEntries(
+        Object.keys(shapedef.propTags).map((prop) => {
+          const p = `${path}.${prop}`;
+          const v = trans.symbols.get(p);
+          if (v === undefined || v.tag !== "Val") {
+            throw missingPathError(p);
+          }
+          return [prop, v.contents];
+        })
+      ),
+    ],
+  };
+};
+
 const translate = (
   mut: MutableContext,
   canvas: Canvas,
-  { graph, shapes }: Gathering
+  graph: DepGraph
 ): Translation => {
-  const symbols = new Map<string, Value<ad.Num>>();
-  for (const [path, shapeType] of shapes) {
-    const shapedef: ShapeDef = shapedefs[shapeType];
-    const properties = shapedef.sampler(mut, canvas);
-    for (const [prop, value] of Object.entries(properties)) {
-      symbols.set(`${path}.${prop}`, value);
+  let symbols = im.Map<string, ArgVal<ad.Num>>();
+  for (const path of graph.nodes()) {
+    const shapeType = graph.node(path);
+    if (typeof shapeType === "string") {
+      const shapedef: ShapeDef = shapedefs[shapeType];
+      const properties = shapedef.sampler(mut, canvas);
+      for (const [prop, value] of Object.entries(properties)) {
+        symbols = symbols.set(`${path}.${prop}`, val(value));
+      }
     }
   }
 
   const trans: Translation = {
     diagnostics: { errors: im.List(), warnings: im.List() },
-    symbols: im.Map(),
+    symbols,
     objectives: im.List(),
     constraints: im.List(),
     layering: im.List(),
@@ -2409,6 +2430,11 @@ const translate = (
     const e = graph.node(path);
     if (e === undefined) {
       throw missingPathError(path);
+    } else if (typeof e === "string") {
+      return {
+        ...trans,
+        symbols: trans.symbols.set(path, evalGPI(path, e, trans)),
+      };
     }
     return translateExpr(mut, canvas, path, e, trans);
   }, trans);
@@ -2494,6 +2520,8 @@ const getCanvasDim = (
   const dim = graph.node(`canvas.${attr}`);
   if (dim === undefined) {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
+  } else if (typeof dim === "string") {
+    return err({ tag: "CanvasNonexistentDimsError", attr, kind: "GPI" });
   } else if (dim.expr.tag !== "Fix") {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "wrong type" });
   }
@@ -2520,7 +2548,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
 };
 
 const getShapes = (
-  { shapes }: Gathering,
+  graph: DepGraph,
   { symbols }: Translation,
   shapeOrdering: string[]
 ): ShapeAD[] => {
@@ -2528,9 +2556,9 @@ const getShapes = (
   for (const [path, argVal] of symbols) {
     const i = path.lastIndexOf(".");
     const start = path.slice(0, i);
-    if (shapes.has(start)) {
-      const shapeType = shapes.get(start);
-      if (shapeType === undefined || argVal.tag !== "Val") {
+    const shapeType = graph.node(start);
+    if (typeof shapeType === "string") {
+      if (argVal.tag !== "Val") {
         throw missingPathError(path);
       }
       const shape = props.get(start) ?? { shapeType, properties: {} };
@@ -2612,10 +2640,10 @@ export const compileStyle = (
   }
 
   // second pass: construct a dependency graph among those expressions
-  const gathering = gatherDependencies(assignment);
+  const graph = gatherDependencies(assignment);
 
-  const canvas = getCanvasDim("width", gathering.graph).andThen((w) =>
-    getCanvasDim("height", gathering.graph).map((h) => makeCanvas(w, h))
+  const canvas = getCanvasDim("width", graph).andThen((w) =>
+    getCanvasDim("height", graph).map((h) => makeCanvas(w, h))
   );
   if (canvas.isErr()) {
     return err(toStyleErrors([canvas.error]));
@@ -2636,7 +2664,7 @@ export const compileStyle = (
   };
 
   // third pass: compile all expressions in topological sorted order
-  const translation = translate({ makeInput }, canvas.value, gathering);
+  const translation = translate({ makeInput }, canvas.value, graph);
 
   log.info("translation (before genOptProblem)", translation);
 
@@ -2645,11 +2673,11 @@ export const compileStyle = (
   }
 
   const shapeOrdering = computeShapeOrdering(
-    [...gathering.shapes.keys()],
+    [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
     [...translation.layering]
   );
 
-  const shapes = getShapes(gathering, translation, shapeOrdering);
+  const shapes = getShapes(graph, translation, shapeOrdering);
 
   const objFns = [...translation.objectives];
   const constrFns = [

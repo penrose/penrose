@@ -148,12 +148,10 @@ export type ResolvedPath<T> = T &
 
 // explicitly allow `undefined` so that when we get node labels out of the
 // graph, TypeScript tells us to check that the node actually had a label
-export type DepGraph = Digraph<string, WithContext<NotShape> | undefined>;
-
-export interface Gathering {
-  graph: DepGraph;
-  shapes: Map<string, ShapeType>;
-}
+export type DepGraph = Digraph<
+  string,
+  ShapeType | WithContext<NotShape> | undefined
+>;
 
 //#endregion
 
