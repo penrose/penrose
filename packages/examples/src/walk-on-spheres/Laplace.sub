@@ -1,5 +1,3 @@
--- variation: GroundedMule26071
-
 -- Describe a short walk used to estimate the solution to
 -- a basic Laplace equation Δu = 0, which involves both
 -- boundary samples x and source samples y.

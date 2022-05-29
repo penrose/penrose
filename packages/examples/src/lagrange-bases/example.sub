@@ -1,5 +1,3 @@
--- variation: TimberwolfSquirrel25242
-
 Node a, b, c, d
 Node u, v, x, y, z
 --Element t1 := LinearTriangle( a, b, c )
