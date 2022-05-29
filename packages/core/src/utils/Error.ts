@@ -180,7 +180,7 @@ export const showError = (
     }
 
     case "StyleErrorList": {
-      return error.errors.map(showError).join(", ");
+      return error.errors.map(showError).join("\n");
     }
 
     case "SelectorVarMultipleDecl": {
