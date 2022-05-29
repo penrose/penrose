@@ -351,11 +351,13 @@ export interface NotCollError {
 export interface NotShapeError {
   tag: "NotShapeError";
   path: ResolvedPath<C>;
+  what: string;
 }
 
 export interface NotValueError {
   tag: "NotValueError";
   expr: Expr<C>;
+  what?: string;
 }
 
 export interface OutOfBoundsError {

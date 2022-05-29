@@ -33,7 +33,7 @@ import {
 import { State } from "types/state";
 import { BindingForm } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
-import { prettyPrintPath } from "utils/Util";
+import { prettyPrintPath, prettyPrintResolvedPath } from "utils/Util";
 const {
   or,
   and,
@@ -248,14 +248,20 @@ export const showError = (
     }
 
     case "AssignGlobalError": {
-      return `Cannot assign to a global (at ${locc("Style", error.path)}).`;
+      return `Cannot assign to global ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc(
+        "Style",
+        error.path
+      )}); instead, just assign to ${error.path.members
+        .map((id) => id.value)
+        .join(".")} inside the ${error.path.name} namespace.`;
     }
 
     case "AssignSubstanceError": {
-      return `Cannot assign to a Substance object (at ${locc(
-        "Style",
+      return `Cannot assign to Substance object ${prettyPrintResolvedPath(
         error.path
-      )}).`;
+      )} (at ${locc("Style", error.path)}).`;
     }
 
     case "BadElementError": {
@@ -290,21 +296,21 @@ canvas {
     }
 
     case "DeleteGlobalError": {
-      return `Cannot delete a global (at ${locc("Style", error.path)}).`;
+      return `Cannot delete global ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}).`;
     }
 
     case "DeleteSubstanceError": {
-      return `Cannot delete a Substance object (at ${locc(
-        "Style",
+      return `Cannot delete Substance object ${prettyPrintResolvedPath(
         error.path
-      )}).`;
+      )} (at ${locc("Style", error.path)}).`;
     }
 
     case "MissingShapeError": {
-      return `Expected to find shape already defined (at ${locc(
-        "Style",
+      return `Expected to find shape already defined to hold property ${prettyPrintResolvedPath(
         error.path
-      )}), found nothing.`;
+      )} (at ${locc("Style", error.path)}), found nothing.`;
     }
 
     case "NestedShapeError": {
@@ -318,14 +324,15 @@ canvas {
     }
 
     case "NotShapeError": {
-      return `Expected to find shape (at ${locc(
-        "Style",
+      return `Expected to find shape to hold property ${prettyPrintResolvedPath(
         error.path
-      )}), found something else.`;
+      )} (at ${locc("Style", error.path)}), found ${error.what}.`;
     }
 
     case "NotValueError": {
-      return `Expected value (at ${loc(error.expr)}).`;
+      return `Expected value (at ${loc(error.expr)}), found ${
+        error.what ?? "shape"
+      }.`;
     }
 
     case "OutOfBoundsError": {
@@ -337,10 +344,9 @@ canvas {
     }
 
     case "PropertyMemberError": {
-      return `Cannot assign to a member of a property (at ${locc(
-        "Style",
+      return `Cannot assign to member ${prettyPrintResolvedPath(
         error.path
-      )}).`;
+      )} of a property (at ${locc("Style", error.path)}).`;
     }
 
     case "UOpTypeError": {

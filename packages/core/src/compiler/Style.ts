@@ -121,6 +121,7 @@ import {
   listV,
   llistV,
   matrixV,
+  prettyPrintResolvedPath,
   strV,
   tupV,
   val,
@@ -1347,7 +1348,7 @@ const insertExpr = (
         return err({ tag: "MissingShapeError", path });
       }
       if (shape.tag !== "ShapeSource") {
-        return err({ tag: "NotShapeError", path });
+        return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
       }
       if (shape.props.has(prop)) {
         warns.push({ tag: "ImplicitOverrideWarning", path });
@@ -1382,7 +1383,7 @@ const deleteExpr = (
         return err({ tag: "MissingShapeError", path });
       }
       if (shape.tag !== "ShapeSource") {
-        return err({ tag: "NotShapeError", path });
+        return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
       }
       if (!shape.props.has(prop)) {
         warns.push({ tag: "NoopDeleteWarning", path });
@@ -1524,6 +1525,12 @@ const processBlock = (
     (assignment, subst, substIndex) => {
       const block = blockId(blockIndex, substIndex, hb.header);
       const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
+      if (block.tag === "NamespaceId") {
+        // prepopulate with an empty namespace, to give a better error message
+        // when someone tries to assign to a global by its absolute path
+        // (`AssignGlobalError` instead of `MissingShapeError`)
+        withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+      }
       // Translate each statement in the block
       const {
         diagnostics,
@@ -1687,40 +1694,6 @@ const resolveRhsPath = (p: WithContext<Path<C>>): ResolvedPath<C> => {
   const { start, end, name, members } = p.expr; // drop `indices`
   return { start, end, ...resolveRhsName(p.context, name), members };
 };
-
-const blockPrefix = ({ tag, contents }: LocalVarSubst): string => {
-  switch (tag) {
-    case "LocalVarId": {
-      const [i, j] = contents;
-      return `${i}:${j}:`;
-    }
-    case "NamespaceId": {
-      // locals in a global block point to globals
-      return `${contents}.`;
-    }
-  }
-};
-
-const prettyPrintResolvedName = ({
-  tag,
-  block,
-  name,
-}: ResolvedName): string => {
-  switch (tag) {
-    case "Global": {
-      return name;
-    }
-    case "Local": {
-      return `${blockPrefix(block)}${name}`;
-    }
-    case "Substance": {
-      return `\`${name}\``;
-    }
-  }
-};
-
-const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
-  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
 
 const gatherExpr = (
   graph: DepGraph,
@@ -2188,11 +2161,9 @@ const evalExpr = (
     }
     case "ConstrFn":
     case "Layering":
-    case "ObjFn": {
-      return err(oneErr({ tag: "NotValueError", expr }));
-    }
+    case "ObjFn":
     case "GPIDecl": {
-      return err(oneErr({ tag: "NotValueError", expr }));
+      return err(oneErr({ tag: "NotValueError", expr, what: expr.tag }));
     }
     case "Fix": {
       return ok(val(floatV(expr.contents)));

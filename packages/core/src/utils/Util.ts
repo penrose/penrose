@@ -9,6 +9,11 @@ import { Properties } from "types/shape";
 import { Fn, State } from "types/state";
 import { BindingForm, Expr, Path } from "types/style";
 import {
+  LocalVarSubst,
+  ResolvedName,
+  ResolvedPath,
+} from "types/styleSemantics";
+import {
   BoolV,
   Color,
   ColorV,
@@ -452,6 +457,40 @@ export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
 //#endregion
 
 //#region Style
+
+const blockPrefix = ({ tag, contents }: LocalVarSubst): string => {
+  switch (tag) {
+    case "LocalVarId": {
+      const [i, j] = contents;
+      return `${i}:${j}:`;
+    }
+    case "NamespaceId": {
+      // locals in a global block point to globals
+      return `${contents}.`;
+    }
+  }
+};
+
+const prettyPrintResolvedName = ({
+  tag,
+  block,
+  name,
+}: ResolvedName): string => {
+  switch (tag) {
+    case "Global": {
+      return name;
+    }
+    case "Local": {
+      return `${blockPrefix(block)}${name}`;
+    }
+    case "Substance": {
+      return `\`${name}\``;
+    }
+  }
+};
+
+export const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
+  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
 
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
   switch (bf.tag) {
