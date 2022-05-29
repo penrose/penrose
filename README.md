@@ -24,7 +24,7 @@ Here's a simple Penrose visualization in the domain of set theory.
 <img src="diagrams/tree-venn.svg" width=500>
 
 It's specified by the following trio of Domain, Substance, and Style programs
-(with variation `SpongeLobster1994`):
+(with variation `PlumvilleCapybara104`):
 
 - `setTheory.dsl`:
 
