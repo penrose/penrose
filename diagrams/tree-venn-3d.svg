@@ -1,13 +1,13 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g
-    transform="rotate(0, 149.12506440144062, 0.05698010310487689)translate(149.12506440144062, 0.05698010310487689)"
+    transform="rotate(0, 108.69933869265554, 0.09666340494305814)translate(108.69933869265554, 0.09666340494305814)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="523.7477105960866"
-      height="540.7999616387499"
+      width="610.4889999751615"
+      height="630.3653860208645"
     >
       <defs>
         <linearGradient
@@ -38,14 +38,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 152.77911819629708, 2.005808793694996)translate(152.77911819629708, 2.005808793694996)"
+    transform="rotate(0, 112.95856427387753, 2.368250381594862)translate(112.95856427387753, 2.368250381594862)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="487.2071726475224"
-      height="487.2071726475224"
+      width="567.896744162941"
+      height="567.896744162941"
     >
       <defs>
         <radialGradient
@@ -81,25 +81,106 @@
     </svg>
   </g>
   <circle
-    fill="#9e9666"
+    fill="#cac87e"
     fill-opacity="0.5"
-    cx="396.38270452005827"
-    cy="245.6093951174562"
+    cx="396.906936355348"
+    cy="286.31662246306536"
     stroke="none"
-    r="243.6035863237612"
+    r="283.9483720814705"
   >
-    <title>A.shape</title>
+    <title>`A`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 335.2667371598729, 184.71530235722523)translate(335.2667371598729, 184.71530235722523)"
+    transform="rotate(0, 470.43480257420174, 277.5973832882262)translate(470.43480257420174, 277.5973832882262)"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 874.58 820.84"
+      width="197.87832412679614"
+      height="204.32087421464536"
+    >
+      <defs>
+        <linearGradient
+          id="linear-gradient"
+          x1="214.17"
+          y1="30.72"
+          x2="996.08"
+          y2="1361.33"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"></stop>
+          <stop offset="0.88"></stop>
+        </linearGradient>
+      </defs>
+      <title>shadow</title>
+      <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+          <ellipse
+            cx="437.29"
+            cy="410.42"
+            rx="437.29"
+            ry="410.42"
+            opacity="0.3"
+            fill="url(#linear-gradient)"
+          ></ellipse>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 471.81534902159785, 278.33367472683756)translate(471.81534902159785, 278.33367472683756)"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 829.57 829.57"
+      width="184.07285965283364"
+      height="184.07285965283364"
+    >
+      <defs>
+        <radialGradient
+          id="radial-gradient"
+          cx="388.77"
+          cy="378.93"
+          fx="227.19844299493337"
+          fy="199.3018850052363"
+          r="571.68"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.14" stop-color="#dbdbdb"></stop>
+          <stop offset="0.29" stop-color="#bdbdbd"></stop>
+          <stop offset="0.6" stop-color="#707070"></stop>
+          <stop offset="0.72" stop-color="#525252"></stop>
+          <stop offset="0.76" stop-color="#656565"></stop>
+          <stop offset="0.84" stop-color="#959595"></stop>
+          <stop offset="0.96" stop-color="#e2e2e2"></stop>
+          <stop offset="1" stop-color="#fff"></stop>
+        </radialGradient>
+      </defs>
+      <title>shading</title>
+      <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+          <circle
+            cx="414.78"
+            cy="414.78"
+            r="414.78"
+            fill="url(#radial-gradient)"
+          ></circle>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 325.9081254051506, 215.32686262622803)translate(325.9081254051506, 215.32686262622803)"
     string="A"
   >
-    <title>A.text</title>
+    <title>`A`.text</title>
     <svg
       style="font-size: 12pt"
       xmlns="http://www.w3.org/2000/svg"
-      width="121.8017931618806"
-      height="121.8017931618806"
+      width="141.97418604073525"
+      height="141.97418604073525"
       role="img"
       focusable="false"
       viewBox="0 -750 750 1000"
@@ -128,15 +209,25 @@
       </g>
     </svg>
   </g>
+  <circle
+    fill="#4951bb"
+    fill-opacity="0.5"
+    cx="563.8517788480146"
+    cy="370.3701045532544"
+    stroke="none"
+    r="92.03642982641682"
+  >
+    <title>`C`.shape</title>
+  </circle>
   <g
-    transform="rotate(0, 254.81265014091855, 304.933374108782)translate(254.81265014091855, 304.933374108782)"
+    transform="rotate(0, 478.96556660318004, 343.2650492028053)translate(478.96556660318004, 343.2650492028053)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="145.3500426121759"
-      height="150.08236958094443"
+      width="44.89160316399415"
+      height="46.3531902437521"
     >
       <defs>
         <linearGradient
@@ -167,14 +258,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 255.82672020565468, 305.4742114766412)translate(255.82672020565468, 305.4742114766412)"
+    transform="rotate(0, 479.27876383455674, 343.43208772620625)translate(479.27876383455674, 343.43208772620625)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="135.2093419648148"
-      height="135.2093419648148"
+      width="41.75963085022712"
+      height="41.75963085022712"
     >
       <defs>
         <radialGradient
@@ -209,26 +300,16 @@
       </g>
     </svg>
   </g>
-  <circle
-    fill="#7768a9"
-    fill-opacity="0.5"
-    cx="323.4313911880621"
-    cy="373.0788824590486"
-    stroke="none"
-    r="67.6046709824074"
-  >
-    <title>C.shape</title>
-  </circle>
   <g
-    transform="rotate(0, 307.42369233784433, 356.3993080350703)translate(307.42369233784433, 356.3993080350703)"
+    transform="rotate(0, 540.8535138505679, 347.35994546842835)translate(540.8535138505679, 347.35994546842835)"
     string="C"
   >
-    <title>C.text</title>
+    <title>`C`.text</title>
     <svg
       style="font-size: 12pt"
       xmlns="http://www.w3.org/2000/svg"
-      width="33.8023354912037"
-      height="33.8023354912037"
+      width="46.01821491320841"
+      height="46.01821491320841"
       role="img"
       focusable="false"
       viewBox="0 -750 760 1000"
@@ -257,236 +338,26 @@
       </g>
     </svg>
   </g>
-  <g
-    transform="rotate(0, 278.5569876594177, 318.13448909223274)translate(278.5569876594177, 318.13448909223274)"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      viewBox="0 0 874.58 820.84"
-      width="43.01768011404543"
-      height="44.41825574566552"
-    >
-      <defs>
-        <linearGradient
-          id="linear-gradient"
-          x1="214.17"
-          y1="30.72"
-          x2="996.08"
-          y2="1361.33"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"></stop>
-          <stop offset="0.88"></stop>
-        </linearGradient>
-      </defs>
-      <title>shadow</title>
-      <g id="Layer_2" data-name="Layer 2">
-        <g id="Layer_1-2" data-name="Layer 1">
-          <ellipse
-            cx="437.29"
-            cy="410.42"
-            rx="437.29"
-            ry="410.42"
-            opacity="0.3"
-            fill="url(#linear-gradient)"
-          ></ellipse>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 278.8571110090506, 318.2945548787036)translate(278.8571110090506, 318.2945548787036)"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      viewBox="0 0 829.57 829.57"
-      width="40.01644661771668"
-      height="40.01644661771668"
-    >
-      <defs>
-        <radialGradient
-          id="radial-gradient"
-          cx="388.77"
-          cy="378.93"
-          fx="227.19844299493337"
-          fy="199.3018850052363"
-          r="571.68"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0.14" stop-color="#dbdbdb"></stop>
-          <stop offset="0.29" stop-color="#bdbdbd"></stop>
-          <stop offset="0.6" stop-color="#707070"></stop>
-          <stop offset="0.72" stop-color="#525252"></stop>
-          <stop offset="0.76" stop-color="#656565"></stop>
-          <stop offset="0.84" stop-color="#959595"></stop>
-          <stop offset="0.96" stop-color="#e2e2e2"></stop>
-          <stop offset="1" stop-color="#fff"></stop>
-        </radialGradient>
-      </defs>
-      <title>shading</title>
-      <g id="Layer_2" data-name="Layer 2">
-        <g id="Layer_1-2" data-name="Layer 1">
-          <circle
-            cx="414.78"
-            cy="414.78"
-            r="414.78"
-            fill="url(#radial-gradient)"
-          ></circle>
-        </g>
-      </g>
-    </svg>
-  </g>
   <circle
-    fill="#a69b4b"
+    fill="#a85f3b"
     fill-opacity="0.5"
-    cx="298.86533431790895"
-    cy="338.30277818756196"
+    cx="500.1585792596703"
+    cy="364.3119031513198"
     stroke="none"
-    r="20.00822330885834"
+    r="20.87981542511356"
   >
-    <title>G.shape</title>
+    <title>`F`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 293.86326559441346, 333.343141865327)translate(293.86326559441346, 333.343141865327)"
-    string="G"
-  >
-    <title>G.text</title>
-    <svg
-      style="font-size: 12pt"
-      xmlns="http://www.w3.org/2000/svg"
-      width="10.00411165442917"
-      height="10.00411165442917"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 786 1000"
-    >
-      <g
-        stroke="none"
-        fill="#ffffff"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D43A"
-                    d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q492 659 471 656T418 643T357 615T294 567T236 496T189 394T158 260Q156 242 156 221Q156 173 170 136T206 79T256 45T308 28T353 24Q407 24 452 47T514 106Q517 114 529 161T541 214Q541 222 528 224T468 227H431Q425 233 425 235T427 254Q431 267 437 273H454Q494 271 594 271Q634 271 659 271T695 272T707 272Q721 272 721 263Q721 261 719 249Q714 230 709 228Q706 227 694 227Q674 227 653 224Q646 221 643 215T629 164Q620 131 614 108Q589 6 586 3Q584 1 581 1Q571 1 553 21T530 52Q530 53 528 52T522 47Q448 -22 322 -22Q201 -22 126 55T50 252Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 321.21072226003946, 314.3870158784112)translate(321.21072226003946, 314.3870158784112)"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      viewBox="0 0 874.58 820.84"
-      width="43.111697647891184"
-      height="44.51533431549695"
-    >
-      <defs>
-        <linearGradient
-          id="linear-gradient"
-          x1="214.17"
-          y1="30.72"
-          x2="996.08"
-          y2="1361.33"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"></stop>
-          <stop offset="0.88"></stop>
-        </linearGradient>
-      </defs>
-      <title>shadow</title>
-      <g id="Layer_2" data-name="Layer 2">
-        <g id="Layer_1-2" data-name="Layer 1">
-          <ellipse
-            cx="437.29"
-            cy="410.42"
-            rx="437.29"
-            ry="410.42"
-            opacity="0.3"
-            fill="url(#linear-gradient)"
-          ></ellipse>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 321.51150154595496, 314.5474314975661)translate(321.51150154595496, 314.5474314975661)"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      viewBox="0 0 829.57 829.57"
-      width="40.10390478873599"
-      height="40.10390478873599"
-    >
-      <defs>
-        <radialGradient
-          id="radial-gradient"
-          cx="388.77"
-          cy="378.93"
-          fx="227.19844299493337"
-          fy="199.3018850052363"
-          r="571.68"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0.14" stop-color="#dbdbdb"></stop>
-          <stop offset="0.29" stop-color="#bdbdbd"></stop>
-          <stop offset="0.6" stop-color="#707070"></stop>
-          <stop offset="0.72" stop-color="#525252"></stop>
-          <stop offset="0.76" stop-color="#656565"></stop>
-          <stop offset="0.84" stop-color="#959595"></stop>
-          <stop offset="0.96" stop-color="#e2e2e2"></stop>
-          <stop offset="1" stop-color="#fff"></stop>
-        </radialGradient>
-      </defs>
-      <title>shading</title>
-      <g id="Layer_2" data-name="Layer 2">
-        <g id="Layer_1-2" data-name="Layer 1">
-          <circle
-            cx="414.78"
-            cy="414.78"
-            r="414.78"
-            fill="url(#radial-gradient)"
-          ></circle>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <circle
-    fill="#308743"
-    fill-opacity="0.5"
-    cx="341.563453940323"
-    cy="334.5993838919341"
-    stroke="none"
-    r="20.051952394367994"
-  >
-    <title>F.shape</title>
-  </circle>
-  <g
-    transform="rotate(0, 336.3486316399235, 329.67512767591006)translate(336.3486316399235, 329.67512767591006)"
+    transform="rotate(0, 494.93853016399146, 359.09478399134514)translate(494.93853016399146, 359.09478399134514)"
     string="F"
   >
-    <title>F.text</title>
+    <title>`F`.text</title>
     <svg
       style="font-size: 12pt"
       xmlns="http://www.w3.org/2000/svg"
-      width="10.025976197183997"
-      height="10.025976197183997"
+      width="10.43990771255678"
+      height="10.43990771255678"
       role="img"
       focusable="false"
       viewBox="0 -750 749 1000"
@@ -516,14 +387,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 382.8369948897035, 353.8058325825915)translate(382.8369948897035, 353.8058325825915)"
+    transform="rotate(0, 242.74657959378249, 356.7629627948451)translate(242.74657959378249, 356.7629627948451)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="132.25787650216435"
-      height="136.56394689990927"
+      width="214.30386958035942"
+      height="221.2812048690223"
     >
       <defs>
         <linearGradient
@@ -554,14 +425,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 383.7597242606488, 354.2979549137624)translate(383.7597242606488, 354.2979549137624)"
+    transform="rotate(0, 244.24172286992453, 357.56037254212083)translate(244.24172286992453, 357.56037254212083)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="123.03058279271103"
-      height="123.03058279271103"
+      width="199.352436818939"
+      height="199.352436818939"
     >
       <defs>
         <radialGradient
@@ -597,25 +468,25 @@
     </svg>
   </g>
   <circle
-    fill="#92bb2e"
+    fill="#ce62d8"
     fill-opacity="0.5"
-    cx="445.2750156570043"
-    cy="415.8132463101179"
+    cx="343.91794127939403"
+    cy="457.23659095159036"
     stroke="none"
-    r="61.515291396355515"
+    r="99.6762184094695"
   >
-    <title>B.shape</title>
+    <title>`B`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 430.4475600280418, 400.78128541269)translate(430.4475600280418, 400.78128541269)"
+    transform="rotate(0, 319.00091589054006, 432.31116046352673)translate(319.00091589054006, 432.31116046352673)"
     string="B"
   >
-    <title>B.text</title>
+    <title>`B`.text</title>
     <svg
       style="font-size: 12pt"
       xmlns="http://www.w3.org/2000/svg"
-      width="30.757645698177758"
-      height="30.757645698177758"
+      width="49.83810920473475"
+      height="49.83810920473475"
       role="img"
       focusable="false"
       viewBox="0 -750 759 1000"
@@ -645,14 +516,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 390.1476054099487, 384.680724131423)translate(390.1476054099487, 384.680724131423)"
+    transform="rotate(0, 361.40592100566846, 380.22079538368644)translate(361.40592100566846, 380.22079538368644)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="42.99975180222175"
-      height="44.39974372136386"
+      width="54.466921431049634"
+      height="56.240263059037304"
     >
       <defs>
         <linearGradient
@@ -683,14 +554,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 390.44760367833635, 384.84072320789636)translate(390.44760367833635, 384.84072320789636)"
+    transform="rotate(0, 361.78592278309435, 380.4234629983136)translate(361.78592278309435, 380.4234629983136)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="39.99976911834582"
-      height="39.99976911834582"
+      width="50.66690365679036"
+      height="50.66690365679036"
     >
       <defs>
         <radialGradient
@@ -726,25 +597,154 @@
     </svg>
   </g>
   <circle
-    fill="#9547a3"
+    fill="#60a543"
     fill-opacity="0.5"
-    cx="410.4474882375093"
-    cy="404.8406077670693"
+    cx="387.11937461148955"
+    cy="405.7569148267088"
     stroke="none"
-    r="19.99988455917291"
+    r="25.33345182839518"
   >
-    <title>E.shape</title>
+    <title>`D`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 405.0943627607588, 399.33735288897907)translate(405.0943627607588, 399.33735288897907)"
-    string="E"
+    transform="rotate(0, 380.78377258128126, 399.4236627919949)translate(380.78377258128126, 399.4236627919949)"
+    string="D"
   >
-    <title>E.text</title>
+    <title>`D`.text</title>
     <svg
       style="font-size: 12pt"
       xmlns="http://www.w3.org/2000/svg"
-      width="9.999942279586454"
-      height="9.999942279586454"
+      width="12.66672591419759"
+      height="12.66672591419759"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 828 1000"
+    >
+      <g
+        stroke="none"
+        fill="#ffffff"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D437"
+                    d="M287 628Q287 635 230 637Q207 637 200 638T193 647Q193 655 197 667T204 682Q206 683 403 683Q570 682 590 682T630 676Q702 659 752 597T803 431Q803 275 696 151T444 3L430 1L236 0H125H72Q48 0 41 2T33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM703 469Q703 507 692 537T666 584T629 613T590 629T555 636Q553 636 541 636T512 636T479 637H436Q392 637 386 627Q384 623 313 339T242 52Q242 48 253 48T330 47Q335 47 349 47T373 46Q499 46 581 128Q617 164 640 212T683 339T703 469Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 265.27980233536516, 390.87036512143214)translate(265.27980233536516, 390.87036512143214)"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 874.58 820.84"
+      width="43.21330649774534"
+      height="44.62025136046264"
+    >
+      <defs>
+        <linearGradient
+          id="linear-gradient"
+          x1="214.17"
+          y1="30.72"
+          x2="996.08"
+          y2="1361.33"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"></stop>
+          <stop offset="0.88"></stop>
+        </linearGradient>
+      </defs>
+      <title>shadow</title>
+      <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+          <ellipse
+            cx="437.29"
+            cy="410.42"
+            rx="437.29"
+            ry="410.42"
+            opacity="0.3"
+            fill="url(#linear-gradient)"
+          ></ellipse>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 265.5812905202331, 391.03115882002834)translate(265.5812905202331, 391.03115882002834)"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 829.57 829.57"
+      width="40.19842464906544"
+      height="40.19842464906544"
+    >
+      <defs>
+        <radialGradient
+          id="radial-gradient"
+          cx="388.77"
+          cy="378.93"
+          fx="227.19844299493337"
+          fy="199.3018850052363"
+          r="571.68"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.14" stop-color="#dbdbdb"></stop>
+          <stop offset="0.29" stop-color="#bdbdbd"></stop>
+          <stop offset="0.6" stop-color="#707070"></stop>
+          <stop offset="0.72" stop-color="#525252"></stop>
+          <stop offset="0.76" stop-color="#656565"></stop>
+          <stop offset="0.84" stop-color="#959595"></stop>
+          <stop offset="0.96" stop-color="#e2e2e2"></stop>
+          <stop offset="1" stop-color="#fff"></stop>
+        </radialGradient>
+      </defs>
+      <title>shading</title>
+      <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+          <circle
+            cx="414.78"
+            cy="414.78"
+            r="414.78"
+            fill="url(#radial-gradient)"
+          ></circle>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#5de47e"
+    fill-opacity="0.5"
+    cx="285.68050284476584"
+    cy="411.1303711445611"
+    stroke="none"
+    r="20.09921232453272"
+  >
+    <title>`E`.shape</title>
+  </circle>
+  <g
+    transform="rotate(0, 280.66180289678573, 406.11004119473745)translate(280.66180289678573, 406.11004119473745)"
+    string="E"
+  >
+    <title>`E`.text</title>
+    <svg
+      style="font-size: 12pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="10.04960616226636"
+      height="10.04960616226636"
       role="img"
       focusable="false"
       viewBox="0 -750 764 1000"
@@ -774,14 +774,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 461.1992506717864, 391.14483724243155)translate(461.1992506717864, 391.14483724243155)"
+    transform="rotate(0, 499.6135850493226, 300.1020760537593)translate(499.6135850493226, 300.1020760537593)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="43.01313523618325"
-      height="44.41356289503574"
+      width="45.044917602563956"
+      height="46.511496315205584"
     >
       <defs>
         <linearGradient
@@ -812,14 +812,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 461.4993423129691, 391.304886117729)translate(461.4993423129691, 391.304886117729)"
+    transform="rotate(0, 499.92785191631725, 300.26968504948974)translate(499.92785191631725, 300.26968504948974)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="40.012218824356516"
-      height="40.012218824356516"
+      width="41.90224893261764"
+      height="41.90224893261764"
     >
       <defs>
         <radialGradient
@@ -855,28 +855,28 @@
     </svg>
   </g>
   <circle
-    fill="#c94c21"
+    fill="#422b9b"
     fill-opacity="0.5"
-    cx="481.50545172514734"
-    cy="411.31099552990725"
+    cx="520.8789763826261"
+    cy="321.2208095157986"
     stroke="none"
-    r="20.006109412178258"
+    r="20.95112446630882"
   >
-    <title>D.shape</title>
+    <title>`G`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 476.5634122102169, 406.1799548584155)translate(476.5634122102169, 406.1799548584155)"
-    string="D"
+    transform="rotate(0, 515.646120197237, 315.984812414577)translate(515.646120197237, 315.984812414577)"
+    string="G"
   >
-    <title>D.text</title>
+    <title>`G`.text</title>
     <svg
       style="font-size: 12pt"
       xmlns="http://www.w3.org/2000/svg"
-      width="10.003054706089129"
-      height="10.003054706089129"
+      width="10.47556223315441"
+      height="10.47556223315441"
       role="img"
       focusable="false"
-      viewBox="0 -750 828 1000"
+      viewBox="0 -750 786 1000"
     >
       <g
         stroke="none"
@@ -891,8 +891,8 @@
               <g data-mml-node="mtd">
                 <g data-mml-node="mi">
                   <path
-                    data-c="1D437"
-                    d="M287 628Q287 635 230 637Q207 637 200 638T193 647Q193 655 197 667T204 682Q206 683 403 683Q570 682 590 682T630 676Q702 659 752 597T803 431Q803 275 696 151T444 3L430 1L236 0H125H72Q48 0 41 2T33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM703 469Q703 507 692 537T666 584T629 613T590 629T555 636Q553 636 541 636T512 636T479 637H436Q392 637 386 627Q384 623 313 339T242 52Q242 48 253 48T330 47Q335 47 349 47T373 46Q499 46 581 128Q617 164 640 212T683 339T703 469Z"
+                    data-c="1D43A"
+                    d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q492 659 471 656T418 643T357 615T294 567T236 496T189 394T158 260Q156 242 156 221Q156 173 170 136T206 79T256 45T308 28T353 24Q407 24 452 47T514 106Q517 114 529 161T541 214Q541 222 528 224T468 227H431Q425 233 425 235T427 254Q431 267 437 273H454Q494 271 594 271Q634 271 659 271T695 272T707 272Q721 272 721 263Q721 261 719 249Q714 230 709 228Q706 227 694 227Q674 227 653 224Q646 221 643 215T629 164Q620 131 614 108Q589 6 586 3Q584 1 581 1Q571 1 553 21T530 52Q530 53 528 52T522 47Q448 -22 322 -22Q201 -22 126 55T50 252Z"
                   ></path>
                 </g>
               </g>
