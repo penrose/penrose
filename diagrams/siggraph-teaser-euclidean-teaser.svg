@@ -49,7 +49,7 @@
       ></path>
     </marker>
     <path
-      d="M 257.1563392447207 134.16075789663358 L 560 94"
+      d="M 547.7686297481371 176.74741935831833 L 461.84759772443897 205.9960253450014"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -61,8 +61,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="272"
-    cy="606"
+    cx="358.4258522964693"
+    cy="360.80264105987334"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -72,7 +72,7 @@
     <title>`s`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 649.51373, 208.17)translate(649.51373, 208.17)"
+    transform="rotate(0, 353.63546590490665, 326.1426407157807)translate(353.63546590490665, 326.1426407157807)"
     color="[object Object]"
     string="s"
   >
@@ -144,7 +144,7 @@
       ></path>
     </marker>
     <path
-      d="M 368 94 L 752 94"
+      d="M 512.1632620675763 353.8038841188212 L 411.53193338130166 58.188166571181625"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -155,8 +155,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="560"
-    cy="94"
+    cx="461.84759772443897"
+    cy="205.9960253450014"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -166,7 +166,7 @@
     <title>`m`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 643.85726, 848.17)translate(643.85726, 848.17)"
+    transform="rotate(0, 430.5621170833576, 193.2017747929562)translate(430.5621170833576, 193.2017747929562)"
     string="m"
     color="[object Object]"
   >
@@ -238,7 +238,7 @@
       ></path>
     </marker>
     <path
-      d="M 368 94 L 400 691.5"
+      d="M 512.1632620675763 353.8038841188212 L 248.91228400898763 539.900123299959"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -249,8 +249,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="400"
-    cy="691.5"
+    cx="248.91228400898763"
+    cy="539.900123299959"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -260,7 +260,7 @@
     <title>`r`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 905.76267, 662.17)translate(905.76267, 662.17)"
+    transform="rotate(0, 229.43762326890317, 526.463488858201)translate(229.43762326890317, 526.463488858201)"
     color="[object Object]"
     string="r"
   >
@@ -301,8 +301,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="368"
-    cy="94"
+    cx="512.1632620675763"
+    cy="353.8038841188212"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -314,8 +314,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="752"
-    cy="94"
+    cx="411.53193338130166"
+    cy="58.188166571181625"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -325,7 +325,7 @@
     <title>`q`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 714.3882, 140.42)translate(714.3882, 140.42)"
+    transform="rotate(0, 418.5319369329122, 38.138378947666396)translate(418.5319369329122, 38.138378947666396)"
     color="[object Object]"
     string="q"
   >
@@ -413,7 +413,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 461.04351, 192.17)translate(461.04351, 192.17)"
+    transform="rotate(0, 516.7284282824097, 320.8373527346121)translate(516.7284282824097, 320.8373527346121)"
     color="[object Object]"
     string="p"
   >
@@ -469,12 +469,12 @@
       </feMerge>
     </filter>
     <path
-      stroke="#6bcc31"
+      stroke="#884eda"
       fill="#1b1f8a"
       stroke-width="0"
       stroke-opacity="0.5"
       fill-opacity="0.2"
-      d="M 368 94 L 272 606 L 400 691.5 Z "
+      d="M 512.1632620675763 353.8038841188212 L 358.4258522964693 360.80264105987334 L 248.91228400898763 539.900123299959 Z "
     ></path>
     <title>`t`.icon</title>
   </g>
@@ -491,7 +491,7 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#7a264a"
+        fill="#71792f"
         fill-opacity="0.5"
       ></path>
     </marker>
@@ -507,15 +507,15 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#7a264a"
+        fill="#71792f"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 368 94 L 400 691.5"
+      d="M 512.1632620675763 353.8038841188212 L 248.91228400898763 539.900123299959"
       stroke-opacity="0.5"
       stroke-width="0"
-      stroke="#7a264a"
+      stroke="#71792f"
       stroke-linecap="butt"
     ></path>
     <title>`t`.PQ</title>
@@ -533,7 +533,7 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#664b7e"
+        fill="#d8a9b3"
         fill-opacity="0.5"
       ></path>
     </marker>
@@ -549,15 +549,15 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#664b7e"
+        fill="#d8a9b3"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 400 691.5 L 272 606"
+      d="M 248.91228400898763 539.900123299959 L 358.4258522964693 360.80264105987334"
       stroke-opacity="0.5"
       stroke-width="0"
-      stroke="#664b7e"
+      stroke="#d8a9b3"
       stroke-linecap="butt"
     ></path>
     <title>`t`.QR</title>
@@ -575,7 +575,7 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#cb985a"
+        fill="#1b6339"
         fill-opacity="0.5"
       ></path>
     </marker>
@@ -591,15 +591,15 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#cb985a"
+        fill="#1b6339"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 272 606 L 368 94"
+      d="M 358.4258522964693 360.80264105987334 L 512.1632620675763 353.8038841188212"
       stroke-opacity="0.5"
       stroke-width="0"
-      stroke="#cb985a"
+      stroke="#1b6339"
       stroke-linecap="butt"
     ></path>
     <title>`t`.RP</title>
@@ -626,7 +626,7 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 550.0867872529689 95.31461274810388 L 551.4014000010728 105.22782549513497 L 569.9999994791667 94"
+      d="M 471.31413304741227 202.7734969931039 L 468.0916046955147 193.30696167013065 L 458.62506926715866 196.52948967809698"
     ></path>
     <title>`h`.mark</title>
   </g>
@@ -664,7 +664,7 @@
       ></path>
     </marker>
     <path
-      d="M 368 94 L 433.87278932263985 156.4392785189479"
+      d="M 512.1632620675763 353.8038841188212 L 425.82906583282437 325.79910107607276"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -695,7 +695,7 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 397.99999921875 94 A 30 30 0 0 1 369.60439524027487 123.9570673770076"
+      d="M 502.4956763861493 325.40427620866404 A 30 30 0 0 0 487.66615853461303 371.12127025708213"
     ></path>
     <title>`theta`.mark</title>
   </g>
