@@ -340,20 +340,52 @@ describe("Debug API", () => {
     // queryExplainStyleBlockApplication(21,{'x':'B','y':'A'}) == (see below)
     expect(
       dbg.queryExplainStyleBlockApplication(21, { x: "B", y: "A" })
-    ).toEqual(
-      JSON.parse(
-        '[{"subst":{"x":"B","y":"A"},"relRef":{"origin":"Style","lineStart":22,"lineEnd":22,"colStart":6,"colEnd":19,"srcText":["IsSubset(x, y)"]},"reasons":[{"code":"MATCHING_SUB_STATEMENTS_FOUND","srcRef":[{"origin":"Substance","lineStart":3,"lineEnd":3,"colStart":0,"colEnd":13,"srcText":["IsSubset(B, A)"]}]}]}]'
-      )
-    );
+    ).toEqual([
+      {
+        subst: { x: "B", y: "A" },
+        relRef: {
+          origin: "Style",
+          lineStart: 22,
+          lineEnd: 22,
+          colStart: 6,
+          colEnd: 19,
+          srcText: ["IsSubset(x, y)"],
+        },
+        reasons: [
+          {
+            code: "MATCHING_SUB_STATEMENTS_FOUND",
+            srcRef: [
+              {
+                origin: "Substance",
+                lineStart: 3,
+                lineEnd: 3,
+                colStart: 0,
+                colEnd: 13,
+                srcText: ["IsSubset(B, A)"],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
 
     // queryExplainStyleBlockApplication(21,{'x':'B','y':'C'}) == (see below)
     expect(
       dbg.queryExplainStyleBlockApplication(21, { x: "B", y: "C" })
-    ).toEqual(
-      JSON.parse(
-        '[{"subst":{"x":"B","y":"C"},"relRef":{"origin":"Style","lineStart":22,"lineEnd":22,"colStart":6,"colEnd":19,"srcText":["IsSubset(x, y)"]},"reasons":[{"code":"NO_MATCHING_SUB_STATEMENTS_FOUND","srcRef":[]}]}]'
-      )
-    );
+    ).toEqual([
+      {
+        subst: { x: "B", y: "C" },
+        relRef: {
+          origin: "Style",
+          lineStart: 22,
+          lineEnd: 22,
+          colStart: 6,
+          colEnd: 19,
+          srcText: ["IsSubset(x, y)"],
+        },
+        reasons: [{ code: "NO_MATCHING_SUB_STATEMENTS_FOUND", srcRef: [] }],
+      },
+    ]);
 
     // queryExplainStyleBlockApplication(21,{'x':'B','y':'C'}) == Error (style variable z does not exist)
     expect(() => {
@@ -382,7 +414,85 @@ describe("Debug API", () => {
       variation
     );
 
-    // queryShapeFields() == (see below)
-    // !!! expect(dbg.queryShapeFields()).toEqual([]); // !!!
+    // queryShapeFields('A','icon','disjoint[]) == {}
+    expect(dbg.queryShapeFields("A", "icon", "disjoint[]")).toEqual({});
+
+    // queryShapeFields('A','icon','contains[]) == (see below)
+    expect(dbg.queryShapeFields("A", "icon", "contains[]")).toEqual({
+      A: {
+        icon: {
+          "contains[]": {
+            tag: "StrV",
+            contents:
+              "A.text;B.icon;C.icon;B.text;D.icon;E.icon;C.text;F.icon;G.icon;D.text;E.text;F.text;G.text",
+          },
+        },
+      },
+    });
+
+    // queryShapeFields('A','icon').A.icon.shapeType == "Circle"
+    expect(dbg.queryShapeFields("A", "icon").A.icon.shapeType).toEqual(
+      "Circle"
+    );
+
+    // queryShapeFields('B','icon','contains[]) == (see below)
+    expect(dbg.queryShapeFields("B", "icon", "contains[]")).toEqual({
+      B: {
+        icon: {
+          "contains[]": {
+            tag: "StrV",
+            contents: "B.text;D.icon;E.icon;D.text;E.text",
+          },
+        },
+      },
+    });
+
+    // queryShapeFields('B','icon','disjoint[]) == (see below)
+    expect(dbg.queryShapeFields("B", "icon", "disjoint[]")).toEqual({
+      B: {
+        icon: {
+          "disjoint[]": {
+            tag: "StrV",
+            contents: "A.text;C.icon;C.text;F.icon;G.icon;F.text;G.text",
+          },
+        },
+      },
+    });
+
+    // queryShapeFields('E','icon','contains[]) == (see below)
+    expect(dbg.queryShapeFields("E", "icon", "contains[]")).toEqual({
+      E: {
+        icon: {
+          "contains[]": {
+            tag: "StrV",
+            contents: "E.text",
+          },
+        },
+      },
+    });
+
+    // queryShapeFields('E','icon','disjoint[]) == (see below)
+    expect(dbg.queryShapeFields("E", "icon", "disjoint[]")).toEqual({
+      E: {
+        icon: {
+          "disjoint[]": {
+            tag: "StrV",
+            contents:
+              "B.text;D.icon;A.text;C.icon;C.text;F.icon;G.icon;F.text;G.text;D.text",
+          },
+        },
+      },
+    });
+
+    // Object.keys(queryShapeFields('B')) == ['icon','text']
+    expect(Object.keys(dbg.queryShapeFields("B").B)).toEqual(["icon", "text"]);
+
+    // queryShapeFields('Z') == {}
+    expect(dbg.queryShapeFields("Z")).toEqual({});
+
+    // Object.keys(queryShapeFields()) == ['A','B','C', 'D', 'E', 'F', 'G']
+    expect(
+      Object.keys(dbg.queryShapeFields()) == ["A", "B", "C", "D", "E", "F", "G"]
+    );
   });
 });

@@ -6,7 +6,7 @@ import { A } from "types/ast";
 import { Shape } from "types/shape";
 import { State } from "types/state";
 import { FieldPath } from "types/style";
-import { FieldExpr, TrMap } from "types/value";
+import { FieldExpr } from "types/value";
 
 /**
  * A list of shapes organized in three levels:
@@ -25,8 +25,8 @@ export type DebugShapeList = Record<string, Record<string, Shape>>;
  * @returns DebugShapeList
  */
 export const buildDebugShapeList = (state: State): DebugShapeList => {
-  const translation: TrMap<A> = state.translation.trMap; // Ref. to translation map in diagram state
-  const shapes: Shape[] = state.shapes; // Ref. to Shapes in diagram state
+  const translation = state.translation.trMap; // Ref. to translation map in diagram state
+  const shapes = state.shapes; // Ref. to Shapes in diagram state
   const shapeList: DebugShapeList = {}; // List of Shapes to output
   const compQueue: Queue<FieldExpr<A>> = new Queue(); // Queue of computations to process
 
@@ -52,7 +52,8 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
         if (shapes[shape].properties.name.contents === `${obj}.${field}`) {
           found = true;
           if (!(obj in shapeList)) shapeList[obj] = {};
-          shapeList[obj][field] = shapes[shape];
+          // Protect the state -- make a copy of the shape before we manipulate it
+          shapeList[obj][field] = JSON.parse(JSON.stringify(shapes[shape]));
           break;
         }
       } // for: shapes
@@ -67,19 +68,16 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
   } // for: objects
 
   // Add function properties to shapes.
-  console.log("---Functions---"); // !!!
   addFunctionPropertiesToShapeList(shapeList, compQueue);
 
   // Add function properties implied by function transitivity.
   // For example, if A.contains(B) and B.contains(C), then
   // A.contains(C) should also be true.
-  console.log("--Transitives--"); // !!!
   addTransitivesToShapeList(shapeList);
 
   // Add function properties implied by cascading function semantics.
   // For example, if A.contains(B) and A.disjoint(C), then
   // B.disjoint(C) should also be true.
-  console.log("---Cascades---"); // !!!
   addCascadesToShapeList(shapeList);
 
   return shapeList;
@@ -148,25 +146,7 @@ const addFunctionPropertiesToShapeList = (
           .join(";");
 
         // Add the shape arguments to property thisShapeArg[fnPropName]
-        console.log(
-          `Bidi Was: ${getShapeName(
-            thisShapeArg
-          )}.${fnPropName}=${getStrPropertyValue(
-            thisShapeArg,
-            fnPropName,
-            true
-          )}`
-        ); // !!!
         setStrPropertyValue(thisShapeArg, fnPropName, argsMinusThisShape, true);
-        console.log(
-          `Bidi Now: ${getShapeName(
-            thisShapeArg
-          )}.${fnPropName}=${getStrPropertyValue(
-            thisShapeArg,
-            fnPropName,
-            true
-          )}`
-        ); // !!!
       } // for: fnShapeArgs
     } else {
       // Unidirectional Mapping (default)
@@ -182,17 +162,7 @@ const addFunctionPropertiesToShapeList = (
         if (thisShape === undefined) continue; // Happify tsc
 
         // Add the shape arguments to property thisShapeArg[fnPropName]
-        console.log(
-          `Unidi Was: ${getShapeName(
-            thisShape
-          )}.${fnPropName}=${getStrPropertyValue(thisShape, fnPropName, true)}`
-        ); // !!!
         setStrPropertyValue(thisShape, fnPropName, fnShapeArgsStr, true);
-        console.log(
-          `Unidi Now: ${getShapeName(
-            thisShape
-          )}.${fnPropName}=${getStrPropertyValue(thisShape, fnPropName, true)}`
-        ); // !!!
       }
     } // else: uni-directional
   } // while: computations to process
@@ -256,13 +226,6 @@ const addTransitivesToShapeList = (shapeList: DebugShapeList): void => {
       }
 
       // Update the function property value
-      console.log(
-        `Was: ${getShapeName(thisShape)}.${fnPropName}=${getStrPropertyValue(
-          thisShape,
-          fnPropName,
-          true
-        )}`
-      ); // !!!
       setStrPropertyValue(
         thisShape,
         fnPropName,
@@ -271,19 +234,12 @@ const addTransitivesToShapeList = (shapeList: DebugShapeList): void => {
           .map((e) => getShapeName(e))
           .join(";")
       );
-      console.log(
-        `Now: ${getShapeName(thisShape)}.${fnPropName}=${getStrPropertyValue(
-          thisShape,
-          fnPropName,
-          true
-        )}`
-      ); // !!!
     } // for: tfns
   } // while: work exists
 };
 
 /**
- * Propogate properties that are cascadeable.  For example, if
+ * Propogate properties that are upwardly cascadeable.  For example, if
  * A.contains(B) and A.disjoint(C) then B.disjoint(C) is also true.
  *
  * Requires that the shapeList already be populated with shapes and properties,.
@@ -312,26 +268,24 @@ const addCascadesToShapeList = (shapeList: DebugShapeList): void => {
     // Process each cascading function present on this shape
     for (const fn in thisShapeFn) {
       const fnName = cfns[fn];
-      const thisShapeCfn = debugFunctionRegistry[
-        fnName
-      ].cascade?.filter((fnName) => thisShapeProps.includes(fnName + "[]"));
+      const thisShapeCfn = getFnDef(fnName).cascade?.filter((fnName) =>
+        thisShapeProps.includes(fnName + "[]")
+      );
       const rShapes = cfnMap.get(thisShape, fnName);
 
-      // Process each fn to cascade
+      // Process each fn to cascade upward
       for (const cfn in thisShapeCfn) {
         const cfnName = thisShapeCfn[cfn];
+        const cfnDef = getFnDef(cfnName);
         const cfnPropName = cfnName + "[]";
 
         // Process each target (rShape) of thisShape.fn[]
         for (const i in rShapes) {
           const rShape = rShapes[i];
-          const wasValue = getStrPropertyValue(rShape, cfnPropName, true);
-          console.log(
-            `Was: ${getShapeName(rShape)}.${cfnPropName}=${wasValue}`
-          ); // !!!
 
           // Merge the function properties of thisShape.cfn[] into the shapes
           // the original thisShape.fn[] was pointing to.
+          const wasValue = getStrPropertyValue(rShape, cfnPropName, true);
           setStrPropertyValue(
             rShape,
             cfnPropName,
@@ -339,9 +293,28 @@ const addCascadesToShapeList = (shapeList: DebugShapeList): void => {
             true
           );
           const nowValue = getStrPropertyValue(rShape, cfnPropName, true);
-          console.log(
-            `Now: ${getShapeName(rShape)}.${cfnPropName}=${nowValue}`
-          ); // !!!
+
+          // If cfn is a bidi function, then flip the parameters and load
+          // the corresponding function property, as well
+          if (cfnDef.bidi) {
+            // Process only the additional items
+            const wasValueSet = new Set(wasValue.split(";"));
+            const addValues = nowValue
+              .split(";")
+              .filter((e) => !wasValueSet.has(e));
+
+            for (const i in addValues) {
+              const lShape = getShapeByName(addValues[i], shapeList);
+
+              // Reverse the source and target then load the property value.
+              setStrPropertyValue(
+                lShape,
+                cfnPropName,
+                getShapeName(rShape),
+                true
+              );
+            } // for: addValues
+          } // if: bidi
 
           // Put the target shape in the worklist if it changed
           if (wasValue !== nowValue && !workList.toArray().includes(rShape)) {
@@ -477,6 +450,25 @@ const getShapeName = (shape: Shape): string => {
 };
 
 /**
+ * Finds and returns the shape bearing the requested name.
+ *
+ * @param shapeName string Name of shape to retrieve
+ * @param shapeList DebugShapeList List of Shapes
+ * @returns Shape Shape with the matching name.
+ */
+const getShapeByName = (
+  shapeName: string,
+  shapeList: DebugShapeList
+): Shape => {
+  const nameParts = shapeName.split(".");
+  if (nameParts.length !== 2)
+    throw new Error(`Invalid shape name: ${shapeName}`);
+  if (!(nameParts[0] in shapeList && nameParts[1] in shapeList[nameParts[0]]))
+    throw new Error(`Unknown shape name: ${shapeName}`);
+  return shapeList[nameParts[0]][nameParts[1]];
+};
+
+/**
  * Gets the property value from a shape.  Requires that the property value exist
  * and be of type StrV, otherwise an exception is thrown.
  *
@@ -524,13 +516,12 @@ const setStrPropertyValue = (
     propName in shape.properties &&
     shape.properties[propName].tag === "StrV"
   ) {
-    // Use the Set to eliminate any duplicates
-    newValue = [
-      ...new Set([
-        ...getStrPropertyValue(shape, propName).split(";"),
-        ...propValue.split(";"),
-      ]),
-    ].join(";");
+    // Use the Set to eliminate duplicates
+    const newSet = new Set([
+      ...getStrPropertyValue(shape, propName).split(";"),
+      ...propValue.split(";"),
+    ]);
+    newValue = [...newSet].join(";");
   }
   shape.properties[propName] = {
     tag: "StrV",
@@ -667,7 +658,8 @@ export const getInconsistentDebugFunctions = (): string[] => {
         }
       } // for: fnDef.cascade
     } // if: cascade Fn
-  }
+  } // for: debugFunctionRegistry
+
   return [...errorList];
 };
 
