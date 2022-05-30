@@ -79,7 +79,7 @@ value X: Set
 
 const envOrError = (prog: string): Env => {
   const res = compileDomain(prog);
-  if (res.isErr()) fail(showError(res.error));
+  if (res.isErr()) throw Error(showError(res.error));
   return res.value;
 };
 
@@ -88,7 +88,7 @@ const compileOrError = (prog: string, env: Env) => {
   if (res.isOk()) {
     return res;
   } else {
-    fail(`unexpected error ${showError(res.error)}`);
+    throw Error(`unexpected error ${showError(res.error)}`);
   }
 };
 
@@ -162,7 +162,9 @@ NoLabel D, E
         expect(label.type).toEqual(type);
       });
     } else {
-      fail("Unexpected error when processing labels: " + showError(res.error));
+      throw Error(
+        "Unexpected error when processing labels: " + showError(res.error)
+      );
     }
   });
 });
@@ -223,7 +225,7 @@ B := AddPoint(p, B)
         ["p", "Point"],
       ]);
     } else {
-      fail(`unexpected error ${showError(res.error)}`);
+      throw Error(`unexpected error ${showError(res.error)}`);
     }
   });
   test("func: constructor", () => {
@@ -242,7 +244,7 @@ l := Cons(A, nil)
         ["nil", "List(Set)"],
       ]);
     } else {
-      fail(`unexpected error ${showError(res.error)}`);
+      throw Error(`unexpected error ${showError(res.error)}`);
     }
   });
   test("deconstructor: plain types", () => {
@@ -302,7 +304,7 @@ describe("Errors", () => {
       if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
-      fail(`Error ${errorType} was suppoed to occur.`);
+      throw Error(`Error ${errorType} was suppoed to occur.`);
     }
   };
   test("parse error", () => {
@@ -601,6 +603,6 @@ const sameAsSource = (
     const strFromAST = prettySubstance(ast);
     expect(strFromAST).toEqual(source);
   } else {
-    fail(`unexpected error ${showError(res.error)}`);
+    throw Error(`unexpected error ${showError(res.error)}`);
   }
 };

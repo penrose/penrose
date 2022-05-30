@@ -66,6 +66,25 @@ export const stepState = (state: State, numSteps = 10000): State => {
 };
 
 /**
+ * Take n steps in the optimizer given the current state.
+ * @param state current state
+ * @param numSteps number of steps to take (default: 10000)
+ */
+export const stepStateSafe = (
+  state: State,
+  numSteps = 10000
+): Result<State, PenroseError> => {
+  const res = step(seedrandom(state.seeds.step), state, numSteps, true);
+  if (res.params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", res),
+    });
+  }
+  return ok(res);
+};
+
+/**
  * Repeatedly take one step in the optimizer given the current state until convergence.
  * @param state current state
  */
@@ -309,18 +328,22 @@ export const evalEnergy = (s: State): number => {
 };
 
 /**
- * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. If the `State` doesn't have the constraints/objectives compiled, it will generate them first. Otherwise, it will evaluate the cached functions.
+ * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. This function assumes that the state already has the objectives and constraints compiled.
  * @param fns a list of constraints/objectives
- * @param s a state with or without its opt functions cached
- * @returns a list of the energies and gradients of the requested functions, evaluated at the `varyingValues` in the `State`
+ * @param s a state with its opt functions cached
+ * @returns a list of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
  */
 export const evalFns = (
   s: State
 ): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  const { lastConstrEnergies, lastObjEnergies } = s.params;
+  let { lastConstrEnergies, lastObjEnergies } = s.params;
   if (!lastConstrEnergies || !lastObjEnergies) {
-    // TODO: handle errors somehow
+    const { objEngs, constrEngs } = s.params.objectiveAndGradient(
+      s.params.weight
+    )(s.varyingValues);
+    lastConstrEnergies = constrEngs;
+    lastObjEnergies = objEngs;
   }
   return {
     constrEngs: new Map(

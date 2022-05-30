@@ -275,7 +275,7 @@ const {
       expect(stringAssign.value.contents).toEqual(
         "abs1232189y790yh97dasyhfda7fhnasopufn9"
       );
-    } else fail("First stmt is not an assignment to string");
+    } else throw Error("First stmt is not an assignment to string");
   });
 
   test("floating point expr", () => {

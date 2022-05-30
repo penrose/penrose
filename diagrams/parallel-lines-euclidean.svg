@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="JKM.side2-leftArrowhead"
       markerUnits="strokeWidth"
@@ -41,7 +41,7 @@
     ></path>
     <title>JKM.side2</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="JKM.side1-leftArrowhead"
       markerUnits="strokeWidth"
@@ -83,7 +83,7 @@
     ></path>
     <title>JKM.side1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="KM.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -127,7 +127,7 @@
     ></path>
     <title>KM.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="NL.tick1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -153,7 +153,7 @@
     ></path>
     <title>NL.tick1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="NL.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -197,7 +197,7 @@
     ></path>
     <title>NL.icon</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <filter id="JK.tick1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -223,7 +223,7 @@
     ></path>
     <title>JK.tick1</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="JK.icon-leftArrowhead"
       markerUnits="strokeWidth"
@@ -270,7 +270,6 @@
   <g
     transform="rotate(0, 695.5138322837058, 319.8484802946404)translate(695.5138322837058, 319.8484802946404)"
     string="N"
-    ensureOnCanvas="true"
   >
     <title>N.text</title>
     <svg
@@ -316,14 +315,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>N.icon</title>
   </circle>
   <g
     transform="rotate(0, 628.711179977662, 339.37985167438313)translate(628.711179977662, 339.37985167438313)"
     string="M"
-    ensureOnCanvas="true"
   >
     <title>M.text</title>
     <svg
@@ -369,14 +366,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>M.icon</title>
   </circle>
   <g
     transform="rotate(0, 359.7926468378335, 373.3354859276828)translate(359.7926468378335, 373.3354859276828)"
     string="L"
-    ensureOnCanvas="true"
   >
     <title>L.text</title>
     <svg
@@ -422,14 +417,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>L.icon</title>
   </circle>
   <g
     transform="rotate(0, 548.3794350208643, 230.44091611539676)translate(548.3794350208643, 230.44091611539676)"
     string="K"
-    ensureOnCanvas="true"
   >
     <title>K.text</title>
     <svg
@@ -475,14 +468,12 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>K.icon</title>
   </circle>
   <g
     transform="rotate(0, 703.4324850907099, 156.8792782301509)translate(703.4324850907099, 156.8792782301509)"
     string="J"
-    ensureOnCanvas="true"
   >
     <title>J.text</title>
     <svg
@@ -528,7 +519,6 @@
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
-    ensureOnCanvas="true"
   >
     <title>J.icon</title>
   </circle>

@@ -6,7 +6,7 @@ import {
   readRegistry,
   Trio,
 } from "@penrose/core";
-import { Actions, TabNode } from "flexlayout-react";
+import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce } from "lodash";
 import toast from "react-hot-toast";
@@ -19,6 +19,7 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App";
+import { generateVariation } from "./variation";
 
 export type ProgramType = "substance" | "style" | "domain";
 
@@ -40,6 +41,13 @@ export type WorkspaceLocation =
   | GistLocation
   | {
       kind: "example";
+      root: string; // URL to the parent folder of the Style file
+    }
+  | {
+      kind: "roger";
+      style?: string; // path to the Style file
+      substance?: string; // path to the Substance file
+      domain?: string; // path to the Domain file
     };
 
 export type WorkspaceMetadata = {
@@ -68,6 +76,18 @@ export type Workspace = {
 export type LocalWorkspaces = {
   [id: string]: WorkspaceMetadata;
 };
+
+export type RogerState =
+  | {
+      kind: "disconnected";
+    }
+  | {
+      kind: "connected";
+      ws: WebSocket;
+      substance: string[];
+      style: string[];
+      domain: string[];
+    };
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
   setSelf(
@@ -102,7 +122,8 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
       // If edit is made on something that isnt already local
       if (
         newValue.metadata.id === oldValue.metadata.id &&
-        newValue.metadata.location.kind !== "local"
+        newValue.metadata.location.kind !== "local" &&
+        newValue.metadata.location.kind !== "roger"
       ) {
         setSelf((workspace) => ({
           ...(workspace as Workspace),
@@ -177,6 +198,11 @@ export const currentWorkspaceState = atom<Workspace>({
   effects: [saveWorkspaceEffect, syncFilenamesEffect],
 });
 
+export const currentRogerState = atom<RogerState>({
+  key: "currentRogerState",
+  default: { kind: "disconnected" },
+});
+
 /**
  * Access workspace's files granularly
  */
@@ -232,6 +258,7 @@ export const domainCacheState = selector<Env | null>({
 
 export type DiagramMetadata = {
   variation: string;
+  stepSize: number;
   autostep: boolean;
 };
 
@@ -241,14 +268,14 @@ export type Diagram = {
   metadata: DiagramMetadata;
 };
 
-// TODO we COULD prepopulate the default with a compilation of the source, assuming it doesnt error
 export const diagramState = atom<Diagram>({
   key: "diagramState",
   default: {
     state: null,
     error: null,
     metadata: {
-      variation: uuid(),
+      variation: generateVariation(),
+      stepSize: 10000,
       autostep: true,
     },
   },
@@ -282,6 +309,10 @@ export const exampleTriosState = atom<Trio[]>({
         const res = await fetch(
           "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/registry.json"
         );
+        if (!res.ok) {
+          toast.error(`Could not retrieve examples: ${res.statusText}`);
+          return [];
+        }
         const registry = await res.json();
         const trios = readRegistry(registry).map((trio: Trio) => ({
           ...trio,
@@ -291,7 +322,7 @@ export const exampleTriosState = atom<Trio[]>({
         }));
         return trios;
       } catch (err) {
-        toast.error(`Could not retrieve example: ${err}`);
+        toast.error(`Could not retrieve examples: ${err}`);
         return [];
       }
     },
@@ -307,6 +338,7 @@ export type LocalGithubUser = {
 export type Settings = {
   github: LocalGithubUser | null;
   vimMode: boolean;
+  debugMode: boolean;
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -325,12 +357,30 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
       : localforage.setItem("settings", newValue);
   });
 };
+const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
+  onSet((newValue, _, isReset) => {
+    layoutModel.visitNodes((node) => {
+      if (
+        node.getType() === "border" &&
+        (node as BorderNode).getClassName() === "debugBorder"
+      ) {
+        layoutModel.doAction(
+          Actions.updateNodeAttributes(node.getId(), {
+            show: newValue.debugMode,
+          })
+        );
+      }
+    });
+  });
+};
 
 export const settingsState = atom<Settings>({
   key: "settings",
   default: {
     github: null,
     vimMode: false,
+    // debug mode is on by default in local dev mode
+    debugMode: process.env.NODE_ENV === "development",
   },
-  effects: [settingsEffect],
+  effects: [settingsEffect, debugModeEffect],
 });

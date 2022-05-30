@@ -6,7 +6,8 @@
     "start": "vite",
     "dev": "vite",
     "watch": "vite",
-    "typecheck": "tsc",
+    "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
@@ -18,10 +19,16 @@
     "lodash": "^4.17.21",
     "query-string": "^7.1.1",
     "react": "^18.0.0",
+    "cytoscape": "^3.19.0",
+    "react-inspector": "^4.0.1",
+    "react-data-table-component": "^6.11.7",
     "react-dom": "^18.0.0",
     "react-hot-toast": "^2.2.0",
+    "react-select": "^5.3.2",
     "recoil": "^0.7.3-alpha.2",
     "styled-components": "^5.3.5",
+    "animals": "^0.0.3",
+    "color-name-list": "^8.38.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -32,6 +39,8 @@
     "@types/uuid": "^8.3.4",
     "@vitejs/plugin-react": "^1.3.0",
     "typescript": "^4.6.3",
+    "@types/react-inspector": "^4.0.0",
+    "@types/cytoscape": "^3.14.12",
     "vite": "^2.9.9"
   }
 }

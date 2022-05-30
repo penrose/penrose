@@ -1,18 +1,58 @@
-import { RenderStatic, showError } from "@penrose/core";
+import {
+  RenderStatic,
+  showError,
+  stateConverged,
+  stepStateSafe,
+} from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { diagramState } from "../state/atoms";
+import toast from "react-hot-toast";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { v4 as uuid } from "uuid";
+import {
+  currentRogerState,
+  diagramState,
+  WorkspaceMetadata,
+  workspaceMetadataSelector,
+} from "../state/atoms";
+import BlueButton from "./BlueButton";
+
+/**
+ * (browser-only) Downloads any given exported SVG to the user's computer
+ * @param svg
+ * @param title the filename
+ */
+export const DownloadSVG = (
+  svg: SVGSVGElement,
+  title = "illustration"
+): void => {
+  const blob = new Blob([svg.outerHTML], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = url;
+  downloadLink.download = `${title}.svg`;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+};
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const { state, error, metadata } = useRecoilValue(diagramState);
+  const [diagram, setDiagram] = useRecoilState(diagramState);
+  const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const { location } = useRecoilValue(workspaceMetadataSelector);
+  const rogerState = useRecoilValue(currentRogerState);
+
+  const requestRef = useRef<number>();
 
   useEffect(() => {
     const cur = canvasRef.current;
     if (state !== null && cur !== null) {
       (async () => {
-        const rendered = await RenderStatic(state, async () => undefined);
+        // render the current frame
+        const rendered = await RenderStatic(state, pathResolver);
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -22,7 +62,114 @@ export default function DiagramPanel() {
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
     }
-  }, [state]);
+  }, [diagram.state]);
+
+  useEffect(() => {
+    // request the next frame if the diagram state updates
+    requestRef.current = requestAnimationFrame(step);
+    // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
+    return () => cancelAnimationFrame(requestRef.current!);
+  }, [diagram.state]);
+
+  const step = () => {
+    if (state) {
+      if (!stateConverged(state) && metadata.autostep) {
+        const stepResult = stepStateSafe(state, metadata.stepSize);
+        if (stepResult.isErr()) {
+          setDiagram({
+            ...diagram,
+            error: stepResult.error,
+          });
+        } else {
+          setDiagram({
+            ...diagram,
+            error: null,
+            state: stepResult.value,
+          });
+        }
+      }
+    }
+  };
+
+  const downloadSvg = useRecoilCallback(({ snapshot }) => () => {
+    if (canvasRef.current !== null) {
+      const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        DownloadSVG(svg, metadata.name);
+      }
+    }
+  });
+
+  const downloadPdf = useRecoilCallback(
+    ({ snapshot }) => () => {
+      if (canvasRef.current !== null) {
+        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+        if (svg !== null && state) {
+          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+            .contents as WorkspaceMetadata;
+          const openedWindow = window.open(
+            "",
+            "PRINT",
+            `height=${state.canvas.height},width=${state.canvas.width}`
+          );
+          if (openedWindow === null) {
+            toast.error("Couldn't open popup to print");
+            return;
+          }
+          openedWindow.document.write(
+            `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+          );
+          openedWindow.document.write(svg.outerHTML);
+          openedWindow.document.write("</body></html>");
+          openedWindow.document.close();
+          openedWindow.focus();
+          openedWindow.print();
+        }
+      }
+    },
+    [state]
+  );
+
+  const pathResolver = async (
+    relativePath: string
+  ): Promise<string | undefined> => {
+    switch (location.kind) {
+      case "example": {
+        const fileURL = new URL(relativePath, location.root).href;
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      }
+      case "roger": {
+        if (rogerState.kind === "connected") {
+          const { ws } = rogerState;
+          return new Promise((resolve /*, reject*/) => {
+            const token = uuid();
+            ws.addEventListener("message", (e) => {
+              const parsed = JSON.parse(e.data);
+              if (parsed.kind === "file_change" && parsed.token === token) {
+                return resolve(parsed.contents);
+              }
+            });
+            ws.send(
+              JSON.stringify({
+                kind: "retrieve_file_from_style",
+                relativePath,
+                stylePath: location.style,
+                token,
+              })
+            );
+          });
+        }
+      }
+      // TODO: publish images in the gist
+      case "gist":
+      // TODO: cache images in local storage?
+      case "local":
+        return undefined;
+    }
+  };
 
   return (
     <div>
@@ -41,6 +188,12 @@ export default function DiagramPanel() {
         }}
         ref={canvasRef}
       />
+      {state && (
+        <div>
+          <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+          <BlueButton onClick={downloadPdf}>PDF</BlueButton>
+        </div>
+      )}
       {error && (
         <div
           style={{

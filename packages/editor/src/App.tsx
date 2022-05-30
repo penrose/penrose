@@ -1,16 +1,30 @@
 import { Action, Actions, Layout, Model, TabNode } from "flexlayout-react";
-import { useCallback, useEffect } from "react";
-import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
+import { useCallback, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
+import {
+  useRecoilCallback,
+  useRecoilState,
+  useRecoilValueLoadable,
+} from "recoil";
+import CompGraph from "./components/CompGraph";
+import DiagramOptions from "./components/DiagramOptions";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesBrowser from "./components/ExamplesBrowser";
-import LocalFilesBrowser from "./components/LocalFilesBrowser";
+import Opt from "./components/Opt";
 import ProgramEditor from "./components/ProgramEditor";
+import RogerPanel from "./components/RogerPanel";
+import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
+import StateInspector from "./components/StateInspector";
 import TopBar from "./components/TopBar";
 import {
+  currentRogerState,
+  currentWorkspaceState,
   fileContentsSelector,
   localFilesState,
+  RogerState,
   settingsState,
+  Workspace,
 } from "./state/atoms";
 import { useCheckURL } from "./state/callbacks";
 
@@ -25,8 +39,8 @@ export const layoutModel = Model.fromJson({
       children: [
         {
           type: "tab",
-          name: "local files",
-          component: "localFiles",
+          name: "saved",
+          component: "savedFiles",
         },
         {
           type: "tab",
@@ -40,6 +54,21 @@ export const layoutModel = Model.fromJson({
         },
       ],
     },
+    {
+      type: "border",
+      className: "debugBorder",
+      location: "right",
+      children: [
+        {
+          type: "tab",
+          name: "options",
+          component: "diagramOptions",
+        },
+        { type: "tab", name: "state", component: "stateInspector" },
+        { type: "tab", name: "opt", component: "optInspector" },
+        { type: "tab", name: "comp graph", component: "compGraph" },
+      ],
+    },
   ],
   layout: {
     type: "row",
@@ -47,8 +76,17 @@ export const layoutModel = Model.fromJson({
     children: [
       {
         type: "tabset",
-        weight: 50,
+        weight: process.env.NODE_ENV === "development" ? 25 : 50,
         children: [
+          ...(process.env.NODE_ENV === "development"
+            ? [
+                {
+                  type: "tab",
+                  name: "roger",
+                  component: "rogerPanel",
+                },
+              ]
+            : []),
           {
             type: "tab",
             name: ".sub",
@@ -77,7 +115,7 @@ export const layoutModel = Model.fromJson({
       },
       {
         type: "tabset",
-        weight: 50,
+        weight: process.env.NODE_ENV === "development" ? 75 : 50,
         children: [
           {
             type: "tab",
@@ -92,21 +130,39 @@ export const layoutModel = Model.fromJson({
 });
 
 function App() {
-  const panelFactory = useCallback((node: TabNode) => {
-    switch (node.getComponent()) {
-      case "programEditor":
-        return <ProgramEditor kind={node.getConfig().kind} />;
-      case "diagram":
-        return <DiagramPanel />;
-      case "localFiles":
-        return <LocalFilesBrowser />;
-      case "examplesPanel":
-        return <ExamplesBrowser />;
-      case "settingsPanel":
-        return <Settings />;
-    }
-    return <div>Placeholder</div>;
-  }, []);
+  const ws = useRef<WebSocket | null>(null);
+  const [rogerState, setRogerState] = useRecoilState<RogerState>(
+    currentRogerState
+  );
+
+  const panelFactory = useCallback(
+    (node: TabNode) => {
+      switch (node.getComponent()) {
+        case "programEditor":
+          return <ProgramEditor kind={node.getConfig().kind} />;
+        case "diagram":
+          return <DiagramPanel />;
+        case "savedFiles":
+          return <SavedFilesBrowser />;
+        case "examplesPanel":
+          return <ExamplesBrowser />;
+        case "settingsPanel":
+          return <Settings />;
+        case "diagramOptions":
+          return <DiagramOptions />;
+        case "stateInspector":
+          return <StateInspector />;
+        case "optInspector":
+          return <Opt />;
+        case "compGraph":
+          return <CompGraph />;
+        case "rogerPanel":
+          return <RogerPanel rogerState={rogerState} ws={ws.current} />;
+      }
+      return <div>Placeholder</div>;
+    },
+    [rogerState]
+  );
   const onAction = useRecoilCallback(
     ({ set, snapshot }) => (action: Action) => {
       if (action.type === Actions.RENAME_TAB) {
@@ -123,6 +179,63 @@ function App() {
     },
     []
   );
+  const updatedFile = useRecoilCallback(
+    ({ snapshot, set }) => (fileName: string, contents: string) => {
+      const workspace = snapshot.getLoadable(currentWorkspaceState)
+        .contents as Workspace;
+      if (fileName === workspace.files.domain.name) {
+        set(fileContentsSelector("domain"), (file) => ({ ...file, contents }));
+        // TODO: compile
+      } else if (fileName === workspace.files.style.name) {
+        set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
+      } else if (fileName === workspace.files.substance.name) {
+        set(fileContentsSelector("substance"), (file) => ({
+          ...file,
+          contents,
+        }));
+      }
+    },
+    []
+  );
+
+  const connectRoger = useCallback(() => {
+    ws.current = new WebSocket("ws://localhost:9160");
+    ws.current.onclose = () => {
+      if (rogerState.kind === "connected") {
+        setRogerState({ kind: "disconnected" });
+        toast.error("Roger connection closed");
+        console.warn("Roger connection closed");
+      }
+    };
+    ws.current.onerror = (e) => {
+      if (rogerState.kind === "connected") {
+        setRogerState({ kind: "disconnected" });
+        console.error("Couldn't connect to Roger", e);
+        toast.error("Couldn't connect to Roger");
+      }
+    };
+    ws.current.onopen = () => {
+      toast.success("Connected to Roger");
+    };
+    ws.current.onmessage = (e) => {
+      const parsed = JSON.parse(e.data);
+      switch (parsed.kind) {
+        case "files":
+          setRogerState({ kind: "connected", ...parsed.files, ws: ws.current });
+          break;
+        case "file_change":
+          updatedFile(parsed.fileName, parsed.contents);
+          break;
+        default:
+          toast.error(`Couldn't handle Roger message ${parsed.kind}`);
+      }
+    };
+  }, []);
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development" && ws.current === null) {
+      connectRoger();
+    }
+  }, []);
 
   const checkURL = useCheckURL();
   const localFiles = useRecoilValueLoadable(localFilesState);

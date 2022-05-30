@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g ensureOnCanvas="true">
+  <g>
     <filter
       id="$LOCAL_block6_subst0.perpMark-shadow"
       x="0"
@@ -32,7 +32,7 @@
     ></path>
     <title>$LOCAL_block6_subst0.perpMark</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="v.arrow-leftArrowhead"
       markerUnits="strokeWidth"
@@ -76,7 +76,7 @@
     ></path>
     <title>v.arrow</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="V.yAxis-leftArrowhead"
       markerUnits="strokeWidth"
@@ -120,7 +120,7 @@
     ></path>
     <title>V.yAxis</title>
   </g>
-  <g style="solid" ensureOnCanvas="true">
+  <g style="solid">
     <marker
       id="V.xAxis-leftArrowhead"
       markerUnits="strokeWidth"
@@ -167,7 +167,6 @@
   <g
     transform="rotate(0, 316.63631178457103, 177.84064714442584)translate(316.63631178457103, 177.84064714442584)"
     string="v"
-    ensureOnCanvas="true"
   >
     <title>v.text</title>
     <svg
@@ -203,7 +202,7 @@
       </g>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
       id="u.arrow-leftArrowhead"
       markerUnits="strokeWidth"
@@ -250,7 +249,6 @@
   <g
     transform="rotate(0, 562.698922747047, 261.1244122596918)translate(562.698922747047, 261.1244122596918)"
     string="u"
-    ensureOnCanvas="true"
   >
     <title>u.text</title>
     <svg
@@ -289,7 +287,6 @@
   <g
     transform="rotate(0, 218.20973, 166.17)translate(218.20973, 166.17)"
     string="V"
-    ensureOnCanvas="true"
   >
     <title>V.text</title>
     <svg
@@ -334,7 +331,6 @@
     stroke="none"
     rx="0"
     transform="rotate(0, 225, 175)"
-    ensureOnCanvas="true"
   >
     <title>V.background</title>
   </rect>

@@ -8,6 +8,7 @@
 /packages/core/src/parser/SubstanceParser.ts
 /packages/core/src/renderer/not_found.json
 /packages/docs-site/.docusaurus/
+/packages/docs-site/static/try/
 /packages/roger/oclif.manifest.json
 /README.md
 build/

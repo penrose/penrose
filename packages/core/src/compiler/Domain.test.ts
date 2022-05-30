@@ -32,7 +32,7 @@ const contextHas = (
     expectedFunctions.forEach((f) => expect(functions.has(f)).toBe(true));
     expectedPredicates.forEach((p) => expect(predicates.has(p)).toBe(true));
   } else {
-    fail(showError(res.error));
+    throw Error(showError(res.error));
   }
 };
 
@@ -69,7 +69,7 @@ describe("Common", () => {
       expect(isSubtype(typeA, typeC, env)).toBe(false);
       expect(isSubtype(typeA, typeB, env)).toBe(false);
     } else {
-      fail(showError(res.error));
+      throw Error(showError(res.error));
     }
   });
 });
@@ -149,7 +149,7 @@ describe("Errors", () => {
       if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
-      fail(`Error ${errorType} was suppoed to occur.`);
+      throw Error(`Error ${errorType} was suppoed to occur.`);
     }
   };
   test("Parse error", () => {
