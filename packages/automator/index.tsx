@@ -14,6 +14,7 @@ import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";
 import * as fs from "fs";
 import neodoc from "neodoc";
+import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
 import * as prettier from "prettier";
 import uniqid from "uniqid";
@@ -122,6 +123,14 @@ const singleProcess = async (
   const listOfCanvasData: string[] = [];
   let canvas;
   const resolvePath = async (filePath: string) => {
+    // Handle absolute URLs
+    if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
+      const fileURL = new URL(filePath).href;
+      const fileReq = await fetch(fileURL);
+      return fileReq.text();
+    }
+
+    // Relative paths
     const parentDir = parse(join(prefix, sty)).dir;
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
