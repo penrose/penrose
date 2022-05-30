@@ -105,6 +105,7 @@ Point p {
     color : Colors.black
     fontSize : const.fontSize
   }
+  
   ensure atDist(p.icon, p.text, const.textPadding)
 }
 
@@ -256,7 +257,7 @@ with Segment s2; Point p {
     strokeColor : Colors.black
   }
 
-  ensure disjoint(p.text, s.icon)
+  ensure disjoint(s.icon, p.text)
   ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
   ensure equal(norm(s.icon.end - s.icon.start), const.rayLength)
 }
@@ -826,7 +827,8 @@ with Linelike l {
   override p.icon.strokeColor = Colors.black
   override p.icon.strokeWidth = 1
   layer p.icon above l.icon
-  ensure disjoint(p.text, l.icon)
+  ensure disjoint(l.icon, p.text)
+
 }
 
 Point p
