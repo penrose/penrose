@@ -6,7 +6,6 @@ import {
   useRecoilState,
   useRecoilValueLoadable,
 } from "recoil";
-import CompGraph from "./components/CompGraph";
 import DiagramOptions from "./components/DiagramOptions";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesBrowser from "./components/ExamplesBrowser";
@@ -65,7 +64,6 @@ export const layoutModel = Model.fromJson({
         },
         { type: "tab", name: "state", component: "stateInspector" },
         { type: "tab", name: "opt", component: "optInspector" },
-        { type: "tab", name: "comp graph", component: "compGraph" },
       ],
     },
   ],
@@ -153,8 +151,6 @@ function App() {
           return <StateInspector />;
         case "optInspector":
           return <Opt />;
-        case "compGraph":
-          return <CompGraph />;
         case "rogerPanel":
           return <RogerPanel rogerState={rogerState} ws={ws.current} />;
       }
