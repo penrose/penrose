@@ -10,12 +10,11 @@ import {
   Identifier,
   NodeType,
   SourceLoc,
-  SyntheticNode,
 } from "types/ast";
 import { StyleError } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
 import { LbfgsParams, ShapeFn } from "types/state";
-import { AnnoFloat, Expr, Path, PropertyDecl, Vector } from "types/style";
+import { Expr, Path } from "types/style";
 import {
   Color,
   ColorV,
@@ -29,7 +28,6 @@ import {
   PtListV,
   ShapeTypeStr,
   SubPath,
-  TagExpr,
   TupV,
   Value,
   VectorV,
@@ -192,14 +190,6 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   }
 }
 
-const numOf = (x: ad.Num): number => {
-  if (typeof x === "number") {
-    return x;
-  } else {
-    throw Error("tried to call numOf on a non-constant ad.Num");
-  }
-};
-
 export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
   const vars = [];
   for (const s of shapes) {
@@ -272,20 +262,10 @@ const colorADNums = (c: Color<ad.Num>): ad.Num[] => {
   }
 };
 
-export const valueAutodiffToNumber = (v: Value<ad.Num>): Value<number> =>
-  mapValueNumeric(numOf, v);
-
 //#region translation operations
 
 export const dummySourceLoc = (): SourceLoc => {
   return { line: -1, col: -1 };
-};
-
-export const dummyASTNode = (o: any, nodeType: NodeType): SyntheticNode => {
-  return {
-    ...o,
-    nodeType,
-  };
 };
 
 export const isConcrete = (node: ASTNode<A>): node is ConcreteNode =>
@@ -304,36 +284,6 @@ export const dummyIdentifier = (
     value: name,
     tag: "Identifier",
   };
-};
-
-const mkPropertyDict = (
-  decls: PropertyDecl<A>[]
-): { [k: string]: TagExpr<ad.Num> } => {
-  const gpi = {};
-
-  for (const decl of decls) {
-    // TODO(error/warning): Warn if any of these properties are duplicated or do not exist in the shape constructor
-    gpi[decl.name.value] = { tag: "OptEval", contents: decl.value };
-  }
-
-  return gpi;
-};
-
-const defaultVec2 = (): Expr<A> => {
-  const e1: AnnoFloat<A> = {
-    ...dummyASTNode({}, "SyntheticStyle"),
-    tag: "Vary",
-  };
-  const e2: AnnoFloat<A> = {
-    ...dummyASTNode({}, "SyntheticStyle"),
-    tag: "Vary",
-  };
-  const v2: Vector<A> = {
-    ...dummyASTNode({}, "SyntheticStyle"),
-    tag: "Vector",
-    contents: [e1, e2],
-  };
-  return v2;
 };
 
 // Given 'propType' and 'shapeType', return all props of that ValueType
@@ -363,12 +313,6 @@ export const propertiesNotOf = (
   return shapeInfo
     .filter(([, tag]) => tag !== propType)
     .map(([pName]) => pName);
-};
-
-export const isTagExpr = (
-  e: TagExpr<ad.Num> | StyleError
-): e is TagExpr<ad.Num> => {
-  return e.tag === "OptEval" || e.tag === "Done" || e.tag === "Pending";
 };
 
 //#endregion

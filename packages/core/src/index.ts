@@ -1,4 +1,3 @@
-import consola, { LogLevel } from "consola";
 import { initConstraintWeight } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
@@ -25,7 +24,6 @@ import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
 import { Fn, FnEvaled, LabelCache, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
-import { FieldDict } from "./types/value";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
@@ -37,8 +35,6 @@ import {
   toSvgPaintProperty,
   zip2,
 } from "./utils/Util";
-
-const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
 /**
  * Use the current resample seed to sample all shapes in the State.
@@ -366,4 +362,3 @@ export type { Registry, Trio };
 export type { Env };
 export type { SubProg };
 export type { Canvas };
-export type { FieldDict };
