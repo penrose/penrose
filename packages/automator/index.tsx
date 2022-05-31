@@ -126,8 +126,12 @@ const singleProcess = async (
     // Handle absolute URLs
     if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
       const fileURL = new URL(filePath).href;
-      const fileReq = await fetch(fileURL);
-      return fileReq.text();
+      try {
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      } catch (e) {
+        return undefined;
+      }
     }
 
     // Relative paths

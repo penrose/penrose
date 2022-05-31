@@ -138,8 +138,12 @@ export default function DiagramPanel() {
     // Handle absolute URLs
     if (/^(http|https):\/\/[^ "]+$/.test(relativePath)) {
       const fileURL = new URL(relativePath).href;
-      const fileReq = await fetch(fileURL);
-      return fileReq.text();
+      try {
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      } catch (e) {
+        return undefined;
+      }
     }
 
     // Handle relative paths
