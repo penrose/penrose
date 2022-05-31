@@ -135,6 +135,18 @@ export default function DiagramPanel() {
   const pathResolver = async (
     relativePath: string
   ): Promise<string | undefined> => {
+    // Handle absolute URLs
+    if (/^(http|https):\/\/[^ "]+$/.test(relativePath)) {
+      const fileURL = new URL(relativePath).href;
+      try {
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      } catch (e) {
+        return undefined;
+      }
+    }
+
+    // Handle relative paths
     switch (location.kind) {
       case "example": {
         const fileURL = new URL(relativePath, location.root).href;
