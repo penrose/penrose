@@ -108,9 +108,8 @@ const epConverged2 = (
  * @param steps
  */
 export const step = (state: State, steps: number): State => {
-  const { optStatus, weight } = state.params;
-  const newState = { ...state };
-  const optParams = newState.params; // this is just a reference, so updating this will update newState as well
+  const optParams: Params = { ...state.params };
+  const { optStatus, weight } = optParams;
   let xs: number[] = state.varyingValues;
 
   log.info("===============");
@@ -205,7 +204,7 @@ export const step = (state: State, steps: number): State => {
       if (failed) {
         log.warn("Error detected after stepping");
         optParams.optStatus = "Error";
-        return newState;
+        return { ...state, params: optParams };
       }
 
       break;
@@ -275,8 +274,7 @@ export const step = (state: State, steps: number): State => {
     }
   }
 
-  newState.varyingValues = xs;
-  return newState;
+  return { ...state, varyingValues: xs, params: optParams };
 };
 
 // Note: line search seems to be quite sensitive to the maxSteps parameter; with maxSteps=25, the line search might
