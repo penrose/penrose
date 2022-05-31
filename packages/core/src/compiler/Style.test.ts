@@ -356,11 +356,15 @@ describe("Compiler", () => {
   ) => {
     if (result.isErr()) {
       const res: PenroseError = result.error;
-      if (
-        !(res.errorType === "StyleError" || res.errorType === "StyleWarning")
-      ) {
+      if (res.errorType !== "StyleError") {
         throw Error(
           `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`
+        );
+      }
+
+      if (res.tag !== "StyleErrorList") {
+        throw Error(
+          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
         );
       }
 
@@ -368,17 +372,19 @@ describe("Compiler", () => {
         console.log(result.error);
       }
 
-      if (res.tag === "StyleErrorList") {
-        expect(res.errors[0].tag).toBe(errorType);
-      } else if (res.tag === "StyleWarningList") {
-        expect(res.warnings[0].tag).toBe(errorType);
-      } else {
-        throw Error(
-          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
-        );
-      }
+      expect(res.errors[0].tag).toBe(errorType);
     } else {
-      throw Error(`Error ${errorType} was supposed to occur.`);
+      const { warnings } = result.value;
+
+      if (warnings.length === 0) {
+        throw Error(`Error ${errorType} was supposed to occur.`);
+      }
+
+      if (PRINT_ERRORS) {
+        console.log(warnings);
+      }
+
+      expect(warnings[0].tag).toBe(errorType);
     }
   };
 
@@ -491,7 +497,7 @@ delete x.z.p }`,
          x.icon = Circle { 
            center: (0.0, 0.0) 
          }
-           x.icon.center = 2.0
+           x.icon.center = (2.0, 0.0)
 }`,
       ],
 

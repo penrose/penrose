@@ -378,10 +378,6 @@ canvas {
 
     // ---- BEGIN STYLE WARNINGS
 
-    case "StyleWarningList": {
-      return error.warnings.map(showError).join("\n");
-    }
-
     case "ImplicitOverrideWarning": {
       return `Implicitly overriding ${prettyPrintResolvedPath(
         error.path
@@ -540,18 +536,6 @@ export const toStyleErrors = (errors: StyleError[]): PenroseError => {
     errorType: "StyleError",
     tag: "StyleErrorList",
     errors,
-  };
-};
-
-export const toStyleWarnings = (warnings: StyleWarning[]): PenroseError => {
-  if (!warnings.length) {
-    throw Error("internal error: expected at least one Style error");
-  }
-
-  return {
-    errorType: "StyleWarning",
-    tag: "StyleWarningList",
-    warnings,
   };
 };
 

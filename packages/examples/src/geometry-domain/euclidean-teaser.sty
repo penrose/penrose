@@ -1,7 +1,5 @@
 -- Original Style: https://github.com/penrose/penrose/blob/90e88c5a075d6a75698c49c2feb101275ae64af8/examples/geometry-domain/euclidean.sty
 -- Original comp. functions: https://github.com/penrose/penrose/blob/90e88c5a075d6a75698c49c2feb101275ae64af8/src/Penrose/Functions.hs
--- "Good" samples: ArtemisiaGrasshopper36446
--- "Bad" samples: ReveredGoldfish3421, ColumbineSquirrel17766
 
 canvas {
   width = 800
@@ -105,7 +103,6 @@ Point p {
     color : Colors.black
     fontSize : const.fontSize
   }
-  
   ensure atDist(p.icon, p.text, const.textPadding)
 }
 
@@ -828,7 +825,6 @@ with Linelike l {
   override p.icon.strokeWidth = 1
   layer p.icon above l.icon
   ensure disjoint(l.icon, p.text)
-
 }
 
 Point p

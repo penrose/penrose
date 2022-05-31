@@ -18,7 +18,6 @@ export type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
   | (StyleError & { errorType: "StyleError" })
-  | (StyleWarning & { errorType: "StyleWarning" })
   | (RuntimeError & { errorType: "RuntimeError" });
 
 export type RuntimeError = RuntimeErrorWithContents | NaNError;
@@ -175,20 +174,12 @@ export type StyleError =
   // Runtime errors
   | RuntimeValueTypeError;
 
-export type StyleWarning =
-  | StyleWarningList
-  // Compilation warnings
-  | ImplicitOverrideWarning
-  | NoopDeleteWarning;
+// Compilation warnings
+export type StyleWarning = ImplicitOverrideWarning | NoopDeleteWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
   warnings: im.List<StyleWarning>;
-}
-
-export interface StyleWarningList {
-  tag: "StyleWarningList";
-  warnings: StyleWarning[];
 }
 
 //#region compilation warnings

@@ -113,7 +113,6 @@ import {
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-  toStyleWarnings,
 } from "utils/Error";
 import { Digraph } from "utils/Graph";
 import {
@@ -1373,12 +1372,11 @@ const deleteExpr = (
   assignment: BlockAssignment
 ): BlockAssignment =>
   updateExpr(path, assignment, "Delete", (field, prop, fielded) => {
-    const warns: StyleWarning[] = [];
     if (prop === undefined) {
-      if (!fielded.has(field)) {
-        warns.push({ tag: "NoopDeleteWarning", path });
-      }
-      return ok({ dict: fielded.remove(field), warns });
+      return ok({
+        dict: fielded.remove(field),
+        warns: fielded.has(field) ? [] : [{ tag: "NoopDeleteWarning", path }],
+      });
     } else {
       const shape = fielded.get(field);
       if (shape === undefined) {
@@ -1387,15 +1385,12 @@ const deleteExpr = (
       if (shape.tag !== "ShapeSource") {
         return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
       }
-      if (!shape.props.has(prop)) {
-        warns.push({ tag: "NoopDeleteWarning", path });
-      }
       return ok({
         dict: fielded.set(field, {
           ...shape,
           props: shape.props.remove(prop),
         }),
-        warns,
+        warns: [],
       });
     }
   });
@@ -2631,11 +2626,6 @@ export const compileStyle = (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
-  // TODO: surface warnings in some way other than just failing
-  if (translation.diagnostics.warnings.size > 0) {
-    return err(toStyleWarnings([...translation.diagnostics.warnings]));
-  }
-
   const shapeOrdering = computeShapeOrdering(
     [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
     [...translation.layering]
@@ -2658,6 +2648,7 @@ export const compileStyle = (
   );
 
   const initState: State = {
+    warnings: [...translation.diagnostics.warnings],
     variation,
     objFns,
     constrFns,

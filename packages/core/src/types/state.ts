@@ -2,6 +2,7 @@ import { Matrix } from "ml-matrix";
 import { Canvas, InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { A } from "./ast";
+import { StyleWarning } from "./errors";
 import { Shape, ShapeAD } from "./shape";
 import { ConstrFn, ObjFn } from "./style";
 import { WithContext } from "./styleSemantics";
@@ -13,6 +14,7 @@ export type ShapeFn = (xs: number[]) => Shape[];
  * The diagram state
  */
 export interface State {
+  warnings: StyleWarning[];
   variation: string;
   objFns: Fn[];
   constrFns: Fn[];
