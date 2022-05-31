@@ -23,6 +23,7 @@ import {
   RuntimeError,
   SelectorFieldNotSupported,
   StyleError,
+  StyleWarning,
   SubstanceError,
   TypeArgLengthMismatch,
   TypeMismatch,
@@ -76,7 +77,7 @@ export const styWarnings = [
 
 // TODO: fix template formatting
 export const showError = (
-  error: DomainError | SubstanceError | StyleError | RuntimeError
+  error: DomainError | SubstanceError | StyleError | StyleWarning | RuntimeError
 ): string => {
   switch (error.tag) {
     case "RuntimeError": {
@@ -307,6 +308,13 @@ canvas {
       )} (at ${locc("Style", error.path)}).`;
     }
 
+    case "MissingPathError": {
+      return `Could not find ${prettyPrintResolvedPath(error.path)} (at ${locc(
+        "Style",
+        error.path
+      )}).`;
+    }
+
     case "MissingShapeError": {
       return `Expected to find shape already defined to hold property ${prettyPrintResolvedPath(
         error.path
@@ -367,6 +375,26 @@ canvas {
     }
 
     // ----- END STYLE ERRORS
+
+    // ---- BEGIN STYLE WARNINGS
+
+    case "StyleWarningList": {
+      return error.warnings.map(showError).join("\n");
+    }
+
+    case "ImplicitOverrideWarning": {
+      return `Implicitly overriding ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}).`;
+    }
+
+    case "NoopDeleteWarning": {
+      return `Deleting nonexistent ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}).`;
+    }
+
+    // ----- END STYLE WARNINGS
 
     case "Fatal": {
       return `FATAL: ${error.message}`;
@@ -512,6 +540,18 @@ export const toStyleErrors = (errors: StyleError[]): PenroseError => {
     errorType: "StyleError",
     tag: "StyleErrorList",
     errors,
+  };
+};
+
+export const toStyleWarnings = (warnings: StyleWarning[]): PenroseError => {
+  if (!warnings.length) {
+    throw Error("internal error: expected at least one Style error");
+  }
+
+  return {
+    errorType: "StyleWarning",
+    tag: "StyleWarningList",
+    warnings,
   };
 };
 

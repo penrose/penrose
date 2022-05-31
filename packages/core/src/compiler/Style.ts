@@ -113,6 +113,7 @@ import {
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
+  toStyleWarnings,
 } from "utils/Error";
 import { Digraph } from "utils/Graph";
 import {
@@ -1736,7 +1737,7 @@ const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 //#region third pass
 
-const missingPathError = (path: string) =>
+const internalMissingPathError = (path: string) =>
   Error(`Style internal error: could not find path ${path}`);
 
 const evalExprs = (
@@ -2150,10 +2151,11 @@ const evalExpr = (
       return evalListOrVector(mut, canvas, context, expr, trans).map(val);
     }
     case "Path": {
-      const path = prettyPrintResolvedPath(resolveRhsPath({ context, expr }));
+      const resolvedPath = resolveRhsPath({ context, expr });
+      const path = prettyPrintResolvedPath(resolvedPath);
       const resolved = trans.symbols.get(path);
       if (resolved === undefined) {
-        throw missingPathError(path);
+        return err(oneErr({ tag: "MissingPathError", path: resolvedPath }));
       }
 
       if (expr.indices.length === 0) {
@@ -2337,7 +2339,7 @@ const evalGPI = (
           const p = `${path}.${prop}`;
           const v = trans.symbols.get(p);
           if (v === undefined || v.tag !== "Val") {
-            throw missingPathError(p);
+            throw internalMissingPathError(p);
           }
           return [prop, v.contents];
         })
@@ -2349,7 +2351,8 @@ const evalGPI = (
 const translate = (
   mut: MutableContext,
   canvas: Canvas,
-  graph: DepGraph
+  graph: DepGraph,
+  warnings: im.List<StyleWarning>
 ): Translation => {
   let symbols = im.Map<string, ArgVal<ad.Num>>();
   for (const path of graph.nodes()) {
@@ -2364,7 +2367,7 @@ const translate = (
   }
 
   const trans: Translation = {
-    diagnostics: { errors: im.List(), warnings: im.List() },
+    diagnostics: { errors: im.List(), warnings },
     symbols,
     objectives: im.List(),
     constraints: im.List(),
@@ -2503,7 +2506,7 @@ const getShapes = (
     const shapeType = graph.node(start);
     if (typeof shapeType === "string") {
       if (argVal.tag !== "Val") {
-        throw missingPathError(path);
+        throw internalMissingPathError(path);
       }
       const shape = props.get(start) ?? { shapeType, properties: {} };
       shape.properties[path.slice(i + 1)] = argVal.contents;
@@ -2513,7 +2516,7 @@ const getShapes = (
   return shapeOrdering.map((path) => {
     const shape = props.get(path);
     if (shape === undefined) {
-      throw missingPathError(path);
+      throw internalMissingPathError(path);
     }
     shape.properties.name = strV(path);
     return shape;
@@ -2615,12 +2618,22 @@ export const compileStyle = (
   };
 
   // third pass: compile all expressions in topological sorted order
-  const translation = translate({ makeInput }, canvas.value, graph);
+  const translation = translate(
+    { makeInput },
+    canvas.value,
+    graph,
+    assignment.diagnostics.warnings
+  );
 
   log.info("translation (before genOptProblem)", translation);
 
   if (translation.diagnostics.errors.size > 0) {
     return err(toStyleErrors([...translation.diagnostics.errors]));
+  }
+
+  // TODO: surface warnings in some way other than just failing
+  if (translation.diagnostics.warnings.size > 0) {
+    return err(toStyleWarnings([...translation.diagnostics.warnings]));
   }
 
   const shapeOrdering = computeShapeOrdering(

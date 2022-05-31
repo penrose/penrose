@@ -18,6 +18,7 @@ export type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
   | (StyleError & { errorType: "StyleError" })
+  | (StyleWarning & { errorType: "StyleWarning" })
   | (RuntimeError & { errorType: "RuntimeError" });
 
 export type RuntimeError = RuntimeErrorWithContents | NaNError;
@@ -162,6 +163,7 @@ export type StyleError =
   | CanvasNonexistentDimsError
   | DeleteGlobalError
   | DeleteSubstanceError
+  | MissingPathError
   | MissingShapeError
   | NestedShapeError
   | NotCollError
@@ -174,7 +176,7 @@ export type StyleError =
   | RuntimeValueTypeError;
 
 export type StyleWarning =
-  | IntOrFloat
+  | StyleWarningList
   // Compilation warnings
   | ImplicitOverrideWarning
   | NoopDeleteWarning;
@@ -184,10 +186,10 @@ export interface StyleDiagnostics {
   warnings: im.List<StyleWarning>;
 }
 
-export interface IntOrFloat {
-  tag: "IntOrFloat";
-  message: string;
-} // COMBAK: Use this in block checking
+export interface StyleWarningList {
+  tag: "StyleWarningList";
+  warnings: StyleWarning[];
+}
 
 //#region compilation warnings
 
@@ -330,6 +332,11 @@ export interface DeleteGlobalError {
 
 export interface DeleteSubstanceError {
   tag: "DeleteSubstanceError";
+  path: ResolvedPath<C>;
+}
+
+export interface MissingPathError {
+  tag: "MissingPathError";
   path: ResolvedPath<C>;
 }
 

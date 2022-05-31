@@ -124,7 +124,7 @@ describe("Compiler", () => {
       dsl: "type Set",
       sub: `
       Set A, B, C
-      Autolabel All
+      AutoLabel All
       Label A $aaa$
       NoLabel B
       `,
@@ -133,6 +133,7 @@ describe("Compiler", () => {
     const { substances } = buildAssignment(env, subEnv, styProg);
     for (const [name, label] of [
       ["A", "aaa"],
+      ["B", ""],
       ["C", "C"],
     ]) {
       const v = substances.get(name)?.get("label");
@@ -140,7 +141,6 @@ describe("Compiler", () => {
         expect(v.expr.expr.contents).toBe(label);
       }
     }
-    expect(substances.has("B")).toBe(false);
   });
 
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
@@ -276,10 +276,13 @@ describe("Compiler", () => {
     const subProg = "Object o";
     // TODO: Name these programs
     const styProgs = [
-      // These are mostly to test setting shape properties as vectors or accesspaths
+      // These were previously mostly to test setting shape properties as
+      // vectors or accesspaths, but the ability to override accesspaths was
+      // removed in the compiler rewrite (see the comment in the "first Style
+      // compiler pass" section of `types/styleSemantics`)
       `Object o {
     shape o.shape = Line {}
-    o.shape.start[0] = 0.
+    -- o.shape.start[0] = 0.
 }
 `,
       `Object o {
@@ -291,7 +294,7 @@ describe("Compiler", () => {
     shape o.shape = Line {
           start: (?, ?)
     }
-    o.shape.start[0] = 0.
+    -- o.shape.start[0] = 0.
 }`,
       `Object o {
     o.y = ?
@@ -302,11 +305,12 @@ describe("Compiler", () => {
       // Set field
       `Object o {
        o.f = (?, ?)
-       o.f[0] = 0.
+       -- o.f[0] = 0.
        o.shape = Circle {}
 }`,
       `canvas {
-  override width = 500.0
+  width = 500.0
+  height = 400.0
 }`,
     ];
 
@@ -352,15 +356,11 @@ describe("Compiler", () => {
   ) => {
     if (result.isErr()) {
       const res: PenroseError = result.error;
-      if (res.errorType !== "StyleError") {
+      if (
+        !(res.errorType === "StyleError" || res.errorType === "StyleWarning")
+      ) {
         throw Error(
           `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`
-        );
-      }
-
-      if (res.tag !== "StyleErrorList") {
-        throw Error(
-          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
         );
       }
 
@@ -368,7 +368,15 @@ describe("Compiler", () => {
         console.log(result.error);
       }
 
-      expect(res.errors[0].tag).toBe(errorType);
+      if (res.tag === "StyleErrorList") {
+        expect(res.errors[0].tag).toBe(errorType);
+      } else if (res.tag === "StyleWarningList") {
+        expect(res.warnings[0].tag).toBe(errorType);
+      } else {
+        throw Error(
+          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
+        );
+      }
     } else {
       throw Error(`Error ${errorType} was supposed to occur.`);
     }
@@ -438,16 +446,24 @@ where IsSubset(y, x) { }`,
 
       InvalidConstraintNameError: [`forall Set x { ensure jahfkjdhf(0.0) }`],
 
-      // ------- Translation errors (deletion)
-      DeletedPropWithNoSubObjError: [`forall Set x { delete y.z.p }`],
-      DeletedPropWithNoFieldError: [
+      // ------- Compilation errors
+
+      PropertyMemberError: [`forall Set x { delete y.z.p }`],
+      MissingShapeError: [
         `forall Set x { x.icon = Circle { }
 delete x.z.p }`,
+        `forall Set x {
+    x.icon.r = 0.0
+}`,
       ],
 
-      DeletedPropWithNoGPIError: [
+      NotShapeError: [
         `forall Set x { x.z = 0.0
 delete x.z.p }`,
+        `forall Set x {
+    x.icon = "hello"
+    x.icon.r = 0.0
+}`,
       ],
 
       // COMBAK: This doesn't catch the error
@@ -457,8 +473,8 @@ delete x.z.p }`,
       //       CircularPathAlias: [`forall Set x { x.icon = Circle { }
       // x.icon.center = x.icon.center }`],
 
-      DeletedNonexistentFieldError: [`forall Set x { delete x.z }`],
-      DeletedVectorElemError: [
+      NoopDeleteWarning: [`forall Set x { delete x.z }`],
+      AssignAccessError: [
         `forall Set x {  
          x.icon = Circle { 
            center: (0.0, 0.0) 
@@ -466,9 +482,7 @@ delete x.z.p }`,
          delete x.icon[0] }`,
       ],
 
-      // ---------- Translation errors (insertion)
-
-      InsertedPathWithoutOverrideError: [
+      ImplicitOverrideWarning: [
         `forall Set x { 
            x.z = 1.0 
            x.z = 2.0
@@ -481,20 +495,6 @@ delete x.z.p }`,
 }`,
       ],
 
-      InsertedPropWithNoFieldError: [
-        `forall Set x {
-    x.icon.r = 0.0
-}`,
-      ],
-
-      InsertedPropWithNoGPIError: [
-        `forall Set x {
-    x.icon = "hello"
-    x.icon.r = 0.0
-}`,
-      ],
-
-      // ----------- Translation validation errors
       // TODO(errors): check multiple errors
 
       // TODO(errors): This throws too early, gives InsertedPathWithoutOverrideError -- correctly throws error but may be misleading
@@ -502,32 +502,26 @@ delete x.z.p }`,
       // NonexistentNameError:
       //   [`forall Set x { A.z = 0. }`],
 
-      NonexistentFieldError: [`forall Set x { x.icon = Circle { r: x.r } }`],
-      NonexistentGPIError: [
+      MissingPathError: [
+        `forall Set x { x.icon = Circle { r: x.r } }`,
         `forall Set x {  
          x.z = x.c.p
        }`,
-      ],
-      NonexistentPropertyError: [
         `forall Set x {  
           x.icon = Circle { 
            r: 9.
            center: (x.icon.z, 0.0)
          } 
        }`,
-      ],
-      ExpectedGPIGotFieldError: [
         `forall Set x { 
            x.z = 1.0 
            x.y = x.z.p
 }`,
       ],
-      CanvasNonexistentError: [
+      CanvasNonexistentDimsError: [
         `foo { 
   bar = 1.0
 }`,
-      ],
-      CanvasNonexistentDimsError: [
         `canvas { 
   height = 100
 }`,
