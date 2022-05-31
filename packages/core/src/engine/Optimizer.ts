@@ -139,7 +139,7 @@ export const step = (state: State, steps: number): State => {
           weight: initConstraintWeight,
           UOround: 0,
           EPround: 0,
-          optStatus: "UnconstrainedRunning" as const,
+          optStatus: "UnconstrainedRunning",
           lbfgsInfo: defaultLbfgsParams,
         },
       };
