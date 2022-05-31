@@ -6,7 +6,7 @@
     "start": "vite",
     "dev": "vite",
     "watch": "vite",
-    "clean": "rimraf dist;rimraf public/svg",
+    "clean": "rimraf dist;rimraf public/svg;rimraf public/examples",
     "typecheck": "tsc --noEmit",
     "build": "mkdir -p ./public/svg/;cp ../examples/src/*/*.svg ./public/svg;mkdir -p ./public/examples/;cp -r ../examples/src/ ./public/examples/;NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
