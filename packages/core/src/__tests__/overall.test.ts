@@ -150,7 +150,7 @@ describe("Energy API", () => {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
       const smallerThanFns = state.constrFns.filter(
-        (c) => c.fname === "smallerThan"
+        (c) => c.ast.expr.name.value === "smallerThan"
       );
       const stateFiltered = {
         ...state,

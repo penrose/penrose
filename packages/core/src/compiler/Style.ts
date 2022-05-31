@@ -122,6 +122,7 @@ import {
   llistV,
   matrixV,
   prettyPrintResolvedPath,
+  resolveRhsName,
   strV,
   tupV,
   val,
@@ -1666,30 +1667,6 @@ const findPathsWithContext = <T>({
 }: WithContext<Expr<T>>): WithContext<Path<T>>[] =>
   findPathsExpr(expr).map((p) => ({ context, expr: p }));
 
-const resolveRhsName = (
-  { block, subst, locals }: Context,
-  name: BindingForm<C>
-): ResolvedName => {
-  const { value } = name.contents;
-  switch (name.tag) {
-    case "StyVar": {
-      if (locals.has(value)) {
-        // locals shadow selector match names
-        return { tag: "Local", block, name: value };
-      } else if (value in subst) {
-        // selector match names shadow globals
-        return { tag: "Substance", block, name: subst[value] };
-      } else {
-        // couldn't find it in context, must be a glboal
-        return { tag: "Global", block, name: value };
-      }
-    }
-    case "SubVar": {
-      return { tag: "Substance", block, name: value };
-    }
-  }
-};
-
 const resolveRhsPath = (p: WithContext<Path<C>>): ResolvedPath<C> => {
   const { start, end, name, members } = p.expr; // drop `indices`
   return { start, end, ...resolveRhsName(p.context, name), members };
@@ -2303,9 +2280,7 @@ const translateExpr = (
       return {
         ...trans,
         constraints: trans.constraints.push({
-          fname,
-          fargs: e.expr.args, // doesn't propagate path resolution for pprint
-          optType: "ConstrFn",
+          ast: { context: e.context, expr: e.expr },
           output,
         }),
       };
@@ -2327,9 +2302,7 @@ const translateExpr = (
       return {
         ...trans,
         objectives: trans.objectives.push({
-          fname,
-          fargs: e.expr.args, // doesn't propagate path resolution for pprint
-          optType: "ObjFn",
+          ast: { context: e.context, expr: e.expr },
           output,
         }),
       };
@@ -2569,16 +2542,26 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
         canvas.height
       );
       fns.push({
-        fname: "onCanvas",
-        fargs: [
-          // HACK: the right way to do this would be to parse `name` into the
-          // correct `Path`, but we don't really care as long as it
-          // pretty-prints into something that looks right
-          fakePath(name, []),
-          fakePath("canvas", ["width"]),
-          fakePath("canvas", ["height"]),
-        ],
-        optType: "ConstrFn",
+        ast: {
+          context: {
+            block: { tag: "NamespaceId", contents: "canvas" }, // doesn't matter
+            subst: {},
+            locals: im.Map(),
+          },
+          expr: {
+            tag: "ConstrFn",
+            nodeType: "SyntheticStyle",
+            name: dummyId("onCanvas"),
+            args: [
+              // HACK: the right way to do this would be to parse `name` into
+              // the correct `Path`, but we don't really care as long as it
+              // pretty-prints into something that looks right
+              fakePath(name, []),
+              fakePath("canvas", ["width"]),
+              fakePath("canvas", ["height"]),
+            ],
+          },
+        },
         output,
       });
     }

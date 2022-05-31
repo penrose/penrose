@@ -3,7 +3,8 @@ import { Canvas, InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { A } from "./ast";
 import { Shape, ShapeAD } from "./shape";
-import { Expr } from "./style";
+import { ConstrFn, ObjFn } from "./style";
+import { WithContext } from "./styleSemantics";
 import { FloatV } from "./value";
 
 export type ShapeFn = (xs: number[]) => Shape[];
@@ -50,12 +51,9 @@ export type LabelCache = Map<string, LabelData>;
  * Generic export interface for constraint or objective functions
  */
 export interface Fn {
-  fname: string;
-  fargs: Expr<A>[];
-  optType: OptType;
+  ast: WithContext<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
 }
-export type OptType = "ObjFn" | "ConstrFn";
 
 export type OptStatus =
   | "NewIter"

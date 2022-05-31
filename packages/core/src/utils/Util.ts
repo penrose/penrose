@@ -9,9 +9,11 @@ import { Properties } from "types/shape";
 import { Fn, State } from "types/state";
 import { BindingForm, Expr, Path } from "types/style";
 import {
+  Context,
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
+  WithContext,
 } from "types/styleSemantics";
 import {
   BoolV,
@@ -458,6 +460,35 @@ export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
 
 //#region Style
 
+export const resolveRhsName = (
+  { block, subst, locals }: Context,
+  name: BindingForm<A>
+): ResolvedName => {
+  const { value } = name.contents;
+  switch (name.tag) {
+    case "StyVar": {
+      if (locals.has(value)) {
+        // locals shadow selector match names
+        return { tag: "Local", block, name: value };
+      } else if (value in subst) {
+        // selector match names shadow globals
+        return { tag: "Substance", block, name: subst[value] };
+      } else {
+        // couldn't find it in context, must be a glboal
+        return { tag: "Global", block, name: value };
+      }
+    }
+    case "SubVar": {
+      return { tag: "Substance", block, name: value };
+    }
+  }
+};
+
+const resolveRhsPath = (p: WithContext<Path<A>>): ResolvedPath<A> => {
+  const { name, members } = p.expr; // drop `indices`
+  return { ...resolveRhsName(p.context, name), members };
+};
+
 const blockPrefix = ({ tag, contents }: LocalVarSubst): string => {
   switch (tag) {
     case "LocalVarId": {
@@ -508,22 +539,30 @@ export const prettyPrintPath = (p: Path<A>): string => {
     prettyPrintBindingForm(p.name),
     ...p.members.map((m) => m.value),
   ].join(".");
-  const indices: string[] = p.indices.map((i) => `[${prettyPrintExpr(i)}]`);
+  const indices: string[] = p.indices.map(
+    (i) => `[${prettyPrintExpr(i, prettyPrintPath)}]`
+  );
   return [base, ...indices].join("");
 };
 
-export const prettyPrintExpr = (arg: Expr<A>): string => {
+export const prettyPrintExpr = (
+  arg: Expr<A>,
+  ppPath: (p: Path<A>) => string
+): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
   if (arg.tag === "Path") {
-    return prettyPrintPath(arg);
+    return ppPath(arg);
   } else if (arg.tag === "Fix") {
     const val = arg.contents;
     return String(val);
   } else if (arg.tag === "CompApp") {
     const [fnName, fnArgs] = [arg.name.value, arg.args];
-    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
-      ""
-    );
+    return [
+      fnName,
+      "(",
+      ...fnArgs.map((arg) => prettyPrintExpr(arg, ppPath)).join(", "),
+      ")",
+    ].join("");
   } else if (arg.tag === "UOp") {
     let uOpName;
     switch (arg.op) {
@@ -531,7 +570,7 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
         uOpName = "-";
         break;
     }
-    return "(" + uOpName + prettyPrintExpr(arg.arg) + ")";
+    return "(" + uOpName + prettyPrintExpr(arg.arg, ppPath) + ")";
   } else if (arg.tag === "BinOp") {
     let binOpName;
     switch (arg.op) {
@@ -553,11 +592,11 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
     }
     return (
       "(" +
-      prettyPrintExpr(arg.left) +
+      prettyPrintExpr(arg.left, ppPath) +
       " " +
       binOpName +
       " " +
-      prettyPrintExpr(arg.right) +
+      prettyPrintExpr(arg.right, ppPath) +
       ")"
     );
   } else {
@@ -568,8 +607,16 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
 };
 
 export const prettyPrintFn = (fn: Fn): string => {
-  const name = fn.fname;
-  const args = fn.fargs.map(prettyPrintExpr).join(", ");
+  const name = fn.ast.expr.name.value;
+  const args = fn.ast.expr.args
+    .map((arg) =>
+      prettyPrintExpr(arg, (p) =>
+        prettyPrintResolvedPath(
+          resolveRhsPath({ context: fn.ast.context, expr: p })
+        )
+      )
+    )
+    .join(", ");
   return [name, "(", args, ")"].join("");
 };
 
