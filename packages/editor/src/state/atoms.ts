@@ -307,13 +307,18 @@ export const exampleTriosState = atom<Trio[]>({
     get: async () => {
       try {
         const res = await fetch(
-          "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/registry.json"
+          window.location.origin +
+            window.location.pathname +
+            "examples/registry.json"
         );
         if (!res.ok) {
           toast.error(`Could not retrieve examples: ${res.statusText}`);
           return [];
         }
         const registry = await res.json();
+        // Serve the example locally
+        registry.root =
+          window.location.origin + window.location.pathname + "examples/";
         const trios = readRegistry(registry).map((trio: Trio) => ({
           ...trio,
           substanceURI: registry.root + trio.substanceURI,

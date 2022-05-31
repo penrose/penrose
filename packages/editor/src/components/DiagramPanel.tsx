@@ -132,26 +132,35 @@ export default function DiagramPanel() {
     [state]
   );
 
+  /**
+   * Fetch url
+   *
+   * @param url The url to fetch
+   * @returns Promise that resolves to the fetched string or undefined if the fetch failed
+   */
+  const fetchUrl = async (url: string): Promise<string | undefined> => {
+    console.log(`Fetching ${url}`);
+    try {
+      const fileReq = await fetch(url);
+      if (fileReq.ok) return fileReq.text();
+      else return undefined;
+    } catch (e) {
+      return undefined;
+    }
+  };
+
   const pathResolver = async (
     relativePath: string
   ): Promise<string | undefined> => {
     // Handle absolute URLs
     if (/^(http|https):\/\/[^ "]+$/.test(relativePath)) {
-      const fileURL = new URL(relativePath).href;
-      try {
-        const fileReq = await fetch(fileURL);
-        return fileReq.text();
-      } catch (e) {
-        return undefined;
-      }
+      return fetchUrl(new URL(relativePath).href);
     }
 
     // Handle relative paths
     switch (location.kind) {
       case "example": {
-        const fileURL = new URL(relativePath, location.root).href;
-        const fileReq = await fetch(fileURL);
-        return fileReq.text();
+        return fetchUrl(new URL(relativePath, location.root).href);
       }
       case "roger": {
         if (rogerState.kind === "connected") {
@@ -177,9 +186,18 @@ export default function DiagramPanel() {
       }
       // TODO: publish images in the gist
       case "gist":
-      // TODO: cache images in local storage?
-      case "local":
         return undefined;
+      // TODO: cache images in local storage?
+      case "local": {
+        return fetchUrl(
+          new URL(
+            window.location.origin +
+              window.location.pathname +
+              "svg/" +
+              relativePath
+          ).href
+        );
+      }
     }
   };
 
