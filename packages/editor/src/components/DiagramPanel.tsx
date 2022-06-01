@@ -139,7 +139,6 @@ export default function DiagramPanel() {
    * @returns Promise that resolves to the fetched string or undefined if the fetch failed
    */
   const fetchUrl = async (url: string): Promise<string | undefined> => {
-    console.log(`Fetching ${url}`);
     try {
       const fileReq = await fetch(url);
       if (fileReq.ok) return fileReq.text();
