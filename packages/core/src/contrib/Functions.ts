@@ -1553,6 +1553,14 @@ export const compDict = {
   unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
   },
+
+  closestPoint: (
+    _context: Context,
+    [t, s]: [string, any],
+    p: ad.Num[]
+  ): VectorV<ad.Num> => {
+    return { tag: "VectorV", contents: [] };
+  },
 };
 
 /*
