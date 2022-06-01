@@ -544,23 +544,6 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
   }
 };
 
-// Returns a sel env for each selector in the Style program, in the same order
-// previously named `checkSels`
-export const checkSelsAndMakeEnv = (
-  varEnv: Env,
-  prog: HeaderBlock<A>[]
-): SelEnv[] => {
-  // Note that even if there is an error in one selector, it does not stop checking of the other selectors
-  const selEnvs: SelEnv[] = prog.map((e) => {
-    const res = checkHeader(varEnv, e.header);
-    // Put selector AST in just for debugging
-    res.header = e.header;
-    return res;
-  });
-
-  return selEnvs;
-};
-
 //#endregion
 
 //#region Types and code for finding substitutions
@@ -1513,61 +1496,59 @@ const processBlock = (
 ): Assignment => {
   // Run static checks first
   const selEnv = checkHeader(varEnv, hb.header);
+  const errors = im.List([...selEnv.warnings, ...selEnv.errors]);
+  // TODO(errors/warn): distinguish between errors and warnings
+  const withSelErrors = addDiags({ errors, warnings: im.List() }, assignment);
+  if (errors.size > 0) {
+    return withSelErrors;
+  }
+
   const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
   log.debug("Translating block", hb, "with substitutions", substs);
   log.debug("total number of substs", substs.length);
   // OPTIMIZE: maybe we should just compile the block once into something
   // parametric, and then substitute the Substance variables
-  return substs.reduce(
-    (assignment, subst, substIndex) => {
-      const block = blockId(blockIndex, substIndex, hb.header);
-      const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
-      if (block.tag === "NamespaceId") {
-        // prepopulate with an empty namespace, to give a better error message
-        // when someone tries to assign to a global by its absolute path
-        // (`AssignGlobalError` instead of `MissingShapeError`)
-        withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+  return substs.reduce((assignment, subst, substIndex) => {
+    const block = blockId(blockIndex, substIndex, hb.header);
+    const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
+    if (block.tag === "NamespaceId") {
+      // prepopulate with an empty namespace, to give a better error message
+      // when someone tries to assign to a global by its absolute path
+      // (`AssignGlobalError` instead of `MissingShapeError`)
+      withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+    }
+    // Translate each statement in the block
+    const {
+      diagnostics,
+      globals,
+      unnamed,
+      substances,
+      locals,
+    } = hb.block.statements.reduce(
+      (assignment, stmt, stmtIndex) =>
+        processStmt({ block, subst }, stmtIndex, stmt, assignment),
+      withLocals
+    );
+    switch (block.tag) {
+      case "LocalVarId": {
+        return {
+          diagnostics,
+          globals,
+          unnamed: unnamed.set(im.List(block.contents), locals),
+          substances,
+        };
       }
-      // Translate each statement in the block
-      const {
-        diagnostics,
-        globals,
-        unnamed,
-        substances,
-        locals,
-      } = hb.block.statements.reduce(
-        (assignment, stmt, stmtIndex) =>
-          processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals
-      );
-      switch (block.tag) {
-        case "LocalVarId": {
-          return {
-            diagnostics,
-            globals,
-            unnamed: unnamed.set(im.List(block.contents), locals),
-            substances,
-          };
-        }
-        case "NamespaceId": {
-          // TODO: check that `substs` is a singleton list
-          return {
-            diagnostics,
-            globals: globals.set(block.contents, locals),
-            unnamed,
-            substances,
-          };
-        }
+      case "NamespaceId": {
+        // TODO: check that `substs` is a singleton list
+        return {
+          diagnostics,
+          globals: globals.set(block.contents, locals),
+          unnamed,
+          substances,
+        };
       }
-    },
-    addDiags(
-      {
-        errors: im.List(selEnv.errors),
-        warnings: im.List(),
-      },
-      assignment
-    )
-  );
+    }
+  }, withSelErrors);
 };
 
 export const buildAssignment = (
