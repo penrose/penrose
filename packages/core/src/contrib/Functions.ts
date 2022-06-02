@@ -1582,11 +1582,12 @@ export const compDict = {
       const pOffset = ops.vsub(p, s.center.contents);
       const normOffset = ops.vnorm(pOffset);
       const unitVector = ops.vdiv(pOffset, normOffset);
-      const retVal = ops.vadd(
+      const pOnCircumferenceOffset = ops.vmul(s.r.contents, unitVector);
+      const pOnCircumference = ops.vadd(
         s.center.contents,
-        ops.vmul(s.r.contents, unitVector)
+        pOnCircumferenceOffset
       );
-      return { tag: "VectorV", contents: retVal };
+      return { tag: "VectorV", contents: pOnCircumference };
     } else if (
       t === "Rectangle" ||
       t === "Text" ||
@@ -1599,6 +1600,18 @@ export const compDict = {
         p,
         s.center.contents
       );
+    }
+    return { tag: "VectorV", contents: [] };
+  },
+  addPtsTest: (
+    _context: Context,
+    [t, s]: [string, any],
+    p1: [ad.Num, ad.Num],
+    p2: [ad.Num, ad.Num]
+  ): VectorV<ad.Num> => {
+    if (t === "Circle") {
+      const p3 = ops.vadd(p1, p2);
+      return { tag: "VectorV", contents: p3 };
     }
     return { tag: "VectorV", contents: [] };
   },
