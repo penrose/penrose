@@ -1,5 +1,5 @@
 import { dummyIdentifier } from "engine/EngineUtils";
-import { Map } from "immutable";
+import im from "immutable";
 import { findIndex } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
@@ -109,8 +109,8 @@ export const compileSubstance = (
 const initEnv = (ast: SubProg<A>, env: Env): SubstanceEnv => ({
   exprEqualities: [],
   predEqualities: [],
-  bindings: Map<string, SubExpr<C>>(),
-  labels: Map<string, LabelValue>(
+  bindings: im.Map<string, SubExpr<C>>(),
+  labels: im.Map<string, LabelValue>(
     [...env.vars.keys()].map((id: string) => [id, EMPTY_LABEL])
   ),
   predicates: [],
@@ -152,7 +152,7 @@ const processLabelStmt = (
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
         const [...ids] = env.vars.keys();
-        const newLabels: LabelMap = Map(
+        const newLabels: LabelMap = im.Map(
           ids.map((id) => [id, { value: id, type: "MathLabel" }])
         );
         return {
@@ -346,7 +346,7 @@ export const checkPredicate = (
   // check if predicate exists and retrieve its decl
   if (predDecl) {
     // initialize substitution environment
-    const substEnv: SubstitutionEnv = Map<string, TypeConsApp<C>>();
+    const substEnv: SubstitutionEnv = im.Map<string, TypeConsApp<C>>();
     const argPairs = zip2(args, predDecl.args);
     const contents: SubPredArg<A>[] = [];
     const argsOk: SubstitutionResult<SubPredArg<A>[]> = safeChain(
@@ -467,7 +467,7 @@ export const checkExpr = (
   }
 };
 
-type SubstitutionEnv = Map<string, TypeConsApp<A>>; // mapping from type var to concrete types
+type SubstitutionEnv = im.Map<string, TypeConsApp<A>>; // mapping from type var to concrete types
 type SubstitutionResult<T> = Result<
   WithEnv<T> & { substEnv: SubstitutionEnv },
   SubstanceError
@@ -621,7 +621,7 @@ const checkFunc = (
   if (funcDecl) {
     const { output } = funcDecl;
     // initialize substitution environment
-    const substContext: SubstitutionEnv = Map<string, TypeConsApp<C>>();
+    const substContext: SubstitutionEnv = im.Map<string, TypeConsApp<C>>();
     if (funcDecl.args.length !== func.args.length) {
       return err(
         argLengthMismatch(func.name, func.args, funcDecl.args, func, funcDecl)

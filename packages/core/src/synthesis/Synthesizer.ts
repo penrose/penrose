@@ -18,7 +18,7 @@ import {
 import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
-import { Map } from "immutable";
+import im from "immutable";
 import { cloneDeep, compact, range, times, without } from "lodash";
 import { createChoice } from "pandemonium/choice";
 import { createRandom } from "pandemonium/random";
@@ -104,9 +104,9 @@ export interface SynthesizerSetting {
 
 //#region Synthesis context
 export interface SynthesisContext {
-  names: Map<string, number>;
-  declaredIDs: Map<string, Identifier<A>[]>;
-  generatedNames: Map<string, number>;
+  names: im.Map<string, number>;
+  declaredIDs: im.Map<string, Identifier<A>[]>;
+  generatedNames: im.Map<string, number>;
   argOption: ArgOption;
   argReuse: ArgReuse;
   env: Env;
@@ -129,11 +129,11 @@ export const initContext = (
 ): SynthesisContext => {
   const rng: seedrandom.prng = seedrandom(randomSeed);
   const ctx: SynthesisContext = {
-    generatedNames: Map<string, number>(),
+    generatedNames: im.Map<string, number>(),
     argOption,
     argReuse,
-    names: Map<string, number>(),
-    declaredIDs: Map<string, Identifier<A>[]>(),
+    names: im.Map<string, number>(),
+    declaredIDs: im.Map<string, Identifier<A>[]>(),
     choice: createChoice(rng),
     env,
   };
@@ -171,7 +171,7 @@ export const showEnv = (env: Env): string =>
 const getDecls = (
   ctx: SynthesisContext,
   type: DomainStmt<A>["tag"]
-): Map<string, DomainStmt<A>> => {
+): im.Map<string, DomainStmt<A>> => {
   const { env } = ctx;
   switch (type) {
     case "TypeDecl":
@@ -183,7 +183,7 @@ const getDecls = (
     case "PredicateDecl":
       return env.predicates;
     case undefined:
-      return Map<string, DomainStmt<A>>();
+      return im.Map<string, DomainStmt<A>>();
   }
   throw new Error(`${type} is not found in the environment`);
 };
@@ -308,7 +308,7 @@ export class Synthesizer {
   env: Env;
   template: SubProg<A>;
   setting: SynthesizerSetting;
-  // names: Map<string, number>;
+  // names: im.Map<string, number>;
   currentProg: SubProg<A>;
   currentMutations: Mutation[];
   rng: seedrandom.prng;
@@ -481,7 +481,7 @@ export class Synthesizer {
         stmt,
         ctx,
         (
-          options: Immutable.Map<string, Identifier<A>[]>
+          options: im.Map<string, Identifier<A>[]>
         ): Identifier<A> | undefined => {
           const varId = this.choice([...options.keys()]);
           const swapOptions = options.get(varId);
@@ -496,7 +496,7 @@ export class Synthesizer {
         stmt,
         ctx,
         (
-          options: Immutable.Map<string, Identifier<A>[]>
+          options: im.Map<string, Identifier<A>[]>
         ): Identifier<A> | undefined => {
           const varId = this.choice([...options.keys()]);
           const swapOptions = options.get(varId);
@@ -1020,9 +1020,9 @@ const declTypes: DomainStmt<A>["tag"][] = [
 ];
 
 const filterBySetting = <T>(
-  decls: Map<string, T>,
+  decls: im.Map<string, T>,
   setting: MatchSetting
-): Map<string, T> => {
+): im.Map<string, T> => {
   if (setting === "*") {
     return decls;
   } else {

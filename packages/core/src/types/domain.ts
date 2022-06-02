@@ -1,7 +1,7 @@
 //#region Domain AST
 
 import { Graph } from "graphlib";
-import { Map } from "immutable";
+import im from "immutable";
 import { A, ASTNode, C, Identifier, StringLit } from "./ast";
 import { ApplyConstructor, TypeConsApp } from "./substance";
 
@@ -92,15 +92,18 @@ export type SubTypeDecl<T> = ASTNode<T> & {
 
 //#region Domain context
 export interface Env {
-  types: Map<string, TypeDecl<C>>;
-  functions: Map<string, FunctionDecl<C>>;
-  predicates: Map<string, PredicateDecl<C>>;
-  constructors: Map<string, ConstructorDecl<C>>;
-  constructorsBindings: Map<string, [ApplyConstructor<A>, ConstructorDecl<C>]>; // constructors ordered by bindings
-  vars: Map<string, TypeConsApp<A>>;
+  types: im.Map<string, TypeDecl<C>>;
+  functions: im.Map<string, FunctionDecl<C>>;
+  predicates: im.Map<string, PredicateDecl<C>>;
+  constructors: im.Map<string, ConstructorDecl<C>>;
+  constructorsBindings: im.Map<
+    string,
+    [ApplyConstructor<A>, ConstructorDecl<C>]
+  >; // constructors ordered by bindings
+  vars: im.Map<string, TypeConsApp<A>>;
   varIDs: Identifier<A>[];
-  typeVars: Map<string, TypeVar<C>>;
-  preludeValues: Map<string, TypeConstructor<C>>; // TODO: store as Substance values?
+  typeVars: im.Map<string, TypeVar<C>>;
+  preludeValues: im.Map<string, TypeConstructor<C>>; // TODO: store as Substance values?
   subTypes: [TypeConstructor<C>, TypeConstructor<C>][];
   typeGraph: Graph;
 }

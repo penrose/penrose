@@ -10,15 +10,8 @@ import {
   Stroke,
 } from "types/shapes";
 import { FloatV, StrV } from "types/value";
-import {
-  boolV,
-  Canvas,
-  sampleColor,
-  sampleNoPaint,
-  sampleVector,
-  sampleZero,
-  strV,
-} from "./Samplers";
+import { boolV, floatV, noPaint, strV } from "utils/Util";
+import { Canvas, Context, sampleColor, sampleVector } from "./Samplers";
 
 export interface TextProps
   extends Named,
@@ -44,23 +37,20 @@ export interface TextProps
   descent: FloatV<ad.Num>;
 }
 
-export const sampleText = (
-  rng: seedrandom.prng,
-  canvas: Canvas
-): TextProps => ({
+export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
   name: strV("defaultText"),
   style: strV(""),
-  strokeWidth: sampleZero(),
+  strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
-  strokeColor: sampleNoPaint(),
+  strokeColor: noPaint(),
   strokeDasharray: strV(""),
-  fillColor: sampleColor(rng),
-  center: sampleVector(rng, canvas),
-  width: sampleZero(),
-  height: sampleZero(),
-  ascent: sampleZero(),
-  descent: sampleZero(),
-  rotation: sampleZero(),
+  fillColor: sampleColor(context),
+  center: sampleVector(context, canvas),
+  width: floatV(context.makeInput({ pending: 0 })),
+  height: floatV(context.makeInput({ pending: 0 })),
+  ascent: floatV(context.makeInput({ pending: 0 })),
+  descent: floatV(context.makeInput({ pending: 0 })),
+  rotation: floatV(0),
   string: strV("defaultText"),
   visibility: strV(""),
   fontFamily: strV("sans-serif"),
@@ -81,11 +71,11 @@ export const sampleText = (
 export type Text = Shape & { shapeType: "Text" } & TextProps;
 
 export const makeText = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas,
   properties: Partial<TextProps>
 ): Text => ({
-  ...sampleText(rng, canvas),
+  ...sampleText(context, canvas),
   ...properties,
   shapeType: "Text",
 });

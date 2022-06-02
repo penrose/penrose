@@ -1,46 +1,17 @@
 import consola, { LogLevel } from "consola";
-import { constrDict } from "contrib/Constraints";
-import { objDict } from "contrib/Objectives";
-import {
-  energyAndGradCompiled,
-  fns,
-  input,
-  makeADInputVars,
-  ops,
-} from "engine/Autodiff";
-import {
-  compileCompGraph,
-  defaultLbfgsParams,
-  initConstraintWeight,
-} from "engine/EngineUtils";
-import {
-  argValue,
-  evalFns,
-  evalShapes,
-  insertVaryings,
-} from "engine/Evaluator";
+import { fns, genCode, input, makeGraph, ops } from "engine/Autodiff";
+import { defaultLbfgsParams, initConstraintWeight } from "engine/EngineUtils";
 import * as _ from "lodash";
 import { Matrix } from "ml-matrix";
-import rfdc from "rfdc";
-import seedrandom from "seedrandom";
+import { InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { A } from "types/ast";
-import {
-  FnCached,
-  FnDone,
-  LbfgsParams,
-  Params,
-  State,
-  WeightInfo,
-} from "types/state";
-import { Path } from "types/style";
+import { FnCached, LbfgsParams, Params, State } from "types/state";
 import {
   addv,
   dot,
   negv,
   normList,
   prettyPrintFns,
-  prettyPrintPath,
   repeat,
   scalev,
   subv,
@@ -52,9 +23,6 @@ import { add, mul } from "./AutodiffFunctions";
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
-
-// For deep-cloning the translation
-const clone = rfdc({ proto: false, circles: false });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -118,16 +86,6 @@ const epConverged2 = (
   return stateChange < epStop || energyChange < epStop;
 };
 
-const applyFn = (f: FnDone<ad.Num>, dict: any) => {
-  if (dict[f.name]) {
-    return dict[f.name](...f.args.map(argValue));
-  } else {
-    throw new Error(
-      `constraint or objective ${f.name} not found in dirctionary`
-    );
-  }
-};
-
 /**
  * Given a `State`, take n steps by evaluating the overall objective function
  *
@@ -148,17 +106,10 @@ const applyFn = (f: FnDone<ad.Num>, dict: any) => {
 /**
  * @param state
  * @param steps
- * @param evaluate
  */
-export const step = (
-  rng: seedrandom.prng,
-  state: State,
-  steps: number,
-  evaluate = true
-): State => {
-  const { optStatus, weight } = state.params;
-  let newState = { ...state };
-  const optParams = newState.params; // this is just a reference, so updating this will update newState as well
+export const step = (state: State, steps: number): State => {
+  const optParams: Params = { ...state.params };
+  const { optStatus, weight } = optParams;
   let xs: number[] = state.varyingValues;
 
   log.info("===============");
@@ -173,36 +124,25 @@ export const step = (
   log.info("params: ", optParams);
   // log.info("state: ", state);
   log.info("fns: ", prettyPrintFns(state));
-  log.info(
-    "variables: ",
-    state.varyingPaths.map((p: Path<A>): string => prettyPrintPath(p))
-  );
 
   switch (optStatus) {
     case "NewIter": {
       log.trace("step newIter, xs", xs);
 
-      // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       const { objectiveAndGradient } = state.params;
-      if (!objectiveAndGradient) {
-        return genOptProblem(rng, state);
-      } else {
-        return {
-          ...state,
-          params: {
-            ...state.params,
-            currObjectiveAndGradient: objectiveAndGradient(
-              initConstraintWeight
-            ),
-            weight: initConstraintWeight,
-            UOround: 0,
-            EPround: 0,
-            optStatus: "UnconstrainedRunning" as const,
-            lbfgsInfo: defaultLbfgsParams,
-          },
-        };
-      }
+      return {
+        ...state,
+        params: {
+          ...state.params,
+          currObjectiveAndGradient: objectiveAndGradient(initConstraintWeight),
+          weight: initConstraintWeight,
+          UOround: 0,
+          EPround: 0,
+          optStatus: "UnconstrainedRunning",
+          lbfgsInfo: defaultLbfgsParams,
+        },
+      };
     }
 
     case "UnconstrainedRunning": {
@@ -213,7 +153,6 @@ export const step = (
         xs,
         state.params.currObjectiveAndGradient,
         state.params.lbfgsInfo,
-        state.varyingPaths.map((p) => prettyPrintPath(p)),
         steps
       );
       xs = res.xs;
@@ -265,7 +204,7 @@ export const step = (
       if (failed) {
         log.warn("Error detected after stepping");
         optParams.optStatus = "Error";
-        return newState;
+        return { ...state, params: optParams };
       }
 
       break;
@@ -286,10 +225,10 @@ export const step = (
       if (
         optParams.EPround > 1 &&
         epConverged2(
-          optParams.lastEPstate,
-          optParams.lastUOstate,
-          optParams.lastEPenergy,
-          optParams.lastUOenergy
+          optParams.lastEPstate!,
+          optParams.lastUOstate!,
+          optParams.lastEPenergy!,
+          optParams.lastUOenergy!
         )
       ) {
         optParams.optStatus = "EPConverged";
@@ -335,24 +274,7 @@ export const step = (
     }
   }
 
-  // return the state with a new set of shapes
-  if (evaluate) {
-    const varyingValues = xs;
-    // log.info("evaluating state with varying values", varyingValues);
-
-    newState.translation = insertVaryings(
-      state.translation,
-      zip2(state.varyingPaths, varyingValues)
-    );
-
-    newState.varyingValues = varyingValues;
-    newState = {
-      ...newState,
-      shapes: state.computeShapes(xs),
-    };
-  }
-
-  return newState;
+  return { ...state, varyingValues: xs, params: optParams };
 };
 
 // Note: line search seems to be quite sensitive to the maxSteps parameter; with maxSteps=25, the line search might
@@ -699,7 +621,6 @@ const minimize = (
   xs0: number[],
   f: FnCached,
   lbfgsInfo: LbfgsParams,
-  varyingPaths: string[],
   numSteps: number
 ): ad.OptInfo => {
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
@@ -784,13 +705,13 @@ const minimize = (
     if (Number.isNaN(fxs) || Number.isNaN(normGrad)) {
       log.info("-----");
 
-      const pathMap = zip3(varyingPaths, xs, gradfxs);
+      const pathMap = zip2(xs, gradfxs);
 
-      log.info("[varying paths, current val, gradient of val]", pathMap);
+      log.info("[current val, gradient of val]", pathMap);
 
-      for (const [name, x, dx] of pathMap) {
+      for (const [x, dx] of pathMap) {
         if (Number.isNaN(dx)) {
-          log.info("NaN in varying val's gradient", name, "(current val):", x);
+          log.info("NaN in varying val's gradient (current val):", x);
         }
       }
 
@@ -831,136 +752,86 @@ const minimize = (
  * @param {State} state
  * @returns a function that takes in a list of `ad.Num`s and return a `Scalar`
  */
-export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
-  return (
-    ...xsVars: ad.Input[]
-  ): {
-    energyGraph: ad.Num;
-    objEngs: ad.Num[];
-    constrEngs: ad.Num[];
-    epWeightNode: ad.Input;
-  } => {
-    // TODO: Could this line be causing a memory leak?
-    const { objFns, constrFns, varyingPaths } = state;
+export const evalEnergyOnCustom = (
+  epWeightNode: ad.Input,
+  objEngs: ad.Num[],
+  constrEngs: ad.Num[]
+): ad.Num => {
+  // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
+  // The energies are in the val field of the results (w/o grads)
+  // log.info("objEngs", objFns, objEngs);
+  // log.info("vars", varyingValuesTF);
 
-    const varyingMapList = zip2(varyingPaths, xsVars);
-    // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
-    const translation = insertVaryings(
-      // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse `ad.Num` (computation) results
-      clone(state.translation),
-      varyingMapList
-    );
+  if (objEngs.length === 0 && constrEngs.length === 0) {
+    log.info("WARNING: no objectives and no constraints");
+  }
 
-    const objEvaled = evalFns(rng, objFns, translation);
-    const constrEvaled = evalFns(rng, constrFns, translation);
+  // This is fixed during the whole optimization
+  const constrWeightNode: ad.Num = constraintWeight;
 
-    const objEngs: ad.Num[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: ad.Num[] = constrEvaled.map((c) =>
-      fns.toPenalty(applyFn(c, constrDict))
-    );
+  const objEng: ad.Num = ops.vsum(objEngs);
+  const constrEng: ad.Num = ops.vsum(constrEngs.map(fns.toPenalty));
+  // F(x) = o(x) + c0 * penalty * c(x)
+  const overallEng: ad.Num = add(
+    objEng,
+    mul(constrEng, mul(constrWeightNode, epWeightNode))
+  );
 
-    // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
-    // The energies are in the val field of the results (w/o grads)
-    // log.info("objEngs", objFns, objEngs);
-    // log.info("vars", varyingValuesTF);
-
-    if (objEngs.length === 0 && constrEngs.length === 0) {
-      log.info("WARNING: no objectives and no constraints");
-    }
-
-    // This is fixed during the whole optimization
-    const constrWeightNode: ad.Num = constraintWeight;
-
-    // This changes with the EP round, gets bigger to weight the constraints
-    // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
-    const epWeightNode = input({
-      val: state.params.weight,
-      key: 0, // xsVars keys must start at 1 to accommodate this
-    });
-
-    const objEng: ad.Num = ops.vsum(objEngs);
-    const constrEng: ad.Num = ops.vsum(constrEngs);
-    // F(x) = o(x) + c0 * penalty * c(x)
-    const overallEng: ad.Num = add(
-      objEng,
-      mul(constrEng, mul(constrWeightNode, epWeightNode))
-    );
-
-    return {
-      energyGraph: overallEng,
-      objEngs,
-      constrEngs,
-      epWeightNode,
-    };
-  };
+  return overallEng;
 };
 
-export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
-  const xs: number[] = state.varyingValues;
-  log.trace("step newIter, xs", xs);
-
-  // if (!state.params.functionsCompiled) {
+export const genOptProblem = (
+  inputs: InputMeta[],
+  objEngs: ad.Num[],
+  constrEngs: ad.Num[]
+): Params => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
   log.info("Compiling objective and gradient");
 
-  // `overallEnergy` is a partially applied function, waiting for an input.
-  // When applied, it will interpret the energy via lookups on the computational graph
-  // TODO: Could save the interpreted energy graph across amples
-  const overallObjective = evalEnergyOnCustom(rng, state);
-  const xsVars: ad.Input[] = makeADInputVars(xs, 1); // ep weight is index 0
-  const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+  // This changes with the EP round, gets bigger to weight the constraints
+  // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
+  const weight = initConstraintWeight;
+  const epWeightNode = input({ val: weight, key: inputs.length });
+
+  const energyGraph = evalEnergyOnCustom(epWeightNode, objEngs, constrEngs);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
 
-  log.info("interpreted energy graph", res.energyGraph);
-  log.info("input vars", xsVars);
+  log.info("interpreted energy graph", energyGraph);
 
-  const weightInfo: WeightInfo = {
-    // TODO: factor out
-    epWeightNode: res.epWeightNode,
-    epWeight: initConstraintWeight,
-  };
+  // Build an actual graph from the implicit ad.Num structure
+  // Build symbolic gradient of f at xs on the energy graph
+  const explicitGraph = makeGraph({
+    primary: energyGraph,
+    secondary: [...objEngs, ...constrEngs],
+  });
 
-  const individualEnergies = [...res.objEngs, ...res.constrEngs];
-  const { graphs, f } = energyAndGradCompiled(
-    xs,
-    xsVars,
-    res.energyGraph,
-    individualEnergies,
-    weightInfo
-  );
+  const f = genCode(explicitGraph);
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
-    const { primary, gradient, secondary } = f([epWeight, ...xs]);
+    const { primary, gradient, secondary } = f([...xs, epWeight]);
     return {
       f: primary,
-      gradf: gradient.slice(1), // ignore epWeight gradient
-      objEngs: secondary.slice(0, res.objEngs.length),
-      constrEngs: secondary.slice(res.objEngs.length),
+      gradf: xs.map((x, i) => {
+        // fill in any holes in case some inputs weren't used in the graph, and
+        // also treat pending values as constants rather than optimizing them
+        return i in gradient && !("pending" in inputs[i]) ? gradient[i] : 0;
+      }),
+      objEngs: secondary.slice(0, objEngs.length),
+      constrEngs: secondary.slice(objEngs.length),
     };
   };
 
-  // generate evaluation function
-  const varyingVars = makeADInputVars(state.varyingValues);
-  const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
+  const params: Params = {
+    lastGradient: repeat(inputs.length, 0),
+    lastGradientPreconditioned: repeat(inputs.length, 0),
 
-  const newParams: Params = {
-    ...state.params,
-    xsVars,
-
-    lastGradient: repeat(xs.length, 0),
-    lastGradientPreconditioned: repeat(xs.length, 0),
-
-    graphs,
     objectiveAndGradient,
 
-    functionsCompiled: true,
+    currObjectiveAndGradient: objectiveAndGradient(weight),
 
-    currObjectiveAndGradient: objectiveAndGradient(initConstraintWeight),
-
-    energyGraph: res.energyGraph,
-    epWeightNode: res.epWeightNode,
-    weight: initConstraintWeight,
+    energyGraph,
+    weight,
     UOround: 0,
     EPround: 0,
     optStatus: "UnconstrainedRunning",
@@ -968,7 +839,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     lbfgsInfo: defaultLbfgsParams,
   };
 
-  return { ...state, computeShapes, params: newParams };
+  return params;
 };
 
 const containsNaN = (numberList: number[]): boolean => {

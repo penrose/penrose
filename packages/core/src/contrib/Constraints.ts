@@ -35,7 +35,7 @@ import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 
 // -------- Simple constraints
-// Do not require shape quaries, operate directly with `ad.Num` parameters.
+// Do not require shape queries, operate directly with `ad.Num` parameters.
 const constrDictSimple = {
   /**
    * Require that the value `x` is equal to the value `y`
@@ -320,7 +320,13 @@ const constrDictSpecific = {
 };
 
 export const constrDict = {
-  ...constrDictSimple, // Do not require shape quaries, operate directly with `ad.Num` parameters.
+  ...constrDictSimple, // Do not require shape queries, operate directly with `ad.Num` parameters.
   ...constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
   ...constrDictSpecific, // Defined only for specific use-case or specific shapes.
 };
+
+// `_constrDictVals` causes TypeScript to enforce that every function in
+// `constrDict` returns an `ad.Num`
+const _constrDictVals: ((...rest: never[]) => ad.Num)[] = Object.values(
+  constrDict
+);

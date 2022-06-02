@@ -26,7 +26,7 @@ import * as ad from "types/ad";
 import { linePts } from "utils/Util";
 
 // -------- Simple objective functions
-// Do not require shape quaries, operate directly with `ad.Num` parameters.
+// Do not require shape queries, operate directly with `ad.Num` parameters.
 export const objDictSimple = {
   /**
    * Encourage the input value to be close to negative infinity
@@ -304,7 +304,11 @@ export const objDictSpecific = {
 };
 
 export const objDict = {
-  ...objDictSimple, // Do not require shape quaries, operate directly with `ad.Num` parameters.
+  ...objDictSimple, // Do not require shape queries, operate directly with `ad.Num` parameters.
   ...objDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
   ...objDictSpecific, // Defined only for specific use-case or specific shapes.
 };
+
+// `_objDictVals` causes TypeScript to enforce that every function in
+// `objDict` returns an `ad.Num`
+const _objDictVals: ((...rest: never[]) => ad.Num)[] = Object.values(objDict);

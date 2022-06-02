@@ -1,5 +1,5 @@
+import { input } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
-import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { Value } from "types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
@@ -11,7 +11,7 @@ import { makePath, Path, samplePath } from "./Path";
 import { makePolygon, Polygon, samplePolygon } from "./Polygon";
 import { makePolyline, Polyline, samplePolyline } from "./Polyline";
 import { makeRectangle, Rectangle, sampleRectangle } from "./Rectangle";
-import { Canvas, makeCanvas } from "./Samplers";
+import { Canvas, Context, InputMeta, makeCanvas } from "./Samplers";
 import { makeText, sampleText, Text } from "./Text";
 
 //#region other shape types/globals
@@ -36,12 +36,8 @@ export type Shape =
 export type ShapeType = Shape["shapeType"];
 
 export interface ShapeDef {
-  sampler: (rng: seedrandom.prng, canvas: Canvas) => Properties;
-  constr: (
-    rng: seedrandom.prng,
-    canvas: Canvas,
-    properties: Properties
-  ) => Shape;
+  sampler: (context: Context, canvas: Canvas) => Properties;
+  constr: (context: Context, canvas: Canvas, properties: Properties) => Shape;
 
   // TODO: maybe get rid of this?
   propTags: { [prop: string]: Value<ad.Num>["tag"] };
@@ -56,28 +52,40 @@ export interface ShapeDef {
 
 // hack to satisfy the typechecker
 export const ShapeDef = (shapedef: {
-  sampler: (rng: seedrandom.prng, canvas: Canvas) => unknown;
-  constr: (
-    rng: seedrandom.prng,
-    canvas: Canvas,
-    properties: Properties
-  ) => Shape;
+  sampler: (context: Context, canvas: Canvas) => unknown;
+  constr: (context: Context, canvas: Canvas, properties: Properties) => Shape;
   bbox: (properties: any) => BBox.BBox;
   isLinelike?: boolean;
   isRectlike?: boolean;
   isPolygonlike?: boolean;
-  pendingProps?: string[];
 }): ShapeDef => {
-  const sampler = (rng: seedrandom.prng, canvas: Canvas) =>
-    <Properties>shapedef.sampler(rng, canvas);
+  const sampler = (context: Context, canvas: Canvas) =>
+    shapedef.sampler(context, canvas) as Properties;
 
-  const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
+  const metas: InputMeta[] = [];
+  const makeInput = (meta: InputMeta) => {
+    const x = input({ key: metas.length, val: 0 });
+    metas.push(meta);
+    return x;
+  };
+
+  const ideal = sampler({ makeInput }, makeCanvas(0, 0));
+
   const propTags = Object.fromEntries(
-    // TODO: make this much less jank than first sampling an entire shape
-    Object.entries(
-      sampler(seedrandom("propTags"), makeCanvas(size, size))
-    ).map(([x, y]) => [x, y.tag])
+    Object.entries(ideal).map(([x, y]) => [x, y.tag])
   );
+
+  const pendingProps = [];
+  for (const [key, value] of Object.entries(ideal)) {
+    if (
+      value.tag === "FloatV" &&
+      typeof value.contents !== "number" &&
+      value.contents.tag === "Input" &&
+      "pending" in metas[value.contents.key]
+    ) {
+      pendingProps.push(key);
+    }
+  }
 
   return {
     sampler,
@@ -89,7 +97,7 @@ export const ShapeDef = (shapedef: {
     isLinelike: shapedef.isLinelike ?? false,
     isRectlike: shapedef.isRectlike ?? false,
     isPolygonlike: shapedef.isPolygonlike ?? false,
-    pendingProps: shapedef.pendingProps ?? [],
+    pendingProps,
   };
 };
 
@@ -117,7 +125,6 @@ const Equation = ShapeDef({
   bbox: BBox.bboxFromRectlike,
   isRectlike: true,
   isPolygonlike: true,
-  pendingProps: ["width", "height"],
 });
 
 const Image = ShapeDef({
@@ -176,12 +183,11 @@ const Text = ShapeDef({
   bbox: BBox.bboxFromRectlike, // assumes w and h correspond to string
   isRectlike: true,
   isPolygonlike: true,
-  pendingProps: ["width", "height", "ascent", "descent"],
 });
 
 // TODO: figure out how to not have the result be type `any` when indexing into
 // this object using a string key
-export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
+export const shapedefs: { [k in ShapeType]: ShapeDef } = {
   Circle,
   Ellipse,
   Equation,
@@ -193,5 +199,9 @@ export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
   Rectangle,
   Text,
 };
+
+// TODO: don't use a type predicate for this
+export const isShapeType = (shapeType: string): shapeType is ShapeType =>
+  shapeType in shapedefs;
 
 //#endregion
