@@ -307,9 +307,10 @@ export const exampleTriosState = atom<Trio[]>({
     get: async () => {
       try {
         const res = await fetch(
-          window.location.origin +
-            window.location.pathname +
-            "examples/registry.json"
+          new URL(
+            "examples/registry.json",
+            window.location.origin + window.location.pathname
+          ).href
         );
         if (!res.ok) {
           toast.error(`Could not retrieve examples: ${res.statusText}`);
