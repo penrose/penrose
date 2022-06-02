@@ -190,10 +190,8 @@ export default function DiagramPanel() {
       case "local": {
         return fetchUrl(
           new URL(
-            window.location.origin +
-              window.location.pathname +
-              "svg/" +
-              relativePath
+            relativePath,
+            window.location.origin + window.location.pathname + "svg/"
           ).href
         );
       }
