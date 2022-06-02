@@ -33,6 +33,8 @@ const compareClosestPoint = (
   //const foo = _gradFiniteDiff(newfun)([p[0].val, p[1].val]);
   //console.log("symbolic gradient", gradient, "computed gradient:", foo);
   const [x, y] = f([]).secondary;
+  console.log(`x: ${x}`);
+  console.log(`y: ${y}`);
   expect(x).toBeCloseTo(expected[0]);
   expect(y).toBeCloseTo(expected[1]);
 };
@@ -46,6 +48,12 @@ const getResult = (
     { rng: seedrandom("shape") },
     [shapeType, s],
     p
+  );
+  console.log(
+    `closestPoint(${seedrandom("shape")},[${shapeType},${JSON.stringify(
+      s
+    )}],${p})
+  ) = ${JSON.stringify(result, null, 2)}`
   );
   return result;
 };

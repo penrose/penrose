@@ -1583,11 +1583,14 @@ export const compDict = {
        * tests
        */
       const pOffset = ops.vsub(p, s.center.contents);
+      console.log(`pOffset: ${JSON.stringify(pOffset, null, 2)}`);
       const normOffset = ops.vnorm(pOffset);
+      console.log(`normOffset: ${JSON.stringify(normOffset, null, 2)}`);
       if (normOffset === 0) {
         throw Error(`P == C`);
       }
       const unitVector = ops.vdiv(pOffset, normOffset);
+      console.log(`unitVector: ${JSON.stringify(unitVector, null, 2)}`);
       const retVal = ops.vadd(
         s.center.contents,
         ops.vmul(s.r.contents, unitVector)
