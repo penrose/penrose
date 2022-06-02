@@ -4,6 +4,7 @@ import {
   stateConverged,
   stepStateSafe,
 } from "@penrose/core";
+import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
@@ -133,17 +134,37 @@ export default function DiagramPanel() {
   );
 
   /**
-   * Fetch url
+   * Fetch url, but try local storage first using a name
    *
    * @param url The url to fetch
    * @returns Promise that resolves to the fetched string or undefined if the fetch failed
    */
-  const fetchUrl = async (url: string): Promise<string | undefined> => {
+  const fetchUrl = async (
+    name: string,
+    url: string
+  ): Promise<string | undefined> => {
+    const localFilePrefix = "localfile://";
     try {
-      const fileReq = await fetch(url);
-      if (fileReq.ok) return fileReq.text();
-      else return undefined;
+      // Attempt to retrieve the resource from local storage
+      const localImage = await localforage.getItem<string>(
+        localFilePrefix + name
+      );
+      if (localImage) {
+        return localImage;
+      } else {
+        // If we did not find the resource in local storage, try to fetch it from the server
+        const httpImage = await fetch(url);
+        // Update local storage and return the resource
+        if (httpImage.ok) {
+          const httpBody = httpImage.text();
+          localforage.setItem(localFilePrefix + name, httpBody);
+          return httpBody;
+        } else {
+          return undefined;
+        }
+      }
     } catch (e) {
+      console.log(`Error fetching resource. Local name: ${name}, url: ${url}`);
       return undefined;
     }
   };
@@ -153,13 +174,17 @@ export default function DiagramPanel() {
   ): Promise<string | undefined> => {
     // Handle absolute URLs
     if (/^(http|https):\/\/[^ "]+$/.test(relativePath)) {
-      return fetchUrl(new URL(relativePath).href);
+      const url = new URL(relativePath).href;
+      return fetchUrl(url, url);
     }
 
     // Handle relative paths
     switch (location.kind) {
       case "example": {
-        return fetchUrl(new URL(relativePath, location.root).href);
+        return fetchUrl(
+          relativePath,
+          new URL(relativePath, location.root).href
+        );
       }
       case "roger": {
         if (rogerState.kind === "connected") {
@@ -186,9 +211,9 @@ export default function DiagramPanel() {
       // TODO: publish images in the gist
       case "gist":
         return undefined;
-      // TODO: cache images in local storage?
       case "local": {
         return fetchUrl(
+          relativePath,
           new URL(
             relativePath,
             window.location.origin + window.location.pathname + "svg/"
