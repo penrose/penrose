@@ -318,8 +318,10 @@ export const exampleTriosState = atom<Trio[]>({
         }
         const registry = await res.json();
         // Serve the example locally
-        registry.root =
-          window.location.origin + window.location.pathname + "examples/";
+        registry.root = new URL(
+          "examples/",
+          window.location.origin + window.location.pathname
+        );
         const trios = readRegistry(registry).map((trio: Trio) => ({
           ...trio,
           substanceURI: registry.root + trio.substanceURI,
