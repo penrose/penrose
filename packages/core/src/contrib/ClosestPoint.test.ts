@@ -69,6 +69,7 @@ export const testCircle = (
 describe("closest point", () => {
   test("circle", () => {
     // testCircle([0, 0], 3, 0, [0, 0], -3);
+    //test
     testCircle([0, 0], 3, 0, [3, 0], [3, 0]);
     testCircle([0, 0], 3, 0, [4, 0], [3, 0]);
     testCircle([0, 0], 3, 0, [-5, 0], [-3, 0]);

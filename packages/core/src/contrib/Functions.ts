@@ -1579,7 +1579,8 @@ export const compDict = {
       /**
        * Implementing formula
        * V = P-C
-       * return C+V/|V|*r
+       * return C+V/|V|*r\
+       * tests
        */
       const pOffset = ops.vsub(p, s.center.contents);
       const normOffset = ops.vnorm(pOffset);
@@ -1688,6 +1689,7 @@ export const sdEllipseAsNums = (
     abUnswizzled[1]
   );
   // float l = ab.y*ab.y - ab.x*ab.x;
+
   const l = sub(squared(ab[1]), squared(ab[0]));
   // float m = ab.x*p.x/l;
   const m = div(mul(ab[0], p[0]), l);
