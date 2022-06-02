@@ -6,9 +6,32 @@ import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
-import { Fn, Seeds, State } from "types/state";
-import { Expr, Path } from "types/style";
-import { ArgVal, Color } from "types/value";
+import { Fn, State } from "types/state";
+import { BindingForm, Expr, Path } from "types/style";
+import {
+  Context,
+  LocalVarSubst,
+  ResolvedName,
+  ResolvedPath,
+  WithContext,
+} from "types/styleSemantics";
+import {
+  BoolV,
+  Color,
+  ColorV,
+  FloatV,
+  ListV,
+  LListV,
+  MatrixV,
+  PathCmd,
+  PathDataV,
+  PtListV,
+  StrV,
+  TupV,
+  Val,
+  Value,
+  VectorV,
+} from "types/value";
 
 //#region general
 
@@ -117,27 +140,6 @@ export const randFloat = (
 
 export const randList = (rng: seedrandom.prng, n: number): number[] => {
   return repeat(n, 0).map(() => RAND_RANGE * (rng() - 0.5));
-};
-
-/**
- * From a variation string, deterministically generate all the seeds we need to
- * keep around in the State, and also return the mutated PRNG to use for any
- * remaining setup. This is temporary, and should go away in the upcoming
- * rearchitecture.
- */
-export const variationSeeds = (
-  variation: string
-): { seeds: Seeds; rng: seedrandom.prng } => {
-  const rng = seedrandom(variation);
-  const seeds = {
-    // hacky way to get string seeds that we can reuse; note, order matters
-    resample: rng().toString(),
-    prepare: rng().toString(),
-    step: rng().toString(),
-    evalEnergy: rng().toString(),
-    evalFns: rng().toString(),
-  };
-  return { rng, seeds };
 };
 
 //#endregion
@@ -392,47 +394,175 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 //#endregion
 
+//#region Value
+
+export const floatV = (contents: ad.Num): FloatV<ad.Num> => ({
+  tag: "FloatV",
+  contents,
+});
+
+export const boolV = (contents: boolean): BoolV => ({
+  tag: "BoolV",
+  contents,
+});
+
+export const strV = (contents: string): StrV => ({
+  tag: "StrV",
+  contents,
+});
+
+export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
+  tag: "PathDataV",
+  contents,
+});
+
+export const ptListV = (contents: ad.Num[][]): PtListV<ad.Num> => ({
+  tag: "PtListV",
+  contents,
+});
+
+export const colorV = (contents: Color<ad.Num>): ColorV<ad.Num> => ({
+  tag: "ColorV",
+  contents,
+});
+
+export const listV = (contents: ad.Num[]): ListV<ad.Num> => ({
+  tag: "ListV",
+  contents,
+});
+
+export const vectorV = (contents: ad.Num[]): VectorV<ad.Num> => ({
+  tag: "VectorV",
+  contents,
+});
+
+export const matrixV = (contents: ad.Num[][]): MatrixV<ad.Num> => ({
+  tag: "MatrixV",
+  contents,
+});
+
+export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
+  tag: "TupV",
+  contents,
+});
+
+export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
+  tag: "LListV",
+  contents,
+});
+
+export const black = (): ColorV<ad.Num> =>
+  colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
+
+export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
+
+//#endregion
+
 //#region Style
 
-// COMBAK: Copied from `EngineUtils`; consolidate
-export const isPath = <T>(expr: Expr<T>): expr is Path<T> => {
-  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
-    expr.tag
-  );
-};
-
-export const prettyPrintPath = (p: Expr<A>): string => {
-  if (p.tag === "FieldPath") {
-    const varName = p.name.contents.value;
-    const varField = p.field.value;
-    return [varName, varField].join(".");
-  } else if (p.tag === "PropertyPath") {
-    const varName = p.name.contents.value;
-    const varField = p.field.value;
-    const property = p.property.value;
-    return [varName, varField, property].join(".");
-  } else if (p.tag === "AccessPath") {
-    const pstr: string = prettyPrintPath(p.path);
-    const indices: string[] = p.indices.map(prettyPrintExpr);
-    return `${pstr}[${indices.toString()}]`;
-  } else {
-    console.error("unexpected path type in", p);
-    return JSON.stringify(p);
+export const resolveRhsName = (
+  { block, subst, locals }: Context,
+  name: BindingForm<A>
+): ResolvedName => {
+  const { value } = name.contents;
+  switch (name.tag) {
+    case "StyVar": {
+      if (locals.has(value)) {
+        // locals shadow selector match names
+        return { tag: "Local", block, name: value };
+      } else if (value in subst) {
+        // selector match names shadow globals
+        return { tag: "Substance", block, name: subst[value] };
+      } else {
+        // couldn't find it in context, must be a glboal
+        return { tag: "Global", block, name: value };
+      }
+    }
+    case "SubVar": {
+      return { tag: "Substance", block, name: value };
+    }
   }
 };
 
-export const prettyPrintExpr = (arg: Expr<A>): string => {
+const resolveRhsPath = (p: WithContext<Path<A>>): ResolvedPath<A> => {
+  const { name, members } = p.expr; // drop `indices`
+  return { ...resolveRhsName(p.context, name), members };
+};
+
+const blockPrefix = ({ tag, contents }: LocalVarSubst): string => {
+  switch (tag) {
+    case "LocalVarId": {
+      const [i, j] = contents;
+      return `${i}:${j}:`;
+    }
+    case "NamespaceId": {
+      // locals in a global block point to globals
+      return `${contents}.`;
+    }
+  }
+};
+
+const prettyPrintResolvedName = ({
+  tag,
+  block,
+  name,
+}: ResolvedName): string => {
+  switch (tag) {
+    case "Global": {
+      return name;
+    }
+    case "Local": {
+      return `${blockPrefix(block)}${name}`;
+    }
+    case "Substance": {
+      return `\`${name}\``;
+    }
+  }
+};
+
+export const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
+  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
+
+const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
+  switch (bf.tag) {
+    case "StyVar": {
+      return bf.contents.value;
+    }
+    case "SubVar": {
+      return `\`${bf.contents.value}\``;
+    }
+  }
+};
+
+export const prettyPrintPath = (p: Path<A>): string => {
+  const base: string = [
+    prettyPrintBindingForm(p.name),
+    ...p.members.map((m) => m.value),
+  ].join(".");
+  const indices: string[] = p.indices.map(
+    (i) => `[${prettyPrintExpr(i, prettyPrintPath)}]`
+  );
+  return [base, ...indices].join("");
+};
+
+export const prettyPrintExpr = (
+  arg: Expr<A>,
+  ppPath: (p: Path<A>) => string
+): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
-  if (isPath(arg)) {
-    return prettyPrintPath(arg);
+  if (arg.tag === "Path") {
+    return ppPath(arg);
   } else if (arg.tag === "Fix") {
     const val = arg.contents;
     return String(val);
   } else if (arg.tag === "CompApp") {
     const [fnName, fnArgs] = [arg.name.value, arg.args];
-    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
-      ""
-    );
+    return [
+      fnName,
+      "(",
+      ...fnArgs.map((arg) => prettyPrintExpr(arg, ppPath)).join(", "),
+      ")",
+    ].join("");
   } else if (arg.tag === "UOp") {
     let uOpName;
     switch (arg.op) {
@@ -440,7 +570,7 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
         uOpName = "-";
         break;
     }
-    return "(" + uOpName + prettyPrintExpr(arg.arg) + ")";
+    return "(" + uOpName + prettyPrintExpr(arg.arg, ppPath) + ")";
   } else if (arg.tag === "BinOp") {
     let binOpName;
     switch (arg.op) {
@@ -462,11 +592,11 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
     }
     return (
       "(" +
-      prettyPrintExpr(arg.left) +
+      prettyPrintExpr(arg.left, ppPath) +
       " " +
       binOpName +
       " " +
-      prettyPrintExpr(arg.right) +
+      prettyPrintExpr(arg.right, ppPath) +
       ")"
     );
   } else {
@@ -477,8 +607,16 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
 };
 
 export const prettyPrintFn = (fn: Fn): string => {
-  const name = fn.fname;
-  const args = fn.fargs.map(prettyPrintExpr).join(", ");
+  const name = fn.ast.expr.name.value;
+  const args = fn.ast.expr.args
+    .map((arg) =>
+      prettyPrintExpr(arg, (p) =>
+        prettyPrintResolvedPath(
+          resolveRhsPath({ context: fn.ast.context, expr: p })
+        )
+      )
+    )
+    .join(", ");
   return [name, "(", args, ")"].join("");
 };
 
@@ -490,12 +628,9 @@ export const prettyPrintFns = (state: State): string[] =>
 //#region autodiff
 
 // From Evaluator
-export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
+export const val = (v: Value<ad.Num>): Val<ad.Num> => ({
   tag: "Val",
-  contents: {
-    tag: "FloatV",
-    contents: v,
-  },
+  contents: v,
 });
 
 export const linePts = ({ start, end }: LineProps): [ad.Num[], ad.Num[]] => [

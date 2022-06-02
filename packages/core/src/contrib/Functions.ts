@@ -53,10 +53,10 @@ import * as BBox from "engine/BBox";
 import * as _ from "lodash";
 import { range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
-import seedrandom from "seedrandom";
 import { Ellipse } from "shapes/Ellipse";
 import { Line } from "shapes/Line";
 import { Polyline } from "shapes/Polyline";
+import { Context, uniform } from "shapes/Samplers";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
@@ -68,19 +68,16 @@ import {
   PtListV,
   StrV,
   TupV,
+  Value,
   VectorV,
 } from "types/value";
-import { getStart, linePts, randFloat } from "utils/Util";
+import { getStart, linePts } from "utils/Util";
 
 /**
  * Static dictionary of computation functions
  * TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
  * TODO: think about user extension of computation dict and evaluation of functions in there
  */
-
-export interface Context {
-  rng: seedrandom.prng;
-}
 
 // NOTE: These all need to be written in terms of autodiff types
 // These all return a Value<ad.Num>
@@ -1057,12 +1054,12 @@ export const compDict = {
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
   sampleColor: (
-    context: Context,
+    { makeInput }: Context,
     alpha: ad.Num,
     colorType: string
   ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
-      const rgb = range(3).map(() => randFloat(context.rng, 0.1, 0.9));
+      const rgb = range(3).map(() => makeInput({ sampler: uniform(0.1, 0.9) }));
 
       return {
         tag: "ColorV",
@@ -1072,7 +1069,7 @@ export const compDict = {
         },
       };
     } else if (colorType === "hsv") {
-      const h = randFloat(context.rng, 0, 360);
+      const h = makeInput({ sampler: uniform(0, 360) });
       return {
         tag: "ColorV",
         contents: {
@@ -1752,13 +1749,12 @@ export const sdEllipseAsNums = (
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
-// _compDictVals causes TypeScript to enforce that every function in compDict
-// takes a Context as its first parameter
-
+// `_compDictVals` causes TypeScript to enforce that every function in
+// `compDict` takes a `Context` as its first parameter and returns a `Value`
 const _compDictVals: ((
   context: Context,
   ...rest: never[]
-) => unknown)[] = Object.values(compDict);
+) => Value<ad.Num>)[] = Object.values(compDict);
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {

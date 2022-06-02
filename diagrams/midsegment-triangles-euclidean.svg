@@ -1,582 +1,22 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid">
-    <marker
-      id="GJF.RP-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="GJF.RP-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 627.8796870539469 139.82405399600012 L 461.8373321867523 258.215069900891"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>GJF.RP</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="GJF.QR-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="GJF.QR-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 579.0443314970908 118.65506520409093 L 627.8796870539469 139.82405399600012"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>GJF.QR</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="GJF.PQ-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="GJF.PQ-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 461.8373321867523 258.215069900891 L 579.0443314970908 118.65506520409093"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>GJF.PQ</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="DEF.RP-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="DEF.RP-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 627.8796870539469 139.82405399600012 L 530.2089759402345 97.48607641218177"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>DEF.RP</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="DEF.QR-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="DEF.QR-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 393.4656884332701 418.9440633896003 L 627.8796870539469 139.82405399600012"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>DEF.QR</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="DEF.PQ-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="DEF.PQ-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 530.2089759402345 97.48607641218177 L 393.4656884332701 418.9440633896003"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>DEF.PQ</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="aGFJ.side2-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#8c90c1"
-        fill-opacity="0.4"
-      ></path>
-    </marker>
-    <marker
-      id="aGFJ.side2-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#8c90c1"
-        fill-opacity="0.4"
-      ></path>
-    </marker>
-    <path
-      d="M 627.8796870539469 139.82405399600012 L 579.0443314970908 118.65506520409093"
-      stroke-opacity="0.4"
-      stroke-width="1.75"
-      stroke="#8c90c1"
-      stroke-linecap="butt"
-    ></path>
-    <title>aGFJ.side2</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="aGFJ.side1-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#8c90c1"
-        fill-opacity="0.4"
-      ></path>
-    </marker>
-    <marker
-      id="aGFJ.side1-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#8c90c1"
-        fill-opacity="0.4"
-      ></path>
-    </marker>
-    <path
-      d="M 461.8373321867523 258.215069900891 L 627.8796870539469 139.82405399600012"
-      stroke-opacity="0.4"
-      stroke-width="1.75"
-      stroke="#8c90c1"
-      stroke-linecap="butt"
-    ></path>
-    <title>aGFJ.side1</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="HK.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="HK.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 520.4408318419215 188.43506755249098 L 544.8585096203497 199.01956194844558"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>HK.icon</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="GJ.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="GJ.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 461.8373321867523 258.215069900891 L 579.0443314970908 118.65506520409093"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>GJ.icon</title>
-  </g>
-  <g
-    transform="rotate(0, 534.1580015188998, 172.85956129872804)translate(534.1580015188998, 172.85956129872804)"
-    string="K"
-  >
-    <title>K.text</title>
-    <svg
-      style="font-size: 13.5px"
-      xmlns="http://www.w3.org/2000/svg"
-      width="17.03324"
-      height="19.16"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 889 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D43E"
-                    d="M285 628Q285 635 228 637Q205 637 198 638T191 647Q191 649 193 661Q199 681 203 682Q205 683 214 683H219Q260 681 355 681Q389 681 418 681T463 682T483 682Q500 682 500 674Q500 669 497 660Q496 658 496 654T495 648T493 644T490 641T486 639T479 638T470 637T456 637Q416 636 405 634T387 623L306 305Q307 305 490 449T678 597Q692 611 692 620Q692 635 667 637Q651 637 651 648Q651 650 654 662T659 677Q662 682 676 682Q680 682 711 681T791 680Q814 680 839 681T869 682Q889 682 889 672Q889 650 881 642Q878 637 862 637Q787 632 726 586Q710 576 656 534T556 455L509 418L518 396Q527 374 546 329T581 244Q656 67 661 61Q663 59 666 57Q680 47 717 46H738Q744 38 744 37T741 19Q737 6 731 0H720Q680 3 625 3Q503 3 488 0H478Q472 6 472 9T474 27Q478 40 480 43T491 46H494Q544 46 544 71Q544 75 517 141T485 216L427 354L359 301L291 248L268 155Q245 63 245 58Q245 51 253 49T303 46H334Q340 37 340 35Q340 19 333 5Q328 0 317 0Q314 0 280 1T180 2Q118 2 85 2T49 1Q31 1 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="544.8585096203497"
-    cy="199.01956194844558"
+    cx="479.01135644117846"
+    cy="471.2543940011943"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
   >
-    <title>K.icon</title>
+    <title>`G`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 581.4141937352571, 125.24169772681562)translate(581.4141937352571, 125.24169772681562)"
-    string="J"
-  >
-    <title>J.text</title>
-    <svg
-      style="font-size: 13.5px"
-      xmlns="http://www.w3.org/2000/svg"
-      width="12.12828"
-      height="19.16"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 633 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D43D"
-                    d="M447 625Q447 637 354 637H329Q323 642 323 645T325 664Q329 677 335 683H352Q393 681 498 681Q541 681 568 681T605 682T619 682Q633 682 633 672Q633 670 630 658Q626 642 623 640T604 637Q552 637 545 623Q541 610 483 376Q420 128 419 127Q397 64 333 21T195 -22Q137 -22 97 8T57 88Q57 130 80 152T132 174Q177 174 182 130Q182 98 164 80T123 56Q115 54 115 53T122 44Q148 15 197 15Q235 15 271 47T324 130Q328 142 387 380T447 625Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="579.0443314970908"
-    cy="118.65506520409093"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>J.icon</title>
-  </circle>
-  <g
-    transform="rotate(0, 496.69067985793953, 167.37103389323266)translate(496.69067985793953, 167.37103389323266)"
-    string="H"
-  >
-    <title>H.text</title>
-    <svg
-      style="font-size: 13.5px"
-      xmlns="http://www.w3.org/2000/svg"
-      width="17.01408"
-      height="19.16"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 888 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D43B"
-                    d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="520.4408318419215"
-    cy="188.43506755249098"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>H.icon</title>
-  </circle>
-  <g
-    transform="rotate(0, 467.75741768366413, 261.95038797389776)translate(467.75741768366413, 261.95038797389776)"
+    transform="rotate(0, 484.7434730319198, 475.27220791084795)translate(484.7434730319198, 475.27220791084795)"
     string="G"
   >
-    <title>G.text</title>
+    <title>`G`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
@@ -613,21 +53,72 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="461.8373321867523"
-    cy="258.215069900891"
+    cx="412.3309714014283"
+    cy="374.4004640096023"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
   >
-    <title>G.icon</title>
+    <title>`K`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 628.9815020611866, 146.73679811676425)translate(628.9815020611866, 146.73679811676425)"
+    transform="rotate(0, 394.5090537851533, 348.2850358838364)translate(394.5090537851533, 348.2850358838364)"
+    string="K"
+  >
+    <title>`K`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.03324"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 889 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43E"
+                    d="M285 628Q285 635 228 637Q205 637 198 638T191 647Q191 649 193 661Q199 681 203 682Q205 683 214 683H219Q260 681 355 681Q389 681 418 681T463 682T483 682Q500 682 500 674Q500 669 497 660Q496 658 496 654T495 648T493 644T490 641T486 639T479 638T470 637T456 637Q416 636 405 634T387 623L306 305Q307 305 490 449T678 597Q692 611 692 620Q692 635 667 637Q651 637 651 648Q651 650 654 662T659 677Q662 682 676 682Q680 682 711 681T791 680Q814 680 839 681T869 682Q889 682 889 672Q889 650 881 642Q878 637 862 637Q787 632 726 586Q710 576 656 534T556 455L509 418L518 396Q527 374 546 329T581 244Q656 67 661 61Q663 59 666 57Q680 47 717 46H738Q744 38 744 37T741 19Q737 6 731 0H720Q680 3 625 3Q503 3 488 0H478Q472 6 472 9T474 27Q478 40 480 43T491 46H494Q544 46 544 71Q544 75 517 141T485 216L427 354L359 301L291 248L268 155Q245 63 245 58Q245 51 253 49T303 46H334Q340 37 340 35Q340 19 333 5Q328 0 317 0Q314 0 280 1T180 2Q118 2 85 2T49 1Q31 1 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="345.65058636167817"
+    cy="277.5465340180102"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`F`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 352.0022307326486, 280.4887477541974)translate(352.0022307326486, 280.4887477541974)"
     string="F"
   >
-    <title>F.text</title>
+    <title>`F`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
@@ -664,21 +155,72 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="627.8796870539469"
-    cy="139.82405399600012"
+    cx="287.7838893745142"
+    cy="413.97526284237074"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
   >
-    <title>F.icon</title>
+    <title>`J`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 373.317876439614, 423.2620053843389)translate(373.317876439614, 423.2620053843389)"
+    transform="rotate(0, 269.09421286738444, 416.4141314836343)translate(269.09421286738444, 416.4141314836343)"
+    string="J"
+  >
+    <title>`J`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.12828"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 633 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43D"
+                    d="M447 625Q447 637 354 637H329Q323 642 323 645T325 664Q329 677 335 683H352Q393 681 498 681Q541 681 568 681T605 682T619 682Q633 682 633 672Q633 670 630 658Q626 642 623 640T604 637Q552 637 545 623Q541 610 483 376Q420 128 419 127Q397 64 333 21T195 -22Q137 -22 97 8T57 88Q57 130 80 152T132 174Q177 174 182 130Q182 98 164 80T123 56Q115 54 115 53T122 44Q148 15 197 15Q235 15 271 47T324 130Q328 142 387 380T447 625Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="728.1055204950067"
+    cy="392.10479633565745"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`E`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 706.5474423751044, 371.88847501787455)translate(706.5474423751044, 371.88847501787455)"
     string="E"
   >
-    <title>E.text</title>
+    <title>`E`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
@@ -715,21 +257,72 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="393.4656884332701"
-    cy="418.9440633896003"
+    cx="383.3976229078463"
+    cy="442.61482842178253"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
   >
-    <title>E.icon</title>
+    <title>`H`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 513.1939952336211, 71.42127139031679)translate(513.1939952336211, 71.42127139031679)"
+    transform="rotate(0, 387.14659902122906, 417.54338454964216)translate(387.14659902122906, 417.54338454964216)"
+    string="H"
+  >
+    <title>`H`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.01408"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 888 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43B"
+                    d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="229.91719238735027"
+    cy="550.4039916667313"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`D`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 235.99868007226087, 553.8703309187716)translate(235.99868007226087, 553.8703309187716)"
     string="D"
   >
-    <title>D.text</title>
+    <title>`D`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
@@ -763,17 +356,424 @@
       </g>
     </svg>
   </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="530.2089759402345"
-    cy="97.48607641218177"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>D.icon</title>
-  </circle>
+  <g style="solid">
+    <marker
+      id="`GJ`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`GJ`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 479.01135644117846 471.2543940011943 L 287.7838893745142 413.97526284237074"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`GJ`.icon</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`HK`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`HK`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 383.3976229078463 442.61482842178253 L 412.3309714014283 374.4004640096023"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`HK`.icon</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`GJF`.PQ-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`GJF`.PQ-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 479.01135644117846 471.2543940011943 L 287.7838893745142 413.97526284237074"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`GJF`.PQ</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`GJF`.QR-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`GJF`.QR-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 287.7838893745142 413.97526284237074 L 345.65058636167817 277.5465340180102"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`GJF`.QR</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`GJF`.RP-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`GJF`.RP-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 345.65058636167817 277.5465340180102 L 479.01135644117846 471.2543940011943"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`GJF`.RP</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`DEF`.PQ-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`DEF`.PQ-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 229.91719238735027 550.4039916667313 L 728.1055204950067 392.10479633565745"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`DEF`.PQ</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`DEF`.QR-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`DEF`.QR-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 728.1055204950067 392.10479633565745 L 345.65058636167817 277.5465340180102"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`DEF`.QR</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`DEF`.RP-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`DEF`.RP-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 345.65058636167817 277.5465340180102 L 229.91719238735027 550.4039916667313"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`DEF`.RP</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`aGFJ`.side1-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="0.4"
+      ></path>
+    </marker>
+    <marker
+      id="`aGFJ`.side1-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="0.4"
+      ></path>
+    </marker>
+    <path
+      d="M 479.01135644117846 471.2543940011943 L 345.65058636167817 277.5465340180102"
+      stroke-opacity="0.4"
+      stroke-width="1.75"
+      stroke="#8c90c1"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aGFJ`.side1</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`aGFJ`.side2-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="0.4"
+      ></path>
+    </marker>
+    <marker
+      id="`aGFJ`.side2-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="0.4"
+      ></path>
+    </marker>
+    <path
+      d="M 345.65058636167817 277.5465340180102 L 287.7838893745142 413.97526284237074"
+      stroke-opacity="0.4"
+      stroke-width="1.75"
+      stroke="#8c90c1"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aGFJ`.side2</title>
+  </g>
 </svg>

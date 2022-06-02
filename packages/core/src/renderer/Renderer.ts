@@ -27,8 +27,6 @@ export interface ShapeProps {
 
 /**
  * Turns Shape GPI data into a corresponding SVG element
- * @param shape
- * @param labels
  */
 export const RenderShape = async ({
   shape,
@@ -66,8 +64,6 @@ const getPosition = (e: MouseEvent, svg: SVGSVGElement) => {
 
 /**
  * Makes a shape draggable. Browser only.
- * @param shape
- * @param labels
  * @param onDrag callback when drag complete
  * @param parentSVG
  * @param canvasSizeCustom
@@ -142,7 +138,7 @@ export const RenderInteractive = async (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  for (const shape of state.shapes) {
+  for (const shape of state.computeShapes(state.varyingValues)) {
     svg.appendChild(
       await DraggableShape(
         {
@@ -161,21 +157,19 @@ export const RenderInteractive = async (
 
 /**
  * Renders a static SVG of the shapes and labels.
- * @param shapes
- * @param labels
  * @param pathResolver Resolves paths to static strings
  */
 export const RenderStatic = async (
   state: State,
   pathResolver: PathResolver
 ): Promise<SVGSVGElement> => {
-  const { shapes, labelCache: labels, canvas } = state;
+  const { varyingValues, computeShapes, labelCache: labels, canvas } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
   return Promise.all(
-    shapes.map((shape) =>
+    computeShapes(varyingValues).map((shape) =>
       RenderShape({
         shape,
         labels,

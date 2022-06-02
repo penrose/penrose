@@ -1,38 +1,38 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <polygon
-    fill="#4e97a0"
+    fill="#4951bb"
     fill-opacity="0.5"
     stroke="none"
     transform="scale(1)"
-    points="458.6318653865245,326.57914777373577,488.33295619764834,288.78004748798,440.8129519692555,281.91963402517547"
+    points="458.6988049405304,326.7468776843961,440.8729589943977,282.04224742208964,488.3829506211142,288.99322297880076"
   >
-    <title>T3.icon</title>
+    <title>`T3`.icon</title>
   </polygon>
   <polygon
-    fill="#9b57d6"
+    fill="#6c3498"
     fill-opacity="0.5"
     stroke="none"
     transform="scale(1)"
-    points="458.642304096809,326.60517936869974,506.3510925900438,333.1786671517809,488.3656397262402,288.7793733106809"
+    points="355.4650582691761,192.52476381532367,346.09839101006617,145.50863699594703,391.7230568181574,161.00361940881416"
   >
-    <title>T2.icon</title>
+    <title>`T1`.icon</title>
   </polygon>
   <polygon
-    fill="#a7afa7"
+    fill="#d438e0"
     fill-opacity="0.5"
     stroke="none"
     transform="scale(1)"
-    points="458.64822269349196,326.61957566623784,476.75365425444966,371.16903518567,506.22732663159724,333.22780941097653"
+    points="434.14947534836307,451.950264231318,436.11782373401456,499.8937017743285,393.4853745123147,477.550813259713"
   >
-    <title>T1.icon</title>
+    <title>`T2`.icon</title>
   </polygon>
   <polygon
-    fill="#85866e"
+    fill="#7833aa"
     fill-opacity="0.5"
     stroke="none"
     transform="scale(1)"
     points="375,280,400,380,350,380,350,345,290,405,260,510,500,430,400,180,80,270"
   >
-    <title>M.icon</title>
+    <title>`M`.icon</title>
   </polygon>
 </svg>

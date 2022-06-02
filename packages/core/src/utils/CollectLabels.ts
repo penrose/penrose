@@ -4,9 +4,12 @@ import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
+import { InputMeta } from "shapes/Samplers";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
+import * as ad from "types/ad";
 import { PenroseError } from "types/errors";
-import { Shape } from "types/shape";
-import { EquationData, LabelCache, LabelData, TextData } from "types/state";
+import { Properties, ShapeAD } from "types/shape";
+import { EquationData, LabelCache, State, TextData } from "types/state";
 import { FloatV } from "types/value";
 import { err, ok, Result } from "./Error";
 
@@ -90,18 +93,6 @@ const tex2svg = async (
     resolve(ok({ body, width: scaledWidth, height: constHeight }));
   });
 
-export const retrieveLabel = (
-  shapeName: string,
-  labels: LabelCache
-): LabelData | undefined => {
-  const res = labels.find(([name]) => name === shapeName);
-  if (res) {
-    return res[1];
-  } else {
-    return undefined;
-  }
-};
-
 const floatV = (contents: number): FloatV<number> => ({
   tag: "FloatV",
   contents,
@@ -139,7 +130,7 @@ const equationData = (
  *
  * @returns a CSS rule string of its font settings
  */
-export const toFontRule = ({ properties }: Shape): string => {
+export const toFontRule = ({ properties }: ShapeAD): string => {
   const fontFamily = properties.fontFamily.contents as string;
   const fontSize = properties.fontSize.contents as string;
   const fontStretch = properties.fontStretch.contents as string;
@@ -165,9 +156,9 @@ export const toFontRule = ({ properties }: Shape): string => {
 
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
-  allShapes: Shape[]
+  allShapes: ShapeAD[]
 ): Promise<Result<LabelCache, PenroseError>> => {
-  const labels: LabelCache = [];
+  const labels: LabelCache = new Map();
   for (const s of allShapes) {
     const { shapeType, properties } = s;
     if (shapeType === "Equation" || shapeType === "EquationTransform") {
@@ -196,7 +187,7 @@ export const collectLabels = async (
         height === Infinity ? 0 : height,
         body
       );
-      labels.push([shapeName, label]);
+      labels.set(shapeName, label);
     } else if (shapeType === "Text") {
       const shapeName: string = properties.name.contents as string;
       let label: TextData;
@@ -217,7 +208,7 @@ export const collectLabels = async (
       } else {
         label = textData(0, 0, 0, 0);
       }
-      labels.push([shapeName, label]);
+      labels.set(shapeName, label);
     }
   }
   return ok(labels);
@@ -259,3 +250,45 @@ export function measureText(text: string, font: string): TextMeasurement {
 }
 
 //#endregion
+
+const setPendingProperty = (
+  properties: Properties<ad.Num>,
+  propertyID: string,
+  newValue: FloatV<number>,
+  xs: number[],
+  meta: InputMeta[]
+) => {
+  const value = properties[propertyID];
+  if (value.tag === "FloatV") {
+    const x = value.contents;
+    if (
+      typeof x !== "number" &&
+      x.tag === "Input" &&
+      "pending" in meta[x.key]
+    ) {
+      xs[x.key] = newValue.contents;
+    }
+  }
+};
+
+export const insertPending = (state: State): State => {
+  const varyingValues = [...state.varyingValues];
+  for (const { shapeType, properties } of state.shapes) {
+    const shapedef: ShapeDef = shapedefs[shapeType];
+    if (properties.name.tag === "StrV") {
+      const labelData = state.labelCache.get(properties.name.contents);
+      if (labelData !== undefined) {
+        for (const propertyID of shapedef.pendingProps) {
+          setPendingProperty(
+            properties,
+            propertyID,
+            labelData[propertyID],
+            varyingValues,
+            state.inputs
+          );
+        }
+      }
+    }
+  }
+  return { ...state, varyingValues };
+};
