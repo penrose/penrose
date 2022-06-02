@@ -1554,11 +1554,57 @@ export const compDict = {
     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
   },
 
+  /**
+   * Helper function for closestPoint to calculate closest point of rectangle by comparing
+   * min abs vals between point vs edge of rectangle
+   */
+  minComp: (
+    _context: Context,
+    p1: ad.Num[], //Rectangle corner in 1st quadrant
+    p2: ad.Num[], //Point coordinates
+    center: ad.Num[]
+  ): VectorV<ad.Num> => {
+    p2 = ops.vsub(p2, center);
+    const X = absVal(p1[0]) < absVal(p2[0]) ? p1[0] : p2[0];
+    const Y = absVal(p1[1]) < absVal(p2[1]) ? p1[1] : p2[1];
+    return { tag: "VectorV", contents: ops.vadd([X, Y], center) };
+  },
+
   closestPoint: (
     _context: Context,
     [t, s]: [string, any],
     p: ad.Num[]
   ): VectorV<ad.Num> => {
+    if (t === "Circle") {
+      /**
+       * Implementing formula
+       * V = P-C
+       * return C+V/|V|*r
+       */
+      const pOffset = ops.vsub(p, s.center.contents);
+      const normOffset = ops.vnorm(pOffset);
+      if (normOffset === 0) {
+        throw Error(`P == C`);
+      }
+      const unitVector = ops.vdiv(pOffset, normOffset);
+      const retVal = ops.vadd(
+        s.center.contents,
+        ops.vmul(s.r.contents, unitVector)
+      );
+      return { tag: "VectorV", contents: retVal };
+    } else if (
+      t === "Rectangle" ||
+      t === "Text" ||
+      t === "Equation" ||
+      t === "Image"
+    ) {
+      return compDict.minComp(
+        _context,
+        [s.width, s.height],
+        p,
+        s.center.contents
+      );
+    }
     return { tag: "VectorV", contents: [] };
   },
 };
