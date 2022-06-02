@@ -29,7 +29,8 @@
       "substance": "allShapes",
       "style": "dashedShapes",
       "domain": "shape-spec",
-      "variation": ""
+      "variation": "",
+      "showInIDE": false
     },
     {
       "substance": "small-graph",

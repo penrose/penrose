@@ -260,6 +260,7 @@ export const readRegistry = (registry: Registry): Trio[] => {
     domain: dslID,
     style: styID,
     substance: subID,
+    showInIDE: IDEBool,
     variation,
   } of trios) {
     const domain = domains[dslID];
@@ -274,6 +275,7 @@ export const readRegistry = (registry: Registry): Trio[] => {
       domainName: domain.name,
       variation,
       name: `${subID}-${styID}`,
+      showInIDE: IDEBool,
     };
     res.push(trio);
   }

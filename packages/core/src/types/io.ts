@@ -10,6 +10,7 @@ export interface Trio {
   domainName: string;
   variation: string;
   name: string;
+  showInIDE: boolean;
 }
 
 /**
@@ -26,5 +27,6 @@ export interface Registry {
     domain: string;
     variation: string;
     meta?: string;
+    showInIDE: boolean;
   }[];
 }

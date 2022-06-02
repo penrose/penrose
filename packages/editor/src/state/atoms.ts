@@ -314,12 +314,14 @@ export const exampleTriosState = atom<Trio[]>({
           return [];
         }
         const registry = await res.json();
-        const trios = readRegistry(registry).map((trio: Trio) => ({
-          ...trio,
-          substanceURI: registry.root + trio.substanceURI,
-          styleURI: registry.root + trio.styleURI,
-          domainURI: registry.root + trio.domainURI,
-        }));
+        const trios = readRegistry(registry)
+          .filter((e) => "showInIDE" in e && e.showInIDE)
+          .map((trio: Trio) => ({
+            ...trio,
+            substanceURI: registry.root + trio.substanceURI,
+            styleURI: registry.root + trio.styleURI,
+            domainURI: registry.root + trio.domainURI,
+          }));
         return trios;
       } catch (err) {
         toast.error(`Could not retrieve examples: ${err}`);
