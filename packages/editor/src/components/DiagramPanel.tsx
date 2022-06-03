@@ -43,7 +43,7 @@ export default function DiagramPanel() {
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  const { location } = useRecoilValue(workspaceMetadataSelector);
+  const { location, id } = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
 
   const requestRef = useRef<number>();
@@ -145,7 +145,7 @@ export default function DiagramPanel() {
     name: string,
     url?: string
   ): Promise<string | undefined> => {
-    const localFilePrefix = "localfile://";
+    const localFilePrefix = "localfile://" + id + "/";
     try {
       // Attempt to retrieve the resource from local storage
       const localImage = await localforage.getItem<string>(
