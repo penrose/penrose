@@ -98,7 +98,7 @@ export function ActiveTeamRow(): JSX.Element {
       <TeamProfileCardCol
         name="Brad Myers"
         role="Professor @ CMU"
-        websiteUrl="https://www.cs.cmku.edu/~bam/"
+        websiteUrl="https://www.cs.cmu.edu/~bam/"
         githubUrl="https://github.com/bradamyers"
       />
       <TeamProfileCardCol
