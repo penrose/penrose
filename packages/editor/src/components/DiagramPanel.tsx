@@ -134,14 +134,16 @@ export default function DiagramPanel() {
   );
 
   /**
-   * Fetch url, but try local storage first using a name
+   * Fetch url, but try local storage first using a name.
+   * Update local storage if the file is fetched via url
    *
-   * @param url The url to fetch
+   * @param name The short name of the file to fetch
+   * @param url The url to fetch, if not found locally
    * @returns Promise that resolves to the fetched string or undefined if the fetch failed
    */
-  const fetchUrl = async (
+  const fetchResource = async (
     name: string,
-    url: string
+    url?: string
   ): Promise<string | undefined> => {
     const localFilePrefix = "localfile://";
     try {
@@ -152,14 +154,18 @@ export default function DiagramPanel() {
       if (localImage) {
         return localImage;
       } else {
-        // If we did not find the resource in local storage, try to fetch it from the server
-        const httpImage = await fetch(url);
+        // Return undefined if there is no url and not hit in local storage
+        if (!url) return undefined;
+
+        // Try to fetch it by url
+        const httpResource = await fetch(url);
         // Update local storage and return the resource
-        if (httpImage.ok) {
-          const httpBody = httpImage.text();
+        if (httpResource.ok) {
+          const httpBody = httpResource.text();
           localforage.setItem(localFilePrefix + name, httpBody);
           return httpBody;
         } else {
+          console.log(`HTTP status ${httpResource.status} for ${url}`);
           return undefined;
         }
       }
@@ -175,13 +181,13 @@ export default function DiagramPanel() {
     // Handle absolute URLs
     if (/^(http|https):\/\/[^ "]+$/.test(relativePath)) {
       const url = new URL(relativePath).href;
-      return fetchUrl(url, url);
+      return fetchResource(url, url);
     }
 
     // Handle relative paths
     switch (location.kind) {
       case "example": {
-        return fetchUrl(
+        return fetchResource(
           relativePath,
           new URL(relativePath, location.root).href
         );
@@ -212,13 +218,7 @@ export default function DiagramPanel() {
       case "gist":
         return undefined;
       case "local": {
-        return fetchUrl(
-          relativePath,
-          new URL(
-            relativePath,
-            window.location.origin + window.location.pathname + "svg/"
-          ).href
-        );
+        return fetchResource(relativePath);
       }
     }
   };

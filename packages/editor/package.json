@@ -6,9 +6,9 @@
     "start": "vite",
     "dev": "vite",
     "watch": "vite",
-    "clean": "rimraf dist;rimraf public/svg;rimraf public/examples",
+    "clean": "rimraf dist public/examples",
     "typecheck": "tsc --noEmit",
-    "build": "shx mkdir -p ./public/svg/;shx cp ../examples/src/*/*.svg ./public/svg;shx mkdir -p ./public/examples/;shx cp -r ../examples/src/* ./public/examples/;NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build": "shx mkdir -p ./public/examples/;shx cp -r ../examples/src/* ./public/examples/;NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
   "dependencies": {
