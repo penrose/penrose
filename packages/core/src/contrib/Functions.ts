@@ -1603,18 +1603,6 @@ export const compDict = {
     }
     return { tag: "VectorV", contents: [] };
   },
-  addPtsTest: (
-    _context: Context,
-    [t, s]: [string, any],
-    p1: [ad.Num, ad.Num],
-    p2: [ad.Num, ad.Num]
-  ): VectorV<ad.Num> => {
-    if (t === "Circle") {
-      const p3 = ops.vadd(p1, p2);
-      return { tag: "VectorV", contents: p3 };
-    }
-    return { tag: "VectorV", contents: [] };
-  },
 };
 
 /*

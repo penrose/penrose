@@ -22,22 +22,6 @@ const compareClosestPoint = (
   expect(y).toBeCloseTo(expected[1]);
 };
 
-const compareAddPt = (
-  shapeType: string,
-  shape: any,
-  p1: [number, number],
-  p2: [number, number],
-  expected: [number, number]
-) => {
-  const context = simpleContext("add pt");
-  const result = compDict.addPtsTest(context, [shapeType, shape], p1, p2);
-  const g = secondaryGraph(result.contents);
-  const f = genCode(g);
-  const [x, y] = f([]).secondary;
-  expect(x).toBeCloseTo(expected[0]);
-  expect(y).toBeCloseTo(expected[1]);
-};
-
 export const testCircle = (
   center: number[],
   radius: number,
@@ -56,11 +40,6 @@ export const testCircle = (
 };
 
 describe("closest point", () => {
-  test("addPt", () => {
-    compareAddPt("Circle", null, [1, 1], [2, 2], [3, 3]);
-    compareAddPt("Circle", null, [1, 1], [3, 3], [4, 4]);
-  });
-
   test("circle", () => {
     testCircle([0, 0], 3, 0, [3, 0], [3, 0]);
     testCircle([0, 0], 3, 0, [4, 0], [3, 0]);
