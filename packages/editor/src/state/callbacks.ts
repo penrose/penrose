@@ -120,7 +120,6 @@ const _saveLocally = (set: any) => {
   console.info("saving locally...");
   set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
     ...state,
-    id: uuid(),
     location: { kind: "local", saved: true } as WorkspaceLocation,
   }));
 };

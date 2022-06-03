@@ -4,6 +4,7 @@ import {
   stateConverged,
   stepStateSafe,
 } from "@penrose/core";
+import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
@@ -42,7 +43,7 @@ export default function DiagramPanel() {
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  const { location } = useRecoilValue(workspaceMetadataSelector);
+  const { location, id } = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
 
   const requestRef = useRef<number>();
@@ -132,26 +133,64 @@ export default function DiagramPanel() {
     [state]
   );
 
+  /**
+   * Fetch url, but try local storage first using a name.
+   * Update local storage if the file is fetched via url
+   *
+   * @param name The short name of the file to fetch
+   * @param url The url to fetch, if not found locally
+   * @returns Promise that resolves to the fetched string or undefined if the fetch failed
+   */
+  const fetchResource = async (
+    name: string,
+    url?: string
+  ): Promise<string | undefined> => {
+    const localFilePrefix = "localfile://" + id + "/";
+    try {
+      // Attempt to retrieve the resource from local storage
+      const localImage = await localforage.getItem<string>(
+        localFilePrefix + name
+      );
+      if (localImage) {
+        return localImage;
+      } else {
+        // Return undefined if there is no url and not hit in local storage
+        if (!url) return undefined;
+
+        // Try to fetch it by url
+        const httpResource = await fetch(url);
+        // Update local storage and return the resource
+        if (httpResource.ok) {
+          const httpBody = httpResource.text();
+          localforage.setItem(localFilePrefix + name, httpBody);
+          return httpBody;
+        } else {
+          console.log(`HTTP status ${httpResource.status} for ${url}`);
+          return undefined;
+        }
+      }
+    } catch (e) {
+      console.log(`Error fetching resource. Local name: ${name}, url: ${url}`);
+      return undefined;
+    }
+  };
+
   const pathResolver = async (
     relativePath: string
   ): Promise<string | undefined> => {
     // Handle absolute URLs
     if (/^(http|https):\/\/[^ "]+$/.test(relativePath)) {
-      const fileURL = new URL(relativePath).href;
-      try {
-        const fileReq = await fetch(fileURL);
-        return fileReq.text();
-      } catch (e) {
-        return undefined;
-      }
+      const url = new URL(relativePath).href;
+      return fetchResource(url, url);
     }
 
     // Handle relative paths
     switch (location.kind) {
       case "example": {
-        const fileURL = new URL(relativePath, location.root).href;
-        const fileReq = await fetch(fileURL);
-        return fileReq.text();
+        return fetchResource(
+          relativePath,
+          new URL(relativePath, location.root).href
+        );
       }
       case "roger": {
         if (rogerState.kind === "connected") {
@@ -177,9 +216,10 @@ export default function DiagramPanel() {
       }
       // TODO: publish images in the gist
       case "gist":
-      // TODO: cache images in local storage?
-      case "local":
         return undefined;
+      case "local": {
+        return fetchResource(relativePath);
+      }
     }
   };
 
