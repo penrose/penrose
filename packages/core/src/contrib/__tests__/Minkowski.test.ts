@@ -9,10 +9,10 @@ import {
 import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import seedrandom from "seedrandom";
 import { makeEllipse } from "shapes/Ellipse";
-import { floatV, makeCanvas, sampleBlack, vectorV } from "shapes/Samplers";
+import { makeCanvas, simpleContext } from "shapes/Samplers";
 import * as ad from "types/ad";
+import { black, floatV, vectorV } from "utils/Util";
 
 const digitPrecision = 4;
 
@@ -249,12 +249,12 @@ describe("toImplicit", () => {
   });
 
   test("ellipseToImplicit", async () => {
-    let ellipse = makeEllipse(seedrandom("Test"), makeCanvas(800, 700), {
+    let ellipse = makeEllipse(simpleContext("Test"), makeCanvas(800, 700), {
       rx: floatV(6),
       ry: floatV(3),
       center: vectorV([-11, 22]),
       strokeWidth: floatV(0),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     });
     let result = ellipseToImplicit(ellipse);
     let [a, b, c, x, y] = numsOf([

@@ -127,7 +127,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       };
 
       try {
-        // resample because initial sampling did not use the special sampling seed
         const energy = evalEnergy(await prepareState(crossState));
         this.setState({
           energy: Math.round(energy),

@@ -1,91 +1,4 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid">
-    <marker
-      id="s2.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="s2.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 701.2518179408248 297.6749913514847 L 618.3346362147452 56.491227069513684"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-      marker-start="url(#s2.icon-leftArrowhead)"
-      marker-end="url(#s2.icon-rightArrowhead)"
-    ></path>
-    <title>s2.icon</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="s1.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="s1.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 691.250120059538 268.58274419589804 L 532.3051221418042 420.3763350795135"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-      marker-end="url(#s1.icon-rightArrowhead)"
-    ></path>
-    <title>s1.icon</title>
-  </g>
   <rect
     x="50"
     y="0"
@@ -99,64 +12,26 @@
     rx="0"
     transform="rotate(0, 50, 0)"
   >
-    <title>R.icon</title>
+    <title>`R`.icon</title>
   </rect>
-  <g
-    transform="rotate(0, 561.5529299404105, 381.68068612465356)translate(561.5529299404105, 381.68068612465356)"
-    string="E"
-  >
-    <title>E.text</title>
-    <svg
-      style="font-size: 13.5px"
-      xmlns="http://www.w3.org/2000/svg"
-      width="14.63824"
-      height="19.16"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 764 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D438"
-                    d="M492 213Q472 213 472 226Q472 230 477 250T482 285Q482 316 461 323T364 330H312Q311 328 277 192T243 52Q243 48 254 48T334 46Q428 46 458 48T518 61Q567 77 599 117T670 248Q680 270 683 272Q690 274 698 274Q718 274 718 261Q613 7 608 2Q605 0 322 0H133Q31 0 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q146 66 215 342T285 622Q285 629 281 629Q273 632 228 634H197Q191 640 191 642T193 659Q197 676 203 680H757Q764 676 764 669Q764 664 751 557T737 447Q735 440 717 440H705Q698 445 698 453L701 476Q704 500 704 528Q704 558 697 578T678 609T643 625T596 632T532 634H485Q397 633 392 631Q388 629 386 622Q385 619 355 499T324 377Q347 376 372 376H398Q464 376 489 391T534 472Q538 488 540 490T557 493Q562 493 565 493T570 492T572 491T574 487T577 483L544 351Q511 218 508 216Q505 213 492 213Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="554.5529320062271"
-    cy="399.12952018846187"
+    cx="459.8559528784278"
+    cy="468.6212615268047"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
   >
-    <title>E.icon</title>
+    <title>`D`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 624.2764160735097, 311.7184549347246)translate(624.2764160735097, 311.7184549347246)"
+    transform="rotate(0, 444.4736970426894, 442.46126125357654)translate(444.4736970426894, 442.46126125357654)"
     string="D"
   >
-    <title>D.text</title>
+    <title>`D`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
@@ -193,21 +68,21 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="621.6602507070564"
-    cy="337.3711936664446"
+    cx="444.93161763740943"
+    cy="284.4074104857195"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
   >
-    <title>D.icon</title>
+    <title>`C`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 431.2075773644264, 321.461700850776)translate(431.2075773644264, 321.461700850776)"
+    transform="rotate(0, 428.61505354794303, 291.1838471674047)translate(428.61505354794303, 291.1838471674047)"
     string="C"
   >
-    <title>C.text</title>
+    <title>`C`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
@@ -244,21 +119,21 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="450.40453150011064"
-    cy="345.86703117715405"
+    cx="267.3162240276339"
+    cy="337.23865939435024"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
   >
-    <title>C.icon</title>
+    <title>`B`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 691.1970506764831, 275.58274173443215)translate(691.1970506764831, 275.58274173443215)"
+    transform="rotate(0, 264.0541084219524, 311.07866057029213)translate(264.0541084219524, 311.07866057029213)"
     string="B"
   >
-    <title>B.text</title>
+    <title>`B`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
@@ -292,24 +167,75 @@
       </g>
     </svg>
   </g>
+  <g
+    transform="rotate(0, 717.72878, 15.42)translate(717.72878, 15.42)"
+    string="R"
+  >
+    <title>`R`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="14.54244"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 759 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D445"
+                    d="M230 637Q203 637 198 638T193 649Q193 676 204 682Q206 683 378 683Q550 682 564 680Q620 672 658 652T712 606T733 563T739 529Q739 484 710 445T643 385T576 351T538 338L545 333Q612 295 612 223Q612 212 607 162T602 80V71Q602 53 603 43T614 25T640 16Q668 16 686 38T712 85Q717 99 720 102T735 105Q755 105 755 93Q755 75 731 36Q693 -21 641 -21H632Q571 -21 531 4T487 82Q487 109 502 166T517 239Q517 290 474 313Q459 320 449 321T378 323H309L277 193Q244 61 244 59Q244 55 245 54T252 50T269 48T302 46H333Q339 38 339 37T336 19Q332 6 326 0H311Q275 2 180 2Q146 2 117 2T71 2T50 1Q33 1 33 10Q33 12 36 24Q41 43 46 45Q50 46 61 46H67Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628Q287 635 230 637ZM630 554Q630 586 609 608T523 636Q521 636 500 636T462 637H440Q393 637 386 627Q385 624 352 494T319 361Q319 360 388 360Q466 361 492 367Q556 377 592 426Q608 449 619 486T630 554Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="691.250120059538"
-    cy="268.58274419589804"
+    cx="587.99292729371"
+    cy="555.402205076597"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
     stroke-linecap="butt"
     r="4"
   >
-    <title>B.icon</title>
+    <title>`E`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="321.2246448370532"
+    cy="189.88154360863723"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`A`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 627.2505828639477, 92.58347329306376)translate(627.2505828639477, 92.58347329306376)"
+    transform="rotate(0, 328.22464491802907, 176.07419167219683)translate(328.22464491802907, 176.07419167219683)"
     string="A"
   >
-    <title>A.text</title>
+    <title>`A`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
@@ -343,32 +269,19 @@
       </g>
     </svg>
   </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="628.3363308448747"
-    cy="85.58346476835851"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>A.icon</title>
-  </circle>
   <g
-    transform="rotate(0, 717.72878, 15.42)translate(717.72878, 15.42)"
-    string="R"
+    transform="rotate(0, 594.9417081702945, 535.3969587250567)translate(594.9417081702945, 535.3969587250567)"
+    string="E"
   >
-    <title>R.text</title>
+    <title>`E`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="14.54244"
+      width="14.63824"
       height="19.16"
       role="img"
       focusable="false"
-      viewBox="0 -750 759 1000"
+      viewBox="0 -750 764 1000"
     >
       <g
         stroke="none"
@@ -383,8 +296,8 @@
               <g data-mml-node="mtd">
                 <g data-mml-node="mi">
                   <path
-                    data-c="1D445"
-                    d="M230 637Q203 637 198 638T193 649Q193 676 204 682Q206 683 378 683Q550 682 564 680Q620 672 658 652T712 606T733 563T739 529Q739 484 710 445T643 385T576 351T538 338L545 333Q612 295 612 223Q612 212 607 162T602 80V71Q602 53 603 43T614 25T640 16Q668 16 686 38T712 85Q717 99 720 102T735 105Q755 105 755 93Q755 75 731 36Q693 -21 641 -21H632Q571 -21 531 4T487 82Q487 109 502 166T517 239Q517 290 474 313Q459 320 449 321T378 323H309L277 193Q244 61 244 59Q244 55 245 54T252 50T269 48T302 46H333Q339 38 339 37T336 19Q332 6 326 0H311Q275 2 180 2Q146 2 117 2T71 2T50 1Q33 1 33 10Q33 12 36 24Q41 43 46 45Q50 46 61 46H67Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628Q287 635 230 637ZM630 554Q630 586 609 608T523 636Q521 636 500 636T462 637H440Q393 637 386 627Q385 624 352 494T319 361Q319 360 388 360Q466 361 492 367Q556 377 592 426Q608 449 619 486T630 554Z"
+                    data-c="1D438"
+                    d="M492 213Q472 213 472 226Q472 230 477 250T482 285Q482 316 461 323T364 330H312Q311 328 277 192T243 52Q243 48 254 48T334 46Q428 46 458 48T518 61Q567 77 599 117T670 248Q680 270 683 272Q690 274 698 274Q718 274 718 261Q613 7 608 2Q605 0 322 0H133Q31 0 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q146 66 215 342T285 622Q285 629 281 629Q273 632 228 634H197Q191 640 191 642T193 659Q197 676 203 680H757Q764 676 764 669Q764 664 751 557T737 447Q735 440 717 440H705Q698 445 698 453L701 476Q704 500 704 528Q704 558 697 578T678 609T643 625T596 632T532 634H485Q397 633 392 631Q388 629 386 622Q385 619 355 499T324 377Q347 376 372 376H398Q464 376 489 391T534 472Q538 488 540 490T557 493Q562 493 565 493T570 492T572 491T574 487T577 483L544 351Q511 218 508 216Q505 213 492 213Z"
                   ></path>
                 </g>
               </g>
@@ -393,5 +306,92 @@
         </g>
       </g>
     </svg>
+  </g>
+  <g style="solid">
+    <marker
+      id="`s1`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`s1`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 267.3162240276339 337.23865939435024 L 613.4282578790429 572.706430327697"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#`s1`.icon-rightArrowhead)"
+    ></path>
+    <title>`s1`.icon</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`s2`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`s2`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 256.74692464505085 366.12953487369697 L 331.793940783974 160.99067752057434"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-start="url(#`s2`.icon-leftArrowhead)"
+      marker-end="url(#`s2`.icon-rightArrowhead)"
+    ></path>
+    <title>`s2`.icon</title>
   </g>
 </svg>

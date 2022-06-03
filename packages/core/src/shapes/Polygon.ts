@@ -1,28 +1,20 @@
 import { Fill, Named, Poly, Scale, Shape, Stroke } from "types/shapes";
-import {
-  boolV,
-  Canvas,
-  floatV,
-  ptListV,
-  sampleColor,
-  sampleNoPaint,
-  sampleZero,
-  strV,
-} from "./Samplers";
+import { boolV, floatV, noPaint, ptListV, strV } from "utils/Util";
+import { Canvas, Context, sampleColor } from "./Samplers";
 
 export interface PolygonProps extends Named, Stroke, Fill, Scale, Poly {}
 
 export const samplePolygon = (
-  rng: seedrandom.prng,
+  context: Context,
   _canvas: Canvas
 ): PolygonProps => ({
   name: strV("defaultPolygon"),
   style: strV(""),
-  strokeWidth: sampleZero(),
+  strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
-  strokeColor: sampleNoPaint(),
+  strokeColor: noPaint(),
   strokeDasharray: strV(""),
-  fillColor: sampleColor(rng),
+  fillColor: sampleColor(context),
   scale: floatV(1),
   points: ptListV([
     [0, 0],
@@ -35,11 +27,11 @@ export const samplePolygon = (
 export type Polygon = Shape & { shapeType: "Polygon" } & PolygonProps;
 
 export const makePolygon = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas,
   properties: Partial<PolygonProps>
 ): Polygon => ({
-  ...samplePolygon(rng, canvas),
+  ...samplePolygon(context, canvas),
   ...properties,
   shapeType: "Polygon",
 });

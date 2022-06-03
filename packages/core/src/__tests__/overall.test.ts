@@ -1,4 +1,5 @@
 import { examples, registry } from "@penrose/examples";
+import { genOptProblem } from "../engine/Optimizer";
 import {
   compileTrio,
   evalEnergy,
@@ -8,7 +9,6 @@ import {
   resample,
   showError,
   stepUntilConvergence,
-  variationSeeds,
 } from "../index";
 import { State } from "../types/state";
 
@@ -67,17 +67,18 @@ describe("Determinism", () => {
     const stateSample3Opt = resSample3Opt.value;
     const svgSample3Opt = await render(stateSample3Opt);
 
-    expect(svgSample1NotOpt).not.toBe(svgSample1Opt); // optimization does something
-    expect(svgSample1NotOpt).not.toBe(svgSample2NotOpt); // resampling is different from initial sampling
-    expect(svgSample1NotOpt).not.toBe(svgSample2Opt); // optimizing resample doesn't get us back
+    // optimization does something
+    expect(svgSample1NotOpt).not.toBe(svgSample1Opt);
+    expect(svgSample2NotOpt).not.toBe(svgSample2Opt);
+    expect(svgSample3NotOpt).not.toBe(svgSample3Opt);
 
-    expect(svgSample1Opt).not.toBe(svgSample2NotOpt); // resampling is different from optimization
-    expect(svgSample1Opt).not.toBe(svgSample2Opt); // different starts, different ends
+    // resampling is the same as initial sampling
+    expect(svgSample1NotOpt).toBe(svgSample2NotOpt);
+    expect(svgSample1NotOpt).toBe(svgSample3NotOpt);
 
-    expect(svgSample2NotOpt).not.toBe(svgSample2Opt); // optimization does something
-    expect(svgSample2NotOpt).toBe(svgSample3NotOpt); // resampling is idempotent
-
-    expect(svgSample2Opt).toBe(svgSample3Opt); // optimization is deterministic
+    // optimization is deterministic
+    expect(svgSample1Opt).toBe(svgSample2Opt);
+    expect(svgSample1Opt).toBe(svgSample3Opt);
   });
 
   test("without initial optimization", async () => {
@@ -96,7 +97,7 @@ describe("Determinism", () => {
     const state1Opt = resOptimize1.value;
     const svg1Opt = await render(state1Opt);
 
-    state1Opt.seeds = variationSeeds(variation).seeds;
+    state1Opt.variation = variation;
 
     const state2NotOpt = resample(state1Opt);
     const svg2NotOpt = await render(state2NotOpt);
@@ -124,8 +125,7 @@ describe("Energy API", () => {
       variation: "energy overall",
     });
     if (res.isOk()) {
-      // resample because initial sampling did not use the special sampling seed
-      const stateEvaled = resample(await prepareState(res.value));
+      const stateEvaled = await prepareState(res.value);
       const stateOpt = stepUntilConvergence(stateEvaled);
       if (stateOpt.isErr()) {
         throw Error("optimization failed");
@@ -150,9 +150,17 @@ describe("Energy API", () => {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
       const smallerThanFns = state.constrFns.filter(
-        (c) => c.fname === "smallerThan"
+        (c) => c.ast.expr.name.value === "smallerThan"
       );
-      const stateFiltered = { ...state, constrFns: smallerThanFns };
+      const stateFiltered = {
+        ...state,
+        constrFns: smallerThanFns,
+        params: genOptProblem(
+          state.inputs,
+          state.objFns.map(({ output }) => output),
+          smallerThanFns.map(({ output }) => output)
+        ),
+      };
       expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
     } else {
       console.log(showError(res.error));
@@ -178,13 +186,8 @@ describe("Cross-instance energy eval", () => {
       variation: "cross-instance state2",
     });
     if (state1.isOk() && state2.isOk()) {
-      // resample because initial sampling did not use the special sampling seed
-      const state1Done = stepUntilConvergence(
-        resample(await prepareState(state1.value))
-      );
-      const state2Done = stepUntilConvergence(
-        resample(await prepareState(state2.value))
-      );
+      const state1Done = stepUntilConvergence(await prepareState(state1.value));
+      const state2Done = stepUntilConvergence(await prepareState(state2.value));
       if (state1Done.isOk() && state2Done.isOk()) {
         const crossState21 = {
           ...state2Done.value,
@@ -221,8 +224,7 @@ describe("Run individual functions", () => {
     });
 
     if (res.isOk()) {
-      // resample because initial sampling did not use the special sampling seed
-      const stateEvaled = resample(await prepareState(res.value));
+      const stateEvaled = await prepareState(res.value);
       const stateOpt = stepUntilConvergence(stateEvaled);
       if (stateOpt.isErr()) {
         throw Error("optimization failed");

@@ -1,5 +1,3 @@
--- variation: CamelliaBison2029
-
 -- Describe a nested walk used to estimate the solution to,
 -- e.g., a biharmonic equation Δ²u = 0, which starts new
 -- walks at interior points y sampled in the ball around

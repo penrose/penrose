@@ -1,5 +1,5 @@
 import { alg, Graph } from "graphlib";
-import { Map } from "immutable";
+import im from "immutable";
 import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
@@ -95,18 +95,18 @@ const builtinTypes: [string, TypeDecl<C>][] = [
   ],
 ];
 const initEnv = (): Env => ({
-  types: Map(builtinTypes),
-  typeVars: Map<string, TypeVar<C>>(),
+  types: im.Map(builtinTypes),
+  typeVars: im.Map<string, TypeVar<C>>(),
   varIDs: [],
-  vars: Map<string, TypeConsApp<C>>(),
-  constructors: Map<string, ConstructorDecl<C>>(),
-  constructorsBindings: Map<
+  vars: im.Map<string, TypeConsApp<C>>(),
+  constructors: im.Map<string, ConstructorDecl<C>>(),
+  constructorsBindings: im.Map<
     string,
     [ApplyConstructor<C>, ConstructorDecl<C>]
   >(),
-  predicates: Map<string, PredicateDecl<C>>(),
-  functions: Map<string, FunctionDecl<C>>(),
-  preludeValues: Map<string, TypeConstructor<C>>(),
+  predicates: im.Map<string, PredicateDecl<C>>(),
+  functions: im.Map<string, FunctionDecl<C>>(),
+  preludeValues: im.Map<string, TypeConstructor<C>>(),
   subTypes: [],
   typeGraph: new Graph(),
 });
@@ -159,7 +159,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: Map(keyBy(params, "name.value")),
+        typeVars: im.Map(keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.constructors.get(name.value);
@@ -181,7 +181,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: Map(keyBy(params, "name.value")),
+        typeVars: im.Map(keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.functions.get(name.value);
@@ -203,7 +203,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: Map(keyBy(params, "name.value")),
+        typeVars: im.Map(keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.predicates.get(name.value);

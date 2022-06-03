@@ -6,7 +6,7 @@ import * as path from "path";
 import { A } from "types/ast";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
-import { ApplyPredicate, SubstanceEnv } from "types/substance";
+import { ApplyPredicate, SubRes, SubstanceEnv } from "types/substance";
 import { Result, showError, showType } from "utils/Error";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
@@ -77,16 +77,16 @@ predicate IsSubset(Set s1, Set s2)
 value X: Set
 `;
 
-const envOrError = (prog: string): Env => {
+export const envOrError = (prog: string): Env => {
   const res = compileDomain(prog);
   if (res.isErr()) throw Error(showError(res.error));
   return res.value;
 };
 
-const compileOrError = (prog: string, env: Env) => {
+export const subEnvOrError = (prog: string, env: Env): SubRes => {
   const res = compileSubstance(prog, env);
   if (res.isOk()) {
-    return res;
+    return res.value;
   } else {
     throw Error(`unexpected error ${showError(res.error)}`);
   }
@@ -255,7 +255,7 @@ D := C.A
 E := C.B
     `;
     const env = envOrError(domainProg);
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
   test("predicates: non-nesting", () => {
     const prog = `
@@ -267,7 +267,7 @@ IsSubset(D, A)
 IsSubset(Subset(D, E), A) -- anon. constructor
     `;
     const env = envOrError(domainProg);
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
   test("predicates: nesting", () => {
     const prog = `
@@ -279,7 +279,7 @@ Not(IsSubset(Subset(D, E), A)) -- anon. constructor
 Both(IsSubset(A, B), IsSubset(C, D))
     `;
     const env = envOrError(domainProg);
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
   test("predicates: nesting", () => {
     const prog = `
@@ -291,7 +291,7 @@ AutoLabel B, C
 NoLabel B, C
     `;
     const env = envOrError(domainProg);
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
 });
 
@@ -494,7 +494,7 @@ nil := Nil()
 OpenSet A
 l := Cons(A, nil)
         `;
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
   test("func argument parametrized subtypes", () => {
     const env = envOrError(domainProg);
@@ -505,7 +505,7 @@ nil := Nil()
 OpenSet A
 l := Cons(A, nil)
         `;
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
 });
 describe("Ambiguous expressions", () => {
@@ -516,18 +516,16 @@ Point p
 Not(Intersecting(A, B))
 Empty(Subset(A, B))
 Empty(AddPoint(p, A))`;
-    const res = compileOrError(prog, env);
-    if (res.isOk()) {
-      expect(
-        (res.value[0].ast.statements[3] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyPredicate");
-      expect(
-        (res.value[0].ast.statements[4] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyConstructor");
-      expect(
-        (res.value[0].ast.statements[5] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyFunction");
-    }
+    const [subEnv] = subEnvOrError(prog, env);
+    expect((subEnv.ast.statements[3] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyPredicate"
+    );
+    expect((subEnv.ast.statements[4] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyConstructor"
+    );
+    expect((subEnv.ast.statements[5] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyFunction"
+    );
   });
 });
 

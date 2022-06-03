@@ -1,9 +1,14 @@
-//#region ErrorTypes
-import { A, AbstractNode, Identifier, SourceLoc } from "./ast";
+import im from "immutable";
+import * as ad from "types/ad";
+import { A, AbstractNode, C, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
-import { BindingForm, Path } from "./style";
+import { BindingForm, BinOp, Expr, GPIDecl, Path, UOp } from "./style";
+import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
+import { Value } from "./value";
+
+//#region ErrorTypes
 
 // type PenroseError = LanguageError | RuntimeError;
 // type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
@@ -28,7 +33,6 @@ export interface NaNError {
 }
 
 export type Warning = StyleError;
-export type StyleErrors = StyleError[];
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 export type SubstanceError =
@@ -148,42 +152,49 @@ export type StyleError =
   | InvalidFunctionNameError
   | InvalidObjectiveNameError
   | InvalidConstraintNameError
-  // Translation errors (deletion)
-  | DeletedPropWithNoSubObjError
-  | DeletedPropWithNoFieldError
-  | DeletedPropWithNoGPIError
-  | CircularPathAlias
-  | DeletedNonexistentFieldError
-  | DeletedVectorElemError
-  // Translation errors (insertion)
-  | InsertedPathWithoutOverrideError
-  | InsertedPropWithNoFieldError
-  | InsertedPropWithNoGPIError
-  // Translation validation errors
-  | NonexistentNameError
-  | NonexistentFieldError
-  | NonexistentGPIError
-  | NonexistentPropertyError
-  | ExpectedGPIGotFieldError
-  | InvalidAccessPathError
-  | CanvasNonexistentError
+  // Compilation errors
+  | AssignAccessError
+  | AssignGlobalError
+  | AssignSubstanceError
+  | BadElementError
+  | BadIndexError
+  | BinOpTypeError
   | CanvasNonexistentDimsError
+  | DeleteGlobalError
+  | DeleteSubstanceError
+  | MissingPathError
+  | MissingShapeError
+  | NestedShapeError
+  | NotCollError
+  | NotShapeError
+  | NotValueError
+  | OutOfBoundsError
+  | PropertyMemberError
+  | UOpTypeError
   // Runtime errors
   | RuntimeValueTypeError;
 
-export type StyleWarning = IntOrFloat;
+// Compilation warnings
+export type StyleWarning = ImplicitOverrideWarning | NoopDeleteWarning;
 
-export type StyleWarnings = StyleWarning[];
-
-export interface StyleResults {
-  errors: StyleErrors;
-  warnings: StyleWarnings;
+export interface StyleDiagnostics {
+  errors: im.List<StyleError>;
+  warnings: im.List<StyleWarning>;
 }
 
-export interface IntOrFloat {
-  tag: "IntOrFloat";
-  message: string;
-} // COMBAK: Use this in block checking
+//#region compilation warnings
+
+export interface ImplicitOverrideWarning {
+  tag: "ImplicitOverrideWarning";
+  path: ResolvedPath<C>;
+}
+
+export interface NoopDeleteWarning {
+  tag: "NoopDeleteWarning";
+  path: ResolvedPath<C>;
+}
+
+//#endregion
 
 export interface GenericStyleError {
   tag: "GenericStyleError";
@@ -263,114 +274,108 @@ export interface InvalidConstraintNameError {
 
 //#endregion Block statics
 
-export interface DeletedPropWithNoSubObjError {
-  tag: "DeletedPropWithNoSubObjError";
-  subObj: BindingForm<A>;
-  path: Path<A>;
+//#region compilation errors
+
+export interface AssignAccessError {
+  tag: "AssignAccessError";
+  path: Path<C>;
 }
 
-export interface DeletedPropWithNoFieldError {
-  tag: "DeletedPropWithNoFieldError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  path: Path<A>;
+export interface AssignGlobalError {
+  tag: "AssignGlobalError";
+  path: ResolvedPath<C>;
 }
 
-export interface CircularPathAlias {
-  tag: "CircularPathAlias";
-  path: Path<A>;
+export interface AssignSubstanceError {
+  tag: "AssignSubstanceError";
+  path: ResolvedPath<C>;
 }
 
-export interface DeletedPropWithNoGPIError {
-  tag: "DeletedPropWithNoGPIError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  property: Identifier<A>;
-  path: Path<A>;
+export interface BadElementError {
+  tag: "BadElementError";
+  coll: Expr<C>;
+  index: number;
 }
 
-export interface DeletedNonexistentFieldError {
-  tag: "DeletedNonexistentFieldError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  path: Path<A>;
+export interface BadIndexError {
+  tag: "BadIndexError";
+  expr: Expr<C>;
 }
 
-export interface DeletedVectorElemError {
-  tag: "DeletedVectorElemError";
-  path: Path<A>;
-}
-
-export interface InsertedPathWithoutOverrideError {
-  tag: "InsertedPathWithoutOverrideError";
-  path: Path<A>;
-}
-
-export interface InsertedPropWithNoFieldError {
-  tag: "InsertedPropWithNoFieldError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  property: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface InsertedPropWithNoGPIError {
-  tag: "InsertedPropWithNoGPIError";
-  subObj: BindingForm<A>;
-  field: Identifier<A>;
-  property: Identifier<A>;
-  path: Path<A>;
-}
-
-//#region Translation validation errors
-
-export interface NonexistentNameError {
-  tag: "NonexistentNameError";
-  name: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface NonexistentFieldError {
-  tag: "NonexistentFieldError";
-  field: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface NonexistentGPIError {
-  tag: "NonexistentGPIError";
-  gpi: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface NonexistentPropertyError {
-  tag: "NonexistentPropertyError";
-  property: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface ExpectedGPIGotFieldError {
-  tag: "ExpectedGPIGotFieldError";
-  field: Identifier<A>;
-  path: Path<A>;
-}
-
-export interface InvalidAccessPathError {
-  tag: "InvalidAccessPathError";
-  path: Path<A>;
-}
-
-export interface CanvasNonexistentError {
-  tag: "CanvasNonexistentError";
+export interface BinOpTypeError {
+  tag: "BinOpTypeError";
+  expr: BinOp<C>;
+  left: Value<ad.Num>["tag"];
+  right: Value<ad.Num>["tag"];
 }
 
 export interface CanvasNonexistentDimsError {
   tag: "CanvasNonexistentDimsError";
   attr: "width" | "height";
-  kind: "missing" | "GPI" | "uninitialized" | "wrong type";
-  type?: string;
+  kind: "missing" | "GPI" | "wrong type";
+  type?: Expr<A>["tag"];
 }
 
-//#endregion Translation validation errors
+export interface DeleteGlobalError {
+  tag: "DeleteGlobalError";
+  path: ResolvedPath<C>;
+}
+
+export interface DeleteSubstanceError {
+  tag: "DeleteSubstanceError";
+  path: ResolvedPath<C>;
+}
+
+export interface MissingPathError {
+  tag: "MissingPathError";
+  path: ResolvedPath<C>;
+}
+
+export interface MissingShapeError {
+  tag: "MissingShapeError";
+  path: ResolvedPath<C>;
+}
+
+export interface NestedShapeError {
+  tag: "NestedShapeError";
+  expr: GPIDecl<C>;
+}
+
+export interface NotCollError {
+  tag: "NotCollError";
+  expr: Expr<C>;
+}
+
+export interface NotShapeError {
+  tag: "NotShapeError";
+  path: ResolvedPath<C>;
+  what: string;
+}
+
+export interface NotValueError {
+  tag: "NotValueError";
+  expr: Expr<C>;
+  what?: string;
+}
+
+export interface OutOfBoundsError {
+  tag: "OutOfBoundsError";
+  expr: Path<C>;
+  indices: number[];
+}
+
+export interface PropertyMemberError {
+  tag: "PropertyMemberError";
+  path: ResolvedPath<C>;
+}
+
+export interface UOpTypeError {
+  tag: "UOpTypeError";
+  expr: UOp<C>;
+  arg: Value<ad.Num>["tag"];
+}
+
+//#endregion
 
 // TODO(errors): use identifiers here
 export interface RuntimeValueTypeError {

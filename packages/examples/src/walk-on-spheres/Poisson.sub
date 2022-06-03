@@ -1,5 +1,3 @@
--- variation: SunbathedStingray28254
-
 -- Describe a short walk used to estimate the solution to
 -- a Poisson equation Δu = f, which involves both boundary
 -- samples x and source samples y.
