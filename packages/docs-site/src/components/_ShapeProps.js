@@ -1,6 +1,5 @@
-import { makeCanvas, shapedefs } from "@penrose/core";
+import { makeCanvas, shapedefs, simpleContext } from "@penrose/core";
 import React from "react";
-import seedrandom from "seedrandom";
 
 /* HACK to see if it's a sampled or clamped value */
 const showValue = (prop, def1, def2) => {
@@ -41,11 +40,11 @@ export default function _ShapeProps({ shapeName }) {
   // HACK from main repo
   const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
   const def = shapedef.sampler(
-    seedrandom("_ShapeProps def"),
+    simpleContext("_ShapeProps def"),
     makeCanvas(size, size)
   );
   const def_sample = shapedef.sampler(
-    seedrandom("_ShapeProps def_sample"),
+    simpleContext("_ShapeProps def"),
     makeCanvas(size, size)
   );
   return (
