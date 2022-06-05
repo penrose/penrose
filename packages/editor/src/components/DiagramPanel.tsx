@@ -4,7 +4,6 @@ import {
   stateConverged,
   stepStateSafe,
 } from "@penrose/core";
-import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
@@ -12,6 +11,7 @@ import { v4 as uuid } from "uuid";
 import {
   currentRogerState,
   diagramState,
+  imageContentsSelector,
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "../state/atoms";
@@ -145,32 +145,38 @@ export default function DiagramPanel() {
     name: string,
     url?: string
   ): Promise<string | undefined> => {
-    const localFilePrefix = "localfile://" + id + "/";
     try {
-      // Attempt to retrieve the resource from local storage
-      const localImage = await localforage.getItem<string>(
-        localFilePrefix + name
+      const [imageState, setImageState] = useRecoilState(
+        imageContentsSelector(name)
       );
-      if (localImage) {
-        return localImage;
+      if (imageState) {
+        return imageState;
       } else {
-        // Return undefined if there is no url and not hit in local storage
-        if (!url) return undefined;
-
-        // Try to fetch it by url
+        if (!url) {
+          console.log(`'${name}': No url provided.  Returning undefined.`);
+          return undefined;
+        }
         const httpResource = await fetch(url);
         // Update local storage and return the resource
         if (httpResource.ok) {
-          const httpBody = httpResource.text();
-          localforage.setItem(localFilePrefix + name, httpBody);
+          const httpBody = await httpResource.text();
+
+          // Update the local workspace state
+          //setImageState(httpBody);  <-- TODO: Error !!!
+
           return httpBody;
         } else {
-          console.log(`HTTP status ${httpResource.status} for ${url}`);
+          console.log(
+            `'${name}': Returning undefined. Url fetch failed. HTTP ${httpResource.status} ${httpResource.statusText}`
+          );
           return undefined;
         }
       }
-    } catch (e) {
-      console.log(`Error fetching resource. Local name: ${name}, url: ${url}`);
+    } catch (e: any) {
+      console.log(
+        `Exception retrieving resource. Local name: ${name}, url: ${url}.  Exception: ${e.toString()}`
+      );
+      console.log(e.stack);
       return undefined;
     }
   };

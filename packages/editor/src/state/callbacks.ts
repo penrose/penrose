@@ -136,7 +136,8 @@ const _confirmDirtyWorkspace = (workspace: Workspace): boolean => {
     !(
       workspace.files.domain.contents === "" &&
       workspace.files.style.contents === "" &&
-      workspace.files.substance.contents === ""
+      workspace.files.substance.contents === "" &&
+      Object.keys(workspace.files.images).length === 0
     )
   ) {
     return confirm("Your current workspace is unsaved. Overwrite it?");
@@ -211,6 +212,7 @@ export const useLoadExampleWorkspace = () =>
           contents: substance,
           name: `${trio.substanceName}.sub`,
         },
+        images: {},
       },
     });
     reset(diagramState);
@@ -280,6 +282,7 @@ export const useCheckURL = () =>
           contents: gistFiles["substance"].content,
           name: gistMetadata.fileNames.substance,
         },
+        images: JSON.parse(gistFiles["images"].content),
       };
       const workspace: Workspace = {
         metadata,
@@ -332,6 +335,7 @@ export const usePublishGist = () =>
           substance: {
             content: workspace.files.substance.contents,
           },
+          images: workspace.files.images,
         },
         public: false,
       }),

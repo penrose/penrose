@@ -64,12 +64,16 @@ export type ProgramFile = {
   name: string;
 };
 
+export type ImageFile = string;
+export type ImageName = string;
+
 export type Workspace = {
   metadata: WorkspaceMetadata;
   files: {
     substance: ProgramFile;
     style: ProgramFile;
     domain: ProgramFile;
+    images: { [k: ImageName]: ImageFile };
   };
 };
 
@@ -193,6 +197,7 @@ export const currentWorkspaceState = atom<Workspace>({
         name: ".dsl",
         contents: "",
       },
+      images: {},
     },
   },
   effects: [saveWorkspaceEffect, syncFilenamesEffect],
@@ -216,6 +221,30 @@ export const fileContentsSelector = selectorFamily<ProgramFile, ProgramType>({
       ...state,
       files: { ...state.files, [programType]: newValue },
     }));
+  },
+});
+
+/**
+ * Access workspace's images granularly
+ */
+export const imageContentsSelector = selectorFamily<ImageFile, ImageName>({
+  key: "imageContents",
+  get: (name: ImageName) => ({ get }) => {
+    return get(currentWorkspaceState).files.images[name];
+  },
+  set: (name: ImageName) => ({ set }, newValue) => {
+    if (typeof newValue === "string") {
+      console.log("Image file is a string"); // !!!
+      set(currentWorkspaceState, (state) => ({
+        ...state,
+        files: {
+          ...state.files,
+          images: { ...state.files.images, [name]: newValue },
+        },
+      }));
+    } else {
+      // No deletions yet
+    }
   },
 });
 
