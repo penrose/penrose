@@ -30,7 +30,7 @@ const showValue = (prop, def1, def2) => {
               &nbsp;&nbsp;&nbsp;&nbsp;
             </div>
             <span style={{ marginLeft: "1em" }}>
-              {`rgba(${arr[0]},${arr[1]},${arr[2]},${arr[3]}}`}
+              {`rgba(${arr[0]},${arr[1]},${arr[2]},${arr[3]})`}
             </span>
           </div>
         );
