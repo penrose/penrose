@@ -12,17 +12,27 @@ const showValue = (prop, def1, def2) => {
     }
     if (typeof contents === "object") {
       if (contents.tag === "RGBA") {
-        const arr = contents.contents.map(({ val }) => val);
+        const arr = contents.contents;
         return (
-          <div
-            style={{
-              width: 20,
-              height: 20,
-              border: "1px solid gray",
-              backgroundColor: `rgba(${arr[0]}, ${arr[1]}, ${arr[2]}, ${arr[3]})`,
-              borderRadius: "5px",
-            }}
-          />
+          <div>
+            <div
+              style={{
+                display: "inline",
+                border: "1px solid gray",
+                backgroundColor: `rgba(
+                  ${arr[0] * 255}, 
+                  ${arr[1] * 255}, 
+                  ${arr[2] * 255}, 
+                  ${arr[3]})`,
+                borderRadius: "5px",
+              }}
+            >
+              &nbsp;&nbsp;&nbsp;&nbsp;
+            </div>
+            <span style={{ marginLeft: "1em" }}>
+              {`rgba(${arr[0]},${arr[1]},${arr[2]},${arr[3]}}`}
+            </span>
+          </div>
         );
       }
       if ("val" in contents) {
@@ -44,7 +54,7 @@ export default function _ShapeProps({ shapeName }) {
     makeCanvas(size, size)
   );
   const def_sample = shapedef.sampler(
-    simpleContext("_ShapeProps def"),
+    simpleContext("_ShapeProps def_sample"),
     makeCanvas(size, size)
   );
   return (
