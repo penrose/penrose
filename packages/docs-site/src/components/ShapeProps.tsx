@@ -1,5 +1,5 @@
 import React from "react";
-import shapeDefs from "../../static/shapeDefs.json";
+import shapeDefs from "../../static/shapedefs.json";
 
 /**
  * Shows the default and sampled properties of a shape type
