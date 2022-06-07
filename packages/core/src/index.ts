@@ -325,7 +325,7 @@ export { compDict } from "./contrib/Functions";
 export { objDict } from "./contrib/Objectives";
 export { secondaryGraph } from "./engine/Autodiff";
 export type { PathResolver } from "./renderer/Renderer";
-export { makeCanvas } from "./shapes/Samplers";
+export { makeCanvas, simpleContext } from "./shapes/Samplers";
 export { shapedefs } from "./shapes/Shapes";
 export type {
   SynthesizedSubstance,
