@@ -958,7 +958,6 @@ export const compDict = {
 
   /**
            * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-
        @deprecated Don't use this function, it does not fully work
            */
   intersectingSideSize: (
@@ -1555,23 +1554,65 @@ export const compDict = {
    * Helper function for closestPoint to calculate closest point of rectangle by comparing
    * min abs vals between point vs edge of rectangle
    */
-  minComp: (
-    _context: Context,
-    p1: ad.Num[], //Rectangle corner in 1st quadrant
-    p2: ad.Num[], //Point coordinates
-    center: ad.Num[]
-  ): VectorV<ad.Num> => {
-    p2 = ops.vsub(p2, center);
-    const X = absVal(p1[0]) < absVal(p2[0]) ? p1[0] : p2[0];
-    const Y = absVal(p1[1]) < absVal(p2[1]) ? p1[1] : p2[1];
-    return { tag: "VectorV", contents: ops.vadd([X, Y], center) };
-  },
+  // minComp: (
+  //   _context: Context,
+  //   p1: ad.Num[], //Rectangle corner in 1st quadrant
+  //   p2: ad.Num[], //Point coordinates
+  //   center: ad.Num[]
+  // ): VectorV<ad.Num> => {
+  //   p2 = ops.vsub(p2, center);
+  //   const X = absVal(p1[0]) < absVal(p2[0]) ? p1[0] : p2[0];
+  //   const Y = absVal(p1[1]) < absVal(p2[1]) ? p1[1] : p2[1];
+  //   return { tag: "VectorV", contents: ops.vadd([X, Y], center) };
+  // },
 
   closestPoint: (
     _context: Context,
     [t, s]: [string, any],
     p: ad.Num[]
   ): VectorV<ad.Num> => {
+    /**
+     * Helper function for Rectangles
+     * @param _context
+     * @param x
+     * @param a
+     * @param b
+     * @returns
+     */
+    const clamp = (
+      _context: Context,
+      x: ad.Num,
+      l: ad.Num,
+      u: ad.Num
+    ): ad.Num => {
+      return max(l, min(u, x));
+    };
+    const getNearestPointRect = (
+      _context: Context,
+      l: ad.Num,
+      t: ad.Num,
+      w: ad.Num,
+      h: ad.Num,
+      x: ad.Num,
+      y: ad.Num
+    ): ad.Num[] => {
+      const r = add(l, w);
+      const b = add(t, h); //Formatted using JavaGraphics coordinate system
+      console.log(r);
+      console.log(b);
+      x = clamp(_context, x, l, r);
+      y = clamp(_context, y, t, b);
+      const dl = absVal(sub(x, l));
+      const dr = absVal(sub(x, r));
+      const dt = absVal(sub(y, t));
+      const db = absVal(sub(y, b));
+      const m = min(min(min(dl, dr), dt), db);
+      let retX: ad.Num = ifCond(or(eq(m, dt), eq(m, db)), x, r);
+      retX = ifCond(eq(m, dl), l, retX);
+      let retY: ad.Num = ifCond(or(eq(m, dl), eq(m, dr)), y, t);
+      retY = ifCond(eq(m, db), b, retY);
+      return [retX, retY];
+    };
     if (t === "Circle") {
       /**
        * Implementing formula
@@ -1594,14 +1635,19 @@ export const compDict = {
       t === "Equation" ||
       t === "Image"
     ) {
-      return compDict.minComp(
-        _context,
-        [s.width, s.height],
-        p,
-        s.center.contents
-      );
-    }
-    return { tag: "VectorV", contents: [] };
+      return {
+        tag: "VectorV",
+        contents: getNearestPointRect(
+          _context,
+          sub(s.center.contents[0], div(s.width.contents, 2)),
+          sub(s.center.contents[1], div(s.height.contents, 2)),
+          s.width.contents,
+          s.height.contents,
+          p[0],
+          p[1]
+        ),
+      };
+    } else return { tag: "VectorV", contents: [] };
   },
 };
 
