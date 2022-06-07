@@ -9,6 +9,7 @@ import { compDict } from "./Functions";
 const canvas = makeCanvas(800, 700);
 
 const compareClosestPoint = (
+  //
   context: Context,
   shapeType: string,
   shape: Shape,
