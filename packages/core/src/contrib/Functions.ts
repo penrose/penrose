@@ -1565,7 +1565,7 @@ export const compDict = {
   //   const Y = absVal(p1[1]) < absVal(p2[1]) ? p1[1] : p2[1];
   //   return { tag: "VectorV", contents: ops.vadd([X, Y], center) };
   // },
-//
+  //
   closestPoint: (
     _context: Context,
     [t, s]: [string, any],
@@ -1578,6 +1578,7 @@ export const compDict = {
      * @param a
      * @param b
      * @returns
+     * This code is so awful but there's not a more efficient way of doing it that I could find
      */
     const clamp = (
       _context: Context,
@@ -1587,7 +1588,7 @@ export const compDict = {
     ): ad.Num => {
       return max(l, min(u, x));
     };
-    const getNearestPointRect = (
+    const closestPointRect = (
       _context: Context,
       l: ad.Num,
       t: ad.Num,
@@ -1613,6 +1614,22 @@ export const compDict = {
       retY = ifCond(eq(m, db), b, retY);
       return [retX, retY];
     };
+    const closestPointLine = (
+      _context: Context,
+      x: ad.Num[],
+      a: ad.Num[], //
+      b: ad.Num[]
+    ): ad.Num[] => {
+      const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
+      const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
+      const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
+      const atp_dot_atb = add(
+        mul(a_to_p[0], a_to_b[0]),
+        mul(a_to_p[1], a_to_b[1])
+      );
+      const t = clamp(_context, div(atp_dot_atb, atb2), 0, 1);
+      return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
+    };
     if (t === "Circle") {
       /**
        * Implementing formula
@@ -1637,7 +1654,7 @@ export const compDict = {
     ) {
       return {
         tag: "VectorV",
-        contents: getNearestPointRect(
+        contents: closestPointRect(
           _context,
           sub(s.center.contents[0], div(s.width.contents, 2)),
           sub(s.center.contents[1], div(s.height.contents, 2)),
@@ -1647,6 +1664,18 @@ export const compDict = {
           p[1]
         ),
       };
+    } else if (t === "Line") {
+      return {
+        tag: "VectorV",
+        contents: closestPointLine(
+          _context,
+          p,
+          s.start.contents,
+          s.end.contents
+        ),
+      };
+    } else if (t === "Polyline") {
+      return { tag: "VectorV", contents: [] };
     } else return { tag: "VectorV", contents: [] };
   },
 };
