@@ -5,7 +5,7 @@
       "substance": "tree",
       "style": "venn",
       "domain": "set-theory",
-      "variation": "CasalViper643"
+      "variation": "PlumvilleCapybara104"
     },
     {
       "substance": "tree",
@@ -92,6 +92,12 @@
       "variation": ""
     },
     {
+      "substance": "siggraph-teaser",
+      "style": "euclidean-teaser",
+      "domain": "geometry",
+      "variation": "ArtemisiaGrasshopper36446"
+    },
+    {
       "substance": "non-convex",
       "style": "non-convex",
       "domain": "non-convex",
@@ -101,7 +107,7 @@
       "substance": "lagrange-bases",
       "style": "lagrange-bases",
       "domain": "lagrange-bases",
-      "variation": "TimberwolfSquirrel25242"
+      "variation": "ConceptualMeerkat694"
     },
     {
       "substance": "hypergraph",
@@ -114,6 +120,48 @@
       "style": "persistent-homology",
       "domain": "persistent-homology",
       "variation": "RainmakerMarten88256"
+    },
+    {
+      "substance": "wos-laplace-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "DangerCheetah45572"
+    },
+    {
+      "substance": "wos-poisson-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "TideHawk3699"
+    },
+    {
+      "substance": "wos-nested-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "BilletOpossum89420"
+    },
+    {
+      "substance": "wos-offcenter-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "ShireStork246"
+    },
+    {
+      "substance": "points-around-star",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "ReformLapwing68793"
+    },
+    {
+      "substance": "points-around-polyline",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "SharkskinWalrus24396"
+    },
+    {
+      "substance": "points-around-line",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "GalapagosLocust418"
     }
   ],
   "domains": {
@@ -156,6 +204,14 @@
     "persistent-homology": {
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.dsl"
+    },
+    "walk-on-spheres": {
+      "name": "Walk on Spheres",
+      "URI": "walk-on-spheres/walk-on-spheres.dsl"
+    },
+    "shape-distance": {
+      "name": "Signed Distance Function",
+      "URI": "shape-distance/shapes.dsl"
     }
   },
   "styles": {
@@ -219,6 +275,11 @@
       "name": "Euclidean 2D Geometry",
       "URI": "geometry-domain/euclidean.sty"
     },
+    "euclidean-teaser": {
+      "domain": "geometry",
+      "name": "Euclidean - SIGGRAPH teaser",
+      "URI": "geometry-domain/euclidean-teaser.sty"
+    },
     "non-convex": {
       "domain": "non-convex",
       "name": "Non-convex Shape",
@@ -238,6 +299,15 @@
       "domain": "persistent-homology",
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.sty"
+    },
+    "walk-on-spheres": {
+      "name": "Walk on Spheres",
+      "URI": "walk-on-spheres/walk-on-spheres.sty"
+    },
+    "shape-distance": {
+      "domain": "shape-distance",
+      "name": "Sign Distance Functions",
+      "URI": "shape-distance/shape-distance.sty"
     }
   },
   "substances": {
@@ -270,6 +340,11 @@
       "domain": "graph-theory",
       "name": "Small graph",
       "URI": "graph-domain/small-graph.sub"
+    },
+    "siggraph-teaser": {
+      "domain": "geometry",
+      "name": "SIGGRAPH teaser",
+      "URI": "geometry-domain/teaser.sub"
     },
     "collinear": {
       "domain": "geometry",
@@ -320,6 +395,41 @@
       "domain": "persistent-homology",
       "name": "Persistent Homology",
       "URI": "persistent-homology/persistent-homology.sub"
+    },
+    "wos-laplace-estimator": {
+      "domain": "walk-on-spheres",
+      "name": "WoS Laplace Estimator",
+      "URI": "walk-on-spheres/Laplace.sub"
+    },
+    "wos-poisson-estimator": {
+      "domain": "walk-on-spheres",
+      "name": "WoS Laplace Estimator",
+      "URI": "walk-on-spheres/Poisson.sub"
+    },
+    "wos-nested-estimator": {
+      "domain": "walk-on-spheres",
+      "name": "WoS Laplace Estimator",
+      "URI": "walk-on-spheres/Nested.sub"
+    },
+    "wos-offcenter-estimator": {
+      "domain": "walk-on-spheres",
+      "name": "WoS Laplace Estimator",
+      "URI": "walk-on-spheres/OffCenter.sub"
+    },
+    "points-around-star": {
+      "domain": "shape-distance",
+      "name": "Points around a Star",
+      "URI": "shape-distance/hundred-points-around-star.sub"
+    },
+    "points-around-polyline": {
+      "domain": "shape-distance",
+      "name": "Points around a Polyline",
+      "URI": "shape-distance/ninety-points-around-polyline.sub"
+    },
+    "points-around-line": {
+      "domain": "shape-distance",
+      "name": "Points around a Line",
+      "URI": "shape-distance/hundred-points-around-line.sub"
     }
   }
 }

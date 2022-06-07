@@ -17,6 +17,21 @@ export default function Settings() {
     <div>
       <div>
         <label>
+          debug mode{" "}
+          <input
+            type="checkbox"
+            checked={settings.contents.debugMode}
+            onChange={(e) =>
+              setSettings((state) => ({
+                ...state,
+                debugMode: e.target.checked,
+              }))
+            }
+          />
+        </label>
+      </div>
+      <div>
+        <label>
           vim mode{" "}
           <input
             type="checkbox"

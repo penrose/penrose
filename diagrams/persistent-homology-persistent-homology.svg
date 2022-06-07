@@ -1,106 +1,106 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="577.6653710232333"
-    cy="336.9399201011592"
+    cx="61.880698729686856"
+    cy="338.18006687470006"
     stroke="none"
-    r="52.07322695552145"
+    r="7.988789677739428"
   >
-    <title>P10.circle3</title>
+    <title>`P5`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="673.2570717428539"
-    cy="354.4401776376829"
+    cx="193.98988017838357"
+    cy="376.6540925893203"
     stroke="none"
-    r="52.09534207677081"
+    r="7.988784604730767"
   >
-    <title>P9.circle3</title>
+    <title>`P10`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="680.1082262082903"
-    cy="286.73247343579345"
+    cx="95.36300548301972"
+    cy="453.57683412431504"
     stroke="none"
-    r="52.024016565473744"
+    r="7.988792143019287"
   >
-    <title>P8.circle3</title>
+    <title>`P3`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="743.1543385333259"
-    cy="360.21902339439754"
+    cx="122.57339780675869"
+    cy="463.3626692417897"
     stroke="none"
-    r="52.06637360526497"
+    r="7.9888549580685355"
   >
-    <title>P7.circle3</title>
+    <title>`P2`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="747.9062041534787"
-    cy="292.1771750244527"
+    cx="112.59043049449201"
+    cy="285.11000941230884"
     stroke="none"
-    r="52.09432471639102"
+    r="7.988787555728697"
   >
-    <title>P6.circle3</title>
+    <title>`P6`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="747.9279255087564"
-    cy="195.0054854678316"
+    cx="198.16229107019626"
+    cy="246.60190530785195"
     stroke="none"
-    r="52.065139213071944"
+    r="7.988783470982126"
   >
-    <title>P5.circle3</title>
+    <title>`P8`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="701.0539563346606"
-    cy="174.58303969197937"
+    cx="174.63120054761578"
+    cy="308.6428899173926"
     stroke="none"
-    r="52.06727631712183"
+    r="7.988783268788347"
   >
-    <title>P4.circle3</title>
+    <title>`P9`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="607.0581310024494"
-    cy="199.0957749165581"
+    cx="52.00803643322229"
+    cy="377.90917052758556"
     stroke="none"
-    r="52.068046393431544"
+    r="7.988789551932996"
   >
-    <title>P3.circle3</title>
+    <title>`P4`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="577.1350994182646"
-    cy="197.04298809741778"
+    cx="136.12310493824208"
+    cy="223.07127946121886"
     stroke="none"
-    r="52.066308161373954"
+    r="7.988786664957715"
   >
-    <title>P2.circle3</title>
+    <title>`P7`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="576.1321563396245"
-    cy="239.80923914118796"
+    cx="143.15646834196468"
+    cy="447.08472286018434"
     stroke="none"
-    r="52.06188990340551"
+    r="7.988846577640304"
   >
-    <title>P1.circle3</title>
+    <title>`P1`.circle1</title>
   </circle>
   <g
-    transform="rotate(0, 524.0702664362191, 187.74734923778246)translate(524.0702664362191, 187.74734923778246)"
+    transform="rotate(0, 87.37421334000044, 445.58804198129576)translate(87.37421334000044, 445.58804198129576)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -114,8 +114,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.12377980681102"
-      height="104.12377980681102"
+      width="15.977584286038574"
+      height="15.977584286038574"
     >
       <style type="text/css">
         .st0 {
@@ -149,105 +149,105 @@
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="281.2477936238892"
-    cy="336.9399201011592"
+    cx="308.0339693265699"
+    cy="338.18006687470006"
     stroke="none"
-    r="29.054044549683272"
+    r="28.182382309927398"
   >
-    <title>P10.circle2</title>
+    <title>`P5`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="376.83919702494813"
-    cy="354.4401776376829"
+    cx="440.1431537877821"
+    cy="376.6540925893203"
     stroke="none"
-    r="29.040956576764902"
+    r="28.182414844046207"
   >
-    <title>P9.circle2</title>
+    <title>`P10`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="383.6760085619533"
-    cy="286.73247343579345"
+    cx="341.51624963263527"
+    cy="453.57683412431504"
     stroke="none"
-    r="29.02410565534539"
+    r="28.18235936140247"
   >
-    <title>P8.circle2</title>
+    <title>`P3`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="446.7373658020106"
-    cy="360.21902339439754"
+    cx="368.7266063430174"
+    cy="463.3626692417897"
     stroke="none"
-    r="29.05411104428102"
+    r="28.182412338385603"
   >
-    <title>P7.circle2</title>
+    <title>`P2`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="451.50274195912687"
-    cy="292.1771750244527"
+    cx="358.74370246000245"
+    cy="285.11000941230884"
     stroke="none"
-    r="29.03722597758778"
+    r="28.177587175257692"
   >
-    <title>P6.circle2</title>
+    <title>`P6`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="451.5031082664709"
-    cy="195.0054854678316"
+    cx="444.3162894264821"
+    cy="246.60190530785195"
     stroke="none"
-    r="29.057864004359978"
+    r="28.177855254372126"
   >
-    <title>P5.circle2</title>
+    <title>`P8`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="404.64014315735545"
-    cy="174.58303969197937"
+    cx="420.784472326233"
+    cy="308.6428899173926"
     stroke="none"
-    r="29.05786461030455"
+    r="28.178300944790177"
   >
-    <title>P4.circle2</title>
+    <title>`P9`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="310.6387568714224"
-    cy="199.0957749165581"
+    cx="298.1620326459905"
+    cy="377.90917052758556"
     stroke="none"
-    r="29.05774066848995"
+    r="28.182411989085704"
   >
-    <title>P3.circle2</title>
+    <title>`P4`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="280.7180837864805"
-    cy="197.04298809741778"
+    cx="382.27637128160455"
+    cy="223.07127946121886"
     stroke="none"
-    r="29.054044954362226"
+    r="28.177148094712155"
   >
-    <title>P2.circle2</title>
+    <title>`P7`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="279.72575081790774"
-    cy="239.80923914118796"
+    cx="389.30981893430226"
+    cy="447.08472286018434"
     stroke="none"
-    r="29.057746188704584"
+    r="28.182358348601102"
   >
-    <title>P1.circle2</title>
+    <title>`P1`.circle2</title>
   </circle>
   <g
-    transform="rotate(0, 250.66800462920315, 210.75149295248337)translate(250.66800462920315, 210.75149295248337)"
+    transform="rotate(0, 313.3338902712328, 425.3944747629126)translate(313.3338902712328, 425.3944747629126)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -261,8 +261,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.11549237740917"
-      height="58.11549237740917"
+      width="56.36471872280494"
+      height="56.36471872280494"
     >
       <style type="text/css">
         .st0 {
@@ -294,107 +294,107 @@
     </svg>
   </g>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="9.473527916590342"
-    cy="336.9399201011592"
+    cx="579.0166626530466"
+    cy="338.18006687470006"
     stroke="none"
-    r="7.954893679376416"
+    r="50.41298552425486"
   >
-    <title>P10.circle1</title>
+    <title>`P5`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="105.06493894989916"
-    cy="354.4401776376829"
+    cx="711.1259221590119"
+    cy="376.6540925893203"
     stroke="none"
-    r="7.954923519875253"
+    r="50.412950921601144"
   >
-    <title>P9.circle1</title>
+    <title>`P10`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="111.90175088945671"
-    cy="286.73247343579345"
+    cx="612.4990483057467"
+    cy="453.57683412431504"
     stroke="none"
-    r="7.954921679635969"
+    r="50.41288714257009"
   >
-    <title>P8.circle1</title>
+    <title>`P3`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="174.96310812977808"
-    cy="360.21902339439754"
+    cx="639.7096535376801"
+    cy="463.3626692417897"
     stroke="none"
-    r="7.954922486813676"
+    r="50.41218393355983"
   >
-    <title>P7.circle1</title>
+    <title>`P2`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="179.72731774063482"
-    cy="292.1771750244527"
+    cx="629.7292915858894"
+    cy="285.11000941230884"
     stroke="none"
-    r="7.954923722196334"
+    r="50.41487419527776"
   >
-    <title>P6.circle1</title>
+    <title>`P6`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="179.72745427809778"
-    cy="195.0054854678316"
+    cx="715.2965590678057"
+    cy="246.60190530785195"
     stroke="none"
-    r="7.954921596281423"
+    r="50.41563964068729"
   >
-    <title>P5.circle1</title>
+    <title>`P8`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="132.86588535744738"
-    cy="174.58303969197937"
+    cx="691.7657870209397"
+    cy="308.6428899173926"
     stroke="none"
-    r="7.95492444223082"
+    r="50.416414991069004"
   >
-    <title>P4.circle1</title>
+    <title>`P9`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="38.86451079780005"
-    cy="199.0957749165581"
+    cx="569.143935770008"
+    cy="377.90917052758556"
     stroke="none"
-    r="7.954905072136665"
+    r="50.411516350561946"
   >
-    <title>P3.circle1</title>
+    <title>`P4`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="8.943792346104715"
-    cy="197.04298809741778"
+    cx="653.2605375290286"
+    cy="223.07127946121886"
     stroke="none"
-    r="7.954918861759638"
+    r="50.416365360195094"
   >
-    <title>P2.circle1</title>
+    <title>`P7`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="7.950208969129903"
-    cy="239.80923914118796"
+    cx="660.2925136522298"
+    cy="447.08472286018434"
     stroke="none"
-    r="7.952284552698781"
+    r="50.41298962026202"
   >
-    <title>P1.circle1</title>
+    <title>`P1`.circle3</title>
   </circle>
   <g
-    transform="rotate(0, -0.0020755835688772706, 231.85695458848917)translate(-0.0020755835688772706, 231.85695458848917)"
+    transform="rotate(0, 562.0861611631766, 403.16394698174497)translate(562.0861611631766, 403.16394698174497)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -408,8 +408,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.904569105397561"
-      height="15.904569105397561"
+      width="100.82577428514018"
+      height="100.82577428514018"
     >
       <style type="text/css">
         .st0 {
@@ -441,7 +441,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 525.5921440677118, 284.8666931456378)translate(525.5921440677118, 284.8666931456378)"
+    transform="rotate(0, 135.16762176432437, 439.09587628254405)translate(135.16762176432437, 439.09587628254405)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -455,8 +455,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.1464539110429"
-      height="104.1464539110429"
+      width="15.977693155280608"
+      height="15.977693155280608"
     >
       <style type="text/css">
         .st0 {
@@ -488,7 +488,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 252.19374907420593, 307.8858755514759)translate(252.19374907420593, 307.8858755514759)"
+    transform="rotate(0, 361.12746058570116, 418.90236451158324)translate(361.12746058570116, 418.90236451158324)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -502,8 +502,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.108089099366545"
-      height="58.108089099366545"
+      width="56.364716697202205"
+      height="56.364716697202205"
     >
       <style type="text/css">
         .st0 {
@@ -535,7 +535,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 1.5186342372139263, 328.9850264217828)translate(1.5186342372139263, 328.9850264217828)"
+    transform="rotate(0, 609.8795240319678, 396.67173323992233)translate(609.8795240319678, 396.67173323992233)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -549,191 +549,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909787358752832"
-      height="15.909787358752832"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g>
-    <marker
-      id="C3P10P1.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P10P1.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 577.6653710232333 336.9399201011592 L 576.1321563396245 239.80923914118796"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P10P1.line</title>
-  </g>
-  <g
-    transform="rotate(0, 621.161729666083, 302.3448355609121)translate(621.161729666083, 302.3448355609121)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="104.19068415354162"
-      height="104.19068415354162"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 347.7982404481832, 325.39922106091797)translate(347.7982404481832, 325.39922106091797)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="58.081913153529804"
-      height="58.081913153529804"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 97.1100154300239, 346.48525411780764)translate(97.1100154300239, 346.48525411780764)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="15.909847039750506"
-      height="15.909847039750506"
+      width="100.82597924052403"
+      height="100.82597924052403"
     >
       <style type="text/css">
         .st0 {
@@ -766,7 +583,7 @@
   </g>
   <g>
     <marker
-      id="C3P9P10.line-leftArrowhead"
+      id="`C3P3P1`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -782,7 +599,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P9P10.line-rightArrowhead"
+      id="`C3P3P1`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -798,16 +615,16 @@
       ></path>
     </marker>
     <path
-      d="M 673.2570717428539 354.4401776376829 L 577.6653710232333 336.9399201011592"
+      d="M 612.4990483057467 453.57683412431504 L 660.2925136522298 447.08472286018434"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P9P10.line</title>
+    <title>`C3P3P1`.line</title>
   </g>
   <g
-    transform="rotate(0, 628.0842096428165, 234.7084568703197)translate(628.0842096428165, 234.7084568703197)"
+    transform="rotate(0, 190.17350759921413, 238.61312183686982)translate(190.17350759921413, 238.61312183686982)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -821,8 +638,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.04803313094749"
-      height="104.04803313094749"
+      width="15.977566941964252"
+      height="15.977566941964252"
     >
       <style type="text/css">
         .st0 {
@@ -854,7 +671,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 354.6519029066079, 257.70836778044804)translate(354.6519029066079, 257.70836778044804)"
+    transform="rotate(0, 416.13843417211, 218.42405005347982)translate(416.13843417211, 218.42405005347982)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -868,8 +685,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.04821131069078"
-      height="58.04821131069078"
+      width="56.35571050874425"
+      height="56.35571050874425"
     >
       <style type="text/css">
         .st0 {
@@ -901,7 +718,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 103.94682920982073, 278.7775517561575)translate(103.94682920982073, 278.7775517561575)"
+    transform="rotate(0, 664.8809194271184, 196.18626566716466)translate(664.8809194271184, 196.18626566716466)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -915,8 +732,149 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909843359271939"
-      height="15.909843359271939"
+      width="100.83127928137458"
+      height="100.83127928137458"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 166.64241727882742, 300.6541066486043)translate(166.64241727882742, 300.6541066486043)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="15.977566537576694"
+      height="15.977566537576694"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 392.60617138144283, 280.4645889726024)translate(392.60617138144283, 280.4645889726024)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="56.356601889580354"
+      height="56.356601889580354"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 641.3493720298707, 258.2264749263236)translate(641.3493720298707, 258.2264749263236)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="100.83282998213801"
+      height="100.83282998213801"
     >
       <style type="text/css">
         .st0 {
@@ -949,7 +907,7 @@
   </g>
   <g>
     <marker
-      id="C3P8P9.line-leftArrowhead"
+      id="`C3P8P9`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -965,7 +923,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P8P9.line-rightArrowhead"
+      id="`C3P8P9`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -981,16 +939,16 @@
       ></path>
     </marker>
     <path
-      d="M 680.1082262082903 286.73247343579345 L 673.2570717428539 354.4401776376829"
+      d="M 715.2965590678057 246.60190530785195 L 691.7657870209397 308.6428899173926"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P8P9.line</title>
+    <title>`C3P8P9`.line</title>
   </g>
   <g
-    transform="rotate(0, 691.087964928061, 308.15264978913257)translate(691.087964928061, 308.15264978913257)"
+    transform="rotate(0, 186.0010955736528, 368.66530798458956)translate(186.0010955736528, 368.66530798458956)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1004,8 +962,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.13274721052994"
-      height="104.13274721052994"
+      width="15.977569209461533"
+      height="15.977569209461533"
     >
       <style type="text/css">
         .st0 {
@@ -1037,7 +995,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 417.68325475772957, 331.16491235011654)translate(417.68325475772957, 331.16491235011654)"
+    transform="rotate(0, 411.9607389437359, 348.4716777452741)translate(411.9607389437359, 348.4716777452741)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1051,8 +1009,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.10822208856204"
-      height="58.10822208856204"
+      width="56.364829688092414"
+      height="56.364829688092414"
     >
       <style type="text/css">
         .st0 {
@@ -1084,7 +1042,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 167.0081856429644, 352.26410090758384)translate(167.0081856429644, 352.26410090758384)"
+    transform="rotate(0, 660.7129712374108, 326.2411416677192)translate(660.7129712374108, 326.2411416677192)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1098,8 +1056,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909844973627353"
-      height="15.909844973627353"
+      width="100.82590184320229"
+      height="100.82590184320229"
     >
       <style type="text/css">
         .st0 {
@@ -1132,7 +1090,7 @@
   </g>
   <g>
     <marker
-      id="C3P7P9.line-leftArrowhead"
+      id="`C3P10P1`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1148,7 +1106,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P7P9.line-rightArrowhead"
+      id="`C3P10P1`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1164,58 +1122,46 @@
       ></path>
     </marker>
     <path
-      d="M 743.1543385333259 360.21902339439754 L 673.2570717428539 354.4401776376829"
+      d="M 711.1259221590119 376.6540925893203 L 660.2925136522298 447.08472286018434"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P7P9.line</title>
+    <title>`C3P10P1`.line</title>
   </g>
-  <g>
-    <marker
-      id="C3P7P8.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P7P8.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 743.1543385333259 360.21902339439754 L 680.1082262082903 286.73247343579345"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P7P8.line</title>
-  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="95.36300548301972"
+    cy="453.57683412431504"
+    stroke="none"
+    r="3"
+  >
+    <title>`P3`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="341.51624963263527"
+    cy="453.57683412431504"
+    stroke="none"
+    r="3"
+  >
+    <title>`P3`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="612.4990483057467"
+    cy="453.57683412431504"
+    stroke="none"
+    r="3"
+  >
+    <title>`P3`.dot3</title>
+  </circle>
   <g
-    transform="rotate(0, 695.8118794370877, 240.0828503080617)translate(695.8118794370877, 240.0828503080617)"
+    transform="rotate(0, 128.13431827328435, 215.08249279626114)translate(128.13431827328435, 215.08249279626114)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1229,8 +1175,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.18864943278204"
-      height="104.18864943278204"
+      width="15.97757332991543"
+      height="15.97757332991543"
     >
       <style type="text/css">
         .st0 {
@@ -1262,7 +1208,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 422.46551598153906, 263.1399490468649)translate(422.46551598153906, 263.1399490468649)"
+    transform="rotate(0, 354.0992231868924, 194.8941313665067)translate(354.0992231868924, 194.8941313665067)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1276,8 +1222,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.07445195517556"
-      height="58.07445195517556"
+      width="56.35429618942431"
+      height="56.35429618942431"
     >
       <style type="text/css">
         .st0 {
@@ -1309,7 +1255,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 171.7723940184385, 284.2222513022564)translate(171.7723940184385, 284.2222513022564)"
+    transform="rotate(0, 602.8441721688336, 172.65491410102376)translate(602.8441721688336, 172.65491410102376)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1323,275 +1269,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909847444392668"
-      height="15.909847444392668"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g>
-    <marker
-      id="C3P6P9.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P6P9.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 747.9062041534787 292.1771750244527 L 673.2570717428539 354.4401776376829"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P6P9.line</title>
-  </g>
-  <g>
-    <marker
-      id="C3P6P8.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P6P8.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 747.9062041534787 292.1771750244527 L 680.1082262082903 286.73247343579345"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P6P8.line</title>
-  </g>
-  <g>
-    <marker
-      id="C3P6P7.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P6P7.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 747.9062041534787 292.1771750244527 L 743.1543385333259 360.21902339439754"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P6P7.line</title>
-  </g>
-  <g
-    transform="rotate(0, 695.8627862956845, 142.94034625475965)translate(695.8627862956845, 142.94034625475965)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="104.13027842614389"
-      height="104.13027842614389"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 422.4452442621109, 165.94762146347162)translate(422.4452442621109, 165.94762146347162)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="58.115728008719955"
-      height="58.115728008719955"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 171.77253268181636, 187.05056387155017)translate(171.77253268181636, 187.05056387155017)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="15.909843192562846"
-      height="15.909843192562846"
+      width="100.83273072039019"
+      height="100.83273072039019"
     >
       <style type="text/css">
         .st0 {
@@ -1624,7 +1303,7 @@
   </g>
   <g>
     <marker
-      id="C3P5P6.line-leftArrowhead"
+      id="`C3P7P9`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1640,7 +1319,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P5P6.line-rightArrowhead"
+      id="`C3P7P9`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1656,158 +1335,89 @@
       ></path>
     </marker>
     <path
-      d="M 747.9279255087564 195.0054854678316 L 747.9062041534787 292.1771750244527"
+      d="M 653.2605375290286 223.07127946121886 L 691.7657870209397 308.6428899173926"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P5P6.line</title>
+    <title>`C3P7P9`.line</title>
   </g>
-  <g
-    transform="rotate(0, 648.9866800175388, 122.51576337485753)translate(648.9866800175388, 122.51576337485753)"
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="61.880698729686856"
+    cy="338.18006687470006"
+    stroke="none"
+    r="3"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="104.13455263424366"
-      height="104.13455263424366"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 375.5822785470509, 145.52517508167483)translate(375.5822785470509, 145.52517508167483)"
+    <title>`P5`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="308.0339693265699"
+    cy="338.18006687470006"
+    stroke="none"
+    r="3"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="58.1157292206091"
-      height="58.1157292206091"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 124.91096091521656, 166.62811524974853)translate(124.91096091521656, 166.62811524974853)"
+    <title>`P5`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="579.0166626530466"
+    cy="338.18006687470006"
+    stroke="none"
+    r="3"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="15.90984888446164"
-      height="15.90984888446164"
+    <title>`P5`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`C3P9P10`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
     >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P9P10`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 691.7657870209397 308.6428899173926 L 711.1259221590119 376.6540925893203"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P9P10`.line</title>
   </g>
   <g>
     <marker
-      id="C3P4P5.line-leftArrowhead"
+      id="`C3P7P8`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1823,7 +1433,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P4P5.line-rightArrowhead"
+      id="`C3P7P8`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1839,158 +1449,17 @@
       ></path>
     </marker>
     <path
-      d="M 701.0539563346606 174.58303969197937 L 747.9279255087564 195.0054854678316"
+      d="M 653.2605375290286 223.07127946121886 L 715.2965590678057 246.60190530785195"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P4P5.line</title>
-  </g>
-  <g
-    transform="rotate(0, 554.9900846090178, 147.02772852312654)translate(554.9900846090178, 147.02772852312654)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="104.13609278686309"
-      height="104.13609278686309"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 281.58101620293246, 170.03803424806816)translate(281.58101620293246, 170.03803424806816)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="58.1154813369799"
-      height="58.1154813369799"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 30.909605725663386, 191.14086984442145)translate(30.909605725663386, 191.14086984442145)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="15.90981014427333"
-      height="15.90981014427333"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
+    <title>`C3P7P8`.line</title>
   </g>
   <g>
     <marker
-      id="C3P3P4.line-leftArrowhead"
+      id="`C2P3P1`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -2006,7 +1475,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P3P4.line-rightArrowhead"
+      id="`C2P3P1`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -2022,58 +1491,46 @@
       ></path>
     </marker>
     <path
-      d="M 607.0581310024494 199.0957749165581 L 701.0539563346606 174.58303969197937"
+      d="M 341.51624963263527 453.57683412431504 L 389.30981893430226 447.08472286018434"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P3P4.line</title>
+    <title>`C2P3P1`.line</title>
   </g>
-  <g>
-    <marker
-      id="C3P3P1.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P3P1.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 607.0581310024494 199.0957749165581 L 576.1321563396245 239.80923914118796"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P3P1.line</title>
-  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="52.00803643322229"
+    cy="377.90917052758556"
+    stroke="none"
+    r="3"
+  >
+    <title>`P4`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="298.1620326459905"
+    cy="377.90917052758556"
+    stroke="none"
+    r="3"
+  >
+    <title>`P4`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="569.143935770008"
+    cy="377.90917052758556"
+    stroke="none"
+    r="3"
+  >
+    <title>`P4`.dot3</title>
+  </circle>
   <g
-    transform="rotate(0, 525.0687912568907, 144.9766799360438)translate(525.0687912568907, 144.9766799360438)"
+    transform="rotate(0, 114.58454284869016, 455.3738142837212)translate(114.58454284869016, 455.3738142837212)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2087,8 +1544,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.13261632274791"
-      height="104.13261632274791"
+      width="15.977709916137071"
+      height="15.977709916137071"
     >
       <style type="text/css">
         .st0 {
@@ -2120,7 +1577,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 251.6640388321183, 167.98894314305556)translate(251.6640388321183, 167.98894314305556)"
+    transform="rotate(0, 340.5441940046318, 435.18025690340414)translate(340.5441940046318, 435.18025690340414)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2134,8 +1591,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.10808990872445"
-      height="58.10808990872445"
+      width="56.36482467677121"
+      height="56.36482467677121"
     >
       <style type="text/css">
         .st0 {
@@ -2167,7 +1624,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 0.9888734843450768, 189.08806923565814)translate(0.9888734843450768, 189.08806923565814)"
+    transform="rotate(0, 589.2974696041202, 412.9504853082299)translate(589.2974696041202, 412.9504853082299)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2181,8 +1638,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909837723519276"
-      height="15.909837723519276"
+      width="100.82436786711966"
+      height="100.82436786711966"
     >
       <style type="text/css">
         .st0 {
@@ -2215,7 +1672,7 @@
   </g>
   <g>
     <marker
-      id="C3P2P3.line-leftArrowhead"
+      id="`C2P1P2`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -2231,7 +1688,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P2P3.line-rightArrowhead"
+      id="`C2P1P2`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -2247,695 +1704,1115 @@
       ></path>
     </marker>
     <path
-      d="M 577.1350994182646 197.04298809741778 L 607.0581310024494 199.0957749165581"
+      d="M 389.30981893430226 447.08472286018434 L 368.7266063430174 463.3626692417897"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P2P3.line</title>
-  </g>
-  <g>
-    <marker
-      id="C3P1P2.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P1P2.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 576.1321563396245 239.80923914118796 L 577.1350994182646 197.04298809741778"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P1P2.line</title>
-  </g>
-  <g>
-    <marker
-      id="C2P4P5.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C2P4P5.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 404.64014315735545 174.58303969197937 L 451.5031082664709 195.0054854678316"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C2P4P5.line</title>
-  </g>
-  <g>
-    <marker
-      id="C2P3P1.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C2P3P1.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 310.6387568714224 199.0957749165581 L 279.72575081790774 239.80923914118796"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C2P3P1.line</title>
-  </g>
-  <g>
-    <marker
-      id="C2P2P3.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C2P2P3.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 280.7180837864805 197.04298809741778 L 310.6387568714224 199.0957749165581"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C2P2P3.line</title>
-  </g>
-  <g>
-    <marker
-      id="C2P1P2.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C2P1P2.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 279.72575081790774 239.80923914118796 L 280.7180837864805 197.04298809741778"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C2P1P2.line</title>
+    <title>`C2P1P2`.line</title>
   </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="577.6653710232333"
-    cy="336.9399201011592"
+    cx="193.98988017838357"
+    cy="376.6540925893203"
     stroke="none"
     r="3"
   >
-    <title>P10.dot3</title>
+    <title>`P10`.dot1</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="281.2477936238892"
-    cy="336.9399201011592"
+    cx="440.1431537877821"
+    cy="376.6540925893203"
     stroke="none"
     r="3"
   >
-    <title>P10.dot2</title>
+    <title>`P10`.dot2</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="9.473527916590342"
-    cy="336.9399201011592"
+    cx="711.1259221590119"
+    cy="376.6540925893203"
     stroke="none"
     r="3"
   >
-    <title>P10.dot1</title>
+    <title>`P10`.dot3</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="673.2570717428539"
-    cy="354.4401776376829"
+    cx="198.16229107019626"
+    cy="246.60190530785195"
     stroke="none"
     r="3"
   >
-    <title>P9.dot3</title>
+    <title>`P8`.dot1</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="376.83919702494813"
-    cy="354.4401776376829"
+    cx="444.3162894264821"
+    cy="246.60190530785195"
     stroke="none"
     r="3"
   >
-    <title>P9.dot2</title>
+    <title>`P8`.dot2</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="105.06493894989916"
-    cy="354.4401776376829"
+    cx="715.2965590678057"
+    cy="246.60190530785195"
     stroke="none"
     r="3"
   >
-    <title>P9.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="680.1082262082903"
-    cy="286.73247343579345"
-    stroke="none"
-    r="3"
-  >
-    <title>P8.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="383.6760085619533"
-    cy="286.73247343579345"
-    stroke="none"
-    r="3"
-  >
-    <title>P8.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="111.90175088945671"
-    cy="286.73247343579345"
-    stroke="none"
-    r="3"
-  >
-    <title>P8.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="743.1543385333259"
-    cy="360.21902339439754"
-    stroke="none"
-    r="3"
-  >
-    <title>P7.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="446.7373658020106"
-    cy="360.21902339439754"
-    stroke="none"
-    r="3"
-  >
-    <title>P7.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="174.96310812977808"
-    cy="360.21902339439754"
-    stroke="none"
-    r="3"
-  >
-    <title>P7.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="747.9062041534787"
-    cy="292.1771750244527"
-    stroke="none"
-    r="3"
-  >
-    <title>P6.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="451.50274195912687"
-    cy="292.1771750244527"
-    stroke="none"
-    r="3"
-  >
-    <title>P6.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="179.72731774063482"
-    cy="292.1771750244527"
-    stroke="none"
-    r="3"
-  >
-    <title>P6.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="747.9279255087564"
-    cy="195.0054854678316"
-    stroke="none"
-    r="3"
-  >
-    <title>P5.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="451.5031082664709"
-    cy="195.0054854678316"
-    stroke="none"
-    r="3"
-  >
-    <title>P5.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="179.72745427809778"
-    cy="195.0054854678316"
-    stroke="none"
-    r="3"
-  >
-    <title>P5.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="701.0539563346606"
-    cy="174.58303969197937"
-    stroke="none"
-    r="3"
-  >
-    <title>P4.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="404.64014315735545"
-    cy="174.58303969197937"
-    stroke="none"
-    r="3"
-  >
-    <title>P4.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="132.86588535744738"
-    cy="174.58303969197937"
-    stroke="none"
-    r="3"
-  >
-    <title>P4.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="607.0581310024494"
-    cy="199.0957749165581"
-    stroke="none"
-    r="3"
-  >
-    <title>P3.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="310.6387568714224"
-    cy="199.0957749165581"
-    stroke="none"
-    r="3"
-  >
-    <title>P3.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="38.86451079780005"
-    cy="199.0957749165581"
-    stroke="none"
-    r="3"
-  >
-    <title>P3.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="577.1350994182646"
-    cy="197.04298809741778"
-    stroke="none"
-    r="3"
-  >
-    <title>P2.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="280.7180837864805"
-    cy="197.04298809741778"
-    stroke="none"
-    r="3"
-  >
-    <title>P2.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="8.943792346104715"
-    cy="197.04298809741778"
-    stroke="none"
-    r="3"
-  >
-    <title>P2.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="576.1321563396245"
-    cy="239.80923914118796"
-    stroke="none"
-    r="3"
-  >
-    <title>P1.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="279.72575081790774"
-    cy="239.80923914118796"
-    stroke="none"
-    r="3"
-  >
-    <title>P1.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="7.950208969129903"
-    cy="239.80923914118796"
-    stroke="none"
-    r="3"
-  >
-    <title>P1.dot1</title>
+    <title>`P8`.dot3</title>
   </circle>
   <g
-    transform="rotate(0, 645.9093443337188, 77.31261063309638)translate(645.9093443337188, 77.31261063309638)"
-    string="X \oplus B_{\varepsilon_{3}}"
+    transform="rotate(0, 53.89190905194743, 330.19127719696064)translate(53.89190905194743, 330.19127719696064)"
   >
-    <title>F.lab3</title>
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
     <svg
-      style="font-size: 24p"
+      version="1.1"
+      id="Layer_1"
       xmlns="http://www.w3.org/2000/svg"
-      width="104.32092222986924"
-      height="29.85"
-      role="img"
-      focusable="false"
-      viewBox="0 -758.5 3554.6 1017.1"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="15.977579355478856"
+      height="15.977579355478856"
     >
-      <g
-        stroke="currentColor"
-        fill="#1a1a80"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
       >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,8.5)">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D44B"
-                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-                    stroke="none"
-                  ></path>
-                </g>
-                <g data-mml-node="mo" transform="translate(1074.2,0)">
-                  <path
-                    data-c="2295"
-                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
-                    stroke="none"
-                  ></path>
-                </g>
-                <g data-mml-node="msub" transform="translate(2074.4,0)">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D435"
-                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
-                      stroke="none"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="TeXAtom"
-                    transform="translate(792,-150) scale(0.707)"
-                    data-mjx-texclass="ORD"
-                  >
-                    <g data-mml-node="msub">
-                      <g data-mml-node="mi">
-                        <path
-                          data-c="1D700"
-                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                          stroke="none"
-                        ></path>
-                      </g>
-                      <g
-                        data-mml-node="TeXAtom"
-                        transform="translate(499,-150) scale(0.707)"
-                        data-mjx-texclass="ORD"
-                      >
-                        <g data-mml-node="mn">
-                          <path
-                            data-c="33"
-                            d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
-                            stroke="none"
-                          ></path>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
   <g
-    transform="rotate(0, 349.1517571382442, 77.37761063309638)translate(349.1517571382442, 77.37761063309638)"
-    string="X \oplus B_{\varepsilon_{2}}"
+    transform="rotate(0, 279.8515870166425, 309.99768456477267)translate(279.8515870166425, 309.99768456477267)"
   >
-    <title>F.lab2</title>
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
     <svg
-      style="font-size: 24p"
+      version="1.1"
+      id="Layer_1"
       xmlns="http://www.w3.org/2000/svg"
-      width="105.00219858860947"
-      height="29.72"
-      role="img"
-      focusable="false"
-      viewBox="0 -753 3554.6 1006.1"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="56.364764619854796"
+      height="56.364764619854796"
     >
-      <g
-        stroke="currentColor"
-        fill="#801a1a"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
       >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,3)">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D44B"
-                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-                    stroke="none"
-                  ></path>
-                </g>
-                <g data-mml-node="mo" transform="translate(1074.2,0)">
-                  <path
-                    data-c="2295"
-                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
-                    stroke="none"
-                  ></path>
-                </g>
-                <g data-mml-node="msub" transform="translate(2074.4,0)">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D435"
-                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
-                      stroke="none"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="TeXAtom"
-                    transform="translate(792,-150) scale(0.707)"
-                    data-mjx-texclass="ORD"
-                  >
-                    <g data-mml-node="msub">
-                      <g data-mml-node="mi">
-                        <path
-                          data-c="1D700"
-                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                          stroke="none"
-                        ></path>
-                      </g>
-                      <g
-                        data-mml-node="TeXAtom"
-                        transform="translate(499,-150) scale(0.707)"
-                        data-mjx-texclass="ORD"
-                      >
-                        <g data-mml-node="mn">
-                          <path
-                            data-c="32"
-                            d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
-                            stroke="none"
-                          ></path>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
   <g
-    transform="rotate(0, 77.37744585166493, 77.37761063309638)translate(77.37744585166493, 77.37761063309638)"
+    transform="rotate(0, 528.6036771287918, 287.7670813504452)translate(528.6036771287918, 287.7670813504452)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="100.82597104850971"
+      height="100.82597104850971"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 104.60164293876332, 277.1212218565801)translate(104.60164293876332, 277.1212218565801)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="15.977575111457394"
+      height="15.977575111457394"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 330.56611528474474, 256.9324222370511)translate(330.56611528474474, 256.9324222370511)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="56.355174350515384"
+      height="56.355174350515384"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 579.3144173906117, 234.69513521703107)translate(579.3144173906117, 234.69513521703107)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="100.82974839055552"
+      height="100.82974839055552"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g>
+    <marker
+      id="`C3P5P6`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P5P6`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 579.0166626530466 338.18006687470006 L 629.7292915858894 285.11000941230884"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P5P6`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P6P9`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P6P9`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 629.7292915858894 285.11000941230884 L 691.7657870209397 308.6428899173926"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P6P9`.line</title>
+  </g>
+  <g
+    transform="rotate(0, 44.01924688128929, 369.92038097565256)translate(44.01924688128929, 369.92038097565256)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="15.977579103865992"
+      height="15.977579103865992"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 269.9796206569048, 349.72675853849984)translate(269.9796206569048, 349.72675853849984)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="56.36482397817141"
+      height="56.36482397817141"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 518.7324194194462, 327.4976541770236)translate(518.7324194194462, 327.4976541770236)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="100.82303270112389"
+      height="100.82303270112389"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g>
+    <marker
+      id="`C2P4P5`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C2P4P5`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 298.1620326459905 377.90917052758556 L 308.0339693265699 338.18006687470006"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C2P4P5`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P2P3`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P2P3`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 639.7096535376801 463.3626692417897 L 612.4990483057467 453.57683412431504"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P2P3`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P1P2`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P1P2`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 660.2925136522298 447.08472286018434 L 639.7096535376801 463.3626692417897"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P1P2`.line</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="136.12310493824208"
+    cy="223.07127946121886"
+    stroke="none"
+    r="3"
+  >
+    <title>`P7`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="382.27637128160455"
+    cy="223.07127946121886"
+    stroke="none"
+    r="3"
+  >
+    <title>`P7`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="653.2605375290286"
+    cy="223.07127946121886"
+    stroke="none"
+    r="3"
+  >
+    <title>`P7`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`C2P2P3`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C2P2P3`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 368.7266063430174 463.3626692417897 L 341.51624963263527 453.57683412431504"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C2P2P3`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P3P4`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P3P4`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 612.4990483057467 453.57683412431504 L 569.143935770008 377.90917052758556"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P3P4`.line</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="122.57339780675869"
+    cy="463.3626692417897"
+    stroke="none"
+    r="3"
+  >
+    <title>`P2`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="368.7266063430174"
+    cy="463.3626692417897"
+    stroke="none"
+    r="3"
+  >
+    <title>`P2`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="639.7096535376801"
+    cy="463.3626692417897"
+    stroke="none"
+    r="3"
+  >
+    <title>`P2`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`C3P6P7`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P6P7`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 629.7292915858894 285.11000941230884 L 653.2605375290286 223.07127946121886"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P6P7`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P4P5`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P4P5`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 569.143935770008 377.90917052758556 L 579.0166626530466 338.18006687470006"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P4P5`.line</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="143.15646834196468"
+    cy="447.08472286018434"
+    stroke="none"
+    r="3"
+  >
+    <title>`P1`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="389.30981893430226"
+    cy="447.08472286018434"
+    stroke="none"
+    r="3"
+  >
+    <title>`P1`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="660.2925136522298"
+    cy="447.08472286018434"
+    stroke="none"
+    r="3"
+  >
+    <title>`P1`.dot3</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="174.63120054761578"
+    cy="308.6428899173926"
+    stroke="none"
+    r="3"
+  >
+    <title>`P9`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="420.784472326233"
+    cy="308.6428899173926"
+    stroke="none"
+    r="3"
+  >
+    <title>`P9`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="691.7657870209397"
+    cy="308.6428899173926"
+    stroke="none"
+    r="3"
+  >
+    <title>`P9`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`C3P6P8`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P6P8`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 629.7292915858894 285.11000941230884 L 715.2965590678057 246.60190530785195"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P6P8`.line</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="112.59043049449201"
+    cy="285.11000941230884"
+    stroke="none"
+    r="3"
+  >
+    <title>`P6`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="358.74370246000245"
+    cy="285.11000941230884"
+    stroke="none"
+    r="3"
+  >
+    <title>`P6`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="629.7292915858894"
+    cy="285.11000941230884"
+    stroke="none"
+    r="3"
+  >
+    <title>`P6`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`F`.axis-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <marker
+      id="`F`.axis-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <path
+      d="M 58.6016455625375 544.0527788742085 L 730.0303544374625 544.0527788742085"
+      stroke-opacity="0.5"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#`F`.axis-rightArrowhead)"
+    ></path>
+    <title>`F`.axis</title>
+  </g>
+  <g
+    transform="rotate(0, 103.48144750177778, 127.78718578749674)translate(103.48144750177778, 127.78718578749674)"
     string="X \oplus B_{\varepsilon_{1}}"
   >
-    <title>F.lab1</title>
+    <title>`F`.lab1</title>
     <svg
       style="font-size: 24p"
       xmlns="http://www.w3.org/2000/svg"
@@ -3015,69 +2892,18 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 704.6842474486534, 450.64894895191975)translate(704.6842474486534, 450.64894895191975)"
-    string="\varepsilon_3"
+    transform="rotate(0, 349.6347872535572, 127.78718578749674)translate(349.6347872535572, 127.78718578749674)"
+    string="X \oplus B_{\varepsilon_{2}}"
   >
-    <title>F.eps3</title>
+    <title>`F`.lab2</title>
     <svg
       style="font-size: 24p"
       xmlns="http://www.w3.org/2000/svg"
-      width="26.771116"
-      height="29.66"
+      width="105.00219858860947"
+      height="29.72"
       role="img"
       focusable="false"
-      viewBox="0 -750 902.6 1000"
-    >
-      <g
-        stroke="currentColor"
-        fill="#1a1a80"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="msub">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D700"
-                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                      stroke="none"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="mn"
-                    transform="translate(499,-150) scale(0.707)"
-                  >
-                    <path
-                      data-c="33"
-                      d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
-                      stroke="none"
-                    ></path>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 408.26729843254896, 450.64894895191975)translate(408.26729843254896, 450.64894895191975)"
-    string="\varepsilon_2"
-  >
-    <title>F.eps2</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="26.771116"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 902.6 1000"
+      viewBox="0 -753 3554.6 1006.1"
     >
       <g
         stroke="currentColor"
@@ -3088,25 +2914,52 @@
       >
         <g data-mml-node="math">
           <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
+            <g data-mml-node="mtr" transform="translate(0,3)">
               <g data-mml-node="mtd">
-                <g data-mml-node="msub">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D44B"
+                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mo" transform="translate(1074.2,0)">
+                  <path
+                    data-c="2295"
+                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
+                  ></path>
+                </g>
+                <g data-mml-node="msub" transform="translate(2074.4,0)">
                   <g data-mml-node="mi">
                     <path
-                      data-c="1D700"
-                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                      stroke="none"
+                      data-c="1D435"
+                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
                     ></path>
                   </g>
                   <g
-                    data-mml-node="mn"
-                    transform="translate(499,-150) scale(0.707)"
+                    data-mml-node="TeXAtom"
+                    transform="translate(792,-150) scale(0.707)"
+                    data-mjx-texclass="ORD"
                   >
-                    <path
-                      data-c="32"
-                      d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
-                      stroke="none"
-                    ></path>
+                    <g data-mml-node="msub">
+                      <g data-mml-node="mi">
+                        <path
+                          data-c="1D700"
+                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+                        ></path>
+                      </g>
+                      <g
+                        data-mml-node="TeXAtom"
+                        transform="translate(499,-150) scale(0.707)"
+                        data-mjx-texclass="ORD"
+                      >
+                        <g data-mml-node="mn">
+                          <path
+                            data-c="32"
+                            d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+                          ></path>
+                        </g>
+                      </g>
+                    </g>
                   </g>
                 </g>
               </g>
@@ -3117,10 +2970,184 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 136.49298714596966, 450.64894895191975)translate(136.49298714596966, 450.64894895191975)"
+    transform="rotate(0, 620.9582224350354, 127.72218578749674)translate(620.9582224350354, 127.72218578749674)"
+    string="X \oplus B_{\varepsilon_{3}}"
+  >
+    <title>`F`.lab3</title>
+    <svg
+      style="font-size: 24p"
+      xmlns="http://www.w3.org/2000/svg"
+      width="104.32092222986924"
+      height="29.85"
+      role="img"
+      focusable="false"
+      viewBox="0 -758.5 3554.6 1017.1"
+    >
+      <g
+        stroke="none"
+        fill="#1a1a80"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="0.8"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr" transform="translate(0,8.5)">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D44B"
+                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mo" transform="translate(1074.2,0)">
+                  <path
+                    data-c="2295"
+                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
+                  ></path>
+                </g>
+                <g data-mml-node="msub" transform="translate(2074.4,0)">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D435"
+                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="TeXAtom"
+                    transform="translate(792,-150) scale(0.707)"
+                    data-mjx-texclass="ORD"
+                  >
+                    <g data-mml-node="msub">
+                      <g data-mml-node="mi">
+                        <path
+                          data-c="1D700"
+                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+                        ></path>
+                      </g>
+                      <g
+                        data-mml-node="TeXAtom"
+                        transform="translate(499,-150) scale(0.707)"
+                        data-mjx-texclass="ORD"
+                      >
+                        <g data-mml-node="mn">
+                          <path
+                            data-c="33"
+                            d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
+                          ></path>
+                        </g>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="58.6016455625375"
+    cy="544.0527788742085"
+    stroke="none"
+    r="4"
+  >
+    <title>`F`.dot0</title>
+  </circle>
+  <g
+    transform="rotate(0, 31.1866455625375, 529.2227788742084)translate(31.1866455625375, 529.2227788742084)"
+    string="0"
+  >
+    <title>`F`.eps0</title>
+    <svg
+      style="font-size: 24p"
+      xmlns="http://www.w3.org/2000/svg"
+      width="14.83"
+      height="29.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 500 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mn">
+                  <path
+                    data-c="30"
+                    d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="155.98254679608252"
+    cy="544.0527788742085"
+    stroke="none"
+    r="4"
+  >
+    <title>`F`.dot1</title>
+  </circle>
+  <g
+    transform="rotate(0, 754.4875744374625, 529.2227788742084)translate(754.4875744374625, 529.2227788742084)"
+    string="\varepsilon"
+  >
+    <title>`F`.eps</title>
+    <svg
+      style="font-size: 24p"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.82156"
+      height="29.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 466 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D700"
+                    d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 162.5969887960825, 549.2227788742084)translate(162.5969887960825, 549.2227788742084)"
     string="\varepsilon_1"
   >
-    <title>F.eps1</title>
+    <title>`F`.eps1</title>
     <svg
       style="font-size: 24p"
       xmlns="http://www.w3.org/2000/svg"
@@ -3167,76 +3194,57 @@
       </g>
     </svg>
   </g>
-  <g
-    transform="rotate(0, 785.6764768108166, 430.64894895191975)translate(785.6764768108166, 430.64894895191975)"
-    string="\varepsilon"
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="402.1358865478619"
+    cy="544.0527788742085"
+    stroke="none"
+    r="4"
   >
-    <title>F.eps</title>
+    <title>`F`.dot2</title>
+  </circle>
+  <g
+    transform="rotate(0, 408.7503285478619, 549.2227788742084)translate(408.7503285478619, 549.2227788742084)"
+    string="\varepsilon_2"
+  >
+    <title>`F`.eps2</title>
     <svg
       style="font-size: 24p"
       xmlns="http://www.w3.org/2000/svg"
-      width="13.82156"
+      width="26.771116"
       height="29.66"
       role="img"
       focusable="false"
-      viewBox="0 -750 466 1000"
+      viewBox="0 -750 902.6 1000"
     >
       <g
-        stroke="currentColor"
-        fill="#000000"
+        stroke="none"
+        fill="#801a1a"
         stroke-width="0"
         transform="scale(1,-1)"
-        fill-opacity="1"
+        fill-opacity="0.8"
       >
         <g data-mml-node="math">
           <g data-mml-node="mtable">
             <g data-mml-node="mtr">
               <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D700"
-                    d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                    stroke="none"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, -0.002256810816654742, 430.64894895191975)translate(-0.002256810816654742, 430.64894895191975)"
-    string="0"
-  >
-    <title>F.eps0</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="14.83"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 500 1000"
-    >
-      <g
-        stroke="currentColor"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mn">
-                  <path
-                    data-c="30"
-                    d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
-                    stroke="none"
-                  ></path>
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D700"
+                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(499,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="32"
+                      d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+                    ></path>
+                  </g>
                 </g>
               </g>
             </g>
@@ -3248,84 +3256,60 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="698.0698054486534"
-    cy="445.47894895191973"
+    cx="673.11868354997"
+    cy="544.0527788742085"
     stroke="none"
     r="4"
   >
-    <title>F.dot3</title>
+    <title>`F`.dot3</title>
   </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="401.65285643254896"
-    cy="445.47894895191973"
-    stroke="none"
-    r="4"
+  <g
+    transform="rotate(0, 679.73312554997, 549.2227788742084)translate(679.73312554997, 549.2227788742084)"
+    string="\varepsilon_3"
   >
-    <title>F.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="129.87854514596967"
-    cy="445.47894895191973"
-    stroke="none"
-    r="4"
-  >
-    <title>F.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="27.412743189183345"
-    cy="445.47894895191973"
-    stroke="none"
-    r="4"
-  >
-    <title>F.dot0</title>
-  </circle>
-  <g>
-    <marker
-      id="F.axis-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
+    <title>`F`.eps3</title>
+    <svg
+      style="font-size: 24p"
+      xmlns="http://www.w3.org/2000/svg"
+      width="26.771116"
+      height="29.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 902.6 1000"
     >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="F.axis-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <path
-      d="M 27.412743189183345 445.47894895191973 L 761.2192568108167 445.47894895191973"
-      stroke-opacity="0.5"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-      marker-end="url(#F.axis-rightArrowhead)"
-    ></path>
-    <title>F.axis</title>
+      <g
+        stroke="none"
+        fill="#1a1a80"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="0.8"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D700"
+                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(499,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="33"
+                      d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
   </g>
 </svg>

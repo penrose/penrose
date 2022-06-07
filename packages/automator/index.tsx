@@ -5,7 +5,6 @@ import {
   getListOfStagedStates,
   prepareState,
   RenderStatic,
-  resample,
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
@@ -14,6 +13,7 @@ import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";
 import * as fs from "fs";
 import neodoc from "neodoc";
+import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
 import * as prettier from "prettier";
 import uniqid from "uniqid";
@@ -99,8 +99,7 @@ const singleProcess = async (
   const compiledState = compilerOutput.value;
 
   const labelStart = process.hrtime();
-  // resample because initial sampling did not use the special sampling seed
-  const initialState = resample(await prepareState(compiledState));
+  const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
 
   console.log(`Stepping for ${out} ...`);
@@ -122,6 +121,18 @@ const singleProcess = async (
   const listOfCanvasData: string[] = [];
   let canvas;
   const resolvePath = async (filePath: string) => {
+    // Handle absolute URLs
+    if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
+      const fileURL = new URL(filePath).href;
+      try {
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      } catch (e) {
+        return undefined;
+      }
+    }
+
+    // Relative paths
     const parentDir = parse(join(prefix, sty)).dir;
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();

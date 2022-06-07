@@ -1,8 +1,11 @@
 import { Action, Actions, Layout, Model, TabNode } from "flexlayout-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
-import CompGraph from "./components/CompGraph";
+import {
+  useRecoilCallback,
+  useRecoilState,
+  useRecoilValueLoadable,
+} from "recoil";
 import DiagramOptions from "./components/DiagramOptions";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesBrowser from "./components/ExamplesBrowser";
@@ -14,24 +17,15 @@ import Settings from "./components/Settings";
 import StateInspector from "./components/StateInspector";
 import TopBar from "./components/TopBar";
 import {
+  currentRogerState,
   currentWorkspaceState,
   fileContentsSelector,
   localFilesState,
+  RogerState,
   settingsState,
   Workspace,
 } from "./state/atoms";
 import { useCheckURL } from "./state/callbacks";
-
-export type RogerState =
-  | {
-      kind: "disconnected";
-    }
-  | {
-      kind: "connected";
-      substance: string[];
-      style: string[];
-      domain: string[];
-    };
 
 export const layoutModel = Model.fromJson({
   global: {
@@ -61,6 +55,7 @@ export const layoutModel = Model.fromJson({
     },
     {
       type: "border",
+      className: "debugBorder",
       location: "right",
       children: [
         {
@@ -70,7 +65,6 @@ export const layoutModel = Model.fromJson({
         },
         { type: "tab", name: "state", component: "stateInspector" },
         { type: "tab", name: "opt", component: "optInspector" },
-        { type: "tab", name: "comp graph", component: "compGraph" },
       ],
     },
   ],
@@ -135,9 +129,9 @@ export const layoutModel = Model.fromJson({
 
 function App() {
   const ws = useRef<WebSocket | null>(null);
-  const [rogerState, setRogerState] = useState<RogerState>({
-    kind: "disconnected",
-  });
+  const [rogerState, setRogerState] = useRecoilState<RogerState>(
+    currentRogerState
+  );
 
   const panelFactory = useCallback(
     (node: TabNode) => {
@@ -158,8 +152,6 @@ function App() {
           return <StateInspector />;
         case "optInspector":
           return <Opt />;
-        case "compGraph":
-          return <CompGraph />;
         case "rogerPanel":
           return <RogerPanel rogerState={rogerState} ws={ws.current} />;
       }
@@ -225,7 +217,7 @@ function App() {
       const parsed = JSON.parse(e.data);
       switch (parsed.kind) {
         case "files":
-          setRogerState({ kind: "connected", ...parsed.files });
+          setRogerState({ kind: "connected", ...parsed.files, ws: ws.current });
           break;
         case "file_change":
           updatedFile(parsed.fileName, parsed.contents);

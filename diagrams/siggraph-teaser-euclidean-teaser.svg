@@ -1,0 +1,702 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <rect
+    x="50"
+    y="0"
+    width="700"
+    height="700"
+    fill="#f3f4f9"
+    fill-opacity="1"
+    stroke="#8ea0c4"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    rx="0"
+    transform="rotate(0, 50, 0)"
+  >
+    <title>`P`.icon</title>
+  </rect>
+  <g>
+    <marker
+      id="`h`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`h`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 547.7686297481371 176.74741935831833 L 461.84759772443897 205.9960253450014"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#8c90c1"
+      stroke-linecap="butt"
+      marker-start="url(#`h`.icon-leftArrowhead)"
+    ></path>
+    <title>`h`.icon</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="358.4258522964693"
+    cy="360.80264105987334"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`s`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 353.63546590490665, 326.1426407157807)translate(353.63546590490665, 326.1426407157807)"
+    color="[object Object]"
+    string="s"
+  >
+    <title>`s`.text</title>
+    <svg
+      style="font-size: 22pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.97254"
+      height="27.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 469 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D460"
+                    d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g style="solid" thickness="1.75">
+    <marker
+      id="`a`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`a`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 512.1632620675763 353.8038841188212 L 411.53193338130166 58.188166571181625"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`a`.icon</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="461.84759772443897"
+    cy="205.9960253450014"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`m`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 430.5621170833576, 193.2017747929562)translate(430.5621170833576, 193.2017747929562)"
+    string="m"
+    color="[object Object]"
+  >
+    <title>`m`.text</title>
+    <svg
+      style="font-size: 22pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.28548"
+      height="27.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 878 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D45A"
+                    d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g style="solid" thickness="1.75">
+    <marker
+      id="`b`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`b`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 512.1632620675763 353.8038841188212 L 248.91228400898763 539.900123299959"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`b`.icon</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="248.91228400898763"
+    cy="539.900123299959"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`r`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 229.43762326890317, 526.463488858201)translate(229.43762326890317, 526.463488858201)"
+    color="[object Object]"
+    string="r"
+  >
+    <title>`r`.text</title>
+    <svg
+      style="font-size: 22pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.47466"
+      height="27.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 451 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D45F"
+                    d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="512.1632620675763"
+    cy="353.8038841188212"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`p`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="411.53193338130166"
+    cy="58.188166571181625"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`q`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 418.5319369329122, 38.138378947666396)translate(418.5319369329122, 38.138378947666396)"
+    color="[object Object]"
+    string="q"
+  >
+    <title>`q`.text</title>
+    <svg
+      style="font-size: 22pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.723600000000001"
+      height="27.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 460 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D45E"
+                    d="M33 157Q33 258 109 349T280 441Q340 441 372 389Q373 390 377 395T388 406T404 418Q438 442 450 442Q454 442 457 439T460 434Q460 425 391 149Q320 -135 320 -139Q320 -147 365 -148H390Q396 -156 396 -157T393 -175Q389 -188 383 -194H370Q339 -192 262 -192Q234 -192 211 -192T174 -192T157 -193Q143 -193 143 -185Q143 -182 145 -170Q149 -154 152 -151T172 -148Q220 -148 230 -141Q238 -136 258 -53T279 32Q279 33 272 29Q224 -10 172 -10Q117 -10 75 30T33 157ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 708.897203016139, 10.415)translate(708.897203016139, 10.415)"
+    string="E^2"
+  >
+    <title>`P`.text</title>
+    <svg
+      style="font-size: 22pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="32.205593967722024"
+      height="29.17"
+      role="img"
+      focusable="false"
+      viewBox="0 -817 1251.9 1133.9"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr" transform="translate(0,-67)">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msup">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D438"
+                      d="M492 213Q472 213 472 226Q472 230 477 250T482 285Q482 316 461 323T364 330H312Q311 328 277 192T243 52Q243 48 254 48T334 46Q428 46 458 48T518 61Q567 77 599 117T670 248Q680 270 683 272Q690 274 698 274Q718 274 718 261Q613 7 608 2Q605 0 322 0H133Q31 0 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q146 66 215 342T285 622Q285 629 281 629Q273 632 228 634H197Q191 640 191 642T193 659Q197 676 203 680H757Q764 676 764 669Q764 664 751 557T737 447Q735 440 717 440H705Q698 445 698 453L701 476Q704 500 704 528Q704 558 697 578T678 609T643 625T596 632T532 634H485Q397 633 392 631Q388 629 386 622Q385 619 355 499T324 377Q347 376 372 376H398Q464 376 489 391T534 472Q538 488 540 490T557 493Q562 493 565 493T570 492T572 491T574 487T577 483L544 351Q511 218 508 216Q505 213 492 213Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(848.3,413) scale(0.707)"
+                  >
+                    <path
+                      data-c="32"
+                      d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 516.7284282824097, 320.8373527346121)translate(516.7284282824097, 320.8373527346121)"
+    color="[object Object]"
+    string="p"
+  >
+    <title>`p`.text</title>
+    <svg
+      style="font-size: 22pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.912980000000001"
+      height="27.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 503 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D45D"
+                    d="M23 287Q24 290 25 295T30 317T40 348T55 381T75 411T101 433T134 442Q209 442 230 378L240 387Q302 442 358 442Q423 442 460 395T497 281Q497 173 421 82T249 -10Q227 -10 210 -4Q199 1 187 11T168 28L161 36Q160 35 139 -51T118 -138Q118 -144 126 -145T163 -148H188Q194 -155 194 -157T191 -175Q188 -187 185 -190T172 -194Q170 -194 161 -194T127 -193T65 -192Q-5 -192 -24 -194H-32Q-39 -187 -39 -183Q-37 -156 -26 -148H-6Q28 -147 33 -136Q36 -130 94 103T155 350Q156 355 156 364Q156 405 131 405Q109 405 94 377T71 316T59 280Q57 278 43 278H29Q23 284 23 287ZM178 102Q200 26 252 26Q282 26 310 49T356 107Q374 141 392 215T411 325V331Q411 405 350 405Q339 405 328 402T306 393T286 380T269 365T254 350T243 336T235 326L232 322Q232 321 229 308T218 264T204 212Q178 106 178 102Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <filter id="`t`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#884eda"
+      fill="#1b1f8a"
+      stroke-width="0"
+      stroke-opacity="0.5"
+      fill-opacity="0.2"
+      d="M 512.1632620675763 353.8038841188212 L 358.4258522964693 360.80264105987334 L 248.91228400898763 539.900123299959 Z "
+    ></path>
+    <title>`t`.icon</title>
+  </g>
+  <g>
+    <marker
+      id="`t`.PQ-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#71792f"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <marker
+      id="`t`.PQ-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#71792f"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <path
+      d="M 512.1632620675763 353.8038841188212 L 248.91228400898763 539.900123299959"
+      stroke-opacity="0.5"
+      stroke-width="0"
+      stroke="#71792f"
+      stroke-linecap="butt"
+    ></path>
+    <title>`t`.PQ</title>
+  </g>
+  <g>
+    <marker
+      id="`t`.QR-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#d8a9b3"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <marker
+      id="`t`.QR-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#d8a9b3"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <path
+      d="M 248.91228400898763 539.900123299959 L 358.4258522964693 360.80264105987334"
+      stroke-opacity="0.5"
+      stroke-width="0"
+      stroke="#d8a9b3"
+      stroke-linecap="butt"
+    ></path>
+    <title>`t`.QR</title>
+  </g>
+  <g>
+    <marker
+      id="`t`.RP-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1b6339"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <marker
+      id="`t`.RP-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1b6339"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <path
+      d="M 358.4258522964693 360.80264105987334 L 512.1632620675763 353.8038841188212"
+      stroke-opacity="0.5"
+      stroke-width="0"
+      stroke="#1b6339"
+      stroke-linecap="butt"
+    ></path>
+    <title>`t`.RP</title>
+  </g>
+  <g>
+    <filter id="`h`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 471.31413304741227 202.7734969931039 L 468.0916046955147 193.30696167013065 L 458.62506926715866 196.52948967809698"
+    ></path>
+    <title>`h`.mark</title>
+  </g>
+  <g>
+    <marker
+      id="`w`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`w`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 512.1632620675763 353.8038841188212 L 425.82906583282437 325.79910107607276"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#8c90c1"
+      stroke-linecap="butt"
+      marker-end="url(#`w`.icon-rightArrowhead)"
+    ></path>
+    <title>`w`.icon</title>
+  </g>
+  <g>
+    <filter id="`theta`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8c90c1"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 502.4956763861493 325.40427620866404 A 30 30 0 0 0 487.66615853461303 371.12127025708213"
+    ></path>
+    <title>`theta`.mark</title>
+  </g>
+</svg>

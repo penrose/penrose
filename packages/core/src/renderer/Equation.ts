@@ -1,4 +1,3 @@
-import { retrieveLabel } from "utils/CollectLabels";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -27,7 +26,7 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
 
   if (shape.properties.name.tag === "StrV") {
     const name = shape.properties.name;
-    const retrievedLabel = retrieveLabel(name.contents, labels);
+    const retrievedLabel = labels.get(name.contents);
 
     if (retrievedLabel && retrievedLabel.tag === "EquationData") {
       const renderedLabel = retrievedLabel.rendered;

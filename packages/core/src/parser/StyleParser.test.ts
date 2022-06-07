@@ -62,8 +62,8 @@ const {
     const { results } = parser.feed(prog);
     sameASTs(results);
     const ast = results[0];
-    const keyword = ast.blocks[0].block.statements[0].path.field;
-    const id = ast.blocks[0].block.statements[1].path.field;
+    const keyword = ast.blocks[0].block.statements[0].path.members[0];
+    const id = ast.blocks[0].block.statements[1].path.members[0];
 
     expect(keyword.type).toEqual("type-keyword");
     expect(id.type).toEqual("identifier");
@@ -275,7 +275,7 @@ const {
       expect(stringAssign.value.contents).toEqual(
         "abs1232189y790yh97dasyhfda7fhnasopufn9"
       );
-    } else fail("First stmt is not an assignment to string");
+    } else throw Error("First stmt is not an assignment to string");
   });
 
   test("floating point expr", () => {

@@ -1,12 +1,18 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <rect
+    x="225"
+    y="175"
+    width="350"
+    height="350"
+    fill="none"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 225, 175)"
+  >
+    <title>`V`.background</title>
+  </rect>
   <g>
-    <filter
-      id="$LOCAL_block6_subst0.perpMark-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
+    <filter id="6:0:perpMark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -28,13 +34,13 @@
       stroke-width="1"
       stroke-opacity="1"
       fill-opacity="1"
-      d="M 400 350 L 418.9142102223211 343.49979958663573 L 412.41399722322177 324.58559361264514 L 393.4997870009006 331.08579402600947 Z "
+      d="M 400 350 L 400.40970998970397 330.00419977127495 L 420.4055108586476 330.41389393892626 L 419.9958008689436 350.40969416765137 Z "
     ></path>
-    <title>$LOCAL_block6_subst0.perpMark</title>
+    <title>6:0:perpMark</title>
   </g>
   <g>
     <marker
-      id="v.arrow-leftArrowhead"
+      id="`u`.arrow-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -50,7 +56,7 @@
       ></path>
     </marker>
     <marker
-      id="v.arrow-rightArrowhead"
+      id="`u`.arrow-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -66,19 +72,19 @@
       ></path>
     </marker>
     <path
-      d="M 400 350 L 345.54906914406206 191.55963476467264"
+      d="M 400 350 L 401.12794855900734 294.9507343707097"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
       stroke-linecap="butt"
-      marker-end="url(#v.arrow-rightArrowhead)"
+      marker-end="url(#`u`.arrow-rightArrowhead)"
     ></path>
-    <title>v.arrow</title>
+    <title>`u`.arrow</title>
   </g>
   <g style="solid">
     <marker
-      id="V.yAxis-leftArrowhead"
+      id="`V`.xAxis-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -94,51 +100,7 @@
       ></path>
     </marker>
     <marker
-      id="V.yAxis-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="13.93"
-      markerHeight="11.37"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#999999"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 400 513.6320000000001 L 400 186.368"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke="#999999"
-      stroke-linecap="butt"
-      marker-start="url(#V.yAxis-leftArrowhead)"
-      marker-end="url(#V.yAxis-rightArrowhead)"
-    ></path>
-    <title>V.yAxis</title>
-  </g>
-  <g style="solid">
-    <marker
-      id="V.xAxis-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="13.93"
-      markerHeight="11.37"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#999999"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="V.xAxis-rightArrowhead"
+      id="`V`.xAxis-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -159,56 +121,17 @@
       stroke-width="1"
       stroke="#999999"
       stroke-linecap="butt"
-      marker-start="url(#V.xAxis-leftArrowhead)"
-      marker-end="url(#V.xAxis-rightArrowhead)"
+      marker-start="url(#`V`.xAxis-leftArrowhead)"
+      marker-end="url(#`V`.xAxis-rightArrowhead)"
     ></path>
-    <title>V.xAxis</title>
+    <title>`V`.xAxis</title>
   </g>
-  <g
-    transform="rotate(0, 316.63631178457103, 177.84064714442584)translate(316.63631178457103, 177.84064714442584)"
-    string="v"
-  >
-    <title>v.text</title>
-    <svg
-      style="font-size: 12pt"
-      xmlns="http://www.w3.org/2000/svg"
-      width="8.5651"
-      height="17.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 485 1000"
-    >
-      <g
-        stroke="currentColor"
-        fill="#1a1ae6"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D463"
-                    d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"
-                    stroke="none"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g>
+  <g style="solid">
     <marker
-      id="u.arrow-leftArrowhead"
+      id="`V`.yAxis-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
+      markerWidth="13.93"
+      markerHeight="11.37"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -216,15 +139,15 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#1a1ae6"
+        fill="#999999"
         fill-opacity="1"
       ></path>
     </marker>
     <marker
-      id="u.arrow-rightArrowhead"
+      id="`V`.yAxis-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
+      markerWidth="13.93"
+      markerHeight="11.37"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -232,26 +155,26 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#1a1ae6"
+        fill="#999999"
         fill-opacity="1"
       ></path>
     </marker>
     <path
-      d="M 400 350 L 547.4492300590612 299.3264833733811"
+      d="M 400 513.6320000000001 L 400 186.368"
       stroke-opacity="1"
-      stroke-width="3"
-      stroke="#1a1ae6"
-      stroke-dasharray="4 1 2"
+      stroke-width="1"
+      stroke="#999999"
       stroke-linecap="butt"
-      marker-end="url(#u.arrow-rightArrowhead)"
+      marker-start="url(#`V`.yAxis-leftArrowhead)"
+      marker-end="url(#`V`.yAxis-rightArrowhead)"
     ></path>
-    <title>u.arrow</title>
+    <title>`V`.yAxis</title>
   </g>
   <g
-    transform="rotate(0, 562.698922747047, 261.1244122596918)translate(562.698922747047, 261.1244122596918)"
+    transform="rotate(0, 376.6028140904307, 280.50239686319554)translate(376.6028140904307, 280.50239686319554)"
     string="u"
   >
-    <title>u.text</title>
+    <title>`u`.text</title>
     <svg
       style="font-size: 12pt"
       xmlns="http://www.w3.org/2000/svg"
@@ -286,11 +209,93 @@
       </g>
     </svg>
   </g>
+  <g>
+    <marker
+      id="`v`.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1a1ae6"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`v`.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1a1ae6"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 400 350 L 464.3192084997661 351.3178369180117"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#1a1ae6"
+      stroke-dasharray="4 1 2"
+      stroke-linecap="butt"
+      marker-end="url(#`v`.arrow-rightArrowhead)"
+    ></path>
+    <title>`v`.arrow</title>
+  </g>
+  <g
+    transform="rotate(0, 457.80253059337315, 349.8101943018154)translate(457.80253059337315, 349.8101943018154)"
+    string="v"
+  >
+    <title>`v`.text</title>
+    <svg
+      style="font-size: 12pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="8.5651"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 485 1000"
+    >
+      <g
+        stroke="none"
+        fill="#1a1ae6"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D463"
+                    d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <g
     transform="rotate(0, 218.20973, 166.17)translate(218.20973, 166.17)"
     string="V"
   >
-    <title>V.text</title>
+    <title>`V`.text</title>
     <svg
       style="font-size: 12pt"
       xmlns="http://www.w3.org/2000/svg"
@@ -325,16 +330,4 @@
       </g>
     </svg>
   </g>
-  <rect
-    x="225"
-    y="175"
-    width="350"
-    height="350"
-    fill="none"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 225, 175)"
-  >
-    <title>V.background</title>
-  </rect>
 </svg>

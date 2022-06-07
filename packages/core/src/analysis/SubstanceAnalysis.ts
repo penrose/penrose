@@ -1,5 +1,5 @@
 import { prettyStmt } from "compiler/Substance";
-import { Map } from "immutable";
+import im from "immutable";
 import {
   cloneDeep,
   cloneDeepWith,
@@ -148,7 +148,7 @@ export const getStmt = <T>(prog: SubProg<T>, index: number): SubStmt<T> =>
  */
 export const matchDecls = <T>(
   stmt: ArgStmtDecl<T>,
-  opts: Map<string, ArgStmtDecl<T>>,
+  opts: im.Map<string, ArgStmtDecl<T>>,
   matchFunc: (a: Signature, b: Signature) => boolean
 ): ArgStmtDecl<T>[] => {
   //generate signature for the original statement
@@ -172,7 +172,7 @@ export const matchDecls = <T>(
 export const findDecl = (
   stmtName: string,
   env: Env
-): [ArgStmtDecl<C> | undefined, Map<string, ArgStmtDecl<C>>] => {
+): [ArgStmtDecl<C> | undefined, im.Map<string, ArgStmtDecl<C>>] => {
   let match: ArgStmtDecl<C> | undefined;
   match = env.predicates.get(stmtName);
   if (match !== undefined) return [match, env.predicates];
@@ -261,10 +261,10 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
 export const identicalTypeDecls = (
   ids: Identifier<A>[],
   env: Env
-): Map<string, Identifier<A>[]> => {
+): im.Map<string, Identifier<A>[]> => {
   // pulls just the variable names from the statement's parameters
   const idSet = ids.map((i) => i.value);
-  let options: Map<string, Identifier<A>[]> = Map();
+  let options: im.Map<string, Identifier<A>[]> = im.Map();
 
   idSet.forEach((i) => {
     const obj = env.vars.get(i);

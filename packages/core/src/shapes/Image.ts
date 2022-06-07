@@ -1,13 +1,12 @@
 import { Center, Named, Rect, Rotate, Shape } from "types/shapes";
 import { StrV } from "types/value";
+import { boolV, floatV, strV } from "utils/Util";
 import {
-  boolV,
   Canvas,
+  Context,
   sampleHeight,
   sampleVector,
   sampleWidth,
-  sampleZero,
-  strV,
 } from "./Samplers";
 
 export interface ImageProps extends Named, Center, Rect, Rotate {
@@ -17,16 +16,13 @@ export interface ImageProps extends Named, Center, Rect, Rotate {
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio
 }
 
-export const sampleImage = (
-  rng: seedrandom.prng,
-  canvas: Canvas
-): ImageProps => ({
+export const sampleImage = (context: Context, canvas: Canvas): ImageProps => ({
   name: strV("defaultImage"),
   style: strV(""),
-  center: sampleVector(rng, canvas),
-  width: sampleWidth(rng, canvas),
-  height: sampleHeight(rng, canvas),
-  rotation: sampleZero(),
+  center: sampleVector(context, canvas),
+  width: sampleWidth(context, canvas),
+  height: sampleHeight(context, canvas),
+  rotation: floatV(0),
   href: strV("defaultImage"),
   ensureOnCanvas: boolV(true),
 });
@@ -34,11 +30,11 @@ export const sampleImage = (
 export type Image = Shape & { shapeType: "Image" } & ImageProps;
 
 export const makeImage = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas,
   properties: Partial<ImageProps>
 ): Image => ({
-  ...sampleImage(rng, canvas),
+  ...sampleImage(context, canvas),
   ...properties,
   shapeType: "Image",
 });
