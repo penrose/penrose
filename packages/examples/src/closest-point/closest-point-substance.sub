@@ -1,0 +1,11 @@
+Point p1
+Point p2
+Point p3
+Point p4
+Point p5
+Rectangle r
+-- ClosestPoint(p1,r)
+-- ClosestPoint(p2,r)
+-- ClosestPoint(p3,r)
+-- ClosestPoint(p4,r)
+-- ClosestPoint(p5,r)
