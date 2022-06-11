@@ -1616,7 +1616,7 @@ export const compDict = {
     };
     const closestPointLine = (
       _context: Context,
-      x: ad.Num[],
+      p: ad.Num[],
       a: ad.Num[], //
       b: ad.Num[]
     ): ad.Num[] => {
@@ -1675,7 +1675,63 @@ export const compDict = {
         ),
       };
     } else if (t === "Polyline") {
-      return { tag: "VectorV", contents: [] };
+      const closestPoints: ad.Num[][] = [];
+      const dist: ad.Num[] = [];
+      for (let i = 0; i < s.points.contents.length - 1; i++) {
+        const start = s.points.contents[i];
+        const end = s.points.contents[i + 1];
+        closestPoints[i] = closestPointPolyline(p, start, end);
+        dist[i] = sqrt(
+          add(
+            squared(sub(p[0], closestPoints[i][0])),
+            squared(sub(p[1], closestPoints[i][1]))
+          )
+        );
+      }
+      let retX: ad.Num = closestPoints[0][0];
+      let retY: ad.Num = closestPoints[0][1];
+      let retCond: ad.Num = dist[0];
+      for (let i = 0; i < s.points.contents.length - 1; i++) {
+        retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
+        retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
+        retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
+      }
+      return { tag: "VectorV", contents: [retX, retY] };
+    } else if (t === "Polygon") {
+      const closestPoints: ad.Num[][] = [];
+      const dist: ad.Num[] = [];
+      let i = 0;
+      for (; i < s.points.contents.length - 1; i++) {
+        const start = s.points.contents[i];
+        const end = s.points.contents[i + 1];
+        closestPoints[i] = closestPointPolyline(p, start, end);
+        dist[i] = sqrt(
+          add(
+            squared(sub(p[0], closestPoints[i][0])),
+            squared(sub(p[1], closestPoints[i][1]))
+          )
+        );
+      }
+      const start = s.points.contents[i];
+      const end = s.points.contents[0];
+      closestPoints[i] = closestPointPolyline(p, start, end);
+      dist[i] = sqrt(
+        add(
+          squared(sub(p[0], closestPoints[i][0])),
+          squared(sub(p[1], closestPoints[i][1]))
+        )
+      );
+      let retX: ad.Num = closestPoints[0][0];
+      let retY: ad.Num = closestPoints[0][1];
+      let retCond: ad.Num = dist[0];
+      for (let i = 0; i < s.points.contents.length; i++) {
+        retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
+        retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
+        retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
+      }
+      return { tag: "VectorV", contents: [retX, retY] };
+    } else if (t === "Ellipse") {
+      return { tag: "VectorV", contents: closestPointEllipse(s, p) };
     } else return { tag: "VectorV", contents: [] };
   },
 };
@@ -1689,6 +1745,19 @@ export const compDict = {
     return length( pa - ba*h );
   }
 */
+
+const closestPointPolyline = (
+  p: ad.Num[],
+  a: ad.Num[], //
+  b: ad.Num[]
+): ad.Num[] => {
+  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
+  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
+  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
+  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
+  const t = clamp([0, 1], div(atp_dot_atb, atb2));
+  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
+};
 const sdLine = (s: Line, p: ad.Num[]): ad.Num => {
   return sdLineAsNums(s.start.contents, s.end.contents, p);
 };
@@ -1708,6 +1777,63 @@ const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
     dists[i] = sdLineAsNums(start, end, p);
   }
   return minN(dists);
+};
+
+export const closestPointEllipse = (s: Ellipse, p: ad.Num[]): ad.Num[] => {
+  return closestPointEllipseCoords(
+    s.rx.contents,
+    s.ry.contents,
+    s.center.contents,
+    p
+  );
+};
+
+export const closestPointEllipseCoords = (
+  //Note this is an approximation function!!
+  radiusx: ad.Num,
+  radiusy: ad.Num,
+  center: ad.Num[],
+  pInput: ad.Num[]
+): ad.Num[] => {
+  const pOffset = ops.vsub(pInput, center);
+  const px = absVal(pOffset[0]);
+  const py = absVal(pOffset[1]);
+
+  let t = div(Math.PI, 4);
+  let x: ad.Num = 0;
+  let y: ad.Num = 0;
+
+  const a = radiusx;
+  const b = radiusy;
+  for (let i = 0; i < 100; i++) {
+    x = mul(a, cos(t));
+    y = mul(b, sin(t));
+
+    const ex = div(mul(sub(squared(a), squared(b)), pow(cos(t), 3)), a);
+    const ey = div(mul(sub(squared(b), squared(a)), pow(sin(t), 3)), b);
+
+    const rx = sub(x, ex);
+    const ry = sub(y, ey);
+
+    const qx = sub(px, ex);
+    const qy = sub(py, ey);
+
+    const r = sqrt(add(squared(ry), squared(rx)));
+    const q = sqrt(add(squared(qy), squared(qx)));
+
+    const delta_c = mul(r, asin(div(sub(mul(rx, qy), mul(ry, qx)), mul(r, q))));
+    const delta_t = div(
+      delta_c,
+      sqrt(sub(sub(add(squared(a), squared(b)), squared(x)), squared(y)))
+    );
+    t = add(t, delta_t);
+    t = min(div(Math.PI, 2), max(0, t));
+  }
+  x = mul(msign(pInput[0]), absVal(x));
+  y = mul(msign(pInput[1]), absVal(y));
+  x = add(x, center[0]);
+  y = add(y, center[1]);
+  return [x, y];
 };
 
 export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
@@ -1759,7 +1885,6 @@ export const sdEllipseAsNums = (
     abUnswizzled[1]
   );
   // float l = ab.y*ab.y - ab.x*ab.x;
-
   const l = sub(squared(ab[1]), squared(ab[0]));
   // float m = ab.x*p.x/l;
   const m = div(mul(ab[0], p[0]), l);

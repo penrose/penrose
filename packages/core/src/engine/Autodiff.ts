@@ -1104,6 +1104,7 @@ export const genCode = ({
     `secondary: [${secondary.join(", ")}]`,
   ];
   stmts.push(`return { ${fields.join(", ")} };`);
+  // fs.writeFileSync("gencodeOutput.txt", stmts.join("\n"));
   const f = new Function("polyRoots", "inputs", stmts.join("\n"));
   return (inputs) => f(polyRoots, inputs);
 };
