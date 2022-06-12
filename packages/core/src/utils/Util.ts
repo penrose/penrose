@@ -703,8 +703,6 @@ export const getAdValueAsString = (prop: Value<ad.Num>): string => {
       break;
     case "StrV":
       return prop.contents;
-    case "ColorV":
-      return prop.contents.tag;
   }
   throw new Error(`getAdValueAsString: unexpected tag ${prop.tag}`);
 };
@@ -736,7 +734,7 @@ export const getAdValueAsNumber = (prop: Value<ad.Num>): number => {
  */
 export const getAdValueAsColor = (prop: Value<ad.Num>): Color<ad.Num> => {
   if (prop.tag === "ColorV") return prop.contents;
-  throw new Error(`getAdValueAsNumber: unexpected tag ${prop.tag}`);
+  throw new Error(`getAdValueAsColor: unexpected tag ${prop.tag}`);
 };
 
 //#endregion
