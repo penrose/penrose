@@ -754,6 +754,264 @@
       viewBox="0 -750 764 1000"
     >
       <g
+        stroke="none"
+        fill="#ffffff"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D438"
+                    d="M492 213Q472 213 472 226Q472 230 477 250T482 285Q482 316 461 323T364 330H312Q311 328 277 192T243 52Q243 48 254 48T334 46Q428 46 458 48T518 61Q567 77 599 117T670 248Q680 270 683 272Q690 274 698 274Q718 274 718 261Q613 7 608 2Q605 0 322 0H133Q31 0 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q146 66 215 342T285 622Q285 629 281 629Q273 632 228 634H197Q191 640 191 642T193 659Q197 676 203 680H757Q764 676 764 669Q764 664 751 557T737 447Q735 440 717 440H705Q698 445 698 453L701 476Q704 500 704 528Q704 558 697 578T678 609T643 625T596 632T532 634H485Q397 633 392 631Q388 629 386 622Q385 619 355 499T324 377Q347 376 372 376H398Q464 376 489 391T534 472Q538 488 540 490T557 493Q562 493 565 493T570 492T572 491T574 487T577 483L544 351Q511 218 508 216Q505 213 492 213Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 499.6135850493226, 300.1020760537593)translate(499.6135850493226, 300.1020760537593)"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 874.58 820.84"
+      width="45.044917602563956"
+      height="46.511496315205584"
+    >
+      <defs>
+        <linearGradient
+          id="linear-gradient"
+          x1="214.17"
+          y1="30.72"
+          x2="996.08"
+          y2="1361.33"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"></stop>
+          <stop offset="0.88"></stop>
+        </linearGradient>
+      </defs>
+      <title>shadow</title>
+      <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+          <ellipse
+            cx="437.29"
+            cy="410.42"
+            rx="437.29"
+            ry="410.42"
+            opacity="0.3"
+            fill="url(#linear-gradient)"
+          ></ellipse>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 499.92785191631725, 300.26968504948974)translate(499.92785191631725, 300.26968504948974)"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 829.57 829.57"
+      width="41.90224893261764"
+      height="41.90224893261764"
+    >
+      <defs>
+        <radialGradient
+          id="radial-gradient"
+          cx="388.77"
+          cy="378.93"
+          fx="227.19844299493337"
+          fy="199.3018850052363"
+          r="571.68"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.14" stop-color="#dbdbdb"></stop>
+          <stop offset="0.29" stop-color="#bdbdbd"></stop>
+          <stop offset="0.6" stop-color="#707070"></stop>
+          <stop offset="0.72" stop-color="#525252"></stop>
+          <stop offset="0.76" stop-color="#656565"></stop>
+          <stop offset="0.84" stop-color="#959595"></stop>
+          <stop offset="0.96" stop-color="#e2e2e2"></stop>
+          <stop offset="1" stop-color="#fff"></stop>
+        </radialGradient>
+      </defs>
+      <title>shading</title>
+      <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+          <circle
+            cx="414.78"
+            cy="414.78"
+            r="414.78"
+            fill="url(#radial-gradient)"
+          ></circle>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#422b9b"
+    fill-opacity="0.5"
+    cx="520.8789763826261"
+    cy="321.2208095157986"
+    stroke="none"
+    r="20.95112446630882"
+  >
+    <title>`G`.shape</title>
+  </circle>
+  <g
+    transform="rotate(0, 515.646120197237, 315.984812414577)translate(515.646120197237, 315.984812414577)"
+    string="G"
+  >
+    <title>`G`.text</title>
+    <svg
+      style="font-size: 12pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="10.47556223315441"
+      height="10.47556223315441"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 786 1000"
+    >
+      <g
+        stroke="none"
+        fill="#ffffff"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43A"
+                    d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q492 659 471 656T418 643T357 615T294 567T236 496T189 394T158 260Q156 242 156 221Q156 173 170 136T206 79T256 45T308 28T353 24Q407 24 452 47T514 106Q517 114 529 161T541 214Q541 222 528 224T468 227H431Q425 233 425 235T427 254Q431 267 437 273H454Q494 271 594 271Q634 271 659 271T695 272T707 272Q721 272 721 263Q721 261 719 249Q714 230 709 228Q706 227 694 227Q674 227 653 224Q646 221 643 215T629 164Q620 131 614 108Q589 6 586 3Q584 1 581 1Q571 1 553 21T530 52Q530 53 528 52T522 47Q448 -22 322 -22Q201 -22 126 55T50 252Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 265.27980233536516, 390.87036512143214)translate(265.27980233536516, 390.87036512143214)"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 874.58 820.84"
+      width="43.21330649774534"
+      height="44.62025136046264"
+    >
+      <defs>
+        <linearGradient
+          id="linear-gradient"
+          x1="214.17"
+          y1="30.72"
+          x2="996.08"
+          y2="1361.33"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"></stop>
+          <stop offset="0.88"></stop>
+        </linearGradient>
+      </defs>
+      <title>shadow</title>
+      <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+          <ellipse
+            cx="437.29"
+            cy="410.42"
+            rx="437.29"
+            ry="410.42"
+            opacity="0.3"
+            fill="url(#linear-gradient)"
+          ></ellipse>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 265.5812905202331, 391.03115882002834)translate(265.5812905202331, 391.03115882002834)"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 829.57 829.57"
+      width="40.19842464906544"
+      height="40.19842464906544"
+    >
+      <defs>
+        <radialGradient
+          id="radial-gradient"
+          cx="388.77"
+          cy="378.93"
+          fx="227.19844299493337"
+          fy="199.3018850052363"
+          r="571.68"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.14" stop-color="#dbdbdb"></stop>
+          <stop offset="0.29" stop-color="#bdbdbd"></stop>
+          <stop offset="0.6" stop-color="#707070"></stop>
+          <stop offset="0.72" stop-color="#525252"></stop>
+          <stop offset="0.76" stop-color="#656565"></stop>
+          <stop offset="0.84" stop-color="#959595"></stop>
+          <stop offset="0.96" stop-color="#e2e2e2"></stop>
+          <stop offset="1" stop-color="#fff"></stop>
+        </radialGradient>
+      </defs>
+      <title>shading</title>
+      <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+          <circle
+            cx="414.78"
+            cy="414.78"
+            r="414.78"
+            fill="url(#radial-gradient)"
+          ></circle>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#5de47e"
+    fill-opacity="0.5"
+    cx="285.68050284476584"
+    cy="411.1303711445611"
+    stroke="none"
+    r="20.09921232453272"
+  >
+    <title>`E`.shape</title>
+  </circle>
+  <g
+    transform="rotate(0, 280.66180289678573, 406.11004119473745)translate(280.66180289678573, 406.11004119473745)"
+    string="E"
+  >
+    <title>`E`.text</title>
+    <svg
+      style="font-size: 12pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="10.04960616226636"
+      height="10.04960616226636"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 764 1000"
+    >
+      <g
         stroke="currentColor"
         fill="#ffffff"
         stroke-width="0"

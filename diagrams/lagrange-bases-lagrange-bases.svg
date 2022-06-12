@@ -328,7 +328,7 @@
   >
     <title>`b`.labelText</title>
     <svg
-      style="vertical-align: -0.616ex"
+      style="font-size: 6"
       xmlns="http://www.w3.org/2000/svg"
       width="10.216402987933344"
       height="12.16"
@@ -337,7 +337,7 @@
       viewBox="0 -772.1 877.3 1044.2"
     >
       <g
-        stroke="currentColor"
+        stroke="none"
         fill="#000000"
         stroke-width="0"
         transform="scale(1,-1)"
@@ -377,7 +377,7 @@
   >
     <title>`c`.labelText</title>
     <svg
-      style="vertical-align: -0.616ex"
+      style="font-size: 6"
       xmlns="http://www.w3.org/2000/svg"
       width="11.128304"
       height="11.66"
@@ -426,7 +426,7 @@
   >
     <title>`d`.labelText</title>
     <svg
-      style="vertical-align: -0.616ex"
+      style="font-size: 6"
       xmlns="http://www.w3.org/2000/svg"
       width="9.289522"
       height="11.66"
@@ -435,7 +435,7 @@
       viewBox="0 -750 796.7 1000"
     >
       <g
-        stroke="currentColor"
+        stroke="none"
         fill="#000000"
         stroke-width="0"
         transform="scale(1,-1)"
@@ -472,11 +472,10 @@
   <g
     transform="rotate(0, 141.83405047717554, 65.52987050220308)translate(141.83405047717554, 65.52987050220308)"
     string="m_{il}"
-    font-size="6"
   >
     <title>`u`.labelText</title>
     <svg
-      style="vertical-align: -0.566ex"
+      style="font-size: 6"
       xmlns="http://www.w3.org/2000/svg"
       width="16.507062"
       height="11.66"
@@ -485,7 +484,7 @@
       viewBox="0 -750 1415.7 1000"
     >
       <g
-        stroke="currentColor"
+        stroke="none"
         fill="#000000"
         stroke-width="0"
         transform="scale(1,-1)"
@@ -500,7 +499,6 @@
                     <path
                       data-c="1D45A"
                       d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"
-                      stroke="none"
                     ></path>
                   </g>
                   <g
@@ -512,14 +510,12 @@
                       <path
                         data-c="1D456"
                         d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"
-                        stroke="none"
                       ></path>
                     </g>
                     <g data-mml-node="mi" transform="translate(345,0)">
                       <path
                         data-c="1D459"
                         d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"
-                        stroke="none"
                       ></path>
                     </g>
                   </g>
@@ -537,7 +533,7 @@
   >
     <title>`v`.labelText</title>
     <svg
-      style="vertical-align: -0.566ex"
+      style="font-size: 6"
       xmlns="http://www.w3.org/2000/svg"
       width="17.037042712124112"
       height="12.16"
@@ -546,7 +542,7 @@
       viewBox="0 -772.1 1463 1044.2"
     >
       <g
-        stroke="currentColor"
+        stroke="none"
         fill="#000000"
         stroke-width="0"
         transform="scale(1,-1)"
@@ -595,7 +591,7 @@
   >
     <title>`x`.labelText</title>
     <svg
-      style="vertical-align: -0.566ex"
+      style="font-size: 6"
       xmlns="http://www.w3.org/2000/svg"
       width="17.424830492242865"
       height="12.16"
@@ -720,7 +716,7 @@
       viewBox="0 -750 1573.4 1000"
     >
       <g
-        stroke="currentColor"
+        stroke="none"
         fill="#000000"
         stroke-width="0"
         transform="scale(1,-1)"

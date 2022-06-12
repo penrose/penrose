@@ -83,6 +83,90 @@
     ></path>
     <title>`VT`.icon</title>
   </g>
+  <g style="solid">
+    <marker
+      id="`UT`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`UT`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 443.2065347798124 261.83688290746943 L 530.4107139979817 371.28491690833516"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`UT`.icon</title>
+  </g>
+  <g style="solid">
+    <marker
+      id="`ST`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`ST`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 228.17703639414438 402.5105357018298 L 530.4107139979817 371.28491690833516"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`ST`.icon</title>
+  </g>
   <circle
     fill="#000000"
     fill-opacity="1"
@@ -111,7 +195,7 @@
       viewBox="0 -750 769 1000"
     >
       <g
-        stroke="currentColor"
+        stroke="none"
         fill="#000000"
         stroke-width="0"
         transform="scale(1,-1)"
@@ -125,7 +209,6 @@
                   <path
                     data-c="1D449"
                     d="M52 648Q52 670 65 683H76Q118 680 181 680Q299 680 320 683H330Q336 677 336 674T334 656Q329 641 325 637H304Q282 635 274 635Q245 630 242 620Q242 618 271 369T301 118L374 235Q447 352 520 471T595 594Q599 601 599 609Q599 633 555 637Q537 637 537 648Q537 649 539 661Q542 675 545 679T558 683Q560 683 570 683T604 682T668 681Q737 681 755 683H762Q769 676 769 672Q769 655 760 640Q757 637 743 637Q730 636 719 635T698 630T682 623T670 615T660 608T652 599T645 592L452 282Q272 -9 266 -16Q263 -18 259 -21L241 -22H234Q216 -22 216 -15Q213 -9 177 305Q139 623 138 626Q133 637 76 637H59Q52 642 52 648Z"
-                    stroke="none"
                   ></path>
                 </g>
               </g>
@@ -382,7 +465,7 @@
       viewBox="0 -750 704 1000"
     >
       <g
-        stroke="currentColor"
+        stroke="none"
         fill="#000000"
         stroke-width="0"
         transform="scale(1,-1)"
@@ -396,7 +479,6 @@
                   <path
                     data-c="1D447"
                     d="M40 437Q21 437 21 445Q21 450 37 501T71 602L88 651Q93 669 101 677H569H659Q691 677 697 676T704 667Q704 661 687 553T668 444Q668 437 649 437Q640 437 637 437T631 442L629 445Q629 451 635 490T641 551Q641 586 628 604T573 629Q568 630 515 631Q469 631 457 630T439 622Q438 621 368 343T298 60Q298 48 386 46Q418 46 427 45T436 36Q436 31 433 22Q429 4 424 1L422 0Q419 0 415 0Q410 0 363 1T228 2Q99 2 64 0H49Q43 6 43 9T45 27Q49 40 55 46H83H94Q174 46 189 55Q190 56 191 56Q196 59 201 76T241 233Q258 301 269 344Q339 619 339 625Q339 630 310 630H279Q212 630 191 624Q146 614 121 583T67 467Q60 445 57 441T43 437H40Z"
-                    stroke="none"
                   ></path>
                 </g>
               </g>
@@ -751,7 +833,7 @@
       viewBox="0 -750 645 1000"
     >
       <g
-        stroke="currentColor"
+        stroke="none"
         fill="#000000"
         stroke-width="0"
         transform="scale(1,-1)"
@@ -765,7 +847,6 @@
                   <path
                     data-c="1D446"
                     d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"
-                    stroke="none"
                   ></path>
                 </g>
               </g>

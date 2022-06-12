@@ -25,3 +25,4 @@ yarn-error.log*
 
 # Build-generated files
 /static/try/*
+/static/shapedefs.json
