@@ -401,14 +401,20 @@ const getPathBBox = (path: SVGPathElement): PseudoSVGRect => {
   for (const i in paths) {
     const thisPath = paths[i];
     switch (thisPath.type) {
+      case "H": // Horizontal line
+        thisPath.args.forEach((e) => {
+          moveX(e);
+        });
+        break;
       case "V": // Vertical line
-        moveY(thisPath.args[0]);
+        thisPath.args.forEach((e) => {
+          moveY(e);
+        });
         break;
       case "Z": // Close path (return to beginning)
         cursor = start;
         start = [xmin, ymin];
         break;
-      case "H": // Horizontal line
       case "M": // Move
       case "L": // Line
       case "C": // Cubic Bezier curve (cointrol point approximation!)
