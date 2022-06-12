@@ -31,8 +31,9 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
     const renderedLabel = retrievedLabel.rendered;
     const paths = renderedLabel.getElementsByTagName("path");
 
-    // Map Width/Height
+    // Map Width/Height, clear style
     attrToNotAutoMap.push(...attrWH(shape, renderedLabel));
+    renderedLabel.removeAttribute("style");
 
     // Map Stroke and fill
     for (const path in paths) {
