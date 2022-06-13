@@ -1,0 +1,12 @@
+-- Point p1
+-- Point p2
+-- Point p3
+-- Point p4
+VectorSpace U
+Vector v
+Vector w
+In(v, U)
+In(w, U)
+Point p
+Ellipse e1
+Ellipse e2
