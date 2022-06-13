@@ -694,17 +694,27 @@ export function foldM<A, B, C>(
  * to a string, throw an exception.
  *
  * @param prop Get the string value of this property
+ * @param dft Optional default value (if you don't want an exception)
  * @returns string value of the property
  */
-export const getAdValueAsString = (prop: Value<ad.Num>): string => {
+export const getAdValueAsString = (
+  prop: Value<ad.Num>,
+  dft?: string
+): string => {
   switch (prop.tag) {
     case "FloatV":
       if (typeof prop.contents === "number") return prop.contents.toString();
+      if (typeof prop.contents === "string") return prop.contents;
       break;
     case "StrV":
       return prop.contents;
   }
-  throw new Error(`getAdValueAsString: unexpected tag ${prop.tag}`);
+  if (dft !== undefined) return dft;
+  throw new Error(
+    `getAdValueAsString: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
 };
 
 /**
@@ -712,17 +722,27 @@ export const getAdValueAsString = (prop: Value<ad.Num>): string => {
  * to a number, throw an exception.
  *
  * @param prop Get the numeric value of this property
+ * @param dft Optional default value (if you don't want an exception)
  * @returns numeric value of the property
  */
-export const getAdValueAsNumber = (prop: Value<ad.Num>): number => {
+export const getAdValueAsNumber = (
+  prop: Value<ad.Num>,
+  dft?: number
+): number => {
   switch (prop.tag) {
     case "FloatV":
       if (typeof prop.contents === "number") return prop.contents;
+      if (typeof prop.contents === "string") return parseFloat(prop.contents);
       break;
     case "StrV":
       return parseFloat(prop.contents);
   }
-  throw new Error(`getAdValueAsNumber: unexpected tag ${prop.tag}`);
+  if (dft !== undefined) return dft;
+  throw new Error(
+    `getAdValueAsNumber: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
 };
 
 /**
@@ -734,7 +754,11 @@ export const getAdValueAsNumber = (prop: Value<ad.Num>): number => {
  */
 export const getAdValueAsColor = (prop: Value<ad.Num>): Color<ad.Num> => {
   if (prop.tag === "ColorV") return prop.contents;
-  throw new Error(`getAdValueAsColor: unexpected tag ${prop.tag}`);
+  throw new Error(
+    `getAdValueAsColor: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
 };
 
 //#endregion
