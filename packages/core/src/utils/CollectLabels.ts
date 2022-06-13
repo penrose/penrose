@@ -76,13 +76,21 @@ const tex2svg = async (
   properties: Properties<ad.Num>
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
-    const labelInput = getAdValueAsString(properties.string);
-    const fontSize = getAdValueAsString(properties.fontSize);
+    const labelInput = getAdValueAsString(properties.string, "");
+    const fontSize = getAdValueAsNumber(properties.fontSize, 0);
     const strokeColor = getAdValueAsColor(properties.strokeColor);
     const strokeWidth =
       strokeColor.tag === "NONE"
         ? 0
         : getAdValueAsNumber(properties.strokeWidth);
+
+    // Raise error if string or fontSize are empty or optimized
+    if (fontSize === 0 || labelInput === "") {
+      resolve(
+        err(`Label 'string' and 'fontSize' must be non-empty and non-optimized`)
+      );
+      return;
+    }
 
     // Render the label
     const output = convert(labelInput);
@@ -105,7 +113,7 @@ const tex2svg = async (
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
     const vAlignFloat = parseFloat(labelSvg.style.verticalAlign) * EX_CONSTANT;
-    const scaledHeight = parseFloat(fontSize) - vAlignFloat;
+    const scaledHeight = fontSize - vAlignFloat;
     const scaledRatio = scaledHeight / origHeight;
     const scaledWidth = scaledRatio * origWidth;
 
