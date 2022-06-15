@@ -1,31 +1,44 @@
-import { genCode, makeADInputVars, primaryGraph } from "engine/Autodiff";
+import { genCode, input, primaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
 import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
-import {
-  floatV,
-  makeCanvas,
-  ptListV,
-  sampleBlack,
-  vectorV,
-} from "shapes/Samplers";
+import { Context, InputFactory, makeCanvas } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { Shape } from "types/shapes";
 import { FloatV } from "types/value";
+import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { compDict, sdEllipse } from "./Functions";
 
 const canvas = makeCanvas(800, 700);
 
+const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
+  const rng = seedrandom("sdf");
+  const inputs: ad.Input[] = [];
+  const makeInput: InputFactory = (meta) => {
+    const x = input({
+      key: inputs.length,
+      val: "pending" in meta ? meta.pending : meta.sampler(rng),
+    });
+    inputs.push(x);
+    return x;
+  };
+  for (const coord of pt) {
+    makeInput({ sampler: () => coord });
+  }
+  return { context: { makeInput }, p: [...inputs] };
+};
+
 const compareDistance = (
+  context: Context,
   shapeType: string,
   shape: Shape,
   p: ad.Input[],
   expected: number
 ) => {
-  const result = getResult(shapeType, shape, p);
+  const result = getResult(context, shapeType, shape, p);
   const g = primaryGraph(result.contents);
   //const g = secondaryGraph([result.contents]);
   const f = genCode(g);
@@ -47,6 +60,7 @@ const compareDistance = (
 };
 
 const getResult = (
+  context: Context,
   shapeType: string,
   s: any,
   p: ad.Input[]
@@ -57,11 +71,7 @@ const getResult = (
       contents: sdEllipse(s, p),
     };
   } else {
-    const result = compDict.signedDistance(
-      { rng: seedrandom("shape") },
-      [shapeType, s],
-      p
-    );
+    const result = compDict.signedDistance(context, [shapeType, s], p);
     return result;
   }
 };
@@ -74,15 +84,15 @@ const testRectangle = (
   pt: number[],
   expected: number
 ) => {
-  const seed = seedrandom("bbox Rectangle");
-  const shape = makeRectangle(seed, canvas, {
+  const { context, p } = makeContext(pt);
+  const shape = makeRectangle(context, canvas, {
     center: vectorV(center),
     width: floatV(width),
     height: floatV(height),
     strokeWidth: floatV(strokeWidth),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   });
-  compareDistance("Rectangle", shape, makeADInputVars(pt), expected);
+  compareDistance(context, "Rectangle", shape, p, expected);
 };
 
 const testCircle = (
@@ -92,14 +102,14 @@ const testCircle = (
   pt: number[],
   expected: number
 ) => {
-  const seed = seedrandom("bbox Rectangle");
-  const shape = makeCircle(seed, canvas, {
+  const { context, p } = makeContext(pt);
+  const shape = makeCircle(context, canvas, {
     center: vectorV(center),
     r: floatV(radius),
     strokeWidth: floatV(strokeWidth),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   });
-  compareDistance("Circle", shape, makeADInputVars(pt), expected);
+  compareDistance(context, "Circle", shape, p, expected);
 };
 
 const testPolygon = (
@@ -108,13 +118,13 @@ const testPolygon = (
   pt: number[],
   expected: number
 ) => {
-  const seed = seedrandom("Polygon");
-  const shape = makePolygon(seed, canvas, {
+  const { context, p } = makeContext(pt);
+  const shape = makePolygon(context, canvas, {
     strokeWidth: floatV(strokeWidth),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
     points: ptListV(points),
   });
-  compareDistance("Polygon", shape, makeADInputVars(pt), expected);
+  compareDistance(context, "Polygon", shape, p, expected);
 };
 
 function testLine(
@@ -124,14 +134,14 @@ function testLine(
   pt: number[],
   expected: number
 ) {
-  const seed = seedrandom("Polygon");
-  const shape = makeLine(seed, canvas, {
+  const { context, p } = makeContext(pt);
+  const shape = makeLine(context, canvas, {
     strokeWidth: floatV(strokeWidth),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
     start: vectorV(start),
     end: vectorV(end),
   });
-  compareDistance("Line", shape, makeADInputVars(pt), expected);
+  compareDistance(context, "Line", shape, p, expected);
 }
 
 function testEllipse(
@@ -141,14 +151,14 @@ function testEllipse(
   pt: number[],
   expected: number
 ) {
-  const seed = seedrandom("bbox Rectangle");
-  const shape = makeEllipse(seed, canvas, {
+  const { context, p } = makeContext(pt);
+  const shape = makeEllipse(context, canvas, {
     center: vectorV(center),
     rx: floatV(rx),
     ry: floatV(ry),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   });
-  compareDistance("Ellipse", shape, makeADInputVars(pt), expected);
+  compareDistance(context, "Ellipse", shape, p, expected);
 }
 
 describe("sdf", () => {

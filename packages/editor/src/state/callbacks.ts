@@ -5,7 +5,6 @@ import {
   resample,
   stepState,
   Trio,
-  variationSeeds,
 } from "@penrose/core";
 import localforage from "localforage";
 import queryString from "query-string";
@@ -55,7 +54,7 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const initialState = resample(await prepareState(compileResult.value));
+  const initialState = await prepareState(compileResult.value);
   set(
     diagramState,
     (state: Diagram): Diagram => ({
@@ -108,8 +107,7 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    const seeds = variationSeeds(variation).seeds;
-    const resampled = resample({ ...diagram.state, seeds });
+    const resampled = resample({ ...diagram.state, variation });
     set(diagramState, (state) => ({
       ...state,
       metadata: { ...state.metadata, variation },
@@ -122,7 +120,6 @@ const _saveLocally = (set: any) => {
   console.info("saving locally...");
   set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
     ...state,
-    id: uuid(),
     location: { kind: "local", saved: true } as WorkspaceLocation,
   }));
 };

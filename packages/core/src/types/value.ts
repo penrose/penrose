@@ -1,8 +1,3 @@
-import * as ad from "./ad";
-import { A } from "./ast";
-import { StyleError } from "./errors";
-import { Expr } from "./style";
-
 /**
  * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`GPI`) or a value (`Val`).
  */
@@ -27,63 +22,13 @@ export type Name = string;
 export type Property = string;
 export type ShapeTypeStr = string;
 export type PropID = string;
-export type GPIMap = { [k: string]: TagExpr<ad.Num> };
-export type FieldDict = { [k: string]: FieldExpr<ad.Num> };
-
-export type StyleOptFn = [string, Expr<A>[]]; // Objective or constraint
-
-/**
- * Translation represents the computational graph compiled from a trio of Penrose programs.
- */
-export type Translation = Trans<ad.Num>;
-
-export type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
-
-export interface Trans<T> {
-  // TODO: compGraph
-  trMap: TrMap<T>;
-  warnings: StyleError[];
-}
-
-export type FieldExpr<T> = FExpr<T> | FGPI<T>;
-
-export interface FExpr<T> {
-  tag: "FExpr";
-  contents: TagExpr<T>;
-}
-
-export interface FGPI<T> {
-  tag: "FGPI";
-  contents: GPIExpr<T>;
-}
-
-export type GPIProps<T> = { [k: string]: TagExpr<T> };
-
-export type GPIExpr<T> = [string, { [k: string]: TagExpr<T> }];
-export type TagExpr<T> = OptEval | Done<T> | Pending<T>;
-
-export interface OptEval {
-  tag: "OptEval";
-  contents: Expr<A>;
-}
-
-export interface Done<T> {
-  tag: "Done";
-  contents: Value<T>;
-}
-
-export interface Pending<T> {
-  tag: "Pending";
-  contents: Value<T>;
-}
 
 /**
  * A value in the penrose system.
  */
 export type Value<T> =
   | FloatV<T>
-  | IntV
-  | BoolV<T>
+  | BoolV
   | StrV
   | PathDataV<T>
   | PtListV<T>
@@ -100,14 +45,8 @@ export interface FloatV<T> {
   contents: T;
 }
 
-/** An integer **/
-export interface IntV {
-  tag: "IntV";
-  contents: number;
-}
-
 /** A boolean expression (`True` or `False`) **/
-export interface BoolV<T> {
+export interface BoolV {
   tag: "BoolV";
   contents: boolean;
 }

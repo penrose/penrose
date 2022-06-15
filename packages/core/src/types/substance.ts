@@ -1,16 +1,16 @@
-import { Map } from "immutable";
+import im from "immutable";
 import { A, ASTNode, Identifier, StringLit } from "./ast";
 import { Env, TypeConstructor } from "./domain";
 
 export type SubRes = [SubstanceEnv, Env];
-export type LabelMap = Map<string, LabelValue>;
+export type LabelMap = im.Map<string, LabelValue>;
 export interface SubstanceEnv {
   exprEqualities: [SubExpr<A>, SubExpr<A>][];
   // predEqualities is not used; the original proposal was to allow equivalent
   // predicates; it was left in here in case we decide to revive it in the
   // future
   predEqualities: [ApplyPredicate<A>, ApplyPredicate<A>][];
-  bindings: Map<string, SubExpr<A>>;
+  bindings: im.Map<string, SubExpr<A>>;
   labels: LabelMap;
   predicates: ApplyPredicate<A>[];
   ast: SubProg<A>;

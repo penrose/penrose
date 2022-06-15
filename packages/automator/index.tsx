@@ -3,17 +3,21 @@ import {
   compileTrio,
   evalEnergy,
   getListOfStagedStates,
+  makeCanvas,
   prepareState,
   RenderStatic,
-  resample,
+  shapedefs,
   showError,
+  simpleContext,
   stepUntilConvergence,
 } from "@penrose/core";
+import { ShapeDef } from "@penrose/core/build/dist/shapes/Shapes";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";
 import * as fs from "fs";
 import neodoc from "neodoc";
+import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
 import * as prettier from "prettier";
 import uniqid from "uniqid";
@@ -26,9 +30,10 @@ Usage:
   automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged] [--variation=VARIATION] [--folders] [--cross-energy]
+  automator shapedefs [SHAPEFILE]
 
 Options:
-  -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
+  -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances 
@@ -99,8 +104,7 @@ const singleProcess = async (
   const compiledState = compilerOutput.value;
 
   const labelStart = process.hrtime();
-  // resample because initial sampling did not use the special sampling seed
-  const initialState = resample(await prepareState(compiledState));
+  const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
 
   console.log(`Stepping for ${out} ...`);
@@ -122,6 +126,18 @@ const singleProcess = async (
   const listOfCanvasData: string[] = [];
   let canvas;
   const resolvePath = async (filePath: string) => {
+    // Handle absolute URLs
+    if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
+      const fileURL = new URL(filePath).href;
+      try {
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      } catch (e) {
+        return undefined;
+      }
+    }
+
+    // Relative paths
     const parentDir = parse(join(prefix, sty)).dir;
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
@@ -346,6 +362,57 @@ const batchProcess = async (
   console.log("done.");
 };
 
+/**
+ * Retrieves defintions for all shapes and writes their properties to a JSON
+ * file.  If a filename is not provided, the result is written to stdout.
+ *
+ * @param outFile The output file (optional)
+ */
+const getShapeDefs = (outFile?: string): void => {
+  const outShapes = {}; // List of shapes with properties
+  const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
+
+  // Loop over the shapes
+  for (const shapeName in shapedefs) {
+    const thisShapeDef: ShapeDef = shapedefs[shapeName];
+    const shapeSample1 = thisShapeDef.sampler(
+      simpleContext("ShapeProps sample 1"),
+      makeCanvas(size, size)
+    );
+    const shapeSample2 = thisShapeDef.sampler(
+      simpleContext("ShapeProps sample 2"),
+      makeCanvas(size, size)
+    );
+    const outThisShapeDef = { sampled: {}, defaulted: {} };
+    outShapes[shapeName] = outThisShapeDef;
+
+    // Loop over the properties
+    for (const propName in shapeSample1) {
+      const outThisShapeProp = {};
+
+      const sample1Str = JSON.stringify(shapeSample1[propName].contents);
+      const sample2Str = JSON.stringify(shapeSample2[propName].contents);
+
+      if (sample1Str === sample2Str) {
+        outThisShapeDef.defaulted[propName] = shapeSample1[propName];
+      } else {
+        outThisShapeDef.sampled[propName] = shapeSample1[propName];
+      }
+    }
+  }
+
+  // Write the shape definition output
+  if (outFile === undefined) {
+    console.log(JSON.stringify(outShapes, null, 2));
+  } else {
+    fs.writeFileSync(outFile, JSON.stringify(outShapes, null, 2));
+    console.log(`Wrote shape definitions to: ${outFile}`);
+  }
+};
+
+/**
+ * Main function body
+ */
 (async () => {
   // Process command-line arguments
   const args = neodoc.run(USAGE, { smartOptions: true });
@@ -354,7 +421,8 @@ const batchProcess = async (
   const folders = args["--folders"] || false;
   const ciee = args["--cross-energy"] || false;
   const browserFolder = args["--render"];
-  const outFile = args["--outFile"] || join(args.OUTFOLDER, "output.svg");
+  const outFile =
+    args["--outFile"] || join(args.OUTFOLDER || "./", "output.svg");
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
   const staged = args["--staged"] || false;
@@ -390,6 +458,8 @@ const batchProcess = async (
       undefined, // extraMetadata
       ciee
     );
+  } else if (args.shapedefs) {
+    getShapeDefs(args["SHAPEFILE"]);
   } else {
     throw new Error("Invalid command line argument");
   }
