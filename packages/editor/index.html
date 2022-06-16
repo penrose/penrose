@@ -8,6 +8,9 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      window.global = window; // shim global for svg-flatten
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

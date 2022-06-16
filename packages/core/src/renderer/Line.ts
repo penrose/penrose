@@ -192,7 +192,7 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   elem.appendChild(pathElem);
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  // Directrly Map across any "unknown" SVG properties
+  // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;
