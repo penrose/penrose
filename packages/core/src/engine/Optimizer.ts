@@ -6,6 +6,7 @@ import { Matrix } from "ml-matrix";
 import { InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { FnCached, LbfgsParams, Params, State } from "types/state";
+import { Debugger } from "utils/Debugger";
 import {
   addv,
   dot,
@@ -807,6 +808,9 @@ export const genOptProblem = (
   });
 
   const f = genCode(explicitGraph);
+
+  // Update the Debugger with the generated code
+  Debugger.getInstance().setGenFn(f);
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
     const { primary, gradient, secondary } = f([...xs, epWeight]);

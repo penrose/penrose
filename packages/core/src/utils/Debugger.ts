@@ -1,8 +1,9 @@
+import * as ad from "types/ad";
 import { A, ASTNode } from "types/ast";
 import { DomainProg } from "types/domain";
 import { State } from "types/state";
 import { StyProg } from "types/style";
-import { Subst } from "types/styleSemantics";
+import { Subst, Translation } from "types/styleSemantics";
 import { SubProg } from "types/substance";
 import { buildDebugShapeList, DebugShapeList } from "utils/DebugShapeList";
 
@@ -31,7 +32,9 @@ export class Debugger {
   private subAst?: SubProg<A>; // AST of the Substance program
   private styAst?: StyProg<A>; // AST of the Style program
   private diagramState?: State; // Current diagram state
+  private translation?: Translation; // Current compiled Style translation
   private shapeListCache?: DebugShapeList; // Cache of Shape List
+  private genFn?: ad.Compiled; // Compiled computation function
 
   // ------------------------- Singleton Impl. -----------------------------//
 
@@ -132,10 +135,43 @@ export class Debugger {
     this.styAst = styAst; // We do not clone the AST here for performance reasons
   }
 
-  // !!!
+  /**
+   * Loads the current diagram state into the Debugger
+   *
+   * @param diagramState The current diagram state
+   */
   public setState(diagramState: State): void {
     this.moveToListeningState();
-    this.diagramState = diagramState;
+    this.diagramState = diagramState; // We do not clone the state here for performance reasons
+  }
+
+  /**
+   * Loads the compiled Style translation into the Debugger
+   *
+   * @param translation The current compiled Style translation
+   */
+  public setTranslation(translation: Translation): void {
+    this.moveToListeningState();
+    this.translation = translation; // We do not clone the state here for performance reasons
+  }
+
+  /**
+   * Loads the computation graph's generated code into the Debugger
+   *
+   * @param genFn Generated function representing computation graph
+   */
+  public setGenFn(genFn: ad.Compiled): void {
+    this.moveToListeningState();
+    this.genFn = genFn;
+  }
+
+  /**
+   * Returns the generated function representing computation graph
+   *
+   * @returns The current generated code
+   */
+  public getGenFn(): ad.Compiled | undefined {
+    return this.genFn;
   }
 
   // ----------------------------- Queries ---------------------------------//
@@ -265,14 +301,14 @@ export class Debugger {
     this.moveToAnsweringState();
 
     // Happify tsc
-    if (this.diagramState === undefined)
+    if (this.translation === undefined)
       throw new Error(
-        "Undefined state - moveToAnsweringState() should prevent this"
+        "Undefined translation - moveToAnsweringState() should prevent this"
       );
 
     // Build and cache the shape list
     if (this.shapeListCache === undefined) {
-      this.shapeListCache = buildDebugShapeList(this.diagramState);
+      this.shapeListCache = buildDebugShapeList(this.translation);
     }
 
     // ------------------------ Select by Object -----------------------
@@ -366,6 +402,14 @@ export class Debugger {
       if (this.diagramState === undefined)
         throw new Error(
           "Unable to accept debug queries: no diagram state loaded"
+        );
+      if (this.translation === undefined)
+        throw new Error(
+          "Unable to accept debug queries: no translation loaded"
+        );
+      if (this.genFn === undefined)
+        throw new Error(
+          "Unable to accept debug queries: no genCode function loaded"
         );
 
       // Transition to answering state:

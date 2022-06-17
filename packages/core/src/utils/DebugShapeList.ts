@@ -2,11 +2,10 @@ import { Queue } from "@datastructures-js/queue";
 import { constrDict } from "contrib/Constraints";
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
-import { A } from "types/ast";
 import { Shape } from "types/shape";
-import { State } from "types/state";
-import { FieldPath } from "types/style";
-import { FieldExpr } from "types/value";
+import { Fn } from "types/state";
+import { Path } from "types/style";
+import { Subst, Translation } from "types/styleSemantics";
 
 /**
  * A list of shapes organized in three levels:
@@ -24,51 +23,36 @@ export type DebugShapeList = Record<string, Record<string, Shape>>;
  * @param state Diagram State
  * @returns DebugShapeList
  */
-export const buildDebugShapeList = (state: State): DebugShapeList => {
-  const translation = state.translation.trMap; // Ref. to translation map in diagram state
-  const shapes = state.shapes; // Ref. to Shapes in diagram state
+export const buildDebugShapeList = (
+  translation: Translation
+): DebugShapeList => {
   const shapeList: DebugShapeList = {}; // List of Shapes to output
-  const compQueue: Queue<FieldExpr<A>> = new Queue(); // Queue of computations to process
+  const fnQueue = new Queue([
+    ...translation.constraints,
+    ...translation.objectives,
+  ]);
 
   // Build the basic three-layer data structure using the translation objects as input
-  for (const obj in translation) {
-    // Defer processing of computation nodes until we finish processing all shapes
-    if (obj.charAt(0) === "$") {
-      Object.values(translation[obj]).forEach((e) => {
-        compQueue.enqueue(e);
-      });
-      continue;
-    }
+  translation.symbols
+    .filter((e) => e.tag === "GPI")
+    .forEach((gpi, gpiName) => {
+      const [gpiObj, gpiField] = gpiName.replaceAll("`", "").split(".");
 
-    // Loop over the object's fields
-    for (const field in translation[obj]) {
-      // Skip non-GPIs
-      if (translation[obj][field].tag !== "FGPI") continue;
+      // Create the object in shapeList if it does not exist yet
+      if (!(gpiObj in shapeList)) shapeList[gpiObj] = {};
 
-      // Copy the Shape from the Shape State.  We copy from shapes instead of
-      // from the translation due to all references, etc. being resolved.
-      let found = false;
-      for (const shape in shapes) {
-        if (shapes[shape].properties.name.contents === `${obj}.${field}`) {
-          found = true;
-          if (!(obj in shapeList)) shapeList[obj] = {};
-          // Protect the state -- make a copy of the shape before we manipulate it
-          shapeList[obj][field] = JSON.parse(JSON.stringify(shapes[shape]));
-          break;
-        }
-      } // for: shapes
-
-      // Raise an error if we did not find a matching shape
-      if (!found) {
-        throw new Error(
-          `Shape ${obj}.${field} present in translation but not in shapes`
-        );
-      }
-    } // for: fields
-  } // for: objects
+      // Make a copy of the shape before we manipulate it
+      shapeList[gpiObj][gpiField] = {
+        shapeType: gpi.contents[0],
+        properties: {
+          ...gpi.contents[1],
+          _shapeName: { tag: "StrV", contents: `${gpiObj}.${gpiField}` },
+        },
+      };
+    }); // for: GPIs
 
   // Add function properties to shapes.
-  addFunctionPropertiesToShapeList(shapeList, compQueue);
+  addFunctionPropertiesToShapeList(shapeList, fnQueue);
 
   // Add function properties implied by function transitivity.
   // For example, if A.contains(B) and B.contains(C), then
@@ -90,38 +74,26 @@ export const buildDebugShapeList = (state: State): DebugShapeList => {
  * TODO: Add support for layering
  *
  * @param shapeList
- * @param compQueue
+ * @param fnQueue
  */
 const addFunctionPropertiesToShapeList = (
   shapeList: DebugShapeList,
-  compQueue: Queue<FieldExpr<A>>
+  fnQueue: Queue<Fn>
 ): void => {
-  // Process the computations to derive any additional properties
-  while (!compQueue.isEmpty()) {
-    const thisComp: FieldExpr<A> = compQueue.dequeue();
+  // Process the functions to derive any additional properties
+  while (!fnQueue.isEmpty()) {
+    const thisFn = fnQueue.dequeue().ast;
 
-    // Select only function applications
-    if (
-      !(
-        thisComp.tag === "FExpr" &&
-        thisComp.contents.tag === "OptEval" &&
-        (thisComp.contents.contents.tag === "ObjFn" ||
-          thisComp.contents.contents.tag === "ConstrFn")
-      )
-    ) {
-      continue;
-    }
-
-    const fnName = thisComp.contents.contents.name.value; // Function name
+    const fnName = thisFn.expr.name.value; // Function name
     const fnDef = getFnDef(fnName); // Function definition in debugger
     const fnPropName = fnName + "[]"; // Name of the function property
 
     // Accumulate the function's shape arguments
     const fnShapeArgs: Shape[] = [];
-    for (const i in thisComp.contents.contents.args) {
-      const thisArg = thisComp.contents.contents.args[i];
-      if (thisArg.tag === "FieldPath") {
-        fnShapeArgs.push(resolveFieldPath(thisArg, shapeList));
+    for (const i in thisFn.expr.args) {
+      const thisArg = thisFn.expr.args[i];
+      if (thisArg.tag === "Path") {
+        fnShapeArgs.push(resolvePath(thisArg, shapeList, thisFn.context.subst));
       }
     } // for: function shape arguments
 
@@ -374,7 +346,7 @@ const getFnMap = (
               fnMap.add(
                 shapeList[obj][field],
                 fnName,
-                resolveFieldPathString(e, shapeList)
+                resolvePathString(e, shapeList)
               );
             });
 
@@ -389,51 +361,50 @@ const getFnMap = (
 };
 
 /**
- * Resolves a field path to a shape
+ * Resolves a path to a shape.  If path not found, throws exception.
  *
- * @param fieldPath Path to Shape
+ * @param path Path to Shape
  * @param shapeList List of Shapes
- * @returns Shape that corresponds to fieldPath
+ * @param subst? Optional variable substitution
+ * @returns Shape that corresponds to path
  */
-const resolveFieldPath = (
-  fieldPath: FieldPath<unknown>,
-  shapeList: DebugShapeList
+const resolvePath = (
+  path: Path<unknown>,
+  shapeList: DebugShapeList,
+  subst?: Subst
 ): Shape => {
-  const objName = fieldPath.name.contents.value;
-  const fieldName = fieldPath.field.value;
-  if (objName in shapeList && fieldName in shapeList[objName]) {
+  // Check the path length
+  if (path.members.length !== 1)
+    throw new Error(`Unexpected path length: ${JSON.stringify(path, null, 2)}`);
+
+  // Retrieve the object and field names
+  let objName = path.name.contents.value;
+  const fieldName = path.members[0].value;
+
+  // Apply subsitutions, if present
+  if (subst !== undefined && objName in subst) objName = subst[objName];
+
+  // Return the shape if present in the shapeList
+  if (objName in shapeList && fieldName in shapeList[objName])
     return shapeList[objName][fieldName];
-  } else {
-    throw new Error(
-      `Unable to field fieldPath ${objName}.${fieldName} in ShapeList`
-    );
-  }
+
+  // Throw an exception if we can't find the shape
+  throw new Error(`Unable to find path ${objName}.${fieldName} in ShapeList`);
 };
 
 /**
- * Resolves a field path string to a shape
+ * Resolves a path string to a shape
  *
- * @param fieldPath string representing fieldPath to Shape
+ * @param path string representing path to Shape
  * @param shapeList List of Shapes
- * @returns Shape that corresponds to fieldPath
+ * @returns Shape that corresponds to path
  */
-const resolveFieldPathString = (
-  fieldPath: string,
-  shapeList: DebugShapeList
-): Shape => {
-  const fieldParts = fieldPath.split(".");
-  if (fieldParts.length !== 2)
-    throw new Error(`FieldPath string is invalid ${fieldPath}`);
-
-  const objName = fieldParts[0];
-  const fieldName = fieldParts[1];
-
+const resolvePathString = (path: string, shapeList: DebugShapeList): Shape => {
+  const [objName, fieldName] = path.split(".");
   if (objName in shapeList && fieldName in shapeList[objName]) {
     return shapeList[objName][fieldName];
   } else {
-    throw new Error(
-      `Unable to field fieldPath ${objName}.${fieldName} in ShapeList`
-    );
+    throw new Error(`Unable to find path ${objName}.${fieldName} in ShapeList`);
   }
 };
 
@@ -444,9 +415,13 @@ const resolveFieldPathString = (
  * @returns string Name of shape
  */
 const getShapeName = (shape: Shape): string => {
-  if (shape.properties.name.tag !== "StrV")
-    throw new Error(`Shape property name is not StrV ${JSON.stringify(shape)}`);
-  return shape.properties.name.contents;
+  if (
+    "_shapeName" in shape.properties &&
+    shape.properties["_shapeName"].tag === "StrV"
+  )
+    return shape.properties["_shapeName"].contents;
+
+  throw new Error("Shape missing `_shapeName` string property");
 };
 
 /**

@@ -2706,6 +2706,9 @@ export const compileStyle = (
     constrFns.map(({ output }) => output)
   );
 
+  // Update the debugger with the translation
+  Debugger.getInstance().setTranslation(translation);
+
   const initState: State = {
     warnings: [...translation.diagnostics.warnings],
     variation,

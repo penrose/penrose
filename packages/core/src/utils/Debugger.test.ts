@@ -1,14 +1,18 @@
 import { examples, registry } from "@penrose/examples";
+import { genCode, primaryGraph } from "engine/Autodiff";
+import im from "immutable";
 import { A } from "types/ast";
 import { DomainProg } from "types/domain";
 import { State } from "types/state";
 import { StyProg } from "types/style";
 import {
+  compDict,
   compileTrio,
   Debugger,
   prepareState,
   RenderStatic,
   showError,
+  simpleContext,
   stepUntilConvergence,
   SubProg,
 } from "../index";
@@ -151,6 +155,27 @@ describe("Debug API", () => {
 
     // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
     dbgEmpty.setStySrc(styleSrc);
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    dbgEmpty.setTranslation({
+      diagnostics: { errors: im.List(), warnings: im.List() },
+      symbols: im.Map(),
+      objectives: im.List(),
+      constraints: im.List(),
+      layering: im.List(),
+    });
+    expect(() => {
+      dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
+    }).toThrowError();
+
+    // queryDoesStyleBlockHaveWhereClause(21) == Error (incomplete debugger cannot answer)
+    const result = compDict.MathPI(simpleContext(""));
+    const g = primaryGraph(result.contents);
+    const f = genCode(g);
+    dbgEmpty.setGenFn(genCode(g));
     expect(() => {
       dbgEmpty.queryDoesStyleBlockHaveWhereClause(21);
     }).toThrowError();
@@ -424,7 +449,7 @@ describe("Debug API", () => {
           "contains[]": {
             tag: "StrV",
             contents:
-              "A.text;B.icon;C.icon;B.text;D.icon;E.icon;C.text;F.icon;G.icon;D.text;E.text;F.text;G.text",
+              "C.icon;A.text;B.icon;C.text;F.icon;G.icon;D.icon;E.icon;B.text;F.text;G.text;D.text;E.text",
           },
         },
       },
@@ -441,7 +466,7 @@ describe("Debug API", () => {
         icon: {
           "contains[]": {
             tag: "StrV",
-            contents: "B.text;D.icon;E.icon;D.text;E.text",
+            contents: "D.icon;E.icon;B.text;D.text;E.text",
           },
         },
       },
@@ -453,7 +478,7 @@ describe("Debug API", () => {
         icon: {
           "disjoint[]": {
             tag: "StrV",
-            contents: "A.text;C.icon;C.text;F.icon;G.icon;F.text;G.text",
+            contents: "C.icon;A.text;C.text;F.icon;G.icon;F.text;G.text",
           },
         },
       },
@@ -478,7 +503,7 @@ describe("Debug API", () => {
           "disjoint[]": {
             tag: "StrV",
             contents:
-              "B.text;D.icon;A.text;C.icon;C.text;F.icon;G.icon;F.text;G.text;D.text",
+              "B.text;D.icon;C.icon;A.text;C.text;F.icon;G.icon;F.text;G.text;D.text",
           },
         },
       },
