@@ -267,8 +267,8 @@ export default function DiagramPanel() {
       {showEasterEgg && (
         <iframe
           width="100%"
-          height="300"
-          src="https://www.youtube.com/embed/6j928wBZ_Bo?controls=0&amp;start=9&amp;autoplay=1"
+          height="600"
+          src="https://www.youtube.com/embed/ofFLYfUEPVE?start=9&amp;autoplay=1"
           title="YouTube video player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

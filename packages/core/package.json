@@ -52,6 +52,8 @@
     "poly-partition": "^1.0.2",
     "recursive-diff": "^1.0.8",
     "seedrandom": "^3.0.5",
+    "svg-flatten": "^1.0.1",
+    "svgpath": "^2.5.0",
     "true-myth": "^4.1.0"
   },
   "devDependencies": {

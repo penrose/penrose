@@ -25,8 +25,8 @@ Set x {
     x.text = Equation {
         string : x.label
         fillColor: rgba(1.0, 1.0, 1.0, 1.0)
-        width: 0.5 * x.shape.r
-        height: 0.5 * x.shape.r
+        width: 0.4 * x.shape.r
+        height: 0.4 * x.shape.r
     }
 
     ensure contains(x.shape, x.text)
@@ -41,7 +41,7 @@ Set x {
 forall Set x; Set y
 where IsSubset(x, y) {
     ensure smallerThan(x.shape, y.shape)
-    ensure disjoint(y.text, x.shape)
+    ensure disjoint(y.text, x.shape, 5.0)
     ensure contains(y.shape, x.shape, 5.0)
     x.shape above y.shape
     y.text below x.shape
