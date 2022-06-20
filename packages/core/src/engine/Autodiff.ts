@@ -1094,8 +1094,8 @@ export const genCode = ({
       const preds = new Map(graph.inEdges(id).map(({ v, name }) => [name, v]));
 
       stmts.push(`const ${id} = ${compileNode(node, preds)};`);
-      stmts.push(`console.log("ID=${id}")`);
-      stmts.push(`console.log(${id});`);
+      // stmts.push(`console.log("ID=${id}")`);
+      // stmts.push(`console.log(${id});`);
     }
   }
   const fields = [

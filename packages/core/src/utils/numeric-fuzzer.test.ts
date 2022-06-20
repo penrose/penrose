@@ -5,7 +5,6 @@ import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { Context, InputFactory, makeCanvas } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { Shape } from "types/shapes";
 import { FloatV } from "types/value";
 import { black, floatV, vectorV } from "utils/Util";
 
@@ -31,32 +30,55 @@ const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
 const compareDistance = (
   context: Context,
   shapeType: string,
-  shape: Shape,
+  shape: any,
   p: ad.Input[],
   expected: number
 ) => {
   const result = getResult(context, shapeType, shape, p);
   const g = primaryGraph(result.contents);
   const f = genCode(g);
-  const randArgs: number[] = [];
+  const randArgs: number[] = [
+    p[0].val,
+    p[1].val,
+    shape.r.contents.val,
+    shape.center.contents[0].val,
+    shape.center.contents[1].val,
+  ];
+  console.log(randArgs);
   for (let i = 0; i < sampleCircle.args.length; i++) {
     const curArg = sampleCircle.args[i];
     if (curArg.tag === "VectorV") {
-      randArgs.push[
+      randArgs[randArgs.indexOf(p[0].val)] =
         Math.random() * (curArg.contents[0].max - curArg.contents[0].min) +
-          curArg.contents[0].min
-      ];
-      randArgs.push[
+        curArg.contents[0].min;
+      randArgs[randArgs.indexOf(p[1].val)] =
         Math.random() * (curArg.contents[1].max - curArg.contents[1].min) +
-          curArg.contents[1].min
-      ];
+        curArg.contents[1].min;
     } else {
-      console.log(curArg.tag);
-      randArgs.concat(shapeRecursion(curArg));
+      for (let i = 0; i < curArg.contents.length; i++) {
+        const curArgNested = curArg.contents[i];
+        if (curArgNested.tag === "VectorV") {
+          randArgs[randArgs.indexOf(shape.center.contents[0].val)] =
+            Math.random() *
+              (curArgNested.contents[0].max - curArgNested.contents[0].min) +
+            curArgNested.contents[0].min;
+          randArgs[randArgs.indexOf(shape.center.contents[1].val)] =
+            Math.random() *
+              (curArgNested.contents[1].max - curArgNested.contents[1].min) +
+            curArgNested.contents[1].min;
+        } else if (curArgNested.tag === "FloatV") {
+          randArgs[randArgs.indexOf(shape.center.contents.val)] =
+            Math.random() * (curArgNested.max - curArgNested.min) +
+            curArgNested.min;
+        } else {
+          throw Error("wrong value passed in");
+        }
+      }
     } // else {
     // throw Error("wrong value passed in");
     //}
   }
+  console.log([...randArgs]);
   const { primary: dist, gradient } = f([...randArgs]);
   expect(dist).toBeCloseTo(expected);
 };
@@ -66,14 +88,14 @@ const shapeRecursion = (shapeContents: fnShapeDef): number[] => {
   for (let i = 0; i < shapeContents.contents.length; i++) {
     const curArg = shapeContents.contents[i];
     if (curArg.tag === "VectorV") {
-      retVal.push[
+      retVal.push(
         Math.random() * (curArg.contents[0].max - curArg.contents[0].min) +
           curArg.contents[0].min
-      ];
-      retVal.push[
+      );
+      retVal.push(
         Math.random() * (curArg.contents[1].max - curArg.contents[1].min) +
           curArg.contents[1].min
-      ];
+      );
     } else if (curArg.tag === "FloatV") {
       retVal.push[Math.random() * (curArg.max - curArg.min) + curArg.min];
     } else {

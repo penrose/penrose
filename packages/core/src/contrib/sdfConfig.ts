@@ -32,24 +32,24 @@ export type fnNumDef = {
 export const sampleCircle: fnDef = {
   fnName: "signedDistance",
   args: [
-    {
-      tag: "VectorV",
-      name: "p",
-      contents: [
-        {
-          tag: "FloatV",
-          name: "x",
-          min: 0,
-          max: 50, //size of canvas or whatever
-        },
-        {
-          tag: "FloatV",
-          name: "y",
-          min: 0,
-          max: 50,
-        },
-      ],
-    },
+    // {
+    //   tag: "VectorV",
+    //   name: "p",
+    //   contents: [
+    //     {
+    //       tag: "FloatV",
+    //       name: "x",
+    //       min: 0,
+    //       max: 50, //size of canvas or whatever
+    //     },
+    //     {
+    //       tag: "FloatV",
+    //       name: "y",
+    //       min: 0,
+    //       max: 50,
+    //     },
+    //   ],
+    // },
     {
       tag: "Shape", //[t,s]
       name: "Circle",
