@@ -326,7 +326,7 @@ export const evalFns = (
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
-export { analyzeTsFn } from "analysis/Typescript";
+export { tsAnalyzePropertyAccess as analyzeTsFn } from "analysis/Typescript";
 export { constrDict } from "contrib/Constraints";
 export { compDict } from "contrib/Functions";
 export { objDict } from "contrib/Objectives";

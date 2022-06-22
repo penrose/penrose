@@ -957,10 +957,14 @@ export const compDict = {
   },
 
   /**
-           * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-
-       @deprecated Don't use this function, it does not fully work
-           */
+   * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is
+   * hitting, assuming that `start` is located at the rect's center and `end`
+   * is located outside the rectangle, and return the size of the OTHER side.
+   * Also assuming axis-aligned rectangle. This is used for arrow placement in
+   * box-and-arrow diagrams.
+   *
+   * @deprecated Don't use this function, it does not fully work
+   */
   intersectingSideSize: (
     _context: Context,
     start: ad.Num[],
