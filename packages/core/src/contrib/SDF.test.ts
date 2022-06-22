@@ -181,7 +181,7 @@ describe("sdf", () => {
   });
 
   test("off-center square", () => {
-    testRectangle([-2, -2], 4, 4, 0, [0, 0], 0);
+    testRectangle([-2y, -2], 4, 4, 0, [0, 0], 0);
     testRectangle([-2, -2], 4, 4, 0, [-2, -2], -2);
     testRectangle([-2, -2], 4, 4, 0, [-1, -2], -1);
   });
