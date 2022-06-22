@@ -1771,3 +1771,21 @@ const tickPlacement = (
   }
   return pts;
 };
+
+/**
+ * Side-export non-exported functions for analysis / testing
+ * See: https://stackoverflow.com/a/54116079
+ */
+export const exportsForTestingOrAnalysis = {};
+[
+  tickPlacement,
+  rot90v,
+  rot90,
+  perpPathFlat,
+  toPt,
+  sdEllipseAsNums,
+  msign,
+  sdPolyline,
+  sdLineAsNums,
+  sdLine,
+].forEach((e) => (exportsForTestingOrAnalysis[e.name] = e));

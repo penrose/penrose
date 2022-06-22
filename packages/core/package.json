@@ -39,6 +39,9 @@
   "dependencies": {
     "@datastructures-js/heap": "^3.2.0",
     "@datastructures-js/queue": "^4.1.3",
+    "@typescript-eslint/scope-manager": "^5.29.0",
+    "@typescript-eslint/types": "^5.29.0",
+    "@typescript-eslint/typescript-estree": "^5.29.0",
     "consola": "^2.15.2",
     "fast-memoize": "^2.5.2",
     "graphlib": "^2.1.8",
@@ -49,9 +52,11 @@
     "ml-matrix": "^6.10.0",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
+    "os": "^0.1.2",
     "poly-partition": "^1.0.2",
     "recursive-diff": "^1.0.8",
     "seedrandom": "^3.0.5",
+    "stream": "^0.0.2",
     "svg-flatten": "^1.0.1",
     "svgpath": "^2.5.0",
     "true-myth": "^4.1.0"

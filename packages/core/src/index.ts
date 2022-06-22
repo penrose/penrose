@@ -1,32 +1,32 @@
-import { initConstraintWeight } from "engine/EngineUtils";
-import seedrandom from "seedrandom";
-import { Debugger } from "utils/Debugger";
-import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
-import { compileStyle } from "./compiler/Style";
+import { checkDomain, compileDomain, parseDomain } from "compiler/Domain";
+import { compileStyle } from "compiler/Style";
 import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
   prettySubstance,
-} from "./compiler/Substance";
-import { step } from "./engine/Optimizer";
+} from "compiler/Substance";
+import { initConstraintWeight } from "engine/EngineUtils";
+import { step } from "engine/Optimizer";
 import {
   PathResolver,
   RenderInteractive,
   RenderShape,
   RenderStatic,
-} from "./renderer/Renderer";
-import { getListOfStagedStates } from "./renderer/Staging";
-import { Canvas } from "./shapes/Samplers";
-import { showMutations } from "./synthesis/Mutation";
-import { Synthesizer } from "./synthesis/Synthesizer";
-import { Env } from "./types/domain";
-import { PenroseError } from "./types/errors";
-import { Registry, Trio } from "./types/io";
-import { Fn, FnEvaled, LabelCache, State } from "./types/state";
-import { SubProg, SubstanceEnv } from "./types/substance";
-import { collectLabels, insertPending } from "./utils/CollectLabels";
-import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
+} from "renderer/Renderer";
+import { getListOfStagedStates } from "renderer/Staging";
+import seedrandom from "seedrandom";
+import { Canvas } from "shapes/Samplers";
+import { showMutations } from "synthesis/Mutation";
+import { Synthesizer } from "synthesis/Synthesizer";
+import { Env } from "types/domain";
+import { PenroseError } from "types/errors";
+import { Registry, Trio } from "types/io";
+import { Fn, FnEvaled, LabelCache, State } from "types/state";
+import { SubProg, SubstanceEnv } from "types/substance";
+import { collectLabels, insertPending } from "utils/CollectLabels";
+import { Debugger } from "utils/Debugger";
+import { andThen, err, nanError, ok, Result, showError } from "utils/Error";
 import {
   bBoxDims,
   normList,
@@ -35,7 +35,7 @@ import {
   prettyPrintPath,
   toSvgPaintProperty,
   zip2,
-} from "./utils/Util";
+} from "utils/Util";
 
 /**
  * Use the current resample seed to sample all shapes in the State.
@@ -326,27 +326,28 @@ export const evalFns = (
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
-export { constrDict } from "./contrib/Constraints";
-export { compDict } from "./contrib/Functions";
-export { objDict } from "./contrib/Objectives";
-export { secondaryGraph } from "./engine/Autodiff";
-export type { PathResolver } from "./renderer/Renderer";
-export { makeCanvas, simpleContext } from "./shapes/Samplers";
-export { shapedefs } from "./shapes/Shapes";
+export { analyzeTsFn } from "analysis/Typescript";
+export { constrDict } from "contrib/Constraints";
+export { compDict } from "contrib/Functions";
+export { objDict } from "contrib/Objectives";
+export { secondaryGraph } from "engine/Autodiff";
+export type { PathResolver } from "renderer/Renderer";
+export { makeCanvas, simpleContext } from "shapes/Samplers";
+export { ShapeDef, shapedefs } from "shapes/Shapes";
 export type {
   SynthesizedSubstance,
   SynthesizerSetting,
-} from "./synthesis/Synthesizer";
-export type { PenroseError } from "./types/errors";
-export type { Shape } from "./types/shape";
-export * as Value from "./types/value";
-export type { Result } from "./utils/Error";
+} from "synthesis/Synthesizer";
+export type { PenroseError } from "types/errors";
+export type { Shape } from "types/shape";
+export * as Value from "types/value";
+export { Debugger } from "utils/Debugger";
+export type { Result } from "utils/Error";
 export {
   compileDomain,
   compileSubstance,
   checkDomain,
   checkSubstance,
-  Debugger,
   parseSubstance,
   parseDomain,
   Synthesizer,
