@@ -39,8 +39,6 @@
   "dependencies": {
     "@datastructures-js/heap": "^3.2.0",
     "@datastructures-js/queue": "^4.1.3",
-    "@typescript-eslint/scope-manager": "^5.29.0",
-    "@typescript-eslint/types": "^5.29.0",
     "@typescript-eslint/typescript-estree": "^5.29.0",
     "consola": "^2.15.2",
     "fast-memoize": "^2.5.2",

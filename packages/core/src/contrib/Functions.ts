@@ -1777,11 +1777,10 @@ const tickPlacement = (
 };
 
 /**
- * Side-export non-exported functions for analysis / testing
+ * Side-export of non-exported functions for analysis / testing
  * See: https://stackoverflow.com/a/54116079
  */
-export const exportsForTestingOrAnalysis = {};
-[
+export const exportsForTestingOrAnalysis = {
   tickPlacement,
   rot90v,
   rot90,
@@ -1792,4 +1791,4 @@ export const exportsForTestingOrAnalysis = {};
   sdPolyline,
   sdLineAsNums,
   sdLine,
-].forEach((e) => (exportsForTestingOrAnalysis[e.name] = e));
+};
