@@ -144,9 +144,9 @@ const testFnEq = (
   expected: TsPropertyAccess[]
 ): void => {
   test(fn.name, async () => {
-    expect(tsAnalyzePropertyAccess("fn", arg, fn.toString()).toArray()).toEqual(
-      expected
-    );
+    expect(
+      tsAnalyzePropertyAccess("fn", arg, fn.toString()).toArray().sort()
+    ).toEqual(expected);
   });
 };
 

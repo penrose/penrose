@@ -287,6 +287,7 @@ export const tsAnalyzePropertyAccess = (
   const propAccessesArr: TsPropertyAccess[] = [];
   propAccesses.forEach((e) => {
     const [fnName, varName, propName] = e.split("::");
+    console.log(`${JSON.stringify(e)} => ${JSON.stringify(e.split("::"))}`); // !!!
     propAccessesArr.push({ fnName, varName, propName });
   });
 
