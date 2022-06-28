@@ -160,8 +160,6 @@ export const tsAnalyzePropertyAccess = (
     fnName = fnName.replaceAll(":", ""); // No colons
     fnSource ? (fnSource = "const $_f=" + fnSource) : noop; // Prefix the source
 
-    console.log(`${fnName}: Source=${fnSource}`); // !!!
-
     // Retrieve fn source and parse it
     const src = fnSource || getTsFnSource(fnName);
     const ast = parse(src, { range: true });
@@ -224,13 +222,6 @@ export const tsAnalyzePropertyAccess = (
                   node.object.name === thisVar
                 ) {
                   // We use a string here to easily eliminate dupes
-                  console.log(
-                    `${fnName}: var ${thisVar}: Adding local result: ${JSON.stringify(
-                      node.property
-                    )} => ${JSON.stringify(node)} => ${JSON.stringify(
-                      node.property.name
-                    )}`
-                  ); // !!!
                   propsAccessed.add(
                     `${fnName}::${thisVar}::${node.property.name}`
                   );
@@ -248,11 +239,6 @@ export const tsAnalyzePropertyAccess = (
                   node.id.type === AST_NODE_TYPES.Identifier &&
                   node.id.name !== thisVar
                 ) {
-                  console.log(
-                    `${fnName}: Adding var ${node.id.name}: ${JSON.stringify(
-                      parent
-                    )}`
-                  );
                   varQueue.enqueue(node.id.name);
                 }
                 break;
@@ -273,12 +259,7 @@ export const tsAnalyzePropertyAccess = (
                   getCalleeFnName(node.callee),
                   node,
                   node.arguments.indexOf(child)
-                ).forEach((e) => {
-                  console.log(
-                    `${fnName}: Adding IPC result: ${JSON.stringify(e)}`
-                  ); // !!
-                  propsAccessed.add(e);
-                });
+                ).forEach((e) => propsAccessed.add(e));
                 break;
               }
 
@@ -312,7 +293,6 @@ export const tsAnalyzePropertyAccess = (
   const propAccessesArr: TsPropertyAccess[] = [];
   propAccesses.forEach((e) => {
     const [fnName, varName, propName] = e.split("::");
-    console.log(`${JSON.stringify(e)} => ${JSON.stringify(e.split("::"))}`); // !!!
     propAccessesArr.push({ fnName, varName, propName });
   });
 
