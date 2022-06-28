@@ -216,11 +216,15 @@ export const tsAnalyzePropertyAccess = (
             switch (node.type) {
               // If a property is accessed, add it to propsAccessed
               case AST_NODE_TYPES.MemberExpression:
-                if (node.property.type === AST_NODE_TYPES.Identifier)
+                if (node.property.type === AST_NODE_TYPES.Identifier) {
                   // We use a string here to easily eliminate dupes
+                  console.log(
+                    `Adding local result: ${JSON.stringify(node.property)}`
+                  ); // !!!
                   propsAccessed.add(
                     `${fnName}::${thisVar}::${node.property.name}`
                   );
+                }
                 break;
 
               // If the variable is assigned to another, analyze it too.
@@ -253,7 +257,10 @@ export const tsAnalyzePropertyAccess = (
                   getCalleeFnName(node.callee),
                   node,
                   node.arguments.indexOf(child)
-                ).forEach((e) => propsAccessed.add(e));
+                ).forEach((e) => {
+                  console.log(`Adding IPC result: ${JSON.stringify(2)}`); // !!
+                  propsAccessed.add(e);
+                });
                 break;
               }
 
