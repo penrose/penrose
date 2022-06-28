@@ -258,7 +258,7 @@ export const tsAnalyzePropertyAccess = (
                   node,
                   node.arguments.indexOf(child)
                 ).forEach((e) => {
-                  console.log(`Adding IPC result: ${JSON.stringify(2)}`); // !!
+                  console.log(`Adding IPC result: ${JSON.stringify(e)}`); // !!
                   propsAccessed.add(e);
                 });
                 break;
