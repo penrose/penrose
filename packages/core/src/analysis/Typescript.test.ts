@@ -207,4 +207,5 @@ describe("TS Property Analysis", () => {
   testFnException(testTsAnalyzePropertyAccessArrayErr, "s");
   testFnException(testTsAnalyzePropertyAccessObjErr, "s");
   testFnException(testTsAnalyzePropertyLValueErr, "s");
-}!!!*/);
+!!!*/
+});
