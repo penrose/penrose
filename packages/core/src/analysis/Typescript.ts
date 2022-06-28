@@ -219,7 +219,11 @@ export const tsAnalyzePropertyAccess = (
                 if (node.property.type === AST_NODE_TYPES.Identifier) {
                   // We use a string here to easily eliminate dupes
                   console.log(
-                    `Adding local result: ${JSON.stringify(node.property)}`
+                    `Adding local result: ${JSON.stringify(
+                      node.property
+                    )} => ${JSON.stringify(node)} => ${JSON.stringify(
+                      node.property.name
+                    )}`
                   ); // !!!
                   propsAccessed.add(
                     `${fnName}::${thisVar}::${node.property.name}`
