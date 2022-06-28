@@ -170,6 +170,7 @@ const testFnException = (fn: Function, arg: string | number): void => {
  * Tests for the TypeScript Property Analysis
  */
 describe("TS Property Analysis", () => {
+  /*
   testFnEq(testTsAnalyzePropertyAccessIntraNoHits, "_context", []);
   testFnEq(compDict.midpointOffset, "s1", [
     { fnName: "linePts", varName: "_a", propName: "start" },
@@ -206,4 +207,4 @@ describe("TS Property Analysis", () => {
   testFnException(testTsAnalyzePropertyAccessArrayErr, "s");
   testFnException(testTsAnalyzePropertyAccessObjErr, "s");
   testFnException(testTsAnalyzePropertyLValueErr, "s");
-});
+}!!!*/);
