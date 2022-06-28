@@ -221,7 +221,7 @@ export const tsAnalyzePropertyAccess = (
                 if (node.property.type === AST_NODE_TYPES.Identifier) {
                   // We use a string here to easily eliminate dupes
                   console.log(
-                    `${fnName}: Adding local result: ${JSON.stringify(
+                    `${fnName} / var ${thisVar}: Adding local result: ${JSON.stringify(
                       node.property
                     )} => ${JSON.stringify(node)} => ${JSON.stringify(
                       node.property.name
@@ -243,8 +243,14 @@ export const tsAnalyzePropertyAccess = (
                   node.init.type === AST_NODE_TYPES.Identifier &&
                   node.id.type === AST_NODE_TYPES.Identifier &&
                   node.id.name !== thisVar
-                )
+                ) {
+                  console.log(
+                    `${fnName}: Adding var ${node.id.name}: ${JSON.stringify(
+                      parent
+                    )}`
+                  );
                   varQueue.enqueue(node.id.name);
+                }
                 break;
 
               // Ignore use in the function signature (i.e., in the
