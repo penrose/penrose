@@ -218,10 +218,14 @@ export const tsAnalyzePropertyAccess = (
             switch (node.type) {
               // If a property is accessed, add it to propsAccessed
               case AST_NODE_TYPES.MemberExpression:
-                if (node.property.type === AST_NODE_TYPES.Identifier) {
+                if (
+                  node.property.type === AST_NODE_TYPES.Identifier &&
+                  node.object.type === AST_NODE_TYPES.Identifier &&
+                  node.object.name === thisVar
+                ) {
                   // We use a string here to easily eliminate dupes
                   console.log(
-                    `${fnName} / var ${thisVar}: Adding local result: ${JSON.stringify(
+                    `${fnName}: var ${thisVar}: Adding local result: ${JSON.stringify(
                       node.property
                     )} => ${JSON.stringify(node)} => ${JSON.stringify(
                       node.property.name
