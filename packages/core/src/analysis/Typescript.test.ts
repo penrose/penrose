@@ -83,6 +83,30 @@ const testTsAnalyzePropertyLValueProp = (s: any): void => {
 };
 
 /**
+ * A function where the property access is by way of calling a function
+ *
+ * @param s
+ */
+const testTsAnalyzePropertyAccessFn = (s: any): void => {
+  const r = (): { s: boolean } => {
+    return { s: true };
+  };
+  const x = r().s;
+};
+
+/**
+ * A function where the property assignment is by way of calling a function
+ *
+ * @param s
+ */
+const testTsAnalyzePropertyAssignFn = (s: any): void => {
+  const r = (): { s: any } => {
+    return { s: true };
+  };
+  r().s = s.r;
+};
+
+/**
  * A function with no arguments.
  */
 const testTsAnalyzePropertyAccessNoArgErr = (): void => {
@@ -171,6 +195,10 @@ const testFnException = (fn: Function, arg: string | number): void => {
  */
 describe("TS Property Analysis", () => {
   testFnEq(testTsAnalyzePropertyAccessIntraNoHits, "_context", []);
+  testFnEq(testTsAnalyzePropertyAccessFn, "s", []);
+  testFnEq(testTsAnalyzePropertyAssignFn, "s", [
+    { fnName: "fn", varName: "s", propName: "r" },
+  ]);
   testFnEq(compDict.midpointOffset, "s1", [
     { fnName: "linePts", varName: "_a", propName: "start" },
     { fnName: "linePts", varName: "_a", propName: "end" },

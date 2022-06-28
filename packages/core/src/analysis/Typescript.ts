@@ -248,6 +248,19 @@ export const tsAnalyzePropertyAccess = (
               case AST_NODE_TYPES.FunctionExpression:
                 break;
 
+              // Ignore properties that just happen to have the same
+              // name as our input variable, thisVar.
+              case AST_NODE_TYPES.Property:
+                if (child === node.value)
+                  throw new Error(
+                    `Analysis for AST Object Property as lvalue not yet implemented: ${JSON.stringify(
+                      node,
+                      null,
+                      2
+                    )}`
+                  );
+                break;
+
               // If the variable is a parameter to a function call,
               // perform inter-procedural analysis to analyze the
               // variable's property accesses in the called function.
@@ -268,7 +281,9 @@ export const tsAnalyzePropertyAccess = (
               // unsound answers.
               default:
                 throw new Error(
-                  `Analysis for AST node ${node.type} not yet implemented`
+                  `Analysis for AST node ${
+                    node.type
+                  } not yet implemented: ${JSON.stringify(node, null, 2)}`
                 );
             } // switch: node.type
           } // if: AST node is identifier for this variable
