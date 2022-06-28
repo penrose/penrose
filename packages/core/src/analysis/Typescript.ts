@@ -160,6 +160,8 @@ export const tsAnalyzePropertyAccess = (
     fnName = fnName.replaceAll(":", ""); // No colons
     fnSource ? (fnSource = "const $_f=" + fnSource) : noop; // Prefix the source
 
+    console.log(`${fnName}: Source=${fnSource}`); // !!!
+
     // Retrieve fn source and parse it
     const src = fnSource || getTsFnSource(fnName);
     const ast = parse(src, { range: true });
@@ -219,7 +221,7 @@ export const tsAnalyzePropertyAccess = (
                 if (node.property.type === AST_NODE_TYPES.Identifier) {
                   // We use a string here to easily eliminate dupes
                   console.log(
-                    `Adding local result: ${JSON.stringify(
+                    `${fnName}: Adding local result: ${JSON.stringify(
                       node.property
                     )} => ${JSON.stringify(node)} => ${JSON.stringify(
                       node.property.name
@@ -262,7 +264,9 @@ export const tsAnalyzePropertyAccess = (
                   node,
                   node.arguments.indexOf(child)
                 ).forEach((e) => {
-                  console.log(`Adding IPC result: ${JSON.stringify(e)}`); // !!
+                  console.log(
+                    `${fnName}: Adding IPC result: ${JSON.stringify(e)}`
+                  ); // !!
                   propsAccessed.add(e);
                 });
                 break;
