@@ -95,15 +95,61 @@ const testTsAnalyzePropertyAccessFn = (s: any): void => {
 };
 
 /**
+ * A function where the property access is within an inner function.
+ *
+ * @param s
+ */
+const testTsAnalyzePropertyInnerFn = (s: any): { x: any } => {
+  const inner = (): { x: boolean } => {
+    return { x: s.r };
+  };
+  return inner();
+};
+
+/**
+ * A function where the property access is within an inner function.
+ *
+ * @param s
+ */
+const testTsAnalyzePropertyInnerFnDef = (s: any): { x: any } => {
+  function inner(): { x: boolean } {
+    return { x: s.r };
+  }
+  return inner();
+};
+
+/**
  * A function where the property assignment is by way of calling a function
  *
  * @param s
  */
 const testTsAnalyzePropertyAssignFn = (s: any): void => {
-  const r = (): { s: any } => {
+  const inner = (): { s: any } => {
     return { s: true };
   };
-  r().s = s.r;
+  inner().s = s.r;
+};
+
+/**
+ * A function with inner recursion
+ *
+ * @param s
+ */
+const testTsAnalyzePropertyRecursion = (s: any): number => {
+  const inner = (x: number, z: any): number => {
+    if (x < 1) return z.r;
+    else return inner(x - 1, z);
+  };
+  return inner(100, s);
+};
+
+/**
+ * A property access within an anonymous function
+ *
+ * @param s
+ */
+const testTsAnalyzePropertyAnonFn = (s: any): void => {
+  [1, 2, 3].forEach((e) => (e === 2 ? s.r : 0));
 };
 
 /**
@@ -197,6 +243,20 @@ describe("TS Property Analysis", () => {
   testFnEq(testTsAnalyzePropertyAccessIntraNoHits, "_context", []);
   testFnEq(testTsAnalyzePropertyAccessFn, "s", []);
   testFnEq(testTsAnalyzePropertyAssignFn, "s", [
+    { fnName: "fn", varName: "s", propName: "r" },
+  ]);
+  /* !!! Not working yet !!!
+  testFnEq(testTsAnalyzePropertyInnerFn, "s", [
+    { fnName: "inner", varName: "z", propName: "r" },
+  ]);
+  testFnEq(testTsAnalyzePropertyInnerFnDef, "s", [
+    { fnName: "inner", varName: "z", propName: "r" },
+  ]);
+  testFnEq(testTsAnalyzePropertyRecursion, "s", [
+    { fnName: "inner", varName: "z", propName: "r" },
+  ]);
+  */
+  testFnEq(testTsAnalyzePropertyAnonFn, "s", [
     { fnName: "fn", varName: "s", propName: "r" },
   ]);
   testFnEq(compDict.midpointOffset, "s1", [

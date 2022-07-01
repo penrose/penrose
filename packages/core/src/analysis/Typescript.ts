@@ -1,5 +1,6 @@
 import { Queue } from "@datastructures-js/queue";
 import {
+  AST,
   AST_NODE_TYPES,
   parse,
   simpleTraverse,
@@ -22,7 +23,7 @@ import * as util from "utils/Util";
  * and one of its arguments. If multiple arguments need to be analyzed, call this function
  * onces for each argument.
  *
- * Limitations on Soundness and Other Important Notes:
+ * Limitations on soundness and important notes:
  *  - This analysis is not complete: it does not provide all true answers.
  *  - Arg is not tracked through arrays, objects, loop iterations, or dynamic calls.
  *    E.g., situations such as these are not analyzed and will likely throw an exception:
@@ -30,8 +31,6 @@ import * as util from "utils/Util";
  *     - x = {s:s}; y = x.s <-- s is not tracked through its assignment into an object
  *  - Multiple assignments (let x=s1;x=s2) are not analyzed and raise an exception.
  *  - Nested scopes within a function are not analyzed and do not raise an exception.
- *  - Functions nested within other functions are not analyzed and raise an exception.
- *    (This is obviously possible but is not implemented yet)
  *
  * These approximations are acceptable for our simple use case.  If our computation or
  * constraint functions begin to use the features above, this analysis will need to
@@ -75,7 +74,8 @@ export const tsAnalyzePropertyAccess = (
     callerFn: string,
     calleeFn: string,
     node: TSESTree.Node,
-    arg: number
+    arg: number,
+    innerFns: im.Map<string, string>
   ): im.Set<string> => {
     // Get the string representation of the AST position.
     const nodePos = `${node.range[0]}-${node.range[1]}`;
@@ -100,11 +100,15 @@ export const tsAnalyzePropertyAccess = (
       interProcedureCache[callerFn][calleeFn][nodePos][arg] = PENDING;
       interProcedureCache[callerFn][calleeFn][nodePos][
         arg
-      ] = tsAnalyzePropertyAccessImpl(calleeFn, arg);
+      ] = tsAnalyzePropertyAccessImpl(
+        calleeFn,
+        arg,
+        innerFns.has(calleeFn) ? innerFns.get(calleeFn) : undefined
+      );
     } else if (
       interProcedureCache[callerFn][calleeFn][nodePos][arg] === PENDING
     ) {
-      return im.Set();
+      return im.Set(); // Call still in progress; return empty Set
     }
 
     // Return the cached value
@@ -158,7 +162,7 @@ export const tsAnalyzePropertyAccess = (
   ): im.Set<string> => {
     const propsAccessed = new Set<string>(); // List of properties accessed
     fnName = fnName.replaceAll(":", ""); // No colons
-    fnSource ? (fnSource = "const $_f=" + fnSource) : noop; // Prefix the source
+    fnSource ? (fnSource = `const ${OUTERFNNAME}=${fnSource}`) : noop; // Prefix the source
 
     // Retrieve fn source and parse it
     const src = fnSource || getTsFnSource(fnName);
@@ -169,6 +173,9 @@ export const tsAnalyzePropertyAccess = (
       throw new Error(
         `tsAnalyzePropertyAccess unable to find src of fn: ${fnName}`
       );
+
+    // Get the list of inner functions for this function.
+    const innerFns = getTsLocalFnSrc(src, ast);
 
     // If the arg to analyze is positional (numeric), determine its name
     let argName: string | undefined;
@@ -271,7 +278,8 @@ export const tsAnalyzePropertyAccess = (
                   fnName,
                   getCalleeFnName(node.callee),
                   node,
-                  node.arguments.indexOf(child)
+                  node.arguments.indexOf(child),
+                  innerFns
                 ).forEach((e) => propsAccessed.add(e));
                 break;
               }
@@ -311,6 +319,7 @@ export const tsAnalyzePropertyAccess = (
     propAccessesArr.push({ fnName, varName, propName });
   });
 
+  // Return the immutable set of property accesses
   return im.Set(propAccessesArr);
 }; // fn: tsAnalyzePropertyAccess
 
@@ -329,7 +338,7 @@ export const tsAnalyzePropertyAccess = (
  */
 const getTsFnSource = (fn: string): string => {
   const fnPath = fn.split(".");
-  const prefix = "const $_f="; // required for parsing
+  const prefix = `const ${OUTERFNNAME}=`; // required for parsing
 
   const fnObject = fnPath.length > 1 ? fnPath[0] : undefined;
   const fnName = fnPath.length > 1 ? fnPath[1] : fnPath[0];
@@ -365,9 +374,47 @@ const getTsFnSource = (fn: string): string => {
   if (fnName in functions.exportsForTestingOrAnalysis)
     return prefix + functions.exportsForTestingOrAnalysis[fnName].toString();
 
-  // Still not found, very sad...
+  // Still not found, very sad ...
   return "";
 }; // fn: getTsFnSource
+
+// !!!
+const getTsLocalFnSrc = (
+  src: string,
+  ast?: AST<{ range: true }>
+): im.Map<string, string> => {
+  const fnList = new Map<string, string>();
+  if (!ast) ast = parse(src, { range: true });
+
+  // Here we need to handle two cases of local functions:
+  //  1. Arrow function definitions assigned to a variable
+  //     const foo = (x):z => {return bar();}
+  //  2. Traditional function definitions
+  //     function foo (x):z {return bar();}
+  // !!! support traditional fn defs
+  simpleTraverse(ast, {
+    enter: (child, parent) => {
+      parent = parent ? parent : child;
+      if (
+        child.type === AST_NODE_TYPES.FunctionExpression &&
+        parent.type === AST_NODE_TYPES.VariableDeclarator &&
+        parent.id.type === AST_NODE_TYPES.Identifier &&
+        parent.id.name !== OUTERFNNAME // Skip the outer function
+      ) {
+        fnList.set(
+          parent.id.name, // fn Name
+          src.slice(parent.range[0], parent.range[1] + 1) // fn Source
+        );
+        console.log(
+          `@pos '${parent.range[0]}-${parent.range[1]}' fn '${
+            parent.id.name
+          }' src = ${JSON.stringify(fnList.get(parent.id.name), null, 2)}`
+        ); // !!!
+      }
+    },
+  });
+  return im.Map<string, string>(fnList);
+};
 
 /**
  * Records an access of propName from variable varName in function fnName
@@ -377,3 +424,9 @@ export type TsPropertyAccess = {
   varName: string;
   propName: string;
 };
+
+/**
+ * The arbitrary name we assign to the outer function when parsing
+ * arrow functions.
+ */
+const OUTERFNNAME = "$_f";
