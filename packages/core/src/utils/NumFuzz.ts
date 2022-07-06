@@ -4,6 +4,7 @@ import {
   input,
   primaryGraph,
 } from "engine/Autodiff";
+import * as fs from "fs";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
 import { makeEquation } from "shapes/Equation";
