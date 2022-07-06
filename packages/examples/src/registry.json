@@ -162,6 +162,12 @@
       "style": "shape-distance",
       "domain": "shape-distance",
       "variation": "GalapagosLocust418"
+    },
+    {
+      "substance": "3d-projection",
+      "style": "fake-3d-linear-algebra",
+      "domain": "fake-3d-linear-algebra",
+      "variation": "ConceptualMeerkat694"
     }
   ],
   "domains": {
@@ -212,6 +218,10 @@
     "shape-distance": {
       "name": "Signed Distance Function",
       "URI": "shape-distance/shapes.dsl"
+    },
+    "fake-3d-linear-algebra": {
+      "name": "Fake 3d Linear Algebra",
+      "URI": "fake-3d-linear-algebra/fake3d.dsl"
     }
   },
   "styles": {
@@ -308,6 +318,11 @@
       "domain": "shape-distance",
       "name": "Sign Distance Functions",
       "URI": "shape-distance/shape-distance.sty"
+    },
+    "fake-3d-linear-algebra": {
+      "domain": "fake-3d-linear-algebra",
+      "name": "Fake 3d Linear Algebra",
+      "URI": "fake-3d-linear-algebra/fake3d.sty"
     }
   },
   "substances": {
@@ -430,6 +445,11 @@
       "domain": "shape-distance",
       "name": "Points around a Line",
       "URI": "shape-distance/hundred-points-around-line.sub"
+    },
+    "3d-projection": {
+      "domain": "fake-3d-linear-algebra",
+      "name": "Projection onto Subspace and its Orthogonal Complement",
+      "URI": "fake-3d-linear-algebra/projection.sub"
     }
   }
 }
