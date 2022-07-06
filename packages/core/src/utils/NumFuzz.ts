@@ -32,7 +32,7 @@ import { floatV, vectorV } from "./Util";
  * @returns Fuzzing environment
  */
 export const fuzzSetup = (fo: FuzzOptions): FuzzEnv => {
-  const context = simpleContext(fo.variation || "");
+  const context = simpleContext(fo.variation ?? "");
   const fe = { ...fo, context }; // Fuzzing environment
 
   const nonShapeV: { [k: string]: ad.Num[] } = {}; // Non-shape Vector Inputs
