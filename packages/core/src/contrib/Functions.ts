@@ -57,7 +57,7 @@ import { Ellipse } from "shapes/Ellipse";
 import { Line } from "shapes/Line";
 import { Polyline } from "shapes/Polyline";
 import { Context, uniform } from "shapes/Samplers";
-import { shapedefs } from "shapes/Shapes";
+import { Shape, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
   ArgVal,
@@ -1430,7 +1430,7 @@ export const compDict = {
 
   signedDistance: (
     _context: Context,
-    [t, s]: [string, any],
+    [t, s]: [string, Shape],
     p: ad.Num[]
   ): FloatV<ad.Num> => {
     /*  
@@ -1445,10 +1445,10 @@ export const compDict = {
     } 
     */
     if (
-      t === "Rectangle" ||
-      t === "Text" ||
-      t === "Equation" ||
-      t === "Image"
+      s.shapeType === "Rectangle" ||
+      s.shapeType === "Text" ||
+      s.shapeType === "Equation" ||
+      s.shapeType === "Image"
     ) {
       const absp = ops.vabs(ops.vsub(p, s.center.contents));
       const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
@@ -1461,7 +1461,7 @@ export const compDict = {
         tag: "FloatV",
         contents: result,
       };
-    } else if (t === "Circle") {
+    } else if (s.shapeType === "Circle") {
       /*     
       float sdCircle( vec2 p, float r )
       {
@@ -1474,7 +1474,7 @@ export const compDict = {
         tag: "FloatV",
         contents: result,
       };
-    } else if (t === "Polygon") {
+    } else if (s.shapeType === "Polygon") {
       /*
       float sdPolygon( in vec2[N] v, in vec2 p )
       {
@@ -1520,24 +1520,22 @@ export const compDict = {
         tag: "FloatV",
         contents: result,
       };
-    } else if (t === "Line") {
+    } else if (s.shapeType === "Line") {
       return {
         tag: "FloatV",
         contents: sdLine(s, p),
       };
-    } else if (t === "Polyline") {
+    } else if (s.shapeType === "Polyline") {
       return {
         tag: "FloatV",
         contents: sdPolyline(s, p),
       };
-    } else if (t === "Ellipse") {
+    } else if (s.shapeType === "Ellipse") {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
       // return {
       //   tag: "FloatV",
       //   contents: sdEllipse(s, p),
       // };
-    } else if (t === "Path") {
-      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
     } else {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
     }
@@ -1770,4 +1768,21 @@ const tickPlacement = (
     pts.push(add(pts[i - 1], shift));
   }
   return pts;
+};
+
+/**
+ * Side-export of non-exported functions for analysis / testing
+ * See: https://stackoverflow.com/a/54116079
+ */
+export const exportsForTestingOrAnalysis = {
+  tickPlacement,
+  rot90v,
+  rot90,
+  perpPathFlat,
+  toPt,
+  sdEllipseAsNums,
+  msign,
+  sdPolyline,
+  sdLineAsNums,
+  sdLine,
 };

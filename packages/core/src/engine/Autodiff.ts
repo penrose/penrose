@@ -1,6 +1,5 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
-import * as fs from "fs";
 import * as _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "types/ad";
@@ -1108,8 +1107,16 @@ export const genCode = ({
     `secondary: [${secondary.join(", ")}]`,
   ];
   stmts.push(`return { ${fields.join(", ")} };`);
-  fs.writeFileSync("gencodeOutput.txt", stmts.join("\n"));
-
   const f = new Function("polyRoots", "inputs", stmts.join("\n"));
+  lastGenCodeFn = { inner: f, outer: (inputs) => f(polyRoots, inputs) }; // temp hack !!!
   return (inputs) => f(polyRoots, inputs);
 };
+
+/**
+ * This is a temporary stand-in for the Debugger functionality that allows
+ * retrieval of the last genCode run.  !!!
+ */
+export const getLastGenCodeFn = (): typeof lastGenCodeFn => {
+  return lastGenCodeFn;
+};
+let lastGenCodeFn: { inner: any; outer: ad.Compiled };
