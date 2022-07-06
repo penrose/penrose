@@ -75,7 +75,8 @@ export default function Home() {
           <b>
             Penrose is an early-stage system that is actively in development.
           </b>{" "}
-          Feel free to <a href="mailto:team@penrose.ink">get in touch</a>.
+          Feel free to <a href="mailto:penrose-team@cs.cmu.edu">get in touch</a>
+          .
         </p>
 
         <h1>Example</h1>

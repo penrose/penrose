@@ -689,4 +689,76 @@ export function foldM<A, B, C>(
   return resW;
 }
 
+/**
+ * Gets the string value of a property.  If the property cannot be converted
+ * to a string, throw an exception.
+ *
+ * @param prop Get the string value of this property
+ * @param dft Optional default value (if you don't want an exception)
+ * @returns string value of the property
+ */
+export const getAdValueAsString = (
+  prop: Value<ad.Num>,
+  dft?: string
+): string => {
+  switch (prop.tag) {
+    case "FloatV":
+      if (typeof prop.contents === "number") return prop.contents.toString();
+      if (typeof prop.contents === "string") return prop.contents;
+      break;
+    case "StrV":
+      return prop.contents;
+  }
+  if (dft !== undefined) return dft;
+  throw new Error(
+    `getAdValueAsString: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
+};
+
+/**
+ * Gets the numeric value of a property.  If the property cannot be converted
+ * to a number, throw an exception.
+ *
+ * @param prop Get the numeric value of this property
+ * @param dft Optional default value (if you don't want an exception)
+ * @returns numeric value of the property
+ */
+export const getAdValueAsNumber = (
+  prop: Value<ad.Num>,
+  dft?: number
+): number => {
+  switch (prop.tag) {
+    case "FloatV":
+      if (typeof prop.contents === "number") return prop.contents;
+      if (typeof prop.contents === "string") return parseFloat(prop.contents);
+      break;
+    case "StrV":
+      return parseFloat(prop.contents);
+  }
+  if (dft !== undefined) return dft;
+  throw new Error(
+    `getAdValueAsNumber: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
+};
+
+/**
+ * Gets the color value of a property.  If the property is not a color,
+ * throw an exception.
+ *
+ * @param prop Get the color value of this property
+ * @returns color value of the property
+ */
+export const getAdValueAsColor = (prop: Value<ad.Num>): Color<ad.Num> => {
+  if (prop.tag === "ColorV") return prop.contents;
+  throw new Error(
+    `getAdValueAsColor: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
+};
+
 //#endregion
