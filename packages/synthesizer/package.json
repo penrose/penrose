@@ -7,7 +7,7 @@
     "program synthesis",
     "diagramming"
   ],
-  "homepage": "http://penrose.ink/",
+  "homepage": "http://penrose.cs.cmu.edu/",
   "license": "MIT",
   "main": "index.ts",
   "directories": {
