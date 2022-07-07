@@ -24,6 +24,7 @@ const lexer = moo.compile({
       function: "function",
       predicate: "predicate",
       notation: "notation",
+      symmetric: "symmetric",
       prop: "Prop"
     })
   }
@@ -82,12 +83,15 @@ type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1
   }
 %}
 
-# YILIANG: Make this work with "symmetric"
-predicate -> "predicate" __ identifier type_params_list args_list {%
-  ([kw, , name, params, args]): PredicateDecl<C> => ({
+# This now works with symmetric predicate declarations.
+predicate -> ("symmetric" __):? "predicate" __ identifier type_params_list args_list {%
+  ([sym, kw, , name, params, args]): PredicateDecl<C> => ({
     ...nodeData,
     ...rangeFrom([rangeOf(kw), ...args, ...params]),
-    tag: "PredicateDecl", name, params, args
+    tag: "PredicateDecl", name, params, args,
+    // If "symmetric" isn't present, "sym" would be null and this would be false
+    // Otherwise, this would be true.
+    symmetric: sym !== null
   })
 %}
 

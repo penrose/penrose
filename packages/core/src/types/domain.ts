@@ -49,12 +49,13 @@ export type TypeDecl<T> = ASTNode<T> & {
   params: TypeVar<T>[];
   superTypes: TypeConstructor<T>[];
 };
-// YILIANG: Make this work with "symmetric"
+// This now works with symmetric predicates.
 export type PredicateDecl<T> = ASTNode<T> & {
   tag: "PredicateDecl";
   name: Identifier<T>;
   params: TypeVar<T>[];
   args: Arg<T>[];
+  symmetric: boolean;
 };
 
 export type FunctionDecl<T> = ASTNode<T> & {
