@@ -49,7 +49,7 @@ export type TypeDecl<T> = ASTNode<T> & {
   params: TypeVar<T>[];
   superTypes: TypeConstructor<T>[];
 };
-
+// YILIANG: Make this work with "symmetric"
 export type PredicateDecl<T> = ASTNode<T> & {
   tag: "PredicateDecl";
   name: Identifier<T>;

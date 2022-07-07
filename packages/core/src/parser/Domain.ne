@@ -82,6 +82,7 @@ type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1
   }
 %}
 
+# YILIANG: Make this work with "symmetric"
 predicate -> "predicate" __ identifier type_params_list args_list {%
   ([kw, , name, params, args]): PredicateDecl<C> => ({
     ...nodeData,

@@ -199,6 +199,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       return everyResult(argsOk, outputOk, updatedEnv);
     }
     case "PredicateDecl": {
+      // YILIANG: need to add checks about symmetry and arguments
       const { name, params, args } = stmt;
       // load params into context
       const localEnv: Env = {
