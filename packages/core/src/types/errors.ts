@@ -54,7 +54,13 @@ export type DomainError =
   | TypeVarNotFound
   | TypeNotFound
   | DuplicateName
-  | CyclicSubtypes;
+  | CyclicSubtypes
+  | SymmetricTypeMismatch;
+
+export interface SymmetricTypeMismatch {
+  tag: "SymmetricTypeMismatch";
+  sourceExpr: AbstractNode;
+}
 
 export interface UnexpectedExprForNestedPred {
   tag: "UnexpectedExprForNestedPred";
