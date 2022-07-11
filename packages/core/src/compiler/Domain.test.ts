@@ -146,8 +146,7 @@ type MyType
 type MySubType
 predicate MyNormalPredicate(MyType a, MyType b)
 symmetric predicate MyExcellentPredicate1(MyType a, MyType b)
-symmetric predicate MyExcellentPredicate2(MyType)
-symmetric predicate MyExcellentPredicate3(MySubType, MySubType)
+symmetric predicate MyExcellentPredicate2(MySubType, MySubType)
     `;
     const res = compileDomain(prog);
     const predicates = [
@@ -164,9 +163,6 @@ symmetric predicate MyExcellentPredicate3(MySubType, MySubType)
         true
       );
       expect(env.predicates.get("MyExcellentPredicate2")!.symmetric).toEqual(
-        true
-      );
-      expect(env.predicates.get("MyExcellentPredicate3")!.symmetric).toEqual(
         true
       );
     }
