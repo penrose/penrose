@@ -257,6 +257,13 @@ symmetric predicate MyBadPredicate(MyType a, MySubType b)
     `;
     expectErrorOf(prog, "SymmetricTypeMismatch");
   });
+  test("argument count mismatch in symmetric predicates", () => {
+    const prog = `
+type MyType
+symmetric predicate MyBadPredicate(MyType, MyType, MyType)
+    `;
+    expectErrorOf(prog, "SymmetricArgLengthMismatch");
+  });
 });
 
 describe("Real Programs", () => {

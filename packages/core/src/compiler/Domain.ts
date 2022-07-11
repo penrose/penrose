@@ -37,6 +37,7 @@ import {
   parseError,
   Result,
   safeChain,
+  symmetricArgLengthMismatch,
   symmetricTypeMismatch,
   typeNotFound,
 } from "utils/Error";
@@ -201,7 +202,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
     }
     case "PredicateDecl": {
       // YILIANG: need to add checks about symmetry and arguments
-      const { name, params, args, symmetric } = stmt;
+      const { name, params, args } = stmt;
       // load params into context
       const localEnv: Env = {
         ...env,
@@ -294,7 +295,7 @@ const checkArg = (arg: Arg<C>, env: Env): CheckerResult =>
   checkType(arg.type, env);
 
 /**
- * Check if all arguments to this symmetric predicate have the same type.
+ * Check if all arguments to this symmetric predicate have the same type, and there are only two arguments
  * @param args arguments to predicate
  * @param envOk previous environment result
  * @param expr the predicate declaration expression
@@ -307,11 +308,14 @@ const checkSymmetricArgs = (
   if (envOk.isOk()) {
     const env = envOk.value;
     // If it's symmetric, and there is type mismatch
-    if (
-      expr.symmetric &&
-      args.some((arg) => !areSameTypes(arg.type, args[0].type, env))
-    ) {
-      return err(symmetricTypeMismatch(expr));
+    if (expr.symmetric) {
+      if (args.length !== 2) {
+        return err(symmetricArgLengthMismatch(expr));
+      }
+      if (args.some((arg) => !areSameTypes(arg.type, args[0].type, env))) {
+        return err(symmetricTypeMismatch(expr));
+      }
+      return envOk;
     } else {
       return envOk;
     }

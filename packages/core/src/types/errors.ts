@@ -55,10 +55,16 @@ export type DomainError =
   | TypeNotFound
   | DuplicateName
   | CyclicSubtypes
-  | SymmetricTypeMismatch;
+  | SymmetricTypeMismatch
+  | SymmetricArgLengthMismatch;
 
 export interface SymmetricTypeMismatch {
   tag: "SymmetricTypeMismatch";
+  sourceExpr: AbstractNode;
+}
+
+export interface SymmetricArgLengthMismatch {
+  tag: "SymmetricArgLengthMismatch";
   sourceExpr: AbstractNode;
 }
 

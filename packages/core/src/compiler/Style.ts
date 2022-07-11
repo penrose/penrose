@@ -987,7 +987,20 @@ const relMatchesLine = (
     // rule Pred-Match
     const [pred, sPred] = [s1, s2];
     const selPred = toSubPred(sPred);
-    return subFnsEq(pred, selPred);
+    const exactMatch = subFnsEq(pred, selPred);
+
+    let exactMatchSym = false;
+    const predicateDecl = typeEnv.predicates.get(pred.name.value);
+    if (predicateDecl && predicateDecl.symmetric) {
+      const sPredSym = {
+        ...sPred,
+        args: [sPred.args[1], sPred.args[0]],
+      };
+      const selPredSym = toSubPred(sPredSym);
+      exactMatchSym = subFnsEq(pred, selPredSym);
+    }
+
+    return exactMatch || exactMatchSym;
     // COMBAK: Add this condition when the Substance typechecker is implemented -- where is the equivalent function to `predsDeclaredEqual` in the new code?
     // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
   } else {
