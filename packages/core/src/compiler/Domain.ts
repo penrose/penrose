@@ -213,7 +213,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       if (existing) return err(duplicateName(name, stmt, existing));
       // check that the arguments are of valid types
       const argsOk = safeChain(args, checkArg, ok(localEnv));
-      // if predicate is symmetric, check that the argument types are equal
+      // if predicate is symmetric, check that the argument types are equal, and that there are exactly two arguments
       const symArgOk = checkSymmetricArgs(args, argsOk, stmt);
       // insert predicate into env
       const updatedEnv: CheckerResult = ok({
@@ -307,11 +307,13 @@ const checkSymmetricArgs = (
 ): CheckerResult => {
   if (envOk.isOk()) {
     const env = envOk.value;
-    // If it's symmetric, and there is type mismatch
+    // If it's symmetric
     if (expr.symmetric) {
+      // Number of arguments must be 2
       if (args.length !== 2) {
         return err(symmetricArgLengthMismatch(expr));
       }
+      // Type mismatch in Domain
       if (args.some((arg) => !areSameTypes(arg.type, args[0].type, env))) {
         return err(symmetricTypeMismatch(expr));
       }

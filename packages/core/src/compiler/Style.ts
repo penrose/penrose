@@ -989,18 +989,27 @@ const relMatchesLine = (
     const selPred = toSubPred(sPred);
     const exactMatch = subFnsEq(pred, selPred);
 
-    let exactMatchSym = false;
-    const predicateDecl = typeEnv.predicates.get(pred.name.value);
-    if (predicateDecl && predicateDecl.symmetric) {
-      const sPredSym = {
-        ...sPred,
-        args: [sPred.args[1], sPred.args[0]],
-      };
-      const selPredSym = toSubPred(sPredSym);
-      exactMatchSym = subFnsEq(pred, selPredSym);
+    if (exactMatch) {
+      return true;
+    } else {
+      // Now consider possible symmetry
+      // Need to think how this would work for >2 arguments ...
+      // Perhaps compare multisets of types of arguments? ...
+      const predicateDecl = typeEnv.predicates.get(pred.name.value);
+      // If it is symmetric
+      if (predicateDecl && predicateDecl.symmetric) {
+        // Flip arguments and then compare
+        const sPredSym = {
+          ...sPred,
+          args: [sPred.args[1], sPred.args[0]], // Try the other direction
+        };
+        const selPredSym = toSubPred(sPredSym);
+        return subFnsEq(pred, selPredSym);
+      } else {
+        return false;
+      }
     }
 
-    return exactMatch || exactMatchSym;
     // COMBAK: Add this condition when the Substance typechecker is implemented -- where is the equivalent function to `predsDeclaredEqual` in the new code?
     // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
   } else {
