@@ -430,6 +430,50 @@ describe("Compiler", () => {
       }
     });
   });
+
+  describe("number of matching", () => {
+    test("no double matching", () => {
+      const domainProg = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+symmetric predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H
+Oxygen O
+Bond(H, O)`;
+      const styProg =
+        canvasPreamble +
+        `forall Atom a1; Atom a2
+where Bond(a1, a2) {
+  myShape = Text {
+    string: "Bond!"
+  }
+}`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+  });
   // Test errors
   const PRINT_ERRORS = false;
 
