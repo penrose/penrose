@@ -436,18 +436,20 @@ describe("Compiler", () => {
       const domainProg = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
-symmetric predicate Bond(Atom, Atom)`;
-      const subProg = `Hydrogen H
-Oxygen O
-Bond(H, O)`;
+predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H1, H2
+      Oxygen O
+      Bond( O, H1 )
+      Bond( O, H2 )`;
       const styProg =
         canvasPreamble +
-        `forall Atom a1; Atom a2
-where Bond(a1, a2) {
-  myShape = Text {
-    string: "Bond!"
-  }
-}`;
+        `forall Oxygen o; Hydrogen h1; Hydrogen h2
+        where Bond(o,h1); Bond(o,h2) {
+            myText = Text {
+                string: "Water!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
 
       const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
       const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
