@@ -346,7 +346,90 @@ describe("Compiler", () => {
   });
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
+  describe("Symmetric predicates", () => {
+    test("non-symmetric predicate should not match", () => {
+      const domainProg = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H
+      Oxygen O
+      Bond(H, O)`;
+      const styProg =
+        canvasPreamble +
+        `forall Hydrogen h; Oxygen o
+      where Bond(o, h) {
+        myShape = Text {
+          string: "Bond!"
+        }
+      }`;
 
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(0);
+      }
+    });
+    test("symmetric predicate should match", () => {
+      const domainProg = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      symmetric predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H
+      Oxygen O
+      Bond(H, O)`;
+      const styProg =
+        canvasPreamble +
+        `forall Hydrogen h; Oxygen o
+      where Bond(o, h) {
+        myShape = Text {
+          string: "Bond!"
+        }
+      }`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toBeGreaterThan(0);
+      }
+    });
+  });
   // Test errors
   const PRINT_ERRORS = false;
 

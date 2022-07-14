@@ -25,6 +25,8 @@ import {
   StyleError,
   StyleWarning,
   SubstanceError,
+  SymmetricArgLengthMismatch,
+  SymmetricTypeMismatch,
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
@@ -129,6 +131,18 @@ export const showError = (
       return `Subtyping relations in this program form a cycle. Cycles of types are:\n${showCycles(
         error.cycles
       )}`;
+    }
+    case "SymmetricTypeMismatch": {
+      const { sourceExpr } = error;
+      return `The symmetric predicate at ${loc(
+        sourceExpr
+      )} must have arguments all of the same type.`;
+    }
+    case "SymmetricArgLengthMismatch": {
+      const { sourceExpr } = error;
+      return `The symmetric predicate at ${loc(
+        sourceExpr
+      )} must only have two arguments.`;
     }
     case "TypeMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
@@ -436,6 +450,20 @@ export const varNotFound = (
   tag: "VarNotFound",
   variable,
   possibleVars,
+});
+
+export const symmetricTypeMismatch = (
+  sourceExpr: AbstractNode
+): SymmetricTypeMismatch => ({
+  tag: "SymmetricTypeMismatch",
+  sourceExpr,
+});
+
+export const symmetricArgLengthMismatch = (
+  sourceExpr: AbstractNode
+): SymmetricArgLengthMismatch => ({
+  tag: "SymmetricArgLengthMismatch",
+  sourceExpr,
 });
 
 export const typeMismatch = (

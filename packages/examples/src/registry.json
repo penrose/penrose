@@ -168,6 +168,12 @@
       "style": "fake-3d-linear-algebra",
       "domain": "fake-3d-linear-algebra",
       "variation": "ConceptualMeerkat694"
+    },
+    {
+      "substance": "water-molecule",
+      "style": "symmetric-bond",
+      "domain": "symmetric-bond",
+      "variation": "SharkskinWalrus24396"
     }
   ],
   "domains": {
@@ -222,6 +228,10 @@
     "fake-3d-linear-algebra": {
       "name": "Fake 3d Linear Algebra",
       "URI": "fake-3d-linear-algebra/fake3d.dsl"
+    },
+    "symmetric-bond": {
+      "name": "Symmetric Bond",
+      "URI": "symmetric-bond/symmetric-bond.dsl"
     }
   },
   "styles": {
@@ -323,6 +333,11 @@
       "domain": "fake-3d-linear-algebra",
       "name": "Fake 3d Linear Algebra",
       "URI": "fake-3d-linear-algebra/fake3d.sty"
+    },
+    "symmetric-bond": {
+      "domain": "symmetric-bond",
+      "name": "Symmetric Bond",
+      "URI": "symmetric-bond/symmetric-bond.sty"
     }
   },
   "substances": {
@@ -450,6 +465,11 @@
       "domain": "fake-3d-linear-algebra",
       "name": "Projection onto Subspace and its Orthogonal Complement",
       "URI": "fake-3d-linear-algebra/projection.sub"
+    },
+    "water-molecule": {
+      "domain": "symmetric-bond",
+      "name": "A Water Molecule drawn using symmetric bonds",
+      "URI": "symmetric-bond/water-molecule.sub"
     }
   }
 }

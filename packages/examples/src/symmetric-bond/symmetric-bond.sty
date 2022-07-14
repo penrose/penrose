@@ -1,0 +1,55 @@
+canvas {
+    width = 800
+    height = 700
+}
+
+forall Oxygen o {
+    o.symbol_string = Equation {
+      string : "\text{O}"
+    }
+    o.icon = Circle {
+        strokeWidth : 0.0
+        r : 15.0
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
+        center : o.symbol_string.center
+    }
+    o.layering = o.symbol_string above o.icon
+}
+forall Hydrogen h {
+    h.symbol_string = Equation {
+      string : "\text{H}"
+    }
+    h.icon = Circle {
+        strokeWidth : 0.0
+        r : 15.0
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
+        center : h.symbol_string.center
+    }
+    h.layering = h.symbol_string above h.icon
+}
+
+forall Oxygen o; Hydrogen h1; Hydrogen h2
+where Bond(o,h1); Bond(o,h2) {
+    o.bond1 = Line {
+        start: o.symbol_string.center
+        end: h1.symbol_string.center
+        strokeColor: rgba(0, 0, 0, 255)
+    }
+
+    o.bond2 = Line {
+        start: o.symbol_string.center
+        end: h2.symbol_string.center
+        strokeColor: rgba(0, 0, 0, 255)
+    }
+
+    v1 = o.bond1.end - o.bond1.start
+    v2 = o.bond2.end - o.bond2.start
+
+    o.layering1 = h1.icon above o.bond1
+    o.layering2 = h2.icon above o.bond2
+    o.layering3 = o.icon above o.bond1
+    
+    ensure equal(norm(v1), norm(v2))
+    ensure equal(angleBetween(v1, v2), toRadians(104.5))
+    ensure equal(norm(v1), 100)
+}
