@@ -144,7 +144,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // register any subtyping relations
       const subType: TypeConstructor<C> = {
         tag: "TypeConstructor",
-        nodeType: "Substance", // YILIANG: ???
+        nodeType: "Substance",
         start: name.start,
         end: name.end,
         name,
@@ -201,7 +201,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       return everyResult(argsOk, outputOk, updatedEnv);
     }
     case "PredicateDecl": {
-      // YILIANG: need to add checks about symmetry and arguments
       const { name, params, args } = stmt;
       // load params into context
       const localEnv: Env = {
