@@ -1072,6 +1072,9 @@ const filterRels = (
     ),
   };
 
+  // YILIANG: This should do the duplication checking.
+  // Use a hashset of hashsets.
+  // Use reduce(...) instead of filter - start with an empty substs and empty hashset
   return substs.filter((subst) =>
     allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))
   );

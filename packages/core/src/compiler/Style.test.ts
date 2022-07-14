@@ -472,6 +472,7 @@ predicate Bond(Atom, Atom)`;
           )}`
         );
       } else {
+        // This should fail.
         expect(styRes.value.shapes.length).toEqual(1);
       }
     });
