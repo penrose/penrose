@@ -32,6 +32,8 @@ export type SubStmt<T> =
   | AutoLabel<T>
   | NoLabel<T>;
 
+// An application of relation
+// A relation is a predicate or a binding.
 export type ApplyRel<T> = ApplyPredicate<T> | Bind<T>;
 
 export interface LabelValue {

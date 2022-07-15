@@ -954,6 +954,7 @@ const exprsMatch = (
 
 // Judgment 11. b; theta |- S <| |S_r
 // After all Substance variables from a Style substitution are substituted in, check if
+// Returns the relation match
 const matchRelToLine = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
@@ -1024,6 +1025,7 @@ const matchRelToLine = (
 };
 
 // Judgment 13. b |- [S] <| |S_r
+// Returns the relation that is matched.
 const matchRelToProg = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
@@ -1072,17 +1074,16 @@ const matchRelToProg = (
   }
 };
 
-type OptionalSetRel = im.Set<ApplyRel<A>> | undefined;
-
 // Judgment 15. b |- [S] <| [|S_r]
+// This now returns a set of the matched relations.
 const matchAllRels = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[]
-): OptionalSetRel => {
-  const initMatches: OptionalSetRel = im.Set();
-  return rels.reduce((currMatches: OptionalSetRel, rel) => {
+): im.Set<ApplyRel<A>> | undefined => {
+  const initMatches: im.Set<ApplyRel<A>> | undefined = im.Set();
+  return rels.reduce((currMatches: im.Set<ApplyRel<A>> | undefined, rel) => {
     // Undefines fall through.
     if (currMatches === undefined) {
       return currMatches;
@@ -1119,7 +1120,8 @@ const filterRels = (
   };
 
   const initSubsts: Subst[] = [];
-  // A relation can be both a predicate and a binding - we handle both here
+
+  // This stores all the "matched" sets of relations for this header block.
   const initMatchedRels: im.Set<im.Set<ApplyRel<A>>> = im.Set();
   const [, goodSubsts] = substs.reduce(
     ([currMatchedRels, currSubsts], subst) => {
@@ -1130,7 +1132,8 @@ const filterRels = (
         substituteRels(subst, rels)
       );
       if (matches !== undefined) {
-        // special case for 0 matched relations - they are always allowed.
+        // special case for no matched relations - they are always allowed.
+        // ignore duplicate matches
         if (matches.size !== 0 && currMatchedRels.includes(matches)) {
           return [currMatchedRels, currSubsts];
         } else {
