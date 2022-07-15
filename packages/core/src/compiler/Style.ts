@@ -83,6 +83,8 @@ import {
 import {
   ApplyConstructor,
   ApplyPredicate,
+  ApplyRel,
+  Bind,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -953,12 +955,12 @@ const exprsMatch = (
 
 // Judgment 11. b; theta |- S <| |S_r
 // After all Substance variables from a Style substitution are substituted in, check if
-const relMatchesLine = (
+const matchRelToLine = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   s1: SubStmt<A>,
   s2: RelationPattern<A>
-): boolean => {
+): ApplyRel<A> | undefined => {
   if (s1.tag === "Bind" && s2.tag === "RelBind") {
     // rule Bind-Match
     switch (s2.id.tag) {
@@ -975,10 +977,10 @@ const relMatchesLine = (
         const [subVar, sVar] = [s1.variable, s2.id.contents.value];
         const selExpr = toSubExpr(typeEnv, s2.expr);
         const subExpr = s1.expr;
-        return (
-          subVarsEq(subVar, dummyId(sVar)) &&
+        return subVarsEq(subVar, dummyId(sVar)) &&
           exprsMatch(typeEnv, subExpr, selExpr)
-        );
+          ? s1
+          : undefined;
         // COMBAK: Add this condition when this is implemented in the Substance typechecker
         // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
       }
@@ -990,7 +992,7 @@ const relMatchesLine = (
     const exactMatch = subFnsEq(pred, selPred);
 
     if (exactMatch) {
-      return true;
+      return pred;
     } else {
       // Now consider possible symmetry
       // Need to think how this would work for >2 arguments ...
@@ -1004,26 +1006,33 @@ const relMatchesLine = (
           args: [sPred.args[1], sPred.args[0]], // Try the other direction
         };
         const selPredSym = toSubPred(sPredSym);
-        return subFnsEq(pred, selPredSym);
+        const symMatch = subFnsEq(pred, selPredSym);
+        if (symMatch) {
+          return pred;
+        }
       } else {
-        return false;
+        return undefined;
       }
     }
 
     // COMBAK: Add this condition when the Substance typechecker is implemented -- where is the equivalent function to `predsDeclaredEqual` in the new code?
     // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
   } else {
-    return false; // Only match two bind lines or two predicate lines
+    return undefined; // Only match two bind lines or two predicate lines
   }
 };
 
 // Judgment 13. b |- [S] <| |S_r
-const relMatchesProg = (
+const matchRelToProg = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rel: RelationPattern<A>
-): boolean => {
+): ApplyRel<A>[] | undefined => {
+  // Return values:
+  // undefined - does not match
+  // [] - no substitution
+  // [ApplyRel<A>] - substitution
   if (rel.tag === "RelField") {
     // the current pattern matches on a Style field
     const subName = rel.name.contents.value;
@@ -1034,26 +1043,62 @@ const relMatchesProg = (
       // check if the label type matches with the descriptor
       if (fieldDesc) {
         // NOTE: empty labels have a specific `NoLabel` type, so even if the entry exists, no existing field descriptors will match on it.
-        return label.type === fieldDesc;
-      } else return label.value.length > 0;
+        return label.type === fieldDesc ? [] : undefined;
+      } else {
+        return label.value.length > 0 ? [] : undefined;
+      }
     } else {
-      return false;
+      return undefined;
     }
   } else {
-    return subProg.statements.some((line) =>
+    const matchAttempts = subProg.statements.map((line) => {
+      return matchRelToLine(typeEnv, subEnv, line, rel);
+    });
+    const matchedLine = matchAttempts.find((attempt) => {
+      return attempt !== undefined;
+    });
+    if (matchedLine === undefined) {
+      return undefined;
+    } else {
+      return [matchedLine];
+    }
+
+    /*
+    subProg.statements.some((line) =>
       relMatchesLine(typeEnv, subEnv, line, rel)
     );
+    */
   }
 };
 
+type OptionalSetRel = im.Set<ApplyRel<A>> | undefined;
+
 // Judgment 15. b |- [S] <| [|S_r]
-const allRelsMatch = (
+const matchAllRels = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[]
-): boolean => {
-  return rels.every((rel) => relMatchesProg(typeEnv, subEnv, subProg, rel));
+): OptionalSetRel => {
+  const initMatches: OptionalSetRel = im.Set();
+  return rels.reduce((currMatches: OptionalSetRel, rel) => {
+    // Undefines fall through.
+    if (currMatches === undefined) {
+      return currMatches;
+    }
+    const match = matchRelToProg(typeEnv, subEnv, subProg, rel);
+    if (match) {
+      if (match.length === 1) {
+        return currMatches.add(match[0]);
+      } else {
+        return currMatches;
+      }
+    } else {
+      // If any relations do not match, everything else falls through.
+      return undefined;
+    }
+  }, initMatches);
+  // return rels.every((rel) => relMatchesProg(typeEnv, subEnv, subProg, rel));
 };
 
 // Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
@@ -1073,27 +1118,30 @@ const filterRels = (
   };
 
   // YILIANG: This should do the duplication checking.
-  // Use a hashset of hashsets.
-  // Use reduce(...) instead of filter - start with an empty substs and empty hashset
   const initSubsts: Subst[] = [];
-  const initMatchedDeclarations: im.Set<im.Set<ApplyPredicate<A>>> = im.Set();
+  // A relation can be both a predicate and a binding - we handle both here
+  const initMatchedRels: im.Set<im.Set<ApplyPredicate<A> | Bind<A>>> = im.Set();
   const [, goodSubsts] = substs.reduce(
-    ([currMatchedDeclarations, currSubsts], subst) => {
-      if (
-        allRelsMatch(
-          typeEnv,
-          subEnv,
-          subProgFiltered,
-          substituteRels(subst, rels)
-        )
-      ) {
-        // Check duplication, modify currMatchedDeclarations, ...
-        return [currMatchedDeclarations, [...currSubsts, subst]];
+    ([currMatchedRels, currSubsts], subst) => {
+      const matches = matchAllRels(
+        typeEnv,
+        subEnv,
+        subProgFiltered,
+        substituteRels(subst, rels)
+      );
+      if (matches !== undefined) {
+        if (matches.size !== 0 && currMatchedRels.includes(matches)) {
+          // do nothing
+          return [currMatchedRels, currSubsts];
+        } else {
+          // Check duplication, modify currMatchedDeclarations, ...
+          return [currMatchedRels.add(matches), [...currSubsts, subst]];
+        }
       } else {
-        return [currMatchedDeclarations, currSubsts];
+        return [currMatchedRels, currSubsts];
       }
     },
-    [initMatchedDeclarations, initSubsts]
+    [initMatchedRels, initSubsts]
   );
   return goodSubsts;
 };

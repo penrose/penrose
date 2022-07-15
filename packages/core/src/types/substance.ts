@@ -32,6 +32,8 @@ export type SubStmt<T> =
   | AutoLabel<T>
   | NoLabel<T>;
 
+export type ApplyRel<T> = ApplyPredicate<T> | Bind<T>;
+
 export interface LabelValue {
   value: string;
   type: LabelType;
