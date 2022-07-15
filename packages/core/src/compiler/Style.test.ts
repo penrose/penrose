@@ -431,8 +431,8 @@ describe("Compiler", () => {
     });
   });
 
-  describe("number of matching", () => {
-    test("no double matching", () => {
+  describe("number of matchings", () => {
+    test("no double matching, non-symmetric", () => {
       const domainProg = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -472,7 +472,49 @@ predicate Bond(Atom, Atom)`;
           )}`
         );
       } else {
-        // This should fail.
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+
+    test("no double matching, symmetric", () => {
+      const domainProg = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      symmetric predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H1, H2
+      Oxygen O
+      Bond( O, H1 )
+      Bond( O, H2 )`;
+      const styProg =
+        canvasPreamble +
+        `forall Atom a1; Atom a2
+      where Bond(a1, a2) {
+        myText = Text {
+            string: "Bond"
+        }
+      }`;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        // should be only one shape. This is expected to fail.
         expect(styRes.value.shapes.length).toEqual(1);
       }
     });

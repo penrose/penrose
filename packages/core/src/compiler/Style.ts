@@ -84,7 +84,6 @@ import {
   ApplyConstructor,
   ApplyPredicate,
   ApplyRel,
-  Bind,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -1009,6 +1008,8 @@ const matchRelToLine = (
         const symMatch = subFnsEq(pred, selPredSym);
         if (symMatch) {
           return pred;
+        } else {
+          return undefined;
         }
       } else {
         return undefined;
@@ -1031,8 +1032,8 @@ const matchRelToProg = (
 ): ApplyRel<A>[] | undefined => {
   // Return values:
   // undefined - does not match
-  // [] - no substitution
-  // [ApplyRel<A>] - substitution
+  // [] - matches, but no relation
+  // [ApplyRel<A>] - relation
   if (rel.tag === "RelField") {
     // the current pattern matches on a Style field
     const subName = rel.name.contents.value;
@@ -1117,10 +1118,9 @@ const filterRels = (
     ),
   };
 
-  // YILIANG: This should do the duplication checking.
   const initSubsts: Subst[] = [];
   // A relation can be both a predicate and a binding - we handle both here
-  const initMatchedRels: im.Set<im.Set<ApplyPredicate<A> | Bind<A>>> = im.Set();
+  const initMatchedRels: im.Set<im.Set<ApplyRel<A>>> = im.Set();
   const [, goodSubsts] = substs.reduce(
     ([currMatchedRels, currSubsts], subst) => {
       const matches = matchAllRels(
@@ -1130,11 +1130,10 @@ const filterRels = (
         substituteRels(subst, rels)
       );
       if (matches !== undefined) {
+        // special case for 0 matched relations - they are always allowed.
         if (matches.size !== 0 && currMatchedRels.includes(matches)) {
-          // do nothing
           return [currMatchedRels, currSubsts];
         } else {
-          // Check duplication, modify currMatchedDeclarations, ...
           return [currMatchedRels.add(matches), [...currSubsts, subst]];
         }
       } else {
