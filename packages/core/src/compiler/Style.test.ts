@@ -478,21 +478,17 @@ predicate Bond(Atom, Atom)`;
 
     test("no double matching, symmetric", () => {
       const domainProg = `type Atom
-      type Hydrogen <: Atom
-      type Oxygen <: Atom
       symmetric predicate Bond(Atom, Atom)`;
-      const subProg = `Hydrogen H1, H2
-      Oxygen O
-      Bond( O, H1 )
-      Bond( O, H2 )`;
+      const subProg = `Atom A1, A2
+      Bond( A1, A2 )`;
       const styProg =
         canvasPreamble +
         `forall Atom a1; Atom a2
-      where Bond(a1, a2) {
-        myText = Text {
-            string: "Bond"
-        }
-      }`;
+        where Bond(a1, a2) {
+            myText = Text {
+                string: "Bond"
+            }
+        }`;
       const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
       const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
         (env) => compileSubstance(subProg, env),
