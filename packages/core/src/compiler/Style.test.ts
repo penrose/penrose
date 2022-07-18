@@ -510,7 +510,6 @@ predicate Bond(Atom, Atom)`;
           )}`
         );
       } else {
-        // should be only one shape. This is expected to fail.
         expect(styRes.value.shapes.length).toEqual(1);
       }
     });
