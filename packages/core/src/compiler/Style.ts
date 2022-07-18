@@ -1122,28 +1122,37 @@ const filterRels = (
   const initSubsts: Subst[] = [];
 
   // This stores all the "matched" sets of relations for this header block.
-  const initMatchedRels: im.Set<im.Set<ApplyRel<A>>> = im.Set();
+  type MatchesObject = {
+    rels: im.Set<ApplyRel<A>>;
+    substTargets: im.Set<string>;
+  };
+  const initMatches: im.Set<im.Record<MatchesObject>> = im.Set();
   const [, goodSubsts] = substs.reduce(
-    ([currMatchedRels, currSubsts], subst) => {
-      const matches = matchAllRels(
+    ([currMatches, currSubsts], subst) => {
+      const matchedRels = matchAllRels(
         typeEnv,
         subEnv,
         subProgFiltered,
         substituteRels(subst, rels)
       );
-      if (matches !== undefined) {
+      const substTargets = im.Set<string>(Object.values(subst));
+      if (matchedRels !== undefined) {
+        const record: im.Record<MatchesObject> = im.Record({
+          rels: matchedRels,
+          substTargets: substTargets,
+        })();
         // special case for no matched relations - they are always allowed.
         // ignore duplicate matches
-        if (matches.size !== 0 && currMatchedRels.includes(matches)) {
-          return [currMatchedRels, currSubsts];
+        if (currMatches.includes(record)) {
+          return [currMatches, currSubsts];
         } else {
-          return [currMatchedRels.add(matches), [...currSubsts, subst]];
+          return [currMatches.add(record), [...currSubsts, subst]];
         }
       } else {
-        return [currMatchedRels, currSubsts];
+        return [currMatches, currSubsts];
       }
     },
-    [initMatchedRels, initSubsts]
+    [initMatches, initSubsts]
   );
   return goodSubsts;
 };
