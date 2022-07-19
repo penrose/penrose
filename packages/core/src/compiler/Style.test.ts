@@ -430,6 +430,172 @@ describe("Compiler", () => {
       }
     });
   });
+
+  describe("number of matchings", () => {
+    test("no double matching, non-symmetric", () => {
+      const domainProg = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H1, H2
+      Oxygen O
+      Bond( O, H1 )
+      Bond( O, H2 )`;
+      const styProg =
+        canvasPreamble +
+        `forall Oxygen o; Hydrogen h1; Hydrogen h2
+        where Bond(o,h1); Bond(o,h2) {
+            myText = Text {
+                string: "Water!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+
+    test("no double matching, symmetric", () => {
+      const domainProg = `type Atom
+      symmetric predicate Bond(Atom, Atom)`;
+      const subProg = `Atom A1, A2
+      Bond( A1, A2 )`;
+      const styProg =
+        canvasPreamble +
+        `forall Atom a1; Atom a2
+        where Bond(a1, a2) {
+            myText = Text {
+                string: "Bond"
+            }
+        }`;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+
+    test("extra variables not in relations", () => {
+      const domainProg = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H1, H2
+      Oxygen O
+      Bond( O, H1 )
+      Bond( O, H2 )
+      Hydrogen H3, H4`;
+      const styProg =
+        canvasPreamble +
+        `forall Oxygen o; Hydrogen h1; Hydrogen h2; Hydrogen h3
+        where Bond(o,h1); Bond(o,h2) {
+            myText = Text {
+                string: "Water!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(2);
+      }
+    });
+
+    test("pure selector, no relations", () => {
+      const domainProg = `type Atom`;
+      const subProg = `Atom A1, A2`;
+      const styProg =
+        canvasPreamble +
+        `forall Atom a1; Atom a2 {
+            myText = Text {
+                string: "TwoAtoms!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+  });
   // Test errors
   const PRINT_ERRORS = false;
 

@@ -83,6 +83,7 @@ import {
 import {
   ApplyConstructor,
   ApplyPredicate,
+  ApplyRel,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -953,12 +954,13 @@ const exprsMatch = (
 
 // Judgment 11. b; theta |- S <| |S_r
 // After all Substance variables from a Style substitution are substituted in, check if
-const relMatchesLine = (
+// Returns the relation match
+const matchRelToLine = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   s1: SubStmt<A>,
   s2: RelationPattern<A>
-): boolean => {
+): ApplyRel<A> | undefined => {
   if (s1.tag === "Bind" && s2.tag === "RelBind") {
     // rule Bind-Match
     switch (s2.id.tag) {
@@ -975,10 +977,10 @@ const relMatchesLine = (
         const [subVar, sVar] = [s1.variable, s2.id.contents.value];
         const selExpr = toSubExpr(typeEnv, s2.expr);
         const subExpr = s1.expr;
-        return (
-          subVarsEq(subVar, dummyId(sVar)) &&
+        return subVarsEq(subVar, dummyId(sVar)) &&
           exprsMatch(typeEnv, subExpr, selExpr)
-        );
+          ? s1
+          : undefined;
         // COMBAK: Add this condition when this is implemented in the Substance typechecker
         // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
       }
@@ -990,7 +992,7 @@ const relMatchesLine = (
     const exactMatch = subFnsEq(pred, selPred);
 
     if (exactMatch) {
-      return true;
+      return pred;
     } else {
       // Now consider possible symmetry
       // Need to think how this would work for >2 arguments ...
@@ -1004,26 +1006,36 @@ const relMatchesLine = (
           args: [sPred.args[1], sPred.args[0]], // Try the other direction
         };
         const selPredSym = toSubPred(sPredSym);
-        return subFnsEq(pred, selPredSym);
+        const symMatch = subFnsEq(pred, selPredSym);
+        if (symMatch) {
+          return pred;
+        } else {
+          return undefined;
+        }
       } else {
-        return false;
+        return undefined;
       }
     }
 
     // COMBAK: Add this condition when the Substance typechecker is implemented -- where is the equivalent function to `predsDeclaredEqual` in the new code?
     // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
   } else {
-    return false; // Only match two bind lines or two predicate lines
+    return undefined; // Only match two bind lines or two predicate lines
   }
 };
 
 // Judgment 13. b |- [S] <| |S_r
-const relMatchesProg = (
+// Returns the relation that is matched.
+const matchRelToProg = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rel: RelationPattern<A>
-): boolean => {
+): ApplyRel<A>[] | undefined => {
+  // Return values:
+  // undefined - does not match
+  // [] - matches, but no relation
+  // [ApplyRel<A>] - relation
   if (rel.tag === "RelField") {
     // the current pattern matches on a Style field
     const subName = rel.name.contents.value;
@@ -1034,26 +1046,61 @@ const relMatchesProg = (
       // check if the label type matches with the descriptor
       if (fieldDesc) {
         // NOTE: empty labels have a specific `NoLabel` type, so even if the entry exists, no existing field descriptors will match on it.
-        return label.type === fieldDesc;
-      } else return label.value.length > 0;
+        return label.type === fieldDesc ? [] : undefined;
+      } else {
+        return label.value.length > 0 ? [] : undefined;
+      }
     } else {
-      return false;
+      return undefined;
     }
   } else {
-    return subProg.statements.some((line) =>
+    const matchAttempts = subProg.statements.map((line) => {
+      return matchRelToLine(typeEnv, subEnv, line, rel);
+    });
+    const matchedLine = matchAttempts.find((attempt) => {
+      return attempt !== undefined;
+    });
+    if (matchedLine === undefined) {
+      return undefined;
+    } else {
+      return [matchedLine];
+    }
+
+    /*
+    subProg.statements.some((line) =>
       relMatchesLine(typeEnv, subEnv, line, rel)
     );
+    */
   }
 };
 
 // Judgment 15. b |- [S] <| [|S_r]
-const allRelsMatch = (
+// This now returns a set of the matched relations.
+const matchAllRels = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[]
-): boolean => {
-  return rels.every((rel) => relMatchesProg(typeEnv, subEnv, subProg, rel));
+): im.Set<ApplyRel<A>> | undefined => {
+  const initMatches: im.Set<ApplyRel<A>> | undefined = im.Set();
+  return rels.reduce((currMatches: im.Set<ApplyRel<A>> | undefined, rel) => {
+    // Undefines fall through.
+    if (currMatches === undefined) {
+      return currMatches;
+    }
+    const match = matchRelToProg(typeEnv, subEnv, subProg, rel);
+    if (match) {
+      if (match.length === 1) {
+        return currMatches.add(match[0]);
+      } else {
+        return currMatches;
+      }
+    } else {
+      // If any relations do not match, everything else falls through.
+      return undefined;
+    }
+  }, initMatches);
+  // return rels.every((rel) => relMatchesProg(typeEnv, subEnv, subProg, rel));
 };
 
 // Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
@@ -1072,9 +1119,41 @@ const filterRels = (
     ),
   };
 
-  return substs.filter((subst) =>
-    allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))
+  const initSubsts: Subst[] = [];
+
+  // This stores all the "matched" sets of relations for this header block.
+  type MatchesObject = {
+    rels: im.Set<ApplyRel<A>>;
+    substTargets: im.Set<string>;
+  };
+  const initMatches: im.Set<im.Record<MatchesObject>> = im.Set();
+  const [, goodSubsts] = substs.reduce(
+    ([currMatches, currSubsts], subst) => {
+      const matchedRels = matchAllRels(
+        typeEnv,
+        subEnv,
+        subProgFiltered,
+        substituteRels(subst, rels)
+      );
+      const substTargets = im.Set<string>(Object.values(subst));
+      if (matchedRels !== undefined) {
+        const record: im.Record<MatchesObject> = im.Record({
+          rels: matchedRels,
+          substTargets: substTargets,
+        })();
+        // ignore duplicate matches
+        if (currMatches.includes(record)) {
+          return [currMatches, currSubsts];
+        } else {
+          return [currMatches.add(record), [...currSubsts, subst]];
+        }
+      } else {
+        return [currMatches, currSubsts];
+      }
+    },
+    [initMatches, initSubsts]
   );
+  return goodSubsts;
 };
 
 // // Match declaration statements
