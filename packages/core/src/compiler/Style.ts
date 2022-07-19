@@ -52,6 +52,7 @@ import {
   RelBind,
   RelField,
   RelPred,
+  SEBind,
   Selector,
   SelExpr,
   Stmt,
@@ -371,10 +372,63 @@ const checkDeclPatternsAndMakeEnv = (
   );
 };
 
+/**
+ * Helper fxn for checking that predicate alias names don't conflict with
+ * existing domain keywords
+ *
+ * Returns a list of domain keywords that the aliases cannot match
+ */
+const getDomainKeywords = (varEnv: Env): string[] => {
+  const keyWordMaps = [
+    varEnv.types,
+    varEnv.functions,
+    varEnv.predicates,
+    varEnv.constructors,
+    varEnv.constructorsBindings,
+  ];
+
+  const keywords = _.flatMap(keyWordMaps, (m) => {
+    return [...m.keys()];
+  });
+
+  const subtypeKeywords = varEnv.subTypes.map(([t1, t2]) => {
+    return t1.name.value;
+  });
+
+  return keywords.concat(subtypeKeywords);
+};
+
+/**
+ * Helper fxn for checking that predicate alias names don't conflict with
+ * existing selector style variable names
+ *
+ * Returns a list of selector keywords that the aliases cannot match
+ */
+const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
+  return Object.keys(selEnv.sTypeVarMap);
+};
+
+/**
+ * Checks for if an alias name conflicts with domain or selector keywords
+ */
+const aliasConflictsWithDomainOrSelectorKeyword = (
+  alias: Identifier<A>,
+  varEnv: Env,
+  selEnv: SelEnv
+): boolean => {
+  const domainKeywords = getDomainKeywords(varEnv);
+  const selectorKeywords = getSelectorStyVarNames(selEnv);
+  return (
+    domainKeywords.includes(alias.value) ||
+    selectorKeywords.includes(alias.value)
+  );
+};
+
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
 const checkRelPattern = (
   varEnv: Env,
+  selEnv: SelEnv,
   rel: RelationPattern<A>
 ): StyleError[] => {
   // rule Bind-Context
@@ -423,6 +477,12 @@ const checkRelPattern = (
     case "RelPred": {
       // rule Pred-Context
       // G |- Q : Prop
+      if (
+        rel.alias &&
+        aliasConflictsWithDomainOrSelectorKeyword(rel.alias, varEnv, selEnv)
+      ) {
+        return [{ tag: "SelectorAliasNamingError", alias: rel.alias }];
+      }
       const res = checkPredicate(toSubPred(rel), varEnv);
       if (isErr(res)) {
         const subErr3: SubstanceError = res.error;
@@ -451,10 +511,11 @@ const checkRelPattern = (
 // Judgment 5. G |- [|S_r] ok
 const checkRelPatterns = (
   varEnv: Env,
+  selEnv: SelEnv,
   rels: RelationPattern<A>[]
 ): StyleError[] => {
   return _.flatMap(rels, (rel: RelationPattern<A>): StyleError[] =>
-    checkRelPattern(varEnv, rel)
+    checkRelPattern(varEnv, selEnv, rel)
   );
 };
 
@@ -529,6 +590,7 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
 
       const relErrs = checkRelPatterns(
         mergeEnv(varEnv, selEnv_decls),
+        selEnv_decls,
         safeContentsList(sel.where)
       );
 
@@ -586,6 +648,126 @@ const couldMatchRels = (
   // TODO < (this is an optimization; will only implement if needed)
   // see also https://github.com/penrose/penrose/issues/566
   return true;
+};
+
+/**
+ * Helper fxn for @function isValidRelSubst.
+ *
+ * Determines if all the variables in @param sebind
+ * exist as valid keys in @param subst.
+ */
+const sebindExistsInSubst = (sebind: SEBind<A>, subst: Subst): boolean => {
+  if (sebind.contents.tag !== "StyVar") {
+    throw new Error("expected sty var");
+  }
+  const validKeywords = Object.keys(subst);
+  return validKeywords.includes(sebind.contents.contents.value);
+};
+
+/**
+ * Helper fxn for @function isValidRelSubst.
+ *
+ * Determines if all the variables in @param expr
+ * exist as valid keys in @param subst.
+ */
+const selExprExistsInSubst = (expr: SelExpr<A>, subst: Subst): boolean => {
+  if (expr.tag === "SEBind") {
+    return sebindExistsInSubst(expr, subst);
+  } else if (expr.tag === ("SEFunc" || "SEValCons" || "SEFuncOrValCons")) {
+    return expr.args.every((arg) => selExprExistsInSubst(arg, subst));
+  } else throw new Error("unknown tag");
+};
+
+/**
+ * Helper fxn for @function isValidRelSubst.
+ *
+ * Determines if all the variables in @param arg
+ * exist as valid keys in @param subst.
+ */
+const predArgExistsInSubst = (arg: PredArg<A>, subst: Subst): boolean => {
+  if (arg.tag === "RelPred") {
+    return isValidRelSubst(subst, arg);
+  } else if (arg.tag === "SEBind") {
+    return sebindExistsInSubst(arg, subst);
+  } else throw new Error("unknown tag");
+};
+
+/**
+ * Determines if all the variables in @param rel exist as valid
+ * keys in @param subst.
+ *
+ * Ex, IsSubset(x,y) must have 'x' and 'y' exist as keys in @param subst
+ * for the relation to be valid.
+ */
+const isValidRelSubst = (subst: Subst, rel: RelationPattern<A>): boolean => {
+  if (rel.tag === "RelPred") {
+    return rel.args.every((arg) => predArgExistsInSubst(arg, subst));
+  } else if (rel.tag === "RelBind") {
+    return false; // these don't have aliases
+  } else {
+    throw new Error("unknown tag");
+  }
+};
+
+/**
+ * Helper fxn for @function getRelPredAliasInstanceName
+ *
+ * Returns the substitution for a bindingform
+ */
+const getBindingFormAliasInstanceName = (
+  bf: BindingForm<A>,
+  subst: Subst
+): string => {
+  if (bf.tag === "SubVar") {
+    return bf.contents.value;
+  } else if (bf.tag === "StyVar") {
+    return subst[bf.contents.value];
+  } else throw new Error("unknown tag");
+};
+
+/**
+ * Returns the substitution for a predicate alias
+ */
+// IsSubset(B,A) --> `IsSubset_B_A`
+// IsSubset(Union(B,C),A) --> `IsSubset_Union_B_C_A`
+// TODO: this can be refactored for a more descriptive name for nested cases
+// TODO: adding parentheses into the strings messes with GPIs sometimes?
+const getRelPredAliasInstanceName = (
+  relPred: RelPred<A>,
+  subst: Subst
+): string => {
+  let name = relPred.name.value;
+  for (const arg of relPred.args) {
+    if (arg.tag === "RelPred") {
+      name = name.concat("_").concat(getRelPredAliasInstanceName(arg, subst));
+    } else if (arg.tag === "SEBind") {
+      name = name
+        .concat("_")
+        .concat(getBindingFormAliasInstanceName(arg.contents, subst));
+    } else throw new Error("unknown tag");
+  }
+  return name;
+};
+
+/**
+ * Adds predicate alias substitutions to an existing valid subst
+ * @param subst a valid substitution for a given style selector
+ * @param rels a list of relations for the same style selector
+ */
+const addRelPredAliasSubsts = (
+  subst: Subst,
+  rels: RelationPattern<A>[]
+): Subst => {
+  subst = { ...subst }; // a shallow copy
+
+  // only consider valid predicates in context of each subst
+  for (const rel of rels) {
+    if (rel.tag === "RelPred" && rel.alias && isValidRelSubst(subst, rel)) {
+      subst[rel.alias.value] = getRelPredAliasInstanceName(rel, subst);
+    }
+  }
+
+  return subst;
 };
 
 //#region (subregion? TODO fix) Applying a substitution
@@ -652,6 +834,13 @@ const substituteExpr = (subst: Subst, expr: SelExpr<A>): SelExpr<A> => {
   }
 };
 
+const substituteAlias = (subst: Subst, alias: Identifier<A>): Identifier<A> => {
+  return {
+    ...alias,
+    value: subst[alias.value],
+  };
+};
+
 const substitutePredArg = (subst: Subst, predArg: PredArg<A>): PredArg<A> => {
   switch (predArg.tag) {
     case "RelPred": {
@@ -685,10 +874,17 @@ export const substituteRel = (
     }
     case "RelPred": {
       // theta(Q([a]) = Q([theta(a)])
-      return {
-        ...rel,
-        args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-      };
+      if (rel.alias)
+        return {
+          ...rel,
+          args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+          alias: substituteAlias(subst, rel.alias), // having this substituted doesn't affect the aliasing, just for debugging
+        };
+      else
+        return {
+          ...rel,
+          args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+        };
     }
     case "RelField": {
       return {
@@ -1308,7 +1504,11 @@ const findSubstsSel = (
         substCandidates
       );
       const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
-      return correctSubsts;
+      const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
+        addRelPredAliasSubsts(subst, rels)
+      );
+
+      return correctSubstsWithAliasSubsts;
     }
     case "Namespace": {
       // must return one empty substitution, so the block gets processed exactly
