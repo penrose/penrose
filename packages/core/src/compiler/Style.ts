@@ -1141,7 +1141,6 @@ const filterRels = (
           rels: matchedRels,
           substTargets: substTargets,
         })();
-        // special case for no matched relations - they are always allowed.
         // ignore duplicate matches
         if (currMatches.includes(record)) {
           return [currMatches, currSubsts];
