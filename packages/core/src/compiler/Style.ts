@@ -83,6 +83,7 @@ import {
 } from "types/styleSemantics";
 import {
   ApplyConstructor,
+  ApplyFunction,
   ApplyPredicate,
   ApplyRel,
   SubExpr,
@@ -665,86 +666,22 @@ const sebindExistsInSubst = (sebind: SEBind<A>, subst: Subst): boolean => {
 };
 
 /**
- * Helper fxn for @function isValidRelSubst.
- *
- * Determines if all the variables in @param expr
- * exist as valid keys in @param subst.
- */
-const selExprExistsInSubst = (expr: SelExpr<A>, subst: Subst): boolean => {
-  if (expr.tag === "SEBind") {
-    return sebindExistsInSubst(expr, subst);
-  } else if (expr.tag === ("SEFunc" || "SEValCons" || "SEFuncOrValCons")) {
-    return expr.args.every((arg) => selExprExistsInSubst(arg, subst));
-  } else throw new Error("unknown tag");
-};
-
-/**
- * Helper fxn for @function isValidRelSubst.
- *
- * Determines if all the variables in @param arg
- * exist as valid keys in @param subst.
- */
-const predArgExistsInSubst = (arg: PredArg<A>, subst: Subst): boolean => {
-  if (arg.tag === "RelPred") {
-    return isValidRelSubst(subst, arg);
-  } else if (arg.tag === "SEBind") {
-    return sebindExistsInSubst(arg, subst);
-  } else throw new Error("unknown tag");
-};
-
-/**
- * Determines if all the variables in @param rel exist as valid
- * keys in @param subst.
- *
- * Ex, IsSubset(x,y) must have 'x' and 'y' exist as keys in @param subst
- * for the relation to be valid.
- */
-const isValidRelSubst = (subst: Subst, rel: RelationPattern<A>): boolean => {
-  if (rel.tag === "RelPred") {
-    return rel.args.every((arg) => predArgExistsInSubst(arg, subst));
-  } else if (rel.tag === "RelBind") {
-    return false; // these don't have aliases
-  } else {
-    throw new Error("unknown tag");
-  }
-};
-
-/**
- * Helper fxn for @function getRelPredAliasInstanceName
- *
- * Returns the substitution for a bindingform
- */
-const getBindingFormAliasInstanceName = (
-  bf: BindingForm<A>,
-  subst: Subst
-): string => {
-  if (bf.tag === "SubVar") {
-    return bf.contents.value;
-  } else if (bf.tag === "StyVar") {
-    return subst[bf.contents.value];
-  } else throw new Error("unknown tag");
-};
-
-/**
  * Returns the substitution for a predicate alias
  */
-// IsSubset(B,A) --> `IsSubset_B_A`
-// IsSubset(Union(B,C),A) --> `IsSubset_Union_B_C_A`
-// TODO: this can be refactored for a more descriptive name for nested cases
-// TODO: adding parentheses into the strings messes with GPIs sometimes?
-const getRelPredAliasInstanceName = (
-  relPred: RelPred<A>,
-  subst: Subst
+const getSubPredAliasInstanceName = (
+  pred: ApplyPredicate<A> | ApplyFunction<A> | ApplyConstructor<A>
 ): string => {
-  let name = relPred.name.value;
-  for (const arg of relPred.args) {
-    if (arg.tag === "RelPred") {
-      name = name.concat("_").concat(getRelPredAliasInstanceName(arg, subst));
-    } else if (arg.tag === "SEBind") {
-      name = name
-        .concat("_")
-        .concat(getBindingFormAliasInstanceName(arg.contents, subst));
-    } else throw new Error("unknown tag");
+  let name = pred.name.value;
+  for (const arg of pred.args) {
+    if (
+      arg.tag === "ApplyPredicate" ||
+      arg.tag === "ApplyFunction" ||
+      arg.tag === "ApplyConstructor"
+    ) {
+      name = name.concat("_").concat(getSubPredAliasInstanceName(arg));
+    } else if (arg.tag === "Identifier") {
+      name = name.concat("_").concat(arg.value);
+    }
   }
   return name;
 };
@@ -755,6 +692,9 @@ const getRelPredAliasInstanceName = (
  * @param rels a list of relations for the same style selector
  */
 const addRelPredAliasSubsts = (
+  env: Env,
+  subEnv: SubstanceEnv,
+  subProg: SubProg<A>,
   subst: Subst,
   rels: RelationPattern<A>[]
 ): Subst => {
@@ -762,8 +702,18 @@ const addRelPredAliasSubsts = (
 
   // only consider valid predicates in context of each subst
   for (const rel of rels) {
-    if (rel.tag === "RelPred" && rel.alias && isValidRelSubst(subst, rel)) {
-      subst[rel.alias.value] = getRelPredAliasInstanceName(rel, subst);
+    if (rel.tag === "RelPred" && rel.alias) {
+      // Use the version in Substance
+      const subPredMatch = matchRelToProg(env, subEnv, subProg, rel);
+      if (
+        !subPredMatch ||
+        subPredMatch.length !== 1 ||
+        subPredMatch[0].tag !== "ApplyPredicate"
+      ) {
+        throw new Error("cannot find predicate in Substance");
+      }
+      const subPred = subPredMatch[0];
+      subst[rel.alias.value] = getSubPredAliasInstanceName(subPred);
     }
   }
 
@@ -1505,7 +1455,7 @@ const findSubstsSel = (
       );
       const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
       const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
-        addRelPredAliasSubsts(subst, rels)
+        addRelPredAliasSubsts(varEnv, subEnv, subProg, subst, rels)
       );
 
       return correctSubstsWithAliasSubsts;
