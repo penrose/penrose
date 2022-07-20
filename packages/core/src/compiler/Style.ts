@@ -710,9 +710,10 @@ const addRelPredAliasSubsts = (
         subPredMatch.length !== 1 ||
         subPredMatch[0].tag !== "ApplyPredicate"
       ) {
-        throw new Error("cannot find predicate in Substance");
+        throw new Error();
       }
       const subPred = subPredMatch[0];
+      console.log(rel.alias);
       subst[rel.alias.value] = getSubPredAliasInstanceName(subPred);
     }
   }
@@ -828,7 +829,6 @@ export const substituteRel = (
         return {
           ...rel,
           args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-          alias: substituteAlias(subst, rel.alias), // having this substituted doesn't affect the aliasing, just for debugging
         };
       else
         return {
@@ -1455,7 +1455,13 @@ const findSubstsSel = (
       );
       const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
       const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
-        addRelPredAliasSubsts(varEnv, subEnv, subProg, subst, rels)
+        addRelPredAliasSubsts(
+          varEnv,
+          subEnv,
+          subProg,
+          subst,
+          substituteRels(subst, rels)
+        )
       );
 
       return correctSubstsWithAliasSubsts;
@@ -1576,6 +1582,7 @@ const insertExpr = (
       return ok({ dict: fielded.set(field, source.value), warns });
     } else {
       if (expr.tag === "GPIDecl") {
+        console.log("!!!");
         return err({ tag: "NestedShapeError", expr });
       }
       const shape = fielded.get(field);

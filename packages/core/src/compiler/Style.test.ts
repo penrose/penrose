@@ -596,6 +596,53 @@ predicate Bond(Atom, Atom)`;
       }
     });
   });
+
+  describe("predicate alias", () => {
+    test("predicate alias", () => {
+      const domainProg = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+symmetric predicate Bond(Atom, Atom)
+predicate StrongBond(Atom, Atom)
+`;
+      const substanceProg = `Hydrogen H1, H2
+Oxygen O
+Bond(O, H1)
+Bond(O, H2)`;
+      const styleProg =
+        canvasPreamble +
+        `
+    forall Atom a1; Atom a2
+    where Bond(a1, a2) as b {
+        b.shape = Line {
+        }
+    }
+    `;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(substanceProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styleProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(1).toEqual(1);
+      }
+    });
+  });
   // Test errors
   const PRINT_ERRORS = false;
 

@@ -155,6 +155,15 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+  test("alias general test", () => {
+    const prog = "\
+  forall Atom a1; Atom a2 \
+  where Bond(a1, a2) as b {}";
+    const { results } = parser.feed(prog);
+    expect(results[0].blocks[0].header.where.contents[0].alias.value).toEqual(
+      "b"
+    );
+  });
   test("alias expression location test", () => {
     // why is this failing bro
     const prog =
