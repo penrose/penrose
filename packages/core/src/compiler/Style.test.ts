@@ -598,12 +598,11 @@ predicate Bond(Atom, Atom)`;
   });
 
   describe("predicate alias", () => {
-    test("predicate alias", () => {
+    test("general predicate alias with symmetry", () => {
       const domainProg = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
 symmetric predicate Bond(Atom, Atom)
-predicate StrongBond(Atom, Atom)
 `;
       const substanceProg = `Hydrogen H1, H2
 Oxygen O
@@ -612,8 +611,8 @@ Bond(O, H2)`;
       const styleProg =
         canvasPreamble +
         `
-    forall Atom a1; Atom a2
-    where Bond(a1, a2) as b {
+    forall Oxygen o; Hydrogen h
+    where Bond(h, o) as b {
         b.shape = Line {
         }
     }
@@ -639,7 +638,7 @@ Bond(O, H2)`;
           )}`
         );
       } else {
-        expect(1).toEqual(1);
+        expect(styRes.value.shapes.length).toEqual(2);
       }
     });
   });
@@ -854,6 +853,12 @@ delete x.z.p }`,
   width = 100
   height = (1.0, 1.0)
 }`,
+      ],
+      SelectorAliasNamingError: [
+        `forall Set a; Set b
+        where IsSubset(a, b) as a {}`,
+        `forall Set a; Set b
+        where IsSubset(a, b) as Set {}`,
       ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [

@@ -52,7 +52,6 @@ import {
   RelBind,
   RelField,
   RelPred,
-  SEBind,
   Selector,
   SelExpr,
   Stmt,
@@ -652,20 +651,6 @@ const couldMatchRels = (
 };
 
 /**
- * Helper fxn for @function isValidRelSubst.
- *
- * Determines if all the variables in @param sebind
- * exist as valid keys in @param subst.
- */
-const sebindExistsInSubst = (sebind: SEBind<A>, subst: Subst): boolean => {
-  if (sebind.contents.tag !== "StyVar") {
-    throw new Error("expected sty var");
-  }
-  const validKeywords = Object.keys(subst);
-  return validKeywords.includes(sebind.contents.contents.value);
-};
-
-/**
  * Returns the substitution for a predicate alias
  */
 const getSubPredAliasInstanceName = (
@@ -713,7 +698,6 @@ const addRelPredAliasSubsts = (
         throw new Error();
       }
       const subPred = subPredMatch[0];
-      console.log(rel.alias);
       subst[rel.alias.value] = getSubPredAliasInstanceName(subPred);
     }
   }
@@ -783,13 +767,6 @@ const substituteExpr = (subst: Subst, expr: SelExpr<A>): SelExpr<A> => {
       };
     }
   }
-};
-
-const substituteAlias = (subst: Subst, alias: Identifier<A>): Identifier<A> => {
-  return {
-    ...alias,
-    value: subst[alias.value],
-  };
 };
 
 const substitutePredArg = (subst: Subst, predArg: PredArg<A>): PredArg<A> => {
@@ -1582,7 +1559,6 @@ const insertExpr = (
       return ok({ dict: fielded.set(field, source.value), warns });
     } else {
       if (expr.tag === "GPIDecl") {
-        console.log("!!!");
         return err({ tag: "NestedShapeError", expr });
       }
       const shape = fielded.get(field);

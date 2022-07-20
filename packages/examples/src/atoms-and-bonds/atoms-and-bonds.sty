@@ -1,0 +1,47 @@
+canvas {
+    width = 800
+    height = 700
+}
+
+forall Atom a {
+    a.center = (?, ?)
+    a.symbol = Equation {
+        center: a.center
+        string: "Atom"
+    }
+    a.background = Circle {
+        r: 10
+        center: a.center
+        fillColor: rgba(1., 1., 1., 1.)
+    }
+    layer a.symbol above a.background
+}
+
+forall Hydrogen h {
+    override h.symbol.string = "H"
+}
+
+forall Oxygen o {
+    override o.symbol.string = "O"
+}
+
+forall Atom a1; Atom a2
+where Bond(a1, a2) as b {
+    b.symbol = Line {
+        start: a1.center
+        end: a2.center
+        strokeColor: rgba(0., 0., 0., 1.)
+    }
+
+    layer b.symbol below a1.background
+    layer b.symbol below a2.background
+}
+
+forall Hydrogen h1; Hydrogen h2; Oxygen o
+where Bond(o, h1) as b1; Bond(o, h2) as b2 {
+    vec2 v1 = b1.symbol.end - b1.symbol.start
+    vec2 v2 = b2.symbol.end - b2.symbol.start
+    ensure equal(angleBetween(v1, v2), toRadians(104.5))
+    ensure equal(norm(v1), norm(v2))
+    ensure equal(norm(v1), 100)
+}

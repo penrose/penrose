@@ -1,0 +1,14 @@
+Hydrogen H1, H2
+Oxygen O1
+Bond(H1, O1)
+Bond(H2, O1)
+
+Hydrogen H3, H4
+Oxygen O2
+Bond(H3, O2)
+Bond(H4, O2)
+
+Hydrogen H5, H6
+Oxygen O3
+Bond(H5, O3)
+Bond(H6, O3)
