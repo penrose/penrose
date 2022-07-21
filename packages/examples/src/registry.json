@@ -20,6 +20,12 @@
       "variation": "PorcellanaFlamingo3169"
     },
     {
+      "substance": "one-water-molecule",
+      "style": "atoms-and-bonds",
+      "domain": "atoms-and-bonds",
+      "variation": "PorcellanaFlamingo3169"
+    },
+    {
       "substance": "continuousmap",
       "style": "continuousmap",
       "domain": "functions",
@@ -468,8 +474,13 @@
     },
     "wet-floor": {
       "domain": "atoms-and-bonds",
-      "name": "Three Water Molecules drawn using symmetric bonds",
+      "name": "Three Water Molecules drawn using strong and weak bonds, using symmetry and aliasing",
       "URI": "atoms-and-bonds/wet-floor.sub"
+    },
+    "one-water-molecule": {
+      "domain": "atoms-and-bonds",
+      "name": "One water molecule drawn using symmetric bonds",
+      "URI": "atoms-and-bonds/one-water-molecule.sub"
     }
   }
 }
