@@ -25,7 +25,6 @@ export type Selector<T> = ASTNode<T> & {
   head: DeclPatterns<T>;
   with?: DeclPatterns<T>;
   where?: RelationPatterns<T>;
-  namespace?: Namespace<T>;
 };
 
 // TODO: consider dropping the suffix pattern. It's a bit confusing, and DeclList would have been clearer.
@@ -69,6 +68,7 @@ export type RelPred<T> = ASTNode<T> & {
   tag: "RelPred";
   name: Identifier<T>;
   args: PredArg<T>[];
+  alias?: Identifier<T>;
 };
 
 export type PredArg<T> = SEBind<T> | RelPred<T>;

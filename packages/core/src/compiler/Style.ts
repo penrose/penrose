@@ -82,6 +82,7 @@ import {
 } from "types/styleSemantics";
 import {
   ApplyConstructor,
+  ApplyFunction,
   ApplyPredicate,
   ApplyRel,
   SubExpr,
@@ -371,10 +372,63 @@ const checkDeclPatternsAndMakeEnv = (
   );
 };
 
+/**
+ * Helper fxn for checking that predicate alias names don't conflict with
+ * existing domain keywords
+ *
+ * Returns a list of domain keywords that the aliases cannot match
+ */
+const getDomainKeywords = (varEnv: Env): string[] => {
+  const keyWordMaps = [
+    varEnv.types,
+    varEnv.functions,
+    varEnv.predicates,
+    varEnv.constructors,
+    varEnv.constructorsBindings,
+  ];
+
+  const keywords = _.flatMap(keyWordMaps, (m) => {
+    return [...m.keys()];
+  });
+
+  const subtypeKeywords = varEnv.subTypes.map(([t1, t2]) => {
+    return t1.name.value;
+  });
+
+  return keywords.concat(subtypeKeywords);
+};
+
+/**
+ * Helper fxn for checking that predicate alias names don't conflict with
+ * existing selector style variable names
+ *
+ * Returns a list of selector keywords that the aliases cannot match
+ */
+const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
+  return Object.keys(selEnv.sTypeVarMap);
+};
+
+/**
+ * Checks for if an alias name conflicts with domain or selector keywords
+ */
+const aliasConflictsWithDomainOrSelectorKeyword = (
+  alias: Identifier<A>,
+  varEnv: Env,
+  selEnv: SelEnv
+): boolean => {
+  const domainKeywords = getDomainKeywords(varEnv);
+  const selectorKeywords = getSelectorStyVarNames(selEnv);
+  return (
+    domainKeywords.includes(alias.value) ||
+    selectorKeywords.includes(alias.value)
+  );
+};
+
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
 const checkRelPattern = (
   varEnv: Env,
+  selEnv: SelEnv,
   rel: RelationPattern<A>
 ): StyleError[] => {
   // rule Bind-Context
@@ -423,6 +477,12 @@ const checkRelPattern = (
     case "RelPred": {
       // rule Pred-Context
       // G |- Q : Prop
+      if (
+        rel.alias &&
+        aliasConflictsWithDomainOrSelectorKeyword(rel.alias, varEnv, selEnv)
+      ) {
+        return [{ tag: "SelectorAliasNamingError", alias: rel.alias }];
+      }
       const res = checkPredicate(toSubPred(rel), varEnv);
       if (isErr(res)) {
         const subErr3: SubstanceError = res.error;
@@ -451,10 +511,11 @@ const checkRelPattern = (
 // Judgment 5. G |- [|S_r] ok
 const checkRelPatterns = (
   varEnv: Env,
+  selEnv: SelEnv,
   rels: RelationPattern<A>[]
 ): StyleError[] => {
   return _.flatMap(rels, (rel: RelationPattern<A>): StyleError[] =>
-    checkRelPattern(varEnv, rel)
+    checkRelPattern(varEnv, selEnv, rel)
   );
 };
 
@@ -529,6 +590,7 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
 
       const relErrs = checkRelPatterns(
         mergeEnv(varEnv, selEnv_decls),
+        selEnv_decls,
         safeContentsList(sel.where)
       );
 
@@ -586,6 +648,61 @@ const couldMatchRels = (
   // TODO < (this is an optimization; will only implement if needed)
   // see also https://github.com/penrose/penrose/issues/566
   return true;
+};
+
+/**
+ * Returns the substitution for a predicate alias
+ */
+const getSubPredAliasInstanceName = (
+  pred: ApplyPredicate<A> | ApplyFunction<A> | ApplyConstructor<A>
+): string => {
+  let name = pred.name.value;
+  for (const arg of pred.args) {
+    if (
+      arg.tag === "ApplyPredicate" ||
+      arg.tag === "ApplyFunction" ||
+      arg.tag === "ApplyConstructor"
+    ) {
+      name = name.concat("_").concat(getSubPredAliasInstanceName(arg));
+    } else if (arg.tag === "Identifier") {
+      name = name.concat("_").concat(arg.value);
+    }
+  }
+  return name;
+};
+
+/**
+ * Adds predicate alias substitutions to an existing valid subst
+ * @param subst a valid substitution for a given style selector
+ * @param rels a list of relations for the same style selector
+ */
+const addRelPredAliasSubsts = (
+  env: Env,
+  subEnv: SubstanceEnv,
+  subProg: SubProg<A>,
+  subst: Subst,
+  rels: RelationPattern<A>[]
+): Subst => {
+  subst = { ...subst }; // a shallow copy
+
+  // only consider valid predicates in context of each subst
+  for (const rel of rels) {
+    if (rel.tag === "RelPred" && rel.alias) {
+      // Use the version in Substance
+      const subPredMatch = matchRelToProg(env, subEnv, subProg, rel);
+      if (
+        !subPredMatch ||
+        subPredMatch.length !== 1 ||
+        subPredMatch[0].tag !== "ApplyPredicate"
+      ) {
+        throw new Error();
+      }
+      const subPred = subPredMatch[0];
+      subst[rel.alias.value] = getSubPredAliasInstanceName(subPred);
+    }
+  }
+
+  return subst;
 };
 
 //#region (subregion? TODO fix) Applying a substitution
@@ -685,10 +802,16 @@ export const substituteRel = (
     }
     case "RelPred": {
       // theta(Q([a]) = Q([theta(a)])
-      return {
-        ...rel,
-        args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-      };
+      if (rel.alias)
+        return {
+          ...rel,
+          args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+        };
+      else
+        return {
+          ...rel,
+          args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+        };
     }
     case "RelField": {
       return {
@@ -1308,7 +1431,17 @@ const findSubstsSel = (
         substCandidates
       );
       const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
-      return correctSubsts;
+      const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
+        addRelPredAliasSubsts(
+          varEnv,
+          subEnv,
+          subProg,
+          subst,
+          substituteRels(subst, rels)
+        )
+      );
+
+      return correctSubstsWithAliasSubsts;
     }
     case "Namespace": {
       // must return one empty substitution, so the block gets processed exactly

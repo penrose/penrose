@@ -14,6 +14,18 @@
       "variation": ""
     },
     {
+      "substance": "wet-floor",
+      "style": "atoms-and-bonds",
+      "domain": "atoms-and-bonds",
+      "variation": "PorcellanaFlamingo3169"
+    },
+    {
+      "substance": "one-water-molecule",
+      "style": "atoms-and-bonds",
+      "domain": "atoms-and-bonds",
+      "variation": "PorcellanaFlamingo3169"
+    },
+    {
       "substance": "continuousmap",
       "style": "continuousmap",
       "domain": "functions",
@@ -168,12 +180,6 @@
       "style": "fake-3d-linear-algebra",
       "domain": "fake-3d-linear-algebra",
       "variation": "ConceptualMeerkat694"
-    },
-    {
-      "substance": "water-molecule",
-      "style": "symmetric-bond",
-      "domain": "symmetric-bond",
-      "variation": "SharkskinWalrus24396"
     }
   ],
   "domains": {
@@ -229,9 +235,9 @@
       "name": "Fake 3d Linear Algebra",
       "URI": "fake-3d-linear-algebra/fake3d.dsl"
     },
-    "symmetric-bond": {
-      "name": "Symmetric Bond",
-      "URI": "symmetric-bond/symmetric-bond.dsl"
+    "atoms-and-bonds": {
+      "name": "Atoms and Bonds",
+      "URI": "atoms-and-bonds/atoms-and-bonds.dsl"
     }
   },
   "styles": {
@@ -334,10 +340,10 @@
       "name": "Fake 3d Linear Algebra",
       "URI": "fake-3d-linear-algebra/fake3d.sty"
     },
-    "symmetric-bond": {
-      "domain": "symmetric-bond",
-      "name": "Symmetric Bond",
-      "URI": "symmetric-bond/symmetric-bond.sty"
+    "atoms-and-bonds": {
+      "domain": "atoms-and-bonds",
+      "name": "atoms-and-bonds",
+      "URI": "atoms-and-bonds/atoms-and-bonds.sty"
     }
   },
   "substances": {
@@ -466,10 +472,15 @@
       "name": "Projection onto Subspace and its Orthogonal Complement",
       "URI": "fake-3d-linear-algebra/projection.sub"
     },
-    "water-molecule": {
-      "domain": "symmetric-bond",
-      "name": "A Water Molecule drawn using symmetric bonds",
-      "URI": "symmetric-bond/water-molecule.sub"
+    "wet-floor": {
+      "domain": "atoms-and-bonds",
+      "name": "Three Water Molecules drawn using strong and weak bonds, using symmetry and aliasing",
+      "URI": "atoms-and-bonds/wet-floor.sub"
+    },
+    "one-water-molecule": {
+      "domain": "atoms-and-bonds",
+      "name": "One water molecule drawn using symmetric bonds",
+      "URI": "atoms-and-bonds/one-water-molecule.sub"
     }
   }
 }

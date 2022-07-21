@@ -158,6 +158,7 @@ export type StyleError =
   | SelectorRelTypeMismatch
   | SelectorFieldNotSupported
   | TaggedSubstanceError
+  | SelectorAliasNamingError
   // Block static errors
   | InvalidGPITypeError
   | InvalidGPIPropertyError
@@ -250,6 +251,11 @@ export interface SelectorFieldNotSupported {
 export interface TaggedSubstanceError {
   tag: "TaggedSubstanceError";
   error: SubstanceError;
+}
+
+export interface SelectorAliasNamingError {
+  tag: "SelectorAliasNamingError";
+  alias: Identifier<A>;
 }
 
 //#region Block statics
