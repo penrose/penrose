@@ -10,7 +10,7 @@ import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
-import { SubProg, SubstanceEnv } from "types/substance";
+import { SubProg, SubRes, SubstanceEnv } from "types/substance";
 import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
 import { foldM, toLeft, ToRight } from "utils/Util";
 import { compileDomain } from "./Domain";
@@ -641,6 +641,36 @@ Bond(O, H2)`;
         expect(styRes.value.shapes.length).toEqual(2);
       }
     });
+    test("correct style programs with predicate aliasing", () => {
+      const domainProg = "type Set \n predicate IsSubset(Set, Set)";
+      const subProg = "Set A\nSet B\nSet C\nIsSubset(B, A)\nIsSubset(C, B)";
+
+      const styProg =
+        canvasPreamble +
+        `forall Set a; Set b where IsSubset(a,b) as foo {
+          foo.icon = Rectangle{}
+        }
+        forall Set u; Set v where IsSubset(u,v) as bar {
+          bar.icon2 = Ellipse{}
+        }
+        `;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<SubRes, PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes = andThen(
+        (res) => S.compileStyle("", canvasPreamble + styProg, ...res),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw new Error(
+          `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
+        );
+      }
+      const state = styRes.value;
+      expect(state.shapes.length).toEqual(4);
+    });
   });
   // Test errors
   const PRINT_ERRORS = false;
@@ -859,6 +889,8 @@ delete x.z.p }`,
         where IsSubset(a, b) as a {}`,
         `forall Set a; Set b
         where IsSubset(a, b) as Set {}`,
+        `forall Set a; Set b
+        where IsSubset(a, b) as IsSubset {}`,
       ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
