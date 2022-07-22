@@ -909,16 +909,16 @@ const subVarsEq = (v1: Identifier<A>, v2: Identifier<A>): boolean => {
   return v1.value === v2.value;
 };
 
-const argsEq = (a1: SubPredArg<A>, a2: SubPredArg<A>): boolean => {
+const argsEq = (a1: SubPredArg<A>, a2: SubPredArg<A>, env: Env): boolean => {
   if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
-    return subFnsEq(a1, a2);
+    return subFnsEq(a1, a2, env);
   } else if (a1.tag === a2.tag) {
     // both are SubExpr, which are not explicitly tagged
-    return subExprsEq(a1 as SubExpr<A>, a2 as SubExpr<A>);
+    return subExprsEq(a1 as SubExpr<A>, a2 as SubExpr<A>, env);
   } else return false; // they are different types
 };
 
-const subFnsEq = (p1: SubPredArg<A>, p2: SubPredArg<A>): boolean => {
+const subFnsEq = (p1: SubPredArg<A>, p2: SubPredArg<A>, env: Env): boolean => {
   if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
     throw Error("expected substance type with name and args properties");
   }
@@ -926,12 +926,29 @@ const subFnsEq = (p1: SubPredArg<A>, p2: SubPredArg<A>): boolean => {
   if (p1.args.length !== p2.args.length) {
     return false;
   }
-  // Can use `zipStrict` because now we know their lengths are equal
-  const allArgsEq = zip2(p1.args, p2.args).every(([a1, a2]) => argsEq(a1, a2));
-  return p1.name.value === p2.name.value && allArgsEq;
+
+  // If names do not match, then the predicates aren't equal.
+  if (p1.name.value !== p2.name.value) {
+    return false;
+  }
+
+  // If exact match
+  if (zip2(p1.args, p2.args).every(([a1, a2]) => argsEq(a1, a2, env))) {
+    return true;
+  } else {
+    // Otherwise consider symmetry
+    const predicateDecl = env.predicates.get(p1.name.value);
+    if (predicateDecl && predicateDecl.symmetric) {
+      return zip2(p1.args, [p2.args[1], p2.args[0]]).every(([a1, a2]) =>
+        argsEq(a1, a2, env)
+      );
+    } else {
+      return false;
+    }
+  }
 };
 
-const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>): boolean => {
+const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>, env: Env): boolean => {
   // ts doesn't seem to work well with the more generic way of checking this
   if (e1.tag === "Identifier" && e2.tag === "Identifier") {
     return e1.value === e2.value;
@@ -940,7 +957,7 @@ const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>): boolean => {
     (e1.tag === "ApplyConstructor" && e2.tag === "ApplyConstructor") ||
     (e1.tag === "Func" && e2.tag === "Func")
   ) {
-    return subFnsEq(e1, e2);
+    return subFnsEq(e1, e2, env);
   } else if (e1.tag === "Deconstructor" && e2.tag === "Deconstructor") {
     return (
       e1.variable.value === e2.variable.value &&
@@ -1063,7 +1080,7 @@ const exprsMatch = (
     return subVarsEq(subE, selE);
   } else if (subE.tag === "ApplyFunction" && selE.tag === "ApplyFunction") {
     // rule Match-Expr-Fnapp
-    return subExprsEq(subE, selE);
+    return subExprsEq(subE, selE, typeEnv);
   } else if (
     subE.tag === "ApplyConstructor" &&
     selE.tag === "ApplyConstructor"
@@ -1112,32 +1129,11 @@ const matchRelToLine = (
     // rule Pred-Match
     const [pred, sPred] = [s1, s2];
     const selPred = toSubPred(sPred);
-    const exactMatch = subFnsEq(pred, selPred);
-
-    if (exactMatch) {
+    const match = subFnsEq(pred, selPred, typeEnv);
+    if (match) {
       return pred;
     } else {
-      // Now consider possible symmetry
-      // Need to think how this would work for >2 arguments ...
-      // Perhaps compare multisets of types of arguments? ...
-      const predicateDecl = typeEnv.predicates.get(pred.name.value);
-      // If it is symmetric
-      if (predicateDecl && predicateDecl.symmetric) {
-        // Flip arguments and then compare
-        const sPredSym = {
-          ...sPred,
-          args: [sPred.args[1], sPred.args[0]], // Try the other direction
-        };
-        const selPredSym = toSubPred(sPredSym);
-        const symMatch = subFnsEq(pred, selPredSym);
-        if (symMatch) {
-          return pred;
-        } else {
-          return undefined;
-        }
-      } else {
-        return undefined;
-      }
+      return undefined;
     }
 
     // COMBAK: Add this condition when the Substance typechecker is implemented -- where is the equivalent function to `predsDeclaredEqual` in the new code?
