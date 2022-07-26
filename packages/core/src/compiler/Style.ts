@@ -1286,16 +1286,43 @@ const combine = (s1: Subst, s2: Subst): Subst => {
 // TODO check for duplicate keys (and vals)
 // (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
 // the way merge is used, I think each subst in the second argument only contains one mapping
-const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
-  if (s2.length === 0) {
+const merge = (s1: im.Set<Subst>, s2: im.Set<Subst>): im.Set<Subst> => {
+  if (s2.size === 0) {
     return s1;
   }
-  if (s1.length === 0) {
+  if (s1.size === 0) {
     return s2;
   }
-  return cartesianProduct(s1, s2)
-    .filter(([a, b]: Subst[]) => uniqueSubsts(a, b))
+  const s1Arr = s1.toArray();
+  const s2Arr = s2.toArray();
+
+  const result = cartesianProduct(s1Arr, s2Arr)
+    .filter(([a, b]: Subst[]) => {
+      // Requires that substitutions are consistent
+      return consistentSubsts(a, b);
+    })
     .map(([a, b]: Subst[]) => combine(a, b));
+  return im.Set(result);
+};
+
+/**
+ * Check whether `a` and `b` are consistent
+ * in that they do not include different values mapped from the same key.
+ * @param a
+ * @param b
+ * @returns
+ */
+const consistentSubsts = (a: Subst, b: Subst): boolean => {
+  const aKeys = im.Set<string>(Object.keys(a));
+  const bKeys = im.Set<string>(Object.keys(b));
+
+  // Difference between the two sets
+  // Computed using (A union B) - (A intersect B)
+  const diff = aKeys.union(bKeys).subtract(aKeys.intersect(bKeys));
+
+  return diff.every((key) => {
+    return a[key] === b[key];
+  });
 };
 
 // check if two substitutions map to the same substance objects
@@ -1341,6 +1368,7 @@ const matchBvar = (
         return {};
       } else {
         return undefined; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
+        // Answer: An empty substitution counts as a match; an invalid substitution (undefined) does not count as a match.
       }
     }
   }
@@ -1370,33 +1398,211 @@ const matchDeclLine = (
 const matchDecl = (
   varEnv: Env,
   subProg: SubProg<A>,
-  initSubsts: Subst[],
   decl: DeclPattern<A>
-): Subst[] => {
+): im.Set<Subst> => {
+  const initDSubsts: im.Set<Subst> = im.Set();
   // Judgment 14. G; [theta] |- [S] <| |S_o
-  const newSubsts = subProg.statements.map((line) =>
-    matchDeclLine(varEnv, line, decl)
-  );
-  const res = merge(
-    initSubsts,
-    newSubsts.filter((x): x is Subst => x !== undefined)
-  );
-  log.debug("substs to combine:", initSubsts, newSubsts);
-  return res;
+  const newDSubsts = subProg.statements.reduce((dSubsts, line) => {
+    const dSubst = matchDeclLine(varEnv, line, decl);
+    if (dSubst === undefined) {
+      return dSubsts;
+    } else {
+      return dSubsts.add(dSubst);
+    }
+  }, initDSubsts);
+  return newDSubsts;
 };
 
-// Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
-// Folds over [|S_o]
-const matchDecls = (
+const matchStyArgToSubArg = (
+  styArg: PredArg<A> | SelExpr<A>,
+  subArg: SubPredArg<A> | SubExpr<A>
+): Subst | undefined => {
+  if (styArg.tag === "SEBind" && subArg.tag === "Identifier") {
+    const styBForm = styArg.contents;
+    if (styBForm.tag === "StyVar") {
+      const styArgName = styBForm.contents.value;
+      const subArgName = subArg.value;
+      const pSubst = {};
+      pSubst[styArgName] = subArgName;
+      return pSubst;
+    } /* (styBForm.tag === "SubVar") */ else {
+      if (subArg.value === styBForm.contents.value) {
+        return {};
+      } else {
+        return undefined;
+      }
+    }
+  }
+  if (styArg.tag === "RelPred" && subArg.tag === "ApplyPredicate") {
+    return matchStyRelToSubRel(styArg, subArg);
+  }
+  if (subArg.tag === "ApplyConstructor" && styArg.tag === "SEValCons") {
+    return matchStyRelToSubRel(styArg, subArg);
+  }
+  if (subArg.tag === "ApplyFunction" && styArg.tag === "SEFunc") {
+    return matchStyRelToSubRel(styArg, subArg);
+  }
+  return undefined;
+};
+
+const matchStyRelToSubRel = (
+  styRel: RelPred<A> | SelExpr<A>,
+  subRel: ApplyPredicate<A> | SubExpr<A>
+): Subst | undefined => {
+  // Predicates
+  if (styRel.tag === "RelPred" && subRel.tag === "ApplyPredicate") {
+    // If names do not match up, this is an invalid matching. No substitution.
+    if (subRel.name.value !== styRel.name.value) {
+      return undefined;
+    }
+    const initPSubst: Subst | undefined = {};
+    const res = zip2(styRel.args, subRel.args).reduce(
+      (pSubst: Subst | undefined, [styArg, subArg]) => {
+        if (pSubst === undefined) {
+          return undefined;
+        }
+        const argSubst = matchStyArgToSubArg(styArg, subArg);
+        if (argSubst === undefined) {
+          return undefined;
+        }
+        return { ...pSubst, ...argSubst };
+      },
+      initPSubst
+    );
+    return res;
+  }
+  if (
+    (subRel.tag === "ApplyConstructor" && styRel.tag === "SEValCons") ||
+    (subRel.tag === "ApplyFunction" && styRel.tag === "SEFunc")
+  ) {
+    // If names do not match up, this is an invalid matching. No substitution.
+    if (subRel.name.value !== styRel.name.value) {
+      return undefined;
+    }
+    const initPSubst: Subst | undefined = {};
+    return zip2(styRel.args, subRel.args).reduce(
+      (pSubst: Subst | undefined, [styArg, subArg]) => {
+        if (pSubst === undefined) {
+          return undefined;
+        }
+        const argSubst = matchStyArgToSubArg(styArg, subArg);
+        if (argSubst === undefined) {
+          return undefined;
+        }
+        return { ...pSubst, ...argSubst };
+      },
+      initPSubst
+    );
+  }
+  return undefined;
+};
+
+const matchStyRelToSubRels = (
+  rel: RelationPattern<A>,
+  subProg: SubProg<A>
+): [im.Set<string>, im.Set<Subst>] => {
+  const initUsedStyVars = im.Set<string>();
+  const initPSubsts = im.Set<Subst>();
+
+  if (rel.tag === "RelPred") {
+    const styPred = rel;
+    const [newUsedStyVars, newPSubsts] = subProg.statements.reduce(
+      ([usedStyVars, pSubsts], statement: SubStmt<A>) => {
+        if (statement.tag !== "ApplyPredicate") {
+          return [usedStyVars, pSubsts];
+        }
+        const pSubst = matchStyRelToSubRel(styPred, statement);
+        if (pSubst === undefined) {
+          return [usedStyVars, pSubsts];
+        }
+        return [usedStyVars.union(Object.keys(pSubst)), pSubsts.add(pSubst)];
+      },
+      [initUsedStyVars, initPSubsts]
+    );
+    return [newUsedStyVars, newPSubsts];
+  }
+
+  if (rel.tag === "RelBind") {
+    const styBind = rel;
+    const styBindedName = styBind.id.contents.value;
+    const styBindedExpr = styBind.expr;
+
+    const [newUsedStyVars, newPSubsts] = subProg.statements.reduce(
+      ([usedStyVars, pSubsts], statement) => {
+        if (statement.tag !== "Bind") {
+          return [usedStyVars, pSubsts];
+        }
+        const { variable: subBindedVar, expr: subBindedExpr } = statement;
+        const subBindedName = subBindedVar.value;
+        const pSubstExpr = matchStyRelToSubRel(styBindedExpr, subBindedExpr);
+        if (pSubstExpr === undefined) {
+          return [usedStyVars, pSubsts];
+        }
+        const pSubst = { ...pSubstExpr };
+        pSubst[styBindedName] = subBindedName;
+        return [
+          usedStyVars.union(Object.keys(pSubstExpr)).add(styBindedName),
+          pSubsts.add(pSubst),
+        ];
+      },
+      [initUsedStyVars, initPSubsts]
+    );
+
+    return [newUsedStyVars, newPSubsts];
+  }
+  // RelField
+  // This is handled later in the process.
+  return [initUsedStyVars, initPSubsts];
+};
+
+const makeListRSubstsForStyleRels = (
+  rels: RelationPattern<A>[],
+  subProg: SubProg<A>
+): [im.Set<string>, im.List<im.Set<Subst>>] => {
+  const initUsedStyVars: im.Set<string> = im.Set();
+  const initListPSubsts: im.List<im.Set<Subst>> = im.List();
+
+  const [newUsedStyVars, newListPSubsts] = rels.reduce(
+    ([usedStyVars, listPSubsts], rel) => {
+      const [relUsedStyVars, relPSubsts] = matchStyRelToSubRels(rel, subProg);
+      return [usedStyVars.union(relUsedStyVars), listPSubsts.push(relPSubsts)];
+    },
+    [initUsedStyVars, initListPSubsts]
+  );
+
+  return [newUsedStyVars, newListPSubsts];
+};
+
+const makePotentialSubsts = (
   varEnv: Env,
   subProg: SubProg<A>,
   decls: DeclPattern<A>[],
-  initSubsts: Subst[]
+  rels: RelationPattern<A>[]
 ): Subst[] => {
+  const [usedStyVars, listRSubsts] = makeListRSubstsForStyleRels(rels, subProg);
+  // Add in variables that are not present in the relations.
+  const listPSubsts = decls.reduce((currListPSubsts, decl) => {
+    if (usedStyVars.includes(decl.id.contents.value)) {
+      return currListPSubsts;
+    } else {
+      const pSubsts = matchDecl(varEnv, subProg, decl);
+      return currListPSubsts.push(pSubsts);
+    }
+  }, listRSubsts);
+  // Unsatisfiable relational constraints or declarations
+  if (listPSubsts.some((pSubsts) => pSubsts.isEmpty())) {
+    return [];
+  }
+  const initSubsts: im.Set<Subst> = im.Set();
+  const substs = listPSubsts.reduce((currSubsts, pSubsts) => {
+    return merge(currSubsts, pSubsts);
+  }, initSubsts);
+  return substs.toArray();
+  /* 
   return decls.reduce(
     (substs, decl) => matchDecl(varEnv, subProg, substs, decl),
     initSubsts
-  );
+  ); */
 };
 
 // Judgment 19. g; G; b; [theta] |- [S] <| Sel
@@ -1413,8 +1619,8 @@ const findSubstsSel = (
       const sel = header;
       const decls = sel.head.contents.concat(safeContentsList(sel.with));
       const rels = safeContentsList(sel.where);
-      const initSubsts: Subst[] = [];
-      const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
+      // const initSubsts: Subst[] = [];
+      const rawSubsts = makePotentialSubsts(varEnv, subProg, decls, rels);
       log.debug("total number of raw substs: ", rawSubsts.length);
       const substCandidates = rawSubsts.filter((subst) =>
         fullSubst(selEnv, subst)

@@ -467,7 +467,7 @@ describe("Compiler", () => {
           )}`
         );
       } else {
-        expect(styRes.value.shapes.length).toEqual(1);
+        expect(styRes.value.shapes.length).toBeGreaterThan(0);
       }
     });
   });
