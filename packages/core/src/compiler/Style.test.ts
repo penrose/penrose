@@ -983,7 +983,7 @@ delete x.z.p }`,
   });
 
   describe("Additional tests", () => {
-    test("p1", () => {
+    test("multiple predicates", () => {
       const subProg = `
       MySet X, Y
  OtherType Z
@@ -1030,7 +1030,7 @@ delete x.z.p }`,
         expect(styRes.value.shapes.length).toEqual(1);
       }
     });
-    test("pressure", () => {
+    test("many declaration matches with only one relational match", () => {
       const subProg = `
       T t1, t2, t3, t4, t5, t6, t7, t8
       S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;

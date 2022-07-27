@@ -10,7 +10,7 @@ import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
 import { genOptProblem } from "engine/Optimizer";
 import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
-import _, { range, some } from "lodash";
+import _, { range } from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -639,6 +639,7 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
   return Object.keys(valsSet).length === vals.length;
 };
 
+/*
 // Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
 const couldMatchRels = (
   typeEnv: Env,
@@ -649,7 +650,7 @@ const couldMatchRels = (
   // see also https://github.com/penrose/penrose/issues/566
   return true;
 };
-
+*/
 /**
  * Returns the substitution for a predicate alias
  */
@@ -1231,13 +1232,14 @@ const filterRels = (
   rels: RelationPattern<A>[],
   substs: Subst[]
 ): Subst[] => {
+  /*
   const subProgFiltered: SubProg<A> = {
     ...subProg,
     statements: subProg.statements.filter((line) =>
       couldMatchRels(typeEnv, rels, line)
     ),
   };
-
+  */
   const initSubsts: Subst[] = [];
 
   // This stores all the "matched" sets of relations for this header block.
@@ -1251,7 +1253,7 @@ const filterRels = (
       const matchedRels = matchAllRels(
         typeEnv,
         subEnv,
-        subProgFiltered,
+        subProg,
         substituteRels(subst, rels)
       );
       const substTargets = im.Set<string>(Object.values(subst));
@@ -1321,13 +1323,6 @@ const consistentSubsts = (a: Subst, b: Subst): boolean => {
   return overlap.every((key) => {
     return a[key] === b[key];
   });
-};
-
-// check if two substitutions map to the same substance objects
-const uniqueSubsts = (a: Subst, b: Subst): boolean => {
-  const aVals = Object.values(a);
-  const bVals = Object.values(b);
-  return !some(aVals, (a) => bVals.includes(a));
 };
 
 // Judgment 9. G; theta |- T <| |T
@@ -1428,9 +1423,9 @@ const matchStyArgToSubArg = (
       const styArgType = selEnv.sTypeVarMap[styArgName];
       const subArgType = subTypeMap[subArgName];
       if (typesMatched(varEnv, subArgType, styArgType)) {
-        const pSubst = {};
-        pSubst[styArgName] = subArgName;
-        return pSubst;
+        const rSubst = {};
+        rSubst[styArgName] = subArgName;
+        return rSubst;
       } else {
         return undefined;
       }
@@ -1460,6 +1455,37 @@ const matchStyArgToSubArg = (
   return undefined;
 };
 
+const matchStyArgsToSubArgs = (
+  selEnv: SelEnv,
+  subTypeMap: { [k: string]: TypeConsApp<A> },
+  varEnv: Env,
+  styArgs: PredArg<A>[] | SelExpr<A>[],
+  subArgs: SubPredArg<A>[] | SubExpr<A>[]
+): Subst | undefined => {
+  const initRSubst: Subst | undefined = {};
+  const res = zip2<PredArg<A> | SelExpr<A>, SubPredArg<A> | SubExpr<A>>(
+    styArgs,
+    subArgs
+  ).reduce((rSubst: Subst | undefined, [styArg, subArg]) => {
+    if (rSubst === undefined) {
+      return undefined;
+    }
+    const argSubst = matchStyArgToSubArg(
+      selEnv,
+      subTypeMap,
+      varEnv,
+      styArg,
+      subArg
+    );
+    if (argSubst === undefined) {
+      return undefined;
+    } else {
+      return { ...rSubst, ...argSubst };
+    }
+  }, initRSubst);
+  return res;
+};
+
 const matchStyRelToSubRel = (
   selEnv: SelEnv,
   subTypeMap: { [k: string]: TypeConsApp<A> },
@@ -1473,53 +1499,31 @@ const matchStyRelToSubRel = (
     if (subRel.name.value !== styRel.name.value) {
       return undefined;
     }
-    const initPSubst: Subst | undefined = {};
-    const res = zip2(styRel.args, subRel.args).reduce(
-      (pSubst: Subst | undefined, [styArg, subArg]) => {
-        if (pSubst === undefined) {
-          return undefined;
-        }
-        const argSubst = matchStyArgToSubArg(
-          selEnv,
-          subTypeMap,
-          varEnv,
-          styArg,
-          subArg
-        );
-        if (argSubst === undefined) {
-          return undefined;
-        }
-        return { ...pSubst, ...argSubst };
-      },
-      initPSubst
+    const res = matchStyArgsToSubArgs(
+      selEnv,
+      subTypeMap,
+      varEnv,
+      styRel.args,
+      subRel.args
     );
     if (res === undefined) {
       // check symmetry
       const predicateDecl = varEnv.predicates.get(subRel.name.value);
       if (predicateDecl && predicateDecl.symmetric) {
         // Flip arguments
-        return zip2([styRel.args[1], styRel.args[0]], subRel.args).reduce(
-          (pSubst: Subst | undefined, [styArg, subArg]) => {
-            if (pSubst === undefined) {
-              return undefined;
-            }
-            const argSubst = matchStyArgToSubArg(
-              selEnv,
-              subTypeMap,
-              varEnv,
-              styArg,
-              subArg
-            );
-            if (argSubst === undefined) {
-              return undefined;
-            }
-            return { ...pSubst, ...argSubst };
-          },
-          initPSubst
+        const flippedStyArgs = [styRel.args[1], styRel.args[0]];
+        const flippedRes = matchStyArgsToSubArgs(
+          selEnv,
+          subTypeMap,
+          varEnv,
+          flippedStyArgs,
+          subRel.args
         );
+        return flippedRes;
       }
+    } else {
+      return res;
     }
-    return res;
   }
   if (
     (subRel.tag === "ApplyConstructor" &&
@@ -1531,25 +1535,12 @@ const matchStyRelToSubRel = (
     if (subRel.name.value !== styRel.name.value) {
       return undefined;
     }
-    const initPSubst: Subst | undefined = {};
-    return zip2(styRel.args, subRel.args).reduce(
-      (pSubst: Subst | undefined, [styArg, subArg]) => {
-        if (pSubst === undefined) {
-          return undefined;
-        }
-        const argSubst = matchStyArgToSubArg(
-          selEnv,
-          subTypeMap,
-          varEnv,
-          styArg,
-          subArg
-        );
-        if (argSubst === undefined) {
-          return undefined;
-        }
-        return { ...pSubst, ...argSubst };
-      },
-      initPSubst
+    return matchStyArgsToSubArgs(
+      selEnv,
+      subTypeMap,
+      varEnv,
+      styRel.args,
+      subRel.args
     );
   }
   return undefined;
@@ -1563,29 +1554,29 @@ const matchStyRelToSubRels = (
   subProg: SubProg<A>
 ): [im.Set<string>, im.Set<Subst>] => {
   const initUsedStyVars = im.Set<string>();
-  const initPSubsts = im.Set<Subst>();
+  const initRSubsts = im.Set<Subst>();
   if (rel.tag === "RelPred") {
     const styPred = rel;
-    const [newUsedStyVars, newPSubsts] = subProg.statements.reduce(
-      ([usedStyVars, pSubsts], statement: SubStmt<A>) => {
+    const [newUsedStyVars, newRSubsts] = subProg.statements.reduce(
+      ([usedStyVars, rSubsts], statement: SubStmt<A>) => {
         if (statement.tag !== "ApplyPredicate") {
-          return [usedStyVars, pSubsts];
+          return [usedStyVars, rSubsts];
         }
-        const pSubst = matchStyRelToSubRel(
+        const rSubst = matchStyRelToSubRel(
           selEnv,
           subTypeMap,
           varEnv,
           styPred,
           statement
         );
-        if (pSubst === undefined) {
-          return [usedStyVars, pSubsts];
+        if (rSubst === undefined) {
+          return [usedStyVars, rSubsts];
         }
-        return [usedStyVars.union(Object.keys(pSubst)), pSubsts.add(pSubst)];
+        return [usedStyVars.union(Object.keys(rSubst)), rSubsts.add(rSubst)];
       },
-      [initUsedStyVars, initPSubsts]
+      [initUsedStyVars, initRSubsts]
     );
-    return [newUsedStyVars, newPSubsts];
+    return [newUsedStyVars, newRSubsts];
   }
 
   if (rel.tag === "RelBind") {
@@ -1593,38 +1584,39 @@ const matchStyRelToSubRels = (
     const styBindedName = styBind.id.contents.value;
     const styBindedExpr = styBind.expr;
 
-    const [newUsedStyVars, newPSubsts] = subProg.statements.reduce(
-      ([usedStyVars, pSubsts], statement) => {
+    const [newUsedStyVars, newRSubsts] = subProg.statements.reduce(
+      ([usedStyVars, rSubsts], statement) => {
         if (statement.tag !== "Bind") {
-          return [usedStyVars, pSubsts];
+          return [usedStyVars, rSubsts];
         }
         const { variable: subBindedVar, expr: subBindedExpr } = statement;
         const subBindedName = subBindedVar.value;
-        const pSubstExpr = matchStyRelToSubRel(
+        // substitutions for RHS expression
+        const rSubstExpr = matchStyRelToSubRel(
           selEnv,
           subTypeMap,
           varEnv,
           styBindedExpr,
           subBindedExpr
         );
-        if (pSubstExpr === undefined) {
-          return [usedStyVars, pSubsts];
+        if (rSubstExpr === undefined) {
+          return [usedStyVars, rSubsts];
         }
-        const pSubst = { ...pSubstExpr };
-        pSubst[styBindedName] = subBindedName;
+        const rSubst = { ...rSubstExpr };
+        rSubst[styBindedName] = subBindedName;
         return [
-          usedStyVars.union(Object.keys(pSubstExpr)).add(styBindedName),
-          pSubsts.add(pSubst),
+          usedStyVars.union(Object.keys(rSubstExpr)).add(styBindedName),
+          rSubsts.add(rSubst),
         ];
       },
-      [initUsedStyVars, initPSubsts]
+      [initUsedStyVars, initRSubsts]
     );
 
-    return [newUsedStyVars, newPSubsts];
+    return [newUsedStyVars, newRSubsts];
   }
   // RelField
   // This is handled later in the process.
-  return [initUsedStyVars, initPSubsts];
+  return [initUsedStyVars, initRSubsts];
 };
 
 const makeListRSubstsForStyleRels = (
@@ -1635,23 +1627,23 @@ const makeListRSubstsForStyleRels = (
   subProg: SubProg<A>
 ): [im.Set<string>, im.List<im.Set<Subst>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
-  const initListPSubsts: im.List<im.Set<Subst>> = im.List();
+  const initListRSubsts: im.List<im.Set<Subst>> = im.List();
 
-  const [newUsedStyVars, newListPSubsts] = rels.reduce(
-    ([usedStyVars, listPSubsts], rel) => {
-      const [relUsedStyVars, relPSubsts] = matchStyRelToSubRels(
+  const [newUsedStyVars, newListRSubsts] = rels.reduce(
+    ([usedStyVars, listRSubsts], rel) => {
+      const [relUsedStyVars, relRSubsts] = matchStyRelToSubRels(
         selEnv,
         subTypeMap,
         varEnv,
         rel,
         subProg
       );
-      return [usedStyVars.union(relUsedStyVars), listPSubsts.push(relPSubsts)];
+      return [usedStyVars.union(relUsedStyVars), listRSubsts.push(relRSubsts)];
     },
-    [initUsedStyVars, initListPSubsts]
+    [initUsedStyVars, initListRSubsts]
   );
 
-  return [newUsedStyVars, newListPSubsts];
+  return [newUsedStyVars, newListRSubsts];
 };
 
 const makePotentialSubsts = (
