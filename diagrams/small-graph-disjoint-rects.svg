@@ -15,8 +15,8 @@
     <title>global.box</title>
   </rect>
   <rect
-    x="394.0262177655143"
-    y="70.90247683440933"
+    x="327.7849627372713"
+    y="468.692786597456"
     width="100"
     height="160"
     fill="none"
@@ -25,12 +25,12 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 394.0262177655143, 70.90247683440933)"
+    transform="rotate(0, 327.7849627372713, 468.692786597456)"
   >
     <title>`v5`.shape</title>
   </rect>
   <g
-    transform="rotate(0, 435.3286677655143, 142.07247683440931)translate(435.3286677655143, 142.07247683440931)"
+    transform="rotate(0, 369.08741273727134, 539.862786597456)translate(369.08741273727134, 539.862786597456)"
     string="v5"
   >
     <title>`v5`.text</title>
@@ -163,8 +163,8 @@
     </svg>
   </g>
   <rect
-    x="327.7849627372713"
-    y="468.692786597456"
+    x="394.0262177655143"
+    y="70.90247683440933"
     width="100"
     height="160"
     fill="none"
@@ -173,12 +173,12 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 327.7849627372713, 468.692786597456)"
+    transform="rotate(0, 394.0262177655143, 70.90247683440933)"
   >
     <title>`v4`.shape</title>
   </rect>
   <g
-    transform="rotate(0, 369.08741273727134, 539.862786597456)translate(369.08741273727134, 539.862786597456)"
+    transform="rotate(0, 435.3286677655143, 142.07247683440931)translate(435.3286677655143, 142.07247683440931)"
     string="v4"
   >
     <title>`v4`.text</title>

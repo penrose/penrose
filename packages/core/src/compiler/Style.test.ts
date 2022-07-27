@@ -441,7 +441,7 @@ describe("Compiler", () => {
       const styProg =
         canvasPreamble +
         `forall Hydrogen h; Oxygen o
-        where Not(Bond(O, H)) {
+        where Not(Bond(o, h)) {
           theText = Text {
             string: "hello"
           }
