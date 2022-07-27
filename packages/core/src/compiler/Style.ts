@@ -1316,11 +1316,9 @@ const consistentSubsts = (a: Subst, b: Subst): boolean => {
   const aKeys = im.Set<string>(Object.keys(a));
   const bKeys = im.Set<string>(Object.keys(b));
 
-  // Difference between the two sets
-  // Computed using (A union B) - (A intersect B)
-  const diff = aKeys.union(bKeys).subtract(aKeys.intersect(bKeys));
+  const overlap = aKeys.intersect(bKeys);
 
-  return diff.every((key) => {
+  return overlap.every((key) => {
     return a[key] === b[key];
   });
 };
@@ -1436,10 +1434,16 @@ const matchStyArgToSubArg = (
   if (styArg.tag === "RelPred" && subArg.tag === "ApplyPredicate") {
     return matchStyRelToSubRel(styArg, subArg);
   }
-  if (subArg.tag === "ApplyConstructor" && styArg.tag === "SEValCons") {
+  if (
+    subArg.tag === "ApplyConstructor" &&
+    (styArg.tag === "SEValCons" || styArg.tag === "SEFuncOrValCons")
+  ) {
     return matchStyRelToSubRel(styArg, subArg);
   }
-  if (subArg.tag === "ApplyFunction" && styArg.tag === "SEFunc") {
+  if (
+    subArg.tag === "ApplyFunction" &&
+    (styArg.tag === "SEValCons" || styArg.tag === "SEFuncOrValCons")
+  ) {
     return matchStyRelToSubRel(styArg, subArg);
   }
   return undefined;
@@ -1472,8 +1476,10 @@ const matchStyRelToSubRel = (
     return res;
   }
   if (
-    (subRel.tag === "ApplyConstructor" && styRel.tag === "SEValCons") ||
-    (subRel.tag === "ApplyFunction" && styRel.tag === "SEFunc")
+    (subRel.tag === "ApplyConstructor" &&
+      (styRel.tag === "SEValCons" || styRel.tag === "SEFuncOrValCons")) ||
+    (subRel.tag === "ApplyFunction" &&
+      (styRel.tag === "SEValCons" || styRel.tag === "SEFuncOrValCons"))
   ) {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
@@ -1503,7 +1509,6 @@ const matchStyRelToSubRels = (
 ): [im.Set<string>, im.Set<Subst>] => {
   const initUsedStyVars = im.Set<string>();
   const initPSubsts = im.Set<Subst>();
-
   if (rel.tag === "RelPred") {
     const styPred = rel;
     const [newUsedStyVars, newPSubsts] = subProg.statements.reduce(
@@ -1589,10 +1594,6 @@ const makePotentialSubsts = (
       return currListPSubsts.push(pSubsts);
     }
   }, listRSubsts);
-  // Unsatisfiable relational constraints or declarations
-  if (listPSubsts.some((pSubsts) => pSubsts.isEmpty())) {
-    return [];
-  }
   const initSubsts: im.Set<Subst> = im.Set();
   const substs = listPSubsts.reduce((currSubsts, pSubsts) => {
     return merge(currSubsts, pSubsts);
