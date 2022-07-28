@@ -13,27 +13,27 @@
     <title>Global.box</title>
   </rect>
   <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="214.09908424287624"
-    cy="105.58104621181235"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`a`.icon</title>
-  </circle>
-  <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="107.6607544515231"
-    cy="138.1919456606835"
+    cx="169.9168990141219"
+    cy="131.2585024001965"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
   >
-    <title>`y`.icon</title>
+    <title>`u`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="13.723577132255372"
+    cy="140.85805550688343"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`c`.icon</title>
   </circle>
   <g>
     <filter id="`e`.curveIJ-shadow" x="0" y="0" width="200%" height="200%">
@@ -57,7 +57,7 @@
       fill="none"
       stroke-width="1.5"
       stroke-opacity="1"
-      d="M 94.11908709747918 72.52542163452802 Q 166.40820270510466 127.11544247917978 214.09908424287624 105.58104621181235"
+      d="M 93.69369194452858 54.08462022185679 Q 131.08470486457094 147.7728391132437 150.76154768907423 163.44690430271373"
     ></path>
     <title>`e`.curveIJ</title>
   </g>
@@ -83,7 +83,7 @@
       fill="none"
       stroke-width="1.5"
       stroke-opacity="1"
-      d="M 214.09908424287624 105.58104621181235 Q 160.3285537793438 82.54979427114506 172.42409765254624 14.113033287326274"
+      d="M 150.76154768907423 163.44690430271373 Q 167.32731938155246 151.09014573418628 194.2514096043084 59.406813829699686"
     ></path>
     <title>`e`.curveJK</title>
   </g>
@@ -109,22 +109,19 @@
       fill="none"
       stroke-width="1.5"
       stroke-opacity="1"
-      d="M 172.42409765254624 14.113033287326274 Q 141.61135516753427 4.198282219733471 94.11908709747918 72.52542163452802"
+      d="M 194.2514096043084 59.406813829699686 Q 169.80213023865886 87.28802906498856 93.69369194452858 54.08462022185679"
     ></path>
     <title>`e`.curveKI</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#000000"
     fill-opacity="1"
-    cx="160.25864418764118"
-    cy="108.08433820117497"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="1"
-    stroke-linecap="butt"
-    r="2"
+    cx="93.69369194452858"
+    cy="54.08462022185679"
+    stroke="none"
+    r="2.5"
   >
-    <title>`x`.icon</title>
+    <title>`b`.icon</title>
   </circle>
   <g>
     <filter id="`t2`.curveIJ-shadow" x="0" y="0" width="200%" height="200%">
@@ -148,7 +145,7 @@
       fill="none"
       stroke-width="1.5"
       stroke-opacity="1"
-      d="M 214.09908424287624 105.58104621181235 Q 166.40820270510466 127.11544247917978 94.11908709747918 72.52542163452802"
+      d="M 150.76154768907423 163.44690430271373 Q 131.08470486457094 147.7728391132437 93.69369194452858 54.08462022185679"
     ></path>
     <title>`t2`.curveIJ</title>
   </g>
@@ -174,7 +171,7 @@
       fill="none"
       stroke-width="1.5"
       stroke-opacity="1"
-      d="M 94.11908709747918 72.52542163452802 Q 103.91760420153791 157.8385439974449 128.68872230553742 164.5652730133162"
+      d="M 93.69369194452858 54.08462022185679 Q 15.761759328687702 84.8208571691898 13.723577132255372 140.85805550688343"
     ></path>
     <title>`t2`.curveJK</title>
   </g>
@@ -200,15 +197,35 @@
       fill="none"
       stroke-width="1.5"
       stroke-opacity="1"
-      d="M 128.68872230553742 164.5652730133162 Q 204.50902369240973 157.5094872908614 214.09908424287624 105.58104621181235"
+      d="M 13.723577132255372 140.85805550688343 Q 58.369474644181835 120.05768779620561 150.76154768907423 163.44690430271373"
     ></path>
     <title>`t2`.curveKI</title>
   </g>
   <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="150.76154768907423"
+    cy="163.44690430271373"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`a`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="194.2514096043084"
+    cy="59.406813829699686"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`d`.icon</title>
+  </circle>
+  <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="137.44147377127348"
-    cy="23.75875484033031"
+    cx="156.8873405065387"
+    cy="72.01687304538339"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -220,8 +237,21 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="187.95146348330826"
-    cy="146.29132345171283"
+    cx="126.65616234068618"
+    cy="128.26930068776448"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    r="2"
+  >
+    <title>`x`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="70.30601852742332"
+    cy="136.1050838505021"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -231,50 +261,20 @@
     <title>`z`.icon</title>
   </circle>
   <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="94.11908709747918"
-    cy="72.52542163452802"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`b`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="128.68872230553742"
-    cy="164.5652730133162"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`c`.icon</title>
-  </circle>
-  <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="176.7950723635275"
-    cy="71.19841701035719"
+    cx="34.73519693353984"
+    cy="91.14609751677995"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
     stroke-linecap="butt"
     r="2"
   >
-    <title>`u`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="172.42409765254624"
-    cy="14.113033287326274"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`d`.icon</title>
+    <title>`y`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 218.65693008835464, 103.17158474266488)translate(218.65693008835464, 103.17158474266488)"
+    transform="rotate(0, 146.2423266639812, 167.61173389105693)translate(146.2423266639812, 167.61173389105693)"
     string="p_i"
   >
     <title>`a`.labelText</title>
@@ -296,7 +296,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 79.16468487763282, 68.19214903539388)translate(79.16468487763282, 68.19214903539388)"
+    transform="rotate(0, 81.03186585893314, 41.451632257903206)translate(81.03186585893314, 41.451632257903206)"
     string="p_j"
   >
     <title>`b`.labelText</title>
@@ -318,7 +318,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 120.17613894534418, 168.29063681309393)translate(120.17613894534418, 168.29063681309393)"
+    transform="rotate(0, 0.06363458539758682, 140.89806462451506)translate(0.06363458539758682, 140.89806462451506)"
     string="p_k"
   >
     <title>`c`.labelText</title>
@@ -340,7 +340,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 173.52980755745492, 0.10190935735727003)translate(173.52980755745492, 0.10190935735727003)"
+    transform="rotate(0, 196.68143671512095, 46.50954720576385)translate(196.68143671512095, 46.50954720576385)"
     string="p_l"
   >
     <title>`d`.labelText</title>
@@ -362,7 +362,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 157.74298149694525, 70.60169245973235)translate(157.74298149694525, 70.60169245973235)"
+    transform="rotate(0, 172.56201095087846, 130.4490462312075)translate(172.56201095087846, 130.4490462312075)"
     string="m_{il}"
   >
     <title>`u`.labelText</title>
@@ -384,7 +384,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 122.58194445255722, 7.491186766327017)translate(122.58194445255722, 7.491186766327017)"
+    transform="rotate(0, 148.66272781717234, 77.93307080331242)translate(148.66272781717234, 77.93307080331242)"
     string="m_{jl}"
   >
     <title>`v`.labelText</title>
@@ -406,7 +406,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 148.8874952850777, 113.70586521593462)translate(148.8874952850777, 113.70586521593462)"
+    transform="rotate(0, 107.46812739802255, 128.04127484734974)translate(107.46812739802255, 128.04127484734974)"
     string="m_{ij}"
   >
     <title>`x`.labelText</title>
@@ -428,7 +428,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 87.35821916321933, 137.20395477055038)translate(87.35821916321933, 137.20395477055038)"
+    transform="rotate(0, 16.157328607680206, 77.2920903588157)translate(16.157328607680206, 77.2920903588157)"
     string="m_{jk}"
   >
     <title>`y`.labelText</title>
@@ -450,7 +450,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 186.0357402078615, 150.01793747682598)translate(186.0357402078615, 150.01793747682598)"
+    transform="rotate(0, 62.592173064698926, 118.36441444160796)translate(62.592173064698926, 118.36441444160796)"
     string="m_{ki}"
   >
     <title>`z`.labelText</title>
