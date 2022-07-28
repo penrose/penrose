@@ -1546,6 +1546,34 @@ const matchStyRelToSubRel = (
   return undefined;
 };
 
+const getStyPredOrFuncOrConsArgNames = (
+  arg: PredArg<A> | SelExpr<A>
+): im.Set<string> => {
+  if (arg.tag === "RelPred") {
+    return getStyRelArgNames(arg);
+  } else if (arg.tag === "SEBind") {
+    return im.Set<string>().add(toString(arg.contents));
+  } else {
+    return arg.args.reduce((argNames, arg) => {
+      return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
+    }, im.Set<string>());
+  }
+};
+
+const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
+  const initArgNames: im.Set<string> = im.Set();
+  if (rel.tag === "RelPred") {
+    return rel.args.reduce((argNames, arg) => {
+      return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
+    }, initArgNames);
+  } else if (rel.tag === "RelBind") {
+    const bindedName = toString(rel.id);
+    return getStyPredOrFuncOrConsArgNames(rel.expr).add(bindedName);
+  } else {
+    return initArgNames.add(toString(rel.name));
+  }
+};
+
 const matchStyRelToSubRels = (
   selEnv: SelEnv,
   subTypeMap: { [k: string]: TypeConsApp<A> },
@@ -1557,10 +1585,10 @@ const matchStyRelToSubRels = (
   const initRSubsts = im.Set<Subst>();
   if (rel.tag === "RelPred") {
     const styPred = rel;
-    const [newUsedStyVars, newRSubsts] = subProg.statements.reduce(
-      ([usedStyVars, rSubsts], statement: SubStmt<A>) => {
+    const newRSubsts = subProg.statements.reduce(
+      (rSubsts, statement: SubStmt<A>) => {
         if (statement.tag !== "ApplyPredicate") {
-          return [usedStyVars, rSubsts];
+          return rSubsts;
         }
         const rSubst = matchStyRelToSubRel(
           selEnv,
@@ -1570,13 +1598,13 @@ const matchStyRelToSubRels = (
           statement
         );
         if (rSubst === undefined) {
-          return [usedStyVars, rSubsts];
+          return rSubsts;
         }
-        return [usedStyVars.union(Object.keys(rSubst)), rSubsts.add(rSubst)];
+        return rSubsts.add(rSubst);
       },
-      [initUsedStyVars, initRSubsts]
+      initRSubsts
     );
-    return [newUsedStyVars, newRSubsts];
+    return [getStyRelArgNames(rel), newRSubsts];
   }
 
   if (rel.tag === "RelBind") {
@@ -1584,35 +1612,29 @@ const matchStyRelToSubRels = (
     const styBindedName = styBind.id.contents.value;
     const styBindedExpr = styBind.expr;
 
-    const [newUsedStyVars, newRSubsts] = subProg.statements.reduce(
-      ([usedStyVars, rSubsts], statement) => {
-        if (statement.tag !== "Bind") {
-          return [usedStyVars, rSubsts];
-        }
-        const { variable: subBindedVar, expr: subBindedExpr } = statement;
-        const subBindedName = subBindedVar.value;
-        // substitutions for RHS expression
-        const rSubstExpr = matchStyRelToSubRel(
-          selEnv,
-          subTypeMap,
-          varEnv,
-          styBindedExpr,
-          subBindedExpr
-        );
-        if (rSubstExpr === undefined) {
-          return [usedStyVars, rSubsts];
-        }
-        const rSubst = { ...rSubstExpr };
-        rSubst[styBindedName] = subBindedName;
-        return [
-          usedStyVars.union(Object.keys(rSubstExpr)).add(styBindedName),
-          rSubsts.add(rSubst),
-        ];
-      },
-      [initUsedStyVars, initRSubsts]
-    );
+    const newRSubsts = subProg.statements.reduce((rSubsts, statement) => {
+      if (statement.tag !== "Bind") {
+        return rSubsts;
+      }
+      const { variable: subBindedVar, expr: subBindedExpr } = statement;
+      const subBindedName = subBindedVar.value;
+      // substitutions for RHS expression
+      const rSubstExpr = matchStyRelToSubRel(
+        selEnv,
+        subTypeMap,
+        varEnv,
+        styBindedExpr,
+        subBindedExpr
+      );
+      if (rSubstExpr === undefined) {
+        return rSubsts;
+      }
+      const rSubst = { ...rSubstExpr };
+      rSubst[styBindedName] = subBindedName;
+      return rSubsts.add(rSubst);
+    }, initRSubsts);
 
-    return [newUsedStyVars, newRSubsts];
+    return [getStyRelArgNames(rel), newRSubsts];
   }
   // RelField
   // This is handled later in the process.
@@ -1680,6 +1702,7 @@ const makePotentialSubsts = (
       return currListPSubsts.push(pSubsts);
     }
   }, listRSubsts);
+
   const initSubsts: im.Set<Subst> = im.Set();
   const substs = listPSubsts.reduce((currSubsts, pSubsts) => {
     return merge(currSubsts, pSubsts);
