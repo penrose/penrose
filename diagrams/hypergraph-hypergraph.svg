@@ -1,506 +1,506 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <rect
-    x="294.91504657486126"
-    y="394.8631746112343"
+    x="497.036029840384"
+    y="406.77117956727267"
     width="20"
-    height="18.00006822475393"
+    height="21.460578177957437"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 294.91504657486126, 394.8631746112343)"
-  >
-    <title>`E13`.rect</title>
-  </rect>
-  <rect
-    x="294.9150465748613"
-    y="318.8631776684268"
-    width="20"
-    height="17.999995733849467"
-    fill="#ffffff"
-    fill-opacity="0"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 294.9150465748613, 318.8631776684268)"
-  >
-    <title>`E15`.rect</title>
-  </rect>
-  <rect
-    x="394.9150485885758"
-    y="262.050085614257"
-    width="20"
-    height="19.938886806898324"
-    fill="#ffffff"
-    fill-opacity="0"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 394.9150485885758, 262.050085614257)"
-  >
-    <title>`E23`.rect</title>
-  </rect>
-  <rect
-    x="494.91504226050296"
-    y="305.9751159285295"
-    width="20"
-    height="24.406857373199976"
-    fill="#ffffff"
-    fill-opacity="0"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 494.91504226050296, 305.9751159285295)"
+    transform="rotate(0, 497.036029840384, 406.77117956727267)"
   >
     <title>`E32`.rect</title>
   </rect>
   <rect
-    x="394.9150485885758"
-    y="407.81846023862647"
+    x="297.0359439817807"
+    y="276.14098294644674"
     width="20"
-    height="18.00000670717006"
+    height="18.161636237505626"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 394.9150485885758, 407.81846023862647)"
-  >
-    <title>`E21`.rect</title>
-  </rect>
-  <rect
-    x="294.91504657486126"
-    y="356.86317193344087"
-    width="20"
-    height="18.000005513170073"
-    fill="#ffffff"
-    fill-opacity="0"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 294.91504657486126, 356.86317193344087)"
+    transform="rotate(0, 297.0359439817807, 276.14098294644674)"
   >
     <title>`E11`.rect</title>
   </rect>
   <rect
-    x="394.9150485885758"
-    y="325.7256494955037"
+    x="297.0359439817472"
+    y="314.3026142836456"
     width="20"
-    height="18.090667180163766"
+    height="17.99997584212136"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 394.9150485885758, 325.7256494955037)"
+    transform="rotate(0, 297.0359439817472, 314.3026142836456)"
+  >
+    <title>`E13`.rect</title>
+  </rect>
+  <rect
+    x="297.0359439818556"
+    y="428.30254309256026"
+    width="20"
+    height="17.99999495451297"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 297.0359439818556, 428.30254309256026)"
+  >
+    <title>`E15`.rect</title>
+  </rect>
+  <rect
+    x="397.0359896548465"
+    y="265.8350128308746"
+    width="20"
+    height="18.0000006437035"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 397.0359896548465, 265.8350128308746)"
+  >
+    <title>`E21`.rect</title>
+  </rect>
+  <rect
+    x="497.0360298403508"
+    y="301.00308550970703"
+    width="20"
+    height="24.86337758363775"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 497.0360298403508, 301.00308550970703)"
+  >
+    <title>`E31`.rect</title>
+  </rect>
+  <rect
+    x="497.03602984033057"
+    y="356.1097199539343"
+    width="20"
+    height="30.661427611562956"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 497.03602984033057, 356.1097199539343)"
+  >
+    <title>`E33`.rect</title>
+  </rect>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="507.0360263331309"
+    cy="377.7711495534685"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot3</title>
+  </circle>
+  <rect
+    x="397.0359896548322"
+    y="415.54158134432225"
+    width="20"
+    height="18.058031388712863"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 397.0359896548322, 415.54158134432225)"
   >
     <title>`E22`.rect</title>
   </rect>
   <rect
-    x="294.91504657486126"
-    y="242.8631836757737"
+    x="297.0359439818599"
+    y="390.30255751082154"
     width="20"
-    height="17.999994774738838"
+    height="17.999991022595005"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 294.91504657486126, 242.8631836757737)"
+    transform="rotate(0, 297.0359439818599, 390.30255751082154)"
   >
-    <title>`E12`.rect</title>
+    <title>`E14`.rect</title>
   </rect>
   <rect
-    x="494.9150422605025"
-    y="267.97510171942685"
+    x="397.03598965483724"
+    y="377.2297375009848"
     width="20"
-    height="18.00001751496427"
+    height="18.202116469953214"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 494.9150422605025, 267.97510171942685)"
+    transform="rotate(0, 397.03598965483724, 377.2297375009848)"
   >
-    <title>`E31`.rect</title>
+    <title>`E23`.rect</title>
   </rect>
   <circle
-    fill="#9c5c61"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="276.9751250169782"
-    stroke="none"
-    r="5"
-  >
-    <title>`N1`.dot3</title>
-  </circle>
-  <circle
-    fill="#a422db"
-    fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="334.72564841118293"
+    cx="407.03598854670435"
+    cy="424.54158084350365"
     stroke="none"
     r="5"
   >
     <title>`N2`.dot2</title>
   </circle>
   <rect
-    x="494.91504226050273"
-    y="350.91447164963324"
+    x="297.03594398185203"
+    y="352.3025843363316"
     width="20"
-    height="44.75115107133544"
+    height="17.999979012853963"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 494.91504226050273, 350.91447164963324)"
+    transform="rotate(0, 297.03594398185203, 352.3025843363316)"
   >
-    <title>`E33`.rect</title>
+    <title>`E12`.rect</title>
   </rect>
   <rect
-    x="294.91504657486126"
-    y="280.8631778589887"
+    x="397.0359896547366"
+    y="321.4948721224523"
     width="20"
-    height="18.000001107069288"
+    height="35.73148022731674"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 294.91504657486126, 280.8631778589887)"
-  >
-    <title>`E14`.rect</title>
-  </rect>
-  <circle
-    fill="#d54ddd"
-    fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="251.8631794821636"
-    stroke="none"
-    r="5"
-  >
-    <title>`N4`.dot1</title>
-  </circle>
-  <rect
-    x="394.9150485885754"
-    y="363.83282291607344"
-    width="20"
-    height="23.98563972378544"
-    fill="#ffffff"
-    fill-opacity="0"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 394.9150485885754, 363.83282291607344)"
+    transform="rotate(0, 397.0359896547366, 321.4948721224523)"
   >
     <title>`E24`.rect</title>
   </rect>
   <circle
-    fill="#3e25a5"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="372.8328267759245"
-    stroke="none"
-    r="5"
-  >
-    <title>`N7`.dot2</title>
-  </circle>
-  <circle
-    fill="#1fd8b7"
-    fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="386.6656187236323"
-    stroke="none"
-    r="5"
-  >
-    <title>`N6`.dot3</title>
-  </circle>
-  <circle
-    fill="#a422db"
-    fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="314.9751139037037"
-    stroke="none"
-    r="5"
-  >
-    <title>`N2`.dot3</title>
-  </circle>
-  <circle
-    fill="#9f3290"
-    fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="365.8631748320764"
+    cx="307.03594645463664"
+    cy="285.3026221498063"
     stroke="none"
     r="5"
   >
     <title>`N3`.dot1</title>
   </circle>
   <circle
-    fill="#a31d28"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="327.86317497971567"
+    cx="407.03598854670435"
+    cy="330.4948715394024"
     stroke="none"
     r="5"
   >
-    <title>`N9`.dot1</title>
+    <title>`N7`.dot2</title>
   </circle>
   <circle
-    fill="#99dda9"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="386.66562321478466"
-    stroke="none"
-    r="5"
-  >
-    <title>`N8`.dot3</title>
-  </circle>
-  <circle
-    fill="#2bbf6f"
-    fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="403.8631726920328"
-    stroke="none"
-    r="5"
-  >
-    <title>`N5`.dot1</title>
-  </circle>
-  <circle
-    fill="#d54ddd"
-    fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="271.0500853219248"
-    stroke="none"
-    r="5"
-  >
-    <title>`N4`.dot2</title>
-  </circle>
-  <circle
-    fill="#9f3290"
-    fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="334.8163160492957"
-    stroke="none"
-    r="5"
-  >
-    <title>`N3`.dot2</title>
-  </circle>
-  <circle
-    fill="#99dda9"
-    fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="327.86317647621377"
-    stroke="none"
-    r="5"
-  >
-    <title>`N8`.dot1</title>
-  </circle>
-  <circle
-    fill="#9c5c61"
-    fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="416.8184605487282"
-    stroke="none"
-    r="5"
-  >
-    <title>`N1`.dot2</title>
-  </circle>
-  <circle
-    fill="#3e25a5"
-    fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="289.86317762192874"
-    stroke="none"
-    r="5"
-  >
-    <title>`N7`.dot1</title>
-  </circle>
-  <circle
-    fill="#9c5c61"
-    fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="365.863172075544"
-    stroke="none"
-    r="5"
-  >
-    <title>`N1`.dot1</title>
-  </circle>
-  <circle
-    fill="#d54ddd"
-    fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="321.38197440056945"
-    stroke="none"
-    r="5"
-  >
-    <title>`N4`.dot3</title>
-  </circle>
-  <circle
-    fill="#1fd8b7"
-    fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="372.8328223113711"
-    stroke="none"
-    r="5"
-  >
-    <title>`N6`.dot2</title>
-  </circle>
-  <circle
-    fill="#3e25a5"
-    fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="359.914469148318"
-    stroke="none"
-    r="5"
-  >
-    <title>`N7`.dot3</title>
-  </circle>
-  <circle
-    fill="#a31d28"
-    fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="378.81846350443885"
-    stroke="none"
-    r="5"
-  >
-    <title>`N9`.dot2</title>
-  </circle>
-  <circle
-    fill="#99dda9"
-    fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="378.18531217136024"
-    stroke="none"
-    r="5"
-  >
-    <title>`N8`.dot2</title>
-  </circle>
-  <circle
-    fill="#a31d28"
-    fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="359.9150973222823"
-    stroke="none"
-    r="5"
-  >
-    <title>`N9`.dot3</title>
-  </circle>
-  <circle
-    fill="#a422db"
-    fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="365.8631818453048"
-    stroke="none"
-    r="5"
-  >
-    <title>`N2`.dot1</title>
-  </circle>
-  <circle
-    fill="#1fd8b7"
-    fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="289.86317918036303"
-    stroke="none"
-    r="5"
-  >
-    <title>`N6`.dot1</title>
-  </circle>
-  <circle
-    fill="#2bbf6f"
-    fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="272.9889736808818"
-    stroke="none"
-    r="5"
-  >
-    <title>`N5`.dot2</title>
-  </circle>
-  <circle
-    fill="#9f3290"
-    fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="314.9758842155489"
+    cx="507.0360263331309"
+    cy="417.40713266526046"
     stroke="none"
     r="5"
   >
     <title>`N3`.dot3</title>
   </circle>
   <circle
-    fill="#2bbf6f"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="276.9751044032135"
+    cx="507.0360263331309"
+    cy="366.20294609608453"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot3</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="307.03594645463664"
+    cy="285.14098329396654"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot1</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="307.03594645463664"
+    cy="437.30253869049244"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot1</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="507.0360263331309"
+    cy="316.8664622439931"
     stroke="none"
     r="5"
   >
     <title>`N5`.dot3</title>
   </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="307.03594645463664"
+    cy="361.30257328665084"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot1</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="407.03598854670435"
+    cy="386.4318536421471"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot2</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="407.03598854670435"
+    cy="424.59961251504313"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot2</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="307.03594645463664"
+    cy="399.30255157269687"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot1</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="407.03598854670435"
+    cy="274.83500578455477"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot2</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="307.03594645463664"
+    cy="399.3025533340457"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot1</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="307.03594645463664"
+    cy="437.30254211514307"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot1</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="507.0360263331309"
+    cy="310.0030859378856"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot3</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="407.03598854670435"
+    cy="344.9460965184726"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot2</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="507.0360263331309"
+    cy="419.2317549914506"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot3</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="407.03598854670435"
+    cy="348.2263527059945"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot2</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="407.03598854670435"
+    cy="335.3684417797724"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot2</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="507.0360263331309"
+    cy="377.7711408616007"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot3</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="307.03594645463664"
+    cy="285.3026214038273"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot1</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="307.03594645463664"
+    cy="323.3026022742034"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot1</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="407.03598854670435"
+    cy="386.229739479223"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot2</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="507.0360263331309"
+    cy="365.1097192924828"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot3</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="507.0360263331309"
+    cy="415.77117552101697"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot3</title>
+  </circle>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="504.9150422605025"
-    cy="276.975110476909"
+    cx="507.0360298403508"
+    cy="313.4347743015259"
     stroke="none"
     rx="10"
-    ry="9.000008757482135"
+    ry="12.431688791818875"
   >
     <title>`E31`.ellipse</title>
   </ellipse>
   <circle
-    fill="#9c5c61"
+    fill="#672551"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="413.2496760192607"
+    cx="207.0359502328813"
+    cy="265.83503659993283"
     stroke="none"
     r="5"
   >
     <title>`N1`.dotl</title>
   </circle>
   <circle
-    fill="#9c5c61"
+    fill="#672551"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="276.9751250169782"
+    cx="507.0360263331309"
+    cy="310.0030859378856"
     stroke="none"
     r="5"
   >
     <title>`N1`.dot3P</title>
   </circle>
   <circle
-    fill="#9c5c61"
+    fill="#672551"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="242.86999756767966"
+    cx="607.0360231584949"
+    cy="265.83501891246806"
     stroke="none"
     r="5"
   >
     <title>`N1`.dotrP</title>
   </circle>
   <circle
-    fill="#9c5c61"
+    fill="#672551"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="416.8184605487282"
+    cx="407.03598854670435"
+    cy="274.83500578455477"
     stroke="none"
     r="5"
   >
     <title>`N1`.dot2P</title>
   </circle>
   <circle
-    fill="#9c5c61"
+    fill="#672551"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="365.863172075544"
+    cx="307.03594645463664"
+    cy="285.3026214038273"
     stroke="none"
     r="5"
   >
     <title>`N1`.dot1P</title>
   </circle>
   <circle
-    fill="#9c5c61"
+    fill="#672551"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="242.86999756767966"
+    cx="607.0360231584949"
+    cy="265.83501891246806"
     stroke="none"
     r="5"
   >
     <title>`N1`.dotr</title>
   </circle>
   <circle
-    fill="#9c5c61"
+    fill="#672551"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="413.2496760192607"
+    cx="207.0359502328813"
+    cy="265.83503659993283"
     stroke="none"
     r="5"
   >
@@ -524,11 +524,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9c5c61"
+      stroke="#672551"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 276.9751250169782 Q 561.3709324218046 278.8519393886815 604.9150356956472 242.86999756767966"
+      d="M 507.0360263331309 310.0030859378856 Q 565.1165536404512 306.21399652465846 607.0360231584949 265.83501891246806"
     ></path>
     <title>`N1`.line3r</title>
   </g>
@@ -550,11 +550,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9c5c61"
+      stroke="#672551"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 365.863172075544 Q 345.8348541505977 409.1607496004931 404.9150457076618 416.8184605487282"
+      d="M 307.03594645463664 285.3026214038273 Q 359.11811845628677 299.9601325005082 407.03598854670435 274.83500578455477"
     ></path>
     <title>`N1`.line12</title>
   </g>
@@ -576,11 +576,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9c5c61"
+      stroke="#672551"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 416.8184605487282 Q 471.18355543424104 358.5301700205774 504.91504086471724 276.9751250169782"
+      d="M 407.03598854670435 274.83500578455477 Q 450.400762590008 311.286304546911 507.0360263331309 310.0030859378856"
     ></path>
     <title>`N1`.line23</title>
   </g>
@@ -602,101 +602,101 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9c5c61"
+      stroke="#672551"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 413.2496760192607 Q 263.47945052162436 407.62991234286426 304.9150487478872 365.863172075544"
+      d="M 207.0359502328813 265.83503659993283 Q 253.21418311034918 295.200284168905 307.03594645463664 285.3026214038273"
     ></path>
     <title>`N1`.linel1</title>
   </g>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="404.9150485885758"
-    cy="416.8184635922115"
+    cx="407.0359896548465"
+    cy="274.83501315272633"
     stroke="none"
     rx="10"
-    ry="9.00000335358503"
+    ry="9.00000032185175"
   >
     <title>`E21`.ellipse</title>
   </ellipse>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="504.91504226050296"
-    cy="318.17854461512945"
+    cx="507.036029840384"
+    cy="417.5014686562514"
     stroke="none"
     rx="10"
-    ry="12.203428686599988"
+    ry="10.730289088978719"
   >
     <title>`E32`.ellipse</title>
   </ellipse>
   <circle
-    fill="#a422db"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="341.632105710155"
+    cx="207.0359502328813"
+    cy="313.83640158841973"
     stroke="none"
     r="5"
   >
     <title>`N2`.dotl</title>
   </circle>
   <circle
-    fill="#a422db"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="314.9751139037037"
+    cx="507.0360263331309"
+    cy="415.77117552101697"
     stroke="none"
     r="5"
   >
     <title>`N2`.dot3P</title>
   </circle>
   <circle
-    fill="#a422db"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="344.0079093861698"
+    cx="607.0360231584949"
+    cy="352.82333288406784"
     stroke="none"
     r="5"
   >
     <title>`N2`.dotrP</title>
   </circle>
   <circle
-    fill="#a422db"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="334.72564841118293"
+    cx="407.03598854670435"
+    cy="424.54158084350365"
     stroke="none"
     r="5"
   >
     <title>`N2`.dot2P</title>
   </circle>
   <circle
-    fill="#a422db"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="365.8631818453048"
+    cx="307.03594645463664"
+    cy="285.14098329396654"
     stroke="none"
     r="5"
   >
     <title>`N2`.dot1P</title>
   </circle>
   <circle
-    fill="#a422db"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="344.0079093861698"
+    cx="607.0360231584949"
+    cy="352.82333288406784"
     stroke="none"
     r="5"
   >
     <title>`N2`.dotr</title>
   </circle>
   <circle
-    fill="#a422db"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="341.632105710155"
+    cx="207.0359502328813"
+    cy="313.83640158841973"
     stroke="none"
     r="5"
   >
@@ -720,11 +720,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a422db"
+      stroke="#24c4c9"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 314.9751139037037 Q 549.338744256987 348.69840801419224 604.9150356956472 344.0079093861698"
+      d="M 507.0360263331309 415.77117552101697 Q 567.6904609532937 401.22306057616936 607.0360231584949 352.82333288406784"
     ></path>
     <title>`N2`.line3r</title>
   </g>
@@ -746,11 +746,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a422db"
+      stroke="#24c4c9"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 365.8631818453048 Q 360.86098274715334 369.3901155452646 404.9150457076618 334.72564841118293"
+      d="M 307.03594645463664 285.14098329396654 Q 340.7849449416709 366.499078565319 407.03598854670435 424.54158084350365"
     ></path>
     <title>`N2`.line12</title>
   </g>
@@ -772,11 +772,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a422db"
+      stroke="#24c4c9"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 334.72564841118293 Q 458.79029444827796 344.47134825763703 504.91504086471724 314.9751139037037"
+      d="M 407.03598854670435 424.54158084350365 Q 458.78338513039785 440.079896734785 507.0360263331309 415.77117552101697"
     ></path>
     <title>`N2`.line23</title>
   </g>
@@ -798,112 +798,112 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a422db"
+      stroke="#24c4c9"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 341.632105710155 Q 250.2051384844059 373.1851500864241 304.9150487478872 365.8631818453048"
+      d="M 207.0359502328813 313.83640158841973 Q 262.5524088146025 318.7128591845652 307.03594645463664 285.14098329396654"
     ></path>
     <title>`N2`.linel1</title>
   </g>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="304.91504657486126"
-    cy="365.8631746900259"
+    cx="307.0359439817807"
+    cy="285.22180106519954"
     stroke="none"
     rx="10"
-    ry="9.000002756585037"
+    ry="9.080818118752813"
   >
     <title>`E11`.ellipse</title>
   </ellipse>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="404.9150485885758"
-    cy="334.7709830855856"
+    cx="407.0359896548322"
+    cy="424.57059703867867"
     stroke="none"
     rx="10"
-    ry="9.045333590081883"
+    ry="9.029015694356431"
   >
     <title>`E22`.ellipse</title>
   </ellipse>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="504.91504226050273"
-    cy="373.290047185301"
+    cx="507.03602984033057"
+    cy="371.4404337597158"
     stroke="none"
     rx="10"
-    ry="22.37557553566772"
+    ry="15.330713805781478"
   >
     <title>`E33`.ellipse</title>
   </ellipse>
   <circle
-    fill="#9f3290"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="325.35017995928547"
+    cx="207.0359502328813"
+    cy="336.0275012720443"
     stroke="none"
     r="5"
   >
     <title>`N3`.dotl</title>
   </circle>
   <circle
-    fill="#9f3290"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="314.9758842155489"
+    cx="507.0360263331309"
+    cy="417.40713266526046"
     stroke="none"
     r="5"
   >
     <title>`N3`.dot3P</title>
   </circle>
   <circle
-    fill="#9f3290"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="268.3701770569004"
+    cx="607.0360231584949"
+    cy="386.7780147400428"
     stroke="none"
     r="5"
   >
     <title>`N3`.dotrP</title>
   </circle>
   <circle
-    fill="#9f3290"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="334.8163160492957"
+    cx="407.03598854670435"
+    cy="424.59961251504313"
     stroke="none"
     r="5"
   >
     <title>`N3`.dot2P</title>
   </circle>
   <circle
-    fill="#9f3290"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="365.8631748320764"
+    cx="307.03594645463664"
+    cy="285.3026221498063"
     stroke="none"
     r="5"
   >
     <title>`N3`.dot1P</title>
   </circle>
   <circle
-    fill="#9f3290"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="268.3701770569004"
+    cx="607.0360231584949"
+    cy="386.7780147400428"
     stroke="none"
     r="5"
   >
     <title>`N3`.dotr</title>
   </circle>
   <circle
-    fill="#9f3290"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="325.35017995928547"
+    cx="207.0359502328813"
+    cy="336.0275012720443"
     stroke="none"
     r="5"
   >
@@ -927,11 +927,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9f3290"
+      stroke="#6f41d4"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 314.9758842155489 Q 563.3636761915867 309.8009219898937 604.9150356956472 268.3701770569004"
+      d="M 507.0360263331309 417.40713266526046 Q 562.8932646896596 421.21566612380195 607.0360231584949 386.7780147400428"
     ></path>
     <title>`N3`.line3r</title>
   </g>
@@ -953,11 +953,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9f3290"
+      stroke="#6f41d4"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 365.8631748320764 Q 360.84519208302663 369.44035552500816 404.9150457076618 334.8163160492957"
+      d="M 307.03594645463664 285.3026221498063 Q 340.78905169519544 366.6146365335831 407.03598854670435 424.59961251504313"
     ></path>
     <title>`N3`.line12</title>
   </g>
@@ -979,11 +979,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9f3290"
+      stroke="#6f41d4"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 334.8163160492957 Q 458.8072665915607 344.5137075112725 504.91504086471724 314.9758842155489"
+      d="M 407.03598854670435 424.59961251504313 Q 458.47080129194336 440.9518383659548 507.0360263331309 417.40713266526046"
     ></path>
     <title>`N3`.line23</title>
   </g>
@@ -1005,101 +1005,101 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9f3290"
+      stroke="#6f41d4"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 325.35017995928547 Q 247.40533888161863 364.1432401291629 304.9150487478872 365.8631748320764"
+      d="M 207.0359502328813 336.0275012720443 Q 266.083509268529 328.5015851941184 307.03594645463664 285.3026221498063"
     ></path>
     <title>`N3`.linel1</title>
   </g>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="304.91504657486126"
-    cy="251.86318106314314"
+    cx="307.03594398185203"
+    cy="361.3025738427586"
     stroke="none"
     rx="10"
-    ry="8.999997387369419"
+    ry="8.999989506426981"
   >
     <title>`E12`.ellipse</title>
   </ellipse>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="404.9150485885758"
-    cy="272.0195290177062"
+    cx="407.03598965483724"
+    cy="386.33079573596143"
     stroke="none"
     rx="10"
-    ry="9.969443403449162"
+    ry="9.101058234976607"
   >
     <title>`E23`.ellipse</title>
   </ellipse>
   <circle
-    fill="#d54ddd"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="242.86325697218427"
+    cx="207.0359502328813"
+    cy="349.6018884823768"
     stroke="none"
     r="5"
   >
     <title>`N4`.dotl</title>
   </circle>
   <circle
-    fill="#d54ddd"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="321.38197440056945"
+    cx="507.0360263331309"
+    cy="419.2317549914506"
     stroke="none"
     r="5"
   >
     <title>`N4`.dot3P</title>
   </circle>
   <circle
-    fill="#d54ddd"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="380.7349781116061"
+    cx="607.0360231584949"
+    cy="318.87882691824484"
     stroke="none"
     r="5"
   >
     <title>`N4`.dotrP</title>
   </circle>
   <circle
-    fill="#d54ddd"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="271.0500853219248"
+    cx="407.03598854670435"
+    cy="386.4318536421471"
     stroke="none"
     r="5"
   >
     <title>`N4`.dot2P</title>
   </circle>
   <circle
-    fill="#d54ddd"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="251.8631794821636"
+    cx="307.03594645463664"
+    cy="361.30257328665084"
     stroke="none"
     r="5"
   >
     <title>`N4`.dot1P</title>
   </circle>
   <circle
-    fill="#d54ddd"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="380.7349781116061"
+    cx="607.0360231584949"
+    cy="318.87882691824484"
     stroke="none"
     r="5"
   >
     <title>`N4`.dotr</title>
   </circle>
   <circle
-    fill="#d54ddd"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="242.86325697218427"
+    cx="207.0359502328813"
+    cy="349.6018884823768"
     stroke="none"
     r="5"
   >
@@ -1123,11 +1123,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#d54ddd"
+      stroke="#8f997b"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 321.38197440056945 Q 544.7070651461866 368.2572324814847 604.9150356956472 380.7349781116061"
+      d="M 507.0360263331309 419.2317549914506 Q 571.203052965824 383.17248808971243 607.0360231584949 318.87882691824484"
     ></path>
     <title>`N4`.line3r</title>
   </g>
@@ -1149,11 +1149,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#d54ddd"
+      stroke="#8f997b"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 251.8631794821636 Q 351.1464131309186 281.09835632020247 404.9150457076618 271.0500853219248"
+      d="M 307.03594645463664 361.30257328665084 Q 352.1616644972936 393.2641485997134 407.03598854670435 386.4318536421471"
     ></path>
     <title>`N4`.line12</title>
   </g>
@@ -1175,11 +1175,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#d54ddd"
+      stroke="#8f997b"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 271.0500853219248 Q 445.9233747795583 314.0807947913499 504.91504086471724 321.38197440056945"
+      d="M 407.03598854670435 386.4318536421471 Q 450.80276810079926 421.83566317035525 507.0360263331309 419.2317549914506"
     ></path>
     <title>`N4`.line23</title>
   </g>
@@ -1201,101 +1201,101 @@
       </feMerge>
     </filter>
     <path
-      stroke="#d54ddd"
+      stroke="#8f997b"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 242.86325697218427 Q 253.1223168722065 267.2827068408731 304.9150487478872 251.8631794821636"
+      d="M 207.0359502328813 349.6018884823768 Q 254.71167280830602 375.3167133539212 307.03594645463664 361.30257328665084"
     ></path>
     <title>`N4`.linel1</title>
   </g>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="304.91504657486126"
-    cy="403.86320872361125"
+    cx="307.0359439817472"
+    cy="323.30260220470626"
     stroke="none"
     rx="10"
-    ry="9.000034112376966"
+    ry="8.99998792106068"
   >
     <title>`E13`.ellipse</title>
   </ellipse>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="404.9150485885754"
-    cy="375.82564277796615"
+    cx="407.0359896547366"
+    cy="339.3606122361107"
     stroke="none"
     rx="10"
-    ry="11.99281986189272"
+    ry="17.86574011365837"
   >
     <title>`E24`.ellipse</title>
   </ellipse>
   <circle
-    fill="#2bbf6f"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="299.59797011492765"
+    cx="207.0359502328813"
+    cy="286.5352548680365"
     stroke="none"
     r="5"
   >
     <title>`N5`.dotl</title>
   </circle>
   <circle
-    fill="#2bbf6f"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="276.9751044032135"
+    cx="507.0360263331309"
+    cy="316.8664622439931"
     stroke="none"
     r="5"
   >
     <title>`N5`.dot3P</title>
   </circle>
   <circle
-    fill="#2bbf6f"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="318.9145036230459"
+    cx="607.0360231584949"
+    cy="281.2863952170793"
     stroke="none"
     r="5"
   >
     <title>`N5`.dotrP</title>
   </circle>
   <circle
-    fill="#2bbf6f"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="272.9889736808818"
+    cx="407.03598854670435"
+    cy="386.229739479223"
     stroke="none"
     r="5"
   >
     <title>`N5`.dot2P</title>
   </circle>
   <circle
-    fill="#2bbf6f"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="403.8631726920328"
+    cx="307.03594645463664"
+    cy="323.3026022742034"
     stroke="none"
     r="5"
   >
     <title>`N5`.dot1P</title>
   </circle>
   <circle
-    fill="#2bbf6f"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="318.9145036230459"
+    cx="607.0360231584949"
+    cy="281.2863952170793"
     stroke="none"
     r="5"
   >
     <title>`N5`.dotr</title>
   </circle>
   <circle
-    fill="#2bbf6f"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="299.59797011492765"
+    cx="207.0359502328813"
+    cy="286.5352548680365"
     stroke="none"
     r="5"
   >
@@ -1319,11 +1319,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#2bbf6f"
+      stroke="#66c690"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 276.9751044032135 Q 547.1798956115375 316.3884341905439 604.9150356956472 318.9145036230459"
+      d="M 507.0360263331309 316.8664622439931 Q 563.7403225058988 317.9192606878827 607.0360231584949 281.2863952170793"
     ></path>
     <title>`N5`.line3r</title>
   </g>
@@ -1345,11 +1345,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#2bbf6f"
+      stroke="#66c690"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 403.8631726920328 Q 370.80690821465265 350.5689190556251 404.9150457076618 272.9889736808818"
+      d="M 307.03594645463664 323.3026022742034 Q 346.384053556179 371.6935646988478 407.03598854670435 386.229739479223"
     ></path>
     <title>`N5`.line12</title>
   </g>
@@ -1371,11 +1371,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#2bbf6f"
+      stroke="#66c690"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 272.9889736808818 Q 454.11845479085724 294.9661669147525 504.91504086471724 276.9751044032135"
+      d="M 407.03598854670435 386.229739479223 Q 468.43492322474384 367.9817448031052 507.0360263331309 316.8664622439931"
     ></path>
     <title>`N5`.line23</title>
   </g>
@@ -1397,90 +1397,90 @@
       </feMerge>
     </filter>
     <path
-      stroke="#2bbf6f"
+      stroke="#66c690"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 299.59797011492765 Q 240.4807675733796 365.57439393857805 304.9150487478872 403.8631726920328"
+      d="M 207.0359502328813 286.5352548680365 Q 250.13420375380838 323.69033892115704 307.03594645463664 323.3026022742034"
     ></path>
     <title>`N5`.linel1</title>
   </g>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="304.91504657486126"
-    cy="289.8631784125233"
+    cx="307.0359439818599"
+    cy="399.30255302211907"
     stroke="none"
     rx="10"
-    ry="9.000000553534644"
+    ry="8.999995511297502"
   >
     <title>`E14`.ellipse</title>
   </ellipse>
   <circle
-    fill="#1fd8b7"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="251.67935376504278"
+    cx="207.0359502328813"
+    cy="436.70836238681386"
     stroke="none"
     r="5"
   >
     <title>`N6`.dotl</title>
   </circle>
   <circle
-    fill="#1fd8b7"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="386.6656187236323"
+    cx="507.0360263331309"
+    cy="377.7711408616007"
     stroke="none"
     r="5"
   >
     <title>`N6`.dot3P</title>
   </circle>
   <circle
-    fill="#1fd8b7"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="425.81846206907824"
+    cx="607.0360231584949"
+    cy="444.50715511957907"
     stroke="none"
     r="5"
   >
     <title>`N6`.dotrP</title>
   </circle>
   <circle
-    fill="#1fd8b7"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="372.8328223113711"
+    cx="407.03598854670435"
+    cy="344.9460965184726"
     stroke="none"
     r="5"
   >
     <title>`N6`.dot2P</title>
   </circle>
   <circle
-    fill="#1fd8b7"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="289.86317918036303"
+    cx="307.03594645463664"
+    cy="399.3025533340457"
     stroke="none"
     r="5"
   >
     <title>`N6`.dot1P</title>
   </circle>
   <circle
-    fill="#1fd8b7"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="425.81846206907824"
+    cx="607.0360231584949"
+    cy="444.50715511957907"
     stroke="none"
     r="5"
   >
     <title>`N6`.dotr</title>
   </circle>
   <circle
-    fill="#1fd8b7"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="251.67935376504278"
+    cx="207.0359502328813"
+    cy="436.70836238681386"
     stroke="none"
     r="5"
   >
@@ -1504,11 +1504,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#1fd8b7"
+      stroke="#7c88a1"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 386.6656187236323 Q 547.62343736135 424.8654794328695 604.9150356956472 425.81846206907824"
+      d="M 507.0360263331309 377.7711408616007 Q 545.9340401693315 427.7748286776217 607.0360231584949 444.50715511957907"
     ></path>
     <title>`N6`.line3r</title>
   </g>
@@ -1530,11 +1530,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#1fd8b7"
+      stroke="#7c88a1"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 289.86317918036303 Q 342.1444301659361 346.73992324736867 404.9150457076618 372.8328223113711"
+      d="M 307.03594645463664 399.3025533340457 Q 366.58740510844035 389.69617654575336 407.03598854670435 344.9460965184726"
     ></path>
     <title>`N6`.line12</title>
   </g>
@@ -1556,11 +1556,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#1fd8b7"
+      stroke="#7c88a1"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 372.8328223113711 Q 452.17458374394954 399.5605759040459 504.91504086471724 386.6656187236323"
+      d="M 407.03598854670435 344.9460965184726 Q 450.7984545618568 380.36106216669737 507.0360263331309 377.7711408616007"
     ></path>
     <title>`N6`.line23</title>
   </g>
@@ -1582,90 +1582,90 @@
       </feMerge>
     </filter>
     <path
-      stroke="#1fd8b7"
+      stroke="#7c88a1"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 251.67935376504278 Q 247.7806969482002 289.45550917438305 304.9150487478872 289.86317918036303"
+      d="M 207.0359502328813 436.70836238681386 Q 264.04295014730104 436.73783226400394 307.03594645463664 399.3025533340457"
     ></path>
     <title>`N6`.linel1</title>
   </g>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
-    cx="304.9150465748613"
-    cy="327.8631755353515"
+    cx="307.0359439818556"
+    cy="437.30254056981676"
     stroke="none"
     rx="10"
-    ry="8.999997866924733"
+    ry="8.999997477256485"
   >
     <title>`E15`.ellipse</title>
   </ellipse>
   <circle
-    fill="#3e25a5"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="367.3451410482474"
+    cx="207.0359502328813"
+    cy="415.29254460505217"
     stroke="none"
     r="5"
   >
     <title>`N7`.dotl</title>
   </circle>
   <circle
-    fill="#3e25a5"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="359.914469148318"
+    cx="507.0360263331309"
+    cy="377.7711495534685"
     stroke="none"
     r="5"
   >
     <title>`N7`.dot3P</title>
   </circle>
   <circle
-    fill="#3e25a5"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="297.71325455300394"
+    cx="607.0360231584949"
+    cy="362.962565975763"
     stroke="none"
     r="5"
   >
     <title>`N7`.dotrP</title>
   </circle>
   <circle
-    fill="#3e25a5"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="372.8328267759245"
+    cx="407.03598854670435"
+    cy="330.4948715394024"
     stroke="none"
     r="5"
   >
     <title>`N7`.dot2P</title>
   </circle>
   <circle
-    fill="#3e25a5"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="289.86317762192874"
+    cx="307.03594645463664"
+    cy="399.30255157269687"
     stroke="none"
     r="5"
   >
     <title>`N7`.dot1P</title>
   </circle>
   <circle
-    fill="#3e25a5"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="297.71325455300394"
+    cx="607.0360231584949"
+    cy="362.962565975763"
     stroke="none"
     r="5"
   >
     <title>`N7`.dotr</title>
   </circle>
   <circle
-    fill="#3e25a5"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="367.3451410482474"
+    cx="207.0359502328813"
+    cy="415.29254460505217"
     stroke="none"
     r="5"
   >
@@ -1689,11 +1689,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#3e25a5"
+      stroke="#8c8b1a"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 359.914469148318 Q 565.4785077149432 345.7965897107538 604.9150356956472 297.71325455300394"
+      d="M 507.0360263331309 377.7711495534685 Q 559.9657963823286 390.15110298703735 607.0360231584949 362.962565975763"
     ></path>
     <title>`N7`.line3r</title>
   </g>
@@ -1715,11 +1715,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#3e25a5"
+      stroke="#8c8b1a"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 289.86317762192874 Q 342.1444296168626 346.73992424486414 404.9150457076618 372.8328267759245"
+      d="M 307.03594645463664 399.30255157269687 Q 368.3729964046642 381.3751101226194 407.03598854670435 330.4948715394024"
     ></path>
     <title>`N7`.line12</title>
   </g>
@@ -1741,11 +1741,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#3e25a5"
+      stroke="#8c8b1a"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 372.8328267759245 Q 457.4774271072541 386.2088215134889 504.91504086471724 359.914469148318"
+      d="M 407.03598854670435 330.4948715394024 Q 448.48789828864676 372.21420955571654 507.0360263331309 377.7711495534685"
     ></path>
     <title>`N7`.line23</title>
   </g>
@@ -1767,79 +1767,79 @@
       </feMerge>
     </filter>
     <path
-      stroke="#3e25a5"
+      stroke="#8c8b1a"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 367.3451410482474 Q 267.1647054216146 344.41383643188203 304.9150487478872 289.86317762192874"
+      d="M 207.0359502328813 415.29254460505217 Q 260.19383613463225 427.0466661882683 307.03594645463664 399.30255157269687"
     ></path>
     <title>`N7`.linel1</title>
   </g>
   <circle
-    fill="#99dda9"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="303.1180174410694"
+    cx="207.0359502328813"
+    cy="446.3017649412699"
     stroke="none"
     r="5"
   >
     <title>`N8`.dotl</title>
   </circle>
   <circle
-    fill="#99dda9"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="386.66562321478466"
+    cx="507.0360263331309"
+    cy="366.20294609608453"
     stroke="none"
     r="5"
   >
     <title>`N8`.dot3P</title>
   </circle>
   <circle
-    fill="#99dda9"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="357.85259974629196"
+    cx="607.0360231584949"
+    cy="326.52098342398756"
     stroke="none"
     r="5"
   >
     <title>`N8`.dotrP</title>
   </circle>
   <circle
-    fill="#99dda9"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="378.18531217136024"
+    cx="407.03598854670435"
+    cy="335.3684417797724"
     stroke="none"
     r="5"
   >
     <title>`N8`.dot2P</title>
   </circle>
   <circle
-    fill="#99dda9"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="327.86317647621377"
+    cx="307.03594645463664"
+    cy="437.30253869049244"
     stroke="none"
     r="5"
   >
     <title>`N8`.dot1P</title>
   </circle>
   <circle
-    fill="#99dda9"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="357.85259974629196"
+    cx="607.0360231584949"
+    cy="326.52098342398756"
     stroke="none"
     r="5"
   >
     <title>`N8`.dotr</title>
   </circle>
   <circle
-    fill="#99dda9"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="303.1180174410694"
+    cx="207.0359502328813"
+    cy="446.3017649412699"
     stroke="none"
     r="5"
   >
@@ -1863,11 +1863,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#99dda9"
+      stroke="#36baba"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 386.66562321478466 Q 560.4523776368153 391.47727465959497 604.9150356956472 357.85259974629196"
+      d="M 507.0360263331309 366.20294609608453 Q 564.4128466437032 364.9518121054941 607.0360231584949 326.52098342398756"
     ></path>
     <title>`N8`.line3r</title>
   </g>
@@ -1889,11 +1889,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#99dda9"
+      stroke="#36baba"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 327.86317647621377 Q 345.92476916397044 370.88970902173594 404.9150457076618 378.18531217136024"
+      d="M 307.03594645463664 437.30253869049244 Q 371.3128992668161 400.34153047928066 407.03598854670435 335.3684417797724"
     ></path>
     <title>`N8`.line12</title>
   </g>
@@ -1915,11 +1915,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#99dda9"
+      stroke="#36baba"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 378.18531217136024 Q 453.225052121356 402.35393602731574 504.91504086471724 386.66562321478466"
+      d="M 407.03598854670435 335.3684417797724 Q 451.14290268669527 369.89776446729104 507.0360263331309 366.20294609608453"
     ></path>
     <title>`N8`.line23</title>
   </g>
@@ -1941,79 +1941,79 @@
       </feMerge>
     </filter>
     <path
-      stroke="#99dda9"
+      stroke="#36baba"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 303.1180174410694 Q 250.11092267263538 334.90503175893116 304.9150487478872 327.86317647621377"
+      d="M 207.0359502328813 446.3017649412699 Q 258.8285543135469 461.7216519140037 307.03594645463664 437.30253869049244"
     ></path>
     <title>`N8`.linel1</title>
   </g>
   <circle
-    fill="#a31d28"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="274.8683961930602"
+    cx="207.0359502328813"
+    cy="384.3677021662345"
     stroke="none"
     r="5"
   >
     <title>`N9`.dotl</title>
   </circle>
   <circle
-    fill="#a31d28"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="504.91504086471724"
-    cy="359.9150973222823"
+    cx="507.0360263331309"
+    cy="365.1097192924828"
     stroke="none"
     r="5"
   >
     <title>`N9`.dot3P</title>
   </circle>
   <circle
-    fill="#a31d28"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="406.1089199485175"
+    cx="607.0360231584949"
+    cy="414.5106059962649"
     stroke="none"
     r="5"
   >
     <title>`N9`.dotrP</title>
   </circle>
   <circle
-    fill="#a31d28"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="404.9150457076618"
-    cy="378.81846350443885"
+    cx="407.03598854670435"
+    cy="348.2263527059945"
     stroke="none"
     r="5"
   >
     <title>`N9`.dot2P</title>
   </circle>
   <circle
-    fill="#a31d28"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="304.9150487478872"
-    cy="327.86317497971567"
+    cx="307.03594645463664"
+    cy="437.30254211514307"
     stroke="none"
     r="5"
   >
     <title>`N9`.dot1P</title>
   </circle>
   <circle
-    fill="#a31d28"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="604.9150356956472"
-    cy="406.1089199485175"
+    cx="607.0360231584949"
+    cy="414.5106059962649"
     stroke="none"
     r="5"
   >
     <title>`N9`.dotr</title>
   </circle>
   <circle
-    fill="#a31d28"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="204.91505215759776"
-    cy="274.8683961930602"
+    cx="207.0359502328813"
+    cy="384.3677021662345"
     stroke="none"
     r="5"
   >
@@ -2037,11 +2037,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a31d28"
+      stroke="#c0c263"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 504.91504086471724 359.9150973222823 Q 546.5278964589174 401.1684339290617 604.9150356956472 406.1089199485175"
+      d="M 507.0360263331309 365.1097192924828 Q 548.1778041975535 407.7414720498019 607.0360231584949 414.5106059962649"
     ></path>
     <title>`N9`.line3r</title>
   </g>
@@ -2063,11 +2063,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a31d28"
+      stroke="#c0c263"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 304.9150487478872 327.86317497971567 Q 345.83485414330664 371.160752526719 404.9150457076618 378.81846350443885"
+      d="M 307.03594645463664 437.30254211514307 Q 370.3388623739078 407.69873441244766 407.03598854670435 348.2263527059945"
     ></path>
     <title>`N9`.line12</title>
   </g>
@@ -2089,11 +2089,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a31d28"
+      stroke="#c0c263"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 404.9150457076618 378.81846350443885 Q 458.6299305266791 389.0187404729228 504.91504086471724 359.9150973222823"
+      d="M 407.03598854670435 348.2263527059945 Q 453.70646129923824 376.38893972126755 507.0360263331309 365.1097192924828"
     ></path>
     <title>`N9`.line23</title>
   </g>
@@ -2115,11 +2115,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a31d28"
+      stroke="#c0c263"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 204.91505215759776 274.8683961930602 Q 245.54990305773805 319.0376259993872 304.9150487478872 327.86317497971567"
+      d="M 207.0359502328813 384.3677021662345 Q 247.67907377252493 428.5113442357333 307.03594645463664 437.30254211514307"
     ></path>
     <title>`N9`.linel1</title>
   </g>
