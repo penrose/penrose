@@ -1264,36 +1264,6 @@ const filterRels = (
     [initMatches, initSubsts]
   );
   return goodSubsts;
-  /*
-  const initMatches: im.Set<im.Record<MatchesObject>> = im.Set();
-  const [, goodSubsts] = substs.reduce(
-    ([currMatches, currSubsts], subst) => {
-      const matchedRels = matchAllRels(
-        typeEnv,
-        subEnv,
-        subProg,
-        substituteRels(subst, rels)
-      );
-      const substTargets = im.Set<string>(Object.values(subst));
-      if (matchedRels !== undefined) {
-        const record: im.Record<MatchesObject> = im.Record({
-          rels: matchedRels,
-          substTargets: substTargets,
-        })();
-        // ignore duplicate matches
-        if (currMatches.includes(record)) {
-          return [currMatches, currSubsts];
-        } else {
-          return [currMatches.add(record), [...currSubsts, subst]];
-        }
-      } else {
-        return [currMatches, currSubsts];
-      }
-    },
-    [initMatches, initSubsts]
-  );
-  return goodSubsts;
-*/
 };
 
 // // Match declaration statements
