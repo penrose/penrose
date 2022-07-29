@@ -1017,14 +1017,15 @@ const matchPredToProg = (
   }
 };
 
-// Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
-// Folds over [theta]
+/**
+ * Filters the set of substitutions to prevent duplications of matched Substance relations and substitution targets.
+ */
 const deduplicate = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[],
-  substs: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>
+  pSubsts: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>
 ): im.List<Subst> => {
   const initSubsts: im.List<Subst> = im.List();
 
@@ -1033,7 +1034,7 @@ const deduplicate = (
     substTargets: im.Set<string>;
   };
   const initMatches: im.Set<im.Record<MatchesObject>> = im.Set();
-  const [, goodSubsts] = substs.reduce(
+  const [, goodSubsts] = pSubsts.reduce(
     ([currMatches, currSubsts], [subst, matchedSubStmts]) => {
       const record: im.Record<MatchesObject> = im.Record({
         rels: matchedSubStmts,
@@ -1185,6 +1186,11 @@ const matchDecl = (
   return newDSubsts;
 };
 
+/**
+ * Match a Style argument against a Substance argument in a predicate, function, or constructor application.
+ * If this argument is itself a predicate, function, or constructor application, we recursively match those.
+ * @returns If the `styArg` and `subArg` match, return a `Subst` that maps variable(s) in styArg into variable(s) in subArg. Return `undefined` otherwise.
+ */
 const matchStyArgToSubArg = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
@@ -1252,6 +1258,10 @@ const matchStyArgToSubArg = (
   return undefined;
 };
 
+/**
+ * Match a list of Style arguments against a list of Substance arguments.
+ * @returns If all arguments match, return a `Subst` that maps the Style variable(s) against Substance variable(s). If any arguments fail to match, return `undefined`.
+ */
 const matchStyArgsToSubArgs = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
@@ -1283,6 +1293,11 @@ const matchStyArgsToSubArgs = (
   return res;
 };
 
+/**
+ * Match a Style application of predicate, function, or constructor against a Substance application
+ * by comparing names and arguments. For predicates, consider potential symmetry.
+ * @returns If the Style application and Substance application match, return the variable mapping. Otherwise, return `undefined`.
+ */
 const matchStyApplyToSubApply = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
@@ -1343,6 +1358,10 @@ const matchStyApplyToSubApply = (
   return undefined;
 };
 
+/**
+ * Match a `RelField` relation in Style against a `Decl` in Substance.
+ * @returns If valid match, return the variable mapping. Otherwise, return `undefined`.
+ */
 const matchRelField = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
@@ -1402,6 +1421,11 @@ const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
   }
 };
 
+/**
+ * Match a Style relation (`RelPred`, `RelBind`, `RelField`) against the entire Substance program.
+ * @returns `[usedStyVars, rSubsts]` where `usedStyVars` is a set of all Style variable names that appears in this Style relation,
+ * and `rSubsts` is a list of [subst, subStmt] where `subst` is the variable mapping, and `subStmt` is the corresponding matched Substance statement.
+ */
 const matchStyRelToSubRels = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
@@ -1486,6 +1510,12 @@ const matchStyRelToSubRels = (
   }
 };
 
+/**
+ * Match a list of Style relations against a Substance program.
+ * @returns `[usedStyVars, listRSubsts]` where `usedStyVars` is a set of used Style variables, and `listRSubsts` is a list, where
+ * each Style relation corresponds to a list of potential substitutions for the relation. A potential substitution includes both the
+ * substitution itself and the matched Substance statement.
+ */
 const makeListRSubstsForStyleRels = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
@@ -1517,6 +1547,9 @@ const makeListRSubstsForStyleRels = (
   return [newUsedStyVars, newListRSubsts];
 };
 
+/**
+ * First match the relations. Then, match free Style variables. Finally, merge all substitutions together.
+ */
 const makePotentialSubsts = (
   varEnv: Env,
   selEnv: SelEnv,
@@ -1555,6 +1588,9 @@ const makePotentialSubsts = (
     }
   }, listRSubsts);
 
+  if (listPSubsts.some((pSubsts) => pSubsts.size === 0)) {
+    return im.List();
+  }
   // Note: listPSubsts has type List<List<[Subst, SubStmt]>>
   // where one Substitution directly refers to one Substance statement.
 
@@ -1586,9 +1622,6 @@ const makePotentialSubsts = (
   }
 };
 
-// Judgment 19. g; G; b; [theta] |- [S] <| Sel
-// NOTE: this uses little gamma (not in paper) to check substitution validity
-// ported from `find_substs_sel`
 const findSubstsSel = (
   varEnv: Env,
   subEnv: SubstanceEnv,
