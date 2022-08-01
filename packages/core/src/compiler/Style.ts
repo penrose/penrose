@@ -25,7 +25,7 @@ import {
 import { isShapeType, ShapeDef, shapedefs, ShapeType } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A, C, Identifier, SourceRange } from "types/ast";
-import { Env, TypeConstructor } from "types/domain";
+import { Env } from "types/domain";
 import {
   BinOpTypeError,
   ParseError,
@@ -660,38 +660,6 @@ const getSubPredAliasInstanceName = (
   return name;
 };
 
-/**
- * Adds predicate alias substitutions to an existing valid subst
- * @param subst a valid substitution for a given style selector
- * @param rels a list of relations for the same style selector
- */
-const addRelPredAliasSubsts = (
-  env: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  subst: Subst,
-  rels: RelationPattern<A>[]
-): Subst => {
-  subst = { ...subst }; // a shallow copy
-
-  // only consider valid predicates in context of each subst
-  for (const rel of rels) {
-    if (rel.tag === "RelPred" && rel.alias) {
-      // Use the version in Substance
-      const subPred = matchPredToProg(env, subEnv, subProg, rel);
-      if (subPred === undefined) {
-        throw new Error(
-          `internal error: cannot find predicate while processing alias ${rel.alias.value}`
-        );
-      } else {
-        subst[rel.alias.value] = getSubPredAliasInstanceName(subPred);
-      }
-    }
-  }
-
-  return subst;
-};
-
 //#region (subregion? TODO fix) Applying a substitution
 // // Apply a substitution to various parts of Style (relational statements, exprs, blocks)
 
@@ -807,16 +775,6 @@ export const substituteRel = (
       };
     }
   }
-};
-
-// Applies a substitution to a list of relational statement theta([|S_r])
-// TODO: assumes a full substitution
-const substituteRels = (
-  subst: Subst,
-  rels: RelationPattern<A>[]
-): RelationPattern<A>[] => {
-  const res = rels.map((rel) => substituteRel(subst, rel));
-  return res;
 };
 
 //#endregion (subregion? TODO fix)
@@ -947,74 +905,6 @@ const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>, env: Env): boolean => {
   }
 
   return false;
-};
-
-// TODO: Test this
-// For existing judgment G |- T1 <: T2,
-// this rule (SUBTYPE-ARROW) checks if the first arrow type (i.e. function or value constructor type) is a subtype of the second
-// The arrow types are contravariant in their arguments and covariant in their return type
-// e.g. if Cat <: Animal, then Cat -> Cat <: Cat -> Animal, and Animal -> Cat <: Cat -> Cat
-const isSubtypeArrow = (
-  types1: TypeConstructor<A>[],
-  types2: TypeConstructor<A>[],
-  e: Env
-): boolean => {
-  if (types1.length !== types2.length) {
-    return false;
-  }
-
-  if (types1.length === 0 && types2.length === 0) {
-    return true;
-  }
-
-  return (
-    isDeclaredSubtype(types2[0], types1[0], e) && // Note swap -- contravariant in arguments
-    isSubtypeArrow(types1.slice(1), types2.slice(1), e)
-  ); // Covariant in return type
-};
-
-// Judgment 11. b; theta |- S <| |S_r
-// After all Substance variables from a Style substitution are substituted in, check if
-// Returns the relation match
-const matchPredToLine = (
-  typeEnv: Env,
-  s1: SubStmt<A>,
-  s2: RelPred<A>
-): ApplyPredicate<A> | undefined => {
-  if (s1.tag === "ApplyPredicate") {
-    // rule Pred-Match
-    const [pred, sPred] = [s1, s2];
-    const selPred = toSubPred(sPred);
-    const match = subFnsEq(pred, selPred, typeEnv);
-    if (match) {
-      return pred;
-    } else {
-      return undefined;
-    }
-
-    // COMBAK: Add this condition when the Substance typechecker is implemented -- where is the equivalent function to `predsDeclaredEqual` in the new code?
-    // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
-  } else {
-    return undefined; // Only match two bind lines or two predicate lines
-  }
-};
-
-// Judgment 13. b |- [S] <| |S_r
-// Returns the relation that is matched.
-const matchPredToProg = (
-  typeEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  rel: RelPred<A>
-): ApplyPredicate<A> | undefined => {
-  const matchedLine = subProg.statements.find(
-    (line) => matchPredToLine(typeEnv, line, rel) !== undefined
-  );
-  if (matchedLine === undefined || matchedLine.tag !== "ApplyPredicate") {
-    return undefined;
-  } else {
-    return matchedLine;
-  }
 };
 
 /**
@@ -1305,38 +1195,53 @@ const matchStyApplyToSubApply = (
   styRel: RelPred<A> | SelExpr<A>,
   subRel: ApplyPredicate<A> | SubExpr<A>
 ): Subst | undefined => {
-  // Predicates
+  // Predicate Applications
   if (styRel.tag === "RelPred" && subRel.tag === "ApplyPredicate") {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
       return undefined;
     }
-    const res = matchStyArgsToSubArgs(
+    let rSubst = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
       varEnv,
       styRel.args,
       subRel.args
     );
-    if (res === undefined) {
+    if (rSubst === undefined) {
       // check symmetry
       const predicateDecl = varEnv.predicates.get(subRel.name.value);
       if (predicateDecl && predicateDecl.symmetric) {
         // Flip arguments
         const flippedStyArgs = [styRel.args[1], styRel.args[0]];
-        const flippedRes = matchStyArgsToSubArgs(
+        rSubst = matchStyArgsToSubArgs(
           styTypeMap,
           subTypeMap,
           varEnv,
           flippedStyArgs,
           subRel.args
         );
-        return flippedRes;
       }
+    }
+
+    // If still no match (even after considering potential symmetry)
+    if (rSubst === undefined) {
+      return undefined;
     } else {
-      return res;
+      // Otherwise, if needed, we add in the alias.
+      if (styRel.alias === undefined) {
+        return rSubst;
+      } else {
+        const rSubstWithAlias = { ...rSubst };
+        rSubstWithAlias[styRel.alias.value] = getSubPredAliasInstanceName(
+          subRel
+        );
+        return rSubstWithAlias;
+      }
     }
   }
+
+  // Constructor or Function Applications
   if (
     (subRel.tag === "ApplyConstructor" &&
       (styRel.tag === "SEValCons" || styRel.tag === "SEFuncOrValCons")) ||
@@ -1659,7 +1564,7 @@ const findSubstsSel = (
         rawSubsts
       );
       const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
-      const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
+      /*const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
         addRelPredAliasSubsts(
           varEnv,
           subEnv,
@@ -1667,9 +1572,9 @@ const findSubstsSel = (
           subst,
           substituteRels(subst, rels)
         )
-      );
+      );*/
 
-      return correctSubstsWithAliasSubsts.toArray();
+      return /*correctSubstsWithAliasSubsts.toArray();*/ correctSubsts.toArray();
     }
     case "Namespace": {
       // must return one empty substitution, so the block gets processed exactly
