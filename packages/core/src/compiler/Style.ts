@@ -949,9 +949,8 @@ const combine = (s1: Subst, s2: Subst): Subst => {
   return { ...s1, ...s2 };
 };
 
-// TODO check for duplicate keys (and vals)
 // (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
-// the way merge is used, I think each subst in the second argument only contains one mapping
+// If either list is empty, we return an empty list.
 const merge = (
   s1: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>,
   s2: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>
