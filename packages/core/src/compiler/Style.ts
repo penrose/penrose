@@ -1442,6 +1442,16 @@ const matchStyRelToSubRels = (
 
 /**
  * Match a list of Style relations against a Substance program.
+ * An r-substitution (abbr. rSubst, singular) is a `Subst` that results from matching one Style relation to one Substance relation.
+ * If we match one Style relation to an entire Substance program, we get a bunch of r-substitutions (abbr. rSubsts, plural), one for each match.
+ * If we do this for all Style relations, we get a list of lists of r-substitutions (abbr. listRSubsts).
+ *
+ * In other words,
+ *   rSubst: Subst
+ *   rSubsts: im.List<Subst>
+ *   listRSubsts: im.List<im.List<Subst>>
+ *
+ * Note that each `Subst` also gets paired with a set of Substance relations matched by this `Subst`.
  * @returns `[usedStyVars, listRSubsts]` where `usedStyVars` is a set of used Style variables, and `listRSubsts` is a list, where
  * each Style relation corresponds to a list of potential substitutions for the relation. A potential substitution includes both the
  * substitution itself and the matched Substance statement.
