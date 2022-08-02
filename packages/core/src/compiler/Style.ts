@@ -949,29 +949,39 @@ const combine = (s1: Subst, s2: Subst): Subst => {
   return { ...s1, ...s2 };
 };
 
-// (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
+// Combines two lists of substitutions: [subst] -> [subst] -> [subst]
 // If either list is empty, we return an empty list.
+/**
+ * Combines two lists of substitutions, and their matched relations: [subst] -> [subst] -> [subst]. If either is empty, return empty.
+ * For example, if
+ *   `s1 = [ ( { a: A1, b: B1 }, { Relation(A1, B1) } ), ( { a: A2, b: B2 }, { Relation(A2, B2) } ) ]` and
+ *   `s2 = [ ( { c: C1, d: D1 }, { Relation(C1, D1) } ), ( { c: C2, d: D2 }, { Relation(C2, D2) } ) ]`
+ * then `merge(s1, s2)` yields
+ *   [ ( {a: A1, b: B1, c: C1; d: D1 }, { Relation(A1, B1), Relation(C1, D1) } ),
+ *     ( {a: A1, b: B1, c: C2; d: D2 }, { Relation(A1, B1), Relation(C2, D2) } ),
+ *     ( {a: A2, b: B2, c: C1; d: D1 }, { Relation(A2, B2), Relation(C1, D1) } ),
+ *     ( {a: A2, b: B2, c: C2; d: D2 }, { Relation(A2, B2), Relation(C2, D2) } ) ].
+ *
+ * In essence, we take the Cartesian product between the two lists. Both substitutions and their matched relations are merged.
+ */
 const merge = (
-  s1: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>,
-  s2: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>
-): im.List<[Subst, im.Set<SubStmt<A> | undefined>]> => {
+  s1: im.List<[Subst, im.Set<SubStmt<A>>]>,
+  s2: im.List<[Subst, im.Set<SubStmt<A>>]>
+): im.List<[Subst, im.Set<SubStmt<A>>]> => {
   if (s1.size === 0 || s2.size === 0) {
     return im.List();
   }
   const s1Arr = s1.toArray();
   const s2Arr = s2.toArray();
 
-  const result: [Subst, im.Set<SubStmt<A> | undefined>][] = cartesianProduct(
-    s1Arr,
-    s2Arr
-  )
+  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(s1Arr, s2Arr)
     .filter(([[aSubst], [bSubst]]) => {
       // Requires that substitutions are consistent
       return consistentSubsts(aSubst, bSubst);
     })
     .map(([[aSubst, aStmts], [bSubst, bStmts]]) => [
       combine(aSubst, bSubst),
-      aStmts.union(bStmts).filter((stmt) => stmt !== undefined),
+      aStmts.union(bStmts),
     ]);
   return im.List(result);
 };
@@ -979,9 +989,12 @@ const merge = (
 /**
  * Check whether `a` and `b` are consistent
  * in that they do not include different values mapped from the same key.
- * @param a
- * @param b
- * @returns
+ *
+ * For example, let
+ *   a = { a: A, b: B }, b = { c: C, d: D }
+ * Then consistentSubsts(a, b) = true. Let
+ *   a = { a: A, b: B }, b = { a: C, d: D}
+ * Then consistentSubsts(a, b) = false, since `a` maps to both `A` and `C`.
  */
 const consistentSubsts = (a: Subst, b: Subst): boolean => {
   const aKeys = im.Set<string>(Object.keys(a));
@@ -1185,7 +1198,15 @@ const matchStyArgsToSubArgs = (
 /**
  * Match a Style application of predicate, function, or constructor against a Substance application
  * by comparing names and arguments. For predicates, consider potential symmetry.
- * @returns If the Style application and Substance application match, return the variable mapping. Otherwise, return `undefined`.
+ * If the Style application and Substance application match, return the variable mapping. Otherwise, return `undefined`.
+ *
+ * For example, let
+ *   styRel = Relation(a, b, c)
+ *   subRel = Relation(A, B, C)
+ * then
+ *   matchStyApplyToSubApply(styRel, subRel) = { a: A, b: B, c: C }.
+ *
+ * This works with Functions, Predicates, and Constructors.
  */
 const matchStyApplyToSubApply = (
   styTypeMap: { [k: string]: StyT<A> },
@@ -1264,7 +1285,12 @@ const matchStyApplyToSubApply = (
 
 /**
  * Match a `RelField` relation in Style against a `Decl` in Substance.
- * @returns If valid match, return the variable mapping. Otherwise, return `undefined`.
+ * If valid match, return the variable mapping. Otherwise, return `undefined`.
+ *
+ * For example, if
+ *   rel     = `a has label`
+ *   subDecl = `MyType A`
+ * and `A` indeed has `label`, then we return { a: A }. Otherwise, return `undefined`.
  */
 const matchRelField = (
   styTypeMap: { [k: string]: StyT<A> },
@@ -1337,9 +1363,9 @@ const matchStyRelToSubRels = (
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
   subProg: SubProg<A>
-): [im.Set<string>, im.List<[Subst, SubStmt<A> | undefined]>] => {
+): [im.Set<string>, im.List<[Subst, im.Set<SubStmt<A>>]>] => {
   const initUsedStyVars = im.Set<string>();
-  const initRSubsts = im.List<[Subst, SubStmt<A> | undefined]>();
+  const initRSubsts = im.List<[Subst, im.Set<SubStmt<A>>]>();
   if (rel.tag === "RelPred") {
     const styPred = rel;
     const newRSubsts = subProg.statements.reduce(
@@ -1357,7 +1383,7 @@ const matchStyRelToSubRels = (
         if (rSubst === undefined) {
           return rSubsts;
         }
-        return rSubsts.push([rSubst, statement]);
+        return rSubsts.push([rSubst, im.Set<SubStmt<A>>().add(statement)]);
       },
       initRSubsts
     );
@@ -1386,7 +1412,7 @@ const matchStyRelToSubRels = (
       }
       const rSubst = { ...rSubstExpr };
       rSubst[styBindedName] = subBindedName;
-      return rSubsts.push([rSubst, statement]);
+      return rSubsts.push([rSubst, im.Set<SubStmt<A>>().add(statement)]);
     }, initRSubsts);
 
     return [getStyRelArgNames(rel), newRSubsts];
@@ -1404,7 +1430,7 @@ const matchStyRelToSubRels = (
         if (rSubst === undefined) {
           return rSubsts;
         } else {
-          return rSubsts.push([rSubst, undefined]);
+          return rSubsts.push([rSubst, im.Set<SubStmt<A>>()]);
         }
       } else {
         return rSubsts;
@@ -1427,10 +1453,10 @@ const makeListRSubstsForStyleRels = (
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
   subProg: SubProg<A>
-): [im.Set<string>, im.List<im.List<[Subst, SubStmt<A> | undefined]>>] => {
+): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
   const initListRSubsts: im.List<
-    im.List<[Subst, SubStmt<A> | undefined]>
+    im.List<[Subst, im.Set<SubStmt<A>>]>
   > = im.List();
 
   const [newUsedStyVars, newListRSubsts] = rels.reduce(
@@ -1461,7 +1487,7 @@ const makePotentialSubsts = (
   subProg: SubProg<A>,
   decls: DeclPattern<A>[],
   rels: RelationPattern<A>[]
-): im.List<[Subst, im.Set<SubStmt<A> | undefined>]> => {
+): im.List<[Subst, im.Set<SubStmt<A>>]> => {
   const subTypeMap: { [k: string]: TypeConsApp<A> } = subProg.statements.reduce(
     (result, statement) => {
       if (statement.tag === "Decl") {
@@ -1488,38 +1514,21 @@ const makePotentialSubsts = (
       return currListPSubsts;
     } else {
       const pSubsts = matchDecl(varEnv, subProg, decl);
-      return currListPSubsts.push(pSubsts.map((pSubst) => [pSubst, undefined]));
+      return currListPSubsts.push(
+        pSubsts.map((pSubst) => [pSubst, im.Set<SubStmt<A>>()])
+      );
     }
   }, listRSubsts);
 
   if (listPSubsts.some((pSubsts) => pSubsts.size === 0)) {
     return im.List();
   }
-  // Note: listPSubsts has type List<List<[Subst, SubStmt]>>
-  // where one Substitution directly refers to one Substance statement.
-
-  // Below, we merge the lists together. A merged substitution may
-  // represent / satisfy multiple Substance statements. Therefore we
-  // convert SubStmt into Set<SubStmt>, and perform the merging.
 
   const first = listPSubsts.first();
   if (first) {
-    // first_ converts List<[Subst, SubStmt]> into List<[Subst, Set<SubStmt>]>
-    const first_: im.List<
-      [Subst, im.Set<SubStmt<A> | undefined>]
-    > = first.map(([subst, stmt]) => [
-      subst,
-      im.Set<SubStmt<A> | undefined>().add(stmt),
-    ]);
     const substs = listPSubsts.shift().reduce((currSubsts, pSubsts) => {
-      const pSubsts_: im.List<
-        [Subst, im.Set<SubStmt<A> | undefined>]
-      > = pSubsts.map(([subst, stmt]) => [
-        subst,
-        im.Set<SubStmt<A> | undefined>().add(stmt),
-      ]);
-      return merge(currSubsts, pSubsts_);
-    }, first_);
+      return merge(currSubsts, pSubsts);
+    }, first);
     return substs;
   } else {
     return im.List();
