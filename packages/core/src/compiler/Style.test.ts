@@ -441,7 +441,7 @@ describe("Compiler", () => {
       const styProg =
         canvasPreamble +
         `forall Hydrogen h; Oxygen o
-        where Not(Bond(O, H)) {
+        where Not(Bond(o, h)) {
           theText = Text {
             string: "hello"
           }
@@ -467,7 +467,7 @@ describe("Compiler", () => {
           )}`
         );
       } else {
-        expect(styRes.value.shapes.length).toEqual(1);
+        expect(styRes.value.shapes.length).toBeGreaterThan(0);
       }
     });
   });
@@ -980,5 +980,99 @@ delete x.z.p }`,
         testStyProgForError(styProg, errorType);
       }
     }
+  });
+
+  describe("Additional tests", () => {
+    test("multiple predicates", () => {
+      const subProg = `
+      MySet X, Y
+ OtherType Z
+ 
+ MyPred(Z, X, Y)
+ MyOtherPred(X, Y)`;
+      const domProg = `
+     type MySet
+ type OtherType
+ 
+ predicate MyPred(OtherType, MySet, MySet)
+ predicate MyOtherPred(MySet, MySet)`;
+
+      const styProg =
+        canvasPreamble +
+        `
+     forall MySet X; MySet Y; OtherType Z
+ where MyPred(Z, X, Y); MyOtherPred(X, Y) {
+     theCircle = Circle {
+         r: 20
+     }
+ }`;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+    test("many declaration matches with only one relational match", () => {
+      const subProg = `
+      T t1, t2, t3, t4, t5, t6, t7, t8
+      S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;
+      const domProg = `
+      -- minimal.dsl
+      type S
+      type T
+      constructor f( T t1, T t2, T t3, T t4, T t5, T t6, T t7, T t8 ) -> S`;
+
+      const styProg =
+        canvasPreamble +
+        `
+        forall S s; T t1; T t2; T t3; T t4; T t5; T t6; T t7; T t8
+        where s := f( t1, t2, t3, t4, t5, t6, t7, t8 ) {
+           s.shape = Circle {
+              center: (0,0)
+              r: 10.0
+           }
+        }`;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
   });
 });
