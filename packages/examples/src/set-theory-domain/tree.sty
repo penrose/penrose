@@ -26,7 +26,7 @@ Global {
    scalar setRadius = 18.
 }
 
-Set x {
+forall Set x {
 
    vec2 x.center = (?,?)
 
@@ -46,13 +46,13 @@ Set x {
    }
 }
 
-Set x; Set y {
+forall Set x; Set y {
    -- Try to make sure no labels overlap
    encourage repel(x.bounds, y.bounds, 5.0)
 }
 
 
-Set x; Set y
+forall Set x; Set y
 where IsSubset(x, y) {
 
    vec2 p = x.center

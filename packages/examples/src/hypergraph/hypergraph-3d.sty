@@ -198,38 +198,38 @@ forall Edge e {
   ensure equal(e.rectx, e.x)
 }
 
-Layer1 l; Edge e
+forall Layer1 l; Edge e
 where Layer1HasEdge(l, e) {
   override e.x = l.x
   ensure lessThan(l.yb, e.yb)
   ensure lessThan(e.yt, l.yt)
 }
 
-Layer2 l; Edge e
+forall Layer2 l; Edge e
 where Layer2HasEdge(l, e) {
   override e.x = l.x
   ensure lessThan(l.yb, e.yb)
   ensure lessThan(e.yt, l.yt)
 }
 
-Layer3 l; Edge e
+forall Layer3 l; Edge e
 where Layer3HasEdge(l, e) {
   override e.x = l.x
   ensure lessThan(l.yb, e.yb)
   ensure lessThan(e.yt, l.yt)
 }
 
-Edge e; Node n
+forall Edge e; Node n
 where EdgeHasNodeInLayer1(e, n) {
   ensure contains(e.rect, n.dot1, 4)
 }
 
-Edge e; Node n
+forall Edge e; Node n
 where EdgeHasNodeInLayer2(e, n) {
   ensure contains(e.rect, n.dot2, 4)
 }
 
-Edge e; Node n
+forall Edge e; Node n
 where EdgeHasNodeInLayer3(e, n) {
   ensure contains(e.rect, n.dot3, 4)
 }

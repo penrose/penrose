@@ -39,7 +39,7 @@ canvas {
          bot = canvas.box.center[1] - canvas.box.height/2.
 }
 
-Object o {
+forall Object o {
        scalar o.minY = canvas.bot
        scalar o.maxY = canvas.top
 
@@ -73,7 +73,7 @@ Object o {
     o.shape above canvas.box
 }
 
-Morphism m {
+forall Morphism m {
          -- The floating vars are the rect centers
          shape m.shape = Rectangle { 
                   center: (?, ?)
@@ -101,7 +101,7 @@ Morphism m {
          m.text above m.shape
 }
 
-Object p
+forall Object p
 with Object a, b
 where p := tensor(a, b) {
       override p.shape.strokeColor = rgba(1.0, 0.0, 0.0, 0.1)
@@ -129,7 +129,7 @@ where p := tensor(a, b) {
 
 Morphism m
 with Object a, b
-where m := join(a, b) {
+forall where m := join(a, b) {
       -- override m.shape.fillColor = Colors.green
 
       -- TODO: overriding nonexistent fields should throw an error. like `override a.sdjfsadfjhks = 0`
@@ -157,12 +157,12 @@ where m := join(a, b) {
       b.shape above m.shape
 }
 
-Object o; Morphism m
+forall Object o; Morphism m
 where NotChildOf(o, m) {
        ensure disjointRectLineAA(m.shape, o.shape)
 }
 
-Morphism m1; Morphism m2 {
+forall Morphism m1; Morphism m2 {
          ensure disjoint(m1.shape, m2.shape)
 }
 

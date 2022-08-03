@@ -24,7 +24,7 @@ Colors {
 global {
 }
 
-Vertex V {
+forall Vertex V {
        len = 200.
        V.center = ?
 
@@ -74,7 +74,7 @@ Vertex V {
 --         ensure disjointIntervals(`v1`.shape, `v2`.shape)
 -- }
 
-Vertex v1; Vertex v2 {
+forall Vertex v1; Vertex v2 {
 -- Note this generates the constraints twice
         ensure disjointIntervals(v1.shape, v2.shape)
 }
