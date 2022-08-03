@@ -34,7 +34,7 @@ global {
     vertexWidth = 100.
 }
 
-Vertex V {
+forall Vertex V {
        V.x = ?
        V.y = ?
 
@@ -62,7 +62,7 @@ Vertex V {
        V.shape above global.box
 }
 
-Edge e {
+forall Edge e {
        e.len = 200.
        e.center = ?
        e.y = ?
@@ -85,19 +85,18 @@ Edge e {
        ensure contains(global.box, e.shape)
 }
 
-Edge `e2` {
+forall Edge `e2` {
      override `e2`.len = 100.
 }
 
-Vertex `v1` {
+forall Vertex `v1` {
        override `v1`.shape.width = 500.
 }
 
--- This is applied to each pair twice (as (a,b) then (b,a))
-Vertex v1; Vertex v2 {
+forall Vertex v1; Vertex v2 {
        ensure disjoint(v1.shape, v2.shape, 0.)
 }
 
-Vertex v; Edge e {
+forall Vertex v; Edge e {
        ensure disjoint(v.shape, e.shape)
 }

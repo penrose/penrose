@@ -3,7 +3,7 @@ canvas {
   height = 700
 }
 
-Set x {
+forall Set x {
     x.shape = Circle {
         strokeWidth : 0.
     }
@@ -48,12 +48,12 @@ where IsSubset(x, y) {
     x.shadow above y.shape
 }
 
-Set x; Set y
+forall Set x; Set y
 where Not(Intersecting(x, y)) {
     ensure disjoint(x.shape, y.shape)
 }
 
-Set x; Set y
+forall Set x; Set y
 where Intersecting(x, y) {
     ensure overlapping(x.shape, y.shape)
     ensure disjoint(y.text, x.shape)

@@ -61,7 +61,7 @@ const {
 }
 
 --Plane
-Plane p {
+forall Plane p {
   dim = 700.0
   p.text = Equation {
     center : ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
@@ -84,7 +84,7 @@ Plane p {
 }
 
 --Point
-Point p {
+forall Point p {
   p.x = ?
   p.y = ?
   p.vec = (p.x, p.y)
@@ -106,7 +106,7 @@ Point p {
   ensure atDist(p.icon, p.text, const.textPadding)
 }
 
-Point p
+forall Point p
 with Plane P
 where In(p, P) {
   -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
@@ -117,7 +117,7 @@ where In(p, P) {
   p.text above P.icon
 }
 
-Point p, q, r
+forall Point p, q, r
 where Collinear(p, q, r) {
   ensure collinear(p.icon.center, q.icon.center, r.icon.center)
   encourage repel(p.icon, q.icon, const.repelWeight)
@@ -137,7 +137,7 @@ Linelike l {
   }
 }
 
-Ray r
+forall Ray r
 where r := MkRay(base, direction)
 with Point base; Point direction {
   r.start = base.vec
@@ -157,7 +157,7 @@ with Point base; Point direction {
   }
 }
 
-Line l
+forall Line l
 where l := MkLine(p, q)
 with Point p; Point q {
   l.start = p.vec
@@ -176,7 +176,7 @@ with Point p; Point q {
   }
 }
 
-Linelike l1, l2 -- should this work with rays and lines?
+forall Linelike l1, l2 -- should this work with rays and lines?
 where ParallelMarker1(l1, l2) {
   l1.tick1 = Path {
     pathData : pathFromPoints("open", chevron(l1.icon, 20., 6))
@@ -192,7 +192,7 @@ where ParallelMarker1(l1, l2) {
   }
 }
 
-Linelike l1, l2
+forall Linelike l1, l2
 where Parallel(l1, l2) {
   -- make slopes 
   l1s = (l1.icon.end[1]-l1.icon.start[1])/(l1.icon.end[0]-l1.icon.start[0]) * 10000
@@ -201,7 +201,7 @@ where Parallel(l1, l2) {
   ensure equal(l1s, l2s)
 }
 --Segment
-Segment e
+forall Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
   override e.vec = [q.x - p.x, q.y - p.y]
@@ -223,17 +223,17 @@ with Point p; Point q {
   encourage pointLineDist(q.text.center, e.icon, 30.)
 }
 
-Segment e; Plane p {
+forall Segment e; Plane p {
   e.icon above p.icon
 }
 
-Linelike s, t
+forall Linelike s, t
 where EqualLength(s, t) {
   encourage equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
 }
 
 --TODO eventually this should also provide an equal length marker since it is bisecting the segment
-Segment s
+forall Segment s
 where s := PerpendicularBisector(s2, p)
 with Segment s2; Point p {
   override s.icon = Line {
@@ -259,7 +259,7 @@ with Segment s2; Point p {
   ensure equal(norm(s.icon.end - s.icon.start), const.rayLength)
 }
 
-Segment s
+forall Segment s
 where s := PerpendicularBisectorLabelPts(s2, p1, p2)
 with Segment s2; Point p1, p2 {
   override p2.vec = midpoint(s2.icon.start, s2.icon.end)
@@ -285,7 +285,7 @@ with Segment s2; Point p1, p2 {
 }
 
 -- NOTE: Get rid of repetition
-Linelike s, t 
+forall Linelike s, t 
 where EqualLengthMarker1(s, t) {
   override s.tick = Path {
     pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 1, 10.)
@@ -304,7 +304,7 @@ where EqualLengthMarker1(s, t) {
 }
 
 -- NOTE: Get rid of repetition
-Linelike s, t 
+forall Linelike s, t 
 where EqualLengthMarker2(s, t) {
   --need slope of line, then need to equally distribute the tick marks
   override s.tick = Path {
@@ -324,7 +324,7 @@ where EqualLengthMarker2(s, t) {
 }
 
 -- NOTE: Get rid of repetition
-Linelike s, t 
+forall Linelike s, t 
 where EqualLengthMarker3(s, t) {
   --need slope of line, then need to equally distribute the tick marks
   override s.tick = Path {
@@ -344,7 +344,7 @@ where EqualLengthMarker3(s, t) {
 }
 
 --Angle
-Angle theta
+forall Angle theta
 where theta := InteriorAngle(p, q, r)
 with Point p; Point q; Point r {
   theta.p = p.vec
@@ -379,7 +379,7 @@ with Point p; Point q; Point r {
 }
 
 -- NOTE: Get rid of repetition
-Angle a, b
+forall Angle a, b
 where EqualAngleMarker1(a, b) {
   --find points from p->q, then q->r for each vector. draw vectors for each
   startA = ptOnLine(a.q, a.p, a.radius)
@@ -405,7 +405,7 @@ where EqualAngleMarker1(a, b) {
 }
 
 -- NOTE: Get rid of repetition
-Angle a, b
+forall Angle a, b
 where EqualAngleMarker2(a, b) {
   startA = ptOnLine(a.q, a.p, a.radius)
   endA = ptOnLine(a.q, a.r, a.radius)
@@ -450,7 +450,7 @@ where EqualAngleMarker2(a, b) {
 }
 
 -- NOTE: Get rid of repetition
-Angle a, b
+forall Angle a, b
 where EqualAngleMarker3(a, b) {
   startA = ptOnLine(a.q, a.p, a.radius)
   endA = ptOnLine(a.q, a.r, a.radius)
@@ -514,7 +514,7 @@ where EqualAngleMarker3(a, b) {
  }
 }
 
-Angle a, b
+forall Angle a, b
 where EqualAngle(a, b) {
   -- make sure angle a is equal to angle b
   dotA = dot(normalize(a.p - a.q), normalize(a.r - a.q))
@@ -522,12 +522,12 @@ where EqualAngle(a, b) {
   ensure equal(dotA, dotB)
 }
 
-Angle a
+forall Angle a
 where RightUnmarked(a) {
   ensure perpendicular(a.p, a.q, a.r)
 }
 
-Angle a
+forall Angle a
 where RightMarked(a) {
   --render half square path of size a.radius
   override a.mark = Path {
@@ -540,12 +540,12 @@ where RightMarked(a) {
 }
 
 -- TODO inRange NaN's
-Angle a
+forall Angle a
 where Supplementary(a) {
   ensure inRange(dot(a.p - a.q, a.r - a.q), 0, 1)
 }
 
-Triangle t; Plane P 
+forall Triangle t; Plane P 
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
   t.PQ above P.icon
@@ -554,7 +554,7 @@ with Point p; Point q; Point r {
   t.icon above P.icon
 }
 
-Triangle t
+forall Triangle t
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
   t.strokeWidth = 0.0
@@ -586,7 +586,7 @@ with Point p; Point q; Point r {
   ensure disjoint(r.text, t.icon)
 }
 
-Point p
+forall Point p
 where Incenter(p, T)
 with Triangle T {
   s1 = T.PQ.start
@@ -612,7 +612,7 @@ with Triangle T {
   }
 }
 
-Point p
+forall Point p
 where Circumcenter(p, T)
 with Triangle T {
   clr = setOpacity(Colors.darkpurple, 0.6)
@@ -637,7 +637,7 @@ with Triangle T {
   encourage repelPt(const.repelWeight, T.QR.start, T.RP.start)
 }
 
-Point p
+forall Point p
 where Centroid(p, T)
 with Triangle T {
   clr = setOpacity(Colors.darkpurple, 0.6)
@@ -672,7 +672,7 @@ with Triangle T {
   }
 }
 
-Point p
+forall Point p
 where Orthocenter(p, T)
 with Triangle T {
   clr = setOpacity(Colors.darkpurple, 0.6)
@@ -720,7 +720,7 @@ with Triangle T {
 
 --Rectangle
 -- -- Should the rectangle be constructed from the points, or vice versa?
-Rectangle R
+forall Rectangle R
 where R := MkRectangle(p, q, r, s)
 with Point p; Point q; Point r; Point s {
   override R.color = Colors.none
@@ -739,7 +739,7 @@ with Point p; Point q; Point r; Point s {
   -- R.icon above P.icon
 }
 
-Quadrilateral Q
+forall Quadrilateral Q
 where Q := MkQuadrilateral(p, q, r, s)
 with Point p; Point q; Point r; Point s {
   Q.p = p.icon.center
@@ -779,7 +779,7 @@ with Point p; Point q; Point r; Point s {
 }
 
 --TODO corner case shoves points far off canvas
-Quadrilateral Q
+forall Quadrilateral Q
 where Parallelogram(Q) {
   pq = (Q.q[1]-Q.p[1])/(Q.q[0]-Q.p[0]) * 10000
   rs = (Q.r[1]-Q.s[1])/(Q.r[0]-Q.s[0]) * 10000
@@ -802,7 +802,7 @@ where Parallelogram(Q) {
 }
 
 --FUNCTIONS
-Segment s
+forall Segment s
 where s := MidSegment(T, p, q)
 with Triangle T; Point p; Point q {
   override p.vec = midpoint(T.PQ.start, T.PQ.end)
@@ -816,7 +816,7 @@ with Triangle T; Point p; Point q {
   }
 }
 
-Point p
+forall Point p
 where p := MkMidpoint(l)
 with Linelike l {
   override p.vec = midpoint(l.icon.start, l.icon.end)
@@ -827,14 +827,14 @@ with Linelike l {
   ensure disjoint(l.icon, p.text)
 }
 
-Point p
+forall Point p
 where Midpoint(l, p)
 with Linelike l {
   override p.vec = midpoint(l.icon.start, l.icon.end)
 }
 
 -- TODO sometimes bisector becomes a scaled version of either side length PQ or QR of angle PQR
-Linelike s
+forall Linelike s
 where AngleBisector(a, s)
 with Angle a; Point p {
   -- first angle = p, q, end
@@ -844,7 +844,7 @@ with Angle a; Point p {
   ensure equal(dotA, dotB)
 }
 
-Circle c {
+forall Circle c {
   c.radius = const.circleRadius
   c.vec = (?, ?)
 
@@ -857,7 +857,7 @@ Circle c {
   }
 }
 
-Circle c
+forall Circle c
 where c := MkCircleR(p, q)
 with Point p, q {
   override c.radius = vdist(p.vec, q.vec)
@@ -878,7 +878,7 @@ with Point p, q {
 --   override c.radius = vdist(p.vec, q.vec) / 2
 -- }
 
-Segment s
+forall Segment s
 where s := Chord(c, p, q)
 with Circle c; Point p, q {
   override s.vec = q.vec - p.vec
@@ -896,7 +896,7 @@ with Circle c; Point p, q {
   ensure ptCircleIntersect(q.vec, c.icon)
 }
 
-Segment s
+forall Segment s
 where s := Radius(c, p)
 with Circle c; Point p {
   override s.vec = p.vec - c.vec
@@ -911,7 +911,7 @@ with Circle c; Point p {
   ensure ptCircleIntersect(p.vec, c.icon)
 }
 
-Segment s
+forall Segment s
 where s := Diameter(c, p, q)
 with Circle c; Point p, q {
   override s.vec = q.vec - p.vec
@@ -930,23 +930,23 @@ with Circle c; Point p, q {
   ensure ptCircleIntersect(q.vec, c.icon)
 }
 
-Point p
+forall Point p
 where OnCircle(c, p)
 with Circle c {
   ensure ptCircleIntersect(p.vec, c.icon)
 }
 
-Point p
+forall Point p
 where CircleCenter(c, p)
 with Circle c {
   override p.vec = c.vec
 }
 
-Ray r {
+forall Ray r {
     r.length = const.rayLength
 }
 
-Ray r
+forall Ray r
 with Angle theta; Point x; Point y; Point z
 where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
   -- find the vector for the bisector ray

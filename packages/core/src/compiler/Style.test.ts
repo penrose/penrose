@@ -280,30 +280,30 @@ describe("Compiler", () => {
       // vectors or accesspaths, but the ability to override accesspaths was
       // removed in the compiler rewrite (see the comment in the "first Style
       // compiler pass" section of `types/styleSemantics`)
-      `Object o {
+      `forall Object o {
     shape o.shape = Line {}
     -- o.shape.start[0] = 0.
 }
 `,
-      `Object o {
+      `forall Object o {
     shape o.shape = Line {
         start: (0., ?)
     }
 }`,
-      `Object o {
+      `forall Object o {
     shape o.shape = Line {
           start: (?, ?)
     }
     -- o.shape.start[0] = 0.
 }`,
-      `Object o {
+      `forall Object o {
     o.y = ?
     shape o.shape = Line {
         start: (0., o.y)
     }
 }`,
       // Set field
-      `Object o {
+      `forall Object o {
        o.f = (?, ?)
        -- o.f[0] = 0.
        o.shape = Circle {}

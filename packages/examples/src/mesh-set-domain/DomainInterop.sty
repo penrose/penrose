@@ -13,7 +13,7 @@ const {
       repelWeight = 0.0
 }
 
-Set x {
+forall Set x {
     x.icon = Circle {
         strokeWidth : 0.0
     }
@@ -30,7 +30,7 @@ Set x {
     x.icon below x.text
 }
 
-Set x; Set y
+forall Set x; Set y
 where IsSubset(x, y) {
     ensure contains(y.icon, x.icon, 5.0)
     ensure smallerThan(x.icon, y.icon)
@@ -39,19 +39,19 @@ where IsSubset(x, y) {
     -- layering1  = y.text below x.icon
 }
 
-Set x; Set y
+forall Set x; Set y
 where NotIntersecting(x, y) {
     ensure disjoint(x.icon, y.icon)
 }
 
-Set x; Set y
+forall Set x; Set y
 where Intersect(x, y) {
     ensure overlapping(x.icon, y.icon)
     ensure disjoint(y.text, x.icon)
     ensure disjoint(x.text, y.icon)
 }
 
-Point p {
+forall Point p {
     p.offset = 10.0
     p.icon = Circle {
         strokeWidth : 0.0
@@ -65,7 +65,7 @@ Point p {
     }
 }
 
-Point p
+forall Point p
 with Set A
 where PointIn(A, p) {
     ensure contains(A.icon, p.icon, 0.3 * A.icon.r)
@@ -73,7 +73,7 @@ where PointIn(A, p) {
     p.text above A.icon
 }
 
-Point p
+forall Point p
 with Set A
 where PointNotIn(A, p) {
 -- where Not(PointIn(A, p)) {
@@ -81,17 +81,17 @@ where PointNotIn(A, p) {
 }
 
 -- Put all the text on top of everything
-Set x; Set y {
+forall Set x; Set y {
     encourage repel(x.text, y.text, const.repelWeight)
     x.icon below y.text
 }
 
-Point p; Point q {
+forall Point p; Point q {
      -- encourage repel(p.icon, q.icon, G.repelWeight2)
      encourage repel(p.text, q.text, const.repelWeight)
 }
 
-Set x; Point p {
+forall Set x; Point p {
     p.icon above x.icon
     p.text above x.icon
 
@@ -174,7 +174,7 @@ Colors {
 }
 
 -- TODO: this is going to match Subcomplex too... how to fix that?
-SimplicialComplex K {
+forall SimplicialComplex K {
        -- No longer necessary, as box size is being computed
        -- K.x_offset = ?
        -- K.y_offset = ?
@@ -228,7 +228,7 @@ SimplicialComplex K {
 }
 
 -- TODO: this generates a (K1, K2) and (K2, K1) match
-SimplicialComplex K1; SimplicialComplex K2 {
+forall SimplicialComplex K1; SimplicialComplex K2 {
 	 padding = 30.0
 
 	 -- TODO: improve this for rectangles by not just using the x size
@@ -239,7 +239,7 @@ SimplicialComplex K1; SimplicialComplex K2 {
 	 -- distFn = ensure distBetween(K1.icon, K2.icon, padding)
 }
 
-Vertex v 
+forall Vertex v 
 where InVS(v, K)
 with SimplicialComplex K {
      v.xpos = ?
@@ -274,7 +274,7 @@ with SimplicialComplex K {
 }
 
 -- Style a distinguished vertex (only if it's a result)
-Vertex v
+forall Vertex v
 where DeclaredV(v); InVS(v, K); Result(v)
 with SimplicialComplex K {
       -- Don't label the vertex because then we need to position it...
@@ -303,7 +303,7 @@ with SimplicialComplex K {
      ensure inRange(v.padding_y, v.icon.y - v.padding_range, v.icon.y + v.padding_range) */
 }
 
-Vertex v; Edge e
+forall Vertex v; Edge e
 where InVS(v, K); InES(e, K)
 with SimplicialComplex K {
      offset = 5.0
@@ -312,7 +312,7 @@ with SimplicialComplex K {
      ensure disjoint(v.text, e.icon, offset)
 }
 
-Vertex v; Edge e
+forall Vertex v; Edge e
 where DeclaredV(v); InVS(v, K); InES(e, K)
 with SimplicialComplex K {
      offset = 5.0
@@ -321,7 +321,7 @@ with SimplicialComplex K {
      ensure disjoint(v.text, e.icon, offset)
 }
 
-Edge e
+forall Edge e
 where e := MkEdge(v1, v2); InES(e, K)
 with Vertex v1; Vertex v2; SimplicialComplex K {
      e.icon = Line { 
@@ -347,7 +347,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
 }
 
 -- Style a distinguished edge (only if it's declared to be a result)
-Edge e
+forall Edge e
 where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K); Result(e)
 with Vertex v1; Vertex v2; SimplicialComplex K {
      override e.icon.strokeWidth = global.selectedEdgeStroke
@@ -365,7 +365,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
      e.text above K.icon
 }
 
-Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
+forall Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
 where f := MkFace(e1, e2, e3); InFS(f, K)
 with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
      f.color = Colors.silver
@@ -393,7 +393,7 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
 }
 
 -- Style and label a distinguished face
-Face f
+forall Face f
 where DeclaredF(f); InFS(f, K)
 with SimplicialComplex K {
      -- Need to pick a color that doesn't "override" the selected edges and vertices!
@@ -402,7 +402,7 @@ with SimplicialComplex K {
 }
 
 -- Relative layerings within a simplicial complex
-Vertex v; Edge e; Face f
+forall Vertex v; Edge e; Face f
 where InVS(v, K); InES(e, K); InFS(f, K)
 with SimplicialComplex K {
       v.text above f.icon 
@@ -410,18 +410,18 @@ with SimplicialComplex K {
 }
 
 -- Only label the (last) result of an operation
-Object e
+forall Object e
 with SimplicialComplex K
 where Result(e) {
       override K.const_text.string = e.label
 }
 
-Edge e; Face f {
+forall Edge e; Face f {
      e.icon above f.icon
      e.text above f.icon
 }
 
-Vertex v; Vertex w {
+forall Vertex v; Vertex w {
      encourage repel(v.icon, w.icon, 1.0)
 }
 
@@ -452,14 +452,14 @@ where Identified(p, v) {
    -- lenFn = encourage equal(norm_(p.icon.x - v.icon.x, p.icon.y - v.icon.y), 100.0)
 }
 
-Set s; Edge e
+forall Set s; Edge e
 where Identified(e, s) {
       -- Make all edge subsets the same random color
       s.icon.fillColor = setOpacity(Colors.purple, 0.2) -- const.subsetColor
 }
 
 -- TODO: hack for position; assuming there's only one face
-Set s; Face f
+forall Set s; Face f
 where Identified(f, s) {
     s.icon.center = (200.0, 0.0)
 }

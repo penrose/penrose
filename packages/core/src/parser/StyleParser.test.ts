@@ -86,7 +86,7 @@ describe("Selector Grammar", () => {
     const prog = `
   -- this is a comment
 
-  Set A with Set B { 
+  forall Set A with Set B { 
 
   }
   
@@ -99,15 +99,15 @@ describe("Selector Grammar", () => {
 
   test("forall keyword", () => {
     const prog = `
-  Set B { }
+  forall Set B { }
 
   forall Set A, B { }
 
-  Set \`C\` { }
+  forall Set \`C\` { }
 
-  Set A, B { }
+  forall Set A, B { }
 
-  Set A, \`B\`; Map f
+  forall Set A, \`B\`; Map f
   {
 
   }`;
@@ -203,7 +203,7 @@ where C := intersect ( A, B, Not(f) ) ;\
     expect(parseStyle(prog).isErr()).toEqual(true);
   });
   test("cannot set subVars as aliases", () => {
-    const prog = "Set x; Set y where IsSubset(x,y) as `A` {}";
+    const prog = "forall Set x; Set y where IsSubset(x,y) as `A` {}";
     expect(parseStyle(prog).isErr()).toEqual(true);
   });
 
@@ -290,7 +290,7 @@ forall Set A, B; Map f {
 
   test("path assign with expressions", () => {
     const prog = `
-Set B {
+forall Set B {
   -- property paths
   A.circle.boolProp = true
   A.circle.boolProp1 = false
