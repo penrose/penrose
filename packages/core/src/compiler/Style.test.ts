@@ -933,6 +933,13 @@ delete x.z.p }`,
         `forall Set a; Set b
         where IsSubset(a, b) as IsSubset {}`,
       ],
+      ReadonlyVariableMutationError: [
+        `forall Set a {
+          match_id = 10
+          override match_total = 20
+          delete match_id
+        }`,
+      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {

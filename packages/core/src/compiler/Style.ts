@@ -1790,15 +1790,32 @@ const resolveLhsName = (
   }
 };
 
+const reservedVariableNames = im.Set(["match_id", "match_total"]);
+
 const resolveLhsPath = (
   block: BlockInfo,
   assignment: BlockAssignment,
   path: Path<C>
 ): Result<ResolvedPath<C>, StyleError> => {
   const { start, end, name, members, indices } = path;
-  return indices.length > 0
-    ? err({ tag: "AssignAccessError", path })
-    : ok({ start, end, ...resolveLhsName(block, assignment, name), members });
+  if (indices.length > 0) {
+    return err({ tag: "AssignAccessError", path });
+  } else {
+    const resolvedLhsName = resolveLhsName(block, assignment, name);
+    if (reservedVariableNames.includes(toString(name))) {
+      return err({
+        tag: "ReadonlyVariableMutationError",
+        name: name,
+      });
+    } else {
+      return ok({
+        start,
+        end,
+        ...resolvedLhsName,
+        members,
+      });
+    }
+  }
 };
 
 const processStmt = (
@@ -1893,6 +1910,7 @@ const processBlock = (
   log.debug("total number of substs", substs.length);
   // OPTIMIZE: maybe we should just compile the block once into something
   // parametric, and then substitute the Substance variables
+  // ^ This looks really reasonable.
   return substs.reduce((assignment, subst, substIndex) => {
     const block = blockId(blockIndex, substIndex, hb.header);
     const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
