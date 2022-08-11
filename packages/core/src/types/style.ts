@@ -142,7 +142,7 @@ export type Stmt<T> = PathAssign<T> | Override<T> | Delete<T> | AnonAssign<T>;
 
 export type PathAssign<T> = ASTNode<T> & {
   tag: "PathAssign";
-  type: StyType<T>;
+  type: StyType<T> | undefined;
   path: Path<T>;
   value: Expr<T>;
 };

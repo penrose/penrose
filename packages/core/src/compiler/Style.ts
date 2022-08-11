@@ -47,6 +47,7 @@ import {
   HeaderBlock,
   List,
   Path,
+  PathAssign,
   PredArg,
   RelationPattern,
   RelBind,
@@ -1802,19 +1803,19 @@ const resolveLhsPath = (
     return err({ tag: "AssignAccessError", path });
   } else {
     const resolvedLhsName = resolveLhsName(block, assignment, name);
-    if (reservedVariableNames.includes(toString(name))) {
+    /*if (reservedVariableNames.includes(toString(name))) {
       return err({
         tag: "ReadonlyVariableMutationError",
         name: name,
       });
-    } else {
-      return ok({
-        start,
-        end,
-        ...resolvedLhsName,
-        members,
-      });
-    }
+    } else {*/
+    return ok({
+      start,
+      end,
+      ...resolvedLhsName,
+      members,
+    });
+    // }
   }
 };
 
@@ -1889,6 +1890,45 @@ const blockId = (
   }
 };
 
+const makeFakeIntPathAssign = (name: string, value: number): PathAssign<C> => {
+  return {
+    tag: "PathAssign",
+    nodeType: "Style",
+    type: undefined,
+    path: {
+      start: { line: 0, col: 0 },
+      end: { line: 0, col: 0 },
+      tag: "Path",
+      nodeType: "Style",
+      members: [],
+      indices: [],
+      name: {
+        start: { line: 0, col: 0 },
+        end: { line: 0, col: 0 },
+        tag: "StyVar",
+        nodeType: "Style",
+        contents: {
+          start: { line: 0, col: 0 },
+          end: { line: 0, col: 0 },
+          tag: "Identifier",
+          nodeType: "Style",
+          type: "value",
+          value: name,
+        },
+      },
+    },
+    value: {
+      start: { line: 0, col: 0 },
+      end: { line: 0, col: 0 },
+      tag: "Fix",
+      nodeType: "Style",
+      contents: value,
+    },
+    start: { line: 0, col: 0 },
+    end: { line: 0, col: 0 },
+  };
+};
+
 const processBlock = (
   varEnv: Env,
   subEnv: SubstanceEnv,
@@ -1920,6 +1960,21 @@ const processBlock = (
       // (`AssignGlobalError` instead of `MissingShapeError`)
       withLocals.globals = withLocals.globals.set(block.contents, im.Map());
     }
+
+    // Augment the block to include the metadata
+    const matchIdAssignment = makeFakeIntPathAssign("match_id", substIndex + 1);
+
+    const matchTotalAssignment = makeFakeIntPathAssign(
+      "match_total",
+      substs.length
+    );
+
+    const augmentedStatements = im
+      .List<Stmt<C>>()
+      .push(matchIdAssignment)
+      .push(matchTotalAssignment)
+      .concat(hb.block.statements);
+
     // Translate each statement in the block
     const {
       diagnostics,
@@ -1927,11 +1982,12 @@ const processBlock = (
       unnamed,
       substances,
       locals,
-    } = hb.block.statements.reduce(
+    } = augmentedStatements.reduce(
       (assignment, stmt, stmtIndex) =>
         processStmt({ block, subst }, stmtIndex, stmt, assignment),
       withLocals
     );
+
     switch (block.tag) {
       case "LocalVarId": {
         return {
