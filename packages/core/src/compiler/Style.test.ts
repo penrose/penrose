@@ -4,6 +4,7 @@ import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
 import { buildAssignment } from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
+import im from "immutable";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
@@ -15,6 +16,7 @@ import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
 import { foldM, toLeft, ToRight } from "utils/Util";
 import { compileDomain } from "./Domain";
 import { envOrError, subEnvOrError } from "./Substance.test";
+
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"
@@ -933,13 +935,6 @@ delete x.z.p }`,
         `forall Set a; Set b
         where IsSubset(a, b) as IsSubset {}`,
       ],
-      ReadonlyVariableMutationError: [
-        `forall Set a {
-          match_id = 10
-          override match_total = 20
-          delete match_id
-        }`,
-      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {
@@ -989,7 +984,7 @@ delete x.z.p }`,
     }
   });
 
-  describe("Additional tests", () => {
+  describe("faster matching", () => {
     test("multiple predicates", () => {
       const subProg = `
       MySet X, Y
@@ -1079,6 +1074,95 @@ delete x.z.p }`,
         );
       } else {
         expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+  });
+
+  describe("match metadata", () => {
+    test("match total", () => {
+      const domProg = "type MyType\n";
+      const styProg =
+        canvasPreamble +
+        `forall MyType t {
+  t.shape = Text {
+    string: match_total
+  }
+}`;
+      const subProg = "MyType t1, t2, t3\n";
+      const domainRes: Result<Env, PenroseError> = compileDomain(domProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const res: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!res.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${res}\nGot error: ${showError(
+            res.error
+          )}`
+        );
+      } else {
+        expect(
+          res.value.shapes.every((shape) => {
+            const val = shape.properties["string"];
+            return val.tag === "FloatV" && val.contents === 3;
+          })
+        ).toEqual(true);
+      }
+    });
+
+    test("match id", () => {
+      const domProg = "type MyType\n";
+      const styProg =
+        canvasPreamble +
+        `forall MyType t {
+  t.shape = Text {
+    string: match_id
+  }
+}`;
+      const subProg = "MyType t1, t2, t3\n";
+      const domainRes: Result<Env, PenroseError> = compileDomain(domProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const res: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!res.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${res}\nGot error: ${showError(
+            res.error
+          )}`
+        );
+      } else {
+        // Require that the match_id's are exactly [1, 2, 3]
+        expect(
+          im.Set(
+            res.value.shapes.map((shape) => {
+              const val = shape.properties["string"];
+              if (val.tag === "FloatV") {
+                return val.contents;
+              } else {
+                throw Error("Should be a number");
+              }
+            })
+          )
+        ).toEqual(im.Set([1, 2, 3]));
       }
     });
   });

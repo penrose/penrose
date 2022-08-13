@@ -1791,7 +1791,7 @@ const resolveLhsName = (
   }
 };
 
-const reservedVariableNames = im.Set(["match_id", "match_total"]);
+// const reservedVariableNames = im.Set(["match_id", "match_total"]);
 
 const resolveLhsPath = (
   block: BlockInfo,
