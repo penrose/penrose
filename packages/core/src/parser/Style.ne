@@ -403,6 +403,7 @@ anonymous_expr
   -> layering {% id %}
   |  objective {% id %}
   |  constraint {% id %}
+  |  gpi_decl {% id %}
 
 # NOTE: inline computations on expr_literal (including expr_literal)
 expr -> arithmeticExpr {% id %}
