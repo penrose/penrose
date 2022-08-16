@@ -134,11 +134,6 @@ export interface DeconstructNonconstructor {
   deconstructor: Deconstructor<A>;
 }
 
-export interface ReadonlyVariableMutationError {
-  tag: "ReadonlyVariableMutationError";
-  name: BindingForm<A>;
-}
-
 // NOTE: for debugging purposes
 export interface FatalError {
   tag: "Fatal";
@@ -190,8 +185,7 @@ export type StyleError =
   | PropertyMemberError
   | UOpTypeError
   // Runtime errors
-  | RuntimeValueTypeError
-  | ReadonlyVariableMutationError;
+  | RuntimeValueTypeError;
 
 // Compilation warnings
 export type StyleWarning = ImplicitOverrideWarning | NoopDeleteWarning;

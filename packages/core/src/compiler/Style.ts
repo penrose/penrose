@@ -1791,32 +1791,20 @@ const resolveLhsName = (
   }
 };
 
-// const reservedVariableNames = im.Set(["match_id", "match_total"]);
-
 const resolveLhsPath = (
   block: BlockInfo,
   assignment: BlockAssignment,
   path: Path<C>
 ): Result<ResolvedPath<C>, StyleError> => {
   const { start, end, name, members, indices } = path;
-  if (indices.length > 0) {
-    return err({ tag: "AssignAccessError", path });
-  } else {
-    const resolvedLhsName = resolveLhsName(block, assignment, name);
-    /*if (reservedVariableNames.includes(toString(name))) {
-      return err({
-        tag: "ReadonlyVariableMutationError",
-        name: name,
+  return indices.length > 0
+    ? err({ tag: "AssignAccessError", path })
+    : ok({
+        start,
+        end,
+        ...resolveLhsName(block, assignment, name),
+        members,
       });
-    } else {*/
-    return ok({
-      start,
-      end,
-      ...resolvedLhsName,
-      members,
-    });
-    // }
-  }
 };
 
 const processStmt = (

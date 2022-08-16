@@ -260,10 +260,6 @@ export const showError = (
 
     // --- BEGIN COMPILATION ERRORS
 
-    case "ReadonlyVariableMutationError": {
-      return `Read-only variable '${error.name.contents.value}' cannot be mutated (assigned, overwritten, or deleted).`;
-    }
-
     case "AssignAccessError": {
       return `Cannot directly assign to or delete an index ${prettyPrintPath(
         error.path
