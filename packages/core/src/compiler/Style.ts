@@ -47,6 +47,7 @@ import {
   HeaderBlock,
   List,
   Path,
+  PathAssign,
   PredArg,
   RelationPattern,
   RelBind,
@@ -1798,7 +1799,12 @@ const resolveLhsPath = (
   const { start, end, name, members, indices } = path;
   return indices.length > 0
     ? err({ tag: "AssignAccessError", path })
-    : ok({ start, end, ...resolveLhsName(block, assignment, name), members });
+    : ok({
+        start,
+        end,
+        ...resolveLhsName(block, assignment, name),
+        members,
+      });
 };
 
 const processStmt = (
@@ -1872,6 +1878,45 @@ const blockId = (
   }
 };
 
+const makeFakeIntPathAssign = (name: string, value: number): PathAssign<C> => {
+  return {
+    tag: "PathAssign",
+    nodeType: "Style",
+    type: undefined,
+    path: {
+      start: { line: 0, col: 0 },
+      end: { line: 0, col: 0 },
+      tag: "Path",
+      nodeType: "Style",
+      members: [],
+      indices: [],
+      name: {
+        start: { line: 0, col: 0 },
+        end: { line: 0, col: 0 },
+        tag: "StyVar",
+        nodeType: "Style",
+        contents: {
+          start: { line: 0, col: 0 },
+          end: { line: 0, col: 0 },
+          tag: "Identifier",
+          nodeType: "Style",
+          type: "value",
+          value: name,
+        },
+      },
+    },
+    value: {
+      start: { line: 0, col: 0 },
+      end: { line: 0, col: 0 },
+      tag: "Fix",
+      nodeType: "Style",
+      contents: value,
+    },
+    start: { line: 0, col: 0 },
+    end: { line: 0, col: 0 },
+  };
+};
+
 const processBlock = (
   varEnv: Env,
   subEnv: SubstanceEnv,
@@ -1893,6 +1938,7 @@ const processBlock = (
   log.debug("total number of substs", substs.length);
   // OPTIMIZE: maybe we should just compile the block once into something
   // parametric, and then substitute the Substance variables
+  // ^ This looks really reasonable.
   return substs.reduce((assignment, subst, substIndex) => {
     const block = blockId(blockIndex, substIndex, hb.header);
     const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
@@ -1902,6 +1948,21 @@ const processBlock = (
       // (`AssignGlobalError` instead of `MissingShapeError`)
       withLocals.globals = withLocals.globals.set(block.contents, im.Map());
     }
+
+    // Augment the block to include the metadata
+    const matchIdAssignment = makeFakeIntPathAssign("match_id", substIndex + 1);
+
+    const matchTotalAssignment = makeFakeIntPathAssign(
+      "match_total",
+      substs.length
+    );
+
+    const augmentedStatements = im
+      .List<Stmt<C>>()
+      .push(matchIdAssignment)
+      .push(matchTotalAssignment)
+      .concat(hb.block.statements);
+
     // Translate each statement in the block
     const {
       diagnostics,
@@ -1909,11 +1970,12 @@ const processBlock = (
       unnamed,
       substances,
       locals,
-    } = hb.block.statements.reduce(
+    } = augmentedStatements.reduce(
       (assignment, stmt, stmtIndex) =>
         processStmt({ block, subst }, stmtIndex, stmt, assignment),
       withLocals
     );
+
     switch (block.tag) {
       case "LocalVarId": {
         return {
