@@ -2,7 +2,6 @@ require("global-jsdom/register");
 import {
   compileTrio,
   evalEnergy,
-  getListOfStagedStates,
   makeCanvas,
   prepareState,
   RenderStatic,
@@ -27,9 +26,9 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
+  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged] [--variation=VARIATION] [--folders] [--cross-energy]
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
   automator shapedefs [SHAPEFILE]
 
 Options:
@@ -37,7 +36,6 @@ Options:
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances 
-  --staged Generate staged SVGs of the final diagram
   --cross-energy Compute the cross-instance energy
   --variation The variation to use
 `;
@@ -69,7 +67,6 @@ const singleProcess = async (
   folders: boolean,
   out: string,
   prefix: string,
-  staged: boolean,
   meta = {
     substanceName: sub,
     styleName: sty,
@@ -122,9 +119,6 @@ const singleProcess = async (
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
 
-  // make a list of canvas data if staged (prepare to generate multiple SVGs)
-  const listOfCanvasData: string[] = [];
-  let canvas;
   const resolvePath = async (filePath: string) => {
     // Handle absolute URLs
     if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
@@ -142,15 +136,7 @@ const singleProcess = async (
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
   };
-  if (staged) {
-    const listOfStagedStates = getListOfStagedStates(optimizedState);
-    for (const state of listOfStagedStates) {
-      listOfCanvasData.push((await RenderStatic(state, resolvePath)).outerHTML);
-    }
-  } else {
-    // if not staged, we just need one canvas data (for the final diagram)
-    canvas = (await RenderStatic(optimizedState, resolvePath)).outerHTML;
-  }
+  const canvas = (await RenderStatic(optimizedState, resolvePath)).outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
@@ -223,23 +209,10 @@ const singleProcess = async (
       fs.mkdirSync(out, { recursive: true });
     }
 
-    // if staged, write each canvas data out as an SVG
-    if (staged) {
-      const writeFileOut = (canvasData: any, index: number) => {
-        // add an index num to the output filename so the user knows the order
-        // and also to keep unique filenames
-        let filename = join(out, `output${index.toString()}.svg`);
-        fs.writeFileSync(filename, canvasData);
-        console.log(chalk.green(`The diagram has been saved as ${filename}`));
-      };
-      listOfCanvasData.forEach(writeFileOut);
-    } else {
-      // not staged --> just need one diagram
-      fs.writeFileSync(
-        join(out, "output.svg"),
-        prettier.format(canvas, { parser: "html" })
-      );
-    }
+    fs.writeFileSync(
+      join(out, "output.svg"),
+      prettier.format(canvas, { parser: "html" })
+    );
 
     fs.writeFileSync(join(out, "substance.sub"), subIn);
     fs.writeFileSync(join(out, "style.sty"), styIn);
@@ -255,20 +228,8 @@ const singleProcess = async (
     if (!fs.existsSync(parentFolder)) {
       fs.mkdirSync(parentFolder, { recursive: true });
     }
-    if (staged) {
-      // write multiple svg files out
-      const writeFileOut = (canvasData: any, index: number) => {
-        let filename = out.slice(0, out.indexOf("svg") - 1);
-        let newStr = `${filename}${index.toString()}.svg`;
-        fs.writeFileSync(newStr, canvasData);
-        console.log(chalk.green(`The diagram has been saved as ${newStr}`));
-      };
-      listOfCanvasData.forEach(writeFileOut);
-    } else {
-      // just the final diagram
-      fs.writeFileSync(out, prettier.format(canvas, { parser: "html" }));
-      console.log(chalk.green(`The diagram has been saved as ${out}`));
-    }
+    fs.writeFileSync(out, prettier.format(canvas, { parser: "html" }));
+    console.log(chalk.green(`The diagram has been saved as ${out}`));
 
     // HACK: return empty metadata??
     return undefined;
@@ -280,8 +241,7 @@ const batchProcess = async (
   lib: any,
   folders: boolean,
   out: string,
-  prefix: string,
-  staged: boolean
+  prefix: string
 ) => {
   const registry = JSON.parse(fs.readFileSync(join(prefix, lib)).toString());
   const substanceLibrary = registry["substances"];
@@ -324,7 +284,6 @@ const batchProcess = async (
         folders,
         join(out, `${name}${folders ? "" : ".svg"}`),
         prefix,
-        staged,
         {
           substanceName: subName,
           styleName: styName,
@@ -425,12 +384,11 @@ const getShapeDefs = (outFile?: string): void => {
     args["--outFile"] || join(args.OUTFOLDER || "./", "output.svg");
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
-  const staged = args["--staged"] || false;
   const variation = args["--variation"] || randomBytes(20).toString("hex");
 
   if (args.batch) {
     for (let i = 0; i < times; i++) {
-      await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix, staged);
+      await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
     }
     if (browserFolder) {
       renderArtifacts(args.OUTFOLDER, browserFolder);
@@ -446,7 +404,6 @@ const getShapeDefs = (outFile?: string): void => {
       folders,
       folders ? args.OUTFOLDER : outFile,
       prefix,
-      staged,
       {
         substanceName: args.SUBSTANCE,
         styleName: args.STYLE,
