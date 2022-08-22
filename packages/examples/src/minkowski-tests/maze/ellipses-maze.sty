@@ -21,6 +21,6 @@ forall Triangle x {
     ensure lessThan(50.0, x.icon.ry)
 }
 
-Triangle x; Maze y {
+forall Triangle x; Maze y {
     ensure disjoint(x.icon, y.icon)
 }
