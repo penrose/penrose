@@ -1,27 +1,20 @@
 import { Fill, Named, Poly, Scale, Shape, Stroke } from "types/shapes";
-import {
-  boolV,
-  Canvas,
-  floatV,
-  ptListV,
-  sampleBlack,
-  sampleNoPaint,
-  strV,
-} from "./Samplers";
+import { black, boolV, floatV, noPaint, ptListV, strV } from "utils/Util";
+import { Canvas, Context } from "./Samplers";
 
 export interface PolylineProps extends Named, Stroke, Fill, Scale, Poly {}
 
 export const samplePolyline = (
-  _rng: seedrandom.prng,
+  _context: Context,
   _canvas: Canvas
 ): PolylineProps => ({
   name: strV("defaultPolyline"),
   style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
-  strokeColor: sampleBlack(),
+  strokeColor: black(),
   strokeDasharray: strV(""),
-  fillColor: sampleNoPaint(),
+  fillColor: noPaint(),
   scale: floatV(1),
   points: ptListV([
     [0, 0],
@@ -34,11 +27,11 @@ export const samplePolyline = (
 export type Polyline = Shape & { shapeType: "Polyline" } & PolylineProps;
 
 export const makePolyline = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas,
   properties: Partial<PolylineProps>
 ): Polyline => ({
-  ...samplePolyline(rng, canvas),
+  ...samplePolyline(context, canvas),
   ...properties,
   shapeType: "Polyline",
 });

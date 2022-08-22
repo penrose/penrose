@@ -1,5 +1,3 @@
--- variation: GroundedMule26071
-
 -- Describe a short walk used to estimate the solution to
 -- a basic Laplace equation Δu = 0, which involves both
 -- boundary samples x and source samples y.
@@ -14,6 +12,9 @@ x4 := sampleBoundary( x3 )
 
 AutoLabel All
 Label U $\Omega$
+Label x0 $x_0$
+Label x1 $x_1$
+Label x2 $x_2$
 Label x3 $\ldots$
 Label x4 $x_k$
 

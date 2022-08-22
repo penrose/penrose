@@ -6,7 +6,7 @@ replicating the style used in the papers
 - Sawhney & Crane, ["Monte Carlo Geometry Processing"](http://www.cs.cmu.edu/~kmcrane/Projects/MonteCarloGeometryProcessing/index.html) (SIGGRAPH 2020)
 - Sawhney, Seyb, Jarosz, Crane, ["Grid Free Monte Carlo for PDEs with Spatially-Varying Coefficients"](https://cs.dartmouth.edu/wjarosz/publications/sawhneyseyb22gridfree.html) (SIGGRAPH 2022)
 
-As in the actual WoS algorithm, sequences of spheres in a walk may overlap significantly. While overlap accurately represents the behavior of the algorithm, it also often makes randomly-generated diagrams difficult to read. The top of each example `.sub` files gives a `variation` string for a diagram with little overlap, but a nice improvement to this package would be to add some additional `ensure`/`encourage` statements to help reduce the amount of overlap.
+As in the actual WoS algorithm, sequences of spheres in a walk may overlap significantly. While overlap accurately represents the behavior of the algorithm, it also often makes randomly-generated diagrams difficult to read. The registry gives a `variation` string for each diagram with little overlap, but a nice improvement to this package would be to add some additional `ensure`/`encourage` statements to help reduce the amount of overlap.
 
 #### Domain
 
@@ -20,7 +20,7 @@ Note that by default, labels are currently drawn using `Equation` shapes (which 
 
 #### Substance
 
-The `.sub` examples show how to illustrate estimators for basic Laplace, Poisson, and nested equations, but the package could easily be extended to accommodate other use cases, as discussed above.
+The `.sub` examples show how to illustrate estimators for basic Laplace, Poisson, and nested equations, as well as off-centered walks, but the package could easily be extended to accommodate other use cases, as discussed above.
 
 `Laplace.sub`
 

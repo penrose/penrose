@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
     "watch": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "build": "mkdir -p ./static/try/;mv ../editor/dist/* ./static/try;NODE_OPTIONS='--max-old-space-size=8192' docusaurus build",
+    "build": "shx mkdir -p ./static/try/;shx cp -r ../editor/dist/* ./static/try;shx rm ./static/shapedefs.json;cd ../automator;yarn start shapedefs ../docs-site/static/shapedefs.json;cd ../docs-site; NODE_OPTIONS='--max-old-space-size=8192' docusaurus build --no-minify",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -30,7 +30,8 @@
     "react-dom": "^17.0.1",
     "rehype-katex": "5",
     "remark-math": "3",
-    "seedrandom": "^3.0.5"
+    "seedrandom": "^3.0.5",
+    "shx": "^0.3.3"
   },
   "browserslist": {
     "production": [

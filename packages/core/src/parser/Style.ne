@@ -8,7 +8,7 @@ import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, PropertyPath, FieldPath, LocalVar, AccessPath, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
 } from "types/style";
 
 const styleTypes: string[] =
@@ -83,12 +83,11 @@ const selector = (
 ): Selector<C> => {
   return {
     ...nodeData,
-    ...rangeFrom(compact([hd, wth, whr, namespace])),
+    ...rangeFrom(compact([hd, wth, whr])),
     tag: "Selector",
     head: hd,
     with: wth,
     where: whr,
-    namespace,
   };
 }
 
@@ -143,16 +142,16 @@ header
   |  namespace {% id %}
 
 selector -> 
-    forall:? decl_patterns _ml select_as:?  
-    {% (d) => selector(d[1], undefined, undefined, d[3]) %} 
-  | forall:? decl_patterns _ml select_where select_as:? 
-    {% (d) => selector(d[1], undefined, d[3], d[4]) %} 
-  | forall:? decl_patterns _ml select_with select_as:? 
-    {% (d) => selector(d[1], d[3], undefined, d[4]) %} 
-  | forall:? decl_patterns _ml select_where select_with select_as:? 
-    {% (d) => selector(d[1], d[4], d[3], d[5]) %} 
-  | forall:? decl_patterns _ml select_with select_where select_as:? 
-    {% (d) => selector(d[1], d[3], d[4], d[5]) %}
+    forall decl_patterns _ml  
+    {% (d) => selector(d[1], undefined, undefined) %}
+  | forall decl_patterns _ml select_where 
+    {% (d) => selector(d[1], undefined, d[3]) %} 
+  | forall decl_patterns _ml select_with 
+    {% (d) => selector(d[1], d[3], undefined)%}   
+  | forall decl_patterns _ml select_where select_with 
+    {% (d) => selector(d[1], d[4], d[3]) %} 
+  | forall decl_patterns _ml select_with select_where 
+    {% (d) => selector(d[1], d[3], d[4]) %} 
 
 forall -> "forall" __ {% nth(0) %}
 
@@ -191,21 +190,32 @@ relation
   |  rel_pred {% id %}
   |  rel_field {% id %}
 
-rel_bind -> binding_form _ ":=" _ sel_expr {%
-  ([id, , , , expr]): RelBind<C> => ({
-    ...nodeData,
-    ...rangeFrom([id, expr]),
-    tag: "RelBind", id, expr
-  })
-%}
+rel_bind 
+  -> binding_form _ ":=" _ sel_expr {% 
+    ([id, , , , expr]): RelBind<C> => ({
+      ...nodeData,
+      ...rangeFrom([id, expr]),
+      tag: "RelBind", id, expr,
+    })
+  %}
 
-rel_pred -> identifier _ "(" pred_arg_list ")" {% 
-  ([name, , , args, ]): RelPred<C> => ({
-    ...nodeData,
-    ...rangeFrom([name, ...args]),
-    tag: "RelPred", name, args
-  }) 
-%}
+rel_pred 
+  -> identifier _ "(" pred_arg_list ")" __ml alias_as {% // aliasing case
+    ([name, , , args, , , a]): RelPred<C> => ({
+        ...nodeData,
+        ...rangeFrom([name, ...args, a]),
+        tag: "RelPred", name, args, alias: a
+    })
+  %} 
+  | identifier _ "(" pred_arg_list ")" {% 
+    ([name, , , args, ,]): RelPred<C> => ({
+        ...nodeData,
+        ...rangeFrom([name, ...args]),
+        tag: "RelPred", name, args,
+    })
+  %} 
+
+alias_as -> "as" __ identifier {% d => d[2] %} 
 
 rel_field -> binding_form __ "has" __ (field_desc __):? identifier {%
   ([name, , , , field_desc, field]): RelField<C> => ({
@@ -240,7 +250,6 @@ sel_expr
       tag: "SEBind", contents: d
     }) 
   %}
-
 
 pred_arg_list 
   -> _ {% d => [] %}
@@ -278,8 +287,6 @@ styVar -> identifier {%
   })
 %}
 
-# NOTE: do not expect more ws after namespace because it's already parsing them for standalone use
-select_as -> "as" __ namespace {% nth(2) %}
 
 namespace -> styVar _ml {%
   ([contents]): Namespace<C> => ({
@@ -289,7 +296,6 @@ namespace -> styVar _ml {%
     contents
   })
 %}
-
 
 ################################################################################
 # Block grammar
@@ -365,52 +371,19 @@ type
     }) 
   %}
 
-path 
-  -> entity_path   {% id %}
-  |  access_path   {% id %}
-
-entity_path
-  -> propertyPath  {% id %}
-  |  fieldPath     {% id %}
-  |  localVar      {% id %}
-
-propertyPath -> binding_form "." identifier "." identifier {%
-  ([name, , field, , property]): PropertyPath<C> => ({
-    ...nodeData,
-    ...rangeFrom([name, field, property]),
-    tag: "PropertyPath", name, field, property
-  })
-%}
-
-fieldPath -> binding_form "." identifier {%
-  ([name, , field]): FieldPath<C> => ({
-    ...nodeData,
-    ...rangeFrom([name, field]),
-    tag: "FieldPath", name, field
-  })
-%}
-
-localVar -> identifier {%
-  ([contents]): LocalVar<C> => ({
-    ...nodeData,
-    ...rangeOf(contents),
-    tag: "LocalVar", contents
-  })
-%}
-
-# NOTE: not a subrule of entity_path so we can parse all indices into a list
-# TODO: capture the range more accurately, now it's missing the last bracket
-access_path -> entity_path _ access_ops {%
-  ([path, , indices]): AccessPath<C> => {
-    const lastIndex: moo.Token = last(indices)!;
+path -> binding_form ("." identifier):* (_ access_ops):? {%
+  ([name, dotParts, accesses]) => {
+    const members = dotParts.map((d: [unknown, Expr<C>]) => d[1]);
+    const indices = accesses === null ? [] : accesses[1];
     return {
-      ...nodeData, // TODO: model access op as an AST node to solve the range and child node issue
-      ...rangeBetween(path, lastIndex),
-      tag: "AccessPath", path, indices
-    }
+      ...nodeData,
+      ...rangeFrom([name, ...members, ...indices]),
+      tag: "Path", name, members, indices
+    };
   }
 %}
 
+# TODO: capture the range more accurately, now it's missing the last bracket
 access_ops 
   -> access_op  
   |  access_op _ access_ops {% (d: any[]) => [d[0], ...d[2]] %}
@@ -430,6 +403,7 @@ anonymous_expr
   -> layering {% id %}
   |  objective {% id %}
   |  constraint {% id %}
+  |  gpi_decl {% id %}
 
 # NOTE: inline computations on expr_literal (including expr_literal)
 expr -> arithmeticExpr {% id %}
@@ -479,7 +453,6 @@ expr_literal
   |  list {% id %}
   |  tuple {% id %}
   |  vector {% id %}
-  # |  matrix {% id %} # NOTE: we liberally parse vectors to include the matrix case instead. All matrices are vectors of vectors.
   # TODO: 
   # |  transformExpr 
 
@@ -511,15 +484,6 @@ vector -> "(" _ expr  _ "," expr_list ")" {%
     contents: [first, ...rest]
   })
 %}
-
-# NOTE: not used since `vector` will include this case. Actual type will be resolved by the compiler.
-# matrix -> "(" _ sepBy1[vector, ","] _ ")" {% 
-#   ([lparen, , exprs, , rparen]): Matrix => ({
-#     ...rangeBetween(lparen, rparen),
-#     tag: 'Matrix',
-#     contents: exprs
-#   })
-# %}
 
 bool_lit -> ("true" | "false") {%
   ([[d]]): BoolLit<C> => ({
@@ -634,6 +598,8 @@ comment
 _c_ -> (%ws | comment):* 
 
 _ml -> multi_line_ws_char:* 
+
+__ml -> multi_line_ws_char:+
 
 multi_line_ws_char
     -> %ws

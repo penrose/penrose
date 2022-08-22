@@ -8,12 +8,11 @@ import {
 import { pointCandidatesEllipse } from "contrib/Minkowski";
 import { numOf, numsOf } from "contrib/Utils";
 import { addN, mul, polyRoots, sub } from "engine/AutodiffFunctions";
-import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
-import { floatV, makeCanvas, sampleBlack, vectorV } from "shapes/Samplers";
+import { makeCanvas, simpleContext } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { zip2 } from "utils/Util";
+import { black, floatV, vectorV, zip2 } from "utils/Util";
 
 describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {
@@ -48,14 +47,14 @@ describe("toImplicit", () => {
 
   test("ellipseToImplicit", async () => {
     let ellipse = makeEllipse(
-      seedrandom("ImplicitShapes.test"),
+      simpleContext("ImplicitShapes.test"),
       makeCanvas(800, 700),
       {
         rx: floatV(6),
         ry: floatV(3),
         center: vectorV([-11, 22]),
         strokeWidth: floatV(0),
-        strokeColor: sampleBlack(),
+        strokeColor: black(),
       }
     );
     let result = ellipseToImplicit(ellipse, 0);
@@ -75,14 +74,14 @@ describe("toImplicit", () => {
 
   test("ellipseToImplicit with padding", async () => {
     let ellipse = makeEllipse(
-      seedrandom("ImplicitShapes.test"),
+      simpleContext("ImplicitShapes.test"),
       makeCanvas(800, 700),
       {
         rx: floatV(1),
         ry: floatV(7),
         center: vectorV([-11, 22]),
         strokeWidth: floatV(0),
-        strokeColor: sampleBlack(),
+        strokeColor: black(),
       }
     );
     let result = ellipseToImplicit(ellipse, 1);
@@ -102,13 +101,13 @@ describe("toImplicit", () => {
 
   test("circleToImplicitEllipse", async () => {
     let circle = makeCircle(
-      seedrandom("ImplicitShapes.test"),
+      simpleContext("ImplicitShapes.test"),
       makeCanvas(800, 700),
       {
         r: floatV(2),
         center: vectorV([3, 4]),
         strokeWidth: floatV(0),
-        strokeColor: sampleBlack(),
+        strokeColor: black(),
       }
     );
     let result = circleToImplicitEllipse(circle, 0);
@@ -128,13 +127,13 @@ describe("toImplicit", () => {
 
   test("circleToImplicitEllipse with padding", async () => {
     let circle = makeCircle(
-      seedrandom("ImplicitShapes.test"),
+      simpleContext("ImplicitShapes.test"),
       makeCanvas(800, 700),
       {
         r: floatV(2),
         center: vectorV([3, 4]),
         strokeWidth: floatV(0),
-        strokeColor: sampleBlack(),
+        strokeColor: black(),
       }
     );
     let result = circleToImplicitEllipse(circle, 1);

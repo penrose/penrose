@@ -20,6 +20,7 @@ const domainKeywords: string[] = [
   "function",
   "constructor",
   "prelude",
+  "symmetric",
 ];
 
 export const DomainLanguageTokens = (): languages.IMonarchLanguage => {

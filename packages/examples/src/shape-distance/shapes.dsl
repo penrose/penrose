@@ -1,15 +1,11 @@
-type ReverseL
-type Shape
 type Point
-type Star
-type Line
-type Polyline
-type Text
 
-Polyline <: Shape
-ReverseL <: Shape
-Star <: Shape
-Line <: Shape
-Text <: Shape
+type Shape
+type ReverseL <: Shape
+type Star <: Shape
+type Line <: Shape
+type Polyline <: Shape
+type Text <: Shape
+type Ellipse <: Shape
 
 predicate Around(Point p, Shape s)

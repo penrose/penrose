@@ -1,7 +1,14 @@
 import { isConcrete } from "engine/EngineUtils";
 import { shapedefs } from "shapes/Shapes";
 import { Result } from "true-myth";
-import { A, AbstractNode, Identifier, SourceLoc } from "types/ast";
+import {
+  A,
+  AbstractNode,
+  Identifier,
+  NodeType,
+  SourceLoc,
+  SourceRange,
+} from "types/ast";
 import { Arg, Type, TypeConstructor } from "types/domain";
 import {
   ArgLengthMismatch,
@@ -16,7 +23,10 @@ import {
   RuntimeError,
   SelectorFieldNotSupported,
   StyleError,
+  StyleWarning,
   SubstanceError,
+  SymmetricArgLengthMismatch,
+  SymmetricTypeMismatch,
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
@@ -26,7 +36,7 @@ import {
 import { State } from "types/state";
 import { BindingForm } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
-import { prettyPrintPath } from "utils/Util";
+import { prettyPrintPath, prettyPrintResolvedPath } from "utils/Util";
 const {
   or,
   and,
@@ -69,7 +79,7 @@ export const styWarnings = [
 
 // TODO: fix template formatting
 export const showError = (
-  error: DomainError | SubstanceError | StyleError | RuntimeError
+  error: DomainError | SubstanceError | StyleError | StyleWarning | RuntimeError
 ): string => {
   switch (error.tag) {
     case "RuntimeError": {
@@ -122,6 +132,18 @@ export const showError = (
         error.cycles
       )}`;
     }
+    case "SymmetricTypeMismatch": {
+      const { sourceExpr } = error;
+      return `The symmetric predicate at ${loc(
+        sourceExpr
+      )} must have arguments all of the same type.`;
+    }
+    case "SymmetricArgLengthMismatch": {
+      const { sourceExpr } = error;
+      return `The symmetric predicate at ${loc(
+        sourceExpr
+      )} must only have two arguments.`;
+    }
     case "TypeMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
       return `The type of the expression at ${loc(sourceExpr)} '${showType(
@@ -173,7 +195,7 @@ export const showError = (
     }
 
     case "StyleErrorList": {
-      return error.errors.map(showError).join(", ");
+      return error.errors.map(showError).join("\n");
     }
 
     case "SelectorVarMultipleDecl": {
@@ -202,6 +224,10 @@ export const showError = (
       return showError(error.error); // Substance error
     }
 
+    case "SelectorAliasNamingError": {
+      return `Incompatible alias name "${error.alias.value}" in style selector: \
+      domain or style pattern statement has already declared the variable ${error.alias.value}`;
+    }
     // --- BEGIN BLOCK STATIC ERRORS
 
     case "InvalidGPITypeError": {
@@ -210,7 +236,9 @@ export const showError = (
     }
 
     case "InvalidGPIPropertyError": {
-      return `Got invalid GPI property ${error.givenProperty.value}. Available properties: ${error.expectedProperties}`;
+      return `Got invalid GPI property ${error.givenProperty.value} at ${loc(
+        error.givenProperty
+      )}. Available properties: ${error.expectedProperties}`;
     }
 
     case "InvalidFunctionNameError": {
@@ -230,131 +258,130 @@ export const showError = (
 
     // --- END BLOCK STATIC ERRORS
 
-    case "DeletedPropWithNoSubObjError": {
-      return `Sub obj '${
-        error.subObj.contents.value
-      }' has no fields; can't delete path '${prettyPrintPath(error.path)}'`;
-    }
+    // --- BEGIN COMPILATION ERRORS
 
-    case "DeletedPropWithNoFieldError": {
-      return `Sub obj '${error.subObj.contents.value}' already lacks field ${
-        error.field.value
-      }; can't delete path '${prettyPrintPath(error.path)}'`;
-    }
-
-    case "CircularPathAlias": {
-      return `Path '${prettyPrintPath(error.path)}' was aliased to itself`;
-    }
-
-    case "DeletedPropWithNoGPIError": {
-      return `Sub obj '${error.subObj.contents.value}' does not have GPI '${
-        error.field.value
-      }'; cannot delete property '${
-        error.property.value
-      }' in '${prettyPrintPath(error.path)}'`;
-    }
-
-    // TODO: Use input path to report location?
-    case "DeletedNonexistentFieldError": {
-      return `Trying to delete '${error.field.value}' from SubObj '${error.subObj.contents.value}', which already lacks the field`;
-    }
-
-    case "DeletedVectorElemError": {
-      return `Cannot delete an element of a vector: '${prettyPrintPath(
+    case "AssignAccessError": {
+      return `Cannot directly assign to or delete an index ${prettyPrintPath(
         error.path
-      )}'`;
+      )} of a larger structure (at ${loc(error.path)}).`;
     }
 
-    case "InsertedPathWithoutOverrideError": {
-      return `Overriding path '${prettyPrintPath(
+    case "AssignGlobalError": {
+      return `Cannot assign to global ${prettyPrintResolvedPath(
         error.path
-      )}' without override flag set`;
-    }
-
-    case "InsertedPropWithNoFieldError": {
-      return `Sub obj '${error.subObj.contents.value}' does not have field '${
-        error.field.value
-      }'; cannot add property '${error.property.value}' in '${prettyPrintPath(
+      )} (at ${locc(
+        "Style",
         error.path
-      )}'`;
+      )}); instead, just assign to ${error.path.members
+        .map((id) => id.value)
+        .join(".")} inside the ${error.path.name} namespace.`;
     }
 
-    case "InsertedPropWithNoGPIError": {
-      return `Sub obj '${
-        error.subObj.contents.value
-      }' has field but does not have GPI '${
-        error.field.value
-      }'; cannot add property '${error.property.value}' in '${prettyPrintPath(
+    case "AssignSubstanceError": {
+      return `Cannot assign to Substance object ${prettyPrintResolvedPath(
         error.path
-      )}'. Expected GPI.`;
+      )} (at ${locc("Style", error.path)}).`;
     }
 
-    // ----- BEGIN TRANSLATION VALIDATION ERRORS
-
-    case "NonexistentNameError": {
-      return `Error looking up path '${prettyPrintPath(
-        error.path
-      )}' in translation. Name '${error.name.value}' does not exist.`;
+    case "BadElementError": {
+      return `Wrong element type at index ${
+        error.index
+      } in collection (at ${loc(error.coll)}).`;
     }
 
-    case "NonexistentFieldError": {
-      return `Error looking up path '${prettyPrintPath(
-        error.path
-      )}' in translation. Field '${error.field.value}' does not exist.`;
+    case "BadIndexError": {
+      return `Invalid indexing (at ${loc(error.expr)}).`;
     }
 
-    case "NonexistentGPIError": {
-      return `Error looking up path '${prettyPrintPath(
-        error.path
-      )}' in translation. GPI '${error.gpi.value}' does not exist.`;
-    }
-
-    case "NonexistentPropertyError": {
-      return `Error looking up path '${prettyPrintPath(
-        error.path
-      )}' in translation. Property '${error.property.value}' does not exist.`;
-    }
-
-    case "ExpectedGPIGotFieldError": {
-      return `Error looking up path '${prettyPrintPath(
-        error.path
-      )}' in translation. Expected GPI '${
-        error.field.value
-      }' does not exist; got a field instead.`;
-    }
-
-    case "InvalidAccessPathError": {
-      return `Error looking up path '${prettyPrintPath(
-        error.path
-      )}' in translation.`;
-    }
-
-    case "CanvasNonexistentError": {
-      return `Canvas properties are not defined.\nTry adding:
-canvas {
-    width = <my desired width>
-    height = <my desired height>
-}`;
+    case "BinOpTypeError": {
+      return `Unsupported binary operation ${error.expr.op} on types ${
+        error.left
+      } and ${error.right} (at ${loc(error.expr)}).`;
     }
 
     case "CanvasNonexistentDimsError": {
       switch (error.kind) {
+        case "GPI":
+          return `Canvas ${error.attr} must be a numeric literal, but it is a shape.`;
         case "missing":
           return `Canvas ${error.attr} is not defined.\nTry adding:
 canvas {
     ${error.attr} = <my desired ${error.attr}>
 }`;
-        case "GPI":
-          return `Canvas ${error.attr} must be a numeric literal, but it is a shape.`;
-        case "uninitialized":
-          return `Canvas ${error.attr} must be a numeric literal, but it is an expression or uninitialized.`;
         case "wrong type":
           return `Canvas ${error.attr} must be a numeric literal, but it has type ${error.type}.`;
       }
       break; // dead code to please ESLint
     }
 
-    // ----- END TRANSLATION VALIDATION ERRORS
+    case "DeleteGlobalError": {
+      return `Cannot delete global ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}).`;
+    }
+
+    case "DeleteSubstanceError": {
+      return `Cannot delete Substance object ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}).`;
+    }
+
+    case "MissingPathError": {
+      return `Could not find ${prettyPrintResolvedPath(error.path)} (at ${locc(
+        "Style",
+        error.path
+      )}).`;
+    }
+
+    case "MissingShapeError": {
+      return `Expected to find shape already defined to hold property ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}), found nothing.`;
+    }
+
+    case "NestedShapeError": {
+      return `Cannot define shape (at ${loc(
+        error.expr
+      )}) within another shape.`;
+    }
+
+    case "NotCollError": {
+      return `Cannot index into a non-collection (at ${loc(error.expr)}).`;
+    }
+
+    case "NotShapeError": {
+      return `Expected to find shape to hold property ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}), found ${error.what}.`;
+    }
+
+    case "NotValueError": {
+      return `Expected value (at ${loc(error.expr)}), found ${
+        error.what ?? "shape"
+      }.`;
+    }
+
+    case "OutOfBoundsError": {
+      return `Indices ${error.indices
+        .map((i) => `[${i}]`)
+        .join("")} of path ${prettyPrintPath(
+        error.expr
+      )} out of bounds (at ${loc(error.expr)}).`;
+    }
+
+    case "PropertyMemberError": {
+      return `Cannot assign to member ${prettyPrintResolvedPath(
+        error.path
+      )} of a property (at ${locc("Style", error.path)}).`;
+    }
+
+    case "UOpTypeError": {
+      return `Unsupported unary operation ${error.expr.op} on type ${
+        error.arg
+      } (at ${loc(error.expr)}).`;
+    }
+
+    // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
     case "RuntimeValueTypeError": {
@@ -367,14 +394,24 @@ canvas {
 
     // ----- END STYLE ERRORS
 
-    case "Fatal": {
-      return `FATAL: ${error.message}`;
+    // ---- BEGIN STYLE WARNINGS
+
+    case "ImplicitOverrideWarning": {
+      return `Implicitly overriding ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}).`;
     }
 
-    default: {
-      return `Meta: Cannot render error with contents: ${JSON.stringify(
-        error
-      )}`;
+    case "NoopDeleteWarning": {
+      return `Deleting nonexistent ${prettyPrintResolvedPath(
+        error.path
+      )} (at ${locc("Style", error.path)}).`;
+    }
+
+    // ----- END STYLE WARNINGS
+
+    case "Fatal": {
+      return `FATAL: ${error.message}`;
     }
   }
 };
@@ -417,6 +454,20 @@ export const varNotFound = (
   tag: "VarNotFound",
   variable,
   possibleVars,
+});
+
+export const symmetricTypeMismatch = (
+  sourceExpr: AbstractNode
+): SymmetricTypeMismatch => ({
+  tag: "SymmetricTypeMismatch",
+  sourceExpr,
+});
+
+export const symmetricArgLengthMismatch = (
+  sourceExpr: AbstractNode
+): SymmetricArgLengthMismatch => ({
+  tag: "SymmetricArgLengthMismatch",
+  sourceExpr,
 });
 
 export const typeMismatch = (
@@ -526,13 +577,18 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
   messages: messages.map(showError),
 });
 
-// const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
+// name stands for "`loc` concrete"
+const locc = (nodeType: NodeType, node: SourceRange): string => {
+  return `line ${node.start.line}, column ${
+    node.start.col + 1
+  } of ${nodeType} program`;
+};
+
+// const aloc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
 const loc = (node: AbstractNode): string => {
   if (isConcrete(node)) {
-    return `line ${node.start.line}, column ${node.start.col + 1} of ${
-      node.nodeType
-    } program`;
+    return locc(node.nodeType, node);
   } else {
     return `generated code by the compiler`; // TODO: better description of where the node is coming from
   }
@@ -562,27 +618,22 @@ export const safeChain = <Item, Ok, Error>(
     initialResult
   );
 
-/**
- * Hand-written version of `Result.all`.
- */
 export const all = <Ok, Error>(
   results: Result<Ok, Error>[]
-): Result<Ok[], Error> => {
-  return results.reduce(
-    (
-      currentResults: Result<Ok[], Error>,
-      nextResult: Result<Ok, Error>
-    ): Result<Ok[], Error> =>
-      currentResults.match({
-        Ok: (current: Ok[]) =>
-          nextResult.match({
-            Ok: (next: Ok) => ok([...current, next]),
-            Err: (e: Error) => err(e),
-          }),
-        Err: (e: Error) => err(e),
-      }),
-    ok([])
-  );
+): Result<Ok[], Error[]> => {
+  const oks = [];
+  const errs = [];
+  for (const res of results) {
+    if (res.isOk()) {
+      oks.push(res.value);
+    } else {
+      errs.push(res.error);
+    }
+  }
+  if (errs.length > 0) {
+    return err(errs);
+  }
+  return ok(oks);
 };
 
 // NOTE: re-export all true-myth types to reduce boilerplate

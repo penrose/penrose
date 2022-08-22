@@ -46,10 +46,10 @@ forall Triangle x {
     encourage equal(0.0, x.a[1])
 }
 
-Triangle x; Triangle y {
+forall Triangle x; Triangle y {
    ensure disjoint(x.icon, y.icon)
 }
 
-Triangle x; Maze y {
+forall Triangle x; Maze y {
     ensure disjoint(x.icon, y.icon)
 }

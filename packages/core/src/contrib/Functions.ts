@@ -53,10 +53,10 @@ import * as BBox from "engine/BBox";
 import * as _ from "lodash";
 import { range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
-import seedrandom from "seedrandom";
 import { Ellipse } from "shapes/Ellipse";
 import { Line } from "shapes/Line";
 import { Polyline } from "shapes/Polyline";
+import { Context, uniform } from "shapes/Samplers";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
@@ -68,19 +68,16 @@ import {
   PtListV,
   StrV,
   TupV,
+  Value,
   VectorV,
 } from "types/value";
-import { getStart, linePts, randFloat } from "utils/Util";
+import { getStart, linePts } from "utils/Util";
 
 /**
  * Static dictionary of computation functions
  * TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
  * TODO: think about user extension of computation dict and evaluation of functions in there
  */
-
-export interface Context {
-  rng: seedrandom.prng;
-}
 
 // NOTE: These all need to be written in terms of autodiff types
 // These all return a Value<ad.Num>
@@ -1057,12 +1054,12 @@ export const compDict = {
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
   sampleColor: (
-    context: Context,
+    { makeInput }: Context,
     alpha: ad.Num,
     colorType: string
   ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
-      const rgb = range(3).map(() => randFloat(context.rng, 0.1, 0.9));
+      const rgb = range(3).map(() => makeInput({ sampler: uniform(0.1, 0.9) }));
 
       return {
         tag: "ColorV",
@@ -1072,7 +1069,7 @@ export const compDict = {
         },
       };
     } else if (colorType === "hsv") {
-      const h = randFloat(context.rng, 0, 360);
+      const h = makeInput({ sampler: uniform(0, 360) });
       return {
         tag: "ColorV",
         contents: {
@@ -1534,10 +1531,11 @@ export const compDict = {
         contents: sdPolyline(s, p),
       };
     } else if (t === "Ellipse") {
-      return {
-        tag: "FloatV",
-        contents: sdEllipse(s, p),
-      };
+      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+      // return {
+      //   tag: "FloatV",
+      //   contents: sdEllipse(s, p),
+      // };
     } else if (t === "Path") {
       throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
     } else {
@@ -1577,12 +1575,14 @@ const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
 const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
   const dists: ad.Num[] = [];
   for (let i = 0; i < s.points.contents.length - 1; i++) {
-    dists[i] = sdLineAsNums(s.points.contents[i], s.points.contents[i + 1], p);
+    const start = s.points.contents[i];
+    const end = s.points.contents[i + 1];
+    dists[i] = sdLineAsNums(start, end, p);
   }
   return minN(dists);
 };
 
-const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
+export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
   return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
 };
 
@@ -1595,52 +1595,7 @@ const msign = (x: ad.Num): ad.Num => {
 };
 
 /*
-p = abs( p ); 
-  if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
-	
-	float l = ab.y*ab.y - ab.x*ab.x;
-	
-  float m = ab.x*p.x/l; 
-	float n = ab.y*p.y/l; 
-	float m2 = m*m;
-	float n2 = n*n;
-	
-    float c = (m2+n2-1.0)/3.0; 
-	float c3 = c*c*c;
-
-    float d = c3 + m2*n2;
-    float q = d  + m2*n2;
-    float g = m  + m *n2;
-
-    float co;
-
-    if( d<0.0 )
-    {
-        float h = acos(q/c3)/3.0;
-        float s = cos(h) + 2.0;
-        float t = sin(h) * sqrt(3.0);
-        float rx = sqrt( m2-c*(s+t) );
-        float ry = sqrt( m2-c*(s-t) );
-        co = ry + sign(l)*rx + abs(g)/(rx*ry);
-    }
-    else
-    {
-        float h = 2.0*m*n*sqrt(d);
-        float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
-        float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
-        float rx = -(s+t) - c*4.0 + 2.0*m2;
-        float ry =  (s-t)*sqrt(3.0);
-        float rm = sqrt( rx*rx + ry*ry );
-        co = ry/sqrt(rm-rx) + 2.0*g/rm;
-    }
-    co = (co-m)/2.0;
-
-    float si = sqrt( max(1.0-co*co,0.0) );
- 
-    vec2 r = ab * vec2(co,si);
-	
-    return length(r-p) * msign(p.y-r.y);
-}
+  Ported code is here: https://www.shadertoy.com/view/4sS3zz
 */
 export const sdEllipseAsNums = (
   radiusx: ad.Num,
@@ -1648,25 +1603,45 @@ export const sdEllipseAsNums = (
   center: ad.Num[],
   pInput: ad.Num[]
 ): ad.Num => {
+  // if = abs( p );
+  // if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
   const pOffset = ops.vsub(pInput, center);
-  const p = ops.vabs(pOffset);
-  const ab = [radiusx, radiusy];
-  p[0] = ifCond(gt(p[0], p[1]), p[1], p[0]);
-  p[1] = ifCond(gt(p[0], p[1]), p[0], p[1]);
-  ab[0] = ifCond(gt(p[0], p[1]), ab[0], ab[0]);
-  ab[1] = ifCond(gt(p[0], p[1]), ab[0], ab[1]);
+  const pUnswizzled = ops.vabs(pOffset);
+  const abUnswizzled = [radiusx, radiusy];
+  const p = [];
+  const ab = [];
+  p[0] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    pUnswizzled[1],
+    pUnswizzled[0]
+  );
+  p[1] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    pUnswizzled[0],
+    pUnswizzled[1]
+  );
+  ab[0] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    abUnswizzled[1],
+    abUnswizzled[0]
+  );
+  ab[1] = ifCond(
+    gt(pUnswizzled[0], pUnswizzled[1]),
+    abUnswizzled[0],
+    abUnswizzled[1]
+  );
   // float l = ab.y*ab.y - ab.x*ab.x;
-  const l = sub(mul(ab[1], ab[1]), mul(ab[0], ab[0]));
+  const l = sub(squared(ab[1]), squared(ab[0]));
   // float m = ab.x*p.x/l;
-  const m = mul(ab[0], div(p[0], l));
+  const m = div(mul(ab[0], p[0]), l);
   // float m2 = m*m;
-  const m2 = mul(m, m);
+  const m2 = squared(m);
   // float n = ab.y*p.y/l;
-  const n = mul(ab[1], div(p[1], l));
+  const n = div(mul(ab[1], p[1]), l);
   // float n2 = n*n;
-  const n2 = mul(n, n);
+  const n2 = squared(n);
   // float c = (m2+n2-1.0)/3.0; float c3 = c*c*c;
-  const c = div(add(m2, sub(n2, 1)), 3);
+  const c = div(sub(add(m2, n2), 1), 3);
   const c3 = mul(mul(c, c), c);
   // float q = c3 + m2*n2*2.0;
   const q = add(c3, mul(m2, mul(n2, 2)));
@@ -1678,7 +1653,7 @@ export const sdEllipseAsNums = (
   //if branch
   // float h = acos(q/c3)/3.0;
   const hif = div(acos(div(q, c3)), 3);
-  // float s = cos(h);
+  // float s = cos(h) + 2.0;
   const sif = add(cos(hif), 2);
   // float t = sin(h)*sqrt(3.0);
   const tif = mul(sin(hif), sqrt(3));
@@ -1692,15 +1667,6 @@ export const sdEllipseAsNums = (
     div(absVal(g), mul(rxif, ryif))
   );
   // elsebranch
-  /*
-   float h = 2.0*m*n*sqrt(d);
-   float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
-   float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
-   float rx = -(s+t) - c*4.0 + 2.0*m2;
-   float ry =  (s-t)*sqrt(3.0);
-   float rm = sqrt( rx*rx + ry*ry );
-   co = ry/sqrt(rm-rx) + 2.0*g/rm;
-  */
   // float h = 2.0*m*n*sqrt(d);
   const h = mul(2, mul(m, mul(n, sqrt(d))));
   // float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
@@ -1713,26 +1679,29 @@ export const sdEllipseAsNums = (
   // float ry =  (s-t)*sqrt(3.0);
   const ry = mul(sub(s, t), sqrt(3));
   // float rm = sqrt( rx*rx + ry*ry );
-  const rm = sqrt(add(mul(rx, rx), mul(ry, ry)));
+  const rm = sqrt(add(squared(rx), squared(ry)));
   // co = ry/sqrt(rm-rx) + 2.0*g/rm;
   const coelse = add(div(ry, sqrt(sub(rm, rx))), mul(2, div(g, rm)));
 
+  // co = (co-m)/2.0;
   // if (d<0.0)
-  const co = ifCond(lt(d, 0), coif, coelse);
+  const co_pred = ifCond(lt(d, 0), coif, coelse);
+  const co = div(sub(co_pred, m), 2);
 
-  // vec2 r = ab * vec2(co, sqrt(1.0-co*co));
-  const r = ops.vproduct(ab, [co, sqrt(sub(1, mul(co, co)))]);
-  // return length(r-p) * sign(p.y-r.y);
-  return sub(ops.vnorm(ops.vsub(r, p)), sign(sub(p[1], r[1])));
+  // float si = sqrt( max(1.0-co*co,0.0) );
+  const si = sqrt(max(sub(1, squared(co)), 0));
+  // vec2 r = ab * vec2(co,si);
+  const r = ops.vproduct(ab, [co, si]);
+  // return length(r-p) * msign(p.y-r.y);
+  return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
-// _compDictVals causes TypeScript to enforce that every function in compDict
-// takes a Context as its first parameter
-
+// `_compDictVals` causes TypeScript to enforce that every function in
+// `compDict` takes a `Context` as its first parameter and returns a `Value`
 const _compDictVals: ((
   context: Context,
   ...rest: never[]
-) => unknown)[] = Object.values(compDict);
+) => Value<ad.Num>)[] = Object.values(compDict);
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {

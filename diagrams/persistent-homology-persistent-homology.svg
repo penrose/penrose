@@ -1,118 +1,106 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="577.6653710232333"
-    cy="336.9399201011592"
+    cx="152.03432786779445"
+    cy="416.7100578122257"
     stroke="none"
-    r="52.07322695552145"
-    ensureOnCanvas="true"
+    r="7.6991805984654"
   >
-    <title>P10.circle3</title>
+    <title>`P3`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="673.2570717428539"
-    cy="354.4401776376829"
+    cx="157.96979208946036"
+    cy="389.79113389582574"
     stroke="none"
-    r="52.09534207677081"
-    ensureOnCanvas="true"
+    r="7.699166781547677"
   >
-    <title>P9.circle3</title>
+    <title>`P2`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="680.1082262082903"
-    cy="286.73247343579345"
+    cx="7.6693470161822574"
+    cy="494.2351337533139"
     stroke="none"
-    r="52.024016565473744"
-    ensureOnCanvas="true"
+    r="7.683933977541698"
   >
-    <title>P8.circle3</title>
+    <title>`P9`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="743.1543385333259"
-    cy="360.21902339439754"
+    cx="183.61021306413912"
+    cy="504.9395373655426"
     stroke="none"
-    r="52.06637360526497"
-    ensureOnCanvas="true"
+    r="7.699085105167357"
   >
-    <title>P7.circle3</title>
+    <title>`P4`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="747.9062041534787"
-    cy="292.1771750244527"
+    cx="16.200518077508605"
+    cy="400.50990778145115"
     stroke="none"
-    r="52.09432471639102"
-    ensureOnCanvas="true"
+    r="7.699097602182515"
   >
-    <title>P6.circle3</title>
+    <title>`P10`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="747.9279255087564"
-    cy="195.0054854678316"
+    cx="7.681475185405986"
+    cy="560.9199827725619"
     stroke="none"
-    r="52.065139213071944"
-    ensureOnCanvas="true"
+    r="7.688893503868006"
   >
-    <title>P5.circle3</title>
+    <title>`P8`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="701.0539563346606"
-    cy="174.58303969197937"
+    cx="109.51503963652226"
+    cy="390.14721346480707"
     stroke="none"
-    r="52.06727631712183"
-    ensureOnCanvas="true"
+    r="7.699121888547002"
   >
-    <title>P4.circle3</title>
+    <title>`P1`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="607.0581310024494"
-    cy="199.0957749165581"
+    cx="74.01415214729155"
+    cy="494.7223198582025"
     stroke="none"
-    r="52.068046393431544"
-    ensureOnCanvas="true"
+    r="7.699112649897695"
   >
-    <title>P3.circle3</title>
+    <title>`P7`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="577.1350994182646"
-    cy="197.04298809741778"
+    cx="167.9570079966897"
+    cy="552.5410408541051"
     stroke="none"
-    r="52.066308161373954"
-    ensureOnCanvas="true"
+    r="7.699080304840418"
   >
-    <title>P2.circle3</title>
+    <title>`P5`.circle1</title>
   </circle>
   <circle
-    fill="#3333ff"
+    fill="#339933"
     fill-opacity="0.3"
-    cx="576.1321563396245"
-    cy="239.80923914118796"
+    cx="74.36266771098354"
+    cy="561.1505227547947"
     stroke="none"
-    r="52.06188990340551"
-    ensureOnCanvas="true"
+    r="7.699112611264077"
   >
-    <title>P1.circle3</title>
+    <title>`P6`.circle1</title>
   </circle>
   <g
-    transform="rotate(0, 524.0702664362191, 187.74734923778246)translate(524.0702664362191, 187.74734923778246)"
-    name="P1.shade3"
-    ensureOnCanvas="false"
+    transform="rotate(0, 144.33514726932904, 409.01087721376035)translate(144.33514726932904, 409.01087721376035)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -126,8 +114,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.12377980681102"
-      height="104.12377980681102"
+      width="15.3983611969308"
+      height="15.3983611969308"
     >
       <style type="text/css">
         .st0 {
@@ -161,117 +149,105 @@
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="281.2477936238892"
-    cy="336.9399201011592"
+    cx="427.9623397640653"
+    cy="416.7100578122257"
     stroke="none"
-    r="29.054044549683272"
-    ensureOnCanvas="true"
+    r="28.54490104572388"
   >
-    <title>P10.circle2</title>
+    <title>`P3`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="376.83919702494813"
-    cy="354.4401776376829"
+    cx="433.89794874031134"
+    cy="389.79113389582574"
     stroke="none"
-    r="29.040956576764902"
-    ensureOnCanvas="true"
+    r="28.500316695006603"
   >
-    <title>P9.circle2</title>
+    <title>`P2`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="383.6760085619533"
-    cy="286.73247343579345"
+    cx="283.5821920792908"
+    cy="494.2351337533139"
     stroke="none"
-    r="29.02410565534539"
-    ensureOnCanvas="true"
+    r="28.30405639430098"
   >
-    <title>P8.circle2</title>
+    <title>`P9`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="446.7373658020106"
-    cy="360.21902339439754"
+    cx="459.5789164955826"
+    cy="504.9395373655426"
     stroke="none"
-    r="29.05411104428102"
-    ensureOnCanvas="true"
+    r="28.541555626695743"
   >
-    <title>P7.circle2</title>
+    <title>`P4`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="451.50274195912687"
-    cy="292.1771750244527"
+    cx="292.1285640223448"
+    cy="400.50990778145115"
     stroke="none"
-    r="29.03722597758778"
-    ensureOnCanvas="true"
+    r="28.50147065603825"
   >
-    <title>P6.circle2</title>
+    <title>`P10`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="451.5031082664709"
-    cy="195.0054854678316"
+    cx="283.59925865388766"
+    cy="560.9199827725619"
     stroke="none"
-    r="29.057864004359978"
-    ensureOnCanvas="true"
+    r="28.414371407763063"
   >
-    <title>P5.circle2</title>
+    <title>`P8`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="404.64014315735545"
-    cy="174.58303969197937"
+    cx="385.4430817410787"
+    cy="390.14721346480707"
     stroke="none"
-    r="29.05786461030455"
-    ensureOnCanvas="true"
+    r="28.54367706644979"
   >
-    <title>P4.circle2</title>
+    <title>`P1`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="310.6387568714224"
-    cy="199.0957749165581"
+    cx="349.9422036946028"
+    cy="494.7223198582025"
     stroke="none"
-    r="29.05774066848995"
-    ensureOnCanvas="true"
+    r="28.21872072714139"
   >
-    <title>P3.circle2</title>
+    <title>`P7`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="280.7180837864805"
-    cy="197.04298809741778"
+    cx="443.88505011307194"
+    cy="552.5410408541051"
     stroke="none"
-    r="29.054044954362226"
-    ensureOnCanvas="true"
+    r="28.54155958307436"
   >
-    <title>P2.circle2</title>
+    <title>`P5`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="279.72575081790774"
-    cy="239.80923914118796"
+    cx="350.2907485271279"
+    cy="561.1505227547947"
     stroke="none"
-    r="29.057746188704584"
-    ensureOnCanvas="true"
+    r="28.328998371815633"
   >
-    <title>P1.circle2</title>
+    <title>`P6`.circle2</title>
   </circle>
   <g
-    transform="rotate(0, 250.66800462920315, 210.75149295248337)translate(250.66800462920315, 210.75149295248337)"
-    name="P1.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 399.41743871834143, 388.16515676650187)translate(399.41743871834143, 388.16515676650187)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -285,8 +261,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.11549237740917"
-      height="58.11549237740917"
+      width="57.08980209144776"
+      height="57.08980209144776"
     >
       <style type="text/css">
         .st0 {
@@ -318,119 +294,107 @@
     </svg>
   </g>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="9.473527916590342"
-    cy="336.9399201011592"
+    cx="718.0873339924206"
+    cy="416.7100578122257"
     stroke="none"
-    r="7.954893679376416"
-    ensureOnCanvas="true"
+    r="50.38296337191614"
   >
-    <title>P10.circle1</title>
+    <title>`P3`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="105.06493894989916"
-    cy="354.4401776376829"
+    cx="723.986021150994"
+    cy="389.79113389582574"
     stroke="none"
-    r="7.954923519875253"
-    ensureOnCanvas="true"
+    r="50.372492805837076"
   >
-    <title>P9.circle1</title>
+    <title>`P2`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="111.90175088945671"
-    cy="286.73247343579345"
+    cx="573.790408907992"
+    cy="494.2351337533139"
     stroke="none"
-    r="7.954921679635969"
-    ensureOnCanvas="true"
+    r="50.60976899968921"
   >
-    <title>P8.circle1</title>
+    <title>`P9`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="174.96310812977808"
-    cy="360.21902339439754"
+    cx="749.7218343534092"
+    cy="504.9395373655426"
     stroke="none"
-    r="7.954922486813676"
-    ensureOnCanvas="true"
+    r="50.300630630170225"
   >
-    <title>P7.circle1</title>
+    <title>`P4`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="179.72731774063482"
-    cy="292.1771750244527"
+    cx="582.2150858283682"
+    cy="400.50990778145115"
     stroke="none"
-    r="7.954923722196334"
-    ensureOnCanvas="true"
+    r="50.41513956003262"
   >
-    <title>P6.circle1</title>
+    <title>`P10`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="179.72745427809778"
-    cy="195.0054854678316"
+    cx="573.7193417863717"
+    cy="560.9199827725619"
     stroke="none"
-    r="7.954921596281423"
-    ensureOnCanvas="true"
+    r="50.416787514202014"
   >
-    <title>P5.circle1</title>
+    <title>`P8`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="132.86588535744738"
-    cy="174.58303969197937"
+    cx="675.4934346612209"
+    cy="390.14721346480707"
     stroke="none"
-    r="7.95492444223082"
-    ensureOnCanvas="true"
+    r="50.3879982106093"
   >
-    <title>P4.circle1</title>
+    <title>`P1`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="38.86451079780005"
-    cy="199.0957749165581"
+    cx="639.8675173788836"
+    cy="494.7223198582025"
     stroke="none"
-    r="7.954905072136665"
-    ensureOnCanvas="true"
+    r="50.12034247513455"
   >
-    <title>P3.circle1</title>
+    <title>`P7`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="8.943792346104715"
-    cy="197.04298809741778"
+    cx="733.9619464168538"
+    cy="552.5410408541051"
     stroke="none"
-    r="7.954918861759638"
-    ensureOnCanvas="true"
+    r="50.375318459211854"
   >
-    <title>P2.circle1</title>
+    <title>`P5`.circle3</title>
   </circle>
   <circle
-    fill="#339933"
+    fill="#3333ff"
     fill-opacity="0.3"
-    cx="7.950208969129903"
-    cy="239.80923914118796"
+    cx="640.3260338786006"
+    cy="561.1505227547947"
     stroke="none"
-    r="7.952284552698781"
-    ensureOnCanvas="true"
+    r="50.59410128650882"
   >
-    <title>P1.circle1</title>
+    <title>`P6`.circle3</title>
   </circle>
   <g
-    transform="rotate(0, -0.0020755835688772706, 231.85695458848917)translate(-0.0020755835688772706, 231.85695458848917)"
-    name="P1.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 667.7043706205044, 366.32709444030957)translate(667.7043706205044, 366.32709444030957)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -444,8 +408,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.904569105397561"
-      height="15.904569105397561"
+      width="100.76592674383228"
+      height="100.76592674383228"
     >
       <style type="text/css">
         .st0 {
@@ -477,9 +441,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 525.5921440677118, 284.8666931456378)translate(525.5921440677118, 284.8666931456378)"
-    name="P10.shade3"
-    ensureOnCanvas="false"
+    transform="rotate(0, 101.81591774797526, 382.4480915762601)translate(101.81591774797526, 382.4480915762601)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -493,8 +455,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.1464539110429"
-      height="104.1464539110429"
+      width="15.398243777094004"
+      height="15.398243777094004"
     >
       <style type="text/css">
         .st0 {
@@ -526,9 +488,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 252.19374907420593, 307.8858755514759)translate(252.19374907420593, 307.8858755514759)"
-    name="P10.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 356.8994046746289, 361.6035363983573)translate(356.8994046746289, 361.6035363983573)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -542,8 +502,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.108089099366545"
-      height="58.108089099366545"
+      width="57.08735413289958"
+      height="57.08735413289958"
     >
       <style type="text/css">
         .st0 {
@@ -575,9 +535,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 1.5186342372139263, 328.9850264217828)translate(1.5186342372139263, 328.9850264217828)"
-    name="P10.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 625.1054364506116, 339.7592152541978)translate(625.1054364506116, 339.7592152541978)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -591,8 +549,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909787358752832"
-      height="15.909787358752832"
+      width="100.7759964212186"
+      height="100.7759964212186"
     >
       <style type="text/css">
         .st0 {
@@ -623,9 +581,9 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
-      id="C3P10P1.line-leftArrowhead"
+      id="`C3P3P1`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -641,7 +599,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P10P1.line-rightArrowhead"
+      id="`C3P3P1`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -657,18 +615,16 @@
       ></path>
     </marker>
     <path
-      d="M 577.6653710232333 336.9399201011592 L 576.1321563396245 239.80923914118796"
+      d="M 718.0873339924206 416.7100578122257 L 675.4934346612209 390.14721346480707"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P10P1.line</title>
+    <title>`C3P3P1`.line</title>
   </g>
   <g
-    transform="rotate(0, 621.161729666083, 302.3448355609121)translate(621.161729666083, 302.3448355609121)"
-    name="P9.shade3"
-    ensureOnCanvas="false"
+    transform="rotate(0, -0.007418318462019791, 553.2310892686938)translate(-0.007418318462019791, 553.2310892686938)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -682,8 +638,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.19068415354162"
-      height="104.19068415354162"
+      width="15.377787007736012"
+      height="15.377787007736012"
     >
       <style type="text/css">
         .st0 {
@@ -715,9 +671,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 347.7982404481832, 325.39922106091797)translate(347.7982404481832, 325.39922106091797)"
-    name="P9.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 255.1848872461246, 532.5056113647988)translate(255.1848872461246, 532.5056113647988)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -731,8 +685,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.081913153529804"
-      height="58.081913153529804"
+      width="56.82874281552613"
+      height="56.82874281552613"
     >
       <style type="text/css">
         .st0 {
@@ -764,9 +718,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 97.1100154300239, 346.48525411780764)translate(97.1100154300239, 346.48525411780764)"
-    name="P9.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 523.3025542721697, 510.5031952583598)translate(523.3025542721697, 510.5031952583598)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -780,8 +732,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909847039750506"
-      height="15.909847039750506"
+      width="100.83357502840403"
+      height="100.83357502840403"
     >
       <style type="text/css">
         .st0 {
@@ -812,9 +764,150 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g
+    transform="rotate(0, -0.014586961359440487, 486.5511997757722)translate(-0.014586961359440487, 486.5511997757722)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="15.367867955083396"
+      height="15.367867955083396"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 255.27813568498982, 465.93107735901293)translate(255.27813568498982, 465.93107735901293)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="56.60811278860196"
+      height="56.60811278860196"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 523.1806399083027, 443.6253647536247)translate(523.1806399083027, 443.6253647536247)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="101.21953799937842"
+      height="101.21953799937842"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g>
     <marker
-      id="C3P9P10.line-leftArrowhead"
+      id="`C3P8P9`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -830,7 +923,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P9P10.line-rightArrowhead"
+      id="`C3P8P9`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -846,18 +939,16 @@
       ></path>
     </marker>
     <path
-      d="M 673.2570717428539 354.4401776376829 L 577.6653710232333 336.9399201011592"
+      d="M 573.7193417863717 560.9199827725619 L 573.790408907992 494.2351337533139"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P9P10.line</title>
+    <title>`C3P8P9`.line</title>
   </g>
   <g
-    transform="rotate(0, 628.0842096428165, 234.7084568703197)translate(628.0842096428165, 234.7084568703197)"
-    name="P8.shade3"
-    ensureOnCanvas="false"
+    transform="rotate(0, 8.50142047532609, 392.8108101792686)translate(8.50142047532609, 392.8108101792686)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -871,8 +962,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.04803313094749"
-      height="104.04803313094749"
+      width="15.39819520436503"
+      height="15.39819520436503"
     >
       <style type="text/css">
         .st0 {
@@ -904,9 +995,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 354.6519029066079, 257.70836778044804)translate(354.6519029066079, 257.70836778044804)"
-    name="P8.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 263.62709336630655, 372.0084371254129)translate(263.62709336630655, 372.0084371254129)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -920,8 +1009,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.04821131069078"
-      height="58.04821131069078"
+      width="57.0029413120765"
+      height="57.0029413120765"
     >
       <style type="text/css">
         .st0 {
@@ -953,9 +1042,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 103.94682920982073, 278.7775517561575)translate(103.94682920982073, 278.7775517561575)"
-    name="P8.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 531.7999462683356, 350.0947682214185)translate(531.7999462683356, 350.0947682214185)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -969,8 +1056,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909843359271939"
-      height="15.909843359271939"
+      width="100.83027912006524"
+      height="100.83027912006524"
     >
       <style type="text/css">
         .st0 {
@@ -1001,9 +1088,9 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
-      id="C3P8P9.line-leftArrowhead"
+      id="`C3P10P1`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1019,7 +1106,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P8P9.line-rightArrowhead"
+      id="`C3P10P1`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1035,18 +1122,46 @@
       ></path>
     </marker>
     <path
-      d="M 680.1082262082903 286.73247343579345 L 673.2570717428539 354.4401776376829"
+      d="M 582.2150858283682 400.50990778145115 L 675.4934346612209 390.14721346480707"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P8P9.line</title>
+    <title>`C3P10P1`.line</title>
   </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="152.03432786779445"
+    cy="416.7100578122257"
+    stroke="none"
+    r="3"
+  >
+    <title>`P3`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="427.9623397640653"
+    cy="416.7100578122257"
+    stroke="none"
+    r="3"
+  >
+    <title>`P3`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="718.0873339924206"
+    cy="416.7100578122257"
+    stroke="none"
+    r="3"
+  >
+    <title>`P3`.dot3</title>
+  </circle>
   <g
-    transform="rotate(0, 691.087964928061, 308.15264978913257)translate(691.087964928061, 308.15264978913257)"
-    name="P7.shade3"
-    ensureOnCanvas="false"
+    transform="rotate(0, 66.31503949739385, 487.0232072083048)translate(66.31503949739385, 487.0232072083048)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1060,8 +1175,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.13274721052994"
-      height="104.13274721052994"
+      width="15.39822529979539"
+      height="15.39822529979539"
     >
       <style type="text/css">
         .st0 {
@@ -1093,9 +1208,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 417.68325475772957, 331.16491235011654)translate(417.68325475772957, 331.16491235011654)"
-    name="P7.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 321.72348296746145, 466.50359913106115)translate(321.72348296746145, 466.50359913106115)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1109,8 +1222,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.10822208856204"
-      height="58.10822208856204"
+      width="56.43744145428278"
+      height="56.43744145428278"
     >
       <style type="text/css">
         .st0 {
@@ -1142,9 +1255,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 167.0081856429644, 352.26410090758384)translate(167.0081856429644, 352.26410090758384)"
-    name="P7.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 589.747174903749, 444.60197738306795)translate(589.747174903749, 444.60197738306795)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1158,8 +1269,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909844973627353"
-      height="15.909844973627353"
+      width="100.2406849502691"
+      height="100.2406849502691"
     >
       <style type="text/css">
         .st0 {
@@ -1190,9 +1301,9 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
-      id="C3P7P9.line-leftArrowhead"
+      id="`C3P7P9`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1208,7 +1319,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P7P9.line-rightArrowhead"
+      id="`C3P7P9`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1224,17 +1335,47 @@
       ></path>
     </marker>
     <path
-      d="M 743.1543385333259 360.21902339439754 L 673.2570717428539 354.4401776376829"
+      d="M 639.8675173788836 494.7223198582025 L 573.790408907992 494.2351337533139"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P7P9.line</title>
+    <title>`C3P7P9`.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="167.9570079966897"
+    cy="552.5410408541051"
+    stroke="none"
+    r="3"
+  >
+    <title>`P5`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="443.88505011307194"
+    cy="552.5410408541051"
+    stroke="none"
+    r="3"
+  >
+    <title>`P5`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="733.9619464168538"
+    cy="552.5410408541051"
+    stroke="none"
+    r="3"
+  >
+    <title>`P5`.dot3</title>
+  </circle>
+  <g>
     <marker
-      id="C3P7P8.line-leftArrowhead"
+      id="`C3P9P10`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1250,7 +1391,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P7P8.line-rightArrowhead"
+      id="`C3P9P10`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1266,164 +1407,17 @@
       ></path>
     </marker>
     <path
-      d="M 743.1543385333259 360.21902339439754 L 680.1082262082903 286.73247343579345"
+      d="M 573.790408907992 494.2351337533139 L 582.2150858283682 400.50990778145115"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P7P8.line</title>
+    <title>`C3P9P10`.line</title>
   </g>
-  <g
-    transform="rotate(0, 695.8118794370877, 240.0828503080617)translate(695.8118794370877, 240.0828503080617)"
-    name="P6.shade3"
-    ensureOnCanvas="false"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="104.18864943278204"
-      height="104.18864943278204"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 422.46551598153906, 263.1399490468649)translate(422.46551598153906, 263.1399490468649)"
-    name="P6.shade2"
-    ensureOnCanvas="false"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="58.07445195517556"
-      height="58.07445195517556"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 171.7723940184385, 284.2222513022564)translate(171.7723940184385, 284.2222513022564)"
-    name="P6.shade1"
-    ensureOnCanvas="false"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="15.909847444392668"
-      height="15.909847444392668"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
-      id="C3P6P9.line-leftArrowhead"
+      id="`C3P7P8`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1439,7 +1433,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P6P9.line-rightArrowhead"
+      id="`C3P7P8`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1455,17 +1449,17 @@
       ></path>
     </marker>
     <path
-      d="M 747.9062041534787 292.1771750244527 L 673.2570717428539 354.4401776376829"
+      d="M 639.8675173788836 494.7223198582025 L 573.7193417863717 560.9199827725619"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P6P9.line</title>
+    <title>`C3P7P8`.line</title>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
-      id="C3P6P8.line-leftArrowhead"
+      id="`C2P3P1`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1481,7 +1475,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P6P8.line-rightArrowhead"
+      id="`C2P3P1`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1497,60 +1491,46 @@
       ></path>
     </marker>
     <path
-      d="M 747.9062041534787 292.1771750244527 L 680.1082262082903 286.73247343579345"
+      d="M 427.9623397640653 416.7100578122257 L 385.4430817410787 390.14721346480707"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P6P8.line</title>
+    <title>`C2P3P1`.line</title>
   </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C3P6P7.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P6P7.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 747.9062041534787 292.1771750244527 L 743.1543385333259 360.21902339439754"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P6P7.line</title>
-  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="183.61021306413912"
+    cy="504.9395373655426"
+    stroke="none"
+    r="3"
+  >
+    <title>`P4`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="459.5789164955826"
+    cy="504.9395373655426"
+    stroke="none"
+    r="3"
+  >
+    <title>`P4`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="749.7218343534092"
+    cy="504.9395373655426"
+    stroke="none"
+    r="3"
+  >
+    <title>`P4`.dot3</title>
+  </circle>
   <g
-    transform="rotate(0, 695.8627862956845, 142.94034625475965)translate(695.8627862956845, 142.94034625475965)"
-    name="P5.shade3"
-    ensureOnCanvas="false"
+    transform="rotate(0, 150.27062530791267, 382.0919671142781)translate(150.27062530791267, 382.0919671142781)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1564,8 +1544,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.13027842614389"
-      height="104.13027842614389"
+      width="15.398333563095354"
+      height="15.398333563095354"
     >
       <style type="text/css">
         .st0 {
@@ -1597,9 +1577,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 422.4452442621109, 165.94762146347162)translate(422.4452442621109, 165.94762146347162)"
-    name="P5.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 405.3976320453047, 361.2908172008191)translate(405.3976320453047, 361.2908172008191)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1613,8 +1591,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.115728008719955"
-      height="58.115728008719955"
+      width="57.000633390013206"
+      height="57.000633390013206"
     >
       <style type="text/css">
         .st0 {
@@ -1646,9 +1624,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 171.77253268181636, 187.05056387155017)translate(171.77253268181636, 187.05056387155017)"
-    name="P5.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 673.613528345157, 339.4186410899887)translate(673.613528345157, 339.4186410899887)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1662,8 +1638,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909843192562846"
-      height="15.909843192562846"
+      width="100.74498561167415"
+      height="100.74498561167415"
     >
       <style type="text/css">
         .st0 {
@@ -1694,9 +1670,9 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
+  <g>
     <marker
-      id="C3P5P6.line-leftArrowhead"
+      id="`C2P1P2`.line-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1712,7 +1688,7 @@
       ></path>
     </marker>
     <marker
-      id="C3P5P6.line-rightArrowhead"
+      id="`C2P1P2`.line-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -1728,18 +1704,76 @@
       ></path>
     </marker>
     <path
-      d="M 747.9279255087564 195.0054854678316 L 747.9062041534787 292.1771750244527"
+      d="M 385.4430817410787 390.14721346480707 L 433.89794874031134 389.79113389582574"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>C3P5P6.line</title>
+    <title>`C2P1P2`.line</title>
   </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="16.200518077508605"
+    cy="400.50990778145115"
+    stroke="none"
+    r="3"
+  >
+    <title>`P10`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="292.1285640223448"
+    cy="400.50990778145115"
+    stroke="none"
+    r="3"
+  >
+    <title>`P10`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="582.2150858283682"
+    cy="400.50990778145115"
+    stroke="none"
+    r="3"
+  >
+    <title>`P10`.dot3</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="7.681475185405986"
+    cy="560.9199827725619"
+    stroke="none"
+    r="3"
+  >
+    <title>`P8`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="283.59925865388766"
+    cy="560.9199827725619"
+    stroke="none"
+    r="3"
+  >
+    <title>`P8`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="573.7193417863717"
+    cy="560.9199827725619"
+    stroke="none"
+    r="3"
+  >
+    <title>`P8`.dot3</title>
+  </circle>
   <g
-    transform="rotate(0, 648.9866800175388, 122.51576337485753)translate(648.9866800175388, 122.51576337485753)"
-    name="P4.shade3"
-    ensureOnCanvas="false"
+    transform="rotate(0, 160.2579276918493, 544.8419605492646)translate(160.2579276918493, 544.8419605492646)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1753,8 +1787,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="104.13455263424366"
-      height="104.13455263424366"
+      width="15.398160609680836"
+      height="15.398160609680836"
     >
       <style type="text/css">
         .st0 {
@@ -1786,9 +1820,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 375.5822785470509, 145.52517508167483)translate(375.5822785470509, 145.52517508167483)"
-    name="P4.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 415.34349052999755, 523.9994812710307)translate(415.34349052999755, 523.9994812710307)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1802,8 +1834,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.1157292206091"
-      height="58.1157292206091"
+      width="57.08311916614872"
+      height="57.08311916614872"
     >
       <style type="text/css">
         .st0 {
@@ -1835,9 +1867,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 124.91096091521656, 166.62811524974853)translate(124.91096091521656, 166.62811524974853)"
-    name="P4.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 683.586627957642, 502.16572239489324)translate(683.586627957642, 502.16572239489324)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1851,99 +1881,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.90984888446164"
-      height="15.90984888446164"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C3P4P5.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P4P5.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 701.0539563346606 174.58303969197937 L 747.9279255087564 195.0054854678316"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P4P5.line</title>
-  </g>
-  <g
-    transform="rotate(0, 554.9900846090178, 147.02772852312654)translate(554.9900846090178, 147.02772852312654)"
-    name="P3.shade3"
-    ensureOnCanvas="false"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="104.13609278686309"
-      height="104.13609278686309"
+      width="100.75063691842371"
+      height="100.75063691842371"
     >
       <style type="text/css">
         .st0 {
@@ -1975,9 +1914,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 281.58101620293246, 170.03803424806816)translate(281.58101620293246, 170.03803424806816)"
-    name="P3.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 66.66355509971947, 553.4514101435306)translate(66.66355509971947, 553.4514101435306)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1991,8 +1928,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.1154813369799"
-      height="58.1154813369799"
+      width="15.398225222528154"
+      height="15.398225222528154"
     >
       <style type="text/css">
         .st0 {
@@ -2024,9 +1961,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 30.909605725663386, 191.14086984442145)translate(30.909605725663386, 191.14086984442145)"
-    name="P3.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 321.96175015531225, 532.8215243829791)translate(321.96175015531225, 532.8215243829791)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2040,141 +1975,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.90981014427333"
-      height="15.90981014427333"
-    >
-      <style type="text/css">
-        .st0 {
-          opacity: 0.3;
-          fill: url(#SVGID_1_);
-        }
-      </style>
-      <radialGradient
-        id="SVGID_1_"
-        cx="46.4444"
-        cy="46.4444"
-        r="46.4444"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
-        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
-        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
-        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
-        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
-        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
-        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
-        <stop offset="0.87" style="stop-color: #878787"></stop>
-        <stop offset="0.9152" style="stop-color: #616161"></stop>
-        <stop offset="0.9572" style="stop-color: #353535"></stop>
-        <stop offset="0.9947" style="stop-color: #070707"></stop>
-        <stop offset="1" style="stop-color: #000000"></stop>
-      </radialGradient>
-      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
-    </svg>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C3P3P4.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P3P4.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 607.0581310024494 199.0957749165581 L 701.0539563346606 174.58303969197937"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P3P4.line</title>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C3P3P1.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P3P1.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 607.0581310024494 199.0957749165581 L 576.1321563396245 239.80923914118796"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P3P1.line</title>
-  </g>
-  <g
-    transform="rotate(0, 525.0687912568907, 144.9766799360438)translate(525.0687912568907, 144.9766799360438)"
-    name="P2.shade3"
-    ensureOnCanvas="false"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
-      version="1.1"
-      id="Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 92.9 92.9"
-      style="enable-background: new 0 0 92.9 92.9"
-      xml:space="preserve"
-      width="104.13261632274791"
-      height="104.13261632274791"
+      width="56.657996743631266"
+      height="56.657996743631266"
     >
       <style type="text/css">
         .st0 {
@@ -2206,9 +2008,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 251.6640388321183, 167.98894314305556)translate(251.6640388321183, 167.98894314305556)"
-    name="P2.shade2"
-    ensureOnCanvas="false"
+    transform="rotate(0, 589.7319325920918, 510.55642146828586)translate(589.7319325920918, 510.55642146828586)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2222,8 +2022,139 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="58.10808990872445"
-      height="58.10808990872445"
+      width="101.18820257301763"
+      height="101.18820257301763"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g>
+    <marker
+      id="`C3P5P6`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P5P6`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 733.9619464168538 552.5410408541051 L 640.3260338786006 561.1505227547947"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P5P6`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P6P9`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P6P9`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 640.3260338786006 561.1505227547947 L 573.790408907992 494.2351337533139"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P6P9`.line</title>
+  </g>
+  <g
+    transform="rotate(0, 175.91112795897175, 497.24045226037526)translate(175.91112795897175, 497.24045226037526)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="15.398170210334714"
+      height="15.398170210334714"
     >
       <style type="text/css">
         .st0 {
@@ -2255,9 +2186,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 0.9888734843450768, 189.08806923565814)translate(0.9888734843450768, 189.08806923565814)"
-    name="P2.shade1"
-    ensureOnCanvas="false"
+    transform="rotate(0, 431.0373608688868, 476.39798173884685)translate(431.0373608688868, 476.39798173884685)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2271,8 +2200,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.909837723519276"
-      height="15.909837723519276"
+      width="57.083111253391486"
+      height="57.083111253391486"
     >
       <style type="text/css">
         .st0 {
@@ -2303,1138 +2232,796 @@
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
   </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C3P2P3.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P2P3.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 577.1350994182646 197.04298809741778 L 607.0581310024494 199.0957749165581"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P2P3.line</title>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C3P1P2.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C3P1P2.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 576.1321563396245 239.80923914118796 L 577.1350994182646 197.04298809741778"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C3P1P2.line</title>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C2P4P5.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C2P4P5.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 404.64014315735545 174.58303969197937 L 451.5031082664709 195.0054854678316"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C2P4P5.line</title>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C2P3P1.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C2P3P1.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 310.6387568714224 199.0957749165581 L 279.72575081790774 239.80923914118796"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C2P3P1.line</title>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C2P2P3.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C2P2P3.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 280.7180837864805 197.04298809741778 L 310.6387568714224 199.0957749165581"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C2P2P3.line</title>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="C2P1P2.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="C2P1P2.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 279.72575081790774 239.80923914118796 L 280.7180837864805 197.04298809741778"
-      stroke-opacity="1"
-      stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>C2P1P2.line</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="577.6653710232333"
-    cy="336.9399201011592"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P10.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="281.2477936238892"
-    cy="336.9399201011592"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P10.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="9.473527916590342"
-    cy="336.9399201011592"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P10.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="673.2570717428539"
-    cy="354.4401776376829"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P9.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="376.83919702494813"
-    cy="354.4401776376829"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P9.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="105.06493894989916"
-    cy="354.4401776376829"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P9.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="680.1082262082903"
-    cy="286.73247343579345"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P8.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="383.6760085619533"
-    cy="286.73247343579345"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P8.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="111.90175088945671"
-    cy="286.73247343579345"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P8.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="743.1543385333259"
-    cy="360.21902339439754"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P7.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="446.7373658020106"
-    cy="360.21902339439754"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P7.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="174.96310812977808"
-    cy="360.21902339439754"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P7.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="747.9062041534787"
-    cy="292.1771750244527"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P6.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="451.50274195912687"
-    cy="292.1771750244527"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P6.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="179.72731774063482"
-    cy="292.1771750244527"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P6.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="747.9279255087564"
-    cy="195.0054854678316"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P5.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="451.5031082664709"
-    cy="195.0054854678316"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P5.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="179.72745427809778"
-    cy="195.0054854678316"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P5.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="701.0539563346606"
-    cy="174.58303969197937"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P4.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="404.64014315735545"
-    cy="174.58303969197937"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P4.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="132.86588535744738"
-    cy="174.58303969197937"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P4.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="607.0581310024494"
-    cy="199.0957749165581"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P3.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="310.6387568714224"
-    cy="199.0957749165581"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P3.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="38.86451079780005"
-    cy="199.0957749165581"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P3.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="577.1350994182646"
-    cy="197.04298809741778"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P2.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="280.7180837864805"
-    cy="197.04298809741778"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P2.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="8.943792346104715"
-    cy="197.04298809741778"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P2.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="576.1321563396245"
-    cy="239.80923914118796"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P1.dot3</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="279.72575081790774"
-    cy="239.80923914118796"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P1.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="7.950208969129903"
-    cy="239.80923914118796"
-    stroke="none"
-    r="3"
-    ensureOnCanvas="true"
-  >
-    <title>P1.dot1</title>
-  </circle>
   <g
-    transform="rotate(0, 645.9093443337188, 77.31261063309638)translate(645.9093443337188, 77.31261063309638)"
+    transform="rotate(0, 699.421203723239, 454.63890673537236)translate(699.421203723239, 454.63890673537236)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 92.9 92.9"
+      style="enable-background: new 0 0 92.9 92.9"
+      xml:space="preserve"
+      width="100.60126126034045"
+      height="100.60126126034045"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.3;
+          fill: url(#SVGID_1_);
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_"
+        cx="46.4444"
+        cy="46.4444"
+        r="46.4444"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="9.860697e-02" style="stop-color: #ffffff"></stop>
+        <stop offset="0.4259" style="stop-color: #fdfdfd"></stop>
+        <stop offset="0.5475" style="stop-color: #f6f6f6"></stop>
+        <stop offset="0.6348" style="stop-color: #eaeaea"></stop>
+        <stop offset="0.7058" style="stop-color: #d9d9d9"></stop>
+        <stop offset="0.7668" style="stop-color: #c3c3c3"></stop>
+        <stop offset="0.8209" style="stop-color: #a8a8a8"></stop>
+        <stop offset="0.87" style="stop-color: #878787"></stop>
+        <stop offset="0.9152" style="stop-color: #616161"></stop>
+        <stop offset="0.9572" style="stop-color: #353535"></stop>
+        <stop offset="0.9947" style="stop-color: #070707"></stop>
+        <stop offset="1" style="stop-color: #000000"></stop>
+      </radialGradient>
+      <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
+    </svg>
+  </g>
+  <g>
+    <marker
+      id="`C2P4P5`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C2P4P5`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 459.5789164955826 504.9395373655426 L 443.88505011307194 552.5410408541051"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C2P4P5`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P2P3`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P2P3`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 723.986021150994 389.79113389582574 L 718.0873339924206 416.7100578122257"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P2P3`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P1P2`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P1P2`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 675.4934346612209 390.14721346480707 L 723.986021150994 389.79113389582574"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P1P2`.line</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="74.01415214729155"
+    cy="494.7223198582025"
+    stroke="none"
+    r="3"
+  >
+    <title>`P7`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="349.9422036946028"
+    cy="494.7223198582025"
+    stroke="none"
+    r="3"
+  >
+    <title>`P7`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="639.8675173788836"
+    cy="494.7223198582025"
+    stroke="none"
+    r="3"
+  >
+    <title>`P7`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`C2P2P3`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C2P2P3`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 433.89794874031134 389.79113389582574 L 427.9623397640653 416.7100578122257"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C2P2P3`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P3P4`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P3P4`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 718.0873339924206 416.7100578122257 L 749.7218343534092 504.9395373655426"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P3P4`.line</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="157.96979208946036"
+    cy="389.79113389582574"
+    stroke="none"
+    r="3"
+  >
+    <title>`P2`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="433.89794874031134"
+    cy="389.79113389582574"
+    stroke="none"
+    r="3"
+  >
+    <title>`P2`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="723.986021150994"
+    cy="389.79113389582574"
+    stroke="none"
+    r="3"
+  >
+    <title>`P2`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`C3P6P7`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P6P7`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 640.3260338786006 561.1505227547947 L 639.8675173788836 494.7223198582025"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P6P7`.line</title>
+  </g>
+  <g>
+    <marker
+      id="`C3P4P5`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P4P5`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 749.7218343534092 504.9395373655426 L 733.9619464168538 552.5410408541051"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P4P5`.line</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="109.51503963652226"
+    cy="390.14721346480707"
+    stroke="none"
+    r="3"
+  >
+    <title>`P1`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="385.4430817410787"
+    cy="390.14721346480707"
+    stroke="none"
+    r="3"
+  >
+    <title>`P1`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="675.4934346612209"
+    cy="390.14721346480707"
+    stroke="none"
+    r="3"
+  >
+    <title>`P1`.dot3</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="7.6693470161822574"
+    cy="494.2351337533139"
+    stroke="none"
+    r="3"
+  >
+    <title>`P9`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="283.5821920792908"
+    cy="494.2351337533139"
+    stroke="none"
+    r="3"
+  >
+    <title>`P9`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="573.790408907992"
+    cy="494.2351337533139"
+    stroke="none"
+    r="3"
+  >
+    <title>`P9`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`C3P6P8`.line-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`C3P6P8`.line-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 640.3260338786006 561.1505227547947 L 573.7193417863717 560.9199827725619"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3P6P8`.line</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="74.36266771098354"
+    cy="561.1505227547947"
+    stroke="none"
+    r="3"
+  >
+    <title>`P6`.dot1</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="350.2907485271279"
+    cy="561.1505227547947"
+    stroke="none"
+    r="3"
+  >
+    <title>`P6`.dot2</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="640.3260338786006"
+    cy="561.1505227547947"
+    stroke="none"
+    r="3"
+  >
+    <title>`P6`.dot3</title>
+  </circle>
+  <g>
+    <marker
+      id="`F`.axis-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <marker
+      id="`F`.axis-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <path
+      d="M 28.819712669158378 646.7746751058862 L 759.8122873308416 646.7746751058862"
+      stroke-opacity="0.5"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#`F`.axis-rightArrowhead)"
+    ></path>
+    <title>`F`.axis</title>
+  </g>
+  <g
+    transform="rotate(0, 78.42778172741211, 235.06722182185865)translate(78.42778172741211, 235.06722182185865)"
+    string="X \oplus B_{\varepsilon_{1}}"
+  >
+    <title>`F`.lab1</title>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="105.00219858860947"
+      height="29.72"
+      role="img"
+      focusable="false"
+      viewBox="0.7680349865818507 -20.26430772289037 100.63114969044825 27.73935592883411"
+    >
+      <path
+        stroke="none"
+        fill="#1a4d1a"
+        stroke-width="0"
+        d="M1.2406719014014511-0.08861942152867508H1.181592287049001Q0.7680349865818507-0.08861942152867508 0.7680349865818507-0.41355730046715033 0.7680349865818507-0.5317165291720505 0.8566544081105257-0.8861942152867508 0.9748136368154259-1.299751515753901 1.063433058344101-1.3588311301063511T1.6246893946923764-1.4474505516350262Q4.165112811847728-1.5360699731637013 5.612563363482755-2.9835205247987275 5.907961435245005-3.278918596560978 9.039180995924857-6.705536229003081T12.140860749428485-10.191233475797635Q8.921021767219958-18.403299870788192 8.773322731338833-18.550998906669317 8.507464466752808-18.87593678560779 6.912314879236656-18.905476592784016H6.085200278302355Q5.907961435245005-19.082715435841365 5.907961435245005-19.141795050193817T5.967041049597455-19.703051386542093Q6.085200278302355-20.087068879833016 6.262439121359705-20.26430772289037H6.675996421826856Q7.680349865818506-20.205228108537916 10.250313090150083-20.205228108537916 11.22512672696551-20.205228108537916 12.05224132789981-20.205228108537916T13.381532650829936-20.23476791571414 13.972328794354437-20.23476791571414Q14.474505516350263-20.23476791571414 14.474505516350263-19.909830036775666 14.474505516350263-19.880290229599442 14.415425901997812-19.52581254348474 14.297266673292912-19.082715435841365 14.208647251764237-18.994096014312692T13.736010336944636-18.905476592784016Q12.820276314481662-18.816857171255343 12.140860749428485-18.403299870788192L14.415425901997812-12.672577278600535 15.981035682337739-14.415425901997812Q19.082715435841365-17.75342411291124 19.082715435841365-18.107901799025942 19.082715435841365-18.63961832819799 18.373760063611964-18.846396978431567 18.22606102773084-18.846396978431567 17.98974257032104-18.905476592784016 17.546645462677667-18.905476592784016 17.546645462677667-19.23041447172249 17.546645462677667-19.289494086074942 17.605725077030115-19.703051386542093 17.723884305735016-20.087068879833016 17.901123148792365-20.26430772289037H18.255600834907067Q18.28514064208329-20.26430772289037 18.994096014312692-20.26430772289037T20.589245601828843-20.205228108537916 21.80037769605407-20.175688301361692Q24.45896034191432-20.175688301361692 24.724818606500346-20.26430772289037H24.961137063910147Q25.16791571414372-20.05752907265679 25.16791571414372-19.93936984395189 25.108836099791272-19.200874664546266 24.813438028029022-18.905476592784016H24.34080111320942Q23.33644766921777-18.87593678560779 22.538872875459695-18.63961832819799T21.327740781234468-18.137441606202167 20.618785409005067-17.605725077030115L20.293847530066593-17.33986681244409Q20.293847530066593-17.369406619620314 17.487565848325215-14.267726866116687L14.917602623993638-11.431905377199085Q14.917602623993638-11.40236557002286 15.833336646456614-9.068720803101083T17.75342411291124-4.283272040552629 18.846396978431567-1.7428486233972764Q19.141795050193817-1.4769903588112512 20.64832521618129-1.4474505516350262 21.68221846734917-1.4474505516350262 21.68221846734917-1.181592287049001 21.68221846734917-1.1225126726965509 21.623138852996718-0.7680349865818507 21.504979624291817-0.29539807176225025 21.416360202763144-0.20677865023357517T21.002802902295993-0.1181592287049001Q20.914183480767317-0.1181592287049001 20.027989265480567-0.1181592287049001T17.39894642679654-0.14769903588112512Q15.597018189046814-0.14769903588112512 14.651744359407612-0.14769903588112512T13.617851108239737-0.1181592287049001Q13.115674386243912-0.1181592287049001 13.115674386243912-0.3840174932909253 13.115674386243912-0.41355730046715033 13.174754000596362-0.8271146009343007 13.23383361494881-1.1225126726965509 13.292913229301261-1.2406719014014511T13.440612265182386-1.388370937282576 13.706470529768412-1.4474505516350262 14.179107444588013-1.4769903588112512 14.947142431169864-1.6837690090448265Q15.449319153165689-1.9200874664546266 15.449319153165689-1.9791670808070767 15.419779345989463-1.9791670808070767 14.060948215883112-5.435324520425405L12.672577278600535-8.921021767219958Q7.1190935294702316-2.8949011032700525 6.971394493589106-2.5699632243315773 6.853235264884206-2.333644766921777 6.853235264884206-2.215485538216877 6.853235264884206-1.6542292018686013 7.7098896729947315-1.4769903588112512 7.739429480170957-1.4769903588112512 7.887128516052082-1.4769903588112512T8.064367359109433-1.4474505516350262Q8.152986780638107-1.4474505516350262 8.182526587814332-1.4474505516350262T8.271146009343006-1.4179107444588013 8.359765430871683-1.3292913229301262 8.389305238047907-1.1225126726965509Q8.389305238047907-0.8566544081105257 8.330225623695457-0.6498757578769505 8.241606202166782-0.26585826458602524 8.152986780638107-0.20677865023357517T7.7098896729947315-0.1181592287049001Q7.621270251466057-0.1181592287049001 7.178173143822681-0.1181592287049001T5.93750124242123-0.14769903588112512 4.1946526190239535-0.14769903588112512Q1.8905476592784016-0.14769903588112512 1.2406719014014511-0.08861942152867508ZM33.38589007056952-7.473571215584932Q33.38589007056952-11.727303448961335 36.33987078819203-14.504045323526487T43.07494682437133-17.310327005267865Q47.38775867210019-17.310327005267865 50.22358016101779-14.415425901997812T53.059401649935396-7.473571215584932Q53.059401649935396-3.337998210913428 50.194040353841565-0.5021767219958254T43.252185667428684 2.363184574098002Q39.087072855580956 2.363184574098002 36.251251366663354-0.5021767219958254T33.38589007056952-7.473571215584932ZM42.48415068084683-16.099194911042638Q40.82992147897823-16.010575489513965 39.146152469933405-15.124381274227213T36.10355233078223-12.436258821190735 34.56748235761852-8.300685816519232V-8.064367359109433H42.631849716727956V-16.099194911042638H42.48415068084683ZM51.84826955571017-8.300685816519232Q51.671030712652815-10.073074247092734 50.93253553324719-11.490984991551535T49.21922671702614-13.736010336944636 47.15144021469039-15.124381274227213 45.260892555411985-15.892416260809064 43.90206142530563-16.099194911042638H43.813442003776956V-8.064367359109433H51.84826955571017V-8.300685816519232ZM34.56748235761852-6.6464566146506305Q34.803800815028325-4.519590497962429 35.8376940661962-2.8949011032700525T38.200878640294206-0.4430971076433754 40.65268263592088 0.7680349865818507 42.54323029519928 1.152052479872776H42.631849716727956V-6.882775072060431H34.56748235761852V-6.6464566146506305ZM51.84826955571017-6.6464566146506305V-6.882775072060431H43.813442003776956V1.152052479872776H43.90206142530563Q44.40423814730146 1.152052479872776 45.201812941059536 0.9748136368154259T47.12190040751416 0.20677865023357517 49.16014710267369-1.181592287049001 50.90299572607096-3.426617632442103 51.84826955571017-6.6464566146506305ZM68.10107146406918-18.905476592784016Q67.3034966703111-18.905476592784016 67.15579763442997-18.93501639996024T67.00809859854886-19.259954278898718Q67.00809859854886-20.05752907265679 67.33303647748733-20.23476791571414 67.36257628466355-20.26430772289037 71.17321141039658-20.26430772289037 78.82402146903885-20.26430772289037 79.23757876950602-20.205228108537916 81.09858662160819-19.909830036775666 82.33925852300963-18.87593678560779T83.60947023158731-16.15827452539509Q83.60947023158731-14.267726866116687 81.89616141536627-12.761196700129211T77.96736706092834-10.722950004969684L77.67196898916609-10.63433058344101Q79.56251664844449-10.368472318854984 80.7736487426697-9.275499453334659T82.01432064407116-6.557837193121956Q82.01432064407116-4.401431269257529 79.88745452738296-2.392724381274227T74.65890865719113-0.1181592287049001Q74.45213000695756-0.08861942152867508 68.42600934300765-0.08861942152867508 62.51804790776264-0.08861942152867508 62.429428486233974-0.14769903588112512 62.31126925752907-0.2363184574098002 62.31126925752907-0.3840174932909253 62.31126925752907-0.5907961435245005 62.37034887188152-0.7975747937580757 62.51804790776264-1.3588311301063511 62.665746943643775-1.4179107444588013 62.78390617234867-1.4474505516350262 63.10884405128715-1.4474505516350262H63.286082894344496Q64.08365768810258-1.4474505516350262 65.058471324918-1.5360699731637013 65.47202862538515-1.6246893946923764 65.61972766126627-1.8905476592784016 65.70834708279494-2.0087068879833017 67.74659377795447-10.102614054268958T69.784840473114-18.63961832819799Q69.784840473114-18.846396978431567 68.10107146406918-18.905476592784016ZM80.44871086373124-16.15827452539509Q80.44871086373124-17.04446874068184 80.00561375608787-17.81250372726369T78.55816320445284-18.816857171255343Q78.35138455421927-18.87593678560779 75.84050094424013-18.905476592784016 75.24970480071563-18.905476592784016 74.59982904283868-18.905476592784016T73.56593579167081-18.87593678560779H73.18191829837988Q72.7388211907365-18.846396978431567 72.6206619620316-18.58053871384554 72.56158234767915-18.46237948514064 71.6753881323924-15.035761852698538 71.6753881323924-14.947142431169864 71.64584832521618-14.858523009641187L70.73011430275321-11.136507305436835H73.12283868402743Q75.51556306530166-11.136507305436835 75.87004075141635-11.195586919789285 77.64242918198985-11.490984991551535 79.03080011927244-12.908895736010336T80.44871086373124-16.15827452539509ZM78.85356127621509-6.853235264884206Q78.85356127621509-8.152986780638107 78.17414571116191-9.009641188748633T76.40175728058841-10.013994632740284Q76.22451843753106-10.043534439916508 73.94995328496174-10.043534439916508 70.46425603816718-10.043534439916508 70.43471623099096-10.013994632740284 70.43471623099096-9.954915018387833 69.93253950899513-7.8575887088758565T68.89864625782725-3.692475897028128L68.36692972865521-1.6246893946923764Q68.36692972865521-1.5065301659874764 68.7214074147699-1.5065301659874764T71.11413179604413-1.4474505516350262Q73.74317463472816-1.4474505516350262 73.94995328496174-1.4769903588112512 75.78142132988768-1.6837690090448265 77.31749130305138-3.190299175032303T78.85356127621509-6.853235264884206ZM88.64098558791372 4.801813815724083Q87.26259910545672 4.801813815724083 86.26013620912434 4.112620574495577T85.23678866911837 2.1076947818308316Q85.23678866911837 0.7084236557002286 86.69871372626974-0.5028856773680549L86.90756016300566-0.6490781830831924 86.74048301361694-0.8370399761455123Q86.26013620912434-1.3591560679852897 86.26013620912434-2.0065800218666134 86.26013620912434-3.259658642282079 87.68029197892854-4.178582963920086T90.72944995527283-5.097507285558095H90.98006567935593Q92.1913750124242-5.097507285558095 93.13118397773582-4.450083331676771 93.6115307822284-4.115929032899314 93.6115307822284-3.84442866514263 93.6115307822284-3.6146975847331277 93.3817997018189-3.3640818606500345T92.83879896630553-3.09258149289335Q92.65083717324322-3.09258149289335 92.42110609283371-3.2805432859556705T91.7319128516052-3.65646687208031 90.58325744955769-3.84442866514263Q89.20487096710067-3.84442866514263 88.16063878342112-3.3431972169764435T87.09552195606797-2.090118596560978Q87.09552195606797-1.6933103667627472 87.45056089851903-1.3382714243116987 87.63852269158134-1.1503096312493788 87.70117662260212-1.1294249875757876T87.95179234668521-1.17119427492297Q88.59921630056654-1.463579286353245 89.6434484842461-1.463579286353245H89.74787170261405Q91.10537354139747-1.463579286353245 91.10537354139747-0.8161553324719213 91.10537354139747 0.04011505814531359 89.33017882914223 0.04011505814531359 88.36948522015705 0.04011505814531359 87.63852269158134-0.23138530961137063L87.42967625484545-0.08519280389623297Q86.09305905973561 0.812846874068184 86.09305905973561 2.0032715634628766 86.09305905973561 3.5278505516350265 88.87071666832323 3.5278505516350265 89.95671813934996 3.5278505516350265 90.64591138057847 3.319004114899115T91.52306641486929 2.83865731040652 91.87810535732034 2.379195149587516 92.23314429977138 2.149464069178014Q92.52552931120167 2.191233356525196 92.52552931120167 2.5045030116290627 92.52552931120167 2.6924648046913826 92.29579823079216 3.047503747142431T91.64837427691084 3.7993509193917103 90.41618030016896 4.509428804293807 88.64098558791372 4.801813815724083ZM98.23937985850313-1.059377892694563L98.04742909849915-0.9855506773084187Q97.84071289541794-0.9117234619222742 97.45681137540998-0.8378962465361295T96.60041567693072-0.7345381449955272H96.31987225846338V-1.413748526548057H96.60041567693072Q97.29439150156048-1.4432794127025146 97.88500922464962-1.6352301727064904T98.71187403697445-1.9896008065599842 99.12530644313686-2.31444055425902Q99.15483732929133-2.3587368834907068 99.3024917600636-2.3587368834907068 99.43538074775867-2.3587368834907068 99.5535042923765-2.2701442250273334V2.144723255064109L99.56826973545373 6.5743561782327795Q99.67162783699433 6.677714279773382 99.74545505238046 6.70724516592784T100.09982568623397 6.766306938236755 101.01528315702217 6.795837824391214H101.3991846770301V7.475048205943743H101.23676480318059Q100.92669049855878 7.430751876712056 98.88905935390119 7.430751876712056 96.88095909539805 7.430751876712056 96.57088479077626 7.475048205943743H96.39369947384951V6.795837824391214H96.77760099385746Q97.1024407415565 6.795837824391214 97.33868783079215 6.795837824391214T97.70782390772288 6.781072381313984 97.94407099695854 6.7367760520822975 98.06219454157637 6.70724516592784 98.15078720003976 6.633417950541695 98.23937985850313 6.5743561782327795V-1.059377892694563Z"
+        fill-opacity="0.8"
+      ></path>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 354.35515766484605, 235.06722182185865)translate(354.35515766484605, 235.06722182185865)"
+    string="X \oplus B_{\varepsilon_{2}}"
+  >
+    <title>`F`.lab2</title>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="105.00219858860947"
+      height="29.72"
+      role="img"
+      focusable="false"
+      viewBox="0.7680349865818507 -20.26430772289037 100.95598943814728 27.73935592883411"
+    >
+      <path
+        stroke="none"
+        fill="#801a1a"
+        stroke-width="0"
+        d="M1.2406719014014511-0.08861942152867508H1.181592287049001Q0.7680349865818507-0.08861942152867508 0.7680349865818507-0.41355730046715033 0.7680349865818507-0.5317165291720505 0.8566544081105257-0.8861942152867508 0.9748136368154259-1.299751515753901 1.063433058344101-1.3588311301063511T1.6246893946923764-1.4474505516350262Q4.165112811847728-1.5360699731637013 5.612563363482755-2.9835205247987275 5.907961435245005-3.278918596560978 9.039180995924857-6.705536229003081T12.140860749428485-10.191233475797635Q8.921021767219958-18.403299870788192 8.773322731338833-18.550998906669317 8.507464466752808-18.87593678560779 6.912314879236656-18.905476592784016H6.085200278302355Q5.907961435245005-19.082715435841365 5.907961435245005-19.141795050193817T5.967041049597455-19.703051386542093Q6.085200278302355-20.087068879833016 6.262439121359705-20.26430772289037H6.675996421826856Q7.680349865818506-20.205228108537916 10.250313090150083-20.205228108537916 11.22512672696551-20.205228108537916 12.05224132789981-20.205228108537916T13.381532650829936-20.23476791571414 13.972328794354437-20.23476791571414Q14.474505516350263-20.23476791571414 14.474505516350263-19.909830036775666 14.474505516350263-19.880290229599442 14.415425901997812-19.52581254348474 14.297266673292912-19.082715435841365 14.208647251764237-18.994096014312692T13.736010336944636-18.905476592784016Q12.820276314481662-18.816857171255343 12.140860749428485-18.403299870788192L14.415425901997812-12.672577278600535 15.981035682337739-14.415425901997812Q19.082715435841365-17.75342411291124 19.082715435841365-18.107901799025942 19.082715435841365-18.63961832819799 18.373760063611964-18.846396978431567 18.22606102773084-18.846396978431567 17.98974257032104-18.905476592784016 17.546645462677667-18.905476592784016 17.546645462677667-19.23041447172249 17.546645462677667-19.289494086074942 17.605725077030115-19.703051386542093 17.723884305735016-20.087068879833016 17.901123148792365-20.26430772289037H18.255600834907067Q18.28514064208329-20.26430772289037 18.994096014312692-20.26430772289037T20.589245601828843-20.205228108537916 21.80037769605407-20.175688301361692Q24.45896034191432-20.175688301361692 24.724818606500346-20.26430772289037H24.961137063910147Q25.16791571414372-20.05752907265679 25.16791571414372-19.93936984395189 25.108836099791272-19.200874664546266 24.813438028029022-18.905476592784016H24.34080111320942Q23.33644766921777-18.87593678560779 22.538872875459695-18.63961832819799T21.327740781234468-18.137441606202167 20.618785409005067-17.605725077030115L20.293847530066593-17.33986681244409Q20.293847530066593-17.369406619620314 17.487565848325215-14.267726866116687L14.917602623993638-11.431905377199085Q14.917602623993638-11.40236557002286 15.833336646456614-9.068720803101083T17.75342411291124-4.283272040552629 18.846396978431567-1.7428486233972764Q19.141795050193817-1.4769903588112512 20.64832521618129-1.4474505516350262 21.68221846734917-1.4474505516350262 21.68221846734917-1.181592287049001 21.68221846734917-1.1225126726965509 21.623138852996718-0.7680349865818507 21.504979624291817-0.29539807176225025 21.416360202763144-0.20677865023357517T21.002802902295993-0.1181592287049001Q20.914183480767317-0.1181592287049001 20.027989265480567-0.1181592287049001T17.39894642679654-0.14769903588112512Q15.597018189046814-0.14769903588112512 14.651744359407612-0.14769903588112512T13.617851108239737-0.1181592287049001Q13.115674386243912-0.1181592287049001 13.115674386243912-0.3840174932909253 13.115674386243912-0.41355730046715033 13.174754000596362-0.8271146009343007 13.23383361494881-1.1225126726965509 13.292913229301261-1.2406719014014511T13.440612265182386-1.388370937282576 13.706470529768412-1.4474505516350262 14.179107444588013-1.4769903588112512 14.947142431169864-1.6837690090448265Q15.449319153165689-1.9200874664546266 15.449319153165689-1.9791670808070767 15.419779345989463-1.9791670808070767 14.060948215883112-5.435324520425405L12.672577278600535-8.921021767219958Q7.1190935294702316-2.8949011032700525 6.971394493589106-2.5699632243315773 6.853235264884206-2.333644766921777 6.853235264884206-2.215485538216877 6.853235264884206-1.6542292018686013 7.7098896729947315-1.4769903588112512 7.739429480170957-1.4769903588112512 7.887128516052082-1.4769903588112512T8.064367359109433-1.4474505516350262Q8.152986780638107-1.4474505516350262 8.182526587814332-1.4474505516350262T8.271146009343006-1.4179107444588013 8.359765430871683-1.3292913229301262 8.389305238047907-1.1225126726965509Q8.389305238047907-0.8566544081105257 8.330225623695457-0.6498757578769505 8.241606202166782-0.26585826458602524 8.152986780638107-0.20677865023357517T7.7098896729947315-0.1181592287049001Q7.621270251466057-0.1181592287049001 7.178173143822681-0.1181592287049001T5.93750124242123-0.14769903588112512 4.1946526190239535-0.14769903588112512Q1.8905476592784016-0.14769903588112512 1.2406719014014511-0.08861942152867508ZM33.38589007056952-7.473571215584932Q33.38589007056952-11.727303448961335 36.33987078819203-14.504045323526487T43.07494682437133-17.310327005267865Q47.38775867210019-17.310327005267865 50.22358016101779-14.415425901997812T53.059401649935396-7.473571215584932Q53.059401649935396-3.337998210913428 50.194040353841565-0.5021767219958254T43.252185667428684 2.363184574098002Q39.087072855580956 2.363184574098002 36.251251366663354-0.5021767219958254T33.38589007056952-7.473571215584932ZM42.48415068084683-16.099194911042638Q40.82992147897823-16.010575489513965 39.146152469933405-15.124381274227213T36.10355233078223-12.436258821190735 34.56748235761852-8.300685816519232V-8.064367359109433H42.631849716727956V-16.099194911042638H42.48415068084683ZM51.84826955571017-8.300685816519232Q51.671030712652815-10.073074247092734 50.93253553324719-11.490984991551535T49.21922671702614-13.736010336944636 47.15144021469039-15.124381274227213 45.260892555411985-15.892416260809064 43.90206142530563-16.099194911042638H43.813442003776956V-8.064367359109433H51.84826955571017V-8.300685816519232ZM34.56748235761852-6.6464566146506305Q34.803800815028325-4.519590497962429 35.8376940661962-2.8949011032700525T38.200878640294206-0.4430971076433754 40.65268263592088 0.7680349865818507 42.54323029519928 1.152052479872776H42.631849716727956V-6.882775072060431H34.56748235761852V-6.6464566146506305ZM51.84826955571017-6.6464566146506305V-6.882775072060431H43.813442003776956V1.152052479872776H43.90206142530563Q44.40423814730146 1.152052479872776 45.201812941059536 0.9748136368154259T47.12190040751416 0.20677865023357517 49.16014710267369-1.181592287049001 50.90299572607096-3.426617632442103 51.84826955571017-6.6464566146506305ZM68.10107146406918-18.905476592784016Q67.3034966703111-18.905476592784016 67.15579763442997-18.93501639996024T67.00809859854886-19.259954278898718Q67.00809859854886-20.05752907265679 67.33303647748733-20.23476791571414 67.36257628466355-20.26430772289037 71.17321141039658-20.26430772289037 78.82402146903885-20.26430772289037 79.23757876950602-20.205228108537916 81.09858662160819-19.909830036775666 82.33925852300963-18.87593678560779T83.60947023158731-16.15827452539509Q83.60947023158731-14.267726866116687 81.89616141536627-12.761196700129211T77.96736706092834-10.722950004969684L77.67196898916609-10.63433058344101Q79.56251664844449-10.368472318854984 80.7736487426697-9.275499453334659T82.01432064407116-6.557837193121956Q82.01432064407116-4.401431269257529 79.88745452738296-2.392724381274227T74.65890865719113-0.1181592287049001Q74.45213000695756-0.08861942152867508 68.42600934300765-0.08861942152867508 62.51804790776264-0.08861942152867508 62.429428486233974-0.14769903588112512 62.31126925752907-0.2363184574098002 62.31126925752907-0.3840174932909253 62.31126925752907-0.5907961435245005 62.37034887188152-0.7975747937580757 62.51804790776264-1.3588311301063511 62.665746943643775-1.4179107444588013 62.78390617234867-1.4474505516350262 63.10884405128715-1.4474505516350262H63.286082894344496Q64.08365768810258-1.4474505516350262 65.058471324918-1.5360699731637013 65.47202862538515-1.6246893946923764 65.61972766126627-1.8905476592784016 65.70834708279494-2.0087068879833017 67.74659377795447-10.102614054268958T69.784840473114-18.63961832819799Q69.784840473114-18.846396978431567 68.10107146406918-18.905476592784016ZM80.44871086373124-16.15827452539509Q80.44871086373124-17.04446874068184 80.00561375608787-17.81250372726369T78.55816320445284-18.816857171255343Q78.35138455421927-18.87593678560779 75.84050094424013-18.905476592784016 75.24970480071563-18.905476592784016 74.59982904283868-18.905476592784016T73.56593579167081-18.87593678560779H73.18191829837988Q72.7388211907365-18.846396978431567 72.6206619620316-18.58053871384554 72.56158234767915-18.46237948514064 71.6753881323924-15.035761852698538 71.6753881323924-14.947142431169864 71.64584832521618-14.858523009641187L70.73011430275321-11.136507305436835H73.12283868402743Q75.51556306530166-11.136507305436835 75.87004075141635-11.195586919789285 77.64242918198985-11.490984991551535 79.03080011927244-12.908895736010336T80.44871086373124-16.15827452539509ZM78.85356127621509-6.853235264884206Q78.85356127621509-8.152986780638107 78.17414571116191-9.009641188748633T76.40175728058841-10.013994632740284Q76.22451843753106-10.043534439916508 73.94995328496174-10.043534439916508 70.46425603816718-10.043534439916508 70.43471623099096-10.013994632740284 70.43471623099096-9.954915018387833 69.93253950899513-7.8575887088758565T68.89864625782725-3.692475897028128L68.36692972865521-1.6246893946923764Q68.36692972865521-1.5065301659874764 68.7214074147699-1.5065301659874764T71.11413179604413-1.4474505516350262Q73.74317463472816-1.4474505516350262 73.94995328496174-1.4769903588112512 75.78142132988768-1.6837690090448265 77.31749130305138-3.190299175032303T78.85356127621509-6.853235264884206ZM88.64098558791372 4.801813815724083Q87.26259910545672 4.801813815724083 86.26013620912434 4.112620574495577T85.23678866911837 2.1076947818308316Q85.23678866911837 0.7084236557002286 86.69871372626974-0.5028856773680549L86.90756016300566-0.6490781830831924 86.74048301361694-0.8370399761455123Q86.26013620912434-1.3591560679852897 86.26013620912434-2.0065800218666134 86.26013620912434-3.259658642282079 87.68029197892854-4.178582963920086T90.72944995527283-5.097507285558095H90.98006567935593Q92.1913750124242-5.097507285558095 93.13118397773582-4.450083331676771 93.6115307822284-4.115929032899314 93.6115307822284-3.84442866514263 93.6115307822284-3.6146975847331277 93.3817997018189-3.3640818606500345T92.83879896630553-3.09258149289335Q92.65083717324322-3.09258149289335 92.42110609283371-3.2805432859556705T91.7319128516052-3.65646687208031 90.58325744955769-3.84442866514263Q89.20487096710067-3.84442866514263 88.16063878342112-3.3431972169764435T87.09552195606797-2.090118596560978Q87.09552195606797-1.6933103667627472 87.45056089851903-1.3382714243116987 87.63852269158134-1.1503096312493788 87.70117662260212-1.1294249875757876T87.95179234668521-1.17119427492297Q88.59921630056654-1.463579286353245 89.6434484842461-1.463579286353245H89.74787170261405Q91.10537354139747-1.463579286353245 91.10537354139747-0.8161553324719213 91.10537354139747 0.04011505814531359 89.33017882914223 0.04011505814531359 88.36948522015705 0.04011505814531359 87.63852269158134-0.23138530961137063L87.42967625484545-0.08519280389623297Q86.09305905973561 0.812846874068184 86.09305905973561 2.0032715634628766 86.09305905973561 3.5278505516350265 88.87071666832323 3.5278505516350265 89.95671813934996 3.5278505516350265 90.64591138057847 3.319004114899115T91.52306641486929 2.83865731040652 91.87810535732034 2.379195149587516 92.23314429977138 2.149464069178014Q92.52552931120167 2.191233356525196 92.52552931120167 2.5045030116290627 92.52552931120167 2.6924648046913826 92.29579823079216 3.047503747142431T91.64837427691084 3.7993509193917103 90.41618030016896 4.509428804293807 88.64098558791372 4.801813815724083ZM96.70377377847132 1.1406731258125433Q96.30510681538614 1.1406731258125433 96.06885972615048 0.8748951504224232T95.83261263691482 0.22521565502435142Q95.83261263691482-0.8231308034589007 96.61518112000795-1.5909338434748037T98.56421960620216-2.3587368834907068Q99.90787492623-2.3587368834907068 100.80856695394095-1.531872071165888T101.72402442472914 0.609117175032303Q101.72402442472914 1.2440312273531458 101.42871556318457 1.819883507365073T100.71997429547757 2.8239336366166383 99.53873884929926 3.916576424331577Q99.00718289851903 4.374305159725672 98.06219454157637 5.274997187436636L97.19103340001988 6.1018619997614545 98.31320707388926 6.116627442838684Q100.63138163701421 6.116627442838684 100.77903606778649 6.042800227452539 100.8823941693271 6.0132693412980815 101.13340670163998 4.728675793579167V4.68437946434748H101.72402442472914V4.728675793579167Q101.70925898165191 4.772972122810853 101.53207366472517 6.072331113606997T101.31059201856674 7.430751876712056V7.475048205943743H95.83261263691482V7.194504787476393 7.017319470549646Q95.83261263691482 6.913961369009044 95.92120529537819 6.795837824391214T96.36416858769506 6.279047316688201Q96.7923664369347 5.806553138216876 97.1024407415565 5.452182504363383 97.23532972925156 5.304528073591094 97.60446580618229 4.905861110505914T98.10649087080807 4.359539716648444 98.5346887200477 3.872280095099891 98.94812112621011 3.3702550304741075 99.28772631698637 2.9272917381572405 99.59780062160819 2.4547975596859155 99.81928226776661 2.0265997104462774 100.0112330277706 1.5541055319749528 100.1145911293112 1.1111422396580857 100.15888745854289 0.6238826181095318Q100.15888745854289-0.30634029575588906 99.65686239391711-0.9855506773084187T98.2246144154259-1.664761058860948Q97.73735479387734-1.664761058860948 97.36821871694661-1.413748526548057T96.85142820924361-0.926488904999503 96.70377377847132-0.6459454865321538Q96.70377377847132-0.631180043454925 96.77760099385746-0.631180043454925 97.04337896924758-0.631180043454925 97.32392238771493-0.4244638403737203T97.60446580618229 0.25474654117880924Q97.60446580618229 0.6238826181095318 97.36821871694661 0.8748951504224232T96.70377377847132 1.1406731258125433Z"
+        fill-opacity="0.8"
+      ></path>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 644.7837687497387, 235.00222182185865)translate(644.7837687497387, 235.00222182185865)"
     string="X \oplus B_{\varepsilon_{3}}"
-    ensureOnCanvas="true"
   >
-    <title>F.lab3</title>
+    <title>`F`.lab3</title>
     <svg
-      style="font-size: 24p"
       xmlns="http://www.w3.org/2000/svg"
       width="104.32092222986924"
       height="29.85"
       role="img"
       focusable="false"
-      viewBox="0 -758.5 3554.6 1017.1"
+      viewBox="0.7630518139809263 -20.29424343722348 100.41832286997347 27.882109269786646"
     >
-      <g
+      <path
         stroke="none"
         fill="#1a1a80"
         stroke-width="0"
-        transform="scale(1,-1)"
+        d="M1.2326221610461117-0.24945924687837973H1.1739258676629634Q0.7630518139809263-0.24945924687837973 0.7630518139809263-0.5722888604856946 0.7630518139809263-0.689681447251991 0.8510962540556485-1.04185920755088 0.9684888408219448-1.4527332612329171 1.056533280896667-1.5114295546160654T1.6141480680365747-1.5994739946907877Q4.138088683511946-1.68751843476551 5.576147871399076-3.12557762265264 5.869629338314817-3.419059089568381 8.98053288762167-6.8234441057909745T12.062088290236948-10.286525415396717Q8.863140300855374-18.44531019565431 8.716399567397502-18.592050929112183 8.452266247173336-18.914880542719498 6.867466325828336-18.944228689411073H6.045718218464262Q5.869629338314817-19.120317569560516 5.869629338314817-19.179013862943663T5.928325631697965-19.73662865008357Q6.045718218464262-20.118154557074035 6.221807098613706-20.29424343722348H6.632681152295743Q7.630518139809262-20.235547143840332 10.183806901976208-20.235547143840332 11.152295742798152-20.235547143840332 11.974043850162227-20.235547143840332T13.294710451283061-20.264895290531907 13.881673385114542-20.264895290531907Q14.380591878871302-20.264895290531907 14.380591878871302-19.942065676924592 14.380591878871302-19.912717530233017 14.321895585488154-19.560539769934127 14.204502998721857-19.120317569560516 14.116458558647135-19.032273129485795T13.646888211581949-18.944228689411073Q12.737095664143153-18.856184249336348 12.062088290236948-18.44531019565431L14.321895585488154-12.75176973748894 15.877347360141579-14.483310392291811Q18.95890276275686-17.799650968439682 18.95890276275686-18.151828728738572 18.95890276275686-18.680095369186905 18.25454724215908-18.885532396027923 18.10780650870121-18.885532396027923 17.873021335168616-18.944228689411073 17.432799134795005-18.944228689411073 17.432799134795005-19.267058303018388 17.432799134795005-19.325754596401534 17.491495428178155-19.73662865008357 17.60888801494445-20.118154557074035 17.784976895093894-20.29424343722348H18.137154655392784Q18.16650280208436-20.29424343722348 18.870858322682135-20.29424343722348T20.455658244027138-20.235547143840332 21.658932258381675-20.206198997148757Q24.300265460623343-20.206198997148757 24.564398780847508-20.29424343722348H24.7991839543801Q25.00462098122112-20.08880641038246 25.00462098122112-19.971413823616164 24.945924687837973-19.237710156326813 24.65244322092223-18.944228689411073H24.182872873857047Q23.185035886343528-18.914880542719498 22.392635925671026-18.680095369186905T21.18936191131649-18.181176875430147 20.485006390718713-17.65291023498181L20.162176777111398-17.388776914757646Q20.162176777111398-17.41812506144922 17.374102841411858-14.336569658833941L14.820814079244913-11.519147576442828Q14.820814079244913-11.489799429751255 15.73060662668371-9.171295841116901T17.638236161636026-4.4168960770818995 18.724117589224267-1.8929554616065285Q19.017599056140007-1.6288221413823618 20.514354537410284-1.5994739946907877 21.54153967161538-1.5994739946907877 21.54153967161538-1.3353406744666207 21.54153967161538-1.2766443810834727 21.48284337823223-0.9244666207845836 21.365450791465932-0.45489627371939834 21.27740635139121-0.36685183364467605T20.866532297709174-0.2788073935699538Q20.778487857634452-0.2788073935699538 19.89804345688723-0.2788073935699538T17.286058401337137-0.3081555402615279Q15.495821453151116-0.3081555402615279 14.556680759020747-0.3081555402615279T13.529495624815652-0.2788073935699538Q13.030577131058894-0.2788073935699538 13.030577131058894-0.5429407137941206 13.030577131058894-0.5722888604856946 13.089273424442041-0.9831629141677318 13.14796971782519-1.2766443810834727 13.206666011208338-1.394036967849769T13.35340674466621-1.5407777013076394 13.617540064890376-1.5994739946907877 14.08711041195556-1.6288221413823618 14.850162225936486-1.8342591682233802Q15.349080719693246-2.069044341755973 15.349080719693246-2.127740635139121 15.319732573001673-2.127740635139121 13.969717825189264-5.561473798053289L12.590354930685283-9.024555107659031Q7.072903352669354-3.037533182577918 6.926162619211484-2.7147035689706027 6.808770032445188-2.47991839543801 6.808770032445188-2.362525808671714 6.808770032445188-1.8049110215318063 7.6598662865008365-1.6288221413823618 7.689214433192411-1.6288221413823618 7.8359551666502805-1.6288221413823618T8.012044046799724-1.5994739946907877Q8.100088486874448-1.5994739946907877 8.129436633566021-1.5994739946907877T8.217481073640744-1.5701258479992135 8.305525513715466-1.4820814079244913 8.33487366040704-1.2766443810834727Q8.33487366040704-1.012511060859306 8.276177367023893-0.8070740340182874 8.18813292694917-0.42554812702782424 8.100088486874448-0.36685183364467605T7.6598662865008365-0.2788073935699538Q7.571821846426114-0.2788073935699538 7.131599646052503-0.2788073935699538T5.898977485006391-0.3081555402615279 4.16743683020352-0.3081555402615279Q1.8782813882607414-0.3081555402615279 1.2326221610461117-0.24945924687837973ZM33.169275390817035-7.586495919771901Q33.169275390817035-11.81262904335857 36.10409005997444-14.571354832366533T42.795467505653335-17.35942876806607Q47.08029692262315-17.35942876806607 49.89771900501426-14.483310392291811T52.71514108740537-7.586495919771901Q52.71514108740537-3.477755382951529 49.868370858322685-0.660333300560417T42.97155638580278 2.1864369285222693Q38.83346770229083 2.1864369285222693 36.01604561989972-0.660333300560417T33.169275390817035-7.586495919771901ZM42.20850457182185-16.156154753711533Q40.5650083570937-16.06811031363681 38.892163995673975-15.187665912889589T35.869304886441846-12.516984563956347 34.34320125847999-8.408244027135975V-8.173458853603382H42.35524530527972V-16.156154753711533H42.20850457182185ZM51.51186707305084-8.408244027135975Q51.335778192901394-10.16913282863042 50.60207452561204-11.577843869825976T48.899882017500744-13.808303018385606 46.845511749090555-15.187665912889589 44.96723036082982-15.950717726870515 43.61721561301741-16.156154753711533H43.52917117294268V-8.173458853603382H51.51186707305084V-8.408244027135975ZM34.34320125847999-6.764747812407826Q34.57798643201259-4.651681250614493 35.60517156621768-3.037533182577918T37.95302330154361-0.6016370071772688 40.38891947694426 0.6016370071772688 42.267200865205 0.9831629141677318H42.35524530527972V-6.999532985940419H34.34320125847999V-6.764747812407826ZM51.51186707305084-6.764747812407826V-6.999532985940419H43.52917117294268V0.9831629141677318H43.61721561301741Q44.11613410677417 0.9831629141677318 44.908534067446666 0.8070740340182874T46.81616360239898 0.04402222003736113 48.841185724117594-1.3353406744666207 50.572726378920464-3.5657998230262513 51.51186707305084-6.764747812407826ZM67.6592173827549-18.944228689411073Q66.86681742208239-18.944228689411073 66.72007668862453-18.973576836102644T66.57333595516666-19.29640644970996Q66.57333595516666-20.08880641038246 66.89616556877397-20.264895290531907 66.92551371546554-20.29424343722348 70.71142463867861-20.29424343722348 78.31259463179629-20.29424343722348 78.72346868547832-20.235547143840332 80.5724019270475-19.942065676924592 81.8050240880936-18.914880542719498T83.06699439583129-16.214851047094683Q83.06699439583129-14.336569658833941 81.36480188771999-12.839814177563662T77.46149837774064-10.81479205584505L77.1680169108249-10.726747615770329Q79.04629829908565-10.462614295546162 80.24957231344018-9.37673286795792T81.48219447448629-6.676703372333105Q81.48219447448629-4.534288663848196 79.36912791269296-2.5386146888211583T74.17450594828435-0.2788073935699538Q73.96906892144332-0.24945924687837973 67.98204699636221-0.24945924687837973 62.1124176580474-0.24945924687837973 62.02437321797267-0.3081555402615279 61.90698063120638-0.39619998033625015 61.90698063120638-0.5429407137941206 61.90698063120638-0.7483777406351392 61.96567692458952-0.9538147674761578 62.1124176580474-1.5114295546160654 62.25915839150527-1.5701258479992135 62.37655097827156-1.5994739946907877 62.69938059187888-1.5994739946907877H62.87546947202832Q63.66786943270082-1.5994739946907877 64.63635827352277-1.68751843476551 65.04723232720481-1.7755628748402321 65.19397306066267-2.039696195064399 65.2820175007374-2.157088781830695 67.307039622456-10.198480975321994T69.33206174417462-18.680095369186905Q69.33206174417462-18.885532396027923 67.6592173827549-18.944228689411073ZM79.92674269983287-16.214851047094683Q79.92674269983287-17.095295447841906 79.48652049945926-17.858347261822832T78.04846131157213-18.856184249336348Q77.8430242847311-18.914880542719498 75.34843181594731-18.944228689411073 74.76146888211582-18.944228689411073 74.1158096549012-18.944228689411073T73.0886245206961-18.914880542719498H72.70709861370564Q72.26687641333203-18.885532396027923 72.14948382656573-18.621399075803758 72.09078753318258-18.50400648903746 71.21034313243536-15.099621472814867 71.21034313243536-15.011577032740144 71.1809949857438-14.923532592665422L70.271202438305-11.225666109527088H72.64840232032249Q75.02560220234-11.225666109527088 75.37777996263888-11.284362402910235 77.13866876413333-11.577843869825976 78.51803165863731-12.986554911021532T79.92674269983287-16.214851047094683ZM78.34194277848786-6.970184839248845Q78.34194277848786-8.261503293678105 77.66693540458166-9.112599547733753T75.90604660308722-10.110436535247272Q75.72995772293777-10.139784681938846 73.47015042768656-10.139784681938846 70.00706911808082-10.139784681938846 69.97772097138925-10.110436535247272 69.97772097138925-10.051740241864124 69.47880247763248-7.968021826762364T68.4516173434274-3.8299331432504182L67.92335070297906-1.7755628748402321Q67.92335070297906-1.6581702880739357 68.27552846327795-1.6581702880739357T70.65272834529546-1.5994739946907877Q73.26471340084555-1.5994739946907877 73.47015042768656-1.6288221413823618 75.28973552256416-1.8342591682233802 76.81583915052602-3.3310146494936586T78.34194277848786-6.970184839248845ZM88.0658642218071 4.609243830498476Q86.69642100088488 4.609243830498476 85.70046229475962 3.9245222200373617T84.68375444892341 1.932604807786845Q84.68375444892341 0.5424124471536722 86.1361942286894-0.6610376560810147L86.34368562579884-0.8062816340576148 86.1776925081113-0.9930238914561007Q85.70046229475962-1.5117523842296727 85.70046229475962-2.1549757152689017 85.70046229475962-3.3999240979254743 87.11140379510374-4.312886245206961T90.14077819290138-5.225848392488448H90.38976786943272Q91.59321797266739-5.225848392488448 92.52692925965982-4.582625061449218 93.00415947301151-4.250638826074133 93.00415947301151-3.9809000098318754 93.00415947301151-3.7526594730115037 92.77591893619113-3.503669796480189T92.23644130370663-3.2339309802379312Q92.04969904630813-3.2339309802379312 91.82145850948777-3.4206732376364175T91.13673689902664-3.7941577524333896 89.9955342149248-3.9809000098318754Q88.62609099400257-3.9809000098318754 87.58863400845541-3.482920656769246T86.53042788319732-2.2379722741126735Q86.53042788319732-1.8437386196047587 86.88316325828336-1.4910032445187298 87.06990551568184-1.304260987120244 87.13215293481467-1.283511847409301T87.38114261134598-1.325010126831187Q88.02436594238522-1.615498082784387 89.06182292793237-1.615498082784387H89.16556862648707Q90.51426270769836-1.615498082784387 90.51426270769836-0.9722747517451578 90.51426270769836-0.12156002359649987 88.75058583226823-0.12156002359649987 87.79612540556485-0.12156002359649987 87.06990551568184-0.3912988398387573L86.86241411857242-0.24605486186215714Q85.53446917707207 0.6461581457083866 85.53446917707207 1.8288591092321307 85.53446917707207 3.343546308130961 88.29410475862748 3.343546308130961 89.37306002359651 3.343546308130961 90.05778163405762 3.136054911021532T90.92924550191722 2.658824697669846 91.28198087700325 2.2023436240291026 91.63471625208928 1.9741030872087308Q91.92520420804247 2.0156013666306167 91.92520420804247 2.3268384622947598 91.92520420804247 2.5135807196932456 91.69696367122211 2.8663160947792745T91.05374034018288 3.613285124373218 89.82954109723724 4.3187558745452765 88.0658642218071 4.609243830498476ZM96.3403928979943 0.4730895713794121Q95.94431257005212 0.4730895713794121 95.72426794341757 0.22370566119358964T95.48955367500739-0.4217585769344214Q95.48955367500739-1.2285888745944353 96.19369648023795-1.8593834709468096T97.89537492621177-2.4901780672991842Q98.40881238835907-2.4901780672991842 98.5408391643398-2.475508425523547 99.62639265573691-2.299472724215908 100.19850868498673-1.698017411414807T100.7852943560122-0.3924192933831482Q100.7852943560122 0.37040207894995575 100.28652653564056 1.0892145259561499T98.9075802087307 2.1307590920263495L98.8635712834038 2.160098375577623Q98.8635712834038 2.174768017353259 98.99559805938452 2.204107300904533T99.42101767087799 2.336134076885262 99.97846405835219 2.644196554173631Q101.18137468395439 3.4216875682823717 101.18137468395439 4.697946402762757 101.18137468395439 5.8568481030380495 100.2718568938649 6.72235696780061T97.96872313508997 7.587865832563169Q96.79515179303904 7.587865832563169 95.94431257005212 6.957071236210796T95.0934733470652 5.358080282666404Q95.0934733470652 4.94733031294858 95.35752689902665 4.697946402762757T96.0176607789303 4.433892850801298Q96.42841074864812 4.433892850801298 96.69246430060959 4.697946402762757T96.95651785257104 5.358080282666404Q96.95651785257104 5.519446342198408 96.91250892724413 5.651473118179137T96.80982143481468 5.886187386589323 96.64845537528267 6.062223087896963 96.47241967397504 6.179580222102055 96.32572325621867 6.238258789204602 96.20836612201357 6.282267714531511L96.14968755491103 6.296937356307148Q96.89783928546849 6.957071236210796 97.96872313508997 6.957071236210796 98.77555343274997 6.957071236210796 99.18630340246781 6.179580222102055 99.43568731265363 5.695482043506047 99.43568731265363 4.697946402762757V4.404553567250025Q99.43568731265363 3.0109375985645466 98.49683023901288 2.541509061744175 98.27678561237833 2.453491211090355 97.60198209069905 2.4388215693147184L96.98585713612232 2.4241519275390817 96.94184821079541 2.394812643987809Q96.91250892724413 2.3508037186608988 96.91250892724413 2.160098375577623 96.91250892724413 1.8960448236161638 97.02986606144923 1.8960448236161638 97.44061603116705 1.8960448236161638 97.88070528443615 1.8226966147379806 98.37947310480779 1.7493484058597977 98.79022307452563 1.2065716601612428T99.20097304424344-0.43642821871005805V-0.5537853529151509Q99.20097304424344-1.389954934126438 98.68753558209616-1.7126870531904435 98.36480346303216-1.918062038049356 97.99806241864124-1.918062038049356 97.52863388182087-1.918062038049356 97.13255355387868-1.7566959785173533T96.57510716640448-1.4192942176777112 96.4137411068725-1.2432585163700718H96.4577500321994Q96.5017589575263-1.2285888745944353 96.57510716640448-1.2139192328187987T96.72180358416087-1.1405710239406157 96.89783928546849-1.0378835315111592 97.04453570322487-0.8765174719791565 97.16189283742996-0.6564728453446073 97.20590176275687-0.36308000983187494Q97.20590176275687-0.04034789076786944 97.00052677789795 0.20903601941795302T96.3403928979943 0.4730895713794121Z"
         fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,8.5)">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D44B"
-                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-                  ></path>
-                </g>
-                <g data-mml-node="mo" transform="translate(1074.2,0)">
-                  <path
-                    data-c="2295"
-                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
-                  ></path>
-                </g>
-                <g data-mml-node="msub" transform="translate(2074.4,0)">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D435"
-                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="TeXAtom"
-                    transform="translate(792,-150) scale(0.707)"
-                    data-mjx-texclass="ORD"
-                  >
-                    <g data-mml-node="msub">
-                      <g data-mml-node="mi">
-                        <path
-                          data-c="1D700"
-                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                        ></path>
-                      </g>
-                      <g
-                        data-mml-node="TeXAtom"
-                        transform="translate(499,-150) scale(0.707)"
-                        data-mjx-texclass="ORD"
-                      >
-                        <g data-mml-node="mn">
-                          <path
-                            data-c="33"
-                            d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
-                          ></path>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
+      ></path>
     </svg>
   </g>
-  <g
-    transform="rotate(0, 349.1517571382442, 77.37761063309638)translate(349.1517571382442, 77.37761063309638)"
-    string="X \oplus B_{\varepsilon_{2}}"
-    ensureOnCanvas="true"
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="28.819712669158378"
+    cy="646.7746751058862"
+    stroke="none"
+    r="4"
   >
-    <title>F.lab2</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="105.00219858860947"
-      height="29.72"
-      role="img"
-      focusable="false"
-      viewBox="0 -753 3554.6 1006.1"
-    >
-      <g
-        stroke="none"
-        fill="#801a1a"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,3)">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D44B"
-                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-                  ></path>
-                </g>
-                <g data-mml-node="mo" transform="translate(1074.2,0)">
-                  <path
-                    data-c="2295"
-                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
-                  ></path>
-                </g>
-                <g data-mml-node="msub" transform="translate(2074.4,0)">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D435"
-                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="TeXAtom"
-                    transform="translate(792,-150) scale(0.707)"
-                    data-mjx-texclass="ORD"
-                  >
-                    <g data-mml-node="msub">
-                      <g data-mml-node="mi">
-                        <path
-                          data-c="1D700"
-                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                        ></path>
-                      </g>
-                      <g
-                        data-mml-node="TeXAtom"
-                        transform="translate(499,-150) scale(0.707)"
-                        data-mjx-texclass="ORD"
-                      >
-                        <g data-mml-node="mn">
-                          <path
-                            data-c="32"
-                            d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
-                          ></path>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
+    <title>`F`.dot0</title>
+  </circle>
   <g
-    transform="rotate(0, 77.37744585166493, 77.37761063309638)translate(77.37744585166493, 77.37761063309638)"
-    string="X \oplus B_{\varepsilon_{1}}"
-    ensureOnCanvas="true"
-  >
-    <title>F.lab1</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="105.00219858860947"
-      height="29.72"
-      role="img"
-      focusable="false"
-      viewBox="0 -753 3554.6 1006.1"
-    >
-      <g
-        stroke="none"
-        fill="#1a4d1a"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,3)">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D44B"
-                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-                  ></path>
-                </g>
-                <g data-mml-node="mo" transform="translate(1074.2,0)">
-                  <path
-                    data-c="2295"
-                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
-                  ></path>
-                </g>
-                <g data-mml-node="msub" transform="translate(2074.4,0)">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D435"
-                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="TeXAtom"
-                    transform="translate(792,-150) scale(0.707)"
-                    data-mjx-texclass="ORD"
-                  >
-                    <g data-mml-node="msub">
-                      <g data-mml-node="mi">
-                        <path
-                          data-c="1D700"
-                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                        ></path>
-                      </g>
-                      <g
-                        data-mml-node="TeXAtom"
-                        transform="translate(499,-150) scale(0.707)"
-                        data-mjx-texclass="ORD"
-                      >
-                        <g data-mml-node="mn">
-                          <path
-                            data-c="31"
-                            d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
-                          ></path>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 704.6842474486534, 450.64894895191975)translate(704.6842474486534, 450.64894895191975)"
-    string="\varepsilon_3"
-    ensureOnCanvas="true"
-  >
-    <title>F.eps3</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="26.771116"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 902.6 1000"
-    >
-      <g
-        stroke="none"
-        fill="#1a1a80"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="msub">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D700"
-                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="mn"
-                    transform="translate(499,-150) scale(0.707)"
-                  >
-                    <path
-                      data-c="33"
-                      d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
-                    ></path>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 408.26729843254896, 450.64894895191975)translate(408.26729843254896, 450.64894895191975)"
-    string="\varepsilon_2"
-    ensureOnCanvas="true"
-  >
-    <title>F.eps2</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="26.771116"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 902.6 1000"
-    >
-      <g
-        stroke="none"
-        fill="#801a1a"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="msub">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D700"
-                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="mn"
-                    transform="translate(499,-150) scale(0.707)"
-                  >
-                    <path
-                      data-c="32"
-                      d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
-                    ></path>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 136.49298714596966, 450.64894895191975)translate(136.49298714596966, 450.64894895191975)"
-    string="\varepsilon_1"
-    ensureOnCanvas="true"
-  >
-    <title>F.eps1</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="26.771116"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 902.6 1000"
-    >
-      <g
-        stroke="none"
-        fill="#1a4d1a"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="msub">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D700"
-                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="mn"
-                    transform="translate(499,-150) scale(0.707)"
-                  >
-                    <path
-                      data-c="31"
-                      d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
-                    ></path>
-                  </g>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 785.6764768108166, 430.64894895191975)translate(785.6764768108166, 430.64894895191975)"
-    string="\varepsilon"
-    ensureOnCanvas="true"
-  >
-    <title>F.eps</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="13.82156"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 466 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D700"
-                    d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, -0.002256810816654742, 430.64894895191975)translate(-0.002256810816654742, 430.64894895191975)"
+    transform="rotate(0, 1.4047126691583776, 631.9446751058862)translate(1.4047126691583776, 631.9446751058862)"
     string="0"
-    ensureOnCanvas="true"
   >
-    <title>F.eps0</title>
+    <title>`F`.eps0</title>
     <svg
-      style="font-size: 24p"
       xmlns="http://www.w3.org/2000/svg"
       width="14.83"
       height="29.66"
       role="img"
       focusable="false"
-      viewBox="0 -750 500 1000"
+      viewBox="1.1567399999999999 -19.75356 12.48686 20.40608"
     >
-      <g
+      <path
         stroke="none"
         fill="#000000"
         stroke-width="0"
-        transform="scale(1,-1)"
+        d="M2.84736-17.3511Q4.508319999999999-19.75356 7.385339999999999-19.75356 8.80902-19.75356 10.2327-18.9824T12.54618-16.25368Q13.6436-13.7919 13.6436-9.4912 13.6436-4.8938999999999995 12.368219999999999-2.46178 11.77502-1.21606 10.73692-0.47456T8.92766 0.44489999999999996 7.415 0.65252Q6.64384 0.65252 5.87268 0.47456T4.06342-0.47456 2.43212-2.46178Q1.1567399999999999-4.8938999999999995 1.1567399999999999-9.4912 1.1567399999999999-14.65204 2.84736-17.3511ZM9.520859999999999-17.70702Q8.63106-18.65614 7.415-18.65614 6.16928-18.65614 5.2794799999999995-17.70702 4.53798-16.935859999999998 4.3007-15.571499999999999T4.06342-9.87678Q4.06342-5.1905 4.3007-3.7075T5.36846-1.36436Q6.1989399999999995-0.47456 7.415-0.47456 8.6014-0.47456 9.43188-1.36436 10.292019999999999-2.2541599999999997 10.49964-3.8558T10.73692-9.87678Q10.73692-14.17748 10.49964-15.541839999999999T9.520859999999999-17.70702Z"
         fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mn">
-                  <path
-                    data-c="30"
-                    d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
+      ></path>
     </svg>
   </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="698.0698054486534"
-    cy="445.47894895191973"
+    cx="130.92888102171685"
+    cy="646.7746751058862"
     stroke="none"
     r="4"
-    ensureOnCanvas="true"
   >
-    <title>F.dot3</title>
+    <title>`F`.dot1</title>
   </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="401.65285643254896"
-    cy="445.47894895191973"
-    stroke="none"
-    r="4"
-    ensureOnCanvas="true"
+  <g
+    transform="rotate(0, 784.2695073308415, 631.9446751058862)translate(784.2695073308415, 631.9446751058862)"
+    string="\varepsilon"
   >
-    <title>F.dot2</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="129.87854514596967"
-    cy="445.47894895191973"
-    stroke="none"
-    r="4"
-    ensureOnCanvas="true"
-  >
-    <title>F.dot1</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="27.412743189183345"
-    cy="445.47894895191973"
-    stroke="none"
-    r="4"
-    ensureOnCanvas="true"
-  >
-    <title>F.dot0</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <marker
-      id="F.axis-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
+    <title>`F`.eps</title>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.82156"
+      height="29.66"
+      role="img"
+      focusable="false"
+      viewBox="0.80082 -13.40632 11.893659999999999 14.05884"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        stroke="none"
         fill="#000000"
-        fill-opacity="0.5"
+        stroke-width="0"
+        d="M5.6354 0.65252Q3.6778399999999998 0.65252 2.2541599999999997-0.32626T0.80082-3.1736199999999997Q0.80082-5.160839999999999 2.87702-6.88112L3.1736199999999997-7.08874 2.93634-7.3556799999999996Q2.2541599999999997-8.09718 2.2541599999999997-9.016639999999999 2.2541599999999997-10.79624 4.27104-12.10128T8.6014-13.40632H8.95732Q10.6776-13.40632 12.0123-12.48686 12.694479999999999-12.0123 12.694479999999999-11.626719999999999 12.694479999999999-11.30046 12.368219999999999-10.94454T11.597059999999999-10.558959999999999Q11.330119999999999-10.558959999999999 11.00386-10.825899999999999T10.025079999999999-11.359779999999999 8.39378-11.626719999999999Q6.43622-11.626719999999999 4.95322-10.91488T3.44056-9.13528Q3.44056-8.57174 3.9447799999999997-8.06752 4.21172-7.80058 4.3007-7.770919999999999T4.65662-7.83024Q5.57608-8.245479999999999 7.05908-8.245479999999999H7.20738Q9.13528-8.245479999999999 9.13528-7.32602 9.13528-6.10996 6.61418-6.10996 5.24982-6.10996 4.21172-6.49554L3.91512-6.28792Q2.01688-5.0125399999999996 2.01688-3.32192 2.01688-1.1567399999999999 5.96166-1.1567399999999999 7.503979999999999-1.1567399999999999 8.482759999999999-1.4533399999999999T9.72848-2.13552 10.2327-2.78804 10.73692-3.1143Q11.15216-3.05498 11.15216-2.61008 11.15216-2.34314 10.825899999999999-1.8389199999999999T9.90644-0.77116 8.1565 0.23728 5.6354 0.65252Z"
+        fill-opacity="1"
       ></path>
-    </marker>
-    <marker
-      id="F.axis-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 137.54332302171684, 651.9446751058862)translate(137.54332302171684, 651.9446751058862)"
+    string="\varepsilon_1"
+  >
+    <title>`F`.eps1</title>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="26.771116"
+      height="29.66"
+      role="img"
+      focusable="false"
+      viewBox="0.80082 -13.40632 22.953547739999998 17.85532"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="0.5"
+        stroke="none"
+        fill="#1a4d1a"
+        stroke-width="0"
+        d="M5.6354 0.65252Q3.6778399999999998 0.65252 2.2541599999999997-0.32626T0.80082-3.1736199999999997Q0.80082-5.160839999999999 2.87702-6.88112L3.1736199999999997-7.08874 2.93634-7.3556799999999996Q2.2541599999999997-8.09718 2.2541599999999997-9.016639999999999 2.2541599999999997-10.79624 4.27104-12.10128T8.6014-13.40632H8.95732Q10.6776-13.40632 12.0123-12.48686 12.694479999999999-12.0123 12.694479999999999-11.626719999999999 12.694479999999999-11.30046 12.368219999999999-10.94454T11.597059999999999-10.558959999999999Q11.330119999999999-10.558959999999999 11.00386-10.825899999999999T10.025079999999999-11.359779999999999 8.39378-11.626719999999999Q6.43622-11.626719999999999 4.95322-10.91488T3.44056-9.13528Q3.44056-8.57174 3.9447799999999997-8.06752 4.21172-7.80058 4.3007-7.770919999999999T4.65662-7.83024Q5.57608-8.245479999999999 7.05908-8.245479999999999H7.20738Q9.13528-8.245479999999999 9.13528-7.32602 9.13528-6.10996 6.61418-6.10996 5.24982-6.10996 4.21172-6.49554L3.91512-6.28792Q2.01688-5.0125399999999996 2.01688-3.32192 2.01688-1.1567399999999999 5.96166-1.1567399999999999 7.503979999999999-1.1567399999999999 8.482759999999999-1.4533399999999999T9.72848-2.13552 10.2327-2.78804 10.73692-3.1143Q11.15216-3.05498 11.15216-2.61008 11.15216-2.34314 10.825899999999999-1.8389199999999999T9.90644-0.77116 8.1565 0.23728 5.6354 0.65252ZM19.26686906-7.67144036L18.994263999999998-7.566592259999999Q18.70068932-7.461744159999999 18.1554792-7.3568960599999995T16.93924124-7.21010872H16.54081846V-8.174711239999999H16.93924124Q17.92481338-8.21665048 18.763598180000002-8.48925554T19.937896900000002-8.99252642 20.52504626-9.45385806Q20.566985499999998-9.51676692 20.7766817-9.51676692 20.96540828-9.51676692 21.13316524-9.3909492V-3.12103282L21.15413486 3.16985318Q21.3009222 3.31664052 21.4057703 3.35857976T21.90904118 3.4424582399999997 23.20915762 3.4843974799999997H23.75436774V4.449H23.523701919999997Q23.0833399 4.3860911399999996 20.18953234 4.3860911399999996 17.337664020000002 4.3860911399999996 16.897302 4.449H16.64566656V3.4843974799999997H17.19087668Q17.65220832 3.4843974799999997 17.98772224 3.4843974799999997T18.51196274 3.46342786 18.84747666 3.400519 19.01523362 3.35857976 19.14105134 3.2537316599999997 19.26686906 3.16985318V-7.67144036Z"
+        fill-opacity="0.8"
       ></path>
-    </marker>
-    <path
-      d="M 27.412743189183345 445.47894895191973 L 761.2192568108167 445.47894895191973"
-      stroke-opacity="0.5"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-      marker-end="url(#F.axis-rightArrowhead)"
-    ></path>
-    <title>F.axis</title>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="406.8562569591508"
+    cy="646.7746751058862"
+    stroke="none"
+    r="4"
+  >
+    <title>`F`.dot2</title>
+  </circle>
+  <g
+    transform="rotate(0, 413.4706989591508, 651.9446751058862)translate(413.4706989591508, 651.9446751058862)"
+    string="\varepsilon_2"
+  >
+    <title>`F`.eps2</title>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="26.771116"
+      height="29.66"
+      role="img"
+      focusable="false"
+      viewBox="0.80082 -13.40632 23.41487938 17.85532"
+    >
+      <path
+        stroke="none"
+        fill="#801a1a"
+        stroke-width="0"
+        d="M5.6354 0.65252Q3.6778399999999998 0.65252 2.2541599999999997-0.32626T0.80082-3.1736199999999997Q0.80082-5.160839999999999 2.87702-6.88112L3.1736199999999997-7.08874 2.93634-7.3556799999999996Q2.2541599999999997-8.09718 2.2541599999999997-9.016639999999999 2.2541599999999997-10.79624 4.27104-12.10128T8.6014-13.40632H8.95732Q10.6776-13.40632 12.0123-12.48686 12.694479999999999-12.0123 12.694479999999999-11.626719999999999 12.694479999999999-11.30046 12.368219999999999-10.94454T11.597059999999999-10.558959999999999Q11.330119999999999-10.558959999999999 11.00386-10.825899999999999T10.025079999999999-11.359779999999999 8.39378-11.626719999999999Q6.43622-11.626719999999999 4.95322-10.91488T3.44056-9.13528Q3.44056-8.57174 3.9447799999999997-8.06752 4.21172-7.80058 4.3007-7.770919999999999T4.65662-7.83024Q5.57608-8.245479999999999 7.05908-8.245479999999999H7.20738Q9.13528-8.245479999999999 9.13528-7.32602 9.13528-6.10996 6.61418-6.10996 5.24982-6.10996 4.21172-6.49554L3.91512-6.28792Q2.01688-5.0125399999999996 2.01688-3.32192 2.01688-1.1567399999999999 5.96166-1.1567399999999999 7.503979999999999-1.1567399999999999 8.482759999999999-1.4533399999999999T9.72848-2.13552 10.2327-2.78804 10.73692-3.1143Q11.15216-3.05498 11.15216-2.61008 11.15216-2.34314 10.825899999999999-1.8389199999999999T9.90644-0.77116 8.1565 0.23728 5.6354 0.65252ZM17.08602858-4.54696698Q16.51984884-4.54696698 16.18433492-4.92442014T15.848821000000001-5.84708342Q15.848821000000001-7.33592644 16.96021086-8.42634668T19.7282007-9.51676692Q21.63643612-9.51676692 22.91558294-8.342468199999999T24.21569938-5.3018733Q24.21569938-4.40017964 23.79630698-3.58236446T22.78976522-2.1564303 21.11219562-0.6046784199999999Q20.3572893 0.0453798 19.01523362 1.3245266199999999L17.77802604 2.49882534 19.37171716 2.51979496Q22.6639475 2.51979496 22.873643700000002 2.41494686 23.02043104 2.37300762 23.37691458 0.5486506800000001V0.48574181999999994H24.21569938V0.5486506800000001Q24.194729759999998 0.61155954 23.943094319999997 2.4568860999999997T23.628550020000002 4.3860911399999996V4.449H15.848821000000001V4.05057722 3.79894178Q15.848821000000001 3.65215444 15.97463872 3.4843974799999997T16.60372732 2.75046078Q17.211846299999998 2.07943294 17.65220832 1.57616206 17.8409349 1.36646586 18.365175400000002 0.80028612T19.078142479999997 0.024410179999999997 19.68626146-0.6675872799999999 20.273410820000002-1.3805543599999999 20.75571208-2.00964296 21.1960741-2.6806707999999997 21.5106184-3.2887897799999997 21.783223460000002-3.95981762 21.930010799999998-4.58890622 21.99291966-5.28090368Q21.99291966-6.60198974 21.27995258-7.566592259999999T19.24589944-8.53119478Q18.55390198-8.53119478 18.02966148-8.174711239999999T17.29572478-7.482713779999999 17.08602858-7.0842909999999994Q17.08602858-7.06332138 17.19087668-7.06332138 17.568329839999997-7.06332138 17.966752619999998-6.7697467T18.365175400000002-5.80514418Q18.365175400000002-5.28090368 18.02966148-4.92442014T17.08602858-4.54696698Z"
+        fill-opacity="0.8"
+      ></path>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="696.9442298646733"
+    cy="646.7746751058862"
+    stroke="none"
+    r="4"
+  >
+    <title>`F`.dot3</title>
+  </circle>
+  <g
+    transform="rotate(0, 703.5586718646733, 651.9446751058862)translate(703.5586718646733, 651.9446751058862)"
+    string="\varepsilon_3"
+  >
+    <title>`F`.eps3</title>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="26.771116"
+      height="29.66"
+      role="img"
+      focusable="false"
+      viewBox="0.80082 -13.40632 23.58263634 18.31665164"
+    >
+      <path
+        stroke="none"
+        fill="#1a1a80"
+        stroke-width="0"
+        d="M5.6354 0.65252Q3.6778399999999998 0.65252 2.2541599999999997-0.32626T0.80082-3.1736199999999997Q0.80082-5.160839999999999 2.87702-6.88112L3.1736199999999997-7.08874 2.93634-7.3556799999999996Q2.2541599999999997-8.09718 2.2541599999999997-9.016639999999999 2.2541599999999997-10.79624 4.27104-12.10128T8.6014-13.40632H8.95732Q10.6776-13.40632 12.0123-12.48686 12.694479999999999-12.0123 12.694479999999999-11.626719999999999 12.694479999999999-11.30046 12.368219999999999-10.94454T11.597059999999999-10.558959999999999Q11.330119999999999-10.558959999999999 11.00386-10.825899999999999T10.025079999999999-11.359779999999999 8.39378-11.626719999999999Q6.43622-11.626719999999999 4.95322-10.91488T3.44056-9.13528Q3.44056-8.57174 3.9447799999999997-8.06752 4.21172-7.80058 4.3007-7.770919999999999T4.65662-7.83024Q5.57608-8.245479999999999 7.05908-8.245479999999999H7.20738Q9.13528-8.245479999999999 9.13528-7.32602 9.13528-6.10996 6.61418-6.10996 5.24982-6.10996 4.21172-6.49554L3.91512-6.28792Q2.01688-5.0125399999999996 2.01688-3.32192 2.01688-1.1567399999999999 5.96166-1.1567399999999999 7.503979999999999-1.1567399999999999 8.482759999999999-1.4533399999999999T9.72848-2.13552 10.2327-2.78804 10.73692-3.1143Q11.15216-3.05498 11.15216-2.61008 11.15216-2.34314 10.825899999999999-1.8389199999999999T9.90644-0.77116 8.1565 0.23728 5.6354 0.65252ZM17.46348174-5.25993406Q16.897302-5.25993406 16.582757700000002-5.6164176T16.24724378-6.539080879999999Q16.24724378-7.69240998 17.25378554-8.59410364T19.68626146-9.4957973Q20.420198159999998-9.4957973 20.608924740000003-9.474827679999999 22.16067662-9.22319224 22.9784918-8.36343782T23.8172766-6.49714164Q23.8172766-5.4067213999999995 23.104309519999997-4.3792100199999995T21.13316524-2.890367L21.07025638-2.84842776Q21.07025638-2.8274581399999996 21.258982959999997-2.7855189T21.86710194-2.59679232 22.6639475-2.1564303Q24.383456340000002-1.04504044 24.383456340000002 0.7793165 24.383456340000002 2.43591648 23.0833399 3.6731240599999997T19.79110956 4.91033164Q18.11353996 4.91033164 16.897302 4.00863798T15.681064039999999 1.7229494Q15.681064039999999 1.13580004 16.058517199999997 0.7793165T17.0021501 0.40186333999999996Q17.58929946 0.40186333999999996 17.966752619999998 0.7793165T18.34420578 1.7229494Q18.34420578 1.95361522 18.28129692 2.1423418T18.13450958 2.47785572 17.903843759999997 2.72949116 17.65220832 2.89724812 17.44251212 2.9811266 17.27475516 3.04403546L17.19087668 3.0650050799999997Q18.2603273 4.00863798 19.79110956 4.00863798 20.94443866 4.00863798 21.53158802 2.89724812 21.88807156 2.20525066 21.88807156 0.7793165V0.35992409999999997Q21.88807156-1.6321898 20.54601588-2.3032176399999997 20.23147158-2.42903536 19.26686906-2.4500049799999997L18.38614502-2.4709746 18.323236159999997-2.51291384Q18.28129692-2.5758227 18.28129692-2.84842776 18.28129692-3.22588092 18.44905388-3.22588092 19.03620324-3.22588092 19.66529184-3.3307290199999997 20.37825892-3.4355771199999996 20.96540828-4.21145306T21.55255764-6.5600505V-6.727807459999999Q21.55255764-7.9230757999999994 20.81862094-8.38440744 20.3572893-8.67798212 19.833048799999997-8.67798212 19.16202096-8.67798212 18.59584122-8.4473163T17.79899566-7.965015039999999 17.568329839999997-7.7133796H17.6312387Q17.69414756-7.69240998 17.79899566-7.67144036T18.00869186-7.566592259999999 18.2603273-7.41980492 18.4700235-7.189139099999999 18.63778046-6.8745948 18.70068932-6.455202399999999Q18.70068932-5.99387076 18.40711464-5.63738722T17.46348174-5.25993406Z"
+        fill-opacity="0.8"
+      ></path>
+    </svg>
   </g>
 </svg>

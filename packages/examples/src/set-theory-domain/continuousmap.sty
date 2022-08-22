@@ -4,17 +4,17 @@ canvas {
 }
 
 Const {
-  Const.strokeWidth = 1.5
-  Const.padding = 20.0
+  strokeWidth = 1.5
+  padding = 20.0
 }
 
 Colors {
-  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
-  Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
-  Colors.lightYellow = rgba(0.95, 0.96, 0.92, 0.5)
+  black = rgba(0.0, 0.0, 0.0, 1.0)
+  lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
+  lightYellow = rgba(0.95, 0.96, 0.92, 0.5)
 }
 
-Set x {
+forall Set x {
     x.icon = Circle {
         fillColor : Colors.lightBlue
         strokeColor : Colors.black
@@ -33,7 +33,7 @@ Set x {
 }
 
 -- Selector ordering matters!
-Set x; Set y
+forall Set x; Set y
 where IsSubset(x, y) {
   ensure contains(y.icon, x.icon, 10.0)
   -- y.sizeFn    = ensure smallerThan(x.icon, y.icon)
@@ -41,7 +41,7 @@ where IsSubset(x, y) {
   x.icon above y.icon
 }
 
-Map f
+forall Map f
 where From(f, X, Y); IsSubset(X, R1); IsSubset(Y, R2)
 with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
@@ -69,18 +69,18 @@ with Set X; Set Y; Set R1; Set R2 {
     -- f.centerFn = encourage centerArrow(f.icon, R1.icon, R2.icon)
 }
 
-Set `U` {
+forall Set `U` {
     override `U`.icon.strokeStyle = "dashed"
     override `U`.icon.strokeWidth = Const.strokeWidth
 }
 
-Set `V` {
+forall Set `V` {
     override `V`.icon.strokeStyle = "dashed"
     override `V`.icon.strokeWidth = Const.strokeWidth
 }
 
 -- TODO: use subtyping for reals?
-Set `Rn` {
+forall Set `Rn` {
     `Rn`.iconSize = canvas.height / 3
 
     override `Rn`.icon = Rectangle {
@@ -102,7 +102,7 @@ Set `Rn` {
 
 }
 
-Set `Rm`
+forall Set `Rm`
 with Set `Rn` {
     -- TODO: factor this block out
     override `Rm`.icon = Rectangle {

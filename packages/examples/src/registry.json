@@ -5,13 +5,25 @@
       "substance": "tree",
       "style": "venn",
       "domain": "set-theory",
-      "variation": "CasalViper643"
+      "variation": "PlumvilleCapybara104"
     },
     {
       "substance": "tree",
       "style": "venn-3d",
       "domain": "set-theory",
       "variation": ""
+    },
+    {
+      "substance": "wet-floor",
+      "style": "atoms-and-bonds",
+      "domain": "atoms-and-bonds",
+      "variation": "PorcellanaFlamingo3169"
+    },
+    {
+      "substance": "one-water-molecule",
+      "style": "atoms-and-bonds",
+      "domain": "atoms-and-bonds",
+      "variation": "PorcellanaFlamingo3169"
     },
     {
       "substance": "continuousmap",
@@ -41,7 +53,7 @@
       "substance": "small-graph",
       "style": "disjoint-rect-line-horiz",
       "domain": "graph-theory",
-      "variation": ""
+      "variation": "BriocheChamois5430"
     },
     {
       "substance": "small-graph",
@@ -92,6 +104,12 @@
       "variation": ""
     },
     {
+      "substance": "siggraph-teaser",
+      "style": "euclidean-teaser",
+      "domain": "geometry",
+      "variation": "ArtemisiaGrasshopper36446"
+    },
+    {
       "substance": "non-convex",
       "style": "non-convex",
       "domain": "non-convex",
@@ -101,13 +119,13 @@
       "substance": "lagrange-bases",
       "style": "lagrange-bases",
       "domain": "lagrange-bases",
-      "variation": "TimberwolfSquirrel25242"
+      "variation": "RainmakerMarten88256"
     },
     {
       "substance": "hypergraph",
       "style": "hypergraph",
       "domain": "hypergraph",
-      "variation": "ConchSpoonbill0283"
+      "variation": "ConceptualMeerkat694"
     },
     {
       "substance": "persistent-homology",
@@ -119,25 +137,49 @@
       "substance": "wos-laplace-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "GroundedMule26071"
+      "variation": "RainmakerMarten88256"
     },
     {
       "substance": "wos-poisson-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "SunbathedStingray28254"
+      "variation": "TideHawk3699"
     },
     {
       "substance": "wos-nested-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "CamelliaBison2029"
+      "variation": "WhiteoutSnail17459"
     },
     {
       "substance": "wos-offcenter-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "GumdropsElk9023"
+      "variation": "ShireStork246"
+    },
+    {
+      "substance": "points-around-star",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "ReformLapwing68793"
+    },
+    {
+      "substance": "points-around-polyline",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "SharkskinWalrus24396"
+    },
+    {
+      "substance": "points-around-line",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "GalapagosLocust418"
+    },
+    {
+      "substance": "3d-projection",
+      "style": "fake-3d-linear-algebra",
+      "domain": "fake-3d-linear-algebra",
+      "variation": "ConceptualMeerkat694"
     }
   ],
   "domains": {
@@ -184,6 +226,18 @@
     "walk-on-spheres": {
       "name": "Walk on Spheres",
       "URI": "walk-on-spheres/walk-on-spheres.dsl"
+    },
+    "shape-distance": {
+      "name": "Signed Distance Function",
+      "URI": "shape-distance/shapes.dsl"
+    },
+    "fake-3d-linear-algebra": {
+      "name": "Fake 3d Linear Algebra",
+      "URI": "fake-3d-linear-algebra/fake3d.dsl"
+    },
+    "atoms-and-bonds": {
+      "name": "Atoms and Bonds",
+      "URI": "atoms-and-bonds/atoms-and-bonds.dsl"
     }
   },
   "styles": {
@@ -247,6 +301,11 @@
       "name": "Euclidean 2D Geometry",
       "URI": "geometry-domain/euclidean.sty"
     },
+    "euclidean-teaser": {
+      "domain": "geometry",
+      "name": "Euclidean - SIGGRAPH teaser",
+      "URI": "geometry-domain/euclidean-teaser.sty"
+    },
     "non-convex": {
       "domain": "non-convex",
       "name": "Non-convex Shape",
@@ -270,6 +329,21 @@
     "walk-on-spheres": {
       "name": "Walk on Spheres",
       "URI": "walk-on-spheres/walk-on-spheres.sty"
+    },
+    "shape-distance": {
+      "domain": "shape-distance",
+      "name": "Sign Distance Functions",
+      "URI": "shape-distance/shape-distance.sty"
+    },
+    "fake-3d-linear-algebra": {
+      "domain": "fake-3d-linear-algebra",
+      "name": "Fake 3d Linear Algebra",
+      "URI": "fake-3d-linear-algebra/fake3d.sty"
+    },
+    "atoms-and-bonds": {
+      "domain": "atoms-and-bonds",
+      "name": "atoms-and-bonds",
+      "URI": "atoms-and-bonds/atoms-and-bonds.sty"
     }
   },
   "substances": {
@@ -302,6 +376,11 @@
       "domain": "graph-theory",
       "name": "Small graph",
       "URI": "graph-domain/small-graph.sub"
+    },
+    "siggraph-teaser": {
+      "domain": "geometry",
+      "name": "SIGGRAPH teaser",
+      "URI": "geometry-domain/teaser.sub"
     },
     "collinear": {
       "domain": "geometry",
@@ -372,6 +451,36 @@
       "domain": "walk-on-spheres",
       "name": "WoS Laplace Estimator",
       "URI": "walk-on-spheres/OffCenter.sub"
+    },
+    "points-around-star": {
+      "domain": "shape-distance",
+      "name": "Points around a Star",
+      "URI": "shape-distance/hundred-points-around-star.sub"
+    },
+    "points-around-polyline": {
+      "domain": "shape-distance",
+      "name": "Points around a Polyline",
+      "URI": "shape-distance/ninety-points-around-polyline.sub"
+    },
+    "points-around-line": {
+      "domain": "shape-distance",
+      "name": "Points around a Line",
+      "URI": "shape-distance/hundred-points-around-line.sub"
+    },
+    "3d-projection": {
+      "domain": "fake-3d-linear-algebra",
+      "name": "Projection onto Subspace and its Orthogonal Complement",
+      "URI": "fake-3d-linear-algebra/projection.sub"
+    },
+    "wet-floor": {
+      "domain": "atoms-and-bonds",
+      "name": "Three Water Molecules drawn using strong and weak bonds, using symmetry and aliasing",
+      "URI": "atoms-and-bonds/wet-floor.sub"
+    },
+    "one-water-molecule": {
+      "domain": "atoms-and-bonds",
+      "name": "One water molecule drawn using symmetric bonds",
+      "URI": "atoms-and-bonds/one-water-molecule.sub"
     }
   }
 }

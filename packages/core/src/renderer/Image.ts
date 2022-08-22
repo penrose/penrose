@@ -59,7 +59,7 @@ const Image = async ({
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
 
-  // Directrly Map across any "unknown" SVG properties
+  // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;

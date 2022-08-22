@@ -1,5 +1,4 @@
 import { StrV, VectorV } from "types/value";
-import { retrieveLabel } from "utils/CollectLabels";
 import { toScreen } from "utils/Util";
 import {
   attrAutoFillSvg,
@@ -30,7 +29,7 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
 
   // Get width/height of the text if available
   const name = shape.properties.name as StrV;
-  const retrievedLabel = retrieveLabel(name.contents, labels);
+  const retrievedLabel = labels.get(name.contents);
   // Directly render the text with [x, y] in screen coordinates without transforming them using `width` and `height`
   const center = shape.properties.center as VectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
@@ -48,7 +47,7 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
     elem.setAttribute("y", y.toString());
   }
 
-  // Directrly Map across any "unknown" SVG properties
+  // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;

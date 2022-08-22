@@ -54,6 +54,15 @@ forall Text t {
    }
 }
 
+forall Ellipse e {
+    shape e.icon = Ellipse {
+      center: (10,10)
+      rx : 100
+      ry : 50
+      
+   }
+}
+
 forall Point p; Shape s
 where Around(p, s) {
     ensure equal(signedDistance(s.icon, p.icon.center), 20)

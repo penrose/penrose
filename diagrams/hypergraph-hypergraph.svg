@@ -1,318 +1,513 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="487.3097297750402"
-    cy="367.64242204336597"
-    stroke="none"
-    rx="10"
-    ry="22.18372612036552"
-    ensureOnCanvas="true"
-  >
-    <title>E33.ellipse</title>
-  </ellipse>
   <rect
-    x="477.3097297750402"
-    y="345.45869592300045"
+    x="295.3739692381143"
+    y="343.4621136725787"
     width="20"
-    height="44.36745224073104"
+    height="22.739165940009492"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 477.3097297750402, 345.45869592300045)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 295.3739692381143, 343.4621136725787)"
   >
-    <title>E33.rect</title>
+    <title>`E11`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="487.3097297758135"
-    cy="308.12136078132295"
-    stroke="none"
-    rx="10"
-    ry="16.093862537452377"
-    ensureOnCanvas="true"
-  >
-    <title>E32.ellipse</title>
-  </ellipse>
   <rect
-    x="477.3097297758135"
-    y="292.0274982438706"
+    x="395.3739706472962"
+    y="329.7991754116852"
     width="20"
-    height="32.187725074904755"
+    height="27.423098343001435"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 477.3097297758135, 292.0274982438706)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 395.3739706472962, 329.7991754116852)"
   >
-    <title>E32.rect</title>
+    <title>`E24`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="487.3097297754624"
-    cy="430.3426541891869"
-    stroke="none"
-    rx="10"
-    ry="11.683287469896513"
-    ensureOnCanvas="true"
-  >
-    <title>E31.ellipse</title>
-  </ellipse>
   <rect
-    x="477.3097297754624"
-    y="418.65936671929035"
+    x="295.3739692381142"
+    y="305.46210057988736"
     width="20"
-    height="23.366574939793026"
+    height="17.999999253292586"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 477.3097297754624, 418.65936671929035)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 295.3739692381142, 305.46210057988736)"
   >
-    <title>E31.rect</title>
+    <title>`E12`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="387.3097309342099"
-    cy="326.09765677413804"
-    stroke="none"
-    rx="10"
-    ry="21.02833228256567"
-    ensureOnCanvas="true"
-  >
-    <title>E24.ellipse</title>
-  </ellipse>
   <rect
-    x="377.3097309342099"
-    y="305.0693244915724"
+    x="295.3739692381142"
+    y="267.4620600953464"
     width="20"
-    height="42.05666456513134"
+    height="18.000034726673135"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 377.3097309342099, 305.0693244915724)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 295.3739692381142, 267.4620600953464)"
   >
-    <title>E24.rect</title>
+    <title>`E15`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="387.3097309341629"
-    cy="399.1667454262816"
-    stroke="none"
-    rx="10"
-    ry="13.697436572357162"
-    ensureOnCanvas="true"
-  >
-    <title>E23.ellipse</title>
-  </ellipse>
   <rect
-    x="377.3097309341629"
-    y="385.4693088539244"
+    x="495.3739769440217"
+    y="405.0939665049245"
     width="20"
-    height="27.394873144714325"
+    height="28.722001198664785"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 377.3097309341629, 385.4693088539244)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 495.3739769440217, 405.0939665049245)"
   >
-    <title>E23.rect</title>
+    <title>`E31`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="387.3097309339915"
-    cy="271.55334964102997"
-    stroke="none"
-    rx="10"
-    ry="13.358792518565174"
-    ensureOnCanvas="true"
-  >
-    <title>E22.ellipse</title>
-  </ellipse>
   <rect
-    x="377.3097309339915"
-    y="258.1945571224648"
+    x="395.3739706472962"
+    y="253.79917824386655"
     width="20"
-    height="26.71758503713035"
+    height="17.999997073170093"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 377.3097309339915, 258.1945571224648)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 395.3739706472962, 253.79917824386655)"
   >
-    <title>E22.rect</title>
+    <title>`E21`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="387.3097309335482"
-    cy="441.8641930547201"
-    stroke="none"
-    rx="10"
-    ry="9.000002946148633"
-    ensureOnCanvas="true"
-  >
-    <title>E21.ellipse</title>
-  </ellipse>
   <rect
-    x="377.3097309335482"
-    y="432.86419010857145"
+    x="395.3739706472962"
+    y="291.7991718104488"
     width="20"
-    height="18.000005892297267"
+    height="18.00000741969059"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 377.3097309335482, 432.86419010857145)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 395.3739706472962, 291.7991718104488)"
   >
-    <title>E21.rect</title>
+    <title>`E22`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="287.30973471483924"
-    cy="293.67267691821354"
-    stroke="none"
-    rx="10"
-    ry="10.042027610530589"
-    ensureOnCanvas="true"
-  >
-    <title>E15.ellipse</title>
-  </ellipse>
   <rect
-    x="277.30973471483924"
-    y="283.630649307683"
+    x="495.37397694402136"
+    y="310.5988062780995"
     width="20"
-    height="20.084055221061178"
+    height="26.295532070021743"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 277.30973471483924, 283.630649307683)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 495.37397694402136, 310.5988062780995)"
   >
-    <title>E15.rect</title>
+    <title>`E32`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="287.30973471645393"
-    cy="252.80649184072593"
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="319.5988057320072"
     stroke="none"
-    rx="10"
-    ry="10.824145585663807"
-    ensureOnCanvas="true"
+    r="5"
   >
-    <title>E14.ellipse</title>
-  </ellipse>
+    <title>`N2`.dot3</title>
+  </circle>
   <rect
-    x="277.30973471645393"
-    y="241.9823462550621"
+    x="295.3739692381142"
+    y="390.36233197249356"
     width="20"
-    height="21.648291171327614"
+    height="20.065699864168025"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 277.30973471645393, 241.9823462550621)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 295.3739692381142, 390.36233197249356)"
   >
-    <title>E14.rect</title>
+    <title>`E14`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="287.3097347187831"
-    cy="386.9008363679073"
-    stroke="none"
-    rx="10"
-    ry="8.999995411561724"
-    ensureOnCanvas="true"
-  >
-    <title>E13.ellipse</title>
-  </ellipse>
   <rect
-    x="277.3097347187831"
-    y="377.9008409563456"
+    x="295.3739692381142"
+    y="430.4335167398582"
     width="20"
-    height="17.999990823123447"
+    height="18.00008475130211"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 277.3097347187831, 377.9008409563456)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 295.3739692381142, 430.4335167398582)"
   >
-    <title>E13.rect</title>
+    <title>`E13`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="287.3097347310168"
-    cy="424.9008360049831"
-    stroke="none"
-    rx="10"
-    ry="8.999999597478748"
-    ensureOnCanvas="true"
-  >
-    <title>E12.ellipse</title>
-  </ellipse>
   <rect
-    x="277.3097347310168"
-    y="415.90083640750436"
+    x="395.3739706472962"
+    y="377.5345704689918"
     width="20"
-    height="17.999999194957496"
+    height="20.247901198997788"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 277.3097347310168, 415.90083640750436)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 395.3739706472962, 377.5345704689918)"
   >
-    <title>E12.rect</title>
+    <title>`E23`.rect</title>
   </rect>
-  <ellipse
-    fill="#000000"
-    fill-opacity="0.2"
-    cx="287.3097347259015"
-    cy="343.48325927766876"
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="300.7991721063442"
     stroke="none"
-    rx="10"
-    ry="14.417582684211524"
-    ensureOnCanvas="true"
+    r="5"
   >
-    <title>E11.ellipse</title>
-  </ellipse>
+    <title>`N3`.dot2</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="314.4621014158567"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot1</title>
+  </circle>
   <rect
-    x="277.3097347259015"
-    y="329.0656765934572"
+    x="495.3739769440212"
+    y="356.894427005021"
     width="20"
-    height="28.83516536842305"
+    height="28.19950043349063"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
     rx="0"
-    transform="rotate(0, 277.3097347259015, 329.0656765934572)"
-    ensureOnCanvas="true"
+    transform="rotate(0, 495.3739769440212, 356.894427005021)"
   >
-    <title>E11.rect</title>
+    <title>`E33`.rect</title>
   </rect>
-  <g ensureOnCanvas="true">
-    <filter id="N9.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="338.7991733102151"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot2</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="365.89442100197135"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot3</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="326.7751769988824"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot3</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="352.46211201259956"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot1</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="276.4620944236958"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot1</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="375.97764272973586"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot3</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="439.4336024284653"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot1</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="388.7824723562525"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot2</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="386.5345713661136"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot2</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="276.462089954676"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot1</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="300.7991718932784"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot2</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="399.3623309554009"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot1</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="352.4636066536968"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot1</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="424.81596802901356"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot3</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="348.22226285132746"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot2</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="376.09393170108086"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot3</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="262.7991811990766"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot2</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="338.7991743102984"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot2</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="414.0939648978624"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot3</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="357.20128025638644"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot1</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="401.42802598703764"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot1</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="346.7086074365214"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot2</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="327.89434077649673"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot3</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="367.7587948575641"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot3</title>
+  </circle>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="505.3739769440217"
+    cy="419.45496710425687"
+    stroke="none"
+    rx="10"
+    ry="14.361000599332392"
+  >
+    <title>`E31`.ellipse</title>
+  </ellipse>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="205.37397646048356"
+    cy="424.2064424605798"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dotl</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="505.37397254795985"
+    cy="414.0939648978624"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot3P</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="605.3739693042896"
+    cy="448.13208794346184"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dotrP</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="405.37397020402653"
+    cy="262.7991811990766"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot2P</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="305.37397139515514"
+    cy="352.4636066536968"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot1P</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="605.3739693042896"
+    cy="448.13208794346184"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dotr</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="205.37397646048356"
+    cy="424.2064424605798"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N1`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -329,16 +524,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#bd4f99"
+      stroke="#672551"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 379.60261568002676 Q 549.1818374775778 358.8166788750439 587.3097271497335 305.84049789299644"
+      d="M 505.37397254795985 414.0939648978624 Q 548.9294517922865 450.046280166403 605.3739693042896 448.13208794346184"
     ></path>
-    <title>N9.line3r</title>
+    <title>`N1`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N9.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N1`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -355,16 +550,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#bd4f99"
+      stroke="#672551"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 338.1259907130881 Q 429.6473529196858 377.3382820177502 487.30972909224766 379.60261568002676"
+      d="M 305.37397139515514 352.4636066536968 Q 368.725637767411 322.52209335984634 405.37397020402653 262.7991811990766"
     ></path>
-    <title>N9.line23</title>
+    <title>`N1`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N9.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N1`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -381,16 +576,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#bd4f99"
+      stroke="#672551"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 294.7147054824365 Q 329.34555194716484 334.76623947892756 387.3097322255305 338.1259907130881"
+      d="M 405.37397020402653 262.7991811990766 Q 438.68916472508783 349.47459113468403 505.37397254795985 414.0939648978624"
     ></path>
-    <title>N9.line12</title>
+    <title>`N1`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N9.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N1`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -407,126 +602,108 @@
       </feMerge>
     </filter>
     <path
-      stroke="#bd4f99"
+      stroke="#672551"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 257.2386499742978 Q 230.29120586271316 294.70473507013537 287.3097358091563 294.7147054824365"
+      d="M 205.37397646048356 424.2064424605798 Q 267.0325324829786 404.5854998552345 305.37397139515514 352.4636066536968"
     ></path>
-    <title>N9.linel1</title>
+    <title>`N1`.linel1</title>
   </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="405.3739706472962"
+    cy="262.7991767804516"
+    stroke="none"
+    rx="10"
+    ry="8.999998536585046"
+  >
+    <title>`E21`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="505.37397694402136"
+    cy="323.7465723131104"
+    stroke="none"
+    rx="10"
+    ry="13.147766035010871"
+  >
+    <title>`E32`.ellipse</title>
+  </ellipse>
   <circle
-    fill="#bd4f99"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="305.84049789299644"
+    cx="205.37397646048356"
+    cy="393.25911939003225"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N9.dotrP</title>
+    <title>`N2`.dotl</title>
   </circle>
   <circle
-    fill="#bd4f99"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="305.84049789299644"
+    cx="505.37397254795985"
+    cy="319.5988057320072"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N9.dotr</title>
+    <title>`N2`.dot3P</title>
   </circle>
   <circle
-    fill="#bd4f99"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="379.60261568002676"
+    cx="605.3739693042896"
+    cy="254.59393982916765"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N9.dot3P</title>
+    <title>`N2`.dotrP</title>
   </circle>
   <circle
-    fill="#bd4f99"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="379.60261568002676"
+    cx="405.37397020402653"
+    cy="300.7991718932784"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N9.dot3</title>
+    <title>`N2`.dot2P</title>
   </circle>
   <circle
-    fill="#bd4f99"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="338.1259907130881"
+    cx="305.37397139515514"
+    cy="357.20128025638644"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N9.dot2P</title>
+    <title>`N2`.dot1P</title>
   </circle>
   <circle
-    fill="#bd4f99"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="338.1259907130881"
+    cx="605.3739693042896"
+    cy="254.59393982916765"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N9.dot2</title>
+    <title>`N2`.dotr</title>
   </circle>
   <circle
-    fill="#bd4f99"
+    fill="#24c4c9"
     fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="294.7147054824365"
+    cx="205.37397646048356"
+    cy="393.25911939003225"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N9.dot1P</title>
+    <title>`N2`.dotlP</title>
   </circle>
-  <circle
-    fill="#bd4f99"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="294.7147054824365"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N9.dot1</title>
-  </circle>
-  <circle
-    fill="#bd4f99"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="257.2386499742978"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N9.dotlP</title>
-  </circle>
-  <circle
-    fill="#bd4f99"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="257.2386499742978"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N9.dotl</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="N8.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N2`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -543,16 +720,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#352e54"
+      stroke="#24c4c9"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 360.8334356500684 Q 543.9051352383476 362.24915150452415 587.3097271497335 325.9024241418654"
+      d="M 505.37397254795985 319.5988057320072 Q 566.2743150534177 303.86486796747363 605.3739693042896 254.59393982916765"
     ></path>
-    <title>N8.line3r</title>
+    <title>`N2`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N8.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N2`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -569,16 +746,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#352e54"
+      stroke="#24c4c9"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 317.81724444560047 Q 429.406670324605 357.697644308963 487.30972909224766 360.8334356500684"
+      d="M 305.37397139515514 357.20128025638644 Q 365.1993213424994 346.4203987785772 405.37397020402653 300.7991718932784"
     ></path>
-    <title>N8.line23</title>
+    <title>`N2`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N8.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N2`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -595,16 +772,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#352e54"
+      stroke="#24c4c9"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 292.6306488768425 Q 332.42497399379454 324.6182510296476 387.3097322255305 317.81724444560047"
+      d="M 405.37397020402653 300.7991718932784 Q 451.6787819248957 329.8546621996789 505.37397254795985 319.5988057320072"
     ></path>
-    <title>N8.line12</title>
+    <title>`N2`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N8.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N2`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -621,126 +798,119 @@
       </feMerge>
     </filter>
     <path
-      stroke="#352e54"
+      stroke="#24c4c9"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 351.0302320732931 Q 247.39569789745713 339.1010323515111 287.3097358091563 292.6306488768425"
+      d="M 205.37397646048356 393.25911939003225 Q 262.1580002871041 394.04447395482157 305.37397139515514 357.20128025638644"
     ></path>
-    <title>N8.linel1</title>
+    <title>`N2`.linel1</title>
   </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="305.3739692381143"
+    cy="354.83169664258344"
+    stroke="none"
+    rx="10"
+    ry="11.369582970004746"
+  >
+    <title>`E11`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="405.3739706472962"
+    cy="300.7991755202941"
+    stroke="none"
+    rx="10"
+    ry="9.000003709845295"
+  >
+    <title>`E22`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="505.3739769440212"
+    cy="370.9941772217663"
+    stroke="none"
+    rx="10"
+    ry="14.099750216745315"
+  >
+    <title>`E33`.ellipse</title>
+  </ellipse>
   <circle
-    fill="#352e54"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="325.9024241418654"
+    cx="205.37397646048356"
+    cy="359.94056578803924"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N8.dotrP</title>
+    <title>`N3`.dotl</title>
   </circle>
   <circle
-    fill="#352e54"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="325.9024241418654"
+    cx="505.37397254795985"
+    cy="326.7751769988824"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N8.dotr</title>
+    <title>`N3`.dot3P</title>
   </circle>
   <circle
-    fill="#352e54"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="360.8334356500684"
+    cx="605.3739693042896"
+    cy="280.2807041182954"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N8.dot3P</title>
+    <title>`N3`.dotrP</title>
   </circle>
   <circle
-    fill="#352e54"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="360.8334356500684"
+    cx="405.37397020402653"
+    cy="300.7991721063442"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N8.dot3</title>
+    <title>`N3`.dot2P</title>
   </circle>
   <circle
-    fill="#352e54"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="317.81724444560047"
+    cx="305.37397139515514"
+    cy="352.46211201259956"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N8.dot2P</title>
+    <title>`N3`.dot1P</title>
   </circle>
   <circle
-    fill="#352e54"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="317.81724444560047"
+    cx="605.3739693042896"
+    cy="280.2807041182954"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N8.dot2</title>
+    <title>`N3`.dotr</title>
   </circle>
   <circle
-    fill="#352e54"
+    fill="#6f41d4"
     fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="292.6306488768425"
+    cx="205.37397646048356"
+    cy="359.94056578803924"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N8.dot1P</title>
+    <title>`N3`.dotlP</title>
   </circle>
-  <circle
-    fill="#352e54"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="292.6306488768425"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N8.dot1</title>
-  </circle>
-  <circle
-    fill="#352e54"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="351.0302320732931"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N8.dotlP</title>
-  </circle>
-  <circle
-    fill="#352e54"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="351.0302320732931"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N8.dotl</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="N7.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N3`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -757,16 +927,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#6fdcd6"
+      stroke="#6f41d4"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 380.82614959747985 Q 533.1580859445239 411.0007350468368 587.3097271497335 402.0466205954193"
+      d="M 505.37397254795985 326.7751769988824 Q 563.8060320043843 321.66354844556326 605.3739693042896 280.2807041182954"
     ></path>
-    <title>N7.line3r</title>
+    <title>`N3`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N7.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N3`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -783,16 +953,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#6fdcd6"
+      stroke="#6f41d4"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 334.5834194997355 Q 428.91527278875947 375.85782849320486 487.30972909224766 380.82614959747985"
+      d="M 305.37397139515514 352.46211201259956 Q 364.55385287109294 344.3994263194655 405.37397020402653 300.7991721063442"
     ></path>
-    <title>N7.line23</title>
+    <title>`N3`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N7.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N3`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -809,16 +979,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#6fdcd6"
+      stroke="#6f41d4"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 254.6306380735017 Q 324.8203357535833 310.2280040610796 387.3097322255305 334.5834194997355"
+      d="M 405.37397020402653 300.7991721063442 Q 450.3456506652002 333.14475480943065 505.37397254795985 326.7751769988824"
     ></path>
-    <title>N7.line12</title>
+    <title>`N3`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N7.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N3`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -835,126 +1005,108 @@
       </feMerge>
     </filter>
     <path
-      stroke="#6fdcd6"
+      stroke="#6f41d4"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 241.98234801986928 Q 234.80008013204167 268.14840671557124 287.3097358091563 254.6306380735017"
+      d="M 205.37397646048356 359.94056578803924 Q 256.8655045625759 376.14564276353786 305.37397139515514 352.46211201259956"
     ></path>
-    <title>N7.linel1</title>
+    <title>`N3`.linel1</title>
   </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="305.3739692381142"
+    cy="314.46210020653365"
+    stroke="none"
+    rx="10"
+    ry="8.999999626646293"
+  >
+    <title>`E12`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="405.3739706472962"
+    cy="387.65852106849064"
+    stroke="none"
+    rx="10"
+    ry="10.123950599498894"
+  >
+    <title>`E23`.ellipse</title>
+  </ellipse>
   <circle
-    fill="#6fdcd6"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="402.0466205954193"
+    cx="205.37397646048356"
+    cy="329.9199652120115"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N7.dotrP</title>
+    <title>`N4`.dotl</title>
   </circle>
   <circle
-    fill="#6fdcd6"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="402.0466205954193"
+    cx="505.37397254795985"
+    cy="327.89434077649673"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N7.dotr</title>
+    <title>`N4`.dot3P</title>
   </circle>
   <circle
-    fill="#6fdcd6"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="380.82614959747985"
+    cx="605.3739693042896"
+    cy="306.09452356682993"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N7.dot3P</title>
+    <title>`N4`.dotrP</title>
   </circle>
   <circle
-    fill="#6fdcd6"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="380.82614959747985"
+    cx="405.37397020402653"
+    cy="386.5345713661136"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N7.dot3</title>
+    <title>`N4`.dot2P</title>
   </circle>
   <circle
-    fill="#6fdcd6"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="334.5834194997355"
+    cx="305.37397139515514"
+    cy="314.4621014158567"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N7.dot2P</title>
+    <title>`N4`.dot1P</title>
   </circle>
   <circle
-    fill="#6fdcd6"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="334.5834194997355"
+    cx="605.3739693042896"
+    cy="306.09452356682993"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N7.dot2</title>
+    <title>`N4`.dotr</title>
   </circle>
   <circle
-    fill="#6fdcd6"
+    fill="#8f997b"
     fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="254.6306380735017"
+    cx="205.37397646048356"
+    cy="329.9199652120115"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N7.dot1P</title>
+    <title>`N4`.dotlP</title>
   </circle>
-  <circle
-    fill="#6fdcd6"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="254.6306380735017"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N7.dot1</title>
-  </circle>
-  <circle
-    fill="#6fdcd6"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="241.98234801986928"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N7.dotlP</title>
-  </circle>
-  <circle
-    fill="#6fdcd6"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="241.98234801986928"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N7.dotl</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="N6.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N4`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -971,16 +1123,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#43a0ab"
+      stroke="#8f997b"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 354.45869390829347 Q 549.4077407412825 332.40281692202143 587.3097271497335 278.49490534232336"
+      d="M 505.37397254795985 327.89434077649673 Q 559.6338913948168 336.5354914939264 605.3739693042896 306.09452356682993"
     ></path>
-    <title>N6.line3r</title>
+    <title>`N4`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N6.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N4`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -997,16 +1149,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#43a0ab"
+      stroke="#8f997b"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 314.06932211428176 Q 429.819716432048 352.8085385446721 487.30972909224766 354.45869390829347"
+      d="M 305.37397139515514 314.4621014158567 Q 343.6801386320347 366.7234473100705 405.37397020402653 386.5345713661136"
     ></path>
-    <title>N6.line23</title>
+    <title>`N4`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N6.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N4`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1023,16 +1175,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#43a0ab"
+      stroke="#8f997b"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 250.98234499328782 Q 326.6384556723652 299.4410264531656 387.3097322255305 314.06932211428176"
+      d="M 405.37397020402653 386.5345713661136 Q 465.49087360791816 374.466940536441 505.37397254795985 327.89434077649673"
     ></path>
-    <title>N6.line12</title>
+    <title>`N4`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N6.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N4`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1049,126 +1201,108 @@
       </feMerge>
     </filter>
     <path
-      stroke="#43a0ab"
+      stroke="#8f997b"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 303.363326419441 Q 246.58988585171736 294.88946024068406 287.3097358091563 250.98234499328782"
+      d="M 205.37397646048356 329.9199652120115 Q 258.42926461364516 341.9562836225977 305.37397139515514 314.4621014158567"
     ></path>
-    <title>N6.linel1</title>
+    <title>`N4`.linel1</title>
   </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="305.3739692381142"
+    cy="439.43355911550924"
+    stroke="none"
+    rx="10"
+    ry="9.000042375651056"
+  >
+    <title>`E13`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="405.3739706472962"
+    cy="343.51072458318595"
+    stroke="none"
+    rx="10"
+    ry="13.711549171500717"
+  >
+    <title>`E24`.ellipse</title>
+  </ellipse>
   <circle
-    fill="#43a0ab"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="278.49490534232336"
+    cx="205.37397646048356"
+    cy="405.6613692277803"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N6.dotrP</title>
+    <title>`N5`.dotl</title>
   </circle>
   <circle
-    fill="#43a0ab"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="278.49490534232336"
+    cx="505.37397254795985"
+    cy="424.81596802901356"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N6.dotr</title>
+    <title>`N5`.dot3P</title>
   </circle>
   <circle
-    fill="#43a0ab"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="354.45869390829347"
+    cx="605.3739693042896"
+    cy="448.43359964120907"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N6.dot3P</title>
+    <title>`N5`.dotrP</title>
   </circle>
   <circle
-    fill="#43a0ab"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="354.45869390829347"
+    cx="405.37397020402653"
+    cy="388.7824723562525"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N6.dot3</title>
+    <title>`N5`.dot2P</title>
   </circle>
   <circle
-    fill="#43a0ab"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="314.06932211428176"
+    cx="305.37397139515514"
+    cy="439.4336024284653"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N6.dot2P</title>
+    <title>`N5`.dot1P</title>
   </circle>
   <circle
-    fill="#43a0ab"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="314.06932211428176"
+    cx="605.3739693042896"
+    cy="448.43359964120907"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N6.dot2</title>
+    <title>`N5`.dotr</title>
   </circle>
   <circle
-    fill="#43a0ab"
+    fill="#66c690"
     fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="250.98234499328782"
+    cx="205.37397646048356"
+    cy="405.6613692277803"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N6.dot1P</title>
+    <title>`N5`.dotlP</title>
   </circle>
-  <circle
-    fill="#43a0ab"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="250.98234499328782"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N6.dot1</title>
-  </circle>
-  <circle
-    fill="#43a0ab"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="303.363326419441"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N6.dotlP</title>
-  </circle>
-  <circle
-    fill="#43a0ab"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="303.363326419441"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N6.dotl</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="N5.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N5`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1185,16 +1319,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#8eafac"
+      stroke="#66c690"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 433.02594247748004 Q 547.3405549520719 421.34227859893946 587.3097271497335 375.05327155641965"
+      d="M 505.37397254795985 424.81596802901356 Q 550.7769202674175 456.0892912109295 605.3739693042896 448.43359964120907"
     ></path>
-    <title>N5.line3r</title>
+    <title>`N5`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N5.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N5`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1211,16 +1345,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#8eafac"
+      stroke="#66c690"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 403.8641833212312 Q 431.7106042221983 437.6453156670921 487.30972909224766 433.02594247748004"
+      d="M 305.37397139515514 439.4336024284653 Q 364.4110645661467 431.949866471441 405.37397020402653 388.7824723562525"
     ></path>
-    <title>N5.line23</title>
+    <title>`N5`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N5.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N5`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1237,16 +1371,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#8eafac"
+      stroke="#66c690"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 386.9008343358235 Q 333.96485346210545 415.100817457768 387.3097322255305 403.8641833212312"
+      d="M 405.37397020402653 388.7824723562525 Q 448.5940084190127 425.6149590045706 505.37397254795985 424.81596802901356"
     ></path>
-    <title>N5.line12</title>
+    <title>`N5`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N5.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N5`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1263,126 +1397,97 @@
       </feMerge>
     </filter>
     <path
-      stroke="#8eafac"
+      stroke="#66c690"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 448.9102968943273 Q 247.8496968243387 434.9028948136728 287.3097358091563 386.9008343358235"
+      d="M 205.37397646048356 405.6613692277803 Q 248.97462415279534 441.4960542875779 305.37397139515514 439.4336024284653"
     ></path>
-    <title>N5.linel1</title>
+    <title>`N5`.linel1</title>
   </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="305.3739692381142"
+    cy="400.39518190457756"
+    stroke="none"
+    rx="10"
+    ry="10.032849932084012"
+  >
+    <title>`E14`.ellipse</title>
+  </ellipse>
   <circle
-    fill="#8eafac"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="375.05327155641965"
+    cx="205.37397646048356"
+    cy="368.38279552341703"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N5.dotrP</title>
+    <title>`N6`.dotl</title>
   </circle>
   <circle
-    fill="#8eafac"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="375.05327155641965"
+    cx="505.37397254795985"
+    cy="367.7587948575641"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N5.dotr</title>
+    <title>`N6`.dot3P</title>
   </circle>
   <circle
-    fill="#8eafac"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="433.02594247748004"
+    cx="605.3739693042896"
+    cy="409.9975085252581"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N5.dot3P</title>
+    <title>`N6`.dotrP</title>
   </circle>
   <circle
-    fill="#8eafac"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="433.02594247748004"
+    cx="405.37397020402653"
+    cy="346.7086074365214"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N5.dot3</title>
+    <title>`N6`.dot2P</title>
   </circle>
   <circle
-    fill="#8eafac"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="403.8641833212312"
+    cx="305.37397139515514"
+    cy="401.42802598703764"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N5.dot2P</title>
+    <title>`N6`.dot1P</title>
   </circle>
   <circle
-    fill="#8eafac"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="403.8641833212312"
+    cx="605.3739693042896"
+    cy="409.9975085252581"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N5.dot2</title>
+    <title>`N6`.dotr</title>
   </circle>
   <circle
-    fill="#8eafac"
+    fill="#7c88a1"
     fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="386.9008343358235"
+    cx="205.37397646048356"
+    cy="368.38279552341703"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N5.dot1P</title>
+    <title>`N6`.dotlP</title>
   </circle>
-  <circle
-    fill="#8eafac"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="386.9008343358235"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N5.dot1</title>
-  </circle>
-  <circle
-    fill="#8eafac"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="448.9102968943273"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N5.dotlP</title>
-  </circle>
-  <circle
-    fill="#8eafac"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="448.9102968943273"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N5.dotl</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="N4.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N6`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1399,16 +1504,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#1adc46"
+      stroke="#7c88a1"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 301.02749722493775 Q 547.4784035318823 288.72722702809443 587.3097271497335 241.98291691141236"
+      d="M 505.37397254795985 367.7587948575641 Q 547.591956705109 407.30205412733204 605.3739693042896 409.9975085252581"
     ></path>
-    <title>N4.line3r</title>
+    <title>`N6`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N4.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N6`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1425,16 +1530,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#1adc46"
+      stroke="#7c88a1"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 394.46930763845546 Q 450.9645682136938 362.361593489749 487.30972909224766 301.02749722493775"
+      d="M 305.37397139515514 401.42802598703764 Q 364.9745318499182 391.6133774793776 405.37397020402653 346.7086074365214"
     ></path>
-    <title>N4.line23</title>
+    <title>`N6`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N4.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N6`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1451,16 +1556,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#1adc46"
+      stroke="#7c88a1"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 424.9008332365015 Q 343.13240039326536 428.8187182794384 387.3097322255305 394.46930763845546"
+      d="M 405.37397020402653 346.7086074365214 Q 451.25422519164147 376.80479240665807 505.37397254795985 367.7587948575641"
     ></path>
-    <title>N4.line12</title>
+    <title>`N6`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N4.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N6`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1477,126 +1582,97 @@
       </feMerge>
     </filter>
     <path
-      stroke="#1adc46"
+      stroke="#7c88a1"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 379.84030711106817 Q 229.0932725225253 420.60486813678006 287.3097358091563 424.9008332365015"
+      d="M 205.37397646048356 368.38279552341703 Q 249.09868466291513 403.8954257284112 305.37397139515514 401.42802598703764"
     ></path>
-    <title>N4.linel1</title>
+    <title>`N6`.linel1</title>
   </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="305.3739692381142"
+    cy="276.4620774586829"
+    stroke="none"
+    rx="10"
+    ry="9.000017363336568"
+  >
+    <title>`E15`.ellipse</title>
+  </ellipse>
   <circle
-    fill="#1adc46"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="241.98291691141236"
+    cx="205.37397646048356"
+    cy="448.43353285199186"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N4.dotrP</title>
+    <title>`N7`.dotl</title>
   </circle>
   <circle
-    fill="#1adc46"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="241.98291691141236"
+    cx="505.37397254795985"
+    cy="365.89442100197135"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N4.dotr</title>
+    <title>`N7`.dot3P</title>
   </circle>
   <circle
-    fill="#1adc46"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="301.02749722493775"
+    cx="605.3739693042896"
+    cy="371.7645803250012"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N4.dot3P</title>
+    <title>`N7`.dotrP</title>
   </circle>
   <circle
-    fill="#1adc46"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="301.02749722493775"
+    cx="405.37397020402653"
+    cy="348.22226285132746"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N4.dot3</title>
+    <title>`N7`.dot2P</title>
   </circle>
   <circle
-    fill="#1adc46"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="394.46930763845546"
+    cx="305.37397139515514"
+    cy="399.3623309554009"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N4.dot2P</title>
+    <title>`N7`.dot1P</title>
   </circle>
   <circle
-    fill="#1adc46"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="394.46930763845546"
+    cx="605.3739693042896"
+    cy="371.7645803250012"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N4.dot2</title>
+    <title>`N7`.dotr</title>
   </circle>
   <circle
-    fill="#1adc46"
+    fill="#8c8b1a"
     fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="424.9008332365015"
+    cx="205.37397646048356"
+    cy="448.43353285199186"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N4.dot1P</title>
+    <title>`N7`.dotlP</title>
   </circle>
-  <circle
-    fill="#1adc46"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="424.9008332365015"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N4.dot1</title>
-  </circle>
-  <circle
-    fill="#1adc46"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="379.84030711106817"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N4.dotlP</title>
-  </circle>
-  <circle
-    fill="#1adc46"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="379.84030711106817"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N4.dotl</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="N3.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N7`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1613,16 +1689,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#697bdd"
+      stroke="#8c8b1a"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 315.2152255379454 Q 523.0346013916402 380.17704583531895 587.3097271497335 417.12310622299105"
+      d="M 505.37397254795985 365.89442100197135 Q 554.2019617040338 388.79512899121113 605.3739693042896 371.7645803250012"
     ></path>
-    <title>N3.line3r</title>
+    <title>`N7`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N3.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N7`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1639,16 +1715,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#697bdd"
+      stroke="#8c8b1a"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 267.19455655989805 Q 428.6520858785916 309.2338986406388 487.30972909224766 315.2152255379454"
+      d="M 305.37397139515514 399.3623309554009 Q 364.4802837440801 391.5988966161293 405.37397020402653 348.22226285132746"
     ></path>
-    <title>N3.line23</title>
+    <title>`N7`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N3.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N7`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1665,16 +1741,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#697bdd"
+      stroke="#8c8b1a"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 341.5780568952934 Q 349.2463269489432 320.4336642981076 387.3097322255305 267.19455655989805"
+      d="M 405.37397020402653 348.22226285132746 Q 451.8934761712179 376.7531654686433 505.37397254795985 365.89442100197135"
     ></path>
-    <title>N3.line12</title>
+    <title>`N7`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N3.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N7`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1691,126 +1767,86 @@
       </feMerge>
     </filter>
     <path
-      stroke="#697bdd"
+      stroke="#8c8b1a"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 410.8971671742391 Q 248.7037550173779 392.6746528373097 287.3097358091563 341.5780568952934"
+      d="M 205.37397646048356 448.43353285199186 Q 264.18459043676785 441.8526796020983 305.37397139515514 399.3623309554009"
     ></path>
-    <title>N3.linel1</title>
+    <title>`N7`.linel1</title>
   </g>
   <circle
-    fill="#697bdd"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="417.12310622299105"
+    cx="205.37397646048356"
+    cy="266.051930081628"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N3.dotrP</title>
+    <title>`N8`.dotl</title>
   </circle>
   <circle
-    fill="#697bdd"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="417.12310622299105"
+    cx="505.37397254795985"
+    cy="376.09393170108086"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N3.dotr</title>
+    <title>`N8`.dot3P</title>
   </circle>
   <circle
-    fill="#697bdd"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="315.2152255379454"
+    cx="605.3739693042896"
+    cy="425.92034516702176"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N3.dot3P</title>
+    <title>`N8`.dotrP</title>
   </circle>
   <circle
-    fill="#697bdd"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="315.2152255379454"
+    cx="405.37397020402653"
+    cy="338.7991733102151"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N3.dot3</title>
+    <title>`N8`.dot2P</title>
   </circle>
   <circle
-    fill="#697bdd"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="267.19455655989805"
+    cx="305.37397139515514"
+    cy="276.462089954676"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N3.dot2P</title>
+    <title>`N8`.dot1P</title>
   </circle>
   <circle
-    fill="#697bdd"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="267.19455655989805"
+    cx="605.3739693042896"
+    cy="425.92034516702176"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N3.dot2</title>
+    <title>`N8`.dotr</title>
   </circle>
   <circle
-    fill="#697bdd"
+    fill="#36baba"
     fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="341.5780568952934"
+    cx="205.37397646048356"
+    cy="266.051930081628"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N3.dot1P</title>
+    <title>`N8`.dotlP</title>
   </circle>
-  <circle
-    fill="#697bdd"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="341.5780568952934"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N3.dot1</title>
-  </circle>
-  <circle
-    fill="#697bdd"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="410.8971671742391"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N3.dotlP</title>
-  </circle>
-  <circle
-    fill="#697bdd"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="410.8971671742391"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N3.dotl</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="N2.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N8`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1827,16 +1863,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#39e493"
+      stroke="#36baba"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 308.7962855670079 Q 529.3617340879406 348.8024355868709 587.3097271497335 352.1027649544725"
+      d="M 505.37397254795985 376.09393170108086 Q 546.4545716135358 418.90809495315375 605.3739693042896 425.92034516702176"
     ></path>
-    <title>N2.line3r</title>
+    <title>`N8`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N2.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N8`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1853,16 +1889,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#39e493"
+      stroke="#36baba"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 275.91214229723676 Q 431.0620402423573 311.3533267656932 487.30972909224766 308.7962855670079"
+      d="M 305.37397139515514 276.462089954676 Q 344.79388808099475 324.60301454640813 405.37397020402653 338.7991733102151"
     ></path>
-    <title>N2.line23</title>
+    <title>`N8`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N2.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N8`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1879,16 +1915,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#39e493"
+      stroke="#36baba"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 338.0656751842571 Q 347.86736278180854 323.97526817784575 387.3097322255305 275.91214229723676"
+      d="M 405.37397020402653 338.7991733102151 Q 448.3852383209593 376.18575033609744 505.37397254795985 376.09393170108086"
     ></path>
-    <title>N2.line12</title>
+    <title>`N8`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N2.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N8`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -1905,126 +1941,86 @@
       </feMerge>
     </filter>
     <path
-      stroke="#39e493"
+      stroke="#36baba"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 282.59159747148414 Q 227.60777516199155 327.81782862572004 287.3097358091563 338.0656751842571"
+      d="M 205.37397646048356 266.051930081628 Q 253.3031377922791 291.14951006540014 305.37397139515514 276.462089954676"
     ></path>
-    <title>N2.linel1</title>
+    <title>`N8`.linel1</title>
   </g>
   <circle
-    fill="#39e493"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="352.1027649544725"
+    cx="205.37397646048356"
+    cy="253.80012775910478"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N2.dotrP</title>
+    <title>`N9`.dotl</title>
   </circle>
   <circle
-    fill="#39e493"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="352.1027649544725"
+    cx="505.37397254795985"
+    cy="375.97764272973586"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N2.dotr</title>
+    <title>`N9`.dot3P</title>
   </circle>
   <circle
-    fill="#39e493"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="308.7962855670079"
+    cx="605.3739693042896"
+    cy="395.39882238590485"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N2.dot3P</title>
+    <title>`N9`.dotrP</title>
   </circle>
   <circle
-    fill="#39e493"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="308.7962855670079"
+    cx="405.37397020402653"
+    cy="338.7991743102984"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N2.dot3</title>
+    <title>`N9`.dot2P</title>
   </circle>
   <circle
-    fill="#39e493"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="275.91214229723676"
+    cx="305.37397139515514"
+    cy="276.4620944236958"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N2.dot2P</title>
+    <title>`N9`.dot1P</title>
   </circle>
   <circle
-    fill="#39e493"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="275.91214229723676"
+    cx="605.3739693042896"
+    cy="395.39882238590485"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N2.dot2</title>
+    <title>`N9`.dotr</title>
   </circle>
   <circle
-    fill="#39e493"
+    fill="#c0c263"
     fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="338.0656751842571"
+    cx="205.37397646048356"
+    cy="253.80012775910478"
     stroke="none"
     r="5"
-    ensureOnCanvas="true"
   >
-    <title>N2.dot1P</title>
+    <title>`N9`.dotlP</title>
   </circle>
-  <circle
-    fill="#39e493"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="338.0656751842571"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N2.dot1</title>
-  </circle>
-  <circle
-    fill="#39e493"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="282.59159747148414"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N2.dotlP</title>
-  </circle>
-  <circle
-    fill="#39e493"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="282.59159747148414"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N2.dotl</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="N1.line3r-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N9`.line3r-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -2041,16 +2037,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a9414c"
+      stroke="#c0c263"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 487.30972909224766 427.65936553742745 Q 532.7893923546955 458.74288048138044 587.3097271497335 450.86146315899316"
+      d="M 505.37397254795985 375.97764272973586 Q 551.5609842134669 405.3213946514943 605.3739693042896 395.39882238590485"
     ></path>
-    <title>N1.line3r</title>
+    <title>`N9`.line3r</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N1.line23-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N9`.line12-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -2067,16 +2063,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a9414c"
+      stroke="#c0c263"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 387.3097322255305 441.86418871475 Q 440.1224645702879 454.56300054129207 487.30972909224766 427.65936553742745"
+      d="M 305.37397139515514 276.4620944236958 Q 344.7938885049937 324.60301754526813 405.37397020402653 338.7991743102984"
     ></path>
-    <title>N1.line23</title>
+    <title>`N9`.line12</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N1.line12-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N9`.line23-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -2093,16 +2089,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a9414c"
+      stroke="#c0c263"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 287.3097358091563 348.9008465120011 Q 323.6923651731348 410.030630364456 387.3097322255305 441.86418871475"
+      d="M 405.37397020402653 338.7991743102984 Q 448.40438013606916 376.1347341056648 505.37397254795985 375.97764272973586"
     ></path>
-    <title>N1.line12</title>
+    <title>`N9`.line23</title>
   </g>
-  <g ensureOnCanvas="true">
-    <filter id="N1.linel1-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`N9`.linel1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -2119,122 +2115,12 @@
       </feMerge>
     </filter>
     <path
-      stroke="#a9414c"
+      stroke="#c0c263"
       fill="none"
       stroke-width="3"
       stroke-opacity="0.5"
-      d="M 187.3097401807441 324.62365587756346 Q 232.59136091665775 356.1977043668918 287.3097358091563 348.9008465120011"
+      d="M 205.37397646048356 253.80012775910478 Q 250.9536703692328 284.6365164557693 305.37397139515514 276.4620944236958"
     ></path>
-    <title>N1.linel1</title>
+    <title>`N9`.linel1</title>
   </g>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="450.86146315899316"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dotrP</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="587.3097271497335"
-    cy="450.86146315899316"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dotr</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="427.65936553742745"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dot3P</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="487.30972909224766"
-    cy="427.65936553742745"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dot3</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="441.86418871475"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dot2P</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="387.3097322255305"
-    cy="441.86418871475"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dot2</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="348.9008465120011"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dot1P</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="287.3097358091563"
-    cy="348.9008465120011"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dot1</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="324.62365587756346"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dotlP</title>
-  </circle>
-  <circle
-    fill="#a9414c"
-    fill-opacity="0.5"
-    cx="187.3097401807441"
-    cy="324.62365587756346"
-    stroke="none"
-    r="5"
-    ensureOnCanvas="true"
-  >
-    <title>N1.dotl</title>
-  </circle>
 </svg>

@@ -1,5 +1,5 @@
 import { alg, Graph } from "graphlib";
-import { Map } from "immutable";
+import im from "immutable";
 import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
@@ -37,6 +37,8 @@ import {
   parseError,
   Result,
   safeChain,
+  symmetricArgLengthMismatch,
+  symmetricTypeMismatch,
   typeNotFound,
 } from "utils/Error";
 
@@ -95,18 +97,18 @@ const builtinTypes: [string, TypeDecl<C>][] = [
   ],
 ];
 const initEnv = (): Env => ({
-  types: Map(builtinTypes),
-  typeVars: Map<string, TypeVar<C>>(),
+  types: im.Map(builtinTypes),
+  typeVars: im.Map<string, TypeVar<C>>(),
   varIDs: [],
-  vars: Map<string, TypeConsApp<C>>(),
-  constructors: Map<string, ConstructorDecl<C>>(),
-  constructorsBindings: Map<
+  vars: im.Map<string, TypeConsApp<C>>(),
+  constructors: im.Map<string, ConstructorDecl<C>>(),
+  constructorsBindings: im.Map<
     string,
     [ApplyConstructor<C>, ConstructorDecl<C>]
   >(),
-  predicates: Map<string, PredicateDecl<C>>(),
-  functions: Map<string, FunctionDecl<C>>(),
-  preludeValues: Map<string, TypeConstructor<C>>(),
+  predicates: im.Map<string, PredicateDecl<C>>(),
+  functions: im.Map<string, FunctionDecl<C>>(),
+  preludeValues: im.Map<string, TypeConstructor<C>>(),
   subTypes: [],
   typeGraph: new Graph(),
 });
@@ -159,7 +161,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: Map(keyBy(params, "name.value")),
+        typeVars: im.Map(keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.constructors.get(name.value);
@@ -181,7 +183,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: Map(keyBy(params, "name.value")),
+        typeVars: im.Map(keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.functions.get(name.value);
@@ -203,19 +205,21 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: Map(keyBy(params, "name.value")),
+        typeVars: im.Map(keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.predicates.get(name.value);
       if (existing) return err(duplicateName(name, stmt, existing));
-      // check arguments
+      // check that the arguments are of valid types
       const argsOk = safeChain(args, checkArg, ok(localEnv));
+      // if predicate is symmetric, check that the argument types are equal, and that there are exactly two arguments
+      const symArgOk = checkSymmetricArgs(args, argsOk, stmt);
       // insert predicate into env
       const updatedEnv: CheckerResult = ok({
         ...env,
         predicates: env.predicates.set(name.value, stmt),
       });
-      return everyResult(argsOk, updatedEnv);
+      return everyResult(argsOk, symArgOk, updatedEnv);
     }
     case "NotationDecl": {
       // TODO: just passing through the notation rules here. Need to parse them into transformers
@@ -288,6 +292,42 @@ export const checkTypeConstructor = (
 
 const checkArg = (arg: Arg<C>, env: Env): CheckerResult =>
   checkType(arg.type, env);
+
+/**
+ * Check if all arguments to this symmetric predicate have the same type, and there are only two arguments
+ * @param args arguments to predicate
+ * @param envOk previous environment result
+ * @param expr the predicate declaration expression
+ */
+const checkSymmetricArgs = (
+  args: Arg<C>[],
+  envOk: Result<Env, DomainError>,
+  expr: PredicateDecl<C>
+): CheckerResult => {
+  if (envOk.isOk()) {
+    const env = envOk.value;
+    // If it's symmetric
+    if (expr.symmetric) {
+      // Number of arguments must be 2
+      if (args.length !== 2) {
+        return err(symmetricArgLengthMismatch(expr));
+      }
+      // Type mismatch in Domain
+      if (args.some((arg) => !areSameTypes(arg.type, args[0].type, env))) {
+        return err(symmetricTypeMismatch(expr));
+      }
+      return envOk;
+    } else {
+      return envOk;
+    }
+  } else {
+    return envOk;
+  }
+};
+
+const areSameTypes = (type1: Type<C>, type2: Type<C>, env: Env): boolean => {
+  return isSubtype(type1, type2, env) && isSubtype(type2, type1, env);
+};
 
 const addSubtype = (
   subType: TypeConstructor<C>, // assume already checked

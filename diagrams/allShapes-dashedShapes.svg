@@ -1,7 +1,20 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g ensureOnCanvas="true">
+  <circle
+    fill="#4951bb"
+    fill-opacity="0.5"
+    cx="323.0732844575123"
+    cy="607.5201939633693"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="5"
+    stroke-linecap="butt"
+    r="83.58290665299482"
+  >
+    <title>`C`.icon</title>
+  </circle>
+  <g style="dashed">
     <marker
-      id="E.icon-leftArrowhead"
+      id="`D`.icon-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -12,12 +25,12 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#60c32d"
+        fill="#d438e0"
         fill-opacity="0.5"
       ></path>
     </marker>
     <marker
-      id="E.icon-rightArrowhead"
+      id="`D`.icon-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -28,24 +41,67 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#60c32d"
+        fill="#d438e0"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 75.18111879406723 112.3724342377119 L 533.6508125003631 78.68488483239139"
+      d="M 372.1043857988877 613.1774524873201 L 562.9605359085404 282.47623873200774"
       stroke-opacity="0.5"
       stroke-width="1"
-      stroke="#60c32d"
+      stroke="#d438e0"
+      stroke-linecap="butt"
+      marker-end="url(#`D`.icon-rightArrowhead)"
+    ></path>
+    <title>`D`.icon</title>
+  </g>
+  <g>
+    <marker
+      id="`E`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#e18ed6"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <marker
+      id="`E`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#e18ed6"
+        fill-opacity="0.5"
+      ></path>
+    </marker>
+    <path
+      d="M 276.3415919948836 222.87701166475625 L 168.13785443462334 141.72551204863373"
+      stroke-opacity="0.5"
+      stroke-width="1"
+      stroke="#e18ed6"
       stroke-dasharray="30 10 1 10"
       stroke-linecap="butt"
-      marker-end="url(#E.icon-rightArrowhead)"
+      marker-end="url(#`E`.icon-rightArrowhead)"
     ></path>
-    <title>E.icon</title>
+    <title>`E`.icon</title>
   </g>
-  <g style="dashed" ensureOnCanvas="true">
+  <g>
     <marker
-      id="D.icon-leftArrowhead"
+      id="`L`.icon-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -56,12 +112,12 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#5d7893"
+        fill="#2dbace"
         fill-opacity="0.5"
       ></path>
     </marker>
     <marker
-      id="D.icon-rightArrowhead"
+      id="`L`.icon-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -72,97 +128,22 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#5d7893"
+        fill="#2dbace"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 560.236832932399 127.00507733913753 L 706.8395815154407 468.49387815973375"
+      d="M 282.43221358258216 47.414359069630564 L 366.4536040397027 277.43213874817246"
       stroke-opacity="0.5"
       stroke-width="1"
-      stroke="#5d7893"
-      stroke-linecap="butt"
-      marker-end="url(#D.icon-rightArrowhead)"
-    ></path>
-    <title>D.icon</title>
-  </g>
-  <g ensureOnCanvas="true">
-    <marker
-      id="L.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#cf6dd8"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="L.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#cf6dd8"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <path
-      d="M 195.7172392912904 115.41626180668845 L 266.97884725126227 136.96285153362953"
-      stroke-opacity="0.5"
-      stroke-width="1"
-      stroke="#cf6dd8"
+      stroke="#2dbace"
       stroke-dasharray="5 5 20 2"
       stroke-linecap="butt"
     ></path>
-    <title>L.icon</title>
+    <title>`L`.icon</title>
   </g>
-  <rect
-    x="10.5452332147903"
-    y="408.9659586607471"
-    width="-406.09798464016694"
-    height="66.85387499236943"
-    fill="#6bdb7b"
-    fill-opacity="0.5"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="5"
-    stroke-dasharray="30 30"
-    stroke-linecap="butt"
-    rx="0"
-    transform="rotate(0, 10.5452332147903, 408.9659586607471)"
-    ensureOnCanvas="true"
-  >
-    <title>R.icon</title>
-  </rect>
-  <circle
-    fill="#4b647b"
-    fill-opacity="0.5"
-    cx="103.41728625079782"
-    cy="442.6833734503736"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="5"
-    stroke-linecap="butt"
-    r="34.38682661887841"
-    ensureOnCanvas="true"
-  >
-    <title>C.icon</title>
-  </circle>
-  <g ensureOnCanvas="true">
-    <filter id="P.icon-shadow" x="0" y="0" width="200%" height="200%">
+  <g>
+    <filter id="`P`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
         result="blurOut"
@@ -179,13 +160,30 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9967b8"
+      stroke="#2a5830"
       fill="none"
       stroke-width="5"
       stroke-opacity="0.5"
       stroke-dasharray="5 5 20 2"
       d="M 400 350 L 400 250 L 500 250"
     ></path>
-    <title>P.icon</title>
+    <title>`P`.icon</title>
   </g>
+  <rect
+    x="333.7607436317377"
+    y="199.40496015809822"
+    width="47.247785472018"
+    height="21.725943112928004"
+    fill="#2f51d7"
+    fill-opacity="0.5"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="5"
+    stroke-dasharray="30 30"
+    stroke-linecap="butt"
+    rx="0"
+    transform="rotate(0, 333.7607436317377, 199.40496015809822)"
+  >
+    <title>`R`.icon</title>
+  </rect>
 </svg>

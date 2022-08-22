@@ -5,7 +5,7 @@
   "module": "build/dist/index.esm.js",
   "unpkg": "build/dist/penrose.min.js",
   "types": "build/dist/index.d.ts",
-  "author": "Penrose Team (https://penrose.ink)",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "files": [
     "/build"
@@ -51,8 +51,9 @@
     "nearley": "^2.20.1",
     "poly-partition": "^1.0.2",
     "recursive-diff": "^1.0.8",
-    "rfdc": "^1.2.0",
     "seedrandom": "^3.0.5",
+    "svg-flatten": "^1.0.1",
+    "svgpath": "^2.5.0",
     "true-myth": "^4.1.0"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ import {
   readRegistry,
   Trio,
 } from "@penrose/core";
-import { Actions, TabNode } from "flexlayout-react";
+import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce } from "lodash";
 import toast from "react-hot-toast";
@@ -41,8 +41,14 @@ export type WorkspaceLocation =
   | GistLocation
   | {
       kind: "example";
+      root: string; // URL to the parent folder of the Style file
     }
-  | { kind: "roger" };
+  | {
+      kind: "roger";
+      style?: string; // path to the Style file
+      substance?: string; // path to the Substance file
+      domain?: string; // path to the Domain file
+    };
 
 export type WorkspaceMetadata = {
   name: string;
@@ -70,6 +76,18 @@ export type Workspace = {
 export type LocalWorkspaces = {
   [id: string]: WorkspaceMetadata;
 };
+
+export type RogerState =
+  | {
+      kind: "disconnected";
+    }
+  | {
+      kind: "connected";
+      ws: WebSocket;
+      substance: string[];
+      style: string[];
+      domain: string[];
+    };
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
   setSelf(
@@ -180,6 +198,11 @@ export const currentWorkspaceState = atom<Workspace>({
   effects: [saveWorkspaceEffect, syncFilenamesEffect],
 });
 
+export const currentRogerState = atom<RogerState>({
+  key: "currentRogerState",
+  default: { kind: "disconnected" },
+});
+
 /**
  * Access workspace's files granularly
  */
@@ -284,13 +307,21 @@ export const exampleTriosState = atom<Trio[]>({
     get: async () => {
       try {
         const res = await fetch(
-          "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/registry.json"
+          new URL(
+            "examples/registry.json",
+            window.location.origin + window.location.pathname
+          ).href
         );
         if (!res.ok) {
           toast.error(`Could not retrieve examples: ${res.statusText}`);
           return [];
         }
         const registry = await res.json();
+        // Serve the example locally
+        registry.root = new URL(
+          "examples/",
+          window.location.origin + window.location.pathname
+        );
         const trios = readRegistry(registry).map((trio: Trio) => ({
           ...trio,
           substanceURI: registry.root + trio.substanceURI,
@@ -315,6 +346,7 @@ export type LocalGithubUser = {
 export type Settings = {
   github: LocalGithubUser | null;
   vimMode: boolean;
+  debugMode: boolean;
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -333,12 +365,30 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
       : localforage.setItem("settings", newValue);
   });
 };
+const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
+  onSet((newValue, _, isReset) => {
+    layoutModel.visitNodes((node) => {
+      if (
+        node.getType() === "border" &&
+        (node as BorderNode).getClassName() === "debugBorder"
+      ) {
+        layoutModel.doAction(
+          Actions.updateNodeAttributes(node.getId(), {
+            show: newValue.debugMode,
+          })
+        );
+      }
+    });
+  });
+};
 
 export const settingsState = atom<Settings>({
   key: "settings",
   default: {
     github: null,
     vimMode: false,
+    // debug mode is on by default in local dev mode
+    debugMode: process.env.NODE_ENV === "development",
   },
-  effects: [settingsEffect],
+  effects: [settingsEffect, debugModeEffect],
 });

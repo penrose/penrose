@@ -1,31 +1,21 @@
 import * as ad from "types/ad";
 import { Arrow, Fill, Named, Shape, Stroke } from "types/shapes";
 import { PathDataV } from "types/value";
-import {
-  boolV,
-  Canvas,
-  floatV,
-  pathDataV,
-  sampleColor,
-  sampleNoPaint,
-  strV,
-} from "./Samplers";
+import { boolV, floatV, noPaint, pathDataV, strV } from "utils/Util";
+import { Canvas, Context, sampleColor } from "./Samplers";
 
 export interface PathProps extends Named, Stroke, Fill, Arrow {
   d: PathDataV<ad.Num>;
 }
 
-export const samplePath = (
-  rng: seedrandom.prng,
-  _canvas: Canvas
-): PathProps => ({
+export const samplePath = (context: Context, _canvas: Canvas): PathProps => ({
   name: strV("defaultPath"),
   style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
-  strokeColor: sampleColor(rng),
+  strokeColor: sampleColor(context),
   strokeDasharray: strV(""),
-  fillColor: sampleNoPaint(),
+  fillColor: noPaint(),
   arrowheadSize: floatV(1),
   arrowheadStyle: strV("arrowhead-2"),
   startArrowhead: boolV(false),
@@ -37,11 +27,11 @@ export const samplePath = (
 export type Path = Shape & { shapeType: "Path" } & PathProps;
 
 export const makePath = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas,
   properties: Partial<PathProps>
 ): Path => ({
-  ...samplePath(rng, canvas),
+  ...samplePath(context, canvas),
   ...properties,
   shapeType: "Path",
 });
