@@ -1587,14 +1587,6 @@ export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
 };
 
 /*
-  float msign(in float x) { return (x<0.0)?-1.0:1.0; }
-  TODO: merge with Jiri's signOf function
-  */
-const msign = (x: ad.Num): ad.Num => {
-  return ifCond(lt(x, 0), -1, 1);
-};
-
-/*
   Ported code is here: https://www.shadertoy.com/view/4sS3zz
 */
 export const sdEllipseAsNums = (
@@ -1669,11 +1661,11 @@ export const sdEllipseAsNums = (
   // elsebranch
   // float h = 2.0*m*n*sqrt(d);
   const h = mul(2, mul(m, mul(n, sqrt(d))));
-  // float s = msign(q+h)*pow( abs(q+h), 1.0/3.0 );
+  // float s = sign(q+h)*pow( abs(q+h), 1.0/3.0 );
   const onethird = div(1, 3);
-  const s = mul(msign(add(q, h)), pow(absVal(add(q, h)), onethird));
-  // float t = msign(q-h)*pow( abs(q-h), 1.0/3.0 );
-  const t = mul(msign(sub(q, h)), pow(absVal(sub(q, h)), onethird));
+  const s = mul(sign(add(q, h)), pow(absVal(add(q, h)), onethird));
+  // float t = sign(q-h)*pow( abs(q-h), 1.0/3.0 );
+  const t = mul(sign(sub(q, h)), pow(absVal(sub(q, h)), onethird));
   // float rx = -(s+t) - c*4.0 + 2.0*m2;
   const rx = add(sub(neg(add(s, t)), mul(c, 4)), mul(2, m2));
   // float ry =  (s-t)*sqrt(3.0);
@@ -1692,8 +1684,8 @@ export const sdEllipseAsNums = (
   const si = sqrt(max(sub(1, squared(co)), 0));
   // vec2 r = ab * vec2(co,si);
   const r = ops.vproduct(ab, [co, si]);
-  // return length(r-p) * msign(p.y-r.y);
-  return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
+  // return length(r-p) * sign(p.y-r.y);
+  return mul(ops.vnorm(ops.vsub(r, p)), sign(sub(p[1], r[1])));
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in

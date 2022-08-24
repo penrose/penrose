@@ -1,5 +1,5 @@
 import { ops } from "engine/Autodiff";
-import { ifCond, lt, mul, neg, sqrt } from "engine/AutodiffFunctions";
+import { mul, neg, sign, sqrt } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
@@ -61,14 +61,6 @@ export const polygonLikePoints = ([t, s]: [string, any]): ad.Pt2[] => {
 };
 
 /**
- * Return -1.0 for negative number, +1.0 otherwise.
- */
-const signOf = (x: ad.Num): ad.Num => {
-  const negative = lt(x, 0);
-  return ifCond(negative, -1, 1);
-};
-
-/**
  * Return outward unit normal vector to `lineSegment` with respect to `insidePoint`.
  * @param lineSegment Two points defining the line segment.
  * @param insidePoint Any point inside of the half-plane.
@@ -81,5 +73,5 @@ export const outwardUnitNormal = (
     ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
   );
   const insideValue = ops.vdot(ops.vsub(insidePoint, lineSegment[0]), normal);
-  return ops.vmul(neg(signOf(insideValue)), normal);
+  return ops.vmul(neg(sign(insideValue)), normal);
 };

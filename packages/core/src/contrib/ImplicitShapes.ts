@@ -1,13 +1,15 @@
 import { outwardUnitNormal } from "contrib/Queries";
 import { EPS_DENOM, ops } from "engine/Autodiff";
 import {
+  absVal,
   add,
   div,
-  eq,
   ifCond,
+  lte,
   max,
   mul,
   neg,
+  sign,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
@@ -268,7 +270,11 @@ export const ellipsePolynomial = (
 ): ad.Num[] => {
   const params = ellipsePolynomialParams(a, b);
   // Prevent division by zero (note that `params[4]` being close 0
-  // may still cause to instability in the root solver later)
-  params[4] = ifCond(eq(params[4], 0), EPS_DENOM, params[4]);
+  // may still cause instability in the root solver later)
+  params[4] = ifCond(
+    lte(absVal(params[4]), EPS_DENOM),
+    mul(sign(params[4]), EPS_DENOM),
+    params[4]
+  );
   return Array.from(Array(4).keys()).map((i) => div(params[i], params[4]));
 };
