@@ -108,6 +108,10 @@ export const halfPlaneToImplicit = (
 /**
  * Return implicit ellipse parameters from an explicit representation.
  * @param ellipse Explicit ellipse shape.
+ * @param padding Padding added to the ellipse.
+ * Note: this is an approximation of Minkowski sum of ellipse and circle.
+ * But the difference should be negligable for small `padding` and/or eccentricity.
+ * @param factor Multiplication factor for the implicit function (the function is not uniquely given).
  */
 export const ellipseToImplicit = (
   ellipse: Ellipse,
