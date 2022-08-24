@@ -15,7 +15,6 @@ import {
   RenderShape,
   RenderStatic,
 } from "./renderer/Renderer";
-import { getListOfStagedStates } from "./renderer/Staging";
 import { Canvas } from "./shapes/Samplers";
 import { showMutations } from "./synthesis/Mutation";
 import { Synthesizer } from "./synthesis/Synthesizer";
@@ -354,7 +353,6 @@ export {
   prettyPrintPath,
   prettyPrintExpr,
   normList,
-  getListOfStagedStates,
   toSvgPaintProperty,
 };
 export type { FnEvaled };
