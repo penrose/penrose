@@ -9,13 +9,13 @@ import {
   max,
   mul,
   neg,
-  sign,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
 import { Circle } from "shapes/Circle";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
+import { msign } from "./Functions";
 
 /**
  * Parameters of implicitly defined ellipse:
@@ -277,7 +277,7 @@ export const ellipsePolynomial = (
   // may still cause instability in the root solver later)
   params[4] = ifCond(
     lte(absVal(params[4]), EPS_DENOM),
-    mul(sign(params[4]), EPS_DENOM),
+    mul(msign(params[4]), EPS_DENOM),
     params[4]
   );
   return Array.from(Array(4).keys()).map((i) => div(params[i], params[4]));
