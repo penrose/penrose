@@ -223,7 +223,7 @@ const ellipsePolynomialAlpha3 = (
   );
 };
 
-// Quintic coefficient from the ellipse-ellipse polynomial
+// Quartic coefficient from the ellipse-ellipse polynomial
 const ellipsePolynomialAlpha4 = (
   a: ImplicitEllipse,
   b: ImplicitEllipse
@@ -261,7 +261,7 @@ const ellipsePolynomialParams = (
 };
 
 // Return monic polynomial coefficients
-// (the highest order coefficient is ommited and assumed to be 1)
+// (the highest order coefficient is omitted and assumed to be 1)
 export const ellipsePolynomial = (
   a: ImplicitEllipse,
   b: ImplicitEllipse

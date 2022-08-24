@@ -370,7 +370,7 @@ describe("polyRoots tests", () => {
     expect(gradient[2]).toBeCloseTo(-1 / 3);
   });
 
-  test("quintic", () => {
+  test("quartic", () => {
     const [c0, c1, c2, c3, c4] = _.range(5).map((key) =>
       input({ key, val: 0 })
     );
