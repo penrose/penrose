@@ -1577,9 +1577,8 @@ export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
 
 /*
   float msign(in float x) { return (x<0.0)?-1.0:1.0; }
-  TODO: merge with Jiri's signOf function
-  */
-const msign = (x: ad.Num): ad.Num => {
+*/
+export const msign = (x: ad.Num): ad.Num => {
   return ifCond(lt(x, 0), -1, 1);
 };
 

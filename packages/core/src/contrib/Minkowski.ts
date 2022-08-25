@@ -1,17 +1,19 @@
+import { outwardUnitNormal } from "contrib/Queries";
 import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
   addN,
   div,
+  eq,
   ifCond,
-  lt,
   max,
   maxN,
   min,
   minN,
   mul,
   neg,
+  polyRoots,
   sqrt,
   squared,
   sub,
@@ -21,6 +23,16 @@ import { convexPartition, isClockwise } from "poly-partition";
 import { Ellipse } from "shapes/Ellipse";
 import * as ad from "types/ad";
 import { safe } from "utils/Util";
+import {
+  ellipsePolynomial,
+  ellipseToImplicit,
+  halfPlaneToImplicit,
+  ImplicitEllipse,
+  implicitEllipseFunc,
+  ImplicitHalfPlane,
+  implicitHalfPlaneFunc,
+  implicitIntersectionOfEllipsesFunc,
+} from "./ImplicitShapes";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -56,30 +68,6 @@ export const rectangleDifference = (
     [sub(minN(xs), padding), sub(minN(ys), padding)], // Bottom left corner
     [add(maxN(xs), padding), add(maxN(ys), padding)], // Top right corner
   ];
-};
-
-/**
- * Return -1.0 for negative number, +1.0 otherwise.
- */
-const signOf = (x: ad.Num): ad.Num => {
-  const negative = lt(x, 0);
-  return ifCond(negative, -1, 1);
-};
-
-/**
- * Return outward unit normal vector to `lineSegment` with respect to `insidePoint`.
- * @param lineSegment Two points defining the line segment.
- * @param insidePoint Any point inside of the half-plane.
- */
-export const outwardUnitNormal = (
-  lineSegment: ad.Num[][],
-  insidePoint: ad.Num[]
-): ad.Num[] => {
-  const normal = ops.vnormalize(
-    ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
-  );
-  const insideValue = ops.vdot(ops.vsub(insidePoint, lineSegment[0]), normal);
-  return ops.vmul(neg(signOf(insideValue)), normal);
 };
 
 /**
@@ -279,94 +267,6 @@ export const containsPolygonPoints = (
 };
 
 /**
- * Parameters of implicitly defined ellipse:
- * `a * (X - x)^2 + b * (Y - y)^2 = c`
- */
-interface ImplicitEllipse {
-  a: ad.Num;
-  b: ad.Num;
-  c: ad.Num;
-  x: ad.Num;
-  y: ad.Num;
-}
-
-/**
- * Parameters of implicitly defined half-plane:
- * `a * X + b * Y <= c`
- */
-interface ImplicitHalfPlane {
-  a: ad.Num;
-  b: ad.Num;
-  c: ad.Num;
-}
-
-/**
- * Evaluate the implicit function for an ellipse at point with coordinates `x` and `y`.
- * @param ei Implicit ellipse parameters.
- * @param x X-coordinate.
- * @param y Y-coordinate.
- */
-const implicitEllipseFunc = (
-  ei: ImplicitEllipse,
-  x: ad.Num,
-  y: ad.Num
-): ad.Num => {
-  return sub(
-    add(mul(ei.a, squared(sub(x, ei.x))), mul(ei.b, squared(sub(y, ei.y)))),
-    ei.c
-  );
-};
-
-/**
- * Evaluate the implicit function for an half-plane at point with coordinates `x` and `y`.
- * @param hpi Implicit half-plane parameters.
- * @param x X-coordinate.
- * @param y Y-coordinate.
- */
-const implicitHalfPlaneFunc = (
-  hpi: ImplicitHalfPlane,
-  x: ad.Num,
-  y: ad.Num
-): ad.Num => {
-  return sub(add(mul(hpi.a, x), mul(hpi.b, y)), hpi.c);
-};
-
-/**
- * Return implicit half-plane parameters given a line and a point inside the half-plane.
- * @param lineSegment Two points defining the line segment.
- * @param insidePoint Any point inside of the half-plane.
- * @param padding Padding around the Half-plane.
- */
-export const halfPlaneToImplicit = (
-  lineSegment: ad.Num[][],
-  insidePoint: ad.Num[],
-  padding: ad.Num
-): ImplicitHalfPlane => {
-  const normal = outwardUnitNormal(lineSegment, insidePoint);
-  return {
-    a: normal[0],
-    b: normal[1],
-    c: sub(ops.vdot(normal, lineSegment[0]), padding),
-  };
-};
-
-/**
- * Return implicit ellipse parameters from an explicit representation.
- * @param ellipse Explicit ellipse shape.
- */
-export const ellipseToImplicit = (ellipse: Ellipse): ImplicitEllipse => {
-  const rx = ellipse.rx.contents;
-  const ry = ellipse.ry.contents;
-  return {
-    a: div(ry, rx),
-    b: div(rx, ry),
-    c: mul(rx, ry),
-    x: ellipse.center.contents[0],
-    y: ellipse.center.contents[1],
-  };
-};
-
-/**
  * Return candidates for extremal points of the implicit functions.
  * @param ei Implicit ellipse parameters.
  * @param hpi Implicit half-plane parameters.
@@ -397,8 +297,8 @@ export const halfPlaneEllipseSDF = (
   insidePoint: ad.Num[],
   padding: ad.Num
 ): ad.Num => {
-  const hpi = halfPlaneToImplicit(lineSegment, insidePoint, padding);
-  const ei = ellipseToImplicit(ellipse);
+  const hpi = halfPlaneToImplicit(lineSegment, insidePoint, 0);
+  const ei = ellipseToImplicit(ellipse, padding);
   const e = div(
     add(mul(ei.b, squared(hpi.a)), mul(ei.a, squared(hpi.b))),
     mul(
@@ -421,10 +321,10 @@ export const halfPlaneEllipseSDF = (
 };
 
 /**
- * Overlapping constraint function for polygon points and ellipse with padding `padding`.
+ * Overlapping constraint function for of a polygon and ellipse.
  * @param polygonPoints Sequence of points defining a polygon.
  * @param ellipse Ellipse shape.
- * @param padding Padding around the Minkowski sum.
+ * @param padding Padding applied to the ellipse.
  */
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: ad.Num[][],
@@ -444,4 +344,58 @@ export const overlappingPolygonPointsEllipse = (
     halfPlaneEllipseSDF(s, ellipse, center, padding)
   );
   return maxN(sdfs);
+};
+
+/**
+ * Return candidates for extremal points of the implicit functions for ellipse-ellipse case.
+ * @param ei1 Implicit ellipse parameters.
+ * @param ei2 Implicit ellipse parameters.
+ * @param lambda Solution to the quadratic formula.
+ */
+export const pointCandidatesEllipse = (
+  ei1: ImplicitEllipse,
+  ei2: ImplicitEllipse,
+  lambda: ad.Num
+): [ad.Num, ad.Num] => {
+  const x = div(
+    add(
+      mul(ei1.x, ei1.a),
+      mul(lambda, sub(mul(ei2.x, ei2.a), mul(ei1.x, ei1.a)))
+    ),
+    add(ei1.a, mul(lambda, sub(ei2.a, ei1.a)))
+  );
+  const y = div(
+    add(
+      mul(ei1.y, ei1.b),
+      mul(lambda, sub(mul(ei2.y, ei2.b), mul(ei1.y, ei1.b)))
+    ),
+    add(ei1.b, mul(lambda, sub(ei2.b, ei1.b)))
+  );
+  return [x, y];
+};
+
+/**
+ * Overlapping constraint function for two implicit ellipses.
+ * @param ei1 First implicit ellipse.
+ * @param ei2 Second implicit ellipse.
+ */
+export const overlappingImplicitEllipses = (
+  ei1: ImplicitEllipse,
+  ei2: ImplicitEllipse
+): ad.Num => {
+  const poly = ellipsePolynomial(ei1, ei2);
+  const roots = polyRoots(poly).map((r) => ifCond(eq(r, r), r, 0));
+  const points = roots.map((root: ad.Num) =>
+    pointCandidatesEllipse(ei1, ei2, root)
+  );
+  const m1 = minN(
+    points.map(([x, y]: [ad.Num, ad.Num]) =>
+      implicitIntersectionOfEllipsesFunc(ei1, ei2, x, y)
+    )
+  );
+  const m2 = min(
+    implicitIntersectionOfEllipsesFunc(ei1, ei2, ei1.x, ei1.y),
+    implicitIntersectionOfEllipsesFunc(ei1, ei2, ei2.x, ei2.y)
+  );
+  return min(m1, m2);
 };

@@ -1,6 +1,7 @@
 import {
   containsPolygonPoints,
   convexPartitions,
+  overlappingImplicitEllipses,
   overlappingPolygonPoints,
   overlappingPolygonPointsEllipse,
   rectangleDifference,
@@ -35,6 +36,7 @@ import { Rectangle } from "shapes/Rectangle";
 import { shapedefs } from "shapes/Shapes";
 import { Text } from "shapes/Text";
 import * as ad from "types/ad";
+import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
 
 // -------- Ovelapping helpers
 
@@ -84,6 +86,24 @@ export const overlappingAABBs = (
 };
 
 /**
+ * Require that ellipse `s1` overlaps ellipse `s2` with some padding `padding`.
+ */
+export const overlappingEllipse = (
+  [, s1]: [string, Ellipse],
+  [, s2]: [string, Ellipse],
+  padding: ad.Num
+): ad.Num => {
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const d = ops.vdist(s1.center.contents, s2.center.contents);
+  const factor = div(1, add(1, d));
+  const ei1 = ellipseToImplicit(s1, padding, mul(Math.PI / 3, factor));
+  const ei2 = ellipseToImplicit(s2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
+};
+
+/**
  * Require that rectangle `s1` overlaps circle `s2` with some padding `padding`.
  */
 export const overlappingRectlikeCircle = (
@@ -113,6 +133,24 @@ export const overlappingPolygonEllipse = (
   const points = polygonLikePoints([t1, s1]);
   const cp = convexPartitions(points);
   return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, padding)));
+};
+
+/**
+ * Require that circle `s1` overlaps ellipse `s2` with some padding `padding`.
+ */
+export const overlappingCircleEllipse = (
+  [, s1]: [string, Circle],
+  [, s2]: [string, Ellipse],
+  padding: ad.Num = 0
+): ad.Num => {
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const d = ops.vdist(s1.center.contents, s2.center.contents);
+  const factor = div(1, add(1, d));
+  const ei1 = circleToImplicitEllipse(s1, padding, mul(Math.PI / 3, factor));
+  const ei2 = ellipseToImplicit(s2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
 };
 
 /**
