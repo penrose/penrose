@@ -276,7 +276,7 @@ export const ellipsePolynomial = (
   // Prevent division by zero (note that `params[4]` being close 0
   // may still cause instability in the root solver later)
   params[4] = ifCond(
-    lte(absVal(params[4]), EPS_DENOM),
+    lte(absVal(params[4]), 1e-14),
     mul(msign(params[4]), EPS_DENOM),
     params[4]
   );

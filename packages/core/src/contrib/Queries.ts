@@ -1,8 +1,9 @@
 import { ops } from "engine/Autodiff";
-import { mul, neg, sign, sqrt } from "engine/AutodiffFunctions";
+import { mul, neg, sqrt } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
+import { msign } from "./Functions";
 
 /**
  * Return bounding box from any provided shape.
@@ -73,5 +74,5 @@ export const outwardUnitNormal = (
     ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
   );
   const insideValue = ops.vdot(ops.vsub(insidePoint, lineSegment[0]), normal);
-  return ops.vmul(neg(sign(insideValue)), normal);
+  return ops.vmul(neg(msign(insideValue)), normal);
 };
