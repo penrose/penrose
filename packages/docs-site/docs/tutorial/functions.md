@@ -118,7 +118,7 @@ We will write our first function in Penrose together 💫!
 
 ```
 /* new line in .dsl file */
-function addV: Vector * Vector -> Vector
+function addV(Vector, Vector) -> Vector
 ```
 
 In Penrose, functions are declarative, just like everything else. Functions allow us to use defined elements to create new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines a function called `addV`, which adds two vectors.
