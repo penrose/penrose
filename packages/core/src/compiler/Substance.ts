@@ -2,7 +2,7 @@ import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
 import { findIndex } from "lodash";
 import nearley from "nearley";
-import { idOf, lastLocation } from "parser/ParserUtil";
+import { idOf, lastLocation, prettyParseError } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
 import { A, ASTNode, C, Identifier } from "types/ast";
 import {
@@ -69,7 +69,7 @@ export const parseSubstance = (
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
   } catch (e) {
-    return err(parseError(<string>e, lastLocation(parser)));
+    return err(parseError(prettyParseError(e), lastLocation(parser)));
   }
 };
 

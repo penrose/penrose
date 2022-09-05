@@ -200,11 +200,44 @@ where C := intersect ( A, B, Not(f) ) ;\
     const prog = `
     forall Set x; Set y where y := Baz(x) as foo {}
     `;
-    expect(parseStyle(prog).isErr()).toEqual(true);
+    const parsed = parseStyle(prog);
+    if (parsed.isErr()) {
+      expect(parsed.error.message)
+        .toEqual(`Error: Syntax error at line 2 col 43:
+
+      forall Set x; Set y where y := Baz(x) as
+                                            ^
+Unexpected as token: "as". Instead, I was expecting to see one of the following:
+
+    ws token
+    nl token
+    ";"
+    comment token
+    multiline_comment token
+    "with"
+    "{"
+`);
+    } else {
+      throw Error("expected parse error");
+    }
   });
   test("cannot set subVars as aliases", () => {
     const prog = "forall Set x; Set y where IsSubset(x,y) as `A` {}";
-    expect(parseStyle(prog).isErr()).toEqual(true);
+    const parsed = parseStyle(prog);
+    if (parsed.isErr()) {
+      expect(parsed.error.message)
+        .toEqual(`Error: Syntax error at line 1 col 44:
+
+  forall Set x; Set y where IsSubset(x,y) as \`
+                                             ^
+Unexpected tick token: "\`". Instead, I was expecting to see one of the following:
+
+    ws token
+    identifier token
+`);
+    } else {
+      throw Error("expected parse error");
+    }
   });
 
   test("label field check", () => {

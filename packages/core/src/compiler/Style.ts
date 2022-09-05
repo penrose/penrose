@@ -12,7 +12,7 @@ import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
 import _, { range } from "lodash";
 import nearley from "nearley";
-import { lastLocation } from "parser/ParserUtil";
+import { lastLocation, prettyParseError } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import seedrandom from "seedrandom";
 import {
@@ -2912,8 +2912,8 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
-  } catch (e: unknown) {
-    return err(parseError(<string>e, lastLocation(parser)));
+  } catch (e) {
+    return err(parseError(prettyParseError(e), lastLocation(parser)));
   }
 };
 
