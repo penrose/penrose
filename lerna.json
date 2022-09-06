@@ -1,15 +1,5 @@
 {
-  "packages": [
-    "packages/automator",
-    "packages/components",
-    "packages/core",
-    "packages/docs-site",
-    "packages/editor",
-    "packages/examples",
-    "packages/roger",
-    "packages/synthesizer",
-    "packages/synthesizer-ui"
-  ],
+  "packages": ["packages/*"],
   "npmClient": "yarn",
   "version": "1.3.0",
   "useWorkspaces": true

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
+    "build": { "dependsOn": ["^build", "build-shared"] },
+    "build-decls": { "dependsOn": ["^build-decls", "build-shared"] },
+    "build-shared": {},
+    "clean": { "cache": false },
+    "docs": { "dependsOn": ["build-shared"] },
+    "lint": {},
+    "test": { "dependsOn": ["^build", "build-shared"] },
+    "typecheck": { "dependsOn": ["build-decls"] },
+    "watch": { "cache": false, "dependsOn": ["^build", "build-shared"] },
+    "@penrose/docs-site#watch": { "dependsOn": ["@penrose/docs-site#build"] }
+  }
+}

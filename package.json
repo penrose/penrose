@@ -6,18 +6,17 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "lerna run build --stream --concurrency 1",
-    "typecheck": "lerna run typecheck",
-    "clean": "lerna clean && lerna run clean --stream",
-    "build:docs-site": "lerna run build --stream --scope=@penrose/examples --scope=@penrose/core --scope=@penrose/components --scope=@penrose/editor --scope=@penrose/docs-site",
-    "start:docs-site": "lerna run watch --stream --parallel --scope=@penrose/components --scope=@penrose/docs-site",
-    "prestart": "lerna run build --scope=@penrose/examples --scope=@penrose/core --scope=@penrose/components",
-    "start": "lerna run watch --stream --scope=@penrose/editor",
-    "build:ide": "lerna run build --stream --scope=@penrose/core --scope=@penrose/components --scope=@penrose/editor  --include-dependencies",
-    "test": "lerna run test --stream",
-    "docs": "lerna run docs --stream",
-    "lint": "lerna run lint --stream",
-    "lint:fix": "lerna run lint --stream -- --fix",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "clean": "lerna clean --yes && turbo run clean",
+    "build:docs-site": "turbo run build --filter=docs-site",
+    "start:docs-site": "turbo run watch --filter=docs-site",
+    "start": "turbo run watch --filter=editor",
+    "build:ide": "turbo run build --filter=editor",
+    "test": "turbo run test --filter=core",
+    "docs": "turbo run docs",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
     "new-version:prerelease": "lerna version --conventional-prerelease",
@@ -36,11 +35,20 @@
     "prettier-plugin-organize-imports": "^2.3.4",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
+    "turbo": "^1.4.5",
     "typescript": "^4.1.3"
   },
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/automator",
+      "packages/components",
+      "packages/core",
+      "packages/docs-site",
+      "packages/editor",
+      "packages/examples",
+      "packages/roger",
+      "packages/synthesizer",
+      "packages/synthesizer-ui"
     ],
     "nohoist": [
       "**/@types/jest",
