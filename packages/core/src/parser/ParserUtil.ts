@@ -191,3 +191,26 @@ export const lastLocation = (parser: nearley.Parser): SourceLoc | undefined => {
     return undefined;
   }
 };
+
+export const prettyParseError = (e: unknown): string => {
+  const lines: string[] = [];
+
+  let inStart = true;
+  const alreadySeen = new Set<string>();
+  for (const line of `${e}`.split("\n")) {
+    const match = line.match(/^A (.*) based on:$/);
+    if (match !== null) {
+      inStart = false;
+      const option = match[1];
+      if (!alreadySeen.has(option)) {
+        alreadySeen.add(option);
+        lines.push(`    ${option}`);
+      }
+    } else if (inStart) {
+      lines.push(line);
+    }
+  }
+
+  lines.push("");
+  return lines.join("\n");
+};
