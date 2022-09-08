@@ -365,8 +365,12 @@ const children = (x: ad.Expr): Child[] => {
   }
 };
 
-const indexToID = (index: number): ad.Id => `_${index}`;
-const idToIndex = (id: ad.Id): number => parseInt(id.slice(1), 10);
+const idToNumsIndex = (id: ad.Id): number =>
+  id.startsWith(ad.numsName)
+    ? parseInt(id.slice(ad.numsName.length + 1, id.length - 1), 10)
+    : // in this case we're looking at an edge pointing to a `Bool` node, which
+      // has no gradient, so it doesn't matter how we sort it
+      -1;
 
 const getInputs = (
   graph: ad.Graph["graph"]
@@ -396,6 +400,8 @@ export const makeGraph = (
   outputs: Omit<ad.Outputs<ad.Num>, "gradient">
 ): ad.Graph => {
   const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
+  let numBools = 0;
+  let numNums = 0;
   const nodes = new Map<ad.Expr, ad.Id>();
 
   // we use this queue to essentially do a breadth-first search by following
@@ -413,7 +419,32 @@ export const makeGraph = (
 
   // only call setNode in this one place, ensuring that we always use indexToID
   const newNode = (node: ad.Node): ad.Id => {
-    const id = indexToID(graph.nodeCount());
+    let id: ad.Id;
+    if (typeof node === "number") {
+      id = `${ad.numsName}[${numNums++}]`;
+    } else {
+      switch (node.tag) {
+        case "Comp":
+        case "Logic":
+        case "Not": {
+          id = `${ad.boolsName}[${numBools++}]`;
+          break;
+        }
+        case "Input":
+        case "Unary":
+        case "Binary":
+        case "Ternary":
+        case "Nary":
+        case "Index":
+        case "Debug": {
+          id = `${ad.numsName}[${numNums++}]`;
+          break;
+        }
+        case "PolyRoots": {
+          throw Error("Vec :(");
+        }
+      }
+    }
     graph.setNode(id, node);
     return id;
   };
@@ -509,7 +540,7 @@ export const makeGraph = (
     const edges = [...graph.outEdges(id)].sort((a, b) =>
       a.w === b.w
         ? rankEdge(a.name) - rankEdge(b.name)
-        : idToIndex(a.w) - idToIndex(b.w)
+        : idToNumsIndex(a.w) - idToNumsIndex(b.w)
     );
 
     // we call graph.setEdge in this loop, so it may seem like it would be
@@ -587,7 +618,7 @@ export const makeGraph = (
     gradient[key] = (gradNodes.get(id) ?? [addNode(0)])[0];
   }
 
-  return { graph, nodes, gradient, primary, secondary };
+  return { graph, numBools, numNums, nodes, gradient, primary, secondary };
 };
 
 /**
@@ -1069,18 +1100,22 @@ export const genCode = ({
   gradient,
   primary,
   secondary,
+  numBools,
+  numNums,
 }: ad.Graph): ad.Compiled => {
   const stmts = getInputs(graph).map(
-    ({ id, label: { key } }) => `const ${id} = inputs[${key}];`
+    ({ id, label: { key } }) => `${id} = inputs[${key}];`
   );
+
   for (const id of graph.topsort()) {
     const node = graph.node(id);
     // we already generated code for the inputs
     if (typeof node === "number" || node.tag !== "Input") {
       const preds = new Map(graph.inEdges(id).map(({ v, name }) => [name, v]));
-      stmts.push(`const ${id} = ${compileNode(node, preds)};`);
+      stmts.push(`${id} = ${compileNode(node, preds)};`);
     }
   }
+
   const fields = [
     // somehow this actually works! if the gradient array is not contiguous, any
     // holes will just be filled in by commas when we call join, and that is
@@ -1091,6 +1126,28 @@ export const genCode = ({
     `secondary: [${secondary.join(", ")}]`,
   ];
   stmts.push(`return { ${fields.join(", ")} };`);
-  const f = new Function("polyRoots", "inputs", stmts.join("\n"));
-  return (inputs) => f(polyRoots, inputs);
+
+  const f = new Function(
+    "polyRoots",
+    ad.boolsName,
+    ad.numsName,
+    "inputs",
+    stmts.join("\n")
+  );
+
+  // we do it this way instead of using `Array(n).fill(x)` because that would
+  // create a sparse array, causing JavaScript engines to pack it less
+  // efficiently, and its elements kind would not improve when we `fill` it; see
+  // this: https://v8.dev/blog/elements-kinds
+  const bools: boolean[] = [];
+  for (let i = 0; i < numBools; i++) {
+    bools.push(false);
+  }
+  const nums: number[] = [];
+  for (let i = 0; i < numNums; i++) {
+    // we need to make sure the engine knows it's floating-point, not an integer
+    nums.push(-0);
+  }
+
+  return (inputs) => f(polyRoots, bools, nums, inputs);
 };

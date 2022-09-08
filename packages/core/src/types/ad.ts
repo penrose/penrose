@@ -229,33 +229,23 @@ export interface DebugNode {
   info: string;
 }
 
-export type Edge =
-  | UnaryEdge
-  | BinaryEdge
-  | CompEdge
-  | LogicEdge
-  | TernaryEdge
-  | NaryEdge
-  | PolyRootsEdge
-  | IndexEdge
-  | DebugEdge
-  | NotEdge;
-
+export type Edge = UnaryEdge | BinaryEdge | TernaryEdge | NaryEdge;
 export type UnaryEdge = undefined;
 export type BinaryEdge = "left" | "right";
-export type CompEdge = BinaryEdge;
-export type LogicEdge = BinaryEdge;
 export type TernaryEdge = "cond" | "then" | "els";
 export type NaryEdge = `${number}`;
-export type PolyRootsEdge = NaryEdge;
-export type IndexEdge = UnaryEdge;
-export type DebugEdge = UnaryEdge;
-export type NotEdge = UnaryEdge;
 
-export type Id = `_${number}`; // subset of valid JavaScript identifiers
+export const boolsName = "bools";
+export const numsName = "nums";
+
+export type Id = BoolId | NumId;
+export type BoolId = `${typeof boolsName}[${number}]`;
+export type NumId = `${typeof numsName}[${number}]`;
 
 export interface Graph extends Outputs<Id> {
   graph: Multidigraph<Id, Node, Edge>; // edges point from children to parents
+  numBools: number;
+  numNums: number;
   nodes: Map<Expr, Id>;
 }
 
