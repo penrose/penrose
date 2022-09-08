@@ -26,6 +26,17 @@ jobs:
         with:
           name: diagrams
           path: packages/automator/out/
+      - name: Generate CI summary
+        run: |
+          yarn start ascii out stats.md
+          cat stats.md >> $GITHUB_STEP_SUMMARY
+          rm stats.md
+        working-directory: packages/automator/
+      - if: github.event_name == 'pull_request'
+        name: Comment on PR with link to stats
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: 📊 [Click here to see stats!](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
       - name: Check that the generated diagrams/ are all up to date
         run: |
           rm -r diagrams/
