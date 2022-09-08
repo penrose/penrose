@@ -42,7 +42,7 @@ console.log();
 const padSize = Math.max(...smalls.map((small) => small.length));
 for (const small of smalls) {
   const name = small.padEnd(padSize);
-  const mean = (means[small] * 100).toFixed(2).padStart(5);
-  const stdev = (stdevs[small] * 100).toFixed(2).padStart(5);
+  const mean = (means[small] * 100).toFixed(1).padStart(4);
+  const stdev = (stdevs[small] * 100).toFixed(1).padStart(4);
   console.log(`    ${name} ${mean}% ± ${stdev}%`);
 }
