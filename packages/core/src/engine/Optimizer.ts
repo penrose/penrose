@@ -6,6 +6,7 @@ import { Matrix } from "ml-matrix";
 import { InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { FnCached, LbfgsParams, Params, State } from "types/state";
+import { StopwatchFactory } from "types/time";
 import {
   addv,
   dot,
@@ -783,7 +784,8 @@ export const evalEnergyOnCustom = (
 export const genOptProblem = (
   inputs: InputMeta[],
   objEngs: ad.Num[],
-  constrEngs: ad.Num[]
+  constrEngs: ad.Num[],
+  makeStopwatch: StopwatchFactory
 ): Params => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
@@ -799,14 +801,18 @@ export const genOptProblem = (
 
   log.info("interpreted energy graph", energyGraph);
 
+  const stopWatch1 = makeStopwatch("genOptProblem makeGraph");
   // Build an actual graph from the implicit ad.Num structure
   // Build symbolic gradient of f at xs on the energy graph
   const explicitGraph = makeGraph({
     primary: energyGraph,
     secondary: [...objEngs, ...constrEngs],
   });
+  stopWatch1();
 
+  const stopWatch2 = makeStopwatch("genOptProblem genCode");
   const f = genCode(explicitGraph);
+  stopWatch2();
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
     const { primary, gradient, secondary } = f([...xs, epWeight]);

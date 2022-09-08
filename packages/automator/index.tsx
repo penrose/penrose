@@ -83,6 +83,14 @@ const singleProcess = async (
     fs.readFileSync(join(prefix, arg), "utf8").toString()
   );
 
+  const times = new Map<string, number>();
+  const makeStopwatch = (name: string) => {
+    const start = process.hrtime();
+    return () => {
+      times.set(name, toMs(process.hrtime(start)));
+    };
+  };
+
   // Compilation
   console.log(`Compiling for ${out}/${sub} ...`);
   const overallStart = process.hrtime();
@@ -92,6 +100,7 @@ const singleProcess = async (
     style: styIn,
     domain: dslIn,
     variation,
+    makeStopwatch,
   });
   const compileEnd = process.hrtime(compileStart);
   if (compilerOutput.isErr()) {
@@ -192,6 +201,7 @@ const singleProcess = async (
         labelling: convertHrtime(labelEnd).milliseconds,
         optimization: convertHrtime(convergeEnd).milliseconds,
         rendering: convertHrtime(reactRenderEnd).milliseconds,
+        ...Object.fromEntries(times),
       },
       // violatingConstraints: constrs,
       // nonzeroConstraints: constrs.length > 0,

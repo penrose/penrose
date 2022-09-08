@@ -15,6 +15,7 @@ import { StyleError } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
 import { LbfgsParams, ShapeFn } from "types/state";
 import { Expr, Path } from "types/style";
+import { StopwatchFactory } from "types/time";
 import {
   Color,
   ColorV,
@@ -190,15 +191,25 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   }
 }
 
-export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
+export const compileCompGraph = (
+  shapes: ShapeAD[],
+  makeStopwatch: StopwatchFactory
+): ShapeFn => {
   const vars = [];
   for (const s of shapes) {
     for (const v of Object.values(s.properties)) {
       vars.push(...valueADNums(v));
     }
   }
+
+  const stopWatch1 = makeStopwatch("compileCompGraph secondaryGraph");
   const compGraph: ad.Graph = secondaryGraph(vars);
+  stopWatch1();
+
+  const stopWatch2 = makeStopwatch("compileCompGraph genCode");
   const evalFn: ad.Compiled = genCode(compGraph);
+  stopWatch2();
+
   return (xs: number[]): Shape[] => {
     const numbers = evalFn(xs).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));

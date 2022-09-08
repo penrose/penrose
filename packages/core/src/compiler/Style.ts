@@ -93,6 +93,7 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+import { StopwatchFactory } from "types/time";
 import {
   ArgVal,
   Field,
@@ -2999,7 +3000,8 @@ export const compileStyle = (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
-  varEnv: Env
+  varEnv: Env,
+  makeStopwatch?: StopwatchFactory
 ): Result<State, PenroseError> => {
   const astOk = parseStyle(stySource);
   let styProg;
@@ -3067,12 +3069,19 @@ export const compileStyle = (
     ...onCanvases(canvas.value, shapes),
   ];
 
-  const computeShapes = compileCompGraph(shapes);
+  if (makeStopwatch === undefined) {
+    makeStopwatch = () => () => {
+      return;
+    };
+  }
+
+  const computeShapes = compileCompGraph(shapes, makeStopwatch);
 
   const params = genOptProblem(
     inputs,
     objFns.map(({ output }) => output),
-    constrFns.map(({ output }) => output)
+    constrFns.map(({ output }) => output),
+    makeStopwatch
   );
 
   const initState: State = {

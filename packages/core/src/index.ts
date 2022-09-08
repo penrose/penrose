@@ -1,5 +1,6 @@
 import { initConstraintWeight } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
+import { StopwatchFactory } from "types/time";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
 import {
@@ -201,6 +202,7 @@ export const compileTrio = (prog: {
   style: string;
   domain: string;
   variation: string;
+  makeStopwatch?: StopwatchFactory;
 }): Result<State, PenroseError> => {
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
@@ -210,7 +212,8 @@ export const compileTrio = (prog: {
   );
 
   const styRes: Result<State, PenroseError> = andThen(
-    (res) => compileStyle(prog.variation, prog.style, ...res),
+    (res) =>
+      compileStyle(prog.variation, prog.style, ...res, prog.makeStopwatch),
     subRes
   );
 
