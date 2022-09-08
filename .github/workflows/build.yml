@@ -37,11 +37,11 @@ jobs:
           rm stats.md
         working-directory: packages/automator/
       - if: github.event_name == 'pull_request'
-        name: Comment on PR with link to stats
+        name: Comment on PR with stats
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            📊 [Stats](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            # 📊 [Performance](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
             ${{ env.REGISTRY_STATS }}
       - name: Check that the generated diagrams/ are all up to date
