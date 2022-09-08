@@ -131,14 +131,68 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
   console.log(`Artifact pages generated in ${outDir}`);
 };
 
+type Column = "none" | "top" | "bottom";
+
+const makeDiscreteBar = (columns: Column[]): string => {
+  const parts: string[] = [];
+  for (let i = 0; i < columns.length; i += 2) {
+    const nextNone = !(i + 1 < columns.length) || columns[i + 1] === "none";
+    if (columns[i] === "none") {
+      if (nextNone) {
+        parts.push(" ");
+      } else if (columns[i + 1] === "top") {
+        parts.push("▝");
+      } else {
+        parts.push("▗");
+      }
+    } else if (columns[i] === "top") {
+      if (nextNone) {
+        parts.push("▘");
+      } else if (columns[i + 1] === "top") {
+        parts.push("▀");
+      } else {
+        parts.push("▚");
+      }
+    } else {
+      if (nextNone) {
+        parts.push("▖");
+      } else if (columns[i + 1] === "top") {
+        parts.push("▞");
+      } else {
+        parts.push("▄");
+      }
+    }
+  }
+  return parts.join("");
+};
+
+const makeContinuousBar = (xs: number[]): string => {
+  const columns: Column[] = ["none"];
+  let current: Column = "top";
+  for (const x of xs) {
+    for (let i = 0; i < Math.max(1, x / 100); i++) {
+      columns.push(current);
+    }
+    current = current === "top" ? "bottom" : "top";
+  }
+  return makeDiscreteBar(columns);
+};
+
 export const printAsciiStats = (artifactsDir: string, outFile: string) => {
   const artifacts = getArtifacts(artifactsDir);
+  if (artifacts.size < 1) {
+    fs.writeFileSync(outFile, "");
+    return;
+  }
 
   const lines = [
     "# Key",
     "",
+    "Note that each bar component rounds up to the nearest 100ms, so each full",
+    "bar is an overestimate by up to 400ms.",
+    "",
     "```",
-    "     0    1s   2s   3s   4s   5s   6s   7s   8s   9s",
+    "     0s   1s   2s   3s   4s   5s   6s   7s   8s   9s",
     "     |    |    |    |    |    |    |    |    |    |",
     "name ▝▀▀▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▄▞▀▀▀▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▄▖",
     "      compilation labelling optimization rendering",
@@ -149,8 +203,34 @@ export const printAsciiStats = (artifactsDir: string, outFile: string) => {
     "```",
   ];
 
-  for (const [key] of artifacts) {
-    lines.push(key);
+  const longestName = Math.max(...[...artifacts.keys()].map((k) => k.length));
+  const longestTime = Math.max(
+    ...[...artifacts.values()].map((v) => v.metadata.timeTaken.overall)
+  );
+  const numSeconds = Math.max(0, Math.ceil(longestTime / 1000));
+  const labelParts = [" ".repeat(longestName), " 0s"];
+  const tickParts = [" ".repeat(longestName), " |"];
+  for (let i = 1; i <= numSeconds; i++) {
+    labelParts.push(`${i}`.padStart(4), "s");
+    tickParts.push("    |");
+  }
+  lines.push(labelParts.join(""));
+  lines.push(tickParts.join(""));
+
+  for (const [
+    key,
+    {
+      metadata: { timeTaken },
+    },
+  ] of artifacts) {
+    lines.push(
+      `${key.padEnd(longestName)} ${makeContinuousBar([
+        timeTaken.compilation,
+        timeTaken.labelling,
+        timeTaken.optimization,
+        timeTaken.rendering,
+      ])}`
+    );
   }
 
   lines.push("```", "");
