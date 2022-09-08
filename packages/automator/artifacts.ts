@@ -188,8 +188,7 @@ export const printAsciiStats = (artifactsDir: string, outFile: string) => {
   const lines = [
     "# Key",
     "",
-    "Note that each bar component rounds up to the nearest 100ms, so each full",
-    "bar is an overestimate by up to 400ms.",
+    "Note that each bar component rounds up to the nearest 100ms, so each full bar is an overestimate by up to 400ms.",
     "",
     "```",
     "     0s   1s   2s   3s   4s   5s   6s   7s   8s   9s",
