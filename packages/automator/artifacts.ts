@@ -186,7 +186,7 @@ export const printAsciiStats = (artifactsDir: string, outFile: string) => {
   }
 
   const lines = [
-    "# Key",
+    "## Key",
     "",
     "Note that each bar component rounds up to the nearest 100ms, so each full bar is an overestimate by up to 400ms.",
     "",
@@ -197,7 +197,7 @@ export const printAsciiStats = (artifactsDir: string, outFile: string) => {
     "      compilation labelling optimization rendering",
     "```",
     "",
-    "# Stats",
+    "## Data",
     "",
     "```",
   ];
