@@ -3,24 +3,22 @@ canvas {
     height = 700
 }
 
-forall Point p; Rectangle r
--- where ClosestPoint(p, r){
-    {
-    r.shape = Rectangle{
+forall Point p; Rectangle r {
+    r.shape = Rectangle {
         center: (0, 0)
         width: 600
         height: 400
         strokeWidth: 1
     }
     p.Point = (?,?)
-    p.shape = Circle{
+    p.shape = Circle {
         center: p.Point
         r: 10
         strokeWidth: 1
     } 
-    p.line = Line{
+    p.line = Line {
         start: p.Point
         end: closestPoint(r.shape, p.Point)
-        strokeWidth: 1.0
+        strokeWidth: 1
     }
 }
