@@ -1,6 +1,5 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
-import fs from "fs";
 import * as _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "types/ad";
@@ -1079,10 +1078,7 @@ export const genCode = ({
     // we already generated code for the inputs
     if (typeof node === "number" || node.tag !== "Input") {
       const preds = new Map(graph.inEdges(id).map(({ v, name }) => [name, v]));
-
       stmts.push(`const ${id} = ${compileNode(node, preds)};`);
-      // stmts.push(`console.log("ID=${id}")`);
-      // stmts.push(`console.log(${id});`);
     }
   }
   const fields = [
@@ -1095,8 +1091,6 @@ export const genCode = ({
     `secondary: [${secondary.join(", ")}]`,
   ];
   stmts.push(`return { ${fields.join(", ")} };`);
-  fs.writeFileSync("gencodeOutput.txt", stmts.join("\n"));
-
   const f = new Function("polyRoots", "inputs", stmts.join("\n"));
   return (inputs) => f(polyRoots, inputs);
 };
