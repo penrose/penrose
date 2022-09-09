@@ -4,17 +4,19 @@ import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
 import { buildAssignment } from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
+import im from "immutable";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
-import { SubProg, SubstanceEnv } from "types/substance";
+import { SubProg, SubRes, SubstanceEnv } from "types/substance";
 import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
 import { foldM, toLeft, ToRight } from "utils/Util";
 import { compileDomain } from "./Domain";
 import { envOrError, subEnvOrError } from "./Substance.test";
+
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"
@@ -280,30 +282,30 @@ describe("Compiler", () => {
       // vectors or accesspaths, but the ability to override accesspaths was
       // removed in the compiler rewrite (see the comment in the "first Style
       // compiler pass" section of `types/styleSemantics`)
-      `Object o {
+      `forall Object o {
     shape o.shape = Line {}
     -- o.shape.start[0] = 0.
 }
 `,
-      `Object o {
+      `forall Object o {
     shape o.shape = Line {
         start: (0., ?)
     }
 }`,
-      `Object o {
+      `forall Object o {
     shape o.shape = Line {
           start: (?, ?)
     }
     -- o.shape.start[0] = 0.
 }`,
-      `Object o {
+      `forall Object o {
     o.y = ?
     shape o.shape = Line {
         start: (0., o.y)
     }
 }`,
       // Set field
-      `Object o {
+      `forall Object o {
        o.f = (?, ?)
        -- o.f[0] = 0.
        o.shape = Circle {}
@@ -346,7 +348,373 @@ describe("Compiler", () => {
   });
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
+  describe("Symmetric predicates", () => {
+    test("non-symmetric predicate should not match", () => {
+      const domainProg = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H
+      Oxygen O
+      Bond(H, O)`;
+      const styProg =
+        canvasPreamble +
+        `forall Hydrogen h; Oxygen o
+      where Bond(o, h) {
+        myShape = Text {
+          string: "Bond!"
+        }
+      }`;
 
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(0);
+      }
+    });
+    test("symmetric predicate should match", () => {
+      const domainProg = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      symmetric predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H
+      Oxygen O
+      Bond(H, O)`;
+      const styProg =
+        canvasPreamble +
+        `forall Hydrogen h; Oxygen o
+      where Bond(o, h) {
+        myShape = Text {
+          string: "Bond!"
+        }
+      }`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toBeGreaterThan(0);
+      }
+    });
+    test("nested symmetric predicates", () => {
+      const domainProg = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      symmetric predicate Bond(Atom, Atom)
+      predicate Not(Prop)`;
+      const subProg = `Hydrogen H
+      Oxygen O
+      Not(Bond(H, O))`;
+      const styProg =
+        canvasPreamble +
+        `forall Hydrogen h; Oxygen o
+        where Not(Bond(o, h)) {
+          theText = Text {
+            string: "hello"
+          }
+        }`;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  describe("number of matchings", () => {
+    test("no double matching, non-symmetric", () => {
+      const domainProg = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H1, H2
+      Oxygen O
+      Bond( O, H1 )
+      Bond( O, H2 )`;
+      const styProg =
+        canvasPreamble +
+        `forall Oxygen o; Hydrogen h1; Hydrogen h2
+        where Bond(o,h1); Bond(o,h2) {
+            myText = Text {
+                string: "Water!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+
+    test("no double matching, symmetric", () => {
+      const domainProg = `type Atom
+      symmetric predicate Bond(Atom, Atom)`;
+      const subProg = `Atom A1, A2
+      Bond( A1, A2 )`;
+      const styProg =
+        canvasPreamble +
+        `forall Atom a1; Atom a2
+        where Bond(a1, a2) {
+            myText = Text {
+                string: "Bond"
+            }
+        }`;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+
+    test("extra variables not in relations", () => {
+      const domainProg = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+predicate Bond(Atom, Atom)`;
+      const subProg = `Hydrogen H1, H2
+      Oxygen O
+      Bond( O, H1 )
+      Bond( O, H2 )
+      Hydrogen H3, H4`;
+      const styProg =
+        canvasPreamble +
+        `forall Oxygen o; Hydrogen h1; Hydrogen h2; Hydrogen h3
+        where Bond(o,h1); Bond(o,h2) {
+            myText = Text {
+                string: "Water!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(2);
+      }
+    });
+
+    test("pure selector, no relations", () => {
+      const domainProg = `type Atom`;
+      const subProg = `Atom A1, A2`;
+      const styProg =
+        canvasPreamble +
+        `forall Atom a1; Atom a2 {
+            myText = Text {
+                string: "TwoAtoms!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+  });
+
+  describe("predicate alias", () => {
+    test("general predicate alias with symmetry", () => {
+      const domainProg = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+symmetric predicate Bond(Atom, Atom)
+`;
+      const substanceProg = `Hydrogen H1, H2
+Oxygen O
+Bond(O, H1)
+Bond(O, H2)`;
+      const styleProg =
+        canvasPreamble +
+        `
+    forall Oxygen o; Hydrogen h
+    where Bond(h, o) as b {
+        b.shape = Line {
+        }
+    }
+    `;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(substanceProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styleProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(2);
+      }
+    });
+    test("correct style programs with predicate aliasing", () => {
+      const domainProg = "type Set \n predicate IsSubset(Set, Set)";
+      const subProg = "Set A\nSet B\nSet C\nIsSubset(B, A)\nIsSubset(C, B)";
+
+      const styProg =
+        canvasPreamble +
+        `forall Set a; Set b where IsSubset(a,b) as foo {
+          foo.icon = Rectangle{}
+        }
+        forall Set u; Set v where IsSubset(u,v) as bar {
+          bar.icon2 = Ellipse{}
+        }
+        `;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+      const subRes: Result<SubRes, PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes = andThen(
+        (res) => S.compileStyle("", canvasPreamble + styProg, ...res),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw new Error(
+          `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
+        );
+      }
+      const state = styRes.value;
+      expect(state.shapes.length).toEqual(4);
+    });
+  });
   // Test errors
   const PRINT_ERRORS = false;
 
@@ -559,6 +927,14 @@ delete x.z.p }`,
   height = (1.0, 1.0)
 }`,
       ],
+      SelectorAliasNamingError: [
+        `forall Set a; Set b
+        where IsSubset(a, b) as a {}`,
+        `forall Set a; Set b
+        where IsSubset(a, b) as Set {}`,
+        `forall Set a; Set b
+        where IsSubset(a, b) as IsSubset {}`,
+      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {
@@ -606,5 +982,188 @@ delete x.z.p }`,
         testStyProgForError(styProg, errorType);
       }
     }
+  });
+
+  describe("faster matching", () => {
+    test("multiple predicates", () => {
+      const subProg = `
+      MySet X, Y
+ OtherType Z
+ 
+ MyPred(Z, X, Y)
+ MyOtherPred(X, Y)`;
+      const domProg = `
+     type MySet
+ type OtherType
+ 
+ predicate MyPred(OtherType, MySet, MySet)
+ predicate MyOtherPred(MySet, MySet)`;
+
+      const styProg =
+        canvasPreamble +
+        `
+     forall MySet X; MySet Y; OtherType Z
+ where MyPred(Z, X, Y); MyOtherPred(X, Y) {
+     theCircle = Circle {
+         r: 20
+     }
+ }`;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+    test("many declaration matches with only one relational match", () => {
+      const subProg = `
+      T t1, t2, t3, t4, t5, t6, t7, t8
+      S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;
+      const domProg = `
+      -- minimal.dsl
+      type S
+      type T
+      constructor f( T t1, T t2, T t3, T t4, T t5, T t6, T t7, T t8 ) -> S`;
+
+      const styProg =
+        canvasPreamble +
+        `
+        forall S s; T t1; T t2; T t3; T t4; T t5; T t6; T t7; T t8
+        where s := f( t1, t2, t3, t4, t5, t6, t7, t8 ) {
+           s.shape = Circle {
+              center: (0,0)
+              r: 10.0
+           }
+        }`;
+      const domainRes: Result<Env, PenroseError> = compileDomain(domProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!styRes.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
+            styRes.error
+          )}`
+        );
+      } else {
+        expect(styRes.value.shapes.length).toEqual(1);
+      }
+    });
+  });
+
+  describe("match metadata", () => {
+    test("match total", () => {
+      const domProg = "type MyType\n";
+      const styProg =
+        canvasPreamble +
+        `forall MyType t {
+  t.shape = Text {
+    string: match_total
+  }
+}`;
+      const subProg = "MyType t1, t2, t3\n";
+      const domainRes: Result<Env, PenroseError> = compileDomain(domProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const res: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!res.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${res}\nGot error: ${showError(
+            res.error
+          )}`
+        );
+      } else {
+        expect(
+          res.value.shapes.every((shape) => {
+            const val = shape.properties["string"];
+            return val.tag === "FloatV" && val.contents === 3;
+          })
+        ).toEqual(true);
+      }
+    });
+
+    test("match id", () => {
+      const domProg = "type MyType\n";
+      const styProg =
+        canvasPreamble +
+        `forall MyType t {
+  t.shape = Text {
+    string: match_id
+  }
+}`;
+      const subProg = "MyType t1, t2, t3\n";
+      const domainRes: Result<Env, PenroseError> = compileDomain(domProg);
+      const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+      );
+      const res: Result<State, PenroseError> = andThen(
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            styProg,
+            ...res
+          ),
+        subRes
+      );
+      if (!res.isOk()) {
+        throw Error(
+          `Expected Style program to work without errors:\n\n${res}\nGot error: ${showError(
+            res.error
+          )}`
+        );
+      } else {
+        // Require that the match_id's are exactly [1, 2, 3]
+        expect(
+          im.Set(
+            res.value.shapes.map((shape) => {
+              const val = shape.properties["string"];
+              if (val.tag === "FloatV") {
+                return val.contents;
+              } else {
+                throw Error("Should be a number");
+              }
+            })
+          )
+        ).toEqual(im.Set([1, 2, 3]));
+      }
+    });
   });
 });

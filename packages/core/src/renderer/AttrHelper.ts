@@ -196,7 +196,10 @@ export const attrRotation = (
 /**
  * Maps width, height --> width, height
  */
-export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
+export const attrWH = (
+  { properties }: Shape,
+  elem: SVGElement | HTMLElement
+): string[] => {
   const w = properties.width as FloatV<number>;
   const h = properties.height as FloatV<number>;
   elem.setAttribute("width", w.contents.toString());

@@ -3,7 +3,7 @@ import im from "immutable";
 import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
-import { idOf, lastLocation } from "parser/ParserUtil";
+import { idOf, lastLocation, prettyParseError } from "parser/ParserUtil";
 import { A, C } from "types/ast";
 import {
   Arg,
@@ -37,6 +37,8 @@ import {
   parseError,
   Result,
   safeChain,
+  symmetricArgLengthMismatch,
+  symmetricTypeMismatch,
   typeNotFound,
 } from "utils/Error";
 
@@ -55,7 +57,7 @@ export const parseDomain = (
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
   } catch (e) {
-    return err(parseError(<string>e, lastLocation(parser)));
+    return err(parseError(prettyParseError(e), lastLocation(parser)));
   }
 };
 
@@ -208,14 +210,16 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // check name duplicate
       const existing = env.predicates.get(name.value);
       if (existing) return err(duplicateName(name, stmt, existing));
-      // check arguments
+      // check that the arguments are of valid types
       const argsOk = safeChain(args, checkArg, ok(localEnv));
+      // if predicate is symmetric, check that the argument types are equal, and that there are exactly two arguments
+      const symArgOk = checkSymmetricArgs(args, argsOk, stmt);
       // insert predicate into env
       const updatedEnv: CheckerResult = ok({
         ...env,
         predicates: env.predicates.set(name.value, stmt),
       });
-      return everyResult(argsOk, updatedEnv);
+      return everyResult(argsOk, symArgOk, updatedEnv);
     }
     case "NotationDecl": {
       // TODO: just passing through the notation rules here. Need to parse them into transformers
@@ -288,6 +292,42 @@ export const checkTypeConstructor = (
 
 const checkArg = (arg: Arg<C>, env: Env): CheckerResult =>
   checkType(arg.type, env);
+
+/**
+ * Check if all arguments to this symmetric predicate have the same type, and there are only two arguments
+ * @param args arguments to predicate
+ * @param envOk previous environment result
+ * @param expr the predicate declaration expression
+ */
+const checkSymmetricArgs = (
+  args: Arg<C>[],
+  envOk: Result<Env, DomainError>,
+  expr: PredicateDecl<C>
+): CheckerResult => {
+  if (envOk.isOk()) {
+    const env = envOk.value;
+    // If it's symmetric
+    if (expr.symmetric) {
+      // Number of arguments must be 2
+      if (args.length !== 2) {
+        return err(symmetricArgLengthMismatch(expr));
+      }
+      // Type mismatch in Domain
+      if (args.some((arg) => !areSameTypes(arg.type, args[0].type, env))) {
+        return err(symmetricTypeMismatch(expr));
+      }
+      return envOk;
+    } else {
+      return envOk;
+    }
+  } else {
+    return envOk;
+  }
+};
+
+const areSameTypes = (type1: Type<C>, type2: Type<C>, env: Env): boolean => {
+  return isSubtype(type1, type2, env) && isSubtype(type2, type1, env);
+};
 
 const addSubtype = (
   subType: TypeConstructor<C>, // assume already checked

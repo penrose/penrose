@@ -93,7 +93,7 @@ export const compDict = {
   ): PathDataV<ad.Num> => {
     // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
     const unit: ad.Num[] = ops.vnormalize(ops.vsub(start, end));
-    const normalVec: ad.Num[] = rot90(toPt(unit));
+    const normalVec: ad.Num[] = ops.rot90(toPt(unit));
     // There's only one control point in a quadratic bezier curve, and we want it to be equidistant to both `start` and `end`
     const halfLen: ad.Num = div(ops.vdist(start, end), 2);
     const controlPt: ad.Num[] = ops.vmove(
@@ -470,17 +470,6 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  lineLength: (_context: Context, [, props]: [string, any]): FloatV<ad.Num> => {
-    const [p1, p2] = linePts(props);
-    return {
-      tag: "FloatV",
-      contents: ops.vdist(p1, p2),
-    };
-  },
-
-  /**
-   * Return the length of the line or arrow shape `[type, props]`.
-   */
   len: (_context: Context, [, props]: [string, any]): FloatV<ad.Num> => {
     const [p1, p2] = linePts(props);
     return {
@@ -627,7 +616,7 @@ export const compDict = {
     size: ad.Num
   ): PtListV<ad.Num> => {
     const dir = ops.vnormalize(ops.vsub(end, start));
-    const normalDir = rot90(toPt(dir));
+    const normalDir = ops.rot90(toPt(dir));
     const base = t === "start" ? start : end;
     const [markStart, markEnd] = [
       ops.vmove(base, size, normalDir),
@@ -817,7 +806,7 @@ export const compDict = {
     if (t1 === "Arrow" || t1 === "Line") {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
-      const normalDir = rot90v(ops.vnormalize(ops.vsub(end, start)));
+      const normalDir = ops.rot90(ops.vnormalize(ops.vsub(end, start)));
       const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
       return {
@@ -867,7 +856,7 @@ export const compDict = {
   ): VectorV<ad.Num> => {
     // unit vector towards first corner
     const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
-    const normalDir = ops.vneg(rot90v(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
+    const normalDir = ops.vneg(ops.rot90(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
 
     // move along line between p1 and p2, then move perpendicularly
     const ref = ops.vmove(pt1, padding, vec1unit);
@@ -910,7 +899,7 @@ export const compDict = {
     // calculate scalar multipliers to determine the placement of each tick mark
     const multipliers = tickPlacement(spacing, numTicks);
     const unit = ops.vnormalize(ops.vsub(pt2, pt1));
-    const normalDir = ops.vneg(rot90v(unit)); // rot90 rotates CW, neg to point in CCW direction
+    const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
 
     const mid = ops.vmul(0.5, ops.vadd(pt1, pt2));
 
@@ -1842,9 +1831,8 @@ export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
 
 /*
   float msign(in float x) { return (x<0.0)?-1.0:1.0; }
-  TODO: merge with Jiri's signOf function
-  */
-const msign = (x: ad.Num): ad.Num => {
+*/
+export const msign = (x: ad.Num): ad.Num => {
   return ifCond(lt(x, 0), -1, 1);
 };
 
@@ -1991,20 +1979,6 @@ const perpPathFlat = (
   const ptR = ops.vmove(startR, len, dirR); // ops.vadd(startR, ops.vmul(len, dirR));
   const ptLR = ops.vadd(ptL, ops.vmul(len, dirR));
   return [ptL, ptLR, ptR];
-};
-
-/**
- * Rotate a 2D point `[x, y]` by 90 degrees counterclockwise.
- */
-const rot90 = ([x, y]: ad.Pt2): ad.Pt2 => {
-  return [neg(y), x];
-};
-
-/**
- * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
- */
-const rot90v = ([x, y]: ad.Num[]): ad.Num[] => {
-  return [neg(y), x];
 };
 
 const tickPlacement = (

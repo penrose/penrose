@@ -47,7 +47,7 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
     elem.setAttribute("y", y.toString());
   }
 
-  // Directrly Map across any "unknown" SVG properties
+  // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;

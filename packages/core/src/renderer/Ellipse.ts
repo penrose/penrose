@@ -22,7 +22,7 @@ const Ellipse = ({ shape, canvasSize }: ShapeProps): SVGEllipseElement => {
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  // Directrly Map across any "unknown" SVG properties
+  // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;

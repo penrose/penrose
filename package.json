@@ -1,6 +1,6 @@
 {
   "repository": "penrose/penrose",
-  "author": "Penrose Team (https://penrose.ink)",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "private": true,
   "packages": [
     "packages/*"

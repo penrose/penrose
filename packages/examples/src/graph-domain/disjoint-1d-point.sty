@@ -24,11 +24,11 @@ Colors {
 global {
 }
 
-Vertex V {
+forall Vertex V {
 }
 
 -- Point with DOF or not
-Vertex `v1` {
+forall Vertex `v1` {
        `v1`.val = ?
        -- `v1`.val = 0.
        `v1`.shape = Circle {
@@ -38,7 +38,7 @@ Vertex `v1` {
        }
 }
 
-Vertex `v2` {
+forall Vertex `v2` {
        len = 300.
        -- With an additional DOF, tends to repel both
        `v2`.center = ?
@@ -55,6 +55,6 @@ Vertex `v2` {
 }
 
 -- Point-line
-Vertex `v1`; Vertex `v2` {
+forall Vertex `v1`; Vertex `v2` {
        ensure disjointScalar(`v1`.val, `v2`.left, `v2`.right)
 }

@@ -1,7 +1,9 @@
-import { mul, sqrt } from "engine/AutodiffFunctions";
+import { ops } from "engine/Autodiff";
+import { mul, neg, sqrt } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
+import { msign } from "./Functions";
 
 /**
  * Return bounding box from any provided shape.
@@ -57,4 +59,20 @@ export const polygonLikePoints = ([t, s]: [string, any]): ad.Pt2[] => {
   } else {
     throw new Error(`${t} not supported for polygonLikePoints.`);
   }
+};
+
+/**
+ * Return outward unit normal vector to `lineSegment` with respect to `insidePoint`.
+ * @param lineSegment Two points defining the line segment.
+ * @param insidePoint Any point inside of the half-plane.
+ */
+export const outwardUnitNormal = (
+  lineSegment: ad.Num[][],
+  insidePoint: ad.Num[]
+): ad.Num[] => {
+  const normal = ops.vnormalize(
+    ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
+  );
+  const insideValue = ops.vdot(ops.vsub(insidePoint, lineSegment[0]), normal);
+  return ops.vmul(neg(msign(insideValue)), normal);
 };

@@ -25,6 +25,8 @@ import {
   StyleError,
   StyleWarning,
   SubstanceError,
+  SymmetricArgLengthMismatch,
+  SymmetricTypeMismatch,
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
@@ -130,6 +132,18 @@ export const showError = (
         error.cycles
       )}`;
     }
+    case "SymmetricTypeMismatch": {
+      const { sourceExpr } = error;
+      return `The symmetric predicate at ${loc(
+        sourceExpr
+      )} must have arguments all of the same type.`;
+    }
+    case "SymmetricArgLengthMismatch": {
+      const { sourceExpr } = error;
+      return `The symmetric predicate at ${loc(
+        sourceExpr
+      )} must only have two arguments.`;
+    }
     case "TypeMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
       return `The type of the expression at ${loc(sourceExpr)} '${showType(
@@ -210,6 +224,10 @@ export const showError = (
       return showError(error.error); // Substance error
     }
 
+    case "SelectorAliasNamingError": {
+      return `Incompatible alias name "${error.alias.value}" in style selector: \
+      domain or style pattern statement has already declared the variable ${error.alias.value}`;
+    }
     // --- BEGIN BLOCK STATIC ERRORS
 
     case "InvalidGPITypeError": {
@@ -436,6 +454,20 @@ export const varNotFound = (
   tag: "VarNotFound",
   variable,
   possibleVars,
+});
+
+export const symmetricTypeMismatch = (
+  sourceExpr: AbstractNode
+): SymmetricTypeMismatch => ({
+  tag: "SymmetricTypeMismatch",
+  sourceExpr,
+});
+
+export const symmetricArgLengthMismatch = (
+  sourceExpr: AbstractNode
+): SymmetricArgLengthMismatch => ({
+  tag: "SymmetricArgLengthMismatch",
+  sourceExpr,
 });
 
 export const typeMismatch = (

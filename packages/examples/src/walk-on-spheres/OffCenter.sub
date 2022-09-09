@@ -19,6 +19,9 @@ offCenter( x4 )
 
 AutoLabel All
 Label U $\Omega$
+Label x0 $x_0$
+Label x1 $x_1$
+Label x2 $x_2$
 Label x3 $\ldots$
 Label x4 $x_k$
 

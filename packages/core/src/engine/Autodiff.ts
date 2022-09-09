@@ -861,19 +861,6 @@ export const ops = {
       sub(mul(u[0], v[1]), mul(u[1], v[0])),
     ];
   },
-
-  /**
-   * Return the angle between two 2D vectors `v` and `w` in radians.
-   * From https://github.com/thi-ng/umbrella/blob/develop/packages/vectors/src/angle-between.ts#L11
-   * NOTE: This function has not been thoroughly tested
-   */
-  angleBetween2: (v: ad.Num[], w: ad.Num[]): ad.Num => {
-    if (v.length !== 2 || w.length !== 2) {
-      throw Error("expected two 2-vectors");
-    }
-    const t = atan2(ops.cross2(v, w), ops.vdot(v, w));
-    return t;
-  },
 };
 
 export const fns = {

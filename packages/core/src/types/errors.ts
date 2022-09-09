@@ -54,7 +54,19 @@ export type DomainError =
   | TypeVarNotFound
   | TypeNotFound
   | DuplicateName
-  | CyclicSubtypes;
+  | CyclicSubtypes
+  | SymmetricTypeMismatch
+  | SymmetricArgLengthMismatch;
+
+export interface SymmetricTypeMismatch {
+  tag: "SymmetricTypeMismatch";
+  sourceExpr: AbstractNode;
+}
+
+export interface SymmetricArgLengthMismatch {
+  tag: "SymmetricArgLengthMismatch";
+  sourceExpr: AbstractNode;
+}
 
 export interface UnexpectedExprForNestedPred {
   tag: "UnexpectedExprForNestedPred";
@@ -146,6 +158,7 @@ export type StyleError =
   | SelectorRelTypeMismatch
   | SelectorFieldNotSupported
   | TaggedSubstanceError
+  | SelectorAliasNamingError
   // Block static errors
   | InvalidGPITypeError
   | InvalidGPIPropertyError
@@ -238,6 +251,11 @@ export interface SelectorFieldNotSupported {
 export interface TaggedSubstanceError {
   tag: "TaggedSubstanceError";
   error: SubstanceError;
+}
+
+export interface SelectorAliasNamingError {
+  tag: "SelectorAliasNamingError";
+  alias: Identifier<A>;
 }
 
 //#region Block statics

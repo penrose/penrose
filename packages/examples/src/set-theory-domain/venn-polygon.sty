@@ -63,14 +63,14 @@ forall Point p {
     p.textLayering = p.text above p.icon
 }
 
-Point p
+forall Point p
 with Set A
 where PointIn(A, p) {
     ensure contains(A.icon, p.icon, 0.3 * A.icon.r)
     p.layering = p.icon above A.icon
 }
 
-Point p
+forall Point p
 with Set A
 where Not(PointIn(A, p)) {
     ensure disjoint(A.icon, p.icon)

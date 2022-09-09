@@ -8,8 +8,10 @@ import {
   containsPolygonPolygon,
   containsRectlikeCircle,
   overlappingAABBs,
+  overlappingCircleEllipse,
   overlappingCircleLine,
   overlappingCircles,
+  overlappingEllipse,
   overlappingPolygonEllipse,
   overlappingPolygons,
   overlappingRectlikeCircle,
@@ -195,6 +197,8 @@ const constrDictGeneral = {
       return overlappingAABBs([t1, s1], [t2, s2], padding);
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], padding);
+    else if (t1 === "Ellipse" && t2 === "Ellipse")
+      return overlappingEllipse([t1, s1], [t2, s2], padding);
     // Rectangle x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], padding);
@@ -205,6 +209,11 @@ const constrDictGeneral = {
       return overlappingPolygonEllipse([t1, s1], [t2, s2], padding);
     else if (t1 === "Ellipse" && shapedefs[t2].isPolygonlike)
       return overlappingPolygonEllipse([t2, s2], [t1, s1], padding);
+    // Circle x Ellipse
+    else if (t1 === "Circle" && t2 === "Ellipse")
+      return overlappingCircleEllipse([t1, s1], [t2, s2], padding);
+    else if (t1 === "Ellipse" && t2 === "Circle")
+      return overlappingCircleEllipse([t2, s2], [t1, s1], padding);
     // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
       return overlappingCircleLine([t1, s1], [t2, s2], padding);

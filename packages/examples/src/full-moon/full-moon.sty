@@ -59,7 +59,7 @@ forall Crater c1; Crater c2 {
     ensure disjoint(c1.icon, c2.icon, 5.0)
 }
 
-Moon m; Crater c
+forall Moon m; Crater c
 where HasCrater(m, c) {
     c.icon above m.icon
     ensure contains(m.icon, c.icon, 5.0)
@@ -128,7 +128,7 @@ forall Branch b; Moon m {
     ensure disjoint(b.icon, m.icon, 20.0)
 }
 
-Branch left; Branch right; Branch base
+forall Branch left; Branch right; Branch base
 where AreSubbranches(left, right, base) {
 
     override left.baseX = base.tipX

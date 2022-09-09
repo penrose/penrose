@@ -1,40 +1,23 @@
 import {
   convexPartitions,
-  ellipseToImplicit,
   halfPlaneSDF,
-  halfPlaneToImplicit,
-  outwardUnitNormal,
   rectangleDifference,
 } from "contrib/Minkowski";
-import { genCode, ops, secondaryGraph } from "engine/Autodiff";
-import { sub } from "engine/AutodiffFunctions";
+import { numsOf } from "contrib/Utils";
 import * as BBox from "engine/BBox";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeCanvas, simpleContext } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { black, floatV, vectorV } from "utils/Util";
-
-const digitPrecision = 4;
-
-const numsOf = (xs: ad.Num[]) => {
-  const g = secondaryGraph(xs);
-  const f = genCode(g);
-  return f([]).secondary;
-};
 
 describe("rectangleDifference", () => {
   const expectRectDiff = (
     result: [ad.Pt2, ad.Pt2],
     expected: [[number, number], [number, number]]
   ) => {
-    const g = secondaryGraph([
+    const [result00, result01, result10, result11] = numsOf([
       result[0][0],
       result[0][1],
       result[1][0],
       result[1][1],
     ]);
-    const f = genCode(g);
-    const [result00, result01, result10, result11] = f([]).secondary;
     expect(result00).toEqual(expected[0][0]);
     expect(result01).toEqual(expected[0][1]);
     expect(result10).toEqual(expected[1][0]);
@@ -77,67 +60,26 @@ describe("rectangleDifference", () => {
   });
 });
 
-let point1 = [2, 3];
-let point2 = [1, 2];
-let point3 = [1, 4];
-let point4 = [2, 2];
-let point5 = [0, 0];
-let lineSegment = [point3, point4];
-
-describe("outwardUnitNormal", () => {
-  test("inside point above", async () => {
-    let result = outwardUnitNormal(lineSegment, point1);
-
-    const [norm, dot, diff] = genCode(
-      secondaryGraph([
-        ops.vnorm(result),
-        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
-        sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
-      ])
-    )([]).secondary;
-
-    // It is unit
-    expect(norm).toBeCloseTo(1, digitPrecision);
-    // It is orthogonal to the line segment
-    expect(dot).toBeCloseTo(0, digitPrecision);
-    // `insidePoint1` is inside
-    expect(diff).toBeLessThan(0);
-  });
-
-  test("inside point below", async () => {
-    let result = outwardUnitNormal(lineSegment, point2);
-
-    const [norm, dot, diff] = genCode(
-      secondaryGraph([
-        ops.vnorm(result),
-        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
-        sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
-      ])
-    )([]).secondary;
-
-    // It is unit
-    expect(norm).toBeCloseTo(1, digitPrecision);
-    // It is orthogonal to the line segment
-    expect(dot).toBeCloseTo(0, digitPrecision);
-    // `insidePoint2` is inside
-    expect(diff).toBeLessThan(0);
-  });
-});
-
 describe("halfPlaneSDF", () => {
+  let point1 = [2, 3];
+  let point2 = [1, 2];
+  let point3 = [1, 4];
+  let point4 = [2, 2];
+  let point5 = [0, 0];
+
   test("without padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
-    expect(numsOf([result])[0]).toBeCloseTo(-3, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(-3, 4);
   });
 
   test("with padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
-    expect(numsOf([result])[0]).toBeCloseTo(-13, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(-13, 4);
   });
 
   test("zero outside", async () => {
     let result = halfPlaneSDF([point2, point3], [point5], point1, 0);
-    expect(numsOf([result])[0]).toBeCloseTo(1, digitPrecision);
+    expect(numsOf([result])[0]).toBeCloseTo(1, 4);
   });
 });
 
@@ -214,60 +156,5 @@ describe("convexPartitions", () => {
       [p[0], p[1], p[2]],
       [p[0], p[2], p[3]],
     ]);
-  });
-});
-
-describe("toImplicit", () => {
-  test("halfPlaneToImplicit", async () => {
-    let result = halfPlaneToImplicit(
-      [
-        [1, 2],
-        [2, 3],
-      ],
-      [1, 6],
-      0
-    );
-    let [a, b, c] = numsOf([result.a, result.b, result.c]);
-    expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
-    expect(b).toBeCloseTo(-1 / Math.sqrt(2), 4);
-    expect(c).toBeCloseTo(-1 / Math.sqrt(2), 4);
-  });
-
-  test("halfPlaneToImplicit with padding", async () => {
-    let result = halfPlaneToImplicit(
-      [
-        [1, 2],
-        [3, 4],
-      ],
-      [5, 6],
-      1
-    );
-    let [a, b, c] = numsOf([result.a, result.b, result.c]);
-    expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
-    expect(b).toBeCloseTo(-1 / Math.sqrt(2), 4);
-    expect(c).toBeCloseTo(-1 / Math.sqrt(2) - 1, 4);
-  });
-
-  test("ellipseToImplicit", async () => {
-    let ellipse = makeEllipse(simpleContext("Test"), makeCanvas(800, 700), {
-      rx: floatV(6),
-      ry: floatV(3),
-      center: vectorV([-11, 22]),
-      strokeWidth: floatV(0),
-      strokeColor: black(),
-    });
-    let result = ellipseToImplicit(ellipse);
-    let [a, b, c, x, y] = numsOf([
-      result.a,
-      result.b,
-      result.c,
-      result.x,
-      result.y,
-    ]);
-    expect(a).toEqual(0.5);
-    expect(b).toEqual(2);
-    expect(c).toEqual(18);
-    expect(x).toEqual(-11);
-    expect(y).toEqual(22);
   });
 });

@@ -14,6 +14,18 @@
       "variation": ""
     },
     {
+      "substance": "wet-floor",
+      "style": "atoms-and-bonds",
+      "domain": "atoms-and-bonds",
+      "variation": "PorcellanaFlamingo3169"
+    },
+    {
+      "substance": "one-water-molecule",
+      "style": "atoms-and-bonds",
+      "domain": "atoms-and-bonds",
+      "variation": "PorcellanaFlamingo3169"
+    },
+    {
       "substance": "continuousmap",
       "style": "continuousmap",
       "domain": "functions",
@@ -41,7 +53,7 @@
       "substance": "small-graph",
       "style": "disjoint-rect-line-horiz",
       "domain": "graph-theory",
-      "variation": ""
+      "variation": "BriocheChamois5430"
     },
     {
       "substance": "small-graph",
@@ -107,13 +119,13 @@
       "substance": "lagrange-bases",
       "style": "lagrange-bases",
       "domain": "lagrange-bases",
-      "variation": "ConceptualMeerkat694"
+      "variation": "RainmakerMarten88256"
     },
     {
       "substance": "hypergraph",
       "style": "hypergraph",
       "domain": "hypergraph",
-      "variation": "ConchSpoonbill0283"
+      "variation": "ConceptualMeerkat694"
     },
     {
       "substance": "persistent-homology",
@@ -125,7 +137,7 @@
       "substance": "wos-laplace-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "DangerCheetah45572"
+      "variation": "RainmakerMarten88256"
     },
     {
       "substance": "wos-poisson-estimator",
@@ -137,7 +149,7 @@
       "substance": "wos-nested-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "BilletOpossum89420"
+      "variation": "WhiteoutSnail17459"
     },
     {
       "substance": "wos-offcenter-estimator",
@@ -162,6 +174,12 @@
       "style": "shape-distance",
       "domain": "shape-distance",
       "variation": "GalapagosLocust418"
+    },
+    {
+      "substance": "3d-projection",
+      "style": "fake-3d-linear-algebra",
+      "domain": "fake-3d-linear-algebra",
+      "variation": "ConceptualMeerkat694"
     }
   ],
   "domains": {
@@ -212,6 +230,14 @@
     "shape-distance": {
       "name": "Signed Distance Function",
       "URI": "shape-distance/shapes.dsl"
+    },
+    "fake-3d-linear-algebra": {
+      "name": "Fake 3d Linear Algebra",
+      "URI": "fake-3d-linear-algebra/fake3d.dsl"
+    },
+    "atoms-and-bonds": {
+      "name": "Atoms and Bonds",
+      "URI": "atoms-and-bonds/atoms-and-bonds.dsl"
     }
   },
   "styles": {
@@ -308,6 +334,16 @@
       "domain": "shape-distance",
       "name": "Sign Distance Functions",
       "URI": "shape-distance/shape-distance.sty"
+    },
+    "fake-3d-linear-algebra": {
+      "domain": "fake-3d-linear-algebra",
+      "name": "Fake 3d Linear Algebra",
+      "URI": "fake-3d-linear-algebra/fake3d.sty"
+    },
+    "atoms-and-bonds": {
+      "domain": "atoms-and-bonds",
+      "name": "atoms-and-bonds",
+      "URI": "atoms-and-bonds/atoms-and-bonds.sty"
     }
   },
   "substances": {
@@ -430,6 +466,21 @@
       "domain": "shape-distance",
       "name": "Points around a Line",
       "URI": "shape-distance/hundred-points-around-line.sub"
+    },
+    "3d-projection": {
+      "domain": "fake-3d-linear-algebra",
+      "name": "Projection onto Subspace and its Orthogonal Complement",
+      "URI": "fake-3d-linear-algebra/projection.sub"
+    },
+    "wet-floor": {
+      "domain": "atoms-and-bonds",
+      "name": "Three Water Molecules drawn using strong and weak bonds, using symmetry and aliasing",
+      "URI": "atoms-and-bonds/wet-floor.sub"
+    },
+    "one-water-molecule": {
+      "domain": "atoms-and-bonds",
+      "name": "One water molecule drawn using symmetric bonds",
+      "URI": "atoms-and-bonds/one-water-molecule.sub"
     }
   }
 }

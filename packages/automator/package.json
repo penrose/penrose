@@ -9,7 +9,7 @@
     "clean": "rimraf artifacts browser",
     "typecheck": "tsc --noEmit"
   },
-  "author": "Penrose Team (https://penrose.ink)",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "dependencies": {
     "@penrose/core": "^1.3.0",

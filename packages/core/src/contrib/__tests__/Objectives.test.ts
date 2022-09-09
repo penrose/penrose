@@ -1,13 +1,5 @@
 import { objDict } from "contrib/Objectives";
-import { genCode, secondaryGraph } from "engine/Autodiff";
-import * as ad from "types/ad";
-
-const numOf = (x: ad.Num) => {
-  const g = secondaryGraph([x]);
-  const f = genCode(g);
-  const [y] = f([]).secondary; // no inputs, so, empty array
-  return y;
-};
+import { numOf } from "contrib/Utils";
 
 const digitPrecision = 4;
 
