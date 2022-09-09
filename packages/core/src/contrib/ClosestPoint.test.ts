@@ -3,22 +3,17 @@ import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
 import { makeRectangle } from "shapes/Rectangle";
-import {
-  Context,
-  InputFactory,
-  makeCanvas,
-  simpleContext,
-} from "shapes/Samplers";
+import { Context, InputFactory, makeCanvas } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { black, floatV, vectorV } from "utils/Util";
 import { compDict } from "./Functions";
 
 const canvas = makeCanvas(800, 700);
 
-const makeInputArray = (pt: number[]): ad.Input[] => {
+const makeInputArray = (pt: number[]): { context: Context; p: ad.Input[] } => {
+  const rng = seedrandom("closest point");
   const inputs: ad.Input[] = [];
   const makeInput: InputFactory = (meta) => {
-    const rng = seedrandom("sdf");
     const x = input({
       key: inputs.length,
       val: "pending" in meta ? meta.pending : meta.sampler(rng),
@@ -29,7 +24,7 @@ const makeInputArray = (pt: number[]): ad.Input[] => {
   for (const coord of pt) {
     makeInput({ sampler: () => coord });
   }
-  return [...inputs];
+  return { context: { makeInput }, p: [...inputs] };
 };
 
 const compareClosestPoint = (
@@ -86,8 +81,13 @@ export const testCircle = (
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const p = makeInputArray([pt[0], pt[1], center[0], center[1], radius]);
-  const context = simpleContext("circle");
+  const { context, p } = makeInputArray([
+    pt[0],
+    pt[1],
+    center[0],
+    center[1],
+    radius,
+  ]);
   const shape = makeCircle(context, canvas, {
     center: vectorV([p[2], p[3]]),
     r: floatV(p[4]),
@@ -105,8 +105,14 @@ export const testRectangle = (
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const context = simpleContext("rectangle");
-  const p = makeInputArray([pt[0], pt[1], center[0], center[1], width, height]);
+  const { context, p } = makeInputArray([
+    pt[0],
+    pt[1],
+    center[0],
+    center[1],
+    width,
+    height,
+  ]);
   const shape = makeRectangle(context, canvas, {
     center: vectorV([p[2], p[3]]),
     width: floatV(p[4]),
@@ -124,8 +130,14 @@ export const testLine = (
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const context = simpleContext("Line");
-  const p = makeInputArray([pt[0], pt[1], start[0], start[1], end[0], end[1]]);
+  const { context, p } = makeInputArray([
+    pt[0],
+    pt[1],
+    start[0],
+    start[1],
+    end[0],
+    end[1],
+  ]);
   const shape = makeLine(context, canvas, {
     start: vectorV([p[2], p[3]]),
     end: vectorV([p[4], p[5]]),
