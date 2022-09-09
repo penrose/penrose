@@ -131,6 +131,14 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
   console.log(`Artifact pages generated in ${outDir}`);
 };
 
+const MAX_NAME_LENGTH = 100;
+const MAX_SECONDS = 100;
+
+const trimName = (name: string): string =>
+  name.length > MAX_NAME_LENGTH
+    ? `${name.slice(0, MAX_NAME_LENGTH - 1)}…`
+    : name;
+
 type Column = "none" | "top" | "bottom";
 
 const makeDiscreteBar = (columns: Column[]): string => {
@@ -171,6 +179,8 @@ const makeContinuousBar = (xs: number[]): string => {
   let current: Column = "top";
   for (const x of xs) {
     for (let i = 0; i < Math.max(1, x / 100); i++) {
+      if (columns.length > MAX_SECONDS * 10)
+        return `${makeDiscreteBar(columns)}⋯`;
       columns.push(current);
     }
     current = current === "top" ? "bottom" : "top";
@@ -202,11 +212,17 @@ export const printTextChart = (artifactsDir: string, outFile: string) => {
     "```",
   ];
 
-  const longestName = Math.max(...[...artifacts.keys()].map((k) => k.length));
+  const longestName = Math.min(
+    MAX_NAME_LENGTH,
+    Math.max(...[...artifacts.keys()].map((k) => k.length))
+  );
   const longestTime = Math.max(
     ...[...artifacts.values()].map((v) => v.metadata.timeTaken.overall)
   );
-  const numSeconds = Math.max(0, Math.ceil(longestTime / 1000));
+  const numSeconds = Math.min(
+    MAX_SECONDS,
+    Math.max(0, Math.ceil(longestTime / 1000))
+  );
   const labelParts = [" ".repeat(longestName), " 0s"];
   const tickParts = [" ".repeat(longestName), " |"];
   for (let i = 1; i <= numSeconds; i++) {
@@ -223,7 +239,7 @@ export const printTextChart = (artifactsDir: string, outFile: string) => {
     },
   ] of artifacts) {
     lines.push(
-      `${key.padEnd(longestName)} ${makeContinuousBar([
+      `${trimName(key).padEnd(longestName)} ${makeContinuousBar([
         timeTaken.compilation,
         timeTaken.labelling,
         timeTaken.optimization,
