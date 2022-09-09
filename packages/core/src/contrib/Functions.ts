@@ -1544,40 +1544,11 @@ export const compDict = {
    * Helper function for closestPoint to calculate closest point of rectangle by comparing
    * min abs vals between point vs edge of rectangle
    */
-  // minComp: (
-  //   _context: Context,
-  //   p1: ad.Num[], //Rectangle corner in 1st quadrant
-  //   p2: ad.Num[], //Point coordinates
-  //   center: ad.Num[]
-  // ): VectorV<ad.Num> => {
-  //   p2 = ops.vsub(p2, center);
-  //   const X = absVal(p1[0]) < absVal(p2[0]) ? p1[0] : p2[0];
-  //   const Y = absVal(p1[1]) < absVal(p2[1]) ? p1[1] : p2[1];
-  //   return { tag: "VectorV", contents: ops.vadd([X, Y], center) };
-  // },
-  //
   closestPoint: (
     _context: Context,
     [t, s]: [string, any],
     p: ad.Num[]
   ): VectorV<ad.Num> => {
-    /**
-     * Helper function for Rectangles
-     * @param _context
-     * @param x
-     * @param a
-     * @param b
-     * @returns
-     * This code is so awful but there's not a more efficient way of doing it that I could find
-     */
-    const clamp = (
-      _context: Context,
-      x: ad.Num,
-      l: ad.Num,
-      u: ad.Num
-    ): ad.Num => {
-      return max(l, min(u, x));
-    };
     const closestPointRect = (
       _context: Context,
       l: ad.Num,
@@ -1589,8 +1560,8 @@ export const compDict = {
     ): ad.Num[] => {
       const r = add(l, w);
       const b = add(t, h); //Formatted using JavaGraphics coordinate system
-      x = clamp(_context, x, l, r);
-      y = clamp(_context, y, t, b);
+      x = clamp([l, r], x);
+      y = clamp([t, b], y);
       const dl = absVal(sub(x, l));
       const dr = absVal(sub(x, r));
       const dt = absVal(sub(y, t));
@@ -1615,7 +1586,7 @@ export const compDict = {
         mul(a_to_p[0], a_to_b[0]),
         mul(a_to_p[1], a_to_b[1])
       );
-      const t = clamp(_context, div(atp_dot_atb, atb2), 0, 1);
+      const t = clamp([0, 1], div(atp_dot_atb, atb2));
       return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
     };
     if (t === "Circle") {

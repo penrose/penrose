@@ -33,7 +33,6 @@ const makeInputArray = (pt: number[]): ad.Input[] => {
 };
 
 const compareClosestPoint = (
-  //
   context: Context,
   shapeType: string,
   shape: any, //Changed this from Shape to Any. Not sure if there will be a typing issue here.

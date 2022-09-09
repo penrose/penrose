@@ -165,7 +165,7 @@ export const centerArrow2 = (
 /**
  * Clamp `x` in range `[l, r]`.
  */
-export const clamp = ([l, r]: [number, number], x: ad.Num): ad.Num => {
+export const clamp = ([l, r]: [ad.Num, ad.Num], x: ad.Num): ad.Num => {
   return max(l, min(r, x));
 };
 
