@@ -1589,8 +1589,6 @@ export const compDict = {
     ): ad.Num[] => {
       const r = add(l, w);
       const b = add(t, h); //Formatted using JavaGraphics coordinate system
-      console.log(r);
-      console.log(b);
       x = clamp(_context, x, l, r);
       y = clamp(_context, y, t, b);
       const dl = absVal(sub(x, l));

@@ -76,8 +76,6 @@ const compareClosestPoint = (
       shape.end.contents[1].val,
     ]).secondary;
   }
-  console.log(x);
-  console.log(y);
   expect(x).toBeCloseTo(expected[0]);
   expect(y).toBeCloseTo(expected[1]);
 };
