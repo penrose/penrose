@@ -1549,46 +1549,6 @@ export const compDict = {
     [t, s]: [string, any],
     p: ad.Num[]
   ): VectorV<ad.Num> => {
-    const closestPointRect = (
-      _context: Context,
-      l: ad.Num,
-      t: ad.Num,
-      w: ad.Num,
-      h: ad.Num,
-      x: ad.Num,
-      y: ad.Num
-    ): ad.Num[] => {
-      const r = add(l, w);
-      const b = add(t, h); //Formatted using JavaGraphics coordinate system
-      x = clamp([l, r], x);
-      y = clamp([t, b], y);
-      const dl = absVal(sub(x, l));
-      const dr = absVal(sub(x, r));
-      const dt = absVal(sub(y, t));
-      const db = absVal(sub(y, b));
-      const m = min(min(min(dl, dr), dt), db);
-      let retX: ad.Num = ifCond(or(eq(m, dt), eq(m, db)), x, r);
-      retX = ifCond(eq(m, dl), l, retX);
-      let retY: ad.Num = ifCond(or(eq(m, dl), eq(m, dr)), y, t);
-      retY = ifCond(eq(m, db), b, retY);
-      return [retX, retY];
-    };
-    const closestPointLine = (
-      _context: Context,
-      p: ad.Num[],
-      a: ad.Num[], //
-      b: ad.Num[]
-    ): ad.Num[] => {
-      const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
-      const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
-      const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
-      const atp_dot_atb = add(
-        mul(a_to_p[0], a_to_b[0]),
-        mul(a_to_p[1], a_to_b[1])
-      );
-      const t = clamp([0, 1], div(atp_dot_atb, atb2));
-      return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
-    };
     if (t === "Circle") {
       /**
        * Implementing formula
@@ -1614,7 +1574,6 @@ export const compDict = {
       return {
         tag: "VectorV",
         contents: closestPointRect(
-          _context,
           sub(s.center.contents[0], div(s.width.contents, 2)),
           sub(s.center.contents[1], div(s.height.contents, 2)),
           s.width.contents,
@@ -1626,12 +1585,7 @@ export const compDict = {
     } else if (t === "Line") {
       return {
         tag: "VectorV",
-        contents: closestPointLine(
-          _context,
-          p,
-          s.start.contents,
-          s.end.contents
-        ),
+        contents: closestPointLine(p, s.start.contents, s.end.contents),
       };
     } else if (t === "Polyline") {
       const closestPoints: ad.Num[][] = [];
@@ -1691,7 +1645,7 @@ export const compDict = {
       return { tag: "VectorV", contents: [retX, retY] };
     } else if (t === "Ellipse") {
       return { tag: "VectorV", contents: closestPointEllipse(s, p) };
-    } else return { tag: "VectorV", contents: [] };
+    } else throw Error(`unsupported shape ${t} in closestPoint`);
   },
 };
 
@@ -1704,19 +1658,6 @@ export const compDict = {
     return length( pa - ba*h );
   }
 */
-
-const closestPointPolyline = (
-  p: ad.Num[],
-  a: ad.Num[], //
-  b: ad.Num[]
-): ad.Num[] => {
-  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
-  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
-  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
-  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
-  const t = clamp([0, 1], div(atp_dot_atb, atb2));
-  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
-};
 const sdLine = (s: Line, p: ad.Num[]): ad.Num => {
   return sdLineAsNums(s.start.contents, s.end.contents, p);
 };
@@ -1736,63 +1677,6 @@ const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
     dists[i] = sdLineAsNums(start, end, p);
   }
   return minN(dists);
-};
-
-export const closestPointEllipse = (s: Ellipse, p: ad.Num[]): ad.Num[] => {
-  return closestPointEllipseCoords(
-    s.rx.contents,
-    s.ry.contents,
-    s.center.contents,
-    p
-  );
-};
-
-export const closestPointEllipseCoords = (
-  //Note this is an approximation function!!
-  radiusx: ad.Num,
-  radiusy: ad.Num,
-  center: ad.Num[],
-  pInput: ad.Num[]
-): ad.Num[] => {
-  const pOffset = ops.vsub(pInput, center);
-  const px = absVal(pOffset[0]);
-  const py = absVal(pOffset[1]);
-
-  let t = div(Math.PI, 4);
-  let x: ad.Num = 0;
-  let y: ad.Num = 0;
-
-  const a = radiusx;
-  const b = radiusy;
-  for (let i = 0; i < 100; i++) {
-    x = mul(a, cos(t));
-    y = mul(b, sin(t));
-
-    const ex = div(mul(sub(squared(a), squared(b)), pow(cos(t), 3)), a);
-    const ey = div(mul(sub(squared(b), squared(a)), pow(sin(t), 3)), b);
-
-    const rx = sub(x, ex);
-    const ry = sub(y, ey);
-
-    const qx = sub(px, ex);
-    const qy = sub(py, ey);
-
-    const r = sqrt(add(squared(ry), squared(rx)));
-    const q = sqrt(add(squared(qy), squared(qx)));
-
-    const delta_c = mul(r, asin(div(sub(mul(rx, qy), mul(ry, qx)), mul(r, q))));
-    const delta_t = div(
-      delta_c,
-      sqrt(sub(sub(add(squared(a), squared(b)), squared(x)), squared(y)))
-    );
-    t = add(t, delta_t);
-    t = min(div(Math.PI, 2), max(0, t));
-  }
-  x = mul(msign(pInput[0]), absVal(x));
-  y = mul(msign(pInput[1]), absVal(y));
-  x = add(x, center[0]);
-  y = add(y, center[1]);
-  return [x, y];
 };
 
 export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
@@ -1906,6 +1790,113 @@ export const sdEllipseAsNums = (
   const r = ops.vproduct(ab, [co, si]);
   // return length(r-p) * msign(p.y-r.y);
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
+};
+
+const closestPointRect = (
+  l: ad.Num,
+  t: ad.Num,
+  w: ad.Num,
+  h: ad.Num,
+  x: ad.Num,
+  y: ad.Num
+): ad.Num[] => {
+  const r = add(l, w);
+  const b = add(t, h); //Formatted using JavaGraphics coordinate system
+  x = clamp([l, r], x);
+  y = clamp([t, b], y);
+  const dl = absVal(sub(x, l));
+  const dr = absVal(sub(x, r));
+  const dt = absVal(sub(y, t));
+  const db = absVal(sub(y, b));
+  const m = min(min(min(dl, dr), dt), db);
+  let retX: ad.Num = ifCond(or(eq(m, dt), eq(m, db)), x, r);
+  retX = ifCond(eq(m, dl), l, retX);
+  let retY: ad.Num = ifCond(or(eq(m, dl), eq(m, dr)), y, t);
+  retY = ifCond(eq(m, db), b, retY);
+  return [retX, retY];
+};
+
+const closestPointLine = (
+  p: ad.Num[],
+  a: ad.Num[], //
+  b: ad.Num[]
+): ad.Num[] => {
+  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
+  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
+  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
+  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
+  const t = clamp([0, 1], div(atp_dot_atb, atb2));
+  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
+};
+
+const closestPointPolyline = (
+  p: ad.Num[],
+  a: ad.Num[], //
+  b: ad.Num[]
+): ad.Num[] => {
+  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
+  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
+  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
+  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
+  const t = clamp([0, 1], div(atp_dot_atb, atb2));
+  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
+};
+
+const closestPointEllipse = (s: Ellipse, p: ad.Num[]): ad.Num[] => {
+  return closestPointEllipseCoords(
+    s.rx.contents,
+    s.ry.contents,
+    s.center.contents,
+    p
+  );
+};
+
+const closestPointEllipseCoords = (
+  //Note this is an approximation function!!
+  radiusx: ad.Num,
+  radiusy: ad.Num,
+  center: ad.Num[],
+  pInput: ad.Num[]
+): ad.Num[] => {
+  const pOffset = ops.vsub(pInput, center);
+  const px = absVal(pOffset[0]);
+  const py = absVal(pOffset[1]);
+
+  let t = div(Math.PI, 4);
+  let x: ad.Num = 0;
+  let y: ad.Num = 0;
+
+  const a = radiusx;
+  const b = radiusy;
+  for (let i = 0; i < 100; i++) {
+    x = mul(a, cos(t));
+    y = mul(b, sin(t));
+
+    const ex = div(mul(sub(squared(a), squared(b)), pow(cos(t), 3)), a);
+    const ey = div(mul(sub(squared(b), squared(a)), pow(sin(t), 3)), b);
+
+    const rx = sub(x, ex);
+    const ry = sub(y, ey);
+
+    const qx = sub(px, ex);
+    const qy = sub(py, ey);
+
+    const r = sqrt(add(squared(ry), squared(rx)));
+    const q = sqrt(add(squared(qy), squared(qx)));
+
+    const delta_c = mul(r, asin(div(sub(mul(rx, qy), mul(ry, qx)), mul(r, q))));
+    const delta_t = div(
+      delta_c,
+      sqrt(sub(sub(add(squared(a), squared(b)), squared(x)), squared(y)))
+    );
+    t = add(t, delta_t);
+    t = min(div(Math.PI, 2), max(0, t));
+  }
+  x = mul(msign(pInput[0]), absVal(x));
+  y = mul(msign(pInput[1]), absVal(y));
+  x = add(x, center[0]);
+  y = add(y, center[1]);
+  return [x, y];
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in
