@@ -178,7 +178,7 @@ const makeContinuousBar = (xs: number[]): string => {
   return makeDiscreteBar(columns);
 };
 
-export const printAsciiStats = (artifactsDir: string, outFile: string) => {
+export const printTextChart = (artifactsDir: string, outFile: string) => {
   const artifacts = getArtifacts(artifactsDir);
   if (artifacts.size < 1) {
     fs.writeFileSync(outFile, "");

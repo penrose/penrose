@@ -28,7 +28,7 @@ jobs:
           path: packages/automator/out/
       - name: Generate CI summary
         run: |
-          yarn start ascii out stats.md
+          yarn start textchart out stats.md
           cat stats.md >> $GITHUB_STEP_SUMMARY
           grep -L EOF stats.md
           echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV

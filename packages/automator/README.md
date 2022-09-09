@@ -10,7 +10,7 @@ Penrose Automator.
 Usage:
   automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator ascii ARTIFACTSFOLDER OUTFILE
+  automator textchart ARTIFACTSFOLDER OUTFILE
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
   automator shapedefs [SHAPEFILE]
 

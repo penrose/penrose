@@ -20,7 +20,7 @@ import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
 import * as prettier from "prettier";
 import uniqid from "uniqid";
-import { printAsciiStats, renderArtifacts } from "./artifacts";
+import { printTextChart, renderArtifacts } from "./artifacts";
 import { AggregateData, InstanceData } from "./types";
 
 const USAGE = `
@@ -29,7 +29,7 @@ Penrose Automator.
 Usage:
   automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator ascii ARTIFACTSFOLDER OUTFILE
+  automator textchart ARTIFACTSFOLDER OUTFILE
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
   automator shapedefs [SHAPEFILE]
 
@@ -37,7 +37,7 @@ Options:
   -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
-  --repeat TIMES the number of instances 
+  --repeat TIMES the number of instances
   --cross-energy Compute the cross-instance energy
   --variation The variation to use
 `;
@@ -397,8 +397,8 @@ const getShapeDefs = (outFile?: string): void => {
     }
   } else if (args.render) {
     renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
-  } else if (args.ascii) {
-    printAsciiStats(args.ARTIFACTSFOLDER, args.OUTFILE);
+  } else if (args.textchart) {
+    printTextChart(args.ARTIFACTSFOLDER, args.OUTFILE);
   } else if (args.draw) {
     await singleProcess(
       variation,
