@@ -223,16 +223,9 @@ to do is generate that output and check it into Git.
 The easiest way to do this is to run `automator` locally on the registry:
 
 ```sh
-pushd packages/
-pushd examples/
-yarn build
-popd
-pushd core/
-yarn build
-popd
-pushd automator/
+npx lerna run build --stream --scope=@penrose/examples --scope=@penrose/core
+pushd packages/examples/
 yarn start batch registry.json ../../diagrams/ --src-prefix=../examples/src/
-popd
 popd
 ```
 
