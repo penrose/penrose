@@ -11,7 +11,6 @@
     "/build"
   ],
   "scripts": {
-    "clean": "rimraf build src/parser/SubstanceParser.ts src/parser/StyleParser.ts src/parser/DomainParser.ts",
     "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "build": "yarn build:esbuild",
     "start": "yarn watch:esbuild",

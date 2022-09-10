@@ -12,8 +12,7 @@
     "build-decls": "tsc",
     "preview": "vite preview",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "clean": "rimraf dist storybook-static"
+    "build-storybook": "build-storybook"
   },
   "peerDependencies": {
     "@penrose/core": "^1.3.0",

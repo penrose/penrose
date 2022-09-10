@@ -8,7 +8,6 @@
   "scripts": {
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "clean": "lerna clean --yes && turbo run clean",
     "build:docs-site": "turbo run build --filter=docs-site",
     "start:docs-site": "turbo run watch --filter=docs-site",
     "start": "turbo run watch --filter=editor",
