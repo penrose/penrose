@@ -1,5 +1,30 @@
 # Contributing to Penrose
 
+<!-- toc -->
+
+- [Prerequisites](#prerequisites)
+  - [Apple Silicon](#apple-silicon)
+  - [Windows WSL](#windows-wsl)
+- [Setup](#setup)
+- [Editor](#editor)
+- [Development](#development)
+  - [Run](#run)
+  - [Production build](#production-build)
+  - [Typecheck](#typecheck)
+  - [Registry](#registry)
+  - [Refresh build](#refresh-build)
+  - [Roger](#roger)
+  - [Test](#test)
+  - [Add dependencies](#add-dependencies)
+  - [Import from core](#import-from-core)
+- [Contributing](#contributing)
+  - [Creating your fork](#creating-your-fork)
+  - [Finding an issue to work on](#finding-an-issue-to-work-on)
+  - [Merging new changes from upstream](#merging-new-changes-from-upstream)
+  - [Opening a pull request (PR)](#opening-a-pull-request-pr)
+
+<!-- tocstop -->
+
 ## Prerequisites
 
 Be sure you have these tools installed:

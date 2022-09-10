@@ -32,6 +32,7 @@
     "cross-env": "^7.0.3",
     "handlebars": "^4.7.7",
     "lerna": "^3.22.1",
+    "markdown-toc": "^1.2.0",
     "prettier": "2.2.1",
     "prettier-plugin-organize-imports": "^2.3.4",
     "pretty-quick": "^3.1.0",
