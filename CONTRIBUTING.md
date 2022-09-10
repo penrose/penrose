@@ -34,7 +34,7 @@ terminal in your clone of it; for instance, if you cloned it via the terminal,
 run this command:
 
 ```sh
-cd penrose
+cd penrose/
 ```
 
 The rest of this document assumes you are running commands from this directory,
@@ -48,7 +48,7 @@ Finally, enter the directory for our `roger` tool, install it, and then come
 back to this directory:
 
 ```sh
-pushd packages/roger
+pushd packages/roger/
 yarn install-global
 popd
 ```
@@ -74,7 +74,7 @@ if not, you can now find them listed in the **Extensions** tab.
 Open a separate terminal (to the same directory), and run these commands:
 
 ```sh
-cd packages/examples/src
+cd packages/examples/src/
 roger watch
 ```
 
@@ -103,7 +103,7 @@ should see something like this:
 ![Roger watch start](docs/assets/roger-startup.png)
 
 Type in the drop-down boxes to search for any Penrose trio in
-`packages/examples/src`; for example:
+`packages/examples/src/`; for example:
 
 - Substance: `set-theory-domain/tree.sub`
 - Style: `set-theory-domain/venn.sty`
@@ -129,9 +129,98 @@ Run this command to typecheck all packages:
 yarn typecheck
 ```
 
+### Registry
+
+We have a `packages/examples/src/registry.json` file which lists several
+diagrams from the `packages/examples/src/` directory. All the "trios" listed in
+this file are automatically run in GitHub Actions to produce the SVG files in
+`diagrams/`.
+
+If you create a new diagram in `packages/examples/src/` and you'd like to make
+sure that future changes to Penrose don't inadvertently break your diagram, go
+ahead add it to the registry! For instance, let's say you create this directory
+under `packages/examples/src/`:
+
+```
+packages/examples/src/foo-domain/
+├── mydomain.dsl
+├── bar.sty
+└── baz.sub
+```
+
+The first step in adding this to the registry is to add the domain under
+`"domains"`:
+
+```json
+"foo": {
+  "name": "My Domain",
+  "URI": "foo-domain/mydomain.dsl"
+}
+```
+
+Next you can add the style under `"styles"` referring to that domain:
+
+```json
+"mystyle": {
+  "domain": "foo",
+  "name": "My Style",
+  "URI": "foo-domain/bar.sty"
+}
+```
+
+And similarly the substance would go under `"substances"`:
+
+```json
+"mysubstance": {
+  "domain": "foo",
+  "name": "My Substance",
+  "URI": "foo-domain/baz.sub"
+}
+```
+
+Then, if you find that these give a nice diagram using variation
+`CedarEagle308`, you can add the following under `"trios"`:
+
+```json
+{
+  "substance": "mysubstance",
+  "style": "mystyle",
+  "domain": "foo",
+  "variation": "CedarEagle308"
+}
+```
+
+And you're almost done! If you were to commit and push this right now, CI would
+fail because it would see that you added a new diagram to the registry without
+adding its output SVG file to the `diagrams/` directory. The last thing you need
+to do is generate that output and check it into Git.
+
+The easiest way to do this is to run `automator` locally on the registry:
+
+```sh
+yarn
+cd packages/examples/
+yarn build
+cd ../core/
+yarn build
+cd ../automator/
+yarn start batch registry.json ../../diagrams/ --src-prefix=../examples/src/
+```
+
+This should regenerate everything in `diagrams/`. Now just commit and push, and
+you're on your way!
+
+_**Note:**_ some features relating to text are currently not deterministic
+across different operating systems, so diagrams using those features cannot be
+included in the registry. See these pull requests for examples of those
+limitations:
+
+- [feat: Make Penrose deterministic][]
+- [test: Check word cloud example output in CI][]
+
 ### Refresh build
 
-Run this command to delete `node_modules` and build folders in all packages:
+Run this command to delete `node_modules/` and build folders in all packages:
 
 ```sh
 yarn clean
@@ -143,7 +232,7 @@ If `roger` is not working as expected and you think it might be out of date, run
 these commands to re-install it:
 
 ```sh
-pushd packages/roger
+pushd packages/roger/
 yarn unlink
 yarn build
 popd
@@ -160,7 +249,7 @@ yarn test
 To automatically re-run tests as you make changes to `core`:
 
 ```sh
-cd packages/core
+cd packages/core/
 yarn test:watch
 ```
 
@@ -169,7 +258,7 @@ yarn test:watch
 To add a project dependency to, e.g., `browser-ui` (note, we don't use `npm`):
 
 ```sh
-pushd packages/browser-ui
+pushd packages/browser-ui/
 yarn add $DEPENDENCY_NAME
 popd
 ```
@@ -177,7 +266,7 @@ popd
 To add a dev dependency:
 
 ```sh
-pushd packages/$PACKAGE_NAME
+pushd packages/$PACKAGE_NAME/
 yarn add --dev $DEPENDENCY_NAME
 popd
 ```
@@ -192,7 +281,7 @@ import the type into `packages/core/src/index.ts` and export it from there
 again, then import into your project. Note that you may need to rebuild `core`:
 
 ```sh
-pushd packages/core
+pushd packages/core/
 yarn build
 yarn build-decls
 popd
@@ -272,6 +361,7 @@ please file an issue!
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
 [extensions]: https://code.visualstudio.com/docs/editor/extension-marketplace
+[feat: make penrose deterministic]: https://github.com/penrose/penrose/pull/864
 [git]: https://git-scm.com/downloads
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
@@ -287,6 +377,7 @@ please file an issue!
 [prettier]: https://prettier.io/
 [push]: https://github.com/git-guides/git-push
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
+[test: check word cloud example output in ci]: https://github.com/penrose/penrose/pull/876
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
 [vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces
