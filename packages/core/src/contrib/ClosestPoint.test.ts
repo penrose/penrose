@@ -26,6 +26,14 @@ const compareClosestPoint = (
   expect(y).toBeCloseTo(expected[1]);
 };
 
+/**
+ * Constructs a `Circle` and tests calling `closestPoint` on it with `pt`.
+ * @param center of the circle
+ * @param radius of the circle
+ * @param strokeWidth of the circle
+ * @param pt input to closest-point function
+ * @param expected to test against output of closest-point function
+ */
 const testCircle = (
   center: number[],
   radius: number,
@@ -43,6 +51,15 @@ const testCircle = (
   compareClosestPoint(context, "Circle", shape, pt, expected);
 };
 
+/**
+ * Constructs a `Rectangle` and tests calling `closestPoint` on it with `pt`.
+ * @param center of the rectangle
+ * @param width of the rectangle
+ * @param height of the rectangle
+ * @param strokeWidth of the rectangle
+ * @param pt input to closest-point function
+ * @param expected to test against output of closest-point function
+ */
 const testRectangle = (
   center: number[],
   width: number,
@@ -62,6 +79,14 @@ const testRectangle = (
   compareClosestPoint(context, "Rectangle", shape, pt, expected);
 };
 
+/**
+ * Constructs a `Line` and tests calling `closestPoint` on it with `pt`.
+ * @param start of the line
+ * @param end of the line
+ * @param strokeWidth of the line
+ * @param pt input to closest-point function
+ * @param expected to test against output of closest-point function
+ */
 const testLine = (
   start: number[],
   end: number[],
@@ -79,6 +104,13 @@ const testLine = (
   compareClosestPoint(context, "Line", shape, pt, expected);
 };
 
+/**
+ * Constructs a `Polyline` and tests calling `closestPoint` on it with `pt`.
+ * @param points of the polyline
+ * @param strokeWidth of the polyline
+ * @param pt input to closest-point function
+ * @param expected to test against output of closest-point function
+ */
 const testPolyline = (
   points: number[][],
   strokeWidth: number,
@@ -94,6 +126,13 @@ const testPolyline = (
   compareClosestPoint(context, "Polyline", shape, pt, expected);
 };
 
+/**
+ * Constructs a `Polygon` and tests calling `closestPoint` on it with `pt`.
+ * @param points of the polygon
+ * @param strokeWidth of the polygon
+ * @param pt input to closest-point function
+ * @param expected to test against output of closest-point function
+ */
 const testPolygon = (
   points: number[][],
   strokeWidth: number,
@@ -109,6 +148,14 @@ const testPolygon = (
   compareClosestPoint(context, "Polygon", shape, pt, expected);
 };
 
+/**
+ * Constructs an `Ellipse` and tests calling `closestPoint` on it with `pt`.
+ * @param center of the ellipse
+ * @param rx of the ellipse
+ * @param ry of the ellipse
+ * @param pt input to closest-point function
+ * @param expected to test against output of closest-point function
+ */
 const testEllipse = (
   center: number[],
   rx: number,
@@ -126,6 +173,8 @@ const testEllipse = (
   compareClosestPoint(context, "Ellipse", shape, pt, expected);
 };
 
+// This test suite directly checks the output of `closestPoint` on a few shapes
+// with several different examples each.
 describe("closest point", () => {
   test("circle", () => {
     testCircle([0, 0], 3, 0, [3, 0], [3, 0]);

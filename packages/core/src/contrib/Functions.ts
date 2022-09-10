@@ -1548,9 +1548,8 @@ export const compDict = {
     if (t === "Circle") {
       /**
        * Implementing formula
-       * V = P-C
-       * return C+V/|V|*r\
-       * tests
+       * V = P - C
+       * return C + (V/|V|)*r
        */
       const pOffset = ops.vsub(p, s.center.contents);
       const normOffset = ops.vnorm(pOffset);
