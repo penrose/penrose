@@ -1540,10 +1540,6 @@ export const compDict = {
     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
   },
 
-  /**
-   * Helper function for closestPoint to calculate closest point of rectangle by comparing
-   * min abs vals between point vs edge of rectangle
-   */
   closestPoint: (
     _context: Context,
     [t, s]: [string, any],
@@ -1848,7 +1844,7 @@ const closestPointEllipse = (s: Ellipse, p: ad.Num[]): ad.Num[] => {
 };
 
 const closestPointEllipseCoords = (
-  //Note this is an approximation function!!
+  // Note: this is an approximation function!
   radiusx: ad.Num,
   radiusy: ad.Num,
   center: ad.Num[],

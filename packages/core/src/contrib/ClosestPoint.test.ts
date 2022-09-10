@@ -23,7 +23,7 @@ const compareClosestPoint = (
   expect(y).toBeCloseTo(expected[1]);
 };
 
-export const testCircle = (
+const testCircle = (
   center: number[],
   radius: number,
   strokeWidth: number,
@@ -40,7 +40,7 @@ export const testCircle = (
   compareClosestPoint(context, "Circle", shape, pt, expected);
 };
 
-export const testRectangle = (
+const testRectangle = (
   center: number[],
   width: number,
   height: number,
@@ -59,7 +59,7 @@ export const testRectangle = (
   compareClosestPoint(context, "Rectangle", shape, pt, expected);
 };
 
-export const testLine = (
+const testLine = (
   start: number[],
   end: number[],
   strokeWidth: number,
@@ -76,7 +76,7 @@ export const testLine = (
   compareClosestPoint(context, "Line", shape, pt, expected);
 };
 
-// export const testPolyline = (
+// const testPolyline = (
 //   points: number[][],
 //   strokeWidth: number,
 //   pt: [number, number],
@@ -106,13 +106,13 @@ export const testLine = (
 //   compareClosestPoint(context, "Polygon", shape, pt, expected);
 // };
 
-// function testEllipse(
+// const testEllipse = (
 //   center: number[],
 //   rx: number,
 //   ry: number,
 //   pt: [number, number],
 //   expected: [number, number]
-// ) {
+// ) => {
 //   const context = simpleContext("Ellipse");
 //   const shape = makeEllipse(context, canvas, {
 //     center: vectorV(center),
@@ -121,7 +121,7 @@ export const testLine = (
 //     strokeColor: black(),
 //   });
 //   compareClosestPoint(context, "Ellipse", shape, pt, expected);
-// }
+// };
 
 describe("closest point", () => {
   test("circle", () => {
@@ -138,7 +138,7 @@ describe("closest point", () => {
     testRectangle([0, 0], 6, 4, 0, [6, -3], [3, -2]);
     testRectangle([0, 0], 6, 4, 0, [-6, -5], [-3, -2]);
     testRectangle([0, 0], 6, 4, 0, [1, 1], [1, 2]);
-    testRectangle([0, 0], 6, 4, 0, [0, 0], [0, 2]); //when input point is at center of rectangle, a point still gets returned.
+    testRectangle([0, 0], 6, 4, 0, [0, 0], [0, 2]); // when input point is at center of rectangle, a point still gets returned
   });
 
   test("Line", () => {
@@ -261,10 +261,10 @@ describe("closest point", () => {
     // );
     // testEllipse([0, 0], 100, 50, [100, 0], [100, 0]);
     // testEllipse([0, 0], 100, 50, [0, 0], [0, 50.0]);
-    // testEllipse([0, 0], 100, 50, [-100, 0], [-100, 0]); //[-100, 0] -> [0, 100]
-    // testEllipse([0, 0], 100, 50, [0, -50], [6.123233995736766e-15, -50.0]); //[0, -50] -> [0, 50]
-    // testEllipse([0, 0], 100, 50, [100, 0], [100, 0]); //[100, 0]->[0,100]
-    // testEllipse([0, 0], 100, 50, [0, 50], [0, 50.0]); //fine
+    // testEllipse([0, 0], 100, 50, [-100, 0], [-100, 0]); // [-100, 0] -> [0, 100]
+    // testEllipse([0, 0], 100, 50, [0, -50], [6.123233995736766e-15, -50.0]); // [0, -50] -> [0, 50]
+    // testEllipse([0, 0], 100, 50, [100, 0], [100, 0]); // [100, 0] -> [0,100]
+    // testEllipse([0, 0], 100, 50, [0, 50], [0, 50.0]); // fine
     // testEllipse(
     //   [0, 0],
     //   3,
@@ -272,7 +272,6 @@ describe("closest point", () => {
     //   [2.121320343559643, 2.121320343559643],
     //   [2.121320343559643, 2.121320343559643]
     // );
-    // //
     // testEllipse(
     //   [0, 0],
     //   50,
