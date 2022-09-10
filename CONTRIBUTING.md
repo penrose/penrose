@@ -223,13 +223,17 @@ to do is generate that output and check it into Git.
 The easiest way to do this is to run `automator` locally on the registry:
 
 ```sh
-yarn
-cd packages/examples/
+pushd packages/
+pushd examples/
 yarn build
-cd ../core/
+popd
+pushd core/
 yarn build
-cd ../automator/
+popd
+pushd automator/
 yarn start batch registry.json ../../diagrams/ --src-prefix=../examples/src/
+popd
+popd
 ```
 
 This should regenerate everything in `diagrams/`. Now just commit and push, and
