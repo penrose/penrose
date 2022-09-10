@@ -1,75 +1,24 @@
-import { genCode, input, secondaryGraph } from "engine/Autodiff";
-import seedrandom from "seedrandom";
+import { genCode, secondaryGraph } from "engine/Autodiff";
 import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
 import { makeRectangle } from "shapes/Rectangle";
-import { Context, InputFactory, makeCanvas } from "shapes/Samplers";
-import * as ad from "types/ad";
+import { Context, makeCanvas, simpleContext } from "shapes/Samplers";
 import { black, floatV, vectorV } from "utils/Util";
 import { compDict } from "./Functions";
 
 const canvas = makeCanvas(800, 700);
 
-const makeInputArray = (pt: number[]): { context: Context; p: ad.Input[] } => {
-  const rng = seedrandom("closest point");
-  const inputs: ad.Input[] = [];
-  const makeInput: InputFactory = (meta) => {
-    const x = input({
-      key: inputs.length,
-      val: "pending" in meta ? meta.pending : meta.sampler(rng),
-    });
-    inputs.push(x);
-    return x;
-  };
-  for (const coord of pt) {
-    makeInput({ sampler: () => coord });
-  }
-  return { context: { makeInput }, p: [...inputs] };
-};
-
 const compareClosestPoint = (
   context: Context,
   shapeType: string,
   shape: any,
-  pt: [ad.Input, ad.Input],
+  pt: [number, number],
   expected: [number, number]
 ) => {
   const result = compDict.closestPoint(context, [shapeType, shape], pt);
   const g = secondaryGraph(result.contents);
   const f = genCode(g);
-  let [x, y] = f([]).secondary;
-  if (shapeType === "Circle") {
-    [x, y] = f([
-      pt[0].val,
-      pt[1].val,
-      shape.center.contents[0].val,
-      shape.center.contents[1].val,
-      shape.r.contents.val,
-    ]).secondary;
-  } else if (
-    shapeType === "Rectangle" ||
-    shapeType === "Text" ||
-    shapeType === "Equation" ||
-    shapeType === "Image"
-  ) {
-    [x, y] = f([
-      pt[0].val,
-      pt[1].val,
-      shape.center.contents[0].val,
-      shape.center.contents[1].val,
-      shape.width.contents.val,
-      shape.height.contents.val,
-    ]).secondary;
-  } else if (shapeType === "Line") {
-    [x, y] = f([
-      pt[0].val,
-      pt[1].val,
-      shape.start.contents[0].val,
-      shape.start.contents[1].val,
-      shape.end.contents[0].val,
-      shape.end.contents[1].val,
-    ]).secondary;
-  }
+  const [x, y] = f([]).secondary;
   expect(x).toBeCloseTo(expected[0]);
   expect(y).toBeCloseTo(expected[1]);
 };
@@ -81,20 +30,14 @@ export const testCircle = (
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const { context, p } = makeInputArray([
-    pt[0],
-    pt[1],
-    center[0],
-    center[1],
-    radius,
-  ]);
+  const context = simpleContext("closestPoint Circle");
   const shape = makeCircle(context, canvas, {
-    center: vectorV([p[2], p[3]]),
-    r: floatV(p[4]),
+    center: vectorV(center),
+    r: floatV(radius),
     strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
-  compareClosestPoint(context, "Circle", shape, [p[0], p[1]], expected);
+  compareClosestPoint(context, "Circle", shape, pt, expected);
 };
 
 export const testRectangle = (
@@ -105,22 +48,15 @@ export const testRectangle = (
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const { context, p } = makeInputArray([
-    pt[0],
-    pt[1],
-    center[0],
-    center[1],
-    width,
-    height,
-  ]);
+  const context = simpleContext("closestPoint Rectangle");
   const shape = makeRectangle(context, canvas, {
-    center: vectorV([p[2], p[3]]),
-    width: floatV(p[4]),
-    height: floatV(p[5]),
+    center: vectorV(center),
+    width: floatV(width),
+    height: floatV(height),
     strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
-  compareClosestPoint(context, "Rectangle", shape, [p[0], p[1]], expected);
+  compareClosestPoint(context, "Rectangle", shape, pt, expected);
 };
 
 export const testLine = (
@@ -130,21 +66,14 @@ export const testLine = (
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const { context, p } = makeInputArray([
-    pt[0],
-    pt[1],
-    start[0],
-    start[1],
-    end[0],
-    end[1],
-  ]);
+  const context = simpleContext("closestPoint Line");
   const shape = makeLine(context, canvas, {
-    start: vectorV([p[2], p[3]]),
-    end: vectorV([p[4], p[5]]),
+    start: vectorV(start),
+    end: vectorV(end),
     strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
-  compareClosestPoint(context, "Line", shape, [p[0], p[1]], expected);
+  compareClosestPoint(context, "Line", shape, pt, expected);
 };
 
 // export const testPolyline = (
