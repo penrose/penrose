@@ -1,9 +1,12 @@
 import { genCode, secondaryGraph } from "engine/Autodiff";
 import { makeCircle } from "shapes/Circle";
+import { makeEllipse } from "shapes/Ellipse";
 import { makeLine } from "shapes/Line";
+import { makePolygon } from "shapes/Polygon";
+import { makePolyline } from "shapes/Polyline";
 import { makeRectangle } from "shapes/Rectangle";
 import { Context, makeCanvas, simpleContext } from "shapes/Samplers";
-import { black, floatV, vectorV } from "utils/Util";
+import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { compDict } from "./Functions";
 
 const canvas = makeCanvas(800, 700);
@@ -76,52 +79,52 @@ const testLine = (
   compareClosestPoint(context, "Line", shape, pt, expected);
 };
 
-// const testPolyline = (
-//   points: number[][],
-//   strokeWidth: number,
-//   pt: [number, number],
-//   expected: [number, number]
-// ) => {
-//   const context = simpleContext("Polyline");
-//   const shape = makePolyline(context, canvas, {
-//     strokeWidth: floatV(strokeWidth),
-//     points: ptListV(points),
-//     strokeColor: black(),
-//   });
-//   compareClosestPoint(context, "Polyline", shape, pt, expected);
-// };
+const testPolyline = (
+  points: number[][],
+  strokeWidth: number,
+  pt: [number, number],
+  expected: [number, number]
+) => {
+  const context = simpleContext("Polyline");
+  const shape = makePolyline(context, canvas, {
+    strokeWidth: floatV(strokeWidth),
+    points: ptListV(points),
+    strokeColor: black(),
+  });
+  compareClosestPoint(context, "Polyline", shape, pt, expected);
+};
 
-// const testPolygon = (
-//   points: number[][],
-//   strokeWidth: number,
-//   pt: [number, number],
-//   expected: [number, number]
-// ) => {
-//   const context = simpleContext("Polygon");
-//   const shape = makePolygon(context, canvas, {
-//     strokeWidth: floatV(strokeWidth),
-//     strokeColor: black(),
-//     points: ptListV(points),
-//   });
-//   compareClosestPoint(context, "Polygon", shape, pt, expected);
-// };
+const testPolygon = (
+  points: number[][],
+  strokeWidth: number,
+  pt: [number, number],
+  expected: [number, number]
+) => {
+  const context = simpleContext("Polygon");
+  const shape = makePolygon(context, canvas, {
+    strokeWidth: floatV(strokeWidth),
+    strokeColor: black(),
+    points: ptListV(points),
+  });
+  compareClosestPoint(context, "Polygon", shape, pt, expected);
+};
 
-// const testEllipse = (
-//   center: number[],
-//   rx: number,
-//   ry: number,
-//   pt: [number, number],
-//   expected: [number, number]
-// ) => {
-//   const context = simpleContext("Ellipse");
-//   const shape = makeEllipse(context, canvas, {
-//     center: vectorV(center),
-//     rx: floatV(rx),
-//     ry: floatV(ry),
-//     strokeColor: black(),
-//   });
-//   compareClosestPoint(context, "Ellipse", shape, pt, expected);
-// };
+const testEllipse = (
+  center: number[],
+  rx: number,
+  ry: number,
+  pt: [number, number],
+  expected: [number, number]
+) => {
+  const context = simpleContext("Ellipse");
+  const shape = makeEllipse(context, canvas, {
+    center: vectorV(center),
+    rx: floatV(rx),
+    ry: floatV(ry),
+    strokeColor: black(),
+  });
+  compareClosestPoint(context, "Ellipse", shape, pt, expected);
+};
 
 describe("closest point", () => {
   test("circle", () => {
@@ -155,180 +158,185 @@ describe("closest point", () => {
     testLine([0, 0], [3, 2], 4, [3, 3], [3, 2]);
     testLine([3, 2], [5, 0], 4, [3, 3], [3, 2]);
   });
-  // test("Polyline", () => {
-  //   testPolyline(
-  //     [
-  //       [0, 0],
-  //       [3, 2],
-  //       [5, 0],
-  //       [5, -3],
-  //     ],
-  //     4,
-  //     [3, 3],
-  //     [3, 2]
-  //   );
-  //   testPolyline(
-  //     [
-  //       [0, 0],
-  //       [3, 2],
-  //       [5, 0],
-  //       [5, -3],
-  //     ],
-  //     4,
-  //     [5, 2],
-  //     [4, 1]
-  //   );
-  // });
-  // test("rectangle as polygon", () => {
-  //   testPolygon(
-  //     [
-  //       [4, 2],
-  //       [4, -2],
-  //       [-4, -2],
-  //       [-4, 2],
-  //     ],
-  //     0,
-  //     [5, 0],
-  //     [4, 0]
-  //   );
-  //   testPolygon(
-  //     [
-  //       [4, 2],
-  //       [4, -2],
-  //       [-4, -2],
-  //       [-4, 2],
-  //     ],
-  //     0,
-  //     [0, 2],
-  //     [0, 2]
-  //   );
-  // });
-  // testPolygon(
-  //   [
-  //     [-4, -4],
-  //     [-4, 0],
-  //     [0, 0],
-  //     [0, -4],
-  //   ],
-  //   0,
-  //   [-2, -2],
-  //   [-2, -4]
-  // );
-  // test("convex heptagon", () => {
-  //   testPolygon(
-  //     [
-  //       [4, 8],
-  //       [8, 8],
-  //       [8, 0],
-  //       [0, 0],
-  //       [0, 4],
-  //       [4, 4],
-  //     ],
-  //     0,
-  //     [3, 6],
-  //     [4, 6]
-  //   );
-  // });
+
+  test("Polyline", () => {
+    testPolyline(
+      [
+        [0, 0],
+        [3, 2],
+        [5, 0],
+        [5, -3],
+      ],
+      4,
+      [3, 3],
+      [3, 2]
+    );
+    testPolyline(
+      [
+        [0, 0],
+        [3, 2],
+        [5, 0],
+        [5, -3],
+      ],
+      4,
+      [5, 2],
+      [4, 1]
+    );
+  });
+
+  test("rectangle as polygon", () => {
+    testPolygon(
+      [
+        [4, 2],
+        [4, -2],
+        [-4, -2],
+        [-4, 2],
+      ],
+      0,
+      [5, 0],
+      [4, 0]
+    );
+    testPolygon(
+      [
+        [4, 2],
+        [4, -2],
+        [-4, -2],
+        [-4, 2],
+      ],
+      0,
+      [0, 2],
+      [0, 2]
+    );
+  });
+
+  testPolygon(
+    [
+      [-4, -4],
+      [-4, 0],
+      [0, 0],
+      [0, -4],
+    ],
+    0,
+    [-2, -2],
+    [-2, -4]
+  );
+
+  test("convex heptagon", () => {
+    testPolygon(
+      [
+        [4, 8],
+        [8, 8],
+        [8, 0],
+        [0, 0],
+        [0, 4],
+        [4, 4],
+      ],
+      0,
+      [3, 6],
+      [4, 6]
+    );
+  });
+
   test("ellipse", () => {
-    // testEllipse([0, 0], 50, 100, [50, 0], [50, 0]);
-    // testEllipse([0, 0], 100, 50, [0, 100], [0, 50]);
-    // testEllipse([0, 0], 100, 50, [0, -100], [0, -50]);
-    // testEllipse([0, 0], 100, 50, [0, 60], [0, 50.0]);
-    // testEllipse([0, 0], 100, 50, [0, 0], [6.123233995736766e-15, 50.0]);
-    // testEllipse([0, 0], 100, 50, [0, 10], [6.123233995736766e-15, 50.0]);
-    // testEllipse([0, 0], 100, 50, [200, 0], [100.0, 0.0]);
-    // testEllipse([0, 0], 100, 50, [0, 110], [6.123233995736766e-15, 50.0]);
-    // testEllipse(
-    //   [0, 0],
-    //   100,
-    //   50,
-    //   [200, 200],
-    //   [81.19841273323402, 29.183975781254418]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   100,
-    //   50,
-    //   [100, 100],
-    //   [69.28204652936475, 36.05550592039633]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [10, 10],
-    //   [49.61089494163424, 12.493833223000912]
-    // );
-    // testEllipse([0, 0], 100, 50, [100, 0], [100, 0]);
-    // testEllipse([0, 0], 100, 50, [0, 0], [0, 50.0]);
-    // testEllipse([0, 0], 100, 50, [-100, 0], [-100, 0]); // [-100, 0] -> [0, 100]
-    // testEllipse([0, 0], 100, 50, [0, -50], [6.123233995736766e-15, -50.0]); // [0, -50] -> [0, 50]
-    // testEllipse([0, 0], 100, 50, [100, 0], [100, 0]); // [100, 0] -> [0,100]
-    // testEllipse([0, 0], 100, 50, [0, 50], [0, 50.0]); // fine
-    // testEllipse(
-    //   [0, 0],
-    //   3,
-    //   3,
-    //   [2.121320343559643, 2.121320343559643],
-    //   [2.121320343559643, 2.121320343559643]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [-10, -15],
-    //   [-49.11524150621692, -18.728913666946834]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [-10, -15],
-    //   [-49.11524150621692, -18.728913666946834]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [20, -30],
-    //   [46.83455310025607, -35.015689963174765]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [10, -30],
-    //   [46.38787139061665, -37.3183808784684]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [35, -30],
-    //   [47.35509305915151, -32.093311537396765]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [-60, 10],
-    //   [-49.77368387088071, 9.511432996109345]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [-40, 10],
-    //   [-49.72375690607735, 10.513979153705371]
-    // );
-    // testEllipse(
-    //   [0, 0],
-    //   50,
-    //   100,
-    //   [80, -30],
-    //   [48.311109867232666, -25.771042927764825]
-    // );
-    // testEllipse([0, 0], 50, 100, [0, -100], [0, -100]);
+    testEllipse([0, 0], 50, 100, [50, 0], [50, 0]);
+    testEllipse([0, 0], 100, 50, [0, 100], [0, 50]);
+    testEllipse([0, 0], 100, 50, [0, -100], [0, -50]);
+    testEllipse([0, 0], 100, 50, [0, 60], [0, 50.0]);
+    testEllipse([0, 0], 100, 50, [0, 0], [6.123233995736766e-15, 50.0]);
+    testEllipse([0, 0], 100, 50, [0, 10], [6.123233995736766e-15, 50.0]);
+    testEllipse([0, 0], 100, 50, [200, 0], [100.0, 0.0]);
+    testEllipse([0, 0], 100, 50, [0, 110], [6.123233995736766e-15, 50.0]);
+    testEllipse(
+      [0, 0],
+      100,
+      50,
+      [200, 200],
+      [81.19841273323402, 29.183975781254418]
+    );
+    testEllipse(
+      [0, 0],
+      100,
+      50,
+      [100, 100],
+      [69.28204652936475, 36.05550592039633]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [10, 10],
+      [49.61089494163424, 12.493833223000912]
+    );
+    testEllipse([0, 0], 100, 50, [100, 0], [100, 0]);
+    testEllipse([0, 0], 100, 50, [0, 0], [0, 50.0]);
+    testEllipse([0, 0], 100, 50, [-100, 0], [-100, 0]); // [-100, 0] -> [0, 100]
+    testEllipse([0, 0], 100, 50, [0, -50], [6.123233995736766e-15, -50.0]); // [0, -50] -> [0, 50]
+    testEllipse([0, 0], 100, 50, [100, 0], [100, 0]); // [100, 0] -> [0,100]
+    testEllipse([0, 0], 100, 50, [0, 50], [0, 50.0]); // fine
+    testEllipse(
+      [0, 0],
+      3,
+      3,
+      [2.121320343559643, 2.121320343559643],
+      [2.121320343559643, 2.121320343559643]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [-10, -15],
+      [-49.11524150621692, -18.728913666946834]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [-10, -15],
+      [-49.11524150621692, -18.728913666946834]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [20, -30],
+      [46.83455310025607, -35.015689963174765]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [10, -30],
+      [46.38787139061665, -37.3183808784684]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [35, -30],
+      [47.35509305915151, -32.093311537396765]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [-60, 10],
+      [-49.77368387088071, 9.511432996109345]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [-40, 10],
+      [-49.72375690607735, 10.513979153705371]
+    );
+    testEllipse(
+      [0, 0],
+      50,
+      100,
+      [80, -30],
+      [48.311109867232666, -25.771042927764825]
+    );
+    testEllipse([0, 0], 50, 100, [0, -100], [0, -100]);
     // testEllipse(
     //   [10, 0],
     //   50,
@@ -343,8 +351,8 @@ describe("closest point", () => {
     //   [0, -90],
     //   [2.170529302886986, -99.9057316182672]
     // );
-    // testEllipse([50, 50], 100, 50, [-50, 50], [-50, 50]);
-    // testEllipse([50, 50], 100, 50, [150, 50], [150, 50]);
+    testEllipse([50, 50], 100, 50, [-50, 50], [-50, 50]);
+    testEllipse([50, 50], 100, 50, [150, 50], [150, 50]);
     // testEllipse([-100, 200], 100, 50, [-50, 50], [-67.59, 152.6987]);
   });
 });
