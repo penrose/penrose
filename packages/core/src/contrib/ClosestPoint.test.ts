@@ -11,6 +11,16 @@ import { compDict } from "./Functions";
 
 const canvas = makeCanvas(800, 700);
 
+/**
+ * Constructs a computation graph by calling `closestPoint` on the given `shape`
+ * with the given `pt`, then compiles it and calls the resulting function to get
+ * numerical outputs, then checks those against `expected`.
+ * @param context to pass to `closestPoint`
+ * @param shapeType the type of `shape`
+ * @param shape to pass to `closestPoint`
+ * @param pt to pass to `closestPoint`
+ * @param expected to test against the output of `closestPoint`
+ */
 const compareClosestPoint = (
   context: Context,
   shapeType: string,
