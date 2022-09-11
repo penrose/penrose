@@ -3,6 +3,6 @@
   "version": "1.3.0",
   "private": true,
   "scripts": {
-    "build-shared": "node build.js"
+    "build-examples": "node build.js"
   }
 }

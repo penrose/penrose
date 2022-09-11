@@ -11,8 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@penrose/components": "^1.3.0",
-    "@penrose/core": "^1.3.0",
+    "@penrose/components": "1.3.0",
+    "@penrose/core": "1.3.0",
     "flexlayout-react": "^0.7.3",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",

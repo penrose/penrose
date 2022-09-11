@@ -1,12 +1,13 @@
 {
   "name": "@penrose/docs-site",
-  "version": "0.0.0",
+  "version": "1.3.0",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
     "watch": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "build": "shx mkdir -p ./static/try/;shx cp -r ../editor/dist/* ./static/try;shx rm ./static/shapedefs.json;cd ../automator;yarn start shapedefs ../docs-site/static/shapedefs.json;cd ../docs-site; NODE_OPTIONS='--max-old-space-size=8192' docusaurus build --no-minify",
+    "build-shapedefs": "shx mkdir -p ./static/try/;shx cp -r ../editor/dist/* ./static/try;shx rm ./static/shapedefs.json;cd ../automator;yarn start shapedefs ../docs-site/static/shapedefs.json",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus build --no-minify",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -18,10 +19,10 @@
     "@docusaurus/core": "2.0.0-beta.20",
     "@docusaurus/preset-classic": "2.0.0-beta.20",
     "@mdx-js/react": "^1.6.21",
-    "@penrose/components": "^1.3.0",
-    "@penrose/core": "^1.3.0",
-    "@penrose/editor": "^1.3.0",
-    "@penrose/examples": "^1.3.0",
+    "@penrose/components": "1.3.0",
+    "@penrose/core": "1.3.0",
+    "@penrose/editor": "1.3.0",
+    "@penrose/examples": "1.3.0",
     "clsx": "^1.1.1",
     "hast-util-is-element": "1.1.0",
     "prism-react-renderer": "^1.2.1",
@@ -44,5 +45,7 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@penrose/automator": "1.3.0"
+  }
 }

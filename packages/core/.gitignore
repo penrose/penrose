@@ -1,6 +1,7 @@
 /coverage/
 /docs/
 /reports/
-src/parser/DomainParser.ts
-src/parser/StyleParser.ts
-src/parser/SubstanceParser.ts
+/junit.xml
+/src/parser/DomainParser.ts
+/src/parser/StyleParser.ts
+/src/parser/SubstanceParser.ts

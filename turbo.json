@@ -1,14 +1,118 @@
 {
   "$schema": "https://turborepo.org/schema.json",
   "pipeline": {
-    "build": { "dependsOn": ["^build", "build-shared"] },
-    "build-decls": { "dependsOn": ["^build-decls", "build-shared"] },
-    "build-shared": {},
-    "docs": { "dependsOn": ["build-shared"] },
-    "lint": {},
-    "test": { "dependsOn": ["^build", "build-shared"] },
-    "typecheck": { "dependsOn": ["build-decls"] },
-    "watch": { "cache": false, "dependsOn": ["^build", "build-shared"] },
-    "@penrose/docs-site#watch": { "dependsOn": ["@penrose/docs-site#build"] }
+    "build": { "dependsOn": ["^build"], "outputs": [] },
+    "build-decls": { "dependsOn": ["^build-decls"], "outputs": [] },
+    "typecheck": { "dependsOn": ["build-decls"], "outputs": [] },
+
+    "@penrose/components#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["build/dist/**/*.js", "build/dist/**/*.js.map"]
+    },
+    "@penrose/components#build-decls": {
+      "dependsOn": ["^build-decls"],
+      "outputs": ["build/dist/**/*.ts", "build/dist/**/*.ts.map"]
+    },
+    "@penrose/components#build-storybook": {
+      "dependsOn": ["^build"],
+      "outputs": ["storybook-static/**"]
+    },
+    "@penrose/components#watch": { "cache": false, "dependsOn": ["^build"] },
+
+    "@penrose/core#build": {
+      "dependsOn": ["^build", "build-parsers"],
+      "outputs": [
+        "build/dist/index.esm.js",
+        "build/dist/index.js",
+        "build/dist/index.js.map"
+      ]
+    },
+    "@penrose/core#build-decls": {
+      "dependsOn": ["^build-decls", "build-parsers"],
+      "outputs": ["build/dist/**/*.ts", "build/dist/**/*.ts.map"]
+    },
+    "@penrose/core#build-parsers": { "outputs": ["src/parser/*Parser.ts"] },
+    "@penrose/core#build-rollup": {
+      "dependsOn": ["^build", "build-parsers"],
+      "outputs": ["build/dist/penrose.min.js", "build/dist/penrose.min.js.map"]
+    },
+    "@penrose/core#coverage": {
+      "dependsOn": ["^build", "build-parsers"],
+      "outputs": ["coverage/**", "junit.xml", "reports/**"]
+    },
+    "@penrose/core#docs": {
+      "dependsOn": ["build-parsers"],
+      "outputs": ["docs/**"]
+    },
+    "@penrose/core#lint": { "outputs": [] },
+    "@penrose/core#start": {
+      "cache": false,
+      "dependsOn": ["^build", "build-parsers"]
+    },
+    "@penrose/core#test": {
+      "dependsOn": ["^build", "build-parsers"],
+      "outputs": []
+    },
+    "@penrose/core#test-watch": {
+      "cache": false,
+      "dependsOn": ["^build", "build-parsers"]
+    },
+    "@penrose/core#watch": {
+      "cache": false,
+      "dependsOn": ["^build", "build-parsers"]
+    },
+
+    "@penrose/docs-site#build": {
+      "dependsOn": ["^build", "build-shapedefs"],
+      "outputs": ["build/**"]
+    },
+    "@penrose/docs-site#build-shapedefs": {
+      "dependsOn": ["^build"],
+      "outputs": ["static/shapedefs.json", "static/try/**"]
+    },
+    "@penrose/docs-site#serve": { "cache": false, "dependsOn": ["build"] },
+    "@penrose/docs-site#start": {
+      "cache": false,
+      "dependsOn": ["^build", "build-shapedefs"]
+    },
+    "@penrose/docs-site#watch": {
+      "cache": false,
+      "dependsOn": ["^build", "build-shapedefs"]
+    },
+    "@penrose/docs-site#write-translations": { "outputs": ["i18n/**"] },
+
+    "@penrose/editor#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "public/**"]
+    },
+    "@penrose/editor#dev": { "cache": false, "dependsOn": ["^build"] },
+    "@penrose/editor#preview": { "cache": false, "dependsOn": ["build"] },
+    "@penrose/editor#start": { "cache": false, "dependsOn": ["^build"] },
+    "@penrose/editor#watch": { "cache": false, "dependsOn": ["^build"] },
+
+    "@penrose/examples#build-decls": {
+      "dependsOn": ["build-examples"],
+      "outputs": []
+    },
+    "@penrose/examples#build-examples": { "outputs": ["dist/**"] },
+    "@penrose/examples#build": {
+      "dependsOn": ["build-examples"],
+      "outputs": []
+    },
+
+    "@penrose/synthesizer-ui#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "@penrose/synthesizer-ui#dev": { "cache": false, "dependsOn": ["^build"] },
+    "@penrose/synthesizer-ui#preview": {
+      "cache": false,
+      "dependsOn": ["build"]
+    },
+    "@penrose/synthesizer-ui#start": {
+      "cache": false,
+      "dependsOn": ["^build"]
+    },
+    "@penrose/synthesizer-ui#watch": { "cache": false, "dependsOn": ["^build"] }
   }
 }
