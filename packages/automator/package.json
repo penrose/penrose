@@ -9,6 +9,10 @@
     "clean": "rimraf artifacts browser",
     "typecheck": "tsc --noEmit"
   },
+  "turbo": {
+    "build": "deps: [^build-decls]",
+    "clean": "cache: false"
+  },
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "dependencies": {

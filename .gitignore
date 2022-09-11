@@ -8,6 +8,7 @@
 *#
 *~
 /.vscode/
+/turbo.json
 build/
 dist/
 node_modules/

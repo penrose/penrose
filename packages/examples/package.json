@@ -4,5 +4,10 @@
   "private": true,
   "scripts": {
     "build-examples": "node build.js"
+  },
+  "turbo": {
+    "build-decls": "deps: [build-examples]",
+    "build-examples": "out: [dist/**]",
+    "build": "deps: [build-examples]"
   }
 }

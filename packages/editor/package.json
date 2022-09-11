@@ -10,6 +10,13 @@
     "build": "shx mkdir -p ./public/examples/;shx cp -r ../examples/src/* ./public/examples/;NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
+  "turbo": {
+    "build": "out: [dist/**, public/**]",
+    "dev": "cache: false, deps: [^build]",
+    "preview": "cache: false, deps: [build]",
+    "start": "cache: false, deps: [^build]",
+    "watch": "cache: false, deps: [^build]"
+  },
   "dependencies": {
     "@penrose/components": "1.3.0",
     "@penrose/core": "1.3.0",

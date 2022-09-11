@@ -12,6 +12,7 @@
 /packages/docs-site/static/try/
 /packages/roger/oclif.manifest.json
 /README.md
+/turbo.json
 build/
 coverage/
 dist/

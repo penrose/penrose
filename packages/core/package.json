@@ -26,6 +26,19 @@
     "coverage": "jest --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
     "lint": "eslint --ext js,ts,tsx src"
   },
+  "turbo": {
+    "build": "deps: [build-parsers], out: [build/dist/index.esm.js, build/dist/index.js, build/dist/index.js.map]",
+    "build-decls": "deps: [build-parsers], out: [build/dist/**/*.ts, build/dist/**/*.ts.map]",
+    "build-parsers": "out: [src/parser/*Parser.ts]",
+    "build-rollup": "deps: [^build, build-parsers], out: [build/dist/penrose.min.js, build/dist/penrose.min.js.map]",
+    "coverage": "deps: [^build, build-parsers], out: [coverage/**, junit.xml, reports/**]",
+    "docs": "deps: [^build, build-parsers], out: [docs/**]",
+    "lint": "",
+    "start": "cache: false, deps: [^build, build-parsers]",
+    "test": "deps: [^build, build-parsers]",
+    "test-watch": "cache: false, deps: [^build, build-parsers]",
+    "watch": "cache: false, deps: [^build, build-parsers]"
+  },
   "dependencies": {
     "@datastructures-js/heap": "^3.2.0",
     "@datastructures-js/queue": "^4.1.3",
