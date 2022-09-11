@@ -24,6 +24,7 @@
     "url": "git+https://github.com/penrose/penrose.git"
   },
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "start": "ts-node  ./index.ts",
     "set-example": "yarn start __tests__/setTheory.dsl --substance=__tests__/template.sub  --style=__tests__/venn.sty --path=../automator/progs --synth-setting=__tests__/set-settings.json --num-programs=30",
     "collinear-example": "yarn start ../examples/src/geometry-domain/geometry.dsl --substance=../examples/src/geometry-domain/textbook_problems/c01p01.sub  --style=../examples/src/geometry-domain/euclidean.sty --path=../automator/progs --synth-setting=__tests__/geo-settings.json --num-programs=30",

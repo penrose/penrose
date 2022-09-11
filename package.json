@@ -12,7 +12,7 @@
     "start:docs-site": "turbo run watch --filter=docs-site",
     "start": "turbo run watch --filter=editor",
     "build:ide": "turbo run build --filter=editor",
-    "test": "turbo run test --filter=core",
+    "test": "turbo run test",
     "docs": "turbo run docs",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint -- --fix",

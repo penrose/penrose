@@ -5,6 +5,12 @@
     "build-decls": { "dependsOn": ["^build-decls"], "outputs": [] },
     "typecheck": { "dependsOn": ["build-decls"], "outputs": [] },
 
+    "@penrose/automator#build": {
+      "dependsOn": ["^build", "^build-decls"],
+      "outputs": []
+    },
+    "@penrose/automator#clean": { "cache": false },
+
     "@penrose/components#build": {
       "dependsOn": ["^build"],
       "outputs": ["build/dist/**/*.js", "build/dist/**/*.js.map"]
@@ -41,7 +47,7 @@
       "outputs": ["coverage/**", "junit.xml", "reports/**"]
     },
     "@penrose/core#docs": {
-      "dependsOn": ["build-parsers"],
+      "dependsOn": ["^build", "build-parsers"],
       "outputs": ["docs/**"]
     },
     "@penrose/core#lint": { "outputs": [] },
@@ -70,6 +76,7 @@
       "dependsOn": ["^build"],
       "outputs": ["static/shapedefs.json", "static/try/**"]
     },
+    "@penrose/docs-site#clear": { "cache": false },
     "@penrose/docs-site#serve": { "cache": false, "dependsOn": ["build"] },
     "@penrose/docs-site#start": {
       "cache": false,
@@ -99,6 +106,8 @@
       "dependsOn": ["build-examples"],
       "outputs": []
     },
+
+    "@penrose/roger#build": { "outputs": ["dist/**"] },
 
     "@penrose/synthesizer-ui#build": {
       "dependsOn": ["^build"],
