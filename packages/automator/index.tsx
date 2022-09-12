@@ -20,7 +20,8 @@ import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
 import * as prettier from "prettier";
 import uniqid from "uniqid";
-import { renderArtifacts } from "./artifacts";
+import { printTextChart, renderArtifacts } from "./artifacts";
+import { AggregateData, InstanceData } from "./types";
 
 const USAGE = `
 Penrose Automator.
@@ -28,6 +29,7 @@ Penrose Automator.
 Usage:
   automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
+  automator textchart ARTIFACTSFOLDER OUTFILE
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
   automator shapedefs [SHAPEFILE]
 
@@ -35,7 +37,7 @@ Options:
   -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
-  --repeat TIMES the number of instances 
+  --repeat TIMES the number of instances
   --cross-energy Compute the cross-instance energy
   --variation The variation to use
 `;
@@ -182,7 +184,7 @@ const singleProcess = async (
       );
     }
 
-    const metadata = {
+    const metadata: InstanceData = {
       ...meta,
       renderedOn: Date.now(),
       timeTaken: {
@@ -254,7 +256,7 @@ const batchProcess = async (
   let reference = trioLibrary[0];
   let referenceState = undefined;
 
-  const finalMetadata = {};
+  const finalMetadata: AggregateData = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
   for (const { domain, style, substance, variation, meta } of trioLibrary) {
@@ -395,6 +397,8 @@ const getShapeDefs = (outFile?: string): void => {
     }
   } else if (args.render) {
     renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
+  } else if (args.textchart) {
+    printTextChart(args.ARTIFACTSFOLDER, args.OUTFILE);
   } else if (args.draw) {
     await singleProcess(
       variation,
