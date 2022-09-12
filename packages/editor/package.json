@@ -3,9 +3,9 @@
   "private": true,
   "version": "1.3.0",
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "watch": "vite",
+    "start": "NODE_OPTIONS='--max-old-space-size=8192' vite",
+    "dev": "NODE_OPTIONS='--max-old-space-size=8192' vite",
+    "watch": "NODE_OPTIONS='--max-old-space-size=8192' vite",
     "clean": "rimraf dist public/examples",
     "typecheck": "tsc --noEmit",
     "build": "shx mkdir -p ./public/examples/;shx cp -r ../examples/src/* ./public/examples/;NODE_OPTIONS='--max-old-space-size=8192' vite build",
