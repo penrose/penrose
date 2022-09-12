@@ -117,8 +117,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Install packages
         uses: ./.github/actions/packages
-      - name: Check that the generated README is up to date
+      - name: Check that the CONTRIBUTING.md ToC and README.md are up to date
         run: |
+          npx markdown-toc --bullets='-' -i CONTRIBUTING.md
           .github/gen_readme.js
           .github/report_git_status.sh
 
