@@ -25,6 +25,9 @@
     "noImplicitThis": true,
     "strictNullChecks": true
   },
+  "ts-node": {
+    "transpileOnly": true
+  },
   "COMBAK-leftOffForNowDueToErrors": {
     "noImplicitAny": true,
     "strict": true
