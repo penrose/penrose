@@ -9,6 +9,8 @@
 /packages/core/src/renderer/not_found.json
 /packages/docs-site/.docusaurus/
 /packages/docs-site/static/try/
+/packages/optimizer/pkg/
+/packages/optimizer/target/
 /packages/roger/oclif.manifest.json
 /README.md
 build/

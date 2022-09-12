@@ -6,6 +6,7 @@
     "packages/docs-site",
     "packages/editor",
     "packages/examples",
+    "packages/optimizer",
     "packages/roger",
     "packages/synthesizer",
     "packages/synthesizer-ui"
