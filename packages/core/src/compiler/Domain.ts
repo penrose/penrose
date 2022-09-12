@@ -3,7 +3,7 @@ import im from "immutable";
 import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
-import { idOf, lastLocation } from "parser/ParserUtil";
+import { idOf, lastLocation, prettyParseError } from "parser/ParserUtil";
 import { A, C } from "types/ast";
 import {
   Arg,
@@ -57,7 +57,7 @@ export const parseDomain = (
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
   } catch (e) {
-    return err(parseError(<string>e, lastLocation(parser)));
+    return err(parseError(prettyParseError(e), lastLocation(parser)));
   }
 };
 
