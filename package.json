@@ -25,6 +25,7 @@
     "release": "lerna publish from-package",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "toc": "markdown-toc --bullets='-' -i CONTRIBUTING.md",
     "diff": "lerna diff"
   },
   "devDependencies": {

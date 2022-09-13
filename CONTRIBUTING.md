@@ -15,7 +15,8 @@
   - [Refresh build](#refresh-build)
   - [Roger](#roger)
   - [Test](#test)
-  - [Add dependencies](#add-dependencies)
+  - [Dependencies](#dependencies)
+  - [Scripts](#scripts)
   - [Import from core](#import-from-core)
 - [Contributing](#contributing)
   - [Creating your fork](#creating-your-fork)
@@ -223,8 +224,8 @@ to do is generate that output and check it into Git.
 The easiest way to do this is to run `automator` locally on the registry:
 
 ```sh
-npx lerna run build --stream --scope=@penrose/examples --scope=@penrose/core
-pushd packages/examples/
+yarn build --filter=automator
+pushd packages/automator/
 yarn start batch registry.json ../../diagrams/ --src-prefix=../examples/src/
 popd
 ```
@@ -242,10 +243,28 @@ limitations:
 
 ### Refresh build
 
-Run this command to delete `node_modules/` and build folders in all packages:
+To delete all build artifacts (but no `node_modules/`):
 
 ```sh
-yarn clean
+git clean -dfxe node_modules/
+```
+
+To delete `node_modules/` (but not build artifacts) in all `packages/`:
+
+```sh
+yarn lerna clean
+```
+
+To delete the `node_modules/` at the repo root:
+
+```sh
+npx rimraf node_modules/
+```
+
+To do all of the above at once:
+
+```sh
+git clean -dfx
 ```
 
 ### Roger
@@ -271,11 +290,10 @@ yarn test
 To automatically re-run tests as you make changes to `core`:
 
 ```sh
-cd packages/core/
-yarn test:watch
+yarn turbo run test-watch
 ```
 
-### Add dependencies
+### Dependencies
 
 To add a project dependency to, e.g., `browser-ui` (note, we don't use `npm`):
 
@@ -296,18 +314,62 @@ popd
 If you're using a package that involves the DOM, you probably want the `react`
 version (e.g. `react-graph-vis` instead of `visjs`).
 
+### Scripts
+
+We use [Turborepo][] to manage dependencies among our various scripts/tasks, and
+we have a custom `turbo.js` script which autogenerates Turborepo's `turbo.json`
+config file from metadata in all our `package/*/package.json` files.
+Specifically, below the `"scripts"` section we usually have a `"turbo"` section
+defining metadata about each script. For instance, given this:
+
+```json
+"scripts": {
+  "build": "mkdir dist/ && echo foo > dist/build.txt",
+  "test": "cat dist/*.txt"
+}
+```
+
+we might define the metadata like this:
+
+```json
+"turbo": {
+  "build": "out: [dist/*.txt]",
+  "test": "cache: false, deps: [build]"
+}
+```
+
+When you update a script, be sure to update its accompanying metadata!
+
+Note that `turbo.js` defines a few global scripts which have implicit
+dependencies that are automatically inherited by package-local scripts with the
+same names:
+
+- `build` means to produce executable artifacts (usually JavaScript files), and
+  implicitly depends on the `build` scripts of that package's dependencies
+- `build-decls` means to produce TypeScript declaration files, and implicitly
+  depends on the `build-decls` scripts of that package's dependencies
+- `typecheck` means to check for type errors in the package, and implicitly
+  depends on the `build-decls` script of that same package (with the intention
+  being that for any given package you either write a `build-decls` script or a
+  `typecheck` script, but not both)
+
+The `"turbo"` metadata is written in [YAML][] syntax, where the following keys
+are allowed:
+
+- `deps` corresponds to Turborepo's `dependsOn` key, except that it also
+  inherits the `dependsOn` from the existing global definition of the script if
+  there is one (see above)
+- `out` corresponds to Turborepo's `outputs` key, except that it defaults to the
+  empty array `[]` instead of to `["dist/**", "build/**"]`
+- `cache` corresponds to Turborepo's `cache` key
+
+See the [Turborepo docs][] for more information.
+
 ### Import from core
 
 To import a type or function from `core` in another package like `browser-ui`,
 import the type into `packages/core/src/index.ts` and export it from there
-again, then import into your project. Note that you may need to rebuild `core`:
-
-```sh
-pushd packages/core/
-yarn build
-yarn build-decls
-popd
-```
+again, then import into your project.
 
 ## Contributing
 
@@ -402,6 +464,9 @@ please file an issue!
 [test: check word cloud example output in ci]: https://github.com/penrose/penrose/pull/876
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
+[turborepo docs]: https://turborepo.org/docs
+[turborepo]: https://turborepo.org/
 [vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces
 [vs code]: https://code.visualstudio.com/download
+[yaml]: https://yaml.org/
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/

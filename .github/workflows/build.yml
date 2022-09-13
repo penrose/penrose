@@ -115,7 +115,7 @@ jobs:
         uses: ./.github/actions/packages
       - name: Check that the CONTRIBUTING.md ToC and README.md are up to date
         run: |
-          npx markdown-toc --bullets='-' -i CONTRIBUTING.md
+          yarn toc
           .github/gen_readme.js
           .github/report_git_status.sh
 
