@@ -98,3 +98,11 @@ It's specified by the following trio of Domain, Substance, and Style programs
     ensure disjoint(x.text, y.icon)
   }
   ```
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE).
