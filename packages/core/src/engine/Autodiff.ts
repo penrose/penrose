@@ -1143,11 +1143,11 @@ export const genCode = ({
   for (let i = 0; i < numBools; i++) {
     bools.push(false);
   }
-  const nums: number[] = [];
+  const numsUntyped: number[] = [];
   for (let i = 0; i < numNums; i++) {
-    // we need to make sure the engine knows it's floating-point, not an integer
-    nums.push(-0);
+    numsUntyped.push(-0);
   }
+  const nums = Float64Array.from(numsUntyped);
 
   return (inputs) => f(polyRoots, bools, nums, inputs);
 };
