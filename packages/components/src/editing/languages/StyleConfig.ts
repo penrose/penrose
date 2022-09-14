@@ -163,20 +163,56 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
   monaco.languages.register({ id: "style" });
   monaco.languages.setLanguageConfiguration("style", StyleConfig);
   monaco.languages.setMonarchTokensProvider("style", StyleLanguageTokens);
-  const dispose = monaco.languages.registerCompletionItemProvider("style", {
-    provideCompletionItems: (model, position) => {
-      const word = model.getWordUntilPosition(position);
-      const range: IRange = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-      return { suggestions: StyleCompletions(range) } as any;
+  const disposeColor = monaco.languages.registerColorProvider("style", {
+    provideColorPresentations: (model, colorInfo) => {
+      const { red, green, blue, alpha } = colorInfo.color;
+      return [
+        {
+          label: `rgba(${red}, ${green}, ${blue}, ${alpha})`,
+        },
+      ];
     },
-    // HACK
+
+    provideDocumentColors: (model) => {
+      const colorRegex = /rgba\(\s*(.*)\s*,\s*(.*)\s*,\s*(.*)\s*,\s*(.*)\s*\)/;
+      const colorMatches = model.findMatches(
+        colorRegex.source,
+        false,
+        true,
+        false,
+        null,
+        true
+      );
+      console.log(colorMatches);
+
+      return colorMatches.map(({ matches, range }) => ({
+        color: {
+          red: +matches![1],
+          green: +matches![2],
+          blue: +matches![3],
+          alpha: +matches![4],
+        },
+        range: range,
+      }));
+    },
   });
+  const disposeCompletion = monaco.languages.registerCompletionItemProvider(
+    "style",
+    {
+      provideCompletionItems: (model, position) => {
+        const word = model.getWordUntilPosition(position);
+        const range: IRange = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+        return { suggestions: StyleCompletions(range) } as any;
+      },
+    }
+  );
   return () => {
-    dispose.dispose();
+    disposeColor.dispose();
+    disposeCompletion.dispose();
   };
 };
