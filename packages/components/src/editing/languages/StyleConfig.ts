@@ -1,6 +1,6 @@
 import { Monaco } from "@monaco-editor/react";
 import { compDict, constrDict, objDict, shapedefs } from "@penrose/core";
-import { IRange, languages } from "monaco-editor";
+import { editor, IRange, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
 
 export const StyleConfig: languages.LanguageConfiguration = {
@@ -183,17 +183,28 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
         null,
         true
       );
-      console.log(colorMatches);
-
-      return colorMatches.map(({ matches, range }) => ({
-        color: {
-          red: +matches![1],
-          green: +matches![2],
-          blue: +matches![3],
-          alpha: +matches![4],
+      return colorMatches.reduce(
+        (
+          colors: languages.IColorInformation[],
+          { matches, range }: editor.FindMatch
+        ) => {
+          if (matches !== null) {
+            const color = {
+              color: {
+                red: +matches[1],
+                green: +matches[2],
+                blue: +matches[3],
+                alpha: +matches[4],
+              },
+              range: range,
+            };
+            return [...colors, color];
+          } else {
+            return colors;
+          }
         },
-        range: range,
-      }));
+        []
+      );
     },
   });
   const disposeCompletion = monaco.languages.registerCompletionItemProvider(
