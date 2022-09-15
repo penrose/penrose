@@ -1,5 +1,5 @@
 import { Monaco } from "@monaco-editor/react";
-import { IRange, languages } from "monaco-editor";
+import { IRange, languages } from "monaco-editor-core";
 import { CommentCommon, CommonTokens } from "./common";
 
 export const DomainConfig: languages.LanguageConfiguration = {
@@ -66,7 +66,7 @@ export const SetupDomainMonaco = (monaco: Monaco) => {
   monaco.languages.setLanguageConfiguration("domain", DomainConfig);
   monaco.languages.setMonarchTokensProvider("domain", DomainLanguageTokens());
   const dispose = monaco.languages.registerCompletionItemProvider("domain", {
-    provideCompletionItems: (model, position) => {
+    provideCompletionItems: (model: any, position: any) => {
       const word = model.getWordUntilPosition(position);
       const range: IRange = {
         startLineNumber: position.lineNumber,

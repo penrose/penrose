@@ -1,4 +1,4 @@
-import { languages } from "monaco-editor";
+import { languages } from "monaco-editor-core";
 
 export const CommentCommon: any = {
   comment: [

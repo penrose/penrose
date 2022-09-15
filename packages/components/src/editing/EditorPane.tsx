@@ -1,6 +1,6 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { Env } from "@penrose/core";
-import { editor } from "monaco-editor";
+import { editor } from "monaco-editor-core";
 import { initVimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
 import { SetupDomainMonaco } from "./languages/DomainConfig";

@@ -1,6 +1,6 @@
 import { Monaco } from "@monaco-editor/react";
 import { Env } from "@penrose/core";
-import { editor, IRange, languages, Position } from "monaco-editor";
+import { editor, IRange, languages, Position } from "monaco-editor-core";
 import { CommentCommon, CommonTokens } from "./common";
 
 export const SubstanceConfig: languages.LanguageConfiguration = {

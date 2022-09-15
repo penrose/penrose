@@ -1,6 +1,6 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { compileDomain } from "@penrose/core";
-import { editor } from "monaco-editor";
+import { editor } from "monaco-editor-core";
 import { useEffect } from "react";
 import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig";
 

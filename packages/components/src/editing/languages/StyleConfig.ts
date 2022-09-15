@@ -1,6 +1,6 @@
 import { Monaco } from "@monaco-editor/react";
 import { compDict, constrDict, objDict, shapedefs } from "@penrose/core";
-import { IRange, languages } from "monaco-editor";
+import { IRange, languages } from "monaco-editor-core";
 import { CommentCommon, CommonTokens } from "./common";
 
 export const StyleConfig: languages.LanguageConfiguration = {
@@ -164,7 +164,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
   monaco.languages.setLanguageConfiguration("style", StyleConfig);
   monaco.languages.setMonarchTokensProvider("style", StyleLanguageTokens);
   const dispose = monaco.languages.registerCompletionItemProvider("style", {
-    provideCompletionItems: (model, position) => {
+    provideCompletionItems: (model: any, position: any) => {
       const word = model.getWordUntilPosition(position);
       const range: IRange = {
         startLineNumber: position.lineNumber,
