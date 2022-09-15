@@ -7,7 +7,7 @@
     "dev": "NODE_OPTIONS='--max-old-space-size=8192' vite",
     "watch": "NODE_OPTIONS='--max-old-space-size=8192' vite",
     "typecheck": "tsc --noEmit",
-    "build": "shx mkdir -p ./public/examples/;shx cp -r ../examples/src/* ./public/examples/;NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build": "shx mkdir -p ./public/examples/ && shx cp -r ../examples/src/* ./public/examples/ && NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
   "turbo": {

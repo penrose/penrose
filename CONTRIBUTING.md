@@ -317,10 +317,10 @@ version (e.g. `react-graph-vis` instead of `visjs`).
 ### Scripts
 
 We use [Turborepo][] to manage dependencies among our various scripts/tasks, and
-we have a custom `turbo.js` script which autogenerates Turborepo's `turbo.json`
-config file from metadata in all our `package/*/package.json` files.
-Specifically, below the `"scripts"` section we usually have a `"turbo"` section
-defining metadata about each script. For instance, given this:
+we have a custom `turboConfig.js` script which autogenerates Turborepo's
+`turbo.json` config file from metadata in all our `package/*/package.json`
+files. Specifically, below the `"scripts"` section we usually have a `"turbo"`
+section defining metadata about each script. For instance, given this:
 
 ```json
 "scripts": {
@@ -340,7 +340,7 @@ we might define the metadata like this:
 
 When you update a script, be sure to update its accompanying metadata!
 
-Note that `turbo.js` defines a few global scripts which have implicit
+Note that `turboConfig.js` defines a few global scripts which have implicit
 dependencies that are automatically inherited by package-local scripts with the
 same names:
 
