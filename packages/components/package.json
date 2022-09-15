@@ -8,9 +8,9 @@
   "scripts": {
     "dev": "vite",
     "watch": "vite build --watch",
-    "build": "vite build && yarn replace-monaco && yarn replace-shift",
-    "replace-monaco": "sed -i '' 's%^import require$$0 from \"monaco-editor\";$%import { editor as require$$0 } from \"monaco-editor-core\";%' dist/index.es.js",
-    "replace-shift": "sed -i '' 's%^import require$$1 from \"monaco-editor/esm/vs/editor/common/commands/shiftCommand\";$%import * as require$$1 from \"monaco-editor-core/esm/vs/editor/common/commands/shiftCommand\";%' dist/index.es.js",
+    "build": "vite build && yarn replace-monaco && yarn replace-shift && shx rm -f dist/index.es.js.bak",
+    "replace-monaco": "sed -i.bak 's%^import require$$0 from \"monaco-editor\";$%import { editor as require$$0 } from \"monaco-editor-core\";%' dist/index.es.js",
+    "replace-shift": "sed -i.bak 's%^import require$$1 from \"monaco-editor/esm/vs/editor/common/commands/shiftCommand\";$%import * as require$$1 from \"monaco-editor-core/esm/vs/editor/common/commands/shiftCommand\";%' dist/index.es.js",
     "typecheck": "tsc",
     "preview": "vite preview",
     "storybook": "start-storybook -p 6006",
