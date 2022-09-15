@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-const { spawnSync } = require("child_process");
 const fs = require("fs");
 const yaml = require("js-yaml");
 const path = require("path");
@@ -35,6 +34,3 @@ for (const package of fs.readdirSync(packagesDir)) {
   }
 }
 fs.writeFileSync("turbo.json", JSON.stringify(turboJSON, null, 2));
-process.exit(
-  spawnSync("turbo", process.argv.slice(2), { stdio: "inherit" }).status
-);

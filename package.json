@@ -16,7 +16,7 @@
     "docs": "yarn turbo run docs",
     "lint": "yarn turbo run lint",
     "lint:fix": "yarn turbo run lint -- --fix",
-    "turbo": "node turbo.js",
+    "turbo": "node turbo.js && turbo",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
     "new-version:prerelease": "lerna version --conventional-prerelease",
