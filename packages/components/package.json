@@ -13,8 +13,8 @@
     "build-storybook": "build-storybook"
   },
   "turbo": {
-    "build": "out: [build/dist/**/*.js, build/dist/**/*.js.map]",
-    "build-decls": "out: [build/dist/**/*.ts, build/dist/**/*.ts.map]",
+    "build": "out: [dist/*.css, dist/*.js, dist/*.js.map]",
+    "build-decls": "out: [dist/*.ts, dist/*.ts.map]",
     "build-storybook": "deps: [^build], out: [storybook/static/**]",
     "watch": "cache: false, deps: [^build]"
   },
