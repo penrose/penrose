@@ -112,7 +112,7 @@ const writePrograms = (
     });
   }
   // TODO: change name style and domain
-  const registry: Registry = {
+  const registry: Omit<Registry, "root"> = {
     substances,
     styles: {
       [styID]: style,

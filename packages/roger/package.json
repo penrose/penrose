@@ -62,8 +62,10 @@
     "prepack": "yarn build && oclif manifest && oclif readme",
     "version": "oclif readme && git add README.md",
     "preinstall-global": "yarn build",
-    "install-global": "yarn link",
-    "clean": "rimraf dist"
+    "install-global": "yarn link"
+  },
+  "turbo": {
+    "build": "out: [dist/**]"
   },
   "engines": {
     "node": ">=12.0.0"

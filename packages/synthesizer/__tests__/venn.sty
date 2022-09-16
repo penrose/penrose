@@ -4,8 +4,8 @@ canvas {
 }
 
 Colors {
-    Colors.darkpurple = rgba(0.549,0.565,0.757, 0.2)
-    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    darkpurple = rgba(0.549,0.565,0.757, 0.2)
+    black = rgba(0.0, 0.0, 0.0, 1.0)
 }
 
 
@@ -36,22 +36,22 @@ where IsSubset(x, y) {
 
 
 -- NOTE: ideally, I would like to delete one of the shapes, or somehow make them synonymous. But deleting a shape doesn't delete all the constraints and computations that refer to them, so I'd need to delete them, too. In this case, I'm making the two tranparent circles equal and making one label an empty string
-Set x
+forall Set x
 with Set y
 where Equal(x, y) {
-    override y.text.string = ""
+    override y.text.string = " "
     override x.text.string = x.label + "=" + y.label
     override x.icon.r = y.icon.r
     override x.icon.center = y.icon.center
 }
 
 -- NOTE: since Style doesn't know `Equal` is symmetric, there are two identical blocks to handle both cases
-Set x, y
+forall Set x, y
 where Equal(x, y); IsSubset(x, y) {
     delete x.subsetFn1
     delete x.subsetFn2
 }
-Set x, y
+forall Set x, y
 where Equal(y, x); IsSubset(x, y) {
     delete x.subsetFn1
     delete x.subsetFn2
