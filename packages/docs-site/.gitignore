@@ -2,7 +2,8 @@
 /node_modules
 
 # Production
-/build
+/build/
+/i18n/
 
 # Generated files
 .docusaurus
@@ -24,5 +25,5 @@ yarn-error.log*
 !Substance
 
 # Build-generated files
-/static/try/*
 /static/shapedefs.json
+/static/try/

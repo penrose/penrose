@@ -5,7 +5,7 @@ runs:
     - name: Install Wasm target
       run: rustup target add wasm32-unknown-unknown
       shell: bash
-    - name: Restore lerna cache
+    - name: Restore cache
       id: cache
       uses: actions/cache@v2
       with:
@@ -13,13 +13,13 @@ runs:
           node_modules
           packages/*/node_modules
         # obviously we need to hash yarn.lock because that specifies all our
-        # external dependencies, but we also need to hash lerna.json because
-        # Lerna creates symlinks under node_modules/@penrose/ for each of our
+        # external dependencies, but we also need to hash package.json because
+        # Yarn creates symlinks under node_modules/@penrose/ for each of our
         # packages, so we need to update those if any packages are added; note
         # that this strategy means we cannot use wildcards in the "packages"
-        # list in lerna.json, and must instead list them all explicitly (just as
-        # we must in penrose.code-workspace)
-        key: ${{ runner.os }}-${{ hashFiles('lerna.json', 'yarn.lock') }}
+        # list in package.json, and must instead list them all explicitly (just
+        # as we must in penrose.code-workspace)
+        key: ${{ runner.os }}-${{ hashFiles('package.json', 'yarn.lock') }}
     - if: steps.cache.outputs.cache-hit != 'true'
       name: Install packages
       run: yarn

@@ -3,7 +3,12 @@
   "version": "1.3.0",
   "private": true,
   "scripts": {
-    "build": "cargo build --release && esbuild ./source.js --bundle --loader:.wasm=binary --outfile=index.js --format=cjs"
+    "build": "esbuild ./source.js --bundle --loader:.wasm=binary --outfile=index.js --format=cjs",
+    "build-wasm": "cargo build --release"
+  },
+  "turbo": {
+    "build": "deps: [build-wasm], out: [index.js]",
+    "build-wasm": "out: [target/**]"
   },
   "devDependencies": {
     "esbuild": "^0.15.7"
