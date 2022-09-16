@@ -1,8 +1,7 @@
 #[no_mangle]
-fn step(f: i32, x: f64) -> f64 {
-    let op = unsafe { std::mem::transmute::<i32, fn(i32) -> f64>(f) };
+fn step(f: fn(*const f64) -> f64, x: f64) -> f64 {
     let mut v = nalgebra::Vector1::new(x);
-    let p = unsafe { std::mem::transmute::<*const f64, i32>(v.as_ptr()) };
+    let p = v.as_ptr();
     v.neg_mut();
-    op(p)
+    f(p)
 }
