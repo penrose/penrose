@@ -1,7 +1,7 @@
 {
   "name": "@penrose/synthesizer-ui",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.4.0-alpha.0",
   "scripts": {
     "dev": "vite",
     "watch": "vite",
@@ -12,11 +12,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "@material-ui/core": "^4.12.3",
-    "@penrose/core": "1.3.0",
-    "@penrose/components": "1.3.0"
+    "@penrose/components": "^1.4.0-alpha.0",
+    "@penrose/core": "^1.4.0-alpha.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@types/react": "^17.0.33",
