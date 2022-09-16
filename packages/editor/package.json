@@ -1,7 +1,7 @@
 {
   "name": "@penrose/editor",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scripts": {
     "start": "NODE_OPTIONS='--max-old-space-size=8192' vite",
     "dev": "NODE_OPTIONS='--max-old-space-size=8192' vite",
@@ -12,36 +12,36 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@penrose/components": "^1.3.0",
-    "@penrose/core": "^1.3.0",
+    "@penrose/components": "^1.4.0",
+    "@penrose/core": "^1.4.0",
+    "animals": "^0.0.3",
+    "color-name-list": "^8.38.0",
+    "cytoscape": "^3.19.0",
     "flexlayout-react": "^0.7.3",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "query-string": "^7.1.1",
     "react": "^18.0.0",
-    "cytoscape": "^3.19.0",
-    "react-inspector": "^4.0.1",
     "react-data-table-component": "^6.11.7",
     "react-dom": "^18.0.0",
     "react-hot-toast": "^2.2.0",
+    "react-inspector": "^4.0.1",
     "react-select": "^5.3.2",
     "recoil": "^0.7.3-alpha.2",
     "styled-components": "^5.3.5",
-    "animals": "^0.0.3",
-    "color-name-list": "^8.38.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/cytoscape": "^3.14.12",
     "@types/lodash": "^4.14.182",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@types/react-inspector": "^4.0.0",
     "@types/styled-components": "^5.1.25",
     "@types/uuid": "^8.3.4",
     "@vitejs/plugin-react": "^1.3.0",
-    "typescript": "^4.6.3",
-    "@types/react-inspector": "^4.0.0",
-    "@types/cytoscape": "^3.14.12",
     "shx": "^0.3.3",
+    "typescript": "^4.6.3",
     "vite": "^2.9.9"
   }
 }

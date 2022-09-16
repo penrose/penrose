@@ -1,6 +1,6 @@
 {
   "name": "@penrose/examples",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "scripts": {
     "build": "node build.js",
