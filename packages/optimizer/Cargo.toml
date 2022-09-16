@@ -8,3 +8,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 nalgebra = "0.31"
+
+[profile.release]
+strip = "debuginfo"
