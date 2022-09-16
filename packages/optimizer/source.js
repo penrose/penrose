@@ -1,6 +1,4 @@
-import source from "./optimizer.wasm";
+import source from "./target/wasm32-unknown-unknown/release/penrose_optimizer.wasm";
 
-export const answer = async () => {
-  const { instance } = await WebAssembly.instantiate(source);
-  return () => instance.exports.answer();
-};
+export const getOptimizer = async () =>
+  (await WebAssembly.instantiate(source)).instance.exports;

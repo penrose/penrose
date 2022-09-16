@@ -3,7 +3,7 @@
   "version": "1.3.0",
   "private": true,
   "scripts": {
-    "build": "wat2wasm optimizer.wat && esbuild ./source.js --bundle --loader:.wasm=binary --outfile=index.js --format=cjs"
+    "build": "cargo build --release && esbuild ./source.js --bundle --loader:.wasm=binary --outfile=index.js --format=cjs"
   },
   "devDependencies": {
     "esbuild": "^0.15.7"

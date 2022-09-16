@@ -2,6 +2,8 @@ name: Packages
 runs:
   using: composite
   steps:
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
     - name: Restore lerna cache
       id: cache
       uses: actions/cache@v2

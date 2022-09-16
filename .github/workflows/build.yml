@@ -10,8 +10,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Build @penrose/optimizer
+        run: yarn build
+        working-directory: packages/optimizer/
       - name: Build @penrose/examples
         run: yarn build
         working-directory: packages/examples/
@@ -65,8 +68,8 @@ jobs:
         with:
           # https://github.com/lerna/lerna/issues/1893#issuecomment-770614785
           fetch-depth: 0
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Typecheck all packages
         run: yarn typecheck
       - name: Run all builds
@@ -85,8 +88,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Format
         run: |
           if ! yarn format:check; then
@@ -105,8 +108,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Lint
         run: yarn lint
 
@@ -115,8 +118,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Check that the CONTRIBUTING.md ToC and README.md are up to date
         run: |
           npx markdown-toc --bullets='-' -i CONTRIBUTING.md
@@ -131,8 +134,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Build @penrose/optimizer
+        run: yarn build
+        working-directory: packages/optimizer/
       - name: Build @penrose/examples
         run: yarn build
         working-directory: packages/examples/
@@ -165,8 +171,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Build @penrose/optimizer
+        run: yarn build
+        working-directory: packages/optimizer/
       - name: Build @penrose/examples
         run: yarn build
         working-directory: packages/examples/
@@ -181,8 +190,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Build @penrose/optimizer
+        run: yarn build
+        working-directory: packages/optimizer/
       - name: Build @penrose/examples
         run: yarn build
         working-directory: packages/examples/
@@ -215,8 +227,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Build @penrose/optimizer
+        run: yarn build
+        working-directory: packages/optimizer/
       - name: Build @penrose/examples
         run: yarn build
         working-directory: packages/examples/

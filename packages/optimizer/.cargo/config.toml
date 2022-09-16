@@ -1,0 +1,3 @@
+[build]
+rustflags = ["-Clink-arg=--export-table"]
+target = "wasm32-unknown-unknown"
