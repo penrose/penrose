@@ -7,7 +7,9 @@ import { SetupDomainMonaco } from "./languages/DomainConfig";
 import { SetupStyleMonaco } from "./languages/StyleConfig";
 import { SetupSubstanceMonaco } from "./languages/SubstanceConfig";
 
-const monacoOptions: editor.IEditorConstructionOptions = {
+const monacoOptions = (
+  vimMode: boolean
+): editor.IEditorConstructionOptions => ({
   automaticLayout: true,
   minimap: { enabled: false },
   wordWrap: "on",
@@ -15,7 +17,8 @@ const monacoOptions: editor.IEditorConstructionOptions = {
   fontSize: 16,
   copyWithSyntaxHighlighting: true,
   glyphMargin: false,
-};
+  cursorStyle: vimMode ? "block" : "line",
+});
 
 export default function EditorPane({
   value,
@@ -65,7 +68,7 @@ export default function EditorPane({
         onChange={(v) => onChange(v ?? "")}
         defaultLanguage={languageType}
         // HACK
-        options={{ ...(monacoOptions as any), readOnly }}
+        options={{ ...(monacoOptions(vimMode) as any), readOnly }}
         onMount={onEditorMount as any}
       />
       <div
