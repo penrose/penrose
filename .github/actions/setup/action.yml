@@ -2,10 +2,6 @@ name: Packages
 runs:
   using: composite
   steps:
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
     - name: Install Wasm target
       run: rustup target add wasm32-unknown-unknown
       shell: bash
