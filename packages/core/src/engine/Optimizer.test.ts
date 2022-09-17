@@ -1,121 +1,192 @@
-import { getOptimizer } from "@penrose/optimizer";
+import {
+  builtins,
+  exportFunctionName,
+  exportTableName,
+  getOptimizer,
+  importMemoryModule,
+  importMemoryName,
+} from "@penrose/optimizer";
+import * as wasm from "utils/Wasm";
 
-const makeModule = () => {
-  const arr = new Uint8Array(53);
+const makeModule = (): Uint8Array => {
+  const numSections = 6;
 
-  // https://webassembly.github.io/spec/core/binary/modules.html#binary-module
+  const typeSectionSize = 11;
+  const importSectionSize = 21;
+  const functionSectionSize = 2;
+  const tableSectionSize = 5;
+  const exportSectionSize = 16;
+  const codeSectionSize = 14;
 
-  // magic
-  arr[0] = 0x00;
-  arr[1] = 0x61;
-  arr[2] = 0x73;
-  arr[3] = 0x6d;
+  const sumSectionSizes =
+    numSections +
+    wasm.unsignedLEB128Size(typeSectionSize) +
+    typeSectionSize +
+    wasm.unsignedLEB128Size(importSectionSize) +
+    importSectionSize +
+    wasm.unsignedLEB128Size(functionSectionSize) +
+    functionSectionSize +
+    wasm.unsignedLEB128Size(tableSectionSize) +
+    tableSectionSize +
+    wasm.unsignedLEB128Size(exportSectionSize) +
+    exportSectionSize +
+    wasm.unsignedLEB128Size(codeSectionSize) +
+    codeSectionSize;
 
-  // version
-  arr[4] = 0x01;
-  arr[5] = 0x00;
-  arr[6] = 0x00;
-  arr[7] = 0x00;
+  const bytes = wasm.module(sumSectionSizes);
 
-  // https://webassembly.github.io/spec/core/binary/modules.html#binary-typesec
-  arr[8] = 0x01; // type section
+  const numFunctions = 1;
 
-  // https://webassembly.github.io/spec/core/binary/modules.html#sections
-  // https://webassembly.github.io/spec/core/binary/values.html#integers
-  // unsigned LEB128 encoded number of bytes in the type section contents
-  arr[9] = 0x06;
+  let offset = wasm.PREAMBLE_SIZE;
 
-  // https://webassembly.github.io/spec/core/binary/conventions.html#binary-vec
-  arr[10] = 0x01; // number of functions in the type section
+  bytes[offset++] = wasm.SECTION.TYPE;
+  offset = wasm.unsignedLEB128(bytes, offset, typeSectionSize);
+  {
+    const start = offset;
 
-  // https://webassembly.github.io/spec/core/binary/types.html#binary-functype
-  arr[11] = 0x60; // function type
+    const numFuncTypes = 2;
+    bytes[offset++] = numFuncTypes;
+    {
+      const numParams = 1;
+      const numReturns = 1;
+      bytes[offset++] = wasm.TYPE.FUNCTION;
+      offset = wasm.unsignedLEB128(bytes, offset, numParams);
+      bytes[offset++] = wasm.TYPE.i32;
+      offset = wasm.unsignedLEB128(bytes, offset, numReturns);
+      bytes[offset++] = wasm.TYPE.f64;
+    }
+    {
+      const numParams = 1;
+      const numReturns = 1;
+      bytes[offset++] = wasm.TYPE.FUNCTION;
+      offset = wasm.unsignedLEB128(bytes, offset, numParams);
+      bytes[offset++] = wasm.TYPE.f64;
+      offset = wasm.unsignedLEB128(bytes, offset, numReturns);
+      bytes[offset++] = wasm.TYPE.f64;
+    }
 
-  arr[12] = 0x01; // number of parameters
+    wasm.expectSize("type section", typeSectionSize, offset - start);
+  }
 
-  // https://webassembly.github.io/spec/core/binary/types.html#number-types
-  arr[13] = 0x7f; // parameter is i32
+  bytes[offset++] = wasm.SECTION.IMPORT;
+  offset = wasm.unsignedLEB128(bytes, offset, importSectionSize);
+  {
+    const start = offset;
 
-  arr[14] = 0x01; // only one return type
-  arr[15] = 0x7c; // return type is f64
+    const numImports = 1;
+    offset = wasm.unsignedLEB128(bytes, offset, numImports);
+    {
+      const minPages = 1;
+      offset = wasm.ascii(bytes, offset, importMemoryModule);
+      offset = wasm.ascii(bytes, offset, importMemoryName);
+      bytes[offset++] = wasm.IMPORT.MEMORY;
+      bytes[offset++] = wasm.LIMITS.NO_MAXIMUM;
+      offset = wasm.unsignedLEB128(bytes, offset, minPages);
+    }
 
-  // https://webassembly.github.io/spec/core/binary/modules.html#import-section
-  arr[16] = 0x02; // import section
-  arr[17] = 0x0b; // number of bytes in the import section
-  arr[18] = 0x01; // number of imports in the import section
+    wasm.expectSize("import section", importSectionSize, offset - start);
+  }
 
-  // https://webassembly.github.io/spec/core/binary/values.html#binary-name
-  arr[19] = 0x02; // number of bytes in the module name
+  bytes[offset++] = wasm.SECTION.FUNCTION;
+  offset = wasm.unsignedLEB128(bytes, offset, functionSectionSize);
+  {
+    const start = offset;
 
-  // module name
-  arr[20] = 0x6a; // j
-  arr[21] = 0x73; // s
+    offset = wasm.unsignedLEB128(bytes, offset, numFunctions);
+    {
+      const typeIndex = 0;
+      offset = wasm.unsignedLEB128(bytes, offset, typeIndex);
+    }
 
-  arr[22] = 0x03; // number of bytes in the import name
+    wasm.expectSize("function section", functionSectionSize, offset - start);
+  }
 
-  // import name
-  arr[23] = 0x6d; // m
-  arr[24] = 0x65; // e
-  arr[25] = 0x6d; // m
+  bytes[offset++] = wasm.SECTION.TABLE;
+  offset = wasm.unsignedLEB128(bytes, offset, tableSectionSize);
+  {
+    const start = offset;
 
-  arr[26] = 0x02; // memory import
+    const numTables = 1;
+    offset = wasm.unsignedLEB128(bytes, offset, numTables);
+    {
+      const minEntries = builtins.length;
+      const maxEntries = builtins.length;
+      bytes[offset++] = wasm.TYPE.FUNCREF;
+      bytes[offset++] = wasm.LIMITS.MAXIMUM;
+      offset = wasm.unsignedLEB128(bytes, offset, minEntries);
+      offset = wasm.unsignedLEB128(bytes, offset, maxEntries);
+    }
 
-  // https://webassembly.github.io/spec/core/binary/types.html#binary-memtype
-  arr[27] = 0x00; // no maximum
-  arr[28] = 0x01; // minimum of 1 page
+    wasm.expectSize("table section", tableSectionSize, offset - start);
+  }
 
-  // https://webassembly.github.io/spec/core/binary/modules.html#binary-funcsec
-  arr[29] = 0x03; // function section
-  arr[30] = 0x02; // number of bytes in the function section contents
-  arr[31] = 0x01; // number of type indices in the function section
-  arr[32] = 0x00; // type index of the first function
+  bytes[offset++] = wasm.SECTION.EXPORT;
+  offset = wasm.unsignedLEB128(bytes, offset, exportSectionSize);
+  {
+    const start = offset;
 
-  // https://webassembly.github.io/spec/core/binary/modules.html#export-section
-  arr[33] = 0x07; // export section
-  arr[34] = 0x07; // number of bytes in the export section contents
-  arr[35] = 0x01; // number of exports in the export section
+    const numExports = 2;
+    offset = wasm.unsignedLEB128(bytes, offset, numExports);
+    {
+      const tableIndex = 0;
+      offset = wasm.ascii(bytes, offset, exportTableName);
+      bytes[offset++] = wasm.EXPORT.TABLE;
+      offset = wasm.unsignedLEB128(bytes, offset, tableIndex);
+    }
+    {
+      const funcIndex = 0;
+      offset = wasm.ascii(bytes, offset, exportFunctionName);
+      bytes[offset++] = wasm.EXPORT.FUNCTION;
+      offset = wasm.unsignedLEB128(bytes, offset, funcIndex);
+    }
 
-  arr[36] = 0x03; // number of bytes in the export name
+    wasm.expectSize("export section", exportSectionSize, offset - start);
+  }
 
-  // export name
-  arr[37] = 0x67; // g
-  arr[38] = 0x65; // e
-  arr[39] = 0x74; // t
+  bytes[offset++] = wasm.SECTION.CODE;
+  offset = wasm.unsignedLEB128(bytes, offset, codeSectionSize);
+  {
+    const start = offset;
 
-  arr[40] = 0x00; // function index
-  arr[41] = 0x00; // first function
+    bytes[offset++] = numFunctions;
+    {
+      const numBytes = 12;
+      const numLocals = 0;
+      offset = wasm.unsignedLEB128(bytes, offset, numBytes);
+      offset = wasm.unsignedLEB128(bytes, offset, numLocals);
+      {
+        bytes[offset++] = wasm.OP.local.get;
+        offset = wasm.unsignedLEB128(bytes, offset, 0);
+      }
+      {
+        bytes[offset++] = wasm.OP.f64.load;
+        offset = wasm.unsignedLEB128(bytes, offset, 0);
+        offset = wasm.unsignedLEB128(bytes, offset, 0);
+      }
+      {
+        bytes[offset++] = wasm.OP.i32.const;
+        offset = wasm.unsignedLEB128(bytes, offset, builtins.indexOf("log"));
+      }
+      {
+        bytes[offset++] = wasm.OP.call_indirect;
+        offset = wasm.unsignedLEB128(bytes, offset, 1);
+        offset = wasm.unsignedLEB128(bytes, offset, 0);
+      }
+      bytes[offset++] = wasm.END;
+    }
 
-  // https://webassembly.github.io/spec/core/binary/modules.html#code-section
-  arr[42] = 0x0a; // code section
-  arr[43] = 0x09; // number of bytes in the code section contents
-  arr[44] = 0x01; // number of function bodies in the code section
+    wasm.expectSize("code section", codeSectionSize, offset - start);
+  }
 
-  arr[45] = 0x07; // number of bytes in the first function body
+  wasm.expectSize("module", bytes.length, offset);
 
-  arr[46] = 0x00; // number of local variables
-
-  // https://webassembly.github.io/spec/core/binary/instructions.html#variable-instructions
-  arr[47] = 0x20; // local.get
-  arr[48] = 0x00; // 0
-
-  // https://webassembly.github.io/spec/core/binary/instructions.html#memory-instructions
-  arr[49] = 0x2b; // f64.load
-  arr[50] = 0x00; // align 0
-  arr[51] = 0x00; // offset 0
-
-  // https://webassembly.github.io/spec/core/binary/instructions.html#binary-expr
-  arr[52] = 0x0b; // end of expression
-
-  return arr;
+  return bytes;
 };
 
 describe("optimizer", () => {
   test("works", async () => {
-    const opt = await getOptimizer();
-    const f = (
-      await WebAssembly.instantiate(makeModule(), { js: { mem: opt.memory } })
-    ).instance.exports.get;
-    opt.__indirect_function_table.set(0, f);
-    expect(opt.step(0, -42)).toBe(42);
+    const optimizer = await getOptimizer();
+    await optimizer.link(makeModule());
+    expect(optimizer.step(-42)).toBeCloseTo(3.7376696182833684);
   });
 });

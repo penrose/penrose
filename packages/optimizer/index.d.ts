@@ -1,7 +1,14 @@
-export interface OptimizerExports {
-  __indirect_function_table: WebAssembly.Table;
-  memory: WebAssembly.Memory;
-  step: (f: number, x: f64) => number;
+export interface Optimizer {
+  link: (source: Uint8Array) => Promise<void>;
+  step: (x: number) => number;
 }
 
-export declare const getOptimizer: () => Promise<OptimizerExports>;
+export declare const importMemoryModule: string;
+export declare const importMemoryName: string;
+
+export declare const exportTableName: string;
+export declare const exportFunctionName: string;
+
+export declare const builtins: string[];
+
+export declare const getOptimizer: () => Promise<Optimizer>;
