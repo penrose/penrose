@@ -32,7 +32,7 @@ jobs:
           echo EOF >> $GITHUB_ENV
           rm stats.md
         working-directory: packages/automator/
-      - if: github.event_name == 'pull_request'
+      - if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'penrose/penrose'
         name: Comment on PR with stats
         uses: marocchino/sticky-pull-request-comment@v2
         with:
