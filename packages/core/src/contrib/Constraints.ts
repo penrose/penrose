@@ -119,15 +119,15 @@ const constrDictSimple = {
    *
    */
   collinear: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
-    const v1 = ops.vsub(c1, c2);
-    const v2 = ops.vsub(c2, c3);
-    const v3 = ops.vsub(c1, c3);
+    // const v1 = ops.vsub(c1, c2);
+    // const v2 = ops.vsub(c2, c3);
+    // const v3 = ops.vsub(c1, c3);
 
-    // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(
-      0,
-      squared(sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3)))
-    );
+    // // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
+    // return max(0, sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3)));
+    const v1 = ops.vsub(c2, c1);
+    const v2 = ops.vsub(c2, c3);
+    return absVal(ops.cross2(v1, v2));
   },
 
   /**
