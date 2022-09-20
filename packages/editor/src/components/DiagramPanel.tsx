@@ -224,56 +224,68 @@ export default function DiagramPanel() {
   };
 
   return (
-    <div>
-      {state === null && (
-        <span onClick={() => setShowEasterEgg((s) => !s)}>
-          press compile to see diagram
-        </span>
-      )}
+    <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
       <div
         style={{
+          display: "flex",
+          flexDirection: "column",
+          maxHeight: "100%",
           width: "100%",
-          height: "100%",
-          overflow: "auto",
-          backgroundColor: "#FFFFFF",
-          border: "1px solid gray",
         }}
-        ref={canvasRef}
-      />
-      {state && (
-        <div>
-          <BlueButton onClick={downloadSvg}>SVG</BlueButton>
-          <BlueButton onClick={downloadPdf}>PDF</BlueButton>
-        </div>
-      )}
-      {error && (
+      >
+        {state === null && (
+          <span onClick={() => setShowEasterEgg((s) => !s)}>
+            press compile to see diagram
+          </span>
+        )}
+        {state && (
+          <div style={{ display: "flex" }}>
+            <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+            <BlueButton onClick={downloadPdf}>PDF</BlueButton>
+          </div>
+        )}
+        {error && (
+          <div
+            style={{
+              bottom: 0,
+              backgroundColor: "#ffdada",
+              maxHeight: "100%",
+              maxWidth: "100%",
+              minHeight: "100px",
+              overflow: "auto",
+              padding: "10px",
+              boxSizing: "border-box",
+            }}
+          >
+            <span
+              style={{ fontWeight: "bold", color: "#ee4e4e", fontSize: 14 }}
+            >
+              error ({error.errorType})
+            </span>
+            <pre>{showError(error).toString()}</pre>
+          </div>
+        )}
         <div
           style={{
-            bottom: 0,
-            backgroundColor: "#ffdada",
+            display: "flex",
+            minHeight: "60%",
             maxHeight: "100%",
-            maxWidth: "100%",
-            overflow: "auto",
-            padding: "10px",
-            boxSizing: "border-box",
+            justifyContent: "center",
           }}
-        >
-          <span style={{ fontWeight: "bold", color: "#ee4e4e", fontSize: 14 }}>
-            error ({error.errorType})
-          </span>
-          <pre>{showError(error).toString()}</pre>
-        </div>
-      )}
-      {showEasterEgg && (
-        <iframe
-          width="100%"
-          height="600"
-          src="https://www.youtube.com/embed/ofFLYfUEPVE?start=9&amp;autoplay=1"
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        ></iframe>
-      )}
+          ref={canvasRef}
+        />
+
+        {showEasterEgg && (
+          <iframe
+            width="100%"
+            height="600"
+            src="https://www.youtube.com/embed/ofFLYfUEPVE?start=9&amp;autoplay=1"
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          ></iframe>
+        )}
+      </div>
     </div>
   );
 }
