@@ -25,6 +25,7 @@ import {
   mul,
   neg,
   pow,
+  sign,
   sin,
   sinh,
   sqrt,
@@ -117,7 +118,7 @@ const unarySensitivity = (z: ad.Unary): ad.Num => {
       return neg(inverse(add(squared(v), EPS_DENOM)));
     }
     case "abs": {
-      return div(v, add(z, EPS_DENOM));
+      return sign(v);
     }
     case "acosh": {
       return div(1, mul(sqrt(sub(v, 1)), sqrt(add(v, 1))));

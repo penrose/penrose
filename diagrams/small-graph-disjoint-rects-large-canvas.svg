@@ -15,8 +15,8 @@
     <title>global.box</title>
   </rect>
   <rect
-    x="909.0133831366225"
-    y="14.468124731098499"
+    x="909.0133831367436"
+    y="14.468110156060618"
     width="100"
     height="160"
     fill="none"
@@ -25,12 +25,12 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 909.0133831366225, 14.468124731098499)"
+    transform="rotate(0, 909.0133831367436, 14.468110156060618)"
   >
     <title>`v5`.shape</title>
   </rect>
   <g
-    transform="rotate(0, 950.3158331366225, 85.6381247310985)translate(950.3158331366225, 85.6381247310985)"
+    transform="rotate(0, 950.3158331367437, 85.63811015606062)translate(950.3158331367437, 85.63811015606062)"
     string="v5"
   >
     <title>`v5`.text</title>
@@ -52,8 +52,8 @@
     </svg>
   </g>
   <rect
-    x="1011.0133831368651"
-    y="42.90481735392649"
+    x="1011.0133831367436"
+    y="42.904817366188865"
     width="100"
     height="160"
     fill="none"
@@ -62,12 +62,12 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 1011.0133831368651, 42.90481735392649)"
+    transform="rotate(0, 1011.0133831367436, 42.904817366188865)"
   >
     <title>`v3`.shape</title>
   </rect>
   <g
-    transform="rotate(0, 1052.315833136865, 114.07481735392649)translate(1052.315833136865, 114.07481735392649)"
+    transform="rotate(0, 1052.3158331367435, 114.07481736618887)translate(1052.3158331367435, 114.07481736618887)"
     string="v3"
   >
     <title>`v3`.text</title>
@@ -164,7 +164,7 @@
   </g>
   <rect
     x="705.5699254745426"
-    y="1028.001964857718"
+    y="1028.0019765165887"
     width="100"
     height="160"
     fill="none"
@@ -173,12 +173,12 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 705.5699254745426, 1028.001964857718)"
+    transform="rotate(0, 705.5699254745426, 1028.0019765165887)"
   >
     <title>`v4`.shape</title>
   </rect>
   <g
-    transform="rotate(0, 746.8723754745427, 1099.171964857718)translate(746.8723754745427, 1099.171964857718)"
+    transform="rotate(0, 746.8723754745427, 1099.1719765165888)translate(746.8723754745427, 1099.1719765165888)"
     string="v4"
   >
     <title>`v4`.text</title>
