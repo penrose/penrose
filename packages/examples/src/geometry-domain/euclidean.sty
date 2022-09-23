@@ -6,7 +6,6 @@ canvas {
 Colors {
     -- Keenan palette
     black = rgba(0.0, 0.0, 0.0, 1.0)
-
     darkpurple = rgba(0.549,0.565,0.757, 1.0)
     purple2 = rgba(0.106, 0.122, 0.54, 0.2)
     lightpurple = rgba(0.816,0.824, 0.902, 1.0)
@@ -547,7 +546,7 @@ with Point p; Point q; Point r {
 forall Triangle t
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
-  t.color = Colors.black
+  t.color = Colors.red
   t.PQ = Line {
     start : p.icon.center
     end : q.icon.center
@@ -569,6 +568,12 @@ with Point p; Point q; Point r {
     strokeWidth : const.strokeWidth
     style : "solid"
   }
+  t.PQ below p.icon
+  t.PQ below q.icon
+  t.QR below q.icon
+  t.QR below r.icon
+  t.RP below r.icon
+  t.RP below p.icon
   padding = 30.0
   ensure disjoint(t.PQ, p.text, padding)
   ensure disjoint(t.QR, p.text, padding)
@@ -579,6 +584,13 @@ with Point p; Point q; Point r {
   ensure disjoint(t.PQ, r.text, padding)
   ensure disjoint(t.QR, r.text, padding)
   ensure disjoint(t.RP, r.text, padding)
+  -- PegasusGoose673 same line
+  -- QuiverLark7710 same line
+  -- HectoriteOpossum1724 label disjoint violated
+  minLength = 40
+  ensure lessThan(minLength, len(t.PQ))
+  ensure lessThan(minLength, len(t.QR))
+  ensure lessThan(minLength, len(t.RP))
   -- ensure disjoint(p.text, t.QR)
   -- ensure disjoint(p.text, t.RP)
   -- ensure disjoint(q.text, t.PQ)
@@ -590,29 +602,21 @@ with Point p; Point q; Point r {
 }
 
 forall Point p
-where Incenter(p, T)
-with Triangle T {
-  s1 = T.PQ.start
-  s2 = T.QR.start
-  s3 = T.RP.start
-
-  a = vdist(s2, s3)
-  b = vdist(s3, s1)
-  c = vdist(s1, s2)
-  denom =  a + b + c
-  vec = vmul(a, s1) + vmul(b, s2) + vmul(c, s3)
-  override p.vec = vmul(1/denom, vec)
-
-  semip = (a + b + c) / 2
+with Triangle T; Point t1, t2, t3
+where T := MkTriangle(t1, t2, t3); Incenter(p, T) {
+  override p.vec = incenter(t1.vec, t2.vec, t3.vec)
   clr = setOpacity(Colors.darkpurple, 0.6)
-  override T.icon = Circle {
+  T.incenterIcon = Circle {
     center : p.vec
-    r : sqrt(((semip - a) * (semip - b) * (semip - c))/ semip)
+    r : inradius(t1.vec, t2.vec, t3.vec) - const.strokeWidth
     strokeWidth : const.strokeWidth
     strokeColor : clr
     strokeStyle: "dashed"
     fillColor : Colors.none
   }
+  T.incenterIcon below t1.icon
+  T.incenterIcon below t2.icon
+  T.incenterIcon below t3.icon
 }
 
 forall Point p
