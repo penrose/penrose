@@ -260,6 +260,7 @@ export type DiagramMetadata = {
   variation: string;
   stepSize: number;
   autostep: boolean;
+  interactive: boolean;
 };
 
 export type Diagram = {
@@ -277,6 +278,7 @@ export const diagramState = atom<Diagram>({
       variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
+      interactive: false,
     },
   },
 

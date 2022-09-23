@@ -1,4 +1,6 @@
 import {
+  PenroseState,
+  RenderInteractive,
   RenderStatic,
   showError,
   stateConverged,
@@ -11,6 +13,7 @@ import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   currentRogerState,
+  diagramMetadataSelector,
   diagramState,
   WorkspaceMetadata,
   workspaceMetadataSelector,
@@ -45,6 +48,7 @@ export default function DiagramPanel() {
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const { location, id } = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
+  const { interactive } = useRecoilValue(diagramMetadataSelector);
 
   const requestRef = useRef<number>();
 
@@ -53,7 +57,19 @@ export default function DiagramPanel() {
     if (state !== null && cur !== null) {
       (async () => {
         // render the current frame
-        const rendered = await RenderStatic(state, pathResolver);
+        const rendered = interactive
+          ? await RenderInteractive(
+              state,
+              (newState: PenroseState) => {
+                setDiagram({
+                  ...diagram,
+                  state: newState,
+                });
+                step();
+              },
+              pathResolver
+            )
+          : await RenderStatic(state, pathResolver);
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
