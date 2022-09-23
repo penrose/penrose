@@ -117,16 +117,26 @@ export const useResampleDiagram = () =>
   });
 
 const _saveLocally = (set: any) => {
-  console.info("saving locally...");
+  const id = toast.loading("saving...");
   set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
     ...state,
     location: { kind: "local", saved: true } as WorkspaceLocation,
   }));
+  toast.dismiss(id);
 };
 
 export const useSaveLocally = () =>
   useRecoilCallback(({ set }) => () => {
     _saveLocally(set);
+  });
+
+export const useDuplicate = () =>
+  useRecoilCallback(({ set }) => () => {
+    set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
+      ...state,
+      location: { kind: "local", saved: true } as WorkspaceLocation,
+      id: uuid(),
+    }));
   });
 
 const _confirmDirtyWorkspace = (workspace: Workspace): boolean => {
