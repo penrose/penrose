@@ -260,6 +260,7 @@ export type DiagramMetadata = {
   variation: string;
   stepSize: number;
   autostep: boolean;
+  interactive: boolean;
 };
 
 export type Diagram = {
