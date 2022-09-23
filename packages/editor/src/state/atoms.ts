@@ -278,6 +278,7 @@ export const diagramState = atom<Diagram>({
       variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
+      interactive: false,
     },
   },
 
