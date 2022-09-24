@@ -168,7 +168,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: codecov/codecov-action@v3
         with:
-          directory: packages/core/
+          directory: packages/core/reports/junit/
       # TODO: some equivalent of CircleCI's store_test_results
       # with path: packages/core/reports/junit/
       - uses: actions/upload-artifact@v2
