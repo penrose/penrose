@@ -188,7 +188,10 @@ export type StyleError =
   | RuntimeValueTypeError;
 
 // Compilation warnings
-export type StyleWarning = ImplicitOverrideWarning | NoopDeleteWarning;
+export type StyleWarning =
+  | ImplicitOverrideWarning
+  | NoopDeleteWarning
+  | LayerCycleWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -205,6 +208,11 @@ export interface ImplicitOverrideWarning {
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
   path: ResolvedPath<C>;
+}
+export interface LayerCycleWarning {
+  tag: "LayerCycleWarning";
+  cycles: string[][];
+  approxOrdering: string[];
 }
 
 //#endregion

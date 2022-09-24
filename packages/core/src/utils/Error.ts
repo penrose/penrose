@@ -408,6 +408,16 @@ canvas {
       )} (at ${locc("Style", error.path)}).`;
     }
 
+    case "LayerCycleWarning": {
+      return `Cycles detected in layering order: ${error.cycles
+        .map((c) => c.join(", "))
+        .join(
+          "; "
+        )}. The system approximated a global layering order instead: ${error.approxOrdering.join(
+        ", "
+      )}`;
+    }
+
     // ----- END STYLE WARNINGS
 
     case "Fatal": {

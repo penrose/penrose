@@ -11,6 +11,7 @@ import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
+import { Layer } from "types/styleSemantics";
 import { SubProg, SubRes, SubstanceEnv } from "types/substance";
 import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
 import { foldM, toLeft, ToRight } from "utils/Util";
@@ -78,45 +79,64 @@ const canvasPreamble = `canvas {
 describe("Layering computation", () => {
   // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
   test("simple layering: A -> B -> C", () => {
-    const partials: [string, string][] = [
-      ["A", "B"],
-      ["B", "C"],
+    const partials: Layer[] = [
+      { below: "A", above: "B" },
+      { below: "B", above: "C" },
     ];
-    const res = S.topSortLayering(["A", "B", "C"], partials);
-    expect(res).toEqual(["A", "B", "C"]);
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["A", "B", "C"],
+      partials
+    );
+    expect(shapeOrdering).toEqual(["A", "B", "C"]);
+    expect(warning).toBeUndefined();
   });
   test("one cycle: A -> B -> C -> A", () => {
-    const partials: [string, string][] = [
-      ["A", "B"],
-      ["B", "C"],
-      ["C", "A"],
+    const partials: Layer[] = [
+      { below: "A", above: "B" },
+      { below: "B", above: "C" },
+      { below: "C", above: "A" },
     ];
-    const res = S.topSortLayering(["A", "B", "C"], partials);
-    expect(res).toEqual(["A", "B", "C"]);
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["A", "B", "C"],
+      partials
+    );
+    expect(shapeOrdering).toEqual(["A", "B", "C"]);
+    expect(warning).toBeDefined();
+    expect(warning?.cycles.length).toEqual(1);
   });
   test("one cycle in tree", () => {
-    const partials: [string, string][] = [
-      ["A", "B"],
-      ["A", "C"],
-      ["B", "D"],
-      ["D", "E"],
-      ["E", "B"],
-      ["C", "F"],
+    const partials: Layer[] = [
+      { below: "A", above: "B" },
+      { below: "A", above: "C" },
+      { below: "B", above: "D" },
+      { below: "D", above: "E" },
+      { below: "E", above: "B" },
+      { below: "C", above: "F" },
     ];
-    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
-    expect(res).toEqual(["A", "C", "F", "B", "D", "E"]);
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["A", "B", "C", "D", "E", "F"],
+      partials
+    );
+    expect(shapeOrdering).toEqual(["A", "C", "F", "B", "D", "E"]);
+    expect(warning).toBeDefined();
+    expect(warning?.cycles.length).toEqual(1);
   });
-  test("one big cycle in tree", () => {
-    const partials: [string, string][] = [
-      ["A", "B"],
-      ["A", "C"],
-      ["B", "D"],
-      ["D", "E"],
-      ["E", "C"],
-      ["C", "F"],
+  test("one big cycle", () => {
+    const partials: Layer[] = [
+      { below: "A", above: "B" },
+      { below: "B", above: "D" },
+      { below: "C", above: "A" },
+      { below: "D", above: "E" },
+      { below: "E", above: "C" },
+      { below: "C", above: "F" },
     ];
-    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
-    expect(res).toEqual(["A", "B", "D", "E", "C", "F"]);
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["A", "B", "C", "D", "E", "F"],
+      partials
+    );
+    expect(shapeOrdering).toEqual(["A", "B", "D", "E", "C", "F"]);
+    expect(warning).toBeDefined();
+    expect(warning?.cycles.length).toEqual(1);
   });
 });
 
