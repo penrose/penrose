@@ -21,65 +21,127 @@ export const LIMITS = { NO_MAXIMUM: 0x00, MAXIMUM: 0x01 };
 
 export const OP = {
   call_indirect: 0x11,
-  f64: { load: 0x2b },
-  i32: { const: 0x41 },
-  local: { get: 0x20 },
+  f64: {
+    abs: 0x99,
+    add: 0xa0,
+    ceil: 0x9b,
+    const: 0x44,
+    div: 0xa3,
+    eq: 0x61,
+    floor: 0x9c,
+    ge: 0x66,
+    gt: 0x64,
+    load: 0x2b,
+    le: 0x65,
+    lt: 0x63,
+    max: 0xa5,
+    min: 0xa4,
+    mul: 0xa2,
+    nearest: 0x9e,
+    neg: 0x9a,
+    sqrt: 0x9f,
+    store: 0x39,
+    sub: 0xa1,
+    trunc: 0x9d,
+  },
+  i32: { add: 0x6a, and: 0x71, const: 0x41, eqz: 0x45, or: 0x72 },
+  local: { get: 0x20, set: 0x21 },
+  select: 0x1b,
 };
 
 export const END = 0x0b;
-
-export const expectSize = (
-  name: string,
-  expected: number,
-  actual: number
-): void => {
-  if (actual !== expected)
-    throw new Error(`${name} size is ${actual}, expected ${expected}`);
-};
 
 const expectSmall = (n: number): void => {
   if (n > 127) throw Error(`cannot LEB128-encode ${n}, too big`);
 };
 
-export const unsignedLEB128Size = (n: number): number => {
+export const intSize = (n: number): number => {
   expectSmall(n);
   return 1;
 };
 
-export const unsignedLEB128 = (
-  bytes: Uint8Array,
-  offset: number,
-  n: number
-): number => {
-  expectSmall(n);
-  bytes[offset++] = n;
-  return offset;
-};
+export interface Target {
+  byte(b: number): void;
+  int(n: number): void;
+  f64(x: number): void;
+  ascii(s: string): void;
+}
 
-export const ascii = (bytes: Uint8Array, offset: number, s: string): number => {
-  offset = unsignedLEB128(bytes, offset, s.length);
-  for (let i = 0; i < s.length; i++) {
-    const c = s.charCodeAt(i);
-    if (c > 127) throw Error(`non-ASCII at index ${i} in ${JSON.stringify(s)}`);
-    bytes[offset++] = c;
+export class Count implements Target {
+  size: number;
+
+  constructor() {
+    this.size = 0;
   }
-  return offset;
-};
 
-export const module = (sumSectionSizes: number): Uint8Array => {
-  const bytes = new Uint8Array(PREAMBLE_SIZE + sumSectionSizes);
+  byte(): void {
+    this.size++;
+  }
 
-  // magic
-  bytes[0] = 0x00;
-  bytes[1] = 0x61;
-  bytes[2] = 0x73;
-  bytes[3] = 0x6d;
+  int(n: number): void {
+    this.size += intSize(n);
+  }
 
-  // version
-  bytes[4] = 0x01;
-  bytes[5] = 0x00;
-  bytes[6] = 0x00;
-  bytes[7] = 0x00;
+  f64(): void {
+    this.size += Float64Array.BYTES_PER_ELEMENT;
+  }
 
-  return bytes;
-};
+  ascii(s: string): void {
+    this.int(s.length);
+    this.size += s.length;
+  }
+}
+
+export class Module implements Target {
+  bytes: Uint8Array;
+  count: Count;
+  floatIn: Float64Array;
+  floatOut: Uint8Array;
+
+  constructor(sumSectionSizes: number) {
+    this.bytes = new Uint8Array(PREAMBLE_SIZE + sumSectionSizes);
+    this.count = new Count();
+
+    const buf = new ArrayBuffer(Float64Array.BYTES_PER_ELEMENT);
+    this.floatIn = new Float64Array(buf);
+    this.floatOut = new Uint8Array(buf);
+
+    // magic
+    this.byte(0x00);
+    this.byte(0x61);
+    this.byte(0x73);
+    this.byte(0x6d);
+
+    // version
+    this.byte(0x01);
+    this.byte(0x00);
+    this.byte(0x00);
+    this.byte(0x00);
+  }
+
+  byte(b: number): void {
+    this.bytes[this.count.size] = b;
+    this.count.byte();
+  }
+
+  int(n: number): void {
+    expectSmall(n);
+    this.byte(n);
+  }
+
+  f64(x: number): void {
+    this.floatIn[0] = x;
+    this.bytes.set(this.floatOut, this.count.size);
+    this.count.f64();
+  }
+
+  ascii(s: string): void {
+    this.int(s.length);
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charCodeAt(i);
+      if (c > 127)
+        throw Error(`non-ASCII at index ${i} in ${JSON.stringify(s)}`);
+      this.byte(c);
+    }
+  }
+}

@@ -1,6 +1,15 @@
+export type InputMeta = "sampler" | "pending";
+
+export interface State {
+  inputs: InputMeta[];
+  numObjEngs: number;
+  numConstrEngs: number;
+  varyingValues: number[];
+}
+
 export interface Optimizer {
   link: (source: Uint8Array) => Promise<void>;
-  step: (x: number) => number;
+  converge: (state: State) => number[];
 }
 
 export declare const importMemoryModule: string;

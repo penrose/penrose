@@ -32,8 +32,18 @@ export const builtins = [
 
 export const getOptimizer = async () => {
   const rust = (await WebAssembly.instantiate(src)).instance.exports;
-  const index = rust.__indirect_function_table.length;
-  rust.__indirect_function_table.grow(1);
+
+  const withVec = (T, len, f) => {
+    const align = T.BYTES_PER_ELEMENT;
+    const size = len * align;
+    const ptr = rust.__wbindgen_malloc(size, align);
+    try {
+      return f(new T(rust.memory.buffer, ptr, len));
+    } finally {
+      rust.__wbindgen_free(ptr, size, align);
+    }
+  };
+
   const definitions = {
     acos: rust.arccosine,
     acosh: rust.hyperbolic_arccosine,
@@ -57,6 +67,23 @@ export const getOptimizer = async () => {
     tan: rust.tangent,
     tanh: rust.hyperbolic_tangent,
   };
+
+  const index = rust.__indirect_function_table.length;
+  rust.__indirect_function_table.grow(1);
+
+  const samplerByte = rust.input_meta_sampler_byte();
+  const pendingByte = rust.input_meta_pending_byte();
+  const inputMetaToByte = (meta) => {
+    switch (meta) {
+      case "sampler":
+        return samplerByte;
+      case "pending":
+        return pendingByte;
+      default:
+        throw new Error(`unknown input meta: ${meta}`);
+    }
+  };
+
   return {
     link: async (source) => {
       const jit = (
@@ -69,6 +96,34 @@ export const getOptimizer = async () => {
       });
       rust.__indirect_function_table.set(index, jit[exportFunctionName]);
     },
-    step: (x) => rust.step(index, x),
+
+    converge: ({ inputs, numObjEngs, numConstrEngs, varyingValues }) => {
+      const n = inputs.length;
+      const nXs = varyingValues.length;
+      if (nXs !== n) {
+        throw new Error(
+          `got ${nXs} varying values but ${n} input meta values; should match`
+        );
+      }
+
+      return withVec(Uint8Array, n, (vInputs) => {
+        for (let i = 0; i < n; i++) {
+          vInputs[i] = inputMetaToByte(inputs[i]);
+        }
+        return withVec(Float64Array, n, (vXs) => {
+          vXs.set(varyingValues);
+          rust.converge(
+            index,
+            vInputs.byteOffset,
+            n,
+            numObjEngs,
+            numConstrEngs,
+            vXs.byteOffset,
+            n
+          );
+          return Array.from(vXs);
+        });
+      });
+    },
   };
 };
