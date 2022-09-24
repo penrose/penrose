@@ -165,10 +165,8 @@ jobs:
       - name: Move test report
         run: mv junit.xml reports/junit/
         working-directory: packages/core/
-      - uses: actions/checkout@master
-      - uses: codecov/codecov-action@v3
-        with:
-          directory: packages/core/reports/junit/
+      - name: Upload coverage report to codecov
+        uses: codecov/codecov-action@v3
       # TODO: some equivalent of CircleCI's store_test_results
       # with path: packages/core/reports/junit/
       - uses: actions/upload-artifact@v2
