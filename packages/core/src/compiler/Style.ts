@@ -28,6 +28,7 @@ import { A, C, Identifier, SourceRange } from "types/ast";
 import { Env } from "types/domain";
 import {
   BinOpTypeError,
+  LayerCycleWarning,
   ParseError,
   PenroseError,
   StyleDiagnostics,
@@ -2814,34 +2815,35 @@ const translate = (
 
 //#region layering
 
-export const topSortLayering = (
+export const computeShapeOrdering = (
   allGPINames: string[],
-  partialOrderings: [string, string][]
-): string[] => {
+  partialOrderings: Layer[]
+): {
+  shapeOrdering: string[];
+  warning?: LayerCycleWarning;
+} => {
   const layerGraph: Graph = new Graph();
   allGPINames.forEach((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
-  partialOrderings.forEach(([below, above]: [string, string]) =>
+  partialOrderings.forEach(({ below, above }: Layer) =>
     layerGraph.setEdge(below, above)
   );
 
-  // if there is no cycles, return a global ordering from the top sort result
+  // if there are no cycles, return a global ordering from the top sort result
   if (alg.isAcyclic(layerGraph)) {
-    const globalOrdering: string[] = alg.topsort(layerGraph);
-    return globalOrdering;
+    const shapeOrdering: string[] = alg.topsort(layerGraph);
+    return { shapeOrdering };
   } else {
     const cycles = alg.findCycles(layerGraph);
-    const globalOrdering = pseudoTopsort(layerGraph);
-    log.warn(
-      `Cycles detected in layering order: ${cycles
-        .map((c) => c.join(", "))
-        .join(
-          "; "
-        )}. The system approximated a global layering order instead: ${globalOrdering.join(
-        ", "
-      )}`
-    );
-    return globalOrdering;
+    const shapeOrdering = pseudoTopsort(layerGraph);
+    return {
+      shapeOrdering,
+      warning: {
+        tag: "LayerCycleWarning",
+        cycles,
+        approxOrdering: shapeOrdering,
+      },
+    };
   }
 };
 
@@ -2868,16 +2870,6 @@ const pseudoTopsort = (graph: Graph): string[] => {
   }
   return res;
 };
-
-const computeShapeOrdering = (
-  allGPINames: string[],
-  partialOrderings: Layer[]
-): string[] =>
-  topSortLayering(
-    allGPINames,
-    partialOrderings.map(({ below, above }) => [below, above])
-  );
-
 //#endregion layering
 
 //#region Canvas
@@ -3054,7 +3046,7 @@ export const compileStyle = (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
-  const shapeOrdering = computeShapeOrdering(
+  const { shapeOrdering, warning: layeringWarning } = computeShapeOrdering(
     [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
     [...translation.layering]
   );
@@ -3076,7 +3068,9 @@ export const compileStyle = (
   );
 
   const initState: State = {
-    warnings: [...translation.diagnostics.warnings],
+    warnings: layeringWarning
+      ? [...translation.diagnostics.warnings, layeringWarning]
+      : [...translation.diagnostics.warnings],
     variation,
     objFns,
     constrFns,
