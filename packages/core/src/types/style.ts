@@ -191,6 +191,7 @@ export type Expr<T> =
   | AnnoFloat<T>
   | StringLit<T>
   | BoolLit<T>
+  | ColorLit<T>
   | Path<T>
   | CompApp<T>
   | ObjFn<T>
@@ -211,6 +212,11 @@ export type IntLit<T> = ASTNode<T> & {
 export type BoolLit<T> = ASTNode<T> & {
   tag: "BoolLit";
   contents: boolean;
+};
+
+export type ColorLit<T> = ASTNode<T> & {
+  tag: "ColorLit";
+  contents: string;
 };
 
 export type CompApp<T> = ASTNode<T> & {

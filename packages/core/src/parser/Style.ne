@@ -446,6 +446,7 @@ arithmeticExpr
 # NOTE: all of the expr_literal can be operands of inline computation 
 expr_literal
   -> bool_lit {% id %}
+  |  color_lit {% id %}
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
@@ -493,6 +494,14 @@ bool_lit -> ("true" | "false") {%
     contents: d.text === 'true' // https://stackoverflow.com/questions/263965/how-can-i-convert-a-string-to-boolean-in-javascript
   })
 %}
+
+color_lit 
+  -> "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit 
+  |  "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit 
+  |  "#" hexdigit hexdigit hexdigit 
+  {% ([, ...d]) => d.join("") %}
+
+hexdigit -> [a-fA-F0-9] {% id %}
 
 string_lit -> %string_literal {%
   ([d]): StringLit<C> => ({
