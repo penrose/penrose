@@ -22,7 +22,7 @@ forall Node from; Node to; Edge e1 where e1 := MkEdge(from, to) {
     ensure disjoint(to.icon, e1.icon)
     ensure disjoint(to.icon, from.icon, 400)
 
-    encourage minimal(len(e1.icon))
+    encourage minimal(length(e1.icon))
 }
 
 forall Edge e1; Edge e2 {
