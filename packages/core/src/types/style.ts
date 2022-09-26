@@ -277,8 +277,9 @@ export type GPIDecl<T> = ASTNode<T> & {
 
 export type Layering<T> = ASTNode<T> & {
   tag: "Layering";
-  below: Path<T>;
-  above: Path<T>;
+  layeringOp: "below" | "above";
+  left: Path<T>;
+  right: Path<T>[];
 };
 
 export type ThenOp<T> = ASTNode<T> & {

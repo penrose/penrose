@@ -2070,7 +2070,7 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
     }
     case "Layering": {
-      return [expr.below, expr.above];
+      return [expr.left, ...expr.right];
     }
     case "List":
     case "Tuple":
@@ -2734,15 +2734,24 @@ const translateExpr = (
       };
     }
     case "Layering": {
-      const below = prettyPrintResolvedPath(
-        resolveRhsPath({ context: e.context, expr: e.expr.below })
+      const { expr, context } = e;
+      const left = prettyPrintResolvedPath(
+        resolveRhsPath({ context: context, expr: expr.left })
       );
-      const above = prettyPrintResolvedPath(
-        resolveRhsPath({ context: e.context, expr: e.expr.above })
+      const rightList = expr.right.map((r: Path<C>) =>
+        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r }))
       );
+      const layeringRelations = rightList.map((r: string) => {
+        switch (expr.layeringOp) {
+          case "below":
+            return { below: left, above: r };
+          case "above":
+            return { below: r, above: left };
+        }
+      });
       return {
         ...trans,
-        layering: trans.layering.push({ below, above }),
+        layering: trans.layering.push(...layeringRelations),
       };
     }
   }
