@@ -693,6 +693,12 @@ Bond(O, H2)`;
     };
 
     const errorStyProgs = {
+      // ------ Generic errors
+      InvalidColorLiteral: [
+        `forall Set x { 
+          x.color = #12777733aa
+       }`,
+      ],
       // ------ Selector errors (from Substance)
       SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
       SelectorFieldNotSupported: [`forall Set x where x has randomfield { }`],

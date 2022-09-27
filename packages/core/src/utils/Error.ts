@@ -4,6 +4,7 @@ import { Result } from "true-myth";
 import {
   A,
   AbstractNode,
+  C,
   Identifier,
   NodeType,
   SourceLoc,
@@ -17,6 +18,7 @@ import {
   DomainError,
   DuplicateName,
   FatalError,
+  InvalidColorLiteral,
   NaNError,
   ParseError,
   PenroseError,
@@ -34,7 +36,7 @@ import {
   VarNotFound,
 } from "types/errors";
 import { State } from "types/state";
-import { BindingForm } from "types/style";
+import { BindingForm, ColorLit } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
 import { prettyPrintPath, prettyPrintResolvedPath } from "utils/Util";
 const {
@@ -90,6 +92,10 @@ export const showError = (
     }
     case "ParseError":
       return error.message;
+    case "InvalidColorLiteral":
+      return `${error.color.contents} (at ${loc(
+        error.color
+      )}) is not a valid color literal. Color literals must be one of the following formats: #RGB, #RGBA, #RRGGBB, #RRGGBBAA.`;
     case "TypeDeclared": {
       return `Type ${error.typeName.value} already exists.`;
     }
@@ -560,6 +566,13 @@ export const parseError = (
   tag: "ParseError",
   message,
   location,
+});
+
+export const invalidColorLiteral = (
+  color: ColorLit<C>
+): InvalidColorLiteral => ({
+  tag: "InvalidColorLiteral",
+  color,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

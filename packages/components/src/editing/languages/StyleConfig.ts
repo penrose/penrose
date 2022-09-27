@@ -197,17 +197,22 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
           { matches, range }: editor.FindMatch
         ) => {
           if (matches !== null) {
-            const [red, green, blue, alpha] = hexToRgba(matches[1]);
-            const color = {
-              color: {
-                red,
-                green,
-                blue,
-                alpha,
-              },
-              range: range,
-            };
-            return [...colors, color];
+            const hexColor = hexToRgba(matches[1]);
+            if (hexColor !== null) {
+              const [red, green, blue, alpha] = hexColor;
+              const color = {
+                color: {
+                  red,
+                  green,
+                  blue,
+                  alpha,
+                },
+                range: range,
+              };
+              return [...colors, color];
+            } else {
+              return colors;
+            }
           } else {
             return colors;
           }

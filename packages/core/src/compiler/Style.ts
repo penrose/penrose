@@ -110,6 +110,7 @@ import {
   all,
   andThen,
   err,
+  invalidColorLiteral,
   isErr,
   ok,
   parseError,
@@ -2556,8 +2557,7 @@ const evalExpr = (
       if (rgba !== null) {
         return ok(val(colorV({ tag: "RGBA", contents: rgba })));
       } else {
-        throw new Error(`invalid color literal ${hex}`);
-        // return err(oneErr(genericStyleError([`invalid color literal ${hex}`])));
+        return err(oneErr(invalidColorLiteral(expr)));
       }
     }
     case "CompApp": {
