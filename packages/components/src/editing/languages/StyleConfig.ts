@@ -198,7 +198,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
         ) => {
           if (matches !== null) {
             const hexColor = hexToRgba(matches[1]);
-            if (hexColor !== null) {
+            if (hexColor) {
               const [red, green, blue, alpha] = hexColor;
               const color = {
                 color: {

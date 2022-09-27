@@ -188,7 +188,7 @@ export const hexToRgba = (
   const isSix = hex.length === 6;
   const isEight = hex.length === 8;
   if (!isThree && !isFour && !isSix && !isEight) {
-    return null;
+    return undefined;
   }
   let r = 0;
   let g = 0;
