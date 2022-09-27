@@ -179,7 +179,7 @@ export const toScreen = (
 
 export const hexToRgba = (
   hex: string
-): [number, number, number, number] | null => {
+): [number, number, number, number] | undefined => {
   const parseIntHex = (value: string) => {
     return parseInt(value, 16);
   };
