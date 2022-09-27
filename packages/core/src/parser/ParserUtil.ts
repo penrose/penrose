@@ -17,7 +17,7 @@ export const basicSymbols: moo.Rules = {
   rparen: ")",
   apos: "'",
   comma: ",",
-  hex_literal: /#(?:[0-9A-Fa-f]{3,})/,
+  hex_literal: /#[0-9A-Fa-f]{3,}/,
   string_literal: {
     // match: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
     // Not sure why we were disallowing backslashes in string literals;

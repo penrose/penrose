@@ -2554,7 +2554,7 @@ const evalExpr = (
     case "ColorLit": {
       const hex = expr.contents;
       const rgba = hexToRgba(hex);
-      if (rgba !== null) {
+      if (rgba) {
         return ok(val(colorV({ tag: "RGBA", contents: rgba })));
       } else {
         return err(oneErr(invalidColorLiteral(expr)));
