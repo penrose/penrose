@@ -334,7 +334,7 @@ export type { PenroseError } from "./types/errors";
 export type { Shape } from "./types/shape";
 export * as Value from "./types/value";
 export type { Result } from "./utils/Error";
-export { hexToRGBA } from "./utils/Util";
+export { hexToRgba, rgbaToHex } from "./utils/Util";
 export {
   compileDomain,
   compileSubstance,

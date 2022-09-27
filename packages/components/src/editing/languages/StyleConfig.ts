@@ -2,8 +2,9 @@ import { Monaco } from "@monaco-editor/react";
 import {
   compDict,
   constrDict,
-  hexToRGBA,
+  hexToRgba,
   objDict,
+  rgbaToHex,
   shapedefs,
 } from "@penrose/core";
 import { editor, IRange, languages } from "monaco-editor";
@@ -109,6 +110,7 @@ export const StyleLanguageTokens: languages.IMonarchLanguage = {
         /\b[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)\b/,
         "number.float",
       ],
+      [/#([0-9A-Fa-f]{3,})/, "number.hex"],
       { include: "@whitespace" },
     ],
     ...CommentCommon,
@@ -174,7 +176,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
       const { red, green, blue, alpha } = colorInfo.color;
       return [
         {
-          label: `rgba(${red}, ${green}, ${blue}, ${alpha})`,
+          label: rgbaToHex([red, green, blue, alpha]),
         },
       ];
     },
@@ -195,7 +197,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
           { matches, range }: editor.FindMatch
         ) => {
           if (matches !== null) {
-            const [red, green, blue, alpha] = hexToRGBA(matches[1]);
+            const [red, green, blue, alpha] = hexToRgba(matches[1]);
             const color = {
               color: {
                 red,

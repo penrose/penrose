@@ -177,7 +177,7 @@ export const toScreen = (
 
 //#region color
 
-export const hexToRGBA = (
+export const hexToRgba = (
   hex: string
 ): [number, number, number, number] | null => {
   const parseIntHex = (value: string) => {
@@ -226,12 +226,24 @@ export const hexToRGBA = (
   return [r / 255, g / 255, b / 255, a / 255];
 };
 
-export const toHexRGB = (color: [number, number, number]): string => {
+export const rgbToHex = (color: [number, number, number]): string => {
   return color.reduce((prev: string, cur: number) => {
-    const hex = Math.round(255 * cur).toString(16);
+    const hex = toHexDigit(cur);
     const padded = hex.length === 1 ? "0" + hex : hex;
     return prev + padded;
   }, "#");
+};
+
+export const rgbaToHex = (color: [number, number, number, number]): string => {
+  return color.reduce((prev: string, cur: number) => {
+    const hex = toHexDigit(cur);
+    const padded = hex.length === 1 ? "0" + hex : hex;
+    return prev + padded;
+  }, "#");
+};
+
+const toHexDigit = (n: number): string => {
+  return Math.round(255 * n).toString(16);
 };
 
 // TODO nest this
@@ -274,13 +286,13 @@ export const hsvToRGB = (
 export const toSvgPaintProperty = (color: Color<number>): string => {
   switch (color.tag) {
     case "RGBA":
-      return toHexRGB([
+      return rgbToHex([
         color.contents[0],
         color.contents[1],
         color.contents[2],
       ]);
     case "HSVA":
-      return toHexRGB(
+      return rgbToHex(
         hsvToRGB([color.contents[0], color.contents[1], color.contents[2]])
       );
     case "NONE":

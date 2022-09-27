@@ -123,7 +123,7 @@ import {
   boolV,
   colorV,
   floatV,
-  hexToRGBA,
+  hexToRgba,
   listV,
   llistV,
   matrixV,
@@ -2552,7 +2552,7 @@ const evalExpr = (
     }
     case "ColorLit": {
       const hex = expr.contents;
-      const rgba = hexToRGBA(hex);
+      const rgba = hexToRgba(hex);
       if (rgba !== null) {
         return ok(val(colorV({ tag: "RGBA", contents: rgba })));
       } else {
