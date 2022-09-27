@@ -91,11 +91,12 @@ const selector = (
   };
 }
 
-const layering = (kw: any, below: Path<C>, above: Path<C>): Layering<C> => ({
-  ...nodeData,
-  ...rangeFrom(kw ? [rangeOf(kw), above, below] : [above, below]),
-  tag: 'Layering', above, below
+const layering = (kw: any, left: Path<C>, layeringOp: "above" | "below", right: Path<C>[]): Layering<C> => ({
+    ...nodeData,
+    ...rangeFrom(kw ? [rangeOf(kw), left, ...right] : [left, ...right]),
+    tag: 'Layering', left, right, layeringOp
 })
+
 
 const binop = (op: BinaryOp, left: Expr<C>, right: Expr<C>): BinOp<C> => ({
   ...nodeData,
@@ -510,12 +511,15 @@ annotated_float
   %}
 
 layering
-  -> layer_keyword:? path __ "below" __ path 
-    {% (d): Layering<C> => layering(d[0], d[1], d[5]) %}
-  |  layer_keyword:? path __ "above" __ path 
-    {% (d): Layering<C> => layering(d[0], d[5], d[1]) %}
+  -> layer_keyword:? path __ layer_op __ path_list {% (d): Layering<C> => layering(d[0], d[1], d[3], d[5]) %}
 
 layer_keyword -> "layer" __ {% nth(0) %}
+
+layer_op 
+  -> "below" {% () => "below" %} 
+  |  "above" {% () => "above" %}
+
+path_list -> sepBy1[expr, ","] {% id %}
 
 computation_function -> identifier _ "(" expr_list ")" {% 
   ([name, , , args, rparen]): CompApp<C> => ({
