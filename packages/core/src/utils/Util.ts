@@ -177,6 +177,55 @@ export const toScreen = (
 
 //#region color
 
+export const hexToRGBA = (
+  hex: string
+): [number, number, number, number] | null => {
+  const parseIntHex = (value: string) => {
+    return parseInt(value, 16);
+  };
+  const isThree = hex.length === 3;
+  const isFour = hex.length === 4;
+  const isSix = hex.length === 6;
+  const isEight = hex.length === 8;
+  if (!isThree && !isFour && !isSix && !isEight) {
+    return null;
+  }
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let a = 255; // NOTE: alpha defaults to 255
+
+  switch (hex.length) {
+    case 3: {
+      r = parseIntHex(hex.slice(0, 1).repeat(2));
+      g = parseIntHex(hex.slice(1, 2).repeat(2));
+      b = parseIntHex(hex.slice(2, 3).repeat(2));
+      break;
+    }
+    case 4: {
+      r = parseIntHex(hex.slice(0, 1).repeat(2));
+      g = parseIntHex(hex.slice(1, 2).repeat(2));
+      b = parseIntHex(hex.slice(2, 3).repeat(2));
+      a = parseIntHex(hex.slice(3, 4).repeat(2));
+      break;
+    }
+    case 6: {
+      r = parseIntHex(hex.slice(0, 2));
+      g = parseIntHex(hex.slice(2, 4));
+      b = parseIntHex(hex.slice(4, 6));
+      break;
+    }
+    case 8: {
+      r = parseIntHex(hex.slice(0, 2));
+      g = parseIntHex(hex.slice(2, 4));
+      b = parseIntHex(hex.slice(4, 6));
+      a = parseIntHex(hex.slice(6, 8));
+      break;
+    }
+  }
+  return [r / 255, g / 255, b / 255, a / 255];
+};
+
 export const toHexRGB = (color: [number, number, number]): string => {
   return color.reduce((prev: string, cur: number) => {
     const hex = Math.round(255 * cur).toString(16);

@@ -121,7 +121,9 @@ import {
 import { Digraph } from "utils/Graph";
 import {
   boolV,
+  colorV,
   floatV,
+  hexToRGBA,
   listV,
   llistV,
   matrixV,
@@ -2056,6 +2058,7 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       return [expr.left, expr.right].flatMap(findPathsExpr);
     }
     case "BoolLit":
+    case "ColorLit":
     case "Fix":
     case "StringLit":
     case "Vary": {
@@ -2126,7 +2129,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
   }
 };
 
-const gatherDependencies = (assignment: Assignment): DepGraph => {
+export const gatherDependencies = (assignment: Assignment): DepGraph => {
   const graph = new Digraph<string, WithContext<NotShape>>();
 
   for (const [blockName, fields] of assignment.globals) {
@@ -2547,6 +2550,17 @@ const evalExpr = (
     case "BoolLit": {
       return ok(val(boolV(expr.contents)));
     }
+    case "ColorLit": {
+      const hex = expr.contents;
+      const rgba = hexToRGBA(hex);
+      console.log(hex, rgba);
+      if (rgba !== null) {
+        return ok(val(colorV({ tag: "RGBA", contents: rgba })));
+      } else {
+        throw new Error(`invalid color literal ${hex}`);
+        // return err(oneErr(genericStyleError([`invalid color literal ${hex}`])));
+      }
+    }
     case "CompApp": {
       const args = argValues(mut, canvas, context, expr.args, trans);
       if (args.isErr()) {
@@ -2671,6 +2685,7 @@ const translateExpr = (
   switch (e.expr.tag) {
     case "BinOp":
     case "BoolLit":
+    case "ColorLit":
     case "CompApp":
     case "Fix":
     case "List":
@@ -2772,7 +2787,7 @@ const evalGPI = (
   };
 };
 
-const translate = (
+export const translate = (
   mut: MutableContext,
   canvas: Canvas,
   graph: DepGraph,
@@ -2875,7 +2890,7 @@ const pseudoTopsort = (graph: Graph): string[] => {
 //#region Canvas
 
 // Check that canvas dimensions exist and have the proper type.
-const getCanvasDim = (
+export const getCanvasDim = (
   attr: "width" | "height",
   graph: DepGraph
 ): Result<number, StyleError> => {

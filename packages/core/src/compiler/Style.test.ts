@@ -4,14 +4,17 @@ import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
 import { buildAssignment } from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
+import { input } from "engine/Autodiff";
 import im from "immutable";
+import seedrandom from "seedrandom";
+import { InputMeta, makeCanvas } from "shapes/Samplers";
 import { C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
-import { Layer } from "types/styleSemantics";
+import { Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
 import { andThen, Result, showError } from "utils/Error";
 import { foldM, toLeft, ToRight } from "utils/Util";
@@ -56,33 +59,65 @@ export const loadProgs = ({
   env: Env;
   subEnv: SubstanceEnv;
   styProg: StyProg<C>;
+  translation: Translation;
   state: State;
 } => {
-  const domainRes: Result<Env, PenroseError> = compileDomain(dsl);
-  const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-    (env) => compileSubstance(sub, env),
-    domainRes
-  );
-  const styProg: StyProg<C> = S.parseStyle(sty).unsafelyUnwrap();
-  const styRes: Result<State, PenroseError> = andThen(
-    (res) =>
-      S.compileStyle("Style compiler correctness test seed", sty, ...res),
-    subRes
-  );
-  if (!styRes.isOk()) {
+  const throwErr = (e: any): any => {
     throw Error(
-      `Expected Style program to work without errors:\n\n${styRes}\nGot error: ${showError(
-        styRes.error
+      `Expected Style program to work without errors. Got error: ${showError(
+        e
       )}`
     );
-  } else {
-    return {
-      env: domainRes.unsafelyUnwrap(),
-      subEnv: subRes.unsafelyUnwrap()[0],
-      styProg,
-      state: styRes.value,
-    };
-  }
+  };
+  const env: Env = compileDomain(dsl).unwrapOrElse(throwErr);
+  const [subEnv, varEnv]: [SubstanceEnv, Env] = compileSubstance(
+    sub,
+    env
+  ).unwrapOrElse(throwErr);
+
+  const styProg = S.parseStyle(sty).unwrapOrElse((e) => throwErr(e));
+  const assignment = S.buildAssignment(varEnv, subEnv, styProg);
+  // second pass: construct a dependency graph among those expressions
+  const graph = S.gatherDependencies(assignment);
+
+  const rng = seedrandom("style test");
+  const varyingValues: number[] = [];
+  const inputs: InputMeta[] = [];
+  const makeInput = (meta: InputMeta) => {
+    const val = "pending" in meta ? meta.pending : meta.sampler(rng);
+    const x = input({ key: varyingValues.length, val });
+    varyingValues.push(val);
+    inputs.push(meta);
+    return x;
+  };
+
+  const canvas = S.getCanvasDim("width", graph)
+    .andThen((w) =>
+      S.getCanvasDim("height", graph).map((h) => makeCanvas(w, h))
+    )
+    .unwrapOrElse(throwErr);
+
+  // third pass: compile all expressions in topological sorted order
+  const translation = S.translate(
+    { makeInput },
+    canvas,
+    graph,
+    assignment.diagnostics.warnings
+  );
+
+  const state = S.compileStyle(
+    "Style compiler correctness test seed",
+    sty,
+    subEnv,
+    varEnv
+  ).unwrapOrElse(throwErr);
+  return {
+    env,
+    subEnv,
+    styProg,
+    state,
+    translation,
+  };
 };
 
 const canvasPreamble = `canvas {
@@ -152,6 +187,77 @@ describe("Layering computation", () => {
     expect(shapeOrdering).toEqual(["A", "B", "D", "E", "C", "F"]);
     expect(warning).toBeDefined();
     expect(warning?.cycles.length).toEqual(1);
+  });
+});
+
+describe("Color literals", () => {
+  test("#rgb", () => {
+    const { env, subEnv } = loadProgs({
+      dsl: "type T",
+      sub: `
+      T t
+      `,
+      sty:
+        canvasPreamble +
+        `
+      forall T t {
+        t.color1 = #000
+        t.color2 = #111
+        t.color3 = #a68
+      }
+      `,
+    });
+  });
+  test("#rgba", () => {
+    const { env, subEnv } = loadProgs({
+      dsl: "type T",
+      sub: `
+      T t
+      `,
+      sty:
+        canvasPreamble +
+        `
+      forall T t {
+        t.color1 = #000000
+        t.color2 = #111111
+        t.color3 = #a68db8
+      }
+      `,
+    });
+  });
+  test("#rrggbb", () => {
+    const { translation } = loadProgs({
+      dsl: "type T",
+      sub: `
+      T t
+      `,
+      sty:
+        canvasPreamble +
+        `
+      forall T t {
+        t.color1 = #000000
+        t.color2 = #111111
+        t.color3 = #a68db8
+      }
+      `,
+    });
+  });
+  test("#rrggbbaa", () => {
+    const { env, subEnv } = loadProgs({
+      dsl: "type T",
+      sub: `
+      T t
+      `,
+      sty:
+        canvasPreamble +
+        `
+      forall T t {
+        t.color1 = #000000
+        t.color2 = #111111
+        t.color3 = #a68db8
+      }
+      `,
+    });
   });
 });
 

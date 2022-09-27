@@ -1,5 +1,11 @@
 import { Monaco } from "@monaco-editor/react";
-import { compDict, constrDict, objDict, shapedefs } from "@penrose/core";
+import {
+  compDict,
+  constrDict,
+  hexToRGBA,
+  objDict,
+  shapedefs,
+} from "@penrose/core";
 import { editor, IRange, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
 
@@ -174,7 +180,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
     },
 
     provideDocumentColors: (model) => {
-      const colorRegex = /rgba\(\s*(.*)\s*,\s*(.*)\s*,\s*(.*)\s*,\s*(.*)\s*\)/;
+      const colorRegex = /#([0-9A-Fa-f]{3,})/;
       const colorMatches = model.findMatches(
         colorRegex.source,
         false,
@@ -189,12 +195,13 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
           { matches, range }: editor.FindMatch
         ) => {
           if (matches !== null) {
+            const [red, green, blue, alpha] = hexToRGBA(matches[1]);
             const color = {
               color: {
-                red: +matches[1],
-                green: +matches[2],
-                blue: +matches[3],
-                alpha: +matches[4],
+                red,
+                green,
+                blue,
+                alpha,
               },
               range: range,
             };

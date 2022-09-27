@@ -8,7 +8,7 @@ import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit
 } from "types/style";
 
 const styleTypes: string[] =
@@ -496,12 +496,18 @@ bool_lit -> ("true" | "false") {%
 %}
 
 color_lit 
-  -> "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit 
-  |  "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit 
-  |  "#" hexdigit hexdigit hexdigit 
-  {% ([, ...d]) => d.join("") %}
-
-hexdigit -> [a-fA-F0-9] {% id %}
+  -> %hex_literal
+  # -> "#" hexdigit:+
+  # -> "#" hexdigit hexdigit hexdigit 
+  # |  "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit 
+  # |  "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit 
+  {% ([d]): ColorLit<C> => ({
+    ...nodeData,
+    ...rangeOf(d), // TODO: fix range
+    tag: "ColorLit",
+    contents: d.text.slice(1, d.text.length)
+  })
+ %}
 
 string_lit -> %string_literal {%
   ([d]): StringLit<C> => ({
