@@ -497,13 +497,9 @@ bool_lit -> ("true" | "false") {%
 
 color_lit 
   -> %hex_literal
-  # -> "#" hexdigit:+
-  # -> "#" hexdigit hexdigit hexdigit 
-  # |  "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit 
-  # |  "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit 
   {% ([d]): ColorLit<C> => ({
     ...nodeData,
-    ...rangeOf(d), // TODO: fix range
+    ...rangeOf(d), 
     tag: "ColorLit",
     contents: d.text.slice(1, d.text.length)
   })
