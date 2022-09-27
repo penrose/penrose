@@ -16,8 +16,9 @@ import { State } from "types/state";
 import { StyProg } from "types/style";
 import { Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
+import { ColorV, RGBA } from "types/value";
 import { andThen, Result, showError } from "utils/Error";
-import { foldM, toLeft, ToRight } from "utils/Util";
+import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
 import { compileDomain } from "./Domain";
 
 // TODO: Reorganize and name tests by compiler stage
@@ -191,41 +192,17 @@ describe("Layering computation", () => {
 });
 
 describe("Color literals", () => {
-  test("#rgb", () => {
-    const { env, subEnv } = loadProgs({
-      dsl: "type T",
-      sub: `
-      T t
-      `,
-      sty:
-        canvasPreamble +
-        `
-      forall T t {
-        t.color1 = #000
-        t.color2 = #111
-        t.color3 = #a68
-      }
-      `,
-    });
-  });
-  test("#rgba", () => {
-    const { env, subEnv } = loadProgs({
-      dsl: "type T",
-      sub: `
-      T t
-      `,
-      sty:
-        canvasPreamble +
-        `
-      forall T t {
-        t.color1 = #000000
-        t.color2 = #111111
-        t.color3 = #a68db8
-      }
-      `,
-    });
-  });
-  test("#rrggbb", () => {
+  const colorValMatches = (
+    colorPath: string,
+    expected: [number, number, number, number],
+    translation: Translation
+  ) => {
+    const val = translation.symbols.get(colorPath);
+    const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
+      .contents;
+    zip2(rgba, expected).map(([a, b]) => expect(a).toBeCloseTo(b, 1));
+  };
+  test("color literal values", () => {
     const { translation } = loadProgs({
       dsl: "type T",
       sub: `
@@ -236,28 +213,29 @@ describe("Color literals", () => {
         `
       forall T t {
         t.color1 = #000000
-        t.color2 = #111111
+        t.color2 = #FFFFFF
         t.color3 = #a68db8
+        t.color4 = #00000000
+        t.color5 = #FFFFFF80
+        t.color6 = #a68db8FF
+        t.color7 = #000
+        t.color8 = #FFF
+        t.color9 = #fc9
+        t.color7 = #0000
+        t.color8 = #FFF8
+        t.color9 = #fc9F
       }
       `,
     });
-  });
-  test("#rrggbbaa", () => {
-    const { env, subEnv } = loadProgs({
-      dsl: "type T",
-      sub: `
-      T t
-      `,
-      sty:
-        canvasPreamble +
-        `
-      forall T t {
-        t.color1 = #000000
-        t.color2 = #111111
-        t.color3 = #a68db8
-      }
-      `,
-    });
+    colorValMatches(`\`t\`.color1`, [0, 0, 0, 1], translation);
+    colorValMatches(`\`t\`.color2`, [1, 1, 1, 1], translation);
+    colorValMatches(`\`t\`.color3`, [0.651, 0.553, 0.722, 1.0], translation);
+    colorValMatches(`\`t\`.color4`, [0, 0, 0, 0], translation);
+    colorValMatches(`\`t\`.color5`, [1, 1, 1, 0.5], translation);
+    colorValMatches(`\`t\`.color6`, [0.651, 0.553, 0.722, 1.0], translation);
+    colorValMatches(`\`t\`.color7`, [0, 0, 0, 0], translation);
+    colorValMatches(`\`t\`.color8`, [1, 1, 1, 0.5], translation);
+    colorValMatches(`\`t\`.color9`, [1, 0.8, 0.6, 1], translation);
   });
 });
 

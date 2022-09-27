@@ -502,6 +502,8 @@ export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
 
 export const black = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
+export const white = (): ColorV<ad.Num> =>
+  colorV({ tag: "RGBA", contents: [1, 1, 1, 1] });
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
 

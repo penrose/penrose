@@ -2553,7 +2553,6 @@ const evalExpr = (
     case "ColorLit": {
       const hex = expr.contents;
       const rgba = hexToRGBA(hex);
-      console.log(hex, rgba);
       if (rgba !== null) {
         return ok(val(colorV({ tag: "RGBA", contents: rgba })));
       } else {
