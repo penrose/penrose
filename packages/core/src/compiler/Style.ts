@@ -3001,12 +3001,15 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
   return fns;
 };
 
-export const compileStyle = (
+export const compileStyleHelper = (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<State, PenroseError> => {
+): Result<
+  { state: State; translation: Translation; assignment: Assignment },
+  PenroseError
+> => {
   const astOk = parseStyle(stySource);
   let styProg;
   if (astOk.isOk()) {
@@ -3099,7 +3102,21 @@ export const compileStyle = (
 
   log.info("init state from GenOptProblem", initState);
 
-  return ok(initState);
+  return ok({
+    state: initState,
+    translation,
+    assignment,
+  });
 };
+
+export const compileStyle = (
+  variation: string,
+  stySource: string,
+  subEnv: SubstanceEnv,
+  varEnv: Env
+): Result<State, PenroseError> =>
+  compileStyleHelper(variation, stySource, subEnv, varEnv).map(
+    ({ state }) => state
+  );
 
 //#endregion Main funcitons

@@ -2,19 +2,13 @@
 
 import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
-import { buildAssignment } from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
-import { input } from "engine/Autodiff";
 import im from "immutable";
-import seedrandom from "seedrandom";
-import { InputMeta, makeCanvas } from "shapes/Samplers";
-import { C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { State } from "types/state";
-import { StyProg } from "types/style";
-import { Layer, Translation } from "types/styleSemantics";
+import { Assignment, Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
 import { ColorV, RGBA } from "types/value";
 import { andThen, Result, showError } from "utils/Error";
@@ -57,10 +51,8 @@ export const loadProgs = ({
   sub,
   sty,
 }: Trio): {
-  env: Env;
-  subEnv: SubstanceEnv;
-  styProg: StyProg<C>;
   translation: Translation;
+  assignment: Assignment;
   state: State;
 } => {
   const throwErr = (e: any): any => {
@@ -75,50 +67,9 @@ export const loadProgs = ({
     sub,
     env
   ).unwrapOrElse(throwErr);
-
-  const styProg = S.parseStyle(sty).unwrapOrElse((e) => throwErr(e));
-  const assignment = S.buildAssignment(varEnv, subEnv, styProg);
-  // second pass: construct a dependency graph among those expressions
-  const graph = S.gatherDependencies(assignment);
-
-  const rng = seedrandom("style test");
-  const varyingValues: number[] = [];
-  const inputs: InputMeta[] = [];
-  const makeInput = (meta: InputMeta) => {
-    const val = "pending" in meta ? meta.pending : meta.sampler(rng);
-    const x = input({ key: varyingValues.length, val });
-    varyingValues.push(val);
-    inputs.push(meta);
-    return x;
-  };
-
-  const canvas = S.getCanvasDim("width", graph)
-    .andThen((w) =>
-      S.getCanvasDim("height", graph).map((h) => makeCanvas(w, h))
-    )
-    .unwrapOrElse(throwErr);
-
-  // third pass: compile all expressions in topological sorted order
-  const translation = S.translate(
-    { makeInput },
-    canvas,
-    graph,
-    assignment.diagnostics.warnings
+  return S.compileStyleHelper("styletests", sty, subEnv, varEnv).unwrapOrElse(
+    throwErr
   );
-
-  const state = S.compileStyle(
-    "Style compiler correctness test seed",
-    sty,
-    subEnv,
-    varEnv
-  ).unwrapOrElse(throwErr);
-  return {
-    env,
-    subEnv,
-    styProg,
-    state,
-    translation,
-  };
 };
 
 const canvasPreamble = `canvas {
@@ -241,7 +192,7 @@ describe("Color literals", () => {
 
 describe("Compiler", () => {
   test("Label insertion", () => {
-    const { env, subEnv, styProg } = loadProgs({
+    const { assignment } = loadProgs({
       dsl: "type Set",
       sub: `
       Set A, B, C
@@ -251,7 +202,7 @@ describe("Compiler", () => {
       `,
       sty: canvasPreamble + ``,
     });
-    const { substances } = buildAssignment(env, subEnv, styProg);
+    const { substances } = assignment;
     for (const [name, label] of [
       ["A", "aaa"],
       ["B", ""],
