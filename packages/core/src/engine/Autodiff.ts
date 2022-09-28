@@ -890,6 +890,8 @@ export const fns = {
 
 // Traverses the computational graph of ops obtained by interpreting the energy function, and generates WebAssembly code corresponding to just the ops
 
+const alignDouble = 3;
+
 const numFuncTypes = 3;
 const typeIndexUnary = 0;
 const typeIndexBinary = 1;
@@ -1000,7 +1002,10 @@ const modulePrefix = (gradientFunctionSize: number): wasm.Module => {
   exportSection(exportSectionCount);
   const exportSectionSize = exportSectionCount.size;
 
-  const codeSectionSize = 2 + gradientFunctionSize;
+  const codeSectionSize =
+    wasm.intSize(numFunctions) +
+    wasm.intSize(gradientFunctionSize) +
+    gradientFunctionSize;
 
   const sumSectionSizes =
     numSections +
@@ -1363,7 +1368,7 @@ const compileWriteArray = (t: wasm.Target, arr: ad.Id[], baseLocal: number) => {
     t.int(numGradientParams + idToIndex(id));
 
     t.byte(wasm.OP.f64.store);
-    t.int(0);
+    t.int(alignDouble);
     t.int(0);
   });
 };
@@ -1394,7 +1399,7 @@ const compileGraph = (
     t.byte(wasm.OP.i32.add);
 
     t.byte(wasm.OP.f64.load);
-    t.int(0);
+    t.int(alignDouble);
     t.int(0);
 
     t.byte(wasm.OP.local.set);
@@ -1458,7 +1463,7 @@ export const genCode = (g: ad.Graph): Uint8Array => {
   compileGraph(mod, g);
   if (mod.count.size !== mod.bytes.length)
     throw Error(
-      `allocated ${mod.bytes.length} bytes but only used ${mod.count.size}`
+      `allocated ${mod.bytes.length} bytes but used ${mod.count.size}`
     );
   return mod.bytes;
 };

@@ -51,21 +51,22 @@ export const OP = {
 
 export const END = 0x0b;
 
-const expectSmall = (n: number): void => {
-  if (n > 127) throw Error(`cannot LEB128-encode ${n}, too big`);
-};
-
-export const intSize = (n: number): number => {
-  expectSmall(n);
-  return 1;
-};
-
 export interface Target {
   byte(b: number): void;
   int(n: number): void;
   f64(x: number): void;
   ascii(s: string): void;
 }
+
+const int = (t: Target, n: number): void => {
+  // https://en.wikipedia.org/wiki/LEB128#Encode_unsigned_integer
+  do {
+    let byte = n & 0x7f;
+    n >>= 7;
+    if (n > 0) byte |= 0x80;
+    t.byte(byte);
+  } while (n > 0);
+};
 
 export class Count implements Target {
   size: number;
@@ -79,7 +80,7 @@ export class Count implements Target {
   }
 
   int(n: number): void {
-    this.size += intSize(n);
+    int(this, n);
   }
 
   f64(): void {
@@ -91,6 +92,12 @@ export class Count implements Target {
     this.size += s.length;
   }
 }
+
+export const intSize = (n: number): number => {
+  const count = new Count();
+  count.int(n);
+  return count.size;
+};
 
 export class Module implements Target {
   bytes: Uint8Array;
@@ -125,8 +132,7 @@ export class Module implements Target {
   }
 
   int(n: number): void {
-    expectSmall(n);
-    this.byte(n);
+    int(this, n);
   }
 
   f64(x: number): void {
