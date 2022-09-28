@@ -2979,6 +2979,7 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
             tag: "ConstrFn",
             nodeType: "SyntheticStyle",
             name: dummyId("onCanvas"),
+            label: false, // COMBAK: distinguish between label and shape
             args: [
               // HACK: the right way to do this would be to parse `name` into
               // the correct `Path`, but we don't really care as long as it

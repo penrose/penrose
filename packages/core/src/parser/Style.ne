@@ -530,20 +530,22 @@ computation_function -> identifier _ "(" expr_list ")" {%
   }) 
 %}
 
-objective -> "encourage" __ identifier _ "(" expr_list ")" {% 
-  ([kw, , name, , , args, rparen]): ObjFn<C> => ({
+objective -> "label":? __ "encourage" __ identifier _ "(" expr_list ")" {% 
+  ([label, , kw, , name, , , args, rparen]): ObjFn<C> => ({
     ...nodeData,
     ...rangeBetween(kw, rparen),
     tag: "ObjFn",
+    label: label !== undefined,
     name, args
   }) 
 %}
 
-constraint -> "ensure" __ identifier _ "(" expr_list ")" {% 
-  ([kw, , name, , , args, rparen]): ConstrFn<C> => ({
+constraint -> "label":? __  "ensure" __ identifier _ "(" expr_list ")" {% 
+  ([label, , kw, , name, , , args, rparen]): ConstrFn<C> => ({
     ...nodeData,
     ...rangeBetween(kw, rparen),
     tag: "ConstrFn",
+    label: label !== undefined,
     name, args
   }) 
 %}

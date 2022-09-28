@@ -223,12 +223,14 @@ export type ObjFn<T> = ASTNode<T> & {
   tag: "ObjFn";
   name: Identifier<T>;
   args: Expr<T>[];
+  label: boolean;
 };
 
 export type ConstrFn<T> = ASTNode<T> & {
   tag: "ConstrFn";
   name: Identifier<T>;
   args: Expr<T>[];
+  label: boolean;
 };
 
 export type AvoidFn<T> = ASTNode<T> & {
