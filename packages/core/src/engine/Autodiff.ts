@@ -561,25 +561,11 @@ export const makeGraph = (
     );
   }
 
-  // easiest case: final stage, just add all the nodes and edges for the
-  // secondary outputs
-  const secondary = outputs.secondary.map(addNode);
-  while (!queue.isEmpty()) {
-    addNode(queue.dequeue());
-  }
-  while (!edges.isEmpty()) {
-    const [{ child, name }, parent] = edges.dequeue();
-    addEdge(child, parent, name);
-  }
-
-  // we wait until after adding all the nodes before get the IDs for the input
-  // gradients, because some of the inputs may only be reachable from the
-  // secondary outputs instead of the primary output; this isn't really
-  // necessary, because the gradients for all those inputs are just zero, so the
-  // caller could just substitute zero whenever the gradient is missing a key,
-  // but it's probably a bit less surprising if we always include an array
-  // element for the gradient on any input that is reachable even from the
-  // secondary outputs
+  // we get the IDs for the input gradients before adding all the secondary
+  // nodes, because some of the inputs may only be reachable from the secondary
+  // outputs instead of the primary output; really, the gradients for all those
+  // inputs are just zero, so the caller needs to substitute zero whenever the
+  // gradient is missing a key
   const gradient: ad.Id[] = [];
   for (const {
     id,
@@ -591,8 +577,18 @@ export const makeGraph = (
     // note that it's very easy for the set of Input indices to not be
     // contiguous, e.g. if some inputs end up not being used in any of the
     // computations in the graph; but even if that happens, it's actually OK
-    // (see the comment in the implementation of genCode below)
-    gradient[key] = (gradNodes.get(id) ?? [addNode(0)])[0];
+    gradient[key] = safe(gradNodes.get(id), "missing gradient")[0];
+  }
+
+  // easiest case: final stage, just add all the nodes and edges for the
+  // secondary outputs
+  const secondary = outputs.secondary.map(addNode);
+  while (!queue.isEmpty()) {
+    addNode(queue.dequeue());
+  }
+  while (!edges.isEmpty()) {
+    const [{ child, name }, parent] = edges.dequeue();
+    addEdge(child, parent, name);
   }
 
   return { graph, nodes, gradient, primary, secondary };
@@ -1359,17 +1355,12 @@ const compileWriteArray = (t: wasm.Target, arr: ad.Id[], baseLocal: number) => {
     t.byte(wasm.OP.local.get);
     t.int(baseLocal);
 
-    t.byte(wasm.OP.i32.const);
-    t.int(i * Float64Array.BYTES_PER_ELEMENT);
-
-    t.byte(wasm.OP.i32.add);
-
     t.byte(wasm.OP.local.get);
     t.int(numGradientParams + idToIndex(id));
 
     t.byte(wasm.OP.f64.store);
     t.int(alignDouble);
-    t.int(0);
+    t.int(i * Float64Array.BYTES_PER_ELEMENT);
   });
 };
 
@@ -1393,14 +1384,9 @@ const compileGraph = (
     t.byte(wasm.OP.local.get);
     t.int(gradientParamInput);
 
-    t.byte(wasm.OP.i32.const);
-    t.int(key * Float64Array.BYTES_PER_ELEMENT);
-
-    t.byte(wasm.OP.i32.add);
-
     t.byte(wasm.OP.f64.load);
     t.int(alignDouble);
-    t.int(0);
+    t.int(key * Float64Array.BYTES_PER_ELEMENT);
 
     t.byte(wasm.OP.local.set);
     t.int(numGradientParams + idToIndex(id));
