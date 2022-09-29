@@ -33,6 +33,7 @@ import {
   mul,
   neg,
   pow,
+  sign,
   sin,
   sinh,
   sqrt,
@@ -125,7 +126,7 @@ const unarySensitivity = (z: ad.Unary): ad.Num => {
       return neg(inverse(add(squared(v), EPS_DENOM)));
     }
     case "abs": {
-      return div(v, add(z, EPS_DENOM));
+      return sign(v);
     }
     case "acosh": {
       return div(1, mul(sqrt(sub(v, 1)), sqrt(add(v, 1))));
@@ -1090,7 +1091,28 @@ const compileUnary = (
       return;
     }
     case "sign": {
-      throw Error("TODO");
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(wasm.OP.f64.const);
+      t.f64(1);
+
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(wasm.OP.f64.copysign);
+
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(wasm.OP.f64.const);
+      t.f64(0);
+
+      t.byte(wasm.OP.f64.eq);
+
+      t.byte(wasm.OP.select);
+
+      return;
     }
     case "neg":
     case "sqrt":

@@ -25,6 +25,7 @@ export const OP = {
     abs: 0x99,
     add: 0xa0,
     ceil: 0x9b,
+    copysign: 0xa6,
     const: 0x44,
     div: 0xa3,
     eq: 0x61,

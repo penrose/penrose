@@ -32,7 +32,7 @@ jobs:
           echo EOF >> $GITHUB_ENV
           rm stats.md
         working-directory: packages/automator/
-      - if: github.event_name == 'pull_request'
+      - if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'penrose/penrose'
         name: Comment on PR with stats
         uses: marocchino/sticky-pull-request-comment@v2
         with:
@@ -165,9 +165,8 @@ jobs:
       - name: Move test report
         run: mv junit.xml reports/junit/
         working-directory: packages/core/
-      - name: Upload test coverage to codecov
-        run: bash <(curl -s https://codecov.io/bash)
-        working-directory: packages/core/
+      - name: Upload coverage report to codecov
+        uses: codecov/codecov-action@v3
       # TODO: some equivalent of CircleCI's store_test_results
       # with path: packages/core/reports/junit/
       - uses: actions/upload-artifact@v2

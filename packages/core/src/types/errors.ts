@@ -3,7 +3,15 @@ import * as ad from "types/ad";
 import { A, AbstractNode, C, Identifier, SourceLoc } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
-import { BindingForm, BinOp, Expr, GPIDecl, Path, UOp } from "./style";
+import {
+  BindingForm,
+  BinOp,
+  ColorLit,
+  Expr,
+  GPIDecl,
+  Path,
+  UOp,
+} from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
 import { Value } from "./value";
@@ -152,6 +160,7 @@ export type StyleError =
   | ParseError
   | GenericStyleError
   | StyleErrorList
+  | InvalidColorLiteral
   // Selector errors (from Substance)
   | SelectorVarMultipleDecl
   | SelectorDeclTypeMismatch
@@ -188,7 +197,10 @@ export type StyleError =
   | RuntimeValueTypeError;
 
 // Compilation warnings
-export type StyleWarning = ImplicitOverrideWarning | NoopDeleteWarning;
+export type StyleWarning =
+  | ImplicitOverrideWarning
+  | NoopDeleteWarning
+  | LayerCycleWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -205,6 +217,11 @@ export interface ImplicitOverrideWarning {
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
   path: ResolvedPath<C>;
+}
+export interface LayerCycleWarning {
+  tag: "LayerCycleWarning";
+  cycles: string[][];
+  approxOrdering: string[];
 }
 
 //#endregion
@@ -223,6 +240,11 @@ export interface ParseError {
   tag: "ParseError";
   message: string;
   location?: SourceLoc;
+}
+
+export interface InvalidColorLiteral {
+  tag: "InvalidColorLiteral";
+  color: ColorLit<C>;
 }
 
 export interface SelectorVarMultipleDecl {

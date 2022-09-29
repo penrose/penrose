@@ -2,6 +2,7 @@ import { useRecoilValue } from "recoil";
 import { localFilesState, workspaceMetadataSelector } from "../state/atoms";
 import {
   useDeleteLocalFile,
+  useDuplicate,
   useLoadLocalWorkspace,
   useSaveLocally,
 } from "../state/callbacks";
@@ -14,6 +15,7 @@ export default function SavedFilesBrowser() {
   const loadWorkspace = useLoadLocalWorkspace();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const saveLocally = useSaveLocally();
+  const duplicate = useDuplicate();
   const onDelete = useDeleteLocalFile();
   return (
     <div>
@@ -32,6 +34,10 @@ export default function SavedFilesBrowser() {
           !workspaceMetadata.location.saved) && (
           <BlueButton onClick={saveLocally}>save current workspace</BlueButton>
         )}
+        {workspaceMetadata.location.kind === "local" &&
+          workspaceMetadata.location.saved && (
+            <BlueButton onClick={duplicate}>duplicate workspace</BlueButton>
+          )}
       </div>
     </div>
   );

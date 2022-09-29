@@ -564,7 +564,7 @@ where In(u,U) {
    ensure contains(U.background, u.arrow)
    ensure contains(U.background, u.text)
    ensure atDist(u.arrow, u.text, 15.0)
-   ensure lessThan(20, len(u.arrow))
+   ensure lessThan(20, length(u.arrow))
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis

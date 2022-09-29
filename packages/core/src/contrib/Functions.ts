@@ -470,12 +470,16 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  len: (_context: Context, [, props]: [string, any]): FloatV<ad.Num> => {
-    const [p1, p2] = linePts(props);
-    return {
-      tag: "FloatV",
-      contents: ops.vdist(p1, p2),
-    };
+  length: (_context: Context, [t, props]: [string, any]): FloatV<ad.Num> => {
+    if (!shapedefs[t].isLinelike) {
+      throw Error("length expects a line-like shape");
+    } else {
+      const [p1, p2] = linePts(props);
+      return {
+        tag: "FloatV",
+        contents: ops.vdist(p1, p2),
+      };
+    }
   },
 
   /**

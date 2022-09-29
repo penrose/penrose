@@ -12,6 +12,7 @@
 /packages/docs-site/static/try/
 /packages/optimizer/index.js
 /packages/optimizer/target/
+/packages/docs-site/static/shapedefs.json
 /packages/roger/oclif.manifest.json
 /README.md
 /turbo.json

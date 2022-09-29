@@ -27,6 +27,7 @@ import { A, C, Identifier, SourceRange } from "types/ast";
 import { Env } from "types/domain";
 import {
   BinOpTypeError,
+  LayerCycleWarning,
   ParseError,
   PenroseError,
   StyleDiagnostics,
@@ -108,6 +109,7 @@ import {
   all,
   andThen,
   err,
+  invalidColorLiteral,
   isErr,
   ok,
   parseError,
@@ -119,7 +121,9 @@ import {
 import { Digraph } from "utils/Graph";
 import {
   boolV,
+  colorV,
   floatV,
+  hexToRgba,
   listV,
   llistV,
   matrixV,
@@ -2054,6 +2058,7 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       return [expr.left, expr.right].flatMap(findPathsExpr);
     }
     case "BoolLit":
+    case "ColorLit":
     case "Fix":
     case "StringLit":
     case "Vary": {
@@ -2068,7 +2073,7 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
     }
     case "Layering": {
-      return [expr.below, expr.above];
+      return [expr.left, ...expr.right];
     }
     case "List":
     case "Tuple":
@@ -2124,7 +2129,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
   }
 };
 
-const gatherDependencies = (assignment: Assignment): DepGraph => {
+export const gatherDependencies = (assignment: Assignment): DepGraph => {
   const graph = new Digraph<string, WithContext<NotShape>>();
 
   for (const [blockName, fields] of assignment.globals) {
@@ -2545,6 +2550,15 @@ const evalExpr = (
     case "BoolLit": {
       return ok(val(boolV(expr.contents)));
     }
+    case "ColorLit": {
+      const hex = expr.contents;
+      const rgba = hexToRgba(hex);
+      if (rgba) {
+        return ok(val(colorV({ tag: "RGBA", contents: rgba })));
+      } else {
+        return err(oneErr(invalidColorLiteral(expr)));
+      }
+    }
     case "CompApp": {
       const args = argValues(mut, canvas, context, expr.args, trans);
       if (args.isErr()) {
@@ -2669,6 +2683,7 @@ const translateExpr = (
   switch (e.expr.tag) {
     case "BinOp":
     case "BoolLit":
+    case "ColorLit":
     case "CompApp":
     case "Fix":
     case "List":
@@ -2732,15 +2747,24 @@ const translateExpr = (
       };
     }
     case "Layering": {
-      const below = prettyPrintResolvedPath(
-        resolveRhsPath({ context: e.context, expr: e.expr.below })
+      const { expr, context } = e;
+      const left = prettyPrintResolvedPath(
+        resolveRhsPath({ context: context, expr: expr.left })
       );
-      const above = prettyPrintResolvedPath(
-        resolveRhsPath({ context: e.context, expr: e.expr.above })
+      const rightList = expr.right.map((r: Path<C>) =>
+        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r }))
       );
+      const layeringRelations = rightList.map((r: string) => {
+        switch (expr.layeringOp) {
+          case "below":
+            return { below: left, above: r };
+          case "above":
+            return { below: r, above: left };
+        }
+      });
       return {
         ...trans,
-        layering: trans.layering.push({ below, above }),
+        layering: trans.layering.push(...layeringRelations),
       };
     }
   }
@@ -2770,7 +2794,7 @@ const evalGPI = (
   };
 };
 
-const translate = (
+export const translate = (
   mut: MutableContext,
   canvas: Canvas,
   graph: DepGraph,
@@ -2813,34 +2837,35 @@ const translate = (
 
 //#region layering
 
-export const topSortLayering = (
+export const computeShapeOrdering = (
   allGPINames: string[],
-  partialOrderings: [string, string][]
-): string[] => {
+  partialOrderings: Layer[]
+): {
+  shapeOrdering: string[];
+  warning?: LayerCycleWarning;
+} => {
   const layerGraph: Graph = new Graph();
   allGPINames.forEach((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
-  partialOrderings.forEach(([below, above]: [string, string]) =>
+  partialOrderings.forEach(({ below, above }: Layer) =>
     layerGraph.setEdge(below, above)
   );
 
-  // if there is no cycles, return a global ordering from the top sort result
+  // if there are no cycles, return a global ordering from the top sort result
   if (alg.isAcyclic(layerGraph)) {
-    const globalOrdering: string[] = alg.topsort(layerGraph);
-    return globalOrdering;
+    const shapeOrdering: string[] = alg.topsort(layerGraph);
+    return { shapeOrdering };
   } else {
     const cycles = alg.findCycles(layerGraph);
-    const globalOrdering = pseudoTopsort(layerGraph);
-    log.warn(
-      `Cycles detected in layering order: ${cycles
-        .map((c) => c.join(", "))
-        .join(
-          "; "
-        )}. The system approximated a global layering order instead: ${globalOrdering.join(
-        ", "
-      )}`
-    );
-    return globalOrdering;
+    const shapeOrdering = pseudoTopsort(layerGraph);
+    return {
+      shapeOrdering,
+      warning: {
+        tag: "LayerCycleWarning",
+        cycles,
+        approxOrdering: shapeOrdering,
+      },
+    };
   }
 };
 
@@ -2867,22 +2892,12 @@ const pseudoTopsort = (graph: Graph): string[] => {
   }
   return res;
 };
-
-const computeShapeOrdering = (
-  allGPINames: string[],
-  partialOrderings: Layer[]
-): string[] =>
-  topSortLayering(
-    allGPINames,
-    partialOrderings.map(({ below, above }) => [below, above])
-  );
-
 //#endregion layering
 
 //#region Canvas
 
 // Check that canvas dimensions exist and have the proper type.
-const getCanvasDim = (
+export const getCanvasDim = (
   attr: "width" | "height",
   graph: DepGraph
 ): Result<number, StyleError> => {
@@ -2994,12 +3009,15 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
   return fns;
 };
 
-export const compileStyle = (
+export const compileStyleHelper = (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<State, PenroseError> => {
+): Result<
+  { state: State; translation: Translation; assignment: Assignment },
+  PenroseError
+> => {
   const astOk = parseStyle(stySource);
   let styProg;
   if (astOk.isOk()) {
@@ -3053,7 +3071,7 @@ export const compileStyle = (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
-  const shapeOrdering = computeShapeOrdering(
+  const { shapeOrdering, warning: layeringWarning } = computeShapeOrdering(
     [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
     [...translation.layering]
   );
@@ -3067,7 +3085,9 @@ export const compileStyle = (
   ];
 
   const initState: State = {
-    warnings: [...translation.diagnostics.warnings],
+    warnings: layeringWarning
+      ? [...translation.diagnostics.warnings, layeringWarning]
+      : [...translation.diagnostics.warnings],
     variation,
     objFns,
     constrFns,
@@ -3080,7 +3100,21 @@ export const compileStyle = (
 
   log.info("init state from GenOptProblem", initState);
 
-  return ok(initState);
+  return ok({
+    state: initState,
+    translation,
+    assignment,
+  });
 };
+
+export const compileStyle = (
+  variation: string,
+  stySource: string,
+  subEnv: SubstanceEnv,
+  varEnv: Env
+): Result<State, PenroseError> =>
+  compileStyleHelper(variation, stySource, subEnv, varEnv).map(
+    ({ state }) => state
+  );
 
 //#endregion Main funcitons

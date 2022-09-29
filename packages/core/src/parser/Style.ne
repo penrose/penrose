@@ -8,7 +8,7 @@ import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit
 } from "types/style";
 
 const styleTypes: string[] =
@@ -91,11 +91,12 @@ const selector = (
   };
 }
 
-const layering = (kw: any, below: Path<C>, above: Path<C>): Layering<C> => ({
-  ...nodeData,
-  ...rangeFrom(kw ? [rangeOf(kw), above, below] : [above, below]),
-  tag: 'Layering', above, below
+const layering = (kw: any, left: Path<C>, layeringOp: "above" | "below", right: Path<C>[]): Layering<C> => ({
+    ...nodeData,
+    ...rangeFrom(kw ? [rangeOf(kw), left, ...right] : [left, ...right]),
+    tag: 'Layering', left, right, layeringOp
 })
+
 
 const binop = (op: BinaryOp, left: Expr<C>, right: Expr<C>): BinOp<C> => ({
   ...nodeData,
@@ -446,6 +447,7 @@ arithmeticExpr
 # NOTE: all of the expr_literal can be operands of inline computation 
 expr_literal
   -> bool_lit {% id %}
+  |  color_lit {% id %}
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
@@ -494,6 +496,16 @@ bool_lit -> ("true" | "false") {%
   })
 %}
 
+color_lit 
+  -> %hex_literal
+  {% ([d]): ColorLit<C> => ({
+    ...nodeData,
+    ...rangeOf(d), 
+    tag: "ColorLit",
+    contents: d.text.slice(1, d.text.length)
+  })
+ %}
+
 string_lit -> %string_literal {%
   ([d]): StringLit<C> => ({
     ...nodeData,
@@ -510,12 +522,15 @@ annotated_float
   %}
 
 layering
-  -> layer_keyword:? path __ "below" __ path 
-    {% (d): Layering<C> => layering(d[0], d[1], d[5]) %}
-  |  layer_keyword:? path __ "above" __ path 
-    {% (d): Layering<C> => layering(d[0], d[5], d[1]) %}
+  -> layer_keyword:? path __ layer_op __ path_list {% (d): Layering<C> => layering(d[0], d[1], d[3], d[5]) %}
 
 layer_keyword -> "layer" __ {% nth(0) %}
+
+layer_op 
+  -> "below" {% () => "below" %} 
+  |  "above" {% () => "above" %}
+
+path_list -> sepBy1[expr, ","] {% id %}
 
 computation_function -> identifier _ "(" expr_list ")" {% 
   ([name, , , args, rparen]): CompApp<C> => ({

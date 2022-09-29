@@ -1,5 +1,12 @@
 import { Monaco } from "@monaco-editor/react";
-import { compDict, constrDict, objDict, shapedefs } from "@penrose/core";
+import {
+  compDict,
+  constrDict,
+  hexToRgba,
+  objDict,
+  rgbaToHex,
+  shapedefs,
+} from "@penrose/core";
 import { editor, IRange, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
 
@@ -103,6 +110,7 @@ export const StyleLanguageTokens: languages.IMonarchLanguage = {
         /\b[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)\b/,
         "number.float",
       ],
+      [/#([0-9A-Fa-f]{3,})/, "number.hex"],
       { include: "@whitespace" },
     ],
     ...CommentCommon,
@@ -168,13 +176,13 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
       const { red, green, blue, alpha } = colorInfo.color;
       return [
         {
-          label: `rgba(${red}, ${green}, ${blue}, ${alpha})`,
+          label: rgbaToHex([red, green, blue, alpha]),
         },
       ];
     },
 
     provideDocumentColors: (model) => {
-      const colorRegex = /rgba\(\s*(.*)\s*,\s*(.*)\s*,\s*(.*)\s*,\s*(.*)\s*\)/;
+      const colorRegex = /#([0-9A-Fa-f]{3,})/;
       const colorMatches = model.findMatches(
         colorRegex.source,
         false,
@@ -189,16 +197,22 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
           { matches, range }: editor.FindMatch
         ) => {
           if (matches !== null) {
-            const color = {
-              color: {
-                red: +matches[1],
-                green: +matches[2],
-                blue: +matches[3],
-                alpha: +matches[4],
-              },
-              range: range,
-            };
-            return [...colors, color];
+            const hexColor = hexToRgba(matches[1]);
+            if (hexColor) {
+              const [red, green, blue, alpha] = hexColor;
+              const color = {
+                color: {
+                  red,
+                  green,
+                  blue,
+                  alpha,
+                },
+                range: range,
+              };
+              return [...colors, color];
+            } else {
+              return colors;
+            }
           } else {
             return colors;
           }

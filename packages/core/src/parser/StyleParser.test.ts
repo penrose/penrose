@@ -341,9 +341,14 @@ const {
   -- w/ optional keyword
   \`C\`.layering1 = layer A.circ above B.circ
   layering2 = layer B.circ below C.circ
+  layering3 = layer B.circ below C.circ
+  layering3 = layer B.circ below C.circ, D.circ
+  layering4 = layer B.circ above C.circ, D.circ
   -- w/o optional keyword
-  A.layering3 = A.circ above B.circ
-  layering4 = B.circ below C.circ
+  A.layering5 = A.circ above B.circ
+  layering6 = B.circ below C.circ
+  \`B\`.layering7 = layer B.circ above C.circ, D.circ
+  layering8 = layer B.circ below C.circ, D.circ
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
