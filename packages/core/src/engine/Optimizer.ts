@@ -815,7 +815,14 @@ export const genOptProblem = (
       gradf: xs.map((x, i) => {
         // fill in any holes in case some inputs weren't used in the graph, and
         // also treat pending values as constants rather than optimizing them
-        return i in gradient && !("pending" in inputs[i]) ? gradient[i] : 0;
+        if (!(i in gradient)) {
+          return 0;
+        } else {
+          const meta = inputs[i];
+          return meta.tag === "Optimized" && meta.stage === stage
+            ? gradient[i]
+            : 0;
+        }
       }),
       objEngs: secondary.slice(0, objEngs.length),
       constrEngs: secondary.slice(objEngs.length),
