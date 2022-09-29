@@ -2655,7 +2655,15 @@ const evalExpr = (
     }
     case "Vary": {
       return ok(
-        val(floatV(mut.makeInput({ sampler: uniform(...canvas.xRange) })))
+        val(
+          floatV(
+            mut.makeInput({
+              tag: "Optimized",
+              stage: "ShapeLayout",
+              sampler: uniform(...canvas.xRange),
+            })
+          )
+        )
       );
     }
   }
@@ -3066,7 +3074,7 @@ export const compileStyle = (
   const varyingValues: number[] = [];
   const inputs: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
-    const val = "pending" in meta ? meta.pending : meta.sampler(rng);
+    const val = meta.tag === "Optimized" ? meta.sampler(rng) : meta.pending;
     const x = input({ key: varyingValues.length, val });
     varyingValues.push(val);
     inputs.push(meta);

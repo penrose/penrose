@@ -10,8 +10,8 @@ import {
   Stroke,
 } from "types/shapes";
 import { FloatV, StrV } from "types/value";
-import { boolV, floatV, noPaint, strV } from "utils/Util";
-import { Canvas, Context, sampleColor, sampleVector } from "./Samplers";
+import { boolV, floatV, noPaint, strV, vectorV } from "utils/Util";
+import { Canvas, Context, sampleColor, uniform } from "./Samplers";
 
 export interface TextProps
   extends Named,
@@ -45,11 +45,22 @@ export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
   strokeColor: noPaint(),
   strokeDasharray: strV(""),
   fillColor: sampleColor(context),
-  center: sampleVector(context, canvas),
-  width: floatV(context.makeInput({ pending: 0 })),
-  height: floatV(context.makeInput({ pending: 0 })),
-  ascent: floatV(context.makeInput({ pending: 0 })),
-  descent: floatV(context.makeInput({ pending: 0 })),
+  center: vectorV([
+    context.makeInput({
+      sampler: uniform(...canvas.xRange),
+      stage: "LabelLayout",
+      tag: "Optimized",
+    }),
+    context.makeInput({
+      sampler: uniform(...canvas.yRange),
+      stage: "LabelLayout",
+      tag: "Optimized",
+    }),
+  ]),
+  width: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
+  height: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
+  ascent: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
+  descent: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
   rotation: floatV(0),
   string: strV("defaultText"),
   visibility: strV(""),
