@@ -2,16 +2,22 @@ import consola, { LogLevel } from "consola";
 import { fns, genCode, input, makeGraph, ops } from "engine/Autodiff";
 import { defaultLbfgsParams, initConstraintWeight } from "engine/EngineUtils";
 import * as _ from "lodash";
+import { without } from "lodash";
 import { Matrix } from "ml-matrix";
 import { InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { FnCached, LbfgsParams, Params, State } from "types/state";
+import {
+  FnCached,
+  LbfgsParams,
+  Params,
+  StagedConstraints,
+  State,
+} from "types/state";
 import {
   addv,
   dot,
   negv,
   normList,
-  prettyPrintFns,
   repeat,
   scalev,
   subv,
@@ -22,7 +28,7 @@ import { add, mul } from "./AutodiffFunctions";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
-const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -109,7 +115,7 @@ const epConverged2 = (
  */
 export const step = (state: State, steps: number): State => {
   const optParams: Params = { ...state.params };
-  const { optStatus, weight } = optParams;
+  const { optStatus, weight, currentStage, remainingStages } = optParams;
   let xs: number[] = state.varyingValues;
 
   log.info("===============");
@@ -122,14 +128,12 @@ export const step = (state: State, steps: number): State => {
     optParams.UOround
   );
   log.info("params: ", optParams);
-  // log.info("state: ", state);
-  log.info("fns: ", prettyPrintFns(state));
+  // log.info("fns: ", prettyPrintFns(state));
 
   switch (optStatus) {
     case "NewIter": {
       log.trace("step newIter, xs", xs);
 
-      // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       const { objectiveAndGradient } = state.params;
       return {
         ...state,
@@ -181,7 +185,7 @@ export const step = (state: State, steps: number): State => {
 
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
-      // TODO. In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
+      // TODO: In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
       if (unconstrainedConverged2(normGrad)) {
         optParams.optStatus = "UnconstrainedConverged";
         optParams.lbfgsInfo = defaultLbfgsParams;
@@ -233,6 +237,29 @@ export const step = (state: State, steps: number): State => {
       ) {
         optParams.optStatus = "EPConverged";
         log.info("EP converged with energy", optParams.lastUOenergy);
+        if (remainingStages.length === 0) {
+          // do nothing if it's the last stage
+          log.warn(
+            `step: EP converged for ${currentStage}. No remaining stages.`
+          );
+          return state;
+        } else {
+          log.warn(
+            `step: EP converged for ${currentStage}. Remaining stages: ${remainingStages}. Generating the next opt problem.`
+          );
+          // re-generate the next stage and keep going
+          const { inputs, constraintSets } = state;
+          const nextStage = remainingStages[0];
+          return {
+            ...state,
+            params: genOptProblem(
+              inputs,
+              constraintSets,
+              nextStage,
+              without(remainingStages, nextStage)
+            ),
+          };
+        }
       } else {
         // If EP has not converged, increase weight and continue.
         // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
@@ -264,8 +291,6 @@ export const step = (state: State, steps: number): State => {
     }
 
     case "EPConverged": {
-      // do nothing if converged
-      log.info("step: EP converged");
       return state;
     }
     case "Error": {
@@ -782,8 +807,9 @@ export const evalEnergyOnCustom = (
 
 export const genOptProblem = (
   inputs: InputMeta[],
-  objEngs: ad.Num[],
-  constrEngs: ad.Num[]
+  constraintSet: StagedConstraints,
+  stage: string,
+  remainingStages: string[]
 ): Params => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
@@ -793,6 +819,12 @@ export const genOptProblem = (
   // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
   const weight = initConstraintWeight;
   const epWeightNode = input({ val: weight, key: inputs.length });
+
+  const { objFns, constrFns } = constraintSet[stage];
+  console.log(constraintSet, stage, constraintSet[stage]);
+
+  const objEngs = objFns.map(({ output }) => output);
+  const constrEngs = constrFns.map(({ output }) => output);
 
   const energyGraph = evalEnergyOnCustom(epWeightNode, objEngs, constrEngs);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
@@ -823,6 +855,8 @@ export const genOptProblem = (
   };
 
   const params: Params = {
+    currentStage: stage,
+    remainingStages,
     lastGradient: repeat(inputs.length, 0),
     lastGradientPreconditioned: repeat(inputs.length, 0),
 

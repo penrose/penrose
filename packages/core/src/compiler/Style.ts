@@ -10,7 +10,7 @@ import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
 import { genOptProblem } from "engine/Optimizer";
 import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
-import _, { range } from "lodash";
+import _, { groupBy, range, uniq, without } from "lodash";
 import nearley from "nearley";
 import { lastLocation, prettyParseError } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -37,7 +37,7 @@ import {
   SubstanceError,
 } from "types/errors";
 import { ShapeAD } from "types/shape";
-import { Fn, State } from "types/state";
+import { Fn, StagedConstraints, StagedFns, State } from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -2694,7 +2694,7 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name } = e.expr;
+      const { name, label } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
         return addDiags(
@@ -2707,6 +2707,7 @@ const translateExpr = (
         ...trans,
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
+          optStage: label ? "LabelLayout" : "ShapeLayout",
           output,
         }),
       };
@@ -2716,7 +2717,7 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name } = e.expr;
+      const { name, label } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
         return addDiags(
@@ -2729,6 +2730,7 @@ const translateExpr = (
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
+          optStage: label ? "LabelLayout" : "ShapeLayout",
           output,
         }),
       };
@@ -2991,10 +2993,39 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
           },
         },
         output,
+        optStage: "ShapeLayout", // COMBAK: distinguish between label and shape
       });
     }
   }
   return fns;
+};
+
+export const stageConstraints = (
+  constrFns: Fn[],
+  objFns: Fn[]
+): {
+  stages: string[];
+  constraintSets: StagedConstraints;
+} => {
+  const stagedConstrs: StagedFns = groupBy(
+    constrFns,
+    ({ optStage }) => optStage
+  );
+  const stagedObjs: StagedFns = groupBy(objFns, ({ optStage }) => optStage);
+  const stages: string[] = uniq([
+    ...Object.keys(stagedConstrs),
+    ...Object.keys(stagedObjs),
+  ]);
+  const constraintSets = Object.fromEntries(
+    stages.map((stage) => [
+      stage,
+      {
+        constrFns: stagedConstrs[stage] ?? [], // TODO: fix the type so access is nullable
+        objFns: stagedObjs[stage] ?? [],
+      },
+    ])
+  );
+  return { constraintSets, stages };
 };
 
 export const compileStyle = (
@@ -3068,13 +3099,15 @@ export const compileStyle = (
     ...translation.constraints,
     ...onCanvases(canvas.value, shapes),
   ];
+  const { constraintSets, stages } = stageConstraints(constrFns, objFns);
 
   const computeShapes = compileCompGraph(shapes);
 
   const params = genOptProblem(
     inputs,
-    objFns.map(({ output }) => output),
-    constrFns.map(({ output }) => output)
+    constraintSets,
+    "ShapeLayout",
+    without(stages, "ShapeLayout")
   );
 
   const initState: State = {
@@ -3082,9 +3115,8 @@ export const compileStyle = (
       ? [...translation.diagnostics.warnings, layeringWarning]
       : [...translation.diagnostics.warnings],
     variation,
-    objFns,
-    constrFns,
     varyingValues,
+    constraintSets,
     inputs,
     labelCache: new Map(),
     shapes,

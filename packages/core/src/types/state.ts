@@ -10,14 +10,20 @@ import { FloatV } from "./value";
 
 export type ShapeFn = (xs: number[]) => Shape[];
 
+export interface StagedFns {
+  [k: string]: Fn[];
+}
+export interface StagedConstraints {
+  [k: string]: { objFns: Fn[]; constrFns: Fn[] };
+}
+
 /**
  * The diagram state
  */
 export interface State {
   warnings: StyleWarning[];
   variation: string;
-  objFns: Fn[];
-  constrFns: Fn[];
+  constraintSets: StagedConstraints;
   varyingValues: number[];
   inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
@@ -55,6 +61,7 @@ export type LabelCache = Map<string, LabelData>;
 export interface Fn {
   ast: WithContext<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
+  optStage: "ShapeLayout" | "LabelLayout";
 }
 
 export type OptStatus =
@@ -83,6 +90,9 @@ export interface FnEvaled {
 
 export interface Params {
   optStatus: OptStatus;
+  /** Staging  */
+  currentStage: string;
+  remainingStages: string[];
   /** Constraint weight for exterior point method **/
   weight: number;
   /** Info for unconstrained optimization **/

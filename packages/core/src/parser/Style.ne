@@ -535,7 +535,7 @@ objective -> "label":? __ "encourage" __ identifier _ "(" expr_list ")" {%
     ...nodeData,
     ...rangeBetween(kw, rparen),
     tag: "ObjFn",
-    label: label !== undefined,
+    label: label !== null,
     name, args
   }) 
 %}
@@ -545,7 +545,7 @@ constraint -> "label":? __  "ensure" __ identifier _ "(" expr_list ")" {%
     ...nodeData,
     ...rangeBetween(kw, rparen),
     tag: "ConstrFn",
-    label: label !== undefined,
+    label: label !== null,
     name, args
   }) 
 %}

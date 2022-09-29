@@ -298,9 +298,13 @@ export const evalEnergy = (s: State): number => {
  */
 export const evalFns = (
   s: State
-): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
+): {
+  constrEngs: Map<string, number>;
+  objEngs: Map<string, number>;
+} => {
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
   let { lastConstrEnergies, lastObjEnergies } = s.params;
+  const { currentStage } = s.params;
   if (!lastConstrEnergies || !lastObjEnergies) {
     const { objEngs, constrEngs } = s.params.objectiveAndGradient(
       s.params.weight
@@ -308,11 +312,10 @@ export const evalFns = (
     lastConstrEnergies = constrEngs;
     lastObjEnergies = objEngs;
   }
+  const { constrFns, objFns } = s.constraintSets[currentStage];
   return {
-    constrEngs: new Map(
-      zip2(s.constrFns.map(prettyPrintFn), lastConstrEnergies)
-    ),
-    objEngs: new Map(zip2(s.objFns.map(prettyPrintFn), lastObjEnergies)),
+    constrEngs: new Map(zip2(constrFns.map(prettyPrintFn), lastConstrEnergies)),
+    objEngs: new Map(zip2(objFns.map(prettyPrintFn), lastObjEnergies)),
   };
 };
 
