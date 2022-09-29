@@ -8,7 +8,7 @@ import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit
 } from "types/style";
 
 const styleTypes: string[] =
@@ -447,6 +447,7 @@ arithmeticExpr
 # NOTE: all of the expr_literal can be operands of inline computation 
 expr_literal
   -> bool_lit {% id %}
+  |  color_lit {% id %}
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
@@ -494,6 +495,16 @@ bool_lit -> ("true" | "false") {%
     contents: d.text === 'true' // https://stackoverflow.com/questions/263965/how-can-i-convert-a-string-to-boolean-in-javascript
   })
 %}
+
+color_lit 
+  -> %hex_literal
+  {% ([d]): ColorLit<C> => ({
+    ...nodeData,
+    ...rangeOf(d), 
+    tag: "ColorLit",
+    contents: d.text.slice(1, d.text.length)
+  })
+ %}
 
 string_lit -> %string_literal {%
   ([d]): StringLit<C> => ({
