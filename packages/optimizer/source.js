@@ -30,19 +30,11 @@ export const builtins = [
   "tanh",
 ];
 
-export const getOptimizer = async () => {
+export const getOptimizer = async (gradient, shapes) => {
   const rust = (await WebAssembly.instantiate(src)).instance.exports;
 
-  const withVec = (T, len, f) => {
-    const align = T.BYTES_PER_ELEMENT;
-    const size = len * align;
-    const ptr = rust.__wbindgen_malloc(size, align);
-    try {
-      return f(new T(rust.memory.buffer, ptr, len));
-    } finally {
-      rust.__wbindgen_free(ptr, size, align);
-    }
-  };
+  const index = rust.__indirect_function_table.length;
+  rust.__indirect_function_table.grow(1);
 
   const definitions = {
     acos: rust.arccosine,
@@ -68,8 +60,35 @@ export const getOptimizer = async () => {
     tanh: rust.hyperbolic_tangent,
   };
 
-  const index = rust.__indirect_function_table.length;
-  rust.__indirect_function_table.grow(1);
+  const jitGrad = (
+    await WebAssembly.instantiate(gradient, {
+      [importMemoryModule]: { [importMemoryName]: rust.memory },
+    })
+  ).instance.exports;
+  builtins.forEach((name, i) => {
+    jitGrad[exportTableName].set(i, definitions[name]);
+  });
+  rust.__indirect_function_table.set(index, jitGrad[exportFunctionName]);
+
+  const jitShapes = (
+    await WebAssembly.instantiate(shapes, {
+      [importMemoryModule]: { [importMemoryName]: rust.memory },
+    })
+  ).instance.exports;
+  builtins.forEach((name, i) => {
+    jitShapes[exportTableName].set(i, definitions[name]);
+  });
+
+  const withVec = (T, len, f) => {
+    const align = T.BYTES_PER_ELEMENT;
+    const size = len * align;
+    const ptr = rust.__wbindgen_malloc(size, align);
+    try {
+      return f(() => new T(rust.memory.buffer, ptr, len));
+    } finally {
+      rust.__wbindgen_free(ptr, size, align);
+    }
+  };
 
   const samplerByte = rust.input_meta_sampler_byte();
   const pendingByte = rust.input_meta_pending_byte();
@@ -85,18 +104,6 @@ export const getOptimizer = async () => {
   };
 
   return {
-    link: async (source) => {
-      const jit = (
-        await WebAssembly.instantiate(source, {
-          [importMemoryModule]: { [importMemoryName]: rust.memory },
-        })
-      ).instance.exports;
-      builtins.forEach((name, i) => {
-        jit[exportTableName].set(i, definitions[name]);
-      });
-      rust.__indirect_function_table.set(index, jit[exportFunctionName]);
-    },
-
     converge: ({ inputs, numObjEngs, numConstrEngs, varyingValues }) => {
       const n = inputs.length;
       const nXs = varyingValues.length;
@@ -106,11 +113,13 @@ export const getOptimizer = async () => {
         );
       }
 
-      return withVec(Uint8Array, n, (vInputs) => {
+      return withVec(Uint8Array, n, (viewInputs) => {
+        const vInputs = viewInputs();
         for (let i = 0; i < n; i++) {
           vInputs[i] = inputMetaToByte(inputs[i]);
         }
-        return withVec(Float64Array, n, (vXs) => {
+        return withVec(Float64Array, n, (viewXs) => {
+          const vXs = viewXs();
           vXs.set(varyingValues);
           rust.converge(
             index,
@@ -121,9 +130,25 @@ export const getOptimizer = async () => {
             vXs.byteOffset,
             n
           );
-          return Array.from(vXs);
+          return Array.from(viewXs());
         });
       });
     },
+
+    shapes: (inputs, lenSecondary) =>
+      withVec(Float64Array, inputs.length, (viewInputs) =>
+        withVec(Float64Array, inputs.length, (viewGradient) =>
+          withVec(Float64Array, lenSecondary, (viewSecondary) => {
+            const vInputs = viewInputs();
+            vInputs.set(inputs);
+            jitShapes[exportFunctionName](
+              vInputs.byteOffset,
+              viewGradient().byteOffset,
+              viewSecondary().byteOffset
+            );
+            return Array.from(viewSecondary());
+          })
+        )
+      ),
   };
 };

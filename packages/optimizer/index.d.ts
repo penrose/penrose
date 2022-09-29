@@ -8,8 +8,8 @@ export interface State {
 }
 
 export interface Optimizer {
-  link: (source: Uint8Array) => Promise<void>;
   converge: (state: State) => number[];
+  shapes: (inputs: number[], lenSecondary: number) => number[];
 }
 
 export declare const importMemoryModule: string;
@@ -20,4 +20,7 @@ export declare const exportFunctionName: string;
 
 export declare const builtins: string[];
 
-export declare const getOptimizer: () => Promise<Optimizer>;
+export declare const getOptimizer: (
+  gradient: Uint8Array,
+  shapes: Uint8Array
+) => Promise<Optimizer>;

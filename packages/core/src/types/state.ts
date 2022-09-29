@@ -1,3 +1,4 @@
+import { Optimizer } from "@penrose/optimizer";
 import { Matrix } from "ml-matrix";
 import { Canvas, InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
@@ -23,8 +24,8 @@ export interface State {
   labelCache: LabelCache;
   shapes: ShapeAD[];
   canvas: Canvas;
-  computeShapes: ShapeFn;
-  params: Params;
+  optimizer?: Optimizer;
+  computeShapes?: ShapeFn;
 }
 
 /**

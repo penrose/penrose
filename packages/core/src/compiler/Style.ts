@@ -6,8 +6,7 @@ import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
-import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
-import { genOptProblem } from "engine/Optimizer";
+import { dummyIdentifier } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
 import _, { range } from "lodash";
@@ -3067,14 +3066,6 @@ export const compileStyle = (
     ...onCanvases(canvas.value, shapes),
   ];
 
-  const computeShapes = compileCompGraph(shapes);
-
-  const params = genOptProblem(
-    inputs,
-    objFns.map(({ output }) => output),
-    constrFns.map(({ output }) => output)
-  );
-
   const initState: State = {
     warnings: [...translation.diagnostics.warnings],
     variation,
@@ -3085,8 +3076,6 @@ export const compileStyle = (
     labelCache: new Map(),
     shapes,
     canvas: canvas.value,
-    computeShapes,
-    params,
   };
 
   log.info("init state from GenOptProblem", initState);

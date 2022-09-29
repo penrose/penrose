@@ -1,7 +1,6 @@
 require("global-jsdom/register");
 import {
   compileTrio,
-  evalEnergy,
   makeCanvas,
   prepareState,
   RenderStatic,
@@ -156,25 +155,6 @@ const singleProcess = async (
     //   // return;
     // }
     let crossEnergy: number = Infinity;
-    if (ciee) {
-      console.log(chalk.yellow(`Computing cross energy...`));
-      if (referenceState) {
-        const crossState = {
-          ...optimizedState,
-          constrFns: referenceState.constrFns,
-          objFns: referenceState.objFns,
-        };
-        try {
-          crossEnergy = evalEnergy(await prepareState(crossState));
-        } catch (e) {
-          console.warn(
-            chalk.yellow(
-              `Cross-instance energy failed. Returning infinity instead. \n${e}`
-            )
-          );
-        }
-      }
-    }
 
     // fetch metadata if available
     let extraMetadata;

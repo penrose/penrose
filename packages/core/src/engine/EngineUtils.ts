@@ -1,5 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
+import { getOptimizer, Optimizer } from "@penrose/optimizer";
 import { mapValues } from "lodash";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
@@ -190,7 +191,10 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   }
 }
 
-export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
+export const compileCompGraph = async (
+  grad: Uint8Array,
+  shapes: ShapeAD[]
+): Promise<{ optimizer: Optimizer; computeShapes: ShapeFn }> => {
   const vars = [];
   for (const s of shapes) {
     for (const v of Object.values(s.properties)) {
@@ -198,25 +202,32 @@ export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
     }
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
-  const evalFn: ad.Compiled = genCode(compGraph);
-  return (xs: number[]): Shape[] => {
-    const numbers = evalFn(xs).secondary;
-    const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
-    return shapes.map((s: ShapeAD) => ({
-      ...s,
-      properties: mapValues(s.properties, (p: Value<ad.Num>) =>
-        mapValueNumeric(
-          (x) =>
-            safe(
-              m.get(
-                safe(compGraph.nodes.get(x), `missing node for value ${p.tag}`)
+  const evalFn = genCode(compGraph);
+  const optimizer = await getOptimizer(grad, evalFn);
+  return {
+    optimizer,
+    computeShapes: (xs: number[]): Shape[] => {
+      const numbers = optimizer.shapes(xs, vars.length);
+      const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
+      return shapes.map((s: ShapeAD) => ({
+        ...s,
+        properties: mapValues(s.properties, (p: Value<ad.Num>) =>
+          mapValueNumeric(
+            (x) =>
+              safe(
+                m.get(
+                  safe(
+                    compGraph.nodes.get(x),
+                    `missing node for value ${p.tag}`
+                  )
+                ),
+                "missing output"
               ),
-              "missing output"
-            ),
-          p
-        )
-      ),
-    }));
+            p
+          )
+        ),
+      }));
+    },
   };
 };
 
