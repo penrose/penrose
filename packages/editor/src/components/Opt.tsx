@@ -41,6 +41,7 @@ export default function Opt() {
   // TODO: hyperlink the shapes
   return (
     <div style={{ boxSizing: "border-box" }}>
+      <h2>Stage: {state.params.currentStage}</h2>
       <DataTable
         data={constrInfos}
         title={"Constraints"}

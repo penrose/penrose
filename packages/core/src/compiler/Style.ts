@@ -110,6 +110,7 @@ import {
   all,
   andThen,
   err,
+  invalidColorLiteral,
   isErr,
   ok,
   parseError,
@@ -121,7 +122,9 @@ import {
 import { Digraph } from "utils/Graph";
 import {
   boolV,
+  colorV,
   floatV,
+  hexToRgba,
   listV,
   llistV,
   matrixV,
@@ -2056,6 +2059,7 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       return [expr.left, expr.right].flatMap(findPathsExpr);
     }
     case "BoolLit":
+    case "ColorLit":
     case "Fix":
     case "StringLit":
     case "Vary": {
@@ -2126,7 +2130,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
   }
 };
 
-const gatherDependencies = (assignment: Assignment): DepGraph => {
+export const gatherDependencies = (assignment: Assignment): DepGraph => {
   const graph = new Digraph<string, WithContext<NotShape>>();
 
   for (const [blockName, fields] of assignment.globals) {
@@ -2547,6 +2551,15 @@ const evalExpr = (
     case "BoolLit": {
       return ok(val(boolV(expr.contents)));
     }
+    case "ColorLit": {
+      const hex = expr.contents;
+      const rgba = hexToRgba(hex);
+      if (rgba) {
+        return ok(val(colorV({ tag: "RGBA", contents: rgba })));
+      } else {
+        return err(oneErr(invalidColorLiteral(expr)));
+      }
+    }
     case "CompApp": {
       const args = argValues(mut, canvas, context, expr.args, trans);
       if (args.isErr()) {
@@ -2679,6 +2692,7 @@ const translateExpr = (
   switch (e.expr.tag) {
     case "BinOp":
     case "BoolLit":
+    case "ColorLit":
     case "CompApp":
     case "Fix":
     case "List":
@@ -2791,7 +2805,7 @@ const evalGPI = (
   };
 };
 
-const translate = (
+export const translate = (
   mut: MutableContext,
   canvas: Canvas,
   graph: DepGraph,
@@ -2894,7 +2908,7 @@ const pseudoTopsort = (graph: Graph): string[] => {
 //#region Canvas
 
 // Check that canvas dimensions exist and have the proper type.
-const getCanvasDim = (
+export const getCanvasDim = (
   attr: "width" | "height",
   graph: DepGraph
 ): Result<number, StyleError> => {
@@ -3036,12 +3050,15 @@ export const stageConstraints = (
   return { constraintSets, stages };
 };
 
-export const compileStyle = (
+export const compileStyleHelper = (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<State, PenroseError> => {
+): Result<
+  { state: State; translation: Translation; assignment: Assignment },
+  PenroseError
+> => {
   const astOk = parseStyle(stySource);
   let styProg;
   if (astOk.isOk()) {
@@ -3135,7 +3152,21 @@ export const compileStyle = (
 
   log.info("init state from GenOptProblem", initState);
 
-  return ok(initState);
+  return ok({
+    state: initState,
+    translation,
+    assignment,
+  });
 };
+
+export const compileStyle = (
+  variation: string,
+  stySource: string,
+  subEnv: SubstanceEnv,
+  varEnv: Env
+): Result<State, PenroseError> =>
+  compileStyleHelper(variation, stySource, subEnv, varEnv).map(
+    ({ state }) => state
+  );
 
 //#endregion Main funcitons
