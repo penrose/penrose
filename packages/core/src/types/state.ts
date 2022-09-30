@@ -93,8 +93,8 @@ export interface FnEvaled {
 export interface Params {
   optStatus: OptStatus;
   /** Staging  */
-  currentStage: string;
-  remainingStages: string[];
+  currentStage: OptStage;
+  remainingStages: OptStage[];
   /** Constraint weight for exterior point method **/
   weight: number;
   /** Info for unconstrained optimization **/

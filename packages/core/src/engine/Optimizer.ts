@@ -9,6 +9,7 @@ import * as ad from "types/ad";
 import {
   FnCached,
   LbfgsParams,
+  OptStage,
   Params,
   StagedConstraints,
   State,
@@ -44,7 +45,15 @@ const constraintWeight = 10e4; // HACK: constant constraint weight
 // const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
 
 // EP method convergence criteria
-const epStop = 1e-3;
+const epStop = (stage: OptStage): number => {
+  switch (stage) {
+    case "ShapeLayout":
+    case "LabelLayout":
+      return 1e-3;
+    case "Overall":
+      return 1e-9;
+  }
+};
 // const epStop = 1e-5;
 // const epStop = 1e-7;
 
@@ -77,7 +86,8 @@ const epConverged2 = (
   xs0: number[],
   xs1: number[],
   fxs0: number,
-  fxs1: number
+  fxs1: number,
+  stage: OptStage
 ): boolean => {
   // TODO: These dx and dfx should really be scaled to account for magnitudes
   const stateChange = normList(subv(xs1, xs0));
@@ -89,7 +99,7 @@ const epConverged2 = (
     energyChange
   );
 
-  return stateChange < epStop || energyChange < epStop;
+  return stateChange < epStop(stage) || energyChange < epStop(stage);
 };
 
 /**
@@ -232,7 +242,8 @@ export const step = (state: State, steps: number): State => {
           optParams.lastEPstate!,
           optParams.lastUOstate!,
           optParams.lastEPenergy!,
-          optParams.lastUOenergy!
+          optParams.lastUOenergy!,
+          currentStage
         )
       ) {
         optParams.optStatus = "EPConverged";
@@ -808,8 +819,8 @@ export const evalEnergyOnCustom = (
 export const genOptProblem = (
   inputs: InputMeta[],
   constraintSet: StagedConstraints,
-  stage: string,
-  remainingStages: string[]
+  stage: OptStage,
+  remainingStages: OptStage[]
 ): Params => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
