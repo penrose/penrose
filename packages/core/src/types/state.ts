@@ -24,6 +24,7 @@ export interface State {
   labelCache: LabelCache;
   shapes: ShapeAD[];
   canvas: Canvas;
+  optProblem: Uint8Array;
   optimizer?: Optimizer;
   computeShapes?: ShapeFn;
 }

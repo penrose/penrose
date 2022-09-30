@@ -1,5 +1,4 @@
 import { compileCompGraph } from "engine/EngineUtils";
-import { genOptProblem } from "engine/Optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -205,11 +204,7 @@ export const prepareState = async (state: State): Promise<State> => {
   const withPending = insertPending({ ...state, labelCache: labelCache.value });
 
   const { optimizer, computeShapes } = await compileCompGraph(
-    genOptProblem(
-      withPending.inputs,
-      withPending.objFns.map(({ output }) => output),
-      withPending.constrFns.map(({ output }) => output)
-    ),
+    withPending.optProblem,
     withPending.shapes
   );
 

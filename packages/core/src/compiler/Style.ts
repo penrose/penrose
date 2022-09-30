@@ -7,6 +7,7 @@ import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
 import { dummyIdentifier } from "engine/EngineUtils";
+import { genOptProblem } from "engine/Optimizer";
 import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
 import _, { range } from "lodash";
@@ -3096,6 +3097,11 @@ export const compileStyleHelper = (
     labelCache: new Map(),
     shapes,
     canvas: canvas.value,
+    optProblem: genOptProblem(
+      inputs,
+      objFns.map(({ output }) => output),
+      constrFns.map(({ output }) => output)
+    ),
   };
 
   log.info("init state from GenOptProblem", initState);
