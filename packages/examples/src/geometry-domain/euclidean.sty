@@ -5,10 +5,10 @@ canvas {
 
 Colors {
     -- Keenan palette
-    black = rgba(0.0, 0.0, 0.0, 1.0)
-    darkpurple = rgba(0.549,0.565,0.757, 1.0)
+    black = #000000
+    darkpurple = #8c90c1
+    lightpurple = #d0d3e6
     purple2 = rgba(0.106, 0.122, 0.54, 0.2)
-    lightpurple = rgba(0.816,0.824, 0.902, 1.0)
 
     verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
     purple3 = rgba(0.557, 0.627, 0.769, 1.0)
@@ -513,7 +513,10 @@ where EqualAngle(a, b) {
 
 forall Angle a
 where RightUnmarked(a) {
-  ensure perpendicular(a.p, a.q, a.r)
+  -- ensure perpendicular(a.p, a.q, a.r)
+  vec2 u = a.p - a.q
+  vec2 v = a.r - a.q
+  ensure equal(0, dot(u, v))
 }
 
 forall Angle a
@@ -526,7 +529,9 @@ where RightMarked(a) {
     strokeColor : Colors.black
     fillColor : Colors.none
   }
-  ensure perpendicular(a.p, a.q, a.r)
+  vec2 u = a.p - a.q
+  vec2 v = a.r - a.q
+  ensure equal(0, dot(u, v))
 }
 
 -- TODO inRange NaN's
@@ -546,7 +551,7 @@ with Point p; Point q; Point r {
 forall Triangle t
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
-  t.color = Colors.red
+  t.color = Colors.black
   t.PQ = Line {
     start : p.icon.center
     end : q.icon.center
@@ -587,10 +592,10 @@ with Point p; Point q; Point r {
   -- PegasusGoose673 same line
   -- QuiverLark7710 same line
   -- HectoriteOpossum1724 label disjoint violated
-  minLength = 40
-  ensure lessThan(minLength, len(t.PQ))
-  ensure lessThan(minLength, len(t.QR))
-  ensure lessThan(minLength, len(t.RP))
+  minLength = 0
+  ensure lessThan(minLength, length(t.PQ))
+  ensure lessThan(minLength, length(t.QR))
+  ensure lessThan(minLength, length(t.RP))
   -- ensure disjoint(p.text, t.QR)
   -- ensure disjoint(p.text, t.RP)
   -- ensure disjoint(q.text, t.PQ)

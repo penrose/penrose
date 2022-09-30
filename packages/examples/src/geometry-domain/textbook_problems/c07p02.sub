@@ -12,4 +12,7 @@ Segment YP := PerpendicularBisectorLabelPts(AB, P, X)
 Segment ZP := PerpendicularBisectorLabelPts(BC, P, Y)
 Segment XP := PerpendicularBisectorLabelPts(AC, P, Z)
 
+-- interesting edge cases
+-- WoodbinePenguin58528
+
 AutoLabel All 
