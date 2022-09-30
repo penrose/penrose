@@ -3050,6 +3050,12 @@ export const stageConstraints = (
   return { constraintSets };
 };
 
+export const optimizationStages: OptStage[] = [
+  "ShapeLayout",
+  "LabelLayout",
+  "Overall",
+];
+
 export const compileStyleHelper = (
   variation: string,
   stySource: string,
@@ -3124,8 +3130,11 @@ export const compileStyleHelper = (
     ...translation.constraints,
     ...onCanvases(canvas.value, shapes),
   ];
-  const stages: OptStage[] = ["ShapeLayout", "LabelLayout", "Overall"];
-  const { constraintSets } = stageConstraints(constrFns, objFns, stages);
+  const { constraintSets } = stageConstraints(
+    constrFns,
+    objFns,
+    optimizationStages
+  );
 
   const computeShapes = compileCompGraph(shapes);
 
@@ -3133,7 +3142,7 @@ export const compileStyleHelper = (
     inputs,
     constraintSets,
     "ShapeLayout",
-    without(stages, "ShapeLayout")
+    without(optimizationStages, "ShapeLayout")
   );
 
   const initState: State = {

@@ -1,14 +1,13 @@
-import { initConstraintWeight } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
-import { compileStyle } from "./compiler/Style";
+import { compileStyle, optimizationStages } from "./compiler/Style";
 import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
   prettySubstance,
 } from "./compiler/Substance";
-import { step } from "./engine/Optimizer";
+import { genOptProblem, step } from "./engine/Optimizer";
 import {
   PathResolver,
   RenderInteractive,
@@ -46,11 +45,17 @@ export const resample = (state: State): State => {
     varyingValues: state.inputs.map((meta, i) =>
       "sampler" in meta ? meta.sampler(rng) : state.varyingValues[i]
     ),
-    params: {
-      ...state.params,
-      weight: initConstraintWeight,
-      optStatus: "NewIter",
-    },
+    params: genOptProblem(
+      state.inputs,
+      state.constraintSets,
+      "ShapeLayout",
+      optimizationStages
+    ),
+    // params: {
+    //   ...state.params,
+    //   weight: initConstraintWeight,
+    //   optStatus: "NewIter",
+    // },
   };
 };
 
