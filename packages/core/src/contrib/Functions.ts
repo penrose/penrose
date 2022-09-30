@@ -1055,7 +1055,7 @@ export const compDict = {
       const rgb = range(3).map(() =>
         makeInput({
           sampler: uniform(0.1, 0.9),
-          stage: "ShapeLayout",
+          stages: ["ShapeLayout", "Overall"],
           tag: "Optimized",
         })
       );
@@ -1070,7 +1070,7 @@ export const compDict = {
     } else if (colorType === "hsv") {
       const h = makeInput({
         sampler: uniform(0, 360),
-        stage: "ShapeLayout",
+        stages: ["ShapeLayout", "Overall"],
         tag: "Optimized",
       });
       return {

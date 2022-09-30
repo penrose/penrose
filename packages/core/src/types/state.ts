@@ -58,10 +58,12 @@ export type LabelCache = Map<string, LabelData>;
 /**
  * Generic export interface for constraint or objective functions
  */
+
+export type OptStage = "ShapeLayout" | "LabelLayout" | "Overall";
 export interface Fn {
   ast: WithContext<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
-  optStage: "ShapeLayout" | "LabelLayout";
+  optStages: OptStage[];
 }
 
 export type OptStatus =

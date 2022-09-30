@@ -30,12 +30,12 @@ export const sampleEquation = (
   center: vectorV([
     context.makeInput({
       sampler: uniform(...canvas.xRange),
-      stage: "LabelLayout",
+      stages: ["LabelLayout", "Overall"],
       tag: "Optimized",
     }),
     context.makeInput({
       sampler: uniform(...canvas.yRange),
-      stage: "LabelLayout",
+      stages: ["LabelLayout", "Overall"],
       tag: "Optimized",
     }),
   ]),

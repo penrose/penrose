@@ -10,7 +10,7 @@ import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
 import { genOptProblem } from "engine/Optimizer";
 import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
-import _, { groupBy, range, uniq, without } from "lodash";
+import _, { range, without } from "lodash";
 import nearley from "nearley";
 import { lastLocation, prettyParseError } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -37,7 +37,7 @@ import {
   SubstanceError,
 } from "types/errors";
 import { ShapeAD } from "types/shape";
-import { Fn, StagedConstraints, StagedFns, State } from "types/state";
+import { Fn, OptStage, StagedConstraints, State } from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -2672,7 +2672,7 @@ const evalExpr = (
           floatV(
             mut.makeInput({
               tag: "Optimized",
-              stage: "ShapeLayout",
+              stages: ["ShapeLayout", "Overall"],
               sampler: uniform(...canvas.xRange),
             })
           )
@@ -2729,7 +2729,7 @@ const translateExpr = (
         ...trans,
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
-          optStage: label ? "LabelLayout" : "ShapeLayout",
+          optStages: [label ? "LabelLayout" : "ShapeLayout", "Overall"],
           output,
         }),
       };
@@ -2752,7 +2752,7 @@ const translateExpr = (
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
-          optStage: label ? "LabelLayout" : "ShapeLayout",
+          optStages: [label ? "LabelLayout" : "ShapeLayout", "Overall"],
           output,
         }),
       };
@@ -3015,7 +3015,7 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
           },
         },
         output,
-        optStage: "ShapeLayout", // COMBAK: distinguish between label and shape
+        optStages: ["ShapeLayout", "Overall"], // COMBAK: distinguish between label and shape
       });
     }
   }
@@ -3024,30 +3024,30 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
 
 export const stageConstraints = (
   constrFns: Fn[],
-  objFns: Fn[]
+  objFns: Fn[],
+  stages: OptStage[]
 ): {
-  stages: string[];
   constraintSets: StagedConstraints;
 } => {
-  const stagedConstrs: StagedFns = groupBy(
+  console.log(
     constrFns,
-    ({ optStage }) => optStage
+    objFns,
+    stages,
+    constrFns[0].optStages.includes("Overall")
   );
-  const stagedObjs: StagedFns = groupBy(objFns, ({ optStage }) => optStage);
-  const stages: string[] = uniq([
-    ...Object.keys(stagedConstrs),
-    ...Object.keys(stagedObjs),
-  ]);
+
   const constraintSets = Object.fromEntries(
     stages.map((stage) => [
       stage,
       {
-        constrFns: stagedConstrs[stage] ?? [], // TODO: fix the type so access is nullable
-        objFns: stagedObjs[stage] ?? [],
+        constrFns: constrFns.filter(({ optStages }) =>
+          optStages.includes(stage)
+        ),
+        objFns: objFns.filter(({ optStages }) => optStages.includes(stage)),
       },
     ])
   );
-  return { constraintSets, stages };
+  return { constraintSets };
 };
 
 export const compileStyleHelper = (
@@ -3124,7 +3124,8 @@ export const compileStyleHelper = (
     ...translation.constraints,
     ...onCanvases(canvas.value, shapes),
   ];
-  const { constraintSets, stages } = stageConstraints(constrFns, objFns);
+  const stages: OptStage[] = ["ShapeLayout", "LabelLayout", "Overall"];
+  const { constraintSets } = stageConstraints(constrFns, objFns, stages);
 
   const computeShapes = compileCompGraph(shapes);
 

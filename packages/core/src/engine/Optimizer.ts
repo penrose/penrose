@@ -851,7 +851,7 @@ export const genOptProblem = (
           return 0;
         } else {
           const meta = inputs[i];
-          return meta.tag === "Optimized" && meta.stage === stage
+          return meta.tag === "Optimized" && meta.stages.includes(stage)
             ? gradient[i]
             : 0;
         }
