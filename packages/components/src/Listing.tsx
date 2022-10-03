@@ -30,9 +30,9 @@ const Listing = ({
   substance: string;
   width: string;
   height: string;
-  onChange(value: string): void;
+  onChange?(value: string): void;
   monacoOptions?: editor.IStandaloneEditorConstructionOptions;
-  readonly?: boolean;
+  readOnly?: boolean;
 }) => {
   const env = compileDomain(domain).unsafelyUnwrap();
   const monaco = useMonaco();
@@ -52,7 +52,7 @@ const Listing = ({
       value={substance}
       width={width}
       height={height}
-      onChange={(v) => onChange(v ?? "")}
+      onChange={onChange ? (v) => onChange(v ?? "") : undefined}
       defaultLanguage="substance"
       options={
         monacoOptions

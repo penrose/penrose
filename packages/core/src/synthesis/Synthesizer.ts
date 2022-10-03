@@ -963,7 +963,7 @@ const generatePredArgs = (
   ctx: SynthesisContext
 ): WithStmts<SubPredArg<A>[]> => {
   const resWithCtx = args.reduce(
-    ({ res, stmts, ids }: WithStmts<SubPredArg<A>[]> & IDList, arg) => {
+    ({ res, stmts, ids, ctx }: WithStmts<SubPredArg<A>[]> & IDList, arg) => {
       const {
         res: newArg,
         stmts: newStmts,

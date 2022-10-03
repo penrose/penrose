@@ -1,4 +1,4 @@
-Point A,B, C, D, E
+Point A, B, C, D, E
 Segment s1 := MkSegment(A,E)
 Segment s2 := MkSegment(E,C)
 Segment s3 := MkSegment(A,B)
