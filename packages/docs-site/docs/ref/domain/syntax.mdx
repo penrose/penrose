@@ -49,7 +49,9 @@ type Hydrogen <: Atom
 type Oxygen <: Atom
 ```
 
-Subtyping describes "is-a" relationships between types: a Hydrogen "is-a[n]" Atom; an Oxygen "is-a[n]" Atom. If _Penrose_ later expects to see an object with _Atom_ type, it will also accept an object with _Hydrogen_ or _Oxygen_ type. In other words, objects with type `A` can be used in place of an object with type `B`, as long as `A` is a subtype of `B`. In this case, we say "`A` matches `B`." This behavior is similar to "inheritance" in many object-oriented programming languages.
+Subtyping describes "is-a" relationships between types: a Hydrogen "is-a[n]" Atom; an Oxygen "is-a[n]" Atom. Using the "is-a" interpretation, since an Atom "is-a[n]" Atom, inherently, for all type `A`, we have that `A` is a subtype of `A`. This interpretation of subtyping is consistent with "inheritance" in many object-oriented programming languages.
+
+_Penrose_ adopts this interpretation: if _Penrose_ expects to see an object with type `A`, then it will also accept an object of type `B`, as long as `B` is a subtype of `A`. We say that "`B` **matches** `A`."
 
 ## Predicate Declarations
 
