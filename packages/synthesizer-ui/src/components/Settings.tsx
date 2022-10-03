@@ -11,7 +11,13 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import { compileDomain, showError, SynthesizerSetting } from "@penrose/core";
+import { Listing } from "@penrose/components";
+import {
+  compileDomain,
+  Env,
+  showError,
+  SynthesizerSetting,
+} from "@penrose/core";
 import React from "react";
 import { MultiselectDropdown } from "./MultiselectDropdown";
 
@@ -67,6 +73,7 @@ interface SettingState {
   domainEnv: PartialEnv;
   domain: string;
   style: string;
+  env?: Env;
 }
 
 const InputContainer = styled(Box)({
@@ -194,11 +201,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
   onTextAreaChange = (event: any) => {
     event.preventDefault();
-    if (event.target.name === "sub") {
-      this.setState({
-        substance: event.target.value,
-      });
-    } else if (event.target.name === "dsl") {
+    if (event.target.name === "dsl") {
       this.setState({
         domain: event.target.value,
       });
@@ -324,7 +327,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         The Settings element is floating so it must be included */}
         <Toolbar />
         <InputContainer>
-          <TextField
+          {/* <TextField
             rows={10}
             name="sub"
             multiline
@@ -333,7 +336,26 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             fullWidth
             onChange={this.onTextAreaChange}
             value={this.state.substance}
-          />
+          /> */}
+
+          <Accordion key="substance" elevation={0}>
+            <AccordionHeaderStyled>{`Substance Program`}</AccordionHeaderStyled>
+            <AccordionBodyStyled style={{ padding: 0 }}>
+              <Listing
+                domain={this.state.domain}
+                substance={this.state.substance}
+                onChange={(sub: string) =>
+                  this.setState({
+                    substance: sub,
+                  })
+                }
+                width={"100%"}
+                height={"500px"}
+                monacoOptions={{ theme: "vs" }}
+                readOnly={false}
+              />
+            </AccordionBodyStyled>
+          </Accordion>
           <Accordion key="domain" elevation={0}>
             <AccordionHeaderStyled>{`Domain Program`}</AccordionHeaderStyled>
             <AccordionBodyStyled style={{ padding: 0 }}>
