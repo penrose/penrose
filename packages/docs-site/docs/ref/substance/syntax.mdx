@@ -34,7 +34,11 @@ type_name object_name
 where
 
 - `type_name` is a type that is declared in the _domain_ schema; and
-- `object_name` is the name given to this object, which can be referred to in other parts of the _substance_ program. _Penrose_ also allows users to declare multiple objects of the same type at the same time:
+- `object_name` is the name given to this object, which can be referred to in other parts of the _substance_ program.
+
+Once an object is declared, we can refer to it using `object_name`, which becomes a _substance_ variable.
+
+_Penrose_ also allows users to declare multiple objects of the same type at the same time:
 
 ```
 type_name object_name_1, object_name_2, ...
