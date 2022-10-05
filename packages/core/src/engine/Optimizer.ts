@@ -28,7 +28,7 @@ import {
 import { add, mul } from "./AutodiffFunctions";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
-//const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
+// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 ////////////////////////////////////////////////////////////////////////////////
