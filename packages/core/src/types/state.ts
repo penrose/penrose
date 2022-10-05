@@ -31,6 +31,7 @@ export interface State {
   canvas: Canvas;
   computeShapes: ShapeFn;
   params: Params;
+  frozenValues: number[];
 }
 
 /**

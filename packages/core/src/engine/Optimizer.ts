@@ -28,8 +28,8 @@ import {
 import { add, mul } from "./AutodiffFunctions";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
-// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
-const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
+// const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -267,7 +267,8 @@ export const step = (state: State, steps: number): State => {
               inputs,
               constraintSets,
               nextStage,
-              without(remainingStages, nextStage)
+              without(remainingStages, nextStage),
+              state.frozenValues
             ),
           };
         }
@@ -820,7 +821,8 @@ export const genOptProblem = (
   inputs: InputMeta[],
   constraintSet: StagedConstraints,
   stage: OptStage,
-  remainingStages: OptStage[]
+  remainingStages: OptStage[],
+  frozenVaryingValues: number[] = []
 ): Params => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
@@ -860,7 +862,9 @@ export const genOptProblem = (
           return 0;
         } else {
           const meta = inputs[i];
-          return meta.tag === "Optimized" && meta.stages.includes(stage)
+          return meta.tag === "Optimized" &&
+            meta.stages.includes(stage) &&
+            !frozenVaryingValues.includes(i)
             ? gradient[i]
             : 0;
         }

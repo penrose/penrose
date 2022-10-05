@@ -3201,6 +3201,7 @@ export const compileStyleHelper = (
     canvas: canvas.value,
     computeShapes,
     params,
+    frozenValues: []
   };
 
   log.info("init state from GenOptProblem", initState);
