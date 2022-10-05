@@ -783,7 +783,8 @@ export const evalEnergyOnCustom = (
 export const genOptProblem = (
   inputs: InputMeta[],
   objEngs: ad.Num[],
-  constrEngs: ad.Num[]
+  constrEngs: ad.Num[],
+  frozenVaryingValues: number[] = []
 ): Params => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
@@ -819,7 +820,7 @@ export const genOptProblem = (
           return 0;
         } else {
           const meta = inputs[i];
-          return meta.tag === "Optimized" && meta.stage === stage
+          return meta.tag === "Optimized" && !frozenVaryingValues.includes(i)
             ? gradient[i]
             : 0;
         }

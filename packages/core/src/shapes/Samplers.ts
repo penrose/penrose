@@ -32,7 +32,6 @@ export type Sampler = (rng: seedrandom.prng) => number;
 export interface OptimizedMeta {
   tag: "Optimized";
   sampler: Sampler;
-  stage: string;
 }
 
 export interface UnoptimizedMeta {
@@ -77,12 +76,10 @@ export const sampleVector = (
   vectorV([
     makeInput({
       sampler: uniform(...canvas.xRange),
-      stage: "ShapeLayout",
       tag: "Optimized",
     }),
     makeInput({
       sampler: uniform(...canvas.yRange),
-      stage: "ShapeLayout",
       tag: "Optimized",
     }),
   ]);
@@ -94,7 +91,6 @@ export const sampleWidth = (
   floatV(
     makeInput({
       sampler: uniform(3, canvas.width / 6),
-      stage: "ShapeLayout",
       tag: "Optimized",
     })
   );
@@ -106,7 +102,6 @@ export const sampleHeight = (
   floatV(
     makeInput({
       sampler: uniform(3, canvas.height / 6),
-      stage: "ShapeLayout",
       tag: "Optimized",
     })
   );
@@ -115,7 +110,6 @@ export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
   floatV(
     makeInput({
       sampler: uniform(0.5, 3),
-      stage: "ShapeLayout",
       tag: "Optimized",
     })
   );
@@ -127,17 +121,14 @@ export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
     contents: [
       makeInput({
         sampler: uniform(min, max),
-        stage: "ShapeLayout",
         tag: "Optimized",
       }),
       makeInput({
         sampler: uniform(min, max),
-        stage: "ShapeLayout",
         tag: "Optimized",
       }),
       makeInput({
         sampler: uniform(min, max),
-        stage: "ShapeLayout",
         tag: "Optimized",
       }),
       0.5,

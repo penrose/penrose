@@ -2712,7 +2712,6 @@ const evalExpr = (
           floatV(
             mut.makeInput({
               tag: "Optimized",
-              stage: "ShapeLayout",
               sampler: uniform(...canvas.xRange),
             })
           )
@@ -3155,6 +3154,7 @@ export const compileStyleHelper = (
     canvas: canvas.value,
     computeShapes,
     params,
+    frozenValues: [],
   };
 
   log.info("init state from GenOptProblem", initState);
