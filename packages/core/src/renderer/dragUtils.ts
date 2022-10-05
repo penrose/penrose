@@ -1,3 +1,4 @@
+import { genOptProblem } from "engine/Optimizer";
 import * as ad from "types/ad";
 import { Properties, ShapeAD } from "types/shape";
 import { State } from "types/state";
@@ -17,9 +18,13 @@ export const dragUpdate = (
       dragShape(shape, [dx, dy], xs);
     }
   }
+  const { inputs, constraintSets } = state;
   const updated: State = {
     ...state,
-    params: { ...state.params, optStatus: "NewIter" },
+    params: genOptProblem(inputs, constraintSets, "ShapeLayout", [
+      "LabelLayout",
+      "Overall",
+    ]),
     varyingValues: xs,
   };
   return updated;

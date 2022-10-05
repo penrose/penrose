@@ -137,7 +137,7 @@ export const step = (state: State, steps: number): State => {
     " | UO round: ",
     optParams.UOround
   );
-  log.info("params: ", optParams);
+  log.info("status: ", optStatus);
   // log.info("fns: ", prettyPrintFns(state));
 
   switch (optStatus) {
@@ -832,8 +832,6 @@ export const genOptProblem = (
   const epWeightNode = input({ val: weight, key: inputs.length });
 
   const { objFns, constrFns } = constraintSet[stage];
-  console.log(constraintSet, stage, constraintSet[stage]);
-
   const objEngs = objFns.map(({ output }) => output);
   const constrEngs = constrFns.map(({ output }) => output);
 

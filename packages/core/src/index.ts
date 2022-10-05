@@ -310,13 +310,13 @@ export const evalFns = (
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
   let { lastConstrEnergies, lastObjEnergies } = s.params;
   const { currentStage } = s.params;
-  if (!lastConstrEnergies || !lastObjEnergies) {
-    const { objEngs, constrEngs } = s.params.objectiveAndGradient(
-      s.params.weight
-    )(s.varyingValues);
-    lastConstrEnergies = constrEngs;
-    lastObjEnergies = objEngs;
-  }
+  // if (!lastConstrEnergies || !lastObjEnergies) {
+  const { objEngs, constrEngs } = s.params.objectiveAndGradient(
+    s.params.weight
+  )(s.varyingValues);
+  lastConstrEnergies = constrEngs;
+  lastObjEnergies = objEngs;
+  // }
   const { constrFns, objFns } = s.constraintSets[currentStage];
   return {
     constrEngs: new Map(zip2(constrFns.map(prettyPrintFn), lastConstrEnergies)),

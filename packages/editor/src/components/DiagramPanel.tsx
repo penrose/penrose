@@ -61,11 +61,19 @@ export default function DiagramPanel() {
           ? await RenderInteractive(
               state,
               (newState: PenroseState) => {
-                setDiagram({
-                  ...diagram,
-                  state: newState,
-                });
-                step();
+                const stepResult = stepStateSafe(newState, metadata.stepSize);
+                if (stepResult.isErr()) {
+                  setDiagram({
+                    ...diagram,
+                    error: stepResult.error,
+                  });
+                } else {
+                  setDiagram({
+                    ...diagram,
+                    error: null,
+                    state: stepResult.value,
+                  });
+                }
               },
               pathResolver
             )
