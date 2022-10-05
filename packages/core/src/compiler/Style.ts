@@ -3062,7 +3062,12 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
           },
         },
         output,
-        optStages: ["ShapeLayout", "Overall"], // COMBAK: distinguish between label and shape
+        optStages: [
+          shape.shapeType === "Text" || shape.shapeType === "Equation"
+            ? "LabelLayout"
+            : "ShapeLayout",
+          "Overall",
+        ], // COMBAK: distinguish between label and shape
       });
     }
   }
@@ -3201,7 +3206,7 @@ export const compileStyleHelper = (
     canvas: canvas.value,
     computeShapes,
     params,
-    frozenValues: []
+    frozenValues: [],
   };
 
   log.info("init state from GenOptProblem", initState);
