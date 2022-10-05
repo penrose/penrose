@@ -1,6 +1,7 @@
 import {
   containsPolygonPoints,
   convexPartitions,
+  convexPolygonMinkowskiSDF,
   overlappingImplicitEllipses,
   overlappingPolygonPoints,
   overlappingPolygonPointsEllipse,
@@ -183,6 +184,25 @@ export const overlappingCircleLine = (
   const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
   // return d - (r+o)
   return sub(d, add(r, o));
+};
+
+/**
+ * Require that circle `s1` overlaps line `s2` with some padding `padding`.
+ */
+export const overlappingTextLine = (
+  t: [string, Text | Equation],
+  [, s2]: [string, Line],
+  padding: ad.Num = 0
+): ad.Num => {
+  console.log("hit");
+
+  // collect constants
+  const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(
+    bboxFromShape(t)
+  );
+  const p1: ad.Num[][] = [topLeft, topRight, bottomLeft, bottomRight];
+  const p2: ad.Num[][] = [s2.start.contents, s2.end.contents];
+  return convexPolygonMinkowskiSDF(p1, p2, padding);
 };
 
 /**

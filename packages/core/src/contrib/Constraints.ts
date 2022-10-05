@@ -15,6 +15,7 @@ import {
   overlappingPolygonEllipse,
   overlappingPolygons,
   overlappingRectlikeCircle,
+  overlappingTextLine,
 } from "contrib/ConstraintsUtils";
 import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
 import { inRange, overlap1D } from "contrib/Utils";
@@ -199,6 +200,11 @@ const constrDictGeneral = {
       return overlappingCircles([t1, s1], [t2, s2], padding);
     else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
       return overlappingAABBs([t1, s1], [t2, s2], padding);
+    // HACK: text/label-line, mainly to skip convex partitioning
+    else if ((t1 === "Text" || t1 === "Equation") && t2 === "Line")
+      return overlappingTextLine([t1, s1], [t2, s2], padding);
+    else if (t1 === "Line" && (t2 === "Text" || t2 === "Equation"))
+      return overlappingTextLine([t2, s2], [t1, s1], padding);
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], padding);
     else if (t1 === "Ellipse" && t2 === "Ellipse")
