@@ -658,6 +658,34 @@ export const compDict = {
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
+
+  repeatedArcs: (
+    _context: Context,
+    innerStart: ad.Pt2,
+    innerEnd: ad.Pt2,
+    outerStart: ad.Pt2,
+    outerEnd: ad.Pt2,
+    innerRadius: ad.Pt2,
+    repeat: ad.Num,
+    spacing: ad.Num,
+    arcSweep: ad.Num
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    const startDir = ops.vnormalize(ops.vsub(outerStart, innerStart));
+    const endDir = ops.vnormalize(ops.vsub(outerEnd, innerEnd));
+    let start: ad.Pt2 = innerStart;
+    let end: ad.Pt2 = innerEnd;
+    let radius = innerRadius;
+    for (let i = 0; i < repeat; i++) {
+      path.moveTo(start).arcTo(radius, end, [0, 0, arcSweep]);
+      // TODO: avoid casting to `ad.Pt2`
+      start = ops.vmove(start, spacing, startDir) as ad.Pt2;
+      end = ops.vmove(end, spacing, endDir) as ad.Pt2;
+      radius = ops.vadd(radius, [spacing, spacing]) as ad.Pt2;
+    }
+    return path.getPath();
+  },
+
   /**
    * Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled
    * @param center: center of the circle on which the arc sits

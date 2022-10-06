@@ -51,8 +51,7 @@ const {
     rayLength = 100.0
     pointSize = 4.0
     pointStroke = 0.0
-    thetaRadius = 30.0
-    bigThetaRadius = 40.0
+    thetaRadius = 15.0
     circleRadius = 150.0
 }
 
@@ -327,9 +326,8 @@ with Point p; Point q; Point r {
   encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
 }
 
--- NOTE: Get rid of repetition
 forall Angle a, b
-where EqualAngleMarker1(a, b) {
+where EqualAngleMarker(a, b) {
   --find points from p->q, then q->r for each vector. draw vectors for each
   startA = ptOnLine(a.q, a.p, a.radius)
   endA = ptOnLine(a.q, a.r, a.radius)
@@ -339,128 +337,20 @@ where EqualAngleMarker1(a, b) {
   endB = ptOnLine(b.q, b.r, b.radius)
   sweepB = arcSweepFlag(b.q, startB, endB)
 
+  spacing = 10
+
   override a.mark = Path {
-    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
+    d : repeatedArcs(startA, endA, a.p, a.r, (a.radius, a.radius), match_id, spacing, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
  }
   override b.mark = Path {
-    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
+    d : repeatedArcs(startB, endB, b.p, b.r, (a.radius, a.radius), match_id, spacing, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
  }
-}
-
--- NOTE: Get rid of repetition
-forall Angle a, b
-where EqualAngleMarker2(a, b) {
-  startA = ptOnLine(a.q, a.p, a.radius)
-  endA = ptOnLine(a.q, a.r, a.radius)
-  sweepA = arcSweepFlag(a.q, startA, endA)
-
-  startB = ptOnLine(b.q, b.p, b.radius)
-  endB = ptOnLine(b.q, b.r, b.radius)
-  sweepB = arcSweepFlag(b.q, startB, endB)
-
-  override a.mark = Path {
-    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override b.mark = Path {
-    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-
-  bigR = const.bigThetaRadius
-  startAbig = ptOnLine(a.q, a.p, bigR)
-  endAbig = ptOnLine(a.q, a.r, bigR)
-
-  startBbig = ptOnLine(b.q, b.p, bigR)
-  endBbig = ptOnLine(b.q, b.r, bigR)
-
-  override a.mark2 = Path {
-    d : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override b.mark2 = Path {
-    d : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-}
-
--- NOTE: Get rid of repetition
-forall Angle a, b
-where EqualAngleMarker3(a, b) {
-  startA = ptOnLine(a.q, a.p, a.radius)
-  endA = ptOnLine(a.q, a.r, a.radius)
-  sweepA = arcSweepFlag(a.q, startA, endA)
-
-  startB = ptOnLine(b.q, b.p, b.radius)
-  endB = ptOnLine(b.q, b.r, b.radius)
-  sweepB = arcSweepFlag(b.q, startB, endB)
-
-  override a.mark = Path {
-    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
- }
-  override b.mark = Path {
-    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
- }
-
-  midR = const.bigThetaRadius
-  startAmid = ptOnLine(a.q, a.p, midR)
-  endAmid = ptOnLine(a.q, a.r, midR)
-
-  startBmid = ptOnLine(b.q, b.p, midR)
-  endBmid = ptOnLine(b.q, b.r, midR)
-
-  override a.mark2 = Path {
-    d : arc("open", startAmid, endAmid, (midR, midR), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
- }
-  override b.mark2 = Path {
-    d : arc("open", startBmid, endBmid, (midR, midR), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
- }
-
-  bigR = const.bigThetaRadius + 10.
-  startAbig = ptOnLine(a.q, a.p, bigR)
-  endAbig = ptOnLine(a.q, a.r, bigR)
-
-  startBbig = ptOnLine(b.q, b.p, bigR)
-  endBbig = ptOnLine(b.q, b.r, bigR)
-
-  override a.mark3 = Path {
-    d : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override b.mark3 = Path {
-    d : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
 }
 
 forall Angle a, b
