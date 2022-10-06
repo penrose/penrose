@@ -51,7 +51,7 @@ const {
     rayLength = 100.0
     pointSize = 4.0
     pointStroke = 0.0
-    thetaRadius = 15.0
+    thetaRadius = 20.0
     circleRadius = 150.0
 }
 
@@ -228,7 +228,7 @@ forall Segment e; Plane p {
 
 forall Linelike s, t
 where EqualLength(s, t) {
-  encourage equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
+  ensure equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
 }
 
 --TODO eventually this should also provide an equal length marker since it is bisecting the segment
