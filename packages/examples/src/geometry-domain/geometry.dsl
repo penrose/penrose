@@ -46,7 +46,7 @@ function Diameter(Circle c, Point p, Point q) -> Segment
 -- Unimplemented
 -- function Sum(Angle, Angle) -> Angle
 -- function Intersection(Linelike, Linelike) -> Point
--- function Altitude(Triangle, Angle) -> Segment
+-- function Altitude(Triangle, Angl/e) -> Segment
 -- function Endpoint(Segment) -> Point
 
 -- ~~~~~~~~~~~~~~~~ PREDICATES ~~~~~~~~~~~~~~~~
@@ -64,9 +64,7 @@ predicate Parallel(Linelike, Linelike)
 predicate RightMarked(Angle)
 predicate RightUnmarked(Angle)
 predicate AngleBisector(Angle, Linelike)
-predicate EqualAngleMarker1(Angle, Angle)
-predicate EqualAngleMarker2(Angle, Angle)
-predicate EqualAngleMarker3(Angle, Angle)
+predicate EqualAngleMarker(Angle, Angle)
 predicate EqualAngle(Angle, Angle)
 
 -- Polygons/Shapes
