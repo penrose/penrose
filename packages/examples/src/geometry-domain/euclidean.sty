@@ -284,55 +284,15 @@ with Segment s2; Point p1, p2 {
 
 -- NOTE: Get rid of repetition
 forall Linelike s, t 
-where EqualLengthMarker1(s, t) {
+where EqualLengthMarker(s, t) {
   override s.tick = Path {
-    d : ticksOnLine(s.icon.start, s.icon.end, 15., 1, 10.)
+    d : ticksOnLine(s.icon.start, s.icon.end, 15., match_id, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
   }
   override t.tick = Path {
-    d : ticksOnLine(t.icon.start, t.icon.end, 15., 1, 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  s.tick above s.icon
-  t.tick above t.icon
-}
-
--- NOTE: Get rid of repetition
-forall Linelike s, t 
-where EqualLengthMarker2(s, t) {
-  --need slope of line, then need to equally distribute the tick marks
-  override s.tick = Path {
-    d : ticksOnLine(s.icon.start, s.icon.end, 15., 2., 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override t.tick = Path {
-    d : ticksOnLine(t.icon.start, t.icon.end, 15., 2., 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  s.tick above s.icon
-  t.tick above t.icon
-}
-
--- NOTE: Get rid of repetition
-forall Linelike s, t 
-where EqualLengthMarker3(s, t) {
-  --need slope of line, then need to equally distribute the tick marks
-  override s.tick = Path {
-    d : ticksOnLine(s.icon.start, s.icon.end, 15., 3, 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override t.tick = Path {
-    d : ticksOnLine(t.icon.start, t.icon.end, 15., 3, 10.)
+    d : ticksOnLine(t.icon.start, t.icon.end, 15., match_id, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
