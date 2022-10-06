@@ -36,15 +36,31 @@ function HomepageHeader() {
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
 
-  const trio = {
-    dsl: examples["set-theory-domain"]["setTheory.dsl"],
-    sub: examples["set-theory-domain"]["tree.sub"],
-    sty: examples["set-theory-domain"]["venn.sty"],
-  };
   const demo = [
-    { variation: "foo", ...trio },
-    { variation: "bar", ...trio },
-    { variation: "baz", ...trio },
+    {
+      dsl: examples["geometry-domain"]["geometry.dsl"],
+      sub: examples["geometry-domain"]["teaser.sub"],
+      sty: examples["geometry-domain"]["euclidean-teaser.sty"],
+      variation: "WhisperPeafowl34044",
+    },
+    {
+      dsl: examples["set-theory-domain"]["functions.dsl"],
+      sub: examples["set-theory-domain"]["continuousmap.sub"],
+      sty: examples["set-theory-domain"]["continuousmap.sty"],
+      variation: "",
+    },
+    {
+      dsl: examples["set-theory-domain"]["setTheory.dsl"],
+      sub: examples["set-theory-domain"]["tree.sub"],
+      sty: examples["set-theory-domain"]["venn.sty"],
+      variation: "PlumvilleCapybara104",
+    },
+    {
+      dsl: examples["lagrange-bases"]["lagrange-bases.dsl"],
+      sub: examples["lagrange-bases"]["example.sub"],
+      sty: examples["lagrange-bases"]["lagrange-bases.sty"],
+      variation: "RainmakerMarten88256",
+    },
   ];
 
   return (

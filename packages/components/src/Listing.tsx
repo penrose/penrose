@@ -8,7 +8,6 @@ export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions =
   automaticLayout: true,
   readOnly: true,
   minimap: { enabled: false },
-  wordWrap: "on",
   lineNumbers: "off",
   fontSize: 16,
   scrollbar: {
