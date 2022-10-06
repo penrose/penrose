@@ -18,6 +18,7 @@ import {
   showError,
   SynthesizerSetting,
 } from "@penrose/core";
+import { examples } from "@penrose/examples";
 import React from "react";
 import { MultiselectDropdown } from "./MultiselectDropdown";
 
@@ -127,7 +128,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
     this.state = {
-      substance: "",
+      substance: examples["geometry-domain"].textbook_problems["c04p01.sub"],
       setting: undefined,
       numPrograms: 10,
       domainEnv: defaultEnv,
@@ -137,13 +138,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   }
 
   componentDidMount() {
-    fetch("public/files/sub_example.txt")
-      .then((r) => r.text())
-      .then((text) => {
-        this.setState({
-          substance: text,
-        });
-      });
     fetch("public/files/defaultSetting.json")
       .then((r) => r.json())
       .then((text) => {

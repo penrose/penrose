@@ -17,6 +17,7 @@ import {
   SynthesizerSetting,
 } from "@penrose/core";
 import { A } from "@penrose/core/build/dist/types/ast";
+import { examples } from "@penrose/examples";
 import React from "react";
 import { DownloadSVG } from "../utils/utils";
 import { Grid } from "./Grid";
@@ -75,25 +76,11 @@ export class Content extends React.Component<ContentProps, ContentState> {
     this.state = {
       progs: [],
       staged: [],
-      domain: "",
-      style: "",
+      domain: examples["geometry-domain"]["geometry.dsl"],
+      style: examples["geometry-domain"]["euclidean.sty"],
       srcState: undefined,
     };
   }
-
-  componentDidMount() {
-    fetch("public/files/geometry.txt")
-      .then((r) => r.text())
-      .then((text) => {
-        this.setState({ domain: text });
-      });
-    fetch("public/files/euclidean.txt")
-      .then((r) => r.text())
-      .then((text) => {
-        this.setState({ style: text });
-      });
-  }
-
   // callback function to indicate that a svg will be exported
   addStaged = (idx: number, svgStr: string) => {
     if (svgStr !== "") {
