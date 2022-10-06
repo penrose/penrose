@@ -348,7 +348,7 @@ with Point p; Point q; Point r {
   theta.p = p.vec
   theta.q = q.vec
   theta.r = r.vec
-  theta.color = setOpacity(Colors.darkpurple, 0.4)
+  theta.color = #000
   theta.side1 = Line {
     start : p.icon.center
     end : q.icon.center
@@ -526,7 +526,7 @@ where RightMarked(a) {
   override a.mark = Path {
     d : pathFromPoints("open", [ptOnLine(a.q, a.p, markSize), innerPointOffset(a.q, a.p, a.r, markSize), ptOnLine(a.q, a.r, markSize)])
     strokeWidth : 2.0
-    strokeColor : Colors.black
+    strokeColor : #000
     fillColor : Colors.none
   }
   vec2 u = a.p - a.q
