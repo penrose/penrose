@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import { examples } from "@penrose/examples";
+import { examples, registry } from "@penrose/examples";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import * as React from "react";
@@ -33,34 +33,38 @@ function HomepageHeader() {
   );
 }
 
+const exampleFromURI = (uri) => {
+  let x = examples;
+  for (const part of uri.split("/")) {
+    x = x[part];
+  }
+  return x;
+};
+
+const findTrio = (sub, sty) => {
+  const matching = registry.trios.filter(
+    ({ substance, style }) => substance === sub && style === sty
+  );
+  if (matching.length !== 1) {
+    throw Error(`expected exactly one matching trio, got ${matching.length}`);
+  }
+  const [{ substance, style, domain, variation }] = matching;
+  return {
+    dsl: exampleFromURI(registry.domains[domain].URI),
+    sub: exampleFromURI(registry.domains[substance].URI),
+    sty: exampleFromURI(registry.domains[style].URI),
+    variation,
+  };
+};
+
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
 
   const demo = [
-    {
-      dsl: examples["geometry-domain"]["geometry.dsl"],
-      sub: examples["geometry-domain"]["teaser.sub"],
-      sty: examples["geometry-domain"]["euclidean-teaser.sty"],
-      variation: "WhisperPeafowl34044",
-    },
-    {
-      dsl: examples["set-theory-domain"]["functions.dsl"],
-      sub: examples["set-theory-domain"]["continuousmap.sub"],
-      sty: examples["set-theory-domain"]["continuousmap.sty"],
-      variation: "",
-    },
-    {
-      dsl: examples["set-theory-domain"]["setTheory.dsl"],
-      sub: examples["set-theory-domain"]["tree.sub"],
-      sty: examples["set-theory-domain"]["venn.sty"],
-      variation: "PlumvilleCapybara104",
-    },
-    {
-      dsl: examples["lagrange-bases"]["lagrange-bases.dsl"],
-      sub: examples["lagrange-bases"]["example.sub"],
-      sty: examples["lagrange-bases"]["lagrange-bases.sty"],
-      variation: "RainmakerMarten88256",
-    },
+    findTrio("siggraph-teaser", "euclidean-teaser"),
+    findTrio("continuousmap", "continuousmap"),
+    findTrio("tree", "venn"),
+    findTrio("lagrange-bases", "lagrange-bases"),
   ];
 
   return (
