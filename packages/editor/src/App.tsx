@@ -180,7 +180,10 @@ function App() {
       const workspace = snapshot.getLoadable(currentWorkspaceState)
         .contents as Workspace;
       if (fileName === workspace.files.domain.name) {
-        set(fileContentsSelector("domain"), (file) => ({ ...file, contents }));
+        set(fileContentsSelector("domain"), (file) => ({
+          ...file,
+          contents,
+        }));
         // TODO: compile
       } else if (fileName === workspace.files.style.name) {
         set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
