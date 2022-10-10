@@ -633,13 +633,12 @@ const checkFunc = (
         ([expr, arg], { substEnv: cxt, env: e }) => matchArg(expr, arg, cxt, e),
         ok({ substEnv: substContext, env, contents: func.args[0] })
       );
-      const outputOk: ResultWithType<
-        ApplyConstructor<A> | ApplyFunction<A>
-      > = andThen(
-        ({ substEnv, env }) =>
-          withType(env, applySubstitution(output.type, substEnv), consOrFunc),
-        argsOk
-      );
+      const outputOk: ResultWithType<ApplyConstructor<A> | ApplyFunction<A>> =
+        andThen(
+          ({ substEnv, env }) =>
+            withType(env, applySubstitution(output.type, substEnv), consOrFunc),
+          argsOk
+        );
       // if the func is a constructor and bounded by a variable, cache the binding to env
       if (
         variable &&

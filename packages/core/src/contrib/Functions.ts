@@ -1690,10 +1690,8 @@ export const sdEllipseAsNums = (
 
 // `_compDictVals` causes TypeScript to enforce that every function in
 // `compDict` takes a `Context` as its first parameter and returns a `Value`
-const _compDictVals: ((
-  context: Context,
-  ...rest: never[]
-) => Value<ad.Num>)[] = Object.values(compDict);
+const _compDictVals: ((context: Context, ...rest: never[]) => Value<ad.Num>)[] =
+  Object.values(compDict);
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {

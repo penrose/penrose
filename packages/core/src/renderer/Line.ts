@@ -103,10 +103,8 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
 };
 
 const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
-  const [
-    [[arrowSX, arrowSY], [arrowEX, arrowEY]],
-    attrToNotAutoMap,
-  ] = makeRoomForArrows(shape);
+  const [[[arrowSX, arrowSY], [arrowEX, arrowEY]], attrToNotAutoMap] =
+    makeRoomForArrows(shape);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
