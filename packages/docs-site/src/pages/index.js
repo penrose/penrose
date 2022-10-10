@@ -101,7 +101,13 @@ export default function Home() {
 
         <h1>Example</h1>
         <p>Here's Penrose running in your browser:</p>
-        <DemoWrapper style={{ margin: "auto" }} examples={demo} width="400px" />
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <DemoWrapper
+            style={{ margin: "auto" }}
+            examples={demo}
+            width="400px"
+          />
+        </div>
       </main>
     </Layout>
   );
