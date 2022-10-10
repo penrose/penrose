@@ -208,19 +208,15 @@ export const currentRogerState = atom<RogerState>({
  */
 export const fileContentsSelector = selectorFamily<ProgramFile, ProgramType>({
   key: "fileContents",
-  get:
-    (programType: ProgramType) =>
-    ({ get }) => {
-      return get(currentWorkspaceState).files[programType];
-    },
-  set:
-    (programType: ProgramType) =>
-    ({ set }, newValue) => {
-      set(currentWorkspaceState, (state) => ({
-        ...state,
-        files: { ...state.files, [programType]: newValue },
-      }));
-    },
+  get: (programType: ProgramType) => ({ get }) => {
+    return get(currentWorkspaceState).files[programType];
+  },
+  set: (programType: ProgramType) => ({ set }, newValue) => {
+    set(currentWorkspaceState, (state) => ({
+      ...state,
+      files: { ...state.files, [programType]: newValue },
+    }));
+  },
 });
 
 /**

@@ -102,8 +102,10 @@ const initEnv = (): Env => ({
   varIDs: [],
   vars: im.Map<string, TypeConsApp<C>>(),
   constructors: im.Map<string, ConstructorDecl<C>>(),
-  constructorsBindings:
-    im.Map<string, [ApplyConstructor<C>, ConstructorDecl<C>]>(),
+  constructorsBindings: im.Map<
+    string,
+    [ApplyConstructor<C>, ConstructorDecl<C>]
+  >(),
   predicates: im.Map<string, PredicateDecl<C>>(),
   functions: im.Map<string, FunctionDecl<C>>(),
   preludeValues: im.Map<string, TypeConstructor<C>>(),

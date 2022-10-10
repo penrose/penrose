@@ -54,18 +54,17 @@ function EditableTitle() {
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const saveLocally = useSaveLocally();
   const onChange = useRecoilCallback(
-    ({ set, snapshot }) =>
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        set(workspaceMetadataSelector, (state) => ({
-          ...state,
-          name: e.target.value,
-        }));
-        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-          .contents as WorkspaceMetadata;
-        if (metadata.location.kind !== "local" || !metadata.location.saved) {
-          saveLocally();
-        }
+    ({ set, snapshot }) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      set(workspaceMetadataSelector, (state) => ({
+        ...state,
+        name: e.target.value,
+      }));
+      const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+        .contents as WorkspaceMetadata;
+      if (metadata.location.kind !== "local" || !metadata.location.saved) {
+        saveLocally();
       }
+    }
   );
   const onKey = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === "Escape") {

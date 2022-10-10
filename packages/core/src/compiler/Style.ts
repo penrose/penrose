@@ -1258,8 +1258,9 @@ const matchStyApplyToSubApply = (
         return rSubst;
       } else {
         const rSubstWithAlias = { ...rSubst };
-        rSubstWithAlias[styRel.alias.value] =
-          getSubPredAliasInstanceName(subRel);
+        rSubstWithAlias[styRel.alias.value] = getSubPredAliasInstanceName(
+          subRel
+        );
         return rSubstWithAlias;
       }
     }
@@ -1469,8 +1470,9 @@ const makeListRSubstsForStyleRels = (
   subProg: SubProg<A>
 ): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
-  const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
-    im.List();
+  const initListRSubsts: im.List<
+    im.List<[Subst, im.Set<SubStmt<A>>]>
+  > = im.List();
 
   const [newUsedStyVars, newListRSubsts] = rels.reduce(
     ([usedStyVars, listRSubsts], rel) => {
@@ -1966,12 +1968,17 @@ const processBlock = (
       .concat(hb.block.statements);
 
     // Translate each statement in the block
-    const { diagnostics, globals, unnamed, substances, locals } =
-      augmentedStatements.reduce(
-        (assignment, stmt, stmtIndex) =>
-          processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals
-      );
+    const {
+      diagnostics,
+      globals,
+      unnamed,
+      substances,
+      locals,
+    } = augmentedStatements.reduce(
+      (assignment, stmt, stmtIndex) =>
+        processStmt({ block, subst }, stmtIndex, stmt, assignment),
+      withLocals
+    );
 
     switch (block.tag) {
       case "LocalVarId": {
@@ -2199,16 +2206,18 @@ const evalVals = (
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
   evalExprs(mut, canvas, context, args, trans).andThen((argVals) =>
     all(
-      argVals.map((argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
-        switch (argVal.tag) {
-          case "GPI": {
-            return err(oneErr({ tag: "NotValueError", expr: args[i] }));
-          }
-          case "Val": {
-            return ok(argVal.contents);
+      argVals.map(
+        (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
+          switch (argVal.tag) {
+            case "GPI": {
+              return err(oneErr({ tag: "NotValueError", expr: args[i] }));
+            }
+            case "Val": {
+              return ok(argVal.contents);
+            }
           }
         }
-      })
+      )
     ).mapErr(flatErrs)
   );
 

@@ -560,8 +560,10 @@ export const enumerateMutationPaths = (
             cxt
           );
           // execute all mutations and get resulting programs
-          const resultProgs: WithContext<SubProg<A>>[] = possibleMutations.map(
-            (m) => executeMutation(m, progToGrow, cxt)
+          const resultProgs: WithContext<
+            SubProg<A>
+          >[] = possibleMutations.map((m) =>
+            executeMutation(m, progToGrow, cxt)
           );
           // pack the resulting programs with their updated mutation path
           return zipWith(

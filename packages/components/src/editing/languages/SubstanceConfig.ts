@@ -119,41 +119,42 @@ export const SubstanceCompletions = (
   return [...types, ...fns, ...predicates, ...constructors, ...labeling];
 };
 
-export const SetupSubstanceMonaco =
-  (domainCache: Env | null) => (monaco: Monaco) => {
-    monaco.languages.register({ id: "substance" });
-    monaco.languages.setLanguageConfiguration("substance", SubstanceConfig);
-    if (domainCache) {
-      const provideCompletion = (
-        model: editor.ITextModel,
-        position: Position
-      ) => {
-        const word = model.getWordUntilPosition(position);
-        const range: IRange = {
-          startLineNumber: position.lineNumber,
-          endLineNumber: position.lineNumber,
-          startColumn: word.startColumn,
-          endColumn: word.endColumn,
-        };
-        return { suggestions: SubstanceCompletions(range, domainCache) };
+export const SetupSubstanceMonaco = (domainCache: Env | null) => (
+  monaco: Monaco
+) => {
+  monaco.languages.register({ id: "substance" });
+  monaco.languages.setLanguageConfiguration("substance", SubstanceConfig);
+  if (domainCache) {
+    const provideCompletion = (
+      model: editor.ITextModel,
+      position: Position
+    ) => {
+      const word = model.getWordUntilPosition(position);
+      const range: IRange = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn,
       };
+      return { suggestions: SubstanceCompletions(range, domainCache) };
+    };
 
-      monaco.languages.setMonarchTokensProvider(
-        "substance",
-        SubstanceLanguageTokens(domainCache)
-      );
-      const dispose = monaco.languages.registerCompletionItemProvider(
-        "substance",
-        {
-          provideCompletionItems: provideCompletion,
-        } as any
-      );
-      // HACK ^
-      return () => {
-        // prevents duplicates
-        dispose.dispose();
-      };
-    } else {
-      return () => {};
-    }
-  };
+    monaco.languages.setMonarchTokensProvider(
+      "substance",
+      SubstanceLanguageTokens(domainCache)
+    );
+    const dispose = monaco.languages.registerCompletionItemProvider(
+      "substance",
+      {
+        provideCompletionItems: provideCompletion,
+      } as any
+    );
+    // HACK ^
+    return () => {
+      // prevents duplicates
+      dispose.dispose();
+    };
+  } else {
+    return () => {};
+  }
+};

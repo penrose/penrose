@@ -336,5 +336,6 @@ export const constrDict = {
 
 // `_constrDictVals` causes TypeScript to enforce that every function in
 // `constrDict` returns an `ad.Num`
-const _constrDictVals: ((...rest: never[]) => ad.Num)[] =
-  Object.values(constrDict);
+const _constrDictVals: ((...rest: never[]) => ad.Num)[] = Object.values(
+  constrDict
+);

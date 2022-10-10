@@ -120,33 +120,32 @@ export default function DiagramPanel() {
   });
 
   const downloadPdf = useRecoilCallback(
-    ({ snapshot }) =>
-      () => {
-        if (canvasRef.current !== null) {
-          const svg = canvasRef.current.firstElementChild as SVGSVGElement;
-          if (svg !== null && state) {
-            const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-              .contents as WorkspaceMetadata;
-            const openedWindow = window.open(
-              "",
-              "PRINT",
-              `height=${state.canvas.height},width=${state.canvas.width}`
-            );
-            if (openedWindow === null) {
-              toast.error("Couldn't open popup to print");
-              return;
-            }
-            openedWindow.document.write(
-              `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
-            );
-            openedWindow.document.write(svg.outerHTML);
-            openedWindow.document.write("</body></html>");
-            openedWindow.document.close();
-            openedWindow.focus();
-            openedWindow.print();
+    ({ snapshot }) => () => {
+      if (canvasRef.current !== null) {
+        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+        if (svg !== null && state) {
+          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+            .contents as WorkspaceMetadata;
+          const openedWindow = window.open(
+            "",
+            "PRINT",
+            `height=${state.canvas.height},width=${state.canvas.width}`
+          );
+          if (openedWindow === null) {
+            toast.error("Couldn't open popup to print");
+            return;
           }
+          openedWindow.document.write(
+            `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+          );
+          openedWindow.document.write(svg.outerHTML);
+          openedWindow.document.write("</body></html>");
+          openedWindow.document.close();
+          openedWindow.focus();
+          openedWindow.print();
         }
-      },
+      }
+    },
     [state]
   );
 
