@@ -51,8 +51,8 @@ const findTrio = (sub, sty) => {
   const [{ substance, style, domain, variation }] = matching;
   return {
     dsl: exampleFromURI(registry.domains[domain].URI),
-    sub: exampleFromURI(registry.domains[substance].URI),
-    sty: exampleFromURI(registry.domains[style].URI),
+    sub: exampleFromURI(registry.substances[substance].URI),
+    sty: exampleFromURI(registry.styles[style].URI),
     variation,
   };
 };
