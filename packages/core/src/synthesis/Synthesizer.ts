@@ -15,6 +15,7 @@ import {
   nullaryTypeCons,
   SubStmtKind,
 } from "analysis/SubstanceAnalysis";
+import { subTypesOf } from "compiler/Domain";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
@@ -247,16 +248,16 @@ export const removeID = (
 
 const findIDs = (
   ctx: SynthesisContext,
-  typeStr: string,
+  typeStrs: string[],
   excludeList?: Identifier<A>[]
 ): Identifier<A>[] => {
-  const possibleIDs = ctx.declaredIDs.get(typeStr);
-  if (possibleIDs) {
-    const candidates = possibleIDs.filter((id) =>
-      excludeList ? !excludeList.includes(id) : true
-    );
-    return candidates;
-  } else return [];
+  const possibleIDs: Identifier<A>[] = compact(
+    typeStrs.flatMap((typeStr) => ctx.declaredIDs.get(typeStr))
+  );
+  const candidates = possibleIDs.filter((id) =>
+    excludeList ? !excludeList.includes(id) : true
+  );
+  return candidates;
 };
 
 const generateID = (
@@ -791,6 +792,7 @@ const generatePredicate = (
   ctx: SynthesisContext,
   args?: SubPredArg<A>[]
 ): WithStmts<ApplyPredicate<A>> => {
+  log.debug(`Generating predicate of ${pred.name.value} type`);
   if (!args) {
     const {
       res,
@@ -904,10 +906,18 @@ const generateArg = (
     switch (option) {
       case "existing": {
         // TODO: clean up the logic
+        const argTypeName = argType.name.value;
         const possibleIDs =
           reuseOption === "distinct"
-            ? findIDs(ctx, argType.name.value, usedIDs)
-            : findIDs(ctx, argType.name.value);
+            ? findIDs(
+                ctx,
+                [argTypeName, ...subTypesOf(argType, ctx.env).map((t) => t)],
+                usedIDs
+              )
+            : findIDs(ctx, [
+                argTypeName,
+                ...subTypesOf(argType, ctx.env).map((t) => t),
+              ]);
         const existingID = ctx.choice(possibleIDs);
         log.debug(
           `generating an argument with possbilities ${possibleIDs.map(

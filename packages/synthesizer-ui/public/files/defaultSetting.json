@@ -11,10 +11,7 @@
     "constructor": 0.2
   },
   "add": {
-    "type": [
-      "Linelike",
-      "Angle"
-    ],
+    "type": [],
     "function": [],
     "constructor": [],
     "predicate": [
@@ -34,11 +31,12 @@
     ]
   },
   "edit": {
-    "type": [
-      "Linelike"
-    ],
+    "type": [],
     "function": [],
-    "constructor": [],
+    "constructor": [
+      "InteriorAngle",
+      "MkSegment"
+    ],
     "predicate": [
       "RightMarked",
       "Collinear",
