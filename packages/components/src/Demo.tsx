@@ -41,7 +41,6 @@ const Demo = (props: {
         height={props.width}
         monacoOptions={{
           theme: props.darkMode ? "vs-dark" : "vs",
-          wordWrap: "on",
           wrappingIndent: "indent",
         }}
       />
