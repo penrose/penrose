@@ -15,7 +15,7 @@ predicate Intersecting(Set s1, Set s2)
 predicate IsSubset(Set s1, Set s2)
 ```
 
-This schema tells _Penrose_ that the diagrams works with and illustrates _Set_ objects, relations such as _Intersecting_ and _IsSubset_, and logical relation _Not_ applied upon other statements.
+This schema tells Penrose that the diagrams works with and illustrates _Set_ objects, relations such as _Intersecting_ and _IsSubset_, and logical relation _Not_ applied upon other statements.
 
 Notably, the _domain_ schema are not _instructions_ of how to draw the _Set_ objects and relations between them. Such instructions of the specific diagram elements are provided by the _style_ schema, not the _domain_ schema. This allows multiple visual representations to be applied to objects from the same domain.
 
@@ -35,7 +35,7 @@ For example, statement `type Set` declares a type with name `Set`. We can then u
 
 ### Subtypes
 
-Conceptually, a type might be a _subtype_ of another type. As an example, in a chemistry domain, types _Hydrogen_ and _Oxygen_ might both be subtypes of the type _Atom_. _Penrose_ allows us to represent subtyping relations as follows:
+Conceptually, a type might be a _subtype_ of another type. As an example, in a chemistry domain, types _Hydrogen_ and _Oxygen_ might both be subtypes of the type _Atom_. Penrose allows us to represent subtyping relations as follows:
 
 ```
 type subtype_name <: supertype_name
@@ -51,7 +51,7 @@ type Oxygen <: Atom
 
 Subtyping describes "is-a" relationships between types: a Hydrogen "is-a[n]" Atom; an Oxygen "is-a[n]" Atom. Using the "is-a" interpretation, since an Atom "is-a[n]" Atom, inherently, for all type `A`, we have that `A` is a subtype of `A`. This interpretation of subtyping is consistent with "inheritance" in many object-oriented programming languages.
 
-_Penrose_ adopts this interpretation: if _Penrose_ expects to see an object with type `A`, then it will also accept an object of type `B`, as long as `B` is a subtype of `A`. We say that "`B` **matches** `A`."
+Penrose adopts this interpretation: if Penrose expects to see an object with type `A`, then it will also accept an object of type `B`, as long as `B` is a subtype of `A`. We say that "`B` **matches** `A`."
 
 ## Predicate Declarations
 
@@ -81,7 +81,7 @@ Notice how some declarations have names associated with the argument types (e.g.
 
 ### The `Prop` Type
 
-A special type, _Prop_, is built into _Penrose_, and is available to be used as predicate arguments. The _Prop_ type represents predicates themselves. For example, the predicate _Not_ is declared in the set-theory example:
+A special type, _Prop_, is built into Penrose, and is available to be used as predicate arguments. The _Prop_ type represents predicates themselves. For example, the predicate _Not_ is declared in the set-theory example:
 
 ```
 predicate Not (Prop p1)
@@ -91,13 +91,13 @@ When we use the _Not_ predicate in the _substance_ or _style_ schemas, then, we 
 
 ### Symmetric Predicates
 
-Some relations between objects are symmetric: for example, in the set-theory domain, the relations "_a_ intersects _b_" and "_b_ intersects _a_" are equivalent. As a recent new feature, _Penrose_ supports symmetric predicates:
+Some relations between objects are symmetric: for example, in the set-theory domain, the relations "_a_ intersects _b_" and "_b_ intersects _a_" are equivalent. As a recent new feature, Penrose supports symmetric predicates:
 
 ```
 symmetric predicate predicate_name (argument_type, argument_type)
 ```
 
-For now, _Penrose_ only supports symmetry of binary predicates (taking exactly two arguments), and, the two arguments must be of the exact same type in the _domain_ schema (not necessarily when the predicate is used in the _substance_ and _style_ schemas).
+For now, Penrose only supports symmetry of binary predicates (taking exactly two arguments), and, the two arguments must be of the exact same type in the _domain_ schema (not necessarily when the predicate is used in the _substance_ and _style_ schemas).
 
 As an example, consider the following valid _domain_ schema in the chemistry domain:
 
@@ -108,11 +108,11 @@ type Oxygen <: Atom
 symmetric predicate Bond (Atom, Atom)
 ```
 
-The predicate `Bond` is declared symmetric. Then, if `H` is a `Hydrogen` and `O` is an `Oxygen`, then `Bond(H, O)` and `Bond(O, H)` are considered equivalent by the _Penrose_ engine. In other words, if _Penrose_ expects to see `Bond(H, O)` in the _substance_ or _style_ schemas, then it will also accept `Bond(O, H)` even though the order of arguments are different.
+The predicate `Bond` is declared symmetric. Then, if `H` is a `Hydrogen` and `O` is an `Oxygen`, then `Bond(H, O)` and `Bond(O, H)` are considered equivalent by the Penrose engine. In other words, if Penrose expects to see `Bond(H, O)` in the _substance_ or _style_ schemas, then it will also accept `Bond(O, H)` even though the order of arguments are different.
 
 ## Function and Constructor Declarations
 
-In mathematics, we sometimes define functions that takes some inputs and returns some output. _Penrose_ allows us to define _functions_ that behave similarly:
+In mathematics, we sometimes define functions that takes some inputs and returns some output. Penrose allows us to define _functions_ that behave similarly:
 
 ```
 function function_name (argument_list) -> output_type
@@ -131,7 +131,7 @@ type Vector
 function addVector (Vector v1, Vector v2) -> Vector
 ```
 
-_Constructors_ in _Penrose_ are functionally equivalent to functions, with the same declaration syntax, except for the first word:
+_Constructors_ in Penrose are functionally equivalent to functions, with the same declaration syntax, except for the first word:
 
 ```
 constructor constructor_name (argument_list) -> output_type
@@ -139,7 +139,7 @@ constructor constructor_name (argument_list) -> output_type
 
 ## Comments
 
-_Comments_ are lines in the schema that are ignored by the _Penrose_ parser. They are for documentation purposes, and are not involved in the generation of the diagrams. In the _domain_ schema, they start with two dashes:
+_Comments_ are lines in the schema that are ignored by the Penrose parser. They are for documentation purposes, and are not involved in the generation of the diagrams. In the _domain_ schema, they start with two dashes:
 
 ```
 -- this is a comment
