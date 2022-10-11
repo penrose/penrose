@@ -324,9 +324,9 @@ where SingleBond(o,h1); SingleBond(o,h2) { -- TODO make an issue about symmetry 
    vec2 c = h2.center
    encourage equal( angleBetween(b-a,c-a), toRadians(104.5) )
 }
-forall Carbon c; Oxygen o1; Oxygen o2 -- carbon dioxide (CO2)
-where DoubleBond(c,o1); DoubleBond(c,o2) {
-   vec2 a = c.center
+forall Carbon c0; Oxygen o1; Oxygen o2 -- carbon dioxide (CO2)
+where DoubleBond(c0,o1); DoubleBond(c0,o2) {
+   vec2 a = c0.center
    vec2 b = o1.center
    vec2 c = o2.center
    encourage equal( angleBetween(b-a,c-a), toRadians(180.) )
