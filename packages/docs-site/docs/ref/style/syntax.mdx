@@ -43,7 +43,7 @@ canvas {
 }
 ```
 
-tells _Penrose_ that the drawing canvas should have a width of 800 pixels and a height of 700 pixels.
+tells Penrose that the drawing canvas should have a width of 800 pixels and a height of 700 pixels.
 
 ## Style Blocks
 
@@ -76,30 +76,30 @@ or
 
 ```
 forall Set x; Set y
-where IsSubset(x, y) {
+where IsSubset (x, y) {
     ...
 }
 ```
 
 ### Matching style block against substance program in general
 
-_Penrose_ functions by matching a style block against a _substance_ program. In a nutshell, given a style block
+Penrose functions by matching a style block against a _substance_ program. In a nutshell, given a style block
 
 ```
 forall Set x; Set y
-where IsSubset(x, y) {
+where IsSubset (x, y) {
     ...
 }
 ```
 
-the _Penrose_ compiler searches through the _substance_ program to find sets of objects consistent with `Set x; Set y` such that `IsSubset(x, y)` is satisfied. This is done through generating mappings from _style variables_ to _substance variables_, which are the objects in the _substance_ program.
+the Penrose compiler searches through the _substance_ program to find sets of objects consistent with `Set x; Set y` such that `IsSubset(x, y)` is satisfied. This is done through generating mappings from _style variables_ to _substance variables_, which are the objects in the _substance_ program.
 
 For instance, consider a simple set-theory _substance_ program that works with the previous style block:
 
 ```
 Set A, B, C
-IsSubset(A, B)
-IsSubset(B, C)
+IsSubset (A, B)
+IsSubset (B, C)
 ```
 
 By matching the style block against the _substance_ program, we essentially consider six possible mappings (note that repeated elements are not allowed), some of which are valid and some are invalid:
@@ -113,11 +113,11 @@ By matching the style block against the _substance_ program, we essentially cons
 | `x -> C; y -> A` | `IsSubset(C, A)`         | No                       |
 | `x -> C; y -> B` | `IsSubset(C, B)`         | No                       |
 
-Here, _Penrose_ filters out mappings which do not satisfy the constraints listed in the _style_ block, and keeps a list of _good_ mappings (in this example, two mappings are kept). For each _good_ mapping, the body of the _style_ block (`list_body_expressions`) is executed, where each instance of the _style_ variables (`x` and `y`) is substituted with the corresponding _substance_ variables (once with `A` and `B`, once with `B` and `C`).
+Here, Penrose filters out mappings which do not satisfy the constraints listed in the _style_ block, and keeps a list of _good_ mappings (in this example, two mappings are kept). For each _good_ mapping, the body of the _style_ block (`list_body_expressions`) is executed, where each instance of the _style_ variables (`x` and `y`) is substituted with the corresponding _substance_ variables (once with `A` and `B`, once with `B` and `C`).
 
 ### Object Declarations
 
-In the list of object declarations in a _style_ block, we can declare two types of objects, which are matched differently by the _Penrose_ compiler.
+In the list of object declarations in a _style_ block, we can declare two types of objects, which are matched differently by the Penrose compiler.
 
 #### Substance objects
 
@@ -139,7 +139,7 @@ matching the _style_ block against the _substance_ block yields only one valid m
 
 #### Style objects
 
-If an object name is not surrounded by backticks, then this object is a _style_ object with a _style_ variable. As seen before, the _Penrose_ compiler will try to map _style_ variables to any _substance_ objects, provided that their types match (subtyping allowed).
+If an object name is not surrounded by backticks, then this object is a _style_ object with a _style_ variable. As seen before, the Penrose compiler will try to map _style_ variables to any _substance_ objects, provided that their types match (subtyping allowed).
 
 ### Allowed Relations
 
@@ -206,7 +206,7 @@ We do not allow aliasing for function and constructor applications. Arguments in
 
 #### Object Property Relations
 
-Aside from predicate applications and function (constructor) applications, _Penrose_ also supports a predicate-like relation that checks whether an object has a certain property, say `label`. For instance, we may write
+Aside from predicate applications and function (constructor) applications, Penrose also supports a predicate-like relation that checks whether an object has a certain property, say `label`. For instance, we may write
 
 ```
 forall Set s
@@ -221,7 +221,7 @@ If a certain `Set A` in the _substance_ program does not have a label (perhaps d
 
 The matching algorithm is designed to avoid duplicated mappings. If two mappings give us the same set of matched objects (in the _substance_ program) and the equivalent set of matched substance relations (predicate applications and function or constructor applications), then the algorithm only triggers on one of them.
 
-For instance, say _Penrose_ tries to match the _style_ block
+For instance, say Penrose tries to match the _style_ block
 
 ```
 forall Set x; Set y {

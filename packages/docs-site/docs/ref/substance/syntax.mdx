@@ -5,19 +5,19 @@ pagination_next: null
 
 # Syntax
 
-The _substance_ program tells _Penrose_ _what_ objects and relations to draw. In the set-theory example, for example, we can have the following _substance_ program:
+The _substance_ program tells Penrose _what_ objects and relations to draw. In the set-theory example, for example, we can have the following _substance_ program:
 
 ```
 Set A, B, C
 
-IsSubset(A, C)
-IsSubset(B, C)
-Not(Intersecting(A, B))
+IsSubset (A, C)
+IsSubset (B, C)
+Not (Intersecting (A, B))
 
 AutoLabel All
 ```
 
-The first line declares the objects that are to be drawn, the last line tells _Penrose_ to automatically label the objects based on their names. All other lines invoke the predicates defined in the _domain_ schema to declare relations between objects.
+The first line declares the objects that are to be drawn, the last line tells Penrose to automatically label the objects based on their names. All other lines invoke the predicates defined in the _domain_ schema to declare relations between objects.
 
 Notably, like the _domain_ schema, the _substance_ program does not contain any instructions about how, say, a `Set` must be rendered, or how the relation `IsSubset` should be reflected in the diagram. The _substance_ program only declares the existence of these objects and relations, whereas the _style_ schema shows _how_ these objects and relations can be drawn.
 
@@ -38,7 +38,7 @@ where
 
 Once an object is declared, we can refer to it using `object_name`, which becomes a _substance_ variable.
 
-_Penrose_ also allows users to declare multiple objects of the same type at the same time:
+Penrose also allows users to declare multiple objects of the same type at the same time:
 
 ```
 type_name object_name_1, object_name_2, ...
@@ -95,7 +95,7 @@ Then,
 
 ## Function and Constructor Applications
 
-In _Penrose_, functions and constructors behave equivalently. There are two ways of invoking a function or constructor. The first way is
+In Penrose, functions and constructors behave equivalently. There are two ways of invoking a function or constructor. The first way is
 
 ```
 object_name := function_constructor_name (argument_list)
