@@ -1,8 +1,5 @@
 {
-  "mutationCount": [
-    1,
-    4
-  ],
+  "mutationCount": [1, 4],
   "argOption": "existing",
   "argReuse": "distinct",
   "weights": {
@@ -14,29 +11,18 @@
     "type": [],
     "function": [],
     "constructor": [],
-    "predicate": [
-      "RightUnmarked",
-      "RightMarked",
-      "EqualLengthMarker"
-    ]
+    "predicate": ["RightUnmarked", "RightMarked", "EqualLengthMarker"]
   },
   "delete": {
     "type": [],
     "function": [],
     "constructor": [],
-    "predicate": [
-      "RightMarked",
-      "EqualLengthMarker",
-      "EqualLength"
-    ]
+    "predicate": ["RightMarked", "EqualLengthMarker", "EqualLength"]
   },
   "edit": {
     "type": [],
     "function": [],
-    "constructor": [
-      "InteriorAngle",
-      "MkSegment"
-    ],
+    "constructor": ["InteriorAngle", "MkSegment"],
     "predicate": [
       "RightMarked",
       "Collinear",
