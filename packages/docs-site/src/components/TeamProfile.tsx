@@ -78,6 +78,18 @@ export function ActiveTeamRow(): JSX.Element {
         githubUrl="https://github.com/jiriminarcik"
       />
       <TeamProfileCardCol
+        name="Hwei-Shin Harriman"
+        role="Software engineer @ Tableau"
+        websiteUrl="https://hsharriman.github.io/"
+        githubUrl="https://github.com/hsharriman"
+      />
+      <TeamProfileCardCol
+        name="Yiliang (Leo) Liang"
+        role="Undergraduate student @ UMich"
+        websiteUrl=""
+        githubUrl="https://github.com/liangyiliang"
+      />
+      <TeamProfileCardCol
         name="Josh Sunshine"
         role="Professor @ CMU"
         websiteUrl="https://www.cs.cmu.edu/~jssunshi/"
@@ -94,18 +106,6 @@ export function ActiveTeamRow(): JSX.Element {
         role="Professor @ CMU"
         websiteUrl="https://www.cs.cmu.edu/~kmcrane/"
         githubUrl="https://github.com/keenancrane"
-      />
-      <TeamProfileCardCol
-        name="Brad Myers"
-        role="Professor @ CMU"
-        websiteUrl="https://www.cs.cmu.edu/~bam/"
-        githubUrl="https://github.com/bradamyers"
-      />
-      <TeamProfileCardCol
-        name="Hwei-Shin Harriman"
-        role="Software engineer @ Tableau"
-        websiteUrl="https://hsharriman.github.io/"
-        githubUrl="https://github.com/hsharriman"
       />
     </div>
   );
