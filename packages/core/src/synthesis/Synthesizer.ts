@@ -461,7 +461,7 @@ export class Synthesizer {
         return [elem1, elem2];
       }),
       checkReplaceStmtName(stmt, (p: ApplyPredicate<A>) => {
-        const matchingNames: string[] = matchSignatures(p, this.env).map(
+        const matchingNames: string[] = matchSignatures(p, ctx.env).map(
           (decl) => decl.name.value
         );
         const options = without(matchingNames, p.name.value);
@@ -470,7 +470,7 @@ export class Synthesizer {
         } else return undefined;
       }),
       checkReplaceExprName(stmt, (e: ArgExpr<A>) => {
-        const matchingNames: string[] = matchSignatures(e, this.env).map(
+        const matchingNames: string[] = matchSignatures(e, ctx.env).map(
           (decl) => decl.name.value
         );
         const options = without(matchingNames, e.name.value);
@@ -512,7 +512,7 @@ export class Synthesizer {
         stmt,
         ctx,
         (oldStmt: ApplyPredicate<A>, ctx: SynthesisContext) => {
-          const options = argMatches(oldStmt, this.env);
+          const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
             const { res, stmts, ctx: newCtx } = generateArgStmt(
