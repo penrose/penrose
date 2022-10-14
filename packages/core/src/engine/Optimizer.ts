@@ -250,12 +250,12 @@ export const step = (state: State, steps: number): State => {
         log.info("EP converged with energy", optParams.lastUOenergy);
         if (remainingStages.length === 0) {
           // do nothing if it's the last stage
-          log.warn(
+          log.info(
             `step: EP converged for ${currentStage}. No remaining stages.`
           );
           return state;
         } else {
-          log.warn(
+          log.info(
             `step: EP converged for ${currentStage}. Remaining stages: ${remainingStages}. Generating the next opt problem.`
           );
           // re-generate the next stage and keep going

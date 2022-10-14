@@ -1,7 +1,6 @@
 import {
   containsPolygonPoints,
   convexPartitions,
-  convexPolygonMinkowskiSDF,
   overlappingImplicitEllipses,
   overlappingPolygonPoints,
   overlappingPolygonPointsEllipse,
@@ -23,6 +22,7 @@ import {
   min,
   minN,
   mul,
+  sqrt,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
@@ -194,15 +194,32 @@ export const overlappingTextLine = (
   [, s2]: [string, Line],
   padding: ad.Num = 0
 ): ad.Num => {
-  console.log("hit");
-
+  // TODO: temporary bounding circle based solution
   // collect constants
-  const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(
-    bboxFromShape(t)
+  const rect = bboxFromShape(t);
+  const c = t[1].center.contents;
+  const a = s2.start.contents;
+  const b = s2.end.contents;
+  const o = padding;
+  const r = sqrt(
+    add(squared(div(rect.width, 2)), squared(div(rect.height, 2)))
   );
-  const p1: ad.Num[][] = [topLeft, topRight, bottomLeft, bottomRight];
-  const p2: ad.Num[][] = [s2.start.contents, s2.end.contents];
-  return convexPolygonMinkowskiSDF(p1, p2, padding);
+  const u = ops.vsub(c, a); // u = c-a
+  const v = ops.vsub(b, a); // v - b-a
+  // h = clamp( <u,v>/<v,v>, 0, 1 )
+  const h = max(0, min(1, div(ops.vdot(u, v), ops.vdot(v, v))));
+  // d = | u - h*v |
+  const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
+  // return d - (r+o)
+  return sub(d, add(r, o));
+
+  // TODO: fix minkowski SDF and use this instead
+  // const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(
+  //   bboxFromShape(t)
+  // );
+  // const p1: ad.Num[][] = [topLeft, topRight, bottomLeft, bottomRight];
+  // const p2: ad.Num[][] = [s2.start.contents, s2.end.contents];
+  // return convexPolygonMinkowskiSDF(p1, p2, padding);
 };
 
 /**
