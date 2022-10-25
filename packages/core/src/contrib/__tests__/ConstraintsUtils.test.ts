@@ -6,7 +6,7 @@ import { _rectangles } from "contrib/__testfixtures__/TestShapes.input";
 import { genCode, secondaryGraph } from "engine/Autodiff";
 
 describe("overlappingAABBs should return the same value as overlappingPolygons", () => {
-  it.each([0, 10, 100])("padding %p", (padding: number) => {
+  it.each([0, -10, -100])("padding %p", (padding: number) => {
     const t = "Rectangle";
 
     for (const i in _rectangles) {
