@@ -1167,7 +1167,7 @@ const matchStyArgToSubArg = (
 
 /**
  * Match a list of Style arguments against a list of Substance arguments.
- * @returns If all arguments match, return a `Subst` that maps the Style variable(s) against Substance variable(s). If any arguments fail to match, return `undefined`.
+ * @returns If all arguments match, return a `Subst[]` that contains mappings which map the Style variable(s) against Substance variable(s). If any arguments fail to match, return [].
  */
 const matchStyArgsToSubArgs = (
   styTypeMap: { [k: string]: StyT<A> },
@@ -1176,7 +1176,6 @@ const matchStyArgsToSubArgs = (
   styArgs: PredArg<A>[] | SelExpr<A>[],
   subArgs: SubPredArg<A>[] | SubExpr<A>[]
 ): Subst[] => {
-  const initRSubst: Subst | undefined = {};
   const stySubArgPairs = zip2<
     PredArg<A> | SelExpr<A>,
     SubPredArg<A> | SubExpr<A>
@@ -1193,6 +1192,14 @@ const matchStyArgsToSubArgs = (
     return argSubsts;
   });
 
+  // We do Cartesian product here.
+  // The idea is, each argument may yield multiple matches due to symmetry.
+  // For example, first argument might give us
+  //   (a --> A, b --> B) and (a --> B, b --> A)
+  // due to symmetry. The second argument might give us
+  //   (c --> C, d --> D) and (c --> D, d --> C).
+  // We want to incorporate all four possible, consistent matchings for (a, b, c, d).
+  // TODO: Think about ways to optimize this.
   const first = substsForEachArg.shift();
   if (first !== undefined) {
     const substs: Subst[] = substsForEachArg.reduce(
@@ -1215,7 +1222,7 @@ const matchStyArgsToSubArgs = (
 
 /**
  * Match a Style application of predicate, function, or constructor against a Substance application
- * by comparing names and arguments. For predicates, consider potential symmetry.
+ * by comparing names and arguments. For symmetric predicates, we force it to consider both versions of the predicate.
  * If the Style application and Substance application match, return the variable mapping. Otherwise, return `undefined`.
  *
  * For example, let
@@ -1239,6 +1246,8 @@ const matchStyApplyToSubApply = (
     if (subRel.name.value !== styRel.name.value) {
       return [];
     }
+
+    // Consider the original version
     const rSubst1 = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
@@ -1246,6 +1255,8 @@ const matchStyApplyToSubApply = (
       styRel.args,
       subRel.args
     );
+
+    // Consider the symmetric, flipped-argument version
     let rSubst2 = undefined;
     const predicateDecl = varEnv.predicates.get(subRel.name.value);
     if (predicateDecl && predicateDecl.symmetric) {
