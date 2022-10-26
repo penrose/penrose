@@ -55,6 +55,7 @@ const {
     circleRadius = 150.0
     labelPadding = 30.0
     minSegmentLength = 80.0
+    minLineLength = 200.0
 }
 
 --Plane
@@ -177,7 +178,7 @@ where l := MkLine(p, q)
 with Point p; Point q {
   l.start = p.vec
   l.end = q.vec
-  l.vec = (q.x - p.x, q.y - p.y)
+  l.vec = q.vec - p.vec
   override l.icon = Line {
     start : ptOnLine(p.vec,q.vec, -40.)
     end : ptOnLine(p.vec, q.vec, norm(l.vec) + 40.)
@@ -189,6 +190,10 @@ with Point p; Point q {
     startArrowhead : true
     arrowheadSize: const.arrowheadSize
   }
+
+  -- edge case
+  ensure lessThan(const.minLineLength, norm(l.vec))
+
   -- labeling
   ensure disjoint(l.icon, p.text)
   ensure disjoint(l.icon, q.text)
@@ -212,11 +217,9 @@ where ParallelMarker1(l1, l2) {
 
 forall Linelike l1, l2
 where Parallel(l1, l2) {
-  -- make slopes 
-  l1s = (l1.icon.end[1]-l1.icon.start[1])/(l1.icon.end[0]-l1.icon.start[0]) * 10000
-  l2s = (l2.icon.end[1]-l2.icon.start[1])/(l2.icon.end[0]-l2.icon.start[0]) * 10000
-  -- ensure equal(normalize(l1.vec) * 10000, normalize(l2.vec) * 10000)
-  ensure equal(l1s, l2s)
+  -- the dot product of the unit vectors of parallel lines is 1
+  -- HACK: scaling to 10000s for convergence
+  ensure equal(10000, dot(normalize(l1.vec), normalize(l2.vec)) * 10000)
 }
 --Segment
 forall Segment e
