@@ -1248,7 +1248,7 @@ const matchStyApplyToSubApply = (
     }
 
     // Consider the original version
-    const rSubst1 = matchStyArgsToSubArgs(
+    const rSubstOriginal = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
       varEnv,
@@ -1257,12 +1257,12 @@ const matchStyApplyToSubApply = (
     );
 
     // Consider the symmetric, flipped-argument version
-    let rSubst2 = undefined;
+    let rSubstSymmetric = undefined;
     const predicateDecl = varEnv.predicates.get(subRel.name.value);
     if (predicateDecl && predicateDecl.symmetric) {
       // Flip arguments
       const flippedStyArgs = [styRel.args[1], styRel.args[0]];
-      rSubst2 = matchStyArgsToSubArgs(
+      rSubstSymmetric = matchStyArgsToSubArgs(
         styTypeMap,
         subTypeMap,
         varEnv,
@@ -1271,9 +1271,9 @@ const matchStyApplyToSubApply = (
       );
     }
 
-    const rSubsts: Subst[] = [...rSubst1];
-    if (rSubst2 !== undefined) {
-      rSubsts.push(...rSubst2);
+    const rSubsts: Subst[] = [...rSubstOriginal];
+    if (rSubstSymmetric !== undefined) {
+      rSubsts.push(...rSubstSymmetric);
     }
 
     if (styRel.alias === undefined) {
