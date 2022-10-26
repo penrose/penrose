@@ -53,6 +53,8 @@ const {
     pointStroke = 0.0
     thetaRadius = 15.0
     circleRadius = 150.0
+    labelPadding = 30.0
+    minSegmentLength = 80.0
 }
 
 --Plane
@@ -165,7 +167,9 @@ with Point base; Point direction {
     startArrowhead : false
     arrowheadSize: const.arrowheadSize
   }
-
+  -- labeling
+  ensure disjoint(r.icon, base.text)
+  ensure disjoint(r.icon, direction.text)
 }
 
 forall Line l
@@ -185,6 +189,9 @@ with Point p; Point q {
     startArrowhead : true
     arrowheadSize: const.arrowheadSize
   }
+  -- labeling
+  ensure disjoint(l.icon, p.text)
+  ensure disjoint(l.icon, q.text)
 }
 
 forall Linelike l1, l2 -- should this work with rays and lines?
@@ -230,8 +237,14 @@ with Point p; Point q {
   p.icon above e.icon
   q.icon above e.icon
 
-  encourage pointLineDist(p.text.center, e.icon, 30.)
-  encourage pointLineDist(q.text.center, e.icon, 30.)
+  -- edge case
+  ensure lessThan(const.minSegmentLength, norm(e.vec))
+
+  -- labeling
+  ensure equal(signedDistance(e.icon, p.text.center), 30)
+  ensure equal(signedDistance(e.icon, q.text.center), 30)
+  ensure disjoint(p.text, e.icon)
+  ensure disjoint(q.text, e.icon)
 }
 
 forall Segment e; Plane p {
@@ -441,31 +454,18 @@ with Point p; Point q; Point r {
   t.QR below r.icon
   t.RP below r.icon
   t.RP below p.icon
-  padding = 30.0
-  ensure disjoint(t.PQ, p.text, padding)
-  ensure disjoint(t.QR, p.text, padding)
-  ensure disjoint(t.RP, p.text, padding)
-  ensure disjoint(t.PQ, q.text, padding)
-  ensure disjoint(t.QR, q.text, padding)
-  ensure disjoint(t.RP, q.text, padding)
-  ensure disjoint(t.PQ, r.text, padding)
-  ensure disjoint(t.QR, r.text, padding)
-  ensure disjoint(t.RP, r.text, padding)
-  -- PegasusGoose673 same line
-  -- QuiverLark7710 same line
-  -- HectoriteOpossum1724 label disjoint violated
-  minLength = 0
-  ensure lessThan(minLength, length(t.PQ))
-  ensure lessThan(minLength, length(t.QR))
-  ensure lessThan(minLength, length(t.RP))
-  -- ensure disjoint(p.text, t.QR)
-  -- ensure disjoint(p.text, t.RP)
-  -- ensure disjoint(q.text, t.PQ)
-  -- ensure disjoint(q.text, t.QR)
-  -- ensure disjoint(q.text, t.RP)
-  -- ensure disjoint(r.text, t.PQ)
-  -- ensure disjoint(r.text, t.QR)
-  -- ensure disjoint(r.text, t.RP)
+  ensure disjoint(t.PQ, p.text, const.labelPadding)
+  ensure disjoint(t.QR, p.text, const.labelPadding)
+  ensure disjoint(t.RP, p.text, const.labelPadding)
+  ensure disjoint(t.PQ, q.text, const.labelPadding)
+  ensure disjoint(t.QR, q.text, const.labelPadding)
+  ensure disjoint(t.RP, q.text, const.labelPadding)
+  ensure disjoint(t.PQ, r.text, const.labelPadding)
+  ensure disjoint(t.QR, r.text, const.labelPadding)
+  ensure disjoint(t.RP, r.text, const.labelPadding)
+  ensure lessThan(const.minSegmentLength, length(t.PQ))
+  ensure lessThan(const.minSegmentLength, length(t.QR))
+  ensure lessThan(const.minSegmentLength, length(t.RP))
 }
 
 forall Point p
