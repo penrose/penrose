@@ -56,15 +56,19 @@ predicate In(Point, Plane)
 predicate Midpoint(Linelike, Point)
 predicate Collinear(Point, Point, Point)
 predicate ParallelMarker1(Linelike, Linelike)
-predicate EqualLengthMarker(Linelike, Linelike)
-predicate EqualLength(Linelike, Linelike)
+predicate EqualLengthMarker1(Linelike, Linelike)
+predicate EqualLengthMarker2(Linelike, Linelike) -- TODO implement, blocked
+predicate EqualLengthMarker3(Linelike, Linelike) -- TODO implement, blocked
+predicate EqualLength(Linelike, Linelike )
 predicate Parallel(Linelike, Linelike)
 
 -- Angles
 predicate RightMarked(Angle)
 predicate RightUnmarked(Angle)
 predicate AngleBisector(Angle, Linelike)
-predicate EqualAngleMarker(Angle, Angle)
+predicate EqualAngleMarker1(Angle, Angle)
+predicate EqualAngleMarker2(Angle, Angle)
+predicate EqualAngleMarker3(Angle, Angle)
 predicate EqualAngle(Angle, Angle)
 
 -- Polygons/Shapes
