@@ -321,17 +321,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         The Settings element is floating so it must be included */}
         <Toolbar />
         <InputContainer>
-          {/* <TextField
-            rows={10}
-            name="sub"
-            multiline
-            label="Substance Program:"
-            variant="outlined"
-            fullWidth
-            onChange={this.onTextAreaChange}
-            value={this.state.substance}
-          /> */}
-
           <Accordion key="substance" elevation={0}>
             <AccordionHeaderStyled>{`Substance Program`}</AccordionHeaderStyled>
             <AccordionBodyStyled style={{ padding: 0 }}>

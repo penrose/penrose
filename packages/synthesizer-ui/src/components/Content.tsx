@@ -9,7 +9,6 @@ import {
 import {
   compileDomain,
   compileSubstance,
-  PenroseState,
   showError,
   SubProg,
   SynthesizedSubstance,
@@ -30,7 +29,6 @@ export interface ContentState {
   staged: [number, string][];
   domain: string;
   style: string;
-  srcState: PenroseState | undefined;
 }
 
 const ContentSection = styled(Box)({
@@ -78,7 +76,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
       staged: [],
       domain: examples["geometry-domain"]["geometry.dsl"],
       style: examples["geometry-domain"]["euclidean.sty"],
-      srcState: undefined,
     };
   }
   // callback function to indicate that a svg will be exported
@@ -121,12 +118,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(
-        env,
-        setting,
-        subResult,
-        Math.random().toString()
-      );
+      const synth = new Synthesizer(env, setting, subResult, "test1");
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {
