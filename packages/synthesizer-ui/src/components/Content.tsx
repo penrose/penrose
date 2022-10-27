@@ -9,7 +9,6 @@ import {
 import {
   compileDomain,
   compileSubstance,
-  PenroseState,
   showError,
   SubProg,
   SynthesizedSubstance,
@@ -17,6 +16,7 @@ import {
   SynthesizerSetting,
 } from "@penrose/core";
 import { A } from "@penrose/core/build/dist/types/ast";
+import { examples } from "@penrose/examples";
 import React from "react";
 import { DownloadSVG } from "../utils/utils";
 import { Grid } from "./Grid";
@@ -29,7 +29,6 @@ export interface ContentState {
   staged: [number, string][];
   domain: string;
   style: string;
-  srcState: PenroseState | undefined;
 }
 
 const ContentSection = styled(Box)({
@@ -75,25 +74,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
     this.state = {
       progs: [],
       staged: [],
-      domain: "",
-      style: "",
-      srcState: undefined,
+      domain: examples["geometry-domain"]["geometry.dsl"],
+      style: examples["geometry-domain"]["euclidean.sty"],
     };
   }
-
-  componentDidMount() {
-    fetch("public/files/geometry.txt")
-      .then((r) => r.text())
-      .then((text) => {
-        this.setState({ domain: text });
-      });
-    fetch("public/files/euclidean.txt")
-      .then((r) => r.text())
-      .then((text) => {
-        this.setState({ style: text });
-      });
-  }
-
   // callback function to indicate that a svg will be exported
   addStaged = (idx: number, svgStr: string) => {
     if (svgStr !== "") {
@@ -134,12 +118,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(
-        env,
-        setting,
-        subResult,
-        Math.random().toString()
-      );
+      const synth = new Synthesizer(env, setting, subResult, "test1");
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {

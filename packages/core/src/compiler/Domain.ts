@@ -1,4 +1,3 @@
-import { alg, Graph } from "graphlib";
 import im from "immutable";
 import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
@@ -41,6 +40,7 @@ import {
   symmetricTypeMismatch,
   typeNotFound,
 } from "utils/Error";
+import { Digraph } from "utils/Graph";
 
 export const parseDomain = (
   prog: string
@@ -110,7 +110,7 @@ const initEnv = (): Env => ({
   functions: im.Map<string, FunctionDecl<C>>(),
   preludeValues: im.Map<string, TypeConstructor<C>>(),
   subTypes: [],
-  typeGraph: new Graph(),
+  typeGraph: new Digraph(),
 });
 
 /**
@@ -349,10 +349,10 @@ const computeTypeGraph = (env: Env): CheckerResult => {
   // NOTE: since we search for super types upstream, subtyping arrow points to supertype
   subTypes.forEach(
     ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) =>
-      typeGraph.setEdge(subType.name.value, superType.name.value)
+      typeGraph.setEdge({ v: subType.name.value, w: superType.name.value })
   );
-  if (!alg.isAcyclic(typeGraph))
-    return err(cyclicSubtypes(alg.findCycles(typeGraph)));
+  if (!typeGraph.isAcyclic())
+    return err(cyclicSubtypes(typeGraph.findCycles()));
   return ok(env);
 };
 
@@ -375,7 +375,7 @@ export const isDeclaredSubtype = (
   // HACK: add in top type as an escape hatch for unbounded types
   if (subType.name.value === bottomType.name.value) return true;
 
-  const superTypes = alg.dijkstra(env.typeGraph, subType.name.value);
+  const superTypes = env.typeGraph.dijkstra(subType.name.value);
   const superNode = superTypes[superType.name.value];
 
   if (superNode) return superNode.distance < Number.POSITIVE_INFINITY;
@@ -384,6 +384,34 @@ export const isDeclaredSubtype = (
     console.error(`${subType.name.value} not found in the subtype graph.`);
     return false;
   }
+};
+
+export const superTypesOf = (
+  subType: TypeConstructor<A>,
+  env: Env
+): string[] => {
+  const superTypes = env.typeGraph.dijkstra(subType.name.value);
+  const allNodes = Object.entries(superTypes);
+  return allNodes
+    .filter(([, path]) => path.distance < Number.POSITIVE_INFINITY)
+    .map(([superTypeName]) => superTypeName);
+};
+
+// TODO: add in top and bottom in the type graph and simplify `subTypesOf` using `inEdges(t, bot)`
+export const subTypesOf = (
+  superType: TypeConstructor<A>,
+  env: Env
+): string[] => {
+  let toVisit = [superType.name.value];
+  const subTypes = [];
+  while (toVisit.length > 0) {
+    const newSubTypes: string[] = toVisit.flatMap((t) =>
+      env.typeGraph.inEdges(t).map(({ v }) => v)
+    );
+    subTypes.push(...newSubTypes);
+    toVisit = newSubTypes;
+  }
+  return subTypes;
 };
 
 export const isSubtype = (
