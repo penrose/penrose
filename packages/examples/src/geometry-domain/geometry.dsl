@@ -61,6 +61,8 @@ predicate EqualLength(Linelike, Linelike)
 predicate Parallel(Linelike, Linelike)
 
 -- Angles
+predicate Acute(Angle) 
+predicate Obtuse(Angle) 
 predicate RightMarked(Angle)
 predicate RightUnmarked(Angle)
 predicate AngleBisector(Angle, Linelike)
@@ -76,8 +78,7 @@ predicate Orthocenter(Point, Triangle)
 predicate Centroid(Point, Triangle)
 predicate Circumcenter(Point, Triangle)
 
--- Unimplemented
-predicate Supplementary(Angle) -- TODO broken
+
 -- predicate Perpendicular(Linelike, Linelike
 
 

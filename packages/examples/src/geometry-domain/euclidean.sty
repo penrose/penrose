@@ -60,9 +60,10 @@ const {
 
 --Plane
 forall Plane p {
-  dim = 700.0
+  width = canvas.width * .8
+  height = canvas.height * .8
   p.text = Equation {
-    center : ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
+    center : ((height / 2.0) - const.textPadding2, (height / 2.0) - const.textPadding2)
     string : p.label
     fontSize : const.fontSize
   }
@@ -75,8 +76,8 @@ forall Plane p {
     strokeColor : Colors.purple3
     strokeWidth : 2.0
     center : (0.0, 0.0)
-    width : dim
-    height : dim
+    width : width
+    height : height
   }
 
   p.text above p.icon
@@ -106,13 +107,20 @@ forall Point p {
   ensure equal(signedDistance(p.text, p.vec), const.textPadding + const.pointRadius)
 }
 
+-- default: if `Point` is not on a `Plane`, the point should be below the plane to stay hidden
+forall Point p
+with Plane P {
+  p.iconOnPlane = ensure disjoint(p.icon, P.icon)
+  p.textOnPlane = ensure disjoint(p.text, P.icon)
+}
+
 forall Point p
 with Plane P
 where In(p, P) {
   -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
   -- There's a choice of whether to put padding on the point or the text for containment
-  ensure contains(P.icon, p.icon, const.containPadding)
-  ensure contains(P.icon, p.text, 0.0)
+  p.iconOnPlane = ensure contains(P.icon, p.icon, const.containPadding)
+  p.textOnPlane = ensure contains(P.icon, p.text, 0.0)
 
   p.icon above P.icon
   p.text above P.icon
@@ -414,10 +422,14 @@ where RightMarked(a) {
   ensure equal(0, dot(u, v))
 }
 
--- TODO inRange NaN's
 forall Angle a
-where Supplementary(a) {
-  ensure inRange(dot(a.p - a.q, a.r - a.q), 0, 1)
+where Acute(a) {
+  ensure inRange(angleBetween(a.p - a.q, a.r - a.q), 0, pi()/2)
+}
+
+forall Angle a
+where Obtuse(a) {
+  ensure inRange(angleBetween(a.p - a.q, a.r - a.q), pi()/2, pi())
 }
 
 forall Triangle t; Plane P 
