@@ -140,11 +140,11 @@ describe("simple constraint", () => {
   );
 
   it.each([
-    [[1, 2], [1, 1], [2, 1], 0.6],
-    [[1, 3], [1, 1], [3, 1], 1.2],
+    [[1, 2], [1, 1], [2, 1], 1],
+    [[1, 3], [1, 1], [3, 1], 4],
     [[1, 0], [1, 1], [1, 2], 0],
     [[1, 0], [1, 1], [1, 10], 0],
-    [[1, 0], [1, 1], [1, -10], 2],
+    [[1, 0], [1, 1], [1, -10], 0],
   ])(
     "collinear(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
@@ -160,9 +160,9 @@ describe("simple constraint", () => {
     [[1, 0], [1, 1], [1, 10], 0],
     [[1, 0], [1, 1], [1, -10], 0],
   ])(
-    "collinearUnordered(%p, %p, %p) should return %p",
+    "collinearOrdered(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
-      const result = constrDict.collinearUnordered(c1, c2, c3);
+      const result = constrDict.collinearOrdered(c1, c2, c3);
       expect(numOf(result)).toBeCloseTo(expected, 1);
     }
   );

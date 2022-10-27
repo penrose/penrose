@@ -129,7 +129,7 @@ const constrDictSimple = {
    * Require that three points be collinear.
    * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
    */
-  collinearUnordered: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
+  collinearOrdered: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vnorm(ops.vsub(c1, c2));
     const v2 = ops.vnorm(ops.vsub(c2, c3));
     const v3 = ops.vnorm(ops.vsub(c1, c3));
