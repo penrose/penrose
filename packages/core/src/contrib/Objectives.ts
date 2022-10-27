@@ -1,11 +1,6 @@
 import { inDirection } from "contrib/ObjectivesUtils";
 import { bboxFromShape, shapeCenter } from "contrib/Queries";
-import {
-  centerArrow2,
-  closestPt_PtSeg,
-  repelPoint,
-  sampleSeg,
-} from "contrib/Utils";
+import { closestPt_PtSeg, repelPoint, sampleSeg } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -208,32 +203,6 @@ export const objDictGeneral = {
 // -------- Specific objective functions
 // Defined only for specific use-case or specific shapes.
 export const objDictSpecific = {
-  /**
-   * Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
-   */
-  centerArrow: (
-    [t1, arr]: [string, any],
-    [t2, s2]: [string, any],
-    [t3, s3]: [string, any]
-  ): ad.Num => {
-    const spacing = 1.1; // arbitrary
-
-    if (
-      shapedefs[t1].isLinelike &&
-      shapedefs[t2].isRectlike &&
-      shapedefs[t3].isRectlike
-    ) {
-      const s2BB = bboxFromShape([t2, s2]);
-      const s3BB = bboxFromShape([t3, s3]);
-      // HACK: Arbitrarily pick the height of the text
-      // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, s2BB.center, s3BB.center, [
-        mul(spacing, s2BB.height),
-        neg(mul(s3BB.height, spacing)),
-      ]);
-    } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
-  },
-
   centerLabelAbove: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],

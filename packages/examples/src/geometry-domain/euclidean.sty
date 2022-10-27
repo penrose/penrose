@@ -49,7 +49,7 @@ const {
     fontSize = "13.5px"
     containPadding = 50.0
     rayLength = 100.0
-    pointSize = 4.0
+    pointRadius = 4.0
     pointStroke = 0.0
     thetaRadius = 30.0
     circleRadius = 150.0
@@ -91,7 +91,7 @@ forall Point p {
 
   p.icon = Circle {
     center: p.vec
-    r : const.pointSize
+    r : const.pointRadius
     fillColor : Colors.black
     strokeWidth : 0.0
     strokeColor : Colors.black
@@ -103,7 +103,7 @@ forall Point p {
     fillColor : Colors.black
     fontSize : const.fontSize
   }
-  ensure atDist(p.icon, p.text, const.textPadding)
+  ensure equal(signedDistance(p.text, p.vec), const.textPadding + const.pointRadius)
 }
 
 forall Point p
@@ -121,6 +121,10 @@ where In(p, P) {
 forall Point p, q, r
 where Collinear(p, q, r) {
   ensure collinear(p.icon.center, q.icon.center, r.icon.center)
+  -- HACK: make sure q is between p and r
+  -- TODO: should this be in Substance instead?
+  ensure inRange(q.icon.center[0], p.icon.center[0], r.icon.center[0])
+  ensure inRange(q.icon.center[1], p.icon.center[1], r.icon.center[1])
   encourage repel(p.icon, q.icon, const.repelWeight)
   encourage repel(q.icon, r.icon, const.repelWeight)
 }
@@ -244,8 +248,6 @@ with Point p; Point q {
   ensure lessThan(const.minSegmentLength, norm(e.vec))
 
   -- labeling
-  ensure equal(signedDistance(e.icon, p.text.center), 30)
-  ensure equal(signedDistance(e.icon, q.text.center), 30)
   ensure disjoint(p.text, e.icon)
   ensure disjoint(q.text, e.icon)
 }
@@ -495,7 +497,7 @@ with Triangle T {
   clr = Colors.darkpurple
   override p.icon = Circle {
     center : p.vec
-    r : const.pointSize
+    r : const.pointRadius
     strokeWidth : const.strokeWidth
     strokeColor : clr
     fillColor : clr
@@ -525,7 +527,7 @@ with Triangle T {
   override p.vec = vmul(1/3, T.PQ.start + T.QR.start + T.RP.start)
   override p.icon = Circle {
     center : p.vec
-    r : const.pointSize
+    r : const.pointRadius
     strokeWidth : const.strokeWidth
     strokeColor : clr
     fillColor : clr

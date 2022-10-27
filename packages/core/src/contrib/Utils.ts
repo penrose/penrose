@@ -138,31 +138,6 @@ export const repelPoint = (c: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
   div(c, add(ops.vdistsq(a, b), EPS_DENOM));
 
 /**
- * Encourage that an arrow `arr` be centered between two shapes with centers `center1` and `center2`, and text size (?) `[o1, o2]`.
- */
-export const centerArrow2 = (
-  arr: any,
-  center1: ad.Num[],
-  center2: ad.Num[],
-  [o1, o2]: ad.Num[]
-): ad.Num => {
-  const vec = ops.vsub(center2, center1); // direction the arrow should point to
-  const dir = ops.vnormalize(vec);
-
-  // TODO: add abs; also, unless `gt(ops.vnorm(vec), add(o1, absVal(o2)))`,
-  // should just set `start` to `center1` and `end` to `center2`
-  const start = ops.vadd(center1, ops.vmul(o1, dir));
-  const end = ops.vadd(center2, ops.vmul(o2, dir));
-
-  // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
-
-  const fromPt = arr.start.contents;
-  const toPt = arr.end.contents;
-
-  return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
-};
-
-/**
  * Clamp `x` in range `[l, r]`.
  */
 export const clamp = ([l, r]: [number, number], x: ad.Num): ad.Num => {
