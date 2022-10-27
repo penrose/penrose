@@ -116,6 +116,7 @@ const constrDictSimple = {
   /**
    * Require that three points be collinear.
    * Depends on the specific ordering of points.
+   *
    */
   collinear: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vsub(c1, c2);
@@ -123,7 +124,10 @@ const constrDictSimple = {
     const v3 = ops.vsub(c1, c3);
 
     // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(0, sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3)));
+    return max(
+      0,
+      squared(sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3)))
+    );
   },
 
   /**
