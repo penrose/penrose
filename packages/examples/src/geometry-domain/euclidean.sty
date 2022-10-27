@@ -122,6 +122,18 @@ where Collinear(p, q, r) {
   encourage repel(q.icon, r.icon, const.repelWeight)
 }
 
+forall Point p
+with Linelike l
+where On(p, l) {
+  ensure equal(signedDistance(l.icon, p.vec), 0)
+}
+
+forall Point p
+with Linelike l
+where On(p, l); p has label {
+  ensure disjoint(l.icon, p.text)
+}
+
 --Linelike
 forall Linelike l {
   l.color = Colors.black

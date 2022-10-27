@@ -6,8 +6,9 @@ In(B, R)
 In(C, R)
 In(D,R)
 In(E,R)
+Ray BE := MkRay(B, E)
+Line BA := MkLine(B, A)
 Collinear(B,D,E)
-Ray s1 := MkRay(B, E)
-Line s2 := MkLine(B, A)
+On(D, BE)
 
 AutoLabel All

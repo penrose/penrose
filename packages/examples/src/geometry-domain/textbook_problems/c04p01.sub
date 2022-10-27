@@ -11,6 +11,6 @@ Collinear(A,E,C)
 Collinear(B,E,D) 
 Angle r := InteriorAngle(B,E,C)
 EqualLength(s8, s9)
-EqualLengthMarker1(s1, s2)
+EqualLengthMarker(s1, s2)
 RightMarked(r)
 AutoLabel All
