@@ -336,7 +336,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <Toolbar />
         <SettingContainer>
           <SettingDiv>
-            <SettingLabel>Diagrams to generate:</SettingLabel>
+            <SettingLabel>Example preset:</SettingLabel>
             <Select
               key="preset"
               labelId="preset-select-label"

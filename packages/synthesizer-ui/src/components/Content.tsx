@@ -117,7 +117,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(env, setting, subResult, "test1");
+      const synth = new Synthesizer(env, setting, subResult, "test0");
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {
