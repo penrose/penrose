@@ -198,6 +198,16 @@ export const compDict = {
   },
 
   /**
+   * Return a float of value `pi`
+   */
+  pi: (_context: Context): FloatV<ad.Num> => {
+    return {
+      tag: "FloatV",
+      contents: Math.PI,
+    };
+  },
+
+  /**
    * Return `acosh(x)`.
    */
   acosh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
