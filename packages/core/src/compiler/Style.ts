@@ -162,13 +162,22 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
 
 const toString = (x: BindingForm<A>): string => x.contents.value;
 
-// https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-const cartesianProduct = <T>(...a: T[][]): T[][] =>
-  a.reduce(
-    (tuples: T[][], set) =>
-      tuples.flatMap((prefix: T[]) => set.map((x: T) => [...prefix, x])),
-    [[]]
-  );
+const cartesianProduct = <Tin, Tout>(
+  t1: Tin[],
+  t2: Tin[],
+  consistent: (t1: Tin, t2: Tin) => boolean,
+  merge: (t1: Tin, t2: Tin) => Tout
+): Tout[] => {
+  const product: Tout[] = [];
+  t1.map((t1: Tin) => {
+    t2.map((t2: Tin) => {
+      if (consistent(t1, t2)) {
+        product.push(merge(t1, t2));
+      }
+    });
+  });
+  return product;
+};
 
 const oneErr = (err: StyleError): StyleDiagnostics => {
   return { errors: im.List([err]), warnings: im.List() };
@@ -979,15 +988,18 @@ const merge = (
   const s1Arr = s1.toArray();
   const s2Arr = s2.toArray();
 
-  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(s1Arr, s2Arr)
-    .filter(([[aSubst], [bSubst]]) => {
+  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(
+    s1Arr,
+    s2Arr,
+    ([aSubst], [bSubst]) => {
       // Requires that substitutions are consistent
       return consistentSubsts(aSubst, bSubst);
-    })
-    .map(([[aSubst, aStmts], [bSubst, bStmts]]) => [
+    },
+    ([aSubst, aStmts], [bSubst, bStmts]) => [
       combine(aSubst, bSubst),
       aStmts.union(bStmts),
-    ]);
+    ]
+  );
   return im.List(result);
 };
 
@@ -1204,13 +1216,12 @@ const matchStyArgsToSubArgs = (
   if (first !== undefined) {
     const substs: Subst[] = substsForEachArg.reduce(
       (currSubsts, substsForArg) => {
-        return cartesianProduct(currSubsts, substsForArg)
-          .filter(([aSubst, bSubst]) => {
-            return consistentSubsts(aSubst, bSubst);
-          })
-          .map(([aSubst, bSubst]) => {
-            return combine(aSubst, bSubst);
-          });
+        return cartesianProduct(
+          currSubsts,
+          substsForArg,
+          (aSubst, bSubst) => consistentSubsts(aSubst, bSubst),
+          (aSubst, bSubst) => combine(aSubst, bSubst)
+        );
       },
       first
     );
