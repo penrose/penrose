@@ -169,13 +169,13 @@ const cartesianProduct = <Tin, Tout>(
   merge: (t1: Tin, t2: Tin) => Tout
 ): Tout[] => {
   const product: Tout[] = [];
-  t1.map((t1: Tin) => {
-    t2.map((t2: Tin) => {
-      if (consistent(t1, t2)) {
-        product.push(merge(t1, t2));
+  for (const i in t1) {
+    for (const j in t2) {
+      if (consistent(t1[i], t2[j])) {
+        product.push(merge(t1[i], t2[j]));
       }
-    });
-  });
+    }
+  }
   return product;
 };
 
