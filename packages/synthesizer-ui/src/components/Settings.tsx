@@ -319,8 +319,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     ));
 
   handlePreset = (key: string) => {
-    console.log("setting preset");
-
     this.setState({ ...this.state, ...presets[key] });
   };
 
