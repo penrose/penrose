@@ -319,7 +319,6 @@ with Segment s2; Point p1, p2 {
   ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
 }
 
--- NOTE: Get rid of repetition
 forall Linelike s, t 
 where EqualLengthMarker(s, t) {
   override s.tick = Path {

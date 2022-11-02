@@ -19,7 +19,7 @@ export interface SimpleProps {
   substance: string;
   style: string;
   variation: string;
-  stepSize: number;
+  stepSize?: number;
   interactive?: boolean; // considered true by default
   animate?: boolean; // considered false by default
 }
