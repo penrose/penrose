@@ -16,7 +16,6 @@ import {
   SynthesizerSetting,
 } from "@penrose/core";
 import { A } from "@penrose/core/build/dist/types/ast";
-import { examples } from "@penrose/examples";
 import React from "react";
 import { DownloadSVG } from "../utils/utils";
 import { Grid } from "./Grid";
@@ -74,8 +73,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
     this.state = {
       progs: [],
       staged: [],
-      domain: examples["geometry-domain"]["geometry.dsl"],
-      style: examples["geometry-domain"]["euclidean.sty"],
+      domain: "",
+      style: "",
     };
   }
   // callback function to indicate that a svg will be exported
@@ -118,7 +117,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(env, setting, subResult, "test1");
+      const synth = new Synthesizer(env, setting, subResult, "test0");
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {

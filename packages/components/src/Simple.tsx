@@ -19,6 +19,7 @@ export interface SimpleProps {
   substance: string;
   style: string;
   variation: string;
+  stepSize?: number;
   interactive?: boolean; // considered true by default
   animate?: boolean; // considered false by default
 }
@@ -66,7 +67,10 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       this.penroseState &&
       !stateConverged(this.penroseState)
     ) {
-      this.penroseState = stepState(this.penroseState, 1);
+      this.penroseState = stepState(
+        this.penroseState,
+        this.props.stepSize ?? 1
+      );
       this.renderCanvas();
     }
   };

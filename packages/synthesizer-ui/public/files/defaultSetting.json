@@ -8,25 +8,25 @@
     "constructor": 0.2
   },
   "add": {
-    "type": ["Linelike", "Angle"],
+    "type": [],
     "function": [],
     "constructor": [],
-    "predicate": ["RightUnmarked", "RightMarked", "EqualLengthMarker2"]
+    "predicate": ["RightUnmarked", "RightMarked", "EqualLengthMarker"]
   },
   "delete": {
     "type": [],
     "function": [],
     "constructor": [],
-    "predicate": ["RightMarked", "EqualLengthMarker1", "EqualLength"]
+    "predicate": ["RightMarked", "EqualLengthMarker", "EqualLength"]
   },
   "edit": {
-    "type": ["Linelike"],
+    "type": [],
     "function": [],
-    "constructor": [],
+    "constructor": ["InteriorAngle", "MkSegment"],
     "predicate": [
       "RightMarked",
       "Collinear",
-      "EqualLengthMarker1",
+      "EqualLengthMarker",
       "EqualLength"
     ]
   }

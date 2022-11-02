@@ -212,6 +212,8 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             style={this.props.style}
             variation={this.state.variation}
             interactive={false}
+            animate={true}
+            stepSize={20}
           />
         </div>
       </Section>
