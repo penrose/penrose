@@ -5,6 +5,8 @@ import {
   Box,
   Button,
   Drawer,
+  MenuItem,
+  Select,
   Slider,
   styled,
   TextField,
@@ -20,6 +22,7 @@ import {
 } from "@penrose/core";
 import { examples } from "@penrose/examples";
 import React from "react";
+import { Preset, presets } from "../examples";
 import { MultiselectDropdown } from "./MultiselectDropdown";
 
 const DEFAULT_MUTATION_COUNT = [1, 4];
@@ -74,10 +77,11 @@ interface SettingState {
   domainEnv: PartialEnv;
   domain: string;
   style: string;
+  prompt: string;
   env?: Env;
 }
 
-const InputContainer = styled(Box)({
+const SettingContainer = styled(Box)({
   padding: "0.5rem",
   paddingTop: "1rem",
   width: "25vw",
@@ -98,12 +102,12 @@ const ButtonContainer = styled("div")({
   padding: "1rem 0 2rem 0",
 });
 
-const SliderDiv = styled("div")({
+const SettingDiv = styled("div")({
   padding: "0.5rem",
   paddingBottom: "0",
 });
 
-const SliderLabel = styled(Typography)({
+const SettingLabel = styled(Typography)({
   color: "gray",
   fontSize: "1rem",
 });
@@ -134,15 +138,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       domainEnv: defaultEnv,
       domain: this.props.defaultDomain,
       style: this.props.defaultStyle,
+      prompt: "",
     };
-  }
-
-  componentDidMount() {
-    fetch("public/files/defaultSetting.json")
-      .then((r) => r.json())
-      .then((text) => {
-        this.setState({ setting: text });
-      });
   }
 
   // TODO: current implementation will not update the UI if there is a domain compiler error
@@ -296,7 +293,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       <Accordion key={op} elevation={0}>
         <AccordionHeaderStyled>{`${op} Statements`}</AccordionHeaderStyled>
         <AccordionBodyStyled>
-          <InputContainer>
+          <SettingContainer>
             {Object.values(this.state.domainEnv).map((stmtType: StmtType) => (
               <MultiselectDropdown
                 stmtType={stmtType.tag}
@@ -308,10 +305,25 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
                 options={stmtType.values}
               />
             ))}
-          </InputContainer>
+          </SettingContainer>
         </AccordionBodyStyled>
       </Accordion>
     ));
+  };
+
+  presets = () =>
+    Object.entries(presets).map(([name, { displayName }]: [string, Preset]) => (
+      <MenuItem key={name} value={name}>
+        {displayName}
+      </MenuItem>
+    ));
+
+  handlePreset = (key: string) => {
+    this.setState({ ...this.state, ...presets[key] });
+  };
+
+  componentDidMount = () => {
+    this.handlePreset("c04p01");
   };
 
   render() {
@@ -320,7 +332,23 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         {/* NOTE: Toolbar is used exclusively to space the content underneath the header of the page.
         The Settings element is floating so it must be included */}
         <Toolbar />
-        <InputContainer>
+        <SettingContainer>
+          <SettingDiv>
+            <SettingLabel>Example preset:</SettingLabel>
+            <Select
+              key="preset"
+              labelId="preset-select-label"
+              id="preset-select"
+              label="preset"
+              defaultValue={"c04p01"}
+              onChange={(e) => this.handlePreset(e.target.value as string)}
+            >
+              {this.presets()}
+            </Select>
+            <SettingLabel>Prompt:</SettingLabel>
+            <div>{this.state.prompt}</div>
+          </SettingDiv>
+          <br />
           <Accordion key="substance" elevation={0}>
             <AccordionHeaderStyled>{`Substance Program`}</AccordionHeaderStyled>
             <AccordionBodyStyled style={{ padding: 0 }}>
@@ -373,8 +401,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               />
             </AccordionBodyStyled>
           </Accordion>
-          <SliderDiv>
-            <SliderLabel>Diagrams to generate:</SliderLabel>
+          <SettingDiv>
+            <SettingLabel>Diagrams to generate:</SettingLabel>
             <Slider
               valueLabelDisplay="auto"
               step={1}
@@ -388,9 +416,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               max={20}
               onChange={this.onProgCountChange}
             />
-          </SliderDiv>
-          <SliderDiv>
-            <SliderLabel>Mutations/program:</SliderLabel>
+          </SettingDiv>
+          <SettingDiv>
+            <SettingLabel>Mutations/program:</SettingLabel>
             <Slider
               valueLabelDisplay="auto"
               step={1}
@@ -407,10 +435,10 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               max={5}
               onChange={this.onMutationCountChange}
             />
-          </SliderDiv>
-        </InputContainer>
+          </SettingDiv>
+        </SettingContainer>
         <br />
-        <InputContainer>{this.inputElements()}</InputContainer>
+        <SettingContainer>{this.inputElements()}</SettingContainer>
         <ButtonContainer>
           <Button
             onClick={this.onGenerateClick}
