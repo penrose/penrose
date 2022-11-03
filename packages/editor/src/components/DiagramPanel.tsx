@@ -41,6 +41,57 @@ export const DownloadSVG = (
   document.body.removeChild(downloadLink);
 };
 
+/**
+ * (browser-only) Downloads any given exported PNG to the user's computer
+ * @param svg
+ * @param title the filename
+ * @param width canvas and SVG width
+ * @param height canvas and SVG height
+ */
+export const DownloadPNG = (
+  svg: SVGSVGElement,
+  title = "illustration",
+  width: number,
+  height: number,
+  scale: number
+): void => {
+  // duplicate node to set concrete dimensions
+  const svgNode = svg.cloneNode(true) as SVGSVGElement;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d")!;
+  // NOTE: need to set _both_ the SVG node and canvas dimensions to render properly
+  const scaledWidth = width * scale;
+  const scaledHeight = height * scale;
+  canvas.width = scaledWidth;
+  canvas.height = scaledHeight;
+  svgNode.setAttribute("width", scaledWidth.toString());
+  svgNode.setAttribute("height", scaledHeight.toString());
+  const data = new XMLSerializer().serializeToString(svgNode);
+  const DOMURL = window.URL || window.webkitURL || window;
+
+  const img = new Image();
+  const svgBlob = new Blob([data], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+  const url = DOMURL.createObjectURL(svgBlob);
+
+  img.onload = function () {
+    ctx.drawImage(img, 0, 0);
+    DOMURL.revokeObjectURL(url);
+
+    const imgURI = canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
+    const downloadLink = document.createElement("a");
+    downloadLink.href = imgURI;
+    downloadLink.download = title;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+  img.src = url;
+};
+
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [diagram, setDiagram] = useRecoilState(diagramState);
@@ -115,6 +166,22 @@ export default function DiagramPanel() {
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
         DownloadSVG(svg, metadata.name);
+      }
+    }
+  });
+
+  const downloadPng = useRecoilCallback(({ snapshot }) => async () => {
+    if (canvasRef.current !== null) {
+      const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const filename = `${metadata.name}.png`;
+        if (diagram.state) {
+          const { canvas: canvasDims } = diagram.state;
+          const { width, height } = canvasDims;
+          DownloadPNG(svg, filename, width, height, 1);
+        }
       }
     }
   });
@@ -257,6 +324,7 @@ export default function DiagramPanel() {
         {state && (
           <div style={{ display: "flex" }}>
             <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+            <BlueButton onClick={downloadPng}>PNG</BlueButton>
             <BlueButton onClick={downloadPdf}>PDF</BlueButton>
           </div>
         )}
