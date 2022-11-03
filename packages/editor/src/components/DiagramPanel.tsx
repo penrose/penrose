@@ -286,7 +286,6 @@ export default function DiagramPanel() {
             display: "flex",
             minHeight: "60%",
             maxHeight: "100%",
-            justifyContent: "center",
           }}
           ref={canvasRef}
         />
