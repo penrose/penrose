@@ -282,11 +282,13 @@ export default function DiagramPanel() {
           </div>
         )}
         <div
-          style={{
-            display: "flex",
-            minHeight: "60%",
-            maxHeight: "100%",
-          }}
+          style={
+            {
+              // display: "flex",
+              // minHeight: "60%",
+              // maxHeight: "100%",
+            }
+          }
           ref={canvasRef}
         />
 
