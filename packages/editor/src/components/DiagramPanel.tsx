@@ -70,6 +70,8 @@ export default function DiagramPanel() {
               pathResolver
             )
           : await RenderStatic(state, pathResolver);
+        rendered.setAttribute("width", "100%");
+        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -282,13 +284,12 @@ export default function DiagramPanel() {
           </div>
         )}
         <div
-          style={
-            {
-              // display: "flex",
-              // minHeight: "60%",
-              // maxHeight: "100%",
-            }
-          }
+          style={{
+            display: "flex",
+            minHeight: "60%",
+            maxHeight: "100%",
+            justifyContent: "center",
+          }}
           ref={canvasRef}
         />
 
