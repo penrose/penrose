@@ -121,6 +121,8 @@ export default function DiagramPanel() {
               pathResolver
             )
           : await RenderStatic(state, pathResolver);
+        rendered.setAttribute("width", "100%");
+        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
