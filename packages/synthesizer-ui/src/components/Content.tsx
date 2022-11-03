@@ -10,8 +10,10 @@ import {
   compileDomain,
   compileSubstance,
   PenroseState,
+  prettySubstance,
   RenderStatic,
   showError,
+  showMutations,
   SubProg,
   SynthesizedSubstance,
   Synthesizer,
@@ -144,8 +146,11 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   exportDiagrams = async (indices: number[]) => {
     const zip = JSZip();
+    zip.file(`domain.dsl`, this.state.domain);
+    zip.file(`style.sty`, this.state.style);
     for (const idx of indices) {
       const state = this.state.states[idx];
+      const { prog, ops } = this.state.progs[idx];
       const svg = await RenderStatic(state, async (path: string) => {
         const response = await fetch(path);
         if (!response.ok) {
@@ -155,6 +160,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
         return await response.text();
       });
       zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
+      zip.file(`substance_${idx}.sub`, prettySubstance(prog));
+      zip.file(`mutations_${idx}.txt`, showMutations(ops));
     }
     zip.generateAsync({ type: "blob" }).then(function (content) {
       saveAs(content, "diagrams.zip");
