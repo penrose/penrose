@@ -14,4 +14,4 @@ EqualLength(ED, EB)
 EqualLength(AE, EC)
 EqualLengthMarker(AE, EC)
 RightMarked(r)
-AutoLabel All
+AutoLabel A, B, C, D, E

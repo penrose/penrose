@@ -12,4 +12,4 @@ EqualLengthMarker(MQ, PN)
 EqualLength(MQ, PN)
 EqualLengthMarker(MN, QP)
 EqualLength(MN, QP)
-AutoLabel All
+AutoLabel M, N, Q, P
