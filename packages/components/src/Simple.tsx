@@ -22,6 +22,7 @@ export interface SimpleProps {
   stepSize?: number;
   interactive?: boolean; // considered true by default
   animate?: boolean; // considered false by default
+  onFrame?: (frame: PenroseState) => void;
 }
 
 export interface SimpleState {
@@ -71,6 +72,9 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         this.penroseState,
         this.props.stepSize ?? 1
       );
+      if (this.props.onFrame) {
+        this.props.onFrame(this.penroseState);
+      }
       this.renderCanvas();
     }
   };
