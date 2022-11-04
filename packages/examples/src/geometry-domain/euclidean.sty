@@ -710,13 +710,13 @@ where Parallelogram(Q) {
 
 --FUNCTIONS
 forall Segment s
-where s := MidSegment(T, p, q)
-with Triangle T; Point p; Point q {
-  override p.vec = midpoint(T.PQ.start, T.PQ.end)
-  override q.vec = midpoint(T.RP.start, T.RP.end)
+with Triangle T; Point p, q, r, a, b
+where s := MidSegment(T, a, b); T := MkTriangle(p, q, r) {
+  override a.vec = midpoint(q.vec, r.vec)
+  override b.vec = midpoint(r.vec, p.vec)
   override s.icon = Line {
-    start : p.icon.center
-    end : q.icon.center
+    start : a.vec
+    end : b.vec
     strokeColor : s.color
     strokeWidth : const.strokeWidth
     style : "solid"
