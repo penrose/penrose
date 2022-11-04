@@ -100,7 +100,6 @@ forall Point p {
 
   p.text = Equation {
     string : p.label
-    rotation : 0.0
     fillColor : Colors.black
     fontSize : const.fontSize
   }
@@ -359,8 +358,22 @@ with Point p; Point q; Point r {
     strokeWidth : const.strokeWidth
     style : "solid"
   }
+  
   theta.radius = const.thetaRadius
   encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
+}
+
+forall Angle theta
+where theta := InteriorAngle(p, q, r); theta has label
+with Point p; Point q; Point r {
+  padding = const.textPadding + const.pointRadius + theta.text.width
+  labelDir = normalize((p.vec - q.vec) + (r.vec - q.vec))
+  theta.text = Equation {
+    string : theta.label
+    fillColor : Colors.black
+    fontSize : const.fontSize
+    center: q.vec + labelDir*padding
+  }
 }
 
 forall Angle a, b
@@ -393,9 +406,11 @@ where EqualAngleMarker(a, b) {
 forall Angle a, b
 where EqualAngle(a, b) {
   -- make sure angle a is equal to angle b
-  dotA = dot(normalize(a.p - a.q), normalize(a.r - a.q))
-  dotB = dot(normalize(b.p - b.q), normalize(b.r - b.q))
-  ensure equal(dotA, dotB)
+  -- HACK: increase the magnitude of angles
+  weight = 100
+  angleA = angleBetween(a.p - a.q, a.r - a.q) * weight
+  angleB = angleBetween(b.p - b.q, b.r - b.q) * weight
+  ensure equal(angleA, angleB) 
 }
 
 forall Angle a
@@ -464,24 +479,22 @@ with Point p; Point q; Point r {
     strokeWidth : const.strokeWidth
     style : "solid"
   }
+  t.icon = Path {
+    d: pathFromPoints("closed", [p.vec, q.vec, r.vec])
+    fillColor: none()
+  }
+  ensure lessThan(const.minSegmentLength, length(t.PQ))
+  ensure lessThan(const.minSegmentLength, length(t.QR))
+  ensure lessThan(const.minSegmentLength, length(t.RP))
+  ensure disjoint(t.icon, p.text)
+  ensure disjoint(t.icon, q.text)
+  ensure disjoint(t.icon, r.text)
   t.PQ below p.icon
   t.PQ below q.icon
   t.QR below q.icon
   t.QR below r.icon
   t.RP below r.icon
   t.RP below p.icon
-  ensure disjoint(t.PQ, p.text, const.labelPadding)
-  ensure disjoint(t.QR, p.text, const.labelPadding)
-  ensure disjoint(t.RP, p.text, const.labelPadding)
-  ensure disjoint(t.PQ, q.text, const.labelPadding)
-  ensure disjoint(t.QR, q.text, const.labelPadding)
-  ensure disjoint(t.RP, q.text, const.labelPadding)
-  ensure disjoint(t.PQ, r.text, const.labelPadding)
-  ensure disjoint(t.QR, r.text, const.labelPadding)
-  ensure disjoint(t.RP, r.text, const.labelPadding)
-  ensure lessThan(const.minSegmentLength, length(t.PQ))
-  ensure lessThan(const.minSegmentLength, length(t.QR))
-  ensure lessThan(const.minSegmentLength, length(t.RP))
 }
 
 forall Point p
