@@ -7,7 +7,7 @@
   "module": "dist/index.es.js",
   "scripts": {
     "watch": "vite build --watch",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build-decls": "tsc",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"

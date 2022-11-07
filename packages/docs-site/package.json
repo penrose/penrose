@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "watch": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
+    "start": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
+    "watch": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
     "build-shapedefs": "shx mkdir -p ./static/try/ && shx cp -r ../editor/dist/* ./static/try && shx rm -f ./static/shapedefs.json && cd ../automator && yarn start shapedefs ../docs-site/static/shapedefs.json",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus build --no-minify",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus build --no-minify",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
