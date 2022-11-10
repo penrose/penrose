@@ -1,0 +1,7 @@
+-- https://tikz.dev/tikz-arrows
+TLine triangle, stealth, to, doubleto
+Label triangle $arrowhead-1$
+Label stealth $arrowhead-2$
+Label to $arrowhead-3$
+Label doubleto $arrowhead-4$
+-- AutoLabel All

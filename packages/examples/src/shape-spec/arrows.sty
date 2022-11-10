@@ -1,0 +1,41 @@
+canvas {
+  width = 400
+  height = 800
+}
+const {
+  ch2 = canvas.height/2
+  cw2 = canvas.width/2
+  vguide1 = Line {
+    start: (0, ch2)
+    end: (0, -ch2)
+    strokeColor: #f00
+    strokeWidth: 1
+  }
+  vguide2 = Line {
+    start: (-cw2 + 10, ch2)
+    end: (-cw2 + 10, -ch2)
+    strokeColor: #f00
+    strokeWidth: 1
+  }
+}
+
+forall TLine l {
+  rowPadding = 70
+  rowY = -match_id * rowPadding + canvas.height/2
+  l.icon = Line {
+    start: (-190, rowY)
+    end: (0, rowY)
+    endArrowhead: true
+    startArrowhead: true
+    arrowheadStyle: l.label
+    strokeColor: #000
+    strokeWidth: 5.0
+  }
+  l.text = Text {
+    string: l.label
+    center: (?, rowY)
+    fillColor: #000
+  }
+  ensure equal(l.text.center[0], l.text.height/2 + rowPadding)
+}
+
