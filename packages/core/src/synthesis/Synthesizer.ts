@@ -15,6 +15,7 @@ import {
   nullaryTypeCons,
   SubStmtKind,
 } from "analysis/SubstanceAnalysis";
+import { subTypesOf } from "compiler/Domain";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
@@ -247,16 +248,16 @@ export const removeID = (
 
 const findIDs = (
   ctx: SynthesisContext,
-  typeStr: string,
+  typeStrs: string[],
   excludeList?: Identifier<A>[]
 ): Identifier<A>[] => {
-  const possibleIDs = ctx.declaredIDs.get(typeStr);
-  if (possibleIDs) {
-    const candidates = possibleIDs.filter((id) =>
-      excludeList ? !excludeList.includes(id) : true
-    );
-    return candidates;
-  } else return [];
+  const possibleIDs: Identifier<A>[] = compact(
+    typeStrs.flatMap((typeStr) => ctx.declaredIDs.get(typeStr))
+  );
+  const candidates = possibleIDs.filter((id) =>
+    excludeList ? !excludeList.includes(id) : true
+  );
+  return candidates;
 };
 
 const generateID = (
@@ -460,7 +461,7 @@ export class Synthesizer {
         return [elem1, elem2];
       }),
       checkReplaceStmtName(stmt, (p: ApplyPredicate<A>) => {
-        const matchingNames: string[] = matchSignatures(p, this.env).map(
+        const matchingNames: string[] = matchSignatures(p, ctx.env).map(
           (decl) => decl.name.value
         );
         const options = without(matchingNames, p.name.value);
@@ -469,7 +470,7 @@ export class Synthesizer {
         } else return undefined;
       }),
       checkReplaceExprName(stmt, (e: ArgExpr<A>) => {
-        const matchingNames: string[] = matchSignatures(e, this.env).map(
+        const matchingNames: string[] = matchSignatures(e, ctx.env).map(
           (decl) => decl.name.value
         );
         const options = without(matchingNames, e.name.value);
@@ -511,7 +512,7 @@ export class Synthesizer {
         stmt,
         ctx,
         (oldStmt: ApplyPredicate<A>, ctx: SynthesisContext) => {
-          const options = argMatches(oldStmt, this.env);
+          const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
             const { res, stmts, ctx: newCtx } = generateArgStmt(
@@ -791,6 +792,7 @@ const generatePredicate = (
   ctx: SynthesisContext,
   args?: SubPredArg<A>[]
 ): WithStmts<ApplyPredicate<A>> => {
+  log.debug(`Generating predicate of ${pred.name.value} type`);
   if (!args) {
     const {
       res,
@@ -904,10 +906,18 @@ const generateArg = (
     switch (option) {
       case "existing": {
         // TODO: clean up the logic
+        const argTypeName = argType.name.value;
         const possibleIDs =
           reuseOption === "distinct"
-            ? findIDs(ctx, argType.name.value, usedIDs)
-            : findIDs(ctx, argType.name.value);
+            ? findIDs(
+                ctx,
+                [argTypeName, ...subTypesOf(argType, ctx.env).map((t) => t)],
+                usedIDs
+              )
+            : findIDs(ctx, [
+                argTypeName,
+                ...subTypesOf(argType, ctx.env).map((t) => t),
+              ]);
         const existingID = ctx.choice(possibleIDs);
         log.debug(
           `generating an argument with possbilities ${possibleIDs.map(
@@ -963,7 +973,7 @@ const generatePredArgs = (
   ctx: SynthesisContext
 ): WithStmts<SubPredArg<A>[]> => {
   const resWithCtx = args.reduce(
-    ({ res, stmts, ids }: WithStmts<SubPredArg<A>[]> & IDList, arg) => {
+    ({ res, stmts, ids, ctx }: WithStmts<SubPredArg<A>[]> & IDList, arg) => {
       const {
         res: newArg,
         stmts: newStmts,

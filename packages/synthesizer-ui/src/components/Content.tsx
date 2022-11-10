@@ -10,6 +10,7 @@ import {
   compileDomain,
   compileSubstance,
   PenroseState,
+  RenderStatic,
   showError,
   SubProg,
   SynthesizedSubstance,
@@ -17,8 +18,10 @@ import {
   SynthesizerSetting,
 } from "@penrose/core";
 import { A } from "@penrose/core/build/dist/types/ast";
+import { saveAs } from "file-saver";
+import JSZip from "jszip";
+import { range } from "lodash";
 import React from "react";
-import { DownloadSVG } from "../utils/utils";
 import { Grid } from "./Grid";
 import { Settings } from "./Settings";
 
@@ -26,10 +29,10 @@ export type ContentProps = any;
 
 export interface ContentState {
   progs: SynthesizedSubstance[];
-  staged: [number, string][];
+  states: PenroseState[];
+  staged: number[];
   domain: string;
   style: string;
-  srcState: PenroseState | undefined;
 }
 
 const ContentSection = styled(Box)({
@@ -74,39 +77,30 @@ export class Content extends React.Component<ContentProps, ContentState> {
     super(props);
     this.state = {
       progs: [],
+      states: [],
       staged: [],
       domain: "",
       style: "",
-      srcState: undefined,
     };
   }
-
-  componentDidMount() {
-    fetch("public/files/geometry.txt")
-      .then((r) => r.text())
-      .then((text) => {
-        this.setState({ domain: text });
-      });
-    fetch("public/files/euclidean.txt")
-      .then((r) => r.text())
-      .then((text) => {
-        this.setState({ style: text });
-      });
-  }
-
   // callback function to indicate that a svg will be exported
-  addStaged = (idx: number, svgStr: string) => {
-    if (svgStr !== "") {
-      const newStaged = this.state.staged;
-      const index = newStaged.map((item) => item[0]).indexOf(idx);
-      if (index > -1) {
-        // delete object from array if it was already staged (i.e. checkbox was unchecked)
-        newStaged.splice(index, 1);
-      } else {
-        newStaged.push([idx, svgStr]);
-      }
-      this.setState({ staged: newStaged });
+  addStaged = (idx: number) => {
+    let newStaged = [...this.state.staged];
+    if (this.state.staged.includes(idx)) {
+      // delete object from array if it was already staged (i.e. checkbox was unchecked)
+      newStaged = newStaged.filter((i) => i !== idx);
+    } else {
+      newStaged.push(idx);
     }
+    this.setState({ staged: newStaged });
+  };
+
+  onStateUpdate = (idx: number, state: PenroseState) => {
+    const newStates = [...this.state.states];
+    newStates.splice(idx, 1, state);
+    this.setState({
+      states: newStates,
+    });
   };
 
   generateProgs = () => (
@@ -134,12 +128,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(
-        env,
-        setting,
-        subResult,
-        Math.random().toString()
-      );
+      const synth = new Synthesizer(env, setting, subResult, "test0");
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {
@@ -153,11 +142,23 @@ export class Content extends React.Component<ContentProps, ContentState> {
     }
   };
 
-  exportDiagrams = () => {
-    for (const stageIdx in this.state.staged) {
-      const [idx, svg] = this.state.staged[stageIdx];
-      DownloadSVG(svg, `diagram_${idx}`);
+  exportDiagrams = async (indices: number[]) => {
+    const zip = JSZip();
+    for (const idx of indices) {
+      const state = this.state.states[idx];
+      const svg = await RenderStatic(state, async (path: string) => {
+        const response = await fetch(path);
+        if (!response.ok) {
+          console.error(`could not fetch ${path}`);
+          return undefined;
+        }
+        return await response.text();
+      });
+      zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
     }
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+      saveAs(content, "diagrams.zip");
+    });
   };
 
   render() {
@@ -173,9 +174,18 @@ export class Content extends React.Component<ContentProps, ContentState> {
               <Button
                 variant="outlined"
                 color="inherit"
-                onClick={this.exportDiagrams}
+                onClick={() => this.exportDiagrams(this.state.staged)}
               >
                 Export
+              </Button>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() =>
+                  this.exportDiagrams(range(0, this.state.states.length))
+                }
+              >
+                Export All
               </Button>
             </ButtonBox>
           </HeaderContent>
@@ -193,6 +203,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
             domain={this.state.domain}
             progs={this.state.progs}
             onStaged={this.addStaged}
+            onStateUpdate={this.onStateUpdate}
           />
         </ContentSection>
       </div>

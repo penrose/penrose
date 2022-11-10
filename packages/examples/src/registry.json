@@ -38,6 +38,12 @@
       "variation": ""
     },
     {
+      "substance": "vector-wedge",
+      "style": "exterior-algebra",
+      "domain": "exterior-algebra",
+      "variation": "ArtemisCrane740"
+    },
+    {
       "substance": "allShapes",
       "style": "dashedShapes",
       "domain": "shape-spec",
@@ -132,6 +138,12 @@
       "style": "fake-3d-linear-algebra",
       "domain": "fake-3d-linear-algebra",
       "variation": "ConceptualMeerkat694"
+    },
+    {
+      "substance": "vector-wedge",
+      "style": "exterior-algebra",
+      "domain": "exterior-algebra",
+      "variation": "ArtemisCrane740"
     }
   ],
   "domains": {
@@ -146,6 +158,10 @@
     "linear-algebra": {
       "name": "Linear Algebra",
       "URI": "linear-algebra-domain/linear-algebra.dsl"
+    },
+    "exterior-algebra": {
+      "name": "Exterior Algebra",
+      "URI": "exterior-algebra/exterior-algebra.dsl"
     },
     "shape-spec": {
       "name": "Shapes",
@@ -228,6 +244,11 @@
       "name": "Vectors with Dashed Arrows",
       "URI": "linear-algebra-domain/linearalgebra-paper-dashes.sty"
     },
+    "exterior-algebra": {
+      "domain": "linear-algebra",
+      "name": "Operations on k-vectors from exterior algebra",
+      "URI": "exterior-algebra/exterior-algebra.sty"
+    },
     "disjoint-rects": {
       "domain": "graph-theory",
       "name": "Disjoint rectangles in box",
@@ -303,6 +324,11 @@
       "domain": "linear-algebra",
       "name": "Two Perpendicular Vectors",
       "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.sub"
+    },
+    "vector-wedge": {
+      "domain": "exterior-algebra",
+      "name": "Wedge product of three Vectors",
+      "URI": "exterior-algebra/vector-wedge.sub"
     },
     "continuousmap": {
       "domain": "set-theory",

@@ -117,6 +117,7 @@ where In(u,U) {
   ensure contains(U.background, u.text)
   ensure minSize(u.arrow)
 
+  layer u.text above u.stroke
   layer u.stroke above u.arrow
   layer u.arrow above U.xAxis
   layer u.text above U.xAxis
@@ -160,7 +161,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
   shape labelText = Text {
     string: "orthogonal"
-    center: (0.,-.6*V.background.width)
+    center: (0.,-.6*U.background.width)
     fontFamily: const.fontFamily
     fontSize: "18px"
     fontWeight: "bold"

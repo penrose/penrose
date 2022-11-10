@@ -162,13 +162,22 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
 
 const toString = (x: BindingForm<A>): string => x.contents.value;
 
-// https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-const cartesianProduct = <T>(...a: T[][]): T[][] =>
-  a.reduce(
-    (tuples: T[][], set) =>
-      tuples.flatMap((prefix: T[]) => set.map((x: T) => [...prefix, x])),
-    [[]]
-  );
+const cartesianProduct = <Tin, Tout>(
+  t1: Tin[],
+  t2: Tin[],
+  consistent: (t1: Tin, t2: Tin) => boolean,
+  merge: (t1: Tin, t2: Tin) => Tout
+): Tout[] => {
+  const product: Tout[] = [];
+  for (const i in t1) {
+    for (const j in t2) {
+      if (consistent(t1[i], t2[j])) {
+        product.push(merge(t1[i], t2[j]));
+      }
+    }
+  }
+  return product;
+};
 
 const oneErr = (err: StyleError): StyleDiagnostics => {
   return { errors: im.List([err]), warnings: im.List() };
@@ -979,15 +988,18 @@ const merge = (
   const s1Arr = s1.toArray();
   const s2Arr = s2.toArray();
 
-  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(s1Arr, s2Arr)
-    .filter(([[aSubst], [bSubst]]) => {
+  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(
+    s1Arr,
+    s2Arr,
+    ([aSubst], [bSubst]) => {
       // Requires that substitutions are consistent
       return consistentSubsts(aSubst, bSubst);
-    })
-    .map(([[aSubst, aStmts], [bSubst, bStmts]]) => [
+    },
+    ([aSubst, aStmts], [bSubst, bStmts]) => [
       combine(aSubst, bSubst),
       aStmts.union(bStmts),
-    ]);
+    ]
+  );
   return im.List(result);
 };
 
@@ -1104,7 +1116,7 @@ const matchStyArgToSubArg = (
   varEnv: Env,
   styArg: PredArg<A> | SelExpr<A>,
   subArg: SubPredArg<A> | SubExpr<A>
-): Subst | undefined => {
+): Subst[] => {
   if (styArg.tag === "SEBind" && subArg.tag === "Identifier") {
     const styBForm = styArg.contents;
     if (styBForm.tag === "StyVar") {
@@ -1117,15 +1129,15 @@ const matchStyArgToSubArg = (
       if (typesMatched(varEnv, subArgType, styArgType)) {
         const rSubst = {};
         rSubst[styArgName] = subArgName;
-        return rSubst;
+        return [rSubst];
       } else {
-        return undefined;
+        return [];
       }
     } /* (styBForm.tag === "SubVar") */ else {
       if (subArg.value === styBForm.contents.value) {
-        return {};
+        return [{}];
       } else {
-        return undefined;
+        return [];
       }
     }
   }
@@ -1162,12 +1174,12 @@ const matchStyArgToSubArg = (
       subArg
     );
   }
-  return undefined;
+  return [];
 };
 
 /**
  * Match a list of Style arguments against a list of Substance arguments.
- * @returns If all arguments match, return a `Subst` that maps the Style variable(s) against Substance variable(s). If any arguments fail to match, return `undefined`.
+ * @returns If all arguments match, return a `Subst[]` that contains mappings which map the Style variable(s) against Substance variable(s). If any arguments fail to match, return [].
  */
 const matchStyArgsToSubArgs = (
   styTypeMap: { [k: string]: StyT<A> },
@@ -1175,34 +1187,53 @@ const matchStyArgsToSubArgs = (
   varEnv: Env,
   styArgs: PredArg<A>[] | SelExpr<A>[],
   subArgs: SubPredArg<A>[] | SubExpr<A>[]
-): Subst | undefined => {
-  const initRSubst: Subst | undefined = {};
-  const res = zip2<PredArg<A> | SelExpr<A>, SubPredArg<A> | SubExpr<A>>(
-    styArgs,
-    subArgs
-  ).reduce((rSubst: Subst | undefined, [styArg, subArg]) => {
-    if (rSubst === undefined) {
-      return undefined;
-    }
-    const argSubst = matchStyArgToSubArg(
+): Subst[] => {
+  const stySubArgPairs = zip2<
+    PredArg<A> | SelExpr<A>,
+    SubPredArg<A> | SubExpr<A>
+  >(styArgs, subArgs);
+
+  const substsForEachArg = stySubArgPairs.map(([styArg, subArg]) => {
+    const argSubsts = matchStyArgToSubArg(
       styTypeMap,
       subTypeMap,
       varEnv,
       styArg,
       subArg
     );
-    if (argSubst === undefined) {
-      return undefined;
-    } else {
-      return { ...rSubst, ...argSubst };
-    }
-  }, initRSubst);
-  return res;
+    return argSubsts;
+  });
+
+  // We do Cartesian product here.
+  // The idea is, each argument may yield multiple matches due to symmetry.
+  // For example, first argument might give us
+  //   (a --> A, b --> B) and (a --> B, b --> A)
+  // due to symmetry. The second argument might give us
+  //   (c --> C, d --> D) and (c --> D, d --> C).
+  // We want to incorporate all four possible, consistent matchings for (a, b, c, d).
+  // TODO: Think about ways to optimize this.
+  const first = substsForEachArg.shift();
+  if (first !== undefined) {
+    const substs: Subst[] = substsForEachArg.reduce(
+      (currSubsts, substsForArg) => {
+        return cartesianProduct(
+          currSubsts,
+          substsForArg,
+          (aSubst, bSubst) => consistentSubsts(aSubst, bSubst),
+          (aSubst, bSubst) => combine(aSubst, bSubst)
+        );
+      },
+      first
+    );
+    return substs;
+  } else {
+    return [];
+  }
 };
 
 /**
  * Match a Style application of predicate, function, or constructor against a Substance application
- * by comparing names and arguments. For predicates, consider potential symmetry.
+ * by comparing names and arguments. For symmetric predicates, we force it to consider both versions of the predicate.
  * If the Style application and Substance application match, return the variable mapping. Otherwise, return `undefined`.
  *
  * For example, let
@@ -1219,50 +1250,52 @@ const matchStyApplyToSubApply = (
   varEnv: Env,
   styRel: RelPred<A> | SelExpr<A>,
   subRel: ApplyPredicate<A> | SubExpr<A>
-): Subst | undefined => {
+): Subst[] => {
   // Predicate Applications
   if (styRel.tag === "RelPred" && subRel.tag === "ApplyPredicate") {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
-      return undefined;
+      return [];
     }
-    let rSubst = matchStyArgsToSubArgs(
+
+    // Consider the original version
+    const rSubstOriginal = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
       varEnv,
       styRel.args,
       subRel.args
     );
-    if (rSubst === undefined) {
-      // check symmetry
-      const predicateDecl = varEnv.predicates.get(subRel.name.value);
-      if (predicateDecl && predicateDecl.symmetric) {
-        // Flip arguments
-        const flippedStyArgs = [styRel.args[1], styRel.args[0]];
-        rSubst = matchStyArgsToSubArgs(
-          styTypeMap,
-          subTypeMap,
-          varEnv,
-          flippedStyArgs,
-          subRel.args
-        );
-      }
+
+    // Consider the symmetric, flipped-argument version
+    let rSubstSymmetric = undefined;
+    const predicateDecl = varEnv.predicates.get(subRel.name.value);
+    if (predicateDecl && predicateDecl.symmetric) {
+      // Flip arguments
+      const flippedStyArgs = [styRel.args[1], styRel.args[0]];
+      rSubstSymmetric = matchStyArgsToSubArgs(
+        styTypeMap,
+        subTypeMap,
+        varEnv,
+        flippedStyArgs,
+        subRel.args
+      );
     }
 
-    // If still no match (even after considering potential symmetry)
-    if (rSubst === undefined) {
-      return undefined;
+    const rSubsts: Subst[] = [...rSubstOriginal];
+    if (rSubstSymmetric !== undefined) {
+      rSubsts.push(...rSubstSymmetric);
+    }
+
+    if (styRel.alias === undefined) {
+      return rSubsts;
     } else {
-      // Otherwise, if needed, we add in the alias.
-      if (styRel.alias === undefined) {
-        return rSubst;
-      } else {
+      const aliasName = styRel.alias.value;
+      return rSubsts.map((rSubst) => {
         const rSubstWithAlias = { ...rSubst };
-        rSubstWithAlias[styRel.alias.value] = getSubPredAliasInstanceName(
-          subRel
-        );
+        rSubstWithAlias[aliasName] = getSubPredAliasInstanceName(subRel);
         return rSubstWithAlias;
-      }
+      });
     }
   }
 
@@ -1275,17 +1308,18 @@ const matchStyApplyToSubApply = (
   ) {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
-      return undefined;
+      return [];
     }
-    return matchStyArgsToSubArgs(
+    const rSubst = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
       varEnv,
       styRel.args,
       subRel.args
     );
+    return rSubst;
   }
-  return undefined;
+  return [];
 };
 
 /**
@@ -1378,17 +1412,20 @@ const matchStyRelToSubRels = (
         if (statement.tag !== "ApplyPredicate") {
           return rSubsts;
         }
-        const rSubst = matchStyApplyToSubApply(
+        const rSubstsForPred = matchStyApplyToSubApply(
           styTypeMap,
           subTypeMap,
           varEnv,
           styPred,
           statement
         );
-        if (rSubst === undefined) {
-          return rSubsts;
-        }
-        return rSubsts.push([rSubst, im.Set<SubStmt<A>>().add(statement)]);
+
+        return rSubstsForPred.reduce((rSubsts, rSubstForPred) => {
+          return rSubsts.push([
+            rSubstForPred,
+            im.Set<SubStmt<A>>().add(statement),
+          ]);
+        }, rSubsts);
       },
       initRSubsts
     );
@@ -1405,19 +1442,22 @@ const matchStyRelToSubRels = (
       const { variable: subBindedVar, expr: subBindedExpr } = statement;
       const subBindedName = subBindedVar.value;
       // substitutions for RHS expression
-      const rSubstExpr = matchStyApplyToSubApply(
+      const rSubstsForExpr = matchStyApplyToSubApply(
         styTypeMap,
         subTypeMap,
         varEnv,
         styBindedExpr,
         subBindedExpr
       );
-      if (rSubstExpr === undefined) {
-        return rSubsts;
-      }
-      const rSubst = { ...rSubstExpr };
-      rSubst[styBindedName] = subBindedName;
-      return rSubsts.push([rSubst, im.Set<SubStmt<A>>().add(statement)]);
+
+      return rSubstsForExpr.reduce((rSubsts, rSubstForExpr) => {
+        const rSubstForBind = { ...rSubstForExpr };
+        rSubstForBind[styBindedName] = subBindedName;
+        return rSubsts.push([
+          rSubstForBind,
+          im.Set<SubStmt<A>>().add(statement),
+        ]);
+      }, rSubsts);
     }, initRSubsts);
 
     return [getStyRelArgNames(rel), newRSubsts];

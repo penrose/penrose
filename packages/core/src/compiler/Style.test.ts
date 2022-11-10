@@ -411,7 +411,7 @@ describe("Compiler", () => {
       const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(0);
     });
-    test("symmetric predicate should match", () => {
+    test("symmetric predicate should match 1", () => {
       const dsl = `type Atom
       type Hydrogen <: Atom
       type Oxygen <: Atom
@@ -425,6 +425,23 @@ describe("Compiler", () => {
       where Bond(o, h) {
         myShape = Text {
           string: "Bond!"
+        }
+      }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toBeGreaterThan(0);
+    });
+    test("symmetric predicate should match 2", () => {
+      const dsl = `type Set
+      symmetric predicate Equal(Set, Set)`;
+      const sub = `Set A, B, C
+      Equal(A, B)
+      Equal(A, C)`;
+      const sty =
+        canvasPreamble +
+        `forall Set x, y, z
+      where Equal(x, y); Equal(y, z) {
+        myShape = Text {
+          string: "Equality!"
         }
       }`;
       const { state } = loadProgs({ dsl, sub, sty });

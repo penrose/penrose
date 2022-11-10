@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import { examples } from "@penrose/examples";
+import { examples, registry } from "@penrose/examples";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import * as React from "react";
@@ -33,18 +33,38 @@ function HomepageHeader() {
   );
 }
 
+const exampleFromURI = (uri) => {
+  let x = examples;
+  for (const part of uri.split("/")) {
+    x = x[part];
+  }
+  return x;
+};
+
+const findTrio = (sub, sty) => {
+  const matching = registry.trios.filter(
+    ({ substance, style }) => substance === sub && style === sty
+  );
+  if (matching.length !== 1) {
+    throw Error(`expected exactly one matching trio, got ${matching.length}`);
+  }
+  const [{ substance, style, domain, variation }] = matching;
+  return {
+    dsl: exampleFromURI(registry.domains[domain].URI),
+    sub: exampleFromURI(registry.substances[substance].URI),
+    sty: exampleFromURI(registry.styles[style].URI),
+    variation,
+  };
+};
+
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
 
-  const trio = {
-    dsl: examples["set-theory-domain"]["setTheory.dsl"],
-    sub: examples["set-theory-domain"]["tree.sub"],
-    sty: examples["set-theory-domain"]["venn.sty"],
-  };
   const demo = [
-    { variation: "foo", ...trio },
-    { variation: "bar", ...trio },
-    { variation: "baz", ...trio },
+    findTrio("siggraph-teaser", "euclidean-teaser"),
+    findTrio("continuousmap", "continuousmap"),
+    findTrio("tree", "venn"),
+    findTrio("lagrange-bases", "lagrange-bases"),
   ];
 
   return (
@@ -81,7 +101,13 @@ export default function Home() {
 
         <h1>Example</h1>
         <p>Here's Penrose running in your browser:</p>
-        <DemoWrapper style={{ margin: "auto" }} examples={demo} width="400px" />
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <DemoWrapper
+            style={{ margin: "auto" }}
+            examples={demo}
+            width="400px"
+          />
+        </div>
       </main>
     </Layout>
   );
