@@ -732,11 +732,20 @@ with Linelike l {
 forall Linelike s
 where AngleBisector(a, s)
 with Angle a; Point p {
-  -- first angle = p, q, end
-  -- second angle = end, q, r
-  dotA = dot(normalize(a.p - a.q), normalize(s.end - a.q)) * 100
-  dotB = dot(normalize(s.end - a.q), normalize(a.r - a.q)) * 100
-  ensure equal(dotA, dotB)
+  weight = 10000
+  angleA = angleBetween(a.p - a.q, s.end - a.q) * weight
+  angleB = angleBetween(s.end - a.q, a.r - a.q) * weight
+  ensure equal(angleA, angleB) 
+  -- HACK: make sure the bisector end point is between angle end points. Might be too specific
+  ensure inRange(s.end[0], a.p[0], a.r[0])
+  ensure inRange(s.end[1], a.p[1], a.r[1])
+  -- FIXME: NaN when using the following
+  -- v1 = normalize(a.p - a.q) 
+  -- v2 = normalize(s.end - a.q)
+  -- v3 = normalize(a.r - a.q)
+  -- angleA = angleFrom(v1, v2) * weight
+  -- angleB = angleFrom(v2, v3) * weight
+
 }
 
 forall Circle c {
@@ -820,9 +829,9 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure collinear(p.icon.center, c.icon.center, q.icon.center)
-  ensure ptCircleIntersect(p.vec, c.icon)
-  ensure ptCircleIntersect(q.vec, c.icon)
+  ensure collinear(p.vec, q.vec, c.icon.center)
+  ensure equal(vdist(p.vec, c.icon.center), c.icon.r)
+  ensure equal(vdist(q.vec, c.icon.center), c.icon.r)
 }
 
 forall Point p
