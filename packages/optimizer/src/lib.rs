@@ -641,17 +641,17 @@ fn state_converged(state: &State) -> bool {
 }
 
 #[no_mangle]
-fn input_meta_sampler_byte() -> u8 {
+fn penrose_input_meta_sampler_byte() -> u8 {
     InputMeta::Sampler as u8
 }
 
 #[no_mangle]
-fn input_meta_pending_byte() -> u8 {
+fn penrose_input_meta_pending_byte() -> u8 {
     InputMeta::Pending as u8
 }
 
 #[no_mangle]
-fn converge(
+fn penrose_converge(
     f: Compiled,
     inputs: &[InputMeta],
     len_obj_engs: usize,
