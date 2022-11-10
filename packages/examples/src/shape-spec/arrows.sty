@@ -1,6 +1,6 @@
 canvas {
   width = 400
-  height = 800
+  height = 600
 }
 const {
   ch2 = canvas.height/2
@@ -23,13 +23,13 @@ forall TLine l {
   rowPadding = 70
   rowY = -match_id * rowPadding + canvas.height/2
   l.icon = Line {
-    start: (-190, rowY)
+    start: (-const.cw2 + 10, rowY)
     end: (0, rowY)
     endArrowhead: true
     startArrowhead: true
     arrowheadStyle: l.label
     strokeColor: #000
-    strokeWidth: 5.0
+    strokeWidth: 3.0
   }
   l.text = Text {
     string: l.label

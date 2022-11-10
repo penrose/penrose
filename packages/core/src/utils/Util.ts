@@ -197,6 +197,33 @@ export const arrowheads: ArrowheadMap = {
       "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 12 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
   },
+  "arrowhead-5": {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 10 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+  },
+  "arrowhead-6": {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 1 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+  },
+  "arrowhead-7": {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+  },
 };
 
 export const toScreen = (
