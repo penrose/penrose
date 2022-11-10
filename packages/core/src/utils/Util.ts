@@ -146,22 +146,56 @@ export const randList = (rng: seedrandom.prng, n: number): number[] => {
 
 //#region renderer
 
-export const arrowheads = {
+interface ArrowheadSpec {
+  width: number;
+  height: number;
+  viewbox: string;
+  refX: number;
+  refY: number;
+  path: string;
+  fillKind: "stroke" | "fill";
+}
+type ArrowheadMap = {
+  [k: string]: ArrowheadSpec;
+};
+
+export const arrowheads: ArrowheadMap = {
   "arrowhead-1": {
     width: 8,
     height: 8,
     viewbox: "0 0 8 8",
-    refX: "4",
-    refY: "4", // HACK: to avoid paths from bleeding through the arrowhead
+    refX: 2.5,
+    refY: 4,
     path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z",
+    fillKind: "fill",
   },
   "arrowhead-2": {
     width: 9.95,
     height: 8.12,
     viewbox: "0 0 9.95 8.12",
-    refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
-    refY: "4.06",
+    refX: 2.36,
+    refY: 4.06,
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
+    fillKind: "fill",
+  },
+  "arrowhead-3": {
+    width: 7.5,
+    height: 14,
+    viewbox: "0 0 7.5 14",
+    refX: 7,
+    refY: 7,
+    path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6",
+    fillKind: "stroke",
+  },
+  "arrowhead-4": {
+    width: 12.5,
+    height: 14,
+    viewbox: "0 0 12.5 14",
+    refX: 10,
+    refY: 7,
+    path:
+      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 12 7 a -6 6.75 0 0 0 -6 6",
+    fillKind: "stroke",
   },
 };
 

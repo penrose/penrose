@@ -34,8 +34,15 @@ export const arrowHead = (
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", arrow.path);
-  path.setAttribute("fill", color);
-  path.setAttribute("fill-opacity", opacity.toString());
+  if (arrow.fillKind === "stroke") {
+    path.setAttribute("fill", "none");
+    marker.setAttribute("stroke", color);
+    marker.setAttribute("stroke-opacity", opacity.toString());
+    path.setAttribute("stroke-linecap", "round");
+  } /* if (arrow.fillKind === "fill") */ else {
+    path.setAttribute("fill", color);
+    path.setAttribute("fill-opacity", opacity.toString());
+  }
   marker.appendChild(path);
 
   return marker;
@@ -66,7 +73,9 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
   // multiplied by thickness since the arrow size uses markerUnits, which is strokeWidth by default:
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/markerUnits
   const arrowHeight =
-    arrowheads[arrowheadStyle].height * arrowheadSize * thickness;
+    (arrowheads[arrowheadStyle].width - arrowheads[arrowheadStyle].refX) *
+    arrowheadSize *
+    thickness;
   const length = Math.sqrt((lineSX - lineEX) ** 2 + (lineSY - lineEY) ** 2);
 
   // Subtract off the arrowHeight from each side.
@@ -109,6 +118,7 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   ] = makeRoomForArrows(shape);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
+
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
   const color = toSvgPaintProperty(
     (shape.properties.strokeColor as ColorV<number>).contents
