@@ -169,7 +169,7 @@ export const arrowheads: ArrowheadMap = {
     path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z",
     fillKind: "fill",
   },
-  stealth: {
+  straight: {
     width: 9.95,
     height: 8.12,
     viewbox: "0 0 9.95 8.12",

@@ -161,7 +161,7 @@
   </text>
   <g>
     <marker
-      id="`stealth`.icon-leftArrowhead"
+      id="`straight`.icon-leftArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -177,7 +177,7 @@
       ></path>
     </marker>
     <marker
-      id="`stealth`.icon-rightArrowhead"
+      id="`straight`.icon-rightArrowhead"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -198,10 +198,10 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#`stealth`.icon-leftArrowhead)"
-      marker-end="url(#`stealth`.icon-rightArrowhead)"
+      marker-start="url(#`straight`.icon-leftArrowhead)"
+      marker-end="url(#`straight`.icon-rightArrowhead)"
     ></path>
-    <title>`stealth`.icon</title>
+    <title>`straight`.icon</title>
   </g>
   <text
     fill="#000000"
@@ -219,8 +219,8 @@
     dominant-baseline="alphabetic"
     alignment-baseline="alphabetic"
   >
-    <title>`stealth`.text</title>
-    stealth
+    <title>`straight`.text</title>
+    straight
   </text>
   <g>
     <marker
