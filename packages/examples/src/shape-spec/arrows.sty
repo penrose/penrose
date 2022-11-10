@@ -5,6 +5,12 @@ canvas {
 const {
   ch2 = canvas.height/2
   cw2 = canvas.width/2
+  bg = Rectangle {
+    center: (0, 0)
+    width: canvas.width
+    height: canvas.height
+    fillColor: #fff
+  }
   vguide1 = Line {
     start: (0, ch2)
     end: (0, -ch2)
@@ -17,6 +23,7 @@ const {
     strokeColor: #f00
     strokeWidth: 1
   }
+
 }
 
 forall TLine l {

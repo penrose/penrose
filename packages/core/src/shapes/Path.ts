@@ -17,7 +17,7 @@ export const samplePath = (context: Context, _canvas: Canvas): PathProps => ({
   strokeDasharray: strV(""),
   fillColor: noPaint(),
   arrowheadSize: floatV(1),
-  arrowheadStyle: strV("arrowhead-2"),
+  arrowheadStyle: strV("concave"),
   startArrowhead: boolV(false),
   endArrowhead: boolV(false),
   d: pathDataV([]),

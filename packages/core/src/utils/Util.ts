@@ -160,7 +160,7 @@ type ArrowheadMap = {
 };
 
 export const arrowheads: ArrowheadMap = {
-  "arrowhead-1": {
+  concave: {
     width: 8,
     height: 8,
     viewbox: "0 0 8 8",
@@ -169,7 +169,7 @@ export const arrowheads: ArrowheadMap = {
     path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z",
     fillKind: "fill",
   },
-  "arrowhead-2": {
+  stealth: {
     width: 9.95,
     height: 8.12,
     viewbox: "0 0 9.95 8.12",
@@ -178,7 +178,7 @@ export const arrowheads: ArrowheadMap = {
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
     fillKind: "fill",
   },
-  "arrowhead-3": {
+  line: {
     width: 7.5,
     height: 14,
     viewbox: "0 0 7.5 14",
@@ -187,7 +187,7 @@ export const arrowheads: ArrowheadMap = {
     path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
   },
-  "arrowhead-4": {
+  doubleLine: {
     width: 12.5,
     height: 14,
     viewbox: "0 0 12.5 14",
@@ -197,7 +197,7 @@ export const arrowheads: ArrowheadMap = {
       "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 12 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
   },
-  "arrowhead-5": {
+  loopdown: {
     width: 6,
     height: 28,
     viewbox: "0 0 6 28",
@@ -206,7 +206,7 @@ export const arrowheads: ArrowheadMap = {
     path: "M1 10 a 4 4 0 0 1 0 9",
     fillKind: "stroke",
   },
-  "arrowhead-6": {
+  loopup: {
     width: 6,
     height: 28,
     viewbox: "0 0 6 28",
@@ -215,7 +215,7 @@ export const arrowheads: ArrowheadMap = {
     path: "M1 1 a 4 4 0 0 1 0 9",
     fillKind: "stroke",
   },
-  "arrowhead-7": {
+  loop: {
     width: 6,
     height: 28,
     viewbox: "0 0 6 28",

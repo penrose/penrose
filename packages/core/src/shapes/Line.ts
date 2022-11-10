@@ -18,7 +18,7 @@ export const sampleLine = (context: Context, canvas: Canvas): LineProps => ({
   strokeColor: sampleColor(context),
   strokeDasharray: strV(""),
   arrowheadSize: floatV(1),
-  arrowheadStyle: strV("arrowhead-2"),
+  arrowheadStyle: strV("concave"),
   startArrowhead: boolV(false),
   endArrowhead: boolV(false),
   start: sampleVector(context, canvas),

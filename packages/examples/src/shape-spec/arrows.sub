@@ -1,10 +1,3 @@
 -- https://tikz.dev/tikz-arrows
-TLine triangle, stealth, to, doubleto, hookup, hookdown, hook
-Label triangle $arrowhead-1$
-Label stealth $arrowhead-2$
-Label to $arrowhead-3$
-Label doubleto $arrowhead-4$
-Label hookup $arrowhead-5$
-Label hookdown $arrowhead-6$
-Label hook $arrowhead-7$
--- AutoLabel All
+TLine concave, stealth, line, doubleLine, loopup, loopdown, loop
+AutoLabel All
