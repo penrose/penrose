@@ -683,29 +683,15 @@ with Point p; Point q; Point r; Point s {
     strokeWidth : const.strokeWidth
     style : "solid"
   }  
-}
-
---TODO corner case shoves points far off canvas
-forall Quadrilateral Q
-where Parallelogram(Q) {
-  pq = (Q.q[1]-Q.p[1])/(Q.q[0]-Q.p[0]) * 10000
-  rs = (Q.r[1]-Q.s[1])/(Q.r[0]-Q.s[0]) * 10000
-
-  qr = (Q.q[1]-Q.r[1])/(Q.q[0]-Q.r[0]) * 10000
-  ps = (Q.s[1]-Q.p[1])/(Q.s[0]-Q.p[0]) * 10000
-
-  -- make opposite sides same length
-  ensure equal(vdist(Q.p, Q.q), vdist(Q.r, Q.s))
-  ensure equal(vdist(Q.p, Q.s), vdist(Q.q, Q.r))
-
-  -- make opposite sides have parallel
-  ensure equal(pq, rs)
-  ensure equal(qr, ps)
-
-  -- area must be at least a certain size
-  v1 = Q.p - Q.q
-  v2 = Q.r - Q.q
-  ensure lessThan(10000, (v1[0]*v2[1])-(v1[1]*v2[0])) -- 2D cross product
+  Q.labelContainer = Path {
+    d: pathFromPoints("closed", [Q.p, Q.q, Q.r, Q.s])
+    fillColor: none()
+  }
+  -- TODO: check if the points actually have labels
+  ensure disjoint(p.text, Q.labelContainer)
+  ensure disjoint(q.text, Q.labelContainer)
+  ensure disjoint(r.text, Q.labelContainer)
+  ensure disjoint(s.text, Q.labelContainer)
 }
 
 --FUNCTIONS
@@ -733,6 +719,13 @@ forall Point p
 where Midpoint(l, p)
 with Linelike l {
   override p.vec = midpoint(l.icon.start, l.icon.end)
+}
+
+forall Point p
+where Midpoint(l, p); p has label
+with Linelike l {
+  override p.vec = midpoint(l.icon.start, l.icon.end)
+  ensure disjoint(p.text, l.icon)
 }
 
 -- TODO sometimes bisector becomes a scaled version of either side length PQ or QR of angle PQR
