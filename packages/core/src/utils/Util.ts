@@ -146,7 +146,7 @@ export const randList = (rng: seedrandom.prng, n: number): number[] => {
 
 //#region renderer
 
-interface ArrowheadSpec {
+export interface ArrowheadSpec {
   width: number;
   height: number;
   viewbox: string;
@@ -154,6 +154,7 @@ interface ArrowheadSpec {
   refY: number;
   path: string;
   fillKind: "stroke" | "fill";
+  style?: { [k: string]: string };
 }
 type ArrowheadMap = {
   [k: string]: ArrowheadSpec;
@@ -186,6 +187,9 @@ export const arrowheads: ArrowheadMap = {
     refY: 7,
     path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
   },
   doubleLine: {
     width: 12.5,
@@ -205,6 +209,9 @@ export const arrowheads: ArrowheadMap = {
     refY: 10,
     path: "M1 10 a 4 4 0 0 1 0 9",
     fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
   },
   loopup: {
     width: 6,
@@ -214,6 +221,9 @@ export const arrowheads: ArrowheadMap = {
     refY: 10,
     path: "M1 1 a 4 4 0 0 1 0 9",
     fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
   },
   loop: {
     width: 6,
@@ -223,8 +233,14 @@ export const arrowheads: ArrowheadMap = {
     refY: 10,
     path: "M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9",
     fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
   },
 };
+
+export const getArrowhead = (style: string): ArrowheadSpec | undefined =>
+  Object.keys(arrowheads).includes(style) ? arrowheads[style] : undefined;
 
 export const toScreen = (
   [x, y]: [number, number],

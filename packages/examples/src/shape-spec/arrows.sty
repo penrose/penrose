@@ -32,9 +32,8 @@ forall Line l {
   l.icon = Line {
     start: (-const.cw2 + 10, rowY)
     end: (0, rowY)
-    endArrowhead: true
-    startArrowhead: true
-    arrowheadStyle: l.label
+    startArrowhead: l.label
+    endArrowhead: l.label
     strokeColor: #000
     strokeWidth: 3.0
   }
