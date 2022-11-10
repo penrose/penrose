@@ -150,9 +150,9 @@ with Point base; Point direction {
     stroke : r.color
     thickness : const.strokeWidth
     style : "solid"
-    rightArrowhead : "concave"
-    leftArrowhead : false
-    arrowheadSize: const.arrowheadSize
+    endArrowhead : "concave"
+    startArrowhead : "concave"
+    startArrowheadSize: const.arrowheadSize
   }
 }
 
@@ -168,9 +168,9 @@ with Point p; Point q {
     stroke : l.color
     thickness : const.strokeWidth
     style : "solid"
-    rightArrowhead : "concave"
-    leftArrowhead : true
-    arrowheadSize: const.arrowheadSize
+    endArrowhead : "concave"
+    startArrowhead : "concave"
+    startArrowheadSize: const.arrowheadSize
   }
 }
 
@@ -236,8 +236,8 @@ where s := PerpendicularBisector(s2, p)
 with Segment s2; Point p {
   override s.icon = Line {
     end : p.icon.center
-    startArrowhead: true
-    arrowheadSize: const.arrowheadSize
+    startArrowhead: "concave"
+    startArrowheadSize: const.arrowheadSize
     strokeColor : Colors.darkpurple
     strokeWidth : const.strokeWidth
   }
@@ -957,8 +957,8 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
     end:  (r.length * normalize(r_vec)) + x.vec
     strokeWidth : const.strokeWidth
     strokeColor : Colors.darkpurple
-    endArrowhead : true
-    arrowheadSize : const.arrowheadSize
+    endArrowhead: "concave"
+    endArrowheadSize : const.arrowheadSize
   }
 
   -- Bisect the arc twice more to get the bisector mark locations

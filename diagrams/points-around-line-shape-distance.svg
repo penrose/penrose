@@ -1,37 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g>
-    <marker
-      id="`g`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#c86762"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`g`.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#c86762"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 200 450 L 650 250"
       stroke-opacity="0.5"

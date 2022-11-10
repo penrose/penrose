@@ -151,8 +151,7 @@ with Point base; Point direction {
     strokeWidth : const.strokeWidth
     style : "solid"
     endArrowhead : "concave"
-    startArrowhead : false
-    arrowheadSize: const.arrowheadSize
+    endArrowheadSize: const.arrowheadSize
   }
 
 }
@@ -170,8 +169,9 @@ with Point p; Point q {
     strokeWidth : const.strokeWidth
     style : "solid"
     endArrowhead : "concave"
-    startArrowhead : true
-    arrowheadSize: const.arrowheadSize
+    startArrowhead: "concave"
+    startArrowheadSize: const.arrowheadSize
+    endArrowheadSize: const.arrowheadSize
   }
 }
 

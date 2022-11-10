@@ -1,37 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g>
-    <marker
-      id="`SBond_H8_O4`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H8_O4`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 435.45929705818725 658.1752630418106 L 493.07198820951106 576.4392430940376"
       stroke-opacity="1"
@@ -74,38 +42,6 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`WBond_O1_H3`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`WBond_O1_H3`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 404.1323692951236 289.92713756453645 L 216.9031495263241 219.60488530635388"
       stroke-opacity="1"
@@ -117,38 +53,6 @@
     <title>`WBond_O1_H3`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`SBond_H2_O1`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H2_O1`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 433.44531924327697 385.5344044923743 L 404.1323692951236 289.92713756453645"
       stroke-opacity="1"
@@ -159,38 +63,6 @@
     <title>`SBond_H2_O1`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`SBond_H1_O1`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H1_O1`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 489.38578546724443 237.6599940075526 L 404.1323692951236 289.92713756453645"
       stroke-opacity="1"
@@ -233,38 +105,6 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`SBond_H4_O2`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H4_O2`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 65.85285780713463 266.32507878276175 L 123.2823540440059 184.46023477446894"
       stroke-opacity="1"
@@ -275,38 +115,6 @@
     <title>`SBond_H4_O2`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`SBond_H3_O2`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H3_O2`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 216.9031495263241 219.60488530635388 L 123.2823540440059 184.46023477446894"
       stroke-opacity="1"
@@ -349,38 +157,6 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`SBond_H7_O4`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H7_O4`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 586.6469916703394 611.7056420077704 L 493.07198820951106 576.4392430940376"
       stroke-opacity="1"
@@ -391,38 +167,6 @@
     <title>`SBond_H7_O4`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`WBond_H2_O4`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`WBond_H2_O4`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 433.44531924327697 385.5344044923743 L 493.07198820951106 576.4392430940376"
       stroke-opacity="1"
@@ -562,38 +306,6 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`SBond_H6_O3`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H6_O3`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 672.3521277037858 34.67926074936241 L 660.4030002493788 133.96278710513204"
       stroke-opacity="1"
@@ -636,38 +348,6 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`WBond_H1_O3`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`WBond_H1_O3`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 489.38578546724443 237.6599940075526 L 660.4030002493788 133.96278710513204"
       stroke-opacity="1"
@@ -679,38 +359,6 @@
     <title>`WBond_H1_O3`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`SBond_H5_O3`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H5_O3`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 753.5269844940264 170.40346059982963 L 660.4030002493788 133.96278710513204"
       stroke-opacity="1"

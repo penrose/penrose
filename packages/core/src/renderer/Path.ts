@@ -63,8 +63,8 @@ const Shadow = (id: string) => {
 
 export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   // TODO: distinguish between fill opacity and stroke opacity
-  const startArrowId = shape.properties.name.contents + "-leftArrowhead";
-  const endArrowId = shape.properties.name.contents + "-rightArrowhead";
+  const startArrowId = shape.properties.name.contents + "-startArrowId";
+  const endArrowId = shape.properties.name.contents + "-endArrowId";
   const shadowId = shape.properties.name.contents + "-shadow";
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const strokeWidth = (shape.properties.strokeWidth as FloatV<number>).contents;
@@ -80,10 +80,6 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const fillOpacity = toSvgOpacityProperty(
     (shape.properties.fillColor as ColorV<number>).contents
   );
-  const arrowheadStyle = (shape.properties.arrowheadStyle as StrV).contents;
-  const arrowheadSize = (shape.properties.arrowheadSize as FloatV<number>)
-    .contents;
-
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
@@ -91,11 +87,11 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     (shape.properties.startArrowhead as StrV).contents
   );
   const endArrowhead = getArrowhead(
-    (shape.properties.startArrowhead as StrV).contents
+    (shape.properties.endArrowhead as StrV).contents
   );
 
   if (startArrowhead) {
-    const startArrowId = shape.properties.name.contents + "-leftArrowhead";
+    const startArrowId = shape.properties.name.contents + "-startArrowId";
     const startArrowheadSize = (shape.properties
       .startArrowheadSize as FloatV<number>).contents;
     elem.appendChild(
@@ -109,7 +105,7 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     );
   }
   if (endArrowhead) {
-    const endArrowId = shape.properties.name.contents + "-rightArrowhead";
+    const endArrowId = shape.properties.name.contents + "-endArrowId";
     const endArrowheadSize = (shape.properties
       .endArrowheadSize as FloatV<number>).contents;
     elem.appendChild(
@@ -128,8 +124,6 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   attrToNotAutoMap.push(
     "name",
     "strokeColor",
-    "arrowheadStyle",
-    "arrowheadSize",
     "startArrowhead",
     "endArrowhead"
   );

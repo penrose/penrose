@@ -48,9 +48,10 @@ forall VectorSpace U {
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
-        arrowheadSize : const.arrowheadSize * 2.
+        startArrowhead: "concave"
+        endArrowhead: "concave"
+        startArrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.yAxis = Line {
@@ -59,9 +60,10 @@ forall VectorSpace U {
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
-        arrowheadSize : const.arrowheadSize * 2.
+        startArrowhead: "concave"
+        endArrowhead: "concave"
+        startArrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.text = Equation {

@@ -72,7 +72,7 @@ u.shape = Line {
   end : U.origin + u.vector
   strokeWidth : 3.0
   strokeColor : const.lightBlue /* or any color you want */
-  endArrowhead : true
+  endArrowhead: "concave"
   arrowheadSize : const.arrowheadSize /* feel free to play with other values */
 }
 ```

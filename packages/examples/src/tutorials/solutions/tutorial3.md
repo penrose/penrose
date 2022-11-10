@@ -50,8 +50,8 @@ forall VectorSpace U {
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
+        startArrowhead: "concave"
+        endArrowhead: "concave"
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -61,8 +61,8 @@ forall VectorSpace U {
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
+        startArrowhead: "concave"
+        endArrowhead: "concave"
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -84,7 +84,7 @@ where In(u,U) {
     end : U.origin + u.vector
     strokeWidth : 3.0
     strokeColor : const.lightBlue
-    endArrowhead : true
+    endArrowhead: "concave"
     arrowheadSize : const.arrowheadSize
   }
 
@@ -145,7 +145,7 @@ where In(u,U) {
     end : U.origin + u.vector
     strokeWidth : 3.0
     strokeColor : const.lightBlue
-    endArrowhead : true
+    endArrowhead: "concave"
     arrowheadSize : const.arrowheadSize
   }
 
@@ -308,7 +308,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   u.dashed_v = Line {
     start: (w.shape.end[0], w.shape.end[1])
     end: (u.shape.end[0], u.shape.end[1])
-    endArrowhead: true
+    endArrowhead: "concave"
     strokeWidth : const.arrowThickness
     strokeStyle : "dashed"
     arrowheadSize : const.arrowheadSize
@@ -317,7 +317,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   u.dashed_w = Line {
     start: (v.shape.end[0], v.shape.end[1])
     end: (u.shape.end[0], u.shape.end[1])
-    endArrowhead: true
+    endArrowhead: "concave"
     strokeWidth : const.arrowThickness
     strokeStyle : "dashed"
     arrowheadSize : const.arrowheadSize

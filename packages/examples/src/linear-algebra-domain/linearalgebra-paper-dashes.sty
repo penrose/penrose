@@ -76,20 +76,22 @@ forall VectorSpace U { -- 3
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
-        arrowheadSize : const.arrowheadSize * 2.
+        startArrowhead: "concave"
+        endArrowhead: "concave"
+        startArrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.yAxis = Line {
-           start : (o[0], o[1] - axisSize)
-             end : (o[0], o[1] + axisSize)
-       strokeWidth : const.lineThickness
-           style : "solid"
-           strokeColor : U.axisColor
-           startArrowhead: true
-           endArrowhead: true
-        arrowheadSize : const.arrowheadSize * 2.
+        start : (o[0], o[1] - axisSize)
+        end : (o[0], o[1] + axisSize)
+        strokeWidth : const.lineThickness
+        style : "solid"
+        strokeColor : U.axisColor
+        startArrowhead: "concave"
+        endArrowhead: "concave"
+        startArrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.text = Equation {
@@ -112,8 +114,8 @@ where In(u,U) {
     end : (?, ?)
     strokeWidth : 3.0
     strokeColor : C.lightBlue
-    endArrowhead : true
-    arrowheadSize : const.arrowheadSize
+    endArrowhead: "concave"
+    endArrowheadSize : const.arrowheadSize
     strokeDasharray : "4 1 2"
   }
 

@@ -197,23 +197,7 @@
   </g>
   <g>
     <marker
-      id="`f`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`f`.icon-rightArrowhead"
+      id="`f`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="8"
       markerHeight="8"
@@ -234,7 +218,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#`f`.icon-rightArrowhead)"
+      marker-end="url(#`f`.icon-endArrowId)"
     ></path>
     <title>`f`.icon</title>
   </g>

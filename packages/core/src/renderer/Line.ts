@@ -141,13 +141,13 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     (shape.properties.startArrowhead as StrV).contents
   );
   const endArrowhead = getArrowhead(
-    (shape.properties.startArrowhead as StrV).contents
+    (shape.properties.endArrowhead as StrV).contents
   );
 
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
-  const startArrowId = shape.properties.name.contents + "-leftArrowhead";
-  const endArrowId = shape.properties.name.contents + "-rightArrowhead";
+  const startArrowId = shape.properties.name.contents + "-startArrowId";
+  const endArrowId = shape.properties.name.contents + "-endArrowId";
   if (startArrowhead) {
     const startArrowheadSize = (shape.properties
       .startArrowheadSize as FloatV<number>).contents;

@@ -48,9 +48,7 @@ forall VectorSpace U {
     strokeWidth : const.lineThickness
     style : "solid"
     strokeColor : U.axisColor
-  --   startArrowhead: true
-  --   endArrowhead: true
-    arrowheadSize : const.arrowheadSize
+
   }
 
   shape U.yAxis = Line {
@@ -59,9 +57,6 @@ forall VectorSpace U {
     strokeWidth : const.lineThickness
     style : "solid"
     strokeColor : U.axisColor
-    -- startArrowhead: true
-    -- endArrowhead: true
-    arrowheadSize : const.arrowheadSize
   }
 
   shape U.text = Text {
@@ -87,8 +82,8 @@ where In(u,U) {
     end : (?, ?)
     strokeWidth : 3.0
     strokeColor : C.lightBlue
-    endArrowhead : true
-    arrowheadSize : const.arrowheadSize
+    endArrowhead: "concave"
+    endArrowheadSize : const.arrowheadSize
   }
 
   shape u.text = Text {

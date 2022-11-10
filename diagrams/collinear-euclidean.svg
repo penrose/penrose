@@ -213,23 +213,7 @@
   </g>
   <g style="solid">
     <marker
-      id="`s1`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="5.2"
-      markerHeight="5.2"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`s1`.icon-rightArrowhead"
+      id="`s1`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -250,13 +234,13 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#`s1`.icon-rightArrowhead)"
+      marker-end="url(#`s1`.icon-endArrowId)"
     ></path>
     <title>`s1`.icon</title>
   </g>
   <g style="solid">
     <marker
-      id="`s2`.icon-leftArrowhead"
+      id="`s2`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -272,7 +256,7 @@
       ></path>
     </marker>
     <marker
-      id="`s2`.icon-rightArrowhead"
+      id="`s2`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -293,8 +277,8 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#`s2`.icon-leftArrowhead)"
-      marker-end="url(#`s2`.icon-rightArrowhead)"
+      marker-start="url(#`s2`.icon-startArrowId)"
+      marker-end="url(#`s2`.icon-endArrowId)"
     ></path>
     <title>`s2`.icon</title>
   </g>

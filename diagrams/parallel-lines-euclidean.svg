@@ -176,7 +176,7 @@
   </g>
   <g style="solid">
     <marker
-      id="`JK`.icon-leftArrowhead"
+      id="`JK`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -192,7 +192,7 @@
       ></path>
     </marker>
     <marker
-      id="`JK`.icon-rightArrowhead"
+      id="`JK`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -213,12 +213,12 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#`JK`.icon-leftArrowhead)"
-      marker-end="url(#`JK`.icon-rightArrowhead)"
+      marker-start="url(#`JK`.icon-startArrowId)"
+      marker-end="url(#`JK`.icon-endArrowId)"
     ></path>
     <title>`JK`.icon</title>
   </g>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="`JK`.tick1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -246,7 +246,7 @@
   </g>
   <g style="solid">
     <marker
-      id="`KM`.icon-leftArrowhead"
+      id="`KM`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -262,7 +262,7 @@
       ></path>
     </marker>
     <marker
-      id="`KM`.icon-rightArrowhead"
+      id="`KM`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -283,44 +283,12 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#`KM`.icon-leftArrowhead)"
-      marker-end="url(#`KM`.icon-rightArrowhead)"
+      marker-start="url(#`KM`.icon-startArrowId)"
+      marker-end="url(#`KM`.icon-endArrowId)"
     ></path>
     <title>`KM`.icon</title>
   </g>
   <g style="solid">
-    <marker
-      id="`JKM`.side1-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#8c90c1"
-        fill-opacity="0.4"
-      ></path>
-    </marker>
-    <marker
-      id="`JKM`.side1-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#8c90c1"
-        fill-opacity="0.4"
-      ></path>
-    </marker>
     <path
       d="M 451.98723159204366 196.9610608245613 L 670.1007881926763 362.86121337590174"
       stroke-opacity="0.4"
@@ -331,38 +299,6 @@
     <title>`JKM`.side1</title>
   </g>
   <g style="solid">
-    <marker
-      id="`JKM`.side2-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#8c90c1"
-        fill-opacity="0.4"
-      ></path>
-    </marker>
-    <marker
-      id="`JKM`.side2-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
-        fill="#8c90c1"
-        fill-opacity="0.4"
-      ></path>
-    </marker>
     <path
       d="M 670.1007881926763 362.86121337590174 L 374.13797432119 348.2725155182597"
       stroke-opacity="0.4"
@@ -374,7 +310,7 @@
   </g>
   <g style="solid">
     <marker
-      id="`NL`.icon-leftArrowhead"
+      id="`NL`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -390,7 +326,7 @@
       ></path>
     </marker>
     <marker
-      id="`NL`.icon-rightArrowhead"
+      id="`NL`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="5.2"
       markerHeight="5.2"
@@ -411,12 +347,12 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#`NL`.icon-leftArrowhead)"
-      marker-end="url(#`NL`.icon-rightArrowhead)"
+      marker-start="url(#`NL`.icon-startArrowId)"
+      marker-end="url(#`NL`.icon-endArrowId)"
     ></path>
     <title>`NL`.icon</title>
   </g>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="`NL`.tick1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
