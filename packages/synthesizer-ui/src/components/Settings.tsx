@@ -438,7 +438,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           </SettingDiv>
         </SettingContainer>
         <br />
-        <SettingContainer>{this.inputElements()}</SettingContainer>
+        {/* <SettingContainer>{this.inputElements()}</SettingContainer> */}
         <ButtonContainer>
           <Button
             onClick={this.onGenerateClick}

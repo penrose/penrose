@@ -29,16 +29,16 @@ const defaultParams: SynthesizerSetting = {
     predicate: [],
   },
   delete: {
-    type: [],
-    function: [],
-    constructor: [],
-    predicate: [],
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
   },
   edit: {
-    type: [],
-    function: [],
-    constructor: [],
-    predicate: [],
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
   },
 };
 
@@ -223,7 +223,8 @@ forall Point \`D\`, \`E\`, \`A\` {
   },
   c04p12: {
     displayName: "c04p12: Complementary angles",
-    prompt: "In which diagram is <ABC=45-x/4?",
+    prompt:
+      "In which of these diagrams, can you find the value of <BCE given the value of x?",
     substance: examples["geometry-domain"].textbook_problems["c04p12.sub"],
     domain: examples["geometry-domain"]["geometry.dsl"],
     style: examples["geometry-domain"]["euclidean.sty"] + ``,
