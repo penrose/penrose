@@ -3,15 +3,15 @@
     <marker
       id="`e4`.shape-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#567b5d"
         fill-opacity="0.5"
       ></path>
@@ -19,15 +19,15 @@
     <marker
       id="`e4`.shape-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#567b5d"
         fill-opacity="0.5"
       ></path>
@@ -97,15 +97,15 @@
     <marker
       id="`e3`.shape-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#66a2a5"
         fill-opacity="0.5"
       ></path>
@@ -113,15 +113,15 @@
     <marker
       id="`e3`.shape-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#66a2a5"
         fill-opacity="0.5"
       ></path>
@@ -176,15 +176,15 @@
     <marker
       id="`e1`.shape-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#a7cc36"
         fill-opacity="0.5"
       ></path>
@@ -192,15 +192,15 @@
     <marker
       id="`e1`.shape-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#a7cc36"
         fill-opacity="0.5"
       ></path>
@@ -218,15 +218,15 @@
     <marker
       id="`e2`.shape-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#9adb5a"
         fill-opacity="0.5"
       ></path>
@@ -234,15 +234,15 @@
     <marker
       id="`e2`.shape-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#9adb5a"
         fill-opacity="0.5"
       ></path>
@@ -260,15 +260,15 @@
     <marker
       id="`e5`.shape-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#4d1da0"
         fill-opacity="0.5"
       ></path>
@@ -276,15 +276,15 @@
     <marker
       id="`e5`.shape-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#4d1da0"
         fill-opacity="0.5"
       ></path>

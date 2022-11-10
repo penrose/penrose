@@ -111,15 +111,15 @@
     <marker
       id="9:0:walkLine-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -127,15 +127,15 @@
     <marker
       id="9:0:walkLine-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -277,15 +277,15 @@
     <marker
       id="9:5:walkLine-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -293,15 +293,15 @@
     <marker
       id="9:5:walkLine-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -381,15 +381,15 @@
     <marker
       id="9:6:walkLine-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -397,15 +397,15 @@
     <marker
       id="9:6:walkLine-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -485,15 +485,15 @@
     <marker
       id="9:1:walkLine-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -501,15 +501,15 @@
     <marker
       id="9:1:walkLine-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -589,15 +589,15 @@
     <marker
       id="9:2:walkLine-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -605,15 +605,15 @@
     <marker
       id="9:2:walkLine-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -753,15 +753,15 @@
     <marker
       id="9:3:walkLine-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -769,15 +769,15 @@
     <marker
       id="9:3:walkLine-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -857,15 +857,15 @@
     <marker
       id="9:4:walkLine-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>
@@ -873,15 +873,15 @@
     <marker
       id="9:4:walkLine-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#0000b3"
         fill-opacity="1"
       ></path>

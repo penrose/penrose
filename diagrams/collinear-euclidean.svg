@@ -215,15 +215,15 @@
     <marker
       id="`s1`.icon-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="5.2"
+      markerHeight="5.2"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#000000"
         fill-opacity="1"
       ></path>
@@ -231,21 +231,21 @@
     <marker
       id="`s1`.icon-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="5.2"
+      markerHeight="5.2"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#000000"
         fill-opacity="1"
       ></path>
     </marker>
     <path
-      d="M 267.3138366541343 337.2382968081118 L 613.4423244580559 572.7205050835787"
+      d="M 267.3138366541343 337.2382968081118 L 615.906391967147 574.3968885042618"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -258,15 +258,15 @@
     <marker
       id="`s2`.icon-leftArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="5.2"
+      markerHeight="5.2"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#000000"
         fill-opacity="1"
       ></path>
@@ -274,21 +274,21 @@
     <marker
       id="`s2`.icon-rightArrowhead"
       markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
+      markerWidth="5.2"
+      markerHeight="5.2"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
       orient="auto-start-reverse"
     >
       <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#000000"
         fill-opacity="1"
       ></path>
     </marker>
     <path
-      d="M 256.7440462666581 366.12899265584514 L 331.7944219865491 160.9917573185613"
+      d="M 255.72008539053465 368.92781279773857 L 332.81838286267254 158.19293717666784"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"

@@ -1,0 +1,544 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect
+    x="0"
+    y="0"
+    width="400"
+    height="600"
+    fill="#ffffff"
+    fill-opacity="1"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 0, 0)"
+  >
+    <title>const.bg</title>
+  </rect>
+  <g>
+    <marker
+      id="const.vguide1-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        fill="#ff0000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="const.vguide1-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        fill="#ff0000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 200 0 L 200 600"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#ff0000"
+      stroke-linecap="butt"
+    ></path>
+    <title>const.vguide1</title>
+  </g>
+  <g>
+    <marker
+      id="const.vguide2-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        fill="#ff0000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="const.vguide2-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        fill="#ff0000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 10 0 L 10 600"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#ff0000"
+      stroke-linecap="butt"
+    ></path>
+    <title>const.vguide2</title>
+  </g>
+  <g>
+    <marker
+      id="`concave`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`concave`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="8"
+      markerHeight="8"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 26.5 70 L 183.5 70"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-start="url(#`concave`.icon-leftArrowhead)"
+      marker-end="url(#`concave`.icon-rightArrowhead)"
+    ></path>
+    <title>`concave`.icon</title>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 250.59375, 66.6572265625)"
+    style="font: 12px sans-serif"
+    x="273.3427734375"
+    y="73.1142578125"
+    width="45.498046875"
+    height="6.685546875"
+    alignment-baseline="alphabetic"
+    text-anchor="middle"
+    dominant-baseline="alphabetic"
+    descent="0.228515625"
+    ascent="6.45703125"
+  >
+    <title>`concave`.text</title>
+    concave
+  </text>
+  <g>
+    <marker
+      id="`stealth`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="`stealth`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 32.77000000000001 140 L 177.23 140"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-start="url(#`stealth`.icon-leftArrowhead)"
+      marker-end="url(#`stealth`.icon-rightArrowhead)"
+    ></path>
+    <title>`stealth`.icon</title>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 256.80078125, 135.5615234375)"
+    style="font: 12px sans-serif"
+    x="274.4384765625"
+    y="144.1982421875"
+    width="35.275390625"
+    height="8.876953125"
+    ascent="8.63671875"
+    descent="0.240234375"
+    text-anchor="middle"
+    dominant-baseline="alphabetic"
+    alignment-baseline="alphabetic"
+  >
+    <title>`stealth`.text</title>
+    stealth
+  </text>
+  <g>
+    <marker
+      id="`line`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="7.5"
+      markerHeight="14"
+      viewBox="0 0 7.5 14"
+      refX="7"
+      refY="7"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path
+        d="M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6"
+        fill="none"
+        stroke-linecap="round"
+      ></path>
+    </marker>
+    <marker
+      id="`line`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="7.5"
+      markerHeight="14"
+      viewBox="0 0 7.5 14"
+      refX="7"
+      refY="7"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path
+        d="M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6"
+        fill="none"
+        stroke-linecap="round"
+      ></path>
+    </marker>
+    <path
+      d="M 11.5 210 L 198.5 210"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-start="url(#`line`.icon-leftArrowhead)"
+      marker-end="url(#`line`.icon-rightArrowhead)"
+    ></path>
+    <title>`line`.icon</title>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 264.4375, 205.5849609375)"
+    style="font: 12px sans-serif"
+    x="274.4150390625"
+    y="214.1923828125"
+    width="19.955078125"
+    height="8.830078125"
+    text-anchor="middle"
+    dominant-baseline="alphabetic"
+    alignment-baseline="alphabetic"
+    ascent="8.607421875"
+    descent="0.22265625"
+  >
+    <title>`line`.text</title>
+    line
+  </text>
+  <g>
+    <marker
+      id="`doubleLine`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="12.5"
+      markerHeight="14"
+      viewBox="0 0 12.5 14"
+      refX="10"
+      refY="7"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path
+        d="M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 12 7 a -6 6.75 0 0 0 -6 6"
+        fill="none"
+        stroke-linecap="round"
+      ></path>
+    </marker>
+    <marker
+      id="`doubleLine`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="12.5"
+      markerHeight="14"
+      viewBox="0 0 12.5 14"
+      refX="10"
+      refY="7"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path
+        d="M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 12 7 a -6 6.75 0 0 0 -6 6"
+        fill="none"
+        stroke-linecap="round"
+      ></path>
+    </marker>
+    <path
+      d="M 17.5 280 L 192.5 280"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-start="url(#`doubleLine`.icon-leftArrowhead)"
+      marker-end="url(#`doubleLine`.icon-rightArrowhead)"
+    ></path>
+    <title>`doubleLine`.icon</title>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 243.6923828125, 275.5673828125)"
+    style="font: 12px sans-serif"
+    x="274.4326171875"
+    y="284.2041015625"
+    width="61.48046875"
+    height="8.865234375"
+    ascent="8.63671875"
+    descent="0.228515625"
+    text-anchor="middle"
+    dominant-baseline="alphabetic"
+    alignment-baseline="alphabetic"
+  >
+    <title>`doubleLine`.text</title>
+    doubleLine
+  </text>
+  <g>
+    <marker
+      id="`loopup`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6"
+      markerHeight="28"
+      viewBox="0 0 6 28"
+      refX="1"
+      refY="10"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+    </marker>
+    <marker
+      id="`loopup`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6"
+      markerHeight="28"
+      viewBox="0 0 6 28"
+      refX="1"
+      refY="10"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+    </marker>
+    <path
+      d="M 25 350 L 185 350"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-start="url(#`loopup`.icon-leftArrowhead)"
+      marker-end="url(#`loopup`.icon-rightArrowhead)"
+    ></path>
+    <title>`loopup`.icon</title>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 256.544921875, 344.4453125)"
+    style="font: 12px sans-serif"
+    x="275.5546875"
+    y="353.052734375"
+    width="38.01953125"
+    height="11.109375"
+    descent="2.501953125"
+    ascent="8.607421875"
+    alignment-baseline="alphabetic"
+    text-anchor="middle"
+    dominant-baseline="alphabetic"
+  >
+    <title>`loopup`.text</title>
+    loopup
+  </text>
+  <g>
+    <marker
+      id="`loopdown`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6"
+      markerHeight="28"
+      viewBox="0 0 6 28"
+      refX="1"
+      refY="10"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+    </marker>
+    <marker
+      id="`loopdown`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6"
+      markerHeight="28"
+      viewBox="0 0 6 28"
+      refX="1"
+      refY="10"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+    </marker>
+    <path
+      d="M 25 420 L 185 420"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-start="url(#`loopdown`.icon-leftArrowhead)"
+      marker-end="url(#`loopdown`.icon-rightArrowhead)"
+    ></path>
+    <title>`loopdown`.icon</title>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 248.7236328125, 414.4306640625)"
+    style="font: 12px sans-serif"
+    x="275.5693359375"
+    y="423.0673828125"
+    width="53.69140625"
+    height="11.138671875"
+    ascent="8.63671875"
+    descent="2.501953125"
+    text-anchor="middle"
+    dominant-baseline="alphabetic"
+    alignment-baseline="alphabetic"
+  >
+    <title>`loopdown`.text</title>
+    loopdown
+  </text>
+  <g>
+    <marker
+      id="`loop`.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6"
+      markerHeight="28"
+      viewBox="0 0 6 28"
+      refX="1"
+      refY="10"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path
+        d="M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9"
+        fill="none"
+        stroke-linecap="round"
+      ></path>
+    </marker>
+    <marker
+      id="`loop`.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6"
+      markerHeight="28"
+      viewBox="0 0 6 28"
+      refX="1"
+      refY="10"
+      orient="auto-start-reverse"
+      stroke="#000000"
+      stroke-opacity="1"
+    >
+      <path
+        d="M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9"
+        fill="none"
+        stroke-linecap="round"
+      ></path>
+    </marker>
+    <path
+      d="M 25 490 L 185 490"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-start="url(#`loop`.icon-leftArrowhead)"
+      marker-end="url(#`loop`.icon-rightArrowhead)"
+    ></path>
+    <title>`loop`.icon</title>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 263.544921875, 484.4453125)"
+    style="font: 12px sans-serif"
+    x="275.5546875"
+    y="493.052734375"
+    width="24.01953125"
+    height="11.109375"
+    ascent="8.607421875"
+    descent="2.501953125"
+    text-anchor="middle"
+    dominant-baseline="alphabetic"
+    alignment-baseline="alphabetic"
+  >
+    <title>`loop`.text</title>
+    loop
+  </text>
+</svg>
