@@ -358,7 +358,8 @@ export class Synthesizer {
   };
 
   getTemplate = (): SubProg<A> | undefined =>
-    this.template ? appendStmt(this.template, autoLabelStmt) : undefined;
+    // this.template ? appendStmt(this.template, autoLabelStmt) : undefined;
+    this.template ?? undefined;
 
   /**
    * Top-level function for generating multiple Substance programs.
@@ -399,7 +400,8 @@ export class Synthesizer {
       )
     );
     // add autolabel statement
-    this.updateProg(autoLabel(this.currentProg));
+    // TODO: find out what to label
+    // this.updateProg(autoLabel(this.currentProg));
     return {
       prog: this.currentProg,
       ops: this.currentMutations,
