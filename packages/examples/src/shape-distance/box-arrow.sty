@@ -14,7 +14,7 @@ forall Node n {
 forall Node from; Node to; Edge e1 where e1 := MkEdge(from, to) {
     shape e1.icon = Line {
         strokeWidth : 5
-        endArrowhead: "concave"
+        endArrowhead: "straight"
     }
     ensure equal(signedDistance(from.icon, e1.icon.start), 5)
     ensure equal(signedDistance(to.icon, e1.icon.end), 5)

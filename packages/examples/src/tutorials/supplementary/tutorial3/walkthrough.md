@@ -107,8 +107,8 @@ The real fun starts! 🥁 To draw a vector space, we have a background, an origi
       strokeWidth : const.lineThickness
       style : "solid"
       strokeColor : U.axisColor
-      startArrowhead: "concave"
-      endArrowhead: "concave"
+      startArrowhead: "straight"
+      endArrowhead: "straight"
       arrowheadSize : const.arrowheadSize * 2.
   }
   ```

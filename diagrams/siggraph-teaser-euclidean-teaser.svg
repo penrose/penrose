@@ -19,21 +19,21 @@
     <marker
       id="`h`.icon-startArrowId"
       markerUnits="strokeWidth"
-      markerWidth="5.2"
-      markerHeight="5.2"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
       orient="auto-start-reverse"
     >
       <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#8c90c1"
         fill-opacity="1"
       ></path>
     </marker>
     <path
-      d="M 405.78268015259977 325.45142091460207 L 497.9697749684092 342.465557580731"
+      d="M 408.12057108576727 325.882904257546 L 497.9697749684092 342.465557580731"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#8c90c1"
@@ -351,21 +351,21 @@
     <marker
       id="`w`.icon-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="5.2"
-      markerHeight="5.2"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
       orient="auto-start-reverse"
     >
       <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#8c90c1"
         fill-opacity="1"
       ></path>
     </marker>
     <path
-      d="M 471.6982398893624 484.8116868583179 L 459.5696517837691 391.85637765934365"
+      d="M 471.6982398893624 484.8116868583179 L 459.8772388362916 394.213770731308"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#8c90c1"

@@ -215,21 +215,21 @@
     <marker
       id="`s1`.icon-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="5.2"
-      markerHeight="5.2"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
       orient="auto-start-reverse"
     >
       <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
       ></path>
     </marker>
     <path
-      d="M 267.3138366541343 337.2382968081118 L 615.906391967147 574.3968885042618"
+      d="M 267.3138366541343 337.2382968081118 L 613.9407808625666 573.059620813717"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -242,15 +242,15 @@
     <marker
       id="`s2`.icon-startArrowId"
       markerUnits="strokeWidth"
-      markerWidth="5.2"
-      markerHeight="5.2"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
       orient="auto-start-reverse"
     >
       <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
       ></path>
@@ -258,21 +258,21 @@
     <marker
       id="`s2`.icon-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="5.2"
-      markerHeight="5.2"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
+      markerWidth="6.47"
+      markerHeight="5.28"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
       orient="auto-start-reverse"
     >
       <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
       ></path>
     </marker>
     <path
-      d="M 255.72008539053465 368.92781279773857 L 332.81838286267254 158.19293717666784"
+      d="M 256.5369091428621 366.69516619599915 L 332.00155911034506 160.4255837784073"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"

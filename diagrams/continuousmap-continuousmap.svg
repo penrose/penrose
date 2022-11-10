@@ -199,21 +199,21 @@
     <marker
       id="`f`.icon-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="8"
-      markerHeight="8"
-      viewBox="0 0 8 8"
-      refX="2.5"
-      refY="4"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
       orient="auto-start-reverse"
     >
       <path
-        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
       ></path>
     </marker>
     <path
-      d="M 267.89032550403266 333.4298675305863 L 383.5569921706993 333.4298675305863"
+      d="M 267.89032550403266 333.4298675305863 L 379.3769921706993 333.4298675305863"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#000000"

@@ -150,8 +150,8 @@ with Point base; Point direction {
     stroke : r.color
     thickness : const.strokeWidth
     style : "solid"
-    endArrowhead : "concave"
-    startArrowhead : "concave"
+    endArrowhead : "straight"
+    startArrowhead : "straight"
     startArrowheadSize: const.arrowheadSize
   }
 }
@@ -168,8 +168,8 @@ with Point p; Point q {
     stroke : l.color
     thickness : const.strokeWidth
     style : "solid"
-    endArrowhead : "concave"
-    startArrowhead : "concave"
+    endArrowhead : "straight"
+    startArrowhead : "straight"
     startArrowheadSize: const.arrowheadSize
   }
 }
@@ -236,7 +236,7 @@ where s := PerpendicularBisector(s2, p)
 with Segment s2; Point p {
   override s.icon = Line {
     end : p.icon.center
-    startArrowhead: "concave"
+    startArrowhead: "straight"
     startArrowheadSize: const.arrowheadSize
     strokeColor : Colors.darkpurple
     strokeWidth : const.strokeWidth
@@ -957,7 +957,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
     end:  (r.length * normalize(r_vec)) + x.vec
     strokeWidth : const.strokeWidth
     strokeColor : Colors.darkpurple
-    endArrowhead: "concave"
+    endArrowhead: "straight"
     endArrowheadSize : const.arrowheadSize
   }
 
