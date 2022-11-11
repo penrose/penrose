@@ -20,9 +20,9 @@
           "^build"
         ],
         "outputs": [
-          "dist/*.css",
-          "dist/*.js",
-          "dist/*.js.map"
+          "{projectRoot}/dist/*.css",
+          "{projectRoot}/dist/*.js",
+          "{projectRoot}/dist/*.js.map"
         ]
       },
       "build-decls": {
@@ -30,8 +30,8 @@
           "^build-decls"
         ],
         "outputs": [
-          "dist/*.ts",
-          "dist/*.ts.map"
+          "{projectRoot}/dist/*.ts",
+          "{projectRoot}/dist/*.ts.map"
         ]
       },
       "build-storybook": {
@@ -39,7 +39,7 @@
           "^build"
         ],
         "outputs": [
-          "storybook/static"
+          "{projectRoot}/storybook/static"
         ]
       },
       "watch": {

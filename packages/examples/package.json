@@ -17,7 +17,7 @@
       },
       "build-examples": {
         "outputs": [
-          "dist"
+          "{projectRoot}/dist"
         ]
       },
       "build": {

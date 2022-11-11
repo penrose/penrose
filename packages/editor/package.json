@@ -18,8 +18,8 @@
           "^build"
         ],
         "outputs": [
-          "dist",
-          "public"
+          "{projectRoot}/dist",
+          "{projectRoot}/public"
         ]
       },
       "dev": {

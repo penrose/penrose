@@ -35,9 +35,9 @@
           "build-parsers"
         ],
         "outputs": [
-          "build/dist/index.esm.js",
-          "build/dist/index.js",
-          "build/dist/index.js.map"
+          "{projectRoot}/build/dist/index.esm.js",
+          "{projectRoot}/build/dist/index.js",
+          "{projectRoot}/build/dist/index.js.map"
         ]
       },
       "build-decls": {
@@ -46,13 +46,13 @@
           "build-parsers"
         ],
         "outputs": [
-          "build/dist/**/*.ts",
-          "build/dist/**/*.ts.map"
+          "{projectRoot}/build/dist/**/*.ts",
+          "{projectRoot}/build/dist/**/*.ts.map"
         ]
       },
       "build-parsers": {
         "outputs": [
-          "src/parser/*Parser.ts"
+          "{projectRoot}/src/parser/*Parser.ts"
         ]
       },
       "build-rollup": {
@@ -61,8 +61,8 @@
           "build-parsers"
         ],
         "outputs": [
-          "build/dist/penrose.min.js",
-          "build/dist/penrose.min.js.map"
+          "{projectRoot}/build/dist/penrose.min.js",
+          "{projectRoot}/build/dist/penrose.min.js.map"
         ]
       },
       "coverage": {
@@ -71,9 +71,9 @@
           "build-parsers"
         ],
         "outputs": [
-          "coverage",
-          "junit.xml",
-          "reports"
+          "{projectRoot}/coverage",
+          "{projectRoot}/junit.xml",
+          "{projectRoot}/reports"
         ]
       },
       "docs": {
@@ -82,7 +82,7 @@
           "build-parsers"
         ],
         "outputs": [
-          "docs"
+          "{projectRoot}/docs"
         ]
       },
       "start": {
