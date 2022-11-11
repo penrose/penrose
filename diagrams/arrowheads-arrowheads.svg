@@ -273,7 +273,7 @@
       markerWidth="12.5"
       markerHeight="14"
       viewBox="0 0 12.5 14"
-      refX="6"
+      refX="5"
       refY="7"
       orient="auto"
       stroke="#000000"
@@ -291,7 +291,7 @@
       markerWidth="12.5"
       markerHeight="14"
       viewBox="0 0 12.5 14"
-      refX="6"
+      refX="5"
       refY="7"
       orient="auto-start-reverse"
       stroke="#000000"
@@ -304,7 +304,7 @@
       ></path>
     </marker>
     <path
-      d="M 16 350 L 180.5 350"
+      d="M 15 350 L 177.5 350"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
