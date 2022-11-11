@@ -3,12 +3,10 @@
 .DS_Store
 .env
 .npmrc
-.turbo/
 *.log
 *#
 *~
 /.vscode/
-/turbo.json
 build/
 dist/
 node_modules/

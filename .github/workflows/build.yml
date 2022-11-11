@@ -127,7 +127,7 @@ jobs:
       - name: Install packages
         uses: ./.github/actions/packages
       - name: Build storybook
-        run: yarn turbo run build-storybook
+        run: npx nx run components:build-storybook
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         name: Deploy docs
         uses: JamesIves/github-pages-deploy-action@4.1.4
@@ -161,7 +161,7 @@ jobs:
       - name: Delete the diagrams we're about to generate
         run: rm -r diagrams/
       - name: Run core tests and generate test data
-        run: yarn turbo run coverage
+        run: npx nx run core:coverage
       - name: Move test report
         run: mv junit.xml reports/junit/
         working-directory: packages/core/

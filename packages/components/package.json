@@ -9,14 +9,45 @@
     "watch": "vite build --watch",
     "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build-decls": "tsc",
+    "typecheck": ":",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
-  "turbo": {
-    "build": "out: [dist/*.css, dist/*.js, dist/*.js.map]",
-    "build-decls": "out: [dist/*.ts, dist/*.ts.map]",
-    "build-storybook": "deps: [^build], out: [storybook/static/**]",
-    "watch": "cache: false, deps: [^build]"
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "dist/*.css",
+          "dist/*.js",
+          "dist/*.js.map"
+        ]
+      },
+      "build-decls": {
+        "dependsOn": [
+          "^build-decls"
+        ],
+        "outputs": [
+          "dist/*.ts",
+          "dist/*.ts.map"
+        ]
+      },
+      "build-storybook": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "storybook/static"
+        ]
+      },
+      "watch": {
+        "dependsOn": [
+          "^build"
+        ]
+      }
+    }
   },
   "peerDependencies": {
     "@penrose/core": "1.3.0",
