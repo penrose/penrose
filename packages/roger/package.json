@@ -58,14 +58,22 @@
   },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
+    "build-decls": ":",
+    "typecheck": ":",
     "postpack": "shx rm -f oclif.manifest.json",
     "prepack": "yarn build && oclif manifest && oclif readme",
     "version": "oclif readme && git add README.md",
     "preinstall-global": "yarn build",
     "install-global": "yarn link"
   },
-  "turbo": {
-    "build": "out: [dist/**]"
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
   },
   "engines": {
     "node": ">=12.0.0"
