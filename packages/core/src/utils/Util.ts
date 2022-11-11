@@ -183,7 +183,7 @@ export const arrowheads: ArrowheadMap = {
     width: 7.5,
     height: 14,
     viewbox: "0 0 7.5 14",
-    refX: 7,
+    refX: 5,
     refY: 7,
     path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
@@ -195,10 +195,10 @@ export const arrowheads: ArrowheadMap = {
     width: 12.5,
     height: 14,
     viewbox: "0 0 12.5 14",
-    refX: 10,
+    refX: 5,
     refY: 7,
     path:
-      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 12 7 a -6 6.75 0 0 0 -6 6",
+      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
   },
   loopdown: {
@@ -239,8 +239,12 @@ export const arrowheads: ArrowheadMap = {
   },
 };
 
-export const getArrowhead = (style: string): ArrowheadSpec | undefined =>
-  Object.keys(arrowheads).includes(style) ? arrowheads[style] : undefined;
+export const getArrowhead = (style: string): ArrowheadSpec | undefined => {
+  if (Object.keys(arrowheads).includes(style)) {
+    const arrow = arrowheads[style];
+    return arrow;
+  }
+};
 
 export const toScreen = (
   [x, y]: [number, number],

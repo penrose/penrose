@@ -18,6 +18,7 @@ export const samplePath = (context: Context, _canvas: Canvas): PathProps => ({
   fillColor: noPaint(),
   startArrowheadSize: floatV(1),
   startArrowhead: strV("none"),
+  flipStartArrowhead: boolV(false),
   endArrowheadSize: floatV(1),
   endArrowhead: strV("none"),
   d: pathDataV([]),

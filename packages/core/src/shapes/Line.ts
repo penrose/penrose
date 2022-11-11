@@ -19,6 +19,7 @@ export const sampleLine = (context: Context, canvas: Canvas): LineProps => ({
   strokeDasharray: strV(""),
   startArrowheadSize: floatV(1),
   startArrowhead: strV("none"),
+  flipStartArrowhead: boolV(false),
   endArrowheadSize: floatV(1),
   endArrowhead: strV("none"),
   start: sampleVector(context, canvas),

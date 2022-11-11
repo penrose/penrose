@@ -1,5 +1,5 @@
 import { flatten } from "lodash";
-import { ColorV, FloatV, PathCmd, StrV, SubPath } from "types/value";
+import { BoolV, ColorV, FloatV, PathCmd, StrV, SubPath } from "types/value";
 import {
   getArrowhead,
   toScreen,
@@ -94,13 +94,15 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     const startArrowId = shape.properties.name.contents + "-startArrowId";
     const startArrowheadSize = (shape.properties
       .startArrowheadSize as FloatV<number>).contents;
+    const flip = (shape.properties.flipStartArrowhead as BoolV).contents;
     elem.appendChild(
       arrowHead(
         startArrowId,
         strokeColor,
         strokeOpacity,
         startArrowhead,
-        startArrowheadSize
+        startArrowheadSize,
+        flip
       )
     );
   }
@@ -114,7 +116,8 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
         strokeColor,
         strokeOpacity,
         endArrowhead,
-        endArrowheadSize
+        endArrowheadSize,
+        false
       )
     );
   }

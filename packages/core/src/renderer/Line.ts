@@ -1,5 +1,5 @@
 import { Shape } from "types/shape";
-import { ColorV, FloatV, StrV, VectorV } from "types/value";
+import { BoolV, ColorV, FloatV, StrV, VectorV } from "types/value";
 import {
   ArrowheadSpec,
   getArrowhead,
@@ -16,7 +16,8 @@ export const arrowHead = (
   color: string,
   opacity: number,
   arrow: ArrowheadSpec,
-  size: number
+  size: number,
+  flip: boolean
 ): SVGMarkerElement => {
   const marker = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -29,7 +30,11 @@ export const arrowHead = (
   marker.setAttribute("viewBox", arrow.viewbox);
   marker.setAttribute("refX", arrow.refX.toString());
   marker.setAttribute("refY", arrow.refY.toString());
-  marker.setAttribute("orient", "auto-start-reverse");
+  if (flip) {
+    marker.setAttribute("orient", "auto");
+  } else {
+    marker.setAttribute("orient", "auto-start-reverse");
+  }
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", arrow.path);
@@ -50,7 +55,11 @@ export const arrowHead = (
   return marker;
 };
 
-const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
+const makeRoomForArrows = (
+  shape: Shape,
+  startArrowhead?: ArrowheadSpec,
+  endArrowhead?: ArrowheadSpec
+): [number[][], string[]] => {
   // Keep a list of which input properties we programatically mapped
   const attrMapped: string[] = [];
 
@@ -59,15 +68,10 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
   const [lineEX, lineEY] = (shape.properties.end as VectorV<number>)
     .contents as [number, number];
 
-  const startArrowheadStyle = (shape.properties.startArrowhead as StrV)
-    .contents;
-  const endArrowheadStyle = (shape.properties.endArrowhead as StrV).contents;
   const startArrowheadSize = (shape.properties
     .startArrowheadSize as FloatV<number>).contents;
   const endArrowheadSize = (shape.properties.endArrowheadSize as FloatV<number>)
     .contents;
-  const startArrowhead = getArrowhead(startArrowheadStyle);
-  const endArrowhead = getArrowhead(endArrowheadStyle);
   const thickness = (shape.properties.strokeWidth as FloatV<number>).contents;
   attrMapped.push(
     "start",
@@ -88,12 +92,16 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
   // See https://math.stackexchange.com/a/2045181 for a derivation.
   let arrowSX, arrowSY;
   if (startArrowhead) {
+    const startFlip = shape.properties.flipStartArrowhead.contents;
     const startArrowWidth =
-      (startArrowhead.width - startArrowhead.refX) *
+      (startFlip
+        ? startArrowhead.refX
+        : startArrowhead.width - startArrowhead.refX) *
       startArrowheadSize *
       thickness;
+    const dx = (startArrowWidth / length) * (lineSX - lineEX);
     [arrowSX, arrowSY] = [
-      lineSX - (startArrowWidth / length) * (lineSX - lineEX),
+      lineSX - (startFlip ? -startArrowhead.refX : dx),
       lineSY - (startArrowWidth / length) * (lineSY - lineEY),
     ];
   } else {
@@ -122,10 +130,16 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
 };
 
 const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
+  const startArrowhead = getArrowhead(
+    (shape.properties.startArrowhead as StrV).contents
+  );
+  const endArrowhead = getArrowhead(
+    (shape.properties.endArrowhead as StrV).contents
+  );
   const [
     [[arrowSX, arrowSY], [arrowEX, arrowEY]],
     attrToNotAutoMap,
-  ] = makeRoomForArrows(shape);
+  ] = makeRoomForArrows(shape, startArrowhead, endArrowhead);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
 
@@ -137,13 +151,6 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const opacity = toSvgOpacityProperty(
     (shape.properties.strokeColor as ColorV<number>).contents
   );
-  const startArrowhead = getArrowhead(
-    (shape.properties.startArrowhead as StrV).contents
-  );
-  const endArrowhead = getArrowhead(
-    (shape.properties.endArrowhead as StrV).contents
-  );
-
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
   const startArrowId = shape.properties.name.contents + "-startArrowId";
@@ -151,13 +158,15 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   if (startArrowhead) {
     const startArrowheadSize = (shape.properties
       .startArrowheadSize as FloatV<number>).contents;
+    const flip = (shape.properties.flipStartArrowhead as BoolV).contents;
     elem.appendChild(
       arrowHead(
         startArrowId,
         color,
         opacity,
         startArrowhead,
-        startArrowheadSize
+        startArrowheadSize,
+        flip
       )
     );
   }
@@ -165,7 +174,14 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     const endArrowheadSize = (shape.properties
       .endArrowheadSize as FloatV<number>).contents;
     elem.appendChild(
-      arrowHead(endArrowId, color, opacity, endArrowhead, endArrowheadSize)
+      arrowHead(
+        endArrowId,
+        color,
+        opacity,
+        endArrowhead,
+        endArrowheadSize,
+        false
+      )
     );
   }
 

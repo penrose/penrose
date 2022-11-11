@@ -33,6 +33,7 @@ export interface Arrow {
   endArrowheadSize: FloatV<ad.Num>;
   startArrowhead: StrV;
   endArrowhead: StrV;
+  flipStartArrowhead: BoolV;
 }
 
 export interface Corner {
