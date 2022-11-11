@@ -204,7 +204,7 @@ export const arrowheads: ArrowheadMap = {
       "stroke-linecap": "round",
     },
   },
-  loopdown: {
+  loopup: {
     width: 6,
     height: 28,
     viewbox: "0 0 6 28",
@@ -216,7 +216,7 @@ export const arrowheads: ArrowheadMap = {
       "stroke-linecap": "round",
     },
   },
-  loopup: {
+  loopdown: {
     width: 6,
     height: 28,
     viewbox: "0 0 6 28",

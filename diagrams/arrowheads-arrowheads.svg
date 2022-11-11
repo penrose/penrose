@@ -73,7 +73,7 @@
       viewBox="0 0 8 8"
       refX="2.5"
       refY="4"
-      orient="auto"
+      orient="auto-start-reverse"
     >
       <path
         d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
@@ -98,7 +98,7 @@
       ></path>
     </marker>
     <path
-      d="M 12.5 140 L 183.5 140"
+      d="M 26.5 140 L 183.5 140"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -139,7 +139,7 @@
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
-      orient="auto"
+      orient="auto-start-reverse"
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
@@ -164,7 +164,7 @@
       ></path>
     </marker>
     <path
-      d="M 12.360000000000014 210 L 177.23 210"
+      d="M 32.77000000000001 210 L 177.23 210"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -205,7 +205,7 @@
       viewBox="0 0 7.5 14"
       refX="5"
       refY="7"
-      orient="auto"
+      orient="auto-start-reverse"
       stroke="#000000"
       stroke-opacity="1"
     >
@@ -234,7 +234,7 @@
       ></path>
     </marker>
     <path
-      d="M 15 280 L 192.5 280"
+      d="M 17.5 280 L 192.5 280"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -275,7 +275,7 @@
       viewBox="0 0 12.5 14"
       refX="5"
       refY="7"
-      orient="auto"
+      orient="auto-start-reverse"
       stroke="#000000"
       stroke-opacity="1"
     >
@@ -304,7 +304,7 @@
       ></path>
     </marker>
     <path
-      d="M 15 350 L 177.5 350"
+      d="M 32.5 350 L 177.5 350"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -345,11 +345,11 @@
       viewBox="0 0 6 28"
       refX="1"
       refY="10"
-      orient="auto"
+      orient="auto-start-reverse"
       stroke="#000000"
       stroke-opacity="1"
     >
-      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
     </marker>
     <marker
       id="`loopup`.icon-endArrowId"
@@ -363,10 +363,10 @@
       stroke="#000000"
       stroke-opacity="1"
     >
-      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
     </marker>
     <path
-      d="M 11 420 L 185 420"
+      d="M 25 420 L 185 420"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -407,11 +407,11 @@
       viewBox="0 0 6 28"
       refX="1"
       refY="10"
-      orient="auto"
+      orient="auto-start-reverse"
       stroke="#000000"
       stroke-opacity="1"
     >
-      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
     </marker>
     <marker
       id="`loopdown`.icon-endArrowId"
@@ -425,10 +425,10 @@
       stroke="#000000"
       stroke-opacity="1"
     >
-      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
     </marker>
     <path
-      d="M 11 490 L 185 490"
+      d="M 25 490 L 185 490"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -469,7 +469,7 @@
       viewBox="0 0 6 28"
       refX="1"
       refY="10"
-      orient="auto"
+      orient="auto-start-reverse"
       stroke="#000000"
       stroke-opacity="1"
     >
@@ -498,7 +498,7 @@
       ></path>
     </marker>
     <path
-      d="M 11 560 L 185 560"
+      d="M 25 560 L 185 560"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
