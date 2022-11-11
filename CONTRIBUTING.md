@@ -290,7 +290,7 @@ yarn test
 To automatically re-run tests as you make changes to `core`:
 
 ```sh
-yarn turbo run test-watch
+npx nx run core:test-watch
 ```
 
 ### Dependencies
@@ -316,54 +316,36 @@ version (e.g. `react-graph-vis` instead of `visjs`).
 
 ### Scripts
 
-We use [Turborepo][] to manage dependencies among our various scripts/tasks, and
-we have a custom `turboConfig.js` script which autogenerates Turborepo's
-`turbo.json` config file from metadata in all our `package/*/package.json`
-files. Specifically, below the `"scripts"` section we usually have a `"turbo"`
-section defining metadata about each script. For instance, given this:
+We use [Nx][] to manage dependencies among our various scripts/tasks, which uses
+metadata in all our `package/*/package.json` files. Specifically, below the
+`"scripts"` section we usually have a `"nx"` section defining metadata about
+each script. When you update a script, be sure to update its accompanying
+metadata!
 
-```json
-"scripts": {
-  "build": "mkdir dist/ && echo foo > dist/build.txt",
-  "test": "cat dist/*.txt"
-}
-```
+By default, Nx does not cache tasks; we collect the names of all tasks to cache
+in the `"cacheableOperations"` part of our `nx.json` file. If you create a new
+script that you would like to be cached, remember to add its name to that list.
+This also implies that two scripts with the same name in different packages
+should not have different caching behavior, so if you don't want your script to
+be cached, check in `nx.json` first to make sure you aren't using a name that is
+already considered cacheable.
 
-we might define the metadata like this:
-
-```json
-"turbo": {
-  "build": "out: [dist/*.txt]",
-  "test": "cache: false, deps: [build]"
-}
-```
-
-When you update a script, be sure to update its accompanying metadata!
-
-Note that `turboConfig.js` defines a few global scripts which have implicit
-dependencies that are automatically inherited by package-local scripts with the
-same names:
+The `"targetDefaults"` part of `nx.json` defines default dependencies for some
+scripts for which we use the same semantics across all our packages:
 
 - `build` means to produce executable artifacts (usually JavaScript files), and
-  implicitly depends on the `build` scripts of that package's dependencies
-- `build-decls` means to produce TypeScript declaration files, and implicitly
-  depends on the `build-decls` scripts of that package's dependencies
-- `typecheck` means to check for type errors in the package, and implicitly
-  depends on the `build-decls` script of that same package (with the intention
-  being that for any given package you either write a `build-decls` script or a
+  should depend on the `build` scripts of that package's dependencies
+- `build-decls` means to produce TypeScript declaration files, and should depend
+  on the `build-decls` scripts of that package's dependencies
+- `typecheck` means to check for type errors in the package, and should depend
+  on the `build-decls` script of that same package (with the intention being
+  that for any given package you either write a `build-decls` script or a
   `typecheck` script, but not both)
 
-The `"turbo"` metadata is written in [YAML][] syntax, where the following keys
-are allowed:
-
-- `deps` corresponds to Turborepo's `dependsOn` key, except that it also
-  inherits the `dependsOn` from the existing global definition of the script if
-  there is one (see above)
-- `out` corresponds to Turborepo's `outputs` key, except that it defaults to the
-  empty array `[]` instead of to `["dist/**", "build/**"]`
-- `cache` corresponds to Turborepo's `cache` key
-
-See the [Turborepo docs][] for more information.
+Some packages do not need to do anything for one or more of these scripts. In
+that case, the script should still be present in the `"scripts"` section of that
+package's `package.json` file, so that Nx doesn't break the dependency chain; in
+this case, the contents of the script should just be `":"`.
 
 ### Import from core
 
@@ -457,6 +439,7 @@ please file an issue!
 [node.js]: https://nodejs.org/en/download/
 [npm]: https://www.npmjs.com/
 [nvm]: https://github.com/nvm-sh/nvm
+[nx]: https://nx.dev/
 [open a pull request]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request
 [prettier]: https://prettier.io/
 [push]: https://github.com/git-guides/git-push
@@ -464,8 +447,6 @@ please file an issue!
 [test: check word cloud example output in ci]: https://github.com/penrose/penrose/pull/876
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
-[turborepo docs]: https://turborepo.org/docs
-[turborepo]: https://turborepo.org/
 [vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces
 [vs code]: https://code.visualstudio.com/download
 [yaml]: https://yaml.org/
