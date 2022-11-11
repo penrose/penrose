@@ -200,6 +200,9 @@ export const arrowheads: ArrowheadMap = {
     path:
       "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
   },
   loopdown: {
     width: 6,

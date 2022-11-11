@@ -35,11 +35,11 @@ forall Line l {
     startArrowhead: l.label
     endArrowhead: l.label
     flipStartArrowhead: true
-    strokeColor: #0000007D
+    strokeColor: #000
     strokeWidth: 3.0
   }
-  l.text = Text {
-    string: l.label
+  l.text = Equation {
+    string: "\textbf{" + l.label + "}"
     center: (?, rowY)
     fillColor: #000
   }

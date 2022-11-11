@@ -190,6 +190,7 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     "strokeColor",
     "strokeWidth",
     "startArrowhead",
+    "flipStartArrowhead",
     "endArrowhead",
     "startArrowheadSize",
     "endArrowheadSize"

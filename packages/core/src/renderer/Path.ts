@@ -128,6 +128,7 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     "name",
     "strokeColor",
     "startArrowhead",
+    "flipStartArrowhead",
     "endArrowhead"
   );
   elem.appendChild(Shadow(shadowId));
