@@ -28,17 +28,11 @@ export const sampleEquation = (
   style: strV(""),
   fillColor: black(),
   center: vectorV([
-    context.makeInput({
-      sampler: uniform(...canvas.xRange),
-      tag: "Optimized",
-    }),
-    context.makeInput({
-      sampler: uniform(...canvas.yRange),
-      tag: "Optimized",
-    }),
+    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.xRange) }),
+    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.yRange) }),
   ]),
-  width: floatV(context.makeInput({ pending: 0, tag: "Unoptimized" })),
-  height: floatV(context.makeInput({ pending: 0, tag: "Unoptimized" })),
+  width: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
+  height: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
   rotation: floatV(0),
   string: strV("defaultLabelText"),
   strokeWidth: floatV(0),

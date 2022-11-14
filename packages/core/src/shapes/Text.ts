@@ -46,14 +46,8 @@ export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
   strokeDasharray: strV(""),
   fillColor: sampleColor(context),
   center: vectorV([
-    context.makeInput({
-      sampler: uniform(...canvas.xRange),
-      tag: "Optimized",
-    }),
-    context.makeInput({
-      sampler: uniform(...canvas.yRange),
-      tag: "Optimized",
-    }),
+    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.xRange) }),
+    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.yRange) }),
   ]),
   width: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
   height: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
