@@ -1,4 +1,3 @@
-import { genOptProblem } from "engine/Optimizer";
 import * as ad from "types/ad";
 import { Properties, ShapeAD } from "types/shape";
 import { State } from "types/state";
@@ -13,24 +12,21 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
-  const frozenVaryingValues = [];
+  const frozenValues = new Set<number>();
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {
       const ids = dragShape(shape, [dx, dy], xs);
-      frozenVaryingValues.push(...ids);
+      ids.forEach((i) => frozenValues.add(i));
     }
   }
-  const { inputs, constrFns, objFns } = state;
   const updated: State = {
     ...state,
-    params: genOptProblem(
-      inputs,
-      objFns.map(({ output }) => output),
-      constrFns.map(({ output }) => output),
-      frozenVaryingValues
-    ),
+    params: {
+      ...state.params,
+      optStatus: "NewIter",
+    },
     varyingValues: xs,
-    frozenValues: frozenVaryingValues,
+    frozenValues,
   };
   return updated;
 };

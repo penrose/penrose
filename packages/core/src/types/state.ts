@@ -25,7 +25,11 @@ export interface State {
   canvas: Canvas;
   computeShapes: ShapeFn;
   params: Params;
-  frozenValues: number[];
+  /**
+   * A set of indices of `varyingValues` that are treated as constant during optimization.
+   * Currently used for the drag interaction.
+   */
+  frozenValues: Set<number>;
 }
 
 /**
@@ -106,7 +110,10 @@ export interface Params {
   lbfgsInfo: LbfgsParams;
 
   // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
-  objectiveAndGradient: (epWeight: number) => (xs: number[]) => FnEvaled;
+  objectiveAndGradient: (
+    epWeight: number,
+    frozenValues: Set<number>
+  ) => (xs: number[]) => FnEvaled;
 
   // Applied with weight (or hyperparameters in general) -- may change with the EP round
   currObjectiveAndGradient(xs: number[]): FnEvaled;
