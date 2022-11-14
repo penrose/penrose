@@ -6,9 +6,22 @@
     "build": "esbuild ./source.js --bundle --loader:.wasm=binary --outfile=index.js --format=cjs",
     "build-wasm": "cargo build --release"
   },
-  "turbo": {
-    "build": "deps: [build-wasm], out: [index.js]",
-    "build-wasm": "out: [target/**]"
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "build-wasm"
+        ],
+        "outputs": [
+          "{projectRoot}/index.js"
+        ]
+      },
+      "build-wasm": {
+        "outputs": [
+          "{projectRoot}/target"
+        ]
+      }
+    }
   },
   "devDependencies": {
     "esbuild": "^0.15.7"

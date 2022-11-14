@@ -12,6 +12,7 @@
           "build-rollup",
           "build-shapedefs",
           "build-storybook",
+          "build-wasm",
           "docs",
           "write-translations"
         ]
