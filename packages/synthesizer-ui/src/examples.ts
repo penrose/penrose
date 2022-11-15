@@ -22,6 +22,7 @@ const defaultParams: SynthesizerSetting = {
     predicate: 0.3,
     constructor: 0.2,
   },
+  // TODO: need weights for the three ops
   add: {
     type: [],
     function: [],
@@ -257,6 +258,36 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt:
       "Which of the following diagrams shows that JKLM is a parallelogram?",
     substance: examples["geometry-domain"].textbook_problems["c06p06.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c07p06: {
+    displayName: "c07p06: Parallelogram 2",
+    prompt: "In which of the following diagrams is ABCD a parallelogram?",
+    substance: examples["geometry-domain"].textbook_problems["c07p06.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c07p10: {
+    displayName: "c07p10: Orthocenter",
+    prompt: "In which of the following diagrams is G the orthocenter of tFGH?",
+    substance: examples["geometry-domain"].textbook_problems["c07p10.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c07p22: {
+    displayName: "c07p22: Similar triangles",
+    prompt: "In which of the following diagrams are the two triangles similar?",
+    substance: examples["geometry-domain"].textbook_problems["c07p22.sub"],
     domain: examples["geometry-domain"]["geometry.dsl"],
     style: examples["geometry-domain"]["euclidean.sty"] + ``,
     setting: {
