@@ -16,13 +16,16 @@ import {
 import { Listing } from "@penrose/components";
 import {
   compileDomain,
+  DeclTypes,
   Env,
+  MatchSetting,
   showError,
   SynthesizerSetting,
 } from "@penrose/core";
 import { examples } from "@penrose/examples";
 import React from "react";
 import { Preset, presets } from "../examples";
+import { wildcardType } from "../util";
 import { MultiselectDropdown } from "./MultiselectDropdown";
 
 const DEFAULT_MUTATION_COUNT = [1, 4];
@@ -151,19 +154,19 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         domainEnv: {
           types: {
             tag: "Type",
-            values: [...result.value.types.keys()],
+            values: [wildcardType, ...result.value.types.keys()],
           },
           constructors: {
             tag: "Constructor",
-            values: [...result.value.constructors.keys()],
+            values: [wildcardType, ...result.value.constructors.keys()],
           },
           functions: {
             tag: "Function",
-            values: [...result.value.functions.keys()],
+            values: [wildcardType, ...result.value.functions.keys()],
           },
           predicates: {
             tag: "Predicate",
-            values: [...result.value.predicates.keys()],
+            values: [wildcardType, ...result.value.predicates.keys()],
           },
         },
       });
@@ -223,7 +226,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           mutationCount: newValue as [number, number],
         },
       });
-    console.log(this.state.setting?.mutationCount);
   };
 
   onProgCountChange = (event: any, newValue: number | number[]) => {
@@ -233,11 +235,28 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   onChangeMultiselect = (op: string, stmtType: string) => (
     selected: string[]
   ) => {
-    const typeSelect = (s: string, op: any, arr: any[]) => {
-      if (s === "Type") return { ...op, type: arr };
-      if (s === "Constructor") return { ...op, constructor: arr };
-      if (s === "Function") return { ...op, function: arr };
-      if (s === "Predicate") return { ...op, predicate: arr };
+    const typeSelect = (
+      stmtType: string,
+      op: DeclTypes,
+      arr: string[]
+    ): DeclTypes => {
+      let newMatchSetting: MatchSetting = "*";
+      if (!arr.includes(wildcardType)) {
+        newMatchSetting = arr;
+      }
+      switch (stmtType) {
+        case "Type":
+        case "Type":
+          return { ...op, type: newMatchSetting };
+        case "Constructor":
+          return { ...op, constructor: newMatchSetting };
+        case "Function":
+          return { ...op, function: newMatchSetting };
+        case "Predicate":
+          return { ...op, predicate: newMatchSetting };
+        default:
+          return op;
+      }
     };
     let newSetting = this.state.setting;
     if (newSetting) {
@@ -278,7 +297,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           for (const valueIdx in Object.entries(values)) {
             const [k, v]: [string, any] = Object.entries(values)[valueIdx];
             if (stmtType.toLowerCase() === k) {
-              defaults = v;
+              defaults = v === "*" ? wildcardType : v;
             }
           }
         }
@@ -299,7 +318,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
                 stmtType={stmtType.tag}
                 mutationType={op}
                 key={`${op}-${stmtType.tag}`}
-                // name={`${op}-${stmtType}`}
                 onChange={this.onChangeMultiselect(op, stmtType.tag)}
                 defaults={this.getDefaults(op, stmtType.tag)}
                 options={stmtType.values}
@@ -320,6 +338,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
   handlePreset = (key: string) => {
     this.setState({ ...this.state, ...presets[key] });
+    this.updateDomainEnv(presets[key].domain);
   };
 
   componentDidMount = () => {
@@ -438,7 +457,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           </SettingDiv>
         </SettingContainer>
         <br />
-        {/* <SettingContainer>{this.inputElements()}</SettingContainer> */}
+        <SettingContainer>{this.inputElements()}</SettingContainer>
         <ButtonContainer>
           <Button
             onClick={this.onGenerateClick}

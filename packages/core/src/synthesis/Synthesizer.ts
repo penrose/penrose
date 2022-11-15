@@ -83,8 +83,8 @@ const log = consola
 type All = "*";
 type ArgOption = "existing" | "generated" | "mixed";
 type ArgReuse = "distinct" | "repeated";
-type MatchSetting = string[] | All;
-type DeclTypes = {
+export type MatchSetting = string[] | All;
+export type DeclTypes = {
   [t in SubStmtKind]: MatchSetting;
 };
 export interface SynthesizerSetting {
