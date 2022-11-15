@@ -246,7 +246,7 @@ const constrDictGeneral = {
     [t2, s2]: [string, any],
     padding = 0.0
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], -padding));
+    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding)));
   },
 
   /**
