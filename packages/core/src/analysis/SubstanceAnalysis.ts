@@ -1,4 +1,5 @@
 import { prettyStmt } from "compiler/Substance";
+import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
 import {
@@ -43,6 +44,10 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+
+const log = consola
+  .create({ level: LogLevel.Debug })
+  .withScope("Substance Analysis");
 
 export interface Signature {
   args: string[];
@@ -272,23 +277,24 @@ export const identicalTypeDecls = (
   env: Env
 ): im.Map<string, Identifier<A>[]> => {
   // pulls just the variable names from the statement's parameters
-  const idSet = ids.map((i) => i.value);
+  const idStrs = ids.map((i) => i.value);
   let options: im.Map<string, Identifier<A>[]> = im.Map();
+  log.debug(`Matching ${ids.map((i) => i.value)}`);
 
-  idSet.forEach((i) => {
-    const obj = env.vars.get(i);
-    const typeStr = obj && obj.name.value;
+  idStrs.forEach((i) => {
+    const typeStr = env.vars.get(i)?.name.value;
 
     // a match is any var of the same type as the current identifier
     // which is not already being used in the statement
     const matchedObjs = [
       ...env.vars
         .filter(
-          (t, id) => !idSet.includes(id) && typeStr && t.name.value === typeStr
+          (t, id) => !idStrs.includes(id) && typeStr && t.name.value === typeStr
         )
         .keys(),
     ];
 
+    log.debug(`For ${typeStr} found ${matchedObjs}`);
     const matches = matchedObjs.flatMap((id) =>
       env.varIDs.filter((v) => v.value === id)
     );

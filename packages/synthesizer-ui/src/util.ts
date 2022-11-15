@@ -1,1 +1,1 @@
-export const wildcardType: string = "All Type";
+export const wildcardType: string = "All Types";

@@ -37,8 +37,6 @@ import {
   checkReplaceExprName,
   checkReplaceStmtName,
   checkSwapExprArgs,
-  checkSwapInExprArgs,
-  checkSwapInStmtArgs,
   checkSwapStmtArgs,
   Delete,
   deleteMutation,
@@ -65,7 +63,6 @@ import {
   ApplyPredicate,
   Bind,
   Decl,
-  Func,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -527,36 +524,37 @@ export class Synthesizer {
           return this.choice(options);
         } else return undefined;
       }),
-      checkSwapInStmtArgs(
-        stmt,
-        ctx,
-        (
-          options: im.Map<string, Identifier<A>[]>
-        ): Identifier<A> | undefined => {
-          const varId = this.choice([...options.keys()]);
-          const swapOptions = options.get(varId);
-          return swapOptions ? this.choice(swapOptions) : undefined;
-        },
-        (p: ApplyPredicate<A>) => {
-          const indices = range(0, p.args.length);
-          return this.choice(indices);
-        }
-      ),
-      checkSwapInExprArgs(
-        stmt,
-        ctx,
-        (
-          options: im.Map<string, Identifier<A>[]>
-        ): Identifier<A> | undefined => {
-          const varId = this.choice([...options.keys()]);
-          const swapOptions = options.get(varId);
-          return swapOptions ? this.choice(swapOptions) : undefined;
-        },
-        (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => {
-          const indices = range(0, p.args.length);
-          return this.choice(indices);
-        }
-      ),
+      // TODO: re-write swap-in so it picks an argument respecting the type
+      // checkSwapInStmtArgs(
+      //   stmt,
+      //   ctx,
+      //   (
+      //     options: im.Map<string, Identifier<A>[]>
+      //   ): Identifier<A> | undefined => {
+      //     const id = this.choice([...options.keys()]);
+      //     const swapOptions = options.get(id);
+      //     return swapOptions ? this.choice(swapOptions) : undefined;
+      //   },
+      //   (p: ApplyPredicate<A>) => {
+      //     const indices = range(0, p.args.length);
+      //     return this.choice(indices);
+      //   }
+      // ),
+      // checkSwapInExprArgs(
+      //   stmt,
+      //   ctx,
+      //   (
+      //     options: im.Map<string, Identifier<A>[]>
+      //   ): Identifier<A> | undefined => {
+      //     const varId = this.choice([...options.keys()]);
+      //     const swapOptions = options.get(varId);
+      //     return swapOptions ? this.choice(swapOptions) : undefined;
+      //   },
+      //   (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => {
+      //     const indices = range(0, p.args.length);
+      //     return this.choice(indices);
+      //   }
+      // ),
       checkChangeStmtType(
         stmt,
         ctx,

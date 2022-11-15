@@ -11,6 +11,7 @@ import {
   stmtExists,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
+import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { range, without } from "lodash";
 import { A, Identifier } from "types/ast";
@@ -30,6 +31,10 @@ import {
   SynthesisContext,
   WithContext,
 } from "./Synthesizer";
+
+const log = consola
+  .create({ level: LogLevel.Debug })
+  .withScope("Synthesizer Mutations");
 
 //#region Mutation types
 
@@ -346,10 +351,12 @@ export const checkSwapInStmtArgs = (
     const elem = element(stmt);
     const arg = stmt.args[elem];
     if (arg.tag === "Identifier") {
+      // TODO: rewrite to use a more general id-finding function. `identicalTypeDecls` is way too specific
       const swapOpts = identicalTypeDecls(
         stmt.args.filter((id): id is Identifier<A> => id.tag === "Identifier"),
         cxt.env
       );
+      log.debug(`Found options to swap in: ${[...swapOpts.keys()]}`);
       const swap = pickSwap(swapOpts);
       if (!swap) return undefined;
       return {
