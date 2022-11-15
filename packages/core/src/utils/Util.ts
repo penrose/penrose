@@ -243,7 +243,7 @@ export const arrowheads: ArrowheadMap = {
 };
 
 export const getArrowhead = (style: string): ArrowheadSpec | undefined => {
-  if (Object.keys(arrowheads).includes(style)) {
+  if (style in arrowheads) {
     const arrow = arrowheads[style];
     return arrow;
   }
