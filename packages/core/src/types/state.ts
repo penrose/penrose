@@ -112,7 +112,7 @@ export interface Params {
   // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
   objectiveAndGradient: (
     epWeight: number,
-    frozenValues: Set<number>
+    frozenValues?: Set<number>
   ) => (xs: number[]) => FnEvaled;
 
   // Applied with weight (or hyperparameters in general) -- may change with the EP round
