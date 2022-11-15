@@ -102,11 +102,6 @@ export const DraggableShape = async (
       x: bboxX,
       y: bboxY,
     } = (e.target as SVGSVGElement).getBBox({ stroke: true });
-    // const bbox = elem.getBoundingClientRect();
-    // const { x: bboxX, y: bboxY } = getPosition(
-    //   { clientX: bbox.x, clientY: bbox.y },
-    //   parentSVG
-    // );
     const minX = tempX - bboxX;
     const maxX = canvas[0] - bboxW + (tempX - bboxX);
     const minY = tempY - bboxY;
