@@ -1,4 +1,5 @@
 import { prettyStmt } from "compiler/Substance";
+import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
 import {
   cloneDeep,
@@ -11,7 +12,14 @@ import {
   sortBy,
   uniq,
 } from "lodash";
-import { A, AbstractNode, C, Identifier, metaProps } from "types/ast";
+import {
+  A,
+  AbstractNode,
+  C,
+  Identifier,
+  metaProps,
+  StringLit,
+} from "types/ast";
 import {
   ConstructorDecl,
   DomainStmt,
@@ -28,6 +36,7 @@ import {
   Bind,
   Decl,
   Func,
+  LabelDecl,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -328,6 +337,8 @@ export const cascadingDelete = <T>(
         return findArg(s, id);
       } else if (s.tag === "Decl") {
         return s.name === id;
+      } else if (s.tag === "LabelDecl") {
+        return s.variable.value === id.value;
       }
     });
     // remove list of filtered statements
@@ -355,13 +366,12 @@ export const domainToSubType = (
   | ApplyPredicate<A>["tag"]
   | ApplyFunction<A>["tag"]
   | ApplyConstructor<A>["tag"]
-  | Func<A>["tag"]
   | undefined => {
   switch (domainType) {
     case "ConstructorDecl":
-      return "Func";
+      return "ApplyConstructor";
     case "FunctionDecl":
-      return "Func";
+      return "ApplyFunction";
     case "PredicateDecl":
       return "ApplyPredicate";
     case "TypeDecl":
@@ -444,6 +454,41 @@ export const autoLabelStmt: AutoLabel<A> = {
     nodeType: "SyntheticSubstance",
   },
   nodeType: "SyntheticSubstance",
+};
+
+export const stringLit = (contents: string): StringLit<A> => ({
+  tag: "StringLit",
+  contents,
+  nodeType: "SyntheticSubstance",
+});
+
+export const labelStmt = (id: string): LabelDecl<A> => ({
+  tag: "LabelDecl",
+  variable: dummyIdentifier(id, "SyntheticSubstance"),
+  label: stringLit(id),
+  labelType: "MathLabel",
+  nodeType: "SyntheticSubstance",
+});
+
+export const desugarAutoLabel = (subProg: SubProg<A>, env: Env): SubProg<A> => {
+  const autoStmts: AutoLabel<A>[] = subProg.statements.filter(
+    (s: SubStmt<A>): s is AutoLabel<A> =>
+      s.tag === "AutoLabel" && s.option.tag === "LabelIDs"
+  );
+  const desugar = (s: AutoLabel<A>): LabelDecl<A>[] => {
+    if (s.option.tag === "DefaultLabels") {
+      const vars = [...env.vars.keys()];
+      return vars.map(labelStmt);
+    } else {
+      const vars = s.option.variables.map((v) => v.value);
+      return vars.map(labelStmt);
+    }
+  };
+  const labelStmts = autoStmts.flatMap((s) => desugar(s));
+  return labelStmts.reduce(
+    (p, s) => appendStmt(p, s),
+    autoStmts.reduce((p, s) => removeStmt(p, s), subProg)
+  );
 };
 
 /**

@@ -10,7 +10,9 @@ import {
   ArgStmtDecl,
   autoLabelStmt,
   cascadingDelete,
+  desugarAutoLabel,
   domainToSubType,
+  findTypes,
   matchSignatures,
   nullaryTypeCons,
   SubStmtKind,
@@ -75,7 +77,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Debug })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -147,18 +149,60 @@ export const initContext = (
 
 export const filterContext = (
   ctx: SynthesisContext,
-  setting: DeclTypes
+  setting: DeclTypes,
+  subProg?: SubProg<A> // optionally filter by the declared Substance types too
 ): SynthesisContext => {
-  return {
-    ...ctx,
-    env: {
-      ...ctx.env,
-      types: filterBySetting(ctx.env.types, setting.type),
-      functions: filterBySetting(ctx.env.functions, setting.function),
-      predicates: filterBySetting(ctx.env.predicates, setting.predicate),
-      constructors: filterBySetting(ctx.env.constructors, setting.constructor),
-    },
+  const filterDecls = <T>(
+    decls: im.Map<string, T>,
+    setting: MatchSetting,
+    substanceTypes?: string[]
+  ): im.Map<string, T> => {
+    const filteredBySetting: im.Map<string, T> =
+      setting === "*" ? decls : decls.filter((_, key) => setting.includes(key));
+    if (substanceTypes) {
+      return filteredBySetting.filter((_, key) => substanceTypes.includes(key));
+    } else {
+      return filteredBySetting;
+    }
   };
+
+  if (subProg) {
+    const subTypes = findTypes(subProg);
+    return {
+      ...ctx,
+      env: {
+        ...ctx.env,
+        types: filterDecls(ctx.env.types, setting.type, subTypes.type),
+        functions: filterDecls(
+          ctx.env.functions,
+          setting.function,
+          subTypes.function
+        ),
+        predicates: filterDecls(
+          ctx.env.predicates,
+          setting.predicate,
+          subTypes.predicate
+        ),
+        constructors: filterDecls(
+          ctx.env.constructors,
+          setting.constructor,
+          subTypes.constructor
+        ),
+      },
+    };
+  } else {
+    // TODO: dedup
+    return {
+      ...ctx,
+      env: {
+        ...ctx.env,
+        types: filterDecls(ctx.env.types, setting.type),
+        functions: filterDecls(ctx.env.functions, setting.function),
+        predicates: filterDecls(ctx.env.predicates, setting.predicate),
+        constructors: filterDecls(ctx.env.constructors, setting.constructor),
+      },
+    };
+  }
 };
 
 export const showEnv = (env: Env): string =>
@@ -189,6 +233,7 @@ const getDecls = (
   throw new Error(`${type} is not found in the environment`);
 };
 
+// return types that are declared in the context
 const nonEmptyDecls = (ctx: SynthesisContext): DomainStmt<A>["tag"][] =>
   declTypes.filter((type) => !getDecls(ctx, type).isEmpty());
 
@@ -336,8 +381,8 @@ export class Synthesizer {
         nodeType: "SyntheticSubstance",
       };
     }
-    // initialize the current program as the template
-    this.currentProg = cloneDeep(this.template);
+    // initialize the current program as the template after pre-processing
+    this.currentProg = desugarAutoLabel(cloneDeep(this.template), env);
     this.setting = setting;
     this.currentMutations = [];
     // use the seed to create random generation functions
@@ -347,7 +392,7 @@ export class Synthesizer {
   }
 
   reset = (): void => {
-    this.currentProg = cloneDeep(this.template);
+    this.currentProg = desugarAutoLabel(cloneDeep(this.template), this.env);
     this.currentMutations = [];
   };
 
@@ -414,9 +459,11 @@ export class Synthesizer {
   mutateProgram = (ctx: SynthesisContext): SynthesisContext => {
     const addCtx = filterContext(ctx, this.setting.add);
     const addOps = this.enumerateAdd(addCtx);
-    const deleteCtx = filterContext(ctx, this.setting.delete);
+    // NOTE: filter deletes by the template Substance program too
+    const deleteCtx = filterContext(ctx, this.setting.delete, this.template);
     const deleteOps = this.enumerateDelete(deleteCtx);
-    const editCtx = filterContext(ctx, this.setting.edit);
+    // NOTE: filter edits by the template Substance program too
+    const editCtx = filterContext(ctx, this.setting.edit, this.template);
     const editOps = this.enumerateUpdate(editCtx);
     const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps].filter(
       (ops) => ops.length > 0
@@ -607,6 +654,7 @@ export class Synthesizer {
    */
   enumerateAdd = (ctx: SynthesisContext): MutationGroup => {
     const chosenType = this.choice(nonEmptyDecls(ctx));
+    log.debug(`Picking a statement to add from ${nonEmptyDecls(ctx)}`);
     let possibleOps: MutationGroup | undefined;
     log.debug(`Adding statement of ${chosenType} type`);
     if (chosenType === "TypeDecl") {
@@ -682,6 +730,9 @@ export class Synthesizer {
     const chosenType = this.choice(nonEmptyDecls(ctx));
     const candidates = [...getDecls(ctx, chosenType).keys()];
     const chosenName = this.choice(candidates);
+    log.debug(
+      `Chosen name is ${chosenName}, candidates ${candidates}, chosen type ${chosenType}`
+    );
     const stmt = this.findStmt(chosenType, chosenName);
     let possibleOps: Mutation[] = [];
     if (stmt) {
@@ -713,6 +764,10 @@ export class Synthesizer {
       const subType = domainToSubType(stmtType);
       if (s.tag === "Bind") {
         const expr = s.expr;
+        log.debug(
+          `filtering stmt ${prettyStmt(s)} to find ${name} of ${subType}`,
+          expr
+        );
         return expr.tag === subType && expr.name.value === name;
       } else if (s.tag === "Decl") {
         return s.tag === subType && s.type.name.value === name;
@@ -1030,16 +1085,5 @@ const declTypes: DomainStmt<A>["tag"][] = [
   "TypeDecl",
   "PredicateDecl",
 ];
-
-const filterBySetting = <T>(
-  decls: im.Map<string, T>,
-  setting: MatchSetting
-): im.Map<string, T> => {
-  if (setting === "*") {
-    return decls;
-  } else {
-    return decls.filter((_, key) => setting.includes(key));
-  }
-};
 
 //#endregion
