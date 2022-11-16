@@ -1,6 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g
-    transform="rotate(0, 381.7348021921314, 371.6511452095763)translate(381.7348021921314, 371.6511452095763)"
+    transform="rotate(0, 399.33570699743325, 361.66660804407326)translate(399.33570699743325, 361.66660804407326)"
     string="M"
   >
     <title>`M`.text</title>
@@ -22,7 +22,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 309.2510291008607, 399.0562400822981)translate(309.2510291008607, 399.0562400822981)"
+    transform="rotate(0, 369.91911143682364, 421.3356207874248)translate(369.91911143682364, 421.3356207874248)"
     string="L"
   >
     <title>`L`.text</title>
@@ -43,45 +43,6 @@
       ></path>
     </svg>
   </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="567.1201581238985"
-    cy="376.123096871387"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>`J`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="68.36204606507516"
-    cy="554.8187559895434"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>`K`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="415.8485591232943"
-    cy="384.9276961110516"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>`M`.icon</title>
-  </circle>
   <g style="solid">
     <marker
       id="`KM`.icon-leftArrowhead"
@@ -116,7 +77,7 @@
       ></path>
     </marker>
     <path
-      d="M 40.724874769622716 568.3309590448637 L 443.4857214349928 371.41549744801534"
+      d="M 195.70650814316997 469.6496525458779 L 462.1487030280031 366.1434926486592"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -127,7 +88,7 @@
     <title>`KM`.icon</title>
   </g>
   <g
-    transform="rotate(0, 82.37162130663476, 550.7626313571537)translate(82.37162130663476, 550.7626313571537)"
+    transform="rotate(0, 238.3648124681452, 459.21154929328054)translate(238.3648124681452, 459.21154929328054)"
     string="K"
   >
     <title>`K`.text</title>
@@ -182,7 +143,7 @@
       ></path>
     </marker>
     <path
-      d="M 596.0809777342338 365.7469794233754 L 39.40123586875961 565.1948700646888"
+      d="M 398.34212499375747 237.04125460467003 L 205.37934723139765 482.70245436397954"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -193,7 +154,7 @@
     <title>`JK`.icon</title>
   </g>
   <g
-    transform="rotate(0, 563.4591454654029, 342.9523707293615)translate(563.4591454654029, 342.9523707293615)"
+    transform="rotate(0, 372.1973268895463, 275.2338781412098)translate(372.1973268895463, 275.2338781412098)"
     string="J"
   >
     <title>`J`.text</title>
@@ -217,8 +178,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="298.4559517135518"
-    cy="427.1640416029389"
+    cx="372.86729672948945"
+    cy="454.49561930410937"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -230,8 +191,21 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="552.0353831889288"
-    cy="335.9294328591953"
+    cx="433.47298195678724"
+    cy="377.28329643104536"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`M`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="502.65975151599275"
+    cy="289.1385759060249"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -274,7 +248,7 @@
       ></path>
     </marker>
     <path
-      d="M 580.9823352231302 325.5146928789113 L 269.5090090888623 437.5787781978018"
+      d="M 521.6542536242871 264.9393671414424 L 353.8728007955583 478.6948202024839"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -285,7 +259,7 @@
     <title>`NL`.icon</title>
   </g>
   <g
-    transform="rotate(0, 527.8254595696637, 304.75715631911993)translate(527.8254595696637, 304.75715631911993)"
+    transform="rotate(0, 481.7240785002777, 256.53911553530673)translate(481.7240785002777, 256.53911553530673)"
     string="N"
   >
     <title>`N`.text</title>
@@ -306,6 +280,32 @@
       ></path>
     </svg>
   </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="379.33922751232836"
+    cy="261.2338716903349"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`J`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="224.38223853573447"
+    cy="458.50984514237996"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`K`.icon</title>
+  </circle>
   <g>
     <filter id="`JK`.tick1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
@@ -328,7 +328,7 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 335.8244946940142 474.01440583839695 L 317.7411068014967 465.47092474403206 L 326.2845878958616 447.3875368515145"
+      d="M 321.7179317679534 357.486114237666 L 301.86073611257757 359.8718544843248 L 299.4749958659188 340.01465882894894"
     ></path>
     <title>`JK`.tick1</title>
   </g>
@@ -366,7 +366,7 @@
       ></path>
     </marker>
     <path
-      d="M 567.1201581238985 376.123096871387 L 68.36204606507516 554.8187559895434"
+      d="M 379.33922751232836 261.2338716903349 L 224.38223853573447 458.50984514237996"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -408,7 +408,7 @@
       ></path>
     </marker>
     <path
-      d="M 68.36204606507516 554.8187559895434 L 415.8485591232943 384.9276961110516"
+      d="M 224.38223853573447 458.50984514237996 L 433.47298195678724 377.28329643104536"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -438,7 +438,7 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 443.3404402343456 390.0660867636804 L 425.24567215599626 381.54673553835653 L 433.76502338132013 363.45196746000727"
+      d="M 457.6198938129267 369.424463788124 L 437.7635272099227 371.8170936719631 L 435.37089732608354 351.9607270689591"
     ></path>
     <title>`NL`.tick1</title>
   </g>
