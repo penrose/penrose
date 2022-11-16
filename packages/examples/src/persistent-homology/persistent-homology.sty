@@ -208,17 +208,17 @@ where NotConnectedOnFrame3(p1, p2) {
 
 forall Point p1; Point p2 
 where ConnectedOnFrame1(p1, p2) {
-  ensure overlapping(p1.circle1, p2.circle1, -7)
+  ensure overlapping(p1.circle1, p2.circle1, 7)
 }
 
 forall Point p1; Point p2 
 where ConnectedOnFrame2(p1, p2) {
-  ensure overlapping(p1.circle2, p2.circle2, -7)
+  ensure overlapping(p1.circle2, p2.circle2, 7)
 }
 
 forall Point p1; Point p2 
 where ConnectedOnFrame3(p1, p2) {
-  ensure overlapping(p1.circle3, p2.circle3, -7)
+  ensure overlapping(p1.circle3, p2.circle3, 7)
 }
 
 forall Connection c; Point p1; Point p2
