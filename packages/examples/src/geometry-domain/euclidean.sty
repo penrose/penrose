@@ -801,6 +801,13 @@ with Circle c; Point p, q {
 }
 
 forall Segment s
+where s := Chord(c, p, q); p has label; q has label 
+with Circle c; Point p, q {
+  ensure disjoint(c.icon, p.text)
+  ensure disjoint(c.icon, q.text)
+}
+
+forall Segment s
 where s := Radius(c, p)
 with Circle c; Point p {
   override s.vec = p.vec - c.vec
@@ -829,15 +836,19 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure collinear(p.vec, q.vec, c.icon.center)
-  ensure equal(vdist(p.vec, c.icon.center), c.icon.r)
-  ensure equal(vdist(q.vec, c.icon.center), c.icon.r)
+  ensure equal(norm(midpoint(p.vec, q.vec) - c.icon.center), 0)
+  ensure equal(c.icon.r * 2, norm(s.vec))
 }
 
 forall Point p
 where OnCircle(c, p)
 with Circle c {
   ensure ptCircleIntersect(p.vec, c.icon)
+}
+forall Point p
+where OnCircle(c, p); p has label
+with Circle c {
+  ensure disjoint(p.text, c.icon)
 }
 
 forall Point p
