@@ -436,7 +436,7 @@
     "circle-example": {
       "domain": "geometry",
       "name": "Circle with Chords, Radii, Diameters",
-      "URI": "geometry-domain/textbook_problems/c11p12.sub",
+      "URI": "geometry-domain/textbook_problems/c11p12.sub"
     },
     "non-convex": {
       "domain": "non-convex",
