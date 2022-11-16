@@ -1,37 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g>
-    <marker
-      id="`e4`.shape-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#567b5d"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`e4`.shape-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#567b5d"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 598.3762914449441 593.0538299295441 L 798.3762914449441 593.0538299295441"
       stroke-opacity="0.5"
@@ -94,38 +62,6 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`e3`.shape-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#66a2a5"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`e3`.shape-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#66a2a5"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 561.0043762105338 250.37367493363422 L 761.0043762105338 250.37367493363422"
       stroke-opacity="0.5"
@@ -173,38 +109,6 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`e1`.shape-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#a7cc36"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`e1`.shape-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#a7cc36"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 364.6027136499315 442.78216201039754 L 564.6027136499315 442.78216201039754"
       stroke-opacity="0.5"
@@ -215,38 +119,6 @@
     <title>`e1`.shape</title>
   </g>
   <g>
-    <marker
-      id="`e2`.shape-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#9adb5a"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`e2`.shape-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#9adb5a"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 695.5801766041188 607.9812212920458 L 795.5801766041188 607.9812212920458"
       stroke-opacity="0.5"
@@ -257,38 +129,6 @@
     <title>`e2`.shape</title>
   </g>
   <g>
-    <marker
-      id="`e5`.shape-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#4d1da0"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`e5`.shape-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#4d1da0"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 20.84714160740316 254.24439684412283 L 220.84714160740316 254.24439684412283"
       stroke-opacity="0.5"

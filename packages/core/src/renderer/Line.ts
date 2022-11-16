@@ -1,7 +1,8 @@
 import { Shape } from "types/shape";
-import { ColorV, FloatV, StrV, VectorV } from "types/value";
+import { BoolV, ColorV, FloatV, StrV, VectorV } from "types/value";
 import {
-  arrowheads,
+  ArrowheadSpec,
+  getArrowhead,
   round2,
   toScreen,
   toSvgOpacityProperty,
@@ -14,11 +15,10 @@ export const arrowHead = (
   id: string,
   color: string,
   opacity: number,
-  style: string,
-  size: number
+  arrow: ArrowheadSpec,
+  size: number,
+  flip: boolean
 ): SVGMarkerElement => {
-  const arrow = arrowheads[style];
-
   const marker = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "marker"
@@ -30,18 +30,36 @@ export const arrowHead = (
   marker.setAttribute("viewBox", arrow.viewbox);
   marker.setAttribute("refX", arrow.refX.toString());
   marker.setAttribute("refY", arrow.refY.toString());
-  marker.setAttribute("orient", "auto-start-reverse");
+  if (flip) {
+    marker.setAttribute("orient", "auto");
+  } else {
+    marker.setAttribute("orient", "auto-start-reverse");
+  }
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", arrow.path);
-  path.setAttribute("fill", color);
-  path.setAttribute("fill-opacity", opacity.toString());
+  if (arrow.fillKind === "stroke") {
+    path.setAttribute("fill", "none");
+    marker.setAttribute("stroke", color);
+    marker.setAttribute("stroke-opacity", opacity.toString());
+  } /* if (arrow.fillKind === "fill") */ else {
+    path.setAttribute("fill", color);
+    path.setAttribute("fill-opacity", opacity.toString());
+  }
+  if (arrow.style) {
+    Object.entries(arrow.style).forEach(([key, value]: [string, string]) => {
+      path.setAttribute(key, value);
+    });
+  }
   marker.appendChild(path);
-
   return marker;
 };
 
-const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
+const makeRoomForArrows = (
+  shape: Shape,
+  startArrowhead?: ArrowheadSpec,
+  endArrowhead?: ArrowheadSpec
+): [number[][], string[]] => {
   // Keep a list of which input properties we programatically mapped
   const attrMapped: string[] = [];
 
@@ -50,48 +68,57 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
   const [lineEX, lineEY] = (shape.properties.end as VectorV<number>)
     .contents as [number, number];
 
-  const arrowheadStyle = (shape.properties.arrowheadStyle as StrV).contents;
-  const arrowheadSize = (shape.properties.arrowheadSize as FloatV<number>)
+  const startArrowheadSize = (shape.properties
+    .startArrowheadSize as FloatV<number>).contents;
+  const endArrowheadSize = (shape.properties.endArrowheadSize as FloatV<number>)
     .contents;
   const thickness = (shape.properties.strokeWidth as FloatV<number>).contents;
   attrMapped.push(
     "start",
     "end",
-    "arrowheadStyle",
-    "arrowheadSize",
+    "startArrowhead",
+    "endArrowhead",
+    "startArrowheadSize",
+    "endArrowheadSize",
     "strokeWidth"
   );
 
   // height * size = Penrose computed arrow size
   // multiplied by thickness since the arrow size uses markerUnits, which is strokeWidth by default:
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/markerUnits
-  const arrowHeight =
-    arrowheads[arrowheadStyle].height * arrowheadSize * thickness;
   const length = Math.sqrt((lineSX - lineEX) ** 2 + (lineSY - lineEY) ** 2);
 
   // Subtract off the arrowHeight from each side.
   // See https://math.stackexchange.com/a/2045181 for a derivation.
   let arrowSX, arrowSY;
-  if (shape.properties.startArrowhead.contents) {
+  if (startArrowhead) {
+    const startFlip = shape.properties.flipStartArrowhead.contents;
+    const startArrowWidth =
+      (startFlip
+        ? startArrowhead.refX
+        : startArrowhead.width - startArrowhead.refX) *
+      startArrowheadSize *
+      thickness;
+    const dx = (startArrowWidth / length) * (lineSX - lineEX);
     [arrowSX, arrowSY] = [
-      lineSX - (arrowHeight / length) * (lineSX - lineEX),
-      lineSY - (arrowHeight / length) * (lineSY - lineEY),
+      lineSX - (startFlip ? -startArrowhead.refX : dx),
+      lineSY - (startArrowWidth / length) * (lineSY - lineEY),
     ];
   } else {
     [arrowSX, arrowSY] = [lineSX, lineSY];
   }
-  attrMapped.push("startArrowhead");
 
   let arrowEX, arrowEY;
-  if (shape.properties.endArrowhead.contents) {
+  if (endArrowhead) {
+    const endArrowWidth =
+      (endArrowhead.width - endArrowhead.refX) * endArrowheadSize * thickness;
     [arrowEX, arrowEY] = [
-      lineEX - (arrowHeight / length) * (lineEX - lineSX),
-      lineEY - (arrowHeight / length) * (lineEY - lineSY),
+      lineEX - (endArrowWidth / length) * (lineEX - lineSX),
+      lineEY - (endArrowWidth / length) * (lineEY - lineSY),
     ];
   } else {
     [arrowEX, arrowEY] = [lineEX, lineEY];
   }
-  attrMapped.push("endArrowhead");
 
   return [
     [
@@ -103,12 +130,19 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
 };
 
 const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
+  const startArrowhead = getArrowhead(
+    (shape.properties.startArrowhead as StrV).contents
+  );
+  const endArrowhead = getArrowhead(
+    (shape.properties.endArrowhead as StrV).contents
+  );
   const [
     [[arrowSX, arrowSY], [arrowEX, arrowEY]],
     attrToNotAutoMap,
-  ] = makeRoomForArrows(shape);
+  ] = makeRoomForArrows(shape, startArrowhead, endArrowhead);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
+
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
   const color = toSvgPaintProperty(
     (shape.properties.strokeColor as ColorV<number>).contents
@@ -117,26 +151,49 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const opacity = toSvgOpacityProperty(
     (shape.properties.strokeColor as ColorV<number>).contents
   );
-  const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
-  const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
-  const arrowheadStyle = (shape.properties.arrowheadStyle as StrV).contents;
-  const arrowheadSize = (shape.properties.arrowheadSize as FloatV<number>)
-    .contents;
-
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
+  const startArrowId = shape.properties.name.contents + "-startArrowId";
+  const endArrowId = shape.properties.name.contents + "-endArrowId";
+  if (startArrowhead) {
+    const startArrowheadSize = (shape.properties
+      .startArrowheadSize as FloatV<number>).contents;
+    const flip = (shape.properties.flipStartArrowhead as BoolV).contents;
+    elem.appendChild(
+      arrowHead(
+        startArrowId,
+        color,
+        opacity,
+        startArrowhead,
+        startArrowheadSize,
+        flip
+      )
+    );
+  }
+  if (endArrowhead) {
+    const endArrowheadSize = (shape.properties
+      .endArrowheadSize as FloatV<number>).contents;
+    elem.appendChild(
+      arrowHead(
+        endArrowId,
+        color,
+        opacity,
+        endArrowhead,
+        endArrowheadSize,
+        false
+      )
+    );
+  }
+
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  elem.appendChild(
-    arrowHead(leftArrowId, color, opacity, arrowheadStyle, arrowheadSize)
-  );
-  elem.appendChild(
-    arrowHead(rightArrowId, color, opacity, arrowheadStyle, arrowheadSize)
-  );
   attrToNotAutoMap.push(
     "strokeColor",
     "strokeWidth",
-    "arrowheadStyle",
-    "arrowheadSize"
+    "startArrowhead",
+    "flipStartArrowhead",
+    "endArrowhead",
+    "startArrowheadSize",
+    "endArrowheadSize"
   );
   const pathElem = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -181,12 +238,12 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   attrToNotAutoMap.push("strokeLinecap");
 
   // TODO: dedup in AttrHelper
-  if (shape.properties.startArrowhead.contents === true) {
-    pathElem.setAttribute("marker-start", `url(#${leftArrowId})`);
+  if (startArrowhead) {
+    pathElem.setAttribute("marker-start", `url(#${startArrowId})`);
     attrToNotAutoMap.push("startArrowhead");
   }
-  if (shape.properties.endArrowhead.contents === true) {
-    pathElem.setAttribute("marker-end", `url(#${rightArrowId})`);
+  if (endArrowhead) {
+    pathElem.setAttribute("marker-end", `url(#${endArrowId})`);
     attrToNotAutoMap.push("endArrowhead");
   }
   elem.appendChild(pathElem);

@@ -35,7 +35,7 @@
   >
     <title>`c`.icon</title>
   </circle>
-  <g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
     <filter id="`e`.curveIJ-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -61,7 +61,7 @@
     ></path>
     <title>`e`.curveIJ</title>
   </g>
-  <g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
     <filter id="`e`.curveJK-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -87,7 +87,7 @@
     ></path>
     <title>`e`.curveJK</title>
   </g>
-  <g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
     <filter id="`e`.curveKI-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -123,7 +123,7 @@
   >
     <title>`b`.icon</title>
   </circle>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="`t2`.curveIJ-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -149,7 +149,7 @@
     ></path>
     <title>`t2`.curveIJ</title>
   </g>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="`t2`.curveJK-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -175,7 +175,7 @@
     ></path>
     <title>`t2`.curveJK</title>
   </g>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="`t2`.curveKI-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

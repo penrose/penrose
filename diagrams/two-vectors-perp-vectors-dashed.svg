@@ -11,7 +11,7 @@
   >
     <title>`V`.background</title>
   </rect>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="6:0:perpMark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -40,23 +40,7 @@
   </g>
   <g>
     <marker
-      id="`u`.arrow-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#1a1ae6"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`u`.arrow-rightArrowhead"
+      id="`u`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -72,19 +56,19 @@
       ></path>
     </marker>
     <path
-      d="M 400 350 L 401.1279507275371 294.9506608485353"
+      d="M 400 350 L 401.1507511050034 293.83789441177174"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
       stroke-linecap="butt"
-      marker-end="url(#`u`.arrow-rightArrowhead)"
+      marker-end="url(#`u`.arrow-endArrowId)"
     ></path>
     <title>`u`.arrow</title>
   </g>
   <g style="solid">
     <marker
-      id="`V`.xAxis-leftArrowhead"
+      id="`V`.xAxis-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -100,7 +84,7 @@
       ></path>
     </marker>
     <marker
-      id="`V`.xAxis-rightArrowhead"
+      id="`V`.xAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -116,19 +100,19 @@
       ></path>
     </marker>
     <path
-      d="M 236.368 350 L 563.6320000000001 350"
+      d="M 235.626 350 L 564.374 350"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#999999"
       stroke-linecap="butt"
-      marker-start="url(#`V`.xAxis-leftArrowhead)"
-      marker-end="url(#`V`.xAxis-rightArrowhead)"
+      marker-start="url(#`V`.xAxis-startArrowId)"
+      marker-end="url(#`V`.xAxis-endArrowId)"
     ></path>
     <title>`V`.xAxis</title>
   </g>
   <g style="solid">
     <marker
-      id="`V`.yAxis-leftArrowhead"
+      id="`V`.yAxis-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -144,7 +128,7 @@
       ></path>
     </marker>
     <marker
-      id="`V`.yAxis-rightArrowhead"
+      id="`V`.yAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -160,13 +144,13 @@
       ></path>
     </marker>
     <path
-      d="M 400 513.6320000000001 L 400 186.368"
+      d="M 400 514.374 L 400 185.626"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#999999"
       stroke-linecap="butt"
-      marker-start="url(#`V`.yAxis-leftArrowhead)"
-      marker-end="url(#`V`.yAxis-rightArrowhead)"
+      marker-start="url(#`V`.yAxis-startArrowId)"
+      marker-end="url(#`V`.yAxis-endArrowId)"
     ></path>
     <title>`V`.yAxis</title>
   </g>
@@ -194,23 +178,7 @@
   </g>
   <g>
     <marker
-      id="`v`.arrow-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#1a1ae6"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`v`.arrow-rightArrowhead"
+      id="`v`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -226,13 +194,13 @@
       ></path>
     </marker>
     <path
-      d="M 400 350 L 464.3191768095223 351.31783688549774"
+      d="M 400 350 L 465.4319432643896 351.3406363793954"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
       stroke-linecap="butt"
-      marker-end="url(#`v`.arrow-rightArrowhead)"
+      marker-end="url(#`v`.arrow-endArrowId)"
     ></path>
     <title>`v`.arrow</title>
   </g>

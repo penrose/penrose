@@ -86,38 +86,6 @@
     <title>`x0`.sphere</title>
   </circle>
   <g>
-    <marker
-      id="9:0:walkLine-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="9:0:walkLine-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 112.48999699180703 98.06107082832608 L 99.43341590243477 172.52775296983924"
       stroke-opacity="1"
@@ -190,38 +158,6 @@
     <title>`x1`.sphere</title>
   </circle>
   <g>
-    <marker
-      id="9:1:walkLine-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="9:1:walkLine-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 99.43341590243477 172.52775296983924 L 64.49229466485917 195.06974330289032"
       stroke-opacity="1"
@@ -294,38 +230,6 @@
     <title>`x2`.sphere</title>
   </circle>
   <g>
-    <marker
-      id="9:2:walkLine-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="9:2:walkLine-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 64.49229466485917 195.06974330289032 L 85.89151333789358 203.13852179489356"
       stroke-opacity="1"
@@ -538,38 +442,6 @@
     <title>`x3`.sphere</title>
   </circle>
   <g>
-    <marker
-      id="9:3:walkLine-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="9:3:walkLine-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 85.89151333789358 203.13852179489356 L 75.32170391001084 209.95749754604785"
       stroke-opacity="1"

@@ -17,23 +17,7 @@
   </rect>
   <g>
     <marker
-      id="`h`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#8c90c1"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`h`.icon-rightArrowhead"
+      id="`h`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.47"
       markerHeight="5.28"
@@ -49,12 +33,12 @@
       ></path>
     </marker>
     <path
-      d="M 408.7134333798241 325.9923234784839 L 497.9697749684092 342.465557580731"
+      d="M 408.12057108576727 325.882904257546 L 497.9697749684092 342.465557580731"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#8c90c1"
       stroke-linecap="butt"
-      marker-start="url(#`h`.icon-leftArrowhead)"
+      marker-start="url(#`h`.icon-startArrowId)"
     ></path>
     <title>`h`.icon</title>
   </g>
@@ -95,38 +79,6 @@
     </svg>
   </g>
   <g style="solid" thickness="1.75">
-    <marker
-      id="`a`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`a`.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 471.6982398893624 484.8116868583179 L 524.2413100474558 200.11942830314413"
       stroke-opacity="1"
@@ -173,38 +125,6 @@
     </svg>
   </g>
   <g style="solid" thickness="1.75">
-    <marker
-      id="`b`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`b`.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
       d="M 471.6982398893624 484.8116868583179 L 311.64899920605126 146.5998293397739"
       stroke-opacity="1"
@@ -344,7 +264,7 @@
       ></path>
     </svg>
   </g>
-  <g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
     <filter id="`t`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -372,38 +292,6 @@
     <title>`t`.icon</title>
   </g>
   <g>
-    <marker
-      id="`t`.PQ-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#2f4321"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`t`.PQ-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#2f4321"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 471.6982398893624 484.8116868583179 L 311.64899920605126 146.5998293397739"
       stroke-opacity="0.5"
@@ -414,38 +302,6 @@
     <title>`t`.PQ</title>
   </g>
   <g>
-    <marker
-      id="`t`.QR-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#2628ac"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`t`.QR-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#2628ac"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 311.64899920605126 146.5998293397739 L 162.54404790109953 151.25729481930279"
       stroke-opacity="0.5"
@@ -456,38 +312,6 @@
     <title>`t`.QR</title>
   </g>
   <g>
-    <marker
-      id="`t`.RP-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#3557c6"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`t`.RP-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#3557c6"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 162.54404790109953 151.25729481930279 L 471.6982398893624 484.8116868583179"
       stroke-opacity="0.5"
@@ -497,7 +321,7 @@
     ></path>
     <title>`t`.RP</title>
   </g>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="`h`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -525,23 +349,7 @@
   </g>
   <g>
     <marker
-      id="`w`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.47"
-      markerHeight="5.28"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#8c90c1"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`w`.icon-rightArrowhead"
+      id="`w`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.47"
       markerHeight="5.28"
@@ -557,16 +365,16 @@
       ></path>
     </marker>
     <path
-      d="M 471.6982398893624 484.8116868583179 L 459.9552393807112 394.8115785438157"
+      d="M 471.6982398893624 484.8116868583179 L 459.8772388362916 394.213770731308"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#8c90c1"
       stroke-linecap="butt"
-      marker-end="url(#`w`.icon-rightArrowhead)"
+      marker-end="url(#`w`.icon-endArrowId)"
     ></path>
     <title>`w`.icon</title>
   </g>
-  <g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
     <filter id="`theta`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

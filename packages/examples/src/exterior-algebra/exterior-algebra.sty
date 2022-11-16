@@ -46,8 +46,8 @@ forall Vector v {
       strokeColor: Colors.black
       strokeWidth: Global.lineThickness
       strokeLinecap: "round"
-      endArrowhead: true
-      arrowheadSize: .5
+      endArrowhead: "straight"
+      endArrowheadSize: .5
    }
    -- keep the arrow on the canvas
    ensure contains( Global.box, v.icon)
@@ -113,8 +113,8 @@ where w := Wedge(u,v) {
       fillColor: none()
       strokeColor: w.solidColor
       strokeWidth: .75*Global.lineThickness
-      startArrowhead: true
-      arrowheadSize: .5
+      startArrowhead: "straight"
+      startArrowheadSize: .5
    }
 }
 
