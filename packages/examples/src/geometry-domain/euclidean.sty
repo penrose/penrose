@@ -319,15 +319,16 @@ with Segment s2; Point p1, p2 {
 }
 
 forall Linelike s, t 
-where EqualLengthMarker(s, t) {
+where EqualLengthMarker(s, t) as e {
+  e.equivGroup = match_id
   override s.tick = Path {
-    d : ticksOnLine(s.icon.start, s.icon.end, 15., match_id, 10.)
+    d : ticksOnLine(s.icon.start, s.icon.end, 15., e.equivGroup, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
   }
   override t.tick = Path {
-    d : ticksOnLine(t.icon.start, t.icon.end, 15., match_id, 10.)
+    d : ticksOnLine(t.icon.start, t.icon.end, 15., e.equivGroup, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
@@ -335,6 +336,37 @@ where EqualLengthMarker(s, t) {
   s.tick above s.icon
   t.tick above t.icon
 }
+
+-- HACK: since we cannot handle transitive predicates and don't allow recursive expressions, we redeclare the shapes so the tick counts are the same
+forall Linelike s, t, u
+where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
+  minEquivGroup = min(e1.equivGroup, e2.equivGroup)
+  override s.tick = Path {
+    d : ticksOnLine(s.icon.start, s.icon.end, 15., minEquivGroup, 10.)
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor: Colors.none
+  }
+  override t.tick = Path {
+    d : ticksOnLine(t.icon.start, t.icon.end, 15., minEquivGroup, 10.)
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor: Colors.none
+  }
+  override u.tick = Path {
+    d : ticksOnLine(u.icon.start, u.icon.end, 15., minEquivGroup, 10.)
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor: Colors.none
+  }
+}
+
+-- TODO: this errors out
+-- forall Linelike s, t, u
+-- where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
+--   e1.equivGroup = min(e1.equivGroup, e2.equivGroup)
+--   e2.equivGroup = min(e1.equivGroup, e2.equivGroup)
+-- }
 
 --Angle
 forall Angle theta

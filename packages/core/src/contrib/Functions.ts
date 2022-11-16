@@ -934,12 +934,10 @@ export const compDict = {
     numTicks: ad.Num,
     tickLength: ad.Num
   ): PathDataV<ad.Num> => {
-    if (typeof numTicks !== "number") {
-      throw Error("numTicks must be a constant");
-    }
     const path = new PathBuilder();
     // calculate scalar multipliers to determine the placement of each tick mark
-    const multipliers = tickPlacement(spacing, numTicks);
+    // TODO: why does the typecast work here?
+    const multipliers = tickPlacement(spacing, numTicks as number);
     const unit = ops.vnormalize(ops.vsub(pt2, pt1));
     const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
 
