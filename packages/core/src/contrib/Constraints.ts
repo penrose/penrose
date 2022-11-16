@@ -188,7 +188,7 @@ const constrDictGeneral = {
   overlapping: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    overlap = 0.0
+    overlap: ad.Num = 0.0
   ) => {
     // Same shapes
     if (t1 === "Circle" && t2 === "Circle")
@@ -231,9 +231,9 @@ const constrDictGeneral = {
   disjoint: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 0.0
+    padding: ad.Num = 0.0
   ) => {
-    return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], -padding));
+    return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding)));
   },
 
   /**
@@ -244,9 +244,11 @@ const constrDictGeneral = {
   touching: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 0.0
+    padding: ad.Num = 0.0
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], -padding));
+    return absVal(
+      constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding))
+    );
   },
 
   /**
