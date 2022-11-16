@@ -13,4 +13,4 @@ On(d, FD)
 Collinear(F, b, B)
 Collinear(F, d, D)
 Segment EA := Diameter(c, E, A)
-AutoLabel All
+AutoLabel A, B, C, D, E, F, d, b
