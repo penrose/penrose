@@ -54,10 +54,13 @@ export const RenderShape = async ({
  * @param e
  * @param svg
  */
-const getPosition = (e: MouseEvent, svg: SVGSVGElement) => {
+const getPosition = (
+  { clientX, clientY }: { clientX: number; clientY: number },
+  svg: SVGSVGElement
+) => {
   const CTM = svg.getScreenCTM();
   if (CTM !== null) {
-    return { x: (e.clientX - CTM.e) / CTM.a, y: (e.clientY - CTM.f) / CTM.d };
+    return { x: (clientX - CTM.e) / CTM.a, y: (clientY - CTM.f) / CTM.d };
   }
   return { x: 0, y: 0 };
 };
@@ -74,9 +77,10 @@ export const DraggableShape = async (
   parentSVG: SVGSVGElement,
   canvasSizeCustom?: [number, number]
 ): Promise<SVGGElement> => {
+  const canvas = shapeProps.canvasSize;
   const elem = await RenderShape({
     ...shapeProps,
-    canvasSize: canvasSizeCustom ? canvasSizeCustom : shapeProps.canvasSize,
+    canvasSize: canvasSizeCustom ? canvasSizeCustom : canvas,
   });
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const { shapeType } = shapeProps.shape;
@@ -90,15 +94,28 @@ export const DraggableShape = async (
   g.appendChild(elem);
 
   const onMouseDown = (e: MouseEvent) => {
-    const tempX = getPosition(e, parentSVG).x;
-    const tempY = getPosition(e, parentSVG).y;
+    const { clientX, clientY } = e;
+    const { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parentSVG);
+    const {
+      width: bboxW,
+      height: bboxH,
+      x: bboxX,
+      y: bboxY,
+    } = (e.target as SVGSVGElement).getBBox({ stroke: true });
+    const minX = tempX - bboxX;
+    const maxX = canvas[0] - bboxW + (tempX - bboxX);
+    const minY = tempY - bboxY;
+    const maxY = canvas[1] - bboxH + (tempY - bboxY);
+
     g.setAttribute("opacity", "0.5");
     let dx = 0,
       dy = 0;
     const onMouseMove = (e: MouseEvent) => {
       const { x, y } = getPosition(e, parentSVG);
-      dx = x - tempX;
-      dy = tempY - y;
+      const constrainedX = clamp(x, minX, maxX);
+      const constrainedY = clamp(y, minY, maxY);
+      dx = constrainedX - tempX;
+      dy = tempY - constrainedY;
       g.setAttribute(`transform`, `translate(${dx},${-dy})`);
     };
     const onMouseUp = () => {
@@ -184,3 +201,6 @@ export const RenderStatic = async (
     return svg;
   });
 };
+
+const clamp = (x: number, min: number, max: number): number =>
+  Math.min(Math.max(x, min), max);

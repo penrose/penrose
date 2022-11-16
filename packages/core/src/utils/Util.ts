@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import { times } from "lodash";
 import seedrandom from "seedrandom";
 import { LineProps } from "shapes/Line";
+import { ShapeType } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
@@ -371,7 +372,7 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
 // calculates bounding box dimensions of a shape - used in inspector views
 export const bBoxDims = (
   properties: Properties<number>,
-  shapeType: string
+  shapeType: ShapeType
 ): [number, number] => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {

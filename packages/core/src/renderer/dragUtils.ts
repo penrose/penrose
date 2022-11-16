@@ -12,42 +12,47 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
+  const frozenValues = new Set<number>();
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {
-      dragShape(shape, [dx, dy], xs);
+      const ids = dragShape(shape, [dx, dy], xs);
+      ids.forEach((i) => frozenValues.add(i));
     }
   }
   const updated: State = {
     ...state,
-    params: { ...state.params, optStatus: "NewIter" },
+    params: {
+      ...state.params,
+      optStatus: "NewIter",
+    },
     varyingValues: xs,
+    frozenValues,
   };
   return updated;
 };
 
 // TODO: factor out position props in shapedef
+// return: a list of updated ids
 const dragShape = (
   shape: ShapeAD,
   offset: [number, number],
   xs: number[]
-): void => {
+): number[] => {
   const { shapeType, properties } = shape;
   switch (shapeType) {
     case "Path":
       console.log("Path drag unimplemented", shape); // Just to prevent crashing on accidental drag
-      return;
+      return [];
     case "Polygon":
       console.log("Polygon drag unimplemented", shape); // Just to prevent crashing on accidental drag
-      return;
+      return [];
     case "Polyline":
       console.log("Polyline drag unimplemented", shape); // Just to prevent crashing on accidental drag
-      return;
+      return [];
     case "Line":
-      moveProperties(properties, ["start", "end"], offset, xs);
-      return;
+      return moveProperties(properties, ["start", "end"], offset, xs);
     default:
-      moveProperties(properties, ["center"], offset, xs);
-      return;
+      return moveProperties(properties, ["center"], offset, xs);
   }
 };
 
@@ -59,17 +64,21 @@ const moveProperties = (
   propsToMove: string[],
   [dx, dy]: [number, number],
   xs: number[]
-): void => {
+): number[] => {
+  const ids: number[] = [];
   for (const propertyID of propsToMove) {
     const value = properties[propertyID];
     if (value.tag === "VectorV") {
       const [x, y] = value.contents;
       if (typeof x !== "number" && x.tag === "Input") {
         xs[x.key] += dx;
+        ids.push(x.key);
       }
       if (typeof y !== "number" && y.tag === "Input") {
         xs[y.key] += dy;
+        ids.push(y.key);
       }
     }
   }
+  return ids;
 };
