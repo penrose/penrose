@@ -1,0 +1,34 @@
+name: Build
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "edgeworth/**"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        uses: ./.github/actions/packages
+      - name: Build edgeworth
+        run: npx nx run synthesizer-ui:build
+      - name: Deploy docs
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: packages/synthesizer-ui/dist
+          target-folder: ${GITHUB_SHA::6}/storybook/
+      - name: Add .nojekyll
+        run: |
+          mkdir extra/
+          touch extra/.nojekyll
+        working-directory: packages/synthesizer-ui/
+      - name: Deploy .nojekyll
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: packages/synthesizer-ui/extra/
+          clean: false
