@@ -1,4 +1,4 @@
-name: Build
+name: Edgeworth
 on:
   pull_request:
   push:
