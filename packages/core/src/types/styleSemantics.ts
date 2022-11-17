@@ -2,7 +2,7 @@ import im from "immutable";
 import { ShapeType } from "shapes/Shapes";
 import { Digraph } from "utils/Graph";
 import * as ad from "./ad";
-import { A, C, Identifier } from "./ast";
+import { A, C, Identifier, SourceRange } from "./ast";
 import { StyleDiagnostics, StyleError } from "./errors";
 import { Fn } from "./state";
 import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style";
@@ -129,7 +129,7 @@ export interface BlockInfo {
   subst: Subst;
 }
 
-export interface Context extends BlockInfo, Locals {}
+export interface Context extends BlockInfo, Locals, SourceRange {}
 
 export interface ResolvedName {
   tag: "Global" | "Local" | "Substance";

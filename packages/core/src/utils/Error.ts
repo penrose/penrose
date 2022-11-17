@@ -320,6 +320,15 @@ canvas {
       break; // dead code to please ESLint
     }
 
+    case "CyclicAssignmentError": {
+      const cycleString = error.cycles.map((c) =>
+        c.map(([id, src]) => `${id} (${locc("Style", src)})`)
+      );
+      return `The Style program contains cyclic variable assignments, where the following variables are defined in cycles:\n${showCycles(
+        cycleString
+      )}`;
+    }
+
     case "DeleteGlobalError": {
       return `Cannot delete global ${prettyPrintResolvedPath(
         error.path
@@ -433,7 +442,8 @@ canvas {
 };
 
 const showCycles = (cycles: string[][]) => {
-  const pathString = (path: string[]) => path.join(" -> ");
+  // repeats the cycle start again
+  const pathString = (path: string[]) => [...path, path[0]].join(" <-> ");
   return cycles.map(pathString).join("\n");
 };
 

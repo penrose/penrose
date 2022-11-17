@@ -1,6 +1,6 @@
 import im from "immutable";
 import * as ad from "types/ad";
-import { A, AbstractNode, C, Identifier, SourceLoc } from "./ast";
+import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
 import {
@@ -182,6 +182,7 @@ export type StyleError =
   | BadIndexError
   | BinOpTypeError
   | CanvasNonexistentDimsError
+  | CyclicAssignmentError
   | DeleteGlobalError
   | DeleteSubstanceError
   | MissingPathError
@@ -354,6 +355,12 @@ export interface CanvasNonexistentDimsError {
   attr: "width" | "height";
   kind: "missing" | "GPI" | "wrong type";
   type?: Expr<A>["tag"];
+}
+
+export interface CyclicAssignmentError {
+  tag: "CyclicAssignmentError";
+  // TODO: improve types, currently the generated id and source location
+  cycles: [string, SourceRange][][];
 }
 
 export interface DeleteGlobalError {
