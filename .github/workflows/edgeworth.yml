@@ -1,6 +1,5 @@
 name: Edgeworth
 on:
-  pull_request:
   push:
     branches:
       - main
