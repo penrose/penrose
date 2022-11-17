@@ -8,14 +8,4 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["@penrose/core", "@penrose/components"],
   },
-  build: {
-    rollupOptions: {
-      external: ["react", "react-dom"],
-      output: {
-        globals: {
-          react: "React",
-        },
-      },
-    },
-  },
 });
