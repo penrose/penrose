@@ -15,12 +15,12 @@ jobs:
         uses: ./.github/actions/packages
       - name: Build edgeworth
         run: npx nx run synthesizer-ui:build
-      - name: Deploy docs
+      - name: Deploy edgeworth under the current commit SHA
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
           folder: packages/synthesizer-ui/dist
-          target-folder: ${GITHUB_SHA::6}/storybook/
+          target-folder: /edgeworth/${ github.sha }/
       - name: Add .nojekyll
         run: |
           mkdir extra/
