@@ -14,9 +14,7 @@ jobs:
       - name: Install packages
         uses: ./.github/actions/packages
       - name: Build edgeworth
-        # run: npx nx run synthesizer-ui:build
-        run: |
-          mkdir packages/synthesizer-ui/dist
+        run: npx nx run synthesizer-ui:build
       - name: Deploy edgeworth under the current commit SHA
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
