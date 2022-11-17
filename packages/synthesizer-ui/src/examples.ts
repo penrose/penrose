@@ -294,4 +294,105 @@ forall Point \`D\`, \`E\`, \`A\` {
       ...defaultParams,
     },
   },
+  c08p08: {
+    displayName: "c08p08: Nested Right Angle Triangles",
+    prompt: "In which of the following diagrams is PQR similar to TSR?",
+    substance: examples["geometry-domain"].textbook_problems["c08p08.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c08p18: {
+    displayName: "c08p18: Measures of Triangle",
+    prompt: "TODO",
+    substance: examples["geometry-domain"].textbook_problems["c08p18.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c09p02: {
+    displayName: "c09p02: Perpendicular Bisector of Triangle",
+    prompt: "TODO",
+    substance: examples["geometry-domain"].textbook_problems["c09p02.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c10p08: {
+    displayName: "c10p08: Triangle Congruency",
+    prompt: "In which of the following diagrams is tDEF congruent to tABC?",
+    substance: examples["geometry-domain"].textbook_problems["c10p08.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c11p07: {
+    displayName: "c11p07: Circle with Secant",
+    prompt:
+      "Which of the following diagrams is the length of PS represented by PQ*PR/PU?",
+    substance: examples["geometry-domain"].textbook_problems["c11p07.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c11p12: {
+    displayName: "c11p12: Circle with Chords, Radii, Diameters",
+    prompt: "Which of the line segments is NOT a chord of F? (TODO: reword)",
+    substance: examples["geometry-domain"].textbook_problems["c11p12.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c11p21: {
+    displayName: "c11p21: Chord Intersection",
+    prompt: "TODO",
+    substance: examples["geometry-domain"].textbook_problems["c11p21.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c11p25: {
+    displayName: "c11p25: Trapezoid inside Circle",
+    prompt: "TODO",
+    substance: examples["geometry-domain"].textbook_problems["c11p25.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c12p12: {
+    displayName: "c12p12: Circle with Chords, Radii",
+    prompt: "TODO",
+    substance: examples["geometry-domain"].textbook_problems["c12p12.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
+  c12p20: {
+    displayName: "c12p20: Triangle Congruency",
+    prompt: "TODO",
+    substance: examples["geometry-domain"].textbook_problems["c12p20.sub"],
+    domain: examples["geometry-domain"]["geometry.dsl"],
+    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    setting: {
+      ...defaultParams,
+    },
+  },
 };
