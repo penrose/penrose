@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "watch": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
+    "start": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
+    "watch": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
     "build-shapedefs": "shx mkdir -p ./static/try/ && shx cp -r ../editor/dist/* ./static/try && shx rm -f ./static/shapedefs.json && cd ../automator && yarn start shapedefs ../docs-site/static/shapedefs.json",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus build --no-minify",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus build --no-minify",
+    "build-decls": ":",
+    "typecheck": ":",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -15,14 +17,49 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids"
   },
-  "turbo": {
-    "build": "deps: [build-shapedefs], out: [build/**]",
-    "build-shapedefs": "deps: [^build], out: [static/shapedefs.json, static/try/**]",
-    "clear": "cache: false",
-    "serve": "cache: false, deps: [build]",
-    "start": "cache: false, deps: [^build, build-shapedefs]",
-    "watch": "cache: false, deps: [^build, build-shapedefs]",
-    "write-translations": "out: [i18n/**]"
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build",
+          "build-shapedefs"
+        ],
+        "outputs": [
+          "{projectRoot}/build"
+        ]
+      },
+      "build-shapedefs": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "{projectRoot}/static/shapedefs.json",
+          "{projectRoot}/static/try"
+        ]
+      },
+      "serve": {
+        "dependsOn": [
+          "build"
+        ]
+      },
+      "start": {
+        "dependsOn": [
+          "^build",
+          "build-shapedefs"
+        ]
+      },
+      "watch": {
+        "dependsOn": [
+          "^build",
+          "build-shapedefs"
+        ]
+      },
+      "write-translations": {
+        "outputs": [
+          "{projectRoot}/i18n"
+        ]
+      }
+    }
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.20",

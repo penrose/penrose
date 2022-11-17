@@ -2708,7 +2708,14 @@ const evalExpr = (
     }
     case "Vary": {
       return ok(
-        val(floatV(mut.makeInput({ sampler: uniform(...canvas.xRange) })))
+        val(
+          floatV(
+            mut.makeInput({
+              tag: "Optimized",
+              sampler: uniform(...canvas.xRange),
+            })
+          )
+        )
       );
     }
   }
@@ -3091,7 +3098,7 @@ export const compileStyleHelper = (
   const varyingValues: number[] = [];
   const inputs: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
-    const val = "pending" in meta ? meta.pending : meta.sampler(rng);
+    const val = meta.tag === "Optimized" ? meta.sampler(rng) : meta.pending;
     const x = input({ key: varyingValues.length, val });
     varyingValues.push(val);
     inputs.push(meta);
@@ -3147,6 +3154,7 @@ export const compileStyleHelper = (
     canvas: canvas.value,
     computeShapes,
     params,
+    frozenValues: new Set<number>(),
   };
 
   log.info("init state from GenOptProblem", initState);

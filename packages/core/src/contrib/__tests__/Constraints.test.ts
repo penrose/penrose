@@ -249,8 +249,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should be satisfied
-      expectSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.disjoint(shape0, shape1, padding));
       expectNotSatisfied(constrDict.disjoint(shape1, shape0, padding));
@@ -319,8 +320,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.overlapping(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectNotSatisfied(constrDict.overlapping(shape0, shape1, overlap));
+      expectNotSatisfied(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should be satisfied
       expectSatified(constrDict.disjoint(shape0, shape1, padding));
       expectSatified(constrDict.disjoint(shape1, shape0, padding));
@@ -380,8 +382,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should JUST be satisfied
-      expectJustSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectJustSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectJustSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectJustSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should JUST be satisfied
       expectJustSatified(constrDict.disjoint(shape0, shape1, padding));
       expectJustSatified(constrDict.disjoint(shape1, shape0, padding));
@@ -438,8 +441,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should be satisfied
-      expectSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.disjoint(shape0, shape1, padding));
       expectNotSatisfied(constrDict.disjoint(shape1, shape0, padding));

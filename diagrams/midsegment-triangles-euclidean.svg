@@ -1,6 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g
-    transform="rotate(0, 214.10742193061805, 311.59201847536036)translate(214.10742193061805, 311.59201847536036)"
+    transform="rotate(0, 347.86544441290124, 351.5250416600149)translate(347.86544441290124, 351.5250416600149)"
     string="G"
   >
     <title>`G`.text</title>
@@ -21,7 +21,7 @@
       ></path>
     </svg>
   </g>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="`GJF`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -39,16 +39,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#62d877"
+      stroke="#307e50"
       fill="none"
       stroke-width="1"
       stroke-opacity="0.5"
-      d="M 229.75323741450006 297.60428988095305 L 433.2450029579166 417.66440266889265 L 353.54379945293084 410.7567312614143 Z "
+      d="M 337.3609931661871 342.2699752116136 L 301.9465749471809 232.44959749502436 L 124.86134476905829 342.053675913594 Z "
     ></path>
     <title>`GJF`.icon</title>
   </g>
   <g
-    transform="rotate(0, 444.68366406890505, 425.736346392412)translate(444.68366406890505, 425.736346392412)"
+    transform="rotate(0, 275.85779189107643, 212.23862046817865)translate(275.85779189107643, 212.23862046817865)"
     string="J"
   >
     <title>`J`.text</title>
@@ -70,7 +70,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 349.73138096873987, 424.7567513272803)translate(349.73138096873987, 424.7567513272803)"
+    transform="rotate(0, 99.78453910218806, 313.89624906218097)translate(99.78453910218806, 313.89624906218097)"
     string="F"
   >
     <title>`F`.text</title>
@@ -92,40 +92,8 @@
     </svg>
   </g>
   <g style="solid">
-    <marker
-      id="`GJF`.PQ-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`GJF`.PQ-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 229.75323741450006 297.60428988095305 L 433.2450029579166 417.66440266889265"
+      d="M 337.3609931661871 342.2699752116136 L 301.9465749471809 232.44959749502436"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -134,40 +102,8 @@
     <title>`GJF`.PQ</title>
   </g>
   <g style="solid">
-    <marker
-      id="`GJF`.RP-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`GJF`.RP-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 353.54379945293084 410.7567312614143 L 229.75323741450006 297.60428988095305"
+      d="M 124.86134476905829 342.053675913594 L 337.3609931661871 342.2699752116136"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -178,8 +114,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="229.75323741450006"
-    cy="297.60428988095305"
+    cx="337.3609931661871"
+    cy="342.2699752116136"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -189,40 +125,8 @@
     <title>`G`.icon</title>
   </circle>
   <g style="solid">
-    <marker
-      id="`GJF`.QR-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`GJF`.QR-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 433.2450029579166 417.66440266889265 L 353.54379945293084 410.7567312614143"
+      d="M 301.9465749471809 232.44959749502436 L 124.86134476905829 342.053675913594"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -233,8 +137,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="433.2450029579166"
-    cy="417.66440266889265"
+    cx="301.9465749471809"
+    cy="232.44959749502436"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -244,40 +148,8 @@
     <title>`J`.icon</title>
   </circle>
   <g style="solid">
-    <marker
-      id="`DEF`.QR-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`DEF`.QR-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 105.96267537606928 184.45184850049182 L 353.54379945293084 410.7567312614143"
+      d="M 549.8606415633159 342.4862745096332 L 124.86134476905829 342.053675913594"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -286,40 +158,8 @@
     <title>`DEF`.QR</title>
   </g>
   <g style="solid">
-    <marker
-      id="`DEF`.RP-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`DEF`.RP-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 353.54379945293084 410.7567312614143 L 512.9462064629024 424.57207407637094"
+      d="M 124.86134476905829 342.053675913594 L 479.0318051253035 122.84551907645474"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -330,8 +170,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="353.54379945293084"
-    cy="410.7567312614143"
+    cx="124.86134476905829"
+    cy="342.053675913594"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -341,7 +181,7 @@
     <title>`F`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 287.0025231642904, 321.02050953616964)translate(287.0025231642904, 321.02050953616964)"
+    transform="rotate(0, 245.110140179841, 322.83100492382454)translate(245.110140179841, 322.83100492382454)"
     string="K"
   >
     <title>`K`.text</title>
@@ -362,7 +202,7 @@
       ></path>
     </svg>
   </g>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="`DEF`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -380,16 +220,16 @@
       </feMerge>
     </filter>
     <path
-      stroke="#afbad8"
+      stroke="#1ad9a7"
       fill="none"
       stroke-width="1"
       stroke-opacity="0.5"
-      d="M 512.9462064629024 424.57207407637094 L 105.96267537606928 184.45184850049182 L 353.54379945293084 410.7567312614143 Z "
+      d="M 479.0318051253035 122.84551907645474 L 549.8606415633159 342.4862745096332 L 124.86134476905829 342.053675913594 Z "
     ></path>
     <title>`DEF`.icon</title>
   </g>
   <g
-    transform="rotate(0, 483.2495008714923, 426.7330232755933)translate(483.2495008714923, 426.7330232755933)"
+    transform="rotate(0, 492.7821993142409, 101.05361973659954)translate(492.7821993142409, 101.05361973659954)"
     string="D"
   >
     <title>`D`.text</title>
@@ -411,7 +251,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 119.76066253702078, 162.92217930386394)translate(119.76066253702078, 162.92217930386394)"
+    transform="rotate(0, 528.7509302048074, 354.90078324680826)translate(528.7509302048074, 354.90078324680826)"
     string="E"
   >
     <title>`E`.text</title>
@@ -433,40 +273,8 @@
     </svg>
   </g>
   <g style="solid">
-    <marker
-      id="`DEF`.PQ-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`DEF`.PQ-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 512.9462064629024 424.57207407637094 L 105.96267537606928 184.45184850049182"
+      d="M 479.0318051253035 122.84551907645474 L 549.8606415633159 342.4862745096332"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -477,8 +285,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="512.9462064629024"
-    cy="424.57207407637094"
+    cx="479.0318051253035"
+    cy="122.84551907645474"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -490,8 +298,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="105.96267537606928"
-    cy="184.45184850049182"
+    cx="549.8606415633159"
+    cy="342.4862745096332"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -501,7 +309,7 @@
     <title>`E`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 407.3944360138485, 413.9354899440532)translate(407.3944360138485, 413.9354899440532)"
+    transform="rotate(0, 187.5951524473833, 257.1988718423289)translate(187.5951524473833, 257.1988718423289)"
     string="H"
   >
     <title>`H`.text</title>
@@ -523,40 +331,8 @@
     </svg>
   </g>
   <g style="solid">
-    <marker
-      id="`GJ`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`GJ`.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 229.75323741450006 297.60428988095305 L 433.2450029579166 417.66440266889265"
+      d="M 337.3609931661871 342.2699752116136 L 301.9465749471809 232.44959749502436"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -565,40 +341,8 @@
     <title>`GJ`.icon</title>
   </g>
   <g style="solid">
-    <marker
-      id="`HK`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`HK`.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 393.3944012054237 414.2105669651535 L 291.6485184337154 354.18051057118373"
+      d="M 213.4039598581196 287.2516367043092 L 231.1111689676227 342.1618255626038"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -609,8 +353,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="393.3944012054237"
-    cy="414.2105669651535"
+    cx="213.4039598581196"
+    cy="287.2516367043092"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -620,40 +364,8 @@
     <title>`H`.icon</title>
   </circle>
   <g style="solid">
-    <marker
-      id="`aGFJ`.side1-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`aGFJ`.side1-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 229.75323741450006 297.60428988095305 L 353.54379945293084 410.7567312614143"
+      d="M 337.3609931661871 342.2699752116136 L 124.86134476905829 342.053675913594"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -662,40 +374,8 @@
     <title>`aGFJ`.side1</title>
   </g>
   <g style="solid">
-    <marker
-      id="`aGFJ`.side2-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`aGFJ`.side2-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 353.54379945293084 410.7567312614143 L 433.2450029579166 417.66440266889265"
+      d="M 124.86134476905829 342.053675913594 L 301.9465749471809 232.44959749502436"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -706,8 +386,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="291.6485184337154"
-    cy="354.18051057118373"
+    cx="231.1111689676227"
+    cy="342.1618255626038"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"

@@ -8,8 +8,8 @@ import {
   String,
   Stroke,
 } from "types/shapes";
-import { black, boolV, floatV, noPaint, strV } from "utils/Util";
-import { Canvas, Context, sampleVector } from "./Samplers";
+import { black, boolV, floatV, noPaint, strV, vectorV } from "utils/Util";
+import { Canvas, Context, uniform } from "./Samplers";
 
 export interface EquationProps
   extends Named,
@@ -27,9 +27,12 @@ export const sampleEquation = (
   name: strV("defaultEquation"),
   style: strV(""),
   fillColor: black(),
-  center: sampleVector(context, canvas),
-  width: floatV(context.makeInput({ pending: 0 })),
-  height: floatV(context.makeInput({ pending: 0 })),
+  center: vectorV([
+    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.xRange) }),
+    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.yRange) }),
+  ]),
+  width: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
+  height: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
   rotation: floatV(0),
   string: strV("defaultLabelText"),
   strokeWidth: floatV(0),

@@ -1,23 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5">
   <g>
     <marker
-      id="`u`.shape-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="255"
-      ></path>
-    </marker>
-    <marker
-      id="`u`.shape-rightArrowhead"
+      id="`u`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -33,12 +17,12 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 3.7114650274007666 0.07706994519846733"
+      d="M 2.5 2.5 L 3.713835259456916 0.07232948108616766"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#`u`.shape-rightArrowhead)"
+      marker-end="url(#`u`.shape-endArrowId)"
     ></path>
     <title>`u`.shape</title>
   </g>
@@ -54,23 +38,7 @@
   </circle>
   <g>
     <marker
-      id="`v`.shape-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="255"
-      ></path>
-    </marker>
-    <marker
-      id="`v`.shape-rightArrowhead"
+      id="`v`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -86,12 +54,12 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 3.456778546894071 2.9836477261994183"
+      d="M 2.5 2.5 L 3.4615085669151187 2.9860387323893915"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#`v`.shape-rightArrowhead)"
+      marker-end="url(#`v`.shape-endArrowId)"
     ></path>
     <title>`v`.shape</title>
   </g>
@@ -109,23 +77,7 @@
   </polygon>
   <g>
     <marker
-      id="`w`.shape-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="255"
-      ></path>
-    </marker>
-    <marker
-      id="`w`.shape-rightArrowhead"
+      id="`w`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -141,48 +93,16 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 4.715687596180681 0.5779311124982915"
+      d="M 2.5 2.5 L 4.7196911325436535 0.5744581171642391"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#`w`.shape-rightArrowhead)"
+      marker-end="url(#`w`.shape-endArrowId)"
     ></path>
     <title>`w`.shape</title>
   </g>
   <g>
-    <marker
-      id="`w`.dashed_u-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#e5dede"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`w`.dashed_u-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#e5dede"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 3.747778771355363 0.00444245728927406 L 4.7770247947983115 0.5247222028520562"
       stroke-opacity="0.5"
@@ -194,38 +114,6 @@
     <title>`w`.dashed_u</title>
   </g>
   <g>
-    <marker
-      id="`w`.dashed_v-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#cbd7bb"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`w`.dashed_v-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#cbd7bb"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 3.5292460234429486 3.0202797455627817 L 4.7770247947983115 0.5247222028520562"
       stroke-opacity="0.5"

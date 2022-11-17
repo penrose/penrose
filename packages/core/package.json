@@ -21,23 +21,95 @@
     "build:esbuild": "node build.js",
     "watch:esbuild": "node build.js -watch",
     "build-decls": "tsc --emitDeclarationOnly --outDir build/dist && tsc-alias -p tsconfig.json",
+    "typecheck": ":",
     "docs": "typedoc --plugin none --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
     "coverage": "jest --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
     "lint": "eslint --ext js,ts,tsx src"
   },
-  "turbo": {
-    "build": "deps: [build-parsers], out: [build/dist/index.esm.js, build/dist/index.js, build/dist/index.js.map]",
-    "build-decls": "deps: [build-parsers], out: [build/dist/**/*.ts, build/dist/**/*.ts.map]",
-    "build-parsers": "out: [src/parser/*Parser.ts]",
-    "build-rollup": "deps: [^build, build-parsers], out: [build/dist/penrose.min.js, build/dist/penrose.min.js.map]",
-    "coverage": "deps: [^build, build-parsers], out: [coverage/**, junit.xml, reports/**]",
-    "docs": "deps: [^build, build-parsers], out: [docs/**]",
-    "lint": "",
-    "start": "cache: false, deps: [^build, build-parsers]",
-    "test": "deps: [^build, build-parsers]",
-    "test-watch": "cache: false, deps: [^build, build-parsers]",
-    "watch": "cache: false, deps: [^build, build-parsers]"
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/build/dist/index.esm.js",
+          "{projectRoot}/build/dist/index.js",
+          "{projectRoot}/build/dist/index.js.map"
+        ]
+      },
+      "build-decls": {
+        "dependsOn": [
+          "^build-decls",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/build/dist/**/*.ts",
+          "{projectRoot}/build/dist/**/*.ts.map"
+        ]
+      },
+      "build-parsers": {
+        "outputs": [
+          "{projectRoot}/src/parser/*Parser.ts"
+        ]
+      },
+      "build-rollup": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/build/dist/penrose.min.js",
+          "{projectRoot}/build/dist/penrose.min.js.map"
+        ]
+      },
+      "coverage": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/coverage",
+          "{projectRoot}/junit.xml",
+          "{projectRoot}/reports"
+        ]
+      },
+      "docs": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/docs"
+        ]
+      },
+      "start": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      },
+      "test-watch": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      },
+      "watch": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      }
+    }
   },
   "dependencies": {
     "@datastructures-js/heap": "^3.2.0",

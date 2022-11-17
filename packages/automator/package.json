@@ -4,14 +4,22 @@
   "description": "",
   "main": "index.tsx",
   "scripts": {
+    "build": ":",
+    "build-decls": ":",
     "start": "ts-node ./index.tsx",
     "generate-site": "yarn clean && yarn start batch registry.json artifacts --render=browser --src-prefix=progs --folders --cross-energy",
     "clean": "rimraf artifacts browser",
     "typecheck": "tsc --noEmit"
   },
-  "turbo": {
-    "build": "deps: [^build-decls]",
-    "clean": "cache: false"
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build",
+          "^build-decls"
+        ]
+      }
+    }
   },
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",

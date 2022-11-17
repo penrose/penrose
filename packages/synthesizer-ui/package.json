@@ -7,15 +7,41 @@
     "watch": "vite",
     "start": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build-decls": ":",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
-  "turbo": {
-    "build": "out: [dist/**]",
-    "dev": "cache: false, deps: [^build]",
-    "preview": "cache: false, deps: [build]",
-    "start": "cache: false, deps: [^build]",
-    "watch": "cache: false, deps: [^build]"
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      },
+      "dev": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "preview": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "start": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch": {
+        "dependsOn": [
+          "^build"
+        ]
+      }
+    }
   },
   "dependencies": {
     "@material-ui/core": "^4.12.3",

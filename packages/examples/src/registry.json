@@ -17,7 +17,7 @@
       "substance": "wet-floor",
       "style": "atoms-and-bonds",
       "domain": "atoms-and-bonds",
-      "variation": "PorcellanaFlamingo3169"
+      "variation": "BroomstickGoldfinch599"
     },
     {
       "substance": "one-water-molecule",
@@ -46,6 +46,12 @@
     {
       "substance": "allShapes",
       "style": "dashedShapes",
+      "domain": "shape-spec",
+      "variation": ""
+    },
+    {
+      "substance": "arrowheads",
+      "style": "arrowheads",
       "domain": "shape-spec",
       "variation": ""
     },
@@ -83,25 +89,25 @@
       "substance": "collinear",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "CloudberryCamel607"
+      "variation": "HighlighterChicken10318"
     },
     {
       "substance": "parallel-lines",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "HighlighterChicken10318"
     },
     {
       "substance": "midsegment-triangles",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "MangosteenSeal036"
     },
     {
       "substance": "congruent-triangles",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "PontoonOkapi577"
     },
     {
       "substance": "circle-example",
@@ -287,6 +293,11 @@
       "name": "Shapes with dashed lines",
       "URI": "shape-spec/shape-spec-dashes.sty"
     },
+    "arrowheads": {
+      "domain": "shape-spec",
+      "name": "Arrowhead Styles",
+      "URI": "shape-spec/arrows.sty"
+    },
     "vectors-dashed": {
       "domain": "linear-algebra",
       "name": "Vectors with Dashed Arrows",
@@ -397,6 +408,11 @@
       "domain": "shape-spec",
       "name": "All Shapes",
       "URI": "shape-spec/shapes-dashes.sub"
+    },
+    "arrowheads": {
+      "domain": "shape-spec",
+      "name": "All Arrowhead Styles",
+      "URI": "shape-spec/arrows.sub"
     },
     "small-graph": {
       "domain": "graph-theory",

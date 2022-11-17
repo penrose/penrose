@@ -39,4 +39,5 @@ EqualAngle(aUTS, aZXY)
 EqualAngleMarker(aUTS, aXYZ)
 EqualAngle(aUTS, aXYZ)
 EqualAngleMarker(aTUS, aYZX)
-AutoLabel All
+
+AutoLabel U, S, T, V, X, Y, Z

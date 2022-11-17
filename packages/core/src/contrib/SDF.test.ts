@@ -20,13 +20,13 @@ const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
   const makeInput: InputFactory = (meta) => {
     const x = input({
       key: inputs.length,
-      val: "pending" in meta ? meta.pending : meta.sampler(rng),
+      val: meta.tag === "Optimized" ? meta.sampler(rng) : meta.pending,
     });
     inputs.push(x);
     return x;
   };
   for (const coord of pt) {
-    makeInput({ sampler: () => coord });
+    makeInput({ tag: "Optimized", sampler: () => coord });
   }
   return { context: { makeInput }, p: [...inputs] };
 };

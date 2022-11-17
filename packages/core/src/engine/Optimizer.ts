@@ -109,6 +109,7 @@ const epConverged2 = (
  */
 export const step = (state: State, steps: number): State => {
   const optParams: Params = { ...state.params };
+  const { frozenValues } = state;
   const { optStatus, weight } = optParams;
   let xs: number[] = state.varyingValues;
 
@@ -135,7 +136,10 @@ export const step = (state: State, steps: number): State => {
         ...state,
         params: {
           ...state.params,
-          currObjectiveAndGradient: objectiveAndGradient(initConstraintWeight),
+          currObjectiveAndGradient: objectiveAndGradient(
+            initConstraintWeight,
+            frozenValues
+          ),
           weight: initConstraintWeight,
           UOround: 0,
           EPround: 0,
@@ -246,7 +250,8 @@ export const step = (state: State, steps: number): State => {
         optParams.UOround = 0;
 
         optParams.currObjectiveAndGradient = optParams.objectiveAndGradient(
-          optParams.weight
+          optParams.weight,
+          frozenValues
         );
 
         log.info(
@@ -808,14 +813,26 @@ export const genOptProblem = (
 
   const f = genCode(explicitGraph);
 
-  const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
+  const objectiveAndGradient = (
+    epWeight: number,
+    frozenValues?: Set<number>
+  ) => (xs: number[]) => {
     const { primary, gradient, secondary } = f([...xs, epWeight]);
     return {
       f: primary,
       gradf: xs.map((x, i) => {
         // fill in any holes in case some inputs weren't used in the graph, and
         // also treat pending values as constants rather than optimizing them
-        return i in gradient && !("pending" in inputs[i]) ? gradient[i] : 0;
+        if (!(i in gradient)) {
+          return 0;
+        } else {
+          const meta = inputs[i];
+          return meta.tag === "Optimized" &&
+            frozenValues &&
+            !frozenValues.has(i)
+            ? gradient[i]
+            : 0;
+        }
       }),
       objEngs: secondary.slice(0, objEngs.length),
       constrEngs: secondary.slice(objEngs.length),
@@ -825,11 +842,8 @@ export const genOptProblem = (
   const params: Params = {
     lastGradient: repeat(inputs.length, 0),
     lastGradientPreconditioned: repeat(inputs.length, 0),
-
     objectiveAndGradient,
-
-    currObjectiveAndGradient: objectiveAndGradient(weight),
-
+    currObjectiveAndGradient: objectiveAndGradient(weight, new Set()),
     energyGraph,
     weight,
     UOround: 0,

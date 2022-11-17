@@ -180,51 +180,51 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
-   * based on the type of the shape, and with an optional `padding` between them
-   * (e.g. if `s1` should be overlapping `s2` with margin `padding`).
+   * Require that shape `s1` overlaps shape `s2` with some overlap `overlap`.
+   * based on the type of the shape, and with an optional `overlap` between them
+   * (e.g. if `s1` should be overlapping `s2` with margin `overlap`).
    */
   overlapping: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 0.0
+    overlap: ad.Num = 0.0
   ) => {
     // Same shapes
     if (t1 === "Circle" && t2 === "Circle")
-      return overlappingCircles([t1, s1], [t2, s2], padding);
+      return overlappingCircles([t1, s1], [t2, s2], overlap);
     else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
-      return overlappingAABBs([t1, s1], [t2, s2], padding);
+      return overlappingAABBs([t1, s1], [t2, s2], overlap);
     // HACK: text/label-line, mainly to skip convex partitioning
     else if ((t1 === "Text" || t1 === "Equation") && t2 === "Line")
-      return overlappingTextLine([t1, s1], [t2, s2], padding);
+      return overlappingTextLine([t1, s1], [t2, s2], overlap);
     else if (t1 === "Line" && (t2 === "Text" || t2 === "Equation"))
-      return overlappingTextLine([t2, s2], [t1, s1], padding);
+      return overlappingTextLine([t2, s2], [t1, s1], overlap);
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
-      return overlappingPolygons([t1, s1], [t2, s2], padding);
+      return overlappingPolygons([t1, s1], [t2, s2], overlap);
     else if (t1 === "Ellipse" && t2 === "Ellipse")
-      return overlappingEllipse([t1, s1], [t2, s2], padding);
+      return overlappingEllipse([t1, s1], [t2, s2], overlap);
     // Rectangle x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
-      return overlappingRectlikeCircle([t1, s1], [t2, s2], padding);
+      return overlappingRectlikeCircle([t1, s1], [t2, s2], overlap);
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
-      return overlappingRectlikeCircle([t2, s2], [t1, s1], padding);
+      return overlappingRectlikeCircle([t2, s2], [t1, s1], overlap);
     // Polygon x Ellipse
     else if (shapedefs[t1].isPolygonlike && t2 === "Ellipse")
-      return overlappingPolygonEllipse([t1, s1], [t2, s2], padding);
+      return overlappingPolygonEllipse([t1, s1], [t2, s2], overlap);
     else if (t1 === "Ellipse" && shapedefs[t2].isPolygonlike)
-      return overlappingPolygonEllipse([t2, s2], [t1, s1], padding);
+      return overlappingPolygonEllipse([t2, s2], [t1, s1], overlap);
     // Circle x Ellipse
     else if (t1 === "Circle" && t2 === "Ellipse")
-      return overlappingCircleEllipse([t1, s1], [t2, s2], padding);
+      return overlappingCircleEllipse([t1, s1], [t2, s2], overlap);
     else if (t1 === "Ellipse" && t2 === "Circle")
-      return overlappingCircleEllipse([t2, s2], [t1, s1], padding);
+      return overlappingCircleEllipse([t2, s2], [t1, s1], overlap);
     // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
-      return overlappingCircleLine([t1, s1], [t2, s2], padding);
+      return overlappingCircleLine([t1, s1], [t2, s2], overlap);
     else if (t1 === "Line" && t2 === "Circle")
-      return overlappingCircleLine([t2, s2], [t1, s1], padding);
+      return overlappingCircleLine([t2, s2], [t1, s1], overlap);
     // Default to axis-aligned bounding boxes
-    else return overlappingAABBs([t1, s1], [t2, s2], padding);
+    else return overlappingAABBs([t1, s1], [t2, s2], overlap);
   },
 
   /**
@@ -235,9 +235,9 @@ const constrDictGeneral = {
   disjoint: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 0.0
+    padding: ad.Num = 0.0
   ) => {
-    return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
+    return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding)));
   },
 
   /**
@@ -248,9 +248,11 @@ const constrDictGeneral = {
   touching: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 0.0
+    padding: ad.Num = 0.0
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
+    return absVal(
+      constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding))
+    );
   },
 
   /**
