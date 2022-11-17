@@ -13,14 +13,14 @@ jobs:
         uses: actions/checkout@v2
       - name: Install packages
         uses: ./.github/actions/packages
-      - name: Build edgeworth
-        run: npx nx run synthesizer-ui:build
+      # - name: Build edgeworth
+      #   run: npx nx run synthesizer-ui:build
       - name: Deploy edgeworth under the current commit SHA
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
           folder: packages/synthesizer-ui/dist
-          target-folder: /edgeworth/${ github.sha }/
+          target-folder: edgeworth/${ github.sha }/
       - name: Add .nojekyll
         run: |
           mkdir extra/
