@@ -341,31 +341,17 @@ where EqualLengthMarker(s, t) as e {
 forall Linelike s, t, u
 where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
   minEquivGroup = min(e1.equivGroup, e2.equivGroup)
-  override s.tick = Path {
-    d : ticksOnLine(s.icon.start, s.icon.end, 15., minEquivGroup, 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override t.tick = Path {
-    d : ticksOnLine(t.icon.start, t.icon.end, 15., minEquivGroup, 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override u.tick = Path {
-    d : ticksOnLine(u.icon.start, u.icon.end, 15., minEquivGroup, 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
+  -- minEquivGroup = e2.equivGroup
+  override s.tick.d = ticksOnLine(s.icon.start, s.icon.end, 15., minEquivGroup, 10.) 
+  override u.tick.d = ticksOnLine(u.icon.start, u.icon.end, 15., minEquivGroup, 10.) 
+  override t.tick.d = ticksOnLine(t.icon.start, t.icon.end, 15., minEquivGroup, 10.) 
 }
 
 -- TODO: this errors out
 -- forall Linelike s, t, u
 -- where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
---   e1.equivGroup = min(e1.equivGroup, e2.equivGroup)
---   e2.equivGroup = min(e1.equivGroup, e2.equivGroup)
+--   override e1.equivGroup = min(e1.equivGroup, e2.equivGroup)
+--   override e2.equivGroup = min(e1.equivGroup, e2.equivGroup)
 -- }
 
 --Angle
