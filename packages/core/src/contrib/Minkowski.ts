@@ -1,5 +1,5 @@
 import { outwardUnitNormal } from "contrib/Queries";
-import { ops, secondaryGraph } from "engine/Autodiff";
+import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -155,8 +155,7 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
       inputs[v.key] = v.val;
     }
   }
-  throw Error("TODO");
-  const coords: number[] = [];
+  const coords = genCode(g).call(inputs).secondary;
 
   // map each point back to its original VecAD object; note, this depends on the
   // fact that two points with the same contents are considered different as

@@ -57,6 +57,18 @@
     },
     {
       "substance": "small-graph",
+      "style": "disjoint-rects",
+      "domain": "graph-theory",
+      "variation": ""
+    },
+    {
+      "substance": "small-graph",
+      "style": "disjoint-rect-line-horiz",
+      "domain": "graph-theory",
+      "variation": "BriocheChamois5430"
+    },
+    {
+      "substance": "small-graph",
       "style": "disjoint-rects-small-canvas",
       "domain": "graph-theory",
       "variation": ""
@@ -104,10 +116,28 @@
       "variation": ""
     },
     {
+      "substance": "siggraph-teaser",
+      "style": "euclidean-teaser",
+      "domain": "geometry",
+      "variation": "WhisperPeafowl34044"
+    },
+    {
+      "substance": "non-convex",
+      "style": "non-convex",
+      "domain": "non-convex",
+      "variation": ""
+    },
+    {
       "substance": "lagrange-bases",
       "style": "lagrange-bases",
       "domain": "lagrange-bases",
       "variation": "RainmakerMarten88256"
+    },
+    {
+      "substance": "hypergraph",
+      "style": "hypergraph",
+      "domain": "hypergraph",
+      "variation": "ConceptualMeerkat694"
     },
     {
       "substance": "persistent-homology",
@@ -132,6 +162,24 @@
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
       "variation": "WhiteoutSnail17459"
+    },
+    {
+      "substance": "wos-offcenter-estimator",
+      "style": "walk-on-spheres",
+      "domain": "walk-on-spheres",
+      "variation": "ShireStork246"
+    },
+    {
+      "substance": "points-around-star",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "ReformLapwing68793"
+    },
+    {
+      "substance": "points-around-polyline",
+      "style": "shape-distance",
+      "domain": "shape-distance",
+      "variation": "SharkskinWalrus24396"
     },
     {
       "substance": "points-around-line",
