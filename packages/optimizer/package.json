@@ -19,6 +19,11 @@
           "{projectRoot}/index.js"
         ]
       },
+      "build-decls": {
+        "dependsOn": [
+          "build-wasm-bindgen"
+        ]
+      },
       "build-wasm": {
         "outputs": [
           "{projectRoot}/target"
