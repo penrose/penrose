@@ -1,39 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g>
-    <marker
-      id="`SBond_H8_O4`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H8_O4`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 438.07142594558184 660.3403117545306 L 493.4172766561166 577.0526180107946"
+      d="M 435.45929705818725 658.1752630418106 L 493.07198820951106 576.4392430940376"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -44,15 +12,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="438.07142594558184"
-    cy="660.3403117545306"
+    cx="435.45929705818725"
+    cy="658.1752630418106"
     stroke="none"
     r="10"
   >
     <title>`H8`.background</title>
   </circle>
   <g
-    transform="rotate(0, 430.2303859455818, 651.5103117545306)translate(430.2303859455818, 651.5103117545306)"
+    transform="rotate(0, 427.6182570581872, 649.3452630418105)translate(427.6182570581872, 649.3452630418105)"
     string="H"
   >
     <title>`H8`.symbol</title>
@@ -74,40 +42,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`WBond_O1_H3`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`WBond_O1_H3`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 402.55222083043094 291.1505649626587 L 216.70965417351653 217.2415393783455"
+      d="M 404.1323692951236 289.92713756453645 L 216.9031495263241 219.60488530635388"
       stroke-opacity="1"
       stroke-width="5"
       stroke="#000000"
@@ -117,40 +53,8 @@
     <title>`WBond_O1_H3`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`SBond_H2_O1`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H2_O1`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 431.99112253573117 386.7191601049784 L 402.55222083043094 291.1505649626587"
+      d="M 433.44531924327697 385.5344044923743 L 404.1323692951236 289.92713756453645"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -159,40 +63,8 @@
     <title>`SBond_H2_O1`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`SBond_H1_O1`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H1_O1`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 488.0192359368112 239.2335313678218 L 402.55222083043094 291.1505649626587"
+      d="M 489.38578546724443 237.6599940075526 L 404.1323692951236 289.92713756453645"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -203,15 +75,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="402.55222083043094"
-    cy="291.1505649626587"
+    cx="404.1323692951236"
+    cy="289.92713756453645"
     stroke="none"
     r="10"
   >
     <title>`O1`.background</title>
   </circle>
   <g
-    transform="rotate(0, 395.81493083043097, 282.3205649626587)translate(395.81493083043097, 282.3205649626587)"
+    transform="rotate(0, 397.39507929512365, 281.09713756453647)translate(397.39507929512365, 281.09713756453647)"
     string="O"
   >
     <title>`O1`.symbol</title>
@@ -233,40 +105,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`SBond_H4_O2`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H4_O2`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 64.50172022836324 260.1640232616544 L 123.99038006551109 179.78306052061927"
+      d="M 65.85285780713463 266.32507878276175 L 123.2823540440059 184.46023477446894"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -275,40 +115,8 @@
     <title>`SBond_H4_O2`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`SBond_H3_O2`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H3_O2`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 216.70965417351653 217.2415393783455 L 123.99038006551109 179.78306052061927"
+      d="M 216.9031495263241 219.60488530635388 L 123.2823540440059 184.46023477446894"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -319,15 +127,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="123.99038006551109"
-    cy="179.78306052061927"
+    cx="123.2823540440059"
+    cy="184.46023477446894"
     stroke="none"
     r="10"
   >
     <title>`O2`.background</title>
   </circle>
   <g
-    transform="rotate(0, 117.25309006551109, 170.95306052061926)translate(117.25309006551109, 170.95306052061926)"
+    transform="rotate(0, 116.5450640440059, 175.63023477446893)translate(116.5450640440059, 175.63023477446893)"
     string="O"
   >
     <title>`O2`.symbol</title>
@@ -349,40 +157,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`SBond_H7_O4`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H7_O4`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 587.8980471835483 609.8151072251362 L 493.4172766561166 577.0526180107946"
+      d="M 586.6469916703394 611.7056420077704 L 493.07198820951106 576.4392430940376"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -391,40 +167,8 @@
     <title>`SBond_H7_O4`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`WBond_H2_O4`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`WBond_H2_O4`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 431.99112253573117 386.7191601049784 L 493.4172766561166 577.0526180107946"
+      d="M 433.44531924327697 385.5344044923743 L 493.07198820951106 576.4392430940376"
       stroke-opacity="1"
       stroke-width="5"
       stroke="#000000"
@@ -436,15 +180,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="493.4172766561166"
-    cy="577.0526180107946"
+    cx="493.07198820951106"
+    cy="576.4392430940376"
     stroke="none"
     r="10"
   >
     <title>`O4`.background</title>
   </circle>
   <g
-    transform="rotate(0, 486.6799866561166, 568.2226180107946)translate(486.6799866561166, 568.2226180107946)"
+    transform="rotate(0, 486.3346982095111, 567.6092430940375)translate(486.3346982095111, 567.6092430940375)"
     string="O"
   >
     <title>`O4`.symbol</title>
@@ -468,15 +212,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="216.70965417351653"
-    cy="217.2415393783455"
+    cx="216.9031495263241"
+    cy="219.60488530635388"
     stroke="none"
     r="10"
   >
     <title>`H3`.background</title>
   </circle>
   <g
-    transform="rotate(0, 208.86861417351653, 208.41153937834548)translate(208.86861417351653, 208.41153937834548)"
+    transform="rotate(0, 209.06210952632412, 210.77488530635387)translate(209.06210952632412, 210.77488530635387)"
     string="H"
   >
     <title>`H3`.symbol</title>
@@ -500,15 +244,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="431.99112253573117"
-    cy="386.7191601049784"
+    cx="433.44531924327697"
+    cy="385.5344044923743"
     stroke="none"
     r="10"
   >
     <title>`H2`.background</title>
   </circle>
   <g
-    transform="rotate(0, 424.15008253573114, 377.88916010497843)translate(424.15008253573114, 377.88916010497843)"
+    transform="rotate(0, 425.60427924327695, 376.7044044923743)translate(425.60427924327695, 376.7044044923743)"
     string="H"
   >
     <title>`H2`.symbol</title>
@@ -532,15 +276,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="64.50172022836324"
-    cy="260.1640232616544"
+    cx="65.85285780713463"
+    cy="266.32507878276175"
     stroke="none"
     r="10"
   >
     <title>`H4`.background</title>
   </circle>
   <g
-    transform="rotate(0, 56.66068022836324, 251.33402326165438)translate(56.66068022836324, 251.33402326165438)"
+    transform="rotate(0, 58.011817807134626, 257.49507878276177)translate(58.011817807134626, 257.49507878276177)"
     string="H"
   >
     <title>`H4`.symbol</title>
@@ -562,40 +306,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`SBond_H6_O3`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H6_O3`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 671.1375035319069 37.62122913313743 L 659.9087397943644 136.98878764148978"
+      d="M 672.3521277037858 34.67926074936241 L 660.4030002493788 133.96278710513204"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -606,15 +318,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="671.1375035319069"
-    cy="37.62122913313743"
+    cx="672.3521277037858"
+    cy="34.67926074936241"
     stroke="none"
     r="10"
   >
     <title>`H6`.background</title>
   </circle>
   <g
-    transform="rotate(0, 663.2964635319069, 28.791229133137435)translate(663.2964635319069, 28.791229133137435)"
+    transform="rotate(0, 664.5110877037857, 25.849260749362415)translate(664.5110877037857, 25.849260749362415)"
     string="H"
   >
     <title>`H6`.symbol</title>
@@ -636,40 +348,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`WBond_H1_O3`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`WBond_H1_O3`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 488.0192359368112 239.2335313678218 L 659.9087397943644 136.98878764148978"
+      d="M 489.38578546724443 237.6599940075526 L 660.4030002493788 133.96278710513204"
       stroke-opacity="1"
       stroke-width="5"
       stroke="#000000"
@@ -679,40 +359,8 @@
     <title>`WBond_H1_O3`.symbol</title>
   </g>
   <g>
-    <marker
-      id="`SBond_H5_O3`.symbol-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`SBond_H5_O3`.symbol-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 753.2767673311207 172.79957811372145 L 659.9087397943644 136.98878764148978"
+      d="M 753.5269844940264 170.40346059982963 L 660.4030002493788 133.96278710513204"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -723,15 +371,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="659.9087397943644"
-    cy="136.98878764148978"
+    cx="660.4030002493788"
+    cy="133.96278710513204"
     stroke="none"
     r="10"
   >
     <title>`O3`.background</title>
   </circle>
   <g
-    transform="rotate(0, 653.1714497943643, 128.15878764148977)translate(653.1714497943643, 128.15878764148977)"
+    transform="rotate(0, 653.6657102493788, 125.13278710513204)translate(653.6657102493788, 125.13278710513204)"
     string="O"
   >
     <title>`O3`.symbol</title>
@@ -755,15 +403,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="587.8980471835483"
-    cy="609.8151072251362"
+    cx="586.6469916703394"
+    cy="611.7056420077704"
     stroke="none"
     r="10"
   >
     <title>`H7`.background</title>
   </circle>
   <g
-    transform="rotate(0, 580.0570071835483, 600.9851072251362)translate(580.0570071835483, 600.9851072251362)"
+    transform="rotate(0, 578.8059516703394, 602.8756420077704)translate(578.8059516703394, 602.8756420077704)"
     string="H"
   >
     <title>`H7`.symbol</title>
@@ -787,15 +435,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="753.2767673311207"
-    cy="172.79957811372145"
+    cx="753.5269844940264"
+    cy="170.40346059982963"
     stroke="none"
     r="10"
   >
     <title>`H5`.background</title>
   </circle>
   <g
-    transform="rotate(0, 745.4357273311207, 163.96957811372144)translate(745.4357273311207, 163.96957811372144)"
+    transform="rotate(0, 745.6859444940263, 161.57346059982962)translate(745.6859444940263, 161.57346059982962)"
     string="H"
   >
     <title>`H5`.symbol</title>
@@ -819,15 +467,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="488.0192359368112"
-    cy="239.2335313678218"
+    cx="489.38578546724443"
+    cy="237.6599940075526"
     stroke="none"
     r="10"
   >
     <title>`H1`.background</title>
   </circle>
   <g
-    transform="rotate(0, 480.17819593681116, 230.40353136782178)translate(480.17819593681116, 230.40353136782178)"
+    transform="rotate(0, 481.5447454672444, 228.82999400755259)translate(481.5447454672444, 228.82999400755259)"
     string="H"
   >
     <title>`H1`.symbol</title>

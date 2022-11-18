@@ -185,15 +185,15 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
 };
 
 /**
- * Overlapping constraint function for polygon points with padding `padding`.
+ * Overlapping constraint function for polygon points with overlap `overlap`.
  * @param polygonPoints1 Sequence of points defining the first polygon.
  * @param polygonPoints2 Sequence of points defining the second polygon.
- * @param padding Padding applied to one of the polygons.
+ * @param overlap Overlap applied to one of the polygons.
  */
 export const overlappingPolygonPoints = (
   polygonPoints1: ad.Num[][],
   polygonPoints2: ad.Num[][],
-  padding: ad.Num = 0
+  overlap: ad.Num = 0
 ): ad.Num => {
   const cp1 = convexPartitions(polygonPoints1);
   const cp2 = convexPartitions(
@@ -201,7 +201,7 @@ export const overlappingPolygonPoints = (
   );
   return maxN(
     cp1.map((p1) =>
-      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding)))
+      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, neg(overlap))))
     )
   );
 };

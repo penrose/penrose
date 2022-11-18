@@ -11,7 +11,7 @@
   >
     <title>`V`.background</title>
   </rect>
-  <g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
     <filter id="6:0:perpMark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -34,29 +34,13 @@
       stroke-width="1"
       stroke-opacity="1"
       fill-opacity="1"
-      d="M 400 350 L 400.4097102300913 330.0041997761976 L 420.4055110951069 330.41389413551786 L 419.99580086501555 350.40969435932027 Z "
+      d="M 400 350 L 400.4097102300914 330.0041997761976 L 420.4055110951069 330.41389413551786 L 419.99580086501555 350.40969435932027 Z "
     ></path>
     <title>6:0:perpMark</title>
   </g>
   <g>
     <marker
-      id="`u`.arrow-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#1a1ae6"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`u`.arrow-rightArrowhead"
+      id="`u`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -72,19 +56,19 @@
       ></path>
     </marker>
     <path
-      d="M 400 350 L 401.127950727537 294.9506608485344"
+      d="M 400 350 L 401.1507511050034 293.83789441177174"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
       stroke-linecap="butt"
-      marker-end="url(#`u`.arrow-rightArrowhead)"
+      marker-end="url(#`u`.arrow-endArrowId)"
     ></path>
     <title>`u`.arrow</title>
   </g>
   <g style="solid">
     <marker
-      id="`V`.xAxis-leftArrowhead"
+      id="`V`.xAxis-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -100,7 +84,7 @@
       ></path>
     </marker>
     <marker
-      id="`V`.xAxis-rightArrowhead"
+      id="`V`.xAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -116,19 +100,19 @@
       ></path>
     </marker>
     <path
-      d="M 236.368 350 L 563.6320000000001 350"
+      d="M 235.626 350 L 564.374 350"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#999999"
       stroke-linecap="butt"
-      marker-start="url(#`V`.xAxis-leftArrowhead)"
-      marker-end="url(#`V`.xAxis-rightArrowhead)"
+      marker-start="url(#`V`.xAxis-startArrowId)"
+      marker-end="url(#`V`.xAxis-endArrowId)"
     ></path>
     <title>`V`.xAxis</title>
   </g>
   <g style="solid">
     <marker
-      id="`V`.yAxis-leftArrowhead"
+      id="`V`.yAxis-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -144,7 +128,7 @@
       ></path>
     </marker>
     <marker
-      id="`V`.yAxis-rightArrowhead"
+      id="`V`.yAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -160,18 +144,18 @@
       ></path>
     </marker>
     <path
-      d="M 400 513.6320000000001 L 400 186.368"
+      d="M 400 514.374 L 400 185.626"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#999999"
       stroke-linecap="butt"
-      marker-start="url(#`V`.yAxis-leftArrowhead)"
-      marker-end="url(#`V`.yAxis-rightArrowhead)"
+      marker-start="url(#`V`.yAxis-startArrowId)"
+      marker-end="url(#`V`.yAxis-endArrowId)"
     ></path>
     <title>`V`.yAxis</title>
   </g>
   <g
-    transform="rotate(0, 376.60283164533854, 280.5024106599914)translate(376.60283164533854, 280.5024106599914)"
+    transform="rotate(0, 376.6028316453387, 280.50241065999245)translate(376.6028316453387, 280.50241065999245)"
     string="u"
   >
     <title>`u`.text</title>
@@ -194,23 +178,7 @@
   </g>
   <g>
     <marker
-      id="`v`.arrow-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#1a1ae6"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`v`.arrow-rightArrowhead"
+      id="`v`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -226,18 +194,18 @@
       ></path>
     </marker>
     <path
-      d="M 400 350 L 464.3191768095223 351.3178368854977"
+      d="M 400 350 L 465.4319432643896 351.3406363793954"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
       stroke-linecap="butt"
-      marker-end="url(#`v`.arrow-rightArrowhead)"
+      marker-end="url(#`v`.arrow-endArrowId)"
     ></path>
     <title>`v`.arrow</title>
   </g>
   <g
-    transform="rotate(0, 457.80249872187045, 349.8101184776963)translate(457.80249872187045, 349.8101184776963)"
+    transform="rotate(0, 457.8024987218704, 349.8101184776967)translate(457.8024987218704, 349.8101184776967)"
     string="v"
   >
     <title>`v`.text</title>

@@ -19,12 +19,12 @@
     stroke-width="2"
     stroke-linecap="butt"
     transform="scale(1)"
-    points="281.1489405907987,222.12224373686755,165.17989773893387,239.7520431306967,22.40020191581837,239.914440691025,33.724054341433785,1.5751324911177704,181.079170414955,31.346223035164314,320.0385045168691,14.959185345419513"
+    points="280.8371222521359,230.98743643521055,183.73764742206097,239.7403832252275,7.70380505909003,239.95630076333936,29.35757573610016,0.4174456145163248,183.93781833350025,24.628033630598665,315.84135028774426,8.131427586574077"
   >
     <title>Global.domain</title>
   </polygon>
   <g
-    transform="rotate(0, 31.608314807118234, 26.44471331342666)translate(31.608314807118234, 26.44471331342666)"
+    transform="rotate(0, 20.620920421942458, 19.28599480992068)translate(20.620920421942458, 19.28599480992068)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -38,8 +38,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="211.58667638004783"
-      height="211.58667638004783"
+      width="218.77021032192476"
+      height="218.77021032192476"
     >
       <style type="text/css">
         .st0 {
@@ -66,18 +66,18 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="137.40165299714215"
-    cy="132.23805150345058"
+    cx="130.00602558290484"
+    cy="128.67109997088306"
     stroke="none"
-    r="105.79333819002392"
+    r="109.38510516096238"
   >
     <title>`x0`.ball</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="167.20194023152123"
-    cy="128.54197773797384"
+    cx="139.49519052956046"
+    cy="153.10871928558666"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -88,51 +88,19 @@
   </circle>
   <circle
     fill="none"
-    cx="137.40165299714215"
-    cy="132.23805150345058"
+    cx="130.00602558290484"
+    cy="128.67109997088306"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="105.79333819002392"
+    r="109.38510516096238"
   >
     <title>`x0`.sphere</title>
   </circle>
   <g>
-    <marker
-      id="9:0:walkLine-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="9:0:walkLine-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 137.40165299714215 132.23805150345058 L 241.03329161077357 110.96117689713633"
+      d="M 130.00602558290484 128.67109997088306 L 237.4552573156481 108.18297783244086"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -141,7 +109,7 @@
     <title>9:0:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 182.8469446240268, 52.77482991038956)translate(182.8469446240268, 52.77482991038956)"
+    transform="rotate(0, 177.2934364755726, 48.021156992365334)translate(177.2934364755726, 48.021156992365334)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -155,8 +123,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="116.37269397349353"
-      height="116.37269397349353"
+      width="120.32364168015104"
+      height="120.32364168015104"
     >
       <style type="text/css">
         .st0 {
@@ -183,60 +151,28 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="241.03329161077357"
-    cy="110.96117689713633"
+    cx="237.4552573156481"
+    cy="108.18297783244086"
     stroke="none"
-    r="58.18634698674676"
+    r="60.16182084007552"
   >
     <title>`x1`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="241.03329161077357"
-    cy="110.96117689713633"
+    cx="237.4552573156481"
+    cy="108.18297783244086"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="58.18634698674676"
+    r="60.16182084007552"
   >
     <title>`x1`.sphere</title>
   </circle>
   <g>
-    <marker
-      id="9:1:walkLine-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="9:1:walkLine-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 241.03329161077357 110.96117689713633 L 260.15696957876276 56.00726638600094"
+      d="M 237.4552573156481 108.18297783244086 L 255.49412543893237 50.78920703409284"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -245,7 +181,7 @@
     <title>9:1:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 228.154413561547, 24.004710368785176)translate(228.154413561547, 24.004710368785176)"
+    transform="rotate(0, 222.40512188734448, 17.700203482504932)translate(222.40512188734448, 17.700203482504932)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -259,8 +195,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="64.00511203443153"
-      height="64.00511203443153"
+      width="66.17800710317582"
+      height="66.17800710317582"
     >
       <style type="text/css">
         .st0 {
@@ -287,60 +223,28 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="260.15696957876276"
-    cy="56.00726638600094"
+    cx="255.49412543893237"
+    cy="50.78920703409284"
     stroke="none"
-    r="32.00255601721577"
+    r="33.08900355158791"
   >
     <title>`x2`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="260.15696957876276"
-    cy="56.00726638600094"
+    cx="255.49412543893237"
+    cy="50.78920703409284"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="32.00255601721577"
+    r="33.08900355158791"
   >
     <title>`x2`.sphere</title>
   </circle>
   <g>
-    <marker
-      id="9:2:walkLine-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="9:2:walkLine-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#0000b3"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 260.15696957876276 56.00726638600094 L 291.1362336613902 64.03544992332166"
+      d="M 255.49412543893237 50.78920703409284 L 287.88717055589404 57.539941835108905"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#0000b3"
@@ -349,7 +253,7 @@
     <title>9:2:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 273.53480027808695, 46.43401654001844)translate(273.53480027808695, 46.43401654001844)"
+    transform="rotate(0, 269.6882222377474, 39.34099351696227)translate(269.6882222377474, 39.34099351696227)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -363,8 +267,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="35.20286676660645"
-      height="35.20286676660645"
+      width="36.39789663629327"
+      height="36.39789663629327"
     >
       <style type="text/css">
         .st0 {
@@ -391,25 +295,25 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="291.1362336613902"
-    cy="64.03544992332166"
+    cx="287.88717055589404"
+    cy="57.539941835108905"
     stroke="none"
-    r="17.601433383303224"
+    r="18.198948318146634"
   >
     <title>`x3`.ball</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="291.1362336613902"
-    cy="64.03544992332166"
+    cx="287.88717055589404"
+    cy="57.539941835108905"
     stroke="none"
     r="2.5"
   >
     <title>`x3`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 301.3253110081016, 17.653342218467458)translate(301.3253110081016, 17.653342218467458)"
+    transform="rotate(0, 297.5174731368088, 10.925219935730395)translate(297.5174731368088, 10.925219935730395)"
     string="\Omega"
   >
     <title>`U`.labelText</title>
@@ -431,7 +335,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 229.48172622432799, 83.80119093358583)translate(229.48172622432799, 83.80119093358583)"
+    transform="rotate(0, 225.7967674478469, 81.02298229994592)translate(225.7967674478469, 81.02298229994592)"
     paint-order="stroke"
     string="x_1"
     stroke-linejoin="round"
@@ -459,15 +363,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="241.03329161077357"
-    cy="110.96117689713633"
+    cx="237.4552573156481"
+    cy="108.18297783244086"
     stroke="none"
     r="2.5"
   >
     <title>`x1`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 229.9594751045832, 44.564010833112405)translate(229.9594751045832, 44.564010833112405)"
+    transform="rotate(0, 242.15136388153962, 55.28925710721427)translate(242.15136388153962, 55.28925710721427)"
     paint-order="stroke"
     string="\ldots"
     stroke-linejoin="round"
@@ -495,8 +399,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="260.15696957876276"
-    cy="56.00726638600094"
+    cx="255.49412543893237"
+    cy="50.78920703409284"
     stroke="none"
     r="2.5"
   >
@@ -505,8 +409,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="294.9888385658683"
-    cy="77.44320427320297"
+    cx="301.0467545283698"
+    cy="63.75806377595401"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -516,7 +420,7 @@
     <title>`y3`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 141.33821620100022, 117.20784173112837)translate(141.33821620100022, 117.20784173112837)"
+    transform="rotate(0, 143.9952298565228, 142.16142700368843)translate(143.9952298565228, 142.16142700368843)"
     paint-order="stroke"
     string="y_0"
     stroke-linejoin="round"
@@ -542,7 +446,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 110.08981278724855, 120.99167113107988)translate(110.08981278724855, 120.99167113107988)"
+    transform="rotate(0, 102.69415271093874, 117.33374285636596)translate(102.69415271093874, 117.33374285636596)"
     paint-order="stroke"
     string="x_0"
     stroke-linejoin="round"
@@ -570,8 +474,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="137.40165299714215"
-    cy="132.23805150345058"
+    cx="130.00602558290484"
+    cy="128.67109997088306"
     stroke="none"
     r="2.5"
   >
@@ -580,8 +484,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="255.18655958191638"
-    cy="51.96613007404433"
+    cx="241.1437657211942"
+    cy="39.57820636023746"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -591,7 +495,7 @@
     <title>`y2`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 221.8234938690975, 125.436233183709)translate(221.8234938690975, 125.436233183709)"
+    transform="rotate(0, 216.15607947799066, 145.41725706673125)translate(216.15607947799066, 145.41725706673125)"
     paint-order="stroke"
     string="y_1"
     stroke-linejoin="round"
@@ -619,8 +523,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="247.68721789593056"
-    cy="136.79396858375011"
+    cx="242.01984138125118"
+    cy="156.09530634493012"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -631,18 +535,18 @@
   </circle>
   <circle
     fill="none"
-    cx="291.1362336613902"
-    cy="64.03544992332166"
+    cx="287.88717055589404"
+    cy="57.539941835108905"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="17.601433383303224"
+    r="18.198948318146634"
   >
     <title>`x3`.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 263.5630283891508, 52.65544963252746)translate(263.5630283891508, 52.65544963252746)"
+    transform="rotate(0, 276.3136329386158, 62.03994399162106)translate(276.3136329386158, 62.03994399162106)"
     paint-order="stroke"
     string="x_k"
     stroke-linejoin="round"

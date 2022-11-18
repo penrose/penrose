@@ -11,6 +11,9 @@ import { add, mul } from "./AutodiffFunctions";
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
+////////////////////////////////////////////////////////////////////////////////
+// Globals
+
 // weight for constraints
 const constraintWeight = 10e4; // HACK: constant constraint weight
 // const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
@@ -77,14 +80,26 @@ export const genOptProblem = (
 
   const f = genCode(explicitGraph);
 
-  const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
+  const objectiveAndGradient = (
+    epWeight: number,
+    frozenValues?: Set<number>
+  ) => (xs: number[]) => {
     const { primary, gradient, secondary } = f.call([...xs, epWeight]);
     return {
       f: primary,
       gradf: xs.map((x, i) => {
         // fill in any holes in case some inputs weren't used in the graph, and
         // also treat pending values as constants rather than optimizing them
-        return i in gradient && !("pending" in inputs[i]) ? gradient[i] : 0;
+        if (!(i in gradient)) {
+          return 0;
+        } else {
+          const meta = inputs[i];
+          return meta.tag === "Optimized" &&
+            frozenValues &&
+            !frozenValues.has(i)
+            ? gradient[i]
+            : 0;
+        }
       }),
       objEngs: secondary.slice(0, objEngs.length),
       constrEngs: secondary.slice(objEngs.length),
@@ -94,11 +109,8 @@ export const genOptProblem = (
   const params: Params = {
     lastGradient: repeat(inputs.length, 0),
     lastGradientPreconditioned: repeat(inputs.length, 0),
-
     objectiveAndGradient,
-
-    currObjectiveAndGradient: objectiveAndGradient(weight),
-
+    currObjectiveAndGradient: objectiveAndGradient(weight, new Set()),
     weight,
     UOround: 0,
     EPround: 0,

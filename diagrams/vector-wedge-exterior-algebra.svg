@@ -16,23 +16,7 @@
   </rect>
   <g>
     <marker
-      id="`c`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="4.98"
-      markerHeight="4.06"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`c`.icon-rightArrowhead"
+      id="`c`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -48,12 +32,12 @@
       ></path>
     </marker>
     <path
-      d="M 120 90 L 66.61484589405322 100.10674620147994"
+      d="M 120 90 L 66.22428338073848 100.18068653684078"
       stroke-opacity="1"
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#`c`.icon-rightArrowhead)"
+      marker-end="url(#`c`.icon-endArrowId)"
     ></path>
     <title>`c`.icon</title>
   </g>
@@ -82,23 +66,7 @@
   </g>
   <g>
     <marker
-      id="`b`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="4.98"
-      markerHeight="4.06"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`b`.icon-rightArrowhead"
+      id="`b`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -114,16 +82,16 @@
       ></path>
     </marker>
     <path
-      d="M 120 90 L 113.40152671314839 158.08116047317094"
+      d="M 120 90 L 113.36318042176056 158.4768065421983"
       stroke-opacity="1"
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#`b`.icon-rightArrowhead)"
+      marker-end="url(#`b`.icon-endArrowId)"
     ></path>
     <title>`b`.icon</title>
   </g>
-  <g stroke-width="1">
+  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
     <filter id="`v`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -150,23 +118,7 @@
   </g>
   <g>
     <marker
-      id="`a`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="4.98"
-      markerHeight="4.06"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`a`.icon-rightArrowhead"
+      id="`a`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -182,16 +134,16 @@
       ></path>
     </marker>
     <path
-      d="M 120 90 L 181.6923904801861 29.58319645497508"
+      d="M 120 90 L 181.97638611847 29.30507287194819"
       stroke-opacity="1"
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#`a`.icon-rightArrowhead)"
+      marker-end="url(#`a`.icon-endArrowId)"
     ></path>
     <title>`a`.icon</title>
   </g>
-  <g stroke-width="1">
+  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
     <filter id="`u`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -262,9 +214,9 @@
       ></path>
     </svg>
   </g>
-  <g>
+  <g endArrowheadSize="1" startArrowheadSize="0.5">
     <marker
-      id="`u`.marker-leftArrowhead"
+      id="`u`.marker-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -301,7 +253,7 @@
       stroke-width="1.125"
       stroke-opacity="1"
       d="M 157.81720967132475 78.83043213885391 A 17.978896689165452 17.978896689165452 0 0 0 141.04024091219145 110.63445797103518"
-      marker-start="url(#`u`.marker-leftArrowhead)"
+      marker-start="url(#`u`.marker-startArrowId)"
     ></path>
     <title>`u`.marker</title>
   </g>
@@ -328,9 +280,9 @@
       ></path>
     </svg>
   </g>
-  <g>
+  <g startArrowheadSize="0.5" endArrowheadSize="1">
     <marker
-      id="`v`.marker-leftArrowhead"
+      id="`v`.marker-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -367,7 +319,7 @@
       stroke-width="1.125"
       stroke-opacity="1"
       d="M 100.61126927010764 149.4330964351924 A 21.752886641296303 21.752886641296303 0 0 0 72.83389674429256 115.94922835951925"
-      marker-start="url(#`v`.marker-leftArrowhead)"
+      marker-start="url(#`v`.marker-startArrowId)"
     ></path>
     <title>`v`.marker</title>
   </g>

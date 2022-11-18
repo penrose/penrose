@@ -2,105 +2,105 @@
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="152.2967385563374"
-    cy="414.152108304712"
+    cx="151.91237570890337"
+    cy="418.2396102075062"
     stroke="none"
-    r="7.669397602123516"
+    r="7.693592674327508"
   >
     <title>`P3`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="159.6206207378498"
-    cy="387.8934425289906"
+    cx="151.70908154886214"
+    cy="375.50937549979625"
     stroke="none"
-    r="7.669374964199783"
+    r="7.693595683615132"
   >
     <title>`P2`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="7.641254004647294"
-    cy="492.0515421474471"
+    cx="7.66175077014708"
+    cy="495.9277324217652"
     stroke="none"
-    r="7.655115586275855"
+    r="7.677545068106613"
   >
     <title>`P9`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="184.0504061397052"
-    cy="502.5852341705594"
+    cx="183.5999546288961"
+    cy="506.4530254156093"
     stroke="none"
-    r="7.669491971859475"
+    r="7.693590506776686"
   >
     <title>`P4`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="16.046787320178623"
-    cy="398.09470860885517"
+    cx="16.05037452639573"
+    cy="402.19862490809135"
     stroke="none"
-    r="7.669506516907398"
+    r="7.693589001330443"
   >
     <title>`P10`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="74.16675650103332"
-    cy="492.44639466946273"
+    cx="73.9834392307825"
+    cy="496.34935585622543"
     stroke="none"
-    r="7.669495745890394"
+    r="7.6935871423983775"
   >
     <title>`P8`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="109.57438445696715"
-    cy="387.5507794590748"
+    cx="109.36042596686434"
+    cy="391.72706592280224"
     stroke="none"
-    r="7.669504143148538"
+    r="7.693586883204146"
   >
     <title>`P1`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="7.660191353775588"
-    cy="558.909743890262"
+    cx="7.682583319506193"
+    cy="562.6070537729172"
     stroke="none"
-    r="7.664536817913439"
+    r="7.6877921604031085"
   >
     <title>`P7`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="168.36066430215226"
-    cy="550.3729791063333"
+    cx="167.98534976303642"
+    cy="554.0633609063029"
     stroke="none"
-    r="7.669493645345762"
+    r="7.693591360915477"
   >
     <title>`P5`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="74.54201588766477"
-    cy="559.0757976256787"
+    cx="74.38869157234552"
+    cy="562.7821634515711"
     stroke="none"
-    r="7.669500152221597"
+    r="7.693588137647046"
   >
     <title>`P6`.circle1</title>
   </circle>
   <g
-    transform="rotate(0, 144.62734095421388, 406.48271070258846)translate(144.62734095421388, 406.48271070258846)"
+    transform="rotate(0, 144.21878303457586, 410.54601753317866)translate(144.21878303457586, 410.54601753317866)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -114,8 +114,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.338795204247033"
-      height="15.338795204247033"
+      width="15.387185348655017"
+      height="15.387185348655017"
     >
       <style type="text/css">
         .st0 {
@@ -149,105 +149,105 @@
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="428.68517168460085"
-    cy="414.152108304712"
+    cx="427.83060826463463"
+    cy="418.2396102075062"
     stroke="none"
-    r="28.642686987228167"
+    r="28.54473292094079"
   >
     <title>`P3`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="436.0091314531048"
-    cy="387.8934425289906"
+    cx="427.62730898171094"
+    cy="375.50937549979625"
     stroke="none"
-    r="28.601207178180495"
+    r="28.49863920021401"
   >
     <title>`P2`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="284.01529873868566"
-    cy="492.0515421474471"
+    cx="283.5639378530473"
+    cy="495.9277324217652"
     stroke="none"
-    r="28.3924189312153"
+    r="28.29484011675723"
   >
     <title>`P9`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="460.48039604188637"
-    cy="502.5852341705594"
+    cx="459.5589950296462"
+    cy="506.4530254156093"
     stroke="none"
-    r="28.63711297574397"
+    r="28.53894017408397"
   >
     <title>`P4`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="292.4352418214337"
-    cy="398.09470860885517"
+    cx="291.9686114679162"
+    cy="402.19862490809135"
     stroke="none"
-    r="28.601205683797325"
+    r="28.498640886545655"
   >
     <title>`P10`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="350.5552044548316"
-    cy="492.44639466946273"
+    cx="349.90166922673893"
+    cy="496.34935585622543"
     stroke="none"
-    r="28.31621417168312"
+    r="28.213096376892757"
   >
     <title>`P8`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="385.9628419103877"
-    cy="387.5507794590748"
+    cx="385.27865782399886"
+    cy="391.72706592280224"
     stroke="none"
-    r="28.642701406546315"
+    r="28.544744265846216"
   >
     <title>`P1`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="284.04365011560884"
-    cy="558.909743890262"
+    cx="283.5950091805091"
+    cy="562.6070537729172"
     stroke="none"
-    r="28.507679972143404"
+    r="28.419118718389175"
   >
     <title>`P7`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="444.7491032923872"
-    cy="550.3729791063333"
+    cx="443.9035780218949"
+    cy="554.0633609063029"
     stroke="none"
-    r="28.637104214923873"
+    r="28.53894079452196"
   >
     <title>`P5`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="350.9304555778796"
-    cy="559.0757976256787"
+    cx="350.3069193132663"
+    cy="562.7821634515711"
     stroke="none"
-    r="28.431462635603147"
+    r="28.337373890675416"
   >
     <title>`P6`.circle2</title>
   </circle>
   <g
-    transform="rotate(0, 400.0424846973727, 385.5094213174838)translate(400.0424846973727, 385.5094213174838)"
+    transform="rotate(0, 399.2858753436939, 389.69487728656543)translate(399.2858753436939, 389.69487728656543)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -261,8 +261,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.285373974456334"
-      height="57.285373974456334"
+      width="57.08946584188158"
+      height="57.08946584188158"
     >
       <style type="text/css">
         .st0 {
@@ -296,105 +296,105 @@
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="717.7791714145461"
-    cy="414.152108304712"
+    cx="717.9676036501098"
+    cy="418.2396102075062"
     stroke="none"
-    r="50.50843545039427"
+    r="50.390545779037524"
   >
     <title>`P3`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="725.0673490357274"
-    cy="387.8934425289906"
+    cx="717.7250737469469"
+    cy="375.50937549979625"
     stroke="none"
-    r="50.49237734080022"
+    r="50.372812442978535"
   >
     <title>`P2`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="573.191479147506"
-    cy="492.0515421474471"
+    cx="573.7783097234297"
+    cy="495.9277324217652"
     stroke="none"
-    r="50.72070163097609"
+    r="50.60382511147532"
   >
     <title>`P9`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="749.5924399472271"
-    cy="502.5852341705594"
+    cx="749.7100875543792"
+    cy="506.4530254156093"
     stroke="none"
-    r="50.4280515154459"
+    r="50.31044896769036"
   >
     <title>`P4`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="581.4927413423841"
-    cy="398.09470860885517"
+    cx="582.0665476059057"
+    cy="402.19862490809135"
     stroke="none"
-    r="50.53207569630489"
+    r="50.41624714946476"
   >
     <title>`P10`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="639.4464554041775"
-    cy="492.44639466946273"
+    cx="639.8313528581905"
+    cy="496.34935585622543"
     stroke="none"
-    r="50.2726891479686"
+    r="50.1237940506439"
   >
     <title>`P8`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="674.9855668730617"
-    cy="387.5507794590748"
+    cx="675.3372608881709"
+    cy="391.72706592280224"
     stroke="none"
-    r="50.5084081526451"
+    r="50.390808692435655"
   >
     <title>`P1`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="573.1427163323149"
-    cy="558.909743890262"
+    cx="573.7271963170124"
+    cy="562.6070537729172"
     stroke="none"
-    r="50.550292515243775"
+    r="50.42156556936715"
   >
     <title>`P7`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="733.7961400247905"
-    cy="550.3729791063333"
+    cx="733.9892343601778"
+    cy="554.0633609063029"
     stroke="none"
-    r="50.495572086775645"
+    r="50.37607887136012"
   >
     <title>`P5`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="639.9354496755186"
-    cy="559.0757976256787"
+    cx="640.3594959416766"
+    cy="562.7821634515711"
     stroke="none"
-    r="50.70936734966198"
+    r="50.59379277464286"
   >
     <title>`P6`.circle3</title>
   </circle>
   <g
-    transform="rotate(0, 667.2707359641519, 363.64367285431774)translate(667.2707359641519, 363.64367285431774)"
+    transform="rotate(0, 667.5770578710723, 367.84906442846864)translate(667.5770578710723, 367.84906442846864)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -408,8 +408,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="101.01687090078855"
-      height="101.01687090078855"
+      width="100.78109155807505"
+      height="100.78109155807505"
     >
       <style type="text/css">
         .st0 {
@@ -441,7 +441,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 101.90488031381861, 379.8812753159263)translate(101.90488031381861, 379.8812753159263)"
+    transform="rotate(0, 101.6668390836602, 384.0334790395981)translate(101.6668390836602, 384.0334790395981)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -455,8 +455,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.339008286297076"
-      height="15.339008286297076"
+      width="15.387173766408292"
+      height="15.387173766408292"
     >
       <style type="text/css">
         .st0 {
@@ -488,7 +488,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 357.32014050384134, 358.9080780525285)translate(357.32014050384134, 358.9080780525285)"
+    transform="rotate(0, 356.73391355815266, 363.18232165695605)translate(356.73391355815266, 363.18232165695605)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -502,8 +502,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.28540281309263"
-      height="57.28540281309263"
+      width="57.08948853169243"
+      height="57.08948853169243"
     >
       <style type="text/css">
         .st0 {
@@ -535,7 +535,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 624.4771587204166, 337.0423713064297)translate(624.4771587204166, 337.0423713064297)"
+    transform="rotate(0, 624.9464521957352, 341.3362572303666)translate(624.9464521957352, 341.3362572303666)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -549,8 +549,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="101.0168163052902"
-      height="101.0168163052902"
+      width="100.78161738487131"
+      height="100.78161738487131"
     >
       <style type="text/css">
         .st0 {
@@ -582,40 +582,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`C3P3P1`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P3P1`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 717.7791714145461 414.152108304712 L 674.9855668730617 387.5507794590748"
+      d="M 717.9676036501098 418.2396102075062 L 675.3372608881709 391.72706592280224"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -624,7 +592,7 @@
     <title>`C3P3P1`.line</title>
   </g>
   <g
-    transform="rotate(0, 66.49726075514292, 484.77689892357233)translate(66.49726075514292, 484.77689892357233)"
+    transform="rotate(0, 66.28985208838412, 488.65576871382706)translate(66.28985208838412, 488.65576871382706)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -638,8 +606,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.338991491780789"
-      height="15.338991491780789"
+      width="15.387174284796755"
+      height="15.387174284796755"
     >
       <style type="text/css">
         .st0 {
@@ -671,7 +639,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 322.2389902831485, 464.13018049777963)translate(322.2389902831485, 464.13018049777963)"
+    transform="rotate(0, 321.6885728498462, 468.1362594793327)translate(321.6885728498462, 468.1362594793327)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -685,8 +653,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.63242834336624"
-      height="56.63242834336624"
+      width="56.426192753785514"
+      height="56.426192753785514"
     >
       <style type="text/css">
         .st0 {
@@ -718,7 +686,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 589.173766256209, 442.1737055214941)translate(589.173766256209, 442.1737055214941)"
+    transform="rotate(0, 589.7075588075465, 446.22556180558155)translate(589.7075588075465, 446.22556180558155)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -732,8 +700,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.5453782959372"
-      height="100.5453782959372"
+      width="100.2475881012878"
+      height="100.2475881012878"
     >
       <style type="text/css">
         .st0 {
@@ -765,7 +733,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, -0.01386158162856077, 484.3964265611712)translate(-0.01386158162856077, 484.3964265611712)"
+    transform="rotate(0, -0.015794297959533132, 488.2501873536586)translate(-0.015794297959533132, 488.2501873536586)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -779,8 +747,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.31023117255171"
-      height="15.31023117255171"
+      width="15.355090136213226"
+      height="15.355090136213226"
     >
       <style type="text/css">
         .st0 {
@@ -812,7 +780,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 255.62287980747035, 463.6591232162318)translate(255.62287980747035, 463.6591232162318)"
+    transform="rotate(0, 255.2690977362901, 467.632892305008)translate(255.2690977362901, 467.632892305008)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -826,8 +794,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.7848378624306"
-      height="56.7848378624306"
+      width="56.58968023351446"
+      height="56.58968023351446"
     >
       <style type="text/css">
         .st0 {
@@ -859,7 +827,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 522.4707775165299, 441.330840516471)translate(522.4707775165299, 441.330840516471)"
+    transform="rotate(0, 523.1744846119544, 445.3239073102899)translate(523.1744846119544, 445.3239073102899)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -873,8 +841,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="101.44140326195217"
-      height="101.44140326195217"
+      width="101.20765022295063"
+      height="101.20765022295063"
     >
       <style type="text/css">
         .st0 {
@@ -906,40 +874,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`C3P8P9`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P8P9`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 639.4464554041775 492.44639466946273 L 573.191479147506 492.0515421474471"
+      d="M 639.8313528581905 496.34935585622543 L 573.7783097234297 495.9277324217652"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -948,7 +884,7 @@
     <title>`C3P8P9`.line</title>
   </g>
   <g
-    transform="rotate(0, 8.377280803271226, 390.42520209194777)translate(8.377280803271226, 390.42520209194777)"
+    transform="rotate(0, 8.356785525065286, 394.5050359067609)translate(8.356785525065286, 394.5050359067609)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -962,8 +898,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.339013033814796"
-      height="15.339013033814796"
+      width="15.387178002660885"
+      height="15.387178002660885"
     >
       <style type="text/css">
         .st0 {
@@ -995,7 +931,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 263.83403613763636, 369.49350292505784)translate(263.83403613763636, 369.49350292505784)"
+    transform="rotate(0, 263.46997058137055, 373.6999840215457)translate(263.46997058137055, 373.6999840215457)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1009,8 +945,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.20241136759465"
-      height="57.20241136759465"
+      width="56.99728177309131"
+      height="56.99728177309131"
     >
       <style type="text/css">
         .st0 {
@@ -1042,7 +978,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 530.9606656460792, 347.56263291255027)translate(530.9606656460792, 347.56263291255027)"
+    transform="rotate(0, 531.650300456441, 351.7823777586266)translate(531.650300456441, 351.7823777586266)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1056,8 +992,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="101.06415139260977"
-      height="101.06415139260977"
+      width="100.83249429892952"
+      height="100.83249429892952"
     >
       <style type="text/css">
         .st0 {
@@ -1089,40 +1025,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`C3P10P1`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P10P1`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 581.4927413423841 398.09470860885517 L 674.9855668730617 387.5507794590748"
+      d="M 582.0665476059057 402.19862490809135 L 675.3372608881709 391.72706592280224"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1133,8 +1037,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="152.2967385563374"
-    cy="414.152108304712"
+    cx="151.91237570890337"
+    cy="418.2396102075062"
     stroke="none"
     r="3"
   >
@@ -1143,8 +1047,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="428.68517168460085"
-    cy="414.152108304712"
+    cx="427.83060826463463"
+    cy="418.2396102075062"
     stroke="none"
     r="3"
   >
@@ -1153,15 +1057,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="717.7791714145461"
-    cy="414.152108304712"
+    cx="717.9676036501098"
+    cy="418.2396102075062"
     stroke="none"
     r="3"
   >
     <title>`P3`.dot3</title>
   </circle>
   <g
-    transform="rotate(0, -0.004345464137851529, 551.2452070723485)translate(-0.004345464137851529, 551.2452070723485)"
+    transform="rotate(0, -0.005208840896915312, 554.9192616125141)translate(-0.005208840896915312, 554.9192616125141)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1175,8 +1079,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.329073635826878"
-      height="15.329073635826878"
+      width="15.375584320806217"
+      height="15.375584320806217"
     >
       <style type="text/css">
         .st0 {
@@ -1208,7 +1112,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 255.53597014346545, 530.4020639181186)translate(255.53597014346545, 530.4020639181186)"
+    transform="rotate(0, 255.17589046211995, 534.187935054528)translate(255.17589046211995, 534.187935054528)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1222,8 +1126,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.01535994428681"
-      height="57.01535994428681"
+      width="56.83823743677835"
+      height="56.83823743677835"
     >
       <style type="text/css">
         .st0 {
@@ -1255,7 +1159,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 522.5924238170711, 508.35945137501824)translate(522.5924238170711, 508.35945137501824)"
+    transform="rotate(0, 523.3056307476452, 512.18548820355)translate(523.3056307476452, 512.18548820355)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1269,8 +1173,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="101.10058503048755"
-      height="101.10058503048755"
+      width="100.8431311387343"
+      height="100.8431311387343"
     >
       <style type="text/css">
         .st0 {
@@ -1302,40 +1206,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`C3P7P9`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P7P9`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 573.1427163323149 558.909743890262 L 573.191479147506 492.0515421474471"
+      d="M 573.7271963170124 562.6070537729172 L 573.7783097234297 495.9277324217652"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1346,8 +1218,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="168.36066430215226"
-    cy="550.3729791063333"
+    cx="167.98534976303642"
+    cy="554.0633609063029"
     stroke="none"
     r="3"
   >
@@ -1356,8 +1228,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="444.7491032923872"
-    cy="550.3729791063333"
+    cx="443.9035780218949"
+    cy="554.0633609063029"
     stroke="none"
     r="3"
   >
@@ -1366,48 +1238,16 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="733.7961400247905"
-    cy="550.3729791063333"
+    cx="733.9892343601778"
+    cy="554.0633609063029"
     stroke="none"
     r="3"
   >
     <title>`P5`.dot3</title>
   </circle>
   <g>
-    <marker
-      id="`C3P9P10`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P9P10`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 573.191479147506 492.0515421474471 L 581.4927413423841 398.09470860885517"
+      d="M 573.7783097234297 495.9277324217652 L 582.0665476059057 402.19862490809135"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1416,40 +1256,8 @@
     <title>`C3P9P10`.line</title>
   </g>
   <g>
-    <marker
-      id="`C3P7P8`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P7P8`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 573.1427163323149 558.909743890262 L 639.4464554041775 492.44639466946273"
+      d="M 573.7271963170124 562.6070537729172 L 639.8313528581905 496.34935585622543"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1458,40 +1266,8 @@
     <title>`C3P7P8`.line</title>
   </g>
   <g>
-    <marker
-      id="`C2P3P1`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C2P3P1`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 428.68517168460085 414.152108304712 L 385.9628419103877 387.5507794590748"
+      d="M 427.83060826463463 418.2396102075062 L 385.27865782399886 391.72706592280224"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1502,8 +1278,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="184.0504061397052"
-    cy="502.5852341705594"
+    cx="183.5999546288961"
+    cy="506.4530254156093"
     stroke="none"
     r="3"
   >
@@ -1512,8 +1288,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="460.48039604188637"
-    cy="502.5852341705594"
+    cx="459.5589950296462"
+    cy="506.4530254156093"
     stroke="none"
     r="3"
   >
@@ -1522,15 +1298,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="749.5924399472271"
-    cy="502.5852341705594"
+    cx="749.7100875543792"
+    cy="506.4530254156093"
     stroke="none"
     r="3"
   >
     <title>`P4`.dot3</title>
   </circle>
   <g
-    transform="rotate(0, 151.95124577365002, 380.2240675647908)translate(151.95124577365002, 380.2240675647908)"
+    transform="rotate(0, 144.015485865247, 367.81577981618113)translate(144.015485865247, 367.81577981618113)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1544,8 +1320,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.338749928399565"
-      height="15.338749928399565"
+      width="15.387191367230264"
+      height="15.387191367230264"
     >
       <style type="text/css">
         .st0 {
@@ -1577,7 +1353,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 407.4079242749243, 359.2922353508101)translate(407.4079242749243, 359.2922353508101)"
+    transform="rotate(0, 399.1286697814969, 347.0107362995822)translate(399.1286697814969, 347.0107362995822)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1591,8 +1367,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.20241435636099"
-      height="57.20241435636099"
+      width="56.99727840042802"
+      height="56.99727840042802"
     >
       <style type="text/css">
         .st0 {
@@ -1624,7 +1400,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 674.5749716949272, 337.4010651881904)translate(674.5749716949272, 337.4010651881904)"
+    transform="rotate(0, 667.3522613039684, 325.1365630568177)translate(667.3522613039684, 325.1365630568177)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1638,8 +1414,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.98475468160044"
-      height="100.98475468160044"
+      width="100.74562488595707"
+      height="100.74562488595707"
     >
       <style type="text/css">
         .st0 {
@@ -1671,40 +1447,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`C2P1P2`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C2P1P2`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 385.9628419103877 387.5507794590748 L 436.0091314531048 387.8934425289906"
+      d="M 385.27865782399886 391.72706592280224 L 427.62730898171094 375.50937549979625"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1715,8 +1459,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="16.046787320178623"
-    cy="398.09470860885517"
+    cx="16.05037452639573"
+    cy="402.19862490809135"
     stroke="none"
     r="3"
   >
@@ -1725,8 +1469,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="292.4352418214337"
-    cy="398.09470860885517"
+    cx="291.9686114679162"
+    cy="402.19862490809135"
     stroke="none"
     r="3"
   >
@@ -1735,8 +1479,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="581.4927413423841"
-    cy="398.09470860885517"
+    cx="582.0665476059057"
+    cy="402.19862490809135"
     stroke="none"
     r="3"
   >
@@ -1745,8 +1489,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="74.16675650103332"
-    cy="492.44639466946273"
+    cx="73.9834392307825"
+    cy="496.34935585622543"
     stroke="none"
     r="3"
   >
@@ -1755,8 +1499,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="350.5552044548316"
-    cy="492.44639466946273"
+    cx="349.90166922673893"
+    cy="496.34935585622543"
     stroke="none"
     r="3"
   >
@@ -1765,15 +1509,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="639.4464554041775"
-    cy="492.44639466946273"
+    cx="639.8313528581905"
+    cy="496.34935585622543"
     stroke="none"
     r="3"
   >
     <title>`P8`.dot3</title>
   </circle>
   <g
-    transform="rotate(0, 160.6911706568065, 542.7034854609876)translate(160.6911706568065, 542.7034854609876)"
+    transform="rotate(0, 160.29175840212093, 546.3697695453875)translate(160.29175840212093, 546.3697695453875)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1787,8 +1531,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.338987290691524"
-      height="15.338987290691524"
+      width="15.387182721830953"
+      height="15.387182721830953"
     >
       <style type="text/css">
         .st0 {
@@ -1820,7 +1564,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 416.11199907746334, 521.7358748914095)translate(416.11199907746334, 521.7358748914095)"
+    transform="rotate(0, 415.3646372273729, 525.524420111781)translate(415.3646372273729, 525.524420111781)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1834,8 +1578,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.27420842984775"
-      height="57.27420842984775"
+      width="57.07788158904392"
+      height="57.07788158904392"
     >
       <style type="text/css">
         .st0 {
@@ -1867,7 +1611,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 683.3005679380149, 499.87740701955767)translate(683.3005679380149, 499.87740701955767)"
+    transform="rotate(0, 683.6131554888176, 503.6872820349428)translate(683.6131554888176, 503.6872820349428)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1881,8 +1625,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.99114417355129"
-      height="100.99114417355129"
+      width="100.75215774272024"
+      height="100.75215774272024"
     >
       <style type="text/css">
         .st0 {
@@ -1914,7 +1658,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 66.87251573544317, 551.406297473457)translate(66.87251573544317, 551.406297473457)"
+    transform="rotate(0, 66.69510343469848, 555.0885753139241)translate(66.69510343469848, 555.0885753139241)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1928,8 +1672,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.339000304443195"
-      height="15.339000304443195"
+      width="15.387176275294092"
+      height="15.387176275294092"
     >
       <style type="text/css">
         .st0 {
@@ -1961,7 +1705,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 322.49899294227646, 530.6443349900755)translate(322.49899294227646, 530.6443349900755)"
+    transform="rotate(0, 321.9695454225909, 534.4447895608957)translate(321.9695454225909, 534.4447895608957)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1975,8 +1719,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.862925271206294"
-      height="56.862925271206294"
+      width="56.67474778135083"
+      height="56.67474778135083"
     >
       <style type="text/css">
         .st0 {
@@ -2008,7 +1752,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 589.2260823258566, 508.3664302760167)translate(589.2260823258566, 508.3664302760167)"
+    transform="rotate(0, 589.7657031670337, 512.1883706769282)translate(589.7657031670337, 512.1883706769282)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2022,8 +1766,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="101.41873469932396"
-      height="101.41873469932396"
+      width="101.18758554928571"
+      height="101.18758554928571"
     >
       <style type="text/css">
         .st0 {
@@ -2055,40 +1799,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`C3P5P6`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P5P6`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 733.7961400247905 550.3729791063333 L 639.9354496755186 559.0757976256787"
+      d="M 733.9892343601778 554.0633609063029 L 640.3594959416766 562.7821634515711"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2097,40 +1809,8 @@
     <title>`C3P5P6`.line</title>
   </g>
   <g>
-    <marker
-      id="`C3P6P9`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P6P9`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 639.9354496755186 559.0757976256787 L 573.191479147506 492.0515421474471"
+      d="M 640.3594959416766 562.7821634515711 L 573.7783097234297 495.9277324217652"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2139,7 +1819,7 @@
     <title>`C3P6P9`.line</title>
   </g>
   <g
-    transform="rotate(0, 176.3809141678457, 494.9157421986999)translate(176.3809141678457, 494.9157421986999)"
+    transform="rotate(0, 175.90636412211944, 498.75943490883265)translate(175.90636412211944, 498.75943490883265)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2153,8 +1833,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.33898394371895"
-      height="15.33898394371895"
+      width="15.387181013553372"
+      height="15.387181013553372"
     >
       <style type="text/css">
         .st0 {
@@ -2186,7 +1866,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 431.8432830661424, 473.9481211948154)translate(431.8432830661424, 473.9481211948154)"
+    transform="rotate(0, 431.02005485556225, 477.91408524152536)translate(431.02005485556225, 477.91408524152536)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2200,8 +1880,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.27422595148794"
-      height="57.27422595148794"
+      width="57.07788034816794"
+      height="57.07788034816794"
     >
       <style type="text/css">
         .st0 {
@@ -2233,7 +1913,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 699.1643884317813, 452.1571826551135)translate(699.1643884317813, 452.1571826551135)"
+    transform="rotate(0, 699.3996385866889, 456.14257644791894)translate(699.3996385866889, 456.14257644791894)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -2247,8 +1927,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.8561030308918"
-      height="100.8561030308918"
+      width="100.62089793538073"
+      height="100.62089793538073"
     >
       <style type="text/css">
         .st0 {
@@ -2280,40 +1960,8 @@
     </svg>
   </g>
   <g>
-    <marker
-      id="`C2P4P5`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C2P4P5`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 460.48039604188637 502.5852341705594 L 444.7491032923872 550.3729791063333"
+      d="M 459.5589950296462 506.4530254156093 L 443.9035780218949 554.0633609063029"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2322,40 +1970,8 @@
     <title>`C2P4P5`.line</title>
   </g>
   <g>
-    <marker
-      id="`C3P2P3`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P2P3`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 725.0673490357274 387.8934425289906 L 717.7791714145461 414.152108304712"
+      d="M 717.7250737469469 375.50937549979625 L 717.9676036501098 418.2396102075062"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2364,40 +1980,8 @@
     <title>`C3P2P3`.line</title>
   </g>
   <g>
-    <marker
-      id="`C3P1P2`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P1P2`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 674.9855668730617 387.5507794590748 L 725.0673490357274 387.8934425289906"
+      d="M 675.3372608881709 391.72706592280224 L 717.7250737469469 375.50937549979625"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2408,8 +1992,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="7.660191353775588"
-    cy="558.909743890262"
+    cx="7.682583319506193"
+    cy="562.6070537729172"
     stroke="none"
     r="3"
   >
@@ -2418,8 +2002,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="284.04365011560884"
-    cy="558.909743890262"
+    cx="283.5950091805091"
+    cy="562.6070537729172"
     stroke="none"
     r="3"
   >
@@ -2428,48 +2012,16 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="573.1427163323149"
-    cy="558.909743890262"
+    cx="573.7271963170124"
+    cy="562.6070537729172"
     stroke="none"
     r="3"
   >
     <title>`P7`.dot3</title>
   </circle>
   <g>
-    <marker
-      id="`C2P2P3`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C2P2P3`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 436.0091314531048 387.8934425289906 L 428.68517168460085 414.152108304712"
+      d="M 427.62730898171094 375.50937549979625 L 427.83060826463463 418.2396102075062"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2478,40 +2030,8 @@
     <title>`C2P2P3`.line</title>
   </g>
   <g>
-    <marker
-      id="`C3P3P4`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P3P4`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 717.7791714145461 414.152108304712 L 749.5924399472271 502.5852341705594"
+      d="M 717.9676036501098 418.2396102075062 L 749.7100875543792 506.4530254156093"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2522,8 +2042,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="159.6206207378498"
-    cy="387.8934425289906"
+    cx="151.70908154886214"
+    cy="375.50937549979625"
     stroke="none"
     r="3"
   >
@@ -2532,8 +2052,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="436.0091314531048"
-    cy="387.8934425289906"
+    cx="427.62730898171094"
+    cy="375.50937549979625"
     stroke="none"
     r="3"
   >
@@ -2542,48 +2062,16 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="725.0673490357274"
-    cy="387.8934425289906"
+    cx="717.7250737469469"
+    cy="375.50937549979625"
     stroke="none"
     r="3"
   >
     <title>`P2`.dot3</title>
   </circle>
   <g>
-    <marker
-      id="`C3P6P7`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P6P7`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 639.9354496755186 559.0757976256787 L 573.1427163323149 558.909743890262"
+      d="M 640.3594959416766 562.7821634515711 L 573.7271963170124 562.6070537729172"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2592,40 +2080,8 @@
     <title>`C3P6P7`.line</title>
   </g>
   <g>
-    <marker
-      id="`C3P4P5`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P4P5`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 749.5924399472271 502.5852341705594 L 733.7961400247905 550.3729791063333"
+      d="M 749.7100875543792 506.4530254156093 L 733.9892343601778 554.0633609063029"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2636,8 +2092,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="109.57438445696715"
-    cy="387.5507794590748"
+    cx="109.36042596686434"
+    cy="391.72706592280224"
     stroke="none"
     r="3"
   >
@@ -2646,8 +2102,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="385.9628419103877"
-    cy="387.5507794590748"
+    cx="385.27865782399886"
+    cy="391.72706592280224"
     stroke="none"
     r="3"
   >
@@ -2656,8 +2112,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="674.9855668730617"
-    cy="387.5507794590748"
+    cx="675.3372608881709"
+    cy="391.72706592280224"
     stroke="none"
     r="3"
   >
@@ -2666,8 +2122,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="7.641254004647294"
-    cy="492.0515421474471"
+    cx="7.66175077014708"
+    cy="495.9277324217652"
     stroke="none"
     r="3"
   >
@@ -2676,8 +2132,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="284.01529873868566"
-    cy="492.0515421474471"
+    cx="283.5639378530473"
+    cy="495.9277324217652"
     stroke="none"
     r="3"
   >
@@ -2686,48 +2142,16 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="573.191479147506"
-    cy="492.0515421474471"
+    cx="573.7783097234297"
+    cy="495.9277324217652"
     stroke="none"
     r="3"
   >
     <title>`P9`.dot3</title>
   </circle>
   <g>
-    <marker
-      id="`C3P6P8`.line-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <marker
-      id="`C3P6P8`.line-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <path
-      d="M 639.9354496755186 559.0757976256787 L 639.4464554041775 492.44639466946273"
+      d="M 640.3594959416766 562.7821634515711 L 639.8313528581905 496.34935585622543"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2738,8 +2162,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="74.54201588766477"
-    cy="559.0757976256787"
+    cx="74.38869157234552"
+    cy="562.7821634515711"
     stroke="none"
     r="3"
   >
@@ -2748,8 +2172,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="350.9304555778796"
-    cy="559.0757976256787"
+    cx="350.3069193132663"
+    cy="562.7821634515711"
     stroke="none"
     r="3"
   >
@@ -2758,8 +2182,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="639.9354496755186"
-    cy="559.0757976256787"
+    cx="640.3594959416766"
+    cy="562.7821634515711"
     stroke="none"
     r="3"
   >
@@ -2767,23 +2191,7 @@
   </circle>
   <g>
     <marker
-      id="`F`.axis-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="6.97"
-      markerHeight="5.68"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`F`.axis-rightArrowhead"
+      id="`F`.axis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -2799,17 +2207,17 @@
       ></path>
     </marker>
     <path
-      d="M 29.603122500389873 641.5668294701866 L 759.0288774996102 641.5668294701866"
+      d="M 28.862413264629367 645.0774249341332 L 760.5115867353707 645.0774249341332"
       stroke-opacity="0.5"
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#`F`.axis-rightArrowhead)"
+      marker-end="url(#`F`.axis-endArrowId)"
     ></path>
     <title>`F`.axis</title>
   </g>
   <g
-    transform="rotate(0, 78.36961799073313, 246.32586439655717)translate(78.36961799073313, 246.32586439655717)"
+    transform="rotate(0, 78.39325464859681, 229.68704412051477)translate(78.39325464859681, 229.68704412051477)"
     string="X \oplus B_{\varepsilon_{1}}"
   >
     <title>`F`.lab1</title>
@@ -2831,7 +2239,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 354.7579061123447, 246.32586439655717)translate(354.7579061123447, 246.32586439655717)"
+    transform="rotate(0, 354.31122762986206, 229.68704412051477)translate(354.31122762986206, 229.68704412051477)"
     string="X \oplus B_{\varepsilon_{2}}"
   >
     <title>`F`.lab2</title>
@@ -2853,7 +2261,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 644.1570408847535, 246.26086439655717)translate(644.1570408847535, 246.26086439655717)"
+    transform="rotate(0, 644.7496082733619, 229.62204412051477)translate(644.7496082733619, 229.62204412051477)"
     string="X \oplus B_{\varepsilon_{3}}"
   >
     <title>`F`.lab3</title>
@@ -2877,15 +2285,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="29.603122500389873"
-    cy="641.5668294701866"
+    cx="28.862413264629367"
+    cy="645.0774249341332"
     stroke="none"
     r="4"
   >
     <title>`F`.dot0</title>
   </circle>
   <g
-    transform="rotate(0, 2.1881225003898725, 626.7368294701865)translate(2.1881225003898725, 626.7368294701865)"
+    transform="rotate(0, 1.4474132646293674, 630.2474249341332)translate(1.4474132646293674, 630.2474249341332)"
     string="0"
   >
     <title>`F`.eps0</title>
@@ -2909,15 +2317,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="130.87071728503787"
-    cy="641.5668294701866"
+    cx="130.89435394290155"
+    cy="645.0774249341332"
     stroke="none"
     r="4"
   >
     <title>`F`.dot1</title>
   </circle>
   <g
-    transform="rotate(0, 783.4860974996101, 626.7368294701865)translate(783.4860974996101, 626.7368294701865)"
+    transform="rotate(0, 784.2268067353706, 630.2474249341332)translate(784.2268067353706, 630.2474249341332)"
     string="\varepsilon"
   >
     <title>`F`.eps</title>
@@ -2939,7 +2347,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 137.48515928503787, 646.7368294701865)translate(137.48515928503787, 646.7368294701865)"
+    transform="rotate(0, 137.50879594290154, 650.2474249341332)translate(137.50879594290154, 650.2474249341332)"
     string="\varepsilon_1"
   >
     <title>`F`.eps1</title>
@@ -2963,15 +2371,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="407.2590054066494"
-    cy="641.5668294701866"
+    cx="406.8123269241668"
+    cy="645.0774249341332"
     stroke="none"
     r="4"
   >
     <title>`F`.dot2</title>
   </circle>
   <g
-    transform="rotate(0, 413.8734474066494, 646.7368294701865)translate(413.8734474066494, 646.7368294701865)"
+    transform="rotate(0, 413.4267689241668, 650.2474249341332)translate(413.4267689241668, 650.2474249341332)"
     string="\varepsilon_2"
   >
     <title>`F`.eps2</title>
@@ -2995,15 +2403,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="696.3175019996881"
-    cy="641.5668294701866"
+    cx="696.9100693882965"
+    cy="645.0774249341332"
     stroke="none"
     r="4"
   >
     <title>`F`.dot3</title>
   </circle>
   <g
-    transform="rotate(0, 702.9319439996882, 646.7368294701865)translate(702.9319439996882, 646.7368294701865)"
+    transform="rotate(0, 703.5245113882966, 650.2474249341332)translate(703.5245113882966, 650.2474249341332)"
     string="\varepsilon_3"
   >
     <title>`F`.eps3</title>

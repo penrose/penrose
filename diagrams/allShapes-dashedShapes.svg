@@ -14,23 +14,7 @@
   </circle>
   <g style="dashed">
     <marker
-      id="`D`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#d438e0"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`D`.icon-rightArrowhead"
+      id="`D`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -46,34 +30,18 @@
       ></path>
     </marker>
     <path
-      d="M 372.1043857988877 613.1774524873201 L 562.9605359085404 282.47623873200774"
+      d="M 372.1043857988877 613.1774524873201 L 563.2254585702523 282.01720062540716"
       stroke-opacity="0.5"
       stroke-width="1"
       stroke="#d438e0"
       stroke-linecap="butt"
-      marker-end="url(#`D`.icon-rightArrowhead)"
+      marker-end="url(#`D`.icon-endArrowId)"
     ></path>
     <title>`D`.icon</title>
   </g>
   <g>
     <marker
-      id="`E`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#e18ed6"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`E`.icon-rightArrowhead"
+      id="`E`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -89,49 +57,17 @@
       ></path>
     </marker>
     <path
-      d="M 276.3415919948836 222.87701166475625 L 168.13785443462334 141.72551204863373"
+      d="M 276.3415919948836 222.87701166475625 L 167.71385198277184 141.4075153177953"
       stroke-opacity="0.5"
       stroke-width="1"
       stroke="#e18ed6"
       stroke-dasharray="30 10 1 10"
       stroke-linecap="butt"
-      marker-end="url(#`E`.icon-rightArrowhead)"
+      marker-end="url(#`E`.icon-endArrowId)"
     ></path>
     <title>`E`.icon</title>
   </g>
   <g>
-    <marker
-      id="`L`.icon-leftArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#2dbace"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
-    <marker
-      id="`L`.icon-rightArrowhead"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#2dbace"
-        fill-opacity="0.5"
-      ></path>
-    </marker>
     <path
       d="M 282.43221358258216 47.414359069630564 L 366.4536040397027 277.43213874817246"
       stroke-opacity="0.5"
@@ -142,7 +78,7 @@
     ></path>
     <title>`L`.icon</title>
   </g>
-  <g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
     <filter id="`P`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

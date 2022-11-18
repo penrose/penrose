@@ -23,6 +23,11 @@ export interface State extends OptState {
   shapes: ShapeAD[];
   canvas: Canvas;
   computeShapes: ShapeFn;
+  /**
+   * A set of indices of `varyingValues` that are treated as constant during optimization.
+   * Currently used for the drag interaction.
+   */
+  frozenValues: Set<number>;
 }
 
 /**

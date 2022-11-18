@@ -50,6 +50,12 @@
       "variation": ""
     },
     {
+      "substance": "arrowheads",
+      "style": "arrowheads",
+      "domain": "shape-spec",
+      "variation": ""
+    },
+    {
       "substance": "small-graph",
       "style": "disjoint-rects-small-canvas",
       "domain": "graph-theory",
@@ -239,6 +245,11 @@
       "name": "Shapes with dashed lines",
       "URI": "shape-spec/shape-spec-dashes.sty"
     },
+    "arrowheads": {
+      "domain": "shape-spec",
+      "name": "Arrowhead Styles",
+      "URI": "shape-spec/arrows.sty"
+    },
     "vectors-dashed": {
       "domain": "linear-algebra",
       "name": "Vectors with Dashed Arrows",
@@ -349,6 +360,11 @@
       "domain": "shape-spec",
       "name": "All Shapes",
       "URI": "shape-spec/shapes-dashes.sub"
+    },
+    "arrowheads": {
+      "domain": "shape-spec",
+      "name": "All Arrowhead Styles",
+      "URI": "shape-spec/arrows.sub"
     },
     "small-graph": {
       "domain": "graph-theory",
