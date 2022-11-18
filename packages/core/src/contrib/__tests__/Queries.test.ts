@@ -94,7 +94,7 @@ describe("simple queries", () => {
     const bbox = bboxFromShape([shapeType, shape]);
     const [x, y, w, h] = genCode(
       secondaryGraph([bbox.center[0], bbox.center[1], bbox.width, bbox.height])
-    )([]).secondary;
+    ).call([]).secondary;
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
     expect(w).toBeCloseTo(44, precisionDigits);
@@ -103,7 +103,7 @@ describe("simple queries", () => {
 
   it.each(shapes)("shapeCenter for %p", (shapeType: string, shape: any) => {
     const center = shapeCenter([shapeType, shape]);
-    const [x, y] = genCode(secondaryGraph([center[0], center[1]]))(
+    const [x, y] = genCode(secondaryGraph([center[0], center[1]])).call(
       []
     ).secondary;
     expect(x).toBeCloseTo(11, precisionDigits);
@@ -112,7 +112,7 @@ describe("simple queries", () => {
 
   it.each(shapes)("shapeSize for %p", (shapeType: string, shape: any) => {
     const size = shapeSize([shapeType, shape]);
-    const [sizeNum] = genCode(secondaryGraph([size]))([]).secondary;
+    const [sizeNum] = genCode(secondaryGraph([size])).call([]).secondary;
     expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
@@ -125,7 +125,7 @@ describe("polygonLikePoints", () => {
     }
     const g = secondaryGraph(outputs);
     const f = genCode(g);
-    const nums = f([]).secondary; // no inputs, so, empty array
+    const nums = f.call([]).secondary; // no inputs, so, empty array
     const pts: [number, number][] = [];
     for (let i = 0; i < nums.length; i += 2) {
       pts.push([nums[i], nums[i + 1]]);
@@ -181,7 +181,7 @@ describe("outwardUnitNormal", () => {
         ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
         sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
       ])
-    )([]).secondary;
+    ).call([]).secondary;
 
     // It is unit
     expect(norm).toBeCloseTo(1, 4);
@@ -200,7 +200,7 @@ describe("outwardUnitNormal", () => {
         ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
         sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
       ])
-    )([]).secondary;
+    ).call([]).secondary;
 
     // It is unit
     expect(norm).toBeCloseTo(1, 4);

@@ -20,7 +20,7 @@ describe("overlappingAABBs should return the same value as overlappingPolygons",
 
         const [result1num, result2num] = genCode(
           secondaryGraph([result1, result2])
-        )([]).secondary;
+        ).call([]).secondary;
 
         expect(result1num).toBeCloseTo(result2num, 4);
       }
