@@ -10,6 +10,7 @@ runs:
         cargo install wasm-bindgen-cli \
           --git https://github.com/rustwasm/wasm-bindgen \
           --rev f5b2ef8c5cda2c1933fd5d2c2337eb4ca26470e8
+      shell: bash
     - name: Restore cache
       id: cache
       uses: actions/cache@v2
