@@ -138,7 +138,7 @@ export const RenderInteractive = async (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  for (const shape of state.computeShapes!(state.varyingValues)) {
+  for (const shape of state.computeShapes(state.varyingValues)) {
     svg.appendChild(
       await DraggableShape(
         {
@@ -169,7 +169,7 @@ export const RenderStatic = async (
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
   return Promise.all(
-    computeShapes!(varyingValues).map((shape) =>
+    computeShapes(varyingValues).map((shape) =>
       RenderShape({
         shape,
         labels,

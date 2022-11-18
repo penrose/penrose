@@ -13,6 +13,7 @@
           "build-shapedefs",
           "build-storybook",
           "build-wasm",
+          "build-wasm-bindgen",
           "docs",
           "write-translations"
         ]

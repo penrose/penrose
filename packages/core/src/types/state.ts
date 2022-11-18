@@ -1,5 +1,4 @@
-import { Optimizer } from "@penrose/optimizer";
-import { Matrix } from "ml-matrix";
+import { FnEvaled, OptState } from "@penrose/optimizer";
 import { Canvas, InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { A } from "./ast";
@@ -14,19 +13,16 @@ export type ShapeFn = (xs: number[]) => Shape[];
 /**
  * The diagram state
  */
-export interface State {
+export interface State extends OptState {
   warnings: StyleWarning[];
   variation: string;
   objFns: Fn[];
   constrFns: Fn[];
-  varyingValues: number[];
   inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
   shapes: ShapeAD[];
   canvas: Canvas;
-  optProblem: Uint8Array;
-  optimizer?: Optimizer;
-  computeShapes?: ShapeFn;
+  computeShapes: ShapeFn;
 }
 
 /**
@@ -57,62 +53,6 @@ export type LabelCache = Map<string, LabelData>;
 export interface Fn {
   ast: WithContext<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
-}
-
-export type OptStatus =
-  | "NewIter"
-  | "UnconstrainedRunning"
-  | "UnconstrainedConverged"
-  | "EPConverged"
-  | "Error";
-
-// `n` is the size of the varying state
-export interface LbfgsParams {
-  lastState: Matrix | undefined; // nx1 (col vec)
-  lastGrad: Matrix | undefined; // nx1 (col vec)
-  s_list: Matrix[]; // list of nx1 col vecs
-  y_list: Matrix[]; // list of nx1 col vecs
-  numUnconstrSteps: number;
-  memSize: number;
-}
-
-export interface FnEvaled {
-  f: number;
-  gradf: number[];
-  objEngs: number[];
-  constrEngs: number[];
-}
-
-export interface Params {
-  optStatus: OptStatus;
-  /** Constraint weight for exterior point method **/
-  weight: number;
-  /** Info for unconstrained optimization **/
-  UOround: number;
-  lastUOstate?: number[];
-  lastUOenergy?: number;
-  lastObjEnergies?: number[];
-  lastConstrEnergies?: number[];
-
-  /** Info for exterior point method **/
-  EPround: number;
-  lastEPstate?: number[];
-  lastEPenergy?: number;
-
-  lastGradient: number[]; // Value of gradient evaluated at the last state
-  lastGradientPreconditioned: number[]; // Value of gradient evaluated at the last state, preconditioned by LBFGS
-  // ^ Those two are stored to make them available to Style later
-
-  // For L-BFGS
-  lbfgsInfo: LbfgsParams;
-
-  // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
-  objectiveAndGradient: (epWeight: number) => (xs: number[]) => FnEvaled;
-
-  // Applied with weight (or hyperparameters in general) -- may change with the EP round
-  currObjectiveAndGradient(xs: number[]): FnEvaled;
-
-  energyGraph: ad.Num; // This is the top of the energy graph (parent node)
 }
 
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.

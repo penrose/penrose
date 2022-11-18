@@ -3,14 +3,17 @@
   "version": "1.3.0",
   "private": true,
   "scripts": {
-    "build": "esbuild ./source.js --bundle --loader:.wasm=binary --outfile=index.js --format=cjs",
-    "build-wasm": "cargo build --release"
+    "build": "esbuild ${FORCE_COLOR+--color=true} ./source.ts --bundle --loader:.wasm=binary --outfile=index.js --format=cjs",
+    "build-decls": ":",
+    "build-wasm": "cargo ${FORCE_COLOR+--color=always} build --release",
+    "build-wasm-bindgen": "wasm-bindgen --target=web --keep-lld-exports --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
+    "typecheck": ":"
   },
   "nx": {
     "targets": {
       "build": {
         "dependsOn": [
-          "build-wasm"
+          "build-wasm-bindgen"
         ],
         "outputs": [
           "{projectRoot}/index.js"
@@ -20,10 +23,18 @@
         "outputs": [
           "{projectRoot}/target"
         ]
+      },
+      "build-wasm-bindgen": {
+        "dependsOn": [
+          "build-wasm"
+        ],
+        "outputs": [
+          "{projectRoot}/build"
+        ]
       }
     }
   },
   "devDependencies": {
-    "esbuild": "^0.15.7"
+    "esbuild": "^0.15.14"
   }
 }

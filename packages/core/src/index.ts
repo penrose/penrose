@@ -1,4 +1,5 @@
-import { compileCompGraph } from "engine/EngineUtils";
+import { FnEvaled, step } from "@penrose/optimizer";
+import { initConstraintWeight } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -20,10 +21,10 @@ import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
-import { Fn, FnEvaled, LabelCache, State } from "./types/state";
+import { Fn, LabelCache, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
-import { andThen, ok, Result, showError } from "./utils/Error";
+import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
   bBoxDims,
   normList,
@@ -31,6 +32,7 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   toSvgPaintProperty,
+  zip2,
 } from "./utils/Util";
 
 /**
@@ -44,6 +46,11 @@ export const resample = (state: State): State => {
     varyingValues: state.inputs.map((meta, i) =>
       "sampler" in meta ? meta.sampler(rng) : state.varyingValues[i]
     ),
+    params: {
+      ...state.params,
+      weight: initConstraintWeight,
+      optStatus: "NewIter",
+    },
   };
 };
 
@@ -53,7 +60,26 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return stepUntilConvergence(state).unwrapOr(state);
+  return { ...state, ...step(state, numSteps) };
+};
+
+/**
+ * Take n steps in the optimizer given the current state.
+ * @param state current state
+ * @param numSteps number of steps to take (default: 10000)
+ */
+export const stepStateSafe = (
+  state: State,
+  numSteps = 10000
+): Result<State, PenroseError> => {
+  const res = stepState(state, numSteps);
+  if (res.params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", res),
+    });
+  }
+  return ok(res);
 };
 
 /**
@@ -64,17 +90,20 @@ export const stepUntilConvergence = (
   state: State,
   numSteps = 10000
 ): Result<State, PenroseError> => {
-  return ok({
-    ...state,
-    varyingValues: state.optimizer!.converge({
-      inputs: state.inputs.map((meta) =>
-        "pending" in meta ? "pending" : "sampler"
-      ),
-      numObjEngs: state.objFns.length,
-      numConstrEngs: state.constrFns.length,
-      varyingValues: state.varyingValues,
-    }),
-  });
+  let currentState = state;
+  while (
+    !(currentState.params.optStatus === "Error") &&
+    !stateConverged(currentState)
+  ) {
+    currentState = stepState(currentState, numSteps);
+  }
+  if (currentState.params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", currentState),
+    });
+  }
+  return ok(currentState);
 };
 
 const stepUntilConvergenceOrThrow = (state: State): State => {
@@ -201,15 +230,22 @@ export const prepareState = async (state: State): Promise<State> => {
     throw Error(showError(labelCache.error));
   }
 
-  const withPending = insertPending({ ...state, labelCache: labelCache.value });
-
-  const { optimizer, computeShapes } = await compileCompGraph(
-    withPending.optProblem,
-    withPending.shapes
-  );
-
-  return { ...withPending, optimizer, computeShapes };
+  return insertPending({ ...state, labelCache: labelCache.value });
 };
+
+/**
+ * Returns true if state is converged
+ * @param state current state
+ */
+export const stateConverged = (state: State): boolean =>
+  state.params.optStatus === "EPConverged";
+
+/**
+ * Returns true if state is the initial frame
+ * @param state current state
+ */
+export const stateInitial = (state: State): boolean =>
+  state.params.optStatus === "NewIter";
 
 /**
  * Read and flatten the registry file for Penrose examples into a list of program trios.
@@ -241,6 +277,43 @@ export const readRegistry = (registry: Registry): Trio[] => {
     res.push(trio);
   }
   return res;
+};
+
+/**
+ * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objectiveAndGradient` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
+ * @param s a state with or without an optimization problem initialized
+ * @returns a scalar value of the current energy
+ */
+export const evalEnergy = (s: State): number => {
+  const { objectiveAndGradient, weight } = s.params;
+  // TODO: maybe don't also compute the gradient, just to throw it away
+  return objectiveAndGradient(weight)(s.varyingValues).f;
+};
+
+/**
+ * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. This function assumes that the state already has the objectives and constraints compiled.
+ * @param fns a list of constraints/objectives
+ * @param s a state with its opt functions cached
+ * @returns a list of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
+ */
+export const evalFns = (
+  s: State
+): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
+  // Evaluate the energy of each requested function (of the given type) on the varying values in the state
+  let { lastConstrEnergies, lastObjEnergies } = s.params;
+  if (!lastConstrEnergies || !lastObjEnergies) {
+    const { objEngs, constrEngs } = s.params.objectiveAndGradient(
+      s.params.weight
+    )(s.varyingValues);
+    lastConstrEnergies = constrEngs;
+    lastObjEnergies = objEngs;
+  }
+  return {
+    constrEngs: new Map(
+      zip2(s.constrFns.map(prettyPrintFn), lastConstrEnergies)
+    ),
+    objEngs: new Map(zip2(s.objFns.map(prettyPrintFn), lastObjEnergies)),
+  };
 };
 
 export type PenroseState = State;

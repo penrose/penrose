@@ -1,4 +1,3 @@
-import { getOptimizer } from "@penrose/optimizer";
 import { EPS_DENOM, genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
@@ -190,11 +189,10 @@ export const closestPt_PtSeg = (
   return ops.vadd(start, ops.vmul(t1, dir));
 };
 
-export const numsOf = async (xs: ad.Num[]) => {
+export const numsOf = (xs: ad.Num[]) => {
   const g = secondaryGraph(xs);
   const f = genCode(g);
-  const optimizer = await getOptimizer(f, f);
-  return optimizer.shapes([], xs.length);
+  return f.call([]).secondary;
 };
 
 export const numOf = (x: ad.Num) => {

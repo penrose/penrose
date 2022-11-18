@@ -1,5 +1,6 @@
 mod builtins;
-mod memory;
+
+use wasm_bindgen::prelude::wasm_bindgen;
 
 type Vector = nalgebra::DVector<f64>;
 type Matrix = nalgebra::DMatrix<f64>;
@@ -664,4 +665,14 @@ fn penrose_converge(
     };
     let optimized_state = step_until_convergence(initial_state, 10000);
     varying_values.copy_from_slice(&optimized_state.varying_values);
+}
+
+#[wasm_bindgen]
+pub fn penrose_call(p: usize, inputs: &[f64], gradient: &mut [f64], secondary: &mut [f64]) -> f64 {
+    let f = unsafe { std::mem::transmute::<usize, Compiled>(p) };
+    f(
+        inputs.as_ptr(),
+        gradient.as_mut_ptr(),
+        secondary.as_mut_ptr(),
+    )
 }

@@ -1,8 +1,10 @@
+import { Params } from "@penrose/optimizer";
 import consola, { LogLevel } from "consola";
 import { fns, genCode, input, makeGraph, ops } from "engine/Autodiff";
-import { initConstraintWeight } from "engine/EngineUtils";
+import { defaultLbfgsParams, initConstraintWeight } from "engine/EngineUtils";
 import { InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
+import { repeat } from "utils/Util";
 import { add, mul } from "./AutodiffFunctions";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
@@ -51,7 +53,7 @@ export const genOptProblem = (
   inputs: InputMeta[],
   objEngs: ad.Num[],
   constrEngs: ad.Num[]
-): Uint8Array => {
+): Params => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
   log.info("Compiling objective and gradient");
@@ -73,5 +75,37 @@ export const genOptProblem = (
     secondary: [...objEngs, ...constrEngs],
   });
 
-  return genCode(explicitGraph);
+  const f = genCode(explicitGraph);
+
+  const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
+    const { primary, gradient, secondary } = f.call([...xs, epWeight]);
+    return {
+      f: primary,
+      gradf: xs.map((x, i) => {
+        // fill in any holes in case some inputs weren't used in the graph, and
+        // also treat pending values as constants rather than optimizing them
+        return i in gradient && !("pending" in inputs[i]) ? gradient[i] : 0;
+      }),
+      objEngs: secondary.slice(0, objEngs.length),
+      constrEngs: secondary.slice(objEngs.length),
+    };
+  };
+
+  const params: Params = {
+    lastGradient: repeat(inputs.length, 0),
+    lastGradientPreconditioned: repeat(inputs.length, 0),
+
+    objectiveAndGradient,
+
+    currObjectiveAndGradient: objectiveAndGradient(weight),
+
+    weight,
+    UOround: 0,
+    EPround: 0,
+    optStatus: "UnconstrainedRunning",
+
+    lbfgsInfo: defaultLbfgsParams,
+  };
+
+  return params;
 };

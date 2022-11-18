@@ -3,8 +3,10 @@ import {
   builtins,
   exportFunctionName,
   exportTableName,
+  Gradient,
   importMemoryModule,
   importMemoryName,
+  Outputs,
 } from "@penrose/optimizer";
 import consola, { LogLevel } from "consola";
 import * as _ from "lodash";
@@ -402,7 +404,7 @@ const getInputs = (
  * to any given gradient node are added up according to that total order.
  */
 export const makeGraph = (
-  outputs: Omit<ad.Outputs<ad.Num>, "gradient">
+  outputs: Omit<Outputs<ad.Num>, "gradient">
 ): ad.Graph => {
   const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
@@ -1464,7 +1466,7 @@ const polyRoots = (coeffs: number[]): number[] => {
   ).map(([r, i]) => (i === 0 ? r : NaN));
 };
 
-export const genCode = (g: ad.Graph): Uint8Array => {
+export const genCode = (g: ad.Graph): Gradient => {
   const count = new wasm.Count();
   compileGraph(count, g);
   const mod = modulePrefix(count.size);
@@ -1473,5 +1475,5 @@ export const genCode = (g: ad.Graph): Uint8Array => {
     throw Error(
       `allocated ${mod.bytes.length} bytes but used ${mod.count.size}`
     );
-  return mod.bytes;
+  return new Gradient(mod.bytes, g.secondary.length);
 };

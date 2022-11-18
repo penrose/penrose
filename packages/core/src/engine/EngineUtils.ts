@@ -1,6 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { getOptimizer, Optimizer } from "@penrose/optimizer";
+import { LbfgsParams } from "@penrose/optimizer";
 import { mapValues } from "lodash";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
@@ -14,7 +14,7 @@ import {
 } from "types/ast";
 import { StyleError } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
-import { LbfgsParams, ShapeFn } from "types/state";
+import { ShapeFn } from "types/state";
 import { Expr, Path } from "types/style";
 import {
   Color,
@@ -191,10 +191,7 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   }
 }
 
-export const compileCompGraph = async (
-  grad: Uint8Array,
-  shapes: ShapeAD[]
-): Promise<{ optimizer: Optimizer; computeShapes: ShapeFn }> => {
+export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
   const vars = [];
   for (const s of shapes) {
     for (const v of Object.values(s.properties)) {
@@ -203,31 +200,24 @@ export const compileCompGraph = async (
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
   const evalFn = genCode(compGraph);
-  const optimizer = await getOptimizer(grad, evalFn);
-  return {
-    optimizer,
-    computeShapes: (xs: number[]): Shape[] => {
-      const numbers = optimizer.shapes(xs, vars.length);
-      const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
-      return shapes.map((s: ShapeAD) => ({
-        ...s,
-        properties: mapValues(s.properties, (p: Value<ad.Num>) =>
-          mapValueNumeric(
-            (x) =>
-              safe(
-                m.get(
-                  safe(
-                    compGraph.nodes.get(x),
-                    `missing node for value ${p.tag}`
-                  )
-                ),
-                "missing output"
+  return (xs: number[]): Shape[] => {
+    const numbers = evalFn.call(xs).secondary;
+    const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
+    return shapes.map((s: ShapeAD) => ({
+      ...s,
+      properties: mapValues(s.properties, (p: Value<ad.Num>) =>
+        mapValueNumeric(
+          (x) =>
+            safe(
+              m.get(
+                safe(compGraph.nodes.get(x), `missing node for value ${p.tag}`)
               ),
-            p
-          )
-        ),
-      }));
-    },
+              "missing output"
+            ),
+          p
+        )
+      ),
+    }));
   };
 };
 

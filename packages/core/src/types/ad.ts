@@ -1,5 +1,5 @@
+import { Outputs } from "@penrose/optimizer";
 import { Multidigraph } from "utils/Graph";
-import { LbfgsParams } from "./state";
 
 // The following three regions define the core types for our symbolic
 // differentiation engine. Note that, despite the name, this is not actually
@@ -261,47 +261,10 @@ export interface Graph extends Outputs<Id> {
 
 //#endregion
 
-//#region Types for compiled autodiff graph
-
-export interface Outputs<T> {
-  gradient: T[]; // derivatives of primary output with respect to inputs
-  primary: T;
-  secondary: T[];
-}
-
-export type Compiled = (inputs: number[]) => Outputs<number>;
-
-//#endregion
-
 //#region Types for generalizing our system autodiff
 
 export type Pt2 = [Num, Num];
 
 export const isPt2 = (vec: Num[]): vec is Pt2 => vec.length === 2;
-
-export interface GradGraphs {
-  inputs: Num[];
-  weight: Num | undefined; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
-}
-
-// Returned after a call to `minimize`
-export interface OptInfo {
-  xs: number[];
-  energyVal: number;
-  objEngs: number[];
-  constrEngs: number[];
-  normGrad: number;
-  newLbfgsInfo: LbfgsParams;
-  gradient: number[];
-  gradientPreconditioned: number[];
-  failed: boolean;
-}
-
-export type NumMap = Map<string, number>;
-
-export interface OptDebugInfo {
-  gradient: NumMap;
-  gradientPreconditioned: NumMap;
-}
 
 //#endregion

@@ -19,6 +19,7 @@ export const dragUpdate = (
   }
   const updated: State = {
     ...state,
+    params: { ...state.params, optStatus: "NewIter" },
     varyingValues: xs,
   };
   return updated;
