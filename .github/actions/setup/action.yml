@@ -7,9 +7,9 @@ runs:
       shell: bash
     - name: Install wasm-bindgen
       run: |
-        cargo install wasm-bindgen-cli \
-          --git https://github.com/rustwasm/wasm-bindgen \
-          --rev f5b2ef8c5cda2c1933fd5d2c2337eb4ca26470e8
+        wget -P ~/.cargo/bin \
+          https://gist.github.com/samestep/2cf703cfd81691f2cb3c23422fce7e56/raw/9b7479276ff865d6219c7148323cfb18eaa9749a/wasm-bindgen
+        chmod +x ~/.cargo/bin/wasm-bindgen
       shell: bash
     - name: Restore cache
       id: cache
