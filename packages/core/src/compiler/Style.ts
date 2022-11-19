@@ -2069,8 +2069,6 @@ export const buildAssignment = (
                 block: { tag: "NamespaceId", contents: "" }, // HACK
                 subst: {},
                 locals: im.Map(),
-                start: { line: -1, col: -1 },
-                end: { line: -1, col: -1 },
               },
               expr: {
                 ...range,
