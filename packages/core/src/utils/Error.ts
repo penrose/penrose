@@ -322,7 +322,9 @@ canvas {
 
     case "CyclicAssignmentError": {
       const cycleString = error.cycles.map((c) =>
-        c.map(([id, src]) => `${id} (${locc("Style", src)})`)
+        c.map(({ id, src }) =>
+          src === undefined ? id : `${id} (${locc("Style", src)})`
+        )
       );
       return `The Style program contains cyclic variable assignments, where the following variables are defined in cycles:\n${showCycles(
         cycleString

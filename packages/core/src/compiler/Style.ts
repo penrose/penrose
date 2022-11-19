@@ -1745,15 +1745,7 @@ const insertExpr = (
   updateExpr(path, assignment, "Assign", (field, prop, fielded) => {
     const warns: StyleWarning[] = [];
     if (prop === undefined) {
-      const source = processExpr(
-        {
-          ...block,
-          start: expr.start,
-          end: expr.end,
-          locals: assignment.locals,
-        },
-        expr
-      );
+      const source = processExpr({ ...block, locals: assignment.locals }, expr);
       if (source.isErr()) {
         return err(source.error);
       }
@@ -1765,7 +1757,7 @@ const insertExpr = (
       if (expr.tag === "GPIDecl") {
         return err({ tag: "NestedShapeError", expr });
       }
-      const shape: FieldSource | undefined = fielded.get(field);
+      const shape = fielded.get(field);
       if (shape === undefined) {
         return err({ tag: "MissingShapeError", path });
       }
@@ -1779,12 +1771,7 @@ const insertExpr = (
         dict: fielded.set(field, {
           ...shape,
           props: shape.props.set(prop, {
-            context: {
-              ...block,
-              start: expr.start,
-              end: expr.end,
-              locals: assignment.locals,
-            },
+            context: { ...block, locals: assignment.locals },
             expr,
           }),
         }),
@@ -2882,22 +2869,27 @@ export const translate = (
     constraints: im.List(),
     layering: im.List(),
   };
-  if (!graph.isAcyclic()) {
+
+  const cycles = graph.findCycles().map((cycle) =>
+    cycle.map((id) => {
+      const e = graph.node(id);
+      return {
+        id,
+        src:
+          e === undefined || typeof e === "string"
+            ? undefined
+            : { start: e.expr.start, end: e.expr.end },
+      };
+    })
+  );
+  if (cycles.length > 0) {
     // TODO: improve the error
     return {
       ...trans,
-      diagnostics: oneErr({
-        tag: "CyclicAssignmentError",
-        cycles: graph.findCycles().map((cycle) =>
-          cycle.map((id) => {
-            const sourceNode = graph.node(id) as WithContext<NotShape>;
-            const { start, end } = sourceNode.context;
-            return [id, { start, end }];
-          })
-        ),
-      }),
+      diagnostics: oneErr({ tag: "CyclicAssignmentError", cycles }),
     };
   }
+
   return graph.topsort().reduce((trans, path) => {
     const e = graph.node(path);
     if (e === undefined) {
@@ -3066,8 +3058,6 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
             block: { tag: "NamespaceId", contents: "canvas" }, // doesn't matter
             subst: {},
             locals: im.Map(),
-            start: { line: -1, col: -1 },
-            end: { line: -1, col: -1 },
           },
           expr: {
             tag: "ConstrFn",

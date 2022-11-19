@@ -360,7 +360,7 @@ export interface CanvasNonexistentDimsError {
 export interface CyclicAssignmentError {
   tag: "CyclicAssignmentError";
   // TODO: improve types, currently the generated id and source location
-  cycles: [string, SourceRange][][];
+  cycles: { id: string; src: SourceRange | undefined }[][];
 }
 
 export interface DeleteGlobalError {
