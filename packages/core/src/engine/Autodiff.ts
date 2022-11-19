@@ -1479,5 +1479,5 @@ export const genCode = (g: ad.Graph): Gradient => {
     throw Error(
       `allocated ${mod.bytes.length} bytes but used ${mod.count.size}`
     );
-  return new Gradient(mod.bytes, g.secondary.length);
+  return new Gradient(new WebAssembly.Module(mod.bytes), g.secondary.length);
 };

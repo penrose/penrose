@@ -44,8 +44,8 @@ export class Gradient {
   private f: WebAssembly.ExportValue;
   private numSecondary: number;
 
-  constructor(bytes: Uint8Array, numSecondary: number) {
-    const instance = new WebAssembly.Instance(bytes, {
+  constructor(mod: WebAssembly.Module, numSecondary: number) {
+    const instance = new WebAssembly.Instance(mod, {
       [importMemoryModule]: { [importMemoryName]: optimizer.memory },
     }).exports;
     builtins.forEach((name, i) => {
