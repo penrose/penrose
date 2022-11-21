@@ -10,6 +10,7 @@
 /packages/core/src/renderer/not_found.json
 /packages/docs-site/.docusaurus/
 /packages/docs-site/static/try/
+/packages/optimizer/bindings/
 /packages/optimizer/index.js
 /packages/optimizer/target/
 /packages/docs-site/static/shapedefs.json

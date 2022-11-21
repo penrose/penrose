@@ -1,5 +1,4 @@
-import { FnEvaled, step } from "@penrose/optimizer";
-import { initConstraintWeight } from "engine/EngineUtils";
+import { initConstraintWeight } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -357,7 +356,6 @@ export {
   normList,
   toSvgPaintProperty,
 };
-export type { FnEvaled };
 export type { Registry, Trio };
 export type { Env };
 export type { SubProg };

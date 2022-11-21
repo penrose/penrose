@@ -10,4 +10,7 @@ crate-type = ["cdylib"]
 console_error_panic_hook = "0.1"
 log = "0.4"
 nalgebra = "0.31"
+serde = {version = "1", features = ["derive"]}
+serde-wasm-bindgen = "0.4"
+ts-rs = "6"
 wasm-bindgen = "0.2"

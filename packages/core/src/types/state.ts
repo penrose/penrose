@@ -1,5 +1,5 @@
-import { FnEvaled, OptState } from "@penrose/optimizer";
-import { Canvas, InputMeta } from "shapes/Samplers";
+import { OptState } from "@penrose/optimizer";
+import { Canvas } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { A } from "./ast";
 import { StyleWarning } from "./errors";
@@ -18,16 +18,10 @@ export interface State extends OptState {
   variation: string;
   objFns: Fn[];
   constrFns: Fn[];
-  inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
   shapes: ShapeAD[];
   canvas: Canvas;
   computeShapes: ShapeFn;
-  /**
-   * A set of indices of `varyingValues` that are treated as constant during optimization.
-   * Currently used for the drag interaction.
-   */
-  frozenValues: Set<number>;
 }
 
 /**
@@ -59,6 +53,3 @@ export interface Fn {
   ast: WithContext<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
 }
-
-// Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
-export type FnCached = (xs: number[]) => FnEvaled;

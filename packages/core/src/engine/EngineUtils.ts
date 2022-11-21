@@ -1,6 +1,5 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { LbfgsParams } from "@penrose/optimizer";
 import { mapValues } from "lodash";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
@@ -324,21 +323,3 @@ export const exprToNumber = (e: Expr<A>): number => {
   }
   throw Error("expecting expr to be number");
 };
-
-//#region Constants/helpers for the optimization initialization (used by both the compiler and the optimizer)
-
-// Intial weight for constraints
-export const initConstraintWeight = 10e-3;
-
-const defaultLbfgsMemSize = 17;
-
-export const defaultLbfgsParams: LbfgsParams = {
-  lastState: undefined,
-  lastGrad: undefined,
-  s_list: [],
-  y_list: [],
-  numUnconstrSteps: 0,
-  memSize: defaultLbfgsMemSize,
-};
-
-//#endregion

@@ -1,3 +1,2 @@
-[build]
+[target.wasm32-unknown-unknown]
 rustflags = ["-Clink-arg=--export-table", "-Clink-arg=--growable-table"]
-target = "wasm32-unknown-unknown"

@@ -1,4 +1,15 @@
-import { penrose_call, penrose_init } from "./build/penrose_optimizer";
+import { InputMeta } from "./bindings/InputMeta";
+import { LbfgsParams } from "./bindings/LbfgsParams";
+import { OptState } from "./bindings/OptState";
+import { OptStatus } from "./bindings/OptStatus";
+import { Params } from "./bindings/Params";
+import {
+  penrose_call,
+  penrose_gen_opt_problem,
+  penrose_get_init_constraint_weight,
+  penrose_init,
+  penrose_step,
+} from "./build/penrose_optimizer";
 import optimizer from "./instance";
 
 penrose_init();
@@ -63,9 +74,9 @@ export class Gradient {
   }
 
   call(inputs: number[]): Outputs<number> {
-    this.link();
     const gradient = new Float64Array(inputs.length);
     const secondary = new Float64Array(this.numSecondary);
+    this.link();
     const primary = penrose_call(
       index,
       new Float64Array(inputs),
@@ -78,66 +89,19 @@ export class Gradient {
       secondary: Array.from(secondary),
     };
   }
+
+  step(state: OptState, steps: number): OptState {
+    this.link();
+    return penrose_step(state, index, steps);
+  }
 }
 
-export interface OptState {
-  varyingValues: number[];
-  params: Params;
-}
+export const initConstraintWeight = penrose_get_init_constraint_weight();
 
-export type OptStatus =
-  | "NewIter"
-  | "UnconstrainedRunning"
-  | "UnconstrainedConverged"
-  | "EPConverged"
-  | "Error";
+export const genOptProblem = (
+  numInputs: number,
+  numObjEngs: number,
+  numConstrEngs: number
+): Params => penrose_gen_opt_problem(numInputs, numObjEngs, numConstrEngs);
 
-// `n` is the size of the varying state
-export interface LbfgsParams {
-  lastState: number[] | undefined; // nx1 (col vec)
-  lastGrad: number[] | undefined; // nx1 (col vec)
-  s_list: number[][]; // list of nx1 col vecs
-  y_list: number[][]; // list of nx1 col vecs
-  numUnconstrSteps: number;
-  memSize: number;
-}
-
-export interface FnEvaled {
-  f: number;
-  gradf: number[];
-  objEngs: number[];
-  constrEngs: number[];
-}
-
-export interface Params {
-  optStatus: OptStatus;
-  /** Constraint weight for exterior point method **/
-  weight: number;
-  /** Info for unconstrained optimization **/
-  UOround: number;
-  lastUOstate?: number[];
-  lastUOenergy?: number;
-  lastObjEnergies?: number[];
-  lastConstrEnergies?: number[];
-
-  /** Info for exterior point method **/
-  EPround: number;
-  lastEPstate?: number[];
-  lastEPenergy?: number;
-
-  lastGradient: number[]; // Value of gradient evaluated at the last state
-  lastGradientPreconditioned: number[]; // Value of gradient evaluated at the last state, preconditioned by LBFGS
-  // ^ Those two are stored to make them available to Style later
-
-  // For L-BFGS
-  lbfgsInfo: LbfgsParams;
-
-  // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
-  objectiveAndGradient: (epWeight: number) => (xs: number[]) => FnEvaled;
-
-  // Applied with weight (or hyperparameters in general) -- may change with the EP round
-  currObjectiveAndGradient(xs: number[]): FnEvaled;
-}
-
-// TODO
-export const step = (state: OptState, steps: number): OptState => state;
+export type { InputMeta, LbfgsParams, OptState, OptStatus, Params };
