@@ -1,4 +1,4 @@
-import { InputMeta } from "./bindings/InputMeta";
+import { InputKind } from "./bindings/InputKind";
 import { LbfgsParams } from "./bindings/LbfgsParams";
 import { OptState } from "./bindings/OptState";
 import { OptStatus } from "./bindings/OptStatus";
@@ -99,9 +99,9 @@ export class Gradient {
 export const initConstraintWeight = penrose_get_init_constraint_weight();
 
 export const genOptProblem = (
-  numInputs: number,
+  inputKinds: InputKind[],
   numObjEngs: number,
   numConstrEngs: number
-): Params => penrose_gen_opt_problem(numInputs, numObjEngs, numConstrEngs);
+): Params => penrose_gen_opt_problem(inputKinds, numObjEngs, numConstrEngs);
 
-export type { InputMeta, LbfgsParams, OptState, OptStatus, Params };
+export type { InputKind, LbfgsParams, OptState, OptStatus, Params };

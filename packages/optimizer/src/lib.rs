@@ -11,9 +11,9 @@ type Compiled = fn(inputs: *const f64, gradient: *mut f64, secondary: *mut f64) 
 
 #[derive(Clone, Deserialize, PartialEq, Serialize, TS)]
 #[ts(export)]
-enum InputMeta {
-    Sampler,
-    Pending,
+enum InputKind {
+    Optimized,
+    Unoptimized,
 }
 
 #[derive(Clone, Copy, Deserialize, PartialEq, Serialize, TS)]
@@ -56,6 +56,8 @@ struct FnEvaled {
 #[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 struct Params {
+    #[serde(rename = "inputKinds")]
+    input_kinds: Vec<InputKind>,
     #[serde(rename = "numObjEngs")]
     num_obj_engs: usize,
     #[serde(rename = "numConstrEngs")]
@@ -93,7 +95,7 @@ struct Params {
 
 #[derive(Clone)]
 struct FnCached<'a> {
-    inputs: &'a [InputMeta],
+    inputs: &'a [InputKind],
     num_obj_engs: usize,
     num_constr_engs: usize,
     f: Compiled,
@@ -102,7 +104,6 @@ struct FnCached<'a> {
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export)]
 struct OptState {
-    inputs: Vec<InputMeta>,
     #[serde(rename = "varyingValues")]
     varying_values: Vec<f64>,
     params: Params,
@@ -191,7 +192,7 @@ fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
         gradf: gradient
             .into_iter()
             .zip(f.inputs)
-            .map(|(x, meta)| if *meta == InputMeta::Sampler { x } else { 0. })
+            .map(|(x, meta)| if *meta == InputKind::Optimized { x } else { 0. })
             .collect(),
         obj_engs: secondary[..f.num_obj_engs].to_vec(),
         constr_engs: secondary[f.num_obj_engs..].to_vec(),
@@ -244,7 +245,7 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
             let res = minimize(
                 &xs,
                 FnCached {
-                    inputs: &state.inputs,
+                    inputs: &state.params.input_kinds,
                     num_obj_engs: 0,    // TODO
                     num_constr_engs: 0, // TODO
                     f,
@@ -650,13 +651,20 @@ fn minimize(
     };
 }
 
-fn gen_opt_problem(num_inputs: usize, num_obj_engs: usize, num_constr_engs: usize) -> Params {
+fn gen_opt_problem(
+    input_kinds: Vec<InputKind>,
+    num_obj_engs: usize,
+    num_constr_engs: usize,
+) -> Params {
+    let last_gradient = vec![0.; input_kinds.len()];
+    let last_gradient_preconditioned = vec![0.; input_kinds.len()];
     Params {
+        input_kinds,
         num_obj_engs,
         num_constr_engs,
 
-        last_gradient: vec![0.; num_inputs],
-        last_gradient_preconditioned: vec![0.; num_inputs],
+        last_gradient,
+        last_gradient_preconditioned,
 
         weight: INIT_CONSTRAINT_WEIGHT,
         uo_round: 0,
@@ -701,11 +709,12 @@ pub fn penrose_get_init_constraint_weight() -> f64 {
 
 #[wasm_bindgen]
 pub fn penrose_gen_opt_problem(
-    num_inputs: usize,
+    inputs: JsValue,
     num_obj_engs: usize,
     num_constr_engs: usize,
 ) -> JsValue {
-    let params: Params = gen_opt_problem(num_inputs, num_obj_engs, num_constr_engs);
+    let input_kinds: Vec<InputKind> = serde_wasm_bindgen::from_value(inputs).unwrap();
+    let params: Params = gen_opt_problem(input_kinds, num_obj_engs, num_constr_engs);
     serde_wasm_bindgen::to_value(&params).unwrap()
 }
 

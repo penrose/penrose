@@ -50,7 +50,7 @@ export const evalEnergyOnCustom = (
   return overallEng;
 };
 
-export const genOptProblem = (
+export const genGradient = (
   inputs: InputMeta[],
   objEngs: ad.Num[],
   constrEngs: ad.Num[]

@@ -1,4 +1,5 @@
 import { CustomHeap } from "@datastructures-js/heap";
+import { genOptProblem } from "@penrose/optimizer";
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
@@ -7,7 +8,7 @@ import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
 import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
-import { genOptProblem } from "engine/Optimizer";
+import { genGradient } from "engine/Optimizer";
 import { alg, Edge, Graph } from "graphlib";
 import im from "immutable";
 import _, { range } from "lodash";
@@ -3134,10 +3135,16 @@ export const compileStyleHelper = (
 
   const computeShapes = compileCompGraph(shapes);
 
-  const params = genOptProblem(
+  const gradient = genGradient(
     inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
+  );
+
+  const params = genOptProblem(
+    inputs.map((meta) => meta.tag),
+    objFns.length,
+    constrFns.length
   );
 
   const initState: State = {
@@ -3152,9 +3159,9 @@ export const compileStyleHelper = (
     labelCache: new Map(),
     shapes,
     canvas: canvas.value,
+    gradient,
     computeShapes,
     params,
-    frozenValues: new Set<number>(),
   };
 
   log.info("init state from GenOptProblem", initState);

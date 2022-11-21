@@ -1,5 +1,5 @@
-import { OptState } from "@penrose/optimizer";
-import { Canvas } from "shapes/Samplers";
+import { Gradient, OptState } from "@penrose/optimizer";
+import { Canvas, InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { A } from "./ast";
 import { StyleWarning } from "./errors";
@@ -18,9 +18,11 @@ export interface State extends OptState {
   variation: string;
   objFns: Fn[];
   constrFns: Fn[];
+  inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
   shapes: ShapeAD[];
   canvas: Canvas;
+  gradient: Gradient;
   computeShapes: ShapeFn;
 }
 
