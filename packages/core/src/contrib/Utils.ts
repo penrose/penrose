@@ -190,7 +190,7 @@ export const closestPt_PtSeg = (
 };
 
 /**
- * Get numerical values of nodes in the computation graph. This function calls `secondaryGraph` to construct a partial computation graph and run `genCode` to generate code to evaluate the values.
+ * Get numerical values of nodes in the computation graph. This function calls `secondaryGraph` to construct a partial computation graph and runs `genCode` to generate code to evaluate the values.
  *
  * @param xs nodes in the computation graph
  * @returns a list of `number`s corresponding to nodes in `xs`
