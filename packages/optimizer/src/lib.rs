@@ -629,44 +629,6 @@ fn contains_nan(number_list: &[f64]) -> bool {
     number_list.iter().any(|n| n.is_nan())
 }
 
-fn step_until_convergence(state: State, num_steps: i32) -> State {
-    let mut current_state = state;
-    while current_state.params.opt_status != OptStatus::Error && !state_converged(&current_state) {
-        current_state = step(current_state, num_steps);
-    }
-    current_state
-}
-
-fn state_converged(state: &State) -> bool {
-    state.params.opt_status == OptStatus::EPConverged
-}
-
-#[no_mangle]
-fn penrose_input_meta_sampler_byte() -> u8 {
-    InputMeta::Sampler as u8
-}
-
-#[no_mangle]
-fn penrose_input_meta_pending_byte() -> u8 {
-    InputMeta::Pending as u8
-}
-
-#[no_mangle]
-fn penrose_converge(
-    f: Compiled,
-    inputs: &[InputMeta],
-    len_obj_engs: usize,
-    len_constr_engs: usize,
-    varying_values: &mut [f64],
-) {
-    let initial_state = State {
-        varying_values: varying_values.to_vec(),
-        params: gen_opt_problem(inputs, len_obj_engs, len_constr_engs, f),
-    };
-    let optimized_state = step_until_convergence(initial_state, 10000);
-    varying_values.copy_from_slice(&optimized_state.varying_values);
-}
-
 #[wasm_bindgen]
 pub fn penrose_init() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
