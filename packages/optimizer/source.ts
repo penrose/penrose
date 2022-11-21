@@ -1,6 +1,7 @@
-import { penrose_call } from "./build/penrose_optimizer";
+import { penrose_call, penrose_init } from "./build/penrose_optimizer";
 import optimizer from "./instance";
 
+penrose_init();
 const index = optimizer.__indirect_function_table.length;
 optimizer.__indirect_function_table.grow(1);
 

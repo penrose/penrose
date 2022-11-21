@@ -668,6 +668,11 @@ fn penrose_converge(
 }
 
 #[wasm_bindgen]
+pub fn penrose_init() {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
+
+#[wasm_bindgen]
 pub fn penrose_call(p: usize, inputs: &[f64], gradient: &mut [f64], secondary: &mut [f64]) -> f64 {
     let f = unsafe { std::mem::transmute::<usize, Compiled>(p) };
     f(
