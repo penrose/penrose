@@ -10,6 +10,3 @@ crate-type = ["cdylib"]
 log = "0.4"
 nalgebra = "0.31"
 wasm-bindgen = "0.2"
-
-[profile.release]
-strip = "debuginfo"
