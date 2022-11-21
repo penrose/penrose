@@ -7,6 +7,8 @@
     "build-decls": ":",
     "build-wasm": "cargo ${FORCE_COLOR+--color=always} build --release",
     "build-wasm-bindgen": "wasm-bindgen --target=web --keep-lld-exports --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
+    "format": "cargo fmt",
+    "format:check": "cargo fmt --check",
     "typecheck": ":"
   },
   "nx": {

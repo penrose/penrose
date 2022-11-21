@@ -427,7 +427,7 @@ When your work is ready for review:
   reproducing specific examples_, and link(s) to any issue(s) you address).
 - Some things will be checked automatically by our [CI][]:
   - Make sure the system passes the regression tests.
-  - Run [Prettier][] via `yarn format`.
+  - Run [Prettier][] and [rustfmt][] via `yarn format`.
 - If you have permission, request review from the relevant person. Otherwise, no
   worries: we'll take a look at your PR and assign it to a maintainer.
 - When your PR is approved, a maintainer will merge it.
@@ -461,6 +461,7 @@ please file an issue!
 [push]: https://github.com/git-guides/git-push
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 [rust]: https://www.rust-lang.org/tools/install
+[rustfmt]: https://github.com/rust-lang/rustfmt
 [test: check word cloud example output in ci]: https://github.com/penrose/penrose/pull/876
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
