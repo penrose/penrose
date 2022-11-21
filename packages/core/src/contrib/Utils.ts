@@ -189,12 +189,24 @@ export const closestPt_PtSeg = (
   return ops.vadd(start, ops.vmul(t1, dir));
 };
 
-export const numsOf = (xs: ad.Num[]) => {
+/**
+ * Get numerical values of nodes in the computation graph. This function calls `secondaryGraph` to construct a partial computation graph and runs `genCode` to generate code to evaluate the values.
+ *
+ * @param xs nodes in the computation graph
+ * @returns a list of `number`s corresponding to nodes in `xs`
+ */
+export const numsOf = (xs: ad.Num[]): number[] => {
   const g = secondaryGraph(xs);
+  const inputs = [];
+  for (const v of g.nodes.keys()) {
+    if (typeof v !== "number" && v.tag === "Input") {
+      inputs[v.key] = v.val;
+    }
+  }
   const f = genCode(g);
-  return f.call([]).secondary;
+  return f.call(inputs).secondary;
 };
 
-export const numOf = (x: ad.Num) => {
+export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];
 };
