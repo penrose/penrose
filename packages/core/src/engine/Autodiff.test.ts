@@ -44,7 +44,7 @@ describe("makeGraph tests", () => {
       difference,
     ]);
 
-    expect(gradient.length).toBe(2);
+    expect(gradient.length).toBe(0); // no inputs reachable from primary output
     expect(secondary.length).toBe(3);
 
     const nodes: ad.Node[] = secondary.map((id) => graph.node(id));
@@ -62,9 +62,8 @@ describe("makeGraph tests", () => {
 
     const { graph } = secondaryGraph([f]);
 
-    // x1, t1, t2, f, the constant primary node 1, and the derivative 0 of the
-    // primary node with respect to the input x1
-    expect(graph.nodeCount()).toBe(6);
+    // x1, t1, t2, f, and the constant primary node 1
+    expect(graph.nodeCount()).toBe(5);
     expect(graph.edgeCount()).toBe(6); // the in-edges of the three mul nodes
   });
 });
