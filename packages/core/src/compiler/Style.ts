@@ -3162,6 +3162,7 @@ export const compileStyleHelper = (
     gradient,
     computeShapes,
     params,
+    frozenValues: [],
   };
 
   log.info("init state from GenOptProblem", initState);

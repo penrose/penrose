@@ -1,6 +1,7 @@
 mod builtins;
 
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use ts_rs::TS;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
@@ -96,6 +97,7 @@ struct Params {
 #[derive(Clone)]
 struct FnCached<'a> {
     inputs: &'a [InputKind],
+    frozen_values: &'a HashSet<usize>,
     num_obj_engs: usize,
     num_constr_engs: usize,
     f: Compiled,
@@ -107,6 +109,10 @@ struct OptState {
     #[serde(rename = "varyingValues")]
     varying_values: Vec<f64>,
     params: Params,
+    /// A set of indices of `varyingValues` that are treated as constant during optimization.
+    /// Currently used for the drag interaction.
+    #[serde(rename = "frozenValues")]
+    frozen_values: HashSet<usize>,
 }
 
 struct OptInfo {
@@ -187,13 +193,17 @@ fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
         gradient.as_mut_ptr(),
         secondary.as_mut_ptr(),
     );
+
+    for i in 0..len_inputs {
+        let kind = &f.inputs[i];
+        if *kind != InputKind::Optimized || f.frozen_values.contains(&i) {
+            gradient[i] = 0.;
+        }
+    }
+
     FnEvaled {
         f: energy,
-        gradf: gradient
-            .into_iter()
-            .zip(f.inputs)
-            .map(|(x, meta)| if *meta == InputKind::Optimized { x } else { 0. })
-            .collect(),
+        gradf: gradient,
         obj_engs: secondary[..f.num_obj_engs].to_vec(),
         constr_engs: secondary[f.num_obj_engs..].to_vec(),
     }
@@ -246,8 +256,9 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
                 &xs,
                 FnCached {
                     inputs: &state.params.input_kinds,
-                    num_obj_engs: 0,    // TODO
-                    num_constr_engs: 0, // TODO
+                    frozen_values: &state.frozen_values,
+                    num_obj_engs: state.params.num_obj_engs,
+                    num_constr_engs: state.params.num_constr_engs,
                     f,
                 },
                 state.params.weight,

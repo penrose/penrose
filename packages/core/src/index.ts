@@ -50,7 +50,7 @@ export const resample = (state: State): State => {
       weight: initConstraintWeight,
       optStatus: "NewIter",
     },
-    frozenValues: new Set(),
+    frozenValues: [],
   };
 };
 
