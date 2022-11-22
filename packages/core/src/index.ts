@@ -60,7 +60,7 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return { ...state, ...step(state, numSteps) };
+  return { ...state, ...state.gradient.step(state, numSteps) };
 };
 
 /**
@@ -285,9 +285,8 @@ export const readRegistry = (registry: Registry): Trio[] => {
  * @returns a scalar value of the current energy
  */
 export const evalEnergy = (s: State): number => {
-  const { objectiveAndGradient, weight } = s.params;
   // TODO: maybe don't also compute the gradient, just to throw it away
-  return objectiveAndGradient(weight)(s.varyingValues).f;
+  return s.gradient.call([...s.varyingValues, s.params.weight]).primary;
 };
 
 /**
@@ -300,13 +299,14 @@ export const evalFns = (
   s: State
 ): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  let { lastConstrEnergies, lastObjEnergies } = s.params;
-  if (!lastConstrEnergies || !lastObjEnergies) {
-    const { objEngs, constrEngs } = s.params.objectiveAndGradient(
-      s.params.weight
-    )(s.varyingValues);
-    lastConstrEnergies = constrEngs;
-    lastObjEnergies = objEngs;
+  let { lastObjEnergies, lastConstrEnergies } = s.params;
+  if (lastObjEnergies === null || lastConstrEnergies === null) {
+    const { secondary } = s.gradient.call([
+      ...s.varyingValues,
+      s.params.weight,
+    ]);
+    lastObjEnergies = secondary.slice(0, s.params.numObjEngs);
+    lastConstrEnergies = secondary.slice(s.params.numObjEngs);
   }
   return {
     constrEngs: new Map(
