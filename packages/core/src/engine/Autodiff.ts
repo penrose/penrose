@@ -10,7 +10,6 @@ import {
 } from "@penrose/optimizer";
 import consola, { LogLevel } from "consola";
 import * as _ from "lodash";
-import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "types/ad";
 import { Multidigraph } from "utils/Graph";
 import { safe, zip2 } from "utils/Util";
@@ -1153,7 +1152,7 @@ const compileUnary = (
       t.int(param);
 
       t.byte(wasm.OP.i32.const);
-      t.int(builtins.indexOf(unop));
+      t.int(builtins.indexOf(`penrose_${unop}`));
 
       t.byte(wasm.OP.call_indirect);
       t.int(typeIndexUnary);
@@ -1221,7 +1220,7 @@ const compileBinary = (
       t.int(right);
 
       t.byte(wasm.OP.i32.const);
-      t.int(builtins.indexOf(binop));
+      t.int(builtins.indexOf(`penrose_${binop}`));
 
       t.byte(wasm.OP.call_indirect);
       t.int(typeIndexBinary);
@@ -1442,29 +1441,6 @@ const compileGraph = (
   t.int(numGradientParams + idToIndex(primary));
 
   t.byte(wasm.END);
-};
-
-const polyRoots = (coeffs: number[]): number[] => {
-  const n = coeffs.length;
-  // https://en.wikipedia.org/wiki/Companion_matrix
-  const companion = Matrix.zeros(n, n);
-  for (let i = 0; i + 1 < n; i++) {
-    companion.set(i + 1, i, 1);
-    companion.set(i, n - 1, -coeffs[i]);
-  }
-  companion.set(n - 1, n - 1, -coeffs[n - 1]);
-
-  // the characteristic polynomial of the companion matrix is equal to the
-  // original polynomial, so by finding the eigenvalues of the companion matrix,
-  // we get the roots of its characteristic polynomial and thus of the original
-  // polynomial
-  const decomp = new EigenvalueDecomposition(companion);
-  return zip2(
-    decomp.realEigenvalues,
-    decomp.imaginaryEigenvalues
-    // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`,
-    // we discard any non-real root and replace with `NaN`
-  ).map(([r, i]) => (i === 0 ? r : NaN));
 };
 
 export const genCode = (g: ad.Graph): Gradient => {

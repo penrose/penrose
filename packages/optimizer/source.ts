@@ -23,27 +23,33 @@ export const exportTableName = "builtins";
 export const exportFunctionName = "f";
 
 export const builtins = [
-  "acos",
-  "acosh",
-  "asin",
-  "asinh",
-  "atan",
-  "atanh",
-  "atan2",
-  "cbrt",
-  "cos",
-  "cosh",
-  "exp",
-  "expm1",
-  "log",
-  "log1p",
-  "log10",
-  "log2",
-  "pow",
-  "sin",
-  "sinh",
-  "tan",
-  "tanh",
+  // note that the stack pointer must always be 16-byte aligned:
+  // https://github.com/rustwasm/wasm-bindgen/blob/f82f5c5852c3abf057bb737d545360a3a5c7d84c/crates/cli-support/src/wit/mod.rs#L1370-L1372
+  "__wbindgen_add_to_stack_pointer",
+
+  "penrose_acos",
+  "penrose_acosh",
+  "penrose_asin",
+  "penrose_asinh",
+  "penrose_atan",
+  "penrose_atanh",
+  "penrose_atan2",
+  "penrose_cbrt",
+  "penrose_cos",
+  "penrose_cosh",
+  "penrose_exp",
+  "penrose_expm1",
+  "penrose_log",
+  "penrose_log1p",
+  "penrose_log10",
+  "penrose_log2",
+  "penrose_pow",
+  "penrose_sin",
+  "penrose_sinh",
+  "penrose_tan",
+  "penrose_tanh",
+
+  "penrose_poly_roots",
 ];
 
 export interface Outputs<T> {
@@ -62,8 +68,7 @@ export class Gradient {
     }).exports;
     builtins.forEach((name, i) => {
       const table = instance[exportTableName];
-      if (table instanceof WebAssembly.Table)
-        table.set(i, optimizer[`penrose_${name}`]);
+      if (table instanceof WebAssembly.Table) table.set(i, optimizer[name]);
     });
     this.f = instance[exportFunctionName];
     this.numSecondary = numSecondary;
