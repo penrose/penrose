@@ -68,6 +68,15 @@ describe("makeGraph tests", () => {
   });
 });
 
+describe("genCode tests", () => {
+  test("multiple addends", () => {
+    const x = input({ key: 0, val: 0 });
+    const g = primaryGraph(x);
+    const f = genCode(g, g, g);
+    expect(f.call([2])).toEqual({ gradient: [3], primary: 6, secondary: [] });
+  });
+});
+
 // df/f[x] with finite differences about xi
 export const _gradFiniteDiff = (f: (args: number[]) => number) => {
   return (xs: number[]): number[] => {

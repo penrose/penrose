@@ -21,6 +21,7 @@ export const LIMITS = { NO_MAXIMUM: 0x00, MAXIMUM: 0x01 };
 
 export const OP = {
   call_indirect: 0x11,
+  call: 0x10,
   f64: {
     abs: 0x99,
     add: 0xa0,

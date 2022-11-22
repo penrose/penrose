@@ -901,8 +901,6 @@ const gradientParamInput = 0;
 const gradientParamGradient = 1;
 const gradientParamSecondary = 2;
 
-const numFunctions = 1;
-
 const typeSection = (t: wasm.Target): void => {
   t.int(numFuncTypes);
 
@@ -946,9 +944,9 @@ const importSection = (t: wasm.Target): void => {
   t.int(minPages);
 };
 
-const functionSection = (t: wasm.Target): void => {
+const functionSection = (t: wasm.Target, numFunctions: number): void => {
   t.int(numFunctions);
-  t.int(typeIndexGradient);
+  for (let i = 0; i < numFunctions; i++) t.int(typeIndexGradient);
 };
 
 const tableSection = (t: wasm.Target): void => {
@@ -963,7 +961,7 @@ const tableSection = (t: wasm.Target): void => {
   t.int(maxEntries);
 };
 
-const exportSection = (t: wasm.Target): void => {
+const exportSection = (t: wasm.Target, numFunctions: number): void => {
   const numExports = 2;
   t.int(numExports);
 
@@ -972,14 +970,15 @@ const exportSection = (t: wasm.Target): void => {
   t.byte(wasm.EXPORT.TABLE);
   t.int(tableIndex);
 
-  const funcIndex = 0;
+  const funcIndex = numFunctions - 1;
   t.ascii(exportFunctionName);
   t.byte(wasm.EXPORT.FUNCTION);
   t.int(funcIndex);
 };
 
-const modulePrefix = (gradientFunctionSize: number): wasm.Module => {
+const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
   const numSections = 6;
+  const numFunctions = gradientFunctionSizes.length;
 
   const typeSectionCount = new wasm.Count();
   typeSection(typeSectionCount);
@@ -990,7 +989,7 @@ const modulePrefix = (gradientFunctionSize: number): wasm.Module => {
   const importSectionSize = importSectionCount.size;
 
   const functionSectionCount = new wasm.Count();
-  functionSection(functionSectionCount);
+  functionSection(functionSectionCount, numFunctions);
   const functionSectionSize = functionSectionCount.size;
 
   const tableSectionCount = new wasm.Count();
@@ -998,13 +997,14 @@ const modulePrefix = (gradientFunctionSize: number): wasm.Module => {
   const tableSectionSize = tableSectionCount.size;
 
   const exportSectionCount = new wasm.Count();
-  exportSection(exportSectionCount);
+  exportSection(exportSectionCount, numFunctions);
   const exportSectionSize = exportSectionCount.size;
 
   const codeSectionSize =
     wasm.intSize(numFunctions) +
-    wasm.intSize(gradientFunctionSize) +
-    gradientFunctionSize;
+    gradientFunctionSizes
+      .map((n) => wasm.intSize(n) + n)
+      .reduce((a, b) => a + b, 0);
 
   const sumSectionSizes =
     numSections +
@@ -1033,7 +1033,7 @@ const modulePrefix = (gradientFunctionSize: number): wasm.Module => {
 
   mod.byte(wasm.SECTION.FUNCTION);
   mod.int(functionSectionSize);
-  functionSection(mod);
+  functionSection(mod, numFunctions);
 
   mod.byte(wasm.SECTION.TABLE);
   mod.int(tableSectionSize);
@@ -1041,12 +1041,11 @@ const modulePrefix = (gradientFunctionSize: number): wasm.Module => {
 
   mod.byte(wasm.SECTION.EXPORT);
   mod.int(exportSectionSize);
-  exportSection(mod);
+  exportSection(mod, numFunctions);
 
   mod.byte(wasm.SECTION.CODE);
   mod.int(codeSectionSize);
   mod.int(numFunctions);
-  mod.int(gradientFunctionSize);
 
   return mod;
 };
@@ -1374,13 +1373,26 @@ const compileType = (node: ad.Node): number => {
   }
 };
 
-const compileWriteArray = (t: wasm.Target, arr: ad.Id[], baseLocal: number) => {
+const compileAddToVector = (
+  t: wasm.Target,
+  arr: ad.Id[],
+  baseLocal: number
+) => {
   arr.forEach((id, i) => {
     t.byte(wasm.OP.local.get);
     t.int(baseLocal);
 
     t.byte(wasm.OP.local.get);
+    t.int(baseLocal);
+
+    t.byte(wasm.OP.f64.load);
+    t.int(alignDouble);
+    t.int(i * Float64Array.BYTES_PER_ELEMENT);
+
+    t.byte(wasm.OP.local.get);
     t.int(numGradientParams + idToIndex(id));
+
+    t.byte(wasm.OP.f64.add);
 
     t.byte(wasm.OP.f64.store);
     t.int(alignDouble);
@@ -1433,9 +1445,9 @@ const compileGraph = (
     }
   }
 
-  compileWriteArray(t, gradient, gradientParamGradient);
+  compileAddToVector(t, gradient, gradientParamGradient);
 
-  compileWriteArray(t, secondary, gradientParamSecondary);
+  compileAddToVector(t, secondary, gradientParamSecondary);
 
   t.byte(wasm.OP.local.get);
   t.int(numGradientParams + idToIndex(primary));
@@ -1443,14 +1455,53 @@ const compileGraph = (
   t.byte(wasm.END);
 };
 
-export const genCode = (g: ad.Graph): Gradient => {
-  const count = new wasm.Count();
-  compileGraph(count, g);
-  const mod = modulePrefix(count.size);
-  compileGraph(mod, g);
+// assume the gradient and secondary outputs are already initialized to zero
+// before this code is run
+const compileSum = (t: wasm.Target, numAddends: number): void => {
+  const numLocals = 0;
+  t.int(numLocals);
+
+  t.byte(wasm.OP.f64.const);
+  t.f64(0);
+
+  for (let i = 0; i < numAddends; i++) {
+    for (let j = 0; j < numGradientParams; j++) {
+      t.byte(wasm.OP.local.get);
+      t.int(j);
+    }
+
+    t.byte(wasm.OP.call);
+    t.int(i);
+
+    t.byte(wasm.OP.f64.add);
+  }
+
+  t.byte(wasm.END);
+};
+
+export const genCode = (...graphs: ad.Graph[]): Gradient => {
+  const sizes = graphs.map((g) => {
+    const count = new wasm.Count();
+    compileGraph(count, g);
+    return count.size;
+  });
+  const mainCount = new wasm.Count();
+  compileSum(mainCount, graphs.length);
+
+  const mod = modulePrefix([...sizes, mainCount.size]);
+  for (const [g, size] of zip2(graphs, sizes)) {
+    mod.int(size);
+    compileGraph(mod, g);
+  }
+  mod.int(mainCount.size);
+  compileSum(mod, graphs.length);
+
   if (mod.count.size !== mod.bytes.length)
     throw Error(
       `allocated ${mod.bytes.length} bytes but used ${mod.count.size}`
     );
-  return new Gradient(new WebAssembly.Module(mod.bytes), g.secondary.length);
+  return new Gradient(
+    new WebAssembly.Module(mod.bytes),
+    Math.max(...graphs.map((g) => g.secondary.length))
+  );
 };
