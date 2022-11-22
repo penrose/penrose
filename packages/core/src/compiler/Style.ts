@@ -2881,7 +2881,6 @@ export const translate = (
     })
   );
   if (cycles.length > 0) {
-    // TODO: improve the error
     return {
       ...trans,
       diagnostics: oneErr({ tag: "CyclicAssignmentError", cycles }),
