@@ -1,4 +1,4 @@
-mod builtins;
+pub mod builtins;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
