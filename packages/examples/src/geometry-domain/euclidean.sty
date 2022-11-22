@@ -9,37 +9,13 @@ Colors {
     darkpurple = #8c90c1
     lightpurple = #d0d3e6
     purple2 = rgba(0.106, 0.122, 0.54, 0.2)
-
     verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
     purple3 = rgba(0.557, 0.627, 0.769, 1.0)
-
     midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
-    lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
-    silver = rgba(0.71, 0.72, 0.79, 1.0)
-    gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
-
-    darkgray = rgba(0.1, 0.1, 0.1, 1.0)
-    mediumgray = rgba(0.5, 0.5, 0.5, 1.0)
-    gray = rgba(0.8, 0.8, 0.8, 1.0)
-    red = rgba(1.0, 0.0, 0.0, 1.0)
-    pink = rgba(1.0, 0.4, 0.7, 1.0)
-    yellow = rgba(1.0, 1.0, 0.0, 1.0)
-    orange = rgba(1.0, 0.6, 0.0, 1.0)
-    lightorange = rgba(1.0, 0.6, 0.0, 0.25)
-    green = rgba(0.0, 1.0, 0.0, 1.0)
-    blue = rgba(0.0, 0.0, 1.0, 1.0)
-    sky = rgba(0.325, 0.718, 0.769, 1.0)
-    lightsky = rgba(0.325, 0.718, 0.769, 0.25)
-    lightblue = rgba(0.0, 0.0, 1.0, 0.25)
-    cyan = rgba(0.0, 1.0, 1.0, 1.0)
-    purple = rgba(0.5, 0.0, 0.5, 1.0)
-    white = rgba(1.0, 1.0, 1.0, 1.0)
     none = none()
-    bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
 const {
-    pi = 3.14159
     arrowheadSize = 0.65
     strokeWidth = 1.75
     textPadding = 10.0
@@ -180,6 +156,29 @@ with Point base; Point direction {
   -- labeling
   ensure disjoint(r.icon, base.text)
   ensure disjoint(r.icon, direction.text)
+}
+
+forall Ray r {
+    r.length = const.rayLength
+}
+
+forall Ray r
+with Angle theta; Point x; Point y; Point z
+where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
+  -- find the vector for the bisector ray
+  xy = normalize(y.vec - x.vec)
+  xz = normalize(z.vec - x.vec)
+  r_vec = xy + xz
+  -- change from generic `Linelike` shape to a specific shape for `Ray`
+  override r.icon = Line {
+    start: x.vec
+    end:  (r.length * normalize(r_vec)) + x.vec
+    strokeWidth : const.strokeWidth
+    strokeColor : Colors.black
+    endArrowhead: "straight"
+    endArrowheadSize : const.arrowheadSize
+  }
+  r.icon below x.icon
 }
 
 forall Line l
@@ -345,13 +344,6 @@ where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
   override t.tick.d = ticksOnLine(t.icon.start, t.icon.end, 15., minEquivGroup, 10.) 
 }
 
--- TODO: this errors out
--- forall Linelike s, t, u
--- where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
---   override e1.equivGroup = min(e1.equivGroup, e2.equivGroup)
---   override e2.equivGroup = min(e1.equivGroup, e2.equivGroup)
--- }
-
 --Angle
 forall Angle theta
 where theta := InteriorAngle(p, q, r)
@@ -377,6 +369,8 @@ with Point p; Point q; Point r {
   
   theta.radius = const.thetaRadius
   encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
+  theta.side1 below p.icon, q.icon
+  theta.side2 below q.icon, r.icon
 }
 
 forall Angle theta
@@ -454,12 +448,12 @@ where RightMarked(a) {
 
 forall Angle a
 where Acute(a) {
-  ensure inRange(angleBetween(a.p - a.q, a.r - a.q), 0, pi()/2)
+  ensure inRange(angleBetween(a.p - a.q, a.r - a.q), 0, MathPI()/2)
 }
 
 forall Angle a
 where Obtuse(a) {
-  ensure inRange(angleBetween(a.p - a.q, a.r - a.q), pi()/2, pi())
+  ensure inRange(angleBetween(a.p - a.q, a.r - a.q), MathPI()/2, MathPI())
 }
 
 forall Triangle t; Plane P 
@@ -468,6 +462,7 @@ with Point p; Point q; Point r {
   t.PQ above P.icon
   t.QR above P.icon
   t.RP above P.icon
+  t.icon above P.icon
 }
 
 forall Triangle t
@@ -498,6 +493,7 @@ with Point p; Point q; Point r {
   t.icon = Path {
     d: pathFromPoints("closed", [p.vec, q.vec, r.vec])
     fillColor: none()
+    strokeColor: none()
   }
   ensure lessThan(const.minSegmentLength, length(t.PQ))
   ensure lessThan(const.minSegmentLength, length(t.QR))
@@ -553,9 +549,9 @@ with Triangle T {
     fillColor : Colors.none
     strokeStyle: "dashed"
   }
-  ensure ptCircleIntersect(T.PQ.start, T.icon)
-  ensure ptCircleIntersect(T.QR.start, T.icon)
-  ensure ptCircleIntersect(T.RP.start, T.icon)
+  ensure equal(norm(T.PQ.start - p.vec), T.icon.r)
+  ensure equal(norm(T.QR.start - p.vec), T.icon.r)
+  ensure equal(norm(T.RP.start - p.vec), T.icon.r)
   encourage repelPt(const.repelWeight, T.PQ.start, T.QR.start)
   encourage repelPt(const.repelWeight, T.QR.start, T.RP.start)
 }
@@ -708,6 +704,13 @@ with Point p; Point q; Point r; Point s {
   ensure disjoint(q.text, Q.labelContainer)
   ensure disjoint(r.text, Q.labelContainer)
   ensure disjoint(s.text, Q.labelContainer)
+  -- ensure all sides are visible
+  ensure lessThan(const.minSegmentLength, norm(Q.p - Q.q))
+  ensure lessThan(const.minSegmentLength, norm(Q.q - Q.r))
+  ensure lessThan(const.minSegmentLength, norm(Q.r - Q.s))
+  ensure lessThan(const.minSegmentLength, norm(Q.s - Q.p))
+  ensure lessThan(const.minSegmentLength, norm(Q.r - Q.p))
+  ensure lessThan(const.minSegmentLength, norm(Q.s - Q.q))
 }
 
 --FUNCTIONS
@@ -812,8 +815,8 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure ptCircleIntersect(p.vec, c.icon)
-  ensure ptCircleIntersect(q.vec, c.icon)
+  ensure equal(norm(p.vec - c.vec), c.radius)
+  ensure equal(norm(q.vec - c.vec), c.radius)
 }
 
 forall Segment s
@@ -835,7 +838,7 @@ with Circle c; Point p {
     style : "solid"
   }
   p.icon above c.icon
-  ensure ptCircleIntersect(p.vec, c.icon)
+  ensure equal(norm(c.vec - p.vec), c.radius)
 }
 
 forall Segment s
@@ -865,8 +868,9 @@ with Circle c; Point p, q {
 forall Point p
 where OnCircle(c, p)
 with Circle c {
-  ensure ptCircleIntersect(p.vec, c.icon)
+  ensure equal(norm(c.vec - p.vec), c.radius)
 }
+
 forall Point p
 where OnCircle(c, p); p has label
 with Circle c {

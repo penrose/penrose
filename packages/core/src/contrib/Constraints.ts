@@ -17,7 +17,7 @@ import {
   overlappingRectlikeCircle,
   overlappingTextLine,
 } from "contrib/ConstraintsUtils";
-import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
+import { bboxFromShape, shapeSize } from "contrib/Queries";
 import { inRange, overlap1D } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
@@ -116,8 +116,7 @@ const constrDictSimple = {
 
   /**
    * Require that three points be collinear.
-   * Depends on the specific ordering of points.
-   *
+   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
    */
   collinear: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vsub(c2, c1);
@@ -127,7 +126,7 @@ const constrDictSimple = {
 
   /**
    * Require that three points be collinear.
-   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
+   * Depends on the specific ordering of points.
    */
   collinearOrdered: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vnorm(ops.vsub(c1, c2));
@@ -312,14 +311,6 @@ const constrDictGeneral = {
 // -------- Specific constraints
 // Defined only for specific use-case or specific shapes.
 const constrDictSpecific = {
-  ptCircleIntersect: (p: ad.Num[], [t, s]: [string, any]) => {
-    if (t === "Circle") {
-      const r = s.r.contents;
-      const c = shapeCenter([t, s]);
-      return squared(sub(ops.vdist(p, c), r));
-    } else throw new Error(`${t} not supported for ptCircleIntersect`);
-  },
-
   /**
    * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
    */

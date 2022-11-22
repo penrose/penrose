@@ -22,4 +22,5 @@ AngleBisector(aCEF, DE)
 Angle aCED := InteriorAngle(C, E, D)
 Angle aDEF := InteriorAngle(D, E, F)
 EqualAngle(aCED, aDEF)
+EqualAngleMarker(aCED, aDEF)
 AutoLabel A, B, C, D, E, F

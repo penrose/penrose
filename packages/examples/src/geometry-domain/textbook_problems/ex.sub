@@ -1,13 +1,10 @@
 -- TODO simplify after attributes are implemented
 -- name in registry: congruent-triangles
-Point U, S, T, V, X, Y, Z
-Triangle UTV := MkTriangle(U, T, V)
-Segment UV := MkSegment(U, V)
-Segment VT := MkSegment(V, T)
-Segment UT := MkSegment(U, T)
+Point U, S, T,  X, Y, Z
 
 Triangle UTS := MkTriangle(U, T, S)
 Segment US := MkSegment(U, S)
+Segment UT := MkSegment(U, T)
 Segment ST := MkSegment(S, T)
 Angle aTUS := InteriorAngle(T, U, S)
 Angle aUST := InteriorAngle(U, S, T)
@@ -25,13 +22,9 @@ EqualLengthMarker(ST, XY)
 EqualLength(ST, XY)
 
 EqualLengthMarker(XZ, US)
-EqualLengthMarker(XZ, UV)
 EqualLength(XZ, US)
-EqualLength(XZ, UV)
 
-EqualLengthMarker(UT, VT)
 EqualLengthMarker(ZY, UT)
-EqualLength(UT, VT)
 EqualLength(ZY, UT)
 
 EqualAngleMarker(aUTS, aZXY)
@@ -40,4 +33,4 @@ EqualAngleMarker(aUTS, aXYZ)
 EqualAngle(aUTS, aXYZ)
 EqualAngleMarker(aTUS, aYZX)
 
-AutoLabel U, S, T, V, X, Y, Z
+AutoLabel U, S, T, X, Y, Z

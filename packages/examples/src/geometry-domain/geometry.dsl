@@ -78,11 +78,6 @@ predicate Orthocenter(Point, Triangle)
 predicate Centroid(Point, Triangle)
 predicate Circumcenter(Point, Triangle)
 
-
--- predicate Perpendicular(Linelike, Linelike
-
-
-
 -- notation "{p, q}" ~ "MkSegment(p, q)"
 -- notation "{p, q, r}" ~ "MkTriangle(p, q, r)"
 -- notation "{p, q, r, s}" ~ "MkRectangle(p, q, r, s)"
