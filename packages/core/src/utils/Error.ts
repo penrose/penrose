@@ -445,7 +445,7 @@ canvas {
 
 const showCycles = (cycles: string[][]) => {
   // repeats the cycle start again
-  const pathString = (path: string[]) => [...path, path[0]].join(" <-> ");
+  const pathString = (path: string[]) => [...path, path[0]].join(" -> ");
   return cycles.map(pathString).join("\n");
 };
 
