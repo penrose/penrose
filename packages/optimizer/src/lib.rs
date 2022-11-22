@@ -16,7 +16,7 @@ enum InputKind {
     Unoptimized,
 }
 
-#[derive(Clone, Copy, Deserialize, PartialEq, Serialize, TS)]
+#[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 enum OptStatus {
     NewIter,
