@@ -194,6 +194,7 @@ fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
         secondary.as_mut_ptr(),
     );
 
+    gradient.pop();
     for i in 0..len_inputs {
         let kind = &f.inputs[i];
         if *kind != InputKind::Optimized || f.frozen_values.contains(&i) {
