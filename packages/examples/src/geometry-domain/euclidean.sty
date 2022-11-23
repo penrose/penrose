@@ -842,6 +842,12 @@ with Circle c; Point p {
 }
 
 forall Segment s
+where s := Radius(c, p); p has label 
+with Circle c; Point p {
+  ensure disjoint(p.text, s.icon)
+}
+
+forall Segment s
 where s := Radius(c, p); p has label
 with Circle c; Point p {
   ensure disjoint(p.text, c.icon)
