@@ -22,6 +22,7 @@ export const LIMITS = { NO_MAXIMUM: 0x00, MAXIMUM: 0x01 };
 export const OP = {
   call: 0x10,
   call_indirect: 0x11,
+  drop: 0x1a,
   select: 0x1b,
 
   f64: {
@@ -49,7 +50,7 @@ export const OP = {
     copysign: 0xa6,
   },
   i32: { const: 0x41, eqz: 0x45, add: 0x6a, and: 0x71, or: 0x72 },
-  local: { get: 0x20, set: 0x21 },
+  local: { get: 0x20, set: 0x21, tee: 0x22 },
 };
 
 export const END = 0x0b;

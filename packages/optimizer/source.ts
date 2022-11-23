@@ -22,9 +22,10 @@ export const importMemoryName = "memory";
 export const exportTableName = "builtins";
 export const exportFunctionName = "f";
 
+// https://github.com/rustwasm/wasm-bindgen/blob/f82f5c5852c3abf057bb737d545360a3a5c7d84c/crates/cli-support/src/wit/mod.rs#L1370-L1372
+export const alignStackPointer = 16; // number of bytes
+
 export const builtins = [
-  // note that the stack pointer must always be 16-byte aligned:
-  // https://github.com/rustwasm/wasm-bindgen/blob/f82f5c5852c3abf057bb737d545360a3a5c7d84c/crates/cli-support/src/wit/mod.rs#L1370-L1372
   "__wbindgen_add_to_stack_pointer",
 
   "penrose_acos",

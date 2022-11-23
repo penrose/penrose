@@ -1,5 +1,6 @@
 import { Queue } from "@datastructures-js/queue";
 import {
+  alignStackPointer,
   builtins,
   exportFunctionName,
   exportTableName,
@@ -96,7 +97,8 @@ const makeNode = (x: ad.Expr): ad.Node => {
       return { tag, op };
     }
     case "PolyRoots": {
-      return { tag };
+      const { degree } = node;
+      return { tag, degree };
     }
     case "Index": {
       const { index } = node;
@@ -889,20 +891,45 @@ export const fns = {
 
 // Traverses the computational graph of ops obtained by interpreting the energy function, and generates WebAssembly code corresponding to just the ops
 
-const alignDouble = 3;
+const bytesDouble = Float64Array.BYTES_PER_ELEMENT;
+const logAlignDouble = Math.log2(bytesDouble);
 
-const numFuncTypes = 3;
-const typeIndexUnary = 0;
-const typeIndexBinary = 1;
-const typeIndexGradient = 2;
+const numFuncTypes = 5;
+const typeIndexGradient = 0;
+const typeIndexAddToStackPointer = 1;
+const typeIndexUnary = 2;
+const typeIndexBinary = 3;
+const typeIndexPolyRoots = 4;
 
 const numGradientParams = 3;
 const gradientParamInput = 0;
 const gradientParamGradient = 1;
 const gradientParamSecondary = 2;
 
+const gradientLocalStackPointer = 3;
+
+const numTables = 1;
+const tableIndexBuiltins = 0;
+
 const typeSection = (t: wasm.Target): void => {
   t.int(numFuncTypes);
+
+  // typeIndexGradient
+  const numGradientReturns = 1;
+  t.byte(wasm.TYPE.FUNCTION);
+  t.int(numGradientParams);
+  for (let i = 0; i < numGradientParams; i++) t.byte(wasm.TYPE.i32);
+  t.int(numGradientReturns);
+  t.byte(wasm.TYPE.f64);
+
+  // typeIndexAddToStackPointer
+  const numAddToStackPointerParams = 1;
+  const numAddToStackPointerReturns = 1;
+  t.byte(wasm.TYPE.FUNCTION);
+  t.int(numAddToStackPointerParams);
+  t.byte(wasm.TYPE.i32);
+  t.int(numAddToStackPointerReturns);
+  t.byte(wasm.TYPE.i32);
 
   // typeIndexUnary
   const numUnaryParams = 1;
@@ -923,13 +950,14 @@ const typeSection = (t: wasm.Target): void => {
   t.int(numBinaryReturns);
   t.byte(wasm.TYPE.f64);
 
-  // typeIndexGradient
-  const numGradientReturns = 1;
+  // typeIndexPolyRoots
+  const numPolyRootsParams = 2;
+  const numPolyRootsReturns = 0;
   t.byte(wasm.TYPE.FUNCTION);
-  t.int(numGradientParams);
-  for (let i = 0; i < numGradientParams; i++) t.byte(wasm.TYPE.i32);
-  t.int(numGradientReturns);
-  t.byte(wasm.TYPE.f64);
+  t.int(numPolyRootsParams);
+  t.byte(wasm.TYPE.i32);
+  t.byte(wasm.TYPE.i32);
+  t.int(numPolyRootsReturns);
 };
 
 const importSection = (t: wasm.Target): void => {
@@ -950,9 +978,9 @@ const functionSection = (t: wasm.Target, numFunctions: number): void => {
 };
 
 const tableSection = (t: wasm.Target): void => {
-  const numTables = 1;
   t.int(numTables);
 
+  // tableIndexBuiltins
   const minEntries = builtins.length;
   const maxEntries = builtins.length;
   t.byte(wasm.TYPE.FUNCREF);
@@ -965,10 +993,9 @@ const exportSection = (t: wasm.Target, numFunctions: number): void => {
   const numExports = 2;
   t.int(numExports);
 
-  const tableIndex = 0;
   t.ascii(exportTableName);
   t.byte(wasm.EXPORT.TABLE);
-  t.int(tableIndex);
+  t.int(tableIndexBuiltins);
 
   const funcIndex = numFunctions - 1;
   t.ascii(exportFunctionName);
@@ -1155,7 +1182,7 @@ const compileUnary = (
 
       t.byte(wasm.OP.call_indirect);
       t.int(typeIndexUnary);
-      t.int(0);
+      t.int(tableIndexBuiltins);
 
       return;
     }
@@ -1223,7 +1250,7 @@ const compileBinary = (
 
       t.byte(wasm.OP.call_indirect);
       t.int(typeIndexBinary);
-      t.int(0);
+      t.int(tableIndexBuiltins);
 
       return;
     }
@@ -1336,10 +1363,75 @@ const compileNode = (
       return;
     }
     case "PolyRoots": {
-      throw Error("TODO");
+      const bytes =
+        Math.ceil((node.degree * bytesDouble) / alignStackPointer) *
+        alignStackPointer;
+
+      t.byte(wasm.OP.i32.const);
+      t.int(-bytes);
+
+      t.byte(wasm.OP.i32.const);
+      t.int(builtins.indexOf("__wbindgen_add_to_stack_pointer"));
+
+      t.byte(wasm.OP.call_indirect);
+      t.int(typeIndexAddToStackPointer);
+      t.int(tableIndexBuiltins);
+
+      t.byte(wasm.OP.local.tee);
+      t.int(gradientLocalStackPointer);
+
+      naryParams(preds).forEach((index, i) => {
+        t.byte(wasm.OP.local.get);
+        t.int(gradientLocalStackPointer);
+
+        t.byte(wasm.OP.local.get);
+        t.int(index);
+
+        t.byte(wasm.OP.f64.store);
+        t.int(logAlignDouble);
+        t.int(i * bytesDouble);
+      });
+
+      t.byte(wasm.OP.i32.const);
+      t.int(node.degree);
+
+      t.byte(wasm.OP.i32.const);
+      t.int(builtins.indexOf("penrose_poly_roots"));
+
+      t.byte(wasm.OP.call_indirect);
+      t.int(typeIndexPolyRoots);
+      t.int(tableIndexBuiltins);
+
+      for (let i = 0; i < node.degree; i++) {
+        t.byte(wasm.OP.local.get);
+        t.int(gradientLocalStackPointer);
+
+        t.byte(wasm.OP.f64.load);
+        t.int(logAlignDouble);
+        t.int(i * bytesDouble);
+      }
+
+      t.byte(wasm.OP.i32.const);
+      t.int(bytes);
+
+      t.byte(wasm.OP.i32.const);
+      t.int(builtins.indexOf("__wbindgen_add_to_stack_pointer"));
+
+      t.byte(wasm.OP.call_indirect);
+      t.int(typeIndexAddToStackPointer);
+      t.int(tableIndexBuiltins);
+
+      t.byte(wasm.OP.drop);
+
+      return;
     }
     case "Index": {
-      throw Error("TODO");
+      const vec = safe(preds.get(undefined), "missing vec");
+
+      t.byte(wasm.OP.local.get);
+      t.int(vec + node.index);
+
+      return;
     }
     case "Debug": {
       throw Error("TODO");
@@ -1347,15 +1439,17 @@ const compileNode = (
   }
 };
 
-const compileType = (node: ad.Node): number => {
+type Typename = "i32" | "f64";
+
+const getLayout = (node: ad.Node): { typename: Typename; count: number } => {
   if (typeof node === "number") {
-    return wasm.TYPE.f64;
+    return { typename: "f64", count: 1 };
   } else {
     switch (node.tag) {
       case "Comp":
       case "Logic":
       case "Not": {
-        return wasm.TYPE.i32;
+        return { typename: "i32", count: 1 };
       }
       case "Input":
       case "Unary":
@@ -1364,26 +1458,54 @@ const compileType = (node: ad.Node): number => {
       case "Nary":
       case "Index":
       case "Debug": {
-        return wasm.TYPE.f64;
+        return { typename: "f64", count: 1 };
       }
       case "PolyRoots": {
-        throw Error("TODO");
+        return { typename: "f64", count: node.degree };
       }
     }
   }
+};
+
+interface Local {
+  typename: Typename;
+  index: number;
+}
+
+interface Locals {
+  counts: { i32: number; f64: number };
+  indices: Map<ad.Id, Local>;
+}
+
+const getIndex = (locals: Locals, id: ad.Id): number => {
+  const local = safe(locals.indices.get(id), "missing local");
+  return (
+    numGradientParams +
+    (local.typename === "i32" ? 0 : locals.counts.i32) +
+    local.index
+  );
 };
 
 const compileGraph = (
   t: wasm.Target,
   { graph, gradient, primary, secondary }: ad.Graph
 ): void => {
-  const numLocals = graph.nodeCount();
-  t.int(numLocals);
-  for (const id of [...graph.nodes()].sort(
-    (a, b) => idToIndex(a) - idToIndex(b)
-  )) {
-    t.int(1);
-    t.byte(compileType(graph.node(id)));
+  const counts = { i32: 1, f64: 0 }; // `gradientLocalStackPointer`
+  const indices = new Map<ad.Id, Local>();
+  for (const id of graph.nodes()) {
+    const node = graph.node(id);
+    const { typename, count } = getLayout(node);
+    indices.set(id, { typename, index: counts[typename] });
+    counts[typename] += count;
+  }
+  const locals = { counts, indices };
+
+  const numLocalDecls = Object.keys(counts).length;
+  t.int(numLocalDecls);
+
+  for (const [typename, count] of Object.entries(counts)) {
+    t.int(count);
+    t.byte(wasm.TYPE[typename]);
   }
 
   for (const {
@@ -1394,11 +1516,11 @@ const compileGraph = (
     t.int(gradientParamInput);
 
     t.byte(wasm.OP.f64.load);
-    t.int(alignDouble);
-    t.int(key * Float64Array.BYTES_PER_ELEMENT);
+    t.int(logAlignDouble);
+    t.int(key * bytesDouble);
 
     t.byte(wasm.OP.local.set);
-    t.int(numGradientParams + idToIndex(id));
+    t.int(getIndex(locals, id));
   }
 
   for (const id of graph.topsort()) {
@@ -1406,15 +1528,16 @@ const compileGraph = (
     // we already generated code for the inputs
     if (typeof node === "number" || node.tag !== "Input") {
       const preds = new Map(
-        graph
-          .inEdges(id)
-          .map(({ v, name }) => [name, numGradientParams + idToIndex(v)])
+        graph.inEdges(id).map(({ v, name }) => [name, getIndex(locals, v)])
       );
 
       compileNode(t, node, preds);
 
-      t.byte(wasm.OP.local.set);
-      t.int(numGradientParams + idToIndex(id));
+      const index = getIndex(locals, id);
+      for (let i = getLayout(node).count - 1; i >= 0; i--) {
+        t.byte(wasm.OP.local.set);
+        t.int(index + i);
+      }
     }
   }
 
@@ -1426,17 +1549,17 @@ const compileGraph = (
     t.int(gradientParamGradient);
 
     t.byte(wasm.OP.f64.load);
-    t.int(alignDouble);
-    t.int(i * Float64Array.BYTES_PER_ELEMENT);
+    t.int(logAlignDouble);
+    t.int(i * bytesDouble);
 
     t.byte(wasm.OP.local.get);
-    t.int(numGradientParams + idToIndex(id));
+    t.int(getIndex(locals, id));
 
     t.byte(wasm.OP.f64.add);
 
     t.byte(wasm.OP.f64.store);
-    t.int(alignDouble);
-    t.int(i * Float64Array.BYTES_PER_ELEMENT);
+    t.int(logAlignDouble);
+    t.int(i * bytesDouble);
   });
 
   secondary.forEach((id, i) => {
@@ -1444,15 +1567,15 @@ const compileGraph = (
     t.int(gradientParamSecondary);
 
     t.byte(wasm.OP.local.get);
-    t.int(numGradientParams + idToIndex(id));
+    t.int(getIndex(locals, id));
 
     t.byte(wasm.OP.f64.store);
-    t.int(alignDouble);
-    t.int(i * Float64Array.BYTES_PER_ELEMENT);
+    t.int(logAlignDouble);
+    t.int(i * bytesDouble);
   });
 
   t.byte(wasm.OP.local.get);
-  t.int(numGradientParams + idToIndex(primary));
+  t.int(getIndex(locals, primary));
 
   t.byte(wasm.END);
 };

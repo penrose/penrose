@@ -217,6 +217,7 @@ export interface NaryNode {
 
 export interface PolyRootsNode {
   tag: "PolyRoots";
+  degree: number;
 }
 
 export interface IndexNode {
