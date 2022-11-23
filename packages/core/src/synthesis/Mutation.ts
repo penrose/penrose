@@ -15,15 +15,7 @@ import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { range, without } from "lodash";
 import { A, Identifier } from "types/ast";
-import {
-  ApplyConstructor,
-  ApplyFunction,
-  ApplyPredicate,
-  Bind,
-  Func,
-  SubProg,
-  SubStmt,
-} from "types/substance";
+import { ApplyPredicate, Bind, SubProg, SubStmt } from "types/substance";
 import {
   addID,
   generateArgStmt,
@@ -89,7 +81,7 @@ export interface SwapExprArgs extends MutationBase {
 export interface SwapInStmtArgs extends MutationBase {
   tag: "SwapInStmtArgs";
   stmt: ApplyPredicate<A>;
-  elem: number;
+  elem: string; // TODO: change to ID or index
   swap: Identifier<A>;
 }
 
@@ -97,7 +89,7 @@ export interface SwapInExprArgs extends MutationBase {
   tag: "SwapInExprArgs";
   stmt: Bind<A>;
   expr: ArgExpr<A>;
-  elem: number;
+  elem: string; // TODO: change to ID or index
   swap: Identifier<A>;
 }
 
@@ -143,11 +135,13 @@ export const showMutation = (op: Mutation): string => {
         op.expr
       )} in ${prettyStmt(op.stmt)}`;
     case "SwapInStmtArgs":
-      return `Swap in arguments of ${prettyStmt(op.stmt)}`;
+      return `Swap argument ${op.elem} of ${prettyStmt(op.stmt)} with ${
+        op.swap.value
+      }`;
     case "SwapInExprArgs":
-      return `Swap in arguments of ${prettySubNode(op.expr)} in ${prettyStmt(
-        op.stmt
-      )}`;
+      return `Swap argument ${op.elem} of ${prettyStmt(op.stmt)} with ${
+        op.swap.value
+      }`;
     case "ChangeStmtType":
     case "ChangeExprType":
       return `Change ${prettyStmt(op.stmt)} to ${prettyStmt(op.newStmt)}`;
@@ -349,43 +343,39 @@ export const checkSwapInStmtArgs = (
   cxt: SynthesisContext,
   pickSwap: (
     options: Immutable.Map<string, Identifier<A>[]>
-  ) => Identifier<A> | undefined,
-  element: (p: ApplyPredicate<A>) => number
+  ) => [string, Identifier<A>] | undefined
 ): SwapInStmtArgs | undefined => {
   if (stmt.tag === "ApplyPredicate") {
     if (stmt.args.length < 1) return undefined;
-    const elem = element(stmt);
-    const arg = stmt.args[elem];
-    if (arg.tag === "Identifier") {
-      // TODO: rewrite to use a more general id-finding function. `identicalTypeDecls` is way too specific
-      const swapOpts = identicalTypeDecls(
-        stmt.args.filter((id): id is Identifier<A> => id.tag === "Identifier"),
-        cxt.env
-      );
-      log.debug(`Found options to swap in: ${[...swapOpts.keys()]}`);
-      const swap = pickSwap(swapOpts);
-      if (!swap) return undefined;
-      return {
-        tag: "SwapInStmtArgs",
-        stmt,
-        elem,
-        swap,
-        mutate: (
-          { stmt, elem, swap }: SwapInStmtArgs,
-          prog: SubProg<A>,
-          ctx: SynthesisContext
-        ): WithContext<SubProg<A>> => {
-          const newStmt: SubStmt<A> = {
-            ...stmt,
-            args: stmt.args.map((arg, idx) => {
-              return idx === elem ? swap : arg;
-            }),
-          };
-          return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
-        },
-      };
-    }
-  } else return undefined;
+    // TODO: rewrite to use a more general id-finding function. `identicalTypeDecls` is way too specific
+    const swapOpts = identicalTypeDecls(
+      stmt.args.filter((id): id is Identifier<A> => id.tag === "Identifier"),
+      cxt.env
+    );
+    log.debug(`Found options to swap in: ${swapOpts.toArray()}`);
+    const swapChoice = pickSwap(swapOpts);
+    if (!swapChoice) return undefined;
+    const [elem, swap] = swapChoice;
+    return {
+      tag: "SwapInStmtArgs",
+      stmt,
+      elem,
+      swap,
+      mutate: (
+        { stmt, elem, swap }: SwapInStmtArgs,
+        prog: SubProg<A>,
+        ctx: SynthesisContext
+      ): WithContext<SubProg<A>> => {
+        const newStmt: SubStmt<A> = {
+          ...stmt,
+          args: stmt.args.map((arg) => {
+            return arg.tag === "Identifier" && arg.value === elem ? swap : arg;
+          }),
+        };
+        return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+      },
+    };
+  }
 };
 
 export const checkSwapInExprArgs = (
@@ -393,8 +383,7 @@ export const checkSwapInExprArgs = (
   cxt: SynthesisContext,
   pickSwap: (
     options: Immutable.Map<string, Identifier<A>[]>
-  ) => Identifier<A> | undefined,
-  element: (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => number
+  ) => [string, Identifier<A>] | undefined
 ): SwapInExprArgs | undefined => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
@@ -404,43 +393,39 @@ export const checkSwapInExprArgs = (
       expr.tag === "Func"
     ) {
       if (expr.args.length < 1) return undefined;
-      const elem = element(expr);
-      const arg = expr.args[elem];
-      if (arg.tag === "Identifier") {
-        const swapOpts = identicalTypeDecls(
-          expr.args.filter(
-            (id): id is Identifier<A> => id.tag === "Identifier"
-          ),
-          cxt.env
-        );
-        // if (swapOpts.length === 0) return undefined;
-        const swap = pickSwap(swapOpts);
-        if (!swap) return undefined;
-        return {
-          tag: "SwapInExprArgs",
-          stmt,
-          expr,
-          elem,
-          swap,
-          mutate: (
-            { stmt, elem, swap }: SwapInExprArgs,
-            prog: SubProg<A>,
-            ctx: SynthesisContext
-          ): WithContext<SubProg<A>> => {
-            const newStmt: SubStmt<A> = {
-              ...stmt,
-              expr: {
-                ...expr,
-                args: expr.args.map((arg, idx) => {
-                  return idx === elem ? swap : arg;
-                }),
-              },
-            };
-            return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
-          },
-        };
-      }
-    } else return undefined;
+      const swapOpts = identicalTypeDecls(
+        expr.args.filter((id): id is Identifier<A> => id.tag === "Identifier"),
+        cxt.env
+      );
+      const swapChoice = pickSwap(swapOpts);
+      if (!swapChoice) return undefined;
+      const [elem, swap] = swapChoice;
+      return {
+        tag: "SwapInExprArgs",
+        stmt,
+        expr,
+        elem,
+        swap,
+        mutate: (
+          { stmt, elem, swap }: SwapInExprArgs,
+          prog: SubProg<A>,
+          ctx: SynthesisContext
+        ): WithContext<SubProg<A>> => {
+          const newStmt: SubStmt<A> = {
+            ...stmt,
+            expr: {
+              ...expr,
+              args: expr.args.map((arg) => {
+                return arg.tag === "Identifier" && arg.value === elem
+                  ? swap
+                  : arg;
+              }),
+            },
+          };
+          return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+        },
+      };
+    }
   } else return undefined;
 };
 
