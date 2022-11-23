@@ -36,6 +36,33 @@ import {
 
 //#region general
 
+export const cartesianProduct = <Tin, Tout>(
+  t1: Tin[],
+  t2: Tin[],
+  consistent: (t1: Tin, t2: Tin) => boolean,
+  merge: (t1: Tin, t2: Tin) => Tout
+): Tout[] => {
+  const product: Tout[] = [];
+  for (const i in t1) {
+    for (const j in t2) {
+      if (consistent(t1[i], t2[j])) {
+        product.push(merge(t1[i], t2[j]));
+      }
+    }
+  }
+  return product;
+};
+
+/**
+ * Compute the combinations of pairs
+ */
+export const combinations2 = <T>(list: T[]): [T, T][] =>
+  list.reduce<[T, T][]>((acc, elem, index) => {
+    const rest: T[] = list.slice(index + 1);
+    const newElems: [T, T][] = rest.map((elem1: T): [T, T] => [elem, elem1]);
+    return [...acc, ...newElems];
+  }, []);
+
 /**
  * Safe wrapper for any function that might return `undefined`.
  * @borrows https://stackoverflow.com/questions/54738221/typescript-array-find-possibly-undefind

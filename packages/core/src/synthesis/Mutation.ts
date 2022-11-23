@@ -275,34 +275,37 @@ export const checkAddStmt = (
 
 export const checkSwapStmtArgs = (
   stmt: SubStmt<A>,
-  elems: (p: ApplyPredicate<A>) => [number, number]
+  elems: (p: ApplyPredicate<A>) => [number, number] | undefined
 ): SwapStmtArgs | undefined => {
   if (stmt.tag === "ApplyPredicate") {
     if (stmt.args.length < 2) return undefined;
-    const [elem1, elem2] = elems(stmt);
-    return {
-      tag: "SwapStmtArgs",
-      stmt,
-      elem1,
-      elem2,
-      mutate: (
-        { stmt, elem1, elem2 }: SwapStmtArgs,
-        prog: SubProg<A>,
-        ctx: SynthesisContext
-      ): WithContext<SubProg<A>> => {
-        const newStmt: SubStmt<A> = {
-          ...stmt,
-          args: swap(stmt.args, elem1, elem2),
-        };
-        return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
-      },
-    };
+    const indexPair = elems(stmt);
+    if (indexPair) {
+      const [elem1, elem2] = indexPair;
+      return {
+        tag: "SwapStmtArgs",
+        stmt,
+        elem1,
+        elem2,
+        mutate: (
+          { stmt, elem1, elem2 }: SwapStmtArgs,
+          prog: SubProg<A>,
+          ctx: SynthesisContext
+        ): WithContext<SubProg<A>> => {
+          const newStmt: SubStmt<A> = {
+            ...stmt,
+            args: swap(stmt.args, elem1, elem2),
+          };
+          return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+        },
+      };
+    } else return undefined;
   } else return undefined;
 };
 
 export const checkSwapExprArgs = (
   stmt: SubStmt<A>,
-  elems: (p: ArgExpr<A>) => [number, number]
+  elems: (p: ArgExpr<A>) => [number, number] | undefined
 ): SwapExprArgs | undefined => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
@@ -312,28 +315,31 @@ export const checkSwapExprArgs = (
       expr.tag === "Func"
     ) {
       if (expr.args.length < 2) return undefined;
-      const [elem1, elem2] = elems(expr);
-      return {
-        tag: "SwapExprArgs",
-        stmt,
-        expr,
-        elem1,
-        elem2,
-        mutate: (
-          { stmt, expr, elem1, elem2 }: SwapExprArgs,
-          prog: SubProg<A>,
-          ctx: SynthesisContext
-        ): WithContext<SubProg<A>> => {
-          const newStmt: SubStmt<A> = {
-            ...stmt,
-            expr: {
-              ...expr,
-              args: swap(expr.args, elem1, elem2),
-            },
-          };
-          return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
-        },
-      };
+      const indexPair = elems(expr);
+      if (indexPair) {
+        const [elem1, elem2] = indexPair;
+        return {
+          tag: "SwapExprArgs",
+          stmt,
+          expr,
+          elem1,
+          elem2,
+          mutate: (
+            { stmt, expr, elem1, elem2 }: SwapExprArgs,
+            prog: SubProg<A>,
+            ctx: SynthesisContext
+          ): WithContext<SubProg<A>> => {
+            const newStmt: SubStmt<A> = {
+              ...stmt,
+              expr: {
+                ...expr,
+                args: swap(expr.args, elem1, elem2),
+              },
+            };
+            return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+          },
+        };
+      } else return undefined;
     } else return undefined;
   } else return undefined;
 };

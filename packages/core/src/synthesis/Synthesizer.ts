@@ -12,7 +12,9 @@ import {
   cascadingDelete,
   desugarAutoLabel,
   domainToSubType,
+  findDecl,
   findTypes,
+  getSignature,
   matchSignatures,
   nullaryTypeCons,
   SubStmtKind,
@@ -70,11 +72,12 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+import { combinations2 } from "utils/Util";
 
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Debug })
+  .create({ level: LogLevel.Info })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -495,16 +498,32 @@ export class Synthesizer {
     // const ops = enumerateMutations(stmt, this.currentProg, ctx);
     const ops: (Mutation | undefined)[] = [
       checkSwapStmtArgs(stmt, (p: ApplyPredicate<A>) => {
-        const indices = range(0, p.args.length);
-        const elem1 = this.choice(indices);
-        const elem2 = this.choice(without(indices, elem1));
-        return [elem1, elem2];
+        const [decl] = findDecl(p.name.value, ctx.env);
+        if (decl) {
+          // find index pairs of matching arg types
+          const { args } = getSignature(decl);
+          const indices = combinations2(range(0, p.args.length)).filter(
+            ([i, j]: [number, number]) => args[i] === args[j]
+          );
+          const pair = this.choice(indices);
+          return pair;
+        } else {
+          return undefined;
+        }
       }),
       checkSwapExprArgs(stmt, (f: ArgExpr<A>) => {
-        const indices = range(0, f.args.length);
-        const elem1 = this.choice(indices);
-        const elem2 = this.choice(without(indices, elem1));
-        return [elem1, elem2];
+        const [decl] = findDecl(f.name.value, ctx.env);
+        if (decl) {
+          // find index pairs of matching arg types
+          const { args } = getSignature(decl);
+          const indices = combinations2(range(0, f.args.length)).filter(
+            ([i, j]: [number, number]) => args[i] === args[j]
+          );
+          const pair = this.choice(indices);
+          return pair;
+        } else {
+          return undefined;
+        }
       }),
       checkReplaceStmtName(stmt, (p: ApplyPredicate<A>) => {
         const matchingNames: string[] = matchSignatures(p, ctx.env).map(
