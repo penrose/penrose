@@ -224,7 +224,7 @@ to do is generate that output and check it into Git.
 The easiest way to do this is to run `automator` locally on the registry:
 
 ```sh
-yarn build --filter=automator
+npx nx run automator:build
 pushd packages/automator/
 yarn start batch registry.json ../../diagrams/ --src-prefix=../examples/src/
 popd
