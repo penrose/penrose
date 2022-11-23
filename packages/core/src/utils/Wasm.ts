@@ -54,29 +54,28 @@ export const OP = {
 
 export const END = 0x0b;
 
-export interface Target {
+export interface Byter {
   byte(b: number): void;
+}
+
+export const int = (t: Byter, n: number): void => {
+  if (n < -0x80000000 || 0x7fffffff < n)
+    throw new Error(`cannot fit ${n} into a 32-bit signed integer`);
+  while (n < -0x40 || 0x3f < n) {
+    t.byte((n & 0x7f) | 0x80);
+    n >>= 7;
+  }
+  t.byte(n & 0x7f);
+};
+
+export interface Target extends Byter {
   int(n: number): void;
   f64(x: number): void;
   ascii(s: string): void;
 }
 
-const int = (t: Target, n: number): void => {
-  // https://en.wikipedia.org/wiki/LEB128#Encode_unsigned_integer
-  do {
-    let byte = n & 0x7f;
-    n >>= 7;
-    if (n > 0) byte |= 0x80;
-    t.byte(byte);
-  } while (n > 0);
-};
-
 export class Count implements Target {
-  size: number;
-
-  constructor() {
-    this.size = 0;
-  }
+  size = 0;
 
   byte(): void {
     this.size++;
