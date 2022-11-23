@@ -32,6 +32,7 @@
       "build": {
         "dependsOn": [
           "^build",
+          "^build-decls",
           "build-parsers"
         ],
         "outputs": [
