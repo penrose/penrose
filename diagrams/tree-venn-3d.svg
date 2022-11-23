@@ -1,13 +1,13 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g
-    transform="rotate(0, 53.396638909416595, 1.556222345471781)translate(53.396638909416595, 1.556222345471781)"
+    transform="rotate(0, 53.6091315887204, 0.7645353783922815)translate(53.6091315887204, 0.7645353783922815)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="630.5790171057698"
-      height="651.1094967324693"
+      width="630.930129899558"
+      height="651.4720411055902"
     >
       <defs>
         <linearGradient
@@ -38,14 +38,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 57.79602740085221, 3.9025628742374465)translate(57.79602740085221, 3.9025628742374465)"
+    transform="rotate(0, 58.0109697042987, 3.112182373367432)translate(58.0109697042987, 3.112182373367432)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="586.5851321914138"
-      height="586.5851321914138"
+      width="586.9117487437749"
+      height="586.9117487437749"
     >
       <defs>
         <radialGradient
@@ -83,22 +83,22 @@
   <circle
     fill="#cac87e"
     fill-opacity="0.5"
-    cx="351.0885934965591"
-    cy="297.19512896994434"
+    cx="351.46684407618613"
+    cy="296.56805674525486"
     stroke="none"
-    r="293.2925660957069"
+    r="293.45587437188743"
   >
     <title>`A`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 408.86101587800795, 288.3821091380635)translate(408.86101587800795, 288.3821091380635)"
+    transform="rotate(0, 408.7666284901158, 288.4294768277406)translate(408.7666284901158, 288.4294768277406)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="218.91036078617384"
-      height="226.03767485828186"
+      width="219.12846670571057"
+      height="226.26288190078026"
     >
       <defs>
         <linearGradient
@@ -129,14 +129,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 410.3882974648882, 289.19665931773307)translate(410.3882974648882, 289.19665931773307)"
+    transform="rotate(0, 410.2954317462022, 289.24483856432005)translate(410.2954317462022, 289.24483856432005)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="203.63754491737103"
-      height="203.63754491737103"
+      width="203.84043414484705"
+      height="203.84043414484705"
     >
       <defs>
         <radialGradient
@@ -172,14 +172,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 292.43467497496, 238.5661960040268)translate(292.43467497496, 238.5661960040268)"
+    transform="rotate(0, 292.68983195764844, 237.9186519165955)translate(292.68983195764844, 237.9186519165955)"
     string="A"
   >
     <title>`A`.text</title>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="117.31702643828277"
-      height="117.31702643828277"
+      width="117.38234974875498"
+      height="117.38234974875498"
       role="img"
       focusable="false"
       viewBox="0.6181 -12.644559999999998 12.203059999999999 12.644559999999998"
@@ -196,22 +196,22 @@
   <circle
     fill="#4951bb"
     fill-opacity="0.5"
-    cx="512.2070699235737"
-    cy="391.01543177641855"
+    cx="512.2156488186257"
+    cy="391.16505563674355"
     stroke="none"
-    r="101.81877245868552"
+    r="101.92021707242353"
   >
     <title>`C`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 479.21953201005357, 324.1201123309828)translate(479.21953201005357, 324.1201123309828)"
+    transform="rotate(0, 479.4155922757221, 324.3593805323612)translate(479.4155922757221, 324.3593805323612)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="44.45792681458738"
-      height="45.90539419924838"
+      width="43.56765352110735"
+      height="44.986135263655044"
     >
       <defs>
         <linearGradient
@@ -242,14 +242,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 479.5297035924809, 324.2855371749441)translate(479.5297035924809, 324.2855371749441)"
+    transform="rotate(0, 479.71955264912515, 324.52149273150945)translate(479.71955264912515, 324.52149273150945)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="41.35621099031385"
-      height="41.35621099031385"
+      width="40.52804978707661"
+      height="40.52804978707661"
     >
       <defs>
         <radialGradient
@@ -285,14 +285,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 491.9167931818509, 370.7138267942639)translate(491.9167931818509, 370.7138267942639)"
+    transform="rotate(0, 491.8695293862237, 370.84033362204985)translate(491.8695293862237, 370.84033362204985)"
     string="C"
   >
     <title>`C`.text</title>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="40.72750898347421"
-      height="40.72750898347421"
+      width="40.768086828969416"
+      height="40.768086828969416"
       role="img"
       focusable="false"
       viewBox="0.8829999999999999 -12.450299999999999 12.5386 12.838819999999998"
@@ -309,22 +309,22 @@
   <circle
     fill="#a85f3b"
     fill-opacity="0.5"
-    cx="500.2078090876378"
-    cy="344.963642670101"
+    cx="499.98357754266345"
+    cy="344.78551762504776"
     stroke="none"
-    r="20.678105495156924"
+    r="20.264024893538306"
   >
     <title>`F`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 496.0950321743426, 340.7853885122862)translate(496.0950321743426, 340.7853885122862)"
+    transform="rotate(0, 495.9803844486193, 340.72679887543296)translate(495.9803844486193, 340.72679887543296)"
     string="F"
   >
     <title>`F`.text</title>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="8.27124219806277"
-      height="8.27124219806277"
+      width="8.105609957415323"
+      height="8.105609957415323"
       role="img"
       focusable="false"
       viewBox="0.54746 -12.008799999999999 12.679879999999999 12.008799999999999"
@@ -339,14 +339,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 221.83794389803506, 420.82338463486593)translate(221.83794389803506, 420.82338463486593)"
+    transform="rotate(0, 223.52587235443525, 421.4043761808998)translate(223.52587235443525, 421.4043761808998)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="168.9937188887632"
-      height="174.49583996886247"
+      width="166.76557613397563"
+      height="172.1951530313609"
     >
       <defs>
         <linearGradient
@@ -377,14 +377,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 223.0169698437706, 421.45219847259153)translate(223.0169698437706, 421.45219847259153)"
+    transform="rotate(0, 224.68935311816068, 422.02489925488663)translate(224.68935311816068, 422.02489925488663)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="157.20345943140762"
-      height="157.20345943140762"
+      width="155.13076849672152"
+      height="155.13076849672152"
     >
       <defs>
         <radialGradient
@@ -422,22 +422,22 @@
   <circle
     fill="#ce62d8"
     fill-opacity="0.5"
-    cx="301.6186995594744"
-    cy="500.05392818829534"
+    cx="302.25473736652145"
+    cy="499.5902835032474"
     stroke="none"
-    r="78.60172971570381"
+    r="77.56538424836076"
   >
     <title>`B`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 285.92251872877665, 484.227857980604)translate(285.92251872877665, 484.227857980604)"
+    transform="rotate(0, 286.70964355261225, 484.1288028796455)translate(286.70964355261225, 484.1288028796455)"
     string="B"
   >
     <title>`B`.text</title>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="31.440691886281527"
-      height="31.440691886281527"
+      width="31.026153699344306"
+      height="31.026153699344306"
       role="img"
       focusable="false"
       viewBox="0.6181 -12.061779999999999 12.732859999999999 12.061779999999999"
@@ -452,14 +452,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 312.0975679590386, 516.8795972317467)translate(312.0975679590386, 516.8795972317467)"
+    transform="rotate(0, 311.7351515893408, 516.8683894232685)translate(311.7351515893408, 516.8683894232685)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="47.449547563645154"
-      height="48.994416554089426"
+      width="47.18818204574802"
+      height="48.72454146119099"
     >
       <defs>
         <linearGradient
@@ -490,14 +490,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 312.4286113141338, 517.0561536877975)translate(312.4286113141338, 517.0561536877975)"
+    transform="rotate(0, 312.0643714640785, 517.043973356462)translate(312.0643714640785, 517.043973356462)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="44.13911401269317"
-      height="44.13911401269317"
+      width="43.895983298370254"
+      height="43.895983298370254"
     >
       <defs>
         <radialGradient
@@ -535,22 +535,22 @@
   <circle
     fill="#60a543"
     fill-opacity="0.5"
-    cx="334.4981683204804"
-    cy="539.1257106941441"
+    cx="334.01236311326363"
+    cy="538.9919650056471"
     stroke="none"
-    r="22.069557006346585"
+    r="21.947991649185127"
   >
     <title>`D`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 330.01183943390237, 534.6974260388567)translate(330.01183943390237, 534.6974260388567)"
+    transform="rotate(0, 329.66545369508793, 534.6438680343289)translate(329.66545369508793, 534.6438680343289)"
     string="D"
   >
     <title>`D`.text</title>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="8.827822802538634"
-      height="8.827822802538634"
+      width="8.779196659674051"
+      height="8.779196659674051"
       role="img"
       focusable="false"
       viewBox="0.58278 -12.061779999999999 13.598199999999999 12.061779999999999"
@@ -565,14 +565,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 320.760867720994, 450.467697063762)translate(320.760867720994, 450.467697063762)"
+    transform="rotate(0, 320.72239380321594, 450.85278520178235)translate(320.72239380321594, 450.85278520178235)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="43.598721159254616"
-      height="45.01821440630012"
+      width="43.001127716307806"
+      height="44.40116443265272"
     >
       <defs>
         <linearGradient
@@ -603,14 +603,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 321.0650448453609, 450.6299248634243)translate(321.0650448453609, 450.6299248634243)"
+    transform="rotate(0, 321.0224016710041, 451.0127893979361)translate(321.0224016710041, 451.0127893979361)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="40.55694991558569"
-      height="40.55694991558569"
+      width="40.00104903842587"
+      height="40.00104903842587"
     >
       <defs>
         <radialGradient
@@ -648,22 +648,22 @@
   <circle
     fill="#9acb40"
     fill-opacity="0.5"
-    cx="341.34351980315375"
-    cy="470.9083998212172"
+    cx="341.02292619021705"
+    cy="471.01331391714905"
     stroke="none"
-    r="20.278474957792845"
+    r="20.000524519212934"
   >
     <title>`E`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 337.2667633569948, 466.8355072540919)translate(337.2667633569948, 466.8355072540919)"
+    transform="rotate(0, 336.88586116684195, 467.05780839913086)translate(336.88586116684195, 467.05780839913086)"
     string="E"
   >
     <title>`E`.text</title>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="8.111389983117139"
-      height="8.111389983117139"
+      width="8.000209807685174"
+      height="8.000209807685174"
       role="img"
       focusable="false"
       viewBox="0.54746 -12.008799999999999 12.94478 12.008799999999999"
@@ -678,14 +678,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 440.8280466986427, 313.4786944010592)translate(440.8280466986427, 313.4786944010592)"
+    transform="rotate(0, 440.93543730305026, 313.4112459165151)translate(440.93543730305026, 313.4112459165151)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 874.58 820.84"
-      width="43.003424103075695"
-      height="44.403535585501416"
+      width="43.00122049031157"
+      height="44.401260227205434"
     >
       <defs>
         <linearGradient
@@ -716,14 +716,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 441.12807058773393, 313.6387071419079)translate(441.12807058773393, 313.6387071419079)"
+    transform="rotate(0, 441.235445818099, 313.5712504578744)translate(441.235445818099, 313.5712504578744)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 829.57 829.57"
-      width="40.00318521216344"
-      height="40.00318521216344"
+      width="40.001135339824714"
+      height="40.001135339824714"
     >
       <defs>
         <radialGradient
@@ -761,22 +761,22 @@
   <circle
     fill="#5487c2"
     fill-opacity="0.5"
-    cx="461.12966319381565"
-    cy="333.6402997479896"
+    cx="461.23601348801134"
+    cy="333.57181812778674"
     stroke="none"
-    r="20.00159260608172"
+    r="20.000567669912357"
   >
     <title>`G`.shape</title>
   </circle>
   <g
-    transform="rotate(0, 457.185998939575, 329.64982139827737)translate(457.185998939575, 329.64982139827737)"
+    transform="rotate(0, 457.2399322206239, 329.58010446880644)translate(457.2399322206239, 329.58010446880644)"
     string="G"
   >
     <title>`G`.text</title>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="8.000637042432688"
-      height="8.000637042432688"
+      width="8.000227067964943"
+      height="8.000227067964943"
       role="img"
       focusable="false"
       viewBox="0.8829999999999999 -12.450299999999999 12.5386 12.838819999999998"

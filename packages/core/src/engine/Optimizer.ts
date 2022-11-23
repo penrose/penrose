@@ -1,9 +1,9 @@
 import { Gradient, initConstraintWeight } from "@penrose/optimizer";
 import consola, { LogLevel } from "consola";
-import { fns, genCode, input, makeGraph, ops } from "engine/Autodiff";
+import { fns, genCode, input, makeGraph } from "engine/Autodiff";
 import { InputMeta } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { add, mul } from "./AutodiffFunctions";
+import { mul } from "./AutodiffFunctions";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
@@ -18,38 +18,7 @@ const constraintWeight = 10e4; // HACK: constant constraint weight
 
 /**
  * Generate an energy function from the current state (using `ad.Num`s only)
- *
- * @param {State} state
- * @returns a function that takes in a list of `ad.Num`s and return a `Scalar`
  */
-export const evalEnergyOnCustom = (
-  epWeightNode: ad.Input,
-  objEngs: ad.Num[],
-  constrEngs: ad.Num[]
-): ad.Num => {
-  // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
-  // The energies are in the val field of the results (w/o grads)
-  // log.info("objEngs", objFns, objEngs);
-  // log.info("vars", varyingValuesTF);
-
-  if (objEngs.length === 0 && constrEngs.length === 0) {
-    log.info("WARNING: no objectives and no constraints");
-  }
-
-  // This is fixed during the whole optimization
-  const constrWeightNode: ad.Num = constraintWeight;
-
-  const objEng: ad.Num = ops.vsum(objEngs);
-  const constrEng: ad.Num = ops.vsum(constrEngs.map(fns.toPenalty));
-  // F(x) = o(x) + c0 * penalty * c(x)
-  const overallEng: ad.Num = add(
-    objEng,
-    mul(constrEng, mul(constrWeightNode, epWeightNode))
-  );
-
-  return overallEng;
-};
-
 export const genGradient = (
   inputs: InputMeta[],
   objEngs: ad.Num[],
@@ -64,17 +33,32 @@ export const genGradient = (
   const weight = initConstraintWeight;
   const epWeightNode = input({ val: weight, key: inputs.length });
 
-  const energyGraph = evalEnergyOnCustom(epWeightNode, objEngs, constrEngs);
-  // `energyGraph` is a ad.Num that is a handle to the top of the graph
+  // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
+  // The energies are in the val field of the results (w/o grads)
+  // log.info("objEngs", objFns, objEngs);
+  // log.info("vars", varyingValuesTF);
 
-  log.info("interpreted energy graph", energyGraph);
+  if (objEngs.length === 0 && constrEngs.length === 0) {
+    log.info("WARNING: no objectives and no constraints");
+  }
 
-  // Build an actual graph from the implicit ad.Num structure
-  // Build symbolic gradient of f at xs on the energy graph
-  const explicitGraph = makeGraph({
-    primary: energyGraph,
-    secondary: [...objEngs, ...constrEngs],
+  // This is fixed during the whole optimization
+  const constrWeightNode: ad.Num = constraintWeight;
+
+  // F(x) = o(x) + c0 * penalty * c(x)
+  const objs = objEngs.map((x, i) => {
+    const secondary = [];
+    secondary[i] = x;
+    return makeGraph({ primary: x, secondary });
+  });
+  const constrs = constrEngs.map((x, i) => {
+    const secondary = [];
+    secondary[objEngs.length + i] = x;
+    return makeGraph({
+      primary: mul(fns.toPenalty(x), mul(constrWeightNode, epWeightNode)),
+      secondary,
+    });
   });
 
-  return genCode(explicitGraph);
+  return genCode(...objs, ...constrs);
 };
