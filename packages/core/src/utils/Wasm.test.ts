@@ -54,7 +54,7 @@ describe("LEB128", () => {
   });
   test("least positive error", () => {
     expect(() => leb128(2147483648)).toThrow(
-      "cannot fit 2147483648 into a 32-bit signed integer"
+      "cannot represent 2147483648 as a 32-bit signed integer"
     );
   });
 
@@ -90,7 +90,13 @@ describe("LEB128", () => {
   });
   test("least negative error", () => {
     expect(() => leb128(-2147483649)).toThrow(
-      "cannot fit -2147483649 into a 32-bit signed integer"
+      "cannot represent -2147483649 as a 32-bit signed integer"
+    );
+  });
+
+  test("non-integer", () => {
+    expect(() => leb128(Math.PI)).toThrow(
+      "cannot represent 3.141592653589793 as a 32-bit signed integer"
     );
   });
 });

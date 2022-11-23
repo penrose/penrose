@@ -59,8 +59,8 @@ export interface Byter {
 }
 
 export const int = (t: Byter, n: number): void => {
-  if (n < -0x80000000 || 0x7fffffff < n)
-    throw new Error(`cannot fit ${n} into a 32-bit signed integer`);
+  if (!(Number.isInteger(n) && -0x80000001 < n && n < 0x80000000))
+    throw new Error(`cannot represent ${n} as a 32-bit signed integer`);
   while (n < -0x40 || 0x3f < n) {
     t.byte((n & 0x7f) | 0x80);
     n >>= 7;
