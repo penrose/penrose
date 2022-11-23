@@ -75,6 +75,22 @@ describe("genCode tests", () => {
     const f = genCode(g, g, g);
     expect(f.call([2])).toEqual({ gradient: [3], primary: 6, secondary: [] });
   });
+
+  test("multiple graphs with secondary outputs", () => {
+    const v1 = [5];
+    const v2 = [];
+    v2[1] = 8;
+    const f = genCode(secondaryGraph(v1), secondaryGraph(v2));
+    expect(f.call([]).secondary).toEqual([5, 8]);
+  });
+
+  test("secondary outputs must not conflict", () => {
+    const g1 = secondaryGraph([5]);
+    const g2 = secondaryGraph([8]);
+    expect(() => genCode(g1, g2)).toThrow(
+      "secondary output 0 is present in 2 graphs"
+    );
+  });
 });
 
 // df/f[x] with finite differences about xi

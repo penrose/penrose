@@ -252,7 +252,7 @@ export type IndexEdge = UnaryEdge;
 export type DebugEdge = UnaryEdge;
 export type NotEdge = UnaryEdge;
 
-export type Id = `_${number}`; // subset of valid JavaScript identifiers
+export type Id = `${number}`;
 
 export interface Graph extends Outputs<Id> {
   graph: Multidigraph<Id, Node, Edge>; // edges point from children to parents

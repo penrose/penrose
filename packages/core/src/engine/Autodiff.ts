@@ -375,8 +375,8 @@ const children = (x: ad.Expr): Child[] => {
   }
 };
 
-const indexToID = (index: number): ad.Id => `_${index}`;
-const idToIndex = (id: ad.Id): number => parseInt(id.slice(1), 10);
+const indexToID = (index: number): ad.Id => `${index}`;
+const idToIndex = (id: ad.Id): number => parseInt(id, 10);
 
 const getInputs = (
   graph: ad.Graph["graph"]
@@ -1373,33 +1373,6 @@ const compileType = (node: ad.Node): number => {
   }
 };
 
-const compileAddToVector = (
-  t: wasm.Target,
-  arr: ad.Id[],
-  baseLocal: number
-) => {
-  arr.forEach((id, i) => {
-    t.byte(wasm.OP.local.get);
-    t.int(baseLocal);
-
-    t.byte(wasm.OP.local.get);
-    t.int(baseLocal);
-
-    t.byte(wasm.OP.f64.load);
-    t.int(alignDouble);
-    t.int(i * Float64Array.BYTES_PER_ELEMENT);
-
-    t.byte(wasm.OP.local.get);
-    t.int(numGradientParams + idToIndex(id));
-
-    t.byte(wasm.OP.f64.add);
-
-    t.byte(wasm.OP.f64.store);
-    t.int(alignDouble);
-    t.int(i * Float64Array.BYTES_PER_ELEMENT);
-  });
-};
-
 const compileGraph = (
   t: wasm.Target,
   { graph, gradient, primary, secondary }: ad.Graph
@@ -1445,9 +1418,38 @@ const compileGraph = (
     }
   }
 
-  compileAddToVector(t, gradient, gradientParamGradient);
+  gradient.forEach((id, i) => {
+    t.byte(wasm.OP.local.get);
+    t.int(gradientParamGradient);
 
-  compileAddToVector(t, secondary, gradientParamSecondary);
+    t.byte(wasm.OP.local.get);
+    t.int(gradientParamGradient);
+
+    t.byte(wasm.OP.f64.load);
+    t.int(alignDouble);
+    t.int(i * Float64Array.BYTES_PER_ELEMENT);
+
+    t.byte(wasm.OP.local.get);
+    t.int(numGradientParams + idToIndex(id));
+
+    t.byte(wasm.OP.f64.add);
+
+    t.byte(wasm.OP.f64.store);
+    t.int(alignDouble);
+    t.int(i * Float64Array.BYTES_PER_ELEMENT);
+  });
+
+  secondary.forEach((id, i) => {
+    t.byte(wasm.OP.local.get);
+    t.int(gradientParamSecondary);
+
+    t.byte(wasm.OP.local.get);
+    t.int(numGradientParams + idToIndex(id));
+
+    t.byte(wasm.OP.f64.store);
+    t.int(alignDouble);
+    t.int(i * Float64Array.BYTES_PER_ELEMENT);
+  });
 
   t.byte(wasm.OP.local.get);
   t.int(numGradientParams + idToIndex(primary));
@@ -1480,6 +1482,17 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
 };
 
 export const genCode = (...graphs: ad.Graph[]): Gradient => {
+  const secondaryKeys = new Map<number, number>();
+  for (const { secondary } of graphs) {
+    // `forEach` ignores holes
+    secondary.forEach((id, i) => {
+      secondaryKeys.set(i, (secondaryKeys.get(i) ?? 0) + 1);
+    });
+  }
+  for (const [k, n] of secondaryKeys) {
+    if (n > 1) throw Error(`secondary output ${k} is present in ${n} graphs`);
+  }
+
   const sizes = graphs.map((g) => {
     const count = new wasm.Count();
     compileGraph(count, g);
