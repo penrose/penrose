@@ -470,11 +470,11 @@ export const makeGraph = (
   // concatenation doesn't cause any problems, because no stringified Edge
   // contains an underscore, and every Id starts with an underscore, so it's
   // essentially just three components separated by underscores
-  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, ad.Num[][]>();
+  const sensitivities = new Map<`${ad.Edge}_${ad.Id}_${ad.Id}`, ad.Num[][]>();
   while (!edges.isEmpty()) {
     const [{ child, name, sensitivity }, parent] = edges.dequeue();
     const [v, w] = addEdge(child, parent, name);
-    sensitivities.set(`${name}${v}${w}`, sensitivity);
+    sensitivities.set(`${name}_${v}_${w}`, sensitivity);
   }
   // we can use this reverse topological sort later when we construct all the
   // gradient nodes, because it ensures that the gradients of a node's parents
@@ -527,7 +527,7 @@ export const makeGraph = (
     // gradient nodes; however, that is not the case, because none of those
     // edges appear in our sensitivities map
     for (const { w, name } of edges) {
-      const matrix = sensitivities.get(`${name}${id}${w}`);
+      const matrix = sensitivities.get(`${name}_${id}_${w}`);
       if (matrix !== undefined) {
         // `forEach` ignores holes
         matrix.forEach((row, i) => {
