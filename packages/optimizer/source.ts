@@ -4,6 +4,7 @@ import { OptState } from "./bindings/OptState";
 import { OptStatus } from "./bindings/OptStatus";
 import { Params } from "./bindings/Params";
 import {
+  InitOutput,
   penrose_call,
   penrose_gen_opt_problem,
   penrose_get_init_constraint_weight,
@@ -25,7 +26,8 @@ export const exportFunctionName = "f";
 // https://github.com/rustwasm/wasm-bindgen/blob/f82f5c5852c3abf057bb737d545360a3a5c7d84c/crates/cli-support/src/wit/mod.rs#L1370-L1372
 export const alignStackPointer = 16; // number of bytes
 
-export const builtins = [
+// use `InitOutput` type to satisfy typechecker
+export const builtinsTyped: (keyof InitOutput)[] = [
   "__wbindgen_add_to_stack_pointer",
 
   "penrose_acos",
@@ -53,6 +55,9 @@ export const builtins = [
   "penrose_poly_roots",
 ];
 
+// don't leak `InitOutput` type in interface
+export const builtins: string[] = builtinsTyped;
+
 export interface Outputs<T> {
   gradient: T[]; // derivatives of primary output with respect to inputs
   primary: T;
@@ -67,7 +72,7 @@ export class Gradient {
     const instance = new WebAssembly.Instance(mod, {
       [importMemoryModule]: { [importMemoryName]: optimizer.memory },
     }).exports;
-    builtins.forEach((name, i) => {
+    builtinsTyped.forEach((name, i) => {
       const table = instance[exportTableName];
       if (table instanceof WebAssembly.Table) table.set(i, optimizer[name]);
     });
