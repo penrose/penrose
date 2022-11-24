@@ -1,5 +1,6 @@
 import { examples, registry } from "@penrose/examples";
-import { genOptProblem } from "../engine/Optimizer";
+import { genOptProblem } from "@penrose/optimizer";
+import { genGradient } from "../engine/Optimizer";
 import {
   compileTrio,
   evalEnergy,
@@ -155,10 +156,15 @@ describe("Energy API", () => {
       const stateFiltered = {
         ...state,
         constrFns: smallerThanFns,
-        params: genOptProblem(
+        gradient: genGradient(
           state.inputs,
           state.objFns.map(({ output }) => output),
           smallerThanFns.map(({ output }) => output)
+        ),
+        params: genOptProblem(
+          state.inputs.map((meta) => meta.tag),
+          state.objFns.length,
+          smallerThanFns.length
         ),
       };
       expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
@@ -234,11 +240,17 @@ describe("Run individual functions", () => {
       // console.log("# objectives", stateEvaled.objFns.length);
       // console.log("# constraints", stateEvaled.constrFns.length);
 
-      const initialEnergies = stateEvaled.params.currObjectiveAndGradient(
-        stateEvaled.varyingValues
+      const initialEnergies = stateEvaled.gradient.call([
+        ...stateEvaled.varyingValues,
+        stateEvaled.params.weight,
+      ]);
+      stateEvaled.params.lastObjEnergies = initialEnergies.secondary.slice(
+        0,
+        stateEvaled.params.numObjEngs
       );
-      stateEvaled.params.lastConstrEnergies = initialEnergies.constrEngs;
-      stateEvaled.params.lastObjEnergies = initialEnergies.objEngs;
+      stateEvaled.params.lastConstrEnergies = initialEnergies.secondary.slice(
+        stateEvaled.params.numObjEngs
+      );
 
       // Test objectives
       const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
