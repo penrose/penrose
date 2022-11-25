@@ -40,11 +40,13 @@ Be sure you have these tools installed:
   rustup target add wasm32-unknown-unknown
   ```
 
-- [`wasm-bindgen` CLI][], a version with `--keep-lld-exports`; use this command:
+- [`wasm-bindgen` CLI][] (you need to install Rust first), specifically a
+  version which has the `--keep-lld-exports` flag and doesn't emit `BigInt`
+  literals; use this command:
 
   ```sh
   cargo install wasm-bindgen-cli \
-    --git https://github.com/rustwasm/wasm-bindgen --rev f5b2ef8c5
+    --git https://github.com/rustwasm/wasm-bindgen --rev 7c626e4b3
   ```
 
 - [Yarn][] v1.x (you need to install Node.js first)
