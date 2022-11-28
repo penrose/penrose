@@ -46,7 +46,7 @@ function Diameter(Circle c, Point p, Point q) -> Segment
 -- Unimplemented
 -- function Sum(Angle, Angle) -> Angle
 -- function Intersection(Linelike, Linelike) -> Point
--- function Altitude(Triangle, Angl/e) -> Segment
+-- function Altitude(Triangle, Angle) -> Segment
 -- function Endpoint(Segment) -> Point
 
 -- ~~~~~~~~~~~~~~~~ PREDICATES ~~~~~~~~~~~~~~~~
