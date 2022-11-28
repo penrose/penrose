@@ -9,6 +9,12 @@
     },
     {
       "substance": "tree",
+      "style": "tree",
+      "domain": "set-theory",
+      "variation": ""
+    },
+    {
+      "substance": "tree",
       "style": "venn-3d",
       "domain": "set-theory",
       "variation": ""
