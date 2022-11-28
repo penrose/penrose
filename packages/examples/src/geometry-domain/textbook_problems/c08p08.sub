@@ -11,4 +11,4 @@ RightMarked(PQR)
 RightMarked(QTR)
 RightMarked(TSR)
 
-AutoLabel All
+AutoLabel P, Q, R, S, T

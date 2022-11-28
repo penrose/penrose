@@ -23,7 +23,7 @@
       "substance": "wet-floor",
       "style": "atoms-and-bonds",
       "domain": "atoms-and-bonds",
-      "variation": "PorcellanaFlamingo3169"
+      "variation": "BroomstickGoldfinch599"
     },
     {
       "substance": "one-water-molecule",
@@ -95,37 +95,37 @@
       "substance": "collinear",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "HighlighterChicken10318"
     },
     {
       "substance": "parallel-lines",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "HighlighterChicken10318"
     },
     {
       "substance": "midsegment-triangles",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "FollyCamel2864"
     },
     {
       "substance": "congruent-triangles",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "OspreySkunk922"
     },
     {
       "substance": "circle-example",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "ShiitakeEchidna6061"
     },
     {
       "substance": "siggraph-teaser",
       "style": "euclidean-teaser",
       "domain": "geometry",
-      "variation": "WhisperPeafowl34044"
+      "variation": "StromboliCat61816"
     },
     {
       "substance": "non-convex",

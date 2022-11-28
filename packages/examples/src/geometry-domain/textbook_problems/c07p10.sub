@@ -14,8 +14,8 @@ Angle GFL := InteriorAngle(G, F, L)
 Angle LFH := InteriorAngle(L, F, H)
 Angle GHK := InteriorAngle(G, H, K)
 Angle KHF := InteriorAngle(K, H, F)
-EqualAngleMarker1(GHK, KHF)
+EqualAngleMarker(GHK, KHF)
 EqualAngle(GHK, KHF)
-EqualAngleMarker2(GFL, LFH)
+EqualAngleMarker(GFL, LFH)
 EqualAngle(GFL, LFH)
-AutoLabel All
+AutoLabel F, G, H, J, K, L

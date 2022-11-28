@@ -6,5 +6,5 @@ Angle ADB := InteriorAngle(A, D, B)
 Angle BDC := InteriorAngle(B, D, C)
 Angle ADC := InteriorAngle(A, D, C)
 AngleBisector(ADC, DB)
-EqualAngleMarker1(ADB, BDC)
-AutoLabel All
+EqualAngleMarker(ADB, BDC)
+AutoLabel A, B, C, D

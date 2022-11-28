@@ -87,7 +87,9 @@ const tex2svg = async (
     // Raise error if string or fontSize are empty or optimized
     if (fontSize === 0 || labelInput === "") {
       resolve(
-        err(`Label 'string' and 'fontSize' must be non-empty and non-optimized`)
+        err(
+          `Label 'string' and 'fontSize' must be non-empty and non-optimized for ${properties.name.contents}`
+        )
       );
       return;
     }
