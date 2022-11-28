@@ -20,6 +20,9 @@ import {
   SynthesizerSetting,
 } from "@penrose/core";
 import { A } from "@penrose/core/build/dist/types/ast";
+import saveAs from "file-saver";
+import JSZip from "jszip";
+import { range } from "lodash";
 import React from "react";
 import { Grid } from "./Grid";
 import { Settings } from "./Settings";
