@@ -546,7 +546,26 @@ export const sortStmts = <T>(prog: SubProg<T>): SubProg<T> => {
   const { statements } = prog;
   // first sort by statement type, and then by lexicographic ordering of source text
   const newStmts: SubStmt<T>[] = sortBy(statements, [
-    "tag",
+    (s: SubStmt<T>) => {
+      switch (s.tag) {
+        case "Decl":
+          return 0;
+        case "ApplyPredicate":
+          return 1;
+        case "Bind":
+          return 2;
+        case "EqualExprs":
+          return 3;
+        case "EqualPredicates":
+          return 4;
+        case "AutoLabel":
+          return 5;
+        case "LabelDecl":
+          return 6;
+        case "NoLabel":
+          return 7;
+      }
+    },
     (s: SubStmt<T>) => prettyStmt(s),
   ]);
   return {

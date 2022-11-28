@@ -17,6 +17,7 @@ import {
   getSignature,
   matchSignatures,
   nullaryTypeCons,
+  sortStmts,
   SubStmtKind,
 } from "analysis/SubstanceAnalysis";
 import { subTypesOf } from "compiler/Domain";
@@ -450,7 +451,7 @@ export class Synthesizer {
     // TODO: find out what to label
     // this.updateProg(autoLabel(this.currentProg));
     return {
-      prog: this.currentProg,
+      prog: sortStmts(this.currentProg), // sort statements to make sure edits don't introduce compiler errors
       ops: this.currentMutations,
     };
   };
