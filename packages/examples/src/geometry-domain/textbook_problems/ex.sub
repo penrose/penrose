@@ -27,10 +27,11 @@ EqualLength(XZ, US)
 EqualLengthMarker(ZY, UT)
 EqualLength(ZY, UT)
 
+EqualAngleMarker(aTUS, aXYZ)
+EqualAngleMarker(aUST, aYZX)
 EqualAngleMarker(aUTS, aZXY)
+EqualAngle(aTUS, aXYZ)
+EqualAngle(aUST, aYZX)
 EqualAngle(aUTS, aZXY)
-EqualAngleMarker(aUTS, aXYZ)
-EqualAngle(aUTS, aXYZ)
-EqualAngleMarker(aTUS, aYZX)
 
 AutoLabel U, S, T, X, Y, Z

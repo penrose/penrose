@@ -334,11 +334,11 @@ where EqualLengthMarker(s, t) as e {
   t.tick above t.icon
 }
 
--- HACK: since we cannot handle transitive predicates and don't allow recursive expressions, we redeclare the shapes so the tick counts are the same
+-- HACK: set transitive equal marks to have the same amount of ticks. This will not decrement subsequent matches of `EqualLength`, so only use this when there are _only_ transitive equal marks in a diagram
 forall Linelike s, t, u
 where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
   minEquivGroup = min(e1.equivGroup, e2.equivGroup)
-  -- minEquivGroup = e2.equivGroup
+  -- NOTE: since we cannot handle transitive predicates and don't allow recursive expressions, we override the shape properties so the tick counts are the same
   override s.tick.d = ticksOnLine(s.icon.start, s.icon.end, 15., minEquivGroup, 10.) 
   override u.tick.d = ticksOnLine(u.icon.start, u.icon.end, 15., minEquivGroup, 10.) 
   override t.tick.d = ticksOnLine(t.icon.start, t.icon.end, 15., minEquivGroup, 10.) 
@@ -387,30 +387,39 @@ with Point p; Point q; Point r {
 }
 
 forall Angle a, b
-where EqualAngleMarker(a, b) {
+where EqualAngleMarker(a, b) as e {
+  e.equivGroup = match_id
   --find points from p->q, then q->r for each vector. draw vectors for each
-  startA = ptOnLine(a.q, a.p, a.radius)
-  endA = ptOnLine(a.q, a.r, a.radius)
-  sweepA = arcSweepFlag(a.q, startA, endA)
+  a.start = ptOnLine(a.q, a.p, a.radius)
+  a.end = ptOnLine(a.q, a.r, a.radius)
+  a.sweep = arcSweepFlag(a.q, a.start, a.end)
+  a.spacing = 10
 
-  startB = ptOnLine(b.q, b.p, b.radius)
-  endB = ptOnLine(b.q, b.r, b.radius)
-  sweepB = arcSweepFlag(b.q, startB, endB)
-
-  spacing = 10
+  b.start = ptOnLine(b.q, b.p, b.radius)
+  b.end = ptOnLine(b.q, b.r, b.radius)
+  b.sweep = arcSweepFlag(b.q, b.start, b.end)
+  b.spacing = 10
 
   override a.mark = Path {
-    d : repeatedArcs(startA, endA, a.p, a.r, (a.radius, a.radius), match_id, spacing, sweepA)
+    d : repeatedArcs(a.start, a.end, a.p, a.r, (a.radius, a.radius), e.equivGroup, a.spacing, a.sweep)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
  }
   override b.mark = Path {
-    d : repeatedArcs(startB, endB, b.p, b.r, (a.radius, a.radius), match_id, spacing, sweepB)
+    d : repeatedArcs(b.start, b.end, b.p, b.r, (b.radius, b.radius), e.equivGroup, b.spacing, b.sweep)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
  }
+}
+
+forall Angle a, b, c
+where EqualAngleMarker(a, b) as e1; EqualAngleMarker(b, c) as e2 {
+  minEquivGroup = min(e1.equivGroup, e2.equivGroup)
+  override a.mark.d = repeatedArcs(a.start, a.end, a.p, a.r, (a.radius, a.radius), minEquivGroup, a.spacing, a.sweep)
+  override b.mark.d = repeatedArcs(b.start, b.end, b.p, b.r, (b.radius, b.radius), minEquivGroup, b.spacing, b.sweep)
+  override c.mark.d = repeatedArcs(c.start, c.end, c.p, c.r, (c.radius, c.radius), minEquivGroup, c.spacing, c.sweep)
 }
 
 forall Angle a, b

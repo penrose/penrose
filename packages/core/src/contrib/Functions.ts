@@ -1,5 +1,5 @@
 import { bboxFromShape } from "contrib/Queries";
-import { clamp, inRange } from "contrib/Utils";
+import { clamp, inRange, numOf } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -926,8 +926,7 @@ export const compDict = {
   ): PathDataV<ad.Num> => {
     const path = new PathBuilder();
     // calculate scalar multipliers to determine the placement of each tick mark
-    // TODO: why does the typecast work here?
-    const multipliers = tickPlacement(spacing, numTicks as number);
+    const multipliers = tickPlacement(spacing, numOf(numTicks));
     const unit = ops.vnormalize(ops.vsub(pt2, pt1));
     const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
 
