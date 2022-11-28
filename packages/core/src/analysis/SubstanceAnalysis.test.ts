@@ -134,12 +134,12 @@ IsSubset(B, A)
 C := Subset(A, B)
 `;
     const expected = `\
-IsSubset(A, B)
-IsSubset(B, A)
-C := Subset(A, B)
 Set A
 Set B
-Set C\
+Set C
+IsSubset(A, B)
+IsSubset(B, A)
+C := Subset(A, B)\
 `;
     const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
     const sortedAST = sortStmts(originalAST);
