@@ -20,6 +20,11 @@ const defaultSetting: SynthesizerSetting = {
     predicate: 0.3,
     constructor: 0.0,
   },
+  opWeights: {
+    add: 0.3333,
+    delete: 0.3333,
+    edit: 0.3333,
+  },
   add: {
     type: [],
     function: [],

@@ -22,6 +22,11 @@ const defaultParams: SynthesizerSetting = {
     predicate: 0.3,
     constructor: 0.2,
   },
+  opWeights: {
+    add: 0.2,
+    delete: 0.3,
+    edit: 0.5,
+  },
   // TODO: need weights for the three ops
   add: {
     type: [],
@@ -52,12 +57,6 @@ export const presets: PresetCollection = {
     style: examples["geometry-domain"]["euclidean.sty"],
     setting: {
       ...defaultParams,
-      add: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: [],
-      },
       delete: {
         type: [],
         function: [],
@@ -116,12 +115,6 @@ export const presets: PresetCollection = {
     `,
     setting: {
       ...defaultParams,
-      add: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: [],
-      },
       delete: {
         type: [],
         function: [],

@@ -28,6 +28,7 @@ import im from "immutable";
 import { cloneDeep, compact, range, times, without } from "lodash";
 import { createChoice } from "pandemonium/choice";
 import { createRandom } from "pandemonium/random";
+import { createWeightedChoice } from "pandemonium/weighted-choice";
 import seedrandom from "seedrandom";
 import {
   Add,
@@ -48,6 +49,7 @@ import {
   executeMutations,
   Mutation,
   MutationGroup,
+  MutationType,
   showMutations,
 } from "synthesis/Mutation";
 import { A, Identifier } from "types/ast";
@@ -80,7 +82,7 @@ import { combinations2 } from "utils/Util";
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Debug })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -100,6 +102,9 @@ export interface SynthesizerSetting {
     type: number;
     predicate: number;
     constructor: number;
+  };
+  opWeights: {
+    [t in MutationType]: number;
   };
   add: DeclTypes;
   delete: DeclTypes;
@@ -362,6 +367,7 @@ export class Synthesizer {
   currentMutations: Mutation[];
   rng: seedrandom.prng;
   private choice: <T>(array: Array<T>) => T;
+  private weightedChoice: <T>(array: Array<T>) => T;
   private random: RandomFunction;
 
   constructor(
@@ -391,6 +397,13 @@ export class Synthesizer {
     // use the seed to create random generation functions
     this.rng = seedrandom(seed);
     this.choice = createChoice(this.rng);
+    // TODO: fix type declaration
+    this.weightedChoice = createWeightedChoice({
+      rng: this.rng,
+      getWeight: (item: { type: MutationType; weight: number }) => {
+        return item.weight;
+      },
+    } as any);
     this.random = createRandom(this.rng);
   }
 
@@ -471,13 +484,36 @@ export class Synthesizer {
     const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps].filter(
       (ops) => ops.length > 0
     );
-    if (mutations.length > 0) {
-      log.debug(
-        `Possible mutations: ${mutations.map(showMutations).join("\n")}`
-      );
-      const mutationGroup: MutationGroup = this.choice(mutations);
+    log.debug(`Possible mutations: ${mutations.map(showMutations).join("\n")}`);
+    // first pick op type by weight
+    const mutationType: MutationType = this.weightedChoice(
+      ["add" as const, "delete" as const, "edit" as const].map(
+        (t: MutationType) => ({
+          type: t,
+          weight: this.setting.opWeights[t],
+        })
+      )
+    ).type;
+    log.debug(
+      `Picked mutation type: ${mutationType} with weight ${this.setting.opWeights[mutationType]}`
+    );
+    let mutationGroup: MutationGroup;
+    switch (mutationType) {
+      case "add": {
+        mutationGroup = addOps;
+        break;
+      }
+      case "delete": {
+        mutationGroup = deleteOps;
+        break;
+      }
+      case "edit":
+        mutationGroup = this.choice(editOps) ?? [];
+        break;
+    }
+
+    if (mutationGroup.length > 0) {
       log.debug(`Picked mutation group: ${showMutations(mutationGroup)}`);
-      // TODO: check if the ctx used is correct
       const { res: prog, ctx: newCtx } = executeMutations(
         mutationGroup,
         this.currentProg,

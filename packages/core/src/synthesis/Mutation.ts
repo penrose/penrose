@@ -32,10 +32,10 @@ const log = consola
 
 export type MutationGroup = Mutation[];
 export type Mutation = Add | Delete | Update;
-export type MutationType = Mutation["tag"];
+export type MutationType = "add" | "delete" | "edit";
 
 export interface MutationBase {
-  tag: MutationType;
+  tag: Mutation["tag"];
   additionalMutations?: Mutation[];
   mutate: (
     op: this,
