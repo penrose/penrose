@@ -2,6 +2,7 @@ import { Monaco } from "@monaco-editor/react";
 import {
   compDict,
   constrDict,
+  hexToRgba,
   objDict,
   rgbaToHex,
   shapedefs,
