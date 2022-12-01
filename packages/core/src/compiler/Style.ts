@@ -555,23 +555,21 @@ const mergeMapping = (
     throw Error("var has no binding form?");
   }
   const [, bindingForm] = res;
-
-  switch (bindingForm.tag) {
-    case "SubVar": {
-      // G || (x : |T) |-> G
-      return varEnv;
-    }
-    case "StyVar": {
-      // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
-      return {
-        ...varEnv,
-        vars: varEnv.vars.set(
-          bindingForm.contents.value,
-          toSubstanceType(styType)
-        ),
-      };
-    }
-  }
+  return {
+    ...varEnv,
+    vars: varEnv.vars.set(bindingForm.contents.value, toSubstanceType(styType)),
+  };
+  // switch (bindingForm.tag) {
+  //
+  //   case "SubVar": {
+  //     // G || (x : |T) |-> G
+  //     return varEnv;
+  //   }
+  //   case "StyVar": {
+  //     // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
+  //
+  //   }
+  // }
 };
 
 // TODO: don't merge the varmaps! just put g as the varMap (otherwise there will be extraneous bindings for the relational statements)
@@ -602,8 +600,10 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
         safeContentsList(sel.with)
       );
 
+      const emptyVarsEnv: Env = { ...varEnv, vars: im.Map() };
+
       const relErrs = checkRelPatterns(
-        mergeEnv(varEnv, selEnv_decls),
+        mergeEnv(emptyVarsEnv, selEnv_decls),
         selEnv_decls,
         safeContentsList(sel.where)
       );

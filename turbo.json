@@ -1,0 +1,314 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": []
+    },
+    "build-decls": {
+      "dependsOn": [
+        "^build-decls"
+      ],
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": [
+        "build-decls"
+      ],
+      "outputs": []
+    },
+    "@penrose/automator#build": {
+      "dependsOn": [
+        "^build",
+        "^build-decls"
+      ],
+      "outputs": []
+    },
+    "@penrose/automator#clean": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/components#build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/*.css",
+        "dist/*.js",
+        "dist/*.js.map"
+      ]
+    },
+    "@penrose/components#build-decls": {
+      "dependsOn": [
+        "^build-decls"
+      ],
+      "outputs": [
+        "dist/*.ts",
+        "dist/*.ts.map"
+      ]
+    },
+    "@penrose/components#build-storybook": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "storybook/static/**"
+      ]
+    },
+    "@penrose/components#watch": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/core#build": {
+      "dependsOn": [
+        "^build",
+        "build-parsers"
+      ],
+      "outputs": [
+        "build/dist/index.esm.js",
+        "build/dist/index.js",
+        "build/dist/index.js.map"
+      ]
+    },
+    "@penrose/core#build-decls": {
+      "dependsOn": [
+        "^build-decls",
+        "build-parsers"
+      ],
+      "outputs": [
+        "build/dist/**/*.ts",
+        "build/dist/**/*.ts.map"
+      ]
+    },
+    "@penrose/core#build-parsers": {
+      "dependsOn": [],
+      "outputs": [
+        "src/parser/*Parser.ts"
+      ]
+    },
+    "@penrose/core#build-rollup": {
+      "dependsOn": [
+        "^build",
+        "build-parsers"
+      ],
+      "outputs": [
+        "build/dist/penrose.min.js",
+        "build/dist/penrose.min.js.map"
+      ]
+    },
+    "@penrose/core#coverage": {
+      "dependsOn": [
+        "^build",
+        "build-parsers"
+      ],
+      "outputs": [
+        "coverage/**",
+        "junit.xml",
+        "reports/**"
+      ]
+    },
+    "@penrose/core#docs": {
+      "dependsOn": [
+        "^build",
+        "build-parsers"
+      ],
+      "outputs": [
+        "docs/**"
+      ]
+    },
+    "@penrose/core#lint": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "@penrose/core#start": {
+      "dependsOn": [
+        "^build",
+        "build-parsers"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/core#test": {
+      "dependsOn": [
+        "^build",
+        "build-parsers"
+      ],
+      "outputs": []
+    },
+    "@penrose/core#test-watch": {
+      "dependsOn": [
+        "^build",
+        "build-parsers"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/core#watch": {
+      "dependsOn": [
+        "^build",
+        "build-parsers"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/docs-site#build": {
+      "dependsOn": [
+        "^build",
+        "build-shapedefs"
+      ],
+      "outputs": [
+        "build/**"
+      ]
+    },
+    "@penrose/docs-site#build-shapedefs": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "static/shapedefs.json",
+        "static/try/**"
+      ]
+    },
+    "@penrose/docs-site#clear": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/docs-site#serve": {
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/docs-site#start": {
+      "dependsOn": [
+        "^build",
+        "build-shapedefs"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/docs-site#watch": {
+      "dependsOn": [
+        "^build",
+        "build-shapedefs"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/docs-site#write-translations": {
+      "dependsOn": [],
+      "outputs": [
+        "i18n/**"
+      ]
+    },
+    "@penrose/editor#build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        "public/**"
+      ]
+    },
+    "@penrose/editor#dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/editor#preview": {
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/editor#start": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/editor#watch": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/examples#build-decls": {
+      "dependsOn": [
+        "^build-decls",
+        "build-examples"
+      ],
+      "outputs": []
+    },
+    "@penrose/examples#build-examples": {
+      "dependsOn": [],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@penrose/examples#build": {
+      "dependsOn": [
+        "^build",
+        "build-examples"
+      ],
+      "outputs": []
+    },
+    "@penrose/roger#build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@penrose/synthesizer-ui#build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@penrose/synthesizer-ui#dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/synthesizer-ui#preview": {
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/synthesizer-ui#start": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "@penrose/synthesizer-ui#watch": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "cache": false
+    }
+  }
+}
