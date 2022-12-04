@@ -4,7 +4,6 @@
  *
  */
 
-import { sub } from "engine/AutodiffFunctions";
 import { shapedefs } from "shapes/Shapes";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
@@ -186,40 +185,6 @@ export const RenderStatic = async (
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
-  
-  // Create custom <penrose> tag to store metadata
-  const metadata = document.createElementNS("https://penrose.cs.cmu.edu/metadata", "penrose");
-  
-  // Create <version> tag for penrose version
-  const version = document.createElementNS("https://penrose.cs.cmu.edu/version", "version");
-  version.insertAdjacentText('afterbegin', 'penrose version here');
-  
-  // Create <variation> tag for variation string
-  const variation = document.createElementNS("https://penrose.cs.cmu.edu/version", "variation");
-  variation.insertAdjacentText('afterbegin', 'penrose variation code here');
-
-  // Create <sub> tag to store substance (.sub) code
-  const substance = document.createElementNS("https://penrose.cs.cmu.edu/substance", "sub");
-  substance.insertAdjacentText('afterbegin', '.sub code here');
-
-  // Create <sty> tag to store style (.sty) code
-  const style = document.createElementNS("https://penrose.cs.cmu.edu/style", "sty");
-  style.insertAdjacentText('afterbegin', '.sty code here');
-
-  // Create <dsl> tag to store .dsl code
-  const dsl = document.createElementNS("https://penrose.cs.cmu.edu/dsl", "dsl");
-  dsl.insertAdjacentText('afterbegin', '.dsl code here');
-
-  // Add these new tags under the <penrose> metadata tag
-  metadata.appendChild(version);
-  metadata.appendChild(variation);
-  metadata.appendChild(substance);
-  metadata.appendChild(style);
-  metadata.appendChild(dsl);
-
-  // Add the <penrose> metadata tag to the parent <svg> tag
-  svg.appendChild(metadata);
-  
   return Promise.all(
     computeShapes(varyingValues).map((shape) =>
       RenderShape({
