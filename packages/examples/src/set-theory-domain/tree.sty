@@ -46,7 +46,7 @@ forall Set x {
 
 forall Set x; Set y {
    -- Try to make sure no labels overlap
-   encourage repel(x.bounds, y.bounds, 5.0)
+   encourage notTooClose(x.bounds, y.bounds, 5.0)
 }
 
 
