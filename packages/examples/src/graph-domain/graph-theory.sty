@@ -119,7 +119,7 @@ with Vertex v1; Vertex v2 {
 forall Vertex v1; Vertex v2 {
        -- TODO: Make this work WRT rectangle dimensions
        ensure disjoint(v1.shape, v2.shape, 10.)
-       encourage repel(v1.shape, v2.shape)
+       encourage notTooClose(v1.shape, v2.shape)
 }
 
 forall Edge e1; Edge e2 {

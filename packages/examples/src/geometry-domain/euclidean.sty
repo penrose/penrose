@@ -108,8 +108,8 @@ where Collinear(p, q, r) {
   -- TODO: should this be in Substance instead?
   ensure inRange(q.icon.center[0], p.icon.center[0], r.icon.center[0])
   ensure inRange(q.icon.center[1], p.icon.center[1], r.icon.center[1])
-  encourage repel(p.icon, q.icon, const.repelWeight)
-  encourage repel(q.icon, r.icon, const.repelWeight)
+  encourage notTooClose(p.icon, q.icon, const.repelWeight)
+  encourage notTooClose(q.icon, r.icon, const.repelWeight)
 }
 
 forall Point p

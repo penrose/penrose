@@ -82,20 +82,20 @@ where PointNotIn(A, p) {
 
 -- Put all the text on top of everything
 forall Set x; Set y {
-    encourage repel(x.text, y.text, const.repelWeight)
+    encourage notTooClose(x.text, y.text, const.repelWeight)
     x.icon below y.text
 }
 
 forall Point p; Point q {
-     -- encourage repel(p.icon, q.icon, G.repelWeight2)
-     encourage repel(p.text, q.text, const.repelWeight)
+     -- encourage notTooClose(p.icon, q.icon, G.repelWeight2)
+     encourage notTooClose(p.text, q.text, const.repelWeight)
 }
 
 forall Set x; Point p {
     p.icon above x.icon
     p.text above x.icon
 
-     encourage repel(p.text, x.text, const.repelWeight)
+     encourage notTooClose(p.text, x.text, const.repelWeight)
 }
 
 --------------------------------------
@@ -422,7 +422,7 @@ forall Edge e; Face f {
 }
 
 forall Vertex v; Vertex w {
-     encourage repel(v.icon, w.icon, 1.0)
+     encourage notTooClose(v.icon, w.icon, 1.0)
 }
 
 --------------------------------------
