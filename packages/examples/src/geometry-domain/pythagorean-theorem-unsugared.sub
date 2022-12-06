@@ -6,7 +6,7 @@ ABC := MkTriangle(A, B, C)
 Angle CAB
 CAB := InteriorAngle(C, A, B)
 
-Right(CAB)
+RightMarked(CAB)
 
 -- And draw the area of each side of the right triangle as a square
 Point D, E, F, G, H, I
@@ -91,8 +91,6 @@ BCF := MkTriangle(B, C, F)
 Triangle BDA
 BDA := MkTriangle(B, D, A)
 
-Angle CAB
-CAB := InteriorAngle(C, A, B)
 
 
 AutoLabel All

@@ -1,16 +1,19 @@
 -- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
-type Point
-type Linelike
+type Shape 
+
+type Point <: Shape
+type Linelike <: Shape
 type Ray <: Linelike
 type Line <: Linelike
 type Segment <: Linelike
 
 type Angle
 
-type Triangle
-type Quadrilateral
+type Triangle <: Shape
+type Circle <: Shape
+type Quadrilateral <: Shape
 type Rectangle <: Quadrilateral
-type Circle
+type Square <: Rectangle
 
 type Plane
 
@@ -27,6 +30,7 @@ constructor InteriorAngle(Point p, Point q, Point r) -> Angle
 -- Polygons/Shapes
 constructor MkTriangle(Point p, Point q, Point r) -> Triangle
 constructor MkRectangle(Point p, Point q, Point r, Point s) -> Rectangle
+constructor MkSquare(Point p, Point q, Point r, Point s) -> Square
 constructor MkQuadrilateral(Point p, Point q, Point r, Point s) -> Quadrilateral
 constructor MkCircleR(Point center, Point radius) -> Circle
 -- constructor MkCircleD(Point diam1, Point diam2) -> Circle  -- TODO can be reimplemented when #621 is resolved
@@ -34,6 +38,7 @@ constructor MkCircleR(Point center, Point radius) -> Circle
 -- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
 -- Lines and Points
 function Bisector(Angle) -> Ray
+function Altitude(Triangle, Angle) -> Segment
 function PerpendicularBisector(Segment, Point) -> Segment
 function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- same as PerpendicularBisector but it takes a segment + 2 points as args for labeling
 
@@ -43,11 +48,10 @@ function Radius(Circle c, Point p) -> Segment
 function Chord(Circle c, Point p, Point q) -> Segment
 function Diameter(Circle c, Point p, Point q) -> Segment
 
+function Endpoint(Segment) -> Point
 -- Unimplemented
 -- function Sum(Angle, Angle) -> Angle
 -- function Intersection(Linelike, Linelike) -> Point
--- function Altitude(Triangle, Angle) -> Segment
--- function Endpoint(Segment) -> Point
 
 -- ~~~~~~~~~~~~~~~~ PREDICATES ~~~~~~~~~~~~~~~~
 -- Lines and Points
@@ -77,6 +81,10 @@ predicate Incenter(Point, Triangle)
 predicate Orthocenter(Point, Triangle)
 predicate Centroid(Point, Triangle)
 predicate Circumcenter(Point, Triangle)
+
+-- Geometric relations
+predicate Disjoint(Shape, Shape)
+predicate Perpendicular(Linelike, Linelike)
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"
 -- notation "{p, q, r}" ~ "MkTriangle(p, q, r)"
