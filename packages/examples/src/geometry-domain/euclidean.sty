@@ -5,63 +5,41 @@ canvas {
 
 Colors {
     -- Keenan palette
-    black = rgba(0.0, 0.0, 0.0, 1.0)
-
-    darkpurple = rgba(0.549,0.565,0.757, 1.0)
+    black = #000000
+    darkpurple = #8c90c1
+    lightpurple = #d0d3e6
     purple2 = rgba(0.106, 0.122, 0.54, 0.2)
-    lightpurple = rgba(0.816,0.824, 0.902, 1.0)
-
     verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
     purple3 = rgba(0.557, 0.627, 0.769, 1.0)
-
     midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
-    lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
-    silver = rgba(0.71, 0.72, 0.79, 1.0)
-    gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
-
-    darkgray = rgba(0.1, 0.1, 0.1, 1.0)
-    mediumgray = rgba(0.5, 0.5, 0.5, 1.0)
-    gray = rgba(0.8, 0.8, 0.8, 1.0)
-    red = rgba(1.0, 0.0, 0.0, 1.0)
-    pink = rgba(1.0, 0.4, 0.7, 1.0)
-    yellow = rgba(1.0, 1.0, 0.0, 1.0)
-    orange = rgba(1.0, 0.6, 0.0, 1.0)
-    lightorange = rgba(1.0, 0.6, 0.0, 0.25)
-    green = rgba(0.0, 1.0, 0.0, 1.0)
-    blue = rgba(0.0, 0.0, 1.0, 1.0)
-    sky = rgba(0.325, 0.718, 0.769, 1.0)
-    lightsky = rgba(0.325, 0.718, 0.769, 0.25)
-    lightblue = rgba(0.0, 0.0, 1.0, 0.25)
-    cyan = rgba(0.0, 1.0, 1.0, 1.0)
-    purple = rgba(0.5, 0.0, 0.5, 1.0)
-    white = rgba(1.0, 1.0, 1.0, 1.0)
     none = none()
-    bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
 const {
-    pi = 3.14159
     arrowheadSize = 0.65
     strokeWidth = 1.75
-    textPadding = 7.0
+    textPadding = 10.0
     textPadding2 = 25.0
     repelWeight = 0.7 -- TODO: Reverted from 0.0
     repelWeight2 = 0.5
     fontSize = "13.5px"
     containPadding = 50.0
     rayLength = 100.0
-    pointSize = 4.0
+    pointRadius = 4.0
     pointStroke = 0.0
     thetaRadius = 30.0
-    bigThetaRadius = 40.0
     circleRadius = 150.0
+    labelPadding = 30.0
+    minSegmentLength = 80.0
+    minLineLength = 200.0
 }
 
 --Plane
 forall Plane p {
-  dim = 700.0
+  width = canvas.width * .8
+  height = canvas.height * .8
   p.text = Equation {
-    center : ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
+    center : ((width / 2.0) - const.textPadding2, (height / 2.0) - const.textPadding2)
     string : p.label
     fontSize : const.fontSize
   }
@@ -74,8 +52,8 @@ forall Plane p {
     strokeColor : Colors.purple3
     strokeWidth : 2.0
     center : (0.0, 0.0)
-    width : dim
-    height : dim
+    width : width
+    height : height
   }
 
   p.text above p.icon
@@ -88,21 +66,27 @@ forall Point p {
   p.vec = (p.x, p.y)
   p.color = Colors.black
 
-    p.icon = Circle {
-      center: p.vec
-      r : const.pointSize
-      fillColor : Colors.black
-      strokeWidth : 0.0
-      strokeColor : Colors.black
-    }
+  p.icon = Circle {
+    center: p.vec
+    r : const.pointRadius
+    fillColor : Colors.black
+    strokeWidth : 0.0
+    strokeColor : Colors.black
+  }
 
-    p.text = Equation {
-      string : p.label
-      rotation : 0.0
-      fillColor : Colors.black
-      fontSize : const.fontSize
-    }
-    ensure atDist(p.icon, p.text, const.textPadding)
+  p.text = Equation {
+    string : p.label
+    fillColor : Colors.black
+    fontSize : const.fontSize
+  }
+  ensure equal(signedDistance(p.text, p.vec), const.textPadding + const.pointRadius)
+}
+
+-- default: if `Point` is not on a `Plane`, the point should be below the plane to stay hidden
+forall Point p
+with Plane P {
+  p.iconOnPlane = ensure disjoint(p.icon, P.icon)
+  p.textOnPlane = ensure disjoint(p.text, P.icon)
 }
 
 forall Point p
@@ -110,8 +94,8 @@ with Plane P
 where In(p, P) {
   -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
   -- There's a choice of whether to put padding on the point or the text for containment
-  ensure contains(P.icon, p.icon, const.containPadding)
-  ensure contains(P.icon, p.text, 0.0)
+  p.iconOnPlane = ensure contains(P.icon, p.icon, const.containPadding)
+  p.textOnPlane = ensure contains(P.icon, p.text, 0.0)
 
   p.icon above P.icon
   p.text above P.icon
@@ -120,8 +104,24 @@ where In(p, P) {
 forall Point p, q, r
 where Collinear(p, q, r) {
   ensure collinear(p.icon.center, q.icon.center, r.icon.center)
-  encourage repel(p.icon, q.icon, const.repelWeight)
-  encourage repel(q.icon, r.icon, const.repelWeight)
+  -- HACK: make sure q is between p and r
+  -- TODO: should this be in Substance instead?
+  ensure inRange(q.icon.center[0], p.icon.center[0], r.icon.center[0])
+  ensure inRange(q.icon.center[1], p.icon.center[1], r.icon.center[1])
+  encourage notTooClose(p.icon, q.icon, const.repelWeight)
+  encourage notTooClose(q.icon, r.icon, const.repelWeight)
+}
+
+forall Point p
+with Linelike l
+where On(p, l) {
+  ensure equal(signedDistance(l.icon, p.vec), 0)
+}
+
+forall Point p
+with Linelike l
+where On(p, l); p has label {
+  ensure disjoint(l.icon, p.text)
 }
 
 --Linelike
@@ -153,7 +153,32 @@ with Point base; Point direction {
     endArrowhead : "straight"
     endArrowheadSize: const.arrowheadSize
   }
+  -- labeling
+  ensure disjoint(r.icon, base.text)
+  ensure disjoint(r.icon, direction.text)
+}
 
+forall Ray r {
+    r.length = const.rayLength
+}
+
+forall Ray r
+with Angle theta; Point x; Point y; Point z
+where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
+  -- find the vector for the bisector ray
+  xy = normalize(y.vec - x.vec)
+  xz = normalize(z.vec - x.vec)
+  r_vec = xy + xz
+  -- change from generic `Linelike` shape to a specific shape for `Ray`
+  override r.icon = Line {
+    start: x.vec
+    end:  (r.length * normalize(r_vec)) + x.vec
+    strokeWidth : const.strokeWidth
+    strokeColor : Colors.black
+    endArrowhead: "straight"
+    endArrowheadSize : const.arrowheadSize
+  }
+  r.icon below x.icon
 }
 
 forall Line l
@@ -161,7 +186,7 @@ where l := MkLine(p, q)
 with Point p; Point q {
   l.start = p.vec
   l.end = q.vec
-  l.vec = (q.x - p.x, q.y - p.y)
+  l.vec = q.vec - p.vec
   override l.icon = Line {
     start : ptOnLine(p.vec,q.vec, -40.)
     end : ptOnLine(p.vec, q.vec, norm(l.vec) + 40.)
@@ -173,6 +198,13 @@ with Point p; Point q {
     startArrowheadSize: const.arrowheadSize
     endArrowheadSize: const.arrowheadSize
   }
+
+  -- edge case
+  ensure lessThan(const.minLineLength, norm(l.vec))
+
+  -- labeling
+  ensure disjoint(l.icon, p.text)
+  ensure disjoint(l.icon, q.text)
 }
 
 forall Linelike l1, l2 -- should this work with rays and lines?
@@ -193,11 +225,9 @@ where ParallelMarker1(l1, l2) {
 
 forall Linelike l1, l2
 where Parallel(l1, l2) {
-  -- make slopes 
-  l1s = (l1.icon.end[1]-l1.icon.start[1])/(l1.icon.end[0]-l1.icon.start[0]) * 10000
-  l2s = (l2.icon.end[1]-l2.icon.start[1])/(l2.icon.end[0]-l2.icon.start[0]) * 10000
-  -- ensure equal(normalize(l1.vec) * 10000, normalize(l2.vec) * 10000)
-  ensure equal(l1s, l2s)
+  -- the dot product of the unit vectors of parallel lines is 1
+  -- HACK: scaling to 10000s for convergence
+  ensure equal(10000, dot(normalize(l1.vec), normalize(l2.vec)) * 10000)
 }
 --Segment
 forall Segment e
@@ -218,8 +248,12 @@ with Point p; Point q {
   p.icon above e.icon
   q.icon above e.icon
 
-  encourage pointLineDist(p.text.center, e.icon, 30.)
-  encourage pointLineDist(q.text.center, e.icon, 30.)
+  -- edge case
+  ensure lessThan(const.minSegmentLength, norm(e.vec))
+
+  -- labeling
+  ensure disjoint(p.text, e.icon)
+  ensure disjoint(q.text, e.icon)
 }
 
 forall Segment e; Plane p {
@@ -228,7 +262,7 @@ forall Segment e; Plane p {
 
 forall Linelike s, t
 where EqualLength(s, t) {
-  encourage equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
+  ensure equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
 }
 
 --TODO eventually this should also provide an equal length marker since it is bisecting the segment
@@ -281,17 +315,17 @@ with Segment s2; Point p1, p2 {
   ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
 }
 
--- NOTE: Get rid of repetition
 forall Linelike s, t 
-where EqualLengthMarker1(s, t) {
+where EqualLengthMarker(s, t) as e {
+  e.equivGroup = match_id
   override s.tick = Path {
-    d : ticksOnLine(s.icon.start, s.icon.end, 15., 1, 10.)
+    d : ticksOnLine(s.icon.start, s.icon.end, 15., e.equivGroup, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
   }
   override t.tick = Path {
-    d : ticksOnLine(t.icon.start, t.icon.end, 15., 1, 10.)
+    d : ticksOnLine(t.icon.start, t.icon.end, 15., e.equivGroup, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
@@ -300,44 +334,14 @@ where EqualLengthMarker1(s, t) {
   t.tick above t.icon
 }
 
--- NOTE: Get rid of repetition
-forall Linelike s, t 
-where EqualLengthMarker2(s, t) {
-  --need slope of line, then need to equally distribute the tick marks
-  override s.tick = Path {
-    d : ticksOnLine(s.icon.start, s.icon.end, 15., 2., 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override t.tick = Path {
-    d : ticksOnLine(t.icon.start, t.icon.end, 15., 2., 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  s.tick above s.icon
-  t.tick above t.icon
-}
-
--- NOTE: Get rid of repetition
-forall Linelike s, t 
-where EqualLengthMarker3(s, t) {
-  --need slope of line, then need to equally distribute the tick marks
-  override s.tick = Path {
-    d : ticksOnLine(s.icon.start, s.icon.end, 15., 3, 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override t.tick = Path {
-    d : ticksOnLine(t.icon.start, t.icon.end, 15., 3, 10.)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  s.tick above s.icon
-  t.tick above t.icon
+-- HACK: set transitive equal marks to have the same amount of ticks. This will not decrement subsequent matches of `EqualLength`, so only use this when there are _only_ transitive equal marks in a diagram
+forall Linelike s, t, u
+where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
+  minEquivGroup = min(e1.equivGroup, e2.equivGroup)
+  -- NOTE: since we cannot handle transitive predicates and don't allow recursive expressions, we override the shape properties so the tick counts are the same
+  override s.tick.d = ticksOnLine(s.icon.start, s.icon.end, 15., minEquivGroup, 10.) 
+  override u.tick.d = ticksOnLine(u.icon.start, u.icon.end, 15., minEquivGroup, 10.) 
+  override t.tick.d = ticksOnLine(t.icon.start, t.icon.end, 15., minEquivGroup, 10.) 
 }
 
 --Angle
@@ -347,7 +351,7 @@ with Point p; Point q; Point r {
   theta.p = p.vec
   theta.q = q.vec
   theta.r = r.vec
-  theta.color = setOpacity(Colors.darkpurple, 0.4)
+  theta.color = #000
   theta.side1 = Line {
     start : p.icon.center
     end : q.icon.center
@@ -362,175 +366,103 @@ with Point p; Point q; Point r {
     strokeWidth : const.strokeWidth
     style : "solid"
   }
+  
   theta.radius = const.thetaRadius
   encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
+  theta.side1 below p.icon, q.icon
+  theta.side2 below q.icon, r.icon
 }
 
--- NOTE: Get rid of repetition
+forall Angle theta
+where theta := InteriorAngle(p, q, r); theta has label
+with Point p; Point q; Point r {
+  padding = const.textPadding + const.pointRadius + theta.text.width
+  labelDir = normalize((p.vec - q.vec) + (r.vec - q.vec))
+  theta.text = Equation {
+    string : theta.label
+    fillColor : Colors.black
+    fontSize : const.fontSize
+    center: q.vec + labelDir*padding
+  }
+}
+
 forall Angle a, b
-where EqualAngleMarker1(a, b) {
+where EqualAngleMarker(a, b) as e {
+  e.equivGroup = match_id
   --find points from p->q, then q->r for each vector. draw vectors for each
-  startA = ptOnLine(a.q, a.p, a.radius)
-  endA = ptOnLine(a.q, a.r, a.radius)
-  sweepA = arcSweepFlag(a.q, startA, endA)
+  a.start = ptOnLine(a.q, a.p, a.radius)
+  a.end = ptOnLine(a.q, a.r, a.radius)
+  a.sweep = arcSweepFlag(a.q, a.start, a.end)
+  a.spacing = 10
 
-  startB = ptOnLine(b.q, b.p, b.radius)
-  endB = ptOnLine(b.q, b.r, b.radius)
-  sweepB = arcSweepFlag(b.q, startB, endB)
+  b.start = ptOnLine(b.q, b.p, b.radius)
+  b.end = ptOnLine(b.q, b.r, b.radius)
+  b.sweep = arcSweepFlag(b.q, b.start, b.end)
+  b.spacing = 10
 
   override a.mark = Path {
-    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
+    d : repeatedArcs(a.start, a.end, a.p, a.r, (a.radius, a.radius), e.equivGroup, a.spacing, a.sweep)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
  }
   override b.mark = Path {
-    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
+    d : repeatedArcs(b.start, b.end, b.p, b.r, (b.radius, b.radius), e.equivGroup, b.spacing, b.sweep)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
  }
 }
 
--- NOTE: Get rid of repetition
-forall Angle a, b
-where EqualAngleMarker2(a, b) {
-  startA = ptOnLine(a.q, a.p, a.radius)
-  endA = ptOnLine(a.q, a.r, a.radius)
-  sweepA = arcSweepFlag(a.q, startA, endA)
-
-  startB = ptOnLine(b.q, b.p, b.radius)
-  endB = ptOnLine(b.q, b.r, b.radius)
-  sweepB = arcSweepFlag(b.q, startB, endB)
-
-  override a.mark = Path {
-    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override b.mark = Path {
-    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-
-  bigR = const.bigThetaRadius
-  startAbig = ptOnLine(a.q, a.p, bigR)
-  endAbig = ptOnLine(a.q, a.r, bigR)
-
-  startBbig = ptOnLine(b.q, b.p, bigR)
-  endBbig = ptOnLine(b.q, b.r, bigR)
-
-  override a.mark2 = Path {
-    d : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override b.mark2 = Path {
-    d : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-}
-
--- NOTE: Get rid of repetition
-forall Angle a, b
-where EqualAngleMarker3(a, b) {
-  startA = ptOnLine(a.q, a.p, a.radius)
-  endA = ptOnLine(a.q, a.r, a.radius)
-  sweepA = arcSweepFlag(a.q, startA, endA)
-
-  startB = ptOnLine(b.q, b.p, b.radius)
-  endB = ptOnLine(b.q, b.r, b.radius)
-  sweepB = arcSweepFlag(b.q, startB, endB)
-
-  override a.mark = Path {
-    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
- }
-  override b.mark = Path {
-    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
- }
-
-  midR = const.bigThetaRadius
-  startAmid = ptOnLine(a.q, a.p, midR)
-  endAmid = ptOnLine(a.q, a.r, midR)
-
-  startBmid = ptOnLine(b.q, b.p, midR)
-  endBmid = ptOnLine(b.q, b.r, midR)
-
-  override a.mark2 = Path {
-    d : arc("open", startAmid, endAmid, (midR, midR), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
- }
-  override b.mark2 = Path {
-    d : arc("open", startBmid, endBmid, (midR, midR), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
- }
-
-  bigR = const.bigThetaRadius + 10.
-  startAbig = ptOnLine(a.q, a.p, bigR)
-  endAbig = ptOnLine(a.q, a.r, bigR)
-
-  startBbig = ptOnLine(b.q, b.p, bigR)
-  endBbig = ptOnLine(b.q, b.r, bigR)
-
-  override a.mark3 = Path {
-    d : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
-  override b.mark3 = Path {
-    d : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-    fillColor: Colors.none
-  }
+forall Angle a, b, c
+where EqualAngleMarker(a, b) as e1; EqualAngleMarker(b, c) as e2 {
+  minEquivGroup = min(e1.equivGroup, e2.equivGroup)
+  override a.mark.d = repeatedArcs(a.start, a.end, a.p, a.r, (a.radius, a.radius), minEquivGroup, a.spacing, a.sweep)
+  override b.mark.d = repeatedArcs(b.start, b.end, b.p, b.r, (b.radius, b.radius), minEquivGroup, b.spacing, b.sweep)
+  override c.mark.d = repeatedArcs(c.start, c.end, c.p, c.r, (c.radius, c.radius), minEquivGroup, c.spacing, c.sweep)
 }
 
 forall Angle a, b
 where EqualAngle(a, b) {
   -- make sure angle a is equal to angle b
-  dotA = dot(normalize(a.p - a.q), normalize(a.r - a.q))
-  dotB = dot(normalize(b.p - b.q), normalize(b.r - b.q))
-  ensure equal(dotA, dotB)
+  -- HACK: increase the magnitude of angles
+  weight = 100
+  angleA = angleBetween(a.p - a.q, a.r - a.q) * weight
+  angleB = angleBetween(b.p - b.q, b.r - b.q) * weight
+  ensure equal(angleA, angleB) 
 }
 
 forall Angle a
 where RightUnmarked(a) {
-  ensure perpendicular(a.p, a.q, a.r)
+  -- ensure perpendicular(a.p, a.q, a.r)
+  vec2 u = a.p - a.q
+  vec2 v = a.r - a.q
+  ensure equal(0, dot(u, v))
 }
 
 forall Angle a
 where RightMarked(a) {
   --render half square path of size a.radius
+  markSize = 10
   override a.mark = Path {
-    d : pathFromPoints("open", [ptOnLine(a.q, a.p, 20.), innerPointOffset(a.q, a.p, a.r, 20.), ptOnLine(a.q, a.r, 20.)])
+    d : pathFromPoints("open", [ptOnLine(a.q, a.p, markSize), innerPointOffset(a.q, a.p, a.r, markSize), ptOnLine(a.q, a.r, markSize)])
     strokeWidth : 2.0
-    strokeColor : Colors.black
+    strokeColor : #000
     fillColor : Colors.none
   }
-  ensure perpendicular(a.p, a.q, a.r)
+  vec2 u = a.p - a.q
+  vec2 v = a.r - a.q
+  ensure equal(0, dot(u, v))
 }
 
--- TODO inRange NaN's
 forall Angle a
-where Supplementary(a) {
-  ensure inRange(dot(a.p - a.q, a.r - a.q), 0, 1)
+where Acute(a) {
+  ensure inRange(angleBetween(a.p - a.q, a.r - a.q), 0, MathPI()/2)
+}
+
+forall Angle a
+where Obtuse(a) {
+  ensure inRange(angleBetween(a.p - a.q, a.r - a.q), MathPI()/2, MathPI())
 }
 
 forall Triangle t; Plane P 
@@ -539,6 +471,7 @@ with Point p; Point q; Point r {
   t.PQ above P.icon
   t.QR above P.icon
   t.RP above P.icon
+  t.icon above P.icon
 }
 
 forall Triangle t
@@ -566,55 +499,68 @@ with Point p; Point q; Point r {
     strokeWidth : const.strokeWidth
     style : "solid"
   }
+  t.icon = Path {
+    d: pathFromPoints("closed", [p.vec, q.vec, r.vec])
+    fillColor: none()
+    strokeColor: none()
+  }
+  ensure lessThan(const.minSegmentLength, length(t.PQ))
+  ensure lessThan(const.minSegmentLength, length(t.QR))
+  ensure lessThan(const.minSegmentLength, length(t.RP))
+  ensure disjoint(t.icon, p.text)
+  ensure disjoint(t.icon, q.text)
+  ensure disjoint(t.icon, r.text)
+  t.PQ below p.icon
+  t.PQ below q.icon
+  t.QR below q.icon
+  t.QR below r.icon
+  t.RP below r.icon
+  t.RP below p.icon
 }
 
 forall Point p
-where Incenter(p, T)
-with Triangle T {
-  s1 = T.PQ.start
-  s2 = T.QR.start
-  s3 = T.RP.start
-
-  a = vdist(s2, s3)
-  b = vdist(s3, s1)
-  c = vdist(s1, s2)
-  denom =  a + b + c
-  vec = vmul(a, s1) + vmul(b, s2) + vmul(c, s3)
-  -- override p.vec = (275 / 42, 156 / 42)
-  override p.vec = vmul(1/denom, vec)
-
-  semip = (a + b + c) / 2
+with Triangle T; Point t1, t2, t3
+where T := MkTriangle(t1, t2, t3); Incenter(p, T) {
+  override p.vec = incenter(t1.vec, t2.vec, t3.vec)
   clr = setOpacity(Colors.darkpurple, 0.6)
-  override T.icon = Circle {
+  T.incenterIcon = Circle {
     center : p.vec
-    r : sqrt(((semip - a) * (semip - b) * (semip - c))/ semip)
+    r : inradius(t1.vec, t2.vec, t3.vec) - const.strokeWidth
     strokeWidth : const.strokeWidth
     strokeColor : clr
+    strokeStyle: "dashed"
     fillColor : Colors.none
   }
+  T.incenterIcon below t1.icon
+  T.incenterIcon below t2.icon
+  T.incenterIcon below t3.icon
 }
 
 forall Point p
 where Circumcenter(p, T)
 with Triangle T {
-  clr = setOpacity(Colors.darkpurple, 0.6)
+  clr = Colors.darkpurple
   override p.icon = Circle {
     center : p.vec
-    r : const.pointSize
+    r : const.pointRadius
     strokeWidth : const.strokeWidth
     strokeColor : clr
     fillColor : clr
   }
+  p.icon above T.PQ
+  p.icon above T.QR
+  p.icon above T.RP
   T.icon = Circle {
     center : p.vec
     r : ?
     strokeWidth : const.strokeWidth
     strokeColor : clr
     fillColor : Colors.none
+    strokeStyle: "dashed"
   }
-  ensure ptCircleIntersect(T.PQ.start, T.icon)
-  ensure ptCircleIntersect(T.QR.start, T.icon)
-  ensure ptCircleIntersect(T.RP.start, T.icon)
+  ensure equal(norm(T.PQ.start - p.vec), T.icon.r)
+  ensure equal(norm(T.QR.start - p.vec), T.icon.r)
+  ensure equal(norm(T.RP.start - p.vec), T.icon.r)
   encourage repelPt(const.repelWeight, T.PQ.start, T.QR.start)
   encourage repelPt(const.repelWeight, T.QR.start, T.RP.start)
 }
@@ -626,7 +572,7 @@ with Triangle T {
   override p.vec = vmul(1/3, T.PQ.start + T.QR.start + T.RP.start)
   override p.icon = Circle {
     center : p.vec
-    r : const.pointSize
+    r : const.pointRadius
     strokeWidth : const.strokeWidth
     strokeColor : clr
     fillColor : clr
@@ -758,40 +704,33 @@ with Point p; Point q; Point r; Point s {
     strokeWidth : const.strokeWidth
     style : "solid"
   }  
-}
-
---TODO corner case shoves points far off canvas
-forall Quadrilateral Q
-where Parallelogram(Q) {
-  pq = (Q.q[1]-Q.p[1])/(Q.q[0]-Q.p[0]) * 10000
-  rs = (Q.r[1]-Q.s[1])/(Q.r[0]-Q.s[0]) * 10000
-
-  qr = (Q.q[1]-Q.r[1])/(Q.q[0]-Q.r[0]) * 10000
-  ps = (Q.s[1]-Q.p[1])/(Q.s[0]-Q.p[0]) * 10000
-
-  -- make opposite sides same length
-  ensure equal(vdist(Q.p, Q.q), vdist(Q.r, Q.s))
-  ensure equal(vdist(Q.p, Q.s), vdist(Q.q, Q.r))
-
-  -- make opposite sides have parallel
-  ensure equal(pq, rs)
-  ensure equal(qr, ps)
-
-  -- area must be at least a certain size
-  v1 = Q.p - Q.q
-  v2 = Q.r - Q.q
-  ensure lessThan(10000, (v1[0]*v2[1])-(v1[1]*v2[0])) -- 2D cross product
+  Q.labelContainer = Path {
+    d: pathFromPoints("closed", [Q.p, Q.q, Q.r, Q.s])
+    fillColor: none()
+  }
+  -- TODO: check if the points actually have labels
+  ensure disjoint(p.text, Q.labelContainer)
+  ensure disjoint(q.text, Q.labelContainer)
+  ensure disjoint(r.text, Q.labelContainer)
+  ensure disjoint(s.text, Q.labelContainer)
+  -- ensure all sides are visible
+  ensure lessThan(const.minSegmentLength, norm(Q.p - Q.q))
+  ensure lessThan(const.minSegmentLength, norm(Q.q - Q.r))
+  ensure lessThan(const.minSegmentLength, norm(Q.r - Q.s))
+  ensure lessThan(const.minSegmentLength, norm(Q.s - Q.p))
+  ensure lessThan(const.minSegmentLength, norm(Q.r - Q.p))
+  ensure lessThan(const.minSegmentLength, norm(Q.s - Q.q))
 }
 
 --FUNCTIONS
 forall Segment s
-where s := MidSegment(T, p, q)
-with Triangle T; Point p; Point q {
-  override p.vec = midpoint(T.PQ.start, T.PQ.end)
-  override q.vec = midpoint(T.RP.start, T.RP.end)
+with Triangle T; Point p, q, r, a, b
+where s := MidSegment(T, a, b); T := MkTriangle(p, q, r) {
+  override a.vec = midpoint(q.vec, r.vec)
+  override b.vec = midpoint(r.vec, p.vec)
   override s.icon = Line {
-    start : p.icon.center
-    end : q.icon.center
+    start : a.vec
+    end : b.vec
     strokeColor : s.color
     strokeWidth : const.strokeWidth
     style : "solid"
@@ -810,15 +749,31 @@ with Linelike l {
   override p.vec = midpoint(l.icon.start, l.icon.end)
 }
 
+forall Point p
+where Midpoint(l, p); p has label
+with Linelike l {
+  override p.vec = midpoint(l.icon.start, l.icon.end)
+  ensure disjoint(p.text, l.icon)
+}
+
 -- TODO sometimes bisector becomes a scaled version of either side length PQ or QR of angle PQR
 forall Linelike s
 where AngleBisector(a, s)
 with Angle a; Point p {
-  -- first angle = p, q, end
-  -- second angle = end, q, r
-  dotA = dot(normalize(a.p - a.q), normalize(s.end - a.q)) * 100
-  dotB = dot(normalize(s.end - a.q), normalize(a.r - a.q)) * 100
-  ensure equal(dotA, dotB)
+  weight = 10000
+  angleA = angleBetween(a.p - a.q, s.end - a.q) * weight
+  angleB = angleBetween(s.end - a.q, a.r - a.q) * weight
+  ensure equal(angleA, angleB) 
+  -- HACK: make sure the bisector end point is between angle end points. Might be too specific
+  ensure inRange(s.end[0], a.p[0], a.r[0])
+  ensure inRange(s.end[1], a.p[1], a.r[1])
+  -- FIXME: NaN when using the following
+  -- v1 = normalize(a.p - a.q) 
+  -- v2 = normalize(s.end - a.q)
+  -- v3 = normalize(a.r - a.q)
+  -- angleA = angleFrom(v1, v2) * weight
+  -- angleB = angleFrom(v2, v3) * weight
+
 }
 
 forall Circle c {
@@ -869,8 +824,15 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure ptCircleIntersect(p.vec, c.icon)
-  ensure ptCircleIntersect(q.vec, c.icon)
+  ensure equal(norm(p.vec - c.vec), c.radius)
+  ensure equal(norm(q.vec - c.vec), c.radius)
+}
+
+forall Segment s
+where s := Chord(c, p, q); p has label; q has label 
+with Circle c; Point p, q {
+  ensure disjoint(c.icon, p.text)
+  ensure disjoint(c.icon, q.text)
 }
 
 forall Segment s
@@ -885,7 +847,19 @@ with Circle c; Point p {
     style : "solid"
   }
   p.icon above c.icon
-  ensure ptCircleIntersect(p.vec, c.icon)
+  ensure equal(norm(c.vec - p.vec), c.radius)
+}
+
+forall Segment s
+where s := Radius(c, p); p has label 
+with Circle c; Point p {
+  ensure disjoint(p.text, s.icon)
+}
+
+forall Segment s
+where s := Radius(c, p); p has label
+with Circle c; Point p {
+  ensure disjoint(p.text, c.icon)
 }
 
 forall Segment s
@@ -902,15 +876,20 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure collinear(p.icon.center, c.icon.center, q.icon.center)
-  ensure ptCircleIntersect(p.vec, c.icon)
-  ensure ptCircleIntersect(q.vec, c.icon)
+  ensure equal(norm(midpoint(p.vec, q.vec) - c.icon.center), 0)
+  ensure equal(c.icon.r * 2, norm(s.vec))
 }
 
 forall Point p
 where OnCircle(c, p)
 with Circle c {
-  ensure ptCircleIntersect(p.vec, c.icon)
+  ensure equal(norm(c.vec - p.vec), c.radius)
+}
+
+forall Point p
+where OnCircle(c, p); p has label
+with Circle c {
+  ensure disjoint(p.text, c.icon)
 }
 
 forall Point p

@@ -2868,6 +2868,26 @@ export const translate = (
     constraints: im.List(),
     layering: im.List(),
   };
+
+  const cycles = graph.findCycles().map((cycle) =>
+    cycle.map((id) => {
+      const e = graph.node(id);
+      return {
+        id,
+        src:
+          e === undefined || typeof e === "string"
+            ? undefined
+            : { start: e.expr.start, end: e.expr.end },
+      };
+    })
+  );
+  if (cycles.length > 0) {
+    return {
+      ...trans,
+      diagnostics: oneErr({ tag: "CyclicAssignmentError", cycles }),
+    };
+  }
+
   return graph.topsort().reduce((trans, path) => {
     const e = graph.node(path);
     if (e === undefined) {

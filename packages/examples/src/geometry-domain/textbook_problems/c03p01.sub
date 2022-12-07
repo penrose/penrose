@@ -7,5 +7,5 @@ ParallelMarker1(JK, NL)
 Parallel(JK, NL)
 Collinear(L, M, N)
 Angle JKM := InteriorAngle(J, K, M)
--- Supplementary(JKM) -- < 90 degree requirement
-AutoLabel All
+-- Acute(JKM) 
+AutoLabel J, K, L, M, N

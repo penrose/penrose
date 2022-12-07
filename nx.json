@@ -9,7 +9,6 @@
           "build-decls",
           "build-examples",
           "build-parsers",
-          "build-rollup",
           "build-shapedefs",
           "build-storybook",
           "build-wasm",

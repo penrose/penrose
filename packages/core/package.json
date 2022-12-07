@@ -17,7 +17,6 @@
     "watch": "yarn watch:esbuild",
     "test": "jest",
     "test-watch": "jest --watchAll",
-    "build-rollup": "rollup -c",
     "build:esbuild": "node build.js",
     "watch:esbuild": "node build.js -watch",
     "build-decls": "tsc --emitDeclarationOnly --outDir build/dist && tsc-alias -p tsconfig.json",
@@ -54,16 +53,6 @@
       "build-parsers": {
         "outputs": [
           "{projectRoot}/src/parser/*Parser.ts"
-        ]
-      },
-      "build-rollup": {
-        "dependsOn": [
-          "^build",
-          "build-parsers"
-        ],
-        "outputs": [
-          "{projectRoot}/build/dist/penrose.min.js",
-          "{projectRoot}/build/dist/penrose.min.js.map"
         ]
       },
       "coverage": {
@@ -137,9 +126,6 @@
   },
   "devDependencies": {
     "@penrose/examples": "1.3.0",
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^11.1.1",
     "@types/graphlib": "^2.1.7",
     "@types/jest": "^27.4.1",
     "@types/jscodeshift": "^0.11.0",
@@ -161,11 +147,6 @@
     "jest": "^27.5.1",
     "jest-junit": "^12.0.0",
     "jscodeshift": "^0.11.0",
-    "rollup": "^2.40.0",
-    "rollup-plugin-node-polyfills": "^0.2.1",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.30.0",
-    "rollup-plugin-visualizer": "^4.2.0",
     "ts-jest": "^27.1.3",
     "tsc-alias": "^1.6.7",
     "tslib": "^2.1.0",

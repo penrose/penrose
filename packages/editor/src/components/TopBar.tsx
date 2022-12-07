@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
-  diagramMetadataSelector,
   settingsState,
   WorkspaceMetadata,
   workspaceMetadataSelector,
@@ -95,7 +94,6 @@ export default function TopBar() {
   const compileDiagram = useCompileDiagram();
   const resampleDiagram = useResampleDiagram();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
-  const diagramMetadata = useRecoilValue(diagramMetadataSelector);
   const settings = useRecoilValue(settingsState);
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();

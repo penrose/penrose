@@ -55,18 +55,14 @@ with Set X; Set Y; Set R1; Set R2 {
         -- style : "curved"
     }
 
-    f.text     = Equation {
+    f.text = Equation {
       -- Doesn't seem to work after the first resample. Is the server updating f.text.height on resample?
       -- x : (f.icon.startX + f.icon.endX) / 2.0
       -- y : (f.icon.startY + f.icon.endY) / 2.0 + 1.1 * f.text.height
       string : f.label
-      -- rotation : 0.0
     }
 
     encourage centerLabelAbove(f.icon, f.text, 5.0)
-
-    -- Unused?
-    -- f.centerFn = encourage centerArrow(f.icon, R1.icon, R2.icon)
 }
 
 forall Set `U` {

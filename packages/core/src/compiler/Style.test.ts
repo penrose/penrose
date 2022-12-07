@@ -750,6 +750,16 @@ delete x.z.p }`,
 }`,
       ],
 
+      CyclicAssignmentError: [
+        `forall Set x {
+          x.icon = Circle { }
+        }
+
+        forall Set x; Set y where IsSubset(x, y) {
+          override y.r = x.r + y.r
+        }`,
+      ],
+
       // TODO(errors): check multiple errors
 
       // TODO(errors): This throws too early, gives InsertedPathWithoutOverrideError -- correctly throws error but may be misleading

@@ -9,4 +9,4 @@ Collinear(P, U, S)
 OnCircle(c, Q)
 OnCircle(c, U)
 Segment ST := Chord(c, S, T)
-AutoLabel All
+AutoLabel P, Q, U, S, T, R

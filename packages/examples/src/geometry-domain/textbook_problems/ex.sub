@@ -1,13 +1,10 @@
 -- TODO simplify after attributes are implemented
 -- name in registry: congruent-triangles
-Point U, S, T, V, X, Y, Z
-Triangle UTV := MkTriangle(U, T, V)
-Segment UV := MkSegment(U, V)
-Segment VT := MkSegment(V, T)
-Segment UT := MkSegment(U, T)
+Point U, S, T,  X, Y, Z
 
 Triangle UTS := MkTriangle(U, T, S)
 Segment US := MkSegment(U, S)
+Segment UT := MkSegment(U, T)
 Segment ST := MkSegment(S, T)
 Angle aTUS := InteriorAngle(T, U, S)
 Angle aUST := InteriorAngle(U, S, T)
@@ -21,22 +18,20 @@ Angle aXYZ := InteriorAngle(X, Y, Z)
 Angle aYZX := InteriorAngle(Y, Z, X)
 Angle aZXY := InteriorAngle(Z, X, Y)
 
-EqualLengthMarker1(ST, XY)
+EqualLengthMarker(ST, XY)
 EqualLength(ST, XY)
 
-EqualLengthMarker2(XZ, US)
-EqualLengthMarker2(XZ, UV)
+EqualLengthMarker(XZ, US)
 EqualLength(XZ, US)
-EqualLength(XZ, UV)
 
-EqualLengthMarker3(UT, VT)
-EqualLengthMarker3(ZY, UT)
-EqualLength(UT, VT)
+EqualLengthMarker(ZY, UT)
 EqualLength(ZY, UT)
 
-EqualAngleMarker1(aUTS, aZXY)
+EqualAngleMarker(aTUS, aXYZ)
+EqualAngleMarker(aUST, aYZX)
+EqualAngleMarker(aUTS, aZXY)
+EqualAngle(aTUS, aXYZ)
+EqualAngle(aUST, aYZX)
 EqualAngle(aUTS, aZXY)
-EqualAngleMarker2(aUTS, aXYZ)
-EqualAngle(aUTS, aXYZ)
-EqualAngleMarker3(aTUS, aYZX)
-AutoLabel All
+
+AutoLabel U, S, T, X, Y, Z

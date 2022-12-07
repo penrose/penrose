@@ -30,12 +30,10 @@ forall Set x {
 
    vec2 x.center = (?,?)
 
-   x.icon = Text {
+   x.icon = Equation {
       center: x.center
       string: x.label
-      fontFamily: "Courier"
       fontSize: "20px"
-      fontWeight: "bold"
       fillColor: Colors.black
    }
 
@@ -48,7 +46,7 @@ forall Set x {
 
 forall Set x; Set y {
    -- Try to make sure no labels overlap
-   encourage repel(x.bounds, y.bounds, 5.0)
+   encourage notTooClose(x.bounds, y.bounds, 5.0)
 }
 
 
