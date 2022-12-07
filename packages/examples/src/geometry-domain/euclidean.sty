@@ -647,31 +647,6 @@ with Triangle T {
 }
 
 --Rectangle
--- -- Should the rectangle be constructed from the points, or vice versa?
-forall Rectangle R
-where R := MkRectangle(p, q, r, s)
-with Point p; Point q; Point r; Point s {
-  override R.color = Colors.none
-  override R.icon = Path {
-      d : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
-      strokeWidth : const.strokeWidth
-      fillColor : R.color
-      strokeColor : Colors.black
-    }
-  ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
-  ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
-
-  ensure perpendicular(p.icon.center, q.icon.center, r.icon.center)
-  ensure perpendicular(q.icon.center, s.icon.center, r.icon.center)
-
-  -- R.icon above P.icon
-}
-
-forall Square S
-where S := MkSquare(p, q, r, s)
-with Point p; Point q; Point r; Point s {
-  -- TODO: implement this
-}
 
 forall Quadrilateral Q
 where Q := MkQuadrilateral(p, q, r, s)
@@ -727,6 +702,49 @@ with Point p; Point q; Point r; Point s {
   ensure lessThan(const.minSegmentLength, norm(Q.r - Q.p))
   ensure lessThan(const.minSegmentLength, norm(Q.s - Q.q))
 }
+
+forall Rectangle R
+where R := MkRectangle(p, q, r, s)
+with Point p; Point q; Point r; Point s {
+  override R.color = Colors.none
+  override R.icon = Path {
+      d : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
+      strokeWidth : const.strokeWidth
+      fillColor : R.color
+      strokeColor : Colors.black
+    }
+  ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
+  ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
+
+  ensure perpendicular(p.icon.center, q.icon.center, r.icon.center)
+  ensure perpendicular(q.icon.center, s.icon.center, r.icon.center)
+
+  -- R.icon above P.icon
+}
+
+forall Square S
+where S := MkSquare(p, q, r, s)
+with Point p; Point q; Point r; Point s {
+  override S.color = Colors.none
+  override S.icon = Path {
+      d : pathFromPoints("closed", [p.vec, q.vec, r.vec, s.vec])
+      strokeWidth : const.strokeWidth
+      fillColor : S.color
+      strokeColor : Colors.black
+  }
+  -- equal sides
+  ensure equal(vdist(p.vec, q.vec), vdist(r.vec, s.vec))
+  ensure equal(vdist(p.vec, s.vec), vdist(q.vec, r.vec))
+  ensure equal(vdist(p.vec, q.vec), vdist(p.vec, s.vec))
+  -- right angle
+  ensure perpendicular(p.vec, q.vec, r.vec)
+  ensure perpendicular(p.vec, s.vec, r.vec)
+
+
+  -- R.icon above P.icon
+}
+
+
 
 --FUNCTIONS
 forall Segment s
@@ -902,4 +920,9 @@ forall Point p
 where CircleCenter(c, p)
 with Circle c {
   override p.vec = c.vec
+}
+
+forall Shape a, b
+where Disjoint(a, b) {
+  ensure disjoint(a.icon, b.icon)
 }

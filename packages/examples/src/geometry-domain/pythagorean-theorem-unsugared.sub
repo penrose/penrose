@@ -8,16 +8,19 @@ CAB := InteriorAngle(C, A, B)
 
 RightMarked(CAB)
 
+
 -- And draw the area of each side of the right triangle as a square
-Point D, E, F, G, H, I
+Point D, E, F, G, -- H, I
 Square CBDE
 CBDE := MkSquare(C, B, D, E)
-
 Disjoint(CBDE, ABC)
-Square BAGF
-BAGF := MkSquare(B, A, G, F)
 
-Disjoint(BAGF, ABC)
+-- Square BAGF
+-- BAGF := MkSquare(B, A, G, F)
+-- Disjoint(BAGF, ABC)
+
+/*
+
 Square ACIH
 ACIH := MkSquare(A, C, I, H)
 
@@ -91,6 +94,6 @@ BCF := MkTriangle(B, C, F)
 Triangle BDA
 BDA := MkTriangle(B, D, A)
 
+*/
 
-
-AutoLabel All
+AutoLabel A, B, C, D, E, F, G
