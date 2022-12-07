@@ -23,6 +23,7 @@ import RogerPanel from "./components/RogerPanel";
 import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
 import StateInspector from "./components/StateInspector";
+import SvgUploader from "./components/SvgUploader";
 import TopBar from "./components/TopBar";
 import {
   currentRogerState,
@@ -52,6 +53,11 @@ const mainRowLayout: IJsonRowNode = {
               },
             ]
           : []),
+        {
+          type: "tab",
+          name: "svg",
+          component: "svgUploader",
+        },
         {
           type: "tab",
           name: ".sub",
@@ -152,6 +158,8 @@ function App() {
       switch (node.getComponent()) {
         case "programEditor":
           return <ProgramEditor kind={node.getConfig().kind} />;
+        case "svgUploader":
+          return <SvgUploader />;
         case "diagram":
           return <DiagramPanel />;
         case "savedFiles":

@@ -27,8 +27,14 @@ import BlueButton from "./BlueButton";
  */
 export const DownloadSVG = (
   svg: SVGSVGElement,
-  title = "illustration"
+  title = "illustration",
+  dslStr: string,
+  subStr: string,
+  styleStr: string,
+  versionStr: string,
+  variationStr: string,
 ): void => {
+  SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
   const blob = new Blob([svg.outerHTML], {
     type: "image/svg+xml;charset=utf-8",
   });
@@ -39,6 +45,75 @@ export const DownloadSVG = (
   document.body.appendChild(downloadLink);
   downloadLink.click();
   document.body.removeChild(downloadLink);
+};
+
+/**
+ * TODO: add comment
+ * 
+ * @param svg 
+ * @param dslStr 
+ * @param subStr 
+ * @param styleStr 
+ * @param versionStr 
+ * @param variationStr 
+ */
+const SVGaddCode = (
+  svg: SVGSVGElement,
+  dslStr: string,
+  subStr: string,
+  styleStr: string,
+  versionStr: string,
+  variationStr: string,
+): void => {
+  svg.setAttribute("penrose", "0");
+
+  // Create custom <penrose> tag to store metadata
+  const metadata = document.createElementNS(
+    "https://penrose.cs.cmu.edu/metadata",
+    "penrose"
+  );
+
+  // Create <version> tag for penrose version
+  const version = document.createElementNS(
+    "https://penrose.cs.cmu.edu/version",
+    "version"
+  );
+  version.insertAdjacentText("afterbegin", versionStr);
+
+  // Create <variation> tag for variation string
+  const variation = document.createElementNS(
+    "https://penrose.cs.cmu.edu/version",
+    "variation"
+  );
+  variation.insertAdjacentText("afterbegin", variationStr);
+
+  // Create <sub> tag to store substance (.sub) code
+  const substance = document.createElementNS(
+    "https://penrose.cs.cmu.edu/substance",
+    "sub"
+  );
+  substance.insertAdjacentText("afterbegin", subStr);
+
+  // Create <sty> tag to store style (.sty) code
+  const style = document.createElementNS(
+    "https://penrose.cs.cmu.edu/style",
+    "sty"
+  );
+  style.insertAdjacentText("afterbegin", styleStr);
+
+  // Create <dsl> tag to store .dsl code
+  const dsl = document.createElementNS("https://penrose.cs.cmu.edu/dsl", "dsl");
+  dsl.insertAdjacentText("afterbegin", dslStr);
+
+  // Add these new tags under the <penrose> metadata tag
+  metadata.appendChild(version);
+  metadata.appendChild(variation);
+  metadata.appendChild(substance);
+  metadata.appendChild(style);
+  metadata.appendChild(dsl);
+
+  // Add the <penrose> metadata tag to the parent <svg> tag
+  svg.appendChild(metadata);
 };
 
 /**
