@@ -76,6 +76,7 @@ export interface SettingsProps {
 interface SettingState {
   substance: string;
   setting: SynthesizerSetting | undefined;
+  seed: string;
   numPrograms: number;
   domainEnv: PartialEnv;
   domain: string;
@@ -138,6 +139,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       substance: examples["geometry-domain"].textbook_problems["c04p01.sub"],
       setting: undefined,
       numPrograms: 10,
+      seed: "test0", // default seed
       domainEnv: defaultEnv,
       domain: this.props.defaultDomain,
       style: this.props.defaultStyle,
@@ -211,6 +213,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     if (this.state.setting)
       this.props.generateCallback(
         this.state.setting,
+        this.state.seed,
         this.state.numPrograms,
         this.state.domain,
         this.state.substance,
@@ -420,6 +423,15 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               />
             </AccordionBodyStyled>
           </Accordion>
+          <SettingDiv>
+            <TextField
+              id="standard-basic"
+              label="Mutator seed"
+              variant="standard"
+              value={this.state.seed}
+              onChange={({ target }) => this.setState({ seed: target.value })}
+            />
+          </SettingDiv>
           <SettingDiv>
             <SettingLabel>Diagrams to generate:</SettingLabel>
             <Slider
