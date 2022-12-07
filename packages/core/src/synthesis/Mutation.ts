@@ -121,7 +121,15 @@ export interface ChangeExprType extends MutationBase {
 }
 
 export const showMutations = (ops: Mutation[]): string => {
-  return ops.map((op) => showMutation(op)).join("\n");
+  return ops.map((op) => showFullMutation(op)).join("\n");
+};
+
+// stringify a mutation as well as its additional mutations
+export const showFullMutation = (op: Mutation): string => {
+  const pretttyMutation: string = showMutation(op);
+  const prettyAdditionals: string[] =
+    op.additionalMutations?.map((m) => showMutation(m)) ?? [];
+  return [pretttyMutation, ...prettyAdditionals].join("\n - ");
 };
 
 export const showMutation = (op: Mutation): string => {

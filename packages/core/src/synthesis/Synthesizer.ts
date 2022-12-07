@@ -638,9 +638,9 @@ export class Synthesizer {
               oldExpr.args
             );
             let toDelete: SubStmt<A>[];
-            // remove old statement
+            // remove old statement if (1) the new stmt becomes a predicate OR (2) the return type of the new stmt is different from the old stmt
             if (
-              res.tag === "Bind" &&
+              res.tag === "ApplyPredicate" ||
               res.variable.type !== oldStmt.variable.type
             ) {
               // old bind was replaced by a bind with diff type
