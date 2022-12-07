@@ -722,24 +722,33 @@ with Point p; Point q; Point r; Point s {
   -- R.icon above P.icon
 }
 
-forall Square S
-where S := MkSquare(p, q, r, s)
-with Point p; Point q; Point r; Point s {
-  override S.color = Colors.none
-  override S.icon = Path {
-      d : pathFromPoints("closed", [p.vec, q.vec, r.vec, s.vec])
+forall Square Sq
+where Sq := MkSquare(P, Q, R, S)
+with Point P; Point Q; Point R; Point S {
+  p = P.icon.center
+  q = Q.icon.center
+  r = R.icon.center
+  s = S.icon.center
+  -- p = P.vec
+  -- q = Q.vec
+  -- r = R.vec
+  -- s = S.vec
+  override Sq.color = Colors.none
+  override Sq.icon = Path {
+      d : pathFromPoints("closed", [p, q, r, s])
       strokeWidth : const.strokeWidth
-      fillColor : S.color
+      fillColor : Sq.color
       strokeColor : Colors.black
   }
   -- equal sides
-  ensure equal(vdist(p.vec, q.vec), vdist(r.vec, s.vec))
-  ensure equal(vdist(p.vec, s.vec), vdist(q.vec, r.vec))
-  ensure equal(vdist(p.vec, q.vec), vdist(p.vec, s.vec))
+  ensure equal(vdist(p, q), vdist(r, s))
+  ensure equal(vdist(p, s), vdist(q, r))
+  ensure equal(vdist(p, q), vdist(p, s))
   -- right angle
-  ensure perpendicular(p.vec, q.vec, r.vec)
-  ensure perpendicular(p.vec, s.vec, r.vec)
-
+  ensure perpendicular(p, q, r)
+  ensure perpendicular(p, s, r)
+  -- area
+  ensure lessThan(2*50, cross2D(p, q) + cross2D(q, r) + cross2D(r, s) + cross2D(s, p))
 
   -- R.icon above P.icon
 }
