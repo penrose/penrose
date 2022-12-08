@@ -2,8 +2,9 @@
   "name": "@penrose/optimizer",
   "version": "1.3.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "esbuild ${FORCE_COLOR+--color=true} ./source.ts --outfile=index.js --format=cjs --bundle --loader:.wasm=binary --sourcemap",
+    "build": "esbuild ${FORCE_COLOR+--color=true} ./source.ts --outfile=index.js --format=esm --bundle --loader:.wasm=binary --sourcemap",
     "build-decls": "cargo ${FORCE_COLOR+--color=always} test",
     "build-wasm": "cargo ${FORCE_COLOR+--color=always} build --target=wasm32-unknown-unknown --release",
     "build-wasm-bindgen": "wasm-bindgen --target=web --keep-lld-exports --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",

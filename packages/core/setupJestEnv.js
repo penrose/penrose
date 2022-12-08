@@ -1,3 +1,5 @@
-// https://stackoverflow.com/a/57943686/5044950
-TextDecoder = require("util").TextDecoder;
-TextEncoder = require("util").TextEncoder;
+import { TextDecoder, TextEncoder } from "util";
+
+// https://stackoverflow.com/a/57943686
+global.TextDecoder = TextDecoder;
+global.TextEncoder = TextEncoder;
