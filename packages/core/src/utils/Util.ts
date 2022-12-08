@@ -851,7 +851,6 @@ export const getAdValueAsString = (
   switch (prop.tag) {
     case "FloatV":
       if (typeof prop.contents === "number") return prop.contents.toString();
-      if (typeof prop.contents === "string") return prop.contents;
       break;
     case "StrV":
       return prop.contents;
@@ -879,7 +878,6 @@ export const getAdValueAsNumber = (
   switch (prop.tag) {
     case "FloatV":
       if (typeof prop.contents === "number") return prop.contents;
-      if (typeof prop.contents === "string") return parseFloat(prop.contents);
       break;
     case "StrV":
       return parseFloat(prop.contents);
