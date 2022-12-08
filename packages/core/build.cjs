@@ -8,6 +8,7 @@ const common = {
   tsconfig: "./tsconfig.json",
   platform: "browser",
   external: ["path", "fs", "crypto"],
+  define: { "import.meta.url": '""' }, // prevent Vite shenanigans on optimizer
 };
 
 build({
