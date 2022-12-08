@@ -10,6 +10,7 @@ import {
   ArgStmtDecl,
   autoLabelStmt,
   cascadingDelete,
+  dedupStmts,
   desugarAutoLabel,
   domainToSubType,
   findDecl,
@@ -238,6 +239,7 @@ const getDecls = (
     case undefined:
       return im.Map<string, DomainStmt<A>>();
   }
+
   throw new Error(`${type} is not found in the environment`);
 };
 
@@ -464,7 +466,7 @@ export class Synthesizer {
     // TODO: find out what to label
     // this.updateProg(autoLabel(this.currentProg));
     return {
-      prog: sortStmts(this.currentProg), // sort statements to make sure edits don't introduce compiler errors
+      prog: sortStmts(dedupStmts(this.currentProg)), // sort and deduplicate statements to make sure edits don't introduce compiler errors
       ops: this.currentMutations,
     };
   };
@@ -524,7 +526,8 @@ export class Synthesizer {
       return newCtx;
     } else {
       log.debug("No mutations found.");
-      return ctx;
+      // restart mutation is none found
+      return this.mutateProgram(ctx);
     }
   };
 
@@ -1054,7 +1057,11 @@ const generateArg = (
           };
         } else {
           throw new Error(
-            `${argType.name.value} not found in the candidate list`
+            `${
+              argType.name.value
+            } not found in the candidate list. Candidate types are: ${[
+              ...ctx.env.types.keys(),
+            ]}`
           );
         }
       }

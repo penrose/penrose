@@ -12,6 +12,7 @@ import {
   isEqualWith,
   sortBy,
   uniq,
+  uniqWith,
 } from "lodash";
 import {
   A,
@@ -46,7 +47,7 @@ import {
 } from "types/substance";
 
 const log = consola
-  .create({ level: LogLevel.Debug })
+  .create({ level: LogLevel.Info })
   .withScope("Substance Analysis");
 
 export interface Signature {
@@ -573,6 +574,21 @@ export const sortStmts = <T>(prog: SubProg<T>): SubProg<T> => {
     statements: newStmts,
   };
 };
+
+/**
+ * Remove duplicated statements from a Substance program.
+ * NOTE: the implementation relies on string-comparison between pretty-printed statements.
+ *
+ * @param prog the original program
+ * @returns the original program without duplicated statements
+ */
+export const dedupStmts = (prog: SubProg<A>): SubProg<A> => ({
+  ...prog,
+  statements: uniqWith(
+    prog.statements,
+    (s1: SubStmt<A>, s2: SubStmt<A>) => prettyStmt(s1) === prettyStmt(s2)
+  ),
+});
 
 // TODO: compare clean nodes instead?
 export const stmtExists = (stmt: SubStmt<A>, prog: SubProg<A>): boolean =>
