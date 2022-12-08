@@ -268,16 +268,17 @@ forall Point \`D\`, \`E\`, \`A\` {
       ...defaultParams,
     },
   },
-  c11p21: {
-    displayName: "c11p21: Chord Intersection",
-    prompt: "TODO",
-    substance: examples["geometry-domain"].textbook_problems["c11p21.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
-    setting: {
-      ...defaultParams,
-    },
-  },
+  // NOTE: deprecated due to lack of conceptual prompt
+  // c11p21: {
+  //   displayName: "c11p21: Chord Intersection",
+  //   prompt: "TODO",
+  //   substance: examples["geometry-domain"].textbook_problems["c11p21.sub"],
+  //   domain: examples["geometry-domain"]["geometry.dsl"],
+  //   style: examples["geometry-domain"]["euclidean.sty"] + ``,
+  //   setting: {
+  //     ...defaultParams,
+  //   },
+  // },
   c11p25: {
     displayName: "c11p25: Trapezoid inside Circle",
     prompt: "In which of the following diagrams are AD = BC?",
@@ -288,19 +289,20 @@ forall Point \`D\`, \`E\`, \`A\` {
       ...defaultParams,
     },
   },
-  c12p12: {
-    displayName: "c12p12: Circle with Chords, Radii",
-    prompt: "TODO",
-    substance: examples["geometry-domain"].textbook_problems["c12p12.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
-    setting: {
-      ...defaultParams,
-    },
-  },
+  // NOTE: deprecated due to lack of conceptual prompt
+  // c12p12: {
+  //   displayName: "c12p12: Circle with Chords, Radii",
+  //   prompt: "TODO",
+  //   substance: examples["geometry-domain"].textbook_problems["c12p12.sub"],
+  //   domain: examples["geometry-domain"]["geometry.dsl"],
+  //   style: examples["geometry-domain"]["euclidean.sty"] + ``,
+  //   setting: {
+  //     ...defaultParams,
+  //   },
+  // },
   c12p20: {
     displayName: "c12p20: Triangle Congruency",
-    prompt: "TODO",
+    prompt: "In which of the following diagrams is tABC congruent to tBCD?",
     substance: examples["geometry-domain"].textbook_problems["c12p20.sub"],
     domain: examples["geometry-domain"]["geometry.dsl"],
     style: examples["geometry-domain"]["euclidean.sty"] + ``,
