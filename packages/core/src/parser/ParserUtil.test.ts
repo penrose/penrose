@@ -1,4 +1,4 @@
-import * as moo from "moo";
+import moo from "moo";
 import * as ParserUtil from "parser/ParserUtil";
 
 describe("ParserUtil", () => {

@@ -50,8 +50,7 @@ import {
   trunc,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import * as _ from "lodash";
-import { range } from "lodash";
+import _ from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
 import { Ellipse } from "shapes/Ellipse";
 import { Line } from "shapes/Line";
@@ -1077,7 +1076,7 @@ export const compDict = {
     colorType: string
   ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
-      const rgb = range(3).map(() =>
+      const rgb = _.range(3).map(() =>
         makeInput({ tag: "Optimized", sampler: uniform(0.1, 0.9) })
       );
 

@@ -1,6 +1,7 @@
 {
   "name": "@penrose/core",
   "version": "1.3.0",
+  "type": "module",
   "main": "build/dist/index.js",
   "module": "build/dist/index.esm.js",
   "unpkg": "build/dist/penrose.min.js",
@@ -15,15 +16,15 @@
     "build": "yarn build:esbuild",
     "start": "yarn watch:esbuild",
     "watch": "yarn watch:esbuild",
-    "test": "jest",
-    "test-watch": "jest --watchAll",
-    "build:esbuild": "node build.js",
-    "watch:esbuild": "node build.js -watch",
+    "test": "cross-env NODE_OPTIONS='--no-warnings --experimental-vm-modules' jest",
+    "test-watch": "yarn test --watchAll",
+    "build:esbuild": "node build.cjs",
+    "watch:esbuild": "node build.cjs -watch",
     "build-decls": "tsc --emitDeclarationOnly --outDir build/dist && tsc-alias -p tsconfig.json",
     "typecheck": ":",
     "docs": "typedoc --plugin none --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
-    "coverage": "jest --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
+    "coverage": "yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
     "lint": "eslint --ext js,ts,tsx src"
   },
   "nx": {
@@ -147,7 +148,6 @@
     "tsc-alias": "^1.6.7",
     "tslib": "^2.1.0",
     "typedoc": "^0.22.11",
-    "typedoc-plugin-markdown": "^3.11.13",
-    "typescript": "^4.1.3"
+    "typedoc-plugin-markdown": "^3.11.13"
   }
 }

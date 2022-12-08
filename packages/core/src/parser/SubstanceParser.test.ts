@@ -1,6 +1,6 @@
 import { examples } from "@penrose/examples";
 import * as fs from "fs";
-import * as nearley from "nearley";
+import nearley from "nearley";
 import * as path from "path";
 import grammar from "./SubstanceParser";
 

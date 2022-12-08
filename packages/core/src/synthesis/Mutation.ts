@@ -12,7 +12,7 @@ import {
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
-import { range, without } from "lodash";
+import _ from "lodash";
 import { A, Identifier } from "types/ast";
 import {
   ApplyConstructor,
@@ -588,7 +588,7 @@ const pairs = <T>(list: T[]): [T, T][] => {
 
 export const enumSwapStmtArgs = (stmt: SubStmt<A>): SwapStmtArgs[] => {
   if (stmt.tag === "ApplyPredicate" && stmt.args.length > 1) {
-    const indexPairs: [number, number][] = pairs(range(0, stmt.args.length));
+    const indexPairs: [number, number][] = pairs(_.range(0, stmt.args.length));
     return indexPairs.map(([elem1, elem2]: [number, number]) => ({
       tag: "SwapStmtArgs",
       stmt,
@@ -618,7 +618,9 @@ export const enumSwapExprArgs = (stmt: SubStmt<A>): SwapExprArgs[] => {
         expr.tag === "Func") &&
       expr.args.length > 1
     ) {
-      const indexPairs: [number, number][] = pairs(range(0, expr.args.length));
+      const indexPairs: [number, number][] = pairs(
+        _.range(0, expr.args.length)
+      );
       return indexPairs.map(([elem1, elem2]: [number, number]) => ({
         tag: "SwapExprArgs",
         stmt,
@@ -653,7 +655,7 @@ export const enumReplaceStmtName = (
     const matchingNames: string[] = matchSignatures(stmt, cxt.env).map(
       (decl) => decl.name.value
     );
-    const options = without(matchingNames, stmt.name.value);
+    const options = _.without(matchingNames, stmt.name.value);
     return options.map((name: string) => ({
       tag: "ReplaceStmtName",
       stmt,
@@ -686,7 +688,7 @@ export const enumReplaceExprName = (
       const matchingNames: string[] = matchSignatures(expr, cxt.env).map(
         (decl) => decl.name.value
       );
-      const options = without(matchingNames, expr.name.value);
+      const options = _.without(matchingNames, expr.name.value);
       return options.map((name: string) => ({
         tag: "ReplaceExprName",
         stmt,

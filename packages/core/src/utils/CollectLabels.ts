@@ -6,6 +6,8 @@ import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
 import { InputMeta } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
+// @ts-expect-error missing types
+import svgflatten from "svg-flatten";
 import svgpath from "svgpath";
 import * as ad from "types/ad";
 import { PenroseError } from "types/errors";
@@ -18,9 +20,6 @@ import {
   getAdValueAsNumber,
   getAdValueAsString,
 } from "./Util";
-/* eslint eslint-comments/no-use: off */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const svgflatten = require("svg-flatten");
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();

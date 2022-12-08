@@ -408,4 +408,4 @@ export default function (fileInfo: FileInfo, api: API): string {
   }
   return root.toSource();
 }
-module.exports.parser = "ts";
+export const parser = "ts";

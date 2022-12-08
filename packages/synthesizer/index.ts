@@ -1,4 +1,5 @@
-require("global-jsdom/register");
+import "global-jsdom/register"; // must be first
+
 import {
   compileDomain,
   compileSubstance,
