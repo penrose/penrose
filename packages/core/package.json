@@ -18,7 +18,7 @@
     "watch": "yarn watch:esbuild",
     "test": "cross-env NODE_OPTIONS='--no-warnings --experimental-vm-modules' jest",
     "test-watch": "yarn test --watchAll",
-    "build:esbuild": "node build.cjs",
+    "build:esbuild": "node build.cjs && cp ../optimizer/build/*.wasm build/dist/",
     "watch:esbuild": "node build.cjs -watch",
     "build-decls": "tsc --emitDeclarationOnly --outDir build/dist && tsc-alias -p tsconfig.json",
     "typecheck": ":",
