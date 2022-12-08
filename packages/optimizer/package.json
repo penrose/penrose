@@ -41,8 +41,5 @@
         ]
       }
     }
-  },
-  "devDependencies": {
-    "esbuild": "^0.15.14"
   }
 }
