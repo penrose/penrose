@@ -23,16 +23,16 @@ const defaultParams: SynthesizerSetting = {
     constructor: 0.2,
   },
   opWeights: {
-    add: 0.2,
-    delete: 0.3,
-    edit: 0.5,
+    add: 0.01,
+    delete: 0.2,
+    edit: 0.8,
   },
   // TODO: need weights for the three ops
   add: {
-    type: [],
-    function: [],
-    constructor: [],
-    predicate: [],
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
   },
   delete: {
     type: "*",
@@ -57,18 +57,6 @@ export const presets: PresetCollection = {
     style: examples["geometry-domain"]["euclidean.sty"],
     setting: {
       ...defaultParams,
-      delete: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: ["Collinear"],
-      },
-      edit: {
-        type: [],
-        function: [],
-        constructor: ["Ray", "Line"],
-        predicate: ["Collinear"],
-      },
     },
   },
   c01p10: {
@@ -80,24 +68,6 @@ export const presets: PresetCollection = {
     style: examples["geometry-domain"]["euclidean.sty"],
     setting: {
       ...defaultParams,
-      add: {
-        type: [],
-        function: [],
-        constructor: ["MkTriangle"],
-        predicate: [],
-      },
-      delete: {
-        type: [],
-        function: [],
-        constructor: ["MkSegment"],
-        predicate: ["Collinear", "In"],
-      },
-      edit: {
-        type: [],
-        function: [],
-        constructor: ["Ray", "Line"],
-        predicate: ["RightMarked"],
-      },
     },
   },
   c02p01: {
@@ -115,18 +85,6 @@ export const presets: PresetCollection = {
     `,
     setting: {
       ...defaultParams,
-      delete: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: ["EqualAngleMarker", "AngleBisector"],
-      },
-      edit: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: [],
-      },
     },
   },
   c03p01: {
@@ -146,24 +104,6 @@ where a := InteriorAngle(p, q, r) {
     `,
     setting: {
       ...defaultParams,
-      add: {
-        type: [],
-        function: [],
-        constructor: ["InteriorAngle"],
-        predicate: ["Obtuse", "RightMarked"],
-      },
-      delete: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: ["Parallel", "ParallelMarker1"],
-      },
-      edit: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: ["Acute"],
-      },
     },
   },
   c04p01: {
@@ -190,29 +130,6 @@ forall Point \`D\`, \`E\`, \`A\` {
     `,
     setting: {
       ...defaultParams,
-      add: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: ["RightUnmarked", "RightMarked", "EqualLengthMarker"],
-      },
-      delete: {
-        type: [],
-        function: [],
-        constructor: [],
-        predicate: ["RightMarked", "EqualLengthMarker", "EqualLength"],
-      },
-      edit: {
-        type: [],
-        function: [],
-        constructor: ["InteriorAngle", "MkSegment"],
-        predicate: [
-          "RightMarked",
-          "Collinear",
-          "EqualLengthMarker",
-          "EqualLength",
-        ],
-      },
     },
   },
   c04p12: {
