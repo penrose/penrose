@@ -1,4 +1,4 @@
-import * as graphlib from "graphlib";
+import graphlib from "graphlib";
 
 export interface Edge<NodeId extends string> {
   v: NodeId;

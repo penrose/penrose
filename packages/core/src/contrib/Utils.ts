@@ -15,7 +15,7 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import * as _ from "lodash";
+import _ from "lodash";
 import * as ad from "types/ad";
 
 /**

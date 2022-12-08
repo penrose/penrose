@@ -9,8 +9,8 @@ import {
   importMemoryName,
   Outputs,
 } from "@penrose/optimizer";
-import consola, { LogLevel } from "consola";
-import * as _ from "lodash";
+import consola from "consola";
+import _ from "lodash";
 import * as ad from "types/ad";
 import { Multidigraph } from "utils/Graph";
 import { safe, zip2 } from "utils/Util";
@@ -46,7 +46,7 @@ import {
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
 export const logAD = consola
-  .create({ level: LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Optimizer");
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator

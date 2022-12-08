@@ -136,8 +136,8 @@ yarn start
 Once it finishes building, you should see this near the end of the output:
 
 ```
-@penrose/editor:   > Local: http://localhost:3000/try/
-@penrose/editor:   > Network: use `--host` to expose
+  > Local: http://localhost:3000/try/
+  > Network: use `--host` to expose
 ```
 
 Click [that link][]. The page may take some time to load, but once it does, you

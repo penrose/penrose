@@ -1,6 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { mapValues } from "lodash";
+import _ from "lodash";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import {
@@ -204,7 +204,7 @@ export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
     return shapes.map((s: ShapeAD) => ({
       ...s,
-      properties: mapValues(s.properties, (p: Value<ad.Num>) =>
+      properties: _.mapValues(s.properties, (p: Value<ad.Num>) =>
         mapValueNumeric(
           (x) =>
             safe(

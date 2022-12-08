@@ -1,7 +1,7 @@
 import { CustomHeap } from "@datastructures-js/heap";
 import { genOptProblem } from "@penrose/optimizer";
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
+import consola from "consola";
 import { constrDict } from "contrib/Constraints";
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
@@ -9,9 +9,9 @@ import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
 import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
 import { genGradient } from "engine/Optimizer";
-import { alg, Edge, Graph } from "graphlib";
+import graphlib from "graphlib";
 import im from "immutable";
-import _, { range } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation, prettyParseError } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -140,7 +140,7 @@ import {
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
-  .create({ level: LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Style Compiler");
 
 //#region consts
@@ -155,7 +155,7 @@ const dummyId = (name: string): Identifier<A> =>
   dummyIdentifier(name, "SyntheticStyle");
 
 export function numbered<A>(xs: A[]): [A, number][] {
-  return zip2(xs, range(xs.length));
+  return zip2(xs, _.range(xs.length));
 }
 
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
@@ -2913,7 +2913,7 @@ export const computeShapeOrdering = (
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
 } => {
-  const layerGraph: Graph = new Graph();
+  const layerGraph: graphlib.Graph = new graphlib.Graph();
   allGPINames.forEach((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
   partialOrderings.forEach(({ below, above }: Layer) =>
@@ -2921,11 +2921,11 @@ export const computeShapeOrdering = (
   );
 
   // if there are no cycles, return a global ordering from the top sort result
-  if (alg.isAcyclic(layerGraph)) {
-    const shapeOrdering: string[] = alg.topsort(layerGraph);
+  if (graphlib.alg.isAcyclic(layerGraph)) {
+    const shapeOrdering: string[] = graphlib.alg.topsort(layerGraph);
     return { shapeOrdering };
   } else {
-    const cycles = alg.findCycles(layerGraph);
+    const cycles = graphlib.alg.findCycles(layerGraph);
     const shapeOrdering = pseudoTopsort(layerGraph);
     return {
       shapeOrdering,
@@ -2938,7 +2938,7 @@ export const computeShapeOrdering = (
   }
 };
 
-const pseudoTopsort = (graph: Graph): string[] => {
+const pseudoTopsort = (graph: graphlib.Graph): string[] => {
   const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
     const aIn = graph.inEdges(a);
     const bIn = graph.inEdges(b);
@@ -2955,7 +2955,7 @@ const pseudoTopsort = (graph: Graph): string[] => {
     // remove all edges with `node`
     const toRemove = graph.nodeEdges(node);
     if (toRemove !== undefined) {
-      toRemove.forEach((e: Edge) => graph.removeEdge(e));
+      toRemove.forEach((e: graphlib.Edge) => graph.removeEdge(e));
       toVisit.fix();
     }
   }

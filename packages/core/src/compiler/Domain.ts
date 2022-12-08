@@ -1,5 +1,5 @@
 import im from "immutable";
-import { every, keyBy, zipWith } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
 import { idOf, lastLocation, prettyParseError } from "parser/ParserUtil";
@@ -161,7 +161,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: im.Map(keyBy(params, "name.value")),
+        typeVars: im.Map(_.keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.constructors.get(name.value);
@@ -183,7 +183,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: im.Map(keyBy(params, "name.value")),
+        typeVars: im.Map(_.keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.functions.get(name.value);
@@ -205,7 +205,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: im.Map(keyBy(params, "name.value")),
+        typeVars: im.Map(_.keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.predicates.get(name.value);
@@ -424,8 +424,8 @@ export const isSubtype = (
     superType.tag === "TypeConstructor"
   ) {
     const argsMatch = (args1: Type<A>[], args2: Type<A>[]): boolean =>
-      every(
-        zipWith(args1, args2, (sub: Type<A>, sup: Type<A>): boolean =>
+      _.every(
+        _.zipWith(args1, args2, (sub: Type<A>, sup: Type<A>): boolean =>
           isSubtype(sub, sup, env)
         )
       );
