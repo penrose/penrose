@@ -1,5 +1,4 @@
-import * as _ from "lodash";
-import { times } from "lodash";
+import _ from "lodash";
 import seedrandom from "seedrandom";
 import { LineProps } from "shapes/Line";
 import { ShapeType } from "shapes/Shapes";
@@ -119,7 +118,7 @@ export const randFloats = (
   rng: seedrandom.prng,
   count: number,
   [min, max]: [number, number]
-): number[] => times(count, () => randFloat(rng, min, max));
+): number[] => _.times(count, () => randFloat(rng, min, max));
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive

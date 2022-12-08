@@ -1,8 +1,8 @@
 import { sortStmts, typeOf } from "analysis/SubstanceAnalysis";
 import { prettyStmt } from "compiler/Substance";
-import { cloneDeep, minBy } from "lodash";
-import { createChoice } from "pandemonium/choice";
-import { applyDiff, rdiffResult } from "recursive-diff";
+import _ from "lodash";
+import pc from "pandemonium/choice";
+import rdiff from "recursive-diff";
 import seedrandom from "seedrandom";
 import { A } from "types/ast";
 import { SubProg, SubRes } from "types/substance";
@@ -34,7 +34,7 @@ import {
 import { initContext } from "./Synthesizer";
 
 const RNG = seedrandom("seed5");
-const choice: <T>(array: Array<T>) => T = createChoice(RNG);
+const choice: <T>(array: Array<T>) => T = pc.createChoice(RNG);
 
 const domainSrc = `
 type Set
@@ -193,11 +193,11 @@ describe("AST diff tests", () => {
     `;
     const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
-    const diffs: rdiffResult[] = diffSubProgs(ast1, ast2);
+    const diffs: rdiff.rdiffResult[] = diffSubProgs(ast1, ast2);
     // because we filtered out all the noisy diffs, the exact formatting should not matter much
     expect(diffs).toHaveLength(2);
     // NOTE: `applyDiff` actually mutates the object :(
-    const ast2From1 = applyDiff(cloneDeep(ast1), diffs);
+    const ast2From1 = rdiff.applyDiff(_.cloneDeep(ast1), diffs);
     // the exact objects won't be equal, because the ASTs don't have the same positional info
     expect(ast2From1).not.toEqual(ast2);
     // ...but the ASTs are actually the same, which can be shown by checking the trees
@@ -313,7 +313,7 @@ describe("Mutation recognition tests", () => {
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const ctx = initContext(env, "existing", "distinct", "test2");
     const paths = enumerateMutationPaths(ast1, ast2, ctx, 5);
-    const shortestPath = minBy(paths, (p) => p.mutations.length);
+    const shortestPath = _.minBy(paths, (p) => p.mutations.length);
     expect(shortestPath?.mutations).toHaveLength(3);
     expect(shortestPath?.mutations.map((m) => m.tag)).toContain("SwapStmtArgs");
     expect(shortestPath?.mutations.map((m) => m.tag)).toContain(

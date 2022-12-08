@@ -5,7 +5,7 @@ import {
   prettySubstance,
 } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
-import { intersectionWith } from "lodash";
+import _ from "lodash";
 import { similarMappings, similarNodes, SubNode } from "synthesis/Search";
 import { A } from "types/ast";
 import { Env } from "types/domain";
@@ -79,10 +79,10 @@ describe("Substance AST queries", () => {
     const rightAST = compile(right);
     const commonStmts = intersection(leftAST, rightAST);
     const leftFiltered = leftAST.statements.filter((a) => {
-      return intersectionWith(commonStmts, [a], nodesEqual).length === 0;
+      return _.intersectionWith(commonStmts, [a], nodesEqual).length === 0;
     });
     const rightFiltered = rightAST.statements.filter((a) => {
-      return intersectionWith(commonStmts, [a], nodesEqual).length === 0;
+      return _.intersectionWith(commonStmts, [a], nodesEqual).length === 0;
     });
     expect(commonStmts.map(prettyStmt)).toEqual([
       "Set A",

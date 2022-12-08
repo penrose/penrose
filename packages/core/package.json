@@ -15,15 +15,15 @@
     "build": "yarn build:esbuild",
     "start": "yarn watch:esbuild",
     "watch": "yarn watch:esbuild",
-    "test": "jest",
-    "test-watch": "jest --watchAll",
+    "test": "cross-env NODE_OPTIONS='--no-warnings --experimental-vm-modules' jest",
+    "test-watch": "yarn test --watchAll",
     "build:esbuild": "node build.js",
     "watch:esbuild": "node build.js -watch",
     "build-decls": "tsc --emitDeclarationOnly --outDir build/dist && tsc-alias -p tsconfig.json",
     "typecheck": ":",
     "docs": "typedoc --plugin none --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
-    "coverage": "jest --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
+    "coverage": "yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
     "lint": "eslint --ext js,ts,tsx src"
   },
   "nx": {

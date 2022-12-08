@@ -7,7 +7,7 @@ import {
   primaryGraph,
   secondaryGraph,
 } from "engine/Autodiff";
-import * as _ from "lodash";
+import _ from "lodash";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
 import { eqList, randList } from "utils/Util";

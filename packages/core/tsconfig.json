@@ -2,8 +2,8 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "build/dist",
-    "module": "es2015",
-    "target": "es5",
+    "module": "es2022",
+    "target": "es2017",
     "lib": ["es5", "es6", "es7", "esnext", "dom"],
     "sourceMap": true,
     "allowJs": true,
