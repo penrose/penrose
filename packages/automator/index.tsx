@@ -1,4 +1,6 @@
-require("global-jsdom/register");
+// organize-imports-ignore
+import "global-jsdom/register";
+
 import {
   compileTrio,
   evalEnergy,
@@ -18,7 +20,7 @@ import * as fs from "fs";
 import neodoc from "neodoc";
 import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
-import * as prettier from "prettier";
+import prettier from "prettier";
 import uniqid from "uniqid";
 import { printTextChart, renderArtifacts } from "./artifacts";
 import { AggregateData, InstanceData } from "./types";
