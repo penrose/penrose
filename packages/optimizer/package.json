@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": ":",
+    "build": "esbuild ${FORCE_COLOR+--color=true} ./source.ts --outfile=index.js --platform=neutral --bundle --loader:.wasm=binary --define:import.meta.url='\"\"' --sourcemap",
     "build-decls": "cargo ${FORCE_COLOR+--color=always} test",
     "build-wasm": "cargo ${FORCE_COLOR+--color=always} build --target=wasm32-unknown-unknown --release",
     "build-wasm-bindgen": "wasm-bindgen --target=web --keep-lld-exports --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
@@ -17,6 +17,10 @@
       "build": {
         "dependsOn": [
           "build-wasm-bindgen"
+        ],
+        "outputs": [
+          "{projectRoot}/index.js",
+          "{projectRoot}/index.js.map"
         ]
       },
       "build-decls": {

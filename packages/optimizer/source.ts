@@ -3,7 +3,7 @@ import { LbfgsParams } from "./bindings/LbfgsParams";
 import { OptState } from "./bindings/OptState";
 import { OptStatus } from "./bindings/OptStatus";
 import { Params } from "./bindings/Params";
-import init, {
+import {
   InitOutput,
   penrose_call,
   penrose_gen_opt_problem,
@@ -11,8 +11,8 @@ import init, {
   penrose_init,
   penrose_step,
 } from "./build/penrose_optimizer";
+import optimizer from "./instance";
 
-const optimizer = await init();
 penrose_init();
 const index = optimizer.__indirect_function_table.length;
 optimizer.__indirect_function_table.grow(1);
