@@ -28,5 +28,8 @@
   "COMBAK-leftOffForNowDueToErrors": {
     "noImplicitAny": true,
     "strict": true
+  },
+  "ts-node": {
+    "swc": true
   }
 }
