@@ -15,6 +15,9 @@ import {
   currentRogerState,
   diagramMetadataSelector,
   diagramState,
+  DiagramMetadata,
+  ProgramFile,
+  fileContentsSelector,
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "../state/atoms";
@@ -242,7 +245,15 @@ export default function DiagramPanel() {
       if (svg !== null) {
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
-        DownloadSVG(svg, metadata.name);
+        const diagram = snapshot.getLoadable(diagramMetadataSelector)
+          .contents as DiagramMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(fileContentsSelector("substance"))
+          .contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(svg, metadata.name, domain.name, substance.name, style.name, metadata.editorVersion.toString(), diagram.variation);
       }
     }
   });
