@@ -1,4 +1,4 @@
-import { flatten } from "lodash";
+import _ from "lodash";
 import { BoolV, ColorV, FloatV, PathCmd, StrV, SubPath } from "types/value";
 import {
   getArrowhead,
@@ -21,7 +21,7 @@ const toPathString = (
         console.error("WARNING: empty path");
         return "";
       }
-      const pathStr = flatten(
+      const pathStr = _.flatten(
         // the `number[]` type annotation is necessary to ensure that a compile
         // error occurs here if more `SubPath` subtypes are added in the future
         contents.map((c: SubPath<number>): number[] => {

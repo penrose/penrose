@@ -2,7 +2,7 @@ import * as fs from "fs";
 import _ from "lodash";
 import pug from "pug";
 import { InstanceData } from "./types";
-import vis from "./vis";
+import * as vis from "./vis";
 
 const PAGELEN = 5;
 const gridLink = "grid.html";

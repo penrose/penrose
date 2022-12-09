@@ -1,7 +1,7 @@
 import { examples } from "@penrose/examples";
 import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
-import * as nearley from "nearley";
+import nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
 import { Env } from "types/domain";

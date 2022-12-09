@@ -68,7 +68,7 @@ forall Vector v; Hyperplane P; AmbientSpace S
 where VectorOrthogonalToHyperplane(v, P, S) {
   scalar multiplier = ?
   override v.vec = multiplier * P.normal_vector
-  encourage repel(v.shape, S.shape, 0.01)
+  encourage notTooClose(v.shape, S.shape, 0.01)
 }
 
 forall Vector v; Vector u; AmbientSpace S

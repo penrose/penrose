@@ -1,4 +1,5 @@
-require("global-jsdom/register");
+import "global-jsdom/register"; // must be first
+
 import {
   compileTrio,
   evalEnergy,
@@ -10,7 +11,6 @@ import {
   simpleContext,
   stepUntilConvergence,
 } from "@penrose/core";
-import { ShapeDef } from "@penrose/core/build/dist/shapes/Shapes";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";
@@ -18,7 +18,7 @@ import * as fs from "fs";
 import neodoc from "neodoc";
 import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
-import * as prettier from "prettier";
+import prettier from "prettier";
 import uniqid from "uniqid";
 import { printTextChart, renderArtifacts } from "./artifacts";
 import { AggregateData, InstanceData } from "./types";
@@ -335,7 +335,7 @@ const getShapeDefs = (outFile?: string): void => {
 
   // Loop over the shapes
   for (const shapeName in shapedefs) {
-    const thisShapeDef: ShapeDef = shapedefs[shapeName];
+    const thisShapeDef = shapedefs[shapeName];
     const shapeSample1 = thisShapeDef.sampler(
       simpleContext("ShapeProps sample 1"),
       makeCanvas(size, size)

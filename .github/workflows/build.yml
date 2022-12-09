@@ -26,7 +26,6 @@ jobs:
         run: |
           yarn start textchart out stats.md
           cat stats.md >> $GITHUB_STEP_SUMMARY
-          grep -L EOF stats.md
           echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
           cat stats.md >> $GITHUB_ENV
           echo EOF >> $GITHUB_ENV
