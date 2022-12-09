@@ -13,11 +13,11 @@ import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   currentRogerState,
+  DiagramMetadata,
   diagramMetadataSelector,
   diagramState,
-  DiagramMetadata,
-  ProgramFile,
   fileContentsSelector,
+  ProgramFile,
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "../state/atoms";
@@ -35,7 +35,7 @@ export const DownloadSVG = (
   subStr: string,
   styleStr: string,
   versionStr: string,
-  variationStr: string,
+  variationStr: string
 ): void => {
   SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
   const blob = new Blob([svg.outerHTML], {
@@ -51,14 +51,15 @@ export const DownloadSVG = (
 };
 
 /**
- * TODO: add comment
- * 
- * @param svg 
- * @param dslStr 
- * @param subStr 
- * @param styleStr 
- * @param versionStr 
- * @param variationStr 
+ * TODO: Given an SVG, program triple, and version and variation strings,
+ * appends penrose tags to the SVG so the SVG can be reuploaded and edited.
+ *
+ * @param svg
+ * @param dslStr the domain file
+ * @param subStr the substance file
+ * @param styleStr the style file
+ * @param versionStr
+ * @param variationStr
  */
 const SVGaddCode = (
   svg: SVGSVGElement,
@@ -66,7 +67,7 @@ const SVGaddCode = (
   subStr: string,
   styleStr: string,
   versionStr: string,
-  variationStr: string,
+  variationStr: string
 ): void => {
   svg.setAttribute("penrose", "0");
 
@@ -249,11 +250,20 @@ export default function DiagramPanel() {
           .contents as DiagramMetadata;
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
-        const substance = snapshot.getLoadable(fileContentsSelector("substance"))
-          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance")
+        ).contents as ProgramFile;
         const style = snapshot.getLoadable(fileContentsSelector("style"))
           .contents as ProgramFile;
-        DownloadSVG(svg, metadata.name, domain.name, substance.name, style.name, metadata.editorVersion.toString(), diagram.variation);
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation
+        );
       }
     }
   });

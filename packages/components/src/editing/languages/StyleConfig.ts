@@ -7,56 +7,8 @@ import {
   rgbaToHex,
   shapedefs,
 } from "@penrose/core";
-import { ShapeType } from "@penrose/core/build/dist/shapes/Shapes";
 import { editor, IRange, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
-
-interface Global {
-  tag: "Global";
-}
-interface Block {
-  tag: "Block";
-}
-interface ShapeConstructor {
-  tag: "ShapeConstructor";
-  shapeName: string;
-}
-
-type StyleScope = Global | Block | ShapeConstructor;
-
-const guessScope = (prefixText: String): StyleScope => {
-  // HACK: count braces and capture shape name
-  const stack = [];
-  for (const c of prefixText) {
-    if (c === "{") {
-      const shapeRegexStr = `(${Object.keys(shapedefs).join(
-        "|"
-      )})[\\n\\r\\s]*\\{`;
-      const shapeRegex = new RegExp(shapeRegexStr, "g");
-      const matches = prefixText.matchAll(shapeRegex);
-      if (matches === null) {
-        stack.push(c);
-      } else {
-        let shapeName;
-        for (const match of matches) {
-          shapeName = match[1];
-        }
-        stack.push(shapeName);
-      }
-    } else if (c === "}") {
-      stack.pop();
-    }
-  }
-  // figure out scope
-  if (stack.length === 0) {
-    return { tag: "Global" };
-  } else if (stack.length === 1) {
-    return { tag: "Block" };
-  } else {
-    // 2 levels
-    return { tag: "ShapeConstructor", shapeName: stack.at(-1)! };
-  }
-};
 
 export const StyleConfig: languages.LanguageConfiguration = {
   comments: {
@@ -165,39 +117,7 @@ export const StyleLanguageTokens: languages.IMonarchLanguage = {
   },
 };
 
-export const StyleCompletions = (
-  range: IRange,
-  scope: StyleScope,
-  context: languages.CompletionContext
-): languages.CompletionItem[] => {
-  switch (scope.tag) {
-    case "Global":
-    case "Block":
-      if (
-        context.triggerKind !== languages.CompletionTriggerKind.TriggerCharacter
-      ) {
-        return defaultCompletions(range);
-      } else {
-        return [];
-      }
-    case "ShapeConstructor": {
-      const { shapeName } = scope;
-      // HACK: need to validate shapeName first
-      const def = shapedefs[shapeName as ShapeType];
-      return [
-        ...Object.entries(def.propTags).map(([prop, type]) => ({
-          label: prop,
-          detail: type,
-          insertText: prop,
-          kind: languages.CompletionItemKind.Property,
-          range,
-        })),
-      ];
-    }
-  }
-};
-
-const defaultCompletions = (range: IRange): languages.CompletionItem[] => [
+export const StyleCompletions = (range: IRange): languages.CompletionItem[] => [
   ...styleCustoms.keywords.map((keyword: string) => ({
     label: keyword,
     insertText: keyword,
@@ -206,7 +126,9 @@ const defaultCompletions = (range: IRange): languages.CompletionItem[] => [
   })),
   ...styleCustoms.shapes.map((keyword: string) => ({
     label: keyword,
-    insertText: `${keyword} {$0}`,
+    insertText: `${keyword} {
+  $0
+}`,
     insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
     kind: languages.CompletionItemKind.Class,
     detail: "shape constructor",
@@ -299,12 +221,10 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
       );
     },
   });
-
   const disposeCompletion = monaco.languages.registerCompletionItemProvider(
     "style",
     {
-      triggerCharacters: ["\n"],
-      provideCompletionItems: (model, position, context) => {
+      provideCompletionItems: (model, position) => {
         const word = model.getWordUntilPosition(position);
         const range: IRange = {
           startLineNumber: position.lineNumber,
@@ -312,14 +232,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
           startColumn: word.startColumn,
           endColumn: word.endColumn,
         };
-        const prefix = model.getValueInRange({
-          startLineNumber: 1,
-          endLineNumber: position.lineNumber,
-          startColumn: 1,
-          endColumn: position.column,
-        });
-        const scope = guessScope(prefix);
-        return { suggestions: StyleCompletions(range, scope, context) };
+        return { suggestions: StyleCompletions(range) } as any;
       },
     }
   );
