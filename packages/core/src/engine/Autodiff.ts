@@ -104,10 +104,6 @@ const makeNode = (x: ad.Expr): ad.Node => {
       const { index } = node;
       return { tag, index };
     }
-    case "Debug": {
-      const { info } = node;
-      return { tag, info };
-    }
   }
 };
 
@@ -371,9 +367,6 @@ const children = (x: ad.Expr): Child[] => {
       row[x.index] = 1;
       return [{ child: x.vec, name: undefined, sensitivity: [row] }];
     }
-    case "Debug": {
-      return [{ child: x.node, name: undefined, sensitivity: [[1]] }];
-    }
   }
 };
 
@@ -616,16 +609,6 @@ export const secondaryGraph = (outputs: ad.Num[]): ad.Graph =>
   makeGraph({ primary: 1, secondary: outputs });
 
 // ------------ Meta / debug ops
-
-/**
- * Creates a wrapper node around a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
- * For more documentation on how to use this function, see the Penrose wiki page.
- */
-export const debug = (v: ad.Num, info = "no additional info"): ad.Debug => ({
-  tag: "Debug",
-  node: v,
-  info,
-});
 
 // ----------------- Other ops
 
@@ -1433,9 +1416,6 @@ const compileNode = (
 
       return;
     }
-    case "Debug": {
-      throw Error("TODO");
-    }
   }
 };
 
@@ -1456,8 +1436,7 @@ const getLayout = (node: ad.Node): { typename: Typename; count: number } => {
       case "Binary":
       case "Ternary":
       case "Nary":
-      case "Index":
-      case "Debug": {
+      case "Index": {
         return { typename: "f64", count: 1 };
       }
       case "PolyRoots": {

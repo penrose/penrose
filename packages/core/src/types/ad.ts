@@ -43,15 +43,7 @@ export type Expr = Bool | Num | Vec;
 
 export type Bool = Comp | Logic | Not;
 
-export type Num =
-  | number
-  | Input
-  | Unary
-  | Binary
-  | Ternary
-  | Nary
-  | Index
-  | Debug;
+export type Num = number | Input | Unary | Binary | Ternary | Nary | Index;
 
 export type Vec = PolyRoots;
 
@@ -126,10 +118,6 @@ export interface Index extends IndexNode {
   vec: Vec;
 }
 
-export interface Debug extends DebugNode {
-  node: Num;
-}
-
 //#endregion
 
 //#region Types for explicit autodiff graph
@@ -145,8 +133,7 @@ export type Node =
   | NaryNode
   | PolyRootsNode
   | IndexNode
-  | NotNode
-  | DebugNode;
+  | NotNode;
 
 export interface InputNode {
   tag: "Input";
@@ -225,11 +212,6 @@ export interface IndexNode {
   index: number;
 }
 
-export interface DebugNode {
-  tag: "Debug";
-  info: string;
-}
-
 export type Edge =
   | UnaryEdge
   | BinaryEdge
@@ -239,7 +221,6 @@ export type Edge =
   | NaryEdge
   | PolyRootsEdge
   | IndexEdge
-  | DebugEdge
   | NotEdge;
 
 export type UnaryEdge = undefined;
@@ -250,7 +231,6 @@ export type TernaryEdge = "cond" | "then" | "els";
 export type NaryEdge = `${number}`;
 export type PolyRootsEdge = NaryEdge;
 export type IndexEdge = UnaryEdge;
-export type DebugEdge = UnaryEdge;
 export type NotEdge = UnaryEdge;
 
 export type Id = `${number}`;
