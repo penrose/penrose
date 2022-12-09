@@ -51,7 +51,7 @@
     },
     {
       "substance": "allShapes",
-      "style": "dashedShapes",
+      "style": "allShapes",
       "domain": "shape-spec",
       "variation": ""
     },
@@ -225,7 +225,7 @@
     },
     "shape-spec": {
       "name": "Shapes",
-      "URI": "shape-spec/shape-spec-dashes.dsl"
+      "URI": "shape-spec/all-shapes.dsl"
     },
     "graph-theory": {
       "name": "Graph Theory",
@@ -294,10 +294,10 @@
       "name": "Linear Algebra 2D",
       "URI": "linear-algebra-domain/linear-algebra-paper-simple.sty"
     },
-    "dashedShapes": {
+    "allShapes": {
       "domain": "shape-spec",
-      "name": "Shapes with dashed lines",
-      "URI": "shape-spec/shape-spec-dashes.sty"
+      "name": "Shapes with Default Properties",
+      "URI": "shape-spec/shape-spec.sty"
     },
     "arrowheads": {
       "domain": "shape-spec",
@@ -413,7 +413,7 @@
     "allShapes": {
       "domain": "shape-spec",
       "name": "All Shapes",
-      "URI": "shape-spec/shapes-dashes.sub"
+      "URI": "shape-spec/all-shapes.sub"
     },
     "arrowheads": {
       "domain": "shape-spec",

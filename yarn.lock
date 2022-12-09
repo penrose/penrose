@@ -11155,11 +11155,6 @@ esbuild@0.13.8:
     esbuild-windows-64 "0.13.8"
     esbuild-windows-arm64 "0.13.8"
 
-esbuild@^0.11.0:
-  version "0.11.23"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.11.23.tgz#c42534f632e165120671d64db67883634333b4b8"
-  integrity sha512-iaiZZ9vUF5wJV8ob1tl+5aJTrwDczlvGP0JoMmnpC2B0ppiMCu8n8gmy5ZTGl5bcG081XBVn+U+jP+mPFm5T5Q==
-
 esbuild@^0.14.14:
   version "0.14.21"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.14.21.tgz#b3e05f900f1c4394f596d60d63d9816468f0f671"
@@ -11688,15 +11683,6 @@ estree-walker@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-2.0.2.tgz#52f010178c2a4c117a7757cfe942adb7d2da4cac"
   integrity sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==
-
-estrella@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/estrella/-/estrella-1.4.1.tgz#6971a710a91d38abe3ced6f6ffa68c0c6e08d369"
-  integrity sha512-h8vlec27CFxw+8uYFtgbvLvohx0v+IssCwb/haTQnI+kO2WaL0ApSTWxg49LneAtqrZkrnYVwXQB2ZgyIIAImw==
-  dependencies:
-    esbuild "^0.11.0"
-  optionalDependencies:
-    fsevents "~2.3.1"
 
 esutils@^2.0.2:
   version "2.0.3"
@@ -12636,7 +12622,7 @@ fsevents@^1.2.7:
     bindings "^1.5.0"
     nan "^2.12.1"
 
-fsevents@^2.1.2, fsevents@^2.3.2, fsevents@~2.3.1, fsevents@~2.3.2:
+fsevents@^2.1.2, fsevents@^2.3.2, fsevents@~2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.2.tgz#8a526f78b8fdf4623b709e0b975c52c24c02fd1a"
   integrity sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==
