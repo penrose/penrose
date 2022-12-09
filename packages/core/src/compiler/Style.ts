@@ -3078,14 +3078,16 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
   return fns;
 };
 
-export const compileStyleHelper = (
+export const compileStyleHelper = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<
-  { state: State; translation: Translation; assignment: Assignment },
-  PenroseError
+): Promise<
+  Result<
+    { state: State; translation: Translation; assignment: Assignment },
+    PenroseError
+  >
 > => {
   const astOk = parseStyle(stySource);
   let styProg;
@@ -3153,9 +3155,9 @@ export const compileStyleHelper = (
     ...onCanvases(canvas.value, shapes),
   ];
 
-  const computeShapes = compileCompGraph(shapes);
+  const computeShapes = await compileCompGraph(shapes);
 
-  const gradient = genGradient(
+  const gradient = await genGradient(
     inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
@@ -3194,13 +3196,13 @@ export const compileStyleHelper = (
   });
 };
 
-export const compileStyle = (
+export const compileStyle = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<State, PenroseError> =>
-  compileStyleHelper(variation, stySource, subEnv, varEnv).map(
+): Promise<Result<State, PenroseError>> =>
+  (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
     ({ state }) => state
   );
 

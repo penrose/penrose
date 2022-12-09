@@ -1,4 +1,4 @@
-import { genCode, input, primaryGraph } from "engine/Autodiff";
+import { genCodeSync, input, primaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -41,7 +41,7 @@ const compareDistance = (
   const result = getResult(context, shapeType, shape, p);
   const g = primaryGraph(result.contents);
   //const g = secondaryGraph([result.contents]);
-  const f = genCode(g);
+  const f = genCodeSync(g);
   /* const [dist] = 
   const {
     secondary: [dist],

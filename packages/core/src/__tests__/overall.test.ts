@@ -34,7 +34,12 @@ describe("Determinism", () => {
   const variation = "determinism";
 
   test("with initial optimization", async () => {
-    const resCompile = compileTrio({ substance, style, domain, variation });
+    const resCompile = await compileTrio({
+      substance,
+      style,
+      domain,
+      variation,
+    });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
@@ -83,7 +88,12 @@ describe("Determinism", () => {
   });
 
   test("without initial optimization", async () => {
-    const resCompile = compileTrio({ substance, style, domain, variation });
+    const resCompile = await compileTrio({
+      substance,
+      style,
+      domain,
+      variation,
+    });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
@@ -119,7 +129,7 @@ describe("Determinism", () => {
 describe("Energy API", () => {
   test("eval overall energy - init vs. optimized", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -141,7 +151,7 @@ describe("Energy API", () => {
   });
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -156,7 +166,7 @@ describe("Energy API", () => {
       const stateFiltered = {
         ...state,
         constrFns: smallerThanFns,
-        gradient: genGradient(
+        gradient: await genGradient(
           state.inputs,
           state.objFns.map(({ output }) => output),
           smallerThanFns.map(({ output }) => output)
@@ -179,13 +189,13 @@ describe("Cross-instance energy eval", () => {
     const twosets = `Set A, B\nAutoLabel All`;
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     // compile and optimize both states
-    const state1 = compileTrio({
+    const state1 = await compileTrio({
       substance: twosets,
       style: vennStyle,
       domain: setDomain,
       variation: "cross-instance state1",
     });
-    const state2 = compileTrio({
+    const state2 = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -222,7 +232,7 @@ describe("Run individual functions", () => {
 
   test("Check each individual function is minimized/satisfied", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,

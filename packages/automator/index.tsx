@@ -89,7 +89,7 @@ const singleProcess = async (
   console.log(`Compiling for ${out}/${sub} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
-  const compilerOutput = compileTrio({
+  const compilerOutput = await compileTrio({
     substance: subIn,
     style: styIn,
     domain: dslIn,

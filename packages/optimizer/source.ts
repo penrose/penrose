@@ -64,14 +64,15 @@ export interface Outputs<T> {
   secondary: T[];
 }
 
+const makeImports = () => ({
+  [importMemoryModule]: { [importMemoryName]: optimizer.memory },
+});
+
 export class Gradient {
   private f: WebAssembly.ExportValue;
   private numSecondary: number;
 
-  constructor(mod: WebAssembly.Module, numSecondary: number) {
-    const instance = new WebAssembly.Instance(mod, {
-      [importMemoryModule]: { [importMemoryName]: optimizer.memory },
-    }).exports;
+  private constructor(instance: WebAssembly.Exports, numSecondary: number) {
     builtinsTyped.forEach((name, i) => {
       const table = instance[exportTableName];
       if (table instanceof WebAssembly.Table) table.set(i, optimizer[name]);
@@ -80,7 +81,24 @@ export class Gradient {
     this.numSecondary = numSecondary;
   }
 
-  private link() {
+  static async make(
+    mod: WebAssembly.Module,
+    numSecondary: number
+  ): Promise<Gradient> {
+    return new Gradient(
+      (await WebAssembly.instantiate(mod, makeImports())).exports,
+      numSecondary
+    );
+  }
+
+  static makeSync(mod: WebAssembly.Module, numSecondary: number): Gradient {
+    return new Gradient(
+      new WebAssembly.Instance(mod, makeImports()).exports,
+      numSecondary
+    );
+  }
+
+  private link(): void {
     optimizer.__indirect_function_table.set(index, this.f);
   }
 

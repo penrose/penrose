@@ -133,7 +133,7 @@ export const diagram = async (
   node: HTMLElement,
   pathResolver: PathResolver
 ): Promise<void> => {
-  const res = compileTrio(prog);
+  const res = await compileTrio(prog);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
@@ -173,7 +173,7 @@ export const interactiveDiagram = async (
     );
     node.replaceChild(rendering, node.firstChild!);
   };
-  const res = compileTrio(prog);
+  const res = await compileTrio(prog);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
@@ -196,12 +196,12 @@ export const interactiveDiagram = async (
  * @param subProg a Substance program string
  * @param styProg a Style program string
  */
-export const compileTrio = (prog: {
+export const compileTrio = async (prog: {
   substance: string;
   style: string;
   domain: string;
   variation: string;
-}): Result<State, PenroseError> => {
+}): Promise<Result<State, PenroseError>> => {
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
@@ -209,10 +209,9 @@ export const compileTrio = (prog: {
     domainRes
   );
 
-  const styRes: Result<State, PenroseError> = andThen(
-    (res) => compileStyle(prog.variation, prog.style, ...res),
-    subRes
-  );
+  const styRes: Result<State, PenroseError> = subRes.isErr()
+    ? err(subRes.error)
+    : await compileStyle(prog.variation, prog.style, ...subRes.value);
 
   return styRes;
 };

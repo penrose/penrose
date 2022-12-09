@@ -1604,7 +1604,7 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
   t.byte(wasm.END);
 };
 
-export const genCode = (...graphs: ad.Graph[]): Gradient => {
+const genBytes = (graphs: ad.Graph[]): Uint8Array => {
   const secondaryKeys = new Map<number, number>();
   for (const { secondary } of graphs) {
     // `forEach` ignores holes
@@ -1636,8 +1636,17 @@ export const genCode = (...graphs: ad.Graph[]): Gradient => {
     throw Error(
       `allocated ${mod.bytes.length} bytes but used ${mod.count.size}`
     );
-  return new Gradient(
-    new WebAssembly.Module(mod.bytes),
+  return mod.bytes;
+};
+
+export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
+  await Gradient.make(
+    await WebAssembly.compile(genBytes(graphs)),
     Math.max(...graphs.map((g) => g.secondary.length))
   );
-};
+
+export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
+  Gradient.makeSync(
+    new WebAssembly.Module(genBytes(graphs)),
+    Math.max(...graphs.map((g) => g.secondary.length))
+  );

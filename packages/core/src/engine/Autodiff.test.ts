@@ -1,6 +1,6 @@
 import {
   fns,
-  genCode,
+  genCodeSync,
   input,
   logAD,
   makeGraph,
@@ -72,7 +72,7 @@ describe("genCode tests", () => {
   test("multiple addends", () => {
     const x = input({ key: 0, val: 0 });
     const g = primaryGraph(x);
-    const f = genCode(g, g, g);
+    const f = genCodeSync(g, g, g);
     expect(f.call([2])).toEqual({ gradient: [3], primary: 6, secondary: [] });
   });
 
@@ -80,14 +80,14 @@ describe("genCode tests", () => {
     const v1 = [5];
     const v2 = [];
     v2[1] = 8;
-    const f = genCode(secondaryGraph(v1), secondaryGraph(v2));
+    const f = genCodeSync(secondaryGraph(v1), secondaryGraph(v2));
     expect(f.call([]).secondary).toEqual([5, 8]);
   });
 
   test("secondary outputs must not conflict", () => {
     const g1 = secondaryGraph([5]);
     const g2 = secondaryGraph([8]);
-    expect(() => genCode(g1, g2)).toThrow(
+    expect(() => genCodeSync(g1, g2)).toThrow(
       "secondary output 0 is present in 2 graphs"
     );
   });
@@ -278,7 +278,7 @@ const testGradSymbolic = (testNum: number, graph: ad.Graph): void => {
   const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
 
   // Synthesize energy and gradient code
-  const f0 = genCode(graph);
+  const f0 = genCodeSync(graph);
 
   const f = (xs: number[]) => f0.call(xs).primary;
   const gradGen = (xs: number[]) => f0.call(xs).gradient;
@@ -326,7 +326,7 @@ describe("polyRoots tests", () => {
   test("degree 1", () => {
     const [z] = polyRoots([input({ key: 0, val: 0 })]);
     const g = primaryGraph(z);
-    const f = genCode(g);
+    const f = genCodeSync(g);
     const x = 42;
     expect(f.call([x])).toEqual({ gradient: [-1], primary: -x, secondary: [] });
   });
@@ -340,7 +340,7 @@ describe("polyRoots tests", () => {
     const b = input({ key: 1, val: 0 });
     const c = input({ key: 0, val: 0 });
 
-    const closedForm = genCode(
+    const closedForm = genCodeSync(
       primaryGraph(
         // c + bx + ax²
         div(f1(neg(b), sqrt(sub(squared(b), mul(4, mul(a, c))))), mul(2, a))
@@ -348,7 +348,7 @@ describe("polyRoots tests", () => {
     );
 
     const [r1, r2] = polyRoots([c, b]); // c + bx + x²; recall that a = 1
-    const implicit = genCode(primaryGraph(f2(r1, r2)));
+    const implicit = genCodeSync(primaryGraph(f2(r1, r2)));
 
     const x1 = Math.PI;
     const x2 = Math.E;
@@ -377,7 +377,7 @@ describe("polyRoots tests", () => {
     // get the first real root we can find
     const z = ifCond(eq(r1, r1), r1, ifCond(eq(r2, r2), r2, r3));
 
-    const f = genCode(makeGraph({ primary: z, secondary: [r1, r2, r3] }));
+    const f = genCodeSync(makeGraph({ primary: z, secondary: [r1, r2, r3] }));
 
     const { gradient, primary, secondary } = f.call([8, 0, 0]);
 
@@ -398,7 +398,7 @@ describe("polyRoots tests", () => {
     const [c0, c1, c2, c3, c4] = _.range(5).map((key) =>
       input({ key, val: 0 })
     );
-    const f = genCode(secondaryGraph(polyRoots([c0, c1, c2, c3, c4])));
+    const f = genCodeSync(secondaryGraph(polyRoots([c0, c1, c2, c3, c4])));
     const { secondary } = f.call([-120, 274, -225, 85, -15]);
     const roots = [...secondary].sort((a, b) => a - b);
     expect(roots[0]).toBeCloseTo(1);

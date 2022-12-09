@@ -21,11 +21,11 @@ const constraintWeight = 10e4; // HACK: constant constraint weight
 /**
  * Generate an energy function from the current state (using `ad.Num`s only)
  */
-export const genGradient = (
+export const genGradient = async (
   inputs: InputMeta[],
   objEngs: ad.Num[],
   constrEngs: ad.Num[]
-): Gradient => {
+): Promise<Gradient> => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
   log.info("Compiling objective and gradient");
@@ -62,5 +62,5 @@ export const genGradient = (
     });
   });
 
-  return genCode(...objs, ...constrs);
+  return await genCode(...objs, ...constrs);
 };

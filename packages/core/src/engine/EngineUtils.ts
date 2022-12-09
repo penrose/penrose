@@ -190,7 +190,7 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   }
 }
 
-export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
+export const compileCompGraph = async (shapes: ShapeAD[]): Promise<ShapeFn> => {
   const vars = [];
   for (const s of shapes) {
     for (const v of Object.values(s.properties)) {
@@ -198,7 +198,7 @@ export const compileCompGraph = (shapes: ShapeAD[]): ShapeFn => {
     }
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
-  const evalFn = genCode(compGraph);
+  const evalFn = await genCode(compGraph);
   return (xs: number[]): Shape[] => {
     const numbers = evalFn.call(xs).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));

@@ -1,4 +1,4 @@
-import { EPS_DENOM, genCode, ops, secondaryGraph } from "engine/Autodiff";
+import { EPS_DENOM, genCodeSync, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -178,7 +178,7 @@ export const numsOf = (xs: ad.Num[]): number[] => {
       inputs[v.key] = v.val;
     }
   }
-  const f = genCode(g);
+  const f = genCodeSync(g);
   return f.call(inputs).secondary;
 };
 
