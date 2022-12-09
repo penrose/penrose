@@ -1,74 +1,118 @@
 canvas {
   width = 800
-  height = 700
+  height = 1200
 }
 
-forall Path a {
-    a.icon = Path { }
+const {
+  ch = canvas.height
+  cw = canvas.width
+  -- grid
+  gh = 200
+  gw = 200
 }
 
-forall Square d {
-    d.side = ?
-    d.icon = Rectangle { 
-        width: d.side
-        height: d.side
-        rx: 0
-        rotation: 45
+forall Shape s {
+    s.center = (?, ?)
+    s.text = Equation {
+        center: s.center - (0, 70)
+        string: "\text{" + s.label + "}"
+    }
+    s.container = Rectangle {
+        center: s.center
+        width: const.gw - 20
+        height: const.gh - 20
+        strokeWidth: 1
+        strokeColor: none()
+        fillColor: none()
     }
 }
 
 forall Circle e {
+    e.center = (-const.cw / 6, 2*const.gh)
     e.icon = Circle {
-        center: [20,20]
-        r: 40.0
-        -- fillColor: rgba(255.0,43.0,0.0,0.0)
-        -- pathLength: 6.0
-     }
-}
-
-forall Rectangle f {
-    f.icon = Rectangle { 
-        rx: 20
-        center: (20,20)
+        center: e.center
+        r: const.gh/4
     }
 }
 
-forall Line g {
-    g.icon = Line { }
+forall Rectangle r {
+    r.center = (-const.cw / 6, const.gh)
+    r.icon = Rectangle { 
+        center: r.center
+        width: 200
+        height: 100
+    }
 }
 
-forall Equation h {
-    h.icon = Equation { 
-        string: "i am a label"
-        rotation: 45
+forall Ellipse e {
+    e.center = (-const.cw / 6, 0)
+    e.icon = Ellipse { 
+        center: e.center
+        rx: const.gw/2
+        ry: const.gh/4
     }
+}
+
+
+forall Polygon j {
+    c = (-const.cw / 6, -const.gh)
+    u = 50
+    j.center = c
+	j.icon = Polygon { 
+        points: ( c+(-u, 0), c+(0, u), c+(u, 0), c+(u/2, -u), c+(-u/2, -u) )
+	}
 }
 
 forall Image i {
-    i.icon = Image { }
+    i.center = (-const.cw / 6, -2*const.gh)
+    i.icon = Image {
+       href: "https://raw.githubusercontent.com/penrose/penrose/main/packages/docs-site/static/img/logo.svg"
+       height: 100
+       width: 100
+       center: i.center
+    }
 }
 
-forall Polygon j {
-	j.icon = Polygon { 
-        points: ((-80.0, 0.0), (100.0, 0.0), (10.0, 50.0))
-        strokeWidth: 20
-        scale : 1
-	}
+forall Path a {
+    c = (const.cw / 6, 2*const.gh)
+    u = 50
+    a.center = c
+    a.icon = Path {
+        d: pathFromPoints("closed", [ c+(-u, 0), c+(0, u), c+(u, 0), c+(u/2, -u), c+(-u/2, -u) ])
+    }
+}
+
+forall Line l {
+    l.center = (const.cw / 6, const.gh)
+    l.icon = Line { 
+        start: l.center - (50, 50) 
+        end: l.center + (50, 50) 
+    }
 }
 
 forall Polyline k {
+    c = (const.cw / 6, 0)
+    u = 50
+    k.center = c
 	k.icon = Polyline { 
-        points: ((-20.0, 0.0), (100.0, 0.0), (10.0, 50.0))
-        strokeWidth: 100
-        scale : 2
-        center : (2,3)
-	}
+        points: ( c+(-u, 0), c+(0, u), c+(u, 0), c+(u/2, -u), c+(-u/2, -u), c+(-u + 10, 0) )	
+    }
 }
 
-forall Ellipse l {
-    l.icon = Ellipse {
-        center: [20,20]
-        rx: 20
-        ry: 20
-     }
+forall Equation h {
+    h.center = (const.cw / 6, -const.gh)
+    h.icon = Equation { 
+        string: "E = mc^2"
+        center: h.center
+    }
+}
+
+forall Text h {
+    h.center = (const.cw / 6, -2*const.gh)
+    h.icon = Text { 
+        string: "Diagrams, not words"
+        fontFamily: "Palatino"
+        fontStyle: "italic"
+        center: h.center
+    }
 }

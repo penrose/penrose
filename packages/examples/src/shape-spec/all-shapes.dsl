@@ -1,9 +1,11 @@
-type TCircle 
-type TEllipse
-type TRectangle
-type TPolygon
-type TPolyline
-type TImage
-type TEquation
-type TLine
-type TPath
+type Shape
+type Circle <: Shape
+type Ellipse <: Shape
+type Rectangle <: Shape
+type Polygon <: Shape
+type Polyline <: Shape
+type Image <: Shape
+type Equation <: Shape
+type Text <: Shape
+type Line <: Shape
+type Path <: Shape
