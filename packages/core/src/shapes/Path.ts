@@ -1,8 +1,8 @@
 import * as ad from "types/ad";
 import { Arrow, Fill, Named, Shape, Stroke } from "types/shapes";
 import { PathDataV } from "types/value";
-import { boolV, floatV, noPaint, pathDataV, strV } from "utils/Util";
-import { Canvas, Context, sampleColor } from "./Samplers";
+import { black, boolV, floatV, noPaint, pathDataV, strV } from "utils/Util";
+import { Canvas, Context } from "./Samplers";
 
 export interface PathProps extends Named, Stroke, Fill, Arrow {
   d: PathDataV<ad.Num>;
@@ -13,7 +13,7 @@ export const samplePath = (context: Context, _canvas: Canvas): PathProps => ({
   style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
-  strokeColor: sampleColor(context),
+  strokeColor: black(),
   strokeDasharray: strV(""),
   fillColor: noPaint(),
   startArrowheadSize: floatV(1),

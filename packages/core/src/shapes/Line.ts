@@ -1,8 +1,8 @@
 import * as ad from "types/ad";
 import { Arrow, Named, Shape, Stroke } from "types/shapes";
 import { StrV, VectorV } from "types/value";
-import { boolV, floatV, strV } from "utils/Util";
-import { Canvas, Context, sampleColor, sampleVector } from "./Samplers";
+import { black, boolV, floatV, strV } from "utils/Util";
+import { Canvas, Context, sampleVector } from "./Samplers";
 
 export interface LineProps extends Named, Stroke, Arrow {
   start: VectorV<ad.Num>;
@@ -15,7 +15,7 @@ export const sampleLine = (context: Context, canvas: Canvas): LineProps => ({
   style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
-  strokeColor: sampleColor(context),
+  strokeColor: black(),
   strokeDasharray: strV(""),
   startArrowheadSize: floatV(1),
   startArrowhead: strV("none"),

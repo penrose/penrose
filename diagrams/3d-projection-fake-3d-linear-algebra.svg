@@ -17,7 +17,7 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 3.713835259456916 0.07232948108616766"
+      d="M 2.5 2.5 L 3.7138389243286003 0.0723221513427994"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
@@ -36,6 +36,18 @@
   >
     <title>`S`.shape</title>
   </circle>
+  <polygon
+    fill="#7fc298"
+    fill-opacity="0.5"
+    stroke="#000000"
+    stroke-opacity="255"
+    stroke-width="0.01"
+    stroke-linecap="butt"
+    transform="scale(1)"
+    points="1.1666666666666665,3.166666666666667,0.2777777777777777,0.9444444444444444,3.8333333333333335,1.8333333333333333,4.722222222222222,4.055555555555555"
+  >
+    <title>`P`.shape</title>
+  </polygon>
   <g>
     <marker
       id="`v`.shape-endArrowId"
@@ -54,7 +66,7 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 3.4615085669151187 2.9860387323893915"
+      d="M 2.5 2.5 L 3.5426884881293663 3.031325657812367"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
@@ -63,18 +75,6 @@
     ></path>
     <title>`v`.shape</title>
   </g>
-  <polygon
-    fill="#bbb866"
-    fill-opacity="0.5"
-    stroke="#000000"
-    stroke-opacity="255"
-    stroke-width="0.01"
-    stroke-linecap="butt"
-    transform="scale(1)"
-    points="1.1666666666666665,3.166666666666667,0.2777777777777777,0.9444444444444444,3.8333333333333335,1.8333333333333333,4.722222222222222,4.055555555555555"
-  >
-    <title>`P`.shape</title>
-  </polygon>
   <g>
     <marker
       id="`w`.shape-endArrowId"
@@ -93,7 +93,7 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 4.7196911325436535 0.5744581171642391"
+      d="M 2.5 2.5 L 4.7993588753812695 0.6182903191001843"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
@@ -104,22 +104,22 @@
   </g>
   <g>
     <path
-      d="M 3.747778771355363 0.00444245728927406 L 4.7770247947983115 0.5247222028520562"
-      stroke-opacity="0.5"
+      d="M 3.7477824362270473 0.004435127545905804 L 4.858097025113824 0.5702212046294977"
+      stroke-opacity="0.5019607843137255"
       stroke-width="0.01"
-      stroke="#e5dede"
-      stroke-dasharray="7,5"
+      stroke="#707070"
+      stroke-dasharray="0.07,0.05"
       stroke-linecap="butt"
     ></path>
     <title>`w`.dashed_u</title>
   </g>
   <g>
     <path
-      d="M 3.5292460234429486 3.0202797455627817 L 4.7770247947983115 0.5247222028520562"
-      stroke-opacity="0.5"
+      d="M 3.6103145888867765 3.065786077083591 L 4.858097025113824 0.5702212046294977"
+      stroke-opacity="0.5019607843137255"
       stroke-width="0.01"
-      stroke="#cbd7bb"
-      stroke-dasharray="7,5"
+      stroke="#707070"
+      stroke-dasharray="0.07,0.05"
       stroke-linecap="butt"
     ></path>
     <title>`w`.dashed_v</title>

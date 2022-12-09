@@ -10,8 +10,8 @@ import {
   Stroke,
 } from "types/shapes";
 import { FloatV, StrV } from "types/value";
-import { boolV, floatV, noPaint, strV, vectorV } from "utils/Util";
-import { Canvas, Context, sampleColor, uniform } from "./Samplers";
+import { black, boolV, floatV, noPaint, strV, vectorV } from "utils/Util";
+import { Canvas, Context, uniform } from "./Samplers";
 
 export interface TextProps
   extends Named,
@@ -44,7 +44,7 @@ export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
   strokeDasharray: strV(""),
-  fillColor: sampleColor(context),
+  fillColor: black(),
   center: vectorV([
     context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.xRange) }),
     context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.yRange) }),

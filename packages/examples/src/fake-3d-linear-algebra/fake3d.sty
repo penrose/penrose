@@ -62,6 +62,7 @@ where VectorInHyperplane(v, P, S) {
   ensure inRange(v.vec[1], -2, 2)
   ensure equal(v.vec[2], 0)
   ensure equal(dot(v.vec, P.normal_vector), 0)
+  v.shape above P.shape
 }
 
 forall Vector v; Hyperplane P; AmbientSpace S
@@ -83,15 +84,17 @@ where w := addV(u, v); VectorInAmbientSpace(u, S); VectorInAmbientSpace(v, S); V
   w.dashed_u = Line {
     start: v.shape.end
     end: w.shape.end
-    endArrowhead : false
     strokeStyle : "dashed"
+    strokeColor: #70707080
     strokeWidth : .01
+    strokeDasharray: "0.07,0.05"
   }
   w.dashed_v = Line {
     start: u.shape.end
     end: w.shape.end
-    endArrowhead : false
     strokeStyle : "dashed"
+    strokeColor: #70707080
     strokeWidth : .01
+    strokeDasharray: "0.07,0.05"
   }
 }
