@@ -1,12 +1,12 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import topLevelAwait from "vite-plugin-top-level-await";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "./",
-  plugins: [react(), topLevelAwait()],
+  plugins: [react()],
   optimizeDeps: {
     exclude: ["@penrose/core", "@penrose/components"],
   },
+  build: { target: "esnext" },
 });

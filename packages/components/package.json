@@ -73,7 +73,6 @@
     "@types/react-dom": "^17.0.10",
     "@vitejs/plugin-react": "^1.0.7",
     "babel-loader": "^8.2.5",
-    "vite": "^2.7.2",
-    "vite-plugin-top-level-await": "^1.2.2"
+    "vite": "^2.7.2"
   }
 }

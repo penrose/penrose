@@ -59,7 +59,6 @@
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
     "@vitejs/plugin-react": "^1.0.7",
-    "vite": "^2.8.0",
-    "vite-plugin-top-level-await": "^1.2.2"
+    "vite": "^2.8.0"
   }
 }
