@@ -34,7 +34,7 @@ export default function SvgUploader() {
 
       setStyle({
         name: "SVG import",
-        contents: styElem[0].innerHTML.trim(),
+        contents: styElem[0].textContent ?? "".trim(),
       });
 
       if (subElem.length === 0) {
@@ -46,7 +46,7 @@ export default function SvgUploader() {
 
       setSubstance({
         name: "SVG import",
-        contents: subElem[0].innerHTML.trim(),
+        contents: subElem[0].textContent ?? "".trim(),
       });
 
       if (dslElem.length === 0) {
@@ -58,7 +58,7 @@ export default function SvgUploader() {
 
       setDomain({
         name: "SVG import",
-        contents: dslElem[0].innerHTML.trim(),
+        contents: dslElem[0].textContent ?? "".trim(),
       });
 
       toast.success("Sucessfully uploaded SVG to editor");
