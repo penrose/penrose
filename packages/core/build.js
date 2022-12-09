@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-const { build } = require("estrella");
+import { build } from "esbuild";
+
 const common = {
-  entry: "./src/index.ts",
+  entryPoints: ["./src/index.ts"],
   bundle: true,
   sourcemap: "inline",
   tsconfig: "./tsconfig.json",
@@ -15,7 +16,6 @@ build({
   outfile: "./build/dist/index.esm.js",
   format: "esm",
   minify: false,
-  tslint: "off",
 });
 
 build({
