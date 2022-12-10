@@ -41,8 +41,7 @@ Be sure you have these tools installed:
   ```
 
 - [`wasm-bindgen` CLI][] (you need to install Rust first), specifically a
-  version which has the `--keep-lld-exports` flag and doesn't emit `BigInt`
-  literals; use this command:
+  version which has the `--keep-lld-exports` flag; use this command:
 
   ```sh
   cargo install wasm-bindgen-cli \

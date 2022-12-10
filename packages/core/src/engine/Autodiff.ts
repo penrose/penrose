@@ -1010,11 +1010,9 @@ const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
   exportSection(exportSectionCount, numFunctions);
   const exportSectionSize = exportSectionCount.size;
 
-  const codeSectionSize =
-    wasm.intSize(numFunctions) +
-    gradientFunctionSizes
-      .map((n) => wasm.intSize(n) + n)
-      .reduce((a, b) => a + b, 0);
+  const codeSectionSize = gradientFunctionSizes
+    .map((n) => wasm.intSize(n) + n)
+    .reduce((a, b) => a + b, wasm.intSize(numFunctions));
 
   const sumSectionSizes =
     numSections +
@@ -1618,12 +1616,25 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
   return mod.bytes;
 };
 
+/**
+ * Compile an array of graphs into a function to compute the sum of their
+ * primary outputs. The gradients are also summed. The keys present in the
+ * secondary outputs must be disjoint; they all go into the same array, so the
+ * expected secondary outputs would be ambiguous if keys were shared.
+ * @param graphs an array of graphs to compile
+ * @returns a compiled/instantiated WebAssembly function
+ */
 export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
   await Gradient.make(
     await WebAssembly.compile(genBytes(graphs)),
     Math.max(...graphs.map((g) => g.secondary.length))
   );
 
+/**
+ * Synchronous version of `genCode`. Should not be used in the browser because
+ * this will fail if the generated module is larger than 4 kilobytes, but
+ * currently is used in convex partitioning for convenience.
+ */
 export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
   Gradient.makeSync(
     new WebAssembly.Module(genBytes(graphs)),
