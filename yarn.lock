@@ -3133,6 +3133,13 @@
     unist-builder "2.0.3"
     unist-util-visit "2.0.3"
 
+"@mdx-js/preact@^2.1.5":
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/@mdx-js/preact/-/preact-2.1.5.tgz#4d6235f0f4fe836aa31292f4eb965afc02e86aa5"
+  integrity sha512-Xul2jXRae/zR0ms6NZio43YX33mRb8g79ultK6LJtfcN1HECviqWmhVEsvTUc4ZEzNWXyB2EH/YjkVfHcgtbbw==
+  dependencies:
+    "@types/mdx" "^2.0.0"
+
 "@mdx-js/react@^1.6.22":
   version "1.6.22"
   resolved "https://registry.yarnpkg.com/@mdx-js/react/-/react-1.6.22.tgz#ae09b4744fddc74714ee9f9d6f17a66e77c43573"
@@ -4901,6 +4908,11 @@
   integrity sha512-W864tg/Osz1+9f4lrGTZpCSO5/z4608eUp19tbozkq2HJK6i3z1kT0H9tlADXuYIb1YYOBByU4Jsqkk75q48qA==
   dependencies:
     "@types/unist" "*"
+
+"@types/mdx@^2.0.0":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/mdx/-/mdx-2.0.3.tgz#43fd32414f17fcbeced3578109a6edd877a2d96e"
+  integrity sha512-IgHxcT3RC8LzFLhKwP3gbMPeaK7BM9eBH46OdapPA7yvuIUJ8H6zHZV53J8hGZcTSnt95jANt+rTBNUUc22ACQ==
 
 "@types/minimatch@*", "@types/minimatch@^3.0.3":
   version "3.0.5"
