@@ -51,7 +51,7 @@ export const DownloadSVG = (
 };
 
 /**
- * TODO: Given an SVG, program triple, and version and variation strings,
+ * Given an SVG, program triple, and version and variation strings,
  * appends penrose tags to the SVG so the SVG can be reuploaded and edited.
  *
  * @param svg
