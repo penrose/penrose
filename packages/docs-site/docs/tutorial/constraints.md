@@ -1,8 +1,3 @@
----
-description: Learn How to Write Constraints & Objectives as a Penrose Developer
-sidebar_position: 5
----
-
 # Writing Constraints & Objectives
 
 ## Introduction
@@ -199,13 +194,13 @@ $$
 
 So essentially, the `repel` function takes in two circles and returns the inverse of the distance between them squared, i.e. we plug in the distance $$d$$ between the circles as an input to the $$f(x)=\frac{1}{x^2}$$ function.
 
-![Graph of 1/x^2 from Desmos](/img/tutorial/1x^2_graph.png)
+![Graph of 1/x^2 from Desmos](/img/tutorial/1x_squared_graph.png)
 
 If you look at the graph of $$f(x)=\frac{1}{x^2}$$, notice how the output increases as $$d$$ decreases, i.e. the **higher** penalty value we return. We block the negative horizontal range since we cannot have negative distances.
 
 We then return the value above multiplied by the `repelWeight`, and let's take a look at the graph of $$\frac{10e6}{x^2}$$.
 
-![Graph of 10e6/x^2 from Desmos](/img/tutorial/constantx^2_graph.png)
+![Graph of 10e6/x^2 from Desmos](/img/tutorial/constantx_squared_graph.png)
 
 If you compare the two graphs above, you can see how we expanded the range of extreme high outputs by multiplying $$\frac{1}{x^2}$$ with a big constant.
 
