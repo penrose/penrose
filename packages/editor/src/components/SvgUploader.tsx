@@ -1,12 +1,15 @@
 import { FileUploader } from "react-drag-drop-files";
 import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
-import { fileContentsSelector } from "../state/atoms";
+import { diagramMetadataSelector, fileContentsSelector } from "../state/atoms";
 
 export default function SvgUploader() {
   const setDomain = useRecoilState(fileContentsSelector("domain"))[1];
   const setSubstance = useRecoilState(fileContentsSelector("substance"))[1];
   const setStyle = useRecoilState(fileContentsSelector("style"))[1];
+  const [diagramMetadata, setDiagramMetadata] = useRecoilState(
+    diagramMetadataSelector
+  );
 
   const handleChange = (svg: File) => {
     const reader = new FileReader();
@@ -24,6 +27,11 @@ export default function SvgUploader() {
       const styElem = xmlDoc.getElementsByTagName("sty");
       const subElem = xmlDoc.getElementsByTagName("sub");
       const dslElem = xmlDoc.getElementsByTagName("dsl");
+
+      setDiagramMetadata((metadata) => ({
+        ...metadata,
+        variation: diagramMetadata.variation,
+      }));
 
       if (styElem.length === 0) {
         toast.error(
