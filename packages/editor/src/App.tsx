@@ -55,11 +55,6 @@ const mainRowLayout: IJsonRowNode = {
           : []),
         {
           type: "tab",
-          name: "svg",
-          component: "svgUploader",
-        },
-        {
-          type: "tab",
           name: ".sub",
           component: "programEditor",
           config: {
@@ -117,6 +112,11 @@ export const layoutModel = Model.fromJson({
           type: "tab",
           name: "examples",
           component: "examplesPanel",
+        },
+        {
+          type: "tab",
+          name: "upload",
+          component: "svgUploader",
         },
         {
           type: "tab",
