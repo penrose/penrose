@@ -4,7 +4,6 @@
  *
  */
 
-import { sub } from "engine/AutodiffFunctions";
 import { shapedefs } from "shapes/Shapes";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
