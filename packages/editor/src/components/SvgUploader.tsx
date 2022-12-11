@@ -27,10 +27,18 @@ export default function SvgUploader() {
       const styElem = xmlDoc.getElementsByTagName("sty");
       const subElem = xmlDoc.getElementsByTagName("sub");
       const dslElem = xmlDoc.getElementsByTagName("dsl");
+      const variationElem = xmlDoc.getElementsByTagName("variation");
+
+      if (variationElem.length === 0) {
+        toast.error(
+          "Could not load SVG. Make sure the SVG was exported from Penrose."
+        );
+        return;
+      }
 
       setDiagramMetadata((metadata) => ({
         ...metadata,
-        variation: diagramMetadata.variation,
+        variation: variationElem[0].textContent ?? "".trim(),
       }));
 
       if (styElem.length === 0) {
