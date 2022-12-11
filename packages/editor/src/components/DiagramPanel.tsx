@@ -86,7 +86,7 @@ const SVGaddCode = (
 
   // Create <variation> tag for variation string
   const variation = document.createElementNS(
-    "https://penrose.cs.cmu.edu/version",
+    "https://penrose.cs.cmu.edu/variation",
     "variation"
   );
   variation.insertAdjacentText("afterbegin", variationStr);
