@@ -2,6 +2,7 @@ import { FileUploader } from "react-drag-drop-files";
 import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import { diagramMetadataSelector, fileContentsSelector } from "../state/atoms";
+import { useCompileDiagram } from "../state/callbacks";
 
 export default function SvgUploader() {
   const setDomain = useRecoilState(fileContentsSelector("domain"))[1];
@@ -10,13 +11,14 @@ export default function SvgUploader() {
   const [diagramMetadata, setDiagramMetadata] = useRecoilState(
     diagramMetadataSelector
   );
+  const compileDiagram = useCompileDiagram();
 
   const handleChange = (svg: File) => {
     const reader = new FileReader();
     reader.readAsText(svg);
     reader.onabort = () => console.log("file reading was aborted");
     reader.onerror = () => console.log("file reading has failed");
-    reader.onload = () => {
+    reader.onload = async () => {
       const svgText = reader.result?.toString();
       if (!svgText) {
         return;
@@ -77,6 +79,8 @@ export default function SvgUploader() {
         contents: (dslElem[0].textContent ?? "").trim(),
       });
 
+      await new Promise(compileDiagram);
+      
       toast.success("Sucessfully uploaded SVG to editor");
     };
   };
