@@ -68,8 +68,9 @@ const makeRoomForArrows = (
   const [lineEX, lineEY] = (shape.properties.end as VectorV<number>)
     .contents as [number, number];
 
-  const startArrowheadSize = (shape.properties
-    .startArrowheadSize as FloatV<number>).contents;
+  const startArrowheadSize = (
+    shape.properties.startArrowheadSize as FloatV<number>
+  ).contents;
   const endArrowheadSize = (shape.properties.endArrowheadSize as FloatV<number>)
     .contents;
   const thickness = (shape.properties.strokeWidth as FloatV<number>).contents;
@@ -136,10 +137,8 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const endArrowhead = getArrowhead(
     (shape.properties.endArrowhead as StrV).contents
   );
-  const [
-    [[arrowSX, arrowSY], [arrowEX, arrowEY]],
-    attrToNotAutoMap,
-  ] = makeRoomForArrows(shape, startArrowhead, endArrowhead);
+  const [[[arrowSX, arrowSY], [arrowEX, arrowEY]], attrToNotAutoMap] =
+    makeRoomForArrows(shape, startArrowhead, endArrowhead);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
 
@@ -156,8 +155,9 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const startArrowId = shape.properties.name.contents + "-startArrowId";
   const endArrowId = shape.properties.name.contents + "-endArrowId";
   if (startArrowhead) {
-    const startArrowheadSize = (shape.properties
-      .startArrowheadSize as FloatV<number>).contents;
+    const startArrowheadSize = (
+      shape.properties.startArrowheadSize as FloatV<number>
+    ).contents;
     const flip = (shape.properties.flipStartArrowhead as BoolV).contents;
     elem.appendChild(
       arrowHead(
@@ -171,8 +171,9 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     );
   }
   if (endArrowhead) {
-    const endArrowheadSize = (shape.properties
-      .endArrowheadSize as FloatV<number>).contents;
+    const endArrowheadSize = (
+      shape.properties.endArrowheadSize as FloatV<number>
+    ).contents;
     elem.appendChild(
       arrowHead(
         endArrowId,
