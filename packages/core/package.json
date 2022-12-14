@@ -13,8 +13,6 @@
   "scripts": {
     "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "build": "tsc && tsc-alias -p tsconfig.json",
-    "start": "yarn watch",
-    "watch": "yarn build --watch",
     "test": "cross-env NODE_OPTIONS='--no-warnings --experimental-vm-modules' jest",
     "test-watch": "yarn test --watchAll",
     "build-decls": ":",
@@ -66,12 +64,6 @@
           "{projectRoot}/docs"
         ]
       },
-      "start": {
-        "dependsOn": [
-          "^build",
-          "build-parsers"
-        ]
-      },
       "test": {
         "dependsOn": [
           "^build",
@@ -79,12 +71,6 @@
         ]
       },
       "test-watch": {
-        "dependsOn": [
-          "^build",
-          "build-parsers"
-        ]
-      },
-      "watch": {
         "dependsOn": [
           "^build",
           "build-parsers"
