@@ -105,46 +105,44 @@ export class Content extends React.Component<ContentProps, ContentState> {
     });
   };
 
-  generateProgs =
-    () =>
-    (
-      setting: SynthesizerSetting,
-      numPrograms: number,
-      dsl: string,
-      prompt: string,
-      sty: string
-    ) => {
-      const envOrError = compileDomain(dsl);
+  generateProgs = () => (
+    setting: SynthesizerSetting,
+    numPrograms: number,
+    dsl: string,
+    prompt: string,
+    sty: string
+  ) => {
+    const envOrError = compileDomain(dsl);
 
-      // initialize synthesizer
-      if (envOrError.isOk()) {
-        const env = envOrError.value;
-        let subResult;
-        if (prompt.length > 0) {
-          const subRes = compileSubstance(prompt, env);
-          if (subRes.isOk()) {
-            subResult = subRes.value;
-          } else {
-            console.log(
-              `Error when compiling the template Substance program: ${showError(
-                subRes.error
-              )}`
-            );
-          }
-        }
-        const synth = new Synthesizer(env, setting, subResult, "test0");
-        let progs = synth.generateSubstances(numPrograms);
-        const template: SubProg<A> | undefined = synth.getTemplate();
-        if (template) {
-          this.setState({
-            progs: [{ prog: template, ops: [] }, ...progs],
-            staged: [],
-            domain: dsl,
-            style: sty,
-          });
+    // initialize synthesizer
+    if (envOrError.isOk()) {
+      const env = envOrError.value;
+      let subResult;
+      if (prompt.length > 0) {
+        const subRes = compileSubstance(prompt, env);
+        if (subRes.isOk()) {
+          subResult = subRes.value;
+        } else {
+          console.log(
+            `Error when compiling the template Substance program: ${showError(
+              subRes.error
+            )}`
+          );
         }
       }
-    };
+      const synth = new Synthesizer(env, setting, subResult, "test0");
+      let progs = synth.generateSubstances(numPrograms);
+      const template: SubProg<A> | undefined = synth.getTemplate();
+      if (template) {
+        this.setState({
+          progs: [{ prog: template, ops: [] }, ...progs],
+          staged: [],
+          domain: dsl,
+          style: sty,
+        });
+      }
+    }
+  };
 
   exportDiagrams = async (indices: number[]) => {
     const zip = JSZip();

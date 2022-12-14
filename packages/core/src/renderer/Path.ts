@@ -92,9 +92,8 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
 
   if (startArrowhead) {
     const startArrowId = shape.properties.name.contents + "-startArrowId";
-    const startArrowheadSize = (
-      shape.properties.startArrowheadSize as FloatV<number>
-    ).contents;
+    const startArrowheadSize = (shape.properties
+      .startArrowheadSize as FloatV<number>).contents;
     const flip = (shape.properties.flipStartArrowhead as BoolV).contents;
     elem.appendChild(
       arrowHead(
@@ -109,9 +108,8 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   }
   if (endArrowhead) {
     const endArrowId = shape.properties.name.contents + "-endArrowId";
-    const endArrowheadSize = (
-      shape.properties.endArrowheadSize as FloatV<number>
-    ).contents;
+    const endArrowheadSize = (shape.properties
+      .endArrowheadSize as FloatV<number>).contents;
     elem.appendChild(
       arrowHead(
         endArrowId,

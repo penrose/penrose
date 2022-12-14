@@ -65,10 +65,9 @@ export const simpleContext = (variation: string): Context => {
   };
 };
 
-export const uniform =
-  (min: number, max: number): Sampler =>
-  (rng: seedrandom.prng) =>
-    randFloat(rng, min, max);
+export const uniform = (min: number, max: number): Sampler => (
+  rng: seedrandom.prng
+) => randFloat(rng, min, max);
 
 export const sampleVector = (
   { makeInput }: Context,

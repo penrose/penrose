@@ -515,11 +515,11 @@ export class Synthesizer {
           const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            const {
-              res,
-              stmts,
-              ctx: newCtx,
-            } = generateArgStmt(pick, ctx, oldStmt.args);
+            const { res, stmts, ctx: newCtx } = generateArgStmt(
+              pick,
+              ctx,
+              oldStmt.args
+            );
             const deleteOp: Delete = deleteMutation(oldStmt, newCtx);
             const addOps: Add[] = stmts.map((s) => addMutation(s, newCtx));
             return {
@@ -536,11 +536,11 @@ export class Synthesizer {
           const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            const {
-              res,
-              stmts,
-              ctx: newCtx,
-            } = generateArgStmt(pick, ctx, oldExpr.args);
+            const { res, stmts, ctx: newCtx } = generateArgStmt(
+              pick,
+              ctx,
+              oldExpr.args
+            );
             let toDelete: SubStmt<A>[];
             // remove old statement
             if (
@@ -591,9 +591,9 @@ export class Synthesizer {
       // find all available edit mutations for the given statement
       const mutations = this.findMutations(stmt, ctx);
       log.debug(
-        `Possible update mutations for ${prettyStmt(stmt)} are:\n${mutations
-          .map(showMutations)
-          .join("\n")}`
+        `Possible update mutations for ${prettyStmt(
+          stmt
+        )} are:\n${mutations.map(showMutations).join("\n")}`
       );
       return mutations;
     } else return [];

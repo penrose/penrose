@@ -1,31 +1,32 @@
 import * as ad from "types/ad";
 
-const binary =
-  (binop: ad.Binary["binop"]) =>
-  (v: ad.Num, w: ad.Num): ad.Binary => ({
-    tag: "Binary",
-    binop,
-    left: v,
-    right: w,
-  });
+const binary = (binop: ad.Binary["binop"]) => (
+  v: ad.Num,
+  w: ad.Num
+): ad.Binary => ({
+  tag: "Binary",
+  binop,
+  left: v,
+  right: w,
+});
 
-const nary =
-  (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Binary) =>
-  (xs: ad.Num[]): ad.Num => {
-    // interestingly, special-casing 1 and 2 args like this actually affects the
-    // gradient by a nontrivial amount in some cases
-    switch (xs.length) {
-      case 1: {
-        return xs[0];
-      }
-      case 2: {
-        return bin(xs[0], xs[1]);
-      }
-      default: {
-        return { tag: "Nary", op, params: xs };
-      }
+const nary = (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Binary) => (
+  xs: ad.Num[]
+): ad.Num => {
+  // interestingly, special-casing 1 and 2 args like this actually affects the
+  // gradient by a nontrivial amount in some cases
+  switch (xs.length) {
+    case 1: {
+      return xs[0];
     }
-  };
+    case 2: {
+      return bin(xs[0], xs[1]);
+    }
+    default: {
+      return { tag: "Nary", op, params: xs };
+    }
+  }
+};
 
 /**
  * Return `v + w`.
@@ -91,13 +92,11 @@ export const pow = binary("pow");
 
 // --- Unary ops
 
-const unary =
-  (unop: ad.Unary["unop"]) =>
-  (v: ad.Num): ad.Unary => ({
-    tag: "Unary",
-    unop,
-    param: v,
-  });
+const unary = (unop: ad.Unary["unop"]) => (v: ad.Num): ad.Unary => ({
+  tag: "Unary",
+  unop,
+  param: v,
+});
 
 /**
  * Return `-v`.
@@ -246,14 +245,12 @@ export const trunc = unary("trunc");
 
 // ------- Discontinuous / noGrad ops
 
-const comp =
-  (binop: ad.Comp["binop"]) =>
-  (v: ad.Num, w: ad.Num): ad.Comp => ({
-    tag: "Comp",
-    binop,
-    left: v,
-    right: w,
-  });
+const comp = (binop: ad.Comp["binop"]) => (v: ad.Num, w: ad.Num): ad.Comp => ({
+  tag: "Comp",
+  binop,
+  left: v,
+  right: w,
+});
 
 /**
  * Return a conditional `v > w`.
@@ -280,14 +277,15 @@ export const lte = comp("<=");
  */
 export const eq = comp("===");
 
-const logic =
-  (binop: ad.Logic["binop"]) =>
-  (v: ad.Bool, w: ad.Bool): ad.Logic => ({
-    tag: "Logic",
-    binop,
-    left: v,
-    right: w,
-  });
+const logic = (binop: ad.Logic["binop"]) => (
+  v: ad.Bool,
+  w: ad.Bool
+): ad.Logic => ({
+  tag: "Logic",
+  binop,
+  left: v,
+  right: w,
+});
 
 /**
  * Return a boolean `v && w`
