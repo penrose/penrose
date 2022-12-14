@@ -80,7 +80,6 @@ export default function SvgUploader() {
       });
 
       await compileDiagram();
-      
       toast.success("Sucessfully uploaded SVG to editor");
     };
   };

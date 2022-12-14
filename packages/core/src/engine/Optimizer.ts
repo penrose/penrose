@@ -815,31 +815,29 @@ export const genOptProblem = (
 
   const f = genCode(explicitGraph);
 
-  const objectiveAndGradient = (
-    epWeight: number,
-    frozenValues?: Set<number>
-  ) => (xs: number[]) => {
-    const { primary, gradient, secondary } = f([...xs, epWeight]);
-    return {
-      f: primary,
-      gradf: xs.map((x, i) => {
-        // fill in any holes in case some inputs weren't used in the graph, and
-        // also treat pending values as constants rather than optimizing them
-        if (!(i in gradient)) {
-          return 0;
-        } else {
-          const meta = inputs[i];
-          return meta.tag === "Optimized" &&
-            frozenValues &&
-            !frozenValues.has(i)
-            ? gradient[i]
-            : 0;
-        }
-      }),
-      objEngs: secondary.slice(0, objEngs.length),
-      constrEngs: secondary.slice(objEngs.length),
+  const objectiveAndGradient =
+    (epWeight: number, frozenValues?: Set<number>) => (xs: number[]) => {
+      const { primary, gradient, secondary } = f([...xs, epWeight]);
+      return {
+        f: primary,
+        gradf: xs.map((x, i) => {
+          // fill in any holes in case some inputs weren't used in the graph, and
+          // also treat pending values as constants rather than optimizing them
+          if (!(i in gradient)) {
+            return 0;
+          } else {
+            const meta = inputs[i];
+            return meta.tag === "Optimized" &&
+              frozenValues &&
+              !frozenValues.has(i)
+              ? gradient[i]
+              : 0;
+          }
+        }),
+        objEngs: secondary.slice(0, objEngs.length),
+        constrEngs: secondary.slice(objEngs.length),
+      };
     };
-  };
 
   const params: Params = {
     lastGradient: repeat(inputs.length, 0),

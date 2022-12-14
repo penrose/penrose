@@ -149,9 +149,8 @@ function App() {
   const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
 
   const ws = useRef<WebSocket | null>(null);
-  const [rogerState, setRogerState] = useRecoilState<RogerState>(
-    currentRogerState
-  );
+  const [rogerState, setRogerState] =
+    useRecoilState<RogerState>(currentRogerState);
 
   const panelFactory = useCallback(
     (node: TabNode) => {
@@ -182,40 +181,43 @@ function App() {
     [rogerState]
   );
   const onAction = useRecoilCallback(
-    ({ set, snapshot }) => (action: Action) => {
-      if (action.type === Actions.RENAME_TAB) {
-        const node = layoutModel.getNodeById(action.data.node) as TabNode;
-        const { kind } = node.getConfig();
-        const program = snapshot.getLoadable(fileContentsSelector(kind))
-          .contents;
-        set(fileContentsSelector(kind), {
-          ...program,
-          name: action.data.text,
-        });
-      }
-      return action;
-    },
+    ({ set, snapshot }) =>
+      (action: Action) => {
+        if (action.type === Actions.RENAME_TAB) {
+          const node = layoutModel.getNodeById(action.data.node) as TabNode;
+          const { kind } = node.getConfig();
+          const program = snapshot.getLoadable(
+            fileContentsSelector(kind)
+          ).contents;
+          set(fileContentsSelector(kind), {
+            ...program,
+            name: action.data.text,
+          });
+        }
+        return action;
+      },
     []
   );
   const updatedFile = useRecoilCallback(
-    ({ snapshot, set }) => (fileName: string, contents: string) => {
-      const workspace = snapshot.getLoadable(currentWorkspaceState)
-        .contents as Workspace;
-      if (fileName === workspace.files.domain.name) {
-        set(fileContentsSelector("domain"), (file) => ({
-          ...file,
-          contents,
-        }));
-        // TODO: compile
-      } else if (fileName === workspace.files.style.name) {
-        set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
-      } else if (fileName === workspace.files.substance.name) {
-        set(fileContentsSelector("substance"), (file) => ({
-          ...file,
-          contents,
-        }));
-      }
-    },
+    ({ snapshot, set }) =>
+      (fileName: string, contents: string) => {
+        const workspace = snapshot.getLoadable(currentWorkspaceState)
+          .contents as Workspace;
+        if (fileName === workspace.files.domain.name) {
+          set(fileContentsSelector("domain"), (file) => ({
+            ...file,
+            contents,
+          }));
+          // TODO: compile
+        } else if (fileName === workspace.files.style.name) {
+          set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
+        } else if (fileName === workspace.files.substance.name) {
+          set(fileContentsSelector("substance"), (file) => ({
+            ...file,
+            contents,
+          }));
+        }
+      },
     []
   );
 
