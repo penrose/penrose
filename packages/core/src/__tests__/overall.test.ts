@@ -241,10 +241,12 @@ describe("Run individual functions", () => {
       stateEvaled.params.lastObjEnergies = initialEnergies.objEngs;
 
       // Test objectives
-      const { constrEngs: initEngsConstr, objEngs: initEngsObj } =
-        evalFns(stateEvaled);
-      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } =
-        evalFns(stateOptimizedValue);
+      const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
+        stateEvaled
+      );
+      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } = evalFns(
+        stateOptimizedValue
+      );
 
       for (const k of initEngsObj.keys()) {
         // console.log("obj energies", initEngsObj[i], optedEngsObj[i]);

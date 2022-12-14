@@ -135,11 +135,13 @@ const config = {
               },
               {
                 label: "CHI'20 Paper",
-                href: "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
+                href:
+                  "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
               },
               {
                 label: "Popular Mechanics",
-                href: "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
+                href:
+                  "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
               },
             ],
           },
