@@ -79,7 +79,7 @@ export default function SvgUploader() {
         contents: (dslElem[0].textContent ?? "").trim(),
       });
 
-      await new Promise(compileDiagram);
+      await compileDiagram();
       
       toast.success("Sucessfully uploaded SVG to editor");
     };
