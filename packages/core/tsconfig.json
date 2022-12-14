@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "build/dist",
+    "outDir": "dist",
     "module": "es2022",
     "target": "es2017",
     "lib": ["es5", "es6", "es7", "esnext", "dom"],
@@ -63,7 +63,6 @@
   "include": ["src", "index.d.ts"],
   "exclude": [
     "node_modules",
-    "build",
     "docs",
     "dist",
     "src/__tests__",

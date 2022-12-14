@@ -2,22 +2,22 @@
   "name": "@penrose/core",
   "version": "1.3.0",
   "type": "module",
-  "main": "build/dist/index.js",
-  "module": "build/dist/index.js",
-  "types": "build/dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "files": [
-    "/build"
+    "/dist"
   ],
   "scripts": {
     "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
-    "build": "esbuild src/index.ts --outfile=build/dist/index.js --bundle --format=esm --sourcemap",
+    "build": "tsc && tsc-alias -p tsconfig.json",
     "start": "yarn watch",
     "watch": "yarn build --watch",
     "test": "cross-env NODE_OPTIONS='--no-warnings --experimental-vm-modules' jest",
     "test-watch": "yarn test --watchAll",
-    "build-decls": "tsc --emitDeclarationOnly --outDir build/dist && tsc-alias -p tsconfig.json",
+    "build-decls": ":",
     "typecheck": ":",
     "docs": "typedoc --plugin none --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
@@ -29,21 +29,16 @@
       "build": {
         "dependsOn": [
           "^build",
-          "build-parsers"
-        ],
-        "outputs": [
-          "{projectRoot}/build/dist/index.js",
-          "{projectRoot}/build/dist/index.js.map"
-        ]
-      },
-      "build-decls": {
-        "dependsOn": [
           "^build-decls",
           "build-parsers"
         ],
         "outputs": [
-          "{projectRoot}/build/dist/**/*.ts",
-          "{projectRoot}/build/dist/**/*.ts.map"
+          "{projectRoot}/dist"
+        ]
+      },
+      "build-decls": {
+        "dependsOn": [
+          "build"
         ]
       },
       "build-parsers": {
@@ -130,7 +125,6 @@
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/eslint-plugin-tslint": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
-    "esbuild": "^0.16.3",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.13.0",
     "eslint-plugin-eslint-comments": "^3.2.0",

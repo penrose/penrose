@@ -9,11 +9,11 @@
 /packages/core/src/parser/SubstanceParser.ts
 /packages/core/src/renderer/not_found.json
 /packages/docs-site/.docusaurus/
-/packages/docs-site/static/try/
+/packages/docs-site/build/
 /packages/docs-site/static/shapedefs.json
+/packages/docs-site/static/try/
 /packages/roger/oclif.manifest.json
 /README.md
-build/
 coverage/
 dist/
 public/app.css
