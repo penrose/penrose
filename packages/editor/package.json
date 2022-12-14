@@ -57,6 +57,7 @@
     "react": "^18.0.0",
     "react-data-table-component": "^6.11.7",
     "react-dom": "^18.0.0",
+    "react-drag-drop-files": "^2.3.8",
     "react-hot-toast": "^2.2.0",
     "react-inspector": "^4.0.1",
     "react-responsive": "^9.0.0",
