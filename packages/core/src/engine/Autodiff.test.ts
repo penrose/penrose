@@ -1,3 +1,4 @@
+import { ready } from "@penrose/optimizer";
 import {
   fns,
   genCodeSync,
@@ -28,6 +29,8 @@ import {
   squared,
   sub,
 } from "./AutodiffFunctions";
+
+await ready;
 
 describe("makeGraph tests", () => {
   test("secondary outputs", () => {

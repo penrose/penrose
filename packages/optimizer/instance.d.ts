@@ -1,5 +1,5 @@
 import { InitOutput } from "./build/penrose_optimizer";
 
-declare const instance: InitOutput;
+export declare let maybeOptimizer: InitOutput | undefined;
 
-export default instance;
+export declare const optimizerReady: Promise<void>;

@@ -11,11 +11,21 @@ import {
   penrose_init,
   penrose_step,
 } from "./build/penrose_optimizer";
-import optimizer from "./instance";
+import { maybeOptimizer, optimizerReady } from "./instance";
 
-penrose_init();
-const index = optimizer.__indirect_function_table.length;
-optimizer.__indirect_function_table.grow(1);
+let maybeIndex: number | undefined = undefined;
+
+export const ready = optimizerReady.then(() => {
+  penrose_init();
+  maybeIndex = maybeOptimizer!.__indirect_function_table.length;
+  maybeOptimizer!.__indirect_function_table.grow(1);
+});
+
+const getOptimizer = () => {
+  if (maybeOptimizer === undefined || maybeIndex === undefined)
+    throw Error("optimizer not initialized");
+  return { optimizer: maybeOptimizer, index: maybeIndex };
+};
 
 export const importMemoryModule = "optimizer";
 export const importMemoryName = "memory";
@@ -64,15 +74,17 @@ export interface Outputs<T> {
   secondary: T[];
 }
 
-const makeImports = () => ({
-  [importMemoryModule]: { [importMemoryName]: optimizer.memory },
-});
+const makeImports = () => {
+  const { optimizer } = getOptimizer();
+  return { [importMemoryModule]: { [importMemoryName]: optimizer.memory } };
+};
 
 export class Gradient {
   private f: WebAssembly.ExportValue;
   private numSecondary: number;
 
   private constructor(instance: WebAssembly.Exports, numSecondary: number) {
+    const { optimizer } = getOptimizer();
     builtinsTyped.forEach((name, i) => {
       const table = instance[exportTableName];
       if (table instanceof WebAssembly.Table) table.set(i, optimizer[name]);
@@ -99,10 +111,12 @@ export class Gradient {
   }
 
   private link(): void {
+    const { optimizer, index } = getOptimizer();
     optimizer.__indirect_function_table.set(index, this.f);
   }
 
   call(inputs: number[]): Outputs<number> {
+    const { index } = getOptimizer();
     const gradient = new Float64Array(inputs.length);
     const secondary = new Float64Array(this.numSecondary);
     this.link();
@@ -120,17 +134,24 @@ export class Gradient {
   }
 
   step(state: OptState, steps: number): OptState {
+    const { index } = getOptimizer();
     this.link();
     return penrose_step(state, index, steps);
   }
 }
 
-export const initConstraintWeight = penrose_get_init_constraint_weight();
+export const getInitConstraintWeight = () => {
+  getOptimizer();
+  return penrose_get_init_constraint_weight();
+};
 
 export const genOptProblem = (
   inputKinds: InputKind[],
   numObjEngs: number,
   numConstrEngs: number
-): Params => penrose_gen_opt_problem(inputKinds, numObjEngs, numConstrEngs);
+): Params => {
+  getOptimizer();
+  return penrose_gen_opt_problem(inputKinds, numObjEngs, numConstrEngs);
+};
 
 export type { InputKind, LbfgsParams, OptState, OptStatus, Params };

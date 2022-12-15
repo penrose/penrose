@@ -1,3 +1,4 @@
+import { ready } from "@penrose/optimizer";
 import { genCodeSync, input, primaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
@@ -11,6 +12,8 @@ import { Shape } from "types/shapes";
 import { FloatV } from "types/value";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { compDict, sdEllipse } from "./Functions";
+
+await ready;
 
 const canvas = makeCanvas(800, 700);
 

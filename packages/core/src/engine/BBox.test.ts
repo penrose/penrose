@@ -1,3 +1,4 @@
+import { ready } from "@penrose/optimizer";
 import { compDict } from "contrib/Functions";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -21,6 +22,8 @@ import {
   bboxFromRect,
   bboxFromRectlike,
 } from "./BBox";
+
+await ready;
 
 const canvas = makeCanvas(800, 700);
 

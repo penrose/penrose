@@ -1,3 +1,4 @@
+import { ready } from "@penrose/optimizer";
 import { compDict } from "contrib/Functions";
 import {
   bboxFromShape,
@@ -17,6 +18,8 @@ import { makeRectangle } from "shapes/Rectangle";
 import { makeCanvas, simpleContext } from "shapes/Samplers";
 import { Pt2 } from "types/ad";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
+
+await ready;
 
 const context = simpleContext("Queries");
 const canvas = makeCanvas(800, 700);
