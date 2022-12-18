@@ -27,7 +27,7 @@ const getOptimizer = () => {
   return { optimizer: maybeOptimizer, index: maybeIndex };
 };
 
-export const importModule = "optimizer";
+export const importModule = "";
 export const importMemoryName = "memory";
 
 export const exportFunctionName = "f";
@@ -88,7 +88,10 @@ const makeImports = () => {
     [importModule]: {
       [importMemoryName]: optimizer.memory,
       ...Object.fromEntries(
-        [...builtinsTyped.keys()].map((name) => [name, optimizer[name]])
+        [...builtinsTyped.keys()].map((name, i) => [
+          i.toString(36),
+          optimizer[name],
+        ])
       ),
     },
   };

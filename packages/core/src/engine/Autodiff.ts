@@ -973,12 +973,12 @@ const importSection = (t: wasm.Target): void => {
   t.byte(wasm.LIMITS.NO_MAXIMUM);
   t.int(minPages);
 
-  for (const [builtin, kind] of builtins) {
+  [...builtins.entries()].forEach(([, kind], i) => {
     t.ascii(importModule);
-    t.ascii(builtin);
+    t.ascii(i.toString(36));
     t.byte(wasm.IMPORT.FUNCTION);
     t.int(builtinTypeIndex(kind));
-  }
+  });
 };
 
 const functionSection = (t: wasm.Target, numFunctions: number): void => {
