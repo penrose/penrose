@@ -5,5 +5,4 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: "/try/",
   plugins: [react()],
-  build: { target: "esnext" },
 });
