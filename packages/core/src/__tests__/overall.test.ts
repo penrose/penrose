@@ -1,6 +1,6 @@
 import { examples, registry } from "@penrose/examples";
 import { genOptProblem } from "@penrose/optimizer";
-import { genGradient } from "../engine/Optimizer";
+import { genGradient } from "../engine/EngineUtils";
 import {
   compileTrio,
   evalEnergy,
