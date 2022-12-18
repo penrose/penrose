@@ -1075,51 +1075,11 @@ const compileUnary = (
 
       return;
     }
-    case "inverse": {
-      t.byte(wasm.OP.f64.const);
-      t.f64(1);
-
-      t.byte(wasm.OP.local.get);
-      t.int(param);
-
-      t.byte(wasm.OP.f64.const);
-      t.f64(EPS_DENOM);
-
-      t.byte(wasm.OP.f64.add);
-
-      t.byte(wasm.OP.f64.div);
-
-      return;
-    }
     case "round": {
       t.byte(wasm.OP.local.get);
       t.int(param);
 
       t.byte(wasm.OP.f64.nearest);
-
-      return;
-    }
-    case "sign": {
-      t.byte(wasm.OP.local.get);
-      t.int(param);
-
-      t.byte(wasm.OP.f64.const);
-      t.f64(1);
-
-      t.byte(wasm.OP.local.get);
-      t.int(param);
-
-      t.byte(wasm.OP.f64.copysign);
-
-      t.byte(wasm.OP.local.get);
-      t.int(param);
-
-      t.byte(wasm.OP.f64.const);
-      t.f64(0);
-
-      t.byte(wasm.OP.f64.eq);
-
-      t.byte(wasm.OP.select);
 
       return;
     }
@@ -1154,7 +1114,9 @@ const compileUnary = (
     case "sin":
     case "sinh":
     case "tan":
-    case "tanh": {
+    case "tanh":
+    case "inverse":
+    case "sign": {
       t.byte(wasm.OP.local.get);
       t.int(param);
 

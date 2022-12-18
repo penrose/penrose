@@ -112,6 +112,23 @@ pub fn penrose_tanh(x: f64) -> f64 {
     x.tanh()
 }
 
+// the following two functions have quirky implementations for historical reasons predating our
+// switch to WebAssembly and Rust
+
+#[wasm_bindgen]
+pub fn penrose_inverse(x: f64) -> f64 {
+    1. / (x + 10e-6)
+}
+
+#[wasm_bindgen]
+pub fn penrose_sign(x: f64) -> f64 {
+    if x == 0. {
+        x
+    } else {
+        f64::copysign(1., x)
+    }
+}
+
 // force `wasm-bindgen` to export `__wbindgen_add_to_stack_pointer`, which we will use to call the
 // polynomial roots function below
 #[wasm_bindgen]

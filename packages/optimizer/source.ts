@@ -64,6 +64,8 @@ export const builtinsTyped: Map<keyof InitOutput, BuiltinType> = new Map([
   ["penrose_sinh", "unary"],
   ["penrose_tan", "unary"],
   ["penrose_tanh", "unary"],
+  ["penrose_inverse", "unary"],
+  ["penrose_sign", "unary"],
 
   ["penrose_atan2", "binary"],
   ["penrose_pow", "binary"],
