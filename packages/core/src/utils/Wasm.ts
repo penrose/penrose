@@ -6,22 +6,20 @@ export const SECTION = {
   TYPE: 1,
   IMPORT: 2,
   FUNCTION: 3,
-  TABLE: 4,
   EXPORT: 7,
   CODE: 10,
 };
 
-export const IMPORT = { MEMORY: 0x02 };
+export const IMPORT = { FUNCTION: 0x00, MEMORY: 0x02 };
 
-export const EXPORT = { FUNCTION: 0x00, TABLE: 0x01 };
+export const EXPORT = { FUNCTION: 0x00 };
 
-export const TYPE = { FUNCTION: 0x60, FUNCREF: 0x70, f64: 0x7c, i32: 0x7f };
+export const TYPE = { FUNCTION: 0x60, f64: 0x7c, i32: 0x7f };
 
-export const LIMITS = { NO_MAXIMUM: 0x00, MAXIMUM: 0x01 };
+export const LIMITS = { NO_MAXIMUM: 0x00 };
 
 export const OP = {
   call: 0x10,
-  call_indirect: 0x11,
   drop: 0x1a,
   select: 0x1b,
 

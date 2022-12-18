@@ -2,11 +2,11 @@ import { Queue } from "@datastructures-js/queue";
 import {
   alignStackPointer,
   builtins,
+  BuiltinType,
   exportFunctionName,
-  exportTableName,
   Gradient,
-  importMemoryModule,
   importMemoryName,
+  importModule,
   Outputs,
 } from "@penrose/optimizer";
 import consola from "consola";
@@ -891,8 +891,27 @@ const gradientParamSecondary = 2;
 
 const gradientLocalStackPointer = 3;
 
-const numTables = 1;
-const tableIndexBuiltins = 0;
+const builtindex = new Map([...builtins.keys()].map((name, i) => [name, i]));
+
+const getBuiltindex = (name: string): number =>
+  safe(builtindex.get(name), "unknown builtin");
+
+const builtinTypeIndex = (kind: BuiltinType): number => {
+  switch (kind) {
+    case "addToStackPointer": {
+      return typeIndexAddToStackPointer;
+    }
+    case "unary": {
+      return typeIndexUnary;
+    }
+    case "binary": {
+      return typeIndexBinary;
+    }
+    case "polyRoots": {
+      return typeIndexPolyRoots;
+    }
+  }
+};
 
 const typeSection = (t: wasm.Target): void => {
   t.int(numFuncTypes);
@@ -944,15 +963,22 @@ const typeSection = (t: wasm.Target): void => {
 };
 
 const importSection = (t: wasm.Target): void => {
-  const numImports = 1;
+  const numImports = 1 + builtins.size;
   t.int(numImports);
 
   const minPages = 1;
-  t.ascii(importMemoryModule);
+  t.ascii(importModule);
   t.ascii(importMemoryName);
   t.byte(wasm.IMPORT.MEMORY);
   t.byte(wasm.LIMITS.NO_MAXIMUM);
   t.int(minPages);
+
+  for (const [builtin, kind] of builtins) {
+    t.ascii(importModule);
+    t.ascii(builtin);
+    t.byte(wasm.IMPORT.FUNCTION);
+    t.int(builtinTypeIndex(kind));
+  }
 };
 
 const functionSection = (t: wasm.Target, numFunctions: number): void => {
@@ -960,34 +986,18 @@ const functionSection = (t: wasm.Target, numFunctions: number): void => {
   for (let i = 0; i < numFunctions; i++) t.int(typeIndexGradient);
 };
 
-const tableSection = (t: wasm.Target): void => {
-  t.int(numTables);
-
-  // tableIndexBuiltins
-  const minEntries = builtins.length;
-  const maxEntries = builtins.length;
-  t.byte(wasm.TYPE.FUNCREF);
-  t.byte(wasm.LIMITS.MAXIMUM);
-  t.int(minEntries);
-  t.int(maxEntries);
-};
-
 const exportSection = (t: wasm.Target, numFunctions: number): void => {
-  const numExports = 2;
+  const numExports = 1;
   t.int(numExports);
 
-  t.ascii(exportTableName);
-  t.byte(wasm.EXPORT.TABLE);
-  t.int(tableIndexBuiltins);
-
-  const funcIndex = numFunctions - 1;
+  const funcIndex = builtins.size + numFunctions - 1;
   t.ascii(exportFunctionName);
   t.byte(wasm.EXPORT.FUNCTION);
   t.int(funcIndex);
 };
 
 const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
-  const numSections = 6;
+  const numSections = 5;
   const numFunctions = gradientFunctionSizes.length;
 
   const typeSectionCount = new wasm.Count();
@@ -1001,10 +1011,6 @@ const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
   const functionSectionCount = new wasm.Count();
   functionSection(functionSectionCount, numFunctions);
   const functionSectionSize = functionSectionCount.size;
-
-  const tableSectionCount = new wasm.Count();
-  tableSection(tableSectionCount);
-  const tableSectionSize = tableSectionCount.size;
 
   const exportSectionCount = new wasm.Count();
   exportSection(exportSectionCount, numFunctions);
@@ -1022,8 +1028,6 @@ const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
     importSectionSize +
     wasm.intSize(functionSectionSize) +
     functionSectionSize +
-    wasm.intSize(tableSectionSize) +
-    tableSectionSize +
     wasm.intSize(exportSectionSize) +
     exportSectionSize +
     wasm.intSize(codeSectionSize) +
@@ -1042,10 +1046,6 @@ const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
   mod.byte(wasm.SECTION.FUNCTION);
   mod.int(functionSectionSize);
   functionSection(mod, numFunctions);
-
-  mod.byte(wasm.SECTION.TABLE);
-  mod.int(tableSectionSize);
-  tableSection(mod);
 
   mod.byte(wasm.SECTION.EXPORT);
   mod.int(exportSectionSize);
@@ -1158,12 +1158,8 @@ const compileUnary = (
       t.byte(wasm.OP.local.get);
       t.int(param);
 
-      t.byte(wasm.OP.i32.const);
-      t.int(builtins.indexOf(`penrose_${unop}`));
-
-      t.byte(wasm.OP.call_indirect);
-      t.int(typeIndexUnary);
-      t.int(tableIndexBuiltins);
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex(`penrose_${unop}`));
 
       return;
     }
@@ -1226,12 +1222,8 @@ const compileBinary = (
       t.byte(wasm.OP.local.get);
       t.int(right);
 
-      t.byte(wasm.OP.i32.const);
-      t.int(builtins.indexOf(`penrose_${binop}`));
-
-      t.byte(wasm.OP.call_indirect);
-      t.int(typeIndexBinary);
-      t.int(tableIndexBuiltins);
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex(`penrose_${binop}`));
 
       return;
     }
@@ -1351,12 +1343,8 @@ const compileNode = (
       t.byte(wasm.OP.i32.const);
       t.int(-bytes);
 
-      t.byte(wasm.OP.i32.const);
-      t.int(builtins.indexOf("__wbindgen_add_to_stack_pointer"));
-
-      t.byte(wasm.OP.call_indirect);
-      t.int(typeIndexAddToStackPointer);
-      t.int(tableIndexBuiltins);
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex("__wbindgen_add_to_stack_pointer"));
 
       t.byte(wasm.OP.local.tee);
       t.int(gradientLocalStackPointer);
@@ -1376,12 +1364,8 @@ const compileNode = (
       t.byte(wasm.OP.i32.const);
       t.int(node.degree);
 
-      t.byte(wasm.OP.i32.const);
-      t.int(builtins.indexOf("penrose_poly_roots"));
-
-      t.byte(wasm.OP.call_indirect);
-      t.int(typeIndexPolyRoots);
-      t.int(tableIndexBuiltins);
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex("penrose_poly_roots"));
 
       for (let i = 0; i < node.degree; i++) {
         t.byte(wasm.OP.local.get);
@@ -1395,12 +1379,8 @@ const compileNode = (
       t.byte(wasm.OP.i32.const);
       t.int(bytes);
 
-      t.byte(wasm.OP.i32.const);
-      t.int(builtins.indexOf("__wbindgen_add_to_stack_pointer"));
-
-      t.byte(wasm.OP.call_indirect);
-      t.int(typeIndexAddToStackPointer);
-      t.int(tableIndexBuiltins);
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex("__wbindgen_add_to_stack_pointer"));
 
       t.byte(wasm.OP.drop);
 
@@ -1573,7 +1553,7 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
     }
 
     t.byte(wasm.OP.call);
-    t.int(i);
+    t.int(builtins.size + i);
 
     t.byte(wasm.OP.f64.add);
   }

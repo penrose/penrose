@@ -27,46 +27,52 @@ const getOptimizer = () => {
   return { optimizer: maybeOptimizer, index: maybeIndex };
 };
 
-export const importMemoryModule = "optimizer";
+export const importModule = "optimizer";
 export const importMemoryName = "memory";
 
-export const exportTableName = "builtins";
 export const exportFunctionName = "f";
 
 // https://github.com/rustwasm/wasm-bindgen/blob/f82f5c5852c3abf057bb737d545360a3a5c7d84c/crates/cli-support/src/wit/mod.rs#L1370-L1372
 export const alignStackPointer = 16; // number of bytes
 
+export type BuiltinType =
+  | "addToStackPointer"
+  | "unary"
+  | "binary"
+  | "polyRoots";
+
 // use `InitOutput` type to satisfy typechecker
-export const builtinsTyped: (keyof InitOutput)[] = [
-  "__wbindgen_add_to_stack_pointer",
+export const builtinsTyped: Map<keyof InitOutput, BuiltinType> = new Map([
+  ["__wbindgen_add_to_stack_pointer", "addToStackPointer"],
 
-  "penrose_acos",
-  "penrose_acosh",
-  "penrose_asin",
-  "penrose_asinh",
-  "penrose_atan",
-  "penrose_atanh",
-  "penrose_atan2",
-  "penrose_cbrt",
-  "penrose_cos",
-  "penrose_cosh",
-  "penrose_exp",
-  "penrose_expm1",
-  "penrose_log",
-  "penrose_log1p",
-  "penrose_log10",
-  "penrose_log2",
-  "penrose_pow",
-  "penrose_sin",
-  "penrose_sinh",
-  "penrose_tan",
-  "penrose_tanh",
+  ["penrose_acos", "unary"],
+  ["penrose_acosh", "unary"],
+  ["penrose_asin", "unary"],
+  ["penrose_asinh", "unary"],
+  ["penrose_atan", "unary"],
+  ["penrose_atanh", "unary"],
+  ["penrose_cbrt", "unary"],
+  ["penrose_cos", "unary"],
+  ["penrose_cosh", "unary"],
+  ["penrose_exp", "unary"],
+  ["penrose_expm1", "unary"],
+  ["penrose_log", "unary"],
+  ["penrose_log1p", "unary"],
+  ["penrose_log10", "unary"],
+  ["penrose_log2", "unary"],
+  ["penrose_sin", "unary"],
+  ["penrose_sinh", "unary"],
+  ["penrose_tan", "unary"],
+  ["penrose_tanh", "unary"],
 
-  "penrose_poly_roots",
-];
+  ["penrose_atan2", "binary"],
+  ["penrose_pow", "binary"],
+
+  ["penrose_poly_roots", "polyRoots"],
+]);
 
 // don't leak `InitOutput` type in interface
-export const builtins: string[] = builtinsTyped;
+export const builtins: Map<string, BuiltinType> = builtinsTyped;
 
 export interface Outputs<T> {
   gradient: T[]; // derivatives of primary output with respect to inputs
@@ -76,7 +82,14 @@ export interface Outputs<T> {
 
 const makeImports = () => {
   const { optimizer } = getOptimizer();
-  return { [importMemoryModule]: { [importMemoryName]: optimizer.memory } };
+  return {
+    [importModule]: {
+      [importMemoryName]: optimizer.memory,
+      ...Object.fromEntries(
+        [...builtinsTyped.keys()].map((name) => [name, optimizer[name]])
+      ),
+    },
+  };
 };
 
 export class Gradient {
@@ -84,11 +97,6 @@ export class Gradient {
   private numSecondary: number;
 
   private constructor(instance: WebAssembly.Exports, numSecondary: number) {
-    const { optimizer } = getOptimizer();
-    builtinsTyped.forEach((name, i) => {
-      const table = instance[exportTableName];
-      if (table instanceof WebAssembly.Table) table.set(i, optimizer[name]);
-    });
     this.f = instance[exportFunctionName];
     this.numSecondary = numSecondary;
   }
