@@ -7,8 +7,11 @@ import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
-import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
-import { genGradient } from "engine/Optimizer";
+import {
+  compileCompGraph,
+  dummyIdentifier,
+  genGradient,
+} from "engine/EngineUtils";
 import graphlib from "graphlib";
 import im from "immutable";
 import _ from "lodash";
