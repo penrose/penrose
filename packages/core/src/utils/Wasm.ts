@@ -1,6 +1,6 @@
 // https://webassembly.github.io/spec/core/binary/
 
-export const PREAMBLE_SIZE = 8;
+const PREAMBLE_SIZE = 8;
 
 export const SECTION = {
   TYPE: 1,
