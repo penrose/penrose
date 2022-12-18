@@ -549,11 +549,20 @@ export const makeGraph = (
       id,
       // `map` skips holes but also preserves indices
       grad.map((addends) => {
-        const gradID = newNode({ tag: "Nary", op: "addN" });
-        addends.forEach((addendID, i) =>
-          graph.setEdge({ v: addendID, w: gradID, name: indexToNaryEdge(i) })
-        );
-        return gradID;
+        if (addends.length === 0) {
+          // instead of newNode, in case there's already a 0 in the graph
+          return addNode(0);
+        } else {
+          const gradID = newNode({ tag: "Nary", op: "addN" });
+          addends.forEach((addendID, i) =>
+            graph.setEdge({
+              v: addendID,
+              w: gradID,
+              name: indexToNaryEdge(i),
+            })
+          );
+          return gradID;
+        }
       })
     );
   }
@@ -1209,14 +1218,20 @@ const compileNary = (
   { op }: ad.NaryNode,
   params: number[]
 ): void => {
-  t.byte(wasm.OP.f64.const);
-  t.f64(nullaryVals[op]);
-
-  for (const param of params) {
+  if (params.length === 0) {
+    // only spend bytes on an f64 constant when necessary
+    t.byte(wasm.OP.f64.const);
+    t.f64(nullaryVals[op]);
+  } else {
     t.byte(wasm.OP.local.get);
-    t.int(param);
+    t.int(params[0]);
 
-    t.byte(naryOps[op]);
+    for (const param of params.slice(1)) {
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(naryOps[op]);
+    }
   }
 };
 
