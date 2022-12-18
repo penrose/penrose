@@ -10,6 +10,10 @@ type Matrix = nalgebra::DMatrix<f64>;
 
 type Compiled = fn(inputs: *const f64, gradient: *mut f64, secondary: *mut f64) -> f64;
 
+// the ts-rs crate defines a `TS` trait and `ts` macro which generate Rust tests that, when run,
+// generate TypeScript definitions in the `bindings/` directory of this package; that's why the
+// `build-decls` script for this package is `cargo test`
+
 #[derive(Clone, Deserialize, PartialEq, Serialize, TS)]
 #[ts(export)]
 enum InputKind {
@@ -930,6 +934,7 @@ fn contains_nan(number_list: &[f64]) -> bool {
 
 #[wasm_bindgen]
 pub fn penrose_init() {
+    // https://docs.rs/console_error_panic_hook/0.1.7/console_error_panic_hook/#usage
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 }
 
@@ -943,6 +948,7 @@ pub fn penrose_call(p: usize, inputs: &[f64], gradient: &mut [f64], secondary: &
     )
 }
 
+// `wasm-bindgen` doesn't let us export constants
 #[wasm_bindgen]
 pub fn penrose_get_init_constraint_weight() -> f64 {
     INIT_CONSTRAINT_WEIGHT

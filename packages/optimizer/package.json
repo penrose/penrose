@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild ./source.ts --outfile=index.js --platform=neutral --bundle --loader:.wasm=binary --sourcemap",
+    "build": "esbuild ./source.ts --outfile=index.js --platform=neutral --bundle --loader:.wasm=binary --define:import.meta.url=null --sourcemap",
     "build-decls": "cargo test",
     "build-wasm": "cargo build --target=wasm32-unknown-unknown --release",
     "build-wasm-bindgen": "wasm-bindgen --target=web --keep-lld-exports --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
