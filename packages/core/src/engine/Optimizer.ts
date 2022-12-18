@@ -1,4 +1,3 @@
-import consola from "consola";
 import { fns, genCode, input, makeGraph, ops } from "engine/Autodiff";
 import { defaultLbfgsParams, initConstraintWeight } from "engine/EngineUtils";
 import _ from "lodash";
@@ -19,12 +18,6 @@ import {
   zip3,
 } from "utils/Util";
 import { add, mul } from "./AutodiffFunctions";
-
-// NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
-// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
-const log = consola
-  .create({ level: (consola as any).LogLevel.Warn })
-  .withScope("Optimizer");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -63,9 +56,6 @@ const DEBUG_LBFGS = false;
 ////////////////////////////////////////////////////////////////////////////////
 
 const unconstrainedConverged2 = (normGrad: number): boolean => {
-  if (DEBUG_GRAD_DESCENT) {
-    log.info("UO convergence check: ||grad f(x)||", normGrad);
-  }
   return normGrad < uoStop;
 };
 
@@ -78,12 +68,6 @@ const epConverged2 = (
   // TODO: These dx and dfx should really be scaled to account for magnitudes
   const stateChange = normList(subv(xs1, xs0));
   const energyChange = Math.abs(fxs1 - fxs0);
-  log.info(
-    "epConverged?: stateChange: ",
-    stateChange,
-    " | energyChange: ",
-    energyChange
-  );
 
   return stateChange < epStop || energyChange < epStop;
 };
@@ -115,23 +99,8 @@ export const step = (state: State, steps: number): State => {
   const { optStatus, weight } = optParams;
   let xs: number[] = state.varyingValues;
 
-  log.info("===============");
-  log.info(
-    "step | weight: ",
-    weight,
-    "| EP round: ",
-    optParams.EPround,
-    " | UO round: ",
-    optParams.UOround
-  );
-  log.info("params: ", optParams);
-  // log.info("state: ", state);
-  log.info("fns: ", prettyPrintFns(state));
-
   switch (optStatus) {
     case "NewIter": {
-      log.trace("step newIter, xs", xs);
-
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       const { objectiveAndGradient } = state.params;
       return {
@@ -152,9 +121,6 @@ export const step = (state: State, steps: number): State => {
     }
 
     case "UnconstrainedRunning": {
-      // NOTE: use cached varying values
-      log.info("step step, xs", xs);
-
       const res = minimize(
         xs,
         state.params.currObjectiveAndGradient,
@@ -191,24 +157,10 @@ export const step = (state: State, steps: number): State => {
       if (unconstrainedConverged2(normGrad)) {
         optParams.optStatus = "UnconstrainedConverged";
         optParams.lbfgsInfo = defaultLbfgsParams;
-        log.info(
-          "Unconstrained converged with energy",
-          energyVal,
-          "gradient norm",
-          normGrad
-        );
       } else {
         optParams.optStatus = "UnconstrainedRunning";
-        // Note that lbfgs prams have already been updated
-        log.info(
-          `Took ${steps} steps. Current energy`,
-          energyVal,
-          "gradient norm",
-          normGrad
-        );
       }
       if (failed) {
-        log.warn("Error detected after stepping");
         optParams.optStatus = "Error";
         return { ...state, params: optParams };
       }
@@ -225,7 +177,6 @@ export const step = (state: State, steps: number): State => {
       // Note that lbfgs params have already been reset to default
 
       // TODO. Make a diagram to clarify vocabulary
-      log.info("step: unconstrained converged", optParams);
 
       // We force EP to run at least two rounds (State 0 -> State 1 -> State 2; the first check is only between States 1 and 2)
       if (
@@ -238,13 +189,9 @@ export const step = (state: State, steps: number): State => {
         )
       ) {
         optParams.optStatus = "EPConverged";
-        log.info("EP converged with energy", optParams.lastUOenergy);
       } else {
         // If EP has not converged, increase weight and continue.
         // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
-        log.info(
-          "step: UO converged but EP did not converge; starting next round"
-        );
         optParams.optStatus = "UnconstrainedRunning";
 
         optParams.weight = weightGrowthFactor * weight;
@@ -254,12 +201,6 @@ export const step = (state: State, steps: number): State => {
         optParams.currObjectiveAndGradient = optParams.objectiveAndGradient(
           optParams.weight,
           frozenValues
-        );
-
-        log.info(
-          "increased EP weight to",
-          optParams.weight,
-          "in compiled energy and gradient"
         );
       }
 
@@ -272,11 +213,9 @@ export const step = (state: State, steps: number): State => {
 
     case "EPConverged": {
       // do nothing if converged
-      log.info("step: EP converged");
       return state;
     }
     case "Error": {
-      log.warn("step: Error");
       return state;
     }
   }
@@ -359,18 +298,8 @@ const awLineSearch2 = (
     const intervalTooSmall = Math.abs(bi - ai) < minInterval;
     const tooManySteps = numUpdates > maxSteps;
 
-    if (intervalTooSmall && DEBUG_LINE_SEARCH) {
-      log.info("line search stopping: interval too small");
-    }
-    if (tooManySteps && DEBUG_LINE_SEARCH) {
-      log.info("line search stopping: step count exceeded");
-    }
-
     const needToStop = intervalTooSmall || tooManySteps;
 
-    if (needToStop && DEBUG_LINE_SEARCH) {
-      log.info("stopping early: (i, a, b, t) = ", numUpdates, ai, bi, t);
-    }
     return needToStop;
   };
 
@@ -386,46 +315,23 @@ const awLineSearch2 = (
   let i = 0;
   const DEBUG_LINE_SEARCH = false;
 
-  if (DEBUG_LINE_SEARCH) {
-    log.info("line search", xs0, gradfxs0, duf(xs0)(xs0));
-  }
-
   // Main loop + update check
   while (!shouldStop(i, a, b, t)) {
     const { f: obj, gradf: grad } = f(addv(xs0, scalev(t, descentDir)));
     const isArmijo = armijo(t, obj);
     const isWolfe = wolfe(t, grad);
-    if (DEBUG_LINE_SEARCH) {
-      log.info("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
-    }
 
     if (!isArmijo) {
-      if (DEBUG_LINE_SEARCH) {
-        log.info("not armijo");
-      }
       b = t;
     } else if (!isWolfe) {
-      if (DEBUG_LINE_SEARCH) {
-        log.info("not wolfe");
-      }
       a = t;
     } else {
-      if (DEBUG_LINE_SEARCH) {
-        log.info("found good interval");
-        log.info("stopping: (i, a, b, t) = ", i, a, b, t);
-      }
       break;
     }
 
     if (b < Infinity) {
-      if (DEBUG_LINE_SEARCH) {
-        log.info("already found armijo");
-      }
       t = (a + b) / 2.0;
     } else {
-      if (DEBUG_LINE_SEARCH) {
-        log.info("did not find armijo");
-      }
       t = 2.0 * a;
     }
 
@@ -520,17 +426,6 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
   // s_0 = x_1 - x_0
   // y_0 = grad f(x_1) - grad f(x_0)
 
-  if (DEBUG_LBFGS) {
-    log.info(
-      "Starting lbfgs calculation with xs",
-      xs,
-      "gradfxs",
-      gradfxs,
-      "lbfgs params",
-      lbfgsInfo
-    );
-  }
-
   if (lbfgsInfo.numUnconstrSteps === 0) {
     // Initialize state
     // Perform normal gradient descent on first step
@@ -583,10 +478,6 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     const descentDirCheck = -1.0 * gradPreconditioned.dot(grad_fx_k);
 
     if (descentDirCheck > 0.0) {
-      log.info(
-        "L-BFGS did not find a descent direction. Resetting correction vectors.",
-        lbfgsInfo
-      );
       return {
         gradfxsPreconditioned: gradfxs,
         updatedLbfgsInfo: {
@@ -603,9 +494,6 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // Found a direction; update the state
     // TODO: check the curvature condition y_k^T s_k > 0 (8.7) (Nocedal 201)
     // https://github.com/JuliaNLSolvers/Optim.jl/issues/26
-    if (DEBUG_LBFGS) {
-      log.info("Descent direction found.", gradPreconditioned.to1DArray());
-    }
 
     return {
       gradfxsPreconditioned: gradPreconditioned.to1DArray(),
@@ -619,7 +507,6 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       },
     };
   } else {
-    log.info("State:", lbfgsInfo);
     throw Error("Invalid L-BFGS state");
   }
 };
@@ -631,9 +518,6 @@ const minimize = (
   numSteps: number
 ): ad.OptInfo => {
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
-
-  log.info("-------------------------------------");
-  log.info("minimize, num steps", numSteps);
 
   const MIN_STEPS = 1;
   if (numSteps < MIN_STEPS) {
@@ -660,12 +544,10 @@ const minimize = (
 
   while (i < numSteps) {
     if (containsNaN(xs)) {
-      log.info("xs", xs);
       throw Error("NaN in xs");
     }
     ({ f: fxs, gradf: gradfxs, objEngs, constrEngs } = f(xs));
     if (containsNaN(gradfxs)) {
-      log.info("gradfxs", gradfxs);
       throw Error("NaN in gradfxs");
     }
 
@@ -682,13 +564,6 @@ const minimize = (
 
     if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
       // This is on the original gradient, not the preconditioned one
-      log.info(
-        "descent converged early, on step",
-        i,
-        "of",
-        numSteps,
-        "(per display cycle); stopping early"
-      );
       break;
     }
 
@@ -698,37 +573,7 @@ const minimize = (
 
     const normGrad = normList(gradfxs);
 
-    if (DEBUG_GRAD_DESCENT) {
-      log.info("-----");
-      log.info("i", i);
-      log.info("num steps per display cycle", numSteps);
-      log.info("input (xs):", xs);
-      log.info("energy (f(xs)):", fxs);
-      log.info("grad (grad(f)(xs)):", gradfxs);
-      log.info("|grad f(x)|:", normGrad);
-      log.info("t", t, "use line search:", USE_LINE_SEARCH);
-    }
-
     if (Number.isNaN(fxs) || Number.isNaN(normGrad)) {
-      log.info("-----");
-
-      const pathMap = zip2(xs, gradfxs);
-
-      log.info("[current val, gradient of val]", pathMap);
-
-      for (const [x, dx] of pathMap) {
-        if (Number.isNaN(dx)) {
-          log.info("NaN in varying val's gradient (current val):", x);
-        }
-      }
-
-      log.info("i", i);
-      log.info("num steps per display cycle", numSteps);
-      log.info("input (xs):", xs);
-      log.info("energy (f(xs)):", fxs);
-      log.info("grad (grad(f)(xs)):", gradfxs);
-      log.info("|grad f(x)|:", normGrad);
-      log.info("t", t, "use line search:", USE_LINE_SEARCH);
       failed = true;
       break;
       //throw Error("NaN reached in optimization energy or gradient norm!");
@@ -769,10 +614,6 @@ export const evalEnergyOnCustom = (
   // log.info("objEngs", objFns, objEngs);
   // log.info("vars", varyingValuesTF);
 
-  if (objEngs.length === 0 && constrEngs.length === 0) {
-    log.info("WARNING: no objectives and no constraints");
-  }
-
   // This is fixed during the whole optimization
   const constrWeightNode: ad.Num = constraintWeight;
 
@@ -794,7 +635,6 @@ export const genOptProblem = (
 ): Params => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
-  log.info("Compiling objective and gradient");
 
   // This changes with the EP round, gets bigger to weight the constraints
   // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
@@ -803,8 +643,6 @@ export const genOptProblem = (
 
   const energyGraph = evalEnergyOnCustom(epWeightNode, objEngs, constrEngs);
   // `energyGraph` is a ad.Num that is a handle to the top of the graph
-
-  log.info("interpreted energy graph", energyGraph);
 
   // Build an actual graph from the implicit ad.Num structure
   // Build symbolic gradient of f at xs on the energy graph
