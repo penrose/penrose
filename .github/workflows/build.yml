@@ -109,7 +109,7 @@ jobs:
       - if: github.event_name == 'pull_request'
         name: Checkout target branch
         working-directory: diagrams/
-        run: git checkout --orphan ci/${{ github.ref }}
+        run: git checkout -b ci/${{ github.ref }}
       - name: Clean target working tree
         working-directory: diagrams/
         run: git rm -rf .
