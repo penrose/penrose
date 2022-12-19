@@ -114,7 +114,7 @@ jobs:
 
             ${{ env.REGISTRY_STATS }}
       - name: Checkout target
-        with: actions/checkout@v3
+        uses: actions/checkout@v3
         with:
           path: target/
           ref: ci/refs/heads/main
