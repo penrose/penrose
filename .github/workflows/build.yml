@@ -91,6 +91,16 @@ jobs:
         with:
           name: diagrams
           path: packages/automator/out/
+      - name: Generate performance summary
+        working-directory: packages/automator/
+        run: |
+          set -x
+          yarn start textchart out stats.md
+          cat stats.md >> $GITHUB_STEP_SUMMARY
+          echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
+          cat stats.md >> $GITHUB_ENV
+          echo EOF >> $GITHUB_ENV
+          rm stats.md
       - name: Checkout target
         uses: actions/checkout@v3
         with:
@@ -114,29 +124,18 @@ jobs:
       - name: Commit diagrams
         working-directory: diagrams/
         run: |
+          set -x
           git add .
           git config --global user.email 'penrose-team@cs.cmu.edu'
           git config --global user.name Penrose
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
+          echo 'REGISTRY_DIFF<<EOF' >> $GITHUB_ENV
+          git --no-pager diff --name-status ci/refs/heads/main HEAD >> $GITHUB_ENV
+          echo EOF >> $GITHUB_ENV
       - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'penrose/penrose'
         name: Push to target
         working-directory: diagrams/
         run: git push -f origin HEAD
-      - name: Generate diff summary
-        working-directory: diagrams/
-        run: |
-          echo 'REGISTRY_DIFF<<EOF' >> $GITHUB_ENV
-          git --no-pager diff --name-status ci/refs/heads/main HEAD >> $GITHUB_ENV
-          echo EOF >> $GITHUB_ENV
-      - name: Generate performance summary
-        working-directory: packages/automator/
-        run: |
-          yarn start textchart out stats.md
-          cat stats.md >> $GITHUB_STEP_SUMMARY
-          echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
-          cat stats.md >> $GITHUB_ENV
-          echo EOF >> $GITHUB_ENV
-          rm stats.md
       - if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'penrose/penrose'
         name: Comment on PR with stats
         uses: marocchino/sticky-pull-request-comment@v2
