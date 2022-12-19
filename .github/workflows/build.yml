@@ -91,16 +91,6 @@ jobs:
         with:
           name: diagrams
           path: packages/automator/out/
-      - name: Generate performance summary
-        working-directory: packages/automator/
-        run: |
-          set -x
-          yarn start textchart out stats.md
-          cat stats.md >> $GITHUB_STEP_SUMMARY
-          echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
-          cat stats.md >> $GITHUB_ENV
-          echo EOF >> $GITHUB_ENV
-          rm stats.md
       - name: Checkout target
         uses: actions/checkout@v3
         with:
@@ -121,28 +111,53 @@ jobs:
             name=${dir%/output.svg}
             cp "$filename" "diagrams/$name.svg"
           done
-      - name: Commit diagrams
+      - name: Commit diagrams and generate diff summary
         working-directory: diagrams/
         run: |
           set -x
-          git add .
+
           git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git config --global user.name "$GITHUB_ACTOR"
+
+          git add .
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
+
           echo '```' > diff.md
           git --no-pager diff --name-status ci/refs/heads/main HEAD >> diff.md
           echo '```' >> diff.md
+
+          echo '# ± Registry diff' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
           cat diff.md >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+
           echo 'REGISTRY_DIFF<<EOF' >> $GITHUB_ENV
           cat diff.md >> $GITHUB_ENV
           echo EOF >> $GITHUB_ENV
+
           rm diff.md
+      - name: Generate performance summary
+        working-directory: packages/automator/
+        run: |
+          set -x
+
+          yarn start textchart out stats.md
+
+          echo '# 📊 Performance' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          cat stats.md >> $GITHUB_STEP_SUMMARY
+
+          echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
+          cat stats.md >> $GITHUB_ENV
+          echo EOF >> $GITHUB_ENV
+
+          rm stats.md
       - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'penrose/penrose'
         name: Push to target
         working-directory: diagrams/
         run: git push -f origin HEAD
       - if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'penrose/penrose'
-        name: Comment on PR with stats
+        name: Comment on PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
