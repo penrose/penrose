@@ -145,7 +145,7 @@ jobs:
             # ± [Registry diff](${{ github.server_url }}/${{ github.repository }}/compare/ci/refs/heads/main..ci/${{ github.ref }})
 
             ```
-            ${{ env.REGISTRY_STATS }}
+            ${{ env.REGISTRY_DIFF }}
             ```
 
             # 📊 [Performance](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
