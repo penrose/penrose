@@ -80,7 +80,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install packages
-        uses: /.github/actions/packages
+        uses: ./.github/actions/packages
       - name: Build @penrose/automator
         run: npx nx run automator:build
       - name: Generate diagrams and metadata
