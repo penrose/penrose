@@ -126,8 +126,8 @@ jobs:
         run: |
           set -x
           git add .
-          git config --global user.email 'penrose-team@cs.cmu.edu'
-          git config --global user.name Penrose
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git config --global user.name "$GITHUB_ACTOR"
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
           echo 'REGISTRY_DIFF<<EOF' >> $GITHUB_ENV
           git --no-pager diff --name-status ci/refs/heads/main HEAD >> $GITHUB_ENV
