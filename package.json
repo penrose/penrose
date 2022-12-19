@@ -1,24 +1,21 @@
 {
   "repository": "penrose/penrose",
-  "author": "Penrose Team (https://penrose.ink)",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "private": true,
   "packages": [
     "packages/*"
   ],
   "scripts": {
-    "build": "lerna run build --stream --concurrency 1",
-    "typecheck": "lerna run typecheck",
-    "clean": "lerna clean && lerna run clean --stream",
-    "prestart": "lerna run build --scope=@penrose/examples --scope=@penrose/core",
-    "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
-    "prestart:ide": "lerna run build --scope=@penrose/examples --scope=@penrose/core",
-    "start:ide": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/panels",
-    "build:ide": "lerna run build --stream --scope=@penrose/core --scope=@penrose/panels  --include-dependencies",
-    "build:docs-site": "lerna run build --stream --scope=@penrose/core --scope=@penrose/components --scope=@penrose/docs-site",
-    "start:docs-site": "lerna run watch --stream --parallel --scope=@penrose/components --scope=@penrose/docs-site",
-    "test": "lerna run test --stream",
-    "docs": "lerna run docs --stream",
-    "lint": "lerna run lint --stream",
+    "build": "nx run-many --target=build --verbose",
+    "typecheck": "nx run-many --target=typecheck --verbose",
+    "build:docs-site": "nx run docs-site:build",
+    "start:docs-site": "nx run docs-site:watch",
+    "start": "nx run editor:watch",
+    "build:ide": "nx run editor:build",
+    "test": "nx run core:test",
+    "docs": "nx run core:docs",
+    "lint": "nx run core:lint",
+    "lint:fix": "nx run core:lint --fix",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
     "new-version:prerelease": "lerna version --conventional-prerelease",
@@ -27,21 +24,33 @@
     "release": "lerna publish from-package",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "toc": "markdown-toc --bullets='-' -i CONTRIBUTING.md",
     "diff": "lerna diff"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "handlebars": "^4.7.7",
+    "js-yaml": "^4.1.0",
     "lerna": "^3.22.1",
+    "markdown-toc": "^1.2.0",
+    "nx": "^15.0.13",
     "prettier": "2.2.1",
-    "prettier-plugin-organize-imports": "^2.3.4",
+    "prettier-plugin-organize-imports": "^3.2.1",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
-    "typescript": "^4.1.3"
+    "typescript": "^4.9.4"
   },
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/automator",
+      "packages/components",
+      "packages/core",
+      "packages/docs-site",
+      "packages/editor",
+      "packages/examples",
+      "packages/roger",
+      "packages/synthesizer",
+      "packages/synthesizer-ui"
     ],
     "nohoist": [
       "**/@types/jest",
@@ -49,5 +58,5 @@
       "**/webpack"
     ]
   },
-  "version": "0.0.0"
+  "version": "1.3.0"
 }

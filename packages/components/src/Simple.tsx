@@ -10,7 +10,6 @@ import {
   stateConverged,
   stepState,
   stepUntilConvergence,
-  variationSeeds,
 } from "@penrose/core";
 import React from "react";
 import fetchResolver from "./fetchPathResolver";
@@ -20,8 +19,10 @@ export interface SimpleProps {
   substance: string;
   style: string;
   variation: string;
+  stepSize?: number;
   interactive?: boolean; // considered true by default
   animate?: boolean; // considered false by default
+  onFrame?: (frame: PenroseState) => void;
 }
 
 export interface SimpleState {
@@ -44,8 +45,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     this.penroseState = undefined;
     const compilerResult = compileTrio(this.props);
     if (compilerResult.isOk()) {
-      // resample because initial sampling did not use the special sampling seed
-      this.penroseState = resample(await prepareState(compilerResult.value));
+      this.penroseState = await prepareState(compilerResult.value);
     } else {
       this.setState({ error: compilerResult.error });
     }
@@ -68,7 +68,13 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       this.penroseState &&
       !stateConverged(this.penroseState)
     ) {
-      this.penroseState = stepState(this.penroseState, 1);
+      this.penroseState = stepState(
+        this.penroseState,
+        this.props.stepSize ?? 1
+      );
+      if (this.props.onFrame) {
+        this.props.onFrame(this.penroseState);
+      }
       this.renderCanvas();
     }
   };
@@ -103,7 +109,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         this.props.variation !== prevProps.variation ||
         this.props.animate !== prevProps.animate
       ) {
-        this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
+        this.penroseState.variation = this.props.variation;
         this.penroseState = resample(this.penroseState);
         if (!this.props.animate) {
           await this.converge();

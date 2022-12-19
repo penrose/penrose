@@ -38,7 +38,7 @@ global {
 -- TODO: Can we have a "below everything" directive? or something broader than pairwise
 }
 
-Vertex V {
+forall Vertex V {
        -- TODO: Can we have boxes with rounded corners
        V.shape = Rectangle { 
          width: V.text.width + global.padding
@@ -63,7 +63,7 @@ Vertex V {
        V.shape above global.box
 }
 
-Edge E
+forall Edge E
 where E := MkEdge(v1, v2)
 with Vertex v1; Vertex v2 {
 
@@ -88,8 +88,8 @@ with Vertex v1; Vertex v2 {
      	     end : v2.shape.center - (endSideDim / 2. + arrowheadSize + padding) * dir
 	     strokeColor : Colors.black
 	     strokeWidth : 2.0
-             endArrowhead: true
-             arrowheadSize: 0.7
+             endArrowhead: "straight"
+             endArrowheadSize: 0.7
      }
 
      E.text = Equation {
@@ -116,20 +116,20 @@ with Vertex v1; Vertex v2 {
      E.shape above global.box
 }
 
-Vertex v1; Vertex v2 {
+forall Vertex v1; Vertex v2 {
        -- TODO: Make this work WRT rectangle dimensions
        ensure disjoint(v1.shape, v2.shape, 10.)
-       encourage repel(v1.shape, v2.shape)
+       encourage notTooClose(v1.shape, v2.shape)
 }
 
-Edge e1; Edge e2 {
+forall Edge e1; Edge e2 {
      -- TODO: Minimize edge crossings
      -- I guess an alternative is that no line intersects a box
    ensure disjoint(e1.text, e2.text)
    ensure disjoint(e1.shape, e2.shape)
 }
 
-Vertex v; Edge e {
+forall Vertex v; Edge e {
        ensure disjoint(v.shape, e.shape)
        ensure disjoint(v.shape, e.text)
 }

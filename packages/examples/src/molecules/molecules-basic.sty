@@ -38,7 +38,7 @@ forall Nitrogen x {
 
 -- Bonds
 
-SingleBond b
+forall SingleBond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
     b.line = Line {
@@ -50,7 +50,7 @@ with Atom x; Atom y {
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
-DoubleBond b
+forall DoubleBond b
 where b := MakeDoubleBond(x, y)
 with Atom x; Atom y {
     b.line1 = Line {
@@ -69,7 +69,7 @@ with Atom x; Atom y {
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
-TripleBond b
+forall TripleBond b
 where b := MakeTripleBond(x, y)
 with Atom x; Atom y {
     b.line1 = Line {
@@ -98,5 +98,5 @@ with Atom x; Atom y {
 -- Repulsion
 
 forall Atom x; Atom y {
-    encourage repel(x.icon, y.icon)
+    encourage notTooClose(x.icon, y.icon)
 }

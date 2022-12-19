@@ -2,13 +2,15 @@
   "compilerOptions": {
     "declaration": true,
     "importHelpers": true,
-    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "module": "commonjs",
-    "outDir": "lib",
+    "outDir": "dist",
     "rootDir": "src",
+    "skipLibCheck": true,
     "strict": true,
-    "target": "es2017",
-    "esModuleInterop": true
+    "target": "es2019",
+    "noImplicitAny": false
   },
   "include": ["src/**/*"]
 }

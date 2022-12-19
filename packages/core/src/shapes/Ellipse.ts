@@ -1,16 +1,14 @@
 import * as ad from "types/ad";
 import { Center, Fill, Named, Shape, Stroke } from "types/shapes";
 import { FloatV } from "types/value";
+import { boolV, floatV, noPaint, strV } from "utils/Util";
 import {
-  boolV,
   Canvas,
+  Context,
   sampleColor,
   sampleHeight,
-  sampleNoPaint,
   sampleVector,
   sampleWidth,
-  sampleZero,
-  strV,
 } from "./Samplers";
 
 export interface EllipseProps extends Named, Stroke, Fill, Center {
@@ -19,30 +17,30 @@ export interface EllipseProps extends Named, Stroke, Fill, Center {
 }
 
 export const sampleEllipse = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas
 ): EllipseProps => ({
   name: strV("defaultEllipse"),
   style: strV(""),
-  strokeWidth: sampleZero(),
+  strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
-  strokeColor: sampleNoPaint(),
+  strokeColor: noPaint(),
   strokeDasharray: strV(""),
-  fillColor: sampleColor(rng),
-  center: sampleVector(rng, canvas),
-  rx: sampleWidth(rng, canvas),
-  ry: sampleHeight(rng, canvas),
+  fillColor: sampleColor(context),
+  center: sampleVector(context, canvas),
+  rx: sampleWidth(context, canvas),
+  ry: sampleHeight(context, canvas),
   ensureOnCanvas: boolV(true),
 });
 
 export type Ellipse = Shape & { shapeType: "Ellipse" } & EllipseProps;
 
 export const makeEllipse = (
-  rng: seedrandom.prng,
+  context: Context,
   canvas: Canvas,
   properties: Partial<EllipseProps>
 ): Ellipse => ({
-  ...sampleEllipse(rng, canvas),
+  ...sampleEllipse(context, canvas),
   ...properties,
   shapeType: "Ellipse",
 });

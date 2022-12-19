@@ -1,5 +1,4 @@
-import consola, { LogLevel } from "consola";
-import { compileCompGraph } from "engine/EngineUtils";
+import { initConstraintWeight } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -9,18 +8,13 @@ import {
   parseSubstance,
   prettySubstance,
 } from "./compiler/Substance";
-import { makeADInputVars } from "./engine/Autodiff";
-import { evalShapes } from "./engine/Evaluator";
-import { genOptProblem, step } from "./engine/Optimizer";
-import { insertPending } from "./engine/PropagateUpdate";
+import { step } from "./engine/Optimizer";
 import {
   PathResolver,
   RenderInteractive,
   RenderShape,
   RenderStatic,
 } from "./renderer/Renderer";
-import { resampleOnce } from "./renderer/Resample";
-import { getListOfStagedStates } from "./renderer/Staging";
 import { Canvas } from "./shapes/Samplers";
 import { showMutations } from "./synthesis/Mutation";
 import { Synthesizer } from "./synthesis/Synthesizer";
@@ -29,8 +23,7 @@ import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
 import { Fn, FnEvaled, LabelCache, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
-import { FieldDict, Translation } from "./types/value";
-import { collectLabels } from "./utils/CollectLabels";
+import { collectLabels, insertPending } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
   bBoxDims,
@@ -39,18 +32,27 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   toSvgPaintProperty,
-  variationSeeds,
   zip2,
 } from "./utils/Util";
-
-const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
 /**
  * Use the current resample seed to sample all shapes in the State.
  * @param state current state
  */
 export const resample = (state: State): State => {
-  return resampleOnce(seedrandom(state.seeds.resample), state);
+  const rng = seedrandom(state.variation);
+  return {
+    ...state,
+    varyingValues: state.inputs.map((meta, i) =>
+      "sampler" in meta ? meta.sampler(rng) : state.varyingValues[i]
+    ),
+    params: {
+      ...state.params,
+      weight: initConstraintWeight,
+      optStatus: "NewIter",
+    },
+    frozenValues: new Set(),
+  };
 };
 
 /**
@@ -59,7 +61,26 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(seedrandom(state.seeds.step), state, numSteps, true);
+  return step(state, numSteps);
+};
+
+/**
+ * Take n steps in the optimizer given the current state.
+ * @param state current state
+ * @param numSteps number of steps to take (default: 10000)
+ */
+export const stepStateSafe = (
+  state: State,
+  numSteps = 10000
+): Result<State, PenroseError> => {
+  const res = step(state, numSteps);
+  if (res.params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", res),
+    });
+  }
+  return ok(res);
 };
 
 /**
@@ -115,8 +136,7 @@ export const diagram = async (
 ): Promise<void> => {
   const res = compileTrio(prog);
   if (res.isOk()) {
-    // resample because initial sampling did not use the special sampling seed
-    const state: State = resample(await prepareState(res.value));
+    const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendered = await RenderStatic(optimized, pathResolver);
     node.appendChild(rendered);
@@ -156,8 +176,7 @@ export const interactiveDiagram = async (
   };
   const res = compileTrio(prog);
   if (res.isOk()) {
-    // resample because initial sampling did not use the special sampling seed
-    const state: State = resample(await prepareState(res.value));
+    const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendering = await RenderInteractive(
       optimized,
@@ -200,40 +219,19 @@ export const compileTrio = (prog: {
 };
 
 /**
- * Generate all shapes, collect labels and images (if applicable), and generate the optimization problem given an initial `State`.
+ * Collect labels and images (if applicable).
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
-  const rng = seedrandom(state.seeds.prepare);
-
-  // generate evaluation function
-  const varyingVars = makeADInputVars(state.varyingValues);
-
-  const computeShapes = compileCompGraph(evalShapes(rng, state, varyingVars));
-
-  // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
-  // The results of the pending values are then stored back in the translation as autodiff types
-  const stateEvaled: State = {
-    ...state,
-    computeShapes,
-    shapes: computeShapes(state.varyingValues),
-  };
-
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
-    stateEvaled.shapes
+    state.shapes
   );
 
   if (labelCache.isErr()) {
     throw Error(showError(labelCache.error));
   }
 
-  const stateWithPendingProperties = insertPending({
-    ...stateEvaled,
-    labelCache: labelCache.value,
-  });
-
-  const withOptProblem: State = genOptProblem(rng, stateWithPendingProperties);
-  return withOptProblem;
+  return insertPending({ ...state, labelCache: labelCache.value });
 };
 
 /**
@@ -289,32 +287,27 @@ export const readRegistry = (registry: Registry): Trio[] => {
  */
 export const evalEnergy = (s: State): number => {
   const { objectiveAndGradient, weight } = s.params;
-  // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
-  if (!objectiveAndGradient) {
-    log.debug(
-      "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
-    );
-    const newState = genOptProblem(seedrandom(s.seeds.evalEnergy), s);
-    // TODO: caching
-    return evalEnergy(newState);
-  }
   // TODO: maybe don't also compute the gradient, just to throw it away
   return objectiveAndGradient(weight)(s.varyingValues).f;
 };
 
 /**
- * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. If the `State` doesn't have the constraints/objectives compiled, it will generate them first. Otherwise, it will evaluate the cached functions.
+ * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. This function assumes that the state already has the objectives and constraints compiled.
  * @param fns a list of constraints/objectives
- * @param s a state with or without its opt functions cached
- * @returns a list of the energies and gradients of the requested functions, evaluated at the `varyingValues` in the `State`
+ * @param s a state with its opt functions cached
+ * @returns a list of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
  */
 export const evalFns = (
   s: State
 ): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  const { lastConstrEnergies, lastObjEnergies } = s.params;
+  let { lastConstrEnergies, lastObjEnergies } = s.params;
   if (!lastConstrEnergies || !lastObjEnergies) {
-    // TODO: handle errors somehow
+    const { objEngs, constrEngs } = s.params.objectiveAndGradient(
+      s.params.weight
+    )(s.varyingValues);
+    lastConstrEnergies = constrEngs;
+    lastObjEnergies = objEngs;
   }
   return {
     constrEngs: new Map(
@@ -332,7 +325,7 @@ export { compDict } from "./contrib/Functions";
 export { objDict } from "./contrib/Objectives";
 export { secondaryGraph } from "./engine/Autodiff";
 export type { PathResolver } from "./renderer/Renderer";
-export { makeCanvas } from "./shapes/Samplers";
+export { makeCanvas, simpleContext } from "./shapes/Samplers";
 export { shapedefs } from "./shapes/Shapes";
 export type {
   SynthesizedSubstance,
@@ -342,6 +335,7 @@ export type { PenroseError } from "./types/errors";
 export type { Shape } from "./types/shape";
 export * as Value from "./types/value";
 export type { Result } from "./utils/Error";
+export { hexToRgba, rgbaToHex } from "./utils/Util";
 export {
   compileDomain,
   compileSubstance,
@@ -361,14 +355,10 @@ export {
   prettyPrintPath,
   prettyPrintExpr,
   normList,
-  getListOfStagedStates,
   toSvgPaintProperty,
-  variationSeeds,
 };
 export type { FnEvaled };
 export type { Registry, Trio };
 export type { Env };
 export type { SubProg };
 export type { Canvas };
-export type { FieldDict };
-export type { Translation };

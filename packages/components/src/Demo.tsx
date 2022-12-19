@@ -31,7 +31,7 @@ const Demo = (props: {
         display: "flex",
         flexDirection: "row",
         height: "100%",
-        flex: 1,
+        flexWrap: "wrap",
       }}
     >
       <Listing
@@ -39,7 +39,10 @@ const Demo = (props: {
         substance={example.sub}
         width={props.width}
         height={props.width}
-        monacoOptions={{ theme: props.darkMode ? "vs-dark" : "vs" }}
+        monacoOptions={{
+          theme: props.darkMode ? "vs-dark" : "vs",
+          wrappingIndent: "indent",
+        }}
       />
       <div style={{ width: props.width, height: props.width }}>
         <Simple

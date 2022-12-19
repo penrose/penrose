@@ -64,7 +64,7 @@ class Embed extends React.Component<SimpleProps, EmbedState> {
         />
         <div style={{ width: "100%", height: "100%" }} />
         <div className="embed-footer" style={footerStyle}>
-          <a href="https://penrose.ink">
+          <a href="https://penrose.cs.cmu.edu/">
             <Logo width={24} color={"white"} />
           </a>
           <div className="embed-text" style={textStyle}>

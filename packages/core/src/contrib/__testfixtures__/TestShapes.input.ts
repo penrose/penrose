@@ -1,18 +1,12 @@
-import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
-import {
-  floatV,
-  makeCanvas,
-  ptListV,
-  sampleBlack,
-  vectorV,
-} from "shapes/Samplers";
+import { makeCanvas, simpleContext } from "shapes/Samplers";
+import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { makeEllipse } from "../../shapes/Ellipse";
 
-const rng = seedrandom("TestShapes.input");
+const context = simpleContext("TestShapes.input");
 const canvas = makeCanvas(800, 700);
 
 export const _rectangles = [
@@ -21,12 +15,12 @@ export const _rectangles = [
   { center: [200, 0], width: 200, height: 200 },
   { center: [0, 300], width: 200, height: 200 },
 ].map((x) =>
-  makeRectangle(rng, canvas, {
+  makeRectangle(context, canvas, {
     center: vectorV(x.center),
     width: floatV(x.width),
     height: floatV(x.height),
     strokeWidth: floatV(0),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   })
 );
 
@@ -39,11 +33,11 @@ export const _circles = [
   { center: [150, 150], r: 50 },
   { center: [150, 150], r: 100 },
 ].map((x) =>
-  makeCircle(rng, canvas, {
+  makeCircle(context, canvas, {
     r: floatV(x.r),
     center: vectorV(x.center),
     strokeWidth: floatV(0),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   })
 );
 
@@ -53,7 +47,7 @@ export const _lines = [
   { start: [100, 300], end: [400, 300] },
   { start: [200, 400], end: [300, 100] },
 ].map((x) =>
-  makeLine(rng, canvas, {
+  makeLine(context, canvas, {
     start: vectorV(x.start),
     end: vectorV(x.end),
     strokeWidth: floatV(0),
@@ -91,7 +85,7 @@ export const _polygons = [
     [100, 200],
   ],
 ].map((pts) =>
-  makePolygon(rng, canvas, {
+  makePolygon(context, canvas, {
     points: ptListV(pts),
     scale: floatV(1),
   })
@@ -109,12 +103,15 @@ export const _ellipses = [
   // Non circles
   { rx: 200, ry: 100, center: [0, 0] },
   { rx: 50, ry: 150, center: [50, 150] },
+  { rx: 100, ry: 200, center: [300, 0] },
+  { rx: 150, ry: 100, center: [100, 250] },
+  { rx: 100, ry: 50, center: [0, 0] },
 ].map((x) =>
-  makeEllipse(rng, canvas, {
+  makeEllipse(context, canvas, {
     rx: floatV(x.rx),
     ry: floatV(x.ry),
     center: vectorV(x.center),
     strokeWidth: floatV(0),
-    strokeColor: sampleBlack(),
+    strokeColor: black(),
   })
 );

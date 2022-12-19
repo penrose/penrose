@@ -85,13 +85,13 @@ where IsSubset(A, B) {
 }
 ```
 
-`smallerThan()` and `contains()` are a couple of the built-in constraints pre-defined by Penrose. A full list of available constraints is available in the `constrDict` object documentation [here](https://penrose.github.io/penrose/typedoc/modules/_contrib_constraints_.html).
+`smallerThan()` and `contains()` are a couple of the built-in constraints pre-defined by Penrose. A full list of available constraints is available in the `constrDict` object documentation [here](https://penrose.github.io/penrose/typedoc/modules.html#constrDict).
 
 Notice that in our first example, we did not care about the size of our shapes, but now we want to maintain a specific hierarchy between objects. While Penrose tries to satisfy all constraints, it is possible for the circles to become too big or too small. So we need to specify a range of acceptable sizes for our circles so nothing goes crazy.
 
 ![This is what might happen when you don't constrain the sizes. 👿](/img/tutorial/no_ensures.png)
 
-Since we care about the sizes of **all** the sets and we need to **ensure** all of their sizes are within a reasonable range, we will again make use of our newly introduced keyword `ensure`. We call `ensure` on any fields of the object that we want to limit to within a certain range. In this case, we want to constrain the size of the shapes, so we add a call to `ensure minSize(x.icon)`. `minSize` is another pre-defined constraint that Penrose provides. If you're curious, the documentation for this constraint can be found [here](https://penrose.github.io/penrose/typedoc/modules/_contrib_constraints_.html) (scroll down to `minSize`). You can also see how Penrose implemented this constraint by clicking on the "Defined in" link.
+Since we care about the sizes of **all** the sets and we need to **ensure** all of their sizes are within a reasonable range, we will again make use of our newly introduced keyword `ensure`. We call `ensure` on any fields of the object that we want to limit to within a certain range. In this case, we want to constrain the size of the shapes, so we add a call to `ensure minSize(x.icon)`. `minSize` is another pre-defined constraint that Penrose provides. If you're curious, the documentation for this constraint can be found [here](https://penrose.github.io/penrose/typedoc/modules.html#constrDict) (scroll down to `minSize`). You can also see how Penrose implemented this constraint by clicking on the "Defined in" link.
 
 ```
 forall Set x {
@@ -130,7 +130,7 @@ To compile our new code, we can run the same commands as last time, with one min
 
 ## Exercises
 
-Complete the following exercises to practice implementing predicates in Penrose! As a reminder, you can find the documentation for all pre-defined constraints [here](https://penrose.github.io/penrose/typedoc/modules/_contrib_constraints_.html).
+Complete the following exercises to practice implementing predicates in Penrose! As a reminder, you can find the documentation for all pre-defined constraints [here](https://penrose.github.io/penrose/typedoc/modules.html#constrDict).
 
 - Define a predicate `Intersecting` that takes in two sets and outputs 2 circles that overlap.
 

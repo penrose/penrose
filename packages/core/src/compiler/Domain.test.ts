@@ -1,7 +1,7 @@
 import { examples } from "@penrose/examples";
 import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
-import * as nearley from "nearley";
+import nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
 import { Env } from "types/domain";
@@ -32,7 +32,7 @@ const contextHas = (
     expectedFunctions.forEach((f) => expect(functions.has(f)).toBe(true));
     expectedPredicates.forEach((p) => expect(predicates.has(p)).toBe(true));
   } else {
-    fail(showError(res.error));
+    throw Error(showError(res.error));
   }
 };
 
@@ -69,7 +69,7 @@ describe("Common", () => {
       expect(isSubtype(typeA, typeC, env)).toBe(false);
       expect(isSubtype(typeA, typeB, env)).toBe(false);
     } else {
-      fail(showError(res.error));
+      throw Error(showError(res.error));
     }
   });
 });
@@ -140,6 +140,33 @@ predicate PairIn(Point, Point, Map)
     ];
     contextHas(res, types, [], [], predicates);
   });
+  test("symmetric predicate decl", () => {
+    const prog = `
+type MyType
+type MySubType
+predicate MyNormalPredicate(MyType a, MyType b)
+symmetric predicate MyExcellentPredicate1(MyType a, MyType b)
+symmetric predicate MyExcellentPredicate2(MySubType, MySubType)
+    `;
+    const res = compileDomain(prog);
+    const predicates = [
+      "MyNormalPredicate",
+      "MyExcellentPredicate1",
+      "MyExcellentPredicate2",
+    ];
+    contextHas(res, [], [], [], predicates);
+    expect(res.isOk()).toEqual(true);
+    if (res.isOk()) {
+      let env = res.value;
+      expect(env.predicates.get("MyNormalPredicate")!.symmetric).toEqual(false);
+      expect(env.predicates.get("MyExcellentPredicate1")!.symmetric).toEqual(
+        true
+      );
+      expect(env.predicates.get("MyExcellentPredicate2")!.symmetric).toEqual(
+        true
+      );
+    }
+  });
 });
 
 describe("Errors", () => {
@@ -149,7 +176,7 @@ describe("Errors", () => {
       if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
-      fail(`Error ${errorType} was suppoed to occur.`);
+      throw Error(`Error ${errorType} was suppoed to occur.`);
     }
   };
   test("Parse error", () => {
@@ -206,6 +233,32 @@ constructor Cons ['X] ('X head, List('X) tail) -> List('X)
   D <: E
     `;
     expectErrorOf(prog, "CyclicSubtypes");
+  });
+  test("argument type mismatch in symmetric predicates without subtypes", () => {
+    const prog = `
+type MyType
+type MyOtherType
+predicate MyNormalPredicate(MyType a, MyType b)
+symmetric predicate MyExcellentPredicate(MyType a, MyType b)
+symmetric predicate MyBadPredicate(MyType a, MyOtherType b)
+    `;
+    expectErrorOf(prog, "SymmetricTypeMismatch");
+  });
+
+  test("argument type mismatch in symmetric predicates with subtypes", () => {
+    const prog = `
+type MyType
+type MySubType <: MyType
+symmetric predicate MyBadPredicate(MyType a, MySubType b)
+    `;
+    expectErrorOf(prog, "SymmetricTypeMismatch");
+  });
+  test("argument count mismatch in symmetric predicates", () => {
+    const prog = `
+type MyType
+symmetric predicate MyBadPredicate(MyType, MyType, MyType)
+    `;
+    expectErrorOf(prog, "SymmetricArgLengthMismatch");
   });
 });
 

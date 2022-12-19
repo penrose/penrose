@@ -6,7 +6,7 @@
       "folke.vscode-monorepo-workspace",
       "karyfoundation.nearley",
       "penrose.penrose-vs",
-      "silvenon.mdx"
+      "unifiedjs.vscode-mdx"
     ]
   },
   "folders": [
@@ -17,10 +17,6 @@
     {
       "name": "📦 @penrose/automator",
       "path": "packages/automator"
-    },
-    {
-      "name": "📦 @penrose/browser-ui",
-      "path": "packages/browser-ui"
     },
     {
       "name": "📦 @penrose/components",
@@ -35,12 +31,12 @@
       "path": "packages/docs-site"
     },
     {
-      "name": "📦 @penrose/examples",
-      "path": "packages/examples"
+      "name": "📦 @penrose/editor",
+      "path": "packages/editor"
     },
     {
-      "name": "📦 @penrose/panels",
-      "path": "packages/panels"
+      "name": "📦 @penrose/examples",
+      "path": "packages/examples"
     },
     {
       "name": "📦 @penrose/roger",

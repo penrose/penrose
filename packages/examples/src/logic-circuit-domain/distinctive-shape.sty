@@ -50,7 +50,7 @@ forall OutputNode A; OutputNode B {
 
 -- Gates
 
-XORGate G
+forall XORGate G
 where G := MakeXORGate(IN1, IN2, OUT)
 with Node IN1; Node IN2; Node OUT {
     G.center = (?, ?)
@@ -123,7 +123,7 @@ with Node IN1; Node IN2; Node OUT {
     ensure equal(vdist(OUT.center, (G.part1.center[0] + 45.0, G.part1.center[1])), 0.0)
 }
 
-ANDGate G
+forall ANDGate G
 where G := MakeANDGate(IN1, IN2, OUT)
 with Node IN1; Node IN2; Node OUT {
     G.center = (?, ?)
@@ -160,7 +160,7 @@ with Node IN1; Node IN2; Node OUT {
     ensure equal(vdist(OUT.center, (G.part1.center[0] + 45.0, G.part1.center[1])), 0.0)
 }
 
-SplitComponent x
+forall SplitComponent x
 where x := MakeSplitComponent(IN, OUT1, OUT2)
 with Node IN; Node OUT1; Node OUT2 {
     x.center = IN.center
@@ -196,7 +196,7 @@ forall Connection x; XORGate y {
 
 -- Connections
 
-Connection C
+forall Connection C
 where C := MakeConnection(A, B)
 with Node A; Node B {
     C.pivot = ?

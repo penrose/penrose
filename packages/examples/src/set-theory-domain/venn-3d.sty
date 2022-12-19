@@ -3,7 +3,7 @@ canvas {
   height = 700
 }
 
-Set x {
+forall Set x {
     x.shape = Circle {
         strokeWidth : 0.
     }
@@ -12,11 +12,11 @@ Set x {
         center : x.shape.center 
         width : x.shape.r * 2.0
         height : x.shape.r * 2.0
-        href : "shading.svg"
+        href : "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/set-theory-domain/shading.svg"
     }
 
     x.shadow = Image {
-        href : "shadow.svg"
+        href : "set-theory-domain-shadow.svg"
         width : x.shape.r * 2.15
         height : x.shape.r * 2.22
         center : (x.shape.center[0] + 0.03 * x.shading.width, x.shape.center[1] - 0.051 * x.shading.height)
@@ -25,8 +25,8 @@ Set x {
     x.text = Equation {
         string : x.label
         fillColor: rgba(1.0, 1.0, 1.0, 1.0)
-        width: 0.5 * x.shape.r
-        height: 0.5 * x.shape.r
+        width: 0.4 * x.shape.r
+        height: 0.4 * x.shape.r
     }
 
     ensure contains(x.shape, x.text)
@@ -41,19 +41,19 @@ Set x {
 forall Set x; Set y
 where IsSubset(x, y) {
     ensure smallerThan(x.shape, y.shape)
-    ensure disjoint(y.text, x.shape)
+    ensure disjoint(y.text, x.shape, 5.0)
     ensure contains(y.shape, x.shape, 5.0)
     x.shape above y.shape
     y.text below x.shape
     x.shadow above y.shape
 }
 
-Set x; Set y
+forall Set x; Set y
 where Not(Intersecting(x, y)) {
     ensure disjoint(x.shape, y.shape)
 }
 
-Set x; Set y
+forall Set x; Set y
 where Intersecting(x, y) {
     ensure overlapping(x.shape, y.shape)
     ensure disjoint(y.text, x.shape)

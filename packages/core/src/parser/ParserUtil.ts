@@ -1,5 +1,5 @@
-import { compact, flatten } from "lodash";
-import * as moo from "moo";
+import _ from "lodash";
+import moo from "moo";
 import { C, Identifier, NodeType, SourceLoc, SourceRange } from "types/ast";
 
 export const basicSymbols: moo.Rules = {
@@ -17,6 +17,7 @@ export const basicSymbols: moo.Rules = {
   rparen: ")",
   apos: "'",
   comma: ",",
+  hex_literal: /#[0-9A-Fa-f]{3,}/,
   string_literal: {
     // match: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
     // Not sure why we were disallowing backslashes in string literals;
@@ -122,8 +123,8 @@ export const rangeFrom = (children: SourceRange[]): SourceRange => {
 
   // NOTE: use of compact to remove optional nodes
   return {
-    start: minLoc(...compact(children).map((n) => n.start)),
-    end: maxLoc(...compact(children).map((n) => n.end)),
+    start: minLoc(..._.compact(children).map((n) => n.start)),
+    end: maxLoc(..._.compact(children).map((n) => n.end)),
     // children TODO: decide if want children/parent pointers in the tree
   };
 };
@@ -168,7 +169,7 @@ export const optional = <T>(optionalValue: T | undefined, defaultValue: T): T =>
 // Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
 export const tokensIn = (
   tokenList: (moo.Token | moo.Token[] | undefined)[]
-): moo.Token[] => flatten(compact(tokenList));
+): moo.Token[] => _.flatten(_.compact(tokenList));
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
 export const idOf = (value: string, nodeType: NodeType): Identifier<C> => ({
@@ -190,4 +191,27 @@ export const lastLocation = (parser: nearley.Parser): SourceLoc | undefined => {
   } else {
     return undefined;
   }
+};
+
+export const prettyParseError = (e: unknown): string => {
+  const lines: string[] = [];
+
+  let inStart = true;
+  const alreadySeen = new Set<string>();
+  for (const line of `${e}`.split("\n")) {
+    const match = line.match(/^A (.*) based on:$/);
+    if (match !== null) {
+      inStart = false;
+      const option = match[1];
+      if (!alreadySeen.has(option)) {
+        alreadySeen.add(option);
+        lines.push(`    ${option}`);
+      }
+    } else if (inStart) {
+      lines.push(line);
+    }
+  }
+
+  lines.push("");
+  return lines.join("\n");
 };

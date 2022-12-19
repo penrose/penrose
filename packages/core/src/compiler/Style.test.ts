@@ -2,18 +2,19 @@
 
 import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
-import { compileSubstance, parseSubstance } from "compiler/Substance";
-import _ from "lodash";
-import { A, C } from "types/ast";
+import { compileSubstance } from "compiler/Substance";
+import im from "immutable";
 import { Either } from "types/common";
 import { Env } from "types/domain";
-import { PenroseError, StyleErrors } from "types/errors";
+import { PenroseError } from "types/errors";
 import { State } from "types/state";
-import { StyProg } from "types/style";
-import { SubProg, SubstanceEnv } from "types/substance";
-import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
-import { foldM, toLeft, ToRight } from "utils/Util";
+import { Assignment, Layer, Translation } from "types/styleSemantics";
+import { SubstanceEnv } from "types/substance";
+import { ColorV, RGBA } from "types/value";
+import { andThen, Result, showError } from "utils/Error";
+import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
 import { compileDomain } from "./Domain";
+
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"
@@ -24,38 +25,51 @@ const loadFile = (examplePath: string): string => {
   return prog;
 };
 
-const loadFiles = (paths: string[]): string[] => {
-  return paths.map(loadFile);
-};
+interface Trio {
+  sub: string;
+  dsl: string;
+  sty: string;
+}
+
+const loadFiles = ({
+  dslPath,
+  subPath,
+  styPath,
+}: {
+  dslPath: string;
+  subPath: string;
+  styPath: string;
+}): Trio => ({
+  dsl: loadFile(dslPath),
+  sub: loadFile(subPath),
+  sty: loadFile(styPath),
+});
 
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
-// files must follow schema: { domain, substance, style }
-export const loadProgs = ([domainStr, subStr, styStr]: [
-  string,
-  string,
-  string
-]): [Env, SubstanceEnv, SubProg<C>, StyProg<C>] => {
-  const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
-  const env0: Env = unsafelyUnwrap(domainProgRes);
-
-  // TODO: Could be more efficient if compileSubstance also outputs parsed Sub program
-  const subProg: SubProg<C> = unsafelyUnwrap(parseSubstance(subStr));
-  const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(
-    subStr,
-    env0
+export const loadProgs = ({
+  dsl,
+  sub,
+  sty,
+}: Trio): {
+  translation: Translation;
+  assignment: Assignment;
+  state: State;
+} => {
+  const throwErr = (e: any): any => {
+    throw Error(
+      `Expected Style program to work without errors. Got error: ${showError(
+        e
+      )}`
+    );
+  };
+  const env: Env = compileDomain(dsl).unwrapOrElse(throwErr);
+  const [subEnv, varEnv]: [SubstanceEnv, Env] = compileSubstance(
+    sub,
+    env
+  ).unwrapOrElse(throwErr);
+  return S.compileStyleHelper("styletests", sty, subEnv, varEnv).unwrapOrElse(
+    throwErr
   );
-
-  const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
-  const styProg: StyProg<C> = unsafelyUnwrap(S.parseStyle(styStr));
-
-  const res: [Env, SubstanceEnv, SubProg<C>, StyProg<C>] = [
-    varEnv,
-    subEnv,
-    subProg,
-    styProg,
-  ];
-
-  return res;
 };
 
 const canvasPreamble = `canvas {
@@ -67,49 +81,140 @@ const canvasPreamble = `canvas {
 describe("Layering computation", () => {
   // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
   test("simple layering: A -> B -> C", () => {
-    const partials: [string, string][] = [
-      ["A", "B"],
-      ["B", "C"],
+    const partials: Layer[] = [
+      { below: "A", above: "B" },
+      { below: "B", above: "C" },
     ];
-    const res = S.topSortLayering(["A", "B", "C"], partials);
-    expect(res).toEqual(["A", "B", "C"]);
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["A", "B", "C"],
+      partials
+    );
+    expect(shapeOrdering).toEqual(["A", "B", "C"]);
+    expect(warning).toBeUndefined();
   });
   test("one cycle: A -> B -> C -> A", () => {
-    const partials: [string, string][] = [
-      ["A", "B"],
-      ["B", "C"],
-      ["C", "A"],
+    const partials: Layer[] = [
+      { below: "A", above: "B" },
+      { below: "B", above: "C" },
+      { below: "C", above: "A" },
     ];
-    const res = S.topSortLayering(["A", "B", "C"], partials);
-    expect(res).toEqual(["A", "B", "C"]);
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["A", "B", "C"],
+      partials
+    );
+    expect(shapeOrdering).toEqual(["A", "B", "C"]);
+    expect(warning).toBeDefined();
+    expect(warning?.cycles.length).toEqual(1);
   });
   test("one cycle in tree", () => {
-    const partials: [string, string][] = [
-      ["A", "B"],
-      ["A", "C"],
-      ["B", "D"],
-      ["D", "E"],
-      ["E", "B"],
-      ["C", "F"],
+    const partials: Layer[] = [
+      { below: "A", above: "B" },
+      { below: "A", above: "C" },
+      { below: "B", above: "D" },
+      { below: "D", above: "E" },
+      { below: "E", above: "B" },
+      { below: "C", above: "F" },
     ];
-    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
-    expect(res).toEqual(["A", "C", "F", "B", "D", "E"]);
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["A", "B", "C", "D", "E", "F"],
+      partials
+    );
+    expect(shapeOrdering).toEqual(["A", "C", "F", "B", "D", "E"]);
+    expect(warning).toBeDefined();
+    expect(warning?.cycles.length).toEqual(1);
   });
-  test("one big cycle in tree", () => {
-    const partials: [string, string][] = [
-      ["A", "B"],
-      ["A", "C"],
-      ["B", "D"],
-      ["D", "E"],
-      ["E", "C"],
-      ["C", "F"],
+  test("one big cycle", () => {
+    const partials: Layer[] = [
+      { below: "A", above: "B" },
+      { below: "B", above: "D" },
+      { below: "C", above: "A" },
+      { below: "D", above: "E" },
+      { below: "E", above: "C" },
+      { below: "C", above: "F" },
     ];
-    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
-    expect(res).toEqual(["A", "B", "D", "E", "C", "F"]);
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["A", "B", "C", "D", "E", "F"],
+      partials
+    );
+    expect(shapeOrdering).toEqual(["A", "B", "D", "E", "C", "F"]);
+    expect(warning).toBeDefined();
+    expect(warning?.cycles.length).toEqual(1);
+  });
+});
+
+describe("Color literals", () => {
+  const colorValMatches = (
+    colorPath: string,
+    expected: [number, number, number, number],
+    translation: Translation
+  ) => {
+    const val = translation.symbols.get(colorPath);
+    const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
+      .contents;
+    zip2(rgba, expected).map(([a, b]) => expect(a).toBeCloseTo(b, 1));
+  };
+  test("color literal values", () => {
+    const { translation } = loadProgs({
+      dsl: "type T",
+      sub: `
+      T t
+      `,
+      sty:
+        canvasPreamble +
+        `
+      forall T t {
+        t.color1 = #000000
+        t.color2 = #FFFFFF
+        t.color3 = #a68db8
+        t.color4 = #00000000
+        t.color5 = #FFFFFF80
+        t.color6 = #a68db8FF
+        t.color7 = #000
+        t.color8 = #FFF
+        t.color9 = #fc9
+        t.color7 = #0000
+        t.color8 = #FFF8
+        t.color9 = #fc9F
+      }
+      `,
+    });
+    colorValMatches(`\`t\`.color1`, [0, 0, 0, 1], translation);
+    colorValMatches(`\`t\`.color2`, [1, 1, 1, 1], translation);
+    colorValMatches(`\`t\`.color3`, [0.651, 0.553, 0.722, 1.0], translation);
+    colorValMatches(`\`t\`.color4`, [0, 0, 0, 0], translation);
+    colorValMatches(`\`t\`.color5`, [1, 1, 1, 0.5], translation);
+    colorValMatches(`\`t\`.color6`, [0.651, 0.553, 0.722, 1.0], translation);
+    colorValMatches(`\`t\`.color7`, [0, 0, 0, 0], translation);
+    colorValMatches(`\`t\`.color8`, [1, 1, 1, 0.5], translation);
+    colorValMatches(`\`t\`.color9`, [1, 0.8, 0.6, 1], translation);
   });
 });
 
 describe("Compiler", () => {
+  test("Label insertion", () => {
+    const { assignment } = loadProgs({
+      dsl: "type Set",
+      sub: `
+      Set A, B, C
+      AutoLabel All
+      Label A $aaa$
+      NoLabel B
+      `,
+      sty: canvasPreamble + ``,
+    });
+    const { substances } = assignment;
+    for (const [name, label] of [
+      ["A", "aaa"],
+      ["B", ""],
+      ["C", "C"],
+    ]) {
+      const v = substances.get(name)?.get("label");
+      if (v?.tag === "OtherSource" && v?.expr.expr.tag === "StringLit") {
+        expect(v.expr.expr.contents).toBe(label);
+      }
+    }
+  });
+
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
   // // Each possible substitution should be full WRT its selector
   // test("substitution: S.fullSubst true", () => {
@@ -195,59 +300,24 @@ describe("Compiler", () => {
 
   //   const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
-  //   const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
+  //   const selErrs: StyleError[] = _.flatMap(selEnvs, (e) =>
   //     e.warnings.concat(e.errors)
   //   );
 
   //   if (selErrs.length > 0) {
   //     const err = `Could not compile. Error(s) in Style while checking selectors`;
   //     console.log([err].concat(selErrs.map((e) => showError(e))));
-  //     fail();
+  //     throw Error();
   //   }
 
   //   if (subss.length !== correctSubsts.length) {
-  //     fail();
+  //     throw Error();
   //   }
 
   //   for (const [res, expected] of _.zip(subss, correctSubsts)) {
   //     expect(res).toEqual(expected);
   //   }
   // });
-
-  // There are no AnonAssign statements, i.e. they have all been substituted out (proxy test for `S.nameAnonStatements` working)
-  test("There are no anonymous statements", () => {
-    const triple: [string, string, string] = [
-      "linear-algebra-domain/linear-algebra.dsl",
-      "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
-      "linear-algebra-domain/linear-algebra-paper-simple.sty",
-    ];
-
-    const [varEnv, subEnv, subProg, styProgInit]: [
-      Env,
-      SubstanceEnv,
-      SubProg<C>,
-      StyProg<C>
-    ] = loadProgs(loadFiles(triple) as [string, string, string]);
-
-    const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
-    const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
-      e.warnings.concat(e.errors)
-    );
-
-    if (selErrs.length > 0) {
-      const err = `Could not compile. Error(s) in Style while checking selectors`;
-      console.log([err].concat(selErrs.map((e) => showError(e))));
-      expect(false).toEqual(true);
-    }
-
-    const styProg: StyProg<A> = S.nameAnonStatements(styProgInit);
-
-    for (const hb of styProg.blocks) {
-      for (const stmt of hb.block.statements) {
-        expect(stmt.tag).not.toEqual("AnonAssign");
-      }
-    }
-  });
 
   const sum = (acc: number, n: number, i: number): Either<string, number> =>
     i > 2 ? toLeft("error") : ToRight(acc + n);
@@ -274,74 +344,252 @@ describe("Compiler", () => {
   });
 
   describe("Correct Style programs", () => {
-    const domainProg = "type Object";
-    const subProg = "Object o";
+    const dsl = "type Object";
+    const sub = "Object o";
     // TODO: Name these programs
-    const styProgs = [
-      // These are mostly to test setting shape properties as vectors or accesspaths
-      `Object o {
+    const stys = [
+      // These were previously mostly to test setting shape properties as
+      // vectors or accesspaths, but the ability to override accesspaths was
+      // removed in the compiler rewrite (see the comment in the "first Style
+      // compiler pass" section of `types/styleSemantics`)
+      `forall Object o {
     shape o.shape = Line {}
-    o.shape.start[0] = 0.
+    -- o.shape.start[0] = 0.
 }
 `,
-      `Object o {
+      `forall Object o {
     shape o.shape = Line {
         start: (0., ?)
     }
 }`,
-      `Object o {
+      `forall Object o {
     shape o.shape = Line {
           start: (?, ?)
     }
-    o.shape.start[0] = 0.
+    -- o.shape.start[0] = 0.
 }`,
-      `Object o {
+      `forall Object o {
     o.y = ?
     shape o.shape = Line {
         start: (0., o.y)
     }
 }`,
       // Set field
-      `Object o {
+      `forall Object o {
        o.f = (?, ?)
-       o.f[0] = 0.
+       -- o.f[0] = 0.
        o.shape = Circle {}
 }`,
       `canvas {
-  override width = 500.0
+  width = 500.0
+  height = 400.0
 }`,
     ];
-
-    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
-
-    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-      (env) => compileSubstance(subProg, env),
-      domainRes
+    stys.forEach((sty: string) =>
+      loadProgs({ dsl, sub, sty: canvasPreamble + sty })
     );
-
-    for (const styProg of styProgs) {
-      const styRes: Result<State, PenroseError> = andThen(
-        (res) =>
-          S.compileStyle(
-            "Style compiler correctness test seed",
-            canvasPreamble + styProg,
-            ...res
-          ),
-        subRes
-      );
-
-      if (!styRes.isOk()) {
-        fail(
-          `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
-        );
-      } else {
-        expect(true).toEqual(true);
-      }
-    }
   });
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
+  describe("Symmetric predicates", () => {
+    test("non-symmetric predicate should not match", () => {
+      const dsl = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      predicate Bond(Atom, Atom)`;
+      const sub = `Hydrogen H
+      Oxygen O
+      Bond(H, O)`;
+      const sty =
+        canvasPreamble +
+        `forall Hydrogen h; Oxygen o
+      where Bond(o, h) {
+        myShape = Text {
+          string: "Bond!"
+        }
+      }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(0);
+    });
+    test("symmetric predicate should match 1", () => {
+      const dsl = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      symmetric predicate Bond(Atom, Atom)`;
+      const sub = `Hydrogen H
+      Oxygen O
+      Bond(H, O)`;
+      const sty =
+        canvasPreamble +
+        `forall Hydrogen h; Oxygen o
+      where Bond(o, h) {
+        myShape = Text {
+          string: "Bond!"
+        }
+      }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toBeGreaterThan(0);
+    });
+    test("symmetric predicate should match 2", () => {
+      const dsl = `type Set
+      symmetric predicate Equal(Set, Set)`;
+      const sub = `Set A, B, C
+      Equal(A, B)
+      Equal(A, C)`;
+      const sty =
+        canvasPreamble +
+        `forall Set x, y, z
+      where Equal(x, y); Equal(y, z) {
+        myShape = Text {
+          string: "Equality!"
+        }
+      }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toBeGreaterThan(0);
+    });
+    test("nested symmetric predicates", () => {
+      const dsl = `type Atom
+      type Hydrogen <: Atom
+      type Oxygen <: Atom
+      symmetric predicate Bond(Atom, Atom)
+      predicate Not(Prop)`;
+      const sub = `Hydrogen H
+      Oxygen O
+      Not(Bond(H, O))`;
+      const sty =
+        canvasPreamble +
+        `forall Hydrogen h; Oxygen o
+        where Not(Bond(o, h)) {
+          theText = Text {
+            string: "hello"
+          }
+        }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toBeGreaterThan(0);
+    });
+  });
 
+  describe("number of matchings", () => {
+    test("no double matching, non-symmetric", () => {
+      const dsl = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+predicate Bond(Atom, Atom)`;
+      const sub = `Hydrogen H1, H2
+      Oxygen O
+      Bond( O, H1 )
+      Bond( O, H2 )`;
+      const sty =
+        canvasPreamble +
+        `forall Oxygen o; Hydrogen h1; Hydrogen h2
+        where Bond(o,h1); Bond(o,h2) {
+            myText = Text {
+                string: "Water!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(1);
+    });
+
+    test("no double matching, symmetric", () => {
+      const dsl = `type Atom
+      symmetric predicate Bond(Atom, Atom)`;
+      const sub = `Atom A1, A2
+      Bond( A1, A2 )`;
+      const sty =
+        canvasPreamble +
+        `forall Atom a1; Atom a2
+        where Bond(a1, a2) {
+            myText = Text {
+                string: "Bond"
+            }
+        }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(1);
+    });
+
+    test("extra variables not in relations", () => {
+      const dsl = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+predicate Bond(Atom, Atom)`;
+      const sub = `Hydrogen H1, H2
+      Oxygen O
+      Bond( O, H1 )
+      Bond( O, H2 )
+      Hydrogen H3, H4`;
+      const sty =
+        canvasPreamble +
+        `forall Oxygen o; Hydrogen h1; Hydrogen h2; Hydrogen h3
+        where Bond(o,h1); Bond(o,h2) {
+            myText = Text {
+                string: "Water!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(2);
+    });
+
+    test("pure selector, no relations", () => {
+      const dsl = `type Atom`;
+      const sub = `Atom A1, A2`;
+      const sty =
+        canvasPreamble +
+        `forall Atom a1; Atom a2 {
+            myText = Text {
+                string: "TwoAtoms!"
+                fillColor: rgba(0, 0, 0, 255)
+            }
+        }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(1);
+    });
+  });
+
+  describe("predicate alias", () => {
+    test("general predicate alias with symmetry", () => {
+      const dsl = `type Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+symmetric predicate Bond(Atom, Atom)
+`;
+      const sub = `Hydrogen H1, H2
+Oxygen O
+Bond(O, H1)
+Bond(O, H2)`;
+      const sty =
+        canvasPreamble +
+        `
+    forall Oxygen o; Hydrogen h
+    where Bond(h, o) as b {
+        b.shape = Line {
+        }
+    }
+    `;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(2);
+    });
+    test("correct style programs with predicate aliasing", () => {
+      const dsl = "type Set \n predicate IsSubset(Set, Set)";
+      const sub = "Set A\nSet B\nSet C\nIsSubset(B, A)\nIsSubset(C, B)";
+
+      const sty =
+        canvasPreamble +
+        `forall Set a; Set b where IsSubset(a,b) as foo {
+          foo.icon = Rectangle{}
+        }
+        forall Set u; Set v where IsSubset(u,v) as bar {
+          bar.icon2 = Ellipse{}
+        }
+        `;
+
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(4);
+    });
+  });
   // Test errors
   const PRINT_ERRORS = false;
 
@@ -352,13 +600,13 @@ describe("Compiler", () => {
     if (result.isErr()) {
       const res: PenroseError = result.error;
       if (res.errorType !== "StyleError") {
-        fail(
+        throw Error(
           `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`
         );
       }
 
       if (res.tag !== "StyleErrorList") {
-        fail(
+        throw Error(
           `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
         );
       }
@@ -369,7 +617,17 @@ describe("Compiler", () => {
 
       expect(res.errors[0].tag).toBe(errorType);
     } else {
-      fail(`Error ${errorType} was supposed to occur.`);
+      const { warnings } = result.value;
+
+      if (warnings.length === 0) {
+        throw Error(`Error ${errorType} was supposed to occur.`);
+      }
+
+      if (PRINT_ERRORS) {
+        console.log(warnings);
+      }
+
+      expect(warnings[0].tag).toBe(errorType);
     }
   };
 
@@ -403,6 +661,12 @@ describe("Compiler", () => {
     };
 
     const errorStyProgs = {
+      // ------ Generic errors
+      InvalidColorLiteral: [
+        `forall Set x { 
+          x.color = #12777733aa
+       }`,
+      ],
       // ------ Selector errors (from Substance)
       SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
       SelectorFieldNotSupported: [`forall Set x where x has randomfield { }`],
@@ -437,16 +701,24 @@ where IsSubset(y, x) { }`,
 
       InvalidConstraintNameError: [`forall Set x { ensure jahfkjdhf(0.0) }`],
 
-      // ------- Translation errors (deletion)
-      DeletedPropWithNoSubObjError: [`forall Set x { delete y.z.p }`],
-      DeletedPropWithNoFieldError: [
+      // ------- Compilation errors
+
+      PropertyMemberError: [`forall Set x { delete y.z.p }`],
+      MissingShapeError: [
         `forall Set x { x.icon = Circle { }
 delete x.z.p }`,
+        `forall Set x {
+    x.icon.r = 0.0
+}`,
       ],
 
-      DeletedPropWithNoGPIError: [
+      NotShapeError: [
         `forall Set x { x.z = 0.0
 delete x.z.p }`,
+        `forall Set x {
+    x.icon = "hello"
+    x.icon.r = 0.0
+}`,
       ],
 
       // COMBAK: This doesn't catch the error
@@ -456,8 +728,8 @@ delete x.z.p }`,
       //       CircularPathAlias: [`forall Set x { x.icon = Circle { }
       // x.icon.center = x.icon.center }`],
 
-      DeletedNonexistentFieldError: [`forall Set x { delete x.z }`],
-      DeletedVectorElemError: [
+      NoopDeleteWarning: [`forall Set x { delete x.z }`],
+      AssignAccessError: [
         `forall Set x {  
          x.icon = Circle { 
            center: (0.0, 0.0) 
@@ -465,9 +737,7 @@ delete x.z.p }`,
          delete x.icon[0] }`,
       ],
 
-      // ---------- Translation errors (insertion)
-
-      InsertedPathWithoutOverrideError: [
+      ImplicitOverrideWarning: [
         `forall Set x { 
            x.z = 1.0 
            x.z = 2.0
@@ -476,24 +746,20 @@ delete x.z.p }`,
          x.icon = Circle { 
            center: (0.0, 0.0) 
          }
-           x.icon.center = 2.0
+           x.icon.center = (2.0, 0.0)
 }`,
       ],
 
-      InsertedPropWithNoFieldError: [
+      CyclicAssignmentError: [
         `forall Set x {
-    x.icon.r = 0.0
-}`,
+          x.icon = Circle { }
+        }
+
+        forall Set x; Set y where IsSubset(x, y) {
+          override y.r = x.r + y.r
+        }`,
       ],
 
-      InsertedPropWithNoGPIError: [
-        `forall Set x {
-    x.icon = "hello"
-    x.icon.r = 0.0
-}`,
-      ],
-
-      // ----------- Translation validation errors
       // TODO(errors): check multiple errors
 
       // TODO(errors): This throws too early, gives InsertedPathWithoutOverrideError -- correctly throws error but may be misleading
@@ -501,32 +767,26 @@ delete x.z.p }`,
       // NonexistentNameError:
       //   [`forall Set x { A.z = 0. }`],
 
-      NonexistentFieldError: [`forall Set x { x.icon = Circle { r: x.r } }`],
-      NonexistentGPIError: [
+      MissingPathError: [
+        `forall Set x { x.icon = Circle { r: x.r } }`,
         `forall Set x {  
          x.z = x.c.p
        }`,
-      ],
-      NonexistentPropertyError: [
         `forall Set x {  
           x.icon = Circle { 
            r: 9.
            center: (x.icon.z, 0.0)
          } 
        }`,
-      ],
-      ExpectedGPIGotFieldError: [
         `forall Set x { 
            x.z = 1.0 
            x.y = x.z.p
 }`,
       ],
-      CanvasNonexistentError: [
+      CanvasNonexistentDimsError: [
         `foo { 
   bar = 1.0
 }`,
-      ],
-      CanvasNonexistentDimsError: [
         `canvas { 
   height = 100
 }`,
@@ -557,6 +817,14 @@ delete x.z.p }`,
   width = 100
   height = (1.0, 1.0)
 }`,
+      ],
+      SelectorAliasNamingError: [
+        `forall Set a; Set b
+        where IsSubset(a, b) as a {}`,
+        `forall Set a; Set b
+        where IsSubset(a, b) as Set {}`,
+        `forall Set a; Set b
+        where IsSubset(a, b) as IsSubset {}`,
       ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
@@ -605,5 +873,107 @@ delete x.z.p }`,
         testStyProgForError(styProg, errorType);
       }
     }
+  });
+
+  describe("faster matching", () => {
+    test("multiple predicates", () => {
+      const sub = `
+      MySet X, Y
+ OtherType Z
+ 
+ MyPred(Z, X, Y)
+ MyOtherPred(X, Y)`;
+      const dsl = `
+     type MySet
+ type OtherType
+ 
+ predicate MyPred(OtherType, MySet, MySet)
+ predicate MyOtherPred(MySet, MySet)`;
+
+      const sty =
+        canvasPreamble +
+        `
+     forall MySet X; MySet Y; OtherType Z
+ where MyPred(Z, X, Y); MyOtherPred(X, Y) {
+     theCircle = Circle {
+         r: 20
+     }
+ }`;
+
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(1);
+    });
+    test("many declaration matches with only one relational match", () => {
+      const sub = `
+      T t1, t2, t3, t4, t5, t6, t7, t8
+      S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;
+      const dsl = `
+      -- minimal.dsl
+      type S
+      type T
+      constructor f( T t1, T t2, T t3, T t4, T t5, T t6, T t7, T t8 ) -> S`;
+
+      const sty =
+        canvasPreamble +
+        `
+        forall S s; T t1; T t2; T t3; T t4; T t5; T t6; T t7; T t8
+        where s := f( t1, t2, t3, t4, t5, t6, t7, t8 ) {
+           s.shape = Circle {
+              center: (0,0)
+              r: 10.0
+           }
+        }`;
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(1);
+    });
+  });
+
+  describe("match metadata", () => {
+    test("match total", () => {
+      const dsl = "type MyType\n";
+      const sty =
+        canvasPreamble +
+        `forall MyType t {
+  t.shape = Text {
+    string: match_total
+  }
+}`;
+      const sub = "MyType t1, t2, t3\n";
+      const { state } = loadProgs({ dsl, sub, sty });
+      expect(
+        state.shapes.every((shape) => {
+          const val = shape.properties["string"];
+          return val.tag === "FloatV" && val.contents === 3;
+        })
+      ).toEqual(true);
+    });
+
+    test("match id", () => {
+      const dsl = "type MyType\n";
+      const sty =
+        canvasPreamble +
+        `forall MyType t {
+  t.shape = Text {
+    string: match_id
+  }
+}`;
+      const sub = "MyType t1, t2, t3\n";
+
+      const { state } = loadProgs({ dsl, sub, sty });
+
+      // Require that the match_id's are exactly [1, 2, 3]
+      expect(
+        im.Set(
+          state.shapes.map((shape) => {
+            const val = shape.properties["string"];
+            if (val.tag === "FloatV") {
+              return val.contents;
+            } else {
+              throw Error("Should be a number");
+            }
+          })
+        )
+      ).toEqual(im.Set([1, 2, 3]));
+    });
   });
 });

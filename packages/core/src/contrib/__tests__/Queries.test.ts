@@ -1,28 +1,24 @@
 import { compDict } from "contrib/Functions";
 import {
   bboxFromShape,
+  outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
   shapeSize,
 } from "contrib/Queries";
-import { genCode, secondaryGraph } from "engine/Autodiff";
-import seedrandom from "seedrandom";
+import { genCode, ops, secondaryGraph } from "engine/Autodiff";
+import { sub } from "engine/AutodiffFunctions";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
 import { makeLine } from "shapes/Line";
 import { makePath } from "shapes/Path";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
-import {
-  floatV,
-  makeCanvas,
-  ptListV,
-  sampleBlack,
-  vectorV,
-} from "shapes/Samplers";
+import { makeCanvas, simpleContext } from "shapes/Samplers";
 import { Pt2 } from "types/ad";
+import { black, floatV, ptListV, vectorV } from "utils/Util";
 
-const rng = seedrandom("Queries");
+const context = simpleContext("Queries");
 const canvas = makeCanvas(800, 700);
 const precisionDigits = 10;
 
@@ -30,40 +26,40 @@ const shapes: [string, any][] = [
   // shapes[0]
   [
     "Rectangle",
-    makeRectangle(rng, canvas, {
+    makeRectangle(context, canvas, {
       center: vectorV([11, 22]),
       width: floatV(44),
       height: floatV(44),
       strokeWidth: floatV(0),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     }),
   ],
   // shapes[1]
   [
     "Circle",
-    makeCircle(rng, canvas, {
+    makeCircle(context, canvas, {
       r: floatV(22),
       center: vectorV([11, 22]),
       strokeWidth: floatV(0),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     }),
   ],
   // shapes[2]
   [
     "Ellipse",
-    makeEllipse(rng, canvas, {
+    makeEllipse(context, canvas, {
       rx: floatV(22),
       ry: floatV(22),
       center: vectorV([11, 22]),
       strokeWidth: floatV(0),
-      strokeColor: sampleBlack(),
+      strokeColor: black(),
     }),
   ],
   // shapes[3]
   [
     "Path",
-    makePath(rng, canvas, {
-      d: compDict.pathFromPoints({ rng }, "open", [
+    makePath(context, canvas, {
+      d: compDict.pathFromPoints(context, "open", [
         [-11, 0],
         [33, 0],
         [33, 44],
@@ -73,7 +69,7 @@ const shapes: [string, any][] = [
   // shapes[4]
   [
     "Line",
-    makeLine(rng, canvas, {
+    makeLine(context, canvas, {
       start: vectorV([-11, 0]),
       end: vectorV([33, 44]),
       strokeWidth: floatV(0),
@@ -82,7 +78,7 @@ const shapes: [string, any][] = [
   // shapes[5]
   [
     "Polygon",
-    makePolygon(rng, canvas, {
+    makePolygon(context, canvas, {
       points: ptListV([
         [-11, 0],
         [33, 0],
@@ -167,4 +163,50 @@ describe("polygonLikePoints", () => {
       expect(() => polygonLikePoints([shapeType, shape])).toThrowError();
     }
   );
+});
+
+describe("outwardUnitNormal", () => {
+  let point1 = [2, 3];
+  let point2 = [1, 2];
+  let point3 = [1, 4];
+  let point4 = [2, 2];
+  let lineSegment = [point3, point4];
+
+  test("inside point above", async () => {
+    let result = outwardUnitNormal(lineSegment, point1);
+
+    const [norm, dot, diff] = genCode(
+      secondaryGraph([
+        ops.vnorm(result),
+        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+        sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
+      ])
+    )([]).secondary;
+
+    // It is unit
+    expect(norm).toBeCloseTo(1, 4);
+    // It is orthogonal to the line segment
+    expect(dot).toBeCloseTo(0, 4);
+    // `insidePoint1` is inside
+    expect(diff).toBeLessThan(0);
+  });
+
+  test("inside point below", async () => {
+    let result = outwardUnitNormal(lineSegment, point2);
+
+    const [norm, dot, diff] = genCode(
+      secondaryGraph([
+        ops.vnorm(result),
+        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+        sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
+      ])
+    )([]).secondary;
+
+    // It is unit
+    expect(norm).toBeCloseTo(1, 4);
+    // It is orthogonal to the line segment
+    expect(dot).toBeCloseTo(0, 4);
+    // `insidePoint2` is inside
+    expect(diff).toBeLessThan(0);
+  });
 });

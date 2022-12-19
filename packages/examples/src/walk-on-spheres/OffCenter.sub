@@ -1,0 +1,28 @@
+-- Describe a short walk used to estimate the solution to
+-- a basic Laplace equation Δu = 0, using off-centered
+-- rather than on-centered steps.
+
+Domain U
+
+Step x0, x1, x2, x3, x4
+
+x1 := sampleBoundary( x0 )
+x2 := sampleBoundary( x1 )
+x3 := sampleBoundary( x2 )
+x4 := sampleBoundary( x3 )
+
+offCenter( x0 )
+offCenter( x1 )
+offCenter( x2 )
+offCenter( x3 )
+offCenter( x4 )
+
+AutoLabel All
+Label U $\Omega$
+Label x0 $x_0$
+Label x1 $x_1$
+Label x2 $x_2$
+Label x3 $\ldots$
+Label x4 $x_k$
+
+

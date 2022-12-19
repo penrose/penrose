@@ -7,7 +7,8 @@ export interface GridProps {
   style: string;
   domain: string;
   progs: SynthesizedSubstance[];
-  onStaged: (n: number, s: string) => void;
+  onStaged: (n: number) => void;
+  onStateUpdate: (n: number, s: PenroseState) => void;
 }
 
 interface GridState {
@@ -72,6 +73,7 @@ export class Grid extends React.Component<GridProps, GridState> {
         updateSrcProg={this.setSrcState}
         srcState={this.state.srcState}
         onStaged={this.props.onStaged}
+        onStateUpdate={this.props.onStateUpdate}
       />
     ));
   }

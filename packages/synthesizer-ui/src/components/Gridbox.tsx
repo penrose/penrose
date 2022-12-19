@@ -26,7 +26,8 @@ export interface GridboxProps {
   progNumber: number;
   srcState: PenroseState | undefined;
   updateSrcProg: (newState: PenroseState) => void;
-  onStaged: (n: number, s: string) => void;
+  onStaged: (n: number) => void;
+  onStateUpdate: (n: number, state: PenroseState) => void;
 }
 
 const Section = styled(Card)(({ theme }) => ({
@@ -101,9 +102,9 @@ const ResampleBtn = styled(Button)({
 interface GridboxState {
   showDiagramInfo: boolean;
   isSelected: boolean;
-  diagramSVG: string;
   energy: number;
   variation: string;
+  currentState?: PenroseState;
 }
 
 export class Gridbox extends React.Component<GridboxProps, GridboxState> {
@@ -112,7 +113,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     this.state = {
       showDiagramInfo: false,
       isSelected: false,
-      diagramSVG: "",
+      currentState: undefined,
       energy: 0,
       variation: props.variation,
     };
@@ -127,7 +128,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       };
 
       try {
-        // resample because initial sampling did not use the special sampling seed
         const energy = evalEnergy(await prepareState(crossState));
         this.setState({
           energy: Math.round(energy),
@@ -147,7 +147,9 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
   checkboxClick = () => {
     this.setState({ isSelected: !this.state.isSelected });
-    this.props.onStaged(this.props.progNumber, this.state.diagramSVG);
+    if (this.state.currentState) {
+      this.props.onStaged(this.props.progNumber);
+    }
   };
 
   // NOTE: not rendered by default, uncomment in render function to see
@@ -213,6 +215,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             style={this.props.style}
             variation={this.state.variation}
             interactive={false}
+            animate={true}
+            stepSize={20}
+            onFrame={(state: PenroseState) => {
+              this.setState({ currentState: state });
+              this.props.onStateUpdate(this.props.progNumber, state);
+            }}
           />
         </div>
       </Section>

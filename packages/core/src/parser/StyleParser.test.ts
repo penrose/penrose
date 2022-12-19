@@ -1,7 +1,7 @@
 import { examples } from "@penrose/examples";
 import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
-import * as nearley from "nearley";
+import nearley from "nearley";
 import * as path from "path";
 import { C } from "types/ast";
 import { StyProg } from "types/style";
@@ -62,8 +62,8 @@ const {
     const { results } = parser.feed(prog);
     sameASTs(results);
     const ast = results[0];
-    const keyword = ast.blocks[0].block.statements[0].path.field;
-    const id = ast.blocks[0].block.statements[1].path.field;
+    const keyword = ast.blocks[0].block.statements[0].path.members[0];
+    const id = ast.blocks[0].block.statements[1].path.members[0];
 
     expect(keyword.type).toEqual("type-keyword");
     expect(id.type).toEqual("identifier");
@@ -86,7 +86,7 @@ describe("Selector Grammar", () => {
     const prog = `
   -- this is a comment
 
-  Set A with Set B { 
+  forall Set A with Set B { 
 
   }
   
@@ -99,15 +99,15 @@ describe("Selector Grammar", () => {
 
   test("forall keyword", () => {
     const prog = `
-  Set B { }
+  forall Set B { }
 
   forall Set A, B { }
 
-  Set \`C\` { }
+  forall Set \`C\` { }
 
-  Set A, B { }
+  forall Set A, B { }
 
-  Set A, \`B\`; Map f
+  forall Set A, \`B\`; Map f
   {
 
   }`;
@@ -143,6 +143,102 @@ as Const
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+  test("multiple as clauses for predicates", () => {
+    const prog = `
+forall Set A, B, C, D
+where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
+{ 
+  foo.arrow = Arrow{}
+  yeet.circle = Circle{}
+  bar.square = Square{}
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+  test("alias general test", () => {
+    const prog = "\
+  forall Atom a1; Atom a2 \
+  where Bond(a1, a2) as b {}";
+    const { results } = parser.feed(prog);
+    expect(results[0].blocks[0].header.where.contents[0].alias.value).toEqual(
+      "b"
+    );
+  });
+  test("alias expression location test", () => {
+    // why is this failing bro
+    const prog =
+      "\
+forall Set A, B, C; Map f \
+with Set C, D; Map `g` \
+where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ) as isSubsetAB; IsSubset( Union(A,B), C) as nested_Subset; Intersect (   ){}\
+";
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("alias expression location test, weird spacing", () => {
+    // why is this failing bro
+    const prog =
+      "\
+forall Set A, B, C; Map f \
+with Set C, D; Map `g` \
+where C := intersect ( A, B, Not(f) ) ;\
+ IsSubset( A, B ) \
+ as isSubsetAB; IsSubset( Union(A,B), C) as nested_Subset; \
+ Intersect (   )  as   ok {}\
+";
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("cannot set as clauses for decls", () => {
+    const prog = `forall Set A, B; Map f as Const -- should fail because decls can't be aliased
+`;
+    expect(parseStyle(prog).isErr()).toEqual(true);
+  });
+  test("cannot set as clauses for bindings", () => {
+    const prog = `
+    forall Set x; Set y where y := Baz(x) as foo {}
+    `;
+    const parsed = parseStyle(prog);
+    if (parsed.isErr()) {
+      expect(parsed.error.message)
+        .toEqual(`Error: Syntax error at line 2 col 43:
+
+      forall Set x; Set y where y := Baz(x) as
+                                            ^
+Unexpected as token: "as". Instead, I was expecting to see one of the following:
+
+    ws token
+    nl token
+    ";"
+    comment token
+    multiline_comment token
+    "with"
+    "{"
+`);
+    } else {
+      throw Error("expected parse error");
+    }
+  });
+  test("cannot set subVars as aliases", () => {
+    const prog = "forall Set x; Set y where IsSubset(x,y) as `A` {}";
+    const parsed = parseStyle(prog);
+    if (parsed.isErr()) {
+      expect(parsed.error.message)
+        .toEqual(`Error: Syntax error at line 1 col 44:
+
+  forall Set x; Set y where IsSubset(x,y) as \`
+                                             ^
+Unexpected tick token: "\`". Instead, I was expecting to see one of the following:
+
+    ws token
+    identifier token
+`);
+    } else {
+      throw Error("expected parse error");
+    }
+  });
 
   test("label field check", () => {
     const prog = `
@@ -166,7 +262,7 @@ where IsSubset(A, B); A has math label; B has text label {
 describe("Block Grammar", () => {
   test("empty block with comments and blank lines", () => {
     const prog = `
-forall Set A, B; Map f as Const {
+forall Set A, B; Map f {
      
   -- comments
 
@@ -180,7 +276,7 @@ forall Set A, B; Map f as Const {
 
   test("single statement", () => {
     const prog = `
-forall Set A, B; Map f as Const {
+forall Set A, B; Map f {
   delete A.arrow.center
 }`;
     const { results } = parser.feed(prog);
@@ -189,7 +285,7 @@ forall Set A, B; Map f as Const {
 
   test("delete statements with field, property paths", () => {
     const prog = `
-forall Set A, B; Map f as Const {
+forall Set A, B; Map f {
   delete A.arrow.center
   delete B.arrow
   delete localx
@@ -200,7 +296,7 @@ forall Set A, B; Map f as Const {
 
   test("line comments among statements", () => {
     const prog = `
-forall Set A, B; Map f as Const {
+forall Set A, B; Map f {
   -- beginning comment
   delete A.arrow.center 
   -- between comment
@@ -214,7 +310,7 @@ forall Set A, B; Map f as Const {
 
   test("line comments after statements", () => {
     const prog = `
-forall Set A, B; Map f as Const {
+forall Set A, B; Map f {
   delete A.arrow.center -- end of statement comment
   -- between comment
   delete B.arrow
@@ -227,7 +323,7 @@ forall Set A, B; Map f as Const {
 
   test("path assign with expressions", () => {
     const prog = `
-Set B {
+forall Set B {
   -- property paths
   A.circle.boolProp = true
   A.circle.boolProp1 = false
@@ -245,9 +341,14 @@ const {
   -- w/ optional keyword
   \`C\`.layering1 = layer A.circ above B.circ
   layering2 = layer B.circ below C.circ
+  layering3 = layer B.circ below C.circ
+  layering3 = layer B.circ below C.circ, D.circ
+  layering4 = layer B.circ above C.circ, D.circ
   -- w/o optional keyword
-  A.layering3 = A.circ above B.circ
-  layering4 = B.circ below C.circ
+  A.layering5 = A.circ above B.circ
+  layering6 = B.circ below C.circ
+  \`B\`.layering7 = layer B.circ above C.circ, D.circ
+  layering8 = layer B.circ below C.circ, D.circ
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -275,7 +376,7 @@ const {
       expect(stringAssign.value.contents).toEqual(
         "abs1232189y790yh97dasyhfda7fhnasopufn9"
       );
-    } else fail("First stmt is not an assignment to string");
+    } else throw Error("First stmt is not an assignment to string");
   });
 
   test("floating point expr", () => {

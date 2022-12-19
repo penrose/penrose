@@ -1,12 +1,12 @@
 import { examples } from "@penrose/examples";
 import * as fs from "fs";
-import * as nearley from "nearley";
+import nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import * as path from "path";
 import { A } from "types/ast";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
-import { ApplyPredicate, SubstanceEnv } from "types/substance";
+import { ApplyPredicate, SubRes, SubstanceEnv } from "types/substance";
 import { Result, showError, showType } from "utils/Error";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
@@ -77,18 +77,18 @@ predicate IsSubset(Set s1, Set s2)
 value X: Set
 `;
 
-const envOrError = (prog: string): Env => {
+export const envOrError = (prog: string): Env => {
   const res = compileDomain(prog);
-  if (res.isErr()) fail(showError(res.error));
+  if (res.isErr()) throw Error(showError(res.error));
   return res.value;
 };
 
-const compileOrError = (prog: string, env: Env) => {
+export const subEnvOrError = (prog: string, env: Env): SubRes => {
   const res = compileSubstance(prog, env);
   if (res.isOk()) {
-    return res;
+    return res.value;
   } else {
-    fail(`unexpected error ${showError(res.error)}`);
+    throw Error(`unexpected error ${showError(res.error)}`);
   }
 };
 
@@ -162,7 +162,9 @@ NoLabel D, E
         expect(label.type).toEqual(type);
       });
     } else {
-      fail("Unexpected error when processing labels: " + showError(res.error));
+      throw Error(
+        "Unexpected error when processing labels: " + showError(res.error)
+      );
     }
   });
 });
@@ -223,7 +225,7 @@ B := AddPoint(p, B)
         ["p", "Point"],
       ]);
     } else {
-      fail(`unexpected error ${showError(res.error)}`);
+      throw Error(`unexpected error ${showError(res.error)}`);
     }
   });
   test("func: constructor", () => {
@@ -242,7 +244,7 @@ l := Cons(A, nil)
         ["nil", "List(Set)"],
       ]);
     } else {
-      fail(`unexpected error ${showError(res.error)}`);
+      throw Error(`unexpected error ${showError(res.error)}`);
     }
   });
   test("deconstructor: plain types", () => {
@@ -253,7 +255,7 @@ D := C.A
 E := C.B
     `;
     const env = envOrError(domainProg);
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
   test("predicates: non-nesting", () => {
     const prog = `
@@ -265,7 +267,7 @@ IsSubset(D, A)
 IsSubset(Subset(D, E), A) -- anon. constructor
     `;
     const env = envOrError(domainProg);
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
   test("predicates: nesting", () => {
     const prog = `
@@ -277,7 +279,7 @@ Not(IsSubset(Subset(D, E), A)) -- anon. constructor
 Both(IsSubset(A, B), IsSubset(C, D))
     `;
     const env = envOrError(domainProg);
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
   test("predicates: nesting", () => {
     const prog = `
@@ -289,7 +291,7 @@ AutoLabel B, C
 NoLabel B, C
     `;
     const env = envOrError(domainProg);
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
 });
 
@@ -302,7 +304,7 @@ describe("Errors", () => {
       if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
-      fail(`Error ${errorType} was suppoed to occur.`);
+      throw Error(`Error ${errorType} was suppoed to occur.`);
     }
   };
   test("parse error", () => {
@@ -492,7 +494,7 @@ nil := Nil()
 OpenSet A
 l := Cons(A, nil)
         `;
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
   test("func argument parametrized subtypes", () => {
     const env = envOrError(domainProg);
@@ -503,7 +505,7 @@ nil := Nil()
 OpenSet A
 l := Cons(A, nil)
         `;
-    compileOrError(prog, env);
+    subEnvOrError(prog, env);
   });
 });
 describe("Ambiguous expressions", () => {
@@ -514,18 +516,16 @@ Point p
 Not(Intersecting(A, B))
 Empty(Subset(A, B))
 Empty(AddPoint(p, A))`;
-    const res = compileOrError(prog, env);
-    if (res.isOk()) {
-      expect(
-        (res.value[0].ast.statements[3] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyPredicate");
-      expect(
-        (res.value[0].ast.statements[4] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyConstructor");
-      expect(
-        (res.value[0].ast.statements[5] as ApplyPredicate<A>).args[0].tag
-      ).toEqual("ApplyFunction");
-    }
+    const [subEnv] = subEnvOrError(prog, env);
+    expect((subEnv.ast.statements[3] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyPredicate"
+    );
+    expect((subEnv.ast.statements[4] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyConstructor"
+    );
+    expect((subEnv.ast.statements[5] as ApplyPredicate<A>).args[0].tag).toEqual(
+      "ApplyFunction"
+    );
   });
 });
 
@@ -601,6 +601,6 @@ const sameAsSource = (
     const strFromAST = prettySubstance(ast);
     expect(strFromAST).toEqual(source);
   } else {
-    fail(`unexpected error ${showError(res.error)}`);
+    throw Error(`unexpected error ${showError(res.error)}`);
   }
 };

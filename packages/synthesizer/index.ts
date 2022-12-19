@@ -1,4 +1,5 @@
-require("global-jsdom/register");
+import "global-jsdom/register"; // must be first
+
 import {
   compileDomain,
   compileSubstance,
@@ -112,7 +113,7 @@ const writePrograms = (
     });
   }
   // TODO: change name style and domain
-  const registry: Registry = {
+  const registry: Omit<Registry, "root"> = {
     substances,
     styles: {
       [styID]: style,

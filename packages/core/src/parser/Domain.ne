@@ -4,8 +4,8 @@
 # Lexer
 @{%
 /* eslint-disable */
-import * as moo from "moo";
-import { concat, compact, flatten, last } from 'lodash'
+import moo from "moo";
+import _ from 'lodash'
 import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, StringLit } from "types/ast";
 import { DomainProg, TypeDecl, PredicateDecl, FunctionDecl, ConstructorDecl, PreludeDecl, NotationDecl, SubTypeDecl, TypeConstructor, Type, Arg, Prop } from "types/domain";
@@ -24,6 +24,7 @@ const lexer = moo.compile({
       function: "function",
       predicate: "predicate",
       notation: "notation",
+      symmetric: "symmetric",
       prop: "Prop"
     })
   }
@@ -82,12 +83,27 @@ type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1
   }
 %}
 
-predicate -> "predicate" __ identifier type_params_list args_list {%
-  ([kw, , name, params, args]): PredicateDecl<C> => ({
-    ...nodeData,
-    ...rangeFrom([rangeOf(kw), ...args, ...params]),
-    tag: "PredicateDecl", name, params, args
-  })
+# This now works with symmetric predicate declarations.
+predicate -> ("symmetric" __):? "predicate" __ identifier type_params_list args_list {%
+  ([sym, kw, , name, params, args]): PredicateDecl<C> => {
+    var isSymmetric = sym !== null;
+    return {
+      ...nodeData,
+      ...rangeFrom([
+        // If "symmetric" exists, include it.
+        // sym[0] is the token "symmetric";
+        // the rest is white space
+        ...(isSymmetric ? [rangeOf(sym[0])] : []),
+        rangeOf(kw), 
+        ...args, 
+        ...params
+      ]),
+      tag: "PredicateDecl", name, params, args,
+      // If "symmetric" isn't present, "sym" would be null and this would be false
+      // Otherwise, this would be true.
+      symmetric: isSymmetric
+    }
+  }
 %}
 
 function 
@@ -186,7 +202,7 @@ type_constructor -> identifier type_arg_list:? {%
 
 # Various kinds of parameters and arguments
 
-type_arg_list -> _ "(" _ sepBy1[type, ","] _ ")" {% ([, , , d]): Type<C>[] => flatten(d) %}
+type_arg_list -> _ "(" _ sepBy1[type, ","] _ ")" {% ([, , , d]): Type<C>[] => _.flatten(d) %}
 
 type_params_list 
   -> null {% d => [] %}
@@ -194,7 +210,7 @@ type_params_list
 type_params -> sepBy1[type_var, ","] {% ([d]) => d %}
 
 args_list 
-  -> _ "(" _ sepBy[arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => flatten(d) %}
+  -> _ "(" _ sepBy[arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
 arg -> type (__ var):? {% 
   ([type, v]): Arg<C> => {
     const variable = v ? v[1] : undefined;
@@ -207,7 +223,7 @@ arg -> type (__ var):? {%
   }
 %}
 named_args_list 
-  -> _ "(" _ sepBy[named_arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => flatten(d) %}
+  -> _ "(" _ sepBy[named_arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
 named_arg -> type __ var {% 
   ([type, , variable]): Arg<C> => ({
      ...nodeData,

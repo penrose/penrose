@@ -10,4 +10,4 @@ Collinear(K, m, L)
 Triangle PLM := MkTriangle(P, L, m)
 Angle PML := InteriorAngle(P, m, L)
 RightMarked(PML)
-AutoLabel All
+AutoLabel J, K, L, P, m

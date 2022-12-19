@@ -3,15 +3,9 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "./",
   plugins: [react()],
-  build: {
-    rollupOptions: {
-      external: ["react", "react-dom"],
-      output: {
-        globals: {
-          react: "React",
-        },
-      },
-    },
+  optimizeDeps: {
+    exclude: ["@penrose/core", "@penrose/components"],
   },
 });

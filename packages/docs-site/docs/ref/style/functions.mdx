@@ -440,11 +440,11 @@ Require that `shape` is on the canvas
 
 ### overlapping
 
-▸ `Static` **overlapping**(`__namedParameters`, `__namedParameters`, `padding?`): `IVarAD`
+▸ `Static` **overlapping**(`__namedParameters`, `__namedParameters`, `overlap?`): `IVarAD`
 
-Require that shape `s1` overlaps shape `s2` with some padding `padding`.
-based on the type of the shape, and with an optional `padding` between them
-(e.g. if `s1` should be overlapping `s2` with margin `padding`).
+Require that shape `s1` overlaps shape `s2` with some overlap `overlap`.
+based on the type of the shape, and with an optional `overlap` between them
+(e.g. if `s1` should be overlapping `s2` with margin `overlap`).
 
 #### Parameters
 
@@ -461,27 +461,6 @@ based on the type of the shape, and with an optional `padding` between them
 #### Defined in
 
 [contrib/Constraints.ts:491](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L491)
-
----
-
-### ptCircleIntersect
-
-▸ `Static` **ptCircleIntersect**(`p`, `__namedParameters`): `IVarAD`
-
-#### Parameters
-
-| Name                | Type              |
-| :------------------ | :---------------- |
-| `p`                 | `IVarAD`[]        |
-| `__namedParameters` | [`string`, `any`] |
-
-#### Returns
-
-`IVarAD`
-
-#### Defined in
-
-[contrib/Constraints.ts:600](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L600)
 
 ---
 
@@ -2042,9 +2021,9 @@ Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitti
 
 ---
 
-### len
+### length
 
-▸ `Static` **len**(`_context`, `__namedParameters`): `IFloatV`<`IVarAD`\>
+▸ `Static` **length**(`_context`, `__namedParameters`): `IFloatV`<`IVarAD`\>
 
 Return the length of the line or arrow shape `[type, props]`.
 

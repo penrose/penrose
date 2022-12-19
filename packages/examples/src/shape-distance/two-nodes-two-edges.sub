@@ -1,0 +1,6 @@
+Node b1, b2
+Edge e1, e2, e3, e4
+e1 := MkEdge(b1, b2)
+e2 := MkEdge(b1, b2)
+e3 := MkEdge(b1, b2)
+e4 := MkEdge(b1, b2)

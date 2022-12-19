@@ -5,7 +5,7 @@ import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value";
 export interface Named {
   name: StrV;
   style: StrV; // TODO: very temporary; remove this and just use passthrough
-  ensureOnCanvas: BoolV<ad.Num>;
+  ensureOnCanvas: BoolV;
 }
 
 export interface Stroke {
@@ -29,10 +29,11 @@ export interface Rect {
 }
 
 export interface Arrow {
-  arrowheadSize: FloatV<ad.Num>;
-  arrowheadStyle: StrV;
-  startArrowhead: BoolV<ad.Num>;
-  endArrowhead: BoolV<ad.Num>;
+  startArrowheadSize: FloatV<ad.Num>;
+  endArrowheadSize: FloatV<ad.Num>;
+  startArrowhead: StrV;
+  endArrowhead: StrV;
+  flipStartArrowhead: BoolV;
 }
 
 export interface Corner {

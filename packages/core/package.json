@@ -1,40 +1,101 @@
 {
   "name": "@penrose/core",
   "version": "1.3.0",
+  "type": "module",
   "main": "build/dist/index.js",
-  "module": "build/dist/index.esm.js",
-  "unpkg": "build/dist/penrose.min.js",
+  "module": "build/dist/index.js",
   "types": "build/dist/index.d.ts",
-  "author": "Penrose Team (https://penrose.ink)",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "files": [
     "/build"
   ],
   "scripts": {
-    "clean": "rimraf build src/parser/SubstanceParser.ts src/parser/StyleParser.ts src/parser/DomainParser.ts",
-    "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
-    "prebuild": "yarn build:parsers",
-    "build": "yarn build:esbuild",
-    "prestart": "yarn build:parsers",
-    "start": "yarn watch:esbuild",
-    "prewatch": "yarn build:parsers",
-    "watch": "yarn watch:esbuild",
-    "pretest": "yarn build:parsers",
-    "test": "jest --watchAll=false",
-    "predocs": "yarn build:parsers",
-    "test:watch": "jest --watchAll",
-    "build:rollup": "rollup -c",
-    "watch:rollup": "rollup -c -w",
-    "build:esbuild": "node build.js",
-    "watch:esbuild": "node build.js -watch",
-    "build-decls": "tsc --declaration --outDir build/dist && tsc-alias -p tsconfig.json",
-    "pretypecheck": "yarn build:parsers",
-    "typecheck": "yarn build-decls",
+    "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
+    "build": "esbuild src/index.ts --outfile=build/dist/index.js --bundle --format=esm --sourcemap",
+    "start": "yarn watch",
+    "watch": "yarn build --watch",
+    "test": "cross-env NODE_OPTIONS='--no-warnings --experimental-vm-modules' jest",
+    "test-watch": "yarn test --watchAll",
+    "build-decls": "tsc --emitDeclarationOnly --outDir build/dist && tsc-alias -p tsconfig.json",
+    "typecheck": ":",
     "docs": "typedoc --plugin none --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
-    "coverage": "yarn test --coverage --watchAll=false",
-    "lint": "eslint --ext js,ts,tsx src",
-    "prepack": "yarn build"
+    "coverage": "yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
+    "lint": "eslint --ext js,ts,tsx src"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/build/dist/index.js",
+          "{projectRoot}/build/dist/index.js.map"
+        ]
+      },
+      "build-decls": {
+        "dependsOn": [
+          "^build-decls",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/build/dist/**/*.ts",
+          "{projectRoot}/build/dist/**/*.ts.map"
+        ]
+      },
+      "build-parsers": {
+        "outputs": [
+          "{projectRoot}/src/parser/*Parser.ts"
+        ]
+      },
+      "coverage": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/coverage",
+          "{projectRoot}/junit.xml",
+          "{projectRoot}/reports"
+        ]
+      },
+      "docs": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ],
+        "outputs": [
+          "{projectRoot}/docs"
+        ]
+      },
+      "start": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      },
+      "test-watch": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      },
+      "watch": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      }
+    }
   },
   "dependencies": {
     "@datastructures-js/heap": "^3.2.0",
@@ -51,15 +112,13 @@
     "nearley": "^2.20.1",
     "poly-partition": "^1.0.2",
     "recursive-diff": "^1.0.8",
-    "rfdc": "^1.2.0",
     "seedrandom": "^3.0.5",
+    "svg-flatten": "^1.0.1",
+    "svgpath": "^2.5.0",
     "true-myth": "^4.1.0"
   },
   "devDependencies": {
-    "@penrose/examples": "^1.3.0",
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^11.1.1",
+    "@penrose/examples": "1.3.0",
     "@types/graphlib": "^2.1.7",
     "@types/jest": "^27.4.1",
     "@types/jscodeshift": "^0.11.0",
@@ -71,26 +130,20 @@
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/eslint-plugin-tslint": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
+    "esbuild": "^0.16.3",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.13.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsdoc": "^30.7.3",
     "eslint-plugin-react": "^7.28.0",
-    "estrella": "^1.4.1",
     "jest": "^27.5.1",
     "jest-junit": "^12.0.0",
     "jscodeshift": "^0.11.0",
-    "rollup": "^2.40.0",
-    "rollup-plugin-node-polyfills": "^0.2.1",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.30.0",
-    "rollup-plugin-visualizer": "^4.2.0",
     "ts-jest": "^27.1.3",
     "tsc-alias": "^1.6.7",
     "tslib": "^2.1.0",
     "typedoc": "^0.22.11",
-    "typedoc-plugin-markdown": "^3.11.13",
-    "typescript": "^4.1.3"
+    "typedoc-plugin-markdown": "^3.11.13"
   }
 }

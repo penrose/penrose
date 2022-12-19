@@ -1,4 +1,4 @@
-import { EPS_DENOM, ops } from "engine/Autodiff";
+import { EPS_DENOM, genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -15,7 +15,7 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import * as _ from "lodash";
+import _ from "lodash";
 import * as ad from "types/ad";
 
 /**
@@ -138,34 +138,9 @@ export const repelPoint = (c: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
   div(c, add(ops.vdistsq(a, b), EPS_DENOM));
 
 /**
- * Encourage that an arrow `arr` be centered between two shapes with centers `center1` and `center2`, and text size (?) `[o1, o2]`.
- */
-export const centerArrow2 = (
-  arr: any,
-  center1: ad.Num[],
-  center2: ad.Num[],
-  [o1, o2]: ad.Num[]
-): ad.Num => {
-  const vec = ops.vsub(center2, center1); // direction the arrow should point to
-  const dir = ops.vnormalize(vec);
-
-  // TODO: add abs; also, unless `gt(ops.vnorm(vec), add(o1, absVal(o2)))`,
-  // should just set `start` to `center1` and `end` to `center2`
-  const start = ops.vadd(center1, ops.vmul(o1, dir));
-  const end = ops.vadd(center2, ops.vmul(o2, dir));
-
-  // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
-
-  const fromPt = arr.start.contents;
-  const toPt = arr.end.contents;
-
-  return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
-};
-
-/**
  * Clamp `x` in range `[l, r]`.
  */
-const clamp = ([l, r]: number[], x: ad.Num): ad.Num => {
+export const clamp = ([l, r]: [number, number], x: ad.Num): ad.Num => {
   return max(l, min(r, x));
 };
 
@@ -187,4 +162,26 @@ export const closestPt_PtSeg = (
 
   // v +: (t' *: dir) -- walk along vector of line seg
   return ops.vadd(start, ops.vmul(t1, dir));
+};
+
+/**
+ * Get numerical values of nodes in the computation graph. This function calls `secondaryGraph` to construct a partial computation graph and runs `genCode` to generate code to evaluate the values.
+ *
+ * @param xs nodes in the computation graph
+ * @returns a list of `number`s corresponding to nodes in `xs`
+ */
+export const numsOf = (xs: ad.Num[]): number[] => {
+  const g = secondaryGraph(xs);
+  const inputs = [];
+  for (const v of g.nodes.keys()) {
+    if (typeof v !== "number" && v.tag === "Input") {
+      inputs[v.key] = v.val;
+    }
+  }
+  const f = genCode(g);
+  return f(inputs).secondary;
+};
+
+export const numOf = (x: ad.Num): number => {
+  return numsOf([x])[0];
 };

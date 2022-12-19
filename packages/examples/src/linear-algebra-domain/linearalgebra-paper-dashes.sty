@@ -34,7 +34,7 @@ C { -- 1
 testing { -- 2
   -- COMBAK: Test that plugins still run
   -- pluginVar = "ddg"["a"]["length"]
-        x = { 1, {2, 3} }
+        x = { 1, 2 }
         y = [-2., const.perpLen, const.markerPadding + 3]
         a = (-1.0, ?)
         a1 = (-1.0, 2.) + (1e5, 2.0)
@@ -76,20 +76,22 @@ forall VectorSpace U { -- 3
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
-        arrowheadSize : const.arrowheadSize * 2.
+        startArrowhead: "straight"
+        endArrowhead: "straight"
+        startArrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.yAxis = Line {
-           start : (o[0], o[1] - axisSize)
-             end : (o[0], o[1] + axisSize)
-       strokeWidth : const.lineThickness
-           style : "solid"
-           strokeColor : U.axisColor
-           startArrowhead: true
-           endArrowhead: true
-        arrowheadSize : const.arrowheadSize * 2.
+        start : (o[0], o[1] - axisSize)
+        end : (o[0], o[1] + axisSize)
+        strokeWidth : const.lineThickness
+        style : "solid"
+        strokeColor : U.axisColor
+        startArrowhead: "straight"
+        endArrowhead: "straight"
+        startArrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.text = Equation {
@@ -112,8 +114,8 @@ where In(u,U) {
     end : (?, ?)
     strokeWidth : 3.0
     strokeColor : C.lightBlue
-    endArrowhead : true
-    arrowheadSize : const.arrowheadSize
+    endArrowhead: "straight"
+    endArrowheadSize : const.arrowheadSize
     strokeDasharray : "4 1 2"
   }
 
@@ -122,7 +124,7 @@ where In(u,U) {
    ensure contains(U.background, u.arrow)
    ensure contains(U.background, u.text)
    ensure atDist(u.arrow, u.text, 15.0)
-   ensure lessThan(20, len(u.arrow))
+   ensure lessThan(20, length(u.arrow))
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis

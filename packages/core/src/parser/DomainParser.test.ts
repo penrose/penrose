@@ -1,7 +1,9 @@
 import { examples } from "@penrose/examples";
 import * as fs from "fs";
-import * as nearley from "nearley";
+import nearley from "nearley";
 import * as path from "path";
+import { SourceRange } from "types/ast";
+import { DomainProg, PredicateDecl } from "types/domain";
 import grammar from "./DomainParser";
 
 const outputDir = "/tmp/asts";
@@ -122,9 +124,39 @@ predicate Injection(Map m)
 predicate Surjection(Map m)
 predicate Bijection(Map m)
 predicate PairIn(Point, Point, Map)
+symmetric predicate Intersecting(Set s1, Set s2)
+symmetric predicate Disjoint(Set, Set)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
+
+    // New part of the test:
+    // Also check the symmetry of the predicates
+
+    // These are the correct symmetries of the predicates
+    const areSymmetricReference: boolean[] = [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+    ];
+    // These are what the parser generates
+    const areSymmetric: boolean[] = (<DomainProg<SourceRange>>(
+      results[0]
+    )).statements.map((stmt) => {
+      return (<PredicateDecl<SourceRange>>stmt).symmetric;
+    });
+
+    expect(areSymmetric).toEqual(areSymmetricReference);
   });
   test("function decls", () => {
     const prog = `

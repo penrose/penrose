@@ -1,16 +1,8 @@
 import { inDirection } from "contrib/ObjectivesUtils";
-import { genCode, secondaryGraph } from "engine/Autodiff";
-import * as ad from "types/ad";
+import { numOf } from "contrib/Utils";
 
 const testShape = { center: { contents: [0, 2] } };
 const testRefShape = { center: { contents: [1, 1] } };
-
-const numOf = (x: ad.Num) => {
-  const g = secondaryGraph([x]);
-  const f = genCode(g);
-  const [y] = f([]).secondary; // no inputs, so, empty array
-  return y;
-};
 
 describe("inDirection", () => {
   test("without padding", async () => {

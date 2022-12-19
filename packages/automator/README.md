@@ -8,16 +8,17 @@ Usage:
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
+  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged] [--variation=VARIATION] [--folders] [--cross-energy]
+  automator textchart ARTIFACTSFOLDER OUTFILE
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
+  automator shapedefs [SHAPEFILE]
 
 Options:
-  -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
+  -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances
-  --staged Generate staged SVGs of the final diagram
   --cross-energy Compute the cross-instance energy
   --variation The variation to use
 ```
@@ -43,8 +44,3 @@ In addition to batch-processing Penrose programs, you can also use `automator` t
 - Open `browser/index.html` to view the result.
 
 ![](docs/penrose-artifacts.png)
-
-## Staged Diagram Generation
-
-- Run `yarn start draw tree.sub venn.sty setTheory.dsl out --src-prefix=../examples/src/set-theory-domain` in this directory to generate an output SVG.
-- Add the `--staged` flag to the command to generate multiple staged SVGs for the sub/sty/dsl trio.

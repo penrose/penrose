@@ -1,14 +1,37 @@
-import * as _ from "lodash";
-import { times } from "lodash";
+import _ from "lodash";
 import seedrandom from "seedrandom";
 import { LineProps } from "shapes/Line";
+import { ShapeType } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
-import { Fn, Seeds, State } from "types/state";
-import { Expr, Path } from "types/style";
-import { ArgVal, Color } from "types/value";
+import { Fn, State } from "types/state";
+import { BindingForm, Expr, Path } from "types/style";
+import {
+  Context,
+  LocalVarSubst,
+  ResolvedName,
+  ResolvedPath,
+  WithContext,
+} from "types/styleSemantics";
+import {
+  BoolV,
+  Color,
+  ColorV,
+  FloatV,
+  ListV,
+  LListV,
+  MatrixV,
+  PathCmd,
+  PathDataV,
+  PtListV,
+  StrV,
+  TupV,
+  Val,
+  Value,
+  VectorV,
+} from "types/value";
 
 //#region general
 
@@ -95,7 +118,7 @@ export const randFloats = (
   rng: seedrandom.prng,
   count: number,
   [min, max]: [number, number]
-): number[] => times(count, () => randFloat(rng, min, max));
+): number[] => _.times(count, () => randFloat(rng, min, max));
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive
@@ -119,48 +142,111 @@ export const randList = (rng: seedrandom.prng, n: number): number[] => {
   return repeat(n, 0).map(() => RAND_RANGE * (rng() - 0.5));
 };
 
-/**
- * From a variation string, deterministically generate all the seeds we need to
- * keep around in the State, and also return the mutated PRNG to use for any
- * remaining setup. This is temporary, and should go away in the upcoming
- * rearchitecture.
- */
-export const variationSeeds = (
-  variation: string
-): { seeds: Seeds; rng: seedrandom.prng } => {
-  const rng = seedrandom(variation);
-  const seeds = {
-    // hacky way to get string seeds that we can reuse; note, order matters
-    resample: rng().toString(),
-    prepare: rng().toString(),
-    step: rng().toString(),
-    evalEnergy: rng().toString(),
-    evalFns: rng().toString(),
-  };
-  return { rng, seeds };
-};
-
 //#endregion
 
 //#region renderer
 
-export const arrowheads = {
-  "arrowhead-1": {
+export interface ArrowheadSpec {
+  width: number;
+  height: number;
+  viewbox: string;
+  refX: number;
+  refY: number;
+  path: string;
+  fillKind: "stroke" | "fill";
+  style?: { [k: string]: string };
+}
+type ArrowheadMap = {
+  [k: string]: ArrowheadSpec;
+};
+
+export const arrowheads: ArrowheadMap = {
+  concave: {
     width: 8,
     height: 8,
     viewbox: "0 0 8 8",
-    refX: "4",
-    refY: "4", // HACK: to avoid paths from bleeding through the arrowhead
+    refX: 2.5,
+    refY: 4,
     path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z",
+    fillKind: "fill",
   },
-  "arrowhead-2": {
+  straight: {
     width: 9.95,
     height: 8.12,
     viewbox: "0 0 9.95 8.12",
-    refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
-    refY: "4.06",
+    refX: 2.36,
+    refY: 4.06,
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
+    fillKind: "fill",
   },
+  line: {
+    width: 7.5,
+    height: 14,
+    viewbox: "0 0 7.5 14",
+    refX: 5,
+    refY: 7,
+    path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  doubleLine: {
+    width: 12.5,
+    height: 14,
+    viewbox: "0 0 12.5 14",
+    refX: 5,
+    refY: 7,
+    path:
+      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loopup: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 10 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loopdown: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 1 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loop: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+};
+
+export const getArrowhead = (style: string): ArrowheadSpec | undefined => {
+  if (style in arrowheads) {
+    const arrow = arrowheads[style];
+    return arrow;
+  }
 };
 
 export const toScreen = (
@@ -175,12 +261,73 @@ export const toScreen = (
 
 //#region color
 
-export const toHexRGB = (color: [number, number, number]): string => {
+export const hexToRgba = (
+  hex: string
+): [number, number, number, number] | undefined => {
+  const parseIntHex = (value: string) => {
+    return parseInt(value, 16);
+  };
+  const isThree = hex.length === 3;
+  const isFour = hex.length === 4;
+  const isSix = hex.length === 6;
+  const isEight = hex.length === 8;
+  if (!isThree && !isFour && !isSix && !isEight) {
+    return undefined;
+  }
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let a = 255; // NOTE: alpha defaults to 255
+
+  switch (hex.length) {
+    case 3: {
+      r = parseIntHex(hex.slice(0, 1).repeat(2));
+      g = parseIntHex(hex.slice(1, 2).repeat(2));
+      b = parseIntHex(hex.slice(2, 3).repeat(2));
+      break;
+    }
+    case 4: {
+      r = parseIntHex(hex.slice(0, 1).repeat(2));
+      g = parseIntHex(hex.slice(1, 2).repeat(2));
+      b = parseIntHex(hex.slice(2, 3).repeat(2));
+      a = parseIntHex(hex.slice(3, 4).repeat(2));
+      break;
+    }
+    case 6: {
+      r = parseIntHex(hex.slice(0, 2));
+      g = parseIntHex(hex.slice(2, 4));
+      b = parseIntHex(hex.slice(4, 6));
+      break;
+    }
+    case 8: {
+      r = parseIntHex(hex.slice(0, 2));
+      g = parseIntHex(hex.slice(2, 4));
+      b = parseIntHex(hex.slice(4, 6));
+      a = parseIntHex(hex.slice(6, 8));
+      break;
+    }
+  }
+  return [r / 255, g / 255, b / 255, a / 255];
+};
+
+export const rgbToHex = (color: [number, number, number]): string => {
   return color.reduce((prev: string, cur: number) => {
-    const hex = Math.round(255 * cur).toString(16);
+    const hex = toHexDigit(cur);
     const padded = hex.length === 1 ? "0" + hex : hex;
     return prev + padded;
   }, "#");
+};
+
+export const rgbaToHex = (color: [number, number, number, number]): string => {
+  return color.reduce((prev: string, cur: number) => {
+    const hex = toHexDigit(cur);
+    const padded = hex.length === 1 ? "0" + hex : hex;
+    return prev + padded;
+  }, "#");
+};
+
+const toHexDigit = (n: number): string => {
+  return Math.round(255 * n).toString(16);
 };
 
 // TODO nest this
@@ -223,13 +370,13 @@ export const hsvToRGB = (
 export const toSvgPaintProperty = (color: Color<number>): string => {
   switch (color.tag) {
     case "RGBA":
-      return toHexRGB([
+      return rgbToHex([
         color.contents[0],
         color.contents[1],
         color.contents[2],
       ]);
     case "HSVA":
-      return toHexRGB(
+      return rgbToHex(
         hsvToRGB([color.contents[0], color.contents[1], color.contents[2]])
       );
     case "NONE":
@@ -308,7 +455,7 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
 // calculates bounding box dimensions of a shape - used in inspector views
 export const bBoxDims = (
   properties: Properties<number>,
-  shapeType: string
+  shapeType: ShapeType
 ): [number, number] => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {
@@ -392,47 +539,177 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 //#endregion
 
+//#region Value
+
+export const floatV = (contents: ad.Num): FloatV<ad.Num> => ({
+  tag: "FloatV",
+  contents,
+});
+
+export const boolV = (contents: boolean): BoolV => ({
+  tag: "BoolV",
+  contents,
+});
+
+export const strV = (contents: string): StrV => ({
+  tag: "StrV",
+  contents,
+});
+
+export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
+  tag: "PathDataV",
+  contents,
+});
+
+export const ptListV = (contents: ad.Num[][]): PtListV<ad.Num> => ({
+  tag: "PtListV",
+  contents,
+});
+
+export const colorV = (contents: Color<ad.Num>): ColorV<ad.Num> => ({
+  tag: "ColorV",
+  contents,
+});
+
+export const listV = (contents: ad.Num[]): ListV<ad.Num> => ({
+  tag: "ListV",
+  contents,
+});
+
+export const vectorV = (contents: ad.Num[]): VectorV<ad.Num> => ({
+  tag: "VectorV",
+  contents,
+});
+
+export const matrixV = (contents: ad.Num[][]): MatrixV<ad.Num> => ({
+  tag: "MatrixV",
+  contents,
+});
+
+export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
+  tag: "TupV",
+  contents,
+});
+
+export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
+  tag: "LListV",
+  contents,
+});
+
+export const black = (): ColorV<ad.Num> =>
+  colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
+export const white = (): ColorV<ad.Num> =>
+  colorV({ tag: "RGBA", contents: [1, 1, 1, 1] });
+
+export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
+
+//#endregion
+
 //#region Style
 
-// COMBAK: Copied from `EngineUtils`; consolidate
-export const isPath = <T>(expr: Expr<T>): expr is Path<T> => {
-  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
-    expr.tag
-  );
-};
-
-export const prettyPrintPath = (p: Expr<A>): string => {
-  if (p.tag === "FieldPath") {
-    const varName = p.name.contents.value;
-    const varField = p.field.value;
-    return [varName, varField].join(".");
-  } else if (p.tag === "PropertyPath") {
-    const varName = p.name.contents.value;
-    const varField = p.field.value;
-    const property = p.property.value;
-    return [varName, varField, property].join(".");
-  } else if (p.tag === "AccessPath") {
-    const pstr: string = prettyPrintPath(p.path);
-    const indices: string[] = p.indices.map(prettyPrintExpr);
-    return `${pstr}[${indices.toString()}]`;
-  } else {
-    console.error("unexpected path type in", p);
-    return JSON.stringify(p);
+export const resolveRhsName = (
+  { block, subst, locals }: Context,
+  name: BindingForm<A>
+): ResolvedName => {
+  const { value } = name.contents;
+  switch (name.tag) {
+    case "StyVar": {
+      if (locals.has(value)) {
+        // locals shadow selector match names
+        return { tag: "Local", block, name: value };
+      } else if (value in subst) {
+        // selector match names shadow globals
+        return { tag: "Substance", block, name: subst[value] };
+      } else {
+        // couldn't find it in context, must be a glboal
+        return { tag: "Global", block, name: value };
+      }
+    }
+    case "SubVar": {
+      return { tag: "Substance", block, name: value };
+    }
   }
 };
 
-export const prettyPrintExpr = (arg: Expr<A>): string => {
+const resolveRhsPath = (p: WithContext<Path<A>>): ResolvedPath<A> => {
+  const { name, members } = p.expr; // drop `indices`
+  return { ...resolveRhsName(p.context, name), members };
+};
+
+const blockPrefix = ({ tag, contents }: LocalVarSubst): string => {
+  switch (tag) {
+    case "LocalVarId": {
+      const [i, j] = contents;
+      return `${i}:${j}:`;
+    }
+    case "NamespaceId": {
+      // locals in a global block point to globals
+      return `${contents}.`;
+    }
+  }
+};
+
+const prettyPrintResolvedName = ({
+  tag,
+  block,
+  name,
+}: ResolvedName): string => {
+  switch (tag) {
+    case "Global": {
+      return name;
+    }
+    case "Local": {
+      return `${blockPrefix(block)}${name}`;
+    }
+    case "Substance": {
+      return `\`${name}\``;
+    }
+  }
+};
+
+export const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
+  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
+
+const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
+  switch (bf.tag) {
+    case "StyVar": {
+      return bf.contents.value;
+    }
+    case "SubVar": {
+      return `\`${bf.contents.value}\``;
+    }
+  }
+};
+
+export const prettyPrintPath = (p: Path<A>): string => {
+  const base: string = [
+    prettyPrintBindingForm(p.name),
+    ...p.members.map((m) => m.value),
+  ].join(".");
+  const indices: string[] = p.indices.map(
+    (i) => `[${prettyPrintExpr(i, prettyPrintPath)}]`
+  );
+  return [base, ...indices].join("");
+};
+
+export const prettyPrintExpr = (
+  arg: Expr<A>,
+  ppPath: (p: Path<A>) => string
+): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
-  if (isPath(arg)) {
-    return prettyPrintPath(arg);
+  if (arg.tag === "Path") {
+    return ppPath(arg);
   } else if (arg.tag === "Fix") {
     const val = arg.contents;
     return String(val);
   } else if (arg.tag === "CompApp") {
     const [fnName, fnArgs] = [arg.name.value, arg.args];
-    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
-      ""
-    );
+    return [
+      fnName,
+      "(",
+      ...fnArgs.map((arg) => prettyPrintExpr(arg, ppPath)).join(", "),
+      ")",
+    ].join("");
   } else if (arg.tag === "UOp") {
     let uOpName;
     switch (arg.op) {
@@ -440,7 +717,7 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
         uOpName = "-";
         break;
     }
-    return "(" + uOpName + prettyPrintExpr(arg.arg) + ")";
+    return "(" + uOpName + prettyPrintExpr(arg.arg, ppPath) + ")";
   } else if (arg.tag === "BinOp") {
     let binOpName;
     switch (arg.op) {
@@ -462,11 +739,11 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
     }
     return (
       "(" +
-      prettyPrintExpr(arg.left) +
+      prettyPrintExpr(arg.left, ppPath) +
       " " +
       binOpName +
       " " +
-      prettyPrintExpr(arg.right) +
+      prettyPrintExpr(arg.right, ppPath) +
       ")"
     );
   } else {
@@ -477,8 +754,16 @@ export const prettyPrintExpr = (arg: Expr<A>): string => {
 };
 
 export const prettyPrintFn = (fn: Fn): string => {
-  const name = fn.fname;
-  const args = fn.fargs.map(prettyPrintExpr).join(", ");
+  const name = fn.ast.expr.name.value;
+  const args = fn.ast.expr.args
+    .map((arg) =>
+      prettyPrintExpr(arg, (p) =>
+        prettyPrintResolvedPath(
+          resolveRhsPath({ context: fn.ast.context, expr: p })
+        )
+      )
+    )
+    .join(", ");
   return [name, "(", args, ")"].join("");
 };
 
@@ -490,12 +775,9 @@ export const prettyPrintFns = (state: State): string[] =>
 //#region autodiff
 
 // From Evaluator
-export const floatVal = (v: ad.Num): ArgVal<ad.Num> => ({
+export const val = (v: Value<ad.Num>): Val<ad.Num> => ({
   tag: "Val",
-  contents: {
-    tag: "FloatV",
-    contents: v,
-  },
+  contents: v,
 });
 
 export const linePts = ({ start, end }: LineProps): [ad.Num[], ad.Num[]] => [
@@ -553,5 +835,75 @@ export function foldM<A, B, C>(
 
   return resW;
 }
+
+/**
+ * Gets the string value of a property.  If the property cannot be converted
+ * to a string, throw an exception.
+ *
+ * @param prop Get the string value of this property
+ * @param dft Optional default value (if you don't want an exception)
+ * @returns string value of the property
+ */
+export const getAdValueAsString = (
+  prop: Value<ad.Num>,
+  dft?: string
+): string => {
+  switch (prop.tag) {
+    case "FloatV":
+      if (typeof prop.contents === "number") return prop.contents.toString();
+      break;
+    case "StrV":
+      return prop.contents;
+  }
+  if (dft !== undefined) return dft;
+  throw new Error(
+    `getAdValueAsString: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
+};
+
+/**
+ * Gets the numeric value of a property.  If the property cannot be converted
+ * to a number, throw an exception.
+ *
+ * @param prop Get the numeric value of this property
+ * @param dft Optional default value (if you don't want an exception)
+ * @returns numeric value of the property
+ */
+export const getAdValueAsNumber = (
+  prop: Value<ad.Num>,
+  dft?: number
+): number => {
+  switch (prop.tag) {
+    case "FloatV":
+      if (typeof prop.contents === "number") return prop.contents;
+      break;
+    case "StrV":
+      return parseFloat(prop.contents);
+  }
+  if (dft !== undefined) return dft;
+  throw new Error(
+    `getAdValueAsNumber: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
+};
+
+/**
+ * Gets the color value of a property.  If the property is not a color,
+ * throw an exception.
+ *
+ * @param prop Get the color value of this property
+ * @returns color value of the property
+ */
+export const getAdValueAsColor = (prop: Value<ad.Num>): Color<ad.Num> => {
+  if (prop.tag === "ColorV") return prop.contents;
+  throw new Error(
+    `getAdValueAsColor: unexpected tag ${prop.tag} w/value ${JSON.stringify(
+      prop.contents
+    )}`
+  );
+};
 
 //#endregion

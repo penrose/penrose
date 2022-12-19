@@ -1,11 +1,12 @@
 Point A, B, C, D
 Circle c
 Segment AB := Chord(c, A, B)
-Segment CD := Chord(c, C, D)
+Segment DC := Chord(c, D, C)
 Segment DB := Chord(c, D, B)
 Segment AC := Chord(c, A, C)
 Segment CB := Chord(c, B, C)
 Segment DA := Chord(c, D, A)
-ParallelMarker1(AB, CD)
-Parallel(AB, CD)
+Quadrilateral ABCD := MkQuadrilateral(A, B, C, D)
+ParallelMarker1(AB, DC)
+Parallel(AB, DC)
 AutoLabel All

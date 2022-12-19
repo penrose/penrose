@@ -1,0 +1,4 @@
+Hydrogen H1, H2
+Oxygen O1
+SBond(H1, O1)
+SBond(H2, O1)

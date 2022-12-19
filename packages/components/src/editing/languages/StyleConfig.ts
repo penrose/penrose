@@ -1,6 +1,13 @@
 import { Monaco } from "@monaco-editor/react";
-import { compDict, constrDict, objDict, shapedefs } from "@penrose/core";
-import { IRange, languages } from "monaco-editor";
+import {
+  compDict,
+  constrDict,
+  hexToRgba,
+  objDict,
+  rgbaToHex,
+  shapedefs,
+} from "@penrose/core";
+import { editor, IRange, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
 
 export const StyleConfig: languages.LanguageConfiguration = {
@@ -103,6 +110,7 @@ export const StyleLanguageTokens: languages.IMonarchLanguage = {
         /\b[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)\b/,
         "number.float",
       ],
+      [/#([0-9A-Fa-f]{3,})/, "number.hex"],
       { include: "@whitespace" },
     ],
     ...CommentCommon,
@@ -163,20 +171,73 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
   monaco.languages.register({ id: "style" });
   monaco.languages.setLanguageConfiguration("style", StyleConfig);
   monaco.languages.setMonarchTokensProvider("style", StyleLanguageTokens);
-  const dispose = monaco.languages.registerCompletionItemProvider("style", {
-    provideCompletionItems: (model, position) => {
-      const word = model.getWordUntilPosition(position);
-      const range: IRange = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-      return { suggestions: StyleCompletions(range) } as any;
+  const disposeColor = monaco.languages.registerColorProvider("style", {
+    provideColorPresentations: (model, colorInfo) => {
+      const { red, green, blue, alpha } = colorInfo.color;
+      return [
+        {
+          label: rgbaToHex([red, green, blue, alpha]),
+        },
+      ];
     },
-    // HACK
+
+    provideDocumentColors: (model) => {
+      const colorRegex = /#([0-9A-Fa-f]{3,})/;
+      const colorMatches = model.findMatches(
+        colorRegex.source,
+        false,
+        true,
+        false,
+        null,
+        true
+      );
+      return colorMatches.reduce(
+        (
+          colors: languages.IColorInformation[],
+          { matches, range }: editor.FindMatch
+        ) => {
+          if (matches !== null) {
+            const hexColor = hexToRgba(matches[1]);
+            if (hexColor) {
+              const [red, green, blue, alpha] = hexColor;
+              const color = {
+                color: {
+                  red,
+                  green,
+                  blue,
+                  alpha,
+                },
+                range: range,
+              };
+              return [...colors, color];
+            } else {
+              return colors;
+            }
+          } else {
+            return colors;
+          }
+        },
+        []
+      );
+    },
   });
+  const disposeCompletion = monaco.languages.registerCompletionItemProvider(
+    "style",
+    {
+      provideCompletionItems: (model, position) => {
+        const word = model.getWordUntilPosition(position);
+        const range: IRange = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+        return { suggestions: StyleCompletions(range) } as any;
+      },
+    }
+  );
   return () => {
-    dispose.dispose();
+    disposeColor.dispose();
+    disposeCompletion.dispose();
   };
 };

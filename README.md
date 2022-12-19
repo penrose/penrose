@@ -24,7 +24,7 @@ Here's a simple Penrose visualization in the domain of set theory.
 <img src="diagrams/tree-venn.svg" width=500>
 
 It's specified by the following trio of Domain, Substance, and Style programs
-(with variation `CasalViper643`):
+(with variation `PlumvilleCapybara104`):
 
 - `setTheory.dsl`:
 
@@ -98,3 +98,11 @@ It's specified by the following trio of Domain, Substance, and Style programs
     ensure disjoint(x.text, y.icon)
   }
   ```
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE).

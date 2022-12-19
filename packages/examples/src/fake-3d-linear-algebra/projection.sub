@@ -1,0 +1,22 @@
+AmbientSpace S
+
+Hyperplane P
+
+HyperplaneInAmbientSpace(P, S)
+
+Vector v
+
+VectorInAmbientSpace(v, S)
+VectorInHyperplane(v, P, S)
+
+Vector u
+
+VectorInAmbientSpace(u, S)
+VectorOrthogonalToHyperplane(u, P, S)
+VectorOrthogonalToVector(u, v, S)
+
+Vector w := addV(v, u)
+VectorInAmbientSpace(w, S)
+
+
+AutoLabel All

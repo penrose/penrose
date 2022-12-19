@@ -1,21 +1,8 @@
+import { input } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
-import {
-  BoolV,
-  Color,
-  ColorV,
-  FloatV,
-  IntV,
-  ListV,
-  MatrixV,
-  PathCmd,
-  PathDataV,
-  PtListV,
-  StrV,
-  TupV,
-  VectorV,
-} from "types/value";
-import { randFloat } from "utils/Util";
+import { ColorV, FloatV, VectorV } from "types/value";
+import { colorV, floatV, randFloat, vectorV } from "utils/Util";
 
 type Range = [number, number];
 
@@ -40,85 +27,85 @@ export const makeCanvas = (width: number, height: number): Canvas => ({
   yRange: [-height / 2, height / 2],
 });
 
-export const floatV = (contents: ad.Num): FloatV<ad.Num> => ({
-  tag: "FloatV",
-  contents,
-});
-export const intV = (contents: number): IntV => ({
-  tag: "IntV",
-  contents,
-});
-export const boolV = (contents: boolean): BoolV<ad.Num> => ({
-  tag: "BoolV",
-  contents,
-});
-export const strV = (contents: string): StrV => ({
-  tag: "StrV",
-  contents,
-});
-export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
-  tag: "PathDataV",
-  contents,
-});
-export const ptListV = (contents: ad.Num[][]): PtListV<ad.Num> => ({
-  tag: "PtListV",
-  contents,
-});
-export const colorV = (contents: Color<ad.Num>): ColorV<ad.Num> => ({
-  tag: "ColorV",
-  contents,
-});
+export type Sampler = (rng: seedrandom.prng) => number;
 
-export const listV = (contents: ad.Num[]): ListV<ad.Num> => ({
-  tag: "ListV",
-  contents,
-});
-export const vectorV = (contents: ad.Num[]): VectorV<ad.Num> => ({
-  tag: "VectorV",
-  contents,
-});
-export const matrixV = (contents: ad.Num[][]): MatrixV<ad.Num> => ({
-  tag: "MatrixV",
-  contents,
-});
-export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
-  tag: "TupV",
-  contents,
-});
+export interface OptimizedMeta {
+  tag: "Optimized";
+  sampler: Sampler;
+}
 
-export const sampleFloatIn = (
-  rng: seedrandom.prng,
-  min: number,
-  max: number
-): FloatV<ad.Num> => floatV(randFloat(rng, min, max));
+export interface UnoptimizedMeta {
+  tag: "Unoptimized";
+  pending: number; // placeholder value to use until label collection completes
+}
+
+export type InputMeta = OptimizedMeta | UnoptimizedMeta;
+
+export type InputFactory = (meta: InputMeta) => ad.Input; // NOTE: stateful!
+
+export interface Context {
+  makeInput: InputFactory;
+}
+
+/**
+ * Return a simple `Context` which starts with a `seedrandom` PRNG seeded with
+ * `variation`, and for each `makeInput` invocation, sets `val` by calling the
+ * using the given `sampler` or placeholder `pending` value, then increments a
+ * counter for the `key` field.
+ */
+export const simpleContext = (variation: string): Context => {
+  const rng = seedrandom(variation);
+  let i = 0;
+  return {
+    makeInput: (meta) =>
+      input({
+        key: i++,
+        val: meta.tag === "Optimized" ? meta.sampler(rng) : meta.pending,
+      }),
+  };
+};
+
+export const uniform = (min: number, max: number): Sampler => (
+  rng: seedrandom.prng
+) => randFloat(rng, min, max);
+
 export const sampleVector = (
-  rng: seedrandom.prng,
+  { makeInput }: Context,
   canvas: Canvas
 ): VectorV<ad.Num> =>
-  vectorV([randFloat(rng, ...canvas.xRange), randFloat(rng, ...canvas.yRange)]);
+  vectorV([
+    makeInput({ tag: "Optimized", sampler: uniform(...canvas.xRange) }),
+    makeInput({ tag: "Optimized", sampler: uniform(...canvas.yRange) }),
+  ]);
+
 export const sampleWidth = (
-  rng: seedrandom.prng,
+  { makeInput }: Context,
   canvas: Canvas
-): FloatV<ad.Num> => floatV(randFloat(rng, 3, canvas.width / 6));
-export const sampleZero = (): FloatV<ad.Num> => floatV(0);
+): FloatV<ad.Num> =>
+  floatV(
+    makeInput({ tag: "Optimized", sampler: uniform(3, canvas.width / 6) })
+  );
+
 export const sampleHeight = (
-  rng: seedrandom.prng,
+  { makeInput }: Context,
   canvas: Canvas
-): FloatV<ad.Num> => floatV(randFloat(rng, 3, canvas.height / 6));
-export const sampleStroke = (rng: seedrandom.prng): FloatV<ad.Num> =>
-  floatV(randFloat(rng, 0.5, 3));
-export const sampleColor = (rng: seedrandom.prng): ColorV<ad.Num> => {
+): FloatV<ad.Num> =>
+  floatV(
+    makeInput({ tag: "Optimized", sampler: uniform(3, canvas.height / 6) })
+  );
+
+export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
+  floatV(makeInput({ tag: "Optimized", sampler: uniform(0.5, 3) }));
+
+export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
   const [min, max] = [0.1, 0.9];
   return colorV({
     tag: "RGBA",
     contents: [
-      randFloat(rng, min, max),
-      randFloat(rng, min, max),
-      randFloat(rng, min, max),
+      makeInput({ tag: "Optimized", sampler: uniform(min, max) }),
+      makeInput({ tag: "Optimized", sampler: uniform(min, max) }),
+      makeInput({ tag: "Optimized", sampler: uniform(min, max) }),
       0.5,
     ],
   });
 };
-export const sampleBlack = (): ColorV<ad.Num> =>
-  colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
-export const sampleNoPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });

@@ -129,7 +129,7 @@ Let's say I want the constraint `f(x) <= c` to be true.
 
 Previously, we've talked about how we convert everything to zero-based inequality, so what happens when the energy function outputs a negative value? It simply means that the constraint is satisfied.
 
-### 6. Accessing a Value of a Shape's Field
+### 7. Accessing a Value of a Shape's Field
 
 One common operation is to access the parameter of a shape via `shapeName.propertyName.contents`, which will return a `ad.Num`. For example, if you have a circle `c` as input, and you want its radius, `c.r.contents` will give you something like `5.0` (of type `ad.Num`).
 

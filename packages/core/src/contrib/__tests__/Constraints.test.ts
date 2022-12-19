@@ -1,4 +1,5 @@
 import { constrDict } from "contrib/Constraints";
+import { numOf } from "contrib/Utils";
 import {
   _circles,
   _ellipses,
@@ -6,15 +7,7 @@ import {
   _polygons,
   _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
-import { genCode, secondaryGraph } from "engine/Autodiff";
 import * as ad from "types/ad";
-
-const numOf = (x: ad.Num) => {
-  const g = secondaryGraph([x]);
-  const f = genCode(g);
-  const [y] = f([]).secondary; // no inputs, so, empty array
-  return y;
-};
 
 const digitPrecision = 10;
 
@@ -108,8 +101,8 @@ describe("simple constraint", () => {
     [1, 4, 2, 4, 0],
     [1, 4, 2, 5, 1],
     [1, 4, 0, 3, 1],
-    [1, 4, 6, 7, 9],
-    [1, 4, -2, -1, 9],
+    [1, 4, 6, 7, 3],
+    [1, 4, -2, -1, 3],
   ])(
     "contains1D([%p, %p], [%p, %p]) should return %p",
     (l1: number, r1: number, l2: number, r2: number, expected: number) => {
@@ -147,11 +140,11 @@ describe("simple constraint", () => {
   );
 
   it.each([
-    [[1, 2], [1, 1], [2, 1], 0.6],
-    [[1, 3], [1, 1], [3, 1], 1.2],
+    [[1, 2], [1, 1], [2, 1], 1],
+    [[1, 3], [1, 1], [3, 1], 4],
     [[1, 0], [1, 1], [1, 2], 0],
     [[1, 0], [1, 1], [1, 10], 0],
-    [[1, 0], [1, 1], [1, -10], 2],
+    [[1, 0], [1, 1], [1, -10], 0],
   ])(
     "collinear(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
@@ -167,9 +160,9 @@ describe("simple constraint", () => {
     [[1, 0], [1, 1], [1, 10], 0],
     [[1, 0], [1, 1], [1, -10], 0],
   ])(
-    "collinearUnordered(%p, %p, %p) should return %p",
+    "collinearOrdered(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
-      const result = constrDict.collinearUnordered(c1, c2, c3);
+      const result = constrDict.collinearOrdered(c1, c2, c3);
       expect(numOf(result)).toBeCloseTo(expected, 1);
     }
   );
@@ -193,6 +186,9 @@ describe("general constraints", () => {
     ["Rectangle", "Circle", 0, _rectangles[0], _circles[2]],
     ["Circle", "Rectangle", 0, _circles[0], _rectangles[2]],
     ["Circle", "Circle", 0, _circles[0], _circles[2]],
+    ["Circle", "Ellipse", 0, _circles[0], _ellipses[2]],
+    ["Ellipse", "Circle", 0, _ellipses[0], _circles[2]],
+    ["Ellipse", "Ellipse", 0, _ellipses[0], _ellipses[2]],
     ["Rectangle", "Ellipse", 0, _rectangles[0], _ellipses[2]],
     ["Ellipse", "Rectangle", 0, _ellipses[0], _rectangles[2]],
     ["Line", "Line", 0, _lines[2], _lines[3]],
@@ -205,11 +201,18 @@ describe("general constraints", () => {
     ["Rectangle", "Polygon", 0, _rectangles[2], _polygons[2]],
     ["Rectangle", "Polygon", 0, _rectangles[0], _polygons[0]],
     ["Ellipse", "Line", 0, _ellipses[6], _lines[0]],
+    ["Ellipse", "Ellipse", 0, _ellipses[7], _ellipses[8]],
+    ["Ellipse", "Ellipse", 0, _ellipses[8], _ellipses[10]],
     // With padding
     ["Rectangle", "Rectangle", 150, _rectangles[3], _rectangles[1]],
     ["Rectangle", "Circle", 150, _rectangles[3], _circles[1]],
     ["Circle", "Rectangle", 150, _circles[3], _rectangles[1]],
+    ["Rectangle", "Ellipse", 150, _rectangles[3], _ellipses[1]],
+    ["Ellipse", "Rectangle", 150, _ellipses[3], _rectangles[1]],
     ["Circle", "Circle", 150, _circles[3], _circles[1]],
+    ["Circle", "Ellipse", 150, _circles[3], _ellipses[1]],
+    ["Ellipse", "Circle", 150, _ellipses[3], _circles[1]],
+    ["Ellipse", "Ellipse", 150, _ellipses[3], _ellipses[1]],
     ["Line", "Line", 200, _lines[1], _lines[3]],
     ["Polygon", "Polygon", 100, _polygons[1], _polygons[2]],
     ["Polygon", "Polygon", 150, _polygons[1], _polygons[3]],
@@ -218,11 +221,20 @@ describe("general constraints", () => {
     ["Rectangle", "Line", 150, _rectangles[0], _lines[2]],
     ["Rectangle", "Polygon", 150, _rectangles[3], _polygons[1]],
     ["Rectangle", "Polygon", 150, _rectangles[1], _polygons[2]],
+    ["Ellipse", "Ellipse", 100, _ellipses[6], _ellipses[7]],
+    ["Ellipse", "Ellipse", 100, _ellipses[6], _ellipses[8]],
     [
       "Circle",
       "Rectangle",
       (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
       _circles[4],
+      _rectangles[2],
+    ],
+    [
+      "Ellipse",
+      "Rectangle",
+      (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
+      _ellipses[4],
       _rectangles[2],
     ],
   ])(
@@ -237,8 +249,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should be satisfied
-      expectSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.disjoint(shape0, shape1, padding));
       expectNotSatisfied(constrDict.disjoint(shape1, shape0, padding));
@@ -260,6 +273,9 @@ describe("general constraints", () => {
     ["Rectangle", "Ellipse", 0, _rectangles[2], _ellipses[3]],
     ["Ellipse", "Rectangle", 0, _ellipses[2], _rectangles[3]],
     ["Circle", "Circle", 0, _circles[2], _circles[3]],
+    ["Circle", "Ellipse", 0, _circles[2], _ellipses[3]],
+    ["Ellipse", "Circle", 0, _ellipses[2], _circles[3]],
+    ["Ellipse", "Ellipse", 0, _ellipses[2], _ellipses[3]],
     ["Line", "Line", 0, _lines[0], _lines[3]],
     ["Line", "Line", 0, _lines[1], _lines[2]],
     ["Line", "Polygon", 0, _lines[0], _polygons[2]],
@@ -269,6 +285,9 @@ describe("general constraints", () => {
     ["Circle", "Rectangle", 0, _circles[3], _rectangles[2]],
     ["Ellipse", "Rectangle", 0, _ellipses[3], _rectangles[2]],
     ["Ellipse", "Line", 0, _ellipses[7], _lines[2]],
+    ["Ellipse", "Ellipse", 0, _ellipses[8], _ellipses[9]],
+    ["Ellipse", "Ellipse", 0, _ellipses[7], _ellipses[10]],
+    ["Ellipse", "Ellipse", 0, _ellipses[9], _ellipses[10]],
     // With padding
     ["Rectangle", "Rectangle", 10, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 10, _rectangles[1], _circles[3]],
@@ -277,6 +296,12 @@ describe("general constraints", () => {
     ["Ellipse", "Rectangle", 10, _ellipses[1], _rectangles[3]],
     ["Circle", "Circle", 10, _circles[1], _circles[3]],
     ["Circle", "Circle", 110, _circles[2], _circles[3]],
+    ["Circle", "Ellipse", 10, _circles[1], _ellipses[3]],
+    ["Circle", "Ellipse", 110, _circles[2], _ellipses[3]],
+    ["Ellipse", "Circle", 10, _ellipses[1], _circles[3]],
+    ["Ellipse", "Circle", 110, _ellipses[2], _circles[3]],
+    ["Ellipse", "Ellipse", 10, _ellipses[1], _ellipses[3]],
+    ["Ellipse", "Ellipse", 110, _ellipses[2], _ellipses[3]],
     ["Line", "Line", 50, _lines[0], _lines[3]],
     ["Line", "Line", 50, _lines[1], _lines[2]],
     ["Line", "Polygon", 50, _lines[0], _polygons[2]],
@@ -295,8 +320,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.overlapping(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectNotSatisfied(constrDict.overlapping(shape0, shape1, overlap));
+      expectNotSatisfied(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should be satisfied
       expectSatified(constrDict.disjoint(shape0, shape1, padding));
       expectSatified(constrDict.disjoint(shape1, shape0, padding));
@@ -318,6 +344,9 @@ describe("general constraints", () => {
     ["Rectangle", "Ellipse", 0, _rectangles[1], _ellipses[2]],
     ["Ellipse", "Rectangle", 0, _ellipses[1], _rectangles[2]],
     ["Circle", "Circle", 0, _circles[1], _circles[2]],
+    ["Circle", "Ellipse", 0, _circles[1], _ellipses[2]],
+    ["Ellipse", "Circle", 0, _ellipses[1], _circles[2]],
+    ["Ellipse", "Ellipse", 0, _ellipses[1], _ellipses[2]],
     ["Line", "Line", 0, _lines[0], _lines[1]],
     ["Line", "Line", 0, _lines[0], _lines[2]],
     ["Line", "Polygon", 0, _lines[2], _polygons[2]],
@@ -327,7 +356,12 @@ describe("general constraints", () => {
     ["Rectangle", "Rectangle", 100, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
     ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
+    ["Rectangle", "Ellipse", 100, _rectangles[1], _ellipses[3]],
+    ["Ellipse", "Rectangle", 100, _ellipses[1], _rectangles[3]],
     ["Circle", "Circle", 100, _circles[1], _circles[3]],
+    ["Circle", "Ellipse", 100, _circles[1], _ellipses[3]],
+    ["Ellipse", "Circle", 100, _ellipses[1], _circles[3]],
+    ["Ellipse", "Ellipse", 100, _ellipses[1], _ellipses[3]],
     ["Line", "Line", 100, _lines[1], _lines[2]],
     [
       "Circle",
@@ -348,8 +382,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should JUST be satisfied
-      expectJustSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectJustSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectJustSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectJustSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should JUST be satisfied
       expectJustSatified(constrDict.disjoint(shape0, shape1, padding));
       expectJustSatified(constrDict.disjoint(shape1, shape0, padding));
@@ -371,6 +406,9 @@ describe("general constraints", () => {
     ["Rectangle", "Ellipse", 0, _rectangles[0], _ellipses[1]],
     ["Ellipse", "Rectangle", 0, _ellipses[0], _rectangles[1]],
     ["Circle", "Circle", 0, _circles[0], _circles[1]],
+    ["Circle", "Ellipse", 0, _circles[0], _ellipses[1]],
+    ["Ellipse", "Circle", 0, _ellipses[0], _circles[1]],
+    ["Ellipse", "Ellipse", 0, _ellipses[0], _ellipses[1]],
     ["Polygon", "Polygon", 0, _polygons[0], _polygons[1]],
     ["Polygon", "Line", 0, _polygons[0], _lines[1]],
     ["Rectangle", "Polygon", 0, _rectangles[0], _polygons[1]],
@@ -386,6 +424,9 @@ describe("general constraints", () => {
     ["Rectangle", "Ellipse", 50, _rectangles[0], _ellipses[1]],
     ["Ellipse", "Rectangle", 50, _ellipses[0], _rectangles[1]],
     ["Circle", "Circle", 50, _circles[0], _circles[1]],
+    ["Circle", "Ellipse", 50, _circles[0], _ellipses[1]],
+    ["Ellipse", "Circle", 50, _ellipses[0], _circles[1]],
+    ["Ellipse", "Ellipse", 50, _ellipses[0], _ellipses[1]],
     ["Polygon", "Polygon", 20, _polygons[0], _polygons[1]],
     ["Polygon", "Line", 20, _polygons[0], _lines[1]],
   ])(
@@ -400,8 +441,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should be satisfied
-      expectSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.disjoint(shape0, shape1, padding));
       expectNotSatisfied(constrDict.disjoint(shape1, shape0, padding));

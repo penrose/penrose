@@ -1,6 +1,7 @@
 import {
   containsPolygonPoints,
   convexPartitions,
+  overlappingImplicitEllipses,
   overlappingPolygonPoints,
   overlappingPolygonPointsEllipse,
   rectangleDifference,
@@ -21,6 +22,8 @@ import {
   min,
   minN,
   mul,
+  neg,
+  sqrt,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
@@ -35,100 +38,143 @@ import { Rectangle } from "shapes/Rectangle";
 import { shapedefs } from "shapes/Shapes";
 import { Text } from "shapes/Text";
 import * as ad from "types/ad";
+import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
 
 // -------- Ovelapping helpers
 
 /**
- * Require that circle `s1` overlaps circle `s2` with some padding `padding`.
+ * Require that circle `s1` overlaps circle `s2` with some overlap `overlap`.
  */
 export const overlappingCircles = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Circle],
-  padding: ad.Num = 0
+  overlap: ad.Num = 0
 ): ad.Num => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
-  const o = [s1.r.contents, s2.r.contents, padding];
-  return sub(d, addN(o));
+  const o = sub(add(s1.r.contents, s2.r.contents), overlap);
+  return sub(d, o);
 };
 
 /**
- * Require that polygon `s1` overlaps polygon `s2` with some padding `padding`.
+ * Require that polygon `s1` overlaps polygon `s2` with some overlap `overlap`.
  */
 export const overlappingPolygons = (
   [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
   [t2, s2]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
-  padding: ad.Num = 0
+  overlap: ad.Num = 0
 ): ad.Num => {
   return overlappingPolygonPoints(
     polygonLikePoints([t1, s1]),
     polygonLikePoints([t2, s2]),
-    padding
+    overlap
   );
 };
 
 /**
- * Require that bounding box of `s1` overlaps bounding box of `s2` with some padding `padding`.
+ * Require that bounding box of `s1` overlaps bounding box of `s2` with some overlap `overlap`.
  */
 export const overlappingAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding: ad.Num = 0
+  overlap: ad.Num = 0
 ): ad.Num => {
   // Prepare axis-aligned bounding boxes
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
   // Get the Minkowski difference rectangle
-  const [bottomLeft, topRight] = rectangleDifference(box1, box2, padding);
+  const [bottomLeft, topRight] = rectangleDifference(box1, box2, neg(overlap));
   // Return the signed distance
   return rectangleSignedDistance(bottomLeft, topRight);
 };
 
 /**
- * Require that rectangle `s1` overlaps circle `s2` with some padding `padding`.
+ * Require that ellipse `s1` overlaps ellipse `s2` with some overlap `overlap`.
+ */
+export const overlappingEllipse = (
+  [, s1]: [string, Ellipse],
+  [, s2]: [string, Ellipse],
+  overlap: ad.Num
+): ad.Num => {
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const d = ops.vdist(s1.center.contents, s2.center.contents);
+  const factor = div(1, add(1, d));
+  const ei1 = ellipseToImplicit(s1, neg(overlap), mul(Math.PI / 3, factor));
+  const ei2 = ellipseToImplicit(s2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
+};
+
+/**
+ * Require that rectangle `s1` overlaps circle `s2` with some overlap `overlap`.
  */
 export const overlappingRectlikeCircle = (
   [t1, s1]: [string, Rectangle | Text | Equation | Image],
   [t2, s2]: [string, Circle],
-  padding: ad.Num = 0
+  overlap: ad.Num = 0
 ): ad.Num => {
   // Prepare axis-aligned bounding boxes
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
   // Get the Minkowski difference of inner rectangle
-  const innerPadding = sub(padding, s2.r.contents);
-  const [bottomLeft, topRight] = rectangleDifference(box1, box2, innerPadding);
+  const innerOverlap = sub(neg(overlap), s2.r.contents);
+  const [bottomLeft, topRight] = rectangleDifference(box1, box2, innerOverlap);
   // Return the signed distance
   const innerSDF = rectangleSignedDistance(bottomLeft, topRight);
   return sub(innerSDF, s2.r.contents);
 };
 
 /**
- * Require that polygon `s1` overlaps ellipse `s2` with some padding `padding`.
+ * Require that polygon `s1` overlaps ellipse `s2` with some overlap `overlap`.
  */
 export const overlappingPolygonEllipse = (
   [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
   [, s2]: [string, Ellipse],
-  padding: ad.Num = 0
+  overlap: ad.Num = 0
 ): ad.Num => {
   const points = polygonLikePoints([t1, s1]);
   const cp = convexPartitions(points);
-  return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, padding)));
+  return minN(
+    cp.map((p) => overlappingPolygonPointsEllipse(p, s2, neg(overlap)))
+  );
 };
 
 /**
- * Require that circle `s1` overlaps line `s2` with some padding `padding`.
+ * Require that circle `s1` overlaps ellipse `s2` with some overlap `overlap`.
+ */
+export const overlappingCircleEllipse = (
+  [, s1]: [string, Circle],
+  [, s2]: [string, Ellipse],
+  overlap: ad.Num = 0
+): ad.Num => {
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const d = ops.vdist(s1.center.contents, s2.center.contents);
+  const factor = div(1, add(1, d));
+  const ei1 = circleToImplicitEllipse(
+    s1,
+    neg(overlap),
+    mul(Math.PI / 3, factor)
+  );
+  const ei2 = ellipseToImplicit(s2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
+};
+
+/**
+ * Require that circle `s1` overlaps line `s2` with some overlap `overlap`.
  */
 export const overlappingCircleLine = (
   [, s1]: [string, Circle],
   [, s2]: [string, Line],
-  padding: ad.Num = 0
+  overlap: ad.Num = 0
 ): ad.Num => {
   // collect constants
   const c = s1.center.contents;
   const r = s1.r.contents;
   const a = s2.start.contents;
   const b = s2.end.contents;
-  const o = padding;
+  const o = neg(overlap);
 
   // Return the distance between the circle center c and the
   // segment ab, minus the circle radius r and offset o.  This
@@ -145,6 +191,42 @@ export const overlappingCircleLine = (
   const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
   // return d - (r+o)
   return sub(d, add(r, o));
+};
+
+/**
+ * Require that circle `s1` overlaps line `s2` with some overlap `overlap`.
+ */
+export const overlappingTextLine = (
+  t: [string, Text | Equation],
+  [, s2]: [string, Line],
+  overlap: ad.Num = 0
+): ad.Num => {
+  // TODO: temporary bounding circle based solution
+  // collect constants
+  const rect = bboxFromShape(t);
+  const c = t[1].center.contents;
+  const a = s2.start.contents;
+  const b = s2.end.contents;
+  const o = overlap;
+  const r = sqrt(
+    add(squared(div(rect.width, 2)), squared(div(rect.height, 2)))
+  );
+  const u = ops.vsub(c, a); // u = c-a
+  const v = ops.vsub(b, a); // v - b-a
+  // h = clamp( <u,v>/<v,v>, 0, 1 )
+  const h = max(0, min(1, div(ops.vdot(u, v), ops.vdot(v, v))));
+  // d = | u - h*v |
+  const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
+  // return d - (r+o)
+  return sub(d, add(r, o));
+
+  // TODO: fix minkowski SDF and use this instead
+  // const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(
+  //   bboxFromShape(t)
+  // );
+  // const p1: ad.Num[][] = [topLeft, topRight, bottomLeft, bottomRight];
+  // const p2: ad.Num[][] = [s2.start.contents, s2.end.contents];
+  // return convexPolygonMinkowskiSDF(p1, p2, padding);
 };
 
 /**

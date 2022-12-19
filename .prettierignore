@@ -1,4 +1,5 @@
 *.hbs
+/packages/automator/progs/
 /packages/browser-ui/tsconfig.json
 /packages/components/storybook-static/
 /packages/core/docs/
@@ -8,6 +9,8 @@
 /packages/core/src/parser/SubstanceParser.ts
 /packages/core/src/renderer/not_found.json
 /packages/docs-site/.docusaurus/
+/packages/docs-site/static/try/
+/packages/docs-site/static/shapedefs.json
 /packages/roger/oclif.manifest.json
 /README.md
 build/

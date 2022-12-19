@@ -2,18 +2,30 @@
   "name": "@penrose/automator",
   "version": "1.3.0",
   "description": "",
+  "type": "module",
   "main": "index.tsx",
   "scripts": {
-    "start": "ts-node ./index.tsx",
-    "test": "echo \"no test specified for automator\" && exit 0",
+    "build": ":",
+    "build-decls": ":",
+    "start": "ts-node --esm --experimentalSpecifierResolution=node ./index.tsx",
     "generate-site": "yarn clean && yarn start batch registry.json artifacts --render=browser --src-prefix=progs --folders --cross-energy",
     "clean": "rimraf artifacts browser",
     "typecheck": "tsc --noEmit"
   },
-  "author": "Penrose Team (https://penrose.ink)",
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build",
+          "^build-decls"
+        ]
+      }
+    }
+  },
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "dependencies": {
-    "@penrose/core": "^1.3.0",
+    "@penrose/core": "1.3.0",
     "@types/react": "^16.9.32",
     "canvas": "^2.8.0",
     "chalk": "^3.0.0",
@@ -33,8 +45,10 @@
     "vega-lite": "^4.0.2"
   },
   "devDependencies": {
+    "@swc/core": "^1.3.21",
+    "@swc/helpers": "^0.4.14",
     "@types/node": "^12.12.68",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.1.3"
+    "ts-node": "^10.9.1",
+    "regenerator-runtime": "^0.13.11"
   }
 }
