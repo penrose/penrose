@@ -181,8 +181,6 @@ jobs:
       - name: Make test report dir
         run: mkdir -p reports/junit/
         working-directory: packages/core/
-      - name: Delete the diagrams we're about to generate
-        run: rm -r diagrams/
       - name: Run core tests and generate test data
         run: npx nx run core:coverage
       - name: Move test report

@@ -33,7 +33,7 @@ for (const name of ["domain", "substance", "style"]) {
 fs.writeFileSync(
   "README.md",
   Handlebars.compile(slurp(".github/readme_template.hbs"))({
-    svg: `diagrams/${sub}-${sty}.svg`,
+    svg: `https://github.com/penrose/penrose/raw/ci/refs/heads/main/${sub}-${sty}.svg`,
     variation,
     dsl: path.basename(dslURI),
     sub: path.basename(subURI),
