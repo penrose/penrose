@@ -129,9 +129,14 @@ jobs:
           git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git config --global user.name "$GITHUB_ACTOR"
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
+          echo '```' > diff.md
+          git --no-pager diff --name-status ci/refs/heads/main HEAD >> diff.md
+          echo '```' >> diff.md
+          cat diff.md >> $GITHUB_STEP_SUMMARY
           echo 'REGISTRY_DIFF<<EOF' >> $GITHUB_ENV
-          git --no-pager diff --name-status ci/refs/heads/main HEAD >> $GITHUB_ENV
+          cat diff.md >> $GITHUB_ENV
           echo EOF >> $GITHUB_ENV
+          rm diff.md
       - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'penrose/penrose'
         name: Push to target
         working-directory: diagrams/
@@ -143,9 +148,7 @@ jobs:
           message: |
             # ± [Registry diff](${{ github.server_url }}/${{ github.repository }}/compare/ci/refs/heads/main..ci/${{ github.ref }})
 
-            ```
             ${{ env.REGISTRY_DIFF }}
-            ```
 
             # 📊 [Performance](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
