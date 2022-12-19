@@ -77,25 +77,22 @@ jobs:
   registry:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
+      - name: Checkout
         uses: actions/checkout@v3
-        with:
-          path: source/
       - name: Install packages
-        uses: ./source/.github/actions/packages
+        uses: /.github/actions/packages
       - name: Build @penrose/automator
-        working-directory: source/
         run: npx nx run automator:build
       - name: Generate diagrams and metadata
-        working-directory: source/packages/automator/
+        working-directory: packages/automator/
         run: yarn start batch registry.json out/ --src-prefix=../examples/src/ --folders
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v2
         with:
           name: diagrams
-          path: source/packages/automator/out/
+          path: packages/automator/out/
       - name: Generate CI summary
-        working-directory: source/packages/automator/
+        working-directory: packages/automator/
         run: |
           yarn start textchart out stats.md
           cat stats.md >> $GITHUB_STEP_SUMMARY
@@ -116,25 +113,25 @@ jobs:
       - name: Checkout target
         uses: actions/checkout@v3
         with:
-          path: target/
+          path: diagrams/
           ref: ci/refs/heads/main
       - if: github.event_name == 'pull_request'
         name: Checkout target branch
-        working-directory: target/
+        working-directory: diagrams/
         run: git checkout --orphan ci/${{ github.ref }}
       - name: Clean target working tree
-        working-directory: target/
+        working-directory: diagrams/
         run: git rm -rf .
       - name: Copy diagrams to target
         run: |
           set -x
-          for filename in source/packages/automator/out/*/output.svg; do
-            dir=${filename#source/packages/automator/out/}
+          for filename in packages/automator/out/*/output.svg; do
+            dir=${filename#packages/automator/out/}
             name=${dir%/output.svg}
-            cp "$filename" "target/$name.svg"
+            cp "$filename" "diagrams/$name.svg"
           done
       - name: Commit diagrams
-        working-directory: target/
+        working-directory: diagrams/
         run: |
           git add .
           git config --global user.email 'penrose-team@cs.cmu.edu'
@@ -142,7 +139,7 @@ jobs:
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
       - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'penrose/penrose'
         name: Push to target
-        working-directory: target/
+        working-directory: diagrams/
         run: git push -f origin HEAD
 
   storybook:
