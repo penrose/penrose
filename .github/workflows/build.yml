@@ -68,11 +68,21 @@ jobs:
         uses: actions/checkout@v2
       - name: Install packages
         uses: ./.github/actions/packages
-      - name: Check that the CONTRIBUTING.md ToC and README.md are up to date
+      - name: Build @penrose/automator
+        run: npx nx run automator:build
+      - name: Regenerate CONTRIBUTING.md ToC, example diagram, and README.md
         run: |
+          set -x
           yarn toc
           .github/gen_readme.js
           .github/report_git_status.sh
+      - name: Check whether anything changed
+        run: |
+          set -x
+          CHANGES=$(git status --porcelain)
+          echo "$CHANGES"
+          git diff
+          [ -z "$CHANGES" ]
 
   registry:
     runs-on: ubuntu-latest

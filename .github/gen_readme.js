@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const { execFileSync } = require("child_process");
 const fs = require("fs");
 const Handlebars = require("handlebars");
 const path = require("path");
@@ -17,23 +18,36 @@ const { trios, domains, styles, substances } = JSON.parse(
 const matching = trios.filter(
   ({ substance, style }) => substance === sub && style === sty
 );
-if (matching.length !== 1) {
+if (matching.length !== 1)
   throw Error(`expected exactly one matching trio, got ${matching.length}`);
-}
 const [{ substance, style, domain, variation }] = matching;
 
 const dslURI = domains[domain].URI;
 const subURI = substances[substance].URI;
 const styURI = styles[style].URI;
 
-for (const name of ["domain", "substance", "style"]) {
+execFileSync(
+  "yarn",
+  [
+    "start",
+    "draw",
+    subURI,
+    styURI,
+    dslURI,
+    "../../docs/assets",
+    "--src-prefix=../examples/src",
+    "--variation",
+    variation,
+  ],
+  { cwd: "packages/automator", stdio: "inherit" }
+);
+
+for (const name of ["domain", "substance", "style"])
   Handlebars.registerPartial(name, `{{{${name}}}}`);
-}
 
 fs.writeFileSync(
   "README.md",
   Handlebars.compile(slurp(".github/readme_template.hbs"))({
-    svg: `https://github.com/penrose/penrose/raw/ci/refs/heads/main/${sub}-${sty}.svg`,
     variation,
     dsl: path.basename(dslURI),
     sub: path.basename(subURI),
