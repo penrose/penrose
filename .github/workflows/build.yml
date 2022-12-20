@@ -71,7 +71,7 @@ jobs:
       - name: Regenerate CONTRIBUTING.md table of contents
         run: yarn toc
       - name: Build @penrose/automator
-        run: npx nx run automator:build
+        run: yarn build:automator
       - name: Regenerate example diagram and README.md
         run: .github/gen_readme.js
       - name: Check whether anything changed
@@ -89,7 +89,7 @@ jobs:
       - name: Install packages
         uses: ./.github/actions/packages
       - name: Build @penrose/automator
-        run: npx nx run automator:build
+        run: yarn build:automator
       - name: Generate diagrams and metadata
         working-directory: packages/automator/
         run: yarn start batch registry.json out/ --src-prefix=../examples/src/ --folders
