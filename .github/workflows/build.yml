@@ -70,7 +70,7 @@ jobs:
         uses: ./.github/actions/packages
       - name: Build @penrose/automator
         run: npx nx run automator:build
-      - name: Regenerate CONTRIBUTING.md ToC,
+      - name: Regenerate CONTRIBUTING.md table of contents
         run: yarn toc
       - name: Regenerate example diagram and README.md
         run: .github/gen_readme.js
