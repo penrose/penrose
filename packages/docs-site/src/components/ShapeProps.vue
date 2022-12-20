@@ -1,34 +1,9 @@
 <script setup lang="ts">
 import shapeDefs from "../shapedefs.json";
+import PropValue from "./PropValue.vue";
 
-/**
- * Shows the value of a shape property.
- *
- * @param propValue The shape's property value
- * @returns string representing the value
- */
-const showValue = (propValue: { contents: any; tag: string }) => {
-  const contents = propValue.contents;
-
-  if (typeof contents === "object") {
-    switch (contents.tag) {
-      case "NONE":
-        return "NONE";
-      case "RGBA": {
-        const arr = contents.contents;
-        return `rgba(${arr[0]},${arr[1]},${arr[2]},${arr[3]})`;
-      }
-    } // switch: contents.tag
-    if ("val" in contents) {
-      return JSON.stringify(contents.val);
-    }
-  } // if: object
-  return JSON.stringify(contents);
-};
-
-defineProps<{
-  shapeName: string;
-}>();
+const { shapeName } = defineProps<{ shapeName: string }>();
+const thisShape = shapeDefs[shapeName];
 </script>
 
 <template>
@@ -41,24 +16,16 @@ defineProps<{
       </tr>
     </thead>
     <tbody>
-      <tr
-        v-for="[propName, propVal] in Object.entries(
-          shapeDefs[shapeName]['defaulted']
-        )"
-      >
+      <tr v-for="(propValue, propName) in thisShape['defaulted']">
         <td>{{ propName }}</td>
-        <td>{{ propVal.tag }}</td>
-        <td>{{ showValue(propVal) }}</td>
+        <td>{{ propValue.tag }}</td>
+        <td><PropValue v-bind="propValue" /></td>
       </tr>
-      <tr
-        v-for="[propName, propVal] in Object.entries(
-          shapeDefs[shapeName]['sampled']
-        )"
-      >
+      <tr v-for="(propValue, propName) in thisShape['sampled']">
         <td>{{ propName }}</td>
-        <td>{{ propVal.tag }}</td>
+        <td>{{ propValue.tag }}</td>
         <td>
-          <span :style="{ fontStyle: 'italic' }">sampled</span>
+          <span style="font-style: italic">sampled</span>
         </td>
       </tr>
     </tbody>
