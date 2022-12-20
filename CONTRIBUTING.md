@@ -410,7 +410,6 @@ please file an issue!
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
 [extensions]: https://code.visualstudio.com/docs/editor/extension-marketplace
-[feat: make penrose deterministic]: https://github.com/penrose/penrose/pull/864
 [git]: https://git-scm.com/downloads
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
@@ -427,7 +426,6 @@ please file an issue!
 [prettier]: https://prettier.io/
 [push]: https://github.com/git-guides/git-push
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
-[test: check word cloud example output in ci]: https://github.com/penrose/penrose/pull/876
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
 [vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces
