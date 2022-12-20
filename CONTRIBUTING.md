@@ -249,6 +249,12 @@ To delete all build artifacts (but no `node_modules/`):
 git clean -dfxe node_modules/
 ```
 
+To delete the Nx build artifact cache:
+
+```sh
+npx rimraf node_modules/.cache/
+```
+
 To delete `node_modules/` (but not build artifacts) in all `packages/`:
 
 ```sh
