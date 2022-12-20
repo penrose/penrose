@@ -70,14 +70,12 @@ jobs:
         uses: ./.github/actions/packages
       - name: Build @penrose/automator
         run: npx nx run automator:build
-      - name: Regenerate CONTRIBUTING.md ToC, example diagram, and README.md
-        run: |
-          set -x
-          yarn toc
-          .github/gen_readme.js
+      - name: Regenerate CONTRIBUTING.md ToC,
+        run: yarn toc
+      - name: Regenerate example diagram and README.md
+        run: .github/gen_readme.js
       - name: Check whether anything changed
         run: |
-          set -x
           CHANGES=$(git status --porcelain)
           echo "$CHANGES"
           git diff
