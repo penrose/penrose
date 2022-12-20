@@ -6,4 +6,4 @@ The basic idea is that `Nodes` can be connected by `Elements` of any order. The 
 
 A basic example is shown below.
 
-<img src="../../../../diagrams/lagrange-bases-lagrange-bases.svg" width="480">
+<img src="example.svg" width="480">
