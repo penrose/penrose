@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Path
 
-<ShapeProps :shapeName="'Path'" />
+<ShapeProps shape-name="Path" />

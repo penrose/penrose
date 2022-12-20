@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Rectangle
 
-<ShapeProps :shapeName="'Rectangle'" />
+<ShapeProps shape-name="Rectangle" />

@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Equation
 
-<ShapeProps :shapeName="'Equation'" />
+<ShapeProps shape-name="Equation" />

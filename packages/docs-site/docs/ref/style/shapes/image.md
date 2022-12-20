@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Image
 
-<ShapeProps :shapeName="'Image'" />
+<ShapeProps shape-name="Image" />

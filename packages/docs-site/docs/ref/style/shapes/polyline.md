@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Polyline
 
-<ShapeProps :shapeName="'Polyline'" />
+<ShapeProps shape-name="Polyline" />

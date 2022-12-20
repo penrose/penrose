@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Circle
 
-<ShapeProps :shapeName="'Circle'" />
+<ShapeProps shape-name="Circle" />

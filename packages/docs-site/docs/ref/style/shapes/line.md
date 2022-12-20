@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Line
 
-<ShapeProps :shapeName="'Line'" />
+<ShapeProps shape-name="Line" />

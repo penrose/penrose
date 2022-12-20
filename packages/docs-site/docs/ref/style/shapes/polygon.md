@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Polygon
 
-<ShapeProps :shapeName="'Polygon'" />
+<ShapeProps shape-name="Polygon" />

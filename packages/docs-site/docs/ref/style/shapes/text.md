@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Text
 
-<ShapeProps :shapeName="'Text'" />
+<ShapeProps shape-name="Text" />

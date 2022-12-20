@@ -4,4 +4,4 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 # Ellipse
 
-<ShapeProps :shapeName="'Ellipse'" />
+<ShapeProps shape-name="Ellipse" />
