@@ -90,9 +90,6 @@ const customElements = [
   "annotation-xml",
 ];
 
-// https://github.com/vuejs/vitepress/issues/1685#issuecomment-1345542895
-const root = "https://penrose.cs.cmu.edu";
-
 export default defineConfig({
   title: "Penrose",
   description:
@@ -137,12 +134,12 @@ export default defineConfig({
         activeMatch: "/docs/tutorial",
       },
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
-      { text: "Try Penrose", link: `${root}/try/index.html` },
+      { text: "Try Penrose", link: "pathname:///try/index.html" },
       { text: "Team", link: "/docs/team" },
       {
         text: "News",
         items: [
-          { text: "SIGGRAPH'20 paper", link: `${root}/siggraph20.html` },
+          { text: "SIGGRAPH'20 paper", link: "pathname:///siggraph20.html" },
           {
             text: "CHI'20 paper",
             link:

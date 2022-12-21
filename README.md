@@ -6,8 +6,8 @@ text.** The goal is to make it easy for non-experts to create and explore
 high-quality diagrams and provide deeper insight into challenging technical
 concepts. We aim to democratize the process of creating visual intuition.
 
-Check out our [SIGGRAPH '20 paper](https://penrose.cs.cmu.edu/siggraph20) and
-[video](https://vimeo.com/416822487) on Penrose!
+Check out our [SIGGRAPH '20 paper](https://penrose.cs.cmu.edu/siggraph20.html)
+and [video](https://vimeo.com/416822487) on Penrose!
 
 ## Usage
 
