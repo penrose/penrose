@@ -1,5 +1,6 @@
 pub mod builtins;
 
+use log::Level;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use ts_rs::TS;
@@ -936,6 +937,9 @@ fn contains_nan(number_list: &[f64]) -> bool {
 pub fn penrose_init() {
     // https://docs.rs/console_error_panic_hook/0.1.7/console_error_panic_hook/#usage
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+
+    // https://docs.rs/console_log/0.2.0/console_log/#example
+    console_log::init_with_level(Level::Warn).unwrap();
 }
 
 #[wasm_bindgen]
