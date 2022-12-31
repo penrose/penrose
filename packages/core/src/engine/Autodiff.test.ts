@@ -1,6 +1,7 @@
 import { ready } from "@penrose/optimizer";
 import {
   fns,
+  genCode,
   genCodeSync,
   input,
   logAD,
@@ -72,6 +73,16 @@ describe("makeGraph tests", () => {
 });
 
 describe("genCode tests", () => {
+  test("zero addends", async () => {
+    const f = await genCode();
+    expect(f.call([])).toEqual({ gradient: [], primary: 0, secondary: [] });
+  });
+
+  test("zero addends sync", () => {
+    const f = genCodeSync();
+    expect(f.call([])).toEqual({ gradient: [], primary: 0, secondary: [] });
+  });
+
   test("multiple addends", () => {
     const x = input({ key: 0, val: 0 });
     const g = primaryGraph(x);

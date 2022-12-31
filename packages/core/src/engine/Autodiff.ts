@@ -1584,7 +1584,7 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
 export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
   await Gradient.make(
     await WebAssembly.compile(genBytes(graphs)),
-    Math.max(...graphs.map((g) => g.secondary.length))
+    Math.max(0, ...graphs.map((g) => g.secondary.length))
   );
 
 /**
@@ -1595,5 +1595,5 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
 export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
   Gradient.makeSync(
     new WebAssembly.Module(genBytes(graphs)),
-    Math.max(...graphs.map((g) => g.secondary.length))
+    Math.max(0, ...graphs.map((g) => g.secondary.length))
   );
