@@ -11,7 +11,7 @@
 /packages/core/src/renderer/not_found.json
 /packages/docs-site/public/try/
 /packages/docs-site/src/shapedefs.json
-/packages/optimizer/bindings/
+/packages/optimizer/core/bindings/
 /packages/optimizer/index.js
 /packages/optimizer/target/
 /packages/roger/oclif.manifest.json

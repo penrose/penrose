@@ -1,9 +1,9 @@
-import init from "./build/penrose_optimizer";
+import init from "./build/penrose_optimizer_web";
 // the reason we make this file JavaScript with a separate `instance.d.ts` file,
 // instead of just making this file TypeScript directly, is because we customize
 // the loader esbuild uses for the Wasm file, and TypeScript wouldn't understand
 // this `import`
-import bytes from "./build/penrose_optimizer_bg.wasm";
+import bytes from "./build/penrose_optimizer_web_bg.wasm";
 
 // we let this be initialized sometime after module load, because our usage of
 // webpack for `docs-site` prevents us from using top-level `await` here

@@ -11,6 +11,8 @@ import {
   simpleContext,
   stepUntilConvergence,
 } from "@penrose/core";
+import { State } from "@penrose/core/build/dist/types/state";
+import { OptState } from "@penrose/optimizer";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";
@@ -59,6 +61,11 @@ const nonZeroConstraints = (
 };
 
 const toMs = (hr: any) => hr[1] / 1000000;
+
+const optState = ({ varyingValues, params }: State): OptState => ({
+  varyingValues,
+  params,
+});
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
@@ -215,6 +222,17 @@ const singleProcess = async (
       join(out, "output.svg"),
       prettier.format(canvas, { parser: "html" })
     );
+
+    fs.writeFileSync(
+      join(out, "optimized.json"),
+      JSON.stringify(optState(optimizedState), null, 2)
+    );
+    fs.writeFileSync(
+      join(out, "initial.json"),
+      JSON.stringify(optState(initialState), null, 2)
+    );
+
+    fs.writeFileSync(join(out, "gradient.wasm"), initialState.gradient.bytes);
 
     fs.writeFileSync(join(out, "substance.sub"), subIn);
     fs.writeFileSync(join(out, "style.sty"), styIn);

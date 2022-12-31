@@ -1,7 +1,3 @@
-import { LbfgsParams } from "./bindings/LbfgsParams";
-import { OptState } from "./bindings/OptState";
-import { OptStatus } from "./bindings/OptStatus";
-import { Params } from "./bindings/Params";
 import {
   InitOutput,
   penrose_call,
@@ -9,7 +5,11 @@ import {
   penrose_get_init_constraint_weight,
   penrose_init,
   penrose_step,
-} from "./build/penrose_optimizer";
+} from "./build/penrose_optimizer_web";
+import { LbfgsParams } from "./core/bindings/LbfgsParams";
+import { OptState } from "./core/bindings/OptState";
+import { OptStatus } from "./core/bindings/OptStatus";
+import { Params } from "./core/bindings/Params";
 import { maybeOptimizer, optimizerReady } from "./instance";
 
 let maybeIndex: number | undefined = undefined;
@@ -161,15 +161,18 @@ const makeImports = () => {
  *   which takes four `i32`s and returns one `f64`.
  */
 export class Gradient {
+  bytes: Uint8Array;
   private f: WebAssembly.ExportValue;
   private numAddends: number;
   private numSecondary: number;
 
   private constructor(
+    bytes: Uint8Array,
     instance: WebAssembly.Exports,
     numAddends: number,
     numSecondary: number
   ) {
+    this.bytes = bytes;
     this.f = instance[exportFunctionName];
     this.numAddends = numAddends;
     this.numSecondary = numSecondary;
@@ -183,11 +186,13 @@ export class Gradient {
    * @returns a usable `Gradient` object initialized with all necessary builtins
    */
   static async make(
+    bytes: Uint8Array,
     mod: WebAssembly.Module,
     numAddends: number,
     numSecondary: number
   ): Promise<Gradient> {
     return new Gradient(
+      bytes,
       (await WebAssembly.instantiate(mod, makeImports())).exports,
       numAddends,
       numSecondary
@@ -198,11 +203,13 @@ export class Gradient {
    * Synchronous version of `make`; everything from its docstring applies here.
    */
   static makeSync(
+    bytes: Uint8Array,
     mod: WebAssembly.Module,
     numAddends: number,
     numSecondary: number
   ): Gradient {
     return new Gradient(
+      bytes,
       new WebAssembly.Instance(mod, makeImports()).exports,
       numAddends,
       numSecondary

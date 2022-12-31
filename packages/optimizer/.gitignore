@@ -1,4 +1,6 @@
-/bindings/
+/cargo-flamegraph.stacks
+/core/bindings/
+/flamegraph.svg
 /index.js
 /index.js.map
 /target/

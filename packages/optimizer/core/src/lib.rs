@@ -1,25 +1,28 @@
-pub mod builtins;
-
-use log::Level;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
-use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-type Bool = i32; // 0 or 1 (`wasm-bindgen` doesn't support `bool` well)
+pub type Bool = i32; // 0 or 1 (`wasm-bindgen` doesn't support `bool` well)
 
 type Vector = nalgebra::DVector<f64>;
 type Matrix = nalgebra::DMatrix<f64>;
 
-type Compiled =
-    fn(inputs: *const f64, mask: *const Bool, gradient: *mut f64, secondary: *mut f64) -> f64;
+pub trait Compiled {
+    fn call(
+        &self,
+        inputs: &[f64],
+        mask: &[Bool],
+        gradient: &mut [f64],
+        secondary: &mut [f64],
+    ) -> f64;
+}
 
 // the ts-rs crate defines a `TS` trait and `ts` macro which generate Rust tests that, when run,
 // generate TypeScript definitions in the `bindings/` directory of this package; that's why the
 // `build-decls` script for this package is `cargo test`
 
-#[derive(Clone, Deserialize, Serialize, TS)]
+#[derive(Clone, Deserialize, Eq, PartialEq, Serialize, TS)]
 #[ts(export)]
-enum OptStatus {
+pub enum OptStatus {
     NewIter,
     UnconstrainedRunning,
     UnconstrainedConverged,
@@ -57,7 +60,7 @@ struct FnEvaled {
 
 #[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
-struct Params {
+pub struct Params {
     #[serde(rename = "gradMask")]
     grad_mask: Vec<bool>,
     #[serde(rename = "objMask")]
@@ -66,7 +69,7 @@ struct Params {
     constr_mask: Vec<bool>,
 
     #[serde(rename = "optStatus")]
-    opt_status: OptStatus,
+    pub opt_status: OptStatus,
     /// Constraint weight for exterior point method
     weight: f64,
     /// Info for unconstrained optimization
@@ -103,7 +106,7 @@ struct Params {
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
 #[derive(Clone)]
 struct FnCached<'a> {
-    f: Compiled,
+    f: &'a dyn Compiled,
     grad_mask: &'a [bool],
     obj_mask: &'a [bool],
     constr_mask: &'a [bool],
@@ -111,10 +114,10 @@ struct FnCached<'a> {
 
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export)]
-struct OptState {
+pub struct OptState {
     #[serde(rename = "varyingValues")]
     varying_values: Vec<f64>,
-    params: Params,
+    pub params: Params,
 }
 
 // Returned after a call to `minimize`
@@ -131,7 +134,7 @@ struct OptInfo {
 }
 
 // Intial weight for constraints
-const INIT_CONSTRAINT_WEIGHT: f64 = 10e-3;
+pub const INIT_CONSTRAINT_WEIGHT: f64 = 10e-3;
 
 const DEFAULT_LBFGS_MEM_SIZE: i32 = 17;
 
@@ -170,10 +173,6 @@ const DEBUG_LBFGS: bool = false;
 const DEBUG_LINE_SEARCH: bool = false;
 
 ////////////////////////////////////////////////////////////////////////////////
-
-fn bools(v: Vec<Bool>) -> Vec<bool> {
-    v.into_iter().map(|n| n > 0).collect()
-}
 
 fn norm_list(xs: &[f64]) -> f64 {
     let sum_squares: f64 = xs.iter().map(|e| e * e).sum();
@@ -215,7 +214,7 @@ fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
     let mut inputs = vec![0.; len_gradient];
     inputs[..len_inputs].copy_from_slice(xs);
     inputs[len_inputs] = weight;
-    let mask: Vec<i32> = f
+    let mask: Vec<Bool> = f
         .obj_mask
         .iter()
         .chain(f.constr_mask)
@@ -224,12 +223,7 @@ fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
     let mut gradient = vec![0.; len_gradient];
     let mut secondary = vec![0.; len_secondary];
 
-    let energy = (f.f)(
-        inputs.as_ptr(),
-        mask.as_ptr(),
-        gradient.as_mut_ptr(),
-        secondary.as_mut_ptr(),
-    );
+    let energy = f.f.call(&inputs, &mask, &mut gradient, &mut secondary);
 
     gradient.pop();
 
@@ -264,7 +258,7 @@ fn ep_converged(xs0: &[f64], xs1: &[f64], fxs0: f64, fxs1: f64) -> bool {
 // 2) fix initial value of the penalty parameter so that the magnitude of the penalty term is not much smaller than the magnitude of objective function
 
 /// Given a `State`, take n steps by evaluating the overall objective function
-fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
+pub fn step(state: OptState, f: &dyn Compiled, steps: i32) -> OptState {
     let mut opt_params = state.params.clone();
     let Params {
         opt_status, weight, ..
@@ -871,7 +865,11 @@ fn minimize(
     };
 }
 
-fn gen_opt_problem(grad_mask: Vec<bool>, obj_mask: Vec<bool>, constr_mask: Vec<bool>) -> Params {
+pub fn gen_opt_problem(
+    grad_mask: Vec<bool>,
+    obj_mask: Vec<bool>,
+    constr_mask: Vec<bool>,
+) -> Params {
     let last_gradient = vec![0.; grad_mask.len()];
     let last_gradient_preconditioned = vec![0.; grad_mask.len()];
     Params {
@@ -903,60 +901,39 @@ fn contains_nan(number_list: &[f64]) -> bool {
     number_list.iter().any(|n| n.is_nan())
 }
 
-fn to_js_value(value: &(impl Serialize + ?Sized)) -> Result<JsValue, serde_wasm_bindgen::Error> {
-    // ts-rs expects `Option::None` to become `null` instead of `undefined`
-    value.serialize(&serde_wasm_bindgen::Serializer::new().serialize_missing_as_null(true))
+// the following two functions have quirky implementations for historical reasons predating our
+// switch to WebAssembly and Rust
+
+pub fn inverse(x: f64) -> f64 {
+    1. / (x + 10e-6)
 }
 
-#[wasm_bindgen]
-pub fn penrose_init() {
-    // https://docs.rs/console_error_panic_hook/0.1.7/console_error_panic_hook/#usage
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-
-    // https://docs.rs/console_log/0.2.0/console_log/#example
-    console_log::init_with_level(Level::Warn).unwrap();
+pub fn sign(x: f64) -> f64 {
+    if x == 0. {
+        x
+    } else {
+        f64::copysign(1., x)
+    }
 }
 
-#[wasm_bindgen]
-pub fn penrose_call(
-    p: usize,
-    inputs: &[f64],
-    mask: &[Bool],
-    gradient: &mut [f64],
-    secondary: &mut [f64],
-) -> f64 {
-    let f = unsafe { std::mem::transmute::<usize, Compiled>(p) };
-    f(
-        inputs.as_ptr(),
-        mask.as_ptr(),
-        gradient.as_mut_ptr(),
-        secondary.as_mut_ptr(),
-    )
-}
+pub fn poly_roots(v: &mut [f64]) {
+    let n = v.len();
+    // https://en.wikipedia.org/wiki/Companion_matrix
+    let mut m = nalgebra::DMatrix::<f64>::zeros(n, n);
+    for i in 0..(n - 1) {
+        m[(i + 1, i)] = 1.;
+        m[(i, n - 1)] = -v[i];
+    }
+    m[(n - 1, n - 1)] = -v[n - 1];
 
-// `wasm-bindgen` doesn't let us export constants
-#[wasm_bindgen]
-pub fn penrose_get_init_constraint_weight() -> f64 {
-    INIT_CONSTRAINT_WEIGHT
-}
-
-#[wasm_bindgen]
-pub fn penrose_gen_opt_problem(
-    grad_mask: Vec<Bool>,
-    obj_mask: Vec<Bool>,
-    constr_mask: Vec<Bool>,
-) -> JsValue {
-    let params: Params = gen_opt_problem(bools(grad_mask), bools(obj_mask), bools(constr_mask));
-    to_js_value(&params).unwrap()
-}
-
-#[wasm_bindgen]
-pub fn penrose_step(state: JsValue, p: usize, steps: i32) -> JsValue {
-    let unstepped: OptState = serde_wasm_bindgen::from_value(state).unwrap();
-    let stepped: OptState = step(
-        unstepped,
-        unsafe { std::mem::transmute::<usize, Compiled>(p) },
-        steps,
-    );
-    to_js_value(&stepped).unwrap()
+    // the characteristic polynomial of the companion matrix is equal to the original polynomial, so
+    // by finding the eigenvalues of the companion matrix, we get the roots of its characteristic
+    // polynomial and thus of the original polynomial
+    let r = m.complex_eigenvalues();
+    for i in 0..n {
+        let z = r[i];
+        // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`, we discard any
+        // non-real root and replace with `NaN`
+        v[i] = if z.im == 0. { z.re } else { f64::NAN };
+    }
 }

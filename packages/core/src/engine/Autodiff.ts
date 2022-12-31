@@ -1584,21 +1584,27 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
  * @param graphs an array of graphs to compile
  * @returns a compiled/instantiated WebAssembly function
  */
-export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
-  await Gradient.make(
-    await WebAssembly.compile(genBytes(graphs)),
+export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> => {
+  const bytes = genBytes(graphs);
+  return await Gradient.make(
+    bytes,
+    await WebAssembly.compile(bytes),
     graphs.length,
     Math.max(0, ...graphs.map((g) => g.secondary.length))
   );
+};
 
 /**
  * Synchronous version of `genCode`. Should not be used in the browser because
  * this will fail if the generated module is larger than 4 kilobytes, but
  * currently is used in convex partitioning for convenience.
  */
-export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
-  Gradient.makeSync(
-    new WebAssembly.Module(genBytes(graphs)),
+export const genCodeSync = (...graphs: ad.Graph[]): Gradient => {
+  const bytes = genBytes(graphs);
+  return Gradient.makeSync(
+    bytes,
+    new WebAssembly.Module(bytes),
     graphs.length,
     Math.max(0, ...graphs.map((g) => g.secondary.length))
   );
+};

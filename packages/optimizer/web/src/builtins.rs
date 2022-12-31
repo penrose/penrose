@@ -1,3 +1,4 @@
+use penrose_optimizer::{inverse, poly_roots, sign};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 // WebAssembly doesn't have a lot of math functions built in, so we export all these to allow our
@@ -117,16 +118,12 @@ pub fn penrose_tanh(x: f64) -> f64 {
 
 #[wasm_bindgen]
 pub fn penrose_inverse(x: f64) -> f64 {
-    1. / (x + 10e-6)
+    inverse(x)
 }
 
 #[wasm_bindgen]
 pub fn penrose_sign(x: f64) -> f64 {
-    if x == 0. {
-        x
-    } else {
-        f64::copysign(1., x)
-    }
+    sign(x)
 }
 
 // force `wasm-bindgen` to export `__wbindgen_add_to_stack_pointer`, which we will use to call the
@@ -138,23 +135,5 @@ pub fn penrose_empty_vec() -> Vec<usize> {
 
 #[wasm_bindgen]
 pub fn penrose_poly_roots(v: &mut [f64]) {
-    let n = v.len();
-    // https://en.wikipedia.org/wiki/Companion_matrix
-    let mut m = nalgebra::DMatrix::<f64>::zeros(n, n);
-    for i in 0..(n - 1) {
-        m[(i + 1, i)] = 1.;
-        m[(i, n - 1)] = -v[i];
-    }
-    m[(n - 1, n - 1)] = -v[n - 1];
-
-    // the characteristic polynomial of the companion matrix is equal to the original polynomial, so
-    // by finding the eigenvalues of the companion matrix, we get the roots of its characteristic
-    // polynomial and thus of the original polynomial
-    let r = m.complex_eigenvalues();
-    for i in 0..n {
-        let z = r[i];
-        // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`, we discard any
-        // non-real root and replace with `NaN`
-        v[i] = if z.im == 0. { z.re } else { f64::NAN };
-    }
+    poly_roots(v)
 }
