@@ -46,7 +46,7 @@ export const importMemoryName = "";
 /**
  * The name of the function exported by a module used to construct a `Gradient`.
  */
-export const exportFunctionName = "f";
+export const exportFunctionName = "";
 
 // https://github.com/rustwasm/wasm-bindgen/blob/f82f5c5852c3abf057bb737d545360a3a5c7d84c/crates/cli-support/src/wit/mod.rs#L1370-L1372
 /**
