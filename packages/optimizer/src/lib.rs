@@ -208,7 +208,7 @@ fn dot(xs: &[f64], ys: &[f64]) -> f64 {
 
 fn unconstrained_converged(norm_grad: f64) -> bool {
     if DEBUG_GRAD_DESCENT {
-        log::info!("UO convergence check: ||grad f(x)|| {}", norm_grad);
+        log::info!("UO convergence check: ||grad f(x)|| {norm_grad}");
     }
     norm_grad < UO_STOP
 }
@@ -250,11 +250,7 @@ fn ep_converged(xs0: &[f64], xs1: &[f64], fxs0: f64, fxs1: f64) -> bool {
     // TODO: These dx and dfx should really be scaled to account for magnitudes
     let state_change = norm_list(&subv(xs1, xs0));
     let energy_change = (fxs1 - fxs0).abs();
-    log::info!(
-        "epConverged?: stateChange: {} | energyChange: {}",
-        state_change,
-        energy_change,
-    );
+    log::info!("epConverged?: stateChange: {state_change} | energyChange: {energy_change}");
 
     state_change < EP_STOP || energy_change < EP_STOP
 }
@@ -278,8 +274,7 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
 
     log::info!("===============");
     log::info!(
-        "step | weight: {} | EP round: {} | UO round: {}",
-        weight,
+        "step | weight: {weight} | EP round: {} | UO round: {}",
         opt_params.ep_round,
         opt_params.uo_round,
     );
@@ -347,18 +342,13 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
                 opt_params.opt_status = OptStatus::UnconstrainedConverged;
                 opt_params.lbfgs_info = DEFAULT_LBFGS_PARAMS;
                 log::info!(
-                    "Unconstrained converged with energy {} gradient norm {}",
-                    energy_val,
-                    norm_grad,
+                    "Unconstrained converged with energy {energy_val} gradient norm {norm_grad}",
                 );
             } else {
                 opt_params.opt_status = OptStatus::UnconstrainedRunning;
                 // Note that lbfgs prams have already been updated
                 log::info!(
-                    "Took {} steps. Current energy {} gradient norm {}",
-                    steps,
-                    energy_val,
-                    norm_grad,
+                    "Took {steps} steps. Current energy {energy_val} gradient norm {norm_grad}",
                 );
             }
             if failed {
@@ -502,13 +492,7 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
         let need_to_stop = interval_too_small || too_many_steps;
 
         if need_to_stop && DEBUG_LINE_SEARCH {
-            log::info!(
-                "stopping early: (i, a, b, t) = {} {} {} {}",
-                num_updates,
-                ai,
-                bi,
-                t
-            );
+            log::info!("stopping early: (i, a, b, t) = {num_updates} {ai} {bi} {t}");
         }
         need_to_stop
     };
@@ -525,7 +509,7 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
     let mut i = 0;
 
     if DEBUG_LINE_SEARCH {
-        log::info!("line search {:?} {:?}", xs0, gradfxs0);
+        log::info!("line search {xs0:?} {gradfxs0:?}");
     }
 
     // Main loop + update check
@@ -538,15 +522,7 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
         let is_armijo = armijo(t, obj);
         let is_wolfe = wolfe(t, &grad);
         if DEBUG_LINE_SEARCH {
-            log::info!(
-                "(i, a, b, t), armijo, wolfe {} {} {} {} {} {}",
-                i,
-                a,
-                b,
-                t,
-                is_armijo,
-                is_wolfe
-            );
+            log::info!("(i, a, b, t), armijo, wolfe {i} {a} {b} {t} {is_armijo} {is_wolfe}");
         }
 
         if !is_armijo {
@@ -562,7 +538,7 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
         } else {
             if DEBUG_LINE_SEARCH {
                 log::info!("found good interval");
-                log::info!("stopping: (i, a, b, t) = {} {} {} {}", i, a, b, t);
+                log::info!("stopping: (i, a, b, t) = {i} {a} {b} {t}");
             }
             break;
         }
@@ -658,7 +634,7 @@ fn lbfgs(xs: &[f64], gradfxs: &[f64], lbfgs_info: LbfgsParams) -> LbfgsAnswer {
             "Starting lbfgs calculation with xs {:?} gradfxs {:?} lbfgs params {:?}",
             xs,
             gradfxs,
-            lbfgs_info
+            lbfgs_info,
         );
     }
 
@@ -746,7 +722,7 @@ fn lbfgs(xs: &[f64], gradfxs: &[f64], lbfgs_info: LbfgsParams) -> LbfgsAnswer {
         // TODO: check the curvature condition y_k^T s_k > 0 (8.7) (Nocedal 201)
         // https://github.com/JuliaNLSolvers/Optim.jl/issues/26
         if DEBUG_LBFGS {
-            log::info!("Descent direction found. {}", grad_preconditioned);
+            log::info!("Descent direction found. {grad_preconditioned}");
         }
 
         LbfgsAnswer {
@@ -761,7 +737,7 @@ fn lbfgs(xs: &[f64], gradfxs: &[f64], lbfgs_info: LbfgsParams) -> LbfgsAnswer {
             },
         }
     } else {
-        log::info!("State: {:?}", lbfgs_info);
+        log::info!("State: {lbfgs_info:?}");
         panic!("Invalid L-BFGS state");
     }
 }
@@ -776,11 +752,11 @@ fn minimize(
     // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
     log::info!("-------------------------------------");
-    log::info!("minimize, num steps, {}", num_steps);
+    log::info!("minimize, num steps, {num_steps}");
 
     let min_steps = 1;
     if num_steps < min_steps {
-        panic!("must step at least {} times in the optimizer", min_steps);
+        panic!("must step at least {min_steps} times in the optimizer");
     }
 
     // (10,000 steps / 100ms) * (10 ms / s) (???) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
@@ -803,7 +779,7 @@ fn minimize(
 
     while i < num_steps {
         if contains_nan(&xs) {
-            log::info!("xs {:?}", xs);
+            log::info!("xs {xs:?}");
             panic!("NaN in xs");
         }
         FnEvaled {
@@ -813,7 +789,7 @@ fn minimize(
             constr_engs,
         } = objective_and_gradient(f.clone(), weight, &xs);
         if contains_nan(&gradfxs) {
-            log::info!("gradfxs {:?}", gradfxs);
+            log::info!("gradfxs {gradfxs:?}");
             panic!("NaN in gradfxs");
         }
 
@@ -844,13 +820,13 @@ fn minimize(
 
         if DEBUG_GRAD_DESCENT {
             log::info!("-----");
-            log::info!("i {}", i);
-            log::info!("num steps per display cycle {}", num_steps);
-            log::info!("input (xs): {:?}", xs);
-            log::info!("energy (f(xs)): {}", fxs);
-            log::info!("grad (grad(f)(xs)) : {:?}", gradfxs);
-            log::info!("|grad f(x)|: {}", norm_grad);
-            log::info!("t {} use line search: {}", t, USE_LINE_SEARCH);
+            log::info!("i {i}");
+            log::info!("num steps per display cycle {num_steps}");
+            log::info!("input (xs): {xs:?}");
+            log::info!("energy (f(xs)): {fxs}");
+            log::info!("grad (grad(f)(xs)) : {gradfxs:?}");
+            log::info!("|grad f(x)|: {norm_grad}");
+            log::info!("t {t} use line search: {USE_LINE_SEARCH}");
         }
 
         if fxs.is_nan() || norm_grad.is_nan() {
@@ -858,21 +834,21 @@ fn minimize(
 
             let path_map = xs.iter().zip(&gradfxs);
 
-            log::info!("[current val, gradient of val] {:?}", path_map);
+            log::info!("[current val, gradient of val] {path_map:?}");
 
             for (x, dx) in path_map {
                 if dx.is_nan() {
-                    log::info!("NaN in varying val's gradient (current val): {}", x);
+                    log::info!("NaN in varying val's gradient (current val): {x}");
                 }
             }
 
-            log::info!("i {}", i);
-            log::info!("num steps per display cycle {}", num_steps);
-            log::info!("input (xs): {:?}", xs);
-            log::info!("energy (f(xs)): {:?}", fxs);
-            log::info!("grad (grad(f)(xs)): {:?}", gradfxs);
-            log::info!("|grad f(x)|: {}", norm_grad);
-            log::info!("t {}, use line search: {}", t, USE_LINE_SEARCH);
+            log::info!("i {i}");
+            log::info!("num steps per display cycle {num_steps}");
+            log::info!("input (xs): {xs:?}");
+            log::info!("energy (f(xs)): {fxs:?}");
+            log::info!("grad (grad(f)(xs)): {gradfxs:?}");
+            log::info!("|grad f(x)|: {norm_grad}");
+            log::info!("t {t}, use line search: {USE_LINE_SEARCH}");
             failed = true;
             break;
             //panic!("NaN reached in optimization energy or gradient norm!");
