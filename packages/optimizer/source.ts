@@ -41,7 +41,7 @@ export const importModule = "";
 /**
  * The name of the memory import in a module used to construct a `Gradient`.
  */
-export const importMemoryName = "memory";
+export const importMemoryName = "";
 
 /**
  * The name of the function exported by a module used to construct a `Gradient`.
