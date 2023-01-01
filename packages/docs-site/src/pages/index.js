@@ -3,7 +3,6 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { examples, registry } from "@penrose/examples";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
-import * as React from "react";
 import DemoWrapper from "../components/DemoWrapper";
 import styles from "./index.module.css";
 

@@ -2,8 +2,6 @@
  * Adopted from https://github.com/facebook/docusaurus/blob/main/website/community/1-team.mdx
  */
 
-import React from "react";
-
 type ProfileProps = {
   className?: string;
   name: string;

@@ -1,7 +1,6 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 import { useColorMode } from "@docusaurus/theme-common";
-import React from "react";
 
 // Hack bc penrose doesn't work in SSR??
 let Demo;

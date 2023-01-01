@@ -1,4 +1,3 @@
-import React from "react";
 import shapeDefs from "../../static/shapedefs.json";
 
 /**
