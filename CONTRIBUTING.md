@@ -34,7 +34,9 @@ Be sure you have these tools installed:
 
 - [Node.js][] v16+ (if using Linux or Mac, we recommend installing via [nvm][])
 
-- [Rust][], plus the WebAssembly target:
+- [Rust][]
+
+- The WebAssembly target:
 
   ```sh
   rustup target add wasm32-unknown-unknown
