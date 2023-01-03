@@ -3,12 +3,11 @@
     "recommendations": [
       "dbaeumer.vscode-eslint",
       "esbenp.prettier-vscode",
-      "folke.vscode-monorepo-workspace",
       "karyfoundation.nearley",
       "penrose.penrose-vs",
       "rust-lang.rust-analyzer",
       "tamasfe.even-better-toml",
-      "unifiedjs.vscode-mdx"
+      "vue.volar"
     ]
   },
   "folders": [

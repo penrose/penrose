@@ -1,8 +1,3 @@
----
-description: Learn How to Write Constraints & Objectives as a Penrose Developer
-sidebar_position: 5
----
-
 # Writing Constraints & Objectives
 
 ## Introduction
@@ -27,7 +22,7 @@ The energy of a diagram can take on a range of values, and there are 3 specific 
 
 Often in the process of diagramming, there is not just one good diagram, but many solutions — that is, there are many local minima of the energy function. Given a Style program, which defines an energy function for your family of diagrams, Penrose looks for a **local minimum** of the energy function by using numerical optimization.
 
-Lastly, we write energy functions in a particular way using **autodiff helper functions**, where autodiff stands for auto differentiation**.** This is because Penrose takes the energy function's gradient $$\nabla$$, i.e. take the derivatives of the function, to find better and better solutions. For more on optimization, here's a wonderful [introduction video](https://www.youtube.com/watch?v=sDAEFFoiKZ0).
+Lastly, we write energy functions in a particular way using **autodiff helper functions**, where autodiff stands for **auto differentiation**. This is because Penrose takes the energy function's gradient $\nabla$, i.e. take the derivatives of the function, to find better and better solutions. For more on optimization, here's a wonderful [introduction video](https://www.youtube.com/watch?v=sDAEFFoiKZ0).
 
 > In short, we write energy functions with a specific set of operations for Penrose to optimize, allowing it to find the best diagram for us.
 
@@ -49,32 +44,32 @@ The three scenarios are visually obvious to us. We are shown 2 circles, and we c
 
 ![](/img/tutorial/w_cent_rad.png)
 
-Recall the general equation for a circle where $$p$$ is some point, $$c$$ is the center and $$r$$ is the radius: $$||p-c||=r$$. This equation is in vector form since Penrose has built-in vector support so we prefer working with them when possible.
+Recall the general equation for a circle where $p$ is some point, $c$ is the center and $r$ is the radius: $||p-c||=r$. This equation is in vector form since Penrose has built-in vector support so we prefer working with them when possible.
 
 The center coordinate and radius are the information we have about **any** circle, and we will use this information to determine two circle's containment relationship.
 
 ![](/img/tutorial/distance.png)
 
-Another piece of information we will be using is the distance $$d$$ between the radii. Notice how the distance gets progressively bigger as $$A$$ and $$B$$ become more disjoint. When $$A, B$$ are disjoint, we see that $$d$$'s value is the greatest.
+Another piece of information we will be using is the distance $d$ between the radii. Notice how the distance gets progressively bigger as $A$ and $B$ become more disjoint. When $A, B$ are disjoint, we see that $d$'s value is the greatest.
 
 Let's see a scenario when a circle is perfectly contained in another one.
 
 ![Perfect Containment Example](/img/tutorial/k_contain.png)
 
-Circle 1 contains circle 2 if and only if circle 1's radius is greater than the distance between their centers, plus circle 2's radius, i.e. $$r_1 > d+r_2$$. This diagram shows the most illustrative case when Circle 2 is _just_ contained, which we can understand by intuitively reasoning about the directions of change for each degree of freedom:
+Circle 1 contains circle 2 if and only if circle 1's radius is greater than the distance between their centers, plus circle 2's radius, i.e. $r_1 > d+r_2$. This diagram shows the most illustrative case when Circle 2 is _just_ contained, which we can understand by intuitively reasoning about the directions of change for each degree of freedom:
 
-- If $$r_2$$ is any smaller, Circle 2 remains contained. If $$r_2$$ is any larger, clearly Circle 2 is no longer contained.
-- If $$d$$ is any smaller, then Circle 2 remains contained; if $$d$$ is any larger, then Circle 2 is no longer contained.
-- If $$r_1$$ is any larger, then Circle 2 remains contained; if $$r_1$$ is any smaller, then Circle 2 is no longer contained.
+- If $r_2$ is any smaller, Circle 2 remains contained. If $r_2$ is any larger, clearly Circle 2 is no longer contained.
+- If $d$ is any smaller, then Circle 2 remains contained; if $d$ is any larger, then Circle 2 is no longer contained.
+- If $r_1$ is any larger, then Circle 2 remains contained; if $r_1$ is any smaller, then Circle 2 is no longer contained.
 
-So, by rearranging the containment expression, we arrive at the energy expression $$d - (r1 - r2) < 0$$.
+So, by rearranging the containment expression, we arrive at the energy expression $d - (r1 - r2) < 0$.
 
-Here's a short proof. Read on if you are still a bit hesitant. Let $$r_{difference}=r_B-r_A$$.
+Here's a short proof. Read on if you are still a bit hesitant. Let $r_{difference}=r_B-r_A$.
 
-- We know $$r_{difference}<0$$ when $$r_A > r_B$$, i.e. radius of the circle A (that we want to be contained) is greater than the radius of circle B. In that case, A cannot be contained by B. Then we have $$d-r_{difference}>d$$.
-- We have $$r_{difference} = 0$$ when $$r_A = r_B$$, i.e. the radii of the two circles are equal, and they can be contained in each other if and only if distance $$d=r_B=r_A$$ , then $$d-r_{difference}=d$$.
-- We have $$r_{difference}>0$$ when $$r_A < r_B$$, i.e. $$A$$ is a smaller circle than $$B$$. In that case $$A$$ is perfectly containable, and $$d-r_{difference} < d$$.
-- As shown above, we can conclude that as circle $$A$$ becomes more contained within circle $$B$$, the value of $$d-r_{difference}$$ decreases accordingly.
+- We know $r_{difference}<0$ when $r_A > r_B$, i.e. radius of the circle A (that we want to be contained) is greater than the radius of circle B. In that case, A cannot be contained by B. Then we have $d-r_{difference}>d$.
+- We have $r_{difference} = 0$ when $r_A = r_B$, i.e. the radii of the two circles are equal, and they can be contained in each other if and only if distance $d=r_B=r_A$, then $d-r_{difference}=d$.
+- We have $r_{difference}>0$ when $r_A < r_B$, i.e. $A$ is a smaller circle than $B$. In that case $A$ is perfectly containable, and $d-r_{difference} < d$.
+- As shown above, we can conclude that as circle $A$ becomes more contained within circle $B$, the value of $d-r_{difference}$ decreases accordingly.
 
 ## Concrete: How We Write Constraints
 
@@ -197,17 +192,17 @@ $$
 \frac{1}{||C_A - C_B||^2 } = \frac{1}{d^2}
 $$
 
-So essentially, the `repel` function takes in two circles and returns the inverse of the distance between them squared, i.e. we plug in the distance $$d$$ between the circles as an input to the $$f(x)=\frac{1}{x^2}$$ function.
+So essentially, the `repel` function takes in two circles and returns the inverse of the distance between them squared, i.e. we plug in the distance $d$ between the circles as an input to the $f(x)=\frac{1}{x^2}$ function.
 
-![Graph of 1/x^2 from Desmos](/img/tutorial/1x^2_graph.png)
+![Graph of 1/x^2 from Desmos](/img/tutorial/1x_squared_graph.png)
 
-If you look at the graph of $$f(x)=\frac{1}{x^2}$$, notice how the output increases as $$d$$ decreases, i.e. the **higher** penalty value we return. We block the negative horizontal range since we cannot have negative distances.
+If you look at the graph of $f(x)=\frac{1}{x^2}$, notice how the output increases as $d$ decreases, i.e. the **higher** penalty value we return. We block the negative horizontal range since we cannot have negative distances.
 
-We then return the value above multiplied by the `repelWeight`, and let's take a look at the graph of $$\frac{10e6}{x^2}$$.
+We then return the value above multiplied by the `repelWeight`, and let's take a look at the graph of $\frac{10e6}{x^2}$.
 
-![Graph of 10e6/x^2 from Desmos](/img/tutorial/constantx^2_graph.png)
+![Graph of 10e6/x^2 from Desmos](/img/tutorial/constantx_squared_graph.png)
 
-If you compare the two graphs above, you can see how we expanded the range of extreme high outputs by multiplying $$\frac{1}{x^2}$$ with a big constant.
+If you compare the two graphs above, you can see how we expanded the range of extreme high outputs by multiplying $\frac{1}{x^2}$ with a big constant.
 
 ## Exercises
 
