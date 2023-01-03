@@ -9,7 +9,7 @@
     "build": "nx run-many --target=build --verbose",
     "typecheck": "nx run-many --target=typecheck --verbose",
     "build:docs-site": "nx run docs-site:build",
-    "start:docs-site": "nx run docs-site:watch",
+    "start:docs-site": "nx run docs-site:dev",
     "start": "nx run editor:watch",
     "build:ide": "nx run editor:build",
     "test": "nx run core:test",

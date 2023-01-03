@@ -9,9 +9,8 @@
 /packages/core/src/parser/StyleParser.ts
 /packages/core/src/parser/SubstanceParser.ts
 /packages/core/src/renderer/not_found.json
-/packages/docs-site/.docusaurus/
-/packages/docs-site/static/try/
-/packages/docs-site/static/shapedefs.json
+/packages/docs-site/public/try/
+/packages/docs-site/src/shapedefs.json
 /packages/roger/oclif.manifest.json
 /README.md
 build/

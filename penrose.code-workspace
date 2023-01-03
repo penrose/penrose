@@ -5,7 +5,7 @@
       "esbenp.prettier-vscode",
       "karyfoundation.nearley",
       "penrose.penrose-vs",
-      "unifiedjs.vscode-mdx"
+      "vue.volar"
     ]
   },
   "folders": [
