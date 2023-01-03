@@ -13,7 +13,7 @@ hero:
       link: /docs/tutorial/welcome
     - theme: sponsor
       text: Try
-      link: /try/index.html
+      link: pathname:///try/index.html
     - theme: alt
       text: Video
       link: https://vimeo.com/416822487
