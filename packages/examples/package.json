@@ -15,11 +15,6 @@
           "build-examples"
         ]
       },
-      "build-examples": {
-        "outputs": [
-          "{projectRoot}/dist"
-        ]
-      },
       "build": {
         "dependsOn": [
           "build-examples"
