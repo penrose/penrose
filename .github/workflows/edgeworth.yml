@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Build edgeworth
         run: npx nx run synthesizer-ui:build
       - name: Deploy edgeworth under the current commit SHA
