@@ -8,7 +8,7 @@ Image Image
 Path Path
 Line Line 
 Equation Equation
+Text Text
 Polyline Polyline
--- Text Text -- TODO: pending determinism in registry
 
 AutoLabel All
