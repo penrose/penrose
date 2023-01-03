@@ -1,5 +1,6 @@
 import { examples, registry } from "@penrose/examples";
-import { genOptProblem } from "../engine/Optimizer";
+import { genOptProblem } from "@penrose/optimizer";
+import { genGradient } from "../engine/EngineUtils";
 import {
   compileTrio,
   evalEnergy,
@@ -33,7 +34,12 @@ describe("Determinism", () => {
   const variation = "determinism";
 
   test("with initial optimization", async () => {
-    const resCompile = compileTrio({ substance, style, domain, variation });
+    const resCompile = await compileTrio({
+      substance,
+      style,
+      domain,
+      variation,
+    });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
@@ -82,7 +88,12 @@ describe("Determinism", () => {
   });
 
   test("without initial optimization", async () => {
-    const resCompile = compileTrio({ substance, style, domain, variation });
+    const resCompile = await compileTrio({
+      substance,
+      style,
+      domain,
+      variation,
+    });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
@@ -118,7 +129,7 @@ describe("Determinism", () => {
 describe("Energy API", () => {
   test("eval overall energy - init vs. optimized", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -140,7 +151,7 @@ describe("Energy API", () => {
   });
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -155,10 +166,15 @@ describe("Energy API", () => {
       const stateFiltered = {
         ...state,
         constrFns: smallerThanFns,
-        params: genOptProblem(
+        gradient: await genGradient(
           state.inputs,
           state.objFns.map(({ output }) => output),
           smallerThanFns.map(({ output }) => output)
+        ),
+        params: genOptProblem(
+          state.inputs.map((meta) => meta.tag),
+          state.objFns.length,
+          smallerThanFns.length
         ),
       };
       expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
@@ -173,13 +189,13 @@ describe("Cross-instance energy eval", () => {
     const twosets = `Set A, B\nAutoLabel All`;
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     // compile and optimize both states
-    const state1 = compileTrio({
+    const state1 = await compileTrio({
       substance: twosets,
       style: vennStyle,
       domain: setDomain,
       variation: "cross-instance state1",
     });
-    const state2 = compileTrio({
+    const state2 = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -216,7 +232,7 @@ describe("Run individual functions", () => {
 
   test("Check each individual function is minimized/satisfied", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -234,11 +250,17 @@ describe("Run individual functions", () => {
       // console.log("# objectives", stateEvaled.objFns.length);
       // console.log("# constraints", stateEvaled.constrFns.length);
 
-      const initialEnergies = stateEvaled.params.currObjectiveAndGradient(
-        stateEvaled.varyingValues
+      const initialEnergies = stateEvaled.gradient.call([
+        ...stateEvaled.varyingValues,
+        stateEvaled.params.weight,
+      ]);
+      stateEvaled.params.lastObjEnergies = initialEnergies.secondary.slice(
+        0,
+        stateEvaled.params.numObjEngs
       );
-      stateEvaled.params.lastConstrEnergies = initialEnergies.constrEngs;
-      stateEvaled.params.lastObjEnergies = initialEnergies.objEngs;
+      stateEvaled.params.lastConstrEnergies = initialEnergies.secondary.slice(
+        stateEvaled.params.numObjEngs
+      );
 
       // Test objectives
       const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(

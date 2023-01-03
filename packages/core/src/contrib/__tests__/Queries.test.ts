@@ -1,3 +1,4 @@
+import { ready } from "@penrose/optimizer";
 import { compDict } from "contrib/Functions";
 import {
   bboxFromShape,
@@ -6,7 +7,7 @@ import {
   shapeCenter,
   shapeSize,
 } from "contrib/Queries";
-import { genCode, ops, secondaryGraph } from "engine/Autodiff";
+import { genCodeSync, ops, secondaryGraph } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -17,6 +18,8 @@ import { makeRectangle } from "shapes/Rectangle";
 import { makeCanvas, simpleContext } from "shapes/Samplers";
 import { Pt2 } from "types/ad";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
+
+await ready;
 
 const context = simpleContext("Queries");
 const canvas = makeCanvas(800, 700);
@@ -92,9 +95,9 @@ const shapes: [string, any][] = [
 describe("simple queries", () => {
   it.each(shapes)("bboxFromShape for %p", (shapeType: string, shape: any) => {
     const bbox = bboxFromShape([shapeType, shape]);
-    const [x, y, w, h] = genCode(
+    const [x, y, w, h] = genCodeSync(
       secondaryGraph([bbox.center[0], bbox.center[1], bbox.width, bbox.height])
-    )([]).secondary;
+    ).call([]).secondary;
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
     expect(w).toBeCloseTo(44, precisionDigits);
@@ -103,7 +106,7 @@ describe("simple queries", () => {
 
   it.each(shapes)("shapeCenter for %p", (shapeType: string, shape: any) => {
     const center = shapeCenter([shapeType, shape]);
-    const [x, y] = genCode(secondaryGraph([center[0], center[1]]))(
+    const [x, y] = genCodeSync(secondaryGraph([center[0], center[1]])).call(
       []
     ).secondary;
     expect(x).toBeCloseTo(11, precisionDigits);
@@ -112,7 +115,7 @@ describe("simple queries", () => {
 
   it.each(shapes)("shapeSize for %p", (shapeType: string, shape: any) => {
     const size = shapeSize([shapeType, shape]);
-    const [sizeNum] = genCode(secondaryGraph([size]))([]).secondary;
+    const [sizeNum] = genCodeSync(secondaryGraph([size])).call([]).secondary;
     expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
@@ -124,8 +127,8 @@ describe("polygonLikePoints", () => {
       outputs.push(...pt);
     }
     const g = secondaryGraph(outputs);
-    const f = genCode(g);
-    const nums = f([]).secondary; // no inputs, so, empty array
+    const f = genCodeSync(g);
+    const nums = f.call([]).secondary; // no inputs, so, empty array
     const pts: [number, number][] = [];
     for (let i = 0; i < nums.length; i += 2) {
       pts.push([nums[i], nums[i + 1]]);
@@ -175,13 +178,13 @@ describe("outwardUnitNormal", () => {
   test("inside point above", async () => {
     let result = outwardUnitNormal(lineSegment, point1);
 
-    const [norm, dot, diff] = genCode(
+    const [norm, dot, diff] = genCodeSync(
       secondaryGraph([
         ops.vnorm(result),
         ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
         sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
       ])
-    )([]).secondary;
+    ).call([]).secondary;
 
     // It is unit
     expect(norm).toBeCloseTo(1, 4);
@@ -194,13 +197,13 @@ describe("outwardUnitNormal", () => {
   test("inside point below", async () => {
     let result = outwardUnitNormal(lineSegment, point2);
 
-    const [norm, dot, diff] = genCode(
+    const [norm, dot, diff] = genCodeSync(
       secondaryGraph([
         ops.vnorm(result),
         ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
         sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
       ])
-    )([]).secondary;
+    ).call([]).secondary;
 
     // It is unit
     expect(norm).toBeCloseTo(1, 4);

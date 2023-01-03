@@ -132,7 +132,7 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
 };
 
 const MAX_NAME_LENGTH = 100;
-const MAX_SECONDS = 100;
+const MAX_SECONDS = 60;
 
 const trimName = (name: string): string =>
   name.length > MAX_NAME_LENGTH

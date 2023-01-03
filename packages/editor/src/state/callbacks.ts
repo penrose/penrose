@@ -41,7 +41,7 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const compileResult = compileTrio({
+  const compileResult = await compileTrio({
     domain,
     substance,
     style,

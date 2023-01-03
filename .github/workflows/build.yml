@@ -16,8 +16,8 @@ jobs:
         with:
           # https://github.com/lerna/lerna/issues/1893#issuecomment-770614785
           fetch-depth: 0
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Typecheck all packages
         run: yarn typecheck
       - name: Run all builds
@@ -36,8 +36,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Format
         run: |
           if ! yarn format:check; then
@@ -56,8 +56,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Lint
         run: yarn lint
 
@@ -66,8 +66,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Regenerate CONTRIBUTING.md table of contents
         run: yarn toc
       - name: Build @penrose/automator
@@ -86,8 +86,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Build @penrose/automator
         run: yarn build:automator
       - name: Generate diagrams and metadata
@@ -181,8 +181,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Build storybook
         run: npx nx run components:build-storybook
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -210,8 +210,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Make test report dir
         run: mkdir -p reports/junit/
         working-directory: packages/core/
@@ -238,8 +238,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Build docs
         run: yarn docs
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'

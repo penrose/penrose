@@ -31,7 +31,23 @@
 Be sure you have these tools installed:
 
 - [Git][]
+
 - [Node.js][] v16+ (if using Linux or Mac, we recommend installing via [nvm][])
+
+- [Rust][], plus the WebAssembly target:
+
+  ```sh
+  rustup target add wasm32-unknown-unknown
+  ```
+
+- [`wasm-bindgen` CLI][] (you need to install Rust first), specifically a
+  version which has the `--keep-lld-exports` flag; use this command:
+
+  ```sh
+  cargo install wasm-bindgen-cli \
+    --git https://github.com/rustwasm/wasm-bindgen --rev 7c626e4b3
+  ```
+
 - [Yarn][] v1.x (you need to install Node.js first)
 
 Depending on your platform, here are some extra instructions:
@@ -395,7 +411,7 @@ When your work is ready for review:
   reproducing specific examples_, and link(s) to any issue(s) you address).
 - Some things will be checked automatically by our [CI][]:
   - Make sure the system passes the regression tests.
-  - Run [Prettier][] via `yarn format`.
+  - Run [Prettier][] and [rustfmt][] via `yarn format`.
 - If you have permission, request review from the relevant person. Otherwise, no
   worries: we'll take a look at your PR and assign it to a maintainer.
 - When your PR is approved, a maintainer will merge it.
@@ -403,6 +419,7 @@ When your work is ready for review:
 If you hit any snags in the process, run into bugs, or just have questions,
 please file an issue!
 
+[`wasm-bindgen` cli]: https://rustwasm.github.io/wasm-bindgen/reference/cli.html#installation
 [branch]: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 [ci]: https://docs.github.com/en/actions
 [clone]: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
@@ -426,6 +443,8 @@ please file an issue!
 [prettier]: https://prettier.io/
 [push]: https://github.com/git-guides/git-push
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
+[rust]: https://www.rust-lang.org/tools/install
+[rustfmt]: https://github.com/rust-lang/rustfmt
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
 [vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces

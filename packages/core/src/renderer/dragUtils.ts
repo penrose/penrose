@@ -12,11 +12,11 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
-  const frozenValues = new Set<number>();
+  const frozenValues = [];
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {
       const ids = dragShape(shape, [dx, dy], xs);
-      ids.forEach((i) => frozenValues.add(i));
+      frozenValues.push(...ids);
     }
   }
   const updated: State = {

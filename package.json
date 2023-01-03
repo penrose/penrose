@@ -23,8 +23,8 @@
     "graduate": "lerna version --conventional-commits --conventional-graduate",
     "publish:canary": "lerna publish --canary --dist-tag develop --force-publish",
     "release": "lerna publish from-package",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
+    "format": "prettier . --write && nx run-many --target=format --verbose",
+    "format:check": "prettier . --check && nx run-many --target=format:check --verbose",
     "toc": "markdown-toc --bullets='-' -i CONTRIBUTING.md",
     "diff": "lerna diff"
   },
@@ -49,6 +49,7 @@
       "packages/docs-site",
       "packages/editor",
       "packages/examples",
+      "packages/optimizer",
       "packages/roger",
       "packages/synthesizer",
       "packages/synthesizer-ui"
