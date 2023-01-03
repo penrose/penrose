@@ -3,7 +3,6 @@
     "recommendations": [
       "dbaeumer.vscode-eslint",
       "esbenp.prettier-vscode",
-      "folke.vscode-monorepo-workspace",
       "karyfoundation.nearley",
       "penrose.penrose-vs",
       "vue.volar"
