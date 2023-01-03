@@ -16,7 +16,7 @@ module.exports = {
     if (configType === "PRODUCTION") {
       config.base = "./";
     }
-
+    config.build = { ...(config.build ?? {}), target: "esnext" };
     return config;
   },
 };

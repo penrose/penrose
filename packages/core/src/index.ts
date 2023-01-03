@@ -1,4 +1,4 @@
-import { initConstraintWeight } from "engine/EngineUtils";
+import { getInitConstraintWeight, ready } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -8,7 +8,6 @@ import {
   parseSubstance,
   prettySubstance,
 } from "./compiler/Substance";
-import { step } from "./engine/Optimizer";
 import {
   PathResolver,
   RenderInteractive,
@@ -21,7 +20,7 @@ import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
-import { Fn, FnEvaled, LabelCache, State } from "./types/state";
+import { Fn, LabelCache, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
@@ -48,10 +47,10 @@ export const resample = (state: State): State => {
     ),
     params: {
       ...state.params,
-      weight: initConstraintWeight,
+      weight: getInitConstraintWeight(),
       optStatus: "NewIter",
     },
-    frozenValues: new Set(),
+    frozenValues: [],
   };
 };
 
@@ -61,7 +60,7 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(state, numSteps);
+  return { ...state, ...state.gradient.step(state, numSteps) };
 };
 
 /**
@@ -73,7 +72,7 @@ export const stepStateSafe = (
   state: State,
   numSteps = 10000
 ): Result<State, PenroseError> => {
-  const res = step(state, numSteps);
+  const res = stepState(state, numSteps);
   if (res.params.optStatus === "Error") {
     return err({
       errorType: "RuntimeError",
@@ -134,7 +133,7 @@ export const diagram = async (
   node: HTMLElement,
   pathResolver: PathResolver
 ): Promise<void> => {
-  const res = compileTrio(prog);
+  const res = await compileTrio(prog);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
@@ -174,7 +173,7 @@ export const interactiveDiagram = async (
     );
     node.replaceChild(rendering, node.firstChild!);
   };
-  const res = compileTrio(prog);
+  const res = await compileTrio(prog);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
@@ -197,12 +196,14 @@ export const interactiveDiagram = async (
  * @param subProg a Substance program string
  * @param styProg a Style program string
  */
-export const compileTrio = (prog: {
+export const compileTrio = async (prog: {
   substance: string;
   style: string;
   domain: string;
   variation: string;
-}): Result<State, PenroseError> => {
+}): Promise<Result<State, PenroseError>> => {
+  await ready;
+
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
@@ -210,10 +211,9 @@ export const compileTrio = (prog: {
     domainRes
   );
 
-  const styRes: Result<State, PenroseError> = andThen(
-    (res) => compileStyle(prog.variation, prog.style, ...res),
-    subRes
-  );
+  const styRes: Result<State, PenroseError> = subRes.isErr()
+    ? err(subRes.error)
+    : await compileStyle(prog.variation, prog.style, ...subRes.value);
 
   return styRes;
 };
@@ -286,9 +286,8 @@ export const readRegistry = (registry: Registry): Trio[] => {
  * @returns a scalar value of the current energy
  */
 export const evalEnergy = (s: State): number => {
-  const { objectiveAndGradient, weight } = s.params;
   // TODO: maybe don't also compute the gradient, just to throw it away
-  return objectiveAndGradient(weight)(s.varyingValues).f;
+  return s.gradient.call([...s.varyingValues, s.params.weight]).primary;
 };
 
 /**
@@ -301,13 +300,14 @@ export const evalFns = (
   s: State
 ): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  let { lastConstrEnergies, lastObjEnergies } = s.params;
-  if (!lastConstrEnergies || !lastObjEnergies) {
-    const { objEngs, constrEngs } = s.params.objectiveAndGradient(
-      s.params.weight
-    )(s.varyingValues);
-    lastConstrEnergies = constrEngs;
-    lastObjEnergies = objEngs;
+  let { lastObjEnergies, lastConstrEnergies } = s.params;
+  if (lastObjEnergies === null || lastConstrEnergies === null) {
+    const { secondary } = s.gradient.call([
+      ...s.varyingValues,
+      s.params.weight,
+    ]);
+    lastObjEnergies = secondary.slice(0, s.params.numObjEngs);
+    lastConstrEnergies = secondary.slice(s.params.numObjEngs);
   }
   return {
     constrEngs: new Map(
@@ -357,7 +357,6 @@ export {
   normList,
   toSvgPaintProperty,
 };
-export type { FnEvaled };
 export type { Registry, Trio };
 export type { Env };
 export type { SubProg };

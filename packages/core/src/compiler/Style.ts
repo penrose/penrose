@@ -1,4 +1,5 @@
 import { CustomHeap } from "@datastructures-js/heap";
+import { genOptProblem } from "@penrose/optimizer";
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola from "consola";
 import { constrDict } from "contrib/Constraints";
@@ -6,8 +7,11 @@ import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
-import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
-import { genOptProblem } from "engine/Optimizer";
+import {
+  compileCompGraph,
+  dummyIdentifier,
+  genGradient,
+} from "engine/EngineUtils";
 import graphlib from "graphlib";
 import im from "immutable";
 import _ from "lodash";
@@ -3077,14 +3081,16 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
   return fns;
 };
 
-export const compileStyleHelper = (
+export const compileStyleHelper = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<
-  { state: State; translation: Translation; assignment: Assignment },
-  PenroseError
+): Promise<
+  Result<
+    { state: State; translation: Translation; assignment: Assignment },
+    PenroseError
+  >
 > => {
   const astOk = parseStyle(stySource);
   let styProg;
@@ -3152,12 +3158,18 @@ export const compileStyleHelper = (
     ...onCanvases(canvas.value, shapes),
   ];
 
-  const computeShapes = compileCompGraph(shapes);
+  const computeShapes = await compileCompGraph(shapes);
 
-  const params = genOptProblem(
+  const gradient = await genGradient(
     inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
+  );
+
+  const params = genOptProblem(
+    inputs.map((meta) => meta.tag),
+    objFns.length,
+    constrFns.length
   );
 
   const initState: State = {
@@ -3172,9 +3184,10 @@ export const compileStyleHelper = (
     labelCache: new Map(),
     shapes,
     canvas: canvas.value,
+    gradient,
     computeShapes,
     params,
-    frozenValues: new Set<number>(),
+    frozenValues: [],
   };
 
   log.info("init state from GenOptProblem", initState);
@@ -3186,13 +3199,13 @@ export const compileStyleHelper = (
   });
 };
 
-export const compileStyle = (
+export const compileStyle = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<State, PenroseError> =>
-  compileStyleHelper(variation, stySource, subEnv, varEnv).map(
+): Promise<Result<State, PenroseError>> =>
+  (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
     ({ state }) => state
   );
 

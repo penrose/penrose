@@ -1,7 +1,3 @@
----
-sidebar_position: 1
----
-
 # Welcome!
 
 ## We are so glad you are here.

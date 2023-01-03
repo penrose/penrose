@@ -3,19 +3,12 @@
   "version": "1.3.0",
   "private": true,
   "scripts": {
-    "docusaurus": "docusaurus",
-    "start": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "watch": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "build-shapedefs": "shx mkdir -p ./static/try/ && shx cp -r ../editor/dist/* ./static/try && shx rm -f ./static/shapedefs.json && cd ../automator && yarn start shapedefs ../docs-site/static/shapedefs.json",
-    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' docusaurus build --no-minify",
+    "build": "vitepress build",
     "build-decls": ":",
-    "typecheck": ":",
-    "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy",
-    "clear": "docusaurus clear",
-    "serve": "docusaurus serve",
-    "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids"
+    "build-shapedefs": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try && shx rm -f ./src/shapedefs.json && cd ../automator && yarn start shapedefs ../docs-site/src/shapedefs.json",
+    "dev": "vitepress dev",
+    "preview": "vitepress preview",
+    "typecheck": ":"
   },
   "nx": {
     "targets": {
@@ -33,65 +26,28 @@
           "^build"
         ],
         "outputs": [
-          "{projectRoot}/static/shapedefs.json",
-          "{projectRoot}/static/try"
+          "{projectRoot}/public/try",
+          "{projectRoot}/src/shapedefs.json"
         ]
       },
-      "serve": {
+      "dev": {
+        "dependsOn": [
+          "^build",
+          "build-shapedefs"
+        ]
+      },
+      "preview": {
         "dependsOn": [
           "build"
-        ]
-      },
-      "start": {
-        "dependsOn": [
-          "^build",
-          "build-shapedefs"
-        ]
-      },
-      "watch": {
-        "dependsOn": [
-          "^build",
-          "build-shapedefs"
-        ]
-      },
-      "write-translations": {
-        "outputs": [
-          "{projectRoot}/i18n"
         ]
       }
     }
   },
-  "dependencies": {
-    "@docusaurus/core": "2.0.0-beta.20",
-    "@docusaurus/preset-classic": "2.0.0-beta.20",
-    "@mdx-js/react": "^1.6.21",
-    "@penrose/components": "1.3.0",
-    "@penrose/core": "1.3.0",
-    "@penrose/editor": "1.3.0",
-    "@penrose/examples": "1.3.0",
-    "clsx": "^1.1.1",
-    "hast-util-is-element": "1.1.0",
-    "prism-react-renderer": "^1.2.1",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "rehype-katex": "5",
-    "remark-math": "3",
-    "seedrandom": "^3.0.5",
-    "shx": "^0.3.3"
-  },
-  "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
-    "@penrose/automator": "1.3.0"
+    "@penrose/automator": "1.3.0",
+    "@penrose/editor": "1.3.0",
+    "markdown-it-katex": "^2.0.3",
+    "shx": "^0.3.3",
+    "vitepress": "^1.0.0-alpha.33"
   }
 }
