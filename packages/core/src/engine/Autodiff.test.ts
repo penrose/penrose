@@ -1,4 +1,3 @@
-import { ready } from "@penrose/optimizer";
 import {
   fns,
   genCode,
@@ -30,8 +29,6 @@ import {
   squared,
   sub,
 } from "./AutodiffFunctions";
-
-await ready;
 
 describe("makeGraph tests", () => {
   test("secondary outputs", () => {

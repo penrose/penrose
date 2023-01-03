@@ -1,4 +1,4 @@
-import { getInitConstraintWeight, ready } from "@penrose/optimizer";
+import { initConstraintWeight } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -47,7 +47,7 @@ export const resample = (state: State): State => {
     ),
     params: {
       ...state.params,
-      weight: getInitConstraintWeight(),
+      weight: initConstraintWeight,
       optStatus: "NewIter",
     },
     frozenValues: [],
@@ -202,8 +202,6 @@ export const compileTrio = async (prog: {
   domain: string;
   variation: string;
 }): Promise<Result<State, PenroseError>> => {
-  await ready;
-
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(

@@ -11,28 +11,14 @@ import {
   penrose_init,
   penrose_step,
 } from "./build/penrose_optimizer";
-import { maybeOptimizer, optimizerReady } from "./instance";
+import optimizer from "./instance";
 
-let maybeIndex: number | undefined = undefined;
-
-/**
- * Wait for the optimizer to be loaded and initialized. Most functions exported
- * from this package need this promise to be resolved before they can be called.
- */
-export const ready = optimizerReady.then(() => {
-  penrose_init();
-  // we pass `--keep-lld-exports` to `wasm-bindgen` because we need access to
-  // this `__indirect_function_table` to allow us to swap in different gradient
-  // functions at runtime
-  maybeIndex = maybeOptimizer!.__indirect_function_table.length;
-  maybeOptimizer!.__indirect_function_table.grow(1);
-});
-
-const getOptimizer = () => {
-  if (maybeOptimizer === undefined || maybeIndex === undefined)
-    throw Error("optimizer not initialized");
-  return { optimizer: maybeOptimizer, index: maybeIndex };
-};
+penrose_init();
+// we pass `--keep-lld-exports` to `wasm-bindgen` because we need access to
+// this `__indirect_function_table` to allow us to swap in different gradient
+// functions at runtime
+const index = optimizer.__indirect_function_table.length;
+optimizer.__indirect_function_table.grow(1);
 
 /**
  * The module name of every import in a module used to construct a `Gradient`.
@@ -119,20 +105,17 @@ export interface Outputs<T> {
   secondary: T[];
 }
 
-const makeImports = () => {
-  const { optimizer } = getOptimizer();
-  return {
-    [importModule]: {
-      [importMemoryName]: optimizer.memory,
-      ...Object.fromEntries(
-        [...builtinsTyped.keys()].map((name, i) => [
-          i.toString(36),
-          optimizer[name],
-        ])
-      ),
-    },
-  };
-};
+const makeImports = () => ({
+  [importModule]: {
+    [importMemoryName]: optimizer.memory,
+    ...Object.fromEntries(
+      [...builtinsTyped.keys()].map((name, i) => [
+        i.toString(36),
+        optimizer[name],
+      ])
+    ),
+  },
+});
 
 /**
  * An instantiated WebAssembly function that can be used either to directly
@@ -195,7 +178,6 @@ export class Gradient {
   }
 
   private link(): void {
-    const { optimizer, index } = getOptimizer();
     optimizer.__indirect_function_table.set(index, this.f);
   }
 
@@ -204,7 +186,6 @@ export class Gradient {
    * @returns the `primary` output, its `gradient`, and any `secondary` outputs
    */
   call(inputs: number[]): Outputs<number> {
-    const { index } = getOptimizer();
     const gradient = new Float64Array(inputs.length);
     const secondary = new Float64Array(this.numSecondary);
     this.link();
@@ -227,20 +208,15 @@ export class Gradient {
    * @returns updated state
    */
   step(state: OptState, steps: number): OptState {
-    const { index } = getOptimizer();
     this.link();
     return penrose_step(state, index, steps);
   }
 }
 
 /**
- * `ready` must be resolved first.
- * @returns the initial weight for constraints
+ * The initial weight for constraints.
  */
-export const getInitConstraintWeight = () => {
-  getOptimizer();
-  return penrose_get_init_constraint_weight();
-};
+export const initConstraintWeight = penrose_get_init_constraint_weight();
 
 /**
  * `ready` must be resolved first.
@@ -253,9 +229,6 @@ export const genOptProblem = (
   inputKinds: InputKind[],
   numObjEngs: number,
   numConstrEngs: number
-): Params => {
-  getOptimizer();
-  return penrose_gen_opt_problem(inputKinds, numObjEngs, numConstrEngs);
-};
+): Params => penrose_gen_opt_problem(inputKinds, numObjEngs, numConstrEngs);
 
 export type { InputKind, LbfgsParams, OptState, OptStatus, Params };
