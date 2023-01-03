@@ -2,8 +2,8 @@ import { examples } from "@penrose/examples";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
-import { SourceRange } from "types/ast";
-import { DomainProg, PredicateDecl } from "types/domain";
+import { SourceRange } from "../types/ast";
+import { DomainProg, PredicateDecl } from "../types/domain";
 import grammar from "./DomainParser";
 
 const outputDir = "/tmp/asts";

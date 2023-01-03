@@ -1,6 +1,6 @@
-import { isConcrete } from "engine/EngineUtils";
-import { shapedefs } from "shapes/Shapes";
 import { Result } from "true-myth";
+import { isConcrete } from "../engine/EngineUtils";
+import { shapedefs } from "../shapes/Shapes";
 import {
   A,
   AbstractNode,
@@ -9,8 +9,8 @@ import {
   NodeType,
   SourceLoc,
   SourceRange,
-} from "types/ast";
-import { Arg, Type, TypeConstructor } from "types/domain";
+} from "../types/ast";
+import { Arg, Type, TypeConstructor } from "../types/domain";
 import {
   ArgLengthMismatch,
   CyclicSubtypes,
@@ -34,11 +34,11 @@ import {
   TypeNotFound,
   UnexpectedExprForNestedPred,
   VarNotFound,
-} from "types/errors";
-import { State } from "types/state";
-import { BindingForm, ColorLit } from "types/style";
-import { Deconstructor, SubExpr } from "types/substance";
-import { prettyPrintPath, prettyPrintResolvedPath } from "utils/Util";
+} from "../types/errors";
+import { State } from "../types/state";
+import { BindingForm, ColorLit } from "../types/style";
+import { Deconstructor, SubExpr } from "../types/substance";
+import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
   and,

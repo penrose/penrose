@@ -1,23 +1,23 @@
 import { ready } from "@penrose/optimizer";
-import { compDict } from "contrib/Functions";
+import { genCodeSync, ops, secondaryGraph } from "../../engine/Autodiff";
+import { sub } from "../../engine/AutodiffFunctions";
+import { makeCircle } from "../../shapes/Circle";
+import { makeEllipse } from "../../shapes/Ellipse";
+import { makeLine } from "../../shapes/Line";
+import { makePath } from "../../shapes/Path";
+import { makePolygon } from "../../shapes/Polygon";
+import { makeRectangle } from "../../shapes/Rectangle";
+import { makeCanvas, simpleContext } from "../../shapes/Samplers";
+import { Pt2 } from "../../types/ad";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util";
+import { compDict } from "../Functions";
 import {
   bboxFromShape,
   outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
   shapeSize,
-} from "contrib/Queries";
-import { genCodeSync, ops, secondaryGraph } from "engine/Autodiff";
-import { sub } from "engine/AutodiffFunctions";
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeLine } from "shapes/Line";
-import { makePath } from "shapes/Path";
-import { makePolygon } from "shapes/Polygon";
-import { makeRectangle } from "shapes/Rectangle";
-import { makeCanvas, simpleContext } from "shapes/Samplers";
-import { Pt2 } from "types/ad";
-import { black, floatV, ptListV, vectorV } from "utils/Util";
+} from "../Queries";
 
 await ready;
 

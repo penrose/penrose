@@ -1,6 +1,6 @@
 import { ready } from "@penrose/optimizer";
-import { inDirection } from "contrib/ObjectivesUtils";
-import { numOf } from "contrib/Utils";
+import { inDirection } from "../ObjectivesUtils";
+import { numOf } from "../Utils";
 
 await ready;
 

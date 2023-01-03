@@ -4,16 +4,16 @@ import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
-import { InputMeta } from "shapes/Samplers";
-import { ShapeDef, shapedefs } from "shapes/Shapes";
+import { InputMeta } from "../shapes/Samplers";
+import { ShapeDef, shapedefs } from "../shapes/Shapes";
 // @ts-expect-error missing types
 import svgflatten from "svg-flatten";
 import svgpath from "svgpath";
-import * as ad from "types/ad";
-import { PenroseError } from "types/errors";
-import { Properties, ShapeAD } from "types/shape";
-import { EquationData, LabelCache, State, TextData } from "types/state";
-import { FloatV } from "types/value";
+import * as ad from "../types/ad";
+import { PenroseError } from "../types/errors";
+import { Properties, ShapeAD } from "../types/shape";
+import { EquationData, LabelCache, State, TextData } from "../types/state";
+import { FloatV } from "../types/value";
 import { err, ok, Result } from "./Error";
 import {
   getAdValueAsColor,

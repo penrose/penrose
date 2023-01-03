@@ -1,5 +1,5 @@
 import { Outputs } from "@penrose/optimizer";
-import { Multidigraph } from "utils/Graph";
+import { Multidigraph } from "../utils/Graph";
 
 // The following three regions define the core types for our symbolic
 // differentiation engine. Note that, despite the name, this is not actually

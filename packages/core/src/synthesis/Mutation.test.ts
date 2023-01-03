@@ -1,7 +1,7 @@
-import { compileDomain } from "compiler/Domain";
-import { compileSubstance, prettyStmt } from "compiler/Substance";
-import { SubRes } from "types/substance";
-import { showError } from "utils/Error";
+import { compileDomain } from "../compiler/Domain";
+import { compileSubstance, prettyStmt } from "../compiler/Substance";
+import { SubRes } from "../types/substance";
+import { showError } from "../utils/Error";
 import { enumerateStmtMutations } from "./Mutation";
 import { initContext } from "./Synthesizer";
 

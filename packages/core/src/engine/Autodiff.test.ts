@@ -1,4 +1,8 @@
 import { ready } from "@penrose/optimizer";
+import _ from "lodash";
+import seedrandom from "seedrandom";
+import * as ad from "../types/ad";
+import { eqList, randList } from "../utils/Util";
 import {
   fns,
   genCode,
@@ -8,11 +12,7 @@ import {
   makeGraph,
   primaryGraph,
   secondaryGraph,
-} from "engine/Autodiff";
-import _ from "lodash";
-import seedrandom from "seedrandom";
-import * as ad from "types/ad";
-import { eqList, randList } from "utils/Util";
+} from "./Autodiff";
 import {
   add,
   addN,

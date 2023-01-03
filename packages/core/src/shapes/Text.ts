@@ -1,4 +1,4 @@
-import * as ad from "types/ad";
+import * as ad from "../types/ad";
 import {
   Center,
   Fill,
@@ -8,9 +8,9 @@ import {
   Shape,
   String,
   Stroke,
-} from "types/shapes";
-import { FloatV, StrV } from "types/value";
-import { boolV, floatV, noPaint, strV, vectorV } from "utils/Util";
+} from "../types/shapes";
+import { FloatV, StrV } from "../types/value";
+import { boolV, floatV, noPaint, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, sampleColor, uniform } from "./Samplers";
 
 export interface TextProps

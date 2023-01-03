@@ -1,20 +1,20 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import { LineProps } from "shapes/Line";
-import { ShapeType } from "shapes/Shapes";
-import * as ad from "types/ad";
-import { A } from "types/ast";
-import { Either, Left, Right } from "types/common";
-import { Properties } from "types/shape";
-import { Fn, State } from "types/state";
-import { BindingForm, Expr, Path } from "types/style";
+import { LineProps } from "../shapes/Line";
+import { ShapeType } from "../shapes/Shapes";
+import * as ad from "../types/ad";
+import { A } from "../types/ast";
+import { Either, Left, Right } from "../types/common";
+import { Properties } from "../types/shape";
+import { Fn, State } from "../types/state";
+import { BindingForm, Expr, Path } from "../types/style";
 import {
   Context,
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
   WithContext,
-} from "types/styleSemantics";
+} from "../types/styleSemantics";
 import {
   BoolV,
   Color,
@@ -31,7 +31,7 @@ import {
   Val,
   Value,
   VectorV,
-} from "types/value";
+} from "../types/value";
 
 //#region general
 

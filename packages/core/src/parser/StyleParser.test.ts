@@ -1,10 +1,10 @@
 import { examples } from "@penrose/examples";
-import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
-import { C } from "types/ast";
-import { StyProg } from "types/style";
+import { parseStyle } from "../compiler/Style";
+import { C } from "../types/ast";
+import { StyProg } from "../types/style";
 import grammar from "./StyleParser";
 
 const outputDir = "/tmp/asts";

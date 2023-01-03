@@ -1,6 +1,6 @@
 import { Gradient, OptState } from "@penrose/optimizer";
-import { Canvas, InputMeta } from "shapes/Samplers";
-import * as ad from "types/ad";
+import { Canvas, InputMeta } from "../shapes/Samplers";
+import * as ad from "./ad";
 import { A } from "./ast";
 import { StyleWarning } from "./errors";
 import { Shape, ShapeAD } from "./shape";

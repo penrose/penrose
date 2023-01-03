@@ -1,19 +1,19 @@
 import { ready } from "@penrose/optimizer";
+import { addN, mul, polyRoots, sub } from "../../engine/AutodiffFunctions";
+import { makeCircle } from "../../shapes/Circle";
+import { makeEllipse } from "../../shapes/Ellipse";
+import { makeCanvas, simpleContext } from "../../shapes/Samplers";
+import * as ad from "../../types/ad";
+import { black, floatV, vectorV, zip2 } from "../../utils/Util";
 import {
   circleToImplicitEllipse,
   ellipsePolynomial,
   ellipseToImplicit,
   halfPlaneToImplicit,
   implicitEllipseFunc,
-} from "contrib/ImplicitShapes";
-import { pointCandidatesEllipse } from "contrib/Minkowski";
-import { numOf, numsOf } from "contrib/Utils";
-import { addN, mul, polyRoots, sub } from "engine/AutodiffFunctions";
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeCanvas, simpleContext } from "shapes/Samplers";
-import * as ad from "types/ad";
-import { black, floatV, vectorV, zip2 } from "utils/Util";
+} from "../ImplicitShapes";
+import { pointCandidatesEllipse } from "../Minkowski";
+import { numOf, numsOf } from "../Utils";
 
 await ready;
 

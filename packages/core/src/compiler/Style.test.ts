@@ -2,19 +2,19 @@
 
 import { examples } from "@penrose/examples";
 import { ready } from "@penrose/optimizer";
-import * as S from "compiler/Style";
-import { compileSubstance } from "compiler/Substance";
 import im from "immutable";
-import { Either } from "types/common";
-import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
-import { State } from "types/state";
-import { Assignment, Layer, Translation } from "types/styleSemantics";
-import { SubstanceEnv } from "types/substance";
-import { ColorV, RGBA } from "types/value";
-import { andThen, err, Result, showError } from "utils/Error";
-import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
+import { Either } from "../types/common";
+import { Env } from "../types/domain";
+import { PenroseError } from "../types/errors";
+import { State } from "../types/state";
+import { Assignment, Layer, Translation } from "../types/styleSemantics";
+import { SubstanceEnv } from "../types/substance";
+import { ColorV, RGBA } from "../types/value";
+import { andThen, err, Result, showError } from "../utils/Error";
+import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
+import * as S from "./Style";
+import { compileSubstance } from "./Substance";
 
 await ready;
 

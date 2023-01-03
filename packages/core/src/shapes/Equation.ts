@@ -7,8 +7,8 @@ import {
   Shape,
   String,
   Stroke,
-} from "types/shapes";
-import { black, boolV, floatV, noPaint, strV, vectorV } from "utils/Util";
+} from "../types/shapes";
+import { black, boolV, floatV, noPaint, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, uniform } from "./Samplers";
 
 export interface EquationProps

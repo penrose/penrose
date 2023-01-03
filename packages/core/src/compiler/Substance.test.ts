@@ -1,13 +1,13 @@
 import { examples } from "@penrose/examples";
 import * as fs from "fs";
 import nearley from "nearley";
-import grammar from "parser/SubstanceParser";
 import * as path from "path";
-import { A } from "types/ast";
-import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
-import { ApplyPredicate, SubRes, SubstanceEnv } from "types/substance";
-import { Result, showError, showType } from "utils/Error";
+import grammar from "../parser/SubstanceParser";
+import { A } from "../types/ast";
+import { Env } from "../types/domain";
+import { PenroseError } from "../types/errors";
+import { ApplyPredicate, SubRes, SubstanceEnv } from "../types/substance";
+import { Result, showError, showType } from "../utils/Error";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
 
