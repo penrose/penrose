@@ -1,8 +1,3 @@
----
-description: Learn How to Use Functions
-sidebar_position: 4
----
-
 # Functions
 
 So far, we've directly declared substances in our diagram, and we've learned how to define relationships between our substances by using predicates.
@@ -181,7 +176,7 @@ This is easier than you expected, right? You're all done with this tutorial! Tak
 
 _FYI: All the sample goal diagrams are only a single sampling of many possible variations._
 
-We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. As a reminder, documentation for the pre-defined shapes that are available in Penrose can be found [here](/docs/ref/).
+We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. As a reminder, documentation for the pre-defined shapes that are available in Penrose can be found [here](/docs/ref).
 
 - **Exercise 1:** Create a new function that computes vector subtraction, and draws the difference vector, i.e. `u = v - w`.
 

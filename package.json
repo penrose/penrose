@@ -8,8 +8,9 @@
   "scripts": {
     "build": "nx run-many --target=build --verbose",
     "typecheck": "nx run-many --target=typecheck --verbose",
+    "build:automator": "nx run automator:build",
     "build:docs-site": "nx run docs-site:build",
-    "start:docs-site": "nx run docs-site:watch",
+    "start:docs-site": "nx run docs-site:dev",
     "start": "nx run editor:watch",
     "build:ide": "nx run editor:build",
     "test": "nx run core:test",
@@ -22,8 +23,8 @@
     "graduate": "lerna version --conventional-commits --conventional-graduate",
     "publish:canary": "lerna publish --canary --dist-tag develop --force-publish",
     "release": "lerna publish from-package",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
+    "format": "prettier . --write && nx run-many --target=format --verbose",
+    "format:check": "prettier . --check && nx run-many --target=format:check --verbose",
     "toc": "markdown-toc --bullets='-' -i CONTRIBUTING.md",
     "diff": "lerna diff"
   },
@@ -48,6 +49,7 @@
       "packages/docs-site",
       "packages/editor",
       "packages/examples",
+      "packages/optimizer",
       "packages/roger",
       "packages/synthesizer",
       "packages/synthesizer-ui"

@@ -52,12 +52,12 @@
     "@types/jszip": "^3.4.1",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^17.0.33",
-    "@types/react-dom": "^17.0.10",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^1.0.7",
     "vite": "^2.8.0"
   }
