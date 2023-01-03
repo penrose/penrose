@@ -16,18 +16,11 @@
         "dependsOn": [
           "^build",
           "build-shapedefs"
-        ],
-        "outputs": [
-          "{projectRoot}/build"
         ]
       },
       "build-shapedefs": {
         "dependsOn": [
           "^build"
-        ],
-        "outputs": [
-          "{projectRoot}/public/try",
-          "{projectRoot}/src/shapedefs.json"
         ]
       },
       "dev": {

@@ -17,31 +17,16 @@
       "build": {
         "dependsOn": [
           "build-wasm-bindgen"
-        ],
-        "outputs": [
-          "{projectRoot}/index.js",
-          "{projectRoot}/index.js.map"
         ]
       },
       "build-decls": {
         "dependsOn": [
           "build-wasm-bindgen"
-        ],
-        "outputs": [
-          "{projectRoot}/bindings"
-        ]
-      },
-      "build-wasm": {
-        "outputs": [
-          "{projectRoot}/target"
         ]
       },
       "build-wasm-bindgen": {
         "dependsOn": [
           "build-wasm"
-        ],
-        "outputs": [
-          "{projectRoot}/build"
         ]
       }
     }

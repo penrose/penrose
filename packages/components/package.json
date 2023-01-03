@@ -18,28 +18,16 @@
       "build": {
         "dependsOn": [
           "^build"
-        ],
-        "outputs": [
-          "{projectRoot}/dist/*.css",
-          "{projectRoot}/dist/*.js",
-          "{projectRoot}/dist/*.js.map"
         ]
       },
       "build-decls": {
         "dependsOn": [
           "^build-decls"
-        ],
-        "outputs": [
-          "{projectRoot}/dist/*.ts",
-          "{projectRoot}/dist/*.ts.map"
         ]
       },
       "build-storybook": {
         "dependsOn": [
           "^build"
-        ],
-        "outputs": [
-          "{projectRoot}/storybook/static"
         ]
       },
       "watch": {

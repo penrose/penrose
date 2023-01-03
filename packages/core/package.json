@@ -31,25 +31,12 @@
           "^build",
           "^build-decls",
           "build-parsers"
-        ],
-        "outputs": [
-          "{projectRoot}/build/dist/index.js",
-          "{projectRoot}/build/dist/index.js.map"
         ]
       },
       "build-decls": {
         "dependsOn": [
           "^build-decls",
           "build-parsers"
-        ],
-        "outputs": [
-          "{projectRoot}/build/dist/**/*.ts",
-          "{projectRoot}/build/dist/**/*.ts.map"
-        ]
-      },
-      "build-parsers": {
-        "outputs": [
-          "{projectRoot}/src/parser/*Parser.ts"
         ]
       },
       "coverage": {
@@ -57,11 +44,6 @@
           "^build",
           "^build-decls",
           "build-parsers"
-        ],
-        "outputs": [
-          "{projectRoot}/coverage",
-          "{projectRoot}/junit.xml",
-          "{projectRoot}/reports"
         ]
       },
       "docs": {
@@ -69,9 +51,6 @@
           "^build",
           "^build-decls",
           "build-parsers"
-        ],
-        "outputs": [
-          "{projectRoot}/docs"
         ]
       },
       "start": {

@@ -16,9 +16,6 @@
       "build": {
         "dependsOn": [
           "^build"
-        ],
-        "outputs": [
-          "{projectRoot}/dist"
         ]
       },
       "dev": {
