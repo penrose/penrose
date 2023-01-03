@@ -122,6 +122,12 @@
       "variation": "ShiitakeEchidna6061"
     },
     {
+      "substance": "word-cloud-example",
+      "style": "word-cloud",
+      "domain": "word-cloud",
+      "variation": "JazlynMouse32496"
+    },
+    {
       "substance": "siggraph-teaser",
       "style": "euclidean-teaser",
       "domain": "geometry",
@@ -235,6 +241,10 @@
       "name": "Geometry",
       "URI": "geometry-domain/geometry.dsl"
     },
+    "word-cloud": {
+      "name": "Word Cloud",
+      "URI": "word-cloud/word-cloud.dsl"
+    },
     "non-convex": {
       "name": "Non-convex Shape",
       "URI": "minkowski-tests/maze/maze.dsl"
@@ -338,6 +348,11 @@
       "domain": "geometry",
       "name": "Euclidean 2D Geometry",
       "URI": "geometry-domain/euclidean.sty"
+    },
+    "word-cloud": {
+      "domain": "word-cloud",
+      "name": "Word Cloud",
+      "URI": "word-cloud/word-cloud.sty"
     },
     "euclidean-teaser": {
       "domain": "geometry",
@@ -459,6 +474,11 @@
       "domain": "geometry",
       "name": "Circle with Chords, Radii, Diameters",
       "URI": "geometry-domain/textbook_problems/c11p12.sub"
+    },
+    "word-cloud-example": {
+      "domain": "word-cloud",
+      "name": "Word Cloud",
+      "URI": "word-cloud/example.sub"
     },
     "non-convex": {
       "domain": "non-convex",

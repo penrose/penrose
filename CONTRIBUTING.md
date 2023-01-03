@@ -176,7 +176,7 @@ yarn typecheck
 We have a `packages/examples/src/registry.json` file which lists several
 diagrams from the `packages/examples/src/` directory. All the "trios" listed in
 this file are automatically run in GitHub Actions to produce the SVG files in
-`diagrams/`.
+the `ci/*` branches.
 
 If you create a new diagram in `packages/examples/src/` and you'd like to make
 sure that future changes to Penrose don't inadvertently break your diagram, go
@@ -232,30 +232,7 @@ Then, if you find that these give a nice diagram using variation
 }
 ```
 
-And you're almost done! If you were to commit and push this right now, CI would
-fail because it would see that you added a new diagram to the registry without
-adding its output SVG file to the `diagrams/` directory. The last thing you need
-to do is generate that output and check it into Git.
-
-The easiest way to do this is to run `automator` locally on the registry:
-
-```sh
-npx nx run automator:build
-pushd packages/automator/
-yarn start batch registry.json ../../diagrams/ --src-prefix=../examples/src/
-popd
-```
-
-This should regenerate everything in `diagrams/`. Now just commit and push, and
-you're on your way!
-
-_**Note:**_ some features relating to text are currently not deterministic
-across different operating systems, so diagrams using those features cannot be
-included in the registry. See these pull requests for examples of those
-limitations:
-
-- [feat: Make Penrose deterministic][]
-- [test: Check word cloud example output in CI][]
+And you're done!
 
 ### Refresh build
 
@@ -450,7 +427,6 @@ please file an issue!
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
 [extensions]: https://code.visualstudio.com/docs/editor/extension-marketplace
-[feat: make penrose deterministic]: https://github.com/penrose/penrose/pull/864
 [git]: https://git-scm.com/downloads
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
@@ -469,7 +445,6 @@ please file an issue!
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 [rust]: https://www.rust-lang.org/tools/install
 [rustfmt]: https://github.com/rust-lang/rustfmt
-[test: check word cloud example output in ci]: https://github.com/penrose/penrose/pull/876
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
 [vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces
