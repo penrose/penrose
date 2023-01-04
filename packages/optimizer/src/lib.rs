@@ -909,6 +909,11 @@ fn contains_nan(number_list: &[f64]) -> bool {
     number_list.iter().any(|n| n.is_nan())
 }
 
+fn to_js_value(value: &(impl Serialize + ?Sized)) -> Result<JsValue, serde_wasm_bindgen::Error> {
+    // ts-rs expects `Option::None` to become `null` instead of `undefined`
+    value.serialize(&serde_wasm_bindgen::Serializer::new().serialize_missing_as_null(true))
+}
+
 #[wasm_bindgen]
 pub fn penrose_init() {
     // https://docs.rs/console_error_panic_hook/0.1.7/console_error_panic_hook/#usage
@@ -942,7 +947,7 @@ pub fn penrose_gen_opt_problem(
 ) -> JsValue {
     let input_kinds: Vec<InputKind> = serde_wasm_bindgen::from_value(inputs).unwrap();
     let params: Params = gen_opt_problem(input_kinds, num_obj_engs, num_constr_engs);
-    serde_wasm_bindgen::to_value(&params).unwrap()
+    to_js_value(&params).unwrap()
 }
 
 #[wasm_bindgen]
@@ -953,5 +958,5 @@ pub fn penrose_step(state: JsValue, p: usize, steps: i32) -> JsValue {
         unsafe { std::mem::transmute::<usize, Compiled>(p) },
         steps,
     );
-    serde_wasm_bindgen::to_value(&stepped).unwrap()
+    to_js_value(&stepped).unwrap()
 }
