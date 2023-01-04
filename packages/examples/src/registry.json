@@ -9,6 +9,12 @@
     },
     {
       "substance": "tree",
+      "style": "tree",
+      "domain": "set-theory",
+      "variation": ""
+    },
+    {
+      "substance": "tree",
       "style": "venn-3d",
       "domain": "set-theory",
       "variation": ""
@@ -17,7 +23,7 @@
       "substance": "wet-floor",
       "style": "atoms-and-bonds",
       "domain": "atoms-and-bonds",
-      "variation": "PorcellanaFlamingo3169"
+      "variation": "SinisterPigeon34750"
     },
     {
       "substance": "one-water-molecule",
@@ -38,8 +44,20 @@
       "variation": ""
     },
     {
+      "substance": "vector-wedge",
+      "style": "exterior-algebra",
+      "domain": "exterior-algebra",
+      "variation": "ArtemisCrane740"
+    },
+    {
       "substance": "allShapes",
-      "style": "dashedShapes",
+      "style": "allShapes",
+      "domain": "shape-spec",
+      "variation": ""
+    },
+    {
+      "substance": "arrowheads",
+      "style": "arrowheads",
       "domain": "shape-spec",
       "variation": ""
     },
@@ -77,37 +95,43 @@
       "substance": "collinear",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "HighlighterChicken10318"
     },
     {
       "substance": "parallel-lines",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "SuluHippopotamus665"
     },
     {
       "substance": "midsegment-triangles",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "FollyCamel2864"
     },
     {
       "substance": "congruent-triangles",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "OspreySkunk922"
     },
     {
       "substance": "circle-example",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": ""
+      "variation": "ShiitakeEchidna6061"
+    },
+    {
+      "substance": "word-cloud-example",
+      "style": "word-cloud",
+      "domain": "word-cloud",
+      "variation": "JazlynMouse32496"
     },
     {
       "substance": "siggraph-teaser",
       "style": "euclidean-teaser",
       "domain": "geometry",
-      "variation": "WhisperPeafowl34044"
+      "variation": "StromboliCat61816"
     },
     {
       "substance": "non-convex",
@@ -180,6 +204,12 @@
       "style": "fake-3d-linear-algebra",
       "domain": "fake-3d-linear-algebra",
       "variation": "ConceptualMeerkat694"
+    },
+    {
+      "substance": "vector-wedge",
+      "style": "exterior-algebra",
+      "domain": "exterior-algebra",
+      "variation": "ArtemisCrane740"
     }
   ],
   "domains": {
@@ -195,9 +225,13 @@
       "name": "Linear Algebra",
       "URI": "linear-algebra-domain/linear-algebra.dsl"
     },
+    "exterior-algebra": {
+      "name": "Exterior Algebra",
+      "URI": "exterior-algebra/exterior-algebra.dsl"
+    },
     "shape-spec": {
       "name": "Shapes",
-      "URI": "shape-spec/shape-spec-dashes.dsl"
+      "URI": "shape-spec/all-shapes.dsl"
     },
     "graph-theory": {
       "name": "Graph Theory",
@@ -206,6 +240,10 @@
     "geometry": {
       "name": "Geometry",
       "URI": "geometry-domain/geometry.dsl"
+    },
+    "word-cloud": {
+      "name": "Word Cloud",
+      "URI": "word-cloud/word-cloud.dsl"
     },
     "non-convex": {
       "name": "Non-convex Shape",
@@ -266,15 +304,25 @@
       "name": "Linear Algebra 2D",
       "URI": "linear-algebra-domain/linear-algebra-paper-simple.sty"
     },
-    "dashedShapes": {
+    "allShapes": {
       "domain": "shape-spec",
-      "name": "Shapes with dashed lines",
-      "URI": "shape-spec/shape-spec-dashes.sty"
+      "name": "Shapes with Default Properties",
+      "URI": "shape-spec/shape-spec.sty"
+    },
+    "arrowheads": {
+      "domain": "shape-spec",
+      "name": "Arrowhead Styles",
+      "URI": "shape-spec/arrows.sty"
     },
     "vectors-dashed": {
       "domain": "linear-algebra",
       "name": "Vectors with Dashed Arrows",
       "URI": "linear-algebra-domain/linearalgebra-paper-dashes.sty"
+    },
+    "exterior-algebra": {
+      "domain": "linear-algebra",
+      "name": "Operations on k-vectors from exterior algebra",
+      "URI": "exterior-algebra/exterior-algebra.sty"
     },
     "disjoint-rects": {
       "domain": "graph-theory",
@@ -300,6 +348,11 @@
       "domain": "geometry",
       "name": "Euclidean 2D Geometry",
       "URI": "geometry-domain/euclidean.sty"
+    },
+    "word-cloud": {
+      "domain": "word-cloud",
+      "name": "Word Cloud",
+      "URI": "word-cloud/word-cloud.sty"
     },
     "euclidean-teaser": {
       "domain": "geometry",
@@ -352,6 +405,11 @@
       "name": "Two Perpendicular Vectors",
       "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.sub"
     },
+    "vector-wedge": {
+      "domain": "exterior-algebra",
+      "name": "Wedge product of three Vectors",
+      "URI": "exterior-algebra/vector-wedge.sub"
+    },
     "continuousmap": {
       "domain": "set-theory",
       "name": "Continuous Map",
@@ -370,7 +428,12 @@
     "allShapes": {
       "domain": "shape-spec",
       "name": "All Shapes",
-      "URI": "shape-spec/shapes-dashes.sub"
+      "URI": "shape-spec/all-shapes.sub"
+    },
+    "arrowheads": {
+      "domain": "shape-spec",
+      "name": "All Arrowhead Styles",
+      "URI": "shape-spec/arrows.sub"
     },
     "small-graph": {
       "domain": "graph-theory",
@@ -411,6 +474,11 @@
       "domain": "geometry",
       "name": "Circle with Chords, Radii, Diameters",
       "URI": "geometry-domain/textbook_problems/c11p12.sub"
+    },
+    "word-cloud-example": {
+      "domain": "word-cloud",
+      "name": "Word Cloud",
+      "URI": "word-cloud/example.sub"
     },
     "non-convex": {
       "domain": "non-convex",

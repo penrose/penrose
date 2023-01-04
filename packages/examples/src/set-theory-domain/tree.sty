@@ -48,7 +48,7 @@ forall Set x {
 
 forall Set x; Set y {
    -- Try to make sure no labels overlap
-   encourage repel(x.bounds, y.bounds, 5.0)
+   encourage notTooClose(x.bounds, y.bounds, 5.0)
 }
 
 
@@ -65,8 +65,8 @@ where IsSubset(x, y) {
       end: q - r*u
       strokeWidth : 4.0
       strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
-      endArrowhead : true
-      arrowheadSize: .5
+      endArrowhead: "straight"
+      endArrowheadSize: .5
    }
 
    -- Position y above x

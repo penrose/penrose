@@ -17,7 +17,7 @@ import {
   overlappingRectlikeCircle,
   overlappingTextLine,
 } from "contrib/ConstraintsUtils";
-import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
+import { bboxFromShape, shapeSize } from "contrib/Queries";
 import { inRange, overlap1D } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
@@ -116,22 +116,19 @@ const constrDictSimple = {
 
   /**
    * Require that three points be collinear.
-   * Depends on the specific ordering of points.
+   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
    */
   collinear: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
-    const v1 = ops.vsub(c1, c2);
+    const v1 = ops.vsub(c2, c1);
     const v2 = ops.vsub(c2, c3);
-    const v3 = ops.vsub(c1, c3);
-
-    // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(0, sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3)));
+    return absVal(ops.cross2(v1, v2));
   },
 
   /**
    * Require that three points be collinear.
-   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
+   * Depends on the specific ordering of points.
    */
-  collinearUnordered: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
+  collinearOrdered: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
     const v1 = ops.vnorm(ops.vsub(c1, c2));
     const v2 = ops.vnorm(ops.vsub(c2, c3));
     const v3 = ops.vnorm(ops.vsub(c1, c3));
@@ -182,51 +179,51 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
-   * based on the type of the shape, and with an optional `padding` between them
-   * (e.g. if `s1` should be overlapping `s2` with margin `padding`).
+   * Require that shape `s1` overlaps shape `s2` with some overlap `overlap`.
+   * based on the type of the shape, and with an optional `overlap` between them
+   * (e.g. if `s1` should be overlapping `s2` with margin `overlap`).
    */
   overlapping: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 0.0
+    overlap: ad.Num = 0.0
   ) => {
     // Same shapes
     if (t1 === "Circle" && t2 === "Circle")
-      return overlappingCircles([t1, s1], [t2, s2], padding);
+      return overlappingCircles([t1, s1], [t2, s2], overlap);
     else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
-      return overlappingAABBs([t1, s1], [t2, s2], padding);
+      return overlappingAABBs([t1, s1], [t2, s2], overlap);
     // HACK: text/label-line, mainly to skip convex partitioning
     else if ((t1 === "Text" || t1 === "Equation") && t2 === "Line")
-      return overlappingTextLine([t1, s1], [t2, s2], padding);
+      return overlappingTextLine([t1, s1], [t2, s2], overlap);
     else if (t1 === "Line" && (t2 === "Text" || t2 === "Equation"))
-      return overlappingTextLine([t2, s2], [t1, s1], padding);
+      return overlappingTextLine([t2, s2], [t1, s1], overlap);
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
-      return overlappingPolygons([t1, s1], [t2, s2], padding);
+      return overlappingPolygons([t1, s1], [t2, s2], overlap);
     else if (t1 === "Ellipse" && t2 === "Ellipse")
-      return overlappingEllipse([t1, s1], [t2, s2], padding);
+      return overlappingEllipse([t1, s1], [t2, s2], overlap);
     // Rectangle x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
-      return overlappingRectlikeCircle([t1, s1], [t2, s2], padding);
+      return overlappingRectlikeCircle([t1, s1], [t2, s2], overlap);
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
-      return overlappingRectlikeCircle([t2, s2], [t1, s1], padding);
+      return overlappingRectlikeCircle([t2, s2], [t1, s1], overlap);
     // Polygon x Ellipse
     else if (shapedefs[t1].isPolygonlike && t2 === "Ellipse")
-      return overlappingPolygonEllipse([t1, s1], [t2, s2], padding);
+      return overlappingPolygonEllipse([t1, s1], [t2, s2], overlap);
     else if (t1 === "Ellipse" && shapedefs[t2].isPolygonlike)
-      return overlappingPolygonEllipse([t2, s2], [t1, s1], padding);
+      return overlappingPolygonEllipse([t2, s2], [t1, s1], overlap);
     // Circle x Ellipse
     else if (t1 === "Circle" && t2 === "Ellipse")
-      return overlappingCircleEllipse([t1, s1], [t2, s2], padding);
+      return overlappingCircleEllipse([t1, s1], [t2, s2], overlap);
     else if (t1 === "Ellipse" && t2 === "Circle")
-      return overlappingCircleEllipse([t2, s2], [t1, s1], padding);
+      return overlappingCircleEllipse([t2, s2], [t1, s1], overlap);
     // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
-      return overlappingCircleLine([t1, s1], [t2, s2], padding);
+      return overlappingCircleLine([t1, s1], [t2, s2], overlap);
     else if (t1 === "Line" && t2 === "Circle")
-      return overlappingCircleLine([t2, s2], [t1, s1], padding);
+      return overlappingCircleLine([t2, s2], [t1, s1], overlap);
     // Default to axis-aligned bounding boxes
-    else return overlappingAABBs([t1, s1], [t2, s2], padding);
+    else return overlappingAABBs([t1, s1], [t2, s2], overlap);
   },
 
   /**
@@ -237,9 +234,9 @@ const constrDictGeneral = {
   disjoint: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 0.0
+    padding: ad.Num = 0.0
   ) => {
-    return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
+    return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding)));
   },
 
   /**
@@ -250,9 +247,11 @@ const constrDictGeneral = {
   touching: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 0.0
+    padding: ad.Num = 0.0
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
+    return absVal(
+      constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding))
+    );
   },
 
   /**
@@ -312,14 +311,6 @@ const constrDictGeneral = {
 // -------- Specific constraints
 // Defined only for specific use-case or specific shapes.
 const constrDictSpecific = {
-  ptCircleIntersect: (p: ad.Num[], [t, s]: [string, any]) => {
-    if (t === "Circle") {
-      const r = s.r.contents;
-      const c = shapeCenter([t, s]);
-      return squared(sub(ops.vdist(p, c), r));
-    } else throw new Error(`${t} not supported for ptCircleIntersect`);
-  },
-
   /**
    * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
    */

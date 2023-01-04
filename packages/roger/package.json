@@ -38,8 +38,7 @@
     "oclif": "^3",
     "shx": "^0.3.3",
     "ts-node": "^10.2.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.4.3"
+    "tslib": "^2.3.1"
   },
   "oclif": {
     "bin": "roger",
@@ -58,14 +57,13 @@
   },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
+    "build-decls": ":",
+    "typecheck": ":",
     "postpack": "shx rm -f oclif.manifest.json",
     "prepack": "yarn build && oclif manifest && oclif readme",
     "version": "oclif readme && git add README.md",
     "preinstall-global": "yarn build",
     "install-global": "yarn link"
-  },
-  "turbo": {
-    "build": "out: [dist/**]"
   },
   "engines": {
     "node": ">=12.0.0"

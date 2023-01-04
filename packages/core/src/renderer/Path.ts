@@ -1,6 +1,11 @@
-import { flatten } from "lodash";
-import { ColorV, FloatV, PathCmd, StrV, SubPath } from "types/value";
-import { toScreen, toSvgOpacityProperty, toSvgPaintProperty } from "utils/Util";
+import _ from "lodash";
+import { BoolV, ColorV, FloatV, PathCmd, StrV, SubPath } from "types/value";
+import {
+  getArrowhead,
+  toScreen,
+  toSvgOpacityProperty,
+  toSvgPaintProperty,
+} from "utils/Util";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { arrowHead } from "./Line";
 import { ShapeProps } from "./Renderer";
@@ -16,7 +21,7 @@ const toPathString = (
         console.error("WARNING: empty path");
         return "";
       }
-      const pathStr = flatten(
+      const pathStr = _.flatten(
         // the `number[]` type annotation is necessary to ensure that a compile
         // error occurs here if more `SubPath` subtypes are added in the future
         contents.map((c: SubPath<number>): number[] => {
@@ -58,8 +63,8 @@ const Shadow = (id: string) => {
 
 export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   // TODO: distinguish between fill opacity and stroke opacity
-  const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
-  const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
+  const startArrowId = shape.properties.name.contents + "-startArrowId";
+  const endArrowId = shape.properties.name.contents + "-endArrowId";
   const shadowId = shape.properties.name.contents + "-shadow";
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const strokeWidth = (shape.properties.strokeWidth as FloatV<number>).contents;
@@ -75,42 +80,55 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const fillOpacity = toSvgOpacityProperty(
     (shape.properties.fillColor as ColorV<number>).contents
   );
-  const arrowheadStyle = (shape.properties.arrowheadStyle as StrV).contents;
-  const arrowheadSize = (shape.properties.arrowheadSize as FloatV<number>)
-    .contents;
-
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
+  const startArrowhead = getArrowhead(
+    (shape.properties.startArrowhead as StrV).contents
+  );
+  const endArrowhead = getArrowhead(
+    (shape.properties.endArrowhead as StrV).contents
+  );
+
+  if (startArrowhead) {
+    const startArrowId = shape.properties.name.contents + "-startArrowId";
+    const startArrowheadSize = (shape.properties
+      .startArrowheadSize as FloatV<number>).contents;
+    const flip = (shape.properties.flipStartArrowhead as BoolV).contents;
+    elem.appendChild(
+      arrowHead(
+        startArrowId,
+        strokeColor,
+        strokeOpacity,
+        startArrowhead,
+        startArrowheadSize,
+        flip
+      )
+    );
+  }
+  if (endArrowhead) {
+    const endArrowId = shape.properties.name.contents + "-endArrowId";
+    const endArrowheadSize = (shape.properties
+      .endArrowheadSize as FloatV<number>).contents;
+    elem.appendChild(
+      arrowHead(
+        endArrowId,
+        strokeColor,
+        strokeOpacity,
+        endArrowhead,
+        endArrowheadSize,
+        false
+      )
+    );
+  }
+
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  if (shape.properties.startArrowhead.contents === true) {
-    elem.appendChild(
-      arrowHead(
-        leftArrowId,
-        strokeColor,
-        strokeOpacity,
-        arrowheadStyle,
-        arrowheadSize
-      )
-    );
-  }
-  if (shape.properties.endArrowhead.contents === true) {
-    elem.appendChild(
-      arrowHead(
-        rightArrowId,
-        strokeColor,
-        strokeOpacity,
-        arrowheadStyle,
-        arrowheadSize
-      )
-    );
-  }
+
   attrToNotAutoMap.push(
     "name",
     "strokeColor",
-    "arrowheadStyle",
-    "arrowheadSize",
     "startArrowhead",
+    "flipStartArrowhead",
     "endArrowhead"
   );
   elem.appendChild(Shadow(shadowId));
@@ -153,12 +171,12 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     toPathString(shape.properties.d.contents as any[], canvasSize)
   );
   attrToNotAutoMap.push("d");
-  if (shape.properties.startArrowhead.contents === true) {
-    path.setAttribute("marker-start", `url(#${leftArrowId})`);
+  if (startArrowhead) {
+    path.setAttribute("marker-start", `url(#${startArrowId})`);
     attrToNotAutoMap.push("startArrowhead");
   }
-  if (shape.properties.endArrowhead.contents === true) {
-    path.setAttribute("marker-end", `url(#${rightArrowId})`);
+  if (endArrowhead) {
+    path.setAttribute("marker-end", `url(#${endArrowId})`);
     attrToNotAutoMap.push("endArrowhead");
   }
   elem.appendChild(path);

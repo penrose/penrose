@@ -56,19 +56,17 @@ predicate In(Point, Plane)
 predicate Midpoint(Linelike, Point)
 predicate Collinear(Point, Point, Point)
 predicate ParallelMarker1(Linelike, Linelike)
-predicate EqualLengthMarker1(Linelike, Linelike)
-predicate EqualLengthMarker2(Linelike, Linelike) -- TODO implement, blocked
-predicate EqualLengthMarker3(Linelike, Linelike) -- TODO implement, blocked
-predicate EqualLength(Linelike, Linelike )
+predicate EqualLengthMarker(Linelike, Linelike)
+predicate EqualLength(Linelike, Linelike)
 predicate Parallel(Linelike, Linelike)
 
 -- Angles
+predicate Acute(Angle) 
+predicate Obtuse(Angle) 
 predicate RightMarked(Angle)
 predicate RightUnmarked(Angle)
 predicate AngleBisector(Angle, Linelike)
-predicate EqualAngleMarker1(Angle, Angle)
-predicate EqualAngleMarker2(Angle, Angle)
-predicate EqualAngleMarker3(Angle, Angle)
+predicate EqualAngleMarker(Angle, Angle)
 predicate EqualAngle(Angle, Angle)
 
 -- Polygons/Shapes
@@ -79,12 +77,6 @@ predicate Incenter(Point, Triangle)
 predicate Orthocenter(Point, Triangle)
 predicate Centroid(Point, Triangle)
 predicate Circumcenter(Point, Triangle)
-
--- Unimplemented
-predicate Supplementary(Angle) -- TODO broken
--- predicate Perpendicular(Linelike, Linelike
-
-
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"
 -- notation "{p, q, r}" ~ "MkTriangle(p, q, r)"

@@ -1,7 +1,7 @@
-import * as _ from "lodash";
-import { times } from "lodash";
+import _ from "lodash";
 import seedrandom from "seedrandom";
 import { LineProps } from "shapes/Line";
+import { ShapeType } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
@@ -118,7 +118,7 @@ export const randFloats = (
   rng: seedrandom.prng,
   count: number,
   [min, max]: [number, number]
-): number[] => times(count, () => randFloat(rng, min, max));
+): number[] => _.times(count, () => randFloat(rng, min, max));
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive
@@ -146,23 +146,107 @@ export const randList = (rng: seedrandom.prng, n: number): number[] => {
 
 //#region renderer
 
-export const arrowheads = {
-  "arrowhead-1": {
+export interface ArrowheadSpec {
+  width: number;
+  height: number;
+  viewbox: string;
+  refX: number;
+  refY: number;
+  path: string;
+  fillKind: "stroke" | "fill";
+  style?: { [k: string]: string };
+}
+type ArrowheadMap = {
+  [k: string]: ArrowheadSpec;
+};
+
+export const arrowheads: ArrowheadMap = {
+  concave: {
     width: 8,
     height: 8,
     viewbox: "0 0 8 8",
-    refX: "4",
-    refY: "4", // HACK: to avoid paths from bleeding through the arrowhead
+    refX: 2.5,
+    refY: 4,
     path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z",
+    fillKind: "fill",
   },
-  "arrowhead-2": {
+  straight: {
     width: 9.95,
     height: 8.12,
     viewbox: "0 0 9.95 8.12",
-    refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
-    refY: "4.06",
+    refX: 2.36,
+    refY: 4.06,
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
+    fillKind: "fill",
   },
+  line: {
+    width: 7.5,
+    height: 14,
+    viewbox: "0 0 7.5 14",
+    refX: 5,
+    refY: 7,
+    path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  doubleLine: {
+    width: 12.5,
+    height: 14,
+    viewbox: "0 0 12.5 14",
+    refX: 5,
+    refY: 7,
+    path:
+      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loopup: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 10 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loopdown: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 1 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loop: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+};
+
+export const getArrowhead = (style: string): ArrowheadSpec | undefined => {
+  if (style in arrowheads) {
+    const arrow = arrowheads[style];
+    return arrow;
+  }
 };
 
 export const toScreen = (
@@ -371,7 +455,7 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
 // calculates bounding box dimensions of a shape - used in inspector views
 export const bBoxDims = (
   properties: Properties<number>,
-  shapeType: string
+  shapeType: ShapeType
 ): [number, number] => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {
@@ -764,7 +848,6 @@ export const getAdValueAsString = (
   switch (prop.tag) {
     case "FloatV":
       if (typeof prop.contents === "number") return prop.contents.toString();
-      if (typeof prop.contents === "string") return prop.contents;
       break;
     case "StrV":
       return prop.contents;
@@ -792,7 +875,6 @@ export const getAdValueAsNumber = (
   switch (prop.tag) {
     case "FloatV":
       if (typeof prop.contents === "number") return prop.contents;
-      if (typeof prop.contents === "string") return parseFloat(prop.contents);
       break;
     case "StrV":
       return parseFloat(prop.contents);

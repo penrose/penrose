@@ -29,10 +29,11 @@ export interface Rect {
 }
 
 export interface Arrow {
-  arrowheadSize: FloatV<ad.Num>;
-  arrowheadStyle: StrV;
-  startArrowhead: BoolV;
-  endArrowhead: BoolV;
+  startArrowheadSize: FloatV<ad.Num>;
+  endArrowheadSize: FloatV<ad.Num>;
+  startArrowhead: StrV;
+  endArrowhead: StrV;
+  flipStartArrowhead: BoolV;
 }
 
 export interface Corner {

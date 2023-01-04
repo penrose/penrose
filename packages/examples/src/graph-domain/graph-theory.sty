@@ -88,8 +88,8 @@ with Vertex v1; Vertex v2 {
      	     end : v2.shape.center - (endSideDim / 2. + arrowheadSize + padding) * dir
 	     strokeColor : Colors.black
 	     strokeWidth : 2.0
-             endArrowhead: true
-             arrowheadSize: 0.7
+             endArrowhead: "straight"
+             endArrowheadSize: 0.7
      }
 
      E.text = Equation {
@@ -119,7 +119,7 @@ with Vertex v1; Vertex v2 {
 forall Vertex v1; Vertex v2 {
        -- TODO: Make this work WRT rectangle dimensions
        ensure disjoint(v1.shape, v2.shape, 10.)
-       encourage repel(v1.shape, v2.shape)
+       encourage notTooClose(v1.shape, v2.shape)
 }
 
 forall Edge e1; Edge e2 {

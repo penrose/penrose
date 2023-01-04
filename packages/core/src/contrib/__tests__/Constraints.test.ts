@@ -1,3 +1,4 @@
+import { ready } from "@penrose/optimizer";
 import { constrDict } from "contrib/Constraints";
 import { numOf } from "contrib/Utils";
 import {
@@ -8,6 +9,8 @@ import {
   _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
 import * as ad from "types/ad";
+
+await ready;
 
 const digitPrecision = 10;
 
@@ -140,11 +143,11 @@ describe("simple constraint", () => {
   );
 
   it.each([
-    [[1, 2], [1, 1], [2, 1], 0.6],
-    [[1, 3], [1, 1], [3, 1], 1.2],
+    [[1, 2], [1, 1], [2, 1], 1],
+    [[1, 3], [1, 1], [3, 1], 4],
     [[1, 0], [1, 1], [1, 2], 0],
     [[1, 0], [1, 1], [1, 10], 0],
-    [[1, 0], [1, 1], [1, -10], 2],
+    [[1, 0], [1, 1], [1, -10], 0],
   ])(
     "collinear(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
@@ -160,9 +163,9 @@ describe("simple constraint", () => {
     [[1, 0], [1, 1], [1, 10], 0],
     [[1, 0], [1, 1], [1, -10], 0],
   ])(
-    "collinearUnordered(%p, %p, %p) should return %p",
+    "collinearOrdered(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
-      const result = constrDict.collinearUnordered(c1, c2, c3);
+      const result = constrDict.collinearOrdered(c1, c2, c3);
       expect(numOf(result)).toBeCloseTo(expected, 1);
     }
   );
@@ -249,8 +252,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should be satisfied
-      expectSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.disjoint(shape0, shape1, padding));
       expectNotSatisfied(constrDict.disjoint(shape1, shape0, padding));
@@ -319,8 +323,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.overlapping(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectNotSatisfied(constrDict.overlapping(shape0, shape1, overlap));
+      expectNotSatisfied(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should be satisfied
       expectSatified(constrDict.disjoint(shape0, shape1, padding));
       expectSatified(constrDict.disjoint(shape1, shape0, padding));
@@ -380,8 +385,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should JUST be satisfied
-      expectJustSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectJustSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectJustSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectJustSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should JUST be satisfied
       expectJustSatified(constrDict.disjoint(shape0, shape1, padding));
       expectJustSatified(constrDict.disjoint(shape1, shape0, padding));
@@ -438,8 +444,9 @@ describe("general constraints", () => {
       const shape0: [string, any] = [shapeType0, shapeData0];
       const shape1: [string, any] = [shapeType1, shapeData1];
       // The condition should be satisfied
-      expectSatified(constrDict.overlapping(shape0, shape1, padding));
-      expectSatified(constrDict.overlapping(shape1, shape0, padding));
+      const overlap = -padding;
+      expectSatified(constrDict.overlapping(shape0, shape1, overlap));
+      expectSatified(constrDict.overlapping(shape1, shape0, overlap));
       // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.disjoint(shape0, shape1, padding));
       expectNotSatisfied(constrDict.disjoint(shape1, shape0, padding));

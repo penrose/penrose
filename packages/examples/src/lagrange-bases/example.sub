@@ -1,9 +1,7 @@
 Node a, b, c, d
 Node u, v, x, y, z
---Element t1 := LinearTriangle( a, b, c )
 Element t2 := QuadraticTriangle( a, b, c, x, y, z )
 Element e := QuadraticTriangle( b, a, d, x, u, v )
---Element q1 := LinearQuad( a, b, c, d )
 
 Label a $p_i$
 Label b $p_j$

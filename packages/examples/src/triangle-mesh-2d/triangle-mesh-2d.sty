@@ -361,9 +361,6 @@ forall Halfedge h {
       strokeColor: Colors.black
       fillColor: none()
       d: pathFromPoints("open", [Q2,Q0,Q1])
-      startArrowhead: false
-      endArrowhead: false
-      arrowheadSize: .5
    }
 
    h.labelText = Text {
@@ -530,8 +527,8 @@ where IsPositivelyOriented(t) {
       d: arc( "open", p0, p1, (R,R), 0., 1, 0 )
       strokeWidth: 2.*Global.lineThickness
       startArrowhead: false
-      endArrowhead: true
-      arrowheadSize: .5
+      endArrowhead: "straight"
+      endArrowheadSize: .5
    }
 }
 forall Triangle t
@@ -548,9 +545,8 @@ where IsNegativelyOriented(t) {
       strokeColor: Colors.black
       d: arc( "open", p0, p1, (R,R), 0., 1, 0 )
       strokeWidth: 2.*Global.lineThickness
-      startArrowhead: true
-      endArrowhead: false
-      arrowheadSize: .5
+      startArrowhead: "straight"
+      startArrowheadSize: .5
    }
 }
 

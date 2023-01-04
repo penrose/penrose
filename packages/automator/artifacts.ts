@@ -2,7 +2,7 @@ import * as fs from "fs";
 import _ from "lodash";
 import pug from "pug";
 import { InstanceData } from "./types";
-import vis from "./vis";
+import * as vis from "./vis";
 
 const PAGELEN = 5;
 const gridLink = "grid.html";
@@ -132,7 +132,7 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
 };
 
 const MAX_NAME_LENGTH = 100;
-const MAX_SECONDS = 100;
+const MAX_SECONDS = 60;
 
 const trimName = (name: string): string =>
   name.length > MAX_NAME_LENGTH

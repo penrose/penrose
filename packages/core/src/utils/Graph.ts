@@ -1,8 +1,12 @@
-import * as graphlib from "graphlib";
+import graphlib from "graphlib";
 
 export interface Edge<NodeId extends string> {
   v: NodeId;
   w: NodeId;
+}
+export interface Path<NodeId extends string> {
+  distance: number;
+  predecessor: NodeId;
 }
 
 /**
@@ -112,6 +116,27 @@ export class Digraph<NodeId extends string, NodeLabel> {
 
   topsort(): NodeId[] {
     return graphlib.alg.topsort(this._graph) as NodeId[];
+  }
+
+  dijkstra(
+    source: NodeId,
+    weightFn?: (edge: Edge<NodeId>) => number
+  ): { [node: string]: Path<NodeId> } {
+    return graphlib.alg.dijkstra(
+      this._graph,
+      source,
+      weightFn as (e: graphlib.Edge) => number
+    ) as {
+      [node: string]: Path<NodeId>;
+    };
+  }
+
+  isAcyclic(): boolean {
+    return graphlib.alg.isAcyclic(this._graph);
+  }
+
+  findCycles(): NodeId[][] {
+    return graphlib.alg.findCycles(this._graph) as NodeId[][];
   }
 }
 

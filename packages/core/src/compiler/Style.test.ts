@@ -1,6 +1,7 @@
 // Must be run from penrose-web for loading files
 
 import { examples } from "@penrose/examples";
+import { ready } from "@penrose/optimizer";
 import * as S from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
 import im from "immutable";
@@ -11,9 +12,11 @@ import { State } from "types/state";
 import { Assignment, Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
 import { ColorV, RGBA } from "types/value";
-import { andThen, Result, showError } from "utils/Error";
+import { andThen, err, Result, showError } from "utils/Error";
 import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
 import { compileDomain } from "./Domain";
+
+await ready;
 
 // TODO: Reorganize and name tests by compiler stage
 
@@ -46,15 +49,15 @@ const loadFiles = ({
 });
 
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
-export const loadProgs = ({
+export const loadProgs = async ({
   dsl,
   sub,
   sty,
-}: Trio): {
+}: Trio): Promise<{
   translation: Translation;
   assignment: Assignment;
   state: State;
-} => {
+}> => {
   const throwErr = (e: any): any => {
     throw Error(
       `Expected Style program to work without errors. Got error: ${showError(
@@ -67,9 +70,9 @@ export const loadProgs = ({
     sub,
     env
   ).unwrapOrElse(throwErr);
-  return S.compileStyleHelper("styletests", sty, subEnv, varEnv).unwrapOrElse(
-    throwErr
-  );
+  return (
+    await S.compileStyleHelper("styletests", sty, subEnv, varEnv)
+  ).unwrapOrElse(throwErr);
 };
 
 const canvasPreamble = `canvas {
@@ -153,8 +156,8 @@ describe("Color literals", () => {
       .contents;
     zip2(rgba, expected).map(([a, b]) => expect(a).toBeCloseTo(b, 1));
   };
-  test("color literal values", () => {
-    const { translation } = loadProgs({
+  test("color literal values", async () => {
+    const { translation } = await loadProgs({
       dsl: "type T",
       sub: `
       T t
@@ -191,8 +194,8 @@ describe("Color literals", () => {
 });
 
 describe("Compiler", () => {
-  test("Label insertion", () => {
-    const { assignment } = loadProgs({
+  test("Label insertion", async () => {
+    const { assignment } = await loadProgs({
       dsl: "type Set",
       sub: `
       Set A, B, C
@@ -392,7 +395,7 @@ describe("Compiler", () => {
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
   describe("Symmetric predicates", () => {
-    test("non-symmetric predicate should not match", () => {
+    test("non-symmetric predicate should not match", async () => {
       const dsl = `type Atom
       type Hydrogen <: Atom
       type Oxygen <: Atom
@@ -408,10 +411,10 @@ describe("Compiler", () => {
           string: "Bond!"
         }
       }`;
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(0);
     });
-    test("symmetric predicate should match", () => {
+    test("symmetric predicate should match 1", async () => {
       const dsl = `type Atom
       type Hydrogen <: Atom
       type Oxygen <: Atom
@@ -427,10 +430,27 @@ describe("Compiler", () => {
           string: "Bond!"
         }
       }`;
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toBeGreaterThan(0);
     });
-    test("nested symmetric predicates", () => {
+    test("symmetric predicate should match 2", async () => {
+      const dsl = `type Set
+      symmetric predicate Equal(Set, Set)`;
+      const sub = `Set A, B, C
+      Equal(A, B)
+      Equal(A, C)`;
+      const sty =
+        canvasPreamble +
+        `forall Set x, y, z
+      where Equal(x, y); Equal(y, z) {
+        myShape = Text {
+          string: "Equality!"
+        }
+      }`;
+      const { state } = await loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toBeGreaterThan(0);
+    });
+    test("nested symmetric predicates", async () => {
       const dsl = `type Atom
       type Hydrogen <: Atom
       type Oxygen <: Atom
@@ -447,13 +467,13 @@ describe("Compiler", () => {
             string: "hello"
           }
         }`;
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toBeGreaterThan(0);
     });
   });
 
   describe("number of matchings", () => {
-    test("no double matching, non-symmetric", () => {
+    test("no double matching, non-symmetric", async () => {
       const dsl = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -472,11 +492,11 @@ predicate Bond(Atom, Atom)`;
             }
         }`;
 
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
 
-    test("no double matching, symmetric", () => {
+    test("no double matching, symmetric", async () => {
       const dsl = `type Atom
       symmetric predicate Bond(Atom, Atom)`;
       const sub = `Atom A1, A2
@@ -489,11 +509,11 @@ predicate Bond(Atom, Atom)`;
                 string: "Bond"
             }
         }`;
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
 
-    test("extra variables not in relations", () => {
+    test("extra variables not in relations", async () => {
       const dsl = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -512,11 +532,11 @@ predicate Bond(Atom, Atom)`;
                 fillColor: rgba(0, 0, 0, 255)
             }
         }`;
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(2);
     });
 
-    test("pure selector, no relations", () => {
+    test("pure selector, no relations", async () => {
       const dsl = `type Atom`;
       const sub = `Atom A1, A2`;
       const sty =
@@ -527,13 +547,13 @@ predicate Bond(Atom, Atom)`;
                 fillColor: rgba(0, 0, 0, 255)
             }
         }`;
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
   });
 
   describe("predicate alias", () => {
-    test("general predicate alias with symmetry", () => {
+    test("general predicate alias with symmetry", async () => {
       const dsl = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -552,10 +572,10 @@ Bond(O, H2)`;
         }
     }
     `;
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(2);
     });
-    test("correct style programs with predicate aliasing", () => {
+    test("correct style programs with predicate aliasing", async () => {
       const dsl = "type Set \n predicate IsSubset(Set, Set)";
       const sub = "Set A\nSet B\nSet C\nIsSubset(B, A)\nIsSubset(C, B)";
 
@@ -569,7 +589,7 @@ Bond(O, H2)`;
         }
         `;
 
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(4);
     });
   });
@@ -627,20 +647,16 @@ Bond(O, H2)`;
       domainRes
     );
 
-    const testStyProgForError = (styProg: string, errorType: string) => {
+    const testStyProgForError = async (styProg: string, errorType: string) => {
       let preamble = errorType.startsWith("Canvas") ? "" : canvasPreamble;
-      const styRes: Result<State, PenroseError> = andThen(
-        (res) =>
-          S.compileStyle(
+      const styRes: Result<State, PenroseError> = subRes.isErr()
+        ? err(subRes.error)
+        : await S.compileStyle(
             "Style compiler errors test seed",
             preamble + styProg,
-            ...res
-          ),
-        subRes
-      );
-      describe(errorType, () => {
-        expectErrorOf(styRes, errorType);
-      });
+            ...subRes.value
+          );
+      expectErrorOf(styRes, errorType);
     };
 
     const errorStyProgs = {
@@ -731,6 +747,16 @@ delete x.z.p }`,
          }
            x.icon.center = (2.0, 0.0)
 }`,
+      ],
+
+      CyclicAssignmentError: [
+        `forall Set x {
+          x.icon = Circle { }
+        }
+
+        forall Set x; Set y where IsSubset(x, y) {
+          override y.r = x.r + y.r
+        }`,
       ],
 
       // TODO(errors): check multiple errors
@@ -838,18 +864,19 @@ delete x.z.p }`,
     // delete x.icon2.strokeWidth
     // }
 
-    // Test that each program yields its error type
-    for (const [errorType, styProgs] of Object.entries(errorStyProgs)) {
-      for (const styProg of styProgs) {
-        // TODO(error): improve this so it becomes individual tests, using the framework
-        // console.log("testing", errorType);
-        testStyProgForError(styProg, errorType);
+    test("that each program yields its error type", async () => {
+      for (const [errorType, styProgs] of Object.entries(errorStyProgs)) {
+        for (const styProg of styProgs) {
+          // TODO(error): improve this so it becomes individual tests, using the framework
+          // console.log("testing", errorType);
+          await testStyProgForError(styProg, errorType);
+        }
       }
-    }
+    });
   });
 
   describe("faster matching", () => {
-    test("multiple predicates", () => {
+    test("multiple predicates", async () => {
       const sub = `
       MySet X, Y
  OtherType Z
@@ -873,10 +900,10 @@ delete x.z.p }`,
      }
  }`;
 
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
-    test("many declaration matches with only one relational match", () => {
+    test("many declaration matches with only one relational match", async () => {
       const sub = `
       T t1, t2, t3, t4, t5, t6, t7, t8
       S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;
@@ -896,13 +923,13 @@ delete x.z.p }`,
               r: 10.0
            }
         }`;
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
   });
 
   describe("match metadata", () => {
-    test("match total", () => {
+    test("match total", async () => {
       const dsl = "type MyType\n";
       const sty =
         canvasPreamble +
@@ -912,7 +939,7 @@ delete x.z.p }`,
   }
 }`;
       const sub = "MyType t1, t2, t3\n";
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
       expect(
         state.shapes.every((shape) => {
           const val = shape.properties["string"];
@@ -921,7 +948,7 @@ delete x.z.p }`,
       ).toEqual(true);
     });
 
-    test("match id", () => {
+    test("match id", async () => {
       const dsl = "type MyType\n";
       const sty =
         canvasPreamble +
@@ -932,7 +959,7 @@ delete x.z.p }`,
 }`;
       const sub = "MyType t1, t2, t3\n";
 
-      const { state } = loadProgs({ dsl, sub, sty });
+      const { state } = await loadProgs({ dsl, sub, sty });
 
       // Require that the match_id's are exactly [1, 2, 3]
       expect(

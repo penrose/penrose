@@ -51,7 +51,7 @@ where VectorInAmbientSpace(v, S) {
     start: S.origin_proj_2d
     end: (vec_endpoint_proj_vp[0], vec_endpoint_proj_vp[1])
     strokeWidth : 0.01
-    endArrowhead : true
+    endArrowhead: "straight"
     strokeColor : rgba(0, 0, 0, 255.)
   }
 }
@@ -68,7 +68,7 @@ forall Vector v; Hyperplane P; AmbientSpace S
 where VectorOrthogonalToHyperplane(v, P, S) {
   scalar multiplier = ?
   override v.vec = multiplier * P.normal_vector
-  encourage repel(v.shape, S.shape, 0.01)
+  encourage notTooClose(v.shape, S.shape, 0.01)
 }
 
 forall Vector v; Vector u; AmbientSpace S

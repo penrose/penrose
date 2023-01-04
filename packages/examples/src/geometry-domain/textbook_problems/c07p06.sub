@@ -8,6 +8,6 @@ Collinear(A, E, D)
 Collinear(C, E, B)
 Segment AD := MkSegment(A, D)
 Segment CB := MkSegment(C, B)
-EqualLengthMarker1(AB, CD)
+EqualLengthMarker(AB, CD)
 EqualLength(AB, CD)
 AutoLabel All

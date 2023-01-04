@@ -13,8 +13,11 @@ import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   currentRogerState,
+  DiagramMetadata,
   diagramMetadataSelector,
   diagramState,
+  fileContentsSelector,
+  ProgramFile,
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "../state/atoms";
@@ -27,8 +30,14 @@ import BlueButton from "./BlueButton";
  */
 export const DownloadSVG = (
   svg: SVGSVGElement,
-  title = "illustration"
+  title = "illustration",
+  dslStr: string,
+  subStr: string,
+  styleStr: string,
+  versionStr: string,
+  variationStr: string
 ): void => {
+  SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
   const blob = new Blob([svg.outerHTML], {
     type: "image/svg+xml;charset=utf-8",
   });
@@ -39,6 +48,127 @@ export const DownloadSVG = (
   document.body.appendChild(downloadLink);
   downloadLink.click();
   document.body.removeChild(downloadLink);
+};
+
+/**
+ * Given an SVG, program triple, and version and variation strings,
+ * appends penrose tags to the SVG so the SVG can be reuploaded and edited.
+ *
+ * @param svg
+ * @param dslStr the domain file
+ * @param subStr the substance file
+ * @param styleStr the style file
+ * @param versionStr
+ * @param variationStr
+ */
+const SVGaddCode = (
+  svg: SVGSVGElement,
+  dslStr: string,
+  subStr: string,
+  styleStr: string,
+  versionStr: string,
+  variationStr: string
+): void => {
+  svg.setAttribute("penrose", "0");
+
+  // Create custom <penrose> tag to store metadata
+  const metadata = document.createElementNS(
+    "https://penrose.cs.cmu.edu/metadata",
+    "penrose"
+  );
+
+  // Create <version> tag for penrose version
+  const version = document.createElementNS(
+    "https://penrose.cs.cmu.edu/version",
+    "version"
+  );
+  version.insertAdjacentText("afterbegin", versionStr);
+
+  // Create <variation> tag for variation string
+  const variation = document.createElementNS(
+    "https://penrose.cs.cmu.edu/variation",
+    "variation"
+  );
+  variation.insertAdjacentText("afterbegin", variationStr);
+
+  // Create <sub> tag to store substance (.sub) code
+  const substance = document.createElementNS(
+    "https://penrose.cs.cmu.edu/substance",
+    "sub"
+  );
+  substance.insertAdjacentText("afterbegin", subStr);
+
+  // Create <sty> tag to store style (.sty) code
+  const style = document.createElementNS(
+    "https://penrose.cs.cmu.edu/style",
+    "sty"
+  );
+  style.insertAdjacentText("afterbegin", styleStr);
+
+  // Create <dsl> tag to store .dsl code
+  const dsl = document.createElementNS("https://penrose.cs.cmu.edu/dsl", "dsl");
+  dsl.insertAdjacentText("afterbegin", dslStr);
+
+  // Add these new tags under the <penrose> metadata tag
+  metadata.appendChild(version);
+  metadata.appendChild(variation);
+  metadata.appendChild(substance);
+  metadata.appendChild(style);
+  metadata.appendChild(dsl);
+
+  // Add the <penrose> metadata tag to the parent <svg> tag
+  svg.appendChild(metadata);
+};
+
+/**
+ * (browser-only) Downloads any given exported PNG to the user's computer
+ * @param svg
+ * @param title the filename
+ * @param width canvas and SVG width
+ * @param height canvas and SVG height
+ */
+export const DownloadPNG = (
+  svg: SVGSVGElement,
+  title = "illustration",
+  width: number,
+  height: number,
+  scale: number
+): void => {
+  // duplicate node to set concrete dimensions
+  const svgNode = svg.cloneNode(true) as SVGSVGElement;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d")!;
+  // NOTE: need to set _both_ the SVG node and canvas dimensions to render properly
+  const scaledWidth = width * scale;
+  const scaledHeight = height * scale;
+  canvas.width = scaledWidth;
+  canvas.height = scaledHeight;
+  svgNode.setAttribute("width", scaledWidth.toString());
+  svgNode.setAttribute("height", scaledHeight.toString());
+  const data = new XMLSerializer().serializeToString(svgNode);
+  const DOMURL = window.URL || window.webkitURL || window;
+
+  const img = new Image();
+  const svgBlob = new Blob([data], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+  const url = DOMURL.createObjectURL(svgBlob);
+
+  img.onload = function () {
+    ctx.drawImage(img, 0, 0);
+    DOMURL.revokeObjectURL(url);
+
+    const imgURI = canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
+    const downloadLink = document.createElement("a");
+    downloadLink.href = imgURI;
+    downloadLink.download = title;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+  img.src = url;
 };
 
 export default function DiagramPanel() {
@@ -78,6 +208,8 @@ export default function DiagramPanel() {
               pathResolver
             )
           : await RenderStatic(state, pathResolver);
+        rendered.setAttribute("width", "100%");
+        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -122,7 +254,40 @@ export default function DiagramPanel() {
       if (svg !== null) {
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
-        DownloadSVG(svg, metadata.name);
+        const diagram = snapshot.getLoadable(diagramMetadataSelector)
+          .contents as DiagramMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance")
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation
+        );
+      }
+    }
+  });
+
+  const downloadPng = useRecoilCallback(({ snapshot }) => async () => {
+    if (canvasRef.current !== null) {
+      const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const filename = `${metadata.name}.png`;
+        if (diagram.state) {
+          const { canvas: canvasDims } = diagram.state;
+          const { width, height } = canvasDims;
+          DownloadPNG(svg, filename, width, height, 1);
+        }
       }
     }
   });
@@ -265,6 +430,7 @@ export default function DiagramPanel() {
         {state && (
           <div style={{ display: "flex" }}>
             <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+            <BlueButton onClick={downloadPng}>PNG</BlueButton>
             <BlueButton onClick={downloadPdf}>PDF</BlueButton>
           </div>
         )}

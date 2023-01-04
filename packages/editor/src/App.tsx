@@ -1,6 +1,14 @@
-import { Action, Actions, Layout, Model, TabNode } from "flexlayout-react";
+import {
+  Action,
+  Actions,
+  IJsonRowNode,
+  Layout,
+  Model,
+  TabNode,
+} from "flexlayout-react";
 import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+import { useMediaQuery } from "react-responsive";
 import {
   useRecoilCallback,
   useRecoilState,
@@ -15,6 +23,7 @@ import RogerPanel from "./components/RogerPanel";
 import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
 import StateInspector from "./components/StateInspector";
+import SvgUploader from "./components/SvgUploader";
 import TopBar from "./components/TopBar";
 import {
   currentRogerState,
@@ -26,6 +35,64 @@ import {
   Workspace,
 } from "./state/atoms";
 import { useCheckURL } from "./state/callbacks";
+
+const mainRowLayout: IJsonRowNode = {
+  type: "row",
+  weight: 100,
+  children: [
+    {
+      type: "tabset",
+      weight: process.env.NODE_ENV === "development" ? 25 : 50,
+      children: [
+        ...(process.env.NODE_ENV === "development"
+          ? [
+              {
+                type: "tab",
+                name: "roger",
+                component: "rogerPanel",
+              },
+            ]
+          : []),
+        {
+          type: "tab",
+          name: ".sub",
+          component: "programEditor",
+          config: {
+            kind: "substance",
+          },
+        },
+        {
+          type: "tab",
+          name: ".sty",
+          component: "programEditor",
+          config: {
+            kind: "style",
+          },
+        },
+        {
+          type: "tab",
+          name: ".dsl",
+          component: "programEditor",
+          config: {
+            kind: "domain",
+          },
+        },
+      ],
+    },
+    {
+      type: "tabset",
+      weight: process.env.NODE_ENV === "development" ? 75 : 50,
+      children: [
+        {
+          type: "tab",
+          name: "Diagram",
+          component: "diagram",
+          enableRename: false,
+        },
+      ],
+    },
+  ],
+};
 
 export const layoutModel = Model.fromJson({
   global: {
@@ -45,6 +112,11 @@ export const layoutModel = Model.fromJson({
           type: "tab",
           name: "examples",
           component: "examplesPanel",
+        },
+        {
+          type: "tab",
+          name: "upload",
+          component: "svgUploader",
         },
         {
           type: "tab",
@@ -68,66 +140,14 @@ export const layoutModel = Model.fromJson({
       ],
     },
   ],
-  layout: {
-    type: "row",
-    weight: 100,
-    children: [
-      {
-        type: "tabset",
-        weight: process.env.NODE_ENV === "development" ? 25 : 50,
-        children: [
-          ...(process.env.NODE_ENV === "development"
-            ? [
-                {
-                  type: "tab",
-                  name: "roger",
-                  component: "rogerPanel",
-                },
-              ]
-            : []),
-          {
-            type: "tab",
-            name: ".sub",
-            component: "programEditor",
-            config: {
-              kind: "substance",
-            },
-          },
-          {
-            type: "tab",
-            name: ".sty",
-            component: "programEditor",
-            config: {
-              kind: "style",
-            },
-          },
-          {
-            type: "tab",
-            name: ".dsl",
-            component: "programEditor",
-            config: {
-              kind: "domain",
-            },
-          },
-        ],
-      },
-      {
-        type: "tabset",
-        weight: process.env.NODE_ENV === "development" ? 75 : 50,
-        children: [
-          {
-            type: "tab",
-            name: "Diagram",
-            component: "diagram",
-            enableRename: false,
-          },
-        ],
-      },
-    ],
-  },
+  layout: mainRowLayout,
 });
 
 function App() {
+  // responsive
+  const isPortrait = useMediaQuery({ query: "(orientation: portrait)" });
+  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+
   const ws = useRef<WebSocket | null>(null);
   const [rogerState, setRogerState] = useRecoilState<RogerState>(
     currentRogerState
@@ -138,6 +158,8 @@ function App() {
       switch (node.getComponent()) {
         case "programEditor":
           return <ProgramEditor kind={node.getConfig().kind} />;
+        case "svgUploader":
+          return <SvgUploader />;
         case "diagram":
           return <DiagramPanel />;
         case "savedFiles":
@@ -180,7 +202,10 @@ function App() {
       const workspace = snapshot.getLoadable(currentWorkspaceState)
         .contents as Workspace;
       if (fileName === workspace.files.domain.name) {
-        set(fileContentsSelector("domain"), (file) => ({ ...file, contents }));
+        set(fileContentsSelector("domain"), (file) => ({
+          ...file,
+          contents,
+        }));
         // TODO: compile
       } else if (fileName === workspace.files.style.name) {
         set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
@@ -232,6 +257,13 @@ function App() {
       connectRoger();
     }
   }, []);
+  useEffect(() => {
+    layoutModel.doAction(
+      Actions.updateModelAttributes({
+        rootOrientationVertical: isTabletOrMobile && isPortrait,
+      })
+    );
+  }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();
   const localFiles = useRecoilValueLoadable(localFilesState);

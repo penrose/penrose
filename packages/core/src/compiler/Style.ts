@@ -1,16 +1,19 @@
 import { CustomHeap } from "@datastructures-js/heap";
+import { genOptProblem } from "@penrose/optimizer";
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
+import consola from "consola";
 import { constrDict } from "contrib/Constraints";
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
-import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
-import { genOptProblem } from "engine/Optimizer";
-import { alg, Edge, Graph } from "graphlib";
+import {
+  compileCompGraph,
+  dummyIdentifier,
+  genGradient,
+} from "engine/EngineUtils";
 import im from "immutable";
-import _, { range, without } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation, prettyParseError } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -119,7 +122,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { Digraph } from "utils/Graph";
+import { Digraph, Edge } from "utils/Graph";
 import {
   boolV,
   colorV,
@@ -139,7 +142,7 @@ import {
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
-  .create({ level: LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Style Compiler");
 
 //#region consts
@@ -154,7 +157,7 @@ const dummyId = (name: string): Identifier<A> =>
   dummyIdentifier(name, "SyntheticStyle");
 
 export function numbered<A>(xs: A[]): [A, number][] {
-  return zip2(xs, range(xs.length));
+  return zip2(xs, _.range(xs.length));
 }
 
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
@@ -162,13 +165,22 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
 
 const toString = (x: BindingForm<A>): string => x.contents.value;
 
-// https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-const cartesianProduct = <T>(...a: T[][]): T[][] =>
-  a.reduce(
-    (tuples: T[][], set) =>
-      tuples.flatMap((prefix: T[]) => set.map((x: T) => [...prefix, x])),
-    [[]]
-  );
+const cartesianProduct = <Tin, Tout>(
+  t1: Tin[],
+  t2: Tin[],
+  consistent: (t1: Tin, t2: Tin) => boolean,
+  merge: (t1: Tin, t2: Tin) => Tout
+): Tout[] => {
+  const product: Tout[] = [];
+  for (const i in t1) {
+    for (const j in t2) {
+      if (consistent(t1[i], t2[j])) {
+        product.push(merge(t1[i], t2[j]));
+      }
+    }
+  }
+  return product;
+};
 
 const oneErr = (err: StyleError): StyleDiagnostics => {
   return { errors: im.List([err]), warnings: im.List() };
@@ -979,15 +991,18 @@ const merge = (
   const s1Arr = s1.toArray();
   const s2Arr = s2.toArray();
 
-  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(s1Arr, s2Arr)
-    .filter(([[aSubst], [bSubst]]) => {
+  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(
+    s1Arr,
+    s2Arr,
+    ([aSubst], [bSubst]) => {
       // Requires that substitutions are consistent
       return consistentSubsts(aSubst, bSubst);
-    })
-    .map(([[aSubst, aStmts], [bSubst, bStmts]]) => [
+    },
+    ([aSubst, aStmts], [bSubst, bStmts]) => [
       combine(aSubst, bSubst),
       aStmts.union(bStmts),
-    ]);
+    ]
+  );
   return im.List(result);
 };
 
@@ -1104,7 +1119,7 @@ const matchStyArgToSubArg = (
   varEnv: Env,
   styArg: PredArg<A> | SelExpr<A>,
   subArg: SubPredArg<A> | SubExpr<A>
-): Subst | undefined => {
+): Subst[] => {
   if (styArg.tag === "SEBind" && subArg.tag === "Identifier") {
     const styBForm = styArg.contents;
     if (styBForm.tag === "StyVar") {
@@ -1117,15 +1132,15 @@ const matchStyArgToSubArg = (
       if (typesMatched(varEnv, subArgType, styArgType)) {
         const rSubst = {};
         rSubst[styArgName] = subArgName;
-        return rSubst;
+        return [rSubst];
       } else {
-        return undefined;
+        return [];
       }
     } /* (styBForm.tag === "SubVar") */ else {
       if (subArg.value === styBForm.contents.value) {
-        return {};
+        return [{}];
       } else {
-        return undefined;
+        return [];
       }
     }
   }
@@ -1162,12 +1177,12 @@ const matchStyArgToSubArg = (
       subArg
     );
   }
-  return undefined;
+  return [];
 };
 
 /**
  * Match a list of Style arguments against a list of Substance arguments.
- * @returns If all arguments match, return a `Subst` that maps the Style variable(s) against Substance variable(s). If any arguments fail to match, return `undefined`.
+ * @returns If all arguments match, return a `Subst[]` that contains mappings which map the Style variable(s) against Substance variable(s). If any arguments fail to match, return [].
  */
 const matchStyArgsToSubArgs = (
   styTypeMap: { [k: string]: StyT<A> },
@@ -1175,34 +1190,53 @@ const matchStyArgsToSubArgs = (
   varEnv: Env,
   styArgs: PredArg<A>[] | SelExpr<A>[],
   subArgs: SubPredArg<A>[] | SubExpr<A>[]
-): Subst | undefined => {
-  const initRSubst: Subst | undefined = {};
-  const res = zip2<PredArg<A> | SelExpr<A>, SubPredArg<A> | SubExpr<A>>(
-    styArgs,
-    subArgs
-  ).reduce((rSubst: Subst | undefined, [styArg, subArg]) => {
-    if (rSubst === undefined) {
-      return undefined;
-    }
-    const argSubst = matchStyArgToSubArg(
+): Subst[] => {
+  const stySubArgPairs = zip2<
+    PredArg<A> | SelExpr<A>,
+    SubPredArg<A> | SubExpr<A>
+  >(styArgs, subArgs);
+
+  const substsForEachArg = stySubArgPairs.map(([styArg, subArg]) => {
+    const argSubsts = matchStyArgToSubArg(
       styTypeMap,
       subTypeMap,
       varEnv,
       styArg,
       subArg
     );
-    if (argSubst === undefined) {
-      return undefined;
-    } else {
-      return { ...rSubst, ...argSubst };
-    }
-  }, initRSubst);
-  return res;
+    return argSubsts;
+  });
+
+  // We do Cartesian product here.
+  // The idea is, each argument may yield multiple matches due to symmetry.
+  // For example, first argument might give us
+  //   (a --> A, b --> B) and (a --> B, b --> A)
+  // due to symmetry. The second argument might give us
+  //   (c --> C, d --> D) and (c --> D, d --> C).
+  // We want to incorporate all four possible, consistent matchings for (a, b, c, d).
+  // TODO: Think about ways to optimize this.
+  const first = substsForEachArg.shift();
+  if (first !== undefined) {
+    const substs: Subst[] = substsForEachArg.reduce(
+      (currSubsts, substsForArg) => {
+        return cartesianProduct(
+          currSubsts,
+          substsForArg,
+          (aSubst, bSubst) => consistentSubsts(aSubst, bSubst),
+          (aSubst, bSubst) => combine(aSubst, bSubst)
+        );
+      },
+      first
+    );
+    return substs;
+  } else {
+    return [];
+  }
 };
 
 /**
  * Match a Style application of predicate, function, or constructor against a Substance application
- * by comparing names and arguments. For predicates, consider potential symmetry.
+ * by comparing names and arguments. For symmetric predicates, we force it to consider both versions of the predicate.
  * If the Style application and Substance application match, return the variable mapping. Otherwise, return `undefined`.
  *
  * For example, let
@@ -1219,50 +1253,52 @@ const matchStyApplyToSubApply = (
   varEnv: Env,
   styRel: RelPred<A> | SelExpr<A>,
   subRel: ApplyPredicate<A> | SubExpr<A>
-): Subst | undefined => {
+): Subst[] => {
   // Predicate Applications
   if (styRel.tag === "RelPred" && subRel.tag === "ApplyPredicate") {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
-      return undefined;
+      return [];
     }
-    let rSubst = matchStyArgsToSubArgs(
+
+    // Consider the original version
+    const rSubstOriginal = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
       varEnv,
       styRel.args,
       subRel.args
     );
-    if (rSubst === undefined) {
-      // check symmetry
-      const predicateDecl = varEnv.predicates.get(subRel.name.value);
-      if (predicateDecl && predicateDecl.symmetric) {
-        // Flip arguments
-        const flippedStyArgs = [styRel.args[1], styRel.args[0]];
-        rSubst = matchStyArgsToSubArgs(
-          styTypeMap,
-          subTypeMap,
-          varEnv,
-          flippedStyArgs,
-          subRel.args
-        );
-      }
+
+    // Consider the symmetric, flipped-argument version
+    let rSubstSymmetric = undefined;
+    const predicateDecl = varEnv.predicates.get(subRel.name.value);
+    if (predicateDecl && predicateDecl.symmetric) {
+      // Flip arguments
+      const flippedStyArgs = [styRel.args[1], styRel.args[0]];
+      rSubstSymmetric = matchStyArgsToSubArgs(
+        styTypeMap,
+        subTypeMap,
+        varEnv,
+        flippedStyArgs,
+        subRel.args
+      );
     }
 
-    // If still no match (even after considering potential symmetry)
-    if (rSubst === undefined) {
-      return undefined;
+    const rSubsts: Subst[] = [...rSubstOriginal];
+    if (rSubstSymmetric !== undefined) {
+      rSubsts.push(...rSubstSymmetric);
+    }
+
+    if (styRel.alias === undefined) {
+      return rSubsts;
     } else {
-      // Otherwise, if needed, we add in the alias.
-      if (styRel.alias === undefined) {
-        return rSubst;
-      } else {
+      const aliasName = styRel.alias.value;
+      return rSubsts.map((rSubst) => {
         const rSubstWithAlias = { ...rSubst };
-        rSubstWithAlias[styRel.alias.value] = getSubPredAliasInstanceName(
-          subRel
-        );
+        rSubstWithAlias[aliasName] = getSubPredAliasInstanceName(subRel);
         return rSubstWithAlias;
-      }
+      });
     }
   }
 
@@ -1275,17 +1311,18 @@ const matchStyApplyToSubApply = (
   ) {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
-      return undefined;
+      return [];
     }
-    return matchStyArgsToSubArgs(
+    const rSubst = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
       varEnv,
       styRel.args,
       subRel.args
     );
+    return rSubst;
   }
-  return undefined;
+  return [];
 };
 
 /**
@@ -1378,17 +1415,20 @@ const matchStyRelToSubRels = (
         if (statement.tag !== "ApplyPredicate") {
           return rSubsts;
         }
-        const rSubst = matchStyApplyToSubApply(
+        const rSubstsForPred = matchStyApplyToSubApply(
           styTypeMap,
           subTypeMap,
           varEnv,
           styPred,
           statement
         );
-        if (rSubst === undefined) {
-          return rSubsts;
-        }
-        return rSubsts.push([rSubst, im.Set<SubStmt<A>>().add(statement)]);
+
+        return rSubstsForPred.reduce((rSubsts, rSubstForPred) => {
+          return rSubsts.push([
+            rSubstForPred,
+            im.Set<SubStmt<A>>().add(statement),
+          ]);
+        }, rSubsts);
       },
       initRSubsts
     );
@@ -1405,19 +1445,22 @@ const matchStyRelToSubRels = (
       const { variable: subBindedVar, expr: subBindedExpr } = statement;
       const subBindedName = subBindedVar.value;
       // substitutions for RHS expression
-      const rSubstExpr = matchStyApplyToSubApply(
+      const rSubstsForExpr = matchStyApplyToSubApply(
         styTypeMap,
         subTypeMap,
         varEnv,
         styBindedExpr,
         subBindedExpr
       );
-      if (rSubstExpr === undefined) {
-        return rSubsts;
-      }
-      const rSubst = { ...rSubstExpr };
-      rSubst[styBindedName] = subBindedName;
-      return rSubsts.push([rSubst, im.Set<SubStmt<A>>().add(statement)]);
+
+      return rSubstsForExpr.reduce((rSubsts, rSubstForExpr) => {
+        const rSubstForBind = { ...rSubstForExpr };
+        rSubstForBind[styBindedName] = subBindedName;
+        return rSubsts.push([
+          rSubstForBind,
+          im.Set<SubStmt<A>>().add(statement),
+        ]);
+      }, rSubsts);
     }, initRSubsts);
 
     return [getStyRelArgNames(rel), newRSubsts];
@@ -2830,6 +2873,26 @@ export const translate = (
     constraints: im.List(),
     layering: im.List(),
   };
+
+  const cycles = graph.findCycles().map((cycle) =>
+    cycle.map((id) => {
+      const e = graph.node(id);
+      return {
+        id,
+        src:
+          e === undefined || typeof e === "string"
+            ? undefined
+            : { start: e.expr.start, end: e.expr.end },
+      };
+    })
+  );
+  if (cycles.length > 0) {
+    return {
+      ...trans,
+      diagnostics: oneErr({ tag: "CyclicAssignmentError", cycles }),
+    };
+  }
+
   return graph.topsort().reduce((trans, path) => {
     const e = graph.node(path);
     if (e === undefined) {
@@ -2855,19 +2918,19 @@ export const computeShapeOrdering = (
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
 } => {
-  const layerGraph: Graph = new Graph();
-  allGPINames.forEach((name: string) => layerGraph.setNode(name));
+  const layerGraph = new Digraph<string, undefined>();
+  allGPINames.forEach((name: string) => layerGraph.setNode(name, undefined));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
   partialOrderings.forEach(({ below, above }: Layer) =>
-    layerGraph.setEdge(below, above)
+    layerGraph.setEdge({ v: below, w: above })
   );
 
   // if there are no cycles, return a global ordering from the top sort result
-  if (alg.isAcyclic(layerGraph)) {
-    const shapeOrdering: string[] = alg.topsort(layerGraph);
+  if (layerGraph.isAcyclic()) {
+    const shapeOrdering: string[] = layerGraph.topsort();
     return { shapeOrdering };
   } else {
-    const cycles = alg.findCycles(layerGraph);
+    const cycles = layerGraph.findCycles();
     const shapeOrdering = pseudoTopsort(layerGraph);
     return {
       shapeOrdering,
@@ -2880,13 +2943,11 @@ export const computeShapeOrdering = (
   }
 };
 
-const pseudoTopsort = (graph: Graph): string[] => {
+const pseudoTopsort = (graph: Digraph<string, undefined>): string[] => {
   const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
     const aIn = graph.inEdges(a);
     const bIn = graph.inEdges(b);
-    if (!aIn) return 1;
-    else if (!bIn) return -1;
-    else return aIn.length - bIn.length;
+    return aIn.length - bIn.length;
   });
   const res: string[] = [];
   graph.nodes().forEach((n: string) => toVisit.insert(n));
@@ -2896,10 +2957,8 @@ const pseudoTopsort = (graph: Graph): string[] => {
     res.push(node);
     // remove all edges with `node`
     const toRemove = graph.nodeEdges(node);
-    if (toRemove !== undefined) {
-      toRemove.forEach((e: Edge) => graph.removeEdge(e));
-      toVisit.fix();
-    }
+    toRemove.forEach((e: Edge<string>) => graph.removeEdge(e));
+    toVisit.fix();
   }
   return res;
 };
@@ -3101,14 +3160,16 @@ export const optimizationStages: OptStage[] = [
   "Overall",
 ];
 
-export const compileStyleHelper = (
+export const compileStyleHelper = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<
-  { state: State; translation: Translation; assignment: Assignment },
-  PenroseError
+): Promise<
+  Result<
+    { state: State; translation: Translation; assignment: Assignment },
+    PenroseError
+  >
 > => {
   const astOk = parseStyle(stySource);
   let styProg;
@@ -3184,13 +3245,19 @@ export const compileStyleHelper = (
     optimizationStages
   );
 
-  const computeShapes = compileCompGraph(shapes);
+  const computeShapes = await compileCompGraph(shapes);
 
-  const params = genOptProblem(
+  const gradient = await genGradient(
     inputs,
     constraintSets,
     "ShapeLayout",
     without(optimizationStages, "ShapeLayout")
+  );
+
+  const params = genOptProblem(
+    inputs.map((meta) => meta.tag),
+    objFns.length,
+    constrFns.length
   );
 
   const initState: State = {
@@ -3200,10 +3267,13 @@ export const compileStyleHelper = (
     variation,
     varyingValues,
     constraintSets,
+    constrFns,
+    objFns,
     inputs,
     labelCache: new Map(),
     shapes,
     canvas: canvas.value,
+    gradient,
     computeShapes,
     params,
     frozenValues: [],
@@ -3218,13 +3288,13 @@ export const compileStyleHelper = (
   });
 };
 
-export const compileStyle = (
+export const compileStyle = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<State, PenroseError> =>
-  compileStyleHelper(variation, stySource, subEnv, varEnv).map(
+): Promise<Result<State, PenroseError>> =>
+  (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
     ({ state }) => state
   );
 

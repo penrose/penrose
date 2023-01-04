@@ -28,7 +28,10 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
   const retrievedLabel = labels.get(getAdValueAsString(shape.properties.name));
 
   if (retrievedLabel && retrievedLabel.tag === "EquationData") {
-    const renderedLabel = retrievedLabel.rendered;
+    // Clone the retrieved node first to avoid mutating existing labels
+    const renderedLabel = retrievedLabel.rendered.cloneNode(
+      true
+    ) as HTMLElement;
     const paths = renderedLabel.getElementsByTagName("path");
 
     // Map Width/Height, clear style

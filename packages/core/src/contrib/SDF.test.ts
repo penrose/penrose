@@ -1,4 +1,5 @@
-import { genCode, input, primaryGraph } from "engine/Autodiff";
+import { ready } from "@penrose/optimizer";
+import { genCodeSync, input, primaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -11,6 +12,8 @@ import { Shape } from "types/shapes";
 import { FloatV } from "types/value";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { compDict, sdEllipse } from "./Functions";
+
+await ready;
 
 const canvas = makeCanvas(800, 700);
 
@@ -41,7 +44,7 @@ const compareDistance = (
   const result = getResult(context, shapeType, shape, p);
   const g = primaryGraph(result.contents);
   //const g = secondaryGraph([result.contents]);
-  const f = genCode(g);
+  const f = genCodeSync(g);
   /* const [dist] = 
   const {
     secondary: [dist],
@@ -49,7 +52,7 @@ const compareDistance = (
   } = f([]); // no inputs, so, empty array
   const code = stmts.join("\n");
   console.log(code); */
-  const { primary: dist, gradient } = f([p[0].val, p[1].val]);
+  const { primary: dist, gradient } = f.call([p[0].val, p[1].val]);
   //TODO: debug gradient for ellipse
   // the commented code in the next three lines is useful for debugging
   // gradients

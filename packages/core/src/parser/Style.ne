@@ -4,8 +4,8 @@
 @{%
 
 /* eslint-disable */
-import * as moo from "moo";
-import { concat, compact, flatten, last } from 'lodash'
+import moo from "moo";
+import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
 import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit
@@ -83,7 +83,7 @@ const selector = (
 ): Selector<C> => {
   return {
     ...nodeData,
-    ...rangeFrom(compact([hd, wth, whr])),
+    ...rangeFrom(_.compact([hd, wth, whr])),
     tag: "Selector",
     head: hd,
     with: wth,
@@ -160,7 +160,7 @@ select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
 
 decl_patterns -> sepBy1[decl_list, ";"] {% 
   ([d]): DeclPatterns<C> => {
-    const contents = flatten(d) as DeclPattern<C>[];
+    const contents = _.flatten(d) as DeclPattern<C>[];
     return {
       ...nodeData,
       ...rangeFrom(contents),

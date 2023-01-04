@@ -15,13 +15,14 @@ import {
   nullaryTypeCons,
   SubStmtKind,
 } from "analysis/SubstanceAnalysis";
+import { subTypesOf } from "compiler/Domain";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
+import consola from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
-import { cloneDeep, compact, range, times, without } from "lodash";
-import { createChoice } from "pandemonium/choice";
-import { createRandom } from "pandemonium/random";
+import _ from "lodash";
+import pc from "pandemonium/choice";
+import pr from "pandemonium/random";
 import seedrandom from "seedrandom";
 import {
   Add,
@@ -74,7 +75,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Info })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -134,7 +135,7 @@ export const initContext = (
     argReuse,
     names: im.Map<string, number>(),
     declaredIDs: im.Map<string, Identifier<A>[]>(),
-    choice: createChoice(rng),
+    choice: pc.createChoice(rng),
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -247,16 +248,16 @@ export const removeID = (
 
 const findIDs = (
   ctx: SynthesisContext,
-  typeStr: string,
+  typeStrs: string[],
   excludeList?: Identifier<A>[]
 ): Identifier<A>[] => {
-  const possibleIDs = ctx.declaredIDs.get(typeStr);
-  if (possibleIDs) {
-    const candidates = possibleIDs.filter((id) =>
-      excludeList ? !excludeList.includes(id) : true
-    );
-    return candidates;
-  } else return [];
+  const possibleIDs: Identifier<A>[] = _.compact(
+    typeStrs.flatMap((typeStr) => ctx.declaredIDs.get(typeStr))
+  );
+  const candidates = possibleIDs.filter((id) =>
+    excludeList ? !excludeList.includes(id) : true
+  );
+  return candidates;
 };
 
 const generateID = (
@@ -325,7 +326,7 @@ export class Synthesizer {
     if (subRes) {
       const [subEnv, env] = subRes;
       this.env = env;
-      this.template = cloneDeep(subEnv.ast);
+      this.template = _.cloneDeep(subEnv.ast);
       log.debug(`Loaded template:\n${prettySubstance(this.template)}`);
     } else {
       this.env = env;
@@ -336,17 +337,17 @@ export class Synthesizer {
       };
     }
     // initialize the current program as the template
-    this.currentProg = cloneDeep(this.template);
+    this.currentProg = _.cloneDeep(this.template);
     this.setting = setting;
     this.currentMutations = [];
     // use the seed to create random generation functions
     this.rng = seedrandom(seed);
-    this.choice = createChoice(this.rng);
-    this.random = createRandom(this.rng);
+    this.choice = pc.createChoice(this.rng);
+    this.random = pr.createRandom(this.rng);
   }
 
   reset = (): void => {
-    this.currentProg = cloneDeep(this.template);
+    this.currentProg = _.cloneDeep(this.template);
     this.currentMutations = [];
   };
 
@@ -365,7 +366,7 @@ export class Synthesizer {
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
-    times(numProgs, (n: number) => {
+    _.times(numProgs, (n: number) => {
       const sub = this.generateSubstance();
       // DEBUG: report results
       log.info(
@@ -380,7 +381,7 @@ export class Synthesizer {
 
   generateSubstance = (): SynthesizedSubstance => {
     const numStmts = this.random(...this.setting.mutationCount);
-    range(numStmts).reduce(
+    _.range(numStmts).reduce(
       (ctx: SynthesisContext, n: number): SynthesisContext => {
         const newCtx = this.mutateProgram(ctx);
         log.debug(
@@ -448,31 +449,31 @@ export class Synthesizer {
     // const ops = enumerateMutations(stmt, this.currentProg, ctx);
     const ops: (Mutation | undefined)[] = [
       checkSwapStmtArgs(stmt, (p: ApplyPredicate<A>) => {
-        const indices = range(0, p.args.length);
+        const indices = _.range(0, p.args.length);
         const elem1 = this.choice(indices);
-        const elem2 = this.choice(without(indices, elem1));
+        const elem2 = this.choice(_.without(indices, elem1));
         return [elem1, elem2];
       }),
       checkSwapExprArgs(stmt, (f: ArgExpr<A>) => {
-        const indices = range(0, f.args.length);
+        const indices = _.range(0, f.args.length);
         const elem1 = this.choice(indices);
-        const elem2 = this.choice(without(indices, elem1));
+        const elem2 = this.choice(_.without(indices, elem1));
         return [elem1, elem2];
       }),
       checkReplaceStmtName(stmt, (p: ApplyPredicate<A>) => {
-        const matchingNames: string[] = matchSignatures(p, this.env).map(
+        const matchingNames: string[] = matchSignatures(p, ctx.env).map(
           (decl) => decl.name.value
         );
-        const options = without(matchingNames, p.name.value);
+        const options = _.without(matchingNames, p.name.value);
         if (options.length > 0) {
           return this.choice(options);
         } else return undefined;
       }),
       checkReplaceExprName(stmt, (e: ArgExpr<A>) => {
-        const matchingNames: string[] = matchSignatures(e, this.env).map(
+        const matchingNames: string[] = matchSignatures(e, ctx.env).map(
           (decl) => decl.name.value
         );
-        const options = without(matchingNames, e.name.value);
+        const options = _.without(matchingNames, e.name.value);
         if (options.length > 0) {
           return this.choice(options);
         } else return undefined;
@@ -488,7 +489,7 @@ export class Synthesizer {
           return swapOptions ? this.choice(swapOptions) : undefined;
         },
         (p: ApplyPredicate<A>) => {
-          const indices = range(0, p.args.length);
+          const indices = _.range(0, p.args.length);
           return this.choice(indices);
         }
       ),
@@ -503,7 +504,7 @@ export class Synthesizer {
           return swapOptions ? this.choice(swapOptions) : undefined;
         },
         (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => {
-          const indices = range(0, p.args.length);
+          const indices = _.range(0, p.args.length);
           return this.choice(indices);
         }
       ),
@@ -511,7 +512,7 @@ export class Synthesizer {
         stmt,
         ctx,
         (oldStmt: ApplyPredicate<A>, ctx: SynthesisContext) => {
-          const options = argMatches(oldStmt, this.env);
+          const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
             const { res, stmts, ctx: newCtx } = generateArgStmt(
@@ -561,7 +562,7 @@ export class Synthesizer {
         }
       ),
     ];
-    const mutations = compact(ops);
+    const mutations = _.compact(ops);
     log.debug(
       `Available mutations for ${prettyStmt(stmt)}:\n${showMutations(
         mutations
@@ -791,6 +792,7 @@ const generatePredicate = (
   ctx: SynthesisContext,
   args?: SubPredArg<A>[]
 ): WithStmts<ApplyPredicate<A>> => {
+  log.debug(`Generating predicate of ${pred.name.value} type`);
   if (!args) {
     const {
       res,
@@ -904,10 +906,18 @@ const generateArg = (
     switch (option) {
       case "existing": {
         // TODO: clean up the logic
+        const argTypeName = argType.name.value;
         const possibleIDs =
           reuseOption === "distinct"
-            ? findIDs(ctx, argType.name.value, usedIDs)
-            : findIDs(ctx, argType.name.value);
+            ? findIDs(
+                ctx,
+                [argTypeName, ...subTypesOf(argType, ctx.env).map((t) => t)],
+                usedIDs
+              )
+            : findIDs(ctx, [
+                argTypeName,
+                ...subTypesOf(argType, ctx.env).map((t) => t),
+              ]);
         const existingID = ctx.choice(possibleIDs);
         log.debug(
           `generating an argument with possbilities ${possibleIDs.map(
@@ -963,7 +973,7 @@ const generatePredArgs = (
   ctx: SynthesisContext
 ): WithStmts<SubPredArg<A>[]> => {
   const resWithCtx = args.reduce(
-    ({ res, stmts, ids }: WithStmts<SubPredArg<A>[]> & IDList, arg) => {
+    ({ res, stmts, ids, ctx }: WithStmts<SubPredArg<A>[]> & IDList, arg) => {
       const {
         res: newArg,
         stmts: newStmts,

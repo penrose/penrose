@@ -1,4 +1,3 @@
-import { genOptProblem } from "engine/Optimizer";
 import * as ad from "types/ad";
 import { Properties, ShapeAD } from "types/shape";
 import { State } from "types/state";
@@ -13,25 +12,32 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
-  const frozenVaryingValues = [];
+  const frozenValues = [];
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {
       const ids = dragShape(shape, [dx, dy], xs);
-      frozenVaryingValues.push(...ids);
+      frozenValues.push(...ids);
     }
   }
   const { inputs, constraintSets } = state;
   const updated: State = {
     ...state,
-    params: genOptProblem(
-      inputs,
-      constraintSets,
-      "ShapeLayout",
-      ["LabelLayout", "Overall"],
-      frozenVaryingValues
-    ),
+    // COMBAK: restart optimization stages
+    // params: genOptProblem(
+    //   inputs,
+    //   constraintSets,
+    //   "ShapeLayout",
+    //   ["LabelLayout", "Overall"],
+    //   frozenVaryingValues
+    // ),
+    // varyingValues: xs,
+    // frozenValues: frozenVaryingValues,
+    params: {
+      ...state.params,
+      optStatus: "NewIter",
+    },
     varyingValues: xs,
-    frozenValues: frozenVaryingValues,
+    frozenValues,
   };
   return updated;
 };

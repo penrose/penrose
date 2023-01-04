@@ -12,4 +12,11 @@ module.exports = {
   features: {
     storyStoreV7: true,
   },
+  viteFinal: async (config, { configType }) => {
+    if (configType === "PRODUCTION") {
+      config.base = "./";
+    }
+    config.build = { ...(config.build ?? {}), target: "esnext" };
+    return config;
+  },
 };
