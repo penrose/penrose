@@ -106,6 +106,6 @@ export interface Env {
   typeVars: im.Map<string, TypeVar<C>>;
   preludeValues: im.Map<string, TypeConstructor<C>>; // TODO: store as Substance values?
   subTypes: [TypeConstructor<C>, TypeConstructor<C>][];
-  typeGraph: Digraph<string, string>;
+  typeGraph: Digraph<string, undefined>;
 }
 //#endregion
