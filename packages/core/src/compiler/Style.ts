@@ -2944,9 +2944,7 @@ const pseudoTopsort = (graph: Digraph<string, undefined>): string[] => {
   const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
     const aIn = graph.inEdges(a);
     const bIn = graph.inEdges(b);
-    if (aIn.length < 1) return 1;
-    else if (bIn.length < 1) return -1;
-    else return aIn.length - bIn.length;
+    return aIn.length - bIn.length;
   });
   const res: string[] = [];
   graph.nodes().forEach((n: string) => toVisit.insert(n));
@@ -2956,10 +2954,8 @@ const pseudoTopsort = (graph: Digraph<string, undefined>): string[] => {
     res.push(node);
     // remove all edges with `node`
     const toRemove = graph.nodeEdges(node);
-    if (toRemove.length > 0) {
-      toRemove.forEach((e: Edge<string>) => graph.removeEdge(e));
-      toVisit.fix();
-    }
+    toRemove.forEach((e: Edge<string>) => graph.removeEdge(e));
+    toVisit.fix();
   }
   return res;
 };
