@@ -35,7 +35,7 @@ export class Digraph<NodeId extends string, NodeLabel> {
   }
 
   filterNodes(filter: (v: NodeId) => boolean): this {
-    this._graph.filterNodes((v) => filter(v as NodeId));
+    this._graph.filterNodes((v: NodeId) => filter(v));
     return this;
   }
 
@@ -177,7 +177,7 @@ export class Multidigraph<
   }
 
   filterNodes(filter: (v: NodeId) => boolean): this {
-    this._graph.filterNodes((v) => filter(v as NodeId));
+    this._graph.filterNodes((v: NodeId) => filter(v));
     return this;
   }
 
