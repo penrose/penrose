@@ -242,7 +242,7 @@ export default defineConfig({
           items: [
             {
               text: "Writing Constraints & Objectives",
-              link: "/docs/dev/constraints",
+              link: "/docs/ref/constraints",
             },
           ],
         },
