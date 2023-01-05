@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Listing from "./Listing";
 import { Simple } from "./Simple";
 
 const Demo = (props: {
@@ -26,35 +25,14 @@ const Demo = (props: {
   const example = props.examples[index];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        height: "100%",
-        flexWrap: "wrap",
-      }}
-    >
-      <Listing
-        domain={example.dsl}
-        substance={example.sub}
-        width={props.width}
-        height={props.width}
-        monacoOptions={{
-          theme: props.darkMode ? "vs-dark" : "vs",
-          wrappingIndent: "indent",
-        }}
-      />
-      <div style={{ width: props.width, height: props.width }}>
-        <Simple
-          substance={example.sub}
-          style={example.sty}
-          domain={example.dsl}
-          variation={example.variation}
-          interactive={false}
-          animate={true}
-        />
-      </div>
-    </div>
+    <Simple
+      substance={example.sub}
+      style={example.sty}
+      domain={example.dsl}
+      variation={example.variation}
+      interactive={false}
+      animate={true}
+    />
   );
 };
 

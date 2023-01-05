@@ -4,9 +4,6 @@ hero:
   name: Penrose
   text: Create beautiful diagrams
   tagline: just by typing math notation in plain text.
-  image:
-    src: /img/logo.svg
-    alt: Penrose
   actions:
     - theme: brand
       text: Tutorial
@@ -27,9 +24,3 @@ features:
   - title: WIP
     details: "Penrose is an early-stage system that is actively in development. Feel free to get in touch: penrose-team@cs.cmu.edu"
 ---
-
-<script setup>
-import DemoWrapper from "./src/components/DemoWrapper.vue";
-</script>
-
-<DemoWrapper />
