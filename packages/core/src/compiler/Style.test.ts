@@ -192,13 +192,22 @@ describe("Staged constraints", () => {
       forall Set X {
         X.icon = Circle {}
         X.text = Text {}
-        ensure contains(X.icon, X.text) in ShapeLayout
+        ensure contains(X.icon, X.text) in ShapeLayout, LabelLayout
+        encourage minimal(X.icon.r) in LabelLayout, Overall
       }
       `,
     });
     const ensureStmt = styleAST.blocks[1].block.statements[2] as AnonAssign<C>;
     const ensureExpr = ensureStmt.contents as ConstrFn<C>;
-    expect(ensureExpr.stages[0]).toEqual("ShapeLayout");
+    const stages1 = ensureExpr.stages.map((e) => e.value);
+    expect(stages1).toContain("ShapeLayout");
+    expect(stages1).toContain("LabelLayout");
+    const encourageStmt = styleAST.blocks[1].block
+      .statements[3] as AnonAssign<C>;
+    const encourageExpr = encourageStmt.contents as ConstrFn<C>;
+    const stages2 = encourageExpr.stages.map((e) => e.value);
+    expect(stages2).toContain("Overall");
+    expect(stages2).toContain("LabelLayout");
   });
 });
 

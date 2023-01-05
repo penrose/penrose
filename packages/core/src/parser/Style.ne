@@ -541,24 +541,26 @@ computation_function -> identifier _ "(" expr_list ")" {%
   }) 
 %}
 
-objective -> "encourage" __ identifier _ "(" expr_list ")" (__ "in" __ identifier):? {% 
+stage_list -> _ sepBy1[identifier, ","] _ {% nth(1) %}
+
+objective -> "encourage" __ identifier _ "(" expr_list ")" (__ "in" __ stage_list):? {% 
   ([kw, , name, , , args, rparen, stages]): ObjFn<C> => {
     return {
       ...nodeData,
       ...rangeBetween(kw, rparen), // TODO: fix range
       tag: "ObjFn",
-      stages: stages ? [stages[3]] : [],
+      stages: stages ? stages[3] : [],
       name, args
     } 
   }
 %}
 
-constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ "in" __ identifier):? {% 
+constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ "in" __ stage_list):? {% 
   ([kw, , name, , , args, rparen, stages]): ConstrFn<C> => ({
     ...nodeData,
     ...rangeBetween(kw, rparen), // TODO: fix range
     tag: "ConstrFn",
-    stages: stages ? [stages[3].value] : [],
+    stages: stages ? stages[3] : [], 
     name, args
   }) 
 %}

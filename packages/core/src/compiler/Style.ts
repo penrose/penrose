@@ -2773,7 +2773,8 @@ const translateExpr = (
         ...trans,
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
-          optStages: stages.length > 0 ? new Set(stages) : "All",
+          optStages:
+            stages.length > 0 ? new Set(stages.map((e) => e.value)) : "All",
           output,
         }),
       };
@@ -2796,7 +2797,8 @@ const translateExpr = (
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
-          optStages: stages.length > 0 ? new Set(stages) : "All",
+          optStages:
+            stages.length > 0 ? new Set(stages.map((e) => e.value)) : "All",
           output,
         }),
       };
