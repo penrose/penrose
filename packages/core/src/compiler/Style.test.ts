@@ -10,7 +10,14 @@ import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { State } from "types/state";
-import { AnonAssign, ConstrFn, StyProg } from "types/style";
+import {
+  AnonAssign,
+  ConstrFn,
+  GPIDecl,
+  PathAssign,
+  StyProg,
+  Vary,
+} from "types/style";
 import { Assignment, Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
 import { ColorV, RGBA } from "types/value";
@@ -182,6 +189,27 @@ describe("Color literals", () => {
 });
 
 describe("Staged constraints", () => {
+  test("varying stages", async () => {
+    const { styleAST } = await loadProgs({
+      dsl: "type Set",
+      sub: `Set A`,
+      sty:
+        canvasPreamble +
+        `
+      forall Set X {
+        X.icon = Circle {
+          r: ? in Overall, ShapeLayout
+        }
+      }
+      `,
+    });
+    const gpiStmt = styleAST.blocks[1].block.statements[0] as PathAssign<C>;
+    const gpiDecl = gpiStmt.value as GPIDecl<C>;
+    const rValue = gpiDecl.properties[0].value as Vary<C>;
+    const stages = rValue.stages.map((e) => e.value);
+    expect(stages).toContain("Overall");
+    expect(stages).toContain("ShapeLayout");
+  });
   test("constraint stages", async () => {
     const { styleAST } = await loadProgs({
       dsl: "type Set",

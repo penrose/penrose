@@ -516,7 +516,14 @@ string_lit -> %string_literal {%
 %}
 
 annotated_float 
-  -> "?" {% ([d]): Vary<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Vary' }) %}
+  -> "?" (__ "in" __ stage_list):? {% 
+    ([d, stages]): Vary<C> => ({ 
+      ...nodeData, 
+      ...rangeOf(d), // TODO: fix range
+      tag: 'Vary',
+      stages: stages ? stages[3] : []
+    }) 
+  %}
   |  %float_literal {% 
     ([d]): Fix<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
   %}

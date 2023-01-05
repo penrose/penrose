@@ -304,6 +304,7 @@ export type Fix<T> = ASTNode<T> & {
 
 export type Vary<T> = ASTNode<T> & {
   tag: "Vary";
+  stages: Identifier<T>[];
 };
 
 export type PropertyDecl<T> = ASTNode<T> & {
