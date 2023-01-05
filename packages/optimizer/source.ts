@@ -1,4 +1,3 @@
-import { InputKind } from "./bindings/InputKind";
 import { LbfgsParams } from "./bindings/LbfgsParams";
 import { OptState } from "./bindings/OptState";
 import { OptStatus } from "./bindings/OptStatus";
@@ -33,6 +32,8 @@ const getOptimizer = () => {
     throw Error("optimizer not initialized");
   return { optimizer: maybeOptimizer, index: maybeIndex };
 };
+
+const bools = (a: boolean[]) => new Int32Array(a.map((x) => (x ? 1 : 0)));
 
 /**
  * The module name of every import in a module used to construct a `Gradient`.
@@ -157,29 +158,38 @@ const makeImports = () => {
  *   - `"polyRoots"` takes two `i32`s and returns nothing.
  *
  * - The module must export a function whose name matches `exportFunctionName`,
- *   which takes three `i32`s and returns one `f64`.
+ *   which takes four `i32`s and returns one `f64`.
  */
 export class Gradient {
   private f: WebAssembly.ExportValue;
+  private numAddends: number;
   private numSecondary: number;
 
-  private constructor(instance: WebAssembly.Exports, numSecondary: number) {
+  private constructor(
+    instance: WebAssembly.Exports,
+    numAddends: number,
+    numSecondary: number
+  ) {
     this.f = instance[exportFunctionName];
+    this.numAddends = numAddends;
     this.numSecondary = numSecondary;
   }
 
   /**
    * `ready` must be resolved first.
    * @param mod a compiled Wasm module following the conventions of this class
+   * @param numSecondary the number of addends for primary output and gradient
    * @param numSecondary the number of secondary outputs
    * @returns a usable `Gradient` object initialized with all necessary builtins
    */
   static async make(
     mod: WebAssembly.Module,
+    numAddends: number,
     numSecondary: number
   ): Promise<Gradient> {
     return new Gradient(
       (await WebAssembly.instantiate(mod, makeImports())).exports,
+      numAddends,
       numSecondary
     );
   }
@@ -187,9 +197,14 @@ export class Gradient {
   /**
    * Synchronous version of `make`; everything from its docstring applies here.
    */
-  static makeSync(mod: WebAssembly.Module, numSecondary: number): Gradient {
+  static makeSync(
+    mod: WebAssembly.Module,
+    numAddends: number,
+    numSecondary: number
+  ): Gradient {
     return new Gradient(
       new WebAssembly.Instance(mod, makeImports()).exports,
+      numAddends,
       numSecondary
     );
   }
@@ -201,16 +216,21 @@ export class Gradient {
 
   /**
    * @param inputs to the function
+   * @param mask which addends to include
    * @returns the `primary` output, its `gradient`, and any `secondary` outputs
    */
-  call(inputs: number[]): Outputs<number> {
+  call(inputs: number[], mask?: boolean[]): Outputs<number> {
     const { index } = getOptimizer();
+    const maskNums = new Int32Array(this.numAddends);
+    for (let i = 0; i < this.numAddends; i++)
+      maskNums[i] = mask !== undefined && i in mask && !mask[i] ? 0 : 1;
     const gradient = new Float64Array(inputs.length);
     const secondary = new Float64Array(this.numSecondary);
     this.link();
     const primary = penrose_call(
       index,
       new Float64Array(inputs),
+      maskNums,
       gradient,
       secondary
     );
@@ -244,18 +264,22 @@ export const getInitConstraintWeight = () => {
 
 /**
  * `ready` must be resolved first.
- * @param inputKinds whether each varying value index should be optimized
- * @param numObjEngs the number of objectives in this optimization problem
- * @param numConstrEngs the number of constraints in this optimization problem
+ * @param gradMask whether each varying value index should be optimized
+ * @param objMask whether each objective should be optimized
+ * @param constrMask whether each constraint should be optimized
  * @returns initial optimization parameters
  */
 export const genOptProblem = (
-  inputKinds: InputKind[],
-  numObjEngs: number,
-  numConstrEngs: number
+  gradMask: boolean[],
+  objMask: boolean[],
+  constrMask: boolean[]
 ): Params => {
   getOptimizer();
-  return penrose_gen_opt_problem(inputKinds, numObjEngs, numConstrEngs);
+  return penrose_gen_opt_problem(
+    bools(gradMask),
+    bools(objMask),
+    bools(constrMask)
+  );
 };
 
-export type { InputKind, LbfgsParams, OptState, OptStatus, Params };
+export type { LbfgsParams, OptState, OptStatus, Params };

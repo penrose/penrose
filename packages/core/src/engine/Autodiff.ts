@@ -883,8 +883,11 @@ export const fns = {
 
 // Traverses the computational graph of ops obtained by interpreting the energy function, and generates WebAssembly code corresponding to just the ops
 
-const bytesDouble = Float64Array.BYTES_PER_ELEMENT;
-const logAlignDouble = Math.log2(bytesDouble);
+const bytesI32 = Int32Array.BYTES_PER_ELEMENT;
+const logAlignI32 = Math.log2(bytesI32);
+
+const bytesF64 = Float64Array.BYTES_PER_ELEMENT;
+const logAlignF64 = Math.log2(bytesF64);
 
 const numFuncTypes = 5;
 const typeIndexGradient = 0;
@@ -893,12 +896,13 @@ const typeIndexUnary = 2;
 const typeIndexBinary = 3;
 const typeIndexPolyRoots = 4;
 
-const numGradientParams = 3;
+const numGradientParams = 4;
 const gradientParamInput = 0;
-const gradientParamGradient = 1;
-const gradientParamSecondary = 2;
+const gradientParamMask = 1;
+const gradientParamGradient = 2;
+const gradientParamSecondary = 3;
 
-const gradientLocalStackPointer = 3;
+const gradientLocalStackPointer = 4;
 
 const builtindex = new Map([...builtins.keys()].map((name, i) => [name, i]));
 
@@ -1314,7 +1318,7 @@ const compileNode = (
     }
     case "PolyRoots": {
       const bytes =
-        Math.ceil((node.degree * bytesDouble) / alignStackPointer) *
+        Math.ceil((node.degree * bytesF64) / alignStackPointer) *
         alignStackPointer;
 
       t.byte(wasm.OP.i32.const);
@@ -1334,8 +1338,8 @@ const compileNode = (
         t.int(index);
 
         t.byte(wasm.OP.f64.store);
-        t.int(logAlignDouble);
-        t.int(i * bytesDouble);
+        t.int(logAlignF64);
+        t.int(i * bytesF64);
       });
 
       t.byte(wasm.OP.i32.const);
@@ -1349,8 +1353,8 @@ const compileNode = (
         t.int(gradientLocalStackPointer);
 
         t.byte(wasm.OP.f64.load);
-        t.int(logAlignDouble);
-        t.int(i * bytesDouble);
+        t.int(logAlignF64);
+        t.int(i * bytesF64);
       }
 
       t.byte(wasm.OP.i32.const);
@@ -1450,8 +1454,8 @@ const compileGraph = (
     t.int(gradientParamInput);
 
     t.byte(wasm.OP.f64.load);
-    t.int(logAlignDouble);
-    t.int(key * bytesDouble);
+    t.int(logAlignF64);
+    t.int(key * bytesF64);
 
     t.byte(wasm.OP.local.set);
     t.int(getIndex(locals, id));
@@ -1483,8 +1487,8 @@ const compileGraph = (
     t.int(gradientParamGradient);
 
     t.byte(wasm.OP.f64.load);
-    t.int(logAlignDouble);
-    t.int(i * bytesDouble);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
 
     t.byte(wasm.OP.local.get);
     t.int(getIndex(locals, id));
@@ -1492,8 +1496,8 @@ const compileGraph = (
     t.byte(wasm.OP.f64.add);
 
     t.byte(wasm.OP.f64.store);
-    t.int(logAlignDouble);
-    t.int(i * bytesDouble);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
   });
 
   secondary.forEach((id, i) => {
@@ -1504,8 +1508,8 @@ const compileGraph = (
     t.int(getIndex(locals, id));
 
     t.byte(wasm.OP.f64.store);
-    t.int(logAlignDouble);
-    t.int(i * bytesDouble);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
   });
 
   t.byte(wasm.OP.local.get);
@@ -1524,6 +1528,16 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
   t.f64(0);
 
   for (let i = 0; i < numAddends; i++) {
+    t.byte(wasm.OP.local.get);
+    t.int(gradientParamMask);
+
+    t.byte(wasm.OP.i32.load);
+    t.int(logAlignI32);
+    t.int(i * bytesI32);
+
+    t.byte(wasm.OP.if);
+    t.int(typeIndexUnary);
+
     for (let j = 0; j < numGradientParams; j++) {
       t.byte(wasm.OP.local.get);
       t.int(j);
@@ -1533,6 +1547,8 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
     t.int(builtins.size + i);
 
     t.byte(wasm.OP.f64.add);
+
+    t.byte(wasm.END);
   }
 
   t.byte(wasm.END);
@@ -1584,6 +1600,7 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
 export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
   await Gradient.make(
     await WebAssembly.compile(genBytes(graphs)),
+    graphs.length,
     Math.max(0, ...graphs.map((g) => g.secondary.length))
   );
 
@@ -1595,5 +1612,6 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
 export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
   Gradient.makeSync(
     new WebAssembly.Module(genBytes(graphs)),
+    graphs.length,
     Math.max(0, ...graphs.map((g) => g.secondary.length))
   );

@@ -172,9 +172,9 @@ describe("Energy API", () => {
           smallerThanFns.map(({ output }) => output)
         ),
         params: genOptProblem(
-          state.inputs.map((meta) => meta.tag),
-          state.objFns.length,
-          smallerThanFns.length
+          state.inputs.map((meta) => meta.tag === "Optimized"),
+          state.objFns.map(() => true),
+          smallerThanFns.map(() => true)
         ),
       };
       expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
@@ -256,10 +256,10 @@ describe("Run individual functions", () => {
       ]);
       stateEvaled.params.lastObjEnergies = initialEnergies.secondary.slice(
         0,
-        stateEvaled.params.numObjEngs
+        stateEvaled.params.objMask.length
       );
       stateEvaled.params.lastConstrEnergies = initialEnergies.secondary.slice(
-        stateEvaled.params.numObjEngs
+        stateEvaled.params.objMask.length
       );
 
       // Test objectives

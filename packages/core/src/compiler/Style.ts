@@ -3162,9 +3162,9 @@ export const compileStyleHelper = async (
   );
 
   const params = genOptProblem(
-    inputs.map((meta) => meta.tag),
-    objFns.length,
-    constrFns.length
+    inputs.map((meta) => meta.tag === "Optimized"),
+    objFns.map(() => true),
+    constrFns.map(() => true)
   );
 
   const initState: State = {
@@ -3182,7 +3182,6 @@ export const compileStyleHelper = async (
     gradient,
     computeShapes,
     params,
-    frozenValues: [],
   };
 
   log.info("init state from GenOptProblem", initState);
