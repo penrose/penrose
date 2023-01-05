@@ -15,9 +15,9 @@ export interface StagedFns {
 }
 export interface StagedConstraints {
   [k: string]: {
-    inputs: boolean[];
-    objFns: boolean[];
-    constrFns: boolean[];
+    inputMask: boolean[];
+    objMask: boolean[];
+    constrMask: boolean[];
   };
 }
 
@@ -35,6 +35,8 @@ export interface State extends OptState {
   shapes: ShapeAD[];
   canvas: Canvas;
   gradient: Gradient;
+  currentStageIndex: number;
+  optStages: string[];
   computeShapes: ShapeFn;
 }
 

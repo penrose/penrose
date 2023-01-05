@@ -5,10 +5,12 @@ import { ready } from "@penrose/optimizer";
 import * as S from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
 import im from "immutable";
+import { C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { State } from "types/state";
+import { AnonAssign, ConstrFn, StyProg } from "types/style";
 import { Assignment, Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
 import { ColorV, RGBA } from "types/value";
@@ -33,21 +35,6 @@ interface Trio {
   dsl: string;
   sty: string;
 }
-
-const loadFiles = ({
-  dslPath,
-  subPath,
-  styPath,
-}: {
-  dslPath: string;
-  subPath: string;
-  styPath: string;
-}): Trio => ({
-  dsl: loadFile(dslPath),
-  sub: loadFile(subPath),
-  sty: loadFile(styPath),
-});
-
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
 export const loadProgs = async ({
   dsl,
@@ -57,6 +44,7 @@ export const loadProgs = async ({
   translation: Translation;
   assignment: Assignment;
   state: State;
+  styleAST: StyProg<C>;
 }> => {
   const throwErr = (e: any): any => {
     throw Error(
@@ -190,6 +178,27 @@ describe("Color literals", () => {
     colorValMatches(`\`t\`.color7`, [0, 0, 0, 0], translation);
     colorValMatches(`\`t\`.color8`, [1, 1, 1, 0.5], translation);
     colorValMatches(`\`t\`.color9`, [1, 0.8, 0.6, 1], translation);
+  });
+});
+
+describe("Staged constraints", () => {
+  test("constraint stages", async () => {
+    const { styleAST } = await loadProgs({
+      dsl: "type Set",
+      sub: `Set A`,
+      sty:
+        canvasPreamble +
+        `
+      forall Set X {
+        X.icon = Circle {}
+        X.text = Text {}
+        ensure contains(X.icon, X.text) in ShapeLayout
+      }
+      `,
+    });
+    const ensureStmt = styleAST.blocks[1].block.statements[2] as AnonAssign<C>;
+    const ensureExpr = ensureStmt.contents as ConstrFn<C>;
+    expect(ensureExpr.stages[0]).toEqual("ShapeLayout");
   });
 });
 

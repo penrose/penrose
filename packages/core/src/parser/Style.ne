@@ -541,22 +541,24 @@ computation_function -> identifier _ "(" expr_list ")" {%
   }) 
 %}
 
-objective -> "label":? __ "encourage" __ identifier _ "(" expr_list ")" {% 
-  ([label, , kw, , name, , , args, rparen]): ObjFn<C> => ({
-    ...nodeData,
-    ...rangeBetween(kw, rparen),
-    tag: "ObjFn",
-    label: label !== null,
-    name, args
-  }) 
+objective -> "encourage" __ identifier _ "(" expr_list ")" (__ "in" __ identifier):? {% 
+  ([kw, , name, , , args, rparen, stages]): ObjFn<C> => {
+    return {
+      ...nodeData,
+      ...rangeBetween(kw, rparen), // TODO: fix range
+      tag: "ObjFn",
+      stages: stages ? [stages[3]] : [],
+      name, args
+    } 
+  }
 %}
 
-constraint -> "label":? __  "ensure" __ identifier _ "(" expr_list ")" {% 
-  ([label, , kw, , name, , , args, rparen]): ConstrFn<C> => ({
+constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ "in" __ identifier):? {% 
+  ([kw, , name, , , args, rparen, stages]): ConstrFn<C> => ({
     ...nodeData,
-    ...rangeBetween(kw, rparen),
+    ...rangeBetween(kw, rparen), // TODO: fix range
     tag: "ConstrFn",
-    label: label !== null,
+    stages: stages ? [stages[3].value] : [],
     name, args
   }) 
 %}

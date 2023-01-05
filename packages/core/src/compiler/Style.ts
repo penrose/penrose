@@ -2759,7 +2759,7 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name } = e.expr;
+      const { name, stages } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
         return addDiags(
@@ -2773,7 +2773,7 @@ const translateExpr = (
         ...trans,
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
-          optStages: "All",
+          optStages: stages.length > 0 ? new Set(stages) : "All",
           output,
         }),
       };
@@ -2783,7 +2783,7 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name } = e.expr;
+      const { name, stages } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
         return addDiags(
@@ -2796,8 +2796,7 @@ const translateExpr = (
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
-          // TODO: retrieve and mark stages
-          optStages: "All",
+          optStages: stages.length > 0 ? new Set(stages) : "All",
           output,
         }),
       };
@@ -3111,7 +3110,7 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
             tag: "ConstrFn",
             nodeType: "SyntheticStyle",
             name: dummyId("onCanvas"),
-            label: false, // COMBAK: distinguish between label and shape
+            stages: [],
             args: [
               // HACK: the right way to do this would be to parse `name` into
               // the correct `Path`, but we don't really care as long as it
@@ -3149,14 +3148,14 @@ export const stageConstraints = (
     stages.map((stage) => [
       stage,
       {
-        inputs: inputs.map(
+        inputMask: inputs.map(
           (i) =>
             i.tag === "Optimized" && (i.stages === "All" || i.stages.has(stage))
         ),
-        constrFns: constrFns.map(
+        constrMask: constrFns.map(
           ({ optStages }) => optStages === "All" || optStages.has(stage)
         ),
-        objFns: objFns.map(
+        objMask: objFns.map(
           ({ optStages }) => optStages === "All" || optStages.has(stage)
         ),
       },
@@ -3178,7 +3177,12 @@ export const compileStyleHelper = async (
   varEnv: Env
 ): Promise<
   Result<
-    { state: State; translation: Translation; assignment: Assignment },
+    {
+      state: State;
+      translation: Translation;
+      assignment: Assignment;
+      styleAST: StyProg<C>;
+    },
     PenroseError
   >
 > => {
@@ -3265,11 +3269,11 @@ export const compileStyleHelper = async (
     constrFns.map(({ output }) => output)
   );
 
-  const params = genOptProblem(
-    inputs.map((meta) => meta.tag === "Optimized"),
-    objFns.map(() => true),
-    constrFns.map(() => true)
-  );
+  const { inputMask, objMask, constrMask } = constraintSets[
+    optimizationStages[0]
+  ];
+
+  const params = genOptProblem(inputMask, objMask, constrMask);
 
   const initState: State = {
     warnings: layeringWarning
@@ -3287,12 +3291,15 @@ export const compileStyleHelper = async (
     gradient,
     computeShapes,
     params,
+    currentStageIndex: 0,
+    optStages: optimizationStages,
   };
 
   log.info("init state from GenOptProblem", initState);
 
   return ok({
     state: initState,
+    styleAST: astOk.value,
     translation,
     assignment,
   });
