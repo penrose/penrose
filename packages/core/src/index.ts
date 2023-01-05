@@ -1,4 +1,4 @@
-import { getInitConstraintWeight, ready } from "@penrose/optimizer";
+import { genOptProblem, ready } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -40,26 +40,15 @@ import {
  */
 export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
+  const { constraintSets, optStages } = state;
+  const { inputMask, objMask, constrMask } = constraintSets[optStages[0]];
   return {
     ...state,
     varyingValues: state.inputs.map((meta, i) =>
       "sampler" in meta ? meta.sampler(rng) : state.varyingValues[i]
     ),
-    // COMBAK: restart optimization staging
-    // params: {
-    //   ...genOptProblem(
-    //     state.inputs,
-    //     state.constraintSets,
-    //     "ShapeLayout",
-    //     optimizationStages
-    //   ),
-    // },
-    params: {
-      ...state.params,
-      gradMask: state.inputs.map((meta) => meta.tag === "Optimized"),
-      weight: getInitConstraintWeight(),
-      optStatus: "NewIter",
-    },
+    currentStageIndex: 0,
+    params: genOptProblem(inputMask, objMask, constrMask),
   };
 };
 
@@ -69,7 +58,23 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return { ...state, ...state.gradient.step(state, numSteps) };
+  const steppedState: State = {
+    ...state,
+    ...state.gradient.step(state, numSteps),
+  };
+  console.log(state, stateConverged(state), finalStage(state));
+
+  if (stateConverged(steppedState) && !finalStage(steppedState)) {
+    const { constraintSets, optStages, currentStageIndex } = state;
+    const nextStage = optStages[currentStageIndex + 1];
+    const { inputMask, objMask, constrMask } = constraintSets[nextStage];
+    return {
+      ...steppedState,
+      currentStageIndex: currentStageIndex + 1,
+      params: genOptProblem(inputMask, objMask, constrMask),
+    };
+  }
+  return steppedState;
 };
 
 /**
@@ -249,6 +254,13 @@ export const prepareState = async (state: State): Promise<State> => {
  */
 export const stateConverged = (state: State): boolean =>
   state.params.optStatus === "EPConverged";
+
+/**
+ * Returns true if the diagram state is on the last layout stage in the layout pipeline
+ * @param state current state
+ */
+export const finalStage = (state: State): boolean =>
+  state.currentStageIndex === state.optStages.length - 1;
 
 /**
  * Returns true if state is the initial frame
