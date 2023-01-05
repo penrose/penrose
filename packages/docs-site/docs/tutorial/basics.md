@@ -2,6 +2,8 @@
 
 This is the first diagram we will make together. This is the equivalent of the `print("Hello World")` program for Penrose. To make any mathematical diagram, we first need to visualize some **shapes** that we want. In this tutorial, we will learn about how to build a triple (`.dsl`, `.sub`, `.sty`) for a simple diagram containing two circles.
 
+👉 [**Open this online workspace**](/try?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial1) in a separate tab to follow along!
+
 ## Goal
 
 ![exercise 1 result](/img/tutorial/2sets_nolabel.png)
@@ -53,8 +55,8 @@ We first need to specify the dimensions of the canvas that our diagram will be d
 
 ```
 canvas {
-  width = (* some width *)
-  height = (* some height *)
+  width = -- [some width]
+  height = -- [some height]
 }
 ```
 
@@ -70,7 +72,7 @@ In this case, our `Type` is `Set`, and we want all of our sets to be circles. We
 
 ```
 forall Set x {
-    x.icon = (* some shape object *)
+    x.icon = -- [some shape object]
 }
 ```
 
@@ -92,7 +94,15 @@ And that's a wrap! 🎉
 
 ## 🏗️ Compile
 
-Now it's time to see all of our hard work (drumroll please 🥁)! To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need to do the following:
+Now it's time to see all of our hard work (drumroll please 🥁)!
+
+### In the editor
+
+Click the <img src="/img/tutorial/compile.png" height="30px" alt="screenshot of Compile button"> button.
+
+### Locally
+
+To compile your Penrose programs locally (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need to do the following:
 
 - Open two terminals at the Penrose root directory.
 - In the first terminal, run `yarn start` to launch Penrose on your computer and get the browser window to show up.

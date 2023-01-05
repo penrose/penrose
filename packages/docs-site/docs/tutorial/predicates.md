@@ -2,7 +2,7 @@
 
 In Penrose, we are not only given the power to represent mathematical objects with shapes, but we are also able to represent complicated relationships between the objects. In this tutorial, we will learn about defining **predicates**, and visually representing them with the constraint keyword `ensure`. After this tutorial, you should be equipped to create diagrams with relationships between objects in Penrose.
 
-The starter code for this tutorial can be found in the `./packages/examples/src/tutorials/code/tutorial2` folder of the `penrose` repo you cloned in part 1.
+👉 [**Open this online workspace**](/try?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial2) in a separate tab to follow along!
 
 ## Goal
 
@@ -115,13 +115,7 @@ forall Set x {
 }
 ```
 
-To compile our new code, we can run the same commands as last time, with one minor change. Since the files we are working with are in the `tutorial2` folder instead of the `tutorial1` folder, we have to change our `<path-to-triple>`. So, we build as follows:
-
-- Open two terminals at the root of the Penrose repository.
-- Run `yarn start` from the first terminal window
-- Open your browser at `localhost:3000`.
-- From the root of the Penrose repository, run: `npx roger watch <path-to-triple>/subset.sub <path-to-triple-repo>/subset.sty <path-to-triple>/setTheory.dsl`
-- Refresh your browser window!
+You can now compile our new code!
 
 ## Exercises
 

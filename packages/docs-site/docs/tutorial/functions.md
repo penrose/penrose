@@ -14,15 +14,9 @@ In particular, we are visualizing vector addition. Below is the goal diagram for
 
 ## Starter Code
 
-The starter code for this tutorial has some helpful constants to draw a vector space with its x and y axis. In your cloned `penrose` repository, navigate to `./packages/examples/src/code/tutorial3` to find the starter code.
+👉 [**Open this online workspace**](/try?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial3) in a separate tab to follow along!
 
-Check that the starter code compiles by using the same build command pattern that we have used in the previous two examples. Make sure to change the file names and update the path! The command should look something like this (assuming that you have saved the `penrose` repo in your Home directory):
-
-```
-npx roger watch ~/penrose/packages/examples/src/tutorials/code/tutorial3/vector.sub ~/penrose/packages/examples/src/tutorials/code/tutorial3/vector.sty ~/penrose/packages/examples/src/tutorials/code/tutorial3/linearAlgebra.dsl
-```
-
-If everything is working, you should see a vector space labeled `U` with its x-axis and y-axis in your Penrose window. It should look something like this:
+If everything is working, when you compile, you should see a vector space labeled `U` with its x-axis and y-axis in your Penrose window. It should look something like this:
 
 ![starter code image](/img/tutorial/vectorspace_wg.png)
 
