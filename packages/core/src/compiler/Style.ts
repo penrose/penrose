@@ -2715,7 +2715,7 @@ const evalExpr = (
           floatV(
             mut.makeInput({
               tag: "Optimized",
-              stages: ["ShapeLayout", "Overall"],
+              stages: "All",
               sampler: uniform(...canvas.xRange),
             })
           )
@@ -2759,7 +2759,7 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name, label } = e.expr;
+      const { name } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
         return addDiags(
@@ -2768,11 +2768,12 @@ const translateExpr = (
         );
       }
       const output: ad.Num = constrDict[fname](...args.value);
+      // TODO: retrieve and mark stages
       return {
         ...trans,
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
-          optStages: [label ? "LabelLayout" : "ShapeLayout", "Overall"],
+          optStages: "All",
           output,
         }),
       };
@@ -2782,7 +2783,7 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name, label } = e.expr;
+      const { name } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
         return addDiags(
@@ -2795,7 +2796,8 @@ const translateExpr = (
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
-          optStages: [label ? "LabelLayout" : "ShapeLayout", "Overall"],
+          // TODO: retrieve and mark stages
+          optStages: "All",
           output,
         }),
       };
@@ -3038,52 +3040,52 @@ const fakePath = (name: string, members: string[]): Path<A> => ({
   indices: [],
 });
 
-const disjointFromLabels = (shape: ShapeAD, shapes: ShapeAD[]): Fn[] =>
-  shapes
-    .filter((s) => s.shapeType === "Text" || s.shapeType === "Equation")
-    .filter(
-      (l) => l.properties.name.contents !== shape.properties.name.contents
-    )
-    .map((label: ShapeAD) => ({
-      ast: {
-        context: {
-          block: { tag: "NamespaceId", contents: "canvas" }, // doesn't matter
-          subst: {},
-          locals: im.Map(),
-        },
-        expr: {
-          tag: "ConstrFn",
-          nodeType: "SyntheticStyle",
-          name: dummyId("disjoint"),
-          label: false, // COMBAK: distinguish between label and shape
-          args: [
-            // HACK: the right way to do this would be to parse `name` into
-            // the correct `Path`, but we don't really care as long as it
-            // pretty-prints into something that looks right
-            fakePath(shape.properties.name.contents as string, []),
-            fakePath(label.properties.name.contents as string, []),
-          ],
-        },
-      },
-      output: constrDict.disjoint(
-        [shape.shapeType, shape.properties],
-        [label.shapeType, label.properties]
-      ),
-      optStages: ["LabelLayout", "Overall"], // COMBAK: distinguish between label and shape
-    }));
+// const disjointFromLabels = (shape: ShapeAD, shapes: ShapeAD[]): Fn[] =>
+//   shapes
+//     .filter((s) => s.shapeType === "Text" || s.shapeType === "Equation")
+//     .filter(
+//       (l) => l.properties.name.contents !== shape.properties.name.contents
+//     )
+//     .map((label: ShapeAD) => ({
+//       ast: {
+//         context: {
+//           block: { tag: "NamespaceId", contents: "canvas" }, // doesn't matter
+//           subst: {},
+//           locals: im.Map(),
+//         },
+//         expr: {
+//           tag: "ConstrFn",
+//           nodeType: "SyntheticStyle",
+//           name: dummyId("disjoint"),
+//           label: false, // COMBAK: distinguish between label and shape
+//           args: [
+//             // HACK: the right way to do this would be to parse `name` into
+//             // the correct `Path`, but we don't really care as long as it
+//             // pretty-prints into something that looks right
+//             fakePath(shape.properties.name.contents as string, []),
+//             fakePath(label.properties.name.contents as string, []),
+//           ],
+//         },
+//       },
+//       output: constrDict.disjoint(
+//         [shape.shapeType, shape.properties],
+//         [label.shapeType, label.properties]
+//       ),
+//       optStages: ["LabelLayout", "Overall"], // COMBAK: distinguish between label and shape
+//     }));
 
-const avoidLabels = (shapes: ShapeAD[]): Fn[] => {
-  const labelShapes = shapes.filter(
-    (s) => s.shapeType === "Text" || s.shapeType === "Equation"
-  );
-  return labelShapes.flatMap((l) => disjointFromLabels(l, shapes));
-};
+// const avoidLabels = (shapes: ShapeAD[]): Fn[] => {
+//   const labelShapes = shapes.filter(
+//     (s) => s.shapeType === "Text" || s.shapeType === "Equation"
+//   );
+//   return labelShapes.flatMap((l) => disjointFromLabels(l, shapes));
+// };
 
-const disjointLabelsAndShapes = (shapes: ShapeAD[]): Fn[] => {
-  return shapes
-    .filter(({ shapeType }) => shapeType === "Line" || shapeType === "Arrow")
-    .flatMap((s) => disjointFromLabels(s, shapes));
-};
+// const disjointLabelsAndShapes = (shapes: ShapeAD[]): Fn[] => {
+//   return shapes
+//     .filter(({ shapeType }) => shapeType === "Line" || shapeType === "Arrow")
+//     .flatMap((s) => disjointFromLabels(s, shapes));
+// };
 
 const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
   const fns: Fn[] = [];
@@ -3121,12 +3123,14 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
           },
         },
         output,
-        optStages: [
-          shape.shapeType === "Text" || shape.shapeType === "Equation"
-            ? "LabelLayout"
-            : "ShapeLayout",
-          "Overall",
-        ], // COMBAK: distinguish between label and shape
+        // TODO: what's a good default stage for `onCanvas`? How can someone change this behavior?
+        optStages: "All",
+        // [
+        //   shape.shapeType === "Text" || shape.shapeType === "Equation"
+        //     ? "LabelLayout"
+        //     : "ShapeLayout",
+        //   "Overall",
+        // ], // COMBAK: distinguish between label and shape
       });
     }
   }
@@ -3134,6 +3138,7 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
 };
 
 export const stageConstraints = (
+  inputs: InputMeta[],
   constrFns: Fn[],
   objFns: Fn[],
   stages: OptStage[]
@@ -3144,10 +3149,16 @@ export const stageConstraints = (
     stages.map((stage) => [
       stage,
       {
-        constrFns: constrFns.filter(({ optStages }) =>
-          optStages.includes(stage)
+        inputs: inputs.map(
+          (i) =>
+            i.tag === "Optimized" && (i.stages === "All" || i.stages.has(stage))
         ),
-        objFns: objFns.filter(({ optStages }) => optStages.includes(stage)),
+        constrFns: constrFns.map(
+          ({ optStages }) => optStages === "All" || optStages.has(stage)
+        ),
+        objFns: objFns.map(
+          ({ optStages }) => optStages === "All" || optStages.has(stage)
+        ),
       },
     ])
   );
@@ -3237,9 +3248,10 @@ export const compileStyleHelper = async (
     ...translation.constraints,
     ...onCanvases(canvas.value, shapes),
     // ...avoidLabels(shapes),
-    ...disjointLabelsAndShapes(shapes),
+    // ...disjointLabelsAndShapes(shapes),
   ];
   const { constraintSets } = stageConstraints(
+    inputs,
     constrFns,
     objFns,
     optimizationStages
@@ -3249,9 +3261,8 @@ export const compileStyleHelper = async (
 
   const gradient = await genGradient(
     inputs,
-    constraintSets,
-    "ShapeLayout",
-    without(optimizationStages, "ShapeLayout")
+    objFns.map(({ output }) => output),
+    constrFns.map(({ output }) => output)
   );
 
   const params = genOptProblem(

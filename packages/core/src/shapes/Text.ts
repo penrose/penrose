@@ -48,12 +48,12 @@ export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
   center: vectorV([
     context.makeInput({
       sampler: uniform(...canvas.xRange),
-      stages: ["LabelLayout", "Overall"],
+      stages: "All",
       tag: "Optimized",
     }),
     context.makeInput({
       sampler: uniform(...canvas.yRange),
-      stages: ["LabelLayout", "Overall"],
+      stages: "All",
       tag: "Optimized",
     }),
   ]),

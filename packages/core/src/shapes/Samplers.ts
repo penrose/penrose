@@ -1,6 +1,7 @@
 import { input } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
+import { OptStages } from "types/state";
 import { ColorV, FloatV, VectorV } from "types/value";
 import { colorV, floatV, randFloat, vectorV } from "utils/Util";
 
@@ -32,7 +33,7 @@ export type Sampler = (rng: seedrandom.prng) => number;
 export interface OptimizedMeta {
   tag: "Optimized";
   sampler: Sampler;
-  stages: string[];
+  stages: OptStages;
 }
 
 export interface UnoptimizedMeta {
@@ -77,12 +78,12 @@ export const sampleVector = (
   vectorV([
     makeInput({
       sampler: uniform(...canvas.xRange),
-      stages: ["ShapeLayout", "Overall"],
+      stages: "All",
       tag: "Optimized",
     }),
     makeInput({
       sampler: uniform(...canvas.yRange),
-      stages: ["ShapeLayout", "Overall"],
+      stages: "All",
       tag: "Optimized",
     }),
   ]);
@@ -94,7 +95,7 @@ export const sampleWidth = (
   floatV(
     makeInput({
       sampler: uniform(3, canvas.width / 6),
-      stages: ["ShapeLayout", "Overall"],
+      stages: "All",
       tag: "Optimized",
     })
   );
@@ -106,7 +107,7 @@ export const sampleHeight = (
   floatV(
     makeInput({
       sampler: uniform(3, canvas.height / 6),
-      stages: ["ShapeLayout", "Overall"],
+      stages: "All",
       tag: "Optimized",
     })
   );
@@ -115,7 +116,7 @@ export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
   floatV(
     makeInput({
       sampler: uniform(0.5, 3),
-      stages: ["ShapeLayout", "Overall"],
+      stages: "All",
       tag: "Optimized",
     })
   );
@@ -127,17 +128,17 @@ export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
     contents: [
       makeInput({
         sampler: uniform(min, max),
-        stages: ["ShapeLayout", "Overall"],
+        stages: "All",
         tag: "Optimized",
       }),
       makeInput({
         sampler: uniform(min, max),
-        stages: ["ShapeLayout", "Overall"],
+        stages: "All",
         tag: "Optimized",
       }),
       makeInput({
         sampler: uniform(min, max),
-        stages: ["ShapeLayout", "Overall"],
+        stages: "All",
         tag: "Optimized",
       }),
       0.5,

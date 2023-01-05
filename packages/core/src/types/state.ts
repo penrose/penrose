@@ -14,7 +14,11 @@ export interface StagedFns {
   [k: string]: Fn[];
 }
 export interface StagedConstraints {
-  [k: string]: { objFns: Fn[]; constrFns: Fn[] };
+  [k: string]: {
+    inputs: boolean[];
+    objFns: boolean[];
+    constrFns: boolean[];
+  };
 }
 
 /**
@@ -60,9 +64,10 @@ export type LabelCache = Map<string, LabelData>;
  * Generic export interface for constraint or objective functions
  */
 
-export type OptStage = "ShapeLayout" | "LabelLayout" | "Overall";
+export type OptStages = "All" | Set<string>;
+
 export interface Fn {
   ast: WithContext<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
-  optStages: OptStage[];
+  optStages: OptStages;
 }
