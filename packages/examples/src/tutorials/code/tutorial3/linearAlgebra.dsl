@@ -7,6 +7,6 @@ type VectorSpace
 type Vector
 predicate In(Vector, VectorSpace V)
 
-/**************YOUR CODE - START********************/
+-- Start your code below
 
-/**************YOUR CODE - END**********************/
+-- End your code above
