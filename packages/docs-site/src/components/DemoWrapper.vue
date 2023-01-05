@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { examples, registry } from "@penrose/examples";
-import { useData } from "vitepress";
 import { defineAsyncComponent } from "vue";
 
 const exampleFromURI = (uri) => {
@@ -40,10 +39,8 @@ const Demo = defineAsyncComponent(async () => {
   const { Demo } = await import("@penrose/components");
   return applyPureReactInVue(Demo);
 });
-
-const { isDark } = useData();
 </script>
 
 <template>
-  <Demo :examples="demo" width="400px" :darkMode="isDark" />
+  <Demo :examples="demo" width="400px" />
 </template>
