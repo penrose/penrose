@@ -19635,6 +19635,11 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
 
+veaury@^2.3.11:
+  version "2.3.11"
+  resolved "https://registry.yarnpkg.com/veaury/-/veaury-2.3.11.tgz#53cf778fdf1ed9e35c3ea322c348eaee2b7dd7d7"
+  integrity sha512-Ok0tG8FmHbEqituLxRx0E4YnbcXUcEc4kIeWZv+sXKtD5RkmLoZLlU9EyViY4r43MF7cJDS9MGMMD5eISCUspA==
+
 vega-event-selector@~2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/vega-event-selector/-/vega-event-selector-2.0.6.tgz#6beb00e066b78371dde1a0f40cb5e0bbaecfd8bc"

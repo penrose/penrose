@@ -27,3 +27,9 @@ features:
   - title: WIP
     details: "Penrose is an early-stage system that is actively in development. Feel free to get in touch: penrose-team@cs.cmu.edu"
 ---
+
+<script setup>
+import DemoWrapper from "./src/components/DemoWrapper.vue";
+</script>
+
+<DemoWrapper />
