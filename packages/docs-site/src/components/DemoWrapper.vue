@@ -42,8 +42,16 @@ const Demo = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow: hidden;">
+  <div
+    style="
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      overflow: hidden;
+    "
+  >
     <!-- TODO: bad hardcoded width -->
-  <Demo :examples="demo" width="280px" />
+    <Demo :examples="demo" width="280px" />
   </div>
 </template>
