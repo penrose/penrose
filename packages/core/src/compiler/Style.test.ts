@@ -17,6 +17,7 @@ import {
   PathAssign,
   StyProg,
   Vary,
+  Vector,
 } from "types/style";
 import { Assignment, Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
@@ -198,17 +199,19 @@ describe("Staged constraints", () => {
         `
       forall Set X {
         X.icon = Circle {
-          r: ? in Overall, ShapeLayout
+          center: (? in (Overall, ShapeLayout), ? in (Overall, LabelLayout))
         }
       }
       `,
     });
     const gpiStmt = styleAST.blocks[1].block.statements[0] as PathAssign<C>;
     const gpiDecl = gpiStmt.value as GPIDecl<C>;
-    const rValue = gpiDecl.properties[0].value as Vary<C>;
-    const stages = rValue.stages.map((e) => e.value);
-    expect(stages).toContain("Overall");
-    expect(stages).toContain("ShapeLayout");
+    const rValue = gpiDecl.properties[0].value as Vector<C>;
+    const [vary1, vary2] = rValue.contents;
+    const stages1 = (vary1 as Vary<C>).stages.map((e) => e.value);
+    const stages2 = (vary2 as Vary<C>).stages.map((e) => e.value);
+    expect(stages1).toEqual(["Overall", "ShapeLayout"]);
+    expect(stages2).toEqual(["Overall", "LabelLayout"]);
   });
   test("constraint stages", async () => {
     const { styleAST } = await loadProgs({
@@ -220,22 +223,20 @@ describe("Staged constraints", () => {
       forall Set X {
         X.icon = Circle {}
         X.text = Text {}
-        ensure contains(X.icon, X.text) in ShapeLayout, LabelLayout
-        encourage minimal(X.icon.r) in LabelLayout, Overall
+        ensure contains(X.icon, X.text) in (ShapeLayout, LabelLayout)
+        encourage minimal(X.icon.r) in (LabelLayout, Overall)
       }
       `,
     });
     const ensureStmt = styleAST.blocks[1].block.statements[2] as AnonAssign<C>;
     const ensureExpr = ensureStmt.contents as ConstrFn<C>;
     const stages1 = ensureExpr.stages.map((e) => e.value);
-    expect(stages1).toContain("ShapeLayout");
-    expect(stages1).toContain("LabelLayout");
+    expect(stages1).toEqual(["ShapeLayout", "LabelLayout"]);
     const encourageStmt = styleAST.blocks[1].block
       .statements[3] as AnonAssign<C>;
     const encourageExpr = encourageStmt.contents as ConstrFn<C>;
     const stages2 = encourageExpr.stages.map((e) => e.value);
-    expect(stages2).toContain("Overall");
-    expect(stages2).toContain("LabelLayout");
+    expect(stages2).toEqual(["LabelLayout", "Overall"]);
   });
 });
 

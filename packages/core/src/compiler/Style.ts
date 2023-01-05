@@ -2710,12 +2710,16 @@ const evalExpr = (
       );
     }
     case "Vary": {
+      const { stages } = expr;
       return ok(
         val(
           floatV(
             mut.makeInput({
               tag: "Optimized",
-              stages: "All",
+              stages:
+                stages.length !== 0
+                  ? new Set(stages.map((e) => e.value))
+                  : "All",
               sampler: uniform(...canvas.xRange),
             })
           )

@@ -548,7 +548,9 @@ computation_function -> identifier _ "(" expr_list ")" {%
   }) 
 %}
 
-stage_list -> _ sepBy1[identifier, ","] _ {% nth(1) %}
+stage_list 
+  -> identifier {% (d) => [d] %}
+  |  "(" _ sepBy1[identifier, ","] _ ")" {% nth(2) %}
 
 objective -> "encourage" __ identifier _ "(" expr_list ")" (__ "in" __ stage_list):? {% 
   ([kw, , name, , , args, rparen, stages]): ObjFn<C> => {
