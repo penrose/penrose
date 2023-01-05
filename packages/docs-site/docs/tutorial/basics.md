@@ -8,15 +8,9 @@ This is the first diagram we will make together. This is the equivalent of the `
 
 This is what you will achieve at the end of this tutorial. If you are familiar with set theory you may recognize that circles are commonly used to represent sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later 😬).
 
-## Cloning the Repo
-
-Before we dive in, make a fork of [the Penrose repo](https://github.com/penrose/penrose), which contains the starter code for all of the tutorials (as well as solutions for checking your work) in the subdirectory `packages/examples/src/tutorials/`. Save it somewhere easy to access, like your Home directory or Desktop!
-
-We will be editing the files provided in the `./packages/examples/src/tutorials/code/tutorial1` subfolder of this repo.
-
 ## 📄 Domain
 
-It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`.
+It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can name our domain file `setTheory.dsl`.
 
 Recall that a `.dsl` file defines the possible types of objects in our domain. Essentially, we are _teaching_ Penrose the necessary vocabulary that we use to communicate our concept. For example, recall our example of a house from the introduction. Penrose has no idea that there are objects of type "plant" or "furniture" in a house, but we can describe them to Penrose using the `type` keyword.
 
