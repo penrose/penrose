@@ -40,7 +40,7 @@ import {
   SubstanceError,
 } from "types/errors";
 import { ShapeAD } from "types/shape";
-import { Fn, OptStage, StagedConstraints, State } from "types/state";
+import { Fn, StagedConstraints, State } from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -3141,7 +3141,7 @@ export const stageConstraints = (
   inputs: InputMeta[],
   constrFns: Fn[],
   objFns: Fn[],
-  stages: OptStage[]
+  stages: string[]
 ): {
   constraintSets: StagedConstraints;
 } => {
@@ -3165,7 +3165,7 @@ export const stageConstraints = (
   return { constraintSets };
 };
 
-export const optimizationStages: OptStage[] = [
+export const optimizationStages: string[] = [
   "ShapeLayout",
   "LabelLayout",
   "Overall",
@@ -3266,9 +3266,9 @@ export const compileStyleHelper = async (
   );
 
   const params = genOptProblem(
-    inputs.map((meta) => meta.tag),
-    objFns.length,
-    constrFns.length
+    inputs.map((meta) => meta.tag === "Optimized"),
+    objFns.map(() => true),
+    constrFns.map(() => true)
   );
 
   const initState: State = {
@@ -3287,7 +3287,6 @@ export const compileStyleHelper = async (
     gradient,
     computeShapes,
     params,
-    frozenValues: [],
   };
 
   log.info("init state from GenOptProblem", initState);

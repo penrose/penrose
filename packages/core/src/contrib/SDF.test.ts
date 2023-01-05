@@ -29,7 +29,7 @@ const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
     return x;
   };
   for (const coord of pt) {
-    makeInput({ tag: "Optimized", sampler: () => coord, stages: [] });
+    makeInput({ tag: "Optimized", sampler: () => coord, stages: new Set() });
   }
   return { context: { makeInput }, p: [...inputs] };
 };

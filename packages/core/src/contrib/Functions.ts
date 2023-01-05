@@ -1078,9 +1078,9 @@ export const compDict = {
     if (colorType === "rgb") {
       const rgb = _.range(3).map(() =>
         makeInput({
-          sampler: uniform(0.1, 0.9),
-          stages: ["ShapeLayout", "Overall"],
           tag: "Optimized",
+          sampler: uniform(0.1, 0.9),
+          stages: "All",
         })
       );
 
@@ -1093,9 +1093,9 @@ export const compDict = {
       };
     } else if (colorType === "hsv") {
       const h = makeInput({
-        sampler: uniform(0, 360),
-        stages: ["ShapeLayout", "Overall"],
         tag: "Optimized",
+        sampler: uniform(0, 360),
+        stages: "All",
       });
       return {
         tag: "ColorV",

@@ -12,32 +12,24 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
-  const frozenValues = [];
+  const gradMask = state.inputs.map((meta) => meta.tag === "Optimized");
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {
-      const ids = dragShape(shape, [dx, dy], xs);
-      frozenValues.push(...ids);
+      for (const id of dragShape(shape, [dx, dy], xs)) {
+        gradMask[id] = false;
+      }
     }
   }
-  const { inputs, constraintSets } = state;
+  // TODO: reset constraint set
+  const { constraintSets } = state;
   const updated: State = {
     ...state,
-    // COMBAK: restart optimization stages
-    // params: genOptProblem(
-    //   inputs,
-    //   constraintSets,
-    //   "ShapeLayout",
-    //   ["LabelLayout", "Overall"],
-    //   frozenVaryingValues
-    // ),
-    // varyingValues: xs,
-    // frozenValues: frozenVaryingValues,
     params: {
       ...state.params,
+      gradMask,
       optStatus: "NewIter",
     },
     varyingValues: xs,
-    frozenValues,
   };
   return updated;
 };

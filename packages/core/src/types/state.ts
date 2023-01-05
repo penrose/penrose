@@ -60,12 +60,11 @@ export interface TextData {
 
 export type LabelCache = Map<string, LabelData>;
 
+export type OptStages = "All" | Set<string>;
+
 /**
  * Generic export interface for constraint or objective functions
  */
-
-export type OptStages = "All" | Set<string>;
-
 export interface Fn {
   ast: WithContext<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
