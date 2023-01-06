@@ -1,7 +1,7 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { Env } from "@penrose/core";
 import { editor } from "monaco-editor";
-import { initVimMode } from "monaco-vim";
+import { initVimMode, VimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
 import { SetupDomainMonaco } from "./languages/DomainConfig";
 import { SetupStyleMonaco } from "./languages/StyleConfig";
@@ -27,6 +27,7 @@ export default function EditorPane({
   languageType,
   domainCache,
   readOnly,
+  onWrite,
 }: {
   value: string;
   vimMode: boolean;
@@ -34,28 +35,43 @@ export default function EditorPane({
   languageType: "substance" | "style" | "domain";
   domainCache: Env | null;
   readOnly?: boolean;
+  /// In vim mode, this is called when the user calls :w
+  onWrite?: () => void;
 }) {
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (monaco) {
-      let vim = { dispose: () => {} };
       const dispose =
         languageType === "domain"
           ? SetupDomainMonaco(monaco)
           : languageType === "style"
           ? SetupStyleMonaco(monaco)
           : SetupSubstanceMonaco(domainCache)(monaco);
-      if (vimMode && editorRef.current) {
-        vim = initVimMode(editorRef.current, statusBarRef.current);
-      }
       return () => {
         dispose();
+      };
+    }
+  }, [monaco, vimMode, languageType, domainCache]);
+
+  useEffect(() => {
+    if (onWrite && !VimMode.Vim.SET_WRITE) {
+      // HACK to prevent multiple definitions of :w
+      VimMode.Vim.SET_WRITE = true;
+      VimMode.Vim.defineEx("write", "w", onWrite);
+    }
+  }, [onWrite]);
+
+  useEffect(() => {
+    if (vimMode && editorRef.current) {
+      const vim = initVimMode(editorRef.current, statusBarRef.current);
+      return () => {
         vim.dispose();
       };
     }
-  }, [monaco, vimMode, languageType, domainCache, editorRef.current]);
+  }, [vimMode, editorRef.current]);
+
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };
