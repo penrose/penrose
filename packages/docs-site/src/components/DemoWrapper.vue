@@ -28,9 +28,7 @@ const findTrio = (sub, sty) => {
 
 const demo = [
   findTrio("siggraph-teaser", "euclidean-teaser"),
-  findTrio("continuousmap", "continuousmap"),
   findTrio("tree", "venn"),
-  findTrio("lagrange-bases", "lagrange-bases"),
 ];
 
 const Demo = defineAsyncComponent(async () => {
