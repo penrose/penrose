@@ -270,26 +270,20 @@ describe("Run individual functions", () => {
         stateOptimizedValue
       );
 
-      for (const k of initEngsObj.keys()) {
-        // console.log("obj energies", initEngsObj[i], optedEngsObj[i]);
-        expect(initEngsObj.get(k)!).toBeGreaterThanOrEqual(
-          optedEngsObj.get(k)!
-        );
-        expect(optedEngsObj.get(k)!).toBeLessThanOrEqual(EPS);
+      for (let i = 0; i < initEngsObj.length; i++) {
+        expect(initEngsObj[i]).toBeGreaterThanOrEqual(optedEngsObj[i]);
+        expect(optedEngsObj[i]).toBeLessThanOrEqual(EPS);
       }
 
       // Test constraints
-      for (const k of initEngsConstr.keys()) {
-        // console.log("constr energies", initEngsConstr[i], optedEngsConstr[i]);
-        if (initEngsConstr.get(k)! < 0 && optedEngsConstr.get(k)! < 0) {
+      for (let i = 0; i < initEngsConstr.length; i++) {
+        if (initEngsConstr[i] < 0 && optedEngsConstr[i] < 0) {
           // If it was already satisfied and stays satisfied, the magnitude of the constraint doesn't matter (i.e. both are negative)
           expect(true).toEqual(true);
         } else {
-          expect(initEngsConstr.get(k)!).toBeGreaterThanOrEqual(
-            optedEngsConstr.get(k)!
-          );
+          expect(initEngsConstr[i]).toBeGreaterThanOrEqual(optedEngsConstr[i]);
           // Check constraint satisfaction (< 0)
-          expect(optedEngsConstr.get(k)!).toBeLessThanOrEqual(0);
+          expect(optedEngsConstr[i]).toBeLessThanOrEqual(0);
         }
       }
     } else {
