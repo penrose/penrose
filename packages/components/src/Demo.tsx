@@ -8,8 +8,7 @@ const Demo = (props: {
     dsl: string;
     variation: string;
   }[];
-  width: string; // the width of each half; total width is twice this
-  // height must be equal to width (including in the passed Style canvas!)
+  width: string;
   darkMode: boolean;
 }) => {
   const [index, setIndex] = useState(0);
@@ -25,14 +24,16 @@ const Demo = (props: {
   const example = props.examples[index];
 
   return (
-    <Simple
-      substance={example.sub}
-      style={example.sty}
-      domain={example.dsl}
-      variation={example.variation}
-      interactive={false}
-      animate={true}
-    />
+    <div style={{ width: props.width, height: props.width }}>
+      <Simple
+        substance={example.sub}
+        style={example.sty}
+        domain={example.dsl}
+        variation={example.variation}
+        interactive={false}
+        animate={true}
+      />
+    </div>
   );
 };
 
