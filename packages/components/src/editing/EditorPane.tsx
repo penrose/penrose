@@ -43,27 +43,35 @@ export default function EditorPane({
   const statusBarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (monaco) {
-      let vim: null | { dispose(): void } = null;
       const dispose =
         languageType === "domain"
           ? SetupDomainMonaco(monaco)
           : languageType === "style"
           ? SetupStyleMonaco(monaco)
           : SetupSubstanceMonaco(domainCache)(monaco);
-      if (vimMode && editorRef.current) {
-        if (onWrite) {
-          VimMode.Vim.defineEx("write", "w", onWrite);
-        }
-        vim = initVimMode(editorRef.current, statusBarRef.current);
-      }
       return () => {
         dispose();
-        if (vim !== null) {
-          vim.dispose();
-        }
       };
     }
-  }, [monaco, vimMode, languageType, domainCache, editorRef.current, onWrite]);
+  }, [monaco, vimMode, languageType, domainCache]);
+
+  useEffect(() => {
+    if (onWrite && !VimMode.Vim.SET_WRITE) {
+      // HACK to prevent multiple definitions of :w
+      VimMode.Vim.SET_WRITE = true;
+      VimMode.Vim.defineEx("write", "w", onWrite);
+    }
+  }, [onWrite]);
+
+  useEffect(() => {
+    if (vimMode && editorRef.current) {
+      const vim = initVimMode(editorRef.current, statusBarRef.current);
+      return () => {
+        vim.dispose();
+      };
+    }
+  }, [vimMode, editorRef.current]);
+
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };
