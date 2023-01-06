@@ -98,9 +98,7 @@ Now it's time to see all of our hard work (drumroll please 🥁)!
 
 ### In the editor
 
-Click the `Compile` button:
-
-<img src="/img/tutorial/compile.png" alt="screenshot of Compile button" />
+Click the `Compile` button.
 
 ### Locally
 
