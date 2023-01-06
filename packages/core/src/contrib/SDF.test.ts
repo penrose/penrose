@@ -44,7 +44,7 @@ const compareDistance = (
   const result = getResult(context, shapeType, shape, p);
   const g = primaryGraph(result.contents);
   //const g = secondaryGraph([result.contents]);
-  const f = genCodeSync(g);
+  const f = genCodeSync([g]);
   /* const [dist] = 
   const {
     secondary: [dist],

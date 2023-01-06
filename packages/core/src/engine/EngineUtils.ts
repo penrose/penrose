@@ -201,7 +201,7 @@ export const compileCompGraph = async (shapes: ShapeAD[]): Promise<ShapeFn> => {
     }
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
-  const evalFn = await genCode(compGraph);
+  const evalFn = await genCode([compGraph]);
   return (xs: number[]): Shape[] => {
     const numbers = evalFn.call(xs).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
@@ -306,7 +306,7 @@ export const genGradient = async (
     });
   });
 
-  return await genCode(...objs, ...constrs);
+  return await genCode([...objs, ...constrs]);
 };
 
 //#region translation operations

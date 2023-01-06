@@ -324,3 +324,9 @@ export const polyRoots = (coeffs: ad.Num[]): ad.Num[] => {
   };
   return coeffs.map((coeff, index) => ({ tag: "Index", index, vec: nexus }));
 };
+
+export const sdf = (shape: number, x: ad.Num, y: ad.Num): ad.Num => ({
+  tag: "Index",
+  index: 0,
+  vec: { tag: "SDF", shape, x, y },
+});

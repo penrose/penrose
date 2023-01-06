@@ -45,7 +45,7 @@ export type Bool = Comp | Logic | Not;
 
 export type Num = number | Input | Unary | Binary | Ternary | Nary | Index;
 
-export type Vec = PolyRoots;
+export type Vec = PolyRoots | SDF;
 
 export interface Input extends InputNode {
   // HACK: Historically, every Num contained a `val` field which would hold
@@ -118,6 +118,11 @@ export interface Index extends IndexNode {
   vec: Vec;
 }
 
+export interface SDF extends SDFNode {
+  x: Num;
+  y: Num;
+}
+
 //#endregion
 
 //#region Types for explicit autodiff graph
@@ -133,7 +138,8 @@ export type Node =
   | NaryNode
   | PolyRootsNode
   | IndexNode
-  | NotNode;
+  | NotNode
+  | SDFNode;
 
 export interface InputNode {
   tag: "Input";
@@ -212,6 +218,11 @@ export interface IndexNode {
   index: number;
 }
 
+export interface SDFNode {
+  tag: "SDF";
+  shape: number;
+}
+
 export type Edge =
   | UnaryEdge
   | BinaryEdge
@@ -221,7 +232,8 @@ export type Edge =
   | NaryEdge
   | PolyRootsEdge
   | IndexEdge
-  | NotEdge;
+  | NotEdge
+  | SDFEdge;
 
 export type UnaryEdge = undefined;
 export type BinaryEdge = "left" | "right";
@@ -232,6 +244,7 @@ export type NaryEdge = `${number}`;
 export type PolyRootsEdge = NaryEdge;
 export type IndexEdge = UnaryEdge;
 export type NotEdge = UnaryEdge;
+export type SDFEdge = "x" | "y";
 
 export type Id = `${number}`;
 

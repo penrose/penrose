@@ -103,6 +103,10 @@ const makeNode = (x: ad.Expr): ad.Node => {
       const { index } = node;
       return { tag, index };
     }
+    case "SDF": {
+      const { shape } = node;
+      return { tag, shape };
+    }
   }
 };
 
@@ -237,11 +241,13 @@ const rankEdge = (edge: ad.Edge): number => {
   switch (edge) {
     case undefined:
     case "left":
-    case "cond": {
+    case "cond":
+    case "x": {
       return 0;
     }
     case "right":
-    case "then": {
+    case "then":
+    case "y": {
       return 1;
     }
     case "els": {
@@ -365,6 +371,20 @@ const children = (x: ad.Expr): Child[] => {
       const row = [];
       row[x.index] = 1;
       return [{ child: x.vec, name: undefined, sensitivity: [row] }];
+    }
+    case "SDF": {
+      return [
+        {
+          child: x.x,
+          name: "x",
+          sensitivity: [[{ tag: "Index", index: 1, vec: x }], [NaN], [NaN]],
+        },
+        {
+          child: x.y,
+          name: "y",
+          sensitivity: [[{ tag: "Index", index: 2, vec: x }], [NaN], [NaN]],
+        },
+      ];
     }
   }
 };
@@ -908,6 +928,10 @@ const funcTypes = {
     param: { pointer: wasm.TYPE.i32, size: wasm.TYPE.i32 },
     result: [],
   },
+  sdf: {
+    param: { i: wasm.TYPE.i32, x: wasm.TYPE.f64, y: wasm.TYPE.f64 },
+    result: [wasm.TYPE.f64, wasm.TYPE.f64, wasm.TYPE.f64],
+  },
   addend: {
     param: {
       input: wasm.TYPE.i32,
@@ -938,7 +962,9 @@ const getLocalIndex = (sig: Signature, name: string): number =>
   Object.keys(sig.param).length +
   Object.keys(safe(sig.local, "no locals")).indexOf(name);
 
-const builtindex = new Map([...builtins.keys()].map((name, i) => [name, i]));
+const builtindex = new Map(
+  [...builtins.keys(), "sdf"].map((name, i) => [name, i])
+);
 
 const getBuiltindex = (name: string): number =>
   safe(builtindex.get(name), "unknown builtin");
@@ -956,7 +982,7 @@ const typeSection = (t: wasm.Target): void => {
 };
 
 const importSection = (t: wasm.Target): void => {
-  const numImports = 1 + builtins.size;
+  const numImports = builtins.size + 2;
   t.int(numImports);
 
   const minPages = 1;
@@ -972,6 +998,11 @@ const importSection = (t: wasm.Target): void => {
     t.byte(wasm.IMPORT.FUNCTION);
     t.int(getTypeIndex(kind));
   });
+
+  t.ascii("raster");
+  t.ascii("sdf");
+  t.byte(wasm.IMPORT.FUNCTION);
+  t.int(getTypeIndex("sdf"));
 };
 
 const functionSection = (t: wasm.Target, numAddends: number): void => {
@@ -984,7 +1015,7 @@ const exportSection = (t: wasm.Target, numAddends: number): void => {
   const numExports = 1;
   t.int(numExports);
 
-  const funcIndex = builtins.size + numAddends;
+  const funcIndex = builtins.size + 1 + numAddends;
   t.ascii(exportFunctionName);
   t.byte(wasm.EXPORT.FUNCTION);
   t.int(funcIndex);
@@ -1229,7 +1260,9 @@ const naryParams = (preds: Map<ad.Edge, number>): number[] => {
       i === "right" ||
       i === "cond" ||
       i === "then" ||
-      i === "els"
+      i === "els" ||
+      i === "x" ||
+      i === "y"
     ) {
       throw Error("expected NaryEdge");
     }
@@ -1356,6 +1389,21 @@ const compileNode = (
 
       return;
     }
+    case "SDF": {
+      t.byte(wasm.OP.i32.const);
+      t.int(node.shape);
+
+      t.byte(wasm.OP.local.get);
+      t.int(safe(preds.get("x"), "missing x"));
+
+      t.byte(wasm.OP.local.get);
+      t.int(safe(preds.get("y"), "missing y"));
+
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex("sdf"));
+
+      return;
+    }
   }
 };
 
@@ -1381,6 +1429,9 @@ const getLayout = (node: ad.Node): { typename: Typename; count: number } => {
       }
       case "PolyRoots": {
         return { typename: "f64", count: node.degree };
+      }
+      case "SDF": {
+        return { typename: "f64", count: 3 };
       }
     }
   }
@@ -1531,7 +1582,7 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
     t.int(getParamIndex(funcTypes.sum, "secondary"));
 
     t.byte(wasm.OP.call);
-    t.int(builtins.size + i);
+    t.int(builtins.size + 1 + i);
 
     t.byte(wasm.OP.f64.add);
 
@@ -1576,6 +1627,20 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
   return mod.bytes;
 };
 
+export interface Options {
+  sdf?: (i: number, x: number, y: number) => [number, number, number];
+}
+
+const makeImports = (options: Options): WebAssembly.Imports => ({
+  raster: {
+    sdf:
+      options.sdf ??
+      (() => {
+        throw Error("SDF not provided");
+      }),
+  },
+});
+
 /**
  * Compile an array of graphs into a function to compute the sum of their
  * primary outputs. The gradients are also summed. The keys present in the
@@ -1584,9 +1649,13 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
  * @param graphs an array of graphs to compile
  * @returns a compiled/instantiated WebAssembly function
  */
-export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
+export const genCode = async (
+  graphs: ad.Graph[],
+  options?: Options
+): Promise<Gradient> =>
   await Gradient.make(
     await WebAssembly.compile(genBytes(graphs)),
+    makeImports(options ?? {}),
     graphs.length,
     Math.max(0, ...graphs.map((g) => g.secondary.length))
   );
@@ -1596,9 +1665,10 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
  * this will fail if the generated module is larger than 4 kilobytes, but
  * currently is used in convex partitioning for convenience.
  */
-export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
+export const genCodeSync = (graphs: ad.Graph[], options?: Options): Gradient =>
   Gradient.makeSync(
     new WebAssembly.Module(genBytes(graphs)),
+    makeImports(options ?? {}),
     graphs.length,
     Math.max(0, ...graphs.map((g) => g.secondary.length))
   );

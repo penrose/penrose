@@ -178,7 +178,7 @@ export const numsOf = (xs: ad.Num[]): number[] => {
       inputs[v.key] = v.val;
     }
   }
-  const f = genCodeSync(g);
+  const f = genCodeSync([g]);
   return f.call(inputs).secondary;
 };
 

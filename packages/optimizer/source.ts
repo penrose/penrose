@@ -120,9 +120,16 @@ export interface Outputs<T> {
   secondary: T[];
 }
 
-const makeImports = () => {
+const makeImports = (imports: WebAssembly.Imports) => {
   const { optimizer } = getOptimizer();
+  if (importModule in imports)
+    throw Error(
+      `custom imports cannot use the builtin module: ${JSON.stringify(
+        importModule
+      )}`
+    );
   return {
+    ...imports,
     [importModule]: {
       [importMemoryName]: optimizer.memory,
       ...Object.fromEntries(
@@ -184,11 +191,12 @@ export class Gradient {
    */
   static async make(
     mod: WebAssembly.Module,
+    imports: WebAssembly.Imports,
     numAddends: number,
     numSecondary: number
   ): Promise<Gradient> {
     return new Gradient(
-      (await WebAssembly.instantiate(mod, makeImports())).exports,
+      (await WebAssembly.instantiate(mod, makeImports(imports))).exports,
       numAddends,
       numSecondary
     );
@@ -199,11 +207,12 @@ export class Gradient {
    */
   static makeSync(
     mod: WebAssembly.Module,
+    imports: WebAssembly.Imports,
     numAddends: number,
     numSecondary: number
   ): Gradient {
     return new Gradient(
-      new WebAssembly.Instance(mod, makeImports()).exports,
+      new WebAssembly.Instance(mod, makeImports(imports)).exports,
       numAddends,
       numSecondary
     );
