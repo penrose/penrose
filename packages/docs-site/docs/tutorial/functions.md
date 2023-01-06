@@ -219,3 +219,7 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 - `.sty`
   - `?` indicates an undetermined value that will be decided by Penrose for optimization.
   - We can do computation inside `.sty` to draw objects in relation to some data.
+
+## 🧗🏽 Onward!
+
+You've completed the Penrose tutorial! If you're lost, check out the rest of the documentation, play with examples in the online editor, or get in contact with us.

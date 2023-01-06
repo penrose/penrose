@@ -98,7 +98,7 @@ Now it's time to see all of our hard work (drumroll please 🥁)!
 
 ### In the editor
 
-Click the <img src="/img/tutorial/compile.png" height="30px" alt="screenshot of Compile button"> button.
+Click the <img src="/img/tutorial/compile.png" width="30px" alt="screenshot of Compile button" style="float: left" /> button.
 
 ### Locally
 
