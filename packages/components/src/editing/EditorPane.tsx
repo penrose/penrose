@@ -1,7 +1,7 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { Env } from "@penrose/core";
 import { editor } from "monaco-editor";
-import { initVimMode } from "monaco-vim";
+import { initVimMode, VimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
 import { SetupDomainMonaco } from "./languages/DomainConfig";
 import { SetupStyleMonaco } from "./languages/StyleConfig";
@@ -27,6 +27,7 @@ export default function EditorPane({
   languageType,
   domainCache,
   readOnly,
+  onWrite,
 }: {
   value: string;
   vimMode: boolean;
@@ -34,13 +35,15 @@ export default function EditorPane({
   languageType: "substance" | "style" | "domain";
   domainCache: Env | null;
   readOnly?: boolean;
+  /// In vim mode, this is called when the user calls :w
+  onWrite?: () => void;
 }) {
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (monaco) {
-      let vim = { dispose: () => {} };
+      let vim: null | { dispose(): void } = null;
       const dispose =
         languageType === "domain"
           ? SetupDomainMonaco(monaco)
@@ -48,14 +51,19 @@ export default function EditorPane({
           ? SetupStyleMonaco(monaco)
           : SetupSubstanceMonaco(domainCache)(monaco);
       if (vimMode && editorRef.current) {
+        if (onWrite) {
+          VimMode.Vim.defineEx("write", "w", onWrite);
+        }
         vim = initVimMode(editorRef.current, statusBarRef.current);
       }
       return () => {
         dispose();
-        vim.dispose();
+        if (vim !== null) {
+          vim.dispose();
+        }
       };
     }
-  }, [monaco, vimMode, languageType, domainCache, editorRef.current]);
+  }, [monaco, vimMode, languageType, domainCache, editorRef.current, onWrite]);
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };

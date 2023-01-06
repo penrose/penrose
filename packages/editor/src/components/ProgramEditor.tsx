@@ -7,12 +7,14 @@ import {
   settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms";
+import { useCompileDiagram } from "../state/callbacks";
 export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const [programState, setProgramState] = useRecoilState(
     fileContentsSelector(kind)
   );
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const domainCache = useRecoilValue(domainCacheState);
+  const compileDiagram = useCompileDiagram();
   const settings = useRecoilValueLoadable(settingsState);
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;
@@ -27,6 +29,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
         setProgramState((state) => ({ ...state, contents: v }))
       }
       readOnly={workspaceMetadata.location.kind === "roger"}
+      onWrite={compileDiagram}
     />
   );
 }
