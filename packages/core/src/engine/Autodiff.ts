@@ -2,7 +2,6 @@ import { Queue } from "@datastructures-js/queue";
 import {
   alignStackPointer,
   builtins,
-  BuiltinType,
   exportFunctionName,
   Gradient,
   importMemoryName,
@@ -883,92 +882,77 @@ export const fns = {
 
 // Traverses the computational graph of ops obtained by interpreting the energy function, and generates WebAssembly code corresponding to just the ops
 
-const bytesDouble = Float64Array.BYTES_PER_ELEMENT;
-const logAlignDouble = Math.log2(bytesDouble);
+const bytesI32 = Int32Array.BYTES_PER_ELEMENT;
+const logAlignI32 = Math.log2(bytesI32);
 
-const numFuncTypes = 5;
-const typeIndexGradient = 0;
-const typeIndexAddToStackPointer = 1;
-const typeIndexUnary = 2;
-const typeIndexBinary = 3;
-const typeIndexPolyRoots = 4;
+const bytesF64 = Float64Array.BYTES_PER_ELEMENT;
+const logAlignF64 = Math.log2(bytesF64);
 
-const numGradientParams = 3;
-const gradientParamInput = 0;
-const gradientParamGradient = 1;
-const gradientParamSecondary = 2;
+interface Signature {
+  param: { [name: string]: number };
+  result: number[];
+  local?: { [name: string]: number };
+}
 
-const gradientLocalStackPointer = 3;
+const funcTypes = {
+  addToStackPointer: {
+    param: { size: wasm.TYPE.i32 },
+    result: [wasm.TYPE.i32],
+  },
+  unary: { param: { x: wasm.TYPE.f64 }, result: [wasm.TYPE.f64] },
+  binary: {
+    param: { x: wasm.TYPE.f64, y: wasm.TYPE.f64 },
+    result: [wasm.TYPE.f64],
+  },
+  polyRoots: {
+    param: { pointer: wasm.TYPE.i32, size: wasm.TYPE.i32 },
+    result: [],
+  },
+  addend: {
+    param: {
+      input: wasm.TYPE.i32,
+      gradient: wasm.TYPE.i32,
+      secondary: wasm.TYPE.i32,
+    },
+    result: [wasm.TYPE.f64],
+    local: { stackPointer: wasm.TYPE.i32 },
+  },
+  sum: {
+    param: {
+      input: wasm.TYPE.i32,
+      mask: wasm.TYPE.i32,
+      gradient: wasm.TYPE.i32,
+      secondary: wasm.TYPE.i32,
+    },
+    result: [wasm.TYPE.f64],
+  },
+};
+
+const getTypeIndex = (kind: string): number =>
+  Object.keys(funcTypes).indexOf(kind);
+
+const getParamIndex = (sig: Signature, name: string): number =>
+  Object.keys(sig.param).indexOf(name);
+
+const getLocalIndex = (sig: Signature, name: string): number =>
+  Object.keys(sig.param).length +
+  Object.keys(safe(sig.local, "no locals")).indexOf(name);
 
 const builtindex = new Map([...builtins.keys()].map((name, i) => [name, i]));
 
 const getBuiltindex = (name: string): number =>
   safe(builtindex.get(name), "unknown builtin");
 
-const builtinTypeIndex = (kind: BuiltinType): number => {
-  switch (kind) {
-    case "addToStackPointer": {
-      return typeIndexAddToStackPointer;
-    }
-    case "unary": {
-      return typeIndexUnary;
-    }
-    case "binary": {
-      return typeIndexBinary;
-    }
-    case "polyRoots": {
-      return typeIndexPolyRoots;
-    }
-  }
-};
-
 const typeSection = (t: wasm.Target): void => {
-  t.int(numFuncTypes);
+  t.int(Object.keys(funcTypes).length);
 
-  // typeIndexGradient
-  const numGradientReturns = 1;
-  t.byte(wasm.TYPE.FUNCTION);
-  t.int(numGradientParams);
-  for (let i = 0; i < numGradientParams; i++) t.byte(wasm.TYPE.i32);
-  t.int(numGradientReturns);
-  t.byte(wasm.TYPE.f64);
-
-  // typeIndexAddToStackPointer
-  const numAddToStackPointerParams = 1;
-  const numAddToStackPointerReturns = 1;
-  t.byte(wasm.TYPE.FUNCTION);
-  t.int(numAddToStackPointerParams);
-  t.byte(wasm.TYPE.i32);
-  t.int(numAddToStackPointerReturns);
-  t.byte(wasm.TYPE.i32);
-
-  // typeIndexUnary
-  const numUnaryParams = 1;
-  const numUnaryReturns = 1;
-  t.byte(wasm.TYPE.FUNCTION);
-  t.int(numUnaryParams);
-  t.byte(wasm.TYPE.f64);
-  t.int(numUnaryReturns);
-  t.byte(wasm.TYPE.f64);
-
-  // typeIndexBinary
-  const numBinaryParams = 2;
-  const numBinaryReturns = 1;
-  t.byte(wasm.TYPE.FUNCTION);
-  t.int(numBinaryParams);
-  t.byte(wasm.TYPE.f64);
-  t.byte(wasm.TYPE.f64);
-  t.int(numBinaryReturns);
-  t.byte(wasm.TYPE.f64);
-
-  // typeIndexPolyRoots
-  const numPolyRootsParams = 2;
-  const numPolyRootsReturns = 0;
-  t.byte(wasm.TYPE.FUNCTION);
-  t.int(numPolyRootsParams);
-  t.byte(wasm.TYPE.i32);
-  t.byte(wasm.TYPE.i32);
-  t.int(numPolyRootsReturns);
+  for (const { param, result } of Object.values(funcTypes)) {
+    t.byte(wasm.TYPE.FUNCTION);
+    t.int(Object.keys(param).length);
+    for (const typ of Object.values(param)) t.byte(typ);
+    t.int(result.length);
+    for (const typ of result) t.byte(typ);
+  }
 };
 
 const importSection = (t: wasm.Target): void => {
@@ -986,20 +970,21 @@ const importSection = (t: wasm.Target): void => {
     t.ascii(importModule);
     t.ascii(i.toString(36));
     t.byte(wasm.IMPORT.FUNCTION);
-    t.int(builtinTypeIndex(kind));
+    t.int(getTypeIndex(kind));
   });
 };
 
-const functionSection = (t: wasm.Target, numFunctions: number): void => {
-  t.int(numFunctions);
-  for (let i = 0; i < numFunctions; i++) t.int(typeIndexGradient);
+const functionSection = (t: wasm.Target, numAddends: number): void => {
+  t.int(numAddends + 1);
+  for (let i = 0; i < numAddends; i++) t.int(getTypeIndex("addend"));
+  t.int(getTypeIndex("sum"));
 };
 
-const exportSection = (t: wasm.Target, numFunctions: number): void => {
+const exportSection = (t: wasm.Target, numAddends: number): void => {
   const numExports = 1;
   t.int(numExports);
 
-  const funcIndex = builtins.size + numFunctions - 1;
+  const funcIndex = builtins.size + numAddends;
   t.ascii(exportFunctionName);
   t.byte(wasm.EXPORT.FUNCTION);
   t.int(funcIndex);
@@ -1007,7 +992,7 @@ const exportSection = (t: wasm.Target, numFunctions: number): void => {
 
 const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
   const numSections = 5;
-  const numFunctions = gradientFunctionSizes.length;
+  const numAddends = gradientFunctionSizes.length - 1;
 
   const typeSectionCount = new wasm.Count();
   typeSection(typeSectionCount);
@@ -1018,16 +1003,16 @@ const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
   const importSectionSize = importSectionCount.size;
 
   const functionSectionCount = new wasm.Count();
-  functionSection(functionSectionCount, numFunctions);
+  functionSection(functionSectionCount, numAddends);
   const functionSectionSize = functionSectionCount.size;
 
   const exportSectionCount = new wasm.Count();
-  exportSection(exportSectionCount, numFunctions);
+  exportSection(exportSectionCount, numAddends);
   const exportSectionSize = exportSectionCount.size;
 
   const codeSectionSize = gradientFunctionSizes
     .map((n) => wasm.intSize(n) + n)
-    .reduce((a, b) => a + b, wasm.intSize(numFunctions));
+    .reduce((a, b) => a + b, wasm.intSize(gradientFunctionSizes.length));
 
   const sumSectionSizes =
     numSections +
@@ -1054,15 +1039,15 @@ const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
 
   mod.byte(wasm.SECTION.FUNCTION);
   mod.int(functionSectionSize);
-  functionSection(mod, numFunctions);
+  functionSection(mod, numAddends);
 
   mod.byte(wasm.SECTION.EXPORT);
   mod.int(exportSectionSize);
-  exportSection(mod, numFunctions);
+  exportSection(mod, numAddends);
 
   mod.byte(wasm.SECTION.CODE);
   mod.int(codeSectionSize);
-  mod.int(numFunctions);
+  mod.int(gradientFunctionSizes.length);
 
   return mod;
 };
@@ -1314,7 +1299,7 @@ const compileNode = (
     }
     case "PolyRoots": {
       const bytes =
-        Math.ceil((node.degree * bytesDouble) / alignStackPointer) *
+        Math.ceil((node.degree * bytesF64) / alignStackPointer) *
         alignStackPointer;
 
       t.byte(wasm.OP.i32.const);
@@ -1324,18 +1309,18 @@ const compileNode = (
       t.int(getBuiltindex("__wbindgen_add_to_stack_pointer"));
 
       t.byte(wasm.OP.local.tee);
-      t.int(gradientLocalStackPointer);
+      t.int(getLocalIndex(funcTypes.addend, "stackPointer"));
 
       naryParams(preds).forEach((index, i) => {
         t.byte(wasm.OP.local.get);
-        t.int(gradientLocalStackPointer);
+        t.int(getLocalIndex(funcTypes.addend, "stackPointer"));
 
         t.byte(wasm.OP.local.get);
         t.int(index);
 
         t.byte(wasm.OP.f64.store);
-        t.int(logAlignDouble);
-        t.int(i * bytesDouble);
+        t.int(logAlignF64);
+        t.int(i * bytesF64);
       });
 
       t.byte(wasm.OP.i32.const);
@@ -1346,11 +1331,11 @@ const compileNode = (
 
       for (let i = 0; i < node.degree; i++) {
         t.byte(wasm.OP.local.get);
-        t.int(gradientLocalStackPointer);
+        t.int(getLocalIndex(funcTypes.addend, "stackPointer"));
 
         t.byte(wasm.OP.f64.load);
-        t.int(logAlignDouble);
-        t.int(i * bytesDouble);
+        t.int(logAlignF64);
+        t.int(i * bytesF64);
       }
 
       t.byte(wasm.OP.i32.const);
@@ -1411,10 +1396,12 @@ interface Locals {
   indices: Map<ad.Id, Local>;
 }
 
+const numAddendParams = Object.keys(funcTypes.addend.param).length;
+
 const getIndex = (locals: Locals, id: ad.Id): number => {
   const local = safe(locals.indices.get(id), "missing local");
   return (
-    numGradientParams +
+    numAddendParams +
     (local.typename === "i32" ? 0 : locals.counts.i32) +
     local.index
   );
@@ -1424,7 +1411,7 @@ const compileGraph = (
   t: wasm.Target,
   { graph, gradient, primary, secondary }: ad.Graph
 ): void => {
-  const counts = { i32: 1, f64: 0 }; // `gradientLocalStackPointer`
+  const counts = { i32: 1, f64: 0 }; // `stackPointer`
   const indices = new Map<ad.Id, Local>();
   for (const id of graph.nodes()) {
     const node = graph.node(id);
@@ -1447,11 +1434,11 @@ const compileGraph = (
     label: { key },
   } of getInputs(graph)) {
     t.byte(wasm.OP.local.get);
-    t.int(gradientParamInput);
+    t.int(getParamIndex(funcTypes.addend, "input"));
 
     t.byte(wasm.OP.f64.load);
-    t.int(logAlignDouble);
-    t.int(key * bytesDouble);
+    t.int(logAlignF64);
+    t.int(key * bytesF64);
 
     t.byte(wasm.OP.local.set);
     t.int(getIndex(locals, id));
@@ -1477,14 +1464,14 @@ const compileGraph = (
 
   gradient.forEach((id, i) => {
     t.byte(wasm.OP.local.get);
-    t.int(gradientParamGradient);
+    t.int(getParamIndex(funcTypes.addend, "gradient"));
 
     t.byte(wasm.OP.local.get);
-    t.int(gradientParamGradient);
+    t.int(getParamIndex(funcTypes.addend, "gradient"));
 
     t.byte(wasm.OP.f64.load);
-    t.int(logAlignDouble);
-    t.int(i * bytesDouble);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
 
     t.byte(wasm.OP.local.get);
     t.int(getIndex(locals, id));
@@ -1492,20 +1479,20 @@ const compileGraph = (
     t.byte(wasm.OP.f64.add);
 
     t.byte(wasm.OP.f64.store);
-    t.int(logAlignDouble);
-    t.int(i * bytesDouble);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
   });
 
   secondary.forEach((id, i) => {
     t.byte(wasm.OP.local.get);
-    t.int(gradientParamSecondary);
+    t.int(getParamIndex(funcTypes.addend, "secondary"));
 
     t.byte(wasm.OP.local.get);
     t.int(getIndex(locals, id));
 
     t.byte(wasm.OP.f64.store);
-    t.int(logAlignDouble);
-    t.int(i * bytesDouble);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
   });
 
   t.byte(wasm.OP.local.get);
@@ -1524,15 +1511,31 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
   t.f64(0);
 
   for (let i = 0; i < numAddends; i++) {
-    for (let j = 0; j < numGradientParams; j++) {
-      t.byte(wasm.OP.local.get);
-      t.int(j);
-    }
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "mask"));
+
+    t.byte(wasm.OP.i32.load);
+    t.int(logAlignI32);
+    t.int(i * bytesI32);
+
+    t.byte(wasm.OP.if);
+    t.int(getTypeIndex("unary"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "input"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "gradient"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "secondary"));
 
     t.byte(wasm.OP.call);
     t.int(builtins.size + i);
 
     t.byte(wasm.OP.f64.add);
+
+    t.byte(wasm.END);
   }
 
   t.byte(wasm.END);
@@ -1584,6 +1587,7 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
 export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
   await Gradient.make(
     await WebAssembly.compile(genBytes(graphs)),
+    graphs.length,
     Math.max(0, ...graphs.map((g) => g.secondary.length))
   );
 
@@ -1595,5 +1599,6 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
 export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
   Gradient.makeSync(
     new WebAssembly.Module(genBytes(graphs)),
+    graphs.length,
     Math.max(0, ...graphs.map((g) => g.secondary.length))
   );

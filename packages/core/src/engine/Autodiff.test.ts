@@ -102,6 +102,21 @@ describe("genCode tests", () => {
       "secondary output 0 is present in 2 graphs"
     );
   });
+
+  test("mask", () => {
+    const v1 = [5];
+    const v2 = [];
+    v2[1] = 8;
+    const f = genCodeSync(
+      makeGraph({ primary: input({ key: 0, val: 0 }), secondary: v2 }),
+      makeGraph({ primary: input({ key: 0, val: 0 }), secondary: v1 })
+    );
+    expect(f.call([13], [true, false])).toEqual({
+      gradient: [1],
+      primary: 13,
+      secondary: [0, 8],
+    });
+  });
 });
 
 // df/f[x] with finite differences about xi

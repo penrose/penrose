@@ -12,7 +12,6 @@ import {
   dummyIdentifier,
   genGradient,
 } from "engine/EngineUtils";
-import graphlib from "graphlib";
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
@@ -123,7 +122,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { Digraph } from "utils/Graph";
+import { Digraph, Edge } from "utils/Graph";
 import {
   boolV,
   colorV,
@@ -2916,19 +2915,19 @@ export const computeShapeOrdering = (
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
 } => {
-  const layerGraph: graphlib.Graph = new graphlib.Graph();
-  allGPINames.forEach((name: string) => layerGraph.setNode(name));
+  const layerGraph = new Digraph<string, undefined>();
+  allGPINames.forEach((name: string) => layerGraph.setNode(name, undefined));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
   partialOrderings.forEach(({ below, above }: Layer) =>
-    layerGraph.setEdge(below, above)
+    layerGraph.setEdge({ v: below, w: above })
   );
 
   // if there are no cycles, return a global ordering from the top sort result
-  if (graphlib.alg.isAcyclic(layerGraph)) {
-    const shapeOrdering: string[] = graphlib.alg.topsort(layerGraph);
+  if (layerGraph.isAcyclic()) {
+    const shapeOrdering: string[] = layerGraph.topsort();
     return { shapeOrdering };
   } else {
-    const cycles = graphlib.alg.findCycles(layerGraph);
+    const cycles = layerGraph.findCycles();
     const shapeOrdering = pseudoTopsort(layerGraph);
     return {
       shapeOrdering,
@@ -2941,13 +2940,11 @@ export const computeShapeOrdering = (
   }
 };
 
-const pseudoTopsort = (graph: graphlib.Graph): string[] => {
+const pseudoTopsort = (graph: Digraph<string, undefined>): string[] => {
   const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
     const aIn = graph.inEdges(a);
     const bIn = graph.inEdges(b);
-    if (!aIn) return 1;
-    else if (!bIn) return -1;
-    else return aIn.length - bIn.length;
+    return aIn.length - bIn.length;
   });
   const res: string[] = [];
   graph.nodes().forEach((n: string) => toVisit.insert(n));
@@ -2957,10 +2954,8 @@ const pseudoTopsort = (graph: graphlib.Graph): string[] => {
     res.push(node);
     // remove all edges with `node`
     const toRemove = graph.nodeEdges(node);
-    if (toRemove !== undefined) {
-      toRemove.forEach((e: graphlib.Edge) => graph.removeEdge(e));
-      toVisit.fix();
-    }
+    toRemove.forEach((e: Edge<string>) => graph.removeEdge(e));
+    toVisit.fix();
   }
   return res;
 };
@@ -3167,9 +3162,9 @@ export const compileStyleHelper = async (
   );
 
   const params = genOptProblem(
-    inputs.map((meta) => meta.tag),
-    objFns.length,
-    constrFns.length
+    inputs.map((meta) => meta.tag === "Optimized"),
+    objFns.map(() => true),
+    constrFns.map(() => true)
   );
 
   const initState: State = {
@@ -3187,7 +3182,6 @@ export const compileStyleHelper = async (
     gradient,
     computeShapes,
     params,
-    frozenValues: [],
   };
 
   log.info("init state from GenOptProblem", initState);

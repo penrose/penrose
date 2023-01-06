@@ -47,10 +47,10 @@ export const resample = (state: State): State => {
     ),
     params: {
       ...state.params,
+      gradMask: state.inputs.map((meta) => meta.tag === "Optimized"),
       weight: initConstraintWeight,
       optStatus: "NewIter",
     },
-    frozenValues: [],
   };
 };
 
@@ -304,8 +304,8 @@ export const evalFns = (
       ...s.varyingValues,
       s.params.weight,
     ]);
-    lastObjEnergies = secondary.slice(0, s.params.numObjEngs);
-    lastConstrEnergies = secondary.slice(s.params.numObjEngs);
+    lastObjEnergies = secondary.slice(0, s.params.objMask.length);
+    lastConstrEnergies = secondary.slice(s.params.objMask.length);
   }
   return {
     constrEngs: new Map(

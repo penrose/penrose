@@ -2,25 +2,20 @@ pub mod builtins;
 
 use log::Level;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 use ts_rs::TS;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
+
+type Bool = i32; // 0 or 1 (`wasm-bindgen` doesn't support `bool` well)
 
 type Vector = nalgebra::DVector<f64>;
 type Matrix = nalgebra::DMatrix<f64>;
 
-type Compiled = fn(inputs: *const f64, gradient: *mut f64, secondary: *mut f64) -> f64;
+type Compiled =
+    fn(inputs: *const f64, mask: *const Bool, gradient: *mut f64, secondary: *mut f64) -> f64;
 
 // the ts-rs crate defines a `TS` trait and `ts` macro which generate Rust tests that, when run,
 // generate TypeScript definitions in the `bindings/` directory of this package; that's why the
 // `build-decls` script for this package is `cargo test`
-
-#[derive(Clone, Deserialize, PartialEq, Serialize, TS)]
-#[ts(export)]
-enum InputKind {
-    Optimized,
-    Unoptimized,
-}
 
 #[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
@@ -63,12 +58,12 @@ struct FnEvaled {
 #[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 struct Params {
-    #[serde(rename = "inputKinds")]
-    input_kinds: Vec<InputKind>,
-    #[serde(rename = "numObjEngs")]
-    num_obj_engs: usize,
-    #[serde(rename = "numConstrEngs")]
-    num_constr_engs: usize,
+    #[serde(rename = "gradMask")]
+    grad_mask: Vec<bool>,
+    #[serde(rename = "objMask")]
+    obj_mask: Vec<bool>,
+    #[serde(rename = "constrMask")]
+    constr_mask: Vec<bool>,
 
     #[serde(rename = "optStatus")]
     opt_status: OptStatus,
@@ -108,11 +103,10 @@ struct Params {
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
 #[derive(Clone)]
 struct FnCached<'a> {
-    inputs: &'a [InputKind], // same length as `varyingValues`
-    frozen_values: &'a HashSet<usize>,
-    num_obj_engs: usize,
-    num_constr_engs: usize,
     f: Compiled,
+    grad_mask: &'a [bool],
+    obj_mask: &'a [bool],
+    constr_mask: &'a [bool],
 }
 
 #[derive(Deserialize, Serialize, TS)]
@@ -121,10 +115,6 @@ struct OptState {
     #[serde(rename = "varyingValues")]
     varying_values: Vec<f64>,
     params: Params,
-    /// A set of indices of `varyingValues` that are treated as constant during optimization.
-    /// Currently used for the drag interaction.
-    #[serde(rename = "frozenValues")]
-    frozen_values: HashSet<usize>,
 }
 
 // Returned after a call to `minimize`
@@ -181,6 +171,10 @@ const DEBUG_LINE_SEARCH: bool = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+fn bools(v: Vec<Bool>) -> Vec<bool> {
+    v.into_iter().map(|n| n > 0).collect()
+}
+
 fn norm_list(xs: &[f64]) -> f64 {
     let sum_squares: f64 = xs.iter().map(|e| e * e).sum();
     sum_squares.sqrt()
@@ -216,33 +210,38 @@ fn unconstrained_converged(norm_grad: f64) -> bool {
 fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
     let len_inputs = xs.len();
     let len_gradient = len_inputs + 1;
-    let len_secondary = f.num_obj_engs + f.num_constr_engs;
+    let len_secondary = f.obj_mask.len() + f.constr_mask.len();
 
     let mut inputs = vec![0.; len_gradient];
     inputs[..len_inputs].copy_from_slice(xs);
     inputs[len_inputs] = weight;
+    let mask: Vec<i32> = f
+        .obj_mask
+        .iter()
+        .chain(f.constr_mask)
+        .map(|&b| if b { 1 } else { 0 })
+        .collect();
     let mut gradient = vec![0.; len_gradient];
     let mut secondary = vec![0.; len_secondary];
 
     let energy = (f.f)(
         inputs.as_ptr(),
+        mask.as_ptr(),
         gradient.as_mut_ptr(),
         secondary.as_mut_ptr(),
     );
 
     gradient.pop();
-    for i in 0..len_inputs {
-        let kind = &f.inputs[i];
-        if *kind != InputKind::Optimized || f.frozen_values.contains(&i) {
-            gradient[i] = 0.;
-        }
-    }
 
     FnEvaled {
         f: energy,
-        gradf: gradient,
-        obj_engs: secondary[..f.num_obj_engs].to_vec(),
-        constr_engs: secondary[f.num_obj_engs..].to_vec(),
+        gradf: gradient
+            .into_iter()
+            .zip(f.grad_mask)
+            .map(|(x, &b)| if b { x } else { 0. })
+            .collect(),
+        obj_engs: secondary[..f.obj_mask.len()].to_vec(),
+        constr_engs: secondary[f.obj_mask.len()..].to_vec(),
     }
 }
 
@@ -300,11 +299,10 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
             let res = minimize(
                 &xs,
                 FnCached {
-                    inputs: &state.params.input_kinds,
-                    frozen_values: &state.frozen_values,
-                    num_obj_engs: state.params.num_obj_engs,
-                    num_constr_engs: state.params.num_constr_engs,
                     f,
+                    grad_mask: &state.params.grad_mask,
+                    obj_mask: &state.params.obj_mask,
+                    constr_mask: &state.params.constr_mask,
                 },
                 state.params.weight,
                 state.params.lbfgs_info,
@@ -873,17 +871,13 @@ fn minimize(
     };
 }
 
-fn gen_opt_problem(
-    input_kinds: Vec<InputKind>,
-    num_obj_engs: usize,
-    num_constr_engs: usize,
-) -> Params {
-    let last_gradient = vec![0.; input_kinds.len()];
-    let last_gradient_preconditioned = vec![0.; input_kinds.len()];
+fn gen_opt_problem(grad_mask: Vec<bool>, obj_mask: Vec<bool>, constr_mask: Vec<bool>) -> Params {
+    let last_gradient = vec![0.; grad_mask.len()];
+    let last_gradient_preconditioned = vec![0.; grad_mask.len()];
     Params {
-        input_kinds,
-        num_obj_engs,
-        num_constr_engs,
+        grad_mask,
+        obj_mask,
+        constr_mask,
 
         last_gradient,
         last_gradient_preconditioned,
@@ -909,6 +903,11 @@ fn contains_nan(number_list: &[f64]) -> bool {
     number_list.iter().any(|n| n.is_nan())
 }
 
+fn to_js_value(value: &(impl Serialize + ?Sized)) -> Result<JsValue, serde_wasm_bindgen::Error> {
+    // ts-rs expects `Option::None` to become `null` instead of `undefined`
+    value.serialize(&serde_wasm_bindgen::Serializer::new().serialize_missing_as_null(true))
+}
+
 #[wasm_bindgen]
 pub fn penrose_init() {
     // https://docs.rs/console_error_panic_hook/0.1.7/console_error_panic_hook/#usage
@@ -919,10 +918,17 @@ pub fn penrose_init() {
 }
 
 #[wasm_bindgen]
-pub fn penrose_call(p: usize, inputs: &[f64], gradient: &mut [f64], secondary: &mut [f64]) -> f64 {
+pub fn penrose_call(
+    p: usize,
+    inputs: &[f64],
+    mask: &[Bool],
+    gradient: &mut [f64],
+    secondary: &mut [f64],
+) -> f64 {
     let f = unsafe { std::mem::transmute::<usize, Compiled>(p) };
     f(
         inputs.as_ptr(),
+        mask.as_ptr(),
         gradient.as_mut_ptr(),
         secondary.as_mut_ptr(),
     )
@@ -936,13 +942,12 @@ pub fn penrose_get_init_constraint_weight() -> f64 {
 
 #[wasm_bindgen]
 pub fn penrose_gen_opt_problem(
-    inputs: JsValue,
-    num_obj_engs: usize,
-    num_constr_engs: usize,
+    grad_mask: Vec<Bool>,
+    obj_mask: Vec<Bool>,
+    constr_mask: Vec<Bool>,
 ) -> JsValue {
-    let input_kinds: Vec<InputKind> = serde_wasm_bindgen::from_value(inputs).unwrap();
-    let params: Params = gen_opt_problem(input_kinds, num_obj_engs, num_constr_engs);
-    serde_wasm_bindgen::to_value(&params).unwrap()
+    let params: Params = gen_opt_problem(bools(grad_mask), bools(obj_mask), bools(constr_mask));
+    to_js_value(&params).unwrap()
 }
 
 #[wasm_bindgen]
@@ -953,5 +958,5 @@ pub fn penrose_step(state: JsValue, p: usize, steps: i32) -> JsValue {
         unsafe { std::mem::transmute::<usize, Compiled>(p) },
         steps,
     );
-    serde_wasm_bindgen::to_value(&stepped).unwrap()
+    to_js_value(&stepped).unwrap()
 }

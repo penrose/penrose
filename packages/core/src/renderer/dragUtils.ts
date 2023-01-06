@@ -12,21 +12,22 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
-  const frozenValues = [];
+  const gradMask = state.inputs.map((meta) => meta.tag === "Optimized");
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {
-      const ids = dragShape(shape, [dx, dy], xs);
-      frozenValues.push(...ids);
+      for (const id of dragShape(shape, [dx, dy], xs)) {
+        gradMask[id] = false;
+      }
     }
   }
   const updated: State = {
     ...state,
     params: {
       ...state.params,
+      gradMask,
       optStatus: "NewIter",
     },
     varyingValues: xs,
-    frozenValues,
   };
   return updated;
 };

@@ -25,6 +25,7 @@ export const LIMITS = { NO_MAXIMUM: 0x00 };
 
 /** Instruction opcodes. */
 export const OP = {
+  if: 0x04,
   call: 0x10,
   drop: 0x1a,
   select: 0x1b,
@@ -52,7 +53,7 @@ export const OP = {
     min: 0xa4,
     max: 0xa5,
   },
-  i32: { const: 0x41, eqz: 0x45, add: 0x6a, and: 0x71, or: 0x72 },
+  i32: { load: 0x28, const: 0x41, eqz: 0x45, add: 0x6a, and: 0x71, or: 0x72 },
   local: { get: 0x20, set: 0x21, tee: 0x22 },
 };
 
