@@ -290,9 +290,9 @@ export const showError = (
     }
 
     case "BadElementError": {
-      return `Wrong element type at index ${
-        error.index
-      } in collection (at ${loc(error.coll)}).`;
+      return `Wrong element type at index ${error.index} in ${
+        error.coll.tag
+      } (at ${loc(error.coll)}).`;
     }
 
     case "BadIndexError": {

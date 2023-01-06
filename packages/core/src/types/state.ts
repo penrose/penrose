@@ -10,9 +10,8 @@ import { FloatV } from "./value";
 
 export type ShapeFn = (xs: number[]) => Shape[];
 
-export interface StagedFns {
-  [k: string]: Fn[];
-}
+export type OptPipeline = string[];
+
 export interface StagedConstraints {
   [k: string]: {
     inputMask: boolean[];

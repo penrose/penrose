@@ -40,7 +40,7 @@ import {
   SubstanceError,
 } from "types/errors";
 import { ShapeAD } from "types/shape";
-import { Fn, StagedConstraints, State } from "types/state";
+import { Fn, OptPipeline, StagedConstraints, State } from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -49,6 +49,7 @@ import {
   Expr,
   Header,
   HeaderBlock,
+  LayoutStages,
   List,
   Path,
   PathAssign,
@@ -2085,9 +2086,11 @@ export const buildAssignment = (
       ])
     ),
   };
-  return styProg.blocks.reduce(
-    (assignment, block, index) =>
-      processBlock(varEnv, subEnv, index, block, assignment),
+  return styProg.items.reduce(
+    (assignment, item, index) =>
+      item.tag === "HeaderBlock"
+        ? processBlock(varEnv, subEnv, index, item, assignment)
+        : assignment,
     assignment
   );
 };
@@ -3008,6 +3011,24 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
   }
 };
 
+export const getLayoutStages = (
+  prog: StyProg<C>
+): Result<OptPipeline, StyleError> => {
+  const layoutStmts: LayoutStages<C>[] = prog.items.filter(
+    (i): i is LayoutStages<C> => i.tag === "LayoutStages"
+  );
+  if (layoutStmts.length === 0) {
+    // if no stages specified, default to "Overall"
+    return ok(["Overall"]);
+  } else if (layoutStmts.length === 1) {
+    return ok(layoutStmts[0].contents.map((s) => s.value));
+  } else {
+    // there can be only layout spec
+    // TODO: report error
+    return ok(layoutStmts[0].contents.map((s) => s.value));
+  }
+};
+
 const getShapes = (
   graph: DepGraph,
   { symbols }: Translation,
@@ -3130,12 +3151,6 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
         output,
         // TODO: what's a good default stage for `onCanvas`? How can someone change this behavior?
         optStages: "All",
-        // [
-        //   shape.shapeType === "Text" || shape.shapeType === "Equation"
-        //     ? "LabelLayout"
-        //     : "ShapeLayout",
-        //   "Overall",
-        // ], // COMBAK: distinguish between label and shape
       });
     }
   }
@@ -3146,7 +3161,7 @@ export const stageConstraints = (
   inputs: InputMeta[],
   constrFns: Fn[],
   objFns: Fn[],
-  stages: string[]
+  stages: OptPipeline
 ): {
   constraintSets: StagedConstraints;
 } => {
@@ -3170,12 +3185,6 @@ export const stageConstraints = (
   return { constraintSets };
 };
 
-export const optimizationStages: string[] = [
-  "ShapeLayout",
-  "LabelLayout",
-  "Overall",
-];
-
 export const compileStyleHelper = async (
   variation: string,
   stySource: string,
@@ -3188,6 +3197,7 @@ export const compileStyleHelper = async (
       translation: Translation;
       assignment: Assignment;
       styleAST: StyProg<C>;
+      graph: DepGraph;
     },
     PenroseError
   >
@@ -3201,6 +3211,9 @@ export const compileStyleHelper = async (
   }
 
   log.info("prog", styProg);
+
+  // preprocess stage info
+  const optimizationStages = getLayoutStages(styProg);
 
   // first pass: generate Substance substitutions and use the `override` and
   // `delete` statements to construct a mapping from Substance-substituted paths
@@ -3260,11 +3273,15 @@ export const compileStyleHelper = async (
     // ...avoidLabels(shapes),
     // ...disjointLabelsAndShapes(shapes),
   ];
+
+  if (optimizationStages.isErr()) {
+    return err(toStyleErrors([optimizationStages.error]));
+  }
   const { constraintSets } = stageConstraints(
     inputs,
     constrFns,
     objFns,
-    optimizationStages
+    optimizationStages.value
   );
 
   const computeShapes = await compileCompGraph(shapes);
@@ -3276,7 +3293,7 @@ export const compileStyleHelper = async (
   );
 
   const { inputMask, objMask, constrMask } = constraintSets[
-    optimizationStages[0]
+    optimizationStages.value[0]
   ];
 
   const params = genOptProblem(inputMask, objMask, constrMask);
@@ -3298,7 +3315,7 @@ export const compileStyleHelper = async (
     computeShapes,
     params,
     currentStageIndex: 0,
-    optStages: optimizationStages,
+    optStages: optimizationStages.value,
   };
 
   log.info("init state from GenOptProblem", initState);
@@ -3308,6 +3325,7 @@ export const compileStyleHelper = async (
     styleAST: astOk.value,
     translation,
     assignment,
+    graph,
   });
 };
 

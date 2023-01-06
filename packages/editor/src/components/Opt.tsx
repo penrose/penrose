@@ -1,4 +1,4 @@
-import { evalFns, zip2 } from "@penrose/core";
+import { evalFns, prettyPrintFn, zip2 } from "@penrose/core";
 import DataTable from "react-data-table-component";
 import { useRecoilValue } from "recoil";
 import { diagramState } from "../state/atoms";
@@ -15,11 +15,18 @@ export default function Opt() {
     );
   }
 
-  const { constraintSets, optStages, currentStageIndex } = state;
+  const {
+    constraintSets,
+    optStages,
+    currentStageIndex,
+    constrFns,
+    objFns,
+  } = state;
   const { objMask, constrMask } = constraintSets[optStages[currentStageIndex]];
 
   const { constrEngs, objEngs } = evalFns(state);
-  const constrInfos = zip2([...constrEngs.entries()], constrMask)
+  const constrEngsNamed = zip2(constrFns.map(prettyPrintFn), constrEngs);
+  const constrInfos = zip2(constrEngsNamed, constrMask)
     .filter(([, include]) => include)
     .map((l) => l[0])
     .map(([name, fnEvaled]) => {
@@ -34,7 +41,8 @@ export default function Opt() {
   // COMBAK: objective gradient norms are currently deprecated, because the
   // secondary outputs of the overall energy graph doesn't carry gradients of
   // intermediate nodes w.r.t. the inputs
-  const objInfos = zip2([...objEngs.entries()], objMask)
+  const objEngsNamed = zip2(objFns.map(prettyPrintFn), objEngs);
+  const objInfos = zip2(objEngsNamed, objMask)
     .filter(([, include]) => include)
     .map((l) => l[0])
     .map(([name, fnEvaled]) => {

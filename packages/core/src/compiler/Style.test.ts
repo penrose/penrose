@@ -14,12 +14,13 @@ import {
   AnonAssign,
   ConstrFn,
   GPIDecl,
+  HeaderBlock,
   PathAssign,
   StyProg,
   Vary,
   Vector,
 } from "types/style";
-import { Assignment, Layer, Translation } from "types/styleSemantics";
+import { Assignment, DepGraph, Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
 import { ColorV, RGBA } from "types/value";
 import { andThen, err, Result, showError } from "utils/Error";
@@ -53,6 +54,7 @@ export const loadProgs = async ({
   assignment: Assignment;
   state: State;
   styleAST: StyProg<C>;
+  graph: DepGraph;
 }> => {
   const throwErr = (e: any): any => {
     throw Error(
@@ -190,6 +192,22 @@ describe("Color literals", () => {
 });
 
 describe("Staged constraints", () => {
+  test("stage spec", async () => {
+    const { styleAST: ex2 } = await loadProgs({
+      dsl: "type Set",
+      sub: `Set A`,
+      sty:
+        canvasPreamble +
+        `
+      layout = (ShapeLayout, LabelLayout, Overall)
+      `,
+    });
+    expect(S.getLayoutStages(ex2).unsafelyUnwrap()).toEqual([
+      "ShapeLayout",
+      "LabelLayout",
+      "Overall",
+    ]);
+  });
   test("varying stages", async () => {
     const { styleAST } = await loadProgs({
       dsl: "type Set",
@@ -204,7 +222,8 @@ describe("Staged constraints", () => {
       }
       `,
     });
-    const gpiStmt = styleAST.blocks[1].block.statements[0] as PathAssign<C>;
+    const gpiStmt = (styleAST.items[1] as HeaderBlock<C>).block
+      .statements[0] as PathAssign<C>;
     const gpiDecl = gpiStmt.value as GPIDecl<C>;
     const rValue = gpiDecl.properties[0].value as Vector<C>;
     const [vary1, vary2] = rValue.contents;
@@ -228,11 +247,12 @@ describe("Staged constraints", () => {
       }
       `,
     });
-    const ensureStmt = styleAST.blocks[1].block.statements[2] as AnonAssign<C>;
+    const ensureStmt = (styleAST.items[1] as HeaderBlock<C>).block
+      .statements[2] as AnonAssign<C>;
     const ensureExpr = ensureStmt.contents as ConstrFn<C>;
     const stages1 = ensureExpr.stages.map((e) => e.value);
     expect(stages1).toEqual(["ShapeLayout", "LabelLayout"]);
-    const encourageStmt = styleAST.blocks[1].block
+    const encourageStmt = (styleAST.items[1] as HeaderBlock<C>).block
       .statements[3] as AnonAssign<C>;
     const encourageExpr = encourageStmt.contents as ConstrFn<C>;
     const stages2 = encourageExpr.stages.map((e) => e.value);

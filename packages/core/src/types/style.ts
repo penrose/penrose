@@ -4,8 +4,15 @@ import { LabelType } from "./substance";
 /** Top level type for Style AST */
 export type StyProg<T> = ASTNode<T> & {
   tag: "StyProg";
-  blocks: HeaderBlock<T>[];
+  items: StyItem<T>[];
 };
+
+export type LayoutStages<T> = ASTNode<T> & {
+  tag: "LayoutStages";
+  contents: Identifier<T>[];
+};
+
+export type StyItem<T> = HeaderBlock<T> | LayoutStages<T>;
 
 export type HeaderBlock<T> = ASTNode<T> & {
   tag: "HeaderBlock";

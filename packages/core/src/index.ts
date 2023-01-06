@@ -31,7 +31,6 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   toSvgPaintProperty,
-  zip2,
 } from "./utils/Util";
 
 /**
@@ -62,8 +61,6 @@ export const stepState = (state: State, numSteps = 10000): State => {
     ...state,
     ...state.gradient.step(state, numSteps),
   };
-  console.log(state, stateConverged(state), finalStage(state));
-
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
     const { constraintSets, optStages, currentStageIndex } = state;
     const nextStage = optStages[currentStageIndex + 1];
@@ -320,8 +317,8 @@ export const evalEnergy = (s: State): number => {
 export const evalFns = (
   s: State
 ): {
-  constrEngs: Map<string, number>;
-  objEngs: Map<string, number>;
+  constrEngs: number[];
+  objEngs: number[];
 } => {
   const { constrFns, objFns } = s;
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
@@ -335,8 +332,8 @@ export const evalFns = (
     lastConstrEnergies = secondary.slice(s.params.objMask.length);
   }
   return {
-    constrEngs: new Map(zip2(constrFns.map(prettyPrintFn), lastConstrEnergies)),
-    objEngs: new Map(zip2(objFns.map(prettyPrintFn), lastObjEnergies)),
+    constrEngs: lastConstrEnergies,
+    objEngs: lastObjEnergies,
   };
 };
 

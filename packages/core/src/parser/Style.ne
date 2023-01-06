@@ -8,7 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages
 } from "types/style";
 
 const styleTypes: string[] =
@@ -116,24 +116,33 @@ const binop = (op: BinaryOp, left: Expr<C>, right: Expr<C>): BinOp<C> => ({
 # Style Grammar
 # NOTE: remember that parens in the grammar or EBNF operators (e.g. `:*`) will wrap an array around the result. 
 
-# TODO: header_blocks gets called twice here. Investigate why
-input -> _ml header_blocks {%
-  ([, blocks]): StyProg<C> => ({
+input -> _ml items {%
+  ([, items]): StyProg<C> => ({
     ...nodeData,
-    ...rangeFrom(blocks),
-    tag: "StyProg", blocks
+    ...rangeFrom(items),
+    tag: "StyProg", items
   })
 %}
 
-header_blocks -> header_block:* {% id %}
+items -> item:* {% id %}
 
-header_block -> header block _ml {%
-  ([header, block]): HeaderBlock<C> => ({
-    ...nodeData,
-    ...rangeFrom([header, block]), 
-    tag:"HeaderBlock", header, block 
-  })
-%}
+item 
+  -> header block _ml {%
+    ([header, block]): HeaderBlock<C> => ({
+      ...nodeData,
+      ...rangeFrom([header, block]), 
+      tag:"HeaderBlock", header, block 
+    })
+  %}
+  | "layout" _ "=" _ stage_list _ml {%
+    ([kw, , , , stages]): LayoutStages<C> => ({
+      ...nodeData,
+      // ...rangeFrom([kw, ...stages]),
+      ...rangeBetween(kw, stages[stages.length - 1]),
+      tag: "LayoutStages",
+      contents: stages
+    })
+  %}
 
 ################################################################################
 # Selector grammar
@@ -365,7 +374,7 @@ type
       tag: 'TypeOf', contents
     }) 
   %}
-  |  identifier "[]" {% ([contents]): StyType<C> => ({
+  |  identifier "[" "]" {% ([contents]): StyType<C> => ({
       ...nodeData,
       ...rangeOf(contents), 
       tag: 'ListOf', contents
