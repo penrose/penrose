@@ -21,6 +21,8 @@ import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App";
 import { generateVariation } from "./variation";
 
+export const EDITOR_VERSION = 0.1;
+
 export type ProgramType = "substance" | "style" | "domain";
 
 export type GistLocation = {
@@ -52,8 +54,10 @@ export type WorkspaceLocation =
 
 export type WorkspaceMetadata = {
   name: string;
+  // ISO String of date
   lastModified: string;
   id: string;
+  // Gist ID
   forkedFromGist: string | null;
   editorVersion: number;
   location: WorkspaceLocation;
@@ -343,6 +347,17 @@ export type LocalGithubUser = {
   username: string;
   avatar: string;
   accessToken: string;
+};
+
+export type GistMetadata = {
+  name: string;
+  editorVersion: number;
+  forkedFromGist: string | null;
+  fileNames: {
+    substance: string;
+    style: string;
+    domain: string;
+  };
 };
 
 export type Settings = {
