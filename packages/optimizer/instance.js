@@ -5,10 +5,6 @@ import init from "./build/penrose_optimizer_web";
 // this `import`
 import bytes from "./build/penrose_optimizer_web_bg.wasm";
 
-// we let this be initialized sometime after module load, because our usage of
-// webpack for `docs-site` prevents us from using top-level `await` here
-export let maybeOptimizer = undefined;
-
 // we pass `--target=web` to `wasm-bindgen`, because we need control over the
 // way the WebAssembly module is initialized; and we pass
 // `--define:import.meta.url=null` to esbuild, because in web mode,
@@ -18,6 +14,4 @@ export let maybeOptimizer = undefined;
 // bytes directly to `init`, we don't need that default case, so we just tell
 // esbuild to replace `import.meta.url` with something that doesn't trigger
 // Vite's special asset handling
-export const optimizerReady = init(bytes).then((output) => {
-  maybeOptimizer = output;
-});
+export default await init(bytes);
