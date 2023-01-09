@@ -55,6 +55,8 @@ const lexer = moo.compile({
       encourage: "encourage",
       ensure: "ensure",
       override: "override",
+      in: "in",
+      except: "except",
     })
   }
 });
@@ -559,7 +561,7 @@ computation_function -> identifier _ "(" expr_list ")" {%
 %}
 
 stage_list 
-  -> identifier {% (d) => [d] %}
+  -> identifier {% (d) => d %}
   |  "(" _ sepBy1[identifier, ","] _ ")" {% nth(2) %}
 
 objective -> "encourage" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 

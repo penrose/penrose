@@ -2778,7 +2778,7 @@ const stageExpr = (
     ? "All"
     : new Set(
         excludeFlag
-          ? overallStages.filter((s) => overallStages.includes(s))
+          ? overallStages.filter((s) => !stageList.includes(s))
           : stageList
       );
 
@@ -2867,6 +2867,7 @@ const translateExpr = (
           trans
         );
       }
+
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,

@@ -244,7 +244,7 @@ describe("Staged constraints", () => {
         X.icon = Circle {}
         X.text = Text {}
         ensure contains(X.icon, X.text) in (ShapeLayout, LabelLayout)
-        encourage minimal(X.icon.r) in (LabelLayout, Overall)
+        encourage minimal(X.icon.r) in LabelLayout
       }
       `,
     });
@@ -257,7 +257,7 @@ describe("Staged constraints", () => {
       .statements[3] as AnonAssign<C>;
     const encourageExpr = encourageStmt.contents as ConstrFn<C>;
     const stages2 = encourageExpr.stages.map((e) => e.value);
-    expect(stages2).toEqual(["LabelLayout", "Overall"]);
+    expect(stages2).toEqual(["LabelLayout"]);
   });
 });
 
