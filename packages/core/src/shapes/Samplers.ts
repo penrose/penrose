@@ -77,14 +77,14 @@ export const sampleVector = (
 ): VectorV<ad.Num> =>
   vectorV([
     makeInput({
+      tag: "Optimized",
       sampler: uniform(...canvas.xRange),
       stages: "All",
-      tag: "Optimized",
     }),
     makeInput({
+      tag: "Optimized",
       sampler: uniform(...canvas.yRange),
       stages: "All",
-      tag: "Optimized",
     }),
   ]);
 
@@ -94,9 +94,9 @@ export const sampleWidth = (
 ): FloatV<ad.Num> =>
   floatV(
     makeInput({
+      tag: "Optimized",
       sampler: uniform(3, canvas.width / 6),
       stages: "All",
-      tag: "Optimized",
     })
   );
 
@@ -106,18 +106,18 @@ export const sampleHeight = (
 ): FloatV<ad.Num> =>
   floatV(
     makeInput({
+      tag: "Optimized",
       sampler: uniform(3, canvas.height / 6),
       stages: "All",
-      tag: "Optimized",
     })
   );
 
 export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
   floatV(
     makeInput({
+      tag: "Optimized",
       sampler: uniform(0.5, 3),
       stages: "All",
-      tag: "Optimized",
     })
   );
 
@@ -127,19 +127,19 @@ export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
     tag: "RGBA",
     contents: [
       makeInput({
+        tag: "Optimized",
         sampler: uniform(min, max),
         stages: "All",
-        tag: "Optimized",
       }),
       makeInput({
+        tag: "Optimized",
         sampler: uniform(min, max),
         stages: "All",
-        tag: "Optimized",
       }),
       makeInput({
+        tag: "Optimized",
         sampler: uniform(min, max),
         stages: "All",
-        tag: "Optimized",
       }),
       0.5,
     ],
