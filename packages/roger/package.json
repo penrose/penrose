@@ -3,9 +3,7 @@
   "version": "1.3.0",
   "description": "The Penrose CLI",
   "author": "penrose",
-  "bin": {
-    "roger": "./bin/run"
-  },
+  "bin": "./bin/run",
   "homepage": "https://github.com/penrose/penrose",
   "license": "MIT",
   "main": "dist/index.js",
