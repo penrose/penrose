@@ -145,7 +145,7 @@ export interface DeconstructNonconstructor {
 
 export interface MultipleLayoutError {
   tag: "MultipleLayoutError";
-  decls: LayoutStages<A>[];
+  decls: LayoutStages<C>[];
 }
 
 // NOTE: for debugging purposes
