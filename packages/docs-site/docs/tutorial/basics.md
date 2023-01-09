@@ -2,21 +2,17 @@
 
 This is the first diagram we will make together. This is the equivalent of the `print("Hello World")` program for Penrose. To make any mathematical diagram, we first need to visualize some **shapes** that we want. In this tutorial, we will learn about how to build a triple (`.dsl`, `.sub`, `.sty`) for a simple diagram containing two circles.
 
+👉 [**Open this online workspace**](pathname:///try/index.html?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial1) in a separate tab to follow along!
+
 ## Goal
 
 ![exercise 1 result](/img/tutorial/2sets_nolabel.png)
 
 This is what you will achieve at the end of this tutorial. If you are familiar with set theory you may recognize that circles are commonly used to represent sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later 😬).
 
-## Cloning the Repo
-
-Before we dive in, make a fork of [the Penrose repo](https://github.com/penrose/penrose), which contains the starter code for all of the tutorials (as well as solutions for checking your work) in the subdirectory `packages/examples/src/tutorials/`. Save it somewhere easy to access, like your Home directory or Desktop!
-
-We will be editing the files provided in the `./packages/examples/src/tutorials/code/tutorial1` subfolder of this repo.
-
 ## 📄 Domain
 
-It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`.
+It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can name our domain file `setTheory.dsl`.
 
 Recall that a `.dsl` file defines the possible types of objects in our domain. Essentially, we are _teaching_ Penrose the necessary vocabulary that we use to communicate our concept. For example, recall our example of a house from the introduction. Penrose has no idea that there are objects of type "plant" or "furniture" in a house, but we can describe them to Penrose using the `type` keyword.
 
@@ -59,8 +55,8 @@ We first need to specify the dimensions of the canvas that our diagram will be d
 
 ```
 canvas {
-  width = (* some width *)
-  height = (* some height *)
+  width = -- [some width]
+  height = -- [some height]
 }
 ```
 
@@ -76,7 +72,7 @@ In this case, our `Type` is `Set`, and we want all of our sets to be circles. We
 
 ```
 forall Set x {
-    x.icon = (* some shape object *)
+    x.icon = -- [some shape object]
 }
 ```
 
@@ -98,7 +94,15 @@ And that's a wrap! 🎉
 
 ## 🏗️ Compile
 
-Now it's time to see all of our hard work (drumroll please 🥁)! To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need to do the following:
+Now it's time to see all of our hard work (drumroll please 🥁)!
+
+### In the editor
+
+Click the `Compile` button.
+
+### Locally
+
+To compile your Penrose programs locally (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need to do the following:
 
 - Open two terminals at the Penrose root directory.
 - In the first terminal, run `yarn start` to launch Penrose on your computer and get the browser window to show up.
