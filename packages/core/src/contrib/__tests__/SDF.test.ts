@@ -11,7 +11,7 @@ import * as ad from "types/ad";
 import { Shape } from "types/shapes";
 import { FloatV } from "types/value";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
-import { compDict, sdEllipse } from "./Functions";
+import { compDict, sdEllipse } from "../Functions";
 
 await ready;
 
