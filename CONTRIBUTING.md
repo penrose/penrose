@@ -244,12 +244,6 @@ To delete all build artifacts (but no `node_modules/`):
 git clean -dfxe node_modules/
 ```
 
-To delete the Nx build artifact cache:
-
-```sh
-npx rimraf node_modules/.cache/
-```
-
 To delete `node_modules/` (but not build artifacts) in all `packages/`:
 
 ```sh
@@ -322,14 +316,6 @@ metadata in all our `package/*/package.json` files. Specifically, below the
 `"scripts"` section we usually have a `"nx"` section defining metadata about
 each script. When you update a script, be sure to update its accompanying
 metadata!
-
-By default, Nx does not cache tasks; we collect the names of all tasks to cache
-in the `"cacheableOperations"` part of our `nx.json` file. If you create a new
-script that you would like to be cached, remember to add its name to that list.
-This also implies that two scripts with the same name in different packages
-should not have different caching behavior, so if you don't want your script to
-be cached, check in `nx.json` first to make sure you aren't using a name that is
-already considered cacheable.
 
 The `"targetDefaults"` part of `nx.json` defines default dependencies for some
 scripts for which we use the same semantics across all our packages:

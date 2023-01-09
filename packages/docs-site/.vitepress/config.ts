@@ -95,7 +95,7 @@ export default defineConfig({
   description:
     "Create beautiful diagrams just by typing math notation in plain text.",
 
-  cleanUrls: "with-subfolders",
+  cleanUrls: "without-subfolders",
   ignoreDeadLinks: true,
   outDir: "build",
 
@@ -171,10 +171,6 @@ export default defineConfig({
               link: "/docs/tutorial/predicates",
             },
             { text: "Functions", link: "/docs/tutorial/functions" },
-            {
-              text: "Writing Constraints & Objectives",
-              link: "/docs/tutorial/constraints",
-            },
           ],
         },
       ],
@@ -238,6 +234,15 @@ export default defineConfig({
                 },
                 { text: "Examples", link: "/docs/ref/style/examples" },
               ],
+            },
+          ],
+        },
+        {
+          text: "For Developers",
+          items: [
+            {
+              text: "Writing Constraints & Objectives",
+              link: "/docs/ref/constraints",
             },
           ],
         },

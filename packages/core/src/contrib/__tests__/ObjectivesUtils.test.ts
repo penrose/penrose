@@ -1,8 +1,5 @@
-import { ready } from "@penrose/optimizer";
 import { inDirection } from "contrib/ObjectivesUtils";
 import { numOf } from "contrib/Utils";
-
-await ready;
 
 const testShape = { center: { contents: [0, 2] } };
 const testRefShape = { center: { contents: [1, 1] } };

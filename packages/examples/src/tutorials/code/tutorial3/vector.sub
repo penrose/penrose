@@ -9,8 +9,8 @@ Vector w
 In(v, U)
 In(w, U)
 
-/**************YOUR CODE - START********************/
+-- Start your code below
 
-/**************YOUR CODE - END**********************/
 
+-- End your code above
 AutoLabel All /* leave this as the last line */

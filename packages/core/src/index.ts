@@ -1,4 +1,4 @@
-import { getInitConstraintWeight, ready } from "@penrose/optimizer";
+import { initConstraintWeight } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -47,10 +47,10 @@ export const resample = (state: State): State => {
     ),
     params: {
       ...state.params,
-      weight: getInitConstraintWeight(),
+      gradMask: state.inputs.map((meta) => meta.tag === "Optimized"),
+      weight: initConstraintWeight,
       optStatus: "NewIter",
     },
-    frozenValues: [],
   };
 };
 
@@ -202,8 +202,6 @@ export const compileTrio = async (prog: {
   domain: string;
   variation: string;
 }): Promise<Result<State, PenroseError>> => {
-  await ready;
-
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
@@ -306,8 +304,8 @@ export const evalFns = (
       ...s.varyingValues,
       s.params.weight,
     ]);
-    lastObjEnergies = secondary.slice(0, s.params.numObjEngs);
-    lastConstrEnergies = secondary.slice(s.params.numObjEngs);
+    lastObjEnergies = secondary.slice(0, s.params.objMask.length);
+    lastConstrEnergies = secondary.slice(s.params.objMask.length);
   }
   return {
     constrEngs: new Map(

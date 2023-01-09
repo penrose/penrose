@@ -1,4 +1,3 @@
-import { ready } from "@penrose/optimizer";
 import {
   circleToImplicitEllipse,
   ellipsePolynomial,
@@ -14,8 +13,6 @@ import { makeEllipse } from "shapes/Ellipse";
 import { makeCanvas, simpleContext } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { black, floatV, vectorV, zip2 } from "utils/Util";
-
-await ready;
 
 describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {

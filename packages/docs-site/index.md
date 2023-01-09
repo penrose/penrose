@@ -4,16 +4,13 @@ hero:
   name: Penrose
   text: Create beautiful diagrams
   tagline: just by typing math notation in plain text.
-  image:
-    src: /img/logo.svg
-    alt: Penrose
   actions:
     - theme: brand
       text: Tutorial
       link: /docs/tutorial/welcome
     - theme: sponsor
       text: Try
-      link: /try/index.html
+      link: pathname:///try/index.html
     - theme: alt
       text: Video
       link: https://vimeo.com/416822487
