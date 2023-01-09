@@ -269,6 +269,7 @@ function App() {
   const localFiles = useRecoilValueLoadable(localFilesState);
   const settings = useRecoilValueLoadable(settingsState);
   useEffect(() => {
+    // If settings is loaded
     if (settings.state === "hasValue") {
       checkURL();
     }

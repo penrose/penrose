@@ -1,4 +1,3 @@
-import { ready } from "@penrose/optimizer";
 import { constrDict } from "contrib/Constraints";
 import { numOf } from "contrib/Utils";
 import {
@@ -9,8 +8,6 @@ import {
   _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
 import * as ad from "types/ad";
-
-await ready;
 
 const digitPrecision = 10;
 
