@@ -3143,53 +3143,6 @@ const fakePath = (name: string, members: string[]): Path<A> => ({
   indices: [],
 });
 
-// const disjointFromLabels = (shape: ShapeAD, shapes: ShapeAD[]): Fn[] =>
-//   shapes
-//     .filter((s) => s.shapeType === "Text" || s.shapeType === "Equation")
-//     .filter(
-//       (l) => l.properties.name.contents !== shape.properties.name.contents
-//     )
-//     .map((label: ShapeAD) => ({
-//       ast: {
-//         context: {
-//           block: { tag: "NamespaceId", contents: "canvas" }, // doesn't matter
-//           subst: {},
-//           locals: im.Map(),
-//         },
-//         expr: {
-//           tag: "ConstrFn",
-//           nodeType: "SyntheticStyle",
-//           name: dummyId("disjoint"),
-//           label: false, // COMBAK: distinguish between label and shape
-//           args: [
-//             // HACK: the right way to do this would be to parse `name` into
-//             // the correct `Path`, but we don't really care as long as it
-//             // pretty-prints into something that looks right
-//             fakePath(shape.properties.name.contents as string, []),
-//             fakePath(label.properties.name.contents as string, []),
-//           ],
-//         },
-//       },
-//       output: constrDict.disjoint(
-//         [shape.shapeType, shape.properties],
-//         [label.shapeType, label.properties]
-//       ),
-//       optStages: ["LabelLayout", "Overall"], // COMBAK: distinguish between label and shape
-//     }));
-
-// const avoidLabels = (shapes: ShapeAD[]): Fn[] => {
-//   const labelShapes = shapes.filter(
-//     (s) => s.shapeType === "Text" || s.shapeType === "Equation"
-//   );
-//   return labelShapes.flatMap((l) => disjointFromLabels(l, shapes));
-// };
-
-// const disjointLabelsAndShapes = (shapes: ShapeAD[]): Fn[] => {
-//   return shapes
-//     .filter(({ shapeType }) => shapeType === "Line" || shapeType === "Arrow")
-//     .flatMap((s) => disjointFromLabels(s, shapes));
-// };
-
 const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
   const fns: Fn[] = [];
   for (const shape of shapes) {
@@ -3346,8 +3299,6 @@ export const compileStyleHelper = async (
   const constrFns = [
     ...translation.constraints,
     ...onCanvases(canvas.value, shapes),
-    // ...avoidLabels(shapes),
-    // ...disjointLabelsAndShapes(shapes),
   ];
 
   const constraintSets = stageConstraints(
