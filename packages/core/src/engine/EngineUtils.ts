@@ -1,6 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { getInitConstraintWeight, Gradient } from "@penrose/optimizer";
+import { Gradient } from "@penrose/optimizer";
 import _ from "lodash";
 import { InputMeta } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
@@ -282,8 +282,8 @@ export const genGradient = async (
 
   // This changes with the EP round, gets bigger to weight the constraints
   // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
-  const weight = getInitConstraintWeight();
-  const epWeightNode = input({ val: weight, key: inputs.length });
+  // But its initial `val` gets compiled away, so we just set it to zero here
+  const epWeightNode = input({ val: 0, key: inputs.length });
 
   // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
   // The energies are in the val field of the results (w/o grads)
