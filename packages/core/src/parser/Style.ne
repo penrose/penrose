@@ -139,7 +139,6 @@ item
   | "layout" _ "=" _ stage_list _ml {%
   ([kw, , , , stages]): LayoutStages<C> => ({
       ...nodeData,
-      // ...rangeFrom([kw, ...stages]),
       ...rangeBetween(kw, stages[stages.length - 1]),
       tag: "LayoutStages",
       contents: stages
