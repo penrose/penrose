@@ -198,7 +198,7 @@ describe("Staged constraints", () => {
       sty:
         canvasPreamble +
         `
-      layout = (ShapeLayout, LabelLayout, Overall)
+      layout = [ShapeLayout, LabelLayout, Overall]
       `,
     });
     expect(S.getLayoutStages(ex2).unsafelyUnwrap()).toEqual([
@@ -216,7 +216,7 @@ describe("Staged constraints", () => {
         `
       forall Set X {
         X.icon = Circle {
-          center: (? in (Overall, ShapeLayout), ? except (Overall, LabelLayout))
+          center: (? in [Overall, ShapeLayout], ? except [Overall, LabelLayout])
         }
       }
       `,
@@ -243,7 +243,7 @@ describe("Staged constraints", () => {
       forall Set X {
         X.icon = Circle {}
         X.text = Text {}
-        ensure contains(X.icon, X.text) in (ShapeLayout, LabelLayout)
+        ensure contains(X.icon, X.text) in [ShapeLayout, LabelLayout]
         encourage minimal(X.icon.r) in LabelLayout
       }
       `,
