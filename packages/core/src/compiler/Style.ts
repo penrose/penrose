@@ -3237,10 +3237,8 @@ export const stageConstraints = (
   constrFns: Fn[],
   objFns: Fn[],
   stages: OptPipeline
-): {
-  constraintSets: StagedConstraints;
-} => {
-  const constraintSets = Object.fromEntries(
+): StagedConstraints =>
+  new Map(
     stages.map((stage) => [
       stage,
       {
@@ -3257,8 +3255,6 @@ export const stageConstraints = (
       },
     ])
   );
-  return { constraintSets };
-};
 
 export const compileStyleHelper = async (
   variation: string,
@@ -3353,7 +3349,7 @@ export const compileStyleHelper = async (
     // ...disjointLabelsAndShapes(shapes),
   ];
 
-  const { constraintSets } = stageConstraints(
+  const constraintSets = stageConstraints(
     inputs,
     constrFns,
     objFns,

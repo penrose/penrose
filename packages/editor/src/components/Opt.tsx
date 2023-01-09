@@ -22,7 +22,9 @@ export default function Opt() {
     constrFns,
     objFns,
   } = state;
-  const { objMask, constrMask } = constraintSets[optStages[currentStageIndex]];
+  const { objMask, constrMask } = constraintSets.get(
+    optStages[currentStageIndex]
+  )!;
 
   const { constrEngs, objEngs } = evalFns(state);
   const constrEngsNamed = zip2(constrFns.map(prettyPrintFn), constrEngs);
