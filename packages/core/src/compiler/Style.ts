@@ -2773,14 +2773,17 @@ const stageExpr = (
   overallStages: string[],
   excludeFlag: boolean,
   stageList: string[]
-): OptStages =>
-  stageList.length === 0
-    ? "All"
-    : new Set(
-        excludeFlag
-          ? overallStages.filter((s) => !stageList.includes(s))
-          : stageList
-      );
+): OptStages => {
+  if (excludeFlag) {
+    const stages = new Set(overallStages);
+    for (const stage of stageList) {
+      stages.delete(stage);
+    }
+    return stages;
+  } else {
+    return new Set(stageList);
+  }
+};
 
 const translateExpr = (
   mut: MutableContext,
