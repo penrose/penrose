@@ -1,0 +1,152 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Shape s {
+    s.eq = Equation {
+        center: s.center
+        string: s.label
+        fontSize: 15
+    }
+}
+
+forall Center c {
+    c.center = (?, ?)
+    c.r = ?
+    c.circle = Circle {
+        center: c.center
+        r: c.r
+        fillColor: rgba(0, 0, 0, 0)
+        strokeWidth: 2
+        strokeStyle: "dashed"
+        strokeColor: rgba(0, 0, 0, 1)
+    }
+    c.point = Circle {
+        center: c.center
+        fillColor: rgba(0, 0, 0, 1)
+        r: 3
+    }
+    c.eq = Equation {
+        string: c.label
+        fontSize: 15
+    }
+    ensure lessThan(100, c.r)
+    ensure touching(c.eq, c.circle, 5)
+}
+
+forall Circle c {
+    c.center = (?, ?)
+    c.r = ?
+    c.circle = Circle {
+        center: c.center
+        r: c.r
+    }
+    ensure lessThan(30, c.r)
+}
+
+forall Point p {
+    p.pos = (?, ?)
+    p.point = Circle {
+      r: 5
+      center: p.pos
+    }
+}
+
+forall Line l {
+    l.line = Line {
+        strokeWidth: 3
+    }
+}
+
+forall Shape s; Point p; Center r
+where s := Inversion( p, r ) {
+    s.d2 = vdistsq(p.pos, r.center)
+    s.coef = r.r * r.r / s.d2
+    s.x = r.center[0] + s.coef * (p.pos[0] - r.center[0])
+    s.y = r.center[1] + s.coef * (p.pos[1] - r.center[1])
+    s.pos = (s.x, s.y)
+    s.point = Circle {
+        r: 5
+        fillColor: p.point.fillColor
+        center: s.pos
+    }
+}
+
+forall Shape s; Line l; Center r
+where s := Inversion( l, r ) {
+
+    s.coef1 = r.r * r.r / vdistsq(l.line.start, r.center)
+    s.p1x = r.center[0] + s.coef1 * (l.line.start[0] - r.center[0])
+    s.p1y = r.center[1] + s.coef1 * (l.line.start[1] - r.center[1])
+    s.p1 = (s.p1x, s.p1y)
+
+    s.coef2 = r.r * r.r / vdistsq(l.line.end , r.center)
+    s.p2x = r.center[0] + s.coef2 * (l.line.end [0] - r.center[0])
+    s.p2y = r.center[1] + s.coef2 * (l.line.end [1] - r.center[1])
+    s.p2 = (s.p2x, s.p2y)
+
+    s.v1 = (l.line.start[0] - r.center[0], l.line.start[1] - r.center[1])
+    s.v2 = (l.line.end[0] - l.line.start[0], l.line.end[1] - l.line.start[1])
+    s.rho = (s.v1[0] * s.v2[0] + s.v1[1] * s.v2[1]) / (s.v2[0] * s.v2[0] + s.v2[1] * s.v2[1])
+    s.rhov2 = vmul(s.rho, s.v2)
+    s.d2 = vdistsq(s.v1, s.rhov2)
+    s.cr2 = r.r * r.r
+    s.r = s.cr2 * sqrt(s.cr2 - s.d2) / (s.cr2 - 2 * s.d2)
+
+    s.line = Path {
+        d: arc("open", s.p1, s.p2, (s.r, s.r), 0, 1, 0)
+        strokeColor: l.line.strokeColor
+        strokeWidth: 3
+        ensureOnCanvas: false
+   }
+}
+
+forall Shape s; Circle c; Center r
+where s := Inversion( c, r ) {
+    s.d = vdist( c.center, r.center )
+
+    s.coef1 = ( s.d - c.r ) / s.d
+    s.p1x = r.center[0] + s.coef1 * (c.center[0] - r.center[0])
+    s.p1y = r.center[1] + s.coef1 * (c.center[1] - r.center[1])
+    s.p1 = ( s.p1x, s.p1y )
+
+    s.i1coef = r.r * r.r / vdistsq( r.center, s.p1 )
+    s.ip1x = r.center[0] + s.i1coef * ( s.p1x  - r.center[0] )
+    s.ip1y = r.center[1] + s.i1coef * ( s.p1y  - r.center[1] )
+    s.ip1 = (s.ip1x, s.ip1y)
+
+    s.coef2 = (s.d + c.r) / s.d
+    s.p2x = r.center[0] + s.coef2 * (c.center[0] - r.center[0])
+    s.p2y = r.center[1] + s.coef2 * (c.center[1] - r.center[1])
+    s.p2 = ( s.p2x, s.p2y )
+
+    s.i2coef = r.r * r.r / vdistsq( r.center, s.p2 )
+    s.ip2x = r.center[0] + s.i2coef * ( s.p2x  - r.center[0] )
+    s.ip2y = r.center[1] + s.i2coef * ( s.p2y  - r.center[1] )
+    s.ip2 = (s.ip2x, s.ip2y)
+
+    s.r = vdist(s.ip1, s.ip2) / 2
+    s.center = ( (s.ip1x + s.ip2x) / 2, (s.ip1y + s.ip2y) / 2 )
+
+    s.circle = Circle {
+        r: s.r
+        fillColor: c.circle.fillColor
+        center: s.center
+    }
+
+    ensure lessThan(30, s.r)
+}
+
+forall Circle c1; Circle c2 {
+    ensure touching(c1.circle, c2.circle)
+}
+
+
+forall Center r; Circle c {
+    ensure contains(r.circle, c.circle, 30)
+}
+
+forall Shape s1; Shape s2 {
+    s1.eq above s2.circle
+}
