@@ -47,14 +47,14 @@ export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
   fillColor: sampleColor(context),
   center: vectorV([
     context.makeInput({
+      tag: "Optimized",
       sampler: uniform(...canvas.xRange),
       stages: "All",
-      tag: "Optimized",
     }),
     context.makeInput({
+      tag: "Optimized",
       sampler: uniform(...canvas.yRange),
       stages: "All",
-      tag: "Optimized",
     }),
   ]),
   width: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
