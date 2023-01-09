@@ -36,23 +36,46 @@ import {
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
+import { StyleFunction } from "types/functions";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
+const equal: StyleFunction = {
+  name: "equal",
+  documentation: "Require that the value `x` is equal to the value `y`",
+  arguments: [
+    { name: "x", description: "First value", type: "real" },
+    { name: "y", description: "Second value", type: "real" },
+  ],
+  function: (x: ad.Num, y: ad.Num) => {
+    return absVal(sub(x, y));
+  },
+};
+
+const lessThan: StyleFunction = {
+  name: "lessThan",
+  documentation:
+    "Require that the value `x` is less than the value `y` with optional padding `padding`",
+  arguments: [
+    { name: "x", description: "First value", type: "real" },
+    { name: "y", description: "Second value", type: "real" },
+    { name: "padding", description: "Padding", type: "real", default: "0" },
+  ],
+  function: (x: ad.Num, y: ad.Num, padding: number = 0) => {
+    return add(sub(x, y), padding);
+  },
+};
+
 const constrDictSimple = {
   /**
    * Require that the value `x` is equal to the value `y`
    */
-  equal: (x: ad.Num, y: ad.Num) => {
-    return absVal(sub(x, y));
-  },
+  equal: equal.function,
 
   /**
    * Require that the value `x` is less than the value `y` with optional padding `padding`
    */
-  lessThan: (x: ad.Num, y: ad.Num, padding = 0) => {
-    return add(sub(x, y), padding);
-  },
+  lessThan: lessThan.function,
 
   /**
    * Require that the value `x` is greater than the value `y` with optional padding `padding`
