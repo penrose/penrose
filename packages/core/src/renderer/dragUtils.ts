@@ -1,3 +1,4 @@
+import { genOptProblem } from "@penrose/optimizer";
 import * as ad from "types/ad";
 import { Properties, ShapeAD } from "types/shape";
 import { State } from "types/state";
@@ -20,15 +21,11 @@ export const dragUpdate = (
       }
     }
   }
-  // TODO: reset constraint set
-  const { constraintSets } = state;
+  const { constraintSets, optStages } = state;
+  const { inputMask, objMask, constrMask } = constraintSets[optStages[0]];
   const updated: State = {
     ...state,
-    params: {
-      ...state.params,
-      gradMask,
-      optStatus: "NewIter",
-    },
+    params: genOptProblem(inputMask, objMask, constrMask),
     varyingValues: xs,
   };
   return updated;
