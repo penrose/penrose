@@ -135,7 +135,7 @@ item
     })
   %}
   | "layout" _ "=" _ stage_list _ml {%
-    ([kw, , , , stages]): LayoutStages<C> => ({
+  ([kw, , , , stages]): LayoutStages<C> => ({
       ...nodeData,
       // ...rangeFrom([kw, ...stages]),
       ...rangeBetween(kw, stages[stages.length - 1]),
@@ -525,13 +525,14 @@ string_lit -> %string_literal {%
 %}
 
 annotated_float 
-  -> "?" (__ "in" __ stage_list):? {% 
-    ([d, stages]): Vary<C> => ({ 
+  -> "?" (__ ("in"|"except") __ stage_list):? {% 
+    ([d, stages]): Vary<C> => ({
       ...nodeData, 
       ...rangeOf(d), // TODO: fix range
       tag: 'Vary',
-      stages: stages ? stages[3] : []
-    }) 
+      stages: stages ? stages[3] : [],
+      exclude: stages ? stages[1][0].value === "except" : false,
+    })
   %}
   |  %float_literal {% 
     ([d]): Fix<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
@@ -561,24 +562,26 @@ stage_list
   -> identifier {% (d) => [d] %}
   |  "(" _ sepBy1[identifier, ","] _ ")" {% nth(2) %}
 
-objective -> "encourage" __ identifier _ "(" expr_list ")" (__ "in" __ stage_list):? {% 
+objective -> "encourage" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 
   ([kw, , name, , , args, rparen, stages]): ObjFn<C> => {
     return {
       ...nodeData,
       ...rangeBetween(kw, rparen), // TODO: fix range
       tag: "ObjFn",
       stages: stages ? stages[3] : [],
+      exclude: stages ? stages[1][0].value === "except" : false,
       name, args
     } 
   }
 %}
 
-constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ "in" __ stage_list):? {% 
+constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 
   ([kw, , name, , , args, rparen, stages]): ConstrFn<C> => ({
     ...nodeData,
     ...rangeBetween(kw, rparen), // TODO: fix range
     tag: "ConstrFn",
     stages: stages ? stages[3] : [], 
+    exclude: stages ? stages[1][0].value === "except" : false,
     name, args
   }) 
 %}

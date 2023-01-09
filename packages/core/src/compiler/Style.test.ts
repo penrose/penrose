@@ -17,7 +17,6 @@ import {
   HeaderBlock,
   PathAssign,
   StyProg,
-  Vary,
   Vector,
 } from "types/style";
 import { Assignment, DepGraph, Layer, Translation } from "types/styleSemantics";
@@ -217,7 +216,7 @@ describe("Staged constraints", () => {
         `
       forall Set X {
         X.icon = Circle {
-          center: (? in (Overall, ShapeLayout), ? in (Overall, LabelLayout))
+          center: (? in (Overall, ShapeLayout), ? except (Overall, LabelLayout))
         }
       }
       `,
@@ -226,9 +225,11 @@ describe("Staged constraints", () => {
       .statements[0] as PathAssign<C>;
     const gpiDecl = gpiStmt.value as GPIDecl<C>;
     const rValue = gpiDecl.properties[0].value as Vector<C>;
-    const [vary1, vary2] = rValue.contents;
-    const stages1 = (vary1 as Vary<C>).stages.map((e) => e.value);
-    const stages2 = (vary2 as Vary<C>).stages.map((e) => e.value);
+    const [vary1, vary2] = rValue.contents as [any, any];
+    expect(vary1.exclude).toEqual(false);
+    expect(vary2.exclude).toEqual(true);
+    const stages1 = vary1.stages.map((e: any) => e.value);
+    const stages2 = vary2.stages.map((e: any) => e.value);
     expect(stages1).toEqual(["Overall", "ShapeLayout"]);
     expect(stages2).toEqual(["Overall", "LabelLayout"]);
   });
