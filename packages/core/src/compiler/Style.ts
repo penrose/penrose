@@ -3095,8 +3095,10 @@ export const getLayoutStages = (
     (i): i is LayoutStages<C> => i.tag === "LayoutStages"
   );
   if (layoutStmts.length === 0) {
-    // if no stages specified, default to "_"
-    return ok(["_"]);
+    // if no stages specified, default to "" because that way nobody can refer
+    // to it, because this is not a valid Style idenitifer; if people want to
+    // refer to a stage, they must define their own layout
+    return ok([""]);
   } else if (layoutStmts.length === 1) {
     return ok(layoutStmts[0].contents.map((s) => s.value));
   } else {
