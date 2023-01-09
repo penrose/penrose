@@ -140,6 +140,7 @@ import {
   matrixV,
   prettyPrintResolvedPath,
   resolveRhsName,
+  safe,
   strV,
   tupV,
   val,
@@ -3364,9 +3365,10 @@ export const compileStyleHelper = async (
     constrFns.map(({ output }) => output)
   );
 
-  const { inputMask, objMask, constrMask } = constraintSets[
-    optimizationStages.value[0]
-  ];
+  const { inputMask, objMask, constrMask } = safe(
+    constraintSets.get(optimizationStages.value[0]),
+    "missing first stage"
+  );
 
   const params = genOptProblem(inputMask, objMask, constrMask);
 

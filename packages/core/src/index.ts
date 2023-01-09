@@ -30,6 +30,7 @@ import {
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
+  safe,
   toSvgPaintProperty,
 } from "./utils/Util";
 
@@ -40,7 +41,10 @@ import {
 export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
   const { constraintSets, optStages } = state;
-  const { inputMask, objMask, constrMask } = constraintSets[optStages[0]];
+  const { inputMask, objMask, constrMask } = safe(
+    constraintSets.get(optStages[0]),
+    "missing first stage"
+  );
   return {
     ...state,
     varyingValues: state.inputs.map((meta, i) =>
@@ -64,7 +68,10 @@ export const stepState = (state: State, numSteps = 10000): State => {
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
     const { constraintSets, optStages, currentStageIndex } = state;
     const nextStage = optStages[currentStageIndex + 1];
-    const { inputMask, objMask, constrMask } = constraintSets[nextStage];
+    const { inputMask, objMask, constrMask } = safe(
+      constraintSets.get(nextStage),
+      "missing next stage"
+    );
     return {
       ...steppedState,
       currentStageIndex: currentStageIndex + 1,
