@@ -1,7 +1,6 @@
 // Must be run from penrose-web for loading files
 
 import { examples } from "@penrose/examples";
-import { ready } from "@penrose/optimizer";
 import * as S from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
 import im from "immutable";
@@ -15,8 +14,6 @@ import { ColorV, RGBA } from "types/value";
 import { andThen, err, Result, showError } from "utils/Error";
 import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
 import { compileDomain } from "./Domain";
-
-await ready;
 
 // TODO: Reorganize and name tests by compiler stage
 
