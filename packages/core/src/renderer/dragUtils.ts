@@ -13,7 +13,9 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
-  const gradMask = state.inputs.map((meta) => meta.tag === "Optimized");
+  const { constraintSets, optStages } = state;
+  const { inputMask, objMask, constrMask } = constraintSets[optStages[0]];
+  const gradMask = [...inputMask];
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {
       for (const id of dragShape(shape, [dx, dy], xs)) {
@@ -21,11 +23,9 @@ export const dragUpdate = (
       }
     }
   }
-  const { constraintSets, optStages } = state;
-  const { inputMask, objMask, constrMask } = constraintSets[optStages[0]];
   const updated: State = {
     ...state,
-    params: genOptProblem(inputMask, objMask, constrMask),
+    params: genOptProblem(gradMask, objMask, constrMask),
     varyingValues: xs,
   };
   return updated;

@@ -2759,8 +2759,7 @@ const evalExpr = (
         val(
           floatV(
             mut.makeInput({
-              tag: "Optimized",
-              sampler: uniform(...canvas.xRange),
+              init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
               stages,
             })
           )
@@ -3243,10 +3242,7 @@ export const stageConstraints = (
     stages.map((stage) => [
       stage,
       {
-        inputMask: inputs.map(
-          (i) =>
-            i.tag === "Optimized" && (i.stages === "All" || i.stages.has(stage))
-        ),
+        inputMask: inputs.map((i) => i.stages === "All" || i.stages.has(stage)),
         constrMask: constrFns.map(
           ({ optStages }) => optStages === "All" || optStages.has(stage)
         ),
@@ -3312,7 +3308,8 @@ export const compileStyleHelper = async (
   const varyingValues: number[] = [];
   const inputs: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
-    const val = meta.tag === "Optimized" ? meta.sampler(rng) : meta.pending;
+    const val =
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending;
     const x = input({ key: varyingValues.length, val });
     varyingValues.push(val);
     inputs.push(meta);

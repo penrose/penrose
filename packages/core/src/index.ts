@@ -45,14 +45,14 @@ export const resample = (state: State): State => {
     constraintSets.get(optStages[0]),
     "missing first stage"
   );
-  return {
+  return insertPending({
     ...state,
-    varyingValues: state.inputs.map((meta, i) =>
-      "sampler" in meta ? meta.sampler(rng) : state.varyingValues[i]
+    varyingValues: state.inputs.map((meta) =>
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
     ),
     currentStageIndex: 0,
     params: genOptProblem(inputMask, objMask, constrMask),
-  };
+  });
 };
 
 /**
