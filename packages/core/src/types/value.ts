@@ -30,9 +30,9 @@ export type Value<T> =
   | FloatV<T>
   | BoolV
   | StrV
+  | ColorV<T>
   | PathDataV<T>
   | PtListV<T>
-  | ColorV<T>
   | ListV<T>
   | VectorV<T>
   | MatrixV<T>

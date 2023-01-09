@@ -147,8 +147,10 @@ export class Gradient {
   private f: WebAssembly.ExportValue;
   private numAddends: number;
   private numSecondary: number;
+  private mod: WebAssembly.Module;
 
   private constructor(
+    mod: WebAssembly.Module,
     instance: WebAssembly.Exports,
     numAddends: number,
     numSecondary: number
@@ -156,6 +158,7 @@ export class Gradient {
     this.f = instance[exportFunctionName];
     this.numAddends = numAddends;
     this.numSecondary = numSecondary;
+    this.mod = mod;
   }
 
   /**
@@ -171,6 +174,7 @@ export class Gradient {
     numSecondary: number
   ): Promise<Gradient> {
     return new Gradient(
+      mod,
       (await WebAssembly.instantiate(mod, makeImports())).exports,
       numAddends,
       numSecondary
@@ -186,6 +190,7 @@ export class Gradient {
     numSecondary: number
   ): Gradient {
     return new Gradient(
+      mod,
       new WebAssembly.Instance(mod, makeImports()).exports,
       numAddends,
       numSecondary
@@ -230,6 +235,10 @@ export class Gradient {
   step(state: OptState, steps: number): OptState {
     this.link();
     return penrose_step(state, index, steps);
+  }
+
+  module(): WebAssembly.Module {
+    return this.mod;
   }
 }
 

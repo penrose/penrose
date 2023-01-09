@@ -8,11 +8,14 @@ import {
   resample,
   showError,
   stateConverged,
-  stepState,
   stepUntilConvergence,
 } from "@penrose/core";
 import React from "react";
 import fetchResolver from "./fetchPathResolver";
+import { Resp } from "./worker/message";
+import OptimizerWorker from "./worker/OptimizerWorker";
+
+const Optimizer = new OptimizerWorker();
 
 export interface SimpleProps {
   domain: string;
@@ -46,6 +49,16 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     const compilerResult = await compileTrio(this.props);
     if (compilerResult.isOk()) {
       this.penroseState = await prepareState(compilerResult.value);
+      // initialize opt worker
+      const { gradient, objFns, constrFns } = this.penroseState;
+      const maskLen = objFns.length + constrFns.length;
+      Optimizer.request({
+        tag: "Init",
+        mod: gradient.module(),
+        numAddends: maskLen,
+        numSecondary: maskLen,
+      });
+      // COMBAK: need to sync here
     } else {
       this.setState({ error: compilerResult.error });
     }
@@ -68,18 +81,39 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       this.penroseState &&
       !stateConverged(this.penroseState)
     ) {
-      this.penroseState = stepState(
-        this.penroseState,
-        this.props.stepSize ?? 1
-      );
-      if (this.props.onFrame) {
-        this.props.onFrame(this.penroseState);
-      }
-      this.renderCanvas();
+      Optimizer.request({
+        tag: "Step",
+        state: this.penroseState,
+        numSteps: this.props.stepSize ?? 1,
+      });
+      // COMBAK: need to sync
     }
   };
 
   componentDidMount = async () => {
+    Optimizer.onmessage = (data: Resp) => {
+      if (this.penroseState) {
+        switch (data.tag) {
+          case "Error":
+            break;
+          case "State": {
+            if (this.props.onFrame) {
+              this.props.onFrame({ ...this.penroseState, ...data.state });
+            }
+            this.renderCanvas();
+            break;
+          }
+          case "Success": {
+            console.log("init success");
+            if (this.props.animate) {
+              this.tick();
+            } else {
+              this.converge();
+            }
+          }
+        }
+      }
+    };
     await this.compile();
     if (!this.props.animate) {
       await this.converge();
