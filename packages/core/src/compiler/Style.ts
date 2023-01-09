@@ -32,6 +32,7 @@ import { Env } from "types/domain";
 import {
   BinOpTypeError,
   LayerCycleWarning,
+  MultipleLayoutError,
   ParseError,
   PenroseError,
   StyleDiagnostics,
@@ -3090,7 +3091,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
 
 export const getLayoutStages = (
   prog: StyProg<C>
-): Result<OptPipeline, StyleError> => {
+): Result<OptPipeline, MultipleLayoutError> => {
   const layoutStmts: LayoutStages<C>[] = prog.items.filter(
     (i): i is LayoutStages<C> => i.tag === "LayoutStages"
   );
@@ -3103,8 +3104,10 @@ export const getLayoutStages = (
     return ok(layoutStmts[0].contents.map((s) => s.value));
   } else {
     // there can be only layout spec
-    // TODO: report error
-    return ok(layoutStmts[0].contents.map((s) => s.value));
+    return err({
+      tag: "MultipleLayoutError",
+      decls: layoutStmts,
+    });
   }
 };
 

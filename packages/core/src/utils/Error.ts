@@ -231,8 +231,14 @@ export const showError = (
     }
 
     case "SelectorAliasNamingError": {
-      return `Incompatible alias name "${error.alias.value}" in style selector: \
-      domain or style pattern statement has already declared the variable ${error.alias.value}`;
+      return `Incompatible alias name "${error.alias.value}" in Style selector: \
+      Domain or Style pattern statement has already declared the variable ${error.alias.value}`;
+    }
+
+    case "MultipleLayoutError": {
+      return `Multiple layout pipelines found in Style (${error.decls
+        .map((d) => loc(d))
+        .join("; ")}). There can only be one unique layout pipeline.`;
     }
     // --- BEGIN BLOCK STATIC ERRORS
 
@@ -612,7 +618,7 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
   messages: messages.map(showError),
 });
 
-// name stands for "`loc` concrete"
+/* name stands for "`loc` concrete" */
 const locc = (nodeType: NodeType, node: SourceRange): string => {
   return `line ${node.start.line}, column ${
     node.start.col + 1
@@ -621,6 +627,7 @@ const locc = (nodeType: NodeType, node: SourceRange): string => {
 
 // const aloc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
+/* pretty-prints source location of an AST node */
 const loc = (node: AbstractNode): string => {
   if (isConcrete(node)) {
     return locc(node.nodeType, node);
