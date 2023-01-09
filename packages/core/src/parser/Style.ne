@@ -532,7 +532,7 @@ annotated_float
       ...rangeOf(d), // TODO: fix range
       tag: 'Vary',
       stages: stages ? stages[3] : [],
-      exclude: stages ? stages[1][0].value === "except" : false,
+      exclude: stages ? stages[1][0].value === "except" : true,
     })
   %}
   |  %float_literal {% 
@@ -570,7 +570,7 @@ objective -> "encourage" __ identifier _ "(" expr_list ")" (__ ("in"|"except") _
       ...rangeBetween(kw, rparen), // TODO: fix range
       tag: "ObjFn",
       stages: stages ? stages[3] : [],
-      exclude: stages ? stages[1][0].value === "except" : false,
+      exclude: stages ? stages[1][0].value === "except" : true,
       name, args
     } 
   }
@@ -582,7 +582,7 @@ constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ 
     ...rangeBetween(kw, rparen), // TODO: fix range
     tag: "ConstrFn",
     stages: stages ? stages[3] : [], 
-    exclude: stages ? stages[1][0].value === "except" : false,
+    exclude: stages ? stages[1][0].value === "except" : true,
     name, args
   }) 
 %}
