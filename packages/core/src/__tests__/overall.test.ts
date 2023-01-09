@@ -12,6 +12,7 @@ import {
   stepUntilConvergence,
 } from "../index";
 import { State } from "../types/state";
+import { safe } from "../utils/Util";
 
 const exampleFromURI = (uri: string): string => {
   let x: any = examples;
@@ -163,6 +164,10 @@ describe("Energy API", () => {
       const smallerThanFns = state.constrFns.filter(
         (c) => c.ast.expr.name.value === "smallerThan"
       );
+      const { inputMask, objMask, constrMask } = safe(
+        state.constraintSets.get(state.optStages[0]),
+        "missing first stage"
+      );
       const stateFiltered = {
         ...state,
         constrFns: smallerThanFns,
@@ -171,11 +176,7 @@ describe("Energy API", () => {
           state.objFns.map(({ output }) => output),
           smallerThanFns.map(({ output }) => output)
         ),
-        params: genOptProblem(
-          state.inputs.map((meta) => meta.tag === "Optimized"),
-          state.objFns.map(() => true),
-          smallerThanFns.map(() => true)
-        ),
+        params: genOptProblem(inputMask, objMask, constrMask),
       };
       expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
     } else {
