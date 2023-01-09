@@ -1,0 +1,16 @@
+{
+  "name": "Tree / Tree / Set Theory",
+  "variation": "",
+  "substance": {
+    "name": "Tree",
+    "path": "tree.sub"
+  },
+  "style": {
+    "name": "Tree",
+    "path": "tree.sty"
+  },
+  "domain": {
+    "name": "Set Theory",
+    "path": "setTheory.dsl"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "All Shapes / Shapes with Default Properties / Shapes",
+  "variation": "",
+  "substance": {
+    "name": "All Shapes",
+    "path": "all-shapes.sub"
+  },
+  "style": {
+    "name": "Shapes with Default Properties",
+    "path": "shape-spec.sty"
+  },
+  "domain": {
+    "name": "Shapes",
+    "path": "all-shapes.dsl"
+  }
+}

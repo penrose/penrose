@@ -1,0 +1,16 @@
+{
+  "name": "Hypergraph / Hypergraph / Hypergraph",
+  "variation": "ConceptualMeerkat694",
+  "substance": {
+    "name": "Hypergraph",
+    "path": "hypergraph.sub"
+  },
+  "style": {
+    "name": "Hypergraph",
+    "path": "hypergraph.sty"
+  },
+  "domain": {
+    "name": "Hypergraph",
+    "path": "hypergraph.dsl"
+  }
+}

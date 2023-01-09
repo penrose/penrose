@@ -1,0 +1,16 @@
+{
+  "name": "Three Water Molecules drawn using strong and weak bonds, using symmetry and aliasing / atoms-and-bonds / Atoms and Bonds",
+  "variation": "SinisterPigeon34750",
+  "substance": {
+    "name": "Three Water Molecules drawn using strong and weak bonds, using symmetry and aliasing",
+    "path": "wet-floor.sub"
+  },
+  "style": {
+    "name": "atoms-and-bonds",
+    "path": "atoms-and-bonds.sty"
+  },
+  "domain": {
+    "name": "Atoms and Bonds",
+    "path": "atoms-and-bonds.dsl"
+  }
+}

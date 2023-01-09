@@ -1,0 +1,16 @@
+{
+  "name": "Two Perpendicular Vectors / Vectors with Dashed Arrows / Linear Algebra",
+  "variation": "",
+  "substance": {
+    "name": "Two Perpendicular Vectors",
+    "path": "twoVectorsPerp-unsugared.sub"
+  },
+  "style": {
+    "name": "Vectors with Dashed Arrows",
+    "path": "linearalgebra-paper-dashes.sty"
+  },
+  "domain": {
+    "name": "Linear Algebra",
+    "path": "linear-algebra.dsl"
+  }
+}

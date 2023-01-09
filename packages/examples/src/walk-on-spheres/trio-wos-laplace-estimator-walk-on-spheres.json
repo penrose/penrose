@@ -1,0 +1,16 @@
+{
+  "name": "WoS Laplace Estimator / Walk on Spheres / Walk on Spheres",
+  "variation": "RainmakerMarten88256",
+  "substance": {
+    "name": "WoS Laplace Estimator",
+    "path": "Laplace.sub"
+  },
+  "style": {
+    "name": "Walk on Spheres",
+    "path": "walk-on-spheres.sty"
+  },
+  "domain": {
+    "name": "Walk on Spheres",
+    "path": "walk-on-spheres.dsl"
+  }
+}

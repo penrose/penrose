@@ -1,0 +1,16 @@
+{
+  "name": "Points around a Star / Sign Distance Functions / Signed Distance Function",
+  "variation": "ReformLapwing68793",
+  "substance": {
+    "name": "Points around a Star",
+    "path": "hundred-points-around-star.sub"
+  },
+  "style": {
+    "name": "Sign Distance Functions",
+    "path": "shape-distance.sty"
+  },
+  "domain": {
+    "name": "Signed Distance Function",
+    "path": "shapes.dsl"
+  }
+}

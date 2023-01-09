@@ -1,0 +1,16 @@
+{
+  "name": "Triangle with Incenter and Right Angle Marker / Euclidean 2D Geometry / Geometry",
+  "variation": "",
+  "substance": {
+    "name": "Triangle with Incenter and Right Angle Marker",
+    "path": "c05p13.sub"
+  },
+  "style": {
+    "name": "Euclidean 2D Geometry",
+    "path": "euclidean.sty"
+  },
+  "domain": {
+    "name": "Geometry",
+    "path": "geometry.dsl"
+  }
+}

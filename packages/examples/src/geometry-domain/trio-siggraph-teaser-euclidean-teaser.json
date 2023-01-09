@@ -1,0 +1,16 @@
+{
+  "name": "SIGGRAPH teaser / Euclidean - SIGGRAPH teaser / Geometry",
+  "variation": "StromboliCat61816",
+  "substance": {
+    "name": "SIGGRAPH teaser",
+    "path": "teaser.sub"
+  },
+  "style": {
+    "name": "Euclidean - SIGGRAPH teaser",
+    "path": "euclidean-teaser.sty"
+  },
+  "domain": {
+    "name": "Geometry",
+    "path": "geometry.dsl"
+  }
+}

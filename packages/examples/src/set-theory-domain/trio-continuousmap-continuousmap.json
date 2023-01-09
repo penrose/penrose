@@ -1,0 +1,16 @@
+{
+  "name": "Continuous Map / Continuous Map / Functions",
+  "variation": "",
+  "substance": {
+    "name": "Continuous Map",
+    "path": "continuousmap.sub"
+  },
+  "style": {
+    "name": "Continuous Map",
+    "path": "continuousmap.sty"
+  },
+  "domain": {
+    "name": "Functions",
+    "path": "functions.dsl"
+  }
+}

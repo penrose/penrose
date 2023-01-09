@@ -1,0 +1,16 @@
+{
+  "name": "Small graph / Disjoint rectangles and lines in box / Graph Theory",
+  "variation": "BriocheChamois5430",
+  "substance": {
+    "name": "Small graph",
+    "path": "small-graph.sub"
+  },
+  "style": {
+    "name": "Disjoint rectangles and lines in box",
+    "path": "disjoint-rect-line-horiz.sty"
+  },
+  "domain": {
+    "name": "Graph Theory",
+    "path": "graph-theory.dsl"
+  }
+}

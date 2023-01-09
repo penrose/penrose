@@ -1,0 +1,16 @@
+{
+  "name": "Parallel Lines with Marker / Euclidean 2D Geometry / Geometry",
+  "variation": "SuluHippopotamus665",
+  "substance": {
+    "name": "Parallel Lines with Marker",
+    "path": "c03p01.sub"
+  },
+  "style": {
+    "name": "Euclidean 2D Geometry",
+    "path": "euclidean.sty"
+  },
+  "domain": {
+    "name": "Geometry",
+    "path": "geometry.dsl"
+  }
+}

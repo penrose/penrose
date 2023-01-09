@@ -1,0 +1,16 @@
+{
+  "name": "Projection onto Subspace and its Orthogonal Complement / Fake 3d Linear Algebra / Fake 3d Linear Algebra",
+  "variation": "ConceptualMeerkat694",
+  "substance": {
+    "name": "Projection onto Subspace and its Orthogonal Complement",
+    "path": "projection.sub"
+  },
+  "style": {
+    "name": "Fake 3d Linear Algebra",
+    "path": "fake3d.sty"
+  },
+  "domain": {
+    "name": "Fake 3d Linear Algebra",
+    "path": "fake3d.dsl"
+  }
+}

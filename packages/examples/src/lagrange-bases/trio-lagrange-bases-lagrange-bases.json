@@ -1,0 +1,16 @@
+{
+  "name": "Lagrange Bases / Lagrange Bases / Lagrange Bases",
+  "variation": "RainmakerMarten88256",
+  "substance": {
+    "name": "Lagrange Bases",
+    "path": "example.sub"
+  },
+  "style": {
+    "name": "Lagrange Bases",
+    "path": "lagrange-bases.sty"
+  },
+  "domain": {
+    "name": "Lagrange Bases",
+    "path": "lagrange-bases.dsl"
+  }
+}

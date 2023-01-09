@@ -1,0 +1,16 @@
+{
+  "name": "Points around a Line / Sign Distance Functions / Signed Distance Function",
+  "variation": "GalapagosLocust418",
+  "substance": {
+    "name": "Points around a Line",
+    "path": "hundred-points-around-line.sub"
+  },
+  "style": {
+    "name": "Sign Distance Functions",
+    "path": "shape-distance.sty"
+  },
+  "domain": {
+    "name": "Signed Distance Function",
+    "path": "shapes.dsl"
+  }
+}

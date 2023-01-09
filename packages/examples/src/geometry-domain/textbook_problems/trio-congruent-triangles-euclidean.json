@@ -1,0 +1,16 @@
+{
+  "name": "Congruent Triangles with Markers / Euclidean 2D Geometry / Geometry",
+  "variation": "OspreySkunk922",
+  "substance": {
+    "name": "Congruent Triangles with Markers",
+    "path": "ex.sub"
+  },
+  "style": {
+    "name": "Euclidean 2D Geometry",
+    "path": "euclidean.sty"
+  },
+  "domain": {
+    "name": "Geometry",
+    "path": "geometry.dsl"
+  }
+}

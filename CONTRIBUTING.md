@@ -175,66 +175,7 @@ yarn typecheck
 
 ### Registry
 
-We have a `packages/examples/src/registry.json` file which lists several
-diagrams from the `packages/examples/src/` directory. All the "trios" listed in
-this file are automatically run in GitHub Actions to produce the SVG files in
-the `ci/*` branches.
-
-If you create a new diagram in `packages/examples/src/` and you'd like to make
-sure that future changes to Penrose don't inadvertently break your diagram, go
-ahead add it to the registry! For instance, let's say you create this directory
-under `packages/examples/src/`:
-
-```
-packages/examples/src/foo-domain/
-├── mydomain.dsl
-├── bar.sty
-└── baz.sub
-```
-
-The first step in adding this to the registry is to add the domain under
-`"domains"`:
-
-```json
-"foo": {
-  "name": "My Domain",
-  "URI": "foo-domain/mydomain.dsl"
-}
-```
-
-Next you can add the style under `"styles"` referring to that domain:
-
-```json
-"mystyle": {
-  "domain": "foo",
-  "name": "My Style",
-  "URI": "foo-domain/bar.sty"
-}
-```
-
-And similarly the substance would go under `"substances"`:
-
-```json
-"mysubstance": {
-  "domain": "foo",
-  "name": "My Substance",
-  "URI": "foo-domain/baz.sub"
-}
-```
-
-Then, if you find that these give a nice diagram using variation
-`CedarEagle308`, you can add the following under `"trios"`:
-
-```json
-{
-  "substance": "mysubstance",
-  "style": "mystyle",
-  "domain": "foo",
-  "variation": "CedarEagle308"
-}
-```
-
-And you're done!
+TODO: update
 
 ### Refresh build
 

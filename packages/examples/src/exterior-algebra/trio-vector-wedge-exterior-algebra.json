@@ -1,0 +1,16 @@
+{
+  "name": "Wedge product of three Vectors / Operations on k-vectors from exterior algebra / Exterior Algebra",
+  "variation": "ArtemisCrane740",
+  "substance": {
+    "name": "Wedge product of three Vectors",
+    "path": "vector-wedge.sub"
+  },
+  "style": {
+    "name": "Operations on k-vectors from exterior algebra",
+    "path": "exterior-algebra.sty"
+  },
+  "domain": {
+    "name": "Exterior Algebra",
+    "path": "exterior-algebra.dsl"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "One water molecule drawn using symmetric bonds / atoms-and-bonds / Atoms and Bonds",
+  "variation": "PorcellanaFlamingo3169",
+  "substance": {
+    "name": "One water molecule drawn using symmetric bonds",
+    "path": "one-water-molecule.sub"
+  },
+  "style": {
+    "name": "atoms-and-bonds",
+    "path": "atoms-and-bonds.sty"
+  },
+  "domain": {
+    "name": "Atoms and Bonds",
+    "path": "atoms-and-bonds.dsl"
+  }
+}

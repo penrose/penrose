@@ -1,0 +1,16 @@
+{
+  "name": "Small graph / Disjoint rectangles in a large box / Graph Theory",
+  "variation": "",
+  "substance": {
+    "name": "Small graph",
+    "path": "small-graph.sub"
+  },
+  "style": {
+    "name": "Disjoint rectangles in a large box",
+    "path": "disjoint-rects-large-canvas.sty"
+  },
+  "domain": {
+    "name": "Graph Theory",
+    "path": "graph-theory.dsl"
+  }
+}

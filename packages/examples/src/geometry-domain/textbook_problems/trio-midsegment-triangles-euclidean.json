@@ -1,0 +1,16 @@
+{
+  "name": "Nested Triangles with Incenters / Euclidean 2D Geometry / Geometry",
+  "variation": "FollyCamel2864",
+  "substance": {
+    "name": "Nested Triangles with Incenters",
+    "path": "c05p01.sub"
+  },
+  "style": {
+    "name": "Euclidean 2D Geometry",
+    "path": "euclidean.sty"
+  },
+  "domain": {
+    "name": "Geometry",
+    "path": "geometry.dsl"
+  }
+}

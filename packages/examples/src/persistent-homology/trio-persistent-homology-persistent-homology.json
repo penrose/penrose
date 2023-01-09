@@ -1,0 +1,16 @@
+{
+  "name": "Persistent Homology / Persistent Homology / Persistent Homology",
+  "variation": "RainmakerMarten88256",
+  "substance": {
+    "name": "Persistent Homology",
+    "path": "persistent-homology.sub"
+  },
+  "style": {
+    "name": "Persistent Homology",
+    "path": "persistent-homology.sty"
+  },
+  "domain": {
+    "name": "Persistent Homology",
+    "path": "persistent-homology.dsl"
+  }
+}

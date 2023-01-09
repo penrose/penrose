@@ -1,0 +1,16 @@
+{
+  "name": "WoS Laplace Estimator / Walk on Spheres / Walk on Spheres",
+  "variation": "WhiteoutSnail17459",
+  "substance": {
+    "name": "WoS Laplace Estimator",
+    "path": "Nested.sub"
+  },
+  "style": {
+    "name": "Walk on Spheres",
+    "path": "walk-on-spheres.sty"
+  },
+  "domain": {
+    "name": "Walk on Spheres",
+    "path": "walk-on-spheres.dsl"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
+  "title": "Penrose Trio",
+  "description": "An example in Penrose consisting of a substance, style, and domain program, as well as additional information",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable name of the trio"
+    },
+    "substance": {
+      "$ref": "#/$defs/program"
+    },
+    "style": {
+      "$ref": "#/$defs/program"
+    },
+    "domain": {
+      "$ref": "#/$defs/program"
+    },
+    "variation": {
+      "type": "string",
+      "description": "Variation seed for the trio"
+    }
+  },
+  "required": ["name", "substance", "style", "domain", "variation"],
+  "$defs": {
+    "program": {
+      "description": "A Penrose program",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the program"
+        },
+        "path": {
+          "type": "string",
+          "description": "Relative path from trio file to the program"
+        }
+      },
+      "required": ["name", "path"]
+    }
+  }
+}

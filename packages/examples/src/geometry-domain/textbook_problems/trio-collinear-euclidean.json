@@ -1,0 +1,16 @@
+{
+  "name": "Collinear Points Example / Euclidean 2D Geometry / Geometry",
+  "variation": "HighlighterChicken10318",
+  "substance": {
+    "name": "Collinear Points Example",
+    "path": "c01p01.sub"
+  },
+  "style": {
+    "name": "Euclidean 2D Geometry",
+    "path": "euclidean.sty"
+  },
+  "domain": {
+    "name": "Geometry",
+    "path": "geometry.dsl"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Points around a Polyline / Sign Distance Functions / Signed Distance Function",
+  "variation": "SharkskinWalrus24396",
+  "substance": {
+    "name": "Points around a Polyline",
+    "path": "ninety-points-around-polyline.sub"
+  },
+  "style": {
+    "name": "Sign Distance Functions",
+    "path": "shape-distance.sty"
+  },
+  "domain": {
+    "name": "Signed Distance Function",
+    "path": "shapes.dsl"
+  }
+}

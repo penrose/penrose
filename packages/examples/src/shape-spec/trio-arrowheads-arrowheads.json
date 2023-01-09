@@ -1,0 +1,16 @@
+{
+  "name": "All Arrowhead Styles / Arrowhead Styles / Shapes",
+  "variation": "",
+  "substance": {
+    "name": "All Arrowhead Styles",
+    "path": "arrows.sub"
+  },
+  "style": {
+    "name": "Arrowhead Styles",
+    "path": "arrows.sty"
+  },
+  "domain": {
+    "name": "Shapes",
+    "path": "all-shapes.dsl"
+  }
+}

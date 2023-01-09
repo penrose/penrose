@@ -1,0 +1,16 @@
+{
+  "name": "Non-convex Shape / Non-convex Shape / Non-convex Shape",
+  "variation": "",
+  "substance": {
+    "name": "Non-convex Shape",
+    "path": "maze.sub"
+  },
+  "style": {
+    "name": "Non-convex Shape",
+    "path": "maze.sty"
+  },
+  "domain": {
+    "name": "Non-convex Shape",
+    "path": "maze.dsl"
+  }
+}

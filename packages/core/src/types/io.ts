@@ -1,30 +1,29 @@
 /**
+ * Data structure for information about a single program
+ */
+interface TrioProgram {
+  name: string;
+  path: string;
+}
+/**
  * Data structure for information of a program trio
+ * See also `trio-schema.json`
  */
 export interface Trio {
-  substanceURI: string;
-  styleURI: string;
-  domainURI: string;
-  substanceName: string;
-  styleName: string;
-  domainName: string;
+  substance: TrioProgram;
+  style: TrioProgram;
+  domain: TrioProgram;
   variation: string;
   name: string;
 }
 
 /**
- * Schema for the registry of working examples
+ * Schema for the registry of working example trios
  */
 export interface Registry {
+  /**
+   * Root URI to concatenate onto paths
+   */
   root: string;
-  substances: { [subID: string]: { name: string; URI: string } };
-  styles: { [styID: string]: { name: string; URI: string } };
-  domains: { [domID: string]: { name: string; URI: string } };
-  trios: {
-    substance: string;
-    style: string;
-    domain: string;
-    variation: string;
-    meta?: string;
-  }[];
+  trios: string[];
 }

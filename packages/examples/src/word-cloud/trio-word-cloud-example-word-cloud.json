@@ -1,0 +1,16 @@
+{
+  "name": "Word Cloud / Word Cloud / Word Cloud",
+  "variation": "JazlynMouse32496",
+  "substance": {
+    "name": "Word Cloud",
+    "path": "example.sub"
+  },
+  "style": {
+    "name": "Word Cloud",
+    "path": "word-cloud.sty"
+  },
+  "domain": {
+    "name": "Word Cloud",
+    "path": "word-cloud.dsl"
+  }
+}

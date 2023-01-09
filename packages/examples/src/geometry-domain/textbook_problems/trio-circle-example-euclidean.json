@@ -1,0 +1,16 @@
+{
+  "name": "Circle with Chords, Radii, Diameters / Euclidean 2D Geometry / Geometry",
+  "variation": "ShiitakeEchidna6061",
+  "substance": {
+    "name": "Circle with Chords, Radii, Diameters",
+    "path": "c11p12.sub"
+  },
+  "style": {
+    "name": "Euclidean 2D Geometry",
+    "path": "euclidean.sty"
+  },
+  "domain": {
+    "name": "Geometry",
+    "path": "geometry.dsl"
+  }
+}

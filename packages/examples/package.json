@@ -5,21 +5,6 @@
   "scripts": {
     "build": ":",
     "build-decls": ":",
-    "build-examples": "node build.js",
     "typecheck": ":"
-  },
-  "nx": {
-    "targets": {
-      "build-decls": {
-        "dependsOn": [
-          "build-examples"
-        ]
-      },
-      "build": {
-        "dependsOn": [
-          "build-examples"
-        ]
-      }
-    }
   }
 }
