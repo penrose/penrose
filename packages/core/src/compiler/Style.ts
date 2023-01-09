@@ -3168,7 +3168,7 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
             nodeType: "SyntheticStyle",
             name: dummyId("onCanvas"),
             stages: [],
-            exclude: false,
+            exclude: true,
             args: [
               // HACK: the right way to do this would be to parse `name` into
               // the correct `Path`, but we don't really care as long as it
