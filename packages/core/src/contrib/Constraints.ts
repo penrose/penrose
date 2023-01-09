@@ -47,7 +47,7 @@ const equal: StyleFunction = {
     { name: "x", description: "First value", type: "real" },
     { name: "y", description: "Second value", type: "real" },
   ],
-  function: (x: ad.Num, y: ad.Num) => {
+  definition: (x: ad.Num, y: ad.Num) => {
     return absVal(sub(x, y));
   },
 };
@@ -61,7 +61,7 @@ const lessThan: StyleFunction = {
     { name: "y", description: "Second value", type: "real" },
     { name: "padding", description: "Padding", type: "real", default: "0" },
   ],
-  function: (x: ad.Num, y: ad.Num, padding: number = 0) => {
+  definition: (x: ad.Num, y: ad.Num, padding: number = 0) => {
     return add(sub(x, y), padding);
   },
 };
@@ -70,12 +70,12 @@ const constrDictSimple = {
   /**
    * Require that the value `x` is equal to the value `y`
    */
-  equal: equal.function,
+  equal: equal.definition,
 
   /**
    * Require that the value `x` is less than the value `y` with optional padding `padding`
    */
-  lessThan: lessThan.function,
+  lessThan: lessThan.definition,
 
   /**
    * Require that the value `x` is greater than the value `y` with optional padding `padding`

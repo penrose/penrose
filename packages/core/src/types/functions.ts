@@ -10,7 +10,7 @@ type StyleType = {
   symbol: string;
 };
 
-export const styleTypes: { [key: string]: StyleType } = {
+export const styleTypes = {
   real: {
     description: "Real Number",
     symbol: "ℝ",
@@ -43,7 +43,7 @@ export type StyleFunction = {
   documentation: string;
   name: string;
   arguments: Argument[];
-  function: FunctionBody;
+  definition: FunctionBody;
 };
 
 export type Computation = StyleFunction & { returns: StyleType };
