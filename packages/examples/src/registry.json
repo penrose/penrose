@@ -210,6 +210,12 @@
       "style": "exterior-algebra",
       "domain": "exterior-algebra",
       "variation": "ArtemisCrane740"
+    },
+    {
+      "substance": "center-shrink-circle",
+      "style": "animation",
+      "domain": "animation",
+      "variation": ""
     }
   ],
   "domains": {
