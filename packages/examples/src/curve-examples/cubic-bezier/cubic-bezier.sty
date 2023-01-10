@@ -1,0 +1,87 @@
+
+forall Curve s {
+   vec2 p1 = (?,?)
+   vec2 p2 = (?,?)
+   vec2 p3 = (?,?)
+   vec2 p4 = (?,?)
+
+   scalar t = ?
+
+   vec2 p12 = (t * p1[0] + (1 - t) * p2[0], t * p1[1] + (1 - t) * p2[1])
+   vec2 p23 = (t * p2[0] + (1 - t) * p3[0], t * p2[1] + (1 - t) * p3[1])
+   vec2 p34 = (t * p3[0] + (1 - t) * p4[0], t * p3[1] + (1 - t) * p4[1])
+
+   vec2 p123 = (t * p12[0] + (1 - t) * p23[0], t * p12[1] + (1 - t) * p23[1])
+   vec2 p234 = (t * p23[0] + (1 - t) * p34[0], t * p23[1] + (1 - t) * p34[1])
+   vec2 p1234 = (t * p123[0] + (1 - t) * p234[0], t * p123[1] + (1 - t) * p234[1])
+
+   shape point0 = Circle {
+      center: p1
+      r: 5
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point1 = Circle {
+      center: p2
+      r: 5
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point2 = Circle {
+      center: p3
+      r: 5
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point3 = Circle {
+      center: p4
+      r: 4
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point4 = Circle {
+      center: p12
+      r: 4
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point5 = Circle {
+      center: p23
+      r: 4
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point6 = Circle {
+      center: p34
+      r: 4
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point7 = Circle {
+      center: p123
+      r: 4
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point8 = Circle {
+      center: p234
+      r: 4
+      fillColor: rgba(0,0,0,1)
+   }
+   shape point9 = Circle {
+      center: p1234
+      r: 5
+      fillColor: rgba(0,0,0,1)
+   }
+
+   shape curve = Path {
+      d: cubicCurveFromPoints("open", [p1, p2, p3, p4])
+      strokeWidth: 3.5
+      ensureOnCanvas: true
+   }
+   shape line1 = Polyline {
+      points: [p1, p2, p3, p4]
+      strokeWidth: 2.5
+   }
+   shape line2 = Polyline {
+      points: [p12, p23, p34]
+      strokeWidth: 1.5
+   }
+   shape line3 = Polyline {
+      points: [p123, p234]
+      strokeWidth: 1.5
+   }
+
+}
