@@ -17,6 +17,7 @@ import {
   overlappingRectlikeCircle,
   overlappingTextLine,
 } from "contrib/ConstraintsUtils";
+import { constrDictCurves } from "contrib/CurveConstraints";
 import { bboxFromShape, shapeSize } from "contrib/Queries";
 import { inRange, overlap1D } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
@@ -329,6 +330,7 @@ export const constrDict = {
   ...constrDictSimple, // Do not require shape queries, operate directly with `ad.Num` parameters.
   ...constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
   ...constrDictSpecific, // Defined only for specific use-case or specific shapes.
+  ...constrDictCurves, // Curve-specific constraints.
 };
 
 // `_constrDictVals` causes TypeScript to enforce that every function in
