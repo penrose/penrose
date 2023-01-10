@@ -411,7 +411,7 @@
     "animation": {
       "domain": "animation",
       "name": "animation",
-      "URL": "animation/animation.sty"
+      "URI": "animation/animation.sty"
     }
   },
   "substances": {
