@@ -210,6 +210,24 @@
       "style": "exterior-algebra",
       "domain": "exterior-algebra",
       "variation": "ArtemisCrane740"
+    },
+    {
+      "substance": "full-moon",
+      "style": "full-moon",
+      "domain": "full-moon",
+      "variation": "PlumvilleCapybara104"
+    },
+    {
+      "substance": "homotopy",
+      "style": "homotopy",
+      "domain": "homotopy",
+      "variation": "PlumvilleCapybara104"
+    },
+    {
+      "substance": "cubic-bezier",
+      "style": "cubic-bezier",
+      "domain": "cubic-bezier",
+      "variation": "PlumvilleCapybara104"
     }
   ],
   "domains": {
@@ -276,6 +294,18 @@
     "atoms-and-bonds": {
       "name": "Atoms and Bonds",
       "URI": "atoms-and-bonds/atoms-and-bonds.dsl"
+    },
+    "full-moon": {
+      "name": "Full moon art",
+      "URI": "full-moon/full-moon.dsl"
+    },
+    "homotopy": {
+      "name": "Curve homotopy",
+      "URI": "homotopy/homotopy.dsl"
+    },
+    "cubic-bezier": {
+      "name": "Cubic Bezier curve construction",
+      "URI": "cubic-bezier/cubic-bezier.dsl"
     }
   },
   "styles": {
@@ -397,6 +427,21 @@
       "domain": "atoms-and-bonds",
       "name": "atoms-and-bonds",
       "URI": "atoms-and-bonds/atoms-and-bonds.sty"
+    },
+    "full-moon": {
+      "domain": "full-moon",
+      "name": "Full moon art",
+      "URI": "full-moon/full-moon.sty"
+    },
+    "homotopy": {
+      "domain": "homotopy",
+      "name": "Curve homotopy",
+      "URI": "homotopy/homotopy.sty"
+    },
+    "cubic-bezier": {
+      "domain": "cubic-bezier",
+      "name": "Cubic Bezier curve construction",
+      "URI": "cubic-bezier/cubic-bezier.sty"
     }
   },
   "substances": {
@@ -549,6 +594,21 @@
       "domain": "atoms-and-bonds",
       "name": "One water molecule drawn using symmetric bonds",
       "URI": "atoms-and-bonds/one-water-molecule.sub"
+    },
+    "full-moon": {
+      "domain": "full-moon",
+      "name": "Full moon art",
+      "URI": "full-moon/full-moon.sub"
+    },
+    "homotopy": {
+      "domain": "homotopy",
+      "name": "Curve homotopy",
+      "URI": "homotopy/homotopy.sub"
+    },
+    "cubic-bezier": {
+      "domain": "cubic-bezier",
+      "name": "Cubic Bezier curve construction",
+      "URI": "cubic-bezier/cubic-bezier.sub"
     }
   }
 }
