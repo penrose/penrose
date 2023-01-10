@@ -215,7 +215,7 @@
       "substance": "full-moon",
       "style": "full-moon",
       "domain": "full-moon",
-      "variation": "PlumvilleCapybara104"
+      "variation": "RinseElk0268"
     },
     {
       "substance": "homotopy",
@@ -228,6 +228,18 @@
       "style": "cubic-bezier",
       "domain": "cubic-bezier",
       "variation": "PlumvilleCapybara104"
+    },
+    {
+      "substance": "caffeine",
+      "style": "molecules-basic",
+      "domain": "molecules",
+      "variation": "MachineryRat162"
+    },
+    {
+      "substance": "half-adder",
+      "style": "distinctive-shape",
+      "domain": "logic-gates",
+      "variation": "DubarryCamel356"
     }
   ],
   "domains": {
@@ -306,6 +318,14 @@
     "cubic-bezier": {
       "name": "Cubic Bezier curve construction",
       "URI": "cubic-bezier/cubic-bezier.dsl"
+    },
+    "molecules": {
+      "name": "Organic chemistry diagrams",
+      "URI": "molecules/molecules.dsl"
+    },
+    "logic-gates": {
+      "name": "Logic gates",
+      "URI": "logic-circuit-domain/logic-gates.dsl"
     }
   },
   "styles": {
@@ -442,6 +462,16 @@
       "domain": "cubic-bezier",
       "name": "Cubic Bezier curve construction",
       "URI": "cubic-bezier/cubic-bezier.sty"
+    },
+    "molecules-basic": {
+      "domain": "molecules",
+      "name": "Organic chemistry diagrams",
+      "URI": "molecules/molecules-basic.sty"
+    },
+    "distinctive-shape": {
+      "domain": "logic-gates",
+      "name": "Logic gates",
+      "URI": "logic-circuit-domain/logic-gates.dsl"
     }
   },
   "substances": {
@@ -609,6 +639,16 @@
       "domain": "cubic-bezier",
       "name": "Cubic Bezier curve construction",
       "URI": "cubic-bezier/cubic-bezier.sub"
+    },
+    "caffeine": {
+      "domain": "molecules",
+      "name": "Organic chemistry diagrams",
+      "URI": "molecules/caffeine.sub"
+    },
+    "half-adder": {
+      "domain": "logic-gates",
+      "name": "Logic gates",
+      "URI": "logic-circuit-domain/half-adder.sub"
     }
   }
 }
