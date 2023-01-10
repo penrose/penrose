@@ -207,9 +207,8 @@ export const isClosed = ([t, s]: [
   throw new Error("Function not implemented."); // TODO
 };
 
-export const extractPoints = ([t, s]: [string, Polyline | Polygon | Path]): [
-  ad.Num,
-  ad.Num
-][] => {
-  throw new Error("Function not implemented."); // TODO
+export const extractPoints = ([t, s]: [string, any]): [ad.Num, ad.Num][] => {
+  if (t === "Polyline" || t === "Polygon") return s.points.contents;
+  else if (t === "Path") return s.d.contents;
+  else throw new Error(`Point extraction not defined for shape ${t}.`);
 };
