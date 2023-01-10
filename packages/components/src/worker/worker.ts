@@ -1,7 +1,8 @@
-import { Gradient } from "@penrose/optimizer";
 import { Req, Resp } from "./message";
 
-let gradient: Gradient | undefined;
+import { Gradient } from "@penrose/optimizer";
+
+let gradient: Gradient | any;
 
 const respond = (message: Resp) => postMessage(message);
 
@@ -10,7 +11,7 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
     case "Init": {
       const { mod, numAddends, numSecondary } = data;
       gradient = await Gradient.make(mod, numAddends, numSecondary);
-      respond("Success");
+      respond({ tag: "Success" });
       break;
     }
     case "Step": {
