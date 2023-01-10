@@ -1775,3 +1775,42 @@ const tickPlacement = (
   }
   return pts;
 };
+
+const algebraicArea = (points: [ad.Num, ad.Num][]) => {
+  const sides = Array.from(
+    { length: points.length },
+    (_, key) => key
+  ).map((i) => [points[i], points[i > 0 ? i - 1 : points.length - 1]]);
+  return mul(
+    0.5,
+    addN(
+      sides.map(([p1, p2]: [ad.Num, ad.Num][]) =>
+        sub(mul(p1[0], p2[1]), mul(p1[1], p2[0]))
+      )
+    )
+  );
+};
+
+export const turningNumber = (points: [ad.Num, ad.Num][]): ad.Num => {
+  return div(totalCurvature(points), 2 * Math.PI);
+};
+
+export const perimeter = (points: [ad.Num, ad.Num][]): ad.Num => {
+  const sides = Array.from(
+    { length: points.length },
+    (_, key) => key
+  ).map((i) => [points[i], points[i > 0 ? i - 1 : points.length - 1]]);
+  return addN(sides.map(([p1, p2]: [ad.Num, ad.Num][]) => ops.vdist(p1, p2)));
+};
+
+export const isoperimetricRatio = (points: [ad.Num, ad.Num][]): ad.Num => {
+  return div(squared(perimeter(points)), algebraicArea(points));
+};
+
+export const elasticEnergy = (points: [ad.Num, ad.Num][]): ad.Num => {
+  throw new Error("Function not implemented."); // TODO
+};
+
+export const totalCurvature = (points: [ad.Num, ad.Num][]): ad.Num => {
+  throw new Error("Function not implemented."); // TODO
+};
