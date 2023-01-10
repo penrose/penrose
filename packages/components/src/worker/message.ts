@@ -2,7 +2,7 @@ import { PenroseError } from "@penrose/core";
 import { OptState } from "@penrose/optimizer";
 
 /** request */
-export type Req = Init | Step;
+export type Req = Init | Step | StepUntilConvergence;
 
 export type Init = {
   tag: "Init";
@@ -13,6 +13,12 @@ export type Init = {
 
 export type Step = {
   tag: "Step";
+  state: OptState;
+  numSteps: number;
+};
+
+export type StepUntilConvergence = {
+  tag: "StepUntilConvergence";
   state: OptState;
   numSteps: number;
 };

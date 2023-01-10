@@ -1,4 +1,4 @@
-import { initConstraintWeight } from "@penrose/optimizer";
+import { Gradient, initConstraintWeight, OptState } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -82,20 +82,17 @@ export const stepStateSafe = (
   return ok(res);
 };
 
-/**
- * Repeatedly take one step in the optimizer given the current state until convergence.
- * @param state current state
- */
-export const stepUntilConvergence = (
-  state: State,
+export const stepUntilConvergenceGrad = (
+  grad: Gradient,
+  state: OptState,
   numSteps = 10000
-): Result<State, PenroseError> => {
+): Result<OptState, PenroseError> => {
   let currentState = state;
   while (
     !(currentState.params.optStatus === "Error") &&
     !stateConverged(currentState)
   ) {
-    currentState = stepState(currentState, numSteps);
+    currentState = grad.step(currentState, numSteps);
   }
   if (currentState.params.optStatus === "Error") {
     return err({
@@ -104,6 +101,20 @@ export const stepUntilConvergence = (
     });
   }
   return ok(currentState);
+};
+
+/**
+ * Repeatedly take one step in the optimizer given the current state until convergence.
+ * @param state current state
+ */
+export const stepUntilConvergence = (
+  state: State,
+  numSteps = 10000
+): Result<State, PenroseError> => {
+  return andThen(
+    (s) => ok({ ...state, ...s }),
+    stepUntilConvergenceGrad(state.gradient, state, numSteps)
+  );
 };
 
 const stepUntilConvergenceOrThrow = (state: State): State => {
@@ -236,14 +247,14 @@ export const prepareState = async (state: State): Promise<State> => {
  * Returns true if state is converged
  * @param state current state
  */
-export const stateConverged = (state: State): boolean =>
+export const stateConverged = (state: OptState): boolean =>
   state.params.optStatus === "EPConverged";
 
 /**
  * Returns true if state is the initial frame
  * @param state current state
  */
-export const stateInitial = (state: State): boolean =>
+export const stateInitial = (state: OptState): boolean =>
   state.params.optStatus === "NewIter";
 
 /**
@@ -332,6 +343,7 @@ export type {
 export type { PenroseError } from "./types/errors";
 export type { Shape } from "./types/shape";
 export * as Value from "./types/value";
+export * from "./utils/Error";
 export type { Result } from "./utils/Error";
 export { hexToRgba, rgbaToHex } from "./utils/Util";
 export {

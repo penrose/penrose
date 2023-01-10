@@ -1,8 +1,8 @@
+import { OptState } from "@penrose/optimizer";
 import im from "immutable";
 import * as ad from "types/ad";
 import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
-import { State } from "./state";
 import {
   BindingForm,
   BinOp,
@@ -37,7 +37,7 @@ export interface RuntimeErrorWithContents {
 export interface NaNError {
   tag: "NaNError";
   message: string;
-  lastState: State;
+  lastState: OptState;
 }
 
 export type Warning = StyleError;

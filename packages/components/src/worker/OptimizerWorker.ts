@@ -1,33 +1,66 @@
+import { PenroseState } from "@penrose/core";
+import { Gradient } from "@penrose/optimizer";
 import { Req, Resp } from "./message";
 import RawWorker from "./worker?worker";
 
 export default class OptimizerWorker {
   private worker = new RawWorker();
-  private working = false;
-  private queue: Req | undefined = undefined;
 
   onmessage: ((r: Resp) => void) | undefined = undefined;
 
-  constructor() {
-    this.worker.onmessage = (e: MessageEvent<Resp>) => {
-      if (this.queue === undefined) {
-        this.working = false;
-      } else {
-        this.worker.postMessage(this.queue);
-        this.queue = undefined;
-      }
-      if (this.onmessage !== undefined) {
-        this.onmessage(e.data);
-      }
-    };
+  request = (request: Req): Promise<Resp> => {
+    // we create a new MessageChannel
+    const channel = new MessageChannel();
+    // we transfer one of its ports to the Worker thread
+    this.worker.postMessage(request, [channel.port1]);
+
+    return new Promise((res, rej) => {
+      // we listen for a message from the remaining port of our MessageChannel
+      channel.port2.onmessage = ({ data }) => {
+        if (data.error) {
+          rej(data);
+        } else {
+          res(data);
+        }
+      };
+    });
+  };
+
+  async init(
+    gradient: Gradient,
+    numAddends: number,
+    numSecondary: number
+  ): Promise<Resp> {
+    return await this.request({
+      tag: "Init",
+      mod: gradient.module(),
+      numAddends,
+      numSecondary,
+    });
   }
 
-  request(message: Req) {
-    if (this.working) {
-      this.queue = message;
-    } else {
-      this.working = true;
-      this.worker.postMessage(message);
-    }
+  async stepUntilConvergence(
+    state: PenroseState,
+    numSteps = 10000
+  ): Promise<Resp> {
+    return await this.request({
+      tag: "Step",
+      state: {
+        varyingValues: state.varyingValues,
+        params: state.params,
+      },
+      numSteps,
+    });
+  }
+
+  async step(state: PenroseState, numSteps: number): Promise<Resp> {
+    return await this.request({
+      tag: "Step",
+      state: {
+        varyingValues: state.varyingValues,
+        params: state.params,
+      },
+      numSteps,
+    });
   }
 }

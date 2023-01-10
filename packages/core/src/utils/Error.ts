@@ -1,3 +1,4 @@
+import { OptState } from "@penrose/optimizer";
 import { isConcrete } from "engine/EngineUtils";
 import { shapedefs } from "shapes/Shapes";
 import { Result } from "true-myth";
@@ -35,7 +36,6 @@ import {
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "types/errors";
-import { State } from "types/state";
 import { BindingForm, ColorLit } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
 import { prettyPrintPath, prettyPrintResolvedPath } from "utils/Util";
@@ -587,7 +587,7 @@ export const invalidColorLiteral = (
   color,
 });
 
-export const nanError = (message: string, lastState: State): NaNError => ({
+export const nanError = (message: string, lastState: OptState): NaNError => ({
   tag: "NaNError",
   message,
   lastState,

@@ -8,11 +8,9 @@ import {
   resample,
   showError,
   stateConverged,
-  stepUntilConvergence,
 } from "@penrose/core";
 import React from "react";
 import fetchResolver from "./fetchPathResolver";
-import { Resp } from "./worker/message";
 import OptimizerWorker from "./worker/OptimizerWorker";
 
 const Optimizer = new OptimizerWorker();
@@ -52,13 +50,8 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       // initialize opt worker
       const { gradient, objFns, constrFns } = this.penroseState;
       const maskLen = objFns.length + constrFns.length;
-      Optimizer.request({
-        tag: "Init",
-        mod: gradient.module(),
-        numAddends: maskLen,
-        numSecondary: maskLen,
-      });
-      // COMBAK: need to sync here
+      const res = await Optimizer.init(gradient, maskLen, maskLen);
+      console.log("init success", res);
     } else {
       this.setState({ error: compilerResult.error });
     }
@@ -66,54 +59,42 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
 
   converge = async (): Promise<void> => {
     if (this.penroseState) {
-      const stepped = stepUntilConvergence(this.penroseState);
-      if (stepped.isOk()) {
-        this.penroseState = stepped.value;
-      } else {
+      const stepped = await Optimizer.stepUntilConvergence(this.penroseState);
+      if (stepped.tag === "State") {
+        this.penroseState = {
+          ...this.penroseState,
+          ...stepped.state,
+        };
+      } else if (stepped.tag === "Error") {
         this.setState({ error: stepped.error });
       }
     }
   };
 
-  tick = () => {
+  tick = async () => {
     if (
       this.props.animate &&
       this.penroseState &&
       !stateConverged(this.penroseState)
     ) {
-      Optimizer.request({
-        tag: "Step",
-        state: this.penroseState,
-        numSteps: this.props.stepSize ?? 1,
-      });
-      // COMBAK: need to sync
+      const res = await Optimizer.step(
+        this.penroseState,
+        this.props.stepSize ?? 1
+      );
+      if (res.tag === "State") {
+        if (this.props.onFrame) {
+          this.props.onFrame({ ...this.penroseState, ...res.state });
+        }
+        this.penroseState = {
+          ...this.penroseState,
+          ...res.state,
+        };
+        this.renderCanvas();
+      }
     }
   };
 
   componentDidMount = async () => {
-    Optimizer.onmessage = (data: Resp) => {
-      if (this.penroseState) {
-        switch (data.tag) {
-          case "Error":
-            break;
-          case "State": {
-            if (this.props.onFrame) {
-              this.props.onFrame({ ...this.penroseState, ...data.state });
-            }
-            this.renderCanvas();
-            break;
-          }
-          case "Success": {
-            console.log("init success");
-            if (this.props.animate) {
-              this.tick();
-            } else {
-              this.converge();
-            }
-          }
-        }
-      }
-    };
     await this.compile();
     if (!this.props.animate) {
       await this.converge();
