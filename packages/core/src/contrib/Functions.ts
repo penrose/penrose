@@ -1815,7 +1815,13 @@ const curvature = (
   p2: [ad.Num, ad.Num],
   p3: [ad.Num, ad.Num]
 ): ad.Num => {
-  throw new Error("Function not implemented."); // TODO
+  const v1 = ops.vsub(p2, p1);
+  const v2 = ops.vsub(p3, p2);
+  const angle = ops.angleFrom(v1, v2);
+  return angle;
+  // Alternative discrete curvature definition
+  // return mul(2, sin(div(angle, 2)));
+  // return mul(2, tan(div(angle, 2)));
 };
 
 export const elasticEnergy = (
