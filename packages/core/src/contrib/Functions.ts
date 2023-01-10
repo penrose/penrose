@@ -58,6 +58,7 @@ import { Polyline } from "shapes/Polyline";
 import { Context, uniform } from "shapes/Samplers";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
+import { Computation } from "types/functions";
 import {
   ArgVal,
   Color,
@@ -72,18 +73,23 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/Util";
 
-/**
- * Static dictionary of computation functions
- * TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
- * TODO: think about user extension of computation dict and evaluation of functions in there
- */
-
 // NOTE: These all need to be written in terms of autodiff types
 // These all return a Value<ad.Num>
-export const compDict = {
-  // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
-
-  makePath: (
+const makePath: Computation<PathDataV<ad.Num>> = {
+  name: "makePath",
+  documentation: `See https://github.com/penrose/penrose/issues/716`,
+  returns: "path",
+  arguments: [
+    { name: "start", description: "Start point of the path", type: "r2" },
+    { name: "end", description: "End point of the path", type: "r2" },
+    { name: "curveHeight", description: "Height of the curve", type: "real" },
+    {
+      name: "padding",
+      description: "Padding between the curve and the labels",
+      type: "real",
+    },
+  ],
+  definition: (
     _context: Context,
     start: [ad.Num, ad.Num],
     end: [ad.Num, ad.Num],
@@ -108,22 +114,38 @@ export const compDict = {
       .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
       .getPath();
   },
+};
 
-  /**
-   * Return `i`th element of list `xs, assuming lists only hold floats.
-   */
-  get: (_context: Context, xs: ad.Num[], i: number): FloatV<ad.Num> => {
+const get: Computation<FloatV<ad.Num>> = {
+  name: "get",
+  documentation:
+    "Return `i`th element of list `xs, assuming lists only hold floats.",
+  arguments: [
+    { name: "xs", description: "List of floats", type: "rn" },
+    { name: "i", description: "Index of the element to return", type: "nat" },
+  ],
+  returns: "real",
+  definition: (_context: Context, xs: ad.Num[], i: number): FloatV<ad.Num> => {
     const res = xs[i];
     return {
       tag: "FloatV",
       contents: res,
     };
   },
+};
 
-  /**
-   * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
-   */
-  rgba: (
+const rgba: Computation<ColorV<ad.Num>> = {
+  name: "rgba",
+  documentation:
+    "Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).",
+  returns: "color",
+  arguments: [
+    { name: "r", description: "Red", type: "unit" },
+    { name: "g", description: "Green", type: "unit" },
+    { name: "b", description: "Blue", type: "unit" },
+    { name: "a", description: "Opacity", type: "unit" },
+  ],
+  definition: (
     _context: Context,
     r: ad.Num,
     g: ad.Num,
@@ -138,8 +160,18 @@ export const compDict = {
       },
     };
   },
+};
 
-  selectColor: (
+const selectColor: Computation<ColorV<ad.Num>> = {
+  name: "selectColor",
+  documentation: "TODO",
+  returns: "color",
+  arguments: [
+    { name: "color1", description: "First color", type: "color" },
+    { name: "color2", description: "Second color", type: "color" },
+    { name: "level", description: "Level", type: "real" },
+  ],
+  definition: (
     _context: Context,
     color1: Color<ad.Num>,
     color2: Color<ad.Num>,
@@ -164,11 +196,20 @@ export const compDict = {
       },
     };
   },
+};
 
-  /**
-   * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
-   */
-  hsva: (
+const hsva: Computation<ColorV<ad.Num>> = {
+  name: "hsva",
+  documentation:
+    "Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).",
+  returns: "color",
+  arguments: [
+    { name: "h", description: "Hue", type: "unit" },
+    { name: "s", description: "Saturation", type: "unit" },
+    { name: "v", description: "Value", type: "unit" },
+    { name: "a", description: "Opacity", type: "unit" },
+  ],
+  definition: (
     _context: Context,
     h: ad.Num,
     s: ad.Num,
@@ -183,11 +224,14 @@ export const compDict = {
       },
     };
   },
+};
 
-  /**
-   * Return a paint of none (no paint)
-   */
-  none: (_context: Context): ColorV<ad.Num> => {
+const none: Computation<ColorV<ad.Num>> = {
+  name: "none",
+  documentation: "Return a paint of none (no paint)",
+  returns: "color",
+  arguments: [],
+  definition: (_context: Context): ColorV<ad.Num> => {
     return {
       tag: "ColorV",
       contents: {
@@ -195,281 +239,312 @@ export const compDict = {
       },
     };
   },
+};
 
-  /**
-   * Return `acosh(x)`.
-   */
-  acosh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+const acoshComputation: Computation<FloatV<ad.Num>> = {
+  name: "acosh",
+  documentation: "Return `acosh(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: acosh(x),
     };
   },
+};
 
-  /**
-   * Return `acos(x)`.
-   */
-  acos: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+const acosComputation: Computation<FloatV<ad.Num>> = {
+  name: "acos",
+  documentation: "Return `acos(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: acos(x),
     };
   },
+};
 
-  /**
-   * Return `asin(x)`.
-   */
-  asin: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: asin(x),
-    };
+const asinComputation: Computation<FloatV<ad.Num>> = {
+  name: "asin",
+  documentation: "Return `asin(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: asin(x) };
   },
+};
 
-  /**
-   * Return `asinh(x)`.
-   */
-  asinh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: asinh(x),
-    };
+const asinhComputation: Computation<FloatV<ad.Num>> = {
+  name: "asinh",
+  documentation: "Return `asinh(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: asinh(x) };
   },
+};
 
-  /**
-   * Return `atan(x)`.
-   */
-  atan: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: atan(x),
-    };
+const atanComputation: Computation<FloatV<ad.Num>> = {
+  name: "atan",
+  documentation: "Return `atan(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: atan(x) };
   },
+};
 
-  /**
-   * Return `atan2(y,x)`.
-   */
-  atan2: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: atan2(y, x),
-    };
+const atan2Computation: Computation<FloatV<ad.Num>> = {
+  name: "atan2",
+  documentation: "Return `atan2(x, y)`.",
+  returns: "real",
+  arguments: [
+    { name: "x", description: "`x`", type: "real" },
+    { name: "y", description: "`y`", type: "real" },
+  ],
+  definition: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: atan2(x, y) };
   },
+};
 
-  /**
-   * Return `atanh(x)`.
-   */
-  atanh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: atanh(x),
-    };
+const atanhComputation: Computation<FloatV<ad.Num>> = {
+  name: "atanh",
+  documentation: "Return `atanh(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: atanh(x) };
   },
+};
 
-  /**
-   * Return `cbrt(x)`.
-   */
-  cbrt: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: cbrt(x),
-    };
+const cbrtComputation: Computation<FloatV<ad.Num>> = {
+  name: "cbrt",
+  documentation: "Return `cbrt(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: cbrt(x) };
   },
+};
 
-  /**
-   * Return `ceil(x)`.
-   */
-  ceil: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: ceil(x),
-    };
+const ceilComputation: Computation<FloatV<ad.Num>> = {
+  name: "ceil",
+  documentation: "Return `ceil(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: ceil(x) };
   },
+};
 
-  /**
-   * Return `cos(x)`.
-   */
-  cos: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: cos(x),
-    };
+const cosComputation: Computation<FloatV<ad.Num>> = {
+  name: "cos",
+  documentation: "Return `cos(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: cos(x) };
   },
+};
 
-  /**
-   * Return `cosh(x)`.
-   */
-  cosh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: cosh(x),
-    };
+const coshComputation: Computation<FloatV<ad.Num>> = {
+  name: "cosh",
+  documentation: "Return `cosh(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: cosh(x) };
   },
+};
 
-  /**
-   * Return `exp(x)`.
-   */
-  exp: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+const expComputation: Computation<FloatV<ad.Num>> = {
+  name: "exp",
+  documentation: "Return `exp(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: exp(x),
     };
   },
+};
 
-  /**
-   * Return `expm1(x)`.
-   */
-  expm1: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: expm1(x),
-    };
+const expm1Computation: Computation<FloatV<ad.Num>> = {
+  name: "expm1",
+  documentation: "Return `expm1(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: expm1(x) };
   },
+};
 
-  /**
-   * Return `floor(x)`.
-   */
-  floor: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: floor(x),
-    };
+const floorComputation: Computation<FloatV<ad.Num>> = {
+  name: "floor",
+  documentation: "Return `floor(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: floor(x) };
   },
+};
 
-  /**
-   * Return `log(x)`.
-   */
-  log: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+const logComputation: Computation<FloatV<ad.Num>> = {
+  name: "log",
+  documentation: "Return `log(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
       contents: ln(x),
     };
   },
+};
 
-  /**
-   * Return `log2(x)`.
-   */
-  log2: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: log2(x),
-    };
+const log2Computation: Computation<FloatV<ad.Num>> = {
+  name: "log2",
+  documentation: "Return `log2(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: log2(x) };
   },
+};
 
-  /**
-   * Return `log10(x)`.
-   */
-  log10: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: log10(x),
-    };
+const log10Computation: Computation<FloatV<ad.Num>> = {
+  name: "log10",
+  documentation: "Return `log10(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: log10(x) };
   },
+};
 
-  /**
-   * Return `log1p(x)`.
-   */
-  log1p: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: log1p(x),
-    };
+const log1pComputation: Computation<FloatV<ad.Num>> = {
+  name: "log1p",
+  documentation: "Return `log1p(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: log1p(x) };
   },
+};
 
-  /**
-   * Return `pow(x,y)`.
-   */
-  pow: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: pow(x, y),
-    };
+const powComputation: Computation<FloatV<ad.Num>> = {
+  name: "pow",
+  documentation: "Return `pow(x, y)`.",
+  returns: "real",
+  arguments: [
+    { name: "x", description: "`x`", type: "real" },
+    { name: "y", description: "`y`", type: "real" },
+  ],
+  definition: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: pow(x, y) };
   },
+};
 
-  /**
-   * Return `round(x)`.
-   */
-  round: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: round(x),
-    };
+const roundComputation: Computation<FloatV<ad.Num>> = {
+  name: "round",
+  documentation: "Return `round(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: round(x) };
   },
+};
 
-  /**
-   * Return `sign(x)`.
-   */
-  sign: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: sign(x),
-    };
+const signComputation: Computation<FloatV<ad.Num>> = {
+  name: "sign",
+  documentation: "Return `sign(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: sign(x) };
   },
+};
 
-  /**
-   * Return `sin(x)`.
-   */
-  sin: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: sin(x),
-    };
+const sinComputation: Computation<FloatV<ad.Num>> = {
+  name: "sin",
+  documentation: "Return `sin(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: sin(x) };
   },
+};
 
-  /**
-   * Return `sinh(x)`.
-   */
-  sinh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: sinh(x),
-    };
+const sinhComputation: Computation<FloatV<ad.Num>> = {
+  name: "sinh",
+  documentation: "Return `sinh(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: sinh(x) };
   },
+};
 
-  /**
-   * Return `tan(x)`.
-   */
-  tan: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: tan(x),
-    };
+const tanComputation: Computation<FloatV<ad.Num>> = {
+  name: "tan",
+  documentation: "Return `tan(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: tan(x) };
   },
+};
 
-  /**
-   * Return `tanh(x)`.
-   */
-  tanh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: tanh(x),
-    };
+const tanhComputation: Computation<FloatV<ad.Num>> = {
+  name: "tanh",
+  documentation: "Return `tanh(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: tanh(x) };
   },
+};
 
-  /**
-   * Return `trunc(x)`.
-   */
-  trunc: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: trunc(x),
-    };
+const truncComputation: Computation<FloatV<ad.Num>> = {
+  name: "trunc",
+  documentation: "Return `trunc(x)`.",
+  returns: "real",
+  arguments: [{ name: "x", description: "`x`", type: "real" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: trunc(x) };
   },
+};
 
-  /**
-   * Return the dot product of `v` and `w`.
-   */
-  dot: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: ops.vdot(v, w),
-    };
+const dotComputation: Computation<FloatV<ad.Num>> = {
+  name: "dot",
+  documentation: "Return the dot product of `v` and `w`.",
+  returns: "real",
+  arguments: [
+    { name: "v", description: "Vector `v`", type: "rn" },
+    { name: "w", description: "Vector `w`", type: "rn" },
+  ],
+  definition: (
+    _context: Context,
+    v: VectorV<ad.Num>,
+    w: VectorV<ad.Num>
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: ops.vdot(v, w) };
   },
+};
 
-  /**
-   * Return the length of the line or arrow shape `[type, props]`.
-   */
-  length: (_context: Context, [t, props]: [string, any]): FloatV<ad.Num> => {
+const lengthComputation: Computation<FloatV<ad.Num>> = {
+  name: "length",
+  documentation: "Return the length of the line or arrow shape `[type, props]`",
+  returns: "real",
+  arguments: [{ name: "t", description: "A line", type: "line" }],
+  definition: (
+    _context: Context,
+    [t, props]: [string, any]
+  ): FloatV<ad.Num> => {
     if (!shapedefs[t].isLinelike) {
       throw Error("length expects a line-like shape");
     } else {
@@ -480,31 +555,50 @@ export const compDict = {
       };
     }
   },
+};
 
-  /**
-   * Concatenate a list of strings
-   */
-  concat: (_context: Context, ...strings: string[]): StrV => {
+const concatComputation: Computation<StrV> = {
+  definition: (_context: Context, ...strings: string[]): StrV => {
     return {
       tag: "StrV",
       contents: strings.join(""),
     };
   },
+  documentation: "Concatenate a list of strings",
+  name: "concat",
+  returns: "string",
+  arguments: [
+    {
+      name: "...strings",
+      description: "A list of strings (kwargs)",
+      type: "stringlist",
+    },
+  ],
+};
 
-  /**
-   * Return the normalized version of vector `v`.
-   */
-  normalize: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+const normalizeComputation: Computation<VectorV<ad.Num>> = {
+  name: "normalize",
+  documentation: "Return the normalized version of vector `v`.",
+  arguments: [{ type: "rn", name: "v", description: "Vector `v`" }],
+  returns: "rn",
+  definition: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
     return {
       tag: "VectorV",
       contents: ops.vnormalize(v),
     };
   },
+};
 
-  /**
-   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
-   */
-  pathFromPoints: (
+const pathFromPoints: Computation<PathDataV<ad.Num>> = {
+  name: "pathFromPoints",
+  documentation:
+    "Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.",
+  arguments: [
+    { name: "pathType", type: "pathtype", description: "Path Type" },
+    { name: "pts", type: "r2n", description: "List of points" },
+  ],
+  returns: "path",
+  definition: (
     _context: Context,
     pathType: string,
     pts: ad.Pt2[]
@@ -516,11 +610,18 @@ export const compDict = {
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
+};
 
-  /**
-   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
-   */
-  quadraticCurveFromPoints: (
+const quadraticCurveFromPoints: Computation<PathDataV<ad.Num>> = {
+  name: "quadraticCurveFromPoints",
+  documentation:
+    "Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.",
+  arguments: [
+    { name: "pathType", type: "pathtype", description: "Path Type" },
+    { name: "pts", type: "r2n", description: "List of points" },
+  ],
+  returns: "path",
+  definition: (
     _context: Context,
     pathType: string,
     pts: ad.Pt2[]
@@ -533,15 +634,20 @@ export const compDict = {
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
+};
 
-  /**
-   * Draw a curve interpolating three given points.
-   * (Note that this is different from specifying the
-   * three control points of a quadratic Bézier curve,
-   * since a Bézier does not interpolate the middle
-   * control point.)
-   */
-  interpolateQuadraticFromPoints: (
+const interpolateQuadraticFromPoints: Computation<PathDataV<ad.Num>> = {
+  name: "interpolateQuadraticFromPoints",
+  documentation: `Draw a curve interpolating three given points.
+  (Note that this is different from specifying the three control points of a quadratic Bézier curve, since a Bézier does not interpolate the middle control point.)`,
+  arguments: [
+    { name: "pathType", type: "pathtype", description: "Path Type" },
+    { name: "p0", type: "r2", description: "First point" },
+    { name: "p1", type: "r2", description: "Second point" },
+    { name: "p2", type: "r2", description: "Third point" },
+  ],
+  returns: "path",
+  definition: (
     _context: Context,
     pathType: string,
     p0: ad.Pt2,
@@ -565,6 +671,305 @@ export const compDict = {
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
+};
+
+const cubicCurveFromPoints: Computation<PathDataV<ad.Num>> = {};
+
+const unitMark: Computation<PtListV<ad.Num>> = {};
+
+const unitMark2: Computation<PtListV<ad.Num>> = {};
+
+const arc: Computation<PathDataV<ad.Num>> = {};
+
+const repeatedArcs: Computation<PathDataV<ad.Num>> = {};
+
+const wedge: Computation<PathDataV<ad.Num>> = {};
+
+const ptOnLine: Computation<VectorV<ad.Num>> = {};
+
+const arcSweepFlag: Computation<FloatV<ad.Num>> = {};
+
+const angleBetween: Computation<FloatV<ad.Num>> = {};
+
+const angleFrom: Computation<FloatV<ad.Num>> = {};
+
+const cross2D: Computation<FloatV<ad.Num>> = {};
+
+const lineLineIntersection: Computation<VectorV<ad.Num>> = {};
+
+const midpoint: Computation<VectorV<ad.Num>> = {};
+
+const midpointOffset: Computation<TupV<ad.Num>> = {};
+
+const chevron: Computation<PtListV<ad.Num>> = {};
+
+const innerPointOffset: Computation<VectorV<ad.Num>> = {};
+
+const ticksOnLine: Computation<PathDataV<ad.Num>> = {};
+
+const orientedSquare: Computation<PathDataV<ad.Num>> = {};
+
+const triangle: Computation<PathDataV<ad.Num>> = {};
+
+const average2: Computation<FloatV<ad.Num>> = {};
+
+const average: Computation<FloatV<ad.Num>> = {};
+
+const unit: Computation<VectorV<ad.Num>> = {};
+
+const sampleColor: Computation<ColorV> = {};
+
+const setOpacity: Computation<ColorV> = {};
+
+const mulComputation: Computation<VectorV<ad.Num>> = {};
+
+const barycenter: Computation<VectorV<ad.Num>> = {};
+
+const circumcenter: Computation<VectorV<ad.Num>> = {};
+
+const circumradius: Computation<FloatV<ad.Num>> = {};
+
+const incenter: Computation<VectorV<ad.Num>> = {};
+
+const inradius: Computation<FloatV<ad.Num>> = {};
+
+const sqr: Computation<FloatV<ad.Num>> = {};
+
+const sqrtComputation: Computation<FloatV<ad.Num>> = {};
+
+const maxComputation: Computation<FloatV<ad.Num>> = {};
+
+const minComputation: Computation<FloatV<ad.Num>> = {};
+
+const absComputation: Computation<FloatV<ad.Num>> = {};
+
+const toRadians: Computation<FloatV<ad.Num>> = {};
+
+const toDegrees: Computation<FloatV<ad.Num>> = {};
+
+const norm: Computation<FloatV<ad.Num>> = {};
+
+const normsq: Computation<FloatV<ad.Num>> = {};
+
+const vdist: Computation<FloatV<ad.Num>> = {};
+
+const vmul: Computation<VectorV<ad.Num>> = {};
+
+const vdistsq: Computation<FloatV<ad.Num>> = {};
+
+const angleOf: Computation<FloatV<ad.Num>> = {};
+
+const MathE: Computation<FloatV<ad.Num>> = {};
+
+const MathPI: Computation<FloatV<ad.Num>> = {};
+
+const rot90: Computation<VectorV<ad.Num>> = {};
+
+const rotateBy: Computation<VectorV<ad.Num>> = {};
+
+const signedDistance: Computation<FloatV<ad.Num>> = {};
+
+const unitVector: Computation<VectorV<ad.Num>> = {};
+
+/**
+ * Static dictionary of computation functions
+ * TODO: think about user extension of computation dict and evaluation of functions in there
+ */
+export const compDict = {
+  // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
+
+  makePath: makePath.definition,
+
+  /**
+   * Return `i`th element of list `xs, assuming lists only hold floats.
+   */
+  get: get.definition,
+
+  /**
+   * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
+   */
+  rgba: rgba.definition,
+
+  selectColor: selectColor.definition,
+
+  /**
+   * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
+   */
+  hsva: hsva.definition,
+
+  /**
+   * Return a paint of none (no paint)
+   */
+  none: none.definition,
+
+  /**
+   * Return `acosh(x)`.
+   */
+  acosh: acoshComputation.definition,
+
+  /**
+   * Return `acos(x)`.
+   */
+  acos: acosComputation.definition,
+
+  /**
+   * Return `asin(x)`.
+   */
+  asin: asinComputation.definition,
+
+  /**
+   * Return `asinh(x)`.
+   */
+  asinh: asinhComputation.definition,
+
+  /**
+   * Return `atan(x)`.
+   */
+  atan: atanComputation.definition,
+
+  /**
+   * Return `atan2(y,x)`.
+   */
+  atan2: atan2Computation.definition,
+
+  /**
+   * Return `atanh(x)`.
+   */
+  atanh: atanhComputation.definition,
+
+  /**
+   * Return `cbrt(x)`.
+   */
+  cbrt: cbrtComputation.definition,
+
+  /**
+   * Return `ceil(x)`.
+   */
+  ceil: ceilComputation.definition,
+
+  /**
+   * Return `cos(x)`.
+   */
+  cos: cosComputation.definition,
+
+  /**
+   * Return `cosh(x)`.
+   */
+  cosh: coshComputation.definition,
+
+  /**
+   * Return `exp(x)`.
+   */
+  exp: expComputation.definition,
+
+  /**
+   * Return `expm1(x)`.
+   */
+  expm1: expm1Computation.definition,
+
+  /**
+   * Return `floor(x)`.
+   */
+  floor: floorComputation.definition,
+
+  /**
+   * Return `log(x)`.
+   */
+  log: logComputation.definition,
+
+  /**
+   * Return `log2(x)`.
+   */
+  log2: log2Computation.definition,
+
+  /**
+   * Return `log10(x)`.
+   */
+  log10: log10Computation.definition,
+
+  /**
+   * Return `log1p(x)`.
+   */
+  log1p: log1pComputation.definition,
+
+  /**
+   * Return `pow(x,y)`.
+   */
+  pow: powComputation.definition,
+
+  /**
+   * Return `round(x)`.
+   */
+  round: roundComputation.definition,
+
+  /**
+   * Return `sign(x)`.
+   */
+  sign: signComputation.definition,
+
+  /**
+   * Return `sin(x)`.
+   */
+  sin: sinComputation.definition,
+
+  /**
+   * Return `sinh(x)`.
+   */
+  sinh: sinhComputation.definition,
+
+  /**
+   * Return `tan(x)`.
+   */
+  tan: tanComputation.definition,
+
+  /**
+   * Return `tanh(x)`.
+   */
+  tanh: tanhComputation.definition,
+
+  /**
+   * Return `trunc(x)`.
+   */
+  trunc: truncComputation.definition,
+
+  /**
+   * Return the dot product of `v` and `w`.
+   */
+  dot: dotComputation.definition,
+
+  /**
+   * Return the length of the line or arrow shape `[type, props]`.
+   */
+  length: lengthComputation.definition,
+
+  /**
+   * Concatenate a list of strings
+   */
+  concat: concatComputation.definition,
+
+  /**
+   * Return the normalized version of vector `v`.
+   */
+  normalize: normalizeComputation.definition,
+
+  /**
+   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
+   */
+  pathFromPoints: pathFromPoints.definition,
+
+  /**
+   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
+   */
+  quadraticCurveFromPoints: quadraticCurveFromPoints.definition,
+
+  /**
+   * Draw a curve interpolating three given points.
+   * (Note that this is different from specifying the
+   * three control points of a quadratic Bézier curve,
+   * since a Bézier does not interpolate the middle
+   * control point.)
+   */
+  interpolateQuadraticFromPoints: interpolateQuadraticFromPoints.definition,
 
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
