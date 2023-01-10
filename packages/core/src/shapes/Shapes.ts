@@ -69,7 +69,15 @@ export const ShapeDef = (shapedef: {
     return x;
   };
 
-  const ideal = sampler({ makeInput }, makeCanvas(0, 0));
+  const ideal = sampler(
+    {
+      makeInput,
+      rasterize: () => {
+        throw Error("TODO");
+      },
+    },
+    makeCanvas(0, 0)
+  );
 
   const propTags = Object.fromEntries(
     Object.entries(ideal).map(([x, y]) => [x, y.tag])

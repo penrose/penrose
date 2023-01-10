@@ -1454,7 +1454,7 @@ export const compDict = {
   },
 
   signedDistance: (
-    _context: Context,
+    context: Context,
     [t, s]: [string, any],
     p: ad.Num[]
   ): FloatV<ad.Num> => {

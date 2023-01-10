@@ -4,6 +4,7 @@ import * as ad from "types/ad";
 import { OptStages } from "types/state";
 import { ColorV, FloatV, VectorV } from "types/value";
 import { colorV, floatV, randFloat, vectorV } from "utils/Util";
+import { Shape } from "./Shapes";
 
 type Range = [number, number];
 
@@ -47,8 +48,11 @@ export interface InputMeta {
 
 export type InputFactory = (meta: InputMeta) => ad.Input; // NOTE: stateful!
 
+export type Rasterizer = (shape: Shape) => number; // NOTE: stateful!
+
 export interface Context {
   makeInput: InputFactory;
+  rasterize: Rasterizer;
 }
 
 /**
@@ -69,6 +73,9 @@ export const simpleContext = (variation: string): Context => {
             ? meta.init.sampler(rng)
             : meta.init.pending,
       }),
+    rasterize: () => {
+      throw Error("TODO");
+    },
   };
 };
 

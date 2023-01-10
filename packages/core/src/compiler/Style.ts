@@ -3279,7 +3279,12 @@ export const compileStyleHelper = async (
 
   // third pass: compile all expressions in topological sorted order
   const translation = translate(
-    { makeInput },
+    {
+      makeInput,
+      rasterize: () => {
+        throw Error("TODO");
+      },
+    },
     canvas.value,
     optimizationStages.value,
     graph,

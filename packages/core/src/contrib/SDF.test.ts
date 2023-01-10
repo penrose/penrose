@@ -34,7 +34,15 @@ const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
       stages: new Set(),
     });
   }
-  return { context: { makeInput }, p: [...inputs] };
+  return {
+    context: {
+      makeInput,
+      rasterize: () => {
+        throw Error("TODO");
+      },
+    },
+    p: [...inputs],
+  };
 };
 
 const compareDistance = (
