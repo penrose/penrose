@@ -673,9 +673,62 @@ const interpolateQuadraticFromPoints: Computation<PathDataV<ad.Num>> = {
   },
 };
 
-const cubicCurveFromPoints: Computation<PathDataV<ad.Num>> = {};
+const cubicCurveFromPoints: Computation<PathDataV<ad.Num>> = {
+  name: "cubicCurveFromPoints",
+  documentation:
+    "Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.",
+  arguments: [
+    { type: "pathtype", name: "pathType", description: "Path type" },
+    { type: "r2n", name: "pts", description: "List of points" },
+  ],
+  returns: "path",
+  definition: (
+    _context: Context,
+    pathType: string,
+    pts: ad.Pt2[]
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    const [start, cp1, cp2, second, ...tailpts] = pts;
+    path.moveTo(start);
+    path.bezierCurveTo(cp1, cp2, second);
+    _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
+  },
+};
 
-const unitMark: Computation<PtListV<ad.Num>> = {};
+const unitMark: Computation<PtListV<ad.Num>> = {
+  name: "unitMark",
+  documentation:
+    "Return two points parallel to line `s1` using its normal line `s2`.",
+  returns: "rnn",
+  arguments: [
+    { name: "s1", type: "line", description: "Line to be marked" },
+    { name: "s2", type: "line", description: "Normal line" },
+    { name: "padding", type: "real", description: "Padding" },
+  ],
+  definition: (
+    _context: Context,
+    [, s1]: [string, any],
+    [, s2]: [string, any],
+    // t: string,
+    padding: ad.Num
+    // barSize: ad.Num
+  ): PtListV<ad.Num> => {
+    const [start1, end1] = linePts(s1);
+    const [start2, end2] = linePts(s2);
+
+    const dir = ops.vnormalize(ops.vsub(end2, start2));
+    const normalDir = ops.vneg(dir);
+    const markStart = ops.vmove(start1, padding, normalDir);
+    const markEnd = ops.vmove(end1, padding, normalDir);
+
+    return {
+      tag: "PtListV",
+      contents: [markStart, markEnd].map(toPt),
+    };
+  },
+};
 
 const unitMark2: Computation<PtListV<ad.Num>> = {};
 
@@ -991,27 +1044,7 @@ export const compDict = {
   /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
-  unitMark: (
-    _context: Context,
-    [, s1]: [string, any],
-    [, s2]: [string, any],
-    t: string,
-    padding: ad.Num,
-    barSize: ad.Num
-  ): PtListV<ad.Num> => {
-    const [start1, end1] = linePts(s1);
-    const [start2, end2] = linePts(s2);
-
-    const dir = ops.vnormalize(ops.vsub(end2, start2));
-    const normalDir = ops.vneg(dir);
-    const markStart = ops.vmove(start1, padding, normalDir);
-    const markEnd = ops.vmove(end1, padding, normalDir);
-
-    return {
-      tag: "PtListV",
-      contents: [markStart, markEnd].map(toPt),
-    };
-  },
+  unitMark: unitMark.definition,
 
   /**
    * Return two points to "cap off" the line made in `unitMark`.
