@@ -2,7 +2,6 @@ import {
   InitOutput,
   penrose_call,
   penrose_gen_opt_problem,
-  penrose_get_init_constraint_weight,
   penrose_init,
   penrose_step,
 } from "./build/penrose_optimizer_web";
@@ -239,11 +238,6 @@ export class Gradient {
     return penrose_step(state, index, steps);
   }
 }
-
-/**
- * The initial weight for constraints.
- */
-export const initConstraintWeight = penrose_get_init_constraint_weight();
 
 /**
  * `ready` must be resolved first.

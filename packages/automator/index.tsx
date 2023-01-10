@@ -323,9 +323,10 @@ const batchProcess = async (
         finalMetadata[id] = metadata;
       }
     } catch (e) {
+      process.exitCode = 1;
       console.trace(
         chalk.red(
-          `${id} exited with an error. The Substance program ID is ${substance}. The error message is:\n${e}`
+          `${name} exited with an error. The Substance program ID is ${substance}. The error message is:\n${e}`
         )
       );
     }

@@ -62,8 +62,8 @@ const {
     const { results } = parser.feed(prog);
     sameASTs(results);
     const ast = results[0];
-    const keyword = ast.blocks[0].block.statements[0].path.members[0];
-    const id = ast.blocks[0].block.statements[1].path.members[0];
+    const keyword = ast.items[0].block.statements[0].path.members[0];
+    const id = ast.items[0].block.statements[1].path.members[0];
 
     expect(keyword.type).toEqual("type-keyword");
     expect(id.type).toEqual("identifier");
@@ -160,7 +160,7 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
   forall Atom a1; Atom a2 \
   where Bond(a1, a2) as b {}";
     const { results } = parser.feed(prog);
-    expect(results[0].blocks[0].header.where.contents[0].alias.value).toEqual(
+    expect(results[0].items[0].header.where.contents[0].alias.value).toEqual(
       "b"
     );
   });
@@ -249,7 +249,7 @@ where IsSubset(A, B); A has math label; B has text label {
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    const whereClauses = results[0].blocks[0].header.where.contents;
+    const whereClauses = results[0].items[0].header.where.contents;
     expect(whereClauses[1].name.contents.value).toEqual("A");
     expect(whereClauses[1].field.value).toEqual("label");
     expect(whereClauses[1].fieldDescriptor).toEqual("MathLabel");
@@ -367,8 +367,8 @@ const {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    const ast = results[0] as StyProg<C>;
-    const stringAssign = ast.blocks[0].block.statements[0];
+    const ast = results[0];
+    const stringAssign = ast.items[0].block.statements[0];
     if (
       stringAssign.tag === "PathAssign" &&
       stringAssign.value.tag === "StringLit"
