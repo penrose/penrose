@@ -1,40 +1,40 @@
 canvas {
-  width = 800
-  height = 700
+   width = 800
+   height = 700
 }
 
 -- Atoms
 
 forall Carbon x {
-    x.icon = Circle {
-        strokeWidth : 0.0
-        r : 27.0
-        fillColor : rgba(0.0, 0.0, 0.0, 1.0)
-    }
+   x.icon = Circle {
+      strokeWidth : 0.0
+      r : 27.0
+      fillColor : rgba(0.0, 0.0, 0.0, 1.0)
+   }
 }
 
 forall Hydrogen x {
-    x.icon = Circle {
-        strokeWidth : 0.0
-        r : 18.0
-        fillColor : rgba(0.6, 0.6, 0.6, 1.0)
-    }
+   x.icon = Circle {
+      strokeWidth : 0.0
+      r : 18.0
+      fillColor : rgba(0.6, 0.6, 0.6, 1.0)
+   }
 }
 
 forall Oxygen x {
-    x.icon = Circle {
-        strokeWidth : 0.0
-        r : 23.0
-        fillColor : rgba(0.8, 0.0, 0.0, 1.0)
-    }
+   x.icon = Circle {
+      strokeWidth : 0.0
+      r : 23.0
+      fillColor : rgba(0.8, 0.0, 0.0, 1.0)
+   }
 }
 
 forall Nitrogen x {
-    x.icon = Circle {
-        strokeWidth : 0.0
-        r : 23.0
-        fillColor : rgba(0.0, 0.0, 0.8, 1.0)
-    }
+   x.icon = Circle {
+      strokeWidth : 0.0
+      r : 23.0
+      fillColor : rgba(0.0, 0.0, 0.8, 1.0)
+   }
 }
 
 -- Bonds
@@ -42,23 +42,23 @@ forall Nitrogen x {
 forall SingleBond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
-    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
+   encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall DoubleBond b
 where b := MakeDoubleBond(x, y)
 with Atom x; Atom y {
-    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
+   encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall TripleBond b
 where b := MakeTripleBond(x, y)
 with Atom x; Atom y {
-    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
+   encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 -- Repulsion
 
 forall Atom x; Atom y {
-    encourage notTooClose(x.icon, y.icon)
+   encourage notTooClose(x.icon, y.icon)
 }
