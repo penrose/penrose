@@ -66,6 +66,17 @@ export const stepState = (state: State, numSteps = 10000): State => {
     ...state.gradient.step(state, numSteps),
   };
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
+    const nextInitState = nextStage(steppedState);
+    return nextInitState;
+  } else {
+    return steppedState;
+  }
+};
+
+export const nextStage = (state: State): State => {
+  if (finalStage(state)) {
+    return state;
+  } else {
     const { constraintSets, optStages, currentStageIndex } = state;
     const nextStage = optStages[currentStageIndex + 1];
     const { inputMask, objMask, constrMask } = safe(
@@ -73,12 +84,25 @@ export const stepState = (state: State, numSteps = 10000): State => {
       "missing next stage"
     );
     return {
-      ...steppedState,
+      ...state,
       currentStageIndex: currentStageIndex + 1,
       params: genOptProblem(inputMask, objMask, constrMask),
     };
   }
-  return steppedState;
+};
+
+export const stepNextStage = (state: State, numSteps = 10000): State => {
+  let currentState = state;
+  while (
+    !(currentState.params.optStatus === "Error") &&
+    !stateConverged(currentState)
+  ) {
+    currentState = {
+      ...currentState,
+      ...currentState.gradient.step(currentState, numSteps),
+    };
+  }
+  return nextStage(currentState);
 };
 
 /**
@@ -111,8 +135,11 @@ export const stepUntilConvergence = (
   let currentState = state;
   while (
     !(currentState.params.optStatus === "Error") &&
-    !stateConverged(currentState)
+    (!stateConverged(currentState) || !finalStage(currentState))
   ) {
+    if (stateConverged(currentState)) {
+      currentState = nextStage(currentState);
+    }
     currentState = stepState(currentState, numSteps);
   }
   if (currentState.params.optStatus === "Error") {
