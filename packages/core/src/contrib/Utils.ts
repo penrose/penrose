@@ -16,6 +16,9 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import _ from "lodash";
+import { Path } from "shapes/Path";
+import { Polygon } from "shapes/Polygon";
+import { Polyline } from "shapes/Polyline";
 import * as ad from "types/ad";
 
 /**
@@ -184,4 +187,29 @@ export const numsOf = (xs: ad.Num[]): number[] => {
 
 export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];
+};
+
+export const consecutiveNTuples = (
+  points: [ad.Num, ad.Num][],
+  tupleLength: number,
+  closed: boolean
+): [ad.Num, ad.Num][][] => {
+  return Array.from({ length: points.length }, (_, key) => key).map((i) => [
+    points[i],
+    points[i > 0 ? i - 1 : points.length - 1],
+  ]);
+};
+
+export const isClosed = ([t, s]: [
+  string,
+  Polyline | Polygon | Path
+]): boolean => {
+  throw new Error("Function not implemented."); // TODO
+};
+
+export const extractPoints = ([t, s]: [string, Polyline | Polygon | Path]): [
+  ad.Num,
+  ad.Num
+][] => {
+  throw new Error("Function not implemented."); // TODO
 };

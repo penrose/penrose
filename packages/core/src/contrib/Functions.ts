@@ -1,5 +1,5 @@
 import { bboxFromShape } from "contrib/Queries";
-import { clamp, inRange, numOf } from "contrib/Utils";
+import { clamp, consecutiveNTuples, inRange, numOf } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -1776,11 +1776,8 @@ const tickPlacement = (
   return pts;
 };
 
-const algebraicArea = (points: [ad.Num, ad.Num][]) => {
-  const sides = Array.from(
-    { length: points.length },
-    (_, key) => key
-  ).map((i) => [points[i], points[i > 0 ? i - 1 : points.length - 1]]);
+const algebraicArea = (points: [ad.Num, ad.Num][], closed: boolean) => {
+  const sides = consecutiveNTuples(points, 2, closed);
   return mul(
     0.5,
     addN(
@@ -1791,26 +1788,54 @@ const algebraicArea = (points: [ad.Num, ad.Num][]) => {
   );
 };
 
-export const turningNumber = (points: [ad.Num, ad.Num][]): ad.Num => {
-  return div(totalCurvature(points), 2 * Math.PI);
+export const turningNumber = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  return div(totalCurvature(points, closed), 2 * Math.PI);
 };
 
-export const perimeter = (points: [ad.Num, ad.Num][]): ad.Num => {
-  const sides = Array.from(
-    { length: points.length },
-    (_, key) => key
-  ).map((i) => [points[i], points[i > 0 ? i - 1 : points.length - 1]]);
+export const perimeter = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const sides = consecutiveNTuples(points, 2, closed);
   return addN(sides.map(([p1, p2]: [ad.Num, ad.Num][]) => ops.vdist(p1, p2)));
 };
 
-export const isoperimetricRatio = (points: [ad.Num, ad.Num][]): ad.Num => {
-  return div(squared(perimeter(points)), algebraicArea(points));
+export const isoperimetricRatio = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  return div(squared(perimeter(points, closed)), algebraicArea(points, closed));
 };
 
-export const elasticEnergy = (points: [ad.Num, ad.Num][]): ad.Num => {
+const curvature = (
+  p1: [ad.Num, ad.Num],
+  p2: [ad.Num, ad.Num],
+  p3: [ad.Num, ad.Num]
+): ad.Num => {
   throw new Error("Function not implemented."); // TODO
 };
 
-export const totalCurvature = (points: [ad.Num, ad.Num][]): ad.Num => {
-  throw new Error("Function not implemented."); // TODO
+export const elasticEnergy = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const triples = consecutiveNTuples(points, 3, closed);
+  return addN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      squared(curvature(p1, p2, p3))
+    )
+  );
+};
+
+export const totalCurvature = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const triples = consecutiveNTuples(points, 3, closed);
+  return addN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+  );
 };
