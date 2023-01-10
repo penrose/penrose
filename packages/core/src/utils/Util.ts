@@ -6,7 +6,7 @@ import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
-import { Fn, State } from "types/state";
+import { Fn } from "types/state";
 import { BindingForm, Expr, Path } from "types/style";
 import {
   Context,
@@ -766,9 +766,6 @@ export const prettyPrintFn = (fn: Fn): string => {
     .join(", ");
   return [name, "(", args, ")"].join("");
 };
-
-export const prettyPrintFns = (state: State): string[] =>
-  state.objFns.concat(state.constrFns).map(prettyPrintFn);
 
 //#endregion
 
