@@ -887,20 +887,4 @@ export const getAdValueAsNumber = (
   );
 };
 
-/**
- * Gets the color value of a property.  If the property is not a color,
- * throw an exception.
- *
- * @param prop Get the color value of this property
- * @returns color value of the property
- */
-export const getAdValueAsColor = (prop: Value<ad.Num>): Color<ad.Num> => {
-  if (prop.tag === "ColorV") return prop.contents;
-  throw new Error(
-    `getAdValueAsColor: unexpected tag ${prop.tag} w/value ${JSON.stringify(
-      prop.contents
-    )}`
-  );
-};
-
 //#endregion

@@ -1,3 +1,4 @@
+import { StrV } from "types/value";
 import { getAdValueAsString } from "utils/Util";
 import {
   attrAutoFillSvg,
@@ -32,23 +33,16 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
     const renderedLabel = retrievedLabel.rendered.cloneNode(
       true
     ) as HTMLElement;
-    const paths = renderedLabel.getElementsByTagName("path");
+    const g = renderedLabel.getElementsByTagName("g")[0];
 
-    // Map Width/Height, clear style
+    attrToNotAutoMap.push(...attrFill(shape, g));
+    // Map Width/Height
     attrToNotAutoMap.push(...attrWH(shape, renderedLabel));
-    renderedLabel.removeAttribute("style");
 
-    // Map Stroke and fill
-    for (const path in paths) {
-      const thisPath = paths[path];
-      if (typeof thisPath === "object") {
-        attrToNotAutoMap.push(...attrFill(shape, thisPath));
-        attrToNotAutoMap.push(...attrStroke(shape, thisPath));
-      }
-    }
-
-    // Font Size was handled in pre-rendering & has no effect here.
-    attrToNotAutoMap.push("fontSize");
+    g.setAttribute("stroke", "none");
+    g.setAttribute("stroke-width", "0");
+    const fontSize = shape.properties.fontSize as StrV;
+    renderedLabel.setAttribute("style", `font-size: ${fontSize.contents}`);
 
     // Append the element & indicate the rendered label was found
     elem.appendChild(renderedLabel);
