@@ -19,7 +19,7 @@ forall Frame f {
         center: (0.0, 0.0)
         width: 600.0
         height: 600.0
-        fillColor : rgba(0.05, 0.05, 0.25, 1.0)
+        fillColor : rgba(0.05, 0.05, 0.45, 1.0)
     }
     f.foreground above f.background
 }
@@ -111,11 +111,11 @@ forall Branch b {
     b.strokeWidth = 8.0
 
     b.icon = Line {
-      start: (b.baseX, b.baseY)
-      end: (b.tipX, b.tipY)
-      strokeColor: rgba(0.0, 0.0, 0.0, 1.0)
-      strokeWidth: b.strokeWidth
-      strokeLinecap: "round"
+        start: (b.baseX, b.baseY)
+        end: (b.tipX, b.tipY)
+        strokeColor: rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: b.strokeWidth
+        strokeLinecap: "round"
     }
 
     ensure lessThanSq(-1.0, b.angleL)
