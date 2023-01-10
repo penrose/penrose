@@ -1,9 +1,4 @@
-import { Num } from "./ad";
-import { Value } from "./value";
-
-type FunctionBody =
-  | ((...args: never[]) => Value<any>)
-  | ((...args: never[]) => Num);
+type FunctionBody<T> = (...args: any[]) => T;
 
 type StyleType = {
   description: string;
@@ -39,11 +34,11 @@ type Argument = {
   default?: string;
 };
 
-export type StyleFunction = {
+export type StyleFunction<T> = {
   documentation: string;
   name: string;
   arguments: Argument[];
-  definition: FunctionBody;
+  definition: FunctionBody<T>;
 };
 
-export type Computation = StyleFunction & { returns: StyleType };
+export type Computation<T> = StyleFunction<T> & { returns: StyleType };

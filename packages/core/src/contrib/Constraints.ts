@@ -18,7 +18,7 @@ import {
   overlappingTextLine,
 } from "contrib/ConstraintsUtils";
 import { bboxFromShape, shapeSize } from "contrib/Queries";
-import { inRange, overlap1D } from "contrib/Utils";
+import { inRange as inRangeUtil, overlap1D } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -40,7 +40,7 @@ import { StyleFunction } from "types/functions";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
-const equal: StyleFunction = {
+const equal: StyleFunction<ad.Unary> = {
   name: "equal",
   documentation: "Require that the value `x` is equal to the value `y`",
   arguments: [
@@ -52,7 +52,7 @@ const equal: StyleFunction = {
   },
 };
 
-const lessThan: StyleFunction = {
+const lessThan: StyleFunction<ad.Binary> = {
   name: "lessThan",
   documentation:
     "Require that the value `x` is less than the value `y` with optional padding `padding`",
@@ -63,6 +63,159 @@ const lessThan: StyleFunction = {
   ],
   definition: (x: ad.Num, y: ad.Num, padding: number = 0) => {
     return add(sub(x, y), padding);
+  },
+};
+
+const greaterThan: StyleFunction<ad.Binary> = {
+  name: "greaterThan",
+  documentation:
+    "Require that the value `x` is greater than the value `y` with optional padding `padding`",
+  arguments: [
+    { name: "x", description: "First value", type: "real" },
+    { name: "y", description: "Second value", type: "real" },
+    { name: "padding", description: "Padding", type: "real", default: "0" },
+  ],
+  definition: (x: ad.Num, y: ad.Num, padding: number = 0) => {
+    return add(sub(y, x), padding);
+  },
+};
+
+const lessThanSq: StyleFunction<ad.Ternary> = {
+  name: "lessThanSq",
+  documentation:
+    "Require that the value `x` is less than the value `y`, with steeper penalty",
+  arguments: [
+    { name: "x", description: "First value", type: "real" },
+    { name: "y", description: "Second value", type: "real" },
+  ],
+  definition: (x: ad.Num, y: ad.Num) => {
+    // if x < y then 0 else (x - y)^2
+    return ifCond(lt(x, y), 0, squared(sub(x, y)));
+  },
+};
+
+const greaterThanSq: StyleFunction<ad.Ternary> = {
+  name: "greaterThanSq",
+  documentation:
+    "Require that the value `x` is greater than the value `y`, with steeper penalty",
+  arguments: [
+    { name: "x", description: "First value", type: "real" },
+    { name: "y", description: "Second value", type: "real" },
+  ],
+  definition: (x: ad.Num, y: ad.Num) => {
+    return ifCond(lt(y, x), 0, squared(sub(y, x)));
+  },
+};
+
+const inRange: StyleFunction<ad.Binary> = {
+  name: "inRange",
+  documentation:
+    "Require that the value `x` is in the range defined by `[x0, x1]`.",
+  arguments: [
+    { name: "x", description: "Value", type: "real" },
+    { name: "x0", description: "Lower bound", type: "real" },
+    { name: "x1", description: "Upper bound", type: "real" },
+  ],
+  definition: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
+    return mul(sub(x, x0), sub(x, x1));
+  },
+};
+
+const contains1D: StyleFunction<ad.Num> = {
+  name: "contains1D",
+  documentation:
+    "Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.",
+  arguments: [
+    {
+      name: "[l1, r1]",
+      description: "First interval",
+      type: "r2",
+    },
+    {
+      name: "[l2, r2]",
+      description: "Second interval",
+      type: "r2",
+    },
+  ],
+  definition: (
+    [l1, r1]: [ad.Num, ad.Num],
+    [l2, r2]: [ad.Num, ad.Num]
+  ): ad.Num => {
+    // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
+    return add(max(0, sub(l1, l2)), max(0, sub(r2, r1)));
+  },
+};
+
+const disjointScalar: StyleFunction<ad.Ternary> = {
+  name: "disjointScalar",
+  documentation: "Make scalar `c` disjoint from a range `left, right`.",
+  arguments: [
+    { name: "c", description: "Scalar", type: "real" },
+    { name: "left", description: "Left bound", type: "real" },
+    { name: "right", description: "Right bound", type: "real" },
+  ],
+  definition: (c: ad.Num, left: ad.Num, right: ad.Num) => {
+    const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
+
+    // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
+    return ifCond(inRangeUtil(c, left, right), min(d(c, left), d(c, right)), 0);
+  },
+};
+
+const perpendicular: StyleFunction<ad.Num> = {
+  name: "perpendicular",
+  documentation:
+    "Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.",
+  arguments: [
+    { name: "q", description: "First point", type: "rn" },
+    { name: "p", description: "Second point", type: "rn" },
+    { name: "r", description: "Third point", type: "rn" },
+  ],
+  definition: (q: ad.Num[], p: ad.Num[], r: ad.Num[]): ad.Num => {
+    const v1 = ops.vsub(q, p);
+    const v2 = ops.vsub(r, p);
+    const dotProd = ops.vdot(v1, v2);
+    return absVal(dotProd);
+  },
+};
+
+const collinear: StyleFunction<ad.Unary> = {
+  name: "collinear",
+  documentation: `Require that three points be collinear.
+  
+  Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.`,
+  arguments: [
+    { name: "c1", description: "First point", type: "rn" },
+    { name: "c2", description: "Second point", type: "rn" },
+    { name: "c3", description: "Third point", type: "rn" },
+  ],
+  definition: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
+    const v1 = ops.vsub(c2, c1);
+    const v2 = ops.vsub(c2, c3);
+    return absVal(ops.cross2(v1, v2));
+  },
+};
+
+const collinearOrdered: StyleFunction<ad.Binary> = {
+  name: "collinearOrdered",
+  documentation: `Require that three points be collinear.
+  
+  Depends on the specific ordering of points.`,
+  arguments: [
+    { name: "c1", description: "First point", type: "rn" },
+    { name: "c2", description: "Second point", type: "rn" },
+    { name: "c3", description: "Third point", type: "rn" },
+  ],
+  definition: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
+    const v1 = ops.vnorm(ops.vsub(c1, c2));
+    const v2 = ops.vnorm(ops.vsub(c2, c3));
+    const v3 = ops.vnorm(ops.vsub(c1, c3));
+
+    // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
+    return max(
+      0,
+      minN([sub(add(v1, v2), v3), sub(add(v1, v3), v2), sub(add(v2, v3), v1)])
+    );
   },
 };
 
@@ -80,95 +233,63 @@ const constrDictSimple = {
   /**
    * Require that the value `x` is greater than the value `y` with optional padding `padding`
    */
-  greaterThan: (x: ad.Num, y: ad.Num, padding = 0) => {
-    return add(sub(y, x), padding);
-  },
+  greaterThan: greaterThan.definition,
 
   /**
    * Require that the value `x` is less than the value `y`, with steeper penalty
    */
-  lessThanSq: (x: ad.Num, y: ad.Num) => {
-    // if x < y then 0 else (x - y)^2
-    return ifCond(lt(x, y), 0, squared(sub(x, y)));
-  },
+  lessThanSq: lessThanSq.definition,
 
   /**
    * Require that the value `x` is greater than the value `y`, with steeper penalty
    */
-  greaterThanSq: (x: ad.Num, y: ad.Num) => {
-    return ifCond(lt(y, x), 0, squared(sub(y, x)));
-  },
+  greaterThanSq: greaterThanSq.definition,
 
   /**
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
-  inRange: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
-    return mul(sub(x, x0), sub(x, x1));
-  },
+  inRange: inRange.definition,
 
   /**
    * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
    */
-  contains1D: (
-    [l1, r1]: [ad.Num, ad.Num],
-    [l2, r2]: [ad.Num, ad.Num]
-  ): ad.Num => {
-    // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
-    return add(max(0, sub(l1, l2)), max(0, sub(r2, r1)));
-  },
+  contains1D: contains1D.definition,
 
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
-  disjointScalar: (c: ad.Num, left: ad.Num, right: ad.Num) => {
-    const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
-
-    // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
-    return ifCond(inRange(c, left, right), min(d(c, left), d(c, right)), 0);
-  },
+  disjointScalar: disjointScalar.definition,
 
   /**
    * Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.
    */
-  perpendicular: (q: ad.Num[], p: ad.Num[], r: ad.Num[]): ad.Num => {
-    const v1 = ops.vsub(q, p);
-    const v2 = ops.vsub(r, p);
-    const dotProd = ops.vdot(v1, v2);
-    return absVal(dotProd);
-  },
+  perpendicular: perpendicular.definition,
 
   /**
    * Require that three points be collinear.
    * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
    */
-  collinear: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
-    const v1 = ops.vsub(c2, c1);
-    const v2 = ops.vsub(c2, c3);
-    return absVal(ops.cross2(v1, v2));
-  },
+  collinear: collinear.definition,
 
   /**
    * Require that three points be collinear.
    * Depends on the specific ordering of points.
    */
-  collinearOrdered: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
-    const v1 = ops.vnorm(ops.vsub(c1, c2));
-    const v2 = ops.vnorm(ops.vsub(c2, c3));
-    const v3 = ops.vnorm(ops.vsub(c1, c3));
-
-    // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(
-      0,
-      minN([sub(add(v1, v2), v3), sub(add(v1, v3), v2), sub(add(v2, v3), v1)])
-    );
-  },
+  collinearOrdered: collinearOrdered.definition,
 };
 
 // -------- General constraints
 // Defined for all shapes, generally require shape queries or call multiple specific constraints.
-const constrDictGeneral = {
-  /** Require that `shape` is on the canvas */
-  onCanvas: (
+
+const onCanvas: StyleFunction<ad.Binary> = {
+  name: "onCanvas",
+  documentation: "Require that `shape` is on the canvas",
+  arguments: [
+    { name: "shape", description: "Shape", type: "shape" },
+    { name: "canvasWidth", description: "Width of canvas", type: "real" },
+    { name: "canvasHeight", description: "Height of canvas", type: "real" },
+  ],
+  definition: (
     [shapeType, props]: any,
     canvasWidth: ad.Num,
     canvasHeight: ad.Num
@@ -187,26 +308,45 @@ const constrDictGeneral = {
       constrDict.contains1D(canvasYRange, BBox.yRange(box))
     );
   },
-  /**
-   * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
-   */
-  minSize: ([shapeType, props]: [string, any], limit = 50) => {
+};
+
+const minSize: StyleFunction<ad.Binary> = {
+  name: "minSize",
+  documentation:
+    "Require that a shape have a size greater than some constant minimum, based on the type of the shape.",
+  arguments: [
+    { name: "shape", description: "Shape", type: "shape" },
+    { name: "limit", description: "Minimum size", type: "real", default: "50" },
+  ],
+  definition: ([shapeType, props]: [string, any], limit = 50) => {
     return sub(limit, shapeSize([shapeType, props]));
   },
+};
 
-  /**
-   * Require that a shape have a size less than some constant maximum, based on the type of the shape.
-   */
-  maxSize: ([shapeType, props]: [string, any], limit: ad.Num) => {
+const maxSize: StyleFunction<ad.Binary> = {
+  name: "maxSize",
+  documentation:
+    "Require that a shape have a size less than some constant maximum, based on the type of the shape.",
+  arguments: [
+    { name: "shape", description: "Shape", type: "shape" },
+    { name: "limit", description: "Maximum size", type: "real" },
+  ],
+  definition: ([shapeType, props]: [string, any], limit: ad.Num) => {
     return sub(shapeSize([shapeType, props]), limit);
   },
+};
 
-  /**
-   * Require that shape `s1` overlaps shape `s2` with some overlap `overlap`.
-   * based on the type of the shape, and with an optional `overlap` between them
-   * (e.g. if `s1` should be overlapping `s2` with margin `overlap`).
-   */
-  overlapping: (
+const overlapping: StyleFunction<ad.Num> = {
+  name: "overlapping",
+  documentation: `Require that shape \`s1\` overlaps shape \`s2\` with some overlap \`overlap\`.
+ based on the type of the shape, and with an optional \`overlap\` between them
+ (e.g. if \`s1\` should be overlapping \`s2\` with margin \`overlap\`).`,
+  arguments: [
+    { name: "s1", description: "Shape 1", type: "shape" },
+    { name: "s2", description: "Shape 2", type: "shape" },
+    { name: "overlap", description: "Overlap", type: "real", default: "0" },
+  ],
+  definition: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     overlap: ad.Num = 0.0
@@ -248,26 +388,40 @@ const constrDictGeneral = {
     // Default to axis-aligned bounding boxes
     else return overlappingAABBs([t1, s1], [t2, s2], overlap);
   },
+};
 
-  /**
-   * Require that a shape `s1` is disjoint from shape `s2`,
-   * based on the type of the shape, and with an optional `padding` between them
-   * (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
-   */
-  disjoint: (
+const disjoint: StyleFunction<ad.Unary> = {
+  name: "disjoint",
+  documentation: `
+  Require that a shape \`s1\` is disjoint from shape \`s2\`,
+   based on the type of the shape, and with an optional \`padding\` between them
+   (e.g. if \`s1\` should be disjoint from \`s2\` with margin \`padding\`).
+  `,
+  arguments: [
+    { name: "s1", description: "Shape 1", type: "shape" },
+    { name: "s2", description: "Shape 2", type: "shape" },
+    { name: "padding", description: "Padding", type: "real", default: "0" },
+  ],
+  definition: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     padding: ad.Num = 0.0
   ) => {
     return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding)));
   },
+};
 
-  /**
-   * Require that shape `s1` is touching shape `s2`.
-   * based on the type of the shape, and with an optional `padding` between them
-   * (e.g. if `s1` should be touching `s2` with margin `padding`).
-   */
-  touching: (
+const touching: StyleFunction<ad.Unary> = {
+  name: "touching",
+  documentation: `Require that shape \`s1\` is touching shape \`s2\`.
+  based on the type of the shape, and with an optional \`padding\` between them
+  (e.g. if \`s1\` should be touching \`s2\` with margin \`padding\`).`,
+  arguments: [
+    { name: "s1", description: "Shape 1", type: "shape" },
+    { name: "s2", description: "Shape 2", type: "shape" },
+    { name: "padding", description: "Padding", type: "real", default: "0" },
+  ],
+  definition: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     padding: ad.Num = 0.0
@@ -276,13 +430,19 @@ const constrDictGeneral = {
       constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding))
     );
   },
+};
 
-  /**
-   * Require that a shape `s1` contains another shape `s2`,
-   * based on the type of the shape, and with an optional `padding` between the sizes of the shapes
-   * (e.g. if `s1` should contain `s2` with margin `padding`).
-   */
-  contains: (
+const contains: StyleFunction<ad.Num> = {
+  name: "contains",
+  documentation: `Require that a shape \`s1\` contains another shape \`s2\`,
+  based on the type of the shape, and with an optional \`padding\` between the sizes of the shapes
+  (e.g. if \`s1\` should contain \`s2\` with margin \`padding\`).`,
+  arguments: [
+    { name: "s1", description: "Shape 1", type: "shape" },
+    { name: "s2", description: "Shape 2", type: "shape" },
+    { name: "padding", description: "Padding", type: "real", default: "0" },
+  ],
+  definition: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     padding = 0.0
@@ -301,11 +461,18 @@ const constrDictGeneral = {
       return containsRectlikeCircle([t1, s1], [t2, s2], padding);
     else return containsAABBs([t1, s1], [t2, s2], padding);
   },
+};
 
-  /**
-   * Require that shape `s1` is at a distance of `distance` from shape `s2`.
-   */
-  atDist: (
+const atDist: StyleFunction<ad.Num> = {
+  name: "atDist",
+  documentation:
+    "Require that shape `s1` is at a distance of `distance` from shape `s2`.",
+  arguments: [
+    { name: "s1", description: "Shape 1", type: "shape" },
+    { name: "s2", description: "Shape 2", type: "shape" },
+    { name: "distance", description: "Distance", type: "real" },
+  ],
+  definition: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     distance: number
@@ -314,11 +481,23 @@ const constrDictGeneral = {
       return atDistLabel([t1, s1], [t2, s2], distance);
     else return constrDictGeneral.touching([t1, s1], [t2, s2], distance);
   },
+};
 
-  /**
-   * Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.
-   */
-  smallerThan: (
+const smallerThan: StyleFunction<ad.Binary> = {
+  name: "smallerThan",
+  documentation:
+    "Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.",
+  arguments: [
+    { name: "s1", description: "Shape 1", type: "shape" },
+    { name: "s2", description: "Shape 2", type: "shape" },
+    {
+      name: "relativePadding",
+      description: "Relative padding",
+      type: "real",
+      default: "0.4",
+    },
+  ],
+  definition: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     relativePadding = 0.4
@@ -331,13 +510,70 @@ const constrDictGeneral = {
   },
 };
 
+const constrDictGeneral = {
+  /** Require that `shape` is on the canvas */
+  onCanvas: onCanvas.definition,
+  /**
+   * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
+   */
+  minSize: minSize.definition,
+
+  /**
+   * Require that a shape have a size less than some constant maximum, based on the type of the shape.
+   */
+  maxSize: maxSize.definition,
+
+  /**
+   * Require that shape `s1` overlaps shape `s2` with some overlap `overlap`.
+   * based on the type of the shape, and with an optional `overlap` between them
+   * (e.g. if `s1` should be overlapping `s2` with margin `overlap`).
+   */
+  overlapping: overlapping.definition,
+
+  /**
+   * Require that a shape `s1` is disjoint from shape `s2`,
+   * based on the type of the shape, and with an optional `padding` between them
+   * (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
+   */
+  disjoint: disjoint.definition,
+
+  /**
+   * Require that shape `s1` is touching shape `s2`.
+   * based on the type of the shape, and with an optional `padding` between them
+   * (e.g. if `s1` should be touching `s2` with margin `padding`).
+   */
+  touching: touching.definition,
+
+  /**
+   * Require that a shape `s1` contains another shape `s2`,
+   * based on the type of the shape, and with an optional `padding` between the sizes of the shapes
+   * (e.g. if `s1` should contain `s2` with margin `padding`).
+   */
+  contains: contains.definition,
+
+  /**
+   * Require that shape `s1` is at a distance of `distance` from shape `s2`.
+   */
+  atDist: atDist.definition,
+
+  /**
+   * Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.
+   */
+  smallerThan: smallerThan.definition,
+};
+
 // -------- Specific constraints
 // Defined only for specific use-case or specific shapes.
-const constrDictSpecific = {
-  /**
-   * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
-   */
-  disjointIntervals: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+
+const disjointIntervals: StyleFunction<ad.Num> = {
+  name: "disjointIntervals",
+  documentation:
+    "Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.",
+  arguments: [
+    { name: "s1", description: "Shape 1", type: "line" },
+    { name: "s2", description: "Shape 2", type: "line" },
+  ],
+  definition: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     if (!shapedefs[t1].isLinelike || !shapedefs[t2].isLinelike) {
       throw Error("expected two line-like shapes");
     }
@@ -346,6 +582,13 @@ const constrDictSpecific = {
       [s2.start.contents[0], s2.end.contents[0]]
     );
   },
+};
+
+const constrDictSpecific = {
+  /**
+   * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
+   */
+  disjointIntervals: disjointIntervals.definition,
 };
 
 export const constrDict = {
