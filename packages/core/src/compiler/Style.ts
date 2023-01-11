@@ -32,6 +32,7 @@ import { Env } from "types/domain";
 import {
   BinOpTypeError,
   LayerCycleWarning,
+  MultipleLayoutError,
   ParseError,
   PenroseError,
   StyleDiagnostics,
@@ -40,7 +41,13 @@ import {
   SubstanceError,
 } from "types/errors";
 import { ShapeAD } from "types/shape";
-import { Fn, State } from "types/state";
+import {
+  Fn,
+  OptPipeline,
+  OptStages,
+  StagedConstraints,
+  State,
+} from "types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -49,6 +56,7 @@ import {
   Expr,
   Header,
   HeaderBlock,
+  LayoutStages,
   List,
   Path,
   PathAssign,
@@ -133,6 +141,7 @@ import {
   matrixV,
   prettyPrintResolvedPath,
   resolveRhsName,
+  safe,
   strV,
   tupV,
   val,
@@ -2085,9 +2094,11 @@ export const buildAssignment = (
       ])
     ),
   };
-  return styProg.blocks.reduce(
-    (assignment, block, index) =>
-      processBlock(varEnv, subEnv, index, block, assignment),
+  return styProg.items.reduce(
+    (assignment, item, index) =>
+      item.tag === "HeaderBlock"
+        ? processBlock(varEnv, subEnv, index, item, assignment)
+        : assignment,
     assignment
   );
 };
@@ -2214,22 +2225,24 @@ const internalMissingPathError = (path: string) =>
 const evalExprs = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
-    args.map((expr) => evalExpr(mut, canvas, { context, expr }, trans))
+    args.map((expr) => evalExpr(mut, canvas, stages, { context, expr }, trans))
   ).mapErr(flatErrs);
 
 const argValues = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<(GPI<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
-  evalExprs(mut, canvas, context, args, trans).map((argVals) =>
+  evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
     argVals.map((arg) => {
       switch (arg.tag) {
         case "GPI": // strip the `GPI` tag
@@ -2243,11 +2256,12 @@ const argValues = (
 const evalVals = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
-  evalExprs(mut, canvas, context, args, trans).andThen((argVals) =>
+  evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
     all(
       argVals.map(
         (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
@@ -2457,11 +2471,12 @@ const eval2D = (
 const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   context: Context,
   coll: List<C> | Vector<C>,
   trans: Translation
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
-  return evalVals(mut, canvas, context, coll.contents, trans).andThen(
+  return evalVals(mut, canvas, stages, context, coll.contents, trans).andThen(
     (vals) => {
       if (vals.length === 0) {
         switch (coll.tag) {
@@ -2572,6 +2587,7 @@ const evalUMinus = (
 const evalExpr = (
   mut: MutableContext,
   canvas: Canvas,
+  layoutStages: OptPipeline,
   { context, expr }: WithContext<Expr<C>>,
   trans: Translation
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
@@ -2580,6 +2596,7 @@ const evalExpr = (
       return evalVals(
         mut,
         canvas,
+        layoutStages,
         context,
         [expr.left, expr.right],
         trans
@@ -2604,7 +2621,14 @@ const evalExpr = (
       }
     }
     case "CompApp": {
-      const args = argValues(mut, canvas, context, expr.args, trans);
+      const args = argValues(
+        mut,
+        canvas,
+        layoutStages,
+        context,
+        expr.args,
+        trans
+      );
       if (args.isErr()) {
         return err(args.error);
       }
@@ -2628,7 +2652,14 @@ const evalExpr = (
     }
     case "List":
     case "Vector": {
-      return evalListOrVector(mut, canvas, context, expr, trans).map(val);
+      return evalListOrVector(
+        mut,
+        canvas,
+        layoutStages,
+        context,
+        expr,
+        trans
+      ).map(val);
     }
     case "Path": {
       const resolvedPath = resolveRhsPath({ context, expr });
@@ -2646,20 +2677,24 @@ const evalExpr = (
       }
       const res = all(
         expr.indices.map((e) =>
-          evalExpr(mut, canvas, { context, expr: e }, trans).andThen<number>(
-            (i) => {
-              if (i.tag === "GPI") {
-                return err(oneErr({ tag: "NotValueError", expr: e }));
-              } else if (
-                i.contents.tag === "FloatV" &&
-                typeof i.contents.contents === "number"
-              ) {
-                return ok(i.contents.contents);
-              } else {
-                return err(oneErr({ tag: "BadIndexError", expr: e }));
-              }
+          evalExpr(
+            mut,
+            canvas,
+            layoutStages,
+            { context, expr: e },
+            trans
+          ).andThen<number>((i) => {
+            if (i.tag === "GPI") {
+              return err(oneErr({ tag: "NotValueError", expr: e }));
+            } else if (
+              i.contents.tag === "FloatV" &&
+              typeof i.contents.contents === "number"
+            ) {
+              return ok(i.contents.contents);
+            } else {
+              return err(oneErr({ tag: "BadIndexError", expr: e }));
             }
-          )
+          })
         )
       );
       if (res.isErr()) {
@@ -2675,47 +2710,58 @@ const evalExpr = (
       return ok(val(strV(expr.contents)));
     }
     case "Tuple": {
-      return evalVals(mut, canvas, context, expr.contents, trans).andThen(
-        ([left, right]) => {
-          if (left.tag !== "FloatV") {
-            return err(
-              oneErr({ tag: "BadElementError", coll: expr, index: 0 })
-            );
-          }
-          if (right.tag !== "FloatV") {
-            return err(
-              oneErr({ tag: "BadElementError", coll: expr, index: 1 })
-            );
-          }
-          return ok(val(tupV([left.contents, right.contents])));
+      return evalVals(
+        mut,
+        canvas,
+        layoutStages,
+        context,
+        expr.contents,
+        trans
+      ).andThen(([left, right]) => {
+        if (left.tag !== "FloatV") {
+          return err(oneErr({ tag: "BadElementError", coll: expr, index: 0 }));
         }
-      );
+        if (right.tag !== "FloatV") {
+          return err(oneErr({ tag: "BadElementError", coll: expr, index: 1 }));
+        }
+        return ok(val(tupV([left.contents, right.contents])));
+      });
     }
     case "UOp": {
-      return evalExpr(mut, canvas, { context, expr: expr.arg }, trans).andThen(
-        (argVal) => {
-          if (argVal.tag === "GPI") {
-            return err(oneErr({ tag: "NotValueError", expr }));
-          }
-          switch (expr.op) {
-            case "UMinus": {
-              const res = evalUMinus(expr, argVal.contents);
-              if (res.isErr()) {
-                return err(oneErr(res.error));
-              }
-              return ok(val(res.value));
+      return evalExpr(
+        mut,
+        canvas,
+        layoutStages,
+        { context, expr: expr.arg },
+        trans
+      ).andThen((argVal) => {
+        if (argVal.tag === "GPI") {
+          return err(oneErr({ tag: "NotValueError", expr }));
+        }
+        switch (expr.op) {
+          case "UMinus": {
+            const res = evalUMinus(expr, argVal.contents);
+            if (res.isErr()) {
+              return err(oneErr(res.error));
             }
+            return ok(val(res.value));
           }
         }
-      );
+      });
     }
     case "Vary": {
+      const { exclude } = expr;
+      const stages: OptStages = stageExpr(
+        layoutStages,
+        exclude,
+        expr.stages.map((s) => s.value)
+      );
       return ok(
         val(
           floatV(
             mut.makeInput({
-              tag: "Optimized",
-              sampler: uniform(...canvas.xRange),
+              init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
+              stages,
             })
           )
         )
@@ -2724,9 +2770,26 @@ const evalExpr = (
   }
 };
 
+const stageExpr = (
+  overallStages: string[],
+  excludeFlag: boolean,
+  stageList: string[]
+): OptStages => {
+  if (excludeFlag) {
+    const stages = new Set(overallStages);
+    for (const stage of stageList) {
+      stages.delete(stage);
+    }
+    return stages;
+  } else {
+    return new Set(stageList);
+  }
+};
+
 const translateExpr = (
   mut: MutableContext,
   canvas: Canvas,
+  layoutStages: OptPipeline,
   path: string,
   e: WithContext<NotShape>,
   trans: Translation
@@ -2744,7 +2807,7 @@ const translateExpr = (
     case "UOp":
     case "Vary":
     case "Vector": {
-      const res = evalExpr(mut, canvas, e, trans);
+      const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
       }
@@ -2754,11 +2817,18 @@ const translateExpr = (
       };
     }
     case "ConstrFn": {
-      const args = argValues(mut, canvas, e.context, e.expr.args, trans);
+      const args = argValues(
+        mut,
+        canvas,
+        layoutStages,
+        e.context,
+        e.expr.args,
+        trans
+      );
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name } = e.expr;
+      const { name, stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
         return addDiags(
@@ -2767,20 +2837,33 @@ const translateExpr = (
         );
       }
       const output: ad.Num = constrDict[fname](...args.value);
+      const optStages: OptStages = stageExpr(
+        layoutStages,
+        exclude,
+        stages.map((s) => s.value)
+      );
       return {
         ...trans,
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
+          optStages,
           output,
         }),
       };
     }
     case "ObjFn": {
-      const args = argValues(mut, canvas, e.context, e.expr.args, trans);
+      const args = argValues(
+        mut,
+        canvas,
+        layoutStages,
+        e.context,
+        e.expr.args,
+        trans
+      );
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name } = e.expr;
+      const { name, stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
         return addDiags(
@@ -2788,11 +2871,18 @@ const translateExpr = (
           trans
         );
       }
+
+      const optStages: OptStages = stageExpr(
+        layoutStages,
+        exclude,
+        stages.map((s) => s.value)
+      );
       const output: ad.Num = objDict[fname](...args.value);
       return {
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
+          optStages,
           output,
         }),
       };
@@ -2848,6 +2938,7 @@ const evalGPI = (
 export const translate = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   graph: DepGraph,
   warnings: im.List<StyleWarning>
 ): Translation => {
@@ -2900,7 +2991,7 @@ export const translate = (
         symbols: trans.symbols.set(path, evalGPI(path, e, trans)),
       };
     }
-    return translateExpr(mut, canvas, path, e, trans);
+    return translateExpr(mut, canvas, stages, path, e, trans);
   }, trans);
 };
 
@@ -2998,6 +3089,28 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
   }
 };
 
+export const getLayoutStages = (
+  prog: StyProg<C>
+): Result<OptPipeline, MultipleLayoutError> => {
+  const layoutStmts: LayoutStages<C>[] = prog.items.filter(
+    (i): i is LayoutStages<C> => i.tag === "LayoutStages"
+  );
+  if (layoutStmts.length === 0) {
+    // if no stages specified, default to "" because that way nobody can refer
+    // to it, because this is not a valid Style idenitifer; if people want to
+    // refer to a stage, they must define their own layout
+    return ok([""]);
+  } else if (layoutStmts.length === 1) {
+    return ok(layoutStmts[0].contents.map((s) => s.value));
+  } else {
+    // there can be only layout spec
+    return err({
+      tag: "MultipleLayoutError",
+      decls: layoutStmts,
+    });
+  }
+};
+
 const getShapes = (
   graph: DepGraph,
   { symbols }: Translation,
@@ -3059,6 +3172,8 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
             tag: "ConstrFn",
             nodeType: "SyntheticStyle",
             name: dummyId("onCanvas"),
+            stages: [],
+            exclude: true,
             args: [
               // HACK: the right way to do this would be to parse `name` into
               // the correct `Path`, but we don't really care as long as it
@@ -3070,11 +3185,34 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
           },
         },
         output,
+        // TODO: what's a good default stage for `onCanvas`? How can someone change this behavior?
+        optStages: "All",
       });
     }
   }
   return fns;
 };
+
+export const stageConstraints = (
+  inputs: InputMeta[],
+  constrFns: Fn[],
+  objFns: Fn[],
+  stages: OptPipeline
+): StagedConstraints =>
+  new Map(
+    stages.map((stage) => [
+      stage,
+      {
+        inputMask: inputs.map((i) => i.stages === "All" || i.stages.has(stage)),
+        constrMask: constrFns.map(
+          ({ optStages }) => optStages === "All" || optStages.has(stage)
+        ),
+        objMask: objFns.map(
+          ({ optStages }) => optStages === "All" || optStages.has(stage)
+        ),
+      },
+    ])
+  );
 
 export const compileStyleHelper = async (
   variation: string,
@@ -3083,7 +3221,13 @@ export const compileStyleHelper = async (
   varEnv: Env
 ): Promise<
   Result<
-    { state: State; translation: Translation; assignment: Assignment },
+    {
+      state: State;
+      translation: Translation;
+      assignment: Assignment;
+      styleAST: StyProg<C>;
+      graph: DepGraph;
+    },
     PenroseError
   >
 > => {
@@ -3096,6 +3240,12 @@ export const compileStyleHelper = async (
   }
 
   log.info("prog", styProg);
+
+  // preprocess stage info
+  const optimizationStages = getLayoutStages(styProg);
+  if (optimizationStages.isErr()) {
+    return err(toStyleErrors([optimizationStages.error]));
+  }
 
   // first pass: generate Substance substitutions and use the `override` and
   // `delete` statements to construct a mapping from Substance-substituted paths
@@ -3119,7 +3269,8 @@ export const compileStyleHelper = async (
   const varyingValues: number[] = [];
   const inputs: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
-    const val = meta.tag === "Optimized" ? meta.sampler(rng) : meta.pending;
+    const val =
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending;
     const x = input({ key: varyingValues.length, val });
     varyingValues.push(val);
     inputs.push(meta);
@@ -3130,6 +3281,7 @@ export const compileStyleHelper = async (
   const translation = translate(
     { makeInput },
     canvas.value,
+    optimizationStages.value,
     graph,
     assignment.diagnostics.warnings
   );
@@ -3148,10 +3300,18 @@ export const compileStyleHelper = async (
   const shapes = getShapes(graph, translation, shapeOrdering);
 
   const objFns = [...translation.objectives];
+
   const constrFns = [
     ...translation.constraints,
     ...onCanvases(canvas.value, shapes),
   ];
+
+  const constraintSets = stageConstraints(
+    inputs,
+    constrFns,
+    objFns,
+    optimizationStages.value
+  );
 
   const computeShapes = await compileCompGraph(shapes);
 
@@ -3161,20 +3321,22 @@ export const compileStyleHelper = async (
     constrFns.map(({ output }) => output)
   );
 
-  const params = genOptProblem(
-    inputs.map((meta) => meta.tag === "Optimized"),
-    objFns.map(() => true),
-    constrFns.map(() => true)
+  const { inputMask, objMask, constrMask } = safe(
+    constraintSets.get(optimizationStages.value[0]),
+    "missing first stage"
   );
+
+  const params = genOptProblem(inputMask, objMask, constrMask);
 
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, layeringWarning]
       : [...translation.diagnostics.warnings],
     variation,
-    objFns,
-    constrFns,
     varyingValues,
+    constraintSets,
+    constrFns,
+    objFns,
     inputs,
     labelCache: new Map(),
     shapes,
@@ -3182,14 +3344,18 @@ export const compileStyleHelper = async (
     gradient,
     computeShapes,
     params,
+    currentStageIndex: 0,
+    optStages: optimizationStages.value,
   };
 
   log.info("init state from GenOptProblem", initState);
 
   return ok({
     state: initState,
+    styleAST: astOk.value,
     translation,
     assignment,
+    graph,
   });
 };
 

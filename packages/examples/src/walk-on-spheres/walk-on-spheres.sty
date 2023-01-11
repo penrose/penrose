@@ -17,7 +17,6 @@ Global {
    -- default appearance for label text
    string labelFont = "Palatino"
    string labelSize = "12px"
-   scalar equationSize = 12
    color labelColor = Colors.black
 
    -- line thickness for basic shapes
@@ -68,12 +67,11 @@ Global {
 -- label the domain if it was assigned a label in the Substance program
 forall Domain U
 where U has label {
-
-   -- Draw the label as an equation, typeset via MathJax
-   shape U.labelText = Equation {
+   shape U.labelText = Text {
       string: U.label
-      center: (?,?) -- the layout engine will determine the exact placement
-      fontSize: Global.equationSize
+      center: (?,?)
+      fontSize: Global.labelSize
+      fontFamily: Global.labelFont
       fillColor: Colors.darkGray
    }
 
@@ -181,17 +179,17 @@ where offCenter(s) {
 -- If the step has a label, draw a label string near the sample point.
 forall Step s
 where s has label {
-
-   -- Draw the label as an equation, typeset via MathJax
-   shape s.labelText = Equation {
+   shape s.labelText = Text {
       string: s.label
       center: (?,?) -- the layout engine will determine the exact placement
-      fontSize: Global.equationSize
+      fontSize: Global.labelSize
+      fontFamily: Global.labelFont
+      fontStyle: "italic"
       fillColor: Global.labelColor
       strokeColor: Colors.white
       strokeWidth: 2.5
-      paintOrder: "stroke"
       strokeLinejoin: "round"
+      paintOrder: "stroke"
    }
 
    -- We want the label to be near the dot, but don't want it
@@ -305,17 +303,17 @@ where p := sampleSource( x ) {
 -- in the Substance program.
 forall Sample p
 where p has label {
-
-   -- Draw the label as an equation, typeset via MathJax
-   shape p.labelText = Equation {
+   shape p.labelText = Text {
       string: p.label
-      center: (?,?) -- the layout engine will determine the exact placement
-      fontSize: Global.equationSize
+      center: (?,?)
+      fontSize: Global.labelSize
+      fontFamily: Global.labelFont
+      fontStyle: "italic"
       fillColor: Global.labelColor
       strokeColor: Colors.white
       strokeWidth: 2.5
-      paintOrder: "stroke"
       strokeLinejoin: "round"
+      paintOrder: "stroke"
    }
 
    -- Put the label near the dot, but don't allow
