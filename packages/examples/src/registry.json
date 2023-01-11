@@ -424,8 +424,9 @@
       "URI": "animation/animation.sty"
     },
     "structural-formula": {
+      "domain": "structural-formula",
       "name": "Structural Formula",
-      "URI": "structural-formula/structural-formula.dsl"
+      "URI": "structural-formula/structural-formula.sty"
     }
   },
   "substances": {
@@ -587,7 +588,7 @@
     "caffeine": {
       "domain": "structural-formula",
       "name": "Caffeine molecule",
-      "URI": "molecules"
+      "URI": "structural-formula/molecules/caffeine.sub"
     }
   }
 }
