@@ -1788,6 +1788,9 @@ const tickPlacement = (
   return pts;
 };
 
+/**
+ * Returns the algebraic area enclosed by a polygonal chain given its nodes
+ */
 const algebraicArea = (points: [ad.Num, ad.Num][], closed: boolean) => {
   const sides = consecutiveTuples(points, closed);
   return mul(
@@ -1800,6 +1803,9 @@ const algebraicArea = (points: [ad.Num, ad.Num][], closed: boolean) => {
   );
 };
 
+/**
+ * Returns the turning number of polygonal chain given its nodes
+ */
 export const turningNumber = (
   points: [ad.Num, ad.Num][],
   closed: boolean
@@ -1807,6 +1813,9 @@ export const turningNumber = (
   return div(totalCurvature(points, closed), 2 * Math.PI);
 };
 
+/**
+ * Returns the total length of polygonal chain given its nodes
+ */
 export const perimeter = (
   points: [ad.Num, ad.Num][],
   closed: boolean
@@ -1815,6 +1824,9 @@ export const perimeter = (
   return addN(sides.map(([p1, p2]: [ad.Num, ad.Num][]) => ops.vdist(p1, p2)));
 };
 
+/**
+ * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
+ */
 export const isoperimetricRatio = (
   points: [ad.Num, ad.Num][],
   closed: boolean
@@ -1822,6 +1834,9 @@ export const isoperimetricRatio = (
   return div(squared(perimeter(points, closed)), algebraicArea(points, closed));
 };
 
+/**
+ * Returns discrete curvature approximation given three consecutive points
+ */
 const curvature = (
   p1: [ad.Num, ad.Num],
   p2: [ad.Num, ad.Num],
@@ -1836,6 +1851,9 @@ const curvature = (
   // return mul(2, tan(div(angle, 2)));
 };
 
+/**
+ * Returns integral of curvature squared along the curve
+ */
 export const elasticEnergy = (
   points: [ad.Num, ad.Num][],
   closed: boolean
@@ -1848,6 +1866,9 @@ export const elasticEnergy = (
   );
 };
 
+/**
+ * Returns integral of curvature along the curve
+ */
 export const totalCurvature = (
   points: [ad.Num, ad.Num][],
   closed: boolean
