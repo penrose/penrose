@@ -1428,7 +1428,7 @@ const mulComputation: Computation<VectorV<ad.Num>> = {
     "Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).",
   returns: "rn",
   arguments: [
-    { name: "m", type: "rmn", description: "A matrix" },
+    { name: "m", type: "rnm", description: "A matrix" },
     { name: "v", type: "rn", description: "A vector" },
   ],
   definition: (

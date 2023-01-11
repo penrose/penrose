@@ -15,7 +15,7 @@ export const styleTypes = {
   r2: { description: "2d Vector of Reals", symbol: "ℝ^2" },
   rn: { description: "Vector of Reals", symbol: "ℝ^n" },
   r2n: { description: "List of 2d Real Vectors", symbol: "(ℝ^2)^n" },
-  rmn: { description: "List of Real Vectors", symbol: "(ℝ^m)^n" },
+  rnm: { description: "List of Real Vectors", symbol: "(ℝ^n)^m" },
   unit: { description: "Unit Interval", symbol: "[0,1]" },
   bbox: { description: "Bounding Box", symbol: "BBox" },
   color: { description: "Color", symbol: "Color" },
