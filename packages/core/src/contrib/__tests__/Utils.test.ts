@@ -11,8 +11,8 @@ describe("consecutiveNTuples", () => {
     [
       [a, b],
       [
-        [b, a],
         [a, b],
+        [b, a],
       ],
     ],
     [

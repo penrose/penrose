@@ -1,8 +1,12 @@
+import { compDict } from "contrib/Functions";
 import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
+import { makePath } from "shapes/Path";
 import { makePolygon } from "shapes/Polygon";
+import { makePolyline } from "shapes/Polyline";
 import { makeRectangle } from "shapes/Rectangle";
 import { makeCanvas, simpleContext } from "shapes/Samplers";
+import { Pt2 } from "types/ad";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { makeEllipse } from "../../shapes/Ellipse";
 
@@ -54,7 +58,7 @@ export const _lines = [
   })
 );
 
-export const _polygons = [
+const polyPts: Pt2[][] = [
   [
     [100, 0],
     [300, 200],
@@ -84,7 +88,9 @@ export const _polygons = [
     [200, 200],
     [100, 200],
   ],
-].map((pts) =>
+];
+
+export const _polygons = polyPts.map((pts) =>
   makePolygon(context, canvas, {
     points: ptListV(pts),
     scale: floatV(1),
@@ -113,5 +119,24 @@ export const _ellipses = [
     center: vectorV(x.center),
     strokeWidth: floatV(0),
     strokeColor: black(),
+  })
+);
+
+export const _polylines = polyPts.map((pts) =>
+  makePolyline(context, canvas, {
+    points: ptListV(pts),
+    scale: floatV(1),
+  })
+);
+
+export const _open_paths = polyPts.map((pts) =>
+  makePath(context, canvas, {
+    d: compDict.cubicCurveFromPoints(context, "open", pts),
+  })
+);
+
+export const _closed_paths = polyPts.map((pts) =>
+  makePath(context, canvas, {
+    d: compDict.cubicCurveFromPoints(context, "closed", pts),
   })
 );
