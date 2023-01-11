@@ -189,6 +189,9 @@ export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];
 };
 
+/**
+ * Return list of tuples of consecutive points
+ */
 export const consecutiveTuples = (
   points: [ad.Num, ad.Num][],
   closed: boolean
@@ -199,6 +202,9 @@ export const consecutiveTuples = (
   ]);
 };
 
+/**
+ * Return list of triples of consecutive points
+ */
 export const consecutiveTriples = (
   points: [ad.Num, ad.Num][],
   closed: boolean
@@ -210,6 +216,9 @@ export const consecutiveTriples = (
   ]);
 };
 
+/**
+ * Return indicater of closed Polyline, Polygon or Path shape
+ */
 export const isClosed = ([t, s]: [
   string,
   Polyline | Polygon | Path
@@ -217,6 +226,9 @@ export const isClosed = ([t, s]: [
   throw new Error("Function not implemented."); // TODO
 };
 
+/**
+ * Return list of points from Polyline, Polygon or Path shape
+ */
 export const extractPoints = ([t, s]: [string, any]): [ad.Num, ad.Num][] => {
   if (t === "Polyline" || t === "Polygon") return s.points.contents;
   else if (t === "Path") return s.d.contents;
