@@ -1,4 +1,4 @@
-import { examples } from "@penrose/examples";
+import { loadProgram } from "@penrose/examples";
 import * as fs from "fs";
 import nearley from "nearley";
 import grammar from "parser/SubstanceParser";
@@ -536,11 +536,8 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach(([domainPath, examplePath]) => {
-    // a bit hacky, only works with 2-part paths
-    const [domPart0, domPart1] = domainPath.split("/");
-    const [subPart0, subPart1] = examplePath.split("/");
-    const domProg = examples[domPart0][domPart1];
-    const subProg = examples[subPart0][subPart1];
+    const domProg = loadProgram(domainPath);
+    const subProg = loadProgram(examplePath);
     test(examplePath, () => {
       // do testing
       const env = envOrError(domProg);

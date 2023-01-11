@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "Congruent Triangles with Markers / Euclidean 2D Geometry / Geometry",
   "variation": "OspreySkunk922",
   "substance": {

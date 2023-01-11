@@ -1,6 +1,4 @@
-// Must be run from penrose-web for loading files
-
-import { examples } from "@penrose/examples";
+import { loadProgram } from "@penrose/examples";
 import { ready } from "@penrose/optimizer";
 import * as S from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
@@ -20,33 +18,11 @@ await ready;
 
 // TODO: Reorganize and name tests by compiler stage
 
-// Load file in format "domain-dir/file.extension"
-const loadFile = (examplePath: string): string => {
-  // a bit hacky, only works with 2-part paths
-  const [part0, part1] = examplePath.split("/");
-  const prog = examples[part0][part1];
-  return prog;
-};
-
 interface Trio {
   sub: string;
   dsl: string;
   sty: string;
 }
-
-const loadFiles = ({
-  dslPath,
-  subPath,
-  styPath,
-}: {
-  dslPath: string;
-  subPath: string;
-  styPath: string;
-}): Trio => ({
-  dsl: loadFile(dslPath),
-  sub: loadFile(subPath),
-  sty: loadFile(styPath),
-});
 
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
 export const loadProgs = async ({
@@ -635,8 +611,8 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = loadFile("set-theory-domain/twosets-simple.sub");
-    const domainProg = loadFile("set-theory-domain/functions.dsl");
+    const subProg = loadProgram("set-theory-domain/twosets-simple.sub");
+    const domainProg = loadProgram("set-theory-domain/functions.dsl");
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.sty";
 

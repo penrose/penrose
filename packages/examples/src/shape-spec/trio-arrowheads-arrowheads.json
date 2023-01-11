@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "All Arrowhead Styles / Arrowhead Styles / Shapes",
   "variation": "",
   "substance": {

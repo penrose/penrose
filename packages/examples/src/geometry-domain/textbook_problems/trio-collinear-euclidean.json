@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "Collinear Points Example / Euclidean 2D Geometry / Geometry",
   "variation": "HighlighterChicken10318",
   "substance": {

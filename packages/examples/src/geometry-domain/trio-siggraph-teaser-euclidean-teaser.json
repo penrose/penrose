@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "SIGGRAPH teaser / Euclidean - SIGGRAPH teaser / Geometry",
   "variation": "StromboliCat61816",
   "substance": {

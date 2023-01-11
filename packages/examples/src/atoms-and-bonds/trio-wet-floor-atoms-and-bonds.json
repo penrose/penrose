@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "Three Water Molecules drawn using strong and weak bonds, using symmetry and aliasing / atoms-and-bonds / Atoms and Bonds",
   "variation": "SinisterPigeon34750",
   "substance": {

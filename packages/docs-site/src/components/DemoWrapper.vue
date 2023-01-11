@@ -1,34 +1,12 @@
 <script setup lang="ts">
-import { examples, registry } from "@penrose/examples";
 import { defineAsyncComponent } from "vue";
 
-const exampleFromURI = (uri) => {
-  let x = examples;
-  for (const part of uri.split("/")) {
-    x = x[part];
-  }
-  return x;
-};
-
-const findTrio = (sub, sty) => {
-  const matching = registry.trios.filter(
-    ({ substance, style }) => substance === sub && style === sty
-  );
-  if (matching.length !== 1) {
-    throw Error(`expected exactly one matching trio, got ${matching.length}`);
-  }
-  const [{ substance, style, domain, variation }] = matching;
-  return {
-    dsl: exampleFromURI(registry.domains[domain].URI),
-    sub: exampleFromURI(registry.substances[substance].URI),
-    sty: exampleFromURI(registry.styles[style].URI),
-    variation,
-  };
-};
+import siggraphTeaser from "@penrose/examples/src/geometry-domain/trio-siggraph-teaser-euclidean-teaser.json";
+import vennTree from "@penrose/examples/src/set-theory-domain/trio-tree-venn.json"
 
 const demo = [
-  findTrio("siggraph-teaser", "euclidean-teaser"),
-  findTrio("tree", "venn"),
+  siggraphTeaser,
+  vennTree
 ];
 
 const Demo = defineAsyncComponent(async () => {

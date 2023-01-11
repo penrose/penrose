@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "Word Cloud / Word Cloud / Word Cloud",
   "variation": "JazlynMouse32496",
   "substance": {

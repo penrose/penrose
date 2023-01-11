@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "Parallel Lines with Marker / Euclidean 2D Geometry / Geometry",
   "variation": "SuluHippopotamus665",
   "substance": {

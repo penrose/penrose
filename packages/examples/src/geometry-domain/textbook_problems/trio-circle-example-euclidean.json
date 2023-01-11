@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "Circle with Chords, Radii, Diameters / Euclidean 2D Geometry / Geometry",
   "variation": "ShiitakeEchidna6061",
   "substance": {

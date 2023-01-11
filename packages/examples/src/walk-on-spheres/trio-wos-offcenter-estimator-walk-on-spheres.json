@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "WoS Laplace Estimator / Walk on Spheres / Walk on Spheres",
   "variation": "ShireStork246",
   "substance": {

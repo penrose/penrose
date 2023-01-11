@@ -5,11 +5,13 @@ import {
   evalEnergy,
   makeCanvas,
   prepareState,
+  Registry,
   RenderStatic,
   shapedefs,
   showError,
   simpleContext,
   stepUntilConvergence,
+  Trio,
 } from "@penrose/core";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
@@ -238,17 +240,16 @@ const singleProcess = async (
   }
 };
 
-// Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
+// Takes a list of trios and runs `singleProcess` on each
 const batchProcess = async (
   lib: any,
   folders: boolean,
   out: string,
   prefix: string
 ) => {
-  const registry = JSON.parse(fs.readFileSync(join(prefix, lib)).toString());
-  const substanceLibrary = registry["substances"];
-  const styleLibrary = registry["styles"];
-  const domainLibrary = registry["domains"];
+  const registry: Registry = JSON.parse(
+    fs.readFileSync(join(prefix, lib)).toString()
+  );
   const trioLibrary = registry["trios"];
   console.log(`Processing ${trioLibrary.length} substance files...`);
 
@@ -259,42 +260,32 @@ const batchProcess = async (
   const finalMetadata: AggregateData = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
-  for (const { domain, style, substance, variation, meta } of trioLibrary) {
+  for (const trioVariant of trioLibrary) {
+    // Infer if it's an inline trio or file pointer
+    const trioFile: Trio =
+      "path" in trioVariant
+        ? JSON.parse(fs.readFileSync(join(prefix, trioVariant.path)).toString())
+        : trioVariant;
     // try to render the diagram
     const id = uniqid("instance-");
-    const name = `${substance}-${style}`;
     try {
-      const { name: subName, URI: subURI } = substanceLibrary[substance];
-      const { name: styName, URI: styURI, plugin } = styleLibrary[style];
-      const { name: dslName, URI: dslURI } = domainLibrary[domain];
-
-      if (plugin) {
-        console.log(
-          chalk.red(
-            `Skipping "${name}" (${subURI}) for now; this domain requires a plugin or has known issues.`
-          )
-        );
-        continue;
-      }
-
       // Warning: will face id conflicts if parallelism used
       const res = await singleProcess(
-        variation,
-        subURI,
-        styURI,
-        dslURI,
+        trioFile.variation,
+        trioFile.substance.path,
+        trioFile.style.path,
+        trioFile.domain.path,
         folders,
-        join(out, `${name}${folders ? "" : ".svg"}`),
+        join(out, `${trioFile.name}${folders ? "" : ".svg"}`),
         prefix,
         {
-          substanceName: subName,
-          styleName: styName,
-          domainName: dslName,
+          substanceName: trioFile.substance.name,
+          styleName: trioFile.style.name,
+          domainName: trioFile.domain.name,
           id,
         },
         reference,
-        referenceState,
-        meta
+        referenceState
       );
       if (folders && res !== undefined) {
         const { metadata, state } = res;
@@ -307,7 +298,7 @@ const batchProcess = async (
     } catch (e) {
       console.trace(
         chalk.red(
-          `${id} exited with an error. The Substance program ID is ${substance}. The error message is:\n${e}`
+          `${id} exited with an error. The trio name is ${trioFile.name}. The error message is:\n${e}`
         )
       );
     }

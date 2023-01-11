@@ -15,6 +15,21 @@ export interface Trio {
   domain: TrioProgram;
   variation: string;
   name: string;
+  /**
+   * Preview image URL
+   */
+  image?: string;
+  /**
+   * Provides location of trio file so that relative paths can be resolved
+   */
+  path?: string;
+}
+
+/**
+ * Points to a trio file that resolves to type `Trio`
+ */
+export interface TrioFilePointer {
+  path: string;
 }
 
 /**
@@ -25,5 +40,5 @@ export interface Registry {
    * Root URI to concatenate onto paths
    */
   root: string;
-  trios: string[];
+  trios: (TrioFilePointer | Trio)[];
 }

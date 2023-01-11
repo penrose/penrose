@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "Nested Triangles with Incenters / Euclidean 2D Geometry / Geometry",
   "variation": "FollyCamel2864",
   "substance": {

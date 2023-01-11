@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "Projection onto Subspace and its Orthogonal Complement / Fake 3d Linear Algebra / Fake 3d Linear Algebra",
   "variation": "ConceptualMeerkat694",
   "substance": {

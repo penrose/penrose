@@ -249,38 +249,6 @@ export const stateInitial = (state: State): boolean =>
   state.params.optStatus === "NewIter";
 
 /**
- * Read and flatten the registry file for Penrose examples into a list of program trios.
- *
- * @param registry JSON file of the registry
- */
-export const readRegistry = (registry: Registry): Trio[] => {
-  const { substances, styles, domains, trios } = registry;
-  const res = [];
-  for (const {
-    domain: dslID,
-    style: styID,
-    substance: subID,
-    variation,
-  } of trios) {
-    const domain = domains[dslID];
-    const substance = substances[subID];
-    const style = styles[styID];
-    const trio = {
-      substanceURI: substance.URI,
-      styleURI: style.URI,
-      domainURI: domain.URI,
-      substanceName: substance.name,
-      styleName: style.name,
-      domainName: domain.name,
-      variation,
-      name: `${subID}-${styID}`,
-    };
-    res.push(trio);
-  }
-  return res;
-};
-
-/**
  * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objectiveAndGradient` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
  * @param s a state with or without an optimization problem initialized
  * @returns a scalar value of the current energy

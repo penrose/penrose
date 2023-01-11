@@ -8,7 +8,7 @@
     "build": ":",
     "build-decls": ":",
     "start": "ts-node --esm --experimentalSpecifierResolution=node ./index.tsx",
-    "generate-site": "yarn clean && yarn start batch registry.json artifacts --render=browser --src-prefix=progs --folders --cross-energy",
+    "generate-site": "yarn clean && yarn start batch testing_registry.json artifacts --render=browser --src-prefix=progs --folders --cross-energy",
     "clean": "rimraf artifacts browser",
     "typecheck": "tsc --noEmit"
   },

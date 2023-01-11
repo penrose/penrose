@@ -1,0 +1,110 @@
+{
+  "root": "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/",
+  "trios": [
+    {
+      "path": "set-theory-domain/trio-tree-venn.json"
+    },
+    {
+      "path": "set-theory-domain/trio-tree-tree.json"
+    },
+    {
+      "path": "set-theory-domain/trio-tree-venn-3d.json"
+    },
+    {
+      "path": "atoms-and-bonds/trio-wet-floor-atoms-and-bonds.json"
+    },
+    {
+      "path": "atoms-and-bonds/trio-one-water-molecule-atoms-and-bonds.json"
+    },
+    {
+      "path": "set-theory-domain/trio-continuousmap-continuousmap.json"
+    },
+    {
+      "path": "linear-algebra-domain/trio-two-vectors-perp-vectors-dashed.json"
+    },
+    {
+      "path": "exterior-algebra/trio-vector-wedge-exterior-algebra.json"
+    },
+    {
+      "path": "shape-spec/trio-allShapes-allShapes.json"
+    },
+    {
+      "path": "shape-spec/trio-arrowheads-arrowheads.json"
+    },
+    {
+      "path": "graph-domain/trio-small-graph-disjoint-rects.json"
+    },
+    {
+      "path": "graph-domain/trio-small-graph-disjoint-rect-line-horiz.json"
+    },
+    {
+      "path": "graph-domain/trio-small-graph-disjoint-rects-small-canvas.json"
+    },
+    {
+      "path": "graph-domain/trio-small-graph-disjoint-rects-large-canvas.json"
+    },
+    {
+      "path": "geometry-domain/textbook_problems/trio-incenter-triangle-euclidean.json"
+    },
+    {
+      "path": "geometry-domain/textbook_problems/trio-collinear-euclidean.json"
+    },
+    {
+      "path": "geometry-domain/textbook_problems/trio-parallel-lines-euclidean.json"
+    },
+    {
+      "path": "geometry-domain/textbook_problems/trio-midsegment-triangles-euclidean.json"
+    },
+    {
+      "path": "geometry-domain/textbook_problems/trio-congruent-triangles-euclidean.json"
+    },
+    {
+      "path": "geometry-domain/textbook_problems/trio-circle-example-euclidean.json"
+    },
+    {
+      "path": "word-cloud/trio-word-cloud-example-word-cloud.json"
+    },
+    {
+      "path": "geometry-domain/trio-siggraph-teaser-euclidean-teaser.json"
+    },
+    {
+      "path": "minkowski-tests/maze/trio-non-convex-non-convex.json"
+    },
+    {
+      "path": "lagrange-bases/trio-lagrange-bases-lagrange-bases.json"
+    },
+    {
+      "path": "hypergraph/trio-hypergraph-hypergraph.json"
+    },
+    {
+      "path": "persistent-homology/trio-persistent-homology-persistent-homology.json"
+    },
+    {
+      "path": "walk-on-spheres/trio-wos-laplace-estimator-walk-on-spheres.json"
+    },
+    {
+      "path": "walk-on-spheres/trio-wos-poisson-estimator-walk-on-spheres.json"
+    },
+    {
+      "path": "walk-on-spheres/trio-wos-nested-estimator-walk-on-spheres.json"
+    },
+    {
+      "path": "walk-on-spheres/trio-wos-offcenter-estimator-walk-on-spheres.json"
+    },
+    {
+      "path": "shape-distance/trio-points-around-star-shape-distance.json"
+    },
+    {
+      "path": "shape-distance/trio-points-around-polyline-shape-distance.json"
+    },
+    {
+      "path": "shape-distance/trio-points-around-line-shape-distance.json"
+    },
+    {
+      "path": "fake-3d-linear-algebra/trio-3d-projection-fake-3d-linear-algebra.json"
+    },
+    {
+      "path": "exterior-algebra/trio-vector-wedge-exterior-algebra.json"
+    }
+  ]
+}

@@ -92,7 +92,7 @@ jobs:
         run: yarn build:automator
       - name: Generate diagrams and metadata
         working-directory: packages/automator/
-        run: yarn start batch registry.json out/ --src-prefix=../examples/src/ --folders
+        run: yarn start batch testing_registry.json out/ --src-prefix=../examples/src/ --folders
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v2
         with:

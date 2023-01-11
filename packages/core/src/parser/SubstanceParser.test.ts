@@ -1,4 +1,4 @@
-import { examples } from "@penrose/examples";
+import { loadProgram } from "@penrose/examples";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
@@ -184,9 +184,7 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach((examplePath) => {
-    // a bit hacky, only works with 2-part paths
-    const [part0, part1] = examplePath.split("/");
-    const prog = examples[part0][part1];
+    const prog = loadProgram(examplePath);
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/penrose/penrose/main/packages/core/src/types/trio-schema.json",
   "name": "One water molecule drawn using symmetric bonds / atoms-and-bonds / Atoms and Bonds",
   "variation": "PorcellanaFlamingo3169",
   "substance": {
