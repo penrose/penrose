@@ -130,7 +130,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { Graph } from "utils/Graph";
+import Graph from "utils/Graph";
 import {
   boolV,
   colorV,
@@ -3020,11 +3020,11 @@ export const computeShapeOrdering = (
   });
 
   // if there are no cycles, return a global ordering from the top sort result
-  if (layerGraph.isAcyclic()) {
+  const cycles = layerGraph.findCycles();
+  if (cycles.length === 0) {
     const shapeOrdering: string[] = layerGraph.topsort();
     return { shapeOrdering };
   } else {
-    const cycles = layerGraph.findCycles();
     const shapeOrdering = pseudoTopsort(layerGraph);
     return {
       shapeOrdering,

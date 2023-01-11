@@ -40,7 +40,7 @@ import {
   symmetricTypeMismatch,
   typeNotFound,
 } from "utils/Error";
-import { Graph } from "utils/Graph";
+import Graph from "utils/Graph";
 
 export const parseDomain = (
   prog: string
@@ -358,8 +358,8 @@ const computeTypeGraph = (env: Env): CheckerResult => {
       });
     }
   );
-  if (!typeGraph.isAcyclic())
-    return err(cyclicSubtypes(typeGraph.findCycles()));
+  const cycles = typeGraph.findCycles();
+  if (cycles.length > 0) return err(cyclicSubtypes(cycles));
   return ok(env);
 };
 
@@ -382,27 +382,11 @@ export const isDeclaredSubtype = (
   // HACK: add in top type as an escape hatch for unbounded types
   if (subType.name.value === bottomType.name.value) return true;
 
-  const superTypes = env.typeGraph.dijkstra(subType.name.value);
-  const superNode = superTypes[superType.name.value];
-
-  if (superNode) return superNode.distance < Number.POSITIVE_INFINITY;
-  // TODO: include this case in our error system
-  else {
-    console.error(`${subType.name.value} not found in the subtype graph.`);
-    return false;
-  }
+  return superTypesOf(subType, env).includes(superType.name.value);
 };
 
-export const superTypesOf = (
-  subType: TypeConstructor<A>,
-  env: Env
-): string[] => {
-  const superTypes = env.typeGraph.dijkstra(subType.name.value);
-  const allNodes = Object.entries(superTypes);
-  return allNodes
-    .filter(([, path]) => path.distance < Number.POSITIVE_INFINITY)
-    .map(([superTypeName]) => superTypeName);
-};
+export const superTypesOf = (subType: TypeConstructor<A>, env: Env): string[] =>
+  env.typeGraph.descendants(subType.name.value);
 
 // TODO: add in top and bottom in the type graph and simplify `subTypesOf` using `inEdges(t, bot)`
 export const subTypesOf = (

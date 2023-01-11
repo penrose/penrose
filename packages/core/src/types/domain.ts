@@ -1,7 +1,7 @@
 //#region Domain AST
 
 import im from "immutable";
-import { Graph } from "../utils/Graph";
+import Graph from "utils/Graph";
 import { A, ASTNode, C, Identifier, StringLit } from "./ast";
 import { ApplyConstructor, TypeConsApp } from "./substance";
 

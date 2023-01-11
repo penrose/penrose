@@ -20,7 +20,7 @@ export interface Edge<I, E> {
   e: E;
 }
 
-export class Graph<I, L = undefined, E = undefined> {
+export default class Graph<I, L = undefined, E = undefined> {
   private g: Map<I, Vert<I, L, E>> = new Map();
 
   private get(i: I): Vert<I, L, E> {
@@ -63,5 +63,17 @@ export class Graph<I, L = undefined, E = undefined> {
     const a = [];
     for (const [i, v] of this.g) if (v.p.length === 0) a.push(i);
     return a;
+  }
+
+  topsort(): I[] {
+    return []; // TODO
+  }
+
+  descendants(i: I): I[] {
+    return []; // TODO
+  }
+
+  findCycles(): I[][] {
+    return []; // TODO
   }
 }

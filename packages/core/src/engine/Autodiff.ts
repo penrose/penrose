@@ -11,7 +11,7 @@ import {
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "types/ad";
-import { Graph } from "utils/Graph";
+import Graph from "utils/Graph";
 import { safe, zip2 } from "utils/Util";
 import * as wasm from "utils/Wasm";
 import {
