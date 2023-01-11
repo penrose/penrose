@@ -697,44 +697,139 @@ const cubicCurveFromPoints: Computation<PathDataV<ad.Num>> = {
   },
 };
 
-const unitMark: Computation<PtListV<ad.Num>> = {
-  name: "unitMark",
-  documentation:
-    "Return two points parallel to line `s1` using its normal line `s2`.",
-  returns: "rnn",
+const arc: Computation<PathDataV<ad.Num>> = {
+  name: "arc",
+  documentation: `Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec. Returns elements that can be passed to Path shape spec to render an SVG arc.`,
+  returns: "path",
   arguments: [
-    { name: "s1", type: "line", description: "Line to be marked" },
-    { name: "s2", type: "line", description: "Normal line" },
-    { name: "padding", type: "real", description: "Padding" },
+    {
+      name: "pathType",
+      type: "pathtype",
+      description: `The path type: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point`,
+    },
+    {
+      name: "start",
+      type: "r2",
+      description: "coordinate to start drawing the arc",
+    },
+    {
+      name: "end",
+      type: "r2",
+      description: "coordinate to finish drawing the arc",
+    },
+    {
+      name: "[width, height]",
+      type: "r2",
+      description: "width and height of the ellipse to draw the arc along",
+    },
+    {
+      name: "rotation",
+      type: "real",
+      description: "angle in degrees to rotate ellipse about its center",
+    },
+    {
+      name: "largeArc",
+      type: "real",
+      description: "0 to draw shorter of 2 arcs, 1 to draw longer",
+    },
+    {
+      name: "arcSweep",
+      type: "real",
+      description: "0 to rotate CCW, 1 to rotate CW",
+    },
   ],
   definition: (
     _context: Context,
-    [, s1]: [string, any],
-    [, s2]: [string, any],
-    // t: string,
-    padding: ad.Num
-    // barSize: ad.Num
-  ): PtListV<ad.Num> => {
-    const [start1, end1] = linePts(s1);
-    const [start2, end2] = linePts(s2);
-
-    const dir = ops.vnormalize(ops.vsub(end2, start2));
-    const normalDir = ops.vneg(dir);
-    const markStart = ops.vmove(start1, padding, normalDir);
-    const markEnd = ops.vmove(end1, padding, normalDir);
-
-    return {
-      tag: "PtListV",
-      contents: [markStart, markEnd].map(toPt),
-    };
+    pathType: string,
+    start: ad.Pt2,
+    end: ad.Pt2,
+    radius: ad.Pt2,
+    rotation: ad.Num,
+    largeArc: ad.Num,
+    arcSweep: ad.Num
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
   },
 };
 
-const unitMark2: Computation<PtListV<ad.Num>> = {};
-
-const arc: Computation<PathDataV<ad.Num>> = {};
-
-const repeatedArcs: Computation<PathDataV<ad.Num>> = {};
+const repeatedArcs: Computation<PathDataV<ad.Num>> = {
+  name: "repeatedArcs",
+  documentation:
+    "Generate multiple concentric arcs. Useful for denoting equal angles.",
+  returns: "path",
+  arguments: [
+    {
+      name: "innerStart",
+      type: "r2",
+      description: "coordinate to start drawing the inner arc",
+    },
+    {
+      name: "innerEnd",
+      type: "r2",
+      description: "coordinate to end the inner arc",
+    },
+    {
+      name: "outerStart",
+      type: "r2",
+      description: "coordinate to start drawing the outer arc",
+    },
+    {
+      name: "outerEnd",
+      type: "r2",
+      description: "coordinate to end the outer arc",
+    },
+    {
+      name: "innerRadius",
+      type: "r2",
+      description:
+        "radii of the ellipse to draw the inner arc along (width, height)",
+    },
+    {
+      name: "repeat",
+      type: "posint",
+      description: "number of times to repeat the arc",
+    },
+    {
+      name: "spacing",
+      type: "real",
+      description: "spacing between arcs",
+    },
+    {
+      name: "arcSweep",
+      type: "real",
+      description: "arc length to sweep",
+    },
+  ],
+  definition: (
+    _context: Context,
+    innerStart: ad.Pt2,
+    innerEnd: ad.Pt2,
+    outerStart: ad.Pt2,
+    outerEnd: ad.Pt2,
+    innerRadius: ad.Pt2,
+    repeat: ad.Num,
+    spacing: ad.Num,
+    arcSweep: ad.Num
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    const startDir = ops.vnormalize(ops.vsub(outerStart, innerStart));
+    const endDir = ops.vnormalize(ops.vsub(outerEnd, innerEnd));
+    let start: ad.Pt2 = innerStart;
+    let end: ad.Pt2 = innerEnd;
+    let radius = innerRadius;
+    for (let i = 0; i < repeat; i++) {
+      path.moveTo(start).arcTo(radius, end, [0, 0, arcSweep]);
+      // TODO: avoid casting to `ad.Pt2`
+      start = ops.vmove(start, spacing, startDir) as ad.Pt2;
+      end = ops.vmove(end, spacing, endDir) as ad.Pt2;
+      radius = ops.vadd(radius, [spacing, spacing]) as ad.Pt2;
+    }
+    return path.getPath();
+  },
+};
 
 const wedge: Computation<PathDataV<ad.Num>> = {};
 
@@ -1027,47 +1122,12 @@ export const compDict = {
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  cubicCurveFromPoints: (
-    _context: Context,
-    pathType: string,
-    pts: ad.Pt2[]
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    const [start, cp1, cp2, second, ...tailpts] = pts;
-    path.moveTo(start);
-    path.bezierCurveTo(cp1, cp2, second);
-    _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
-    if (pathType === "closed") path.closePath();
-    return path.getPath();
-  },
+  cubicCurveFromPoints: cubicCurveFromPoints.definition,
 
   /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
   unitMark: unitMark.definition,
-
-  /**
-   * Return two points to "cap off" the line made in `unitMark`.
-   */
-  unitMark2: (
-    _context: Context,
-    [start, end]: [ad.Pt2, ad.Pt2],
-    t: string,
-    padding: ad.Num,
-    size: ad.Num
-  ): PtListV<ad.Num> => {
-    const dir = ops.vnormalize(ops.vsub(end, start));
-    const normalDir = ops.rot90(toPt(dir));
-    const base = t === "start" ? start : end;
-    const [markStart, markEnd] = [
-      ops.vmove(base, size, normalDir),
-      ops.vmove(base, neg(size), normalDir),
-    ];
-    return {
-      tag: "PtListV",
-      contents: [markStart, markEnd].map(toPt),
-    };
-  },
 
   /**
    * Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
@@ -1080,48 +1140,9 @@ export const compDict = {
    * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
-  arc: (
-    _context: Context,
-    pathType: string,
-    start: ad.Pt2,
-    end: ad.Pt2,
-    radius: ad.Pt2,
-    rotation: ad.Num,
-    largeArc: ad.Num,
-    arcSweep: ad.Num
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
-    if (pathType === "closed") path.closePath();
-    return path.getPath();
-  },
+  arc: arc.definition,
 
-  repeatedArcs: (
-    _context: Context,
-    innerStart: ad.Pt2,
-    innerEnd: ad.Pt2,
-    outerStart: ad.Pt2,
-    outerEnd: ad.Pt2,
-    innerRadius: ad.Pt2,
-    repeat: ad.Num,
-    spacing: ad.Num,
-    arcSweep: ad.Num
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    const startDir = ops.vnormalize(ops.vsub(outerStart, innerStart));
-    const endDir = ops.vnormalize(ops.vsub(outerEnd, innerEnd));
-    let start: ad.Pt2 = innerStart;
-    let end: ad.Pt2 = innerEnd;
-    let radius = innerRadius;
-    for (let i = 0; i < repeat; i++) {
-      path.moveTo(start).arcTo(radius, end, [0, 0, arcSweep]);
-      // TODO: avoid casting to `ad.Pt2`
-      start = ops.vmove(start, spacing, startDir) as ad.Pt2;
-      end = ops.vmove(end, spacing, endDir) as ad.Pt2;
-      radius = ops.vadd(radius, [spacing, spacing]) as ad.Pt2;
-    }
-    return path.getPath();
-  },
+  repeatedArcs: repeatedArcs.definition,
 
   /**
    * Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled
