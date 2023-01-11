@@ -216,6 +216,12 @@
       "style": "animation",
       "domain": "animation",
       "variation": ""
+    },
+    {
+      "substance": "caffeine",
+      "style": "structural-formula",
+      "domain": "structural-formula",
+      "variation": ""
     }
   ],
   "domains": {
