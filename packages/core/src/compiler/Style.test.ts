@@ -4,11 +4,21 @@ import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
 import im from "immutable";
+import { C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { State } from "types/state";
-import { Assignment, Layer, Translation } from "types/styleSemantics";
+import {
+  AnonAssign,
+  ConstrFn,
+  GPIDecl,
+  HeaderBlock,
+  PathAssign,
+  StyProg,
+  Vector,
+} from "types/style";
+import { Assignment, DepGraph, Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
 import { ColorV, RGBA } from "types/value";
 import { andThen, err, Result, showError } from "utils/Error";
@@ -30,21 +40,6 @@ interface Trio {
   dsl: string;
   sty: string;
 }
-
-const loadFiles = ({
-  dslPath,
-  subPath,
-  styPath,
-}: {
-  dslPath: string;
-  subPath: string;
-  styPath: string;
-}): Trio => ({
-  dsl: loadFile(dslPath),
-  sub: loadFile(subPath),
-  sty: loadFile(styPath),
-});
-
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
 export const loadProgs = async ({
   dsl,
@@ -54,6 +49,8 @@ export const loadProgs = async ({
   translation: Translation;
   assignment: Assignment;
   state: State;
+  styleAST: StyProg<C>;
+  graph: DepGraph;
 }> => {
   const throwErr = (e: any): any => {
     throw Error(
@@ -187,6 +184,77 @@ describe("Color literals", () => {
     colorValMatches(`\`t\`.color7`, [0, 0, 0, 0], translation);
     colorValMatches(`\`t\`.color8`, [1, 1, 1, 0.5], translation);
     colorValMatches(`\`t\`.color9`, [1, 0.8, 0.6, 1], translation);
+  });
+});
+
+describe("Staged constraints", () => {
+  test("stage spec", async () => {
+    const { styleAST: ex2 } = await loadProgs({
+      dsl: "type Set",
+      sub: `Set A`,
+      sty:
+        canvasPreamble +
+        `
+      layout = [ShapeLayout, LabelLayout, Overall]
+      `,
+    });
+    expect(S.getLayoutStages(ex2).unsafelyUnwrap()).toEqual([
+      "ShapeLayout",
+      "LabelLayout",
+      "Overall",
+    ]);
+  });
+  test("varying stages", async () => {
+    const { styleAST } = await loadProgs({
+      dsl: "type Set",
+      sub: `Set A`,
+      sty:
+        canvasPreamble +
+        `
+      forall Set X {
+        X.icon = Circle {
+          center: (? in [Overall, ShapeLayout], ? except [Overall, LabelLayout])
+        }
+      }
+      `,
+    });
+    const gpiStmt = (styleAST.items[1] as HeaderBlock<C>).block
+      .statements[0] as PathAssign<C>;
+    const gpiDecl = gpiStmt.value as GPIDecl<C>;
+    const rValue = gpiDecl.properties[0].value as Vector<C>;
+    const [vary1, vary2] = rValue.contents as [any, any];
+    expect(vary1.exclude).toEqual(false);
+    expect(vary2.exclude).toEqual(true);
+    const stages1 = vary1.stages.map((e: any) => e.value);
+    const stages2 = vary2.stages.map((e: any) => e.value);
+    expect(stages1).toEqual(["Overall", "ShapeLayout"]);
+    expect(stages2).toEqual(["Overall", "LabelLayout"]);
+  });
+  test("constraint stages", async () => {
+    const { styleAST } = await loadProgs({
+      dsl: "type Set",
+      sub: `Set A`,
+      sty:
+        canvasPreamble +
+        `
+      forall Set X {
+        X.icon = Circle {}
+        X.text = Text {}
+        ensure contains(X.icon, X.text) in [ShapeLayout, LabelLayout]
+        encourage minimal(X.icon.r) in LabelLayout
+      }
+      `,
+    });
+    const ensureStmt = (styleAST.items[1] as HeaderBlock<C>).block
+      .statements[2] as AnonAssign<C>;
+    const ensureExpr = ensureStmt.contents as ConstrFn<C>;
+    const stages1 = ensureExpr.stages.map((e) => e.value);
+    expect(stages1).toEqual(["ShapeLayout", "LabelLayout"]);
+    const encourageStmt = (styleAST.items[1] as HeaderBlock<C>).block
+      .statements[3] as AnonAssign<C>;
+    const encourageExpr = encourageStmt.contents as ConstrFn<C>;
+    const stages2 = encourageExpr.stages.map((e) => e.value);
+    expect(stages2).toEqual(["LabelLayout"]);
   });
 });
 

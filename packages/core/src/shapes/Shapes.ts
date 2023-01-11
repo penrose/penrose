@@ -81,7 +81,7 @@ export const ShapeDef = (shapedef: {
       value.tag === "FloatV" &&
       typeof value.contents !== "number" &&
       value.contents.tag === "Input" &&
-      "pending" in metas[value.contents.key]
+      metas[value.contents.key].init.tag === "Pending"
     ) {
       pendingProps.push(key);
     }

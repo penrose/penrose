@@ -15,13 +15,13 @@ y2 := sampleSource(x2)
 y3 := sampleSource(x3)
 
 AutoLabel All
-Label U $\Omega$
-Label x0 $x_0$
-Label x1 $x_1$
-Label x2 $\ldots$
-Label x3 $x_k$
-Label y0 $y_0$
-Label y1 $y_1$
+Label U "Ω"
+Label x0 "x₀"
+Label x1 "x₁"
+Label x2 "…"
+Label x3 "xₖ"
+Label y0 "y₀"
+Label y1 "y₁"
 NoLabel y2
 NoLabel y3
 
