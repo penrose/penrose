@@ -16,7 +16,15 @@ module.exports = {
     if (configType === "PRODUCTION") {
       config.base = "./";
     }
-    config.build = { ...(config.build ?? {}), target: "esnext" };
+    config = {
+      ...(config ?? {}),
+      worker: {
+        format: "es",
+      },
+      build: {
+        target: "esnext",
+      },
+    };
     return config;
   },
 };
