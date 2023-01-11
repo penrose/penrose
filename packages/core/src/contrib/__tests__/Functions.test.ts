@@ -38,7 +38,7 @@ describe("curvature", () => {
     "curved segment",
     (p1: number[], p2: number[], p3: number[], expected: number) => {
       const result = curvature([p1[0], p1[1]], [p2[0], p2[1]], [p3[0], p3[1]]);
-      expect(numOf(result)).toBeCloseTo(0, 4);
+      expect(numOf(result)).toBeCloseTo(expected, 4);
     }
   );
 });

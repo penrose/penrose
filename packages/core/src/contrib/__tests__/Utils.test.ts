@@ -18,7 +18,6 @@ describe("consecutiveNTuples", () => {
     [
       [a, b, c],
       [
-        [c, a],
         [a, b],
         [b, c],
         [c, a],
@@ -28,7 +27,7 @@ describe("consecutiveNTuples", () => {
     "consecutiveTuples for closed objects",
     (points: [ad.Num, ad.Num][], expected: [ad.Num, ad.Num][][]) => {
       const result = consecutiveTuples(points, true);
-      expect(result).toBe(expected);
+      expect(result).toStrictEqual(expected);
     }
   );
 
@@ -46,7 +45,7 @@ describe("consecutiveNTuples", () => {
     "consecutiveTuples for open objects",
     (points: [ad.Num, ad.Num][], expected: [ad.Num, ad.Num][][]) => {
       const result = consecutiveTuples(points, false);
-      expect(result).toBe(expected);
+      expect(result).toStrictEqual(expected);
     }
   );
 
@@ -55,32 +54,32 @@ describe("consecutiveNTuples", () => {
     [
       [a, b],
       [
-        [b, a, b],
         [a, b, a],
+        [b, a, b],
       ],
     ],
     [
       [a, b, c],
       [
+        [a, b, c],
         [b, c, a],
         [c, a, b],
-        [a, b, c],
       ],
     ],
     [
       [a, b, c, d],
       [
-        [c, d, a],
-        [c, a, b],
         [a, b, c],
         [b, c, d],
+        [c, d, a],
+        [d, a, b],
       ],
     ],
   ])(
     "consecutiveTriples for closed objects",
     (points: [ad.Num, ad.Num][], expected: [ad.Num, ad.Num][][]) => {
       const result = consecutiveTriples(points, true);
-      expect(result).toBe(expected);
+      expect(result).toStrictEqual(expected);
     }
   );
   it.each([
@@ -98,7 +97,7 @@ describe("consecutiveNTuples", () => {
     "consecutiveTriples for open objects",
     (points: [ad.Num, ad.Num][], expected: [ad.Num, ad.Num][][]) => {
       const result = consecutiveTriples(points, false);
-      expect(result).toBe(expected);
+      expect(result).toStrictEqual(expected);
     }
   );
 });
