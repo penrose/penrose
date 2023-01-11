@@ -540,7 +540,7 @@ const lengthComputation: Computation<FloatV<ad.Num>> = {
   name: "length",
   documentation: "Return the length of the line or arrow shape `[type, props]`",
   returns: "real",
-  arguments: [{ name: "t", description: "A line", type: "line" }],
+  arguments: [{ name: "l", description: "A line", type: "line" }],
   definition: (
     _context: Context,
     [t, props]: [string, any]
@@ -831,57 +831,828 @@ const repeatedArcs: Computation<PathDataV<ad.Num>> = {
   },
 };
 
-const wedge: Computation<PathDataV<ad.Num>> = {};
+const wedge: Computation<PathDataV<ad.Num>> = {
+  name: "wedge",
+  documentation: `Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled. Returns elements that can be passed to Path shape spec to render an SVG arc.`,
+  returns: "path",
+  arguments: [
+    {
+      name: "center",
+      type: "r2",
+      description: "center of the circle on which the arc sits",
+    },
+    {
+      name: "start",
+      type: "r2",
+      description: "coordinate to start drawing the arc",
+    },
+    {
+      name: "end",
+      type: "r2",
+      description: "coordinate to finish drawing the arc",
+    },
+    {
+      name: "radius",
+      type: "r2",
+      description:
+        "width and height of the ellipse to draw the arc along (i.e. [width, height])",
+    },
+    {
+      name: "rotation",
+      type: "real",
+      description: "angle in degrees to rotate ellipse about its center",
+    },
+    {
+      name: "largeArc",
+      type: "real",
+      description: "0 to draw shorter of 2 arcs, 1 to draw longer",
+    },
+    {
+      name: "arcSweep",
+      type: "real",
+      description: "0 to rotate CCW, 1 to rotate CW",
+    },
+  ],
+  definition: (
+    _context: Context,
+    center: ad.Pt2,
+    start: ad.Pt2,
+    end: ad.Pt2,
+    radius: ad.Pt2,
+    rotation: ad.Num,
+    largeArc: ad.Num,
+    arcSweep: ad.Num
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    path
+      .moveTo(start)
+      .arcTo(radius, end, [rotation, largeArc, arcSweep])
+      .lineTo(center);
+    path.closePath();
+    return path.getPath();
+  },
+};
 
-const ptOnLine: Computation<VectorV<ad.Num>> = {};
+const ptOnLine: Computation<VectorV<ad.Num>> = {
+  name: "ptOnLine",
+  documentation:
+    "Find the point that is located at dist r along a line between p1 and p2. Returns vector representation of the point of intersection.",
+  returns: "rn",
+  arguments: [
+    { name: "p1", type: "rn", description: "start point of line segment" },
+    { name: "p2", type: "rn", description: "endpoint of line segment" },
+    {
+      name: "r",
+      type: "real",
+      description: "distance from p1 to travel along the line",
+    },
+  ],
+  definition: (
+    _context: Context,
+    p1: ad.Num[],
+    p2: ad.Num[],
+    r: ad.Num
+  ): VectorV<ad.Num> => {
+    // find unit vector pointing towards v2
+    const unit = ops.vnormalize(ops.vsub(p2, p1));
+    return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
+  },
+};
 
-const arcSweepFlag: Computation<FloatV<ad.Num>> = {};
+const arcSweepFlag: Computation<FloatV<ad.Num>> = {
+  name: "arcSweepFlag",
+  documentation:
+    "Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.",
+  returns: "real",
+  arguments: [
+    {
+      name: "p1",
+      type: "r2",
+      description:
+        "x, y coordinates of the circle/ellipse that the arc is drawn on",
+    },
+    { name: "start", type: "r2", description: "start point of the arc" },
+    { name: "end", type: "r2", description: "end point of the arc" },
+  ],
+  definition: (
+    _context: Context,
+    [x1, y1]: ad.Num[],
+    start: ad.Pt2,
+    end: ad.Pt2
+  ): FloatV<ad.Num> => {
+    const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
+    const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
+    const cross = ops.cross2(st, en);
+    return {
+      tag: "FloatV",
+      contents: ifCond(gt(cross, 0), 0, 1),
+    };
+  },
+};
 
-const angleBetween: Computation<FloatV<ad.Num>> = {};
+const angleBetween: Computation<FloatV<ad.Num>> = {
+  name: "angleBetween",
+  documentation:
+    "Return the unsigned angle between vectors `u, v`, in radians. Assumes that both u and v have nonzero magnitude. The returned value will be in the range [0,pi].",
+  returns: "real",
+  arguments: [
+    { name: "u", type: "rn", description: "A vector" },
+    { name: "v", type: "rn", description: "A vector" },
+  ],
+  definition: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+    const theta = ops.angleBetween(u, v);
+    return {
+      tag: "FloatV",
+      contents: theta,
+    };
+  },
+};
 
-const angleFrom: Computation<FloatV<ad.Num>> = {};
+const angleFrom: Computation<FloatV<ad.Num>> = {
+  name: "angleFrom",
+  documentation:
+    "Return the signed angle from vector `u` to vector `v`, in radians. Assumes that both u and v are 2D vectors and have nonzero magnitude. The returned value will be in the range [-pi,pi].",
+  returns: "real",
+  arguments: [
+    { name: "u", type: "rn", description: "A vector" },
+    { name: "v", type: "rn", description: "A vector" },
+  ],
+  definition: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+    const theta = ops.angleFrom(u, v);
+    return {
+      tag: "FloatV",
+      contents: theta,
+    };
+  },
+};
 
-const cross2D: Computation<FloatV<ad.Num>> = {};
+const cross2D: Computation<FloatV<ad.Num>> = {
+  name: "cross2D",
+  documentation:
+    "Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]",
+  returns: "real",
+  arguments: [
+    { name: "u", type: "rn", description: "A vector" },
+    { name: "v", type: "rn", description: "A vector" },
+  ],
+  definition: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+    const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
+    return {
+      tag: "FloatV",
+      contents: det,
+    };
+  },
+};
 
-const lineLineIntersection: Computation<VectorV<ad.Num>> = {};
+const lineLineIntersection: Computation<VectorV<ad.Num>> = {
+  name: "lineLineIntersection",
+  documentation:
+    "Return the intersection of a line passing through `a0` and `a1` with a line passing through `b0` and `b1`",
+  returns: "r2",
+  arguments: [
+    { name: "a0", type: "r2", description: "First point of first line" },
+    { name: "a1", type: "r2", description: "Second point of first line" },
+    { name: "b0", type: "r2", description: "First point of second line" },
+    { name: "b1", type: "r2", description: "Second point of second line" },
+  ],
+  definition: (
+    _context: Context,
+    a0: ad.Num[],
+    a1: ad.Num[],
+    b0: ad.Num[],
+    b1: ad.Num[]
+  ): VectorV<ad.Num> => {
+    const A0 = [a0[0], a0[1], 1];
+    const A1 = [a1[0], a1[1], 1];
+    const B0 = [b0[0], b0[1], 1];
+    const B1 = [b1[0], b1[1], 1];
+    const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
+    const x = [div(X[0], X[2]), div(X[1], X[2])];
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+};
 
-const midpoint: Computation<VectorV<ad.Num>> = {};
+const midpoint: Computation<VectorV<ad.Num>> = {
+  name: "midpoint",
+  documentation:
+    "Return a point located at the midpoint between pts `start` and `end`",
+  returns: "rn",
+  arguments: [
+    { name: "start", type: "rn", description: "First point" },
+    { name: "end", type: "rn", description: "Second point" },
+  ],
+  definition: (
+    _context: Context,
+    start: ad.Num[],
+    end: ad.Num[]
+  ): VectorV<ad.Num> => {
+    const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
+    return {
+      tag: "VectorV",
+      contents: toPt(midpointLoc),
+    };
+  },
+};
 
-const midpointOffset: Computation<TupV<ad.Num>> = {};
+const midpointOffset: Computation<TupV<ad.Num>> = {
+  name: "midpointOffset",
+  documentation:
+    "Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).",
+  returns: "r2",
+  arguments: [
+    { name: "s1", type: "line", description: "A line" },
+    {
+      name: "padding",
+      type: "real",
+      description: "Padding between midpoint and label",
+    },
+  ],
+  definition: (
+    _context: Context,
+    [t1, s1]: [string, any],
+    padding: ad.Num
+  ): TupV<ad.Num> => {
+    if (t1 === "Arrow" || t1 === "Line") {
+      const [start, end] = linePts(s1);
+      // TODO: Cache these operations in Style!
+      const normalDir = ops.rot90(ops.vnormalize(ops.vsub(end, start)));
+      const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
+      const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
+      return {
+        tag: "TupV",
+        contents: toPt(midpointOffsetLoc),
+      };
+    } else {
+      throw Error(`unsupported shape ${t1} in midpointOffset`);
+    }
+  },
+};
 
-const chevron: Computation<PtListV<ad.Num>> = {};
+const chevron: Computation<PtListV<ad.Num>> = {
+  name: "chevron",
+  documentation:
+    "Return a list of points for a chevron shape comprised of two line segments intersecting at a right angle at the midpoint of `s1`, which can then be passed to `pathFromPoints` to draw the chevron.",
+  returns: "r2n",
+  arguments: [
+    { name: "s1", type: "line", description: "A line" },
+    {
+      name: "padding",
+      type: "real",
+      description: "Length of each line segment",
+    },
+  ],
+  definition: (
+    _context: Context,
+    // TODO reimplement with variable tick marks when #629 is merged
+    [t1, s1]: [string, any],
+    padding: ad.Num
+  ): PtListV<ad.Num> => {
+    if (t1 === "Arrow" || t1 === "Line") {
+      // tickPlacement(padding, ticks);
+      const [start, end] = linePts(s1);
+      const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
+      const startDir = ops.vrot(dir, 135);
+      const endDir = ops.vrot(dir, 225);
+      const center = ops.vmul(0.5, ops.vadd(start, end));
+      // if even, evenly divide tick marks about center. if odd, start in center and move outwards
+      return {
+        tag: "PtListV",
+        contents: [
+          ops.vmove(center, padding, startDir),
+          center,
+          ops.vmove(center, padding, endDir),
+        ].map(toPt),
+      };
+    } else {
+      throw Error(`unsupported shape ${t1} in chevron`);
+    }
+  },
+};
 
-const innerPointOffset: Computation<VectorV<ad.Num>> = {};
+const innerPointOffset: Computation<VectorV<ad.Num>> = {
+  name: "innerPointOffset",
+  documentation:
+    "Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).",
+  returns: "r2",
+  arguments: [
+    { name: "pt1", type: "r2", description: "First point" },
+    { name: "pt2", type: "r2", description: "Second point" },
+    { name: "pt3", type: "r2", description: "Third point" },
+    {
+      name: "padding",
+      type: "real",
+      description: "Offset from line to returned point",
+    },
+  ],
+  definition: (
+    _context: Context,
+    pt1: ad.Num[],
+    pt2: ad.Num[],
+    pt3: ad.Num[],
+    padding: ad.Num
+  ): VectorV<ad.Num> => {
+    // unit vector towards first corner
+    const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
+    const normalDir = ops.vneg(ops.rot90(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
 
-const ticksOnLine: Computation<PathDataV<ad.Num>> = {};
+    // move along line between p1 and p2, then move perpendicularly
+    const ref = ops.vmove(pt1, padding, vec1unit);
+    const [xp, yp] = ops.vmove(ref, padding, normalDir);
+    const [xn, yn] = ops.vmove(ref, padding, ops.vneg(normalDir));
 
-const orientedSquare: Computation<PathDataV<ad.Num>> = {};
+    // unit vector towards end point
+    const vec2unit = ops.vnormalize(ops.vsub(pt3, pt1));
+    const endpt = ops.vmove(pt1, padding, vec2unit);
 
-const triangle: Computation<PathDataV<ad.Num>> = {};
+    // unit vector from midpoint to end point
+    const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
+    // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
+    const cond = gt(ops.vdot(vec1unit, intoEndUnit), 0.95);
+    return {
+      tag: "VectorV",
+      contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
+    };
+  },
+};
 
-const average2: Computation<FloatV<ad.Num>> = {};
+const ticksOnLine: Computation<PathDataV<ad.Num>> = {
+  name: "ticksOnLine",
+  documentation:
+    "Create equally spaced tick marks centered at the midpoint of a line",
+  returns: "path",
+  arguments: [
+    { name: "pt1", type: "r2", description: "starting point of a line" },
+    { name: "pt2", type: "r2", description: "ending point of a line" },
+    {
+      name: "spacing",
+      type: "real",
+      description: "space in px between each tick",
+    },
+    {
+      name: "numTicks",
+      type: "posint",
+      description: "number of tick marks to create",
+    },
+    {
+      name: "tickLength",
+      type: "real",
+      description: "1/2 length of each tick",
+    },
+  ],
+  definition: (
+    _context: Context,
+    pt1: ad.Num[],
+    pt2: ad.Num[],
+    spacing: ad.Num,
+    numTicks: ad.Num,
+    tickLength: ad.Num
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    // calculate scalar multipliers to determine the placement of each tick mark
+    const multipliers = tickPlacement(spacing, numOf(numTicks));
+    const unit = ops.vnormalize(ops.vsub(pt2, pt1));
+    const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
 
-const average: Computation<FloatV<ad.Num>> = {};
+    const mid = ops.vmul(0.5, ops.vadd(pt1, pt2));
 
-const unit: Computation<VectorV<ad.Num>> = {};
+    // start/end pts of each tick will be placed parallel to each other, offset at dist of tickLength
+    // from the original pt1->pt2 line
+    const [x1p, y1p] = ops.vmove(mid, tickLength, normalDir);
+    const [x2p, y2p] = ops.vmove(mid, tickLength, ops.vneg(normalDir));
 
-const sampleColor: Computation<ColorV> = {};
+    multipliers.forEach((multiplier) => {
+      const [sx, sy] = ops.vmove([x1p, y1p], multiplier, unit);
+      const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
+      path.moveTo([sx, sy]).lineTo([ex, ey]);
+    });
+    return path.getPath();
+  },
+};
 
-const setOpacity: Computation<ColorV> = {};
+const orientedSquare: Computation<PathDataV<ad.Num>> = {
+  name: "orientedSquare",
+  documentation:
+    "Given two orthogonal segments that intersect at `intersection`, and a size `len` return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.",
+  returns: "path",
+  arguments: [
+    { name: "s1", type: "line", description: "First line segment" },
+    { name: "s2", type: "line", description: "Second line segment" },
+    { name: "intersection", type: "r2", description: "Point of intersection" },
+    { name: "len", type: "real", description: "Side length of square marker" },
+  ],
+  definition: (
+    _context: Context,
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    intersection: ad.Pt2,
+    len: ad.Num
+  ): PathDataV<ad.Num> => {
+    if (
+      (t1 === "Arrow" || t1 === "Line") &&
+      (t2 === "Arrow" || t2 === "Line")
+    ) {
+      const [seg1, seg2] = [linePts(s1), linePts(s2)];
+      const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
+      const path = new PathBuilder();
+      return path
+        .moveTo(toPt(ptL))
+        .lineTo(toPt(ptLR))
+        .lineTo(toPt(ptR))
+        .lineTo(intersection)
+        .closePath()
+        .getPath();
+    } else {
+      throw Error(`orientedSquare undefined for types ${t1}, ${t2}`);
+    }
+  },
+};
 
-const mulComputation: Computation<VectorV<ad.Num>> = {};
+const triangle: Computation<PathDataV<ad.Num>> = {
+  name: "triangle",
+  documentation:
+    "Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).",
+  returns: "path",
+  arguments: [
+    { name: "l1", type: "line", description: "First line" },
+    { name: "l2", type: "line", description: "Second line" },
+    { name: "l3", type: "line", description: "Third line" },
+  ],
+  definition: (
+    _context: Context,
+    [t1, l1]: any,
+    [t2, l2]: any,
+    [t3, l3]: any
+  ): PathDataV<ad.Num> => {
+    if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
+      const path = new PathBuilder();
+      return path
+        .moveTo(toPt(getStart(l1)))
+        .lineTo(toPt(getStart(l2)))
+        .lineTo(toPt(getStart(l3)))
+        .closePath()
+        .getPath();
+    } else {
+      console.error([t1, l1], [t2, l2], [t3, l3]);
+      throw Error("Triangle function expected three lines");
+    }
+  },
+};
 
-const barycenter: Computation<VectorV<ad.Num>> = {};
+const average2: Computation<FloatV<ad.Num>> = {
+  name: "average2",
+  documentation: "Return the average of floats `x` and `y`.",
+  returns: "real",
+  arguments: [
+    { name: "x", type: "real", description: "`x`" },
+    { name: "y", type: "real", description: "`y`" },
+  ],
+  definition: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+    return {
+      tag: "FloatV",
+      contents: div(add(x, y), 2),
+    };
+  },
+};
 
-const circumcenter: Computation<VectorV<ad.Num>> = {};
+const average: Computation<FloatV<ad.Num>> = {
+  name: "average",
+  documentation: "Return the average of the floats in the list `xs`.",
+  returns: "real",
+  arguments: [{ name: "xs", type: "rn", description: "`xs`" }],
+  definition: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
+    return {
+      tag: "FloatV",
+      contents: div(addN(xs), max(1, xs.length)),
+      // To avoid divide-by-0
+    };
+  },
+};
 
-const circumradius: Computation<FloatV<ad.Num>> = {};
+const unit: Computation<VectorV<ad.Num>> = {
+  name: "unit",
+  documentation: "Return the normalized version of vector `v`.",
+  returns: "rn",
+  arguments: [{ name: "v", type: "rn", description: "`v`" }],
+  definition: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+    return {
+      tag: "VectorV",
+      contents: ops.vnormalize(v),
+    };
+  },
+};
 
-const incenter: Computation<VectorV<ad.Num>> = {};
+const sampleColor: Computation<ColorV<ad.Num>> = {
+  name: "sampleColor",
+  documentation:
+    'Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).',
+  returns: "color",
+  arguments: [
+    { name: "alpha", type: "unit", description: "Opacity" },
+    { name: "colorType", type: "colortype", description: "Color model" },
+  ],
+  definition: (
+    { makeInput }: Context,
+    alpha: ad.Num,
+    colorType: string
+  ): ColorV<ad.Num> => {
+    if (colorType === "rgb") {
+      const rgb = _.range(3).map(() =>
+        makeInput({
+          init: { tag: "Sampled", sampler: uniform(0.1, 0.9) },
+          stages: new Set(),
+        })
+      );
 
-const inradius: Computation<FloatV<ad.Num>> = {};
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: "RGBA",
+          contents: [rgb[0], rgb[1], rgb[2], alpha],
+        },
+      };
+    } else if (colorType === "hsv") {
+      const h = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 360) },
+        stages: new Set(),
+      });
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: "HSVA",
+          contents: [h, 100, 80, alpha], // HACK: for the color to look good
+        },
+      };
+    } else throw new Error("unknown color type");
+  },
+};
 
-const sqr: Computation<FloatV<ad.Num>> = {};
+const setOpacity: Computation<ColorV<ad.Num>> = {
+  name: "setOpacity",
+  documentation: "Set the opacity of a color `color` to `frac`.",
+  returns: "color",
+  arguments: [
+    { name: "color", type: "color", description: "Color" },
+    { name: "frac", type: "unit", description: "Opacity" },
+  ],
+  definition: (
+    _context: Context,
+    color: Color<ad.Num>,
+    frac: ad.Num
+  ): ColorV<ad.Num> => {
+    // If paint=none, opacity is irreelevant
+    if (color.tag === "NONE") {
+      return {
+        tag: "ColorV",
+        contents: color,
+      };
+      // Otherwise, retain tag and color; only modify opacity
+    } else {
+      const props = color.contents;
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: color.tag,
+          contents: [props[0], props[1], props[2], mul(frac, props[3])],
+        },
+      };
+    }
+  },
+};
+
+const mulComputation: Computation<VectorV<ad.Num>> = {
+  name: "mul",
+  documentation:
+    "Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).",
+  returns: "rn",
+  arguments: [
+    { name: "m", type: "rmn", description: "A matrix" },
+    { name: "v", type: "rn", description: "A vector" },
+  ],
+  definition: (
+    _context: Context,
+    m: ad.Num[][],
+    v: ad.Num[]
+  ): VectorV<ad.Num> => {
+    if (!m.length) {
+      throw Error("empty matrix");
+    }
+    if (!v.length) {
+      throw Error("empty vector");
+    }
+
+    return {
+      tag: "VectorV",
+      contents: m.map((row) => ops.vdot(row, v)),
+    };
+  },
+};
+
+const barycenter: Computation<VectorV<ad.Num>> = {
+  name: "barycenter",
+  documentation:
+    "Return the barycenter of the triangle with vertices `a`, `b`, `c`.",
+  returns: "r2",
+  arguments: [
+    { name: "a", type: "r2", description: "First vertex" },
+    { name: "b", type: "r2", description: "Second vertex" },
+    { name: "c", type: "r2", description: "Third vertex" },
+  ],
+  definition: (
+    _context: Context,
+    a: ad.Num[],
+    b: ad.Num[],
+    c: ad.Num[]
+  ): VectorV<ad.Num> => {
+    const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+};
+
+const circumcenter: Computation<VectorV<ad.Num>> = {
+  name: "circumcenter",
+  documentation:
+    "Return the circumcenter of the triangle with vertices `p`, `q`, `r`.",
+  returns: "r2",
+  arguments: [
+    { name: "p", type: "r2", description: "First vertex" },
+    { name: "q", type: "r2", description: "Second vertex" },
+    { name: "r", type: "r2", description: "Third vertex" },
+  ],
+  definition: (
+    _context: Context,
+    p: ad.Num[],
+    q: ad.Num[],
+    r: ad.Num[]
+  ): VectorV<ad.Num> => {
+    // edge vectors
+    const u = ops.vsub(r, q);
+    const v = ops.vsub(p, r);
+    const w = ops.vsub(q, p);
+
+    // side lengths
+    const a = ops.vnorm(u);
+    const b = ops.vnorm(v);
+    const c = ops.vnorm(w);
+
+    // homogeneous barycentric coordinates for circumcenter
+    const hp = neg(mul(div(a, mul(b, c)), ops.vdot(w, v)));
+    const hq = neg(mul(div(b, mul(c, a)), ops.vdot(u, w)));
+    const hr = neg(mul(div(c, mul(a, b)), ops.vdot(v, u)));
+
+    // normalize to get barycentric coordinates for circumcenter
+    const H = add(add(hp, hq), hr);
+    const bp = div(hp, H);
+    const bq = div(hq, H);
+    const br = div(hr, H);
+
+    // circumcenter
+    const x = ops.vadd(
+      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
+      ops.vmul(br, r)
+    );
+
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+};
+
+const circumradius: Computation<FloatV<ad.Num>> = {
+  name: "circumradius",
+  documentation:
+    "Return the circumradius of the triangle with vertices `p`, `q`, `r`.",
+  returns: "real",
+  arguments: [
+    { name: "p", type: "r2", description: "First vertex" },
+    { name: "q", type: "r2", description: "Second vertex" },
+    { name: "r", type: "r2", description: "Third vertex" },
+  ],
+  definition: (
+    _context: Context,
+    p: ad.Num[],
+    q: ad.Num[],
+    r: ad.Num[]
+  ): FloatV<ad.Num> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
+
+    // semiperimeter
+    const s = mul(0.5, add(add(a, b), c));
+
+    // circumradius, computed as
+    // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
+    const R = div(
+      mul(mul(a, b), c),
+      mul(
+        4,
+        sqrt(
+          mul(
+            mul(mul(s, sub(add(a, b), s)), sub(add(a, c), s)),
+            sub(add(b, c), s)
+          )
+        )
+      )
+    );
+
+    return {
+      tag: "FloatV",
+      contents: R,
+    };
+  },
+};
+
+const incenter: Computation<VectorV<ad.Num>> = {
+  name: "incenter",
+  documentation:
+    "Return the incenter of the triangle with vertices `p`, `q`, `r`.",
+  returns: "r2",
+  arguments: [
+    { name: "p", type: "r2", description: "First vertex" },
+    { name: "q", type: "r2", description: "Second vertex" },
+    { name: "r", type: "r2", description: "Third vertex" },
+  ],
+  definition: (
+    _context: Context,
+    p: ad.Num[],
+    q: ad.Num[],
+    r: ad.Num[]
+  ): VectorV<ad.Num> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
+
+    // barycentric coordinates for incenter
+    const s = add(add(a, b), c);
+    const bp = div(a, s);
+    const bq = div(b, s);
+    const br = div(c, s);
+
+    // incenter
+    const x = ops.vadd(
+      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
+      ops.vmul(br, r)
+    );
+
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+};
+
+const inradius: Computation<FloatV<ad.Num>> = {
+  name: "inradius",
+  documentation:
+    "Return the inradius of the triangle with vertices `p`, `q`, `r`.",
+  returns: "r2",
+  arguments: [
+    { name: "p", type: "r2", description: "First vertex" },
+    { name: "q", type: "r2", description: "Second vertex" },
+    { name: "r", type: "r2", description: "Third vertex" },
+  ],
+  definition: (
+    _context: Context,
+    p: ad.Num[],
+    q: ad.Num[],
+    r: ad.Num[]
+  ): FloatV<ad.Num> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
+
+    // semiperimeter
+    const s = mul(0.5, add(add(a, b), c));
+
+    // inradius
+    const R = sqrt(div(mul(mul(sub(s, a), sub(s, b)), sub(s, c)), s));
+
+    return {
+      tag: "FloatV",
+      contents: R,
+    };
+  },
+};
+
+const sqr: Computation<FloatV<ad.Num>> = {
+  name: "sqr",
+  documentation: "Return the square of the number `x`.",
+  returns: "real",
+  arguments: [{ name: "x", type: "real", description: "`x`" }],
+  definition: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: squared(x) };
+  },
+};
 
 const sqrtComputation: Computation<FloatV<ad.Num>> = {};
 
@@ -1125,11 +1896,6 @@ export const compDict = {
   cubicCurveFromPoints: cubicCurveFromPoints.definition,
 
   /**
-   * Return two points parallel to line `s1` using its normal line `s2`.
-   */
-  unitMark: unitMark.definition,
-
-  /**
    * Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
    * @param pathType: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point
    * @param start: coordinate to start drawing the arc
@@ -1155,24 +1921,7 @@ export const compDict = {
    * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
-  wedge: (
-    _context: Context,
-    center: ad.Pt2,
-    start: ad.Pt2,
-    end: ad.Pt2,
-    radius: ad.Pt2,
-    rotation: ad.Num,
-    largeArc: ad.Num,
-    arcSweep: ad.Num
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    path
-      .moveTo(start)
-      .arcTo(radius, end, [rotation, largeArc, arcSweep])
-      .lineTo(center);
-    path.closePath();
-    return path.getPath();
-  },
+  wedge: wedge.definition,
   /**
    * Find the point that is located at dist r along a line between p1 and p2.
    * @param p1: start point of line segment
@@ -1180,16 +1929,7 @@ export const compDict = {
    * @param r: distance from p1 to travel along the line
    * @returns: vector representation of the point of intersection
    */
-  ptOnLine: (
-    _context: Context,
-    p1: ad.Num[],
-    p2: ad.Num[],
-    r: ad.Num
-  ): VectorV<ad.Num> => {
-    // find unit vector pointing towards v2
-    const unit = ops.vnormalize(ops.vsub(p2, p1));
-    return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
-  },
+  ptOnLine: ptOnLine.definition,
   /**
    * Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
    * @param x1, y1: x, y coordinates of the circle/ellipse that the arc is drawn on
@@ -1197,175 +1937,41 @@ export const compDict = {
    * @param end: end point of the arc
    * @returns: 0 or 1 depending on CCW or CW rotation
    */
-  arcSweepFlag: (
-    _context: Context,
-    [x1, y1]: ad.Num[],
-    start: ad.Pt2,
-    end: ad.Pt2
-  ): FloatV<ad.Num> => {
-    const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
-    const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
-    const cross = ops.cross2(st, en);
-    return {
-      tag: "FloatV",
-      contents: ifCond(gt(cross, 0), 0, 1),
-    };
-  },
+  arcSweepFlag: arcSweepFlag.definition,
   /**
    * Return the unsigned angle between vectors `u, v`, in radians.
    * Assumes that both u and v have nonzero magnitude.
    * The returned value will be in the range [0,pi].
    */
-  angleBetween: (
-    _context: Context,
-    u: ad.Num[],
-    v: ad.Num[]
-  ): FloatV<ad.Num> => {
-    const theta = ops.angleBetween(u, v);
-    return {
-      tag: "FloatV",
-      contents: theta,
-    };
-  },
+  angleBetween: angleBetween.definition,
   /**
    * Return the signed angle from vector `u` to vector `v`, in radians.
    * Assumes that both u and v are 2D vectors and have nonzero magnitude.
    * The returned value will be in the range [-pi,pi].
    */
-  angleFrom: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
-    const theta = ops.angleFrom(u, v);
-    return {
-      tag: "FloatV",
-      contents: theta,
-    };
-  },
+  angleFrom: angleFrom.definition,
   /**
    * Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
    */
-  cross2D: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
-    const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
-    return {
-      tag: "FloatV",
-      contents: det,
-    };
-  },
+  cross2D: cross2D.definition,
   /**
    * Return the intersection of a line passing through
    * `a0` and `a1` with a line passing through `b0` and `b1`
    */
-  lineLineIntersection: (
-    _context: Context,
-    a0: ad.Num[],
-    a1: ad.Num[],
-    b0: ad.Num[],
-    b1: ad.Num[]
-  ): VectorV<ad.Num> => {
-    const A0 = [a0[0], a0[1], 1];
-    const A1 = [a1[0], a1[1], 1];
-    const B0 = [b0[0], b0[1], 1];
-    const B1 = [b1[0], b1[1], 1];
-    const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
-    const x = [div(X[0], X[2]), div(X[1], X[2])];
-    return {
-      tag: "VectorV",
-      contents: toPt(x),
-    };
-  },
+  lineLineIntersection: lineLineIntersection.definition,
   /**
    * Return a point located at the midpoint between pts `start` and `end`
    */
-  midpoint: (
-    _context: Context,
-    start: ad.Num[],
-    end: ad.Num[]
-  ): VectorV<ad.Num> => {
-    const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
-    return {
-      tag: "VectorV",
-      contents: toPt(midpointLoc),
-    };
-  },
+  midpoint: midpoint.definition,
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
-  midpointOffset: (
-    _context: Context,
-    [t1, s1]: [string, any],
-    padding: ad.Num
-  ): TupV<ad.Num> => {
-    if (t1 === "Arrow" || t1 === "Line") {
-      const [start, end] = linePts(s1);
-      // TODO: Cache these operations in Style!
-      const normalDir = ops.rot90(ops.vnormalize(ops.vsub(end, start)));
-      const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
-      const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
-      return {
-        tag: "TupV",
-        contents: toPt(midpointOffsetLoc),
-      };
-    } else {
-      throw Error(`unsupported shape ${t1} in midpointOffset`);
-    }
-  },
-  chevron: (
-    _context: Context,
-    // TODO reimplement with variable tick marks when #629 is merged
-    [t1, s1]: [string, any],
-    padding: ad.Num,
-    ticks: ad.Num
-  ): PtListV<ad.Num> => {
-    if (t1 === "Arrow" || t1 === "Line") {
-      // tickPlacement(padding, ticks);
-      const [start, end] = linePts(s1);
-      const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
-      const startDir = ops.vrot(dir, 135);
-      const endDir = ops.vrot(dir, 225);
-      const center = ops.vmul(0.5, ops.vadd(start, end));
-      // if even, evenly divide tick marks about center. if odd, start in center and move outwards
-      return {
-        tag: "PtListV",
-        contents: [
-          ops.vmove(center, padding, startDir),
-          center,
-          ops.vmove(center, padding, endDir),
-        ].map(toPt),
-      };
-    } else {
-      throw Error(`unsupported shape ${t1} in chevron`);
-    }
-  },
+  midpointOffset: midpointOffset.definition,
+  chevron: chevron.definition,
   /**
    * Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).
    */
-  innerPointOffset: (
-    _context: Context,
-    pt1: ad.Num[],
-    pt2: ad.Num[],
-    pt3: ad.Num[],
-    padding: ad.Num
-  ): VectorV<ad.Num> => {
-    // unit vector towards first corner
-    const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
-    const normalDir = ops.vneg(ops.rot90(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
-
-    // move along line between p1 and p2, then move perpendicularly
-    const ref = ops.vmove(pt1, padding, vec1unit);
-    const [xp, yp] = ops.vmove(ref, padding, normalDir);
-    const [xn, yn] = ops.vmove(ref, padding, ops.vneg(normalDir));
-
-    // unit vector towards end point
-    const vec2unit = ops.vnormalize(ops.vsub(pt3, pt1));
-    const endpt = ops.vmove(pt1, padding, vec2unit);
-
-    // unit vector from midpoint to end point
-    const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
-    // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
-    const cond = gt(ops.vdot(vec1unit, intoEndUnit), 0.95);
-    return {
-      tag: "VectorV",
-      contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
-    };
-  },
+  innerPointOffset: innerPointOffset.definition,
   /**
    * Create equally spaced tick marks centered at the midpoint of a line
    * @param pt1: starting point of a line
@@ -1374,63 +1980,12 @@ export const compDict = {
    * @param numTicks: number of tick marks to create
    * @param tickLength: 1/2 length of each tick
    */
-  ticksOnLine: (
-    _context: Context,
-    pt1: ad.Num[],
-    pt2: ad.Num[],
-    spacing: ad.Num,
-    numTicks: ad.Num,
-    tickLength: ad.Num
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    // calculate scalar multipliers to determine the placement of each tick mark
-    const multipliers = tickPlacement(spacing, numOf(numTicks));
-    const unit = ops.vnormalize(ops.vsub(pt2, pt1));
-    const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
-
-    const mid = ops.vmul(0.5, ops.vadd(pt1, pt2));
-
-    // start/end pts of each tick will be placed parallel to each other, offset at dist of tickLength
-    // from the original pt1->pt2 line
-    const [x1p, y1p] = ops.vmove(mid, tickLength, normalDir);
-    const [x2p, y2p] = ops.vmove(mid, tickLength, ops.vneg(normalDir));
-
-    multipliers.forEach((multiplier) => {
-      const [sx, sy] = ops.vmove([x1p, y1p], multiplier, unit);
-      const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
-      path.moveTo([sx, sy]).lineTo([ex, ey]);
-    });
-    return path.getPath();
-  },
+  ticksOnLine: ticksOnLine.definition,
   /**
    * Given two orthogonal segments that intersect at `intersection`, and a size `len`
    * return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.
    */
-  orientedSquare: (
-    _context: Context,
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    intersection: ad.Pt2,
-    len: ad.Num
-  ): PathDataV<ad.Num> => {
-    if (
-      (t1 === "Arrow" || t1 === "Line") &&
-      (t2 === "Arrow" || t2 === "Line")
-    ) {
-      const [seg1, seg2] = [linePts(s1), linePts(s2)];
-      const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
-      const path = new PathBuilder();
-      return path
-        .moveTo(toPt(ptL))
-        .lineTo(toPt(ptLR))
-        .lineTo(toPt(ptR))
-        .lineTo(intersection)
-        .closePath()
-        .getPath();
-    } else {
-      throw Error(`orientedSquare undefined for types ${t1}, ${t2}`);
-    }
-  },
+  orientedSquare: orientedSquare.definition,
 
   /**
            * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
@@ -1475,303 +2030,71 @@ export const compDict = {
   /**
    * Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).
    */
-  triangle: (
-    _context: Context,
-    [t1, l1]: any,
-    [t2, l2]: any,
-    [t3, l3]: any
-  ): PathDataV<ad.Num> => {
-    if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
-      const path = new PathBuilder();
-      return path
-        .moveTo(toPt(getStart(l1)))
-        .lineTo(toPt(getStart(l2)))
-        .lineTo(toPt(getStart(l3)))
-        .closePath()
-        .getPath();
-    } else {
-      console.error([t1, l1], [t2, l2], [t3, l3]);
-      throw Error("Triangle function expected three lines");
-    }
-  },
+  triangle: triangle.definition,
 
   /**
    * Return the average of floats `x` and `y`.
    */
-  average2: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: div(add(x, y), 2),
-    };
-  },
+  average2: average2.definition,
 
   /**
    * Return the average of the floats in the list `xs`.
    */
-  average: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: div(addN(xs), max(1, xs.length)),
-      // To avoid divide-by-0
-    };
-  },
+  average: average.definition,
 
   /**
    * Return the normalized version of vector `v`.
    */
-  unit: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
-    return {
-      tag: "VectorV",
-      contents: ops.vnormalize(v),
-    };
-  },
+  unit: unit.definition,
 
   /**
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
-  sampleColor: (
-    { makeInput }: Context,
-    alpha: ad.Num,
-    colorType: string
-  ): ColorV<ad.Num> => {
-    if (colorType === "rgb") {
-      const rgb = _.range(3).map(() =>
-        makeInput({
-          init: { tag: "Sampled", sampler: uniform(0.1, 0.9) },
-          stages: new Set(),
-        })
-      );
-
-      return {
-        tag: "ColorV",
-        contents: {
-          tag: "RGBA",
-          contents: [rgb[0], rgb[1], rgb[2], alpha],
-        },
-      };
-    } else if (colorType === "hsv") {
-      const h = makeInput({
-        init: { tag: "Sampled", sampler: uniform(0, 360) },
-        stages: new Set(),
-      });
-      return {
-        tag: "ColorV",
-        contents: {
-          tag: "HSVA",
-          contents: [h, 100, 80, alpha], // HACK: for the color to look good
-        },
-      };
-    } else throw new Error("unknown color type");
-  },
+  sampleColor: sampleColor.definition,
 
   /**
    * Set the opacity of a color `color` to `frac`.
    */
-  setOpacity: (
-    _context: Context,
-    color: Color<ad.Num>,
-    frac: ad.Num
-  ): ColorV<ad.Num> => {
-    // If paint=none, opacity is irreelevant
-    if (color.tag === "NONE") {
-      return {
-        tag: "ColorV",
-        contents: color,
-      };
-      // Otherwise, retain tag and color; only modify opacity
-    } else {
-      const props = color.contents;
-      return {
-        tag: "ColorV",
-        contents: {
-          tag: color.tag,
-          contents: [props[0], props[1], props[2], mul(frac, props[3])],
-        },
-      };
-    }
-  },
+  setOpacity: setOpacity.definition,
 
   /**
    * Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).
    */
-  mul: (_context: Context, m: ad.Num[][], v: ad.Num[]): VectorV<ad.Num> => {
-    if (!m.length) {
-      throw Error("empty matrix");
-    }
-    if (!v.length) {
-      throw Error("empty vector");
-    }
-
-    return {
-      tag: "VectorV",
-      contents: m.map((row) => ops.vdot(row, v)),
-    };
-  },
+  mul: mulComputation.definition,
 
   // ------ Triangle centers
 
   /**
    * Return the barycenter of the triangle with vertices `a`, `b`, `c`.
    */
-  barycenter: (
-    _context: Context,
-    a: ad.Num[],
-    b: ad.Num[],
-    c: ad.Num[]
-  ): VectorV<ad.Num> => {
-    const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
-    return {
-      tag: "VectorV",
-      contents: toPt(x),
-    };
-  },
+  barycenter: barycenter.definition,
 
   /**
    * Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
    */
-  circumcenter: (
-    _context: Context,
-    p: ad.Num[],
-    q: ad.Num[],
-    r: ad.Num[]
-  ): VectorV<ad.Num> => {
-    // edge vectors
-    const u = ops.vsub(r, q);
-    const v = ops.vsub(p, r);
-    const w = ops.vsub(q, p);
-
-    // side lengths
-    const a = ops.vnorm(u);
-    const b = ops.vnorm(v);
-    const c = ops.vnorm(w);
-
-    // homogeneous barycentric coordinates for circumcenter
-    const hp = neg(mul(div(a, mul(b, c)), ops.vdot(w, v)));
-    const hq = neg(mul(div(b, mul(c, a)), ops.vdot(u, w)));
-    const hr = neg(mul(div(c, mul(a, b)), ops.vdot(v, u)));
-
-    // normalize to get barycentric coordinates for circumcenter
-    const H = add(add(hp, hq), hr);
-    const bp = div(hp, H);
-    const bq = div(hq, H);
-    const br = div(hr, H);
-
-    // circumcenter
-    const x = ops.vadd(
-      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
-      ops.vmul(br, r)
-    );
-
-    return {
-      tag: "VectorV",
-      contents: toPt(x),
-    };
-  },
+  circumcenter: circumcenter.definition,
 
   /**
    * Return the circumradius of the triangle with vertices `p`, `q`, `r`.
    */
-  circumradius: (
-    _context: Context,
-    p: ad.Num[],
-    q: ad.Num[],
-    r: ad.Num[]
-  ): FloatV<ad.Num> => {
-    // side lengths
-    const a = ops.vnorm(ops.vsub(r, q));
-    const b = ops.vnorm(ops.vsub(p, r));
-    const c = ops.vnorm(ops.vsub(q, p));
-
-    // semiperimeter
-    const s = mul(0.5, add(add(a, b), c));
-
-    // circumradius, computed as
-    // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
-    const R = div(
-      mul(mul(a, b), c),
-      mul(
-        4,
-        sqrt(
-          mul(
-            mul(mul(s, sub(add(a, b), s)), sub(add(a, c), s)),
-            sub(add(b, c), s)
-          )
-        )
-      )
-    );
-
-    return {
-      tag: "FloatV",
-      contents: R,
-    };
-  },
+  circumradius: circumradius.definition,
 
   /**
    * Return the incenter of the triangle with vertices `p`, `q`, `r`.
    */
-  incenter: (
-    _context: Context,
-    p: ad.Num[],
-    q: ad.Num[],
-    r: ad.Num[]
-  ): VectorV<ad.Num> => {
-    // side lengths
-    const a = ops.vnorm(ops.vsub(r, q));
-    const b = ops.vnorm(ops.vsub(p, r));
-    const c = ops.vnorm(ops.vsub(q, p));
-
-    // barycentric coordinates for incenter
-    const s = add(add(a, b), c);
-    const bp = div(a, s);
-    const bq = div(b, s);
-    const br = div(c, s);
-
-    // incenter
-    const x = ops.vadd(
-      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
-      ops.vmul(br, r)
-    );
-
-    return {
-      tag: "VectorV",
-      contents: toPt(x),
-    };
-  },
+  incenter: incenter.definition,
 
   /**
    * Return the inradius of the triangle with vertices `p`, `q`, `r`.
    */
-  inradius: (
-    _context: Context,
-    p: ad.Num[],
-    q: ad.Num[],
-    r: ad.Num[]
-  ): FloatV<ad.Num> => {
-    // side lengths
-    const a = ops.vnorm(ops.vsub(r, q));
-    const b = ops.vnorm(ops.vsub(p, r));
-    const c = ops.vnorm(ops.vsub(q, p));
-
-    // semiperimeter
-    const s = mul(0.5, add(add(a, b), c));
-
-    // inradius
-    const R = sqrt(div(mul(mul(sub(s, a), sub(s, b)), sub(s, c)), s));
-
-    return {
-      tag: "FloatV",
-      contents: R,
-    };
-  },
+  inradius: inradius.definition,
 
   // ------ Utility functions
 
   /**
    * Return the square of the number `x`.
    */
-  sqr: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: squared(x) };
-  },
+  sqr: sqr.definition,
 
   /**
    * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)

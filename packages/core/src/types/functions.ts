@@ -1,9 +1,9 @@
 type FunctionBody<T> = (...args: any[]) => T;
 
-type StyleType = {
+interface StyleType {
   description: string;
   symbol: string;
-};
+}
 
 export const styleTypes = {
   real: {
@@ -15,7 +15,7 @@ export const styleTypes = {
   r2: { description: "2d Vector of Reals", symbol: "ℝ^2" },
   rn: { description: "Vector of Reals", symbol: "ℝ^n" },
   r2n: { description: "List of 2d Real Vectors", symbol: "(ℝ^2)^n" },
-  rnn: { description: "List of Real Vectors", symbol: "(ℝ^n)^n" },
+  rmn: { description: "List of Real Vectors", symbol: "(ℝ^m)^n" },
   unit: { description: "Unit Interval", symbol: "[0,1]" },
   bbox: { description: "Bounding Box", symbol: "BBox" },
   color: { description: "Color", symbol: "Color" },
@@ -29,24 +29,25 @@ export const styleTypes = {
   path: { description: "Path", symbol: "Path" },
   string: { description: "String", symbol: "String" },
   stringlist: { description: "List of Strings", symbol: "String[]" },
-  pathtype: { description: "Path Type", symbol: `"Open" | "Closed"` },
+  colortype: { description: "Color Type", symbol: `"rgb" | "hsv"` },
+  pathtype: { description: "Path Type", symbol: `"open" | "closed"` },
 };
 
-type Argument = {
+interface Argument {
   name: string;
   description: string;
   type: keyof typeof styleTypes;
   //   for display
   default?: string;
-};
+}
 
-export type StyleFunction<T> = {
+export interface StyleFunction<T> {
   documentation: string;
   name: string;
   arguments: Argument[];
   definition: FunctionBody<T>;
-};
+}
 
-export type Computation<T> = StyleFunction<T> & {
+export interface Computation<T> extends StyleFunction<T> {
   returns: keyof typeof styleTypes;
-};
+}
