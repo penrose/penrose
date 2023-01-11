@@ -1,17 +1,20 @@
 {
+  "$schema": "./registry-schema.json",
   "root": "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/",
   "trios": [
     {
       "substance": "tree",
       "style": "venn",
       "domain": "set-theory",
-      "variation": "PlumvilleCapybara104"
+      "variation": "PlumvilleCapybara104",
+      "gallery": true
     },
     {
       "substance": "tree",
       "style": "tree",
       "domain": "set-theory",
-      "variation": ""
+      "variation": "",
+      "gallery": true
     },
     {
       "substance": "tree",
@@ -23,25 +26,29 @@
       "substance": "wet-floor",
       "style": "atoms-and-bonds",
       "domain": "atoms-and-bonds",
-      "variation": "SinisterPigeon34750"
+      "variation": "SinisterPigeon34750",
+      "gallery": true
     },
     {
       "substance": "one-water-molecule",
       "style": "atoms-and-bonds",
       "domain": "atoms-and-bonds",
-      "variation": "PorcellanaFlamingo3169"
+      "variation": "PorcellanaFlamingo3169",
+      "gallery": true
     },
     {
       "substance": "continuousmap",
       "style": "continuousmap",
       "domain": "functions",
-      "variation": ""
+      "variation": "",
+      "gallery": true
     },
     {
       "substance": "two-vectors-perp",
       "style": "vectors-dashed",
       "domain": "linear-algebra",
-      "variation": ""
+      "variation": "",
+      "gallery": true
     },
     {
       "substance": "vector-wedge",
@@ -95,7 +102,8 @@
       "substance": "collinear",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "HighlighterChicken10318"
+      "variation": "HighlighterChicken10318",
+      "gallery": true
     },
     {
       "substance": "parallel-lines",
@@ -155,7 +163,8 @@
       "substance": "persistent-homology",
       "style": "persistent-homology",
       "domain": "persistent-homology",
-      "variation": "RainmakerMarten88256"
+      "variation": "RainmakerMarten88256",
+      "gallery": true
     },
     {
       "substance": "wos-laplace-estimator",
