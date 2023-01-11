@@ -15,7 +15,12 @@ import { Polygon } from "shapes/Polygon";
 import { Polyline } from "shapes/Polyline";
 import * as ad from "types/ad";
 import { turningNumber } from "./Functions";
-import { consecutiveNTuples, extractPoints, isClosed } from "./Utils";
+import {
+  consecutiveTriples,
+  consecutiveTuples,
+  extractPoints,
+  isClosed,
+} from "./Utils";
 
 const equivalued = (x: ad.Num[]): ad.Num => {
   const mean = div(addN(x), x.length);
@@ -29,7 +34,7 @@ export const constrDictCurves = {
 
   isLocallyConvex: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
     const points = extractPoints([t, s]);
-    const triples = consecutiveNTuples(points, 3, isClosed([t, s]));
+    const triples = consecutiveTriples(points, isClosed([t, s]));
     const angles = triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
     );
@@ -50,13 +55,13 @@ export const constrDictCurves = {
 
   isEquidistant: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
     const points = extractPoints([t, s]);
-    const hs = consecutiveNTuples(points, 2, isClosed([t, s]));
+    const hs = consecutiveTuples(points, isClosed([t, s]));
     return equivalued(hs.map(([p1, p2]: ad.Num[][]) => ops.vdist(p1, p2)));
   },
 
   isEquiangular: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
     const points = extractPoints([t, s]);
-    const hs = consecutiveNTuples(points, 3, isClosed([t, s]));
+    const hs = consecutiveTriples(points, isClosed([t, s]));
     return equivalued(
       hs.map(([p1, p2, p3]: ad.Num[][]) =>
         ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))

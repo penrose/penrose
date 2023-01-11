@@ -189,14 +189,24 @@ export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];
 };
 
-export const consecutiveNTuples = (
+export const consecutiveTuples = (
   points: [ad.Num, ad.Num][],
-  tupleLength: number,
   closed: boolean
 ): [ad.Num, ad.Num][][] => {
   return Array.from({ length: points.length }, (_, key) => key).map((i) => [
     points[i],
     points[i > 0 ? i - 1 : points.length - 1],
+  ]);
+};
+
+export const consecutiveTriples = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): [ad.Num, ad.Num][][] => {
+  return Array.from({ length: points.length }, (_, key) => key).map((i) => [
+    points[i],
+    points[i > 0 ? i - 1 : points.length - 1],
+    points[i > 1 ? i - 2 : points.length - 2],
   ]);
 };
 

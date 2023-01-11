@@ -1,5 +1,11 @@
 import { bboxFromShape } from "contrib/Queries";
-import { clamp, consecutiveNTuples, inRange, numOf } from "contrib/Utils";
+import {
+  clamp,
+  consecutiveTriples,
+  consecutiveTuples,
+  inRange,
+  numOf,
+} from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -1783,7 +1789,7 @@ const tickPlacement = (
 };
 
 const algebraicArea = (points: [ad.Num, ad.Num][], closed: boolean) => {
-  const sides = consecutiveNTuples(points, 2, closed);
+  const sides = consecutiveTuples(points, closed);
   return mul(
     0.5,
     addN(
@@ -1805,7 +1811,7 @@ export const perimeter = (
   points: [ad.Num, ad.Num][],
   closed: boolean
 ): ad.Num => {
-  const sides = consecutiveNTuples(points, 2, closed);
+  const sides = consecutiveTuples(points, closed);
   return addN(sides.map(([p1, p2]: [ad.Num, ad.Num][]) => ops.vdist(p1, p2)));
 };
 
@@ -1834,7 +1840,7 @@ export const elasticEnergy = (
   points: [ad.Num, ad.Num][],
   closed: boolean
 ): ad.Num => {
-  const triples = consecutiveNTuples(points, 3, closed);
+  const triples = consecutiveTriples(points, closed);
   return addN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       squared(curvature(p1, p2, p3))
@@ -1846,7 +1852,7 @@ export const totalCurvature = (
   points: [ad.Num, ad.Num][],
   closed: boolean
 ): ad.Num => {
-  const triples = consecutiveNTuples(points, 3, closed);
+  const triples = consecutiveTriples(points, closed);
   return addN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
   );
