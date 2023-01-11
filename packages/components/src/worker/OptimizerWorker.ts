@@ -63,4 +63,9 @@ export default class OptimizerWorker {
       numSteps,
     });
   }
+
+  terminate() {
+    console.log("terminating worker");
+    this.worker.terminate();
+  }
 }

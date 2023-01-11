@@ -13,8 +13,6 @@ import React from "react";
 import fetchResolver from "./fetchPathResolver";
 import OptimizerWorker from "./worker/OptimizerWorker";
 
-const Optimizer = new OptimizerWorker();
-
 export interface SimpleProps {
   domain: string;
   substance: string;
@@ -34,6 +32,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   readonly canvasRef = React.createRef<HTMLDivElement>();
   penroseState: PenroseState | undefined = undefined;
   timerID: number | undefined = undefined; // for animation
+  private optimizer: OptimizerWorker | undefined;
 
   constructor(props: SimpleProps) {
     super(props);
@@ -50,7 +49,9 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       // initialize opt worker
       const { gradient, objFns, constrFns } = this.penroseState;
       const maskLen = objFns.length + constrFns.length;
-      const res = await Optimizer.init(gradient, maskLen, maskLen);
+      // TODO: reallocate the worker upon compilation for now to avoid step/init conflicts. Need to implement interrupt in worker
+      this.optimizer = new OptimizerWorker();
+      const res = await this.optimizer.init(gradient, maskLen, maskLen);
       console.log("init success", res);
     } else {
       this.setState({ error: compilerResult.error });
@@ -58,8 +59,10 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   };
 
   converge = async (): Promise<void> => {
-    if (this.penroseState) {
-      const stepped = await Optimizer.stepUntilConvergence(this.penroseState);
+    if (this.penroseState && this.optimizer) {
+      const stepped = await this.optimizer.stepUntilConvergence(
+        this.penroseState
+      );
       if (stepped.tag === "State") {
         this.penroseState = {
           ...this.penroseState,
@@ -75,9 +78,10 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     if (
       this.props.animate &&
       this.penroseState &&
+      this.optimizer &&
       !stateConverged(this.penroseState)
     ) {
-      const res = await Optimizer.step(
+      const res = await this.optimizer.step(
         this.penroseState,
         this.props.stepSize ?? 1
       );
@@ -110,6 +114,10 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       this.props.substance !== prevProps.substance ||
       this.props.style !== prevProps.style
     ) {
+      // TODO: no need for this step after implementing worker interrupts
+      if (this.optimizer) {
+        this.optimizer.terminate();
+      }
       await this.compile();
       if (!this.props.animate) {
         await this.converge();
@@ -137,6 +145,9 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   };
 
   componentWillUnmount = () => {
+    // if (this.optimizer) {
+    //   this.optimizer.terminate();
+    // }
     clearInterval(this.timerID);
   };
 
