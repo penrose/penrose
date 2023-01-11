@@ -61,7 +61,13 @@ onmessage = async ({ data, ports }: MessageEvent<Req>) => {
           },
           port
         );
+      } else {
+        console.error("Optimizer not initialized");
       }
+      break;
+    }
+    default: {
+      console.error(`Unknown request ${data}`);
     }
   }
 };

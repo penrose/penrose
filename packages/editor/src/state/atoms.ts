@@ -1,3 +1,4 @@
+import { OptimizerWorker } from "@penrose/components";
 import {
   compileDomain,
   Env,
@@ -272,6 +273,8 @@ export type Diagram = {
   error: PenroseError | null;
   metadata: DiagramMetadata;
 };
+
+export const optimizer = new OptimizerWorker();
 
 export const diagramState = atom<Diagram>({
   key: "diagramState",

@@ -3,10 +3,11 @@ import {
   compileTrio,
   prepareState,
   resample,
+  showError,
   stepNextStage,
-  stepState,
   Trio,
 } from "@penrose/core";
+import consola from "consola";
 import localforage from "localforage";
 import queryString from "query-string";
 import toast from "react-hot-toast";
@@ -20,6 +21,7 @@ import {
   GistMetadata,
   localFilesState,
   LocalGithubUser,
+  optimizer,
   Settings,
   settingsState,
   Workspace,
@@ -28,6 +30,10 @@ import {
   workspaceMetadataSelector,
 } from "./atoms";
 import { generateVariation } from "./variation";
+
+const log = consola
+  .create({ level: (consola as any).LogLevel.Warn })
+  .withScope("Editor");
 
 const _compileDiagram = async (
   substance: string,
@@ -58,6 +64,15 @@ const _compileDiagram = async (
     return;
   }
   const initialState = await prepareState(compileResult.value);
+  // initialize optimizer
+  const { gradient, objFns, constrFns } = initialState;
+  const maskLen = objFns.length + constrFns.length;
+  const optInit = await optimizer.init(gradient, maskLen, maskLen);
+  if (optInit.tag === "Success") {
+    log.info("Optimizer initilaized");
+  } else {
+    toast.error("Optimizer not initialized");
+  }
   set(
     diagramState,
     (state: Diagram): Diagram => ({
@@ -70,18 +85,37 @@ const _compileDiagram = async (
 };
 
 export const useStepDiagram = () =>
-  useRecoilCallback(({ set }) => () =>
-    set(diagramState, (diagram: Diagram) => {
-      if (diagram.state === null) {
-        toast.error(`No diagram`);
-        return diagram;
-      }
-      return {
-        ...diagram,
-        state: stepState(diagram.state, diagram.metadata.stepSize),
-      };
-    })
-  );
+  useRecoilCallback(({ snapshot, set }) => async () => {
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+    const currentState = diagram.state;
+
+    if (currentState === null) {
+      toast.error(`No diagram`);
+      return diagram;
+    } else {
+      const stepped = await optimizer.step(
+        currentState,
+        diagram.metadata.stepSize
+      );
+      set(diagramState, (diagram: Diagram) => {
+        if (stepped.tag === "State") {
+          return {
+            ...diagram,
+            state: {
+              ...currentState,
+              ...stepped.state,
+            },
+          };
+        } else if (stepped.tag === "Error") {
+          toast.error(showError(stepped.error));
+          return diagram;
+        } else {
+          console.error(`Unexpected optimizer output: ${stepped}`);
+          return diagram;
+        }
+      });
+    }
+  });
 
 export const useStepStage = () =>
   useRecoilCallback(({ set }) => () =>

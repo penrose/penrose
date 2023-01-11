@@ -4,7 +4,6 @@ import {
   RenderStatic,
   showError,
   stateConverged,
-  stepStateSafe,
 } from "@penrose/core";
 import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +16,7 @@ import {
   diagramMetadataSelector,
   diagramState,
   fileContentsSelector,
+  optimizer,
   ProgramFile,
   WorkspaceMetadata,
   workspaceMetadataSelector,
@@ -220,21 +220,26 @@ export default function DiagramPanel() {
     return () => cancelAnimationFrame(requestRef.current!);
   }, [diagram.state]);
 
-  const step = () => {
+  const step = async () => {
     if (state) {
       if (!stateConverged(state) && metadata.autostep) {
-        const stepResult = stepStateSafe(state, metadata.stepSize);
-        if (stepResult.isErr()) {
+        const stepResult = await optimizer.step(state, metadata.stepSize);
+        if (stepResult.tag === "Error") {
           setDiagram({
             ...diagram,
             error: stepResult.error,
           });
-        } else {
+        } else if (stepResult.tag === "State") {
           setDiagram({
             ...diagram,
             error: null,
-            state: stepResult.value,
+            state: {
+              ...state,
+              ...stepResult.state,
+            },
           });
+        } else {
+          console.error(`Unexpected optimizer output: ${stepResult}`);
         }
       }
     }

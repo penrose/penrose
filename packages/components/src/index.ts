@@ -7,7 +7,9 @@ import { Embed } from "./Embed";
 import fetchResolver from "./fetchPathResolver";
 import Listing from "./Listing";
 import { Simple } from "./Simple";
+import OptimizerWorker from "./worker/OptimizerWorker";
 export {
+  OptimizerWorker,
   Simple,
   Embed,
   Listing,

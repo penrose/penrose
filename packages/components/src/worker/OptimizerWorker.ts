@@ -3,6 +3,13 @@ import { Gradient } from "@penrose/optimizer";
 import { Req, Resp } from "./message";
 import RawWorker from "./worker?worker";
 
+import consola from "consola";
+
+const log = consola
+  .create({ level: (consola as any).LogLevel.Warn })
+  .withScope("Optimizer Worker");
+
+log.info("module initialized");
 export default class OptimizerWorker {
   private worker = new RawWorker();
 
@@ -54,7 +61,8 @@ export default class OptimizerWorker {
   }
 
   async step(state: PenroseState, numSteps: number): Promise<Resp> {
-    return await this.request({
+    log.info("stepping", state);
+    const res = await this.request({
       tag: "Step",
       state: {
         varyingValues: state.varyingValues,
@@ -62,6 +70,8 @@ export default class OptimizerWorker {
       },
       numSteps,
     });
+    log.info(res);
+    return res;
   }
 
   terminate() {

@@ -14,21 +14,31 @@ export const dragUpdate = (
 ): State => {
   const xs = [...state.varyingValues];
   const { constraintSets, optStages } = state;
-  const { inputMask, objMask, constrMask } = constraintSets[optStages[0]];
-  const gradMask = [...inputMask];
-  for (const shape of state.shapes) {
-    if (shape.properties.name.contents === id) {
-      for (const id of dragShape(shape, [dx, dy], xs)) {
-        gradMask[id] = false;
+  console.log(optStages, constraintSets);
+  const constraintSet = constraintSets.get(optStages[0]);
+  if (constraintSet) {
+    const { inputMask, objMask, constrMask } = constraintSet;
+
+    const gradMask = [...inputMask];
+    for (const shape of state.shapes) {
+      if (shape.properties.name.contents === id) {
+        for (const id of dragShape(shape, [dx, dy], xs)) {
+          gradMask[id] = false;
+        }
       }
     }
+    const updated: State = {
+      ...state,
+      params: genOptProblem(gradMask, objMask, constrMask),
+      varyingValues: xs,
+    };
+    return updated;
+  } else {
+    console.error(
+      `Cannot find constraint set for the layout stage: ${optStages[0]}`
+    );
+    return state;
   }
-  const updated: State = {
-    ...state,
-    params: genOptProblem(gradMask, objMask, constrMask),
-    varyingValues: xs,
-  };
-  return updated;
 };
 
 // TODO: factor out position props in shapedef
