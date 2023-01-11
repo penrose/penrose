@@ -13,7 +13,7 @@ describe("equivalued", () => {
   it.each([
     [[3, 1], 2],
     [[-1, 0, 1], 2],
-    [[-5, -1], 4],
+    [[-5, -1], 8],
   ])("different numbers", (values: number[], expected: number) => {
     const result = equivalued(values);
     expect(numOf(result)).toBeCloseTo(expected, 4);
