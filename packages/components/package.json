@@ -22,6 +22,11 @@
           "^build"
         ]
       },
+      "build-decls": {
+        "dependsOn": [
+          "^build-decls"
+        ]
+      },
       "build-storybook": {
         "dependsOn": [
           "^build"
