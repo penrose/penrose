@@ -218,10 +218,10 @@
       "variation": "RinseElk0268"
     },
     {
-      "substance": "caffeine",
+      "substance": "glutamine",
       "style": "molecules-basic",
       "domain": "molecules",
-      "variation": "MachineryRat162"
+      "variation": "MemoriesDeer750"
     },
     {
       "substance": "half-adder",
@@ -615,10 +615,10 @@
       "name": "Full moon art",
       "URI": "full-moon/full-moon.sub"
     },
-    "caffeine": {
+    "glutamine": {
       "domain": "molecules",
       "name": "Organic chemistry diagrams",
-      "URI": "molecules/caffeine.sub"
+      "URI": "molecules/glutamine.sub"
     },
     "half-adder": {
       "domain": "logic-gates",
