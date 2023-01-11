@@ -1,4 +1,4 @@
-import { examples } from "@penrose/examples";
+import examples from "@penrose/examples/dist/index";
 
 export const error = {
   domain: `typeppp Set`,

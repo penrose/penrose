@@ -328,7 +328,7 @@ export const exampleTriosState = atom<Trio[]>({
           "examples/",
           window.location.origin + window.location.pathname
         );
-        const trios = readRegistry(registry).map((trio: Trio) => ({
+        const trios = readRegistry(registry, true).map((trio: Trio) => ({
           ...trio,
           substanceURI: registry.root + trio.substanceURI,
           styleURI: registry.root + trio.styleURI,

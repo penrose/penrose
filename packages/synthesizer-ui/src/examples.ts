@@ -1,5 +1,4 @@
 import { SynthesizerSetting } from "@penrose/core";
-import { examples } from "@penrose/examples";
 
 export interface Preset {
   displayName: string;

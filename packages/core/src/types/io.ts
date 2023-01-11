@@ -14,6 +14,7 @@ export interface Trio {
 
 /**
  * Schema for the registry of working examples
+ * See also: @penrose/examples/src/registry-schema.json
  */
 export interface Registry {
   root: string;
@@ -26,5 +27,6 @@ export interface Registry {
     domain: string;
     variation: string;
     meta?: string;
+    gallery?: boolean;
   }[];
 }

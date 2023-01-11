@@ -302,16 +302,21 @@ export const stateInitial = (state: State): boolean =>
  * Read and flatten the registry file for Penrose examples into a list of program trios.
  *
  * @param registry JSON file of the registry
+ * @param gallery_only Only return trios where `gallery === true`
  */
-export const readRegistry = (registry: Registry): Trio[] => {
+export const readRegistry = (
+  registry: Registry,
+  gallery_only: boolean
+): Trio[] => {
   const { substances, styles, domains, trios } = registry;
   const res = [];
-  for (const {
-    domain: dslID,
-    style: styID,
-    substance: subID,
-    variation,
-  } of trios) {
+  for (const trioEntry of trios) {
+    const {
+      domain: dslID,
+      style: styID,
+      substance: subID,
+      variation,
+    } = trioEntry;
     const domain = domains[dslID];
     const substance = substances[subID];
     const style = styles[styID];
@@ -325,7 +330,9 @@ export const readRegistry = (registry: Registry): Trio[] => {
       variation,
       name: `${subID}-${styID}`,
     };
-    res.push(trio);
+    if (!gallery_only || trioEntry.gallery === true) {
+      res.push(trio);
+    }
   }
   return res;
 };

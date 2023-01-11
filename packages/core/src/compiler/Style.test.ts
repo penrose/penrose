@@ -1,6 +1,6 @@
 // Must be run from penrose-web for loading files
 
-import { examples } from "@penrose/examples";
+import { loadProgram } from "@penrose/examples";
 import * as S from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
 import im from "immutable";
@@ -26,14 +26,6 @@ import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
 import { compileDomain } from "./Domain";
 
 // TODO: Reorganize and name tests by compiler stage
-
-// Load file in format "domain-dir/file.extension"
-const loadFile = (examplePath: string): string => {
-  // a bit hacky, only works with 2-part paths
-  const [part0, part1] = examplePath.split("/");
-  const prog = examples[part0][part1];
-  return prog;
-};
 
 interface Trio {
   sub: string;
@@ -700,8 +692,8 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = loadFile("set-theory-domain/twosets-simple.sub");
-    const domainProg = loadFile("set-theory-domain/functions.dsl");
+    const subProg = loadProgram("set-theory-domain/twosets-simple.sub");
+    const domainProg = loadProgram("set-theory-domain/functions.dsl");
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.sty";
 
