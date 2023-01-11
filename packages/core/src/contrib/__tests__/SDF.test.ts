@@ -1,4 +1,3 @@
-import { ready } from "@penrose/optimizer";
 import { genCodeSync, input, primaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
@@ -13,8 +12,6 @@ import { FloatV } from "types/value";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { compDict, sdEllipse } from "../Functions";
 
-await ready;
-
 const canvas = makeCanvas(800, 700);
 
 const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
@@ -23,13 +20,19 @@ const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
   const makeInput: InputFactory = (meta) => {
     const x = input({
       key: inputs.length,
-      val: meta.tag === "Optimized" ? meta.sampler(rng) : meta.pending,
+      val:
+        meta.init.tag === "Sampled"
+          ? meta.init.sampler(rng)
+          : meta.init.pending,
     });
     inputs.push(x);
     return x;
   };
   for (const coord of pt) {
-    makeInput({ tag: "Optimized", sampler: () => coord });
+    makeInput({
+      init: { tag: "Sampled", sampler: () => coord },
+      stages: new Set(),
+    });
   }
   return { context: { makeInput }, p: [...inputs] };
 };

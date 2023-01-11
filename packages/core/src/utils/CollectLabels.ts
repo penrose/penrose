@@ -330,7 +330,7 @@ const setPendingProperty = (
     if (
       typeof x !== "number" &&
       x.tag === "Input" &&
-      "pending" in meta[x.key]
+      meta[x.key].init.tag === "Pending"
     ) {
       xs[x.key] = newValue.contents;
     }

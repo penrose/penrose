@@ -8,7 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages
 } from "types/style";
 
 const styleTypes: string[] =
@@ -55,6 +55,8 @@ const lexer = moo.compile({
       encourage: "encourage",
       ensure: "ensure",
       override: "override",
+      in: "in",
+      except: "except",
     })
   }
 });
@@ -116,24 +118,32 @@ const binop = (op: BinaryOp, left: Expr<C>, right: Expr<C>): BinOp<C> => ({
 # Style Grammar
 # NOTE: remember that parens in the grammar or EBNF operators (e.g. `:*`) will wrap an array around the result. 
 
-# TODO: header_blocks gets called twice here. Investigate why
-input -> _ml header_blocks {%
-  ([, blocks]): StyProg<C> => ({
+input -> _ml items {%
+  ([, items]): StyProg<C> => ({
     ...nodeData,
-    ...rangeFrom(blocks),
-    tag: "StyProg", blocks
+    ...rangeFrom(items),
+    tag: "StyProg", items
   })
 %}
 
-header_blocks -> header_block:* {% id %}
+items -> item:* {% id %}
 
-header_block -> header block _ml {%
-  ([header, block]): HeaderBlock<C> => ({
-    ...nodeData,
-    ...rangeFrom([header, block]), 
-    tag:"HeaderBlock", header, block 
-  })
-%}
+item 
+  -> header block _ml {%
+    ([header, block]): HeaderBlock<C> => ({
+      ...nodeData,
+      ...rangeFrom([header, block]), 
+      tag:"HeaderBlock", header, block 
+    })
+  %}
+  | "layout" _ "=" _ stage_list _ml {%
+  ([kw, , , , stages]): LayoutStages<C> => ({
+      ...nodeData,
+      ...rangeBetween(kw, stages[stages.length - 1]),
+      tag: "LayoutStages",
+      contents: stages
+    })
+  %}
 
 ################################################################################
 # Selector grammar
@@ -365,7 +375,7 @@ type
       tag: 'TypeOf', contents
     }) 
   %}
-  |  identifier "[]" {% ([contents]): StyType<C> => ({
+  |  identifier "[" "]" {% ([contents]): StyType<C> => ({
       ...nodeData,
       ...rangeOf(contents), 
       tag: 'ListOf', contents
@@ -516,7 +526,15 @@ string_lit -> %string_literal {%
 %}
 
 annotated_float 
-  -> "?" {% ([d]): Vary<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Vary' }) %}
+  -> "?" (__ ("in"|"except") __ stage_list):? {% 
+    ([d, stages]): Vary<C> => ({
+      ...nodeData, 
+      ...rangeOf(d), // TODO: fix range
+      tag: 'Vary',
+      stages: stages ? stages[3] : [],
+      exclude: stages ? stages[1][0].value === "except" : true,
+    })
+  %}
   |  %float_literal {% 
     ([d]): Fix<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
   %}
@@ -541,20 +559,30 @@ computation_function -> identifier _ "(" expr_list ")" {%
   }) 
 %}
 
-objective -> "encourage" __ identifier _ "(" expr_list ")" {% 
-  ([kw, , name, , , args, rparen]): ObjFn<C> => ({
-    ...nodeData,
-    ...rangeBetween(kw, rparen),
-    tag: "ObjFn",
-    name, args
-  }) 
+stage_list 
+  -> identifier {% (d) => d %}
+  |  "[" _ sepBy1[identifier, ","] _ "]" {% nth(2) %}
+
+objective -> "encourage" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 
+  ([kw, , name, , , args, rparen, stages]): ObjFn<C> => {
+    return {
+      ...nodeData,
+      ...rangeBetween(kw, rparen), // TODO: fix range
+      tag: "ObjFn",
+      stages: stages ? stages[3] : [],
+      exclude: stages ? stages[1][0].value === "except" : true,
+      name, args
+    } 
+  }
 %}
 
-constraint -> "ensure" __ identifier _ "(" expr_list ")" {% 
-  ([kw, , name, , , args, rparen]): ConstrFn<C> => ({
+constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 
+  ([kw, , name, , , args, rparen, stages]): ConstrFn<C> => ({
     ...nodeData,
-    ...rangeBetween(kw, rparen),
+    ...rangeBetween(kw, rparen), // TODO: fix range
     tag: "ConstrFn",
+    stages: stages ? stages[3] : [], 
+    exclude: stages ? stages[1][0].value === "except" : true,
     name, args
   }) 
 %}

@@ -1,4 +1,4 @@
-import { getInitConstraintWeight, ready } from "@penrose/optimizer";
+import { genOptProblem } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -30,8 +30,8 @@ import {
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
+  safe,
   toSvgPaintProperty,
-  zip2,
 } from "./utils/Util";
 
 /**
@@ -40,18 +40,19 @@ import {
  */
 export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
-  return {
+  const { constraintSets, optStages } = state;
+  const { inputMask, objMask, constrMask } = safe(
+    constraintSets.get(optStages[0]),
+    "missing first stage"
+  );
+  return insertPending({
     ...state,
-    varyingValues: state.inputs.map((meta, i) =>
-      "sampler" in meta ? meta.sampler(rng) : state.varyingValues[i]
+    varyingValues: state.inputs.map((meta) =>
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
     ),
-    params: {
-      ...state.params,
-      gradMask: state.inputs.map((meta) => meta.tag === "Optimized"),
-      weight: getInitConstraintWeight(),
-      optStatus: "NewIter",
-    },
-  };
+    currentStageIndex: 0,
+    params: genOptProblem(inputMask, objMask, constrMask),
+  });
 };
 
 /**
@@ -60,7 +61,48 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return { ...state, ...state.gradient.step(state, numSteps) };
+  const steppedState: State = {
+    ...state,
+    ...state.gradient.step(state, numSteps),
+  };
+  if (stateConverged(steppedState) && !finalStage(steppedState)) {
+    const nextInitState = nextStage(steppedState);
+    return nextInitState;
+  } else {
+    return steppedState;
+  }
+};
+
+export const nextStage = (state: State): State => {
+  if (finalStage(state)) {
+    return state;
+  } else {
+    const { constraintSets, optStages, currentStageIndex } = state;
+    const nextStage = optStages[currentStageIndex + 1];
+    const { inputMask, objMask, constrMask } = safe(
+      constraintSets.get(nextStage),
+      "missing next stage"
+    );
+    return {
+      ...state,
+      currentStageIndex: currentStageIndex + 1,
+      params: genOptProblem(inputMask, objMask, constrMask),
+    };
+  }
+};
+
+export const stepNextStage = (state: State, numSteps = 10000): State => {
+  let currentState = state;
+  while (
+    !(currentState.params.optStatus === "Error") &&
+    !stateConverged(currentState)
+  ) {
+    currentState = {
+      ...currentState,
+      ...currentState.gradient.step(currentState, numSteps),
+    };
+  }
+  return nextStage(currentState);
 };
 
 /**
@@ -93,8 +135,11 @@ export const stepUntilConvergence = (
   let currentState = state;
   while (
     !(currentState.params.optStatus === "Error") &&
-    !stateConverged(currentState)
+    (!stateConverged(currentState) || !finalStage(currentState))
   ) {
+    if (stateConverged(currentState)) {
+      currentState = nextStage(currentState);
+    }
     currentState = stepState(currentState, numSteps);
   }
   if (currentState.params.optStatus === "Error") {
@@ -202,8 +247,6 @@ export const compileTrio = async (prog: {
   domain: string;
   variation: string;
 }): Promise<Result<State, PenroseError>> => {
-  await ready;
-
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
@@ -240,6 +283,13 @@ export const prepareState = async (state: State): Promise<State> => {
  */
 export const stateConverged = (state: State): boolean =>
   state.params.optStatus === "EPConverged";
+
+/**
+ * Returns true if the diagram state is on the last layout stage in the layout pipeline
+ * @param state current state
+ */
+export const finalStage = (state: State): boolean =>
+  state.currentStageIndex === state.optStages.length - 1;
 
 /**
  * Returns true if state is the initial frame
@@ -298,7 +348,11 @@ export const evalEnergy = (s: State): number => {
  */
 export const evalFns = (
   s: State
-): { constrEngs: Map<string, number>; objEngs: Map<string, number> } => {
+): {
+  constrEngs: number[];
+  objEngs: number[];
+} => {
+  const { constrFns, objFns } = s;
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
   let { lastObjEnergies, lastConstrEnergies } = s.params;
   if (lastObjEnergies === null || lastConstrEnergies === null) {
@@ -310,10 +364,8 @@ export const evalFns = (
     lastConstrEnergies = secondary.slice(s.params.objMask.length);
   }
   return {
-    constrEngs: new Map(
-      zip2(s.constrFns.map(prettyPrintFn), lastConstrEnergies)
-    ),
-    objEngs: new Map(zip2(s.objFns.map(prettyPrintFn), lastObjEnergies)),
+    constrEngs: lastConstrEnergies,
+    objEngs: lastObjEnergies,
   };
 };
 
@@ -335,7 +387,7 @@ export type { PenroseError } from "./types/errors";
 export type { Shape } from "./types/shape";
 export * as Value from "./types/value";
 export type { Result } from "./utils/Error";
-export { hexToRgba, rgbaToHex } from "./utils/Util";
+export { hexToRgba, rgbaToHex, zip2 } from "./utils/Util";
 export {
   compileDomain,
   compileSubstance,

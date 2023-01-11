@@ -1,8 +1,5 @@
-import { ready } from "@penrose/optimizer";
 import { objDict } from "contrib/Objectives";
 import { numOf } from "contrib/Utils";
-
-await ready;
 
 const digitPrecision = 4;
 

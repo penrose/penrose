@@ -59,6 +59,8 @@ const styleCustoms = {
     "has",
     "math",
     "text",
+    "in",
+    "except",
   ],
   types: [
     "scalar",

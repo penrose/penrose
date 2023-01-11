@@ -8,4 +8,5 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["@penrose/core", "@penrose/components"],
   },
+  build: { target: "esnext" },
 });
