@@ -26,7 +26,7 @@ import {
 /**
  * All values in the list should be equal
  */
-const equivalued = (x: ad.Num[]): ad.Num => {
+export const equivalued = (x: ad.Num[]): ad.Num => {
   const mean = div(addN(x), x.length);
   return addN(x.map((y: ad.Num) => squared(sub(y, mean))));
 };
