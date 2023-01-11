@@ -1,39 +1,39 @@
 canvas {
-   width = 800
-   height = 700
+    width = 800
+    height = 700
 }
 
 -- Atoms
 
 forall Atom x {
-   x.symbol_string = ""
-   x.icon = Circle {
-      strokeWidth : 0.0
-      r : 15.0
-      fillColor : rgba(1.0, 1.0, 1.0, 1.0)
-   }
-   x.symbol = Equation {
-      string : x.symbol_string
-      rotation : 0.0
-      center : x.icon.center
-   }
-   x.layering = x.symbol above x.icon
+    string x.symbol_string = ""
+    shape x.icon = Circle {
+        strokeWidth : 0.0
+        r : 15.0
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
+    }
+    shape x.symbol = Equation {
+        string : x.symbol_string
+        rotation : 0.0
+        center : x.icon.center
+    }
+    x.layering = x.symbol above x.icon
 }
 
 forall Carbon x {
-   override x.symbol_string = "C"
+    override x.symbol_string = "C"
 }
 
 forall Hydrogen x {
-   override x.symbol_string = "H"
+    override x.symbol_string = "H"
 }
 
 forall Oxygen x {
-   override x.symbol_string = "O"
+    override x.symbol_string = "O"
 }
 
 forall Nitrogen x {
-   override x.symbol_string = "N"
+    override x.symbol_string = "N"
 }
 
 -- Bonds
@@ -41,74 +41,74 @@ forall Nitrogen x {
 forall SingleBond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
-   b.line1 = Line {
-      start : x.icon.center
-      end : y.icon.center
-      strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
-      strokeWidth: 2.0
-   }
-   encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
+    shape b.line1 = Line {
+        start : x.icon.center
+        end : y.icon.center
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 2.0
+    }
+    encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall DoubleBond b
 where b := MakeDoubleBond(x, y)
 with Atom x; Atom y {
-   b.line1 = Line {
-      start : x.icon.center
-      end : y.icon.center
-      strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
-      strokeWidth: 6.0
-   }
-   b.line2 = Line {
-      start : x.icon.center
-      end : y.icon.center
-      strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
-      strokeWidth: 2.0
-   }
-   b.layering = b.line2 above b.line1
-   encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
+    shape b.line1 = Line {
+        start : x.icon.center
+        end : y.icon.center
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 6.0
+    }
+    shape b.line2 = Line {
+        start : x.icon.center
+        end : y.icon.center
+        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        strokeWidth: 2.0
+    }
+    b.layering = b.line2 above b.line1
+    encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall TripleBond b
 where b := MakeTripleBond(x, y)
 with Atom x; Atom y {
-   b.line1 = Line {
-      start : x.icon.center
-      end : y.icon.center
-      strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
-      strokeWidth: 10.0
-   }
-   b.line2 = Line {
-      start : x.icon.center
-      end : y.icon.center
-      strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
-      strokeWidth: 6.0
-   }
-   b.line3 = Line {
-      start : x.icon.center
-      end : y.icon.center
-      strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
-      strokeWidth: 2.0
-   }
-   b.layering1 = b.line2 above b.line1
-   b.layering2 = b.line3 above b.line2
-   ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
+    shape b.line1 = Line {
+        start : x.icon.center
+        end : y.icon.center
+        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        strokeWidth: 10.0
+    }
+    shape b.line2 = Line {
+        start : x.icon.center
+        end : y.icon.center
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 6.0
+    }
+    shape b.line3 = Line {
+        start : x.icon.center
+        end : y.icon.center
+        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        strokeWidth: 2.0
+    }
+    b.layering1 = b.line2 above b.line1
+    b.layering2 = b.line3 above b.line2
+    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 -- Repulsion
 
 forall Atom x; Atom y {
-   encourage notTooClose(x.icon, y.icon)
+    encourage notTooClose(x.icon, y.icon)
 }
 
 forall Atom a; Bond b {
-   a.icon above b.line1
+    a.icon above b.line1
 }
 
 forall Atom a; DoubleBond b {
-   a.icon above b.line2
+    a.icon above b.line2
 }
 
 forall Atom a; TripleBond b {
-   a.icon above b.line3
+    a.icon above b.line3
 }

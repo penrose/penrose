@@ -234,6 +234,12 @@
       "style": "animation",
       "domain": "animation",
       "variation": ""
+    },
+    {
+      "substance": "mobius",
+      "style": "mobius",
+      "domain": "mobius",
+      "variation": "RodeoBoar3795"
     }
   ],
   "domains": {
@@ -316,6 +322,10 @@
     "logic-gates": {
       "name": "Logic gates",
       "URI": "logic-circuit-domain/logic-gates.dsl"
+    },
+    "mobius": {
+      "name": "Mobius transformation",
+      "URI": "mobius/mobius.dsl"
     }
   },
   "styles": {
@@ -457,6 +467,11 @@
       "domain": "animation",
       "name": "animation",
       "URI": "animation/animation.sty"
+    },
+    "mobius": {
+      "domain": "mobius",
+      "name": "Mobius transformation",
+      "URI": "mobius/mobius.sty"
     }
   },
   "substances": {
@@ -629,6 +644,11 @@
       "domain": "animation",
       "name": "A circle centering in two steps and shrink in the last step",
       "URI": "animation/center-shrink-circle.sub"
+    },
+    "mobius": {
+      "domain": "mobius",
+      "name": "Mobius transformation",
+      "URI": "mobius/mobius.sub"
     }
   }
 }
