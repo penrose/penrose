@@ -1,274 +1,67 @@
-import graphlib from "graphlib";
-
-export interface Edge<NodeId extends string> {
-  v: NodeId;
-  w: NodeId;
-}
-export interface Path<NodeId extends string> {
-  distance: number;
-  predecessor: NodeId;
+interface Arc<I, E> {
+  /** the other node */
+  i: I;
+  /** edge label */
+  e: E;
 }
 
-/**
- * A better-typed `graphlib` Graph with options `{}`. Edge labels and the graph
- * label are all `undefined`, and default node labels are unsupported. All edge
- * methods provide only the signature using the `Edge` object, not the
- * positional signature. Methods which would have returned `undefined` for
- * missing node IDs instead return an empty array. A `topsort` method is
- * provided which calls `graphlib.alg.topsort`.
- */
-export class Digraph<NodeId extends string, NodeLabel> {
-  private _graph: graphlib.Graph;
+interface Vert<I, L, E> {
+  /** label */
+  l: L;
+  /** in-edges */
+  p: Arc<I, E>[];
+  /** out-edges */
+  s: Arc<I, E>[];
+}
 
-  constructor() {
-    this._graph = new graphlib.Graph({});
+export interface Edge<I, E> {
+  i: I;
+  j: I;
+  e: E;
+}
+
+export class Graph<I, L = undefined, E = undefined> {
+  private g: Map<I, Vert<I, L, E>> = new Map();
+
+  private get(i: I): Vert<I, L, E> {
+    const v = this.g.get(i);
+    if (v === undefined) throw Error(`node ID ${i} not found`);
+    return v;
   }
 
-  setNode(name: NodeId, label: NodeLabel): this {
-    this._graph.setNode(name, label);
-    return this;
+  setNode(i: I, l: L): void {
+    if (this.g.has(i)) throw Error(`node with ID ${i} already exists`);
+    this.g.set(i, { l, p: [], s: [] });
   }
 
-  setNodes(names: NodeId[], label: NodeLabel): this {
-    this._graph.setNodes(names, label);
-    return this;
+  nodes(): I[] {
+    return [...this.g.keys()];
   }
 
-  filterNodes(filter: (v: NodeId) => boolean): this {
-    this._graph.filterNodes((v) => filter(v as NodeId));
-    return this;
+  node(i: I): L {
+    return this.get(i).l;
   }
 
-  hasNode(name: NodeId): boolean {
-    return this._graph.hasNode(name);
+  setEdge({ i, j, e }: Edge<I, E>): void {
+    this.get(i).s.push({ i: j, e });
+    this.get(j).p.push({ i: i, e });
   }
 
-  removeNode(name: NodeId): this {
-    this._graph.removeNode(name);
-    return this;
+  inEdges(i: I): Edge<I, E>[] {
+    return this.get(i).p.map(({ i: j, e }) => ({ i: j, j: i, e }));
   }
 
-  nodes(): NodeId[] {
-    return this._graph.nodes() as NodeId[];
-  }
-
-  node(name: NodeId): NodeLabel {
-    return this._graph.node(name);
-  }
-
-  setEdge(edge: Edge<NodeId>): this {
-    this._graph.setEdge(edge);
-    return this;
-  }
-
-  edges(): Edge<NodeId>[] {
-    return this._graph.edges() as Edge<NodeId>[];
-  }
-
-  hasEdge(edge: Edge<NodeId>): boolean {
-    return this._graph.hasEdge(edge);
-  }
-
-  removeEdge(edge: Edge<NodeId>): this {
-    this._graph.removeEdge(edge);
-    return this;
-  }
-
-  inEdges(v: NodeId, w?: NodeId): Edge<NodeId>[] {
-    return (this._graph.inEdges(v, w) as undefined | Edge<NodeId>[]) ?? [];
-  }
-
-  outEdges(v: NodeId, w?: NodeId): Edge<NodeId>[] {
-    return (this._graph.outEdges(v, w) as undefined | Edge<NodeId>[]) ?? [];
-  }
-
-  nodeEdges(v: NodeId, w?: NodeId): Edge<NodeId>[] {
-    return (this._graph.nodeEdges(v, w) as undefined | Edge<NodeId>[]) ?? [];
-  }
-
-  predecessors(v: NodeId): NodeId[] {
-    return (this._graph.predecessors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  successors(v: NodeId): NodeId[] {
-    return (this._graph.successors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  neighbors(v: NodeId): NodeId[] {
-    return (this._graph.neighbors(v) as undefined | NodeId[]) ?? [];
+  outEdges(i: I): Edge<I, E>[] {
+    return this.get(i).s.map(({ i: j, e }) => ({ i, j, e }));
   }
 
   nodeCount(): number {
-    return this._graph.nodeCount();
+    return this.g.size;
   }
 
-  edgeCount(): number {
-    return this._graph.edgeCount();
-  }
-
-  sources(): NodeId[] {
-    return this._graph.sources() as NodeId[];
-  }
-
-  sinks(): NodeId[] {
-    return this._graph.sinks() as NodeId[];
-  }
-
-  topsort(): NodeId[] {
-    return graphlib.alg.topsort(this._graph) as NodeId[];
-  }
-
-  dijkstra(
-    source: NodeId,
-    weightFn?: (edge: Edge<NodeId>) => number
-  ): { [node: string]: Path<NodeId> } {
-    return graphlib.alg.dijkstra(
-      this._graph,
-      source,
-      weightFn as (e: graphlib.Edge) => number
-    ) as {
-      [node: string]: Path<NodeId>;
-    };
-  }
-
-  isAcyclic(): boolean {
-    return graphlib.alg.isAcyclic(this._graph);
-  }
-
-  findCycles(): NodeId[][] {
-    return graphlib.alg.findCycles(this._graph) as NodeId[][];
-  }
-}
-
-export interface MultiEdge<
-  NodeId extends string,
-  EdgeName extends string | undefined
-> extends Edge<NodeId> {
-  name: EdgeName;
-}
-
-/**
- * A better-typed `graphlib` Graph with options `{ multigraph: true }`. Edge
- * labels and the graph label are all `undefined`, and default node labels are
- * unsupported. All edge methods provide only the signature using the `Edge`
- * object, not the positional signature. Methods which would have returned
- * `undefined` for missing node IDs instead return an empty array. A `topsort`
- * method is provided which calls `graphlib.alg.topsort`.
- */
-export class Multidigraph<
-  NodeId extends string,
-  NodeLabel,
-  EdgeName extends string | undefined
-> {
-  private _graph: graphlib.Graph;
-
-  constructor() {
-    this._graph = new graphlib.Graph({ multigraph: true });
-  }
-
-  setNode(name: NodeId, label: NodeLabel): this {
-    this._graph.setNode(name, label);
-    return this;
-  }
-
-  setNodes(names: NodeId[], label: NodeLabel): this {
-    this._graph.setNodes(names, label);
-    return this;
-  }
-
-  filterNodes(filter: (v: NodeId) => boolean): this {
-    this._graph.filterNodes((v) => filter(v as NodeId));
-    return this;
-  }
-
-  hasNode(name: NodeId): boolean {
-    return this._graph.hasNode(name);
-  }
-
-  removeNode(name: NodeId): this {
-    this._graph.removeNode(name);
-    return this;
-  }
-
-  nodes(): NodeId[] {
-    return this._graph.nodes() as NodeId[];
-  }
-
-  node(name: NodeId): NodeLabel {
-    return this._graph.node(name);
-  }
-
-  setEdge(edge: MultiEdge<NodeId, EdgeName>): this {
-    this._graph.setEdge(edge);
-    return this;
-  }
-
-  edges(): MultiEdge<NodeId, EdgeName>[] {
-    return this._graph.edges() as MultiEdge<NodeId, EdgeName>[];
-  }
-
-  hasEdge(edge: MultiEdge<NodeId, EdgeName>): boolean {
-    return this._graph.hasEdge(edge);
-  }
-
-  removeEdge(edge: MultiEdge<NodeId, EdgeName>): this {
-    this._graph.removeEdge(edge);
-    return this;
-  }
-
-  inEdges(v: NodeId, w?: NodeId): MultiEdge<NodeId, EdgeName>[] {
-    return (
-      (this._graph.inEdges(v, w) as
-        | undefined
-        | MultiEdge<NodeId, EdgeName>[]) ?? []
-    );
-  }
-
-  outEdges(v: NodeId, w?: NodeId): MultiEdge<NodeId, EdgeName>[] {
-    return (
-      (this._graph.outEdges(v, w) as
-        | undefined
-        | MultiEdge<NodeId, EdgeName>[]) ?? []
-    );
-  }
-
-  nodeEdges(v: NodeId, w?: NodeId): MultiEdge<NodeId, EdgeName>[] {
-    return (
-      (this._graph.nodeEdges(v, w) as
-        | undefined
-        | MultiEdge<NodeId, EdgeName>[]) ?? []
-    );
-  }
-
-  predecessors(v: NodeId): NodeId[] {
-    return (this._graph.predecessors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  successors(v: NodeId): NodeId[] {
-    return (this._graph.successors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  neighbors(v: NodeId): NodeId[] {
-    return (this._graph.neighbors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  nodeCount(): number {
-    return this._graph.nodeCount();
-  }
-
-  edgeCount(): number {
-    return this._graph.edgeCount();
-  }
-
-  sources(): NodeId[] {
-    return this._graph.sources() as NodeId[];
-  }
-
-  sinks(): NodeId[] {
-    return this._graph.sinks() as NodeId[];
-  }
-
-  topsort(): NodeId[] {
-    return graphlib.alg.topsort(this._graph) as NodeId[];
+  sources(): I[] {
+    const a = [];
+    for (const [i, v] of this.g) if (v.p.length === 0) a.push(i);
+    return a;
   }
 }

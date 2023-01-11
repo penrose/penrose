@@ -130,7 +130,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { Digraph, Edge } from "utils/Graph";
+import { Graph } from "utils/Graph";
 import {
   boolV,
   colorV,
@@ -2162,7 +2162,11 @@ const gatherExpr = (
 ): void => {
   graph.setNode(w, expr);
   for (const p of findPathsWithContext(expr)) {
-    graph.setEdge({ v: prettyPrintResolvedPath(resolveRhsPath(p)), w });
+    graph.setEdge({
+      i: prettyPrintResolvedPath(resolveRhsPath(p)),
+      j: w,
+      e: undefined,
+    });
   }
 };
 
@@ -2172,7 +2176,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
       graph.setNode(lhs, rhs.shapeType);
       for (const [k, expr] of rhs.props) {
         const p = `${lhs}.${k}`;
-        graph.setEdge({ v: p, w: lhs });
+        graph.setEdge({ i: p, j: lhs, e: undefined });
         gatherExpr(graph, p, expr);
       }
       return;
@@ -2185,7 +2189,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
 };
 
 export const gatherDependencies = (assignment: Assignment): DepGraph => {
-  const graph = new Digraph<string, WithContext<NotShape>>();
+  const graph = new Graph<string, WithContext<NotShape>>();
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
@@ -3006,12 +3010,14 @@ export const computeShapeOrdering = (
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
 } => {
-  const layerGraph = new Digraph<string, undefined>();
-  allGPINames.forEach((name: string) => layerGraph.setNode(name, undefined));
+  const layerGraph = new Graph<string>();
+  allGPINames.forEach((name: string) => {
+    layerGraph.setNode(name, undefined);
+  });
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
-  partialOrderings.forEach(({ below, above }: Layer) =>
-    layerGraph.setEdge({ v: below, w: above })
-  );
+  partialOrderings.forEach(({ below, above }: Layer) => {
+    layerGraph.setEdge({ i: below, j: above, e: undefined });
+  });
 
   // if there are no cycles, return a global ordering from the top sort result
   if (layerGraph.isAcyclic()) {
@@ -3031,7 +3037,7 @@ export const computeShapeOrdering = (
   }
 };
 
-const pseudoTopsort = (graph: Digraph<string, undefined>): string[] => {
+const pseudoTopsort = (graph: Graph<string>): string[] => {
   const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
     const aIn = graph.inEdges(a);
     const bIn = graph.inEdges(b);
@@ -3045,7 +3051,7 @@ const pseudoTopsort = (graph: Digraph<string, undefined>): string[] => {
     res.push(node);
     // remove all edges with `node`
     const toRemove = graph.nodeEdges(node);
-    toRemove.forEach((e: Edge<string>) => graph.removeEdge(e));
+    toRemove.forEach((e) => graph.removeEdge(e));
     toVisit.fix();
   }
   return res;

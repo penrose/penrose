@@ -1,6 +1,6 @@
 import im from "immutable";
 import { ShapeType } from "shapes/Shapes";
-import { Digraph } from "utils/Graph";
+import { Graph } from "utils/Graph";
 import * as ad from "./ad";
 import { A, C, Identifier } from "./ast";
 import { StyleDiagnostics, StyleError } from "./errors";
@@ -146,12 +146,7 @@ export type ResolvedPath<T> = T &
 
 //#region second Style compiler pass: dependency graph
 
-// explicitly allow `undefined` so that when we get node labels out of the
-// graph, TypeScript tells us to check that the node actually had a label
-export type DepGraph = Digraph<
-  string,
-  ShapeType | WithContext<NotShape> | undefined
->;
+export type DepGraph = Graph<string, ShapeType | WithContext<NotShape>>;
 
 //#endregion
 

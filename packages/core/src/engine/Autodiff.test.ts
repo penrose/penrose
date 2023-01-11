@@ -65,7 +65,6 @@ describe("makeGraph tests", () => {
 
     // x1, t1, t2, f, and the constant primary node 1
     expect(graph.nodeCount()).toBe(5);
-    expect(graph.edgeCount()).toBe(6); // the in-edges of the three mul nodes
   });
 });
 

@@ -40,7 +40,7 @@ import {
   symmetricTypeMismatch,
   typeNotFound,
 } from "utils/Error";
-import { Digraph } from "utils/Graph";
+import { Graph } from "utils/Graph";
 
 export const parseDomain = (
   prog: string
@@ -110,7 +110,7 @@ const initEnv = (): Env => ({
   functions: im.Map<string, FunctionDecl<C>>(),
   preludeValues: im.Map<string, TypeConstructor<C>>(),
   subTypes: [],
-  typeGraph: new Digraph(),
+  typeGraph: new Graph(),
 });
 
 /**
@@ -345,11 +345,18 @@ const addSubtype = (
 const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
   const [...typeNames] = types.keys();
-  typeNames.forEach((t: string) => typeGraph.setNode(t, undefined));
+  typeNames.forEach((t: string) => {
+    typeGraph.setNode(t, undefined);
+  });
   // NOTE: since we search for super types upstream, subtyping arrow points to supertype
   subTypes.forEach(
-    ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) =>
-      typeGraph.setEdge({ v: subType.name.value, w: superType.name.value })
+    ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) => {
+      typeGraph.setEdge({
+        i: subType.name.value,
+        j: superType.name.value,
+        e: undefined,
+      });
+    }
   );
   if (!typeGraph.isAcyclic())
     return err(cyclicSubtypes(typeGraph.findCycles()));
@@ -406,7 +413,7 @@ export const subTypesOf = (
   const subTypes = [];
   while (toVisit.length > 0) {
     const newSubTypes: string[] = toVisit.flatMap((t) =>
-      env.typeGraph.inEdges(t).map(({ v }) => v)
+      env.typeGraph.inEdges(t).map(({ i }) => i)
     );
     subTypes.push(...newSubTypes);
     toVisit = newSubTypes;

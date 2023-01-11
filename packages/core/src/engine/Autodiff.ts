@@ -11,7 +11,7 @@ import {
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "types/ad";
-import { Multidigraph } from "utils/Graph";
+import { Graph } from "utils/Graph";
 import { safe, zip2 } from "utils/Util";
 import * as wasm from "utils/Wasm";
 import {
@@ -399,7 +399,7 @@ const getInputs = (
 export const makeGraph = (
   outputs: Omit<Outputs<ad.Num>, "gradient">
 ): ad.Graph => {
-  const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
+  const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
 
   // we use this queue to essentially do a breadth-first search by following
@@ -441,12 +441,12 @@ export const makeGraph = (
   const addEdge = (
     child: ad.Expr,
     parent: ad.Expr,
-    name: ad.Edge
+    e: ad.Edge
   ): [ad.Id, ad.Id] => {
-    const v = safe(nodes.get(child), "missing child");
-    const w = safe(nodes.get(parent), "missing parent");
-    graph.setEdge({ v, w, name });
-    return [v, w];
+    const i = safe(nodes.get(child), "missing child");
+    const j = safe(nodes.get(parent), "missing parent");
+    graph.setEdge({ i, j, e });
+    return [i, j];
   };
 
   // add all the nodes subtended by the primary output; we do these first, in a
@@ -511,17 +511,17 @@ export const makeGraph = (
 
     // control the order in which partial derivatives are added
     const edges = [...graph.outEdges(id)].sort((a, b) =>
-      a.w === b.w
-        ? rankEdge(a.name) - rankEdge(b.name)
-        : idToIndex(a.w) - idToIndex(b.w)
+      a.j === b.j
+        ? rankEdge(a.e) - rankEdge(b.e)
+        : idToIndex(a.j) - idToIndex(b.j)
     );
 
     // we call graph.setEdge in this loop, so it may seem like it would be
     // possible for those edges to get incorrectly included as addends in other
     // gradient nodes; however, that is not the case, because none of those
     // edges appear in our sensitivities map
-    for (const { w, name } of edges) {
-      const matrix = sensitivities.get(`${name}_${id}_${w}`);
+    for (const { j: w, e } of edges) {
+      const matrix = sensitivities.get(`${e}_${id}_${w}`);
       if (matrix !== undefined) {
         // `forEach` ignores holes
         matrix.forEach((row, i) => {
@@ -532,8 +532,8 @@ export const makeGraph = (
               const parentGradID = parentGradIDs[i];
 
               const addendID = newNode({ tag: "Binary", binop: "*" });
-              graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
-              graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
+              graph.setEdge({ i: sensitivityID, j: addendID, e: "left" });
+              graph.setEdge({ i: parentGradID, j: addendID, e: "right" });
               if (!(j in grad)) {
                 grad[j] = [];
               }
@@ -553,13 +553,13 @@ export const makeGraph = (
           return addNode(0);
         } else {
           const gradID = newNode({ tag: "Nary", op: "addN" });
-          addends.forEach((addendID, i) =>
+          addends.forEach((addendID, i) => {
             graph.setEdge({
-              v: addendID,
-              w: gradID,
-              name: indexToNaryEdge(i),
-            })
-          );
+              i: addendID,
+              j: gradID,
+              e: indexToNaryEdge(i),
+            });
+          });
           return gradID;
         }
       })
@@ -1449,7 +1449,7 @@ const compileGraph = (
     // we already generated code for the inputs
     if (typeof node === "number" || node.tag !== "Input") {
       const preds = new Map(
-        graph.inEdges(id).map(({ v, name }) => [name, getIndex(locals, v)])
+        graph.inEdges(id).map(({ i: v, e }) => [e, getIndex(locals, v)])
       );
 
       compileNode(t, node, preds);
