@@ -33,7 +33,6 @@ export const basicSymbols: moo.Rules = {
     lineBreaks: true,
   },
   dot: ".",
-  brackets: "[]",
   lbracket: "[",
   rbracket: "]",
   lbrace: "{",

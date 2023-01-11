@@ -161,25 +161,25 @@
       "substance": "wos-laplace-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "RainmakerMarten88256"
+      "variation": "LilyDunlin3394"
     },
     {
       "substance": "wos-poisson-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "TideHawk3699"
+      "variation": "CoraletteStingray87534"
     },
     {
       "substance": "wos-nested-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "WhiteoutSnail17459"
+      "variation": "ElmCrane34650"
     },
     {
       "substance": "wos-offcenter-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "ShireStork246"
+      "variation": "PlumburnPartridge8506"
     },
     {
       "substance": "points-around-star",
@@ -210,9 +210,19 @@
       "style": "exterior-algebra",
       "domain": "exterior-algebra",
       "variation": "ArtemisCrane740"
+    },
+    {
+      "substance": "center-shrink-circle",
+      "style": "animation",
+      "domain": "animation",
+      "variation": ""
     }
   ],
   "domains": {
+    "animation": {
+      "name": "Staged Animations",
+      "URI": "animation/animation.dsl"
+    },
     "set-theory": {
       "name": "Set Theory",
       "URI": "set-theory-domain/setTheory.dsl"
@@ -397,6 +407,11 @@
       "domain": "atoms-and-bonds",
       "name": "atoms-and-bonds",
       "URI": "atoms-and-bonds/atoms-and-bonds.sty"
+    },
+    "animation": {
+      "domain": "animation",
+      "name": "animation",
+      "URI": "animation/animation.sty"
     }
   },
   "substances": {
@@ -549,6 +564,11 @@
       "domain": "atoms-and-bonds",
       "name": "One water molecule drawn using symmetric bonds",
       "URI": "atoms-and-bonds/one-water-molecule.sub"
+    },
+    "center-shrink-circle": {
+      "domain": "animation",
+      "name": "A circle centering in two steps and shrink in the last step",
+      "URI": "animation/center-shrink-circle.sub"
     }
   }
 }
