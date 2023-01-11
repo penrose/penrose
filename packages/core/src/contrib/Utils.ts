@@ -196,9 +196,11 @@ export const consecutiveTuples = (
   points: [ad.Num, ad.Num][],
   closed: boolean
 ): [ad.Num, ad.Num][][] => {
-  return Array.from({ length: points.length }, (_, key) => key).map((i) => [
-    points[i > 0 ? i - 1 : points.length - 1],
+  const resLength = closed ? points.length : points.length - 1;
+  if (resLength <= 0) return [];
+  return Array.from({ length: resLength }, (_, key) => key).map((i) => [
     points[i],
+    points[(i + 1) % points.length],
   ]);
 };
 
@@ -209,10 +211,12 @@ export const consecutiveTriples = (
   points: [ad.Num, ad.Num][],
   closed: boolean
 ): [ad.Num, ad.Num][][] => {
-  return Array.from({ length: points.length }, (_, key) => key).map((i) => [
-    points[i > 1 ? i - 2 : points.length - 2],
-    points[i > 0 ? i - 1 : points.length - 1],
+  const resLength = closed ? points.length : points.length - 2;
+  if (resLength <= 0) return [];
+  return Array.from({ length: resLength }, (_, key) => key).map((i) => [
     points[i],
+    points[(i + 1) % points.length],
+    points[(i + 2) % points.length],
   ]);
 };
 
