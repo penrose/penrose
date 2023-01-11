@@ -286,6 +286,10 @@
     "atoms-and-bonds": {
       "name": "Atoms and Bonds",
       "URI": "atoms-and-bonds/atoms-and-bonds.dsl"
+    },
+    "structural-formula": {
+      "name": "Structural Formula",
+      "URI": "structural-formula/structural-formula.dsl"
     }
   },
   "styles": {
@@ -412,6 +416,10 @@
       "domain": "animation",
       "name": "animation",
       "URI": "animation/animation.sty"
+    },
+    "structural-formula": {
+      "name": "Structural Formula",
+      "URI": "structural-formula/structural-formula.dsl"
     }
   },
   "substances": {
@@ -569,6 +577,11 @@
       "domain": "animation",
       "name": "A circle centering in two steps and shrink in the last step",
       "URI": "animation/center-shrink-circle.sub"
+    },
+    "caffeine": {
+      "domain": "structural-formula",
+      "name": "Caffeine molecule",
+      "URI": "molecules"
     }
   }
 }
