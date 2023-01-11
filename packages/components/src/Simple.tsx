@@ -43,6 +43,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
 
   compile = async (): Promise<void> => {
     this.penroseState = undefined;
+    this.optimizer = new OptimizerWorker();
     const compilerResult = await compileTrio(this.props);
     if (compilerResult.isOk()) {
       this.penroseState = await prepareState(compilerResult.value);
@@ -50,9 +51,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       const { gradient, objFns, constrFns } = this.penroseState;
       const maskLen = objFns.length + constrFns.length;
       // TODO: reallocate the worker upon compilation for now to avoid step/init conflicts. Need to implement interrupt in worker
-      this.optimizer = new OptimizerWorker();
       const res = await this.optimizer.init(gradient, maskLen, maskLen);
-      console.log("init success", res);
     } else {
       this.setState({ error: compilerResult.error });
     }

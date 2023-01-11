@@ -75,7 +75,7 @@ export default class OptimizerWorker {
   }
 
   terminate() {
-    console.log("terminating worker");
+    log.info("terminating worker");
     this.worker.terminate();
   }
 }

@@ -215,7 +215,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             style={this.props.style}
             variation={this.state.variation}
             interactive={false}
-            animate={true}
+            animate={false}
             stepSize={20}
             onFrame={(state: PenroseState) => {
               this.setState({ currentState: state });
