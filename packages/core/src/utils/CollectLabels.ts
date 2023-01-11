@@ -12,7 +12,7 @@ import { Properties, ShapeAD } from "types/shape";
 import { EquationData, LabelCache, State, TextData } from "types/state";
 import { FloatV } from "types/value";
 import { err, ok, Result } from "./Error";
-import { getAdValueAsNumber, getAdValueAsString } from "./Util";
+import { getAdValueAsString } from "./Util";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -73,10 +73,10 @@ const tex2svg = async (
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
     const contents = getAdValueAsString(properties.string, "");
-    const fontSize = getAdValueAsNumber(properties.fontSize, 0);
+    const fontSize = getAdValueAsString(properties.fontSize, "");
 
     // Raise error if string or fontSize are empty or optimized
-    if (fontSize === 0 || contents === "") {
+    if (fontSize === "" || contents === "") {
       resolve(
         err(
           `Label 'string' and 'fontSize' must be non-empty and non-optimized for ${properties.name.contents}`
@@ -86,7 +86,7 @@ const tex2svg = async (
     }
 
     // Render the label
-    const output = convert(contents, `${fontSize}`);
+    const output = convert(contents, fontSize);
     if (output.isErr()) {
       resolve(err(`MathJax could not render $${contents}$: ${output.error}`));
       return;
@@ -106,7 +106,7 @@ const tex2svg = async (
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
     const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
-    const constHeight = fontSize - vAlignFloat;
+    const constHeight = parseFloat(fontSize) - vAlignFloat;
     const scaledWidth = (constHeight / height) * width;
 
     resolve(ok({ body, width: scaledWidth, height: constHeight }));
