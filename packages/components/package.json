@@ -9,6 +9,8 @@
   "scripts": {
     "watch": "vite build --watch",
     "build": "tsc",
+    "start": "tsc -w",
+    "build-decls": "tsc --emitDeclarationOnly",
     "typecheck": ":",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
