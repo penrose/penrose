@@ -218,18 +218,6 @@
       "variation": "RinseElk0268"
     },
     {
-      "substance": "homotopy",
-      "style": "homotopy",
-      "domain": "homotopy",
-      "variation": "PlumvilleCapybara104"
-    },
-    {
-      "substance": "cubic-bezier",
-      "style": "cubic-bezier",
-      "domain": "cubic-bezier",
-      "variation": "PlumvilleCapybara104"
-    },
-    {
       "substance": "caffeine",
       "style": "molecules-basic",
       "domain": "molecules",
@@ -320,14 +308,6 @@
     "full-moon": {
       "name": "Full moon art",
       "URI": "full-moon/full-moon.dsl"
-    },
-    "homotopy": {
-      "name": "Curve homotopy",
-      "URI": "homotopy/homotopy.dsl"
-    },
-    "cubic-bezier": {
-      "name": "Cubic Bezier curve construction",
-      "URI": "cubic-bezier/cubic-bezier.dsl"
     },
     "molecules": {
       "name": "Organic chemistry diagrams",
@@ -462,16 +442,6 @@
       "domain": "full-moon",
       "name": "Full moon art",
       "URI": "full-moon/full-moon.sty"
-    },
-    "homotopy": {
-      "domain": "homotopy",
-      "name": "Curve homotopy",
-      "URI": "homotopy/homotopy.sty"
-    },
-    "cubic-bezier": {
-      "domain": "cubic-bezier",
-      "name": "Cubic Bezier curve construction",
-      "URI": "cubic-bezier/cubic-bezier.sty"
     },
     "molecules-basic": {
       "domain": "molecules",
@@ -644,16 +614,6 @@
       "domain": "full-moon",
       "name": "Full moon art",
       "URI": "full-moon/full-moon.sub"
-    },
-    "homotopy": {
-      "domain": "homotopy",
-      "name": "Curve homotopy",
-      "URI": "homotopy/homotopy.sub"
-    },
-    "cubic-bezier": {
-      "domain": "cubic-bezier",
-      "name": "Cubic Bezier curve construction",
-      "URI": "cubic-bezier/cubic-bezier.sub"
     },
     "caffeine": {
       "domain": "molecules",
