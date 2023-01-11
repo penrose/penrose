@@ -1837,7 +1837,7 @@ export const isoperimetricRatio = (
 /**
  * Returns discrete curvature approximation given three consecutive points
  */
-const curvature = (
+export const curvature = (
   p1: [ad.Num, ad.Num],
   p2: [ad.Num, ad.Num],
   p3: [ad.Num, ad.Num]
