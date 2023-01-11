@@ -217,7 +217,7 @@ export const consecutiveTriples = (
 };
 
 /**
- * Return indicater of closed Polyline, Polygon or Path shape
+ * Return indicator of closed Polyline, Polygon or Path shape
  */
 export const isClosed = ([t, s]: [
   string,

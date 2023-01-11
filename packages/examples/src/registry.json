@@ -161,25 +161,25 @@
       "substance": "wos-laplace-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "RainmakerMarten88256"
+      "variation": "LilyDunlin3394"
     },
     {
       "substance": "wos-poisson-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "TideHawk3699"
+      "variation": "CoraletteStingray87534"
     },
     {
       "substance": "wos-nested-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "WhiteoutSnail17459"
+      "variation": "ElmCrane34650"
     },
     {
       "substance": "wos-offcenter-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
-      "variation": "ShireStork246"
+      "variation": "PlumburnPartridge8506"
     },
     {
       "substance": "points-around-star",
@@ -240,6 +240,12 @@
       "style": "mobius",
       "domain": "mobius",
       "variation": "RodeoBoar3795"
+    },
+    {
+      "substance": "caffeine",
+      "style": "structural-formula",
+      "domain": "structural-formula",
+      "variation": ""
     }
   ],
   "domains": {
@@ -326,6 +332,10 @@
     "mobius": {
       "name": "Mobius transformation",
       "URI": "mobius/mobius.dsl"
+    },
+    "structural-formula": {
+      "name": "Structural Formula",
+      "URI": "structural-formula/structural-formula.dsl"
     }
   },
   "styles": {
@@ -472,6 +482,11 @@
       "domain": "mobius",
       "name": "Mobius transformation",
       "URI": "mobius/mobius.sty"
+    },
+    "structural-formula": {
+      "domain": "structural-formula",
+      "name": "Structural Formula",
+      "URI": "structural-formula/structural-formula.sty"
     }
   },
   "substances": {
@@ -632,12 +647,12 @@
     },
     "glutamine": {
       "domain": "molecules",
-      "name": "Organic chemistry diagrams",
+      "name": "Glucose molecule",
       "URI": "molecules/glutamine.sub"
     },
     "half-adder": {
       "domain": "logic-gates",
-      "name": "Logic gates",
+      "name": "Half adder",
       "URI": "logic-circuit-domain/half-adder.sub"
     },
     "center-shrink-circle": {
@@ -649,6 +664,11 @@
       "domain": "mobius",
       "name": "Mobius transformation",
       "URI": "mobius/mobius.sub"
+    },
+    "caffeine": {
+      "domain": "structural-formula",
+      "name": "Caffeine molecule",
+      "URI": "structural-formula/molecules/caffeine.sub"
     }
   }
 }

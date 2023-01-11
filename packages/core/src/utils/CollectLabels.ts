@@ -6,20 +6,13 @@ import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
 import { InputMeta } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
-// @ts-expect-error missing types
-import svgflatten from "svg-flatten";
-import svgpath from "svgpath";
 import * as ad from "types/ad";
 import { PenroseError } from "types/errors";
 import { Properties, ShapeAD } from "types/shape";
 import { EquationData, LabelCache, State, TextData } from "types/state";
 import { FloatV } from "types/value";
 import { err, ok, Result } from "./Error";
-import {
-  getAdValueAsColor,
-  getAdValueAsNumber,
-  getAdValueAsString,
-} from "./Util";
+import { getAdValueAsString } from "./Util";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -46,7 +39,10 @@ const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 // to re-scale baseline
 const EX_CONSTANT = 10;
 
-const convert = (input: string): Result<HTMLElement, string> => {
+const convert = (
+  input: string,
+  fontSize: string
+): Result<HTMLElement, string> => {
   // HACK: workaround for newlines
   // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
   const newline_escaped = `\\displaylines{${input}}`;
@@ -54,6 +50,9 @@ const convert = (input: string): Result<HTMLElement, string> => {
   // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
   try {
     const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
+    // Not sure if this call does anything:
+    // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
+    adaptor.setStyle(node, "font-size", fontSize);
     return ok(node.firstChild);
   } catch (error: any) {
     return err(error.message);
@@ -68,23 +67,16 @@ type Output = {
 
 /**
  * Call MathJax to render __non-empty__ labels.
- * Re-scale the label so it is 1:1 with the canvas to accomodate
- * properties such as stroke
  */
 const tex2svg = async (
   properties: Properties<ad.Num>
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
-    const labelInput = getAdValueAsString(properties.string, "");
-    const fontSize = getAdValueAsNumber(properties.fontSize, 0);
-    const strokeColor = getAdValueAsColor(properties.strokeColor);
-    const strokeWidth =
-      strokeColor.tag === "NONE"
-        ? 0
-        : getAdValueAsNumber(properties.strokeWidth);
+    const contents = getAdValueAsString(properties.string, "");
+    const fontSize = getAdValueAsString(properties.fontSize, "");
 
     // Raise error if string or fontSize are empty or optimized
-    if (fontSize === 0 || labelInput === "") {
+    if (fontSize === "" || contents === "") {
       resolve(
         err(
           `Label 'string' and 'fontSize' must be non-empty and non-optimized for ${properties.name.contents}`
@@ -94,74 +86,30 @@ const tex2svg = async (
     }
 
     // Render the label
-    const output = convert(labelInput);
+    const output = convert(contents, fontSize);
     if (output.isErr()) {
-      resolve(err(`MathJax could not render $${labelInput}$: ${output.error}`));
+      resolve(err(`MathJax could not render $${contents}$: ${output.error}`));
       return;
     }
-    let labelSvg = output.value;
-    const labelSvgViewBox = labelSvg.getAttribute("viewBox");
-    if (labelSvgViewBox === null) {
-      resolve(err(`No ViewBox found for MathJax output $${labelInput}$`));
+    const body = output.value;
+    const viewBox = body.getAttribute("viewBox");
+    if (viewBox === null) {
+      resolve(err(`No ViewBox found for MathJax output $${contents}$`));
       return;
     }
 
     // Get the rendered viewBox dimensions
-    const labelSvgViewBoxArr = labelSvgViewBox.split(" ");
-    const origWidth = parseFloat(labelSvgViewBoxArr[2]);
-    const origHeight = parseFloat(labelSvgViewBoxArr[3]);
+    const viewBoxArr = viewBox.split(" ");
+    const width = parseFloat(viewBoxArr[2]);
+    const height = parseFloat(viewBoxArr[3]);
 
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-    const vAlignFloat = parseFloat(labelSvg.style.verticalAlign) * EX_CONSTANT;
-    const scaledHeight = fontSize - vAlignFloat;
-    const scaledRatio = scaledHeight / origHeight;
-    const scaledWidth = scaledRatio * origWidth;
+    const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
+    const constHeight = parseFloat(fontSize) - vAlignFloat;
+    const scaledWidth = (constHeight / height) * width;
 
-    // Flatten the label & merge paths into a single path
-    labelSvg = new DOMParser().parseFromString(
-      new svgflatten(labelSvg.outerHTML)
-        .pathify() // convert all gpis to paths
-        .transform() // push all transforms down to paths
-        .flatten() // merge all paths into a single path
-        .transform() // push all transforms down to paths (yes, again)
-        .value(), // get the string rep of the SVG
-      "image/svg+xml"
-    ).documentElement;
-
-    // Re-scale the label path, use absolute coords, convert arcs to bezier curves..
-    const paths = labelSvg.getElementsByTagName("path");
-    for (const path in paths) {
-      const thisPath = paths[path];
-      if (typeof thisPath === "object") {
-        const thisD = thisPath.getAttribute("d") || "";
-        thisPath.setAttribute(
-          "d",
-          svgpath(thisD)
-            .scale(scaledRatio) // re-scale the label
-            .abs() // use absolute coordinates (for BBox)
-            .unarc() // replace arcs with bezier curves (for BBox)
-            .toString() // get the string rep of the SVG
-        );
-      }
-    }
-
-    // Set the label's dimensions & accomodate stroke width
-    const finalWidth = scaledWidth + strokeWidth * 2;
-    const finalHeight = scaledHeight + strokeWidth * 2;
-    labelSvg.setAttribute("width", finalWidth.toString());
-    labelSvg.setAttribute("height", finalHeight.toString());
-
-    // Set the viewBox to the rescaled dimensions, including stroke width
-    const newViewBox = getPathBBox(labelSvg.getElementsByTagName("path")[0]);
-    labelSvg.setAttribute(
-      "viewBox",
-      `${newViewBox.x - strokeWidth} ${newViewBox.y - strokeWidth} ${
-        newViewBox.width + strokeWidth * 2
-      } ${newViewBox.height + strokeWidth * 2}`
-    );
-
-    resolve(ok({ body: labelSvg, width: finalWidth, height: finalHeight }));
+    resolve(ok({ body, width: scaledWidth, height: constHeight }));
   });
 
 const floatV = (contents: number): FloatV<number> => ({
@@ -357,145 +305,4 @@ export const insertPending = (state: State): State => {
     }
   }
   return { ...state, varyingValues };
-};
-
-/**
- * Provides a structure similar to SVGRect where x, y = canvas origin
- * and width, height = canvas size
- */
-type PseudoSVGRect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
-/**
- * Gets the approximate bounding box of an SVG path element.
- * We do this here as jsDOM lacks BBox support for SVG.  There is
- * significant opportunity to use more-precise methods, but browsers
- * approximate the bounding box of curves using the control points
- * rather than calculating based on the actual path.
- *
- * Note: This routine requires only absolute coordinate paths and
- *       requires arcs be converted to curves by a prior routine.
- *       Also, stroke-widths are not considered here.
- *
- * @param path The SVGPathElement to get the bounding box of
- * @returns The approximate bounding box of the path
- */
-const getPathBBox = (path: SVGPathElement): PseudoSVGRect => {
-  const moveX = (x: number) => {
-    xmax = Math.max(x, xmax);
-    xmin = Math.min(x, xmin);
-    cursor[0] = x;
-  };
-  const moveY = (y: number) => {
-    ymax = Math.max(y, ymax);
-    ymin = Math.min(y, ymin);
-    cursor[1] = y;
-  };
-
-  const paths = parsePath(path.getAttribute("d") || "");
-
-  let xmin = Infinity;
-  let xmax = -Infinity;
-  let ymin = Infinity;
-  let ymax = -Infinity;
-
-  let cursor = [xmin, ymin];
-  let start = [xmin, ymin];
-  let isX = true;
-
-  for (const i in paths) {
-    const thisPath = paths[i];
-    switch (thisPath.type) {
-      case "H": // Horizontal line
-        thisPath.args.forEach((e) => {
-          moveX(e);
-        });
-        break;
-      case "V": // Vertical line
-        thisPath.args.forEach((e) => {
-          moveY(e);
-        });
-        break;
-      case "Z": // Close path (return to beginning)
-        cursor = start;
-        start = [xmin, ymin];
-        break;
-      case "M": // Move
-      case "L": // Line
-      case "C": // Cubic Bezier curve (cointrol point approximation!)
-      case "S": // Strung-together cubic Bezier curve (cointrol point approximation!)
-      case "Q": // Quadratic Bezier curve (cointrol point approximation!)
-      case "T": // Strung-together quadratic Bezier curve (cointrol point approximation!)
-        isX = true;
-        thisPath.args.forEach((e) => {
-          if (isX) moveX(e);
-          else moveY(e);
-          isX = !isX;
-        });
-        break;
-      default:
-        // Unsupported path type (might be an arc or a relative path)
-        throw new Error(`Unsupported path type: ${thisPath.type}`);
-    }
-
-    // If we lack a path starting point and did not just process a Z path
-    // close, then set the path start to the current cursor position.
-    if (start[0] === -Infinity && thisPath.type !== "Z") start = cursor;
-  }
-
-  return {
-    x: xmin,
-    y: ymin,
-    width: Math.abs(xmax - xmin),
-    height: Math.abs(ymax - ymin),
-  };
-};
-
-/**
- * A single command in a Path statement.  E.g., "M 100 100", "Z", etc.
- * where type is the command type and args is the array of arguments.
- */
-type PathCommand = {
-  type: string;
-  args: number[];
-};
-
-/**
- * Parses a path string into an array of path commands.
- *
- * @param pathStr The path string to parse
- * @returns Array of PathCommands
- */
-const parsePath = (pathStr: string): PathCommand[] => {
-  const outStmts: PathCommand[] = [];
-  const pathStmts: string[] = pathStr
-    .replace(/[MmLlHhVvZzCcSsQqTtAa]/g, "@$&") // find all path commands
-    .split("@") // split path commands into array
-    .map(
-      (e) =>
-        e
-          .replaceAll("-", "@-") // split at negative numbers
-          .replaceAll("  ", " ") // normalize spaces
-          .trim() // normalize spaces
-          .replaceAll(" ", "@") // split at non-negative numbers
-    )
-    .filter((e) => e.length > 0);
-
-  for (const pathStmt in pathStmts) {
-    const thisStmt = pathStmts[pathStmt];
-    outStmts.push({
-      type: thisStmt[0],
-      args: thisStmt
-        .slice(1) // remove command type
-        .split("@") // split arguments
-        .filter((e) => e) // exclude null arguments)
-        .map((e) => parseFloat(e)), // convert to number
-    });
-  }
-
-  return outStmts;
 };
