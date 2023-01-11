@@ -451,7 +451,7 @@
     "distinctive-shape": {
       "domain": "logic-gates",
       "name": "Logic gates",
-      "URI": "logic-circuit-domain/logic-gates.dsl"
+      "URI": "logic-circuit-domain/distinctive-shape.sty"
     },
     "animation": {
       "domain": "animation",
