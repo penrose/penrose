@@ -9,6 +9,7 @@
     "watch": "vite build --watch",
     "build": "tsc",
     "start": "tsc -w",
+    "build-decls": "tsc --noEmit",
     "typecheck": ":",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -18,6 +19,11 @@
       "build": {
         "dependsOn": [
           "^build"
+        ]
+      },
+      "build-decls": {
+        "dependsOn": [
+          "^build-decls"
         ]
       },
       "build-storybook": {
