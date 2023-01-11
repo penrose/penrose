@@ -144,9 +144,9 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   };
 
   componentWillUnmount = () => {
-    // if (this.optimizer) {
-    //   this.optimizer.terminate();
-    // }
+    if (this.optimizer) {
+      this.optimizer.terminate();
+    }
     clearInterval(this.timerID);
   };
 

@@ -14,7 +14,6 @@ export const dragUpdate = (
 ): State => {
   const xs = [...state.varyingValues];
   const { constraintSets, optStages } = state;
-  console.log(optStages, constraintSets);
   const constraintSet = constraintSets.get(optStages[0]);
   if (constraintSet) {
     const { inputMask, objMask, constrMask } = constraintSet;
