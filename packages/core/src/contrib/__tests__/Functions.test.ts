@@ -39,9 +39,9 @@ describe("curvature", () => {
   it.each([
     [[1, 0], [0, 0], [0, 1], -Math.PI / 2],
     [[0, 1], [0, 0], [1, 0], Math.PI / 2],
-    [[2, 1], [0, 0], [-2, 1], -Math.PI / 2],
+    [[2, 1], [0, 0], [-1, 2], -Math.PI / 2],
     [[3, 4], [3, 3], [4, 3], Math.PI / 2],
-    [[7, 0], [0, 0], [-2, 1], Math.PI / 6],
+    [[7, 0], [0, 0], [-2, 2], -Math.PI / 4],
   ])(
     "curved segment",
     (p1: number[], p2: number[], p3: number[], expected: number) => {
