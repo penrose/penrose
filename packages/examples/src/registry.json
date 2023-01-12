@@ -246,6 +246,12 @@
       "style": "distinctive-shape",
       "domain": "logic-gates",
       "variation": "CauliflowerDeer97138"
+    },
+    {
+      "substance": "cubic-bezier",
+      "style": "cubic-bezier",
+      "domain": "cubic-bezier",
+      "variation": "CauliflowerDeer97138"
     }
   ],
   "domains": {
@@ -336,6 +342,10 @@
     "logic-gates": {
       "name": "Logic gates",
       "URI": "logic-circuit-domain/logic-gates.dsl"
+    },
+    "cubic-bezier": {
+      "name": "Cubic Bezier construction",
+      "URI": "curve-examples/cubic-bezier/cubic-bezier.dsl"
     }
   },
   "styles": {
@@ -487,6 +497,11 @@
       "domain": "logic-gates",
       "name": "Logic gates",
       "URI": "logic-circuit-domain/distinctive-shape.sty"
+    },
+    "cubic-bezier": {
+      "domain": "cubic-bezier",
+      "name": "Cubic Bezier construction",
+      "URI": "curve-examples/cubic-bezier/cubic-bezier.sty"
     }
   },
   "substances": {
@@ -669,6 +684,11 @@
       "domain": "logic-gates",
       "name": "Half adder",
       "URI": "logic-circuit-domain/half-adder.sub"
+    },
+    "cubic-bezier": {
+      "domain": "cubic-bezier",
+      "name": "Cubic Bezier construction",
+      "URI": "curve-examples/cubic-bezier/cubic-bezier.sub"
     }
   }
 }
