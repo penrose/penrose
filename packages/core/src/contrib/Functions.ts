@@ -1861,7 +1861,10 @@ export const elasticEnergy = (
   const triples = consecutiveTriples(points, closed);
   return addN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
-      squared(curvature(p1, p2, p3))
+      mul(
+        squared(curvature(p1, p2, p3)),
+        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
+      )
     )
   );
 };
