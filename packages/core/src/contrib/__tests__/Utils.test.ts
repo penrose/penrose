@@ -135,9 +135,9 @@ describe("extractPoints", () => {
   it.each([
     ["Polyline", _polylines[5]],
     ["Polygon", _polygons[6]],
-  ])("equidistant %p", (shapeType: string, shapeData: any) => {
+  ])("%p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = extractPoints(shape);
-    expect(result).toStrictEqual(shapeData);
+    expect(result).toStrictEqual(shapeData.points.contents);
   });
 });

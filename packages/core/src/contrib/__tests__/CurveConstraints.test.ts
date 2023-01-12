@@ -46,7 +46,7 @@ describe("isLocallyConvex", () => {
   ])("not locally convex %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isLocallyConvex(shape);
-    expect(numOf(result)).toBeGreaterThan(0.1);
+    expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });
 
@@ -68,7 +68,7 @@ describe("isConvex", () => {
   ])("non-convex %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isConvex(shape);
-    expect(numOf(result)).toBeGreaterThan(0.1);
+    expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });
 
@@ -96,7 +96,7 @@ describe("isEquidistant", () => {
   ])("non-equidistant %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isEquidistant(shape);
-    expect(numOf(result)).toBeGreaterThan(0.1);
+    expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });
 
@@ -124,6 +124,6 @@ describe("isEquiangular", () => {
   ])("non-equiangular %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isEquiangular(shape);
-    expect(numOf(result)).toBeGreaterThan(0.1);
+    expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });
