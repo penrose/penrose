@@ -146,7 +146,10 @@ export type ResolvedPath<T> = T &
 
 //#region second Style compiler pass: dependency graph
 
-export type DepGraph = Graph<string, ShapeType | WithContext<NotShape>>;
+export type DepGraph = Graph<
+  string,
+  ShapeType | WithContext<NotShape> | undefined
+>;
 
 //#endregion
 

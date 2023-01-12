@@ -388,7 +388,16 @@ export const isDeclaredSubtype = (
 export const superTypesOf = (
   subType: TypeConstructor<A>,
   env: Env
-): Set<string> => env.typeGraph.descendants(subType.name.value);
+): Set<string> => {
+  const g = env.typeGraph;
+  const i = subType.name.value;
+  if (g.hasNode(i)) {
+    return g.descendants(i);
+  } else {
+    console.error(`${i} not found in the subtype graph.`);
+    return new Set();
+  }
+};
 
 // TODO: add in top and bottom in the type graph and simplify `subTypesOf` using `inEdges(t, bot)`
 export const subTypesOf = (

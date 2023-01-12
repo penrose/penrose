@@ -2162,11 +2162,14 @@ const gatherExpr = (
 ): void => {
   graph.setNode(w, expr);
   for (const p of findPathsWithContext(expr)) {
-    graph.setEdge({
-      i: prettyPrintResolvedPath(resolveRhsPath(p)),
-      j: w,
-      e: undefined,
-    });
+    graph.setEdge(
+      {
+        i: prettyPrintResolvedPath(resolveRhsPath(p)),
+        j: w,
+        e: undefined,
+      },
+      () => undefined
+    );
   }
 };
 
@@ -2176,7 +2179,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
       graph.setNode(lhs, rhs.shapeType);
       for (const [k, expr] of rhs.props) {
         const p = `${lhs}.${k}`;
-        graph.setEdge({ i: p, j: lhs, e: undefined });
+        graph.setEdge({ i: p, j: lhs, e: undefined }, () => undefined);
         gatherExpr(graph, p, expr);
       }
       return;
@@ -2189,7 +2192,10 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
 };
 
 export const gatherDependencies = (assignment: Assignment): DepGraph => {
-  const graph = new Graph<string, WithContext<NotShape>>();
+  const graph = new Graph<
+    string,
+    ShapeType | WithContext<NotShape> | undefined
+  >();
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
@@ -3127,14 +3133,16 @@ const getShapes = (
   for (const [path, argVal] of symbols) {
     const i = path.lastIndexOf(".");
     const start = path.slice(0, i);
-    const shapeType = graph.node(start);
-    if (typeof shapeType === "string") {
-      if (argVal.tag !== "Val") {
-        throw internalMissingPathError(path);
+    if (graph.hasNode(start)) {
+      const shapeType = graph.node(start);
+      if (typeof shapeType === "string") {
+        if (argVal.tag !== "Val") {
+          throw internalMissingPathError(path);
+        }
+        const shape = props.get(start) ?? { shapeType, properties: {} };
+        shape.properties[path.slice(i + 1)] = argVal.contents;
+        props.set(start, shape);
       }
-      const shape = props.get(start) ?? { shapeType, properties: {} };
-      shape.properties[path.slice(i + 1)] = argVal.contents;
-      props.set(start, shape);
     }
   }
   return shapeOrdering.map((path) => {

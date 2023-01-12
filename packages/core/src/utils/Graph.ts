@@ -30,8 +30,14 @@ export default class Graph<I, L = undefined, E = undefined> {
   }
 
   setNode(i: I, l: L): void {
-    if (this.g.has(i)) throw Error(`node with ID already exists: ${i}`);
-    this.g.set(i, { l, p: [], s: [] });
+    let v = this.g.get(i);
+    if (v === undefined) v = { l, p: [], s: [] };
+    else v.l = l;
+    this.g.set(i, v);
+  }
+
+  hasNode(i: I): boolean {
+    return this.g.has(i);
   }
 
   nodes(): I[] {
@@ -42,9 +48,27 @@ export default class Graph<I, L = undefined, E = undefined> {
     return this.get(i).l;
   }
 
-  setEdge({ i, j, e }: Edge<I, E>): void {
-    this.get(i).s.push({ i: j, e });
-    this.get(j).p.push({ i: i, e });
+  setEdge({ i, j, e }: Edge<I, E>, labelMissing?: () => L): void {
+    if (labelMissing === undefined) {
+      labelMissing = () => {
+        throw Error(`node ID not found: ${i}`);
+      };
+    }
+
+    let v = this.g.get(i);
+    if (v === undefined) {
+      v = { l: labelMissing(), p: [], s: [] };
+      this.g.set(i, v);
+    }
+
+    let w = this.g.get(j);
+    if (w === undefined) {
+      w = { l: labelMissing(), p: [], s: [] };
+      this.g.set(j, w);
+    }
+
+    v.s.push({ i: j, e });
+    w.p.push({ i: i, e });
   }
 
   inEdges(i: I): Edge<I, E>[] {
