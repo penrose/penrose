@@ -1,7 +1,7 @@
 import { consecutiveTriples, consecutiveTuples } from "contrib/Utils";
 import * as ad from "types/ad";
 
-describe("consecutiveNTuples", () => {
+describe("consecutiveTuples", () => {
   const a: [ad.Num, ad.Num] = [1, 2];
   const b: [ad.Num, ad.Num] = [3, 4];
   const c: [ad.Num, ad.Num] = [5, 6];

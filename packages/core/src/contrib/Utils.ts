@@ -16,9 +16,6 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import _ from "lodash";
-import { Path } from "shapes/Path";
-import { Polygon } from "shapes/Polygon";
-import { Polyline } from "shapes/Polyline";
 import * as ad from "types/ad";
 
 /**
@@ -223,11 +220,11 @@ export const consecutiveTriples = (
 /**
  * Return indicator of closed Polyline, Polygon or Path shape
  */
-export const isClosed = ([t, s]: [
-  string,
-  Polyline | Polygon | Path
-]): boolean => {
-  throw new Error("Function not implemented."); // TODO
+export const isClosed = ([t, s]: [string, any]): boolean => {
+  if (t === "Polyline") return false;
+  else if (t === "Polygon") return true;
+  else if (t === "Path") return s.shapeType === "closed";
+  else throw new Error(`Function isClosed not defined for shape ${t}.`);
 };
 
 /**
