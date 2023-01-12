@@ -71,6 +71,14 @@ Here are some WSL-specific guides:
 - [Guide for installing nvm and Node.js][]
 - [Guide for installing Yarn][]
 
+### Linux
+
+For `wasm-bindgen`, install an OpenSSL development package:
+
+```sh
+apt-get install libssl-dev
+```
+
 ## Setup
 
 Once you've installed all prerequisites, [clone][] [this repo][]. Then open a
