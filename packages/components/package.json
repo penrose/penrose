@@ -18,6 +18,7 @@
     "targets": {
       "build": {
         "dependsOn": [
+          "^build-decls",
           "^build"
         ]
       },
