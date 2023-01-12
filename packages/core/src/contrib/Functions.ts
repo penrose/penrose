@@ -1791,7 +1791,7 @@ const tickPlacement = (
 /**
  * Returns the algebraic area enclosed by a polygonal chain given its nodes
  */
-const algebraicArea = (points: [ad.Num, ad.Num][], closed: boolean) => {
+export const algebraicArea = (points: [ad.Num, ad.Num][], closed: boolean) => {
   const sides = consecutiveTuples(points, closed);
   return mul(
     0.5,
