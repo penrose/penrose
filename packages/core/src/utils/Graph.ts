@@ -126,6 +126,33 @@ export default class Graph<I, L = undefined, E = undefined> {
   }
 
   findCycles(): I[][] {
-    return []; // TODO
+    const cycles: I[][] = [];
+    const unvisited = new Set(this.g.keys());
+    while (unvisited.size > 0) {
+      let i: I = unvisited.values().next().value;
+      const stack = [i];
+      const succs = new Map<I, I[]>();
+      while (stack.length > 0) {
+        i = stack[stack.length - 1];
+        unvisited.delete(i);
+        let s = succs.get(i);
+        if (s === undefined) {
+          s = this.get(i).s.map(({ i: j }) => j);
+          succs.set(i, s);
+        }
+        if (s.length > 0) {
+          const j = s.pop()!;
+          if (succs.has(j)) {
+            cycles.push([...stack.slice(stack.indexOf(j)), j]);
+            break;
+          }
+          if (unvisited.has(j)) stack.push(j);
+        } else {
+          stack.pop();
+          succs.delete(i);
+        }
+      }
+    }
+    return cycles;
   }
 }
