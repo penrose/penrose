@@ -1,4 +1,3 @@
-import { ready } from "@penrose/optimizer";
 import {
   convexPartitions,
   halfPlaneSDF,
@@ -7,8 +6,6 @@ import {
 import { numsOf } from "contrib/Utils";
 import * as BBox from "engine/BBox";
 import * as ad from "types/ad";
-
-await ready;
 
 describe("rectangleDifference", () => {
   const expectRectDiff = (

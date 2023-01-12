@@ -1,11 +1,23 @@
 import { ASTNode, Identifier, StringLit } from "./ast";
 import { LabelType } from "./substance";
 
+export type Staged<T> = {
+  stages: Identifier<T>[];
+  exclude: boolean; // if true, exclude the tagged expression in `stages`. Otherwise, include it from `stages`.
+};
+
 /** Top level type for Style AST */
 export type StyProg<T> = ASTNode<T> & {
   tag: "StyProg";
-  blocks: HeaderBlock<T>[];
+  items: StyItem<T>[];
 };
+
+export type LayoutStages<T> = ASTNode<T> & {
+  tag: "LayoutStages";
+  contents: Identifier<T>[];
+};
+
+export type StyItem<T> = HeaderBlock<T> | LayoutStages<T>;
 
 export type HeaderBlock<T> = ASTNode<T> & {
   tag: "HeaderBlock";
@@ -225,17 +237,19 @@ export type CompApp<T> = ASTNode<T> & {
   args: Expr<T>[];
 };
 
-export type ObjFn<T> = ASTNode<T> & {
-  tag: "ObjFn";
-  name: Identifier<T>;
-  args: Expr<T>[];
-};
+export type ObjFn<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "ObjFn";
+    name: Identifier<T>;
+    args: Expr<T>[];
+  };
 
-export type ConstrFn<T> = ASTNode<T> & {
-  tag: "ConstrFn";
-  name: Identifier<T>;
-  args: Expr<T>[];
-};
+export type ConstrFn<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "ConstrFn";
+    name: Identifier<T>;
+    args: Expr<T>[];
+  };
 
 export type AvoidFn<T> = ASTNode<T> & {
   tag: "AvoidFn";
@@ -300,9 +314,10 @@ export type Fix<T> = ASTNode<T> & {
   contents: number;
 };
 
-export type Vary<T> = ASTNode<T> & {
-  tag: "Vary";
-};
+export type Vary<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "Vary";
+  };
 
 export type PropertyDecl<T> = ASTNode<T> & {
   tag: "PropertyDecl";

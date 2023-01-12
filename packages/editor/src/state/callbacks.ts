@@ -3,6 +3,7 @@ import {
   compileTrio,
   prepareState,
   resample,
+  stepNextStage,
   stepState,
   Trio,
 } from "@penrose/core";
@@ -78,6 +79,20 @@ export const useStepDiagram = () =>
       return {
         ...diagram,
         state: stepState(diagram.state, diagram.metadata.stepSize),
+      };
+    })
+  );
+
+export const useStepStage = () =>
+  useRecoilCallback(({ set }) => () =>
+    set(diagramState, (diagram: Diagram) => {
+      if (diagram.state === null) {
+        toast.error(`No diagram`);
+        return diagram;
+      }
+      return {
+        ...diagram,
+        state: stepNextStage(diagram.state, diagram.metadata.stepSize),
       };
     })
   );

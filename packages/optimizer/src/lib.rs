@@ -934,12 +934,6 @@ pub fn penrose_call(
     )
 }
 
-// `wasm-bindgen` doesn't let us export constants
-#[wasm_bindgen]
-pub fn penrose_get_init_constraint_weight() -> f64 {
-    INIT_CONSTRAINT_WEIGHT
-}
-
 #[wasm_bindgen]
 pub fn penrose_gen_opt_problem(
     grad_mask: Vec<Bool>,

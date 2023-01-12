@@ -10,12 +10,24 @@ import { FloatV } from "./value";
 
 export type ShapeFn = (xs: number[]) => Shape[];
 
+export type OptPipeline = string[];
+
+export type StagedConstraints = Map<
+  string,
+  {
+    inputMask: boolean[];
+    objMask: boolean[];
+    constrMask: boolean[];
+  }
+>;
+
 /**
  * The diagram state
  */
 export interface State extends OptState {
   warnings: StyleWarning[];
   variation: string;
+  constraintSets: StagedConstraints;
   objFns: Fn[];
   constrFns: Fn[];
   inputs: InputMeta[]; // same length as `varyingValues`
@@ -23,6 +35,8 @@ export interface State extends OptState {
   shapes: ShapeAD[];
   canvas: Canvas;
   gradient: Gradient;
+  currentStageIndex: number;
+  optStages: string[];
   computeShapes: ShapeFn;
 }
 
@@ -48,10 +62,13 @@ export interface TextData {
 
 export type LabelCache = Map<string, LabelData>;
 
+export type OptStages = "All" | Set<string>;
+
 /**
  * Generic export interface for constraint or objective functions
  */
 export interface Fn {
   ast: WithContext<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
+  optStages: OptStages;
 }

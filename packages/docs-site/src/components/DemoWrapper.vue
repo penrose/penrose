@@ -33,7 +33,6 @@ const demo = [
 
 const Demo = defineAsyncComponent(async () => {
   const { applyPureReactInVue } = await import("veaury");
-  window.global = window; // shim global for svg-flatten
   const { Demo } = await import("@penrose/components");
   return applyPureReactInVue(Demo);
 });

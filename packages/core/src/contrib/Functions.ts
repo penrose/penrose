@@ -1077,7 +1077,10 @@ export const compDict = {
   ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
       const rgb = _.range(3).map(() =>
-        makeInput({ tag: "Optimized", sampler: uniform(0.1, 0.9) })
+        makeInput({
+          init: { tag: "Sampled", sampler: uniform(0.1, 0.9) },
+          stages: new Set(),
+        })
       );
 
       return {
@@ -1088,7 +1091,10 @@ export const compDict = {
         },
       };
     } else if (colorType === "hsv") {
-      const h = makeInput({ tag: "Optimized", sampler: uniform(0, 360) });
+      const h = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 360) },
+        stages: new Set(),
+      });
       return {
         tag: "ColorV",
         contents: {
