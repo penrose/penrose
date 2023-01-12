@@ -51,7 +51,7 @@ export const constrDictCurves = {
     const meanSign = sign(addN(angles));
     return addN(
       angles.map((angle: ad.Num) =>
-        ifCond(lte(mul(meanSign, angle), 0), 0, angle)
+        ifCond(lte(mul(meanSign, angle), 0), squared(angle), 0)
       )
     );
   },
