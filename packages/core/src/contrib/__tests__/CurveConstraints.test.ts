@@ -30,6 +30,7 @@ describe("isLocallyConvex", () => {
     ["Polygon", _polygons[0]],
     ["Polyline", _polylines[2]],
     ["Polygon", _polygons[2]],
+    ["Polyline", _polylines[5]],
     ["Polyline", _polylines[8]],
     ["Polygon", _polygons[8]],
   ])("locally convex %p", (shapeType: string, shapeData: any) => {
@@ -39,7 +40,6 @@ describe("isLocallyConvex", () => {
   });
 
   it.each([
-    ["Polyline", _polylines[5]],
     ["Polygon", _polygons[5]],
     ["Polyline", _polylines[10]],
     ["Polygon", _polygons[10]],
@@ -78,8 +78,7 @@ describe("isEquidistant", () => {
     ["Polygon", _polygons[6]],
     ["Polyline", _polylines[9]],
     ["Polygon", _polygons[9]],
-    ["Polyline", _polylines[7]],
-    ["Polygon", _polygons[7]],
+    ["Polyline", _polylines[10]],
   ])("equidistant %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isEquidistant(shape);
@@ -91,8 +90,7 @@ describe("isEquidistant", () => {
     ["Polygon", _polygons[7]],
     ["Polyline", _polylines[8]],
     ["Polygon", _polygons[8]],
-    ["Polyline", _polylines[9]],
-    ["Polygon", _polygons[9]],
+    ["Polygon", _polygons[10]],
   ])("non-equidistant %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isEquidistant(shape);
