@@ -14,28 +14,6 @@ import { FloatV } from "types/value";
 import { err, ok, Result } from "./Error";
 import { getAdValueAsString } from "./Util";
 
-// https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-// const adaptor = chooseAdaptor();
-const adaptor = browserAdaptor();
-RegisterHTMLHandler(adaptor);
-const tex = new TeX({
-  packages: AllPackages,
-  macros: {
-    textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
-  },
-  inlineMath: [
-    ["$", "$"],
-    ["\\(", "\\)"],
-  ],
-  processEscapes: true,
-  // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
-  formatError: (jax: unknown, err: Error) => {
-    throw Error(err.message);
-  },
-});
-const svg = new SVG({ fontCache: "none" });
-const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
-
 // to re-scale baseline
 const EX_CONSTANT = 10;
 
@@ -43,6 +21,27 @@ const convert = (
   input: string,
   fontSize: string
 ): Result<HTMLElement, string> => {
+  // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
+  // const adaptor = chooseAdaptor();
+  const adaptor = browserAdaptor();
+  RegisterHTMLHandler(adaptor);
+  const tex = new TeX({
+    packages: AllPackages,
+    macros: {
+      textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
+    },
+    inlineMath: [
+      ["$", "$"],
+      ["\\(", "\\)"],
+    ],
+    processEscapes: true,
+    // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
+    formatError: (jax: unknown, err: Error) => {
+      throw Error(err.message);
+    },
+  });
+  const svg = new SVG({ fontCache: "none" });
+  const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
   // HACK: workaround for newlines
   // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
   const newline_escaped = `\\displaylines{${input}}`;
@@ -236,9 +235,6 @@ export type TextMeasurement = {
   actualAscent: number;
 };
 
-const measureTextElement = document.createElement("canvas");
-const measureTextContext = measureTextElement.getContext("2d")!;
-
 /**
  *
  * @param text the content of the text
@@ -248,6 +244,8 @@ const measureTextContext = measureTextElement.getContext("2d")!;
  * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
  */
 export function measureText(text: string, font: string): TextMeasurement {
+  const measureTextElement = document.createElement("canvas");
+  const measureTextContext = measureTextElement.getContext("2d")!;
   measureTextContext.textBaseline = "alphabetic";
   measureTextContext.font = font;
   const measurements = measureTextContext.measureText(text);

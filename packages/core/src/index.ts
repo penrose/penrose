@@ -94,7 +94,11 @@ export const nextStage = (state: StagedState): StagedState => {
   }
 };
 
-export const stepNextStage = (state: State, numSteps = 10000): State => {
+export const stepNextStageGrad = (
+  grad: Gradient,
+  state: StagedState,
+  numSteps = 10000
+): StagedState => {
   let currentState = state;
   while (
     !(currentState.params.optStatus === "Error") &&
@@ -102,7 +106,7 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
   ) {
     currentState = {
       ...currentState,
-      ...currentState.gradient.step(currentState, numSteps),
+      ...grad.step(currentState, numSteps),
     };
   }
   return {
@@ -110,6 +114,11 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
     ...nextStage(currentState),
   };
 };
+
+export const stepNextStage = (state: State, numSteps = 10000): State => ({
+  ...state,
+  ...stepNextStageGrad(state.gradient, state, numSteps),
+});
 
 /**
  * Take n steps in the optimizer given the current state.
@@ -431,3 +440,4 @@ export type { Registry, Trio };
 export type { Env };
 export type { SubProg };
 export type { Canvas };
+export type { StagedState };
