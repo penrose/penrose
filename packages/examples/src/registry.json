@@ -222,6 +222,12 @@
       "style": "structural-formula",
       "domain": "structural-formula",
       "variation": ""
+    },
+    {
+      "substance": "mobius",
+      "style": "mobius",
+      "domain": "mobius",
+      "variation": "RodeoBoar3795"
     }
   ],
   "domains": {
@@ -296,6 +302,10 @@
     "structural-formula": {
       "name": "Structural Formula",
       "URI": "structural-formula/structural-formula.dsl"
+    },
+    "mobius": {
+      "name": "Mobius transform",
+      "URI": "mobius/mobius.dsl"
     }
   },
   "styles": {
@@ -427,6 +437,11 @@
       "domain": "structural-formula",
       "name": "Structural Formula",
       "URI": "structural-formula/structural-formula.sty"
+    },
+    "mobius": {
+      "domain": "mobius",
+      "name": "Mobius transform",
+      "URI": "mobius/mobius.sty"
     }
   },
   "substances": {
@@ -589,6 +604,11 @@
       "domain": "structural-formula",
       "name": "Caffeine molecule",
       "URI": "structural-formula/molecules/caffeine.sub"
+    },
+    "mobius": {
+      "domain": "mobius",
+      "name": "Touching circles",
+      "URI": "mobius/mobius.sub"
     }
   }
 }
