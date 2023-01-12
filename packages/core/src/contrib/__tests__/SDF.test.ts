@@ -14,7 +14,9 @@ import { compDict, sdEllipse } from "../Functions";
 
 const canvas = makeCanvas(800, 700);
 
-const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
+export const makeContext = (
+  pt: number[]
+): { context: Context; p: ad.Input[] } => {
   const rng = seedrandom("sdf");
   const inputs: ad.Input[] = [];
   const makeInput: InputFactory = (meta) => {

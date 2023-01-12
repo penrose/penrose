@@ -1,18 +1,11 @@
-import {
-  algebraicArea,
-  curvature,
-  elasticEnergy,
-  isoperimetricRatio,
-  perimeter,
-  totalCurvature,
-  turningNumber,
-} from "contrib/Functions";
+import { compDict, curvature } from "contrib/Functions";
 import { extractPoints, isClosed, numOf } from "contrib/Utils";
 import {
   _polygons,
   _polylines,
 } from "contrib/__testfixtures__/TestShapes.input";
 import * as ad from "types/ad";
+import { makeContext } from "./SDF.test";
 
 describe("curvature", () => {
   it.each([
@@ -62,7 +55,8 @@ describe("totalCurvature", () => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = totalCurvature(points, closed);
+    const context = makeContext([]).context;
+    const result = compDict.totalCurvature(context, points, closed).contents;
     expect(numOf(result)).toBeCloseTo(expected, 4);
   });
 });
@@ -77,7 +71,8 @@ describe("elasticEnergy", () => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = elasticEnergy(points, closed);
+    const context = makeContext([]).context;
+    const result = compDict.elasticEnergy(context, points, closed).contents;
     expect(numOf(result)).toBeCloseTo(expected, 0);
   });
 });
@@ -91,7 +86,9 @@ describe("isoperimetricRatio", () => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = isoperimetricRatio(points, closed);
+    const context = makeContext([]).context;
+    const result = compDict.isoperimetricRatio(context, points, closed)
+      .contents;
     expect(numOf(result)).toBeCloseTo(expected, 4);
   });
 });
@@ -106,7 +103,8 @@ describe("perimeter", () => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = perimeter(points, closed);
+    const context = makeContext([]).context;
+    const result = compDict.perimeter(context, points, closed).contents;
     expect(numOf(result)).toBeCloseTo(expected, 4);
   });
 });
@@ -120,7 +118,8 @@ describe("turningNumber", () => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = turningNumber(points, closed);
+    const context = makeContext([]).context;
+    const result = compDict.turningNumber(context, points, closed).contents;
     expect(numOf(result)).toBeCloseTo(expected, 4);
   });
 });
@@ -134,7 +133,8 @@ describe("algebraicArea", () => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = algebraicArea(points, closed);
+    const context = makeContext([]).context;
+    const result = compDict.algebraicArea(context, points, closed).contents;
     expect(numOf(result)).toBeCloseTo(expected, 4);
   });
 });

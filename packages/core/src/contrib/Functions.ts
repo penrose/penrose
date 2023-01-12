@@ -1581,6 +1581,108 @@ export const compDict = {
   unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
   },
+
+  /**
+   * Returns the algebraic area enclosed by a polygonal chain given its nodes
+   */
+  algebraicArea: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    const sides = consecutiveTuples(points, closed);
+    const result = mul(
+      0.5,
+      addN(
+        sides.map(([p1, p2]: [ad.Num, ad.Num][]) =>
+          sub(mul(p1[0], p2[1]), mul(p1[1], p2[0]))
+        )
+      )
+    );
+    return { tag: "FloatV", contents: result };
+  },
+
+  /**
+   * Returns the turning number of polygonal chain given its nodes
+   */
+  turningNumber: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return {
+      tag: "FloatV",
+      contents: div(
+        compDict.totalCurvature(_context, points, closed).contents,
+        2 * Math.PI
+      ),
+    };
+  },
+
+  /**
+   * Returns the total length of polygonal chain given its nodes
+   */
+  perimeter: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    const sides = consecutiveTuples(points, closed);
+    const result = addN(
+      sides.map(([p1, p2]: [ad.Num, ad.Num][]) => ops.vdist(p1, p2))
+    );
+    return { tag: "FloatV", contents: result };
+  },
+
+  /**
+   * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
+   */
+  isoperimetricRatio: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    const result = div(
+      squared(compDict.perimeter(_context, points, closed).contents),
+      compDict.algebraicArea(_context, points, closed).contents
+    );
+    return { tag: "FloatV", contents: result };
+  },
+
+  /**
+   * Returns integral of curvature squared along the curve
+   */
+  elasticEnergy: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    const triples = consecutiveTriples(points, closed);
+    const result = addN(
+      triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+        mul(
+          squared(curvature(p1, p2, p3)),
+          mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
+        )
+      )
+    );
+    return { tag: "FloatV", contents: result };
+  },
+
+  /**
+   * Returns integral of curvature along the curve
+   */
+  totalCurvature: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    const triples = consecutiveTriples(points, closed);
+    const result = addN(
+      triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+    );
+    return { tag: "FloatV", contents: result };
+  },
 };
 
 /*
@@ -1789,52 +1891,6 @@ const tickPlacement = (
 };
 
 /**
- * Returns the algebraic area enclosed by a polygonal chain given its nodes
- */
-export const algebraicArea = (points: [ad.Num, ad.Num][], closed: boolean) => {
-  const sides = consecutiveTuples(points, closed);
-  return mul(
-    0.5,
-    addN(
-      sides.map(([p1, p2]: [ad.Num, ad.Num][]) =>
-        sub(mul(p1[0], p2[1]), mul(p1[1], p2[0]))
-      )
-    )
-  );
-};
-
-/**
- * Returns the turning number of polygonal chain given its nodes
- */
-export const turningNumber = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
-  return div(totalCurvature(points, closed), 2 * Math.PI);
-};
-
-/**
- * Returns the total length of polygonal chain given its nodes
- */
-export const perimeter = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
-  const sides = consecutiveTuples(points, closed);
-  return addN(sides.map(([p1, p2]: [ad.Num, ad.Num][]) => ops.vdist(p1, p2)));
-};
-
-/**
- * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
- */
-export const isoperimetricRatio = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
-  return div(squared(perimeter(points, closed)), algebraicArea(points, closed));
-};
-
-/**
  * Returns discrete curvature approximation given three consecutive points
  */
 export const curvature = (
@@ -1849,35 +1905,4 @@ export const curvature = (
   // Alternative discrete curvature definition
   // return mul(2, sin(div(angle, 2)));
   // return mul(2, tan(div(angle, 2)));
-};
-
-/**
- * Returns integral of curvature squared along the curve
- */
-export const elasticEnergy = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
-  const triples = consecutiveTriples(points, closed);
-  return addN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
-      mul(
-        squared(curvature(p1, p2, p3)),
-        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
-      )
-    )
-  );
-};
-
-/**
- * Returns integral of curvature along the curve
- */
-export const totalCurvature = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
-  const triples = consecutiveTriples(points, closed);
-  return addN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
-  );
 };
