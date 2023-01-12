@@ -21,7 +21,7 @@ export interface Edge<I, E> {
 }
 
 export default class Graph<I, L = undefined, E = undefined> {
-  private g: Map<I, Vert<I, L, E>> = new Map();
+  private g = new Map<I, Vert<I, L, E>>();
 
   private get(i: I): Vert<I, L, E> {
     const v = this.g.get(i);
