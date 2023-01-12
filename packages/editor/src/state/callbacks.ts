@@ -1,10 +1,11 @@
+import { Resp } from "@penrose/components/dist/worker/message";
 import {
   compileDomain,
   compileTrio,
+  PenroseState,
   prepareState,
   resample,
   showError,
-  stepNextStage,
   Trio,
 } from "@penrose/core";
 import consola from "consola";
@@ -84,6 +85,21 @@ const _compileDiagram = async (
   );
 };
 
+const toState = (resp: Resp, initState: PenroseState): PenroseState => {
+  if (resp.tag === "State") {
+    return {
+      ...initState,
+      ...resp.state,
+    };
+  } else if (resp.tag === "Error") {
+    toast.error(showError(resp.error));
+    return initState;
+  } else {
+    console.error(`Unexpected optimizer output: `, resp);
+    return initState;
+  }
+};
+
 export const useStepDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
@@ -91,45 +107,39 @@ export const useStepDiagram = () =>
 
     if (currentState === null) {
       toast.error(`No diagram`);
-      return diagram;
     } else {
       const stepped = await optimizer.step(
         currentState,
         diagram.metadata.stepSize
       );
       set(diagramState, (diagram: Diagram) => {
-        if (stepped.tag === "State") {
-          return {
-            ...diagram,
-            state: {
-              ...currentState,
-              ...stepped.state,
-            },
-          };
-        } else if (stepped.tag === "Error") {
-          toast.error(showError(stepped.error));
-          return diagram;
-        } else {
-          console.error(`Unexpected optimizer output: ${stepped}`);
-          return diagram;
-        }
+        return {
+          ...diagram,
+          state: toState(stepped, currentState),
+        };
       });
     }
   });
 
 export const useStepStage = () =>
-  useRecoilCallback(({ set }) => () =>
-    set(diagramState, (diagram: Diagram) => {
-      if (diagram.state === null) {
-        toast.error(`No diagram`);
-        return diagram;
-      }
-      return {
-        ...diagram,
-        state: stepNextStage(diagram.state, diagram.metadata.stepSize),
-      };
-    })
-  );
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+    const currentState = diagram.state;
+    if (currentState === null) {
+      toast.error(`No diagram`);
+    } else {
+      const stepped = await optimizer.stepNextStage(
+        currentState,
+        diagram.metadata.stepSize
+      );
+      set(diagramState, (diagram: Diagram) => {
+        return {
+          ...diagram,
+          state: toState(stepped, currentState),
+        };
+      });
+    }
+  });
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {

@@ -1,8 +1,7 @@
-import { PenroseError } from "@penrose/core";
-import { OptState } from "@penrose/optimizer";
+import { PenroseError, StagedState } from "@penrose/core";
 
 /** request */
-export type Req = Init | Step | StepUntilConvergence;
+export type Req = Init | Step | StepUntilConvergence | StepNextStage;
 
 export type Init = {
   tag: "Init";
@@ -13,13 +12,19 @@ export type Init = {
 
 export type Step = {
   tag: "Step";
-  state: OptState;
+  state: StagedState;
   numSteps: number;
 };
 
 export type StepUntilConvergence = {
   tag: "StepUntilConvergence";
-  state: OptState;
+  state: StagedState;
+  numSteps: number;
+};
+
+export type StepNextStage = {
+  tag: "StepNextStage";
+  state: StagedState;
   numSteps: number;
 };
 
@@ -32,7 +37,7 @@ export type Success = {
 
 export type State = {
   tag: "State";
-  state: OptState;
+  state: StagedState;
 };
 
 export type Error = {

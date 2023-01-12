@@ -1,3 +1,4 @@
+import { stepNextStageGrad, stepUntilConvergenceGrad } from "@penrose/core";
 import { Gradient, OptState } from "@penrose/optimizer";
 import { Req, Resp } from "./message";
 
@@ -29,25 +30,12 @@ onmessage = async ({ data, ports }: MessageEvent<Req>) => {
     case "StepUntilConvergence": {
       if (gradient) {
         const { state, numSteps } = data;
-        let currentState = state;
-        while (
-          !(currentState.params.optStatus === "Error") &&
-          !(currentState.params.optStatus === "EPConverged")
-        ) {
-          currentState = gradient.step(currentState, numSteps);
+        const stepped = stepUntilConvergenceGrad(gradient, state, numSteps);
+        if (stepped.isOk()) {
+          sendState(stepped.value, port);
+        } else {
+          sendError(stepped.error, port);
         }
-        // if (currentState.params.optStatus === "Error") {
-        //   return err({
-        //     errorType: "RuntimeError",
-        //     ...nanError("", currentState),
-        //   });
-        // }
-        // return ok(currentState);
-        // if (stepped.isOk()) {
-        sendState(currentState, port);
-        // } else {
-        //   sendError(stepped.error, port);
-        // }
       }
       break;
     }
@@ -66,8 +54,24 @@ onmessage = async ({ data, ports }: MessageEvent<Req>) => {
       }
       break;
     }
+    case "StepNextStage": {
+      if (gradient) {
+        const { state, numSteps } = data;
+        const stepped = stepNextStageGrad(gradient, state, numSteps);
+        respond(
+          {
+            tag: "State",
+            state: stepped,
+          },
+          port
+        );
+      } else {
+        console.error("Optimizer not initialized");
+      }
+      break;
+    }
     default: {
-      console.error(`Unknown request ${data}`);
+      console.error(`Unknown request: `, data);
     }
   }
 };
