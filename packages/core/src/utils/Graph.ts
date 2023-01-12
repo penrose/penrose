@@ -103,11 +103,14 @@ export default class Graph<I, L = undefined, E = undefined> {
       const i = stack.pop() as I;
       xs.push(i);
       for (const { i: j } of this.get(i).p) {
-        const n = outdegree.get(j)!;
-        if (n === 1) stack.push(j);
-        outdegree.set(j, n - 1);
+        const d = outdegree.get(j)!;
+        if (d === 1) stack.push(j);
+        outdegree.set(j, d - 1);
       }
     }
+    const m = xs.length;
+    const n = this.g.size;
+    if (m !== n) throw Error(`could only sort ${m} nodes out of ${n} total`);
     return xs.reverse();
   }
 
