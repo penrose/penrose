@@ -382,11 +382,13 @@ export const isDeclaredSubtype = (
   // HACK: add in top type as an escape hatch for unbounded types
   if (subType.name.value === bottomType.name.value) return true;
 
-  return superTypesOf(subType, env).includes(superType.name.value);
+  return superTypesOf(subType, env).has(superType.name.value);
 };
 
-export const superTypesOf = (subType: TypeConstructor<A>, env: Env): string[] =>
-  env.typeGraph.descendants(subType.name.value);
+export const superTypesOf = (
+  subType: TypeConstructor<A>,
+  env: Env
+): Set<string> => env.typeGraph.descendants(subType.name.value);
 
 // TODO: add in top and bottom in the type graph and simplify `subTypesOf` using `inEdges(t, bot)`
 export const subTypesOf = (

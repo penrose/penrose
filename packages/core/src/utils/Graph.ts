@@ -25,12 +25,12 @@ export default class Graph<I, L = undefined, E = undefined> {
 
   private get(i: I): Vert<I, L, E> {
     const v = this.g.get(i);
-    if (v === undefined) throw Error(`node ID ${i} not found`);
+    if (v === undefined) throw Error(`node ID not found: ${i}`);
     return v;
   }
 
   setNode(i: I, l: L): void {
-    if (this.g.has(i)) throw Error(`node with ID ${i} already exists`);
+    if (this.g.has(i)) throw Error(`node with ID already exists: ${i}`);
     this.g.set(i, { l, p: [], s: [] });
   }
 
@@ -60,17 +60,37 @@ export default class Graph<I, L = undefined, E = undefined> {
   }
 
   sources(): I[] {
-    const a = [];
-    for (const [i, v] of this.g) if (v.p.length === 0) a.push(i);
-    return a;
+    const xs = [];
+    for (const [i, v] of this.g) if (v.p.length === 0) xs.push(i);
+    return xs;
   }
 
   topsort(): I[] {
-    return []; // TODO
+    const xs: I[] = [];
+    const indegree = new Map<I, number>();
+    for (const [i, v] of this.g) indegree.set(i, v.p.length);
+    const stack = this.sources();
+    while (stack.length > 0) {
+      const i = stack.pop() as I;
+      xs.push(i);
+      for (const { i: j } of this.get(i).s) {
+        const n = indegree.get(j)!;
+        if (n === 1) stack.push(j);
+        indegree.set(j, n - 1);
+      }
+    }
+    return xs;
   }
 
-  descendants(i: I): I[] {
-    return []; // TODO
+  descendants(i: I): Set<I> {
+    const xs = new Set<I>();
+    const stack = [i];
+    while (stack.length > 0) {
+      const j = stack.pop() as I;
+      xs.add(j);
+      for (const { i: k } of this.get(j).s) if (!xs.has(k)) stack.push(k);
+    }
+    return xs;
   }
 
   findCycles(): I[][] {

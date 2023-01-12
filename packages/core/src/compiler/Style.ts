@@ -3038,11 +3038,12 @@ export const computeShapeOrdering = (
 };
 
 const pseudoTopsort = (graph: Graph<string>): string[] => {
-  const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
-    const aIn = graph.inEdges(a);
-    const bIn = graph.inEdges(b);
-    return aIn.length - bIn.length;
-  });
+  const indegree = new Map<string, number>(
+    graph.nodes().map((i) => [i, graph.inEdges(i).length])
+  );
+  const toVisit: CustomHeap<string> = new CustomHeap(
+    (a: string, b: string) => indegree.get(a)! - indegree.get(b)!
+  );
   const res: string[] = [];
   graph.nodes().forEach((n: string) => toVisit.insert(n));
   while (toVisit.size() > 0) {
@@ -3050,8 +3051,8 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
     const node: string = toVisit.extractRoot() as string;
     res.push(node);
     // remove all edges with `node`
-    const toRemove = graph.nodeEdges(node);
-    toRemove.forEach((e) => graph.removeEdge(e));
+    for (const { j } of graph.outEdges(node))
+      indegree.set(j, indegree.get(j)! - 1);
     toVisit.fix();
   }
   return res;
