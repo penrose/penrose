@@ -1,11 +1,5 @@
 import { bboxFromShape } from "contrib/Queries";
-import {
-  clamp,
-  consecutiveTriples,
-  consecutiveTuples,
-  inRange,
-  numOf,
-} from "contrib/Utils";
+import { clamp, inRange, numOf } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -77,6 +71,14 @@ import {
   VectorV,
 } from "types/value";
 import { getStart, linePts } from "utils/Util";
+import {
+  algebraicArea,
+  elasticEnergy,
+  isoperimetricRatio,
+  perimeter,
+  totalCurvature,
+  turningNumber,
+} from "./CurveConstraints";
 
 /**
  * Static dictionary of computation functions
@@ -1590,16 +1592,7 @@ export const compDict = {
     points: [ad.Num, ad.Num][],
     closed: boolean
   ): FloatV<ad.Num> => {
-    const sides = consecutiveTuples(points, closed);
-    const result = mul(
-      0.5,
-      addN(
-        sides.map(([p1, p2]: [ad.Num, ad.Num][]) =>
-          sub(mul(p1[0], p2[1]), mul(p1[1], p2[0]))
-        )
-      )
-    );
-    return { tag: "FloatV", contents: result };
+    return { tag: "FloatV", contents: algebraicArea(points, closed) };
   },
 
   /**
@@ -1612,10 +1605,7 @@ export const compDict = {
   ): FloatV<ad.Num> => {
     return {
       tag: "FloatV",
-      contents: div(
-        compDict.totalCurvature(_context, points, closed).contents,
-        2 * Math.PI
-      ),
+      contents: turningNumber(points, closed),
     };
   },
 
@@ -1627,11 +1617,7 @@ export const compDict = {
     points: [ad.Num, ad.Num][],
     closed: boolean
   ): FloatV<ad.Num> => {
-    const sides = consecutiveTuples(points, closed);
-    const result = addN(
-      sides.map(([p1, p2]: [ad.Num, ad.Num][]) => ops.vdist(p1, p2))
-    );
-    return { tag: "FloatV", contents: result };
+    return { tag: "FloatV", contents: perimeter(points, closed) };
   },
 
   /**
@@ -1642,11 +1628,7 @@ export const compDict = {
     points: [ad.Num, ad.Num][],
     closed: boolean
   ): FloatV<ad.Num> => {
-    const result = div(
-      squared(compDict.perimeter(_context, points, closed).contents),
-      compDict.algebraicArea(_context, points, closed).contents
-    );
-    return { tag: "FloatV", contents: result };
+    return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
   },
 
   /**
@@ -1657,16 +1639,7 @@ export const compDict = {
     points: [ad.Num, ad.Num][],
     closed: boolean
   ): FloatV<ad.Num> => {
-    const triples = consecutiveTriples(points, closed);
-    const result = addN(
-      triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
-        mul(
-          squared(curvature(p1, p2, p3)),
-          mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
-        )
-      )
-    );
-    return { tag: "FloatV", contents: result };
+    return { tag: "FloatV", contents: elasticEnergy(points, closed) };
   },
 
   /**
@@ -1677,11 +1650,7 @@ export const compDict = {
     points: [ad.Num, ad.Num][],
     closed: boolean
   ): FloatV<ad.Num> => {
-    const triples = consecutiveTriples(points, closed);
-    const result = addN(
-      triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
-    );
-    return { tag: "FloatV", contents: result };
+    return { tag: "FloatV", contents: totalCurvature(points, closed) };
   },
 };
 
@@ -1888,21 +1857,4 @@ const tickPlacement = (
     pts.push(add(pts[i - 1], shift));
   }
   return pts;
-};
-
-/**
- * Returns discrete curvature approximation given three consecutive points
- */
-export const curvature = (
-  p1: [ad.Num, ad.Num],
-  p2: [ad.Num, ad.Num],
-  p3: [ad.Num, ad.Num]
-): ad.Num => {
-  const v1 = ops.vsub(p2, p1);
-  const v2 = ops.vsub(p3, p2);
-  const angle = ops.angleFrom(v1, v2);
-  return angle;
-  // Alternative discrete curvature definition
-  // return mul(2, sin(div(angle, 2)));
-  // return mul(2, tan(div(angle, 2)));
 };
