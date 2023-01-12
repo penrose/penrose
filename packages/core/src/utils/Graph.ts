@@ -88,21 +88,27 @@ export default class Graph<I, L = undefined, E = undefined> {
     return xs;
   }
 
+  sinks(): I[] {
+    const xs = [];
+    for (const [i, v] of this.g) if (v.s.length === 0) xs.push(i);
+    return xs;
+  }
+
   topsort(): I[] {
     const xs: I[] = [];
-    const indegree = new Map<I, number>();
-    for (const [i, v] of this.g) indegree.set(i, v.p.length);
-    const stack = this.sources();
+    const outdegree = new Map<I, number>();
+    for (const [i, v] of this.g) outdegree.set(i, v.s.length);
+    const stack = this.sinks();
     while (stack.length > 0) {
       const i = stack.pop() as I;
       xs.push(i);
-      for (const { i: j } of this.get(i).s) {
-        const n = indegree.get(j)!;
+      for (const { i: j } of this.get(i).p) {
+        const n = outdegree.get(j)!;
         if (n === 1) stack.push(j);
-        indegree.set(j, n - 1);
+        outdegree.set(j, n - 1);
       }
     }
-    return xs;
+    return xs.reverse();
   }
 
   descendants(i: I): Set<I> {
