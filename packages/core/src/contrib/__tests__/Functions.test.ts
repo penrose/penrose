@@ -68,8 +68,10 @@ describe("totalCurvature", () => {
 
 describe("elasticEnergy", () => {
   it.each([
-    ["Polyline", _polylines[666], 666],
-    ["Polygon", _polygons[666], 666],
+    ["Polyline", _polylines[0], 666],
+    ["Polygon", _polygons[1], 666],
+    ["Polyline", _polylines[3], 666],
+    ["Polygon", _polygons[4], 666],
   ])("of %p", (shapeType: string, shapeData: any, expected: number) => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
@@ -82,8 +84,8 @@ describe("elasticEnergy", () => {
 describe("isoperimetricRatio", () => {
   it.each([
     ["Polygon", _polygons[6], 16],
-    ["Polygon", _polygons[7], 18],
-    ["Polygon", _polygons[8], 256 / 7],
+    ["Polygon", _polygons[7], -18],
+    ["Polygon", _polygons[8], (14 * 14) / 6],
   ])("of %p", (shapeType: string, shapeData: any, expected: number) => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
@@ -97,7 +99,7 @@ describe("perimeter", () => {
   it.each([
     ["Polygon", _polygons[6], 400],
     ["Polygon", _polygons[7], 600],
-    ["Polygon", _polygons[8], 4 * 300 + 400],
+    ["Polygon", _polygons[8], 1400],
     ["Polyline", _polylines[10], 300],
   ])("of %p", (shapeType: string, shapeData: any, expected: number) => {
     const shape: [string, any] = [shapeType, shapeData];
@@ -125,8 +127,8 @@ describe("turningNumber", () => {
 describe("algebraicArea", () => {
   it.each([
     ["Polygon", _polygons[6], 100 * 100],
-    ["Polygon", _polygons[7], 200 * 100],
-    ["Polygon", _polygons[8], 300 * 300 - 2 * 100 * 100],
+    ["Polygon", _polygons[7], -200 * 100],
+    ["Polygon", _polygons[8], 300 * 200],
   ])("of %p", (shapeType: string, shapeData: any, expected: number) => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
