@@ -1,16 +1,24 @@
 canvas {
-  width = 800
-  height = 700
+    width = 800
+    height = 700
+}
+
+background {
+    shape icon = Rectangle {
+        center: (0, 0)
+        width: canvas.width
+        height: canvas.height
+        fillColor: rgba(1.0, 1.0, 1.0, 1.0)
+    }
 }
 
 -- Nodes
-
 forall Node x {
-    x.center = (?, ?)
+    vec2 x.center = (?, ?)
 }
 
 forall InputNode x {
-    x.icon = Circle {
+    shape x.icon = Circle {
         center: x.center
         strokeWidth : 1.0
         r : 6.0
@@ -18,26 +26,32 @@ forall InputNode x {
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
 
-    x.symbol = Equation {
+    shape x.symbol = Equation {
        string : x.label
        rotation : 0.0
        center : (x.icon.center[0] - 30.0, x.icon.center[1])
     }
+
+    x.icon above background.icon
+    x.symbol above background.icon
 }
 
 forall OutputNode x {
-    x.icon = Circle {
+    shape x.icon = Circle {
         center: x.center
         strokeWidth : 1.0
         r : 6.0
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    x.symbol = Equation {
+    shape x.symbol = Equation {
        string : x.label
        rotation : 0.0
        center : (x.icon.center[0] + 35.0, x.icon.center[1])
     }
+
+    x.icon above background.icon
+    x.symbol above background.icon
 }
 
 forall InputNode A; InputNode B {
@@ -53,11 +67,11 @@ forall OutputNode A; OutputNode B {
 forall XORGate G
 where G := MakeXORGate(IN1, IN2, OUT)
 with Node IN1; Node IN2; Node OUT {
-    G.center = (?, ?)
-    G.width = 100.0
-    G.height = 60.0
+    vec2 G.center = (?, ?)
+    scalar G.width = 100.0
+    scalar G.height = 60.0
 
-    G.part1 = Rectangle {
+    shape G.part1 = Rectangle {
         center : G.center
         width : 40.0
         height : 50.0
@@ -65,14 +79,14 @@ with Node IN1; Node IN2; Node OUT {
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    G.part2 = Circle {
+    shape G.part2 = Circle {
         center : (G.part1.center[0] + 20.0, G.part1.center[1])
         r : 25.0
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    G.part3 = Circle {
+    shape G.part3 = Circle {
         center : (G.part1.center[0] + 20.0, G.part1.center[1])
         r : 24.0
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
@@ -80,15 +94,15 @@ with Node IN1; Node IN2; Node OUT {
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
     }
 
-    G.GG = 50.0
-    G.part4 = Circle {
+    scalar G.GG = 50.0
+    shape G.part4 = Circle {
         center : (G.part1.center[0] - G.GG + 3.0, G.part1.center[1])
         r : sqrt(25.0 * 25.0 + (G.GG - 20.0) * (G.GG  - 20.0))
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    G.part5 = Rectangle {
+    shape G.part5 = Rectangle {
         center : (G.part1.center[0] - G.GG - 30.0+ 3.0, G.part1.center[1])
         width : 2 * (G.GG - 20.0) + 60.0
         height : 3 * (G.GG - 20.0)
@@ -97,14 +111,14 @@ with Node IN1; Node IN2; Node OUT {
     }
     G.part5 above G.part4
 
-    G.part6 = Circle {
+    shape G.part6 = Circle {
         center : (G.part1.center[0] - G.GG  - 6.0, G.part1.center[1])
         r : sqrt(25.0 * 25.0 + (G.GG - 20.0) * (G.GG  - 20.0))
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    G.part7 = Rectangle {
+    shape G.part7 = Rectangle {
         center : (G.part1.center[0] - G.GG - 30.0 - 6.0, G.part1.center[1])
         width : 2 * (G.GG - 20.0) + 60.0
         height : 3 * (G.GG - 20.0)
@@ -118,6 +132,14 @@ with Node IN1; Node IN2; Node OUT {
     G.part1 above G.part2
     G.part3 above G.part1
 
+    G.part1 above background.icon
+    G.part2 above background.icon
+    G.part3 above background.icon
+    G.part4 above background.icon
+    G.part5 above background.icon
+    G.part6 above background.icon
+    G.part7 above background.icon
+
     ensure equal(vdist(IN1.center, (G.part1.center[0] - 20.0, G.part1.center[1] + 17.0)), 0.0)
     ensure equal(vdist(IN2.center, (G.part1.center[0] - 20.0, G.part1.center[1] - 17.0)), 0.0)
     ensure equal(vdist(OUT.center, (G.part1.center[0] + 45.0, G.part1.center[1])), 0.0)
@@ -126,11 +148,11 @@ with Node IN1; Node IN2; Node OUT {
 forall ANDGate G
 where G := MakeANDGate(IN1, IN2, OUT)
 with Node IN1; Node IN2; Node OUT {
-    G.center = (?, ?)
-    G.width = 100.0
-    G.height = 60.0
+    vec2 G.center = (?, ?)
+    scalar G.width = 100.0
+    scalar G.height = 60.0
 
-    G.part1 = Rectangle {
+    shape G.part1 = Rectangle {
         center : G.center
         width : 40.0
         height : 50.0
@@ -138,14 +160,14 @@ with Node IN1; Node IN2; Node OUT {
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    G.part2 = Circle {
+    shape G.part2 = Circle {
         center : (G.part1.center[0] + 20.0, G.part1.center[1])
         r : 25.0
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    G.part3 = Circle {
+    shape G.part3 = Circle {
         center : (G.part1.center[0] + 20.0, G.part1.center[1])
         r : 24.0
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
@@ -155,6 +177,10 @@ with Node IN1; Node IN2; Node OUT {
     G.part1 above G.part2
     G.part3 above G.part1
 
+    G.part1 above background.icon
+    G.part2 above background.icon
+    G.part3 above background.icon
+
     ensure equal(vdist(IN1.center, (G.part1.center[0] - 20.0, G.part1.center[1] + 17.0)), 0.0)
     ensure equal(vdist(IN2.center, (G.part1.center[0] - 20.0, G.part1.center[1] - 17.0)), 0.0)
     ensure equal(vdist(OUT.center, (G.part1.center[0] + 45.0, G.part1.center[1])), 0.0)
@@ -163,20 +189,23 @@ with Node IN1; Node IN2; Node OUT {
 forall SplitComponent x
 where x := MakeSplitComponent(IN, OUT1, OUT2)
 with Node IN; Node OUT1; Node OUT2 {
-    x.center = IN.center
-    x.icon = Circle {
+    vec2 x.center = IN.center
+    shape x.icon = Circle {
         center: x.center
         strokeWidth : 0.0
         r : 6.0
         fillColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    x.line = Line {
+    shape x.line = Line {
         start : OUT1.center
         end : OUT2.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 1.0
     }
     x.icon above x.line
+
+    x.icon above background.icon
+    x.line above background.icon
 
     ensure equal(IN.center[0], OUT1.center[0])
     ensure equal(IN.center[0], OUT2.center[0])
@@ -186,6 +215,16 @@ with Node IN; Node OUT1; Node OUT2 {
 forall Gate G; Gate H {
     ensure lessThan(0.6 * (G.height + H.height), abs(G.part1.center[1] - H.part1.center[1]))
     ensure lessThan(0.6 * (G.width + H.width), abs(G.part1.center[0] - H.part1.center[0]))
+}
+
+forall Connection x; InputNode y {
+    x.line1 below y.icon
+    x.line2 below y.icon
+    x.line3 below y.icon
+}
+
+forall SplitComponent x; XORGate y {
+    x.line above y.part7
 }
 
 forall Connection x; XORGate y {
@@ -199,25 +238,30 @@ forall Connection x; XORGate y {
 forall Connection C
 where C := MakeConnection(A, B)
 with Node A; Node B {
-    C.pivot = ?
-    C.line1 = Line {
+    scalar C.pivot = ?
+    shape C.line1 = Line {
         start : A.center
         end : (C.pivot, A.center[1])
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 1.0
     }
-    C.line2 = Line {
+    shape C.line2 = Line {
         start : (C.pivot, A.center[1])
         end : (C.pivot, B.center[1])
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 1.0
     }
-    C.line3 = Line {
+    shape C.line3 = Line {
         start : (C.pivot, B.center[1])
         end : B.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 1.0
     }
+
+    C.line1 above background.icon
+    C.line2 above background.icon
+    C.line3 above background.icon
+
     encourage equal(A.center[1], B.center[1])
     ensure lessThan(A.center[0], B.center[0])
     ensure lessThan(A.center[0], C.pivot)

@@ -222,6 +222,24 @@
       "style": "structural-formula",
       "domain": "structural-formula",
       "variation": ""
+    },
+    {
+      "substance": "full-moon",
+      "style": "full-moon",
+      "domain": "full-moon",
+      "variation": "RinseElk0268"
+    },
+    {
+      "substance": "glutamine",
+      "style": "molecules-basic",
+      "domain": "molecules",
+      "variation": "MemoriesDeer750"
+    },
+    {
+      "substance": "half-adder",
+      "style": "distinctive-shape",
+      "domain": "logic-gates",
+      "variation": "CauliflowerDeer97138"
     }
   ],
   "domains": {
@@ -296,6 +314,18 @@
     "structural-formula": {
       "name": "Structural Formula",
       "URI": "structural-formula/structural-formula.dsl"
+    },
+    "full-moon": {
+      "name": "Full moon art",
+      "URI": "full-moon/full-moon.dsl"
+    },
+    "molecules": {
+      "name": "Organic chemistry diagrams",
+      "URI": "molecules/molecules.dsl"
+    },
+    "logic-gates": {
+      "name": "Logic gates",
+      "URI": "logic-circuit-domain/logic-gates.dsl"
     }
   },
   "styles": {
@@ -427,6 +457,21 @@
       "domain": "structural-formula",
       "name": "Structural Formula",
       "URI": "structural-formula/structural-formula.sty"
+    },
+    "full-moon": {
+      "domain": "full-moon",
+      "name": "Full moon art",
+      "URI": "full-moon/full-moon.sty"
+    },
+    "molecules-basic": {
+      "domain": "molecules",
+      "name": "Organic chemistry diagrams",
+      "URI": "molecules/molecules-basic.sty"
+    },
+    "distinctive-shape": {
+      "domain": "logic-gates",
+      "name": "Logic gates",
+      "URI": "logic-circuit-domain/distinctive-shape.sty"
     }
   },
   "substances": {
@@ -589,6 +634,21 @@
       "domain": "structural-formula",
       "name": "Caffeine molecule",
       "URI": "structural-formula/molecules/caffeine.sub"
+    },
+    "full-moon": {
+      "domain": "full-moon",
+      "name": "Full moon art",
+      "URI": "full-moon/full-moon.sub"
+    },
+    "glutamine": {
+      "domain": "molecules",
+      "name": "Glucose molecule",
+      "URI": "molecules/glutamine.sub"
+    },
+    "half-adder": {
+      "domain": "logic-gates",
+      "name": "Half adder",
+      "URI": "logic-circuit-domain/half-adder.sub"
     }
   }
 }
