@@ -3072,7 +3072,10 @@ export const getCanvasDim = (
   attr: "width" | "height",
   graph: DepGraph
 ): Result<number, StyleError> => {
-  const dim = graph.node(`canvas.${attr}`);
+  const i = `canvas.${attr}`;
+  if (!graph.hasNode(i))
+    return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
+  const dim = graph.node(i);
   if (dim === undefined) {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
   } else if (typeof dim === "string") {
