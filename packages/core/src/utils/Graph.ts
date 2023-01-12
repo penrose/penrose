@@ -30,10 +30,9 @@ export default class Graph<I, L = undefined, E = undefined> {
   }
 
   setNode(i: I, l: L): void {
-    let v = this.g.get(i);
-    if (v === undefined) v = { l, p: [], s: [] };
+    const v = this.g.get(i);
+    if (v === undefined) this.g.set(i, { l, p: [], s: [] });
     else v.l = l;
-    this.g.set(i, v);
   }
 
   hasNode(i: I): boolean {
