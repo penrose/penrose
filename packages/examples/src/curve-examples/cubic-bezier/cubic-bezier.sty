@@ -1,87 +1,60 @@
+canvas {
+    width = 600
+    height = 400
+}
 
-forall Curve s {
-   vec2 p1 = (?,?)
-   vec2 p2 = (?,?)
-   vec2 p3 = (?,?)
-   vec2 p4 = (?,?)
+global {
+    scalar t = ?
+    encourage lessThan(0.8, t)
+    encourage lessThan(t, 0.2)
+}
 
-   scalar t = ?
+forall Curve c {
+    vec2 c.p1 = (?, ?)
+    vec2 c.p2 = (?, ?)
+    vec2 c.p3 = (?, ?)
+    vec2 c.p4 = (?, ?)
 
-   vec2 p12 = (t * p1[0] + (1 - t) * p2[0], t * p1[1] + (1 - t) * p2[1])
-   vec2 p23 = (t * p2[0] + (1 - t) * p3[0], t * p2[1] + (1 - t) * p3[1])
-   vec2 p34 = (t * p3[0] + (1 - t) * p4[0], t * p3[1] + (1 - t) * p4[1])
+    points = [c.p1, c.p2, c.p3, c.p4]
+    shape curve = Path {
+        d: cubicCurveFromPoints("open", points)
+        strokeWidth: 3.5
+        ensureOnCanvas: true
+    }
 
-   vec2 p123 = (t * p12[0] + (1 - t) * p23[0], t * p12[1] + (1 - t) * p23[1])
-   vec2 p234 = (t * p23[0] + (1 - t) * p34[0], t * p23[1] + (1 - t) * p34[1])
-   vec2 p1234 = (t * p123[0] + (1 - t) * p234[0], t * p123[1] + (1 - t) * p234[1])
+    ensure equal(perimeter(points, false), 1200)
+    ensure equal(perimeter(points, false), 4200)
+    ensure isLocallyConvex(points, false)
+    ensure isEqiuangular(points, false)
+}
 
-   shape point0 = Circle {
-      center: p1
-      r: 5
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point1 = Circle {
-      center: p2
-      r: 5
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point2 = Circle {
-      center: p3
-      r: 5
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point3 = Circle {
-      center: p4
-      r: 4
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point4 = Circle {
-      center: p12
-      r: 4
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point5 = Circle {
-      center: p23
-      r: 4
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point6 = Circle {
-      center: p34
-      r: 4
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point7 = Circle {
-      center: p123
-      r: 4
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point8 = Circle {
-      center: p234
-      r: 4
-      fillColor: rgba(0,0,0,1)
-   }
-   shape point9 = Circle {
-      center: p1234
-      r: 5
-      fillColor: rgba(0,0,0,1)
-   }
+forall Point p {
+    vec2 p.p = (?, ?) 
 
-   shape curve = Path {
-      d: cubicCurveFromPoints("open", [p1, p2, p3, p4])
-      strokeWidth: 3.5
-      ensureOnCanvas: true
-   }
-   shape line1 = Polyline {
-      points: [p1, p2, p3, p4]
-      strokeWidth: 2.5
-   }
-   shape line2 = Polyline {
-      points: [p12, p23, p34]
-      strokeWidth: 1.5
-   }
-   shape line3 = Polyline {
-      points: [p123, p234]
-      strokeWidth: 1.5
-   }
+    shape point = Circle {
+        center: p.p
+        r: 5
+        fillColor: rgba(0,0,0,1)
+    }
+}
 
+forall Curve c; Point p1; Point p2; Point p3; Point p4
+where c := CurveFromPoints(p1, p2, p3, p4) {
+    override c.p1 = p1.p
+    override c.p2 = p2.p
+    override c.p3 = p3.p
+    override c.p4 = p4.p
+}
+
+forall Point p; Point p1; Point p2 
+where p := Lerp(p1, p2) {
+    vec2 p3 = global.t * p1.p + (1 - global.t) * p2.p
+    override p.p = p3
+
+    shape line1 = Line {
+        start: p1.p
+        end: p2.p
+        strokeWidth: 2
+        strokeColor: rgba(0,0,0,1)
+    }
 }
