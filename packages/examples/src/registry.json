@@ -212,34 +212,10 @@
       "variation": "ArtemisCrane740"
     },
     {
-      "substance": "full-moon",
-      "style": "full-moon",
-      "domain": "full-moon",
-      "variation": "RinseElk0268"
-    },
-    {
-      "substance": "glutamine",
-      "style": "molecules-basic",
-      "domain": "molecules",
-      "variation": "MemoriesDeer750"
-    },
-    {
-      "substance": "half-adder",
-      "style": "distinctive-shape",
-      "domain": "logic-gates",
-      "variation": "CauliflowerDeer97138"
-    },
-    {
       "substance": "center-shrink-circle",
       "style": "animation",
       "domain": "animation",
       "variation": ""
-    },
-    {
-      "substance": "mobius",
-      "style": "mobius",
-      "domain": "mobius",
-      "variation": "RodeoBoar3795"
     },
     {
       "substance": "caffeine",
@@ -316,22 +292,6 @@
     "atoms-and-bonds": {
       "name": "Atoms and Bonds",
       "URI": "atoms-and-bonds/atoms-and-bonds.dsl"
-    },
-    "full-moon": {
-      "name": "Full moon art",
-      "URI": "full-moon/full-moon.dsl"
-    },
-    "molecules": {
-      "name": "Organic chemistry diagrams",
-      "URI": "molecules/molecules.dsl"
-    },
-    "logic-gates": {
-      "name": "Logic gates",
-      "URI": "logic-circuit-domain/logic-gates.dsl"
-    },
-    "mobius": {
-      "name": "Mobius transformation",
-      "URI": "mobius/mobius.dsl"
     },
     "structural-formula": {
       "name": "Structural Formula",
@@ -458,30 +418,10 @@
       "name": "atoms-and-bonds",
       "URI": "atoms-and-bonds/atoms-and-bonds.sty"
     },
-    "full-moon": {
-      "domain": "full-moon",
-      "name": "Full moon art",
-      "URI": "full-moon/full-moon.sty"
-    },
-    "molecules-basic": {
-      "domain": "molecules",
-      "name": "Organic chemistry diagrams",
-      "URI": "molecules/molecules-basic.sty"
-    },
-    "distinctive-shape": {
-      "domain": "logic-gates",
-      "name": "Logic gates",
-      "URI": "logic-circuit-domain/distinctive-shape.sty"
-    },
     "animation": {
       "domain": "animation",
       "name": "animation",
       "URI": "animation/animation.sty"
-    },
-    "mobius": {
-      "domain": "mobius",
-      "name": "Mobius transformation",
-      "URI": "mobius/mobius.sty"
     },
     "structural-formula": {
       "domain": "structural-formula",
@@ -640,30 +580,10 @@
       "name": "One water molecule drawn using symmetric bonds",
       "URI": "atoms-and-bonds/one-water-molecule.sub"
     },
-    "full-moon": {
-      "domain": "full-moon",
-      "name": "Full moon art",
-      "URI": "full-moon/full-moon.sub"
-    },
-    "glutamine": {
-      "domain": "molecules",
-      "name": "Glucose molecule",
-      "URI": "molecules/glutamine.sub"
-    },
-    "half-adder": {
-      "domain": "logic-gates",
-      "name": "Half adder",
-      "URI": "logic-circuit-domain/half-adder.sub"
-    },
     "center-shrink-circle": {
       "domain": "animation",
       "name": "A circle centering in two steps and shrink in the last step",
       "URI": "animation/center-shrink-circle.sub"
-    },
-    "mobius": {
-      "domain": "mobius",
-      "name": "Mobius transformation",
-      "URI": "mobius/mobius.sub"
     },
     "caffeine": {
       "domain": "structural-formula",

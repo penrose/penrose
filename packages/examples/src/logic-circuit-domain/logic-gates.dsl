@@ -15,7 +15,7 @@ type Gate <: Component
 type OneInputGate <: Gate
 type TwoInputGate <: Gate
 
-constructor MakeSplitComponent(Node IN, Node OUT1, Node OUT2) -> SplitComponent
+constructor MakeSplitComponent : Node IN * Node OUT1 * Node OUT2 -> SplitComponent
 
 type Buffer <: OneInputGate
 type NOTGate <: OneInputGate

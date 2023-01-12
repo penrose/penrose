@@ -1,21 +1,21 @@
 canvas {
-    width = 800
-    height = 700
+  width = 800
+  height = 700
 }
 
 -- Atoms
 
 forall Atom x {
-    string x.symbol_string = ""
-    shape x.icon = Circle {
+    x.symbol_string = ""
+    x.icon = Circle {
         strokeWidth : 0.0
         r : 15.0
         fillColor : rgba(1.0, 1.0, 1.0, 1.0)
     }
-    shape x.symbol = Equation {
-        string : x.symbol_string
-        rotation : 0.0
-        center : x.icon.center
+    x.symbol = Equation {
+       string : x.symbol_string
+       rotation : 0.0
+       center : x.icon.center
     }
     x.layering = x.symbol above x.icon
 }
@@ -41,50 +41,50 @@ forall Nitrogen x {
 forall SingleBond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
-    shape b.line1 = Line {
+    b.line = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 2.0
     }
-    encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
+    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall DoubleBond b
 where b := MakeDoubleBond(x, y)
 with Atom x; Atom y {
-    shape b.line1 = Line {
+    b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 6.0
     }
-    shape b.line2 = Line {
+    b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth: 2.0
     }
     b.layering = b.line2 above b.line1
-    encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
+    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall TripleBond b
 where b := MakeTripleBond(x, y)
 with Atom x; Atom y {
-    shape b.line1 = Line {
+    b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth: 10.0
     }
-    shape b.line2 = Line {
+    b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 6.0
     }
-    shape b.line3 = Line {
+    b.line3 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
@@ -99,16 +99,4 @@ with Atom x; Atom y {
 
 forall Atom x; Atom y {
     encourage notTooClose(x.icon, y.icon)
-}
-
-forall Atom a; Bond b {
-    a.icon above b.line1
-}
-
-forall Atom a; DoubleBond b {
-    a.icon above b.line2
-}
-
-forall Atom a; TripleBond b {
-    a.icon above b.line3
 }
