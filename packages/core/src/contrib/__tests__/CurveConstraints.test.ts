@@ -28,40 +28,34 @@ describe("equivalued", () => {
 
 describe("isLocallyConvex", () => {
   it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _closed_paths[666]],
-  ])("closed locally convex %p", (shapeType: string, shapeData: any) => {
+    ["Polyline", _polylines[0]],
+    ["Polygon", _polygons[0]],
+    ["Path", _closed_paths[0]],
+    ["Path", _open_paths[0]],
+    ["Polyline", _polylines[2]],
+    ["Polygon", _polygons[2]],
+    ["Path", _closed_paths[2]],
+    ["Path", _open_paths[2]],
+    ["Polyline", _polylines[8]],
+    ["Polygon", _polygons[8]],
+    ["Path", _closed_paths[8]],
+    ["Path", _open_paths[8]],
+  ])("locally convex %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isLocallyConvex(shape);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
   it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _closed_paths[666]],
-  ])("closed not locally convex %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isLocallyConvex(shape);
-    expect(numOf(result)).toBeGreaterThan(0.1);
-  });
-
-  it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _open_paths[666]],
-  ])("open locally convex %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isLocallyConvex(shape);
-    expect(numOf(result)).toBeLessThanOrEqual(1e-5);
-  });
-
-  it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _open_paths[666]],
-  ])("open not locally convex %p", (shapeType: string, shapeData: any) => {
+    ["Polyline", _polylines[5]],
+    ["Polygon", _polygons[5]],
+    ["Path", _closed_paths[5]],
+    ["Path", _open_paths[5]],
+    ["Polyline", _polylines[10]],
+    ["Polygon", _polygons[10]],
+    ["Path", _closed_paths[10]],
+    ["Path", _open_paths[10]],
+  ])("not locally convex %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isLocallyConvex(shape);
     expect(numOf(result)).toBeGreaterThan(0.1);
@@ -70,40 +64,26 @@ describe("isLocallyConvex", () => {
 
 describe("isConvex", () => {
   it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _closed_paths[666]],
-  ])("closed convex %p", (shapeType: string, shapeData: any) => {
+    ["Polygon", _polygons[0]],
+    ["Path", _closed_paths[0]],
+    ["Polygon", _polygons[2]],
+    ["Path", _closed_paths[2]],
+    ["Polygon", _polygons[6]],
+    ["Path", _closed_paths[6]],
+    ["Polygon", _polygons[7]],
+    ["Path", _closed_paths[7]],
+  ])("convex %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isConvex(shape);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
   it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _closed_paths[666]],
-  ])("closed non-convex %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isConvex(shape);
-    expect(numOf(result)).toBeGreaterThan(0.1);
-  });
-
-  it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _open_paths[666]],
-  ])("open convex %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isConvex(shape);
-    expect(numOf(result)).toBeLessThanOrEqual(1e-5);
-  });
-
-  it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _open_paths[666]],
-  ])("open non-convex %p", (shapeType: string, shapeData: any) => {
+    ["Polygon", _polygons[5]],
+    ["Path", _closed_paths[5]],
+    ["Polygon", _polygons[8]],
+    ["Path", _closed_paths[8]],
+  ])("non-convex %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isConvex(shape);
     expect(numOf(result)).toBeGreaterThan(0.1);
@@ -112,40 +92,38 @@ describe("isConvex", () => {
 
 describe("isEquidistant", () => {
   it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _closed_paths[666]],
-  ])("closed quidistant %p", (shapeType: string, shapeData: any) => {
+    ["Polyline", _polylines[6]],
+    ["Polygon", _polygons[6]],
+    ["Path", _closed_paths[6]],
+    ["Path", _open_paths[6]],
+    ["Polyline", _polylines[9]],
+    ["Polygon", _polygons[9]],
+    ["Path", _closed_paths[9]],
+    ["Path", _open_paths[9]],
+    ["Polyline", _polylines[7]],
+    ["Polygon", _polygons[7]],
+    ["Path", _closed_paths[7]],
+    ["Path", _open_paths[7]],
+  ])("equidistant %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isEquidistant(shape);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
   it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _closed_paths[666]],
-  ])("closed quidistant %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isEquidistant(shape);
-    expect(numOf(result)).toBeGreaterThan(0.1);
-  });
-
-  it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _open_paths[666]],
-  ])("open non-equidistant %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isEquidistant(shape);
-    expect(numOf(result)).toBeLessThanOrEqual(1e-5);
-  });
-
-  it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _open_paths[666]],
-  ])("open non-equidistant %p", (shapeType: string, shapeData: any) => {
+    ["Polyline", _polylines[7]],
+    ["Polygon", _polygons[7]],
+    ["Path", _closed_paths[7]],
+    ["Path", _open_paths[7]],
+    ["Polyline", _polylines[8]],
+    ["Polygon", _polygons[8]],
+    ["Path", _closed_paths[8]],
+    ["Path", _open_paths[8]],
+    ["Polyline", _polylines[9]],
+    ["Polygon", _polygons[9]],
+    ["Path", _closed_paths[9]],
+    ["Path", _open_paths[9]],
+  ])("non-equidistant %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isEquidistant(shape);
     expect(numOf(result)).toBeGreaterThan(0.1);
@@ -154,40 +132,38 @@ describe("isEquidistant", () => {
 
 describe("isEquiangular", () => {
   it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _closed_paths[666]],
-  ])("closed equiangular %p", (shapeType: string, shapeData: any) => {
+    ["Polyline", _polylines[6]],
+    ["Polygon", _polygons[6]],
+    ["Path", _closed_paths[6]],
+    ["Path", _open_paths[6]],
+    ["Polyline", _polylines[7]],
+    ["Polygon", _polygons[7]],
+    ["Path", _closed_paths[7]],
+    ["Path", _open_paths[7]],
+    ["Polyline", _polylines[8]],
+    ["Polygon", _polygons[8]],
+    ["Path", _closed_paths[8]],
+    ["Path", _open_paths[8]],
+  ])("equiangular %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isEquiangular(shape);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
   it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _closed_paths[666]],
-  ])("closed non-equiangular %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isEquiangular(shape);
-    expect(numOf(result)).toBeGreaterThan(0.1);
-  });
-
-  it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _open_paths[666]],
-  ])("open equiangular %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isEquiangular(shape);
-    expect(numOf(result)).toBeLessThanOrEqual(1e-5);
-  });
-
-  it.each([
-    ["Polyline", _polylines[666]],
-    ["Polygon", _polygons[666]],
-    ["Path", _open_paths[666]],
-  ])("open non-equiangular %p", (shapeType: string, shapeData: any) => {
+    ["Polyline", _polylines[0]],
+    ["Polygon", _polygons[0]],
+    ["Path", _closed_paths[0]],
+    ["Path", _open_paths[0]],
+    ["Polyline", _polylines[5]],
+    ["Polygon", _polygons[5]],
+    ["Path", _closed_paths[5]],
+    ["Path", _open_paths[5]],
+    ["Polyline", _polylines[9]],
+    ["Polygon", _polygons[9]],
+    ["Path", _closed_paths[9]],
+    ["Path", _open_paths[9]],
+  ])("non-equiangular %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = constrDictCurves.isEquiangular(shape);
     expect(numOf(result)).toBeGreaterThan(0.1);
