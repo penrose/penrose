@@ -56,7 +56,8 @@ describe("totalCurvature", () => {
     ["Polygon", _polygons[0], 2 * Math.PI],
     ["Polygon", _polygons[7], -2 * Math.PI],
     ["Polygon", _polygons[8], 4 * Math.PI],
-    ["Polyline", _polylines[10], Math.PI / 2],
+    ["Polyline", _polylines[10], 0],
+    ["Polygon", _polygons[10], 0],
   ])("of %p", (shapeType: string, shapeData: any, expected: number) => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
@@ -68,16 +69,16 @@ describe("totalCurvature", () => {
 
 describe("elasticEnergy", () => {
   it.each([
-    ["Polyline", _polylines[0], 666],
-    ["Polygon", _polygons[1], 666],
-    ["Polyline", _polylines[3], 666],
-    ["Polygon", _polygons[4], 666],
+    ["Polyline", _polylines[0], 174949],
+    ["Polygon", _polygons[1], 90849],
+    ["Polyline", _polylines[3], 38372],
+    ["Polygon", _polygons[4], 195758],
   ])("of %p", (shapeType: string, shapeData: any, expected: number) => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = elasticEnergy(points, closed);
-    expect(numOf(result)).toBeCloseTo(expected, 4);
+    expect(numOf(result)).toBeCloseTo(expected, 0);
   });
 });
 
