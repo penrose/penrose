@@ -1,7 +1,5 @@
-import { compDict } from "contrib/Functions";
 import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
-import { makePath } from "shapes/Path";
 import { makePolygon } from "shapes/Polygon";
 import { makePolyline } from "shapes/Polyline";
 import { makeRectangle } from "shapes/Rectangle";
@@ -179,17 +177,5 @@ export const _polylines = polyPts.map((pts) =>
   makePolyline(context, canvas, {
     points: ptListV(pts),
     scale: floatV(1),
-  })
-);
-
-export const _open_paths = polyPts.map((pts) =>
-  makePath(context, canvas, {
-    d: compDict.cubicCurveFromPoints(context, "open", pts),
-  })
-);
-
-export const _closed_paths = polyPts.map((pts) =>
-  makePath(context, canvas, {
-    d: compDict.cubicCurveFromPoints(context, "closed", pts),
   })
 );

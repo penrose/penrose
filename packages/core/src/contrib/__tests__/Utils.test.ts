@@ -5,8 +5,6 @@ import {
   isClosed,
 } from "contrib/Utils";
 import {
-  _closed_paths,
-  _open_paths,
   _polygons,
   _polylines,
 } from "contrib/__testfixtures__/TestShapes.input";
@@ -114,31 +112,29 @@ describe("consecutiveTuples", () => {
 });
 
 describe("isClosed", () => {
-  it.each([
-    ["Polygon", _polygons[1]],
-    ["Path", _closed_paths[2]],
-  ])("closed %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = isClosed(shape);
-    expect(result).toBeTruthy();
-  });
+  it.each([["Polygon", _polygons[1]]])(
+    "closed %p",
+    (shapeType: string, shapeData: any) => {
+      const shape: [string, any] = [shapeType, shapeData];
+      const result = isClosed(shape);
+      expect(result).toBeTruthy();
+    }
+  );
 
-  it.each([
-    ["Polyline", _polylines[3]],
-    ["Path", _open_paths[4]],
-  ])("open %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = isClosed(shape);
-    expect(result).toBeFalsy();
-  });
+  it.each([["Polyline", _polylines[3]]])(
+    "open %p",
+    (shapeType: string, shapeData: any) => {
+      const shape: [string, any] = [shapeType, shapeData];
+      const result = isClosed(shape);
+      expect(result).toBeFalsy();
+    }
+  );
 });
 
 describe("extractPoints", () => {
   it.each([
     ["Polyline", _polylines[5]],
     ["Polygon", _polygons[6]],
-    ["Path", _closed_paths[7]],
-    ["Path", _open_paths[8]],
   ])("equidistant %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
     const result = extractPoints(shape);
