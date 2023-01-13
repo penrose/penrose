@@ -1,5 +1,9 @@
-import { objDict } from "contrib/Objectives";
+import { objDict, objDictSpecific } from "contrib/Objectives";
 import { numOf } from "contrib/Utils";
+import {
+  _polygons,
+  _polylines,
+} from "contrib/__testfixtures__/TestShapes.input";
 
 const digitPrecision = 4;
 
@@ -44,4 +48,28 @@ describe("simple objective", () => {
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
+});
+
+describe("isRegular", () => {
+  it.each([
+    ["Polyline", _polylines[6]],
+    ["Polygon", _polygons[6]],
+  ])("convex %p", (shapeType: string, shapeData: any) => {
+    const shape: [string, any] = [shapeType, shapeData];
+    const result = objDictSpecific.isRegular(shape);
+    expect(numOf(result)).toBeLessThanOrEqual(1e-5);
+  });
+
+  it.each([
+    ["Polyline", _polylines[7]],
+    ["Polygon", _polygons[7]],
+    ["Polyline", _polylines[8]],
+    ["Polygon", _polygons[8]],
+    ["Polyline", _polylines[9]],
+    ["Polygon", _polygons[9]],
+  ])("non-convex %p", (shapeType: string, shapeData: any) => {
+    const shape: [string, any] = [shapeType, shapeData];
+    const result = objDictSpecific.isRegular(shape);
+    expect(numOf(result)).toBeGreaterThan(0.01);
+  });
 });
