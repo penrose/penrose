@@ -233,7 +233,7 @@ export type PolyRootsEdge = NaryEdge;
 export type IndexEdge = UnaryEdge;
 export type NotEdge = UnaryEdge;
 
-export type Id = `${number}`;
+export type Id = number;
 
 export interface Graph extends Outputs<Id> {
   graph: GenericGraph<Id, Node, Edge>; // edges point from children to parents

@@ -369,9 +369,6 @@ const children = (x: ad.Expr): Child[] => {
   }
 };
 
-const indexToID = (index: number): ad.Id => `${index}`;
-const idToIndex = (id: ad.Id): number => parseInt(id, 10);
-
 const getInputs = (
   graph: ad.Graph["graph"]
 ): { id: ad.Id; label: ad.InputNode }[] => {
@@ -417,7 +414,7 @@ export const makeGraph = (
 
   // only call setNode in this one place, ensuring that we always use indexToID
   const newNode = (node: ad.Node): ad.Id => {
-    const id = indexToID(graph.nodeCount());
+    const id = graph.nodeCount();
     graph.setNode(id, node);
     return id;
   };
@@ -511,9 +508,7 @@ export const makeGraph = (
 
     // control the order in which partial derivatives are added
     const edges = [...graph.outEdges(id)].sort((a, b) =>
-      a.j === b.j
-        ? rankEdge(a.e) - rankEdge(b.e)
-        : idToIndex(a.j) - idToIndex(b.j)
+      a.j === b.j ? rankEdge(a.e) - rankEdge(b.e) : a.j - b.j
     );
 
     // we call graph.setEdge in this loop, so it may seem like it would be
