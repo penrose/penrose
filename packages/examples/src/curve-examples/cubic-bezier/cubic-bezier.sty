@@ -23,9 +23,9 @@ forall Curve c {
     }
 
     ensure equal(perimeter(points, false), 1200)
-    ensure equal(perimeter(points, false), 4200)
-    ensure isLocallyConvex(points, false)
-    ensure isEqiuangular(points, false)
+    ensure equal(algebraicArea(points, false), 4200)
+    ensure isLocallyConvex(curve)
+    ensure isEqiuangular(curve)
 }
 
 forall Point p {
