@@ -1,5 +1,5 @@
 type Curve
 type Point
 
-constructor CurveFromPoints( Point p1[], Point p2, Point p3, Point p4 ) -> Curve
+constructor CurveFromPoints( Point p1, Point p2, Point p3, Point p4 ) -> Curve
 constructor Lerp( Point p1, Point p2 ) -> Point
