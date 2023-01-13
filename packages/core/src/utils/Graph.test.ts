@@ -50,7 +50,7 @@ describe("Graph", () => {
     expect(numbersGraph().topsort()).toEqual([7, 2, 9, 1, 6, 5, 3, 8, 4]);
   });
 
-  test("topsort with edges", () => {
+  const numbersGraphWithEdges = () => {
     const g = numbersGraph();
     g.setEdge({ i: 9, j: 7, e: undefined });
     g.setEdge({ i: 8, j: 9, e: undefined });
@@ -60,20 +60,17 @@ describe("Graph", () => {
     g.setEdge({ i: 9, j: 3, e: undefined });
     g.setEdge({ i: 1, j: 2, e: undefined });
     g.setEdge({ i: 3, j: 7, e: undefined });
+    return g;
+  };
+
+  test("topsort with edges", () => {
+    const g = numbersGraphWithEdges();
     g.setEdge({ i: 5, j: 9, e: undefined });
     expect(g.topsort()).toEqual([1, 8, 4, 5, 9, 3, 7, 2, 6]);
   });
 
   const numberCycleGraph = () => {
-    const g = numbersGraph();
-    g.setEdge({ i: 9, j: 7, e: undefined });
-    g.setEdge({ i: 8, j: 9, e: undefined });
-    g.setEdge({ i: 1, j: 8, e: undefined });
-    g.setEdge({ i: 4, j: 9, e: undefined });
-    g.setEdge({ i: 1, j: 7, e: undefined });
-    g.setEdge({ i: 9, j: 3, e: undefined });
-    g.setEdge({ i: 1, j: 2, e: undefined });
-    g.setEdge({ i: 3, j: 7, e: undefined });
+    const g = numbersGraphWithEdges();
     g.setEdge({ i: 9, j: 1, e: undefined });
     return g;
   };
@@ -81,6 +78,18 @@ describe("Graph", () => {
   test("topsort with cycle", () => {
     const g = numberCycleGraph();
     expect(() => g.topsort()).toThrow();
+  });
+
+  test("descendants with cycle", () => {
+    expect(numberCycleGraph().descendants(8)).toEqual(
+      new Set([1, 2, 3, 7, 8, 9])
+    );
+  });
+
+  test("findCycles with no cycles", () => {
+    const g = numbersGraphWithEdges();
+    g.setEdge({ i: 5, j: 9, e: undefined });
+    expect(g.findCycles()).toEqual([]);
   });
 
   test("findCycles with one cycle", () => {
