@@ -11,7 +11,7 @@ import {
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "types/ad";
-import { Multidigraph } from "utils/Graph";
+import Graph from "utils/Graph";
 import { safe, zip2 } from "utils/Util";
 import * as wasm from "utils/Wasm";
 import {
@@ -228,34 +228,8 @@ const binarySensitivities = (z: ad.Binary): { left: ad.Num; right: ad.Num } => {
   }
 };
 
-const indexToNaryEdge = (index: number): ad.NaryEdge => `${index}`;
-const naryEdgeToIndex = (name: ad.NaryEdge) => parseInt(name, 10);
-
-// return the index at which `edge` appeared when returned from the `children`
-// function defined below
-const rankEdge = (edge: ad.Edge): number => {
-  switch (edge) {
-    case undefined:
-    case "left":
-    case "cond": {
-      return 0;
-    }
-    case "right":
-    case "then": {
-      return 1;
-    }
-    case "els": {
-      return 2;
-    }
-    default: {
-      return naryEdgeToIndex(edge);
-    }
-  }
-};
-
 interface Child {
   child: ad.Expr;
-  name: ad.Edge;
   sensitivity: ad.Num[][]; // rows for parent, columns for child
 }
 
@@ -270,56 +244,43 @@ const children = (x: ad.Expr): Child[] => {
       return [];
     }
     case "Not": {
-      return [
-        {
-          child: x.param,
-          name: undefined,
-          sensitivity: [],
-        },
-      ];
+      return [{ child: x.param, sensitivity: [] }];
     }
     case "Unary": {
-      return [
-        {
-          child: x.param,
-          name: undefined,
-          sensitivity: [[unarySensitivity(x)]],
-        },
-      ];
+      return [{ child: x.param, sensitivity: [[unarySensitivity(x)]] }];
     }
     case "Binary": {
       const { left, right } = binarySensitivities(x);
       return [
-        { child: x.left, name: "left", sensitivity: [[left]] },
-        { child: x.right, name: "right", sensitivity: [[right]] },
+        { child: x.left, sensitivity: [[left]] },
+        { child: x.right, sensitivity: [[right]] },
       ];
     }
     case "Comp":
     case "Logic": {
       return [
-        { child: x.left, name: "left", sensitivity: [] },
-        { child: x.right, name: "right", sensitivity: [] },
+        { child: x.left, sensitivity: [] },
+        { child: x.right, sensitivity: [] },
       ];
     }
     case "Ternary": {
       return [
-        { child: x.cond, name: "cond", sensitivity: [[]] },
-        { child: x.then, name: "then", sensitivity: [[ifCond(x.cond, 1, 0)]] },
-        { child: x.els, name: "els", sensitivity: [[ifCond(x.cond, 0, 1)]] },
+        { child: x.cond, sensitivity: [[]] },
+        { child: x.then, sensitivity: [[ifCond(x.cond, 1, 0)]] },
+        { child: x.els, sensitivity: [[ifCond(x.cond, 0, 1)]] },
       ];
     }
     case "Nary": {
-      return x.params.map((child, i) => {
-        const c = { child, name: indexToNaryEdge(i) };
+      return x.params.map((child) => {
         switch (x.op) {
           case "addN": {
-            return { ...c, sensitivity: [[1]] };
+            return { child, sensitivity: [[1]] };
           }
           case "maxN": {
-            return { ...c, sensitivity: [[ifCond(lt(child, x), 0, 1)]] };
+            return { child, sensitivity: [[ifCond(lt(child, x), 0, 1)]] };
           }
           case "minN": {
-            return { ...c, sensitivity: [[ifCond(gt(child, x), 0, 1)]] };
+            return { child, sensitivity: [[ifCond(gt(child, x), 0, 1)]] };
           }
         }
       });
@@ -355,7 +316,6 @@ const children = (x: ad.Expr): Child[] => {
 
       return x.coeffs.map((child, i) => ({
         child,
-        name: indexToNaryEdge(i),
         sensitivity: sensitivities.map((row) => [row[i]]),
       }));
     }
@@ -364,13 +324,10 @@ const children = (x: ad.Expr): Child[] => {
       // leave everything else undefined, to be treated as zeroes later
       const row = [];
       row[x.index] = 1;
-      return [{ child: x.vec, name: undefined, sensitivity: [row] }];
+      return [{ child: x.vec, sensitivity: [row] }];
     }
   }
 };
-
-const indexToID = (index: number): ad.Id => `${index}`;
-const idToIndex = (id: ad.Id): number => parseInt(id, 10);
 
 const getInputs = (
   graph: ad.Graph["graph"]
@@ -399,7 +356,7 @@ const getInputs = (
 export const makeGraph = (
   outputs: Omit<Outputs<ad.Num>, "gradient">
 ): ad.Graph => {
-  const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
+  const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
 
   // we use this queue to essentially do a breadth-first search by following
@@ -411,13 +368,14 @@ export const makeGraph = (
   // guaranteed to exist in the graph yet, so we fill this queue during the
   // node-adding part and then go through it during the edge-adding part,
   // leaving it empty in preparation for the next stage; so the first element of
-  // every tuple in this queue stores information about the edge and child, and
-  // the second element of the tuple is the parent
-  const edges = new Queue<[Child, ad.Expr]>();
+  // every tuple in this queue stores information about the edge and child, the
+  // second element is the index of the edge with respect to the parent, and the
+  // third element of the tuple is the parent
+  const edges = new Queue<[Child, ad.Edge, ad.Expr]>();
 
   // only call setNode in this one place, ensuring that we always use indexToID
   const newNode = (node: ad.Node): ad.Id => {
-    const id = indexToID(graph.nodeCount());
+    const id = graph.nodeCount();
     graph.setNode(id, node);
     return id;
   };
@@ -430,10 +388,10 @@ export const makeGraph = (
     if (name === undefined) {
       name = newNode(makeNode(x));
       nodes.set(x, name);
-      for (const edge of children(x)) {
-        edges.enqueue([edge, x]);
+      children(x).forEach((edge, index) => {
+        edges.enqueue([edge, index, x]);
         queue.enqueue(edge.child);
-      }
+      });
     }
     return name;
   };
@@ -441,12 +399,12 @@ export const makeGraph = (
   const addEdge = (
     child: ad.Expr,
     parent: ad.Expr,
-    name: ad.Edge
+    e: ad.Edge
   ): [ad.Id, ad.Id] => {
-    const v = safe(nodes.get(child), "missing child");
-    const w = safe(nodes.get(parent), "missing parent");
-    graph.setEdge({ v, w, name });
-    return [v, w];
+    const i = safe(nodes.get(child), "missing child");
+    const j = safe(nodes.get(parent), "missing parent");
+    graph.setEdge({ i, j, e });
+    return [i, j];
   };
 
   // add all the nodes subtended by the primary output; we do these first, in a
@@ -466,9 +424,9 @@ export const makeGraph = (
   // essentially just three components separated by underscores
   const sensitivities = new Map<`${ad.Edge}_${ad.Id}_${ad.Id}`, ad.Num[][]>();
   while (!edges.isEmpty()) {
-    const [{ child, name, sensitivity }, parent] = edges.dequeue();
-    const [v, w] = addEdge(child, parent, name);
-    sensitivities.set(`${name}_${v}_${w}`, sensitivity);
+    const [{ child, sensitivity }, index, parent] = edges.dequeue();
+    const [v, w] = addEdge(child, parent, index);
+    sensitivities.set(`${index}_${v}_${w}`, sensitivity);
   }
   // we can use this reverse topological sort later when we construct all the
   // gradient nodes, because it ensures that the gradients of a node's parents
@@ -488,8 +446,8 @@ export const makeGraph = (
     addNode(queue.dequeue());
   }
   while (!edges.isEmpty()) {
-    const [{ child, name }, parent] = edges.dequeue();
-    addEdge(child, parent, name);
+    const [{ child }, index, parent] = edges.dequeue();
+    addEdge(child, parent, index);
   }
 
   // map from each primary node ID to the IDs of its gradient nodes
@@ -511,17 +469,15 @@ export const makeGraph = (
 
     // control the order in which partial derivatives are added
     const edges = [...graph.outEdges(id)].sort((a, b) =>
-      a.w === b.w
-        ? rankEdge(a.name) - rankEdge(b.name)
-        : idToIndex(a.w) - idToIndex(b.w)
+      a.j === b.j ? a.e - b.e : a.j - b.j
     );
 
     // we call graph.setEdge in this loop, so it may seem like it would be
     // possible for those edges to get incorrectly included as addends in other
     // gradient nodes; however, that is not the case, because none of those
     // edges appear in our sensitivities map
-    for (const { w, name } of edges) {
-      const matrix = sensitivities.get(`${name}_${id}_${w}`);
+    for (const { j: w, e } of edges) {
+      const matrix = sensitivities.get(`${e}_${id}_${w}`);
       if (matrix !== undefined) {
         // `forEach` ignores holes
         matrix.forEach((row, i) => {
@@ -532,8 +488,8 @@ export const makeGraph = (
               const parentGradID = parentGradIDs[i];
 
               const addendID = newNode({ tag: "Binary", binop: "*" });
-              graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
-              graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
+              graph.setEdge({ i: sensitivityID, j: addendID, e: 0 });
+              graph.setEdge({ i: parentGradID, j: addendID, e: 1 });
               if (!(j in grad)) {
                 grad[j] = [];
               }
@@ -553,13 +509,9 @@ export const makeGraph = (
           return addNode(0);
         } else {
           const gradID = newNode({ tag: "Nary", op: "addN" });
-          addends.forEach((addendID, i) =>
-            graph.setEdge({
-              v: addendID,
-              w: gradID,
-              name: indexToNaryEdge(i),
-            })
-          );
+          addends.forEach((addendID, i) => {
+            graph.setEdge({ i: addendID, j: gradID, e: i });
+          });
           return gradID;
         }
       })
@@ -593,8 +545,8 @@ export const makeGraph = (
     addNode(queue.dequeue());
   }
   while (!edges.isEmpty()) {
-    const [{ child, name }, parent] = edges.dequeue();
-    addEdge(child, parent, name);
+    const [{ child }, index, parent] = edges.dequeue();
+    addEdge(child, parent, index);
   }
 
   return { graph, nodes, gradient, primary, secondary };
@@ -1220,28 +1172,10 @@ const compileNary = (
   }
 };
 
-const naryParams = (preds: Map<ad.Edge, number>): number[] => {
-  const params: number[] = [];
-  for (const [i, x] of preds.entries()) {
-    if (
-      i === undefined ||
-      i === "left" ||
-      i === "right" ||
-      i === "cond" ||
-      i === "then" ||
-      i === "els"
-    ) {
-      throw Error("expected NaryEdge");
-    }
-    params[naryEdgeToIndex(i)] = x;
-  }
-  return params;
-};
-
 const compileNode = (
   t: wasm.Target,
   node: Exclude<ad.Node, ad.InputNode>,
-  preds: Map<ad.Edge, number>
+  preds: number[]
 ): void => {
   if (typeof node === "number") {
     t.byte(wasm.OP.f64.const);
@@ -1251,7 +1185,7 @@ const compileNode = (
   }
   switch (node.tag) {
     case "Not": {
-      const child = safe(preds.get(undefined), "missing node");
+      const [child] = preds;
 
       t.byte(wasm.OP.local.get);
       t.int(child);
@@ -1261,24 +1195,19 @@ const compileNode = (
       return;
     }
     case "Unary": {
-      compileUnary(t, node, safe(preds.get(undefined), "missing param"));
+      const [param] = preds;
+      compileUnary(t, node, param);
       return;
     }
     case "Binary":
     case "Comp":
     case "Logic": {
-      compileBinary(
-        t,
-        node,
-        safe(preds.get("left"), "missing left"),
-        safe(preds.get("right"), "missing right")
-      );
+      const [left, right] = preds;
+      compileBinary(t, node, left, right);
       return;
     }
     case "Ternary": {
-      const cond = safe(preds.get("cond"), "missing cond");
-      const then = safe(preds.get("then"), "missing then");
-      const els = safe(preds.get("els"), "missing els");
+      const [cond, then, els] = preds;
 
       t.byte(wasm.OP.local.get);
       t.int(then);
@@ -1294,7 +1223,7 @@ const compileNode = (
       return;
     }
     case "Nary": {
-      compileNary(t, node, naryParams(preds));
+      compileNary(t, node, preds);
       return;
     }
     case "PolyRoots": {
@@ -1311,7 +1240,7 @@ const compileNode = (
       t.byte(wasm.OP.local.tee);
       t.int(getLocalIndex(funcTypes.addend, "stackPointer"));
 
-      naryParams(preds).forEach((index, i) => {
+      preds.forEach((index, i) => {
         t.byte(wasm.OP.local.get);
         t.int(getLocalIndex(funcTypes.addend, "stackPointer"));
 
@@ -1349,7 +1278,7 @@ const compileNode = (
       return;
     }
     case "Index": {
-      const vec = safe(preds.get(undefined), "missing vec");
+      const [vec] = preds;
 
       t.byte(wasm.OP.local.get);
       t.int(vec + node.index);
@@ -1448,9 +1377,10 @@ const compileGraph = (
     const node = graph.node(id);
     // we already generated code for the inputs
     if (typeof node === "number" || node.tag !== "Input") {
-      const preds = new Map(
-        graph.inEdges(id).map(({ v, name }) => [name, getIndex(locals, v)])
-      );
+      const preds: number[] = [];
+      for (const { i: v, e } of graph.inEdges(id)) {
+        preds[e] = getIndex(locals, v);
+      }
 
       compileNode(t, node, preds);
 

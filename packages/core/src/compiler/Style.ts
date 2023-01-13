@@ -130,7 +130,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { Digraph, Edge } from "utils/Graph";
+import Graph from "utils/Graph";
 import {
   boolV,
   colorV,
@@ -2162,7 +2162,14 @@ const gatherExpr = (
 ): void => {
   graph.setNode(w, expr);
   for (const p of findPathsWithContext(expr)) {
-    graph.setEdge({ v: prettyPrintResolvedPath(resolveRhsPath(p)), w });
+    graph.setEdge(
+      {
+        i: prettyPrintResolvedPath(resolveRhsPath(p)),
+        j: w,
+        e: undefined,
+      },
+      () => undefined
+    );
   }
 };
 
@@ -2172,7 +2179,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
       graph.setNode(lhs, rhs.shapeType);
       for (const [k, expr] of rhs.props) {
         const p = `${lhs}.${k}`;
-        graph.setEdge({ v: p, w: lhs });
+        graph.setEdge({ i: p, j: lhs, e: undefined }, () => undefined);
         gatherExpr(graph, p, expr);
       }
       return;
@@ -2185,7 +2192,10 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
 };
 
 export const gatherDependencies = (assignment: Assignment): DepGraph => {
-  const graph = new Digraph<string, WithContext<NotShape>>();
+  const graph = new Graph<
+    string,
+    ShapeType | WithContext<NotShape> | undefined
+  >();
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
@@ -3006,19 +3016,21 @@ export const computeShapeOrdering = (
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
 } => {
-  const layerGraph = new Digraph<string, undefined>();
-  allGPINames.forEach((name: string) => layerGraph.setNode(name, undefined));
+  const layerGraph = new Graph<string>();
+  allGPINames.forEach((name: string) => {
+    layerGraph.setNode(name, undefined);
+  });
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
-  partialOrderings.forEach(({ below, above }: Layer) =>
-    layerGraph.setEdge({ v: below, w: above })
-  );
+  partialOrderings.forEach(({ below, above }: Layer) => {
+    layerGraph.setEdge({ i: below, j: above, e: undefined });
+  });
 
   // if there are no cycles, return a global ordering from the top sort result
-  if (layerGraph.isAcyclic()) {
+  const cycles = layerGraph.findCycles();
+  if (cycles.length === 0) {
     const shapeOrdering: string[] = layerGraph.topsort();
     return { shapeOrdering };
   } else {
-    const cycles = layerGraph.findCycles();
     const shapeOrdering = pseudoTopsort(layerGraph);
     return {
       shapeOrdering,
@@ -3031,12 +3043,13 @@ export const computeShapeOrdering = (
   }
 };
 
-const pseudoTopsort = (graph: Digraph<string, undefined>): string[] => {
-  const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
-    const aIn = graph.inEdges(a);
-    const bIn = graph.inEdges(b);
-    return aIn.length - bIn.length;
-  });
+const pseudoTopsort = (graph: Graph<string>): string[] => {
+  const indegree = new Map<string, number>(
+    graph.nodes().map((i) => [i, graph.inEdges(i).length])
+  );
+  const toVisit: CustomHeap<string> = new CustomHeap(
+    (a: string, b: string) => indegree.get(a)! - indegree.get(b)!
+  );
   const res: string[] = [];
   graph.nodes().forEach((n: string) => toVisit.insert(n));
   while (toVisit.size() > 0) {
@@ -3044,8 +3057,8 @@ const pseudoTopsort = (graph: Digraph<string, undefined>): string[] => {
     const node: string = toVisit.extractRoot() as string;
     res.push(node);
     // remove all edges with `node`
-    const toRemove = graph.nodeEdges(node);
-    toRemove.forEach((e: Edge<string>) => graph.removeEdge(e));
+    for (const { j } of graph.outEdges(node))
+      indegree.set(j, indegree.get(j)! - 1);
     toVisit.fix();
   }
   return res;
@@ -3059,7 +3072,10 @@ export const getCanvasDim = (
   attr: "width" | "height",
   graph: DepGraph
 ): Result<number, StyleError> => {
-  const dim = graph.node(`canvas.${attr}`);
+  const i = `canvas.${attr}`;
+  if (!graph.hasNode(i))
+    return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
+  const dim = graph.node(i);
   if (dim === undefined) {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
   } else if (typeof dim === "string") {
@@ -3120,14 +3136,16 @@ const getShapes = (
   for (const [path, argVal] of symbols) {
     const i = path.lastIndexOf(".");
     const start = path.slice(0, i);
-    const shapeType = graph.node(start);
-    if (typeof shapeType === "string") {
-      if (argVal.tag !== "Val") {
-        throw internalMissingPathError(path);
+    if (graph.hasNode(start)) {
+      const shapeType = graph.node(start);
+      if (typeof shapeType === "string") {
+        if (argVal.tag !== "Val") {
+          throw internalMissingPathError(path);
+        }
+        const shape = props.get(start) ?? { shapeType, properties: {} };
+        shape.properties[path.slice(i + 1)] = argVal.contents;
+        props.set(start, shape);
       }
-      const shape = props.get(start) ?? { shapeType, properties: {} };
-      shape.properties[path.slice(i + 1)] = argVal.contents;
-      props.set(start, shape);
     }
   }
   return shapeOrdering.map((path) => {
