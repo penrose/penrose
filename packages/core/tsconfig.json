@@ -37,7 +37,8 @@
       "synthesis/*": ["./src/synthesis/*"],
       "types/*": ["./src/types/*"],
       "utils/*": ["./src/utils/*"]
-    }
+    },
+    "plugins": [{ "transform": "typescript-transform-paths" }]
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
