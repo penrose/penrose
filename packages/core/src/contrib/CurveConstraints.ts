@@ -126,13 +126,6 @@ export const elasticEnergy = (
 
 export const constrDictCurves = {
   /**
-   * The shape should not have any self-intersections
-   */
-  isSimple: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
-    throw new Error("Function not implemented."); // TODO
-  },
-
-  /**
    * The shape should be locally convex (all angles between consecutive edges whould have the same sign)
    */
   isLocallyConvex: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
