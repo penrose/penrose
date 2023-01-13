@@ -19,7 +19,6 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
     "prettier",
     "prettier/@typescript-eslint",
   ],
@@ -28,13 +27,7 @@ module.exports = {
     project: "tsconfig.json",
     sourceType: "module",
   },
-  plugins: [
-    "eslint-comments",
-    "eslint-plugin-import",
-    "eslint-plugin-jsdoc",
-    "eslint-plugin-react",
-    "eslint-plugin-import",
-  ],
+  plugins: ["eslint-comments", "eslint-plugin-import", "eslint-plugin-jsdoc"],
   rules: {
     "@typescript-eslint/consistent-type-assertions": [
       1,

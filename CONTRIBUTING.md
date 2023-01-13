@@ -5,6 +5,7 @@
 - [Prerequisites](#prerequisites)
   - [Apple Silicon](#apple-silicon)
   - [Windows WSL](#windows-wsl)
+  - [Linux](#linux)
 - [Setup](#setup)
 - [Editor](#editor)
 - [Development](#development)
@@ -70,6 +71,14 @@ Here are some WSL-specific guides:
 
 - [Guide for installing nvm and Node.js][]
 - [Guide for installing Yarn][]
+
+### Linux
+
+For `wasm-bindgen`, install an OpenSSL development package:
+
+```sh
+apt-get install libssl-dev
+```
 
 ## Setup
 
