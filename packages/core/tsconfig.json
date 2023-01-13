@@ -38,7 +38,10 @@
       "types/*": ["./src/types/*"],
       "utils/*": ["./src/utils/*"]
     },
-    "plugins": [{ "transform": "typescript-transform-paths" }]
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ]
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
