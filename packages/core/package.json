@@ -13,11 +13,11 @@
   "scripts": {
     "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "build": "ttsc -p tsconfig.json",
+    "start": "yarn build --watch",
     "test": "cross-env NODE_OPTIONS='--no-warnings --experimental-vm-modules' jest",
     "test-watch": "yarn test --watchAll",
     "build-decls": ":",
     "typecheck": ":",
-    "start": "yarn build --watch",
     "docs": "typedoc --plugin none --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
     "coverage": "yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
@@ -62,6 +62,12 @@
         "dependsOn": [
           "^build",
           "^build-decls",
+          "build-parsers"
+        ]
+      },
+      "watch": {
+        "dependsOn": [
+          "^build",
           "build-parsers"
         ]
       }
