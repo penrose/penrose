@@ -4,9 +4,7 @@ canvas {
 }
 
 global {
-    scalar t = ?
-    encourage lessThan(0.8, t)
-    encourage lessThan(t, 0.2)
+    scalar t = 0.4
 }
 
 forall Curve c {
@@ -24,8 +22,6 @@ forall Curve c {
 
     ensure equal(perimeter(points, false), 900)
     ensure equal(algebraicArea(points, false), 1e5)
-    ensure isLocallyConvex(curve)
-    ensure isEquiangular(curve)
 }
 
 forall Point p {
