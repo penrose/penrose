@@ -44,7 +44,7 @@ module.exports = {
     "@typescript-eslint/no-confusing-void-expression": 2,
     "@typescript-eslint/no-unnecessary-boolean-literal-compare": 2,
     "@typescript-eslint/no-unnecessary-condition": 1,
-    "@typescript-eslint/non-nullable-type-assertion-style": 2,
+    "@typescript-eslint/non-nullable-type-assertion-style": 1,
     "@typescript-eslint/prefer-ts-expect-error": 2,
     eqeqeq: 2,
     "eslint-comments/no-use": 2,

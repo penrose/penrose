@@ -1,5 +1,5 @@
 import { Outputs } from "@penrose/optimizer";
-import { Multidigraph } from "utils/Graph";
+import GenericGraph from "utils/Graph";
 
 // The following three regions define the core types for our symbolic
 // differentiation engine. Note that, despite the name, this is not actually
@@ -212,31 +212,12 @@ export interface IndexNode {
   index: number;
 }
 
-export type Edge =
-  | UnaryEdge
-  | BinaryEdge
-  | CompEdge
-  | LogicEdge
-  | TernaryEdge
-  | NaryEdge
-  | PolyRootsEdge
-  | IndexEdge
-  | NotEdge;
+export type Edge = number;
 
-export type UnaryEdge = undefined;
-export type BinaryEdge = "left" | "right";
-export type CompEdge = BinaryEdge;
-export type LogicEdge = BinaryEdge;
-export type TernaryEdge = "cond" | "then" | "els";
-export type NaryEdge = `${number}`;
-export type PolyRootsEdge = NaryEdge;
-export type IndexEdge = UnaryEdge;
-export type NotEdge = UnaryEdge;
-
-export type Id = `${number}`;
+export type Id = number;
 
 export interface Graph extends Outputs<Id> {
-  graph: Multidigraph<Id, Node, Edge>; // edges point from children to parents
+  graph: GenericGraph<Id, Node, Edge>; // edges point from children to parents
   nodes: Map<Expr, Id>;
 }
 
