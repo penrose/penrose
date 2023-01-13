@@ -1,0 +1,141 @@
+canvas {
+    width = 600
+    height = 400
+}
+
+forall Hyperedge h {
+    vec2 p0 = (?, ?)
+    vec2 p1 = (?, ?)
+    vec2 p2 = (?, ?)
+    vec2 p3 = (?, ?)
+    vec2 p4 = (?, ?)
+    vec2 p5 = (?, ?)
+    vec2 p6 = (?, ?)
+    vec2 p7 = (?, ?)
+    vec2 p8 = (?, ?)
+    vec2 p9 = (?, ?)
+    vec2 q12 = 0.5 * (p1 + p2)
+    vec2 q34 = 0.5 * (p3 + p4)
+    vec2 q56 = 0.5 * (p5 + p6)
+
+    shape h.curve1 = Path {
+        d: cubicCurveFromPoints("open", [q12, p2, p3, q34])
+        strokeWidth: 2.5
+        ensureOnCanvas: true
+        strokeColor: #000
+        fillColor: sampleColor(0.3, "rgb")
+    }
+    shape h.curve2 = Path {
+        d: cubicCurveFromPoints("open", [q34, p4, p5, q56])
+        strokeWidth: 2.5
+        ensureOnCanvas: true
+        strokeColor: #000
+        fillColor: h.curve.fillColor
+    }
+    shape h.curve3 = Path {
+        d: cubicCurveFromPoints("open", [q56, p6, p1, q12])
+        strokeWidth: 2.5
+        ensureOnCanvas: true
+        strokeColor: #000
+        fillColor: h.curve.fillColor
+    }
+
+    shape h.poly = Polygon {
+        points: [q12, q34, q56]
+        strokeColor: h.curve.fillColor
+        strokeWidth: .1
+        fillColor: h.curve.fillColor
+    }
+
+    vec2 e1 = p2 - p1
+    vec2 e2 = p3 - p2
+    vec2 e3 = p4 - p3
+    vec2 e4 = p5 - p4
+    vec2 e5 = p6 - p5
+    vec2 e6 = p1 - p6
+
+    scalar d1 = vdist(p2, p1)
+    scalar d2 = vdist(p3, p2)
+    scalar d3 = vdist(p4, p3)
+    scalar d4 = vdist(p5, p4)
+    scalar d5 = vdist(p6, p5)
+    scalar d6 = vdist(p1, p6)
+
+    ensure lessThan(100, d1)
+    ensure lessThan(100, d2)
+    ensure lessThan(100, d3)
+    ensure lessThan(100, d4)
+    ensure lessThan(100, d5)
+    ensure lessThan(100, d6)
+
+    vec2 v1 = 0.5 * (p1 + p2)
+    vec2 v2 = 0.5 * (p2 + p3)
+    vec2 v3 = 0.5 * (p3 + p4)
+    vec2 v4 = 0.5 * (p4 + p5)
+    vec2 v5 = 0.5 * (p5 + p6)
+    vec2 v6 = 0.5 * (p6 + p1)
+
+    scalar d1d2 = vdist(v1, v2)
+    scalar d1d3 = vdist(v1, v3)
+    scalar d1d4 = vdist(v1, v4)
+    scalar d1d5 = vdist(v1, v5)
+    scalar d1d6 = vdist(v1, v6)
+    scalar d2d1 = vdist(v2, v1)
+    scalar d2d3 = vdist(v2, v3)
+    scalar d2d4 = vdist(v2, v4)
+    scalar d2d5 = vdist(v2, v5)
+    scalar d2d6 = vdist(v2, v6)
+    scalar d3d1 = vdist(v3, v1)
+    scalar d3d2 = vdist(v3, v2)
+    scalar d3d4 = vdist(v3, v4)
+    scalar d3d5 = vdist(v3, v5)
+    scalar d3d6 = vdist(v3, v6)
+    scalar d4d1 = vdist(v4, v1)
+    scalar d4d2 = vdist(v4, v2)
+    scalar d4d3 = vdist(v4, v3)
+    scalar d4d5 = vdist(v4, v5)
+    scalar d4d6 = vdist(v4, v6)
+    scalar d5d1 = vdist(v5, v1)
+    scalar d5d2 = vdist(v5, v2)
+    scalar d5d3 = vdist(v5, v3)
+    scalar d5d4 = vdist(v5, v4)
+    scalar d5d6 = vdist(v5, v6)
+    scalar d6d1 = vdist(v6, v1)
+    scalar d6d2 = vdist(v6, v2)
+    scalar d6d3 = vdist(v6, v3)
+    scalar d6d4 = vdist(v6, v4)
+    scalar d6d5 = vdist(v6, v5)
+
+    scalar repulsive = d1 * d2 / d1d2 + d1 * d3 / d1d3 + d1 * d4 / d1d4 + d1 * d5 / d1d5 + d1 * d6 / d1d6 + d2 * d3 / d2d3 + d2 * d4 / d2d4 + d2 * d5 / d2d5 + d2 * d6 / d2d6 + d3 * d4 / d3d4 + d3 * d5 / d3d5 + d3 * d6 / d3d6 + d4 * d5 / d4d5 + d4 * d6 / d4d6 + d5 * d6 / d5d6
+
+    encourage equal(repulsive, 1100)
+
+}
+
+forall Node n {
+    vec2 n.pos = (?, ?)
+    shape n.icon = Circle {
+        center: n.pos
+        r: 6
+        fillColor: #00000000
+    }
+}
+
+forall Node n; Hyperedge h
+where isIn(n, h) {
+    ensure overlapping(n.icon, h.poly, 100)
+}
+
+forall Node n; Hyperedge h
+where notIn(n, h) {
+    ensure disjoint(n.icon, h.poly, 50)
+}
+
+
+forall Hyperedge h1; Hyperedge h2 {
+    -- ensure disjoint(h1.poly, h2.poly, 100)
+}
+
+forall Node n1; Node n2 {
+    encourage equal(vdist(n1.pos, n2.pos), 100)
+}
