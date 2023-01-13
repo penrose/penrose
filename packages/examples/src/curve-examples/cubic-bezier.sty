@@ -21,7 +21,7 @@ forall Curve c {
     }
 
     ensure equal(perimeter(points, false), 900)
-    ensure equal(algebraicArea(points, false), 1e5)
+    ensure equal(signedArea(points, false), 1e5)
 }
 
 forall Point p {
