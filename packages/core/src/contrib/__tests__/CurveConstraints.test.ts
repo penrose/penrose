@@ -1,11 +1,11 @@
 import {
-  algebraicArea,
   constrDictCurves,
   curvature,
   elasticEnergy,
   equivalued,
   isoperimetricRatio,
   perimeter,
+  signedArea,
   totalCurvature,
   turningNumber,
 } from "contrib/CurveConstraints";
@@ -155,7 +155,7 @@ describe("algebraicArea", () => {
     const shape: [string, any] = [shapeType, shapeData];
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = algebraicArea(points, closed);
+    const result = signedArea(points, closed);
     expect(numOf(result)).toBeCloseTo(expected, 4);
   });
 });
@@ -217,7 +217,7 @@ describe("isEquidistant", () => {
     ["Polyline", _polylines[10]],
   ])("equidistant %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isEquidistant(shape);
+    const result = constrDictCurves.isEquilateral(shape);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
@@ -229,7 +229,7 @@ describe("isEquidistant", () => {
     ["Polygon", _polygons[10]],
   ])("non-equidistant %p", (shapeType: string, shapeData: any) => {
     const shape: [string, any] = [shapeType, shapeData];
-    const result = constrDictCurves.isEquidistant(shape);
+    const result = constrDictCurves.isEquilateral(shape);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });

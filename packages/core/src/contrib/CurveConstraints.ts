@@ -59,9 +59,12 @@ export const perimeter = (
 };
 
 /**
- * Returns the algebraic area enclosed by a polygonal chain given its nodes
+ * Returns the signed area enclosed by a polygonal chain given its nodes
  */
-export const algebraicArea = (points: [ad.Num, ad.Num][], closed: boolean) => {
+export const signedArea = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
   const sides = consecutiveTuples(points, closed);
   return mul(
     0.5,
@@ -90,7 +93,7 @@ export const isoperimetricRatio = (
   points: [ad.Num, ad.Num][],
   closed: boolean
 ): ad.Num => {
-  return div(squared(perimeter(points, closed)), algebraicArea(points, closed));
+  return div(squared(perimeter(points, closed)), signedArea(points, closed));
 };
 
 /**
@@ -157,7 +160,7 @@ export const constrDictCurves = {
   /**
    * All edges should have the same length
    */
-  isEquidistant: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
+  isEquilateral: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
     const points = extractPoints([t, s]);
     const hs = consecutiveTuples(points, isClosed([t, s]));
     return equivalued(hs.map(([p1, p2]: ad.Num[][]) => ops.vdist(p1, p2)));

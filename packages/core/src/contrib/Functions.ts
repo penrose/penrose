@@ -72,10 +72,10 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/Util";
 import {
-  algebraicArea,
   elasticEnergy,
   isoperimetricRatio,
   perimeter,
+  signedArea,
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints";
@@ -1585,14 +1585,14 @@ export const compDict = {
   },
 
   /**
-   * Returns the algebraic area enclosed by a polygonal chain given its nodes
+   * Returns the signed area enclosed by a polygonal chain given its nodes
    */
-  algebraicArea: (
+  signedArea: (
     _context: Context,
     points: [ad.Num, ad.Num][],
     closed: boolean
   ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: algebraicArea(points, closed) };
+    return { tag: "FloatV", contents: signedArea(points, closed) };
   },
 
   /**
