@@ -126,7 +126,7 @@ export const elasticEnergy = (
 
 export const constrDictCurves = {
   /**
-   * The shape should be locally convex (all angles between consecutive edges whould have the same sign)
+   * The shape should be locally convex (all angles between consecutive edges would have the same sign)
    */
   isLocallyConvex: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
     const points = extractPoints([t, s]);
