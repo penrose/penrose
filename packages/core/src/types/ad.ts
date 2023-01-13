@@ -212,26 +212,7 @@ export interface IndexNode {
   index: number;
 }
 
-export type Edge =
-  | UnaryEdge
-  | BinaryEdge
-  | CompEdge
-  | LogicEdge
-  | TernaryEdge
-  | NaryEdge
-  | PolyRootsEdge
-  | IndexEdge
-  | NotEdge;
-
-export type UnaryEdge = undefined;
-export type BinaryEdge = "left" | "right";
-export type CompEdge = BinaryEdge;
-export type LogicEdge = BinaryEdge;
-export type TernaryEdge = "cond" | "then" | "els";
-export type NaryEdge = `${number}`;
-export type PolyRootsEdge = NaryEdge;
-export type IndexEdge = UnaryEdge;
-export type NotEdge = UnaryEdge;
+export type Edge = number;
 
 export type Id = number;
 
