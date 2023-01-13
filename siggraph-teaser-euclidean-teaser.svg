@@ -131,26 +131,6 @@
     <title>`b`.icon</title>
   </g>
   <g>
-    <path
-      d="M 604.8902776022715 186.50207977211932 L 478.61687868589036 623.5850933430189"
-      stroke-opacity="0.5"
-      stroke-width="0"
-      stroke="#6a591c"
-      stroke-linecap="butt"
-    ></path>
-    <title>`t`.PQ</title>
-  </g>
-  <g>
-    <path
-      d="M 414.92031202098366 558.8989161113351 L 604.8902776022715 186.50207977211932"
-      stroke-opacity="0.5"
-      stroke-width="0"
-      stroke="#a45c2d"
-      stroke-linecap="butt"
-    ></path>
-    <title>`t`.RP</title>
-  </g>
-  <g>
     <marker
       id="`w`.icon-endArrowId"
       markerUnits="strokeWidth"
@@ -232,6 +212,26 @@
       stroke-linecap="butt"
     ></path>
     <title>`a`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 604.8902776022715 186.50207977211932 L 478.61687868589036 623.5850933430189"
+      stroke-opacity="0.5"
+      stroke-width="0"
+      stroke="#6a591c"
+      stroke-linecap="butt"
+    ></path>
+    <title>`t`.PQ</title>
+  </g>
+  <g>
+    <path
+      d="M 414.92031202098366 558.8989161113351 L 604.8902776022715 186.50207977211932"
+      stroke-opacity="0.5"
+      stroke-width="0"
+      stroke="#a45c2d"
+      stroke-linecap="butt"
+    ></path>
+    <title>`t`.RP</title>
   </g>
   <circle
     fill="#000000"

@@ -11,16 +11,6 @@
   </g>
   <g>
     <path
-      d="M 405.51253394934804 176.60712693593229 L 480.9464195912719 136.50826259571835"
-      stroke-opacity="1"
-      stroke-width="6"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C5O2`.line1</title>
-  </g>
-  <g>
-    <path
       d="M 551.45270085121 380.7566169376021 L 635.8680887004666 353.81054806252143"
       stroke-opacity="1"
       stroke-width="2"
@@ -51,16 +41,6 @@
   </g>
   <g>
     <path
-      d="M 601.275297551512 469.39463814906134 L 687.7894834049375 469.8405050665376"
-      stroke-opacity="1"
-      stroke-width="6"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C1O1`.line1</title>
-  </g>
-  <g>
-    <path
       d="M 604.204392061049 563.645815408134 L 668.2624144271894 620.8471828313411"
       stroke-opacity="1"
       stroke-width="2"
@@ -68,6 +48,16 @@
       stroke-linecap="butt"
     ></path>
     <title>`N1H2`.line1</title>
+  </g>
+  <g>
+    <path
+      d="M 405.51253394934804 176.60712693593229 L 480.9464195912719 136.50826259571835"
+      stroke-opacity="1"
+      stroke-width="6"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C5O2`.line1</title>
   </g>
   <g>
     <path
@@ -188,6 +178,16 @@
       stroke-linecap="butt"
     ></path>
     <title>`C3H5`.line1</title>
+  </g>
+  <g>
+    <path
+      d="M 601.275297551512 469.39463814906134 L 687.7894834049375 469.8405050665376"
+      stroke-opacity="1"
+      stroke-width="6"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C1O1`.line1</title>
   </g>
   <g>
     <path
