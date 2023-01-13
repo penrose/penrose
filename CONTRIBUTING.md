@@ -5,7 +5,7 @@
 - [Prerequisites](#prerequisites)
   - [Apple Silicon](#apple-silicon)
   - [Windows WSL](#windows-wsl)
-  - [Linux](#linux)v
+  - [Linux](#linux)
 - [Setup](#setup)
 - [Editor](#editor)
 - [Development](#development)
