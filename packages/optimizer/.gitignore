@@ -1,4 +1,5 @@
 /bindings/
+/build/
 /index.js
 /index.js.map
 /source.d.ts
