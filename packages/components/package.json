@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "build-decls": "tsc --emitDeclarationOnly",
+    "build-decls": ":",
     "typecheck": ":",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192' build-storybook"
@@ -22,7 +22,7 @@
       },
       "build-decls": {
         "dependsOn": [
-          "^build-decls"
+          "build"
         ]
       },
       "build-storybook": {
