@@ -56,7 +56,6 @@
   "devDependencies": {
     "@babel/core": "^7.18.0",
     "@mdx-js/preact": "^2.1.5",
-    "@penrose/core": "1.3.0",
     "@storybook/addon-actions": "^6.5.15",
     "@storybook/addon-essentials": "^6.5.15",
     "@storybook/addon-interactions": "^6.5.15",
