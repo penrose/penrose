@@ -11,10 +11,9 @@
   "main": "dist/index.js",
   "repository": "penrose/penrose",
   "files": [
-    "/bin",
-    "/dist",
-    "/npm-shrinkwrap.json",
-    "/oclif.manifest.json"
+    "bin",
+    "dist",
+    "oclif.manifest.json"
   ],
   "dependencies": {
     "@oclif/core": "^1",
