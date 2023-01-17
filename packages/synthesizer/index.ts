@@ -12,7 +12,7 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "@penrose/core";
-import { A } from "@penrose/core/build/dist/types/ast";
+import { A } from "@penrose/core/dist/types/ast";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
 import { join } from "path";

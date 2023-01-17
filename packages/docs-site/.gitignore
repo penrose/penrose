@@ -19,5 +19,6 @@ yarn-error.log*
 # Build-generated files
 /.vitepress/.temp/
 /.vitepress/cache/
+/build/
 /public/try/
 /src/shapedefs.json

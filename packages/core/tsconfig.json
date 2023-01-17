@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "build/dist",
+    "outDir": "dist",
     "module": "es2022",
     "target": "es2017",
     "lib": ["es5", "es6", "es7", "esnext", "dom"],
@@ -37,7 +37,11 @@
       "synthesis/*": ["./src/synthesis/*"],
       "types/*": ["./src/types/*"],
       "utils/*": ["./src/utils/*"]
-    }
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ]
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
@@ -63,7 +67,6 @@
   "include": ["src", "index.d.ts"],
   "exclude": [
     "node_modules",
-    "build",
     "docs",
     "dist",
     "src/__tests__",
