@@ -3,14 +3,16 @@
 `roger` is the command-line interface for the Penrose platform. Currently, it is mostly used for local development. `roger` serves and watches changes to Domain, Substance, and Style files in the local file system.
 
 <!-- toc -->
-* [@penrose/roger](#penroseroger)
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [@penrose/roger](#penroseroger)
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @penrose/roger
 $ roger COMMAND
@@ -22,12 +24,14 @@ USAGE
   $ roger COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`roger watch`](#roger-watch)
+
+- [`roger watch`](#roger-watch)
 
 ## `roger watch`
 
@@ -48,4 +52,5 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/watch.js](https://github.com/penrose/penrose/blob/v2.0.0/dist/commands/watch.js)_
+
 <!-- commandsstop -->
