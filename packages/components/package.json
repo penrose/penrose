@@ -8,7 +8,6 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "start": "tsc -w",
     "build-decls": "tsc --emitDeclarationOnly",
     "typecheck": ":",
     "storybook": "start-storybook -p 6006",
