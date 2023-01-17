@@ -53,7 +53,7 @@
     "build-decls": ":",
     "typecheck": ":",
     "postpack": "shx rm -f oclif.manifest.json",
-    "prepack": "yarn build && oclif manifest && oclif readme",
+    "prepack": "yarn build && oclif manifest && oclif readme && prettier --write README.md",
     "version": "oclif readme && git add README.md",
     "preinstall-global": "yarn build",
     "install-global": "yarn link"
