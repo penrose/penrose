@@ -2,7 +2,7 @@
 
 `@penrose/core` contains the core of the Penrose platform, including the compilation pipeline and the SVG renderer.
 
-See the [website](https://penrose.cs.cmu.edu) for more details about the system in general.
+See the [website](https://penrose.cs.cmu.edu) for more details about the system in general, and see [@penrose/components](https://www.npmjs.com/package/@penrose/components) for React components wrapping around this core library.
 
 ## Getting started
 
