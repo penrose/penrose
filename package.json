@@ -60,5 +60,11 @@
       "**/webpack"
     ]
   },
-  "version": "1.3.0"
+  "changelog": {
+    "labels": {
+      "feature": "New Feature",
+      "bug": "Bug Fix",
+      "docs": "Documentation"
+    }
+  }
 }
