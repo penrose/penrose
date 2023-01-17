@@ -8,7 +8,8 @@
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "files": [
-    "/dist"
+    "dist/**.d.ts",
+    "dist/**.js"
   ],
   "scripts": {
     "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
