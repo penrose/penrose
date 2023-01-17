@@ -16,8 +16,8 @@
     "watch": "tsc -w",
     "build-decls": ":",
     "typecheck": ":",
-    "storybook": "cross-env NODE_OPTIONS='--openssl-legacy-provider' start-storybook -p 6006",
-    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' build-storybook"
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192' build-storybook"
   },
   "nx": {
     "targets": {
