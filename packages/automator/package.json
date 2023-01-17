@@ -1,6 +1,7 @@
 {
   "name": "@penrose/automator",
   "version": "1.3.0",
+  "private": true,
   "description": "",
   "type": "module",
   "main": "index.tsx",
