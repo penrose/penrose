@@ -1,6 +1,6 @@
 {
   "name": "@penrose/components",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.0.11",
-    "@penrose/core": "1.3.0",
+    "@penrose/core": "^2.0.0",
     "monaco-editor": "^0.31.0",
     "monaco-vim": "^0.3.4"
   },
