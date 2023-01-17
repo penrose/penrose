@@ -1,6 +1,6 @@
 # `@penrose/components`: a React component library for Penrose
 
-`@penrose/components` includes a collection of React components for building Penrose clients (e.g. `@penrose/panels` and `@penrose/browser-ui`).
+`@penrose/components` includes a collection of React components for building Penrose clients (e.g. `@penrose/editor` and `@penrose/synthesizer-ui`).
 
 ## Getting started
 
@@ -36,11 +36,14 @@ const App = () => (
     domainString={domain}
     substanceString={substance}
     styleString={style}
+    variation={""}
   />
 );
 
 export default App;
 ```
+
+For a full list of exported components and examples, refer to the [storybook](https://penrose.github.io/penrose/storybook/).
 
 ## Building and Running
 
