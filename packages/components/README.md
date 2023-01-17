@@ -1,8 +1,14 @@
 # `@penrose/components`: a React component library for Penrose
 
-`@penrose/components` includes a collection of React components for building Penrose clients (e.g. `@penrose/panels` and `@penrose/browser-ui`).
+`@penrose/components` includes a collection of React components for building Penrose clients (e.g. `@penrose/editor` and `@penrose/synthesizer-ui`).
 
 ## Getting started
+
+In your application, make sure you have `react` and `react-dom` as dependencies. `@penrose/components` has both packages as peer dependencies and does not bundle them. To install:
+
+```shell
+yarn add @penrose/components
+```
 
 For a minimal example, try using the `Simple` component in your React application:
 
@@ -23,7 +29,7 @@ canvas {
   width = 500
   height = 500
 }
-Set X {
+forall Set X {
   X.shape = Circle { }
   X.text  = Text { string: X.label }
   ensure contains(X.shape, X.text)
@@ -32,18 +38,10 @@ Set X {
 `;
 
 const App = () => (
-  <Embed
-    domainString={domain}
-    substanceString={substance}
-    styleString={style}
-  />
+  <Embed domain={domain} substance={substance} style={style} variation={""} />
 );
 
 export default App;
 ```
 
-## Building and Running
-
-- Run `yarn build` to build the library
-- In your client library, make sure you have `react` and `react-dom` as dependencies. `@penrose/components` has both packages as peer dependencies and does not bundle them.
-- Run `yarn storybook` to preview the components with some examples.
+For a full list of exported components and examples, refer to the [storybook](https://penrose.github.io/penrose/storybook/).
