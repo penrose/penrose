@@ -8,6 +8,13 @@ See the [wiki](https://github.com/penrose/penrose/wiki) for more details about t
 
 If using Penrose in a web or Node application, run `yarn add @penrose/core` to install the package.
 
+`core` contains some browser-only dependencies (e.g. MathJax for rendering equations). If using Node, we recommend using [`global-jsdom`](https://www.npmjs.com/package/global-jsdom) to shim them.
+
+```ts
+import "global-jsdom/register"; // must come before the Penrose import
+import * as Penrose from "@penrose/core";
+```
+
 In a HTML document, use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) to import functions from `@penrose/core` through a CDN. For example:
 
 <head>
