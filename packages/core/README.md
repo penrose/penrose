@@ -17,6 +17,7 @@ import * as Penrose from "@penrose/core";
 
 In a HTML document, use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) to import functions from `@penrose/core` through a CDN. For example:
 
+```html
 <head>
   <script type="module">
     import { diagram } from "http://unpkg.com/@penrose/core";
@@ -51,6 +52,7 @@ In a HTML document, use [JavaScript modules](https://developer.mozilla.org/en-US
 <body>
     <div id="penrose-diagram">
 </body>
+```
 
 ## Exported functions
 
