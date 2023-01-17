@@ -12,7 +12,7 @@
     "build-decls": "tsc --emitDeclarationOnly",
     "typecheck": ":",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192' build-storybook"
   },
   "nx": {
     "targets": {
