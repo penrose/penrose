@@ -8,28 +8,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      CI: false # TODO: eliminate warnings so we don't have to do this
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          # https://github.com/lerna/lerna/issues/1893#issuecomment-770614785
-          fetch-depth: 0
       - name: Setup
         uses: ./.github/actions/setup
       - name: Typecheck all packages
         run: yarn typecheck
       - name: Run all builds
         run: yarn build
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        name: Authenticate with registry
-        run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        name: Publish canary release
-        run: yarn publish:canary --yes
 
   format:
     runs-on: ubuntu-latest
