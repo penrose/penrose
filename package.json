@@ -60,7 +60,6 @@
       "**/webpack"
     ]
   },
-  "version": "0.0.0",
   "changelog": {
     "labels": {
       "feature": "New Feature",
