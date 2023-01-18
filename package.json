@@ -18,7 +18,7 @@
     "lint": "nx run core:lint",
     "lint:fix": "nx run core:lint --fix",
     "lerna": "lerna",
-    "new-version": "yarn lerna version --conventional-commits --no-git-tag-version --no-push",
+    "new-version": "lerna version --conventional-commits --no-git-tag-version --no-push",
     "format": "prettier . --write && nx run-many --target=format --verbose",
     "format:check": "prettier . --check && nx run-many --target=format:check --verbose",
     "toc": "markdown-toc --bullets='-' -i CONTRIBUTING.md",
