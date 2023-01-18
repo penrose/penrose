@@ -106,7 +106,16 @@ export const showError = (
         variable
       )}) does not exist.`;
       if (possibleVars) {
-        const suggestions = possibleVars.map((v) => v.value).join(", ");
+        const suggestions = possibleVars
+          .map((v) => {
+            switch (v.nodeType) {
+              case "Style":
+                return v.value;
+              case "Substance":
+                return `\`${v.value}\``;
+            }
+          })
+          .join(", ");
         return msg + ` Declared variables are: ${suggestions}`;
       } else return msg;
     }
