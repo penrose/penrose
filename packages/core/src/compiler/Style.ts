@@ -575,7 +575,7 @@ const mergeMapping = (
     case "StyVar":
       return {
         ...varEnv,
-        vars: vars,
+        vars,
         varIDs: [
           dummyIdentifier(bindingForm.contents.value, "Style"),
           ...varEnv.varIDs,
