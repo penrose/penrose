@@ -8,8 +8,8 @@
   "types": "dist/index.d.ts",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "files": [
-    "dist/**.d.ts",
-    "dist/**.js"
+    "dist/**/*.d.ts",
+    "dist/**/*.js"
   ],
   "scripts": {
     "build": "tsc",
