@@ -567,22 +567,29 @@ const mergeMapping = (
     throw Error("var has no binding form?");
   }
   const [, bindingForm] = res;
-
+  const vars = varEnv.vars.set(
+    bindingForm.contents.value,
+    toSubstanceType(styType)
+  );
   switch (bindingForm.tag) {
-    case "SubVar": {
-      // G || (x : |T) |-> G
-      return varEnv;
-    }
-    case "StyVar": {
-      // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
+    case "StyVar":
       return {
         ...varEnv,
-        vars: varEnv.vars.set(
-          bindingForm.contents.value,
-          toSubstanceType(styType)
-        ),
+        vars,
+        varIDs: [
+          dummyIdentifier(bindingForm.contents.value, "Style"),
+          ...varEnv.varIDs,
+        ],
       };
-    }
+    case "SubVar":
+      return {
+        ...varEnv,
+        vars,
+        varIDs: [
+          dummyIdentifier(bindingForm.contents.value, "Substance"),
+          ...varEnv.varIDs,
+        ],
+      };
   }
 };
 
@@ -614,8 +621,10 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
         safeContentsList(sel.with)
       );
 
+      // Basically creates a new, empty environment.
+      const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
       const relErrs = checkRelPatterns(
-        mergeEnv(varEnv, selEnv_decls),
+        mergeEnv(emptyVarsEnv, selEnv_decls),
         selEnv_decls,
         safeContentsList(sel.where)
       );

@@ -748,6 +748,7 @@ Bond(O, H2)`;
 where IsSubset(y, x) { }`,
         `forall Setfhjh x { }`,
         `forall Point x, y where Midpointdfsdfds(x, y) { }`,
+        `forall Set a where IsSubset(a, B) {}`,
       ],
 
       // ---------- Block static errors
