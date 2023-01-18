@@ -571,7 +571,10 @@ const mergeMapping = (
     case "StyVar":
       return {
         ...varEnv,
-        vars: varEnv.vars.set(bindingForm.contents.value, toSubstanceType(styType)),
+        vars: varEnv.vars.set(
+          bindingForm.contents.value,
+          toSubstanceType(styType)
+        ),
         varIDs: [
           dummyIdentifier(bindingForm.contents.value, "Style"),
           ...varEnv.varIDs,
@@ -580,14 +583,16 @@ const mergeMapping = (
     case "SubVar":
       return {
         ...varEnv,
-        vars: varEnv.vars.set(bindingForm.contents.value, toSubstanceType(styType)),
+        vars: varEnv.vars.set(
+          bindingForm.contents.value,
+          toSubstanceType(styType)
+        ),
         varIDs: [
           dummyIdentifier(bindingForm.contents.value, "Substance"),
           ...varEnv.varIDs,
         ],
       };
   }
-
 };
 
 // TODO: don't merge the varmaps! just put g as the varMap (otherwise there will be extraneous bindings for the relational statements)

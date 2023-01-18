@@ -106,16 +106,7 @@ export const showError = (
         variable
       )}) does not exist.`;
       if (possibleVars) {
-        const suggestions = possibleVars
-          .map((v) => {
-            switch (v.nodeType) {
-              case "Style":
-                return v.value;
-              case "Substance":
-                return `\`${v.value}\``;
-            }
-          })
-          .join(", ");
+        const suggestions = possibleVars.map((v) => v.value).join(", ");
         return msg + ` Declared variables are: ${suggestions}`;
       } else return msg;
     }
@@ -236,7 +227,24 @@ export const showError = (
     }
 
     case "TaggedSubstanceError": {
-      return showError(error.error); // Substance error
+      switch (error.error.tag) {
+        // special handling for VarNotFound
+        case "VarNotFound": {
+          const processIdentifier = (x: Identifier<A>) => ({
+            ...x,
+            value: x.nodeType === "Style" ? x.value : `\`${x.value}\``,
+          });
+          return showError({
+            ...error.error,
+            variable: processIdentifier(error.error.variable),
+            possibleVars: error.error.possibleVars
+              ? error.error.possibleVars.map(processIdentifier)
+              : undefined,
+          });
+        }
+        default:
+          return showError(error.error); // Substance error
+      }
     }
 
     case "SelectorAliasNamingError": {
