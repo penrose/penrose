@@ -606,6 +606,7 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
         safeContentsList(sel.with)
       );
 
+      // Basically creates a new, empty environment.
       const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
       const relErrs = checkRelPatterns(
         mergeEnv(emptyVarsEnv, selEnv_decls),
