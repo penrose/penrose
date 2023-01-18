@@ -1,4 +1,4 @@
-var i=Object.defineProperty;var t=(o,s)=>i(o,"name",{value:s,configurable:!0});import{S as r}from"./Simple-d1608809.js";import{y as a,z as p,A as l}from"./PenrosePrograms-e1d8af17.js";import{j as e}from"./jsx-runtime-9c5bc5e6.js";import"./index-74c5fbfa.js";import"./es.object.get-own-property-descriptor-2f3bcc00.js";import"./web.url-1059d872.js";const x={parameters:{storySource:{source:`import { ComponentMeta, ComponentStory } from "@storybook/react";
+var i=Object.defineProperty;var t=(o,s)=>i(o,"name",{value:s,configurable:!0});import{S as r}from"./Simple-192a1d76.js";import{y as a,z as p,A as l}from"./PenrosePrograms-e1d8af17.js";import{j as e}from"./jsx-runtime-9c5bc5e6.js";import"./index-74c5fbfa.js";import"./es.object.get-own-property-descriptor-2f3bcc00.js";import"./web.url-1059d872.js";const x={parameters:{storySource:{source:`import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { Simple } from "../Simple";
 import { continuousMap, error, oneSet } from "./PenrosePrograms";
 
@@ -30,4 +30,4 @@ OneSet.args = oneSet;
 export const Error = Template.bind({});
 Error.args = error;
 `,locationsMap:{"continuous-map":{startLoc:{col:48,line:18},endLoc:{col:1,line:22},startBody:{col:48,line:18},endBody:{col:1,line:22}},"one-set":{startLoc:{col:48,line:18},endLoc:{col:1,line:22},startBody:{col:48,line:18},endBody:{col:1,line:22}},error:{startLoc:{col:48,line:18},endLoc:{col:1,line:22},startBody:{col:48,line:18},endBody:{col:1,line:22}}}}},title:"Example/Simple Component",component:r},n=t(o=>e("div",{style:{width:"50%",height:"50%"},children:e(r,{...o})}),"Template"),c=n.bind({});c.args=a;const m=n.bind({});m.args=p;const d=n.bind({});d.args=l;const C=["ContinuousMap","OneSet","Error"];export{c as ContinuousMap,d as Error,m as OneSet,C as __namedExportsOrder,x as default};
-//# sourceMappingURL=Simple.stories-64273330.js.map
+//# sourceMappingURL=Simple.stories-1da952be.js.map
