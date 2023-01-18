@@ -584,7 +584,7 @@ const mergeMapping = (
     case "SubVar":
       return {
         ...varEnv,
-        vars: vars,
+        vars,
         varIDs: [
           dummyIdentifier(bindingForm.contents.value, "Substance"),
           ...varEnv.varIDs,
