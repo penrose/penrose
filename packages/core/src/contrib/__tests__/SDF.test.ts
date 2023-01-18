@@ -10,11 +10,13 @@ import * as ad from "types/ad";
 import { Shape } from "types/shapes";
 import { FloatV } from "types/value";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
-import { compDict, sdEllipse } from "./Functions";
+import { compDict, sdEllipse } from "../Functions";
 
 const canvas = makeCanvas(800, 700);
 
-const makeContext = (pt: number[]): { context: Context; p: ad.Input[] } => {
+export const makeContext = (
+  pt: number[]
+): { context: Context; p: ad.Input[] } => {
   const rng = seedrandom("sdf");
   const inputs: ad.Input[] = [];
   const makeInput: InputFactory = (meta) => {

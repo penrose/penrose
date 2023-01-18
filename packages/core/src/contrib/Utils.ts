@@ -185,3 +185,53 @@ export const numsOf = (xs: ad.Num[]): number[] => {
 export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];
 };
+
+/**
+ * Return list of tuples of consecutive points
+ */
+export const consecutiveTuples = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): [ad.Num, ad.Num][][] => {
+  const resLength = closed ? points.length : points.length - 1;
+  if (resLength <= 0) return [];
+  return Array.from({ length: resLength }, (_, key) => key).map((i) => [
+    points[i],
+    points[(i + 1) % points.length],
+  ]);
+};
+
+/**
+ * Return list of triples of consecutive points
+ */
+export const consecutiveTriples = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): [ad.Num, ad.Num][][] => {
+  const resLength = closed ? points.length : points.length - 2;
+  if (resLength <= 0) return [];
+  return Array.from({ length: resLength }, (_, key) => key).map((i) => [
+    points[i],
+    points[(i + 1) % points.length],
+    points[(i + 2) % points.length],
+  ]);
+};
+
+/**
+ * Return indicator of closed Polyline, Polygon or Path shape
+ */
+export const isClosed = ([t, s]: [string, any]): boolean => {
+  if (t === "Polyline") return false;
+  else if (t === "Polygon") return true;
+  else if (t === "Path") return s.shapeType === "closed";
+  else throw new Error(`Function isClosed not defined for shape ${t}.`);
+};
+
+/**
+ * Return list of points from Polyline, Polygon or Path shape
+ */
+export const extractPoints = ([t, s]: [string, any]): [ad.Num, ad.Num][] => {
+  if (t === "Polyline" || t === "Polygon") return s.points.contents;
+  else if (t === "Path") return s.d.contents;
+  else throw new Error(`Point extraction not defined for shape ${t}.`);
+};
