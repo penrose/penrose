@@ -571,7 +571,10 @@ const mergeMapping = (
   return {
     ...varEnv,
     vars: varEnv.vars.set(bindingForm.contents.value, toSubstanceType(styType)),
-    varIDs: [dummyIdentifier(bindingForm.contents.value, "Style"), ...varEnv.varIDs],
+    varIDs: [
+      dummyIdentifier(bindingForm.contents.value, "Style"),
+      ...varEnv.varIDs,
+    ],
   };
 };
 
