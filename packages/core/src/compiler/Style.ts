@@ -567,14 +567,15 @@ const mergeMapping = (
     throw Error("var has no binding form?");
   }
   const [, bindingForm] = res;
+  const vars = varEnv.vars.set(
+    bindingForm.contents.value,
+    toSubstanceType(styType)
+  );
   switch (bindingForm.tag) {
     case "StyVar":
       return {
         ...varEnv,
-        vars: varEnv.vars.set(
-          bindingForm.contents.value,
-          toSubstanceType(styType)
-        ),
+        vars: vars,
         varIDs: [
           dummyIdentifier(bindingForm.contents.value, "Style"),
           ...varEnv.varIDs,
@@ -583,10 +584,7 @@ const mergeMapping = (
     case "SubVar":
       return {
         ...varEnv,
-        vars: varEnv.vars.set(
-          bindingForm.contents.value,
-          toSubstanceType(styType)
-        ),
+        vars: vars,
         varIDs: [
           dummyIdentifier(bindingForm.contents.value, "Substance"),
           ...varEnv.varIDs,
