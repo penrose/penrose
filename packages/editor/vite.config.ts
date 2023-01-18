@@ -6,4 +6,7 @@ export default defineConfig({
   base: "/try/",
   plugins: [react({ jsxRuntime: "classic" })],
   build: { target: "esnext" },
+  server: {
+    port: 3000,
+  },
 });
