@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v2.1.1](https://github.com/penrose/penrose/compare/v2.1.0...v2.1.1) (2023-01-19)
+
+### :bug: Bug Fix
+
+- make pandemonium a dependency of core ([#1249](https://github.com/penrose/penrose/issues/1249)) ([aac81e8](https://github.com/penrose/penrose/commit/aac81e856182a246c7c1dff96aed91bf7e260b1e))
+
 # [2.1.0](https://github.com/penrose/penrose/compare/v2.0.0...v2.1.0) (2023-01-19)
 
 **Note:** Version bump only for package @penrose/synthesizer
