@@ -84,6 +84,7 @@
     "mathjax-full": "^3.0.1",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
+    "pandemonium": "^2.0.0",
     "poly-partition": "^1.0.2",
     "recursive-diff": "^1.0.8",
     "seedrandom": "^3.0.5",
