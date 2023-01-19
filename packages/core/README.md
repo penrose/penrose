@@ -19,9 +19,18 @@ Use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript
 
 ```shell
 yarn create vite
+cd vite-project
 yarn add @penrose/core
 yarn add -D vite-plugin-top-level-await # `@penrose/optimizer` uses top-level await and this vite plugin adds support for that
-yarn
+```
+
+In `vite.config.js`:
+
+```js
+import { defineConfig } from "vite";
+import topLevelAwait from "vite-plugin-top-level-await";
+
+export default defineConfig({ plugins: [topLevelAwait()] });
 ```
 
 In `index.html`:
@@ -30,7 +39,7 @@ In `index.html`:
 <!DOCTYPE html>
 <html>
   <body>
-    <div id="penrose-diagram" />
+    <div id="penrose-diagram"></div>
     <script type="module" src="/main.js"></script>
   </body>
 </html>
