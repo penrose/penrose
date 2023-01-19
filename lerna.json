@@ -3,21 +3,7 @@
   "npmClient": "yarn",
   "version": "2.1.0",
   "useWorkspaces": true,
-  "changelogpreset": {
-    "name": "conventionalcommits",
-    "types": [
-      { "type": "feat", "section": "Features" },
-      { "type": "fix", "section": "Bug Fixes" },
-      { "type": "docs", "section": "Documentation", "hidden": false },
-      {
-        "type": "perf",
-        "section": "Performance Improvements",
-        "hidden": false
-      },
-      { "type": "chore", "hidden": true },
-      { "type": "style", "hidden": true },
-      { "type": "refactor", "hidden": true },
-      { "type": "test", "hidden": true }
-    ]
+  "changelogPreset": {
+    "name": "@spyke/conventional-changelog-preset"
   }
 }

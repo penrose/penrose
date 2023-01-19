@@ -25,6 +25,7 @@
     "diff": "lerna diff"
   },
   "devDependencies": {
+    "@spyke/conventional-changelog-preset": "^1.0.5",
     "cross-env": "^7.0.3",
     "handlebars": "^4.7.7",
     "js-yaml": "^4.1.0",
