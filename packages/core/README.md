@@ -15,18 +15,40 @@ import "global-jsdom/register"; // must come before the Penrose import
 import * as Penrose from "@penrose/core";
 ```
 
-In a HTML document, use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) to import functions from `@penrose/core` through a CDN. For example:
+In a HTML document, use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) to import functions from `@penrose/core` through a CDN. For example, here we use [JSPM](https://jspm.org/) to generate an import map for dependencies and draw a simple diagram with Penrose:
 
 ```html
-<head>
-  <script type="module">
-    import { diagram } from "http://unpkg.com/@penrose/core";
-    diagram({
-        substance: `
+<!DOCTYPE html>
+<html>
+  <body>
+    <!--
+    JSPM Generator Import Map
+    Edit URL: https://generator.jspm.io/#U2VhYGBkDM0rySzJSU1hcChIzSvKL07VT84vSnUw1DPWMwAA/5OhSyIA
+  -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@penrose/core": "https://ga.jspm.io/npm:@penrose/core@1.3.1-alpha.363/build/dist/index.js"
+        }
+      }
+    </script>
+
+    <!-- ES Module Shims: Import maps polyfill for modules browsers without import maps support (all except Chrome 89+) -->
+    <script
+      async
+      src="https://ga.jspm.io/npm:es-module-shims@1.5.1/dist/es-module-shims.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script type="module">
+      import * as Penrose from "@penrose/core";
+      Penrose.diagram(
+        {
+          substance: `
         Set A, B
         IsSubset(A, B)
         `,
-        style: `
+          style: `
         canvas {
             width = 400
             height = 400
@@ -41,17 +63,15 @@ In a HTML document, use [JavaScript modules](https://developer.mozilla.org/en-US
             s2.shape above s1.shape
         }
         `,
-        domain: `type Set
-        predicate IsSubset(Set, Set)`
-    },
-    document.getElementById("penrose-diagram")
-    )
-
-  </script>
-</head>
-<body>
-    <div id="penrose-diagram">
-</body>
+          domain: `type Set
+        predicate IsSubset(Set, Set)`,
+        },
+        document.getElementById("penrose-diagram")
+      );
+    </script>
+    <div id="penrose-diagram" />
+  </body>
+</html>
 ```
 
 ## Exported functions
