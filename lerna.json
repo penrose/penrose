@@ -2,5 +2,8 @@
   "packages": ["packages/*"],
   "npmClient": "yarn",
   "version": "2.1.0",
-  "useWorkspaces": true
+  "useWorkspaces": true,
+  "changelogPreset": {
+    "name": "@spyke/conventional-changelog-preset"
+  }
 }

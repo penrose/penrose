@@ -3991,6 +3991,13 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@spyke/conventional-changelog-preset@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@spyke/conventional-changelog-preset/-/conventional-changelog-preset-1.0.5.tgz#5863160c21e249db0f6d69feb7d6d4aa806ecf42"
+  integrity sha512-mmGNxBxcgkX4F4ETi78svf60refMfDioU696HbJCIeA55d/7JVmQGjEfS+HLY62O8ToRCxQ6lPtfYnl89TPlMg==
+  dependencies:
+    compare-func "^2.0.0"
+
 "@storybook/addon-actions@6.5.15", "@storybook/addon-actions@^6.5.15":
   version "6.5.15"
   resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-6.5.15.tgz#ba737561dbf8a358ea8bc588f3da9fddd1a4267e"
