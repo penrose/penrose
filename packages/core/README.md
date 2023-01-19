@@ -15,7 +15,7 @@ import "global-jsdom/register"; // must come before the Penrose import
 import * as Penrose from "@penrose/core";
 ```
 
-Use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) to import functions from `@penrose/core`. Use either a CDN that supports ES modules (e.g. [JSPM](https://jspm.org/)) or a bundler (e.g. [vite](https://vitejs.dev/)). For example, run the following to set up  starter project with vite:
+Use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) to import functions from `@penrose/core`. Use either a CDN that supports ES modules (e.g. [JSPM](https://jspm.org/)) or a bundler (e.g. [vite](https://vitejs.dev/)). For example, run the following to set up starter project with vite:
 
 ```shell
 yarn create vite
@@ -25,7 +25,6 @@ yarn
 ```
 
 In `index.html`:
-
 
 ```html
 <!DOCTYPE html>
