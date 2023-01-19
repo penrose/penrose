@@ -1,7 +1,7 @@
 {
   "name": "@penrose/editor",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.1.1",
   "scripts": {
     "start": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
     "dev": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
@@ -41,8 +41,8 @@
     }
   },
   "dependencies": {
-    "@penrose/components": "^2.1.0",
-    "@penrose/core": "^2.1.0",
+    "@penrose/components": "^2.1.1",
+    "@penrose/core": "^2.1.1",
     "animals": "^0.0.3",
     "color-name-list": "^8.38.0",
     "flexlayout-react": "^0.7.3",
