@@ -13,7 +13,7 @@ yarn add @penrose/components
 For a minimal example, try using the `Simple` component in your React application:
 
 ```ts
-import { Simple } from `@penrose/components`;
+import { Embed } from "@penrose/components";
 
 const domain = `
 type Set
