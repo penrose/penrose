@@ -55,13 +55,5 @@
       "**/babel-loader",
       "**/webpack"
     ]
-  },
-  "changelog": {
-    "labels": {
-      "feature": "New Feature",
-      "bug": "Bug Fix",
-      "perf": "Performance Improvement",
-      "docs": "Documentation"
-    }
   }
 }
