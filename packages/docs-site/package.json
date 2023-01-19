@@ -1,6 +1,6 @@
 {
   "name": "@penrose/docs-site",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
     "build": "vitepress build",
@@ -37,13 +37,13 @@
     }
   },
   "dependencies": {
-    "@penrose/components": "^2.0.0",
-    "@penrose/examples": "^2.0.0",
+    "@penrose/components": "^2.1.0",
+    "@penrose/examples": "^2.1.0",
     "veaury": "^2.3.11"
   },
   "devDependencies": {
-    "@penrose/automator": "^2.0.0",
-    "@penrose/editor": "^2.0.0",
+    "@penrose/automator": "^2.1.0",
+    "@penrose/editor": "^2.1.0",
     "markdown-it-katex": "^2.0.3",
     "shx": "^0.3.3",
     "vitepress": "^1.0.0-alpha.35"

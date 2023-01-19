@@ -18,7 +18,7 @@ $ npm install -g @penrose/roger
 $ roger COMMAND
 running command...
 $ roger (--version)
-@penrose/roger/2.0.0 darwin-arm64 node-v16.17.0
+@penrose/roger/2.1.0 darwin-arm64 node-v18.12.1
 $ roger --help [COMMAND]
 USAGE
   $ roger COMMAND
@@ -51,6 +51,6 @@ EXAMPLES
   $ roger watch
 ```
 
-_See code: [dist/commands/watch.js](https://github.com/penrose/penrose/blob/v2.0.0/dist/commands/watch.js)_
+_See code: [dist/commands/watch.js](https://github.com/penrose/penrose/blob/v2.1.0/dist/commands/watch.js)_
 
 <!-- commandsstop -->

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/penrose/penrose/compare/v2.0.0...v2.1.0) (2023-01-19)
+
+### Bug Fixes
+
+- Stage reset after dragging ([#1237](https://github.com/penrose/penrose/issues/1237)) ([9bf0a36](https://github.com/penrose/penrose/commit/9bf0a363e2554451c0685157c099e91b8134445a))
+- style relation checker using substance variables ([#1239](https://github.com/penrose/penrose/issues/1239)) ([2e7de5e](https://github.com/penrose/penrose/commit/2e7de5e7729ae6f54ed378fb98c843f821b72ccf))
+- Wrong flipped start arrowhead X offset ([#1236](https://github.com/penrose/penrose/issues/1236)) ([ce7a348](https://github.com/penrose/penrose/commit/ce7a34823bb9cf71da6749366222ef72e4c8e0cb))
+
+### Features
+
+- Functions/Constraints for curves ([#1206](https://github.com/penrose/penrose/issues/1206)) ([6edc412](https://github.com/penrose/penrose/commit/6edc412fadeb8c1cb813719ea1b189bd35fa7ecb))
+
 # [2.0.0](https://github.com/penrose/penrose/compare/v1.3.0...v2.0.0) (2023-01-17)
 
 ### Bug Fixes
