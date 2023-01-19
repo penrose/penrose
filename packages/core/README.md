@@ -15,83 +15,64 @@ import "global-jsdom/register"; // must come before the Penrose import
 import * as Penrose from "@penrose/core";
 ```
 
-In a HTML document, use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) to import functions from `@penrose/core` through a CDN. For example, here we use [JSPM](https://jspm.org/) to generate an import map for dependencies and draw a simple diagram with Penrose:
+Use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) to import functions from `@penrose/core`. Use either a CDN that supports ES modules (e.g. [JSPM](https://jspm.org/)) or a bundler (e.g. [vite](https://vitejs.dev/)). For example, run the following to set up  starter project with vite:
+
+```shell
+yarn create vite
+yarn add @penrose/core
+yarn add -D vite-plugin-top-level-await # `@penrose/optimizer` uses top-level await and this vite plugin adds support for that
+yarn
+```
+
+In `index.html`:
+
 
 ```html
 <!DOCTYPE html>
 <html>
   <body>
-    <!--
-    JSPM Generator Import Map
-    Edit URL: https://generator.jspm.io/#U2VhYGBkDM0rySzJSU1hcChIzSvKL07VT84vSnUw0jPUMwAAQT2FDyIA
-  -->
-    <script type="importmap">
-      {
-        "imports": {
-          "@penrose/core": "https://ga.jspm.io/npm:@penrose/core@2.1.0/dist/index.js"
-        },
-        "scopes": {
-          "https://ga.jspm.io/": {
-            "@datastructures-js/heap": "https://ga.jspm.io/npm:@datastructures-js/heap@3.2.0/index.js",
-            "@datastructures-js/queue": "https://ga.jspm.io/npm:@datastructures-js/queue@4.2.3/index.js",
-            "@penrose/optimizer": "https://ga.jspm.io/npm:@penrose/optimizer@2.1.0/index.js",
-            "consola": "https://ga.jspm.io/npm:consola@2.15.3/dist/consola.browser.js",
-            "crypto": "https://ga.jspm.io/npm:@jspm/core@2.0.0/nodelibs/browser/crypto.js",
-            "immutable": "https://ga.jspm.io/npm:immutable@4.2.2/dist/immutable.es.js",
-            "lodash": "https://ga.jspm.io/npm:lodash@4.17.21/lodash.js",
-            "mathjax-full/js/": "https://ga.jspm.io/npm:mathjax-full@3.2.2/js/",
-            "mhchemparser/dist/mhchemParser.js": "https://ga.jspm.io/npm:mhchemparser@4.1.1/dist/mhchemParser.js",
-            "moo": "https://ga.jspm.io/npm:moo@0.5.2/moo.js",
-            "nearley": "https://ga.jspm.io/npm:nearley@2.20.1/lib/nearley.js",
-            "pandemonium/choice": "https://ga.jspm.io/npm:pandemonium@2.4.1/choice.js",
-            "pandemonium/random": "https://ga.jspm.io/npm:pandemonium@2.4.1/random.js",
-            "poly-partition": "https://ga.jspm.io/npm:poly-partition@1.0.2/lib/index.js",
-            "seedrandom": "https://ga.jspm.io/npm:seedrandom@3.0.5/index.js",
-            "true-myth": "https://ga.jspm.io/npm:true-myth@4.1.1/dist/cjs/index.js"
-          }
-        }
-      }
-    </script>
-
-    <!-- ES Module Shims: Import maps polyfill for modules browsers without import maps support (all except Chrome 89+) -->
-    <script
-      async
-      src="https://ga.jspm.io/npm:es-module-shims@1.5.1/dist/es-module-shims.js"
-      crossorigin="anonymous"
-    ></script>
-
-    <script type="module">
-      import * as Penrose from "@penrose/core";
-      Penrose.diagram(
-        {
-          substance: `
-        Set A, B
-        IsSubset(A, B)
-        `,
-          style: `
-        canvas {
-            width = 400
-            height = 400
-        }
-        forall Set s {
-            s.shape = Circle {}
-            ensure lessThan(20, s.shape.r)
-        }
-        forall Set s1, s2
-        where IsSubset(s1, s2) {
-            ensure contains(s2.shape, s1.shape)
-            s2.shape above s1.shape
-        }
-        `,
-          domain: `type Set
-        predicate IsSubset(Set, Set)`,
-        },
-        document.getElementById("penrose-diagram")
-      );
-    </script>
     <div id="penrose-diagram" />
+    <script type="module" src="/main.js"></script>
   </body>
 </html>
+```
+
+In `main.js`:
+
+```js
+import * as Penrose from "@penrose/core";
+Penrose.diagram(
+  {
+    substance: `
+  Set A, B
+  IsSubset(A, B)
+  `,
+    style: `
+  canvas {
+      width = 400
+      height = 400
+  }
+  forall Set s {
+      s.shape = Circle {}
+      ensure lessThan(20, s.shape.r)
+  }
+  forall Set s1, s2
+  where IsSubset(s1, s2) {
+      ensure contains(s2.shape, s1.shape)
+      s2.shape above s1.shape
+  }
+  `,
+    domain: `type Set
+  predicate IsSubset(Set, Set)`,
+  },
+  document.getElementById("penrose-diagram")
+);
+```
+
+Finally, run the following to see the output:
+
+```shell
+yarn dev
 ```
 
 ## Exported functions
