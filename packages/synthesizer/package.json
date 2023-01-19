@@ -1,7 +1,7 @@
 {
   "name": "@penrose/synthesizer",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Synthesis engine for Penrose",
   "keywords": [
     "program synthesis",
@@ -39,7 +39,7 @@
     "url": "https://github.com/penrose/penrose/issues"
   },
   "dependencies": {
-    "@penrose/core": "^2.0.0",
+    "@penrose/core": "^2.1.0",
     "chalk": "^3.0.0",
     "global-jsdom": "^8.0.0",
     "neodoc": "^2.0.2",
