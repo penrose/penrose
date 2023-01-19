@@ -4,6 +4,7 @@
  *
  */
 
+import { log } from "console";
 import { shapedefs } from "shapes/Shapes";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
@@ -96,6 +97,8 @@ export const DraggableShape = async (
   const onMouseDown = (e: MouseEvent) => {
     const { clientX, clientY } = e;
     const { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parentSVG);
+    let currentX = tempX;
+    let currentY = tempY;
     const {
       width: bboxW,
       height: bboxH,
@@ -107,6 +110,8 @@ export const DraggableShape = async (
     const minY = tempY - bboxY;
     const maxY = canvas[1] - bboxH + (tempY - bboxY);
 
+    let lastUpdate = Date.now();
+
     g.setAttribute("opacity", "0.5");
     let dx = 0,
       dy = 0;
@@ -117,12 +122,25 @@ export const DraggableShape = async (
       dx = constrainedX - tempX;
       dy = tempY - constrainedY;
       g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+      const now = Date.now();
+      if (now - lastUpdate > 100) {
+        console.log("update");
+
+        onDrag(
+          (shapeProps.shape.properties.name as StrV).contents,
+          constrainedX - currentX,
+          currentY - constrainedY
+        );
+        currentX = constrainedX;
+        currentY = constrainedY;
+        lastUpdate = now;
+      }
     };
     const onMouseUp = () => {
       g.setAttribute("opacity", "1");
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
-      onDrag((shapeProps.shape.properties.name as StrV).contents, dx, dy);
+      // onDrag((shapeProps.shape.properties.name as StrV).contents, dx, dy);
     };
     document.addEventListener("mouseup", onMouseUp);
     document.addEventListener("mousemove", onMouseMove);
