@@ -25,6 +25,7 @@ export const dragUpdate = (
       ...state.params,
       optStatus: "NewIter",
     },
+    interactingShapes: [id],
     varyingValues: xs,
     frozenValues,
   };

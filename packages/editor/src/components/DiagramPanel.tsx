@@ -173,6 +173,7 @@ export const DownloadPNG = (
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
@@ -197,7 +198,8 @@ export default function DiagramPanel() {
                 });
                 step();
               },
-              pathResolver
+              pathResolver,
+              svgRef.current!
             )
           : await RenderStatic(state, pathResolver);
         rendered.setAttribute("width", "100%");
@@ -455,7 +457,9 @@ export default function DiagramPanel() {
             justifyContent: "center",
           }}
           ref={canvasRef}
-        />
+        >
+          <svg ref={svgRef}></svg>
+        </div>
 
         {showEasterEgg && (
           <iframe

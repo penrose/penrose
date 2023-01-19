@@ -14,6 +14,7 @@ export type ShapeFn = (xs: number[]) => Shape[];
  * The diagram state
  */
 export interface State {
+  interactingShapes: string[];
   warnings: StyleWarning[];
   variation: string;
   objFns: Fn[];

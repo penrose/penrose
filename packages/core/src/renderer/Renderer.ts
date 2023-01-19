@@ -84,6 +84,7 @@ export const DraggableShape = async (
     canvasSize: canvasSizeCustom ? canvasSizeCustom : canvas,
   });
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("id", shapeProps.shape.properties.name.contents as string);
   const { shapeType } = shapeProps.shape;
   if (shapedefs[shapeType].isLinelike) {
     g.setAttribute("pointer-events", "visibleStroke");
@@ -97,19 +98,20 @@ export const DraggableShape = async (
   const onMouseDown = (e: MouseEvent) => {
     const { clientX, clientY } = e;
     const { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parentSVG);
-    let currentX = tempX;
-    let currentY = tempY;
+    let prevX = tempX;
+    let prevY = tempY;
     const {
       width: bboxW,
       height: bboxH,
       x: bboxX,
       y: bboxY,
     } = (e.target as SVGSVGElement).getBBox({ stroke: true });
-    const minX = tempX - bboxX;
+    const shiftX = tempX - bboxX;
+    const minX = shiftX;
     const maxX = canvas[0] - bboxW + (tempX - bboxX);
-    const minY = tempY - bboxY;
+    const shiftY = tempY - bboxY;
+    const minY = shiftY;
     const maxY = canvas[1] - bboxH + (tempY - bboxY);
-
     let lastUpdate = Date.now();
 
     g.setAttribute("opacity", "0.5");
@@ -123,21 +125,27 @@ export const DraggableShape = async (
       dy = tempY - constrainedY;
       g.setAttribute(`transform`, `translate(${dx},${-dy})`);
       const now = Date.now();
-      if (now - lastUpdate > 100) {
+      if (now - lastUpdate > 200) {
         console.log("update");
-
         onDrag(
           (shapeProps.shape.properties.name as StrV).contents,
-          constrainedX - currentX,
-          currentY - constrainedY
+          constrainedX - prevX,
+          prevY - constrainedY
         );
-        currentX = constrainedX;
-        currentY = constrainedY;
+        console.log("done");
+        prevX = constrainedX;
+        prevY = constrainedY;
         lastUpdate = now;
       }
     };
     const onMouseUp = () => {
       g.setAttribute("opacity", "1");
+      const child = g.firstElementChild!;
+      console.log(dx, dy);
+
+      child.setAttribute("cx", `${tempX + dx}`);
+      child.setAttribute("cy", `${tempY - dy}`);
+      g.setAttribute("transform", ``);
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
       // onDrag((shapeProps.shape.properties.name as StrV).contents, dx, dy);
@@ -159,9 +167,9 @@ export const DraggableShape = async (
 export const RenderInteractive = async (
   state: State,
   updateState: (newState: State) => void,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  svg: SVGSVGElement
 ): Promise<SVGSVGElement> => {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");
@@ -173,9 +181,32 @@ export const RenderInteractive = async (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  for (const shape of state.computeShapes(state.varyingValues)) {
-    svg.appendChild(
-      await DraggableShape(
+  const shapes = state.computeShapes(state.varyingValues);
+
+  if (svg.childNodes.length === 0) {
+    for (const shape of shapes) {
+      svg.appendChild(
+        await DraggableShape(
+          {
+            shape,
+            labels: state.labelCache,
+            canvasSize: state.canvas.size,
+            pathResolver,
+          },
+          onDrag,
+          svg
+        )
+      );
+    }
+  } else {
+    const noninteractiveShapes = shapes.filter(
+      (s1) =>
+        !state.interactingShapes.find(
+          (s2) => s1.properties.name.contents === s2
+        )
+    );
+    for (const shape of noninteractiveShapes) {
+      const rendered = await DraggableShape(
         {
           shape,
           labels: state.labelCache,
@@ -184,8 +215,12 @@ export const RenderInteractive = async (
         },
         onDrag,
         svg
-      )
-    );
+      );
+      const matching = svg.getElementById(
+        shape.properties.name.contents as string
+      );
+      svg.replaceChild(rendered, matching);
+    }
   }
   return svg;
 };

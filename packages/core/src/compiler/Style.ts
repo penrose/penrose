@@ -3174,6 +3174,7 @@ export const compileStyleHelper = (
     canvas: canvas.value,
     computeShapes,
     params,
+    interactingShapes: [],
     frozenValues: new Set<number>(),
   };
 
