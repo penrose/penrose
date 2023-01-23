@@ -420,8 +420,18 @@ const {
   -- encourage
   A.fn = encourage obj("string1", true, "string\\n", false)
   A.fn2 = encourage obj( a, b )
+  encourage a == b
+  encourage a < b
+  encourage a > b
+  encourage a <= b
+  encourage a >= b
   -- ensure 
   A.fn = ensure obj("string1", true, "string\\n", false)
+  ensure a == b
+  ensure a < b
+  ensure a > b
+  ensure a <= b
+  ensure a >= b
   -- shape should be processed as keyword
   B.fn = ensure same( A.shape.prop , B.shape  )
   localVar = ensure same( A.shp , B.shp  )
