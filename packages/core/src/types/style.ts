@@ -237,18 +237,34 @@ export type CompApp<T> = ASTNode<T> & {
   args: Expr<T>[];
 };
 
+export type FunctionCall<T> = ASTNode<T> & {
+  tag: "FunctionCall";
+  name: Identifier<T>;
+  args: Expr<T>[];
+};
+
+export type ComparisonOp<T> = ASTNode<T> & {
+  tag: "ComparisonOp";
+  op: string;
+};
+
+export type InlineComparison<T> = ASTNode<T> & {
+  tag: "InlineComparison";
+  op: ComparisonOp<T>;
+  arg1: Expr<T>;
+  arg2: Expr<T>;
+};
+
 export type ObjFn<T> = ASTNode<T> &
   Staged<T> & {
     tag: "ObjFn";
-    name: Identifier<T>;
-    args: Expr<T>[];
+    body: FunctionCall<T> | InlineComparison<T>;
   };
 
 export type ConstrFn<T> = ASTNode<T> &
   Staged<T> & {
     tag: "ConstrFn";
-    name: Identifier<T>;
-    args: Expr<T>[];
+    body: FunctionCall<T> | InlineComparison<T>;
   };
 
 export type AvoidFn<T> = ASTNode<T> & {

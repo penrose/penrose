@@ -563,27 +563,65 @@ stage_list
   -> identifier {% (d) => d %}
   |  "[" _ sepBy1[identifier, ","] _ "]" {% nth(2) %}
 
-objective -> "encourage" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 
-  ([kw, , name, , , args, rparen, stages]): ObjFn<C> => {
+inline_comparison_operator 
+  -> "==" {% ([op]): ComparisonOp<C> => {
+    ... nodeData,
+    ... rangeOf(op),
+    tag: "ComparisonOp",
+    op: "=="
+  } %}
+  |  "<" {% ([op]): ComparisonOp<C> => {
+    ... nodeData,
+    ... rangeOf(op),
+    tag: "ComparisonOp",
+    op: "<"
+  } %}
+  |  ">" {% ([op]): ComparisonOp<C> => {
+    ... nodeData,
+    ... rangeOf(op),
+    tag: "ComparisonOp",
+    op: ">"
+  } %}
+
+obj_constr_body
+  -> identifier _ "(" expr_list ")" {% 
+  ([name, , , args, rparen]): FunctionCall<C> => {
+    ... nodeData,
+    ... rangeBetween(name, rparen),
+    tag: "FunctionCall",
+    name, args
+  }
+  %}
+  |  expr _ inline_comparison_operator _ expr {%
+  ([arg1, , op, , arg2]): InlineComparison<C> => {
+    ... nodeData,
+    ... rangeBetween(arg1, arg2),
+    tag: "InlineComparison",
+    op, arg1, arg2
+  }
+  %}
+
+objective -> "encourage" __ obj_constr_body (__ ("in"|"except") __ stage_list):? {% 
+  ([kw, , body, stages]): ObjFn<C> => {
     return {
       ...nodeData,
-      ...rangeBetween(kw, rparen), // TODO: fix range
+      ...rangeBetween(kw, obj_constr_body), // TODO: fix range
       tag: "ObjFn",
       stages: stages ? stages[3] : [],
       exclude: stages ? stages[1][0].value === "except" : true,
-      name, args
+      body
     } 
   }
 %}
 
-constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 
-  ([kw, , name, , , args, rparen, stages]): ConstrFn<C> => ({
+constraint -> "ensure" __ obj_constr_body (__ ("in"|"except") __ stage_list):? {% 
+  ([kw, , body, stages]): ConstrFn<C> => ({
     ...nodeData,
     ...rangeBetween(kw, rparen), // TODO: fix range
     tag: "ConstrFn",
     stages: stages ? stages[3] : [], 
     exclude: stages ? stages[1][0].value === "except" : true,
-    name, args
+    body
   }) 
 %}
 
