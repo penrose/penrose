@@ -229,7 +229,7 @@ And similarly the substance would go under `"substances"`:
 ```
 
 Then, if you find that these give a nice diagram using variation
-`CedarEagle308`, you can add the following under `"trios"`:
+`CedarEagle308`, you can add the following under `"trios"`. By default, examples in `trios` won't show up in `@penrose/editor`. Setting `gallery: true` will add your example to the example gallery in `editor`:
 
 ```json
 {
@@ -237,7 +237,8 @@ Then, if you find that these give a nice diagram using variation
   "substance": "mysubstance",
   "style": "mystyle",
   "domain": "foo",
-  "variation": "CedarEagle308"
+  "variation": "CedarEagle308",
+  "gallery": true
 }
 ```
 
