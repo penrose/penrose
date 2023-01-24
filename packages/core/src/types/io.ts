@@ -2,6 +2,8 @@
  * Data structure for information of a program trio
  */
 export interface Trio {
+  gallery: boolean;
+  id: string;
   substanceURI: string;
   styleURI: string;
   domainURI: string;
@@ -22,7 +24,7 @@ export interface Registry {
   styles: { [styID: string]: { name: string; URI: string } };
   domains: { [domID: string]: { name: string; URI: string } };
   trios: {
-    name: string;
+    name?: string;
     substance: string;
     style: string;
     domain: string;

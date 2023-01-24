@@ -307,19 +307,30 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
   },
 });
 
-export const exampleTriosState = atom<Trio[]>({
+interface TrioWithPreview extends Trio {
+  preview?: string;
+}
+
+export const exampleTriosState = atom<TrioWithPreview[]>({
   key: "exampleTrios",
   default: selector({
     key: "exampleTrios/default",
     get: async () => {
       try {
-        const trios = readRegistry(registry, true).map((trio: Trio) => ({
-          ...trio,
-          substanceURI: registry.root + trio.substanceURI,
-          styleURI: registry.root + trio.styleURI,
-          domainURI: registry.root + trio.domainURI,
-        }));
-        return trios;
+        const trios = readRegistry(registry, true).map(async (t: Trio) => {
+          const svg = await fetch(
+            `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${t.id}.svg`
+          );
+          if (!svg.ok) {
+            console.error(`could not fetch preview for ${t.id}`);
+            return t;
+          }
+          return {
+            ...t,
+            preview: await svg.text(),
+          };
+        });
+        return Promise.all(trios);
       } catch (err) {
         toast.error(`Could not retrieve examples: ${err}`);
         return [];

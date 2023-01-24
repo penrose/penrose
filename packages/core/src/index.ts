@@ -322,16 +322,17 @@ export const readRegistry = (
     const domain = domains[dslID];
     const substance = substances[subID];
     const style = styles[styID];
-    const trio = {
-      substanceURI: substance.URI,
-      styleURI: style.URI,
-      domainURI: domain.URI,
+    const trio: Trio = {
+      substanceURI: registry.root + substance.URI,
+      styleURI: registry.root + style.URI,
+      domainURI: registry.root + domain.URI,
       substanceName: substance.name,
       styleName: style.name,
       domainName: domain.name,
       variation,
       name: name ?? `${subID}-${styID}`,
-      gallery,
+      id: `${subID}-${styID}`,
+      gallery: gallery ?? false,
     };
     if (!galleryOnly || trioEntry.gallery) {
       res.push(trio);
