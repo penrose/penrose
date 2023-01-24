@@ -6,6 +6,7 @@ import {
   readRegistry,
   Trio,
 } from "@penrose/core";
+import { registry } from "@penrose/examples";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce } from "lodash";
@@ -312,22 +313,6 @@ export const exampleTriosState = atom<Trio[]>({
     key: "exampleTrios/default",
     get: async () => {
       try {
-        const res = await fetch(
-          new URL(
-            "examples/registry.json",
-            window.location.origin + window.location.pathname
-          ).href
-        );
-        if (!res.ok) {
-          toast.error(`Could not retrieve examples: ${res.statusText}`);
-          return [];
-        }
-        const registry = await res.json();
-        // Serve the example locally
-        registry.root = new URL(
-          "examples/",
-          window.location.origin + window.location.pathname
-        );
         const trios = readRegistry(registry, true).map((trio: Trio) => ({
           ...trio,
           substanceURI: registry.root + trio.substanceURI,
