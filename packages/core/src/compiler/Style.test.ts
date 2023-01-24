@@ -1,6 +1,4 @@
-// Must be run from penrose-web for loading files
-
-import { loadProgram } from "@penrose/examples";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as S from "compiler/Style";
 import { compileSubstance } from "compiler/Substance";
 import im from "immutable";
@@ -692,8 +690,8 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = loadProgram("set-theory-domain/twosets-simple.sub");
-    const domainProg = loadProgram("set-theory-domain/functions.dsl");
+    const subProg = setTheory["twosets-simple.sub"];
+    const domainProg = setTheory["functions.dsl"];
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.sty";
 

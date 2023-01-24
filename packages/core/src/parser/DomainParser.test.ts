@@ -1,13 +1,11 @@
-import { loadProgram } from "@penrose/examples";
-import * as fs from "fs";
+import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import nearley from "nearley";
-import * as path from "path";
 import { SourceRange } from "types/ast";
 import { DomainProg, PredicateDecl } from "types/domain";
 import grammar from "./DomainParser";
 
 const outputDir = "/tmp/asts";
-const saveASTs = false;
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
@@ -21,9 +19,9 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
-const domainPaths = [
-  "linear-algebra-domain/linear-algebra.dsl",
-  "set-theory-domain/setTheory.dsl",
+const domains = [
+  ["linear-algebra.dsl", linearAlgebra["linear-algebra.dsl"]],
+  ["setTheory.dsl", setTheory["setTheory.dsl"]],
 ];
 
 beforeEach(() => {
@@ -235,22 +233,10 @@ List('T) <: List('U)
 });
 
 describe("Real Programs", () => {
-  // create output folder
-  if (saveASTs && !fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
-  }
-
-  domainPaths.forEach((examplePath) => {
-    const prog = loadProgram(examplePath);
+  domains.forEach(([examplePath, prog]) => {
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);
-      // write to output folder
-      if (saveASTs) {
-        const exampleName = path.basename(examplePath, ".dsl");
-        const astPath = path.join(outputDir, exampleName + ".ast.json");
-        fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
-      }
     });
   });
 });

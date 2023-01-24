@@ -1,4 +1,4 @@
-import { loadProgram } from "@penrose/examples";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
 import nearley from "nearley";
 import grammar from "parser/SubstanceParser";
@@ -17,11 +17,11 @@ const outputDir = "/tmp/contexts";
 
 const subPaths = [
   // "linear-algebra-domain/twoVectorsPerp.sub",
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/tree.sub"],
-  ["set-theory-domain/functions.dsl", "set-theory-domain/continuousmap.sub"],
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/twosets-simple.sub"],
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/multisets.sub"],
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/nested.sub"],
+  ["setTheory.dsl", "tree.sub"],
+  ["functions.dsl", "continuousmap.sub"],
+  ["setTheory.dsl", "twosets-simple.sub"],
+  ["setTheory.dsl", "multisets.sub"],
+  ["setTheory.dsl", "nested.sub"],
   // "hyperbolic-domain/hyperbolic-example.sub",
   // "geometry-domain/pythagorean-theorem-sugared.sub",
   // "mesh-set-domain/DomainInterop.sub",
@@ -536,8 +536,8 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach(([domainPath, examplePath]) => {
-    const domProg = loadProgram(domainPath);
-    const subProg = loadProgram(examplePath);
+    const domProg = setTheory[domainPath];
+    const subProg = setTheory[examplePath];
     test(examplePath, () => {
       // do testing
       const env = envOrError(domProg);
