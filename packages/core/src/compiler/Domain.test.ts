@@ -1,4 +1,5 @@
-import { examples } from "@penrose/examples";
+import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
 import nearley from "nearley";
@@ -12,9 +13,12 @@ const outputDir = "/tmp/contexts";
 const saveContexts = false;
 const printError = false;
 
-const domainPaths = [
-  "linear-algebra-domain/linear-algebra.dsl",
-  "set-theory-domain/setTheory.dsl",
+const domains = [
+  [
+    "linear-algebra-domain/linear-algebra.dsl",
+    linearAlgebra["linear-algebra.dsl"],
+  ],
+  ["set-theory-domain/setTheory.dsl", setTheory["setTheory.dsl"]],
 ];
 
 const contextHas = (
@@ -268,10 +272,7 @@ describe("Real Programs", () => {
     fs.mkdirSync(outputDir);
   }
 
-  domainPaths.map((examplePath) => {
-    // a bit hacky, only works with 2-part paths
-    const [part0, part1] = examplePath.split("/");
-    const prog = examples[part0][part1];
+  domains.map(([examplePath, prog]) => {
     test(examplePath, () => {
       const res = compileDomain(prog);
       expect(res.isOk()).toBe(true);

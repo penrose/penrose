@@ -1,34 +1,21 @@
 <script setup lang="ts">
-import { examples, registry } from "@penrose/examples";
 import { defineAsyncComponent } from "vue";
-
-const exampleFromURI = (uri) => {
-  let x = examples;
-  for (const part of uri.split("/")) {
-    x = x[part];
-  }
-  return x;
-};
-
-const findTrio = (sub, sty) => {
-  const matching = registry.trios.filter(
-    ({ substance, style }) => substance === sub && style === sty
-  );
-  if (matching.length !== 1) {
-    throw Error(`expected exactly one matching trio, got ${matching.length}`);
-  }
-  const [{ substance, style, domain, variation }] = matching;
-  return {
-    dsl: exampleFromURI(registry.domains[domain].URI),
-    sub: exampleFromURI(registry.substances[substance].URI),
-    sty: exampleFromURI(registry.styles[style].URI),
-    variation,
-  };
-};
+import geometryDomain from "@penrose/examples/dist/geometry-domain/index";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/index";
 
 const demo = [
-  findTrio("siggraph-teaser", "euclidean-teaser"),
-  findTrio("tree", "venn"),
+  {
+    sub: geometryDomain["teaser.sub"],
+    sty: geometryDomain["euclidean-teaser.sty"],
+    dsl: geometryDomain["geometry.dsl"],
+    variation: "StromboliCat61816",
+  },
+  {
+    sub: setTheoryDomain["tree.sub"],
+    sty: setTheoryDomain["venn.sty"],
+    dsl: setTheoryDomain["setTheory.dsl"],
+    variation: "PlumvilleCapybara104",
+  },
 ];
 
 const Demo = defineAsyncComponent(async () => {

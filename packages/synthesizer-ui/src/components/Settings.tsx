@@ -20,7 +20,7 @@ import {
   showError,
   SynthesizerSetting,
 } from "@penrose/core";
-import { examples } from "@penrose/examples";
+import examples from "@penrose/examples/dist/index";
 import React from "react";
 import { Preset, presets } from "../examples";
 import { MultiselectDropdown } from "./MultiselectDropdown";

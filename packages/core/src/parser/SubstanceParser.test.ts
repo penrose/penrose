@@ -1,4 +1,4 @@
-import { examples } from "@penrose/examples";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
@@ -20,15 +20,11 @@ const printAST = (ast: any) => {
 };
 
 const subPaths = [
-  // "linear-algebra-domain/twoVectorsPerp.sub",
-  "set-theory-domain/tree.sub",
-  "set-theory-domain/continuousmap.sub",
-  "set-theory-domain/twosets-simple.sub",
-  "set-theory-domain/multisets.sub",
-  "set-theory-domain/nested.sub",
-  // "hyperbolic-domain/hyperbolic-example.sub",
-  // "geometry-domain/pythagorean-theorem-sugared.sub",
-  // "mesh-set-domain/DomainInterop.sub",
+  "tree.sub",
+  "continuousmap.sub",
+  "twosets-simple.sub",
+  "multisets.sub",
+  "nested.sub",
 ];
 
 beforeEach(() => {
@@ -184,9 +180,7 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach((examplePath) => {
-    // a bit hacky, only works with 2-part paths
-    const [part0, part1] = examplePath.split("/");
-    const prog = examples[part0][part1];
+    const prog = setTheory[examplePath];
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);

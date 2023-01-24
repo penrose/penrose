@@ -8,7 +8,7 @@
     "watch": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
     "typecheck": "tsc --noEmit",
     "build-decls": ":",
-    "build": "shx mkdir -p ./public/examples/ && shx cp -r ../examples/src/* ./public/examples/ && NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
   },
   "nx": {

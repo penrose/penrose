@@ -85,6 +85,7 @@ const writePrograms = (
   const style = {
     name: styID,
     URI: stylePath,
+    domain: domainID,
   };
   const domain = {
     name: domainID,
