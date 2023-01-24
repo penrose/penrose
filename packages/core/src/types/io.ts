@@ -22,6 +22,7 @@ export interface Registry {
   styles: { [styID: string]: { name: string; URI: string } };
   domains: { [domID: string]: { name: string; URI: string } };
   trios: {
+    name: string;
     substance: string;
     style: string;
     domain: string;

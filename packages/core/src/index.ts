@@ -317,6 +317,7 @@ export const readRegistry = (
       substance: subID,
       variation,
       gallery,
+      name,
     } = trioEntry;
     const domain = domains[dslID];
     const substance = substances[subID];
@@ -329,7 +330,7 @@ export const readRegistry = (
       styleName: style.name,
       domainName: domain.name,
       variation,
-      name: `${subID}-${styID}`,
+      name: name ?? `${subID}-${styID}`,
       gallery,
     };
     if (!galleryOnly || trioEntry.gallery) {
