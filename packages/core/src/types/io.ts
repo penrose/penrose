@@ -7,9 +7,9 @@ export interface Trio {
   substanceURI: string;
   styleURI: string;
   domainURI: string;
-  substanceName: string;
-  styleName: string;
-  domainName: string;
+  substanceID: string;
+  styleID: string;
+  domainID: string;
   variation: string;
   name: string;
 }
@@ -20,9 +20,9 @@ export interface Trio {
  */
 export interface Registry {
   root: string;
-  substances: { [subID: string]: { name: string; URI: string } };
-  styles: { [styID: string]: { name: string; URI: string } };
-  domains: { [domID: string]: { name: string; URI: string } };
+  substances: { [subID: string]: { URI: string; domain: string } };
+  styles: { [styID: string]: { URI: string; domain: string } };
+  domains: { [domID: string]: { URI: string } };
   trios: {
     name?: string;
     substance: string;

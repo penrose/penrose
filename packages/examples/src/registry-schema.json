@@ -47,9 +47,6 @@
         "properties": {
           "URI": {
             "$ref": "#/$defs/uri"
-          },
-          "name": {
-            "$ref": "#/$defs/name"
           }
         }
       }
@@ -62,9 +59,6 @@
         "properties": {
           "URI": {
             "$ref": "#/$defs/uri"
-          },
-          "name": {
-            "$ref": "#/$defs/name"
           },
           "domain": {
             "$ref": "#/$defs/domain-key"
@@ -81,9 +75,6 @@
           "URI": {
             "$ref": "#/$defs/uri"
           },
-          "name": {
-            "$ref": "#/$defs/name"
-          },
           "domain": {
             "$ref": "#/$defs/domain-key"
           }
@@ -96,10 +87,6 @@
     "uri": {
       "type": "string",
       "description": "relative path from the root to the file"
-    },
-    "name": {
-      "type": "string",
-      "description": "Human-readable name"
     },
     "domain-key": {
       "type": "string",

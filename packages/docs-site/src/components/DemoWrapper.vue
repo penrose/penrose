@@ -1,11 +1,21 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import geometryDomain from "@penrose/examples/dist/geometry-domain/index"
-import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/index"
+import geometryDomain from "@penrose/examples/dist/geometry-domain/index";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/index";
 
 const demo = [
-  {sub: geometryDomain["teaser.sub"], sty: geometryDomain["euclidean-teaser.sty"], dsl: geometryDomain["geometry.dsl"], variation: "StromboliCat61816"},
-  {sub: setTheoryDomain["tree.sub"], sty: setTheoryDomain["venn.sty"], dsl: setTheoryDomain["setTheory.dsl"], variation: "PlumvilleCapybara104"}
+  {
+    sub: geometryDomain["teaser.sub"],
+    sty: geometryDomain["euclidean-teaser.sty"],
+    dsl: geometryDomain["geometry.dsl"],
+    variation: "StromboliCat61816",
+  },
+  {
+    sub: setTheoryDomain["tree.sub"],
+    sty: setTheoryDomain["venn.sty"],
+    dsl: setTheoryDomain["setTheory.dsl"],
+    variation: "PlumvilleCapybara104",
+  },
 ];
 
 const Demo = defineAsyncComponent(async () => {
