@@ -73,7 +73,7 @@ where IsSubset(x, y) {
    encourage above(y.bounds, x.bounds)
 
    -- Have sets 'fight' to be aligned with the superset's x-position
-   encourage equal(x.bounds.center[0], y.bounds.center[0])
+   encourage x.bounds.center[0] == y.bounds.center[0]
 }
 
 /*

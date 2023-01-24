@@ -14,13 +14,13 @@ forall Set x {
   }
 
   ensure contains(x.icon, x.text)
-  encourage sameCenter(x.text, x.icon)
+  encourage x.text.center == x.icon.center
   x.textLayering = x.text above x.icon
 }
 
 forall Set x; Set y
 where IsSubset(x, y) {
-  ensure smallerThan(x.icon, y.icon)
+  ensure x.icon.r < y.icon.r
   ensure disjoint(y.text, x.icon, 10)
   ensure contains(y.icon, x.icon, 5)
   x.icon above y.icon
