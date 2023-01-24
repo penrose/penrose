@@ -435,6 +435,7 @@
       "URI": "persistent-homology/persistent-homology.sty"
     },
     "walk-on-spheres": {
+      "domain": "walk-on-spheres",
       "URI": "walk-on-spheres/walk-on-spheres.sty"
     },
     "shape-distance": {
