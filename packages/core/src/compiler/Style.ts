@@ -2823,19 +2823,14 @@ const extractObjConstrBody = (
 ): { name: Identifier<C>; argExprs: Expr<C>[] } => {
   if (body.tag === "InlineComparison") {
     let functionName = "";
-    switch (body.op.op) {
-      case "==": {
-        functionName = "equal";
-        break;
-      }
-      case "<": {
-        functionName = "lessThan";
-        break;
-      }
-      case ">": {
-        functionName = "greaterThan";
-        break;
-      }
+    if (body.op.op === "==") {
+      functionName = "equal";
+    } else if (body.op.op === "<") {
+      functionName = "lessThan";
+    } else if (body.op.op === ">") {
+      functionName = "greaterThan";
+    } else {
+      console.error("Bad operator " + body.op.op);
     }
     return {
       name: {

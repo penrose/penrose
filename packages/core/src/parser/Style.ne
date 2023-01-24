@@ -569,7 +569,7 @@ comparison_op
       ...nodeData,
       ...rangeOf(op),
       tag: "ComparisonOp",
-      op
+      op: op.text
     })
   %}
   |  "<" {%
@@ -577,7 +577,7 @@ comparison_op
       ...nodeData,
       ...rangeOf(op),
       tag: "ComparisonOp",
-      op
+      op: op.text
     })
   %}
   |  ">" {%
@@ -585,7 +585,7 @@ comparison_op
       ...nodeData,
       ...rangeOf(op),
       tag: "ComparisonOp",
-      op
+      op: op.text
     })
   %}
 
