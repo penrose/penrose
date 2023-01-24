@@ -1,7 +1,7 @@
 {
   "name": "@penrose/synthesizer",
   "private": true,
-  "version": "1.3.0",
+  "version": "2.1.1",
   "description": "Synthesis engine for Penrose",
   "keywords": [
     "program synthesis",
@@ -17,9 +17,6 @@
   "files": [
     "src"
   ],
-  "publishConfig": {
-    "registry": "https://registry.yarnpkg.com"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/penrose/penrose.git"
@@ -39,11 +36,10 @@
     "url": "https://github.com/penrose/penrose/issues"
   },
   "dependencies": {
-    "@penrose/core": "1.3.0",
+    "@penrose/core": "^2.1.1",
     "chalk": "^3.0.0",
     "global-jsdom": "^8.0.0",
     "neodoc": "^2.0.2",
-    "pandemonium": "^2.0.0",
     "true-myth": "^4.1.1"
   },
   "devDependencies": {

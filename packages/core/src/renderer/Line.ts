@@ -100,10 +100,8 @@ const makeRoomForArrows = (
       startArrowheadSize *
       thickness;
     const dx = (startArrowWidth / length) * (lineSX - lineEX);
-    [arrowSX, arrowSY] = [
-      lineSX - (startFlip ? -startArrowhead.refX : dx),
-      lineSY - (startArrowWidth / length) * (lineSY - lineEY),
-    ];
+    const dy = (startArrowWidth / length) * (lineSY - lineEY);
+    [arrowSX, arrowSY] = [lineSX - dx, lineSY - dy];
   } else {
     [arrowSX, arrowSY] = [lineSX, lineSY];
   }

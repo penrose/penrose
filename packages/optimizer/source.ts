@@ -158,7 +158,6 @@ export class Gradient {
   }
 
   /**
-   * `ready` must be resolved first.
    * @param mod a compiled Wasm module following the conventions of this class
    * @param numSecondary the number of addends for primary output and gradient
    * @param numSecondary the number of secondary outputs
@@ -233,7 +232,6 @@ export class Gradient {
 }
 
 /**
- * `ready` must be resolved first.
  * @param gradMask whether each varying value index should be optimized
  * @param objMask whether each objective should be optimized
  * @param constrMask whether each constraint should be optimized
