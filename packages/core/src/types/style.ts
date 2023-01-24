@@ -245,7 +245,7 @@ export type FunctionCall<T> = ASTNode<T> & {
 
 export type ComparisonOp<T> = ASTNode<T> & {
   tag: "ComparisonOp";
-  op: string;
+  op: "<" | "==" | ">";
 };
 
 export type InlineComparison<T> = ASTNode<T> & {
