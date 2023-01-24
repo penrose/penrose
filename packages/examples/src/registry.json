@@ -194,7 +194,6 @@
     },
     {
       "name": "Walk on Spheres - Poisson Estimator",
-      "gallery": true,
       "substance": "wos-poisson-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
@@ -202,7 +201,6 @@
     },
     {
       "name": "Walk on Spheres - Nested Estimator",
-      "gallery": true,
       "substance": "wos-nested-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
@@ -210,7 +208,6 @@
     },
     {
       "name": "Walk on Spheres - Off-Center Estimator",
-      "gallery": true,
       "substance": "wos-offcenter-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
