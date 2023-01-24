@@ -185,24 +185,32 @@
       "gallery": true
     },
     {
+      "name": "Walk on Spheres - Laplace Estimator",
+      "gallery": true,
       "substance": "wos-laplace-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
       "variation": "LilyDunlin3394"
     },
     {
+      "name": "Walk on Spheres - Poisson Estimator",
+      "gallery": true,
       "substance": "wos-poisson-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
       "variation": "CoraletteStingray87534"
     },
     {
+      "name": "Walk on Spheres - Nested Estimator",
+      "gallery": true,
       "substance": "wos-nested-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
       "variation": "ElmCrane34650"
     },
     {
+      "name": "Walk on Spheres - Off-Center Estimator",
+      "gallery": true,
       "substance": "wos-offcenter-estimator",
       "style": "walk-on-spheres",
       "domain": "walk-on-spheres",
@@ -245,10 +253,12 @@
       "variation": ""
     },
     {
+      "name": "A Caffeine Molecule",
       "substance": "caffeine",
       "style": "structural-formula",
       "domain": "structural-formula",
-      "variation": ""
+      "variation": "",
+      "gallery": true
     },
     {
       "substance": "mobius",
