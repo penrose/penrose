@@ -14,7 +14,7 @@ forall Set x {
   }
 
   ensure contains(x.icon, x.text)
-  encourage x.text.center == x.icon.center
+  encourage sameCenter(x.text, x.icon)
   x.textLayering = x.text above x.icon
 }
 
