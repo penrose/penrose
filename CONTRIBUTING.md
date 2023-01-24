@@ -206,7 +206,6 @@ The first step in adding this to the registry is to add the domain under
 
 ```json
 "foo": {
-  "name": "My Domain",
   "URI": "foo-domain/mydomain.dsl"
 }
 ```
@@ -216,7 +215,6 @@ Next you can add the style under `"styles"` referring to that domain:
 ```json
 "mystyle": {
   "domain": "foo",
-  "name": "My Style",
   "URI": "foo-domain/bar.sty"
 }
 ```
@@ -226,7 +224,6 @@ And similarly the substance would go under `"substances"`:
 ```json
 "mysubstance": {
   "domain": "foo",
-  "name": "My Substance",
   "URI": "foo-domain/baz.sub"
 }
 ```
@@ -236,6 +233,7 @@ Then, if you find that these give a nice diagram using variation
 
 ```json
 {
+  "name": "My Trio",
   "substance": "mysubstance",
   "style": "mystyle",
   "domain": "foo",
