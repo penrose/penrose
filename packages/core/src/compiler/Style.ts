@@ -2136,15 +2136,11 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
     case "ConstrFn":
     case "ObjFn": {
       const body = expr.body;
-      switch (body.tag) {
-        case "FunctionCall": {
-          return body.args.flatMap(findPathsExpr);
-        }
-        case "InlineComparison": {
-          return [body.arg1, body.arg2].flatMap(findPathsExpr);
-        }
+      if (body.tag === "FunctionCall") {
+        return body.args.flatMap(findPathsExpr);
+      } else {
+        return [body.arg1, body.arg2].flatMap(findPathsExpr);
       }
-      break;
     }
     case "GPIDecl": {
       return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
