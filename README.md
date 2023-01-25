@@ -80,7 +80,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   
   forall Set x; Set y
   where IsSubset(x, y) {
-    ensure x.icon.r < y.icon.r
+    ensure smallerThan(x.icon, y.icon)
     ensure disjoint(y.text, x.icon, 10)
     ensure contains(y.icon, x.icon, 5)
     x.icon above y.icon
