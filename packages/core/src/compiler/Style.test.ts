@@ -442,6 +442,13 @@ describe("Compiler", () => {
   width = 500.0
   height = 400.0
 }`,
+      `forall Object o {
+        o.a = ?
+        o.b = ?
+        ensure o.a > o.b
+        ensure o.a < o.b
+        ensure o.a == o.b
+      }`,
     ];
     stys.forEach((sty: string) =>
       loadProgs({ dsl, sub, sty: canvasPreamble + sty })

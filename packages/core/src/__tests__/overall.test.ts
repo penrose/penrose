@@ -153,9 +153,12 @@ describe("Energy API", () => {
     if (res.isOk()) {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
-      const smallerThanFns = state.constrFns.filter(
-        (c) => c.ast.expr.name.value === "smallerThan"
-      );
+      const smallerThanFns = state.constrFns.filter((c) => {
+        return (
+          c.ast.expr.body.tag === "FunctionCall" &&
+          c.ast.expr.body.name.value === "smallerThan"
+        );
+      });
       const { inputMask, objMask, constrMask } = safe(
         state.constraintSets.get(state.optStages[0]),
         "missing first stage"

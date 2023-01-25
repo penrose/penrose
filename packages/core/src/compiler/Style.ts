@@ -54,8 +54,10 @@ import {
   BinOp,
   DeclPattern,
   Expr,
+  FunctionCall,
   Header,
   HeaderBlock,
+  InlineComparison,
   LayoutStages,
   List,
   Path,
@@ -2128,10 +2130,17 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
     case "Vary": {
       return [];
     }
-    case "CompApp":
+    case "CompApp": {
+      return expr.args.flatMap(findPathsExpr);
+    }
     case "ConstrFn":
     case "ObjFn": {
-      return expr.args.flatMap(findPathsExpr);
+      const body = expr.body;
+      if (body.tag === "FunctionCall") {
+        return body.args.flatMap(findPathsExpr);
+      } else {
+        return [body.arg1, body.arg2].flatMap(findPathsExpr);
+      }
     }
     case "GPIDecl": {
       return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
@@ -2805,6 +2814,41 @@ const stageExpr = (
   }
 };
 
+const extractObjConstrBody = (
+  body: InlineComparison<C> | FunctionCall<C>
+): { name: Identifier<C>; argExprs: Expr<C>[] } => {
+  if (body.tag === "InlineComparison") {
+    const mapInlineOpToFunctionName = (op: "<" | "==" | ">"): string => {
+      switch (op) {
+        case "<":
+          return "lessThan";
+        case "==":
+          return "equal";
+        case ">":
+          return "greaterThan";
+      }
+    };
+    const functionName = mapInlineOpToFunctionName(body.op.op);
+
+    return {
+      name: {
+        tag: "Identifier",
+        start: body.op.start,
+        end: body.op.end,
+        nodeType: body.op.nodeType,
+        type: "value",
+        value: functionName,
+      },
+      argExprs: [body.arg1, body.arg2],
+    };
+  } else {
+    return {
+      name: body.name,
+      argExprs: body.args,
+    };
+  }
+};
+
 const translateExpr = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2836,18 +2880,19 @@ const translateExpr = (
       };
     }
     case "ConstrFn": {
+      const { name, argExprs } = extractObjConstrBody(e.expr.body);
       const args = argValues(
         mut,
         canvas,
         layoutStages,
         e.context,
-        e.expr.args,
+        argExprs,
         trans
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name, stages, exclude } = e.expr;
+      const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
         return addDiags(
@@ -2871,18 +2916,19 @@ const translateExpr = (
       };
     }
     case "ObjFn": {
+      const { name, argExprs } = extractObjConstrBody(e.expr.body);
       const args = argValues(
         mut,
         canvas,
         layoutStages,
         e.context,
-        e.expr.args,
+        argExprs,
         trans
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name, stages, exclude } = e.expr;
+      const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
         return addDiags(
@@ -3198,17 +3244,21 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
           expr: {
             tag: "ConstrFn",
             nodeType: "SyntheticStyle",
-            name: dummyId("onCanvas"),
+            body: {
+              tag: "FunctionCall",
+              nodeType: "SyntheticStyle",
+              name: dummyId("onCanvas"),
+              args: [
+                // HACK: the right way to do this would be to parse `name` into
+                // the correct `Path`, but we don't really care as long as it
+                // pretty-prints into something that looks right
+                fakePath(name, []),
+                fakePath("canvas", ["width"]),
+                fakePath("canvas", ["height"]),
+              ],
+            },
             stages: [],
             exclude: true,
-            args: [
-              // HACK: the right way to do this would be to parse `name` into
-              // the correct `Path`, but we don't really care as long as it
-              // pretty-prints into something that looks right
-              fakePath(name, []),
-              fakePath("canvas", ["width"]),
-              fakePath("canvas", ["height"]),
-            ],
           },
         },
         output,

@@ -754,17 +754,33 @@ export const prettyPrintExpr = (
 };
 
 export const prettyPrintFn = (fn: Fn): string => {
-  const name = fn.ast.expr.name.value;
-  const args = fn.ast.expr.args
-    .map((arg) =>
-      prettyPrintExpr(arg, (p) =>
-        prettyPrintResolvedPath(
-          resolveRhsPath({ context: fn.ast.context, expr: p })
+  const body = fn.ast.expr.body;
+  if (body.tag === "FunctionCall") {
+    const name = body.name.value;
+    const args = body.args
+      .map((arg) =>
+        prettyPrintExpr(arg, (p) =>
+          prettyPrintResolvedPath(
+            resolveRhsPath({ context: fn.ast.context, expr: p })
+          )
         )
       )
-    )
-    .join(", ");
-  return [name, "(", args, ")"].join("");
+      .join(", ");
+    return [name, "(", args, ")"].join("");
+  } else {
+    const { op, arg1, arg2 } = body;
+    const ppArg1 = prettyPrintExpr(arg1, (p) =>
+      prettyPrintResolvedPath(
+        resolveRhsPath({ context: fn.ast.context, expr: p })
+      )
+    );
+    const ppArg2 = prettyPrintExpr(arg2, (p) =>
+      prettyPrintResolvedPath(
+        resolveRhsPath({ context: fn.ast.context, expr: p })
+      )
+    );
+    return ppArg1 + " " + op.op + " " + ppArg2;
+  }
 };
 
 //#endregion
