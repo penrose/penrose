@@ -29,7 +29,7 @@ import {
 } from "./atoms";
 import { generateVariation } from "./variation";
 
-const _compileDiagram = async (
+export const _compileDiagram = async (
   substance: string,
   style: string,
   domain: string,
@@ -99,8 +99,7 @@ export const useStepStage = () =>
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
-    const workspace = snapshot.getLoadable(currentWorkspaceState)
-      .contents as Workspace;
+    const workspace = await snapshot.getPromise(currentWorkspaceState);
     const domainFile = workspace.files.domain.contents;
     const substanceFile = workspace.files.substance.contents;
     const styleFile = workspace.files.style.contents;

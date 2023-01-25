@@ -85,7 +85,9 @@ export default class Watch extends Command {
       });
     });
 
-    const watcher = chokidar.watch(".", { persistent: true });
+    const watcher = chokidar.watch(".", {
+      persistent: true,
+    });
     watcher.on("add", (p) => {
       switch (p.split(".").pop()) {
         case "sub":

@@ -32,9 +32,8 @@ import {
   localFilesState,
   RogerState,
   settingsState,
-  Workspace,
 } from "./state/atoms";
-import { useCheckURL } from "./state/callbacks";
+import { useCheckURL, useCompileDiagram } from "./state/callbacks";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -147,6 +146,12 @@ function App() {
   // responsive
   const isPortrait = useMediaQuery({ query: "(orientation: portrait)" });
   const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+  const compileDiagram = useCompileDiagram();
+  // const value = useRecoilValue(currentWorkspaceState);
+
+  // useEffect(() => {
+  //   toast.error(value.files.domain.contents);
+  // }, [value]);
 
   const ws = useRef<WebSocket | null>(null);
   const [rogerState, setRogerState] = useRecoilState<RogerState>(
@@ -198,22 +203,25 @@ function App() {
     []
   );
   const updatedFile = useRecoilCallback(
-    ({ snapshot, set }) => (fileName: string, contents: string) => {
-      const workspace = snapshot.getLoadable(currentWorkspaceState)
-        .contents as Workspace;
+    ({ snapshot, set }) => async (fileName: string, contents: string) => {
+      const workspace = await snapshot.getPromise(currentWorkspaceState);
       if (fileName === workspace.files.domain.name) {
-        set(fileContentsSelector("domain"), (file) => ({
-          ...file,
-          contents,
-        }));
-        // TODO: compile
+        set(fileContentsSelector("domain"), (file) => {
+          return {
+            ...file,
+            contents,
+          };
+        });
+        await compileDiagram();
       } else if (fileName === workspace.files.style.name) {
         set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
+        await compileDiagram();
       } else if (fileName === workspace.files.substance.name) {
         set(fileContentsSelector("substance"), (file) => ({
           ...file,
           contents,
         }));
+        await compileDiagram();
       }
     },
     []
