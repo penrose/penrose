@@ -32,6 +32,7 @@ import {
   localFilesState,
   RogerState,
   settingsState,
+  Workspace
 } from "./state/atoms";
 import { useCheckURL, useCompileDiagram } from "./state/callbacks";
 

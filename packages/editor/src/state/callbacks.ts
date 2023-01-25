@@ -99,7 +99,8 @@ export const useStepStage = () =>
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
-    const workspace = await snapshot.getPromise(currentWorkspaceState);
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
     const domainFile = workspace.files.domain.contents;
     const substanceFile = workspace.files.substance.contents;
     const styleFile = workspace.files.style.contents;
