@@ -147,11 +147,6 @@ function App() {
   const isPortrait = useMediaQuery({ query: "(orientation: portrait)" });
   const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
   const compileDiagram = useCompileDiagram();
-  // const value = useRecoilValue(currentWorkspaceState);
-
-  // useEffect(() => {
-  //   toast.error(value.files.domain.contents);
-  // }, [value]);
 
   const ws = useRef<WebSocket | null>(null);
   const [rogerState, setRogerState] = useRecoilState<RogerState>(

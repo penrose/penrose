@@ -29,7 +29,7 @@ import {
 } from "./atoms";
 import { generateVariation } from "./variation";
 
-export const _compileDiagram = async (
+const _compileDiagram = async (
   substance: string,
   style: string,
   domain: string,
