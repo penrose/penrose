@@ -79,7 +79,7 @@ forall Point p {
     fillColor : Colors.black
     fontSize : const.fontSize
   }
-  ensure equal(signedDistance(p.text, p.vec), const.textPadding + const.pointRadius)
+  ensure signedDistance(p.text, p.vec) == const.textPadding + const.pointRadius
 }
 
 -- default: if `Point` is not on a `Plane`, the point should be below the plane to stay hidden
@@ -115,7 +115,7 @@ where Collinear(p, q, r) {
 forall Point p
 with Linelike l
 where On(p, l) {
-  ensure equal(signedDistance(l.icon, p.vec), 0)
+  ensure signedDistance(l.icon, p.vec) == 0
 }
 
 forall Point p
@@ -200,7 +200,7 @@ with Point p; Point q {
   }
 
   -- edge case
-  ensure lessThan(const.minLineLength, norm(l.vec))
+  ensure norm(l.vec) > const.minLineLength
 
   -- labeling
   ensure disjoint(l.icon, p.text)
@@ -227,7 +227,7 @@ forall Linelike l1, l2
 where Parallel(l1, l2) {
   -- the dot product of the unit vectors of parallel lines is 1
   -- HACK: scaling to 10000s for convergence
-  ensure equal(10000, dot(normalize(l1.vec), normalize(l2.vec)) * 10000)
+  ensure 10000 == dot(normalize(l1.vec), normalize(l2.vec)) * 10000
 }
 --Segment
 forall Segment e
@@ -249,7 +249,7 @@ with Point p; Point q {
   q.icon above e.icon
 
   -- edge case
-  ensure lessThan(const.minSegmentLength, norm(e.vec))
+  ensure norm(e.vec) > const.minSegmentLength
 
   -- labeling
   ensure disjoint(p.text, e.icon)
@@ -262,7 +262,7 @@ forall Segment e; Plane p {
 
 forall Linelike s, t
 where EqualLength(s, t) {
-  ensure equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
+  ensure vdist(s.icon.start, s.icon.end) == vdist(t.icon.start, t.icon.end)
 }
 
 --TODO eventually this should also provide an equal length marker since it is bisecting the segment
@@ -429,7 +429,7 @@ where EqualAngle(a, b) {
   weight = 100
   angleA = angleBetween(a.p - a.q, a.r - a.q) * weight
   angleB = angleBetween(b.p - b.q, b.r - b.q) * weight
-  ensure equal(angleA, angleB) 
+  ensure angleA == angleB 
 }
 
 forall Angle a
@@ -437,7 +437,7 @@ where RightUnmarked(a) {
   -- ensure perpendicular(a.p, a.q, a.r)
   vec2 u = a.p - a.q
   vec2 v = a.r - a.q
-  ensure equal(0, dot(u, v))
+  ensure dot(u, v) == 0
 }
 
 forall Angle a
@@ -452,7 +452,7 @@ where RightMarked(a) {
   }
   vec2 u = a.p - a.q
   vec2 v = a.r - a.q
-  ensure equal(0, dot(u, v))
+  ensure dot(u, v) == 0
 }
 
 forall Angle a
@@ -504,9 +504,9 @@ with Point p; Point q; Point r {
     fillColor: none()
     strokeColor: none()
   }
-  ensure lessThan(const.minSegmentLength, length(t.PQ))
-  ensure lessThan(const.minSegmentLength, length(t.QR))
-  ensure lessThan(const.minSegmentLength, length(t.RP))
+  ensure length(t.PQ) > const.minSegmentLength
+  ensure length(t.QR) > const.minSegmentLength
+  ensure length(t.RP) > const.minSegmentLength
   ensure disjoint(t.icon, p.text)
   ensure disjoint(t.icon, q.text)
   ensure disjoint(t.icon, r.text)
@@ -558,9 +558,9 @@ with Triangle T {
     fillColor : Colors.none
     strokeStyle: "dashed"
   }
-  ensure equal(norm(T.PQ.start - p.vec), T.icon.r)
-  ensure equal(norm(T.QR.start - p.vec), T.icon.r)
-  ensure equal(norm(T.RP.start - p.vec), T.icon.r)
+  ensure norm(T.PQ.start - p.vec) == T.icon.r
+  ensure norm(T.QR.start - p.vec) == T.icon.r
+  ensure norm(T.RP.start - p.vec) == T.icon.r
   encourage repelPt(const.repelWeight, T.PQ.start, T.QR.start)
   encourage repelPt(const.repelWeight, T.QR.start, T.RP.start)
 }
@@ -658,8 +658,8 @@ with Point p; Point q; Point r; Point s {
       fillColor : R.color
       strokeColor : Colors.black
     }
-  ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
-  ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
+  ensure vdist(p.icon.center, q.icon.center) == vdist(r.icon.center, s.icon.center)
+  ensure vdist(p.icon.center, s.icon.center) == vdist(q.icon.center, r.icon.center)
 
   ensure perpendicular(p.icon.center, q.icon.center, r.icon.center)
   ensure perpendicular(q.icon.center, s.icon.center, r.icon.center)
@@ -714,12 +714,12 @@ with Point p; Point q; Point r; Point s {
   ensure disjoint(r.text, Q.labelContainer)
   ensure disjoint(s.text, Q.labelContainer)
   -- ensure all sides are visible
-  ensure lessThan(const.minSegmentLength, norm(Q.p - Q.q))
-  ensure lessThan(const.minSegmentLength, norm(Q.q - Q.r))
-  ensure lessThan(const.minSegmentLength, norm(Q.r - Q.s))
-  ensure lessThan(const.minSegmentLength, norm(Q.s - Q.p))
-  ensure lessThan(const.minSegmentLength, norm(Q.r - Q.p))
-  ensure lessThan(const.minSegmentLength, norm(Q.s - Q.q))
+  ensure norm(Q.p - Q.q) > const.minSegmentLength
+  ensure norm(Q.q - Q.r) > const.minSegmentLength
+  ensure norm(Q.r - Q.s) > const.minSegmentLength
+  ensure norm(Q.s - Q.p) > const.minSegmentLength
+  ensure norm(Q.r - Q.p) > const.minSegmentLength
+  ensure norm(Q.s - Q.q) > const.minSegmentLength
 }
 
 --FUNCTIONS
@@ -763,7 +763,7 @@ with Angle a; Point p {
   weight = 10000
   angleA = angleBetween(a.p - a.q, s.end - a.q) * weight
   angleB = angleBetween(s.end - a.q, a.r - a.q) * weight
-  ensure equal(angleA, angleB) 
+  ensure angleA == angleB 
   -- HACK: make sure the bisector end point is between angle end points. Might be too specific
   ensure inRange(s.end[0], a.p[0], a.r[0])
   ensure inRange(s.end[1], a.p[1], a.r[1])
@@ -824,8 +824,8 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure equal(norm(p.vec - c.vec), c.radius)
-  ensure equal(norm(q.vec - c.vec), c.radius)
+  ensure norm(p.vec - c.vec) == c.radius
+  ensure norm(q.vec - c.vec) == c.radius
 }
 
 forall Segment s
@@ -847,7 +847,7 @@ with Circle c; Point p {
     style : "solid"
   }
   p.icon above c.icon
-  ensure equal(norm(c.vec - p.vec), c.radius)
+  ensure norm(c.vec - p.vec) == c.radius
 }
 
 forall Segment s
@@ -876,14 +876,14 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure equal(norm(midpoint(p.vec, q.vec) - c.icon.center), 0)
-  ensure equal(c.icon.r * 2, norm(s.vec))
+  ensure norm(midpoint(p.vec, q.vec) - c.icon.center) == 0
+  ensure c.icon.r * 2 == norm(s.vec)
 }
 
 forall Point p
 where OnCircle(c, p)
 with Circle c {
-  ensure equal(norm(c.vec - p.vec), c.radius)
+  ensure norm(c.vec - p.vec) == c.radius
 }
 
 forall Point p
