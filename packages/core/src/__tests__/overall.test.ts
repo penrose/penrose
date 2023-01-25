@@ -162,11 +162,10 @@ describe("Energy API", () => {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
       const smallerThanFns = state.constrFns.filter((c) => {
-        if (c.ast.expr.body.tag === "FunctionCall") {
-          return c.ast.expr.body.name.value === "smallerThan";
-        } else {
-          return c.ast.expr.body.op.op === "<";
-        }
+        return (
+          c.ast.expr.body.tag === "FunctionCall" &&
+          c.ast.expr.body.name.value === "smallerThan"
+        );
       });
       const { inputMask, objMask, constrMask } = safe(
         state.constraintSets.get(state.optStages[0]),
