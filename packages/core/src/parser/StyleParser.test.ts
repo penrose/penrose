@@ -421,6 +421,8 @@ const {
   A.fn = encourage obj("string1", true, "string\\n", false)
   A.fn2 = encourage obj( a, b )
   encourage a == b
+  encourage a + a / b > b*b
+  encourage MathPI()*4 > abs(sqrt(b))
   encourage a < b
   encourage a > b
   -- ensure 
