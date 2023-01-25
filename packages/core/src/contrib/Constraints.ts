@@ -28,7 +28,6 @@ import {
   lt,
   max,
   min,
-  minN,
   mul,
   neg,
   squared,
@@ -135,10 +134,7 @@ const constrDictSimple = {
     const v3 = ops.vnorm(ops.vsub(c1, c3));
 
     // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(
-      0,
-      minN([sub(add(v1, v2), v3), sub(add(v1, v3), v2), sub(add(v2, v3), v1)])
-    );
+    return max(0, sub(add(v1, v2), v3));
   },
 };
 
