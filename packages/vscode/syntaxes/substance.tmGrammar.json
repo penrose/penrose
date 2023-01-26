@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "penrose-substance",
+  "scopeName": "source.penrose-substance",
+  "fileTypes": [".sub"],
+  "patterns": [
+    { "include": "#keywords" },
+    { "include": "#latex" },
+    { "include": "source.penrose-common" }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.penrose",
+          "match": "\\b(AutoLabel|Label|NoLabel|All)\\b"
+        }
+      ]
+    },
+    "latex": {
+      "patterns": [{ "name": "constant.language.penrose", "match": "\\$.*\\$" }]
+    }
+  }
+}

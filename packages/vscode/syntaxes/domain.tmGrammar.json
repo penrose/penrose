@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "penrose-domain",
+  "scopeName": "source.penrose-domain",
+  "fileTypes": [".dsl"],
+  "patterns": [
+    { "include": "#keywords" },
+    { "include": "#operators" },
+    { "include": "source.penrose-common" }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.penrose",
+          "match": "\\b(type|value|constructor|function|predicate|notation|Prop)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.other.penrose.rarrow",
+          "match": "->"
+        }
+      ]
+    }
+  }
+}
