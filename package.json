@@ -8,8 +8,9 @@
   "scripts": {
     "build": "nx run-many --target=build --verbose",
     "typecheck": "nx run-many --target=typecheck --verbose",
+    "build:automator": "nx run automator:build",
     "build:docs-site": "nx run docs-site:build",
-    "start:docs-site": "nx run docs-site:watch",
+    "start:docs-site": "nx run docs-site:dev",
     "start": "nx run editor:watch",
     "build:ide": "nx run editor:build",
     "test": "nx run core:test",
@@ -17,17 +18,14 @@
     "lint": "nx run core:lint",
     "lint:fix": "nx run core:lint --fix",
     "lerna": "lerna",
-    "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
-    "new-version:prerelease": "lerna version --conventional-prerelease",
-    "graduate": "lerna version --conventional-commits --conventional-graduate",
-    "publish:canary": "lerna publish --canary --dist-tag develop --force-publish",
-    "release": "lerna publish from-package",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
+    "new-version": "lerna version --conventional-commits --no-git-tag-version --no-push",
+    "format": "prettier . --write && nx run-many --target=format --verbose",
+    "format:check": "prettier . --check && nx run-many --target=format:check --verbose",
     "toc": "markdown-toc --bullets='-' -i CONTRIBUTING.md",
     "diff": "lerna diff"
   },
   "devDependencies": {
+    "@spyke/conventional-changelog-preset": "^1.0.5",
     "cross-env": "^7.0.3",
     "handlebars": "^4.7.7",
     "js-yaml": "^4.1.0",
@@ -35,10 +33,10 @@
     "markdown-toc": "^1.2.0",
     "nx": "^15.0.13",
     "prettier": "2.2.1",
-    "prettier-plugin-organize-imports": "^2.3.4",
+    "prettier-plugin-organize-imports": "^3.2.1",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
-    "typescript": "^4.1.3"
+    "typescript": "^4.9.4"
   },
   "workspaces": {
     "packages": [
@@ -48,6 +46,7 @@
       "packages/docs-site",
       "packages/editor",
       "packages/examples",
+      "packages/optimizer",
       "packages/roger",
       "packages/synthesizer",
       "packages/synthesizer-ui"
@@ -57,6 +56,5 @@
       "**/babel-loader",
       "**/webpack"
     ]
-  },
-  "version": "1.3.0"
+  }
 }

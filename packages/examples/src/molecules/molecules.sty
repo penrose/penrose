@@ -1,12 +1,12 @@
 canvas {
-  width = 800
-  height = 700
+    width = 800
+    height = 700
 }
 
 -- Atoms
 
 forall Carbon x {
-    x.icon = Circle {
+    shape x.icon = Circle {
         strokeWidth : 0.0
         r : 27.0
         fillColor : rgba(0.0, 0.0, 0.0, 1.0)
@@ -14,7 +14,7 @@ forall Carbon x {
 }
 
 forall Hydrogen x {
-    x.icon = Circle {
+    shape x.icon = Circle {
         strokeWidth : 0.0
         r : 18.0
         fillColor : rgba(0.6, 0.6, 0.6, 1.0)
@@ -22,7 +22,7 @@ forall Hydrogen x {
 }
 
 forall Oxygen x {
-    x.icon = Circle {
+    shape x.icon = Circle {
         strokeWidth : 0.0
         r : 23.0
         fillColor : rgba(0.8, 0.0, 0.0, 1.0)
@@ -30,7 +30,7 @@ forall Oxygen x {
 }
 
 forall Nitrogen x {
-    x.icon = Circle {
+    shape x.icon = Circle {
         strokeWidth : 0.0
         r : 23.0
         fillColor : rgba(0.0, 0.0, 0.8, 1.0)
@@ -42,50 +42,50 @@ forall Nitrogen x {
 forall SingleBond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
-    b.line = Line {
+    shape b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 3.0
     }
-    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
+    encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall DoubleBond b
 where b := MakeDoubleBond(x, y)
 with Atom x; Atom y {
-    b.line1 = Line {
+    shape b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 9.0
     }
-    b.line2 = Line {
+    shape b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth: 3.0
     }
     b.layering = b.line2 above b.line1
-    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
+    encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall TripleBond b
 where b := MakeTripleBond(x, y)
 with Atom x; Atom y {
-    b.line1 = Line {
+    shape b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 15.0
     }
-    b.line2 = Line {
+    shape b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth: 9.0
     }
-    b.line3 = Line {
+    shape b.line3 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
@@ -93,11 +93,23 @@ with Atom x; Atom y {
     }
     b.layering1 = b.line2 above b.line1
     b.layering2 = b.line3 above b.line2
-    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
+    encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 -- Repulsion
 
 forall Atom x; Atom y {
-    encourage repel(x.icon, y.icon)
+    encourage notTooClose(x.icon, y.icon)
+}
+
+forall Atom a; Bond b {
+    a.icon above b.line1
+}
+
+forall Atom a; DoubleBond b {
+    a.icon above b.line2
+}
+
+forall Atom a; TripleBond b {
+    a.icon above b.line3
 }

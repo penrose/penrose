@@ -1,8 +1,8 @@
 {
   "name": "@penrose/roger",
-  "version": "1.3.0",
+  "version": "2.1.1",
   "description": "The Penrose CLI",
-  "author": "penrose",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "bin": {
     "roger": "./bin/run"
   },
@@ -11,10 +11,9 @@
   "main": "dist/index.js",
   "repository": "penrose/penrose",
   "files": [
-    "/bin",
-    "/dist",
-    "/npm-shrinkwrap.json",
-    "/oclif.manifest.json"
+    "bin",
+    "dist",
+    "oclif.manifest.json"
   ],
   "dependencies": {
     "@oclif/core": "^1",
@@ -38,42 +37,25 @@
     "oclif": "^3",
     "shx": "^0.3.3",
     "ts-node": "^10.2.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.4.3"
+    "tslib": "^2.3.1"
   },
   "oclif": {
     "bin": "roger",
     "dirname": "roger",
     "commands": "./dist/commands",
-    "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
-    ],
+    "plugins": [],
     "topicSeparator": " ",
-    "topics": {
-      "hello": {
-        "description": "Say hello to the world and others"
-      }
-    }
+    "topics": {}
   },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
     "build-decls": ":",
     "typecheck": ":",
     "postpack": "shx rm -f oclif.manifest.json",
-    "prepack": "yarn build && oclif manifest && oclif readme",
+    "prepack": "yarn build && oclif manifest && oclif readme && prettier --write README.md",
     "version": "oclif readme && git add README.md",
     "preinstall-global": "yarn build",
     "install-global": "yarn link"
-  },
-  "nx": {
-    "targets": {
-      "build": {
-        "outputs": [
-          "{projectRoot}/dist"
-        ]
-      }
-    }
   },
   "engines": {
     "node": ">=12.0.0"

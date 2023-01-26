@@ -1,4 +1,5 @@
-require("global-jsdom/register");
+import "global-jsdom/register"; // must be first
+
 import {
   compileDomain,
   compileSubstance,
@@ -11,7 +12,7 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "@penrose/core";
-import { A } from "@penrose/core/build/dist/types/ast";
+import { A } from "@penrose/core/dist/types/ast";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
 import { join } from "path";
@@ -84,6 +85,7 @@ const writePrograms = (
   const style = {
     name: styID,
     URI: stylePath,
+    domain: domainID,
   };
   const domain = {
     name: domainID,

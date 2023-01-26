@@ -12,13 +12,21 @@ export default function ExamplesBrowser() {
   return (
     <div>
       {examples.contents.map((example, k) => (
-        <FileButton
-          key={k}
-          isFocused={false}
-          onClick={() => loadExample(example)}
-        >
-          {example.name}
-        </FileButton>
+        <div key={example.name}>
+          <FileButton
+            key={k}
+            isFocused={false}
+            onClick={() => loadExample(example)}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              {/* <div
+                style={{ width: 50, height: 50 }}
+                dangerouslySetInnerHTML={{ __html: example.preview! }}
+              ></div> */}
+              {example.name}
+            </div>
+          </FileButton>
+        </div>
       ))}
     </div>
   );

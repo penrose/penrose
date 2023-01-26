@@ -43,7 +43,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
 
   compile = async (): Promise<void> => {
     this.penroseState = undefined;
-    const compilerResult = compileTrio(this.props);
+    const compilerResult = await compileTrio(this.props);
     if (compilerResult.isOk()) {
       this.penroseState = await prepareState(compilerResult.value);
       this.setState({ error: undefined }); // clear out errors

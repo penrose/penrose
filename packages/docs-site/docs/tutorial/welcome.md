@@ -1,7 +1,3 @@
----
-sidebar_position: 1
----
-
 # Welcome!
 
 ## We are so glad you are here.
@@ -19,12 +15,6 @@ Note that each tutorial builds on top of the last, so we highly recommend that y
 ## Introduction
 
 This section provides both concrete and conceptual descriptions of how to work within the Penrose environment. Feel free to dive into the tutorials if you are ready.
-
-### Installation
-
-We have a detailed wiki page on how to get Penrose up and running on your computer [here](https://github.com/penrose/penrose/wiki/Building-and-running). 🥳 Come back when you are done.
-
-Let's start with building up some intuition about how to approach Penrose. Learning how to use a new set of tools can be intimidating, and we want to make the process as smooth as possible.
 
 ### How do we create diagrams by hand?
 

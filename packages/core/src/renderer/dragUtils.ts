@@ -1,3 +1,4 @@
+import { genOptProblem } from "@penrose/optimizer";
 import * as ad from "types/ad";
 import { Properties, ShapeAD } from "types/shape";
 import { State } from "types/state";
@@ -12,21 +13,20 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
-  const frozenValues = new Set<number>();
+  const { constraintSets, optStages } = state;
+  const { inputMask, objMask, constrMask } = constraintSets.get(optStages[0])!;
+  const gradMask = [...inputMask];
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {
-      const ids = dragShape(shape, [dx, dy], xs);
-      ids.forEach((i) => frozenValues.add(i));
+      for (const id of dragShape(shape, [dx, dy], xs)) {
+        gradMask[id] = false;
+      }
     }
   }
   const updated: State = {
     ...state,
-    params: {
-      ...state.params,
-      optStatus: "NewIter",
-    },
+    params: genOptProblem(gradMask, objMask, constrMask),
     varyingValues: xs,
-    frozenValues,
   };
   return updated;
 };

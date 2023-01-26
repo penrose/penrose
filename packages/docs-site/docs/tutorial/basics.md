@@ -1,11 +1,8 @@
----
-sidebar_position: 2
-description: Learn All the Basics of Penrose
----
-
 # Basics
 
 This is the first diagram we will make together. This is the equivalent of the `print("Hello World")` program for Penrose. To make any mathematical diagram, we first need to visualize some **shapes** that we want. In this tutorial, we will learn about how to build a triple (`.dsl`, `.sub`, `.sty`) for a simple diagram containing two circles.
+
+👉 [**Open this online workspace**](pathname:///try/index.html?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial1) in a separate tab to follow along!
 
 ## Goal
 
@@ -13,15 +10,9 @@ This is the first diagram we will make together. This is the equivalent of the `
 
 This is what you will achieve at the end of this tutorial. If you are familiar with set theory you may recognize that circles are commonly used to represent sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later 😬).
 
-## Cloning the Repo
-
-Before we dive in, make a fork of [the Penrose repo](https://github.com/penrose/penrose), which contains the starter code for all of the tutorials (as well as solutions for checking your work) in the subdirectory `packages/examples/src/tutorials/`. Save it somewhere easy to access, like your Home directory or Desktop!
-
-We will be editing the files provided in the `./packages/examples/src/tutorials/code/tutorial1` subfolder of this repo.
-
 ## 📄 Domain
 
-It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`.
+It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can name our domain file `setTheory.dsl`.
 
 Recall that a `.dsl` file defines the possible types of objects in our domain. Essentially, we are _teaching_ Penrose the necessary vocabulary that we use to communicate our concept. For example, recall our example of a house from the introduction. Penrose has no idea that there are objects of type "plant" or "furniture" in a house, but we can describe them to Penrose using the `type` keyword.
 
@@ -64,8 +55,8 @@ We first need to specify the dimensions of the canvas that our diagram will be d
 
 ```
 canvas {
-  width = (* some width *)
-  height = (* some height *)
+  width = -- [some width]
+  height = -- [some height]
 }
 ```
 
@@ -81,11 +72,11 @@ In this case, our `Type` is `Set`, and we want all of our sets to be circles. We
 
 ```
 forall Set x {
-    x.icon = (* some shape object *)
+    x.icon = -- [some shape object]
 }
 ```
 
-So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](/docs/ref/). It is a page that you will visit frequently as you work in Penrose.
+So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](/docs/ref). It is a page that you will visit frequently as you work in Penrose.
 
 [This](/docs/ref/style/shapes/circle) is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a table that lists out the different properties you can manipulate, along with the default values for any properties that aren't randomly generated.
 
@@ -103,7 +94,15 @@ And that's a wrap! 🎉
 
 ## 🏗️ Compile
 
-Now it's time to see all of our hard work (drumroll please 🥁)! To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need to do the following:
+Now it's time to see all of our hard work (drumroll please 🥁)!
+
+### In the editor
+
+Click the `Compile` button.
+
+### Locally
+
+To compile your Penrose programs locally (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need to do the following:
 
 - Open two terminals at the Penrose root directory.
 - In the first terminal, run `yarn start` to launch Penrose on your computer and get the browser window to show up.
@@ -113,7 +112,7 @@ Now it's time to see all of our hard work (drumroll please 🥁)! To compile you
 
 ## Exercise
 
-We have now covered the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have provided 3 exercises for you to help solidify the basics. You can work on each of these within the existing files - no need to make new ones. **Hint:** Make use of the shape specs [here](/docs/ref/).
+We have now covered the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have provided 3 exercises for you to help solidify the basics. You can work on each of these within the existing files - no need to make new ones. **Hint:** Make use of the shape specs [here](/docs/ref).
 
 _Since we are not defining all the properties that control how the shape will look on-screen (location, color, etc), Penrose will optimize and make those decisions for you. Therefore when you click the resample button, you will get a new diagram that might have varying appearances, and here we've provided some sample results of the same Penrose program. So do not worry if your diagram does not look the exact same as ours._
 
@@ -129,7 +128,7 @@ _Since we are not defining all the properties that control how the shape will lo
 
 ![](/img/tutorial/tutorial1c3.png)
 
-- **Challenge 4:** Keep 3 sets. For each set, represent `Set` as both a `Circle` and a square. There should be 6 objects on your canvas. (Hint: you will need to initialize another [Shape](/docs/ref/) object!)
+- **Challenge 4:** Keep 3 sets. For each set, represent `Set` as both a `Circle` and a square. There should be 6 objects on your canvas. (Hint: you will need to initialize another [Shape](/docs/ref) object!)
 
 ![](/img/tutorial/tutorial1c4.png)
 

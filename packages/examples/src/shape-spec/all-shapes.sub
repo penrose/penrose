@@ -1,9 +1,14 @@
-TLine Line 
-TPolyline Polyline
-TPath Path
-TEquation Equation
-TImage Image
-TPolygon Polygon
-TEllipse Ellipse
-TRectangle Rectangle
-TCircle Circle
+-- fill shapes
+Rectangle Rectangle
+Circle Circle
+Ellipse Ellipse
+Polygon Polygon
+Image Image
+-- outline shapes
+Path Path
+Line Line 
+Equation Equation
+Text Text
+Polyline Polyline
+
+AutoLabel All

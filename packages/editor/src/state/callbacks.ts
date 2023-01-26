@@ -3,6 +3,7 @@ import {
   compileTrio,
   prepareState,
   resample,
+  stepNextStage,
   stepState,
   Trio,
 } from "@penrose/core";
@@ -15,6 +16,8 @@ import {
   currentWorkspaceState,
   Diagram,
   diagramState,
+  EDITOR_VERSION,
+  GistMetadata,
   localFilesState,
   LocalGithubUser,
   Settings,
@@ -41,7 +44,7 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const compileResult = compileTrio({
+  const compileResult = await compileTrio({
     domain,
     substance,
     style,
@@ -76,6 +79,20 @@ export const useStepDiagram = () =>
       return {
         ...diagram,
         state: stepState(diagram.state, diagram.metadata.stepSize),
+      };
+    })
+  );
+
+export const useStepStage = () =>
+  useRecoilCallback(({ set }) => () =>
+    set(diagramState, (diagram: Diagram) => {
+      if (diagram.state === null) {
+        toast.error(`No diagram`);
+        return diagram;
+      }
+      return {
+        ...diagram,
+        state: stepNextStage(diagram.state, diagram.metadata.stepSize),
       };
     })
   );
@@ -201,7 +218,7 @@ export const useLoadExampleWorkspace = () =>
         id: uuid(),
         name: trio.name,
         lastModified: new Date().toISOString(),
-        editorVersion: 0.1,
+        editorVersion: EDITOR_VERSION,
         location: {
           kind: "example",
           root: styleParentURI,
@@ -211,15 +228,15 @@ export const useLoadExampleWorkspace = () =>
       files: {
         domain: {
           contents: domain,
-          name: `${trio.domainName}.dsl`,
+          name: `${trio.domainID}.dsl`,
         },
         style: {
           contents: style,
-          name: `${trio.styleName}.sty`,
+          name: `${trio.styleID}.sty`,
         },
         substance: {
           contents: substance,
-          name: `${trio.substanceName}.sub`,
+          name: `${trio.substanceID}.sub`,
         },
       },
     });
@@ -263,13 +280,15 @@ export const useCheckURL = () =>
       }
       const json = await res.json();
       const gistFiles = json.files;
-      const gistMetadata = JSON.parse(gistFiles["metadata.json"].content);
+      const gistMetadata = JSON.parse(
+        gistFiles["metadata.json"].content
+      ) as GistMetadata;
       const metadata: WorkspaceMetadata = {
         name: gistMetadata.name,
         id: uuid(),
         lastModified: json.created_at,
         editorVersion: gistMetadata.editorVersion,
-        forkedFromGist: null,
+        forkedFromGist: gistMetadata.forkedFromGist,
         location: {
           kind: "gist",
           id: json.id,
@@ -296,6 +315,46 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
+    } else if ("example_trio" in parsed) {
+      const root = `https://raw.githubusercontent.com/${parsed["example_trio"]}`;
+      const trioRes = await fetch(`${root}/trio.json`);
+      const trioJson = await trioRes.json();
+      const id = toast.loading("Loading example...");
+      const domainReq = await fetch(`${root}/${trioJson.domain}`);
+      const styleReq = await fetch(`${root}/${trioJson.style}`);
+      const substanceReq = await fetch(`${root}/${trioJson.substance}`);
+      toast.dismiss(id);
+      const domain = await domainReq.text();
+      const style = await styleReq.text();
+      const substance = await substanceReq.text();
+      const workspace: Workspace = {
+        metadata: {
+          id: uuid(),
+          name: trioJson.name,
+          editorVersion: EDITOR_VERSION,
+          lastModified: new Date().toISOString(),
+          location: {
+            kind: "example",
+            root,
+          },
+          forkedFromGist: null,
+        },
+        files: {
+          domain: {
+            contents: domain,
+            name: trioJson.domain,
+          },
+          style: {
+            contents: style,
+            name: trioJson.style,
+          },
+          substance: {
+            contents: substance,
+            name: trioJson.substance,
+          },
+        },
+      };
+      set(currentWorkspaceState, workspace);
     }
   });
 
@@ -309,6 +368,16 @@ export const usePublishGist = () =>
       toast.error(`Not authorized with GitHub`);
       return;
     }
+    const gistMetadata: GistMetadata = {
+      name: workspace.metadata.name,
+      editorVersion: workspace.metadata.editorVersion,
+      forkedFromGist: workspace.metadata.forkedFromGist,
+      fileNames: {
+        domain: workspace.files.domain.name,
+        style: workspace.files.style.name,
+        substance: workspace.files.substance.name,
+      },
+    };
     const res = await fetch("https://api.github.com/gists", {
       method: "POST",
       headers: {
@@ -323,15 +392,7 @@ export const usePublishGist = () =>
             content: "a Penrose gist",
           },
           "metadata.json": {
-            content: JSON.stringify({
-              name: workspace.metadata.name,
-              editorVersion: workspace.metadata.editorVersion,
-              fileNames: {
-                domain: workspace.files.domain.name,
-                style: workspace.files.style.name,
-                substance: workspace.files.substance.name,
-              },
-            }),
+            content: JSON.stringify(gistMetadata),
           },
           domain: {
             content: workspace.files.domain.contents,

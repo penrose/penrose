@@ -1,6 +1,6 @@
 import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
-import { findIndex } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation, prettyParseError } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
@@ -683,7 +683,7 @@ const checkField = (
     // get the constructor decl in Domain
     const [cons, consDecl] = res;
     // find the field index by name
-    const fieldIndex = findIndex(
+    const fieldIndex = _.findIndex(
       consDecl.args,
       (a) => a.variable.value === field.value
     );

@@ -1,0 +1,18 @@
+[package]
+name = "penrose-optimizer"
+version = "2.1.1"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+console_error_panic_hook = "0.1"
+console_log = "0.2"
+log = "0.4"
+nalgebra = "0.31"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.4"
+ts-rs = "6"
+wasm-bindgen = "0.2"

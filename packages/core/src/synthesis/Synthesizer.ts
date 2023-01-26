@@ -26,10 +26,10 @@ import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
-import { cloneDeep, compact, range, times, without } from "lodash";
-import { createChoice } from "pandemonium/choice";
-import { createRandom } from "pandemonium/random";
-import { createWeightedChoice } from "pandemonium/weighted-choice";
+import _ from "lodash";
+import pc from "pandemonium/choice";
+import pr from "pandemonium/random";
+import pwc from "pandemonium/weighted-choice";
 import seedrandom from "seedrandom";
 import {
   Add,
@@ -146,7 +146,7 @@ export const initContext = (
     argReuse,
     names: im.Map<string, number>(),
     declaredIDs: im.Map<string, Identifier<A>[]>(),
-    choice: createChoice(rng),
+    choice: pc.createChoice(rng),
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -306,7 +306,7 @@ const findIDs = (
   typeStrs: string[],
   excludeList?: Identifier<A>[]
 ): Identifier<A>[] => {
-  const possibleIDs: Identifier<A>[] = compact(
+  const possibleIDs: Identifier<A>[] = _.compact(
     typeStrs.flatMap((typeStr) => ctx.declaredIDs.get(typeStr))
   );
   const candidates = possibleIDs.filter((id) =>
@@ -382,7 +382,7 @@ export class Synthesizer {
     if (subRes) {
       const [subEnv, env] = subRes;
       this.env = env;
-      this.template = cloneDeep(subEnv.ast);
+      this.template = _.cloneDeep(subEnv.ast);
       log.debug(`Loaded template:\n${prettySubstance(this.template)}`);
     } else {
       this.env = env;
@@ -393,24 +393,24 @@ export class Synthesizer {
       };
     }
     // initialize the current program as the template after pre-processing
-    this.currentProg = desugarAutoLabel(cloneDeep(this.template), env);
+    this.currentProg = desugarAutoLabel(_.cloneDeep(this.template), env);
     this.setting = setting;
     this.currentMutations = [];
     // use the seed to create random generation functions
     this.rng = seedrandom(seed);
-    this.choice = createChoice(this.rng);
+    this.choice = pc.createChoice(this.rng);
     // TODO: fix type declaration
-    this.weightedChoice = createWeightedChoice({
+    this.weightedChoice = pwc.createWeightedChoice({
       rng: this.rng,
       getWeight: (item: { type: MutationType; weight: number }) => {
         return item.weight;
       },
     } as any);
-    this.random = createRandom(this.rng);
+    this.random = pr.createRandom(this.rng);
   }
 
   reset = (): void => {
-    this.currentProg = desugarAutoLabel(cloneDeep(this.template), this.env);
+    this.currentProg = desugarAutoLabel(_.cloneDeep(this.template), this.env);
     this.currentMutations = [];
   };
 
@@ -430,7 +430,7 @@ export class Synthesizer {
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
-    times(numProgs, (n: number) => {
+    _.times(numProgs, (n: number) => {
       const sub = this.generateSubstance();
       // DEBUG: report results
       log.info(
@@ -445,7 +445,7 @@ export class Synthesizer {
 
   generateSubstance = (): SynthesizedSubstance => {
     const numStmts = this.random(...this.setting.mutationCount);
-    range(numStmts).reduce(
+    _.range(numStmts).reduce(
       (ctx: SynthesisContext, n: number): SynthesisContext => {
         const newCtx = this.mutateProgram(ctx);
         log.debug(
@@ -544,7 +544,7 @@ export class Synthesizer {
         if (decl) {
           // find index pairs of matching arg types
           const { args } = getSignature(decl);
-          const indices = combinations2(range(0, p.args.length)).filter(
+          const indices = combinations2(_.range(0, p.args.length)).filter(
             ([i, j]: [number, number]) => args[i] === args[j]
           );
           const pair = this.choice(indices);
@@ -558,7 +558,7 @@ export class Synthesizer {
         if (decl) {
           // find index pairs of matching arg types
           const { args } = getSignature(decl);
-          const indices = combinations2(range(0, f.args.length)).filter(
+          const indices = combinations2(_.range(0, f.args.length)).filter(
             ([i, j]: [number, number]) => args[i] === args[j]
           );
           const pair = this.choice(indices);
@@ -571,7 +571,7 @@ export class Synthesizer {
         const matchingNames: string[] = matchSignatures(p, ctx.env).map(
           (decl) => decl.name.value
         );
-        const options = without(matchingNames, p.name.value);
+        const options = _.without(matchingNames, p.name.value);
         if (options.length > 0) {
           return this.choice(options);
         } else return undefined;
@@ -580,7 +580,7 @@ export class Synthesizer {
         const matchingNames: string[] = matchSignatures(e, ctx.env).map(
           (decl) => decl.name.value
         );
-        const options = without(matchingNames, e.name.value);
+        const options = _.without(matchingNames, e.name.value);
         if (options.length > 0) {
           return this.choice(options);
         } else return undefined;
@@ -661,7 +661,7 @@ export class Synthesizer {
         }
       ),
     ];
-    const mutations = compact(ops);
+    const mutations = _.compact(ops);
     log.debug(
       `Available mutations for ${prettyStmt(stmt)}:\n${showMutations(
         mutations

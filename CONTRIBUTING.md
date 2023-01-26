@@ -5,6 +5,7 @@
 - [Prerequisites](#prerequisites)
   - [Apple Silicon](#apple-silicon)
   - [Windows WSL](#windows-wsl)
+  - [Linux](#linux)
 - [Setup](#setup)
 - [Editor](#editor)
 - [Development](#development)
@@ -31,7 +32,25 @@
 Be sure you have these tools installed:
 
 - [Git][]
+
 - [Node.js][] v16+ (if using Linux or Mac, we recommend installing via [nvm][])
+
+- [Rust][]
+
+- The WebAssembly target:
+
+  ```sh
+  rustup target add wasm32-unknown-unknown
+  ```
+
+- [`wasm-bindgen` CLI][] (you need to install Rust first), specifically a
+  version which has the `--keep-lld-exports` flag; use this command:
+
+  ```sh
+  cargo install wasm-bindgen-cli \
+    --git https://github.com/rustwasm/wasm-bindgen --rev 7c626e4b3
+  ```
+
 - [Yarn][] v1.x (you need to install Node.js first)
 
 Depending on your platform, here are some extra instructions:
@@ -52,6 +71,14 @@ Here are some WSL-specific guides:
 
 - [Guide for installing nvm and Node.js][]
 - [Guide for installing Yarn][]
+
+### Linux
+
+For `wasm-bindgen`, install an OpenSSL development package:
+
+```sh
+apt-get install libssl-dev
+```
 
 ## Setup
 
@@ -119,8 +146,8 @@ yarn start
 Once it finishes building, you should see this near the end of the output:
 
 ```
-@penrose/editor:   > Local: http://localhost:3000/try/
-@penrose/editor:   > Network: use `--host` to expose
+  > Local: http://localhost:3000/try/
+  > Network: use `--host` to expose
 ```
 
 Click [that link][]. The page may take some time to load, but once it does, you
@@ -160,7 +187,7 @@ yarn typecheck
 We have a `packages/examples/src/registry.json` file which lists several
 diagrams from the `packages/examples/src/` directory. All the "trios" listed in
 this file are automatically run in GitHub Actions to produce the SVG files in
-`diagrams/`.
+the `ci/*` branches.
 
 If you create a new diagram in `packages/examples/src/` and you'd like to make
 sure that future changes to Penrose don't inadvertently break your diagram, go
@@ -179,7 +206,6 @@ The first step in adding this to the registry is to add the domain under
 
 ```json
 "foo": {
-  "name": "My Domain",
   "URI": "foo-domain/mydomain.dsl"
 }
 ```
@@ -189,7 +215,6 @@ Next you can add the style under `"styles"` referring to that domain:
 ```json
 "mystyle": {
   "domain": "foo",
-  "name": "My Style",
   "URI": "foo-domain/bar.sty"
 }
 ```
@@ -199,47 +224,25 @@ And similarly the substance would go under `"substances"`:
 ```json
 "mysubstance": {
   "domain": "foo",
-  "name": "My Substance",
   "URI": "foo-domain/baz.sub"
 }
 ```
 
 Then, if you find that these give a nice diagram using variation
-`CedarEagle308`, you can add the following under `"trios"`:
+`CedarEagle308`, you can add the following under `"trios"`. By default, examples in `trios` won't show up in `@penrose/editor`. Setting `gallery: true` will add your example to the example gallery in `editor`:
 
 ```json
 {
+  "name": "My Trio",
   "substance": "mysubstance",
   "style": "mystyle",
   "domain": "foo",
-  "variation": "CedarEagle308"
+  "variation": "CedarEagle308",
+  "gallery": true
 }
 ```
 
-And you're almost done! If you were to commit and push this right now, CI would
-fail because it would see that you added a new diagram to the registry without
-adding its output SVG file to the `diagrams/` directory. The last thing you need
-to do is generate that output and check it into Git.
-
-The easiest way to do this is to run `automator` locally on the registry:
-
-```sh
-npx nx run automator:build
-pushd packages/automator/
-yarn start batch registry.json ../../diagrams/ --src-prefix=../examples/src/
-popd
-```
-
-This should regenerate everything in `diagrams/`. Now just commit and push, and
-you're on your way!
-
-_**Note:**_ some features relating to text are currently not deterministic
-across different operating systems, so diagrams using those features cannot be
-included in the registry. See these pull requests for examples of those
-limitations:
-
-- [feat: Make Penrose deterministic][]
-- [test: Check word cloud example output in CI][]
+And you're done!
 
 ### Refresh build
 
@@ -321,14 +324,6 @@ metadata in all our `package/*/package.json` files. Specifically, below the
 `"scripts"` section we usually have a `"nx"` section defining metadata about
 each script. When you update a script, be sure to update its accompanying
 metadata!
-
-By default, Nx does not cache tasks; we collect the names of all tasks to cache
-in the `"cacheableOperations"` part of our `nx.json` file. If you create a new
-script that you would like to be cached, remember to add its name to that list.
-This also implies that two scripts with the same name in different packages
-should not have different caching behavior, so if you don't want your script to
-be cached, check in `nx.json` first to make sure you aren't using a name that is
-already considered cacheable.
 
 The `"targetDefaults"` part of `nx.json` defines default dependencies for some
 scripts for which we use the same semantics across all our packages:
@@ -412,7 +407,7 @@ When your work is ready for review:
   reproducing specific examples_, and link(s) to any issue(s) you address).
 - Some things will be checked automatically by our [CI][]:
   - Make sure the system passes the regression tests.
-  - Run [Prettier][] via `yarn format`.
+  - Run [Prettier][] and [rustfmt][] via `yarn format`.
 - If you have permission, request review from the relevant person. Otherwise, no
   worries: we'll take a look at your PR and assign it to a maintainer.
 - When your PR is approved, a maintainer will merge it.
@@ -420,6 +415,7 @@ When your work is ready for review:
 If you hit any snags in the process, run into bugs, or just have questions,
 please file an issue!
 
+[`wasm-bindgen` cli]: https://rustwasm.github.io/wasm-bindgen/reference/cli.html#installation
 [branch]: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 [ci]: https://docs.github.com/en/actions
 [clone]: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
@@ -427,7 +423,6 @@ please file an issue!
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
 [extensions]: https://code.visualstudio.com/docs/editor/extension-marketplace
-[feat: make penrose deterministic]: https://github.com/penrose/penrose/pull/864
 [git]: https://git-scm.com/downloads
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
@@ -444,7 +439,8 @@ please file an issue!
 [prettier]: https://prettier.io/
 [push]: https://github.com/git-guides/git-push
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
-[test: check word cloud example output in ci]: https://github.com/penrose/penrose/pull/876
+[rust]: https://www.rust-lang.org/tools/install
+[rustfmt]: https://github.com/rust-lang/rustfmt
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
 [vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces

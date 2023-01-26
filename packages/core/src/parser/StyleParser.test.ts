@@ -1,8 +1,9 @@
-import { examples } from "@penrose/examples";
+import geometryDomain from "@penrose/examples/dist/geometry-domain";
+import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain";
 import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
-import * as nearley from "nearley";
-import * as path from "path";
+import nearley from "nearley";
 import { C } from "types/ast";
 import { StyProg } from "types/style";
 import grammar from "./StyleParser";
@@ -22,16 +23,17 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
-const styPaths = [
-  "linear-algebra-domain/linear-algebra-paper-simple.sty",
-  "set-theory-domain/venn.sty",
-  "set-theory-domain/venn-3d.sty",
-  "set-theory-domain/venn-small.sty",
-  "set-theory-domain/tree.sty",
-  "set-theory-domain/continuousmap.sty",
-  "hyperbolic-domain/PoincareDisk.sty",
-  "geometry-domain/euclidean.sty",
-  "mesh-set-domain/DomainInterop.sty",
+const stys = [
+  [
+    "linear-algebra-domain/linear-algebra-paper-simple.sty",
+    linearAlgebraDomain["linear-algebra-paper-simple.sty"],
+  ],
+  ["set-theory-domain/venn.sty", setTheoryDomain["venn.sty"]],
+  ["set-theory-domain/venn-3d.sty", setTheoryDomain["venn-3d.sty"]],
+  ["set-theory-domain/venn-small.sty", setTheoryDomain["venn-small.sty"]],
+  ["set-theory-domain/tree.sty", setTheoryDomain["tree.sty"]],
+  ["set-theory-domain/continuousmap.sty", setTheoryDomain["continuousmap.sty"]],
+  ["geometry-domain/euclidean.sty", geometryDomain["euclidean.sty"]],
 ];
 
 beforeEach(() => {
@@ -62,8 +64,8 @@ const {
     const { results } = parser.feed(prog);
     sameASTs(results);
     const ast = results[0];
-    const keyword = ast.blocks[0].block.statements[0].path.members[0];
-    const id = ast.blocks[0].block.statements[1].path.members[0];
+    const keyword = ast.items[0].block.statements[0].path.members[0];
+    const id = ast.items[0].block.statements[1].path.members[0];
 
     expect(keyword.type).toEqual("type-keyword");
     expect(id.type).toEqual("identifier");
@@ -160,7 +162,7 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
   forall Atom a1; Atom a2 \
   where Bond(a1, a2) as b {}";
     const { results } = parser.feed(prog);
-    expect(results[0].blocks[0].header.where.contents[0].alias.value).toEqual(
+    expect(results[0].items[0].header.where.contents[0].alias.value).toEqual(
       "b"
     );
   });
@@ -249,7 +251,7 @@ where IsSubset(A, B); A has math label; B has text label {
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    const whereClauses = results[0].blocks[0].header.where.contents;
+    const whereClauses = results[0].items[0].header.where.contents;
     expect(whereClauses[1].name.contents.value).toEqual("A");
     expect(whereClauses[1].field.value).toEqual("label");
     expect(whereClauses[1].fieldDescriptor).toEqual("MathLabel");
@@ -367,8 +369,8 @@ const {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    const ast = results[0] as StyProg<C>;
-    const stringAssign = ast.blocks[0].block.statements[0];
+    const ast = results[0];
+    const stringAssign = ast.items[0].block.statements[0];
     if (
       stringAssign.tag === "PathAssign" &&
       stringAssign.value.tag === "StringLit"
@@ -549,19 +551,10 @@ describe("Real Programs", () => {
     fs.mkdirSync(outputDir);
   }
 
-  styPaths.forEach((examplePath) => {
-    // a bit hacky, only works with 2-part paths
-    const [part0, part1] = examplePath.split("/");
-    const prog = examples[part0][part1];
+  stys.forEach(([examplePath, prog]) => {
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);
-      // write to output folder
-      if (saveASTs) {
-        const exampleName = path.basename(examplePath, ".sty");
-        const astPath = path.join(outputDir, exampleName + ".ast.json");
-        fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
-      }
     });
   });
 });

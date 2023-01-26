@@ -1,5 +1,6 @@
-import { examples, registry } from "@penrose/examples";
-import { genOptProblem } from "../engine/Optimizer";
+import setTHeory from "@penrose/examples/dist/set-theory-domain";
+import { genOptProblem } from "@penrose/optimizer";
+import { genGradient } from "../engine/EngineUtils";
 import {
   compileTrio,
   evalEnergy,
@@ -11,17 +12,10 @@ import {
   stepUntilConvergence,
 } from "../index";
 import { State } from "../types/state";
+import { safe } from "../utils/Util";
 
-const exampleFromURI = (uri: string): string => {
-  let x: any = examples;
-  for (const part of uri.split("/")) {
-    x = x[part];
-  }
-  return x;
-};
-
-const vennStyle = exampleFromURI(registry.styles["venn"].URI);
-const setDomain = exampleFromURI(registry.domains["set-theory"].URI);
+const vennStyle = setTHeory["venn.sty"];
+const setDomain = setTHeory["setTheory.dsl"];
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
@@ -33,7 +27,12 @@ describe("Determinism", () => {
   const variation = "determinism";
 
   test("with initial optimization", async () => {
-    const resCompile = compileTrio({ substance, style, domain, variation });
+    const resCompile = await compileTrio({
+      substance,
+      style,
+      domain,
+      variation,
+    });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
@@ -82,7 +81,12 @@ describe("Determinism", () => {
   });
 
   test("without initial optimization", async () => {
-    const resCompile = compileTrio({ substance, style, domain, variation });
+    const resCompile = await compileTrio({
+      substance,
+      style,
+      domain,
+      variation,
+    });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
@@ -118,7 +122,7 @@ describe("Determinism", () => {
 describe("Energy API", () => {
   test("eval overall energy - init vs. optimized", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -140,7 +144,7 @@ describe("Energy API", () => {
   });
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -152,14 +156,19 @@ describe("Energy API", () => {
       const smallerThanFns = state.constrFns.filter(
         (c) => c.ast.expr.name.value === "smallerThan"
       );
+      const { inputMask, objMask, constrMask } = safe(
+        state.constraintSets.get(state.optStages[0]),
+        "missing first stage"
+      );
       const stateFiltered = {
         ...state,
         constrFns: smallerThanFns,
-        params: genOptProblem(
+        gradient: await genGradient(
           state.inputs,
           state.objFns.map(({ output }) => output),
           smallerThanFns.map(({ output }) => output)
         ),
+        params: genOptProblem(inputMask, objMask, constrMask),
       };
       expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
     } else {
@@ -173,13 +182,13 @@ describe("Cross-instance energy eval", () => {
     const twosets = `Set A, B\nAutoLabel All`;
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     // compile and optimize both states
-    const state1 = compileTrio({
+    const state1 = await compileTrio({
       substance: twosets,
       style: vennStyle,
       domain: setDomain,
       variation: "cross-instance state1",
     });
-    const state2 = compileTrio({
+    const state2 = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -216,7 +225,7 @@ describe("Run individual functions", () => {
 
   test("Check each individual function is minimized/satisfied", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio({
+    const res = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -234,11 +243,17 @@ describe("Run individual functions", () => {
       // console.log("# objectives", stateEvaled.objFns.length);
       // console.log("# constraints", stateEvaled.constrFns.length);
 
-      const initialEnergies = stateEvaled.params.currObjectiveAndGradient(
-        stateEvaled.varyingValues
+      const initialEnergies = stateEvaled.gradient.call([
+        ...stateEvaled.varyingValues,
+        stateEvaled.params.weight,
+      ]);
+      stateEvaled.params.lastObjEnergies = initialEnergies.secondary.slice(
+        0,
+        stateEvaled.params.objMask.length
       );
-      stateEvaled.params.lastConstrEnergies = initialEnergies.constrEngs;
-      stateEvaled.params.lastObjEnergies = initialEnergies.objEngs;
+      stateEvaled.params.lastConstrEnergies = initialEnergies.secondary.slice(
+        stateEvaled.params.objMask.length
+      );
 
       // Test objectives
       const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
@@ -248,26 +263,20 @@ describe("Run individual functions", () => {
         stateOptimizedValue
       );
 
-      for (const k of initEngsObj.keys()) {
-        // console.log("obj energies", initEngsObj[i], optedEngsObj[i]);
-        expect(initEngsObj.get(k)!).toBeGreaterThanOrEqual(
-          optedEngsObj.get(k)!
-        );
-        expect(optedEngsObj.get(k)!).toBeLessThanOrEqual(EPS);
+      for (let i = 0; i < initEngsObj.length; i++) {
+        expect(initEngsObj[i]).toBeGreaterThanOrEqual(optedEngsObj[i]);
+        expect(optedEngsObj[i]).toBeLessThanOrEqual(EPS);
       }
 
       // Test constraints
-      for (const k of initEngsConstr.keys()) {
-        // console.log("constr energies", initEngsConstr[i], optedEngsConstr[i]);
-        if (initEngsConstr.get(k)! < 0 && optedEngsConstr.get(k)! < 0) {
+      for (let i = 0; i < initEngsConstr.length; i++) {
+        if (initEngsConstr[i] < 0 && optedEngsConstr[i] < 0) {
           // If it was already satisfied and stays satisfied, the magnitude of the constraint doesn't matter (i.e. both are negative)
           expect(true).toEqual(true);
         } else {
-          expect(initEngsConstr.get(k)!).toBeGreaterThanOrEqual(
-            optedEngsConstr.get(k)!
-          );
+          expect(initEngsConstr[i]).toBeGreaterThanOrEqual(optedEngsConstr[i]);
           // Check constraint satisfaction (< 0)
-          expect(optedEngsConstr.get(k)!).toBeLessThanOrEqual(0);
+          expect(optedEngsConstr[i]).toBeLessThanOrEqual(0);
         }
       }
     } else {

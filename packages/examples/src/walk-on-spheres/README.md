@@ -16,7 +16,7 @@ As in WoS, steps of the walk are described by expressing how they were sampled, 
 
 As noted above, the main style file (`walk-on-spheres.sty`) has been written to replicate the visual style of existing papers, but can easily be modified/customized. The shading of each ball is determined by the file `ball.svg`, and steps from different types of walks are colored by drawing a semi-transparent disk on top of this shading image. More significant customizations might include, e.g., drawing rectangles rather than spheres for the _walk on rectangles_ algorithm. See comments in the `.sty` file for further details.
 
-Note that by default, labels are currently drawn using `Equation` shapes (which are typeset through MathJax) rather than the richer `Text` object (which are typeset via SVG text and supports outlines and nicer fonts, as shown below). There is a superficial reason for using this default: [registry regressions](https://github.com/penrose/penrose/wiki/Registry) on the Penrose GitHub repository may be run on different plaforms (e.g., Mac vs. Linux), and there are small cross-platform differences in the way SVG text is rendered, sometimes causing regressions to fail. If you want the nicer text, just comment out instances of `Equation` in `walk-on-spheres.sty`, and uncomment the corresponding `Text` shapes directly below them. (For this reason, the default diagrams will also not look like the previews shown below, e.g., text will not have white outlines.)
+Note that labels are currently drawn using a `Text` shape (which supports nice fonts and features like outlining), but math/TeX labels can also be used by switching to `Equation` shapes (which is typeset through MathJax, and hence loses support for nice fonts, etc.).
 
 #### Substance
 
@@ -24,16 +24,16 @@ The `.sub` examples show how to illustrate estimators for basic Laplace, Poisson
 
 `Laplace.sub`
 
-<img src="images/wos-laplace-estimator-walk-on-spheres.svg" width="480">
+<img src="./images/wos-laplace-estimator-walk-on-spheres.svg" width="480">
 
 `Poisson.sub`
 
-<img src="images/wos-poisson-estimator-walk-on-spheres.svg" width="480">
+<img src="./images/wos-poisson-estimator-walk-on-spheres.svg" width="480">
 
 `Nested.sub`
 
-<img src="images/wos-nested-estimator-walk-on-spheres.svg" width="480">
+<img src="./images/wos-nested-estimator-walk-on-spheres.svg" width="480">
 
 `OffCenter.sub`
 
-<img src="images/wos-offcenter-estimator-walk-on-spheres.svg" width="480">
+<img src="./images/wos-offcenter-estimator-walk-on-spheres.svg" width="480">

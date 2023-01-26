@@ -1,0 +1,43 @@
+canvas {
+    width = 600
+    height = 400
+}
+
+forall Curve c {
+    vec2 c.p1 = (?, ?)
+    vec2 c.p2 = (?, ?)
+    vec2 c.p3 = (?, ?)
+    vec2 c.p4 = (?, ?)
+
+    points = [c.p1, c.p2, c.p3, c.p4]
+    shape curve = Path {
+        d: cubicCurveFromPoints("open", points)
+        strokeWidth: 2.5
+        ensureOnCanvas: true
+        strokeColor: rgba(0, 0, 0, 1)
+    }
+    
+    ensure equal(vdist(c.p1, c.p2), vdist(c.p2, c.p3))
+    ensure equal(vdist(c.p2, c.p3), vdist(c.p3, c.p4))
+    ensure equal(perimeter(points), 500)
+}
+
+forall Point p {
+    vec2 p.p = (?, ?) 
+}
+
+
+forall Point p; Point p1; Point p2 
+where p := Lerp(p1, p2) {
+    vec2 p3 = 0.5 * (p1.p + p2.p)
+    override p.p = p3
+    ensure lessThan(vdist(p1.p, p2.p), 200)
+}
+
+forall Curve c; Point p1; Point p2; Point p3; Point p4
+where c := CurveFromPoints(p1, p2, p3, p4) {
+    override p1.p = c.p1
+    override p2.p = c.p2
+    override p3.p = c.p3
+    override p4.p = c.p4
+}

@@ -1,5 +1,5 @@
 import im from "immutable";
-import { every, keyBy, zipWith } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
 import { idOf, lastLocation, prettyParseError } from "parser/ParserUtil";
@@ -40,7 +40,7 @@ import {
   symmetricTypeMismatch,
   typeNotFound,
 } from "utils/Error";
-import { Digraph } from "utils/Graph";
+import Graph from "utils/Graph";
 
 export const parseDomain = (
   prog: string
@@ -110,7 +110,7 @@ const initEnv = (): Env => ({
   functions: im.Map<string, FunctionDecl<C>>(),
   preludeValues: im.Map<string, TypeConstructor<C>>(),
   subTypes: [],
-  typeGraph: new Digraph(),
+  typeGraph: new Graph(),
 });
 
 /**
@@ -121,10 +121,12 @@ export const checkDomain = (prog: DomainProg<C>): CheckerResult => {
   const { statements } = prog;
   // load built-in types
   const env: Env = initEnv();
-  // check all statements
+  // check all statements (except symmetric predicates)
   const stmtsOk: CheckerResult = safeChain(statements, checkStmt, ok(env));
   // compute subtyping graph
-  return andThen(computeTypeGraph, stmtsOk);
+  const typeGraphOk = andThen(computeTypeGraph, stmtsOk);
+  // finally check symmetric predicates
+  return safeChain(statements, checkSymPred, typeGraphOk);
 };
 
 const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
@@ -161,7 +163,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: im.Map(keyBy(params, "name.value")),
+        typeVars: im.Map(_.keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.constructors.get(name.value);
@@ -183,7 +185,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: im.Map(keyBy(params, "name.value")),
+        typeVars: im.Map(_.keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.functions.get(name.value);
@@ -205,21 +207,19 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // load params into context
       const localEnv: Env = {
         ...env,
-        typeVars: im.Map(keyBy(params, "name.value")),
+        typeVars: im.Map(_.keyBy(params, "name.value")),
       };
       // check name duplicate
       const existing = env.predicates.get(name.value);
       if (existing) return err(duplicateName(name, stmt, existing));
       // check that the arguments are of valid types
       const argsOk = safeChain(args, checkArg, ok(localEnv));
-      // if predicate is symmetric, check that the argument types are equal, and that there are exactly two arguments
-      const symArgOk = checkSymmetricArgs(args, argsOk, stmt);
       // insert predicate into env
       const updatedEnv: CheckerResult = ok({
         ...env,
         predicates: env.predicates.set(name.value, stmt),
       });
-      return everyResult(argsOk, symArgOk, updatedEnv);
+      return everyResult(argsOk, argsOk, updatedEnv);
     }
     case "NotationDecl": {
       // TODO: just passing through the notation rules here. Need to parse them into transformers
@@ -239,6 +239,18 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       const subOk = checkType(subType, env);
       const updatedEnv = addSubtype(subType, superType, env);
       return everyResult(subOk, updatedEnv);
+    }
+  }
+};
+
+const checkSymPred = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
+  switch (stmt.tag) {
+    case "PredicateDecl": {
+      // if predicate is symmetric, check that the argument types are equal, and that there are exactly two arguments
+      return checkSymmetricArgs(stmt.args, ok(env), stmt);
+    }
+    default: {
+      return ok(env);
     }
   }
 };
@@ -345,14 +357,21 @@ const addSubtype = (
 const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
   const [...typeNames] = types.keys();
-  typeNames.forEach((t: string) => typeGraph.setNode(t, t));
+  typeNames.forEach((t: string) => {
+    typeGraph.setNode(t, undefined);
+  });
   // NOTE: since we search for super types upstream, subtyping arrow points to supertype
   subTypes.forEach(
-    ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) =>
-      typeGraph.setEdge({ v: subType.name.value, w: superType.name.value })
+    ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) => {
+      typeGraph.setEdge({
+        i: subType.name.value,
+        j: superType.name.value,
+        e: undefined,
+      });
+    }
   );
-  if (!typeGraph.isAcyclic())
-    return err(cyclicSubtypes(typeGraph.findCycles()));
+  const cycles = typeGraph.findCycles();
+  if (cycles.length > 0) return err(cyclicSubtypes(cycles));
   return ok(env);
 };
 
@@ -375,26 +394,21 @@ export const isDeclaredSubtype = (
   // HACK: add in top type as an escape hatch for unbounded types
   if (subType.name.value === bottomType.name.value) return true;
 
-  const superTypes = env.typeGraph.dijkstra(subType.name.value);
-  const superNode = superTypes[superType.name.value];
-
-  if (superNode) return superNode.distance < Number.POSITIVE_INFINITY;
-  // TODO: include this case in our error system
-  else {
-    console.error(`${subType.name.value} not found in the subtype graph.`);
-    return false;
-  }
+  return superTypesOf(subType, env).has(superType.name.value);
 };
 
 export const superTypesOf = (
   subType: TypeConstructor<A>,
   env: Env
-): string[] => {
-  const superTypes = env.typeGraph.dijkstra(subType.name.value);
-  const allNodes = Object.entries(superTypes);
-  return allNodes
-    .filter(([, path]) => path.distance < Number.POSITIVE_INFINITY)
-    .map(([superTypeName]) => superTypeName);
+): Set<string> => {
+  const g = env.typeGraph;
+  const i = subType.name.value;
+  if (g.hasNode(i)) {
+    return g.descendants(i);
+  } else {
+    console.error(`${i} not found in the subtype graph.`);
+    return new Set();
+  }
 };
 
 // TODO: add in top and bottom in the type graph and simplify `subTypesOf` using `inEdges(t, bot)`
@@ -406,7 +420,7 @@ export const subTypesOf = (
   const subTypes = [];
   while (toVisit.length > 0) {
     const newSubTypes: string[] = toVisit.flatMap((t) =>
-      env.typeGraph.inEdges(t).map(({ v }) => v)
+      env.typeGraph.inEdges(t).map(({ i }) => i)
     );
     subTypes.push(...newSubTypes);
     toVisit = newSubTypes;
@@ -424,8 +438,8 @@ export const isSubtype = (
     superType.tag === "TypeConstructor"
   ) {
     const argsMatch = (args1: Type<A>[], args2: Type<A>[]): boolean =>
-      every(
-        zipWith(args1, args2, (sub: Type<A>, sup: Type<A>): boolean =>
+      _.every(
+        _.zipWith(args1, args2, (sub: Type<A>, sup: Type<A>): boolean =>
           isSubtype(sub, sup, env)
         )
       );

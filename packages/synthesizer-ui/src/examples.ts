@@ -1,5 +1,5 @@
 import { SynthesizerSetting } from "@penrose/core";
-import { examples } from "@penrose/examples";
+import geometryDomain from "@penrose/examples/dist/geometry-domain";
 
 export interface Preset {
   displayName: string;
@@ -52,9 +52,9 @@ export const presets: PresetCollection = {
   c01p01: {
     displayName: "c01p01: Collinear Points",
     prompt: "In which of the following diagrams are points B, D, E collinear?",
-    substance: examples["geometry-domain"].textbook_problems["c01p01.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"],
+    substance: geometryDomain.textbook_problems["c01p01.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"],
     setting: {
       ...defaultParams,
     },
@@ -63,9 +63,9 @@ export const presets: PresetCollection = {
     displayName: "c01p10: Complementary angles",
     prompt:
       "Which of the following diagrams contains exactly 2 pairs of complementary angles?",
-    substance: examples["geometry-domain"].textbook_problems["c01p10.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"],
+    substance: geometryDomain.textbook_problems["c01p10.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"],
     setting: {
       ...defaultParams,
     },
@@ -74,10 +74,10 @@ export const presets: PresetCollection = {
     displayName: "c02p01: Angle bisector",
     prompt:
       "In which of the following diagrams is the statement, <ADC=2(m<ADB)?",
-    substance: examples["geometry-domain"].textbook_problems["c02p01.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
+    substance: geometryDomain.textbook_problems["c02p01.sub"],
+    domain: geometryDomain["geometry.dsl"],
     style:
-      examples["geometry-domain"]["euclidean.sty"] +
+      geometryDomain["euclidean.sty"] +
       `
   forall Angle a {
     override a.radius = 50
@@ -91,10 +91,10 @@ export const presets: PresetCollection = {
     displayName: "c03p01: Alternate interior angles",
     prompt:
       "Which diagram illustrates <JKM and <KML as alternate interior angles?",
-    substance: examples["geometry-domain"].textbook_problems["c03p01.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
+    substance: geometryDomain.textbook_problems["c03p01.sub"],
+    domain: geometryDomain["geometry.dsl"],
     style:
-      examples["geometry-domain"]["euclidean.sty"] +
+      geometryDomain["euclidean.sty"] +
       `
 forall Angle a
 with Point p, q, r
@@ -109,11 +109,11 @@ where a := InteriorAngle(p, q, r) {
   c04p01: {
     displayName: "c04p01: Congruent triangles",
     prompt:
-      "Which of the following diagrams contains exactly 2 pairs of complementary angles?",
-    substance: examples["geometry-domain"].textbook_problems["c04p01.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
+      "In which of the following diagrams are triangles tDEC an tDEA congruent?",
+    substance: geometryDomain.textbook_problems["c04p01.sub"],
+    domain: geometryDomain["geometry.dsl"],
     style:
-      examples["geometry-domain"]["euclidean.sty"] +
+      geometryDomain["euclidean.sty"] +
       `
 forall Point \`D\`, \`E\`, \`C\` {
   Path {
@@ -136,9 +136,9 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c04p12: Complementary angles",
     prompt:
       "In which of these diagrams, can you find the value of <BCE given the value of x?",
-    substance: examples["geometry-domain"].textbook_problems["c04p12.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c04p12.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -146,9 +146,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c05p01: {
     displayName: "c05p01: Mid-segement",
     prompt: "Which diagram shows that HK is a midsegment of tGJF?",
-    substance: examples["geometry-domain"].textbook_problems["c05p01.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c05p01.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -156,9 +156,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c05p13: {
     displayName: "c05p13: Incenter",
     prompt: "Which diagram shows P as the incenter of tJKL?",
-    substance: examples["geometry-domain"].textbook_problems["c05p13.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c05p13.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -167,9 +167,9 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c06p06: Parallelogram",
     prompt:
       "Which of the following diagrams shows that JKLM is a parallelogram?",
-    substance: examples["geometry-domain"].textbook_problems["c06p06.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c06p06.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -177,9 +177,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c07p06: {
     displayName: "c07p06: Parallelogram 2",
     prompt: "In which of the following diagrams is ABCD a parallelogram?",
-    substance: examples["geometry-domain"].textbook_problems["c07p06.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c07p06.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -187,9 +187,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c07p10: {
     displayName: "c07p10: Orthocenter",
     prompt: "In which of the following diagrams is G the orthocenter of tFGH?",
-    substance: examples["geometry-domain"].textbook_problems["c07p10.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c07p10.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -197,9 +197,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c07p22: {
     displayName: "c07p22: Similar triangles",
     prompt: "In which of the following diagrams are the two triangles similar?",
-    substance: examples["geometry-domain"].textbook_problems["c07p22.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c07p22.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -207,9 +207,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c08p08: {
     displayName: "c08p08: Nested Right Angle Triangles",
     prompt: "In which of the following diagrams is PQR similar to TSR?",
-    substance: examples["geometry-domain"].textbook_problems["c08p08.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c08p08.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -218,9 +218,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   // c08p18: {
   //   displayName: "c08p18: Measures of Triangle",
   //   prompt: "TODO",
-  //   substance: examples["geometry-domain"].textbook_problems["c08p18.sub"],
-  //   domain: examples["geometry-domain"]["geometry.dsl"],
-  //   style: examples["geometry-domain"]["euclidean.sty"] + ``,
+  //   substance: geometryDomain.textbook_problems["c08p18.sub"],
+  //   domain: geometryDomain["geometry.dsl"],
+  //   style: geometryDomain["euclidean.sty"] + ``,
   //   setting: {
   //     ...defaultParams,
   //   },
@@ -230,9 +230,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   // c09p02: {
   //   displayName: "c09p02: Perpendicular Bisector of Triangle",
   //   prompt: "TODO",
-  //   substance: examples["geometry-domain"].textbook_problems["c09p02.sub"],
-  //   domain: examples["geometry-domain"]["geometry.dsl"],
-  //   style: examples["geometry-domain"]["euclidean.sty"] + ``,
+  //   substance: geometryDomain.textbook_problems["c09p02.sub"],
+  //   domain: geometryDomain["geometry.dsl"],
+  //   style: geometryDomain["euclidean.sty"] + ``,
   //   setting: {
   //     ...defaultParams,
   //   },
@@ -240,9 +240,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c10p08: {
     displayName: "c10p08: Triangle Congruency",
     prompt: "In which of the following diagrams is tDEF congruent to tABC?",
-    substance: examples["geometry-domain"].textbook_problems["c10p08.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c10p08.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -251,9 +251,9 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c11p07: Circle with Secant",
     prompt:
       "Which of the following diagrams is the length of PS represented by PQ*PR/PU?",
-    substance: examples["geometry-domain"].textbook_problems["c11p07.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c11p07.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -261,9 +261,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c11p12: {
     displayName: "c11p12: Circle with Chords, Radii, Diameters",
     prompt: "Which of the line segments is NOT a chord of F? (TODO: reword)",
-    substance: examples["geometry-domain"].textbook_problems["c11p12.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c11p12.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -272,9 +272,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   // c11p21: {
   //   displayName: "c11p21: Chord Intersection",
   //   prompt: "TODO",
-  //   substance: examples["geometry-domain"].textbook_problems["c11p21.sub"],
-  //   domain: examples["geometry-domain"]["geometry.dsl"],
-  //   style: examples["geometry-domain"]["euclidean.sty"] + ``,
+  //   substance: geometryDomain.textbook_problems["c11p21.sub"],
+  //   domain: geometryDomain["geometry.dsl"],
+  //   style: geometryDomain["euclidean.sty"] + ``,
   //   setting: {
   //     ...defaultParams,
   //   },
@@ -282,9 +282,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c11p25: {
     displayName: "c11p25: Trapezoid inside Circle",
     prompt: "In which of the following diagrams are AD = BC?",
-    substance: examples["geometry-domain"].textbook_problems["c11p25.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c11p25.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
@@ -293,9 +293,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   // c12p12: {
   //   displayName: "c12p12: Circle with Chords, Radii",
   //   prompt: "TODO",
-  //   substance: examples["geometry-domain"].textbook_problems["c12p12.sub"],
-  //   domain: examples["geometry-domain"]["geometry.dsl"],
-  //   style: examples["geometry-domain"]["euclidean.sty"] + ``,
+  //   substance: geometryDomain.textbook_problems["c12p12.sub"],
+  //   domain: geometryDomain["geometry.dsl"],
+  //   style: geometryDomain["euclidean.sty"] + ``,
   //   setting: {
   //     ...defaultParams,
   //   },
@@ -303,9 +303,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c12p20: {
     displayName: "c12p20: Triangle Congruency",
     prompt: "In which of the following diagrams is tABC congruent to tBCD?",
-    substance: examples["geometry-domain"].textbook_problems["c12p20.sub"],
-    domain: examples["geometry-domain"]["geometry.dsl"],
-    style: examples["geometry-domain"]["euclidean.sty"] + ``,
+    substance: geometryDomain.textbook_problems["c12p20.sub"],
+    domain: geometryDomain["geometry.dsl"],
+    style: geometryDomain["euclidean.sty"] + ``,
     setting: {
       ...defaultParams,
     },
