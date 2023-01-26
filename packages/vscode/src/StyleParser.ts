@@ -12,14 +12,14 @@ declare var comment: any;
 declare var multiline_comment: any;
 declare var ws: any;
 
+import { compact, concat, flatten, last } from "lodash";
 import * as moo from "moo";
-import { concat, compact, flatten, last } from "lodash";
 import {
-  rangeOf,
+  convertTokenId,
+  nth,
   rangeBetween,
   rangeFrom,
-  nth,
-  convertTokenId,
+  rangeOf,
 } from "./ParserUtil";
 
 const styleTypes: string[] = [

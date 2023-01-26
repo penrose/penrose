@@ -1,6 +1,6 @@
 # Penrose for VSCode
 
-Supports `.dsl`, `.sty`, and `.sub` for [Penrose](https://penrose.ink).
+Supports `.dsl`, `.sty`, and `.sub` for [Penrose](https://penrose.cs.cmu.edu).
 
 ## Notes
 

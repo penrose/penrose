@@ -54,6 +54,10 @@
     {
       "name": "📦 @penrose/synthesizer-ui",
       "path": "packages/synthesizer-ui"
+    },
+    {
+      "name": "📦 penrose-vs",
+      "path": "packages/vscode"
     }
   ],
   "settings": {

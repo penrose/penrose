@@ -103,7 +103,7 @@ export const convertTokenId = ([token]: any) => {
 };
 
 export const nth = (n: number) => {
-  return function(d: any[]) {
+  return function (d: any[]) {
     return d[n];
   };
 };
