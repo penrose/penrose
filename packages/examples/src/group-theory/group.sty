@@ -1,0 +1,46 @@
+canvas {
+    width = 800
+    height = 700
+}
+
+forall Group G {
+    G.circle = Circle {
+        center: (0, 0)
+        fillColor: #c4c4c4
+    }
+    name = Equation {
+        string: G.label
+    }
+    name.center = G.circle.center + (0, G.circle.r + name.height)
+}
+
+forall Elem x {
+    c = sampleColor(1, "rgb")
+    x.leftname = Equation {
+        string: x.label
+    }
+    x.left = Circle {
+        r: 3
+        center: x.leftname.center + (-x.leftname.width*2, x.leftname.height/2)
+        fillColor: c
+    }
+    x.right = Circle {
+        r: 25
+        fillColor: c
+    }
+    x.rightname = Equation {
+        string: x.label
+        center: x.right.center
+    }
+    Line {
+        start: x.left.center
+        endArrowhead: "straight"
+        strokeColor: c
+        strokeStyle: "dashed"
+    }
+}
+
+forall Group G; Elem x where x := elem(G) {
+    ensure contains(G.circle, x.leftname)
+    ensure contains(G.circle, x.left)
+}

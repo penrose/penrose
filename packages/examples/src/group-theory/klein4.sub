@@ -1,0 +1,12 @@
+Group k4
+Label k4 $K_4$
+
+Elem e := elem(k4)
+Elem r := elem(k4)
+Elem b := elem(k4)
+Elem rb := elem(k4)
+
+Label e $1$
+Label r $3$
+Label b $5$
+Label rb $7$
