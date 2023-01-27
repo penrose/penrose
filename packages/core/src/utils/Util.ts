@@ -20,12 +20,14 @@ import {
   Color,
   ColorV,
   FloatV,
+  GPI,
   ListV,
   LListV,
   MatrixV,
   PathCmd,
   PathDataV,
   PtListV,
+  ShapeListV,
   StrV,
   TupV,
   Val,
@@ -593,6 +595,11 @@ export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
 
 export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
   tag: "LListV",
+  contents,
+});
+
+export const shapeListV = (contents: GPI<ad.Num>[]): ShapeListV<ad.Num> => ({
+  tag: "ShapeList",
   contents,
 });
 

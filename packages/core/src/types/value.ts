@@ -37,7 +37,8 @@ export type Value<T> =
   | VectorV<T>
   | MatrixV<T>
   | TupV<T>
-  | LListV<T>;
+  | LListV<T>
+  | ShapeListV<T>;
 
 /** A floating point number **/
 export interface FloatV<T> {
@@ -137,4 +138,9 @@ export interface ValueV<T> {
 export interface CoordV<T> {
   tag: "CoordV";
   contents: T[];
+}
+
+export interface ShapeListV<T> {
+  tag: "ShapeList";
+  contents: GPI<T>[];
 }
