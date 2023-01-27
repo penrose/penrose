@@ -1,3 +1,5 @@
+import { ShapeAD } from "./shape";
+
 /**
  * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`GPI`) or a value (`Val`).
  */
@@ -38,7 +40,7 @@ export type Value<T> =
   | MatrixV<T>
   | TupV<T>
   | LListV<T>
-  | ShapeListV<T>;
+  | ShapeListV;
 
 /** A floating point number **/
 export interface FloatV<T> {
@@ -140,7 +142,7 @@ export interface CoordV<T> {
   contents: T[];
 }
 
-export interface ShapeListV<T> {
+export interface ShapeListV {
   tag: "ShapeList";
-  contents: GPI<T>[];
+  contents: ShapeAD[];
 }

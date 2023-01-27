@@ -5,6 +5,7 @@ import { Value } from "types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
 import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
 import { Equation, makeEquation, sampleEquation } from "./Equation";
+import { Group, makeGroup, sampleGroup } from "./Group";
 import { Image, makeImage, sampleImage } from "./Image";
 import { Line, makeLine, sampleLine } from "./Line";
 import { makePath, Path, samplePath } from "./Path";
@@ -31,7 +32,8 @@ export type Shape =
   | Polygon
   | Polyline
   | Rectangle
-  | Text;
+  | Text
+  | Group;
 
 export type ShapeType = Shape["shapeType"];
 
@@ -185,6 +187,15 @@ const Text = ShapeDef({
   isPolygonlike: true,
 });
 
+const Group = ShapeDef({
+  sampler: sampleGroup,
+  constr: makeGroup,
+
+  bbox: BBox.bboxFromGroup,
+  isRectlike: false,
+  isPolygonlike: false,
+});
+
 // TODO: figure out how to not have the result be type `any` when indexing into
 // this object using a string key
 export const shapedefs: { [k in ShapeType]: ShapeDef } = {
@@ -198,6 +209,7 @@ export const shapedefs: { [k in ShapeType]: ShapeDef } = {
   Polyline,
   Rectangle,
   Text,
+  Group,
 };
 
 // TODO: don't use a type predicate for this
