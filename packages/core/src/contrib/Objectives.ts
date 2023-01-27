@@ -12,13 +12,84 @@ import {
   lt,
   max,
   mul,
-  neg,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
+import { StyleFunction } from "types/functions";
 import { linePts } from "utils/Util";
+
+const minimal: StyleFunction<ad.Num> = {
+  name: "minimal",
+  documentation: "Encourage the input value to be close to negative infinity",
+  arguments: [{ name: "x", description: "Value", type: "real" }],
+  definition: (x: ad.Num): ad.Num => x,
+};
+
+const maximal: StyleFunction<ad.Num> = {
+  name: "maximal",
+  documentation: "Encourage the input value to be close to infinity",
+  arguments: [{ name: "x", description: "Value", type: "real" }],
+  definition: (x: ad.Num): ad.Num => x,
+};
+
+const equal: StyleFunction<ad.Num> = {
+  name: "equal",
+  documentation: "Encourage the inputs to have the same value: `(x - y)^2`",
+  arguments: [
+    { name: "x", description: "First value", type: "real" },
+    { name: "y", description: "Second value", type: "real" },
+  ],
+  definition: (x: ad.Num, y: ad.Num): ad.Num => squared(sub(x, y)),
+};
+
+const greaterThan: StyleFunction<ad.Num> = {
+  name: "greaterThan",
+  documentation:
+    "Encourage x to be greater than or equal to y: `max(0,y - x)^2`",
+  arguments: [
+    { name: "x", description: "First value", type: "real" },
+    { name: "y", description: "Second value", type: "real" },
+  ],
+  definition: (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(y, x))),
+};
+
+const lessThan: StyleFunction<ad.Num> = {
+  name: "lessThan",
+  documentation: "Encourage x to be less than or equal to y: `max(0,x - y)^2`",
+  arguments: [
+    { name: "x", description: "First value", type: "real" },
+    { name: "y", description: "Second value", type: "real" },
+  ],
+  definition: (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(x, y))),
+};
+
+const repelPt: StyleFunction<ad.Num> = {
+  name: "repelPt",
+  documentation:
+    "Repel point `a` from another scalar `b` with weight `weight`.",
+  arguments: [
+    { name: "weight", description: "Weight", type: "real" },
+    { name: "a", description: "First point", type: "rn" },
+    { name: "b", description: "Second point", type: "rn" },
+  ],
+  definition: (weight: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
+    mul(weight, inverse(ops.vdistsq(a, b))),
+};
+
+const repelScalar: StyleFunction<ad.Num> = {
+  name: "repelScalar",
+  documentation: "Repel scalar `c` from another scalar `d`.",
+  arguments: [
+    { name: "c", description: "First scalar", type: "real" },
+    { name: "d", description: "Second scalar", type: "real" },
+  ],
+  definition: (c: ad.Num, d: ad.Num): ad.Num => {
+    // 1/(c-d)^2
+    return inverse(squared(sub(c, d)));
+  },
+};
 
 // -------- Simple objective functions
 // Do not require shape queries, operate directly with `ad.Num` parameters.
@@ -26,41 +97,37 @@ export const objDictSimple = {
   /**
    * Encourage the input value to be close to negative infinity
    */
-  minimal: (x: ad.Num): ad.Num => x,
+  minimal: minimal.definition,
 
   /**
    * Encourage the input value to be close to infinity
    */
-  maximal: (x: ad.Num): ad.Num => neg(x),
+  maximal: maximal.definition,
 
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
-  equal: (x: ad.Num, y: ad.Num): ad.Num => squared(sub(x, y)),
+  equal: equal.definition,
 
   /**
    * Encourage x to be greater than or equal to y: `max(0,y - x)^2`
    */
-  greaterThan: (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(y, x))),
+  greaterThan: greaterThan.definition,
 
   /**
    * Encourage x to be less than or equal to y: `max(0,x - y)^2`
    */
-  lessThan: (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(x, y))),
+  lessThan: lessThan.definition,
 
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
-  repelPt: (weight: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
-    mul(weight, inverse(ops.vdistsq(a, b))),
+  repelPt: repelPt.definition,
 
   /**
    * Repel scalar `c` from another scalar `d`.
    */
-  repelScalar: (c: ad.Num, d: ad.Num): ad.Num => {
-    // 1/(c-d)^2
-    return inverse(squared(sub(c, d)));
-  },
+  repelScalar: repelScalar.definition,
 };
 
 // -------- General objective functions
