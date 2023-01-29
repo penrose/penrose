@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     38921,        939]
-NotebookOptionsPosition[     38150,        916]
-NotebookOutlinePosition[     38486,        931]
-CellTagsIndexPosition[     38443,        928]
+NotebookDataLength[     21466,        521]
+NotebookOptionsPosition[     20693,        498]
+NotebookOutlinePosition[     21031,        513]
+CellTagsIndexPosition[     20988,        510]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -35,8 +35,7 @@ e7e7ad8a12e4"],
 Cell[BoxData[
  RowBox[{"Exit", "[", "]"}]], "Input",
  CellChangeTimes->{{3.8839792042497807`*^9, 3.883979206618788*^9}},
- CellLabel->
-  "In[633]:=",ExpressionUUID->"de39deb2-3a56-4647-98f5-984fb6c55abf"],
+ CellLabel->"In[21]:=",ExpressionUUID->"de39deb2-3a56-4647-98f5-984fb6c55abf"],
 
 Cell[CellGroupData[{
 
@@ -49,7 +48,7 @@ Cell[BoxData[
   RowBox[{
    RowBox[{
     RowBox[{"G", "=", 
-     RowBox[{"DihedralGroup", "[", "6", "]"}]}], ";"}], "\[IndentingNewLine]",
+     RowBox[{"DihedralGroup", "[", "2", "]"}]}], ";"}], "\[IndentingNewLine]",
     "\[IndentingNewLine]", 
    RowBox[{"(*", " ", 
     RowBox[{
@@ -253,645 +252,224 @@ Cell[BoxData[
      RowBox[{"CayleyGraph", "[", "G", "]"}]}], ";"}], "\[IndentingNewLine]", 
    "graph"}]}]], "Input",
  CellChangeTimes->CompressedData["
-1:eJxTTMoPSmViYGAQB2IQrV72ouLn+zeO0wQbGkD0ov387SD6lc2yThDNprly
-J4j2E3+9F0QrCncfBtElD64cA9EH2NxOg+inNYbXQHSTp9QdEJ25fc13sLmm
-Hf9A9Ju4ePZfQHpb+1JeEC3tqSkNop/dV5MH0QJeN8C03DkuDbC671laIHrj
-QXMjEF2uWwamhfwaLUG0R6y+NYjesvG58W8g3XLN3xREG1xeMI/hwxvHO+YJ
-C0H0rvCu1yB6wk79NyD6ZEnsbkYg/eh/2B4Qbd6Tu1MSSO/UPHIFRL+LVr0H
-ou/197wC0cYHaz+D6OyUgH8gWl3puagUkC779BNMR23QkAfRpxU8rED0o8JN
-mSD67eOWbBDN5LWoCEQbSJ0G0wCRcNiJ
-  
-  "],ExpressionUUID->"f89d65e1-53ec-419e-ab0e-e4affb8ef607"],
+1:eJwdzE0ogwEAxvGXMpp8J9kyprCJDM18XVwWa40cKBpaHGYtkcaBGq3mY+GA
+m8WKUg42orExkSYirCWt0WRbzEccZsS8z3t4+l2e/mxZT2NXJEEQLHIwT+Uf
+DL0FauaT1Gpo2E/QwqfqlXFI466aoSTt2QrZKZOHsP/ecQxtNOEpfBwqdsLR
+OoYLyrfXglSXP/YHA23t0d+kW9rlOMis4zKh9y43EyaKbihZ53QO9Qt250Pj
+gaAEDhSqKJMlIxWwVlpUBTeNvtIfUo2zng9514t64j1Q4xJ0LMGd5olnOGMu
+CsCTfuluBKkn3GSBAp3SnE5q5h454Gtrjhu6p3VPsPRg+BMqOhv+YF62L5VB
+qvoIUbasczLhaVZtJfT0muTw5UGjgJEiQx/0bvBU0BBWLMBbWQ/l1/DFLmWZ
+1QL9erkdshovKeOn5q6geFbsgAXc8iBUZvR+QXtY+QttplyCSbonOaPDmChh
+LPwH4PgWNg==
+  "],
+ CellLabel->"In[49]:=",ExpressionUUID->"f89d65e1-53ec-419e-ab0e-e4affb8ef607"],
 
 Cell[BoxData[
  GraphicsBox[
   NamespaceBox["NetworkGraphics",
    DynamicModuleBox[{Typeset`graph = HoldComplete[
-     Graph[{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 
-      12}, {{{1, 12}, {1, 4}, {2, 11}, {2, 3}, {3, 10}, {3, 5}, {4, 9}, {4, 
-       6}, {5, 8}, {5, 7}, {6, 7}, {6, 8}, {7, 6}, {7, 9}, {8, 5}, {8, 10}, {
-       9, 4}, {9, 12}, {10, 3}, {10, 11}, {11, 2}, {11, 1}, {12, 1}, {12, 2}},
-        Null}, {
-      Properties -> {
-        DirectedEdge[11, 1] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         6 -> {Tooltip -> Cycles[{{1, 3, 5}, {2, 4, 6}}]}, 
-         DirectedEdge[1, 4] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         2 -> {Tooltip -> Cycles[{{2, 6}, {3, 5}}]}, 
-         1 -> {Tooltip -> Cycles[{}]}, 
-         DirectedEdge[4, 9] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]}, 
-         DirectedEdge[7, 6] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]}, 
-         DirectedEdge[8, 10] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         12 -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]}, 
-         10 -> {Tooltip -> Cycles[{{1, 5, 3}, {2, 6, 4}}]}, 
-         DirectedEdge[12, 1] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]},
-          DirectedEdge[3, 5] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         DirectedEdge[6, 8] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         5 -> {Tooltip -> Cycles[{{1, 3}, {4, 6}}]}, 
-         DirectedEdge[2, 11] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]},
-          DirectedEdge[10, 11] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         DirectedEdge[6, 7] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]}, 
-         8 -> {Tooltip -> Cycles[{{1, 4}, {2, 5}, {3, 6}}]}, 
-         DirectedEdge[5, 7] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         11 -> {Tooltip -> Cycles[{{1, 6, 5, 4, 3, 2}}]}, 
-         3 -> {Tooltip -> Cycles[{{1, 2}, {3, 6}, {4, 5}}]}, 
-         DirectedEdge[11, 2] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]},
-          DirectedEdge[1, 12] -> {
-          Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]}, 
-         DirectedEdge[9, 12] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         DirectedEdge[2, 3] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         4 -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         DirectedEdge[4, 6] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         9 -> {Tooltip -> Cycles[{{1, 5}, {2, 4}}]}, 
-         DirectedEdge[3, 10] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]},
-          DirectedEdge[8, 5] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]},
-          DirectedEdge[12, 2] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         7 -> {Tooltip -> Cycles[{{1, 4}, {2, 3}, {5, 6}}]}, 
-         DirectedEdge[10, 3] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]},
-          DirectedEdge[5, 8] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]},
-          DirectedEdge[7, 9] -> {Tooltip -> Cycles[{{1, 2, 3, 4, 5, 6}}]}, 
-         DirectedEdge[9, 4] -> {Tooltip -> Cycles[{{1, 6}, {2, 5}, {3, 4}}]}},
-        EdgeStyle -> {DirectedEdge[6, 7] -> {
-           Hue[0]}, DirectedEdge[1, 12] -> {
-           Hue[0]}, DirectedEdge[2, 3] -> {
-           Hue[0.7]}, DirectedEdge[11, 2] -> {
-           Hue[0]}, DirectedEdge[3, 10] -> {
-           Hue[0]}, DirectedEdge[5, 8] -> {
-           Hue[0]}, DirectedEdge[7, 6] -> {
-           Hue[0]}, DirectedEdge[7, 9] -> {
-           Hue[0.7]}, DirectedEdge[10, 11] -> {
-           Hue[0.7]}, DirectedEdge[4, 9] -> {
-           Hue[0]}, DirectedEdge[11, 1] -> {
-           Hue[0.7]}, DirectedEdge[1, 4] -> {
-           Hue[0.7]}, DirectedEdge[8, 5] -> {
-           Hue[0]}, DirectedEdge[8, 10] -> {
-           Hue[0.7]}, DirectedEdge[10, 3] -> {
-           Hue[0]}, DirectedEdge[9, 12] -> {
-           Hue[0.7]}, DirectedEdge[5, 7] -> {
-           Hue[0.7]}, DirectedEdge[6, 8] -> {
-           Hue[0.7]}, DirectedEdge[9, 4] -> {
-           Hue[0]}, DirectedEdge[2, 11] -> {
-           Hue[0]}, DirectedEdge[3, 5] -> {
-           Hue[0.7]}, DirectedEdge[12, 2] -> {
-           Hue[0.7]}, DirectedEdge[4, 6] -> {
-           Hue[0.7]}, DirectedEdge[12, 1] -> {
+     Graph[{1, 2, 3, 
+      4}, {{{1, 3}, {1, 2}, {2, 4}, {2, 1}, {3, 1}, {3, 4}, {4, 2}, {4, 3}}, 
+       Null}, {Properties -> {
+        DirectedEdge[3, 4] -> {Tooltip -> Cycles[{{3, 4}}]}, 
+         DirectedEdge[1, 2] -> {Tooltip -> Cycles[{{3, 4}}]}, 
+         1 -> {Tooltip -> Cycles[{}]}, 2 -> {Tooltip -> Cycles[{{3, 4}}]}, 
+         3 -> {Tooltip -> Cycles[{{1, 2}}]}, 
+         DirectedEdge[4, 3] -> {Tooltip -> Cycles[{{3, 4}}]}, 
+         4 -> {Tooltip -> Cycles[{{1, 2}, {3, 4}}]}, 
+         DirectedEdge[1, 3] -> {Tooltip -> Cycles[{{1, 2}}]}, 
+         DirectedEdge[2, 4] -> {Tooltip -> Cycles[{{1, 2}}]}, 
+         DirectedEdge[3, 1] -> {Tooltip -> Cycles[{{1, 2}}]}, 
+         DirectedEdge[4, 2] -> {Tooltip -> Cycles[{{1, 2}}]}, 
+         DirectedEdge[2, 1] -> {Tooltip -> Cycles[{{3, 4}}]}}, 
+       EdgeStyle -> {DirectedEdge[4, 2] -> {
+           Hue[0]}, DirectedEdge[3, 4] -> {
+           Hue[0.7]}, DirectedEdge[2, 1] -> {
+           Hue[0.7]}, DirectedEdge[1, 3] -> {
+           Hue[0]}, DirectedEdge[1, 2] -> {
+           Hue[0.7]}, DirectedEdge[4, 3] -> {
+           Hue[0.7]}, DirectedEdge[2, 4] -> {
+           Hue[0]}, DirectedEdge[3, 1] -> {
            Hue[0]}}}]]}, 
     TagBox[GraphicsGroupBox[GraphicsComplexBox[CompressedData["
-1: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
-5lcwlK9u0ARPWLA5x0/hmAOG/geGsvPf
+1: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
        "], {
         {Hue[0.6, 0.7, 0.5], Opacity[0.7], Arrowheads[Medium], 
          TagBox[
           TooltipBox[
-           {Hue[0.7], ArrowBox[{1, 4}, 0.029690088224866365`]},
+           {Hue[0.7], 
+            ArrowBox[BezierCurveBox[{
+             1, {0.525080473390688, 0.8505676754346068}, 2}], 
+             0.014223134787731323`]},
            RowBox[{"Cycles", "[", 
              RowBox[{"{", 
                RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
+                 RowBox[{"3", ",", "4"}], "}"}], "}"}], "]"}]],
           Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
+           Cycles[{{3, 4}}], "Tooltip"]& ], 
          TagBox[
           TooltipBox[
            {Hue[0], 
             ArrowBox[BezierCurveBox[{
-             1, {0.8984938206228578, 2.218778085250946}, 12}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{2, 3}, 0.029690088224866365`]},
+             1, {1.1789353509653082`, 0.4949069151169926}, 3}], 
+             0.014223134787731323`]},
            RowBox[{"Cycles", "[", 
              RowBox[{"{", 
                RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
+                 RowBox[{"1", ",", "2"}], "}"}], "}"}], "]"}]],
           Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
+           Cycles[{{1, 2}}], "Tooltip"]& ], 
+         TagBox[
+          TooltipBox[
+           {Hue[0.7], 
+            ArrowBox[BezierCurveBox[{
+             2, {0.534928683377531, 1.1794789814463755`}, 1}], 
+             0.014223134787731323`]},
+           RowBox[{"Cycles", "[", 
+             RowBox[{"{", 
+               RowBox[{"{", 
+                 RowBox[{"3", ",", "4"}], "}"}], "}"}], "]"}]],
+          Annotation[#, 
+           Cycles[{{3, 4}}], "Tooltip"]& ], 
          TagBox[
           TooltipBox[
            {Hue[0], 
             ArrowBox[BezierCurveBox[{
-             2, {0.38611308460601984`, 1.439349085499749}, 11}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{3, 5}, 0.029690088224866365`]},
+             2, {0.17926829403654065`, 0.5255315022391311}, 4}], 
+             0.014223134787731323`]},
            RowBox[{"Cycles", "[", 
              RowBox[{"{", 
                RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
+                 RowBox[{"1", ",", "2"}], "}"}], "}"}], "]"}]],
           Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
+           Cycles[{{1, 2}}], "Tooltip"]& ], 
          TagBox[
           TooltipBox[
            {Hue[0], 
             ArrowBox[BezierCurveBox[{
-             3, {0.8192298097206634, 0.31251046993394954`}, 10}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{4, 6}, 0.029690088224866365`]},
+             3, {0.8500370668846382, 0.5051441358382303}, 1}], 
+             0.014223134787731323`]},
            RowBox[{"Cycles", "[", 
              RowBox[{"{", 
                RowBox[{"{", 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
+                 RowBox[{"1", ",", "2"}], "}"}], "}"}], "]"}]],
           Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
+           Cycles[{{1, 2}}], "Tooltip"]& ], 
+         TagBox[
+          TooltipBox[
+           {Hue[0.7], 
+            ArrowBox[BezierCurveBox[{
+             3, {0.494376677543653, -0.14880334336901638`}, 4}], 
+             0.014223134787731323`]},
+           RowBox[{"Cycles", "[", 
+             RowBox[{"{", 
+               RowBox[{"{", 
+                 RowBox[{"3", ",", "4"}], "}"}], "}"}], "]"}]],
+          Annotation[#, 
+           Cycles[{{3, 4}}], "Tooltip"]& ], 
          TagBox[
           TooltipBox[
            {Hue[0], 
             ArrowBox[BezierCurveBox[{
-             4, {2.104713814805335, 2.266096379286726}, 9}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{5, 7}, 0.029690088224866365`]},
+             4, {-0.14930903842985485`, 0.5353845469931534}, 2}], 
+             0.014223134787731323`]},
            RowBox[{"Cycles", "[", 
              RowBox[{"{", 
                RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
+                 RowBox[{"1", ",", "2"}], "}"}], "}"}], "]"}]],
           Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
+           Cycles[{{1, 2}}], "Tooltip"]& ], 
          TagBox[
           TooltipBox[
-           {Hue[0], 
+           {Hue[0.7], 
             ArrowBox[BezierCurveBox[{
-             5, {2.025438073634851, 0.3602940201574404}, 8}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0], 
-            ArrowBox[BezierCurveBox[{
-             6, {2.5379196776070434`, 1.1393768488508917`}, 7}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{6, 8}, 0.029690088224866365`]},
+             4, {0.5045458391447699, 0.17972378667554975`}, 3}], 
+             0.014223134787731323`]},
            RowBox[{"Cycles", "[", 
              RowBox[{"{", 
                RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
+                 RowBox[{"3", ",", "4"}], "}"}], "}"}], "]"}]],
           Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0], 
-            ArrowBox[BezierCurveBox[{
-             7, {2.6663181553109494`, 1.350923506446277}, 6}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{7, 9}, 0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0], 
-            ArrowBox[BezierCurveBox[{
-             8, {1.881606395920058, 0.1585583512669589}, 5}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{8, 10}, 0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0], 
-            ArrowBox[BezierCurveBox[{
-             9, {2.241561955414888, 2.4741778423839906`}, 4}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{9, 12}, 0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0], 
-            ArrowBox[BezierCurveBox[{
-             10, {0.6821878897090962, 0.10418041221998874`}, 3}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{10, 11}, 0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{11, 1}, 0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0], 
-            ArrowBox[BezierCurveBox[{
-             11, {0.25756871238647616`, 1.2276540542085057`}, 2}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0], 
-            ArrowBox[BezierCurveBox[{
-             12, {1.0419497049568327`, 2.420165554977239}, 1}], 
-             0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[
-           {Hue[0.7], ArrowBox[{12, 2}, 0.029690088224866365`]},
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ]}, 
+           Cycles[{{3, 4}}], "Tooltip"]& ]}, 
         {Hue[0.6, 0.2, 0.8], EdgeForm[{GrayLevel[0], Opacity[0.7]}], 
          TagBox[
-          TooltipBox[DiskBox[1, 0.029690088224866365],
+          TooltipBox[DiskBox[1, 0.014223134787731323],
            RowBox[{"Cycles", "[", 
              RowBox[{"{", "}"}], "]"}]],
           Annotation[#, 
            Cycles[{}], "Tooltip"]& ], 
          TagBox[
-          TooltipBox[DiskBox[2, 0.029690088224866365],
+          TooltipBox[DiskBox[2, 0.014223134787731323],
            RowBox[{"Cycles", "[", 
              RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "5"}], "}"}]}], "}"}], "]"}]],
+               RowBox[{"{", 
+                 RowBox[{"3", ",", "4"}], "}"}], "}"}], "]"}]],
           Annotation[#, 
-           Cycles[{{2, 6}, {3, 5}}], "Tooltip"]& ], 
+           Cycles[{{3, 4}}], "Tooltip"]& ], 
          TagBox[
-          TooltipBox[DiskBox[3, 0.029690088224866365],
+          TooltipBox[DiskBox[3, 0.014223134787731323],
+           RowBox[{"Cycles", "[", 
+             RowBox[{"{", 
+               RowBox[{"{", 
+                 RowBox[{"1", ",", "2"}], "}"}], "}"}], "]"}]],
+          Annotation[#, 
+           Cycles[{{1, 2}}], "Tooltip"]& ], 
+         TagBox[
+          TooltipBox[DiskBox[4, 0.014223134787731323],
            RowBox[{"Cycles", "[", 
              RowBox[{"{", 
                RowBox[{
                  RowBox[{"{", 
                    RowBox[{"1", ",", "2"}], "}"}], ",", 
                  RowBox[{"{", 
-                   RowBox[{"3", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"4", ",", "5"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 2}, {3, 6}, {4, 5}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[4, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6"}], 
-                 "}"}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 2, 3, 4, 5, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[5, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "3"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"4", ",", "6"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 3}, {4, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[6, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "3", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "4", ",", "6"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 3, 5}, {2, 4, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[7, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "4"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "3"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"5", ",", "6"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 4}, {2, 3}, {5, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[8, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "4"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"3", ",", "6"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 4}, {2, 5}, {3, 6}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[9, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 5}, {2, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[10, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "5", ",", "3"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "6", ",", "4"}], "}"}]}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 5, 3}, {2, 6, 4}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[11, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{"{", 
-                 
-                 RowBox[{
-                  "1", ",", "6", ",", "5", ",", "4", ",", "3", ",", "2"}], 
-                 "}"}], "}"}], "]"}]],
-          Annotation[#, 
-           Cycles[{{1, 6, 5, 4, 3, 2}}], "Tooltip"]& ], 
-         TagBox[
-          TooltipBox[DiskBox[12, 0.029690088224866365],
-           RowBox[{"Cycles", "[", 
-             RowBox[{"{", 
-               RowBox[{
-                 RowBox[{"{", 
-                   RowBox[{"1", ",", "6"}], "}"}], ",", 
-                 RowBox[{"{", 
-                   RowBox[{"2", ",", "5"}], "}"}], ",", 
-                 RowBox[{"{", 
                    RowBox[{"3", ",", "4"}], "}"}]}], "}"}], "]"}]],
           Annotation[#, 
-           Cycles[{{1, 6}, {2, 5}, {3, 4}}], "Tooltip"]& ]}}]],
+           Cycles[{{1, 2}, {3, 4}}], "Tooltip"]& ]}}]],
      MouseAppearanceTag["NetworkGraphics"]],
     AllowKernelInitialization->False]],
   DefaultBaseStyle->{
@@ -908,14 +486,18 @@ YuUBDGXHsImRXCa0U8SuHvi4xrGGsqgFXRZQf8wy5zIwxEkwdDI+zwLaDpUd
    3.883978269798972*^9}, 3.883978326654695*^9, 3.8839783584164658`*^9, 
    3.883978407405614*^9, {3.8839785213457413`*^9, 3.883978566615913*^9}, 
    3.883978753774653*^9, 3.883978934895872*^9, {3.883979197572648*^9, 
-   3.883979218630849*^9}},
- CellLabel->"Out[32]=",ExpressionUUID->"8fead505-074a-4368-8ad0-2f3b4df1c452"]
+   3.883979218630849*^9}, {3.8839796851263*^9, 3.883979697851053*^9}, 
+   3.8839800118649473`*^9, {3.883980258264332*^9, 3.883980262358543*^9}, 
+   3.883980358815877*^9, {3.8839804409393263`*^9, 3.8839804506895933`*^9}, {
+   3.883980730751218*^9, 3.883980739972637*^9}, {3.883980787107336*^9, 
+   3.883980809439055*^9}, 3.883980890611713*^9, 3.883981028076023*^9},
+ CellLabel->"Out[64]=",ExpressionUUID->"d3e34486-953a-45c8-9fd4-ae2326432177"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
 },
 WindowSize->{1308, 831},
-WindowMargins->{{4, Automatic}, {Automatic, 4}},
+WindowMargins->{{51, Automatic}, {Automatic, 19}},
 FrontEndVersion->"12.0 for Mac OS X x86 (64-bit) (April 8, 2019)",
 StyleDefinitions->"Default.nb"
 ]
@@ -934,10 +516,10 @@ Cell[CellGroupData[{
 Cell[580, 22, 160, 3, 67, "Section",ExpressionUUID->"1904e46c-4804-4a81-8fc4-021bb95de20c"],
 Cell[CellGroupData[{
 Cell[765, 29, 189, 3, 54, "Subsection",ExpressionUUID->"63206680-674b-4f98-8771-e7e7ad8a12e4"],
-Cell[957, 34, 203, 4, 30, "Input",ExpressionUUID->"de39deb2-3a56-4647-98f5-984fb6c55abf"],
+Cell[957, 34, 199, 3, 30, "Input",ExpressionUUID->"de39deb2-3a56-4647-98f5-984fb6c55abf"],
 Cell[CellGroupData[{
-Cell[1185, 42, 8965, 221, 1165, "Input",ExpressionUUID->"f89d65e1-53ec-419e-ab0e-e4affb8ef607"],
-Cell[10153, 265, 27957, 646, 337, "Output",ExpressionUUID->"8fead505-074a-4368-8ad0-2f3b4df1c452"]
+Cell[1181, 41, 9088, 223, 1165, "Input",ExpressionUUID->"f89d65e1-53ec-419e-ab0e-e4affb8ef607"],
+Cell[10272, 266, 10381, 227, 376, "Output",ExpressionUUID->"d3e34486-953a-45c8-9fd4-ae2326432177"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
