@@ -14,9 +14,16 @@ canvas {
 }
 
 colors {
+   white = rgba( 1., 1., 1., 1. )
    lightGray = rgba( .8, .8, .8, 1. )
    mediumGray = rgba( .6, .6, .6, 1. )
    darkGray = rgba( .4, .4, .4, 1. )
+}
+
+global {
+   scalar targetEdgeLength = 40.
+   scalar pathWidth = 1.
+   scalar pathOutlineWidth = 3.
 }
 
 -- draw each group element as a dot
@@ -26,7 +33,7 @@ forall Element g
       r: 5.0 -- radius
       fillColor: colors.lightGray
       strokeColor: colors.mediumGray
-      strokeWidth: .45
+      strokeWidth: .55
       ensureOnCanvas: true
    }
 
@@ -35,6 +42,17 @@ forall Element g
        center: g.icon.center
        fontSize: "0.35px"
        fillColor: colors.darkGray
+   }
+}
+
+-- draw a circle around the identity element
+forall Element e
+where IsIdentity(e)
+{
+   shape identityMarker = Circle {
+      center: e.icon.center
+      r: 1.5*e.icon.r
+      fillColor: rgba(0,0,0,.1)
    }
 }
 
@@ -62,7 +80,11 @@ forall Element g1; Element g2
    scalar d = norm( x1 - x2 )
 
    -- minimize a Coulomb potential
-   encourage equal( 0., sqr(1000./d) )
+   encourage equal( 0., 2.*sqr(1000./d) )
+
+   -- minimize IPC potential
+   -- scalar dhat = 10.*g1.icon.r
+   --encourage equal( 0., max(0, -sqr(d - dhat)*log(d/dhat))) 
 }
 
 -- rule for any two elements g1, g2 related by a generator s
@@ -83,16 +105,22 @@ where IsGenerator(s); IsProduct( g2, g1, s )
       strokeColor: s.icon.fillColor
       endArrowhead: "straight"
       endArrowheadSize: 0.75
-      refX: 10
-      refY: 10
+      strokeWidth: global.pathWidth
    }
+   shape pathOutline = Path {
+      d: interpolateQuadraticFromPoints( "open", p0, p1, p2 )
+      strokeColor: colors.white
+      endArrowhead: "none"
+      strokeWidth: global.pathOutlineWidth
+   }
+   layer pathOutline below orientedPath
 
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = g1.icon.center
    vec2 x2 = g2.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
-   scalar L = 20. -- rest length
+   scalar L = global.targetEdgeLength -- rest length
    encourage equal( 0., k*(d-L)*(d-L)/2. ) -- minimize ½ k(d-L)²
 }
 
@@ -115,16 +143,22 @@ where IsGenerator(s); IsProduct( s, e, s )
       strokeColor: s.icon.fillColor
       endArrowhead: "straight"
       endArrowheadSize: 0.75
-      refX: 10
-      refY: 10
+      strokeWidth: global.pathWidth
    }
+   shape pathOutline = Path {
+      d: interpolateQuadraticFromPoints( "open", p0, p1, p2 )
+      strokeColor: colors.white
+      endArrowhead: "none"
+      strokeWidth: global.pathOutlineWidth
+   }
+   layer pathOutline below orientedPath
 
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = e.icon.center
    vec2 x2 = s.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
-   scalar L = 20. -- rest length
+   scalar L = global.targetEdgeLength -- rest length
    encourage equal( 0., k*(d-L)*(d-L)/2. ) -- minimize ½ k(d-L)²
 }
 
@@ -147,15 +181,21 @@ where IsGenerator(s); IsProduct( g, s, s )
       strokeColor: s.icon.fillColor
       endArrowhead: "straight"
       endArrowheadSize: 0.75
-      refX: 10
-      refY: 10
+      strokeWidth: global.pathWidth
    }
+   shape pathOutline = Path {
+      d: interpolateQuadraticFromPoints( "open", p0, p1, p2 )
+      strokeColor: colors.white
+      endArrowhead: "none"
+      strokeWidth: global.pathOutlineWidth
+   }
+   layer pathOutline below orientedPath
 
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = s.icon.center
    vec2 x2 = g.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
-   scalar L = 20. -- rest length
+   scalar L = global.targetEdgeLength -- rest length
    encourage equal( 0., k*(d-L)*(d-L)/2. ) -- minimize ½ k(d-L)²
 }
