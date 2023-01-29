@@ -1,0 +1,10 @@
+Element g1
+Element g2
+IsGenerator(g2)
+IsProduct(g1,g1,g1)
+IsProduct(g2,g2,g1)
+IsProduct(g2,g1,g2)
+IsProduct(g1,g2,g2)
+
+Label g1 $g_{1}$
+Label g2 $g_{2}$
