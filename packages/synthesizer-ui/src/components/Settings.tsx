@@ -64,9 +64,10 @@ const defaultEnv: PartialEnv = {
 export interface SettingsProps {
   generateCallback: (
     setting: SynthesizerSetting,
+    seed: string,
     numPrograms: number,
     dsl: string,
-    sub: string,
+    prompt: string,
     sty: string
   ) => void;
   defaultDomain: string;

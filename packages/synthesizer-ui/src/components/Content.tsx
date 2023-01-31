@@ -210,7 +210,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
             style={this.state.style}
             domain={this.state.domain}
             progs={this.state.progs}
-            onStaged={this.addStaged}
+            onSelected={this.addStaged}
             onStateUpdate={this.onStateUpdate}
           />
         </ContentSection>
