@@ -1,18 +1,14 @@
 import { Box, styled, Typography } from "@material-ui/core";
-import { PenroseState, SynthesizedSubstance } from "@penrose/core";
+import { PenroseState } from "@penrose/core";
 import React from "react";
 import { Gridbox } from "./Gridbox";
 
 export interface GridProps {
   style: string;
   domain: string;
-  progs: SynthesizedSubstance[];
-  onStaged: (n: number) => void;
+  substances: string[];
+  onSelected: (n: number) => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
-}
-
-interface GridState {
-  srcState: PenroseState | undefined;
 }
 
 const GridContainer = styled("main")({
@@ -47,12 +43,9 @@ const PlaceholderText = styled(Typography)(({ theme }) => ({
   fontFamily: "Roboto Mono",
 }));
 
-export class Grid extends React.Component<GridProps, GridState> {
+export class Grid extends React.Component<GridProps> {
   constructor(props: GridProps) {
     super(props);
-    this.state = {
-      srcState: undefined,
-    };
   }
 
   setSrcState = (newState: PenroseState) => {
@@ -62,17 +55,22 @@ export class Grid extends React.Component<GridProps, GridState> {
   };
 
   innerContent() {
-    return this.props.progs.map((s, i) => (
+    return this.props.substances.map((s, i) => (
       <Gridbox
         key={`grid-${i}`}
+        header={`Diagram ${i}`}
+        metadata={[
+          {
+            name: "Variation",
+            data: i.toString(),
+          },
+        ]}
         domain={this.props.domain}
         style={this.props.style}
-        progNumber={i}
+        gridIndex={i}
         substance={s}
         variation={i.toString()}
-        updateSrcProg={this.setSrcState}
-        srcState={this.state.srcState}
-        onStaged={this.props.onStaged}
+        onSelected={this.props.onSelected}
         onStateUpdate={this.props.onStateUpdate}
       />
     ));
@@ -80,7 +78,7 @@ export class Grid extends React.Component<GridProps, GridState> {
 
   render() {
     const content =
-      this.props.progs.length === 0 ? (
+      this.props.substances.length === 0 ? (
         <Placeholder>
           <PlaceholderText variant="h6">
             {"(Generated diagrams will appear here)"}
