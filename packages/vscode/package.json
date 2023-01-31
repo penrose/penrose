@@ -3,7 +3,7 @@
   "displayName": "Penrose",
   "publisher": "penrose",
   "description": "Penrose languages bundle",
-  "version": "0.0.2",
+  "version": "2.1.1",
   "engines": {
     "vscode": "^1.52.0"
   },
