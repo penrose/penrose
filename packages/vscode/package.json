@@ -4,6 +4,9 @@
   "publisher": "penrose",
   "description": "Penrose languages bundle",
   "version": "2.1.1",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
+  "license": "MIT",
+  "private": true,
   "engines": {
     "vscode": "^1.52.0"
   },
