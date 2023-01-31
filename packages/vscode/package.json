@@ -81,15 +81,9 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "webpack --config ./build/node-extension.webpack.config.js",
-    "watch": "webpack --watch --config ./build/node-extension.webpack.config.js",
-    "package": "webpack --mode production --devtool hidden-source-map --config ./build/node-extension.webpack.config.js",
-    "test-compile": "tsc -p ./",
-    "test-watch": "tsc -watch -p ./",
-    "pretest": "npm run test-compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "build": "esbuild src/extension.ts --outfile=dist/extension.js --platform=node --format=cjs --bundle --external:vscode",
+    "package": "vsce package --yarn",
+    "vscode:prepublish": "yarn build"
   },
   "devDependencies": {
     "@types/glob": "^8",
@@ -102,6 +96,7 @@
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
     "@vscode/test-electron": "^2",
+    "@vscode/vsce": "^2",
     "esbuild": "^0.17",
     "eslint": "^8",
     "glob": "^8",
