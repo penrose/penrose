@@ -19,7 +19,8 @@
   "icon": "resources/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/penrose/penrose-vscode.git"
+    "url": "https://github.com/penrose/penrose",
+    "directory": "packages/vscode"
   },
   "contributes": {
     "languages": [
@@ -29,7 +30,7 @@
           "Penrose Style"
         ],
         "extensions": [
-          ".sty"
+          ".style"
         ],
         "configuration": "./languages/common-language-configuration.json"
       },
@@ -39,7 +40,7 @@
           "Penrose Domain"
         ],
         "extensions": [
-          ".dsl"
+          ".domain"
         ],
         "configuration": "./languages/common-language-configuration.json"
       },
@@ -49,7 +50,7 @@
           "Penrose Substance"
         ],
         "extensions": [
-          ".sub"
+          ".substance"
         ],
         "configuration": "./languages/common-language-configuration.json"
       }

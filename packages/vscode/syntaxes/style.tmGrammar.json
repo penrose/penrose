@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "penrose-style",
   "scopeName": "source.penrose-style",
-  "fileTypes": [".sty"],
+  "fileTypes": [".style"],
   "patterns": [
     { "include": "#numbers" },
     { "include": "#keywords" },
