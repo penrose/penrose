@@ -1,4 +1,4 @@
--- structural-formula.dsl
+-- structural-formula.domain
 --
 -- This Penrose Domain schema is used to encode molecular
 -- structures in a format suitable for drawing a variety

@@ -132,7 +132,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
     this.state = {
-      substance: examples["geometry-domain"].textbook_problems["c04p01.sub"],
+      substance:
+        examples["geometry-domain"].textbook_problems["c04p01.substance"],
       setting: undefined,
       numPrograms: 10,
       domainEnv: defaultEnv,

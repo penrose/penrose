@@ -6,7 +6,7 @@ import WebSocket from "ws";
 
 export default class Watch extends Command {
   static description =
-    "Watch the current folder for files & changes (must end in .sub,.sty,.dsl)";
+    "Watch the current folder for files & changes (must end in .substance,.style,.domain)";
 
   static examples = ["<%= config.bin %> <%= command.id %>"];
 
@@ -88,13 +88,13 @@ export default class Watch extends Command {
     const watcher = chokidar.watch(".", { persistent: true });
     watcher.on("add", (p) => {
       switch (p.split(".").pop()) {
-        case "sub":
+        case "substance":
           this.files.substance.push(p);
           break;
-        case "sty":
+        case "style":
           this.files.style.push(p);
           break;
-        case "dsl":
+        case "domain":
           this.files.domain.push(p);
           break;
       }
@@ -105,20 +105,20 @@ export default class Watch extends Command {
       console.error(err);
     });
     watcher.on("change", async (p) => {
-      if (["sub", "sty", "dsl"].includes(p.split(".").pop() ?? "")) {
+      if (["substance", "style", "domain"].includes(p.split(".").pop() ?? "")) {
         console.info(`file ${p} changed`);
         this.broadcastFileChange(p);
       }
     });
     watcher.on("unlink", (p) => {
       switch (p.split(".").pop()) {
-        case "sub":
+        case "substance":
           this.files.substance = this.files.substance.filter((f) => f !== p);
           break;
-        case "sty":
+        case "style":
           this.files.style = this.files.style.filter((f) => f !== p);
           break;
-        case "dsl":
+        case "domain":
           this.files.domain = this.files.domain.filter((f) => f !== p);
           break;
       }

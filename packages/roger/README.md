@@ -35,7 +35,7 @@ USAGE
 
 ## `roger watch`
 
-Watch the current folder for files & changes (must end in .sub,.sty,.dsl)
+Watch the current folder for files & changes (must end in .substance,.style,.domain)
 
 ```
 USAGE
@@ -45,7 +45,7 @@ FLAGS
   -p, --port=<value>  [default: 9160] websocket port to serve to frontend
 
 DESCRIPTION
-  Watch the current folder for files & changes (must end in .sub,.sty,.dsl)
+  Watch the current folder for files & changes (must end in .substance,.style,.domain)
 
 EXAMPLES
   $ roger watch

@@ -20,8 +20,8 @@ const printAST = (ast: any) => {
 };
 
 const domains = [
-  ["linear-algebra.dsl", linearAlgebra["linear-algebra.dsl"]],
-  ["setTheory.dsl", setTheory["setTheory.dsl"]],
+  ["linear-algebra.domain", linearAlgebra["linear-algebra.domain"]],
+  ["setTheory.domain", setTheory["setTheory.domain"]],
 ];
 
 beforeEach(() => {

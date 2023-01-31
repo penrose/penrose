@@ -14,26 +14,26 @@ As in WoS, steps of the walk are described by expressing how they were sampled, 
 
 #### Style
 
-As noted above, the main style file (`walk-on-spheres.sty`) has been written to replicate the visual style of existing papers, but can easily be modified/customized. The shading of each ball is determined by the file `ball.svg`, and steps from different types of walks are colored by drawing a semi-transparent disk on top of this shading image. More significant customizations might include, e.g., drawing rectangles rather than spheres for the _walk on rectangles_ algorithm. See comments in the `.sty` file for further details.
+As noted above, the main style file (`walk-on-spheres.style`) has been written to replicate the visual style of existing papers, but can easily be modified/customized. The shading of each ball is determined by the file `ball.svg`, and steps from different types of walks are colored by drawing a semi-transparent disk on top of this shading image. More significant customizations might include, e.g., drawing rectangles rather than spheres for the _walk on rectangles_ algorithm. See comments in the `.style` file for further details.
 
 Note that labels are currently drawn using a `Text` shape (which supports nice fonts and features like outlining), but math/TeX labels can also be used by switching to `Equation` shapes (which is typeset through MathJax, and hence loses support for nice fonts, etc.).
 
 #### Substance
 
-The `.sub` examples show how to illustrate estimators for basic Laplace, Poisson, and nested equations, as well as off-centered walks, but the package could easily be extended to accommodate other use cases, as discussed above.
+The `.substance` examples show how to illustrate estimators for basic Laplace, Poisson, and nested equations, as well as off-centered walks, but the package could easily be extended to accommodate other use cases, as discussed above.
 
-`Laplace.sub`
+`Laplace.substance`
 
 <img src="./images/wos-laplace-estimator-walk-on-spheres.svg" width="480">
 
-`Poisson.sub`
+`Poisson.substance`
 
 <img src="./images/wos-poisson-estimator-walk-on-spheres.svg" width="480">
 
-`Nested.sub`
+`Nested.substance`
 
 <img src="./images/wos-nested-estimator-walk-on-spheres.svg" width="480">
 
-`OffCenter.sub`
+`OffCenter.substance`
 
 <img src="./images/wos-offcenter-estimator-walk-on-spheres.svg" width="480">

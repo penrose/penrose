@@ -20,7 +20,7 @@ If everything is working, when you compile, you should see a vector space labele
 
 ![starter code image](/img/tutorial/vectorspace_wg.png)
 
-There are comments in the starter code that document each block briefly. In this exercise we are mainly working on the `.sty` file, so the given `.dsl` and `.sub` file contains almost everything we need. This will be a common occurrence for you if you are a domain expert, crafting different visualizations for a domain.
+There are comments in the starter code that document each block briefly. In this exercise we are mainly working on the `.style` file, so the given `.domain` and `.substance` file contains almost everything we need. This will be a common occurrence for you if you are a domain expert, crafting different visualizations for a domain.
 
 For more in-depth explanations on the starter code, we prepared a separate document [here](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/supplementary/tutorial3/walkthrough.md).
 
@@ -34,9 +34,9 @@ Good news! Our Domain and Substance programs do not need to be altered for this 
 
 These visual relationships can be represented in many different ways. Therefore, Penrose does not include any built-in numeric types. For example, when we define a `Vector`, we don't assign it concrete values (e.g. we don't write `Vector v := (1,2)`). Instead, we simply declare the `Vector` and associate it with a `VectorSpace` using the `In` predicate.
 
-It's a good rule of thumb to **NOT** touch concrete numbers until we get into the `.sty` file.
+It's a good rule of thumb to **NOT** touch concrete numbers until we get into the `.style` file.
 
-Every vector exists in a vector space, and we typically draw them from the origin of that space. In the given `.dsl` file, you will find a defined predicate called `In` that takes in a `Vector` and a `VectorSpace`. The way we work with `In` is very similar to the `isSubset` predicate we have worked with in tutorial 2.
+Every vector exists in a vector space, and we typically draw them from the origin of that space. In the given `.domain` file, you will find a defined predicate called `In` that takes in a `Vector` and a `VectorSpace`. The way we work with `In` is very similar to the `isSubset` predicate we have worked with in tutorial 2.
 
 We start by writing the selector, which catches any vectors that are in a vector space.
 
@@ -72,7 +72,7 @@ Lastly, we need a field to write the variable name of our vector in the diagram.
 
 ```
 u.text = Equation {
-  string : u.label /* will be autofilled by Penrose because we set AutoLabel All in .sub */
+  string : u.label /* will be autofilled by Penrose because we set AutoLabel All in .substance */
   fillColor : u.shape.strokeColor /* this way it changes accordingly when we change the arrow's color */
 }
 ```
@@ -95,7 +95,7 @@ layer u.text above U.xAxis
 layer u.text above U.yAxis
 ```
 
-🔥 Yes! We are halfway there. Now you should see something similar to the following diagram. If you want to check your code, you can find the solution [here](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/solutions/tutorial3.md#task-1). Look for the section in the `.sty` file marked with "Task 1".
+🔥 Yes! We are halfway there. Now you should see something similar to the following diagram. If you want to check your code, you can find the solution [here](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/solutions/tutorial3.md#task-1). Look for the section in the `.style` file marked with "Task 1".
 
 ![Your new Penrose diagram should look something like this!](/img/tutorial/2vectors_wg.png)
 
@@ -106,11 +106,11 @@ layer u.text above U.yAxis
 We will write our first function in Penrose together 💫!
 
 ```
-/* new line in .dsl file */
+/* new line in .domain file */
 function addV(Vector, Vector) -> Vector
 ```
 
-In Penrose, functions are declarative, just like everything else. Functions allow us to use defined elements to create new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines a function called `addV`, which adds two vectors.
+In Penrose, functions are declarative, just like everything else. Functions allow us to use defined elements to create new elements. They only have inputs and outputs. We will add a new line to our `.domain` file that defines a function called `addV`, which adds two vectors.
 
 The syntax for functions is similar to defining elementary objects and predicates.
 
@@ -128,7 +128,7 @@ The syntax for composing a new object using a function in Penrose involves a new
 The existing code in our sample file already defines the vectors `v` and `w`, so all we need to do is define our resulting vector, `u`. We can do this by writing `u := addV(v, w)`. We also want to make sure that `u` is in our original vector space (denoted `U`) along with our existing vectors `v` and `w`. To do this, we can make use of the predicate `In` (which was defined in the starter code) by writing `In(u, U)`.
 
 ```
-/* new lines in .sub file ******/
+/* new lines in .substance file ******/
 Vector u := addV(v, w)
 In(u, U)
 /* autolabel on the last line */
@@ -157,7 +157,7 @@ When we manually add 2 vectors, we add their x values and y values to get the ne
 Since Penrose has built-in vector functionality (read about more features [here](https://github.com/penrose/penrose/wiki/Style-language-spec#vectors-and-matrices)), to get the sum of two vectors we simply need to add them using the `+` operator. But since all the vectors are offset by the origin vector, we also need to subtract the origin from our sum.
 
 ```
-/* new lines in .sty file */
+/* new lines in .style file */
 forall Vector u; Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   override u.shape.end = v.shape.end + w.shape.end - U.origin
@@ -212,13 +212,13 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 
 #### 🖋️ New Syntax:
 
-- `.dsl`
-  - `function funcName(inputType) -> outputType` is the syntax for defining functions in `.dsl`.
-- `.sub`
+- `.domain`
+  - `function funcName(inputType) -> outputType` is the syntax for defining functions in `.domain`.
+- `.substance`
   - `:=` is the assignment operator for composing objects.
-- `.sty`
+- `.style`
   - `?` indicates an undetermined value that will be decided by Penrose for optimization.
-  - We can do computation inside `.sty` to draw objects in relation to some data.
+  - We can do computation inside `.style` to draw objects in relation to some data.
 
 ## 🧗🏽 Onward!
 

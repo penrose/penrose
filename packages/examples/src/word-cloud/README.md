@@ -7,7 +7,7 @@ This example shows how to create a simple "word cloud" in Penrose, i.e., a loose
 - Ensure that text boxes do not overlap each-other.
 - Encourage text boxes of the same type to appear near each-other on the canvas.
 
-The Domain/Style are in `word-cloud.[dsl|sty]`, and an example Substance program is in `example.sub`.
+The Domain/Style are in `word-cloud.[domain|style]`, and an example Substance program is in `example.substance`.
 
 #### Example
 
