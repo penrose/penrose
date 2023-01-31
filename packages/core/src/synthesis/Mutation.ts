@@ -11,7 +11,7 @@ import {
   stmtExists,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
+import consola from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import _ from "lodash";
 import { A, Identifier } from "types/ast";
@@ -25,7 +25,7 @@ import {
 } from "./Synthesizer";
 
 const log = consola
-  .create({ level: LogLevel.Debug })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Synthesizer Mutations");
 
 //#region Mutation types
