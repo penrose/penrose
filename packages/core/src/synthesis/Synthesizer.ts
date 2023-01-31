@@ -83,7 +83,7 @@ import { combinations2 } from "utils/Util";
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Debug })
+  .create({ level: LogLevel.Warn })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
