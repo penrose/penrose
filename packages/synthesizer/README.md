@@ -37,7 +37,7 @@ Examples are currently encoded as scripts in `package.json`. The source files ar
 To synthesize Substance programs in the set theory domain:
 
 - Run `yarn set-example` in this directory.
-  - The full command is: `yarn start __tests__/setTheory.dsl --substance=__tests__/template.sub --style=__tests__/venn.sty --path=../automator/progs --synth-setting=__tests__/set-settings.json --num-programs=30`. It takes in a Penrose trio and generates 30 programs according to a JSON configuration.
+  - The full command is: `yarn start __tests__/setTheory.domain --substance=__tests__/template.substance --style=__tests__/venn.style --path=../automator/progs --synth-setting=__tests__/set-settings.json --num-programs=30`. It takes in a Penrose trio and generates 30 programs according to a JSON configuration.
   - This command will print out all synthesized programs and mutation operations applied to each program.
   - The output is written to `../automator/progs`
 - Navigate to `packages/automator` and run `yarn generate-site`, which is a shorthand for `yarn render progs browser`

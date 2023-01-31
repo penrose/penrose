@@ -100,7 +100,7 @@ Cell[BoxData[
    "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{"out", "=", 
-     RowBox[{"OpenWrite", "[", "\"\<exported-group.sub\>\"", "]"}]}], ";"}], 
+     RowBox[{"OpenWrite", "[", "\"\<exported-group.substance\>\"", "]"}]}], ";"}], 
    "\[IndentingNewLine]", "\[IndentingNewLine]", 
    RowBox[{"(*", " ", 
     RowBox[{"write", " ", "the", " ", "elements"}], " ", "*)"}], 
@@ -715,7 +715,7 @@ Cell[BoxData[
    "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{"out", "=", 
-     RowBox[{"OpenWrite", "[", "\"\<exported-group.sub\>\"", "]"}]}], ";"}], 
+     RowBox[{"OpenWrite", "[", "\"\<exported-group.substance\>\"", "]"}]}], ";"}], 
    "\[IndentingNewLine]", "\[IndentingNewLine]", 
    RowBox[{"(*", " ", 
     RowBox[{"write", " ", "the", " ", "elements"}], " ", "*)"}], 

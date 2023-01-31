@@ -26,7 +26,7 @@ Here's a simple Penrose visualization in the domain of set theory.
 It's specified by the following trio of Domain, Substance, and Style programs
 (with variation `PlumvilleCapybara104`):
 
-- `setTheory.dsl`:
+- `setTheory.domain`:
 
   ```
   type Set
@@ -36,7 +36,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   predicate IsSubset(Set s1, Set s2)
   ```
 
-- `tree.sub`:
+- `tree.substance`:
 
   ```
   Set A, B, C, D, E, F, G
@@ -55,7 +55,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   AutoLabel All
   ```
 
-- `venn.sty`:
+- `venn.style`:
 
   ```
   canvas {

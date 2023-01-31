@@ -344,9 +344,9 @@ describe("Compiler", () => {
   // test("finds the right substitutions for LA Style program", () => {
   //   // This code is cleaned up from `S.compileStyle`; runs the beginning of compiler checking from scratch
   //   const triple: [string, string, string] = [
-  //     "linear-algebra-domain/linear-algebra.dsl",
-  //     "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
-  //     "linear-algebra-domain/linear-algebra-paper-simple.sty",
+  //     "linear-algebra-domain/linear-algebra.domain",
+  //     "linear-algebra-domain/twoVectorsPerp-unsugared.substance",
+  //     "linear-algebra-domain/linear-algebra-paper-simple.style",
   //   ];
 
   //   const [varEnv, subEnv, subProg, styProgInit]: [
@@ -697,10 +697,10 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = setTheory["twosets-simple.sub"];
-    const domainProg = setTheory["functions.dsl"];
+    const subProg = setTheory["twosets-simple.substance"];
+    const domainProg = setTheory["functions.domain"];
     // We test variations on this Style program
-    // const styPath = "set-theory-domain/venn.sty";
+    // const styPath = "set-theory-domain/venn.style";
 
     const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
 
@@ -971,7 +971,7 @@ delete x.z.p }`,
       T t1, t2, t3, t4, t5, t6, t7, t8
       S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;
       const dsl = `
-      -- minimal.dsl
+      -- minimal.domain
       type S
       type T
       constructor f( T t1, T t2, T t3, T t4, T t5, T t6, T t7, T t8 ) -> S`;

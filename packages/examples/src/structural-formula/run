@@ -1,2 +1,2 @@
-npx roger watch reactions/sodium-chlorine.sub pseudo-3d-reaction.sty structural-formula.dsl
+npx roger watch reactions/sodium-chlorine.substance pseudo-3d-reaction.style structural-formula.domain
 

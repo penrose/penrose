@@ -20,11 +20,11 @@ const printAST = (ast: any) => {
 };
 
 const subPaths = [
-  "tree.sub",
-  "continuousmap.sub",
-  "twosets-simple.sub",
-  "multisets.sub",
-  "nested.sub",
+  "tree.substance",
+  "continuousmap.substance",
+  "twosets-simple.substance",
+  "multisets.substance",
+  "nested.substance",
 ];
 
 beforeEach(() => {
@@ -186,7 +186,7 @@ describe("Real Programs", () => {
       sameASTs(results);
       // write to output folder
       if (saveASTs) {
-        const exampleName = path.basename(examplePath, ".sub");
+        const exampleName = path.basename(examplePath, ".substance");
         const astPath = path.join(outputDir, exampleName + ".ast.json");
         fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
       }

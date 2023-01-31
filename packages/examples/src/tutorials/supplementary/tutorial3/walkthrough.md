@@ -65,7 +65,7 @@ const {
 There's nothing special about the name `const`, but using a namespace is good practice for
 organizing your constants in Style programs. Here we have some constants that helps with drawing out the vector
 space. Feel free to add more useful constants in here for your explorations. Also note how Penrose
-has built-in `scalar` and `color` types for `.sty` programs for your readability.
+has built-in `scalar` and `color` types for `.style` programs for your readability.
 
 The real fun starts! 🥁 To draw a vector space, we have a background, an origin, x-axis and y-aixs.
 

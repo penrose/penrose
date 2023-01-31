@@ -618,7 +618,7 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
    layer p.icon above cd.segment
 }
 
--- Specific to diagrams/angle-equivalence.sub
+-- Specific to diagrams/angle-equivalence.substance
 -- TODO requires #776 to import these rules from an example-specific Style module
 
 --- angle-equivalence --- -- Don't draw vertices as dots in this
@@ -653,7 +653,7 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 --- angle-equivalence ---    delete t.goodAngleB
 --- angle-equivalence --- }
 
--- Specific to diagrams/concyclic-pair.sub
+-- Specific to diagrams/concyclic-pair.substance
 -- TODO requires #776 to import these rules from an example-specific Style module
 
 --- concyclic-pair --- -- make vertex dots bigger

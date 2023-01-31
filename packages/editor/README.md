@@ -8,7 +8,7 @@
 
 # Local development
 
-- Run `roger watch` in a folder that contains `.sub`, `.sty`, and `.dsl` files.
+- Run `roger watch` in a folder that contains `.substance`, `.style`, and `.domain` files.
 - Run `yarn start` in the monorepo root, which will show the .
   - The root `yarn start` builds `core` and `components` first, and only listens to changes to the `editor` package. Changes to `core` and `components` will not cause live-reload in the browser.
   - If you are making changes to dependencies, run `yarn start` in this folder, and separately run `yarn watch` in `core` and/or `components` so the changes get live-reloaded.
