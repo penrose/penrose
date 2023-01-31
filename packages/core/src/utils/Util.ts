@@ -599,7 +599,7 @@ export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
 });
 
 export const shapeListV = (contents: GPI<ad.Num>[]): ShapeListV<ad.Num> => ({
-  tag: "ShapeList",
+  tag: "ShapeListV",
   contents,
 });
 

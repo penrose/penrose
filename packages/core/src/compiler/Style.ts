@@ -116,6 +116,7 @@ import {
   LListV,
   MatrixV,
   PropID,
+  ShapeListV,
   Value,
   VectorV,
 } from "types/value";
@@ -144,6 +145,7 @@ import {
   prettyPrintResolvedPath,
   resolveRhsName,
   safe,
+  shapeListV,
   strV,
   tupV,
   val,
@@ -2453,12 +2455,12 @@ const evalBinOp = (
 const eval1D = (
   coll: List<C> | Vector<C>,
   first: FloatV<ad.Num>,
-  rest: Value<ad.Num>[]
+  rest: ArgVal<ad.Num>[]
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
-    if (v.tag === "FloatV") {
-      elems.push(v.contents);
+    if (v.tag === "Val" && v.contents.tag === "FloatV") {
+      elems.push(v.contents.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
     }
@@ -2476,12 +2478,12 @@ const eval1D = (
 const eval2D = (
   coll: List<C> | Vector<C>,
   first: VectorV<ad.Num>,
-  rest: Value<ad.Num>[]
+  rest: ArgVal<ad.Num>[]
 ): Result<LListV<ad.Num> | MatrixV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
-    if (v.tag === "VectorV") {
-      elems.push(v.contents);
+    if (v.tag === "Val" && v.contents.tag === "VectorV") {
+      elems.push(v.contents.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
     }
@@ -2496,6 +2498,23 @@ const eval2D = (
   }
 };
 
+const evalShapeList = (
+  coll: List<C> | Vector<C>,
+  first: GPI<ad.Num>,
+  rest: ArgVal<ad.Num>[]
+): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
+  const elems = [first];
+  for (const v of rest) {
+    if (v.tag === "GPI") {
+      elems.push(v);
+    } else {
+      return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
+    }
+  }
+
+  return ok(shapeListV(elems));
+};
+
 const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2504,9 +2523,9 @@ const evalListOrVector = (
   coll: List<C> | Vector<C>,
   trans: Translation
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
-  return evalVals(mut, canvas, stages, context, coll.contents, trans).andThen(
-    (vals) => {
-      if (vals.length === 0) {
+  return evalExprs(mut, canvas, stages, context, coll.contents, trans).andThen(
+    (argVals) => {
+      if (argVals.length === 0) {
         switch (coll.tag) {
           case "List": {
             return ok(listV([]));
@@ -2516,24 +2535,29 @@ const evalListOrVector = (
           }
         }
       }
-      const [first, ...rest] = vals;
-      switch (first.tag) {
-        case "FloatV": {
-          return eval1D(coll, first, rest);
-        }
-        case "VectorV": {
-          return eval2D(coll, first, rest);
-        }
-        case "BoolV":
-        case "ColorV":
-        case "ListV":
-        case "LListV":
-        case "MatrixV":
-        case "PathDataV":
-        case "PtListV":
-        case "StrV":
-        case "TupV": {
-          return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
+      const [first, ...rest] = argVals;
+      if (first.tag === "GPI") {
+        return evalShapeList(coll, first, rest);
+      } else {
+        switch (first.contents.tag) {
+          case "FloatV": {
+            return eval1D(coll, first.contents, rest);
+          }
+          case "VectorV": {
+            return eval2D(coll, first.contents, rest);
+          }
+          case "BoolV":
+          case "ColorV":
+          case "ListV":
+          case "LListV":
+          case "MatrixV":
+          case "PathDataV":
+          case "PtListV":
+          case "StrV":
+          case "TupV":
+          case "ShapeListV": {
+            return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
+          }
         }
       }
     }
@@ -2581,7 +2605,9 @@ const evalAccess = (
     case "ColorV":
     case "FloatV":
     case "PathDataV":
-    case "StrV": {
+    case "StrV":
+    case "ShapeListV": {
+      // Not allowing indexing into a shape list for now
       return err({ tag: "NotCollError", expr });
     }
   }
@@ -2606,7 +2632,8 @@ const evalUMinus = (
     case "PathDataV":
     case "PtListV":
     case "StrV":
-    case "TupV": {
+    case "TupV":
+    case "ShapeListV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
   }
@@ -2701,7 +2728,8 @@ const evalExpr = (
         return ok(resolved);
       }
       if (resolved.tag === "GPI") {
-        return err(oneErr({ tag: "NotValueError", expr }));
+        // Can evaluate a path to a GPI - just return the GPI
+        return ok(resolved);
       }
       const res = all(
         expr.indices.map((e) =>

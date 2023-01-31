@@ -4,7 +4,7 @@ import { GroupProps } from "shapes/Group";
 import { LineProps } from "shapes/Line";
 import { PathProps } from "shapes/Path";
 import { RectangleProps } from "shapes/Rectangle";
-import { isShapeType, shapedefs } from "shapes/Shapes";
+import { isShapeType, Properties, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { Center, Poly, Rect, Rotate, Scale } from "types/shapes";
 import { ops } from "./Autodiff";
@@ -503,13 +503,21 @@ export const bboxFromPath = ({ d }: PathProps): BBox => {
 
 export const bboxFromGroup = ({ shapes }: GroupProps): BBox => {
   const content = shapes.contents;
-  const bboxes = content.map((shape) => {
-    const shapeType = shape.shapeType;
+  const bboxes = content.map((gpi) => {
+    const shapeType = gpi.contents[0];
+    const rawShapeProps = gpi.contents[1];
     if (!isShapeType(shapeType)) {
-      throw new Error("Unknown shape in Group bbox");
+      throw new Error("Unknown shape in Group bbox: " + shapeType);
+    } else {
+      const shapedef = shapedefs[shapeType];
+      const shapeProps: Properties = {};
+
+      for (const prop in Object.keys(shapedef.propTags)) {
+        shapeProps[prop] = rawShapeProps[prop];
+      }
+
+      return shapedef.bbox(shapeProps);
     }
-    const shapedef = shapedefs[shapeType];
-    return shapedef.bbox(shape.properties);
   });
   const xRanges = bboxes.map(xRange);
   const yRanges = bboxes.map(yRange);
