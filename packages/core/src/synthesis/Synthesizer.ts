@@ -23,7 +23,7 @@ import {
 } from "analysis/SubstanceAnalysis";
 import { subTypesOf } from "compiler/Domain";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
+import consola from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
 import _ from "lodash";
@@ -83,7 +83,7 @@ import { combinations2 } from "utils/Util";
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types

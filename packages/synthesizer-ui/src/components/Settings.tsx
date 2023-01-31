@@ -251,7 +251,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       }
       switch (stmtType) {
         case "Type":
-        case "Type":
           return { ...op, type: newMatchSetting };
         case "Constructor":
           return { ...op, constructor: newMatchSetting };
