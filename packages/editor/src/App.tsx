@@ -55,7 +55,7 @@ const mainRowLayout: IJsonRowNode = {
           : []),
         {
           type: "tab",
-          name: ".sub",
+          name: ".substance",
           component: "programEditor",
           config: {
             kind: "substance",
@@ -63,7 +63,7 @@ const mainRowLayout: IJsonRowNode = {
         },
         {
           type: "tab",
-          name: ".sty",
+          name: ".style",
           component: "programEditor",
           config: {
             kind: "style",
@@ -71,7 +71,7 @@ const mainRowLayout: IJsonRowNode = {
         },
         {
           type: "tab",
-          name: ".dsl",
+          name: ".domain",
           component: "programEditor",
           config: {
             kind: "domain",

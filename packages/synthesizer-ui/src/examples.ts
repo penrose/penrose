@@ -52,9 +52,9 @@ export const presets: PresetCollection = {
   c01p01: {
     displayName: "c01p01: Collinear Points",
     prompt: "In which of the following diagrams are points B, D, E collinear?",
-    substance: geometryDomain.textbook_problems["c01p01.sub"],
-    domain: geometryDomain["geometry.dsl"],
-    style: geometryDomain["euclidean.sty"],
+    substance: geometryDomain.textbook_problems["c01p01.substance"],
+    domain: geometryDomain["geometry.domain"],
+    style: geometryDomain["euclidean.style"],
     setting: {
       ...defaultParams,
     },
@@ -63,9 +63,9 @@ export const presets: PresetCollection = {
     displayName: "c01p10: Complementary angles",
     prompt:
       "Which of the following diagrams contains exactly 2 pairs of complementary angles?",
-    substance: geometryDomain.textbook_problems["c01p10.sub"],
-    domain: geometryDomain["geometry.dsl"],
-    style: geometryDomain["euclidean.sty"],
+    substance: geometryDomain.textbook_problems["c01p10.substance"],
+    domain: geometryDomain["geometry.domain"],
+    style: geometryDomain["euclidean.style"],
     setting: {
       ...defaultParams,
     },
@@ -74,10 +74,10 @@ export const presets: PresetCollection = {
     displayName: "c02p01: Angle bisector",
     prompt:
       "In which of the following diagrams is the statement, <ADC=2(m<ADB)?",
-    substance: geometryDomain.textbook_problems["c02p01.sub"],
-    domain: geometryDomain["geometry.dsl"],
+    substance: geometryDomain.textbook_problems["c02p01.substance"],
+    domain: geometryDomain["geometry.domain"],
     style:
-      geometryDomain["euclidean.sty"] +
+      geometryDomain["euclidean.style"] +
       `
   forall Angle a {
     override a.radius = 50
@@ -91,10 +91,10 @@ export const presets: PresetCollection = {
     displayName: "c03p01: Alternate interior angles",
     prompt:
       "Which diagram illustrates <JKM and <KML as alternate interior angles?",
-    substance: geometryDomain.textbook_problems["c03p01.sub"],
-    domain: geometryDomain["geometry.dsl"],
+    substance: geometryDomain.textbook_problems["c03p01.substance"],
+    domain: geometryDomain["geometry.domain"],
     style:
-      geometryDomain["euclidean.sty"] +
+      geometryDomain["euclidean.style"] +
       `
 forall Angle a
 with Point p, q, r
@@ -110,10 +110,10 @@ where a := InteriorAngle(p, q, r) {
     displayName: "c04p01: Congruent triangles",
     prompt:
       "In which of the following diagrams are triangles tDEC an tDEA congruent?",
-    substance: geometryDomain.textbook_problems["c04p01.sub"],
-    domain: geometryDomain["geometry.dsl"],
+    substance: geometryDomain.textbook_problems["c04p01.substance"],
+    domain: geometryDomain["geometry.domain"],
     style:
-      geometryDomain["euclidean.sty"] +
+      geometryDomain["euclidean.style"] +
       `
 forall Point \`D\`, \`E\`, \`C\` {
   Path {

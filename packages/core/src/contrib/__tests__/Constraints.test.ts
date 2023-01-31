@@ -158,7 +158,7 @@ describe("simple constraint", () => {
     [[1, 3], [1, 1], [3, 1], 1.2],
     [[1, 0], [1, 1], [1, 2], 0],
     [[1, 0], [1, 1], [1, 10], 0],
-    [[1, 0], [1, 1], [1, -10], 0],
+    [[1, -10], [1, 0], [1, 1], 0],
   ])(
     "collinearOrdered(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {

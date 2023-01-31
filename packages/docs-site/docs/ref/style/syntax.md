@@ -287,6 +287,12 @@ encourage objective_name (argument_list)
 
 where `argument_list` may refer to constant values, global / local variables, and other variables bound to _substnace_ instances of objects and predicate applications. A full list of available constraints and objectives can be found [here](./functions).
 
+We also provide syntax sugar expressions for some commonly-used objectives and constraints. In particular,
+
+- `a > b` is the syntax sugar for the constraint / objective `greaterThan(a, b)`,
+- `a == b` is the syntax sugar for the constraint / objective `equal(a, b)`, and
+- `a < b` is the syntax sugar for the constraint / objective `lessThan(a, b)`.
+
 #### Layering
 
 We can specify the layering between two shapes (particularly useful when two shapes overlap) using layering statements: either

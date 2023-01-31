@@ -40,7 +40,7 @@ const {
 }
 
 --------------------------------------------------------------------------------
--- START of "euclidean.sty"
+-- START of "euclidean.style"
 
 --Plane
 forall Plane p {
@@ -889,7 +889,7 @@ where CircleCenter(c, p)
 with Circle c {
   override p.vec = c.vec
 }
--- END of "euclidean.sty"
+-- END of "euclidean.style"
 --------------------------------------------------------------------------------
 
 --Plane

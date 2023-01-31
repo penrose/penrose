@@ -2,7 +2,7 @@
 
 The tutorial can be found [here](https://penrose.cs.cmu.edu/docs/tutorial/welcome).
 
-Starter code for Penrose tutorials. Each folder within `./code` contains a "program triple" (a `.sub`, `.sty`, and .`dsl` file), the minimum set of files that are needed to run a Penrose program. Solutions for each example can be found in `./solutions`.
+Starter code for Penrose tutorials. Each folder within `./code` contains a "program triple" (a `.substance`, `.style`, and .`domain` file), the minimum set of files that are needed to run a Penrose program. Solutions for each example can be found in `./solutions`.
 
 ## Prerequistes
 
@@ -25,5 +25,5 @@ To compile examples and view them in your <http://localhost:3000> browser window
 For example, if I was testing my code for Tutorial 1, and I had cloned this repo at `~/repos` on my computer, then my `path_to_triple` would be `~/repos/penrose/packages/examples/src/tutorials/code/tutorial1`, and I would run:
 
 ```bash
-npx roger watch ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/twoSets.sub ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/twoSets.sty ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/setTheory.dsl
+npx roger watch ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/twoSets.substance ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/twoSets.style ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/setTheory.domain
 ```
