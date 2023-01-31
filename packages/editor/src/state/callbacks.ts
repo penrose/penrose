@@ -228,15 +228,15 @@ export const useLoadExampleWorkspace = () =>
       files: {
         domain: {
           contents: domain,
-          name: `${trio.domainID}.dsl`,
+          name: `${trio.domainID}.domain`,
         },
         style: {
           contents: style,
-          name: `${trio.styleID}.sty`,
+          name: `${trio.styleID}.style`,
         },
         substance: {
           contents: substance,
-          name: `${trio.substanceID}.sub`,
+          name: `${trio.substanceID}.substance`,
         },
       },
     });

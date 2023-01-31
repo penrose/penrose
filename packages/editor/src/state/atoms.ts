@@ -187,15 +187,15 @@ export const currentWorkspaceState = atom<Workspace>({
     },
     files: {
       substance: {
-        name: ".sub",
+        name: ".substance",
         contents: "",
       },
       style: {
-        name: ".sty",
+        name: ".style",
         contents: "",
       },
       domain: {
-        name: ".dsl",
+        name: ".domain",
         contents: "",
       },
     },

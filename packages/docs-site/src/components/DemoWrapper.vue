@@ -5,15 +5,15 @@ import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/index";
 
 const demo = [
   {
-    sub: geometryDomain["teaser.sub"],
-    sty: geometryDomain["euclidean-teaser.sty"],
-    dsl: geometryDomain["geometry.dsl"],
+    sub: geometryDomain["teaser.substance"],
+    sty: geometryDomain["euclidean-teaser.style"],
+    dsl: geometryDomain["geometry.domain"],
     variation: "StromboliCat61816",
   },
   {
-    sub: setTheoryDomain["tree.sub"],
-    sty: setTheoryDomain["venn.sty"],
-    dsl: setTheoryDomain["setTheory.dsl"],
+    sub: setTheoryDomain["tree.substance"],
+    sty: setTheoryDomain["venn.style"],
+    dsl: setTheoryDomain["setTheory.domain"],
     variation: "PlumvilleCapybara104",
   },
 ];

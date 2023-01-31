@@ -93,7 +93,7 @@ notation "Face f ∈ K" ~ "Face f; InFS(f, K)"
 -- notation "SimplicialSubset S ⊆ K" ~ "SimplicialSubset S; SubsetOf(S, K)"
 -- notation "Subcomplex S ⊆ K" ~ "Subcomplex S; SubsetOf(S, K)"
 
--- These are new, from geometry.dsl
+-- These are new, from geometry.domain
 notation "{p, q}" ~ "MkEdge(p, q)"
 notation "{p, q, r}" ~ "MkFace(p, q, r)"
 -- | above this line, concatenate the two .dom files for Sets and Meshes

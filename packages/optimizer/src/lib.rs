@@ -498,8 +498,8 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
     // Consts / initial values
     // TODO: port comments from original
 
-    // const t = 0.002; // for venn_simple.sty
-    // const t = 0.1; // for tree.sty
+    // const t = 0.002; // for venn_simple.style
+    // const t = 0.1; // for tree.style
 
     let mut a = 0.;
     let mut b = f64::INFINITY;

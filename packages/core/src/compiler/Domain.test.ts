@@ -15,10 +15,10 @@ const printError = false;
 
 const domains = [
   [
-    "linear-algebra-domain/linear-algebra.dsl",
-    linearAlgebra["linear-algebra.dsl"],
+    "linear-algebra-domain/linear-algebra.domain",
+    linearAlgebra["linear-algebra.domain"],
   ],
-  ["set-theory-domain/setTheory.dsl", setTheory["setTheory.dsl"]],
+  ["set-theory-domain/setTheory.domain", setTheory["setTheory.domain"]],
 ];
 
 const contextHas = (
@@ -278,7 +278,7 @@ describe("Real Programs", () => {
       expect(res.isOk()).toBe(true);
       // write to output folder
       if (res.isOk() && saveContexts) {
-        const exampleName = path.basename(examplePath, ".dsl");
+        const exampleName = path.basename(examplePath, ".domain");
         const astPath = path.join(outputDir, exampleName + ".env.json");
         fs.writeFileSync(astPath, JSON.stringify(res.value), "utf8");
       }

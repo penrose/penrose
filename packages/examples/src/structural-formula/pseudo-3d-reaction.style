@@ -1,6 +1,6 @@
 -- TODO would be really helpful to be able to join multiple
--- .sty files---currently we are maintaining parallel edits
--- across both pseudo-3d.sty and pseudo-3d-reaction.sty
+-- .style files---currently we are maintaining parallel edits
+-- across both pseudo-3d.style and pseudo-3d-reaction.style
 
 canvas {
    scalar width  = 1248.
