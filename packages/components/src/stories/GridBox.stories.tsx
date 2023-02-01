@@ -1,5 +1,5 @@
-import { ThemeProvider } from "@material-ui/core";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { ThemeProvider } from "styled-components";
 import { Gridbox } from "../Gridbox";
 import penroseBlue from "../themes/penroseBlue";
 import { continuousMap, error, oneSet } from "./PenrosePrograms";

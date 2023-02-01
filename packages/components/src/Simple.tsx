@@ -1,5 +1,6 @@
 import {
   compileTrio,
+  PathResolver,
   PenroseError,
   PenroseState,
   prepareState,
@@ -23,6 +24,7 @@ export interface SimpleProps {
   interactive?: boolean; // considered true by default
   animate?: boolean; // considered false by default
   onFrame?: (frame: PenroseState) => void;
+  imageResolver?: PathResolver;
 }
 
 export interface SimpleState {
@@ -143,7 +145,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
                 }
                 this.renderCanvas();
               },
-              fetchResolver
+              this.props.imageResolver ?? fetchResolver
             ));
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);

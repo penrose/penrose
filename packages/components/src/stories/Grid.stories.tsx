@@ -1,6 +1,6 @@
-import { ThemeProvider } from "@material-ui/core";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { range } from "lodash";
+import { ThemeProvider } from "styled-components";
 import { Grid } from "../Grid";
 import penroseBlue from "../themes/penroseBlue";
 import { continuousMap } from "./PenrosePrograms";
