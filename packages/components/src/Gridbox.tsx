@@ -45,11 +45,13 @@ const Header = styled(Box)(({ theme }) => ({
 }));
 
 const Body = styled(Box)({
+  width: "calc(25rem - 1rem)",
+  position: "absolute",
+  backgroundColor: "#fff",
   fontFamily: "Roboto Mono, Courier New, sans-serif",
   height: "calc(25rem - 4.25rem)",
   fontSize: "0.8rem",
   color: "black",
-  overflow: "auto",
   whiteSpace: "pre-wrap",
   padding: "0.5rem 0.25rem 0.25rem 0.5rem",
 });
@@ -123,8 +125,8 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           <Box>
             <ResampleBtn
               onClick={this.resample}
-              variant="contained"
-              color="primary"
+              variant="outlined"
+              color="secondary"
             >
               Resample
             </ResampleBtn>
@@ -139,13 +141,16 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           </Box>
         </Header>
 
-        <div onClick={this.toggleView} style={{ height: "100%" }}>
+        <div
+          onClick={this.toggleView}
+          style={{ height: "100%", position: "relative" }}
+        >
           {this.state.showDiagramInfo && (
             <Body>
               {this.props.metadata.map(({ name, data }) => (
                 <>
                   <H2>{name}</H2>
-                  <Body>{data}</Body>
+                  <p>{data}</p>
                 </>
               ))}
             </Body>

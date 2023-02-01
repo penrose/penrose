@@ -3,10 +3,15 @@ import { PenroseState } from "@penrose/core";
 import React from "react";
 import { Gridbox } from "./Gridbox";
 
-export interface GridProps {
+type DiagramSource = {
   style: string;
   domain: string;
-  substances: string[];
+  substance: string;
+  variation: string;
+};
+
+export interface GridProps {
+  diagrams: DiagramSource[];
   onSelected: (n: number) => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
 }
@@ -55,30 +60,32 @@ export class Grid extends React.Component<GridProps> {
   };
 
   innerContent() {
-    return this.props.substances.map((s, i) => (
-      <Gridbox
-        key={`grid-${i}`}
-        header={`Diagram ${i}`}
-        metadata={[
-          {
-            name: "Variation",
-            data: i.toString(),
-          },
-        ]}
-        domain={this.props.domain}
-        style={this.props.style}
-        gridIndex={i}
-        substance={s}
-        variation={i.toString()}
-        onSelected={this.props.onSelected}
-        onStateUpdate={this.props.onStateUpdate}
-      />
-    ));
+    return this.props.diagrams.map(
+      ({ substance, domain, style, variation }, i) => (
+        <Gridbox
+          key={`grid-${i}`}
+          header={`Diagram ${i}`}
+          metadata={[
+            {
+              name: "Variation",
+              data: variation,
+            },
+          ]}
+          domain={domain}
+          style={style}
+          gridIndex={i}
+          substance={substance}
+          variation={variation}
+          onSelected={this.props.onSelected}
+          onStateUpdate={this.props.onStateUpdate}
+        />
+      )
+    );
   }
 
   render() {
     const content =
-      this.props.substances.length === 0 ? (
+      this.props.diagrams.length === 0 ? (
         <Placeholder>
           <PlaceholderText variant="h6">
             {"(Generated diagrams will appear here)"}
