@@ -11,6 +11,7 @@ import { ShapeProps } from "./Renderer";
 const Image = async ({
   shape,
   canvasSize,
+  variation,
   pathResolver,
 }: ShapeProps): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -37,20 +38,28 @@ const Image = async ({
   if (defs.length > 0) {
     defs[0].querySelectorAll("*").forEach((node) => {
       if (node.id !== "") {
-        // BUG: not matching on fill="url(#...)", only hrefs
         const users = svg.querySelectorAll(
           `[*|href="#${node.id}"]:not([href])`
         );
         users.forEach((user) => {
-          const unique = `${(shape.properties.name as StrV).contents}-ns-${
-            node.id
-          }`;
+          const unique = `${variation}-${
+            (shape.properties.name as StrV).contents
+          }-ns-${node.id}`;
           user.setAttributeNS(
             "http://www.w3.org/1999/xlink",
             "href",
             "#" + unique
           );
           node.setAttribute("id", unique);
+        });
+        // special case: fill urls
+        const urlUsers = svg.querySelectorAll(`[fill="url(#${node.id})"]`);
+        urlUsers.forEach((user, n) => {
+          const unique = `${variation}-${
+            (shape.properties.name as StrV).contents
+          }-${n}-ns-${node.id}`;
+          node.setAttribute("id", unique);
+          user.setAttribute("fill", `url(#${unique})`);
         });
       }
     });

@@ -59,8 +59,8 @@ const Body = styled.div`
   padding: 0.5rem;
   font-size: 0.8rem;
   font-family: Roboto Mono, Courier New, sans-serif;
-  //   color: "black",
-  //   whiteSpace: "pre-wrap",
+  whitespace: pre-wrap;
+  overflow: scroll;
 `;
 
 // styled(Box)({
@@ -182,10 +182,16 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           {this.state.showDiagramInfo && (
             <Body>
               {this.props.metadata.map(({ name, data }) => (
-                <>
+                <div>
                   <H2>{name}</H2>
-                  <p>{data}</p>
-                </>
+                  <div
+                    style={{
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    {data}
+                  </div>
+                </div>
               ))}
             </Body>
           )}

@@ -45,6 +45,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
 
   compile = async (): Promise<void> => {
     this.penroseState = undefined;
+    this.setState({ error: undefined });
     const compilerResult = await compileTrio(this.props);
     if (compilerResult.isOk()) {
       this.penroseState = await prepareState(compilerResult.value);
@@ -98,6 +99,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       this.props.style !== prevProps.style
     ) {
       await this.compile();
+      console.log("compiled");
       if (!this.props.animate) {
         await this.converge();
       }

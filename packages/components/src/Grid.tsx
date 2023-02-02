@@ -60,6 +60,14 @@ export class Grid extends React.Component<GridProps> {
               name: "Variation",
               data: variation,
             },
+            {
+              name: "Substance",
+              data: substance,
+            },
+            {
+              name: "Style",
+              data: style,
+            },
           ]}
           domain={domain}
           style={style}
