@@ -22,6 +22,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish VS Code extension
+        working-directory: packages/vscode/
         run: npx vsce publish --baseImagesUrl="https://github.com/penrose/penrose/raw/${GITHUB_REF#refs/tags/}/packages/vscode"
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}

@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v2.2.0](https://github.com/penrose/penrose/compare/v2.1.1...v2.2.0) (2023-02-02)
+
+### :rocket: New Feature
+
+- Add link to Wiki ([#1275](https://github.com/penrose/penrose/issues/1275)) ([5c2f368](https://github.com/penrose/penrose/commit/5c2f368ead39c8b28af087350153e1228f5a8531))
+- Group theory ([#1276](https://github.com/penrose/penrose/issues/1276)) ([16c64fa](https://github.com/penrose/penrose/commit/16c64fa54748f6ed9d8fcdb4c03c766f553dd720))
+- Group theory - multiplication table style ([#1277](https://github.com/penrose/penrose/issues/1277)) ([fea6d0b](https://github.com/penrose/penrose/commit/fea6d0b2e25f88fad54331610b4ac541677fc658))
+- improve registry schema and loading ([#1212](https://github.com/penrose/penrose/issues/1212)) ([d6bbc30](https://github.com/penrose/penrose/commit/d6bbc302de494e08fa4ca0602ccfa29bdfcd65ae))
+- inline comparison operators ([#1257](https://github.com/penrose/penrose/issues/1257)) ([b3c7c2f](https://github.com/penrose/penrose/commit/b3c7c2f0547a245ece5865d94184d04f7edf334e))
+- support longer file extensions ([#1280](https://github.com/penrose/penrose/issues/1280)) ([6e83596](https://github.com/penrose/penrose/commit/6e835968280a784a91c4a2ca47a226516a3067d0))
+
+### :bug: Bug Fix
+
+- enforcing ordering in `collinearOrdered` constraint ([#1265](https://github.com/penrose/penrose/issues/1265)) ([2336b4b](https://github.com/penrose/penrose/commit/2336b4b2a567fa520219fef4768c6e0406c310d9))
+
+### :nail_care: Polish
+
+- bring VS Code extension into this repo ([#1271](https://github.com/penrose/penrose/issues/1271)) ([a74a7e2](https://github.com/penrose/penrose/commit/a74a7e2746069c5b6c5c657b84a24f3d2b9bf897))
+
+### :memo: Documentation
+
+- fix `import` typo in components README ([#1253](https://github.com/penrose/penrose/issues/1253)) ([05b1f68](https://github.com/penrose/penrose/commit/05b1f68a80a3fc36868e226038f450ae8cd65cf5))
+
+### :house: Internal
+
+- clarify a couple `Graph` method docstrings ([#1285](https://github.com/penrose/penrose/issues/1285)) ([6da46aa](https://github.com/penrose/penrose/commit/6da46aa79599f29a69301ea777be16ff8bfb616e))
+- fix Twitter badge in README ([#1260](https://github.com/penrose/penrose/issues/1260)) ([e60b3ed](https://github.com/penrose/penrose/commit/e60b3ed6e6635f76d00e8e2920edcb6abb3fb462))
+- remove full moon trio ([#1259](https://github.com/penrose/penrose/issues/1259)) ([664595b](https://github.com/penrose/penrose/commit/664595bac0e849f326f9a3a2bc3fc0c41e085b39))
+
 ## [v2.1.1](https://github.com/penrose/penrose/compare/v2.1.0...v2.1.1) (2023-01-19)
 
 ### :bug: Bug Fix
