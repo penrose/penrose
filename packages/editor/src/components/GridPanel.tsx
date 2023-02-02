@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@material-ui/core";
 import { Grid, penroseBlue } from "@penrose/components";
 import { range } from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import {
   currentRogerState,
@@ -19,11 +19,22 @@ export default function GridPanel() {
   const rogerState = useRecoilValue(currentRogerState);
   const { gridSize } = useRecoilValue(settingsState);
   const [variations, setVariations] = useState<string[]>([]);
+  const prevGridSize = useRef(gridSize);
+  useEffect(() => {
+    prevGridSize.current = gridSize;
+  }, [gridSize]);
+
+  useEffect(() => {
+    if (gridSize > prevGridSize.current)
+      setVariations(
+        range(gridSize).map((i) => (i === 0 ? variation : generateVariation()))
+      );
+  }, [gridSize]);
   useEffect(() => {
     setVariations(
       range(gridSize).map((i) => (i === 0 ? variation : generateVariation()))
     );
-  }, [variation, gridSize]);
+  }, [variation]);
   return (
     <div>
       <ThemeProvider theme={penroseBlue}>
@@ -32,6 +43,12 @@ export default function GridPanel() {
           imageResolver={(path) =>
             pathResolver(path, rogerState, workspaceMetadata)
           }
+          metadata={(i: number) => [
+            {
+              name: "Variation",
+              data: variations[i],
+            },
+          ]}
           diagrams={range(gridSize).map((i) => ({
             substance,
             style,

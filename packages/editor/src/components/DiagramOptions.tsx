@@ -84,7 +84,9 @@ export default function DiagramOptions() {
         <label>
           grid size:{" "}
           <input
-            type="number"
+            type="range"
+            min="1"
+            max="30"
             value={gridSize}
             onChange={(e) =>
               setSettingsState((settings) => ({

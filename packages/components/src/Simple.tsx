@@ -157,7 +157,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
           node.appendChild(renderedState);
         }
       } else {
-        console.log("state is undefined");
+        return <div>rendering...</div>;
       }
     }
   };

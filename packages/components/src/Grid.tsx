@@ -13,6 +13,12 @@ type DiagramSource = {
 
 export interface GridProps {
   diagrams: DiagramSource[];
+  metadata: (
+    i: number
+  ) => {
+    name: string;
+    data: string;
+  }[];
   onSelected?: (n: number) => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
@@ -55,20 +61,7 @@ export class Grid extends React.Component<GridProps> {
         <Gridbox
           key={`grid-${i}`}
           header={`Diagram ${i}`}
-          metadata={[
-            {
-              name: "Variation",
-              data: variation,
-            },
-            {
-              name: "Substance",
-              data: substance,
-            },
-            {
-              name: "Style",
-              data: style,
-            },
-          ]}
+          metadata={this.props.metadata(i)}
           domain={domain}
           style={style}
           gridIndex={i}
