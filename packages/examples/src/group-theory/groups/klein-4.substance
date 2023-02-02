@@ -1,0 +1,29 @@
+Element e
+Element a
+Element b
+Element c
+IsIdentity(e)
+IsGenerator(a)
+IsGenerator(b)
+
+IsProduct(e,e,e)
+IsProduct(a,e,a)
+IsProduct(b,e,b)
+IsProduct(c,e,c)
+
+IsProduct(a,a,e)
+IsProduct(e,a,a)
+IsProduct(c,a,b)
+IsProduct(b,a,c)
+
+IsProduct(b,b,e)
+IsProduct(c,b,a)
+IsProduct(e,b,b)
+IsProduct(a,b,c)
+
+IsProduct(c,c,e)
+IsProduct(b,c,a)
+IsProduct(a,c,b)
+IsProduct(e,c,c)
+
+AutoLabel All
