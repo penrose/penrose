@@ -15,4 +15,4 @@ nalgebra = "0.31"
 serde = { version = "1", features = ["derive"] }
 serde-wasm-bindgen = "0.4"
 ts-rs = "6"
-wasm-bindgen = "0.2"
+wasm-bindgen = "0.2.84"
