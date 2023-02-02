@@ -10,6 +10,7 @@ import {
 } from "utils/Util";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
+import { makeIdsUnique } from "./util";
 
 export const arrowHead = (
   id: string,
@@ -250,6 +251,9 @@ const Line = ({ shape, canvasSize, variation }: ShapeProps): SVGGElement => {
 
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
+
+  // clean up ids
+  makeIdsUnique(elem, false);
 
   return elem;
 };
