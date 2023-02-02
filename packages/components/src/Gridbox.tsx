@@ -1,6 +1,7 @@
 import { PenroseState } from "@penrose/core";
 import React from "react";
 import styled from "styled-components";
+import Checkbox from "./Checkbox";
 import { Simple, SimpleProps } from "./Simple";
 
 export type GridboxProps = SimpleProps & {
@@ -89,10 +90,9 @@ const HeaderText = styled.div`
   font-family: monospace;
 `;
 
-const ExportCheckbox = styled.div``;
-// styled(Checkbox)({
-//   padding: "0 0.5rem",
-// });
+// const ExportCheckbox = styled(Checkbox)`
+//   padding: 0 2.2rem";
+// `;
 
 const ResampleBtn = styled.button`
   outline: none;
@@ -146,7 +146,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
   checkboxClick = () => {
     this.setState({ isSelected: !this.state.isSelected });
-    if (this.state.currentState && this.props.onSelected) {
+    if (this.props.onSelected) {
       this.props.onSelected(this.props.gridIndex);
     }
   };
@@ -165,14 +165,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           <HeaderText>{header ?? "Diagram"}</HeaderText>
           <div>
             {/* <ResampleBtn onClick={this.resample}>Resample</ResampleBtn> */}
-            {/* {onSelected && (
-              <ExportCheckbox
-                name="isStaged"
+            {onSelected && (
+              <Checkbox
                 checked={this.state.isSelected}
                 onChange={this.checkboxClick}
-                color="primary"
               />
-            )} */}
+            )}
           </div>
         </Header>
 

@@ -2,7 +2,7 @@ import { PathResolver, PenroseState } from "@penrose/core";
 
 import React from "react";
 import styled from "styled-components";
-import { Gridbox } from "./Gridbox";
+import { Gridbox, GridboxProps } from "./Gridbox";
 
 type DiagramSource = {
   style: string;
@@ -22,6 +22,7 @@ export interface GridProps {
   onSelected?: (n: number) => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
+  gridBoxProps?: Partial<GridboxProps>;
 }
 
 const GridContainer = styled.main`
@@ -33,16 +34,14 @@ const GridContent = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: center;
 `;
 
 const Placeholder = styled.div``;
 
-const PlaceholderText = styled.text``;
-
-// const PlaceholderText = styled(Typography)(({ theme }) => ({
-//   color: theme.palette.primary.main,
-//   fontFamily: "Roboto Mono",
-// }));
+const PlaceholderText = styled.text`
+  font-family: "Roboto Mono";
+`;
 
 export class Grid extends React.Component<GridProps> {
   constructor(props: GridProps) {
@@ -59,6 +58,7 @@ export class Grid extends React.Component<GridProps> {
     return this.props.diagrams.map(
       ({ substance, domain, style, variation }, i) => (
         <Gridbox
+          {...this.props.gridBoxProps}
           key={`grid-${i}`}
           header={`Diagram ${i}`}
           metadata={this.props.metadata(i)}

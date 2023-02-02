@@ -6,6 +6,7 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
+import { Grid } from "@penrose/components";
 import {
   compileDomain,
   compileSubstance,
@@ -24,7 +25,6 @@ import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { range } from "lodash";
 import React from "react";
-import { Grid } from "./Grid";
 import { Settings } from "./Settings";
 
 export type ContentProps = any;
@@ -98,6 +98,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
   };
 
   onStateUpdate = (idx: number, state: PenroseState) => {
+    console.log("updating", idx);
+
     const newStates = [...this.state.states];
     newStates.splice(idx, 1, state);
     this.setState({
@@ -206,10 +208,26 @@ export class Content extends React.Component<ContentProps, ContentState> {
             defaultStyle={this.state.style}
           />
           <Grid
-            style={this.state.style}
-            domain={this.state.domain}
-            progs={this.state.progs}
-            onStaged={this.addStaged}
+            diagrams={this.state.progs.map(({ prog }, i) => ({
+              substance: prettySubstance(prog),
+              style: this.state.style,
+              domain: this.state.domain,
+              variation: `${i}`,
+            }))}
+            metadata={(i) => [
+              {
+                name: "Substance program",
+                data: prettySubstance(this.state.progs[i].prog),
+              },
+              {
+                name: "Mutations",
+                data: showMutations(this.state.progs[i].ops),
+              },
+            ]}
+            gridBoxProps={{
+              stepSize: 20,
+            }}
+            onSelected={this.addStaged}
             onStateUpdate={this.onStateUpdate}
           />
         </ContentSection>
