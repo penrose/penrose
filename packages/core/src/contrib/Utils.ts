@@ -1,4 +1,9 @@
-import { EPS_DENOM, genCodeSync, ops, secondaryGraph } from "engine/Autodiff";
+import {
+  EPS_DENOM,
+  genCodeSync,
+  ops,
+  secondaryGraph,
+} from "../engine/Autodiff";
 import {
   absVal,
   add,
@@ -13,10 +18,10 @@ import {
   or,
   squared,
   sub,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
 import _ from "lodash";
-import * as ad from "types/ad";
+import * as ad from "../types/ad";
 
 /**
  * Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2` with optional padding `padding`. (For a non-circle shape, its radius should be half of the shape's general "width")

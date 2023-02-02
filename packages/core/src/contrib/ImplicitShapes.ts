@@ -1,5 +1,5 @@
-import { outwardUnitNormal } from "contrib/Queries";
-import { EPS_DENOM, ops } from "engine/Autodiff";
+import { outwardUnitNormal } from "../contrib/Queries";
+import { EPS_DENOM, ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
@@ -11,10 +11,10 @@ import {
   neg,
   squared,
   sub,
-} from "engine/AutodiffFunctions";
-import { Circle } from "shapes/Circle";
-import { Ellipse } from "shapes/Ellipse";
-import * as ad from "types/ad";
+} from "../engine/AutodiffFunctions";
+import { Circle } from "../shapes/Circle";
+import { Ellipse } from "../shapes/Ellipse";
+import * as ad from "../types/ad";
 import { msign } from "./Functions";
 
 /**

@@ -1,11 +1,11 @@
 import geometryDomain from "@penrose/examples/dist/geometry-domain";
 import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain";
 import setTheoryDomain from "@penrose/examples/dist/set-theory-domain";
-import { parseStyle } from "compiler/Style";
+import { parseStyle } from "../compiler/Style";
 import * as fs from "fs";
 import nearley from "nearley";
-import { C } from "types/ast";
-import { StyProg } from "types/style";
+import { C } from "../types/ast";
+import { StyProg } from "../types/style";
 import grammar from "./StyleParser";
 
 const outputDir = "/tmp/asts";

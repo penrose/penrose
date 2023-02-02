@@ -1,5 +1,5 @@
 import im from "immutable";
-import * as ad from "types/ad";
+import * as ad from "../types/ad";
 import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";

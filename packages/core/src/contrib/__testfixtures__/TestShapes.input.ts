@@ -1,11 +1,11 @@
-import { makeCircle } from "shapes/Circle";
-import { makeLine } from "shapes/Line";
-import { makePolygon } from "shapes/Polygon";
-import { makePolyline } from "shapes/Polyline";
-import { makeRectangle } from "shapes/Rectangle";
-import { makeCanvas, simpleContext } from "shapes/Samplers";
-import { Pt2 } from "types/ad";
-import { black, floatV, ptListV, vectorV } from "utils/Util";
+import { makeCircle } from "../../shapes/Circle";
+import { makeLine } from "../../shapes/Line";
+import { makePolygon } from "../../shapes/Polygon";
+import { makePolyline } from "../../shapes/Polyline";
+import { makeRectangle } from "../../shapes/Rectangle";
+import { makeCanvas, simpleContext } from "../../shapes/Samplers";
+import { Pt2 } from "../../types/ad";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { makeEllipse } from "../../shapes/Ellipse";
 
 const context = simpleContext("TestShapes.input");

@@ -16,11 +16,11 @@ import {
   overlappingPolygons,
   overlappingRectlikeCircle,
   overlappingTextLine,
-} from "contrib/ConstraintsUtils";
-import { constrDictCurves } from "contrib/CurveConstraints";
-import { bboxFromShape, shapeSize } from "contrib/Queries";
-import { inRange, overlap1D } from "contrib/Utils";
-import { ops } from "engine/Autodiff";
+} from "../contrib/ConstraintsUtils";
+import { constrDictCurves } from "../contrib/CurveConstraints";
+import { bboxFromShape, shapeSize } from "../contrib/Queries";
+import { inRange, overlap1D } from "../contrib/Utils";
+import { ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
@@ -32,10 +32,10 @@ import {
   neg,
   squared,
   sub,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import { shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.

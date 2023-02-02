@@ -4,10 +4,10 @@
  *
  */
 
-import { shapedefs } from "shapes/Shapes";
-import { Shape } from "types/shape";
-import { LabelCache, State } from "types/state";
-import { StrV } from "types/value";
+import { shapedefs } from "../shapes/Shapes";
+import { Shape } from "../types/shape";
+import { LabelCache, State } from "../types/state";
+import { StrV } from "../types/value";
 import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
 

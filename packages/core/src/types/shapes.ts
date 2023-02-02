@@ -1,4 +1,4 @@
-import * as ad from "types/ad";
+import * as ad from "../types/ad";
 import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value";
 
 //#region shape hierarchy interfaces

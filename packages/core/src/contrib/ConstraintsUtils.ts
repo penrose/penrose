@@ -6,10 +6,18 @@ import {
   overlappingPolygonPointsEllipse,
   rectangleDifference,
   rectangleSignedDistance,
-} from "contrib/Minkowski";
-import { bboxFromShape, polygonLikePoints, shapeCenter } from "contrib/Queries";
-import { atDistOutside, noIntersectCircles, pointInBox } from "contrib/Utils";
-import { ops } from "engine/Autodiff";
+} from "../contrib/Minkowski";
+import {
+  bboxFromShape,
+  polygonLikePoints,
+  shapeCenter,
+} from "../contrib/Queries";
+import {
+  atDistOutside,
+  noIntersectCircles,
+  pointInBox,
+} from "../contrib/Utils";
+import { ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
@@ -26,18 +34,18 @@ import {
   sqrt,
   squared,
   sub,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import { Circle } from "shapes/Circle";
-import { Ellipse } from "shapes/Ellipse";
-import { Equation } from "shapes/Equation";
-import { Image } from "shapes/Image";
-import { Line } from "shapes/Line";
-import { Polygon } from "shapes/Polygon";
-import { Rectangle } from "shapes/Rectangle";
-import { shapedefs } from "shapes/Shapes";
-import { Text } from "shapes/Text";
-import * as ad from "types/ad";
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { Circle } from "../shapes/Circle";
+import { Ellipse } from "../shapes/Ellipse";
+import { Equation } from "../shapes/Equation";
+import { Image } from "../shapes/Image";
+import { Line } from "../shapes/Line";
+import { Polygon } from "../shapes/Polygon";
+import { Rectangle } from "../shapes/Rectangle";
+import { shapedefs } from "../shapes/Shapes";
+import { Text } from "../shapes/Text";
+import * as ad from "../types/ad";
 import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
 
 // -------- Ovelapping helpers

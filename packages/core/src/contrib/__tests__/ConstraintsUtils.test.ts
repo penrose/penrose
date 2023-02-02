@@ -1,9 +1,6 @@
-import {
-  overlappingAABBs,
-  overlappingPolygons,
-} from "contrib/ConstraintsUtils";
-import { _rectangles } from "contrib/__testfixtures__/TestShapes.input";
-import { genCodeSync, secondaryGraph } from "engine/Autodiff";
+import { overlappingAABBs, overlappingPolygons } from "../ConstraintsUtils";
+import { _rectangles } from "../__testfixtures__/TestShapes.input";
+import { genCodeSync, secondaryGraph } from "../../engine/Autodiff";
 
 describe("overlappingAABBs should return the same value as overlappingPolygons", () => {
   it.each([0, -10, -100])("padding %p", (padding: number) => {

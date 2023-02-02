@@ -1,11 +1,11 @@
-import { sortStmts, typeOf } from "analysis/SubstanceAnalysis";
-import { prettyStmt } from "compiler/Substance";
+import { sortStmts, typeOf } from "../analysis/SubstanceAnalysis";
+import { prettyStmt } from "../compiler/Substance";
 import _ from "lodash";
 import pc from "pandemonium/choice";
 import rdiff from "recursive-diff";
 import seedrandom from "seedrandom";
-import { A } from "types/ast";
-import { SubProg, SubRes } from "types/substance";
+import { A } from "../types/ast";
+import { SubProg, SubRes } from "../types/substance";
 import {
   compileDomain,
   compileSubstance,

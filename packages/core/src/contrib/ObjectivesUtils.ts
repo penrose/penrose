@@ -1,7 +1,7 @@
-import { shapeCenter } from "contrib/Queries";
-import { ops } from "engine/Autodiff";
-import { squared, sub } from "engine/AutodiffFunctions";
-import * as ad from "types/ad";
+import { shapeCenter } from "../contrib/Queries";
+import { ops } from "../engine/Autodiff";
+import { squared, sub } from "../engine/AutodiffFunctions";
+import * as ad from "../types/ad";
 
 /**
  * Encourage the center of the shape `shape` to be in the direction `direction` with respect to shape `shapeRef`.

@@ -8,13 +8,10 @@ import {
   signedArea,
   totalCurvature,
   turningNumber,
-} from "contrib/CurveConstraints";
-import { extractPoints, isClosed, numOf } from "contrib/Utils";
-import {
-  _polygons,
-  _polylines,
-} from "contrib/__testfixtures__/TestShapes.input";
-import * as ad from "types/ad";
+} from "../CurveConstraints";
+import { extractPoints, isClosed, numOf } from "../Utils";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
+import * as ad from "../../types/ad";
 
 describe("equivalued", () => {
   it.each([[[2]], [[3, 3, 3, 3, 3]], [[-5, -5, -5]], [[-5, -5, -5]]])(

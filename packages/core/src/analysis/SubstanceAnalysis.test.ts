@@ -1,15 +1,15 @@
-import { compileDomain } from "compiler/Domain";
+import { compileDomain } from "../compiler/Domain";
 import {
   compileSubstance,
   prettyStmt,
   prettySubstance,
-} from "compiler/Substance";
-import { dummyIdentifier } from "engine/EngineUtils";
+} from "../compiler/Substance";
+import { dummyIdentifier } from "../engine/EngineUtils";
 import _ from "lodash";
-import { similarMappings, similarNodes, SubNode } from "synthesis/Search";
-import { A } from "types/ast";
-import { Env } from "types/domain";
-import { SubProg, SubStmt } from "types/substance";
+import { similarMappings, similarNodes, SubNode } from "../synthesis/Search";
+import { A } from "../types/ast";
+import { Env } from "../types/domain";
+import { SubProg, SubStmt } from "../types/substance";
 import {
   appendStmt,
   intersection,

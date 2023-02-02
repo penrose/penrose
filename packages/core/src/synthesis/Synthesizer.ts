@@ -14,11 +14,11 @@ import {
   matchSignatures,
   nullaryTypeCons,
   SubStmtKind,
-} from "analysis/SubstanceAnalysis";
-import { subTypesOf } from "compiler/Domain";
-import { prettyStmt, prettySubstance } from "compiler/Substance";
+} from "../analysis/SubstanceAnalysis";
+import { subTypesOf } from "../compiler/Domain";
+import { prettyStmt, prettySubstance } from "../compiler/Substance";
 import consola from "consola";
-import { dummyIdentifier } from "engine/EngineUtils";
+import { dummyIdentifier } from "../engine/EngineUtils";
 import im from "immutable";
 import _ from "lodash";
 import pc from "pandemonium/choice";
@@ -44,8 +44,8 @@ import {
   Mutation,
   MutationGroup,
   showMutations,
-} from "synthesis/Mutation";
-import { A, Identifier } from "types/ast";
+} from "./Mutation";
+import { A, Identifier } from "../types/ast";
 import {
   Arg,
   ConstructorDecl,
@@ -56,7 +56,7 @@ import {
   Type,
   TypeConstructor,
   TypeDecl,
-} from "types/domain";
+} from "../types/domain";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -70,7 +70,7 @@ import {
   SubRes,
   SubStmt,
   TypeConsApp,
-} from "types/substance";
+} from "../types/substance";
 
 type RandomFunction = (min: number, max: number) => number;
 

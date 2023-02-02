@@ -3,12 +3,9 @@ import {
   consecutiveTuples,
   extractPoints,
   isClosed,
-} from "contrib/Utils";
-import {
-  _polygons,
-  _polylines,
-} from "contrib/__testfixtures__/TestShapes.input";
-import * as ad from "types/ad";
+} from "../Utils";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
+import * as ad from "../../types/ad";
 
 describe("consecutiveTuples", () => {
   const a: [ad.Num, ad.Num] = [1, 2];

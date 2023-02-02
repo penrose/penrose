@@ -1,12 +1,12 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
-import * as S from "compiler/Style";
-import { compileSubstance } from "compiler/Substance";
+import * as S from "../compiler/Style";
+import { compileSubstance } from "../compiler/Substance";
 import im from "immutable";
-import { C } from "types/ast";
-import { Either } from "types/common";
-import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
-import { State } from "types/state";
+import { C } from "../types/ast";
+import { Either } from "../types/common";
+import { Env } from "../types/domain";
+import { PenroseError } from "../types/errors";
+import { State } from "../types/state";
 import {
   AnonAssign,
   ConstrFn,
@@ -15,12 +15,17 @@ import {
   PathAssign,
   StyProg,
   Vector,
-} from "types/style";
-import { Assignment, DepGraph, Layer, Translation } from "types/styleSemantics";
-import { SubstanceEnv } from "types/substance";
-import { ColorV, RGBA } from "types/value";
-import { andThen, err, Result, showError } from "utils/Error";
-import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
+} from "../types/style";
+import {
+  Assignment,
+  DepGraph,
+  Layer,
+  Translation,
+} from "../types/styleSemantics";
+import { SubstanceEnv } from "../types/substance";
+import { ColorV, RGBA } from "../types/value";
+import { andThen, err, Result, showError } from "../utils/Error";
+import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
 
 // TODO: Reorganize and name tests by compiler stage
