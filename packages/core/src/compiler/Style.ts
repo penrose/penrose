@@ -2724,11 +2724,13 @@ const evalExpr = (
         return err(oneErr({ tag: "MissingPathError", path: resolvedPath }));
       }
 
-      if (expr.indices.length === 0) {
-        return ok(resolved);
-      }
       if (resolved.tag === "GPI") {
         // Can evaluate a path to a GPI - just return the GPI
+        // Need to incorporate the "name" information:
+        resolved.contents[1]["name"] = strV(path);
+        return ok(resolved);
+      }
+      if (expr.indices.length === 0) {
         return ok(resolved);
       }
       const res = all(
