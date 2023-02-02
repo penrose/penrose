@@ -15,9 +15,6 @@
     "Snippets",
     "Programming Languages"
   ],
-  "activationEvents": [
-    "onLanguage:penrose-style"
-  ],
   "icon": "resources/icon.png",
   "repository": {
     "type": "git",
