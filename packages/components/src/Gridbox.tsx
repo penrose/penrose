@@ -22,6 +22,8 @@ const Section = styled.div`
   border-width: 2px;
   border-style: solid;
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Header = styled.div`
@@ -52,8 +54,9 @@ const Body = styled.div`
   width: calc(25rem - 1rem);
   position: absolute;
   background-color: #fff;
-  height: calc(25rem - 4.25rem);
-  padding: 0.5rem 0.25rem 0.25rem 0.5rem;
+  height: calc(100% - 1rem);
+  border-radius: 5px;
+  padding: 0.5rem;
   font-size: 0.8rem;
   font-family: Roboto Mono, Courier New, sans-serif;
   //   color: "black",
@@ -174,7 +177,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
         <div
           onClick={this.toggleView}
-          style={{ height: "100%", position: "relative" }}
+          style={{ height: "calc(100% - 2.5rem)", position: "relative" }}
         >
           {this.state.showDiagramInfo && (
             <Body>
