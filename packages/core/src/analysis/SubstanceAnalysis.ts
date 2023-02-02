@@ -1,6 +1,6 @@
-import { prettyStmt } from "../compiler/Substance";
 import im from "immutable";
 import _ from "lodash";
+import { prettyStmt } from "../compiler/Substance";
 import { A, AbstractNode, C, Identifier, metaProps } from "../types/ast";
 import {
   ConstructorDecl,

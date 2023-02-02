@@ -1,3 +1,4 @@
+import { convexPartition, isClockwise } from "poly-partition";
 import { outwardUnitNormal } from "../contrib/Queries";
 import { ops } from "../engine/Autodiff";
 import {
@@ -19,7 +20,6 @@ import {
   sub,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
-import { convexPartition, isClockwise } from "poly-partition";
 import { Ellipse } from "../shapes/Ellipse";
 import * as ad from "../types/ad";
 import { safe } from "../utils/Util";

@@ -1,7 +1,7 @@
-import { dummyIdentifier } from "../engine/EngineUtils";
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
+import { dummyIdentifier } from "../engine/EngineUtils";
 import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil";
 import substanceGrammar from "../parser/SubstanceParser";
 import { A, ASTNode, C, Identifier } from "../types/ast";

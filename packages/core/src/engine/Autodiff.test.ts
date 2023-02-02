@@ -1,3 +1,5 @@
+import _ from "lodash";
+import seedrandom from "seedrandom";
 import {
   fns,
   genCode,
@@ -8,8 +10,6 @@ import {
   primaryGraph,
   secondaryGraph,
 } from "../engine/Autodiff";
-import _ from "lodash";
-import seedrandom from "seedrandom";
 import * as ad from "../types/ad";
 import { eqList, randList } from "../utils/Util";
 import {

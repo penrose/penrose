@@ -1,11 +1,3 @@
-import { compDict } from "../Functions";
-import {
-  bboxFromShape,
-  outwardUnitNormal,
-  polygonLikePoints,
-  shapeCenter,
-  shapeSize,
-} from "../Queries";
 import { genCodeSync, ops, secondaryGraph } from "../../engine/Autodiff";
 import { sub } from "../../engine/AutodiffFunctions";
 import { makeCircle } from "../../shapes/Circle";
@@ -17,6 +9,14 @@ import { makeRectangle } from "../../shapes/Rectangle";
 import { makeCanvas, simpleContext } from "../../shapes/Samplers";
 import { Pt2 } from "../../types/ad";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util";
+import { compDict } from "../Functions";
+import {
+  bboxFromShape,
+  outwardUnitNormal,
+  polygonLikePoints,
+  shapeCenter,
+  shapeSize,
+} from "../Queries";
 
 const context = simpleContext("Queries");
 const canvas = makeCanvas(800, 700);

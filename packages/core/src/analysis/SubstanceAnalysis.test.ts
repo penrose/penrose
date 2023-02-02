@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { compileDomain } from "../compiler/Domain";
 import {
   compileSubstance,
@@ -5,7 +6,6 @@ import {
   prettySubstance,
 } from "../compiler/Substance";
 import { dummyIdentifier } from "../engine/EngineUtils";
-import _ from "lodash";
 import { similarMappings, similarNodes, SubNode } from "../synthesis/Search";
 import { A } from "../types/ast";
 import { Env } from "../types/domain";

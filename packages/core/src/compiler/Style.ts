@@ -1,7 +1,11 @@
 import { CustomHeap } from "@datastructures-js/heap";
 import { genOptProblem } from "@penrose/optimizer";
-import { checkExpr, checkPredicate, checkVar } from "../compiler/Substance";
 import consola from "consola";
+import im from "immutable";
+import _ from "lodash";
+import nearley from "nearley";
+import seedrandom from "seedrandom";
+import { checkExpr, checkPredicate, checkVar } from "../compiler/Substance";
 import { constrDict } from "../contrib/Constraints";
 import { compDict } from "../contrib/Functions";
 import { objDict } from "../contrib/Objectives";
@@ -12,12 +16,8 @@ import {
   dummyIdentifier,
   genGradient,
 } from "../engine/EngineUtils";
-import im from "immutable";
-import _ from "lodash";
-import nearley from "nearley";
 import { lastLocation, prettyParseError } from "../parser/ParserUtil";
 import styleGrammar from "../parser/StyleParser";
-import seedrandom from "seedrandom";
 import {
   Canvas,
   Context as MutableContext,

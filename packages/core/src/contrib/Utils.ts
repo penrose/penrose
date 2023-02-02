@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   EPS_DENOM,
   genCodeSync,
@@ -20,7 +21,6 @@ import {
   sub,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
-import _ from "lodash";
 import * as ad from "../types/ad";
 
 /**

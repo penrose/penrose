@@ -1,10 +1,10 @@
 import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
 import setTheory from "@penrose/examples/dist/set-theory-domain";
-import { compileDomain, isSubtype } from "../compiler/Domain";
 import * as fs from "fs";
 import nearley from "nearley";
-import grammar from "../parser/DomainParser";
 import * as path from "path";
+import { compileDomain, isSubtype } from "../compiler/Domain";
+import grammar from "../parser/DomainParser";
 import { Env } from "../types/domain";
 import { PenroseError } from "../types/errors";
 import { Result, showError } from "../utils/Error";

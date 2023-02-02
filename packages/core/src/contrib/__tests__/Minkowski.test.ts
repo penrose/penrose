@@ -1,11 +1,11 @@
+import * as BBox from "../../engine/BBox";
+import * as ad from "../../types/ad";
 import {
   convexPartitions,
   halfPlaneSDF,
   rectangleDifference,
 } from "../Minkowski";
 import { numsOf } from "../Utils";
-import * as BBox from "../../engine/BBox";
-import * as ad from "../../types/ad";
 
 describe("rectangleDifference", () => {
   const expectRectDiff = (

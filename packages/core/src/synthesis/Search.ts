@@ -1,3 +1,5 @@
+import _ from "lodash";
+import rdiff from "recursive-diff";
 import {
   cleanNode,
   findTypes,
@@ -9,8 +11,9 @@ import {
   subProg,
 } from "../analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "../compiler/Substance";
-import _ from "lodash";
-import rdiff from "recursive-diff";
+import { A, AbstractNode, Identifier, metaProps } from "../types/ast";
+import { Env, Type } from "../types/domain";
+import { LabelOption, SubExpr, SubProg, SubStmt } from "../types/substance";
 import {
   Add,
   addMutation,
@@ -22,9 +25,6 @@ import {
   Mutation,
   MutationGroup,
 } from "./Mutation";
-import { A, AbstractNode, Identifier, metaProps } from "../types/ast";
-import { Env, Type } from "../types/domain";
-import { LabelOption, SubExpr, SubProg, SubStmt } from "../types/substance";
 import {
   filterContext,
   initContext,

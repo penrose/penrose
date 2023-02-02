@@ -1,5 +1,5 @@
-import { input } from "../engine/Autodiff";
 import seedrandom from "seedrandom";
+import { input } from "../engine/Autodiff";
 import * as ad from "../types/ad";
 import { OptStages } from "../types/state";
 import { ColorV, FloatV, VectorV } from "../types/value";

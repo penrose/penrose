@@ -1,5 +1,5 @@
-import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
 import seedrandom from "seedrandom";
+import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
 import { makeCircle } from "../../shapes/Circle";
 import { makeEllipse } from "../../shapes/Ellipse";
 import { makeLine } from "../../shapes/Line";

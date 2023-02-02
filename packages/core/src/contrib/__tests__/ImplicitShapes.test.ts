@@ -1,3 +1,9 @@
+import { addN, mul, polyRoots, sub } from "../../engine/AutodiffFunctions";
+import { makeCircle } from "../../shapes/Circle";
+import { makeEllipse } from "../../shapes/Ellipse";
+import { makeCanvas, simpleContext } from "../../shapes/Samplers";
+import * as ad from "../../types/ad";
+import { black, floatV, vectorV, zip2 } from "../../utils/Util";
 import {
   circleToImplicitEllipse,
   ellipsePolynomial,
@@ -7,12 +13,6 @@ import {
 } from "../ImplicitShapes";
 import { pointCandidatesEllipse } from "../Minkowski";
 import { numOf, numsOf } from "../Utils";
-import { addN, mul, polyRoots, sub } from "../../engine/AutodiffFunctions";
-import { makeCircle } from "../../shapes/Circle";
-import { makeEllipse } from "../../shapes/Ellipse";
-import { makeCanvas, simpleContext } from "../../shapes/Samplers";
-import * as ad from "../../types/ad";
-import { black, floatV, vectorV, zip2 } from "../../utils/Util";
 
 describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {

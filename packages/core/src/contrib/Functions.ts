@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { bboxFromShape } from "../contrib/Queries";
 import { clamp, inRange, numOf } from "../contrib/Utils";
 import { ops } from "../engine/Autodiff";
@@ -50,7 +51,6 @@ import {
   trunc,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
-import _ from "lodash";
 import { PathBuilder } from "../renderer/PathBuilder";
 import { Ellipse } from "../shapes/Ellipse";
 import { Line } from "../shapes/Line";

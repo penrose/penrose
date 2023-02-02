@@ -1,6 +1,6 @@
+import { Result } from "true-myth";
 import { isConcrete } from "../engine/EngineUtils";
 import { shapedefs } from "../shapes/Shapes";
-import { Result } from "true-myth";
 import {
   A,
   AbstractNode,

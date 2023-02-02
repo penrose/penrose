@@ -1,3 +1,9 @@
+import consola from "consola";
+import im from "immutable";
+import _ from "lodash";
+import pc from "pandemonium/choice";
+import pr from "pandemonium/random";
+import seedrandom from "seedrandom";
 import {
   appendStmt,
   applyBind,
@@ -17,34 +23,7 @@ import {
 } from "../analysis/SubstanceAnalysis";
 import { subTypesOf } from "../compiler/Domain";
 import { prettyStmt, prettySubstance } from "../compiler/Substance";
-import consola from "consola";
 import { dummyIdentifier } from "../engine/EngineUtils";
-import im from "immutable";
-import _ from "lodash";
-import pc from "pandemonium/choice";
-import pr from "pandemonium/random";
-import seedrandom from "seedrandom";
-import {
-  Add,
-  addMutation,
-  checkAddStmt,
-  checkAddStmts,
-  checkChangeExprType,
-  checkChangeStmtType,
-  checkDeleteStmt,
-  checkReplaceExprName,
-  checkReplaceStmtName,
-  checkSwapExprArgs,
-  checkSwapInExprArgs,
-  checkSwapInStmtArgs,
-  checkSwapStmtArgs,
-  Delete,
-  deleteMutation,
-  executeMutations,
-  Mutation,
-  MutationGroup,
-  showMutations,
-} from "./Mutation";
 import { A, Identifier } from "../types/ast";
 import {
   Arg,
@@ -71,6 +50,27 @@ import {
   SubStmt,
   TypeConsApp,
 } from "../types/substance";
+import {
+  Add,
+  addMutation,
+  checkAddStmt,
+  checkAddStmts,
+  checkChangeExprType,
+  checkChangeStmtType,
+  checkDeleteStmt,
+  checkReplaceExprName,
+  checkReplaceStmtName,
+  checkSwapExprArgs,
+  checkSwapInExprArgs,
+  checkSwapInStmtArgs,
+  checkSwapStmtArgs,
+  Delete,
+  deleteMutation,
+  executeMutations,
+  Mutation,
+  MutationGroup,
+  showMutations,
+} from "./Mutation";
 
 type RandomFunction = (min: number, max: number) => number;
 

@@ -1,8 +1,8 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
 import nearley from "nearley";
-import grammar from "../parser/SubstanceParser";
 import * as path from "path";
+import grammar from "../parser/SubstanceParser";
 import { A } from "../types/ast";
 import { Env } from "../types/domain";
 import { PenroseError } from "../types/errors";

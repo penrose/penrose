@@ -1,7 +1,7 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
+import im from "immutable";
 import * as S from "../compiler/Style";
 import { compileSubstance } from "../compiler/Substance";
-import im from "immutable";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
