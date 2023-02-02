@@ -21,6 +21,7 @@ import {
   Color,
   ColorV,
   FloatV,
+  GPI,
   ListV,
   LListV,
   MatrixV,
@@ -28,6 +29,7 @@ import {
   PathDataV,
   PropID,
   PtListV,
+  ShapeListV,
   ShapeTypeStr,
   SubPath,
   TupV,
@@ -162,6 +164,31 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
+function mapGPI<T, S>(f: (arg: T) => S, v: GPI<T>): GPI<S> {
+  const shapeType = v.contents[0];
+  const shapeProps = v.contents[1];
+  const mappedShapeProps = Object.fromEntries(
+    Object.entries(shapeProps).map(([prop, propVal]) => {
+      return [prop, mapValueNumeric(f, propVal)];
+    })
+  );
+
+  shapeProps;
+  return {
+    tag: "GPI",
+    contents: [shapeType, mappedShapeProps],
+  };
+}
+
+function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
+  return {
+    tag: "ShapeListV",
+    contents: v.contents.map((gpi) => {
+      return mapGPI(f, gpi);
+    }),
+  };
+}
+
 // Utils for converting types of values
 
 // Expects `f` to be a function between numeric types (e.g. number -> ad.Num, ad.Num -> number, AD var -> ad.Num ...)
@@ -186,6 +213,8 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapColor(f, v);
     case "PathDataV":
       return mapPathData(f, v);
+    case "ShapeListV":
+      return mapShapeList(f, v);
     // non-numeric Value types
     case "BoolV":
     case "StrV":
@@ -229,7 +258,8 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
       return [v.contents];
     }
     case "BoolV":
-    case "StrV": {
+    case "StrV":
+    case "ShapeListV": {
       return [];
     }
     case "ListV":

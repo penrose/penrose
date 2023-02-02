@@ -1,10 +1,8 @@
 import { CircleProps } from "shapes/Circle";
 import { EllipseProps } from "shapes/Ellipse";
-import { GroupProps } from "shapes/Group";
 import { LineProps } from "shapes/Line";
 import { PathProps } from "shapes/Path";
 import { RectangleProps } from "shapes/Rectangle";
-import { isShapeType, Properties, shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { Center, Poly, Rect, Rotate, Scale } from "types/shapes";
 import { ops } from "./Autodiff";
@@ -16,9 +14,7 @@ import {
   gt,
   ifCond,
   max,
-  maxN,
   min,
-  minN,
   mul,
   neg,
   sqrt,
@@ -499,35 +495,4 @@ export const bboxFromPath = ({ d }: PathProps): BBox => {
     control = nextControl;
   }
   return bboxFromPoints(points);
-};
-
-export const bboxFromGroup = ({ shapes }: GroupProps): BBox => {
-  const content = shapes.contents;
-  const bboxes = content.map((gpi) => {
-    const shapeType = gpi.contents[0];
-    const rawShapeProps = gpi.contents[1];
-    if (!isShapeType(shapeType)) {
-      throw new Error("Unknown shape in Group bbox: " + shapeType);
-    } else {
-      const shapedef = shapedefs[shapeType];
-      const shapeProps: Properties = {};
-
-      for (const prop in Object.keys(shapedef.propTags)) {
-        shapeProps[prop] = rawShapeProps[prop];
-      }
-
-      return shapedef.bbox(shapeProps);
-    }
-  });
-  const xRanges = bboxes.map(xRange);
-  const yRanges = bboxes.map(yRange);
-  const minX = minN(xRanges.map((xRange) => xRange[0]));
-  const maxX = maxN(xRanges.map((xRange) => xRange[1]));
-  const minY = minN(yRanges.map((yRange) => yRange[0]));
-  const maxY = maxN(yRanges.map((yRange) => yRange[1]));
-  const width = sub(maxX, minX);
-  const height = sub(maxY, minY);
-  const centerX = div(add(minX, maxX), 2);
-  const centerY = div(add(minY, maxY), 2);
-  return bbox(width, height, [centerX, centerY]);
 };

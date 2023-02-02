@@ -1039,4 +1039,24 @@ delete x.z.p }`,
       ).toEqual(im.Set([1, 2, 3]));
     });
   });
+
+  describe("group shapes", () => {
+    test("simple group", async () => {
+      const dsl = "type T\n";
+      const sty =
+        canvasPreamble +
+        `
+      forall T t {
+        t.s1 = Circle {}
+        t.s2 = Rectangle {}
+        t.g = Group {
+          shapes: [t.s1, t.s2]
+        }
+      }\n
+      `;
+      const sub = "T t\n";
+      const { state } = await loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(3);
+    });
+  });
 });

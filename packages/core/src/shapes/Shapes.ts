@@ -1,11 +1,12 @@
 import { input } from "engine/Autodiff";
+import { add, div, maxN, minN, sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import * as ad from "types/ad";
 import { Value } from "types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
 import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
 import { Equation, makeEquation, sampleEquation } from "./Equation";
-import { Group, makeGroup, sampleGroup } from "./Group";
+import { Group, GroupProps, makeGroup, sampleGroup } from "./Group";
 import { Image, makeImage, sampleImage } from "./Image";
 import { Line, makeLine, sampleLine } from "./Line";
 import { makePath, Path, samplePath } from "./Path";
@@ -21,6 +22,7 @@ import { makeText, sampleText, Text } from "./Text";
 export interface Properties {
   [k: string]: Value<ad.Num>;
 }
+BBox.bboxFromCircle;
 
 export type Shape =
   | Circle
@@ -187,13 +189,43 @@ const Text = ShapeDef({
   isPolygonlike: true,
 });
 
+// bboxFromGroup is here, not in engine/BBox, to prevent cyclic import
+const bboxFromGroup = ({ shapes }: GroupProps): BBox.BBox => {
+  const content = shapes.contents;
+  const bboxes = content.map((gpi) => {
+    const shapeType = gpi.contents[0];
+    const rawShapeProps = gpi.contents[1];
+    if (!isShapeType(shapeType)) {
+      throw new Error("Unknown shape in Group bbox: " + shapeType);
+    } else {
+      const shapedef = shapedefs[shapeType];
+      const shapeProps: Properties = {};
+      const propKeys = Object.keys(shapedef.propTags);
+      for (const prop in propKeys) {
+        shapeProps[propKeys[prop]] = rawShapeProps[propKeys[prop]];
+      }
+
+      return shapedef.bbox(shapeProps);
+    }
+  });
+  const xRanges = bboxes.map(BBox.xRange);
+  const yRanges = bboxes.map(BBox.yRange);
+  const minX = minN(xRanges.map((xRange) => xRange[0]));
+  const maxX = maxN(xRanges.map((xRange) => xRange[1]));
+  const minY = minN(yRanges.map((yRange) => yRange[0]));
+  const maxY = maxN(yRanges.map((yRange) => yRange[1]));
+  const width = sub(maxX, minX);
+  const height = sub(maxY, minY);
+  const centerX = div(add(minX, maxX), 2);
+  const centerY = div(add(minY, maxY), 2);
+  return BBox.bbox(width, height, [centerX, centerY]);
+};
+
 const Group = ShapeDef({
   sampler: sampleGroup,
   constr: makeGroup,
 
-  bbox: BBox.bboxFromGroup,
-  isRectlike: false,
-  isPolygonlike: false,
+  bbox: bboxFromGroup,
 });
 
 // TODO: figure out how to not have the result be type `any` when indexing into
