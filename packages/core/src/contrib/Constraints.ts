@@ -80,7 +80,10 @@ const constrDictSimple = {
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
   inRange: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
-    return mul(sub(x, x0), sub(x, x1));
+    return add(
+      ifCond(lt(x, x1), 0, sub(x, x1)),
+      ifCond(lt(x0, x), 0, sub(x0, x))
+    );
   },
 
   /**
