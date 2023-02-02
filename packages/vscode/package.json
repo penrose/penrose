@@ -86,21 +86,16 @@
     "vscode:prepublish": "yarn build"
   },
   "devDependencies": {
-    "@types/glob": "^8",
     "@types/lodash": "^4",
-    "@types/mocha": "^10",
     "@types/moo": "^0.5",
     "@types/nearley": "^2",
     "@types/node": "^18",
     "@types/vscode": "^1",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
-    "@vscode/test-electron": "^2",
     "@vscode/vsce": "^2",
     "esbuild": "^0.17",
     "eslint": "^8",
-    "glob": "^8",
-    "mocha": "^10",
     "typescript": "^4"
   },
   "dependencies": {
