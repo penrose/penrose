@@ -1,3 +1,4 @@
+import { uniqueId } from "lodash";
 import { Shape } from "types/shape";
 import { BoolV, ColorV, FloatV, StrV, VectorV } from "types/value";
 import {
@@ -10,7 +11,6 @@ import {
 } from "utils/Util";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
-import { makeIdsUnique } from "./util";
 
 export const arrowHead = (
   id: string,
@@ -152,9 +152,9 @@ const Line = ({ shape, canvasSize, variation }: ShapeProps): SVGGElement => {
   );
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
-  const startArrowId =
-    variation + shape.properties.name.contents + "-startArrowId";
-  const endArrowId = variation + shape.properties.name.contents + "-endArrowId";
+  const unique = uniqueId();
+  const startArrowId = unique + "-startArrowId";
+  const endArrowId = unique + "-endArrowId";
   if (startArrowhead) {
     const startArrowheadSize = (shape.properties
       .startArrowheadSize as FloatV<number>).contents;
@@ -251,9 +251,6 @@ const Line = ({ shape, canvasSize, variation }: ShapeProps): SVGGElement => {
 
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
-
-  // clean up ids
-  makeIdsUnique(elem, false);
 
   return elem;
 };
