@@ -1,0 +1,88 @@
+{
+  "name": "penrose-vs",
+  "displayName": "Penrose",
+  "publisher": "penrose",
+  "description": "Penrose languages bundle",
+  "version": "2.1.1",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "vscode": "^1.52.0"
+  },
+  "categories": [
+    "Other",
+    "Snippets",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:penrose-style"
+  ],
+  "icon": "resources/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/penrose/penrose",
+    "directory": "packages/vscode"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "penrose-style",
+        "aliases": [
+          "Penrose Style"
+        ],
+        "extensions": [
+          ".style"
+        ],
+        "configuration": "./languages/common-language-configuration.json"
+      },
+      {
+        "id": "penrose-domain",
+        "aliases": [
+          "Penrose Domain"
+        ],
+        "extensions": [
+          ".domain"
+        ],
+        "configuration": "./languages/common-language-configuration.json"
+      },
+      {
+        "id": "penrose-substance",
+        "aliases": [
+          "Penrose Substance"
+        ],
+        "extensions": [
+          ".substance"
+        ],
+        "configuration": "./languages/common-language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "scopeName": "source.penrose-common",
+        "path": "./syntaxes/common.tmGrammar.json"
+      },
+      {
+        "language": "penrose-style",
+        "scopeName": "source.penrose-style",
+        "path": "./syntaxes/style.tmGrammar.json"
+      },
+      {
+        "language": "penrose-domain",
+        "scopeName": "source.penrose-domain",
+        "path": "./syntaxes/domain.tmGrammar.json"
+      },
+      {
+        "language": "penrose-substance",
+        "scopeName": "source.penrose-substance",
+        "path": "./syntaxes/substance.tmGrammar.json"
+      }
+    ]
+  },
+  "scripts": {
+    "package": "vsce package --yarn"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^2"
+  }
+}
