@@ -4,6 +4,7 @@
  *
  */
 
+import * as im from "immutable";
 import { shapedefs } from "shapes/Shapes";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
@@ -185,6 +186,30 @@ export const RenderStatic = async (
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
+
+  const shapes = computeShapes(varyingValues);
+  const nameShapeMap: { [k: string]: Shape } = Object.fromEntries(
+    shapes.map((shape) => {
+      return [shape.properties["name"], shape];
+    })
+  );
+
+  let renderedNames: im.Set<string> = im.Set();
+  // First render shapes involved with groups
+  shapes
+    .filter((shape) => shape.shapeType === "Group")
+    .map((shape) => {
+      RenderShape(
+        {
+          shape,
+          labels,
+          canvasSize: canvas.size,
+          pathResolver,
+        },
+        nameShapeMap
+      );
+    });
+  // Then render all other shapes
 
   return Promise.all(
     computeShapes(varyingValues).map((shape) =>

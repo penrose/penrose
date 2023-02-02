@@ -200,10 +200,9 @@ const bboxFromGroup = ({ shapes }: GroupProps): BBox.BBox => {
     } else {
       const shapedef = shapedefs[shapeType];
       const shapeProps: Properties = {};
-      const propKeys = Object.keys(shapedef.propTags);
-      for (const prop in propKeys) {
-        shapeProps[propKeys[prop]] = rawShapeProps[propKeys[prop]];
-      }
+      Object.keys(shapedef.propTags).map((prop) => {
+        shapeProps[prop] = rawShapeProps[prop];
+      });
 
       return shapedef.bbox(shapeProps);
     }
