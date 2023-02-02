@@ -99,7 +99,6 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       this.props.style !== prevProps.style
     ) {
       await this.compile();
-      console.log("compiled");
       if (!this.props.animate) {
         await this.converge();
       }
@@ -137,7 +136,10 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       if (this.penroseState) {
         const renderedState: SVGSVGElement = await (this.props.interactive ===
         false
-          ? RenderStatic(this.penroseState, fetchResolver)
+          ? RenderStatic(
+              this.penroseState,
+              this.props.imageResolver ?? fetchResolver
+            )
           : RenderInteractive(
               this.penroseState,
               async (newState) => {

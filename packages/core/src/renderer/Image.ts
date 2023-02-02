@@ -1,3 +1,4 @@
+import { uniqueId } from "lodash";
 import { StrV } from "types/value";
 import {
   attrAutoFillSvg,
@@ -41,8 +42,9 @@ const Image = async ({
         const users = svg.querySelectorAll(
           `[*|href="#${node.id}"]:not([href])`
         );
+        const uuid = uniqueId();
         users.forEach((user) => {
-          const unique = `${variation}-${
+          const unique = `${uuid}-${
             (shape.properties.name as StrV).contents
           }-ns-${node.id}`;
           user.setAttributeNS(
@@ -55,7 +57,7 @@ const Image = async ({
         // special case: fill urls
         const urlUsers = svg.querySelectorAll(`[fill="url(#${node.id})"]`);
         urlUsers.forEach((user, n) => {
-          const unique = `${variation}-${
+          const unique = `${uuid}-${
             (shape.properties.name as StrV).contents
           }-${n}-ns-${node.id}`;
           node.setAttribute("id", unique);

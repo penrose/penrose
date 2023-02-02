@@ -157,6 +157,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
   render() {
     const { header, onSelected, onStateUpdate } = this.props;
+
     // const stmts = this.props.substance;
     return (
       <Section>
@@ -197,7 +198,8 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           )}
           <Simple
             {...this.props}
-            variation={this.state.variation}
+            key={`gridbox-${this.props.gridIndex}`}
+            interactive={false}
             onFrame={(state: PenroseState) => {
               this.setState({ currentState: state });
               if (onStateUpdate) {
