@@ -1,15 +1,3 @@
-# Penrose for VSCode
+# Penrose for VS Code
 
 Supports `.domain`, `.style`, and `.substance` for [Penrose](https://penrose.cs.cmu.edu).
-
-## Notes
-
-For (unimplemented) semantic highlighting, use a default VSCode theme.
-
-# Features
-
-Full support for Penrose's languages
-
-# Releases
-
-TBD

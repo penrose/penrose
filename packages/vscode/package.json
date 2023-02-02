@@ -18,7 +18,6 @@
   "activationEvents": [
     "onLanguage:penrose-style"
   ],
-  "main": "./dist/extension.js",
   "icon": "resources/icon.png",
   "repository": {
     "type": "git",
@@ -81,26 +80,9 @@
     ]
   },
   "scripts": {
-    "build": "esbuild src/extension.ts --outfile=dist/extension.js --platform=node --format=cjs --bundle --external:vscode",
-    "package": "vsce package --yarn",
-    "vscode:prepublish": "yarn build"
+    "package": "vsce package --yarn"
   },
   "devDependencies": {
-    "@types/lodash": "^4",
-    "@types/moo": "^0.5",
-    "@types/nearley": "^2",
-    "@types/node": "^18",
-    "@types/vscode": "^1",
-    "@typescript-eslint/eslint-plugin": "^5",
-    "@typescript-eslint/parser": "^5",
-    "@vscode/vsce": "^2",
-    "esbuild": "^0.17",
-    "eslint": "^8",
-    "typescript": "^4"
-  },
-  "dependencies": {
-    "lodash": "^4",
-    "moo": "^0.5",
-    "nearley": "^2"
+    "@vscode/vsce": "^2"
   }
 }
