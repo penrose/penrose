@@ -160,7 +160,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
     // const stmts = this.props.substance;
     return (
-      <Section>
+      <Section key={`gridbox-container-${this.props.gridIndex}`}>
         <Header>
           <HeaderText>{header ?? "Diagram"}</HeaderText>
           <div>
@@ -183,7 +183,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           {this.state.showDiagramInfo && (
             <Body>
               {this.props.metadata.map(({ name, data }) => (
-                <div>
+                <div key={`gridbox-data-${name}`}>
                   <H2>{name}</H2>
                   <div
                     style={{

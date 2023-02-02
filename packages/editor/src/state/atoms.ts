@@ -266,6 +266,11 @@ export type DiagramMetadata = {
   stepSize: number;
   autostep: boolean;
   interactive: boolean;
+  source: {
+    domain: string;
+    substance: string;
+    style: string;
+  };
 };
 
 export type Diagram = {
@@ -284,6 +289,11 @@ export const diagramState = atom<Diagram>({
       stepSize: 10000,
       autostep: true,
       interactive: false,
+      source: {
+        substance: "",
+        style: "",
+        domain: "",
+      },
     },
   },
 

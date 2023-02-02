@@ -63,7 +63,15 @@ const _compileDiagram = async (
     (state: Diagram): Diagram => ({
       ...state,
       error: null,
-      metadata: { ...state.metadata, variation },
+      metadata: {
+        ...state.metadata,
+        variation,
+        source: {
+          domain,
+          substance,
+          style,
+        },
+      },
       state: initialState,
     })
   );
