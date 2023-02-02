@@ -1,6 +1,6 @@
 [package]
 name = "penrose-optimizer"
-version = "2.1.1"
+version = "2.2.0"
 edition = "2021"
 publish = false
 
