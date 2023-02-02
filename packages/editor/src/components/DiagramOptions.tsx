@@ -1,5 +1,5 @@
 import { useRecoilState } from "recoil";
-import { diagramMetadataSelector } from "../state/atoms";
+import { diagramMetadataSelector, settingsState } from "../state/atoms";
 import {
   useCompileDiagram,
   useStepDiagram,
@@ -11,6 +11,7 @@ export default function DiagramOptions() {
   const [diagramMetadata, setDiagramMetadata] = useRecoilState(
     diagramMetadataSelector
   );
+  const [{ gridSize }, setSettingsState] = useRecoilState(settingsState);
   const compileDiagram = useCompileDiagram();
   const stepDiagram = useStepDiagram();
   const stepStage = useStepStage();
@@ -74,6 +75,21 @@ export default function DiagramOptions() {
               setDiagramMetadata((metadata) => ({
                 ...metadata,
                 interactive: e.target.checked,
+              }))
+            }
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          grid size:{" "}
+          <input
+            type="number"
+            value={gridSize}
+            onChange={(e) =>
+              setSettingsState((settings) => ({
+                ...settings,
+                gridSize: parseInt(e.target.value, 10),
               }))
             }
           />
