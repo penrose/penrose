@@ -92,7 +92,7 @@ const mainRowLayout: IJsonRowNode = {
         },
         {
           type: "tab",
-          name: "Grid",
+          name: "Diagram Variations",
           component: "grid",
           enableRename: false,
         },

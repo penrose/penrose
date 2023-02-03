@@ -95,6 +95,7 @@ export default function DiagramOptions() {
               }))
             }
           />
+          <output>{gridSize}</output>
         </label>
       </div>
     </div>

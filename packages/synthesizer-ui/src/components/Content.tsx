@@ -218,6 +218,9 @@ export class Content extends React.Component<ContentProps, ContentState> {
                 domain: this.state.domain,
                 variation: `${i}`,
               }))}
+              header={(i) =>
+                i === 0 ? "Original diagram" : `Mutated diagram #${i}`
+              }
               metadata={(i) => [
                 {
                   name: "Substance program",
