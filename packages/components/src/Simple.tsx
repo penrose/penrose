@@ -100,6 +100,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         await this.converge();
       }
       this.renderCanvas();
+      return;
     }
 
     // update the component only if there's no error

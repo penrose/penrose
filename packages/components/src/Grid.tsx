@@ -19,6 +19,7 @@ export interface GridProps {
     name: string;
     data: string;
   }[];
+  header: (i: number) => string;
   onSelected?: (n: number) => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
@@ -61,7 +62,7 @@ export class Grid extends React.Component<GridProps> {
         <Gridbox
           {...this.props.gridBoxProps}
           key={`grid-${i}`}
-          header={`Diagram ${i}`}
+          header={this.props.header(i)}
           metadata={this.props.metadata(i)}
           domain={domain}
           style={style}

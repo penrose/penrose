@@ -9,7 +9,7 @@ import {
 import { registry } from "@penrose/examples";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
-import { debounce } from "lodash";
+import { debounce, range } from "lodash";
 import toast from "react-hot-toast";
 import {
   atom,
@@ -301,6 +301,37 @@ export const diagramState = atom<Diagram>({
   dangerouslyAllowMutability: true,
 });
 
+export type DiagramGrid = {
+  variations: string[];
+  gridSize: number;
+};
+
+const gridSizeEffect: AtomEffect<DiagramGrid> = ({ onSet, setSelf }) => {
+  onSet((newValue, oldValue) => {
+    const old = oldValue as DiagramGrid;
+    if (newValue.gridSize > old.gridSize) {
+      setSelf({
+        ...newValue,
+        variations: [
+          ...old.variations,
+          ...range(newValue.gridSize - old.gridSize).map(() =>
+            generateVariation()
+          ),
+        ],
+      });
+    }
+  });
+};
+
+export const diagramGridState = atom<DiagramGrid>({
+  key: "diagramGridState",
+  default: {
+    variations: range(10).map((i) => generateVariation()),
+    gridSize: 10,
+  },
+  effects: [gridSizeEffect],
+});
+
 /**
  * Pulls out just the metadata for efficiency
  */
@@ -313,6 +344,12 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
     set(diagramState, (state) => ({
       ...state,
       metadata: newValue as DiagramMetadata,
+    }));
+    set(diagramGridState, ({ gridSize }) => ({
+      variations: range(gridSize).map((i) =>
+        i === 0 ? (newValue as DiagramMetadata).variation : generateVariation()
+      ),
+      gridSize,
     }));
   },
 });
@@ -370,7 +407,6 @@ export type Settings = {
   github: LocalGithubUser | null;
   vimMode: boolean;
   debugMode: boolean;
-  gridSize: number;
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -413,7 +449,6 @@ export const settingsState = atom<Settings>({
     vimMode: false,
     // debug mode is on by default in local dev mode
     debugMode: process.env.NODE_ENV === "development",
-    gridSize: 10,
   },
   effects: [settingsEffect, debugModeEffect],
 });

@@ -8,6 +8,7 @@ import {
   Trio,
 } from "@penrose/core";
 import localforage from "localforage";
+import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
@@ -15,6 +16,8 @@ import { v4 as uuid } from "uuid";
 import {
   currentWorkspaceState,
   Diagram,
+  DiagramGrid,
+  diagramGridState,
   diagramState,
   EDITOR_VERSION,
   GistMetadata,
@@ -75,6 +78,13 @@ const _compileDiagram = async (
       state: initialState,
     })
   );
+  // update grid state too
+  set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
+    variations: range(gridSize).map((i) =>
+      i === 0 ? variation : generateVariation()
+    ),
+    gridSize,
+  }));
 };
 
 export const useStepDiagram = () =>
@@ -137,6 +147,13 @@ export const useResampleDiagram = () =>
       ...state,
       metadata: { ...state.metadata, variation },
       state: resampled,
+    }));
+    // update grid state too
+    set(diagramGridState, ({ gridSize }) => ({
+      variations: range(gridSize).map((i) =>
+        i === 0 ? variation : generateVariation()
+      ),
+      gridSize,
     }));
     toast.dismiss(resamplingLoading);
   });

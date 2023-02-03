@@ -133,7 +133,13 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   };
 
   render() {
-    const { header, onSelected, onStateUpdate } = this.props;
+    const { header, stateful, onSelected, onStateUpdate } = this.props;
+    const trio = {
+      substance: stateful ? this.state.substance : this.props.substance,
+      style: stateful ? this.state.style : this.props.style,
+      domain: stateful ? this.state.domain : this.props.domain,
+      variation: stateful ? this.state.variation : this.props.variation,
+    };
 
     return (
       <Section key={`gridbox-container-${this.props.gridIndex}`}>
@@ -174,10 +180,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           )}
           <Simple
             {...this.props}
-            substance={this.state.substance}
-            style={this.state.style}
-            domain={this.state.domain}
-            variation={this.state.variation}
+            {...trio}
             key={`gridbox-${this.props.gridIndex}`}
             interactive={false}
             onFrame={(state: PenroseState) => {
