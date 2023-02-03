@@ -103,8 +103,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
   };
 
   onStateUpdate = (idx: number, state: PenroseState) => {
-    console.log("updating", idx);
-
     const newStates = [...this.state.states];
     newStates.splice(idx, 1, state);
     this.setState({
@@ -233,6 +231,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
               gridBoxProps={{
                 stepSize: 20,
                 stateful: true,
+                animate: true,
               }}
               onSelected={this.addStaged}
               onStateUpdate={this.onStateUpdate}

@@ -75,9 +75,6 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         this.penroseState,
         this.props.stepSize ?? 1
       );
-      if (this.props.onFrame) {
-        this.props.onFrame(this.penroseState);
-      }
       this.renderCanvas();
     }
   };
@@ -155,6 +152,10 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
           node.replaceChild(renderedState, node.firstChild);
         } else {
           node.appendChild(renderedState);
+        }
+        // propagate state update
+        if (this.props.onFrame) {
+          this.props.onFrame(this.penroseState);
         }
       } else {
         return <div>rendering...</div>;
