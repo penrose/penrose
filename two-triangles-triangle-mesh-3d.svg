@@ -7,33 +7,11 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     transform="scale(1)"
-    points="148.2415705111229,186.08001374500117,173.52733716620833,143.85554173172574,80.25476438474485,135.2324796881885,2.5122982246466563,158.14675382401742"
+    points="135.48044618860135,136.5175493686637,40.589797494328536,140.22849892661046,22.986120890580708,179.26501593303044,197.53128458685012,166.04147119240145"
     width="200"
     height="200"
   >
     <title>global.groundPlane</title>
-  </polygon>
-  <polygon
-    fill="#000000"
-    fill-opacity="0.1"
-    stroke="none"
-    transform="scale(1)"
-    points="65.47855326190914,147.2499191318801,83.78574774128903,152.644432400533,98.34778104155816,147.98222962943095"
-    height="200"
-    width="200"
-  >
-    <title>`s`.shadow</title>
-  </polygon>
-  <polygon
-    fill="#000000"
-    fill-opacity="0.1"
-    stroke="none"
-    transform="scale(1)"
-    points="138.08656359203226,142.3235339261027,113.7960881950743,141.69495301725382,109.68124889028097,145.22122744448657"
-    height="200"
-    width="200"
-  >
-    <title>`t`.shadow</title>
   </polygon>
   <polygon
     fill="#34379a"
@@ -43,7 +21,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     transform="scale(1)"
-    points="138.08656359203226,113.87568664810223,113.7960881950743,85.63740719740018,109.68124889028097,137.15836907349978"
+    points="73.77946448412251,84.96260264304179,123.11674649610441,80.69580914899845,95.96858599189487,57.86664222444191"
     width="200"
     height="200"
   >
@@ -57,7 +35,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     transform="scale(1)"
-    points="65.47855326190914,99.4793999424105,83.78574774128903,119.82295839418072,98.34778104155816,89.3497070819634"
+    points="82.30916265227542,130.15603504874767,115.96463824763424,140.13704132067113,113.05458282169658,96.51027974104923"
     width="200"
     height="200"
   >
@@ -66,8 +44,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="138.08656359203226"
-    cy="113.87568664810223"
+    cx="73.77946448412251"
+    cy="84.96260264304179"
     stroke="none"
     r="1"
   >
@@ -76,8 +54,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="113.7960881950743"
-    cy="85.63740719740018"
+    cx="123.11674649610441"
+    cy="80.69580914899845"
     stroke="none"
     r="1"
   >
@@ -86,8 +64,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="109.68124889028097"
-    cy="137.15836907349978"
+    cx="95.96858599189487"
+    cy="57.86664222444191"
     stroke="none"
     r="1"
   >
@@ -96,8 +74,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="65.47855326190914"
-    cy="99.4793999424105"
+    cx="82.30916265227542"
+    cy="130.15603504874767"
     stroke="none"
     r="1"
   >
@@ -106,8 +84,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="83.78574774128903"
-    cy="119.82295839418072"
+    cx="115.96463824763424"
+    cy="140.13704132067113"
     stroke="none"
     r="1"
   >
@@ -116,27 +94,38 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="98.34778104155816"
-    cy="89.3497070819634"
+    cx="113.05458282169658"
+    cy="96.51027974104923"
     stroke="none"
     r="1"
   >
     <title>`s`.vertexK</title>
   </circle>
+  <polygon
+    fill="#000000"
+    fill-opacity="0.1"
+    stroke="none"
+    transform="scale(1)"
+    points="82.30916265227542,145.69788477194257,115.96463824763424,146.28690905813426,113.05458282169658,142.88860071086452"
+    height="200"
+    width="200"
+  >
+    <title>`s`.shadow</title>
+  </polygon>
   <g
-    transform="rotate(0, 57.933437232586634, 93.22507134779772)translate(57.933437232586634, 93.22507134779772)"
+    transform="rotate(0, 73.2331109205849, 127.14550022721302)translate(73.2331109205849, 127.14550022721302)"
     font-size="4.5px"
-    string="_i"
+    string="\mathbf{f}_i"
   >
     <title>`s`.labelI</title>
     <svg
       style="font-size: 4.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="3.3223200000000004"
+      width="6.88848"
       height="10.16"
       role="img"
       focusable="false"
-      viewBox="0 -750 327 1000"
+      viewBox="0 -750 678 1000"
     >
       <g
         stroke="none"
@@ -150,10 +139,17 @@
             <g data-mml-node="mtr">
               <g data-mml-node="mtd">
                 <g data-mml-node="msub">
-                  <g data-mml-node="mi"></g>
+                  <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                    <g data-mml-node="mi">
+                      <path
+                        data-c="1D41F"
+                        d="M308 0Q290 3 172 3Q58 3 49 0H40V62H109V382H42V444H109V503L110 562L112 572Q127 625 178 658T316 699Q318 699 330 699T348 700Q381 698 404 687T436 658T449 629T452 606Q452 576 432 557T383 537Q355 537 335 555T314 605Q314 635 328 649H325Q311 649 293 644T253 618T227 560Q226 555 226 498V444H340V382H232V62H318V0H308Z"
+                      ></path>
+                    </g>
+                  </g>
                   <g
                     data-mml-node="mi"
-                    transform="translate(33,-150) scale(0.707)"
+                    transform="translate(384,-150) scale(0.707)"
                   >
                     <path
                       data-c="1D456"
@@ -169,19 +165,19 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 82.31617543354712, 120.47672855852932)translate(82.31617543354712, 120.47672855852932)"
+    transform="rotate(0, 115.6433802783742, 139.76376843998557)translate(115.6433802783742, 139.76376843998557)"
     font-size="4.5px"
-    string="_j"
+    string="\mathbf{f}_j"
   >
     <title>`s`.labelJ</title>
     <svg
       style="font-size: 4.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="3.8211434591074505"
+      width="7.404422524420608"
       height="10.66"
       role="img"
       focusable="false"
-      viewBox="0 -772.1 374.3 1044.2"
+      viewBox="0 -772.1 725.3 1044.2"
     >
       <g
         stroke="none"
@@ -195,10 +191,17 @@
             <g data-mml-node="mtr" transform="translate(0,22.1)">
               <g data-mml-node="mtd">
                 <g data-mml-node="msub">
-                  <g data-mml-node="mi"></g>
+                  <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                    <g data-mml-node="mi">
+                      <path
+                        data-c="1D41F"
+                        d="M308 0Q290 3 172 3Q58 3 49 0H40V62H109V382H42V444H109V503L110 562L112 572Q127 625 178 658T316 699Q318 699 330 699T348 700Q381 698 404 687T436 658T449 629T452 606Q452 576 432 557T383 537Q355 537 335 555T314 605Q314 635 328 649H325Q311 649 293 644T253 618T227 560Q226 555 226 498V444H340V382H232V62H318V0H308Z"
+                      ></path>
+                    </g>
+                  </g>
                   <g
                     data-mml-node="mi"
-                    transform="translate(33,-150) scale(0.707)"
+                    transform="translate(384,-150) scale(0.707)"
                   >
                     <path
                       data-c="1D457"
@@ -214,19 +217,19 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 100.61269620200748, 80.36786432848099)translate(100.61269620200748, 80.36786432848099)"
+    transform="rotate(0, 111.01182347567853, 85.7853578748526)translate(111.01182347567853, 85.7853578748526)"
     font-size="4.5px"
-    string="_k"
+    string="\mathbf{f}_k"
   >
     <title>`s`.labelK</title>
     <svg
       style="font-size: 4.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="4.586224"
+      width="8.152384"
       height="10.16"
       role="img"
       focusable="false"
-      viewBox="0 -750 451.4 1000"
+      viewBox="0 -750 802.4 1000"
     >
       <g
         stroke="none"
@@ -240,10 +243,17 @@
             <g data-mml-node="mtr">
               <g data-mml-node="mtd">
                 <g data-mml-node="msub">
-                  <g data-mml-node="mi"></g>
+                  <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                    <g data-mml-node="mi">
+                      <path
+                        data-c="1D41F"
+                        d="M308 0Q290 3 172 3Q58 3 49 0H40V62H109V382H42V444H109V503L110 562L112 572Q127 625 178 658T316 699Q318 699 330 699T348 700Q381 698 404 687T436 658T449 629T452 606Q452 576 432 557T383 537Q355 537 335 555T314 605Q314 635 328 649H325Q311 649 293 644T253 618T227 560Q226 555 226 498V444H340V382H232V62H318V0H308Z"
+                      ></path>
+                    </g>
+                  </g>
                   <g
                     data-mml-node="mi"
-                    transform="translate(33,-150) scale(0.707)"
+                    transform="translate(384,-150) scale(0.707)"
                   >
                     <path
                       data-c="1D458"
@@ -258,20 +268,31 @@
       </g>
     </svg>
   </g>
+  <polygon
+    fill="#000000"
+    fill-opacity="0.1"
+    stroke="none"
+    transform="scale(1)"
+    points="73.77946448412251,140.88484097563213,123.11674649610441,149.78134495709878,95.96858599189487,146.8435841044954"
+    height="200"
+    width="200"
+  >
+    <title>`t`.shadow</title>
+  </polygon>
   <g
-    transform="rotate(0, 142.3990456820589, 109.35745757735707)translate(142.3990456820589, 109.35745757735707)"
+    transform="rotate(0, 64.76245352344446, 80.83702520270522)translate(64.76245352344446, 80.83702520270522)"
     font-size="4.5px"
-    string="_i"
+    string="\widetilde{\mathbf{f}}_i"
   >
     <title>`t`.labelI</title>
     <svg
       style="font-size: 4.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="3.3223200000000004"
-      height="10.16"
+      width="7.044085850556439"
+      height="13.07"
       role="img"
       focusable="false"
-      viewBox="0 -750 327 1000"
+      viewBox="0 -879 678 1258"
     >
       <g
         stroke="none"
@@ -282,13 +303,33 @@
       >
         <g data-mml-node="math">
           <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
+            <g data-mml-node="mtr" transform="translate(0,-129)">
               <g data-mml-node="mtd">
                 <g data-mml-node="msub">
-                  <g data-mml-node="mi"></g>
+                  <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                    <g data-mml-node="mover">
+                      <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                        <g data-mml-node="mi">
+                          <path
+                            data-c="1D41F"
+                            d="M308 0Q290 3 172 3Q58 3 49 0H40V62H109V382H42V444H109V503L110 562L112 572Q127 625 178 658T316 699Q318 699 330 699T348 700Q381 698 404 687T436 658T449 629T452 606Q452 576 432 557T383 537Q355 537 335 555T314 605Q314 635 328 649H325Q311 649 293 644T253 618T227 560Q226 555 226 498V444H340V382H232V62H318V0H308Z"
+                          ></path>
+                        </g>
+                      </g>
+                      <g
+                        data-mml-node="mo"
+                        transform="translate(251.2,240) translate(-250 0)"
+                      >
+                        <path
+                          data-c="2DC"
+                          d="M179 601Q164 601 151 595T131 584T111 565L97 577L83 588Q83 589 95 603T121 633T142 654Q165 668 187 668T253 650T320 632Q335 632 348 638T368 649T388 668L402 656L416 645Q375 586 344 572Q330 565 313 565Q292 565 248 583T179 601Z"
+                        ></path>
+                      </g>
+                    </g>
+                  </g>
                   <g
                     data-mml-node="mi"
-                    transform="translate(33,-150) scale(0.707)"
+                    transform="translate(384,-150) scale(0.707)"
                   >
                     <path
                       data-c="1D456"
@@ -304,19 +345,19 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 110.41412159565965, 74.49062214159554)translate(110.41412159565965, 74.49062214159554)"
+    transform="rotate(0, 125.1655917262723, 75.32088136993694)translate(125.1655917262723, 75.32088136993694)"
     font-size="4.5px"
-    string="_j"
+    string="\widetilde{\mathbf{f}}_j"
   >
     <title>`t`.labelJ</title>
     <svg
       style="font-size: 4.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="3.8211434591074505"
-      height="10.66"
+      width="7.56379511595761"
+      height="13.58"
       role="img"
       focusable="false"
-      viewBox="0 -772.1 374.3 1044.2"
+      viewBox="0 -901.1 725.3 1302.2"
     >
       <g
         stroke="none"
@@ -327,13 +368,33 @@
       >
         <g data-mml-node="math">
           <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,22.1)">
+            <g data-mml-node="mtr" transform="translate(0,-106.9)">
               <g data-mml-node="mtd">
                 <g data-mml-node="msub">
-                  <g data-mml-node="mi"></g>
+                  <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                    <g data-mml-node="mover">
+                      <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                        <g data-mml-node="mi">
+                          <path
+                            data-c="1D41F"
+                            d="M308 0Q290 3 172 3Q58 3 49 0H40V62H109V382H42V444H109V503L110 562L112 572Q127 625 178 658T316 699Q318 699 330 699T348 700Q381 698 404 687T436 658T449 629T452 606Q452 576 432 557T383 537Q355 537 335 555T314 605Q314 635 328 649H325Q311 649 293 644T253 618T227 560Q226 555 226 498V444H340V382H232V62H318V0H308Z"
+                          ></path>
+                        </g>
+                      </g>
+                      <g
+                        data-mml-node="mo"
+                        transform="translate(251.2,240) translate(-250 0)"
+                      >
+                        <path
+                          data-c="2DC"
+                          d="M179 601Q164 601 151 595T131 584T111 565L97 577L83 588Q83 589 95 603T121 633T142 654Q165 668 187 668T253 650T320 632Q335 632 348 638T368 649T388 668L402 656L416 645Q375 586 344 572Q330 565 313 565Q292 565 248 583T179 601Z"
+                        ></path>
+                      </g>
+                    </g>
+                  </g>
                   <g
                     data-mml-node="mi"
-                    transform="translate(33,-150) scale(0.707)"
+                    transform="translate(384,-150) scale(0.707)"
                   >
                     <path
                       data-c="1D457"
@@ -349,19 +410,19 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 104.99597660304883, 137.58087398790664)translate(104.99597660304883, 137.58087398790664)"
+    transform="rotate(0, 91.20725719462122, 45.36102523517026)translate(91.20725719462122, 45.36102523517026)"
     font-size="4.5px"
-    string="_k"
+    string="\widetilde{\mathbf{f}}_k"
   >
     <title>`t`.labelK</title>
     <svg
       style="font-size: 4.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="4.586224"
-      height="10.16"
+      width="8.336540540540541"
+      height="13.07"
       role="img"
       focusable="false"
-      viewBox="0 -750 451.4 1000"
+      viewBox="0 -879 802.4 1258"
     >
       <g
         stroke="none"
@@ -372,13 +433,33 @@
       >
         <g data-mml-node="math">
           <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
+            <g data-mml-node="mtr" transform="translate(0,-129)">
               <g data-mml-node="mtd">
                 <g data-mml-node="msub">
-                  <g data-mml-node="mi"></g>
+                  <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                    <g data-mml-node="mover">
+                      <g data-mml-node="TeXAtom" data-mjx-texclass="ORD">
+                        <g data-mml-node="mi">
+                          <path
+                            data-c="1D41F"
+                            d="M308 0Q290 3 172 3Q58 3 49 0H40V62H109V382H42V444H109V503L110 562L112 572Q127 625 178 658T316 699Q318 699 330 699T348 700Q381 698 404 687T436 658T449 629T452 606Q452 576 432 557T383 537Q355 537 335 555T314 605Q314 635 328 649H325Q311 649 293 644T253 618T227 560Q226 555 226 498V444H340V382H232V62H318V0H308Z"
+                          ></path>
+                        </g>
+                      </g>
+                      <g
+                        data-mml-node="mo"
+                        transform="translate(251.2,240) translate(-250 0)"
+                      >
+                        <path
+                          data-c="2DC"
+                          d="M179 601Q164 601 151 595T131 584T111 565L97 577L83 588Q83 589 95 603T121 633T142 654Q165 668 187 668T253 650T320 632Q335 632 348 638T368 649T388 668L402 656L416 645Q375 586 344 572Q330 565 313 565Q292 565 248 583T179 601Z"
+                        ></path>
+                      </g>
+                    </g>
+                  </g>
                   <g
                     data-mml-node="mi"
-                    transform="translate(33,-150) scale(0.707)"
+                    transform="translate(384,-150) scale(0.707)"
                   >
                     <path
                       data-c="1D458"
