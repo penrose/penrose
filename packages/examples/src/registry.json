@@ -135,6 +135,14 @@
       "variation": "OspreySkunk922"
     },
     {
+      "name": "Two 3D Triangles",
+      "substance": "two-triangles",
+      "style": "triangle-mesh-3d",
+      "domain": "triangle-mesh-3d",
+      "variation": "EpiphanyRam6491",
+      "gallery": true
+    },
+    {
       "substance": "circle-example",
       "style": "euclidean",
       "domain": "geometry",
@@ -307,6 +315,9 @@
     "geometry": {
       "URI": "geometry-domain/geometry.domain"
     },
+    "triangle-mesh-3d": {
+      "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
+    },
     "word-cloud": {
       "URI": "word-cloud/word-cloud.domain"
     },
@@ -409,6 +420,10 @@
     "euclidean": {
       "domain": "geometry",
       "URI": "geometry-domain/euclidean.style"
+    },
+    "triangle-mesh-3d": {
+      "domain": "triangle-mesh-3d",
+      "URI": "triangle-mesh-3d/triangle-mesh-3d.style"
     },
     "word-cloud": {
       "domain": "word-cloud",
@@ -547,6 +562,10 @@
     "non-convex": {
       "domain": "non-convex",
       "URI": "minkowski-tests/maze/maze.substance"
+    },
+    "two-triangles": {
+      "domain": "triangle-mesh-3d",
+      "URI": "triangle-mesh-3d/two-triangles.substance"
     },
     "lagrange-bases": {
       "domain": "lagrange-bases",
