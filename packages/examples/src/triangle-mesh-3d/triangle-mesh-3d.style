@@ -53,41 +53,35 @@ forall Triangle t
    scalar c = .9*min( global.planeSize, abs(global.planeHeight) )
 
    -- triangle vertex coordinates in 3D
-   scalar xi = ?
-   scalar xj = ?
-   scalar xk = ?
-   scalar yi = ?
-   scalar yj = ?
-   scalar yk = ?
-   scalar zi = ?
-   scalar zj = ?
-   scalar zk = ?
-   ensure -c < xi
-   ensure xi < c
-   ensure -c < xj
-   ensure xj < c
-   ensure -c < xk
-   ensure xk < c
-   ensure -c < yi
-   ensure yi < c
-   ensure -c < yj
-   ensure yj < c
-   ensure -c < yk
-   ensure yk < c
-   ensure -c < zi
-   ensure zi < c
-   ensure -c < zj
-   ensure zj < c
-   ensure -c < zk
-   ensure zk < c
+   vec3 qi = (?,?,?)
+   vec3 qj = (?,?,?)
+   vec3 qk = (?,?,?)
+
+   ensure -c < qi[0]
+   ensure qi[0] < c
+   ensure -c < qi[1]
+   ensure qi[1] < c
+   ensure -c < qi[2]
+   ensure qi[2] < c
+
+   ensure -c < qj[0]
+   ensure qj[0] < c
+   ensure -c < qj[1]
+   ensure qj[1] < c
+   ensure -c < qj[2]
+   ensure qj[2] < c
+
+   ensure -c < qk[0]
+   ensure qk[0] < c
+   ensure -c < qk[1]
+   ensure qk[1] < c
+   ensure -c < qk[2]
+   ensure qk[2] < c
 
    -- Perform perspective projection on 3D coordinates to get 2D coordinates p
-   vec2 qi = (xi,yi)
-   vec2 qj = (xj,yj)
-   vec2 qk = (xk,yk)
-   vec2 t.pi = canvas.width * qi/(zi-global.cZ)
-   vec2 t.pj = canvas.width * qj/(zj-global.cZ)
-   vec2 t.pk = canvas.width * qk/(zk-global.cZ)
+   vec2 t.pi = canvas.width * (qi[0],qi[1])/(qi[2]-global.cZ)
+   vec2 t.pj = canvas.width * (qj[0],qj[1])/(qj[2]-global.cZ)
+   vec2 t.pk = canvas.width * (qk[0],qk[1])/(qk[2]-global.cZ)
 
    -- Draw polygon using projected 2D coordinates p
    shape t.icon = Polygon {
@@ -151,14 +145,14 @@ forall Triangle t
    -- Finally, draw a shadow of the triangle on the global ground plane
    -- by just replacing the y-coordinate with the height of the ground plane
    scalar h = global.planeHeight
-   vec2 ri = (xi,h)
-   vec2 rj = (xj,h)
-   vec2 rk = (xk,h)
+   vec2 ri = (qi[0],h)
+   vec2 rj = (qj[0],h)
+   vec2 rk = (qk[0],h)
 
    -- Perform perspective projection on 3D coordinates r to get 2D coordinates s
-   vec2 si = canvas.width * ri/(zi-global.cZ)
-   vec2 sj = canvas.width * rj/(zj-global.cZ)
-   vec2 sk = canvas.width * rk/(zk-global.cZ)
+   vec2 si = canvas.width * ri/(qi[2]-global.cZ)
+   vec2 sj = canvas.width * rj/(qj[2]-global.cZ)
+   vec2 sk = canvas.width * rk/(qk[2]-global.cZ)
 
    -- Draw shadow polygon using projected 2D coordinates s
    shape t.shadow = Polygon {
