@@ -39,8 +39,9 @@ const GridContent = styled.div`
 
 const Placeholder = styled.div``;
 
-const PlaceholderText = styled.text`
+const PlaceholderText = styled.h3`
   font-family: "Roboto Mono";
+  color: ${(props) => props.theme.primary};
 `;
 
 export class Grid extends React.Component<GridProps> {

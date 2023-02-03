@@ -25,7 +25,12 @@ import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { range } from "lodash";
 import React from "react";
+import * as sc from "styled-components";
 import { Settings } from "./Settings";
+
+const edgeworthPurple = {
+  primary: "#3f51b5",
+};
 
 export type ContentProps = any;
 
@@ -207,29 +212,32 @@ export class Content extends React.Component<ContentProps, ContentState> {
             defaultDomain={this.state.domain}
             defaultStyle={this.state.style}
           />
-          <Grid
-            diagrams={this.state.progs.map(({ prog }, i) => ({
-              substance: prettySubstance(prog),
-              style: this.state.style,
-              domain: this.state.domain,
-              variation: `${i}`,
-            }))}
-            metadata={(i) => [
-              {
-                name: "Substance program",
-                data: prettySubstance(this.state.progs[i].prog),
-              },
-              {
-                name: "Mutations",
-                data: showMutations(this.state.progs[i].ops),
-              },
-            ]}
-            gridBoxProps={{
-              stepSize: 20,
-            }}
-            onSelected={this.addStaged}
-            onStateUpdate={this.onStateUpdate}
-          />
+          <sc.ThemeProvider theme={edgeworthPurple}>
+            <Grid
+              diagrams={this.state.progs.map(({ prog }, i) => ({
+                substance: prettySubstance(prog),
+                style: this.state.style,
+                domain: this.state.domain,
+                variation: `${i}`,
+              }))}
+              metadata={(i) => [
+                {
+                  name: "Substance program",
+                  data: prettySubstance(this.state.progs[i].prog),
+                },
+                {
+                  name: "Mutations",
+                  data: showMutations(this.state.progs[i].ops),
+                },
+              ]}
+              gridBoxProps={{
+                stepSize: 20,
+                stateful: true,
+              }}
+              onSelected={this.addStaged}
+              onStateUpdate={this.onStateUpdate}
+            />
+          </sc.ThemeProvider>
         </ContentSection>
       </div>
     );

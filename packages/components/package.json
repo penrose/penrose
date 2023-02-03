@@ -52,8 +52,7 @@
     "@penrose/core": "^2.1.1",
     "monaco-editor": "^0.31.0",
     "monaco-vim": "^0.3.4",
-    "styled-components": "^5.3.5",
-    "@material-ui/core": "^4.12.3"
+    "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.18.0",

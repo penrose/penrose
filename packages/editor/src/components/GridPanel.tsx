@@ -1,8 +1,8 @@
-import { ThemeProvider } from "@material-ui/core";
-import { Grid, penroseBlue } from "@penrose/components";
+import { Grid } from "@penrose/components";
 import { range } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
+import { ThemeProvider } from "styled-components";
 import {
   currentRogerState,
   diagramMetadataSelector,
@@ -37,7 +37,11 @@ export default function GridPanel() {
   }, [variation]);
   return (
     <div>
-      <ThemeProvider theme={penroseBlue}>
+      <ThemeProvider
+        theme={{
+          primary: "#C9C9C9",
+        }}
+      >
         <Grid
           onStateUpdate={() => {}}
           imageResolver={(path) =>

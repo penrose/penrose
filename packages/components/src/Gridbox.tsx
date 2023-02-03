@@ -7,6 +7,7 @@ import { Simple, SimpleProps } from "./Simple";
 export type GridboxProps = SimpleProps & {
   header: string;
   gridIndex: number;
+  stateful?: boolean;
   metadata: {
     name: string;
     data: string;
@@ -19,7 +20,7 @@ const Section = styled.div`
   margin: 0.5rem;
   width: 25rem;
   height: 25rem;
-  border-color: ${(props) => props.theme.secondary};
+  border-color: ${(props) => props.theme.primary};
   border-width: 2px;
   border-style: solid;
   border-radius: 5px;
@@ -36,20 +37,8 @@ const Header = styled.div`
   justify-content: space-between;
   padding: 0.5rem 0 0.5rem 0.75rem;
   vertical-align: text-bottom;
+  color: ${(props) => props.theme.primary};
 `;
-
-// styled(Box)(({ theme }) => ({
-//   color: theme.palette.secondary.main,
-//   width: "calc(100% - .75rem)",
-//   height: "1.75rem",
-//   borderBottom: `1px solid ${theme.palette.secondary.main}`,
-//   fontSize: "1.25rem",
-//   display: "flex",
-//   flexDirection: "row",
-//   justifyContent: "space-between",
-//   padding: "0.5rem 0 0.5rem 0.75rem",
-//   verticalAlign: "text-bottom",
-// }));
 
 const Body = styled.div`
   width: calc(25rem - 1rem);
@@ -63,18 +52,6 @@ const Body = styled.div`
   whitespace: pre-wrap;
   overflow: scroll;
 `;
-
-// styled(Box)({
-//   width: "calc(25rem - 1rem)",
-//   position: "absolute",
-//   backgroundColor: "#fff",
-//   fontFamily: "Roboto Mono, Courier New, sans-serif",
-//   height: "calc(25rem - 4.25rem)",
-//   fontSize: "0.8rem",
-//   color: "black",
-//   whiteSpace: "pre-wrap",
-//   padding: "0.5rem 0.25rem 0.25rem 0.5rem",
-// });
 
 const H2 = styled.div`
   borderbottom: 1px solid black;
@@ -90,10 +67,6 @@ const HeaderText = styled.div`
   font-family: monospace;
 `;
 
-// const ExportCheckbox = styled(Checkbox)`
-//   padding: 0 2.2rem";
-// `;
-
 const ResampleBtn = styled.button`
   outline: none;
   display: inline-block;
@@ -102,7 +75,7 @@ const ResampleBtn = styled.button`
   vertical-align: middle;
   user-select: none;
   color: #ffffff;
-  background-color: #40b4f7;
+  background-color: ${(props) => props.theme.primary};
   padding: 0.25em 0.3em 0.3em 0.3em;
   margin: 0 0.3em 0 0.3em;
   user-select: none;
@@ -111,7 +84,7 @@ const ResampleBtn = styled.button`
   border: none;
   font-size: 15px;
   :hover {
-    background-color: #049cdd;
+    filter: brightness(70%);
     transition: 0.2s;
   }
   :disabled {
@@ -123,8 +96,10 @@ const ResampleBtn = styled.button`
 interface GridboxState {
   showDiagramInfo: boolean;
   isSelected: boolean;
-  energy: number;
   variation: string;
+  substance: string;
+  style: string;
+  domain: string;
   currentState?: PenroseState;
 }
 
@@ -132,10 +107,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   constructor(props: GridboxProps) {
     super(props);
     this.state = {
+      substance: props.substance,
+      style: props.style,
+      domain: props.domain,
       showDiagramInfo: false,
       isSelected: false,
       currentState: undefined,
-      energy: 0,
       variation: props.variation,
     };
   }
@@ -158,13 +135,14 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   render() {
     const { header, onSelected, onStateUpdate } = this.props;
 
-    // const stmts = this.props.substance;
     return (
       <Section key={`gridbox-container-${this.props.gridIndex}`}>
         <Header>
           <HeaderText>{header ?? "Diagram"}</HeaderText>
           <div>
-            {/* <ResampleBtn onClick={this.resample}>Resample</ResampleBtn> */}
+            {this.props.stateful && (
+              <ResampleBtn onClick={this.resample}>Resample</ResampleBtn>
+            )}
             {onSelected && (
               <Checkbox
                 checked={this.state.isSelected}
@@ -196,6 +174,10 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           )}
           <Simple
             {...this.props}
+            substance={this.state.substance}
+            style={this.state.style}
+            domain={this.state.domain}
+            variation={this.state.variation}
             key={`gridbox-${this.props.gridIndex}`}
             interactive={false}
             onFrame={(state: PenroseState) => {

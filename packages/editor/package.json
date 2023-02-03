@@ -59,7 +59,6 @@
     "react-select": "^5.3.2",
     "recoil": "^0.7.3-alpha.2",
     "styled-components": "^5.3.5",
-    "@material-ui/core": "^4.12.3",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
