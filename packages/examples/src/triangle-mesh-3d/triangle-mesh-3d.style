@@ -1,0 +1,219 @@
+-- Experimental style that emulates 3D diagramming
+
+canvas {
+   width = 200
+   height = 200
+}
+
+global {
+
+   -- Ground plane coordinates in 3D
+   scalar planeSize = 50 -- plane size
+   scalar planeHeight = -40 -- plane height
+
+   -- Use a simple pinhole camera model, where the
+   -- only camera parameter is the distance along Z
+   scalar cZ = -160 -- camera z coordinate
+
+   -- Corner coordinates of the global ground plane
+   scalar x00 = -planeSize
+   scalar y00 =  planeHeight
+   scalar z00 = -planeSize
+
+   scalar x10 =  planeSize
+   scalar y10 =  planeHeight
+   scalar z10 = -planeSize
+
+   scalar x01 = -planeSize
+   scalar y01 =  planeHeight
+   scalar z01 =  planeSize
+
+   scalar x11 =  planeSize
+   scalar y11 =  planeHeight
+   scalar z11 =  planeSize
+
+   -- Apply a random rotation to the ground plane
+   -- (Note that we could also apply this rotation to the triangle
+   -- vertices, but since they're sampled randomly, it wouldn't
+   -- really change the appearance of the kinds of diagrams we sample).
+   scalar θ = ?
+   scalar X00 = x00*cos(θ) + z00*sin(θ)
+   scalar Y00 = y00
+   scalar Z00 = z00*cos(θ) - x00*sin(θ)
+   scalar X01 = x01*cos(θ) + z01*sin(θ)
+   scalar Y01 = y01
+   scalar Z01 = z01*cos(θ) - x01*sin(θ)
+   scalar X10 = x10*cos(θ) + z10*sin(θ)
+   scalar Y10 = y10
+   scalar Z10 = z10*cos(θ) - x10*sin(θ)
+   scalar X11 = x11*cos(θ) + z11*sin(θ)
+   scalar Y11 = y11
+   scalar Z11 = z11*cos(θ) - x11*sin(θ)
+
+   -- Perform perspective projection on 3D coordinates to get 2D coordinates p
+   vec2 p00 = canvas.width * (X00,Y00)/(Z00 - global.cZ)
+   vec2 p10 = canvas.width * (X10,Y10)/(Z10 - global.cZ)
+   vec2 p01 = canvas.width * (X01,Y01)/(Z01 - global.cZ)
+   vec2 p11 = canvas.width * (X11,Y11)/(Z11 - global.cZ)
+
+   -- Draw polygon using projected 2D coordinates p
+   shape groundPlane = Polygon {
+      points: (p00,p10,p11,p01)
+      width: canvas.width
+      height: canvas.height
+      fillColor: rgba(0,0,0,0.1)
+      strokeColor: rgba(.7,.7,.7,1)
+      strokeWidth: .5
+      ensureOnCanvas: false
+   }
+}
+
+forall Triangle t
+{
+   -- We'll sample the triangle vertices from a bounding box of size c
+   scalar c = .9*min( global.planeSize, abs(global.planeHeight) )
+
+   -- triangle vertex coordinates in 3D
+   scalar xi = ?
+   scalar xj = ?
+   scalar xk = ?
+   scalar yi = ?
+   scalar yj = ?
+   scalar yk = ?
+   scalar zi = ?
+   scalar zj = ?
+   scalar zk = ?
+   ensure -c < xi
+   ensure xi < c
+   ensure -c < xj
+   ensure xj < c
+   ensure -c < xk
+   ensure xk < c
+   ensure -c < yi
+   ensure yi < c
+   ensure -c < yj
+   ensure yj < c
+   ensure -c < yk
+   ensure yk < c
+   ensure -c < zi
+   ensure zi < c
+   ensure -c < zj
+   ensure zj < c
+   ensure -c < zk
+   ensure zk < c
+
+   -- Perform perspective projection on 3D coordinates to get 2D coordinates p
+   vec2 qi = (xi,yi)
+   vec2 qj = (xj,yj)
+   vec2 qk = (xk,yk)
+   vec2 t.pi = canvas.width * qi/(zi-global.cZ)
+   vec2 t.pj = canvas.width * qj/(zj-global.cZ)
+   vec2 t.pk = canvas.width * qk/(zk-global.cZ)
+
+   -- Draw polygon using projected 2D coordinates p
+   shape t.icon = Polygon {
+      points: (t.pi,t.pj,t.pk)
+      width: canvas.width
+      height: canvas.height
+      fillColor: #34379aaa
+      strokeColor: #1b1f8a
+      strokeWidth: .5
+      ensureOnCanvas: false
+   }
+
+   -- Make sure the triangle is positively oriented in the
+   -- image plane, and has some- "fat" angles so that it
+   -- doesn't degenerate
+   vec2 eij = t.pj - t.pi
+   vec2 ejk = t.pk - t.pj
+   vec2 eki = t.pi - t.pk
+   ensure cross2D( eij, -ejk ) < 0
+   ensure angleFrom( -ejk, eij ) > toRadians( 45 )
+   ensure angleFrom( -eki, ejk ) > toRadians( 45 )
+   ensure angleFrom( -eij, eki ) > toRadians( 45 )
+
+   -- Draw triangle vertices and labels as dots and equations,
+   -- using again the projected 2D coordinates p
+   scalar dotSize = 1.0
+   color dotColor = rgba(0,0,0,1)
+   string dotFontSize = "4.5px"
+   scalar offset = 6 -- offset of labels from vertices
+   shape t.vertexI = Circle {
+      center: t.pi
+      r: dotSize
+      fillColor: dotColor
+   }
+   shape t.vertexJ = Circle {
+      center: t.pj
+      r: dotSize
+      fillColor: dotColor
+   }
+   shape t.vertexK = Circle {
+      center: t.pk
+      r: dotSize
+      fillColor: dotColor
+   }
+   shape t.labelI = Equation {
+       string: t.label + "_i"
+       center: t.pi - offset*unit(eij-eki)
+       fontSize: dotFontSize
+   }
+   shape t.labelJ = Equation {
+       string: t.label + "_j"
+       center: t.pj - offset*unit(ejk-eij)
+       fontSize: dotFontSize
+   }
+   shape t.labelK = Equation {
+       string: t.label + "_k"
+       center: t.pk - offset*unit(eki-ejk)
+       fontSize: dotFontSize
+   }
+
+   -- Finally, draw a shadow of the triangle on the global ground plane
+   -- by just replacing the y-coordinate with the height of the ground plane
+   scalar h = global.planeHeight
+   vec2 ri = (xi,h)
+   vec2 rj = (xj,h)
+   vec2 rk = (xk,h)
+
+   -- Perform perspective projection on 3D coordinates r to get 2D coordinates s
+   vec2 si = canvas.width * ri/(zi-global.cZ)
+   vec2 sj = canvas.width * rj/(zj-global.cZ)
+   vec2 sk = canvas.width * rk/(zk-global.cZ)
+
+   -- Draw shadow polygon using projected 2D coordinates s
+   shape t.shadow = Polygon {
+      points: (si,sj,sk)
+      width: canvas.width
+      height: canvas.height
+      fillColor: rgba(0,0,0,0.1)
+      strokeColor: none()
+      ensureOnCanvas: false
+   }
+
+   -- Make sure the triangle shadow lands on the ground plane
+   ensure contains( global.groundPlane, t.shadow )
+}
+
+-- For any pair of triangles, make sure that triangles
+-- don't overlap, and moreover the vertices of one triangle are
+-- far from being contained in the other triangle (which helps
+-- to avoid overlapping labels).
+forall Triangle s; Triangle t
+{
+   scalar padding = 10.0
+
+   -- make sure triangles don't overlap
+   ensure disjoint( t.icon, s.icon )
+
+   -- make sure vertices of t are far from s
+   ensure disjoint( t.vertexI, s.icon, padding )
+   ensure disjoint( t.vertexJ, s.icon, padding )
+   ensure disjoint( t.vertexK, s.icon, padding )
+
+   -- make sure vertices of s are far from t
+   ensure disjoint( s.vertexI, t.icon, padding )
+   ensure disjoint( s.vertexJ, t.icon, padding )
+   ensure disjoint( s.vertexK, t.icon, padding )
+}
+
