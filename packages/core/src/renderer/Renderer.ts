@@ -11,6 +11,12 @@ import { LabelCache, State } from "types/state";
 import { StrV } from "types/value";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
 import { dragUpdate } from "./dragUtils";
+import {
+  findRoot,
+  makeRendererTree,
+  RendererTree,
+  RendererTreeNode,
+} from "./RendererTree";
 import shapeMap from "./shapeMap";
 
 /**
@@ -30,7 +36,7 @@ export interface ShapeProps {
 export type NameShapeMap = { [k: string]: Shape };
 export type RenderedNamesSet = im.Set<string>;
 
-const RenderGroup = async (
+const RenderGroup_ = async (
   { shape, labels, canvasSize, pathResolver }: ShapeProps,
   nameShapeMap: NameShapeMap,
   renderedNames: RenderedNamesSet
@@ -98,7 +104,7 @@ export const RenderShape = async (
 
   // Special case for groups
   if (shapeType === "Group") {
-    return await RenderGroup(
+    return await RenderGroup_(
       { shape, labels, canvasSize, pathResolver },
       nameShapeMap,
       renderedNames
@@ -260,6 +266,61 @@ export const RenderInteractive = async (
   return svg;
 };
 
+const RenderGroup = async (
+  node: RendererTreeNode,
+  tree: RendererTree,
+  shapeProps: {
+    labels: LabelCache;
+    canvasSize: [number, number];
+    pathResolver: PathResolver;
+  }
+): Promise<SVGGElement> => {
+  const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  for (const childName of node.children) {
+    const childSvg = await RenderRendererTreeNode(childName, tree, shapeProps);
+    elem.appendChild(childSvg);
+  }
+  attrAutoFillSvg(node.shape, elem, [...attrTitle(node.shape, elem), "shapes"]);
+  return elem;
+};
+
+const RenderRendererTreeNode = async (
+  name: string,
+  tree: RendererTree,
+  shapeProps: {
+    labels: LabelCache;
+    canvasSize: [number, number];
+    pathResolver: PathResolver;
+  }
+): Promise<SVGElement> => {
+  const node = tree[name];
+  delete tree[name];
+  if (node.shapeType === "Group") {
+    return await RenderGroup(node, tree, shapeProps);
+  } else {
+    return await shapeMap[node.shape.shapeType]({
+      ...shapeProps,
+      shape: node.shape,
+    });
+  }
+};
+
+const RenderRendererTree = async (
+  tree: RendererTree,
+  svg: SVGSVGElement,
+  shapeProps: {
+    labels: LabelCache;
+    canvasSize: [number, number];
+    pathResolver: PathResolver;
+  }
+) => {
+  while (Object.entries(tree).length > 0) {
+    const rootName = findRoot(tree);
+    const elem = await RenderRendererTreeNode(rootName, tree, shapeProps);
+    svg.appendChild(elem);
+  }
+};
+
 /**
  * Renders a static SVG of the shapes and labels.
  * @param pathResolver Resolves paths to static strings
@@ -275,44 +336,13 @@ export const RenderStatic = async (
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
 
   const shapes = computeShapes(varyingValues);
-  const nameShapeMap: NameShapeMap = Object.fromEntries(
-    shapes.map((shape) => {
-      const shapeNameVal = shape.properties["name"];
-      if (shapeNameVal.tag !== "StrV") {
-        throw Error("Shape name not a string");
-      }
-      return [shapeNameVal.contents, shape];
-    })
-  );
 
-  const initRenderedNames: RenderedNamesSet = im.Set();
-  // First render shapes involved with groups
-  const groupsRenderedNames = await shapes
-    .filter((shape) => shape.shapeType === "Group")
-    .reduce(async (currRenderedNames, shape) => {
-      const [newElem, updatedRenderedNames] = await RenderGroup(
-        { shape, labels, canvasSize: canvas.size, pathResolver },
-        nameShapeMap,
-        await currRenderedNames
-      );
-      if (newElem) {
-        svg.appendChild(newElem);
-      }
-      return updatedRenderedNames;
-    }, Promise.resolve(initRenderedNames));
-
-  // Then render all other shapes
-  await shapes.reduce(async (currRenderedNames, shape) => {
-    const [newElem, updatedRenderedNames] = await RenderShape(
-      { shape, labels, canvasSize: canvas.size, pathResolver },
-      nameShapeMap,
-      await currRenderedNames
-    );
-    if (newElem) {
-      svg.appendChild(newElem);
-    }
-    return updatedRenderedNames;
-  }, Promise.resolve(groupsRenderedNames));
+  const rendererTree = makeRendererTree(shapes);
+  await RenderRendererTree(rendererTree, svg, {
+    labels,
+    canvasSize: canvas.size,
+    pathResolver,
+  });
   return svg;
 };
 
