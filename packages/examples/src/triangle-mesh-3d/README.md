@@ -1,6 +1,6 @@
 # triangle-mesh-3d
 
-This example is an experiment with using Penrose to generate 3D diagrams. _Note that Penrose does not yet natively support 3D vector operations!_ However, nothing prevents us from performing all the necessary 3D calculations (such as 3D rotations, perspective projection, etc.) using scalar coordinates---it just requires a whole lot of typing...
+This example is an experiment with using Penrose to generate 3D diagrams. _Note that Penrose does not yet natively support many 3D vector operations!_ However, nothing prevents us from performing all the necessary calculations (3D rotations, perspective projection, etc.) inline---it just requires a whole lot of typing...
 
 The example works by defining points as 3D coordinates, then using a simplistic camera model to project these 3D coordinates to 2D coordinates, which are drawn as usual.
 
@@ -12,4 +12,4 @@ What's particularly cool (and ultimately, useful) about this setup is that we ca
 - 2D projections of triangle have reasonable angles in screen space
 - their shadows project onto the ground plane (enforced via a 2D polygon inclusion constraint)
 
-Future development on Penrose should make such examples easier, by introducing native `vec3` (and `vec4`) types, akin to [GLSL](https://en.wikipedia.org/wiki/OpenGL_Shading_Language), as well as associated matrix types and convenience functions (e.g., building a nice modelview and/or projection matrix from intuitive parameters, a la standard libraries in the OpenGL ecosystem, like [glm](https://github.com/g-truc/glm)).
+Future development on Penrose should make such examples easier, by better support for `vec3` (and `vec4`) types, akin to [GLSL](https://en.wikipedia.org/wiki/OpenGL_Shading_Language), as well as associated matrix types and convenience functions (e.g., building a nice modelview and/or projection matrix from intuitive parameters, a la standard libraries in the OpenGL ecosystem, like [glm](https://github.com/g-truc/glm)).
