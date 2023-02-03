@@ -27,6 +27,22 @@
       "gallery": true
     },
     {
+      "name": "Quaternions as table",
+      "substance": "quaternion-group",
+      "style": "group-theory-multiplication-table",
+      "domain": "group-theory",
+      "variation": "MeadowbrookChimpanzee02726",
+      "gallery": true
+    },
+    {
+      "name": "Quaternions as Cayley graph",
+      "substance": "quaternion-group",
+      "style": "group-theory-cayley-graph",
+      "domain": "group-theory",
+      "variation": "MeadowbrookChimpanzee02726",
+      "gallery": true
+    },
+    {
       "name": "Wet Floor",
       "substance": "wet-floor",
       "style": "atoms-and-bonds",
@@ -297,6 +313,9 @@
     "set-theory": {
       "URI": "set-theory-domain/setTheory.domain"
     },
+    "group-theory": {
+      "URI": "group-theory/Group.domain"
+    },
     "functions": {
       "URI": "set-theory-domain/functions.domain"
     },
@@ -372,6 +391,14 @@
     "tree": {
       "domain": "set-theory",
       "URI": "set-theory-domain/tree.style"
+    },
+    "group-theory-multiplication-table": {
+      "domain": "group-theory",
+      "URI": "group-theory/MultiplicationTable.style"
+    },
+    "group-theory-cayley-graph": {
+      "domain": "group-theory",
+      "URI": "group-theory/CayleyGraph.style"
     },
     "continuousmap": {
       "domain": "set-theory",
@@ -502,6 +529,10 @@
     "vector-wedge": {
       "domain": "exterior-algebra",
       "URI": "exterior-algebra/vector-wedge.substance"
+    },
+    "quaternion-group": {
+      "domain": "group-theory",
+      "URI": "group-theory/groups/quaternions.substance"
     },
     "continuousmap": {
       "domain": "set-theory",
