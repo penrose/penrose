@@ -1,0 +1,1568 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="9:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 188.65678745020335 134.46030192100216 Q 159.13842783023276 108.6784721575913 139.09767924013 75.53628308457283"
+    ></path>
+    <title>9:1:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="9:1:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#7cbbfa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="9:1:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7cbbfa"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 188.65678745020335 134.46030192100216 Q 159.13842783023276 108.6784721575913 139.09767924013 75.53628308457283"
+      marker-end="url(#9:1:orientedPath-endArrowId)"
+    ></path>
+    <title>9:1:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 154.25367570913906 107.8353249273016 Q 172.09132831104114 112.15640747467211 182.58457398627144 125.96746825676243"
+    ></path>
+    <title>7:1:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:1:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff41a3"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:1:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ff41a3"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 154.25367570913906 107.8353249273016 Q 172.09132831104114 112.15640747467211 182.58457398627144 125.96746825676243"
+      marker-end="url(#7:1:orientedPath-endArrowId)"
+    ></path>
+    <title>7:1:orientedPath</title>
+  </g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
+    <filter id="7:9:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 80.95366847427647 133.62667015492002 Q 89.86023024108012 117.57903423685065 105.96345166259091 111.133902669955"
+    ></path>
+    <title>7:9:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:9:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#7cbbfa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:9:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7cbbfa"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 80.95366847427647 133.62667015492002 Q 89.86023024108012 117.57903423685065 105.96345166259091 111.133902669955"
+      marker-end="url(#7:9:orientedPath-endArrowId)"
+    ></path>
+    <title>7:9:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:2:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 135.33344923959064 65.7981840656144 Q 117.12272464357707 100.50273197294405 89.5494569209505 127.70109668224876"
+    ></path>
+    <title>7:2:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:2:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff41a3"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:2:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ff41a3"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 135.33344923959064 65.7981840656144 Q 117.12272464357707 100.50273197294405 89.5494569209505 127.70109668224876"
+      marker-end="url(#7:2:orientedPath-endArrowId)"
+    ></path>
+    <title>7:2:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="8:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 134.68495875715837 149.5748292339195 Q 154.83358481370743 136.14376877813314 178.21824949349278 134.26814228342857"
+    ></path>
+    <title>8:1:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="8:1:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#7cbbfa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="8:1:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7cbbfa"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 134.68495875715837 149.5748292339195 Q 154.83358481370743 136.14376877813314 178.21824949349278 134.26814228342857"
+      marker-end="url(#8:1:orientedPath-endArrowId)"
+    ></path>
+    <title>8:1:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="9:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 189.06457839018145 81.74604879192283 Q 164.85828604269926 82.38479726683414 144.06647184636466 71.51957516827234"
+    ></path>
+    <title>9:0:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="9:0:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff41a3"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="9:0:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ff41a3"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 189.06457839018145 81.74604879192283 Q 164.85828604269926 82.38479726683414 144.06647184636466 71.51957516827234"
+      marker-end="url(#9:0:orientedPath-endArrowId)"
+    ></path>
+    <title>9:0:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 188.65678745020335 134.46030192100216 Q 154.3024707391652 129.76662817307022 124.10586466473895 113.81624787916293"
+    ></path>
+    <title>7:0:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:0:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff41a3"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:0:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ff41a3"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 188.65678745020335 134.46030192100216 Q 154.3024707391652 129.76662817307022 124.10586466473895 113.81624787916293"
+      marker-end="url(#7:0:orientedPath-endArrowId)"
+    ></path>
+    <title>7:0:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:4:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 81.3617799296765 80.91228568029166 Q 115.71601518921308 85.60598127085186 145.91252361479073 101.55637742481774"
+    ></path>
+    <title>7:4:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:4:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff41a3"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:4:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ff41a3"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 81.3617799296765 80.91228568029166 Q 115.71601518921308 85.60598127085186 145.91252361479073 101.55637742481774"
+      marker-end="url(#7:4:orientedPath-endArrowId)"
+    ></path>
+    <title>7:4:orientedPath</title>
+  </g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
+    <filter id="7:7:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 154.25367570913906 107.8353249273016 Q 124.80957020422821 126.14625675854208 91.38250744293627 133.13746900430513"
+    ></path>
+    <title>7:7:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:7:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#7cbbfa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:7:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7cbbfa"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 154.25367570913906 107.8353249273016 Q 124.80957020422821 126.14625675854208 91.38250744293627 133.13746900430513"
+      marker-end="url(#7:7:orientedPath-endArrowId)"
+    ></path>
+    <title>7:7:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:10:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 81.3617799296765 80.91228568029166 Q 110.88009791416309 106.69434100920316 130.92077210491115 139.83671345893285"
+    ></path>
+    <title>7:10:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:10:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#7cbbfa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter
+      id="7:10:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7cbbfa"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 81.3617799296765 80.91228568029166 Q 110.88009791416309 106.69434100920316 130.92077210491115 139.83671345893285"
+      marker-end="url(#7:10:orientedPath-endArrowId)"
+    ></path>
+    <title>7:10:orientedPath</title>
+  </g>
+  <g endArrowheadSize="1" startArrowheadSize="1">
+    <filter id="7:8:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 135.33344923959064 65.7981840656144 Q 115.18486441868079 79.22907643591856 91.80031662809319 81.10451365902603"
+    ></path>
+    <title>7:8:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:8:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#7cbbfa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:8:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7cbbfa"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 135.33344923959064 65.7981840656144 Q 115.18486441868079 79.22907643591856 91.80031662809319 81.10451365902603"
+      marker-end="url(#7:8:orientedPath-endArrowId)"
+    ></path>
+    <title>7:8:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:5:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 115.76470353557914 107.53731237882583 Q 97.92711307764603 103.21620272054666 87.4339632401146 89.40514090362129"
+    ></path>
+    <title>7:5:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:5:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff41a3"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:5:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ff41a3"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 115.76470353557914 107.53731237882583 Q 97.92711307764603 103.21620272054666 87.4339632401146 89.40514090362129"
+      marker-end="url(#7:5:orientedPath-endArrowId)"
+    ></path>
+    <title>7:5:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:11:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 115.76470353557914 107.53731237882583 Q 145.20874515527086 89.22641830087906 178.63573921330268 82.2352455036848"
+    ></path>
+    <title>7:11:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:11:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#7cbbfa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter
+      id="7:11:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7cbbfa"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 115.76470353557914 107.53731237882583 Q 145.20874515527086 89.22641830087906 178.63573921330268 82.2352455036848"
+      marker-end="url(#7:11:orientedPath-endArrowId)"
+    ></path>
+    <title>7:11:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="8:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 134.68495875715837 149.5748292339195 Q 152.89559997044455 114.87016615190907 180.46881106224836 87.67165289986306"
+    ></path>
+    <title>8:0:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="8:0:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff41a3"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="8:0:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ff41a3"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 134.68495875715837 149.5748292339195 Q 152.89559997044455 114.87016615190907 180.46881106224836 87.67165289986306"
+      marker-end="url(#8:0:orientedPath-endArrowId)"
+    ></path>
+    <title>8:0:orientedPath</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:3:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 80.95366847427647 133.62667015492002 Q 105.16007770480275 132.9880576431444 125.95196027570807 143.8534013069954"
+    ></path>
+    <title>7:3:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:3:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff41a3"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:3:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ff41a3"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 80.95366847427647 133.62667015492002 Q 105.16007770480275 132.9880576431444 125.95196027570807 143.8534013069954"
+      marker-end="url(#7:3:orientedPath-endArrowId)"
+    ></path>
+    <title>7:3:orientedPath</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="0.1"
+    cx="134.68495875715837"
+    cy="149.5748292339195"
+    stroke="none"
+    r="7.5"
+  >
+    <title>4:0:identityMarker</title>
+  </circle>
+  <g startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="7:6:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 189.06457839018145 81.74604879192283 Q 180.15808378418438 97.7936411424288 164.05492641956363 104.2387314680124"
+    ></path>
+    <title>7:6:pathOutline</title>
+  </g>
+  <g startArrowheadSize="1" endArrowheadSize="0.75">
+    <marker
+      id="7:6:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#7cbbfa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter id="7:6:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7cbbfa"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 189.06457839018145 81.74604879192283 Q 180.15808378418438 97.7936411424288 164.05492641956363 104.2387314680124"
+      marker-end="url(#7:6:orientedPath-endArrowId)"
+    ></path>
+    <title>7:6:orientedPath</title>
+  </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="134.68495875715837"
+    cy="149.5748292339195"
+    stroke="#999999"
+    stroke-opacity="1"
+    stroke-width="0.55"
+    stroke-linecap="butt"
+    r="5"
+  >
+    <title>`g1`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 133.18245875715837, 146.5698292339195)translate(133.18245875715837, 146.5698292339195)"
+    font-size="0.35px"
+    string="1"
+  >
+    <title>`g1`.labelText</title>
+    <svg
+      style="font-size: 0.35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="3.0049999999999994"
+      height="6.009999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 500 1000"
+    >
+      <g
+        stroke="none"
+        fill="#666666"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mn">
+                  <path
+                    data-c="31"
+                    d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#ff41a3"
+    fill-opacity="1"
+    cx="189.06457839018145"
+    cy="81.74604879192283"
+    stroke="#b22d72"
+    stroke-opacity="1"
+    stroke-width="0.55"
+    stroke-linecap="butt"
+    r="5"
+  >
+    <title>`g2`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 188.02785339018146, 78.74104879192284)translate(188.02785339018146, 78.74104879192284)"
+    font-size="0.35px"
+    string="i"
+  >
+    <title>`g2`.labelText</title>
+    <svg
+      style="font-size: 0.35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="2.07345"
+      height="6.009999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 345 1000"
+    >
+      <g
+        stroke="none"
+        fill="#b22d72"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D456"
+                    d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#7cbbfa"
+    fill-opacity="1"
+    cx="188.65678745020335"
+    cy="134.46030192100216"
+    stroke="#5783af"
+    stroke-opacity="1"
+    stroke-width="0.55"
+    stroke-linecap="butt"
+    r="5"
+  >
+    <title>`g3`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 187.41872745020336, 131.45530192100216)translate(187.41872745020336, 131.45530192100216)"
+    font-size="0.35px"
+    string="j"
+  >
+    <title>`g3`.labelText</title>
+    <svg
+      style="font-size: 0.35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="2.4761199999999994"
+      height="6.009999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 412 1000"
+    >
+      <g
+        stroke="none"
+        fill="#5783af"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D457"
+                    d="M297 596Q297 627 318 644T361 661Q378 661 389 651T403 623Q403 595 384 576T340 557Q322 557 310 567T297 596ZM288 376Q288 405 262 405Q240 405 220 393T185 362T161 325T144 293L137 279Q135 278 121 278H107Q101 284 101 286T105 299Q126 348 164 391T252 441Q253 441 260 441T272 442Q296 441 316 432Q341 418 354 401T367 348V332L318 133Q267 -67 264 -75Q246 -125 194 -164T75 -204Q25 -204 7 -183T-12 -137Q-12 -110 7 -91T53 -71Q70 -71 82 -81T95 -112Q95 -148 63 -167Q69 -168 77 -168Q111 -168 139 -140T182 -74L193 -32Q204 11 219 72T251 197T278 308T289 365Q289 372 288 376Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="154.25367570913906"
+    cy="107.8353249273016"
+    stroke="#999999"
+    stroke-opacity="1"
+    stroke-width="0.55"
+    stroke-linecap="butt"
+    r="5"
+  >
+    <title>`g4`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 152.68807070913905, 104.8303249273016)translate(152.68807070913905, 104.8303249273016)"
+    font-size="0.35px"
+    string="k"
+  >
+    <title>`g4`.labelText</title>
+    <svg
+      style="font-size: 0.35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="3.1312099999999994"
+      height="6.009999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 521 1000"
+    >
+      <g
+        stroke="none"
+        fill="#666666"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D458"
+                    d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="135.33344923959064"
+    cy="65.7981840656144"
+    stroke="#999999"
+    stroke-opacity="1"
+    stroke-width="0.55"
+    stroke-linecap="butt"
+    r="5"
+  >
+    <title>`g5`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 131.49305923959065, 62.79318406561439)translate(131.49305923959065, 62.79318406561439)"
+    font-size="0.35px"
+    string="-1"
+  >
+    <title>`g5`.labelText</title>
+    <svg
+      style="font-size: 0.35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="7.680779999999999"
+      height="6.009999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1278 1000"
+    >
+      <g
+        stroke="none"
+        fill="#666666"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mo">
+                  <path
+                    data-c="2212"
+                    d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mn" transform="translate(778,0)">
+                  <path
+                    data-c="31"
+                    d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="80.95366847427647"
+    cy="133.62667015492002"
+    stroke="#999999"
+    stroke-opacity="1"
+    stroke-width="0.55"
+    stroke-linecap="butt"
+    r="5"
+  >
+    <title>`g6`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 77.57905347427646, 130.62167015492003)translate(77.57905347427646, 130.62167015492003)"
+    font-size="0.35px"
+    string="-i"
+  >
+    <title>`g6`.labelText</title>
+    <svg
+      style="font-size: 0.35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="6.749229999999999"
+      height="6.009999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1123 1000"
+    >
+      <g
+        stroke="none"
+        fill="#666666"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mo">
+                  <path
+                    data-c="2212"
+                    d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mi" transform="translate(778,0)">
+                  <path
+                    data-c="1D456"
+                    d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="81.3617799296765"
+    cy="80.91228568029166"
+    stroke="#999999"
+    stroke-opacity="1"
+    stroke-width="0.55"
+    stroke-linecap="butt"
+    r="5"
+  >
+    <title>`g7`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 77.7858299296765, 77.90728568029166)translate(77.7858299296765, 77.90728568029166)"
+    font-size="0.35px"
+    string="-j"
+  >
+    <title>`g7`.labelText</title>
+    <svg
+      style="font-size: 0.35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="7.151899999999999"
+      height="6.009999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1190 1000"
+    >
+      <g
+        stroke="none"
+        fill="#666666"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mo">
+                  <path
+                    data-c="2212"
+                    d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mi" transform="translate(778,0)">
+                  <path
+                    data-c="1D457"
+                    d="M297 596Q297 627 318 644T361 661Q378 661 389 651T403 623Q403 595 384 576T340 557Q322 557 310 567T297 596ZM288 376Q288 405 262 405Q240 405 220 393T185 362T161 325T144 293L137 279Q135 278 121 278H107Q101 284 101 286T105 299Q126 348 164 391T252 441Q253 441 260 441T272 442Q296 441 316 432Q341 418 354 401T367 348V332L318 133Q267 -67 264 -75Q246 -125 194 -164T75 -204Q25 -204 7 -183T-12 -137Q-12 -110 7 -91T53 -71Q70 -71 82 -81T95 -112Q95 -148 63 -167Q69 -168 77 -168Q111 -168 139 -140T182 -74L193 -32Q204 11 219 72T251 197T278 308T289 365Q289 372 288 376Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="115.76470353557914"
+    cy="107.53731237882583"
+    stroke="#999999"
+    stroke-opacity="1"
+    stroke-width="0.55"
+    stroke-linecap="butt"
+    r="5"
+  >
+    <title>`g8`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 111.86120853557915, 104.53231237882584)translate(111.86120853557915, 104.53231237882584)"
+    font-size="0.35px"
+    string="-k"
+  >
+    <title>`g8`.labelText</title>
+    <svg
+      style="font-size: 0.35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="7.806989999999998"
+      height="6.009999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1299 1000"
+    >
+      <g
+        stroke="none"
+        fill="#666666"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mo">
+                  <path
+                    data-c="2212"
+                    d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mi" transform="translate(778,0)">
+                  <path
+                    data-c="1D458"
+                    d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+</svg>
