@@ -9,6 +9,7 @@ import { shapedefs } from "shapes/Shapes";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
 import { StrV } from "types/value";
+import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
 import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
 
@@ -26,26 +27,102 @@ export interface ShapeProps {
   pathResolver: PathResolver;
 }
 
+export type NameShapeMap = { [k: string]: Shape };
+export type RenderedNamesSet = im.Set<string>;
+
+const RenderGroup = async (
+  { shape, labels, canvasSize, pathResolver }: ShapeProps,
+  nameShapeMap: NameShapeMap,
+  renderedNames: RenderedNamesSet
+): Promise<[SVGGElement | undefined, RenderedNamesSet]> => {
+  const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const groupNameVal = shape.properties["name"];
+  if (groupNameVal.tag !== "StrV") {
+    throw Error("Shape name not a string");
+  }
+  const groupName = groupNameVal.contents;
+  if (renderedNames.has(groupName)) {
+    return [undefined, renderedNames];
+  }
+  const subGPIs = shape.properties["shapes"];
+  if (subGPIs.tag !== "ShapeListV") {
+    throw Error("Not a list of shapes");
+  }
+
+  const updatedRenderedNames = subGPIs.contents.reduce(
+    async (currRenderedNames, gpi) => {
+      const shapeNameVal = gpi.contents[1]["name"];
+      if (shapeNameVal.tag !== "StrV") {
+        throw Error("Shape name not a string");
+      }
+      const subShape = nameShapeMap[shapeNameVal.contents];
+
+      // This will create a new SVG element for the shape, and add the names
+      // of the created shapes into newRenderedNames
+      const [subElem, newRenderedNames] = await RenderShape(
+        { shape: subShape, labels, canvasSize, pathResolver },
+        nameShapeMap,
+        await currRenderedNames
+      );
+
+      // Append this element onto the SVG
+      if (subElem) {
+        elem.appendChild(subElem);
+      }
+      return newRenderedNames;
+    },
+    Promise.resolve(renderedNames)
+  );
+
+  // Make sure to add the group name into rendered names.
+  attrAutoFillSvg(shape, elem, [...attrTitle(shape, elem), "shapes"]);
+  return [elem, (await updatedRenderedNames).add(groupName)];
+};
+
 /**
  * Turns Shape GPI data into a corresponding SVG element
  */
-export const RenderShape = async ({
-  shape,
-  labels,
-  canvasSize,
-  pathResolver,
-}: ShapeProps): Promise<SVGElement> => {
-  if (!(shape.shapeType in shapeMap)) {
-    console.error(`${shape.shapeType} shape doesn't exist in shapeMap`);
-    return document.createElementNS("http://www.w3.org/2000/svg", "g");
+export const RenderShape = async (
+  { shape, labels, canvasSize, pathResolver }: ShapeProps,
+  nameShapeMap: NameShapeMap,
+  renderedNames: RenderedNamesSet
+): Promise<[SVGElement | undefined, RenderedNamesSet]> => {
+  const shapeType = shape.shapeType;
+  if (!(shapeType in shapeMap) && shapeType !== "Group") {
+    console.error(`${shapeType} shape doesn't exist in shapeMap`);
+    return [
+      document.createElementNS("http://www.w3.org/2000/svg", "g"),
+      renderedNames,
+    ];
   }
 
-  return await shapeMap[shape.shapeType]({
-    shape,
-    labels,
-    canvasSize,
-    pathResolver,
-  });
+  // Special case for groups
+  if (shapeType === "Group") {
+    return await RenderGroup(
+      { shape, labels, canvasSize, pathResolver },
+      nameShapeMap,
+      renderedNames
+    );
+  } else {
+    const shapeNameVal = shape.properties["name"];
+    if (shapeNameVal.tag !== "StrV") {
+      throw Error("Shape name not a string");
+    }
+    const shapeName = shapeNameVal.contents;
+
+    // No duplication of shape rendering
+    if (renderedNames.has(shapeName)) {
+      return [undefined, renderedNames];
+    } else {
+      const rendered = await shapeMap[shape.shapeType]({
+        shape,
+        labels,
+        canvasSize,
+        pathResolver,
+      });
+      return [rendered, renderedNames.add(shapeName)];
+    }
+  }
 };
 
 /**
@@ -79,10 +156,14 @@ export const DraggableShape = async (
   canvasSizeCustom?: [number, number]
 ): Promise<SVGGElement> => {
   const canvas = shapeProps.canvasSize;
-  const elem = await RenderShape({
-    ...shapeProps,
-    canvasSize: canvasSizeCustom ? canvasSizeCustom : canvas,
-  });
+  const [elem] = await RenderShape(
+    {
+      ...shapeProps,
+      canvasSize: canvasSizeCustom ? canvasSizeCustom : canvas,
+    },
+    {},
+    im.Set()
+  );
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const { shapeType } = shapeProps.shape;
   if (shapedefs[shapeType].isLinelike) {
@@ -91,6 +172,9 @@ export const DraggableShape = async (
     g.setAttribute("pointer-events", "bounding-box");
   } else {
     g.setAttribute("pointer-events", "auto");
+  }
+  if (!elem) {
+    return g;
   }
   g.appendChild(elem);
 
@@ -157,6 +241,9 @@ export const RenderInteractive = async (
     updateState(dragUpdate(state, id, dx, dy));
   };
   for (const shape of state.computeShapes(state.varyingValues)) {
+    if (shape.shapeType === "Group") {
+      throw Error("Interactive shapes don't yet work with groups");
+    }
     svg.appendChild(
       await DraggableShape(
         {
@@ -188,44 +275,45 @@ export const RenderStatic = async (
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
 
   const shapes = computeShapes(varyingValues);
-  const nameShapeMap: { [k: string]: Shape } = Object.fromEntries(
+  const nameShapeMap: NameShapeMap = Object.fromEntries(
     shapes.map((shape) => {
-      return [shape.properties["name"], shape];
+      const shapeNameVal = shape.properties["name"];
+      if (shapeNameVal.tag !== "StrV") {
+        throw Error("Shape name not a string");
+      }
+      return [shapeNameVal.contents, shape];
     })
   );
 
-  let renderedNames: im.Set<string> = im.Set();
+  const initRenderedNames: RenderedNamesSet = im.Set();
   // First render shapes involved with groups
-  shapes
+  const groupsRenderedNames = await shapes
     .filter((shape) => shape.shapeType === "Group")
-    .map((shape) => {
-      RenderShape(
-        {
-          shape,
-          labels,
-          canvasSize: canvas.size,
-          pathResolver,
-        },
-        nameShapeMap
+    .reduce(async (currRenderedNames, shape) => {
+      const [newElem, updatedRenderedNames] = await RenderGroup(
+        { shape, labels, canvasSize: canvas.size, pathResolver },
+        nameShapeMap,
+        await currRenderedNames
       );
-    });
-  // Then render all other shapes
+      if (newElem) {
+        svg.appendChild(newElem);
+      }
+      return updatedRenderedNames;
+    }, Promise.resolve(initRenderedNames));
 
-  return Promise.all(
-    computeShapes(varyingValues).map((shape) =>
-      RenderShape({
-        shape,
-        labels,
-        canvasSize: canvas.size,
-        pathResolver,
-      })
-    )
-  ).then((renderedShapes) => {
-    for (const shape of renderedShapes) {
-      svg.appendChild(shape);
+  // Then render all other shapes
+  await shapes.reduce(async (currRenderedNames, shape) => {
+    const [newElem, updatedRenderedNames] = await RenderShape(
+      { shape, labels, canvasSize: canvas.size, pathResolver },
+      nameShapeMap,
+      await currRenderedNames
+    );
+    if (newElem) {
+      svg.appendChild(newElem);
     }
-    return svg;
-  });
+    return updatedRenderedNames;
+  }, Promise.resolve(groupsRenderedNames));
+  return svg;
 };
 
 const clamp = (x: number, min: number, max: number): number =>
