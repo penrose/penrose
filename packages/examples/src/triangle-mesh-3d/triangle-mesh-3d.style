@@ -1,3 +1,5 @@
+-- Experimental style that emulates 3D diagramming
+
 canvas {
    width = 200
    height = 200
