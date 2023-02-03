@@ -1,4 +1,3 @@
-import { uniqueId } from "lodash";
 import { Shape } from "types/shape";
 import { BoolV, ColorV, FloatV, StrV, VectorV } from "types/value";
 import {
@@ -9,6 +8,7 @@ import {
   toSvgOpacityProperty,
   toSvgPaintProperty,
 } from "utils/Util";
+import * as uuid from "uuid";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -152,7 +152,7 @@ const Line = ({ shape, canvasSize, variation }: ShapeProps): SVGGElement => {
   );
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
-  const unique = uniqueId();
+  const unique = uuid.v4();
   const startArrowId = unique + "-startArrowId";
   const endArrowId = unique + "-endArrowId";
   if (startArrowhead) {
