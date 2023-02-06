@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "penrose-common",
+  "scopeName": "source.penrose-common",
+  "patterns": [{ "include": "#strings" }, { "include": "#comments" }],
+  "repository": {
+    "strings": {
+      "name": "string.quoted.double",
+      "match": "\"(?:[^\n\\\"]|\\[\"\\ntbfr])*\""
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.penrose",
+          "begin": "/\\*",
+          "end": "\\*/"
+        },
+        {
+          "name": "comment.line.penrose",
+          "match": "--.*?$"
+        }
+      ]
+    }
+  }
+}

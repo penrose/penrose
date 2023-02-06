@@ -35,23 +35,17 @@ Be sure you have these tools installed:
 
 - [Node.js][] v16+ (if using Linux or Mac, we recommend installing via [nvm][])
 
+  - [Yarn][] v1.x
+
 - [Rust][]
 
-- The WebAssembly target:
+  - the WebAssembly target for Rust:
 
-  ```sh
-  rustup target add wasm32-unknown-unknown
-  ```
+    ```sh
+    rustup target add wasm32-unknown-unknown
+    ```
 
-- [`wasm-bindgen` CLI][] (you need to install Rust first), specifically a
-  version which has the `--keep-lld-exports` flag; use this command:
-
-  ```sh
-  cargo install wasm-bindgen-cli \
-    --git https://github.com/rustwasm/wasm-bindgen --rev 7c626e4b3
-  ```
-
-- [Yarn][] v1.x (you need to install Node.js first)
+  - [`wasm-bindgen` CLI][] v0.2.84+
 
 Depending on your platform, here are some extra instructions:
 
