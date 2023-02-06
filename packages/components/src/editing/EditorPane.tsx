@@ -41,6 +41,11 @@ export default function EditorPane({
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
+
+  if (monaco != null && onWrite != null){
+    editorRef.current?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onWrite)
+  }
+
   useEffect(() => {
     if (monaco) {
       const dispose =
