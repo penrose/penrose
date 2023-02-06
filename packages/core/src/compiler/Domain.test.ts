@@ -1,7 +1,8 @@
-import { examples } from "@penrose/examples";
+import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
-import * as nearley from "nearley";
+import nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
 import { Env } from "types/domain";
@@ -12,9 +13,12 @@ const outputDir = "/tmp/contexts";
 const saveContexts = false;
 const printError = false;
 
-const domainPaths = [
-  "linear-algebra-domain/linear-algebra.dsl",
-  "set-theory-domain/setTheory.dsl",
+const domains = [
+  [
+    "linear-algebra-domain/linear-algebra.domain",
+    linearAlgebra["linear-algebra.domain"],
+  ],
+  ["set-theory-domain/setTheory.domain", setTheory["setTheory.domain"]],
 ];
 
 const contextHas = (
@@ -268,16 +272,13 @@ describe("Real Programs", () => {
     fs.mkdirSync(outputDir);
   }
 
-  domainPaths.map((examplePath) => {
-    // a bit hacky, only works with 2-part paths
-    const [part0, part1] = examplePath.split("/");
-    const prog = examples[part0][part1];
+  domains.map(([examplePath, prog]) => {
     test(examplePath, () => {
       const res = compileDomain(prog);
       expect(res.isOk()).toBe(true);
       // write to output folder
       if (res.isOk() && saveContexts) {
-        const exampleName = path.basename(examplePath, ".dsl");
+        const exampleName = path.basename(examplePath, ".domain");
         const astPath = path.join(outputDir, exampleName + ".env.json");
         fs.writeFileSync(astPath, JSON.stringify(res.value), "utf8");
       }

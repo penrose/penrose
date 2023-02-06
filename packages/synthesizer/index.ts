@@ -1,4 +1,5 @@
-require("global-jsdom/register");
+import "global-jsdom/register"; // must be first
+
 import {
   compileDomain,
   compileSubstance,
@@ -11,7 +12,7 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "@penrose/core";
-import { A } from "@penrose/core/build/dist/types/ast";
+import { A } from "@penrose/core/dist/types/ast";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
 import { join } from "path";
@@ -79,11 +80,12 @@ const writePrograms = (
   const trios = [];
   const styID = "style";
   const domainID = "domain";
-  const stylePath = "style.sty";
-  const domainPath = "domain.dsl";
+  const stylePath = "style.style";
+  const domainPath = "domain.domain";
   const style = {
     name: styID,
     URI: stylePath,
+    domain: domainID,
   };
   const domain = {
     name: domainID,
@@ -96,7 +98,7 @@ const writePrograms = (
   // Push all substance programs
   for (let i = 0; i < progs.length; i++) {
     const subID = `prog-${i}`;
-    const fileName = `${subID}.sub`;
+    const fileName = `${subID}.substance`;
     const subPath = join(prefix, fileName);
     const metaName = `${subID}-meta.json`;
     const metaPath = join(prefix, metaName);
@@ -112,7 +114,7 @@ const writePrograms = (
     });
   }
   // TODO: change name style and domain
-  const registry: Registry = {
+  const registry: Omit<Registry, "root"> = {
     substances,
     styles: {
       [styID]: style,

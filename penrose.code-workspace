@@ -3,10 +3,11 @@
     "recommendations": [
       "dbaeumer.vscode-eslint",
       "esbenp.prettier-vscode",
-      "folke.vscode-monorepo-workspace",
       "karyfoundation.nearley",
       "penrose.penrose-vs",
-      "silvenon.mdx"
+      "rust-lang.rust-analyzer",
+      "tamasfe.even-better-toml",
+      "vue.volar"
     ]
   },
   "folders": [
@@ -39,6 +40,10 @@
       "path": "packages/examples"
     },
     {
+      "name": "📦 @penrose/optimizer",
+      "path": "packages/optimizer"
+    },
+    {
       "name": "📦 @penrose/roger",
       "path": "packages/roger"
     },
@@ -49,10 +54,26 @@
     {
       "name": "📦 @penrose/synthesizer-ui",
       "path": "packages/synthesizer-ui"
+    },
+    {
+      "name": "📦 penrose-vs",
+      "path": "packages/vscode"
     }
   ],
   "settings": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[yaml]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
     "editor.formatOnSave": true,
     "files.insertFinalNewline": false,
     "files.trimFinalNewlines": false,

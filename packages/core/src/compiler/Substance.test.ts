@@ -1,6 +1,6 @@
-import { examples } from "@penrose/examples";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
-import * as nearley from "nearley";
+import nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import * as path from "path";
 import { A } from "types/ast";
@@ -16,15 +16,15 @@ const saveContexts = false;
 const outputDir = "/tmp/contexts";
 
 const subPaths = [
-  // "linear-algebra-domain/twoVectorsPerp.sub",
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/tree.sub"],
-  ["set-theory-domain/functions.dsl", "set-theory-domain/continuousmap.sub"],
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/twosets-simple.sub"],
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/multisets.sub"],
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/nested.sub"],
-  // "hyperbolic-domain/hyperbolic-example.sub",
-  // "geometry-domain/pythagorean-theorem-sugared.sub",
-  // "mesh-set-domain/DomainInterop.sub",
+  // "linear-algebra-domain/twoVectorsPerp.substance",
+  ["setTheory.domain", "tree.substance"],
+  ["functions.domain", "continuousmap.substance"],
+  ["setTheory.domain", "twosets-simple.substance"],
+  ["setTheory.domain", "multisets.substance"],
+  ["setTheory.domain", "nested.substance"],
+  // "hyperbolic-domain/hyperbolic-example.substance",
+  // "geometry-domain/pythagorean-theorem-sugared.substance",
+  // "mesh-set-domain/DomainInterop.substance",
 ];
 
 const hasVars = (env: Env, vars: [string, string][]) => {
@@ -536,11 +536,8 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach(([domainPath, examplePath]) => {
-    // a bit hacky, only works with 2-part paths
-    const [domPart0, domPart1] = domainPath.split("/");
-    const [subPart0, subPart1] = examplePath.split("/");
-    const domProg = examples[domPart0][domPart1];
-    const subProg = examples[subPart0][subPart1];
+    const domProg = setTheory[domainPath];
+    const subProg = setTheory[examplePath];
     test(examplePath, () => {
       // do testing
       const env = envOrError(domProg);
@@ -548,8 +545,8 @@ describe("Real Programs", () => {
       expect(res.isOk()).toBe(true);
       // write to output folder
       if (res.isOk() && saveContexts) {
-        const domainName = path.basename(domainPath, ".dsl");
-        const exampleName = path.basename(examplePath, ".sub");
+        const domainName = path.basename(domainPath, ".domain");
+        const exampleName = path.basename(examplePath, ".substance");
         const envPath = path.join(outputDir, domainName + ".env.json");
         const subenvPath = path.join(outputDir, exampleName + ".env.json");
         fs.writeFileSync(subenvPath, JSON.stringify(res.value[0]), "utf8");

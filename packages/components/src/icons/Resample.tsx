@@ -1,4 +1,3 @@
-import * as React from "react";
 import { COLORS } from "../styles";
 
 export default ({

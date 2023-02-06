@@ -1,0 +1,12 @@
+-- substance name in registry: collinear
+Plane R
+Point A, B, C, D, E
+In(A, R)
+In(B, R)
+In(C, R)
+In(D,R)
+In(E,R)
+Ray BE := MkRay(B, E)
+Line BA := MkLine(B, A)
+Collinear(B,D,E)
+AutoLabel All

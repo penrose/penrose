@@ -1,5 +1,5 @@
 import { outwardUnitNormal } from "contrib/Queries";
-import { genCode, ops, secondaryGraph } from "engine/Autodiff";
+import { ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -33,6 +33,7 @@ import {
   implicitHalfPlaneFunc,
   implicitIntersectionOfEllipsesFunc,
 } from "./ImplicitShapes";
+import { numsOf } from "./Utils";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -148,14 +149,7 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
   // the input values embedded in the children of the `ad.Num`s we were passed,
   // run a convex partitioning algorithm on those vertex positions, and cross
   // our fingers that this remains a valid convex partition as we optimize
-  const g = secondaryGraph(p.flat());
-  const inputs = [];
-  for (const v of g.nodes.keys()) {
-    if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.key] = v.val;
-    }
-  }
-  const coords = genCode(g)(inputs).secondary;
+  const coords = numsOf(p.flat());
 
   // map each point back to its original VecAD object; note, this depends on the
   // fact that two points with the same contents are considered different as
@@ -184,15 +178,15 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
 };
 
 /**
- * Overlapping constraint function for polygon points with padding `padding`.
+ * Overlapping constraint function for polygon points with overlap `overlap`.
  * @param polygonPoints1 Sequence of points defining the first polygon.
  * @param polygonPoints2 Sequence of points defining the second polygon.
- * @param padding Padding applied to one of the polygons.
+ * @param overlap Overlap applied to one of the polygons.
  */
 export const overlappingPolygonPoints = (
   polygonPoints1: ad.Num[][],
   polygonPoints2: ad.Num[][],
-  padding: ad.Num = 0
+  overlap: ad.Num = 0
 ): ad.Num => {
   const cp1 = convexPartitions(polygonPoints1);
   const cp2 = convexPartitions(
@@ -200,7 +194,7 @@ export const overlappingPolygonPoints = (
   );
   return maxN(
     cp1.map((p1) =>
-      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding)))
+      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, neg(overlap))))
     )
   );
 };

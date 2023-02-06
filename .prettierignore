@@ -1,4 +1,6 @@
 *.hbs
+/packages/automator/out/
+/packages/automator/progs/
 /packages/browser-ui/tsconfig.json
 /packages/components/storybook-static/
 /packages/core/docs/
@@ -7,11 +9,14 @@
 /packages/core/src/parser/StyleParser.ts
 /packages/core/src/parser/SubstanceParser.ts
 /packages/core/src/renderer/not_found.json
-/packages/docs-site/.docusaurus/
-/packages/docs-site/static/try/
+/packages/docs-site/build/
+/packages/docs-site/public/try/
+/packages/docs-site/src/shapedefs.json
+/packages/optimizer/bindings/
+/packages/optimizer/index.js
+/packages/optimizer/target/
 /packages/roger/oclif.manifest.json
 /README.md
-build/
 coverage/
 dist/
 public/app.css

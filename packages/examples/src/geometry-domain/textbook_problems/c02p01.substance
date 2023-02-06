@@ -1,0 +1,10 @@
+Point A, B, C, D
+Ray DA := MkRay(D, A)
+Ray DB := MkRay(D, B)
+Ray DC := MkRay(D, C)
+Angle ADB := InteriorAngle(A, D, B)
+Angle BDC := InteriorAngle(B, D, C)
+Angle ADC := InteriorAngle(A, D, C)
+AngleBisector(ADC, DB)
+EqualAngleMarker(ADB, BDC)
+AutoLabel A, B, C, D

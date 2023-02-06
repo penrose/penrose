@@ -1,0 +1,9 @@
+{
+  "npmScope": "penrose",
+  "tasksRunnerOptions": { "default": { "runner": "nx/tasks-runners/default" } },
+  "targetDefaults": {
+    "build": { "dependsOn": ["^build"] },
+    "build-decls": { "dependsOn": ["^build-decls"] },
+    "typecheck": { "dependsOn": ["build-decls"] }
+  }
+}

@@ -6,6 +6,7 @@ import {
   readRegistry,
   Trio,
 } from "@penrose/core";
+import { registry } from "@penrose/examples";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce } from "lodash";
@@ -20,6 +21,8 @@ import {
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App";
 import { generateVariation } from "./variation";
+
+export const EDITOR_VERSION = 0.1;
 
 export type ProgramType = "substance" | "style" | "domain";
 
@@ -52,8 +55,10 @@ export type WorkspaceLocation =
 
 export type WorkspaceMetadata = {
   name: string;
+  // ISO String of date
   lastModified: string;
   id: string;
+  // Gist ID
   forkedFromGist: string | null;
   editorVersion: number;
   location: WorkspaceLocation;
@@ -182,15 +187,15 @@ export const currentWorkspaceState = atom<Workspace>({
     },
     files: {
       substance: {
-        name: ".sub",
+        name: ".substance",
         contents: "",
       },
       style: {
-        name: ".sty",
+        name: ".style",
         contents: "",
       },
       domain: {
-        name: ".dsl",
+        name: ".domain",
         contents: "",
       },
     },
@@ -260,6 +265,7 @@ export type DiagramMetadata = {
   variation: string;
   stepSize: number;
   autostep: boolean;
+  interactive: boolean;
 };
 
 export type Diagram = {
@@ -277,6 +283,7 @@ export const diagramState = atom<Diagram>({
       variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
+      interactive: false,
     },
   },
 
@@ -300,35 +307,30 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
   },
 });
 
-export const exampleTriosState = atom<Trio[]>({
+interface TrioWithPreview extends Trio {
+  preview?: string;
+}
+
+export const exampleTriosState = atom<TrioWithPreview[]>({
   key: "exampleTrios",
   default: selector({
     key: "exampleTrios/default",
     get: async () => {
       try {
-        const res = await fetch(
-          new URL(
-            "examples/registry.json",
-            window.location.origin + window.location.pathname
-          ).href
-        );
-        if (!res.ok) {
-          toast.error(`Could not retrieve examples: ${res.statusText}`);
-          return [];
-        }
-        const registry = await res.json();
-        // Serve the example locally
-        registry.root = new URL(
-          "examples/",
-          window.location.origin + window.location.pathname
-        );
-        const trios = readRegistry(registry).map((trio: Trio) => ({
-          ...trio,
-          substanceURI: registry.root + trio.substanceURI,
-          styleURI: registry.root + trio.styleURI,
-          domainURI: registry.root + trio.domainURI,
-        }));
-        return trios;
+        const trios = readRegistry(registry, true).map(async (t: Trio) => {
+          const svg = await fetch(
+            `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${t.id}.svg`
+          );
+          if (!svg.ok) {
+            console.error(`could not fetch preview for ${t.id}`);
+            return t;
+          }
+          return {
+            ...t,
+            preview: await svg.text(),
+          };
+        });
+        return Promise.all(trios);
       } catch (err) {
         toast.error(`Could not retrieve examples: ${err}`);
         return [];
@@ -341,6 +343,17 @@ export type LocalGithubUser = {
   username: string;
   avatar: string;
   accessToken: string;
+};
+
+export type GistMetadata = {
+  name: string;
+  editorVersion: number;
+  forkedFromGist: string | null;
+  fileNames: {
+    substance: string;
+    style: string;
+    domain: string;
+  };
 };
 
 export type Settings = {

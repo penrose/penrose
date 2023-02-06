@@ -1,16 +1,6 @@
 import { prettyStmt } from "compiler/Substance";
 import im from "immutable";
-import {
-  cloneDeep,
-  cloneDeepWith,
-  compact,
-  filter,
-  intersectionWith,
-  isEqual,
-  isEqualWith,
-  sortBy,
-  uniq,
-} from "lodash";
+import _ from "lodash";
 import { A, AbstractNode, C, Identifier, metaProps } from "types/ast";
 import {
   ConstructorDecl,
@@ -106,7 +96,7 @@ export const removeStmt = <T>(
   stmt: SubStmt<T>
 ): SubProg<T> => ({
   ...prog,
-  statements: filter(prog.statements, (s) => !nodesEqual(stmt, s)),
+  statements: _.filter(prog.statements, (s) => !nodesEqual(stmt, s)),
 });
 
 /**
@@ -454,8 +444,8 @@ export const autoLabelStmt: AutoLabel<A> = {
  * @returns a boolean value
  */
 export const nodesEqual = (node1: AbstractNode, node2: AbstractNode): boolean =>
-  isEqualWith(node1, node2, (node1: AbstractNode, node2: AbstractNode) => {
-    return isEqual(cleanNode(node1), cleanNode(node2));
+  _.isEqualWith(node1, node2, (node1: AbstractNode, node2: AbstractNode) => {
+    return _.isEqual(cleanNode(node1), cleanNode(node2));
   });
 
 /**
@@ -466,7 +456,7 @@ export const nodesEqual = (node1: AbstractNode, node2: AbstractNode): boolean =>
  * @returns a boolean value
  */
 export const progsEqual = <T>(left: SubProg<T>, right: SubProg<T>): boolean =>
-  isEqualWith(
+  _.isEqualWith(
     left.statements,
     right.statements,
     (node1: SubStmt<T>, node2: SubStmt<T>) => nodesEqual(node1, node2)
@@ -482,7 +472,7 @@ export const intersection = <T>(
   left: SubProg<T>,
   right: SubProg<T>
 ): SubStmt<T>[] =>
-  intersectionWith(left.statements, right.statements, (s1, s2) =>
+  _.intersectionWith(left.statements, right.statements, (s1, s2) =>
     nodesEqual(s1, s2)
   );
 
@@ -494,7 +484,7 @@ export const intersection = <T>(
 export const sortStmts = <T>(prog: SubProg<T>): SubProg<T> => {
   const { statements } = prog;
   // first sort by statement type, and then by lexicographic ordering of source text
-  const newStmts: SubStmt<T>[] = sortBy(statements, [
+  const newStmts: SubStmt<T>[] = _.sortBy(statements, [
     "tag",
     (s: SubStmt<T>) => prettyStmt(s),
   ]);
@@ -506,7 +496,7 @@ export const sortStmts = <T>(prog: SubProg<T>): SubProg<T> => {
 
 // TODO: compare clean nodes instead?
 export const stmtExists = (stmt: SubStmt<A>, prog: SubProg<A>): boolean =>
-  prog.statements.find((s) => isEqual(stmt, s)) !== undefined;
+  prog.statements.find((s) => _.isEqual(stmt, s)) !== undefined;
 
 export const cleanNode = (prog: AbstractNode): AbstractNode =>
   omitDeep(prog, metaProps);
@@ -524,7 +514,7 @@ export const typeOf = (id: string, env: Env): string | undefined =>
 // helper function for omitting properties in an object
 const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
   // TODO: `omitFn` mutates the collection
-  const collection = cloneDeep(originalCollection);
+  const collection = _.cloneDeep(originalCollection);
   const omitFn = (value: any) => {
     if (value && typeof value === "object") {
       excludeKeys.forEach((key) => {
@@ -532,7 +522,7 @@ const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
       });
     }
   };
-  return cloneDeepWith(collection, omitFn);
+  return _.cloneDeepWith(collection, omitFn);
 };
 
 export type SubStmtKind = "type" | "predicate" | "constructor" | "function";
@@ -548,9 +538,9 @@ type TypeWithKind = {
  * Given a Substance program, find out the types, constructors, functions, and predicates used in the program.
  */
 export const findTypes = <T>(prog: SubProg<T>): SubStmtKindMap => {
-  const typeList: TypeWithKind[] = compact(prog.statements.map(findType));
+  const typeList: TypeWithKind[] = _.compact(prog.statements.map(findType));
   const getNames = (ts: TypeWithKind[], k: SubStmtKind): string[] =>
-    uniq(ts.filter((t) => t.kind === k).map((t) => t.name));
+    _.uniq(ts.filter((t) => t.kind === k).map((t) => t.name));
   return {
     type: getNames(typeList, "type"),
     predicate: getNames(typeList, "predicate"),

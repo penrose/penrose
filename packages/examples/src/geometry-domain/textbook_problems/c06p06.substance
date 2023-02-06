@@ -1,0 +1,12 @@
+Point J, K, L, M, N
+Quadrilateral JKLM := MkQuadrilateral(J, K, L, M)
+Segment JK := MkSegment(J, K)
+Segment ML := MkSegment(M, L)
+Segment KM := MkSegment(K, M)
+Segment JL := MkSegment(J, L)
+Midpoint(JL, N)
+Midpoint(KM, N)
+ParallelMarker1(JK, ML)
+Parallel(JK, ML)
+EqualLength(JK, ML)
+AutoLabel J, K, L, M, N

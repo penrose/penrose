@@ -1,0 +1,33 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Node n {
+    shape n.icon = Rectangle {
+        height: 400
+        width: 200
+        strokeDasharray : "4 1 2"
+    }
+}
+
+forall Node from; Node to; Edge e1 where e1 := MkEdge(from, to) {
+    shape e1.icon = Line {
+        strokeWidth : 5
+        endArrowhead: "straight"
+    }
+    ensure equal(signedDistance(from.icon, e1.icon.start), 5)
+    ensure equal(signedDistance(to.icon, e1.icon.end), 5)
+    ensure disjoint(from.icon, e1.icon)
+    ensure disjoint(to.icon, e1.icon)
+    ensure disjoint(to.icon, from.icon, 400)
+
+    encourage minimal(length(e1.icon))
+}
+
+forall Edge e1; Edge e2 {
+    ensure greaterThan(signedDistance(e2.icon, e1.icon.start), 30)
+    ensure greaterThan(signedDistance(e2.icon, e1.icon.end), 30)
+    encourage minimal(signedDistance(e2.icon, e1.icon.start))
+    encourage minimal(signedDistance(e2.icon, e1.icon.end))
+}

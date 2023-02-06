@@ -1,0 +1,15 @@
+Point M, N, Q, P
+Segment NQ := MkSegment(N, Q)
+Angle QMN := InteriorAngle(Q, M, N)
+Angle QPN := InteriorAngle(Q, P, N)
+RightMarked(QMN)
+RightMarked(QPN)
+Segment MN := MkSegment(M, N)
+Segment MQ := MkSegment(M, Q)
+Segment QP := MkSegment(Q, P)
+Segment PN := MkSegment (P, N)
+EqualLengthMarker(MQ, PN)
+EqualLength(MQ, PN)
+EqualLengthMarker(MN, QP)
+EqualLength(MN, QP)
+AutoLabel M, N, Q, P

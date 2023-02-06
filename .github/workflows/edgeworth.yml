@@ -1,0 +1,33 @@
+name: Edgeworth
+on:
+  push:
+    branches:
+      - main
+      - "edgeworth/**"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Build edgeworth
+        run: npx nx run synthesizer-ui:build
+      - name: Deploy edgeworth under the current commit SHA
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: packages/synthesizer-ui/dist
+          target-folder: edgeworth/${{ github.sha }}/
+      - name: Add .nojekyll
+        run: |
+          mkdir extra/
+          touch extra/.nojekyll
+        working-directory: packages/synthesizer-ui/
+      - name: Deploy .nojekyll
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: packages/synthesizer-ui/extra/
+          clean: false

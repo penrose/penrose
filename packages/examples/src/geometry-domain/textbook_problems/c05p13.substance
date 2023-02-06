@@ -1,0 +1,13 @@
+-- name in registry: incenter-triangle
+Point J, K, L, P, m
+Triangle JKL := MkTriangle(J, K, L)
+Incenter(P, JKL)
+-- Centroid(P, JKL)
+-- Circumcenter(P, JKL)
+-- Orthocenter(P, JKL)
+Segment KL := MkSegment(K, L)
+Collinear(K, m, L)
+Triangle PLM := MkTriangle(P, L, m)
+Angle PML := InteriorAngle(P, m, L)
+RightMarked(PML)
+AutoLabel J, K, L, P, m

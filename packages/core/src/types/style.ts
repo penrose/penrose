@@ -1,11 +1,23 @@
 import { ASTNode, Identifier, StringLit } from "./ast";
 import { LabelType } from "./substance";
 
+export type Staged<T> = {
+  stages: Identifier<T>[];
+  exclude: boolean; // if true, exclude the tagged expression in `stages`. Otherwise, include it from `stages`.
+};
+
 /** Top level type for Style AST */
 export type StyProg<T> = ASTNode<T> & {
   tag: "StyProg";
-  blocks: HeaderBlock<T>[];
+  items: StyItem<T>[];
 };
+
+export type LayoutStages<T> = ASTNode<T> & {
+  tag: "LayoutStages";
+  contents: Identifier<T>[];
+};
+
+export type StyItem<T> = HeaderBlock<T> | LayoutStages<T>;
 
 export type HeaderBlock<T> = ASTNode<T> & {
   tag: "HeaderBlock";
@@ -191,6 +203,7 @@ export type Expr<T> =
   | AnnoFloat<T>
   | StringLit<T>
   | BoolLit<T>
+  | ColorLit<T>
   | Path<T>
   | CompApp<T>
   | ObjFn<T>
@@ -213,23 +226,46 @@ export type BoolLit<T> = ASTNode<T> & {
   contents: boolean;
 };
 
+export type ColorLit<T> = ASTNode<T> & {
+  tag: "ColorLit";
+  contents: string;
+};
+
 export type CompApp<T> = ASTNode<T> & {
   tag: "CompApp";
   name: Identifier<T>;
   args: Expr<T>[];
 };
 
-export type ObjFn<T> = ASTNode<T> & {
-  tag: "ObjFn";
+export type FunctionCall<T> = ASTNode<T> & {
+  tag: "FunctionCall";
   name: Identifier<T>;
   args: Expr<T>[];
 };
 
-export type ConstrFn<T> = ASTNode<T> & {
-  tag: "ConstrFn";
-  name: Identifier<T>;
-  args: Expr<T>[];
+export type ComparisonOp<T> = ASTNode<T> & {
+  tag: "ComparisonOp";
+  op: "<" | "==" | ">";
 };
+
+export type InlineComparison<T> = ASTNode<T> & {
+  tag: "InlineComparison";
+  op: ComparisonOp<T>;
+  arg1: Expr<T>;
+  arg2: Expr<T>;
+};
+
+export type ObjFn<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "ObjFn";
+    body: FunctionCall<T> | InlineComparison<T>;
+  };
+
+export type ConstrFn<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "ConstrFn";
+    body: FunctionCall<T> | InlineComparison<T>;
+  };
 
 export type AvoidFn<T> = ASTNode<T> & {
   tag: "AvoidFn";
@@ -277,8 +313,9 @@ export type GPIDecl<T> = ASTNode<T> & {
 
 export type Layering<T> = ASTNode<T> & {
   tag: "Layering";
-  below: Path<T>;
-  above: Path<T>;
+  layeringOp: "below" | "above";
+  left: Path<T>;
+  right: Path<T>[];
 };
 
 export type ThenOp<T> = ASTNode<T> & {
@@ -293,9 +330,10 @@ export type Fix<T> = ASTNode<T> & {
   contents: number;
 };
 
-export type Vary<T> = ASTNode<T> & {
-  tag: "Vary";
-};
+export type Vary<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "Vary";
+  };
 
 export type PropertyDecl<T> = ASTNode<T> & {
   tag: "PropertyDecl";

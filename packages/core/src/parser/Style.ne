@@ -4,11 +4,11 @@
 @{%
 
 /* eslint-disable */
-import * as moo from "moo";
-import { concat, compact, flatten, last } from 'lodash'
+import moo from "moo";
+import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, 
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
 } from "types/style";
 
 const styleTypes: string[] =
@@ -55,6 +55,8 @@ const lexer = moo.compile({
       encourage: "encourage",
       ensure: "ensure",
       override: "override",
+      in: "in",
+      except: "except",
     })
   }
 });
@@ -83,7 +85,7 @@ const selector = (
 ): Selector<C> => {
   return {
     ...nodeData,
-    ...rangeFrom(compact([hd, wth, whr])),
+    ...rangeFrom(_.compact([hd, wth, whr])),
     tag: "Selector",
     head: hd,
     with: wth,
@@ -91,11 +93,12 @@ const selector = (
   };
 }
 
-const layering = (kw: any, below: Path<C>, above: Path<C>): Layering<C> => ({
-  ...nodeData,
-  ...rangeFrom(kw ? [rangeOf(kw), above, below] : [above, below]),
-  tag: 'Layering', above, below
+const layering = (kw: any, left: Path<C>, layeringOp: "above" | "below", right: Path<C>[]): Layering<C> => ({
+    ...nodeData,
+    ...rangeFrom(kw ? [rangeOf(kw), left, ...right] : [left, ...right]),
+    tag: 'Layering', left, right, layeringOp
 })
+
 
 const binop = (op: BinaryOp, left: Expr<C>, right: Expr<C>): BinOp<C> => ({
   ...nodeData,
@@ -115,24 +118,32 @@ const binop = (op: BinaryOp, left: Expr<C>, right: Expr<C>): BinOp<C> => ({
 # Style Grammar
 # NOTE: remember that parens in the grammar or EBNF operators (e.g. `:*`) will wrap an array around the result. 
 
-# TODO: header_blocks gets called twice here. Investigate why
-input -> _ml header_blocks {%
-  ([, blocks]): StyProg<C> => ({
+input -> _ml items {%
+  ([, items]): StyProg<C> => ({
     ...nodeData,
-    ...rangeFrom(blocks),
-    tag: "StyProg", blocks
+    ...rangeFrom(items),
+    tag: "StyProg", items
   })
 %}
 
-header_blocks -> header_block:* {% id %}
+items -> item:* {% id %}
 
-header_block -> header block _ml {%
-  ([header, block]): HeaderBlock<C> => ({
-    ...nodeData,
-    ...rangeFrom([header, block]), 
-    tag:"HeaderBlock", header, block 
-  })
-%}
+item 
+  -> header block _ml {%
+    ([header, block]): HeaderBlock<C> => ({
+      ...nodeData,
+      ...rangeFrom([header, block]), 
+      tag:"HeaderBlock", header, block 
+    })
+  %}
+  | "layout" _ "=" _ stage_list _ml {%
+  ([kw, , , , stages]): LayoutStages<C> => ({
+      ...nodeData,
+      ...rangeBetween(kw, stages[stages.length - 1]),
+      tag: "LayoutStages",
+      contents: stages
+    })
+  %}
 
 ################################################################################
 # Selector grammar
@@ -159,7 +170,7 @@ select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
 
 decl_patterns -> sepBy1[decl_list, ";"] {% 
   ([d]): DeclPatterns<C> => {
-    const contents = flatten(d) as DeclPattern<C>[];
+    const contents = _.flatten(d) as DeclPattern<C>[];
     return {
       ...nodeData,
       ...rangeFrom(contents),
@@ -364,7 +375,7 @@ type
       tag: 'TypeOf', contents
     }) 
   %}
-  |  identifier "[]" {% ([contents]): StyType<C> => ({
+  |  identifier "[" "]" {% ([contents]): StyType<C> => ({
       ...nodeData,
       ...rangeOf(contents), 
       tag: 'ListOf', contents
@@ -446,6 +457,7 @@ arithmeticExpr
 # NOTE: all of the expr_literal can be operands of inline computation 
 expr_literal
   -> bool_lit {% id %}
+  |  color_lit {% id %}
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
@@ -494,6 +506,16 @@ bool_lit -> ("true" | "false") {%
   })
 %}
 
+color_lit 
+  -> %hex_literal
+  {% ([d]): ColorLit<C> => ({
+    ...nodeData,
+    ...rangeOf(d), 
+    tag: "ColorLit",
+    contents: d.text.slice(1, d.text.length)
+  })
+ %}
+
 string_lit -> %string_literal {%
   ([d]): StringLit<C> => ({
     ...nodeData,
@@ -504,18 +526,29 @@ string_lit -> %string_literal {%
 %}
 
 annotated_float 
-  -> "?" {% ([d]): Vary<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Vary' }) %}
+  -> "?" (__ ("in"|"except") __ stage_list):? {% 
+    ([d, stages]): Vary<C> => ({
+      ...nodeData, 
+      ...rangeOf(d), // TODO: fix range
+      tag: 'Vary',
+      stages: stages ? stages[3] : [],
+      exclude: stages ? stages[1][0].value === "except" : true,
+    })
+  %}
   |  %float_literal {% 
     ([d]): Fix<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
   %}
 
 layering
-  -> layer_keyword:? path __ "below" __ path 
-    {% (d): Layering<C> => layering(d[0], d[1], d[5]) %}
-  |  layer_keyword:? path __ "above" __ path 
-    {% (d): Layering<C> => layering(d[0], d[5], d[1]) %}
+  -> layer_keyword:? path __ layer_op __ path_list {% (d): Layering<C> => layering(d[0], d[1], d[3], d[5]) %}
 
 layer_keyword -> "layer" __ {% nth(0) %}
+
+layer_op 
+  -> "below" {% () => "below" %} 
+  |  "above" {% () => "above" %}
+
+path_list -> sepBy1[expr, ","] {% id %}
 
 computation_function -> identifier _ "(" expr_list ")" {% 
   ([name, , , args, rparen]): CompApp<C> => ({
@@ -526,22 +559,82 @@ computation_function -> identifier _ "(" expr_list ")" {%
   }) 
 %}
 
-objective -> "encourage" __ identifier _ "(" expr_list ")" {% 
-  ([kw, , name, , , args, rparen]): ObjFn<C> => ({
-    ...nodeData,
-    ...rangeBetween(kw, rparen),
-    tag: "ObjFn",
-    name, args
-  }) 
+stage_list 
+  -> identifier {% (d) => d %}
+  |  "[" _ sepBy1[identifier, ","] _ "]" {% nth(2) %}
+
+comparison_op
+  -> "==" {%
+    ([op]): ComparisonOp<C> => ({
+      ...nodeData,
+      ...rangeOf(op),
+      tag: "ComparisonOp",
+      op: op.text
+    })
+  %}
+  |  "<" {%
+    ([op]): ComparisonOp<C> => ({
+      ...nodeData,
+      ...rangeOf(op),
+      tag: "ComparisonOp",
+      op: op.text
+    })
+  %}
+  |  ">" {%
+    ([op]): ComparisonOp<C> => ({
+      ...nodeData,
+      ...rangeOf(op),
+      tag: "ComparisonOp",
+      op: op.text
+    })
+  %}
+
+obj_constr_body
+  -> identifier _ "(" expr_list ")" {%
+    ([name, , , args, rparen]): FunctionCall<C> => {
+      return {
+        ...nodeData,
+        ...rangeBetween(name, rparen),
+        tag: "FunctionCall",
+        name, args
+      }
+    }
+  %}
+  |  expr _ comparison_op _ expr {%
+    ([arg1, , op, , arg2]): InlineComparison<C> => {
+      return {
+        ...nodeData,
+        ...rangeBetween(arg1, arg2),
+        tag: "InlineComparison",
+        op, arg1, arg2
+      }
+    }
+  %}
+
+objective -> "encourage" __ obj_constr_body (__ ("in"|"except") __ stage_list):? {% 
+  ([kw, , body, stages]): ObjFn<C> => {
+    return {
+      ...nodeData,
+      ...rangeBetween(kw, body), // TODO: fix range
+      tag: "ObjFn",
+      stages: stages ? stages[3] : [],
+      exclude: stages ? stages[1][0].value === "except" : true,
+      body
+    } 
+  }
 %}
 
-constraint -> "ensure" __ identifier _ "(" expr_list ")" {% 
-  ([kw, , name, , , args, rparen]): ConstrFn<C> => ({
-    ...nodeData,
-    ...rangeBetween(kw, rparen),
-    tag: "ConstrFn",
-    name, args
-  }) 
+constraint -> "ensure" __ obj_constr_body (__ ("in"|"except") __ stage_list):? {% 
+  ([kw, , body, stages]): ConstrFn<C> => {
+    return {
+      ...nodeData,
+      ...rangeBetween(kw, body), // TODO: fix range
+      tag: "ConstrFn",
+      stages: stages ? stages[3] : [],
+      exclude: stages ? stages[1][0].value === "except" : true,
+      body
+    }
+  }
 %}
 
 expr_list 

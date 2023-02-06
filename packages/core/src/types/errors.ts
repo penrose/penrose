@@ -1,9 +1,18 @@
 import im from "immutable";
 import * as ad from "types/ad";
-import { A, AbstractNode, C, Identifier, SourceLoc } from "./ast";
+import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
-import { BindingForm, BinOp, Expr, GPIDecl, Path, UOp } from "./style";
+import {
+  BindingForm,
+  BinOp,
+  ColorLit,
+  Expr,
+  GPIDecl,
+  LayoutStages,
+  Path,
+  UOp,
+} from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
 import { Value } from "./value";
@@ -134,6 +143,11 @@ export interface DeconstructNonconstructor {
   deconstructor: Deconstructor<A>;
 }
 
+export interface MultipleLayoutError {
+  tag: "MultipleLayoutError";
+  decls: LayoutStages<C>[];
+}
+
 // NOTE: for debugging purposes
 export interface FatalError {
   tag: "Fatal";
@@ -152,6 +166,7 @@ export type StyleError =
   | ParseError
   | GenericStyleError
   | StyleErrorList
+  | InvalidColorLiteral
   // Selector errors (from Substance)
   | SelectorVarMultipleDecl
   | SelectorDeclTypeMismatch
@@ -173,8 +188,10 @@ export type StyleError =
   | BadIndexError
   | BinOpTypeError
   | CanvasNonexistentDimsError
+  | CyclicAssignmentError
   | DeleteGlobalError
   | DeleteSubstanceError
+  | MultipleLayoutError
   | MissingPathError
   | MissingShapeError
   | NestedShapeError
@@ -188,7 +205,10 @@ export type StyleError =
   | RuntimeValueTypeError;
 
 // Compilation warnings
-export type StyleWarning = ImplicitOverrideWarning | NoopDeleteWarning;
+export type StyleWarning =
+  | ImplicitOverrideWarning
+  | NoopDeleteWarning
+  | LayerCycleWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -205,6 +225,11 @@ export interface ImplicitOverrideWarning {
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
   path: ResolvedPath<C>;
+}
+export interface LayerCycleWarning {
+  tag: "LayerCycleWarning";
+  cycles: string[][];
+  approxOrdering: string[];
 }
 
 //#endregion
@@ -223,6 +248,11 @@ export interface ParseError {
   tag: "ParseError";
   message: string;
   location?: SourceLoc;
+}
+
+export interface InvalidColorLiteral {
+  tag: "InvalidColorLiteral";
+  color: ColorLit<C>;
 }
 
 export interface SelectorVarMultipleDecl {
@@ -332,6 +362,12 @@ export interface CanvasNonexistentDimsError {
   attr: "width" | "height";
   kind: "missing" | "GPI" | "wrong type";
   type?: Expr<A>["tag"];
+}
+
+export interface CyclicAssignmentError {
+  tag: "CyclicAssignmentError";
+  // TODO: improve types, currently the generated id and source location
+  cycles: { id: string; src: SourceRange | undefined }[][];
 }
 
 export interface DeleteGlobalError {

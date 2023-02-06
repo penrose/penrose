@@ -1,0 +1,17 @@
+Point A, B, C, D, E
+Segment AE := MkSegment(A, E)
+Segment EC := MkSegment(E, C)
+Segment AB := MkSegment(A, B)
+Segment BC := MkSegment(B, C)
+Segment CD := MkSegment(C, D)
+Segment DA := MkSegment(D, A)
+Segment ED := MkSegment(E, D)
+Segment EB := MkSegment(E, B)
+Collinear(A,E,C)
+Collinear(B,E,D) 
+Angle r := InteriorAngle(B,E,C)
+EqualLength(ED, EB)
+EqualLength(AE, EC)
+EqualLengthMarker(AE, EC)
+RightMarked(r)
+AutoLabel A, B, C, D, E

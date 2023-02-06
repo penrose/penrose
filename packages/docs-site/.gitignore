@@ -1,13 +1,6 @@
 # Dependencies
 /node_modules
 
-# Production
-/build
-
-# Generated files
-.docusaurus
-.cache-loader
-
 # Misc
 .DS_Store
 .env.local
@@ -24,5 +17,8 @@ yarn-error.log*
 !Substance
 
 # Build-generated files
-/static/try/*
-/static/shapedefs.json
+/.vitepress/.temp/
+/.vitepress/cache/
+/build/
+/public/try/
+/src/shapedefs.json

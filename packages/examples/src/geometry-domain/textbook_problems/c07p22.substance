@@ -1,0 +1,13 @@
+Point R, S, T, U, V, W
+Triangle RST := MkTriangle(R, S, T)
+Triangle UVW := MkTriangle(U, V, W)
+Segment SR := MkSegment(S, R)
+Segment ST := MkSegment(S, T)
+EqualLengthMarker(SR, ST)
+EqualLength(SR, ST)
+
+Segment UV := MkSegment(U, V)
+Segment VW := MkSegment(V, W)
+EqualLengthMarker(UV, VW)
+EqualLength(UV, VW)
+AutoLabel All

@@ -1,5 +1,5 @@
 import { bboxFromShape } from "contrib/Queries";
-import { clamp, inRange } from "contrib/Utils";
+import { clamp, inRange, numOf } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -50,8 +50,7 @@ import {
   trunc,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import * as _ from "lodash";
-import { range } from "lodash";
+import _ from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
 import { Ellipse } from "shapes/Ellipse";
 import { Line } from "shapes/Line";
@@ -72,6 +71,14 @@ import {
   VectorV,
 } from "types/value";
 import { getStart, linePts } from "utils/Util";
+import {
+  elasticEnergy,
+  isoperimetricRatio,
+  perimeter,
+  signedArea,
+  totalCurvature,
+  turningNumber,
+} from "./CurveConstraints";
 
 /**
  * Static dictionary of computation functions
@@ -470,12 +477,16 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  len: (_context: Context, [, props]: [string, any]): FloatV<ad.Num> => {
-    const [p1, p2] = linePts(props);
-    return {
-      tag: "FloatV",
-      contents: ops.vdist(p1, p2),
-    };
+  length: (_context: Context, [t, props]: [string, any]): FloatV<ad.Num> => {
+    if (!shapedefs[t].isLinelike) {
+      throw Error("length expects a line-like shape");
+    } else {
+      const [p1, p2] = linePts(props);
+      return {
+        tag: "FloatV",
+        contents: ops.vdist(p1, p2),
+      };
+    }
   },
 
   /**
@@ -654,6 +665,34 @@ export const compDict = {
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
+
+  repeatedArcs: (
+    _context: Context,
+    innerStart: ad.Pt2,
+    innerEnd: ad.Pt2,
+    outerStart: ad.Pt2,
+    outerEnd: ad.Pt2,
+    innerRadius: ad.Pt2,
+    repeat: ad.Num,
+    spacing: ad.Num,
+    arcSweep: ad.Num
+  ): PathDataV<ad.Num> => {
+    const path = new PathBuilder();
+    const startDir = ops.vnormalize(ops.vsub(outerStart, innerStart));
+    const endDir = ops.vnormalize(ops.vsub(outerEnd, innerEnd));
+    let start: ad.Pt2 = innerStart;
+    let end: ad.Pt2 = innerEnd;
+    let radius = innerRadius;
+    for (let i = 0; i < repeat; i++) {
+      path.moveTo(start).arcTo(radius, end, [0, 0, arcSweep]);
+      // TODO: avoid casting to `ad.Pt2`
+      start = ops.vmove(start, spacing, startDir) as ad.Pt2;
+      end = ops.vmove(end, spacing, endDir) as ad.Pt2;
+      radius = ops.vadd(radius, [spacing, spacing]) as ad.Pt2;
+    }
+    return path.getPath();
+  },
+
   /**
    * Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled
    * @param center: center of the circle on which the arc sits
@@ -892,12 +931,9 @@ export const compDict = {
     numTicks: ad.Num,
     tickLength: ad.Num
   ): PathDataV<ad.Num> => {
-    if (typeof numTicks !== "number") {
-      throw Error("numTicks must be a constant");
-    }
     const path = new PathBuilder();
     // calculate scalar multipliers to determine the placement of each tick mark
-    const multipliers = tickPlacement(spacing, numTicks);
+    const multipliers = tickPlacement(spacing, numOf(numTicks));
     const unit = ops.vnormalize(ops.vsub(pt2, pt1));
     const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
 
@@ -1048,7 +1084,12 @@ export const compDict = {
     colorType: string
   ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
-      const rgb = range(3).map(() => makeInput({ sampler: uniform(0.1, 0.9) }));
+      const rgb = _.range(3).map(() =>
+        makeInput({
+          init: { tag: "Sampled", sampler: uniform(0.1, 0.9) },
+          stages: new Set(),
+        })
+      );
 
       return {
         tag: "ColorV",
@@ -1058,7 +1099,10 @@ export const compDict = {
         },
       };
     } else if (colorType === "hsv") {
-      const h = makeInput({ sampler: uniform(0, 360) });
+      const h = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 360) },
+        stages: new Set(),
+      });
       return {
         tag: "ColorV",
         contents: {
@@ -1641,6 +1685,74 @@ export const compDict = {
     } else if (t === "Ellipse") {
       return { tag: "VectorV", contents: closestPointEllipse(s, p) };
     } else throw Error(`unsupported shape ${t} in closestPoint`);
+  },
+  /**
+   * Returns the signed area enclosed by a polygonal chain given its nodes
+   */
+  signedArea: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: signedArea(points, closed) };
+  },
+
+  /**
+   * Returns the turning number of polygonal chain given its nodes
+   */
+  turningNumber: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return {
+      tag: "FloatV",
+      contents: turningNumber(points, closed),
+    };
+  },
+
+  /**
+   * Returns the total length of polygonal chain given its nodes
+   */
+  perimeter: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: perimeter(points, closed) };
+  },
+
+  /**
+   * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
+   */
+  isoperimetricRatio: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
+  },
+
+  /**
+   * Returns integral of curvature squared along the curve
+   */
+  elasticEnergy: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: elasticEnergy(points, closed) };
+  },
+
+  /**
+   * Returns integral of curvature along the curve
+   */
+  totalCurvature: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: totalCurvature(points, closed) };
   },
 };
 

@@ -1,11 +1,6 @@
 import { inDirection } from "contrib/ObjectivesUtils";
 import { bboxFromShape, shapeCenter } from "contrib/Queries";
-import {
-  centerArrow2,
-  closestPt_PtSeg,
-  repelPoint,
-  sampleSeg,
-} from "contrib/Utils";
+import { closestPt_PtSeg, repelPoint, sampleSeg } from "contrib/Utils";
 import { ops } from "engine/Autodiff";
 import {
   absVal,
@@ -21,9 +16,13 @@ import {
   squared,
   sub,
 } from "engine/AutodiffFunctions";
+import { Path } from "shapes/Path";
+import { Polygon } from "shapes/Polygon";
+import { Polyline } from "shapes/Polyline";
 import { shapedefs } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { linePts } from "utils/Util";
+import { constrDictCurves } from "./CurveConstraints";
 
 // -------- Simple objective functions
 // Do not require shape queries, operate directly with `ad.Num` parameters.
@@ -128,12 +127,12 @@ export const objDictGeneral = {
   /**
    * Try to repel shapes `s1` and `s2` with some weight.
    */
-  repel: (
+  notTooClose: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     weight = 10.0
   ): ad.Num => {
-    // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
+    // HACK: `notTooClose` typically needs to have a weight multiplied since its magnitude is small
     // TODO: find this out programmatically
     const repelWeight = 10e6;
 
@@ -208,32 +207,6 @@ export const objDictGeneral = {
 // -------- Specific objective functions
 // Defined only for specific use-case or specific shapes.
 export const objDictSpecific = {
-  /**
-   * Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
-   */
-  centerArrow: (
-    [t1, arr]: [string, any],
-    [t2, s2]: [string, any],
-    [t3, s3]: [string, any]
-  ): ad.Num => {
-    const spacing = 1.1; // arbitrary
-
-    if (
-      shapedefs[t1].isLinelike &&
-      shapedefs[t2].isRectlike &&
-      shapedefs[t3].isRectlike
-    ) {
-      const s2BB = bboxFromShape([t2, s2]);
-      const s3BB = bboxFromShape([t3, s3]);
-      // HACK: Arbitrarily pick the height of the text
-      // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, s2BB.center, s3BB.center, [
-        mul(spacing, s2BB.height),
-        neg(mul(s3BB.height, spacing)),
-      ]);
-    } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
-  },
-
   centerLabelAbove: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
@@ -300,6 +273,20 @@ export const objDictSpecific = {
         padding
       )
     );
+  },
+
+  /**
+   * The shape should be regular (equiangular and equilateral)
+   */
+  isRegular: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
+    if (t !== "Polyline" && t !== "Polygon" && t !== "Path") {
+      throw new Error(
+        `isRegular: expected a polygon, polyline or path, got ${t}`
+      );
+    }
+    const equilater = constrDictCurves.isEquilateral([t, s]);
+    const equiangular = constrDictCurves.isEquiangular([t, s]);
+    return add(equilater, equiangular);
   },
 };
 

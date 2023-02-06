@@ -1,12 +1,12 @@
-import * as _ from "lodash";
-import { times } from "lodash";
+import _ from "lodash";
 import seedrandom from "seedrandom";
 import { LineProps } from "shapes/Line";
+import { ShapeType } from "shapes/Shapes";
 import * as ad from "types/ad";
 import { A } from "types/ast";
 import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
-import { Fn, State } from "types/state";
+import { Fn } from "types/state";
 import { BindingForm, Expr, Path } from "types/style";
 import {
   Context,
@@ -118,7 +118,7 @@ export const randFloats = (
   rng: seedrandom.prng,
   count: number,
   [min, max]: [number, number]
-): number[] => times(count, () => randFloat(rng, min, max));
+): number[] => _.times(count, () => randFloat(rng, min, max));
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive
@@ -146,23 +146,107 @@ export const randList = (rng: seedrandom.prng, n: number): number[] => {
 
 //#region renderer
 
-export const arrowheads = {
-  "arrowhead-1": {
+export interface ArrowheadSpec {
+  width: number;
+  height: number;
+  viewbox: string;
+  refX: number;
+  refY: number;
+  path: string;
+  fillKind: "stroke" | "fill";
+  style?: { [k: string]: string };
+}
+type ArrowheadMap = {
+  [k: string]: ArrowheadSpec;
+};
+
+export const arrowheads: ArrowheadMap = {
+  concave: {
     width: 8,
     height: 8,
     viewbox: "0 0 8 8",
-    refX: "4",
-    refY: "4", // HACK: to avoid paths from bleeding through the arrowhead
+    refX: 2.5,
+    refY: 4,
     path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z",
+    fillKind: "fill",
   },
-  "arrowhead-2": {
+  straight: {
     width: 9.95,
     height: 8.12,
     viewbox: "0 0 9.95 8.12",
-    refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
-    refY: "4.06",
+    refX: 2.36,
+    refY: 4.06,
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
+    fillKind: "fill",
   },
+  line: {
+    width: 7.5,
+    height: 14,
+    viewbox: "0 0 7.5 14",
+    refX: 5,
+    refY: 7,
+    path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  doubleLine: {
+    width: 12.5,
+    height: 14,
+    viewbox: "0 0 12.5 14",
+    refX: 5,
+    refY: 7,
+    path:
+      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loopup: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 10 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loopdown: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 1 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+  loop: {
+    width: 6,
+    height: 28,
+    viewbox: "0 0 6 28",
+    refX: 1,
+    refY: 10,
+    path: "M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9",
+    fillKind: "stroke",
+    style: {
+      "stroke-linecap": "round",
+    },
+  },
+};
+
+export const getArrowhead = (style: string): ArrowheadSpec | undefined => {
+  if (style in arrowheads) {
+    const arrow = arrowheads[style];
+    return arrow;
+  }
 };
 
 export const toScreen = (
@@ -177,12 +261,73 @@ export const toScreen = (
 
 //#region color
 
-export const toHexRGB = (color: [number, number, number]): string => {
+export const hexToRgba = (
+  hex: string
+): [number, number, number, number] | undefined => {
+  const parseIntHex = (value: string) => {
+    return parseInt(value, 16);
+  };
+  const isThree = hex.length === 3;
+  const isFour = hex.length === 4;
+  const isSix = hex.length === 6;
+  const isEight = hex.length === 8;
+  if (!isThree && !isFour && !isSix && !isEight) {
+    return undefined;
+  }
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let a = 255; // NOTE: alpha defaults to 255
+
+  switch (hex.length) {
+    case 3: {
+      r = parseIntHex(hex.slice(0, 1).repeat(2));
+      g = parseIntHex(hex.slice(1, 2).repeat(2));
+      b = parseIntHex(hex.slice(2, 3).repeat(2));
+      break;
+    }
+    case 4: {
+      r = parseIntHex(hex.slice(0, 1).repeat(2));
+      g = parseIntHex(hex.slice(1, 2).repeat(2));
+      b = parseIntHex(hex.slice(2, 3).repeat(2));
+      a = parseIntHex(hex.slice(3, 4).repeat(2));
+      break;
+    }
+    case 6: {
+      r = parseIntHex(hex.slice(0, 2));
+      g = parseIntHex(hex.slice(2, 4));
+      b = parseIntHex(hex.slice(4, 6));
+      break;
+    }
+    case 8: {
+      r = parseIntHex(hex.slice(0, 2));
+      g = parseIntHex(hex.slice(2, 4));
+      b = parseIntHex(hex.slice(4, 6));
+      a = parseIntHex(hex.slice(6, 8));
+      break;
+    }
+  }
+  return [r / 255, g / 255, b / 255, a / 255];
+};
+
+export const rgbToHex = (color: [number, number, number]): string => {
   return color.reduce((prev: string, cur: number) => {
-    const hex = Math.round(255 * cur).toString(16);
+    const hex = toHexDigit(cur);
     const padded = hex.length === 1 ? "0" + hex : hex;
     return prev + padded;
   }, "#");
+};
+
+export const rgbaToHex = (color: [number, number, number, number]): string => {
+  return color.reduce((prev: string, cur: number) => {
+    const hex = toHexDigit(cur);
+    const padded = hex.length === 1 ? "0" + hex : hex;
+    return prev + padded;
+  }, "#");
+};
+
+const toHexDigit = (n: number): string => {
+  return Math.round(255 * n).toString(16);
 };
 
 // TODO nest this
@@ -225,13 +370,13 @@ export const hsvToRGB = (
 export const toSvgPaintProperty = (color: Color<number>): string => {
   switch (color.tag) {
     case "RGBA":
-      return toHexRGB([
+      return rgbToHex([
         color.contents[0],
         color.contents[1],
         color.contents[2],
       ]);
     case "HSVA":
-      return toHexRGB(
+      return rgbToHex(
         hsvToRGB([color.contents[0], color.contents[1], color.contents[2]])
       );
     case "NONE":
@@ -310,7 +455,7 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
 // calculates bounding box dimensions of a shape - used in inspector views
 export const bBoxDims = (
   properties: Properties<number>,
-  shapeType: string
+  shapeType: ShapeType
 ): [number, number] => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {
@@ -453,6 +598,8 @@ export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
 
 export const black = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
+export const white = (): ColorV<ad.Num> =>
+  colorV({ tag: "RGBA", contents: [1, 1, 1, 1] });
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
 
@@ -607,21 +754,34 @@ export const prettyPrintExpr = (
 };
 
 export const prettyPrintFn = (fn: Fn): string => {
-  const name = fn.ast.expr.name.value;
-  const args = fn.ast.expr.args
-    .map((arg) =>
-      prettyPrintExpr(arg, (p) =>
-        prettyPrintResolvedPath(
-          resolveRhsPath({ context: fn.ast.context, expr: p })
+  const body = fn.ast.expr.body;
+  if (body.tag === "FunctionCall") {
+    const name = body.name.value;
+    const args = body.args
+      .map((arg) =>
+        prettyPrintExpr(arg, (p) =>
+          prettyPrintResolvedPath(
+            resolveRhsPath({ context: fn.ast.context, expr: p })
+          )
         )
       )
-    )
-    .join(", ");
-  return [name, "(", args, ")"].join("");
+      .join(", ");
+    return [name, "(", args, ")"].join("");
+  } else {
+    const { op, arg1, arg2 } = body;
+    const ppArg1 = prettyPrintExpr(arg1, (p) =>
+      prettyPrintResolvedPath(
+        resolveRhsPath({ context: fn.ast.context, expr: p })
+      )
+    );
+    const ppArg2 = prettyPrintExpr(arg2, (p) =>
+      prettyPrintResolvedPath(
+        resolveRhsPath({ context: fn.ast.context, expr: p })
+      )
+    );
+    return ppArg1 + " " + op.op + " " + ppArg2;
+  }
 };
-
-export const prettyPrintFns = (state: State): string[] =>
-  state.objFns.concat(state.constrFns).map(prettyPrintFn);
 
 //#endregion
 
@@ -704,7 +864,6 @@ export const getAdValueAsString = (
   switch (prop.tag) {
     case "FloatV":
       if (typeof prop.contents === "number") return prop.contents.toString();
-      if (typeof prop.contents === "string") return prop.contents;
       break;
     case "StrV":
       return prop.contents;
@@ -712,50 +871,6 @@ export const getAdValueAsString = (
   if (dft !== undefined) return dft;
   throw new Error(
     `getAdValueAsString: unexpected tag ${prop.tag} w/value ${JSON.stringify(
-      prop.contents
-    )}`
-  );
-};
-
-/**
- * Gets the numeric value of a property.  If the property cannot be converted
- * to a number, throw an exception.
- *
- * @param prop Get the numeric value of this property
- * @param dft Optional default value (if you don't want an exception)
- * @returns numeric value of the property
- */
-export const getAdValueAsNumber = (
-  prop: Value<ad.Num>,
-  dft?: number
-): number => {
-  switch (prop.tag) {
-    case "FloatV":
-      if (typeof prop.contents === "number") return prop.contents;
-      if (typeof prop.contents === "string") return parseFloat(prop.contents);
-      break;
-    case "StrV":
-      return parseFloat(prop.contents);
-  }
-  if (dft !== undefined) return dft;
-  throw new Error(
-    `getAdValueAsNumber: unexpected tag ${prop.tag} w/value ${JSON.stringify(
-      prop.contents
-    )}`
-  );
-};
-
-/**
- * Gets the color value of a property.  If the property is not a color,
- * throw an exception.
- *
- * @param prop Get the color value of this property
- * @returns color value of the property
- */
-export const getAdValueAsColor = (prop: Value<ad.Num>): Color<ad.Num> => {
-  if (prop.tag === "ColorV") return prop.contents;
-  throw new Error(
-    `getAdValueAsColor: unexpected tag ${prop.tag} w/value ${JSON.stringify(
       prop.contents
     )}`
   );

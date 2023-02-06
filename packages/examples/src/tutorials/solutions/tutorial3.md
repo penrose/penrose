@@ -2,7 +2,7 @@
 
 ## Task 1
 
-`vector.sty`
+`vector.style`
 
 ```
 /**************DO NOT TOUCH ZONE - START**************/
@@ -50,8 +50,8 @@ forall VectorSpace U {
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
+        startArrowhead: "straight"
+        endArrowhead: "straight"
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -61,8 +61,8 @@ forall VectorSpace U {
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
+        startArrowhead: "straight"
+        endArrowhead: "straight"
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -84,7 +84,7 @@ where In(u,U) {
     end : U.origin + u.vector
     strokeWidth : 3.0
     strokeColor : const.lightBlue
-    endArrowhead : true
+    endArrowhead: "straight"
     arrowheadSize : const.arrowheadSize
   }
 
@@ -106,7 +106,7 @@ where In(u,U) {
 
 ## Task 2
 
-`linearAlgebra`
+`linearAlgebra.domain`
 
 ```
 type VectorSpace
@@ -116,7 +116,7 @@ predicate In(Vector, VectorSpace V)
 function addV(Vector, Vector) -> Vector
 ```
 
-`vector.sub`
+`vector.substance`
 
 ```
 VectorSpace U
@@ -129,7 +129,7 @@ In(u, U)
 AutoLabel All
 ```
 
-`vector.sty`
+`vector.style`
 
 ```
 /* ... same as starter code */
@@ -145,7 +145,7 @@ where In(u,U) {
     end : U.origin + u.vector
     strokeWidth : 3.0
     strokeColor : const.lightBlue
-    endArrowhead : true
+    endArrowhead: "straight"
     arrowheadSize : const.arrowheadSize
   }
 
@@ -173,7 +173,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 
 ## Exercise 1
 
-`linearAlgebra.dsl`
+`linearAlgebra.domain`
 
 ```
 type VectorSpace
@@ -183,7 +183,7 @@ predicate In(Vector, VectorSpace V)
 function subV(Vector, Vector) -> Vector
 ```
 
-`vector.sub`
+`vector.substance`
 
 ```
 VectorSpace U
@@ -196,7 +196,7 @@ In(u, U)
 AutoLabel All
 ```
 
-`vector.sty`
+`vector.style`
 
 ```
 /**************YOUR CODE - START********************/
@@ -217,7 +217,7 @@ where u := subV(v,w); In(u, U); In(v, U); In(w, U){
 
 ## Exercise 2
 
-`linearAlgebra.dsl`
+`linearAlgebra.domain`
 
 ```
 type VectorSpace
@@ -227,7 +227,7 @@ predicate In(Vector, VectorSpace V)
 function scalarMult(Scalar, Vector) -> Vector
 ```
 
-`vector.sub`
+`vector.substance`
 
 ```
 VectorSpace U
@@ -239,7 +239,7 @@ In(u, U)
 AutoLabel All
 ```
 
-`vector.sty`
+`vector.style`
 
 ```
 /**************YOUR CODE - START********************/
@@ -257,7 +257,7 @@ forall Scalar a {
 
 forall Scalar a; Vector u; Vector v; VectorSpace U
 where u := scalarMult(a, v); In(u, U); In(v, U){
-   override u.shape.end = (a.scalar * v.shape.end) - U.origin
+   override u.shape.end = a.scalar * (v.shape.end - U.origin) + U.origin
    override u.shape.strokeColor = const.green
    override u.text.string = "scaled_v"
 }
@@ -266,7 +266,7 @@ where u := scalarMult(a, v); In(u, U); In(v, U){
 
 ## Exercise 3
 
-`linearAlgebra.dsl`
+`linearAlgebra.domain`
 
 ```
 /* This is the same as Tutorial Part 2 */
@@ -277,7 +277,7 @@ predicate In(Vector, VectorSpace V)
 function addV(Vector, Vector) -> Vector
 ```
 
-`vector.sub`
+`vector.substance`
 
 ```
 /* This is the same as Tutorial Part 2 */
@@ -291,7 +291,7 @@ In(u, U)
 AutoLabel All
 ```
 
-`vector.sty`
+`vector.style`
 
 ```
 where In(u,U) {
@@ -308,7 +308,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   u.dashed_v = Line {
     start: (w.shape.end[0], w.shape.end[1])
     end: (u.shape.end[0], u.shape.end[1])
-    endArrowhead: true
+    endArrowhead: "straight"
     strokeWidth : const.arrowThickness
     strokeStyle : "dashed"
     arrowheadSize : const.arrowheadSize
@@ -317,7 +317,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   u.dashed_w = Line {
     start: (v.shape.end[0], v.shape.end[1])
     end: (u.shape.end[0], u.shape.end[1])
-    endArrowhead: true
+    endArrowhead: "straight"
     strokeWidth : const.arrowThickness
     strokeStyle : "dashed"
     arrowheadSize : const.arrowheadSize

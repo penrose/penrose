@@ -1,7 +1,7 @@
 //#region Domain AST
 
-import { Graph } from "graphlib";
 import im from "immutable";
+import Graph from "utils/Graph";
 import { A, ASTNode, C, Identifier, StringLit } from "./ast";
 import { ApplyConstructor, TypeConsApp } from "./substance";
 
@@ -106,6 +106,6 @@ export interface Env {
   typeVars: im.Map<string, TypeVar<C>>;
   preludeValues: im.Map<string, TypeConstructor<C>>; // TODO: store as Substance values?
   subTypes: [TypeConstructor<C>, TypeConstructor<C>][];
-  typeGraph: Graph;
+  typeGraph: Graph<string>;
 }
 //#endregion

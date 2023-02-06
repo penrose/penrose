@@ -1,0 +1,26 @@
+Plane P
+Point A, B, C, D, E
+In(A, P)
+In(B, P)
+In(C, P)
+In(D, P)
+In(E, P)
+Collinear(A, C, E)
+Collinear(B, C, D)
+Segment BC := MkSegment(B, C)
+Segment AC := MkSegment(A, C)
+Angle aBAC := InteriorAngle(B, A, C)
+Angle aABC := InteriorAngle(A, B, C)
+Angle aDEC := InteriorAngle(D, E, C)
+Angle aDCE := InteriorAngle(D, C, E)
+Angle aCDE := InteriorAngle(C, D, E)
+Triangle ABC := MkTriangle(A, B, C)
+Triangle DCE := MkTriangle(C, D, E)
+EqualLength(AC, BC)
+EqualLengthMarker(AC, BC)
+EqualAngle(aABC, aBAC)
+EqualAngleMarker(aABC, aBAC)
+EqualAngle(aDCE, aDEC)
+EqualAngleMarker(aDCE, aDEC)
+AutoLabel A, B, C, D, E, P
+Label aCDE $x$

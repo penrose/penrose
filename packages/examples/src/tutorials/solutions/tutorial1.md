@@ -2,13 +2,13 @@
 
 Add another `Set` to the diagram. So you should have 3 circles on your screen.
 
-`.dsl`
+`.domain`
 
 ```
 type Set
 ```
 
-`.sty`
+`.style`
 
 ```
 canvas {
@@ -24,7 +24,7 @@ forall Set x {
 ```
 
 _With changes:_
-`.sub`
+`.substance`
 
 ```
 Set A
@@ -36,7 +36,7 @@ Set C
 
 Keep 3 sets. Represent `Set` as squares with side length equal to `50.0`.
 
-`.sub`
+`.substance`
 
 ```
 Set A
@@ -44,14 +44,14 @@ Set B
 Set C
 ```
 
-`.dsl`
+`.domain`
 
 ```
 type Set
 ```
 
 _With changes:_
-`.sty`
+`.style`
 
 ```
 canvas {
@@ -71,7 +71,7 @@ forall Set x {
 
 Keep 3 sets. Represent `Set` as rectangles with `strokeWidth` equal to 15.
 
-`.sub`
+`.substance`
 
 ```
 Set A
@@ -79,14 +79,14 @@ Set B
 Set C
 ```
 
-`.dsl`
+`.domain`
 
 ```
 type Set
 ```
 
 _With changes:_
-`.sty`
+`.style`
 
 ```
 canvas {
@@ -106,7 +106,7 @@ forall Set x {
 
 Keep 3 sets. For each set, represent `Set` as both a `Circle` and a square.
 
-`.sub`
+`.substance`
 
 ```
 Set A
@@ -114,14 +114,14 @@ Set B
 Set C
 ```
 
-`.dsl`
+`.domain`
 
 ```
 type Set
 ```
 
 _With changes:_
-`.sty`
+`.style`
 
 ```
 canvas {

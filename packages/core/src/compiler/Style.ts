@@ -1,16 +1,19 @@
 import { CustomHeap } from "@datastructures-js/heap";
+import { genOptProblem } from "@penrose/optimizer";
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
+import consola from "consola";
 import { constrDict } from "contrib/Constraints";
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
 import { input, ops } from "engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
-import { compileCompGraph, dummyIdentifier } from "engine/EngineUtils";
-import { genOptProblem } from "engine/Optimizer";
-import { alg, Edge, Graph } from "graphlib";
+import {
+  compileCompGraph,
+  dummyIdentifier,
+  genGradient,
+} from "engine/EngineUtils";
 import im from "immutable";
-import _, { range } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation, prettyParseError } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -28,6 +31,8 @@ import { A, C, Identifier, SourceRange } from "types/ast";
 import { Env } from "types/domain";
 import {
   BinOpTypeError,
+  LayerCycleWarning,
+  MultipleLayoutError,
   ParseError,
   PenroseError,
   StyleDiagnostics,
@@ -36,15 +41,24 @@ import {
   SubstanceError,
 } from "types/errors";
 import { ShapeAD } from "types/shape";
-import { Fn, State } from "types/state";
+import {
+  Fn,
+  OptPipeline,
+  OptStages,
+  StagedConstraints,
+  State,
+} from "types/state";
 import {
   BinaryOp,
   BindingForm,
   BinOp,
   DeclPattern,
   Expr,
+  FunctionCall,
   Header,
   HeaderBlock,
+  InlineComparison,
+  LayoutStages,
   List,
   Path,
   PathAssign,
@@ -109,6 +123,7 @@ import {
   all,
   andThen,
   err,
+  invalidColorLiteral,
   isErr,
   ok,
   parseError,
@@ -117,15 +132,18 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { Digraph } from "utils/Graph";
+import Graph from "utils/Graph";
 import {
   boolV,
+  colorV,
   floatV,
+  hexToRgba,
   listV,
   llistV,
   matrixV,
   prettyPrintResolvedPath,
   resolveRhsName,
+  safe,
   strV,
   tupV,
   val,
@@ -135,7 +153,7 @@ import {
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
-  .create({ level: LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Style Compiler");
 
 //#region consts
@@ -150,7 +168,7 @@ const dummyId = (name: string): Identifier<A> =>
   dummyIdentifier(name, "SyntheticStyle");
 
 export function numbered<A>(xs: A[]): [A, number][] {
-  return zip2(xs, range(xs.length));
+  return zip2(xs, _.range(xs.length));
 }
 
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
@@ -158,13 +176,22 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
 
 const toString = (x: BindingForm<A>): string => x.contents.value;
 
-// https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-const cartesianProduct = <T>(...a: T[][]): T[][] =>
-  a.reduce(
-    (tuples: T[][], set) =>
-      tuples.flatMap((prefix: T[]) => set.map((x: T) => [...prefix, x])),
-    [[]]
-  );
+const cartesianProduct = <Tin, Tout>(
+  t1: Tin[],
+  t2: Tin[],
+  consistent: (t1: Tin, t2: Tin) => boolean,
+  merge: (t1: Tin, t2: Tin) => Tout
+): Tout[] => {
+  const product: Tout[] = [];
+  for (const i in t1) {
+    for (const j in t2) {
+      if (consistent(t1[i], t2[j])) {
+        product.push(merge(t1[i], t2[j]));
+      }
+    }
+  }
+  return product;
+};
 
 const oneErr = (err: StyleError): StyleDiagnostics => {
   return { errors: im.List([err]), warnings: im.List() };
@@ -542,22 +569,29 @@ const mergeMapping = (
     throw Error("var has no binding form?");
   }
   const [, bindingForm] = res;
-
+  const vars = varEnv.vars.set(
+    bindingForm.contents.value,
+    toSubstanceType(styType)
+  );
   switch (bindingForm.tag) {
-    case "SubVar": {
-      // G || (x : |T) |-> G
-      return varEnv;
-    }
-    case "StyVar": {
-      // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
+    case "StyVar":
       return {
         ...varEnv,
-        vars: varEnv.vars.set(
-          bindingForm.contents.value,
-          toSubstanceType(styType)
-        ),
+        vars,
+        varIDs: [
+          dummyIdentifier(bindingForm.contents.value, "Style"),
+          ...varEnv.varIDs,
+        ],
       };
-    }
+    case "SubVar":
+      return {
+        ...varEnv,
+        vars,
+        varIDs: [
+          dummyIdentifier(bindingForm.contents.value, "Substance"),
+          ...varEnv.varIDs,
+        ],
+      };
   }
 };
 
@@ -589,8 +623,10 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
         safeContentsList(sel.with)
       );
 
+      // Basically creates a new, empty environment.
+      const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
       const relErrs = checkRelPatterns(
-        mergeEnv(varEnv, selEnv_decls),
+        mergeEnv(emptyVarsEnv, selEnv_decls),
         selEnv_decls,
         safeContentsList(sel.where)
       );
@@ -975,15 +1011,18 @@ const merge = (
   const s1Arr = s1.toArray();
   const s2Arr = s2.toArray();
 
-  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(s1Arr, s2Arr)
-    .filter(([[aSubst], [bSubst]]) => {
+  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(
+    s1Arr,
+    s2Arr,
+    ([aSubst], [bSubst]) => {
       // Requires that substitutions are consistent
       return consistentSubsts(aSubst, bSubst);
-    })
-    .map(([[aSubst, aStmts], [bSubst, bStmts]]) => [
+    },
+    ([aSubst, aStmts], [bSubst, bStmts]) => [
       combine(aSubst, bSubst),
       aStmts.union(bStmts),
-    ]);
+    ]
+  );
   return im.List(result);
 };
 
@@ -1100,7 +1139,7 @@ const matchStyArgToSubArg = (
   varEnv: Env,
   styArg: PredArg<A> | SelExpr<A>,
   subArg: SubPredArg<A> | SubExpr<A>
-): Subst | undefined => {
+): Subst[] => {
   if (styArg.tag === "SEBind" && subArg.tag === "Identifier") {
     const styBForm = styArg.contents;
     if (styBForm.tag === "StyVar") {
@@ -1113,15 +1152,15 @@ const matchStyArgToSubArg = (
       if (typesMatched(varEnv, subArgType, styArgType)) {
         const rSubst = {};
         rSubst[styArgName] = subArgName;
-        return rSubst;
+        return [rSubst];
       } else {
-        return undefined;
+        return [];
       }
     } /* (styBForm.tag === "SubVar") */ else {
       if (subArg.value === styBForm.contents.value) {
-        return {};
+        return [{}];
       } else {
-        return undefined;
+        return [];
       }
     }
   }
@@ -1158,12 +1197,12 @@ const matchStyArgToSubArg = (
       subArg
     );
   }
-  return undefined;
+  return [];
 };
 
 /**
  * Match a list of Style arguments against a list of Substance arguments.
- * @returns If all arguments match, return a `Subst` that maps the Style variable(s) against Substance variable(s). If any arguments fail to match, return `undefined`.
+ * @returns If all arguments match, return a `Subst[]` that contains mappings which map the Style variable(s) against Substance variable(s). If any arguments fail to match, return [].
  */
 const matchStyArgsToSubArgs = (
   styTypeMap: { [k: string]: StyT<A> },
@@ -1171,34 +1210,53 @@ const matchStyArgsToSubArgs = (
   varEnv: Env,
   styArgs: PredArg<A>[] | SelExpr<A>[],
   subArgs: SubPredArg<A>[] | SubExpr<A>[]
-): Subst | undefined => {
-  const initRSubst: Subst | undefined = {};
-  const res = zip2<PredArg<A> | SelExpr<A>, SubPredArg<A> | SubExpr<A>>(
-    styArgs,
-    subArgs
-  ).reduce((rSubst: Subst | undefined, [styArg, subArg]) => {
-    if (rSubst === undefined) {
-      return undefined;
-    }
-    const argSubst = matchStyArgToSubArg(
+): Subst[] => {
+  const stySubArgPairs = zip2<
+    PredArg<A> | SelExpr<A>,
+    SubPredArg<A> | SubExpr<A>
+  >(styArgs, subArgs);
+
+  const substsForEachArg = stySubArgPairs.map(([styArg, subArg]) => {
+    const argSubsts = matchStyArgToSubArg(
       styTypeMap,
       subTypeMap,
       varEnv,
       styArg,
       subArg
     );
-    if (argSubst === undefined) {
-      return undefined;
-    } else {
-      return { ...rSubst, ...argSubst };
-    }
-  }, initRSubst);
-  return res;
+    return argSubsts;
+  });
+
+  // We do Cartesian product here.
+  // The idea is, each argument may yield multiple matches due to symmetry.
+  // For example, first argument might give us
+  //   (a --> A, b --> B) and (a --> B, b --> A)
+  // due to symmetry. The second argument might give us
+  //   (c --> C, d --> D) and (c --> D, d --> C).
+  // We want to incorporate all four possible, consistent matchings for (a, b, c, d).
+  // TODO: Think about ways to optimize this.
+  const first = substsForEachArg.shift();
+  if (first !== undefined) {
+    const substs: Subst[] = substsForEachArg.reduce(
+      (currSubsts, substsForArg) => {
+        return cartesianProduct(
+          currSubsts,
+          substsForArg,
+          (aSubst, bSubst) => consistentSubsts(aSubst, bSubst),
+          (aSubst, bSubst) => combine(aSubst, bSubst)
+        );
+      },
+      first
+    );
+    return substs;
+  } else {
+    return [];
+  }
 };
 
 /**
  * Match a Style application of predicate, function, or constructor against a Substance application
- * by comparing names and arguments. For predicates, consider potential symmetry.
+ * by comparing names and arguments. For symmetric predicates, we force it to consider both versions of the predicate.
  * If the Style application and Substance application match, return the variable mapping. Otherwise, return `undefined`.
  *
  * For example, let
@@ -1215,50 +1273,52 @@ const matchStyApplyToSubApply = (
   varEnv: Env,
   styRel: RelPred<A> | SelExpr<A>,
   subRel: ApplyPredicate<A> | SubExpr<A>
-): Subst | undefined => {
+): Subst[] => {
   // Predicate Applications
   if (styRel.tag === "RelPred" && subRel.tag === "ApplyPredicate") {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
-      return undefined;
+      return [];
     }
-    let rSubst = matchStyArgsToSubArgs(
+
+    // Consider the original version
+    const rSubstOriginal = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
       varEnv,
       styRel.args,
       subRel.args
     );
-    if (rSubst === undefined) {
-      // check symmetry
-      const predicateDecl = varEnv.predicates.get(subRel.name.value);
-      if (predicateDecl && predicateDecl.symmetric) {
-        // Flip arguments
-        const flippedStyArgs = [styRel.args[1], styRel.args[0]];
-        rSubst = matchStyArgsToSubArgs(
-          styTypeMap,
-          subTypeMap,
-          varEnv,
-          flippedStyArgs,
-          subRel.args
-        );
-      }
+
+    // Consider the symmetric, flipped-argument version
+    let rSubstSymmetric = undefined;
+    const predicateDecl = varEnv.predicates.get(subRel.name.value);
+    if (predicateDecl && predicateDecl.symmetric) {
+      // Flip arguments
+      const flippedStyArgs = [styRel.args[1], styRel.args[0]];
+      rSubstSymmetric = matchStyArgsToSubArgs(
+        styTypeMap,
+        subTypeMap,
+        varEnv,
+        flippedStyArgs,
+        subRel.args
+      );
     }
 
-    // If still no match (even after considering potential symmetry)
-    if (rSubst === undefined) {
-      return undefined;
+    const rSubsts: Subst[] = [...rSubstOriginal];
+    if (rSubstSymmetric !== undefined) {
+      rSubsts.push(...rSubstSymmetric);
+    }
+
+    if (styRel.alias === undefined) {
+      return rSubsts;
     } else {
-      // Otherwise, if needed, we add in the alias.
-      if (styRel.alias === undefined) {
-        return rSubst;
-      } else {
+      const aliasName = styRel.alias.value;
+      return rSubsts.map((rSubst) => {
         const rSubstWithAlias = { ...rSubst };
-        rSubstWithAlias[styRel.alias.value] = getSubPredAliasInstanceName(
-          subRel
-        );
+        rSubstWithAlias[aliasName] = getSubPredAliasInstanceName(subRel);
         return rSubstWithAlias;
-      }
+      });
     }
   }
 
@@ -1271,17 +1331,18 @@ const matchStyApplyToSubApply = (
   ) {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
-      return undefined;
+      return [];
     }
-    return matchStyArgsToSubArgs(
+    const rSubst = matchStyArgsToSubArgs(
       styTypeMap,
       subTypeMap,
       varEnv,
       styRel.args,
       subRel.args
     );
+    return rSubst;
   }
-  return undefined;
+  return [];
 };
 
 /**
@@ -1374,17 +1435,20 @@ const matchStyRelToSubRels = (
         if (statement.tag !== "ApplyPredicate") {
           return rSubsts;
         }
-        const rSubst = matchStyApplyToSubApply(
+        const rSubstsForPred = matchStyApplyToSubApply(
           styTypeMap,
           subTypeMap,
           varEnv,
           styPred,
           statement
         );
-        if (rSubst === undefined) {
-          return rSubsts;
-        }
-        return rSubsts.push([rSubst, im.Set<SubStmt<A>>().add(statement)]);
+
+        return rSubstsForPred.reduce((rSubsts, rSubstForPred) => {
+          return rSubsts.push([
+            rSubstForPred,
+            im.Set<SubStmt<A>>().add(statement),
+          ]);
+        }, rSubsts);
       },
       initRSubsts
     );
@@ -1401,19 +1465,22 @@ const matchStyRelToSubRels = (
       const { variable: subBindedVar, expr: subBindedExpr } = statement;
       const subBindedName = subBindedVar.value;
       // substitutions for RHS expression
-      const rSubstExpr = matchStyApplyToSubApply(
+      const rSubstsForExpr = matchStyApplyToSubApply(
         styTypeMap,
         subTypeMap,
         varEnv,
         styBindedExpr,
         subBindedExpr
       );
-      if (rSubstExpr === undefined) {
-        return rSubsts;
-      }
-      const rSubst = { ...rSubstExpr };
-      rSubst[styBindedName] = subBindedName;
-      return rSubsts.push([rSubst, im.Set<SubStmt<A>>().add(statement)]);
+
+      return rSubstsForExpr.reduce((rSubsts, rSubstForExpr) => {
+        const rSubstForBind = { ...rSubstForExpr };
+        rSubstForBind[styBindedName] = subBindedName;
+        return rSubsts.push([
+          rSubstForBind,
+          im.Set<SubStmt<A>>().add(statement),
+        ]);
+      }, rSubsts);
     }, initRSubsts);
 
     return [getStyRelArgNames(rel), newRSubsts];
@@ -2038,9 +2105,11 @@ export const buildAssignment = (
       ])
     ),
   };
-  return styProg.blocks.reduce(
-    (assignment, block, index) =>
-      processBlock(varEnv, subEnv, index, block, assignment),
+  return styProg.items.reduce(
+    (assignment, item, index) =>
+      item.tag === "HeaderBlock"
+        ? processBlock(varEnv, subEnv, index, item, assignment)
+        : assignment,
     assignment
   );
 };
@@ -2055,21 +2124,29 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       return [expr.left, expr.right].flatMap(findPathsExpr);
     }
     case "BoolLit":
+    case "ColorLit":
     case "Fix":
     case "StringLit":
     case "Vary": {
       return [];
     }
-    case "CompApp":
+    case "CompApp": {
+      return expr.args.flatMap(findPathsExpr);
+    }
     case "ConstrFn":
     case "ObjFn": {
-      return expr.args.flatMap(findPathsExpr);
+      const body = expr.body;
+      if (body.tag === "FunctionCall") {
+        return body.args.flatMap(findPathsExpr);
+      } else {
+        return [body.arg1, body.arg2].flatMap(findPathsExpr);
+      }
     }
     case "GPIDecl": {
       return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
     }
     case "Layering": {
-      return [expr.below, expr.above];
+      return [expr.left, ...expr.right];
     }
     case "List":
     case "Tuple":
@@ -2103,7 +2180,14 @@ const gatherExpr = (
 ): void => {
   graph.setNode(w, expr);
   for (const p of findPathsWithContext(expr)) {
-    graph.setEdge({ v: prettyPrintResolvedPath(resolveRhsPath(p)), w });
+    graph.setEdge(
+      {
+        i: prettyPrintResolvedPath(resolveRhsPath(p)),
+        j: w,
+        e: undefined,
+      },
+      () => undefined
+    );
   }
 };
 
@@ -2113,7 +2197,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
       graph.setNode(lhs, rhs.shapeType);
       for (const [k, expr] of rhs.props) {
         const p = `${lhs}.${k}`;
-        graph.setEdge({ v: p, w: lhs });
+        graph.setEdge({ i: p, j: lhs, e: undefined }, () => undefined);
         gatherExpr(graph, p, expr);
       }
       return;
@@ -2125,8 +2209,11 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
   }
 };
 
-const gatherDependencies = (assignment: Assignment): DepGraph => {
-  const graph = new Digraph<string, WithContext<NotShape>>();
+export const gatherDependencies = (assignment: Assignment): DepGraph => {
+  const graph = new Graph<
+    string,
+    ShapeType | WithContext<NotShape> | undefined
+  >();
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
@@ -2166,22 +2253,24 @@ const internalMissingPathError = (path: string) =>
 const evalExprs = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
-    args.map((expr) => evalExpr(mut, canvas, { context, expr }, trans))
+    args.map((expr) => evalExpr(mut, canvas, stages, { context, expr }, trans))
   ).mapErr(flatErrs);
 
 const argValues = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<(GPI<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
-  evalExprs(mut, canvas, context, args, trans).map((argVals) =>
+  evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
     argVals.map((arg) => {
       switch (arg.tag) {
         case "GPI": // strip the `GPI` tag
@@ -2195,11 +2284,12 @@ const argValues = (
 const evalVals = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
   trans: Translation
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
-  evalExprs(mut, canvas, context, args, trans).andThen((argVals) =>
+  evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
     all(
       argVals.map(
         (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
@@ -2409,11 +2499,12 @@ const eval2D = (
 const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   context: Context,
   coll: List<C> | Vector<C>,
   trans: Translation
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
-  return evalVals(mut, canvas, context, coll.contents, trans).andThen(
+  return evalVals(mut, canvas, stages, context, coll.contents, trans).andThen(
     (vals) => {
       if (vals.length === 0) {
         switch (coll.tag) {
@@ -2524,6 +2615,7 @@ const evalUMinus = (
 const evalExpr = (
   mut: MutableContext,
   canvas: Canvas,
+  layoutStages: OptPipeline,
   { context, expr }: WithContext<Expr<C>>,
   trans: Translation
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
@@ -2532,6 +2624,7 @@ const evalExpr = (
       return evalVals(
         mut,
         canvas,
+        layoutStages,
         context,
         [expr.left, expr.right],
         trans
@@ -2546,8 +2639,24 @@ const evalExpr = (
     case "BoolLit": {
       return ok(val(boolV(expr.contents)));
     }
+    case "ColorLit": {
+      const hex = expr.contents;
+      const rgba = hexToRgba(hex);
+      if (rgba) {
+        return ok(val(colorV({ tag: "RGBA", contents: rgba })));
+      } else {
+        return err(oneErr(invalidColorLiteral(expr)));
+      }
+    }
     case "CompApp": {
-      const args = argValues(mut, canvas, context, expr.args, trans);
+      const args = argValues(
+        mut,
+        canvas,
+        layoutStages,
+        context,
+        expr.args,
+        trans
+      );
       if (args.isErr()) {
         return err(args.error);
       }
@@ -2571,7 +2680,14 @@ const evalExpr = (
     }
     case "List":
     case "Vector": {
-      return evalListOrVector(mut, canvas, context, expr, trans).map(val);
+      return evalListOrVector(
+        mut,
+        canvas,
+        layoutStages,
+        context,
+        expr,
+        trans
+      ).map(val);
     }
     case "Path": {
       const resolvedPath = resolveRhsPath({ context, expr });
@@ -2589,20 +2705,24 @@ const evalExpr = (
       }
       const res = all(
         expr.indices.map((e) =>
-          evalExpr(mut, canvas, { context, expr: e }, trans).andThen<number>(
-            (i) => {
-              if (i.tag === "GPI") {
-                return err(oneErr({ tag: "NotValueError", expr: e }));
-              } else if (
-                i.contents.tag === "FloatV" &&
-                typeof i.contents.contents === "number"
-              ) {
-                return ok(i.contents.contents);
-              } else {
-                return err(oneErr({ tag: "BadIndexError", expr: e }));
-              }
+          evalExpr(
+            mut,
+            canvas,
+            layoutStages,
+            { context, expr: e },
+            trans
+          ).andThen<number>((i) => {
+            if (i.tag === "GPI") {
+              return err(oneErr({ tag: "NotValueError", expr: e }));
+            } else if (
+              i.contents.tag === "FloatV" &&
+              typeof i.contents.contents === "number"
+            ) {
+              return ok(i.contents.contents);
+            } else {
+              return err(oneErr({ tag: "BadIndexError", expr: e }));
             }
-          )
+          })
         )
       );
       if (res.isErr()) {
@@ -2618,51 +2738,121 @@ const evalExpr = (
       return ok(val(strV(expr.contents)));
     }
     case "Tuple": {
-      return evalVals(mut, canvas, context, expr.contents, trans).andThen(
-        ([left, right]) => {
-          if (left.tag !== "FloatV") {
-            return err(
-              oneErr({ tag: "BadElementError", coll: expr, index: 0 })
-            );
-          }
-          if (right.tag !== "FloatV") {
-            return err(
-              oneErr({ tag: "BadElementError", coll: expr, index: 1 })
-            );
-          }
-          return ok(val(tupV([left.contents, right.contents])));
+      return evalVals(
+        mut,
+        canvas,
+        layoutStages,
+        context,
+        expr.contents,
+        trans
+      ).andThen(([left, right]) => {
+        if (left.tag !== "FloatV") {
+          return err(oneErr({ tag: "BadElementError", coll: expr, index: 0 }));
         }
-      );
+        if (right.tag !== "FloatV") {
+          return err(oneErr({ tag: "BadElementError", coll: expr, index: 1 }));
+        }
+        return ok(val(tupV([left.contents, right.contents])));
+      });
     }
     case "UOp": {
-      return evalExpr(mut, canvas, { context, expr: expr.arg }, trans).andThen(
-        (argVal) => {
-          if (argVal.tag === "GPI") {
-            return err(oneErr({ tag: "NotValueError", expr }));
-          }
-          switch (expr.op) {
-            case "UMinus": {
-              const res = evalUMinus(expr, argVal.contents);
-              if (res.isErr()) {
-                return err(oneErr(res.error));
-              }
-              return ok(val(res.value));
+      return evalExpr(
+        mut,
+        canvas,
+        layoutStages,
+        { context, expr: expr.arg },
+        trans
+      ).andThen((argVal) => {
+        if (argVal.tag === "GPI") {
+          return err(oneErr({ tag: "NotValueError", expr }));
+        }
+        switch (expr.op) {
+          case "UMinus": {
+            const res = evalUMinus(expr, argVal.contents);
+            if (res.isErr()) {
+              return err(oneErr(res.error));
             }
+            return ok(val(res.value));
           }
         }
-      );
+      });
     }
     case "Vary": {
+      const { exclude } = expr;
+      const stages: OptStages = stageExpr(
+        layoutStages,
+        exclude,
+        expr.stages.map((s) => s.value)
+      );
       return ok(
-        val(floatV(mut.makeInput({ sampler: uniform(...canvas.xRange) })))
+        val(
+          floatV(
+            mut.makeInput({
+              init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
+              stages,
+            })
+          )
+        )
       );
     }
+  }
+};
+
+const stageExpr = (
+  overallStages: string[],
+  excludeFlag: boolean,
+  stageList: string[]
+): OptStages => {
+  if (excludeFlag) {
+    const stages = new Set(overallStages);
+    for (const stage of stageList) {
+      stages.delete(stage);
+    }
+    return stages;
+  } else {
+    return new Set(stageList);
+  }
+};
+
+const extractObjConstrBody = (
+  body: InlineComparison<C> | FunctionCall<C>
+): { name: Identifier<C>; argExprs: Expr<C>[] } => {
+  if (body.tag === "InlineComparison") {
+    const mapInlineOpToFunctionName = (op: "<" | "==" | ">"): string => {
+      switch (op) {
+        case "<":
+          return "lessThan";
+        case "==":
+          return "equal";
+        case ">":
+          return "greaterThan";
+      }
+    };
+    const functionName = mapInlineOpToFunctionName(body.op.op);
+
+    return {
+      name: {
+        tag: "Identifier",
+        start: body.op.start,
+        end: body.op.end,
+        nodeType: body.op.nodeType,
+        type: "value",
+        value: functionName,
+      },
+      argExprs: [body.arg1, body.arg2],
+    };
+  } else {
+    return {
+      name: body.name,
+      argExprs: body.args,
+    };
   }
 };
 
 const translateExpr = (
   mut: MutableContext,
   canvas: Canvas,
+  layoutStages: OptPipeline,
   path: string,
   e: WithContext<NotShape>,
   trans: Translation
@@ -2670,6 +2860,7 @@ const translateExpr = (
   switch (e.expr.tag) {
     case "BinOp":
     case "BoolLit":
+    case "ColorLit":
     case "CompApp":
     case "Fix":
     case "List":
@@ -2679,7 +2870,7 @@ const translateExpr = (
     case "UOp":
     case "Vary":
     case "Vector": {
-      const res = evalExpr(mut, canvas, e, trans);
+      const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
       }
@@ -2689,11 +2880,19 @@ const translateExpr = (
       };
     }
     case "ConstrFn": {
-      const args = argValues(mut, canvas, e.context, e.expr.args, trans);
+      const { name, argExprs } = extractObjConstrBody(e.expr.body);
+      const args = argValues(
+        mut,
+        canvas,
+        layoutStages,
+        e.context,
+        argExprs,
+        trans
+      );
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name } = e.expr;
+      const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
         return addDiags(
@@ -2702,20 +2901,34 @@ const translateExpr = (
         );
       }
       const output: ad.Num = constrDict[fname](...args.value);
+      const optStages: OptStages = stageExpr(
+        layoutStages,
+        exclude,
+        stages.map((s) => s.value)
+      );
       return {
         ...trans,
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
+          optStages,
           output,
         }),
       };
     }
     case "ObjFn": {
-      const args = argValues(mut, canvas, e.context, e.expr.args, trans);
+      const { name, argExprs } = extractObjConstrBody(e.expr.body);
+      const args = argValues(
+        mut,
+        canvas,
+        layoutStages,
+        e.context,
+        argExprs,
+        trans
+      );
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name } = e.expr;
+      const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
         return addDiags(
@@ -2723,25 +2936,41 @@ const translateExpr = (
           trans
         );
       }
+
+      const optStages: OptStages = stageExpr(
+        layoutStages,
+        exclude,
+        stages.map((s) => s.value)
+      );
       const output: ad.Num = objDict[fname](...args.value);
       return {
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
+          optStages,
           output,
         }),
       };
     }
     case "Layering": {
-      const below = prettyPrintResolvedPath(
-        resolveRhsPath({ context: e.context, expr: e.expr.below })
+      const { expr, context } = e;
+      const left = prettyPrintResolvedPath(
+        resolveRhsPath({ context: context, expr: expr.left })
       );
-      const above = prettyPrintResolvedPath(
-        resolveRhsPath({ context: e.context, expr: e.expr.above })
+      const rightList = expr.right.map((r: Path<C>) =>
+        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r }))
       );
+      const layeringRelations = rightList.map((r: string) => {
+        switch (expr.layeringOp) {
+          case "below":
+            return { below: left, above: r };
+          case "above":
+            return { below: r, above: left };
+        }
+      });
       return {
         ...trans,
-        layering: trans.layering.push({ below, above }),
+        layering: trans.layering.push(...layeringRelations),
       };
     }
   }
@@ -2771,9 +3000,10 @@ const evalGPI = (
   };
 };
 
-const translate = (
+export const translate = (
   mut: MutableContext,
   canvas: Canvas,
+  stages: OptPipeline,
   graph: DepGraph,
   warnings: im.List<StyleWarning>
 ): Translation => {
@@ -2796,6 +3026,26 @@ const translate = (
     constraints: im.List(),
     layering: im.List(),
   };
+
+  const cycles = graph.findCycles().map((cycle) =>
+    cycle.map((id) => {
+      const e = graph.node(id);
+      return {
+        id,
+        src:
+          e === undefined || typeof e === "string"
+            ? undefined
+            : { start: e.expr.start, end: e.expr.end },
+      };
+    })
+  );
+  if (cycles.length > 0) {
+    return {
+      ...trans,
+      diagnostics: oneErr({ tag: "CyclicAssignmentError", cycles }),
+    };
+  }
+
   return graph.topsort().reduce((trans, path) => {
     const e = graph.node(path);
     if (e === undefined) {
@@ -2806,7 +3056,7 @@ const translate = (
         symbols: trans.symbols.set(path, evalGPI(path, e, trans)),
       };
     }
-    return translateExpr(mut, canvas, path, e, trans);
+    return translateExpr(mut, canvas, stages, path, e, trans);
   }, trans);
 };
 
@@ -2814,45 +3064,47 @@ const translate = (
 
 //#region layering
 
-export const topSortLayering = (
+export const computeShapeOrdering = (
   allGPINames: string[],
-  partialOrderings: [string, string][]
-): string[] => {
-  const layerGraph: Graph = new Graph();
-  allGPINames.forEach((name: string) => layerGraph.setNode(name));
+  partialOrderings: Layer[]
+): {
+  shapeOrdering: string[];
+  warning?: LayerCycleWarning;
+} => {
+  const layerGraph = new Graph<string>();
+  allGPINames.forEach((name: string) => {
+    layerGraph.setNode(name, undefined);
+  });
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
-  partialOrderings.forEach(([below, above]: [string, string]) =>
-    layerGraph.setEdge(below, above)
-  );
+  partialOrderings.forEach(({ below, above }: Layer) => {
+    layerGraph.setEdge({ i: below, j: above, e: undefined });
+  });
 
-  // if there is no cycles, return a global ordering from the top sort result
-  if (alg.isAcyclic(layerGraph)) {
-    const globalOrdering: string[] = alg.topsort(layerGraph);
-    return globalOrdering;
+  // if there are no cycles, return a global ordering from the top sort result
+  const cycles = layerGraph.findCycles();
+  if (cycles.length === 0) {
+    const shapeOrdering: string[] = layerGraph.topsort();
+    return { shapeOrdering };
   } else {
-    const cycles = alg.findCycles(layerGraph);
-    const globalOrdering = pseudoTopsort(layerGraph);
-    log.warn(
-      `Cycles detected in layering order: ${cycles
-        .map((c) => c.join(", "))
-        .join(
-          "; "
-        )}. The system approximated a global layering order instead: ${globalOrdering.join(
-        ", "
-      )}`
-    );
-    return globalOrdering;
+    const shapeOrdering = pseudoTopsort(layerGraph);
+    return {
+      shapeOrdering,
+      warning: {
+        tag: "LayerCycleWarning",
+        cycles,
+        approxOrdering: shapeOrdering,
+      },
+    };
   }
 };
 
-const pseudoTopsort = (graph: Graph): string[] => {
-  const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
-    const aIn = graph.inEdges(a);
-    const bIn = graph.inEdges(b);
-    if (!aIn) return 1;
-    else if (!bIn) return -1;
-    else return aIn.length - bIn.length;
-  });
+const pseudoTopsort = (graph: Graph<string>): string[] => {
+  const indegree = new Map<string, number>(
+    graph.nodes().map((i) => [i, graph.inEdges(i).length])
+  );
+  const toVisit: CustomHeap<string> = new CustomHeap(
+    (a: string, b: string) => indegree.get(a)! - indegree.get(b)!
+  );
   const res: string[] = [];
   graph.nodes().forEach((n: string) => toVisit.insert(n));
   while (toVisit.size() > 0) {
@@ -2860,34 +3112,25 @@ const pseudoTopsort = (graph: Graph): string[] => {
     const node: string = toVisit.extractRoot() as string;
     res.push(node);
     // remove all edges with `node`
-    const toRemove = graph.nodeEdges(node);
-    if (toRemove !== undefined) {
-      toRemove.forEach((e: Edge) => graph.removeEdge(e));
-      toVisit.fix();
-    }
+    for (const { j } of graph.outEdges(node))
+      indegree.set(j, indegree.get(j)! - 1);
+    toVisit.fix();
   }
   return res;
 };
-
-const computeShapeOrdering = (
-  allGPINames: string[],
-  partialOrderings: Layer[]
-): string[] =>
-  topSortLayering(
-    allGPINames,
-    partialOrderings.map(({ below, above }) => [below, above])
-  );
-
 //#endregion layering
 
 //#region Canvas
 
 // Check that canvas dimensions exist and have the proper type.
-const getCanvasDim = (
+export const getCanvasDim = (
   attr: "width" | "height",
   graph: DepGraph
 ): Result<number, StyleError> => {
-  const dim = graph.node(`canvas.${attr}`);
+  const i = `canvas.${attr}`;
+  if (!graph.hasNode(i))
+    return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
+  const dim = graph.node(i);
   if (dim === undefined) {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
   } else if (typeof dim === "string") {
@@ -2917,6 +3160,28 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
   }
 };
 
+export const getLayoutStages = (
+  prog: StyProg<C>
+): Result<OptPipeline, MultipleLayoutError> => {
+  const layoutStmts: LayoutStages<C>[] = prog.items.filter(
+    (i): i is LayoutStages<C> => i.tag === "LayoutStages"
+  );
+  if (layoutStmts.length === 0) {
+    // if no stages specified, default to "" because that way nobody can refer
+    // to it, because this is not a valid Style idenitifer; if people want to
+    // refer to a stage, they must define their own layout
+    return ok([""]);
+  } else if (layoutStmts.length === 1) {
+    return ok(layoutStmts[0].contents.map((s) => s.value));
+  } else {
+    // there can be only layout spec
+    return err({
+      tag: "MultipleLayoutError",
+      decls: layoutStmts,
+    });
+  }
+};
+
 const getShapes = (
   graph: DepGraph,
   { symbols }: Translation,
@@ -2926,14 +3191,16 @@ const getShapes = (
   for (const [path, argVal] of symbols) {
     const i = path.lastIndexOf(".");
     const start = path.slice(0, i);
-    const shapeType = graph.node(start);
-    if (typeof shapeType === "string") {
-      if (argVal.tag !== "Val") {
-        throw internalMissingPathError(path);
+    if (graph.hasNode(start)) {
+      const shapeType = graph.node(start);
+      if (typeof shapeType === "string") {
+        if (argVal.tag !== "Val") {
+          throw internalMissingPathError(path);
+        }
+        const shape = props.get(start) ?? { shapeType, properties: {} };
+        shape.properties[path.slice(i + 1)] = argVal.contents;
+        props.set(start, shape);
       }
-      const shape = props.get(start) ?? { shapeType, properties: {} };
-      shape.properties[path.slice(i + 1)] = argVal.contents;
-      props.set(start, shape);
     }
   }
   return shapeOrdering.map((path) => {
@@ -2977,30 +3244,70 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
           expr: {
             tag: "ConstrFn",
             nodeType: "SyntheticStyle",
-            name: dummyId("onCanvas"),
-            args: [
-              // HACK: the right way to do this would be to parse `name` into
-              // the correct `Path`, but we don't really care as long as it
-              // pretty-prints into something that looks right
-              fakePath(name, []),
-              fakePath("canvas", ["width"]),
-              fakePath("canvas", ["height"]),
-            ],
+            body: {
+              tag: "FunctionCall",
+              nodeType: "SyntheticStyle",
+              name: dummyId("onCanvas"),
+              args: [
+                // HACK: the right way to do this would be to parse `name` into
+                // the correct `Path`, but we don't really care as long as it
+                // pretty-prints into something that looks right
+                fakePath(name, []),
+                fakePath("canvas", ["width"]),
+                fakePath("canvas", ["height"]),
+              ],
+            },
+            stages: [],
+            exclude: true,
           },
         },
         output,
+        // TODO: what's a good default stage for `onCanvas`? How can someone change this behavior?
+        optStages: "All",
       });
     }
   }
   return fns;
 };
 
-export const compileStyle = (
+export const stageConstraints = (
+  inputs: InputMeta[],
+  constrFns: Fn[],
+  objFns: Fn[],
+  stages: OptPipeline
+): StagedConstraints =>
+  new Map(
+    stages.map((stage) => [
+      stage,
+      {
+        inputMask: inputs.map((i) => i.stages === "All" || i.stages.has(stage)),
+        constrMask: constrFns.map(
+          ({ optStages }) => optStages === "All" || optStages.has(stage)
+        ),
+        objMask: objFns.map(
+          ({ optStages }) => optStages === "All" || optStages.has(stage)
+        ),
+      },
+    ])
+  );
+
+export const compileStyleHelper = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
-): Result<State, PenroseError> => {
+): Promise<
+  Result<
+    {
+      state: State;
+      translation: Translation;
+      assignment: Assignment;
+      styleAST: StyProg<C>;
+      graph: DepGraph;
+    },
+    PenroseError
+  >
+> => {
   const astOk = parseStyle(stySource);
   let styProg;
   if (astOk.isOk()) {
@@ -3010,6 +3317,12 @@ export const compileStyle = (
   }
 
   log.info("prog", styProg);
+
+  // preprocess stage info
+  const optimizationStages = getLayoutStages(styProg);
+  if (optimizationStages.isErr()) {
+    return err(toStyleErrors([optimizationStages.error]));
+  }
 
   // first pass: generate Substance substitutions and use the `override` and
   // `delete` statements to construct a mapping from Substance-substituted paths
@@ -3033,7 +3346,8 @@ export const compileStyle = (
   const varyingValues: number[] = [];
   const inputs: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
-    const val = "pending" in meta ? meta.pending : meta.sampler(rng);
+    const val =
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending;
     const x = input({ key: varyingValues.length, val });
     varyingValues.push(val);
     inputs.push(meta);
@@ -3044,6 +3358,7 @@ export const compileStyle = (
   const translation = translate(
     { makeInput },
     canvas.value,
+    optimizationStages.value,
     graph,
     assignment.diagnostics.warnings
   );
@@ -3054,7 +3369,7 @@ export const compileStyle = (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
-  const shapeOrdering = computeShapeOrdering(
+  const { shapeOrdering, warning: layeringWarning } = computeShapeOrdering(
     [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
     [...translation.layering]
   );
@@ -3062,36 +3377,73 @@ export const compileStyle = (
   const shapes = getShapes(graph, translation, shapeOrdering);
 
   const objFns = [...translation.objectives];
+
   const constrFns = [
     ...translation.constraints,
     ...onCanvases(canvas.value, shapes),
   ];
 
-  const computeShapes = compileCompGraph(shapes);
+  const constraintSets = stageConstraints(
+    inputs,
+    constrFns,
+    objFns,
+    optimizationStages.value
+  );
 
-  const params = genOptProblem(
+  const computeShapes = await compileCompGraph(shapes);
+
+  const gradient = await genGradient(
     inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
   );
 
+  const { inputMask, objMask, constrMask } = safe(
+    constraintSets.get(optimizationStages.value[0]),
+    "missing first stage"
+  );
+
+  const params = genOptProblem(inputMask, objMask, constrMask);
+
   const initState: State = {
-    warnings: [...translation.diagnostics.warnings],
+    warnings: layeringWarning
+      ? [...translation.diagnostics.warnings, layeringWarning]
+      : [...translation.diagnostics.warnings],
     variation,
-    objFns,
-    constrFns,
     varyingValues,
+    constraintSets,
+    constrFns,
+    objFns,
     inputs,
     labelCache: new Map(),
     shapes,
     canvas: canvas.value,
+    gradient,
     computeShapes,
     params,
+    currentStageIndex: 0,
+    optStages: optimizationStages.value,
   };
 
   log.info("init state from GenOptProblem", initState);
 
-  return ok(initState);
+  return ok({
+    state: initState,
+    styleAST: astOk.value,
+    translation,
+    assignment,
+    graph,
+  });
 };
+
+export const compileStyle = async (
+  variation: string,
+  stySource: string,
+  subEnv: SubstanceEnv,
+  varEnv: Env
+): Promise<Result<State, PenroseError>> =>
+  (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
+    ({ state }) => state
+  );
 
 //#endregion Main funcitons

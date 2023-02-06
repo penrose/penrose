@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Listing from "./Listing";
 import { Simple } from "./Simple";
 
 const Demo = (props: {
@@ -9,8 +8,7 @@ const Demo = (props: {
     dsl: string;
     variation: string;
   }[];
-  width: string; // the width of each half; total width is twice this
-  // height must be equal to width (including in the passed Style canvas!)
+  width: string;
   darkMode: boolean;
 }) => {
   const [index, setIndex] = useState(0);
@@ -26,31 +24,15 @@ const Demo = (props: {
   const example = props.examples[index];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        height: "100%",
-        flex: 1,
-      }}
-    >
-      <Listing
-        domain={example.dsl}
+    <div style={{ width: props.width, height: props.width }}>
+      <Simple
         substance={example.sub}
-        width={props.width}
-        height={props.width}
-        monacoOptions={{ theme: props.darkMode ? "vs-dark" : "vs" }}
+        style={example.sty}
+        domain={example.dsl}
+        variation={example.variation}
+        interactive={false}
+        animate={true}
       />
-      <div style={{ width: props.width, height: props.width }}>
-        <Simple
-          substance={example.sub}
-          style={example.sty}
-          domain={example.dsl}
-          variation={example.variation}
-          interactive={false}
-          animate={true}
-        />
-      </div>
     </div>
   );
 };

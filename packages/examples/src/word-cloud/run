@@ -1,2 +1,2 @@
-npx roger watch example.sub word-cloud.sty word-cloud.dsl
+npx roger watch example.substance word-cloud.style word-cloud.domain
 

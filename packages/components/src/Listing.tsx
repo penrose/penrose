@@ -6,7 +6,6 @@ import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig";
 
 export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions = {
   automaticLayout: true,
-  readOnly: true,
   minimap: { enabled: false },
   wordWrap: "on",
   lineNumbers: "off",
@@ -23,13 +22,17 @@ const Listing = ({
   substance,
   width,
   height,
+  onChange,
   monacoOptions,
+  readOnly,
 }: {
   domain: string;
   substance: string;
   width: string;
   height: string;
+  onChange?(value: string): void;
   monacoOptions?: editor.IStandaloneEditorConstructionOptions;
+  readOnly?: boolean;
 }) => {
   const env = compileDomain(domain).unsafelyUnwrap();
   const monaco = useMonaco();
@@ -49,10 +52,15 @@ const Listing = ({
       value={substance}
       width={width}
       height={height}
+      onChange={onChange ? (v) => onChange(v ?? "") : undefined}
       defaultLanguage="substance"
       options={
         monacoOptions
-          ? { ...defaultMonacoOptions, ...monacoOptions }
+          ? {
+              ...defaultMonacoOptions,
+              ...monacoOptions,
+              readOnly: readOnly ?? true,
+            }
           : defaultMonacoOptions
       }
     />

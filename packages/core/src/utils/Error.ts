@@ -4,6 +4,7 @@ import { Result } from "true-myth";
 import {
   A,
   AbstractNode,
+  C,
   Identifier,
   NodeType,
   SourceLoc,
@@ -17,6 +18,7 @@ import {
   DomainError,
   DuplicateName,
   FatalError,
+  InvalidColorLiteral,
   NaNError,
   ParseError,
   PenroseError,
@@ -34,7 +36,7 @@ import {
   VarNotFound,
 } from "types/errors";
 import { State } from "types/state";
-import { BindingForm } from "types/style";
+import { BindingForm, ColorLit } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
 import { prettyPrintPath, prettyPrintResolvedPath } from "utils/Util";
 const {
@@ -90,6 +92,10 @@ export const showError = (
     }
     case "ParseError":
       return error.message;
+    case "InvalidColorLiteral":
+      return `${error.color.contents} (at ${loc(
+        error.color
+      )}) is not a valid color literal. Color literals must be one of the following formats: #RGB, #RGBA, #RRGGBB, #RRGGBBAA.`;
     case "TypeDeclared": {
       return `Type ${error.typeName.value} already exists.`;
     }
@@ -221,12 +227,35 @@ export const showError = (
     }
 
     case "TaggedSubstanceError": {
-      return showError(error.error); // Substance error
+      switch (error.error.tag) {
+        // special handling for VarNotFound
+        case "VarNotFound": {
+          const processIdentifier = (x: Identifier<A>) => ({
+            ...x,
+            value: x.nodeType === "Style" ? x.value : `\`${x.value}\``,
+          });
+          return showError({
+            ...error.error,
+            variable: processIdentifier(error.error.variable),
+            possibleVars: error.error.possibleVars
+              ? error.error.possibleVars.map(processIdentifier)
+              : undefined,
+          });
+        }
+        default:
+          return showError(error.error); // Substance error
+      }
     }
 
     case "SelectorAliasNamingError": {
-      return `Incompatible alias name "${error.alias.value}" in style selector: \
-      domain or style pattern statement has already declared the variable ${error.alias.value}`;
+      return `Incompatible alias name "${error.alias.value}" in Style selector: \
+      Domain or Style pattern statement has already declared the variable ${error.alias.value}`;
+    }
+
+    case "MultipleLayoutError": {
+      return `Multiple layout pipelines found in Style (${error.decls
+        .map((d) => loc(d))
+        .join("; ")}). There can only be one unique layout pipeline.`;
     }
     // --- BEGIN BLOCK STATIC ERRORS
 
@@ -284,9 +313,9 @@ export const showError = (
     }
 
     case "BadElementError": {
-      return `Wrong element type at index ${
-        error.index
-      } in collection (at ${loc(error.coll)}).`;
+      return `Wrong element type at index ${error.index} in ${
+        error.coll.tag
+      } (at ${loc(error.coll)}).`;
     }
 
     case "BadIndexError": {
@@ -312,6 +341,17 @@ canvas {
           return `Canvas ${error.attr} must be a numeric literal, but it has type ${error.type}.`;
       }
       break; // dead code to please ESLint
+    }
+
+    case "CyclicAssignmentError": {
+      const cycleString = error.cycles.map((c) =>
+        c.map(({ id, src }) =>
+          src === undefined ? id : `${id} (${locc("Style", src)})`
+        )
+      );
+      return `The Style program contains cyclic variable assignments, where the following variables are defined in cycles:\n${showCycles(
+        cycleString
+      )}`;
     }
 
     case "DeleteGlobalError": {
@@ -408,6 +448,16 @@ canvas {
       )} (at ${locc("Style", error.path)}).`;
     }
 
+    case "LayerCycleWarning": {
+      return `Cycles detected in layering order: ${error.cycles
+        .map((c) => c.join(", "))
+        .join(
+          "; "
+        )}. The system approximated a global layering order instead: ${error.approxOrdering.join(
+        ", "
+      )}`;
+    }
+
     // ----- END STYLE WARNINGS
 
     case "Fatal": {
@@ -417,7 +467,8 @@ canvas {
 };
 
 const showCycles = (cycles: string[][]) => {
-  const pathString = (path: string[]) => path.join(" -> ");
+  // repeats the cycle start again
+  const pathString = (path: string[]) => [...path, path[0]].join(" -> ");
   return cycles.map(pathString).join("\n");
 };
 
@@ -552,6 +603,13 @@ export const parseError = (
   location,
 });
 
+export const invalidColorLiteral = (
+  color: ColorLit<C>
+): InvalidColorLiteral => ({
+  tag: "InvalidColorLiteral",
+  color,
+});
+
 export const nanError = (message: string, lastState: State): NaNError => ({
   tag: "NaNError",
   message,
@@ -577,7 +635,7 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
   messages: messages.map(showError),
 });
 
-// name stands for "`loc` concrete"
+/* name stands for "`loc` concrete" */
 const locc = (nodeType: NodeType, node: SourceRange): string => {
   return `line ${node.start.line}, column ${
     node.start.col + 1
@@ -586,6 +644,7 @@ const locc = (nodeType: NodeType, node: SourceRange): string => {
 
 // const aloc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
+/* pretty-prints source location of an AST node */
 const loc = (node: AbstractNode): string => {
   if (isConcrete(node)) {
     return locc(node.nodeType, node);

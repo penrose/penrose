@@ -1,2 +1,2 @@
-npx roger watch fancy-text.sub fancy-text.sty fancy-text.dsl
+npx roger watch fancy-text.substance fancy-text.style fancy-text.domain
 

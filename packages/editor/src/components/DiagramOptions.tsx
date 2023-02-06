@@ -1,6 +1,10 @@
 import { useRecoilState } from "recoil";
 import { diagramMetadataSelector } from "../state/atoms";
-import { useCompileDiagram, useStepDiagram } from "../state/callbacks";
+import {
+  useCompileDiagram,
+  useStepDiagram,
+  useStepStage,
+} from "../state/callbacks";
 import BlueButton from "./BlueButton";
 
 export default function DiagramOptions() {
@@ -9,6 +13,7 @@ export default function DiagramOptions() {
   );
   const compileDiagram = useCompileDiagram();
   const stepDiagram = useStepDiagram();
+  const stepStage = useStepStage();
 
   return (
     <div>
@@ -53,6 +58,26 @@ export default function DiagramOptions() {
             />
           </label>
         </div>
+      </div>
+      <div>
+        <BlueButton onClick={stepStage} disabled={diagramMetadata.autostep}>
+          next stage
+        </BlueButton>
+      </div>
+      <div>
+        <label>
+          interactive mode{" "}
+          <input
+            type="checkbox"
+            checked={diagramMetadata.interactive}
+            onChange={(e) =>
+              setDiagramMetadata((metadata) => ({
+                ...metadata,
+                interactive: e.target.checked,
+              }))
+            }
+          />
+        </label>
       </div>
     </div>
   );

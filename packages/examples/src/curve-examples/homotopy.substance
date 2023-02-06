@@ -1,0 +1,32 @@
+Point a1, b1, d1
+Point a2, b2, d2
+
+Point c1 := Lerp( b1, d1 )
+Point c2 := Lerp( b2, d2 )
+
+Curve curve1 := CurveFromPoints( a1, b1, c1, d1 )
+Curve curve2 := CurveFromPoints( a2, b2, c2, d2 )
+
+Point a12 := Lerp( a1, a2 )
+Point b12 := Lerp( b1, b2 )
+Point c12 := Lerp( c1, c2 )
+Point d12 := Lerp( d1, d2 )
+
+Curve curve12 := CurveFromPoints( a12, b12, c12, d12 )
+
+Point a112 := Lerp( a1, a12 )
+Point b112 := Lerp( b1, b12 )
+Point c112 := Lerp( c1, c12 )
+Point d112 := Lerp( d1, d12 )
+
+Curve curve112 := CurveFromPoints( a112, b112, c112, d112 )
+
+Point a122 := Lerp( a12, a2 )
+Point b122 := Lerp( b12, b2 )
+Point c122 := Lerp( c12, c2 )
+Point d122 := Lerp( d12, d2 )
+
+Curve curve122 := CurveFromPoints( a122, b122, c122, d122 )
+
+Label curve1 $\gamma_1$
+Label curve2 $\gamma_2$
