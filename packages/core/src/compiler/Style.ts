@@ -5,7 +5,6 @@ import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
 import seedrandom from "seedrandom";
-import { checkExpr, checkPredicate, checkVar } from "../compiler/Substance";
 import { constrDict } from "../contrib/Constraints";
 import { compDict } from "../contrib/Functions";
 import { objDict } from "../contrib/Objectives";
@@ -151,6 +150,7 @@ import {
   zip2,
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
+import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Warn })

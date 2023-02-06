@@ -1,6 +1,4 @@
 import _ from "lodash";
-import { bboxFromShape } from "../contrib/Queries";
-import { clamp, inRange, numOf } from "../contrib/Utils";
 import { ops } from "../engine/Autodiff";
 import {
   absVal,
@@ -79,6 +77,8 @@ import {
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints";
+import { bboxFromShape } from "./Queries";
+import { clamp, inRange, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions

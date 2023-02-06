@@ -1,5 +1,4 @@
 import { convexPartition, isClockwise } from "poly-partition";
-import { outwardUnitNormal } from "../contrib/Queries";
 import { ops } from "../engine/Autodiff";
 import {
   absVal,
@@ -33,6 +32,7 @@ import {
   implicitHalfPlaneFunc,
   implicitIntersectionOfEllipsesFunc,
 } from "./ImplicitShapes";
+import { outwardUnitNormal } from "./Queries";
 import { numsOf } from "./Utils";
 
 /**

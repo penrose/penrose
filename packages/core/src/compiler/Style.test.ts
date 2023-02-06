@@ -1,7 +1,5 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import im from "immutable";
-import * as S from "../compiler/Style";
-import { compileSubstance } from "../compiler/Substance";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
@@ -27,6 +25,8 @@ import { ColorV, RGBA } from "../types/value";
 import { andThen, err, Result, showError } from "../utils/Error";
 import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
+import * as S from "./Style";
+import { compileSubstance } from "./Substance";
 
 // TODO: Reorganize and name tests by compiler stage
 

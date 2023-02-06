@@ -38,7 +38,7 @@ import {
 import { State } from "../types/state";
 import { BindingForm, ColorLit } from "../types/style";
 import { Deconstructor, SubExpr } from "../types/substance";
-import { prettyPrintPath, prettyPrintResolvedPath } from "../utils/Util";
+import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
   and,

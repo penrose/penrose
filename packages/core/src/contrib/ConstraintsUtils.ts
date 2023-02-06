@@ -1,22 +1,3 @@
-import {
-  containsPolygonPoints,
-  convexPartitions,
-  overlappingImplicitEllipses,
-  overlappingPolygonPoints,
-  overlappingPolygonPointsEllipse,
-  rectangleDifference,
-  rectangleSignedDistance,
-} from "../contrib/Minkowski";
-import {
-  bboxFromShape,
-  polygonLikePoints,
-  shapeCenter,
-} from "../contrib/Queries";
-import {
-  atDistOutside,
-  noIntersectCircles,
-  pointInBox,
-} from "../contrib/Utils";
 import { ops } from "../engine/Autodiff";
 import {
   absVal,
@@ -47,6 +28,17 @@ import { shapedefs } from "../shapes/Shapes";
 import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
 import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
+import {
+  containsPolygonPoints,
+  convexPartitions,
+  overlappingImplicitEllipses,
+  overlappingPolygonPoints,
+  overlappingPolygonPointsEllipse,
+  rectangleDifference,
+  rectangleSignedDistance,
+} from "./Minkowski";
+import { bboxFromShape, polygonLikePoints, shapeCenter } from "./Queries";
+import { atDistOutside, noIntersectCircles, pointInBox } from "./Utils";
 
 // -------- Ovelapping helpers
 
