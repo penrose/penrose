@@ -276,7 +276,10 @@ const RenderGroup = async (
   }
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  for (const childName of node.children) {
+  const orderedChildren = node.children.sort((a, b) => {
+    return tree[a].index - tree[b].index;
+  });
+  for (const childName of orderedChildren) {
     const childSvg = await RenderRendererTreeNode(childName, tree, shapeProps);
     elem.appendChild(childSvg);
   }

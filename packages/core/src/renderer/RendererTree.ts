@@ -2,6 +2,7 @@ import { Shape } from "types/shape";
 
 export type RendererTreeNode = {
   shape: Shape;
+  index: number;
   shapeType: string;
   children: string[]; // names
   parents: string[]; // names
@@ -10,7 +11,8 @@ export type RendererTreeNode = {
 export type RendererTree = { [name: string]: RendererTreeNode };
 
 const makePartialRendererTreeNode = (
-  shape: Shape
+  shape: Shape,
+  index: number
 ): [string, RendererTreeNode] => {
   const shapeType = shape.shapeType;
   const shapeNameVal = shape.properties["name"];
@@ -36,6 +38,7 @@ const makePartialRendererTreeNode = (
       shapeName,
       {
         shape,
+        index,
         shapeType,
         children: subShapeNames,
         parents: [],
@@ -46,6 +49,7 @@ const makePartialRendererTreeNode = (
       shapeName,
       {
         shape,
+        index,
         shapeType,
         children: [],
         parents: [],
@@ -55,9 +59,11 @@ const makePartialRendererTreeNode = (
 };
 
 export const makeRendererTree = (shapes: Shape[]): RendererTree => {
+  console.log(shapes);
   const tree: RendererTree = {};
-  for (const shape of shapes) {
-    const [shapeName, shapeNode] = makePartialRendererTreeNode(shape);
+  for (let i = 0; i < shapes.length; i++) {
+    const shape = shapes[i];
+    const [shapeName, shapeNode] = makePartialRendererTreeNode(shape, i);
     tree[shapeName] = shapeNode;
   }
   // Now populate the parents fields
@@ -76,12 +82,14 @@ export const makeRendererTree = (shapes: Shape[]): RendererTree => {
 };
 
 export const findRoot = (tree: RendererTree): string => {
-  const rootEntry = Object.entries(tree).find(
+  const allRoots = Object.entries(tree).filter(
     ([, node]) => node.parents.length === 0
   );
-  if (!rootEntry) {
-    throw Error("The group relation is cyclic.");
-  } else {
-    return rootEntry[0];
+  if (allRoots.length === 0) {
+    throw Error("Cannot find root");
   }
+  const smallestRoot = allRoots.reduce((currMin, newElem) => {
+    return currMin[1].index < newElem[1].index ? currMin : newElem;
+  });
+  return smallestRoot[0];
 };
