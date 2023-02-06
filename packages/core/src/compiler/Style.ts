@@ -149,9 +149,8 @@ import {
   vectorV,
   zip2,
 } from "utils/Util";
+import Heap from "../utils/Heap";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
-
-import { PriorityQueue } from "@datastructures-js/priority-queue";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Warn })
@@ -3103,20 +3102,21 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
   const indegree = new Map<string, number>(
     graph.nodes().map((i) => [i, graph.inEdges(i).length])
   );
-  const toVisit = new PriorityQueue<string>(
-    // Nodes with lower in-degrees have highest priority.
-    // Swap if a has higher in-degree than b.
-    (a: string, b: string) => indegree.get(a)! - indegree.get(b)!
-  );
+  // Nodes with lower in-degrees have highest priority.
+  // Swap if a has higher in-degree than b.
+  const compare = (a: string, b: string) => indegree.get(a)! - indegree.get(b)!;
+  const toVisit = Heap.heapify(graph.nodes(), compare);
   const res: string[] = [];
-  graph.nodes().forEach((n: string) => toVisit.enqueue(n));
+
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
-    const node: string = toVisit.dequeue() as string;
+    const node: string = toVisit.extractRoot() as string;
     res.push(node);
     // remove all edges with `node`
-    for (const { j } of graph.outEdges(node))
+    for (const { j } of graph.outEdges(node)) {
       indegree.set(j, indegree.get(j)! - 1);
+      toVisit.increase_priority(j);
+    }
   }
   return res;
 };
