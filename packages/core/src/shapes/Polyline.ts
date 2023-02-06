@@ -1,5 +1,5 @@
-import { Fill, Named, Poly, Scale, Shape, Stroke } from "types/shapes";
-import { black, boolV, floatV, noPaint, ptListV, strV } from "utils/Util";
+import { Fill, Named, Poly, Scale, Shape, Stroke } from "../types/shapes";
+import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
 import { Canvas, Context } from "./Samplers";
 
 export interface PolylineProps extends Named, Stroke, Fill, Scale, Poly {}

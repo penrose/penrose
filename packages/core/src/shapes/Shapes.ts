@@ -1,7 +1,7 @@
-import { input } from "engine/Autodiff";
-import * as BBox from "engine/BBox";
-import * as ad from "types/ad";
-import { Value } from "types/value";
+import { input } from "../engine/Autodiff";
+import * as BBox from "../engine/BBox";
+import * as ad from "../types/ad";
+import { Value } from "../types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
 import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
 import { Equation, makeEquation, sampleEquation } from "./Equation";

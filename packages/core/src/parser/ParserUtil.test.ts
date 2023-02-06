@@ -1,5 +1,5 @@
 import moo from "moo";
-import * as ParserUtil from "parser/ParserUtil";
+import * as ParserUtil from "./ParserUtil";
 
 describe("ParserUtil", () => {
   test("rangeOf", () => {

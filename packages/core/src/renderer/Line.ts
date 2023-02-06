@@ -1,5 +1,6 @@
-import { Shape } from "types/shape";
-import { BoolV, ColorV, FloatV, StrV, VectorV } from "types/value";
+import * as uuid from "uuid";
+import { Shape } from "../types/shape";
+import { BoolV, ColorV, FloatV, StrV, VectorV } from "../types/value";
 import {
   ArrowheadSpec,
   getArrowhead,
@@ -7,8 +8,7 @@ import {
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
-} from "utils/Util";
-import * as uuid from "uuid";
+} from "../utils/Util";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
