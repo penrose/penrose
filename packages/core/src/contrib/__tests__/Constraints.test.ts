@@ -1,13 +1,13 @@
-import { constrDict } from "contrib/Constraints";
-import { numOf } from "contrib/Utils";
+import * as ad from "../../types/ad";
+import { constrDict } from "../Constraints";
+import { numOf } from "../Utils";
 import {
   _circles,
   _ellipses,
   _lines,
   _polygons,
   _rectangles,
-} from "contrib/__testfixtures__/TestShapes.input";
-import * as ad from "types/ad";
+} from "../__testfixtures__/TestShapes.input";
 
 const digitPrecision = 10;
 

@@ -1,7 +1,7 @@
-import { prettyStmt } from "compiler/Substance";
 import im from "immutable";
 import _ from "lodash";
-import { A, AbstractNode, C, Identifier, metaProps } from "types/ast";
+import { prettyStmt } from "../compiler/Substance";
+import { A, AbstractNode, C, Identifier, metaProps } from "../types/ast";
 import {
   ConstructorDecl,
   DomainStmt,
@@ -9,7 +9,7 @@ import {
   FunctionDecl,
   PredicateDecl,
   TypeDecl,
-} from "types/domain";
+} from "../types/domain";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -23,7 +23,7 @@ import {
   SubProg,
   SubStmt,
   TypeConsApp,
-} from "types/substance";
+} from "../types/substance";
 
 export interface Signature {
   args: string[];

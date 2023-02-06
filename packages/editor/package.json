@@ -70,6 +70,7 @@
     "@types/uuid": "^8.3.4",
     "@vitejs/plugin-react-swc": "^3.0.1",
     "shx": "^0.3.3",
-    "vite": "^4.0.4"
+    "vite": "^4.0.4",
+    "vite-plugin-top-level-await": "^1.2.3"
   }
 }

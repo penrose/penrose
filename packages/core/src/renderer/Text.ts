@@ -1,5 +1,5 @@
-import { StrV, VectorV } from "types/value";
-import { toScreen } from "utils/Util";
+import { StrV, VectorV } from "../types/value";
+import { toScreen } from "../utils/Util";
 import {
   attrAutoFillSvg,
   attrFill,

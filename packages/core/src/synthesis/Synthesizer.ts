@@ -1,3 +1,9 @@
+import consola from "consola";
+import im from "immutable";
+import _ from "lodash";
+import pc from "pandemonium/choice";
+import pr from "pandemonium/random";
+import seedrandom from "seedrandom";
 import {
   appendStmt,
   applyBind,
@@ -14,16 +20,36 @@ import {
   matchSignatures,
   nullaryTypeCons,
   SubStmtKind,
-} from "analysis/SubstanceAnalysis";
-import { subTypesOf } from "compiler/Domain";
-import { prettyStmt, prettySubstance } from "compiler/Substance";
-import consola from "consola";
-import { dummyIdentifier } from "engine/EngineUtils";
-import im from "immutable";
-import _ from "lodash";
-import pc from "pandemonium/choice";
-import pr from "pandemonium/random";
-import seedrandom from "seedrandom";
+} from "../analysis/SubstanceAnalysis";
+import { subTypesOf } from "../compiler/Domain";
+import { prettyStmt, prettySubstance } from "../compiler/Substance";
+import { dummyIdentifier } from "../engine/EngineUtils";
+import { A, Identifier } from "../types/ast";
+import {
+  Arg,
+  ConstructorDecl,
+  DomainStmt,
+  Env,
+  FunctionDecl,
+  PredicateDecl,
+  Type,
+  TypeConstructor,
+  TypeDecl,
+} from "../types/domain";
+import {
+  ApplyConstructor,
+  ApplyFunction,
+  ApplyPredicate,
+  Bind,
+  Decl,
+  Func,
+  SubExpr,
+  SubPredArg,
+  SubProg,
+  SubRes,
+  SubStmt,
+  TypeConsApp,
+} from "../types/substance";
 import {
   Add,
   addMutation,
@@ -44,33 +70,7 @@ import {
   Mutation,
   MutationGroup,
   showMutations,
-} from "synthesis/Mutation";
-import { A, Identifier } from "types/ast";
-import {
-  Arg,
-  ConstructorDecl,
-  DomainStmt,
-  Env,
-  FunctionDecl,
-  PredicateDecl,
-  Type,
-  TypeConstructor,
-  TypeDecl,
-} from "types/domain";
-import {
-  ApplyConstructor,
-  ApplyFunction,
-  ApplyPredicate,
-  Bind,
-  Decl,
-  Func,
-  SubExpr,
-  SubPredArg,
-  SubProg,
-  SubRes,
-  SubStmt,
-  TypeConsApp,
-} from "types/substance";
+} from "./Mutation";
 
 type RandomFunction = (min: number, max: number) => number;
 
