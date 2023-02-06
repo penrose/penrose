@@ -1,4 +1,3 @@
-import { genCode, secondaryGraph } from "engine/Autodiff";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
 import { makeLine } from "shapes/Line";
@@ -8,6 +7,7 @@ import { makeRectangle } from "shapes/Rectangle";
 import { Context, makeCanvas, simpleContext } from "shapes/Samplers";
 import { black, floatV, ptListV, vectorV } from "utils/Util";
 import { compDict } from "./Functions";
+import { numOf } from "./Utils";
 
 const canvas = makeCanvas(800, 700);
 
@@ -21,7 +21,7 @@ const canvas = makeCanvas(800, 700);
  * @param pt to pass to `closestPoint`
  * @param expected to test against the output of `closestPoint`
  */
-const compareClosestPoint = (
+const compareClosestPoint = async (
   context: Context,
   shapeType: string,
   shape: any,
@@ -29,11 +29,9 @@ const compareClosestPoint = (
   expected: [number, number]
 ) => {
   const result = compDict.closestPoint(context, [shapeType, shape], pt);
-  const g = secondaryGraph(result.contents);
-  const f = genCode(g);
-  const [x, y] = f([]).secondary;
-  expect(x).toBeCloseTo(expected[0]);
-  expect(y).toBeCloseTo(expected[1]);
+  const [x, y] = result.contents;
+  expect(numOf(x)).toBeCloseTo(expected[0]);
+  expect(numOf(y)).toBeCloseTo(expected[1]);
 };
 
 /**
