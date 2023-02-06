@@ -17,7 +17,7 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 3.713835259456916 0.07232948108616766"
+      d="M 2.5 2.5 L 3.713883718800388 0.07223256239922327"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
@@ -54,7 +54,7 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 3.461508566915386 2.986038732389085"
+      d="M 2.5 2.5 L 3.543098137243497 3.0825472615907774"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
@@ -64,7 +64,7 @@
     <title>`v`.shape</title>
   </g>
   <polygon
-    fill="#bbb866"
+    fill="#e3c73f"
     fill-opacity="0.5"
     stroke="#000000"
     stroke-opacity="255"
@@ -93,7 +93,7 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 4.719691132543934 0.5744581171639094"
+      d="M 2.5 2.5 L 4.797805125461275 0.6711668844798859"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
@@ -104,10 +104,10 @@
   </g>
   <g>
     <path
-      d="M 3.747778771355363 0.00444245728927406 L 4.777024794798591 0.5247222028517251"
+      d="M 3.747827230698835 0.004345538602329668 L 4.857191529070491 0.6239009869811261"
       stroke-opacity="0.5"
       stroke-width="0.01"
-      stroke="#e5dede"
+      stroke="#82452c"
       stroke-dasharray="7,5"
       stroke-linecap="butt"
     ></path>
@@ -115,10 +115,10 @@
   </g>
   <g>
     <path
-      d="M 3.529246023443229 3.020279745562451 L 4.777024794798591 0.5247222028517251"
+      d="M 3.6093642983716556 3.1195554483787964 L 4.857191529070491 0.6239009869811261"
       stroke-opacity="0.5"
       stroke-width="0.01"
-      stroke="#cbd7bb"
+      stroke="#30528f"
       stroke-dasharray="7,5"
       stroke-linecap="butt"
     ></path>
