@@ -311,8 +311,11 @@ export const cascadingDelete = <T>(
   dec: Bind<T> | Decl<T>,
   prog: SubProg<T>
 ): SubStmt<T>[] => {
-  const findArg = (s: ApplyPredicate<T>, ref: Identifier<T> | undefined) =>
-    ref &&
+  const findArg = (
+    s: ApplyPredicate<T>,
+    ref: Identifier<T> | undefined
+  ): boolean =>
+    ref !== undefined &&
     s.args.filter((a) => {
       return a.tag === ref.tag && a.value === ref.value;
     }).length > 0;
@@ -321,20 +324,37 @@ export const cascadingDelete = <T>(
   while (ids.length > 0) {
     const id = ids.pop()!;
     // look for statements that take id as arg
-    const toDelete = prog.statements.filter((s) => {
-      if (s.tag === "Bind") {
-        const expr = (s.expr as unknown) as ApplyPredicate<T>;
-        const willDelete = findArg(expr, id);
-        // push its return value IF bind will be deleted
-        if (willDelete) ids.push(s.variable);
-        // delete if arg is found in either return type or args
-        return willDelete || s.variable.value === id.value;
-      } else if (s.tag === "ApplyPredicate") {
-        return findArg(s, id);
-      } else if (s.tag === "Decl") {
-        return s.name === id;
-      } else if (s.tag === "LabelDecl") {
-        return s.variable.value === id.value;
+    const toDelete = prog.statements.filter((s): boolean => {
+      switch (s.tag) {
+        case "Bind": {
+          const expr = (s.expr as unknown) as ApplyPredicate<T>;
+          const willDelete = findArg(expr, id);
+          // push its return value IF bind will be deleted
+          if (willDelete) ids.push(s.variable);
+          // delete if arg is found in either return type or args
+          return willDelete || s.variable.value === id.value;
+        }
+        case "ApplyPredicate": {
+          return findArg(s, id);
+        }
+        case "Decl": {
+          return s.name === id;
+        }
+        case "LabelDecl": {
+          return s.variable.value === id.value;
+        }
+        case "AutoLabel": {
+          return (
+            s.option.tag === "LabelIDs" &&
+            s.option.variables.filter((v) => v.value === id.value).length > 0
+          );
+        }
+        case "NoLabel": {
+          return s.args.filter((v) => v.value === id.value).length > 0;
+        }
+        case "EqualExprs":
+        case "EqualPredicates":
+          return false;
       }
     });
     // remove list of filtered statements
