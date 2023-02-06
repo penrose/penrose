@@ -1,9 +1,6 @@
-import { objDict, objDictSpecific } from "contrib/Objectives";
-import { numOf } from "contrib/Utils";
-import {
-  _polygons,
-  _polylines,
-} from "contrib/__testfixtures__/TestShapes.input";
+import { objDict, objDictSpecific } from "../Objectives";
+import { numOf } from "../Utils";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
 
 const digitPrecision = 4;
 

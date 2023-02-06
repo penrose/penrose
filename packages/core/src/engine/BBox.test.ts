@@ -1,15 +1,15 @@
-import { compDict } from "contrib/Functions";
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeImage } from "shapes/Image";
-import { makeLine } from "shapes/Line";
-import { makePath } from "shapes/Path";
-import { makePolygon } from "shapes/Polygon";
-import { makePolyline } from "shapes/Polyline";
-import { makeRectangle } from "shapes/Rectangle";
-import { makeCanvas, simpleContext } from "shapes/Samplers";
-import { Poly, Scale } from "types/shapes";
-import { black, floatV, ptListV, vectorV } from "utils/Util";
+import { compDict } from "../contrib/Functions";
+import { makeCircle } from "../shapes/Circle";
+import { makeEllipse } from "../shapes/Ellipse";
+import { makeImage } from "../shapes/Image";
+import { makeLine } from "../shapes/Line";
+import { makePath } from "../shapes/Path";
+import { makePolygon } from "../shapes/Polygon";
+import { makePolyline } from "../shapes/Polyline";
+import { makeRectangle } from "../shapes/Rectangle";
+import { makeCanvas, simpleContext } from "../shapes/Samplers";
+import { Poly, Scale } from "../types/shapes";
+import { black, floatV, ptListV, vectorV } from "../utils/Util";
 import { genCodeSync, secondaryGraph } from "./Autodiff";
 import {
   BBox,

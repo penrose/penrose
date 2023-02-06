@@ -27,6 +27,22 @@
       "gallery": true
     },
     {
+      "name": "Quaternions as table",
+      "substance": "quaternion-group",
+      "style": "group-theory-multiplication-table",
+      "domain": "group-theory",
+      "variation": "MeadowbrookChimpanzee02726",
+      "gallery": true
+    },
+    {
+      "name": "Quaternions as Cayley graph",
+      "substance": "quaternion-group",
+      "style": "group-theory-cayley-graph",
+      "domain": "group-theory",
+      "variation": "MeadowbrookChimpanzee02726",
+      "gallery": true
+    },
+    {
       "name": "Wet Floor",
       "substance": "wet-floor",
       "style": "atoms-and-bonds",
@@ -105,7 +121,7 @@
       "substance": "incenter-triangle",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "",
+      "variation": "RationalityZebra567",
       "gallery": true
     },
     {
@@ -135,10 +151,18 @@
       "variation": "OspreySkunk922"
     },
     {
+      "name": "Two 3D Triangles",
+      "substance": "two-triangles",
+      "style": "triangle-mesh-3d",
+      "domain": "triangle-mesh-3d",
+      "variation": "EpiphanyRam6491",
+      "gallery": true
+    },
+    {
       "substance": "circle-example",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "ShiitakeEchidna6061"
+      "variation": "PathwayJellyfish159"
     },
     {
       "name": "Word Cloud",
@@ -235,7 +259,7 @@
       "substance": "3d-projection",
       "style": "fake-3d-linear-algebra",
       "domain": "fake-3d-linear-algebra",
-      "variation": "ConceptualMeerkat694"
+      "variation": "PurpletiniSeahorse9761"
     },
     {
       "substance": "vector-wedge",
@@ -289,6 +313,9 @@
     "set-theory": {
       "URI": "set-theory-domain/setTheory.domain"
     },
+    "group-theory": {
+      "URI": "group-theory/Group.domain"
+    },
     "functions": {
       "URI": "set-theory-domain/functions.domain"
     },
@@ -306,6 +333,9 @@
     },
     "geometry": {
       "URI": "geometry-domain/geometry.domain"
+    },
+    "triangle-mesh-3d": {
+      "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
     },
     "word-cloud": {
       "URI": "word-cloud/word-cloud.domain"
@@ -362,6 +392,14 @@
       "domain": "set-theory",
       "URI": "set-theory-domain/tree.style"
     },
+    "group-theory-multiplication-table": {
+      "domain": "group-theory",
+      "URI": "group-theory/MultiplicationTable.style"
+    },
+    "group-theory-cayley-graph": {
+      "domain": "group-theory",
+      "URI": "group-theory/CayleyGraph.style"
+    },
     "continuousmap": {
       "domain": "set-theory",
       "URI": "set-theory-domain/continuousmap.style"
@@ -409,6 +447,10 @@
     "euclidean": {
       "domain": "geometry",
       "URI": "geometry-domain/euclidean.style"
+    },
+    "triangle-mesh-3d": {
+      "domain": "triangle-mesh-3d",
+      "URI": "triangle-mesh-3d/triangle-mesh-3d.style"
     },
     "word-cloud": {
       "domain": "word-cloud",
@@ -488,6 +530,10 @@
       "domain": "exterior-algebra",
       "URI": "exterior-algebra/vector-wedge.substance"
     },
+    "quaternion-group": {
+      "domain": "group-theory",
+      "URI": "group-theory/groups/quaternions.substance"
+    },
     "continuousmap": {
       "domain": "set-theory",
       "URI": "set-theory-domain/continuousmap.substance"
@@ -547,6 +593,10 @@
     "non-convex": {
       "domain": "non-convex",
       "URI": "minkowski-tests/maze/maze.substance"
+    },
+    "two-triangles": {
+      "domain": "triangle-mesh-3d",
+      "URI": "triangle-mesh-3d/two-triangles.substance"
     },
     "lagrange-bases": {
       "domain": "lagrange-bases",

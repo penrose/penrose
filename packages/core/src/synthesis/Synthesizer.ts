@@ -1,3 +1,10 @@
+import consola from "consola";
+import im from "immutable";
+import _ from "lodash";
+import pc from "pandemonium/choice";
+import pr from "pandemonium/random";
+import pwc from "pandemonium/weighted-choice";
+import seedrandom from "seedrandom";
 import {
   appendStmt,
   applyBind,
@@ -20,17 +27,36 @@ import {
   nullaryTypeCons,
   sortStmts,
   SubStmtKind,
-} from "analysis/SubstanceAnalysis";
-import { subTypesOf } from "compiler/Domain";
-import { prettyStmt, prettySubstance } from "compiler/Substance";
-import consola from "consola";
-import { dummyIdentifier } from "engine/EngineUtils";
-import im from "immutable";
-import _ from "lodash";
-import pc from "pandemonium/choice";
-import pr from "pandemonium/random";
-import pwc from "pandemonium/weighted-choice";
-import seedrandom from "seedrandom";
+} from "../analysis/SubstanceAnalysis";
+import { subTypesOf } from "../compiler/Domain";
+import { prettyStmt, prettySubstance } from "../compiler/Substance";
+import { dummyIdentifier } from "../engine/EngineUtils";
+import { A, Identifier } from "../types/ast";
+import {
+  Arg,
+  ConstructorDecl,
+  DomainStmt,
+  Env,
+  FunctionDecl,
+  PredicateDecl,
+  Type,
+  TypeConstructor,
+  TypeDecl,
+} from "../types/domain";
+import {
+  ApplyConstructor,
+  ApplyFunction,
+  ApplyPredicate,
+  Bind,
+  Decl,
+  SubExpr,
+  SubPredArg,
+  SubProg,
+  SubRes,
+  SubStmt,
+  TypeConsApp,
+} from "../types/substance";
+import { combinations2 } from "../utils/Util";
 import {
   Add,
   addMutation,
@@ -52,33 +78,7 @@ import {
   MutationGroup,
   MutationType,
   showMutations,
-} from "synthesis/Mutation";
-import { A, Identifier } from "types/ast";
-import {
-  Arg,
-  ConstructorDecl,
-  DomainStmt,
-  Env,
-  FunctionDecl,
-  PredicateDecl,
-  Type,
-  TypeConstructor,
-  TypeDecl,
-} from "types/domain";
-import {
-  ApplyConstructor,
-  ApplyFunction,
-  ApplyPredicate,
-  Bind,
-  Decl,
-  SubExpr,
-  SubPredArg,
-  SubProg,
-  SubRes,
-  SubStmt,
-  TypeConsApp,
-} from "types/substance";
-import { combinations2 } from "utils/Util";
+} from "./Mutation";
 
 type RandomFunction = (min: number, max: number) => number;
 

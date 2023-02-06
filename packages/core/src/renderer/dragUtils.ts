@@ -1,7 +1,7 @@
 import { genOptProblem } from "@penrose/optimizer";
-import * as ad from "types/ad";
-import { Properties, ShapeAD } from "types/shape";
-import { State } from "types/state";
+import * as ad from "../types/ad";
+import { Properties, ShapeAD } from "../types/shape";
+import { State } from "../types/state";
 
 /**
  * Retrieve data from drag events and update varying state accordingly

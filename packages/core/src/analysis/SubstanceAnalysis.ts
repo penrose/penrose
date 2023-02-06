@@ -1,8 +1,8 @@
-import { prettyStmt } from "compiler/Substance";
 import consola from "consola";
-import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
 import _ from "lodash";
+import { prettyStmt } from "../compiler/Substance";
+import { dummyIdentifier } from "../engine/EngineUtils";
 import {
   A,
   AbstractNode,
@@ -10,7 +10,7 @@ import {
   Identifier,
   metaProps,
   StringLit,
-} from "types/ast";
+} from "../types/ast";
 import {
   ConstructorDecl,
   DomainStmt,
@@ -18,7 +18,7 @@ import {
   FunctionDecl,
   PredicateDecl,
   TypeDecl,
-} from "types/domain";
+} from "../types/domain";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -33,7 +33,7 @@ import {
   SubProg,
   SubStmt,
   TypeConsApp,
-} from "types/substance";
+} from "../types/substance";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Info })

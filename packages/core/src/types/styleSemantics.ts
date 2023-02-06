@@ -1,6 +1,6 @@
 import im from "immutable";
-import { ShapeType } from "shapes/Shapes";
-import Graph from "utils/Graph";
+import { ShapeType } from "../shapes/Shapes";
+import Graph from "../utils/Graph";
 import * as ad from "./ad";
 import { A, C, Identifier } from "./ast";
 import { StyleDiagnostics, StyleError } from "./errors";

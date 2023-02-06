@@ -1,7 +1,4 @@
-import { inDirection } from "contrib/ObjectivesUtils";
-import { bboxFromShape, shapeCenter } from "contrib/Queries";
-import { closestPt_PtSeg, repelPoint, sampleSeg } from "contrib/Utils";
-import { ops } from "engine/Autodiff";
+import { ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
@@ -15,14 +12,17 @@ import {
   neg,
   squared,
   sub,
-} from "engine/AutodiffFunctions";
-import { Path } from "shapes/Path";
-import { Polygon } from "shapes/Polygon";
-import { Polyline } from "shapes/Polyline";
-import { shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
-import { linePts } from "utils/Util";
+} from "../engine/AutodiffFunctions";
+import { Path } from "../shapes/Path";
+import { Polygon } from "../shapes/Polygon";
+import { Polyline } from "../shapes/Polyline";
+import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
+import { linePts } from "../utils/Util";
 import { constrDictCurves } from "./CurveConstraints";
+import { inDirection } from "./ObjectivesUtils";
+import { bboxFromShape, shapeCenter } from "./Queries";
+import { closestPt_PtSeg, repelPoint, sampleSeg } from "./Utils";
 
 // -------- Simple objective functions
 // Do not require shape queries, operate directly with `ad.Num` parameters.

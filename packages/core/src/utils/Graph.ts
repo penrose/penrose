@@ -55,7 +55,10 @@ export default class Graph<I, L = undefined, E = undefined> {
     return [...this.g.keys()];
   }
 
-  /** @returns `i`'s label */
+  /**
+   * throws if `i` is absent
+   * @returns `i`'s label
+   */
   node(i: I): L {
     return this.get(i).l;
   }
@@ -167,7 +170,7 @@ export default class Graph<I, L = undefined, E = undefined> {
 
   /**
    * not guaranteed to be exhaustive
-   * @returns empty array if acyclic, else nonempty array of cycles
+   * @returns fresh empty array if acyclic, else fresh nonempty array of cycles
    */
   findCycles(): I[][] {
     const cycles: I[][] = [];
