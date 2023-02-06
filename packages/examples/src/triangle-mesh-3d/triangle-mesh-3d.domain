@@ -1,1 +1,5 @@
+type Vertex
 type Triangle
+
+constructor MakeTriangle(Vertex i, Vertex j, Vertex k) -> Triangle
+

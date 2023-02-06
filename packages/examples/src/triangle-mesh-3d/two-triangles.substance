@@ -1,4 +1,15 @@
+Vertex i0, j0, k0
+Vertex i1, j1, k1
 Triangle s, t
 
-Label s $\mathbf{f}$
+s := MakeTriangle(i0,j0,k0)
+t := MakeTriangle(i1,j1,k1)
+
 Label t $\widetilde{\mathbf{f}}$
+Label i0 $i_0$
+Label j0 $j_0$
+Label k0 $k_0$
+Label i1 $i_1$
+Label j1 $j_1$
+Label k1 $k_1$
+

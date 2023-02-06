@@ -5,6 +5,11 @@ canvas {
 
 global {
 
+   -- style of small dots
+   scalar dotSize = 1.0
+   color dotColor = rgba(0,0,0,1)
+   string dotFontSize = "4.5px"
+
    -- Ground plane coordinates in 3D
    scalar planeSize = 50 -- plane size
    scalar planeHeight = -40 -- plane height
@@ -12,6 +17,7 @@ global {
    -- Use a simple pinhole camera model, where the
    -- only camera parameter is the distance along Z
    scalar cZ = -160 -- camera z coordinate
+   scalar cameraθ = ? -- camera y rotation
 
    -- Corner coordinates of the global ground plane
    vec3 q00 = ( -planeSize, planeHeight, -planeSize )
@@ -23,7 +29,7 @@ global {
    -- (Note that we could also apply this rotation to the triangle
    -- vertices, but since they're sampled randomly, it wouldn't
    -- really change the appearance of the kinds of diagrams we sample).
-   scalar θ = ?
+   scalar θ = cameraθ -- for brevity
    vec3 Q00 = ( q00[0]*cos(θ) + q00[2]*sin(θ), q00[1], q00[2]*cos(θ) - q00[0]*sin(θ) )
    vec3 Q10 = ( q10[0]*cos(θ) + q10[2]*sin(θ), q10[1], q10[2]*cos(θ) - q10[0]*sin(θ) )
    vec3 Q01 = ( q01[0]*cos(θ) + q01[2]*sin(θ), q01[1], q01[2]*cos(θ) - q01[0]*sin(θ) )
@@ -47,48 +53,67 @@ global {
    }
 }
 
-forall Triangle t
+forall Vertex v
 {
-   -- We'll sample the triangle vertices from a bounding box of size c
+   -- Sample 3D location from a bounding box of size c
    scalar c = .9*min( global.planeSize, abs(global.planeHeight) )
 
-   -- triangle vertex coordinates in 3D
-   vec3 qi = (?,?,?)
-   vec3 qj = (?,?,?)
-   vec3 qk = (?,?,?)
+   vec3 q = (?,?,?)
+   ensure -c < q[0]
+   ensure q[0] < c
+   ensure -c < q[1]
+   ensure q[1] < c
+   ensure -c < q[2]
+   ensure q[2] < c
 
-   ensure -c < qi[0]
-   ensure qi[0] < c
-   ensure -c < qi[1]
-   ensure qi[1] < c
-   ensure -c < qi[2]
-   ensure qi[2] < c
+   -- perform modelview transformation
+   scalar θ = global.cameraθ
+   vec3 Q = ( q[0], q[1], q[2] - global.cZ )
+   --vec3 Q = ( q[0]*cos(θ) + q[2]*sin(θ), q[1], q[2]*cos(θ) - q[0]*sin(θ) - global.cZ )
 
-   ensure -c < qj[0]
-   ensure qj[0] < c
-   ensure -c < qj[1]
-   ensure qj[1] < c
-   ensure -c < qj[2]
-   ensure qj[2] < c
+   -- Perform perspective projection to get 2D coordinates
+   vec2 v.p = canvas.width * (Q[0],Q[1])/(Q[2])
 
-   ensure -c < qk[0]
-   ensure qk[0] < c
-   ensure -c < qk[1]
-   ensure qk[1] < c
-   ensure -c < qk[2]
-   ensure qk[2] < c
+   -- Compute projected shadow coordinates
+   vec3 R = (Q[0],global.planeHeight,Q[2])
+   vec2 v.s = canvas.width * (R[0],R[1])/(R[2])
 
-   -- Perform perspective projection on 3D coordinates to get 2D coordinates p
-   vec2 t.pi = canvas.width * (qi[0],qi[1])/(qi[2]-global.cZ)
-   vec2 t.pj = canvas.width * (qj[0],qj[1])/(qj[2]-global.cZ)
-   vec2 t.pk = canvas.width * (qk[0],qk[1])/(qk[2]-global.cZ)
+   -- draw vertex as black dot
+   shape v.icon = Circle {
+      center: v.p
+      r: global.dotSize
+      fillColor: global.dotColor
+      ensureOnCanvas: false
+   }
 
+   -- draw shadow as semi-transparent black dot
+   shape v.shadow = Circle {
+      center: v.s
+      r: global.dotSize
+      fillColor: rgba(0,0,0,.1)
+      ensureOnCanvas: false
+   }
+}
+
+
+forall Vertex v
+where v has label
+{
+   shape v.labelText = Equation {
+       string: v.label
+       center: v.p
+       fontSize: global.dotFontSize
+       ensureOnCanvas: false
+   }
+}
+
+forall Triangle t; Vertex i; Vertex j; Vertex k
+where t := MakeTriangle(i,j,k)
+{
    -- Draw polygon using projected 2D coordinates p
    shape t.icon = Polygon {
-      points: (t.pi,t.pj,t.pk)
-      width: canvas.width
-      height: canvas.height
-      fillColor: #34379aaa
+      points: (i.p,j.p,k.p)
+      fillColor: #1b1f8a55
       strokeColor: #1b1f8a
       strokeWidth: .5
       ensureOnCanvas: false
@@ -97,96 +122,51 @@ forall Triangle t
    -- Make sure the triangle is positively oriented in the
    -- image plane, and has some- "fat" angles so that it
    -- doesn't degenerate
-   vec2 eij = t.pj - t.pi
-   vec2 ejk = t.pk - t.pj
-   vec2 eki = t.pi - t.pk
+   vec2 eij = j.p - i.p
+   vec2 ejk = k.p - j.p
+   vec2 eki = i.p - k.p
    ensure cross2D( eij, -ejk ) < 0
    ensure angleFrom( -ejk, eij ) > toRadians( 45 )
    ensure angleFrom( -eki, ejk ) > toRadians( 45 )
    ensure angleFrom( -eij, eki ) > toRadians( 45 )
 
-   -- Draw triangle vertices and labels as dots and equations,
-   -- using again the projected 2D coordinates p
-   scalar dotSize = 1.0
-   color dotColor = rgba(0,0,0,1)
-   string dotFontSize = "4.5px"
-   scalar offset = 6 -- offset of labels from vertices
-   shape t.vertexI = Circle {
-      center: t.pi
-      r: dotSize
-      fillColor: dotColor
-   }
-   shape t.vertexJ = Circle {
-      center: t.pj
-      r: dotSize
-      fillColor: dotColor
-   }
-   shape t.vertexK = Circle {
-      center: t.pk
-      r: dotSize
-      fillColor: dotColor
-   }
-   shape t.labelI = Equation {
-       string: t.label + "_i"
-       center: t.pi - offset*unit(eij-eki)
-       fontSize: dotFontSize
-   }
-   shape t.labelJ = Equation {
-       string: t.label + "_j"
-       center: t.pj - offset*unit(ejk-eij)
-       fontSize: dotFontSize
-   }
-   shape t.labelK = Equation {
-       string: t.label + "_k"
-       center: t.pk - offset*unit(eki-ejk)
-       fontSize: dotFontSize
-   }
-
-   -- Finally, draw a shadow of the triangle on the global ground plane
-   -- by just replacing the y-coordinate with the height of the ground plane
-   scalar h = global.planeHeight
-   vec2 ri = (qi[0],h)
-   vec2 rj = (qj[0],h)
-   vec2 rk = (qk[0],h)
-
-   -- Perform perspective projection on 3D coordinates r to get 2D coordinates s
-   vec2 si = canvas.width * ri/(qi[2]-global.cZ)
-   vec2 sj = canvas.width * rj/(qj[2]-global.cZ)
-   vec2 sk = canvas.width * rk/(qk[2]-global.cZ)
-
    -- Draw shadow polygon using projected 2D coordinates s
    shape t.shadow = Polygon {
-      points: (si,sj,sk)
-      width: canvas.width
-      height: canvas.height
+      points: (i.s,j.s,k.s)
       fillColor: rgba(0,0,0,0.1)
       strokeColor: none()
       ensureOnCanvas: false
    }
 
-   -- Make sure the triangle shadow lands on the ground plane
-   --ensure contains( global.groundPlane, t.shadow )
+   -- offset labels from vertices
+   scalar offset = 6
+   i.labelText.center = i.p - offset*unit( eij - eki )
+   j.labelText.center = j.p - offset*unit( ejk - eij )
+   k.labelText.center = k.p - offset*unit( eki - ejk )
 }
 
 -- For any pair of triangles, make sure that triangles
 -- don't overlap, and moreover the vertices of one triangle are
 -- far from being contained in the other triangle (which helps
 -- to avoid overlapping labels).
-forall Triangle s; Triangle t
+forall Triangle s; Triangle t; Vertex si; Vertex sj; Vertex sk; Vertex ti; Vertex tj; Vertex tk
+where s := MakeTriangle(si,sj,sk); t := MakeTriangle(ti,tj,tk)
 {
    scalar padding = 10.0
 
    -- make sure triangles don't overlap
-   ensure disjoint( t.icon, s.icon )
-
-   -- make sure vertices of t are far from s
-   ensure disjoint( t.vertexI, s.icon, padding )
-   ensure disjoint( t.vertexJ, s.icon, padding )
-   ensure disjoint( t.vertexK, s.icon, padding )
+   ensure disjoint( s.icon, t.icon )
 
    -- make sure vertices of s are far from t
-   ensure disjoint( s.vertexI, t.icon, padding )
-   ensure disjoint( s.vertexJ, t.icon, padding )
-   ensure disjoint( s.vertexK, t.icon, padding )
+   ensure disjoint( si.icon, t.icon, padding )
+   ensure disjoint( sj.icon, t.icon, padding )
+   ensure disjoint( sk.icon, t.icon, padding )
+
+   -- make sure vertices of t are far from s
+   ensure disjoint( ti.icon, s.icon, padding )
+   ensure disjoint( tj.icon, s.icon, padding )
+   ensure disjoint( tk.icon, s.icon, padding )
+
 }
+
 
