@@ -153,6 +153,116 @@ describe("Layering computation", () => {
     expect(warning).toBeDefined();
     expect(warning?.cycles.length).toEqual(1);
   });
+  test("good group layering", () => {
+    const partials: Layer[] = [
+      { below: "G1", above: "G2" },
+      { below: "A", above: "D" },
+      { below: "B", above: "C" },
+    ];
+    const groupGraph: GroupGraph<ShapeAD> = {
+      A: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: [],
+        parents: ["G1"],
+      },
+      B: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: [],
+        parents: ["G2"],
+      },
+      C: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: [],
+        parents: ["G2"],
+      },
+      D: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: [],
+        parents: ["G1"],
+      },
+      G1: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: ["A", "D"],
+        parents: [],
+      },
+      G2: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: ["B", "C"],
+        parents: [],
+      },
+    };
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["G1", "B", "D", "A", "G2", "C"],
+      partials,
+      groupGraph
+    );
+    // Order is A, D, B, C
+    // But, position of G1 and G2 are undetermined
+    const aPos = shapeOrdering.indexOf("A");
+    const dPos = shapeOrdering.indexOf("D");
+    const bPos = shapeOrdering.indexOf("B");
+    const cPos = shapeOrdering.indexOf("C");
+    expect(aPos < dPos).toBe(true);
+    expect(dPos < bPos).toBe(true);
+    expect(bPos < cPos).toBe(true);
+    expect(warning).toBeUndefined();
+  });
+  test("bad group layering", () => {
+    const partials: Layer[] = [
+      { below: "s2", above: "s1" },
+      { below: "s2", above: "s3" },
+      { below: "s3", above: "s1" },
+    ];
+    const groupGraph: GroupGraph<ShapeAD> = {
+      s1: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: [],
+        parents: ["g"],
+      },
+      s2: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: [],
+        parents: ["g"],
+      },
+      g: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: ["s1", "s2"],
+        parents: [],
+      },
+      s3: {
+        shape: { shapeType: "Circle", properties: {} },
+        index: 0,
+        shapeType: "Circle",
+        children: [],
+        parents: [],
+      },
+    };
+    const { shapeOrdering, warning } = S.computeShapeOrdering(
+      ["g", "s3", "s1", "s2"],
+      partials,
+      groupGraph
+    );
+    expect(warning).toBeDefined();
+    expect(warning!.cycles.length).toEqual(1);
+  });
 });
 
 describe("Color literals", () => {

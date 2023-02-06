@@ -3130,15 +3130,18 @@ export const propagateLayeringToParents = (
   groupGraph: GroupGraph<ShapeAD>
 ): void => {
   layerGraph.setEdge({ i: below, j: above, e: undefined });
-  console.log("BELOW: " + below + " ABOVE: " + above);
   const belowParents = groupGraph[below].parents;
   const aboveParents = groupGraph[above].parents;
-  aboveParents.forEach((p) => {
-    propagateLayeringToParents({ below, above: p }, layerGraph, groupGraph);
-  });
-  belowParents.forEach((p) => {
-    propagateLayeringToParents({ below: p, above }, layerGraph, groupGraph);
-  });
+  aboveParents
+    .filter((p) => p !== below)
+    .forEach((p) => {
+      propagateLayeringToParents({ below, above: p }, layerGraph, groupGraph);
+    });
+  belowParents
+    .filter((p) => p !== above)
+    .forEach((p) => {
+      propagateLayeringToParents({ below: p, above }, layerGraph, groupGraph);
+    });
   cartesianProduct(
     belowParents,
     aboveParents,
@@ -3161,12 +3164,16 @@ export const propagateLayeringToChildren = (
   layerGraph.setEdge({ i: below, j: above, e: undefined });
   const belowChildren = groupGraph[below].children;
   const aboveChildren = groupGraph[above].children;
-  aboveChildren.forEach((c) => {
-    propagateLayeringToChildren({ below, above: c }, layerGraph, groupGraph);
-  });
-  belowChildren.forEach((c) => {
-    propagateLayeringToChildren({ below: c, above }, layerGraph, groupGraph);
-  });
+  aboveChildren
+    .filter((c) => c !== below)
+    .forEach((c) => {
+      propagateLayeringToChildren({ below, above: c }, layerGraph, groupGraph);
+    });
+  belowChildren
+    .filter((c) => c !== above)
+    .forEach((c) => {
+      propagateLayeringToChildren({ below: c, above }, layerGraph, groupGraph);
+    });
   cartesianProduct(
     belowChildren,
     aboveChildren,
