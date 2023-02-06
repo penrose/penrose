@@ -1,4 +1,4 @@
-import * as uuid from "uuid";
+import { v4 as uuid } from "uuid";
 import { Shape } from "../types/shape";
 import { BoolV, ColorV, FloatV, StrV, VectorV } from "../types/value";
 import {
