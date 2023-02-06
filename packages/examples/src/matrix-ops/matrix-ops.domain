@@ -1,0 +1,5 @@
+type Matrix
+type Vector
+
+function times( Matrix A, Vector v ) -> Vector
+

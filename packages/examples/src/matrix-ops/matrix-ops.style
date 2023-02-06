@@ -1,0 +1,105 @@
+canvas {
+    width = 240
+    height = 200
+}
+
+global {
+   scalar scale = 40.0
+
+   shape box = Rectangle {
+      center: (0,0)
+      width: .75*canvas.width
+      height: .75*canvas.width
+      fillColor: #1b1f8a11
+      strokeWidth: 2.0
+   }
+
+   shape xAxis = Line {
+      start: (-canvas.width/3,0)
+      end: (canvas.width/3,0)
+      strokeColor: #888888ff
+      strokeWidth: 0.65
+      endArrowhead: "straight"
+      endArrowheadSize: 0.5
+   }
+
+   shape yAxis = Line {
+      start: (0,-canvas.width/3)
+      end: (0,canvas.width/3)
+      strokeColor: #888888ff
+      strokeWidth: 0.65
+      endArrowhead: "straight"
+      endArrowheadSize: 0.5
+   }
+}
+
+forall Matrix A {
+
+   vec2 r1 = (0,-1)
+   vec2 r2 = (1,0)
+
+   mat2x2 A.mat = ( r1, r2 )
+
+   shape A.row1 = Line {
+      start: (0,0)
+      end: global.scale * r1
+      strokeColor: #ff0000ff
+      strokeWidth: 2.0
+      endArrowhead: "straight"
+      endArrowheadSize: 0.5
+   }
+
+   shape A.row2 = Line {
+      start: (0,0)
+      end: global.scale * r2
+      strokeColor: #ff0000ff
+      strokeWidth: 2.0
+      endArrowhead: "straight"
+      endArrowheadSize: 0.5
+   }
+
+   shape A.r1Label = Equation {
+      center: (global.scale + 9) * r1
+      string: A.label + "_1"
+      fillColor: A.row1.strokeColor
+      fontSize: "9px"
+   }
+
+   shape A.r2Label = Equation {
+      center: (global.scale + 9) * r2
+      string: A.label + "_2"
+      fillColor: A.row2.strokeColor
+      fontSize: "9px"
+   }
+}
+
+forall Vector v {
+
+   scalar θ = ?
+   vec2 v.vec = (cos(θ),sin(θ))
+
+   shape v.icon = Line {
+      start: (0,0)
+      end: global.scale * v.vec
+      strokeColor: #00aa00ff
+      strokeWidth: 1.0
+      endArrowhead: "straight"
+      endArrowheadSize: 0.75
+   }
+
+   shape v.labelText = Equation {
+      center: (global.scale + 9)*v.vec
+      string: v.label
+      fillColor: v.icon.strokeColor
+      fontSize: "9px"
+   }
+}
+
+forall Matrix A; Vector u; Vector v
+where v := times( A, u )
+{
+   v.vec = A.mat*u.vec
+
+   v.icon.strokeColor = #0000aaff
+}
+
