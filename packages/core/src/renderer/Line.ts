@@ -152,7 +152,7 @@ const Line = ({ shape, canvasSize, variation }: ShapeProps): SVGGElement => {
   );
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
-  const unique = uuid.v4();
+  const unique = uuid();
   const startArrowId = unique + "-startArrowId";
   const endArrowId = unique + "-endArrowId";
   if (startArrowhead) {
