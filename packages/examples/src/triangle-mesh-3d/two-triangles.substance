@@ -1,15 +1,20 @@
-Vertex i0, j0, k0
-Vertex i1, j1, k1
+Vertex a0, a1, a2
+Vertex b0, b1, b2
 Triangle s, t
+StandardTriangle sigma
+Map f0, f1
 
-s := MakeTriangle(i0,j0,k0)
-t := MakeTriangle(i1,j1,k1)
+s := MakeTriangle(a0,a1,a2)
+t := MakeTriangle(b0,b1,b2)
+f0 := TriangleEmbedding(sigma,s)
+f1 := TriangleEmbedding(sigma,t)
 
 Label t $\widetilde{\mathbf{f}}$
-Label i0 $i_0$
-Label j0 $j_0$
-Label k0 $k_0$
-Label i1 $i_1$
-Label j1 $j_1$
-Label k1 $k_1$
+Label a0 $i_0$
+Label a1 $j_0$
+Label a2 $k_0$
+Label b0 $i_1$
+Label b1 $j_1$
+Label b2 $k_1$
+
 

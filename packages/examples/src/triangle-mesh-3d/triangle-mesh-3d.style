@@ -5,10 +5,24 @@ canvas {
 
 global {
 
+   shape box = Rectangle {
+     center: (0,0)
+     width: canvas.width
+     height: canvas.height
+     fillColor: none()
+     strokeColor: #33887733
+     strokeWidth: 2.0
+   }
+
    -- style of small dots
    scalar dotSize = 1.0
    color dotColor = rgba(0,0,0,1)
    string dotFontSize = "4.5px"
+
+   -- standard triangle colors
+   rgba triFill = #1b1f8a55
+   rgba triStroke = #1b1f8a
+   scalar triStrokeWidth = 0.5
 
    -- Ground plane coordinates in 3D
    scalar planeSize = 50 -- plane size
@@ -18,6 +32,7 @@ global {
    -- only camera parameter is the distance along Z
    scalar cZ = -160 -- camera z coordinate
    scalar cameraθ = ? -- camera y rotation
+   scalar viewXY = (0,canvas.width/6) -- viewport offset
 
    -- Corner coordinates of the global ground plane
    vec3 q00 = ( -planeSize, planeHeight, -planeSize )
@@ -36,10 +51,10 @@ global {
    vec3 Q11 = ( q11[0]*cos(θ) + q11[2]*sin(θ), q11[1], q11[2]*cos(θ) - q11[0]*sin(θ) )
 
    -- Perform perspective projection on 3D coordinates to get 2D coordinates p
-   vec2 p00 = canvas.width * (Q00[0],Q00[1])/(Q00[2] - global.cZ)
-   vec2 p10 = canvas.width * (Q10[0],Q10[1])/(Q10[2] - global.cZ)
-   vec2 p01 = canvas.width * (Q01[0],Q01[1])/(Q01[2] - global.cZ)
-   vec2 p11 = canvas.width * (Q11[0],Q11[1])/(Q11[2] - global.cZ)
+   vec2 p00 = canvas.width * (Q00[0],Q00[1])/(Q00[2] - global.cZ) + global.viewXY
+   vec2 p10 = canvas.width * (Q10[0],Q10[1])/(Q10[2] - global.cZ) + global.viewXY
+   vec2 p01 = canvas.width * (Q01[0],Q01[1])/(Q01[2] - global.cZ) + global.viewXY
+   vec2 p11 = canvas.width * (Q11[0],Q11[1])/(Q11[2] - global.cZ) + global.viewXY
 
    -- Draw polygon using projected 2D coordinates p
    shape groundPlane = Polygon {
@@ -72,11 +87,11 @@ forall Vertex v
    --vec3 Q = ( q[0]*cos(θ) + q[2]*sin(θ), q[1], q[2]*cos(θ) - q[0]*sin(θ) - global.cZ )
 
    -- Perform perspective projection to get 2D coordinates
-   vec2 v.p = canvas.width * (Q[0],Q[1])/(Q[2])
+   vec2 v.p = canvas.width * (Q[0],Q[1])/(Q[2]) + global.viewXY
 
    -- Compute projected shadow coordinates
    vec3 R = (Q[0],global.planeHeight,Q[2])
-   vec2 v.s = canvas.width * (R[0],R[1])/(R[2])
+   vec2 v.s = canvas.width * (R[0],R[1])/(R[2]) + global.viewXY
 
    -- draw vertex as black dot
    shape v.icon = Circle {
@@ -110,12 +125,19 @@ where v has label
 forall Triangle t; Vertex i; Vertex j; Vertex k
 where t := MakeTriangle(i,j,k)
 {
+   -- make local aliases to vertex coordinates, for
+   -- use by future rules that reference t but not
+   -- its vertices
+   t.p0 = i.p
+   t.p1 = j.p
+   t.p2 = k.p
+
    -- Draw polygon using projected 2D coordinates p
    shape t.icon = Polygon {
       points: (i.p,j.p,k.p)
-      fillColor: #1b1f8a55
-      strokeColor: #1b1f8a
-      strokeWidth: .5
+      fillColor: global.triFill
+      strokeColor: global.triStroke
+      strokeWidth: global.triStrokeWidth
       ensureOnCanvas: false
    }
 
@@ -125,10 +147,10 @@ where t := MakeTriangle(i,j,k)
    vec2 eij = j.p - i.p
    vec2 ejk = k.p - j.p
    vec2 eki = i.p - k.p
-   ensure cross2D( eij, -ejk ) < 0
-   ensure angleFrom( -ejk, eij ) > toRadians( 45 )
-   ensure angleFrom( -eki, ejk ) > toRadians( 45 )
-   ensure angleFrom( -eij, eki ) > toRadians( 45 )
+   constraint t.orientation = ensure cross2D( eij, -ejk ) < 0
+   constraint t.angleSizeI = ensure angleFrom( -eij, eki ) > toRadians( 45 )
+   constraint t.angleSizeJ = ensure angleFrom( -ejk, eij ) > toRadians( 45 )
+   constraint t.angleSizeK = ensure angleFrom( -eki, ejk ) > toRadians( 45 )
 
    -- Draw shadow polygon using projected 2D coordinates s
    shape t.shadow = Polygon {
@@ -169,4 +191,65 @@ where s := MakeTriangle(si,sj,sk); t := MakeTriangle(ti,tj,tk)
 
 }
 
+forall StandardTriangle t
+{
+   -- size s
+   scalar s = canvas.width/4
+
+   -- coordinate system origin o and axes e1,e2
+   vec2 o = -.9*(canvas.width,canvas.height)/2
+   vec2 e1 = (s,0)
+   vec2 e2 = (0,s)
+
+   -- vertices p0, p1, p2
+   vec2 t.p0 = o
+   vec2 t.p1 = o + e1
+   vec2 t.p2 = o + e2
+
+   t.icon = Polygon {
+      fillColor: global.triFill
+      strokeColor: global.triStroke
+      strokeWidth: global.triStrokeWidth
+      points: ( t.p0, t.p1, t.p2 )
+   }
+
+   t.xAxis = Line {
+      start: o
+      end: o + 1.15*e1
+      strokeColor: #000000ff
+      strokeWidth: 0.65
+      endArrowhead: "straight"
+      endArrowheadSize: 0.65
+   }
+
+   t.yAxis = Line {
+      start: o
+      end: o + 1.15*e2
+      strokeColor: #000000ff
+      strokeWidth: 0.65
+      endArrowhead: "straight"
+      endArrowheadSize: 0.65
+   }
+}
+
+forall Map f; StandardTriangle t0; Triangle t
+where f := TriangleEmbedding(t0,t) {
+
+   vec2 a = (t0.p1 + t0.p2)/2
+   vec2 b = (?,?)
+   vec2 n = rot90(b-a)/norm(b-a)
+   vec2 c = (a+b)/2 + 20.*n
+
+   shape f.arrow = Path {
+      d: interpolateQuadraticFromPoints( "open", a, c, b )
+      strokeColor: #0000ff
+      endArrowhead: "straight"
+      endArrowheadSize: 0.75
+      strokeWidth: 0.75
+   }
+
+   vec2 C = (t.p0 + t.p1 + t.p2)/3
+   encourage equal( 0, norm(b-C) )
+   ensure norm( b-C ) > 15
+}
 

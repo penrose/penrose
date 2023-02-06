@@ -1,5 +1,8 @@
 type Vertex
 type Triangle
+type StandardTriangle <: Triangle
+type Map
 
 constructor MakeTriangle(Vertex i, Vertex j, Vertex k) -> Triangle
+constructor TriangleEmbedding(StandardTriangle a,Triangle b) -> Map
 
