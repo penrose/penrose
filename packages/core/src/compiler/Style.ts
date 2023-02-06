@@ -1,4 +1,3 @@
-import { CustomHeap } from "@datastructures-js/heap";
 import { genOptProblem } from "@penrose/optimizer";
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola from "consola";
