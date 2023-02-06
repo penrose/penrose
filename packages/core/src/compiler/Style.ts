@@ -134,6 +134,7 @@ import {
   toStyleErrors,
 } from "utils/Error";
 import Graph from "utils/Graph";
+import { findCycles, GroupGraph, makeGroupGraph } from "utils/GroupGraph";
 import {
   boolV,
   colorV,
@@ -3092,11 +3093,98 @@ export const translate = (
 
 //#endregion
 
+//#region group graph
+
+export const checkGroupGraph = (
+  groupGraph: GroupGraph<ShapeAD>
+): StyleWarning[] => {
+  const warnings: StyleWarning[] = [];
+  for (const [name, node] of Object.entries(groupGraph)) {
+    if (node.parents.length > 1) {
+      warnings.push({
+        tag: "ShapeBelongsToMultipleGroups",
+        shape: name,
+        groups: node.parents,
+      });
+    }
+  }
+
+  const cycles = findCycles(groupGraph);
+  if (cycles.length !== 0) {
+    warnings.push({
+      tag: "GroupCycleWarning",
+      cycles,
+    });
+  }
+
+  return warnings;
+};
+
+//#endregion
+
 //#region layering
+
+export const propagateLayeringToParents = (
+  { below, above }: Layer,
+  layerGraph: Graph<string>,
+  groupGraph: GroupGraph<ShapeAD>
+): void => {
+  layerGraph.setEdge({ i: below, j: above, e: undefined });
+  console.log("BELOW: " + below + " ABOVE: " + above);
+  const belowParents = groupGraph[below].parents;
+  const aboveParents = groupGraph[above].parents;
+  aboveParents.forEach((p) => {
+    propagateLayeringToParents({ below, above: p }, layerGraph, groupGraph);
+  });
+  belowParents.forEach((p) => {
+    propagateLayeringToParents({ below: p, above }, layerGraph, groupGraph);
+  });
+  cartesianProduct(
+    belowParents,
+    aboveParents,
+    (p1, p2) => p1 !== p2,
+    (p1, p2) => {
+      propagateLayeringToParents(
+        { below: p1, above: p2 },
+        layerGraph,
+        groupGraph
+      );
+    }
+  );
+};
+
+export const propagateLayeringToChildren = (
+  { below, above }: Layer,
+  layerGraph: Graph<string>,
+  groupGraph: GroupGraph<ShapeAD>
+): void => {
+  layerGraph.setEdge({ i: below, j: above, e: undefined });
+  const belowChildren = groupGraph[below].children;
+  const aboveChildren = groupGraph[above].children;
+  aboveChildren.forEach((c) => {
+    propagateLayeringToChildren({ below, above: c }, layerGraph, groupGraph);
+  });
+  belowChildren.forEach((c) => {
+    propagateLayeringToChildren({ below: c, above }, layerGraph, groupGraph);
+  });
+  cartesianProduct(
+    belowChildren,
+    aboveChildren,
+    (c1, c2) => c1 !== c2,
+    (c1, c2) => {
+      propagateLayeringToChildren(
+        { below: c1, above: c2 },
+        layerGraph,
+        groupGraph
+      );
+    }
+  );
+};
 
 export const computeShapeOrdering = (
   allGPINames: string[],
-  partialOrderings: Layer[]
+  partialOrderings: Layer[],
+  groupGraph: GroupGraph<ShapeAD>
 ): {
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
@@ -3108,6 +3196,8 @@ export const computeShapeOrdering = (
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
   partialOrderings.forEach(({ below, above }: Layer) => {
     layerGraph.setEdge({ i: below, j: above, e: undefined });
+    propagateLayeringToParents({ below, above }, layerGraph, groupGraph);
+    propagateLayeringToChildren({ below, above }, layerGraph, groupGraph);
   });
 
   // if there are no cycles, return a global ordering from the top sort result
@@ -3399,9 +3489,18 @@ export const compileStyleHelper = async (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
+  const groupGraph = makeGroupGraph(
+    getShapes(graph, translation, [
+      ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
+    ])
+  );
+
+  const groupWarnings = checkGroupGraph(groupGraph);
+
   const { shapeOrdering, warning: layeringWarning } = computeShapeOrdering(
     [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
-    [...translation.layering]
+    [...translation.layering],
+    groupGraph
   );
 
   const shapes = getShapes(graph, translation, shapeOrdering);
@@ -3437,8 +3536,8 @@ export const compileStyleHelper = async (
 
   const initState: State = {
     warnings: layeringWarning
-      ? [...translation.diagnostics.warnings, layeringWarning]
-      : [...translation.diagnostics.warnings],
+      ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
+      : [...translation.diagnostics.warnings, ...groupWarnings],
     variation,
     varyingValues,
     constraintSets,

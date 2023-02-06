@@ -6,6 +6,7 @@ import { C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
+import { ShapeAD } from "types/shape";
 import { State } from "types/state";
 import {
   AnonAssign,
@@ -20,6 +21,7 @@ import { Assignment, DepGraph, Layer, Translation } from "types/styleSemantics";
 import { SubstanceEnv } from "types/substance";
 import { ColorV, RGBA } from "types/value";
 import { andThen, err, Result, showError } from "utils/Error";
+import { GroupGraph, GroupGraphNode } from "utils/GroupGraph";
 import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
 import { compileDomain } from "./Domain";
 
@@ -67,6 +69,26 @@ const canvasPreamble = `canvas {
 
 describe("Layering computation", () => {
   // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
+  const makeSimpleGroupGraphNode = (): GroupGraphNode<ShapeAD> => {
+    return {
+      shape: {
+        shapeType: "Circle",
+        properties: {},
+      },
+      index: 0,
+      shapeType: "Circle",
+      children: [],
+      parents: [],
+    };
+  };
+  const simpleGroupGraph: GroupGraph<ShapeAD> = {
+    A: makeSimpleGroupGraphNode(),
+    B: makeSimpleGroupGraphNode(),
+    C: makeSimpleGroupGraphNode(),
+    D: makeSimpleGroupGraphNode(),
+    E: makeSimpleGroupGraphNode(),
+    F: makeSimpleGroupGraphNode(),
+  };
   test("simple layering: A -> B -> C", () => {
     const partials: Layer[] = [
       { below: "A", above: "B" },
@@ -74,7 +96,8 @@ describe("Layering computation", () => {
     ];
     const { shapeOrdering, warning } = S.computeShapeOrdering(
       ["A", "B", "C"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeUndefined();
@@ -87,7 +110,8 @@ describe("Layering computation", () => {
     ];
     const { shapeOrdering, warning } = S.computeShapeOrdering(
       ["A", "B", "C"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeDefined();
@@ -104,7 +128,8 @@ describe("Layering computation", () => {
     ];
     const { shapeOrdering, warning } = S.computeShapeOrdering(
       ["A", "B", "C", "D", "E", "F"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "C", "F", "B", "D", "E"]);
     expect(warning).toBeDefined();
@@ -121,7 +146,8 @@ describe("Layering computation", () => {
     ];
     const { shapeOrdering, warning } = S.computeShapeOrdering(
       ["A", "B", "C", "D", "E", "F"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "D", "E", "C", "F"]);
     expect(warning).toBeDefined();

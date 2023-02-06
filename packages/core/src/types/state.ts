@@ -32,7 +32,7 @@ export interface State extends OptState {
   constrFns: Fn[];
   inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
-  shapes: ShapeAD[];
+  shapes: ShapeAD[]; // Consistent with layer-ordering, not necessarily with group-ordering
   canvas: Canvas;
   gradient: Gradient;
   currentStageIndex: number;

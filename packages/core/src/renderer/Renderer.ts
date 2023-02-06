@@ -9,14 +9,14 @@ import { shapedefs } from "shapes/Shapes";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
 import { StrV } from "types/value";
-import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
-import { dragUpdate } from "./dragUtils";
 import {
   findRoot,
-  makeRendererTree,
-  RendererTree,
-  RendererTreeNode,
-} from "./RendererTree";
+  GroupGraph,
+  GroupGraphNode,
+  makeGroupGraph,
+} from "utils/GroupGraph";
+import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
+import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
 
 /**
@@ -267,8 +267,8 @@ export const RenderInteractive = async (
 };
 
 const RenderGroup = async (
-  node: RendererTreeNode,
-  tree: RendererTree,
+  node: GroupGraphNode<Shape>,
+  tree: GroupGraph<Shape>,
   shapeProps: {
     labels: LabelCache;
     canvasSize: [number, number];
@@ -280,16 +280,16 @@ const RenderGroup = async (
     return tree[a].index - tree[b].index;
   });
   for (const childName of orderedChildren) {
-    const childSvg = await RenderRendererTreeNode(childName, tree, shapeProps);
+    const childSvg = await RenderGroupGraphNode(childName, tree, shapeProps);
     elem.appendChild(childSvg);
   }
   attrAutoFillSvg(node.shape, elem, [...attrTitle(node.shape, elem), "shapes"]);
   return elem;
 };
 
-const RenderRendererTreeNode = async (
+const RenderGroupGraphNode = async (
   name: string,
-  tree: RendererTree,
+  tree: GroupGraph<Shape>,
   shapeProps: {
     labels: LabelCache;
     canvasSize: [number, number];
@@ -308,8 +308,8 @@ const RenderRendererTreeNode = async (
   }
 };
 
-const RenderRendererTree = async (
-  tree: RendererTree,
+const RenderGroupGraph = async (
+  tree: GroupGraph<Shape>,
   svg: SVGSVGElement,
   shapeProps: {
     labels: LabelCache;
@@ -319,7 +319,7 @@ const RenderRendererTree = async (
 ) => {
   while (Object.entries(tree).length > 0) {
     const rootName = findRoot(tree);
-    const elem = await RenderRendererTreeNode(rootName, tree, shapeProps);
+    const elem = await RenderGroupGraphNode(rootName, tree, shapeProps);
     svg.appendChild(elem);
   }
 };
@@ -340,8 +340,8 @@ export const RenderStatic = async (
 
   const shapes = computeShapes(varyingValues);
 
-  const rendererTree = makeRendererTree(shapes);
-  await RenderRendererTree(rendererTree, svg, {
+  const rendererTree = makeGroupGraph(shapes);
+  await RenderGroupGraph(rendererTree, svg, {
     labels,
     canvasSize: canvas.size,
     pathResolver,

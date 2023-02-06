@@ -208,7 +208,9 @@ export type StyleError =
 export type StyleWarning =
   | ImplicitOverrideWarning
   | NoopDeleteWarning
-  | LayerCycleWarning;
+  | LayerCycleWarning
+  | ShapeBelongsToMultipleGroupsWarning
+  | GroupCycleWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -230,6 +232,15 @@ export interface LayerCycleWarning {
   tag: "LayerCycleWarning";
   cycles: string[][];
   approxOrdering: string[];
+}
+export interface ShapeBelongsToMultipleGroupsWarning {
+  tag: "ShapeBelongsToMultipleGroups";
+  shape: string;
+  groups: string[];
+}
+export interface GroupCycleWarning {
+  tag: "GroupCycleWarning";
+  cycles: string[][];
 }
 
 //#endregion

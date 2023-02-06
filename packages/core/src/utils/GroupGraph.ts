@@ -1,19 +1,22 @@
-import { Shape } from "types/shape";
+import { Shape, ShapeAD } from "types/shape";
+import Graph from "./Graph";
 
-export type RendererTreeNode = {
-  shape: Shape;
+export type GroupGraphNode<T extends Shape | ShapeAD> = {
+  shape: T;
   index: number;
   shapeType: string;
   children: string[]; // names
   parents: string[]; // names
 };
 
-export type RendererTree = { [name: string]: RendererTreeNode };
+export type GroupGraph<T extends Shape | ShapeAD> = {
+  [name: string]: GroupGraphNode<T>;
+};
 
-const makePartialRendererTreeNode = (
-  shape: Shape,
+const makePartialGroupGraphNode = <T extends Shape | ShapeAD>(
+  shape: T,
   index: number
-): [string, RendererTreeNode] => {
+): [string, GroupGraphNode<T>] => {
   const shapeType = shape.shapeType;
   const shapeNameVal = shape.properties["name"];
   if (shapeNameVal.tag !== "StrV") {
@@ -58,12 +61,13 @@ const makePartialRendererTreeNode = (
   }
 };
 
-export const makeRendererTree = (shapes: Shape[]): RendererTree => {
-  console.log(shapes);
-  const tree: RendererTree = {};
+export const makeGroupGraph = <T extends Shape | ShapeAD>(
+  shapes: T[]
+): GroupGraph<T> => {
+  const tree: GroupGraph<T> = {};
   for (let i = 0; i < shapes.length; i++) {
     const shape = shapes[i];
-    const [shapeName, shapeNode] = makePartialRendererTreeNode(shape, i);
+    const [shapeName, shapeNode] = makePartialGroupGraphNode(shape, i);
     tree[shapeName] = shapeNode;
   }
   // Now populate the parents fields
@@ -72,16 +76,12 @@ export const makeRendererTree = (shapes: Shape[]): RendererTree => {
       tree[childName].parents.push(name);
     }
   }
-  // Each node cannot have more than one parents
-  for (const [name, node] of Object.entries(tree)) {
-    if (node.parents.length > 1) {
-      throw Error("Shape " + name + " is contained by more than one groups");
-    }
-  }
   return tree;
 };
 
-export const findRoot = (tree: RendererTree): string => {
+export const findRoot = <T extends Shape | ShapeAD>(
+  tree: GroupGraph<T>
+): string => {
   const allRoots = Object.entries(tree).filter(
     ([, node]) => node.parents.length === 0
   );
@@ -92,4 +92,20 @@ export const findRoot = (tree: RendererTree): string => {
     return currMin[1].index < newElem[1].index ? currMin : newElem;
   });
   return smallestRoot[0];
+};
+
+export const findCycles = <T extends Shape | ShapeAD>(
+  graph: GroupGraph<T>
+): string[][] => {
+  const rawGraph = new Graph<string>();
+  for (const name of Object.keys(graph)) {
+    rawGraph.setNode(name, undefined);
+  }
+  for (const [name, node] of Object.entries(graph)) {
+    for (const child of node.children) {
+      rawGraph.setEdge({ i: name, j: child, e: undefined });
+    }
+  }
+
+  return rawGraph.findCycles();
 };

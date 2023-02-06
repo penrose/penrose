@@ -458,6 +458,18 @@ canvas {
       )}`;
     }
 
+    case "ShapeBelongsToMultipleGroups": {
+      return `Shape ${
+        error.shape
+      } belongs to multiple groups: ${error.groups.join("; ")}`;
+    }
+
+    case "GroupCycleWarning": {
+      return `Cycles detected in group memberships: ${error.cycles
+        .map((c) => c.join(", "))
+        .join("; ")}.`;
+    }
+
     // ----- END STYLE WARNINGS
 
     case "Fatal": {
