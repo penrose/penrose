@@ -24,6 +24,7 @@
   - [Finding an issue to work on](#finding-an-issue-to-work-on)
   - [Merging new changes from upstream](#merging-new-changes-from-upstream)
   - [Opening a pull request (PR)](#opening-a-pull-request-pr)
+- [Release](#release)
 
 <!-- tocstop -->
 
