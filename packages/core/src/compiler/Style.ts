@@ -2391,6 +2391,25 @@ const evalBinOpVectorScalar = (
   }
 };
 
+const evalBinOpMatrixVector = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[][],
+  right: ad.Num[]
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.mvmul(left, right));
+    }
+    case "Divide":
+    case "BPlus":
+    case "BMinus":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
 const evalBinOpStrings = (
   error: BinOpTypeError,
   op: BinaryOp,
@@ -2436,6 +2455,13 @@ const evalBinOp = (
     ).map(vectorV);
   } else if (left.tag === "VectorV" && right.tag === "FloatV") {
     return evalBinOpVectorScalar(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(vectorV);
+  } else if (left.tag === "MatrixV" && right.tag === "VectorV") {
+    return evalBinOpMatrixVector(
       error,
       expr.op,
       left.contents,
