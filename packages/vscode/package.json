@@ -3,7 +3,7 @@
   "displayName": "Penrose",
   "publisher": "penrose",
   "description": "Penrose languages bundle",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "private": true,
@@ -14,9 +14,6 @@
     "Other",
     "Snippets",
     "Programming Languages"
-  ],
-  "activationEvents": [
-    "onLanguage:penrose-style"
   ],
   "icon": "resources/icon.png",
   "repository": {
