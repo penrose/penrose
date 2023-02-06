@@ -17,7 +17,12 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Build all packages
         run: yarn build
-      - name: Publish all packages
+      - name: Publish npm packages
         run: npm publish --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish VS Code extension
+        working-directory: packages/vscode/
+        run: npx vsce publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
