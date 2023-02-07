@@ -461,7 +461,7 @@ canvas {
     case "ShapeBelongsToMultipleGroups": {
       return `Shape ${
         error.shape
-      } belongs to multiple groups: ${error.groups.join("; ")}`;
+      } belongs to multiple groups: ${error.groups.join(", ")}`;
     }
 
     case "GroupCycleWarning": {

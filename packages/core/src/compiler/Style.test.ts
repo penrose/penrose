@@ -585,6 +585,13 @@ describe("Compiler", () => {
         ensure o.a < o.b
         ensure o.a == o.b
       }`,
+      `forall Object o {
+        o.a = Circle {}
+        o.b = Circle {}
+        o.g = Group {
+          shapes: [o.a, o.b]
+        }
+      }`,
     ];
     stys.forEach((sty: string) =>
       loadProgs({ dsl, sub, sty: canvasPreamble + sty })
@@ -1188,11 +1195,74 @@ delete x.z.p }`,
         t.g = Group {
           shapes: [t.s1, t.s2]
         }
+        t.s3 = Text {}
+        t.g2 = Group {
+          shapes: [t.s3, t.g]
+        }
       }\n
       `;
       const sub = "T t\n";
       const { state } = await loadProgs({ dsl, sub, sty });
-      expect(state.shapes.length).toEqual(3);
+      expect(state.shapes.length).toEqual(5);
+    });
+  });
+
+  describe("group graph", () => {
+    test("cyclic group graph", () => {
+      const groupGraph: GroupGraph<ShapeAD> = {
+        A: {
+          shape: { shapeType: "Group", properties: {} },
+          index: 0,
+          shapeType: "Group",
+          children: ["B"],
+          parents: [],
+        },
+        B: {
+          shape: { shapeType: "Group", properties: {} },
+          index: 0,
+          shapeType: "Group",
+          children: ["C"],
+          parents: [],
+        },
+        C: {
+          shape: { shapeType: "Group", properties: {} },
+          index: 0,
+          shapeType: "Group",
+          children: ["A"],
+          parents: [],
+        },
+      };
+      const warnings = S.checkGroupGraph(groupGraph);
+      expect(warnings.length).toEqual(1);
+      expect(warnings[0].tag).toEqual("GroupCycleWarning");
+    });
+    test("shape belongs to multiple groups", () => {
+      const groupGraph: GroupGraph<ShapeAD> = {
+        A: {
+          shape: { shapeType: "Group", properties: {} },
+          index: 0,
+          shapeType: "Group",
+          children: ["X"],
+          parents: [],
+        },
+        B: {
+          shape: { shapeType: "Group", properties: {} },
+          index: 0,
+          shapeType: "Group",
+          children: ["X"],
+          parents: [],
+        },
+        X: {
+          shape: { shapeType: "Group", properties: {} },
+          index: 0,
+          shapeType: "Group",
+          children: [],
+          parents: ["A", "B"],
+        },
+      };
+      const warnings = S.checkGroupGraph(groupGraph);
+      expect(warnings.length).toEqual(1);
+      expect(warnings[0].tag).toEqual("ShapeBelongsToMultipleGroups");
     });
   });
 });
