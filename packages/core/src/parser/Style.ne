@@ -437,6 +437,11 @@ unary
   %}
   |  parenthesized        {% id %}
 
+# Transpose
+unary
+  ->  unary _ "'" {% (d): UOp<C> => ({ tag: 'UOp', op: "UTranspose", arg: d[0] }) %}
+   |  unary _ "ᵀ" {% (d): UOp<C> => ({ tag: 'UOp', op: "UTranspose", arg: d[0] }) %}
+
 # Exponents
 factor 
   -> unary _ "^" _ factor {% (d): BinOp<C> => binop('Exp', d[0], d[4]) %}

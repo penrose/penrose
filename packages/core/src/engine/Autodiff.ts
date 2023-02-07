@@ -745,6 +745,21 @@ export const ops = {
   },
 
   /**
+   * Return the transpose of the matrix `A`.
+   */
+  mtrans: (A: ad.Num[][]): ad.Num[][] => {
+    const AT: ad.Num[][] = [];
+     for (let i = 0; i < A.length; i++ ) {
+        const row: ad.Num[] = [];
+        for (let j = 0; j < A.length; j++ ) {
+           row.push( A[j][i] );
+        }
+        AT.push( row );
+     }
+     return AT;
+  },
+
+  /**
    * Return the vector `v` divided by scalar `c`.
    */
   vdiv: (v: ad.Num[], c: ad.Num): ad.Num[] => {

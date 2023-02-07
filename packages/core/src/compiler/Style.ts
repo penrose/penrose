@@ -2669,6 +2669,30 @@ const evalUMinus = (
   }
 };
 
+const evalUTranspose = (
+  expr: UOp<C>,
+  arg: Value<ad.Num>
+): Result<Value<ad.Num>, StyleError> => {
+  switch (arg.tag) {
+    case "MatrixV": {
+      return ok(matrixV(ops.mtrans(arg.contents)));
+    }
+    case "FloatV":
+    case "VectorV":
+    case "BoolV":
+    case "ListV":
+    case "ColorV":
+    case "LListV":
+    case "MatrixV":
+    case "PathDataV":
+    case "PtListV":
+    case "StrV":
+    case "TupV": {
+      return err({ tag: "UOpTypeError", expr, arg: arg.tag });
+    }
+  }
+};
+
 const evalExpr = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2826,6 +2850,13 @@ const evalExpr = (
         switch (expr.op) {
           case "UMinus": {
             const res = evalUMinus(expr, argVal.contents);
+            if (res.isErr()) {
+              return err(oneErr(res.error));
+            }
+            return ok(val(res.value));
+          }
+          case "UTranspose": {
+            const res = evalUTranspose(expr, argVal.contents);
             if (res.isErr()) {
               return err(oneErr(res.error));
             }
