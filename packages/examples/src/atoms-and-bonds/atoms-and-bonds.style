@@ -14,6 +14,9 @@ forall Atom a {
         center: a.center
         fillColor: rgba(1., 1., 1., 1.)
     }
+    a.shape = Group {
+        shapes: [a.symbol, a.background]
+    }
     layer a.symbol above a.background
 }
 
@@ -35,8 +38,8 @@ where SBond(a1, a2) as b {
     b.v = a2.center - a1.center
     ensure equal(norm(b.v), 100)
 
-    layer b.symbol below a1.background
-    layer b.symbol below a2.background
+    layer b.symbol below a1.shape
+    layer b.symbol below a2.shape
 }
 
 forall Hydrogen h1; Hydrogen h2; Oxygen o
@@ -55,8 +58,8 @@ where WBond(a1, a2) as wb {
     }
     wb.v = a2.center - a1.center
     ensure equal(norm(wb.v), 200)
-    layer wb.symbol below a1.background
-    layer wb.symbol below a2.background
+    layer wb.symbol below a1.shape
+    layer wb.symbol below a2.shape
 }
 
 forall Hydrogen h; Oxygen o; Hydrogen h1; Hydrogen h2; Oxygen o1
