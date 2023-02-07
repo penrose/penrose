@@ -1,34 +1,33 @@
 import { CustomHeap } from "@datastructures-js/heap";
 import { genOptProblem } from "@penrose/optimizer";
-import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola from "consola";
-import { constrDict } from "contrib/Constraints";
-import { compDict } from "contrib/Functions";
-import { objDict } from "contrib/Objectives";
-import { input, ops } from "engine/Autodiff";
-import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
+import im from "immutable";
+import _ from "lodash";
+import nearley from "nearley";
+import seedrandom from "seedrandom";
+import { constrDict } from "../contrib/Constraints";
+import { compDict } from "../contrib/Functions";
+import { objDict } from "../contrib/Objectives";
+import { input, ops } from "../engine/Autodiff";
+import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions";
 import {
   compileCompGraph,
   dummyIdentifier,
   genGradient,
-} from "engine/EngineUtils";
-import im from "immutable";
-import _ from "lodash";
-import nearley from "nearley";
-import { lastLocation, prettyParseError } from "parser/ParserUtil";
-import styleGrammar from "parser/StyleParser";
-import seedrandom from "seedrandom";
+} from "../engine/EngineUtils";
+import { lastLocation, prettyParseError } from "../parser/ParserUtil";
+import styleGrammar from "../parser/StyleParser";
 import {
   Canvas,
   Context as MutableContext,
   InputMeta,
   makeCanvas,
   uniform,
-} from "shapes/Samplers";
-import { isShapeType, ShapeDef, shapedefs, ShapeType } from "shapes/Shapes";
-import * as ad from "types/ad";
-import { A, C, Identifier, SourceRange } from "types/ast";
-import { Env } from "types/domain";
+} from "../shapes/Samplers";
+import { isShapeType, ShapeDef, shapedefs, ShapeType } from "../shapes/Shapes";
+import * as ad from "../types/ad";
+import { A, C, Identifier, SourceRange } from "../types/ast";
+import { Env } from "../types/domain";
 import {
   BinOpTypeError,
   LayerCycleWarning,
@@ -39,15 +38,15 @@ import {
   StyleError,
   StyleWarning,
   SubstanceError,
-} from "types/errors";
-import { ShapeAD } from "types/shape";
+} from "../types/errors";
+import { ShapeAD } from "../types/shape";
 import {
   Fn,
   OptPipeline,
   OptStages,
   StagedConstraints,
   State,
-} from "types/state";
+} from "../types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -74,7 +73,7 @@ import {
   StyT,
   UOp,
   Vector,
-} from "types/style";
+} from "../types/style";
 import {
   Assignment,
   BlockAssignment,
@@ -94,7 +93,7 @@ import {
   Subst,
   Translation,
   WithContext,
-} from "types/styleSemantics";
+} from "../types/styleSemantics";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -106,7 +105,7 @@ import {
   SubstanceEnv,
   SubStmt,
   TypeConsApp,
-} from "types/substance";
+} from "../types/substance";
 import {
   ArgVal,
   Field,
@@ -119,7 +118,7 @@ import {
   ShapeListV,
   Value,
   VectorV,
-} from "types/value";
+} from "../types/value";
 import {
   all,
   andThen,
@@ -132,9 +131,9 @@ import {
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-} from "utils/Error";
-import Graph from "utils/Graph";
-import { findCycles, GroupGraph, makeGroupGraph } from "utils/GroupGraph";
+} from "../utils/Error";
+import Graph from "../utils/Graph";
+import { findCycles, GroupGraph, makeGroupGraph } from "../utils/GroupGraph";
 import {
   boolV,
   colorV,
@@ -152,8 +151,9 @@ import {
   val,
   vectorV,
   zip2,
-} from "utils/Util";
+} from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
+import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Warn })

@@ -30,7 +30,7 @@ I find it weird that local variables (seemingly?) can't be anonymous. E.g., if I
 
 There still aren't clear error messages---for instance, I was stumped for a while about why my `Path` wasn't getting drawn. The reason is that I had set the field `path:` rather than `pathData:` (but no warning or error was issued).
 
-I tried adding an SVG `Image` to my Style, by placing the SVG file in the same directory as the `.sty` file, but nothing showed up. Seems it has to go in `penrose/packages/core/assets/`. And it's not even clear how to re-build the system so that it recognizes new SVGs in that directory. Added an issue here: <https://github.com/penrose/penrose/issues/723>
+I tried adding an SVG `Image` to my Style, by placing the SVG file in the same directory as the `.style` file, but nothing showed up. Seems it has to go in `penrose/packages/core/assets/`. And it's not even clear how to re-build the system so that it recognizes new SVGs in that directory. Added an issue here: <https://github.com/penrose/penrose/issues/723>
 
 For one of my Styles, I needed rounded line caps, which is supported in SVG but was not yet exposed in Penrose. I was able to add line caps via "search-copy-paste-edit," but would be nice to think about how to expose a more comprehensive set of SVG features in a more orderly fashion.
 

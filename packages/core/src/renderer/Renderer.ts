@@ -4,17 +4,16 @@
  *
  */
 
-import * as im from "immutable";
-import { shapedefs } from "shapes/Shapes";
-import { Shape } from "types/shape";
-import { LabelCache, State } from "types/state";
-import { StrV } from "types/value";
+import { shapedefs } from "../shapes/Shapes";
+import { Shape } from "../types/shape";
+import { LabelCache, State } from "../types/state";
+import { StrV } from "../types/value";
 import {
   findRoot,
   GroupGraph,
   GroupGraphNode,
   makeGroupGraph,
-} from "utils/GroupGraph";
+} from "../utils/GroupGraph";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
 import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
@@ -32,9 +31,6 @@ export interface ShapeProps {
   canvasSize: [number, number];
   pathResolver: PathResolver;
 }
-
-export type NameShapeMap = { [k: string]: Shape };
-export type RenderedNamesSet = im.Set<string>;
 
 /**
  * Converts screen to relative SVG coords

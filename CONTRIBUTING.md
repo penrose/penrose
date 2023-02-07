@@ -35,23 +35,17 @@ Be sure you have these tools installed:
 
 - [Node.js][] v16+ (if using Linux or Mac, we recommend installing via [nvm][])
 
+  - [Yarn][] v1.x
+
 - [Rust][]
 
-- The WebAssembly target:
+  - the WebAssembly target for Rust:
 
-  ```sh
-  rustup target add wasm32-unknown-unknown
-  ```
+    ```sh
+    rustup target add wasm32-unknown-unknown
+    ```
 
-- [`wasm-bindgen` CLI][] (you need to install Rust first), specifically a
-  version which has the `--keep-lld-exports` flag; use this command:
-
-  ```sh
-  cargo install wasm-bindgen-cli \
-    --git https://github.com/rustwasm/wasm-bindgen --rev 7c626e4b3
-  ```
-
-- [Yarn][] v1.x (you need to install Node.js first)
+  - [`wasm-bindgen` CLI][] v0.2.84+
 
 Depending on your platform, here are some extra instructions:
 
@@ -158,9 +152,9 @@ should see something like this:
 Type in the drop-down boxes to search for any Penrose trio in
 `packages/examples/src/`; for example:
 
-- Substance: `set-theory-domain/tree.sub`
-- Style: `set-theory-domain/venn.sty`
-- Domain: `set-theory-domain/setTheory.dsl`
+- Substance: `set-theory-domain/tree.substance`
+- Style: `set-theory-domain/venn.style`
+- Domain: `set-theory-domain/setTheory.domain`
 
 ... and voilà! ✨ See the results in your browser:
 
@@ -196,9 +190,9 @@ under `packages/examples/src/`:
 
 ```
 packages/examples/src/foo-domain/
-├── mydomain.dsl
-├── bar.sty
-└── baz.sub
+├── mydomain.domain
+├── bar.style
+└── baz.substance
 ```
 
 The first step in adding this to the registry is to add the domain under
@@ -206,7 +200,7 @@ The first step in adding this to the registry is to add the domain under
 
 ```json
 "foo": {
-  "URI": "foo-domain/mydomain.dsl"
+  "URI": "foo-domain/mydomain.domain"
 }
 ```
 
@@ -215,7 +209,7 @@ Next you can add the style under `"styles"` referring to that domain:
 ```json
 "mystyle": {
   "domain": "foo",
-  "URI": "foo-domain/bar.sty"
+  "URI": "foo-domain/bar.style"
 }
 ```
 
@@ -224,7 +218,7 @@ And similarly the substance would go under `"substances"`:
 ```json
 "mysubstance": {
   "domain": "foo",
-  "URI": "foo-domain/baz.sub"
+  "URI": "foo-domain/baz.substance"
 }
 ```
 

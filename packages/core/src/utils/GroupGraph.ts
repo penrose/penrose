@@ -1,4 +1,4 @@
-import { Shape, ShapeAD } from "types/shape";
+import { Shape, ShapeAD } from "../types/shape";
 import Graph from "./Graph";
 
 export type GroupGraphNode<T extends Shape | ShapeAD> = {

@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   appendStmt,
   ArgExpr,
@@ -9,11 +10,10 @@ import {
   removeStmt,
   replaceStmt,
   stmtExists,
-} from "analysis/SubstanceAnalysis";
-import { prettyStmt, prettySubNode } from "compiler/Substance";
-import { dummyIdentifier } from "engine/EngineUtils";
-import _ from "lodash";
-import { A, Identifier } from "types/ast";
+} from "../analysis/SubstanceAnalysis";
+import { prettyStmt, prettySubNode } from "../compiler/Substance";
+import { dummyIdentifier } from "../engine/EngineUtils";
+import { A, Identifier } from "../types/ast";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -22,7 +22,7 @@ import {
   Func,
   SubProg,
   SubStmt,
-} from "types/substance";
+} from "../types/substance";
 import {
   addID,
   generateArgStmt,

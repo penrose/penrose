@@ -1,4 +1,4 @@
-import { StrV } from "types/value";
+import { StrV } from "../types/value";
 import {
   attrAutoFillSvg,
   attrRotation,

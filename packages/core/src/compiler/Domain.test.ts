@@ -1,13 +1,13 @@
 import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
 import setTheory from "@penrose/examples/dist/set-theory-domain";
-import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
 import nearley from "nearley";
-import grammar from "parser/DomainParser";
 import * as path from "path";
-import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
-import { Result, showError } from "utils/Error";
+import grammar from "../parser/DomainParser";
+import { Env } from "../types/domain";
+import { PenroseError } from "../types/errors";
+import { Result, showError } from "../utils/Error";
+import { compileDomain, isSubtype } from "./Domain";
 
 const outputDir = "/tmp/contexts";
 const saveContexts = false;
@@ -15,10 +15,10 @@ const printError = false;
 
 const domains = [
   [
-    "linear-algebra-domain/linear-algebra.dsl",
-    linearAlgebra["linear-algebra.dsl"],
+    "linear-algebra-domain/linear-algebra.domain",
+    linearAlgebra["linear-algebra.domain"],
   ],
-  ["set-theory-domain/setTheory.dsl", setTheory["setTheory.dsl"]],
+  ["set-theory-domain/setTheory.domain", setTheory["setTheory.domain"]],
 ];
 
 const contextHas = (
@@ -278,7 +278,7 @@ describe("Real Programs", () => {
       expect(res.isOk()).toBe(true);
       // write to output folder
       if (res.isOk() && saveContexts) {
-        const exampleName = path.basename(examplePath, ".dsl");
+        const exampleName = path.basename(examplePath, ".domain");
         const astPath = path.join(outputDir, exampleName + ".env.json");
         fs.writeFileSync(astPath, JSON.stringify(res.value), "utf8");
       }

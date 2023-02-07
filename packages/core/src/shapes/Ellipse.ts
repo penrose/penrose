@@ -1,7 +1,7 @@
-import * as ad from "types/ad";
-import { Center, Fill, Named, Shape, Stroke } from "types/shapes";
-import { FloatV } from "types/value";
-import { boolV, floatV, noPaint, strV } from "utils/Util";
+import * as ad from "../types/ad";
+import { Center, Fill, Named, Shape, Stroke } from "../types/shapes";
+import { FloatV } from "../types/value";
+import { boolV, floatV, noPaint, strV } from "../utils/Util";
 import {
   Canvas,
   Context,

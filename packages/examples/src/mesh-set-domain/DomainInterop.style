@@ -426,7 +426,7 @@ forall Vertex v; Vertex w {
 }
 
 --------------------------------------
--- | above this line, concatenate the two .sty files for Sets and Meshes
+-- | above this line, concatenate the two .style files for Sets and Meshes
 
 forall Point p; Vertex v
 where Identified(p, v) {

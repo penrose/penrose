@@ -1,4 +1,4 @@
-import { ops } from "engine/Autodiff";
+import { ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
@@ -10,11 +10,11 @@ import {
   sign,
   squared,
   sub,
-} from "engine/AutodiffFunctions";
-import { Path } from "shapes/Path";
-import { Polygon } from "shapes/Polygon";
-import { Polyline } from "shapes/Polyline";
-import * as ad from "types/ad";
+} from "../engine/AutodiffFunctions";
+import { Path } from "../shapes/Path";
+import { Polygon } from "../shapes/Polygon";
+import { Polyline } from "../shapes/Polyline";
+import * as ad from "../types/ad";
 import {
   consecutiveTriples,
   consecutiveTuples,

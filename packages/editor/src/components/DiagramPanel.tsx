@@ -91,21 +91,21 @@ const SVGaddCode = (
   );
   variation.insertAdjacentText("afterbegin", variationStr);
 
-  // Create <sub> tag to store substance (.sub) code
+  // Create <sub> tag to store .substance code
   const substance = document.createElementNS(
     "https://penrose.cs.cmu.edu/substance",
     "sub"
   );
   substance.insertAdjacentText("afterbegin", subStr);
 
-  // Create <sty> tag to store style (.sty) code
+  // Create <sty> tag to store .style code
   const style = document.createElementNS(
     "https://penrose.cs.cmu.edu/style",
     "sty"
   );
   style.insertAdjacentText("afterbegin", styleStr);
 
-  // Create <dsl> tag to store .dsl code
+  // Create <dsl> tag to store .domain code
   const dsl = document.createElementNS("https://penrose.cs.cmu.edu/dsl", "dsl");
   dsl.insertAdjacentText("afterbegin", dslStr);
 

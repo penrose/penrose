@@ -27,6 +27,22 @@
       "gallery": true
     },
     {
+      "name": "Quaternions as table",
+      "substance": "quaternion-group",
+      "style": "group-theory-multiplication-table",
+      "domain": "group-theory",
+      "variation": "MeadowbrookChimpanzee02726",
+      "gallery": true
+    },
+    {
+      "name": "Quaternions as Cayley graph",
+      "substance": "quaternion-group",
+      "style": "group-theory-cayley-graph",
+      "domain": "group-theory",
+      "variation": "MeadowbrookChimpanzee02726",
+      "gallery": true
+    },
+    {
       "name": "Wet Floor",
       "substance": "wet-floor",
       "style": "atoms-and-bonds",
@@ -105,7 +121,7 @@
       "substance": "incenter-triangle",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "",
+      "variation": "RationalityZebra567",
       "gallery": true
     },
     {
@@ -135,10 +151,18 @@
       "variation": "OspreySkunk922"
     },
     {
+      "name": "Two 3D Triangles",
+      "substance": "two-triangles",
+      "style": "triangle-mesh-3d",
+      "domain": "triangle-mesh-3d",
+      "variation": "EpiphanyRam6491",
+      "gallery": true
+    },
+    {
       "substance": "circle-example",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "ShiitakeEchidna6061"
+      "variation": "PathwayJellyfish159"
     },
     {
       "name": "Word Cloud",
@@ -235,7 +259,7 @@
       "substance": "3d-projection",
       "style": "fake-3d-linear-algebra",
       "domain": "fake-3d-linear-algebra",
-      "variation": "ConceptualMeerkat694"
+      "variation": "PurpletiniSeahorse9761"
     },
     {
       "substance": "vector-wedge",
@@ -284,349 +308,375 @@
   ],
   "domains": {
     "animation": {
-      "URI": "animation/animation.dsl"
+      "URI": "animation/animation.domain"
     },
     "set-theory": {
-      "URI": "set-theory-domain/setTheory.dsl"
+      "URI": "set-theory-domain/setTheory.domain"
+    },
+    "group-theory": {
+      "URI": "group-theory/Group.domain"
     },
     "functions": {
-      "URI": "set-theory-domain/functions.dsl"
+      "URI": "set-theory-domain/functions.domain"
     },
     "linear-algebra": {
-      "URI": "linear-algebra-domain/linear-algebra.dsl"
+      "URI": "linear-algebra-domain/linear-algebra.domain"
     },
     "exterior-algebra": {
-      "URI": "exterior-algebra/exterior-algebra.dsl"
+      "URI": "exterior-algebra/exterior-algebra.domain"
     },
     "shape-spec": {
-      "URI": "shape-spec/all-shapes.dsl"
+      "URI": "shape-spec/all-shapes.domain"
     },
     "graph-theory": {
-      "URI": "graph-domain/graph-theory.dsl"
+      "URI": "graph-domain/graph-theory.domain"
     },
     "geometry": {
-      "URI": "geometry-domain/geometry.dsl"
+      "URI": "geometry-domain/geometry.domain"
+    },
+    "triangle-mesh-3d": {
+      "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
     },
     "word-cloud": {
-      "URI": "word-cloud/word-cloud.dsl"
+      "URI": "word-cloud/word-cloud.domain"
     },
     "non-convex": {
-      "URI": "minkowski-tests/maze/maze.dsl"
+      "URI": "minkowski-tests/maze/maze.domain"
     },
     "lagrange-bases": {
-      "URI": "lagrange-bases/lagrange-bases.dsl"
+      "URI": "lagrange-bases/lagrange-bases.domain"
     },
     "hypergraph": {
-      "URI": "hypergraph/hypergraph.dsl"
+      "URI": "hypergraph/hypergraph.domain"
     },
     "persistent-homology": {
-      "URI": "persistent-homology/persistent-homology.dsl"
+      "URI": "persistent-homology/persistent-homology.domain"
     },
     "walk-on-spheres": {
-      "URI": "walk-on-spheres/walk-on-spheres.dsl"
+      "URI": "walk-on-spheres/walk-on-spheres.domain"
     },
     "shape-distance": {
-      "URI": "shape-distance/shapes.dsl"
+      "URI": "shape-distance/shapes.domain"
     },
     "fake-3d-linear-algebra": {
-      "URI": "fake-3d-linear-algebra/fake3d.dsl"
+      "URI": "fake-3d-linear-algebra/fake3d.domain"
     },
     "atoms-and-bonds": {
-      "URI": "atoms-and-bonds/atoms-and-bonds.dsl"
+      "URI": "atoms-and-bonds/atoms-and-bonds.domain"
     },
     "structural-formula": {
-      "URI": "structural-formula/structural-formula.dsl"
+      "URI": "structural-formula/structural-formula.domain"
     },
     "mobius": {
-      "URI": "mobius/mobius.dsl"
+      "URI": "mobius/mobius.domain"
     },
     "full-moon": {
-      "URI": "full-moon/full-moon.dsl"
+      "URI": "full-moon/full-moon.domain"
     },
     "molecules": {
-      "URI": "molecules/molecules.dsl"
+      "URI": "molecules/molecules.domain"
     },
     "logic-gates": {
-      "URI": "logic-circuit-domain/logic-gates.dsl"
+      "URI": "logic-circuit-domain/logic-gates.domain"
     },
     "curve-examples": {
-      "URI": "curve-examples/curves.dsl"
+      "URI": "curve-examples/curves.domain"
     }
   },
   "styles": {
     "venn": {
       "domain": "set-theory",
-      "URI": "set-theory-domain/venn.sty"
+      "URI": "set-theory-domain/venn.style"
     },
     "tree": {
       "domain": "set-theory",
-      "URI": "set-theory-domain/tree.sty"
+      "URI": "set-theory-domain/tree.style"
+    },
+    "group-theory-multiplication-table": {
+      "domain": "group-theory",
+      "URI": "group-theory/MultiplicationTable.style"
+    },
+    "group-theory-cayley-graph": {
+      "domain": "group-theory",
+      "URI": "group-theory/CayleyGraph.style"
     },
     "continuousmap": {
       "domain": "set-theory",
-      "URI": "set-theory-domain/continuousmap.sty"
+      "URI": "set-theory-domain/continuousmap.style"
     },
     "venn-3d": {
       "domain": "set-theory",
-      "URI": "set-theory-domain/venn-3d.sty"
+      "URI": "set-theory-domain/venn-3d.style"
     },
     "linear-algebra-simple": {
       "domain": "linear-algebra",
-      "URI": "linear-algebra-domain/linear-algebra-paper-simple.sty"
+      "URI": "linear-algebra-domain/linear-algebra-paper-simple.style"
     },
     "allShapes": {
       "domain": "shape-spec",
-      "URI": "shape-spec/shape-spec.sty"
+      "URI": "shape-spec/shape-spec.style"
     },
     "arrowheads": {
       "domain": "shape-spec",
-      "URI": "shape-spec/arrows.sty"
+      "URI": "shape-spec/arrows.style"
     },
     "vectors-dashed": {
       "domain": "linear-algebra",
-      "URI": "linear-algebra-domain/linearalgebra-paper-dashes.sty"
+      "URI": "linear-algebra-domain/linearalgebra-paper-dashes.style"
     },
     "exterior-algebra": {
       "domain": "linear-algebra",
-      "URI": "exterior-algebra/exterior-algebra.sty"
+      "URI": "exterior-algebra/exterior-algebra.style"
     },
     "disjoint-rects": {
       "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects.sty"
+      "URI": "graph-domain/disjoint-rects.style"
     },
     "disjoint-rect-line-horiz": {
       "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rect-line-horiz.sty"
+      "URI": "graph-domain/disjoint-rect-line-horiz.style"
     },
     "disjoint-rects-small-canvas": {
       "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects-small-canvas.sty"
+      "URI": "graph-domain/disjoint-rects-small-canvas.style"
     },
     "disjoint-rects-large-canvas": {
       "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects-large-canvas.sty"
+      "URI": "graph-domain/disjoint-rects-large-canvas.style"
     },
     "euclidean": {
       "domain": "geometry",
-      "URI": "geometry-domain/euclidean.sty"
+      "URI": "geometry-domain/euclidean.style"
+    },
+    "triangle-mesh-3d": {
+      "domain": "triangle-mesh-3d",
+      "URI": "triangle-mesh-3d/triangle-mesh-3d.style"
     },
     "word-cloud": {
       "domain": "word-cloud",
-      "URI": "word-cloud/word-cloud.sty"
+      "URI": "word-cloud/word-cloud.style"
     },
     "euclidean-teaser": {
       "domain": "geometry",
-      "URI": "geometry-domain/euclidean-teaser.sty"
+      "URI": "geometry-domain/euclidean-teaser.style"
     },
     "non-convex": {
       "domain": "non-convex",
-      "URI": "minkowski-tests/maze/maze.sty"
+      "URI": "minkowski-tests/maze/maze.style"
     },
     "lagrange-bases": {
       "domain": "lagrange-bases",
-      "URI": "lagrange-bases/lagrange-bases.sty"
+      "URI": "lagrange-bases/lagrange-bases.style"
     },
     "hypergraph": {
       "domain": "hypergraph",
-      "URI": "hypergraph/hypergraph.sty"
+      "URI": "hypergraph/hypergraph.style"
     },
     "persistent-homology": {
       "domain": "persistent-homology",
-      "URI": "persistent-homology/persistent-homology.sty"
+      "URI": "persistent-homology/persistent-homology.style"
     },
     "walk-on-spheres": {
       "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/walk-on-spheres.sty"
+      "URI": "walk-on-spheres/walk-on-spheres.style"
     },
     "shape-distance": {
       "domain": "shape-distance",
-      "URI": "shape-distance/shape-distance.sty"
+      "URI": "shape-distance/shape-distance.style"
     },
     "fake-3d-linear-algebra": {
       "domain": "fake-3d-linear-algebra",
-      "URI": "fake-3d-linear-algebra/fake3d.sty"
+      "URI": "fake-3d-linear-algebra/fake3d.style"
     },
     "atoms-and-bonds": {
       "domain": "atoms-and-bonds",
-      "URI": "atoms-and-bonds/atoms-and-bonds.sty"
+      "URI": "atoms-and-bonds/atoms-and-bonds.style"
     },
     "animation": {
       "domain": "animation",
-      "URI": "animation/animation.sty"
+      "URI": "animation/animation.style"
     },
     "structural-formula": {
       "domain": "structural-formula",
-      "URI": "structural-formula/structural-formula.sty"
+      "URI": "structural-formula/structural-formula.style"
     },
     "mobius": {
       "domain": "mobius",
-      "URI": "mobius/mobius.sty"
+      "URI": "mobius/mobius.style"
     },
     "full-moon": {
       "domain": "full-moon",
-      "URI": "full-moon/full-moon.sty"
+      "URI": "full-moon/full-moon.style"
     },
     "molecules-basic": {
       "domain": "molecules",
-      "URI": "molecules/molecules-basic.sty"
+      "URI": "molecules/molecules-basic.style"
     },
     "distinctive-shape": {
       "domain": "logic-gates",
-      "URI": "logic-circuit-domain/distinctive-shape.sty"
+      "URI": "logic-circuit-domain/distinctive-shape.style"
     },
     "cubic-bezier": {
       "domain": "curve-examples",
-      "URI": "curve-examples/cubic-bezier.sty"
+      "URI": "curve-examples/cubic-bezier.style"
     }
   },
   "substances": {
     "two-vectors-perp": {
       "domain": "linear-algebra",
-      "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.sub"
+      "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.substance"
     },
     "vector-wedge": {
       "domain": "exterior-algebra",
-      "URI": "exterior-algebra/vector-wedge.sub"
+      "URI": "exterior-algebra/vector-wedge.substance"
+    },
+    "quaternion-group": {
+      "domain": "group-theory",
+      "URI": "group-theory/groups/quaternions.substance"
     },
     "continuousmap": {
       "domain": "set-theory",
-      "URI": "set-theory-domain/continuousmap.sub"
+      "URI": "set-theory-domain/continuousmap.substance"
     },
     "nested": {
       "domain": "set-theory",
-      "URI": "set-theory-domain/nested.sub"
+      "URI": "set-theory-domain/nested.substance"
     },
     "tree": {
       "domain": "set-theory",
-      "URI": "set-theory-domain/tree.sub"
+      "URI": "set-theory-domain/tree.substance"
     },
     "allShapes": {
       "domain": "shape-spec",
-      "URI": "shape-spec/all-shapes.sub"
+      "URI": "shape-spec/all-shapes.substance"
     },
     "arrowheads": {
       "domain": "shape-spec",
-      "URI": "shape-spec/arrows.sub"
+      "URI": "shape-spec/arrows.substance"
     },
     "small-graph": {
       "domain": "graph-theory",
-      "URI": "graph-domain/small-graph.sub"
+      "URI": "graph-domain/small-graph.substance"
     },
     "siggraph-teaser": {
       "domain": "geometry",
-      "URI": "geometry-domain/teaser.sub"
+      "URI": "geometry-domain/teaser.substance"
     },
     "collinear": {
       "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c01p01.sub"
+      "URI": "geometry-domain/textbook_problems/c01p01.substance"
     },
     "incenter-triangle": {
       "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c05p13.sub"
+      "URI": "geometry-domain/textbook_problems/c05p13.substance"
     },
     "parallel-lines": {
       "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c03p01.sub"
+      "URI": "geometry-domain/textbook_problems/c03p01.substance"
     },
     "midsegment-triangles": {
       "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c05p01.sub"
+      "URI": "geometry-domain/textbook_problems/c05p01.substance"
     },
     "congruent-triangles": {
       "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/ex.sub"
+      "URI": "geometry-domain/textbook_problems/ex.substance"
     },
     "circle-example": {
       "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c11p12.sub"
+      "URI": "geometry-domain/textbook_problems/c11p12.substance"
     },
     "word-cloud-example": {
       "domain": "word-cloud",
-      "URI": "word-cloud/example.sub"
+      "URI": "word-cloud/example.substance"
     },
     "non-convex": {
       "domain": "non-convex",
-      "URI": "minkowski-tests/maze/maze.sub"
+      "URI": "minkowski-tests/maze/maze.substance"
+    },
+    "two-triangles": {
+      "domain": "triangle-mesh-3d",
+      "URI": "triangle-mesh-3d/two-triangles.substance"
     },
     "lagrange-bases": {
       "domain": "lagrange-bases",
-      "URI": "lagrange-bases/example.sub"
+      "URI": "lagrange-bases/example.substance"
     },
     "hypergraph": {
       "domain": "hypergraph",
-      "URI": "hypergraph/hypergraph.sub"
+      "URI": "hypergraph/hypergraph.substance"
     },
     "persistent-homology": {
       "domain": "persistent-homology",
-      "URI": "persistent-homology/persistent-homology.sub"
+      "URI": "persistent-homology/persistent-homology.substance"
     },
     "wos-laplace-estimator": {
       "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/Laplace.sub"
+      "URI": "walk-on-spheres/Laplace.substance"
     },
     "wos-poisson-estimator": {
       "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/Poisson.sub"
+      "URI": "walk-on-spheres/Poisson.substance"
     },
     "wos-nested-estimator": {
       "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/Nested.sub"
+      "URI": "walk-on-spheres/Nested.substance"
     },
     "wos-offcenter-estimator": {
       "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/OffCenter.sub"
+      "URI": "walk-on-spheres/OffCenter.substance"
     },
     "points-around-star": {
       "domain": "shape-distance",
-      "URI": "shape-distance/hundred-points-around-star.sub"
+      "URI": "shape-distance/hundred-points-around-star.substance"
     },
     "points-around-polyline": {
       "domain": "shape-distance",
-      "URI": "shape-distance/ninety-points-around-polyline.sub"
+      "URI": "shape-distance/ninety-points-around-polyline.substance"
     },
     "points-around-line": {
       "domain": "shape-distance",
-      "URI": "shape-distance/hundred-points-around-line.sub"
+      "URI": "shape-distance/hundred-points-around-line.substance"
     },
     "3d-projection": {
       "domain": "fake-3d-linear-algebra",
-      "URI": "fake-3d-linear-algebra/projection.sub"
+      "URI": "fake-3d-linear-algebra/projection.substance"
     },
     "wet-floor": {
       "domain": "atoms-and-bonds",
-      "URI": "atoms-and-bonds/wet-floor.sub"
+      "URI": "atoms-and-bonds/wet-floor.substance"
     },
     "one-water-molecule": {
       "domain": "atoms-and-bonds",
-      "URI": "atoms-and-bonds/one-water-molecule.sub"
+      "URI": "atoms-and-bonds/one-water-molecule.substance"
     },
     "center-shrink-circle": {
       "domain": "animation",
-      "URI": "animation/center-shrink-circle.sub"
+      "URI": "animation/center-shrink-circle.substance"
     },
     "caffeine": {
       "domain": "structural-formula",
-      "URI": "structural-formula/molecules/caffeine.sub"
+      "URI": "structural-formula/molecules/caffeine.substance"
     },
     "mobius": {
       "domain": "mobius",
-      "URI": "mobius/mobius.sub"
+      "URI": "mobius/mobius.substance"
     },
     "full-moon": {
       "domain": "full-moon",
-      "URI": "full-moon/full-moon.sub"
+      "URI": "full-moon/full-moon.substance"
     },
     "glutamine": {
       "domain": "molecules",
-      "URI": "molecules/glutamine.sub"
+      "URI": "molecules/glutamine.substance"
     },
     "half-adder": {
       "domain": "logic-gates",
-      "URI": "logic-circuit-domain/half-adder.sub"
+      "URI": "logic-circuit-domain/half-adder.substance"
     },
     "cubic-bezier": {
       "domain": "curve-examples",
-      "URI": "curve-examples/cubic-bezier.sub"
+      "URI": "curve-examples/cubic-bezier.substance"
     }
   }
 }

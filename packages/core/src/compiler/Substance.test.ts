@@ -1,13 +1,13 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
 import nearley from "nearley";
-import grammar from "parser/SubstanceParser";
 import * as path from "path";
-import { A } from "types/ast";
-import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
-import { ApplyPredicate, SubRes, SubstanceEnv } from "types/substance";
-import { Result, showError, showType } from "utils/Error";
+import grammar from "../parser/SubstanceParser";
+import { A } from "../types/ast";
+import { Env } from "../types/domain";
+import { PenroseError } from "../types/errors";
+import { ApplyPredicate, SubRes, SubstanceEnv } from "../types/substance";
+import { Result, showError, showType } from "../utils/Error";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
 
@@ -16,15 +16,15 @@ const saveContexts = false;
 const outputDir = "/tmp/contexts";
 
 const subPaths = [
-  // "linear-algebra-domain/twoVectorsPerp.sub",
-  ["setTheory.dsl", "tree.sub"],
-  ["functions.dsl", "continuousmap.sub"],
-  ["setTheory.dsl", "twosets-simple.sub"],
-  ["setTheory.dsl", "multisets.sub"],
-  ["setTheory.dsl", "nested.sub"],
-  // "hyperbolic-domain/hyperbolic-example.sub",
-  // "geometry-domain/pythagorean-theorem-sugared.sub",
-  // "mesh-set-domain/DomainInterop.sub",
+  // "linear-algebra-domain/twoVectorsPerp.substance",
+  ["setTheory.domain", "tree.substance"],
+  ["functions.domain", "continuousmap.substance"],
+  ["setTheory.domain", "twosets-simple.substance"],
+  ["setTheory.domain", "multisets.substance"],
+  ["setTheory.domain", "nested.substance"],
+  // "hyperbolic-domain/hyperbolic-example.substance",
+  // "geometry-domain/pythagorean-theorem-sugared.substance",
+  // "mesh-set-domain/DomainInterop.substance",
 ];
 
 const hasVars = (env: Env, vars: [string, string][]) => {
@@ -545,8 +545,8 @@ describe("Real Programs", () => {
       expect(res.isOk()).toBe(true);
       // write to output folder
       if (res.isOk() && saveContexts) {
-        const domainName = path.basename(domainPath, ".dsl");
-        const exampleName = path.basename(examplePath, ".sub");
+        const domainName = path.basename(domainPath, ".domain");
+        const exampleName = path.basename(examplePath, ".substance");
         const envPath = path.join(outputDir, domainName + ".env.json");
         const subenvPath = path.join(outputDir, exampleName + ".env.json");
         fs.writeFileSync(subenvPath, JSON.stringify(res.value[0]), "utf8");

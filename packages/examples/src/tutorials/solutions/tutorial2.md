@@ -2,14 +2,14 @@
 
 Define a predicate `Intersecting` that takes in two sets and outputs 2 circles that overlap.
 
-`.dsl`
+`.domain`
 
 ```
 type Set
 predicate Intersecting(Set s1, Set s2)
 ```
 
-`.sub`
+`.substance`
 
 ```
 Set A
@@ -17,7 +17,7 @@ Set B
 Intersecting(A, B)
 ```
 
-`.sty`
+`.style`
 
 ```
 canvas {
@@ -43,14 +43,14 @@ where Intersecting(x, y) {
 
 Define a predicate that takes in two sets and outputs 2 circles that are disjoint.
 
-`.dsl`
+`.domain`
 
 ```
 type Set
 predicate NotIntersecting(Set s1, Set s2)
 ```
 
-`.sub`
+`.substance`
 
 ```
 Set A
@@ -58,7 +58,7 @@ Set B
 NotIntersecting(A, B)
 ```
 
-`.sty`
+`.style`
 
 ```
 canvas {
