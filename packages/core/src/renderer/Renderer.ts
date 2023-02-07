@@ -36,101 +36,6 @@ export interface ShapeProps {
 export type NameShapeMap = { [k: string]: Shape };
 export type RenderedNamesSet = im.Set<string>;
 
-const RenderGroup_ = async (
-  { shape, labels, canvasSize, pathResolver }: ShapeProps,
-  nameShapeMap: NameShapeMap,
-  renderedNames: RenderedNamesSet
-): Promise<[SVGGElement | undefined, RenderedNamesSet]> => {
-  const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const groupNameVal = shape.properties["name"];
-  if (groupNameVal.tag !== "StrV") {
-    throw Error("Shape name not a string");
-  }
-  const groupName = groupNameVal.contents;
-  if (renderedNames.has(groupName)) {
-    return [undefined, renderedNames];
-  }
-  const subGPIs = shape.properties["shapes"];
-  if (subGPIs.tag !== "ShapeListV") {
-    throw Error("Not a list of shapes");
-  }
-
-  const updatedRenderedNames = subGPIs.contents.reduce(
-    async (currRenderedNames, gpi) => {
-      const shapeNameVal = gpi.contents[1]["name"];
-      if (shapeNameVal.tag !== "StrV") {
-        throw Error("Shape name not a string");
-      }
-      const subShape = nameShapeMap[shapeNameVal.contents];
-
-      // This will create a new SVG element for the shape, and add the names
-      // of the created shapes into newRenderedNames
-      const [subElem, newRenderedNames] = await RenderShape(
-        { shape: subShape, labels, canvasSize, pathResolver },
-        nameShapeMap,
-        await currRenderedNames
-      );
-
-      // Append this element onto the SVG
-      if (subElem) {
-        elem.appendChild(subElem);
-      }
-      return newRenderedNames;
-    },
-    Promise.resolve(renderedNames)
-  );
-
-  // Make sure to add the group name into rendered names.
-  attrAutoFillSvg(shape, elem, [...attrTitle(shape, elem), "shapes"]);
-  return [elem, (await updatedRenderedNames).add(groupName)];
-};
-
-/**
- * Turns Shape GPI data into a corresponding SVG element
- */
-export const RenderShape = async (
-  { shape, labels, canvasSize, pathResolver }: ShapeProps,
-  nameShapeMap: NameShapeMap,
-  renderedNames: RenderedNamesSet
-): Promise<[SVGElement | undefined, RenderedNamesSet]> => {
-  const shapeType = shape.shapeType;
-  if (!(shapeType in shapeMap) && shapeType !== "Group") {
-    console.error(`${shapeType} shape doesn't exist in shapeMap`);
-    return [
-      document.createElementNS("http://www.w3.org/2000/svg", "g"),
-      renderedNames,
-    ];
-  }
-
-  // Special case for groups
-  if (shapeType === "Group") {
-    return await RenderGroup_(
-      { shape, labels, canvasSize, pathResolver },
-      nameShapeMap,
-      renderedNames
-    );
-  } else {
-    const shapeNameVal = shape.properties["name"];
-    if (shapeNameVal.tag !== "StrV") {
-      throw Error("Shape name not a string");
-    }
-    const shapeName = shapeNameVal.contents;
-
-    // No duplication of shape rendering
-    if (renderedNames.has(shapeName)) {
-      return [undefined, renderedNames];
-    } else {
-      const rendered = await shapeMap[shape.shapeType]({
-        shape,
-        labels,
-        canvasSize,
-        pathResolver,
-      });
-      return [rendered, renderedNames.add(shapeName)];
-    }
-  }
-};
-
 /**
  * Converts screen to relative SVG coords
  * Thanks to
@@ -149,77 +54,133 @@ const getPosition = (
   return { x: 0, y: 0 };
 };
 
-/**
- * Makes a shape draggable. Browser only.
- * @param onDrag callback when drag complete
- * @param parentSVG
- * @param canvasSizeCustom
- */
-export const DraggableShape = async (
-  shapeProps: ShapeProps,
+const RenderGroupInteractive = async (
+  node: GroupGraphNode<Shape>,
+  graph: GroupGraph<Shape>,
+  shapeProps: {
+    labels: LabelCache;
+    canvasSize: [number, number];
+    pathResolver: PathResolver;
+  },
   onDrag: (id: string, dx: number, dy: number) => void,
-  parentSVG: SVGSVGElement,
-  canvasSizeCustom?: [number, number]
+  parentSVG: SVGSVGElement
 ): Promise<SVGGElement> => {
-  const canvas = shapeProps.canvasSize;
-  const [elem] = await RenderShape(
-    {
-      ...shapeProps,
-      canvasSize: canvasSizeCustom ? canvasSizeCustom : canvas,
-    },
-    {},
-    im.Set()
-  );
-  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const { shapeType } = shapeProps.shape;
-  if (shapedefs[shapeType].isLinelike) {
-    g.setAttribute("pointer-events", "visibleStroke");
-  } else if (shapedefs[shapeType].isRectlike) {
-    g.setAttribute("pointer-events", "bounding-box");
-  } else {
-    g.setAttribute("pointer-events", "auto");
+  const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const orderedChildren = node.children.sort((a, b) => {
+    return graph[a].index - graph[b].index;
+  });
+  for (const childName of orderedChildren) {
+    const childSvg = await RenderGroupGraphNodeInteractive(
+      childName,
+      graph,
+      shapeProps,
+      onDrag,
+      parentSVG
+    );
+    elem.appendChild(childSvg);
   }
-  if (!elem) {
+  attrAutoFillSvg(node.shape, elem, [...attrTitle(node.shape, elem), "shapes"]);
+  return elem;
+};
+
+const RenderGroupGraphNodeInteractive = async (
+  name: string,
+  graph: GroupGraph<Shape>,
+  shapeProps: {
+    labels: LabelCache;
+    canvasSize: [number, number];
+    pathResolver: PathResolver;
+  },
+  onDrag: (id: string, dx: number, dy: number) => void,
+  parentSVG: SVGSVGElement
+): Promise<SVGElement> => {
+  const node = graph[name];
+  delete graph[name];
+  if (node.shapeType === "Group") {
+    return await RenderGroupInteractive(
+      node,
+      graph,
+      shapeProps,
+      onDrag,
+      parentSVG
+    );
+  } else {
+    const elem = await shapeMap[node.shape.shapeType]({
+      ...shapeProps,
+      shape: node.shape,
+    });
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const { shapeType } = node.shape;
+    if (shapedefs[shapeType].isLinelike) {
+      g.setAttribute("pointer-events", "visibleStroke");
+    } else if (shapedefs[shapeType].isRectlike) {
+      g.setAttribute("pointer-events", "bounding-box");
+    } else {
+      g.setAttribute("pointer-events", "auto");
+    }
+    g.appendChild(elem);
+    const onMouseDown = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { x: tempX, y: tempY } = getPosition(
+        { clientX, clientY },
+        parentSVG
+      );
+      const {
+        width: bboxW,
+        height: bboxH,
+        x: bboxX,
+        y: bboxY,
+      } = (e.target as SVGSVGElement).getBBox({ stroke: true });
+      const minX = tempX - bboxX;
+      const maxX = shapeProps.canvasSize[0] - bboxW + (tempX - bboxX);
+      const minY = tempY - bboxY;
+      const maxY = shapeProps.canvasSize[1] - bboxH + (tempY - bboxY);
+
+      g.setAttribute("opacity", "0.5");
+      let dx = 0,
+        dy = 0;
+      const onMouseMove = (e: MouseEvent) => {
+        const { x, y } = getPosition(e, parentSVG);
+        const constrainedX = clamp(x, minX, maxX);
+        const constrainedY = clamp(y, minY, maxY);
+        dx = constrainedX - tempX;
+        dy = tempY - constrainedY;
+        g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+      };
+      const onMouseUp = () => {
+        g.setAttribute("opacity", "1");
+        document.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("mousemove", onMouseMove);
+        onDrag((node.shape.properties.name as StrV).contents, dx, dy);
+      };
+      document.addEventListener("mouseup", onMouseUp);
+      document.addEventListener("mousemove", onMouseMove);
+    };
+    g.addEventListener("mousedown", onMouseDown);
     return g;
   }
-  g.appendChild(elem);
-
-  const onMouseDown = (e: MouseEvent) => {
-    const { clientX, clientY } = e;
-    const { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parentSVG);
-    const {
-      width: bboxW,
-      height: bboxH,
-      x: bboxX,
-      y: bboxY,
-    } = (e.target as SVGSVGElement).getBBox({ stroke: true });
-    const minX = tempX - bboxX;
-    const maxX = canvas[0] - bboxW + (tempX - bboxX);
-    const minY = tempY - bboxY;
-    const maxY = canvas[1] - bboxH + (tempY - bboxY);
-
-    g.setAttribute("opacity", "0.5");
-    let dx = 0,
-      dy = 0;
-    const onMouseMove = (e: MouseEvent) => {
-      const { x, y } = getPosition(e, parentSVG);
-      const constrainedX = clamp(x, minX, maxX);
-      const constrainedY = clamp(y, minY, maxY);
-      dx = constrainedX - tempX;
-      dy = tempY - constrainedY;
-      g.setAttribute(`transform`, `translate(${dx},${-dy})`);
-    };
-    const onMouseUp = () => {
-      g.setAttribute("opacity", "1");
-      document.removeEventListener("mouseup", onMouseUp);
-      document.removeEventListener("mousemove", onMouseMove);
-      onDrag((shapeProps.shape.properties.name as StrV).contents, dx, dy);
-    };
-    document.addEventListener("mouseup", onMouseUp);
-    document.addEventListener("mousemove", onMouseMove);
-  };
-  g.addEventListener("mousedown", onMouseDown);
-  return g;
+};
+const RenderGroupGraphInteractive = async (
+  graph: GroupGraph<Shape>,
+  svg: SVGSVGElement,
+  shapeProps: {
+    labels: LabelCache;
+    canvasSize: [number, number];
+    pathResolver: PathResolver;
+  },
+  onDrag: (id: string, dx: number, dy: number) => void
+) => {
+  while (Object.entries(graph).length > 0) {
+    const rootName = findRoot(graph);
+    const elem = await RenderGroupGraphNodeInteractive(
+      rootName,
+      graph,
+      shapeProps,
+      onDrag,
+      svg
+    );
+    svg.appendChild(elem);
+  }
 };
 
 /**
@@ -246,23 +207,18 @@ export const RenderInteractive = async (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  for (const shape of state.computeShapes(state.varyingValues)) {
-    if (shape.shapeType === "Group") {
-      throw Error("Interactive shapes don't yet work with groups");
-    }
-    svg.appendChild(
-      await DraggableShape(
-        {
-          shape,
-          labels: state.labelCache,
-          canvasSize: state.canvas.size,
-          pathResolver,
-        },
-        onDrag,
-        svg
-      )
-    );
-  }
+  const shapes = state.computeShapes(state.varyingValues);
+  const graph = makeGroupGraph(shapes);
+  await RenderGroupGraphInteractive(
+    graph,
+    svg,
+    {
+      labels: state.labelCache,
+      canvasSize: state.canvas.size,
+      pathResolver,
+    },
+    onDrag
+  );
   return svg;
 };
 
