@@ -2417,15 +2417,17 @@ const evalBinOpMatrixMatrix = (
   right: ad.Num[][]
 ): Result<ad.Num[][], StyleError> => {
   switch (op) {
-    // case "Multiply": {
-    //   return ok(ops.mmmul(left, right));
-    // }
-    case "Divide":
     case "BPlus": {
       return ok(ops.mmadd(left, right));
     }
+    case "BMinus": {
+      return ok(ops.mmsub(left, right));
+    }
+    // case "Multiply": {
+    //   return ok(ops.mmmul(left, right));
+    // }
     case "Multiply":
-    case "BMinus":
+    case "Divide":
     case "Exp": {
       return err(error);
     }

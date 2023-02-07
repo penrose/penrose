@@ -607,6 +607,8 @@ export const ops = {
   mmadd: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
     if (A1.length !== A2.length) {
       throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
     }
 
     const result = [];
@@ -614,6 +616,27 @@ export const ops = {
        let row = [];
        for (let j = 0; j < A1.length; j++) {
           row.push( add( A1[i][j], A2[i][j] ));
+       }
+       result.push( row );
+    }
+    return result;
+  },
+
+  /**
+   * Return the difference of matrices `A1, A2`.
+   */
+  mmsub: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+       let row = [];
+       for (let j = 0; j < A1.length; j++) {
+          row.push( sub( A1[i][j], A2[i][j] ));
        }
        result.push( row );
     }
