@@ -590,7 +590,7 @@ export const ops = {
   dist: (c1: ad.Num, c2: ad.Num): ad.Num => ops.vnorm([c1, c2]),
 
   /**
-   * Return the sum of vectors `v1, v2.
+   * Return the sum of vectors `v1, v2`.
    */
   vadd: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
     if (v1.length !== v2.length) {
@@ -599,6 +599,25 @@ export const ops = {
 
     const res = _.zipWith(v1, v2, add);
     return res;
+  },
+
+  /**
+   * Return the sum of matrices `A1, A2`.
+   */
+  mmadd: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+       let row = [];
+       for (let j = 0; j < A1.length; j++) {
+          row.push( add( A1[i][j], A2[i][j] ));
+       }
+       result.push( row );
+    }
+    return result;
   },
 
   /**
@@ -660,6 +679,15 @@ export const ops = {
      }
      return vresult;
   },
+
+  // /**
+  //  * Return the matrix `A` multiplied by matrix `B`.
+  //  */
+  // mmmul: (A: ad.Num[][], B: ad.Num[][]): ad.Num[][] => {
+  //    const result = [];
+  //    /* TODO implement me! */
+  //    return result;
+  // },
 
   /**
    * Returns the entrywise product of two vectors, `v1` and `v2`
