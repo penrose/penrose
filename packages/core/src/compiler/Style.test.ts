@@ -1,6 +1,5 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import im from "immutable";
-import Graph from "../utils/Graph";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
@@ -25,6 +24,7 @@ import {
 import { SubstanceEnv } from "../types/substance";
 import { ColorV, RGBA } from "../types/value";
 import { andThen, err, Result, showError } from "../utils/Error";
+import Graph from "../utils/Graph";
 import { GroupGraph, GroupGraphNode } from "../utils/GroupGraph";
 import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
