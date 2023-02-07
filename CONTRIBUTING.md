@@ -417,7 +417,7 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 - Make sure all PRs for the upcoming release are merged. Switch to `main` and check `git status` to make sure it's clean and up-to-date.
 - At repo root, run `yarn new-version` to create a new version.
 - Run `yarn format` to clean up auto-generated file changes.
-- Create a new branch (`git checkout -b <version-number>`) from main and commit the changes.
+- Create a new branch (`git switch --create release-X.Y.Z`) from main and commit the changes.
 - Open a new PR with a title `chore: bump version to <version-number>` and merge after CI passes.
 - Create a new [GitHub release][].
 - CI will run after the new release is created, automatically publishing packages to npm.
