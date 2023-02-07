@@ -22,7 +22,6 @@ import { makeText, sampleText, Text } from "./Text";
 export interface Properties {
   [k: string]: Value<ad.Num>;
 }
-BBox.bboxFromCircle;
 
 export type Shape =
   | Circle

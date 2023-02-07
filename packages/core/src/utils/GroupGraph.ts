@@ -82,11 +82,11 @@ export const makeGroupGraph = <T extends Shape | ShapeAD>(
 export const findRoot = <T extends Shape | ShapeAD>(
   graph: GroupGraph<T>
 ): string => {
-  const allRoots = Object.entries(graph).filter(
+  let allRoots = Object.entries(graph).filter(
     ([, node]) => node.parents.length === 0
   );
   if (allRoots.length === 0) {
-    throw Error("Cannot find root");
+    allRoots = Object.entries(graph);
   }
   const smallestRoot = allRoots.reduce((currMin, newElem) => {
     return currMin[1].index < newElem[1].index ? currMin : newElem;
