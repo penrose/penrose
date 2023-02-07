@@ -80,9 +80,9 @@ export const makeGroupGraph = <T extends Shape | ShapeAD>(
 };
 
 export const findRoot = <T extends Shape | ShapeAD>(
-  tree: GroupGraph<T>
+  graph: GroupGraph<T>
 ): string => {
-  const allRoots = Object.entries(tree).filter(
+  const allRoots = Object.entries(graph).filter(
     ([, node]) => node.parents.length === 0
   );
   if (allRoots.length === 0) {
