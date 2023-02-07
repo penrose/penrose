@@ -133,7 +133,11 @@ import {
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
-import { findCycles, GroupGraph, makeGroupGraph } from "../utils/GroupGraph";
+import {
+  GroupGraph,
+  GroupGraphNode,
+  makeGroupGraph,
+} from "../utils/GroupGraph";
 import {
   boolV,
   colorV,
@@ -3099,17 +3103,17 @@ export const checkGroupGraph = (
   groupGraph: GroupGraph<ShapeAD>
 ): StyleWarning[] => {
   const warnings: StyleWarning[] = [];
-  for (const [name, node] of Object.entries(groupGraph)) {
-    if (node.parents.length > 1) {
+  for (const name of groupGraph.nodes()) {
+    if (groupGraph.parents(name).length > 1) {
       warnings.push({
         tag: "ShapeBelongsToMultipleGroups",
         shape: name,
-        groups: node.parents,
+        groups: groupGraph.parents(name),
       });
     }
   }
 
-  const cycles = findCycles(groupGraph);
+  const cycles = groupGraph.findCycles();
   if (cycles.length !== 0) {
     warnings.push({
       tag: "GroupCycleWarning",
@@ -3130,8 +3134,8 @@ export const propagateLayeringToParents = (
   groupGraph: GroupGraph<ShapeAD>
 ): void => {
   layerGraph.setEdge({ i: below, j: above, e: undefined });
-  const belowParents = groupGraph[below].parents;
-  const aboveParents = groupGraph[above].parents;
+  const belowParents = groupGraph.parents(below);
+  const aboveParents = groupGraph.parents(above);
   aboveParents
     .filter((p) => p !== below)
     .forEach((p) => {
@@ -3162,8 +3166,8 @@ export const propagateLayeringToChildren = (
   groupGraph: GroupGraph<ShapeAD>
 ): void => {
   layerGraph.setEdge({ i: below, j: above, e: undefined });
-  const belowChildren = groupGraph[below].children;
-  const aboveChildren = groupGraph[above].children;
+  const belowChildren = groupGraph.children(below);
+  const aboveChildren = groupGraph.children(above);
   aboveChildren
     .filter((c) => c !== below)
     .forEach((c) => {
@@ -3496,7 +3500,7 @@ export const compileStyleHelper = async (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
-  const groupGraph = makeGroupGraph(
+  const groupGraph: Graph<string, GroupGraphNode<ShapeAD>> = makeGroupGraph(
     getShapes(graph, translation, [
       ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
     ])

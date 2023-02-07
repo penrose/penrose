@@ -1,5 +1,6 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import im from "immutable";
+import Graph from "../utils/Graph";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
@@ -81,19 +82,12 @@ describe("Layering computation", () => {
         properties: {},
       },
       index: 0,
-      shapeType: "Circle",
-      children: [],
-      parents: [],
     };
   };
-  const simpleGroupGraph: GroupGraph<ShapeAD> = {
-    A: makeSimpleGroupGraphNode(),
-    B: makeSimpleGroupGraphNode(),
-    C: makeSimpleGroupGraphNode(),
-    D: makeSimpleGroupGraphNode(),
-    E: makeSimpleGroupGraphNode(),
-    F: makeSimpleGroupGraphNode(),
-  };
+  const simpleGroupGraph: GroupGraph<ShapeAD> = new Graph();
+  ["A", "B", "C", "D", "E", "F"].map((x) => {
+    simpleGroupGraph.setNode(x, makeSimpleGroupGraphNode());
+  });
   test("simple layering: A -> B -> C", () => {
     const partials: Layer[] = [
       { below: "A", above: "B" },
@@ -164,50 +158,20 @@ describe("Layering computation", () => {
       { below: "A", above: "D" },
       { below: "B", above: "C" },
     ];
-    const groupGraph: GroupGraph<ShapeAD> = {
-      A: {
-        shape: { shapeType: "Circle", properties: {} },
+    const groupGraph: GroupGraph<ShapeAD> = new Graph();
+    ["A", "B", "C", "D"].map((x) =>
+      groupGraph.setNode(x, makeSimpleGroupGraphNode())
+    );
+    ["G1", "G2"].map((x) =>
+      groupGraph.setNode(x, {
+        shape: { shapeType: "Group", properties: {} },
         index: 0,
-        shapeType: "Circle",
-        children: [],
-        parents: ["G1"],
-      },
-      B: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: [],
-        parents: ["G2"],
-      },
-      C: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: [],
-        parents: ["G2"],
-      },
-      D: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: [],
-        parents: ["G1"],
-      },
-      G1: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: ["A", "D"],
-        parents: [],
-      },
-      G2: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: ["B", "C"],
-        parents: [],
-      },
-    };
+      })
+    );
+    groupGraph.setEdge({ i: "G1", j: "A", e: undefined });
+    groupGraph.setEdge({ i: "G1", j: "D", e: undefined });
+    groupGraph.setEdge({ i: "G2", j: "B", e: undefined });
+    groupGraph.setEdge({ i: "G2", j: "C", e: undefined });
     const { shapeOrdering, warning } = S.computeShapeOrdering(
       ["G1", "B", "D", "A", "G2", "C"],
       partials,
@@ -230,36 +194,16 @@ describe("Layering computation", () => {
       { below: "s2", above: "s3" },
       { below: "s3", above: "s1" },
     ];
-    const groupGraph: GroupGraph<ShapeAD> = {
-      s1: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: [],
-        parents: ["g"],
-      },
-      s2: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: [],
-        parents: ["g"],
-      },
-      g: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: ["s1", "s2"],
-        parents: [],
-      },
-      s3: {
-        shape: { shapeType: "Circle", properties: {} },
-        index: 0,
-        shapeType: "Circle",
-        children: [],
-        parents: [],
-      },
-    };
+    const groupGraph: GroupGraph<ShapeAD> = new Graph();
+    ["s1", "s2", "s3"].map((x) => {
+      groupGraph.setNode(x, makeSimpleGroupGraphNode());
+    });
+    groupGraph.setNode("g", {
+      shape: { shapeType: "Group", properties: {} },
+      index: 0,
+    });
+    groupGraph.setEdge({ i: "g", j: "s1", e: undefined });
+    groupGraph.setEdge({ i: "g", j: "s2", e: undefined });
     const { shapeOrdering, warning } = S.computeShapeOrdering(
       ["g", "s3", "s1", "s2"],
       partials,
@@ -1214,57 +1158,31 @@ delete x.z.p }`,
 
   describe("group graph", () => {
     test("cyclic group graph", () => {
-      const groupGraph: GroupGraph<ShapeAD> = {
-        A: {
+      const groupGraph: GroupGraph<ShapeAD> = new Graph();
+      ["A", "B", "C"].map((x) => {
+        groupGraph.setNode(x, {
           shape: { shapeType: "Group", properties: {} },
           index: 0,
-          shapeType: "Group",
-          children: ["B"],
-          parents: [],
-        },
-        B: {
-          shape: { shapeType: "Group", properties: {} },
-          index: 0,
-          shapeType: "Group",
-          children: ["C"],
-          parents: [],
-        },
-        C: {
-          shape: { shapeType: "Group", properties: {} },
-          index: 0,
-          shapeType: "Group",
-          children: ["A"],
-          parents: [],
-        },
-      };
+        });
+      });
+      groupGraph.setEdge({ i: "A", j: "B", e: undefined });
+      groupGraph.setEdge({ i: "B", j: "C", e: undefined });
+      groupGraph.setEdge({ i: "C", j: "A", e: undefined });
+
       const warnings = S.checkGroupGraph(groupGraph);
       expect(warnings.length).toEqual(1);
       expect(warnings[0].tag).toEqual("GroupCycleWarning");
     });
     test("shape belongs to multiple groups", () => {
-      const groupGraph: GroupGraph<ShapeAD> = {
-        A: {
+      const groupGraph: GroupGraph<ShapeAD> = new Graph();
+      ["X", "A", "B"].map((x) => {
+        groupGraph.setNode(x, {
           shape: { shapeType: "Group", properties: {} },
           index: 0,
-          shapeType: "Group",
-          children: ["X"],
-          parents: [],
-        },
-        B: {
-          shape: { shapeType: "Group", properties: {} },
-          index: 0,
-          shapeType: "Group",
-          children: ["X"],
-          parents: [],
-        },
-        X: {
-          shape: { shapeType: "Group", properties: {} },
-          index: 0,
-          shapeType: "Group",
-          children: [],
-          parents: ["A", "B"],
-        },
-      };
+        });
+      });
+      groupGraph.setEdge({ i: "A", j: "X", e: undefined });
+      groupGraph.setEdge({ i: "B", j: "X", e: undefined });
       const warnings = S.checkGroupGraph(groupGraph);
       expect(warnings.length).toEqual(1);
       expect(warnings[0].tag).toEqual("ShapeBelongsToMultipleGroups");

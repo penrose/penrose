@@ -8,12 +8,7 @@ import { shapedefs } from "../shapes/Shapes";
 import { Shape } from "../types/shape";
 import { LabelCache, State } from "../types/state";
 import { StrV } from "../types/value";
-import {
-  findRoot,
-  GroupGraph,
-  GroupGraphNode,
-  makeGroupGraph,
-} from "../utils/GroupGraph";
+import { findRoot, GroupGraph, makeGroupGraph } from "../utils/GroupGraph";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
 import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
@@ -51,7 +46,7 @@ const getPosition = (
 };
 
 const RenderGroupInteractive = async (
-  node: GroupGraphNode<Shape>,
+  name: string,
   graph: GroupGraph<Shape>,
   shapeProps: {
     labels: LabelCache;
@@ -62,8 +57,8 @@ const RenderGroupInteractive = async (
   parentSVG: SVGSVGElement
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const orderedChildren = node.children.sort((a, b) => {
-    return graph[a].index - graph[b].index;
+  const orderedChildren = graph.children(name).sort((a, b) => {
+    return graph.node(a).index - graph.node(b).index;
   });
   for (const childName of orderedChildren) {
     const childSvg = await RenderGroupGraphNodeInteractive(
@@ -75,6 +70,7 @@ const RenderGroupInteractive = async (
     );
     elem.appendChild(childSvg);
   }
+  const node = graph.node(name);
   attrAutoFillSvg(node.shape, elem, [...attrTitle(node.shape, elem), "shapes"]);
   return elem;
 };
@@ -91,15 +87,16 @@ const RenderGroupGraphNodeInteractive = async (
   parentSVG: SVGSVGElement
 ): Promise<SVGElement> => {
   const node = graph[name];
-  delete graph[name];
   if (node.shapeType === "Group") {
-    return await RenderGroupInteractive(
+    const outSvg = await RenderGroupInteractive(
       node,
       graph,
       shapeProps,
       onDrag,
       parentSVG
     );
+    graph.delNode(name);
+    return outSvg;
   } else {
     const elem = await shapeMap[node.shape.shapeType]({
       ...shapeProps,
@@ -153,6 +150,7 @@ const RenderGroupGraphNodeInteractive = async (
       document.addEventListener("mousemove", onMouseMove);
     };
     g.addEventListener("mousedown", onMouseDown);
+    graph.delNode(name);
     return g;
   }
 };
@@ -166,7 +164,7 @@ const RenderGroupGraphInteractive = async (
   },
   onDrag: (id: string, dx: number, dy: number) => void
 ) => {
-  while (Object.entries(graph).length > 0) {
+  while (graph.nodes().length > 0) {
     const rootName = findRoot(graph);
     const elem = await RenderGroupGraphNodeInteractive(
       rootName,
@@ -219,7 +217,7 @@ export const RenderInteractive = async (
 };
 
 const RenderGroup = async (
-  node: GroupGraphNode<Shape>,
+  name: string,
   graph: GroupGraph<Shape>,
   shapeProps: {
     labels: LabelCache;
@@ -228,13 +226,14 @@ const RenderGroup = async (
   }
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const orderedChildren = node.children.sort((a, b) => {
-    return graph[a].index - graph[b].index;
+  const orderedChildren = graph.children(name).sort((a, b) => {
+    return graph.node(a).index - graph.node(b).index;
   });
   for (const childName of orderedChildren) {
     const childSvg = await RenderGroupGraphNode(childName, graph, shapeProps);
     elem.appendChild(childSvg);
   }
+  const node = graph.node(name);
   attrAutoFillSvg(node.shape, elem, [...attrTitle(node.shape, elem), "shapes"]);
   return elem;
 };
@@ -248,15 +247,18 @@ const RenderGroupGraphNode = async (
     pathResolver: PathResolver;
   }
 ): Promise<SVGElement> => {
-  const node = graph[name];
-  delete graph[name];
-  if (node.shapeType === "Group") {
-    return await RenderGroup(node, graph, shapeProps);
+  const node = graph.node(name);
+  if (node.shape.shapeType === "Group") {
+    const outSvg = await RenderGroup(name, graph, shapeProps);
+    graph.delNode(name);
+    return outSvg;
   } else {
-    return await shapeMap[node.shape.shapeType]({
+    const outSvg = await shapeMap[node.shape.shapeType]({
       ...shapeProps,
       shape: node.shape,
     });
+    graph.delNode(name);
+    return outSvg;
   }
 };
 
@@ -269,7 +271,7 @@ const RenderGroupGraph = async (
     pathResolver: PathResolver;
   }
 ) => {
-  while (Object.entries(graph).length > 0) {
+  while (graph.nodes().length > 0) {
     const rootName = findRoot(graph);
     const elem = await RenderGroupGraphNode(rootName, graph, shapeProps);
     svg.appendChild(elem);

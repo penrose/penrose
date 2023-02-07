@@ -50,6 +50,25 @@ export default class Graph<I, L = undefined, E = undefined> {
     return this.g.has(i);
   }
 
+  /**
+   * throws if `i` is absent
+   * Removes node `i` from the graph
+   */
+  delNode(i: I): void {
+    if (this.g.delete(i)) {
+      for (const vert of this.g.values()) {
+        vert.p = vert.p.filter((arc) => {
+          return arc.i !== i;
+        });
+        vert.s = vert.s.filter((arc) => {
+          return arc.i !== i;
+        });
+      }
+    } else {
+      throw Error("Deleting a graph node that does not exist");
+    }
+  }
+
   /** @returns fresh array of all node keys in the graph */
   nodes(): I[] {
     return [...this.g.keys()];
@@ -151,6 +170,30 @@ export default class Graph<I, L = undefined, E = undefined> {
     const n = this.g.size;
     if (m !== n) throw Error(`could only sort ${m} nodes out of ${n} total`);
     return xs.reverse();
+  }
+
+  /**
+   * throws if the graph does not contain node `i`
+   */
+  children(i: I): I[] {
+    const vert = this.g.get(i);
+    if (vert) {
+      return vert.s.map(({ i }) => i);
+    } else {
+      throw Error("Node does not exist");
+    }
+  }
+
+  /**
+   * throws if the graph does not contain node `i`
+   */
+  parents(i: I): I[] {
+    const vert = this.g.get(i);
+    if (vert) {
+      return vert.p.map(({ i }) => i);
+    } else {
+      throw Error("Node does not exist");
+    }
   }
 
   /**
