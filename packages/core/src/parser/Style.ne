@@ -436,11 +436,7 @@ unary
     }) 
   %}
   |  parenthesized        {% id %}
-
-# Transpose
-unary
-  ->  unary _ "'" {% (d): UOp<C> => ({ tag: 'UOp', op: "UTranspose", arg: d[0] }) %}
-   |  unary _ "ᵀ" {% (d): UOp<C> => ({ tag: 'UOp', op: "UTranspose", arg: d[0] }) %}
+  |  unary _ "'" {% (d): UOp<C> => ({ ...nodeData, ...rangeBetween(d[0], d[2]), tag: 'UOp', op: "UTranspose", arg: d[0] }) %}
 
 # Exponents
 factor 
