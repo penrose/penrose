@@ -414,7 +414,7 @@ please file an issue!
 
 Our repo uses [semantic versioning]() and maintains the same version number for all packages. Generally speaking, we release new versions whenever new features are introduced (PRs with `feat` tag). Here are the steps for creating new releases.
 
-- Make sure all PRs for the uncoming PR are merged. Switch to `main` and check `git status` to make sure it's clean and up-to-date.
+- Make sure all PRs for the upcoming release are merged. Switch to `main` and check `git status` to make sure it's clean and up-to-date.
 - At repo root, run `yarn new-version` to create a new version.
 - Run `yarn format` to clean up auto-generated file changes.
 - Create a new branch (`git checkout -b <version-number>`) from main and commit the changes.
