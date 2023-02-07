@@ -419,7 +419,7 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 - Run `yarn format` to clean up auto-generated file changes.
 - Create a new branch (`git checkout -b <version-number>`) from main and commit the changes.
 - Open a new PR with a title `chore: bump version to <version-number>` and merge after CI passes.
-- Create a new [GitHub release]().
+- Create a new [GitHub release][].
 - CI will run after the new release is created, automatically publishing packages to npm.
 
 [`wasm-bindgen` cli]: https://rustwasm.github.io/wasm-bindgen/reference/cli.html#installation
