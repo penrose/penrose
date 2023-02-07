@@ -685,22 +685,18 @@ export const ops = {
    * TODO Should be generalized to any N before merging.
    */
   mvmul: (A: ad.Num[][], v: ad.Num[]): ad.Num[] => {
-     const vresult = [];
-     if( v.length == 2 ) {
-        vresult[0] = add( mul(A[0][0],v[0]), mul(A[0][1],v[1]) );
-        vresult[1] = add( mul(A[1][0],v[0]), mul(A[1][1],v[1]) );
+    if (A.length !== v.length) {
+      throw Error("expected matrix and vector of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+     const result: ad.Num[] = [];
+     for (let i = 0; i < v.length; i++) {
+        const summands = _.zipWith( A[i], v, mul );
+        result.push( summands.reduce( (x: ad.Num, y) => add(x, y), 0) );
      }
-     if( v.length == 3 ) {
-        vresult[0] = add( add( mul(A[0][0],v[0]), mul(A[0][1],v[1])), mul(A[0][2],v[2]) );
-        vresult[1] = add( add( mul(A[1][0],v[0]), mul(A[1][1],v[1])), mul(A[1][2],v[2]) );
-        vresult[2] = add( add( mul(A[2][0],v[0]), mul(A[2][1],v[1])), mul(A[2][2],v[2]) );
-     }
-     if( v.length == 4 ) {
-        vresult[0] = add( add( add( mul(A[0][0],v[0]), mul(A[0][1],v[1])), mul(A[0][2],v[2])), mul(A[0][3],v[3]) );
-        vresult[1] = add( add( add( mul(A[1][0],v[0]), mul(A[1][1],v[1])), mul(A[1][2],v[2])), mul(A[1][3],v[3]) );
-        vresult[2] = add( add( add( mul(A[2][0],v[0]), mul(A[2][1],v[1])), mul(A[2][2],v[2])), mul(A[2][3],v[3]) );
-     }
-     return vresult;
+     return result;
   },
 
   // /**
