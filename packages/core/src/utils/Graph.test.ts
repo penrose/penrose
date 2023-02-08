@@ -95,17 +95,4 @@ describe("Graph", () => {
   test("findCycles with one cycle", () => {
     expect(numberCycleGraph().findCycles()).toEqual([[9, 1, 8, 9]]);
   });
-
-  test("removing nodes", () => {
-    const g = new Graph<number>();
-    g.setNode(1, undefined);
-    g.setNode(2, undefined);
-    g.setNode(3, undefined);
-    g.setEdge({ i: 1, j: 2, e: undefined });
-
-    g.delNode(2);
-
-    expect(g.nodes().sort()).toEqual([1, 3]);
-    expect(g.children(1).length).toEqual(0);
-  });
 });

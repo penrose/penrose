@@ -50,25 +50,6 @@ export default class Graph<I, L = undefined, E = undefined> {
     return this.g.has(i);
   }
 
-  /**
-   * throws if `i` is absent
-   * Removes node `i` from the graph
-   */
-  delNode(i: I): void {
-    if (this.g.delete(i)) {
-      for (const vert of this.g.values()) {
-        vert.p = vert.p.filter((arc) => {
-          return arc.i !== i;
-        });
-        vert.s = vert.s.filter((arc) => {
-          return arc.i !== i;
-        });
-      }
-    } else {
-      throw Error("Deleting a graph node that does not exist");
-    }
-  }
-
   /** @returns fresh array of all node keys in the graph */
   nodes(): I[] {
     return [...this.g.keys()];
