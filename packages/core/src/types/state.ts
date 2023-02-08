@@ -1,6 +1,6 @@
 import { Gradient, OptState } from "@penrose/optimizer";
-import { GroupGraph } from "src/utils/GroupGraph";
 import { Canvas, InputMeta } from "../shapes/Samplers";
+import { GroupGraph } from "../utils/GroupGraph";
 import * as ad from "./ad";
 import { A } from "./ast";
 import { StyleWarning } from "./errors";
