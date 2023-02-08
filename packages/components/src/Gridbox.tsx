@@ -135,9 +135,10 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   render() {
     const { header, stateful, onSelected, onStateUpdate } = this.props;
     const trio = {
-      substance: stateful ? this.state.substance : this.props.substance,
-      style: stateful ? this.state.style : this.props.style,
-      domain: stateful ? this.state.domain : this.props.domain,
+      // even if the component is stateful, only variation is allowed to change
+      substance: this.props.substance,
+      style: this.props.style,
+      domain: this.props.domain,
       variation: stateful ? this.state.variation : this.props.variation,
     };
 

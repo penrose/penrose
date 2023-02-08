@@ -101,22 +101,20 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         await this.converge();
       }
       this.renderCanvas();
-    } else {
-      // update the component only if there's no error
-      // in the case of an error, the component should not attempt to re-render
-      if (this.penroseState && !this.state.error) {
-        if (
-          this.props.variation !== prevProps.variation ||
-          this.props.animate !== prevProps.animate
-        ) {
-          this.penroseState.variation = this.props.variation;
-          this.penroseState = resample(this.penroseState);
-          if (!this.props.animate) {
-            await this.converge();
-          }
-          this.renderCanvas();
-        } else if (this.props.interactive !== prevProps.interactive) {
-          this.renderCanvas();
+      return;
+    }
+
+    // update the component only if there's no error
+    // in the case of an error, they component should not attempt to re-render
+    if (this.penroseState && !this.state.error) {
+      if (
+        this.props.variation !== prevProps.variation ||
+        this.props.animate !== prevProps.animate
+      ) {
+        this.penroseState.variation = this.props.variation;
+        this.penroseState = resample(this.penroseState);
+        if (!this.props.animate) {
+          await this.converge();
         }
       }
     }
