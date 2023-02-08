@@ -416,7 +416,7 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 
 - Make sure all PRs for the upcoming release are merged. Switch to `main` and check `git status` to make sure it's clean and up-to-date.
 - At repo root, run `yarn new-version` to create a new version.
-  - Note that the this script does not modify the Rust crate version in `packages/optimizer/Cargo.{toml,lock}`. If the upcoming release involves `@penrose/optimizer`, they may require manual updates.
+  - Note that the this script does not modify the Rust crate version in `packages/optimizer/Cargo.{toml,lock}`, which currently must be manually updated.
 - Run `yarn format` to clean up auto-generated file changes.
 - Create a new branch (`git switch --create release-X.Y.Z`) from main and commit the changes.
 - Open a new PR with a title `chore: bump version to X.Y.Z` and merge after CI passes.
