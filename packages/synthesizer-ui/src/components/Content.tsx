@@ -112,6 +112,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   generateProgs = () => (
     setting: SynthesizerSetting,
+    seed: string,
     numPrograms: number,
     dsl: string,
     prompt: string,
@@ -135,7 +136,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(env, setting, subResult, "test0");
+      const synth = new Synthesizer(env, setting, subResult, seed);
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {
