@@ -20,7 +20,13 @@ export default {
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Grid> = (args) => (
   <ThemeProvider theme={penroseBlue}>
-    <Grid {...args} />
+    <Grid
+      {...args}
+      header={(i) => `Diagram ${i}`}
+      metadata={(i) => [
+        { name: "Variation", data: args.diagrams[i].variation },
+      ]}
+    />
   </ThemeProvider>
 );
 

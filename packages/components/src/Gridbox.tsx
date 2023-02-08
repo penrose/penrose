@@ -62,7 +62,7 @@ const H2 = styled.div`
 `;
 
 const HeaderText = styled.div`
-  color: ${(props) => props.theme.secondary};
+  color: ${(props) => props.theme.primary};
   vertical-align: text-bottom;
   font-family: monospace;
 `;

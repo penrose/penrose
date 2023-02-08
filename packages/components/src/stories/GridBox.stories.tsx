@@ -20,7 +20,13 @@ export default {
 const Template: ComponentStory<typeof Gridbox> = (args) => (
   <div style={{ width: "50%", height: "50%" }}>
     <ThemeProvider theme={penroseBlue}>
-      <Gridbox {...args} />
+      <Gridbox
+        {...args}
+        metadata={[
+          { name: "Variation", data: args.variation },
+          { name: "Substance Program", data: args.substance },
+        ]}
+      />
     </ThemeProvider>
   </div>
 );
