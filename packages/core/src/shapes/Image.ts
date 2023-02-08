@@ -1,6 +1,6 @@
-import { Center, Named, Rect, Rotate, Shape } from "types/shapes";
-import { StrV } from "types/value";
-import { boolV, floatV, strV } from "utils/Util";
+import { Center, Named, Rect, Rotate, Shape } from "../types/shapes";
+import { StrV } from "../types/value";
+import { boolV, floatV, strV } from "../utils/Util";
 import {
   Canvas,
   Context,

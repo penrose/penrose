@@ -19,7 +19,7 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "@penrose/core";
-import { A } from "@penrose/core/build/dist/types/ast";
+import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { range } from "lodash";
@@ -107,6 +107,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   generateProgs = () => (
     setting: SynthesizerSetting,
+    seed: string,
     numPrograms: number,
     dsl: string,
     prompt: string,
@@ -130,7 +131,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(env, setting, subResult, "test0");
+      const synth = new Synthesizer(env, setting, subResult, seed);
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {
@@ -146,8 +147,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   exportDiagrams = async (indices: number[]) => {
     const zip = JSZip();
-    zip.file(`domain.dsl`, this.state.domain);
-    zip.file(`style.sty`, this.state.style);
+    zip.file(`domain.domain`, this.state.domain);
+    zip.file(`style.style`, this.state.style);
     for (const idx of indices) {
       const state = this.state.states[idx];
       const { prog, ops } = this.state.progs[idx];
@@ -160,7 +161,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
         return await response.text();
       });
       zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
-      zip.file(`substance_${idx}.sub`, prettySubstance(prog));
+      zip.file(`substance_${idx}.substance`, prettySubstance(prog));
       zip.file(`mutations_${idx}.txt`, showMutations(ops));
     }
     zip.generateAsync({ type: "blob" }).then(function (content) {
@@ -209,7 +210,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
             style={this.state.style}
             domain={this.state.domain}
             progs={this.state.progs}
-            onStaged={this.addStaged}
+            onSelected={this.addStaged}
             onStateUpdate={this.onStateUpdate}
           />
         </ContentSection>

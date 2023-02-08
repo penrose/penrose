@@ -18,17 +18,14 @@
     "lint": "nx run core:lint",
     "lint:fix": "nx run core:lint --fix",
     "lerna": "lerna",
-    "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
-    "new-version:prerelease": "lerna version --conventional-prerelease",
-    "graduate": "lerna version --conventional-commits --conventional-graduate",
-    "publish:canary": "lerna publish --canary --dist-tag develop --force-publish",
-    "release": "lerna publish from-package",
+    "new-version": "lerna version --conventional-commits --no-git-tag-version --no-push",
     "format": "prettier . --write && nx run-many --target=format --verbose",
     "format:check": "prettier . --check && nx run-many --target=format:check --verbose",
     "toc": "markdown-toc --bullets='-' -i CONTRIBUTING.md",
     "diff": "lerna diff"
   },
   "devDependencies": {
+    "@spyke/conventional-changelog-preset": "^1.0.5",
     "cross-env": "^7.0.3",
     "handlebars": "^4.7.7",
     "js-yaml": "^4.1.0",
@@ -52,13 +49,13 @@
       "packages/optimizer",
       "packages/roger",
       "packages/synthesizer",
-      "packages/synthesizer-ui"
+      "packages/synthesizer-ui",
+      "packages/vscode"
     ],
     "nohoist": [
       "**/@types/jest",
       "**/babel-loader",
       "**/webpack"
     ]
-  },
-  "version": "1.3.0"
+  }
 }

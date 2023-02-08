@@ -6,10 +6,10 @@
 /* eslint-disable */
 import moo from "moo";
 import _ from 'lodash'
-import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
-import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages
-} from "types/style";
+import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
+import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast";
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
+} from "../types/style";
 
 const styleTypes: string[] =
   [ "scalar"
@@ -563,28 +563,78 @@ stage_list
   -> identifier {% (d) => d %}
   |  "[" _ sepBy1[identifier, ","] _ "]" {% nth(2) %}
 
-objective -> "encourage" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 
-  ([kw, , name, , , args, rparen, stages]): ObjFn<C> => {
+comparison_op
+  -> "==" {%
+    ([op]): ComparisonOp<C> => ({
+      ...nodeData,
+      ...rangeOf(op),
+      tag: "ComparisonOp",
+      op: op.text
+    })
+  %}
+  |  "<" {%
+    ([op]): ComparisonOp<C> => ({
+      ...nodeData,
+      ...rangeOf(op),
+      tag: "ComparisonOp",
+      op: op.text
+    })
+  %}
+  |  ">" {%
+    ([op]): ComparisonOp<C> => ({
+      ...nodeData,
+      ...rangeOf(op),
+      tag: "ComparisonOp",
+      op: op.text
+    })
+  %}
+
+obj_constr_body
+  -> identifier _ "(" expr_list ")" {%
+    ([name, , , args, rparen]): FunctionCall<C> => {
+      return {
+        ...nodeData,
+        ...rangeBetween(name, rparen),
+        tag: "FunctionCall",
+        name, args
+      }
+    }
+  %}
+  |  expr _ comparison_op _ expr {%
+    ([arg1, , op, , arg2]): InlineComparison<C> => {
+      return {
+        ...nodeData,
+        ...rangeBetween(arg1, arg2),
+        tag: "InlineComparison",
+        op, arg1, arg2
+      }
+    }
+  %}
+
+objective -> "encourage" __ obj_constr_body (__ ("in"|"except") __ stage_list):? {% 
+  ([kw, , body, stages]): ObjFn<C> => {
     return {
       ...nodeData,
-      ...rangeBetween(kw, rparen), // TODO: fix range
+      ...rangeBetween(kw, body), // TODO: fix range
       tag: "ObjFn",
       stages: stages ? stages[3] : [],
       exclude: stages ? stages[1][0].value === "except" : true,
-      name, args
+      body
     } 
   }
 %}
 
-constraint -> "ensure" __ identifier _ "(" expr_list ")" (__ ("in"|"except") __ stage_list):? {% 
-  ([kw, , name, , , args, rparen, stages]): ConstrFn<C> => ({
-    ...nodeData,
-    ...rangeBetween(kw, rparen), // TODO: fix range
-    tag: "ConstrFn",
-    stages: stages ? stages[3] : [], 
-    exclude: stages ? stages[1][0].value === "except" : true,
-    name, args
-  }) 
+constraint -> "ensure" __ obj_constr_body (__ ("in"|"except") __ stage_list):? {% 
+  ([kw, , body, stages]): ConstrFn<C> => {
+    return {
+      ...nodeData,
+      ...rangeBetween(kw, body), // TODO: fix range
+      tag: "ConstrFn",
+      stages: stages ? stages[3] : [],
+      exclude: stages ? stages[1][0].value === "except" : true,
+      body
+    }
+  }
 %}
 
 expr_list 

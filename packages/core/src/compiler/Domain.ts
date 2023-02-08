@@ -1,9 +1,9 @@
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
-import domainGrammar from "parser/DomainParser";
-import { idOf, lastLocation, prettyParseError } from "parser/ParserUtil";
-import { A, C } from "types/ast";
+import domainGrammar from "../parser/DomainParser";
+import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil";
+import { A, C } from "../types/ast";
 import {
   Arg,
   ConstructorDecl,
@@ -16,15 +16,15 @@ import {
   TypeConstructor,
   TypeDecl,
   TypeVar,
-} from "types/domain";
+} from "../types/domain";
 import {
   DomainError,
   ParseError,
   PenroseError,
   TypeNotFound,
   TypeVarNotFound,
-} from "types/errors";
-import { ApplyConstructor, TypeConsApp } from "types/substance";
+} from "../types/errors";
+import { ApplyConstructor, TypeConsApp } from "../types/substance";
 import {
   and,
   andThen,
@@ -39,8 +39,8 @@ import {
   symmetricArgLengthMismatch,
   symmetricTypeMismatch,
   typeNotFound,
-} from "utils/Error";
-import Graph from "utils/Graph";
+} from "../utils/Error";
+import Graph from "../utils/Graph";
 
 export const parseDomain = (
   prog: string
@@ -121,10 +121,12 @@ export const checkDomain = (prog: DomainProg<C>): CheckerResult => {
   const { statements } = prog;
   // load built-in types
   const env: Env = initEnv();
-  // check all statements
+  // check all statements (except symmetric predicates)
   const stmtsOk: CheckerResult = safeChain(statements, checkStmt, ok(env));
   // compute subtyping graph
-  return andThen(computeTypeGraph, stmtsOk);
+  const typeGraphOk = andThen(computeTypeGraph, stmtsOk);
+  // finally check symmetric predicates
+  return safeChain(statements, checkSymPred, typeGraphOk);
 };
 
 const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
@@ -212,14 +214,12 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       if (existing) return err(duplicateName(name, stmt, existing));
       // check that the arguments are of valid types
       const argsOk = safeChain(args, checkArg, ok(localEnv));
-      // if predicate is symmetric, check that the argument types are equal, and that there are exactly two arguments
-      const symArgOk = checkSymmetricArgs(args, argsOk, stmt);
       // insert predicate into env
       const updatedEnv: CheckerResult = ok({
         ...env,
         predicates: env.predicates.set(name.value, stmt),
       });
-      return everyResult(argsOk, symArgOk, updatedEnv);
+      return everyResult(argsOk, argsOk, updatedEnv);
     }
     case "NotationDecl": {
       // TODO: just passing through the notation rules here. Need to parse them into transformers
@@ -239,6 +239,18 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       const subOk = checkType(subType, env);
       const updatedEnv = addSubtype(subType, superType, env);
       return everyResult(subOk, updatedEnv);
+    }
+  }
+};
+
+const checkSymPred = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
+  switch (stmt.tag) {
+    case "PredicateDecl": {
+      // if predicate is symmetric, check that the argument types are equal, and that there are exactly two arguments
+      return checkSymmetricArgs(stmt.args, ok(env), stmt);
+    }
+    default: {
+      return ok(env);
     }
   }
 };

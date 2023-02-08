@@ -136,7 +136,10 @@ pub fn penrose_empty_vec() -> Vec<usize> {
     Vec::new()
 }
 
-#[wasm_bindgen]
+// just using `#[wasm_bindgen]` here doesn't work, because version 0.2.84 adds an extra parameter to
+// take a reference to a JavaScript heap object, which isn't what we want here because this is meant
+// to be directly consumed by the Wasm we generate from autodiff graphs
+#[no_mangle]
 pub fn penrose_poly_roots(v: &mut [f64]) {
     let n = v.len();
     // https://en.wikipedia.org/wiki/Companion_matrix

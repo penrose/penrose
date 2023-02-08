@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "build/dist",
+    "outDir": "dist",
     "module": "es2022",
     "target": "es2017",
     "lib": ["es5", "es6", "es7", "esnext", "dom"],
@@ -25,19 +25,7 @@
     "isolatedModules": true,
     "strict": true,
     "declaration": true,
-    "declarationMap": true,
-    "paths": {
-      "analysis/*": ["./src/analysis/*"],
-      "compiler/*": ["./src/compiler/*"],
-      "contrib/*": ["./src/contrib/*"],
-      "engine/*": ["./src/engine/*"],
-      "parser/*": ["./src/parser/*"],
-      "renderer/*": ["./src/renderer/*"],
-      "shapes/*": ["./src/shapes/*"],
-      "synthesis/*": ["./src/synthesis/*"],
-      "types/*": ["./src/types/*"],
-      "utils/*": ["./src/utils/*"]
-    }
+    "declarationMap": true
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
@@ -63,7 +51,6 @@
   "include": ["src", "index.d.ts"],
   "exclude": [
     "node_modules",
-    "build",
     "docs",
     "dist",
     "src/__tests__",

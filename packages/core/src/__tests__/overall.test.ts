@@ -1,4 +1,4 @@
-import { examples, registry } from "@penrose/examples";
+import setTHeory from "@penrose/examples/dist/set-theory-domain";
 import { genOptProblem } from "@penrose/optimizer";
 import { genGradient } from "../engine/EngineUtils";
 import {
@@ -14,16 +14,8 @@ import {
 import { State } from "../types/state";
 import { safe } from "../utils/Util";
 
-const exampleFromURI = (uri: string): string => {
-  let x: any = examples;
-  for (const part of uri.split("/")) {
-    x = x[part];
-  }
-  return x;
-};
-
-const vennStyle = exampleFromURI(registry.styles["venn"].URI);
-const setDomain = exampleFromURI(registry.domains["set-theory"].URI);
+const vennStyle = setTHeory["venn.style"];
+const setDomain = setTHeory["setTheory.domain"];
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
@@ -161,9 +153,12 @@ describe("Energy API", () => {
     if (res.isOk()) {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
-      const smallerThanFns = state.constrFns.filter(
-        (c) => c.ast.expr.name.value === "smallerThan"
-      );
+      const smallerThanFns = state.constrFns.filter((c) => {
+        return (
+          c.ast.expr.body.tag === "FunctionCall" &&
+          c.ast.expr.body.name.value === "smallerThan"
+        );
+      });
       const { inputMask, objMask, constrMask } = safe(
         state.constraintSets.get(state.optStages[0]),
         "missing first stage"

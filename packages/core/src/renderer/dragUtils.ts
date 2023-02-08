@@ -1,7 +1,7 @@
 import { genOptProblem } from "@penrose/optimizer";
-import * as ad from "types/ad";
-import { Properties, ShapeAD } from "types/shape";
-import { State } from "types/state";
+import * as ad from "../types/ad";
+import { Properties, ShapeAD } from "../types/shape";
+import { State } from "../types/state";
 
 /**
  * Retrieve data from drag events and update varying state accordingly
@@ -14,7 +14,7 @@ export const dragUpdate = (
 ): State => {
   const xs = [...state.varyingValues];
   const { constraintSets, optStages } = state;
-  const { inputMask, objMask, constrMask } = constraintSets[optStages[0]];
+  const { inputMask, objMask, constrMask } = constraintSets.get(optStages[0])!;
   const gradMask = [...inputMask];
   for (const shape of state.shapes) {
     if (shape.properties.name.contents === id) {

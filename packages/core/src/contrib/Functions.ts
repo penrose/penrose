@@ -1,6 +1,5 @@
-import { bboxFromShape } from "contrib/Queries";
-import { clamp, inRange, numOf } from "contrib/Utils";
-import { ops } from "engine/Autodiff";
+import _ from "lodash";
+import { ops } from "../engine/Autodiff";
 import {
   absVal,
   acos,
@@ -48,16 +47,15 @@ import {
   tan,
   tanh,
   trunc,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import _ from "lodash";
-import { PathBuilder } from "renderer/PathBuilder";
-import { Ellipse } from "shapes/Ellipse";
-import { Line } from "shapes/Line";
-import { Polyline } from "shapes/Polyline";
-import { Context, uniform } from "shapes/Samplers";
-import { shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { PathBuilder } from "../renderer/PathBuilder";
+import { Ellipse } from "../shapes/Ellipse";
+import { Line } from "../shapes/Line";
+import { Polyline } from "../shapes/Polyline";
+import { Context, uniform } from "../shapes/Samplers";
+import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import {
   ArgVal,
   Color,
@@ -69,8 +67,18 @@ import {
   TupV,
   Value,
   VectorV,
-} from "types/value";
-import { getStart, linePts } from "utils/Util";
+} from "../types/value";
+import { getStart, linePts } from "../utils/Util";
+import {
+  elasticEnergy,
+  isoperimetricRatio,
+  perimeter,
+  signedArea,
+  totalCurvature,
+  turningNumber,
+} from "./CurveConstraints";
+import { bboxFromShape } from "./Queries";
+import { clamp, inRange, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -1574,6 +1582,75 @@ export const compDict = {
    */
   unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
+  },
+
+  /**
+   * Returns the signed area enclosed by a polygonal chain given its nodes
+   */
+  signedArea: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: signedArea(points, closed) };
+  },
+
+  /**
+   * Returns the turning number of polygonal chain given its nodes
+   */
+  turningNumber: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return {
+      tag: "FloatV",
+      contents: turningNumber(points, closed),
+    };
+  },
+
+  /**
+   * Returns the total length of polygonal chain given its nodes
+   */
+  perimeter: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: perimeter(points, closed) };
+  },
+
+  /**
+   * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
+   */
+  isoperimetricRatio: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
+  },
+
+  /**
+   * Returns integral of curvature squared along the curve
+   */
+  elasticEnergy: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: elasticEnergy(points, closed) };
+  },
+
+  /**
+   * Returns integral of curvature along the curve
+   */
+  totalCurvature: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: totalCurvature(points, closed) };
   },
 };
 

@@ -1,4 +1,4 @@
-# Penrose [![Build](https://github.com/penrose/penrose/actions/workflows/build.yml/badge.svg)](https://github.com/penrose/penrose/actions/workflows/build.yml) [![codecov](https://codecov.io/gh/penrose/penrose/branch/main/graph/badge.svg?token=opGTmY4rkK)](https://codecov.io/gh/penrose/penrose) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier) [![license](https://img.shields.io/github/license/penrose/penrose)](LICENSE) [![Twitter: @UsePenrose](https://img.shields.io/twitter/follow/UsePenrose?style=social)](https://twitter.com/UsePenrose)
+# Penrose [![npm (scoped)](https://img.shields.io/npm/v/@penrose/core)](https://www.npmjs.com/package/@penrose/core) [![license](https://img.shields.io/github/license/penrose/penrose)](LICENSE) [![Build](https://github.com/penrose/penrose/actions/workflows/build.yml/badge.svg)](https://github.com/penrose/penrose/actions/workflows/build.yml) [![codecov](https://codecov.io/gh/penrose/penrose/branch/main/graph/badge.svg?token=opGTmY4rkK)](https://codecov.io/gh/penrose/penrose) [![Twitter: @UsePenrose](https://img.shields.io/badge/follow-%40UsePenrose-1DA1F2?logo=twitter&style=social)](https://twitter.com/UsePenrose)
 
 [Penrose](https://penrose.cs.cmu.edu/) is a platform that enables people to
 **create beautiful diagrams just by typing mathematical notation in plain
@@ -26,7 +26,7 @@ Here's a simple Penrose visualization in the domain of set theory.
 It's specified by the following trio of Domain, Substance, and Style programs
 (with variation `PlumvilleCapybara104`):
 
-- `setTheory.dsl`:
+- `setTheory.domain`:
 
   ```
   type Set
@@ -36,7 +36,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   predicate IsSubset(Set s1, Set s2)
   ```
 
-- `tree.sub`:
+- `tree.substance`:
 
   ```
   Set A, B, C, D, E, F, G
@@ -55,7 +55,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   AutoLabel All
   ```
 
-- `venn.sty`:
+- `venn.style`:
 
   ```
   canvas {

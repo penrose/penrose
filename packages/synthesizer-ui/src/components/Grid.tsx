@@ -7,12 +7,8 @@ export interface GridProps {
   style: string;
   domain: string;
   progs: SynthesizedSubstance[];
-  onStaged: (n: number) => void;
+  onSelected: (n: number) => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
-}
-
-interface GridState {
-  srcState: PenroseState | undefined;
 }
 
 const GridContainer = styled("main")({
@@ -47,20 +43,7 @@ const PlaceholderText = styled(Typography)(({ theme }) => ({
   fontFamily: "Roboto Mono",
 }));
 
-export class Grid extends React.Component<GridProps, GridState> {
-  constructor(props: GridProps) {
-    super(props);
-    this.state = {
-      srcState: undefined,
-    };
-  }
-
-  setSrcState = (newState: PenroseState) => {
-    this.setState({
-      srcState: newState,
-    });
-  };
-
+export class Grid extends React.Component<GridProps> {
   innerContent() {
     return this.props.progs.map((s, i) => (
       <Gridbox
@@ -70,9 +53,7 @@ export class Grid extends React.Component<GridProps, GridState> {
         progNumber={i}
         substance={s}
         variation={i.toString()}
-        updateSrcProg={this.setSrcState}
-        srcState={this.state.srcState}
-        onStaged={this.props.onStaged}
+        onSelected={this.props.onSelected}
         onStateUpdate={this.props.onStateUpdate}
       />
     ));

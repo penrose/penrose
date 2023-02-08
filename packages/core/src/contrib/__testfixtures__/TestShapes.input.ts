@@ -1,10 +1,12 @@
-import { makeCircle } from "shapes/Circle";
-import { makeLine } from "shapes/Line";
-import { makePolygon } from "shapes/Polygon";
-import { makeRectangle } from "shapes/Rectangle";
-import { makeCanvas, simpleContext } from "shapes/Samplers";
-import { black, floatV, ptListV, vectorV } from "utils/Util";
+import { makeCircle } from "../../shapes/Circle";
 import { makeEllipse } from "../../shapes/Ellipse";
+import { makeLine } from "../../shapes/Line";
+import { makePolygon } from "../../shapes/Polygon";
+import { makePolyline } from "../../shapes/Polyline";
+import { makeRectangle } from "../../shapes/Rectangle";
+import { makeCanvas, simpleContext } from "../../shapes/Samplers";
+import { Pt2 } from "../../types/ad";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 
 const context = simpleContext("TestShapes.input");
 const canvas = makeCanvas(800, 700);
@@ -54,42 +56,90 @@ export const _lines = [
   })
 );
 
-export const _polygons = [
+const polyPts: Pt2[][] = [
   [
+    // 0
     [100, 0],
     [300, 200],
     [100, 300],
     [0, 100],
   ],
   [
+    // 1
     [100, 100],
     [200, 200],
     [100, 200],
   ],
   [
+    // 2
     [300, 0],
     [400, 100],
     [400, 300],
     [200, 100],
   ],
   [
+    // 3
     [300, 100],
     [400, 200],
     [300, 400],
     [200, 400],
   ],
   [
+    // 4
     [100, 100],
     [300, 0],
     [200, 200],
     [100, 200],
   ],
-].map((pts) =>
-  makePolygon(context, canvas, {
-    points: ptListV(pts),
-    scale: floatV(1),
-  })
-);
+  [
+    // 5
+    [0, 0],
+    [100, 100],
+    [100, -100],
+    [0, 100],
+  ],
+  [
+    // 6
+    [200, 0],
+    [300, 0],
+    [300, 100],
+    [200, 100],
+  ],
+  [
+    // 7
+    [300, 0],
+    [200, 0],
+    [200, 200],
+    [300, 200],
+  ],
+  [
+    // 8
+    [100, 0],
+    [300, 0],
+    [300, 200],
+    [0, 200],
+    [0, 100],
+    [200, 100],
+    [200, 200],
+    [100, 200],
+  ],
+  [
+    // 9
+    [0, 0],
+    [100, 0],
+    [200, 0],
+    [200, 100],
+    [100, 100],
+    [0, 100],
+  ],
+  [
+    // 10
+    [0, 0],
+    [0, 100],
+    [100, 100],
+    [100, 200],
+  ],
+];
 
 export const _ellipses = [
   // Circles
@@ -113,5 +163,19 @@ export const _ellipses = [
     center: vectorV(x.center),
     strokeWidth: floatV(0),
     strokeColor: black(),
+  })
+);
+
+export const _polygons = polyPts.map((pts) =>
+  makePolygon(context, canvas, {
+    points: ptListV(pts),
+    scale: floatV(1),
+  })
+);
+
+export const _polylines = polyPts.map((pts) =>
+  makePolyline(context, canvas, {
+    points: ptListV(pts),
+    scale: floatV(1),
   })
 );

@@ -1,14 +1,14 @@
 # Penrose Overview
 
-For more information on any of the items summarized below, please use the navigation.
+For more information on any of the items summarized below, please use the navigation. More detailed documentation and example snippets for several aspects of Penrose (such as, types, shapes, and functions) can be found on the [wiki](https://github.com/penrose/penrose/wiki/).
 
 Penrose effortlessly creates beautiful diagrams using a 'trio':
 
-- A **Domain-specific Language (.dsl) program**.  
+- A **Domain-specific Language (.domain) program**.  
   This describes the **domain** in which the diagram is defined. E.g., Euclidian geometry, Set theory, etc. Penrose supports a large and growing set of domains. And if you don't see the domain you need, you can create one yourself.
-- A **Substance (.sub) program**.  
+- A **Substance (.substance) program**.  
   Defines the **objects** and **relationships** for this particular diagram within the domain you selected.
-- A **Style** (.sty) program  
+- A **Style** (.style) program  
   This tells Penrose how to display the objects and relationships for the domain you selected.
 
 ## Often, you only need to write the Substance program

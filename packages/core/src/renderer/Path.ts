@@ -1,11 +1,11 @@
 import _ from "lodash";
-import { BoolV, ColorV, FloatV, PathCmd, StrV, SubPath } from "types/value";
+import { BoolV, ColorV, FloatV, PathCmd, StrV, SubPath } from "../types/value";
 import {
   getArrowhead,
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
-} from "utils/Util";
+} from "../utils/Util";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { arrowHead } from "./Line";
 import { ShapeProps } from "./Renderer";

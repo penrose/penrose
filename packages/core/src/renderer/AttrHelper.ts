@@ -3,10 +3,14 @@
  * output SVG properties using the optimized shape properties as input.
  */
 
-import { Shape } from "types/shape";
-import { ColorV, FloatV, PtListV, StrV, VectorV } from "types/value";
-import { toFontRule } from "utils/CollectLabels";
-import { toScreen, toSvgOpacityProperty, toSvgPaintProperty } from "utils/Util";
+import { Shape } from "../types/shape";
+import { ColorV, FloatV, PtListV, StrV, VectorV } from "../types/value";
+import { toFontRule } from "../utils/CollectLabels";
+import {
+  toScreen,
+  toSvgOpacityProperty,
+  toSvgPaintProperty,
+} from "../utils/Util";
 import { attrMapSvg } from "./AttrMapSvg";
 
 /**

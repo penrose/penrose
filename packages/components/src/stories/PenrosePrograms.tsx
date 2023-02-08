@@ -1,4 +1,4 @@
-import { examples } from "@penrose/examples";
+import examples from "@penrose/examples/dist/index";
 
 export const error = {
   domain: `typeppp Set`,
@@ -33,22 +33,23 @@ forall Set X {
 };
 
 export const continuousMap = {
-  substance: examples["set-theory-domain"]["continuousmap.sub"],
-  style: examples["set-theory-domain"]["continuousmap.sty"],
-  domain: examples["set-theory-domain"]["functions.dsl"],
+  substance: examples["set-theory-domain"]["continuousmap.substance"],
+  style: examples["set-theory-domain"]["continuousmap.style"],
+  domain: examples["set-theory-domain"]["functions.domain"],
   variation: "",
 };
 
 export const vectorWedge = {
   variation: "ArtemisCrane740",
-  domain: examples["exterior-algebra"]["exterior-algebra.dsl"],
-  substance: examples["exterior-algebra"]["vector-wedge.sub"],
-  style: examples["exterior-algebra"]["exterior-algebra.sty"],
+  domain: examples["exterior-algebra"]["exterior-algebra.domain"],
+  substance: examples["exterior-algebra"]["vector-wedge.substance"],
+  style: examples["exterior-algebra"]["exterior-algebra.style"],
 };
 
 export const vectorsPerp = {
   variation: "MyrtleApe55311",
-  domain: examples["linear-algebra-domain"]["linear-algebra.dsl"],
-  substance: examples["linear-algebra-domain"]["twoVectorsPerp-unsugared.sub"],
-  style: examples["linear-algebra-domain"]["linear-algebra-paper-simple.sty"],
+  domain: examples["linear-algebra-domain"]["linear-algebra.domain"],
+  substance:
+    examples["linear-algebra-domain"]["twoVectorsPerp-unsugared.substance"],
+  style: examples["linear-algebra-domain"]["linear-algebra-paper-simple.style"],
 };

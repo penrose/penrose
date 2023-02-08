@@ -1,14 +1,10 @@
-// Must be run from penrose-web for loading files
-
-import { examples } from "@penrose/examples";
-import * as S from "compiler/Style";
-import { compileSubstance } from "compiler/Substance";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import im from "immutable";
-import { C } from "types/ast";
-import { Either } from "types/common";
-import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
-import { State } from "types/state";
+import { C } from "../types/ast";
+import { Either } from "../types/common";
+import { Env } from "../types/domain";
+import { PenroseError } from "../types/errors";
+import { State } from "../types/state";
 import {
   AnonAssign,
   ConstrFn,
@@ -17,23 +13,22 @@ import {
   PathAssign,
   StyProg,
   Vector,
-} from "types/style";
-import { Assignment, DepGraph, Layer, Translation } from "types/styleSemantics";
-import { SubstanceEnv } from "types/substance";
-import { ColorV, RGBA } from "types/value";
-import { andThen, err, Result, showError } from "utils/Error";
-import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
+} from "../types/style";
+import {
+  Assignment,
+  DepGraph,
+  Layer,
+  Translation,
+} from "../types/styleSemantics";
+import { SubstanceEnv } from "../types/substance";
+import { ColorV, RGBA } from "../types/value";
+import { andThen, err, Result, showError } from "../utils/Error";
+import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
+import * as S from "./Style";
+import { compileSubstance } from "./Substance";
 
 // TODO: Reorganize and name tests by compiler stage
-
-// Load file in format "domain-dir/file.extension"
-const loadFile = (examplePath: string): string => {
-  // a bit hacky, only works with 2-part paths
-  const [part0, part1] = examplePath.split("/");
-  const prog = examples[part0][part1];
-  return prog;
-};
 
 interface Trio {
   sub: string;
@@ -354,9 +349,9 @@ describe("Compiler", () => {
   // test("finds the right substitutions for LA Style program", () => {
   //   // This code is cleaned up from `S.compileStyle`; runs the beginning of compiler checking from scratch
   //   const triple: [string, string, string] = [
-  //     "linear-algebra-domain/linear-algebra.dsl",
-  //     "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
-  //     "linear-algebra-domain/linear-algebra-paper-simple.sty",
+  //     "linear-algebra-domain/linear-algebra.domain",
+  //     "linear-algebra-domain/twoVectorsPerp-unsugared.substance",
+  //     "linear-algebra-domain/linear-algebra-paper-simple.style",
   //   ];
 
   //   const [varEnv, subEnv, subProg, styProgInit]: [
@@ -452,6 +447,13 @@ describe("Compiler", () => {
   width = 500.0
   height = 400.0
 }`,
+      `forall Object o {
+        o.a = ?
+        o.b = ?
+        ensure o.a > o.b
+        ensure o.a < o.b
+        ensure o.a == o.b
+      }`,
     ];
     stys.forEach((sty: string) =>
       loadProgs({ dsl, sub, sty: canvasPreamble + sty })
@@ -700,10 +702,10 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = loadFile("set-theory-domain/twosets-simple.sub");
-    const domainProg = loadFile("set-theory-domain/functions.dsl");
+    const subProg = setTheory["twosets-simple.substance"];
+    const domainProg = setTheory["functions.domain"];
     // We test variations on this Style program
-    // const styPath = "set-theory-domain/venn.sty";
+    // const styPath = "set-theory-domain/venn.style";
 
     const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
 
@@ -748,6 +750,7 @@ Bond(O, H2)`;
 where IsSubset(y, x) { }`,
         `forall Setfhjh x { }`,
         `forall Point x, y where Midpointdfsdfds(x, y) { }`,
+        `forall Set a where IsSubset(a, B) {}`,
       ],
 
       // ---------- Block static errors
@@ -973,7 +976,7 @@ delete x.z.p }`,
       T t1, t2, t3, t4, t5, t6, t7, t8
       S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;
       const dsl = `
-      -- minimal.dsl
+      -- minimal.domain
       type S
       type T
       constructor f( T t1, T t2, T t3, T t4, T t5, T t6, T t7, T t8 ) -> S`;

@@ -36,7 +36,7 @@
     )
 
   ;; File extensions that trigger the mode
-  '("\\.dsl$")
+  '("\\.domain$")
 
   ;; Any other functions to call
   nil
@@ -78,7 +78,7 @@
     )
 
   ;; File extensions that trigger the mode
-  '("\\.sub$")
+  '("\\.substance$")
 
   ;; Any other functions to call
   nil
@@ -151,7 +151,7 @@
     )
 
   ;; File extensions that trigger the mode
-  '("\\.sty$")
+  '("\\.style$")
 
   ;; Any other functions to call
   nil

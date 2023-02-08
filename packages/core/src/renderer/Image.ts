@@ -1,11 +1,11 @@
-import { StrV } from "types/value";
+import { StrV } from "../types/value";
 import {
   attrAutoFillSvg,
   attrRotation,
   attrTransformCoords,
   attrWH,
 } from "./AttrHelper";
-import notFound from "./not_found.json";
+import * as notFound from "./not_found";
 import { ShapeProps } from "./Renderer";
 
 const Image = async ({
@@ -22,7 +22,7 @@ const Image = async ({
   let rawSVG = await pathResolver(path);
   if (rawSVG === undefined) {
     console.error(`Could not resolve image path ${path}`);
-    rawSVG = notFound["image"] as string;
+    rawSVG = notFound.image;
   }
   attrToNotAutoMap.push("href");
   elem.innerHTML = rawSVG;

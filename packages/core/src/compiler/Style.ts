@@ -1,34 +1,33 @@
 import { CustomHeap } from "@datastructures-js/heap";
 import { genOptProblem } from "@penrose/optimizer";
-import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola from "consola";
-import { constrDict } from "contrib/Constraints";
-import { compDict } from "contrib/Functions";
-import { objDict } from "contrib/Objectives";
-import { input, ops } from "engine/Autodiff";
-import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
+import im from "immutable";
+import _ from "lodash";
+import nearley from "nearley";
+import seedrandom from "seedrandom";
+import { constrDict } from "../contrib/Constraints";
+import { compDict } from "../contrib/Functions";
+import { objDict } from "../contrib/Objectives";
+import { input, ops } from "../engine/Autodiff";
+import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions";
 import {
   compileCompGraph,
   dummyIdentifier,
   genGradient,
-} from "engine/EngineUtils";
-import im from "immutable";
-import _ from "lodash";
-import nearley from "nearley";
-import { lastLocation, prettyParseError } from "parser/ParserUtil";
-import styleGrammar from "parser/StyleParser";
-import seedrandom from "seedrandom";
+} from "../engine/EngineUtils";
+import { lastLocation, prettyParseError } from "../parser/ParserUtil";
+import styleGrammar from "../parser/StyleParser";
 import {
   Canvas,
   Context as MutableContext,
   InputMeta,
   makeCanvas,
   uniform,
-} from "shapes/Samplers";
-import { isShapeType, ShapeDef, shapedefs, ShapeType } from "shapes/Shapes";
-import * as ad from "types/ad";
-import { A, C, Identifier, SourceRange } from "types/ast";
-import { Env } from "types/domain";
+} from "../shapes/Samplers";
+import { isShapeType, ShapeDef, shapedefs, ShapeType } from "../shapes/Shapes";
+import * as ad from "../types/ad";
+import { A, C, Identifier, SourceRange } from "../types/ast";
+import { Env } from "../types/domain";
 import {
   BinOpTypeError,
   LayerCycleWarning,
@@ -39,23 +38,25 @@ import {
   StyleError,
   StyleWarning,
   SubstanceError,
-} from "types/errors";
-import { ShapeAD } from "types/shape";
+} from "../types/errors";
+import { ShapeAD } from "../types/shape";
 import {
   Fn,
   OptPipeline,
   OptStages,
   StagedConstraints,
   State,
-} from "types/state";
+} from "../types/state";
 import {
   BinaryOp,
   BindingForm,
   BinOp,
   DeclPattern,
   Expr,
+  FunctionCall,
   Header,
   HeaderBlock,
+  InlineComparison,
   LayoutStages,
   List,
   Path,
@@ -72,7 +73,7 @@ import {
   StyT,
   UOp,
   Vector,
-} from "types/style";
+} from "../types/style";
 import {
   Assignment,
   BlockAssignment,
@@ -92,7 +93,7 @@ import {
   Subst,
   Translation,
   WithContext,
-} from "types/styleSemantics";
+} from "../types/styleSemantics";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -104,7 +105,7 @@ import {
   SubstanceEnv,
   SubStmt,
   TypeConsApp,
-} from "types/substance";
+} from "../types/substance";
 import {
   ArgVal,
   Field,
@@ -116,7 +117,7 @@ import {
   PropID,
   Value,
   VectorV,
-} from "types/value";
+} from "../types/value";
 import {
   all,
   andThen,
@@ -129,10 +130,11 @@ import {
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-} from "utils/Error";
-import Graph from "utils/Graph";
+} from "../utils/Error";
+import Graph from "../utils/Graph";
 import {
   boolV,
+  cartesianProduct,
   colorV,
   floatV,
   hexToRgba,
@@ -147,8 +149,9 @@ import {
   val,
   vectorV,
   zip2,
-} from "utils/Util";
+} from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
+import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Warn })
@@ -173,23 +176,6 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
 
 const toString = (x: BindingForm<A>): string => x.contents.value;
-
-const cartesianProduct = <Tin, Tout>(
-  t1: Tin[],
-  t2: Tin[],
-  consistent: (t1: Tin, t2: Tin) => boolean,
-  merge: (t1: Tin, t2: Tin) => Tout
-): Tout[] => {
-  const product: Tout[] = [];
-  for (const i in t1) {
-    for (const j in t2) {
-      if (consistent(t1[i], t2[j])) {
-        product.push(merge(t1[i], t2[j]));
-      }
-    }
-  }
-  return product;
-};
 
 const oneErr = (err: StyleError): StyleDiagnostics => {
   return { errors: im.List([err]), warnings: im.List() };
@@ -567,22 +553,29 @@ const mergeMapping = (
     throw Error("var has no binding form?");
   }
   const [, bindingForm] = res;
-
+  const vars = varEnv.vars.set(
+    bindingForm.contents.value,
+    toSubstanceType(styType)
+  );
   switch (bindingForm.tag) {
-    case "SubVar": {
-      // G || (x : |T) |-> G
-      return varEnv;
-    }
-    case "StyVar": {
-      // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
+    case "StyVar":
       return {
         ...varEnv,
-        vars: varEnv.vars.set(
-          bindingForm.contents.value,
-          toSubstanceType(styType)
-        ),
+        vars,
+        varIDs: [
+          dummyIdentifier(bindingForm.contents.value, "Style"),
+          ...varEnv.varIDs,
+        ],
       };
-    }
+    case "SubVar":
+      return {
+        ...varEnv,
+        vars,
+        varIDs: [
+          dummyIdentifier(bindingForm.contents.value, "Substance"),
+          ...varEnv.varIDs,
+        ],
+      };
   }
 };
 
@@ -614,8 +607,10 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
         safeContentsList(sel.with)
       );
 
+      // Basically creates a new, empty environment.
+      const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
       const relErrs = checkRelPatterns(
-        mergeEnv(varEnv, selEnv_decls),
+        mergeEnv(emptyVarsEnv, selEnv_decls),
         selEnv_decls,
         safeContentsList(sel.where)
       );
@@ -2119,10 +2114,17 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
     case "Vary": {
       return [];
     }
-    case "CompApp":
+    case "CompApp": {
+      return expr.args.flatMap(findPathsExpr);
+    }
     case "ConstrFn":
     case "ObjFn": {
-      return expr.args.flatMap(findPathsExpr);
+      const body = expr.body;
+      if (body.tag === "FunctionCall") {
+        return body.args.flatMap(findPathsExpr);
+      } else {
+        return [body.arg1, body.arg2].flatMap(findPathsExpr);
+      }
     }
     case "GPIDecl": {
       return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
@@ -2796,6 +2798,41 @@ const stageExpr = (
   }
 };
 
+const extractObjConstrBody = (
+  body: InlineComparison<C> | FunctionCall<C>
+): { name: Identifier<C>; argExprs: Expr<C>[] } => {
+  if (body.tag === "InlineComparison") {
+    const mapInlineOpToFunctionName = (op: "<" | "==" | ">"): string => {
+      switch (op) {
+        case "<":
+          return "lessThan";
+        case "==":
+          return "equal";
+        case ">":
+          return "greaterThan";
+      }
+    };
+    const functionName = mapInlineOpToFunctionName(body.op.op);
+
+    return {
+      name: {
+        tag: "Identifier",
+        start: body.op.start,
+        end: body.op.end,
+        nodeType: body.op.nodeType,
+        type: "value",
+        value: functionName,
+      },
+      argExprs: [body.arg1, body.arg2],
+    };
+  } else {
+    return {
+      name: body.name,
+      argExprs: body.args,
+    };
+  }
+};
+
 const translateExpr = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2827,18 +2864,19 @@ const translateExpr = (
       };
     }
     case "ConstrFn": {
+      const { name, argExprs } = extractObjConstrBody(e.expr.body);
       const args = argValues(
         mut,
         canvas,
         layoutStages,
         e.context,
-        e.expr.args,
+        argExprs,
         trans
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name, stages, exclude } = e.expr;
+      const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
         return addDiags(
@@ -2862,18 +2900,19 @@ const translateExpr = (
       };
     }
     case "ObjFn": {
+      const { name, argExprs } = extractObjConstrBody(e.expr.body);
       const args = argValues(
         mut,
         canvas,
         layoutStages,
         e.context,
-        e.expr.args,
+        argExprs,
         trans
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const { name, stages, exclude } = e.expr;
+      const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
         return addDiags(
@@ -3189,17 +3228,21 @@ const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
           expr: {
             tag: "ConstrFn",
             nodeType: "SyntheticStyle",
-            name: dummyId("onCanvas"),
+            body: {
+              tag: "FunctionCall",
+              nodeType: "SyntheticStyle",
+              name: dummyId("onCanvas"),
+              args: [
+                // HACK: the right way to do this would be to parse `name` into
+                // the correct `Path`, but we don't really care as long as it
+                // pretty-prints into something that looks right
+                fakePath(name, []),
+                fakePath("canvas", ["width"]),
+                fakePath("canvas", ["height"]),
+              ],
+            },
             stages: [],
             exclude: true,
-            args: [
-              // HACK: the right way to do this would be to parse `name` into
-              // the correct `Path`, but we don't really care as long as it
-              // pretty-prints into something that looks right
-              fakePath(name, []),
-              fakePath("canvas", ["width"]),
-              fakePath("canvas", ["height"]),
-            ],
           },
         },
         output,

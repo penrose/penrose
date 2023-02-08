@@ -1,3 +1,19 @@
+import { ops } from "../engine/Autodiff";
+import {
+  absVal,
+  add,
+  ifCond,
+  lt,
+  max,
+  min,
+  mul,
+  neg,
+  squared,
+  sub,
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import {
   atDistLabel,
   containsAABBs,
@@ -16,26 +32,10 @@ import {
   overlappingPolygons,
   overlappingRectlikeCircle,
   overlappingTextLine,
-} from "contrib/ConstraintsUtils";
-import { bboxFromShape, shapeSize } from "contrib/Queries";
-import { inRange, overlap1D } from "contrib/Utils";
-import { ops } from "engine/Autodiff";
-import {
-  absVal,
-  add,
-  ifCond,
-  lt,
-  max,
-  min,
-  minN,
-  mul,
-  neg,
-  squared,
-  sub,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import { shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
+} from "./ConstraintsUtils";
+import { constrDictCurves } from "./CurveConstraints";
+import { bboxFromShape, shapeSize } from "./Queries";
+import { inRange, overlap1D } from "./Utils";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
@@ -80,7 +80,10 @@ const constrDictSimple = {
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
   inRange: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
-    return mul(sub(x, x0), sub(x, x1));
+    return add(
+      ifCond(lt(x, x1), 0, sub(x, x1)),
+      ifCond(lt(x0, x), 0, sub(x0, x))
+    );
   },
 
   /**
@@ -134,10 +137,7 @@ const constrDictSimple = {
     const v3 = ops.vnorm(ops.vsub(c1, c3));
 
     // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(
-      0,
-      minN([sub(add(v1, v2), v3), sub(add(v1, v3), v2), sub(add(v2, v3), v1)])
-    );
+    return max(0, sub(add(v1, v2), v3));
   },
 };
 
@@ -329,6 +329,7 @@ export const constrDict = {
   ...constrDictSimple, // Do not require shape queries, operate directly with `ad.Num` parameters.
   ...constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
   ...constrDictSpecific, // Defined only for specific use-case or specific shapes.
+  ...constrDictCurves, // Curve-specific constraints.
 };
 
 // `_constrDictVals` causes TypeScript to enforce that every function in
