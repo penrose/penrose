@@ -1,4 +1,4 @@
-// Refactored version of `makeIdsUnique` in https://github.com/iconfu/svg-inject/blob/master/src/svg-inject.js
+// Refactored version of `makeIdsUnique` in https://github.com/iconfu/svg-inject/blob/064ac002930deaf96eefb95eaf953c5ef5287992/src/svg-inject.js
 // MIT License
 
 // Copyright (c) 2018 INCORS GmbH, the creators of iconfu.com
