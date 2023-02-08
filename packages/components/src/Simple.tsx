@@ -116,6 +116,11 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         if (!this.props.animate) {
           await this.converge();
         }
+        this.renderCanvas();
+        return;
+      } else if (this.props.interactive !== prevProps.interactive) {
+        this.renderCanvas();
+        return;
       }
     }
   };

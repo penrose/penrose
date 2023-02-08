@@ -134,13 +134,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
   render() {
     const { header, stateful, onSelected, onStateUpdate } = this.props;
-    const trio = {
-      // even if the component is stateful, only variation is allowed to change
-      substance: this.props.substance,
-      style: this.props.style,
-      domain: this.props.domain,
-      variation: stateful ? this.state.variation : this.props.variation,
-    };
+    const variation = stateful ? this.state.variation : this.props.variation;
 
     return (
       <Section key={`gridbox-container-${this.props.gridIndex}`}>
@@ -181,7 +175,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           )}
           <Simple
             {...this.props}
-            {...trio}
+            variation={variation}
             key={`gridbox-${this.props.gridIndex}`}
             interactive={false}
             onFrame={(state: PenroseState) => {

@@ -41,6 +41,9 @@ export default function GridPanel() {
             domain,
             variation: variations[i],
           }))}
+          gridBoxProps={{
+            stateful: false,
+          }}
         />
       </ThemeProvider>
     </div>
