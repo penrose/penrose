@@ -1,4 +1,5 @@
 import { Gradient, OptState } from "@penrose/optimizer";
+import { GroupGraph } from "src/utils/GroupGraph";
 import { Canvas, InputMeta } from "../shapes/Samplers";
 import * as ad from "./ad";
 import { A } from "./ast";
@@ -38,6 +39,7 @@ export interface State extends OptState {
   currentStageIndex: number;
   optStages: string[];
   computeShapes: ShapeFn;
+  groupGraph: GroupGraph;
 }
 
 /**

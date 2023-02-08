@@ -133,11 +133,7 @@ import {
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
-import {
-  GroupGraph,
-  GroupGraphNode,
-  makeGroupGraph,
-} from "../utils/GroupGraph";
+import { GroupGraph, makeGroupGraph } from "../utils/GroupGraph";
 import {
   boolV,
   colorV,
@@ -3099,9 +3095,7 @@ export const translate = (
 
 //#region group graph
 
-export const checkGroupGraph = (
-  groupGraph: GroupGraph<ShapeAD>
-): StyleWarning[] => {
+export const checkGroupGraph = (groupGraph: GroupGraph): StyleWarning[] => {
   const warnings: StyleWarning[] = [];
   for (const name of groupGraph.nodes()) {
     if (groupGraph.parents(name).length > 1) {
@@ -3131,7 +3125,7 @@ export const checkGroupGraph = (
 export const propagateLayeringToParents = (
   { below, above }: Layer,
   layerGraph: Graph<string>,
-  groupGraph: GroupGraph<ShapeAD>
+  groupGraph: GroupGraph
 ): void => {
   layerGraph.setEdge({ i: below, j: above, e: undefined });
   const belowParents = groupGraph.parents(below);
@@ -3163,7 +3157,7 @@ export const propagateLayeringToParents = (
 export const propagateLayeringToChildren = (
   { below, above }: Layer,
   layerGraph: Graph<string>,
-  groupGraph: GroupGraph<ShapeAD>
+  groupGraph: GroupGraph
 ): void => {
   layerGraph.setEdge({ i: below, j: above, e: undefined });
   const belowChildren = groupGraph.children(below);
@@ -3195,7 +3189,7 @@ export const propagateLayeringToChildren = (
 export const computeShapeOrdering = (
   allGPINames: string[],
   partialOrderings: Layer[],
-  groupGraph: GroupGraph<ShapeAD>
+  groupGraph: GroupGraph
 ): {
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
@@ -3500,21 +3494,26 @@ export const compileStyleHelper = async (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
-  const groupGraph: Graph<string, GroupGraphNode<ShapeAD>> = makeGroupGraph(
+  // This is the preliminary group graph that does not respect layering.
+  // Only used to check the structure of the group graph
+  const prelimGroupGraph: GroupGraph = makeGroupGraph(
     getShapes(graph, translation, [
       ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
     ])
   );
 
-  const groupWarnings = checkGroupGraph(groupGraph);
+  const groupWarnings = checkGroupGraph(prelimGroupGraph);
 
   const { shapeOrdering, warning: layeringWarning } = computeShapeOrdering(
     [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
     [...translation.layering],
-    groupGraph
+    prelimGroupGraph
   );
 
   const shapes = getShapes(graph, translation, shapeOrdering);
+
+  // This group graph respects the layering.
+  const groupGraph = makeGroupGraph(shapes);
 
   const objFns = [...translation.objectives];
 
@@ -3563,6 +3562,7 @@ export const compileStyleHelper = async (
     params,
     currentStageIndex: 0,
     optStages: optimizationStages.value,
+    groupGraph,
   };
 
   log.info("init state from GenOptProblem", initState);

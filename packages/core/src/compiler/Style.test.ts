@@ -4,7 +4,6 @@ import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
 import { PenroseError } from "../types/errors";
-import { ShapeAD } from "../types/shape";
 import { State } from "../types/state";
 import {
   AnonAssign,
@@ -25,7 +24,7 @@ import { SubstanceEnv } from "../types/substance";
 import { ColorV, RGBA } from "../types/value";
 import { andThen, err, Result, showError } from "../utils/Error";
 import Graph from "../utils/Graph";
-import { GroupGraph, GroupGraphNode } from "../utils/GroupGraph";
+import { GroupGraph } from "../utils/GroupGraph";
 import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
 import * as S from "./Style";
@@ -75,18 +74,9 @@ const canvasPreamble = `canvas {
 
 describe("Layering computation", () => {
   // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
-  const makeSimpleGroupGraphNode = (): GroupGraphNode<ShapeAD> => {
-    return {
-      shape: {
-        shapeType: "Circle",
-        properties: {},
-      },
-      index: 0,
-    };
-  };
-  const simpleGroupGraph: GroupGraph<ShapeAD> = new Graph();
+  const simpleGroupGraph: GroupGraph = new Graph();
   ["A", "B", "C", "D", "E", "F"].map((x) => {
-    simpleGroupGraph.setNode(x, makeSimpleGroupGraphNode());
+    simpleGroupGraph.setNode(x, 0);
   });
   test("simple layering: A -> B -> C", () => {
     const partials: Layer[] = [
@@ -158,16 +148,8 @@ describe("Layering computation", () => {
       { below: "A", above: "D" },
       { below: "B", above: "C" },
     ];
-    const groupGraph: GroupGraph<ShapeAD> = new Graph();
-    ["A", "B", "C", "D"].map((x) =>
-      groupGraph.setNode(x, makeSimpleGroupGraphNode())
-    );
-    ["G1", "G2"].map((x) =>
-      groupGraph.setNode(x, {
-        shape: { shapeType: "Group", properties: {} },
-        index: 0,
-      })
-    );
+    const groupGraph: GroupGraph = new Graph();
+    ["A", "B", "C", "D", "G1", "G2"].map((x) => groupGraph.setNode(x, 0));
     groupGraph.setEdge({ i: "G1", j: "A", e: undefined });
     groupGraph.setEdge({ i: "G1", j: "D", e: undefined });
     groupGraph.setEdge({ i: "G2", j: "B", e: undefined });
@@ -194,13 +176,9 @@ describe("Layering computation", () => {
       { below: "s2", above: "s3" },
       { below: "s3", above: "s1" },
     ];
-    const groupGraph: GroupGraph<ShapeAD> = new Graph();
-    ["s1", "s2", "s3"].map((x) => {
-      groupGraph.setNode(x, makeSimpleGroupGraphNode());
-    });
-    groupGraph.setNode("g", {
-      shape: { shapeType: "Group", properties: {} },
-      index: 0,
+    const groupGraph: GroupGraph = new Graph();
+    ["s1", "s2", "s3", "g"].map((x) => {
+      groupGraph.setNode(x, 0);
     });
     groupGraph.setEdge({ i: "g", j: "s1", e: undefined });
     groupGraph.setEdge({ i: "g", j: "s2", e: undefined });
@@ -1158,12 +1136,9 @@ delete x.z.p }`,
 
   describe("group graph", () => {
     test("cyclic group graph", () => {
-      const groupGraph: GroupGraph<ShapeAD> = new Graph();
+      const groupGraph: GroupGraph = new Graph();
       ["A", "B", "C"].map((x) => {
-        groupGraph.setNode(x, {
-          shape: { shapeType: "Group", properties: {} },
-          index: 0,
-        });
+        groupGraph.setNode(x, 0);
       });
       groupGraph.setEdge({ i: "A", j: "B", e: undefined });
       groupGraph.setEdge({ i: "B", j: "C", e: undefined });
@@ -1174,12 +1149,9 @@ delete x.z.p }`,
       expect(warnings[0].tag).toEqual("GroupCycleWarning");
     });
     test("shape belongs to multiple groups", () => {
-      const groupGraph: GroupGraph<ShapeAD> = new Graph();
+      const groupGraph: GroupGraph = new Graph();
       ["X", "A", "B"].map((x) => {
-        groupGraph.setNode(x, {
-          shape: { shapeType: "Group", properties: {} },
-          index: 0,
-        });
+        groupGraph.setNode(x, 0);
       });
       groupGraph.setEdge({ i: "A", j: "X", e: undefined });
       groupGraph.setEdge({ i: "B", j: "X", e: undefined });
