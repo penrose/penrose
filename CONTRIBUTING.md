@@ -24,6 +24,7 @@
   - [Finding an issue to work on](#finding-an-issue-to-work-on)
   - [Merging new changes from upstream](#merging-new-changes-from-upstream)
   - [Opening a pull request (PR)](#opening-a-pull-request-pr)
+- [Release](#release)
 
 <!-- tocstop -->
 
@@ -409,6 +410,19 @@ When your work is ready for review:
 If you hit any snags in the process, run into bugs, or just have questions,
 please file an issue!
 
+## Release
+
+Our repo uses [semantic versioning][] and maintains the same version number for all packages. Generally speaking, we release new versions whenever new features are introduced (PRs with `feat` tag). Here are the steps for creating new releases.
+
+- Make sure all PRs for the upcoming release are merged. Switch to `main` and check `git status` to make sure it's clean and up-to-date.
+- At repo root, run `yarn new-version` to create a new version.
+  - Note that the this script does not modify the Rust crate version in `packages/optimizer/Cargo.{toml,lock}`, which currently must be manually updated.
+- Run `yarn format` to clean up auto-generated file changes.
+- Create a new branch (`git switch --create release-X.Y.Z`) from main and commit the changes.
+- Open a new PR with a title `chore: bump version to X.Y.Z` and merge after CI passes.
+- Create a new [GitHub release][].
+- CI will run after the new release is created, automatically publishing packages to npm.
+
 [`wasm-bindgen` cli]: https://rustwasm.github.io/wasm-bindgen/reference/cli.html#installation
 [branch]: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 [ci]: https://docs.github.com/en/actions
@@ -441,3 +455,5 @@ please file an issue!
 [vs code]: https://code.visualstudio.com/download
 [yaml]: https://yaml.org/
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/
+[semantic versioning]: https://semver.org
+[github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
