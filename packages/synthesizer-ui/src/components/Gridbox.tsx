@@ -9,9 +9,7 @@ import {
 } from "@material-ui/core";
 import { Simple } from "@penrose/components";
 import {
-  evalEnergy,
   PenroseState,
-  prepareState,
   prettySubstance,
   showMutations,
   SynthesizedSubstance,
@@ -24,9 +22,7 @@ export interface GridboxProps {
   substance: SynthesizedSubstance;
   variation: string;
   progNumber: number;
-  srcState: PenroseState | undefined;
-  updateSrcProg: (newState: PenroseState) => void;
-  onStaged: (n: number) => void;
+  onSelected: (n: number) => void;
   onStateUpdate: (n: number, state: PenroseState) => void;
 }
 
@@ -119,28 +115,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     };
   }
 
-  computeEnergy = async (optimizedState: PenroseState) => {
-    if (this.props.srcState) {
-      const crossState = {
-        ...optimizedState,
-        constrFns: this.props.srcState.constrFns,
-        objFns: this.props.srcState.objFns,
-      };
-
-      try {
-        const energy = evalEnergy(await prepareState(crossState));
-        this.setState({
-          energy: Math.round(energy),
-        });
-      } catch (e) {
-        console.log("error with CIEE: ", e);
-        this.setState({
-          energy: -1,
-        });
-      }
-    }
-  };
-
   toggleView = () => {
     this.setState({ showDiagramInfo: !this.state.showDiagramInfo });
   };
@@ -148,7 +122,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   checkboxClick = () => {
     this.setState({ isSelected: !this.state.isSelected });
     if (this.state.currentState) {
-      this.props.onStaged(this.props.progNumber);
+      this.props.onSelected(this.props.progNumber);
     }
   };
 
