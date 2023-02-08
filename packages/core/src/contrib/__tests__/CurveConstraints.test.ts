@@ -143,7 +143,7 @@ describe("turningNumber", () => {
   });
 });
 
-describe("algebraicArea", () => {
+describe("signedArea", () => {
   it.each([
     ["Polygon", _polygons[6], 100 * 100],
     ["Polygon", _polygons[7], -200 * 100],
