@@ -110,6 +110,31 @@ export const totalCurvature = (
 };
 
 /**
+ * Returns simple repulsive energy
+ */
+export const repulsiveEnergy = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const tuples = consecutiveTuples(points, closed);
+  return addN(
+    tuples.map(([p1, p2]: [ad.Num, ad.Num][]) =>
+      addN(
+        tuples.map(([q1, q2]: [ad.Num, ad.Num][]) =>
+          div(
+            mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
+            ops.vdist(
+              ops.vmul(0.5, ops.vadd(p1, p2)),
+              ops.vmul(0.5, ops.vadd(q1, q2))
+            )
+          )
+        )
+      )
+    )
+  );
+};
+
+/**
  * Returns integral of curvature squared along the curve
  */
 export const elasticEnergy = (
