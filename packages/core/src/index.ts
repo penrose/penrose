@@ -382,6 +382,7 @@ export const evalFns = (
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
+export type { SubStmtKind } from "./analysis/SubstanceAnalysis";
 export { constrDict } from "./contrib/Constraints";
 export { compDict } from "./contrib/Functions";
 export { objDict } from "./contrib/Objectives";
@@ -390,6 +391,8 @@ export type { PathResolver } from "./renderer/Renderer";
 export { makeCanvas, simpleContext } from "./shapes/Samplers";
 export { shapedefs } from "./shapes/Shapes";
 export type {
+  DeclTypes,
+  MatchSetting,
   SynthesizedSubstance,
   SynthesizerSetting,
 } from "./synthesis/Synthesizer";

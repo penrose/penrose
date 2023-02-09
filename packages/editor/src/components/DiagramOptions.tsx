@@ -1,5 +1,5 @@
 import { useRecoilState } from "recoil";
-import { diagramMetadataSelector } from "../state/atoms";
+import { diagramGridState, diagramMetadataSelector } from "../state/atoms";
 import {
   useCompileDiagram,
   useStepDiagram,
@@ -11,6 +11,7 @@ export default function DiagramOptions() {
   const [diagramMetadata, setDiagramMetadata] = useRecoilState(
     diagramMetadataSelector
   );
+  const [{ gridSize }, setSettingsState] = useRecoilState(diagramGridState);
   const compileDiagram = useCompileDiagram();
   const stepDiagram = useStepDiagram();
   const stepStage = useStepStage();
@@ -77,6 +78,24 @@ export default function DiagramOptions() {
               }))
             }
           />
+        </label>
+      </div>
+      <div>
+        <label>
+          grid size:{" "}
+          <input
+            type="range"
+            min="1"
+            max="30"
+            value={gridSize}
+            onChange={(e) =>
+              setSettingsState((settings) => ({
+                ...settings,
+                gridSize: parseInt(e.target.value, 10),
+              }))
+            }
+          />
+          <output>{gridSize}</output>
         </label>
       </div>
     </div>

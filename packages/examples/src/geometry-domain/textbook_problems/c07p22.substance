@@ -6,8 +6,18 @@ Segment ST := MkSegment(S, T)
 EqualLengthMarker(SR, ST)
 EqualLength(SR, ST)
 
+Angle aUWV := InteriorAngle(U, W, V)
+Angle aSRT := InteriorAngle(S, R, T)
+EqualAngle(aUWV, aSRT)
+EqualAngleMarker(aUWV, aSRT)
+
+Angle aWUV := InteriorAngle(W, U, V)
+Angle aSTR := InteriorAngle(S, T, R)
+EqualAngle(aWUV, aSTR)
+EqualAngleMarker(aWUV, aSTR)
+
 Segment UV := MkSegment(U, V)
 Segment VW := MkSegment(V, W)
 EqualLengthMarker(UV, VW)
 EqualLength(UV, VW)
-AutoLabel All
+AutoLabel R, S, T, U, V, W

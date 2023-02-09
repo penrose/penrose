@@ -21,6 +21,7 @@ import shapeMap from "./shapeMap";
 export type PathResolver = (path: string) => Promise<string | undefined>;
 
 export interface ShapeProps {
+  variation: string;
   shape: Shape;
   labels: LabelCache;
   canvasSize: [number, number];
@@ -94,6 +95,7 @@ export const RenderInteractive = async (
     {
       labels: state.labelCache,
       canvasSize: state.canvas.size,
+      variation: state.variation,
       pathResolver,
     },
     nameShapeMap,
@@ -114,7 +116,13 @@ export const RenderStatic = async (
   state: State,
   pathResolver: PathResolver
 ): Promise<SVGSVGElement> => {
-  const { varyingValues, computeShapes, labelCache: labels, canvas } = state;
+  const {
+    varyingValues,
+    computeShapes,
+    labelCache: labels,
+    canvas,
+    variation,
+  } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -128,6 +136,7 @@ export const RenderStatic = async (
     {
       labels,
       canvasSize: canvas.size,
+      variation,
       pathResolver,
     },
     nameShapeMap,
@@ -142,6 +151,7 @@ const RenderGroup = async (
   shapeProps: {
     labels: LabelCache;
     canvasSize: [number, number];
+    variation: string;
     pathResolver: PathResolver;
   },
   nameShapeMap: { [k: string]: Shape },
@@ -176,6 +186,7 @@ const RenderGroupGraphNode = async (
   shapeProps: {
     labels: LabelCache;
     canvasSize: [number, number];
+    variation: string;
     pathResolver: PathResolver;
   },
   nameShapeMap: { [k: string]: Shape },
@@ -268,6 +279,7 @@ const RenderGroupGraph = async (
   shapeProps: {
     labels: LabelCache;
     canvasSize: [number, number];
+    variation: string;
     pathResolver: PathResolver;
   },
   nameShapeMap: { [k: string]: Shape },

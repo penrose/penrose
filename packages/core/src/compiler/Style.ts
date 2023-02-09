@@ -136,6 +136,7 @@ import Graph from "../utils/Graph";
 import { GroupGraph, makeGroupGraph } from "../utils/GroupGraph";
 import {
   boolV,
+  cartesianProduct,
   colorV,
   floatV,
   hexToRgba,
@@ -178,23 +179,6 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
 
 const toString = (x: BindingForm<A>): string => x.contents.value;
-
-const cartesianProduct = <Tin, Tout>(
-  t1: Tin[],
-  t2: Tin[],
-  consistent: (t1: Tin, t2: Tin) => boolean,
-  merge: (t1: Tin, t2: Tin) => Tout
-): Tout[] => {
-  const product: Tout[] = [];
-  for (const i in t1) {
-    for (const j in t2) {
-      if (consistent(t1[i], t2[j])) {
-        product.push(merge(t1[i], t2[j]));
-      }
-    }
-  }
-  return product;
-};
 
 const oneErr = (err: StyleError): StyleDiagnostics => {
   return { errors: im.List([err]), warnings: im.List() };
