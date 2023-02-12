@@ -4,6 +4,7 @@ import {
   add,
   addN,
   div,
+  eq,
   ifCond,
   lte,
   mul,
@@ -121,11 +122,15 @@ export const repulsiveEnergy = (
     tuples.map(([p1, p2]: [ad.Num, ad.Num][]) =>
       addN(
         tuples.map(([q1, q2]: [ad.Num, ad.Num][]) =>
-          div(
-            mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
-            ops.vdist(
-              ops.vmul(0.5, ops.vadd(p1, p2)),
-              ops.vmul(0.5, ops.vadd(q1, q2))
+          ifCond(
+            eq(add(ops.vdist(p1, q1), ops.vdist(p2, q2)), 0),
+            0,
+            div(
+              mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
+              ops.vdist(
+                ops.vmul(0.5, ops.vadd(p1, p2)),
+                ops.vmul(0.5, ops.vadd(q1, q2))
+              )
             )
           )
         )
