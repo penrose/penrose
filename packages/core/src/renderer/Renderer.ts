@@ -19,6 +19,7 @@ import shapeMap from "./shapeMap";
 export type PathResolver = (path: string) => Promise<string | undefined>;
 
 export interface ShapeProps {
+  variation: string;
   shape: Shape;
   labels: LabelCache;
   canvasSize: [number, number];
@@ -32,6 +33,7 @@ export const RenderShape = async ({
   shape,
   labels,
   canvasSize,
+  variation,
   pathResolver,
 }: ShapeProps): Promise<SVGElement> => {
   if (!(shape.shapeType in shapeMap)) {
@@ -42,6 +44,7 @@ export const RenderShape = async ({
   return await shapeMap[shape.shapeType]({
     shape,
     labels,
+    variation,
     canvasSize,
     pathResolver,
   });
@@ -162,6 +165,7 @@ export const RenderInteractive = async (
           shape,
           labels: state.labelCache,
           canvasSize: state.canvas.size,
+          variation: state.variation,
           pathResolver,
         },
         onDrag,
@@ -192,6 +196,7 @@ export const RenderStatic = async (
         shape,
         labels,
         canvasSize: canvas.size,
+        variation: state.variation,
         pathResolver,
       })
     )

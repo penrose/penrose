@@ -1,5 +1,6 @@
 import {
   compileTrio,
+  PathResolver,
   PenroseError,
   PenroseState,
   prepareState,
@@ -23,6 +24,7 @@ export interface SimpleProps {
   interactive?: boolean; // considered true by default
   animate?: boolean; // considered false by default
   onFrame?: (frame: PenroseState) => void;
+  imageResolver?: PathResolver;
 }
 
 export interface SimpleState {
@@ -43,6 +45,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
 
   compile = async (): Promise<void> => {
     this.penroseState = undefined;
+    this.setState({ error: undefined });
     const compilerResult = await compileTrio(this.props);
     if (compilerResult.isOk()) {
       this.penroseState = await prepareState(compilerResult.value);
@@ -73,9 +76,6 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         this.penroseState,
         this.props.stepSize ?? 1
       );
-      if (this.props.onFrame) {
-        this.props.onFrame(this.penroseState);
-      }
       this.renderCanvas();
     }
   };
@@ -101,23 +101,26 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         await this.converge();
       }
       this.renderCanvas();
-    } else {
-      // update the component only if there's no error
-      // in the case of an error, the component should not attempt to re-render
-      if (this.penroseState && !this.state.error) {
-        if (
-          this.props.variation !== prevProps.variation ||
-          this.props.animate !== prevProps.animate
-        ) {
-          this.penroseState.variation = this.props.variation;
-          this.penroseState = resample(this.penroseState);
-          if (!this.props.animate) {
-            await this.converge();
-          }
-          this.renderCanvas();
-        } else if (this.props.interactive !== prevProps.interactive) {
-          this.renderCanvas();
+      return;
+    }
+
+    // update the component only if there's no error
+    // in the case of an error, they component should not attempt to re-render
+    if (this.penroseState && !this.state.error) {
+      if (
+        this.props.variation !== prevProps.variation ||
+        this.props.animate !== prevProps.animate
+      ) {
+        this.penroseState.variation = this.props.variation;
+        this.penroseState = resample(this.penroseState);
+        if (!this.props.animate) {
+          await this.converge();
         }
+        this.renderCanvas();
+        return;
+      } else if (this.props.interactive !== prevProps.interactive) {
+        this.renderCanvas();
+        return;
       }
     }
   };
@@ -134,7 +137,10 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       if (this.penroseState) {
         const renderedState: SVGSVGElement = await (this.props.interactive ===
         false
-          ? RenderStatic(this.penroseState, fetchResolver)
+          ? RenderStatic(
+              this.penroseState,
+              this.props.imageResolver ?? fetchResolver
+            )
           : RenderInteractive(
               this.penroseState,
               async (newState: PenroseState) => {
@@ -144,15 +150,19 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
                 }
                 this.renderCanvas();
               },
-              fetchResolver
+              this.props.imageResolver ?? fetchResolver
             ));
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);
         } else {
           node.appendChild(renderedState);
         }
+        // propagate state update
+        if (this.props.onFrame) {
+          this.props.onFrame(this.penroseState);
+        }
       } else {
-        console.log("state is undefined");
+        return <div>rendering...</div>;
       }
     }
   };

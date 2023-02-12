@@ -88,7 +88,8 @@
     "poly-partition": "^1.0.2",
     "recursive-diff": "^1.0.8",
     "seedrandom": "^3.0.5",
-    "true-myth": "^4.1.0"
+    "true-myth": "^4.1.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@penrose/examples": "^2.2.0",
@@ -99,6 +100,7 @@
     "@types/nearley": "^2.11.1",
     "@types/node": "^10.17.21",
     "@types/seedrandom": "^2.4.28",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/eslint-plugin-tslint": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
