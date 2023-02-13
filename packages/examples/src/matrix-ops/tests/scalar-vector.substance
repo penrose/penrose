@@ -1,0 +1,12 @@
+Scalar c
+Vector u, x, y, z
+
+x := lvmul(c,u)
+y := rvmul(u,c)
+z := vdiv(u,c)
+
+AutoLabel All
+Label x $c\vec{u}$
+Label y $\vec{u}c$
+Label z $\vec{u}/c$
+

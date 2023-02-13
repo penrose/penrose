@@ -1,3 +1,5 @@
+The `matrix-ops` example exists to help debug and validate matrix and vector operations in Style.  It draws a grid where vectors are represented as arrows, and matrices are represented as pairs of arrows corresponding to the matrix rows.  The resulting diagrams make it easy to quickly "spot check" computations carried out by Style with diagrams generated in other trusted software (such as _Mathematica_).
+
 Additions to Style language:
 
 * operator `'` now performs matrix transpose

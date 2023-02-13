@@ -145,7 +145,7 @@ forall Matrix M {
    shape M.row1 = Line {
       start: (0,0)
       end: global.scale * M.r1
-      strokeColor: #ff0000ff
+      strokeColor: #aaaaaaff
       strokeWidth: 1.0
       endArrowhead: "straight"
       endArrowheadSize: 0.5
@@ -154,7 +154,7 @@ forall Matrix M {
    shape M.row2 = Line {
       start: (0,0)
       end: global.scale * M.r2
-      strokeColor: #ff0000ff
+      strokeColor: #aaaaaaff
       strokeWidth: 1.0
       endArrowhead: "straight"
       endArrowheadSize: 0.5
@@ -183,7 +183,7 @@ forall Vector v {
    shape v.icon = Line {
       start: (0,0)
       end: global.scale * v.vec
-      strokeColor: #00aa00ff
+      strokeColor: #aaaaaaff
       strokeWidth: 1.0
       endArrowhead: "straight"
       endArrowheadSize: 0.75
@@ -197,19 +197,44 @@ forall Vector v {
    }
 }
 
+forall Matrix A; Matrix B
+where B := transpose(A)
+{
+   B.mat = A.mat'
+   B.r1 = (B.mat[0][0],B.mat[0][1])
+   B.r2 = (B.mat[1][0],B.mat[1][1])
+}
+
 forall Matrix A; Vector u; Vector v
 where v := mvmul( A, u )
 {
    v.vec = A.mat * u.vec
-
    v.icon.strokeColor = #0000aaff
+}
+
+forall Matrix A; Vector u; Vector v
+where v := vmmul( u, A )
+{
+   v.vec = u.vec * A.mat
+   v.icon.strokeColor = #ff6600ff
 }
 
 forall Scalar c
 {
    c.val = ?
-   ensure 1 < c.val
-   ensure c.val < 2
+
+   shape c.icon = Circle {
+      center: (0,0)
+      r: global.scale * c.val
+      fillColor : #ff660033
+   }
+
+   shape c.labelText = Equation {
+      center: (global.scale*c.val + 5)*sqrt(2.)*(1,1)/2.
+      string: c.label
+      fillColor : c.icon.fillColor
+      fontSize: global.labelSize
+   }
 }
 
 forall Scalar c; Matrix A; Matrix B
@@ -245,15 +270,80 @@ where A := outer( u, v )
 }
 
 forall Vector u; Vector v; Vector w
+where w := vadd(u,v)
+{
+   override w.vec = u.vec + v.vec
+   layer u.icon above w.icon
+   layer v.icon above w.icon
+}
+
+forall Vector u; Vector v; Vector w
+where w := vsub(u,v)
+{
+   override w.vec = u.vec - v.vec
+   layer u.icon above w.icon
+   layer v.icon above w.icon
+}
+
+forall Vector u; Vector v; Vector w
 where w := ewvvmul(u,v)
 {
    override w.vec = u.vec .* v.vec
+   layer u.icon above w.icon
+   layer v.icon above w.icon
 }
 
 forall Vector u; Vector v; Vector w
 where w := ewvvdiv(u,v)
 {
    override w.vec = u.vec ./ v.vec
+   layer u.icon above w.icon
+   layer v.icon above w.icon
+}
+
+forall Scalar c; Vector u; Vector v
+where v := lvmul(c,u)
+{
+   override v.vec = c.val * u.vec
+   layer u.icon above v.icon
+}
+
+forall Scalar c; Vector u; Vector v
+where v := rvmul(u,c)
+{
+   override v.vec = u.vec * c.val
+   layer u.icon above v.icon
+}
+
+forall Scalar c; Vector u; Vector v
+where v := vdiv(u,c)
+{
+   override v.vec = u.vec / c.val
+   layer u.icon above v.icon
+}
+
+forall Matrix A; Matrix B; Matrix C
+where C := mmadd(A,B)
+{
+   override C.mat = A.mat + B.mat
+   override C.r1 = ( C.mat[0][0], C.mat[0][1] )
+   override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+}
+
+forall Matrix A; Matrix B; Matrix C
+where C := mmsub(A,B)
+{
+   override C.mat = A.mat - B.mat
+   override C.r1 = ( C.mat[0][0], C.mat[0][1] )
+   override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+}
+
+forall Matrix A; Matrix B; Matrix C
+where C := mmmul(A,B)
+{
+   override C.mat = A.mat * B.mat
+   override C.r1 = ( C.mat[0][0], C.mat[0][1] )
+   override C.r2 = ( C.mat[1][0], C.mat[1][1] )
 }
 
 forall Matrix A; Matrix B; Matrix C
@@ -274,8 +364,13 @@ where C := ewmmdiv(A,B)
 
 ---- set constants (for debugging)
 
+forall Scalar `c` {
+   override `c`.val = 2
+}
+
 forall Vector `u` {
-   override `u`.vec = (4,2)
+   override `u`.vec = (-3,2)
+   override `u`.icon.strokeColor = #00aa00ff
 }
 
 forall Vector `v` {
@@ -287,8 +382,8 @@ forall Matrix `A` {
    override `A`.mat = ( (-1,1), (0,-1) )
    override `A`.r1 = ( `A`.mat[0][0], `A`.mat[0][1] )
    override `A`.r2 = ( `A`.mat[1][0], `A`.mat[1][1] )
-   override `A`.row1.strokeColor = #0000aaff
-   override `A`.row2.strokeColor = #0000aaff
+   override `A`.row1.strokeColor = #ff0000ff
+   override `A`.row2.strokeColor = #ff0000ff
 }
 
 forall Matrix `B` {
@@ -297,6 +392,29 @@ forall Matrix `B` {
    override `B`.r2 = ( `B`.mat[1][0], `B`.mat[1][1] )
    override `B`.row1.strokeColor = #00aa00ff
    override `B`.row2.strokeColor = #00aa00ff
+}
+
+forall Matrix `AT` {
+   override `AT`.r1 = ( `AT`.mat[0][0], `AT`.mat[0][1] )
+   override `AT`.r2 = ( `AT`.mat[1][0], `AT`.mat[1][1] )
+   override `AT`.row1.strokeColor = #ff000077
+   override `AT`.row2.strokeColor = #ff000077
+}
+
+forall Matrix `X` {
+   override `X`.mat = ( (-1,2), (0,-2) )
+   override `X`.r1 = ( `X`.mat[0][0], `X`.mat[0][1] )
+   override `X`.r2 = ( `X`.mat[1][0], `X`.mat[1][1] )
+   override `X`.row1.strokeColor = #33dd00ff
+   override `X`.row2.strokeColor = #33dd00ff
+}
+
+forall Matrix `Y` {
+   override `Y`.mat = ( (2,1), (1,2) )
+   override `Y`.r1 = ( `Y`.mat[0][0], `Y`.mat[0][1] )
+   override `Y`.r2 = ( `Y`.mat[1][0], `Y`.mat[1][1] )
+   override `Y`.row1.strokeColor = #4400ccff
+   override `Y`.row2.strokeColor = #4400ccff
 }
 
 -- crossTest

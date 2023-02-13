@@ -1,0 +1,23 @@
+AutoLabel All
+Matrix X, Y
+
+---- matrix-matrix addition
+--Matrix Z := mmadd(X,Y)
+--Label Z $X+Y$
+
+-- matrix-matrix subtraction
+Matrix Z := mmsub(X,Y)
+Label Z $X-Y$
+
+---- matrix-matrix multiplication
+--Matrix Z := mmmul(X,Y)
+--Label Z $XY$
+
+---- elementwise matrix-matrix multiplication
+--Matrix Z := ewmmmul(X,Y)
+--Label Z $X \odot Y$
+
+---- elementwise matrix-matrix division
+--Matrix Z := ewmmdiv(X,Y)
+--Label Z $X \oslash Y$
+

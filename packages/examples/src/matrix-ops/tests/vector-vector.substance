@@ -1,0 +1,24 @@
+AutoLabel All
+Vector u, v
+
+---- vector-vector addition
+--Vector a := vadd(u,v)
+--Label a $u+v$
+
+---- vector-vector subtraction
+--Vector a := vsub(u,v)
+--Label a $u-v$
+
+---- componentwise vector-vector multiplication
+--Vector a := ewvvmul(u,v)
+--Label a $u*v$
+
+-- componentwise vector-vector division
+Vector a := ewvvdiv(u,v)
+Label a $u/v$
+
+---- vector-vector outer product
+--Matrix uv
+--uv := outer(u,v)
+--Label uv $(uv)^\mathsf{T}$
+

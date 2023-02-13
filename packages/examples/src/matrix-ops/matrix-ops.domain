@@ -2,11 +2,21 @@ type Scalar
 type Vector
 type Matrix
 
+function transpose( Matrix A ) -> Matrix
 function smmul( Scalar c, Matrix A ) -> Matrix
 function smmulr( Matrix A, Scalar c ) -> Matrix
 function msdiv( Matrix A, Scalar c ) -> Matrix
 function mvmul( Matrix A, Vector v ) -> Vector
+function vmmul( Vector v, Matrix A ) -> Vector
 function outer( Vector u, Vector v ) -> Matrix
+function vadd( Vector u, Vector v ) -> Vector
+function vsub( Vector u, Vector v ) -> Vector
+function lvmul( Scalar c, Vector u ) -> Vector
+function rvmul( Vector u, Scalar c ) -> Vector
+function vdiv( Vector u, Scalar c ) -> Vector
+function mmmul( Matrix A, Matrix B ) -> Matrix
+function mmadd( Matrix A, Matrix B ) -> Matrix
+function mmsub( Matrix A, Matrix B ) -> Matrix
 function ewvvmul( Vector u, Vector v ) -> Vector
 function ewvvdiv( Vector u, Vector v ) -> Vector
 function ewmmmul( Matrix A, Matrix B ) -> Matrix

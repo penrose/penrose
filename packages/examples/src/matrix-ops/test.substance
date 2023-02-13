@@ -1,6 +1,0 @@
-Vector u, v, w
-
-w := ewvvdiv(u,v)
-
-AutoLabel All
-
