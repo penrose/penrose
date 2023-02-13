@@ -294,6 +294,134 @@
       "variation": "MemoriesDeer750"
     },
     {
+       "name": "Matrix-matrix addition",
+       "substance": "matrix-matrix-addition",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Matrix-matrix division (elementwise)",
+       "substance": "matrix-matrix-division-elementwise",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Matrix-matrix multiplication (elementwise)",
+       "substance": "matrix-matrix-multiplication-elementwise",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Matrix-matrix multiplication",
+       "substance": "matrix-matrix-multiplication",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Matrix-matrix subtraction",
+       "substance": "matrix-matrix-subtraction",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Matrix transpose",
+       "substance": "matrix-transpose",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Matrix-vector left multiplication",
+       "substance": "matrix-vector-left-multiplication",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Matrix-vector right multiplication",
+       "substance": "matrix-vector-right-multiplication",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Scalar-vector division",
+       "substance": "scalar-vector-division",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Scalar-vector left multiplication",
+       "substance": "scalar-vector-left-multiplication",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Scalar-vector right multiplication",
+       "substance": "scalar-vector-right-multiplication",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Vector-vector addition",
+       "substance": "vector-vector-addition",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Vector-vector division elementwise",
+       "substance": "vector-vector-division-elementwise",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Vector-vector multiplication elementwise",
+       "substance": "vector-vector-multiplication-elementwise",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Vector-vector outerproduct",
+       "substance": "vector-vector-outerproduct",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
+       "name": "Vector-vector subtraction",
+       "substance": "vector-vector-subtraction",
+       "style": "matrix-ops",
+       "domain": "matrix-ops",
+       "variation": "DoesNotMatter",
+       "gallery": false
+    },
+    {
       "substance": "half-adder",
       "style": "distinctive-shape",
       "domain": "logic-gates",
@@ -375,6 +503,9 @@
     },
     "molecules": {
       "URI": "molecules/molecules.domain"
+    },
+    "matrix-ops": {
+      "URI": "matrix-ops/matrix-ops.domain"
     },
     "logic-gates": {
       "URI": "logic-circuit-domain/logic-gates.domain"
@@ -511,6 +642,10 @@
     "molecules-basic": {
       "domain": "molecules",
       "URI": "molecules/molecules-basic.style"
+    },
+    "matrix-ops": {
+      "domain": "matrix-ops",
+      "URI": "matrix-ops/matrix-ops.style"
     },
     "distinctive-shape": {
       "domain": "logic-gates",
@@ -669,6 +804,70 @@
     "glutamine": {
       "domain": "molecules",
       "URI": "molecules/glutamine.substance"
+    },
+    "matrix-matrix-addition": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/matrix-matrix-addition.substance"
+    },
+    "matrix-matrix-division-elementwise": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/matrix-matrix-division-elementwise.substance"
+    },
+    "matrix-matrix-multiplication-elementwise": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/matrix-matrix-multiplication-elementwise.substance"
+    },
+    "matrix-matrix-multiplication": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/matrix-matrix-multiplication.substance"
+    },
+    "matrix-matrix-subtraction": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/matrix-matrix-subtraction.substance"
+    },
+    "matrix-transpose": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/matrix-transpose.substance"
+    },
+    "matrix-vector-left-multiplication": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/matrix-vector-left-multiplication.substance"
+    },
+    "matrix-vector-right-multiplication": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/matrix-vector-right-multiplication.substance"
+    },
+    "scalar-vector-division": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/scalar-vector-division.substance"
+    },
+    "scalar-vector-left-multiplication": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/scalar-vector-left-multiplication.substance"
+    },
+    "scalar-vector-right-multiplication": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/scalar-vector-right-multiplication.substance"
+    },
+    "vector-vector-addition": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/vector-vector-addition.substance"
+    },
+    "vector-vector-division-elementwise": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/vector-vector-division-elementwise.substance"
+    },
+    "vector-vector-multiplication-elementwise": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/vector-vector-multiplication-elementwise.substance"
+    },
+    "vector-vector-outerproduct": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/vector-vector-outerproduct.substance"
+    },
+    "vector-vector-subtraction": {
+       "domain": "matrix-ops",
+       "URI": "matrix-ops/tests/vector-vector-subtraction.substance"
     },
     "half-adder": {
       "domain": "logic-gates",
