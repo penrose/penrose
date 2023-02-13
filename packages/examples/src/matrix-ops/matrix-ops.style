@@ -198,21 +198,57 @@ forall Vector v {
 }
 
 forall Matrix A; Vector u; Vector v
-where v := times( A, u )
+where v := mvmul( A, u )
 {
    v.vec = A.mat * u.vec
 
    v.icon.strokeColor = #0000aaff
 }
 
+forall Scalar c
+{
+   c.val = ?
+   ensure 1 < c.val
+   ensure c.val < 2
+}
+
+forall Scalar c; Matrix A; Matrix B
+where B := smmul( c, A )
+{
+   override B.mat = c.val * A.mat
+   override B.r1 = c.val * A.r1
+   override B.r2 = c.val * A.r2
+}
+
+forall Scalar c; Matrix A; Matrix B
+where B := smmulr( A, c )
+{
+   override B.mat = A.mat * c.val
+   override B.r1 = A.r1 * c.val 
+   override B.r2 = A.r2 * c.val 
+}
+
+forall Scalar c; Matrix A; Matrix B
+where B := msdiv( A, c )
+{
+   override B.mat = A.mat / c.val
+   override B.r1 = A.r1 / c.val
+   override B.r2 = A.r2 / c.val
+}
+
 forall Matrix `A` {
-   override `A`.r1 = (2,2)
+   override `A`.r1 = (2,1)
    override `A`.r2 = (-1,1)
 }
 
 forall Vector `u` {
    override `u`.vec = (1,0)
 }
+
+forall Scalar c {
+   override `c`.val = 2
+}
+
 
 
 

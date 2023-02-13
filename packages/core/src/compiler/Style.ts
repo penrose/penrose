@@ -2391,6 +2391,46 @@ const evalBinOpVectorScalar = (
   }
 };
 
+const evalBinOpScalarMatrix = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num,
+  right: ad.Num[][]
+): Result<ad.Num[][], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.smmul(left, right));
+    }
+    case "BPlus":
+    case "BMinus":
+    case "Divide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpMatrixScalar = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[][],
+  right: ad.Num
+): Result<ad.Num[][], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.smmul(right, left));
+    }
+    case "Divide": {
+      return ok(ops.msdiv(left, right));
+    }
+    case "BPlus":
+    case "BMinus":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
 const evalBinOpMatrixVector = (
   error: BinOpTypeError,
   op: BinaryOp,
@@ -2400,6 +2440,25 @@ const evalBinOpMatrixVector = (
   switch (op) {
     case "Multiply": {
       return ok(ops.mvmul(left, right));
+    }
+    case "Divide":
+    case "BPlus":
+    case "BMinus":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpVectorMatrix = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[],
+  right: ad.Num[][]
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.vmmul(left, right));
     }
     case "Divide":
     case "BPlus":
@@ -2483,8 +2542,29 @@ const evalBinOp = (
       left.contents,
       right.contents
     ).map(vectorV);
+  } else if (left.tag === "FloatV" && right.tag === "MatrixV") {
+    return evalBinOpScalarMatrix(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(matrixV);
+  } else if (left.tag === "MatrixV" && right.tag === "FloatV") {
+    return evalBinOpMatrixScalar(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(matrixV);
   } else if (left.tag === "MatrixV" && right.tag === "VectorV") {
     return evalBinOpMatrixVector(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(vectorV);
+  } else if (left.tag === "VectorV" && right.tag === "MatrixV") {
+    return evalBinOpVectorMatrix(
       error,
       expr.op,
       left.contents,

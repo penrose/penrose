@@ -680,7 +680,16 @@ export const ops = {
   },
 
   /**
-   * Return the matrix `A` multiplied by vector `v`.
+   * Return the scalar `c` times the Matrix `A`.
+   */
+  smmul: (c: ad.Num, A: ad.Num[][]): ad.Num[][] => {
+     return A.map( function(row) {
+        return row.map( (e) => mul(c, e) );
+     } );
+  },
+
+  /**
+   * Return the matrix `A` multiplied by vector `v`, i.e., Av.
    */
   mvmul: (A: ad.Num[][], v: ad.Num[]): ad.Num[] => {
     if (A.length !== v.length) {
@@ -692,6 +701,36 @@ export const ops = {
      const result: ad.Num[] = [];
      for (let i = 0; i < v.length; i++) {
         const summands = _.zipWith( A[i], v, mul );
+        result.push( summands.reduce( (x: ad.Num, y) => add(x, y), 0) );
+     }
+     return result;
+  },
+
+  /**
+   * Return the vector `v` multiplied by matrix `A`, i.e., v^T A.
+   */
+  vmmul: (v: ad.Num[], A: ad.Num[][]): ad.Num[] => {
+    if (A.length !== v.length) {
+      throw Error("expected matrix and vector of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+     // The easiest way to do left multiplication is to first
+     // transpose the matrix A, since (A^T v)^T = v^T A.
+    const AT: ad.Num[][] = [];
+     for (let i = 0; i < A.length; i++ ) {
+        const row: ad.Num[] = [];
+        for (let j = 0; j < A.length; j++ ) {
+           row.push( A[j][i] );
+        }
+        AT.push( row );
+     }
+
+     // Now we can just do an ordinary matrix-vector multiply with AT
+     const result: ad.Num[] = [];
+     for (let i = 0; i < v.length; i++) {
+        const summands = _.zipWith( AT[i], v, mul );
         result.push( summands.reduce( (x: ad.Num, y) => add(x, y), 0) );
      }
      return result;
@@ -787,6 +826,15 @@ export const ops = {
    */
   vdiv: (v: ad.Num[], c: ad.Num): ad.Num[] => {
     return v.map((e) => div(e, c));
+  },
+
+  /**
+   * Return the Matrix `A` divided by scalar `c`.
+   */
+  msdiv: (A: ad.Num[][], c: ad.Num): ad.Num[][] => {
+     return A.map( function(row) {
+        return row.map( (e) => div(e, c) );
+     } );
   },
 
   /**

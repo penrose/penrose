@@ -1,5 +1,9 @@
-type Matrix
+type Scalar
 type Vector
+type Matrix
 
-function times( Matrix A, Vector v ) -> Vector
+function smmul( Scalar c, Matrix A ) -> Matrix
+function smmulr( Matrix A, Scalar c ) -> Matrix
+function msdiv( Matrix A, Scalar c ) -> Matrix
+function mvmul( Matrix A, Vector v ) -> Vector
 
