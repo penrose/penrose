@@ -104,10 +104,9 @@ where In(p, P) {
 forall Point p, q, r
 where Collinear(p, q, r) {
   ensure collinear(p.icon.center, q.icon.center, r.icon.center)
-  -- HACK: make sure q is between p and r
-  -- TODO: should this be in Substance instead?
   ensure inRange(q.icon.center[0], p.icon.center[0], r.icon.center[0])
   ensure inRange(q.icon.center[1], p.icon.center[1], r.icon.center[1])
+
   encourage notTooClose(p.icon, q.icon, const.repelWeight)
   encourage notTooClose(q.icon, r.icon, const.repelWeight)
 }
@@ -504,9 +503,9 @@ with Point p; Point q; Point r {
     fillColor: none()
     strokeColor: none()
   }
-  ensure length(t.PQ) > const.minSegmentLength
-  ensure length(t.QR) > const.minSegmentLength
-  ensure length(t.RP) > const.minSegmentLength
+  ensure norm(p.vec - q.vec) > const.minSegmentLength
+  ensure norm(q.vec - r.vec) > const.minSegmentLength
+  ensure norm(r.vec - p.vec) > const.minSegmentLength
   ensure disjoint(t.icon, p.text)
   ensure disjoint(t.icon, q.text)
   ensure disjoint(t.icon, r.text)

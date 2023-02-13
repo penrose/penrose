@@ -2,9 +2,9 @@
 
 import { Gradient } from "@penrose/optimizer";
 import _ from "lodash";
-import { InputMeta } from "shapes/Samplers";
-import { ShapeDef, shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
+import { InputMeta } from "../shapes/Samplers";
+import { ShapeDef, shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import {
   A,
   ASTNode,
@@ -12,11 +12,11 @@ import {
   Identifier,
   NodeType,
   SourceLoc,
-} from "types/ast";
-import { StyleError } from "types/errors";
-import { Shape, ShapeAD } from "types/shape";
-import { ShapeFn } from "types/state";
-import { Expr, Path } from "types/style";
+} from "../types/ast";
+import { StyleError } from "../types/errors";
+import { Shape, ShapeAD } from "../types/shape";
+import { ShapeFn } from "../types/state";
+import { Expr, Path } from "../types/style";
 import {
   Color,
   ColorV,
@@ -33,8 +33,8 @@ import {
   TupV,
   Value,
   VectorV,
-} from "types/value";
-import { safe } from "utils/Util";
+} from "../types/value";
+import { safe } from "../utils/Util";
 import { fns, genCode, input, makeGraph, secondaryGraph } from "./Autodiff";
 import { mul } from "./AutodiffFunctions";
 
