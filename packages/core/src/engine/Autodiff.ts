@@ -613,7 +613,7 @@ export const ops = {
 
     const result = [];
     for (let i = 0; i < A1.length; i++) {
-      let row = [];
+      const row = [];
       for (let j = 0; j < A1.length; j++) {
         row.push(add(A1[i][j], A2[i][j]));
       }
@@ -634,7 +634,7 @@ export const ops = {
 
     const result = [];
     for (let i = 0; i < A1.length; i++) {
-      let row = [];
+      const row = [];
       for (let j = 0; j < A1.length; j++) {
         row.push(sub(A1[i][j], A2[i][j]));
       }
@@ -655,7 +655,7 @@ export const ops = {
 
     const result = [];
     for (let i = 0; i < A1.length; i++) {
-      let row = [];
+      const row = [];
       for (let j = 0; j < A1.length; j++) {
         row.push(mul(A1[i][j], A2[i][j]));
       }
@@ -676,7 +676,7 @@ export const ops = {
 
     const result = [];
     for (let i = 0; i < A1.length; i++) {
-      let row = [];
+      const row = [];
       for (let j = 0; j < A1.length; j++) {
         row.push(div(A1[i][j], A2[i][j]));
       }
