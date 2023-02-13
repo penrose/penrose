@@ -2779,7 +2779,6 @@ const evalUTranspose = (
     case "ListV":
     case "ColorV":
     case "LListV":
-    case "MatrixV":
     case "PathDataV":
     case "PtListV":
     case "StrV":
