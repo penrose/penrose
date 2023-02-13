@@ -681,8 +681,6 @@ export const ops = {
 
   /**
    * Return the matrix `A` multiplied by vector `v`.
-   * TODO This was implemented for N=2,3,4 like this merely to achieve liftoff.
-   * TODO Should be generalized to any N before merging.
    */
   mvmul: (A: ad.Num[][], v: ad.Num[]): ad.Num[] => {
     if (A.length !== v.length) {
@@ -699,14 +697,39 @@ export const ops = {
      return result;
   },
 
-  // /**
-  //  * Return the matrix `A` multiplied by matrix `B`.
-  //  */
-  // mmmul: (A: ad.Num[][], B: ad.Num[][]): ad.Num[][] => {
-  //    const result = [];
-  //    /* TODO implement me! */
-  //    return result;
-  // },
+  /**
+   * Return the matrix `A` multiplied by matrix `B`.
+   */
+  mmmul: (A: ad.Num[][], B: ad.Num[][]): ad.Num[][] => {
+    if (A.length !== B.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+     // To implement via reduction, need to turn the columns of B into rows,
+     // i.e., need to construct the transpose matrix B'
+    const BT: ad.Num[][] = [];
+     for (let i = 0; i < B.length; i++ ) {
+        const row: ad.Num[] = [];
+        for (let j = 0; j < B.length; j++ ) {
+           row.push( B[j][i] );
+        }
+        BT.push( row );
+     }
+
+     // Compute A*B via dot products of rows of A with rows of B'
+     const result: ad.Num[][] = [];
+     for (let i = 0; i < A.length; i++) {
+        const row : ad.Num[] = [];
+        for (let j = 0; j < A.length; j++) {
+           const summands = _.zipWith( A[i], BT[j], mul );
+           row.push( summands.reduce( (x: ad.Num, y) => add(x, y), 0) );
+        }
+        result.push( row );
+     }
+     return result;
+  },
 
   /**
    * Returns the entrywise product of two vectors, `v1` and `v2`

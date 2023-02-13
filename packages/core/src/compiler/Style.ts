@@ -2423,10 +2423,9 @@ const evalBinOpMatrixMatrix = (
     case "BMinus": {
       return ok(ops.mmsub(left, right));
     }
-    // case "Multiply": {
-    //   return ok(ops.mmmul(left, right));
-    // }
-    case "Multiply":
+    case "Multiply": {
+      return ok(ops.mmmul(left, right));
+    }
     case "Divide":
     case "Exp": {
       return err(error);
