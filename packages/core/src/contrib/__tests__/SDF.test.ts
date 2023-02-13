@@ -1,15 +1,15 @@
-import { genCodeSync, input, primaryGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeLine } from "shapes/Line";
-import { makePolygon } from "shapes/Polygon";
-import { makeRectangle } from "shapes/Rectangle";
-import { Context, InputFactory, makeCanvas } from "shapes/Samplers";
-import * as ad from "types/ad";
-import { Shape } from "types/shapes";
-import { FloatV } from "types/value";
-import { black, floatV, ptListV, vectorV } from "utils/Util";
+import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
+import { makeCircle } from "../../shapes/Circle";
+import { makeEllipse } from "../../shapes/Ellipse";
+import { makeLine } from "../../shapes/Line";
+import { makePolygon } from "../../shapes/Polygon";
+import { makeRectangle } from "../../shapes/Rectangle";
+import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";
+import * as ad from "../../types/ad";
+import { Shape } from "../../types/shapes";
+import { FloatV } from "../../types/value";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict, sdEllipse } from "../Functions";
 
 const canvas = makeCanvas(800, 700);

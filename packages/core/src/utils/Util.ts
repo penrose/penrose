@@ -1,20 +1,20 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import { LineProps } from "shapes/Line";
-import { ShapeType } from "shapes/Shapes";
-import * as ad from "types/ad";
-import { A } from "types/ast";
-import { Either, Left, Right } from "types/common";
-import { Properties } from "types/shape";
-import { Fn } from "types/state";
-import { BindingForm, Expr, Path } from "types/style";
+import { LineProps } from "../shapes/Line";
+import { ShapeType } from "../shapes/Shapes";
+import * as ad from "../types/ad";
+import { A } from "../types/ast";
+import { Either, Left, Right } from "../types/common";
+import { Properties } from "../types/shape";
+import { Fn } from "../types/state";
+import { BindingForm, Expr, Path } from "../types/style";
 import {
   Context,
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
   WithContext,
-} from "types/styleSemantics";
+} from "../types/styleSemantics";
 import {
   BoolV,
   Color,
@@ -31,9 +31,36 @@ import {
   Val,
   Value,
   VectorV,
-} from "types/value";
+} from "../types/value";
 
 //#region general
+
+export const cartesianProduct = <Tin, Tout>(
+  t1: Tin[],
+  t2: Tin[],
+  consistent: (t1: Tin, t2: Tin) => boolean,
+  merge: (t1: Tin, t2: Tin) => Tout
+): Tout[] => {
+  const product: Tout[] = [];
+  for (const i in t1) {
+    for (const j in t2) {
+      if (consistent(t1[i], t2[j])) {
+        product.push(merge(t1[i], t2[j]));
+      }
+    }
+  }
+  return product;
+};
+
+/**
+ * Compute the combinations of pairs
+ */
+export const combinations2 = <T>(list: T[]): [T, T][] =>
+  list.reduce<[T, T][]>((acc, elem, index) => {
+    const rest: T[] = list.slice(index + 1);
+    const newElems: [T, T][] = rest.map((elem1: T): [T, T] => [elem, elem1]);
+    return [...acc, ...newElems];
+  }, []);
 
 /**
  * Safe wrapper for any function that might return `undefined`.

@@ -18,10 +18,107 @@ import {
   diagramState,
   fileContentsSelector,
   ProgramFile,
+  RogerState,
   WorkspaceMetadata,
   workspaceMetadataSelector,
 } from "../state/atoms";
 import BlueButton from "./BlueButton";
+
+/**
+ * Fetch url, but try local storage first using a name.
+ * Update local storage if the file is fetched via url
+ *
+ * @param name The short name of the file to fetch
+ * @param url The url to fetch, if not found locally
+ * @returns Promise that resolves to the fetched string or undefined if the fetch failed
+ */
+const fetchResource = async (
+  name: string,
+  { id }: WorkspaceMetadata,
+  url?: string
+): Promise<string | undefined> => {
+  const localFilePrefix = "localfile://" + id + "/";
+  try {
+    // Attempt to retrieve the resource from local storage
+    const localImage = await localforage.getItem<string>(
+      localFilePrefix + name
+    );
+    if (localImage) {
+      return localImage;
+    } else {
+      // Return undefined if there is no url and not hit in local storage
+      if (!url) return undefined;
+
+      // Try to fetch it by url
+      const httpResource = await fetch(url);
+      // Update local storage and return the resource
+      if (httpResource.ok) {
+        const httpBody = httpResource.text();
+        localforage.setItem(localFilePrefix + name, httpBody);
+        return httpBody;
+      } else {
+        console.log(`HTTP status ${httpResource.status} for ${url}`);
+        return undefined;
+      }
+    }
+  } catch (e) {
+    console.log(`Error fetching resource. Local name: ${name}, url: ${url}`);
+    return undefined;
+  }
+};
+
+export const pathResolver = async (
+  relativePath: string,
+  rogerState: RogerState,
+  workspace: WorkspaceMetadata
+): Promise<string | undefined> => {
+  const { location } = workspace;
+
+  // Handle absolute URLs
+  if (/^(http|https):\/\/[^ "]+$/.test(relativePath)) {
+    const url = new URL(relativePath).href;
+    return fetchResource(url, workspace, url);
+  }
+
+  // Handle relative paths
+  switch (location.kind) {
+    case "example": {
+      return fetchResource(
+        relativePath,
+        workspace,
+        new URL(relativePath, location.root).href
+      );
+    }
+    case "roger": {
+      if (rogerState.kind === "connected") {
+        const { ws } = rogerState;
+        return new Promise((resolve /*, reject*/) => {
+          const token = uuid();
+          ws.addEventListener("message", (e) => {
+            const parsed = JSON.parse(e.data);
+            if (parsed.kind === "file_change" && parsed.token === token) {
+              return resolve(parsed.contents);
+            }
+          });
+          ws.send(
+            JSON.stringify({
+              kind: "retrieve_file_from_style",
+              relativePath,
+              stylePath: location.style,
+              token,
+            })
+          );
+        });
+      }
+    }
+    // TODO: publish images in the gist
+    case "gist":
+      return undefined;
+    case "local": {
+      return fetchResource(relativePath, workspace);
+    }
+  }
+};
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer
@@ -176,9 +273,9 @@ export default function DiagramPanel() {
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  const { location, id } = useRecoilValue(workspaceMetadataSelector);
-  const rogerState = useRecoilValue(currentRogerState);
   const { interactive } = useRecoilValue(diagramMetadataSelector);
+  const workspace = useRecoilValue(workspaceMetadataSelector);
+  const rogerState = useRecoilValue(currentRogerState);
 
   const requestRef = useRef<number>();
 
@@ -197,9 +294,11 @@ export default function DiagramPanel() {
                 });
                 step();
               },
-              pathResolver
+              (path) => pathResolver(path, rogerState, workspace)
             )
-          : await RenderStatic(state, pathResolver);
+          : await RenderStatic(state, (path) =>
+              pathResolver(path, rogerState, workspace)
+            );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
@@ -313,96 +412,6 @@ export default function DiagramPanel() {
     },
     [state]
   );
-
-  /**
-   * Fetch url, but try local storage first using a name.
-   * Update local storage if the file is fetched via url
-   *
-   * @param name The short name of the file to fetch
-   * @param url The url to fetch, if not found locally
-   * @returns Promise that resolves to the fetched string or undefined if the fetch failed
-   */
-  const fetchResource = async (
-    name: string,
-    url?: string
-  ): Promise<string | undefined> => {
-    const localFilePrefix = "localfile://" + id + "/";
-    try {
-      // Attempt to retrieve the resource from local storage
-      const localImage = await localforage.getItem<string>(
-        localFilePrefix + name
-      );
-      if (localImage) {
-        return localImage;
-      } else {
-        // Return undefined if there is no url and not hit in local storage
-        if (!url) return undefined;
-
-        // Try to fetch it by url
-        const httpResource = await fetch(url);
-        // Update local storage and return the resource
-        if (httpResource.ok) {
-          const httpBody = httpResource.text();
-          localforage.setItem(localFilePrefix + name, httpBody);
-          return httpBody;
-        } else {
-          console.log(`HTTP status ${httpResource.status} for ${url}`);
-          return undefined;
-        }
-      }
-    } catch (e) {
-      console.log(`Error fetching resource. Local name: ${name}, url: ${url}`);
-      return undefined;
-    }
-  };
-
-  const pathResolver = async (
-    relativePath: string
-  ): Promise<string | undefined> => {
-    // Handle absolute URLs
-    if (/^(http|https):\/\/[^ "]+$/.test(relativePath)) {
-      const url = new URL(relativePath).href;
-      return fetchResource(url, url);
-    }
-
-    // Handle relative paths
-    switch (location.kind) {
-      case "example": {
-        return fetchResource(
-          relativePath,
-          new URL(relativePath, location.root).href
-        );
-      }
-      case "roger": {
-        if (rogerState.kind === "connected") {
-          const { ws } = rogerState;
-          return new Promise((resolve /*, reject*/) => {
-            const token = uuid();
-            ws.addEventListener("message", (e) => {
-              const parsed = JSON.parse(e.data);
-              if (parsed.kind === "file_change" && parsed.token === token) {
-                return resolve(parsed.contents);
-              }
-            });
-            ws.send(
-              JSON.stringify({
-                kind: "retrieve_file_from_style",
-                relativePath,
-                stylePath: location.style,
-                token,
-              })
-            );
-          });
-        }
-      }
-      // TODO: publish images in the gist
-      case "gist":
-        return undefined;
-      case "local": {
-        return fetchResource(relativePath);
-      }
-    }
-  };
 
   return (
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>

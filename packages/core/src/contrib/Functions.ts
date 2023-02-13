@@ -1,6 +1,5 @@
-import { bboxFromShape } from "contrib/Queries";
-import { clamp, inRange, numOf } from "contrib/Utils";
-import { ops } from "engine/Autodiff";
+import _ from "lodash";
+import { ops } from "../engine/Autodiff";
 import {
   absVal,
   acos,
@@ -48,16 +47,15 @@ import {
   tan,
   tanh,
   trunc,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import _ from "lodash";
-import { PathBuilder } from "renderer/PathBuilder";
-import { Ellipse } from "shapes/Ellipse";
-import { Line } from "shapes/Line";
-import { Polyline } from "shapes/Polyline";
-import { Context, uniform } from "shapes/Samplers";
-import { shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { PathBuilder } from "../renderer/PathBuilder";
+import { Ellipse } from "../shapes/Ellipse";
+import { Line } from "../shapes/Line";
+import { Polyline } from "../shapes/Polyline";
+import { Context, uniform } from "../shapes/Samplers";
+import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import {
   ArgVal,
   Color,
@@ -70,8 +68,8 @@ import {
   Value,
   VectorV,
   MatrixV,
-} from "types/value";
-import { getStart, linePts } from "utils/Util";
+} from "../types/value";
+import { getStart, linePts } from "../utils/Util";
 import {
   elasticEnergy,
   isoperimetricRatio,
@@ -80,6 +78,8 @@ import {
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints";
+import { bboxFromShape } from "./Queries";
+import { clamp, inRange, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions

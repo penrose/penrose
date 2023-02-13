@@ -16,13 +16,16 @@ import {
 import { Listing } from "@penrose/components";
 import {
   compileDomain,
+  DeclTypes,
   Env,
+  MatchSetting,
   showError,
   SynthesizerSetting,
 } from "@penrose/core";
 import examples from "@penrose/examples/dist/index";
 import React from "react";
 import { Preset, presets } from "../examples";
+import { wildcardType } from "../util";
 import { MultiselectDropdown } from "./MultiselectDropdown";
 
 const DEFAULT_MUTATION_COUNT = [1, 4];
@@ -61,9 +64,10 @@ const defaultEnv: PartialEnv = {
 export interface SettingsProps {
   generateCallback: (
     setting: SynthesizerSetting,
+    seed: string,
     numPrograms: number,
     dsl: string,
-    sub: string,
+    prompt: string,
     sty: string
   ) => void;
   defaultDomain: string;
@@ -73,6 +77,7 @@ export interface SettingsProps {
 interface SettingState {
   substance: string;
   setting: SynthesizerSetting | undefined;
+  seed: string;
   numPrograms: number;
   domainEnv: PartialEnv;
   domain: string;
@@ -136,6 +141,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         examples["geometry-domain"].textbook_problems["c04p01.substance"],
       setting: undefined,
       numPrograms: 10,
+      seed: "test0", // default seed
       domainEnv: defaultEnv,
       domain: this.props.defaultDomain,
       style: this.props.defaultStyle,
@@ -152,19 +158,19 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         domainEnv: {
           types: {
             tag: "Type",
-            values: [...result.value.types.keys()],
+            values: [wildcardType, ...result.value.types.keys()],
           },
           constructors: {
             tag: "Constructor",
-            values: [...result.value.constructors.keys()],
+            values: [wildcardType, ...result.value.constructors.keys()],
           },
           functions: {
             tag: "Function",
-            values: [...result.value.functions.keys()],
+            values: [wildcardType, ...result.value.functions.keys()],
           },
           predicates: {
             tag: "Predicate",
-            values: [...result.value.predicates.keys()],
+            values: [wildcardType, ...result.value.predicates.keys()],
           },
         },
       });
@@ -209,6 +215,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     if (this.state.setting)
       this.props.generateCallback(
         this.state.setting,
+        this.state.seed,
         this.state.numPrograms,
         this.state.domain,
         this.state.substance,
@@ -224,7 +231,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           mutationCount: newValue as [number, number],
         },
       });
-    console.log(this.state.setting?.mutationCount);
   };
 
   onProgCountChange = (event: any, newValue: number | number[]) => {
@@ -234,11 +240,27 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   onChangeMultiselect = (op: string, stmtType: string) => (
     selected: string[]
   ) => {
-    const typeSelect = (s: string, op: any, arr: any[]) => {
-      if (s === "Type") return { ...op, type: arr };
-      if (s === "Constructor") return { ...op, constructor: arr };
-      if (s === "Function") return { ...op, function: arr };
-      if (s === "Predicate") return { ...op, predicate: arr };
+    const typeSelect = (
+      stmtType: string,
+      op: DeclTypes,
+      arr: string[]
+    ): DeclTypes => {
+      let newMatchSetting: MatchSetting = "*";
+      if (!arr.includes(wildcardType)) {
+        newMatchSetting = arr;
+      }
+      switch (stmtType) {
+        case "Type":
+          return { ...op, type: newMatchSetting };
+        case "Constructor":
+          return { ...op, constructor: newMatchSetting };
+        case "Function":
+          return { ...op, function: newMatchSetting };
+        case "Predicate":
+          return { ...op, predicate: newMatchSetting };
+        default:
+          return op;
+      }
     };
     let newSetting = this.state.setting;
     if (newSetting) {
@@ -279,7 +301,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           for (const valueIdx in Object.entries(values)) {
             const [k, v]: [string, any] = Object.entries(values)[valueIdx];
             if (stmtType.toLowerCase() === k) {
-              defaults = v;
+              defaults = v === "*" ? wildcardType : v;
             }
           }
         }
@@ -300,7 +322,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
                 stmtType={stmtType.tag}
                 mutationType={op}
                 key={`${op}-${stmtType.tag}`}
-                // name={`${op}-${stmtType}`}
                 onChange={this.onChangeMultiselect(op, stmtType.tag)}
                 defaults={this.getDefaults(op, stmtType.tag)}
                 options={stmtType.values}
@@ -321,6 +342,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
   handlePreset = (key: string) => {
     this.setState({ ...this.state, ...presets[key] });
+    this.updateDomainEnv(presets[key].domain);
   };
 
   componentDidMount = () => {
@@ -335,7 +357,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <Toolbar />
         <SettingContainer>
           <SettingDiv>
-            <SettingLabel>Example preset:</SettingLabel>
+            <SettingLabel>Diagrams to generate:</SettingLabel>
             <Select
               key="preset"
               labelId="preset-select-label"
@@ -402,6 +424,15 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               />
             </AccordionBodyStyled>
           </Accordion>
+          <SettingDiv>
+            <TextField
+              id="standard-basic"
+              label="Mutator seed"
+              variant="standard"
+              value={this.state.seed}
+              onChange={({ target }) => this.setState({ seed: target.value })}
+            />
+          </SettingDiv>
           <SettingDiv>
             <SettingLabel>Diagrams to generate:</SettingLabel>
             <Slider

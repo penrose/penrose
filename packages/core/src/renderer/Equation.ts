@@ -1,5 +1,5 @@
-import { StrV } from "types/value";
-import { getAdValueAsString } from "utils/Util";
+import { StrV } from "../types/value";
+import { getAdValueAsString } from "../utils/Util";
 import {
   attrAutoFillSvg,
   attrFill,
