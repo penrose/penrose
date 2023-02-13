@@ -50,17 +50,17 @@ const getPosition = (
   return { x: 0, y: 0 };
 };
 
-const makeNameShapeMap = (shapes: Shape[]): { [k: string]: Shape } => {
-  return Object.fromEntries(
-    shapes.map((shape) => {
-      const shapeNameVal = shape.properties["name"];
-      if (shapeNameVal.tag !== "StrV") {
-        throw Error("Shape name is not a string");
-      }
-      const shapeName = shapeNameVal.contents;
-      return [shapeName, shape];
-    })
-  );
+const makeNameShapeMap = (shapes: Shape[]): Map<string, Shape> => {
+  const m = new Map<string, Shape>();
+  for (const shape of shapes) {
+    const shapeNameVal = shape.properties["name"];
+    if (shapeNameVal.tag !== "StrV") {
+      throw Error("Shape name is not a string");
+    }
+    const shapeName = shapeNameVal.contents;
+    m.set(shapeName, shape);
+  }
+  return m;
 };
 
 /**
@@ -154,7 +154,7 @@ const RenderGroup = async (
     variation: string;
     pathResolver: PathResolver;
   },
-  nameShapeMap: { [k: string]: Shape },
+  nameShapeMap: Map<string, Shape>,
   visited: Set<string>,
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
@@ -175,7 +175,10 @@ const RenderGroup = async (
       elem.appendChild(childSvg);
     }
   }
-  const shape = nameShapeMap[name];
+  const shape = nameShapeMap.get(name);
+  if (!shape) {
+    throw new Error("Cannot find shape in nameShapeMap");
+  }
   attrAutoFillSvg(shape, elem, [...attrTitle(shape, elem), "shapes"]);
   return elem;
 };
@@ -189,7 +192,7 @@ const RenderGroupGraphNode = async (
     variation: string;
     pathResolver: PathResolver;
   },
-  nameShapeMap: { [k: string]: Shape },
+  nameShapeMap: Map<string, Shape>,
   visited: Set<string>,
   interactiveProp?: InteractiveProps
 ): Promise<SVGElement | undefined> => {
@@ -197,7 +200,10 @@ const RenderGroupGraphNode = async (
     return undefined;
   }
   visited.add(name);
-  const shape = nameShapeMap[name];
+  const shape = nameShapeMap.get(name);
+  if (!shape) {
+    throw Error("Cannot find shape name from nameShapeMap");
+  }
   if (shape.shapeType === "Group") {
     const outSvg = await RenderGroup(
       name,
@@ -282,7 +288,7 @@ const RenderGroupGraph = async (
     variation: string;
     pathResolver: PathResolver;
   },
-  nameShapeMap: { [k: string]: Shape },
+  nameShapeMap: Map<string, Shape>,
   interactiveProp?: InteractiveProps
 ) => {
   const visited: Set<string> = new Set();

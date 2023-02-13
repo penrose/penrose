@@ -106,6 +106,20 @@ export default class Graph<I, L = undefined, E = undefined> {
     return this.get(i).s.map(({ i: j, e }) => ({ i, j, e }));
   }
 
+  /**
+   * throws if the graph does not contain node `i`
+   */
+  children(i: I): I[] {
+    return this.get(i).s.map(({ i }) => i);
+  }
+
+  /**
+   * throws if the graph does not contain node `i`
+   */
+  parents(i: I): I[] {
+    return this.get(i).p.map(({ i }) => i);
+  }
+
   /** @returns number of nodes in the graph */
   nodeCount(): number {
     return this.g.size;
@@ -151,30 +165,6 @@ export default class Graph<I, L = undefined, E = undefined> {
     const n = this.g.size;
     if (m !== n) throw Error(`could only sort ${m} nodes out of ${n} total`);
     return xs.reverse();
-  }
-
-  /**
-   * throws if the graph does not contain node `i`
-   */
-  children(i: I): I[] {
-    const vert = this.g.get(i);
-    if (vert) {
-      return vert.s.map(({ i }) => i);
-    } else {
-      throw Error("Node does not exist");
-    }
-  }
-
-  /**
-   * throws if the graph does not contain node `i`
-   */
-  parents(i: I): I[] {
-    const vert = this.g.get(i);
-    if (vert) {
-      return vert.p.map(({ i }) => i);
-    } else {
-      throw Error("Node does not exist");
-    }
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Shape, ShapeAD } from "../types/shape";
+import { ShapeAD } from "../types/shape";
 import Graph from "./Graph";
 
 export type GroupGraph = Graph<
@@ -6,11 +6,9 @@ export type GroupGraph = Graph<
   number // shape layer
 >;
 
-export const makeGroupGraph = <T extends Shape | ShapeAD>(
-  shapes: T[]
-): GroupGraph => {
+export const makeGroupGraph = (shapes: ShapeAD[]): GroupGraph => {
   const graph: GroupGraph = new Graph();
-  const nameShapeMap: { [k: string]: T } = {};
+  const nameShapeMap = new Map<string, ShapeAD>();
   // populate the nodes
   for (let i = 0; i < shapes.length; i++) {
     const shape = shapes[i];
@@ -22,10 +20,10 @@ export const makeGroupGraph = <T extends Shape | ShapeAD>(
     const shapeName = shapeNameVal.contents;
 
     graph.setNode(shapeName, layer);
-    nameShapeMap[shapeName] = shape;
+    nameShapeMap.set(shapeName, shape);
   }
   // then populate the edges
-  for (const [name, shape] of Object.entries(nameShapeMap)) {
+  for (const [name, shape] of nameShapeMap.entries()) {
     if (shape.shapeType === "Group") {
       const subGPIsVal = shape.properties["shapes"];
       if (subGPIsVal.tag !== "ShapeListV") {
