@@ -644,6 +644,48 @@ export const ops = {
   },
 
   /**
+   * Return the elementwise product of matrices `A1, A2`.
+   */
+  ewmmmul: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+       let row = [];
+       for (let j = 0; j < A1.length; j++) {
+          row.push( mul( A1[i][j], A2[i][j] ));
+       }
+       result.push( row );
+    }
+    return result;
+  },
+
+  /**
+   * Return the elementwise quotient of matrices `A1, A2`.
+   */
+  ewmmdiv: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+       let row = [];
+       for (let j = 0; j < A1.length; j++) {
+          row.push( div( A1[i][j], A2[i][j] ));
+       }
+       result.push( row );
+    }
+    return result;
+  },
+
+  /**
    * Return the difference of vectors `v1` and `v2`.
    */
   vsub: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
@@ -652,6 +694,30 @@ export const ops = {
     }
 
     const res = _.zipWith(v1, v2, sub);
+    return res;
+  },
+
+  /**
+   * Return the elementwise product of vectors `v1` and `v2`.
+   */
+  ewvvmul: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = _.zipWith(v1, v2, mul);
+    return res;
+  },
+
+  /**
+   * Return the elementwise quotient of vectors `v1` and `v2`.
+   */
+  ewvvdiv: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = _.zipWith(v1, v2, div);
     return res;
   },
 

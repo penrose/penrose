@@ -32,6 +32,8 @@ export const basicSymbols: moo.Rules = {
     match: /\/\*(?:[\s\S]*?)\*\//,
     lineBreaks: true,
   },
+  ewmultiply: ".*",
+  ewdivide: "./",
   dot: ".",
   lbracket: "[",
   rbracket: "]",

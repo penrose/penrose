@@ -7,4 +7,8 @@ function smmulr( Matrix A, Scalar c ) -> Matrix
 function msdiv( Matrix A, Scalar c ) -> Matrix
 function mvmul( Matrix A, Vector v ) -> Vector
 function outer( Vector u, Vector v ) -> Matrix
+function ewvvmul( Vector u, Vector v ) -> Vector
+function ewvvdiv( Vector u, Vector v ) -> Vector
+function ewmmmul( Matrix A, Matrix B ) -> Matrix
+function ewmmdiv( Matrix A, Matrix B ) -> Matrix
 

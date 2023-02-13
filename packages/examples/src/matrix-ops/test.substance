@@ -1,8 +1,6 @@
-Vector u, v
-Matrix A
+Vector u, v, w
 
-A := outer( u, v )
+w := ewvvdiv(u,v)
 
 AutoLabel All
-Label v $v$
 

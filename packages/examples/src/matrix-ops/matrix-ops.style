@@ -161,14 +161,14 @@ forall Matrix M {
    }
 
    shape M.r1Label = Equation {
-      center: (global.scale + 7) * M.r1
+      center: global.scale*M.r1 + unit(M.r1)*7
       string: M.label + "_1"
       fillColor: M.row1.strokeColor
       fontSize: global.labelSize
    }
 
    shape M.r2Label = Equation {
-      center: (global.scale + 7) * M.r2
+      center: global.scale*M.r2 + unit(M.r2)*7
       string: M.label + "_2"
       fillColor: M.row2.strokeColor
       fontSize: global.labelSize
@@ -190,7 +190,7 @@ forall Vector v {
    }
 
    shape v.labelText = Equation {
-      center: (global.scale + 7)*v.vec
+      center: global.scale*v.vec + unit(v.vec)*7
       string: v.label
       fillColor: v.icon.strokeColor
       fontSize: global.labelSize
@@ -244,39 +244,83 @@ where A := outer( u, v )
    override A.r2 = ( A.mat[1][0], A.mat[1][1] )
 }
 
+forall Vector u; Vector v; Vector w
+where w := ewvvmul(u,v)
+{
+   override w.vec = u.vec .* v.vec
+}
+
+forall Vector u; Vector v; Vector w
+where w := ewvvdiv(u,v)
+{
+   override w.vec = u.vec ./ v.vec
+}
+
+forall Matrix A; Matrix B; Matrix C
+where C := ewmmmul(A,B)
+{
+   override C.mat = A.mat .* B.mat
+   override C.r1 = ( C.mat[0][0], C.mat[0][1] )
+   override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+}
+
+forall Matrix A; Matrix B; Matrix C
+where C := ewmmdiv(A,B)
+{
+   override C.mat = A.mat ./ B.mat
+   override C.r1 = ( C.mat[0][0], C.mat[0][1] )
+   override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+}
+
 ---- set constants (for debugging)
 
 forall Vector `u` {
-   override `u`.vec = (1/2,-1)
+   override `u`.vec = (4,2)
 }
 
 forall Vector `v` {
-   override `v`.vec = (-2,1)
+   override `v`.vec = (2,1)
    override `v`.icon.strokeColor = #0000aaff
 }
 
-crossTest
-{
-   vec3 p = (1,0,3)
-   vec3 q = (3,2,1)
-   vec2 r = cross(p,q)/2
-
-   shape debugCross0 = Circle {
-      r: global.scale*0.125
-      center: global.scale*(r[0],0)
-      fillColor: #ff000099
-   }
-
-   shape debugCross1 = Circle {
-      r: global.scale*0.125
-      center: global.scale*(r[1],0)
-      fillColor: #00aa0099
-   }
-
-   shape debugCross2 = Circle {
-      r: global.scale*0.125
-      center: global.scale*(r[2],0)
-      fillColor: #0000ff99
-   }
+forall Matrix `A` {
+   override `A`.mat = ( (-1,1), (0,-1) )
+   override `A`.r1 = ( `A`.mat[0][0], `A`.mat[0][1] )
+   override `A`.r2 = ( `A`.mat[1][0], `A`.mat[1][1] )
+   override `A`.row1.strokeColor = #0000aaff
+   override `A`.row2.strokeColor = #0000aaff
 }
+
+forall Matrix `B` {
+   override `B`.mat = ( (4,2), (1,4) )
+   override `B`.r1 = ( `B`.mat[0][0], `B`.mat[0][1] )
+   override `B`.r2 = ( `B`.mat[1][0], `B`.mat[1][1] )
+   override `B`.row1.strokeColor = #00aa00ff
+   override `B`.row2.strokeColor = #00aa00ff
+}
+
+-- crossTest
+-- {
+--    vec3 p = (1,0,3)
+--    vec3 q = (3,2,1)
+--    vec2 r = cross(p,q)/2
+-- 
+--    shape debugCross0 = Circle {
+--       r: global.scale*0.125
+--       center: global.scale*(r[0],0)
+--       fillColor: #ff000099
+--    }
+-- 
+--    shape debugCross1 = Circle {
+--       r: global.scale*0.125
+--       center: global.scale*(r[1],0)
+--       fillColor: #00aa0099
+--    }
+-- 
+--    shape debugCross2 = Circle {
+--       r: global.scale*0.125
+--       center: global.scale*(r[2],0)
+--       fillColor: #0000ff99
+--    }
+-- }
 

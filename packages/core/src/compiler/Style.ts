@@ -2307,25 +2307,30 @@ const evalVals = (
   );
 
 const evalBinOpScalars = (
+  error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
   right: ad.Num
-): ad.Num => {
+): Result<ad.Num, StyleError> => {
   switch (op) {
     case "BPlus": {
-      return add(left, right);
+      return ok(add(left, right));
     }
     case "BMinus": {
-      return sub(left, right);
+      return ok(sub(left, right));
     }
     case "Multiply": {
-      return mul(left, right);
+      return ok(mul(left, right));
     }
     case "Divide": {
-      return div(left, right);
+      return ok(div(left, right));
     }
     case "Exp": {
-      return pow(left, right);
+      return ok(pow(left, right));
+    }
+    case "EWMultiply":
+    case "EWDivide": {
+      return err(error);
     }
   }
 };
@@ -2342,6 +2347,12 @@ const evalBinOpVectors = (
     }
     case "BMinus": {
       return ok(ops.vsub(left, right));
+    }
+    case "EWMultiply": {
+      return ok(ops.ewvvmul(left, right));
+    }
+    case "EWDivide": {
+      return ok(ops.ewvvdiv(left, right));
     }
     case "Multiply":
     case "Divide":
@@ -2364,6 +2375,8 @@ const evalBinOpScalarVector = (
     case "BPlus":
     case "BMinus":
     case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2385,6 +2398,8 @@ const evalBinOpVectorScalar = (
     }
     case "BPlus":
     case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2404,6 +2419,8 @@ const evalBinOpScalarMatrix = (
     case "BPlus":
     case "BMinus":
     case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2425,6 +2442,8 @@ const evalBinOpMatrixScalar = (
     }
     case "BPlus":
     case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2444,6 +2463,8 @@ const evalBinOpMatrixVector = (
     case "Divide":
     case "BPlus":
     case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2463,6 +2484,8 @@ const evalBinOpVectorMatrix = (
     case "Divide":
     case "BPlus":
     case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2485,6 +2508,12 @@ const evalBinOpMatrixMatrix = (
     case "Multiply": {
       return ok(ops.mmmul(left, right));
     }
+    case "EWMultiply": {
+      return ok(ops.ewmmmul(left, right));
+    }
+    case "EWDivide": {
+      return ok(ops.ewmmdiv(left, right));
+    }
     case "Divide":
     case "Exp": {
       return err(error);
@@ -2505,6 +2534,8 @@ const evalBinOpStrings = (
     case "BMinus":
     case "Multiply":
     case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2523,7 +2554,7 @@ const evalBinOp = (
     right: right.tag,
   };
   if (left.tag === "FloatV" && right.tag === "FloatV") {
-    return ok(floatV(evalBinOpScalars(expr.op, left.contents, right.contents)));
+    return evalBinOpScalars(error, expr.op, left.contents, right.contents).map(floatV);
   } else if (left.tag === "VectorV" && right.tag === "VectorV") {
     return evalBinOpVectors(error, expr.op, left.contents, right.contents).map(
       vectorV
