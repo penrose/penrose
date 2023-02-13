@@ -328,6 +328,8 @@ where C := mmadd(A,B)
    override C.mat = A.mat + B.mat
    override C.r1 = ( C.mat[0][0], C.mat[0][1] )
    override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+
+   override C.label = "(" + A.label + "+" + B.label + ")"
 }
 
 forall Matrix A; Matrix B; Matrix C
@@ -336,6 +338,8 @@ where C := mmsub(A,B)
    override C.mat = A.mat - B.mat
    override C.r1 = ( C.mat[0][0], C.mat[0][1] )
    override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+
+   override C.label = "(" + A.label + "-" + B.label + ")"
 }
 
 forall Matrix A; Matrix B; Matrix C
@@ -344,6 +348,8 @@ where C := mmmul(A,B)
    override C.mat = A.mat * B.mat
    override C.r1 = ( C.mat[0][0], C.mat[0][1] )
    override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+
+   override C.label = "(" + A.label + B.label + ")"
 }
 
 forall Matrix A; Matrix B; Matrix C
@@ -352,6 +358,8 @@ where C := ewmmmul(A,B)
    override C.mat = A.mat .* B.mat
    override C.r1 = ( C.mat[0][0], C.mat[0][1] )
    override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+
+   override C.label = "(" + A.label + "\odot " + B.label + ")"
 }
 
 forall Matrix A; Matrix B; Matrix C
@@ -360,6 +368,8 @@ where C := ewmmdiv(A,B)
    override C.mat = A.mat ./ B.mat
    override C.r1 = ( C.mat[0][0], C.mat[0][1] )
    override C.r2 = ( C.mat[1][0], C.mat[1][1] )
+
+   override C.label = "(" + A.label + "\oslash " + B.label + ")"
 }
 
 ---- set constants (for debugging)

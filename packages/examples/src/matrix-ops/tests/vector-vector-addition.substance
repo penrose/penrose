@@ -1,0 +1,7 @@
+AutoLabel All
+Vector u, v
+
+-- vector-vector addition
+Vector a := vadd(u,v)
+Label a $u+v$
+
