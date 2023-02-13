@@ -613,11 +613,11 @@ export const ops = {
 
     const result = [];
     for (let i = 0; i < A1.length; i++) {
-       let row = [];
-       for (let j = 0; j < A1.length; j++) {
-          row.push( add( A1[i][j], A2[i][j] ));
-       }
-       result.push( row );
+      let row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(add(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
     }
     return result;
   },
@@ -634,11 +634,11 @@ export const ops = {
 
     const result = [];
     for (let i = 0; i < A1.length; i++) {
-       let row = [];
-       for (let j = 0; j < A1.length; j++) {
-          row.push( sub( A1[i][j], A2[i][j] ));
-       }
-       result.push( row );
+      let row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(sub(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
     }
     return result;
   },
@@ -655,11 +655,11 @@ export const ops = {
 
     const result = [];
     for (let i = 0; i < A1.length; i++) {
-       let row = [];
-       for (let j = 0; j < A1.length; j++) {
-          row.push( mul( A1[i][j], A2[i][j] ));
-       }
-       result.push( row );
+      let row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(mul(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
     }
     return result;
   },
@@ -676,11 +676,11 @@ export const ops = {
 
     const result = [];
     for (let i = 0; i < A1.length; i++) {
-       let row = [];
-       for (let j = 0; j < A1.length; j++) {
-          row.push( div( A1[i][j], A2[i][j] ));
-       }
-       result.push( row );
+      let row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(div(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
     }
     return result;
   },
@@ -749,9 +749,9 @@ export const ops = {
    * Return the scalar `c` times the Matrix `A`.
    */
   smmul: (c: ad.Num, A: ad.Num[][]): ad.Num[][] => {
-     return A.map( function(row) {
-        return row.map( (e) => mul(c, e) );
-     } );
+    return A.map(function (row) {
+      return row.map((e) => mul(c, e));
+    });
   },
 
   /**
@@ -764,12 +764,12 @@ export const ops = {
       // since we support only square (NxN) matrices
     }
 
-     const result: ad.Num[] = [];
-     for (let i = 0; i < v.length; i++) {
-        const summands = _.zipWith( A[i], v, mul );
-        result.push( summands.reduce( (x: ad.Num, y) => add(x, y), 0) );
-     }
-     return result;
+    const result: ad.Num[] = [];
+    for (let i = 0; i < v.length; i++) {
+      const summands = _.zipWith(A[i], v, mul);
+      result.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+    }
+    return result;
   },
 
   /**
@@ -782,24 +782,24 @@ export const ops = {
       // since we support only square (NxN) matrices
     }
 
-     // The easiest way to do left multiplication is to first
-     // transpose the matrix A, since (A^T v)^T = v^T A.
+    // The easiest way to do left multiplication is to first
+    // transpose the matrix A, since (A^T v)^T = v^T A.
     const AT: ad.Num[][] = [];
-     for (let i = 0; i < A.length; i++ ) {
-        const row: ad.Num[] = [];
-        for (let j = 0; j < A.length; j++ ) {
-           row.push( A[j][i] );
-        }
-        AT.push( row );
-     }
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        row.push(A[j][i]);
+      }
+      AT.push(row);
+    }
 
-     // Now we can just do an ordinary matrix-vector multiply with AT
-     const result: ad.Num[] = [];
-     for (let i = 0; i < v.length; i++) {
-        const summands = _.zipWith( AT[i], v, mul );
-        result.push( summands.reduce( (x: ad.Num, y) => add(x, y), 0) );
-     }
-     return result;
+    // Now we can just do an ordinary matrix-vector multiply with AT
+    const result: ad.Num[] = [];
+    for (let i = 0; i < v.length; i++) {
+      const summands = _.zipWith(AT[i], v, mul);
+      result.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+    }
+    return result;
   },
 
   /**
@@ -812,28 +812,28 @@ export const ops = {
       // since we support only square (NxN) matrices
     }
 
-     // To implement via reduction, need to turn the columns of B into rows,
-     // i.e., need to construct the transpose matrix B'
+    // To implement via reduction, need to turn the columns of B into rows,
+    // i.e., need to construct the transpose matrix B'
     const BT: ad.Num[][] = [];
-     for (let i = 0; i < B.length; i++ ) {
-        const row: ad.Num[] = [];
-        for (let j = 0; j < B.length; j++ ) {
-           row.push( B[j][i] );
-        }
-        BT.push( row );
-     }
+    for (let i = 0; i < B.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < B.length; j++) {
+        row.push(B[j][i]);
+      }
+      BT.push(row);
+    }
 
-     // Compute A*B via dot products of rows of A with rows of B'
-     const result: ad.Num[][] = [];
-     for (let i = 0; i < A.length; i++) {
-        const row : ad.Num[] = [];
-        for (let j = 0; j < A.length; j++) {
-           const summands = _.zipWith( A[i], BT[j], mul );
-           row.push( summands.reduce( (x: ad.Num, y) => add(x, y), 0) );
-        }
-        result.push( row );
-     }
-     return result;
+    // Compute A*B via dot products of rows of A with rows of B'
+    const result: ad.Num[][] = [];
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        const summands = _.zipWith(A[i], BT[j], mul);
+        row.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+      }
+      result.push(row);
+    }
+    return result;
   },
 
   /**
@@ -877,14 +877,14 @@ export const ops = {
    */
   mtrans: (A: ad.Num[][]): ad.Num[][] => {
     const AT: ad.Num[][] = [];
-     for (let i = 0; i < A.length; i++ ) {
-        const row: ad.Num[] = [];
-        for (let j = 0; j < A.length; j++ ) {
-           row.push( A[j][i] );
-        }
-        AT.push( row );
-     }
-     return AT;
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        row.push(A[j][i]);
+      }
+      AT.push(row);
+    }
+    return AT;
   },
 
   /**
@@ -898,9 +898,9 @@ export const ops = {
    * Return the Matrix `A` divided by scalar `c`.
    */
   msdiv: (A: ad.Num[][], c: ad.Num): ad.Num[][] => {
-     return A.map( function(row) {
-        return row.map( (e) => div(e, c) );
-     } );
+    return A.map(function (row) {
+      return row.map((e) => div(e, c));
+    });
   },
 
   /**
@@ -1044,10 +1044,10 @@ export const ops = {
       throw Error("vectors must have same length");
     }
 
-    const result : ad.Num[][] = [];
+    const result: ad.Num[][] = [];
     for (let i = 0; i < u.length; i++) {
-       const row = v.map((e) => mul(u[i],e));
-       result.push( row );
+      const row = v.map((e) => mul(u[i], e));
+      result.push(row);
     }
 
     return result;

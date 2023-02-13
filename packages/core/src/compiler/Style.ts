@@ -2538,7 +2538,9 @@ const evalBinOp = (
     right: right.tag,
   };
   if (left.tag === "FloatV" && right.tag === "FloatV") {
-    return evalBinOpScalars(error, expr.op, left.contents, right.contents).map(floatV);
+    return evalBinOpScalars(error, expr.op, left.contents, right.contents).map(
+      floatV
+    );
   } else if (left.tag === "VectorV" && right.tag === "VectorV") {
     return evalBinOpVectors(error, expr.op, left.contents, right.contents).map(
       vectorV
