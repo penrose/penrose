@@ -427,28 +427,3 @@ forall Matrix `Y` {
    override `Y`.row2.strokeColor = #4400ccff
 }
 
--- crossTest
--- {
---    vec3 p = (1,0,3)
---    vec3 q = (3,2,1)
---    vec2 r = cross(p,q)/2
--- 
---    shape debugCross0 = Circle {
---       r: global.scale*0.125
---       center: global.scale*(r[0],0)
---       fillColor: #ff000099
---    }
--- 
---    shape debugCross1 = Circle {
---       r: global.scale*0.125
---       center: global.scale*(r[1],0)
---       fillColor: #00aa0099
---    }
--- 
---    shape debugCross2 = Circle {
---       r: global.scale*0.125
---       center: global.scale*(r[2],0)
---       fillColor: #0000ff99
---    }
--- }
-
