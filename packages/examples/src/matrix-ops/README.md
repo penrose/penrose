@@ -15,6 +15,7 @@ Additions to Style language:
 
 Methods added to `Autodiff.ts`:
 
+* `vouter` — vector-vector outer product
 * `smmul` — scalar-matrix multiplication
 * `msmul` — matrix-scalar division
 * `vmmul` — left vector-matrix multiplication
@@ -23,4 +24,9 @@ Methods added to `Autodiff.ts`:
 * `mmadd` — matrix-matrix addition
 * `mmsub` — matrix-matrix subtraction
 * `mtrans` — matrix transpose
+
+Functions added to `Functions.ts`:
+
+* `cross` — 3D cross product (exposes existing `cross3` autodiff method)
+* `outerProduct` — outer product of two vectors of equal length
 

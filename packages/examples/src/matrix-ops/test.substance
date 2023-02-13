@@ -1,9 +1,7 @@
-Scalar c
 Vector u, v
-Matrix A, B
+Matrix A
 
-B := smmulr( A, c )
-v := mvmul( B, u )
+A := outer( u, v )
 
 AutoLabel All
 Label v $v$

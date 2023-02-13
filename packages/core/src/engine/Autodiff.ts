@@ -969,6 +969,23 @@ export const ops = {
       sub(mul(u[0], v[1]), mul(u[1], v[0])),
     ];
   },
+
+  /**
+   * Return 3D cross product of 3D vectors
+   */
+  vouter: (u: ad.Num[], v: ad.Num[]): ad.Num[][] => {
+    if (u.length !== v.length) {
+      throw Error("vectors must have same length");
+    }
+
+    const result : ad.Num[][] = [];
+    for (let i = 0; i < u.length; i++) {
+       const row = v.map((e) => mul(u[i],e));
+       result.push( row );
+    }
+
+    return result;
+  },
 };
 
 export const fns = {
