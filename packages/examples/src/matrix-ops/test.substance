@@ -4,5 +4,5 @@ Vector u, v
 v := times( A, u )
 
 AutoLabel All
-Label v $v = Au$
+Label v $v$
 

@@ -4,19 +4,20 @@ canvas {
 }
 
 global {
-   scalar scale = 40.0
+   scalar scale = 18.0
+   string labelSize = "7px"
 
    shape box = Rectangle {
       center: (0,0)
-      width: .75*canvas.width
-      height: .75*canvas.width
+      width: scale*10
+      height: scale*10
       fillColor: #1b1f8a11
       strokeWidth: 2.0
    }
 
    shape xAxis = Line {
-      start: (-canvas.width/3,0)
-      end: (canvas.width/3,0)
+      start: (-scale*5.,0)
+      end: (scale*5.,0)
       strokeColor: #888888ff
       strokeWidth: 0.65
       endArrowhead: "straight"
@@ -24,52 +25,153 @@ global {
    }
 
    shape yAxis = Line {
-      start: (0,-canvas.width/3)
-      end: (0,canvas.width/3)
+      start: (0,-scale*5.)
+      end: (0,scale*5.)
       strokeColor: #888888ff
       strokeWidth: 0.65
       endArrowhead: "straight"
       endArrowheadSize: 0.5
    }
+
+   scalar gridStrokeWidth = 0.35
+   color gridStrokeColor = #88888844
+
+   shape gridX1 = Line {
+      start: scale*(1.,-5.)
+      end: scale*(1.,5.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridX2 = Line {
+      start: scale*(2.,-5.)
+      end: scale*(2.,5.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridX3 = Line {
+      start: scale*(3.,-5.)
+      end: scale*(3.,5.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridX4 = Line {
+      start: scale*(4.,-5.)
+      end: scale*(4.,5.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridXn4 = Line {
+      start: scale*(-4.,-5.)
+      end: scale*(-4.,5.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridXn3 = Line {
+      start: scale*(-3.,-5.)
+      end: scale*(-3.,5.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridXn2 = Line {
+      start: scale*(-2.,-5.)
+      end: scale*(-2.,5.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridXn1 = Line {
+      start: scale*(-1.,-5.)
+      end: scale*(-1.,5.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+
+   shape gridY1 = Line {
+      start: scale*(-5.,1.)
+      end: scale*(5.,1.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridY2 = Line {
+      start: scale*(-5.,2.)
+      end: scale*(5.,2.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridY3 = Line {
+      start: scale*(-5.,3.)
+      end: scale*(5.,3.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridY4 = Line {
+      start: scale*(-5.,4.)
+      end: scale*(5.,4.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridYn4 = Line {
+      start: scale*(-5.,-4.)
+      end: scale*(5.,-4.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridYn3 = Line {
+      start: scale*(-5.,-3.)
+      end: scale*(5.,-3.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridYn2 = Line {
+      start: scale*(-5.,-2.)
+      end: scale*(5.,-2.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
+   shape gridYn1 = Line {
+      start: scale*(-5.,-1.)
+      end: scale*(5.,-1.)
+      strokeColor: gridStrokeColor
+      strokeWidth: gridStrokeWidth
+   }
 }
 
-forall Matrix A {
+forall Matrix M {
 
-   vec2 r1 = (0,-1)
-   vec2 r2 = (1,0)
+   vec2 M.r1 = (1,0)
+   vec2 M.r2 = (0,1)
 
-   mat2x2 A.mat = ( r1, r2 )
+   mat2x2 M.mat = ( M.r1, M.r2 )
 
-   shape A.row1 = Line {
+   shape M.row1 = Line {
       start: (0,0)
-      end: global.scale * r1
+      end: global.scale * M.r1
       strokeColor: #ff0000ff
-      strokeWidth: 2.0
+      strokeWidth: 1.0
       endArrowhead: "straight"
       endArrowheadSize: 0.5
    }
 
-   shape A.row2 = Line {
+   shape M.row2 = Line {
       start: (0,0)
-      end: global.scale * r2
+      end: global.scale * M.r2
       strokeColor: #ff0000ff
-      strokeWidth: 2.0
+      strokeWidth: 1.0
       endArrowhead: "straight"
       endArrowheadSize: 0.5
    }
 
-   shape A.r1Label = Equation {
-      center: (global.scale + 9) * r1
-      string: A.label + "_1"
-      fillColor: A.row1.strokeColor
-      fontSize: "9px"
+   shape M.r1Label = Equation {
+      center: (global.scale + 7) * M.r1
+      string: M.label + "_1"
+      fillColor: M.row1.strokeColor
+      fontSize: global.labelSize
    }
 
-   shape A.r2Label = Equation {
-      center: (global.scale + 9) * r2
-      string: A.label + "_2"
-      fillColor: A.row2.strokeColor
-      fontSize: "9px"
+   shape M.r2Label = Equation {
+      center: (global.scale + 7) * M.r2
+      string: M.label + "_2"
+      fillColor: M.row2.strokeColor
+      fontSize: global.labelSize
    }
 }
 
@@ -88,18 +190,29 @@ forall Vector v {
    }
 
    shape v.labelText = Equation {
-      center: (global.scale + 9)*v.vec
+      center: (global.scale + 7)*v.vec
       string: v.label
       fillColor: v.icon.strokeColor
-      fontSize: "9px"
+      fontSize: global.labelSize
    }
 }
 
 forall Matrix A; Vector u; Vector v
 where v := times( A, u )
 {
-   v.vec = A.mat*u.vec
+   v.vec = A.mat * u.vec
 
    v.icon.strokeColor = #0000aaff
 }
+
+forall Matrix `A` {
+   override `A`.r1 = (2,2)
+   override `A`.r2 = (-1,1)
+}
+
+forall Vector `u` {
+   override `u`.vec = (1,0)
+}
+
+
 
