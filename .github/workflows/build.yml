@@ -168,7 +168,7 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            # ± [Registry diff](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.CI_COMMIT_SHA }}
+            # ± [Registry diff](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.CI_COMMIT_SHA }})
 
             ${{ env.REGISTRY_DIFF }}
 
