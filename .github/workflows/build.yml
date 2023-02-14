@@ -110,6 +110,7 @@ jobs:
             cp "$filename" "diagrams/$name.svg"
           done
       - name: Commit diagrams and generate diff summary
+        id: commit
         working-directory: diagrams/
         run: |
           set -x
@@ -119,6 +120,7 @@ jobs:
 
           git add .
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
+          echo "CI_COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
           echo '```' > diff.md
           git --no-pager diff --name-status ci/refs/heads/main HEAD >> diff.md
@@ -166,7 +168,7 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            # ± [Registry diff](${{ github.server_url }}/${{ github.repository }}/compare/ci/refs/heads/main..ci/${{ github.ref }})
+            # ± [Registry diff](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.CI_COMMIT_SHA }})
 
             ${{ env.REGISTRY_DIFF }}
 
