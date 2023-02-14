@@ -1657,7 +1657,7 @@ export const compDict = {
       for (let i = 0; i < s.points.contents.length - 1; i++) {
         const start = s.points.contents[i];
         const end = s.points.contents[i + 1];
-        closestPoints[i] = closestPointPolyline(p, start, end);
+        closestPoints[i] = closestPointLine(p, start, end);
         dist[i] = sqrt(
           add(
             squared(sub(p[0], closestPoints[i][0])),
@@ -1681,7 +1681,7 @@ export const compDict = {
       for (; i < s.points.contents.length - 1; i++) {
         const start = s.points.contents[i];
         const end = s.points.contents[i + 1];
-        closestPoints[i] = closestPointPolyline(p, start, end);
+        closestPoints[i] = closestPointLine(p, start, end);
         dist[i] = sqrt(
           add(
             squared(sub(p[0], closestPoints[i][0])),
@@ -1691,7 +1691,7 @@ export const compDict = {
       }
       const start = s.points.contents[i];
       const end = s.points.contents[0];
-      closestPoints[i] = closestPointPolyline(p, start, end);
+      closestPoints[i] = closestPointLine(p, start, end);
       dist[i] = sqrt(
         add(
           squared(sub(p[0], closestPoints[i][0])),
@@ -1948,19 +1948,10 @@ const closestPointRect = (
   return [retX, retY];
 };
 
-const closestPointLine = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[] => {
-  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
-  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
-  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
-  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
-  const t = clamp([0, 1], div(atp_dot_atb, atb2));
-  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
-};
-
-const closestPointPolyline = (
-  p: ad.Num[],
-  a: ad.Num[],
-  b: ad.Num[]
+const closestPointLine = (
+   p: ad.Num[],
+   a: ad.Num[],
+   b: ad.Num[]
 ): ad.Num[] => {
   const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
   const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
