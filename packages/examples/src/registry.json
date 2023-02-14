@@ -256,10 +256,11 @@
       "variation": "GalapagosLocust418"
     },
     {
+      "name": "Closest point test",
       "substance": "closest-point-test",
       "style": "closest-point",
       "domain": "closest-point",
-      "variation": "AquaFalcon693",
+      "variation": "MobileCalder1939",
       "gallery": false
     },
     {
@@ -299,12 +300,6 @@
       "style": "molecules-basic",
       "domain": "molecules",
       "variation": "MemoriesDeer750"
-    },
-    {
-      "substance": "closest-point-test",
-      "style": "closest-point",
-      "domain": "closest-point",
-      "variation": "MobileCalder1939"
     },
     {
       "name": "Matrix-matrix addition",
@@ -502,9 +497,6 @@
     "shape-distance": {
       "URI": "shape-distance/shapes.domain"
     },
-    "closest-point": {
-      "URI": "closest-point/closest-point.domain"
-    },
     "fake-3d-linear-algebra": {
       "URI": "fake-3d-linear-algebra/fake3d.domain"
     },
@@ -638,10 +630,6 @@
       "domain": "shape-distance",
       "URI": "shape-distance/shape-distance.style"
     },
-    "closest-point": {
-      "domain": "closest-point",
-      "URI": "closest-point/closest-point.style"
-    },
     "fake-3d-linear-algebra": {
       "domain": "fake-3d-linear-algebra",
       "URI": "fake-3d-linear-algebra/fake3d.style"
@@ -744,6 +732,10 @@
       "domain": "geometry",
       "URI": "geometry-domain/textbook_problems/ex.substance"
     },
+    "closest-point-test": {
+      "domain": "closest-point",
+      "URI": "closest-point/test.substance"
+    },
     "circle-example": {
       "domain": "geometry",
       "URI": "geometry-domain/textbook_problems/c11p12.substance"
@@ -755,14 +747,6 @@
     "non-convex": {
       "domain": "non-convex",
       "URI": "minkowski-tests/maze/maze.substance"
-    },
-    "closest-point-test": {
-      "name": "Closest point test",
-      "substance": "closest-point-test",
-      "style": "closest-point",
-      "domain": "closest-point",
-      "variation": "MobileCalder1939",
-      "gallery": false
     },
     "two-triangles": {
       "domain": "triangle-mesh-3d",
@@ -807,10 +791,6 @@
     "points-around-line": {
       "domain": "shape-distance",
       "URI": "shape-distance/hundred-points-around-line.substance"
-    },
-    "closest-point-test": {
-      "domain": "closest-point",
-      "URI": "closest-point/test.substance"
     },
     "3d-projection": {
       "domain": "fake-3d-linear-algebra",
