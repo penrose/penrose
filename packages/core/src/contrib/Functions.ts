@@ -61,6 +61,7 @@ import {
   Color,
   ColorV,
   FloatV,
+  MatrixV,
   PathDataV,
   PtListV,
   StrV,
@@ -475,6 +476,20 @@ export const compDict = {
   },
 
   /**
+   * Return the outer product of `u` and `v`.
+   */
+  outerProduct: (
+    _context: Context,
+    u: ad.Num[],
+    v: ad.Num[]
+  ): MatrixV<ad.Num> => {
+    return {
+      tag: "MatrixV",
+      contents: ops.vouter(u, v),
+    };
+  },
+
+  /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
   length: (_context: Context, [t, props]: [string, any]): FloatV<ad.Num> => {
@@ -796,6 +811,16 @@ export const compDict = {
     return {
       tag: "FloatV",
       contents: det,
+    };
+  },
+  /**
+   * Return the 3D cross product of `u` and `v`.
+   */
+  cross: (_context: Context, u: ad.Num[], v: ad.Num[]): VectorV<ad.Num> => {
+    const result = ops.cross3(u, v);
+    return {
+      tag: "VectorV",
+      contents: result,
     };
   },
   /**

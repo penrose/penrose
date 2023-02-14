@@ -590,7 +590,7 @@ export const ops = {
   dist: (c1: ad.Num, c2: ad.Num): ad.Num => ops.vnorm([c1, c2]),
 
   /**
-   * Return the sum of vectors `v1, v2.
+   * Return the sum of vectors `v1, v2`.
    */
   vadd: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
     if (v1.length !== v2.length) {
@@ -602,6 +602,90 @@ export const ops = {
   },
 
   /**
+   * Return the sum of matrices `A1, A2`.
+   */
+  mmadd: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+      const row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(add(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
+    }
+    return result;
+  },
+
+  /**
+   * Return the difference of matrices `A1, A2`.
+   */
+  mmsub: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+      const row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(sub(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
+    }
+    return result;
+  },
+
+  /**
+   * Return the elementwise product of matrices `A1, A2`.
+   */
+  ewmmmul: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+      const row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(mul(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
+    }
+    return result;
+  },
+
+  /**
+   * Return the elementwise quotient of matrices `A1, A2`.
+   */
+  ewmmdiv: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+      const row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(div(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
+    }
+    return result;
+  },
+
+  /**
    * Return the difference of vectors `v1` and `v2`.
    */
   vsub: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
@@ -610,6 +694,30 @@ export const ops = {
     }
 
     const res = _.zipWith(v1, v2, sub);
+    return res;
+  },
+
+  /**
+   * Return the elementwise product of vectors `v1` and `v2`.
+   */
+  ewvvmul: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = _.zipWith(v1, v2, mul);
+    return res;
+  },
+
+  /**
+   * Return the elementwise quotient of vectors `v1` and `v2`.
+   */
+  ewvvdiv: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = _.zipWith(v1, v2, div);
     return res;
   },
 
@@ -635,6 +743,97 @@ export const ops = {
    */
   vmul: (c: ad.Num, v: ad.Num[]): ad.Num[] => {
     return v.map((e) => mul(c, e));
+  },
+
+  /**
+   * Return the scalar `c` times the Matrix `A`.
+   */
+  smmul: (c: ad.Num, A: ad.Num[][]): ad.Num[][] => {
+    return A.map(function (row) {
+      return row.map((e) => mul(c, e));
+    });
+  },
+
+  /**
+   * Return the matrix `A` multiplied by vector `v`, i.e., Av.
+   */
+  mvmul: (A: ad.Num[][], v: ad.Num[]): ad.Num[] => {
+    if (A.length !== v.length) {
+      throw Error("expected matrix and vector of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result: ad.Num[] = [];
+    for (let i = 0; i < v.length; i++) {
+      const summands = _.zipWith(A[i], v, mul);
+      result.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+    }
+    return result;
+  },
+
+  /**
+   * Return the vector `v` multiplied by matrix `A`, i.e., v^T A.
+   */
+  vmmul: (v: ad.Num[], A: ad.Num[][]): ad.Num[] => {
+    if (A.length !== v.length) {
+      throw Error("expected matrix and vector of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    // The easiest way to do left multiplication is to first
+    // transpose the matrix A, since (A^T v)^T = v^T A.
+    const AT: ad.Num[][] = [];
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        row.push(A[j][i]);
+      }
+      AT.push(row);
+    }
+
+    // Now we can just do an ordinary matrix-vector multiply with AT
+    const result: ad.Num[] = [];
+    for (let i = 0; i < v.length; i++) {
+      const summands = _.zipWith(AT[i], v, mul);
+      result.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+    }
+    return result;
+  },
+
+  /**
+   * Return the matrix `A` multiplied by matrix `B`.
+   */
+  mmmul: (A: ad.Num[][], B: ad.Num[][]): ad.Num[][] => {
+    if (A.length !== B.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    // To implement via reduction, need to turn the columns of B into rows,
+    // i.e., need to construct the transpose matrix B'
+    const BT: ad.Num[][] = [];
+    for (let i = 0; i < B.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < B.length; j++) {
+        row.push(B[j][i]);
+      }
+      BT.push(row);
+    }
+
+    // Compute A*B via dot products of rows of A with rows of B'
+    const result: ad.Num[][] = [];
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        const summands = _.zipWith(A[i], BT[j], mul);
+        row.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+      }
+      result.push(row);
+    }
+    return result;
   },
 
   /**
@@ -674,10 +873,34 @@ export const ops = {
   },
 
   /**
+   * Return the transpose of the matrix `A`.
+   */
+  mtrans: (A: ad.Num[][]): ad.Num[][] => {
+    const AT: ad.Num[][] = [];
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        row.push(A[j][i]);
+      }
+      AT.push(row);
+    }
+    return AT;
+  },
+
+  /**
    * Return the vector `v` divided by scalar `c`.
    */
   vdiv: (v: ad.Num[], c: ad.Num): ad.Num[] => {
     return v.map((e) => div(e, c));
+  },
+
+  /**
+   * Return the Matrix `A` divided by scalar `c`.
+   */
+  msdiv: (A: ad.Num[][], c: ad.Num): ad.Num[][] => {
+    return A.map(function (row) {
+      return row.map((e) => div(e, c));
+    });
   },
 
   /**
@@ -811,6 +1034,23 @@ export const ops = {
       sub(mul(u[2], v[0]), mul(u[0], v[2])),
       sub(mul(u[0], v[1]), mul(u[1], v[0])),
     ];
+  },
+
+  /**
+   * Return 3D cross product of 3D vectors
+   */
+  vouter: (u: ad.Num[], v: ad.Num[]): ad.Num[][] => {
+    if (u.length !== v.length) {
+      throw Error("vectors must have same length");
+    }
+
+    const result: ad.Num[][] = [];
+    for (let i = 0; i < u.length; i++) {
+      const row = v.map((e) => mul(u[i], e));
+      result.push(row);
+    }
+
+    return result;
   },
 };
 
