@@ -1,5 +1,5 @@
-import { outwardUnitNormal } from "contrib/Queries";
-import { ops } from "engine/Autodiff";
+import { convexPartition, isClockwise } from "poly-partition";
+import { ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
@@ -17,12 +17,11 @@ import {
   sqrt,
   squared,
   sub,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import { convexPartition, isClockwise } from "poly-partition";
-import { Ellipse } from "shapes/Ellipse";
-import * as ad from "types/ad";
-import { safe } from "utils/Util";
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { Ellipse } from "../shapes/Ellipse";
+import * as ad from "../types/ad";
+import { safe } from "../utils/Util";
 import {
   ellipsePolynomial,
   ellipseToImplicit,
@@ -33,6 +32,7 @@ import {
   implicitHalfPlaneFunc,
   implicitIntersectionOfEllipsesFunc,
 } from "./ImplicitShapes";
+import { outwardUnitNormal } from "./Queries";
 import { numsOf } from "./Utils";
 
 /**

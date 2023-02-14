@@ -1,15 +1,15 @@
-import { compileDomain } from "compiler/Domain";
+import _ from "lodash";
+import { compileDomain } from "../compiler/Domain";
 import {
   compileSubstance,
   prettyStmt,
   prettySubstance,
-} from "compiler/Substance";
-import { dummyIdentifier } from "engine/EngineUtils";
-import _ from "lodash";
-import { similarMappings, similarNodes, SubNode } from "synthesis/Search";
-import { A } from "types/ast";
-import { Env } from "types/domain";
-import { SubProg, SubStmt } from "types/substance";
+} from "../compiler/Substance";
+import { dummyIdentifier } from "../engine/EngineUtils";
+import { similarMappings, similarNodes, SubNode } from "../synthesis/Search";
+import { A } from "../types/ast";
+import { Env } from "../types/domain";
+import { SubProg, SubStmt } from "../types/substance";
 import {
   appendStmt,
   intersection,
@@ -134,12 +134,12 @@ IsSubset(B, A)
 C := Subset(A, B)
 `;
     const expected = `\
-IsSubset(A, B)
-IsSubset(B, A)
-C := Subset(A, B)
 Set A
 Set B
-Set C\
+Set C
+IsSubset(A, B)
+IsSubset(B, A)
+C := Subset(A, B)\
 `;
     const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
     const sortedAST = sortStmts(originalAST);

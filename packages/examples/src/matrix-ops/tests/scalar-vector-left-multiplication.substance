@@ -1,0 +1,7 @@
+AutoLabel All
+Scalar c
+Vector u
+
+-- left scalar-vector multiplication
+Vector r := lvmul(c,u)
+Label r $c\vec{u}$

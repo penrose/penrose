@@ -1,0 +1,7 @@
+AutoLabel All
+Matrix A, AT
+
+-- matrix transpose
+AT := transpose(A)
+Label AT $A^\mathsf{T}$
+

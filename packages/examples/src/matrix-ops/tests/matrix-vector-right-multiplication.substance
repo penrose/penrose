@@ -1,0 +1,8 @@
+AutoLabel All
+Matrix A
+Vector u
+
+-- matrix-vector right multiplication
+Vector uA := vmmul(u,A)
+Label uA $u^\mathsf{T}A$
+

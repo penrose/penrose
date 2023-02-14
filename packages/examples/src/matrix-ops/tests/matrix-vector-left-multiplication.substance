@@ -1,0 +1,8 @@
+AutoLabel All
+Matrix A
+Vector u
+
+-- matrix-vector left multiplication
+Vector Au := mvmul(A,u)
+Label Au $Au$
+

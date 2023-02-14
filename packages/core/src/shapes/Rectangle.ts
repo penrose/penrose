@@ -7,8 +7,8 @@ import {
   Rotate,
   Shape,
   Stroke,
-} from "types/shapes";
-import { boolV, floatV, noPaint, strV } from "utils/Util";
+} from "../types/shapes";
+import { boolV, floatV, noPaint, strV } from "../utils/Util";
 import {
   Canvas,
   Context,

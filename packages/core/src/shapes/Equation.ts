@@ -1,5 +1,13 @@
-import { Center, Fill, Named, Rect, Rotate, Shape, String } from "types/shapes";
-import { black, boolV, floatV, strV, vectorV } from "utils/Util";
+import {
+  Center,
+  Fill,
+  Named,
+  Rect,
+  Rotate,
+  Shape,
+  String,
+} from "../types/shapes";
+import { black, boolV, floatV, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, uniform } from "./Samplers";
 
 export interface EquationProps

@@ -25,23 +25,7 @@
     "isolatedModules": true,
     "strict": true,
     "declaration": true,
-    "declarationMap": true,
-    "paths": {
-      "analysis/*": ["./src/analysis/*"],
-      "compiler/*": ["./src/compiler/*"],
-      "contrib/*": ["./src/contrib/*"],
-      "engine/*": ["./src/engine/*"],
-      "parser/*": ["./src/parser/*"],
-      "renderer/*": ["./src/renderer/*"],
-      "shapes/*": ["./src/shapes/*"],
-      "synthesis/*": ["./src/synthesis/*"],
-      "types/*": ["./src/types/*"],
-      "utils/*": ["./src/utils/*"]
-    },
-    "plugins": [
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typescript-transform-paths", "afterDeclarations": true }
-    ]
+    "declarationMap": true
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
