@@ -294,6 +294,12 @@
       "variation": "MemoriesDeer750"
     },
     {
+      "substance": "closest-point-test",
+      "style": "closest-point",
+      "domain": "closest-point",
+      "variation": "MobileCalder1939"
+    },
+    {
       "name": "Matrix-matrix addition",
       "substance": "matrix-matrix-addition",
       "style": "matrix-ops",
@@ -462,6 +468,9 @@
     "geometry": {
       "URI": "geometry-domain/geometry.domain"
     },
+    "closest-point": {
+      "URI": "closest-point/closest-point.domain"
+    },
     "triangle-mesh-3d": {
       "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
     },
@@ -578,6 +587,10 @@
     "euclidean": {
       "domain": "geometry",
       "URI": "geometry-domain/euclidean.style"
+    },
+    "closest-point": {
+      "domain": "closest-point",
+      "URI": "closest-point/closest-point.style"
     },
     "triangle-mesh-3d": {
       "domain": "triangle-mesh-3d",
@@ -728,6 +741,14 @@
     "non-convex": {
       "domain": "non-convex",
       "URI": "minkowski-tests/maze/maze.substance"
+    },
+    "closest-point-test": {
+      "name": "Closest point test",
+      "substance": "closest-point-test",
+      "style": "closest-point",
+      "domain": "closest-point",
+      "variation": "MobileCalder1939",
+      "gallery": false
     },
     "two-triangles": {
       "domain": "triangle-mesh-3d",

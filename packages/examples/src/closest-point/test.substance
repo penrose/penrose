@@ -1,6 +1,5 @@
-Point p1
-Point p2
-Point p3
-Point p4
-Point p5
-Rectangle r
+Point x
+Rectangle R
+Polygon P
+Circle C
+Ellipse E

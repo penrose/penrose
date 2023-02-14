@@ -1,2 +1,5 @@
 type Point
 type Rectangle
+type Polygon
+type Circle
+type Ellipse
