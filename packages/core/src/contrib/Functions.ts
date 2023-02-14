@@ -1948,11 +1948,7 @@ const closestPointRect = (
   return [retX, retY];
 };
 
-const closestPointLine = (
-   p: ad.Num[],
-   a: ad.Num[],
-   b: ad.Num[]
-): ad.Num[] => {
+const closestPointLine = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[] => {
   const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
   const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
   const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));

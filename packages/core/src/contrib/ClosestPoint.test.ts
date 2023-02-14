@@ -1,11 +1,11 @@
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeLine } from "shapes/Line";
-import { makePolygon } from "shapes/Polygon";
-import { makePolyline } from "shapes/Polyline";
-import { makeRectangle } from "shapes/Rectangle";
-import { Context, makeCanvas, simpleContext } from "shapes/Samplers";
-import { black, floatV, ptListV, vectorV } from "utils/Util";
+import { makeCircle } from "../shapes/Circle";
+import { makeEllipse } from "../shapes/Ellipse";
+import { makeLine } from "../shapes/Line";
+import { makePolygon } from "../shapes/Polygon";
+import { makePolyline } from "../shapes/Polyline";
+import { makeRectangle } from "../shapes/Rectangle";
+import { Context, makeCanvas, simpleContext } from "../shapes/Samplers";
+import { black, floatV, ptListV, vectorV } from "../utils/Util";
 import { compDict } from "./Functions";
 import { numOf } from "./Utils";
 
