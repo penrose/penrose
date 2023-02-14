@@ -1,0 +1,445 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
+  <g>
+    <path
+      d="M 156 190 L 156 10"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridX2</title>
+  </g>
+  <g>
+    <path
+      d="M 30 46 L 210 46"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridY3</title>
+  </g>
+  <g>
+    <path
+      d="M 174 190 L 174 10"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridX3</title>
+  </g>
+  <g>
+    <path
+      d="M 30 28 L 210 28"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridY4</title>
+  </g>
+  <g>
+    <path
+      d="M 192 190 L 192 10"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridX4</title>
+  </g>
+  <rect
+    x="30"
+    y="10"
+    width="180"
+    height="180"
+    fill="#1b1f8a"
+    fill-opacity="0.06666666666666667"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 30, 10)"
+  >
+    <title>global.box</title>
+  </rect>
+  <g>
+    <path
+      d="M 102 190 L 102 10"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridXn1</title>
+  </g>
+  <g>
+    <path
+      d="M 30 118 L 210 118"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridYn1</title>
+  </g>
+  <g>
+    <path
+      d="M 84 190 L 84 10"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridXn2</title>
+  </g>
+  <g>
+    <path
+      d="M 30 136 L 210 136"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridYn2</title>
+  </g>
+  <g>
+    <path
+      d="M 66 190 L 66 10"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridXn3</title>
+  </g>
+  <g>
+    <path
+      d="M 30 154 L 210 154"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridYn3</title>
+  </g>
+  <g>
+    <path
+      d="M 48 190 L 48 10"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridXn4</title>
+  </g>
+  <g>
+    <marker
+      id="dbd6ef4b-09ec-4ce8-aa42-85324cac1669-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#888888"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 30 100 L 207.53325 100"
+      stroke-opacity="1"
+      stroke-width="0.65"
+      stroke="#888888"
+      stroke-linecap="butt"
+      marker-end="url(#dbd6ef4b-09ec-4ce8-aa42-85324cac1669-endArrowId)"
+    ></path>
+    <title>global.xAxis</title>
+  </g>
+  <g>
+    <path
+      d="M 30 172 L 210 172"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridYn4</title>
+  </g>
+  <g>
+    <marker
+      id="0b5b32fa-549e-4ad5-b5ec-89323646181e-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#888888"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 120 190 L 120 12.466750000000005"
+      stroke-opacity="1"
+      stroke-width="0.65"
+      stroke="#888888"
+      stroke-linecap="butt"
+      marker-end="url(#0b5b32fa-549e-4ad5-b5ec-89323646181e-endArrowId)"
+    ></path>
+    <title>global.yAxis</title>
+  </g>
+  <g>
+    <path
+      d="M 30 82 L 210 82"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridY1</title>
+  </g>
+  <g>
+    <path
+      d="M 138 190 L 138 10"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridX1</title>
+  </g>
+  <g>
+    <path
+      d="M 30 64 L 210 64"
+      stroke-opacity="0.26666666666666666"
+      stroke-width="0.35"
+      stroke="#888888"
+      stroke-linecap="butt"
+    ></path>
+    <title>global.gridY2</title>
+  </g>
+  <g>
+    <marker
+      id="7c8413ce-3472-42d0-8537-74ae11425bc8-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#aaaaaa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 120 100 L 96.41550000000001 68.554"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#aaaaaa"
+      stroke-linecap="butt"
+      marker-end="url(#7c8413ce-3472-42d0-8537-74ae11425bc8-endArrowId)"
+    ></path>
+    <title>`a`.icon</title>
+  </g>
+  <g>
+    <marker
+      id="3bf33a09-00d0-4a4c-b9e1-9c9a82a2b6f1-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#00aa00"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 120 100 L 70.73644630051817 67.15763086701212"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#00aa00"
+      stroke-linecap="butt"
+      marker-end="url(#3bf33a09-00d0-4a4c-b9e1-9c9a82a2b6f1-endArrowId)"
+    ></path>
+    <title>`u`.icon</title>
+  </g>
+  <g>
+    <marker
+      id="af7dd498-aafe-4eaa-bc34-dd6392f79d83-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#0000aa"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 120 100 L 150.908473215233 84.5457633923835"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#0000aa"
+      stroke-linecap="butt"
+      marker-end="url(#af7dd498-aafe-4eaa-bc34-dd6392f79d83-endArrowId)"
+    ></path>
+    <title>`v`.icon</title>
+  </g>
+  <g
+    transform="rotate(0, 56.55490409343645, 53.7871093956243)translate(56.55490409343645, 53.7871093956243)"
+    font-size="7px"
+    string="u"
+  >
+    <title>`u`.labelText</title>
+    <svg
+      style="font-size: 7px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="7.2415199999999995"
+      height="12.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 572 1000"
+    >
+      <g
+        stroke="none"
+        fill="#00aa00"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D462"
+                    d="M21 287Q21 295 30 318T55 370T99 420T158 442Q204 442 227 417T250 358Q250 340 216 246T182 105Q182 62 196 45T238 27T291 44T328 78L339 95Q341 99 377 247Q407 367 413 387T427 416Q444 431 463 431Q480 431 488 421T496 402L420 84Q419 79 419 68Q419 43 426 35T447 26Q469 29 482 57T512 145Q514 153 532 153Q551 153 551 144Q550 139 549 130T540 98T523 55T498 17T462 -8Q454 -10 438 -10Q372 -10 347 46Q345 45 336 36T318 21T296 6T267 -6T233 -11Q189 -11 155 7Q103 38 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 159.19091233712462, 72.53951883143769)translate(159.19091233712462, 72.53951883143769)"
+    font-size="7px"
+    string="v"
+  >
+    <title>`v`.labelText</title>
+    <svg
+      style="font-size: 7px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="6.1400999999999994"
+      height="12.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 485 1000"
+    >
+      <g
+        stroke="none"
+        fill="#0000aa"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D463"
+                    d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 78.94420679993279, 52.0700223999104)translate(78.94420679993279, 52.0700223999104)"
+    font-size="7px"
+    string="u/v"
+  >
+    <title>`a`.labelText</title>
+    <svg
+      style="font-size: 7px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="19.71162"
+      height="12.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 1557 1000"
+    >
+      <g
+        stroke="none"
+        fill="#aaaaaa"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D462"
+                    d="M21 287Q21 295 30 318T55 370T99 420T158 442Q204 442 227 417T250 358Q250 340 216 246T182 105Q182 62 196 45T238 27T291 44T328 78L339 95Q341 99 377 247Q407 367 413 387T427 416Q444 431 463 431Q480 431 488 421T496 402L420 84Q419 79 419 68Q419 43 426 35T447 26Q469 29 482 57T512 145Q514 153 532 153Q551 153 551 144Q550 139 549 130T540 98T523 55T498 17T462 -8Q454 -10 438 -10Q372 -10 347 46Q345 45 336 36T318 21T296 6T267 -6T233 -11Q189 -11 155 7Q103 38 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"
+                  ></path>
+                </g>
+                <g
+                  data-mml-node="TeXAtom"
+                  data-mjx-texclass="ORD"
+                  transform="translate(572,0)"
+                >
+                  <g data-mml-node="mo">
+                    <path
+                      data-c="2F"
+                      d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"
+                    ></path>
+                  </g>
+                </g>
+                <g data-mml-node="mi" transform="translate(1072,0)">
+                  <path
+                    data-c="1D463"
+                    d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+</svg>
