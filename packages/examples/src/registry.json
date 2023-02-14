@@ -256,6 +256,13 @@
       "variation": "GalapagosLocust418"
     },
     {
+      "substance": "closest-point-test",
+      "style": "closest-point",
+      "domain": "closest-point",
+      "variation": "",
+      "gallery": false
+    },
+    {
       "substance": "3d-projection",
       "style": "fake-3d-linear-algebra",
       "domain": "fake-3d-linear-algebra",
@@ -486,6 +493,9 @@
     "shape-distance": {
       "URI": "shape-distance/shapes.domain"
     },
+    "closest-point": {
+      "URI": "closest-point/closest-point.domain"
+    },
     "fake-3d-linear-algebra": {
       "URI": "fake-3d-linear-algebra/fake3d.domain"
     },
@@ -614,6 +624,10 @@
     "shape-distance": {
       "domain": "shape-distance",
       "URI": "shape-distance/shape-distance.style"
+    },
+    "closest-point": {
+      "domain": "closest-point",
+      "URI": "closest-point/closest-point.style"
     },
     "fake-3d-linear-algebra": {
       "domain": "fake-3d-linear-algebra",
@@ -772,6 +786,10 @@
     "points-around-line": {
       "domain": "shape-distance",
       "URI": "shape-distance/hundred-points-around-line.substance"
+    },
+    "closest-point-test": {
+      "domain": "closest-point",
+      "URI": "closest-point/test.substance"
     },
     "3d-projection": {
       "domain": "fake-3d-linear-algebra",
