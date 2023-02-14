@@ -16,6 +16,7 @@ import React from "react";
 import fetchResolver from "./fetchPathResolver";
 
 export interface SimpleProps {
+  name: string;
   domain: string;
   substance: string;
   style: string;
@@ -139,7 +140,8 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         false
           ? RenderStatic(
               this.penroseState,
-              this.props.imageResolver ?? fetchResolver
+              this.props.imageResolver ?? fetchResolver,
+              this.props.name
             )
           : RenderInteractive(
               this.penroseState,
@@ -150,7 +152,8 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
                 }
                 this.renderCanvas();
               },
-              this.props.imageResolver ?? fetchResolver
+              this.props.imageResolver ?? fetchResolver,
+              this.props.name
             ));
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);

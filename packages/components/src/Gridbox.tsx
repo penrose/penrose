@@ -177,6 +177,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             {...this.props}
             variation={variation}
             key={`gridbox-${this.props.gridIndex}`}
+            name={`gridbox-${this.props.gridIndex}`}
             interactive={false}
             onFrame={(state: PenroseState) => {
               this.setState({ currentState: state });
