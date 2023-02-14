@@ -256,6 +256,14 @@
       "variation": "GalapagosLocust418"
     },
     {
+      "name": "Closest point test",
+      "substance": "closest-point-test",
+      "style": "closest-point",
+      "domain": "closest-point",
+      "variation": "MobileCalder1939",
+      "gallery": false
+    },
+    {
       "substance": "3d-projection",
       "style": "fake-3d-linear-algebra",
       "domain": "fake-3d-linear-algebra",
@@ -462,6 +470,9 @@
     "geometry": {
       "URI": "geometry-domain/geometry.domain"
     },
+    "closest-point": {
+      "URI": "closest-point/closest-point.domain"
+    },
     "triangle-mesh-3d": {
       "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
     },
@@ -578,6 +589,10 @@
     "euclidean": {
       "domain": "geometry",
       "URI": "geometry-domain/euclidean.style"
+    },
+    "closest-point": {
+      "domain": "closest-point",
+      "URI": "closest-point/closest-point.style"
     },
     "triangle-mesh-3d": {
       "domain": "triangle-mesh-3d",
@@ -716,6 +731,10 @@
     "congruent-triangles": {
       "domain": "geometry",
       "URI": "geometry-domain/textbook_problems/ex.substance"
+    },
+    "closest-point-test": {
+      "domain": "closest-point",
+      "URI": "closest-point/test.substance"
     },
     "circle-example": {
       "domain": "geometry",
