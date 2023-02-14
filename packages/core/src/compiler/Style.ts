@@ -1,34 +1,33 @@
 import { CustomHeap } from "@datastructures-js/heap";
 import { genOptProblem } from "@penrose/optimizer";
-import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola from "consola";
-import { constrDict } from "contrib/Constraints";
-import { compDict } from "contrib/Functions";
-import { objDict } from "contrib/Objectives";
-import { input, ops } from "engine/Autodiff";
-import { add, div, mul, neg, pow, sub } from "engine/AutodiffFunctions";
+import im from "immutable";
+import _ from "lodash";
+import nearley from "nearley";
+import seedrandom from "seedrandom";
+import { constrDict } from "../contrib/Constraints";
+import { compDict } from "../contrib/Functions";
+import { objDict } from "../contrib/Objectives";
+import { input, ops } from "../engine/Autodiff";
+import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions";
 import {
   compileCompGraph,
   dummyIdentifier,
   genGradient,
-} from "engine/EngineUtils";
-import im from "immutable";
-import _ from "lodash";
-import nearley from "nearley";
-import { lastLocation, prettyParseError } from "parser/ParserUtil";
-import styleGrammar from "parser/StyleParser";
-import seedrandom from "seedrandom";
+} from "../engine/EngineUtils";
+import { lastLocation, prettyParseError } from "../parser/ParserUtil";
+import styleGrammar from "../parser/StyleParser";
 import {
   Canvas,
   Context as MutableContext,
   InputMeta,
   makeCanvas,
   uniform,
-} from "shapes/Samplers";
-import { isShapeType, ShapeDef, shapedefs, ShapeType } from "shapes/Shapes";
-import * as ad from "types/ad";
-import { A, C, Identifier, SourceRange } from "types/ast";
-import { Env } from "types/domain";
+} from "../shapes/Samplers";
+import { isShapeType, ShapeDef, shapedefs, ShapeType } from "../shapes/Shapes";
+import * as ad from "../types/ad";
+import { A, C, Identifier, SourceRange } from "../types/ast";
+import { Env } from "../types/domain";
 import {
   BinOpTypeError,
   LayerCycleWarning,
@@ -39,15 +38,15 @@ import {
   StyleError,
   StyleWarning,
   SubstanceError,
-} from "types/errors";
-import { ShapeAD } from "types/shape";
+} from "../types/errors";
+import { ShapeAD } from "../types/shape";
 import {
   Fn,
   OptPipeline,
   OptStages,
   StagedConstraints,
   State,
-} from "types/state";
+} from "../types/state";
 import {
   BinaryOp,
   BindingForm,
@@ -74,7 +73,7 @@ import {
   StyT,
   UOp,
   Vector,
-} from "types/style";
+} from "../types/style";
 import {
   Assignment,
   BlockAssignment,
@@ -94,7 +93,7 @@ import {
   Subst,
   Translation,
   WithContext,
-} from "types/styleSemantics";
+} from "../types/styleSemantics";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -106,7 +105,7 @@ import {
   SubstanceEnv,
   SubStmt,
   TypeConsApp,
-} from "types/substance";
+} from "../types/substance";
 import {
   ArgVal,
   Field,
@@ -118,7 +117,7 @@ import {
   PropID,
   Value,
   VectorV,
-} from "types/value";
+} from "../types/value";
 import {
   all,
   andThen,
@@ -131,10 +130,11 @@ import {
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-} from "utils/Error";
-import Graph from "utils/Graph";
+} from "../utils/Error";
+import Graph from "../utils/Graph";
 import {
   boolV,
+  cartesianProduct,
   colorV,
   floatV,
   hexToRgba,
@@ -149,8 +149,9 @@ import {
   val,
   vectorV,
   zip2,
-} from "utils/Util";
+} from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
+import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Warn })
@@ -175,23 +176,6 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
 
 const toString = (x: BindingForm<A>): string => x.contents.value;
-
-const cartesianProduct = <Tin, Tout>(
-  t1: Tin[],
-  t2: Tin[],
-  consistent: (t1: Tin, t2: Tin) => boolean,
-  merge: (t1: Tin, t2: Tin) => Tout
-): Tout[] => {
-  const product: Tout[] = [];
-  for (const i in t1) {
-    for (const j in t2) {
-      if (consistent(t1[i], t2[j])) {
-        product.push(merge(t1[i], t2[j]));
-      }
-    }
-  }
-  return product;
-};
 
 const oneErr = (err: StyleError): StyleDiagnostics => {
   return { errors: im.List([err]), warnings: im.List() };
@@ -2307,25 +2291,30 @@ const evalVals = (
   );
 
 const evalBinOpScalars = (
+  error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
   right: ad.Num
-): ad.Num => {
+): Result<ad.Num, StyleError> => {
   switch (op) {
     case "BPlus": {
-      return add(left, right);
+      return ok(add(left, right));
     }
     case "BMinus": {
-      return sub(left, right);
+      return ok(sub(left, right));
     }
     case "Multiply": {
-      return mul(left, right);
+      return ok(mul(left, right));
     }
     case "Divide": {
-      return div(left, right);
+      return ok(div(left, right));
     }
     case "Exp": {
-      return pow(left, right);
+      return ok(pow(left, right));
+    }
+    case "EWMultiply":
+    case "EWDivide": {
+      return err(error);
     }
   }
 };
@@ -2342,6 +2331,12 @@ const evalBinOpVectors = (
     }
     case "BMinus": {
       return ok(ops.vsub(left, right));
+    }
+    case "EWMultiply": {
+      return ok(ops.ewvvmul(left, right));
+    }
+    case "EWDivide": {
+      return ok(ops.ewvvdiv(left, right));
     }
     case "Multiply":
     case "Divide":
@@ -2364,6 +2359,8 @@ const evalBinOpScalarVector = (
     case "BPlus":
     case "BMinus":
     case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2385,6 +2382,123 @@ const evalBinOpVectorScalar = (
     }
     case "BPlus":
     case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpScalarMatrix = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num,
+  right: ad.Num[][]
+): Result<ad.Num[][], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.smmul(left, right));
+    }
+    case "BPlus":
+    case "BMinus":
+    case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpMatrixScalar = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[][],
+  right: ad.Num
+): Result<ad.Num[][], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.smmul(right, left));
+    }
+    case "Divide": {
+      return ok(ops.msdiv(left, right));
+    }
+    case "BPlus":
+    case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpMatrixVector = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[][],
+  right: ad.Num[]
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.mvmul(left, right));
+    }
+    case "Divide":
+    case "BPlus":
+    case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpVectorMatrix = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[],
+  right: ad.Num[][]
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.vmmul(left, right));
+    }
+    case "Divide":
+    case "BPlus":
+    case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpMatrixMatrix = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[][],
+  right: ad.Num[][]
+): Result<ad.Num[][], StyleError> => {
+  switch (op) {
+    case "BPlus": {
+      return ok(ops.mmadd(left, right));
+    }
+    case "BMinus": {
+      return ok(ops.mmsub(left, right));
+    }
+    case "Multiply": {
+      return ok(ops.mmmul(left, right));
+    }
+    case "EWMultiply": {
+      return ok(ops.ewmmmul(left, right));
+    }
+    case "EWDivide": {
+      return ok(ops.ewmmdiv(left, right));
+    }
+    case "Divide":
     case "Exp": {
       return err(error);
     }
@@ -2404,6 +2518,8 @@ const evalBinOpStrings = (
     case "BMinus":
     case "Multiply":
     case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2422,7 +2538,9 @@ const evalBinOp = (
     right: right.tag,
   };
   if (left.tag === "FloatV" && right.tag === "FloatV") {
-    return ok(floatV(evalBinOpScalars(expr.op, left.contents, right.contents)));
+    return evalBinOpScalars(error, expr.op, left.contents, right.contents).map(
+      floatV
+    );
   } else if (left.tag === "VectorV" && right.tag === "VectorV") {
     return evalBinOpVectors(error, expr.op, left.contents, right.contents).map(
       vectorV
@@ -2441,6 +2559,41 @@ const evalBinOp = (
       left.contents,
       right.contents
     ).map(vectorV);
+  } else if (left.tag === "FloatV" && right.tag === "MatrixV") {
+    return evalBinOpScalarMatrix(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(matrixV);
+  } else if (left.tag === "MatrixV" && right.tag === "FloatV") {
+    return evalBinOpMatrixScalar(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(matrixV);
+  } else if (left.tag === "MatrixV" && right.tag === "VectorV") {
+    return evalBinOpMatrixVector(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(vectorV);
+  } else if (left.tag === "VectorV" && right.tag === "MatrixV") {
+    return evalBinOpVectorMatrix(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(vectorV);
+  } else if (left.tag === "MatrixV" && right.tag === "MatrixV") {
+    return evalBinOpMatrixMatrix(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(matrixV);
   } else if (left.tag === "StrV" && right.tag === "StrV") {
     return evalBinOpStrings(error, expr.op, left.contents, right.contents).map(
       strV
@@ -2612,6 +2765,29 @@ const evalUMinus = (
   }
 };
 
+const evalUTranspose = (
+  expr: UOp<C>,
+  arg: Value<ad.Num>
+): Result<Value<ad.Num>, StyleError> => {
+  switch (arg.tag) {
+    case "MatrixV": {
+      return ok(matrixV(ops.mtrans(arg.contents)));
+    }
+    case "FloatV":
+    case "VectorV":
+    case "BoolV":
+    case "ListV":
+    case "ColorV":
+    case "LListV":
+    case "PathDataV":
+    case "PtListV":
+    case "StrV":
+    case "TupV": {
+      return err({ tag: "UOpTypeError", expr, arg: arg.tag });
+    }
+  }
+};
+
 const evalExpr = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2769,6 +2945,13 @@ const evalExpr = (
         switch (expr.op) {
           case "UMinus": {
             const res = evalUMinus(expr, argVal.contents);
+            if (res.isErr()) {
+              return err(oneErr(res.error));
+            }
+            return ok(val(res.value));
+          }
+          case "UTranspose": {
+            const res = evalUTranspose(expr, argVal.contents);
             if (res.isErr()) {
               return err(oneErr(res.error));
             }

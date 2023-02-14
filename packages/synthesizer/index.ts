@@ -44,6 +44,11 @@ export const defaultSetting: SynthesizerSetting = {
     predicate: 0.3,
     constructor: 0.0,
   },
+  opWeights: {
+    add: 0.01,
+    delete: 0.2,
+    edit: 0.8,
+  },
   add: {
     // type: "*",
     type: [],

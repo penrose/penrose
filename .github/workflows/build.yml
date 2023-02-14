@@ -110,6 +110,7 @@ jobs:
             cp "$filename" "diagrams/$name.svg"
           done
       - name: Commit diagrams and generate diff summary
+        id: commit
         working-directory: diagrams/
         run: |
           set -x
@@ -119,6 +120,7 @@ jobs:
 
           git add .
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
+          echo "CI_COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
           echo '```' > diff.md
           git --no-pager diff --name-status ci/refs/heads/main HEAD >> diff.md
@@ -150,16 +152,23 @@ jobs:
           echo EOF >> $GITHUB_ENV
 
           rm stats.md
-      - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'penrose/penrose'
+      - name: Check for write permissions
+        id: check
+        uses: scherermichael-oss/action-has-permission@17f29510f1bf987b916c8cbb451566a56eed23f1
+        with:
+          required-permission: write
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - if: steps.check.outputs.has-permission
         name: Push to target
         working-directory: diagrams/
         run: git push -f origin HEAD
-      - if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'penrose/penrose'
+      - if: github.event_name == 'pull_request' && steps.check.outputs.has-permission
         name: Comment on PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            # ± [Registry diff](${{ github.server_url }}/${{ github.repository }}/compare/ci/refs/heads/main..ci/${{ github.ref }})
+            # ± [Registry diff](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.CI_COMMIT_SHA }})
 
             ${{ env.REGISTRY_DIFF }}
 

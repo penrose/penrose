@@ -1,0 +1,6 @@
+AutoLabel All
+Vector u, v
+
+-- elementwise vector-vector multiplication
+Vector a := ewvvmul(u,v)
+Label a $u*v$

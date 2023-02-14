@@ -1,0 +1,8 @@
+AutoLabel All
+Vector u, v
+
+-- vector-vector outer product
+Matrix uv
+uv := outer(u,v)
+Label uv $(uv)^\mathsf{T}$
+
