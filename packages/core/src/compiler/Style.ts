@@ -131,6 +131,7 @@ import {
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
+import Heap from "../utils/Heap";
 import {
   boolV,
   cartesianProduct,
@@ -149,7 +150,6 @@ import {
   vectorV,
   zip2,
 } from "../utils/Util";
-import Heap from "../utils/Heap";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
