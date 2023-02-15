@@ -197,7 +197,7 @@ forall StandardTriangle t
    scalar s = canvas.width/4
 
    -- coordinate system origin o and axes e1,e2
-   vec2 o = -.9*(canvas.width,canvas.height)/2
+   vec2 o = -.9*(canvas.width,canvas.height)/2 + (0,20)
    vec2 e1 = (s,0)
    vec2 e2 = (0,s)
 
@@ -235,11 +235,15 @@ forall StandardTriangle t
 forall Map f; StandardTriangle t0; Triangle t
 where f := TriangleEmbedding(t0,t) {
 
+
    vec2 m01 = (t.p0 + t.p1)/2
    vec2 m12 = (t.p1 + t.p2)/2
    vec2 m20 = (t.p2 + t.p0)/2
 
-   vec2 a = (t0.p1 + t0.p2)/2
+   scalar w = 1/16
+   scalar s = .5-w/2 + w*(match_id - 1)/(match_total - 1)
+
+   vec2 a = (1-s)*t0.p1 + s*t0.p2
    vec2 b = closestTo( a, [m01,m12,m20] )
 
    vec2 u = unit((1,1))
