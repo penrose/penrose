@@ -235,17 +235,28 @@ forall StandardTriangle t
 forall Map f; StandardTriangle t0; Triangle t
 where f := TriangleEmbedding(t0,t) {
 
+   vec2 m01 = (t.p0 + t.p1)/2
+   vec2 m12 = (t.p1 + t.p2)/2
+   vec2 m20 = (t.p2 + t.p0)/2
+
    vec2 a = (t0.p1 + t0.p2)/2
-   vec2 b = (?,?)
-   vec2 n = rot90(b-a)/norm(b-a)
-   vec2 c = (a+b)/2 + 20.*n
+   vec2 b = closestTo( a, [m01,m12,m20] )
+
+   vec2 u = unit((1,1))
+   vec2 a1 = a + 5*u
+
+   vec2 v = (b-t.p0) + (b-t.p1) + (b-t.p2)
+   vec2 b1 = b + 5*unit(v)
+
+   vec2 n = rot90(b1-a1)/norm(b1-a1)
+   vec2 c = (a1+b1)/2 + 5*n
 
    shape f.arrow = Path {
-      d: interpolateQuadraticFromPoints( "open", a, c, b )
-      strokeColor: #0000ff
+      d: interpolateQuadraticFromPoints( "open", a1, c, b1 )
+      strokeColor: #000000
       endArrowhead: "straight"
-      endArrowheadSize: 0.75
-      strokeWidth: 0.75
+      endArrowheadSize: 0.5
+      strokeWidth: 1
    }
 
    vec2 C = (t.p0 + t.p1 + t.p2)/3

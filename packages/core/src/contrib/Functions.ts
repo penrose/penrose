@@ -1711,6 +1711,32 @@ export const compDict = {
       return { tag: "VectorV", contents: closestPointEllipse(s, p) };
     } else throw Error(`unsupported shape ${t} in closestPoint`);
   },
+
+  closestTo: (
+    _context: Context,
+    x: ad.Num[],
+    points: ad.Num[][]
+  ): VectorV<ad.Num> => {
+      const dist: ad.Num[] = [];
+      for (let i = 0; i < points.length; i++) {
+        dist[i] = sqrt(
+          add(
+            squared(sub(x[0], points[i][0])),
+            squared(sub(x[1], points[i][1]))
+          )
+        );
+      }
+      let retX: ad.Num = points[0][0];
+      let retY: ad.Num = points[0][1];
+      let retCond: ad.Num = dist[0];
+      for (let i = 1; i < points.length; i++) {
+        retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
+        retX = ifCond(eq(retCond, dist[i]), points[i][0], retX);
+        retY = ifCond(eq(retCond, dist[i]), points[i][1], retY);
+      }
+      return { tag: "VectorV", contents: [retX, retY] };
+  },
+
   /**
    * Returns the signed area enclosed by a polygonal chain given its nodes
    */
