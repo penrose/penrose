@@ -1,11 +1,11 @@
 import geometryDomain from "@penrose/examples/dist/geometry-domain";
 import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain";
 import setTheoryDomain from "@penrose/examples/dist/set-theory-domain";
-import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
 import nearley from "nearley";
-import { C } from "types/ast";
-import { StyProg } from "types/style";
+import { parseStyle } from "../compiler/Style";
+import { C } from "../types/ast";
+import { StyProg } from "../types/style";
 import grammar from "./StyleParser";
 
 const outputDir = "/tmp/asts";
@@ -25,15 +25,18 @@ const printAST = (ast: any) => {
 
 const stys = [
   [
-    "linear-algebra-domain/linear-algebra-paper-simple.sty",
-    linearAlgebraDomain["linear-algebra-paper-simple.sty"],
+    "linear-algebra-domain/linear-algebra-paper-simple.style",
+    linearAlgebraDomain["linear-algebra-paper-simple.style"],
   ],
-  ["set-theory-domain/venn.sty", setTheoryDomain["venn.sty"]],
-  ["set-theory-domain/venn-3d.sty", setTheoryDomain["venn-3d.sty"]],
-  ["set-theory-domain/venn-small.sty", setTheoryDomain["venn-small.sty"]],
-  ["set-theory-domain/tree.sty", setTheoryDomain["tree.sty"]],
-  ["set-theory-domain/continuousmap.sty", setTheoryDomain["continuousmap.sty"]],
-  ["geometry-domain/euclidean.sty", geometryDomain["euclidean.sty"]],
+  ["set-theory-domain/venn.style", setTheoryDomain["venn.style"]],
+  ["set-theory-domain/venn-3d.style", setTheoryDomain["venn-3d.style"]],
+  ["set-theory-domain/venn-small.style", setTheoryDomain["venn-small.style"]],
+  ["set-theory-domain/tree.style", setTheoryDomain["tree.style"]],
+  [
+    "set-theory-domain/continuousmap.style",
+    setTheoryDomain["continuousmap.style"],
+  ],
+  ["geometry-domain/euclidean.style", geometryDomain["euclidean.style"]],
 ];
 
 beforeEach(() => {

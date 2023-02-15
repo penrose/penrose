@@ -17,6 +17,7 @@ import {
 import DiagramOptions from "./components/DiagramOptions";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesBrowser from "./components/ExamplesBrowser";
+import GridPanel from "./components/GridPanel";
 import Opt from "./components/Opt";
 import ProgramEditor from "./components/ProgramEditor";
 import RogerPanel from "./components/RogerPanel";
@@ -55,7 +56,7 @@ const mainRowLayout: IJsonRowNode = {
           : []),
         {
           type: "tab",
-          name: ".sub",
+          name: ".substance",
           component: "programEditor",
           config: {
             kind: "substance",
@@ -63,7 +64,7 @@ const mainRowLayout: IJsonRowNode = {
         },
         {
           type: "tab",
-          name: ".sty",
+          name: ".style",
           component: "programEditor",
           config: {
             kind: "style",
@@ -71,7 +72,7 @@ const mainRowLayout: IJsonRowNode = {
         },
         {
           type: "tab",
-          name: ".dsl",
+          name: ".domain",
           component: "programEditor",
           config: {
             kind: "domain",
@@ -87,6 +88,12 @@ const mainRowLayout: IJsonRowNode = {
           type: "tab",
           name: "Diagram",
           component: "diagram",
+          enableRename: false,
+        },
+        {
+          type: "tab",
+          name: "Diagram Variations",
+          component: "grid",
           enableRename: false,
         },
       ],
@@ -162,6 +169,8 @@ function App() {
           return <SvgUploader />;
         case "diagram":
           return <DiagramPanel />;
+        case "grid":
+          return <GridPanel />;
         case "savedFiles":
           return <SavedFilesBrowser />;
         case "examplesPanel":

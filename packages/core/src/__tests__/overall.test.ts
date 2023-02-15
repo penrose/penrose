@@ -14,8 +14,8 @@ import {
 import { State } from "../types/state";
 import { safe } from "../utils/Util";
 
-const vennStyle = setTHeory["venn.sty"];
-const setDomain = setTHeory["setTheory.dsl"];
+const vennStyle = setTHeory["venn.style"];
+const setDomain = setTHeory["setTheory.domain"];
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>

@@ -1,13 +1,13 @@
-import { cascadingDelete } from "analysis/SubstanceAnalysis";
-import { compileDomain } from "compiler/Domain";
+import { cascadingDelete } from "../analysis/SubstanceAnalysis";
+import { compileDomain } from "../compiler/Domain";
 import {
   compileSubstance,
   prettyStmt,
   prettySubstance,
-} from "compiler/Substance";
-import { A } from "types/ast";
-import { Env } from "types/domain";
-import { Decl, SubStmt } from "types/substance";
+} from "../compiler/Substance";
+import { A } from "../types/ast";
+import { Env } from "../types/domain";
+import { Decl, SubStmt } from "../types/substance";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation";
 import { initContext, Synthesizer, SynthesizerSetting } from "./Synthesizer";
 
@@ -19,6 +19,11 @@ const defaultSetting: SynthesizerSetting = {
     type: 0.1,
     predicate: 0.3,
     constructor: 0.0,
+  },
+  opWeights: {
+    add: 0.3333,
+    delete: 0.3333,
+    edit: 0.3333,
   },
   add: {
     type: [],

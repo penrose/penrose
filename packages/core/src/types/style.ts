@@ -272,10 +272,17 @@ export type AvoidFn<T> = ASTNode<T> & {
   contents: [string, Expr<T>[]];
 };
 
-export type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
+export type BinaryOp =
+  | "EWMultiply"
+  | "EWDivide"
+  | "BPlus"
+  | "BMinus"
+  | "Multiply"
+  | "Divide"
+  | "Exp";
 
 // NOTE: unary + operator not parsed, as they don't change values
-export type UnaryOp = "UMinus";
+export type UnaryOp = "UMinus" | "UTranspose";
 
 export type BinOp<T> = ASTNode<T> & {
   tag: "BinOp";

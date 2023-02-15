@@ -6,10 +6,10 @@
 /* eslint-disable */
 import moo from "moo";
 import _ from 'lodash'
-import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
-import { C, ConcreteNode, Identifier, StringLit  } from "types/ast";
+import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
+import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast";
 import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
-} from "types/style";
+} from "../types/style";
 
 const styleTypes: string[] =
   [ "scalar"
@@ -436,6 +436,7 @@ unary
     }) 
   %}
   |  parenthesized        {% id %}
+  |  unary _ "'" {% (d): UOp<C> => ({ ...nodeData, ...rangeBetween(d[0], d[2]), tag: 'UOp', op: "UTranspose", arg: d[0] }) %}
 
 # Exponents
 factor 
@@ -446,6 +447,8 @@ factor
 term 
   -> term _ "*" _ factor  {% (d): BinOp<C> => binop('Multiply', d[0], d[4]) %}
   |  term _ "/" _ factor  {% (d): BinOp<C> => binop('Divide', d[0], d[4]) %}
+  |  term _ ".*" _ factor  {% (d): BinOp<C> => binop('EWMultiply', d[0], d[4]) %}
+  |  term _ "./" _ factor  {% (d): BinOp<C> => binop('EWDivide', d[0], d[4]) %}
   |  factor               {% id %}
 
 # Addition and subtraction

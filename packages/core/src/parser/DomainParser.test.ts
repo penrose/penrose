@@ -1,8 +1,8 @@
 import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import nearley from "nearley";
-import { SourceRange } from "types/ast";
-import { DomainProg, PredicateDecl } from "types/domain";
+import { SourceRange } from "../types/ast";
+import { DomainProg, PredicateDecl } from "../types/domain";
 import grammar from "./DomainParser";
 
 const outputDir = "/tmp/asts";
@@ -20,8 +20,8 @@ const printAST = (ast: any) => {
 };
 
 const domains = [
-  ["linear-algebra.dsl", linearAlgebra["linear-algebra.dsl"]],
-  ["setTheory.dsl", setTheory["setTheory.dsl"]],
+  ["linear-algebra.domain", linearAlgebra["linear-algebra.domain"]],
+  ["setTheory.domain", setTheory["setTheory.domain"]],
 ];
 
 beforeEach(() => {

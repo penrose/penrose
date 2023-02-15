@@ -5,7 +5,7 @@ const path = require("path");
 
 const src = "src";
 const dist = "dist";
-const extensions = new Set([".dsl", ".sty", ".sub", ".svg"]);
+const extensions = new Set([".domain", ".style", ".substance", ".svg"]);
 
 const build = (dir) => {
   const srcDir = path.join(src, dir);

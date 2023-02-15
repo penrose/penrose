@@ -1,12 +1,10 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
-import * as S from "compiler/Style";
-import { compileSubstance } from "compiler/Substance";
 import im from "immutable";
-import { C } from "types/ast";
-import { Either } from "types/common";
-import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
-import { State } from "types/state";
+import { C } from "../types/ast";
+import { Either } from "../types/common";
+import { Env } from "../types/domain";
+import { PenroseError } from "../types/errors";
+import { State } from "../types/state";
 import {
   AnonAssign,
   ConstrFn,
@@ -15,13 +13,20 @@ import {
   PathAssign,
   StyProg,
   Vector,
-} from "types/style";
-import { Assignment, DepGraph, Layer, Translation } from "types/styleSemantics";
-import { SubstanceEnv } from "types/substance";
-import { ColorV, RGBA } from "types/value";
-import { andThen, err, Result, showError } from "utils/Error";
-import { foldM, toLeft, ToRight, zip2 } from "utils/Util";
+} from "../types/style";
+import {
+  Assignment,
+  DepGraph,
+  Layer,
+  Translation,
+} from "../types/styleSemantics";
+import { SubstanceEnv } from "../types/substance";
+import { ColorV, RGBA } from "../types/value";
+import { andThen, err, Result, showError } from "../utils/Error";
+import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
+import * as S from "./Style";
+import { compileSubstance } from "./Substance";
 
 // TODO: Reorganize and name tests by compiler stage
 
@@ -344,9 +349,9 @@ describe("Compiler", () => {
   // test("finds the right substitutions for LA Style program", () => {
   //   // This code is cleaned up from `S.compileStyle`; runs the beginning of compiler checking from scratch
   //   const triple: [string, string, string] = [
-  //     "linear-algebra-domain/linear-algebra.dsl",
-  //     "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
-  //     "linear-algebra-domain/linear-algebra-paper-simple.sty",
+  //     "linear-algebra-domain/linear-algebra.domain",
+  //     "linear-algebra-domain/twoVectorsPerp-unsugared.substance",
+  //     "linear-algebra-domain/linear-algebra-paper-simple.style",
   //   ];
 
   //   const [varEnv, subEnv, subProg, styProgInit]: [
@@ -697,10 +702,10 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = setTheory["twosets-simple.sub"];
-    const domainProg = setTheory["functions.dsl"];
+    const subProg = setTheory["twosets-simple.substance"];
+    const domainProg = setTheory["functions.domain"];
     // We test variations on this Style program
-    // const styPath = "set-theory-domain/venn.sty";
+    // const styPath = "set-theory-domain/venn.style";
 
     const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
 
@@ -971,7 +976,7 @@ delete x.z.p }`,
       T t1, t2, t3, t4, t5, t6, t7, t8
       S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;
       const dsl = `
-      -- minimal.dsl
+      -- minimal.domain
       type S
       type T
       constructor f( T t1, T t2, T t3, T t4, T t5, T t6, T t7, T t8 ) -> S`;

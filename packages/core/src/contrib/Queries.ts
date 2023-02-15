@@ -1,8 +1,8 @@
-import { ops } from "engine/Autodiff";
-import { mul, neg, sqrt } from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import { shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
+import { ops } from "../engine/Autodiff";
+import { mul, neg, sqrt } from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import { msign } from "./Functions";
 
 /**

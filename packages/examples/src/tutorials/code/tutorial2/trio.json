@@ -1,7 +1,7 @@
 {
   "name": "Tutorial 2 - Subset",
-  "substance": "subset.sub",
-  "style": "subset.sty",
-  "domain": "setTheory.dsl",
+  "substance": "subset.substance",
+  "style": "subset.style",
+  "domain": "setTheory.domain",
   "variation": ""
 }

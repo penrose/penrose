@@ -1,0 +1,183 @@
+canvas {
+   width = 800
+   height = 700
+}
+
+-- Rules for drawing each type of shape
+
+forall Point x {
+   vec2 x.pos = (?,?)
+   shape x.icon = Circle {
+      center: x.pos
+      r: 5
+      strokeWidth: 1
+      fillColor: #000000ff
+   } 
+}
+
+forall Rectangle R {
+   shape R.icon = Rectangle {
+      center: (?, ?)
+      width: ?
+      height: ?
+      strokeWidth: 1
+   }
+
+   ensure R.icon.width > 50
+   ensure R.icon.height > 50
+}
+
+forall Polygon P {
+   vec2 p0 = (?,?)
+   vec2 p1 = (?,?)
+   vec2 p2 = (?,?)
+   
+   shape P.icon = Polygon {
+      points: [ p0, p1, p2 ]
+   }
+
+
+   vec2 e01 = p1-p0
+   vec2 e12 = p2-p1
+   vec2 e20 = p0-p2
+
+   ensure angleBetween( e01, -e12 ) > toRadians(30)
+   ensure angleBetween( e12, -e20 ) > toRadians(30)
+   ensure angleBetween( e20, -e01 ) > toRadians(30)
+
+   ensure abs(cross2D( e01, -e12 )) > 50
+}
+
+forall Circle C {
+   shape C.icon = Circle {
+      center: (?,?)
+      r: ?
+   }
+
+   ensure C.icon.r > 50
+}
+
+forall Ellipse E {
+   shape E.icon = Ellipse {
+      rx: ?
+      ry: ?
+   }
+
+   ensure E.icon.rx > 50
+   ensure E.icon.ry > 50
+}
+
+-- Keep shapes from overlapping
+
+forall Rectangle R; Polygon P
+{
+   ensure disjoint( R.icon, P.icon )
+}
+
+forall Rectangle R; Circle C
+{
+   ensure disjoint( R.icon, C.icon )
+}
+
+forall Rectangle R; Ellipse E
+{
+   ensure disjoint( R.icon, E.icon )
+}
+
+forall Polygon P; Circle C
+{
+   ensure disjoint( P.icon, C.icon )
+}
+
+forall Polygon P; Ellipse E
+{
+   ensure disjoint( P.icon, E.icon )
+}
+
+forall Circle C; Ellipse E
+{
+   ensure disjoint( C.icon, E.icon )
+}
+
+-- Rules for drawing closest points
+
+forall Point x; Rectangle R
+{
+   vec2 p = closestPoint( R.icon, x.pos )
+
+   shape closestSegment = Line {
+      start: x.pos
+      end: p
+      strokeColor: #000000ff
+      strokeWidth: 2
+   }
+
+   shape closestDot = Circle {
+      r: x.icon.r
+      center: p
+      fillColor: #ffffffff
+      strokeColor: #000000ff
+      strokeWidth: 2
+   }
+}
+
+forall Point x; Polygon P
+{
+   vec2 p = closestPoint( P.icon, x.pos )
+
+   shape closestSegment = Line {
+      start: x.pos
+      end: p
+      strokeColor: #000000ff
+      strokeWidth: 2
+   }
+
+   shape closestDot = Circle {
+      r: x.icon.r
+      center: p
+      fillColor: #ffffffff
+      strokeColor: #000000ff
+      strokeWidth: 2
+   }
+}
+
+forall Point x; Circle C
+{
+   vec2 p = closestPoint( C.icon, x.pos )
+
+   shape closestSegment = Line {
+      start: x.pos
+      end: p
+      strokeColor: #000000ff
+      strokeWidth: 2
+   }
+
+   shape closestDot = Circle {
+      r: x.icon.r
+      center: p
+      fillColor: #ffffffff
+      strokeColor: #000000ff
+      strokeWidth: 2
+   }
+}
+
+forall Point x; Ellipse E
+{
+   vec2 p = closestPoint( E.icon, x.pos )
+
+   shape closestSegment = Line {
+      start: x.pos
+      end: p
+      strokeColor: #000000ff
+      strokeWidth: 2
+   }
+
+   shape closestDot = Circle {
+      r: x.icon.r
+      center: p
+      fillColor: #ffffffff
+      strokeColor: #000000ff
+      strokeWidth: 2
+   }
+}
+

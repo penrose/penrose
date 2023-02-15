@@ -1,3 +1,19 @@
+import { ops } from "../engine/Autodiff";
+import {
+  absVal,
+  add,
+  ifCond,
+  lt,
+  max,
+  min,
+  mul,
+  neg,
+  squared,
+  sub,
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import {
   atDistLabel,
   containsAABBs,
@@ -16,26 +32,10 @@ import {
   overlappingPolygons,
   overlappingRectlikeCircle,
   overlappingTextLine,
-} from "contrib/ConstraintsUtils";
-import { constrDictCurves } from "contrib/CurveConstraints";
-import { bboxFromShape, shapeSize } from "contrib/Queries";
-import { inRange, overlap1D } from "contrib/Utils";
-import { ops } from "engine/Autodiff";
-import {
-  absVal,
-  add,
-  ifCond,
-  lt,
-  max,
-  min,
-  mul,
-  neg,
-  squared,
-  sub,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import { shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
+} from "./ConstraintsUtils";
+import { constrDictCurves } from "./CurveConstraints";
+import { bboxFromShape, shapeSize } from "./Queries";
+import { inRange, overlap1D } from "./Utils";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
@@ -80,7 +80,10 @@ const constrDictSimple = {
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
   inRange: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
-    return mul(sub(x, x0), sub(x, x1));
+    return add(
+      ifCond(lt(x, x1), 0, sub(x, x1)),
+      ifCond(lt(x0, x), 0, sub(x0, x))
+    );
   },
 
   /**

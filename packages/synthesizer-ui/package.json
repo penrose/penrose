@@ -1,7 +1,7 @@
 {
   "name": "@penrose/synthesizer-ui",
   "private": true,
-  "version": "2.1.1",
+  "version": "2.2.0",
   "scripts": {
     "dev": "vite",
     "watch": "vite",
@@ -42,9 +42,9 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.12.3",
-    "@penrose/components": "^2.1.1",
-    "@penrose/core": "^2.1.1",
-    "@penrose/examples": "^2.1.1",
+    "@penrose/components": "^2.2.0",
+    "@penrose/core": "^2.2.0",
+    "@penrose/examples": "^2.2.0",
     "@types/file-saver": "^2.0.5",
     "@types/jszip": "^3.4.1",
     "file-saver": "^2.0.5",
@@ -53,6 +53,9 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.5",
+    "@types/jszip": "^3.4.1",
+    "typescript": "^4.5.4",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react-swc": "^3.0.1",

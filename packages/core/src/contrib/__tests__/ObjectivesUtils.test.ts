@@ -1,5 +1,5 @@
-import { inDirection } from "contrib/ObjectivesUtils";
-import { numOf } from "contrib/Utils";
+import { inDirection } from "../ObjectivesUtils";
+import { numOf } from "../Utils";
 
 const testShape = { center: { contents: [0, 2] } };
 const testRefShape = { center: { contents: [1, 1] } };

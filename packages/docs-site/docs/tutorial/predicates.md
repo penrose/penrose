@@ -28,7 +28,7 @@ predicate IsR(t1 var1, t2 var2)
 
 (Here, `t1` is the type of `var1`, and `t2` is the type of `var2`.)
 
-This pattern informs Penrose that there is a relationship that we care about called `IsR` which takes arguments of type `t1` and `t2`. Penrose still doesn't know how to visually represent this relationship, so we will have to define that logic in our `.sty` file a little later.
+This pattern informs Penrose that there is a relationship that we care about called `IsR` which takes arguments of type `t1` and `t2`. Penrose still doesn't know how to visually represent this relationship, so we will have to define that logic in our `.style` file a little later.
 
 In the case of our current example, we can name our relationship `IsSubset`, and we have 2 arguments of type `Set`.
 
@@ -37,11 +37,11 @@ type Set
 predicate IsSubset(Set s1, Set s2)
 ```
 
-Now we are free to use the predicate `IsSubset` in our `.sub` file and define what it means visually in our `.sty` file.
+Now we are free to use the predicate `IsSubset` in our `.substance` file and define what it means visually in our `.style` file.
 
 ## 📄 Substance
 
-In our goal diagram, we have 3 sets, therefore we will declare 3 different sets in our `.sub` file. Note that in the previous example we declared each of our sets on separate lines, but we could also declare multiple objects of the same type in a single line. For instance, `Set A, B, C` is equivalent to writing:
+In our goal diagram, we have 3 sets, therefore we will declare 3 different sets in our `.substance` file. Note that in the previous example we declared each of our sets on separate lines, but we could also declare multiple objects of the same type in a single line. For instance, `Set A, B, C` is equivalent to writing:
 
 ```
 Set A
@@ -61,7 +61,7 @@ IsSubset(C, B)
 
 The style program will be the most complex part, and you find that this is expected when developing with Penrose. In this example, we introduce a new keyword `ensure`, which allows you to constrain certain aspects of certain shapes. Essentially, we use `ensure` to let Penrose know that these are rules the diagram **must** satisfy. Hence, we also call `ensure` statements _constraints_.
 
-Recall that we learned about predicates that are defined in `.dsl` and used in `.sub`, and now we need to define the visual definition of the predicate. To show that "A is a subset of B", we need the following visual characteristics:
+Recall that we learned about predicates that are defined in `.domain` and used in `.substance`, and now we need to define the visual definition of the predicate. To show that "A is a subset of B", we need the following visual characteristics:
 
 - A's circle needs to be smaller than B's circle
 - A's circle needs to be contained within B's circle (their borders should not be intersecting in any way)
@@ -69,7 +69,7 @@ Recall that we learned about predicates that are defined in `.dsl` and used in `
 
 Therefore we call the corresponding `ensure` functions on the `.icon` fields (that we used to assign shape objects to in tutorial 1) of two arbitrary sets that have the relationship of `IsSubset`.
 
-Now our selector is not just `forall Set A` since we only want to apply these styling rules to the sets that have the relationship `isSubset`. Therefore, we need to add a condition to the arbitrary sets we are looping through in the program. We can do this with the pattern `where HasRelationshipR(A, B)` where the `HasRelationshipR` is `IsSubset` in this particular case. Now our `.sty` file looks like this:
+Now our selector is not just `forall Set A` since we only want to apply these styling rules to the sets that have the relationship `isSubset`. Therefore, we need to add a condition to the arbitrary sets we are looping through in the program. We can do this with the pattern `where HasRelationshipR(A, B)` where the `HasRelationshipR` is `IsSubset` in this particular case. Now our `.style` file looks like this:
 
 ```
 forall Set A; Set B
