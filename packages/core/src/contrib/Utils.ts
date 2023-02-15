@@ -197,7 +197,7 @@ export const numOf = (x: ad.Num): number => {
 export const consecutiveTuples = (
   points: [ad.Num, ad.Num][],
   closed: boolean
-): [ad.Num, ad.Num][][] => {
+): any[] => {
   const resLength = closed ? points.length : points.length - 1;
   if (resLength <= 0) return [];
   return Array.from({ length: resLength }, (_, key) => key).map((i) => [

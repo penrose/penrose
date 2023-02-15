@@ -5,7 +5,6 @@ import {
   addN,
   div,
   ifCond,
-  lt,
   lte,
   mul,
   sign,
@@ -118,33 +117,23 @@ export const repulsiveEnergy = (
   closed: boolean
 ): ad.Num => {
   const tuples = consecutiveTuples(points, closed);
-  return addN(
-    tuples.map(([p1, p2]: [ad.Num, ad.Num][]) =>
-      addN(
-        tuples.map(([q1, q2]: [ad.Num, ad.Num][]) =>
-          ifCond(
-            lt(
-              ops.vdist(
-                ops.vmul(0.5, ops.vadd(p1, p2)),
-                ops.vmul(0.5, ops.vadd(q1, q2))
-              ),
-              1e-5
-            ),
-            0,
-            div(
-              mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
-              squared(
-                ops.vdist(
-                  ops.vmul(0.5, ops.vadd(p1, p2)),
-                  ops.vmul(0.5, ops.vadd(q1, q2))
-                )
-              )
+  const integrands = tuples.reduce((acc, [p1, p2], i) =>
+    acc.concat(
+      tuples
+        .slice(i + 1)
+        .map(([q1, q2]) =>
+          div(
+            mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
+            ops.vdistsq(
+              ops.vmul(0.5, ops.vadd(p1, p2)),
+              ops.vmul(0.5, ops.vadd(q1, q2))
             )
           )
-        )
-      )
+        ),
+      []
     )
   );
+  return addN(integrands);
 };
 
 /**
