@@ -1,4 +1,3 @@
-import { CustomHeap } from "@datastructures-js/heap";
 import { genOptProblem } from "@penrose/optimizer";
 import consola from "consola";
 import im from "immutable";
@@ -132,6 +131,7 @@ import {
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
+import Heap from "../utils/Heap";
 import {
   boolV,
   cartesianProduct,
@@ -2291,25 +2291,30 @@ const evalVals = (
   );
 
 const evalBinOpScalars = (
+  error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
   right: ad.Num
-): ad.Num => {
+): Result<ad.Num, StyleError> => {
   switch (op) {
     case "BPlus": {
-      return add(left, right);
+      return ok(add(left, right));
     }
     case "BMinus": {
-      return sub(left, right);
+      return ok(sub(left, right));
     }
     case "Multiply": {
-      return mul(left, right);
+      return ok(mul(left, right));
     }
     case "Divide": {
-      return div(left, right);
+      return ok(div(left, right));
     }
     case "Exp": {
-      return pow(left, right);
+      return ok(pow(left, right));
+    }
+    case "EWMultiply":
+    case "EWDivide": {
+      return err(error);
     }
   }
 };
@@ -2326,6 +2331,12 @@ const evalBinOpVectors = (
     }
     case "BMinus": {
       return ok(ops.vsub(left, right));
+    }
+    case "EWMultiply": {
+      return ok(ops.ewvvmul(left, right));
+    }
+    case "EWDivide": {
+      return ok(ops.ewvvdiv(left, right));
     }
     case "Multiply":
     case "Divide":
@@ -2348,6 +2359,8 @@ const evalBinOpScalarVector = (
     case "BPlus":
     case "BMinus":
     case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2369,6 +2382,123 @@ const evalBinOpVectorScalar = (
     }
     case "BPlus":
     case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpScalarMatrix = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num,
+  right: ad.Num[][]
+): Result<ad.Num[][], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.smmul(left, right));
+    }
+    case "BPlus":
+    case "BMinus":
+    case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpMatrixScalar = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[][],
+  right: ad.Num
+): Result<ad.Num[][], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.smmul(right, left));
+    }
+    case "Divide": {
+      return ok(ops.msdiv(left, right));
+    }
+    case "BPlus":
+    case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpMatrixVector = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[][],
+  right: ad.Num[]
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.mvmul(left, right));
+    }
+    case "Divide":
+    case "BPlus":
+    case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpVectorMatrix = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[],
+  right: ad.Num[][]
+): Result<ad.Num[], StyleError> => {
+  switch (op) {
+    case "Multiply": {
+      return ok(ops.vmmul(left, right));
+    }
+    case "Divide":
+    case "BPlus":
+    case "BMinus":
+    case "EWMultiply":
+    case "EWDivide":
+    case "Exp": {
+      return err(error);
+    }
+  }
+};
+
+const evalBinOpMatrixMatrix = (
+  error: BinOpTypeError,
+  op: BinaryOp,
+  left: ad.Num[][],
+  right: ad.Num[][]
+): Result<ad.Num[][], StyleError> => {
+  switch (op) {
+    case "BPlus": {
+      return ok(ops.mmadd(left, right));
+    }
+    case "BMinus": {
+      return ok(ops.mmsub(left, right));
+    }
+    case "Multiply": {
+      return ok(ops.mmmul(left, right));
+    }
+    case "EWMultiply": {
+      return ok(ops.ewmmmul(left, right));
+    }
+    case "EWDivide": {
+      return ok(ops.ewmmdiv(left, right));
+    }
+    case "Divide":
     case "Exp": {
       return err(error);
     }
@@ -2388,6 +2518,8 @@ const evalBinOpStrings = (
     case "BMinus":
     case "Multiply":
     case "Divide":
+    case "EWMultiply":
+    case "EWDivide":
     case "Exp": {
       return err(error);
     }
@@ -2406,7 +2538,9 @@ const evalBinOp = (
     right: right.tag,
   };
   if (left.tag === "FloatV" && right.tag === "FloatV") {
-    return ok(floatV(evalBinOpScalars(expr.op, left.contents, right.contents)));
+    return evalBinOpScalars(error, expr.op, left.contents, right.contents).map(
+      floatV
+    );
   } else if (left.tag === "VectorV" && right.tag === "VectorV") {
     return evalBinOpVectors(error, expr.op, left.contents, right.contents).map(
       vectorV
@@ -2425,6 +2559,41 @@ const evalBinOp = (
       left.contents,
       right.contents
     ).map(vectorV);
+  } else if (left.tag === "FloatV" && right.tag === "MatrixV") {
+    return evalBinOpScalarMatrix(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(matrixV);
+  } else if (left.tag === "MatrixV" && right.tag === "FloatV") {
+    return evalBinOpMatrixScalar(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(matrixV);
+  } else if (left.tag === "MatrixV" && right.tag === "VectorV") {
+    return evalBinOpMatrixVector(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(vectorV);
+  } else if (left.tag === "VectorV" && right.tag === "MatrixV") {
+    return evalBinOpVectorMatrix(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(vectorV);
+  } else if (left.tag === "MatrixV" && right.tag === "MatrixV") {
+    return evalBinOpMatrixMatrix(
+      error,
+      expr.op,
+      left.contents,
+      right.contents
+    ).map(matrixV);
   } else if (left.tag === "StrV" && right.tag === "StrV") {
     return evalBinOpStrings(error, expr.op, left.contents, right.contents).map(
       strV
@@ -2596,6 +2765,29 @@ const evalUMinus = (
   }
 };
 
+const evalUTranspose = (
+  expr: UOp<C>,
+  arg: Value<ad.Num>
+): Result<Value<ad.Num>, StyleError> => {
+  switch (arg.tag) {
+    case "MatrixV": {
+      return ok(matrixV(ops.mtrans(arg.contents)));
+    }
+    case "FloatV":
+    case "VectorV":
+    case "BoolV":
+    case "ListV":
+    case "ColorV":
+    case "LListV":
+    case "PathDataV":
+    case "PtListV":
+    case "StrV":
+    case "TupV": {
+      return err({ tag: "UOpTypeError", expr, arg: arg.tag });
+    }
+  }
+};
+
 const evalExpr = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2753,6 +2945,13 @@ const evalExpr = (
         switch (expr.op) {
           case "UMinus": {
             const res = evalUMinus(expr, argVal.contents);
+            if (res.isErr()) {
+              return err(oneErr(res.error));
+            }
+            return ok(val(res.value));
+          }
+          case "UTranspose": {
+            const res = evalUTranspose(expr, argVal.contents);
             if (res.isErr()) {
               return err(oneErr(res.error));
             }
@@ -3086,19 +3285,21 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
   const indegree = new Map<string, number>(
     graph.nodes().map((i) => [i, graph.inEdges(i).length])
   );
-  const toVisit: CustomHeap<string> = new CustomHeap(
-    (a: string, b: string) => indegree.get(a)! - indegree.get(b)!
-  );
+  // Nodes with lower in-degrees have highest priority.
+  // Swap if a has higher in-degree than b.
+  const compare = (a: string, b: string) => indegree.get(a)! - indegree.get(b)!;
+  const toVisit = Heap.heapify(graph.nodes(), compare);
   const res: string[] = [];
-  graph.nodes().forEach((n: string) => toVisit.insert(n));
+
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
     const node: string = toVisit.extractRoot() as string;
     res.push(node);
     // remove all edges with `node`
-    for (const { j } of graph.outEdges(node))
+    for (const { j } of graph.outEdges(node)) {
       indegree.set(j, indegree.get(j)! - 1);
-    toVisit.fix();
+      toVisit.increase_priority(j);
+    }
   }
   return res;
 };

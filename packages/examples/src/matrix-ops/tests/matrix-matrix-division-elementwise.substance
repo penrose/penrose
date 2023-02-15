@@ -1,0 +1,6 @@
+AutoLabel All
+Matrix X, Y
+
+-- elementwise matrix-matrix division
+Matrix Z := ewmmdiv(X,Y)
+
