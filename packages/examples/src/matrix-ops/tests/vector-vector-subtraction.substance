@@ -1,0 +1,7 @@
+AutoLabel All
+Vector u, v
+
+-- vector-vector subtraction
+Vector a := vsub(u,v)
+Label a $u-v$
+

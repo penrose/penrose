@@ -13,6 +13,7 @@
 /packages/docs-site/public/try/
 /packages/docs-site/src/shapedefs.json
 /packages/optimizer/bindings/
+/packages/optimizer/build/
 /packages/optimizer/index.js
 /packages/optimizer/target/
 /packages/roger/oclif.manifest.json
