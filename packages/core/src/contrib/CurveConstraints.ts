@@ -133,9 +133,11 @@ export const repulsiveEnergy = (
             0,
             div(
               mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
-              ops.vdist(
-                ops.vmul(0.5, ops.vadd(p1, p2)),
-                ops.vmul(0.5, ops.vadd(q1, q2))
+              squared(
+                ops.vdist(
+                  ops.vmul(0.5, ops.vadd(p1, p2)),
+                  ops.vmul(0.5, ops.vadd(q1, q2))
+                )
               )
             )
           )
