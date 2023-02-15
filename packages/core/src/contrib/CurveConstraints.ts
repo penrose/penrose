@@ -117,20 +117,19 @@ export const repulsiveEnergy = (
   closed: boolean
 ): ad.Num => {
   const tuples = consecutiveTuples(points, closed);
-  const integrands = tuples.reduce((acc, [p1, p2], i) =>
-    acc.concat(
-      tuples
-        .slice(i + 1)
-        .map(([q1, q2]) =>
-          div(
-            mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
-            ops.vdistsq(
-              ops.vmul(0.5, ops.vadd(p1, p2)),
-              ops.vmul(0.5, ops.vadd(q1, q2))
-            )
-          )
-        ),
-      []
+  const ts = [];
+  for (let i = 0; i < tuples.length - 1; i++) {
+    for (let j = i + 1; j < tuples.length; j++) {
+      ts.push([tuples[i], tuples[j]]);
+    }
+  }
+  const integrands = ts.map(([[p1, p2], [q1, q2]]) =>
+    div(
+      mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
+      ops.vdistsq(
+        ops.vmul(0.5, ops.vadd(p1, p2)),
+        ops.vmul(0.5, ops.vadd(q1, q2))
+      )
     )
   );
   return addN(integrands);
