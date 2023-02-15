@@ -136,6 +136,35 @@ export const repulsiveEnergy = (
 };
 
 /**
+ * Returns simple repulsive energy
+ */
+export const repulsiveEnergyMultiple = (
+  points: [ad.Num, ad.Num][][],
+  closed: boolean[]
+): ad.Num => {
+  let tuples: [[ad.Num, ad.Num], [ad.Num, ad.Num]][] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    tuples = [...tuples, ...consecutiveTuples(points[i], closed[i])];
+  }
+  const ts = [];
+  for (let i = 0; i < tuples.length - 1; i++) {
+    for (let j = i + 1; j < tuples.length; j++) {
+      ts.push([tuples[i], tuples[j]]);
+    }
+  }
+  const integrands = ts.map(([[p1, p2], [q1, q2]]) =>
+    div(
+      mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
+      ops.vdistsq(
+        ops.vmul(0.5, ops.vadd(p1, p2)),
+        ops.vmul(0.5, ops.vadd(q1, q2))
+      )
+    )
+  );
+  return addN(integrands);
+};
+
+/**
  * Returns integral of curvature squared along the curve
  */
 export const elasticEnergy = (

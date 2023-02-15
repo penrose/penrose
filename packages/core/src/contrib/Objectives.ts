@@ -288,6 +288,18 @@ export const objDictSpecific = {
     const equiangular = constrDictCurves.isEquiangular([t, s]);
     return add(equilater, equiangular);
   },
+
+  /**
+   * The shape should be regular (equiangular and equilateral)
+   */
+  isEquilateral: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
+    if (t !== "Polyline" && t !== "Polygon" && t !== "Path") {
+      throw new Error(
+        `isRegular: expected a polygon, polyline or path, got ${t}`
+      );
+    }
+    return constrDictCurves.isEquilateral([t, s]);
+  },
 };
 
 export const objDict = {

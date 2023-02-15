@@ -75,6 +75,7 @@ import {
   isoperimetricRatio,
   perimeter,
   repulsiveEnergy,
+  repulsiveEnergyMultiple,
   signedArea,
   totalCurvature,
   turningNumber,
@@ -1790,6 +1791,17 @@ export const compDict = {
     closed: boolean
   ): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: repulsiveEnergy(points, closed) };
+  },
+
+  /**
+   * Returns integral of curvature along the curve
+   */
+  repulsiveEnergyMultiple: (
+    _context: Context,
+    points: [ad.Num, ad.Num][][],
+    closed: boolean[]
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: repulsiveEnergyMultiple(points, closed) };
   },
 };
 
