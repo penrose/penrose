@@ -43,6 +43,14 @@
       "gallery": true
     },
     {
+      "name": "Klein-4 Group",
+      "substance": "klein-4-group",
+      "style": "group-theory-klein-4",
+      "domain": "group-theory",
+      "variation": "",
+      "gallery": true
+    },
+    {
       "name": "Wet Floor",
       "substance": "wet-floor",
       "style": "atoms-and-bonds",
@@ -542,6 +550,10 @@
       "domain": "group-theory",
       "URI": "group-theory/CayleyGraph.style"
     },
+    "group-theory-klein-4": {
+      "domain": "group-theory",
+      "URI": "group-theory/Klein4.style"
+    },
     "continuousmap": {
       "domain": "set-theory",
       "URI": "set-theory-domain/continuousmap.style"
@@ -683,6 +695,10 @@
     "quaternion-group": {
       "domain": "group-theory",
       "URI": "group-theory/groups/quaternions.substance"
+    },
+    "klein-4-group": {
+      "domain": "group-theory",
+      "URI": "group-theory/groups/klein-4.substance"
     },
     "continuousmap": {
       "domain": "set-theory",

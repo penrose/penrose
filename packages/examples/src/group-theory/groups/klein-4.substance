@@ -1,0 +1,5 @@
+Element e, r, b, rb
+Label e $1$
+Label r $3$
+Label b $5$
+Label rb $7$

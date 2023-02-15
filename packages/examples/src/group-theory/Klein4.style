@@ -3,18 +3,18 @@ canvas {
     height = 700
 }
 
-forall Group G {
-    G.circle = Circle {
+G {
+    circle = Circle {
         center: (0, 0)
         fillColor: #c4c4c4
     }
     name = Equation {
-        string: G.label
+        string: "K_4"
     }
-    name.center = G.circle.center + (0, G.circle.r + name.height)
+    name.center = circle.center + (0, circle.r + name.height)
 }
 
-forall Elem x {
+forall Element x {
     c = sampleColor(1, "rgb")
     x.leftname = Equation {
         string: x.label
@@ -38,9 +38,6 @@ forall Elem x {
         strokeColor: c
         strokeStyle: "dashed"
     }
-}
-
-forall Group G; Elem x where x := elem(G) {
     ensure contains(G.circle, x.leftname)
     ensure contains(G.circle, x.left)
 }
