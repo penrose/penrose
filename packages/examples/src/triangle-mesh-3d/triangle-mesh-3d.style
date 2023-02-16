@@ -112,7 +112,7 @@ forall Vertex v
 
 
 forall Vertex v
-where v has label
+where v has math label
 {
    shape v.labelText = Equation {
        string: v.label
@@ -120,6 +120,13 @@ where v has label
        fontSize: global.dotFontSize
        ensureOnCanvas: false
    }
+}
+
+-- avoid overlapping vertex labels
+forall Vertex i; Vertex j
+where i has math label; j has math label
+{
+   ensure disjoint( i.labelText, j.labelText )
 }
 
 forall Triangle t; Vertex i; Vertex j; Vertex k
@@ -235,7 +242,6 @@ forall StandardTriangle t
 forall Map f; StandardTriangle t0; Triangle t
 where f := TriangleEmbedding(t0,t) {
 
-
    vec2 m01 = (t.p0 + t.p1)/2
    vec2 m12 = (t.p1 + t.p2)/2
    vec2 m20 = (t.p2 + t.p0)/2
@@ -252,19 +258,38 @@ where f := TriangleEmbedding(t0,t) {
    vec2 v = (b-t.p0) + (b-t.p1) + (b-t.p2)
    vec2 b1 = b + 5*unit(v)
 
-   vec2 n = rot90(b1-a1)/norm(b1-a1)
-   vec2 c = (a1+b1)/2 + 5*n
+   vec2 f.n = rot90(b1-a1)/norm(b1-a1)
+   vec2 f.c = (a1+b1)/2 + 5*f.n
 
    shape f.arrow = Path {
-      d: interpolateQuadraticFromPoints( "open", a1, c, b1 )
+      d: interpolateQuadraticFromPoints( "open", a1, f.c, b1 )
       strokeColor: #000000
       endArrowhead: "straight"
       endArrowheadSize: 0.5
       strokeWidth: 1
    }
+}
 
-   vec2 C = (t.p0 + t.p1 + t.p2)/3
-   encourage equal( 0, norm(b-C) )
-   ensure norm( b-C ) > 15
+-- draw labels for maps that have them
+forall Map f; StandardTriangle t0; Triangle t
+where f has math label {
+   f.labelText = Equation {
+      string: f.label
+      center: f.c + 5*f.n
+       fontSize: global.dotFontSize
+       ensureOnCanvas: false
+   }
+}
+
+-- avoid overlapping map labels
+forall Map f; Map g
+where f has math label; g has math label {
+   ensure disjoint( f.labelText, g.labelText )
+}
+
+-- avoid overlapping map and vertex labels
+forall Map f; Vertex v
+where f has math label; v has math label {
+   ensure disjoint( f.labelText, v.labelText )
 }
 

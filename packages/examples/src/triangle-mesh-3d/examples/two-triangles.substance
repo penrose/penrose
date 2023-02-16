@@ -16,5 +16,6 @@ Label a2 $k_0$
 Label b0 $i_1$
 Label b1 $j_1$
 Label b2 $k_1$
-
+Label f0 $f$
+Label f1 $\tilde{f}$
 
