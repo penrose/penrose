@@ -5,6 +5,8 @@ canvas {
 
 colors {
    black = #000000
+   white = #ffffff
+   shadow = rgba(0,0,0,.1)
 }
 
 global {
@@ -15,13 +17,12 @@ global {
      center: (0,0)
      width: canvas.width
      height: canvas.height
-     fillColor: none()
-     strokeColor: #33887733
-     strokeWidth: 2.0
+     fillColor: #66666633
+     strokeColor: none()
    }
 
    shape codomainLabel = Equation {
-      center: .5*(canvas.width,canvas.height) - (20,20)
+      center: .5*(canvas.width,canvas.height) - (10,10)
       string: "\mathbb{R}^3"
       fontSize: labelFontSize
       fontColor: colors.black
@@ -84,18 +85,17 @@ forall Vertex v
 {
    -- Sample 3D location from a bounding box of size c
    scalar c = .9*min( global.planeSize, abs(global.planeHeight) )
-   vec3 q = (?,?,?)
-   ensure -c < q[0]
-   ensure q[0] < c
-   ensure -c < q[1]
-   ensure q[1] < c
-   ensure -c < q[2]
-   ensure q[2] < c
+   vec3 v.q = (?,?,?)
+   ensure -c < v.q[0]
+   ensure v.q[0] < c
+   ensure -c < v.q[1]
+   ensure v.q[1] < c
+   ensure -c < v.q[2]
+   ensure v.q[2] < c
 
    -- perform modelview transformation
    scalar θ = global.cameraθ
-   vec3 Q = ( q[0], q[1], q[2] - global.cZ )
-   --vec3 Q = ( q[0]*cos(θ) + q[2]*sin(θ), q[1], q[2]*cos(θ) - q[0]*sin(θ) - global.cZ )
+   vec3 Q = ( v.q[0], v.q[1], v.q[2] - global.cZ )
 
    -- Perform perspective projection to get 2D coordinates
    vec2 v.p = canvas.width * (Q[0],Q[1])/(Q[2]) + global.viewXY
@@ -115,7 +115,7 @@ forall Vertex v
    shape v.shadow = Circle {
       center: v.s
       r: global.dotSize
-      fillColor: rgba(0,0,0,.1)
+      fillColor: colors.shadow
       ensureOnCanvas: false
    }
 }
@@ -146,6 +146,9 @@ where t := MakeTriangle(i,j,k)
    t.p0 = i.p
    t.p1 = j.p
    t.p2 = k.p
+   t.q0 = i.q
+   t.q1 = j.q
+   t.q2 = k.q
 
    -- Draw polygon using projected 2D coordinates p
    shape t.icon = Polygon {
@@ -158,27 +161,45 @@ where t := MakeTriangle(i,j,k)
    -- Make sure the triangle is positively oriented in the
    -- image plane, and has some- "fat" angles so that it
    -- doesn't degenerate
-   vec2 eij = j.p - i.p
-   vec2 ejk = k.p - j.p
-   vec2 eki = i.p - k.p
-   constraint t.orientation = ensure cross2D( eij, -ejk ) < 0
-   constraint t.angleSizeI = ensure angleFrom( -eij, eki ) > toRadians( 45 )
-   constraint t.angleSizeJ = ensure angleFrom( -ejk, eij ) > toRadians( 45 )
-   constraint t.angleSizeK = ensure angleFrom( -eki, ejk ) > toRadians( 45 )
+   vec2 t.eij = j.p - i.p
+   vec2 t.ejk = k.p - j.p
+   vec2 t.eki = i.p - k.p
+   constraint t.orientation = ensure cross2D(   t.eij, -t.ejk ) < 0
+   constraint t.angleSizeI = ensure angleFrom( -t.eij,  t.eki ) > toRadians( 45 )
+   constraint t.angleSizeJ = ensure angleFrom( -t.ejk,  t.eij ) > toRadians( 45 )
+   constraint t.angleSizeK = ensure angleFrom( -t.eki,  t.ejk ) > toRadians( 45 )
 
    -- Draw shadow polygon using projected 2D coordinates s
    shape t.shadow = Polygon {
       points: (i.s,j.s,k.s)
-      fillColor: rgba(0,0,0,0.1)
+      fillColor: colors.shadow
       strokeColor: none()
       ensureOnCanvas: false
    }
+}
 
+forall Triangle t; Vertex i; Vertex j; Vertex k
+where t := MakeTriangle(i,j,k); i has math label; j has math label; k has math label
+{
    -- offset labels from vertices
    scalar offset = 6
-   i.labelText.center = i.p - offset*unit( eij - eki )
-   j.labelText.center = j.p - offset*unit( ejk - eij )
-   k.labelText.center = k.p - offset*unit( eki - ejk )
+   i.labelText.center = i.p - offset*unit( t.eij - t.eki )
+   j.labelText.center = j.p - offset*unit( t.ejk - t.eij )
+   k.labelText.center = k.p - offset*unit( t.eki - t.ejk )
+}
+
+forall Triangle t
+where t has math label
+{
+   vec2 mij = (t.p0 + t.p1)/2
+   vec2 nij = unit(rot90(t.eij))
+
+   shape t.labelText = Equation {
+      string: t.label
+      center: mij - 6*nij
+      fontSize: global.labelFontSize
+      fontColor: colors.black
+   }
 }
 
 -- For any pair of triangles, make sure that triangles
@@ -203,6 +224,41 @@ where s := MakeTriangle(si,sj,sk); t := MakeTriangle(ti,tj,tk)
    ensure disjoint( tj.icon, s.icon, padding )
    ensure disjoint( tk.icon, s.icon, padding )
 
+}
+
+forall Point p
+{
+   override p.icon.fillColor = colors.white
+   override p.icon.strokeColor = colors.black
+   override p.icon.strokeWidth = .35
+}
+
+forall Point p; Triangle t
+where p := Barycenter(t)
+{
+   override p.q = (t.q0 + t.q1 + t.q2)/3
+}
+
+forall Segment s; Point a; Point b
+where s := LineSegment(a,b)
+{
+   s.icon = Line {
+      start: a.p
+      end: b.p
+      strokeColor: colors.black
+      strokeWidth: .35
+      strokeDasharray: "1.5 1.5"
+      ensureOnCanvas: false
+   }
+
+   s.shadow = Line {
+      start: a.s
+      end: b.s
+      strokeColor: colors.shadow
+      strokeWidth: .35
+      strokeDasharray: "1.5 1.5"
+      ensureOnCanvas: false
+   }
 }
 
 forall StandardTriangle t
@@ -311,7 +367,7 @@ where f := TriangleEmbedding(t0,t) {
    vec2 v = (b-t.p0) + (b-t.p1) + (b-t.p2)
    vec2 b1 = b + 5*unit(v)
 
-   vec2 f.n = rot90(b1-a1)/norm(b1-a1)
+   vec2 f.n = unit(rot90(b1-a1))
    vec2 f.c = (a1+b1)/2 + 5*f.n
 
    shape f.arrow = Path {
