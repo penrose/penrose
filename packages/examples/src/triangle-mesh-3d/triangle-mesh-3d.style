@@ -1,9 +1,15 @@
 canvas {
-   width = 200
-   height = 200
+   width = 170
+   height = 120
+}
+
+colors {
+   black = #000000
 }
 
 global {
+
+   string labelFontSize = "4.5px"
 
    shape box = Rectangle {
      center: (0,0)
@@ -14,10 +20,16 @@ global {
      strokeWidth: 2.0
    }
 
+   shape codomainLabel = Equation {
+      center: .5*(canvas.width,canvas.height) - (20,20)
+      string: "\mathbb{R}^3"
+      fontSize: labelFontSize
+      fontColor: colors.black
+   }
+
    -- style of small dots
    scalar dotSize = 1.0
    color dotColor = rgba(0,0,0,1)
-   string dotFontSize = "4.5px"
 
    -- standard triangle colors
    rgba triFill = #1b1f8a55
@@ -26,7 +38,7 @@ global {
 
    -- Ground plane coordinates in 3D
    scalar planeSize = 50 -- plane size
-   scalar planeHeight = -40 -- plane height
+   scalar planeHeight = -35 -- plane height
 
    -- Use a simple pinhole camera model, where the
    -- only camera parameter is the distance along Z
@@ -72,7 +84,6 @@ forall Vertex v
 {
    -- Sample 3D location from a bounding box of size c
    scalar c = .9*min( global.planeSize, abs(global.planeHeight) )
-
    vec3 q = (?,?,?)
    ensure -c < q[0]
    ensure q[0] < c
@@ -98,7 +109,6 @@ forall Vertex v
       center: v.p
       r: global.dotSize
       fillColor: global.dotColor
-      ensureOnCanvas: false
    }
 
    -- draw shadow as semi-transparent black dot
@@ -110,15 +120,13 @@ forall Vertex v
    }
 }
 
-
 forall Vertex v
 where v has math label
 {
    shape v.labelText = Equation {
        string: v.label
        center: v.p
-       fontSize: global.dotFontSize
-       ensureOnCanvas: false
+       fontSize: global.labelFontSize
    }
 }
 
@@ -145,7 +153,6 @@ where t := MakeTriangle(i,j,k)
       fillColor: global.triFill
       strokeColor: global.triStroke
       strokeWidth: global.triStrokeWidth
-      ensureOnCanvas: false
    }
 
    -- Make sure the triangle is positively oriented in the
@@ -204,7 +211,7 @@ forall StandardTriangle t
    scalar s = canvas.width/4
 
    -- coordinate system origin o and axes e1,e2
-   vec2 o = -.9*(canvas.width,canvas.height)/2 + (0,20)
+   vec2 o = -.9*(canvas.width,canvas.height)/2 + (0,5)
    vec2 e1 = (s,0)
    vec2 e2 = (0,s)
 
@@ -213,29 +220,75 @@ forall StandardTriangle t
    vec2 t.p1 = o + e1
    vec2 t.p2 = o + e2
 
-   t.icon = Polygon {
+   -- standard triangle
+   shape t.icon = Polygon {
       fillColor: global.triFill
       strokeColor: global.triStroke
       strokeWidth: global.triStrokeWidth
       points: ( t.p0, t.p1, t.p2 )
    }
 
-   t.xAxis = Line {
+   -- standard axes
+   shape xAxis = Line {
       start: o
       end: o + 1.15*e1
-      strokeColor: #000000ff
+      strokeColor: colors.black
       strokeWidth: 0.65
       endArrowhead: "straight"
       endArrowheadSize: 0.65
    }
-
-   t.yAxis = Line {
+   shape yAxis = Line {
       start: o
       end: o + 1.15*e2
-      strokeColor: #000000ff
+      strokeColor: colors.black
       strokeWidth: 0.65
       endArrowhead: "straight"
       endArrowheadSize: 0.65
+   }
+   shape xAxisLabel = Equation {
+      center:  o + 1.225*e1
+      string: "s"
+      fontSize: global.labelFontSize
+      fontColor: colors.black
+      ensureOnCanvas: false
+   }
+   shape yAxisLabel = Equation {
+      center:  o + 1.25*e2
+      string: "t"
+      fontSize: global.labelFontSize
+      fontColor: colors.black
+      ensureOnCanvas: false
+   }
+
+   -- unit ticks
+   scalar tickSize = 2.5
+   shape xAxisTick = Line {
+      start: o + e1 - (0,tickSize)
+      end:   o + e1 + (0,tickSize)
+      strokeColor: t.icon.strokeColor
+      strokeWidth: .75 * xAxis.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape yAxisTick = Line {
+      start: o + e2 - (tickSize,0)
+      end:   o + e2 + (tickSize,0)
+      strokeColor: t.icon.strokeColor
+      strokeWidth: .75 * yAxis.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape xTickLabel = Equation {
+      center: xAxisTick.start - (0,5)
+      string: "1"
+      fontColor: colors.black
+      fontSize: global.labelFontSize
+      ensureOnCanvas: false
+   }
+   shape yTickLabel = Equation {
+      center: yAxisTick.start - (2.5,0)
+      string: "1"
+      fontColor: colors.black
+      fontSize: global.labelFontSize
+      ensureOnCanvas: false
    }
 }
 
@@ -263,21 +316,27 @@ where f := TriangleEmbedding(t0,t) {
 
    shape f.arrow = Path {
       d: interpolateQuadraticFromPoints( "open", a1, f.c, b1 )
-      strokeColor: #000000
+      strokeColor: colors.black
       endArrowhead: "straight"
       endArrowheadSize: 0.5
       strokeWidth: 1
    }
 }
 
+-- arrows shouldn't overlap triangles
+forall Map f; Map g; StandardTriangle t0; Triangle t
+where f := TriangleEmbedding(t0,t) {
+   ensure disjoint( g.arrow, t.icon )
+}
+
 -- draw labels for maps that have them
 forall Map f; StandardTriangle t0; Triangle t
 where f has math label {
-   f.labelText = Equation {
+   shape f.labelText = Equation {
       string: f.label
       center: f.c + 5*f.n
-       fontSize: global.dotFontSize
-       ensureOnCanvas: false
+      fontSize: global.labelFontSize
+      ensureOnCanvas: false
    }
 }
 

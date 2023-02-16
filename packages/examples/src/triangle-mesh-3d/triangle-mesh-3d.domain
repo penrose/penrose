@@ -1,6 +1,6 @@
 type Vertex
 type Triangle
-type StandardTriangle <: Triangle
+type StandardTriangle
 type Map
 
 constructor MakeTriangle(Vertex i, Vertex j, Vertex k) -> Triangle

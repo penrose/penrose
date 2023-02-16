@@ -1,3 +1,5 @@
+-- variation: PlateauHedgehog6931
+
 Vertex a0, a1, a2
 Vertex b0, b1, b2
 Triangle s, t
@@ -9,13 +11,12 @@ t := MakeTriangle(b0,b1,b2)
 f0 := TriangleEmbedding(sigma,s)
 f1 := TriangleEmbedding(sigma,t)
 
-Label t $\widetilde{\mathbf{f}}$
-Label a0 $i_0$
-Label a1 $j_0$
-Label a2 $k_0$
-Label b0 $i_1$
-Label b1 $j_1$
-Label b2 $k_1$
-Label f0 $f$
-Label f1 $\tilde{f}$
+Label a0 $\mathbf{f}_i$
+Label a1 $\mathbf{f}_j$
+Label a2 $\mathbf{f}_k$
+Label b0 $\tilde{\mathbf{f}}_i$
+Label b1 $\tilde{\mathbf{f}}_j$
+Label b2 $\tilde{\mathbf{f}}_k$
+Label f0 $\mathbf{f}$
+Label f1 $\tilde{\mathbf{f}}$
 
