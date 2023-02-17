@@ -1,7 +1,7 @@
 -- variation: TODO
 
-Vertex a0, a1, a2
-Vertex b0, b1, b2
+Point a0, a1, a2
+Point b0, b1, b2
 Triangle s := MakeTriangle(a0,a1,a2)
 Triangle t := MakeTriangle(b0,b1,b2)
 Point cs := Barycenter(s)

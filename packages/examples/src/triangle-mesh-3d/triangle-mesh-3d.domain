@@ -1,12 +1,11 @@
-type Vertex
+type Point
+type Segment
 type Triangle
 type StandardTriangle
 type Map
-type Point <: Vertex
-type Segment
 type Vector
 
-constructor MakeTriangle(Vertex i, Vertex j, Vertex k) -> Triangle
+constructor MakeTriangle(Point i, Point j, Point k) -> Triangle
 constructor TriangleEmbedding(StandardTriangle a, Triangle b) -> Map
 constructor Barycenter(Triangle t) -> Point
 constructor LineSegment(Point a, Point b) -> Segment

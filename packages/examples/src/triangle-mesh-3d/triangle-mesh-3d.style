@@ -81,7 +81,7 @@ global {
    }
 }
 
-forall Vertex v
+forall Point v
 {
    -- Sample 3D location from a bounding box of size c
    scalar c = .9*min( global.planeSize, abs(global.planeHeight) )
@@ -103,7 +103,7 @@ forall Vertex v
    vec3 R = (Q[0],global.planeHeight,Q[2])
    vec2 v.s = canvas.width * (R[0],R[1])/(R[2]) + global.viewXY
 
-   -- draw vertex as small dot
+   -- draw point as small dot
    shape v.icon = Circle {
       center: v.p
       r: global.dotSize
@@ -119,27 +119,17 @@ forall Vertex v
    }
 }
 
-forall Vertex v
-where v has math label
-{
-   shape v.labelText = Equation {
-       string: v.label
-       center: v.p
-       fontSize: global.labelFontSize
-   }
-}
-
--- avoid overlapping vertex labels
-forall Vertex i; Vertex j
+-- avoid overlapping point labels
+forall Point i; Point j
 where i has math label; j has math label
 {
    ensure disjoint( i.labelText, j.labelText )
 }
 
-forall Triangle t; Vertex i; Vertex j; Vertex k
+forall Triangle t; Point i; Point j; Point k
 where t := MakeTriangle(i,j,k)
 {
-   -- make local aliases to vertex coordinates, for
+   -- make local aliases to point coordinates, for
    -- use by future rules that reference t but not
    -- its vertices
    t.p0 = i.p
@@ -178,7 +168,7 @@ where t := MakeTriangle(i,j,k)
    }
 }
 
-forall Triangle t; Vertex i; Vertex j; Vertex k
+forall Triangle t; Point i; Point j; Point k
 where t := MakeTriangle(i,j,k); i has math label; j has math label; k has math label
 {
    -- offset labels from vertices
@@ -206,7 +196,7 @@ where t has math label
 -- don't overlap, and moreover the vertices of one triangle are
 -- far from being contained in the other triangle (which helps
 -- to avoid overlapping labels).
-forall Triangle s; Triangle t; Vertex si; Vertex sj; Vertex sk; Vertex ti; Vertex tj; Vertex tk
+forall Triangle s; Triangle t; Point si; Point sj; Point sk; Point ti; Point tj; Point tk
 where s := MakeTriangle(si,sj,sk); t := MakeTriangle(ti,tj,tk)
 {
    scalar padding = 10.0
@@ -224,13 +214,6 @@ where s := MakeTriangle(si,sj,sk); t := MakeTriangle(ti,tj,tk)
    ensure disjoint( tj.icon, s.icon, padding )
    ensure disjoint( tk.icon, s.icon, padding )
 
-}
-
-forall Point p
-{
-   override p.icon.fillColor = colors.white
-   override p.icon.strokeColor = colors.black
-   override p.icon.strokeWidth = .35
 }
 
 forall Point p
@@ -252,6 +235,9 @@ forall Point p; Triangle t
 where p := Barycenter(t)
 {
    override p.q = (t.q0 + t.q1 + t.q2)/3
+   override p.icon.fillColor = colors.white
+   override p.icon.strokeColor = colors.black
+   override p.icon.strokeWidth = .35
 }
 
 forall Vector v
@@ -507,8 +493,8 @@ where f has math label; g has math label {
    ensure disjoint( f.labelText, g.labelText )
 }
 
--- avoid overlapping map and vertex labels
-forall Map f; Vertex v
+-- avoid overlapping map and point labels
+forall Map f; Point v
 where f has math label; v has math label {
    ensure disjoint( f.labelText, v.labelText )
 }
