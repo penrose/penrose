@@ -30,7 +30,7 @@ global {
 
    -- style of small dots
    scalar dotSize = 1.0
-   color dotColor = rgba(0,0,0,1)
+   color dotColor = colors.black
 
    -- standard triangle colors
    rgba triFill = #1b1f8a55
@@ -94,7 +94,6 @@ forall Vertex v
    ensure v.q[2] < c
 
    -- perform modelview transformation
-   scalar θ = global.cameraθ
    vec3 Q = ( v.q[0], v.q[1], v.q[2] - global.cZ )
 
    -- Perform perspective projection to get 2D coordinates
@@ -104,14 +103,14 @@ forall Vertex v
    vec3 R = (Q[0],global.planeHeight,Q[2])
    vec2 v.s = canvas.width * (R[0],R[1])/(R[2]) + global.viewXY
 
-   -- draw vertex as black dot
+   -- draw vertex as small dot
    shape v.icon = Circle {
       center: v.p
       r: global.dotSize
       fillColor: global.dotColor
    }
 
-   -- draw shadow as semi-transparent black dot
+   -- draw shadow as semi-transparent dot
    shape v.shadow = Circle {
       center: v.s
       r: global.dotSize
@@ -164,7 +163,8 @@ where t := MakeTriangle(i,j,k)
    vec2 t.eij = j.p - i.p
    vec2 t.ejk = k.p - j.p
    vec2 t.eki = i.p - k.p
-   constraint t.orientation = ensure cross2D(   t.eij, -t.ejk ) < 0
+   scalar minArea = 200
+   constraint t.orientation = ensure cross2D(   t.eij, -t.ejk ) < -minArea
    constraint t.angleSizeI = ensure angleFrom( -t.eij,  t.eki ) > toRadians( 45 )
    constraint t.angleSizeJ = ensure angleFrom( -t.ejk,  t.eij ) > toRadians( 45 )
    constraint t.angleSizeK = ensure angleFrom( -t.eki,  t.ejk ) > toRadians( 45 )
@@ -233,10 +233,115 @@ forall Point p
    override p.icon.strokeWidth = .35
 }
 
+forall Point p
+where p has math label
+{
+   shape p.labelText = Equation {
+      string: p.label
+      fontSize: global.labelFontSize
+      fillColor: colors.black
+      ensureOnCanvas: false
+   }
+
+   vec2 u = (?,?)
+   ensure norm(u) == 1
+   p.labelText.center = p.p + 3.5*u
+}
+
 forall Point p; Triangle t
 where p := Barycenter(t)
 {
    override p.q = (t.q0 + t.q1 + t.q2)/3
+}
+
+forall Vector v
+{
+   vec3 v.a = (?,?,?) -- tail
+   vec3 v.b = (?,?,?) -- head
+
+   -- perform modelview transformation
+   vec3 A = ( v.a[0], v.a[1], v.a[2] - global.cZ )
+   vec3 B = ( v.b[0], v.b[1], v.b[2] - global.cZ )
+
+   -- Perform perspective projection to get 2D coordinates
+   vec2 v.p = canvas.width * (A[0],A[1])/(A[2]) + global.viewXY
+   vec2 v.q = canvas.width * (B[0],B[1])/(B[2]) + global.viewXY
+
+   -- Compute projected shadow coordinates
+   vec3 R = (A[0],global.planeHeight,A[2])
+   vec3 S = (B[0],global.planeHeight,B[2])
+   vec2 v.r = canvas.width * (R[0],R[1])/(R[2]) + global.viewXY
+   vec2 v.s = canvas.width * (S[0],S[1])/(S[2]) + global.viewXY
+
+   -- draw vector as arrow
+   shape v.icon = Line {
+      start: v.p
+      end: v.q
+      strokeColor: colors.black
+      strokeWidth: .75
+      endArrowhead: "straight"
+      endArrowheadSize: 0.5
+      ensureOnCanvas: false
+   }
+
+   -- draw shadow as semi-transparent arrow
+   shape v.shadow = Line {
+      start: v.r
+      end: v.s
+      strokeColor: colors.shadow
+      strokeWidth: .75
+      endArrowhead: "straight"
+      endArrowheadSize: 0.5
+      ensureOnCanvas: false
+   }
+}
+
+forall Vector v
+where v has math label
+{
+   shape v.labelText = Equation {
+      string: v.label
+      fontSize: global.labelFontSize
+      fillColor: colors.black
+      ensureOnCanvas: false
+   }
+
+   vec2 u = unit(v.q - v.p)
+   encourage norm(v.labelText.center - (v.q + 4.5*u)) == 0
+}
+
+forall Vector v; Triangle t
+where v := TriangleNormal(t)
+{
+   scalar normalLength = 25
+   vec3 c = (t.q0 + t.q1 + t.q2)/3
+   vec3 n = unit(cross(t.q1 - t.q0, t.q2 - t.q0))
+   vec3 e1 = unit(t.q1 - t.q0)
+   override v.a = c
+   override v.b = v.a + normalLength * n
+
+   -- draw perpendicular marker
+   scalar s = 3
+   vec2 x0 = c
+   vec2 x1 = c + s*n 
+   vec2 x2 = c + s*(n+e1)
+   vec2 x3 = c + s*e1
+   vec2 X0 = canvas.width * (x0[0],x0[1])/(x0[2]-global.cZ) + global.viewXY
+   vec2 X1 = canvas.width * (x1[0],x1[1])/(x1[2]-global.cZ) + global.viewXY
+   vec2 X2 = canvas.width * (x2[0],x2[1])/(x2[2]-global.cZ) + global.viewXY
+   vec2 X3 = canvas.width * (x3[0],x3[1])/(x3[2]-global.cZ) + global.viewXY
+   shape perpMarker = Polygon {
+      points: [ X0, X1, X2, X3 ]
+      fillColor: colors.white
+   }
+   shape perpMarkerLine = Polyline {
+      points: [ X0, X1, X2, X3 ]
+      strokeColor: #1b1f8a
+      strokeWidth: .35
+   }
+
+   layer perpMarker above t.icon
+   layer perpMarkerLine above perpMarker
 }
 
 forall Segment s; Point a; Point b

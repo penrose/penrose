@@ -7,6 +7,9 @@ Triangle t := MakeTriangle(b0,b1,b2)
 Point cs := Barycenter(s)
 Point ct := Barycenter(t)
 Segment st := LineSegment(cs, ct)
+Vector ns := TriangleNormal(s)
 
 Label s $\mathrm{t}_1$
 Label t $\mathrm{t}_2$
+Label ns $\mathbf{n}_s$
+Label cs $\mathbf{c}_s$
