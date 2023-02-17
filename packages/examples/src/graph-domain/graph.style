@@ -1,0 +1,38 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+color {
+  black = #000000
+  blue = #6ecde2
+}
+
+forall Vertex v {
+  v.dot = Circle {
+    r: 5
+    fillColor : color.black
+  }
+  v.text = Text {
+    string: v.label
+    fillColor: color.blue
+    fontFamily: "serif"
+    fontSize: "18px"
+  }
+  ensure disjoint(v.dot, v.text, 5)
+  encourage near(v.dot, v.text)
+}
+
+forall Vertex u; Vertex v {
+  ensure disjoint(u.text, v.text, 10)
+  ensure disjoint(u.dot, v.text, 20)
+  ensure disjoint(u.text, v.dot, 20)
+}
+
+forall Vertex u; Vertex v where Edge(u, v) {
+  Line {
+    start: u.dot.center
+    end: v.dot.center
+    strokeColor: color.black
+  }
+}

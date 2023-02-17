@@ -1,0 +1,2 @@
+type Vertex
+predicate Edge(Vertex, Vertex)
