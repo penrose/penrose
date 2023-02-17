@@ -1,13 +1,18 @@
 type Point
 type Segment
 type Triangle
-type StandardTriangle
+
+type Angle
+
 type Map
 type Vector
+
+type StandardTriangle
 
 constructor MakeTriangle(Point i, Point j, Point k) -> Triangle
 constructor TriangleEmbedding(StandardTriangle a, Triangle b) -> Map
 constructor Barycenter(Triangle t) -> Point
 constructor LineSegment(Point a, Point b) -> Segment
 constructor TriangleNormal(Triangle t) -> Vector
+constructor DihedralAngle(Point i, Point j, Point k, Point l) -> Angle
 

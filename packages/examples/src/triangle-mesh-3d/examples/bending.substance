@@ -1,0 +1,7 @@
+-- variation: TODO
+
+Point a0, a1, a2, a3
+Triangle s := MakeTriangle(a0,a1,a2)
+Triangle t := MakeTriangle(a1,a0,a3)
+Angle phi := DihedralAngle(a0,a1,a2,a3)
+
