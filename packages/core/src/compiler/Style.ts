@@ -111,11 +111,11 @@ import {
   Field,
   FloatV,
   GPI,
+  GPIListV,
   ListV,
   LListV,
   MatrixV,
   PropID,
-  ShapeListV,
   Value,
   VectorV,
 } from "../types/value";
@@ -133,7 +133,7 @@ import {
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
-import { GroupGraph, makeGroupGraph } from "../utils/GroupGraph";
+import { GroupGraph, makeGroupGraph, traverseUp } from "../utils/GroupGraph";
 import {
   boolV,
   cartesianProduct,
@@ -2487,7 +2487,7 @@ const evalShapeList = (
   coll: List<C> | Vector<C>,
   first: GPI<ad.Num>,
   rest: ArgVal<ad.Num>[]
-): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
+): Result<GPIListV<ad.Num>, StyleDiagnostics> => {
   const elems = [first];
   for (const v of rest) {
     if (v.tag === "GPI") {
@@ -2540,7 +2540,7 @@ const evalListOrVector = (
           case "PtListV":
           case "StrV":
           case "TupV":
-          case "ShapeListV": {
+          case "GPIListV": {
             return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
           }
         }
@@ -2591,7 +2591,7 @@ const evalAccess = (
     case "FloatV":
     case "PathDataV":
     case "StrV":
-    case "ShapeListV": {
+    case "GPIListV": {
       // Not allowing indexing into a shape list for now
       return err({ tag: "NotCollError", expr });
     }
@@ -2618,7 +2618,7 @@ const evalUMinus = (
     case "PtListV":
     case "StrV":
     case "TupV":
-    case "ShapeListV": {
+    case "GPIListV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
   }
@@ -3098,7 +3098,6 @@ export const checkGroupGraph = (groupGraph: GroupGraph): StyleWarning[] => {
       cycles,
     });
   }
-
   return warnings;
 };
 
@@ -3106,71 +3105,36 @@ export const checkGroupGraph = (groupGraph: GroupGraph): StyleWarning[] => {
 
 //#region layering
 
-export const propagateLayeringToParents = (
+export type LayerGraph = Graph<string>;
+
+export const processLayering = (
   { below, above }: Layer,
-  layerGraph: Graph<string>,
-  groupGraph: GroupGraph
+  groupGraph: GroupGraph,
+  layerGraph: LayerGraph
 ): void => {
-  layerGraph.setEdge({ i: below, j: above, e: undefined });
-  const belowParents = groupGraph.parents(below);
-  const aboveParents = groupGraph.parents(above);
-  aboveParents
-    .filter((p) => p !== below)
-    .forEach((p) => {
-      propagateLayeringToParents({ below, above: p }, layerGraph, groupGraph);
-    });
-  belowParents
-    .filter((p) => p !== above)
-    .forEach((p) => {
-      propagateLayeringToParents({ below: p, above }, layerGraph, groupGraph);
-    });
-  cartesianProduct(
-    belowParents,
-    aboveParents,
-    (p1, p2) => p1 !== p2,
-    (p1, p2) => {
-      propagateLayeringToParents(
-        { below: p1, above: p2 },
-        layerGraph,
-        groupGraph
-      );
+  // Path from the root to the node, excluding the root
+  // [..., below]
+  const belowPath = traverseUp(groupGraph, below).reverse();
+  // [..., above]
+  const abovePath = traverseUp(groupGraph, above).reverse();
+  // Find the first differing element.
+  let i = 0;
+  while (i < belowPath.length && i < abovePath.length) {
+    if (belowPath[i] !== abovePath[i]) {
+      layerGraph.setEdge({ i: belowPath[i], j: abovePath[i], e: undefined });
+      return;
     }
-  );
+    i++;
+  }
+
+  // Reached the end of either list without encountering a difference.
+  // Use the last common element.
+  i = Math.min(belowPath.length, abovePath.length) - 1;
+  // This will make a loop, which is expected.
+  layerGraph.setEdge({ i: belowPath[i], j: abovePath[i], e: undefined });
 };
 
-export const propagateLayeringToChildren = (
-  { below, above }: Layer,
-  layerGraph: Graph<string>,
-  groupGraph: GroupGraph
-): void => {
-  layerGraph.setEdge({ i: below, j: above, e: undefined });
-  const belowChildren = groupGraph.children(below);
-  const aboveChildren = groupGraph.children(above);
-  aboveChildren
-    .filter((c) => c !== below)
-    .forEach((c) => {
-      propagateLayeringToChildren({ below, above: c }, layerGraph, groupGraph);
-    });
-  belowChildren
-    .filter((c) => c !== above)
-    .forEach((c) => {
-      propagateLayeringToChildren({ below: c, above }, layerGraph, groupGraph);
-    });
-  cartesianProduct(
-    belowChildren,
-    aboveChildren,
-    (c1, c2) => c1 !== c2,
-    (c1, c2) => {
-      propagateLayeringToChildren(
-        { below: c1, above: c2 },
-        layerGraph,
-        groupGraph
-      );
-    }
-  );
-};
-
-export const computeShapeOrdering = (
+export const computeLayerOrdering = (
   allGPINames: string[],
   partialOrderings: Layer[],
   groupGraph: GroupGraph
@@ -3179,14 +3143,11 @@ export const computeShapeOrdering = (
   warning?: LayerCycleWarning;
 } => {
   const layerGraph = new Graph<string>();
-  allGPINames.forEach((name: string) => {
-    layerGraph.setNode(name, undefined);
+  allGPINames.map((node) => {
+    layerGraph.setNode(node, undefined);
   });
-  // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
   partialOrderings.forEach(({ below, above }: Layer) => {
-    layerGraph.setEdge({ i: below, j: above, e: undefined });
-    propagateLayeringToParents({ below, above }, layerGraph, groupGraph);
-    propagateLayeringToChildren({ below, above }, layerGraph, groupGraph);
+    processLayering({ below, above }, groupGraph, layerGraph);
   });
 
   // if there are no cycles, return a global ordering from the top sort result
@@ -3478,26 +3439,28 @@ export const compileStyleHelper = async (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
-  // This is the preliminary group graph that does not respect layering.
-  // Only used to check the structure of the group graph
-  const prelimGroupGraph: GroupGraph = makeGroupGraph(
+  const groupGraph: GroupGraph = makeGroupGraph(
     getShapes(graph, translation, [
       ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
     ])
   );
 
-  const groupWarnings = checkGroupGraph(prelimGroupGraph);
+  const groupWarnings = checkGroupGraph(groupGraph);
 
-  const { shapeOrdering, warning: layeringWarning } = computeShapeOrdering(
+  const {
+    shapeOrdering: layerOrdering,
+    warning: layeringWarning,
+  } = computeLayerOrdering(
     [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
     [...translation.layering],
-    prelimGroupGraph
+    groupGraph
   );
 
-  const shapes = getShapes(graph, translation, shapeOrdering);
+  for (let i = 0; i < layerOrdering.length; i++) {
+    groupGraph.setNode(layerOrdering[i], i);
+  }
 
-  // This group graph respects the layering.
-  const groupGraph = makeGroupGraph(shapes);
+  const shapes = getShapes(graph, translation, layerOrdering);
 
   const objFns = [...translation.objectives];
 

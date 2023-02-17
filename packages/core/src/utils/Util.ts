@@ -21,13 +21,13 @@ import {
   ColorV,
   FloatV,
   GPI,
+  GPIListV,
   ListV,
   LListV,
   MatrixV,
   PathCmd,
   PathDataV,
   PtListV,
-  ShapeListV,
   StrV,
   TupV,
   Val,
@@ -625,8 +625,8 @@ export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
   contents,
 });
 
-export const shapeListV = (contents: GPI<ad.Num>[]): ShapeListV<ad.Num> => ({
-  tag: "ShapeListV",
+export const shapeListV = (contents: GPI<ad.Num>[]): GPIListV<ad.Num> => ({
+  tag: "GPIListV",
   contents,
 });
 

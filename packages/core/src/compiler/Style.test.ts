@@ -83,7 +83,7 @@ describe("Layering computation", () => {
       { below: "A", above: "B" },
       { below: "B", above: "C" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
       partials,
       simpleGroupGraph
@@ -97,7 +97,7 @@ describe("Layering computation", () => {
       { below: "B", above: "C" },
       { below: "C", above: "A" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
       partials,
       simpleGroupGraph
@@ -115,7 +115,7 @@ describe("Layering computation", () => {
       { below: "E", above: "B" },
       { below: "C", above: "F" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
       partials,
       simpleGroupGraph
@@ -133,7 +133,7 @@ describe("Layering computation", () => {
       { below: "E", above: "C" },
       { below: "C", above: "F" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
       partials,
       simpleGroupGraph
@@ -154,7 +154,7 @@ describe("Layering computation", () => {
     groupGraph.setEdge({ i: "G1", j: "D", e: undefined });
     groupGraph.setEdge({ i: "G2", j: "B", e: undefined });
     groupGraph.setEdge({ i: "G2", j: "C", e: undefined });
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["G1", "B", "D", "A", "G2", "C"],
       partials,
       groupGraph
@@ -182,7 +182,7 @@ describe("Layering computation", () => {
     });
     groupGraph.setEdge({ i: "g", j: "s1", e: undefined });
     groupGraph.setEdge({ i: "g", j: "s2", e: undefined });
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["g", "s3", "s1", "s2"],
       partials,
       groupGraph

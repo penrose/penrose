@@ -1,10 +1,7 @@
 import { ShapeAD } from "../types/shape";
 import Graph from "./Graph";
 
-export type GroupGraph = Graph<
-  string, // shape name
-  number // shape layer
->;
+export type GroupGraph = Graph<string, number>; // shape name and index
 
 export const makeGroupGraph = (shapes: ShapeAD[]): GroupGraph => {
   const graph: GroupGraph = new Graph();
@@ -12,26 +9,25 @@ export const makeGroupGraph = (shapes: ShapeAD[]): GroupGraph => {
   // populate the nodes
   for (let i = 0; i < shapes.length; i++) {
     const shape = shapes[i];
-    const layer = i;
     const shapeNameVal = shape.properties["name"];
     if (shapeNameVal.tag !== "StrV") {
       throw Error("Shape name is not a string");
     }
     const shapeName = shapeNameVal.contents;
 
-    graph.setNode(shapeName, layer);
+    graph.setNode(shapeName, i);
     nameShapeMap.set(shapeName, shape);
   }
   // then populate the edges
   for (const [name, shape] of nameShapeMap.entries()) {
     if (shape.shapeType === "Group") {
-      const subGPIsVal = shape.properties["shapes"];
-      if (subGPIsVal.tag !== "ShapeListV") {
+      const subShapesVal = shape.properties["shapes"];
+      if (subShapesVal.tag !== "GPIListV") {
         throw Error("Group content not a list of shapes");
       }
-      const subGPIs = subGPIsVal.contents;
-      const subNames = subGPIs.map((gpi) => {
-        const subShapeNameVal = gpi.contents[1]["name"];
+      const subShapes = subShapesVal.contents;
+      const subNames = subShapes.map((shape) => {
+        const subShapeNameVal = shape.contents[1]["name"];
         if (subShapeNameVal.tag !== "StrV") {
           throw Error("Shape name is not a string");
         }
@@ -46,15 +42,30 @@ export const makeGroupGraph = (shapes: ShapeAD[]): GroupGraph => {
   return graph;
 };
 
-export const findRoot = (graph: GroupGraph, visited: Set<string>): string => {
+export const getParent = (
+  graph: GroupGraph,
+  node: string
+): string | undefined => {
+  const parents = graph.parents(node);
+  if (parents.length === 0) {
+    return undefined;
+  } else {
+    return parents[0];
+  }
+};
+
+export const traverseUp = (graph: GroupGraph, node: string): string[] => {
+  const path: string[] = [];
+  let currNode: string | undefined = node;
+  while (currNode) {
+    path.push(currNode);
+    currNode = getParent(graph, currNode);
+  }
+  return path;
+};
+
+export const findRoots = (graph: GroupGraph): string[] => {
   const roots = graph.sources();
   const nodes = roots.length > 0 ? roots : graph.nodes();
-  // Find the smallest node out of those unvisited
-  return nodes
-    .filter((node) => !visited.has(node))
-    .reduce((currMinNode, newNode) => {
-      return graph.node(currMinNode) < graph.node(newNode)
-        ? currMinNode
-        : newNode;
-    });
+  return nodes.sort((a, b) => graph.node(a) - graph.node(b));
 };
