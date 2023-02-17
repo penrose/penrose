@@ -228,7 +228,7 @@ where p has math label
 
    vec2 u = (?,?)
    ensure norm(u) == 1
-   p.labelText.center = p.p + 3.5*u
+   p.labelText.center = p.p + 5.5*u
 }
 
 forall Point p; Triangle t
@@ -328,6 +328,10 @@ where v := TriangleNormal(t)
 
    layer perpMarker above t.icon
    layer perpMarkerLine above perpMarker
+
+   -- make sure perpendicular marker is visible
+   scalar minArea = 10
+   ensure abs(cross2D(X0,X1) + cross2D(X1,X2) + cross2D(X2,X3) + cross2D(X3,X0)) > minArea
 }
 
 forall Segment s; Point a; Point b

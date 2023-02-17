@@ -12,4 +12,5 @@ Vector ns := TriangleNormal(s)
 Label s $\mathrm{t}_1$
 Label t $\mathrm{t}_2$
 Label ns $\mathbf{n}_s$
-Label cs $\mathbf{c}_s$
+Label cs $\mathbf{c}_{t_1}$
+Label ct $\mathbf{c}_{t_2}$
