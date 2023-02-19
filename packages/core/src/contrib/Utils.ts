@@ -207,6 +207,21 @@ export const consecutiveTuples = (
 };
 
 /**
+ * Return list of tuples of consecutive points
+ */
+export const consecutiveTuples3D = (
+  points: [ad.Num, ad.Num, ad.Num][],
+  closed: boolean
+): [[ad.Num, ad.Num, ad.Num], [ad.Num, ad.Num, ad.Num]][] => {
+  const resLength = closed ? points.length : points.length - 1;
+  if (resLength <= 0) return [];
+  return Array.from({ length: resLength }, (_, key) => key).map((i) => [
+    points[i],
+    points[(i + 1) % points.length],
+  ]);
+};
+
+/**
  * Return list of triples of consecutive points
  */
 export const consecutiveTriples = (
