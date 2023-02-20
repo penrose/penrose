@@ -1,0 +1,6 @@
+AutoLabel All
+Matrix X, Y
+
+-- matrix-matrix multiplication
+Matrix Z := mmmul(X,Y)
+

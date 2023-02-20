@@ -1,0 +1,7 @@
+AutoLabel All
+Vector u, v
+
+-- elementwise vector-vector division
+Vector a := ewvvdiv(u,v)
+Label a $u/v$
+
