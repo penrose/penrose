@@ -4,12 +4,19 @@ import {
   add,
   addN,
   div,
+  gt,
   ifCond,
+  lt,
   lte,
+  max,
+  min,
   mul,
+  or,
   sign,
+  sin,
   squared,
   sub,
+  tan,
 } from "../engine/AutodiffFunctions";
 import { Path } from "../shapes/Path";
 import { Polygon } from "../shapes/Polygon";
@@ -46,6 +53,40 @@ export const curvature = (
   // Alternative discrete curvature definition
   // return mul(2, sin(div(angle, 2)));
   // return mul(2, tan(div(angle, 2)));
+};
+
+/**
+ * Returns discrete curvature approximation given three consecutive points
+ */
+export const curvatureSin = (
+  p1: [ad.Num, ad.Num],
+  p2: [ad.Num, ad.Num],
+  p3: [ad.Num, ad.Num]
+): ad.Num => {
+  const v1 = ops.vsub(p2, p1);
+  const v2 = ops.vsub(p3, p2);
+  const angle = ops.angleFrom(v1, v2);
+  // return angle;
+  // Alternative discrete curvature definition
+  return mul(2, sin(div(angle, 2)));
+  // return mul(2, tan(div(angle, 2)));
+};
+
+/**
+ * Returns discrete curvature approximation given three consecutive points
+ */
+export const curvatureTan = (
+  p1: [ad.Num, ad.Num],
+  p2: [ad.Num, ad.Num],
+  p3: [ad.Num, ad.Num]
+): ad.Num => {
+  const v1 = ops.vsub(p2, p1);
+  const v2 = ops.vsub(p3, p2);
+  const angle = ops.angleFrom(v1, v2);
+  // return angle;
+  // Alternative discrete curvature definition
+  // return mul(2, sin(div(angle, 2)));
+  return mul(2, tan(div(angle, 2)));
 };
 
 /**
@@ -174,8 +215,8 @@ const lineSegmentDistance = (
 
   //     pA = a0 + (_A * t0) # Projected closest point on segment A
   //     pB = b0 + (_B * t1) # Projected closest point on segment B
-  const pA = ops.vadd(a0, ops.vmul(t0, _A));
-  const pB = ops.vadd(b0, ops.vmul(t1, _B));
+  let pA = ops.vadd(a0, ops.vmul(t0, _A));
+  let pB = ops.vadd(b0, ops.vmul(t1, _B));
 
   //     # Clamp projections
   //     if clampA0 or clampA1 or clampB0 or clampB1:
@@ -183,10 +224,20 @@ const lineSegmentDistance = (
   //             pA = a0
   //         elif clampA1 and t0 > magA:
   //             pA = a1
+  pA = [
+    ifCond(lt(t0, 0), a0[0], ifCond(gt(t0, magA), a1[0], pA[0])),
+    ifCond(lt(t0, 0), a0[1], ifCond(gt(t0, magA), a1[1], pA[1])),
+    ifCond(lt(t0, 0), a0[2], ifCond(gt(t0, magA), a1[2], pA[2])),
+  ];
   //         if clampB0 and t1 < 0:
   //             pB = b0
   //         elif clampB1 and t1 > magB:
   //             pB = b1
+  pB = [
+    ifCond(lt(t1, 0), b0[0], ifCond(gt(t1, magB), b1[0], pB[0])),
+    ifCond(lt(t1, 0), b0[1], ifCond(gt(t1, magB), b1[1], pB[1])),
+    ifCond(lt(t1, 0), b0[2], ifCond(gt(t1, magB), b1[2], pB[2])),
+  ];
   //         # Clamp projection A
   //         if (clampA0 and t0 < 0) or (clampA1 and t0 > magA):
   //             dot = np.dot(_B,(pA-b0))
@@ -195,6 +246,15 @@ const lineSegmentDistance = (
   //             elif clampB1 and dot > magB:
   //                 dot = magB
   //             pB = b0 + (_B * dot)
+  const dotB = min(magB, max(0, ops.vdot(_B, ops.vsub(pA, b0))));
+  const newB = ops.vadd(b0, ops.vmul(dotB, _B));
+  const condB = or(lt(t0, 0), gt(t0, magA));
+  pA = [
+    ifCond(condB, newB[0], pA[0]),
+    ifCond(condB, newB[1], pA[1]),
+    ifCond(condB, newB[2], pA[2]),
+  ];
+
   //         # Clamp projection B
   //         if (clampB0 and t1 < 0) or (clampB1 and t1 > magB):
   //             dot = np.dot(_A,(pB-a0))
@@ -203,6 +263,14 @@ const lineSegmentDistance = (
   //             elif clampA1 and dot > magA:
   //                 dot = magA
   //             pA = a0 + (_A * dot)
+  const dotA = min(magA, max(0, ops.vdot(_A, ops.vsub(pB, a0))));
+  const newA = ops.vadd(a0, ops.vmul(dotA, _A));
+  const condA = or(lt(t1, 0), gt(t1, magB));
+  pB = [
+    ifCond(condA, newA[0], pB[0]),
+    ifCond(condA, newA[1], pB[1]),
+    ifCond(condA, newA[2], pB[2]),
+  ];
 
   //     return pA,pB,np.linalg.norm(pA-pB)
   return ops.vdist(pA, pB);
@@ -226,6 +294,32 @@ export const repulsiveEnergy3D = (
     div(
       mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
       lineSegmentDistance([p1, p2], [q1, q2])
+    )
+  );
+  return addN(integrands);
+};
+
+/**
+ * Returns simple repulsive energy
+ */
+export const repulsiveEnergy3DSimple = (
+  points: [ad.Num, ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const tuples = consecutiveTuples3D(points, closed);
+  const ts = [];
+  for (let i = 0; i < tuples.length - 1; i++) {
+    for (let j = i + 1; j < tuples.length; j++) {
+      ts.push([tuples[i], tuples[j]]);
+    }
+  }
+  const integrands = ts.map(([[p1, p2], [q1, q2]]) =>
+    div(
+      mul(ops.vdist(p1, p2), ops.vdist(q1, q2)),
+      ops.vdistsq(
+        ops.vmul(0.5, ops.vadd(p1, p2)),
+        ops.vmul(0.5, ops.vadd(q1, q2))
+      )
     )
   );
   return addN(integrands);
@@ -297,7 +391,7 @@ export const elasticEnergy = (
   return addN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       mul(
-        squared(curvature(p1, p2, p3)),
+        squared(curvatureSin(p1, p2, p3)),
         mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
       )
     )
