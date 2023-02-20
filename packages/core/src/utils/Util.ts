@@ -5,7 +5,7 @@ import { ShapeType } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A } from "../types/ast";
 import { Either, Left, Right } from "../types/common";
-import { Properties } from "../types/shape";
+import { GenericShape, Properties } from "../types/shape";
 import { Fn } from "../types/state";
 import { BindingForm, Expr, Path } from "../types/style";
 import {
@@ -28,6 +28,7 @@ import {
   PathCmd,
   PathDataV,
   PtListV,
+  ShapeListV,
   StrV,
   TupV,
   Val,
@@ -625,8 +626,15 @@ export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
   contents,
 });
 
-export const shapeListV = (contents: GPI<ad.Num>[]): GPIListV<ad.Num> => ({
+export const gpiListV = (contents: GPI<ad.Num>[]): GPIListV<ad.Num> => ({
   tag: "GPIListV",
+  contents,
+});
+
+export const shapeListV = (
+  contents: GenericShape<ad.Num>[]
+): ShapeListV<ad.Num> => ({
+  tag: "ShapeListV",
   contents,
 });
 

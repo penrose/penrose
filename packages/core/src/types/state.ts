@@ -1,6 +1,5 @@
 import { Gradient, OptState } from "@penrose/optimizer";
 import { Canvas, InputMeta } from "../shapes/Samplers";
-import { GroupGraph } from "../utils/GroupGraph";
 import * as ad from "./ad";
 import { A } from "./ast";
 import { StyleWarning } from "./errors";
@@ -33,13 +32,12 @@ export interface State extends OptState {
   constrFns: Fn[];
   inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
-  shapes: ShapeAD[]; // Consistent with layer-ordering, not necessarily with group-ordering
+  shapes: ShapeAD[];
   canvas: Canvas;
   gradient: Gradient;
   currentStageIndex: number;
   optStages: string[];
   computeShapes: ShapeFn;
-  groupGraph: GroupGraph;
 }
 
 /**

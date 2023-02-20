@@ -14,15 +14,13 @@ import {
   SourceLoc,
 } from "../types/ast";
 import { StyleError } from "../types/errors";
-import { Shape, ShapeAD } from "../types/shape";
+import { GenericShape, Shape, ShapeAD } from "../types/shape";
 import { ShapeFn } from "../types/state";
 import { Expr, Path } from "../types/style";
 import {
   Color,
   ColorV,
   FloatV,
-  GPI,
-  GPIListV,
   ListV,
   LListV,
   MatrixV,
@@ -30,6 +28,7 @@ import {
   PathDataV,
   PropID,
   PtListV,
+  ShapeListV,
   ShapeTypeStr,
   SubPath,
   TupV,
@@ -164,9 +163,9 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
-function mapShape<T, S>(f: (arg: T) => S, v: GPI<T>): GPI<S> {
-  const shapeType = v.contents[0];
-  const shapeProps = v.contents[1];
+function mapShape<T, S>(f: (arg: T) => S, v: GenericShape<T>): GenericShape<S> {
+  const shapeType = v.shapeType;
+  const shapeProps = v.properties;
   const mappedShapeProps = Object.fromEntries(
     Object.entries(shapeProps).map(([prop, propVal]) => {
       return [prop, mapValueNumeric(f, propVal)];
@@ -174,14 +173,14 @@ function mapShape<T, S>(f: (arg: T) => S, v: GPI<T>): GPI<S> {
   );
 
   return {
-    tag: "GPI",
-    contents: [shapeType, mappedShapeProps],
+    shapeType,
+    properties: mappedShapeProps,
   };
 }
 
-function mapGPIList<T, S>(f: (arg: T) => S, v: GPIListV<T>): GPIListV<S> {
+function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
   return {
-    tag: "GPIListV",
+    tag: "ShapeListV",
     contents: v.contents.map((gpi) => {
       return mapShape(f, gpi);
     }),
@@ -212,9 +211,13 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapColor(f, v);
     case "PathDataV":
       return mapPathData(f, v);
-    case "GPIListV":
-      return mapGPIList(f, v);
+    case "ShapeListV":
+      return mapShapeList(f, v);
     // non-numeric Value types
+    case "GPIListV":
+      // since all GPIListV have been converted to ShapeListV
+      // this should never happen
+      throw Error("There should not be a GPIListV");
     case "BoolV":
     case "StrV":
       return v;
@@ -257,9 +260,21 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
       return [v.contents];
     }
     case "BoolV":
-    case "StrV":
-    case "GPIListV": {
+    case "StrV": {
       return [];
+    }
+    case "GPIListV": {
+      throw Error("There should not be a GPIListV");
+    }
+    case "ShapeListV": {
+      const vars = [];
+      const shapes = v.contents;
+      for (const s of shapes) {
+        for (const v of Object.values(s.properties)) {
+          vars.push(...valueADNums(v));
+        }
+      }
+      return vars;
     }
     case "ListV":
     case "VectorV":

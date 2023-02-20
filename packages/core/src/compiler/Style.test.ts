@@ -1130,7 +1130,7 @@ delete x.z.p }`,
       `;
       const sub = "T t\n";
       const { state } = await loadProgs({ dsl, sub, sty });
-      expect(state.shapes.length).toEqual(5);
+      expect(state.shapes.length).toEqual(1);
     });
   });
 

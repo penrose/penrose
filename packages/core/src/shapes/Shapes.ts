@@ -191,9 +191,9 @@ const Text = ShapeDef({
 // bboxFromGroup is here, not in engine/BBox, to prevent cyclic import
 const bboxFromGroup = ({ shapes }: GroupProps): BBox.BBox => {
   const content = shapes.contents;
-  const bboxes = content.map((gpi) => {
-    const shapeType = gpi.contents[0];
-    const rawShapeProps = gpi.contents[1];
+  const bboxes = content.map((shape) => {
+    const shapeType = shape.shapeType;
+    const rawShapeProps = shape.properties;
     if (!isShapeType(shapeType)) {
       throw new Error("Unknown shape in Group bbox: " + shapeType);
     } else {

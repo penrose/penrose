@@ -8,7 +8,6 @@ import { shapedefs } from "../shapes/Shapes";
 import { Shape } from "../types/shape";
 import { LabelCache, State } from "../types/state";
 import { StrV } from "../types/value";
-import { GroupGraph } from "../utils/GroupGraph";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
 import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
@@ -50,19 +49,6 @@ const getPosition = (
   return { x: 0, y: 0 };
 };
 
-const makeNameShapeMap = (shapes: Shape[]): Map<string, Shape> => {
-  const m = new Map<string, Shape>();
-  for (const shape of shapes) {
-    const shapeNameVal = shape.properties["name"];
-    if (shapeNameVal.tag !== "StrV") {
-      throw Error("Shape name is not a string");
-    }
-    const shapeName = shapeNameVal.contents;
-    m.set(shapeName, shape);
-  }
-  return m;
-};
-
 /**
  *
  * @param state
@@ -88,9 +74,8 @@ export const RenderInteractive = async (
     updateState(dragUpdate(state, id, dx, dy));
   };
   const shapes = state.computeShapes(state.varyingValues);
-  const nameShapeMap = makeNameShapeMap(shapes);
-  await RenderGroupGraph(
-    state.groupGraph,
+  await RenderShapes(
+    shapes,
     svg,
     {
       labels: state.labelCache,
@@ -98,7 +83,6 @@ export const RenderInteractive = async (
       variation: state.variation,
       pathResolver,
     },
-    nameShapeMap,
     {
       updateState,
       onDrag,
@@ -129,9 +113,8 @@ export const RenderStatic = async (
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
 
   const shapes = computeShapes(varyingValues);
-  const nameShapeMap = makeNameShapeMap(shapes);
-  await RenderGroupGraph(
-    state.groupGraph,
+  await RenderShapes(
+    shapes,
     svg,
     {
       labels,
@@ -139,72 +122,46 @@ export const RenderStatic = async (
       variation,
       pathResolver,
     },
-    nameShapeMap,
-    undefined // no interactive
+    undefined
   );
   return svg;
 };
 
 const RenderGroup = async (
-  name: string,
-  graph: GroupGraph,
+  groupShape: Shape,
   shapeProps: {
     labels: LabelCache;
     canvasSize: [number, number];
     variation: string;
     pathResolver: PathResolver;
   },
-  nameShapeMap: Map<string, Shape>,
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const orderedChildren = graph.children(name).sort((a, b) => {
-    return graph.node(a) - graph.node(b);
-  });
-  for (const childName of orderedChildren) {
-    const childSvg = await RenderGroupGraphNode(
-      childName,
-      graph,
-      shapeProps,
-      nameShapeMap,
-      interactiveProp
-    );
-    if (childSvg) {
-      elem.appendChild(childSvg);
-    }
+  const subShapesVal = groupShape.properties["shapes"];
+  if (subShapesVal.tag !== "ShapeListV") {
+    throw Error("SubShapesVal not a list of shapes");
   }
-  const shape = nameShapeMap.get(name);
-  if (!shape) {
-    throw new Error("Cannot find shape in nameShapeMap");
+  for (const shape of subShapesVal.contents) {
+    const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+    elem.appendChild(childSvg);
   }
-  attrAutoFillSvg(shape, elem, [...attrTitle(shape, elem), "shapes"]);
+  attrAutoFillSvg(groupShape, elem, [...attrTitle(groupShape, elem), "shapes"]);
   return elem;
 };
 
-const RenderGroupGraphNode = async (
-  name: string,
-  graph: GroupGraph,
+const RenderShape = async (
+  shape: Shape,
   shapeProps: {
     labels: LabelCache;
     canvasSize: [number, number];
     variation: string;
     pathResolver: PathResolver;
   },
-  nameShapeMap: Map<string, Shape>,
   interactiveProp?: InteractiveProps
 ): Promise<SVGElement> => {
-  const shape = nameShapeMap.get(name);
-  if (!shape) {
-    throw Error("Cannot find shape name from nameShapeMap");
-  }
   if (shape.shapeType === "Group") {
-    const outSvg = await RenderGroup(
-      name,
-      graph,
-      shapeProps,
-      nameShapeMap,
-      interactiveProp
-    );
+    const outSvg = await RenderGroup(shape, shapeProps, interactiveProp);
     return outSvg;
   } else {
     const elem = await shapeMap[shape.shapeType]({
@@ -271,8 +228,8 @@ const RenderGroupGraphNode = async (
   }
 };
 
-const RenderGroupGraph = async (
-  g: GroupGraph,
+const RenderShapes = async (
+  shapes: Shape[],
   svg: SVGSVGElement,
   shapeProps: {
     labels: LabelCache;
@@ -280,37 +237,11 @@ const RenderGroupGraph = async (
     variation: string;
     pathResolver: PathResolver;
   },
-  nameShapeMap: Map<string, Shape>,
   interactiveProp?: InteractiveProps
 ) => {
-  const roots = g.sources();
-
-  const nodes: string[] = [];
-
-  if (g.findCycles().length > 0) {
-    g.nodes()
-      .sort((a, b) => g.node(a) - g.node(b))
-      .map((s) => {
-        const shape = nameShapeMap.get(s);
-        if (!shape) {
-          throw Error("Cannot find shape in name-shape map");
-        }
-        if (shape.shapeType !== "Group") {
-          nodes.push(s);
-        }
-      });
-  } else {
-    nodes.push(...roots.sort((a, b) => g.node(a) - g.node(b)));
-  }
-
-  for (const node of nodes) {
-    const elem = await RenderGroupGraphNode(
-      node,
-      g,
-      shapeProps,
-      nameShapeMap,
-      interactiveProp
-    );
+  console.log(shapes);
+  for (const shape of shapes) {
+    const elem = await RenderShape(shape, shapeProps, interactiveProp);
     svg.appendChild(elem);
   }
 };
