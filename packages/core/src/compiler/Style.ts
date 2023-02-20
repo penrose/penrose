@@ -132,7 +132,6 @@ import {
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
-import Heap from "../utils/Heap";
 import {
   buildRenderGraph,
   findOrderedRoots,
@@ -140,6 +139,7 @@ import {
   makeGroupGraph,
   traverseUp,
 } from "../utils/GroupGraph";
+import Heap from "../utils/Heap";
 import {
   boolV,
   cartesianProduct,
@@ -2819,6 +2819,8 @@ const evalUTranspose = (
     case "PathDataV":
     case "PtListV":
     case "StrV":
+    case "GPIListV":
+    case "ShapeListV":
     case "TupV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
