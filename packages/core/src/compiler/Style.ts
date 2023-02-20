@@ -3719,7 +3719,6 @@ export const compileStyleHelper = async (
   );
 
   const params = genOptProblem(inputMask, objMask, constrMask);
-  console.log(renderGraph);
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]

@@ -239,7 +239,6 @@ const RenderShapes = async (
   },
   interactiveProp?: InteractiveProps
 ) => {
-  console.log(shapes);
   for (const shape of shapes) {
     const elem = await RenderShape(shape, shapeProps, interactiveProp);
     svg.appendChild(elem);
