@@ -177,13 +177,13 @@ export const diagram = async (
   },
   node: HTMLElement,
   pathResolver: PathResolver,
-  name: string
+  name?: string
 ): Promise<void> => {
   const res = await compileTrio(prog);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
-    const rendered = await RenderStatic(optimized, pathResolver, name);
+    const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
     node.appendChild(rendered);
   } else {
     throw Error(
@@ -209,7 +209,7 @@ export const interactiveDiagram = async (
   },
   node: HTMLElement,
   pathResolver: PathResolver,
-  name: string
+  name?: string
 ): Promise<void> => {
   const updateData = async (state: State) => {
     const stepped = stepUntilConvergenceOrThrow(state);
@@ -217,7 +217,7 @@ export const interactiveDiagram = async (
       stepped,
       updateData,
       pathResolver,
-      name
+      name ?? ""
     );
     node.replaceChild(rendering, node.firstChild!);
   };
@@ -229,7 +229,7 @@ export const interactiveDiagram = async (
       optimized,
       updateData,
       pathResolver,
-      name
+      name ?? ""
     );
     node.appendChild(rendering);
   } else {
