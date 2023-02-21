@@ -1,4 +1,3 @@
-import { CustomHeap } from "@datastructures-js/heap";
 import { genOptProblem } from "@penrose/optimizer";
 import consola from "consola";
 import im from "immutable";
@@ -132,6 +131,7 @@ import {
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
+import Heap from "../utils/Heap";
 import {
   boolV,
   cartesianProduct,
@@ -3285,19 +3285,21 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
   const indegree = new Map<string, number>(
     graph.nodes().map((i) => [i, graph.inEdges(i).length])
   );
-  const toVisit: CustomHeap<string> = new CustomHeap(
-    (a: string, b: string) => indegree.get(a)! - indegree.get(b)!
-  );
+  // Nodes with lower in-degrees have highest priority.
+  // Swap if a has higher in-degree than b.
+  const compare = (a: string, b: string) => indegree.get(a)! - indegree.get(b)!;
+  const toVisit = Heap.heapify(graph.nodes(), compare);
   const res: string[] = [];
-  graph.nodes().forEach((n: string) => toVisit.insert(n));
+
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
     const node: string = toVisit.extractRoot() as string;
     res.push(node);
     // remove all edges with `node`
-    for (const { j } of graph.outEdges(node))
+    for (const { j } of graph.outEdges(node)) {
       indegree.set(j, indegree.get(j)! - 1);
-    toVisit.fix();
+      toVisit.increase_priority(j);
+    }
   }
   return res;
 };
