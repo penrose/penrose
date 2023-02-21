@@ -18,13 +18,3 @@ export const sampleGroup = (context: Context, canvas: Canvas): GroupProps => {
 };
 
 export type Group = Shape & { shapeType: "Group" } & GroupProps;
-
-export const makeGroup = (
-  context: Context,
-  canvas: Canvas,
-  properties: Partial<GroupProps>
-): Group => ({
-  ...sampleGroup(context, canvas),
-  ...properties,
-  shapeType: "Group",
-});

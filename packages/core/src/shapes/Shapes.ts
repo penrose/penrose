@@ -6,7 +6,7 @@ import { Value } from "../types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
 import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
 import { Equation, makeEquation, sampleEquation } from "./Equation";
-import { Group, GroupProps, makeGroup, sampleGroup } from "./Group";
+import { Group, GroupProps, sampleGroup } from "./Group";
 import { Image, makeImage, sampleImage } from "./Image";
 import { Line, makeLine, sampleLine } from "./Line";
 import { makePath, Path, samplePath } from "./Path";
@@ -217,6 +217,33 @@ const bboxFromGroup = ({ shapes }: GroupProps): BBox.BBox => {
   const centerX = div(add(minX, maxX), 2);
   const centerY = div(add(minY, maxY), 2);
   return BBox.bbox(width, height, [centerX, centerY]);
+};
+
+const makeGroup = (
+  context: Context,
+  canvas: Canvas,
+  properties: Partial<GroupProps>
+): Group => {
+  // Need to "make" each sub-shape to!
+
+  const group: Group = {
+    ...sampleGroup(context, canvas),
+    ...properties,
+    shapeType: "Group",
+  };
+
+  const shapes = group.shapes.contents;
+  for (const shape of shapes) {
+    const constrShape: Shape = shapedefs[shape.shapeType].constr(
+      context,
+      canvas,
+      shape.properties
+    );
+    Object.entries(constrShape).map(
+      ([prop, val]) => (shape.properties[prop] = val)
+    );
+  }
+  return group;
 };
 
 const Group = ShapeDef({
