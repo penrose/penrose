@@ -223,6 +223,19 @@ export const collectLabels = async (
         label = textData(0, 0, 0, 0);
       }
       labels.set(shapeName, label);
+    } else if (shapeType === "Group") {
+      const subShapesVal = properties["shapes"];
+      if (subShapesVal.tag !== "ShapeListV") {
+        throw new Error("SubShapesVal is not a list of shapes");
+      }
+      const subShapes = subShapesVal.contents;
+      const subLabels = await collectLabels(subShapes);
+      if (subLabels.isErr()) {
+        return subLabels;
+      }
+      for (const [key, value] of subLabels.value.entries()) {
+        labels.set(key, value);
+      }
     }
   }
   return ok(labels);
@@ -285,8 +298,46 @@ const setPendingProperty = (
   }
 };
 
+const insertPendingHelper = (
+  shapes: ShapeAD[],
+  xs: number[],
+  state: State
+): void => {
+  for (const { shapeType, properties } of shapes) {
+    if (shapeType === "Group") {
+      const subShapesVal = properties["shapes"];
+      if (subShapesVal.tag !== "ShapeListV") {
+        throw new Error("SubShapesVal is not a list of shapes");
+      }
+      const subShapes = subShapesVal.contents;
+      insertPendingHelper(subShapes, xs, state);
+    } else {
+      const shapedef: ShapeDef = shapedefs[shapeType];
+      if (properties.name.tag === "StrV") {
+        const labelData = state.labelCache.get(properties.name.contents);
+        if (labelData !== undefined) {
+          for (const propertyID of shapedef.pendingProps) {
+            setPendingProperty(
+              properties,
+              propertyID,
+              labelData[propertyID],
+              xs,
+              state.inputs
+            );
+          }
+        }
+      }
+    }
+  }
+};
+
 export const insertPending = (state: State): State => {
   const varyingValues = [...state.varyingValues];
+  insertPendingHelper(
+    state.shapes,
+    varyingValues,
+    state
+  ); /*
   for (const { shapeType, properties } of state.shapes) {
     const shapedef: ShapeDef = shapedefs[shapeType];
     if (properties.name.tag === "StrV") {
@@ -303,6 +354,6 @@ export const insertPending = (state: State): State => {
         }
       }
     }
-  }
+  }*/
   return { ...state, varyingValues };
 };
