@@ -103,9 +103,9 @@ where In(p, P) {
 
 forall Point p, q, r
 where Collinear(p, q, r) {
-  ensure collinear(p.icon.center, q.icon.center, r.icon.center)
-  ensure inRange(q.icon.center[0], p.icon.center[0], r.icon.center[0])
-  ensure inRange(q.icon.center[1], p.icon.center[1], r.icon.center[1])
+  ensure collinearOrdered(p.icon.center, q.icon.center, r.icon.center)
+  -- ensure inRange(q.icon.center[0], p.icon.center[0], r.icon.center[0])
+  -- ensure inRange(q.icon.center[1], p.icon.center[1], r.icon.center[1])
 
   encourage notTooClose(p.icon, q.icon, const.repelWeight)
   encourage notTooClose(q.icon, r.icon, const.repelWeight)
