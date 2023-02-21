@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           registry-url: "https://registry.npmjs.org"
+          node-version: 16
       - name: Build all packages
         run: yarn build
       - name: Publish npm packages
