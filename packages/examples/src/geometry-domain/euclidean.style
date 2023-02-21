@@ -1,6 +1,6 @@
 canvas {
-  width = 800
-  height = 700
+  width = 1000
+  height = 1000
 }
 
 Colors {
@@ -599,6 +599,17 @@ with Triangle T {
   }
 }
 
+-- TODO: how to write a selector that matches on all three cases?
+-- forall Triangle ABC; Segment S
+-- where S := Altitude(ABC, theta) 
+-- with Angle theta; Point A, B, C; t := MkTriangle(A, B, C); theta := InteriorAngle(A, B, C) {
+--   S.icon = Line {
+--     start: (?, ?)
+--     end: 
+--   }
+-- }
+
+
 forall Point p
 where Orthocenter(p, T)
 with Triangle T {
@@ -747,11 +758,8 @@ with Point P; Point Q; Point R; Point S {
   q = Q.icon.center
   r = R.icon.center
   s = S.icon.center
-  -- p = P.vec
-  -- q = Q.vec
-  -- r = R.vec
-  -- s = S.vec
-  override Sq.color = Colors.none
+  -- override Sq.color = Colors.none
+  override Sq.color = #ff00007C
   override Sq.icon = Path {
       d : pathFromPoints("closed", [p, q, r, s])
       strokeWidth : const.strokeWidth
@@ -759,16 +767,19 @@ with Point P; Point Q; Point R; Point S {
       strokeColor : Colors.black
   }
   -- equal sides
-  ensure equal(vdist(p, q), vdist(r, s))
-  ensure equal(vdist(p, s), vdist(q, r))
-  ensure equal(vdist(p, q), vdist(p, s))
+  ensure vdist(p, q) == vdist(q, r)
+  ensure vdist(q, r) == vdist(r, s)
+  ensure vdist(r, s) == vdist(s, p)
   -- right angle
-  ensure perpendicular(p, q, r)
-  ensure perpendicular(p, s, r)
-  -- area
-  ensure lessThan(2*50, cross2D(p, q) + cross2D(q, r) + cross2D(r, s) + cross2D(s, p))
-
-  -- R.icon above P.icon
+  -- ensure perpendicular(p, q, r)
+  -- ensure perpendicular(p, s, r)
+  -- nonzero area
+  ensure signedArea([p, q, r, s], true) == norm(q - p) * norm(s - p)
+  -- labels
+  -- ensure disjoint(P.text, Sq.icon)
+  -- ensure disjoint(Q.text, Sq.icon)
+  -- ensure disjoint(R.text, Sq.icon)
+  -- ensure disjoint(S.text, Sq.icon)
 }
 
 

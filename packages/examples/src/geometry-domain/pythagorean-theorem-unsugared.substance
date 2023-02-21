@@ -10,25 +10,28 @@ RightMarked(CAB)
 
 
 -- And draw the area of each side of the right triangle as a square
-Point D, E, F, G, -- H, I
+Point D, E
 Square CBDE
 CBDE := MkSquare(C, B, D, E)
-Disjoint(CBDE, ABC)
+-- Disjoint(CBDE, ABC)
 
--- Square BAGF
--- BAGF := MkSquare(B, A, G, F)
+Point F, G
+Square BAGF
+BAGF := MkSquare(B, A, G, F)
 -- Disjoint(BAGF, ABC)
+
+Point I, H
+Square ACIH
+ACIH := MkSquare(A, C, I, H)
+-- Disjoint(ACIH, ABC)
+
 
 /*
 
-Square ACIH
-ACIH := MkSquare(A, C, I, H)
-
-Disjoint(ACIH, ABC)
-
--- Construct two rectangles that split the hypotenuse's area by dropping an altitude from the right angle through to the square
 Segment AK
 AK := Altitude(ABC, CAB)
+
+-- Construct two rectangles that split the hypotenuse's area by dropping an altitude from the right angle through to the square
 
 Point K
 K := Endpoint(AK)
@@ -96,4 +99,6 @@ BDA := MkTriangle(B, D, A)
 
 */
 
-AutoLabel A, B, C, D, E, F, G
+-- AutoLabel A, B, C, D, E, F, G
+AutoLabel All
+NoLabel CAB
