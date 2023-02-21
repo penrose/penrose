@@ -1,5 +1,5 @@
 import im from "immutable";
-import * as ad from "types/ad";
+import * as ad from "./ad";
 import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
@@ -9,6 +9,7 @@ import {
   ColorLit,
   Expr,
   GPIDecl,
+  LayoutStages,
   Path,
   UOp,
 } from "./style";
@@ -142,6 +143,11 @@ export interface DeconstructNonconstructor {
   deconstructor: Deconstructor<A>;
 }
 
+export interface MultipleLayoutError {
+  tag: "MultipleLayoutError";
+  decls: LayoutStages<C>[];
+}
+
 // NOTE: for debugging purposes
 export interface FatalError {
   tag: "Fatal";
@@ -185,6 +191,7 @@ export type StyleError =
   | CyclicAssignmentError
   | DeleteGlobalError
   | DeleteSubstanceError
+  | MultipleLayoutError
   | MissingPathError
   | MissingShapeError
   | NestedShapeError

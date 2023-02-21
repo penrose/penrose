@@ -1,16 +1,17 @@
+import _ from "lodash";
+import seedrandom from "seedrandom";
+import * as ad from "../types/ad";
+import { eqList, randList } from "../utils/Util";
 import {
   fns,
   genCode,
+  genCodeSync,
   input,
   logAD,
   makeGraph,
   primaryGraph,
   secondaryGraph,
-} from "engine/Autodiff";
-import _ from "lodash";
-import seedrandom from "seedrandom";
-import * as ad from "types/ad";
-import { eqList, randList } from "utils/Util";
+} from "./Autodiff";
 import {
   add,
   addN,
@@ -64,7 +65,56 @@ describe("makeGraph tests", () => {
 
     // x1, t1, t2, f, and the constant primary node 1
     expect(graph.nodeCount()).toBe(5);
-    expect(graph.edgeCount()).toBe(6); // the in-edges of the three mul nodes
+  });
+});
+
+describe("genCode tests", () => {
+  test("zero addends", async () => {
+    const f = await genCode();
+    expect(f.call([])).toEqual({ gradient: [], primary: 0, secondary: [] });
+  });
+
+  test("zero addends sync", () => {
+    const f = genCodeSync();
+    expect(f.call([])).toEqual({ gradient: [], primary: 0, secondary: [] });
+  });
+
+  test("multiple addends", () => {
+    const x = input({ key: 0, val: 0 });
+    const g = primaryGraph(x);
+    const f = genCodeSync(g, g, g);
+    expect(f.call([2])).toEqual({ gradient: [3], primary: 6, secondary: [] });
+  });
+
+  test("multiple graphs with secondary outputs", () => {
+    const v1 = [5];
+    const v2 = [];
+    v2[1] = 8;
+    const f = genCodeSync(secondaryGraph(v1), secondaryGraph(v2));
+    expect(f.call([]).secondary).toEqual([5, 8]);
+  });
+
+  test("secondary outputs must not conflict", () => {
+    const g1 = secondaryGraph([5]);
+    const g2 = secondaryGraph([8]);
+    expect(() => genCodeSync(g1, g2)).toThrow(
+      "secondary output 0 is present in 2 graphs"
+    );
+  });
+
+  test("mask", () => {
+    const v1 = [5];
+    const v2 = [];
+    v2[1] = 8;
+    const f = genCodeSync(
+      makeGraph({ primary: input({ key: 0, val: 0 }), secondary: v2 }),
+      makeGraph({ primary: input({ key: 0, val: 0 }), secondary: v1 })
+    );
+    expect(f.call([13], [true, false])).toEqual({
+      gradient: [1],
+      primary: 13,
+      secondary: [0, 8],
+    });
   });
 });
 
@@ -253,10 +303,10 @@ const testGradSymbolic = (testNum: number, graph: ad.Graph): void => {
   const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
 
   // Synthesize energy and gradient code
-  const f0 = genCode(graph);
+  const f0 = genCodeSync(graph);
 
-  const f = (xs: number[]) => f0(xs).primary;
-  const gradGen = (xs: number[]) => f0(xs).gradient;
+  const f = (xs: number[]) => f0.call(xs).primary;
+  const gradGen = (xs: number[]) => f0.call(xs).gradient;
 
   // Test the gradient at several points via evaluation
   const gradEst = _gradFiniteDiff(f);
@@ -301,9 +351,9 @@ describe("polyRoots tests", () => {
   test("degree 1", () => {
     const [z] = polyRoots([input({ key: 0, val: 0 })]);
     const g = primaryGraph(z);
-    const f = genCode(g);
+    const f = genCodeSync(g);
     const x = 42;
-    expect(f([x])).toEqual({ gradient: [-1], primary: -x, secondary: [] });
+    expect(f.call([x])).toEqual({ gradient: [-1], primary: -x, secondary: [] });
   });
 
   type F = (v: ad.Num, w: ad.Num) => ad.Num;
@@ -315,7 +365,7 @@ describe("polyRoots tests", () => {
     const b = input({ key: 1, val: 0 });
     const c = input({ key: 0, val: 0 });
 
-    const closedForm = genCode(
+    const closedForm = genCodeSync(
       primaryGraph(
         // c + bx + ax²
         div(f1(neg(b), sqrt(sub(squared(b), mul(4, mul(a, c))))), mul(2, a))
@@ -323,14 +373,14 @@ describe("polyRoots tests", () => {
     );
 
     const [r1, r2] = polyRoots([c, b]); // c + bx + x²; recall that a = 1
-    const implicit = genCode(primaryGraph(f2(r1, r2)));
+    const implicit = genCodeSync(primaryGraph(f2(r1, r2)));
 
     const x1 = Math.PI;
     const x2 = Math.E;
     const inputs = [x1 * x2, -(x1 + x2)];
 
-    const received = implicit(inputs);
-    const expected = closedForm(inputs);
+    const received = implicit.call(inputs);
+    const expected = closedForm.call(inputs);
 
     expect(received.primary).toBeCloseTo(expected.primary);
     expect(received.gradient[0]).toBeCloseTo(expected.gradient[0]);
@@ -352,9 +402,9 @@ describe("polyRoots tests", () => {
     // get the first real root we can find
     const z = ifCond(eq(r1, r1), r1, ifCond(eq(r2, r2), r2, r3));
 
-    const f = genCode(makeGraph({ primary: z, secondary: [r1, r2, r3] }));
+    const f = genCodeSync(makeGraph({ primary: z, secondary: [r1, r2, r3] }));
 
-    const { gradient, primary, secondary } = f([8, 0, 0]);
+    const { gradient, primary, secondary } = f.call([8, 0, 0]);
 
     expect(secondary.filter(Number.isNaN).length).toBe(2);
     const realRoots = secondary.filter((x) => !Number.isNaN(x));
@@ -373,8 +423,8 @@ describe("polyRoots tests", () => {
     const [c0, c1, c2, c3, c4] = _.range(5).map((key) =>
       input({ key, val: 0 })
     );
-    const f = genCode(secondaryGraph(polyRoots([c0, c1, c2, c3, c4])));
-    const { secondary } = f([-120, 274, -225, 85, -15]);
+    const f = genCodeSync(secondaryGraph(polyRoots([c0, c1, c2, c3, c4])));
+    const { secondary } = f.call([-120, 274, -225, 85, -15]);
     const roots = [...secondary].sort((a, b) => a - b);
     expect(roots[0]).toBeCloseTo(1);
     expect(roots[1]).toBeCloseTo(2);

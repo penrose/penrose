@@ -1,6 +1,5 @@
-import { bboxFromShape } from "contrib/Queries";
-import { clamp, inRange, numOf } from "contrib/Utils";
-import { ops } from "engine/Autodiff";
+import _ from "lodash";
+import { ops } from "../engine/Autodiff";
 import {
   absVal,
   acos,
@@ -48,29 +47,39 @@ import {
   tan,
   tanh,
   trunc,
-} from "engine/AutodiffFunctions";
-import * as BBox from "engine/BBox";
-import _ from "lodash";
-import { PathBuilder } from "renderer/PathBuilder";
-import { Ellipse } from "shapes/Ellipse";
-import { Line } from "shapes/Line";
-import { Polyline } from "shapes/Polyline";
-import { Context, uniform } from "shapes/Samplers";
-import { shapedefs } from "shapes/Shapes";
-import * as ad from "types/ad";
+} from "../engine/AutodiffFunctions";
+import * as BBox from "../engine/BBox";
+import { PathBuilder } from "../renderer/PathBuilder";
+import { Ellipse } from "../shapes/Ellipse";
+import { Line } from "../shapes/Line";
+import { Polyline } from "../shapes/Polyline";
+import { Context, uniform } from "../shapes/Samplers";
+import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import {
   ArgVal,
   Color,
   ColorV,
   FloatV,
+  MatrixV,
   PathDataV,
   PtListV,
   StrV,
   TupV,
   Value,
   VectorV,
-} from "types/value";
-import { getStart, linePts } from "utils/Util";
+} from "../types/value";
+import { getStart, linePts } from "../utils/Util";
+import {
+  elasticEnergy,
+  isoperimetricRatio,
+  perimeter,
+  signedArea,
+  totalCurvature,
+  turningNumber,
+} from "./CurveConstraints";
+import { bboxFromShape } from "./Queries";
+import { clamp, inRange, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -467,6 +476,20 @@ export const compDict = {
   },
 
   /**
+   * Return the outer product of `u` and `v`.
+   */
+  outerProduct: (
+    _context: Context,
+    u: ad.Num[],
+    v: ad.Num[]
+  ): MatrixV<ad.Num> => {
+    return {
+      tag: "MatrixV",
+      contents: ops.vouter(u, v),
+    };
+  },
+
+  /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
   length: (_context: Context, [t, props]: [string, any]): FloatV<ad.Num> => {
@@ -791,6 +814,16 @@ export const compDict = {
     };
   },
   /**
+   * Return the 3D cross product of `u` and `v`.
+   */
+  cross: (_context: Context, u: ad.Num[], v: ad.Num[]): VectorV<ad.Num> => {
+    const result = ops.cross3(u, v);
+    return {
+      tag: "VectorV",
+      contents: result,
+    };
+  },
+  /**
    * Return the intersection of a line passing through
    * `a0` and `a1` with a line passing through `b0` and `b1`
    */
@@ -1077,7 +1110,10 @@ export const compDict = {
   ): ColorV<ad.Num> => {
     if (colorType === "rgb") {
       const rgb = _.range(3).map(() =>
-        makeInput({ tag: "Optimized", sampler: uniform(0.1, 0.9) })
+        makeInput({
+          init: { tag: "Sampled", sampler: uniform(0.1, 0.9) },
+          stages: new Set(),
+        })
       );
 
       return {
@@ -1088,7 +1124,10 @@ export const compDict = {
         },
       };
     } else if (colorType === "hsv") {
-      const h = makeInput({ tag: "Optimized", sampler: uniform(0, 360) });
+      const h = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 360) },
+        stages: new Set(),
+      });
       return {
         tag: "ColorV",
         contents: {
@@ -1569,6 +1608,177 @@ export const compDict = {
   unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
     return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
   },
+
+  closestPoint: (
+    _context: Context,
+    [t, s]: [string, any],
+    p: ad.Num[]
+  ): VectorV<ad.Num> => {
+    if (t === "Circle") {
+      /**
+       * Implementing formula
+       * V = P - C
+       * return C + (V/|V|)*r
+       */
+      const pOffset = ops.vsub(p, s.center.contents);
+      const normOffset = ops.vnorm(pOffset);
+      const unitVector = ops.vdiv(pOffset, normOffset);
+      const pOnCircumferenceOffset = ops.vmul(s.r.contents, unitVector);
+      const pOnCircumference = ops.vadd(
+        s.center.contents,
+        pOnCircumferenceOffset
+      );
+      return { tag: "VectorV", contents: pOnCircumference };
+    } else if (
+      t === "Rectangle" ||
+      t === "Text" ||
+      t === "Equation" ||
+      t === "Image"
+    ) {
+      return {
+        tag: "VectorV",
+        contents: closestPointRect(
+          sub(s.center.contents[0], div(s.width.contents, 2)),
+          sub(s.center.contents[1], div(s.height.contents, 2)),
+          s.width.contents,
+          s.height.contents,
+          p[0],
+          p[1]
+        ),
+      };
+    } else if (t === "Line") {
+      return {
+        tag: "VectorV",
+        contents: closestPointLine(p, s.start.contents, s.end.contents),
+      };
+    } else if (t === "Polyline") {
+      const closestPoints: ad.Num[][] = [];
+      const dist: ad.Num[] = [];
+      for (let i = 0; i < s.points.contents.length - 1; i++) {
+        const start = s.points.contents[i];
+        const end = s.points.contents[i + 1];
+        closestPoints[i] = closestPointLine(p, start, end);
+        dist[i] = sqrt(
+          add(
+            squared(sub(p[0], closestPoints[i][0])),
+            squared(sub(p[1], closestPoints[i][1]))
+          )
+        );
+      }
+      let retX: ad.Num = closestPoints[0][0];
+      let retY: ad.Num = closestPoints[0][1];
+      let retCond: ad.Num = dist[0];
+      for (let i = 0; i < s.points.contents.length - 1; i++) {
+        retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
+        retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
+        retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
+      }
+      return { tag: "VectorV", contents: [retX, retY] };
+    } else if (t === "Polygon") {
+      const closestPoints: ad.Num[][] = [];
+      const dist: ad.Num[] = [];
+      let i = 0;
+      for (; i < s.points.contents.length - 1; i++) {
+        const start = s.points.contents[i];
+        const end = s.points.contents[i + 1];
+        closestPoints[i] = closestPointLine(p, start, end);
+        dist[i] = sqrt(
+          add(
+            squared(sub(p[0], closestPoints[i][0])),
+            squared(sub(p[1], closestPoints[i][1]))
+          )
+        );
+      }
+      const start = s.points.contents[i];
+      const end = s.points.contents[0];
+      closestPoints[i] = closestPointLine(p, start, end);
+      dist[i] = sqrt(
+        add(
+          squared(sub(p[0], closestPoints[i][0])),
+          squared(sub(p[1], closestPoints[i][1]))
+        )
+      );
+      let retX: ad.Num = closestPoints[0][0];
+      let retY: ad.Num = closestPoints[0][1];
+      let retCond: ad.Num = dist[0];
+      for (let i = 0; i < s.points.contents.length; i++) {
+        retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
+        retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
+        retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
+      }
+      return { tag: "VectorV", contents: [retX, retY] };
+    } else if (t === "Ellipse") {
+      return { tag: "VectorV", contents: closestPointEllipse(s, p) };
+    } else throw Error(`unsupported shape ${t} in closestPoint`);
+  },
+  /**
+   * Returns the signed area enclosed by a polygonal chain given its nodes
+   */
+  signedArea: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: signedArea(points, closed) };
+  },
+
+  /**
+   * Returns the turning number of polygonal chain given its nodes
+   */
+  turningNumber: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return {
+      tag: "FloatV",
+      contents: turningNumber(points, closed),
+    };
+  },
+
+  /**
+   * Returns the total length of polygonal chain given its nodes
+   */
+  perimeter: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: perimeter(points, closed) };
+  },
+
+  /**
+   * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
+   */
+  isoperimetricRatio: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
+  },
+
+  /**
+   * Returns integral of curvature squared along the curve
+   */
+  elasticEnergy: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: elasticEnergy(points, closed) };
+  },
+
+  /**
+   * Returns integral of curvature along the curve
+   */
+  totalCurvature: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: totalCurvature(points, closed) };
+  },
 };
 
 /*
@@ -1712,6 +1922,96 @@ export const sdEllipseAsNums = (
   const r = ops.vproduct(ab, [co, si]);
   // return length(r-p) * msign(p.y-r.y);
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
+};
+
+const closestPointRect = (
+  l: ad.Num,
+  t: ad.Num,
+  w: ad.Num,
+  h: ad.Num,
+  x: ad.Num,
+  y: ad.Num
+): ad.Num[] => {
+  const r = add(l, w);
+  const b = add(t, h);
+  x = clamp([l, r], x);
+  y = clamp([t, b], y);
+  const dl = absVal(sub(x, l));
+  const dr = absVal(sub(x, r));
+  const dt = absVal(sub(y, t));
+  const db = absVal(sub(y, b));
+  const m = min(min(min(dl, dr), dt), db);
+  let retX: ad.Num = ifCond(or(eq(m, dt), eq(m, db)), x, r);
+  retX = ifCond(eq(m, dl), l, retX);
+  let retY: ad.Num = ifCond(or(eq(m, dl), eq(m, dr)), y, t);
+  retY = ifCond(eq(m, db), b, retY);
+  return [retX, retY];
+};
+
+const closestPointLine = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[] => {
+  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
+  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
+  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
+  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
+  const t = clamp([0, 1], div(atp_dot_atb, atb2));
+  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
+};
+
+const closestPointEllipse = (s: Ellipse, p: ad.Num[]): ad.Num[] => {
+  return closestPointEllipseCoords(
+    s.rx.contents,
+    s.ry.contents,
+    s.center.contents,
+    p
+  );
+};
+
+const closestPointEllipseCoords = (
+  // Note: this is an approximation function!
+  radiusx: ad.Num,
+  radiusy: ad.Num,
+  center: ad.Num[],
+  pInput: ad.Num[]
+): ad.Num[] => {
+  const pOffset = ops.vsub(pInput, center);
+  const px = absVal(pOffset[0]);
+  const py = absVal(pOffset[1]);
+
+  let t = div(Math.PI, 4);
+  let x: ad.Num = 0;
+  let y: ad.Num = 0;
+
+  const a = radiusx;
+  const b = radiusy;
+  for (let i = 0; i < 100; i++) {
+    x = mul(a, cos(t));
+    y = mul(b, sin(t));
+
+    const ex = div(mul(sub(squared(a), squared(b)), pow(cos(t), 3)), a);
+    const ey = div(mul(sub(squared(b), squared(a)), pow(sin(t), 3)), b);
+
+    const rx = sub(x, ex);
+    const ry = sub(y, ey);
+
+    const qx = sub(px, ex);
+    const qy = sub(py, ey);
+
+    const r = sqrt(add(squared(ry), squared(rx)));
+    const q = sqrt(add(squared(qy), squared(qx)));
+
+    const delta_c = mul(r, asin(div(sub(mul(rx, qy), mul(ry, qx)), mul(r, q))));
+    const delta_t = div(
+      delta_c,
+      sqrt(sub(sub(add(squared(a), squared(b)), squared(x)), squared(y)))
+    );
+    t = add(t, delta_t);
+    t = min(div(Math.PI, 2), max(0, t));
+  }
+  x = mul(msign(pInput[0]), absVal(x));
+  y = mul(msign(pInput[1]), absVal(y));
+  x = add(x, center[0]);
+  y = add(y, center[1]);
+  return [x, y];
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in

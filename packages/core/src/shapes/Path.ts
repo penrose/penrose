@@ -1,7 +1,7 @@
-import * as ad from "types/ad";
-import { Arrow, Fill, Named, Shape, Stroke } from "types/shapes";
-import { PathDataV } from "types/value";
-import { black, boolV, floatV, noPaint, pathDataV, strV } from "utils/Util";
+import * as ad from "../types/ad";
+import { Arrow, Fill, Named, Shape, Stroke } from "../types/shapes";
+import { PathDataV } from "../types/value";
+import { black, boolV, floatV, noPaint, pathDataV, strV } from "../utils/Util";
 import { Canvas, Context } from "./Samplers";
 
 export interface PathProps extends Named, Stroke, Fill, Arrow {

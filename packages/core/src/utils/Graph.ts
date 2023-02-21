@@ -1,274 +1,209 @@
-import graphlib from "graphlib";
+// `i` and `I` stand for "index" or "ID", since we use them for node keys
 
-export interface Edge<NodeId extends string> {
-  v: NodeId;
-  w: NodeId;
+/** internal: half of an edge, where direction and one node are implicit */
+interface Arc<I, E> {
+  /** the other node */
+  i: I;
+  /** edge label */
+  e: E;
 }
-export interface Path<NodeId extends string> {
-  distance: number;
-  predecessor: NodeId;
+
+/** internal: label and connectivity of a node */
+interface Vert<I, L, E> {
+  /** node label */
+  l: L;
+  /** in-edges; `p` stands for "predecessor" */
+  p: Arc<I, E>[];
+  /** out-edges; `s` stands for "successor" */
+  s: Arc<I, E>[];
 }
 
-/**
- * A better-typed `graphlib` Graph with options `{}`. Edge labels and the graph
- * label are all `undefined`, and default node labels are unsupported. All edge
- * methods provide only the signature using the `Edge` object, not the
- * positional signature. Methods which would have returned `undefined` for
- * missing node IDs instead return an empty array. A `topsort` method is
- * provided which calls `graphlib.alg.topsort`.
- */
-export class Digraph<NodeId extends string, NodeLabel> {
-  private _graph: graphlib.Graph;
+/** directed edge */
+export interface Edge<I, E> {
+  /** initial vertex */
+  i: I;
+  /** terminal vertex */
+  j: I;
+  /** edge label */
+  e: E;
+}
 
-  constructor() {
-    this._graph = new graphlib.Graph({});
+/** directed multigraph with node keys `I` and labels `L` and edge labels `E` */
+export default class Graph<I, L = undefined, E = undefined> {
+  private g = new Map<I, Vert<I, L, E>>();
+
+  private get(i: I): Vert<I, L, E> {
+    const v = this.g.get(i);
+    if (v === undefined) throw Error(`node ID not found: ${i}`);
+    return v;
   }
 
-  setNode(name: NodeId, label: NodeLabel): this {
-    this._graph.setNode(name, label);
-    return this;
+  /** set `i`'s label to `l`, adding `i` to the graph if not already present */
+  setNode(i: I, l: L): void {
+    const v = this.g.get(i);
+    if (v === undefined) this.g.set(i, { l, p: [], s: [] });
+    else v.l = l;
   }
 
-  setNodes(names: NodeId[], label: NodeLabel): this {
-    this._graph.setNodes(names, label);
-    return this;
+  /** @returns whether `i` is in the graph */
+  hasNode(i: I): boolean {
+    return this.g.has(i);
   }
 
-  filterNodes(filter: (v: NodeId) => boolean): this {
-    this._graph.filterNodes((v) => filter(v as NodeId));
-    return this;
+  /** @returns fresh array of all node keys in the graph */
+  nodes(): I[] {
+    return [...this.g.keys()];
   }
 
-  hasNode(name: NodeId): boolean {
-    return this._graph.hasNode(name);
+  /**
+   * throws if `i` is absent
+   * @returns `i`'s label
+   */
+  node(i: I): L {
+    return this.get(i).l;
   }
 
-  removeNode(name: NodeId): this {
-    this._graph.removeNode(name);
-    return this;
+  /**
+   * add an edge from `i` to `j` with label `e`
+   * @param labelMissing called if `i` or `j`'s label is missing; default throws
+   */
+  setEdge({ i, j, e }: Edge<I, E>, labelMissing?: () => L): void {
+    if (labelMissing === undefined) {
+      labelMissing = () => {
+        throw Error(`node ID not found: ${i}`);
+      };
+    }
+
+    let v = this.g.get(i);
+    if (v === undefined) {
+      v = { l: labelMissing(), p: [], s: [] };
+      this.g.set(i, v);
+    }
+
+    let w = this.g.get(j);
+    if (w === undefined) {
+      w = { l: labelMissing(), p: [], s: [] };
+      this.g.set(j, w);
+    }
+
+    v.s.push({ i: j, e });
+    w.p.push({ i: i, e });
   }
 
-  nodes(): NodeId[] {
-    return this._graph.nodes() as NodeId[];
+  /**
+   * throws if `i` is absent
+   * @returns fresh array of `i`'s in-edges
+   */
+  inEdges(i: I): Edge<I, E>[] {
+    return this.get(i).p.map(({ i: j, e }) => ({ i: j, j: i, e }));
   }
 
-  node(name: NodeId): NodeLabel {
-    return this._graph.node(name);
+  /**
+   * throws if `i` is absent
+   * @returns fresh array of `i`'s out-edges
+   */
+  outEdges(i: I): Edge<I, E>[] {
+    return this.get(i).s.map(({ i: j, e }) => ({ i, j, e }));
   }
 
-  setEdge(edge: Edge<NodeId>): this {
-    this._graph.setEdge(edge);
-    return this;
-  }
-
-  edges(): Edge<NodeId>[] {
-    return this._graph.edges() as Edge<NodeId>[];
-  }
-
-  hasEdge(edge: Edge<NodeId>): boolean {
-    return this._graph.hasEdge(edge);
-  }
-
-  removeEdge(edge: Edge<NodeId>): this {
-    this._graph.removeEdge(edge);
-    return this;
-  }
-
-  inEdges(v: NodeId, w?: NodeId): Edge<NodeId>[] {
-    return (this._graph.inEdges(v, w) as undefined | Edge<NodeId>[]) ?? [];
-  }
-
-  outEdges(v: NodeId, w?: NodeId): Edge<NodeId>[] {
-    return (this._graph.outEdges(v, w) as undefined | Edge<NodeId>[]) ?? [];
-  }
-
-  nodeEdges(v: NodeId, w?: NodeId): Edge<NodeId>[] {
-    return (this._graph.nodeEdges(v, w) as undefined | Edge<NodeId>[]) ?? [];
-  }
-
-  predecessors(v: NodeId): NodeId[] {
-    return (this._graph.predecessors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  successors(v: NodeId): NodeId[] {
-    return (this._graph.successors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  neighbors(v: NodeId): NodeId[] {
-    return (this._graph.neighbors(v) as undefined | NodeId[]) ?? [];
-  }
-
+  /** @returns number of nodes in the graph */
   nodeCount(): number {
-    return this._graph.nodeCount();
+    return this.g.size;
   }
 
-  edgeCount(): number {
-    return this._graph.edgeCount();
+  /** @returns fresh array of all nodes that have no in-edges */
+  sources(): I[] {
+    const xs = [];
+    for (const [i, v] of this.g) if (v.p.length === 0) xs.push(i);
+    return xs;
   }
 
-  sources(): NodeId[] {
-    return this._graph.sources() as NodeId[];
+  /** @returns fresh array of all nodes that have no out-edges */
+  sinks(): I[] {
+    const xs = [];
+    for (const [i, v] of this.g) if (v.s.length === 0) xs.push(i);
+    return xs;
   }
 
-  sinks(): NodeId[] {
-    return this._graph.sinks() as NodeId[];
+  /**
+   * throws if the graph contains a cycle
+   * @returns fresh array of all nodes in topological order
+   */
+  topsort(): I[] {
+    // we want this to be somewhat stable, so by using a stack to compute the
+    // reverse topological sort and then reversing at the end, we at least
+    // guarantee that a graph with no edges will just return its nodes in their
+    // original insertion order
+    const xs: I[] = [];
+    const outdegree = new Map<I, number>();
+    for (const [i, v] of this.g) outdegree.set(i, v.s.length);
+    const stack = this.sinks();
+    while (stack.length > 0) {
+      const i = stack.pop() as I;
+      xs.push(i);
+      for (const { i: j } of this.get(i).p) {
+        const d = outdegree.get(j)!;
+        if (d === 1) stack.push(j);
+        outdegree.set(j, d - 1);
+      }
+    }
+    const m = xs.length;
+    const n = this.g.size;
+    if (m !== n) throw Error(`could only sort ${m} nodes out of ${n} total`);
+    return xs.reverse();
   }
 
-  topsort(): NodeId[] {
-    return graphlib.alg.topsort(this._graph) as NodeId[];
+  /**
+   * throws if `i` is absent
+   * @returns fresh set of all nodes reachable from `i`, including `i`
+   */
+  descendants(i: I): Set<I> {
+    const xs = new Set<I>();
+    const stack = [i]; // depth-first search
+    while (stack.length > 0) {
+      const j = stack.pop() as I;
+      xs.add(j);
+      for (const { i: k } of this.get(j).s) if (!xs.has(k)) stack.push(k);
+    }
+    return xs;
   }
 
-  dijkstra(
-    source: NodeId,
-    weightFn?: (edge: Edge<NodeId>) => number
-  ): { [node: string]: Path<NodeId> } {
-    return graphlib.alg.dijkstra(
-      this._graph,
-      source,
-      weightFn as (e: graphlib.Edge) => number
-    ) as {
-      [node: string]: Path<NodeId>;
-    };
-  }
-
-  isAcyclic(): boolean {
-    return graphlib.alg.isAcyclic(this._graph);
-  }
-
-  findCycles(): NodeId[][] {
-    return graphlib.alg.findCycles(this._graph) as NodeId[][];
-  }
-}
-
-export interface MultiEdge<
-  NodeId extends string,
-  EdgeName extends string | undefined
-> extends Edge<NodeId> {
-  name: EdgeName;
-}
-
-/**
- * A better-typed `graphlib` Graph with options `{ multigraph: true }`. Edge
- * labels and the graph label are all `undefined`, and default node labels are
- * unsupported. All edge methods provide only the signature using the `Edge`
- * object, not the positional signature. Methods which would have returned
- * `undefined` for missing node IDs instead return an empty array. A `topsort`
- * method is provided which calls `graphlib.alg.topsort`.
- */
-export class Multidigraph<
-  NodeId extends string,
-  NodeLabel,
-  EdgeName extends string | undefined
-> {
-  private _graph: graphlib.Graph;
-
-  constructor() {
-    this._graph = new graphlib.Graph({ multigraph: true });
-  }
-
-  setNode(name: NodeId, label: NodeLabel): this {
-    this._graph.setNode(name, label);
-    return this;
-  }
-
-  setNodes(names: NodeId[], label: NodeLabel): this {
-    this._graph.setNodes(names, label);
-    return this;
-  }
-
-  filterNodes(filter: (v: NodeId) => boolean): this {
-    this._graph.filterNodes((v) => filter(v as NodeId));
-    return this;
-  }
-
-  hasNode(name: NodeId): boolean {
-    return this._graph.hasNode(name);
-  }
-
-  removeNode(name: NodeId): this {
-    this._graph.removeNode(name);
-    return this;
-  }
-
-  nodes(): NodeId[] {
-    return this._graph.nodes() as NodeId[];
-  }
-
-  node(name: NodeId): NodeLabel {
-    return this._graph.node(name);
-  }
-
-  setEdge(edge: MultiEdge<NodeId, EdgeName>): this {
-    this._graph.setEdge(edge);
-    return this;
-  }
-
-  edges(): MultiEdge<NodeId, EdgeName>[] {
-    return this._graph.edges() as MultiEdge<NodeId, EdgeName>[];
-  }
-
-  hasEdge(edge: MultiEdge<NodeId, EdgeName>): boolean {
-    return this._graph.hasEdge(edge);
-  }
-
-  removeEdge(edge: MultiEdge<NodeId, EdgeName>): this {
-    this._graph.removeEdge(edge);
-    return this;
-  }
-
-  inEdges(v: NodeId, w?: NodeId): MultiEdge<NodeId, EdgeName>[] {
-    return (
-      (this._graph.inEdges(v, w) as
-        | undefined
-        | MultiEdge<NodeId, EdgeName>[]) ?? []
-    );
-  }
-
-  outEdges(v: NodeId, w?: NodeId): MultiEdge<NodeId, EdgeName>[] {
-    return (
-      (this._graph.outEdges(v, w) as
-        | undefined
-        | MultiEdge<NodeId, EdgeName>[]) ?? []
-    );
-  }
-
-  nodeEdges(v: NodeId, w?: NodeId): MultiEdge<NodeId, EdgeName>[] {
-    return (
-      (this._graph.nodeEdges(v, w) as
-        | undefined
-        | MultiEdge<NodeId, EdgeName>[]) ?? []
-    );
-  }
-
-  predecessors(v: NodeId): NodeId[] {
-    return (this._graph.predecessors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  successors(v: NodeId): NodeId[] {
-    return (this._graph.successors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  neighbors(v: NodeId): NodeId[] {
-    return (this._graph.neighbors(v) as undefined | NodeId[]) ?? [];
-  }
-
-  nodeCount(): number {
-    return this._graph.nodeCount();
-  }
-
-  edgeCount(): number {
-    return this._graph.edgeCount();
-  }
-
-  sources(): NodeId[] {
-    return this._graph.sources() as NodeId[];
-  }
-
-  sinks(): NodeId[] {
-    return this._graph.sinks() as NodeId[];
-  }
-
-  topsort(): NodeId[] {
-    return graphlib.alg.topsort(this._graph) as NodeId[];
+  /**
+   * not guaranteed to be exhaustive
+   * @returns fresh empty array if acyclic, else fresh nonempty array of cycles
+   */
+  findCycles(): I[][] {
+    const cycles: I[][] = [];
+    const unvisited = new Set(this.g.keys());
+    while (unvisited.size > 0) {
+      // depth-first search from an arbitrary node until we either find a cycle
+      // or find everything reachable from this node
+      let i: I = unvisited.values().next().value; // starting node
+      const stack = [i]; // our current path from the starting node
+      const succs = new Map<I, I[]>(); // allow efficient cycle detection check
+      while (stack.length > 0) {
+        i = stack[stack.length - 1];
+        unvisited.delete(i);
+        let s = succs.get(i);
+        if (s === undefined) {
+          // lazily populate array of successors
+          s = this.get(i).s.map(({ i: j }) => j);
+          succs.set(i, s);
+        }
+        if (s.length > 0) {
+          const j = s.pop()!;
+          if (succs.has(j)) {
+            cycles.push([...stack.slice(stack.indexOf(j)), j]);
+            break;
+          }
+          if (unvisited.has(j)) stack.push(j);
+        } else {
+          // nothing else to explore from this node; backtrack
+          stack.pop();
+          succs.delete(i); // `succs`'s keys should be `stack`'s elements
+        }
+      }
+    }
+    return cycles;
   }
 }

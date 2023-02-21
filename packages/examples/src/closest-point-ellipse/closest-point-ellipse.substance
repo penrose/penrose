@@ -1,0 +1,8 @@
+VectorSpace U
+Vector v
+Vector w
+In(v, U)
+In(w, U)
+Point p
+Ellipse e1
+Ellipse e2

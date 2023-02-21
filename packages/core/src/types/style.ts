@@ -1,11 +1,23 @@
 import { ASTNode, Identifier, StringLit } from "./ast";
 import { LabelType } from "./substance";
 
+export type Staged<T> = {
+  stages: Identifier<T>[];
+  exclude: boolean; // if true, exclude the tagged expression in `stages`. Otherwise, include it from `stages`.
+};
+
 /** Top level type for Style AST */
 export type StyProg<T> = ASTNode<T> & {
   tag: "StyProg";
-  blocks: HeaderBlock<T>[];
+  items: StyItem<T>[];
 };
+
+export type LayoutStages<T> = ASTNode<T> & {
+  tag: "LayoutStages";
+  contents: Identifier<T>[];
+};
+
+export type StyItem<T> = HeaderBlock<T> | LayoutStages<T>;
 
 export type HeaderBlock<T> = ASTNode<T> & {
   tag: "HeaderBlock";
@@ -225,27 +237,52 @@ export type CompApp<T> = ASTNode<T> & {
   args: Expr<T>[];
 };
 
-export type ObjFn<T> = ASTNode<T> & {
-  tag: "ObjFn";
+export type FunctionCall<T> = ASTNode<T> & {
+  tag: "FunctionCall";
   name: Identifier<T>;
   args: Expr<T>[];
 };
 
-export type ConstrFn<T> = ASTNode<T> & {
-  tag: "ConstrFn";
-  name: Identifier<T>;
-  args: Expr<T>[];
+export type ComparisonOp<T> = ASTNode<T> & {
+  tag: "ComparisonOp";
+  op: "<" | "==" | ">";
 };
+
+export type InlineComparison<T> = ASTNode<T> & {
+  tag: "InlineComparison";
+  op: ComparisonOp<T>;
+  arg1: Expr<T>;
+  arg2: Expr<T>;
+};
+
+export type ObjFn<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "ObjFn";
+    body: FunctionCall<T> | InlineComparison<T>;
+  };
+
+export type ConstrFn<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "ConstrFn";
+    body: FunctionCall<T> | InlineComparison<T>;
+  };
 
 export type AvoidFn<T> = ASTNode<T> & {
   tag: "AvoidFn";
   contents: [string, Expr<T>[]];
 };
 
-export type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
+export type BinaryOp =
+  | "EWMultiply"
+  | "EWDivide"
+  | "BPlus"
+  | "BMinus"
+  | "Multiply"
+  | "Divide"
+  | "Exp";
 
 // NOTE: unary + operator not parsed, as they don't change values
-export type UnaryOp = "UMinus";
+export type UnaryOp = "UMinus" | "UTranspose";
 
 export type BinOp<T> = ASTNode<T> & {
   tag: "BinOp";
@@ -300,9 +337,10 @@ export type Fix<T> = ASTNode<T> & {
   contents: number;
 };
 
-export type Vary<T> = ASTNode<T> & {
-  tag: "Vary";
-};
+export type Vary<T> = ASTNode<T> &
+  Staged<T> & {
+    tag: "Vary";
+  };
 
 export type PropertyDecl<T> = ASTNode<T> & {
   tag: "PropertyDecl";

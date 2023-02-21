@@ -1,6 +1,6 @@
 import _ from "lodash";
 import moo from "moo";
-import { C, Identifier, NodeType, SourceLoc, SourceRange } from "types/ast";
+import { C, Identifier, NodeType, SourceLoc, SourceRange } from "../types/ast";
 
 export const basicSymbols: moo.Rules = {
   ws: /[ \t]+/,
@@ -32,8 +32,9 @@ export const basicSymbols: moo.Rules = {
     match: /\/\*(?:[\s\S]*?)\*\//,
     lineBreaks: true,
   },
+  ewmultiply: ".*",
+  ewdivide: "./",
   dot: ".",
-  brackets: "[]",
   lbracket: "[",
   rbracket: "]",
   lbrace: "{",

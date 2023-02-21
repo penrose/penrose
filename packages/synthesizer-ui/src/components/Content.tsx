@@ -6,6 +6,7 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
+import { Grid } from "@penrose/components";
 import {
   compileDomain,
   compileSubstance,
@@ -19,13 +20,17 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "@penrose/core";
-import { A } from "@penrose/core/build/dist/types/ast";
+import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { range } from "lodash";
 import React from "react";
-import { Grid } from "./Grid";
+import * as sc from "styled-components";
 import { Settings } from "./Settings";
+
+const edgeworthPurple = {
+  primary: "#3f51b5",
+};
 
 export type ContentProps = any;
 
@@ -107,6 +112,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   generateProgs = () => (
     setting: SynthesizerSetting,
+    seed: string,
     numPrograms: number,
     dsl: string,
     prompt: string,
@@ -130,9 +136,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(env, setting, subResult, "test0");
+      const synth = new Synthesizer(env, setting, subResult, seed);
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
+
       if (template) {
         this.setState({
           progs: [{ prog: template, ops: [] }, ...progs],
@@ -146,8 +153,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   exportDiagrams = async (indices: number[]) => {
     const zip = JSZip();
-    zip.file(`domain.dsl`, this.state.domain);
-    zip.file(`style.sty`, this.state.style);
+    zip.file(`domain.domain`, this.state.domain);
+    zip.file(`style.style`, this.state.style);
     for (const idx of indices) {
       const state = this.state.states[idx];
       const { prog, ops } = this.state.progs[idx];
@@ -160,7 +167,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
         return await response.text();
       });
       zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
-      zip.file(`substance_${idx}.sub`, prettySubstance(prog));
+      zip.file(`substance_${idx}.substance`, prettySubstance(prog));
       zip.file(`mutations_${idx}.txt`, showMutations(ops));
     }
     zip.generateAsync({ type: "blob" }).then(function (content) {
@@ -205,13 +212,36 @@ export class Content extends React.Component<ContentProps, ContentState> {
             defaultDomain={this.state.domain}
             defaultStyle={this.state.style}
           />
-          <Grid
-            style={this.state.style}
-            domain={this.state.domain}
-            progs={this.state.progs}
-            onStaged={this.addStaged}
-            onStateUpdate={this.onStateUpdate}
-          />
+          <sc.ThemeProvider theme={edgeworthPurple}>
+            <Grid
+              diagrams={this.state.progs.map(({ prog }, i) => ({
+                substance: prettySubstance(prog),
+                style: this.state.style,
+                domain: this.state.domain,
+                variation: `${i}`,
+              }))}
+              header={(i) =>
+                i === 0 ? "Original diagram" : `Mutated diagram #${i}`
+              }
+              metadata={(i) => [
+                {
+                  name: "Substance program",
+                  data: prettySubstance(this.state.progs[i].prog),
+                },
+                {
+                  name: "Mutations",
+                  data: showMutations(this.state.progs[i].ops),
+                },
+              ]}
+              gridBoxProps={{
+                stepSize: 20,
+                stateful: true,
+                animate: true,
+              }}
+              onSelected={this.addStaged}
+              onStateUpdate={this.onStateUpdate}
+            />
+          </sc.ThemeProvider>
         </ContentSection>
       </div>
     );

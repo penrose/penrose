@@ -1,31 +1,9 @@
 {
   "npmScope": "penrose",
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
-      "options": {
-        "cacheableOperations": [
-          "build",
-          "build-decls",
-          "build-examples",
-          "build-parsers",
-          "build-shapedefs",
-          "build-storybook",
-          "docs",
-          "write-translations"
-        ]
-      }
-    }
-  },
+  "tasksRunnerOptions": { "default": { "runner": "nx/tasks-runners/default" } },
   "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"]
-    },
-    "build-decls": {
-      "dependsOn": ["^build-decls"]
-    },
-    "typecheck": {
-      "dependsOn": ["build-decls"]
-    }
+    "build": { "dependsOn": ["^build"] },
+    "build-decls": { "dependsOn": ["^build-decls"] },
+    "typecheck": { "dependsOn": ["build-decls"] }
   }
 }

@@ -1,6 +1,6 @@
-import { isConcrete } from "engine/EngineUtils";
-import { shapedefs } from "shapes/Shapes";
 import { Result } from "true-myth";
+import { isConcrete } from "../engine/EngineUtils";
+import { shapedefs } from "../shapes/Shapes";
 import {
   A,
   AbstractNode,
@@ -9,8 +9,8 @@ import {
   NodeType,
   SourceLoc,
   SourceRange,
-} from "types/ast";
-import { Arg, Type, TypeConstructor } from "types/domain";
+} from "../types/ast";
+import { Arg, Type, TypeConstructor } from "../types/domain";
 import {
   ArgLengthMismatch,
   CyclicSubtypes,
@@ -34,11 +34,11 @@ import {
   TypeNotFound,
   UnexpectedExprForNestedPred,
   VarNotFound,
-} from "types/errors";
-import { State } from "types/state";
-import { BindingForm, ColorLit } from "types/style";
-import { Deconstructor, SubExpr } from "types/substance";
-import { prettyPrintPath, prettyPrintResolvedPath } from "utils/Util";
+} from "../types/errors";
+import { State } from "../types/state";
+import { BindingForm, ColorLit } from "../types/style";
+import { Deconstructor, SubExpr } from "../types/substance";
+import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
   and,
@@ -227,12 +227,35 @@ export const showError = (
     }
 
     case "TaggedSubstanceError": {
-      return showError(error.error); // Substance error
+      switch (error.error.tag) {
+        // special handling for VarNotFound
+        case "VarNotFound": {
+          const processIdentifier = (x: Identifier<A>) => ({
+            ...x,
+            value: x.nodeType === "Style" ? x.value : `\`${x.value}\``,
+          });
+          return showError({
+            ...error.error,
+            variable: processIdentifier(error.error.variable),
+            possibleVars: error.error.possibleVars
+              ? error.error.possibleVars.map(processIdentifier)
+              : undefined,
+          });
+        }
+        default:
+          return showError(error.error); // Substance error
+      }
     }
 
     case "SelectorAliasNamingError": {
-      return `Incompatible alias name "${error.alias.value}" in style selector: \
-      domain or style pattern statement has already declared the variable ${error.alias.value}`;
+      return `Incompatible alias name "${error.alias.value}" in Style selector: \
+      Domain or Style pattern statement has already declared the variable ${error.alias.value}`;
+    }
+
+    case "MultipleLayoutError": {
+      return `Multiple layout pipelines found in Style (${error.decls
+        .map((d) => loc(d))
+        .join("; ")}). There can only be one unique layout pipeline.`;
     }
     // --- BEGIN BLOCK STATIC ERRORS
 
@@ -290,9 +313,9 @@ export const showError = (
     }
 
     case "BadElementError": {
-      return `Wrong element type at index ${
-        error.index
-      } in collection (at ${loc(error.coll)}).`;
+      return `Wrong element type at index ${error.index} in ${
+        error.coll.tag
+      } (at ${loc(error.coll)}).`;
     }
 
     case "BadIndexError": {
@@ -612,7 +635,7 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
   messages: messages.map(showError),
 });
 
-// name stands for "`loc` concrete"
+/* name stands for "`loc` concrete" */
 const locc = (nodeType: NodeType, node: SourceRange): string => {
   return `line ${node.start.line}, column ${
     node.start.col + 1
@@ -621,6 +644,7 @@ const locc = (nodeType: NodeType, node: SourceRange): string => {
 
 // const aloc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
+/* pretty-prints source location of an AST node */
 const loc = (node: AbstractNode): string => {
   if (isConcrete(node)) {
     return locc(node.nodeType, node);

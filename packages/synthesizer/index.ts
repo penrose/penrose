@@ -12,7 +12,7 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "@penrose/core";
-import { A } from "@penrose/core/build/dist/types/ast";
+import { A } from "@penrose/core/dist/types/ast";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
 import { join } from "path";
@@ -43,6 +43,11 @@ export const defaultSetting: SynthesizerSetting = {
     type: 0.1,
     predicate: 0.3,
     constructor: 0.0,
+  },
+  opWeights: {
+    add: 0.01,
+    delete: 0.2,
+    edit: 0.8,
   },
   add: {
     // type: "*",
@@ -80,11 +85,12 @@ const writePrograms = (
   const trios = [];
   const styID = "style";
   const domainID = "domain";
-  const stylePath = "style.sty";
-  const domainPath = "domain.dsl";
+  const stylePath = "style.style";
+  const domainPath = "domain.domain";
   const style = {
     name: styID,
     URI: stylePath,
+    domain: domainID,
   };
   const domain = {
     name: domainID,
@@ -97,7 +103,7 @@ const writePrograms = (
   // Push all substance programs
   for (let i = 0; i < progs.length; i++) {
     const subID = `prog-${i}`;
-    const fileName = `${subID}.sub`;
+    const fileName = `${subID}.substance`;
     const subPath = join(prefix, fileName);
     const metaName = `${subID}-meta.json`;
     const metaPath = join(prefix, metaName);

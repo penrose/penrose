@@ -1,5 +1,5 @@
-import * as ad from "types/ad";
-import { PathDataV, SubPath } from "types/value";
+import * as ad from "../types/ad";
+import { PathDataV, SubPath } from "../types/value";
 
 /**
  * Class for building SVG paths

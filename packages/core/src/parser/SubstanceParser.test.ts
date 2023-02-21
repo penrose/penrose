@@ -1,4 +1,4 @@
-import { examples } from "@penrose/examples";
+import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
@@ -20,15 +20,11 @@ const printAST = (ast: any) => {
 };
 
 const subPaths = [
-  // "linear-algebra-domain/twoVectorsPerp.sub",
-  "set-theory-domain/tree.sub",
-  "set-theory-domain/continuousmap.sub",
-  "set-theory-domain/twosets-simple.sub",
-  "set-theory-domain/multisets.sub",
-  "set-theory-domain/nested.sub",
-  // "hyperbolic-domain/hyperbolic-example.sub",
-  // "geometry-domain/pythagorean-theorem-sugared.sub",
-  // "mesh-set-domain/DomainInterop.sub",
+  "tree.substance",
+  "continuousmap.substance",
+  "twosets-simple.substance",
+  "multisets.substance",
+  "nested.substance",
 ];
 
 beforeEach(() => {
@@ -184,15 +180,13 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach((examplePath) => {
-    // a bit hacky, only works with 2-part paths
-    const [part0, part1] = examplePath.split("/");
-    const prog = examples[part0][part1];
+    const prog = setTheory[examplePath];
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);
       // write to output folder
       if (saveASTs) {
-        const exampleName = path.basename(examplePath, ".sub");
+        const exampleName = path.basename(examplePath, ".substance");
         const astPath = path.join(outputDir, exampleName + ".ast.json");
         fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
       }

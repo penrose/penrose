@@ -1,7 +1,7 @@
-import * as ad from "types/ad";
-import { Arrow, Named, Shape, Stroke } from "types/shapes";
-import { StrV, VectorV } from "types/value";
-import { black, boolV, floatV, strV } from "utils/Util";
+import * as ad from "../types/ad";
+import { Arrow, Named, Shape, Stroke } from "../types/shapes";
+import { StrV, VectorV } from "../types/value";
+import { black, boolV, floatV, strV } from "../utils/Util";
 import { Canvas, Context, sampleVector } from "./Samplers";
 
 export interface LineProps extends Named, Stroke, Arrow {

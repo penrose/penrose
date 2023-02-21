@@ -1,4 +1,4 @@
-import * as ad from "types/ad";
+import * as ad from "../types/ad";
 import {
   Center,
   Fill,
@@ -8,9 +8,9 @@ import {
   Shape,
   String,
   Stroke,
-} from "types/shapes";
-import { FloatV, StrV } from "types/value";
-import { black, boolV, floatV, noPaint, strV, vectorV } from "utils/Util";
+} from "../types/shapes";
+import { FloatV, StrV } from "../types/value";
+import { black, boolV, floatV, noPaint, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, uniform } from "./Samplers";
 
 export interface TextProps
@@ -46,13 +46,39 @@ export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
   strokeDasharray: strV(""),
   fillColor: black(),
   center: vectorV([
-    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.xRange) }),
-    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.yRange) }),
+    context.makeInput({
+      init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
+      stages: "All",
+    }),
+    context.makeInput({
+      init: { tag: "Sampled", sampler: uniform(...canvas.yRange) },
+      stages: "All",
+    }),
   ]),
-  width: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
-  height: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
-  ascent: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
-  descent: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
+  width: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
+  height: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
+  ascent: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
+  descent: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
   rotation: floatV(0),
   string: strV("defaultText"),
   visibility: strV(""),

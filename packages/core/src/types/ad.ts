@@ -1,5 +1,5 @@
-import { Multidigraph } from "utils/Graph";
-import { LbfgsParams } from "./state";
+import { Outputs } from "@penrose/optimizer";
+import GenericGraph from "../utils/Graph";
 
 // The following three regions define the core types for our symbolic
 // differentiation engine. Note that, despite the name, this is not actually
@@ -43,15 +43,7 @@ export type Expr = Bool | Num | Vec;
 
 export type Bool = Comp | Logic | Not;
 
-export type Num =
-  | number
-  | Input
-  | Unary
-  | Binary
-  | Ternary
-  | Nary
-  | Index
-  | Debug;
+export type Num = number | Input | Unary | Binary | Ternary | Nary | Index;
 
 export type Vec = PolyRoots;
 
@@ -126,10 +118,6 @@ export interface Index extends IndexNode {
   vec: Vec;
 }
 
-export interface Debug extends DebugNode {
-  node: Num;
-}
-
 //#endregion
 
 //#region Types for explicit autodiff graph
@@ -145,8 +133,7 @@ export type Node =
   | NaryNode
   | PolyRootsNode
   | IndexNode
-  | NotNode
-  | DebugNode;
+  | NotNode;
 
 export interface InputNode {
   tag: "Input";
@@ -217,6 +204,7 @@ export interface NaryNode {
 
 export interface PolyRootsNode {
   tag: "PolyRoots";
+  degree: number;
 }
 
 export interface IndexNode {
@@ -224,52 +212,14 @@ export interface IndexNode {
   index: number;
 }
 
-export interface DebugNode {
-  tag: "Debug";
-  info: string;
-}
+export type Edge = number;
 
-export type Edge =
-  | UnaryEdge
-  | BinaryEdge
-  | CompEdge
-  | LogicEdge
-  | TernaryEdge
-  | NaryEdge
-  | PolyRootsEdge
-  | IndexEdge
-  | DebugEdge
-  | NotEdge;
-
-export type UnaryEdge = undefined;
-export type BinaryEdge = "left" | "right";
-export type CompEdge = BinaryEdge;
-export type LogicEdge = BinaryEdge;
-export type TernaryEdge = "cond" | "then" | "els";
-export type NaryEdge = `${number}`;
-export type PolyRootsEdge = NaryEdge;
-export type IndexEdge = UnaryEdge;
-export type DebugEdge = UnaryEdge;
-export type NotEdge = UnaryEdge;
-
-export type Id = `_${number}`; // subset of valid JavaScript identifiers
+export type Id = number;
 
 export interface Graph extends Outputs<Id> {
-  graph: Multidigraph<Id, Node, Edge>; // edges point from children to parents
+  graph: GenericGraph<Id, Node, Edge>; // edges point from children to parents
   nodes: Map<Expr, Id>;
 }
-
-//#endregion
-
-//#region Types for compiled autodiff graph
-
-export interface Outputs<T> {
-  gradient: T[]; // derivatives of primary output with respect to inputs
-  primary: T;
-  secondary: T[];
-}
-
-export type Compiled = (inputs: number[]) => Outputs<number>;
 
 //#endregion
 
@@ -278,30 +228,5 @@ export type Compiled = (inputs: number[]) => Outputs<number>;
 export type Pt2 = [Num, Num];
 
 export const isPt2 = (vec: Num[]): vec is Pt2 => vec.length === 2;
-
-export interface GradGraphs {
-  inputs: Num[];
-  weight: Num | undefined; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
-}
-
-// Returned after a call to `minimize`
-export interface OptInfo {
-  xs: number[];
-  energyVal: number;
-  objEngs: number[];
-  constrEngs: number[];
-  normGrad: number;
-  newLbfgsInfo: LbfgsParams;
-  gradient: number[];
-  gradientPreconditioned: number[];
-  failed: boolean;
-}
-
-export type NumMap = Map<string, number>;
-
-export interface OptDebugInfo {
-  gradient: NumMap;
-  gradientPreconditioned: NumMap;
-}
 
 //#endregion
