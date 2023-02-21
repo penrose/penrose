@@ -24,6 +24,7 @@ import RogerPanel from "./components/RogerPanel";
 import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
 import StateInspector from "./components/StateInspector";
+import WarningInspector from "./components/WarningInspector";
 import SvgUploader from "./components/SvgUploader";
 import TopBar from "./components/TopBar";
 import {
@@ -96,6 +97,7 @@ const mainRowLayout: IJsonRowNode = {
           component: "grid",
           enableRename: false,
         },
+        { type: "tab", name: "warnings", component: "warningInspector" },
       ],
     },
   ],
@@ -181,6 +183,8 @@ function App() {
           return <DiagramOptions />;
         case "stateInspector":
           return <StateInspector />;
+        case "warningInspector":
+          return <WarningInspector />;
         case "optInspector":
           return <Opt />;
         case "rogerPanel":
