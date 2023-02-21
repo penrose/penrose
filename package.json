@@ -57,8 +57,5 @@
       "**/babel-loader",
       "**/webpack"
     ]
-  },
-  "dependencies": {
-    "canvas": "^2.11.0"
   }
 }
