@@ -4,11 +4,11 @@
 # Lexer
 @{%
 /* eslint-disable */
-import * as moo from "moo";
-import { concat, compact, flatten, last } from 'lodash'
-import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
-import { C, ConcreteNode, StringLit } from "types/ast";
-import { DomainProg, TypeDecl, PredicateDecl, FunctionDecl, ConstructorDecl, PreludeDecl, NotationDecl, SubTypeDecl, TypeConstructor, Type, Arg, Prop } from "types/domain";
+import moo from "moo";
+import _ from 'lodash'
+import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
+import { C, ConcreteNode, StringLit } from "../types/ast";
+import { DomainProg, TypeDecl, PredicateDecl, FunctionDecl, ConstructorDecl, PreludeDecl, NotationDecl, SubTypeDecl, TypeConstructor, Type, Arg, Prop } from "../types/domain";
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
@@ -202,7 +202,7 @@ type_constructor -> identifier type_arg_list:? {%
 
 # Various kinds of parameters and arguments
 
-type_arg_list -> _ "(" _ sepBy1[type, ","] _ ")" {% ([, , , d]): Type<C>[] => flatten(d) %}
+type_arg_list -> _ "(" _ sepBy1[type, ","] _ ")" {% ([, , , d]): Type<C>[] => _.flatten(d) %}
 
 type_params_list 
   -> null {% d => [] %}
@@ -210,7 +210,7 @@ type_params_list
 type_params -> sepBy1[type_var, ","] {% ([d]) => d %}
 
 args_list 
-  -> _ "(" _ sepBy[arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => flatten(d) %}
+  -> _ "(" _ sepBy[arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
 arg -> type (__ var):? {% 
   ([type, v]): Arg<C> => {
     const variable = v ? v[1] : undefined;
@@ -223,7 +223,7 @@ arg -> type (__ var):? {%
   }
 %}
 named_args_list 
-  -> _ "(" _ sepBy[named_arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => flatten(d) %}
+  -> _ "(" _ sepBy[named_arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
 named_arg -> type __ var {% 
   ([type, , variable]): Arg<C> => ({
      ...nodeData,

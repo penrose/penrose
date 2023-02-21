@@ -1,4 +1,4 @@
-import * as ad from "types/ad";
+import * as ad from "../types/ad";
 
 const binary = (binop: ad.Binary["binop"]) => (
   v: ad.Num,
@@ -317,6 +317,10 @@ export const ifCond = (cond: ad.Bool, v: ad.Num, w: ad.Num): ad.Ternary => ({
  * nonzero imaginary component is replaced with `NaN`.
  */
 export const polyRoots = (coeffs: ad.Num[]): ad.Num[] => {
-  const nexus: ad.PolyRoots = { tag: "PolyRoots", coeffs };
+  const nexus: ad.PolyRoots = {
+    tag: "PolyRoots",
+    degree: coeffs.length,
+    coeffs,
+  };
   return coeffs.map((coeff, index) => ({ tag: "Index", index, vec: nexus }));
 };

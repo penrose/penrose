@@ -1,2 +1,2 @@
-npx roger watch sound-test.sub sound.sty sound.dsl
+npx roger watch sound-test.substance sound.style sound.domain
 

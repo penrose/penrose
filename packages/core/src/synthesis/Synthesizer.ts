@@ -1,3 +1,10 @@
+import consola from "consola";
+import im from "immutable";
+import _ from "lodash";
+import pc from "pandemonium/choice";
+import pr from "pandemonium/random";
+import pwc from "pandemonium/weighted-choice";
+import seedrandom from "seedrandom";
 import {
   appendStmt,
   applyBind,
@@ -10,20 +17,46 @@ import {
   ArgStmtDecl,
   autoLabelStmt,
   cascadingDelete,
+  dedupStmts,
+  desugarAutoLabel,
   domainToSubType,
+  findDecl,
+  findTypes,
+  getSignature,
   matchSignatures,
   nullaryTypeCons,
+  sortStmts,
   SubStmtKind,
-} from "analysis/SubstanceAnalysis";
-import { subTypesOf } from "compiler/Domain";
-import { prettyStmt, prettySubstance } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
-import { dummyIdentifier } from "engine/EngineUtils";
-import im from "immutable";
-import { cloneDeep, compact, range, times, without } from "lodash";
-import { createChoice } from "pandemonium/choice";
-import { createRandom } from "pandemonium/random";
-import seedrandom from "seedrandom";
+} from "../analysis/SubstanceAnalysis";
+import { subTypesOf } from "../compiler/Domain";
+import { prettyStmt, prettySubstance } from "../compiler/Substance";
+import { dummyIdentifier } from "../engine/EngineUtils";
+import { A, Identifier } from "../types/ast";
+import {
+  Arg,
+  ConstructorDecl,
+  DomainStmt,
+  Env,
+  FunctionDecl,
+  PredicateDecl,
+  Type,
+  TypeConstructor,
+  TypeDecl,
+} from "../types/domain";
+import {
+  ApplyConstructor,
+  ApplyFunction,
+  ApplyPredicate,
+  Bind,
+  Decl,
+  SubExpr,
+  SubPredArg,
+  SubProg,
+  SubRes,
+  SubStmt,
+  TypeConsApp,
+} from "../types/substance";
+import { combinations2 } from "../utils/Util";
 import {
   Add,
   addMutation,
@@ -43,39 +76,14 @@ import {
   executeMutations,
   Mutation,
   MutationGroup,
+  MutationType,
   showMutations,
-} from "synthesis/Mutation";
-import { A, Identifier } from "types/ast";
-import {
-  Arg,
-  ConstructorDecl,
-  DomainStmt,
-  Env,
-  FunctionDecl,
-  PredicateDecl,
-  Type,
-  TypeConstructor,
-  TypeDecl,
-} from "types/domain";
-import {
-  ApplyConstructor,
-  ApplyFunction,
-  ApplyPredicate,
-  Bind,
-  Decl,
-  Func,
-  SubExpr,
-  SubPredArg,
-  SubProg,
-  SubRes,
-  SubStmt,
-  TypeConsApp,
-} from "types/substance";
+} from "./Mutation";
 
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -83,8 +91,8 @@ const log = consola
 type All = "*";
 type ArgOption = "existing" | "generated" | "mixed";
 type ArgReuse = "distinct" | "repeated";
-type MatchSetting = string[] | All;
-type DeclTypes = {
+export type MatchSetting = string[] | All;
+export type DeclTypes = {
   [t in SubStmtKind]: MatchSetting;
 };
 export interface SynthesizerSetting {
@@ -95,6 +103,9 @@ export interface SynthesizerSetting {
     type: number;
     predicate: number;
     constructor: number;
+  };
+  opWeights: {
+    [t in MutationType]: number;
   };
   add: DeclTypes;
   delete: DeclTypes;
@@ -135,7 +146,7 @@ export const initContext = (
     argReuse,
     names: im.Map<string, number>(),
     declaredIDs: im.Map<string, Identifier<A>[]>(),
-    choice: createChoice(rng),
+    choice: pc.createChoice(rng),
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -147,18 +158,60 @@ export const initContext = (
 
 export const filterContext = (
   ctx: SynthesisContext,
-  setting: DeclTypes
+  setting: DeclTypes,
+  subProg?: SubProg<A> // optionally filter by the declared Substance types too
 ): SynthesisContext => {
-  return {
-    ...ctx,
-    env: {
-      ...ctx.env,
-      types: filterBySetting(ctx.env.types, setting.type),
-      functions: filterBySetting(ctx.env.functions, setting.function),
-      predicates: filterBySetting(ctx.env.predicates, setting.predicate),
-      constructors: filterBySetting(ctx.env.constructors, setting.constructor),
-    },
+  const filterDecls = <T>(
+    decls: im.Map<string, T>,
+    setting: MatchSetting,
+    substanceTypes?: string[]
+  ): im.Map<string, T> => {
+    const filteredBySetting: im.Map<string, T> =
+      setting === "*" ? decls : decls.filter((_, key) => setting.includes(key));
+    if (substanceTypes) {
+      return filteredBySetting.filter((_, key) => substanceTypes.includes(key));
+    } else {
+      return filteredBySetting;
+    }
   };
+
+  if (subProg) {
+    const subTypes = findTypes(subProg);
+    return {
+      ...ctx,
+      env: {
+        ...ctx.env,
+        types: filterDecls(ctx.env.types, setting.type, subTypes.type),
+        functions: filterDecls(
+          ctx.env.functions,
+          setting.function,
+          subTypes.function
+        ),
+        predicates: filterDecls(
+          ctx.env.predicates,
+          setting.predicate,
+          subTypes.predicate
+        ),
+        constructors: filterDecls(
+          ctx.env.constructors,
+          setting.constructor,
+          subTypes.constructor
+        ),
+      },
+    };
+  } else {
+    // TODO: dedup
+    return {
+      ...ctx,
+      env: {
+        ...ctx.env,
+        types: filterDecls(ctx.env.types, setting.type),
+        functions: filterDecls(ctx.env.functions, setting.function),
+        predicates: filterDecls(ctx.env.predicates, setting.predicate),
+        constructors: filterDecls(ctx.env.constructors, setting.constructor),
+      },
+    };
+  }
 };
 
 export const showEnv = (env: Env): string =>
@@ -186,9 +239,11 @@ const getDecls = (
     case undefined:
       return im.Map<string, DomainStmt<A>>();
   }
+
   throw new Error(`${type} is not found in the environment`);
 };
 
+// return types that are declared in the context
 const nonEmptyDecls = (ctx: SynthesisContext): DomainStmt<A>["tag"][] =>
   declTypes.filter((type) => !getDecls(ctx, type).isEmpty());
 
@@ -251,7 +306,7 @@ const findIDs = (
   typeStrs: string[],
   excludeList?: Identifier<A>[]
 ): Identifier<A>[] => {
-  const possibleIDs: Identifier<A>[] = compact(
+  const possibleIDs: Identifier<A>[] = _.compact(
     typeStrs.flatMap((typeStr) => ctx.declaredIDs.get(typeStr))
   );
   const candidates = possibleIDs.filter((id) =>
@@ -314,6 +369,7 @@ export class Synthesizer {
   currentMutations: Mutation[];
   rng: seedrandom.prng;
   private choice: <T>(array: Array<T>) => T;
+  private weightedChoice: <T>(array: Array<T>) => T;
   private random: RandomFunction;
 
   constructor(
@@ -326,7 +382,7 @@ export class Synthesizer {
     if (subRes) {
       const [subEnv, env] = subRes;
       this.env = env;
-      this.template = cloneDeep(subEnv.ast);
+      this.template = _.cloneDeep(subEnv.ast);
       log.debug(`Loaded template:\n${prettySubstance(this.template)}`);
     } else {
       this.env = env;
@@ -336,18 +392,25 @@ export class Synthesizer {
         nodeType: "SyntheticSubstance",
       };
     }
-    // initialize the current program as the template
-    this.currentProg = cloneDeep(this.template);
+    // initialize the current program as the template after pre-processing
+    this.currentProg = desugarAutoLabel(_.cloneDeep(this.template), env);
     this.setting = setting;
     this.currentMutations = [];
     // use the seed to create random generation functions
     this.rng = seedrandom(seed);
-    this.choice = createChoice(this.rng);
-    this.random = createRandom(this.rng);
+    this.choice = pc.createChoice(this.rng);
+    // TODO: fix type declaration
+    this.weightedChoice = pwc.createWeightedChoice({
+      rng: this.rng,
+      getWeight: (item: { type: MutationType; weight: number }) => {
+        return item.weight;
+      },
+    } as any);
+    this.random = pr.createRandom(this.rng);
   }
 
   reset = (): void => {
-    this.currentProg = cloneDeep(this.template);
+    this.currentProg = desugarAutoLabel(_.cloneDeep(this.template), this.env);
     this.currentMutations = [];
   };
 
@@ -358,7 +421,8 @@ export class Synthesizer {
   };
 
   getTemplate = (): SubProg<A> | undefined =>
-    this.template ? appendStmt(this.template, autoLabelStmt) : undefined;
+    // this.template ? appendStmt(this.template, autoLabelStmt) : undefined;
+    this.template ?? undefined;
 
   /**
    * Top-level function for generating multiple Substance programs.
@@ -366,7 +430,7 @@ export class Synthesizer {
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
-    times(numProgs, (n: number) => {
+    _.times(numProgs, (n: number) => {
       const sub = this.generateSubstance();
       // DEBUG: report results
       log.info(
@@ -381,7 +445,7 @@ export class Synthesizer {
 
   generateSubstance = (): SynthesizedSubstance => {
     const numStmts = this.random(...this.setting.mutationCount);
-    range(numStmts).reduce(
+    _.range(numStmts).reduce(
       (ctx: SynthesisContext, n: number): SynthesisContext => {
         const newCtx = this.mutateProgram(ctx);
         log.debug(
@@ -399,9 +463,10 @@ export class Synthesizer {
       )
     );
     // add autolabel statement
-    this.updateProg(autoLabel(this.currentProg));
+    // TODO: find out what to label
+    // this.updateProg(autoLabel(this.currentProg));
     return {
-      prog: this.currentProg,
+      prog: sortStmts(dedupStmts(this.currentProg)), // sort and deduplicate statements to make sure edits don't introduce compiler errors
       ops: this.currentMutations,
     };
   };
@@ -412,20 +477,45 @@ export class Synthesizer {
   mutateProgram = (ctx: SynthesisContext): SynthesisContext => {
     const addCtx = filterContext(ctx, this.setting.add);
     const addOps = this.enumerateAdd(addCtx);
-    const deleteCtx = filterContext(ctx, this.setting.delete);
+    // NOTE: filter deletes by the template Substance program too
+    const deleteCtx = filterContext(ctx, this.setting.delete, this.template);
     const deleteOps = this.enumerateDelete(deleteCtx);
-    const editCtx = filterContext(ctx, this.setting.edit);
+    // NOTE: filter edits by the template Substance program too
+    const editCtx = filterContext(ctx, this.setting.edit, this.template);
     const editOps = this.enumerateUpdate(editCtx);
     const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps].filter(
       (ops) => ops.length > 0
     );
-    if (mutations.length > 0) {
-      log.debug(
-        `Possible mutations: ${mutations.map(showMutations).join("\n")}`
-      );
-      const mutationGroup: MutationGroup = this.choice(mutations);
+    log.debug(`Possible mutations: ${mutations.map(showMutations).join("\n")}`);
+    // first pick op type by weight
+    const mutationType: MutationType = this.weightedChoice(
+      ["add" as const, "delete" as const, "edit" as const].map(
+        (t: MutationType) => ({
+          type: t,
+          weight: this.setting.opWeights[t],
+        })
+      )
+    ).type;
+    log.debug(
+      `Picked mutation type: ${mutationType} with weight ${this.setting.opWeights[mutationType]}`
+    );
+    let mutationGroup: MutationGroup;
+    switch (mutationType) {
+      case "add": {
+        mutationGroup = addOps;
+        break;
+      }
+      case "delete": {
+        mutationGroup = deleteOps;
+        break;
+      }
+      case "edit":
+        mutationGroup = this.choice(editOps) ?? [];
+        break;
+    }
+
+    if (mutationGroup.length > 0) {
       log.debug(`Picked mutation group: ${showMutations(mutationGroup)}`);
-      // TODO: check if the ctx used is correct
       const { res: prog, ctx: newCtx } = executeMutations(
         mutationGroup,
         this.currentProg,
@@ -436,7 +526,8 @@ export class Synthesizer {
       return newCtx;
     } else {
       log.debug("No mutations found.");
-      return ctx;
+      // restart mutation is none found
+      return this.mutateProgram(ctx);
     }
   };
 
@@ -449,22 +540,38 @@ export class Synthesizer {
     // const ops = enumerateMutations(stmt, this.currentProg, ctx);
     const ops: (Mutation | undefined)[] = [
       checkSwapStmtArgs(stmt, (p: ApplyPredicate<A>) => {
-        const indices = range(0, p.args.length);
-        const elem1 = this.choice(indices);
-        const elem2 = this.choice(without(indices, elem1));
-        return [elem1, elem2];
+        const [decl] = findDecl(p.name.value, ctx.env);
+        if (decl) {
+          // find index pairs of matching arg types
+          const { args } = getSignature(decl);
+          const indices = combinations2(_.range(0, p.args.length)).filter(
+            ([i, j]: [number, number]) => args[i] === args[j]
+          );
+          const pair = this.choice(indices);
+          return pair;
+        } else {
+          return undefined;
+        }
       }),
       checkSwapExprArgs(stmt, (f: ArgExpr<A>) => {
-        const indices = range(0, f.args.length);
-        const elem1 = this.choice(indices);
-        const elem2 = this.choice(without(indices, elem1));
-        return [elem1, elem2];
+        const [decl] = findDecl(f.name.value, ctx.env);
+        if (decl) {
+          // find index pairs of matching arg types
+          const { args } = getSignature(decl);
+          const indices = combinations2(_.range(0, f.args.length)).filter(
+            ([i, j]: [number, number]) => args[i] === args[j]
+          );
+          const pair = this.choice(indices);
+          return pair;
+        } else {
+          return undefined;
+        }
       }),
       checkReplaceStmtName(stmt, (p: ApplyPredicate<A>) => {
         const matchingNames: string[] = matchSignatures(p, ctx.env).map(
           (decl) => decl.name.value
         );
-        const options = without(matchingNames, p.name.value);
+        const options = _.without(matchingNames, p.name.value);
         if (options.length > 0) {
           return this.choice(options);
         } else return undefined;
@@ -473,7 +580,7 @@ export class Synthesizer {
         const matchingNames: string[] = matchSignatures(e, ctx.env).map(
           (decl) => decl.name.value
         );
-        const options = without(matchingNames, e.name.value);
+        const options = _.without(matchingNames, e.name.value);
         if (options.length > 0) {
           return this.choice(options);
         } else return undefined;
@@ -483,14 +590,10 @@ export class Synthesizer {
         ctx,
         (
           options: im.Map<string, Identifier<A>[]>
-        ): Identifier<A> | undefined => {
-          const varId = this.choice([...options.keys()]);
-          const swapOptions = options.get(varId);
-          return swapOptions ? this.choice(swapOptions) : undefined;
-        },
-        (p: ApplyPredicate<A>) => {
-          const indices = range(0, p.args.length);
-          return this.choice(indices);
+        ): [string, Identifier<A>] | undefined => {
+          const id = this.choice([...options.keys()]);
+          const swapOptions = options.get(id);
+          return swapOptions ? [id, this.choice(swapOptions)] : undefined;
         }
       ),
       checkSwapInExprArgs(
@@ -498,14 +601,10 @@ export class Synthesizer {
         ctx,
         (
           options: im.Map<string, Identifier<A>[]>
-        ): Identifier<A> | undefined => {
+        ): [string, Identifier<A>] | undefined => {
           const varId = this.choice([...options.keys()]);
           const swapOptions = options.get(varId);
-          return swapOptions ? this.choice(swapOptions) : undefined;
-        },
-        (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => {
-          const indices = range(0, p.args.length);
-          return this.choice(indices);
+          return swapOptions ? [varId, this.choice(swapOptions)] : undefined;
         }
       ),
       checkChangeStmtType(
@@ -542,9 +641,9 @@ export class Synthesizer {
               oldExpr.args
             );
             let toDelete: SubStmt<A>[];
-            // remove old statement
+            // remove old statement if (1) the new stmt becomes a predicate OR (2) the return type of the new stmt is different from the old stmt
             if (
-              res.tag === "Bind" &&
+              res.tag === "ApplyPredicate" ||
               res.variable.type !== oldStmt.variable.type
             ) {
               // old bind was replaced by a bind with diff type
@@ -562,7 +661,7 @@ export class Synthesizer {
         }
       ),
     ];
-    const mutations = compact(ops);
+    const mutations = _.compact(ops);
     log.debug(
       `Available mutations for ${prettyStmt(stmt)}:\n${showMutations(
         mutations
@@ -605,6 +704,7 @@ export class Synthesizer {
    */
   enumerateAdd = (ctx: SynthesisContext): MutationGroup => {
     const chosenType = this.choice(nonEmptyDecls(ctx));
+    log.debug(`Picking a statement to add from ${nonEmptyDecls(ctx)}`);
     let possibleOps: MutationGroup | undefined;
     log.debug(`Adding statement of ${chosenType} type`);
     if (chosenType === "TypeDecl") {
@@ -680,6 +780,9 @@ export class Synthesizer {
     const chosenType = this.choice(nonEmptyDecls(ctx));
     const candidates = [...getDecls(ctx, chosenType).keys()];
     const chosenName = this.choice(candidates);
+    log.debug(
+      `Chosen name is ${chosenName}, candidates ${candidates}, chosen type ${chosenType}`
+    );
     const stmt = this.findStmt(chosenType, chosenName);
     let possibleOps: Mutation[] = [];
     if (stmt) {
@@ -711,6 +814,10 @@ export class Synthesizer {
       const subType = domainToSubType(stmtType);
       if (s.tag === "Bind") {
         const expr = s.expr;
+        log.debug(
+          `filtering stmt ${prettyStmt(s)} to find ${name} of ${subType}`,
+          expr
+        );
         return expr.tag === subType && expr.name.value === name;
       } else if (s.tag === "Decl") {
         return s.tag === subType && s.type.name.value === name;
@@ -950,7 +1057,11 @@ const generateArg = (
           };
         } else {
           throw new Error(
-            `${argType.name.value} not found in the candidate list`
+            `${
+              argType.name.value
+            } not found in the candidate list. Candidate types are: ${[
+              ...ctx.env.types.keys(),
+            ]}`
           );
         }
       }
@@ -1028,16 +1139,5 @@ const declTypes: DomainStmt<A>["tag"][] = [
   "TypeDecl",
   "PredicateDecl",
 ];
-
-const filterBySetting = <T>(
-  decls: im.Map<string, T>,
-  setting: MatchSetting
-): im.Map<string, T> => {
-  if (setting === "*") {
-    return decls;
-  } else {
-    return decls.filter((_, key) => setting.includes(key));
-  }
-};
 
 //#endregion

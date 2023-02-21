@@ -1,16 +1,16 @@
-import { compDict } from "contrib/Functions";
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeImage } from "shapes/Image";
-import { makeLine } from "shapes/Line";
-import { makePath } from "shapes/Path";
-import { makePolygon } from "shapes/Polygon";
-import { makePolyline } from "shapes/Polyline";
-import { makeRectangle } from "shapes/Rectangle";
-import { makeCanvas, simpleContext } from "shapes/Samplers";
-import { Poly, Scale } from "types/shapes";
-import { black, floatV, ptListV, vectorV } from "utils/Util";
-import { genCode, secondaryGraph } from "./Autodiff";
+import { compDict } from "../contrib/Functions";
+import { makeCircle } from "../shapes/Circle";
+import { makeEllipse } from "../shapes/Ellipse";
+import { makeImage } from "../shapes/Image";
+import { makeLine } from "../shapes/Line";
+import { makePath } from "../shapes/Path";
+import { makePolygon } from "../shapes/Polygon";
+import { makePolyline } from "../shapes/Polyline";
+import { makeRectangle } from "../shapes/Rectangle";
+import { makeCanvas, simpleContext } from "../shapes/Samplers";
+import { Poly, Scale } from "../types/shapes";
+import { black, floatV, ptListV, vectorV } from "../utils/Util";
+import { genCodeSync, secondaryGraph } from "./Autodiff";
 import {
   BBox,
   bboxFromCircle,
@@ -34,8 +34,8 @@ const expectBbox = (
     actual.center[0],
     actual.center[1],
   ]);
-  const f = genCode(g);
-  const [width, height, x, y] = f([]).secondary; // no inputs, so, empty array
+  const f = genCodeSync(g);
+  const [width, height, x, y] = f.call([]).secondary; // no inputs, so, empty array
   expect(width).toBeCloseTo(expected.width);
   expect(height).toBeCloseTo(expected.height);
   expect(x).toBeCloseTo(expected.center[0]);

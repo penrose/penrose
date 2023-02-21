@@ -7,6 +7,7 @@ import {
   styled,
 } from "@material-ui/core";
 import React from "react";
+import { wildcardType } from "../util";
 
 export interface MultiselectDropdownProps {
   onChange: (selected: string[]) => void;
@@ -46,14 +47,33 @@ export class MultiselectDropdown extends React.Component<
     };
   }
 
+  wildcardChip = (
+    <StyledChip
+      variant="outlined"
+      color="primary"
+      key="alltypes"
+      label="alltypes"
+      size="small"
+      onDelete={() => this.onDelete(wildcardType)}
+      onMouseDown={(event: any) => {
+        // NOTE: necessary to intercept default behavior of Select: https://stackoverflow.com/a/60209711
+        event.stopPropagation();
+      }}
+    />
+  );
+
   updateDropdown = (selected: string[], options: string[]) => {
-    const selectedStmts = new Set(selected);
-    this.setState({
-      selected,
-      options: options.filter((opt) => {
-        return !selectedStmts.has(opt);
-      }),
-    });
+    if (selected.includes(wildcardType)) {
+      this.setState({ selected: [wildcardType], options });
+    } else {
+      const selectedStmts = new Set(selected);
+      this.setState({
+        selected,
+        options: options.filter((opt) => {
+          return !selectedStmts.has(opt);
+        }),
+      });
+    }
   };
 
   componentDidUpdate(prev: MultiselectDropdownProps) {
@@ -67,28 +87,34 @@ export class MultiselectDropdown extends React.Component<
   }
 
   onAdd = (event: any) => {
-    const newSelected = event.target.value as string[];
-    const newOptions = this.state.options.filter((opt) => {
-      const selected: Set<string> = new Set(event.target.value);
-      return !selected.has(opt);
-    });
-    this.setState({
-      selected: newSelected,
-      options: newOptions,
-    });
-    this.props.onChange(newSelected);
+    if (!this.state.selected.includes(wildcardType)) {
+      const newSelected = event.target.value as string[];
+      const newOptions = this.state.options.filter((opt) => {
+        const selected: Set<string> = new Set(event.target.value);
+        return !selected.has(opt);
+      });
+      this.setState({
+        selected: newSelected,
+        options: newOptions,
+      });
+      this.props.onChange(newSelected);
+    }
   };
 
   onDelete = (chipToDelete: string) => {
     const newSelected = this.state.selected.filter(
       (chip) => chip !== chipToDelete
     );
-    const newOptions = [...this.state.options, chipToDelete];
-    this.setState({
-      selected: newSelected,
-      options: newOptions,
-    });
-    this.props.onChange(newSelected);
+    if (chipToDelete !== wildcardType) {
+      const newOptions = [...this.state.options, chipToDelete];
+      this.setState({
+        selected: newSelected,
+        options: newOptions,
+      });
+      this.props.onChange(newSelected);
+    } else {
+      this.setState({ selected: newSelected });
+    }
   };
 
   render() {
@@ -109,20 +135,22 @@ export class MultiselectDropdown extends React.Component<
           input={<Input />}
           renderValue={(selected) => (
             <ChipDisplay>
-              {(selected as string[]).map((value) => (
-                <StyledChip
-                  variant="outlined"
-                  color="primary"
-                  key={value}
-                  label={value}
-                  size="small"
-                  onDelete={() => this.onDelete(value)}
-                  onMouseDown={(event: any) => {
-                    // NOTE: necessary to intercept default behavior of Select: https://stackoverflow.com/a/60209711
-                    event.stopPropagation();
-                  }}
-                />
-              ))}
+              {selected === wildcardType
+                ? this.wildcardChip
+                : (selected as string[]).map((value) => (
+                    <StyledChip
+                      variant="outlined"
+                      color="primary"
+                      key={value}
+                      label={value}
+                      size="small"
+                      onDelete={() => this.onDelete(value)}
+                      onMouseDown={(event: any) => {
+                        // NOTE: necessary to intercept default behavior of Select: https://stackoverflow.com/a/60209711
+                        event.stopPropagation();
+                      }}
+                    />
+                  ))}
             </ChipDisplay>
           )}
         >

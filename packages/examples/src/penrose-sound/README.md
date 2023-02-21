@@ -2,7 +2,7 @@
 
 This example is a proof-of-concept for annotating Penrose diagrams with audio. Audio annotations are potentially useful for increasing the accessibility of diagrams for, e.g., the blind or partially sighted.
 
-The file `audio.sty` defines a simple Style that associates a sound with each dot. The file `sound-test.sub` draws some random dots and lines.
+The file `audio.style` defines a simple Style that associates a sound with each dot. The file `sound-test.substance` draws some random dots and lines.
 
 The example is implemented by taking advantage of the _SVG passthrough_ feature of Style: any shape attribute not recognized by Penrose will still be passed through and written into the SVG file. In this case, we pass through the attribute
 

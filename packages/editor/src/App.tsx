@@ -17,12 +17,14 @@ import {
 import DiagramOptions from "./components/DiagramOptions";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesBrowser from "./components/ExamplesBrowser";
+import GridPanel from "./components/GridPanel";
 import Opt from "./components/Opt";
 import ProgramEditor from "./components/ProgramEditor";
 import RogerPanel from "./components/RogerPanel";
 import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
 import StateInspector from "./components/StateInspector";
+import SvgUploader from "./components/SvgUploader";
 import TopBar from "./components/TopBar";
 import {
   currentRogerState,
@@ -31,9 +33,8 @@ import {
   localFilesState,
   RogerState,
   settingsState,
-  Workspace,
 } from "./state/atoms";
-import { useCheckURL } from "./state/callbacks";
+import { useCheckURL, useCompileDiagram } from "./state/callbacks";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -54,7 +55,7 @@ const mainRowLayout: IJsonRowNode = {
           : []),
         {
           type: "tab",
-          name: ".sub",
+          name: ".substance",
           component: "programEditor",
           config: {
             kind: "substance",
@@ -62,7 +63,7 @@ const mainRowLayout: IJsonRowNode = {
         },
         {
           type: "tab",
-          name: ".sty",
+          name: ".style",
           component: "programEditor",
           config: {
             kind: "style",
@@ -70,7 +71,7 @@ const mainRowLayout: IJsonRowNode = {
         },
         {
           type: "tab",
-          name: ".dsl",
+          name: ".domain",
           component: "programEditor",
           config: {
             kind: "domain",
@@ -86,6 +87,12 @@ const mainRowLayout: IJsonRowNode = {
           type: "tab",
           name: "Diagram",
           component: "diagram",
+          enableRename: false,
+        },
+        {
+          type: "tab",
+          name: "Diagram Variations",
+          component: "grid",
           enableRename: false,
         },
       ],
@@ -111,6 +118,11 @@ export const layoutModel = Model.fromJson({
           type: "tab",
           name: "examples",
           component: "examplesPanel",
+        },
+        {
+          type: "tab",
+          name: "upload",
+          component: "svgUploader",
         },
         {
           type: "tab",
@@ -141,6 +153,7 @@ function App() {
   // responsive
   const isPortrait = useMediaQuery({ query: "(orientation: portrait)" });
   const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+  const compileDiagram = useCompileDiagram();
 
   const ws = useRef<WebSocket | null>(null);
   const [rogerState, setRogerState] = useRecoilState<RogerState>(
@@ -152,8 +165,12 @@ function App() {
       switch (node.getComponent()) {
         case "programEditor":
           return <ProgramEditor kind={node.getConfig().kind} />;
+        case "svgUploader":
+          return <SvgUploader />;
         case "diagram":
           return <DiagramPanel />;
+        case "grid":
+          return <GridPanel />;
         case "savedFiles":
           return <SavedFilesBrowser />;
         case "examplesPanel":
@@ -190,22 +207,25 @@ function App() {
     []
   );
   const updatedFile = useRecoilCallback(
-    ({ snapshot, set }) => (fileName: string, contents: string) => {
-      const workspace = snapshot.getLoadable(currentWorkspaceState)
-        .contents as Workspace;
+    ({ snapshot, set }) => async (fileName: string, contents: string) => {
+      const workspace = await snapshot.getPromise(currentWorkspaceState);
       if (fileName === workspace.files.domain.name) {
-        set(fileContentsSelector("domain"), (file) => ({
-          ...file,
-          contents,
-        }));
-        // TODO: compile
+        set(fileContentsSelector("domain"), (file) => {
+          return {
+            ...file,
+            contents,
+          };
+        });
+        await compileDiagram();
       } else if (fileName === workspace.files.style.name) {
         set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
+        await compileDiagram();
       } else if (fileName === workspace.files.substance.name) {
         set(fileContentsSelector("substance"), (file) => ({
           ...file,
           contents,
         }));
+        await compileDiagram();
       }
     },
     []
@@ -261,6 +281,7 @@ function App() {
   const localFiles = useRecoilValueLoadable(localFilesState);
   const settings = useRecoilValueLoadable(settingsState);
   useEffect(() => {
+    // If settings is loaded
     if (settings.state === "hasValue") {
       checkURL();
     }

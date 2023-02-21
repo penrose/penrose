@@ -1,10 +1,19 @@
 import { Queue } from "@datastructures-js/queue";
-import consola, { LogLevel } from "consola";
-import * as _ from "lodash";
-import { EigenvalueDecomposition, Matrix } from "ml-matrix";
-import * as ad from "types/ad";
-import { Multidigraph } from "utils/Graph";
-import { safe, zip2 } from "utils/Util";
+import {
+  alignStackPointer,
+  builtins,
+  exportFunctionName,
+  Gradient,
+  importMemoryName,
+  importModule,
+  Outputs,
+} from "@penrose/optimizer";
+import consola from "consola";
+import _ from "lodash";
+import * as ad from "../types/ad";
+import Graph from "../utils/Graph";
+import { safe, zip2 } from "../utils/Util";
+import * as wasm from "../utils/Wasm";
 import {
   absVal,
   acos,
@@ -36,7 +45,7 @@ import {
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
 export const logAD = consola
-  .create({ level: LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Optimizer");
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
@@ -87,15 +96,12 @@ const makeNode = (x: ad.Expr): ad.Node => {
       return { tag, op };
     }
     case "PolyRoots": {
-      return { tag };
+      const { degree } = node;
+      return { tag, degree };
     }
     case "Index": {
       const { index } = node;
       return { tag, index };
-    }
-    case "Debug": {
-      const { info } = node;
-      return { tag, info };
     }
   }
 };
@@ -222,34 +228,8 @@ const binarySensitivities = (z: ad.Binary): { left: ad.Num; right: ad.Num } => {
   }
 };
 
-const indexToNaryEdge = (index: number): ad.NaryEdge => `${index}`;
-const naryEdgeToIndex = (name: ad.NaryEdge) => parseInt(name, 10);
-
-// return the index at which `edge` appeared when returned from the `children`
-// function defined below
-const rankEdge = (edge: ad.Edge): number => {
-  switch (edge) {
-    case undefined:
-    case "left":
-    case "cond": {
-      return 0;
-    }
-    case "right":
-    case "then": {
-      return 1;
-    }
-    case "els": {
-      return 2;
-    }
-    default: {
-      return naryEdgeToIndex(edge);
-    }
-  }
-};
-
 interface Child {
   child: ad.Expr;
-  name: ad.Edge;
   sensitivity: ad.Num[][]; // rows for parent, columns for child
 }
 
@@ -264,56 +244,43 @@ const children = (x: ad.Expr): Child[] => {
       return [];
     }
     case "Not": {
-      return [
-        {
-          child: x.param,
-          name: undefined,
-          sensitivity: [],
-        },
-      ];
+      return [{ child: x.param, sensitivity: [] }];
     }
     case "Unary": {
-      return [
-        {
-          child: x.param,
-          name: undefined,
-          sensitivity: [[unarySensitivity(x)]],
-        },
-      ];
+      return [{ child: x.param, sensitivity: [[unarySensitivity(x)]] }];
     }
     case "Binary": {
       const { left, right } = binarySensitivities(x);
       return [
-        { child: x.left, name: "left", sensitivity: [[left]] },
-        { child: x.right, name: "right", sensitivity: [[right]] },
+        { child: x.left, sensitivity: [[left]] },
+        { child: x.right, sensitivity: [[right]] },
       ];
     }
     case "Comp":
     case "Logic": {
       return [
-        { child: x.left, name: "left", sensitivity: [] },
-        { child: x.right, name: "right", sensitivity: [] },
+        { child: x.left, sensitivity: [] },
+        { child: x.right, sensitivity: [] },
       ];
     }
     case "Ternary": {
       return [
-        { child: x.cond, name: "cond", sensitivity: [[]] },
-        { child: x.then, name: "then", sensitivity: [[ifCond(x.cond, 1, 0)]] },
-        { child: x.els, name: "els", sensitivity: [[ifCond(x.cond, 0, 1)]] },
+        { child: x.cond, sensitivity: [[]] },
+        { child: x.then, sensitivity: [[ifCond(x.cond, 1, 0)]] },
+        { child: x.els, sensitivity: [[ifCond(x.cond, 0, 1)]] },
       ];
     }
     case "Nary": {
-      return x.params.map((child, i) => {
-        const c = { child, name: indexToNaryEdge(i) };
+      return x.params.map((child) => {
         switch (x.op) {
           case "addN": {
-            return { ...c, sensitivity: [[1]] };
+            return { child, sensitivity: [[1]] };
           }
           case "maxN": {
-            return { ...c, sensitivity: [[ifCond(lt(child, x), 0, 1)]] };
+            return { child, sensitivity: [[ifCond(lt(child, x), 0, 1)]] };
           }
           case "minN": {
-            return { ...c, sensitivity: [[ifCond(gt(child, x), 0, 1)]] };
+            return { child, sensitivity: [[ifCond(gt(child, x), 0, 1)]] };
           }
         }
       });
@@ -349,7 +316,6 @@ const children = (x: ad.Expr): Child[] => {
 
       return x.coeffs.map((child, i) => ({
         child,
-        name: indexToNaryEdge(i),
         sensitivity: sensitivities.map((row) => [row[i]]),
       }));
     }
@@ -358,16 +324,10 @@ const children = (x: ad.Expr): Child[] => {
       // leave everything else undefined, to be treated as zeroes later
       const row = [];
       row[x.index] = 1;
-      return [{ child: x.vec, name: undefined, sensitivity: [row] }];
-    }
-    case "Debug": {
-      return [{ child: x.node, name: undefined, sensitivity: [[1]] }];
+      return [{ child: x.vec, sensitivity: [row] }];
     }
   }
 };
-
-const indexToID = (index: number): ad.Id => `_${index}`;
-const idToIndex = (id: ad.Id): number => parseInt(id.slice(1), 10);
 
 const getInputs = (
   graph: ad.Graph["graph"]
@@ -394,9 +354,9 @@ const getInputs = (
  * to any given gradient node are added up according to that total order.
  */
 export const makeGraph = (
-  outputs: Omit<ad.Outputs<ad.Num>, "gradient">
+  outputs: Omit<Outputs<ad.Num>, "gradient">
 ): ad.Graph => {
-  const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
+  const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
 
   // we use this queue to essentially do a breadth-first search by following
@@ -408,13 +368,14 @@ export const makeGraph = (
   // guaranteed to exist in the graph yet, so we fill this queue during the
   // node-adding part and then go through it during the edge-adding part,
   // leaving it empty in preparation for the next stage; so the first element of
-  // every tuple in this queue stores information about the edge and child, and
-  // the second element of the tuple is the parent
-  const edges = new Queue<[Child, ad.Expr]>();
+  // every tuple in this queue stores information about the edge and child, the
+  // second element is the index of the edge with respect to the parent, and the
+  // third element of the tuple is the parent
+  const edges = new Queue<[Child, ad.Edge, ad.Expr]>();
 
   // only call setNode in this one place, ensuring that we always use indexToID
   const newNode = (node: ad.Node): ad.Id => {
-    const id = indexToID(graph.nodeCount());
+    const id = graph.nodeCount();
     graph.setNode(id, node);
     return id;
   };
@@ -427,10 +388,10 @@ export const makeGraph = (
     if (name === undefined) {
       name = newNode(makeNode(x));
       nodes.set(x, name);
-      for (const edge of children(x)) {
-        edges.enqueue([edge, x]);
+      children(x).forEach((edge, index) => {
+        edges.enqueue([edge, index, x]);
         queue.enqueue(edge.child);
-      }
+      });
     }
     return name;
   };
@@ -438,12 +399,12 @@ export const makeGraph = (
   const addEdge = (
     child: ad.Expr,
     parent: ad.Expr,
-    name: ad.Edge
+    e: ad.Edge
   ): [ad.Id, ad.Id] => {
-    const v = safe(nodes.get(child), "missing child");
-    const w = safe(nodes.get(parent), "missing parent");
-    graph.setEdge({ v, w, name });
-    return [v, w];
+    const i = safe(nodes.get(child), "missing child");
+    const j = safe(nodes.get(parent), "missing parent");
+    graph.setEdge({ i, j, e });
+    return [i, j];
   };
 
   // add all the nodes subtended by the primary output; we do these first, in a
@@ -461,11 +422,11 @@ export const makeGraph = (
   // concatenation doesn't cause any problems, because no stringified Edge
   // contains an underscore, and every Id starts with an underscore, so it's
   // essentially just three components separated by underscores
-  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, ad.Num[][]>();
+  const sensitivities = new Map<`${ad.Edge}_${ad.Id}_${ad.Id}`, ad.Num[][]>();
   while (!edges.isEmpty()) {
-    const [{ child, name, sensitivity }, parent] = edges.dequeue();
-    const [v, w] = addEdge(child, parent, name);
-    sensitivities.set(`${name}${v}${w}`, sensitivity);
+    const [{ child, sensitivity }, index, parent] = edges.dequeue();
+    const [v, w] = addEdge(child, parent, index);
+    sensitivities.set(`${index}_${v}_${w}`, sensitivity);
   }
   // we can use this reverse topological sort later when we construct all the
   // gradient nodes, because it ensures that the gradients of a node's parents
@@ -485,8 +446,8 @@ export const makeGraph = (
     addNode(queue.dequeue());
   }
   while (!edges.isEmpty()) {
-    const [{ child, name }, parent] = edges.dequeue();
-    addEdge(child, parent, name);
+    const [{ child }, index, parent] = edges.dequeue();
+    addEdge(child, parent, index);
   }
 
   // map from each primary node ID to the IDs of its gradient nodes
@@ -508,17 +469,15 @@ export const makeGraph = (
 
     // control the order in which partial derivatives are added
     const edges = [...graph.outEdges(id)].sort((a, b) =>
-      a.w === b.w
-        ? rankEdge(a.name) - rankEdge(b.name)
-        : idToIndex(a.w) - idToIndex(b.w)
+      a.j === b.j ? a.e - b.e : a.j - b.j
     );
 
     // we call graph.setEdge in this loop, so it may seem like it would be
     // possible for those edges to get incorrectly included as addends in other
     // gradient nodes; however, that is not the case, because none of those
     // edges appear in our sensitivities map
-    for (const { w, name } of edges) {
-      const matrix = sensitivities.get(`${name}${id}${w}`);
+    for (const { j: w, e } of edges) {
+      const matrix = sensitivities.get(`${e}_${id}_${w}`);
       if (matrix !== undefined) {
         // `forEach` ignores holes
         matrix.forEach((row, i) => {
@@ -529,8 +488,8 @@ export const makeGraph = (
               const parentGradID = parentGradIDs[i];
 
               const addendID = newNode({ tag: "Binary", binop: "*" });
-              graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
-              graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
+              graph.setEdge({ i: sensitivityID, j: addendID, e: 0 });
+              graph.setEdge({ i: parentGradID, j: addendID, e: 1 });
               if (!(j in grad)) {
                 grad[j] = [];
               }
@@ -545,11 +504,16 @@ export const makeGraph = (
       id,
       // `map` skips holes but also preserves indices
       grad.map((addends) => {
-        const gradID = newNode({ tag: "Nary", op: "addN" });
-        addends.forEach((addendID, i) =>
-          graph.setEdge({ v: addendID, w: gradID, name: indexToNaryEdge(i) })
-        );
-        return gradID;
+        if (addends.length === 0) {
+          // instead of newNode, in case there's already a 0 in the graph
+          return addNode(0);
+        } else {
+          const gradID = newNode({ tag: "Nary", op: "addN" });
+          addends.forEach((addendID, i) => {
+            graph.setEdge({ i: addendID, j: gradID, e: i });
+          });
+          return gradID;
+        }
       })
     );
   }
@@ -581,8 +545,8 @@ export const makeGraph = (
     addNode(queue.dequeue());
   }
   while (!edges.isEmpty()) {
-    const [{ child, name }, parent] = edges.dequeue();
-    addEdge(child, parent, name);
+    const [{ child }, index, parent] = edges.dequeue();
+    addEdge(child, parent, index);
   }
 
   return { graph, nodes, gradient, primary, secondary };
@@ -606,16 +570,6 @@ export const secondaryGraph = (outputs: ad.Num[]): ad.Graph =>
 
 // ------------ Meta / debug ops
 
-/**
- * Creates a wrapper node around a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
- * For more documentation on how to use this function, see the Penrose wiki page.
- */
-export const debug = (v: ad.Num, info = "no additional info"): ad.Debug => ({
-  tag: "Debug",
-  node: v,
-  info,
-});
-
 // ----------------- Other ops
 
 /**
@@ -636,7 +590,7 @@ export const ops = {
   dist: (c1: ad.Num, c2: ad.Num): ad.Num => ops.vnorm([c1, c2]),
 
   /**
-   * Return the sum of vectors `v1, v2.
+   * Return the sum of vectors `v1, v2`.
    */
   vadd: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
     if (v1.length !== v2.length) {
@@ -648,6 +602,90 @@ export const ops = {
   },
 
   /**
+   * Return the sum of matrices `A1, A2`.
+   */
+  mmadd: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+      const row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(add(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
+    }
+    return result;
+  },
+
+  /**
+   * Return the difference of matrices `A1, A2`.
+   */
+  mmsub: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+      const row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(sub(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
+    }
+    return result;
+  },
+
+  /**
+   * Return the elementwise product of matrices `A1, A2`.
+   */
+  ewmmmul: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+      const row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(mul(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
+    }
+    return result;
+  },
+
+  /**
+   * Return the elementwise quotient of matrices `A1, A2`.
+   */
+  ewmmdiv: (A1: ad.Num[][], A2: ad.Num[][]): ad.Num[][] => {
+    if (A1.length !== A2.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result = [];
+    for (let i = 0; i < A1.length; i++) {
+      const row = [];
+      for (let j = 0; j < A1.length; j++) {
+        row.push(div(A1[i][j], A2[i][j]));
+      }
+      result.push(row);
+    }
+    return result;
+  },
+
+  /**
    * Return the difference of vectors `v1` and `v2`.
    */
   vsub: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
@@ -656,6 +694,30 @@ export const ops = {
     }
 
     const res = _.zipWith(v1, v2, sub);
+    return res;
+  },
+
+  /**
+   * Return the elementwise product of vectors `v1` and `v2`.
+   */
+  ewvvmul: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = _.zipWith(v1, v2, mul);
+    return res;
+  },
+
+  /**
+   * Return the elementwise quotient of vectors `v1` and `v2`.
+   */
+  ewvvdiv: (v1: ad.Num[], v2: ad.Num[]): ad.Num[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = _.zipWith(v1, v2, div);
     return res;
   },
 
@@ -681,6 +743,97 @@ export const ops = {
    */
   vmul: (c: ad.Num, v: ad.Num[]): ad.Num[] => {
     return v.map((e) => mul(c, e));
+  },
+
+  /**
+   * Return the scalar `c` times the Matrix `A`.
+   */
+  smmul: (c: ad.Num, A: ad.Num[][]): ad.Num[][] => {
+    return A.map(function (row) {
+      return row.map((e) => mul(c, e));
+    });
+  },
+
+  /**
+   * Return the matrix `A` multiplied by vector `v`, i.e., Av.
+   */
+  mvmul: (A: ad.Num[][], v: ad.Num[]): ad.Num[] => {
+    if (A.length !== v.length) {
+      throw Error("expected matrix and vector of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    const result: ad.Num[] = [];
+    for (let i = 0; i < v.length; i++) {
+      const summands = _.zipWith(A[i], v, mul);
+      result.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+    }
+    return result;
+  },
+
+  /**
+   * Return the vector `v` multiplied by matrix `A`, i.e., v^T A.
+   */
+  vmmul: (v: ad.Num[], A: ad.Num[][]): ad.Num[] => {
+    if (A.length !== v.length) {
+      throw Error("expected matrix and vector of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    // The easiest way to do left multiplication is to first
+    // transpose the matrix A, since (A^T v)^T = v^T A.
+    const AT: ad.Num[][] = [];
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        row.push(A[j][i]);
+      }
+      AT.push(row);
+    }
+
+    // Now we can just do an ordinary matrix-vector multiply with AT
+    const result: ad.Num[] = [];
+    for (let i = 0; i < v.length; i++) {
+      const summands = _.zipWith(AT[i], v, mul);
+      result.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+    }
+    return result;
+  },
+
+  /**
+   * Return the matrix `A` multiplied by matrix `B`.
+   */
+  mmmul: (A: ad.Num[][], B: ad.Num[][]): ad.Num[][] => {
+    if (A.length !== B.length) {
+      throw Error("expected matrices of same size");
+      // note that we don't check the column dimensions separately,
+      // since we support only square (NxN) matrices
+    }
+
+    // To implement via reduction, need to turn the columns of B into rows,
+    // i.e., need to construct the transpose matrix B'
+    const BT: ad.Num[][] = [];
+    for (let i = 0; i < B.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < B.length; j++) {
+        row.push(B[j][i]);
+      }
+      BT.push(row);
+    }
+
+    // Compute A*B via dot products of rows of A with rows of B'
+    const result: ad.Num[][] = [];
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        const summands = _.zipWith(A[i], BT[j], mul);
+        row.push(summands.reduce((x: ad.Num, y) => add(x, y), 0));
+      }
+      result.push(row);
+    }
+    return result;
   },
 
   /**
@@ -720,10 +873,34 @@ export const ops = {
   },
 
   /**
+   * Return the transpose of the matrix `A`.
+   */
+  mtrans: (A: ad.Num[][]): ad.Num[][] => {
+    const AT: ad.Num[][] = [];
+    for (let i = 0; i < A.length; i++) {
+      const row: ad.Num[] = [];
+      for (let j = 0; j < A.length; j++) {
+        row.push(A[j][i]);
+      }
+      AT.push(row);
+    }
+    return AT;
+  },
+
+  /**
    * Return the vector `v` divided by scalar `c`.
    */
   vdiv: (v: ad.Num[], c: ad.Num): ad.Num[] => {
     return v.map((e) => div(e, c));
+  },
+
+  /**
+   * Return the Matrix `A` divided by scalar `c`.
+   */
+  msdiv: (A: ad.Num[][], c: ad.Num): ad.Num[][] => {
+    return A.map(function (row) {
+      return row.map((e) => div(e, c));
+    });
   },
 
   /**
@@ -858,6 +1035,23 @@ export const ops = {
       sub(mul(u[0], v[1]), mul(u[1], v[0])),
     ];
   },
+
+  /**
+   * Return 3D cross product of 3D vectors
+   */
+  vouter: (u: ad.Num[], v: ad.Num[]): ad.Num[][] => {
+    if (u.length !== v.length) {
+      throw Error("vectors must have same length");
+    }
+
+    const result: ad.Num[][] = [];
+    for (let i = 0; i < u.length; i++) {
+      const row = v.map((e) => mul(u[i], e));
+      result.push(row);
+    }
+
+    return result;
+  },
 };
 
 export const fns = {
@@ -878,30 +1072,216 @@ export const fns = {
 
 // ----- Codegen
 
-// Traverses the computational graph of ops obtained by interpreting the energy function, and generates code corresponding to just the ops (in plain js), which is then turned into an evaluable js function via the Function constructor
+// Traverses the computational graph of ops obtained by interpreting the energy function, and generates WebAssembly code corresponding to just the ops
 
-// Example of constructing an n-ary function by calling the Function constructor: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/Function
+const bytesI32 = Int32Array.BYTES_PER_ELEMENT;
+const logAlignI32 = Math.log2(bytesI32);
 
-// const args = ["x0", "x1", "x2"];
-// const inputs = [0, 1, 2];
-// const f = new Function(...args, 'return x0 + x1 + x2');
-// log.trace(f(...inputs));
+const bytesF64 = Float64Array.BYTES_PER_ELEMENT;
+const logAlignF64 = Math.log2(bytesF64);
 
-// (Returns `3`)
+interface Signature {
+  param: { [name: string]: number };
+  result: number[];
+  local?: { [name: string]: number };
+}
 
-const compileUnary = ({ unop }: ad.UnaryNode, param: ad.Id): string => {
+const funcTypes = {
+  addToStackPointer: {
+    param: { size: wasm.TYPE.i32 },
+    result: [wasm.TYPE.i32],
+  },
+  unary: { param: { x: wasm.TYPE.f64 }, result: [wasm.TYPE.f64] },
+  binary: {
+    param: { x: wasm.TYPE.f64, y: wasm.TYPE.f64 },
+    result: [wasm.TYPE.f64],
+  },
+  polyRoots: {
+    param: { pointer: wasm.TYPE.i32, size: wasm.TYPE.i32 },
+    result: [],
+  },
+  addend: {
+    param: {
+      input: wasm.TYPE.i32,
+      gradient: wasm.TYPE.i32,
+      secondary: wasm.TYPE.i32,
+    },
+    result: [wasm.TYPE.f64],
+    local: { stackPointer: wasm.TYPE.i32 },
+  },
+  sum: {
+    param: {
+      input: wasm.TYPE.i32,
+      mask: wasm.TYPE.i32,
+      gradient: wasm.TYPE.i32,
+      secondary: wasm.TYPE.i32,
+    },
+    result: [wasm.TYPE.f64],
+  },
+};
+
+const getTypeIndex = (kind: string): number =>
+  Object.keys(funcTypes).indexOf(kind);
+
+const getParamIndex = (sig: Signature, name: string): number =>
+  Object.keys(sig.param).indexOf(name);
+
+const getLocalIndex = (sig: Signature, name: string): number =>
+  Object.keys(sig.param).length +
+  Object.keys(safe(sig.local, "no locals")).indexOf(name);
+
+const builtindex = new Map([...builtins.keys()].map((name, i) => [name, i]));
+
+const getBuiltindex = (name: string): number =>
+  safe(builtindex.get(name), "unknown builtin");
+
+const typeSection = (t: wasm.Target): void => {
+  t.int(Object.keys(funcTypes).length);
+
+  for (const { param, result } of Object.values(funcTypes)) {
+    t.byte(wasm.TYPE.FUNCTION);
+    t.int(Object.keys(param).length);
+    for (const typ of Object.values(param)) t.byte(typ);
+    t.int(result.length);
+    for (const typ of result) t.byte(typ);
+  }
+};
+
+const importSection = (t: wasm.Target): void => {
+  const numImports = 1 + builtins.size;
+  t.int(numImports);
+
+  const minPages = 1;
+  t.ascii(importModule);
+  t.ascii(importMemoryName);
+  t.byte(wasm.IMPORT.MEMORY);
+  t.byte(wasm.LIMITS.NO_MAXIMUM);
+  t.int(minPages);
+
+  [...builtins.entries()].forEach(([, kind], i) => {
+    t.ascii(importModule);
+    t.ascii(i.toString(36));
+    t.byte(wasm.IMPORT.FUNCTION);
+    t.int(getTypeIndex(kind));
+  });
+};
+
+const functionSection = (t: wasm.Target, numAddends: number): void => {
+  t.int(numAddends + 1);
+  for (let i = 0; i < numAddends; i++) t.int(getTypeIndex("addend"));
+  t.int(getTypeIndex("sum"));
+};
+
+const exportSection = (t: wasm.Target, numAddends: number): void => {
+  const numExports = 1;
+  t.int(numExports);
+
+  const funcIndex = builtins.size + numAddends;
+  t.ascii(exportFunctionName);
+  t.byte(wasm.EXPORT.FUNCTION);
+  t.int(funcIndex);
+};
+
+const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
+  const numSections = 5;
+  const numAddends = gradientFunctionSizes.length - 1;
+
+  const typeSectionCount = new wasm.Count();
+  typeSection(typeSectionCount);
+  const typeSectionSize = typeSectionCount.size;
+
+  const importSectionCount = new wasm.Count();
+  importSection(importSectionCount);
+  const importSectionSize = importSectionCount.size;
+
+  const functionSectionCount = new wasm.Count();
+  functionSection(functionSectionCount, numAddends);
+  const functionSectionSize = functionSectionCount.size;
+
+  const exportSectionCount = new wasm.Count();
+  exportSection(exportSectionCount, numAddends);
+  const exportSectionSize = exportSectionCount.size;
+
+  const codeSectionSize = gradientFunctionSizes
+    .map((n) => wasm.intSize(n) + n)
+    .reduce((a, b) => a + b, wasm.intSize(gradientFunctionSizes.length));
+
+  const sumSectionSizes =
+    numSections +
+    wasm.intSize(typeSectionSize) +
+    typeSectionSize +
+    wasm.intSize(importSectionSize) +
+    importSectionSize +
+    wasm.intSize(functionSectionSize) +
+    functionSectionSize +
+    wasm.intSize(exportSectionSize) +
+    exportSectionSize +
+    wasm.intSize(codeSectionSize) +
+    codeSectionSize;
+
+  const mod = new wasm.Module(sumSectionSizes);
+
+  mod.byte(wasm.SECTION.TYPE);
+  mod.int(typeSectionSize);
+  typeSection(mod);
+
+  mod.byte(wasm.SECTION.IMPORT);
+  mod.int(importSectionSize);
+  importSection(mod);
+
+  mod.byte(wasm.SECTION.FUNCTION);
+  mod.int(functionSectionSize);
+  functionSection(mod, numAddends);
+
+  mod.byte(wasm.SECTION.EXPORT);
+  mod.int(exportSectionSize);
+  exportSection(mod, numAddends);
+
+  mod.byte(wasm.SECTION.CODE);
+  mod.int(codeSectionSize);
+  mod.int(gradientFunctionSizes.length);
+
+  return mod;
+};
+
+const compileUnary = (
+  t: wasm.Target,
+  { unop }: ad.UnaryNode,
+  param: number
+): void => {
   switch (unop) {
-    case "neg": {
-      return `-${param}`;
-    }
     case "squared": {
-      return `${param} * ${param}`;
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(wasm.OP.f64.mul);
+
+      return;
     }
-    case "inverse": {
-      return `1 / (${param} + ${EPS_DENOM})`;
+    case "round": {
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(wasm.OP.f64.nearest);
+
+      return;
     }
-    case "sqrt": // NOTE: Watch out for negative numbers in sqrt
+    case "neg":
+    case "sqrt":
     case "abs":
+    case "ceil":
+    case "floor":
+    case "trunc": {
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(wasm.OP.f64[unop]);
+
+      return;
+    }
     case "acosh":
     case "acos":
     case "asin":
@@ -909,186 +1289,486 @@ const compileUnary = ({ unop }: ad.UnaryNode, param: ad.Id): string => {
     case "atan":
     case "atanh":
     case "cbrt":
-    case "ceil":
     case "cos":
     case "cosh":
     case "exp":
     case "expm1":
-    case "floor":
     case "log":
     case "log2":
     case "log10":
     case "log1p":
-    case "round":
-    case "sign":
     case "sin":
     case "sinh":
     case "tan":
     case "tanh":
-    case "trunc": {
-      return `Math.${unop}(${param})`;
+    case "inverse":
+    case "sign": {
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex(`penrose_${unop}`));
+
+      return;
     }
   }
 };
 
+const binaryOps = {
+  "+": wasm.OP.f64.add,
+  "-": wasm.OP.f64.sub,
+  "*": wasm.OP.f64.mul,
+  "/": wasm.OP.f64.div,
+  max: wasm.OP.f64.max,
+  min: wasm.OP.f64.min,
+
+  ">": wasm.OP.f64.gt,
+  "<": wasm.OP.f64.lt,
+  "===": wasm.OP.f64.eq,
+  ">=": wasm.OP.f64.ge,
+  "<=": wasm.OP.f64.le,
+
+  "&&": wasm.OP.i32.and,
+  "||": wasm.OP.i32.or,
+};
+
 const compileBinary = (
+  t: wasm.Target,
   { binop }: ad.BinaryNode | ad.CompNode | ad.LogicNode,
-  left: ad.Id,
-  right: ad.Id
-): string => {
+  left: number,
+  right: number
+): void => {
   switch (binop) {
     case "+":
     case "*":
     case "-":
     case "/":
-    case ">":
-    case "<":
-    case ">=":
-    case "<=":
-    case "===":
-    case "&&":
-    case "||": {
-      return `${left} ${binop} ${right}`;
-    }
     case "max":
     case "min":
+    case ">":
+    case "<":
+    case "===":
+    case ">=":
+    case "<=":
+    case "&&":
+    case "||": {
+      t.byte(wasm.OP.local.get);
+      t.int(left);
+
+      t.byte(wasm.OP.local.get);
+      t.int(right);
+
+      t.byte(binaryOps[binop]);
+
+      return;
+    }
     case "atan2":
     case "pow": {
-      return `Math.${binop}(${left}, ${right})`;
+      t.byte(wasm.OP.local.get);
+      t.int(left);
+
+      t.byte(wasm.OP.local.get);
+      t.int(right);
+
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex(`penrose_${binop}`));
+
+      return;
     }
   }
 };
 
-const compileNary = ({ op }: ad.NaryNode, params: ad.Id[]): string => {
-  switch (op) {
-    case "addN": {
-      return params.length > 0 ? params.join(" + ") : "0";
-    }
-    case "maxN": {
-      return `Math.max(${params.join(", ")})`;
-    }
-    case "minN": {
-      return `Math.min(${params.join(", ")})`;
-    }
-  }
+const nullaryVals = {
+  addN: 0,
+  maxN: -Infinity,
+  minN: Infinity,
 };
 
-const naryParams = (preds: Map<ad.Edge, ad.Id>): ad.Id[] => {
-  const params: ad.Id[] = [];
-  for (const [i, x] of preds.entries()) {
-    if (
-      i === undefined ||
-      i === "left" ||
-      i === "right" ||
-      i === "cond" ||
-      i === "then" ||
-      i === "els"
-    ) {
-      throw Error("expected NaryEdge");
+const naryOps = {
+  addN: wasm.OP.f64.add,
+  maxN: wasm.OP.f64.max,
+  minN: wasm.OP.f64.min,
+};
+
+const compileNary = (
+  t: wasm.Target,
+  { op }: ad.NaryNode,
+  params: number[]
+): void => {
+  if (params.length === 0) {
+    // only spend bytes on an f64 constant when necessary
+    t.byte(wasm.OP.f64.const);
+    t.f64(nullaryVals[op]);
+  } else {
+    t.byte(wasm.OP.local.get);
+    t.int(params[0]);
+
+    for (const param of params.slice(1)) {
+      t.byte(wasm.OP.local.get);
+      t.int(param);
+
+      t.byte(naryOps[op]);
     }
-    params[naryEdgeToIndex(i)] = x;
   }
-  return params;
 };
 
 const compileNode = (
+  t: wasm.Target,
   node: Exclude<ad.Node, ad.InputNode>,
-  preds: Map<ad.Edge, ad.Id>
-): string => {
+  preds: number[]
+): void => {
   if (typeof node === "number") {
-    return `${node}`;
+    t.byte(wasm.OP.f64.const);
+    t.f64(node);
+
+    return;
   }
   switch (node.tag) {
     case "Not": {
-      const child = safe(preds.get(undefined), "missing node");
-      return `!${child}`;
+      const [child] = preds;
+
+      t.byte(wasm.OP.local.get);
+      t.int(child);
+
+      t.byte(wasm.OP.i32.eqz);
+
+      return;
     }
     case "Unary": {
-      return compileUnary(node, safe(preds.get(undefined), "missing param"));
+      const [param] = preds;
+      compileUnary(t, node, param);
+      return;
     }
     case "Binary":
     case "Comp":
     case "Logic": {
-      return compileBinary(
-        node,
-        safe(preds.get("left"), "missing left"),
-        safe(preds.get("right"), "missing right")
-      );
+      const [left, right] = preds;
+      compileBinary(t, node, left, right);
+      return;
     }
     case "Ternary": {
-      const cond = safe(preds.get("cond"), "missing cond");
-      const then = safe(preds.get("then"), "missing then");
-      const els = safe(preds.get("els"), "missing els");
-      return `${cond} ? ${then} : ${els}`;
+      const [cond, then, els] = preds;
+
+      t.byte(wasm.OP.local.get);
+      t.int(then);
+
+      t.byte(wasm.OP.local.get);
+      t.int(els);
+
+      t.byte(wasm.OP.local.get);
+      t.int(cond);
+
+      t.byte(wasm.OP.select);
+
+      return;
     }
     case "Nary": {
-      return compileNary(node, naryParams(preds));
+      compileNary(t, node, preds);
+      return;
     }
     case "PolyRoots": {
-      return `polyRoots([${naryParams(preds).join(", ")}])`;
+      const bytes =
+        Math.ceil((node.degree * bytesF64) / alignStackPointer) *
+        alignStackPointer;
+
+      t.byte(wasm.OP.i32.const);
+      t.int(-bytes);
+
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex("__wbindgen_add_to_stack_pointer"));
+
+      t.byte(wasm.OP.local.tee);
+      t.int(getLocalIndex(funcTypes.addend, "stackPointer"));
+
+      preds.forEach((index, i) => {
+        t.byte(wasm.OP.local.get);
+        t.int(getLocalIndex(funcTypes.addend, "stackPointer"));
+
+        t.byte(wasm.OP.local.get);
+        t.int(index);
+
+        t.byte(wasm.OP.f64.store);
+        t.int(logAlignF64);
+        t.int(i * bytesF64);
+      });
+
+      t.byte(wasm.OP.i32.const);
+      t.int(node.degree);
+
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex("penrose_poly_roots"));
+
+      for (let i = 0; i < node.degree; i++) {
+        t.byte(wasm.OP.local.get);
+        t.int(getLocalIndex(funcTypes.addend, "stackPointer"));
+
+        t.byte(wasm.OP.f64.load);
+        t.int(logAlignF64);
+        t.int(i * bytesF64);
+      }
+
+      t.byte(wasm.OP.i32.const);
+      t.int(bytes);
+
+      t.byte(wasm.OP.call);
+      t.int(getBuiltindex("__wbindgen_add_to_stack_pointer"));
+
+      t.byte(wasm.OP.drop);
+
+      return;
     }
     case "Index": {
-      const vec = safe(preds.get(undefined), "missing vec");
-      return `${vec}[${node.index}]`;
-    }
-    case "Debug": {
-      const info = JSON.stringify(node.info);
-      const child = safe(preds.get(undefined), "missing node");
-      return `console.log(${info}, " | value: ", ${child}), ${child}`;
+      const [vec] = preds;
+
+      t.byte(wasm.OP.local.get);
+      t.int(vec + node.index);
+
+      return;
     }
   }
 };
 
-const polyRoots = (coeffs: number[]): number[] => {
-  const n = coeffs.length;
-  // https://en.wikipedia.org/wiki/Companion_matrix
-  const companion = Matrix.zeros(n, n);
-  for (let i = 0; i + 1 < n; i++) {
-    companion.set(i + 1, i, 1);
-    companion.set(i, n - 1, -coeffs[i]);
-  }
-  companion.set(n - 1, n - 1, -coeffs[n - 1]);
+type Typename = "i32" | "f64";
 
-  // the characteristic polynomial of the companion matrix is equal to the
-  // original polynomial, so by finding the eigenvalues of the companion matrix,
-  // we get the roots of its characteristic polynomial and thus of the original
-  // polynomial
-  const decomp = new EigenvalueDecomposition(companion);
-  return zip2(
-    decomp.realEigenvalues,
-    decomp.imaginaryEigenvalues
-    // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`,
-    // we discard any non-real root and replace with `NaN`
-  ).map(([r, i]) => (i === 0 ? r : NaN));
+const getLayout = (node: ad.Node): { typename: Typename; count: number } => {
+  if (typeof node === "number") {
+    return { typename: "f64", count: 1 };
+  } else {
+    switch (node.tag) {
+      case "Comp":
+      case "Logic":
+      case "Not": {
+        return { typename: "i32", count: 1 };
+      }
+      case "Input":
+      case "Unary":
+      case "Binary":
+      case "Ternary":
+      case "Nary":
+      case "Index": {
+        return { typename: "f64", count: 1 };
+      }
+      case "PolyRoots": {
+        return { typename: "f64", count: node.degree };
+      }
+    }
+  }
 };
 
-export const genCode = ({
-  graph,
-  gradient,
-  primary,
-  secondary,
-}: ad.Graph): ad.Compiled => {
-  const stmts = getInputs(graph).map(
-    ({ id, label: { key } }) => `const ${id} = inputs[${key}];`
+interface Local {
+  typename: Typename;
+  index: number;
+}
+
+interface Locals {
+  counts: { i32: number; f64: number };
+  indices: Map<ad.Id, Local>;
+}
+
+const numAddendParams = Object.keys(funcTypes.addend.param).length;
+
+const getIndex = (locals: Locals, id: ad.Id): number => {
+  const local = safe(locals.indices.get(id), "missing local");
+  return (
+    numAddendParams +
+    (local.typename === "i32" ? 0 : locals.counts.i32) +
+    local.index
   );
+};
+
+const compileGraph = (
+  t: wasm.Target,
+  { graph, gradient, primary, secondary }: ad.Graph
+): void => {
+  const counts = { i32: 1, f64: 0 }; // `stackPointer`
+  const indices = new Map<ad.Id, Local>();
+  for (const id of graph.nodes()) {
+    const node = graph.node(id);
+    const { typename, count } = getLayout(node);
+    indices.set(id, { typename, index: counts[typename] });
+    counts[typename] += count;
+  }
+  const locals = { counts, indices };
+
+  const numLocalDecls = Object.keys(counts).length;
+  t.int(numLocalDecls);
+
+  for (const [typename, count] of Object.entries(counts)) {
+    t.int(count);
+    t.byte(wasm.TYPE[typename]);
+  }
+
+  for (const {
+    id,
+    label: { key },
+  } of getInputs(graph)) {
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.addend, "input"));
+
+    t.byte(wasm.OP.f64.load);
+    t.int(logAlignF64);
+    t.int(key * bytesF64);
+
+    t.byte(wasm.OP.local.set);
+    t.int(getIndex(locals, id));
+  }
+
   for (const id of graph.topsort()) {
     const node = graph.node(id);
     // we already generated code for the inputs
     if (typeof node === "number" || node.tag !== "Input") {
-      const preds = new Map(graph.inEdges(id).map(({ v, name }) => [name, v]));
-      stmts.push(`const ${id} = ${compileNode(node, preds)};`);
+      const preds: number[] = [];
+      for (const { i: v, e } of graph.inEdges(id)) {
+        preds[e] = getIndex(locals, v);
+      }
+
+      compileNode(t, node, preds);
+
+      const index = getIndex(locals, id);
+      for (let i = getLayout(node).count - 1; i >= 0; i--) {
+        t.byte(wasm.OP.local.set);
+        t.int(index + i);
+      }
     }
   }
-  const fields = [
-    // somehow this actually works! if the gradient array is not contiguous, any
-    // holes will just be filled in by commas when we call join, and that is
-    // valid JavaScript syntax for array literals with holes, so everything
-    // works out perfectly
-    `gradient: [${gradient.join(", ")}]`,
-    `primary: ${primary}`,
-    `secondary: [${secondary.join(", ")}]`,
-  ];
-  stmts.push(`return { ${fields.join(", ")} };`);
-  const f = new Function("polyRoots", "inputs", stmts.join("\n"));
-  return (inputs) => f(polyRoots, inputs);
+
+  gradient.forEach((id, i) => {
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.addend, "gradient"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.addend, "gradient"));
+
+    t.byte(wasm.OP.f64.load);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
+
+    t.byte(wasm.OP.local.get);
+    t.int(getIndex(locals, id));
+
+    t.byte(wasm.OP.f64.add);
+
+    t.byte(wasm.OP.f64.store);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
+  });
+
+  secondary.forEach((id, i) => {
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.addend, "secondary"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getIndex(locals, id));
+
+    t.byte(wasm.OP.f64.store);
+    t.int(logAlignF64);
+    t.int(i * bytesF64);
+  });
+
+  t.byte(wasm.OP.local.get);
+  t.int(getIndex(locals, primary));
+
+  t.byte(wasm.END);
 };
+
+// assume the gradient and secondary outputs are already initialized to zero
+// before this code is run
+const compileSum = (t: wasm.Target, numAddends: number): void => {
+  const numLocals = 0;
+  t.int(numLocals);
+
+  t.byte(wasm.OP.f64.const);
+  t.f64(0);
+
+  for (let i = 0; i < numAddends; i++) {
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "mask"));
+
+    t.byte(wasm.OP.i32.load);
+    t.int(logAlignI32);
+    t.int(i * bytesI32);
+
+    t.byte(wasm.OP.if);
+    t.int(getTypeIndex("unary"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "input"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "gradient"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "secondary"));
+
+    t.byte(wasm.OP.call);
+    t.int(builtins.size + i);
+
+    t.byte(wasm.OP.f64.add);
+
+    t.byte(wasm.END);
+  }
+
+  t.byte(wasm.END);
+};
+
+const genBytes = (graphs: ad.Graph[]): Uint8Array => {
+  const secondaryKeys = new Map<number, number>();
+  for (const { secondary } of graphs) {
+    // `forEach` ignores holes
+    secondary.forEach((id, i) => {
+      secondaryKeys.set(i, (secondaryKeys.get(i) ?? 0) + 1);
+    });
+  }
+  for (const [k, n] of secondaryKeys) {
+    if (n > 1) throw Error(`secondary output ${k} is present in ${n} graphs`);
+  }
+
+  const sizes = graphs.map((g) => {
+    const count = new wasm.Count();
+    compileGraph(count, g);
+    return count.size;
+  });
+  const mainCount = new wasm.Count();
+  compileSum(mainCount, graphs.length);
+
+  const mod = modulePrefix([...sizes, mainCount.size]);
+  for (const [g, size] of zip2(graphs, sizes)) {
+    mod.int(size);
+    compileGraph(mod, g);
+  }
+  mod.int(mainCount.size);
+  compileSum(mod, graphs.length);
+
+  if (mod.count.size !== mod.bytes.length)
+    throw Error(
+      `allocated ${mod.bytes.length} bytes but used ${mod.count.size}`
+    );
+  return mod.bytes;
+};
+
+/**
+ * Compile an array of graphs into a function to compute the sum of their
+ * primary outputs. The gradients are also summed. The keys present in the
+ * secondary outputs must be disjoint; they all go into the same array, so the
+ * expected secondary outputs would be ambiguous if keys were shared.
+ * @param graphs an array of graphs to compile
+ * @returns a compiled/instantiated WebAssembly function
+ */
+export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
+  await Gradient.make(
+    await WebAssembly.compile(genBytes(graphs)),
+    graphs.length,
+    Math.max(0, ...graphs.map((g) => g.secondary.length))
+  );
+
+/**
+ * Synchronous version of `genCode`. Should not be used in the browser because
+ * this will fail if the generated module is larger than 4 kilobytes, but
+ * currently is used in convex partitioning for convenience.
+ */
+export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
+  Gradient.makeSync(
+    new WebAssembly.Module(genBytes(graphs)),
+    graphs.length,
+    Math.max(0, ...graphs.map((g) => g.secondary.length))
+  );

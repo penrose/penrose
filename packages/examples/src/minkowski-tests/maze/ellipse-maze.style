@@ -1,0 +1,35 @@
+--- This .style file is intended for debugging purposes only
+
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Maze x {
+    x.icon = Ellipse {
+        center: [0.0, 0.0]
+        rx: 200.0
+        ry: 100.0
+    }
+}
+
+forall Triangle x {
+    x.x = ? 
+    x.y = ?
+    x.a = (x.x - 100.0, x.y)
+    x.b = (x.x, x.y + 150.0)
+    x.c = (x.x + 100.0, x.y)
+
+    x.icon = Polygon {
+        points: [ x.a, x.b, x.c ]
+    }
+
+    encourage lessThan(x.x, 400.0)
+    encourage lessThan(-400.0, x.x)
+    encourage lessThan(x.y, 400.0)
+    encourage lessThan(-400.0, x.y)
+}
+
+forall Triangle x; Maze y {
+    ensure disjoint(x.icon, y.icon)
+}

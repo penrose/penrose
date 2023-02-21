@@ -20,6 +20,10 @@ const BlueButton = styled.button<{}>`
     background-color: #049cdd;
     transition: 0.2s;
   }
+  :disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 `;
 export default BlueButton;
 

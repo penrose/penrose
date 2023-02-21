@@ -1,7 +1,3 @@
----
-sidebar_position: 1
----
-
 # Welcome!
 
 ## We are so glad you are here.
@@ -19,12 +15,6 @@ Note that each tutorial builds on top of the last, so we highly recommend that y
 ## Introduction
 
 This section provides both concrete and conceptual descriptions of how to work within the Penrose environment. Feel free to dive into the tutorials if you are ready.
-
-### Installation
-
-We have a detailed wiki page on how to get Penrose up and running on your computer [here](https://github.com/penrose/penrose/wiki/Building-and-running). 🥳 Come back when you are done.
-
-Let's start with building up some intuition about how to approach Penrose. Learning how to use a new set of tools can be intimidating, and we want to make the process as smooth as possible.
 
 ### How do we create diagrams by hand?
 
@@ -64,15 +54,13 @@ As discussed above, it is important to keep track of any objects that we want to
 
 Each of these corresponds to a specific file with an intuitive file extension designed for accessibility:
 
-- A `.dsl` file that defines the language specific to the domain.
-- A `.sub` file that creates substances of mathematical content.
-- A `.sty` file that specifies the style of the visual representation.
+- A `.domain` file that defines the language specific to the domain.
+- A `.substance` file that creates substances of mathematical content.
+- A `.style` file that specifies the style of the visual representation.
 
-> dsl stands for Domain Specific Language.
+![Introducing the .domain, .style, and .substance files that are the backbone of every Penrose program](/img/tutorial/triple_helvetica.png)
 
-![Introducing the .dsl, .sty, and .sub files that are the backbone of every Penrose program](/img/tutorial/triple_helvetica.png)
-
-In general, for each diagram, you will have a unique `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we could make several diagrams in the domain of Linear Algebra that each visualize different concepts with different `.sub` files, but we would preserve a main `linearAlgebra.dsl` file that describes the types and operations that are possible in Linear Algebra, and select from any of several possible `linearAlgebra.sty` files to affect each diagram's appearance.
+In general, for each diagram, you will have a unique `.substance` file that contains the specific instances for the diagram, while the `.domain` and `.style` files can be applied to a number of different diagrams. For example, we could make several diagrams in the domain of Linear Algebra that each visualize different concepts with different `.substance` files, but we would preserve a main `linearAlgebra.domain` file that describes the types and operations that are possible in Linear Algebra, and select from any of several possible `linearAlgebra.style` files to affect each diagram's appearance.
 
 Now, you are equipped to embark on your Penrose journey and make your first Penrose diagram! Here's a quick sneak peek of what we will be building in the following tutorials:
 

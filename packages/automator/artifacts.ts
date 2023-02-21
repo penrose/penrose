@@ -2,7 +2,7 @@ import * as fs from "fs";
 import _ from "lodash";
 import pug from "pug";
 import { InstanceData } from "./types";
-import vis from "./vis";
+import * as vis from "./vis";
 
 const PAGELEN = 5;
 const gridLink = "grid.html";
@@ -31,9 +31,12 @@ const getArtifacts = (artifactsDir: string): Map<string, Artifact> => {
       return [
         dir,
         {
-          substance: fs.readFileSync(`${prefixString}substance.sub`, "utf8"),
-          style: fs.readFileSync(`${prefixString}style.sty`, "utf8"),
-          domain: fs.readFileSync(`${prefixString}domain.dsl`, "utf8"),
+          substance: fs.readFileSync(
+            `${prefixString}substance.substance`,
+            "utf8"
+          ),
+          style: fs.readFileSync(`${prefixString}style.style`, "utf8"),
+          domain: fs.readFileSync(`${prefixString}domain.domain`, "utf8"),
           rendered: fs.readFileSync(`${prefixString}output.svg`, "utf8"),
           metadata: JSON.parse(
             fs.readFileSync(`${prefixString}meta.json`, "utf8")
@@ -132,7 +135,7 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
 };
 
 const MAX_NAME_LENGTH = 100;
-const MAX_SECONDS = 100;
+const MAX_SECONDS = 60;
 
 const trimName = (name: string): string =>
   name.length > MAX_NAME_LENGTH

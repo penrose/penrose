@@ -1,10 +1,10 @@
-import { dummyIdentifier } from "engine/EngineUtils";
 import im from "immutable";
-import { findIndex } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
-import { idOf, lastLocation, prettyParseError } from "parser/ParserUtil";
-import substanceGrammar from "parser/SubstanceParser";
-import { A, ASTNode, C, Identifier } from "types/ast";
+import { dummyIdentifier } from "../engine/EngineUtils";
+import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil";
+import substanceGrammar from "../parser/SubstanceParser";
+import { A, ASTNode, C, Identifier } from "../types/ast";
 import {
   Arg,
   ConstructorDecl,
@@ -12,8 +12,8 @@ import {
   FunctionDecl,
   Type,
   TypeConstructor,
-} from "types/domain";
-import { ParseError, PenroseError, SubstanceError } from "types/errors";
+} from "../types/domain";
+import { ParseError, PenroseError, SubstanceError } from "../types/errors";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -32,7 +32,7 @@ import {
   SubstanceEnv,
   SubStmt,
   TypeConsApp,
-} from "types/substance";
+} from "../types/substance";
 import {
   and,
   andThen,
@@ -50,8 +50,8 @@ import {
   typeNotFound,
   unexpectedExprForNestedPred,
   varNotFound,
-} from "utils/Error";
-import { zip2 } from "utils/Util";
+} from "../utils/Error";
+import { zip2 } from "../utils/Util";
 import { bottomType, checkTypeConstructor, isSubtype, topType } from "./Domain";
 
 export const parseSubstance = (
@@ -683,7 +683,7 @@ const checkField = (
     // get the constructor decl in Domain
     const [cons, consDecl] = res;
     // find the field index by name
-    const fieldIndex = findIndex(
+    const fieldIndex = _.findIndex(
       consDecl.args,
       (a) => a.variable.value === field.value
     );

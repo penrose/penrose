@@ -5,11 +5,11 @@
 @{%
 
 /* eslint-disable */
-import * as moo from "moo";
-import { concat, compact, flatten, last } from 'lodash'
-import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
-import { C, ConcreteNode, Identifier, StringLit } from "types/ast";
-import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "types/substance";
+import moo from "moo";
+import _ from 'lodash'
+import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
+import { C, ConcreteNode, Identifier, StringLit } from "../types/ast";
+import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -45,7 +45,7 @@ const nodeData = { nodeType: "Substance" as const };
 
 input -> statements {% 
   ([d]): SubProg<C> => {
-    const statements = flatten(d) as SubStmt<C>[];
+    const statements = _.flatten(d) as SubStmt<C>[];
     return { ...nodeData, ...rangeFrom(statements), tag: "SubProg", statements };
   }
 %}
@@ -213,7 +213,7 @@ type_constructor -> identifier type_arg_list:? {%
 
 # NOTE: only type constructors are alloed in Substance
 type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {% 
-  ([, , , d]): TypeConsApp<C>[] => flatten(d) 
+  ([, , , d]): TypeConsApp<C>[] => _.flatten(d) 
 %}
 
 # Common 

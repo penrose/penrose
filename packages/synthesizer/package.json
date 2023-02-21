@@ -1,7 +1,7 @@
 {
   "name": "@penrose/synthesizer",
   "private": true,
-  "version": "1.3.0",
+  "version": "2.2.0",
   "description": "Synthesis engine for Penrose",
   "keywords": [
     "program synthesis",
@@ -9,6 +9,7 @@
   ],
   "homepage": "http://penrose.cs.cmu.edu/",
   "license": "MIT",
+  "type": "module",
   "main": "index.ts",
   "directories": {
     "test": "__tests__"
@@ -16,9 +17,6 @@
   "files": [
     "src"
   ],
-  "publishConfig": {
-    "registry": "https://registry.yarnpkg.com"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/penrose/penrose.git"
@@ -27,27 +25,25 @@
     "build": ":",
     "build-decls": ":",
     "typecheck": "tsc --noEmit",
-    "start": "ts-node  ./index.ts",
-    "set-example": "yarn start __tests__/setTheory.dsl --substance=__tests__/template.sub  --style=__tests__/venn.sty --path=../automator/progs --synth-setting=__tests__/set-settings.json --num-programs=30",
-    "collinear-example": "yarn start ../examples/src/geometry-domain/geometry.dsl --substance=../examples/src/geometry-domain/textbook_problems/c01p01.sub  --style=../examples/src/geometry-domain/euclidean.sty --path=../automator/progs --synth-setting=__tests__/geo-settings.json --num-programs=30",
-    "rect-example": "yarn start ../examples/src/geometry-domain/geometry.dsl --substance=__tests__/rect.sub  --style=../examples/src/geometry-domain/euclidean.sty --path=../automator/progs --synth-setting=__tests__/rect-settings.json --num-programs=10",
-    "tri-example": "yarn start ../examples/src/geometry-domain/geometry.dsl --substance=../examples/src/geometry-domain/textbook_problems/c05p13.sub  --style=../examples/src/geometry-domain/euclidean.sty --path=../automator/progs --synth-setting=__tests__/tri-settings.json --num-programs=30",
-    "congruent-example": "yarn start ../examples/src/geometry-domain/geometry.dsl --substance=../examples/src/geometry-domain/textbook_problems/c04p12.sub  --style=../examples/src/geometry-domain/euclidean.sty --path=../automator/progs --synth-setting=__tests__/congruent-settings.json --num-programs=30"
+    "start": "ts-node --esm ./index.ts",
+    "set-example": "yarn start __tests__/setTheory.domain --substance=__tests__/template.substance --style=__tests__/venn.style --path=../automator/progs --synth-setting=__tests__/set-settings.json --num-programs=30",
+    "collinear-example": "yarn start ../examples/src/geometry-domain/geometry.domain --substance=../examples/src/geometry-domain/textbook_problems/c01p01.substance --style=../examples/src/geometry-domain/euclidean.style --path=../automator/progs --synth-setting=__tests__/geo-settings.json --num-programs=30",
+    "rect-example": "yarn start ../examples/src/geometry-domain/geometry.domain --substance=__tests__/rect.substance --style=../examples/src/geometry-domain/euclidean.style --path=../automator/progs --synth-setting=__tests__/rect-settings.json --num-programs=10",
+    "tri-example": "yarn start ../examples/src/geometry-domain/geometry.domain --substance=../examples/src/geometry-domain/textbook_problems/c05p13.substance --style=../examples/src/geometry-domain/euclidean.style --path=../automator/progs --synth-setting=__tests__/tri-settings.json --num-programs=30",
+    "congruent-example": "yarn start ../examples/src/geometry-domain/geometry.domain --substance=../examples/src/geometry-domain/textbook_problems/c04p12.substance --style=../examples/src/geometry-domain/euclidean.style --path=../automator/progs --synth-setting=__tests__/congruent-settings.json --num-programs=30"
   },
   "bugs": {
     "url": "https://github.com/penrose/penrose/issues"
   },
   "dependencies": {
-    "@penrose/core": "1.3.0",
+    "@penrose/core": "^2.2.0",
     "chalk": "^3.0.0",
     "global-jsdom": "^8.0.0",
     "neodoc": "^2.0.2",
-    "pandemonium": "^2.0.0",
     "true-myth": "^4.1.1"
   },
   "devDependencies": {
     "@types/node": "^12.12.68",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.1.3"
+    "ts-node": "^10.9.1"
   }
 }

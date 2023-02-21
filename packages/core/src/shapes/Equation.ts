@@ -6,15 +6,13 @@ import {
   Rotate,
   Shape,
   String,
-  Stroke,
-} from "types/shapes";
-import { black, boolV, floatV, noPaint, strV, vectorV } from "utils/Util";
+} from "../types/shapes";
+import { black, boolV, floatV, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, uniform } from "./Samplers";
 
 export interface EquationProps
   extends Named,
     Fill,
-    Stroke,
     Center,
     Rect,
     Rotate,
@@ -28,17 +26,29 @@ export const sampleEquation = (
   style: strV(""),
   fillColor: black(),
   center: vectorV([
-    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.xRange) }),
-    context.makeInput({ tag: "Optimized", sampler: uniform(...canvas.yRange) }),
+    context.makeInput({
+      init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
+      stages: "All",
+    }),
+    context.makeInput({
+      init: { tag: "Sampled", sampler: uniform(...canvas.yRange) },
+      stages: "All",
+    }),
   ]),
-  width: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
-  height: floatV(context.makeInput({ tag: "Unoptimized", pending: 0 })),
+  width: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
+  height: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
   rotation: floatV(0),
   string: strV("defaultLabelText"),
-  strokeWidth: floatV(0),
-  strokeStyle: strV("solid"),
-  strokeColor: noPaint(),
-  strokeDasharray: strV(""),
   fontSize: strV("12pt"),
   ensureOnCanvas: boolV(true),
 });

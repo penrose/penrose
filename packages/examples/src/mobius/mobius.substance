@@ -1,0 +1,17 @@
+Center r
+
+Circle c1, c2, c3
+
+Shape ic1 := Inversion(c1, r)
+Shape ic2 := Inversion(c2, r)
+Shape ic3 := Inversion(c3, r)
+
+Label r $S^1$
+
+Label c1 $c_1$
+Label c2 $c_2$
+Label c3 $c_3$
+
+Label ic1 $c'_1$
+Label ic2 $c'_2$
+Label ic3 $c'_3$

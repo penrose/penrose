@@ -1,17 +1,16 @@
-import { prettyStmt } from "compiler/Substance";
+import consola from "consola";
 import im from "immutable";
+import _ from "lodash";
+import { prettyStmt } from "../compiler/Substance";
+import { dummyIdentifier } from "../engine/EngineUtils";
 import {
-  cloneDeep,
-  cloneDeepWith,
-  compact,
-  filter,
-  intersectionWith,
-  isEqual,
-  isEqualWith,
-  sortBy,
-  uniq,
-} from "lodash";
-import { A, AbstractNode, C, Identifier, metaProps } from "types/ast";
+  A,
+  AbstractNode,
+  C,
+  Identifier,
+  metaProps,
+  StringLit,
+} from "../types/ast";
 import {
   ConstructorDecl,
   DomainStmt,
@@ -19,7 +18,7 @@ import {
   FunctionDecl,
   PredicateDecl,
   TypeDecl,
-} from "types/domain";
+} from "../types/domain";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -28,12 +27,17 @@ import {
   Bind,
   Decl,
   Func,
+  LabelDecl,
   SubExpr,
   SubPredArg,
   SubProg,
   SubStmt,
   TypeConsApp,
-} from "types/substance";
+} from "../types/substance";
+
+const log = consola
+  .create({ level: (consola as any).LogLevel.Info })
+  .withScope("Substance Analysis");
 
 export interface Signature {
   args: string[];
@@ -106,7 +110,7 @@ export const removeStmt = <T>(
   stmt: SubStmt<T>
 ): SubProg<T> => ({
   ...prog,
-  statements: filter(prog.statements, (s) => !nodesEqual(stmt, s)),
+  statements: _.filter(prog.statements, (s) => !nodesEqual(stmt, s)),
 });
 
 /**
@@ -263,23 +267,24 @@ export const identicalTypeDecls = (
   env: Env
 ): im.Map<string, Identifier<A>[]> => {
   // pulls just the variable names from the statement's parameters
-  const idSet = ids.map((i) => i.value);
+  const idStrs = ids.map((i) => i.value);
   let options: im.Map<string, Identifier<A>[]> = im.Map();
+  log.debug(`Matching ${ids.map((i) => i.value)}`);
 
-  idSet.forEach((i) => {
-    const obj = env.vars.get(i);
-    const typeStr = obj && obj.name.value;
+  idStrs.forEach((i) => {
+    const typeStr = env.vars.get(i)?.name.value;
 
     // a match is any var of the same type as the current identifier
     // which is not already being used in the statement
     const matchedObjs = [
       ...env.vars
         .filter(
-          (t, id) => !idSet.includes(id) && typeStr && t.name.value === typeStr
+          (t, id) => !idStrs.includes(id) && typeStr && t.name.value === typeStr
         )
         .keys(),
     ];
 
+    log.debug(`For ${typeStr} found ${matchedObjs}`);
     const matches = matchedObjs.flatMap((id) =>
       env.varIDs.filter((v) => v.value === id)
     );
@@ -306,8 +311,11 @@ export const cascadingDelete = <T>(
   dec: Bind<T> | Decl<T>,
   prog: SubProg<T>
 ): SubStmt<T>[] => {
-  const findArg = (s: ApplyPredicate<T>, ref: Identifier<T> | undefined) =>
-    ref &&
+  const findArg = (
+    s: ApplyPredicate<T>,
+    ref: Identifier<T> | undefined
+  ): boolean =>
+    ref !== undefined &&
     s.args.filter((a) => {
       return a.tag === ref.tag && a.value === ref.value;
     }).length > 0;
@@ -316,18 +324,37 @@ export const cascadingDelete = <T>(
   while (ids.length > 0) {
     const id = ids.pop()!;
     // look for statements that take id as arg
-    const toDelete = prog.statements.filter((s) => {
-      if (s.tag === "Bind") {
-        const expr = (s.expr as unknown) as ApplyPredicate<T>;
-        const willDelete = findArg(expr, id);
-        // push its return value IF bind will be deleted
-        if (willDelete) ids.push(s.variable);
-        // delete if arg is found in either return type or args
-        return willDelete || s.variable.value === id.value;
-      } else if (s.tag === "ApplyPredicate") {
-        return findArg(s, id);
-      } else if (s.tag === "Decl") {
-        return s.name === id;
+    const toDelete = prog.statements.filter((s): boolean => {
+      switch (s.tag) {
+        case "Bind": {
+          const expr = (s.expr as unknown) as ApplyPredicate<T>;
+          const willDelete = findArg(expr, id);
+          // push its return value IF bind will be deleted
+          if (willDelete) ids.push(s.variable);
+          // delete if arg is found in either return type or args
+          return willDelete || s.variable.value === id.value;
+        }
+        case "ApplyPredicate": {
+          return findArg(s, id);
+        }
+        case "Decl": {
+          return s.name === id;
+        }
+        case "LabelDecl": {
+          return s.variable.value === id.value;
+        }
+        case "AutoLabel": {
+          return (
+            s.option.tag === "LabelIDs" &&
+            s.option.variables.filter((v) => v.value === id.value).length > 0
+          );
+        }
+        case "NoLabel": {
+          return s.args.filter((v) => v.value === id.value).length > 0;
+        }
+        case "EqualExprs":
+        case "EqualPredicates":
+          return false;
       }
     });
     // remove list of filtered statements
@@ -355,13 +382,12 @@ export const domainToSubType = (
   | ApplyPredicate<A>["tag"]
   | ApplyFunction<A>["tag"]
   | ApplyConstructor<A>["tag"]
-  | Func<A>["tag"]
   | undefined => {
   switch (domainType) {
     case "ConstructorDecl":
-      return "Func";
+      return "ApplyConstructor";
     case "FunctionDecl":
-      return "Func";
+      return "ApplyFunction";
     case "PredicateDecl":
       return "ApplyPredicate";
     case "TypeDecl":
@@ -446,6 +472,41 @@ export const autoLabelStmt: AutoLabel<A> = {
   nodeType: "SyntheticSubstance",
 };
 
+export const stringLit = (contents: string): StringLit<A> => ({
+  tag: "StringLit",
+  contents,
+  nodeType: "SyntheticSubstance",
+});
+
+export const labelStmt = (id: string): LabelDecl<A> => ({
+  tag: "LabelDecl",
+  variable: dummyIdentifier(id, "SyntheticSubstance"),
+  label: stringLit(id),
+  labelType: "MathLabel",
+  nodeType: "SyntheticSubstance",
+});
+
+export const desugarAutoLabel = (subProg: SubProg<A>, env: Env): SubProg<A> => {
+  const autoStmts: AutoLabel<A>[] = subProg.statements.filter(
+    (s: SubStmt<A>): s is AutoLabel<A> =>
+      s.tag === "AutoLabel" && s.option.tag === "LabelIDs"
+  );
+  const desugar = (s: AutoLabel<A>): LabelDecl<A>[] => {
+    if (s.option.tag === "DefaultLabels") {
+      const vars = [...env.vars.keys()];
+      return vars.map(labelStmt);
+    } else {
+      const vars = s.option.variables.map((v) => v.value);
+      return vars.map(labelStmt);
+    }
+  };
+  const labelStmts = autoStmts.flatMap((s) => desugar(s));
+  return labelStmts.reduce(
+    (p, s) => appendStmt(p, s),
+    autoStmts.reduce((p, s) => removeStmt(p, s), subProg)
+  );
+};
+
 /**
  * Compare two AST nodes by their contents, ignoring structural properties such as `nodeType` and positional properties like `start` and `end`.
  *
@@ -454,8 +515,8 @@ export const autoLabelStmt: AutoLabel<A> = {
  * @returns a boolean value
  */
 export const nodesEqual = (node1: AbstractNode, node2: AbstractNode): boolean =>
-  isEqualWith(node1, node2, (node1: AbstractNode, node2: AbstractNode) => {
-    return isEqual(cleanNode(node1), cleanNode(node2));
+  _.isEqualWith(node1, node2, (node1: AbstractNode, node2: AbstractNode) => {
+    return _.isEqual(cleanNode(node1), cleanNode(node2));
   });
 
 /**
@@ -466,7 +527,7 @@ export const nodesEqual = (node1: AbstractNode, node2: AbstractNode): boolean =>
  * @returns a boolean value
  */
 export const progsEqual = <T>(left: SubProg<T>, right: SubProg<T>): boolean =>
-  isEqualWith(
+  _.isEqualWith(
     left.statements,
     right.statements,
     (node1: SubStmt<T>, node2: SubStmt<T>) => nodesEqual(node1, node2)
@@ -482,7 +543,7 @@ export const intersection = <T>(
   left: SubProg<T>,
   right: SubProg<T>
 ): SubStmt<T>[] =>
-  intersectionWith(left.statements, right.statements, (s1, s2) =>
+  _.intersectionWith(left.statements, right.statements, (s1, s2) =>
     nodesEqual(s1, s2)
   );
 
@@ -494,8 +555,27 @@ export const intersection = <T>(
 export const sortStmts = <T>(prog: SubProg<T>): SubProg<T> => {
   const { statements } = prog;
   // first sort by statement type, and then by lexicographic ordering of source text
-  const newStmts: SubStmt<T>[] = sortBy(statements, [
-    "tag",
+  const newStmts: SubStmt<T>[] = _.sortBy(statements, [
+    (s: SubStmt<T>) => {
+      switch (s.tag) {
+        case "Decl":
+          return 0;
+        case "ApplyPredicate":
+          return 1;
+        case "Bind":
+          return 2;
+        case "EqualExprs":
+          return 3;
+        case "EqualPredicates":
+          return 4;
+        case "AutoLabel":
+          return 5;
+        case "LabelDecl":
+          return 6;
+        case "NoLabel":
+          return 7;
+      }
+    },
     (s: SubStmt<T>) => prettyStmt(s),
   ]);
   return {
@@ -504,9 +584,24 @@ export const sortStmts = <T>(prog: SubProg<T>): SubProg<T> => {
   };
 };
 
+/**
+ * Remove duplicated statements from a Substance program.
+ * NOTE: the implementation relies on string-comparison between pretty-printed statements.
+ *
+ * @param prog the original program
+ * @returns the original program without duplicated statements
+ */
+export const dedupStmts = (prog: SubProg<A>): SubProg<A> => ({
+  ...prog,
+  statements: _.uniqWith(
+    prog.statements,
+    (s1: SubStmt<A>, s2: SubStmt<A>) => prettyStmt(s1) === prettyStmt(s2)
+  ),
+});
+
 // TODO: compare clean nodes instead?
 export const stmtExists = (stmt: SubStmt<A>, prog: SubProg<A>): boolean =>
-  prog.statements.find((s) => isEqual(stmt, s)) !== undefined;
+  prog.statements.find((s) => _.isEqual(stmt, s)) !== undefined;
 
 export const cleanNode = (prog: AbstractNode): AbstractNode =>
   omitDeep(prog, metaProps);
@@ -524,7 +619,7 @@ export const typeOf = (id: string, env: Env): string | undefined =>
 // helper function for omitting properties in an object
 const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
   // TODO: `omitFn` mutates the collection
-  const collection = cloneDeep(originalCollection);
+  const collection = _.cloneDeep(originalCollection);
   const omitFn = (value: any) => {
     if (value && typeof value === "object") {
       excludeKeys.forEach((key) => {
@@ -532,7 +627,7 @@ const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
       });
     }
   };
-  return cloneDeepWith(collection, omitFn);
+  return _.cloneDeepWith(collection, omitFn);
 };
 
 export type SubStmtKind = "type" | "predicate" | "constructor" | "function";
@@ -548,9 +643,9 @@ type TypeWithKind = {
  * Given a Substance program, find out the types, constructors, functions, and predicates used in the program.
  */
 export const findTypes = <T>(prog: SubProg<T>): SubStmtKindMap => {
-  const typeList: TypeWithKind[] = compact(prog.statements.map(findType));
+  const typeList: TypeWithKind[] = _.compact(prog.statements.map(findType));
   const getNames = (ts: TypeWithKind[], k: SubStmtKind): string[] =>
-    uniq(ts.filter((t) => t.kind === k).map((t) => t.name));
+    _.uniq(ts.filter((t) => t.kind === k).map((t) => t.name));
   return {
     type: getNames(typeList, "type"),
     predicate: getNames(typeList, "predicate"),

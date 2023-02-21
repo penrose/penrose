@@ -1,0 +1,26 @@
+AWord Shells
+AWord Minkowski
+AWord Exact
+AWord Riemannian
+AWord BCs
+AWord CurveSurface
+
+BWord Tools
+BWord Survey
+BWord Courses
+BWord Software
+BWord Videos
+
+AutoLabel All
+Label Riemannian "shape space formulation"
+Label BCs "boundary conditions"
+Label Shells "repulsive shells"
+Label Exact "exact discretization"
+Label CurveSurface "repulsive curves + surfaces"
+Label Minkowski "Minkowski penalties"
+Label Tools "end-user tools"
+Label Survey "survey article"
+Label Courses "local & outreach courses"
+Label Software "open-source software"
+Label Videos "K-12 videos"
+

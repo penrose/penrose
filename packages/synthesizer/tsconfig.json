@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
+    "target": "es2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "es2022",
     "esModuleInterop": true,
+    "moduleResolution": "Node",
     "sourceMap": true
   }
 }
