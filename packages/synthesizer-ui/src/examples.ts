@@ -1,5 +1,6 @@
 import { SynthesizerSetting } from "@penrose/core";
 import geometryDomain from "@penrose/examples/dist/geometry-domain";
+import molecules from "@penrose/examples/dist/molecules";
 
 export interface Preset {
   displayName: string;
@@ -308,6 +309,40 @@ forall Point \`D\`, \`E\`, \`A\` {
     style: geometryDomain["euclidean.style"] + ``,
     setting: {
       ...defaultParams,
+    },
+  },
+  lewis_0: {
+    displayName: "lewis_0: Hydrogen Cyanide",
+    prompt: "Choose the correct Lewis structure for HCN.",
+    substance: molecules["hydrogencyanide.substance"],
+    domain: molecules["molecules.domain"],
+    style: molecules["lewis.style"],
+    setting: {
+      ...defaultParams,
+      mutationCount: [15, 30],
+      opWeights: {
+        add: 0.5,
+        delete: 0.2,
+        edit: 1.5,
+      },
+      add: {
+        type: ["Electron"],
+        function: "*",
+        constructor: ["ValanceElectron"],
+        predicate: "*",
+      },
+      edit: {
+        type: ["Bond"],
+        constructor: "*",
+        function: [],
+        predicate: [],
+      },
+      delete: {
+        type: ["Electron"],
+        function: [],
+        predicate: [],
+        constructor: [],
+      },
     },
   },
 };

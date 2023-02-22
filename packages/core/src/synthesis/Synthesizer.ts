@@ -83,7 +83,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Debug })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -633,6 +633,7 @@ export class Synthesizer {
         ctx,
         (oldStmt: Bind<A>, oldExpr: ArgExpr<A>, ctx: SynthesisContext) => {
           const options = argMatches(oldStmt, ctx.env);
+          log.debug(`matched args with`, options);
           if (options.length > 0) {
             const pick = this.choice(options);
             const { res, stmts, ctx: newCtx } = generateArgStmt(
@@ -676,18 +677,20 @@ export class Synthesizer {
    */
   enumerateUpdate = (ctx: SynthesisContext): MutationGroup[] => {
     log.debug(`Picking a statement to edit...`);
-    // pick a kind of statement to edit
-    const chosenType = this.choice(nonEmptyDecls(ctx));
-    // get all possible types within this kind
-    const candidates = [...getDecls(ctx, chosenType).keys()];
-    // choose a name
-    const chosenName = this.choice(candidates);
-    log.debug(
-      `Chosen name is ${chosenName}, candidates ${candidates}, chosen type ${chosenType}`
-    );
-    const stmt = this.findStmt(chosenType, chosenName);
-    if (stmt !== undefined) {
-      // find all available edit mutations for the given statement
+    // // pick a kind of statement to edit
+    // const chosenType = this.choice(nonEmptyDecls(ctx));
+    // // get all possible types within this kind
+    // const candidates = [...getDecls(ctx, chosenType).keys()];
+    // // choose a name
+    // const chosenName = this.choice(candidates);
+    // log.debug(
+    //   `Chosen name is ${chosenName}, candidates ${candidates}, chosen type ${chosenType}`,
+    //   ctx
+    // );
+    // const stmt = this.findStmt(chosenType, chosenName);
+    // if (stmt !== undefined) {
+    // find all available edit mutations for the given statement
+    const mutations = this.currentProg.statements.map((stmt) => {
       const mutations = this.findMutations(stmt, ctx);
       log.debug(
         `Possible update mutations for ${prettyStmt(
@@ -695,7 +698,9 @@ export class Synthesizer {
         )} are:\n${mutations.map(showMutations).join("\n")}`
       );
       return mutations;
-    } else return [];
+    });
+    return this.choice(mutations) ?? [];
+    // } else return [];
   };
 
   /**
