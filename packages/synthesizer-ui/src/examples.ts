@@ -345,4 +345,38 @@ forall Point \`D\`, \`E\`, \`A\` {
       },
     },
   },
+  lewis_1: {
+    displayName: "lewis_1: Methane",
+    prompt: "Choose the correct Lewis structure for CH4.",
+    substance: molecules["methane.substance"],
+    domain: molecules["molecules.domain"],
+    style: molecules["lewis.style"],
+    setting: {
+      ...defaultParams,
+      mutationCount: [5, 10],
+      opWeights: {
+        add: 1.5,
+        delete: 0,
+        edit: 1,
+      },
+      add: {
+        type: ["Electron"],
+        function: "*",
+        constructor: ["ValanceElectron"],
+        predicate: "*",
+      },
+      edit: {
+        type: ["Bond"],
+        constructor: ["MakeSingleBond", "MakeDoubleBond", "MakeTripleBond"],
+        function: [],
+        predicate: [],
+      },
+      delete: {
+        type: ["Electron"],
+        function: [],
+        predicate: [],
+        constructor: [],
+      },
+    },
+  },
 };

@@ -1,0 +1,8 @@
+Hydrogen h1, h2, h3, h4
+Carbon c
+Bond b1 := MakeSingleBond(h1, c)
+Bond b2 := MakeSingleBond(h2, c)
+Bond b3 := MakeSingleBond(h3, c)
+Bond b4 := MakeSingleBond(h4, c)
+
+AutoLabel All

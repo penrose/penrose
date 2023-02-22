@@ -83,7 +83,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: (consola as any).LogLevel.Debug })
+  .create({ level: (consola as any).LogLevel.Info })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -481,7 +481,8 @@ export class Synthesizer {
     const deleteCtx = filterContext(ctx, this.setting.delete, this.template);
     const deleteOps = this.enumerateDelete(deleteCtx);
     // NOTE: filter edits by the template Substance program too
-    const editCtx = filterContext(ctx, this.setting.edit, this.template);
+    // const editCtx = filterContext(ctx, this.setting.edit, this.template);
+    const editCtx = filterContext(ctx, this.setting.edit);
     const editOps = this.enumerateUpdate(editCtx);
     const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps].filter(
       (ops) => ops.length > 0
@@ -581,6 +582,7 @@ export class Synthesizer {
           (decl) => decl.name.value
         );
         const options = _.without(matchingNames, e.name.value);
+        console.log("options to replace with", options, showEnv(ctx.env));
         if (options.length > 0) {
           return this.choice(options);
         } else return undefined;
