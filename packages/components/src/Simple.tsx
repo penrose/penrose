@@ -152,6 +152,9 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
               },
               this.props.imageResolver ?? fetchResolver
             ));
+        // to avoid overflowing the parent div, force the height to be 100%
+        renderedState.setAttribute("height", "100%");
+        renderedState.setAttribute("width", "100%");
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);
         } else {
