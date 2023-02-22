@@ -918,4 +918,22 @@ export const getAdValueAsString = (
   );
 };
 
+/**
+ * Gets the contents of a value as a list of GPIs.
+ * If unable, throw an exception.
+ */
+export const getAdValueAsGPIList = (val: Value<ad.Num>): GPI<ad.Num>[] => {
+  if (val.tag === "GPIListV") return val.contents;
+  throw new Error("Not a list of shapes");
+};
+
+/**
+ * Gets the contents of a value as a list of ShapeADs.
+ * If unable, throw an exception.
+ */
+export const getValueAsShapeList = <T>(val: Value<T>): GenericShape<T>[] => {
+  if (val.tag === "ShapeListV") return val.contents;
+  throw new Error("Not a list of shapes");
+};
+
 //#endregion

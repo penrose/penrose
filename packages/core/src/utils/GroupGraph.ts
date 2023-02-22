@@ -1,6 +1,6 @@
 import { ShapeAD } from "../types/shape";
 import Graph from "./Graph";
-import { shapeListV } from "./Util";
+import { getAdValueAsGPIList, getAdValueAsString, shapeListV } from "./Util";
 
 export type GroupGraph = Graph<string, number>; // shape name and index
 
@@ -10,11 +10,7 @@ export const makeGroupGraph = (shapes: ShapeAD[]): GroupGraph => {
   // populate the nodes
   for (let i = 0; i < shapes.length; i++) {
     const shape = shapes[i];
-    const shapeNameVal = shape.properties["name"];
-    if (shapeNameVal.tag !== "StrV") {
-      throw Error("Shape name is not a string");
-    }
-    const shapeName = shapeNameVal.contents;
+    const shapeName = getAdValueAsString(shape.properties["name"]);
 
     graph.setNode(shapeName, i);
     nameShapeMap.set(shapeName, shape);
@@ -22,17 +18,9 @@ export const makeGroupGraph = (shapes: ShapeAD[]): GroupGraph => {
   // then populate the edges
   for (const [name, shape] of nameShapeMap.entries()) {
     if (shape.shapeType === "Group") {
-      const subShapesVal = shape.properties["shapes"];
-      if (subShapesVal.tag !== "GPIListV") {
-        throw Error("Group content not a list of shapes");
-      }
-      const subShapes = subShapesVal.contents;
-      const subNames = subShapes.map((shape) => {
-        const subShapeNameVal = shape.contents[1]["name"];
-        if (subShapeNameVal.tag !== "StrV") {
-          throw Error("Shape name is not a string");
-        }
-        return subShapeNameVal.contents;
+      const subGPIs = getAdValueAsGPIList(shape.properties["shapes"]);
+      const subNames = subGPIs.map((gpi) => {
+        return getAdValueAsString(gpi.contents[1]["name"]);
       });
 
       for (const subName of subNames) {
@@ -93,17 +81,10 @@ export const buildRenderGraphNode = (
   // If shape is group, recursively handle all the sub-shapes.
   // And convert GPIListV to ShapeListV.
 
-  const subGPIsVal = shape.properties["shapes"];
-  if (subGPIsVal.tag !== "GPIListV") {
-    throw Error("Group content not a list of shapes");
-  }
-  const childrenNames = subGPIsVal.contents.map((gpi) => {
-    const subNameVal = gpi.contents[1]["name"];
-    if (subNameVal.tag !== "StrV") {
-      throw Error("Shape name is not a string");
-    }
-    return subNameVal.contents;
-  });
+  const subGPIs = getAdValueAsGPIList(shape.properties["shapes"]);
+  const childrenNames = subGPIs.map((gpi) =>
+    getAdValueAsString(gpi.contents[1]["name"])
+  );
 
   shape.properties["shapes"] = shapeListV(
     buildRenderGraph(childrenNames, groupGraph, nameShapeMap)

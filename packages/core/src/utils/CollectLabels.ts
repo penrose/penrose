@@ -12,7 +12,7 @@ import { Properties, ShapeAD } from "../types/shape";
 import { EquationData, LabelCache, State, TextData } from "../types/state";
 import { FloatV } from "../types/value";
 import { err, ok, Result } from "./Error";
-import { getAdValueAsString } from "./Util";
+import { getAdValueAsString, getValueAsShapeList } from "./Util";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -224,11 +224,7 @@ export const collectLabels = async (
       }
       labels.set(shapeName, label);
     } else if (shapeType === "Group") {
-      const subShapesVal = properties["shapes"];
-      if (subShapesVal.tag !== "ShapeListV") {
-        throw new Error("SubShapesVal is not a list of shapes");
-      }
-      const subShapes = subShapesVal.contents;
+      const subShapes = getValueAsShapeList(properties["shapes"]);
       const subLabels = await collectLabels(subShapes);
       if (subLabels.isErr()) {
         return subLabels;
@@ -305,11 +301,7 @@ const insertPendingHelper = (
 ): void => {
   for (const { shapeType, properties } of shapes) {
     if (shapeType === "Group") {
-      const subShapesVal = properties["shapes"];
-      if (subShapesVal.tag !== "ShapeListV") {
-        throw new Error("SubShapesVal is not a list of shapes");
-      }
-      const subShapes = subShapesVal.contents;
+      const subShapes = getValueAsShapeList(properties["shapes"]);
       insertPendingHelper(subShapes, xs, state);
     } else {
       const shapedef: ShapeDef = shapedefs[shapeType];

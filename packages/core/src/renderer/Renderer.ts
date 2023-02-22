@@ -8,6 +8,7 @@ import { shapedefs } from "../shapes/Shapes";
 import { Shape } from "../types/shape";
 import { LabelCache, State } from "../types/state";
 import { StrV } from "../types/value";
+import { getValueAsShapeList } from "../utils/Util";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
 import { dragUpdate } from "./dragUtils";
 import shapeMap from "./shapeMap";
@@ -138,11 +139,8 @@ const RenderGroup = async (
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const subShapesVal = groupShape.properties["shapes"];
-  if (subShapesVal.tag !== "ShapeListV") {
-    throw Error("SubShapesVal not a list of shapes");
-  }
-  for (const shape of subShapesVal.contents) {
+  const subShapes = getValueAsShapeList(groupShape.properties["shapes"]);
+  for (const shape of subShapes) {
     const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
     elem.appendChild(childSvg);
   }

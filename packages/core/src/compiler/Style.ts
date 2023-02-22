@@ -145,6 +145,7 @@ import {
   cartesianProduct,
   colorV,
   floatV,
+  getAdValueAsString,
   gpiListV,
   hexToRgba,
   listV,
@@ -3678,11 +3679,8 @@ export const compileStyleHelper = async (
   const nameShapeMap = new Map<string, ShapeAD>();
 
   for (const shape of shapes) {
-    const shapeNameVal = shape.properties["name"];
-    if (shapeNameVal.tag !== "StrV") {
-      throw Error("Shape name is not a string");
-    }
-    nameShapeMap.set(shapeNameVal.contents, shape);
+    const shapeName = getAdValueAsString(shape.properties["name"]);
+    nameShapeMap.set(shapeName, shape);
   }
 
   const renderGraph = buildRenderGraph(
