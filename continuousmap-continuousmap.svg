@@ -333,7 +333,7 @@
   </g>
   <g>
     <marker
-      id="c2ebf6c8-79b0-4200-bafb-3ec98ae1cb12-endArrowId"
+      id="automator--endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -354,7 +354,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#c2ebf6c8-79b0-4200-bafb-3ec98ae1cb12-endArrowId)"
+      marker-end="url(#automator--endArrowId)"
     ></path>
     <title>`f`.icon</title>
   </g>

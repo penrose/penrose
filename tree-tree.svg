@@ -61,7 +61,7 @@
   </circle>
   <g>
     <marker
-      id="88fd9c67-e479-4046-a2d9-157bb7947931-endArrowId"
+      id="automator--endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -82,7 +82,7 @@
       stroke-width="4"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#88fd9c67-e479-4046-a2d9-157bb7947931-endArrowId)"
+      marker-end="url(#automator--endArrowId)"
     ></path>
     <title>5:3:arrow</title>
   </g>
@@ -97,7 +97,7 @@
   </circle>
   <g>
     <marker
-      id="10e1d918-57e9-44d6-93e5-32bf9d08384d-endArrowId"
+      id="automator--endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -118,13 +118,13 @@
       stroke-width="4"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#10e1d918-57e9-44d6-93e5-32bf9d08384d-endArrowId)"
+      marker-end="url(#automator--endArrowId)"
     ></path>
     <title>5:5:arrow</title>
   </g>
   <g>
     <marker
-      id="d1bd420c-662b-404e-b715-e81a41fa143f-endArrowId"
+      id="automator--endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -145,7 +145,7 @@
       stroke-width="4"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#d1bd420c-662b-404e-b715-e81a41fa143f-endArrowId)"
+      marker-end="url(#automator--endArrowId)"
     ></path>
     <title>5:2:arrow</title>
   </g>
@@ -160,7 +160,7 @@
   </circle>
   <g>
     <marker
-      id="c1d951d6-3b41-4a4c-b1de-d89ec6f63870-endArrowId"
+      id="automator--endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -181,13 +181,13 @@
       stroke-width="4"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#c1d951d6-3b41-4a4c-b1de-d89ec6f63870-endArrowId)"
+      marker-end="url(#automator--endArrowId)"
     ></path>
     <title>5:1:arrow</title>
   </g>
   <g>
     <marker
-      id="274e392b-c601-4e3a-be20-0da400bad510-endArrowId"
+      id="automator--endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -208,13 +208,13 @@
       stroke-width="4"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#274e392b-c601-4e3a-be20-0da400bad510-endArrowId)"
+      marker-end="url(#automator--endArrowId)"
     ></path>
     <title>5:0:arrow</title>
   </g>
   <g>
     <marker
-      id="2a18e1f3-652a-43d0-8d64-3a581f31c66b-endArrowId"
+      id="automator--endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -235,7 +235,7 @@
       stroke-width="4"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#2a18e1f3-652a-43d0-8d64-3a581f31c66b-endArrowId)"
+      marker-end="url(#automator--endArrowId)"
     ></path>
     <title>5:4:arrow</title>
   </g>

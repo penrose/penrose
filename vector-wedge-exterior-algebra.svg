@@ -16,7 +16,7 @@
   </rect>
   <g>
     <marker
-      id="022ae5b6-fcb1-40ad-97f6-8b813081b707-endArrowId"
+      id="automator-ArtemisCrane740-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -37,7 +37,7 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#022ae5b6-fcb1-40ad-97f6-8b813081b707-endArrowId)"
+      marker-end="url(#automator-ArtemisCrane740-endArrowId)"
     ></path>
     <title>`c`.icon</title>
   </g>
@@ -83,7 +83,7 @@
   </g>
   <g>
     <marker
-      id="00af37d6-e16c-4b60-b882-0fe5e36010e7-endArrowId"
+      id="automator-ArtemisCrane740-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -104,7 +104,7 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#00af37d6-e16c-4b60-b882-0fe5e36010e7-endArrowId)"
+      marker-end="url(#automator-ArtemisCrane740-endArrowId)"
     ></path>
     <title>`b`.icon</title>
   </g>
@@ -135,7 +135,7 @@
   </g>
   <g>
     <marker
-      id="6d2fd536-e81b-4be0-a3c0-78e36621494c-endArrowId"
+      id="automator-ArtemisCrane740-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -156,7 +156,7 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#6d2fd536-e81b-4be0-a3c0-78e36621494c-endArrowId)"
+      marker-end="url(#automator-ArtemisCrane740-endArrowId)"
     ></path>
     <title>`a`.icon</title>
   </g>

@@ -134,7 +134,7 @@
   </g>
   <g>
     <marker
-      id="bb9ac154-a897-430d-81be-3604ca7c6b5e-endArrowId"
+      id="automator-DoesNotMatter-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -155,7 +155,7 @@
       stroke-width="0.65"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#bb9ac154-a897-430d-81be-3604ca7c6b5e-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-endArrowId)"
     ></path>
     <title>global.xAxis</title>
   </g>
@@ -171,7 +171,7 @@
   </g>
   <g>
     <marker
-      id="3eec0398-e267-4f04-82e1-9b40c274cfff-endArrowId"
+      id="automator-DoesNotMatter-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -192,7 +192,7 @@
       stroke-width="0.65"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#3eec0398-e267-4f04-82e1-9b40c274cfff-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-endArrowId)"
     ></path>
     <title>global.yAxis</title>
   </g>
@@ -228,7 +228,7 @@
   </g>
   <g>
     <marker
-      id="03a8f7ee-9fee-4104-b929-9ee349e8d622-endArrowId"
+      id="automator-DoesNotMatter-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -249,13 +249,13 @@
       stroke-width="1"
       stroke="#aaaaaa"
       stroke-linecap="butt"
-      marker-end="url(#03a8f7ee-9fee-4104-b929-9ee349e8d622-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-endArrowId)"
     ></path>
     <title>`r`.icon</title>
   </g>
   <g>
     <marker
-      id="0c63453a-cc27-4281-b4c4-1e4b980c3126-endArrowId"
+      id="automator-DoesNotMatter-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -276,7 +276,7 @@
       stroke-width="1"
       stroke="#00aa00"
       stroke-linecap="butt"
-      marker-end="url(#0c63453a-cc27-4281-b4c4-1e4b980c3126-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-endArrowId)"
     ></path>
     <title>`u`.icon</title>
   </g>
