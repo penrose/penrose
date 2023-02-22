@@ -1,6 +1,6 @@
 canvas {
-    width = 800
-    height = 700
+    width = 400
+    height = 400
 }
 
 const {
@@ -577,7 +577,7 @@ forall Atom x {
         strokeWidth : 0.0
         r : const.atomSize / 2
         fillColor : #fff
-        -- fillColor : #ff000060
+        -- fillColor : #ff000060 -- DEBUG
         center: (? except electron, ? except electron)
     }
     -- shape x.icon = Rectangle {
@@ -602,62 +602,72 @@ forall Atom x {
 
 -- Bonds
 
-forall SingleBond b
+forall Bond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
     vec2 b.vec = y.icon.center - x.icon.center
-    shape b.line1 = Line {
-        start : x.icon.center
-        end : y.icon.center
+    vec2 b.dir = normalize(b.vec)
+    vec2 paddingVec = b.dir * const.atomSize/2
+    shape b.icon = Line {
+        start : x.icon.center + paddingVec
+        end : y.icon.center - paddingVec
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 2.0
     }
     encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
+    b.icon below x.icon, y.icon
 }
 
-forall DoubleBond b
+forall Bond b
 where b := MakeDoubleBond(x, y)
 with Atom x; Atom y {
-    shape b.line1 = Line {
-        start : x.icon.center
-        end : y.icon.center
+    vec2 b.vec = y.icon.center - x.icon.center
+    vec2 b.dir = normalize(b.vec)
+    vec2 paddingVec = b.dir * const.atomSize/2
+    shape b.icon = Line {
+        start : x.icon.center + paddingVec
+        end : y.icon.center - paddingVec
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 6.0
     }
     shape b.line2 = Line {
-        start : x.icon.center
-        end : y.icon.center
+        start : x.icon.center + paddingVec
+        end : y.icon.center - paddingVec
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth: 2.0
     }
-    b.layering = b.line2 above b.line1
-    encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
+    b.line2 above b.icon, x.icon, y.icon
+    ensure equal(vdist(b.icon.start, b.icon.end), 60.0)
 }
 
-forall TripleBond b
+forall Bond b
 where b := MakeTripleBond(x, y)
 with Atom x; Atom y {
-    shape b.line1 = Line {
-        start : x.icon.center
-        end : y.icon.center
-        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+    vec2 b.vec = y.icon.center - x.icon.center
+    vec2 b.dir = normalize(b.vec)
+    vec2 paddingVec = b.dir * const.atomSize/2
+    shape b.icon = Line {
+        start : x.icon.center + paddingVec
+        end : y.icon.center - paddingVec
+        strokeColor : #000
         strokeWidth: 10.0
     }
     shape b.line2 = Line {
-        start : x.icon.center
-        end : y.icon.center
-        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        start : x.icon.center + paddingVec
+        end : y.icon.center - paddingVec
+        strokeColor : #fff
         strokeWidth: 6.0
     }
     shape b.line3 = Line {
-        start : x.icon.center
-        end : y.icon.center
-        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        start : x.icon.center + paddingVec
+        end : y.icon.center - paddingVec
+        strokeColor : #000
         strokeWidth: 2.0
     }
-    b.layering1 = b.line2 above b.line1
-    b.layering2 = b.line3 above b.line2
-    ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
+    b.line3 above b.line2
+    b.line2 above b.icon
+    b.icon below x.icon, y.icon
+    ensure equal(vdist(b.icon.start, b.icon.end), 60.0)
 }
 
 -- Repulsion and disjoint-ness
@@ -668,18 +678,6 @@ forall Atom x; Atom y {
 
 forall Bond x; Bond y {
     -- encourage disjoint(x.icon, y.icon)
-}
-
-forall Atom a; Bond b {
-    a.icon above b.line1
-}
-
-forall Atom a; DoubleBond b {
-    a.icon above b.line2
-}
-
-forall Atom a; TripleBond b {
-    a.icon above b.line3
 }
 
 -- valance
@@ -704,7 +702,7 @@ with Atom a {
   encourage notTooClose(e1.icon, e2.icon) in electron
 }
 
-forall SingleBond b; Electron e
+forall Bond b; Electron e
 where e := ValanceElectron(y); b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
@@ -724,7 +722,7 @@ with Atom x, y {
   -- }
 } 
 
-forall SingleBond b; Electron e
+forall Bond b; Electron e
 where e := ValanceElectron(x); b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
