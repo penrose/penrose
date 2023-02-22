@@ -158,14 +158,18 @@ export class Content extends React.Component<ContentProps, ContentState> {
     for (const idx of indices) {
       const state = this.state.states[idx];
       const { prog, ops } = this.state.progs[idx];
-      const svg = await RenderStatic(state, async (path: string) => {
-        const response = await fetch(path);
-        if (!response.ok) {
-          console.error(`could not fetch ${path}`);
-          return undefined;
-        }
-        return await response.text();
-      });
+      const svg = await RenderStatic(
+        state,
+        async (path: string) => {
+          const response = await fetch(path);
+          if (!response.ok) {
+            console.error(`could not fetch ${path}`);
+            return undefined;
+          }
+          return await response.text();
+        },
+        "diagram" // standalone SVG exports don't require distinct namespaces
+      );
       zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
       zip.file(`substance_${idx}.substance`, prettySubstance(prog));
       zip.file(`mutations_${idx}.txt`, showMutations(ops));
