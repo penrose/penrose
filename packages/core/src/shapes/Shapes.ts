@@ -2,7 +2,7 @@ import { input } from "../engine/Autodiff";
 import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
 import * as ad from "../types/ad";
-import { Value } from "../types/value";
+import { GPIListV, ShapeListV, Value } from "../types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
 import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
 import { Equation, makeEquation, sampleEquation } from "./Equation";
@@ -189,23 +189,49 @@ const Text = ShapeDef({
 });
 
 // bboxFromGroup is here, not in engine/BBox, to prevent cyclic import
-const bboxFromGroup = ({ shapes }: GroupProps): BBox.BBox => {
-  const content = shapes.contents;
-  const bboxes = content.map((shape) => {
-    const shapeType = shape.shapeType;
-    const rawShapeProps = shape.properties;
-    if (!isShapeType(shapeType)) {
-      throw new Error("Unknown shape in Group bbox: " + shapeType);
-    } else {
-      const shapedef = shapedefs[shapeType];
-      const shapeProps: Properties = {};
-      Object.keys(shapedef.propTags).map((prop) => {
-        shapeProps[prop] = rawShapeProps[prop];
-      });
+const bboxFromGroup = ({
+  shapes,
+}: {
+  shapes: GPIListV<ad.Num> | ShapeListV<ad.Num>;
+}): BBox.BBox => {
+  const getBBoxes = () => {
+    if (shapes.tag === "GPIListV") {
+      const content = shapes.contents;
+      return content.map((shape) => {
+        const shapeType = shape.contents[0];
+        const rawShapeProps = shape.contents[1];
+        if (!isShapeType(shapeType)) {
+          throw new Error("Unknown shape in Group bbox: " + shapeType);
+        } else {
+          const shapedef = shapedefs[shapeType];
+          const shapeProps: Properties = {};
+          Object.keys(shapedef.propTags).map((prop) => {
+            shapeProps[prop] = rawShapeProps[prop];
+          });
 
-      return shapedef.bbox(shapeProps);
+          return shapedef.bbox(shapeProps);
+        }
+      });
+    } else {
+      const content = shapes.contents;
+      return content.map((shape) => {
+        const shapeType = shape.shapeType;
+        const rawShapeProps = shape.properties;
+        if (!isShapeType(shapeType)) {
+          throw new Error("Unknown shape in Group bbox: " + shapeType);
+        } else {
+          const shapedef = shapedefs[shapeType];
+          const shapeProps: Properties = {};
+          Object.keys(shapedef.propTags).map((prop) => {
+            shapeProps[prop] = rawShapeProps[prop];
+          });
+
+          return shapedef.bbox(shapeProps);
+        }
+      });
     }
-  });
+  };
+  const bboxes = getBBoxes();
   const xRanges = bboxes.map(BBox.xRange);
   const yRanges = bboxes.map(BBox.yRange);
   const minX = minN(xRanges.map((xRange) => xRange[0]));
