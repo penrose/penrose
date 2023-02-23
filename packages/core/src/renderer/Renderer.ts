@@ -154,7 +154,7 @@ const RenderGroup = async (
   return elem;
 };
 
-const RenderShape = async (
+export const RenderShape = async (
   shape: Shape,
   shapeProps: {
     labels: LabelCache;

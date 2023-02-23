@@ -11,6 +11,7 @@ import {
 import {
   PathResolver,
   RenderInteractive,
+  RenderShape,
   RenderStatic,
 } from "./renderer/Renderer";
 import { Canvas } from "./shapes/Samplers";
@@ -416,6 +417,7 @@ export {
   showMutations,
   RenderInteractive,
   RenderStatic,
+  RenderShape,
   bBoxDims,
   prettySubstance,
   showError,
