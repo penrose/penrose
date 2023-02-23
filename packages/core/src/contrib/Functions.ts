@@ -73,6 +73,7 @@ import { getStart, linePts } from "../utils/Util";
 import {
   elasticEnergy,
   isoperimetricRatio,
+  pElasticEnergy,
   perimeter,
   repulsiveEnergy,
   repulsiveEnergy3D,
@@ -1771,6 +1772,18 @@ export const compDict = {
     closed: boolean
   ): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: elasticEnergy(points, closed) };
+  },
+
+  /**
+   * Returns integral of curvature squared along the curve
+   */
+  pElasticEnergy: (
+    _context: Context,
+    points: [ad.Num, ad.Num][],
+    p: number,
+    closed: boolean
+  ): FloatV<ad.Num> => {
+    return { tag: "FloatV", contents: pElasticEnergy(points, closed, p) };
   },
 
   /**

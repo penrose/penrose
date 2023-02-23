@@ -12,6 +12,7 @@ import {
   min,
   mul,
   or,
+  pow,
   sign,
   sin,
   squared,
@@ -392,6 +393,25 @@ export const elasticEnergy = (
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       mul(
         squared(curvatureSin(p1, p2, p3)),
+        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
+      )
+    )
+  );
+};
+
+/**
+ * Returns integral of curvature squared along the curve
+ */
+export const pElasticEnergy = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean,
+  p = 2
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  return addN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      mul(
+        pow(curvatureSin(p1, p2, p3), p),
         mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
       )
     )
