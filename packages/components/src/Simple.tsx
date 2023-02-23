@@ -25,6 +25,7 @@ export interface SimpleProps {
   animate?: boolean; // considered false by default
   onFrame?: (frame: PenroseState) => void;
   imageResolver?: PathResolver;
+  name?: string;
 }
 
 export interface SimpleState {
@@ -139,7 +140,8 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
         false
           ? RenderStatic(
               this.penroseState,
-              this.props.imageResolver ?? fetchResolver
+              this.props.imageResolver ?? fetchResolver,
+              this.props.name ?? ""
             )
           : RenderInteractive(
               this.penroseState,
@@ -150,7 +152,8 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
                 }
                 this.renderCanvas();
               },
-              this.props.imageResolver ?? fetchResolver
+              this.props.imageResolver ?? fetchResolver,
+              this.props.name ?? ""
             ));
         // to avoid overflowing the parent div, force the height and width to be 100%
         renderedState.setAttribute("height", "100%");
