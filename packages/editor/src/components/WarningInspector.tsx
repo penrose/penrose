@@ -18,7 +18,6 @@ const warningDivStyle = {
   minHeight: "100px",
   overflow: "auto",
   padding: "5px",
-  // whiteSpace: "pre-wrap"
 };
 
 const warningHeaderStyle = {
@@ -44,7 +43,7 @@ function FormatWarning(warning: StyleWarning, index: number) {
       );
     case "ImplicitOverrideWarning":
       return (
-        <div>
+        <div style={warningDivStyle}>
           <span style={warningHeaderStyle}> warning (ImplicitOverrideWarning) </span>
           <p key={`${warning.tag},${index}`}>
             Implicitly overriding '{warning.path.name}' <br></br>
@@ -54,7 +53,7 @@ function FormatWarning(warning: StyleWarning, index: number) {
       );
     case "LayerCycleWarning":
       return (
-        <div>
+        <div style={warningDivStyle}>
           <span style={warningHeaderStyle}> warning (LayerCycleWarning) </span>
           <p key={`${warning.tag},${index}`}>
             Cycles detected in layering order:{""} <br></br>

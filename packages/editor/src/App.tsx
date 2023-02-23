@@ -97,7 +97,7 @@ const mainRowLayout: IJsonRowNode = {
           component: "grid",
           enableRename: false,
         },
-        { type: "tab", name: "warnings", component: "warningInspector" },
+        { type: "tab", name: "Warnings", component: "warningInspector" },
       ],
     },
   ],
