@@ -2,6 +2,11 @@ name: Packages
 runs:
   using: composite
   steps:
+    - name: Setup Node v16
+      uses: actions/setup-node@v3
+      with:
+        node-version: "16"
+        registry-url: "https://registry.npmjs.org"
     - name: Install Wasm target
       run: rustup target add wasm32-unknown-unknown
       shell: bash
