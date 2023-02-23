@@ -4,8 +4,10 @@ canvas {
 }
 
 const {
-  dotSize = 3
-  atomSize = 30
+  scalar dotSize = 3
+  scalar atomSize = 30
+  scalar k = 1 -- spring stiffness
+  scalar L = 3  -- rest length
 }
 
 -- generated element list
@@ -674,10 +676,11 @@ with Atom x; Atom y {
 
 forall Atom x; Atom y {
     encourage notTooClose(x.icon, y.icon)
+    ensure disjoint(x.icon, y.icon)
 }
 
 forall Bond x; Bond y {
-    -- encourage disjoint(x.icon, y.icon)
+    ensure disjoint(x.icon, y.icon)
 }
 
 -- valance
@@ -702,6 +705,7 @@ with Atom a {
   encourage notTooClose(e1.icon, e2.icon) in electron
 }
 
+-- single bond
 forall Bond b; Electron e
 where e := ValanceElectron(y); b := MakeSingleBond(x, y)
 with Atom x, y {
@@ -709,17 +713,8 @@ with Atom x, y {
   vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
   vec2 x2 = e.icon.center
   scalar d = norm( x1 - x2 )
-  scalar k = 2 -- spring stiffness
-  scalar L = const.dotSize  -- rest length
-  encourage equal( 0., k*(d-L)*(d-L)/2. ) in electron -- minimize ½ k(d-L)²
+  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
 
-
-  -- DEBUG
-  -- debugx1 = Circle {
-  --   fillColor: #f00
-  --   center: x1
-  --   r: 3
-  -- }
 } 
 
 forall Bond b; Electron e
@@ -729,16 +724,43 @@ with Atom x, y {
   vec2 x1 = x.icon.center + normalize(-b.vec) * const.atomSize / 2
   vec2 x2 = e.icon.center
   scalar d = norm( x1 - x2 )
-  scalar k = 1 -- spring stiffness
-  scalar L = 3  -- rest length
-  encourage equal( 0., k*(d-L)*(d-L)/2. ) in electron -- minimize ½ k(d-L)²
+  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
+}
 
+-- double bond
+forall Bond b; Electron e
+where e := ValanceElectron(y); b := MakeDoubleBond(x, y)
+with Atom x, y {
+  -- attract all electrons to the opposite of the bond
+  vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
+  vec2 x2 = e.icon.center
+  scalar d = norm( x1 - x2 )
+  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
 
-  -- DEBUG
-  -- debugx1 = Circle {
-  --   fillColor: #f00
-  --   center: x1
-  --   r: 3
-  -- }
 } 
+
+forall Bond b; Electron e
+where e := ValanceElectron(x); b := MakeDoubleBond(x, y)
+with Atom x, y {
+  -- attract all electrons to the opposite of the bond
+  vec2 x1 = x.icon.center + normalize(-b.vec) * const.atomSize / 2
+  vec2 x2 = e.icon.center
+  scalar d = norm( x1 - x2 )
+  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
+}
+
 layout = [general, electron]
+
+-- layout directives
+forall Atom a, b, c
+where Collinear(a, b, c) {
+  ensure collinear(a.icon.center, b.icon.center, c.icon.center)
+}
+forall Atom a, b
+where VerticalAlign(a, b) {
+  ensure a.icon.center[0] == b.icon.center[0]
+}
+forall Atom a, b
+where HorizontalAlign(a, b) {
+  ensure a.icon.center[1] == b.icon.center[1]
+}
