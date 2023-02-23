@@ -196,23 +196,19 @@ export const RenderStatic = async (
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
 
-  return Promise.all(
-    computeShapes(varyingValues).map((shape) =>
-      RenderShape({
-        shape,
-        labels,
-        canvasSize: canvas.size,
-        variation: state.variation,
-        pathResolver,
-        namespace,
-      })
-    )
-  ).then((renderedShapes) => {
-    for (const shape of renderedShapes) {
-      svg.appendChild(shape);
-    }
-    return svg;
-  });
+  const shapes = computeShapes(varyingValues);
+  for (const shape of shapes) {
+    const rendered = await RenderShape({
+      shape,
+      labels,
+      canvasSize: canvas.size,
+      variation: state.variation,
+      pathResolver,
+      namespace,
+    });
+    svg.appendChild(rendered);
+  }
+  return svg;
 };
 
 const clamp = (x: number, min: number, max: number): number =>
