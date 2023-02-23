@@ -138,7 +138,8 @@ const singleProcess = async (
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
   };
-  const canvas = (await RenderStatic(optimizedState, resolvePath)).outerHTML;
+  const canvas = (await RenderStatic(optimizedState, resolvePath, "automator"))
+    .outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);

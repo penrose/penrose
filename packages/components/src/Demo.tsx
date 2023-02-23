@@ -26,6 +26,7 @@ const Demo = (props: {
   return (
     <div style={{ width: props.width, height: props.width }}>
       <Simple
+        name="demo"
         substance={example.sub}
         style={example.sty}
         domain={example.dsl}

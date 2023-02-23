@@ -21,6 +21,7 @@ import shapeMap from "./shapeMap";
 export type PathResolver = (path: string) => Promise<string | undefined>;
 
 export interface ShapeProps {
+  namespace: string;
   variation: string;
   shape: Shape;
   labels: LabelCache;
@@ -60,7 +61,8 @@ const getPosition = (
 export const RenderInteractive = async (
   state: State,
   updateState: (newState: State) => void,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  namespace: string
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -82,6 +84,7 @@ export const RenderInteractive = async (
       labels: state.labelCache,
       canvasSize: state.canvas.size,
       variation: state.variation,
+      namespace,
       pathResolver,
     },
     {
@@ -99,7 +102,8 @@ export const RenderInteractive = async (
  */
 export const RenderStatic = async (
   state: State,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  namespace: string
 ): Promise<SVGSVGElement> => {
   const {
     varyingValues,
@@ -121,6 +125,7 @@ export const RenderStatic = async (
       labels,
       canvasSize: canvas.size,
       variation,
+      namespace,
       pathResolver,
     },
     undefined
@@ -134,6 +139,7 @@ const RenderGroup = async (
     labels: LabelCache;
     canvasSize: [number, number];
     variation: string;
+    namespace: string;
     pathResolver: PathResolver;
   },
   interactiveProp?: InteractiveProps
@@ -154,6 +160,7 @@ const RenderShape = async (
     labels: LabelCache;
     canvasSize: [number, number];
     variation: string;
+    namespace: string;
     pathResolver: PathResolver;
   },
   interactiveProp?: InteractiveProps
@@ -233,6 +240,7 @@ const RenderShapes = async (
     labels: LabelCache;
     canvasSize: [number, number];
     variation: string;
+    namespace: string;
     pathResolver: PathResolver;
   },
   interactiveProp?: InteractiveProps
