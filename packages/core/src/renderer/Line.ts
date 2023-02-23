@@ -1,4 +1,3 @@
-import { v4 as uuid } from "uuid";
 import { Shape } from "../types/shape";
 import { BoolV, ColorV, FloatV, StrV, VectorV } from "../types/value";
 import {
@@ -128,7 +127,12 @@ const makeRoomForArrows = (
   ];
 };
 
-const Line = ({ shape, canvasSize, variation }: ShapeProps): SVGGElement => {
+const Line = ({
+  shape,
+  canvasSize,
+  namespace,
+  variation,
+}: ShapeProps): SVGGElement => {
   const startArrowhead = getArrowhead(
     (shape.properties.startArrowhead as StrV).contents
   );
@@ -151,8 +155,8 @@ const Line = ({ shape, canvasSize, variation }: ShapeProps): SVGGElement => {
     (shape.properties.strokeColor as ColorV<number>).contents
   );
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-
-  const unique = uuid();
+  // an unique id for this instance is determined by the variation and namespace
+  const unique = `${namespace}-${variation}`;
   const startArrowId = unique + "-startArrowId";
   const endArrowId = unique + "-endArrowId";
   if (startArrowhead) {
