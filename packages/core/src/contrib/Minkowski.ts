@@ -257,7 +257,7 @@ export const containsPolygonPoints = (
   padding: ad.Num = 0
 ): ad.Num => {
   const cp1 = convexPartitions(polygonPoints);
-  return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
+  return minN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
 };
 
 /**
