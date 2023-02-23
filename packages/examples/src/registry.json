@@ -93,6 +93,12 @@
       "variation": ""
     },
     {
+      "substance": "acquaintanceship",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
       "substance": "small-graph",
       "style": "disjoint-rects",
       "domain": "graph-theory",
@@ -464,6 +470,9 @@
     "shape-spec": {
       "URI": "shape-spec/all-shapes.domain"
     },
+    "graph": {
+      "URI": "graph-domain/graph.domain"
+    },
     "graph-theory": {
       "URI": "graph-domain/graph-theory.domain"
     },
@@ -569,6 +578,10 @@
     "exterior-algebra": {
       "domain": "linear-algebra",
       "URI": "exterior-algebra/exterior-algebra.style"
+    },
+    "graph": {
+      "domain": "graph",
+      "URI": "graph-domain/graph.style"
     },
     "disjoint-rects": {
       "domain": "graph-theory",
@@ -703,6 +716,10 @@
     "arrowheads": {
       "domain": "shape-spec",
       "URI": "shape-spec/arrows.substance"
+    },
+    "acquaintanceship": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig6.substance"
     },
     "small-graph": {
       "domain": "graph-theory",

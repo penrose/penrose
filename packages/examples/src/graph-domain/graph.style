@@ -3,13 +3,17 @@ canvas {
   height = 700
 }
 
+layout = [dots, text]
+
 color {
   black = #000000
   blue = #6ecde2
+  white = #ffffff
 }
 
 forall Vertex v {
   v.dot = Circle {
+    center: (? in dots, ? in dots)
     r: 5
     fillColor : color.black
   }
@@ -18,21 +22,29 @@ forall Vertex v {
     fillColor: color.blue
     fontFamily: "serif"
     fontSize: "18px"
+    strokeColor: color.white
+    strokeWidth: 4
+    paintOrder: "stroke"
   }
-  ensure disjoint(v.dot, v.text, 5)
-  encourage near(v.dot, v.text)
+  ensure disjoint(v.dot, v.text, 5) in text
+  encourage near(v.dot, v.text) in text
 }
 
 forall Vertex u; Vertex v {
-  ensure disjoint(u.text, v.text, 10)
-  ensure disjoint(u.dot, v.text, 20)
-  ensure disjoint(u.text, v.dot, 20)
+  encourage notTooClose(u.dot, v.dot) in dots
 }
 
-forall Vertex u; Vertex v where Edge(u, v) {
-  Line {
+forall Vertex u; Vertex v where Edge(u, v) as e {
+  e.line = Line {
     start: u.dot.center
     end: v.dot.center
     strokeColor: color.black
   }
+  u.text above e.line
+  v.text above e.line
+  encourage vdist(u.dot.center, v.dot.center) < 100 in dots
+}
+
+forall Vertex u; Vertex v; Vertex w where Edge(u, v) as e {
+  w.text above e.line
 }
