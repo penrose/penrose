@@ -469,4 +469,48 @@ export const constrDictCurves = {
       )
     );
   },
+
+  noUTurn: ([t, s]: [string, Polyline]): ad.Num => {
+    const points = extractPoints([t, s]);
+    const hs = consecutiveTuples(points, isClosed([t, s]));
+    const direction = ops.vnormalize(ops.vsub(hs[0][0], hs[0][1]));
+    return addN(
+      hs.map(([p1, p2]: ad.Num[][]) =>
+        max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
+      )
+    );
+  },
+
+  isFunction: ([t, s]: [string, Polyline]): ad.Num => {
+    const points = extractPoints([t, s]);
+    const hs = consecutiveTuples(points, isClosed([t, s]));
+    const direction = [1, 0];
+    return addN(
+      hs.map(([p1, p2]: ad.Num[][]) =>
+        max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
+      )
+    );
+  },
+
+  isDescreasing: ([t, s]: [string, Polyline]): ad.Num => {
+    const points = extractPoints([t, s]);
+    const hs = consecutiveTuples(points, isClosed([t, s]));
+    const direction = [0, 1];
+    return addN(
+      hs.map(([p1, p2]: ad.Num[][]) =>
+        max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
+      )
+    );
+  },
+
+  isIncreasing: ([t, s]: [string, Polyline]): ad.Num => {
+    const points = extractPoints([t, s]);
+    const hs = consecutiveTuples(points, isClosed([t, s]));
+    const direction = [0, -1];
+    return addN(
+      hs.map(([p1, p2]: ad.Num[][]) =>
+        max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
+      )
+    );
+  },
 };
