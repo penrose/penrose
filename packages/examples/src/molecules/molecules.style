@@ -39,7 +39,7 @@ forall Nitrogen x {
 
 -- Bonds
 
-forall SingleBond b
+forall Bond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
     shape b.line1 = Line {
@@ -51,7 +51,7 @@ with Atom x; Atom y {
     encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
-forall DoubleBond b
+forall Bond b
 where b := MakeDoubleBond(x, y)
 with Atom x; Atom y {
     shape b.line1 = Line {
@@ -70,7 +70,7 @@ with Atom x; Atom y {
     encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
-forall TripleBond b
+forall Bond b
 where b := MakeTripleBond(x, y)
 with Atom x; Atom y {
     shape b.line1 = Line {
@@ -106,10 +106,10 @@ forall Atom a; Bond b {
     a.icon above b.line1
 }
 
-forall Atom a; DoubleBond b {
+forall Atom a; Bond b {
     a.icon above b.line2
 }
 
-forall Atom a; TripleBond b {
+forall Atom a; Bond b {
     a.icon above b.line3
 }
