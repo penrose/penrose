@@ -37,17 +37,20 @@ function FormatWarning(warning: StyleWarning, index: number) {
           <p key={`${warning.tag},${index}`}>
             {" "}
             Deleting nonexistent '{warning.path.name}' <br></br>
-            (at{" "} {locc("Style", warning.path)}).{" "}
+            (at {locc("Style", warning.path)}).{" "}
           </p>
         </div>
       );
     case "ImplicitOverrideWarning":
       return (
         <div style={warningDivStyle}>
-          <span style={warningHeaderStyle}> warning (ImplicitOverrideWarning) </span>
+          <span style={warningHeaderStyle}>
+            {" "}
+            warning (ImplicitOverrideWarning){" "}
+          </span>
           <p key={`${warning.tag},${index}`}>
             Implicitly overriding '{warning.path.name}' <br></br>
-            (at{" "} {locc("Style", warning.path)}).{" "}
+            (at {locc("Style", warning.path)}).{" "}
           </p>
         </div>
       );
@@ -67,10 +70,10 @@ function FormatWarning(warning: StyleWarning, index: number) {
 }
 
 export default function WarningInspector() {
-  const {state} = useRecoilValue(diagramState);
-  // NOTE: can only get one error at a time currently, 
+  const { state } = useRecoilValue(diagramState);
+  // NOTE: can only get one error at a time currently,
   // and right now it's being displayed in the diagram potion.
-  // Would likely need some refactoring to display all errors 
+  // Would likely need some refactoring to display all errors
 
   let warnings = state?.warnings || [];
 

@@ -24,9 +24,9 @@ import RogerPanel from "./components/RogerPanel";
 import SavedFilesBrowser from "./components/SavedBrowser";
 import Settings from "./components/Settings";
 import StateInspector from "./components/StateInspector";
-import WarningInspector from "./components/WarningInspector";
 import SvgUploader from "./components/SvgUploader";
 import TopBar from "./components/TopBar";
+import WarningInspector from "./components/WarningInspector";
 import {
   currentRogerState,
   currentWorkspaceState,
