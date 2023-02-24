@@ -1,0 +1,33 @@
+Phosphorus p
+Chlorine cl1, cl2, cl3
+-- bromine 
+Electron br1, br2
+br1 := ValanceElectron(p)
+br2 := ValanceElectron(p)
+-- single bond
+Bond b1 := MakeSingleBond(cl1, p)
+Electron e1, e2, e3, e4, e5, e6
+e1 := ValanceElectron(cl1)
+e2 := ValanceElectron(cl1)
+e3 := ValanceElectron(cl1)
+e4 := ValanceElectron(cl1)
+e5 := ValanceElectron(cl1)
+e6 := ValanceElectron(cl1)
+-- double bond 1
+Bond b2 := MakeSingleBond(cl2, p)
+Electron e21, e22, e23, e24, e25, e26
+e21 := ValanceElectron(cl2)
+e22 := ValanceElectron(cl2)
+e23 := ValanceElectron(cl2)
+e24 := ValanceElectron(cl2)
+e25 := ValanceElectron(cl2)
+e26 := ValanceElectron(cl2)
+-- double bond 2
+Bond b3 := MakeSingleBond(cl3, p)
+Electron e31, e32, e33, e34, e35, e36
+e31 := ValanceElectron(cl3)
+e32 := ValanceElectron(cl3)
+e33 := ValanceElectron(cl3)
+e34 := ValanceElectron(cl3)
+e35 := ValanceElectron(cl3)
+e36 := ValanceElectron(cl3)
