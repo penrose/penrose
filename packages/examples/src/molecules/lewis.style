@@ -752,44 +752,44 @@ with Atom x, y {
 layout = [general, symmetry, electron]
 
 -- layout directives
-forall Bond b
-where b := MakeSingleBond(x, y) 
-with Atom x, y {
-  scalar k = 3 -- symmetry degree
-  vec2 u = b.icon.end - b.icon.start
-  scalar theta = atan2( u[0], u[1] )
-  encourage sin( MathPI() + k*theta ) == -1
-}
+-- forall Bond b
+-- where b := MakeSingleBond(x, y) 
+-- with Atom x, y {
+--   scalar k = 3 -- symmetry degree
+--   vec2 u = b.icon.end - b.icon.start
+--   scalar theta = atan2( u[0], u[1] )
+--   encourage sin( MathPI() + k*theta ) == -1
+-- }
 
-forall Bond b
-where b := MakeDoubleBond(x, y) 
-with Atom x, y {
-  scalar weight = 10000
-  scalar k = 3 -- symmetry degree
-  vec2 u = b.icon.end - b.icon.start
-  scalar theta = atan2( u[0], u[1] )
-  encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
-}
+-- forall Bond b
+-- where b := MakeDoubleBond(x, y) 
+-- with Atom x, y {
+--   scalar weight = 10000
+--   scalar k = 3 -- symmetry degree
+--   vec2 u = b.icon.end - b.icon.start
+--   scalar theta = atan2( u[0], u[1] )
+--   encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
+-- }
 
-forall Bond b
-where b := MakeTripleBond(x, y) 
-with Atom x, y {
-  scalar weight = 10000
-  scalar k = 3 -- symmetry degree
-  vec2 u = b.icon.end - b.icon.start
-  scalar theta = atan2( u[0], u[1] )
-  encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
-}
+-- forall Bond b
+-- where b := MakeTripleBond(x, y) 
+-- with Atom x, y {
+--   scalar weight = 10000
+--   scalar k = 3 -- symmetry degree
+--   vec2 u = b.icon.end - b.icon.start
+--   scalar theta = atan2( u[0], u[1] )
+--   encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
+-- }
 
-forall Atom a, b, c
-where Collinear(a, b, c) {
-  ensure collinear(a.icon.center, b.icon.center, c.icon.center)
-}
-forall Atom a, b
-where VerticalAlign(a, b) {
-  ensure a.icon.center[0] == b.icon.center[0]
-}
-forall Atom a, b
-where HorizontalAlign(a, b) {
-  ensure a.icon.center[1] == b.icon.center[1]
-}
+-- forall Atom a, b, c
+-- where Collinear(a, b, c) {
+--   ensure collinear(a.icon.center, b.icon.center, c.icon.center)
+-- }
+-- forall Atom a, b
+-- where VerticalAlign(a, b) {
+--   ensure a.icon.center[0] == b.icon.center[0]
+-- }
+-- forall Atom a, b
+-- where HorizontalAlign(a, b) {
+--   ensure a.icon.center[1] == b.icon.center[1]
+-- }

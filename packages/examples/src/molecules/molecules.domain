@@ -129,6 +129,6 @@ type Electron
 constructor ValanceElectron(Atom a) -> Electron
 
 -- layout
-predicate Collinear(Atom, Atom, Atom)
-predicate VerticalAlign(Atom, Atom)
-predicate HorizontalAlign(Atom, Atom)
+-- predicate Collinear(Atom, Atom, Atom)
+-- predicate VerticalAlign(Atom, Atom)
+-- predicate HorizontalAlign(Atom, Atom)

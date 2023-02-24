@@ -582,7 +582,6 @@ export class Synthesizer {
           (decl) => decl.name.value
         );
         const options = _.without(matchingNames, e.name.value);
-        console.log("options to replace with", options, showEnv(ctx.env));
         if (options.length > 0) {
           return this.choice(options);
         } else return undefined;
