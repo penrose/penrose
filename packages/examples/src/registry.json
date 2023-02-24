@@ -99,6 +99,12 @@
       "variation": ""
     },
     {
+      "substance": "influence",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "BurdockWallaby5484"
+    },
+    {
       "substance": "small-graph",
       "style": "disjoint-rects",
       "domain": "graph-theory",
@@ -720,6 +726,10 @@
     "acquaintanceship": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig6.substance"
+    },
+    "influence": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig7.substance"
     },
     "small-graph": {
       "domain": "graph-theory",

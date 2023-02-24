@@ -11,12 +11,21 @@ color {
   white = #ffffff
 }
 
+num {
+  radius = 5
+  labelDist = 5
+  edgeDist = 100
+  offset = 15
+
+}
+
 forall Vertex v {
   v.dot = Circle {
     center: (? in dots, ? in dots)
-    r: 5
+    r: num.radius
     fillColor : color.black
   }
+
   v.text = Text {
     string: v.label
     fillColor: color.blue
@@ -26,7 +35,8 @@ forall Vertex v {
     strokeWidth: 4
     paintOrder: "stroke"
   }
-  ensure disjoint(v.dot, v.text, 5) in text
+
+  ensure disjoint(v.dot, v.text, num.labelDist) in text
   encourage near(v.dot, v.text) in text
 }
 
@@ -35,16 +45,58 @@ forall Vertex u; Vertex v {
 }
 
 forall Vertex u; Vertex v where Edge(u, v) as e {
-  e.line = Line {
+  e.arrow = Line {
     start: u.dot.center
     end: v.dot.center
     strokeColor: color.black
   }
-  u.text above e.line
-  v.text above e.line
-  encourage vdist(u.dot.center, v.dot.center) < 100 in dots
+
+  u.text above e.arrow
+  v.text above e.arrow
+
+  encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
 }
 
 forall Vertex u; Vertex v; Vertex w where Edge(u, v) as e {
-  w.text above e.line
+  w.text above e.arrow
+}
+
+-- we have to duplicate some of the above `Edge` code for `Arc`
+
+forall Vertex u; Vertex v where Arc(u, v) as e {
+  a = u.dot.center
+  b = v.dot.center
+  t = normalize(b - a) -- tangent
+  n = rot90(t) -- normal
+  m = (a + b) / 2 -- midpoint
+
+  e.offset = 0
+  e.arrow = Path {
+    d: quadraticCurveFromPoints("open", [a, m + e.offset * n, b])
+    strokeColor: color.black
+  }
+
+  p = m + (e.offset / 2) * n
+  x = 6
+  y = 4
+  e.pointer = Path {
+    d: pathFromPoints("closed", [p - x * t + y * n, p + x * t, p - x * t - y * n])
+    strokeColor: none()
+    fillColor: color.black
+  }
+  e.pointer below e.arrow -- and thus also below all the labels
+
+  u.text above e.arrow
+  v.text above e.arrow
+
+  encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
+}
+
+forall Vertex u; Vertex v; Vertex w where Arc(u, v) as e {
+  w.text above e.arrow
+}
+
+forall Vertex u; Vertex v where Arc(u, v) as e1; Arc(v, u) as e2 {
+  e1.offset = num.offset
+  e2.offset = num.offset
 }
