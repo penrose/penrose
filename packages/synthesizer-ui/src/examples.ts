@@ -25,7 +25,7 @@ const defaultParams: SynthesizerSetting = {
   },
   opWeights: {
     add: 0.01,
-    delete: 0.2,
+    delete: 0.02,
     edit: 0.8,
   },
   // TODO: need weights for the three ops
@@ -319,30 +319,30 @@ forall Point \`D\`, \`E\`, \`A\` {
     style: molecules["lewis.style"],
     setting: {
       ...defaultParams,
-      mutationCount: [15, 30],
-      opWeights: {
-        add: 0.5,
-        delete: 0.2,
-        edit: 1.5,
-      },
-      add: {
-        type: ["Electron"],
-        function: "*",
-        constructor: ["ValanceElectron"],
-        predicate: "*",
-      },
-      edit: {
-        type: ["Bond"],
-        constructor: "*",
-        function: [],
-        predicate: [],
-      },
-      delete: {
-        type: ["Electron"],
-        function: [],
-        predicate: [],
-        constructor: [],
-      },
+      // mutationCount: [15, 30],
+      // opWeights: {
+      //   add: 0.5,
+      //   delete: 0.2,
+      //   edit: 1.5,
+      // },
+      // add: {
+      //   type: ["Electron"],
+      //   function: "*",
+      //   constructor: ["ValanceElectron"],
+      //   predicate: "*",
+      // },
+      // edit: {
+      //   type: ["Bond"],
+      //   constructor: "*",
+      //   function: [],
+      //   predicate: [],
+      // },
+      // delete: {
+      //   type: ["Electron"],
+      //   function: [],
+      //   predicate: [],
+      //   constructor: [],
+      // },
     },
   },
   lewis_1: {
@@ -353,35 +353,35 @@ forall Point \`D\`, \`E\`, \`A\` {
     style: molecules["lewis.style"],
     setting: {
       ...defaultParams,
-      mutationCount: [5, 10],
-      opWeights: {
-        add: 1,
-        delete: 0,
-        edit: 1.5,
-      },
-      add: {
-        type: ["Electron"],
-        function: [],
-        constructor: [
-          "ValanceElectron",
-          // "MakeSingleBond",
-          // "MakeDoubleBond",
-          // "MakeTripleBond",
-        ],
-        predicate: [],
-      },
-      edit: {
-        type: ["Bond"],
-        constructor: ["MakeSingleBond", "MakeDoubleBond", "MakeTripleBond"],
-        function: [],
-        predicate: [],
-      },
-      delete: {
-        type: ["Electron"],
-        constructor: [],
-        predicate: [],
-        function: [],
-      },
+      // mutationCount: [5, 10],
+      // opWeights: {
+      //   add: 1,
+      //   delete: 0,
+      //   edit: 1.5,
+      // },
+      // add: {
+      //   type: ["Electron"],
+      //   function: [],
+      //   constructor: [
+      //     "ValanceElectron",
+      //     // "MakeSingleBond",
+      //     // "MakeDoubleBond",
+      //     // "MakeTripleBond",
+      //   ],
+      //   predicate: [],
+      // },
+      // edit: {
+      //   type: ["Bond"],
+      //   constructor: ["MakeSingleBond", "MakeDoubleBond", "MakeTripleBond"],
+      //   function: [],
+      //   predicate: [],
+      // },
+      // delete: {
+      //   type: ["Electron"],
+      //   constructor: [],
+      //   predicate: [],
+      //   function: [],
+      // },
     },
   },
   lewis_2: {
@@ -392,35 +392,35 @@ forall Point \`D\`, \`E\`, \`A\` {
     style: molecules["lewis.style"],
     setting: {
       ...defaultParams,
-      mutationCount: [10, 20],
-      opWeights: {
-        add: 0.2,
-        delete: 0.2,
-        edit: 2,
-      },
-      add: {
-        type: ["Electron"],
-        function: [],
-        constructor: [
-          "ValanceElectron",
-          // "MakeSingleBond",
-          // "MakeDoubleBond",
-          // "MakeTripleBond",
-        ],
-        predicate: [],
-      },
-      edit: {
-        type: ["Bond"],
-        constructor: ["MakeSingleBond", "MakeDoubleBond", "MakeTripleBond"],
-        function: [],
-        predicate: [],
-      },
-      delete: {
-        type: ["Electron"],
-        constructor: [],
-        predicate: [],
-        function: [],
-      },
+      // mutationCount: [10, 20],
+      // opWeights: {
+      //   add: 0.2,
+      //   delete: 0.2,
+      //   edit: 2,
+      // },
+      // add: {
+      //   type: ["Electron"],
+      //   function: [],
+      //   constructor: [
+      //     "ValanceElectron",
+      //     // "MakeSingleBond",
+      //     // "MakeDoubleBond",
+      //     // "MakeTripleBond",
+      //   ],
+      //   predicate: [],
+      // },
+      // edit: {
+      //   type: ["Bond"],
+      //   constructor: ["MakeSingleBond", "MakeDoubleBond", "MakeTripleBond"],
+      //   function: [],
+      //   predicate: [],
+      // },
+      // delete: {
+      //   type: ["Electron"],
+      //   constructor: [],
+      //   predicate: [],
+      //   function: [],
+      // },
     },
   },
 };
