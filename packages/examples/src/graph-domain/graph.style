@@ -16,7 +16,6 @@ num {
   labelDist = 5
   edgeDist = 100
   offset = 15
-
 }
 
 forall Vertex v {
