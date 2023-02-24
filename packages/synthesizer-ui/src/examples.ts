@@ -33,7 +33,7 @@ const defaultParams: SynthesizerSetting = {
     type: "*",
     function: "*",
     constructor: "*",
-    predicate: "*",
+    predicate: [],
   },
   delete: {
     type: "*",
@@ -328,7 +328,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       // add: {
       //   type: ["Electron"],
       //   function: "*",
-      //   constructor: ["ValanceElectron"],
+      //   constructor: ["ValenceElectron"],
       //   predicate: "*",
       // },
       // edit: {
@@ -363,7 +363,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       //   type: ["Electron"],
       //   function: [],
       //   constructor: [
-      //     "ValanceElectron",
+      //     "ValenceElectron",
       //     // "MakeSingleBond",
       //     // "MakeDoubleBond",
       //     // "MakeTripleBond",
@@ -402,7 +402,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       //   type: ["Electron"],
       //   function: [],
       //   constructor: [
-      //     "ValanceElectron",
+      //     "ValenceElectron",
       //     // "MakeSingleBond",
       //     // "MakeDoubleBond",
       //     // "MakeTripleBond",
