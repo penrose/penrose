@@ -221,6 +221,7 @@ export default defineConfig({
                       link: "/docs/ref/style/shapes/rectangle",
                     },
                     { text: "Text", link: "/docs/ref/style/shapes/text" },
+                    { text: "Group", link: "/docs/ref/style/shapes/group" },
                   ],
                 },
                 { text: "Function Library", link: "/docs/ref/style/functions" },
