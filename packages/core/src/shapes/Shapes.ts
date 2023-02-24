@@ -188,7 +188,9 @@ const Text = ShapeDef({
   isPolygonlike: true,
 });
 
-// bboxFromGroup is here, not in engine/BBox, to prevent cyclic import
+// bboxFromGroup is here, not in engine/BBox.
+// Otherwise, `engine/BBox` will need to import `shapedefs` which would make it empty
+// due to cyclic import.
 const bboxFromGroup = ({
   shapes,
 }: {
