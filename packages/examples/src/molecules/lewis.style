@@ -675,12 +675,12 @@ with Atom x; Atom y {
 -- Repulsion and disjoint-ness
 
 forall Atom x; Atom y {
-    encourage notTooClose(x.icon, y.icon)
+    encourage notTooClose(x.icon, y.icon) 
     ensure disjoint(x.icon, y.icon)
 }
 
 forall Bond x; Bond y {
-    ensure disjoint(x.icon, y.icon)
+    ensure disjoint(x.icon, y.icon) in general
 }
 
 -- valance
@@ -693,8 +693,8 @@ with Atom a {
     strokeWidth: 0
     fillColor: #000
   }
-  ensure contains(a.icon, e.icon)
-  ensure disjoint(a.text, e.icon)
+  ensure contains(a.icon, e.icon) in electron
+  ensure disjoint(a.text, e.icon) in electron
   encourage notTooClose(e.icon, a.text) in electron
   a.icon below e.icon
 } 
@@ -749,9 +749,38 @@ with Atom x, y {
   encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
 }
 
-layout = [general, electron]
+layout = [general, symmetry, electron]
 
 -- layout directives
+forall Bond b
+where b := MakeSingleBond(x, y) 
+with Atom x, y {
+  scalar k = 3 -- symmetry degree
+  vec2 u = b.icon.end - b.icon.start
+  scalar theta = atan2( u[0], u[1] )
+  encourage sin( MathPI() + k*theta ) == -1
+}
+
+forall Bond b
+where b := MakeDoubleBond(x, y) 
+with Atom x, y {
+  scalar weight = 10000
+  scalar k = 3 -- symmetry degree
+  vec2 u = b.icon.end - b.icon.start
+  scalar theta = atan2( u[0], u[1] )
+  encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
+}
+
+forall Bond b
+where b := MakeTripleBond(x, y) 
+with Atom x, y {
+  scalar weight = 10000
+  scalar k = 3 -- symmetry degree
+  vec2 u = b.icon.end - b.icon.start
+  scalar theta = atan2( u[0], u[1] )
+  encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
+}
+
 forall Atom a, b, c
 where Collinear(a, b, c) {
   ensure collinear(a.icon.center, b.icon.center, c.icon.center)
