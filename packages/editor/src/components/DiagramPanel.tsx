@@ -294,10 +294,13 @@ export default function DiagramPanel() {
                 });
                 step();
               },
-              (path) => pathResolver(path, rogerState, workspace)
+              (path) => pathResolver(path, rogerState, workspace),
+              "diagramPanel"
             )
-          : await RenderStatic(state, (path) =>
-              pathResolver(path, rogerState, workspace)
+          : await RenderStatic(
+              state,
+              (path) => pathResolver(path, rogerState, workspace),
+              "diagramPanel"
             );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");

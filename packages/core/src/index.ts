@@ -163,10 +163,10 @@ const stepUntilConvergenceOrThrow = (state: State): State => {
 /**
  * Embed a static Penrose diagram in a DOM node.
  *
- * @param domainProg a Domain program string
- * @param subProg a Substance program string
- * @param styProg a Style program string
+ * @param prog a Penrose trio and variation
  * @param node a node in the DOM tree
+ * @param pathResolver a resolver function for fetching Style imports
+ * @param name the name of the diagram
  */
 export const diagram = async (
   prog: {
@@ -176,13 +176,14 @@ export const diagram = async (
     variation: string;
   },
   node: HTMLElement,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  name?: string
 ): Promise<void> => {
   const res = await compileTrio(prog);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
-    const rendered = await RenderStatic(optimized, pathResolver);
+    const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
     node.appendChild(rendered);
   } else {
     throw Error(
@@ -194,10 +195,10 @@ export const diagram = async (
 /**
  * Embed an interactive Penrose diagram in a DOM node.
  *
- * @param domainProg a Domain program string
- * @param subProg a Substance program string
- * @param styProg a Style program string
+ * @param prog a Penrose trio and variation
+ * @param pathResolver a resolver function for fetching Style imports
  * @param node a node in the DOM tree
+ * @param name the name of the diagram
  */
 export const interactiveDiagram = async (
   prog: {
@@ -207,14 +208,16 @@ export const interactiveDiagram = async (
     variation: string;
   },
   node: HTMLElement,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  name?: string
 ): Promise<void> => {
   const updateData = async (state: State) => {
     const stepped = stepUntilConvergenceOrThrow(state);
     const rendering = await RenderInteractive(
       stepped,
       updateData,
-      pathResolver
+      pathResolver,
+      name ?? ""
     );
     node.replaceChild(rendering, node.firstChild!);
   };
@@ -225,7 +228,8 @@ export const interactiveDiagram = async (
     const rendering = await RenderInteractive(
       optimized,
       updateData,
-      pathResolver
+      pathResolver,
+      name ?? ""
     );
     node.appendChild(rendering);
   } else {

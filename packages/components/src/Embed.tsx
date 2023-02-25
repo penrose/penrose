@@ -55,6 +55,7 @@ class Embed extends React.Component<SimpleProps, EmbedState> {
     return (
       <div className="embed-container" style={containerStyle}>
         <Simple
+          name={"embed"}
           domain={this.props.domain}
           substance={this.props.substance}
           style={this.props.style}
