@@ -228,7 +228,7 @@ export const rectangleSignedDistance = (
  * @param point Testing point.
  * @param padding Padding applied to the polygon.
  */
-const containsConvexPolygonPoints = (
+export const containsConvexPolygonPoints = (
   p1: ad.Num[][],
   p2: ad.Num[],
   padding: ad.Num

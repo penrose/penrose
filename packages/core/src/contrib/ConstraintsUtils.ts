@@ -29,7 +29,7 @@ import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
 import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
 import {
-  containsPolygonPoints,
+  containsConvexPolygonPoints,
   convexPartitions,
   overlappingImplicitEllipses,
   overlappingPolygonPoints,
@@ -352,7 +352,7 @@ export const containsPolygonPolygon = (
 ): ad.Num => {
   return maxN(
     s2.points.contents.map((x) =>
-      containsPolygonPoints(s1.points.contents, x, padding)
+      containsConvexPolygonPoints(s1.points.contents, x, padding)
     )
   );
 };
@@ -365,7 +365,7 @@ export const containsPolygonCircle = (
   [, s2]: [string, Circle],
   padding: ad.Num = 0
 ): ad.Num => {
-  return containsPolygonPoints(
+  return containsConvexPolygonPoints(
     s1.points.contents,
     s2.center.contents,
     sub(padding, s2.r.contents)
