@@ -2765,7 +2765,7 @@ const evalAccess = (
     }
     case "GPIListV":
     case "ShapeListV": {
-      return err({ tag: "IndexIntoShapeListError", expr});
+      return err({ tag: "IndexIntoShapeListError", expr });
     }
     case "BoolV":
     case "ColorV":
