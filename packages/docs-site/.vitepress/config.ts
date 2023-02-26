@@ -202,12 +202,14 @@ export default defineConfig({
                 {
                   text: "Shape Library",
                   items: [
+                    // Please make sure the shapes are in alphabetical order.
                     { text: "Circle", link: "/docs/ref/style/shapes/circle" },
                     { text: "Ellipse", link: "/docs/ref/style/shapes/ellipse" },
                     {
                       text: "Equation",
                       link: "/docs/ref/style/shapes/equation",
                     },
+                    { text: "Group", link: "/docs/ref/style/shapes/group" },
                     { text: "Image", link: "/docs/ref/style/shapes/image" },
                     { text: "Line", link: "/docs/ref/style/shapes/line" },
                     { text: "Path", link: "/docs/ref/style/shapes/path" },
@@ -221,7 +223,6 @@ export default defineConfig({
                       link: "/docs/ref/style/shapes/rectangle",
                     },
                     { text: "Text", link: "/docs/ref/style/shapes/text" },
-                    { text: "Group", link: "/docs/ref/style/shapes/group" },
                   ],
                 },
                 { text: "Function Library", link: "/docs/ref/style/functions" },
