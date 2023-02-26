@@ -389,6 +389,10 @@ canvas {
       return `Cannot index into a non-collection (at ${loc(error.expr)}).`;
     }
 
+    case "IndexIntoShapeListError": {
+      return `Cannot index into a list of shapes (at ${loc(error.expr)}).`;
+    }
+
     case "NotShapeError": {
       return `Expected to find shape to hold property ${prettyPrintResolvedPath(
         error.path

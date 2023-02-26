@@ -196,6 +196,7 @@ export type StyleError =
   | MissingShapeError
   | NestedShapeError
   | NotCollError
+  | IndexIntoShapeListError
   | NotShapeError
   | NotValueError
   | OutOfBoundsError
@@ -408,6 +409,11 @@ export interface NestedShapeError {
 
 export interface NotCollError {
   tag: "NotCollError";
+  expr: Expr<C>;
+}
+
+export interface IndexIntoShapeListError {
+  tag: "IndexIntoShapeListError";
   expr: Expr<C>;
 }
 

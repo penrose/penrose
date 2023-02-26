@@ -2763,13 +2763,15 @@ const evalAccess = (
       }
       return ok(floatV(row[j]));
     }
+    case "GPIListV":
+    case "ShapeListV": {
+      return err({ tag: "IndexIntoShapeListError", expr});
+    }
     case "BoolV":
     case "ColorV":
     case "FloatV":
     case "PathDataV":
-    case "StrV":
-    case "GPIListV":
-    case "ShapeListV": {
+    case "StrV": {
       // Not allowing indexing into a shape list for now
       return err({ tag: "NotCollError", expr });
     }
