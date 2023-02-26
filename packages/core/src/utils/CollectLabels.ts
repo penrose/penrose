@@ -325,27 +325,6 @@ const insertPendingHelper = (
 
 export const insertPending = (state: State): State => {
   const varyingValues = [...state.varyingValues];
-  insertPendingHelper(
-    state.shapes,
-    varyingValues,
-    state
-  ); /*
-  for (const { shapeType, properties } of state.shapes) {
-    const shapedef: ShapeDef = shapedefs[shapeType];
-    if (properties.name.tag === "StrV") {
-      const labelData = state.labelCache.get(properties.name.contents);
-      if (labelData !== undefined) {
-        for (const propertyID of shapedef.pendingProps) {
-          setPendingProperty(
-            properties,
-            propertyID,
-            labelData[propertyID],
-            varyingValues,
-            state.inputs
-          );
-        }
-      }
-    }
-  }*/
+  insertPendingHelper(state.shapes, varyingValues, state);
   return { ...state, varyingValues };
 };
