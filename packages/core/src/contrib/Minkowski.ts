@@ -7,6 +7,7 @@ import {
   div,
   eq,
   ifCond,
+  lt,
   max,
   maxN,
   min,
@@ -91,6 +92,36 @@ export const halfPlaneSDF = (
 };
 
 /**
+ * Return value of the Signed Distance Function (SDF) of a half-plane evaluated at the origin.
+ * @param lineSegment Two points defining a side of the first polygon.
+ * @param otherPoints All vertices of the second polygon.
+ * @param insidePoint Point inside of the half-plane.
+ * @param padding Padding added to the half-plane.
+ */
+export const clampedHalfPlaneSDF = (
+  lineSegment: ad.Num[][],
+  otherPoints: ad.Num[][],
+  insidePoint: ad.Num[],
+  padding: ad.Num
+): ad.Num => {
+  const normal = outwardUnitNormal(lineSegment, insidePoint);
+  const alpha = ops.vdot(normal, lineSegment[0]);
+  const alphaOther = maxN(otherPoints.map((p) => ops.vdot(normal, p)));
+  const sdf = neg(addN([alpha, alphaOther, padding]));
+  const ls = [
+    ops.vadd(lineSegment[0], ops.vmul(alphaOther, normal)),
+    ops.vadd(lineSegment[1], ops.vmul(alphaOther, normal)),
+  ];
+  const ds = [ops.vnorm(ls[0]), ops.vnorm(ls[1])];
+  const lsl2 = ops.vdistsq(lineSegment[0], lineSegment[1]);
+  return ifCond(
+    lt(sub(squared(max(ds[0], ds[1])), squared(sdf)), lsl2),
+    sdf,
+    min(ds[0], ds[1])
+  );
+};
+
+/**
  * Return value of one-sided Signed Distance Function (SDF) of the Minkowski sum of two polygons `p1` and `p2` evaluated at the origin.
  * Only half-planes related to sides of the first polygon `p1` are considered.
  * @param p1 Sequence of points defining the first polygon.
@@ -109,7 +140,7 @@ const convexPolygonMinkowskiSDFOneSided = (
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
   const sdfs = sides.map((s: ad.Num[][]) =>
-    halfPlaneSDF(s, p2, center, padding)
+    clampedHalfPlaneSDF(s, p2, center, padding)
   );
   return maxN(sdfs);
 };
