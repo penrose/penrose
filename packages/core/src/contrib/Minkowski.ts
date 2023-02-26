@@ -107,17 +107,19 @@ export const clampedHalfPlaneSDF = (
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   const alpha = ops.vdot(normal, lineSegment[0]);
   const alphaOther = maxN(otherPoints.map((p) => ops.vdot(normal, p)));
-  const sdf = neg(addN([alpha, alphaOther, padding]));
+  const sdf = addN([alpha, alphaOther, padding]);
   const ls = [
     ops.vadd(lineSegment[0], ops.vmul(alphaOther, normal)),
     ops.vadd(lineSegment[1], ops.vmul(alphaOther, normal)),
   ];
   const ds = [ops.vnorm(ls[0]), ops.vnorm(ls[1])];
   const lsl2 = ops.vdistsq(lineSegment[0], lineSegment[1]);
-  return ifCond(
-    lt(sub(squared(max(ds[0], ds[1])), squared(sdf)), lsl2),
-    sdf,
-    min(ds[0], ds[1])
+  return neg(
+    ifCond(
+      lt(sub(squared(max(ds[0], ds[1])), squared(sdf)), lsl2),
+      sdf,
+      min(ds[0], ds[1])
+    )
   );
 };
 
