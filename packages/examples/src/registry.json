@@ -135,30 +135,6 @@
       "variation": "MetalShrew80769"
     },
     {
-      "substance": "small-graph",
-      "style": "disjoint-rects",
-      "domain": "graph-theory",
-      "variation": ""
-    },
-    {
-      "substance": "small-graph",
-      "style": "disjoint-rect-line-horiz",
-      "domain": "graph-theory",
-      "variation": "BriocheChamois5430"
-    },
-    {
-      "substance": "small-graph",
-      "style": "disjoint-rects-small-canvas",
-      "domain": "graph-theory",
-      "variation": ""
-    },
-    {
-      "substance": "small-graph",
-      "style": "disjoint-rects-large-canvas",
-      "domain": "graph-theory",
-      "variation": ""
-    },
-    {
       "name": "Triangle Incenter",
       "substance": "incenter-triangle",
       "style": "euclidean",
@@ -509,9 +485,6 @@
     "graph": {
       "URI": "graph-domain/graph.domain"
     },
-    "graph-theory": {
-      "URI": "graph-domain/graph-theory.domain"
-    },
     "geometry": {
       "URI": "geometry-domain/geometry.domain"
     },
@@ -618,22 +591,6 @@
     "graph": {
       "domain": "graph",
       "URI": "graph-domain/graph.style"
-    },
-    "disjoint-rects": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects.style"
-    },
-    "disjoint-rect-line-horiz": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rect-line-horiz.style"
-    },
-    "disjoint-rects-small-canvas": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects-small-canvas.style"
-    },
-    "disjoint-rects-large-canvas": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects-large-canvas.style"
     },
     "euclidean": {
       "domain": "geometry",
@@ -780,10 +737,6 @@
     "round-robin-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig13.substance"
-    },
-    "small-graph": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/small-graph.substance"
     },
     "siggraph-teaser": {
       "domain": "geometry",
