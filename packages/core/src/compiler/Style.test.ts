@@ -23,6 +23,8 @@ import {
 import { SubstanceEnv } from "../types/substance";
 import { ColorV, RGBA } from "../types/value";
 import { andThen, err, Result, showError } from "../utils/Error";
+import Graph from "../utils/Graph";
+import { GroupGraph } from "../utils/GroupGraph";
 import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
 import * as S from "./Style";
@@ -72,14 +74,19 @@ const canvasPreamble = `canvas {
 
 describe("Layering computation", () => {
   // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
+  const simpleGroupGraph: GroupGraph = new Graph();
+  ["A", "B", "C", "D", "E", "F"].map((x) => {
+    simpleGroupGraph.setNode(x, 0);
+  });
   test("simple layering: A -> B -> C", () => {
     const partials: Layer[] = [
       { below: "A", above: "B" },
       { below: "B", above: "C" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeUndefined();
@@ -90,9 +97,10 @@ describe("Layering computation", () => {
       { below: "B", above: "C" },
       { below: "C", above: "A" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeDefined();
@@ -107,9 +115,10 @@ describe("Layering computation", () => {
       { below: "E", above: "B" },
       { below: "C", above: "F" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "C", "F", "B", "D", "E"]);
     expect(warning).toBeDefined();
@@ -124,13 +133,62 @@ describe("Layering computation", () => {
       { below: "E", above: "C" },
       { below: "C", above: "F" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "D", "E", "C", "F"]);
     expect(warning).toBeDefined();
     expect(warning?.cycles.length).toEqual(1);
+  });
+  test("good group layering", () => {
+    const partials: Layer[] = [
+      { below: "G1", above: "G2" },
+      { below: "A", above: "D" },
+      { below: "B", above: "C" },
+    ];
+    const groupGraph: GroupGraph = new Graph();
+    ["A", "B", "C", "D", "G1", "G2"].map((x) => groupGraph.setNode(x, 0));
+    groupGraph.setEdge({ i: "G1", j: "A", e: undefined });
+    groupGraph.setEdge({ i: "G1", j: "D", e: undefined });
+    groupGraph.setEdge({ i: "G2", j: "B", e: undefined });
+    groupGraph.setEdge({ i: "G2", j: "C", e: undefined });
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
+      ["G1", "B", "D", "A", "G2", "C"],
+      partials,
+      groupGraph
+    );
+    // Order is A, D, B, C
+    // But, position of G1 and G2 are undetermined
+    const aPos = shapeOrdering.indexOf("A");
+    const dPos = shapeOrdering.indexOf("D");
+    const bPos = shapeOrdering.indexOf("B");
+    const cPos = shapeOrdering.indexOf("C");
+    expect(aPos < dPos).toBe(true);
+    expect(dPos < bPos).toBe(true);
+    expect(bPos < cPos).toBe(true);
+    expect(warning).toBeUndefined();
+  });
+  test("bad group layering", () => {
+    const partials: Layer[] = [
+      { below: "s2", above: "s1" },
+      { below: "s2", above: "s3" },
+      { below: "s3", above: "s1" },
+    ];
+    const groupGraph: GroupGraph = new Graph();
+    ["s1", "s2", "s3", "g"].map((x) => {
+      groupGraph.setNode(x, 0);
+    });
+    groupGraph.setEdge({ i: "g", j: "s1", e: undefined });
+    groupGraph.setEdge({ i: "g", j: "s2", e: undefined });
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
+      ["g", "s3", "s1", "s2"],
+      partials,
+      groupGraph
+    );
+    expect(warning).toBeDefined();
+    expect(warning!.cycles.length).toEqual(1);
   });
 });
 
@@ -453,6 +511,13 @@ describe("Compiler", () => {
         ensure o.a > o.b
         ensure o.a < o.b
         ensure o.a == o.b
+      }`,
+      `forall Object o {
+        o.a = Circle {}
+        o.b = Circle {}
+        o.g = Group {
+          shapes: [o.a, o.b]
+        }
       }`,
     ];
     stys.forEach((sty: string) =>
@@ -1042,6 +1107,57 @@ delete x.z.p }`,
           })
         )
       ).toEqual(im.Set([1, 2, 3]));
+    });
+  });
+
+  describe("group shapes", () => {
+    test("simple group", async () => {
+      const dsl = "type T\n";
+      const sty =
+        canvasPreamble +
+        `
+      forall T t {
+        t.s1 = Circle {}
+        t.s2 = Rectangle {}
+        t.g = Group {
+          shapes: [t.s1, t.s2]
+        }
+        t.s3 = Text {}
+        t.g2 = Group {
+          shapes: [t.s3, t.g]
+        }
+      }\n
+      `;
+      const sub = "T t\n";
+      const { state } = await loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(1);
+    });
+  });
+
+  describe("group graph", () => {
+    test("cyclic group graph", () => {
+      const groupGraph: GroupGraph = new Graph();
+      ["A", "B", "C"].map((x) => {
+        groupGraph.setNode(x, 0);
+      });
+      groupGraph.setEdge({ i: "A", j: "B", e: undefined });
+      groupGraph.setEdge({ i: "B", j: "C", e: undefined });
+      groupGraph.setEdge({ i: "C", j: "A", e: undefined });
+
+      const warnings = S.checkGroupGraph(groupGraph);
+      expect(warnings.length).toEqual(1);
+      expect(warnings[0].tag).toEqual("GroupCycleWarning");
+    });
+    test("shape belongs to multiple groups", () => {
+      const groupGraph: GroupGraph = new Graph();
+      ["X", "A", "B"].map((x) => {
+        groupGraph.setNode(x, 0);
+      });
+      groupGraph.setEdge({ i: "A", j: "X", e: undefined });
+      groupGraph.setEdge({ i: "B", j: "X", e: undefined });
+      const warnings = S.checkGroupGraph(groupGraph);
+      expect(warnings.length).toEqual(1);
+      expect(warnings[0].tag).toEqual("ShapeBelongsToMultipleGroups");
     });
   });
 });

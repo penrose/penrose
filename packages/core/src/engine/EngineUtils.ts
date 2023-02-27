@@ -14,7 +14,7 @@ import {
   SourceLoc,
 } from "../types/ast";
 import { StyleError } from "../types/errors";
-import { Shape, ShapeAD } from "../types/shape";
+import { GenericShape, Shape, ShapeAD } from "../types/shape";
 import { ShapeFn } from "../types/state";
 import { Expr, Path } from "../types/style";
 import {
@@ -28,6 +28,7 @@ import {
   PathDataV,
   PropID,
   PtListV,
+  ShapeListV,
   ShapeTypeStr,
   SubPath,
   TupV,
@@ -162,6 +163,30 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
+function mapShape<T, S>(f: (arg: T) => S, v: GenericShape<T>): GenericShape<S> {
+  const shapeType = v.shapeType;
+  const shapeProps = v.properties;
+  const mappedShapeProps = Object.fromEntries(
+    Object.entries(shapeProps).map(([prop, propVal]) => {
+      return [prop, mapValueNumeric(f, propVal)];
+    })
+  );
+
+  return {
+    shapeType,
+    properties: mappedShapeProps,
+  };
+}
+
+function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
+  return {
+    tag: "ShapeListV",
+    contents: v.contents.map((gpi) => {
+      return mapShape(f, gpi);
+    }),
+  };
+}
+
 // Utils for converting types of values
 
 // Expects `f` to be a function between numeric types (e.g. number -> ad.Num, ad.Num -> number, AD var -> ad.Num ...)
@@ -186,7 +211,13 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapColor(f, v);
     case "PathDataV":
       return mapPathData(f, v);
+    case "ShapeListV":
+      return mapShapeList(f, v);
     // non-numeric Value types
+    case "GPIListV":
+      // since all GPIListV have been converted to ShapeListV
+      // this should never happen
+      throw Error("There should not be a GPIListV");
     case "BoolV":
     case "StrV":
       return v;
@@ -231,6 +262,19 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
     case "BoolV":
     case "StrV": {
       return [];
+    }
+    case "GPIListV": {
+      throw Error("There should not be a GPIListV");
+    }
+    case "ShapeListV": {
+      const vars = [];
+      const shapes = v.contents;
+      for (const s of shapes) {
+        for (const v of Object.values(s.properties)) {
+          vars.push(...valueADNums(v));
+        }
+      }
+      return vars;
     }
     case "ListV":
     case "VectorV":
