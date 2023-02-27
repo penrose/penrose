@@ -254,7 +254,10 @@ export default defineConfig({
         {
           text: "February 2023",
           items: [
-            { text: "WebAssembly in Penrose", link: "/blog/2023/02/27/wasm" },
+            {
+              text: "Rust Wasm 10x faster than JS",
+              link: "/blog/2023/02/27/wasm",
+            },
           ],
         },
       ],
