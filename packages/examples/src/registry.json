@@ -93,16 +93,46 @@
       "variation": ""
     },
     {
-      "substance": "acquaintanceship",
+      "substance": "acquaintanceship-graph",
       "style": "graph",
       "domain": "graph",
       "variation": ""
     },
     {
-      "substance": "influence",
+      "substance": "influence-graph",
       "style": "graph",
       "domain": "graph",
       "variation": "BurdockWallaby5484"
+    },
+    {
+      "substance": "module-dependency-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "TurquishMongoose642"
+    },
+    {
+      "substance": "precedence-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "WineberryGull921"
+    },
+    {
+      "substance": "niche-overlap-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "RustiqueOpossum386"
+    },
+    {
+      "substance": "protein-interaction-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "RainwashedSeal03497"
+    },
+    {
+      "substance": "round-robin-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "MetalShrew80769"
     },
     {
       "substance": "small-graph",
@@ -723,13 +753,33 @@
       "domain": "shape-spec",
       "URI": "shape-spec/arrows.substance"
     },
-    "acquaintanceship": {
+    "acquaintanceship-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig6.substance"
     },
-    "influence": {
+    "influence-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig7.substance"
+    },
+    "module-dependency-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig9.substance"
+    },
+    "precedence-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig10.substance"
+    },
+    "niche-overlap-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig11.substance"
+    },
+    "protein-interaction-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig12.substance"
+    },
+    "round-robin-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig13.substance"
     },
     "small-graph": {
       "domain": "graph-theory",
