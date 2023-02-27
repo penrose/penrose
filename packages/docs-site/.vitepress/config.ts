@@ -136,7 +136,7 @@ export default defineConfig({
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Try Penrose", link: "pathname:///try/index.html" },
       { text: "Team", link: "/docs/team" },
-      { text: "Blog", link: "/blog" },
+      { text: "Blog", link: "/blog", activeMatch: "/blog" },
       {
         text: "News",
         items: [
