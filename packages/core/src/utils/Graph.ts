@@ -106,6 +106,20 @@ export default class Graph<I, L = undefined, E = undefined> {
     return this.get(i).s.map(({ i: j, e }) => ({ i, j, e }));
   }
 
+  /**
+   * throws if the graph does not contain node `i`
+   */
+  children(i: I): I[] {
+    return this.get(i).s.map(({ i }) => i);
+  }
+
+  /**
+   * throws if the graph does not contain node `i`
+   */
+  parents(i: I): I[] {
+    return this.get(i).p.map(({ i }) => i);
+  }
+
   /** @returns number of nodes in the graph */
   nodeCount(): number {
     return this.g.size;

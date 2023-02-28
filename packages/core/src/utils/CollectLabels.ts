@@ -12,7 +12,7 @@ import { Properties, ShapeAD } from "../types/shape";
 import { EquationData, LabelCache, State, TextData } from "../types/state";
 import { FloatV } from "../types/value";
 import { err, ok, Result } from "./Error";
-import { getAdValueAsString } from "./Util";
+import { getAdValueAsString, getValueAsShapeList } from "./Util";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -223,6 +223,15 @@ export const collectLabels = async (
         label = textData(0, 0, 0, 0);
       }
       labels.set(shapeName, label);
+    } else if (shapeType === "Group") {
+      const subShapes = getValueAsShapeList(properties["shapes"]);
+      const subLabels = await collectLabels(subShapes);
+      if (subLabels.isErr()) {
+        return subLabels;
+      }
+      for (const [key, value] of subLabels.value.entries()) {
+        labels.set(key, value);
+      }
     }
   }
   return ok(labels);
@@ -285,24 +294,37 @@ const setPendingProperty = (
   }
 };
 
-export const insertPending = (state: State): State => {
-  const varyingValues = [...state.varyingValues];
-  for (const { shapeType, properties } of state.shapes) {
-    const shapedef: ShapeDef = shapedefs[shapeType];
-    if (properties.name.tag === "StrV") {
-      const labelData = state.labelCache.get(properties.name.contents);
-      if (labelData !== undefined) {
-        for (const propertyID of shapedef.pendingProps) {
-          setPendingProperty(
-            properties,
-            propertyID,
-            labelData[propertyID],
-            varyingValues,
-            state.inputs
-          );
+const insertPendingHelper = (
+  shapes: ShapeAD[],
+  xs: number[],
+  state: State
+): void => {
+  for (const { shapeType, properties } of shapes) {
+    if (shapeType === "Group") {
+      const subShapes = getValueAsShapeList(properties["shapes"]);
+      insertPendingHelper(subShapes, xs, state);
+    } else {
+      const shapedef: ShapeDef = shapedefs[shapeType];
+      if (properties.name.tag === "StrV") {
+        const labelData = state.labelCache.get(properties.name.contents);
+        if (labelData !== undefined) {
+          for (const propertyID of shapedef.pendingProps) {
+            setPendingProperty(
+              properties,
+              propertyID,
+              labelData[propertyID],
+              xs,
+              state.inputs
+            );
+          }
         }
       }
     }
   }
+};
+
+export const insertPending = (state: State): State => {
+  const varyingValues = [...state.varyingValues];
+  insertPendingHelper(state.shapes, varyingValues, state);
   return { ...state, varyingValues };
 };

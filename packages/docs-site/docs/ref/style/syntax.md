@@ -309,6 +309,8 @@ layer shape_1 below shape_2
 
 where `shape_1` and `shape_2` can be variables assigned to shapes.
 
+We have special handling of layering statements for `Group` shapes, found [here](./shapes/group.md).
+
 #### Reserved Variables
 
 Within a _style_ block body, some variable names are reserved for metadata purposes:

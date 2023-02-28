@@ -1,3 +1,5 @@
+import { GenericShape } from "./shape";
+
 /**
  * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`GPI`) or a value (`Val`).
  */
@@ -37,7 +39,9 @@ export type Value<T> =
   | VectorV<T>
   | MatrixV<T>
   | TupV<T>
-  | LListV<T>;
+  | LListV<T>
+  | GPIListV<T>
+  | ShapeListV<T>;
 
 /** A floating point number **/
 export interface FloatV<T> {
@@ -137,4 +141,14 @@ export interface ValueV<T> {
 export interface CoordV<T> {
   tag: "CoordV";
   contents: T[];
+}
+
+export interface GPIListV<T> {
+  tag: "GPIListV";
+  contents: GPI<T>[];
+}
+
+export interface ShapeListV<T> {
+  tag: "ShapeListV";
+  contents: GenericShape<T>[];
 }

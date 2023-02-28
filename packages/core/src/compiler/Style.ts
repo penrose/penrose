@@ -110,6 +110,7 @@ import {
   Field,
   FloatV,
   GPI,
+  GPIListV,
   ListV,
   LListV,
   MatrixV,
@@ -131,12 +132,21 @@ import {
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
+import {
+  buildRenderGraph,
+  findOrderedRoots,
+  GroupGraph,
+  makeGroupGraph,
+  traverseUp,
+} from "../utils/GroupGraph";
 import Heap from "../utils/Heap";
 import {
   boolV,
   cartesianProduct,
   colorV,
   floatV,
+  getAdValueAsString,
+  gpiListV,
   hexToRgba,
   listV,
   llistV,
@@ -2606,12 +2616,12 @@ const evalBinOp = (
 const eval1D = (
   coll: List<C> | Vector<C>,
   first: FloatV<ad.Num>,
-  rest: Value<ad.Num>[]
+  rest: ArgVal<ad.Num>[]
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
-    if (v.tag === "FloatV") {
-      elems.push(v.contents);
+    if (v.tag === "Val" && v.contents.tag === "FloatV") {
+      elems.push(v.contents.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
     }
@@ -2629,12 +2639,12 @@ const eval1D = (
 const eval2D = (
   coll: List<C> | Vector<C>,
   first: VectorV<ad.Num>,
-  rest: Value<ad.Num>[]
+  rest: ArgVal<ad.Num>[]
 ): Result<LListV<ad.Num> | MatrixV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
-    if (v.tag === "VectorV") {
-      elems.push(v.contents);
+    if (v.tag === "Val" && v.contents.tag === "VectorV") {
+      elems.push(v.contents.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
     }
@@ -2649,6 +2659,23 @@ const eval2D = (
   }
 };
 
+const evalShapeList = (
+  coll: List<C> | Vector<C>,
+  first: GPI<ad.Num>,
+  rest: ArgVal<ad.Num>[]
+): Result<GPIListV<ad.Num>, StyleDiagnostics> => {
+  const elems = [first];
+  for (const v of rest) {
+    if (v.tag === "GPI") {
+      elems.push(v);
+    } else {
+      return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
+    }
+  }
+  gpiListV(elems);
+  return ok(gpiListV(elems));
+};
+
 const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2657,9 +2684,9 @@ const evalListOrVector = (
   coll: List<C> | Vector<C>,
   trans: Translation
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
-  return evalVals(mut, canvas, stages, context, coll.contents, trans).andThen(
-    (vals) => {
-      if (vals.length === 0) {
+  return evalExprs(mut, canvas, stages, context, coll.contents, trans).andThen(
+    (argVals) => {
+      if (argVals.length === 0) {
         switch (coll.tag) {
           case "List": {
             return ok(listV([]));
@@ -2669,24 +2696,30 @@ const evalListOrVector = (
           }
         }
       }
-      const [first, ...rest] = vals;
-      switch (first.tag) {
-        case "FloatV": {
-          return eval1D(coll, first, rest);
-        }
-        case "VectorV": {
-          return eval2D(coll, first, rest);
-        }
-        case "BoolV":
-        case "ColorV":
-        case "ListV":
-        case "LListV":
-        case "MatrixV":
-        case "PathDataV":
-        case "PtListV":
-        case "StrV":
-        case "TupV": {
-          return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
+      const [first, ...rest] = argVals;
+      if (first.tag === "GPI") {
+        return evalShapeList(coll, first, rest);
+      } else {
+        switch (first.contents.tag) {
+          case "FloatV": {
+            return eval1D(coll, first.contents, rest);
+          }
+          case "VectorV": {
+            return eval2D(coll, first.contents, rest);
+          }
+          case "BoolV":
+          case "ColorV":
+          case "ListV":
+          case "LListV":
+          case "MatrixV":
+          case "PathDataV":
+          case "PtListV":
+          case "StrV":
+          case "TupV":
+          case "GPIListV":
+          case "ShapeListV": {
+            return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
+          }
         }
       }
     }
@@ -2730,11 +2763,16 @@ const evalAccess = (
       }
       return ok(floatV(row[j]));
     }
+    case "GPIListV":
+    case "ShapeListV": {
+      return err({ tag: "IndexIntoShapeListError", expr });
+    }
     case "BoolV":
     case "ColorV":
     case "FloatV":
     case "PathDataV":
     case "StrV": {
+      // Not allowing indexing into a shape list for now
       return err({ tag: "NotCollError", expr });
     }
   }
@@ -2759,7 +2797,9 @@ const evalUMinus = (
     case "PathDataV":
     case "PtListV":
     case "StrV":
-    case "TupV": {
+    case "TupV":
+    case "GPIListV":
+    case "ShapeListV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
   }
@@ -2782,6 +2822,8 @@ const evalUTranspose = (
     case "PathDataV":
     case "PtListV":
     case "StrV":
+    case "GPIListV":
+    case "ShapeListV":
     case "TupV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
@@ -2873,11 +2915,14 @@ const evalExpr = (
         return err(oneErr({ tag: "MissingPathError", path: resolvedPath }));
       }
 
-      if (expr.indices.length === 0) {
+      if (resolved.tag === "GPI") {
+        // Can evaluate a path to a GPI - just return the GPI
+        // Need to incorporate the "name" information:
+        resolved.contents[1]["name"] = strV(path);
         return ok(resolved);
       }
-      if (resolved.tag === "GPI") {
-        return err(oneErr({ tag: "NotValueError", expr }));
+      if (expr.indices.length === 0) {
+        return ok(resolved);
       }
       const res = all(
         expr.indices.map((e) =>
@@ -3245,22 +3290,77 @@ export const translate = (
 
 //#endregion
 
+//#region group graph
+
+export const checkGroupGraph = (groupGraph: GroupGraph): StyleWarning[] => {
+  const warnings: StyleWarning[] = [];
+  for (const name of groupGraph.nodes()) {
+    if (groupGraph.parents(name).length > 1) {
+      warnings.push({
+        tag: "ShapeBelongsToMultipleGroups",
+        shape: name,
+        groups: groupGraph.parents(name),
+      });
+    }
+  }
+
+  const cycles = groupGraph.findCycles();
+  if (cycles.length !== 0) {
+    warnings.push({
+      tag: "GroupCycleWarning",
+      cycles,
+    });
+  }
+  return warnings;
+};
+
+//#endregion
+
 //#region layering
 
-export const computeShapeOrdering = (
+export type LayerGraph = Graph<string>;
+
+export const processLayering = (
+  { below, above }: Layer,
+  groupGraph: GroupGraph,
+  layerGraph: LayerGraph
+): void => {
+  // Path from the root to the node, excluding the root
+  // [..., below]
+  const belowPath = traverseUp(groupGraph, below).reverse();
+  // [..., above]
+  const abovePath = traverseUp(groupGraph, above).reverse();
+  // Find the first differing element.
+  let i = 0;
+  while (i < belowPath.length && i < abovePath.length) {
+    if (belowPath[i] !== abovePath[i]) {
+      layerGraph.setEdge({ i: belowPath[i], j: abovePath[i], e: undefined });
+      return;
+    }
+    i++;
+  }
+
+  // Reached the end of either list without encountering a difference.
+  // Use the last common element.
+  i = Math.min(belowPath.length, abovePath.length) - 1;
+  // This will make a loop, which is expected.
+  layerGraph.setEdge({ i: belowPath[i], j: abovePath[i], e: undefined });
+};
+
+export const computeLayerOrdering = (
   allGPINames: string[],
-  partialOrderings: Layer[]
+  partialOrderings: Layer[],
+  groupGraph: GroupGraph
 ): {
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
 } => {
   const layerGraph = new Graph<string>();
-  allGPINames.forEach((name: string) => {
-    layerGraph.setNode(name, undefined);
+  allGPINames.map((node) => {
+    layerGraph.setNode(node, undefined);
   });
-  // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
   partialOrderings.forEach(({ below, above }: Layer) => {
-    layerGraph.setEdge({ i: below, j: above, e: undefined });
+    processLayering({ below, above }, groupGraph, layerGraph);
   });
 
   // if there are no cycles, return a global ordering from the top sort result
@@ -3367,7 +3467,7 @@ export const getLayoutStages = (
   }
 };
 
-const getShapes = (
+const getShapesList = (
   graph: DepGraph,
   { symbols }: Translation,
   shapeOrdering: string[]
@@ -3554,12 +3654,42 @@ export const compileStyleHelper = async (
     return err(toStyleErrors([...translation.diagnostics.errors]));
   }
 
-  const { shapeOrdering, warning: layeringWarning } = computeShapeOrdering(
-    [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
-    [...translation.layering]
+  const groupGraph: GroupGraph = makeGroupGraph(
+    getShapesList(graph, translation, [
+      ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
+    ])
   );
 
-  const shapes = getShapes(graph, translation, shapeOrdering);
+  const groupWarnings = checkGroupGraph(groupGraph);
+
+  const {
+    shapeOrdering: layerOrdering,
+    warning: layeringWarning,
+  } = computeLayerOrdering(
+    [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
+    [...translation.layering],
+    groupGraph
+  );
+
+  // Fix the ordering between nodes of the group graph
+  for (let i = 0; i < layerOrdering.length; i++) {
+    groupGraph.setNode(layerOrdering[i], i);
+  }
+
+  const shapes = getShapesList(graph, translation, layerOrdering);
+
+  const nameShapeMap = new Map<string, ShapeAD>();
+
+  for (const shape of shapes) {
+    const shapeName = getAdValueAsString(shape.properties["name"]);
+    nameShapeMap.set(shapeName, shape);
+  }
+
+  const renderGraph = buildRenderGraph(
+    findOrderedRoots(groupGraph),
+    groupGraph,
+    nameShapeMap
+  );
 
   const objFns = [...translation.objectives];
 
@@ -3575,7 +3705,7 @@ export const compileStyleHelper = async (
     optimizationStages.value
   );
 
-  const computeShapes = await compileCompGraph(shapes);
+  const computeShapes = await compileCompGraph(renderGraph);
 
   const gradient = await genGradient(
     inputs,
@@ -3589,11 +3719,10 @@ export const compileStyleHelper = async (
   );
 
   const params = genOptProblem(inputMask, objMask, constrMask);
-
   const initState: State = {
     warnings: layeringWarning
-      ? [...translation.diagnostics.warnings, layeringWarning]
-      : [...translation.diagnostics.warnings],
+      ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
+      : [...translation.diagnostics.warnings, ...groupWarnings],
     variation,
     varyingValues,
     constraintSets,
@@ -3601,7 +3730,7 @@ export const compileStyleHelper = async (
     objFns,
     inputs,
     labelCache: new Map(),
-    shapes,
+    shapes: renderGraph,
     canvas: canvas.value,
     gradient,
     computeShapes,
