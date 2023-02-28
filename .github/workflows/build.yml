@@ -85,7 +85,7 @@ jobs:
         working-directory: packages/automator/
         run: yarn start batch registry.json out/ --src-prefix=../examples/src/ --folders
       - name: Upload generated diagrams and metadata
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: diagrams
           path: packages/automator/out/
@@ -224,11 +224,11 @@ jobs:
         uses: codecov/codecov-action@v3
       # TODO: some equivalent of CircleCI's store_test_results
       # with path: packages/core/reports/junit/
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: junit
           path: packages/core/reports/junit/
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: coverage
           path: packages/core/coverage/
