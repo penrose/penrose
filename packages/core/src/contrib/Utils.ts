@@ -23,6 +23,7 @@ import {
 import * as BBox from "../engine/BBox";
 import { Equation } from "../shapes/Equation";
 import { Image } from "../shapes/Image";
+import { Line } from "../shapes/Line";
 import { Polygon } from "../shapes/Polygon";
 import { Polyline } from "../shapes/Polyline";
 import { Rectangle } from "../shapes/Rectangle";
@@ -38,7 +39,7 @@ export const shapeTupleToShape = ([t, s]: ShapeTuple): Shape => {
 };
 
 export type Rectlike = Equation | Image | Rectangle | Text;
-export type Polygonlike = Rectlike | Polygon | Polyline;
+export type Polygonlike = Rectlike | Line | Polygon | Polyline;
 
 export const isRectlike = (s: Shape): s is Rectlike => {
   const t = s.shapeType;
