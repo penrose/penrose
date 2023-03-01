@@ -30,12 +30,11 @@ import { Shape, ShapeType } from "../shapes/Shapes";
 import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
 
-export type ShapeTuple = [ShapeType, Shape];
+export type ShapeTuple = [ShapeType, Omit<Shape, "shapeType">];
 
 export const shapeTupleToShape = ([t, s]: ShapeTuple): Shape => {
-  const t0 = s.shapeType;
-  if (t !== t0) throw Error(`shape type mismatch: ${t} vs ${t0}`);
-  return s;
+  if ("shapeType" in s) throw Error("shape in tuple contains shapeType field");
+  return { shapeType: t, ...s } as Shape;
 };
 
 export type Rectlike = Equation | Image | Rectangle | Text;
