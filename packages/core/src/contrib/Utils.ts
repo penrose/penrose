@@ -21,7 +21,36 @@ import {
   sub,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
+import { Equation } from "../shapes/Equation";
+import { Image } from "../shapes/Image";
+import { Line } from "../shapes/Line";
+import { Polygon } from "../shapes/Polygon";
+import { Polyline } from "../shapes/Polyline";
+import { Rectangle } from "../shapes/Rectangle";
+import { Shape, ShapeType } from "../shapes/Shapes";
+import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
+
+export type ShapeTuple = [ShapeType, Omit<Shape, "shapeType">];
+
+export const shapeTupleToShape = ([t, s]: ShapeTuple): Shape =>
+  ({ shapeType: t, ...s } as Shape);
+
+// these are redundant with the `isRectlike` and `isPolygonlike` fields on
+// `ShapeDef`, which we want to remove as part of a larger consolidation effort:
+// https://github.com/penrose/penrose/issues/1282
+export type Rectlike = Equation | Image | Rectangle | Text;
+export type Polygonlike = Rectlike | Line | Polygon | Polyline;
+
+export const isRectlike = (s: Shape): s is Rectlike => {
+  const t = s.shapeType;
+  return t === "Equation" || t === "Image" || t === "Rectangle" || t === "Text";
+};
+
+export const isPolygonlike = (s: Shape): s is Polygonlike => {
+  const t = s.shapeType;
+  return t === "Polygon" || t === "Polyline";
+};
 
 /**
  * Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2` with optional padding `padding`. (For a non-circle shape, its radius should be half of the shape's general "width")
