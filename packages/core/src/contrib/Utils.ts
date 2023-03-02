@@ -36,6 +36,9 @@ export type ShapeTuple = [ShapeType, Omit<Shape, "shapeType">];
 export const shapeTupleToShape = ([t, s]: ShapeTuple): Shape =>
   ({ shapeType: t, ...s } as Shape);
 
+// these are redundant with the `isRectlike` and `isPolygonlike` fields on
+// `ShapeDef`, which we want to remove as part of a larger consolidation effort:
+// https://github.com/penrose/penrose/issues/1282
 export type Rectlike = Equation | Image | Rectangle | Text;
 export type Polygonlike = Rectlike | Line | Polygon | Polyline;
 
