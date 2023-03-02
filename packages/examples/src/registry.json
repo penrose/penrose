@@ -93,6 +93,18 @@
       "variation": ""
     },
     {
+      "substance": "computer-network-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "computer-network-one-way-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "ColumbineMosquito92625"
+    },
+    {
       "substance": "acquaintanceship-graph",
       "style": "graph",
       "domain": "graph",
@@ -133,6 +145,36 @@
       "style": "graph",
       "domain": "graph",
       "variation": "MetalShrew80769"
+    },
+    {
+      "substance": "jobs-trained-matching-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "jobs-trained-no-matching-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "star-topology-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "ring-topology-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "HabitatJellyfish05463"
+    },
+    {
+      "substance": "hybrid-topology-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "HabitatJellyfish05463"
     },
     {
       "name": "Triangle Incenter",
@@ -710,6 +752,14 @@
       "domain": "shape-spec",
       "URI": "shape-spec/arrows.substance"
     },
+    "computer-network-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig1.substance"
+    },
+    "computer-network-one-way-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig4.substance"
+    },
     "acquaintanceship-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig6.substance"
@@ -737,6 +787,26 @@
     "round-robin-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig13.substance"
+    },
+    "jobs-trained-matching-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig10a.substance"
+    },
+    "jobs-trained-no-matching-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig10b.substance"
+    },
+    "star-topology-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig11a.substance"
+    },
+    "ring-topology-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig11b.substance"
+    },
+    "hybrid-topology-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig11c.substance"
     },
     "siggraph-teaser": {
       "domain": "geometry",

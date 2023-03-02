@@ -1,0 +1,14 @@
+Vertex Alvarez, Berkowitz, Chen, Davis
+Vertex requirements, architecture, implementation, testing
+
+Edge(Alvarez, requirements)
+Edge(Alvarez, testing)
+Edge(Berkowitz, architecture)
+Edge(Berkowitz, implementation)
+Edge(Berkowitz, testing)
+Edge(Chen, requirements)
+Edge(Chen, architecture)
+Edge(Chen, implementation)
+Edge(Davis, requirements)
+
+AutoLabel All
