@@ -1,5 +1,16 @@
 import { ops } from "../engine/Autodiff";
-import { add, mul, neg, sqrt, sub } from "../engine/AutodiffFunctions";
+import {
+  add,
+  div,
+  max,
+  min,
+  minN,
+  mul,
+  neg,
+  sqrt,
+  squared,
+  sub,
+} from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
 import { Circle } from "../shapes/Circle";
 import { Ellipse } from "../shapes/Ellipse";
@@ -7,6 +18,15 @@ import { Line } from "../shapes/Line";
 import { Shape, shapedefs } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { msign } from "./Functions";
+import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
+import {
+  convexPartitions,
+  overlappingImplicitEllipses,
+  overlappingPolygonPoints,
+  overlappingPolygonPointsEllipse,
+  rectangleDifference,
+  rectangleSignedDistance,
+} from "./Minkowski";
 import { isPolygonlike, isRectlike, Polygonlike, Rectlike } from "./Utils";
 
 /**
@@ -127,44 +147,120 @@ const shapeDistanceCircles = (s1: Circle, s2: Circle): ad.Num =>
     add(s1.r.contents, s2.r.contents)
   );
 
-const shapeDistanceRectlikes = (s1: Rectlike, s2: Rectlike): ad.Num => {
-  throw Error();
-};
+const shapeDistanceRectlikes = (s1: Rectlike, s2: Rectlike): ad.Num =>
+  shapeDistanceAABBs(s1, s2);
 
 const shapeDistanceRectlikeLine = (s1: Rectlike, s2: Line): ad.Num => {
-  throw Error();
+  // TODO: temporary bounding circle based solution
+  // collect constants
+  const rect = bboxFromShape([s1.shapeType, s1]);
+  const c = s1.center.contents;
+  const a = s2.start.contents;
+  const b = s2.end.contents;
+  const r = sqrt(
+    add(squared(div(rect.width, 2)), squared(div(rect.height, 2)))
+  );
+  const u = ops.vsub(c, a); // u = c-a
+  const v = ops.vsub(b, a); // v - b-a
+  // h = clamp( <u,v>/<v,v>, 0, 1 )
+  const h = max(0, min(1, div(ops.vdot(u, v), ops.vdot(v, v))));
+  // d = | u - h*v |
+  const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
+  // return d - (r+o)
+  return sub(d, r);
+
+  // TODO: fix minkowski SDF and use this instead
+  // const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(
+  //   bboxFromShape(t)
+  // );
+  // const p1: ad.Num[][] = [topLeft, topRight, bottomLeft, bottomRight];
+  // const p2: ad.Num[][] = [s2.start.contents, s2.end.contents];
+  // return convexPolygonMinkowskiSDF(p1, p2, padding);
 };
 
-const shapeDistancePolygonlikes = (
+export const shapeDistancePolygonlikes = (
   s1: Polygonlike,
   s2: Polygonlike
-): ad.Num => {
-  throw Error();
-};
+): ad.Num =>
+  overlappingPolygonPoints(
+    polygonLikePoints([s1.shapeType, s1]),
+    polygonLikePoints([s2.shapeType, s2]),
+    0
+  );
 
 const shapeDistanceEllipses = (s1: Ellipse, s2: Ellipse): ad.Num => {
-  throw Error();
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const d = ops.vdist(s1.center.contents, s2.center.contents);
+  const factor = div(1, add(1, d));
+  const ei1 = ellipseToImplicit(s1, 0, mul(Math.PI / 3, factor));
+  const ei2 = ellipseToImplicit(s2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
 };
 
 const shapeDistanceRectlikeCircle = (s1: Rectlike, s2: Circle): ad.Num => {
-  throw Error();
+  // Prepare axis-aligned bounding boxes
+  const box1 = bboxFromShape([s1.shapeType, s1]);
+  const box2 = bboxFromShape([s2.shapeType, s2]);
+  // Get the Minkowski difference of inner rectangle
+  const innerOverlap = neg(s2.r.contents);
+  const [bottomLeft, topRight] = rectangleDifference(box1, box2, innerOverlap);
+  // Return the signed distance
+  const innerSDF = rectangleSignedDistance(bottomLeft, topRight);
+  return sub(innerSDF, s2.r.contents);
 };
 
 const shapeDistancePolygonlikeEllipse = (
   s1: Polygonlike,
   s2: Ellipse
 ): ad.Num => {
-  throw Error();
+  const points = polygonLikePoints([s1.shapeType, s1]);
+  const cp = convexPartitions(points);
+  return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, 0)));
 };
 
 const shapeDistanceCircleEllipse = (s1: Circle, s2: Ellipse): ad.Num => {
-  throw Error();
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const d = ops.vdist(s1.center.contents, s2.center.contents);
+  const factor = div(1, add(1, d));
+  const ei1 = circleToImplicitEllipse(s1, 0, mul(Math.PI / 3, factor));
+  const ei2 = ellipseToImplicit(s2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
 };
 
 const shapeDistanceCircleLine = (s1: Circle, s2: Line): ad.Num => {
-  throw Error();
+  // collect constants
+  const c = s1.center.contents;
+  const r = s1.r.contents;
+  const a = s2.start.contents;
+  const b = s2.end.contents;
+
+  // Return the distance between the circle center c and the
+  // segment ab, minus the circle radius r and offset o.  This
+  // quantity will be negative of the circular disk intersects
+  // a thickened "capsule" associated with the line (of radius o).
+  // The expression for the point-segment distance d comes from
+  // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+  // (see "Segment - exact").
+  const u = ops.vsub(c, a); // u = c-a
+  const v = ops.vsub(b, a); // v - b-a
+  // h = clamp( <u,v>/<v,v>, 0, 1 )
+  const h = max(0, min(1, div(ops.vdot(u, v), ops.vdot(v, v))));
+  // d = | u - h*v |
+  const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
+  // return d - (r+o)
+  return sub(d, r);
 };
 
-const shapeDistanceAABBs = (s1: Shape, s2: Shape): ad.Num => {
-  throw Error();
+export const shapeDistanceAABBs = (s1: Shape, s2: Shape): ad.Num => {
+  // Prepare axis-aligned bounding boxes
+  const box1 = bboxFromShape([s1.shapeType, s1]);
+  const box2 = bboxFromShape([s2.shapeType, s2]);
+  // Get the Minkowski difference rectangle
+  const [bottomLeft, topRight] = rectangleDifference(box1, box2, 0);
+  // Return the signed distance
+  return rectangleSignedDistance(bottomLeft, topRight);
 };

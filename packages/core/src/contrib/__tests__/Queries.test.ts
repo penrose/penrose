@@ -15,8 +15,11 @@ import {
   outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
+  shapeDistanceAABBs,
+  shapeDistancePolygonlikes,
   shapeSize,
 } from "../Queries";
+import { _rectangles } from "../__testfixtures__/TestShapes.input";
 
 const context = simpleContext("Queries");
 const canvas = makeCanvas(800, 700);
@@ -209,4 +212,23 @@ describe("outwardUnitNormal", () => {
     // `insidePoint2` is inside
     expect(diff).toBeLessThan(0);
   });
+});
+
+describe("shapeDistanceAABBs should return the same value as shapeDistancePolygonlikes", () => {
+  for (const i in _rectangles) {
+    const r1 = _rectangles[i];
+
+    for (const j in _rectangles) {
+      const r2 = _rectangles[j];
+
+      const result1 = shapeDistanceAABBs(r1, r2);
+      const result2 = shapeDistancePolygonlikes(r1, r2);
+
+      const [result1num, result2num] = genCodeSync(
+        secondaryGraph([result1, result2])
+      ).call([]).secondary;
+
+      expect(result1num).toBeCloseTo(result2num, 4);
+    }
+  }
 });

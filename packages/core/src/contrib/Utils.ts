@@ -33,10 +33,8 @@ import * as ad from "../types/ad";
 
 export type ShapeTuple = [ShapeType, Omit<Shape, "shapeType">];
 
-export const shapeTupleToShape = ([t, s]: ShapeTuple): Shape => {
-  if ("shapeType" in s) throw Error("shape in tuple contains shapeType field");
-  return { shapeType: t, ...s } as Shape;
-};
+export const shapeTupleToShape = ([t, s]: ShapeTuple): Shape =>
+  ({ shapeType: t, ...s } as Shape);
 
 export type Rectlike = Equation | Image | Rectangle | Text;
 export type Polygonlike = Rectlike | Line | Polygon | Polyline;
