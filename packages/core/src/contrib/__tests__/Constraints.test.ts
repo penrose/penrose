@@ -1,6 +1,7 @@
+import { Shape, ShapeType } from "../../shapes/Shapes";
 import * as ad from "../../types/ad";
 import { constrDict } from "../Constraints";
-import { numOf } from "../Utils";
+import { numOf, ShapeTuple } from "../Utils";
 import {
   _circles,
   _ellipses,
@@ -226,28 +227,28 @@ describe("general constraints", () => {
     [
       "Circle",
       "Rectangle",
-      (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
+      100 * (Math.SQRT2 - 1) + 10,
       _circles[4],
       _rectangles[2],
     ],
     [
       "Ellipse",
       "Rectangle",
-      (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
+      100 * (Math.SQRT2 - 1) + 10,
       _ellipses[4],
       _rectangles[2],
     ],
-  ])(
+  ] as const)(
     "overlapping %p and %p with padding %p",
     (
-      shapeType0: string,
-      shapeType1: string,
+      shapeType0: ShapeType,
+      shapeType1: ShapeType,
       padding: number,
-      shapeData0: any,
-      shapeData1: any
+      shapeData0: Shape,
+      shapeData1: Shape
     ) => {
-      const shape0: [string, any] = [shapeType0, shapeData0];
-      const shape1: [string, any] = [shapeType1, shapeData1];
+      const shape0: ShapeTuple = [shapeType0, shapeData0];
+      const shape1: ShapeTuple = [shapeType1, shapeData1];
       // The condition should be satisfied
       const overlap = -padding;
       expectSatified(constrDict.overlapping(shape0, shape1, overlap));
@@ -308,17 +309,17 @@ describe("general constraints", () => {
     ["Line", "Polygon", 50, _lines[0], _polygons[3]],
     ["Rectangle", "Polygon", 50, _rectangles[1], _polygons[3]],
     ["Rectangle", "Line", 50, _rectangles[2], _lines[2]],
-  ])(
+  ] as const)(
     "disjoint %p and %p with padding %p",
     (
-      shapeType0: string,
-      shapeType1: string,
+      shapeType0: ShapeType,
+      shapeType1: ShapeType,
       padding: number,
-      shapeData0: any,
-      shapeData1: any
+      shapeData0: Shape,
+      shapeData1: Shape
     ) => {
-      const shape0: [string, any] = [shapeType0, shapeData0];
-      const shape1: [string, any] = [shapeType1, shapeData1];
+      const shape0: ShapeTuple = [shapeType0, shapeData0];
+      const shape1: ShapeTuple = [shapeType1, shapeData1];
       // The condition should NOT be satisfied
       const overlap = -padding;
       expectNotSatisfied(constrDict.overlapping(shape0, shape1, overlap));
@@ -366,21 +367,21 @@ describe("general constraints", () => {
     [
       "Circle",
       "Rectangle",
-      (100 * (Math.SQRT2 - 1)) / Math.SQRT2,
+      100 * (Math.SQRT2 - 1),
       _circles[4],
       _rectangles[2],
     ],
-  ])(
+  ] as const)(
     "touching %p and %p with padding %p",
     (
-      shapeType0: string,
-      shapeType1: string,
+      shapeType0: ShapeType,
+      shapeType1: ShapeType,
       padding: number,
-      shapeData0: any,
-      shapeData1: any
+      shapeData0: Shape,
+      shapeData1: Shape
     ) => {
-      const shape0: [string, any] = [shapeType0, shapeData0];
-      const shape1: [string, any] = [shapeType1, shapeData1];
+      const shape0: ShapeTuple = [shapeType0, shapeData0];
+      const shape1: ShapeTuple = [shapeType1, shapeData1];
       // The condition should JUST be satisfied
       const overlap = -padding;
       expectJustSatified(constrDict.overlapping(shape0, shape1, overlap));
@@ -429,17 +430,17 @@ describe("general constraints", () => {
     ["Ellipse", "Ellipse", 50, _ellipses[0], _ellipses[1]],
     ["Polygon", "Polygon", 20, _polygons[0], _polygons[1]],
     ["Polygon", "Line", 20, _polygons[0], _lines[1]],
-  ])(
+  ] as const)(
     "the first shape (%p) contains the second shape (%p) with padding %p",
     (
-      shapeType0: string,
-      shapeType1: string,
+      shapeType0: ShapeType,
+      shapeType1: ShapeType,
       padding: number,
-      shapeData0: any,
-      shapeData1: any
+      shapeData0: Shape,
+      shapeData1: Shape
     ) => {
-      const shape0: [string, any] = [shapeType0, shapeData0];
-      const shape1: [string, any] = [shapeType1, shapeData1];
+      const shape0: ShapeTuple = [shapeType0, shapeData0];
+      const shape1: ShapeTuple = [shapeType1, shapeData1];
       // The condition should be satisfied
       const overlap = -padding;
       expectSatified(constrDict.overlapping(shape0, shape1, overlap));
