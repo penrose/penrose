@@ -200,15 +200,15 @@ const shapeDistanceEllipses = (s1: Ellipse, s2: Ellipse): ad.Num => {
 };
 
 const shapeDistanceRectlikeCircle = (s1: Rectlike, s2: Circle): ad.Num => {
-  // Prepare axis-aligned bounding boxes
-  const box1 = bboxFromShape([s1.shapeType, s1]);
-  const box2 = bboxFromShape([s2.shapeType, s2]);
-  // Get the Minkowski difference of inner rectangle
-  const innerOverlap = neg(s2.r.contents);
-  const [bottomLeft, topRight] = rectangleDifference(box1, box2, innerOverlap);
-  // Return the signed distance
-  const innerSDF = rectangleSignedDistance(bottomLeft, topRight);
-  return sub(innerSDF, s2.r.contents);
+  const halfW = div(s1.width.contents, 2);
+  const halfH = div(s1.height.contents, 2);
+  const [cx1, cy1] = s1.center.contents;
+  const [cx2, cy2] = s2.center.contents;
+  const x = sub(cx1, cx2);
+  const y = sub(cy1, cy2);
+  const bottomLeft: ad.Pt2 = [sub(x, halfW), sub(y, halfH)];
+  const topRight: ad.Pt2 = [add(x, halfW), add(y, halfH)];
+  return sub(rectangleSignedDistance(bottomLeft, topRight), s2.r.contents);
 };
 
 const shapeDistancePolygonlikeEllipse = (

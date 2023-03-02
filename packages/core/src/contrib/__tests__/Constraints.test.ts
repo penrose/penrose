@@ -227,14 +227,14 @@ describe("general constraints", () => {
     [
       "Circle",
       "Rectangle",
-      (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
+      100 * (Math.SQRT2 - 1) + 10,
       _circles[4],
       _rectangles[2],
     ],
     [
       "Ellipse",
       "Rectangle",
-      (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
+      100 * (Math.SQRT2 - 1) + 10,
       _ellipses[4],
       _rectangles[2],
     ],
@@ -367,7 +367,7 @@ describe("general constraints", () => {
     [
       "Circle",
       "Rectangle",
-      (100 * (Math.SQRT2 - 1)) / Math.SQRT2,
+      100 * (Math.SQRT2 - 1),
       _circles[4],
       _rectangles[2],
     ],
