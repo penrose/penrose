@@ -3,16 +3,19 @@ import {
   absVal,
   add,
   addN,
+  div,
   ifCond,
   lt,
   max,
   maxN,
   mul,
+  neg,
   squared,
   sub,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
 import { Circle } from "../shapes/Circle";
+import { Ellipse } from "../shapes/Ellipse";
 import { Equation } from "../shapes/Equation";
 import { Image } from "../shapes/Image";
 import { Polygon } from "../shapes/Polygon";
@@ -20,9 +23,55 @@ import { Rectangle } from "../shapes/Rectangle";
 import { shapedefs } from "../shapes/Shapes";
 import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
-import { containsPolygonPoints } from "./Minkowski";
+import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
+import {
+  containsPolygonPoints,
+  overlappingImplicitEllipses,
+} from "./Minkowski";
 import { bboxFromShape, shapeCenter } from "./Queries";
 import { atDistOutside, noIntersectCircles, pointInBox } from "./Utils";
+
+// -------- Ovelapping helpers
+
+/**
+ * Require that ellipse `s1` overlaps ellipse `s2` with some overlap `overlap`.
+ */
+export const overlappingEllipse = (
+  s1: Ellipse,
+  s2: Ellipse,
+  overlap: ad.Num
+): ad.Num => {
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const d = ops.vdist(s1.center.contents, s2.center.contents);
+  const factor = div(1, add(1, d));
+  const ei1 = ellipseToImplicit(s1, neg(overlap), mul(Math.PI / 3, factor));
+  const ei2 = ellipseToImplicit(s2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
+};
+
+/**
+ * Require that circle `s1` overlaps ellipse `s2` with some overlap `overlap`.
+ */
+export const overlappingCircleEllipse = (
+  s1: Circle,
+  s2: Ellipse,
+  overlap: ad.Num = 0
+): ad.Num => {
+  // HACK: An arbitrary factor `Math.PI / 3` has been added
+  // to minimize the probability of obtaining a lower degree
+  // polynomial in the Minkowski penalty for implicit shapes.
+  const d = ops.vdist(s1.center.contents, s2.center.contents);
+  const factor = div(1, add(1, d));
+  const ei1 = circleToImplicitEllipse(
+    s1,
+    neg(overlap),
+    mul(Math.PI / 3, factor)
+  );
+  const ei2 = ellipseToImplicit(s2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
+};
 
 /**
  * Require that shape `s1` is at a distance of `distance` from shape `s2`.

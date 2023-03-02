@@ -23,6 +23,8 @@ import {
   containsPolygonCircle,
   containsPolygonPolygon,
   containsRectlikeCircle,
+  overlappingCircleEllipse,
+  overlappingEllipse,
 } from "./ConstraintsUtils";
 import { constrDictCurves } from "./CurveConstraints";
 import { bboxFromShape, shapeDistance, shapeSize } from "./Queries";
@@ -180,8 +182,22 @@ const constrDictGeneral = {
    * based on the type of the shape, and with an optional `overlap` between them
    * (e.g. if `s1` should be overlapping `s2` with margin `overlap`).
    */
-  overlapping: (s1: ShapeTuple, s2: ShapeTuple, overlap: ad.Num = 0) =>
-    add(shapeDistance(shapeTupleToShape(s1), shapeTupleToShape(s2)), overlap),
+  overlapping: (st1: ShapeTuple, st2: ShapeTuple, overlap: ad.Num = 0) => {
+    const s1 = shapeTupleToShape(st1);
+    const s2 = shapeTupleToShape(st2);
+    const t1 = s1.shapeType;
+    const t2 = s2.shapeType;
+    // for some cases with ellipses, we can't easily compute the distance
+    if (t1 === "Ellipse" && t2 === "Ellipse")
+      return overlappingEllipse(s1, s2, overlap);
+    // Circle x Ellipse
+    else if (t1 === "Circle" && t2 === "Ellipse")
+      return overlappingCircleEllipse(s1, s2, overlap);
+    else if (t1 === "Ellipse" && t2 === "Circle")
+      return overlappingCircleEllipse(s2, s1, overlap);
+    // for other cases, we know how to compute the distance, so we just use that
+    else return add(shapeDistance(s1, s2), overlap);
+  },
 
   /**
    * Require that a shape `s1` is disjoint from shape `s2`,

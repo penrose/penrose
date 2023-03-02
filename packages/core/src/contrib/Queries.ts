@@ -18,10 +18,8 @@ import { Line } from "../shapes/Line";
 import { Shape, shapedefs } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { msign } from "./Functions";
-import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
 import {
   convexPartitions,
-  overlappingImplicitEllipses,
   overlappingPolygonPoints,
   overlappingPolygonPointsEllipse,
   rectangleDifference,
@@ -115,8 +113,6 @@ export const shapeDistance = (s1: Shape, s2: Shape): ad.Num => {
     return shapeDistanceRectlikeLine(s2, s1);
   else if (isPolygonlike(s1) && isPolygonlike(s2))
     return shapeDistancePolygonlikes(s1, s2);
-  else if (t1 === "Ellipse" && t2 === "Ellipse")
-    return shapeDistanceEllipses(s1, s2);
   // Rectangle x Circle
   else if (isRectlike(s1) && t2 === "Circle")
     return shapeDistanceRectlikeCircle(s1, s2);
@@ -127,11 +123,6 @@ export const shapeDistance = (s1: Shape, s2: Shape): ad.Num => {
     return shapeDistancePolygonlikeEllipse(s1, s2);
   else if (t1 === "Ellipse" && isPolygonlike(s2))
     return shapeDistancePolygonlikeEllipse(s2, s1);
-  // Circle x Ellipse
-  else if (t1 === "Circle" && t2 === "Ellipse")
-    return shapeDistanceCircleEllipse(s1, s2);
-  else if (t1 === "Ellipse" && t2 === "Circle")
-    return shapeDistanceCircleEllipse(s2, s1);
   // Circle x Line
   else if (t1 === "Circle" && t2 === "Line")
     return shapeDistanceCircleLine(s1, s2);
@@ -188,17 +179,6 @@ export const shapeDistancePolygonlikes = (
     0
   );
 
-const shapeDistanceEllipses = (s1: Ellipse, s2: Ellipse): ad.Num => {
-  // HACK: An arbitrary factor `Math.PI / 3` has been added
-  // to minimize the probability of obtaining a lower degree
-  // polynomial in the Minkowski penalty for implicit shapes.
-  const d = ops.vdist(s1.center.contents, s2.center.contents);
-  const factor = div(1, add(1, d));
-  const ei1 = ellipseToImplicit(s1, 0, mul(Math.PI / 3, factor));
-  const ei2 = ellipseToImplicit(s2, 0, factor);
-  return overlappingImplicitEllipses(ei1, ei2);
-};
-
 const shapeDistanceRectlikeCircle = (s1: Rectlike, s2: Circle): ad.Num => {
   const halfW = div(s1.width.contents, 2);
   const halfH = div(s1.height.contents, 2);
@@ -218,17 +198,6 @@ const shapeDistancePolygonlikeEllipse = (
   const points = polygonLikePoints([s1.shapeType, s1]);
   const cp = convexPartitions(points);
   return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, 0)));
-};
-
-const shapeDistanceCircleEllipse = (s1: Circle, s2: Ellipse): ad.Num => {
-  // HACK: An arbitrary factor `Math.PI / 3` has been added
-  // to minimize the probability of obtaining a lower degree
-  // polynomial in the Minkowski penalty for implicit shapes.
-  const d = ops.vdist(s1.center.contents, s2.center.contents);
-  const factor = div(1, add(1, d));
-  const ei1 = circleToImplicitEllipse(s1, 0, mul(Math.PI / 3, factor));
-  const ei2 = ellipseToImplicit(s2, 0, factor);
-  return overlappingImplicitEllipses(ei1, ei2);
 };
 
 const shapeDistanceCircleLine = (s1: Circle, s2: Line): ad.Num => {
