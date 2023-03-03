@@ -54,7 +54,7 @@ forall Vertex u; Vertex v; Link e where e := Edge(u, v) {
   n = rot90(t) -- normal
   m = (a + b) / 2 -- midpoint
 
-  e.tangent = t
+  e.theta = angleOf(t)
   e.offset = ? in dots
   e.arrow = Path {
     d: quadraticCurveFromPoints("open", [a, m + e.offset * n, b])
@@ -77,10 +77,12 @@ forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(u, v); e2 := Edge(v
 }
 
 forall Vertex v; Link e where e := Edge(v, v) {
-  e.delta = (? in loops, ? in loops)
+  e.theta = ? in loops
+  n = (cos(e.theta), sin(e.theta)) -- normal
+  delta = num.loopRadius * n
 
   e.arrow = Circle {
-    center: v.dot.center + e.delta
+    center: v.dot.center + delta
     r: num.loopRadius
     strokeWidth: 1
     strokeColor: color.black
@@ -88,16 +90,14 @@ forall Vertex v; Link e where e := Edge(v, v) {
   }
 
   e.arrow below v.dot
-
-  ensure norm(e.delta) == num.loopRadius in loops
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(u, v); e2 := Edge(v, v) {
-  encourage maximal(dot(e1.tangent, e2.delta)) in loops
+  encourage maximal(cos(e2.theta - e1.theta)) in loops
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(v, u); e2 := Edge(v, v) {
-  encourage minimal(dot(e1.tangent, e2.delta)) in loops
+  encourage minimal(cos(e2.theta - e1.theta)) in loops
 }
 
 -- we have to duplicate a lot of the above `Edge` code for `Arc`
@@ -109,7 +109,7 @@ forall Vertex u; Vertex v; Link e where e := Arc(u, v) {
   n = rot90(t) -- normal
   m = (a + b) / 2 -- midpoint
 
-  e.tangent = t
+  e.theta = angleOf(t)
   e.offset = ? in dots
   e.arrow = Path {
     d: quadraticCurveFromPoints("open", [a, m + e.offset * n, b])
@@ -142,20 +142,20 @@ forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(v, 
 }
 
 forall Vertex v; Link e where e := Arc(v, v) {
-  e.delta = (? in loops, ? in loops)
+  e.theta = ? in loops
+  n = (cos(e.theta), sin(e.theta)) -- normal
+  delta = num.loopRadius * n
 
   e.arrow = Circle {
-    center: v.dot.center + e.delta
+    center: v.dot.center + delta
     r: num.loopRadius
     strokeWidth: 1
     strokeColor: color.black
     fillColor: none()
   }
 
-  n = normalize(e.delta)
   t = rot90(n)
-
-  p = v.dot.center + 2 * e.delta
+  p = v.dot.center + 2 * delta
   x = num.pointerX
   y = num.pointerY
   e.pointer = Path {
@@ -165,14 +165,13 @@ forall Vertex v; Link e where e := Arc(v, v) {
   }
 
   e.arrow below v.dot
-
-  ensure norm(e.delta) == num.loopRadius in loops
+  e.pointer below e.arrow
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(v, v) {
-  encourage maximal(dot(e1.tangent, e2.delta)) in loops
+  encourage maximal(cos(e2.theta - e1.theta)) in loops
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(v, u); e2 := Arc(v, v) {
-  encourage minimal(dot(e1.tangent, e2.delta)) in loops
+  encourage minimal(cos(e2.theta - e1.theta)) in loops
 }
