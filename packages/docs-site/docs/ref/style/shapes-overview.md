@@ -25,7 +25,7 @@ forall Point x {
 }
 ```
 
-Notice that this definition, the `center:` attribute of the circle is not set. Undefined parameters like these will be automatically optimized by Penrose.
+Notice that this definition, the `center:` attribute of the circle is not set. Undefined parameters like these has default values which may or may not be adjusted upon optimization. Information about which default parameters are automatically adjusted can be found within each shape's specification.
 
 ## Keeping shapes on the canvas
 
