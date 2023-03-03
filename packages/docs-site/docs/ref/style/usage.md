@@ -1,4 +1,4 @@
-# Syntax and Semantics
+# Style Usage
 
 Given a _domain_ schema (specifying the domain of the diagram) and a _substance_ program (specifying _what_ to draw), the _style_ schema describes the recipe of drawing the objects and relations on a canvas.
 
@@ -17,7 +17,7 @@ namespace_name {
 }
 ```
 
-Refer to [this section](syntax#blody-body) for a detailed explanation of what may appear in the body of a namespace.
+Refer to [this section](usage#block-body) for a detailed explanation of what may appear in the body of a namespace.
 
 Values declared within a namespace can be read outside of the namespace using the "dot" operator:
 
@@ -55,7 +55,7 @@ where
 
 - `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the _substance_ schema. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
 - `list_relations` is a **semicolon**-separated list of constraints (about objects in `list_object_declaration`) that must be satisfied in order for this style block to be triggered.
-- `list_body_expressions` is the body of this _style_ block, containing statements that represent the computational and graphical aspects of the diagrams that are triggered when this style block is triggered. Refer to [this section](syntax#blody-body) for a detailed explanation of what may appear in the body of a _style_ block.
+- `list_body_expressions` is the body of this _style_ block, containing statements that represent the computational and graphical aspects of the diagrams that are triggered when this style block is triggered. Refer to [this section](usage#blody-body) for a detailed explanation of what may appear in the body of a _style_ block.
 
 If `list_relations` is empty, then the clause `where ...` needs to be omitted.
 
@@ -212,6 +212,8 @@ where s has label {
 
 If a certain `Set A` in the _substance_ program does not have a label (perhaps due to `NoLabel` declarations), then `s` will not be mapped to `A`, thus preventing an access of nonexistent properties.
 
+We can further distinguish between math labels and text labels (see [substance labeling](../substance/usage#labeling-statements)): `where p has math label` matches math labels, whereas `where p has text label` matches text labels.
+
 ### Matching Deduplication
 
 The matching algorithm is designed to avoid duplicated mappings. If two mappings give us the same set of matched objects (in the _substance_ program) and the equivalent set of matched substance relations (predicate applications and function or constructor applications), then the algorithm only triggers on one of them.
@@ -275,7 +277,7 @@ where MyPredicate (t1, t2) as r1 {
 }
 ```
 
-Refer to [this section](syntax#expressions-and-their-types) for a detailed explanation of the available expressions and their associated types.
+Refer to [this section](usage#expressions-and-their-types) for a detailed explanation of the available expressions and their associated types.
 
 ### Override and Deletion
 
@@ -497,7 +499,30 @@ scalar trM = M[0][0] + M[1][1]
 
 constructs an expression for the trace of `M`. In this case, since the elements of `M` are declared as unknown scalars, the value of the trace will depend on the entry values of the optimized matrix.
 
-### Operations between Expressions
+### Colors
+
+Colors have type `color`, and include an alpha (i.e., opacity) channel. Colors can be specified via two different color models:
+
+- `rgba(r, g, b, a)` defines a color via the RGB color model, with red, green, blue, and alpha values in the range [0, 1].
+  - If the required color is fixed and known, one can also use the hexadecimal representation `#rrggbbaa`, which gets converted to the corresponding color in `rgba(r, g, b, a)`. If the alpha value is not provided in the hexadecimal representation, it defaults to 1.0.
+- `hsva(h, s, v, a)` defines a color via the HSV color model, with hue in the range [0, 360], saturation and value in the range [0, 100], and alpha in the range [0, 1].
+
+To specify that a color should be omitted altogether, you can also use `none()`. E.g.,
+
+```
+fillColor: none()
+strokeColor: none()
+```
+
+Note that `none()` is different from using a 100% transparent color: it really prevents the fill or stroke from being drawn altogether.
+
+### Computation Functions
+
+Computation functions take in multiple values, and return a new value. The aforementioned functions `rgba`, `hsva`, and `none` are examples of computation functions. Other computation functions also exist, including many mathematical functions.
+
+See [the list of computation functions](functions#computation-functions).
+
+### Operations between Numerical Expressions
 
 Aside from concatenation of strings using the operator `+`, the _style_ language supports the operations listed below on scalars, vectors, and matrices. Here we assume that `c` and `d` have type `scalar`, `u` and `v` have type `vecN`, and `A` and `B` have type `matNxN` (all for the same `N`).
 

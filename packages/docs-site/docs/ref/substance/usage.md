@@ -110,8 +110,10 @@ Each declared object has a label, which can be accessed in the _style_ schema. I
 
 There are three types of labeling statements:
 
-- `AutoLabel All`: this statement assigns the label of each object in the _substance_ program to be its name. For instance, if we declare object `Atom A`, then `AutoLabel All` will automatically assign `A` as its label;
-- `Label object_name label_value`: this statement manually assign object `object_name`'s label to be `label_value`; and
+- `AutoLabel All`: this statement assigns the label of each object in the _substance_ program to be its name. For instance, if we declare object `Atom A`, then `AutoLabel All` will automatically assign `A` as its label.
+- `Label object_name label_value`: this statement manually assign object `object_name`'s label to be `label_value`. There are two types of `label_value`s:
+  - A math label is a TeX string delimited by dollar signs, e.g., `Label p $p_0$`
+  - A text label is a plain-text string delimited by double quotes, e.g., `Label p "a point"`.
 - `NoLabel object_list`: this statement ensures that objects in `object_list` do not have a label.
 
 If an object has an assigned label, then in the _style_ schema, we can access the object's `label` property.

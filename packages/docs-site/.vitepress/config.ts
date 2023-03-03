@@ -126,7 +126,7 @@ export default defineConfig({
 
   themeConfig: {
     logo: "img/favicon.ico",
-
+    outline: "deep",
     nav: [
       {
         text: "Learn Penrose",
@@ -201,7 +201,7 @@ export default defineConfig({
                 { text: "Overview", link: "/docs/ref/style" },
                 {
                   text: "Usage",
-                  link: "/docs/ref/style/syntax",
+                  link: "/docs/ref/style/usage",
                 },
                 {
                   text: "Shapes",
