@@ -183,7 +183,7 @@ export default defineConfig({
               text: "Domain",
               items: [
                 { text: "Overview", link: "/docs/ref/domain" },
-                { text: "Syntax", link: "/docs/ref/domain/syntax" },
+                { text: "Usage", link: "/docs/ref/domain/usage" },
                 { text: "Examples", link: "/docs/ref/domain/examples" },
               ],
             },
@@ -191,7 +191,7 @@ export default defineConfig({
               text: "Substance",
               items: [
                 { text: "Overview", link: "/docs/ref/substance" },
-                { text: "Syntax", link: "/docs/ref/substance/syntax" },
+                { text: "Usage", link: "/docs/ref/substance/usage" },
                 { text: "Examples", link: "/docs/ref/substance/examples" },
               ],
             },
@@ -204,7 +204,8 @@ export default defineConfig({
                   link: "/docs/ref/style/syntax",
                 },
                 {
-                  text: "Shape Library",
+                  text: "Shapes",
+                  link: "/docs/ref/style/shapes-overview",
                   items: [
                     // Please make sure the shapes are in alphabetical order.
                     { text: "Circle", link: "/docs/ref/style/shapes/circle" },

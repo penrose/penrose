@@ -1,4 +1,4 @@
-# Syntax
+# Usage
 
 The _substance_ program tells Penrose _what_ objects and relations to draw. In the set-theory example, for example, we can have the following _substance_ program:
 
