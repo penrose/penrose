@@ -200,6 +200,10 @@ export default defineConfig({
               items: [
                 { text: "Overview", link: "/docs/ref/style" },
                 {
+                  text: "Usage",
+                  link: "/docs/ref/style/syntax",
+                },
+                {
                   text: "Shape Library",
                   items: [
                     // Please make sure the shapes are in alphabetical order.
@@ -229,10 +233,6 @@ export default defineConfig({
                 {
                   text: "Passthrough SVG",
                   link: "/docs/ref/style/passthrough",
-                },
-                {
-                  text: "Syntax and Semantics",
-                  link: "/docs/ref/style/syntax",
                 },
                 { text: "Examples", link: "/docs/ref/style/examples" },
               ],
