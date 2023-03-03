@@ -2,18 +2,18 @@ Vertex Raccoon, Hawk, Owl
 Vertex Opossum, Squirrel, Crow
 Vertex Shrew, Mouse, Woodpecker
 
-Edge(Raccoon, Hawk)
-Edge(Raccoon, Owl)
-Edge(Raccoon, Squirrel)
-Edge(Hawk, Owl)
-Edge(Hawk, Crow)
-Edge(Owl, Crow)
-Edge(Opossum, Squirrel)
-Edge(Opossum, Shrew)
-Edge(Opossum, Woodpecker)
-Edge(Squirrel, Crow)
-Edge(Squirrel, Woodpecker)
-Edge(Shrew, Mouse)
-Edge(Shrew, Woodpecker)
+Link e1 := Edge(Raccoon, Hawk)
+Link e2 := Edge(Raccoon, Owl)
+Link e3 := Edge(Raccoon, Squirrel)
+Link e4 := Edge(Hawk, Owl)
+Link e5 := Edge(Hawk, Crow)
+Link e6 := Edge(Owl, Crow)
+Link e7 := Edge(Opossum, Squirrel)
+Link e8 := Edge(Opossum, Shrew)
+Link e9 := Edge(Opossum, Woodpecker)
+Link e10 := Edge(Squirrel, Crow)
+Link e11 := Edge(Squirrel, Woodpecker)
+Link e12 := Edge(Shrew, Mouse)
+Link e13 := Edge(Shrew, Woodpecker)
 
 AutoLabel All

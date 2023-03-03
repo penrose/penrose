@@ -1,13 +1,13 @@
 Vertex Linda, Brian
 Vertex Deborah, Fred, Yvonne
 
-Arc(Brian, Linda)
-Arc(Brian, Yvonne)
-Arc(Deborah, Linda)
-Arc(Deborah, Brian)
-Arc(Deborah, Fred)
-Arc(Fred, Brian)
-Arc(Yvonne, Brian)
-Arc(Yvonne, Fred)
+Link e1 := Arc(Brian, Linda)
+Link e2 := Arc(Brian, Yvonne)
+Link e3 := Arc(Deborah, Linda)
+Link e4 := Arc(Deborah, Brian)
+Link e5 := Arc(Deborah, Fred)
+Link e6 := Arc(Fred, Brian)
+Link e7 := Arc(Yvonne, Brian)
+Link e8 := Arc(Yvonne, Fred)
 
 AutoLabel All

@@ -99,7 +99,19 @@
       "variation": ""
     },
     {
-      "substance": "computer-network-one-way-graph",
+      "substance": "computer-network-multiple-links-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "communications-network-one-way-links-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "computer-network-multiple-one-way-links-graph",
       "style": "graph",
       "domain": "graph",
       "variation": "ColumbineMosquito92625"
@@ -115,6 +127,18 @@
       "style": "graph",
       "domain": "graph",
       "variation": "BurdockWallaby5484"
+    },
+    {
+      "substance": "call-directed-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "call-undirected-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
     },
     {
       "substance": "module-dependency-graph",
@@ -756,7 +780,15 @@
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig1.substance"
     },
-    "computer-network-one-way-graph": {
+    "computer-network-multiple-links-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig2.substance"
+    },
+    "communications-network-one-way-links-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig4.substance"
+    },
+    "computer-network-multiple-one-way-links-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig4.substance"
     },
@@ -767,6 +799,14 @@
     "influence-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig7.substance"
+    },
+    "call-directed-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig8a.substance"
+    },
+    "call-undirected-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig8b.substance"
     },
     "module-dependency-graph": {
       "domain": "graph",

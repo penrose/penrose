@@ -1,3 +1,4 @@
 type Vertex
-predicate Edge(Vertex, Vertex)
-predicate Arc(Vertex, Vertex)
+type Link
+constructor Edge(Vertex u, Vertex v) -> Link
+constructor Arc(Vertex u, Vertex v) -> Link
