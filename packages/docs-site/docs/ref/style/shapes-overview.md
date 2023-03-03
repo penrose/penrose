@@ -1,6 +1,6 @@
 # Shapes
 
-Style currently supports a variety of shapes, listed as sub-entries under this page. Note that the system is constantly evolving and this page may be out of date. Updated attributes for individual shapes can be found in the individual `Shapes.ts` files in the [`/shapes` subdirectory](https://github.com/penrose/penrose/tree/main/packages/core/src/shapes). In the attribute lists below, the `vec2` type describes a 2D vector `u`, whose scalar components can be accessed via `u[0]` and `u[1]`.
+Style currently supports a variety of shapes, listed as sub-entries under this page. In the attribute lists below, the `vec2` type describes a 2D vector `u`, whose scalar components can be accessed via `u[0]` and `u[1]`.
 
 ## Using shapes in Style
 
