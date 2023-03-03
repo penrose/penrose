@@ -177,6 +177,12 @@
       "variation": "MetalShrew80769"
     },
     {
+      "substance": "undirected-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
       "substance": "jobs-trained-matching-graph",
       "style": "graph",
       "domain": "graph",
@@ -205,6 +211,30 @@
       "style": "graph",
       "domain": "graph",
       "variation": "TenzingTapir600"
+    },
+    {
+      "substance": "linear-array-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "MelodySalmon16237"
+    },
+    {
+      "substance": "mesh-network-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "MelodySalmon16237"
+    },
+    {
+      "substance": "hypercube-network-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "TanagerTarsier789"
+    },
+    {
+      "substance": "union-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": "WickerworkCrane44939"
     },
     {
       "name": "Triangle Incenter",
@@ -838,6 +868,10 @@
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig13.substance"
     },
+    "undirected-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig1.substance"
+    },
     "jobs-trained-matching-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec2fig10a.substance"
@@ -857,6 +891,22 @@
     "hybrid-topology-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec2fig11c.substance"
+    },
+    "linear-array-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig12.substance"
+    },
+    "mesh-network-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig13.substance"
+    },
+    "hypercube-network-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig14.substance"
+    },
+    "union-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2fig16b.substance"
     },
     "siggraph-teaser": {
       "domain": "geometry",
