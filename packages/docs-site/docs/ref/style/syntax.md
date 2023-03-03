@@ -9,15 +9,15 @@ A _style_ schema is composed of _blocks_, of which there are two types:
 
 ## Namespaces
 
-A namespace is a collection of value assignments. The syntax for its declarations is as follows:
+The syntax for a namespace is as follows:
 
 ```
 namespace_name {
-    field_1 = expr_1
-    field_2 = expr_2
-    ...
+    ... (the namespace body)
 }
 ```
+
+Refer to [this section](syntax#blody-body) for a detailed explanation of what may appear in the body of a namespace.
 
 Values declared within a namespace can be read outside of the namespace using the "dot" operator:
 
@@ -55,7 +55,7 @@ where
 
 - `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the _substance_ schema. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
 - `list_relations` is a **semicolon**-separated list of constraints (about objects in `list_object_declaration`) that must be satisfied in order for this style block to be triggered.
-- `list_body_expressions` are statements that represent the computational and graphical aspects of the diagrams that are triggered when this style block is triggered.
+- `list_body_expressions` is the body of this _style_ block, containing statements that represent the computational and graphical aspects of the diagrams that are triggered when this style block is triggered. Refer to [this section](syntax#blody-body) for a detailed explanation of what may appear in the body of a _style_ block.
 
 If `list_relations` is empty, then the clause `where ...` needs to be omitted.
 
@@ -232,19 +232,34 @@ Set A, B
 
 Then, only one of mappings `x -> A; y -> B` and `x -> B; y -> A` triggers the Style block.
 
-### Style Block Body
+### Reserved Variables
 
-The body of a style block lists out computations, shape declarations, and constraint / objective definitions that define how to draw elements of a diagram.
+Within a _style_ block body, some variable names are reserved for metadata purposes:
 
-#### Assignments
+- `match_count` is an integer that refers to the number of times that this _style_ blocks will be triggered (or matched) in total; and
+- `match_id` is the 1-indexed ordinal of this current matching.
 
-In _style_ block bodies, we can assign an expression to a field:
+These values can directly be read or overwritten within the style block body, or overwritten, if needed.
+
+## Block Body
+
+The body of a block contains declarations of variables, shapes, and the relationship between objects.
+
+### Assignments
+
+We can assign an expression to a field:
 
 ```
-field = expression
+type_annotation field = expression
 ```
 
-where `field` can either be
+where
+
+- `type_annotation` is an optional field denoting the type of the variable,
+- `field` is a path to the variable being assigned, and
+- `expression` is the expression to be assigned to `field`.
+
+`field` can either be
 
 - A single identifier, which denotes a local assignment, not accessible outside of this matching; or
 - An object name (defined in `list_object_declarations`) or predicate application alias, followed by a dot operator and an identifier, which denotes an assignment bound to a _substance_ instance of object or predicate application after we substitute in the mapping. These assignments are accessible if the same _substance_ object or predicate application is matched again.
@@ -254,24 +269,59 @@ For example, consider the following _style_ block:
 ```
 forall MyType t1; MyType t2
 where MyPredicate (t1, t2) as r1 {
-	x = ... // this is a local assignment
+	x = ... // this is a local assignment not accessible outside of this substitution or this block
 	t1.a = ... // this is bound to the substance instance of `MyType t1`
 	r1.c = ... // this is bound to the substance instance of `MyPredicate (t1, t2)`
 }
 ```
 
-On the other hand, `expression` is either a mathematical expression, or a shape definition, both of which can refer to global, local, and other variables bound to _substance_ instance of objects and predicate applications. Shape declarations have syntax
+Refer to [this section](syntax#expressions-and-their-types) for a detailed explanation of the available expressions and their associated types.
+
+### Override and Deletion
+
+The _style_ language allows users to modify fields that are previously declared. The `override` keyword changes the value of the field. As an example,
 
 ```
-shape_name {
-    property_name_1 : value_1
-    property_name_2 : value_2
+
+forall Set X {
+    shape X.shape = Circle {
+        x: X.x
+        r: 100
+    }
+}
+
+forall Set `A` {
+    override `A`.shape.r = 200
 }
 ```
 
-A full list of available shapes and their properties can be found in the Shape Library.
+the radius of the circle for every `Set` is `100`, except if the `Set` has name `A`, then the radius is `200`.
 
-#### Constraints and Objectives
+Deletion of fields work similarly, with the `delete` keyword. This feature can be helpful for, e.g., removing visual elements for a subtype. For instance,
+
+```
+-- by default, draw a circle for all instances of type T
+forall T x {
+    x.widget = Circle { ... }
+}
+
+-- but don't draw this circle for instances of a subtype S <: T
+forall S x {
+    delete x.widget
+}
+```
+
+Note that one must be careful not to reference deleted attributes in a later generic block. For instance, the following block will produce an error if invoked for an instance of `S`:
+
+```
+forall T x {
+    shape x.newWidget = Circle {
+        center : x.widget.center -- not defined for instances of S
+    }
+}
+```
+
+### Constraints and Objectives
 
 A good diagram must satisfy some basic constraints, while trying to optimize upon some objectives (specifying diagram beauty). We declare these constraints and objectives within the style blocks. A constraint declaration has syntax
 
@@ -293,7 +343,7 @@ We also provide syntax sugar expressions for some commonly-used objectives and c
 - `a == b` is the syntax sugar for the constraint / objective `equal(a, b)`, and
 - `a < b` is the syntax sugar for the constraint / objective `lessThan(a, b)`.
 
-#### Layering
+### Layering
 
 We can specify the layering between two shapes (particularly useful when two shapes overlap) using layering statements: either
 
@@ -311,11 +361,184 @@ where `shape_1` and `shape_2` can be variables assigned to shapes.
 
 We have special handling of layering statements for `Group` shapes, found [here](./shapes/group.md).
 
-#### Reserved Variables
+## Expressions and their Types
 
-Within a _style_ block body, some variable names are reserved for metadata purposes:
+The list of supported Style types is:
 
-- `match_count` is an integer that refers to the number of times that this _style_ blocks will be triggered (or matched) in total; and
-- `match_id` is the 1-indexed ordinal of this current matching.
+- `scalar`
+- `int`
+- `bool`
+- `string`
+- `path`
+- `color`
+- `file`
+- `style`
+- `shape`
+- `vec2`, `vec3`, `vec4`
+- `mat2x2`, `mat3x3`, `mat4x4`
+- `function`
+- `objective`
+- `constraint`
 
-These values can directly be read or overwritten within the style block body, or overwritten, if needed.
+These are what may appear in the optional `type_annotation` field of field assignments.
+
+### Shapes
+
+Shape declarations have syntax
+
+```
+shape_name {
+    property_name_1 : value_1
+    property_name_2 : value_2
+    ...
+}
+```
+
+Once declared, the value of each property can be accessed using
+
+```
+path_to_shape.property_name
+```
+
+For example,
+
+```
+forall Set x {
+    -- declares a circle with radius 50
+    x.shape = Circle {
+        r : 50
+    }
+    -- set its center to be (50, 100)
+    x.shape.center[0] = 50
+    x.shape.center[1] = 100
+}
+```
+
+Each property of a shape has a default value. A full list of available shapes and their properties (and their default values) can be found in the Shape Library.
+
+### Unknown Scalar
+
+The `?` expression evaluates to a scalar whose value is automatically determined by the Penrose engine.
+
+### Strings
+
+Strings have type `string` and string literals are delimited by double quotes. Strings can be concatenated using the `+` operator. For instance, to put parentheses around the label associated of `x`, write
+
+```
+string fancyLabel = "(" + x.label + ")"
+```
+
+### Vectors and matrices
+
+Style supports dense n-dimensional vector and matrix types, and standard operations on these types. These types behave largely like small, dense matrix types found in other languages (such as GLSL), with some specific differences noted below. Note that these types are meant largely for manipulating small 2D, 3D, and 4D vectors/matrices in the context of standard graphics operations (transformations, perspective projection, etc.), and may not perform well for larger matrix manipulations. Like all other objects in Style, the value of any vector or matrix entry can be declared as unknown (`?`) and determined automatically via optimization by the layout engine.
+
+#### Vector and matrix types
+
+Style is designed to support n-dimensional dense vectors of type `vecN`, and square n-dimensional matrices of type `matNxN`, where in both cases `N` is an integer greater than or equal to 2. E.g., types commonly used for diagramming are `vec2` and `mat3x3`. Some library functions may be available only for vectors or matrices of a specific size (e.g., the function `cross(u,v)`, which computes a 3D cross product, assumes that both `u` and `v` have type `vec3`).
+
+#### Initializing vectors and matrices
+
+A vector is constructed by specifying its components. For instance,
+
+```
+vec2 u = (1.23, 4.56)
+```
+
+constructs a 2-dimension vector with `x`-component `1.23` and `y`-component `4.56`. As noted above, unknown values can be used as components, e.g.,
+
+```
+vec2 p = (?, 0.0)
+```
+
+specifies a point `p` that sits on the `x`-axis with an unknown `x`-coordinate which is determined by the optimizer, according to any constraints and objectives involving `p`. More advanced initializers (e.g., initializing a 3-vector from a 2-vector and a scalar) are currently not supported, but are planned for future language versions. In most cases, the same functionality can currently be emulated by directly referencing components of a vector, e.g.,
+
+```
+vec3 a = ( b[0], b[1], 1.0 )
+```
+
+A matrix is constructed by specifying a list of vectors. Each vector corresponds to a row (not a column) of the matrix. For instance,
+
+```
+mat2x2 A = ((1,2),(3,4))
+```
+
+initializes a 2x2 matrix where the top row has entries 1, 2 and the bottom row has entries 3, 4. Rows can also reference existing vectors, e.g.,
+
+```
+vec2 a1 = (1, 2)
+vec2 a2 = (3, 4)
+mat2x2 A = (a1, a2)
+```
+
+builds the same matrix as above. As with vectors, matrix entries can be unknown. E.g.,
+
+```
+scalar d = ?
+mat3x3 D = ((d, 0, 0), (0, d, 0), (0, 0, d))
+```
+
+describes a 3x3 diagonal matrix, where all three diagonal entries take the same, undetermined value `d`.
+
+#### Vector and matrix element access
+
+Individual elements of a `vecN` can be accessed using square brackets, and an index `i` between `0` and `N`-1 (inclusive). For instance,
+
+```
+vec3 u = (1, 2, 3)
+scalar y = u[1]
+```
+
+will extract the `y`-coordinate of `u` (i.e. `y=2`). Matrix entries are similarly accessed:
+
+```
+mat2x2 M = ((?, ?), (?, ?))
+scalar trM = M[0][0] + M[1][1]
+```
+
+constructs an expression for the trace of `M`. In this case, since the elements of `M` are declared as unknown scalars, the value of the trace will depend on the entry values of the optimized matrix.
+
+### Operations between Expressions
+
+Aside from concatenation of strings using the operator `+`, the _style_ language supports the operations listed below on scalars, vectors, and matrices. Here we assume that `c` and `d` have type `scalar`, `u` and `v` have type `vecN`, and `A` and `B` have type `matNxN` (all for the same `N`).
+
+Note that _elementside_ multiplication `.*` and division `./` get applied independently to each entry of a vector or matrix. For instance, if `u = (6, 8, 9)` and `v = (3, 2, 3)`, then the elementwise dicision operation `u ./ v` yields the vector `(2, 4, 3)` (i.e. six divided by three, eight divided by two, and nine divided by three).
+
+#### Scalar-Scalar
+
+- `c + d` - sum of `c` and `d`
+- `c - d` - difference of `c` and `d`
+- `c * d` - multiplies `c` and `d`
+- `c / d` - divides `c` by `d`
+
+#### Scalar-Vector
+
+- `c * v` — scales `v` by `c` (from the left)
+- `v * c` — scales `v` by `c` (from the right)
+- `v / c` — divides `v` by `c`
+
+#### Scalar-Matrix
+
+- `c * A` — scales `A` by `c` (from the left)
+- `A * c` — scales `A` by `c` (from the right)
+- `A / c` — divides `A` by `c`
+
+#### Vector-Vector
+
+- `u + v` — sum of `u` and `v`
+- `u - v` — difference of `u` and `v`
+- `u .* v` — elementwise product of `u` and `v`
+- `u ./ v` — elementwise quotient of `u` and `v`
+
+#### Vector-Matrix
+
+- `A*u` — matrix-vector product Au
+- `u*A` — matrix vector product uᵀA
+
+#### Matrix-Matrix
+
+- `A * B` — matrix-matrix product AB
+- `A + B` — sum of `A` and `B`
+- `A - B` — difference of `A` and `B`
+- `A .* B` — elementwise product of `A` and `B`
+- `A ./ B` — elementwise quotient of `A` and `B`
+- `A'` — matrix transpose Aᵀ
