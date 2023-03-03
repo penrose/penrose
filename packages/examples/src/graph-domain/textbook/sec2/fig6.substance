@@ -1,0 +1,40 @@
+Vertex q10, q11
+Vertex q200, q201, q210, q211
+Vertex q3000, q3001, q3010, q3011, q3100, q3101, q3110, q3111
+
+Link e1_ := Edge(q10, q11)
+
+Link e20_ := Edge(q200, q201)
+Link e2_0 := Edge(q200, q210)
+Link e2_1 := Edge(q201, q211)
+Link e21_ := Edge(q210, q211)
+
+Link e300_ := Edge(q3000, q3001)
+Link e30_0 := Edge(q3000, q3010)
+Link e3_00 := Edge(q3000, q3100)
+Link e30_1 := Edge(q3001, q3011)
+Link e3_01 := Edge(q3001, q3101)
+Link e301_ := Edge(q3010, q3011)
+Link e3_10 := Edge(q3010, q3110)
+Link e3_11 := Edge(q3011, q3111)
+Link e310_ := Edge(q3100, q3101)
+Link e31_0 := Edge(q3100, q3110)
+Link e31_1 := Edge(q3101, q3111)
+Link e311_ := Edge(q3110, q3111)
+
+Label q10 "0"
+Label q11 "1"
+
+Label q200 "00"
+Label q201 "01"
+Label q210 "10"
+Label q211 "11"
+
+Label q3000 "000"
+Label q3001 "001"
+Label q3010 "010"
+Label q3011 "011"
+Label q3100 "100"
+Label q3101 "101"
+Label q3110 "110"
+Label q3111 "111"

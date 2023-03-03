@@ -14,6 +14,7 @@ num {
   radius = 5
   labelDist = 5
   edgeDist = 100
+  repelDist = 1.5 * edgeDist
   offset = 10
   loopRadius = 15
   pointerX = 6
@@ -44,7 +45,10 @@ forall Vertex v {
 }
 
 forall Vertex u; Vertex v {
-  encourage notTooClose(u.dot, v.dot) in dots
+  d = vdist(u.dot.center, v.dot.center)
+  dHat = num.repelDist
+  -- equation 6 from https://ipc-sim.github.io/
+  encourage minimal(max(0, -sqr(d - dHat) * log(d / dHat))) in dots
 }
 
 forall Vertex u; Vertex v; Link e where e := Edge(u, v) {

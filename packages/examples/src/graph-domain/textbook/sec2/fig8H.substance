@@ -1,0 +1,21 @@
+Vertex a, b, c, d, e, f
+
+Link e1 := Edge(a, b)
+Link e2 := Edge(a, e)
+Link e3 := Edge(a, f)
+Link e4 := Edge(b, c)
+Link e5 := Edge(b, d)
+Link e6 := Edge(b, e)
+Link e7 := Edge(b, f)
+Link e8 := Edge(c, d)
+Link e9 := Edge(c, f)
+Link e10 := Edge(d, e)
+Link e11 := Edge(d, f)
+Link e12 := Edge(e, f)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"
+Label e "𝑒"
+Label f "𝑓"

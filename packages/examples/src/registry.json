@@ -177,7 +177,25 @@
       "variation": "MetalShrew80769"
     },
     {
-      "substance": "undirected-graph",
+      "substance": "complete-graphs",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "cycle-graphs",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "wheel-graphs",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
+      "substance": "cube-graphs",
       "style": "graph",
       "domain": "graph",
       "variation": ""
@@ -814,75 +832,87 @@
     },
     "computer-network-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig1.substance"
+      "URI": "graph-domain/textbook/sec1/fig1.substance"
     },
     "computer-network-multiple-links-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig2.substance"
+      "URI": "graph-domain/textbook/sec1/fig2.substance"
     },
     "computer-network-diagnostic-links-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig3.substance"
+      "URI": "graph-domain/textbook/sec1/fig3.substance"
     },
     "communications-network-one-way-links-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig4.substance"
+      "URI": "graph-domain/textbook/sec1/fig4.substance"
     },
     "computer-network-multiple-one-way-links-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig4.substance"
+      "URI": "graph-domain/textbook/sec1/fig4.substance"
     },
     "acquaintanceship-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig6.substance"
+      "URI": "graph-domain/textbook/sec1/fig6.substance"
     },
     "influence-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig7.substance"
+      "URI": "graph-domain/textbook/sec1/fig7.substance"
     },
     "call-directed-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig8a.substance"
+      "URI": "graph-domain/textbook/sec1/fig8a.substance"
     },
     "call-undirected-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig8b.substance"
+      "URI": "graph-domain/textbook/sec1/fig8b.substance"
     },
     "module-dependency-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig9.substance"
+      "URI": "graph-domain/textbook/sec1/fig9.substance"
     },
     "precedence-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig10.substance"
+      "URI": "graph-domain/textbook/sec1/fig10.substance"
     },
     "niche-overlap-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig11.substance"
+      "URI": "graph-domain/textbook/sec1/fig11.substance"
     },
     "protein-interaction-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig12.substance"
+      "URI": "graph-domain/textbook/sec1/fig12.substance"
     },
     "round-robin-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec1fig13.substance"
+      "URI": "graph-domain/textbook/sec1/fig13.substance"
     },
-    "undirected-graph": {
+    "complete-graphs": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig1.substance"
+      "URI": "graph-domain/textbook/sec2/fig3.substance"
+    },
+    "cycle-graphs": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2/fig4.substance"
+    },
+    "wheel-graphs": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2/fig5.substance"
+    },
+    "cube-graphs": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2/fig6.substance"
     },
     "jobs-trained-matching-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig10a.substance"
+      "URI": "graph-domain/textbook/sec2/fig10a.substance"
     },
     "jobs-trained-no-matching-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig10b.substance"
+      "URI": "graph-domain/textbook/sec2/fig10b.substance"
     },
     "star-topology-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig11a.substance"
+      "URI": "graph-domain/textbook/sec2/fig11a.substance"
     },
     "ring-topology-graph": {
       "domain": "graph",
