@@ -241,7 +241,7 @@ Within a _style_ block body, some variable names are reserved for metadata purpo
 - `match_count` is an integer that refers to the number of times that this _style_ blocks will be triggered (or matched) in total; and
 - `match_id` is the 1-indexed ordinal of this current matching.
 
-These values can directly be read or overwritten within the style block body, or overwritten, if needed.
+These values can directly be read or overwritten within the style block body if needed.
 
 ## Block Body
 
