@@ -105,6 +105,12 @@
       "variation": ""
     },
     {
+      "substance": "computer-network-diagnostic-links-graph",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
       "substance": "communications-network-one-way-links-graph",
       "style": "graph",
       "domain": "graph",
@@ -783,6 +789,10 @@
     "computer-network-multiple-links-graph": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec1fig2.substance"
+    },
+    "computer-network-diagnostic-links-graph": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec1fig3.substance"
     },
     "communications-network-one-way-links-graph": {
       "domain": "graph",

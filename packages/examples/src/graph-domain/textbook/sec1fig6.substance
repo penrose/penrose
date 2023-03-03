@@ -7,7 +7,7 @@ Vertex Joel, Gail
 Vertex Koko
 Vertex Kari, Shaquira
 
-Link e1 := Edge(Eduardo, Jan)
+Link e1 := Edge(Eduardo, Paula)
 Link e2 := Edge(Kamini, Jan)
 Link e3 := Edge(Jan, Joel)
 Link e4 := Edge(Jan, Lila)
@@ -22,10 +22,10 @@ Link e12 := Edge(Todd, Steve)
 Link e13 := Edge(Todd, Kamlesh)
 Link e14 := Edge(Kamlesh, Ching)
 Link e15 := Edge(Amy, Liz)
-Link e16 := Edge(Liz, Steve)
-Link e17 := Edge(Lila, Joel)
-Link e18 := Edge(Lila, Liz)
-Link e19 := Edge(Liz, Steve)
+Link e16 := Edge(Amy, Steve)
+Link e17 := Edge(Liz, Steve)
+Link e18 := Edge(Lila, Joel)
+Link e19 := Edge(Lila, Liz)
 Link e20 := Edge(Steve, Shaquira)
 Link e21 := Edge(Steve, Koko)
 Link e22 := Edge(Joel, Kari)
