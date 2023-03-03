@@ -916,27 +916,27 @@
     },
     "ring-topology-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig11b.substance"
+      "URI": "graph-domain/textbook/sec2/fig11b.substance"
     },
     "hybrid-topology-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig11c.substance"
+      "URI": "graph-domain/textbook/sec2/fig11c.substance"
     },
     "linear-array-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig12.substance"
+      "URI": "graph-domain/textbook/sec2/fig12.substance"
     },
     "mesh-network-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig13.substance"
+      "URI": "graph-domain/textbook/sec2/fig13.substance"
     },
     "hypercube-network-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig14.substance"
+      "URI": "graph-domain/textbook/sec2/fig14.substance"
     },
     "union-graph": {
       "domain": "graph",
-      "URI": "graph-domain/textbook/sec2fig16b.substance"
+      "URI": "graph-domain/textbook/sec2/fig16b.substance"
     },
     "siggraph-teaser": {
       "domain": "geometry",
