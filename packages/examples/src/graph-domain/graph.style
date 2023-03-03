@@ -65,7 +65,7 @@ forall Vertex u; Vertex v; Link e where e := Edge(u, v) {
   e.arrow below v.dot
 
   encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
-  encourage minimal(abs(e.offset)) in dots
+  encourage minimal(sqr(e.offset)) in dots
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(u, v); e2 := Edge(u, v) {
@@ -130,7 +130,7 @@ forall Vertex u; Vertex v; Link e where e := Arc(u, v) {
   e.pointer below e.arrow
 
   encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
-  encourage minimal(abs(e.offset)) in dots
+  encourage minimal(sqr(e.offset)) in dots
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(u, v) {
