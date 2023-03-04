@@ -1,10 +1,8 @@
 import { Outputs } from "@penrose/optimizer";
 import GenericGraph from "../utils/Graph";
 
-// The following three regions define the core types for our symbolic
-// differentiation engine. Note that, despite the name, this is not actually
-// automatic differentiation. It used to be, which is why it's named "autodiff",
-// but now it is purely symbolic differentiation.
+// The following two regions define the core types for our symbolic
+// differentiation engine.
 //
 // - The "implicit" representation is used essentially as a DSL to construct
 //   computation graphs, via the convenience functions provided in
@@ -23,18 +21,10 @@ import GenericGraph from "../utils/Graph";
 //   both while constructing the derivatives within it and also while compiling
 //   it to the final representation.
 //
-// - The "compiled" representation is created via the JavaScript Function
-//   constructor, and is used to actually compute the outputs and derivatives
-//   represented by a computation graph, for a given assignment of values for
-//   the inputs in that graph. Its raison d'être is that the JavaScript engine
-//   can easily perform optimizations on it, resulting in much better
-//   performance than what we would get from writing an interpreter for our
-//   custom computation graph structure.
-//
 // We only need to compute the gradient of the energy, but we also need to to
 // compute other values that may not even be intermediate computations for the
-// energy. Thus, the explicit and compiled representations (but not the implicit
-// representation) distinguish the "primary" output (for which the gradient is
+// energy. Thus, the explicit representation (but not the implicit
+// representation) distinguishes the "primary" output (for which the gradient is
 // computed) from "secondary" outputs (for which no derivatives are computed).
 
 //#region Types for implicit autodiff graph
@@ -190,7 +180,7 @@ export interface NotNode {
 
 export interface LogicNode {
   tag: "Logic";
-  binop: "&&" | "||";
+  binop: "&&" | "||" | "!==";
 }
 
 export interface TernaryNode {

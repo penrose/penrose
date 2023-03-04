@@ -1330,6 +1330,7 @@ const binaryOps = {
 
   "&&": wasm.OP.i32.and,
   "||": wasm.OP.i32.or,
+  "!==": wasm.OP.i32.xor,
 };
 
 const compileBinary = (
@@ -1351,7 +1352,8 @@ const compileBinary = (
     case ">=":
     case "<=":
     case "&&":
-    case "||": {
+    case "||":
+    case "!==": {
       t.byte(wasm.OP.local.get);
       t.int(left);
 

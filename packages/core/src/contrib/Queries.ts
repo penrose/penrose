@@ -2,13 +2,18 @@ import { ops } from "../engine/Autodiff";
 import {
   add,
   div,
+  gt,
+  ifCond,
   max,
+  maxN,
   min,
   minN,
   mul,
   neg,
   sqrt,
+  squared,
   sub,
+  xor,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
 import { Circle } from "../shapes/Circle";
@@ -98,11 +103,117 @@ export const outwardUnitNormal = (
   return ops.vmul(neg(msign(insideValue)), normal);
 };
 
+/**
+ * Return the signed distance from the origin to the convex
+ * counterclockwise-oriented polygon `p`.
+ */
+export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
+  const n = p.length;
+  const lines = p.map(([x0, y0], i) => {
+    const [x1, y1] = p[(i + 1) % n];
+    const dx = sub(x1, x0);
+    const dy = sub(y1, y0);
+    const d = sqrt(add(squared(dx), squared(dy)));
+    return div(sub(mul(dx, y0), mul(x0, dy)), d);
+  });
+  const points = p.map(([x, y]) => sqrt(add(squared(x), squared(y))));
+  const numConstraintsBroken = ops.vsum(
+    lines.map((z) => ifCond(gt(z, 0), 1, 0))
+  );
+  return ifCond(gt(numConstraintsBroken, 1), minN(points), maxN(lines));
+};
+
+/**
+ * Return the signed distance from the origin to the Minkowski sum of `rect` and
+ * the negative of `line` (that is, `start` and `end` points both multiplied by
+ * `-1`).
+ */
 export const rectLineDist = (
   rect: { bottomLeft: ad.Pt2; topRight: ad.Pt2 },
   line: { start: ad.Pt2; end: ad.Pt2 }
 ): ad.Num => {
-  throw Error("TODO");
+  const {
+    bottomLeft: [rx0, ry0],
+    topRight: [rx1, ry1],
+  } = rect;
+  const {
+    start: [lxs, lys],
+    end: [lxe, lye],
+  } = line;
+
+  const px = gt(lxs, lxe);
+  const py = gt(lys, lye);
+
+  // 0 means the negative is lesser, 1 means the negative is greater
+  const lx0 = ifCond(px, lxs, lxe);
+  const lx1 = ifCond(px, lxe, lxs);
+  const ly0 = ifCond(py, lys, lye);
+  const ly1 = ifCond(py, lye, lys);
+
+  const x00 = sub(rx0, lx0);
+  const x01 = sub(rx0, lx1);
+  const x10 = sub(rx1, lx0);
+  const x11 = sub(rx1, lx1);
+
+  const y00 = sub(ry0, ly0);
+  const y01 = sub(ry0, ly1);
+  const y10 = sub(ry1, ly0);
+  const y11 = sub(ry1, ly1);
+
+  const p = xor(px, py); // true iff negative slope
+
+  // if `p`:
+  //
+  // 4 - 3
+  // |    \
+  // 5     2
+  //  \    |
+  //   0 - 1
+  //
+  // point 0 is `ops.vsub([rx0, ry0], [lx1, ly0])`
+  // point 1 is `ops.vsub([rx1, rx0], [lx1, ly0])`
+  // point 2 is `ops.vsub([rx1, ry1], [lx1, ly0])`
+  // point 3 is `ops.vsub([rx1, ry1], [lx0, ly1])`
+  // point 4 is `ops.vsub([rx0, ry1], [lx0, ly1])`
+  // point 5 is `ops.vsub([rx0, ry0], [lx0, ly1])`
+
+  // if not `p`:
+  //
+  //   4 - 3
+  //  /    |
+  // 5     2
+  // |    /
+  // 0 - 1
+  //
+  // point 0 is `ops.vsub([rx0, ry0], [lx0, ly0])`
+  // point 1 is `ops.vsub([rx1, ry0], [lx0, ly0])`
+  // point 2 is `ops.vsub([rx1, ry0], [lx1, ly1])`
+  // point 3 is `ops.vsub([rx1, ry1], [lx1, ly1])`
+  // point 4 is `ops.vsub([rx0, ry1], [lx1, ly1])`
+  // point 5 is `ops.vsub([rx0, ry1], [lx0, ly0])`
+
+  const x0 = ifCond(p, x01, x00);
+  const x1 = ifCond(p, x11, x10);
+  const x2 = x11;
+  const x3 = ifCond(p, x10, x11);
+  const x4 = ifCond(p, x00, x01);
+  const x5 = x00;
+
+  const y0 = y00;
+  const y1 = y00;
+  const y2 = ifCond(p, y10, y01);
+  const y3 = y11;
+  const y4 = y11;
+  const y5 = ifCond(p, y01, y10);
+
+  return convexPolygonOriginSignedDistance([
+    [x0, y0],
+    [x1, y1],
+    [x2, y2],
+    [x3, y3],
+    [x4, y4],
+    [x5, y5],
+  ]);
 };
 
 export const shapeDistance = (s1: Shape, s2: Shape): ad.Num => {

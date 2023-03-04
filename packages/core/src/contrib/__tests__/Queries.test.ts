@@ -12,6 +12,7 @@ import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict } from "../Functions";
 import {
   bboxFromShape,
+  convexPolygonOriginSignedDistance,
   outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
@@ -19,6 +20,7 @@ import {
   shapeDistancePolygonlikes,
   shapeSize,
 } from "../Queries";
+import { numOf } from "../Utils";
 import { _rectangles } from "../__testfixtures__/TestShapes.input";
 
 const context = simpleContext("Queries");
@@ -211,6 +213,42 @@ describe("outwardUnitNormal", () => {
     expect(dot).toBeCloseTo(0, 4);
     // `insidePoint2` is inside
     expect(diff).toBeLessThan(0);
+  });
+});
+
+describe("convexPolygonOriginSignedDistance", () => {
+  test("inside point", () => {
+    const d = numOf(
+      convexPolygonOriginSignedDistance([
+        [-1, -1],
+        [1, -1],
+        [0, 1],
+      ])
+    );
+    const [x, y] = [2 / 5, 1 / 5]; // closest
+    expect(d).toBeCloseTo(-Math.sqrt(x ** 2 + y ** 2));
+  });
+
+  test("outside point near edge", () => {
+    const d = numOf(
+      convexPolygonOriginSignedDistance([
+        [-1, 1],
+        [1, 1],
+        [0, 3],
+      ])
+    );
+    expect(d).toBeCloseTo(1);
+  });
+
+  test("outside point near vertex", () => {
+    const d = numOf(
+      convexPolygonOriginSignedDistance([
+        [-1, -3],
+        [1, -3],
+        [0, -1],
+      ])
+    );
+    expect(d).toBeCloseTo(1);
   });
 });
 
