@@ -8,7 +8,6 @@ import {
   mul,
   neg,
   sqrt,
-  squared,
   sub,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
@@ -99,6 +98,13 @@ export const outwardUnitNormal = (
   return ops.vmul(neg(msign(insideValue)), normal);
 };
 
+export const rectLineDist = (
+  rect: { bottomLeft: ad.Pt2; topRight: ad.Pt2 },
+  line: { start: ad.Pt2; end: ad.Pt2 }
+): ad.Num => {
+  throw Error("TODO");
+};
+
 export const shapeDistance = (s1: Shape, s2: Shape): ad.Num => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
@@ -142,31 +148,30 @@ const shapeDistanceRectlikes = (s1: Rectlike, s2: Rectlike): ad.Num =>
   shapeDistanceAABBs(s1, s2);
 
 const shapeDistanceRectlikeLine = (s1: Rectlike, s2: Line): ad.Num => {
-  // TODO: temporary bounding circle based solution
-  // collect constants
-  const rect = bboxFromShape([s1.shapeType, s1]);
-  const c = s1.center.contents;
-  const a = s2.start.contents;
-  const b = s2.end.contents;
-  const r = sqrt(
-    add(squared(div(rect.width, 2)), squared(div(rect.height, 2)))
-  );
-  const u = ops.vsub(c, a); // u = c-a
-  const v = ops.vsub(b, a); // v - b-a
-  // h = clamp( <u,v>/<v,v>, 0, 1 )
-  const h = max(0, min(1, div(ops.vdot(u, v), ops.vdot(v, v))));
-  // d = | u - h*v |
-  const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
-  // return d - (r+o)
-  return sub(d, r);
+  const start = s2.start.contents;
+  const end = s2.end.contents;
+  // https://github.com/penrose/penrose/issues/715
+  if (!ad.isPt2(start)) {
+    throw new Error(
+      `shapeDistance expected start to be Pt2, but got length ${start.length}`
+    );
+  }
+  if (!ad.isPt2(end)) {
+    throw new Error(
+      `shapeDistance expected end to be Pt2, but got length ${end.length}`
+    );
+  }
 
-  // TODO: fix minkowski SDF and use this instead
-  // const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(
-  //   bboxFromShape(t)
-  // );
-  // const p1: ad.Num[][] = [topLeft, topRight, bottomLeft, bottomRight];
-  // const p2: ad.Num[][] = [s2.start.contents, s2.end.contents];
-  // return convexPolygonMinkowskiSDF(p1, p2, padding);
+  const halfW = div(s1.width.contents, 2);
+  const halfH = div(s1.height.contents, 2);
+  const [cx, cy] = s1.center.contents;
+  return rectLineDist(
+    {
+      bottomLeft: [sub(cx, halfW), sub(cy, halfH)],
+      topRight: [add(cx, halfW), add(cy, halfH)],
+    },
+    { start, end }
+  );
 };
 
 export const shapeDistancePolygonlikes = (

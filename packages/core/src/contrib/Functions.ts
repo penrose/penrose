@@ -78,7 +78,7 @@ import {
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints";
-import { bboxFromShape, shapeDistance } from "./Queries";
+import { bboxFromShape, rectLineDist, shapeDistance } from "./Queries";
 import { clamp, inRange, numOf, ShapeTuple, shapeTupleToShape } from "./Utils";
 
 /**
@@ -1711,6 +1711,15 @@ export const compDict = {
       return { tag: "VectorV", contents: closestPointEllipse(s, p) };
     } else throw Error(`unsupported shape ${t} in closestPoint`);
   },
+
+  rectLineDist: (
+    _context: Context,
+    bottomLeft: ad.Pt2,
+    topRight: ad.Pt2,
+    start: ad.Pt2,
+    end: ad.Pt2
+  ): FloatV<ad.Num> =>
+    floatV(rectLineDist({ bottomLeft, topRight }, { start, end })),
 
   shapeDistance: (
     _context: Context,
