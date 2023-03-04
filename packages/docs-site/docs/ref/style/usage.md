@@ -299,7 +299,7 @@ forall Set `A` {
 
 the radius of the circle for every `Set` is `100`, except if the `Set` has name `A`, then the radius is `200`.
 
-Deletion of fields work similarly, with the `delete` keyword. This feature can be helpful for, e.g., removing visual elements for a subtype. For instance,
+Deletion of fields works similarly, with the `delete` keyword. This feature can be helpful for, e.g., removing visual elements for a subtype. For instance,
 
 ```
 -- by default, draw a circle for all instances of type T
