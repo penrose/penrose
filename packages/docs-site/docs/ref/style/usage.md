@@ -55,7 +55,7 @@ where
 
 - `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the _substance_ schema. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
 - `list_relations` is a **semicolon**-separated list of constraints (about objects in `list_object_declaration`) that must be satisfied in order for this style block to be triggered.
-- `list_body_expressions` is the body of this _style_ block, containing statements that represent the computational and graphical aspects of the diagrams that are triggered when this style block is triggered. Refer to [this section](usage#blody-body) for a detailed explanation of what may appear in the body of a _style_ block.
+- `list_body_expressions` is the body of this _style_ block, containing statements that represent the computational and graphical aspects of the diagrams that are triggered when this style block is triggered. Refer to [this section](usage#block-body) for a detailed explanation of what may appear in the body of a _style_ block.
 
 If `list_relations` is empty, then the clause `where ...` needs to be omitted.
 
