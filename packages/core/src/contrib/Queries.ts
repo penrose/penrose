@@ -118,7 +118,7 @@ export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
     const squaredLen = add(squared(dx), squared(dy));
     const negAlong = add(mul(x0, dx), mul(y0, dy));
     return {
-      fromStart: sqrt(add(squared(x0), squared(x1))),
+      fromStart: sqrt(add(squared(x0), squared(y0))),
       goodLeft: lte(negAlong, 0),
       goodRight: lt(neg(squaredLen), negAlong),
       edgeSignedDist: div(sub(mul(dx, y0), mul(x0, dy)), sqrt(squaredLen)),
