@@ -126,7 +126,7 @@ export default defineConfig({
 
   themeConfig: {
     logo: "img/favicon.ico",
-
+    outline: "deep",
     nav: [
       {
         text: "Learn Penrose",
@@ -183,7 +183,7 @@ export default defineConfig({
               text: "Domain",
               items: [
                 { text: "Overview", link: "/docs/ref/domain" },
-                { text: "Syntax", link: "/docs/ref/domain/syntax" },
+                { text: "Usage", link: "/docs/ref/domain/usage" },
                 { text: "Examples", link: "/docs/ref/domain/examples" },
               ],
             },
@@ -191,7 +191,7 @@ export default defineConfig({
               text: "Substance",
               items: [
                 { text: "Overview", link: "/docs/ref/substance" },
-                { text: "Syntax", link: "/docs/ref/substance/syntax" },
+                { text: "Usage", link: "/docs/ref/substance/usage" },
                 { text: "Examples", link: "/docs/ref/substance/examples" },
               ],
             },
@@ -200,7 +200,12 @@ export default defineConfig({
               items: [
                 { text: "Overview", link: "/docs/ref/style" },
                 {
-                  text: "Shape Library",
+                  text: "Usage",
+                  link: "/docs/ref/style/usage",
+                },
+                {
+                  text: "Shapes",
+                  link: "/docs/ref/style/shapes-overview",
                   items: [
                     // Please make sure the shapes are in alphabetical order.
                     { text: "Circle", link: "/docs/ref/style/shapes/circle" },
@@ -229,10 +234,6 @@ export default defineConfig({
                 {
                   text: "Passthrough SVG",
                   link: "/docs/ref/style/passthrough",
-                },
-                {
-                  text: "Syntax and Semantics",
-                  link: "/docs/ref/style/syntax",
                 },
                 { text: "Examples", link: "/docs/ref/style/examples" },
               ],

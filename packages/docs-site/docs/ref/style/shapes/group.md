@@ -36,7 +36,7 @@ and get something like,
 </svg>
 ```
 
-## Parameters
+## Properties
 
 <ShapeProps shape-name="Group" />
 
