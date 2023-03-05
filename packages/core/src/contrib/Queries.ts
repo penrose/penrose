@@ -112,18 +112,50 @@ export const outwardUnitNormal = (
 export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
   const n = p.length;
   const segments = p.map(([x0, y0], i) => {
-    const [x1, y1] = p[(i + 1) % n];
+    // call (x0, y0) "p0"
+    const [x1, y1] = p[(i + 1) % n]; // call this "p1"
     const dx = sub(x1, x0);
     const dy = sub(y1, y0);
+    // call (dx, dy) "v"
     const squaredLen = add(squared(dx), squared(dy));
-    const negAlong = add(mul(x0, dx), mul(y0, dy));
+
+    // Consider the line through p0 and p1. Call the vector from p0 to the
+    // origin (that is, -p0) "u". If we call the dot product of u and v `along`,
+    // then dividing that by the dot product of v with itself (`squaredLen`)
+    // gives us a number that locates for us the closest point to the origin on
+    // this line. If this number is between zero and one, then the closest point
+    // lies on the line segment; otherwise, it lies on the line but outside the
+    // segment between p0 and p1. But instead of dividing by `squaredLen`, we
+    // can just compare `along` to zero and `squaredLen` to get the booleans
+    // `goodLeft` and `goodRight` directly.
+    const along = neg(add(mul(x0, dx), mul(y0, dy)));
+
     return {
+      goodLeft: lte(0, along),
+      goodRight: lt(along, squaredLen),
+
+      // distance from origin to p0
       fromStart: sqrt(add(squared(x0), squared(y0))),
-      goodLeft: lte(negAlong, 0),
-      goodRight: lt(neg(squaredLen), negAlong),
+
+      // signed distance from origin using the half-plane defined by the
+      // directed line from p0 to p1 (not the line segment)
       edgeSignedDist: div(sub(mul(dx, y0), mul(x0, dy)), sqrt(squaredLen)),
     };
   });
+
+  // Since the polygon is convex, either the origin is inside the polygon (in
+  // which case the closest point must be on an edge, not a vertex) or the
+  // origin is outside the polygon. We compose the signed distance function as
+  // the maximum of several components, taking one component for each edge; we
+  // can think of these components as partial functions, where we set them to
+  // negative infinity outside their "domain" since we're taking the maximum. So
+  // for each edge, we include the region between the two lines perpendicular to
+  // that edge passing through its two vertices (which is defined by the
+  // half-plane SDF) and the region outside the polygon where the closest point
+  // is the second endpoint of the edge. This forms a partition of the whole
+  // space outside of the polygon, and inside of the polygon, taking the maximum
+  // of all these half-plane SDFs gives us the correct SDF for the whole convex
+  // polygon.
   return maxN(
     segments.map(({ goodLeft, goodRight, edgeSignedDist }, i) => {
       const next = segments[(i + 1) % n];
