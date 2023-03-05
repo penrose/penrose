@@ -4,6 +4,8 @@ import {
   div,
   gt,
   ifCond,
+  lt,
+  lte,
   max,
   maxN,
   min,
@@ -109,18 +111,33 @@ export const outwardUnitNormal = (
  */
 export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
   const n = p.length;
-  const lines = p.map(([x0, y0], i) => {
+  const segments = p.map(([x0, y0], i) => {
     const [x1, y1] = p[(i + 1) % n];
     const dx = sub(x1, x0);
     const dy = sub(y1, y0);
-    const d = sqrt(add(squared(dx), squared(dy)));
-    return div(sub(mul(dx, y0), mul(x0, dy)), d);
+    const squaredLen = add(squared(dx), squared(dy));
+    const negAlong = add(mul(x0, dx), mul(y0, dy));
+    return {
+      fromStart: sqrt(add(squared(x0), squared(x1))),
+      goodLeft: lte(negAlong, 0),
+      goodRight: lt(neg(squaredLen), negAlong),
+      edgeSignedDist: div(sub(mul(dx, y0), mul(x0, dy)), sqrt(squaredLen)),
+    };
   });
-  const points = p.map(([x, y]) => sqrt(add(squared(x), squared(y))));
-  const numConstraintsBroken = ops.vsum(
-    lines.map((z) => ifCond(gt(z, 0), 1, 0))
+  return maxN(
+    segments.map(({ goodLeft, goodRight, edgeSignedDist }, i) => {
+      const next = segments[(i + 1) % n];
+      return ifCond(
+        goodLeft,
+        ifCond(
+          goodRight,
+          edgeSignedDist,
+          ifCond(next.goodLeft, -Infinity, next.fromStart)
+        ),
+        -Infinity
+      );
+    })
   );
-  return ifCond(gt(numConstraintsBroken, 1), minN(points), maxN(lines));
 };
 
 /**
