@@ -23,20 +23,20 @@ export interface Properties {
   [k: string]: Value<ad.Num>;
 }
 
-export type Shape =
-  | Circle
-  | Ellipse
-  | Equation
-  | Image
-  | Line
-  | Path
-  | Polygon
-  | Polyline
-  | Rectangle
-  | Text
-  | Group;
+export type Shape<T> =
+  | Circle<T>
+  | Ellipse<T>
+  | Equation<T>
+  | Image<T>
+  | Line<T>
+  | Path<T>
+  | Polygon<T>
+  | Polyline<T>
+  | Rectangle<T>
+  | Text<T>
+  | Group<T>;
 
-export type ShapeType = Shape["shapeType"];
+export type ShapeType = Shape<ad.Num>["shapeType"];
 
 export interface ShapeDef {
   sampler: (context: Context, canvas: Canvas) => Properties;

@@ -13,14 +13,14 @@ import { FloatV, StrV } from "../types/value";
 import { boolV, floatV, noPaint, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, sampleColor, uniform } from "./Samplers";
 
-export interface TextProps
-  extends Named,
-    Stroke,
-    Fill,
-    Center, // the center of the bounding box of the text
-    Rect,
-    Rotate,
-    String {
+export interface TextProps<T>
+  extends Named<T>,
+    Stroke<T>,
+    Fill<T>,
+    Center<T>, // the center of the bounding box of the text
+    Rect<T>,
+    Rotate<T>,
+    String<T> {
   // TODO; pare down this set of attributes
   visibility: StrV;
   fontFamily: StrV;
@@ -33,11 +33,14 @@ export interface TextProps
   lineHeight: StrV;
   alignmentBaseline: StrV;
   dominantBaseline: StrV;
-  ascent: FloatV<ad.Num>;
-  descent: FloatV<ad.Num>;
+  ascent: FloatV<T>;
+  descent: FloatV<T>;
 }
 
-export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
+export const sampleText = (
+  context: Context,
+  canvas: Canvas
+): TextProps<ad.Num> => ({
   name: strV("defaultText"),
   style: strV(""),
   strokeWidth: floatV(0),
@@ -97,13 +100,13 @@ export const sampleText = (context: Context, canvas: Canvas): TextProps => ({
   ensureOnCanvas: boolV(true),
 });
 
-export type Text = Shape & { shapeType: "Text" } & TextProps;
+export type Text<T> = Shape<T> & { shapeType: "Text" } & TextProps<T>;
 
 export const makeText = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<TextProps>
-): Text => ({
+  properties: Partial<TextProps<ad.Num>>
+): Text<ad.Num> => ({
   ...sampleText(context, canvas),
   ...properties,
   shapeType: "Text",

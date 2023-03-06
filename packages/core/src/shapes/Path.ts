@@ -4,11 +4,14 @@ import { PathDataV } from "../types/value";
 import { boolV, floatV, noPaint, pathDataV, strV } from "../utils/Util";
 import { Canvas, Context, sampleColor } from "./Samplers";
 
-export interface PathProps extends Named, Stroke, Fill, Arrow {
-  d: PathDataV<ad.Num>;
+export interface PathProps<T> extends Named<T>, Stroke<T>, Fill<T>, Arrow<T> {
+  d: PathDataV<T>;
 }
 
-export const samplePath = (context: Context, _canvas: Canvas): PathProps => ({
+export const samplePath = (
+  context: Context,
+  _canvas: Canvas
+): PathProps<ad.Num> => ({
   name: strV("defaultPath"),
   style: strV(""),
   strokeWidth: floatV(1),
@@ -25,13 +28,13 @@ export const samplePath = (context: Context, _canvas: Canvas): PathProps => ({
   ensureOnCanvas: boolV(true),
 });
 
-export type Path = Shape & { shapeType: "Path" } & PathProps;
+export type Path<T> = Shape<T> & { shapeType: "Path" } & PathProps<T>;
 
 export const makePath = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<PathProps>
-): Path => ({
+  properties: Partial<PathProps<ad.Num>>
+): Path<ad.Num> => ({
   ...samplePath(context, canvas),
   ...properties,
   shapeType: "Path",

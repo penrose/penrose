@@ -11,15 +11,19 @@ import {
   sampleWidth,
 } from "./Samplers";
 
-export interface EllipseProps extends Named, Stroke, Fill, Center {
-  rx: FloatV<ad.Num>;
-  ry: FloatV<ad.Num>;
+export interface EllipseProps<T>
+  extends Named<T>,
+    Stroke<T>,
+    Fill<T>,
+    Center<T> {
+  rx: FloatV<T>;
+  ry: FloatV<T>;
 }
 
 export const sampleEllipse = (
   context: Context,
   canvas: Canvas
-): EllipseProps => ({
+): EllipseProps<ad.Num> => ({
   name: strV("defaultEllipse"),
   style: strV(""),
   strokeWidth: floatV(0),
@@ -33,13 +37,13 @@ export const sampleEllipse = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Ellipse = Shape & { shapeType: "Ellipse" } & EllipseProps;
+export type Ellipse<T> = Shape<T> & { shapeType: "Ellipse" } & EllipseProps<T>;
 
 export const makeEllipse = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<EllipseProps>
-): Ellipse => ({
+  properties: Partial<EllipseProps<ad.Num>>
+): Ellipse<ad.Num> => ({
   ...sampleEllipse(context, canvas),
   ...properties,
   shapeType: "Ellipse",

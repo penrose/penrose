@@ -1,13 +1,19 @@
+import * as ad from "../types/ad";
 import { Fill, Named, Poly, Scale, Shape, Stroke } from "../types/shapes";
 import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
 import { Canvas, Context } from "./Samplers";
 
-export interface PolylineProps extends Named, Stroke, Fill, Scale, Poly {}
+export interface PolylineProps<T>
+  extends Named<T>,
+    Stroke<T>,
+    Fill<T>,
+    Scale<T>,
+    Poly<T> {}
 
 export const samplePolyline = (
   _context: Context,
   _canvas: Canvas
-): PolylineProps => ({
+): PolylineProps<ad.Num> => ({
   name: strV("defaultPolyline"),
   style: strV(""),
   strokeWidth: floatV(1),
@@ -24,13 +30,15 @@ export const samplePolyline = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Polyline = Shape & { shapeType: "Polyline" } & PolylineProps;
+export type Polyline<T> = Shape<T> & {
+  shapeType: "Polyline";
+} & PolylineProps<T>;
 
 export const makePolyline = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<PolylineProps>
-): Polyline => ({
+  properties: Partial<PolylineProps<ad.Num>>
+): Polyline<ad.Num> => ({
   ...samplePolyline(context, canvas),
   ...properties,
   shapeType: "Polyline",

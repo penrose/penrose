@@ -1,3 +1,4 @@
+import * as ad from "../types/ad";
 import {
   Center,
   Fill,
@@ -10,18 +11,18 @@ import {
 import { black, boolV, floatV, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, uniform } from "./Samplers";
 
-export interface EquationProps
-  extends Named,
-    Fill,
-    Center,
-    Rect,
-    Rotate,
-    String {}
+export interface EquationProps<T>
+  extends Named<T>,
+    Fill<T>,
+    Center<T>,
+    Rect<T>,
+    Rotate<T>,
+    String<T> {}
 
 export const sampleEquation = (
   context: Context,
   canvas: Canvas
-): EquationProps => ({
+): EquationProps<ad.Num> => ({
   name: strV("defaultEquation"),
   style: strV(""),
   fillColor: black(),
@@ -53,13 +54,15 @@ export const sampleEquation = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Equation = Shape & { shapeType: "Equation" } & EquationProps;
+export type Equation<T> = Shape<T> & {
+  shapeType: "Equation";
+} & EquationProps<T>;
 
 export const makeEquation = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<EquationProps>
-): Equation => ({
+  properties: Partial<EquationProps<ad.Num>>
+): Equation<ad.Num> => ({
   ...sampleEquation(context, canvas),
   ...properties,
   shapeType: "Equation",
