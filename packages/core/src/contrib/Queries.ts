@@ -272,9 +272,9 @@ export const shapeDistance = (s1: Shape, s2: Shape): ad.Num => {
   else if (isRectlike(s1) && isRectlike(s2))
     return shapeDistanceRectlikes(s1, s2);
   // HACK: text/label-line, mainly to skip convex partitioning
-  else if ((t1 === "Text" || t1 === "Equation") && t2 === "Line")
+  else if (isRectlike(s1) && t2 === "Line")
     return shapeDistanceRectlikeLine(s1, s2);
-  else if (t1 === "Line" && (t2 === "Text" || t2 === "Equation"))
+  else if (t1 === "Line" && isRectlike(s2))
     return shapeDistanceRectlikeLine(s2, s1);
   else if (isPolygonlike(s1) && isPolygonlike(s2))
     return shapeDistancePolygonlikes(s1, s2);
