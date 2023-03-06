@@ -152,10 +152,9 @@ export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
   // for each edge, we include the region between the two lines perpendicular to
   // that edge passing through its two vertices (which is defined by the
   // half-plane SDF) and the region outside the polygon where the closest point
-  // is the second endpoint of the edge. This forms a partition of the whole
-  // space outside of the polygon, and inside of the polygon, taking the maximum
-  // of all these half-plane SDFs gives us the correct SDF for the whole convex
-  // polygon.
+  // is the second endpoint of the edge. This particular choice of regions is
+  // nice because it means that the only discontinuities in the computation of
+  // the SDF are actual discontinuities in the form of its derivative.
   return maxN(
     segments.map(({ goodLeft, goodRight, edgeSignedDist }, i) => {
       const next = segments[(i + 1) % n];
