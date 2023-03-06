@@ -389,6 +389,10 @@ canvas {
       return `Cannot index into a non-collection (at ${loc(error.expr)}).`;
     }
 
+    case "IndexIntoShapeListError": {
+      return `Cannot index into a list of shapes (at ${loc(error.expr)}).`;
+    }
+
     case "NotShapeError": {
       return `Expected to find shape to hold property ${prettyPrintResolvedPath(
         error.path
@@ -456,6 +460,18 @@ canvas {
         )}. The system approximated a global layering order instead: ${error.approxOrdering.join(
         ", "
       )}`;
+    }
+
+    case "ShapeBelongsToMultipleGroups": {
+      return `Shape ${
+        error.shape
+      } belongs to multiple groups: ${error.groups.join(", ")}`;
+    }
+
+    case "GroupCycleWarning": {
+      return `Cycles detected in group memberships: ${error.cycles
+        .map((c) => c.join(", "))
+        .join("; ")}.`;
     }
 
     // ----- END STYLE WARNINGS

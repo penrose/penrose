@@ -1,10 +1,12 @@
 import { input } from "../engine/Autodiff";
+import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
 import * as ad from "../types/ad";
-import { Value } from "../types/value";
+import { GPIListV, ShapeListV, Value } from "../types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
 import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
 import { Equation, makeEquation, sampleEquation } from "./Equation";
+import { Group, GroupProps, sampleGroup } from "./Group";
 import { Image, makeImage, sampleImage } from "./Image";
 import { Line, makeLine, sampleLine } from "./Line";
 import { makePath, Path, samplePath } from "./Path";
@@ -31,7 +33,8 @@ export type Shape =
   | Polygon
   | Polyline
   | Rectangle
-  | Text;
+  | Text
+  | Group;
 
 export type ShapeType = Shape["shapeType"];
 
@@ -185,6 +188,99 @@ const Text = ShapeDef({
   isPolygonlike: true,
 });
 
+// bboxFromGroup is here, not in engine/BBox.
+// Otherwise, `engine/BBox` will need to import `shapedefs` which would make it empty
+// due to cyclic import.
+const bboxFromGroup = ({
+  shapes,
+}: {
+  shapes: GPIListV<ad.Num> | ShapeListV<ad.Num>;
+}): BBox.BBox => {
+  const getBBoxes = () => {
+    if (shapes.tag === "GPIListV") {
+      const content = shapes.contents;
+      return content.map((shape) => {
+        const shapeType = shape.contents[0];
+        const rawShapeProps = shape.contents[1];
+        if (!isShapeType(shapeType)) {
+          throw new Error("Unknown shape in Group bbox: " + shapeType);
+        } else {
+          const shapedef = shapedefs[shapeType];
+          const shapeProps: Properties = {};
+          Object.keys(shapedef.propTags).map((prop) => {
+            shapeProps[prop] = rawShapeProps[prop];
+          });
+
+          return shapedef.bbox(shapeProps);
+        }
+      });
+    } else {
+      const content = shapes.contents;
+      return content.map((shape) => {
+        const shapeType = shape.shapeType;
+        const rawShapeProps = shape.properties;
+        if (!isShapeType(shapeType)) {
+          throw new Error("Unknown shape in Group bbox: " + shapeType);
+        } else {
+          const shapedef = shapedefs[shapeType];
+          const shapeProps: Properties = {};
+          Object.keys(shapedef.propTags).map((prop) => {
+            shapeProps[prop] = rawShapeProps[prop];
+          });
+
+          return shapedef.bbox(shapeProps);
+        }
+      });
+    }
+  };
+  const bboxes = getBBoxes();
+  const xRanges = bboxes.map(BBox.xRange);
+  const yRanges = bboxes.map(BBox.yRange);
+  const minX = minN(xRanges.map((xRange) => xRange[0]));
+  const maxX = maxN(xRanges.map((xRange) => xRange[1]));
+  const minY = minN(yRanges.map((yRange) => yRange[0]));
+  const maxY = maxN(yRanges.map((yRange) => yRange[1]));
+  const width = sub(maxX, minX);
+  const height = sub(maxY, minY);
+  const centerX = div(add(minX, maxX), 2);
+  const centerY = div(add(minY, maxY), 2);
+  return BBox.bbox(width, height, [centerX, centerY]);
+};
+
+const makeGroup = (
+  context: Context,
+  canvas: Canvas,
+  properties: Partial<GroupProps>
+): Group => {
+  // Need to "make" each sub-shape to!
+
+  const group: Group = {
+    ...sampleGroup(context, canvas),
+    ...properties,
+    shapeType: "Group",
+  };
+
+  const shapes = group.shapes.contents;
+  for (const shape of shapes) {
+    const constrShape: Shape = shapedefs[shape.shapeType].constr(
+      context,
+      canvas,
+      shape.properties
+    );
+    Object.entries(constrShape).map(
+      ([prop, val]) => (shape.properties[prop] = val)
+    );
+  }
+  return group;
+};
+
+const Group = ShapeDef({
+  sampler: sampleGroup,
+  constr: makeGroup,
+
+  bbox: bboxFromGroup,
+});
+
 // TODO: figure out how to not have the result be type `any` when indexing into
 // this object using a string key
 export const shapedefs: { [k in ShapeType]: ShapeDef } = {
@@ -198,6 +294,7 @@ export const shapedefs: { [k in ShapeType]: ShapeDef } = {
   Polyline,
   Rectangle,
   Text,
+  Group,
 };
 
 // TODO: don't use a type predicate for this

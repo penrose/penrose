@@ -23,19 +23,18 @@ import {
   containsPolygonCircle,
   containsPolygonPolygon,
   containsRectlikeCircle,
-  overlappingAABBs,
   overlappingCircleEllipse,
-  overlappingCircleLine,
-  overlappingCircles,
   overlappingEllipse,
-  overlappingPolygonEllipse,
-  overlappingPolygons,
-  overlappingRectlikeCircle,
-  overlappingTextLine,
 } from "./ConstraintsUtils";
 import { constrDictCurves } from "./CurveConstraints";
-import { bboxFromShape, shapeSize } from "./Queries";
-import { inRange, overlap1D } from "./Utils";
+import { bboxFromShape, shapeDistance, shapeSize } from "./Queries";
+import {
+  inRange,
+  isRectlike,
+  overlap1D,
+  ShapeTuple,
+  shapeTupleToShape,
+} from "./Utils";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
@@ -183,47 +182,21 @@ const constrDictGeneral = {
    * based on the type of the shape, and with an optional `overlap` between them
    * (e.g. if `s1` should be overlapping `s2` with margin `overlap`).
    */
-  overlapping: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    overlap: ad.Num = 0.0
-  ) => {
-    // Same shapes
-    if (t1 === "Circle" && t2 === "Circle")
-      return overlappingCircles([t1, s1], [t2, s2], overlap);
-    else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
-      return overlappingAABBs([t1, s1], [t2, s2], overlap);
-    // HACK: text/label-line, mainly to skip convex partitioning
-    else if ((t1 === "Text" || t1 === "Equation") && t2 === "Line")
-      return overlappingTextLine([t1, s1], [t2, s2], overlap);
-    else if (t1 === "Line" && (t2 === "Text" || t2 === "Equation"))
-      return overlappingTextLine([t2, s2], [t1, s1], overlap);
-    else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
-      return overlappingPolygons([t1, s1], [t2, s2], overlap);
-    else if (t1 === "Ellipse" && t2 === "Ellipse")
-      return overlappingEllipse([t1, s1], [t2, s2], overlap);
-    // Rectangle x Circle
-    else if (shapedefs[t1].isRectlike && t2 === "Circle")
-      return overlappingRectlikeCircle([t1, s1], [t2, s2], overlap);
-    else if (t1 === "Circle" && shapedefs[t2].isRectlike)
-      return overlappingRectlikeCircle([t2, s2], [t1, s1], overlap);
-    // Polygon x Ellipse
-    else if (shapedefs[t1].isPolygonlike && t2 === "Ellipse")
-      return overlappingPolygonEllipse([t1, s1], [t2, s2], overlap);
-    else if (t1 === "Ellipse" && shapedefs[t2].isPolygonlike)
-      return overlappingPolygonEllipse([t2, s2], [t1, s1], overlap);
+  overlapping: (st1: ShapeTuple, st2: ShapeTuple, overlap: ad.Num = 0) => {
+    const s1 = shapeTupleToShape(st1);
+    const s2 = shapeTupleToShape(st2);
+    const t1 = s1.shapeType;
+    const t2 = s2.shapeType;
+    // for some cases with ellipses, we can't easily compute the distance
+    if (t1 === "Ellipse" && t2 === "Ellipse")
+      return overlappingEllipse(s1, s2, overlap);
     // Circle x Ellipse
     else if (t1 === "Circle" && t2 === "Ellipse")
-      return overlappingCircleEllipse([t1, s1], [t2, s2], overlap);
+      return overlappingCircleEllipse(s1, s2, overlap);
     else if (t1 === "Ellipse" && t2 === "Circle")
-      return overlappingCircleEllipse([t2, s2], [t1, s1], overlap);
-    // Circle x Line
-    else if (t1 === "Circle" && t2 === "Line")
-      return overlappingCircleLine([t1, s1], [t2, s2], overlap);
-    else if (t1 === "Line" && t2 === "Circle")
-      return overlappingCircleLine([t2, s2], [t1, s1], overlap);
-    // Default to axis-aligned bounding boxes
-    else return overlappingAABBs([t1, s1], [t2, s2], overlap);
+      return overlappingCircleEllipse(s2, s1, overlap);
+    // for other cases, we know how to compute the distance, so we just use that
+    else return add(shapeDistance(s1, s2), overlap);
   },
 
   /**
@@ -231,28 +204,16 @@ const constrDictGeneral = {
    * based on the type of the shape, and with an optional `padding` between them
    * (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
    */
-  disjoint: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    padding: ad.Num = 0.0
-  ) => {
-    return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding)));
-  },
+  disjoint: (s1: ShapeTuple, s2: ShapeTuple, padding: ad.Num = 0) =>
+    neg(constrDictGeneral.overlapping(s1, s2, neg(padding))),
 
   /**
    * Require that shape `s1` is touching shape `s2`.
    * based on the type of the shape, and with an optional `padding` between them
    * (e.g. if `s1` should be touching `s2` with margin `padding`).
    */
-  touching: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    padding: ad.Num = 0.0
-  ) => {
-    return absVal(
-      constrDictGeneral.overlapping([t1, s1], [t2, s2], neg(padding))
-    );
-  },
+  touching: (s1: ShapeTuple, s2: ShapeTuple, padding: ad.Num = 0) =>
+    absVal(constrDictGeneral.overlapping(s1, s2, neg(padding))),
 
   /**
    * Require that a shape `s1` contains another shape `s2`,
@@ -282,14 +243,9 @@ const constrDictGeneral = {
   /**
    * Require that shape `s1` is at a distance of `distance` from shape `s2`.
    */
-  atDist: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    distance: number
-  ) => {
-    if (shapedefs[t2].isRectlike)
-      return atDistLabel([t1, s1], [t2, s2], distance);
-    else return constrDictGeneral.touching([t1, s1], [t2, s2], distance);
+  atDist: (s1: ShapeTuple, s2: ShapeTuple, distance: ad.Num) => {
+    if (isRectlike(shapeTupleToShape(s2))) return atDistLabel(s1, s2, distance);
+    else return constrDictGeneral.touching(s1, s2, distance);
   },
 
   /**

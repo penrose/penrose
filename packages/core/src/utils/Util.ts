@@ -5,7 +5,7 @@ import { ShapeType } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A } from "../types/ast";
 import { Either, Left, Right } from "../types/common";
-import { Properties } from "../types/shape";
+import { GenericShape, Properties } from "../types/shape";
 import { Fn } from "../types/state";
 import { BindingForm, Expr, Path } from "../types/style";
 import {
@@ -20,12 +20,15 @@ import {
   Color,
   ColorV,
   FloatV,
+  GPI,
+  GPIListV,
   ListV,
   LListV,
   MatrixV,
   PathCmd,
   PathDataV,
   PtListV,
+  ShapeListV,
   StrV,
   TupV,
   Val,
@@ -623,6 +626,18 @@ export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
   contents,
 });
 
+export const gpiListV = (contents: GPI<ad.Num>[]): GPIListV<ad.Num> => ({
+  tag: "GPIListV",
+  contents,
+});
+
+export const shapeListV = (
+  contents: GenericShape<ad.Num>[]
+): ShapeListV<ad.Num> => ({
+  tag: "ShapeListV",
+  contents,
+});
+
 export const black = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
 export const white = (): ColorV<ad.Num> =>
@@ -901,6 +916,24 @@ export const getAdValueAsString = (
       prop.contents
     )}`
   );
+};
+
+/**
+ * Gets the contents of a value as a list of GPIs.
+ * If unable, throw an exception.
+ */
+export const getAdValueAsGPIList = (val: Value<ad.Num>): GPI<ad.Num>[] => {
+  if (val.tag === "GPIListV") return val.contents;
+  throw new Error("Not a list of shapes");
+};
+
+/**
+ * Gets the contents of a value as a list of ShapeADs.
+ * If unable, throw an exception.
+ */
+export const getValueAsShapeList = <T>(val: Value<T>): GenericShape<T>[] => {
+  if (val.tag === "ShapeListV") return val.contents;
+  throw new Error("Not a list of shapes");
 };
 
 //#endregion

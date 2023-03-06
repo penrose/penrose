@@ -62,6 +62,7 @@ export class Grid extends React.Component<GridProps> {
         <Gridbox
           {...this.props.gridBoxProps}
           key={`grid-${i}`}
+          name={`grid-${i}`}
           header={this.props.header(i)}
           metadata={this.props.metadata(i)}
           domain={domain}
