@@ -51,6 +51,8 @@ forall Vertex u; Vertex v {
   dHat = num.repelDist
   -- equation 6 from https://ipc-sim.github.io/
   encourage minimal(max(0, -sqr(d - dHat) * log(d / dHat))) in dots
+
+  ensure disjoint(u.text, v.text, num.labelDist) in text
 }
 
 forall Vertex u; Vertex v; Link e where e := Edge(u, v) {
@@ -60,6 +62,8 @@ forall Vertex u; Vertex v; Link e where e := Edge(u, v) {
   n = rot90(t) -- normal
   m = (a + b) / 2 -- midpoint
 
+  e.start = a
+  e.end = b
   e.theta = angleOf(t)
   e.offset = ? in dots
   e.arrow = Path {
@@ -82,6 +86,10 @@ forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(u, v); e2 := Edge(u
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(u, v); e2 := Edge(v, u) {
   ensure abs(e1.offset + e2.offset) > 2 * num.offset in dots
+}
+
+forall Vertex u; Vertex v; Vertex w; Link e where e := Edge(u, v) {
+  encourage maximal(min(num.labelDist, rectLineDist(w.bottomLeft, w.topRight, e.start, e.end))) in text
 }
 
 forall Vertex v; Link e where e := Edge(v, v) {
@@ -117,6 +125,8 @@ forall Vertex u; Vertex v; Link e where e := Arc(u, v) {
   n = rot90(t) -- normal
   m = (a + b) / 2 -- midpoint
 
+  e.start = a
+  e.end = b
   e.theta = angleOf(t)
   e.offset = ? in dots
   e.arrow = Path {
@@ -149,6 +159,10 @@ forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(u, 
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(v, u) {
   ensure abs(e1.offset + e2.offset) > 2 * num.offset in dots
+}
+
+forall Vertex u; Vertex v; Vertex w; Link e where e := Arc(u, v) {
+  encourage maximal(min(num.labelDist, rectLineDist(w.bottomLeft, w.topRight, e.start, e.end))) in text
 }
 
 forall Vertex v; Link e where e := Arc(v, v) {
