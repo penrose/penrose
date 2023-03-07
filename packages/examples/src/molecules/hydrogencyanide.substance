@@ -3,8 +3,7 @@ Carbon c
 Nitrogen n
 Bond b1 := MakeSingleBond(c, h)
 Bond b2 := MakeTripleBond(c, n)
-Electron e1, e2
-e1 := ValenceElectron(n)
-e2 := ValenceElectron(n)
+ElectronPair e
+e := ValenceElectronPair(n)
 
 AutoLabel All
