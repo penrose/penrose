@@ -25,7 +25,7 @@ const defaultParams: SynthesizerSetting = {
   },
   opWeights: {
     add: 0.01,
-    delete: 0.02,
+    delete: 0.01,
     edit: 0.8,
   },
   // TODO: need weights for the three ops
@@ -33,7 +33,7 @@ const defaultParams: SynthesizerSetting = {
     type: "*",
     function: "*",
     constructor: "*",
-    predicate: [],
+    predicate: "*",
   },
   delete: {
     type: "*",
