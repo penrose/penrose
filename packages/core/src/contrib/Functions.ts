@@ -69,7 +69,7 @@ import {
   Value,
   VectorV,
 } from "../types/value";
-import { getStart, linePts } from "../utils/Util";
+import { floatV, getStart, linePts } from "../utils/Util";
 import {
   elasticEnergy,
   isoperimetricRatio,
@@ -78,8 +78,8 @@ import {
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints";
-import { bboxFromShape } from "./Queries";
-import { clamp, inRange, numOf } from "./Utils";
+import { bboxFromShape, rectLineDist, shapeDistance } from "./Queries";
+import { clamp, inRange, numOf, ShapeTuple, shapeTupleToShape } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -1711,6 +1711,23 @@ export const compDict = {
       return { tag: "VectorV", contents: closestPointEllipse(s, p) };
     } else throw Error(`unsupported shape ${t} in closestPoint`);
   },
+
+  rectLineDist: (
+    _context: Context,
+    bottomLeft: ad.Pt2,
+    topRight: ad.Pt2,
+    start: ad.Pt2,
+    end: ad.Pt2
+  ): FloatV<ad.Num> =>
+    floatV(rectLineDist({ bottomLeft, topRight }, { start, end })),
+
+  shapeDistance: (
+    _context: Context,
+    s1: ShapeTuple,
+    s2: ShapeTuple
+  ): FloatV<ad.Num> =>
+    floatV(shapeDistance(shapeTupleToShape(s1), shapeTupleToShape(s2))),
+
   /**
    * Returns the signed area enclosed by a polygonal chain given its nodes
    */

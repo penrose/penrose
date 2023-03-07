@@ -125,8 +125,9 @@ constructor MakeTripleBond(Atom a, Atom b) -> Bond
 
 -- Electrons 
 
-type Electron
-constructor ValanceElectron(Atom a) -> Electron
+type ElectronPair
+
+constructor ValenceElectronPair(Atom a) -> ElectronPair
 
 -- layout
 -- predicate Collinear(Atom, Atom, Atom)

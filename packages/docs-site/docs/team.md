@@ -72,30 +72,20 @@ const members = [
     ],
   },
   {
-    name: "Max Krieger",
-    title: "🦆",
-    avatar: "https://www.github.com/maxkrieger.png",
-    links: [
-      { icon: { svg: website }, link: "http://a9.io/" },
-      { icon: "github", link: "https://github.com/maxkrieger" },
-    ],
-  },
-  {
-    name: "Matt Davis",
-    title: "Ph.D. student @ CMU",
-    avatar: "https://www.github.com/cmumatt.png",
-    links: [
-      { icon: { svg: website }, link: "https://cmumatt.github.io/" },
-      { icon: "github", link: "https://github.com/cmumatt" },
-    ],
-  },
-  {
     name: "Sam Estep",
     title: "Ph.D. student @ CMU",
     avatar: "https://www.github.com/samestep.png",
     links: [
       { icon: { svg: website }, link: "https://samestep.com/" },
       { icon: "github", link: "https://github.com/samestep" },
+    ],
+  },
+  {
+    name: "Yiliang (Leo) Liang",
+    title: "Research engineer @ CMU",
+    avatar: "https://www.github.com/liangyiliang.png",
+    links: [
+      { icon: "github", link: "https://github.com/liangyiliang" },
     ],
   },
   {
@@ -108,20 +98,21 @@ const members = [
     ],
   },
   {
+    name: "Max Krieger",
+    title: "🦆",
+    avatar: "https://www.github.com/maxkrieger.png",
+    links: [
+      { icon: { svg: website }, link: "http://a9.io/" },
+      { icon: "github", link: "https://github.com/maxkrieger" },
+    ],
+  },
+  {
     name: "Hwei-Shin Harriman",
     title: "Software engineer @ Tableau",
     avatar: "https://www.github.com/hsharriman.png",
     links: [
       { icon: { svg: website }, link: "https://hsharriman.github.io/" },
       { icon: "github", link: "https://github.com/hsharriman" },
-    ],
-  },
-  {
-    name: "Yiliang (Leo) Liang",
-    title: "Undergraduate student @ UMich",
-    avatar: "https://www.github.com/liangyiliang.png",
-    links: [
-      { icon: "github", link: "https://github.com/liangyiliang" },
     ],
   },
   {
@@ -134,15 +125,6 @@ const members = [
     ],
   },
   {
-    name: "Jonathan Aldrich",
-    title: "Professor @ CMU",
-    avatar: "https://www.github.com/JonathanAldrich.png",
-    links: [
-      { icon: { svg: website }, link: "https://www.cs.cmu.edu/~./aldrich/" },
-      { icon: "github", link: "https://github.com/JonathanAldrich" },
-    ],
-  },
-  {
     name: "Keenan Crane",
     title: "Professor @ CMU",
     avatar: "https://www.github.com/keenancrane.png",
@@ -151,13 +133,22 @@ const members = [
       { icon: "github", link: "https://github.com/keenancrane" },
     ],
   },
+  {
+    name: "Jonathan Aldrich",
+    title: "Professor @ CMU",
+    avatar: "https://www.github.com/JonathanAldrich.png",
+    links: [
+      { icon: { svg: website }, link: "https://www.cs.cmu.edu/~./aldrich/" },
+      { icon: "github", link: "https://github.com/JonathanAldrich" },
+    ],
+  },
 ];
 </script>
 
 # The Penrose Team
 
 The Penrose Team is based at [Carnegie Mellon University](https://cmu.edu])'s [School of Computer Science](https://cs.cmu.edu)
-in Pittsburgh, PA USA -- and other locations around the world.
+in Pittsburgh, PA USA—and other locations around the world.
 
 ## Current Members
 
@@ -174,3 +165,4 @@ in Pittsburgh, PA USA -- and other locations around the world.
 - [Stella Trout](https://miyehn.me/)
 - [Dor Ma'ayan](http://www.cs.technion.ac.il/people/dorma10/)
 - [Lily Shellhammer](https://www.linkedin.com/in/lily-shellhammer-899b43105)
+- [Matt Davis](https://cmumatt.github.io/)
