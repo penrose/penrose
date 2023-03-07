@@ -715,7 +715,7 @@ with Atom a {
   -- }
   ensure contains(a.icon, e.circle1) in electron
   ensure contains(a.icon, e.circle2) in electron
-  ensure disjoint(e.icon, a.text, 2) 
+  ensure norm(e.center - a.text.center) == const.atomSize/2 in electron
   a.icon below e.icon
 } 
 
