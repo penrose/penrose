@@ -1,0 +1,27 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Text `g` {
+  `g`.shape = Equation {
+    string : "e^{i \pi} = -1"
+    fontSize : "50pt"
+  }
+  `g`.box = Rectangle {
+    center: `g`.shape.center
+    width : `g`.shape.width
+    height : `g`.shape.height
+    fillColor: none()
+    strokeWidth: 1
+    strokeColor: #000
+  }
+}
+
+forall Line l {
+  l.shape = Line {
+    strokeColor: #000
+  }
+
+  ensure touching(`g`.shape, l.shape)
+}
