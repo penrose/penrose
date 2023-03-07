@@ -119,8 +119,8 @@ pub fn penrose_inverse(x: f64) -> f64 {
     1. / x
 }
 
-// this function has a quirky implementation for historical reasons predating our switch to
-// WebAssembly and Rust
+// before we switched to WebAssembly and Rust, we used JavaScript's `Math.sign` function, so this
+// function is meant to provide the same behavior as that
 #[wasm_bindgen]
 pub fn penrose_sign(x: f64) -> f64 {
     if x == 0. {
