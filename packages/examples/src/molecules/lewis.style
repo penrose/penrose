@@ -581,7 +581,7 @@ forall Atom x {
     shape x.icon = Circle {
         strokeWidth : 0.0
         r : const.atomSize / 2
-        fillColor : #fff
+        fillColor : none()
         -- fillColor : #ff000060 -- DEBUG
         center: (? except electron, ? except electron)
     }
@@ -715,9 +715,7 @@ with Atom a {
   -- }
   ensure contains(a.icon, e.circle1) in electron
   ensure contains(a.icon, e.circle2) in electron
-  ensure disjoint(a.text, e.circle1, 2) in electron
-  ensure disjoint(a.text, e.circle2, 2) in electron
-  encourage 1/normsq(e.center - a.text.center) == 0 in electron
+  -- encourage 1/normsq(e.center - a.text.center) == 0 in electron
   a.icon below e.icon
 } 
 
@@ -725,8 +723,6 @@ forall ElectronPair e1; ElectronPair e2
 where e1 := ValenceElectronPair(a); e2 := ValenceElectronPair(a)
 with Atom a {
     encourage notTooClose(e1.icon, e2.icon) in electron
-    -- encourage notTooClose(e1.circle1, e2.circle1) in electron
-    -- encourage notTooClose(e1.circle2, e2.circle2) in electron
 }
 
 
@@ -740,6 +736,11 @@ with Atom x, y {
   vec2 x2 = e.center
   scalar d = norm( x1 - x2 )
   encourage weight * const.k*(d - const.L)*(d - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
+  -- debug = Circle {
+  --   r: const.dotSize / 2
+  --   fillColor: #f00
+  --   center: x1
+  -- }
 } 
 forall Bond b; ElectronPair e
 where e := ValenceElectronPair(y); b := MakeSingleBond(x, y)
