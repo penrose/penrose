@@ -7,9 +7,10 @@ const {
   scalar dotSize = 3
   scalar atomSize = 30
   scalar k = 1 -- spring stiffness
-  scalar L = 5  -- rest length
+  scalar L = 10 -- rest length
   scalar symmetryWeight = 1
   scalar symmetryDegree = 3
+  scalar bondAvoidWeight = 1
 }
 
 -- generated element list
@@ -712,10 +713,10 @@ with Atom a {
   --   fillColor: #f00
   --   r: const.dotSize / 2
   -- }
-  ensure contains(a.icon, e.circle1)
-  ensure contains(a.icon, e.circle2)
-  ensure disjoint(a.text, e.circle1)
-  ensure disjoint(a.text, e.circle2) in electro
+  ensure contains(a.icon, e.circle1) in electron
+  ensure contains(a.icon, e.circle2) in electron
+  ensure disjoint(a.text, e.circle1, 2) in electron
+  ensure disjoint(a.text, e.circle2, 2) in electron
   encourage 1/normsq(e.center - a.text.center) == 0 in electron
   a.icon below e.icon
 } 
@@ -723,99 +724,78 @@ with Atom a {
 forall ElectronPair e1; ElectronPair e2
 where e1 := ValenceElectronPair(a); e2 := ValenceElectronPair(a)
 with Atom a {
-  -- encourage 1000/vdist(e1.center, e2.center)^2 == 1000 in electron
     encourage notTooClose(e1.icon, e2.icon) in electron
+    -- encourage notTooClose(e1.circle1, e2.circle1) in electron
+    -- encourage notTooClose(e1.circle2, e2.circle2) in electron
 }
 
 
 -- single bond
 forall Bond b; ElectronPair e
-where e := ValenceElectronPair(y); b := MakeSingleBond(x, y)
-with Atom x, y {
-  -- attract all electrons to the opposite of the bond
-  vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
-  -- debug = Circle {
-  --   center: x1
-  --   fillColor: #0f0
-  --   r: const.dotSize
-  -- }
-  vec2 x2 = e.center
-  scalar d = norm( x1 - x2 )
-  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
-} 
-forall Bond b; ElectronPair e
 where e := ValenceElectronPair(x); b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
+  weight = const.bondAvoidWeight
   vec2 x1 = x.icon.center + normalize(-b.vec) * const.atomSize / 2
-  -- debug = Circle {
-  --   center: x1
-  --   fillColor: #0f0
-  --   r: const.dotSize
-  -- }
   vec2 x2 = e.center
   scalar d = norm( x1 - x2 )
-  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
+  encourage weight * const.k*(d - const.L)*(d - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 } 
+forall Bond b; ElectronPair e
+where e := ValenceElectronPair(y); b := MakeSingleBond(x, y)
+with Atom x, y {
+  -- attract all electrons to the opposite of the bond
+  weight = const.bondAvoidWeight
+  vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
+  vec2 x2 = e.center
+  scalar d = norm( x1 - x2 )
+  encourage weight * const.k*(d - const.L)*(d - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
+} 
+
 
 -- double bond
 forall Bond b; ElectronPair e
 where e := ValenceElectronPair(x); b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
-  vec2 x1 = y.icon.center + normalize(-b.vec) * const.atomSize / 2
+  weight = const.bondAvoidWeight
+  vec2 x1 = x.icon.center + normalize(-b.vec) * const.atomSize / 2
   vec2 x2 = e.center
-  -- debug = Circle {
-  --   center: x1
-  --   fillColor: #0f0
-  --   r: const.dotSize
-  -- }
   scalar d = norm( x1 - x2 )
-  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
-}
+  encourage weight * const.k*(d - const.L)*(d - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
+} 
 forall Bond b; ElectronPair e
 where e := ValenceElectronPair(y); b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
+  weight = const.bondAvoidWeight
   vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
   vec2 x2 = e.center
-  -- debug = Circle {
-  --   center: x1
-  --   fillColor: #0f0
-  --   r: const.dotSize
-  -- }
   scalar d = norm( x1 - x2 )
-  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
-}
+  encourage weight * const.k*(d - const.L)*(d - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
+} 
 
--- Triple bond
+
+-- triple bond
 forall Bond b; ElectronPair e
 where e := ValenceElectronPair(x); b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
-  vec2 x1 = y.icon.center + normalize(-b.vec) * const.atomSize / 2
+  weight = const.bondAvoidWeight
+  vec2 x1 = x.icon.center + normalize(-b.vec) * const.atomSize / 2
   vec2 x2 = e.center
   scalar d = norm( x1 - x2 )
-  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
-  -- debug = Circle {
-  --   center: x1
-  --   fillColor: #0f0
-  --   r: const.dotSize
-  -- }
+  encourage weight * const.k*(d - const.L)*(d - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 }
 forall Bond b; ElectronPair e
 where e := ValenceElectronPair(y); b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
+  weight = const.bondAvoidWeight
   vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
   vec2 x2 = e.center
   scalar d = norm( x1 - x2 )
-  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
-  -- debug = Circle {
-  --   center: x1
-  --   fillColor: #0f0
-  --   r: const.dotSize
-  -- }
+  encourage weight * const.k*(d - const.L)*(d - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 }
 
 
