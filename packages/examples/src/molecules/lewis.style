@@ -715,7 +715,7 @@ with Atom a {
   -- }
   ensure contains(a.icon, e.circle1) in electron
   ensure contains(a.icon, e.circle2) in electron
-  -- encourage 1/normsq(e.center - a.text.center) == 0 in electron
+  ensure disjoint(e.icon, a.text, 2) 
   a.icon below e.icon
 } 
 
