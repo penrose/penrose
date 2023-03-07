@@ -136,7 +136,7 @@
       "substance": "parallel-lines",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "SuluHippopotamus665"
+      "variation": "LemongrassOyster4884"
     },
     {
       "substance": "midsegment-triangles",
@@ -155,7 +155,7 @@
       "substance": "two-triangles",
       "style": "triangle-mesh-3d",
       "domain": "triangle-mesh-3d",
-      "variation": "EpiphanyRam6491",
+      "variation": "LightheartedCormorant8083",
       "gallery": true
     },
     {
@@ -256,6 +256,12 @@
       "variation": "GalapagosLocust418"
     },
     {
+      "substance": "lines-around-rect",
+      "style": "rect-line-dist",
+      "domain": "shape-distance",
+      "variation": ""
+    },
+    {
       "name": "Closest point test",
       "substance": "closest-point-test",
       "style": "closest-point",
@@ -293,7 +299,7 @@
       "substance": "mobius",
       "style": "mobius",
       "domain": "mobius",
-      "variation": "PlumeAnt46950"
+      "variation": "BrimstoneAntelope3300"
     },
     {
       "substance": "glutamine",
@@ -630,6 +636,10 @@
       "domain": "shape-distance",
       "URI": "shape-distance/shape-distance.style"
     },
+    "rect-line-dist": {
+      "domain": "shape-distance",
+      "URI": "shape-distance/rect-line-dist.style"
+    },
     "fake-3d-linear-algebra": {
       "domain": "fake-3d-linear-algebra",
       "URI": "fake-3d-linear-algebra/fake3d.style"
@@ -791,6 +801,10 @@
     "points-around-line": {
       "domain": "shape-distance",
       "URI": "shape-distance/hundred-points-around-line.substance"
+    },
+    "lines-around-rect": {
+      "domain": "shape-distance",
+      "URI": "shape-distance/lines-around-rect.substance"
     },
     "3d-projection": {
       "domain": "fake-3d-linear-algebra",

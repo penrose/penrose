@@ -12,11 +12,16 @@ import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict } from "../Functions";
 import {
   bboxFromShape,
+  convexPolygonOriginSignedDistance,
   outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
+  shapeDistanceAABBs,
+  shapeDistancePolygonlikes,
   shapeSize,
 } from "../Queries";
+import { numOf } from "../Utils";
+import { _rectangles } from "../__testfixtures__/TestShapes.input";
 
 const context = simpleContext("Queries");
 const canvas = makeCanvas(800, 700);
@@ -209,4 +214,71 @@ describe("outwardUnitNormal", () => {
     // `insidePoint2` is inside
     expect(diff).toBeLessThan(0);
   });
+});
+
+describe("convexPolygonOriginSignedDistance", () => {
+  test("inside point", () => {
+    const d = numOf(
+      convexPolygonOriginSignedDistance([
+        [-1, -1],
+        [1, -1],
+        [0, 1],
+      ])
+    );
+    const [x, y] = [2 / 5, 1 / 5]; // closest
+    expect(d).toBeCloseTo(-Math.sqrt(x ** 2 + y ** 2));
+  });
+
+  test("outside point near edge", () => {
+    const d = numOf(
+      convexPolygonOriginSignedDistance([
+        [-1, 1],
+        [1, 1],
+        [0, 3],
+      ])
+    );
+    expect(d).toBeCloseTo(1);
+  });
+
+  test("outside point near vertex", () => {
+    const d = numOf(
+      convexPolygonOriginSignedDistance([
+        [-1, -3],
+        [1, -3],
+        [0, -1],
+      ])
+    );
+    expect(d).toBeCloseTo(1);
+  });
+
+  test("outside point near edge with obtuse interior angles", () => {
+    const d = numOf(
+      convexPolygonOriginSignedDistance([
+        [-2, -3],
+        [2, -3],
+        [1, -2],
+        [-1, -2],
+      ])
+    );
+    expect(d).toBeCloseTo(2);
+  });
+});
+
+describe("shapeDistanceAABBs should return the same value as shapeDistancePolygonlikes", () => {
+  for (const i in _rectangles) {
+    const r1 = _rectangles[i];
+
+    for (const j in _rectangles) {
+      const r2 = _rectangles[j];
+
+      const result1 = shapeDistanceAABBs(r1, r2);
+      const result2 = shapeDistancePolygonlikes(r1, r2);
+
+      const [result1num, result2num] = genCodeSync(
+        secondaryGraph([result1, result2])
+      ).call([]).secondary;
+
+      expect(result1num).toBeCloseTo(result2num, 4);
+    }
+  }
 });
