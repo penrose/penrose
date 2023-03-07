@@ -7,23 +7,10 @@ Bond b2 := MakeSingleBond(o1, n)
 Bond b3 := MakeDoubleBond(n, o2)
 Bond b4 := MakeSingleBond(o3, n)
 -- electrons
-Electron e1, e2, e3, e4
-e1 := ValenceElectron(o1)
-e2 := ValenceElectron(o1)
-e3 := ValenceElectron(o1)
-e4 := ValenceElectron(o1)
-Electron e5, e6, e7, e8
-e5 := ValenceElectron(o2)
-e6 := ValenceElectron(o2)
-e7 := ValenceElectron(o2)
-e8 := ValenceElectron(o2)
-Electron e9, e10, e11, e12, e13, e14
-e9  := ValenceElectron(o3)
-e10 := ValenceElectron(o3)
-e11 := ValenceElectron(o3)
-e12 := ValenceElectron(o3)
-e13 := ValenceElectron(o3)
-e14 := ValenceElectron(o3)
+ElectronPair e1, e2, e3
+e1 := ValenceElectronPair(o1)
+e2 := ValenceElectronPair(o2)
+e3 := ValenceElectronPair(o3)
 -- layout
 -- Collinear(n, o1, h)
 -- VerticalAlign(o2, n)

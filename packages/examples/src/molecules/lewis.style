@@ -685,10 +685,18 @@ forall Bond x; Bond y {
 
 -- valance
 
-forall Electron e
-where e := ValenceElectron(a)
+forall ElectronPair e 
+where e := ValenceElectronPair(a)
 with Atom a {
-  e.icon = Circle {
+  e.icon = Group {
+    shapes: [e.circle1, e.circle2]
+  }
+  e.circle1 = Circle {
+    r: const.dotSize / 2
+    strokeWidth: 0
+    fillColor: #000
+  }
+  e.circle2 = Circle {
     r: const.dotSize / 2
     strokeWidth: 0
     fillColor: #000
@@ -699,15 +707,15 @@ with Atom a {
   a.icon below e.icon
 } 
 
-forall Electron e1; Electron e2
-where e1 := ValenceElectron(a); e2 := ValenceElectron(a)
+forall ElectronPair e1; ElectronPair e2
+where e1 := ValenceElectronPair(a); e2 := ValenceElectronPair(a)
 with Atom a {
   encourage notTooClose(e1.icon, e2.icon) in electron
 }
 
 -- single bond
-forall Bond b; Electron e
-where e := ValenceElectron(y); b := MakeSingleBond(x, y)
+forall Bond b; ElectronPair e
+where e := ValenceElectronPair(y); b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
@@ -716,20 +724,10 @@ with Atom x, y {
   encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
 
 } 
-
-forall Bond b; Electron e
-where e := ValenceElectron(x); b := MakeSingleBond(x, y)
-with Atom x, y {
-  -- attract all electrons to the opposite of the bond
-  vec2 x1 = x.icon.center + normalize(-b.vec) * const.atomSize / 2
-  vec2 x2 = e.icon.center
-  scalar d = norm( x1 - x2 )
-  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
-}
 
 -- double bond
 forall Bond b; Electron e
-where e := ValenceElectron(y); b := MakeDoubleBond(x, y)
+where e := ValenceElectronPair(x); b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
@@ -738,16 +736,6 @@ with Atom x, y {
   encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
 
 } 
-
-forall Bond b; Electron e
-where e := ValenceElectron(x); b := MakeDoubleBond(x, y)
-with Atom x, y {
-  -- attract all electrons to the opposite of the bond
-  vec2 x1 = x.icon.center + normalize(-b.vec) * const.atomSize / 2
-  vec2 x2 = e.icon.center
-  scalar d = norm( x1 - x2 )
-  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
-}
 
 layout = [general, symmetry, electron]
 
