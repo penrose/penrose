@@ -6,10 +6,10 @@ canvas {
 const {
   scalar dotSize = 3
   scalar atomSize = 30
-  scalar k = 0.5 -- spring stiffness
-  scalar L = 4  -- rest length
-  scalar symmetryWeight = 10
-  scalar symmetryDegree = 12
+  scalar k = 1 -- spring stiffness
+  scalar L = 5  -- rest length
+  scalar symmetryWeight = 1
+  scalar symmetryDegree = 3
 }
 
 -- generated element list
@@ -712,12 +712,11 @@ with Atom a {
   --   fillColor: #f00
   --   r: const.dotSize / 2
   -- }
-  ensure contains(a.icon, e.circle1) in electron
-  ensure contains(a.icon, e.circle2) in electron
-  ensure disjoint(a.text, e.circle1) in electron
-  ensure disjoint(a.text, e.circle2) in electron
-  -- encourage notTooClose(e.icon, a.text) in electron
-  encourage 1/norm(e.center - a.text.center) == 0 in electron
+  ensure contains(a.icon, e.circle1)
+  ensure contains(a.icon, e.circle2)
+  ensure disjoint(a.text, e.circle1)
+  ensure disjoint(a.text, e.circle2) in electro
+  encourage 1/normsq(e.center - a.text.center) == 0 in electron
   a.icon below e.icon
 } 
 
@@ -772,7 +771,7 @@ with Atom x, y {
   --   r: const.dotSize
   -- }
   scalar d = norm( x1 - x2 )
-  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
+  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
 }
 forall Bond b; ElectronPair e
 where e := ValenceElectronPair(y); b := MakeDoubleBond(x, y)
@@ -786,7 +785,7 @@ with Atom x, y {
   --   r: const.dotSize
   -- }
   scalar d = norm( x1 - x2 )
-  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
+  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
 }
 
 -- Triple bond
@@ -794,11 +793,32 @@ forall Bond b; ElectronPair e
 where e := ValenceElectronPair(x); b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
+  vec2 x1 = y.icon.center + normalize(-b.vec) * const.atomSize / 2
+  vec2 x2 = e.center
+  scalar d = norm( x1 - x2 )
+  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
+  -- debug = Circle {
+  --   center: x1
+  --   fillColor: #0f0
+  --   r: const.dotSize
+  -- }
+}
+forall Bond b; ElectronPair e
+where e := ValenceElectronPair(y); b := MakeTripleBond(x, y)
+with Atom x, y {
+  -- attract all electrons to the opposite of the bond
   vec2 x1 = y.icon.center + normalize(b.vec) * const.atomSize / 2
   vec2 x2 = e.center
   scalar d = norm( x1 - x2 )
-  encourage equal( 0., const.k*(d - const.L)*(d - const.L)/2. ) in electron -- minimize ½ k(d-L)²
+  encourage const.k*(d - const.L)*(d - const.L)/2 == 0 in electron -- minimize ½ k(d-L)²
+  -- debug = Circle {
+  --   center: x1
+  --   fillColor: #0f0
+  --   r: const.dotSize
+  -- }
 }
+
+
 
 
 layout = [general, symmetry, electron]
@@ -811,7 +831,7 @@ with Atom x, y {
   scalar k = const.symmetryDegree
   vec2 u = b.dir
   scalar theta = atan2( u[0], u[1] )
-  encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
+  encourage sin( MathPI() + k*theta ) * weight == -1 * weight in symmetry
 }
 
 forall Bond b
@@ -821,7 +841,7 @@ with Atom x, y {
   scalar k = const.symmetryDegree
   vec2 u = b.icon.end - b.icon.start
   scalar theta = atan2( u[0], u[1] )
-  encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
+  encourage sin( MathPI() + k*theta ) * weight == -1 * weight in symmetry
 }
 
 forall Bond b
@@ -831,7 +851,7 @@ with Atom x, y {
   scalar k = const.symmetryDegree
   vec2 u = b.dir
   scalar theta = atan2( u[0], u[1] )
-  encourage sin( MathPI() + k*theta ) * weight == 1 * weight in symmetry
+  encourage sin( MathPI() + k*theta ) * weight == -1 * weight in symmetry
 }
 
 forall Atom a, b, c
