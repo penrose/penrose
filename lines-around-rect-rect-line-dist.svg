@@ -1,0 +1,254 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <g
+    transform="rotate(0, 294.3646637930417, 330.40385372782913)translate(294.3646637930417, 330.40385372782913)"
+    font-size="50pt"
+    string="e^{i \pi} = -1"
+  >
+    <title>`g`.shape</title>
+    <svg
+      style="font-size: 50pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="192.43470276008492"
+      height="57.13"
+      role="img"
+      focusable="false"
+      viewBox="0 -815.2 3807.6 1130.4"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr" transform="translate(0,-65.2)">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msup">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D452"
+                      d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="TeXAtom"
+                    transform="translate(499,413) scale(0.707)"
+                    data-mjx-texclass="ORD"
+                  >
+                    <g data-mml-node="mi">
+                      <path
+                        data-c="1D456"
+                        d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"
+                      ></path>
+                    </g>
+                    <g data-mml-node="mi" transform="translate(345,0)">
+                      <path
+                        data-c="1D70B"
+                        d="M132 -11Q98 -11 98 22V33L111 61Q186 219 220 334L228 358H196Q158 358 142 355T103 336Q92 329 81 318T62 297T53 285Q51 284 38 284Q19 284 19 294Q19 300 38 329T93 391T164 429Q171 431 389 431Q549 431 553 430Q573 423 573 402Q573 371 541 360Q535 358 472 358H408L405 341Q393 269 393 222Q393 170 402 129T421 65T431 37Q431 20 417 5T381 -10Q370 -10 363 -7T347 17T331 77Q330 86 330 121Q330 170 339 226T357 318T367 358H269L268 354Q268 351 249 275T206 114T175 17Q164 -11 132 -11Z"
+                      ></path>
+                    </g>
+                  </g>
+                </g>
+                <g data-mml-node="mo" transform="translate(1473.8,0)">
+                  <path
+                    data-c="3D"
+                    d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mo" transform="translate(2529.6,0)">
+                  <path
+                    data-c="2212"
+                    d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
+                  ></path>
+                </g>
+                <g data-mml-node="mn" transform="translate(3307.6,0)">
+                  <path
+                    data-c="31"
+                    d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <path
+      d="M 508.2531874452602 343.9588912069278 L 115.21203142997109 95.62538939554463"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l2`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 492.1247162167626 14.295122892702238 L 453.8143188034919 330.40388951824605"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l14`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 455.0861192461011 629.6012659550106 L 527.6878130831318 75.43186770315214"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l4`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 493.27448964049205 638.0416158666013 L 355.9635383715303 387.533811697807"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l12`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 313.56103082661605 198.03788393441735 L 257.8590345475668 582.1235349740907"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l13`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 367.4739373772148 409.8815956887271 L 147.01798577636438 342.4934281643849"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l3`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 349.25795617393214 564.4664501620898 L 509.5552864131588 358.2607362944793"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l11`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 427.81121569157995 619.066300610619 L 559.1546500253122 103.5345238903713"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l9`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 377.3825548639583 407.73293417247277 L 794.88951215007 330.65840084833457"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l7`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 642.5142455888135 408.3738986589929 L 370.6681526750161 272.25424987420945"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l15`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 420.26619297701967 620.96813955906 L 559.7389498425376 131.6226190598496"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l6`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 54.97471672967947 440.9853732880662 L 411.9862821502791 276.07087632692446"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l10`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 55.379018605836734 264.22138777928825 L 349.56789264985724 416.01778507370676"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l1`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 462.58376616778025 387.5337973528601 L 322.91564330604433 500.43265843096674"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l0`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 359.3019168342468 397.52488827047654 L 44.58267602430976 349.10329448108934"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l8`.shape</title>
+  </g>
+  <g>
+    <path
+      d="M 143.94726165710642 130.92885522925457 L 403.5575354856851 573.811843118606"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`l5`.shape</title>
+  </g>
+  <rect
+    x="294.3646637930417"
+    y="330.40385372782913"
+    width="192.43470276008492"
+    height="57.13"
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    rx="0"
+    transform="rotate(0, 294.3646637930417, 330.40385372782913)"
+  >
+    <title>`g`.box</title>
+  </rect>
+</svg>
