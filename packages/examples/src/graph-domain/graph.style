@@ -37,11 +37,13 @@ forall Vertex v {
     strokeWidth: 4
     paintOrder: "stroke"
   }
+  v.halfSize = (v.text.width / 2, v.text.height / 2)
+  v.bottomLeft = v.text.center - v.halfSize
+  v.topRight = v.text.center + v.halfSize
 
   v.text above v.dot
 
-  ensure disjoint(v.dot, v.text, num.labelDist) in text
-  encourage near(v.dot, v.text) in text
+  encourage shapeDistance(v.dot, v.text) == num.labelDist in text
 }
 
 forall Vertex u; Vertex v {
@@ -70,6 +72,8 @@ forall Vertex u; Vertex v; Link e where e := Edge(u, v) {
 
   encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
   encourage minimal(sqr(e.offset)) in dots
+  encourage maximal(min(num.labelDist, rectLineDist(u.bottomLeft, u.topRight, a, b))) in text
+  encourage maximal(min(num.labelDist, rectLineDist(v.bottomLeft, v.topRight, a, b))) in text
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(u, v); e2 := Edge(u, v) {
@@ -135,6 +139,8 @@ forall Vertex u; Vertex v; Link e where e := Arc(u, v) {
 
   encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
   encourage minimal(sqr(e.offset)) in dots
+  encourage maximal(min(num.labelDist, rectLineDist(u.bottomLeft, u.topRight, a, b))) in text
+  encourage maximal(min(num.labelDist, rectLineDist(v.bottomLeft, v.topRight, a, b))) in text
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(u, v) {
