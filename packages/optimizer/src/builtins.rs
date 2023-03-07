@@ -112,14 +112,15 @@ pub fn penrose_tanh(x: f64) -> f64 {
     x.tanh()
 }
 
-// the following two functions have quirky implementations for historical reasons predating our
-// switch to WebAssembly and Rust
-
+// we make this a function rather than inlining the definition when we generate code, because it
+// includes a floating-point literal and those cost 8 bytes each to write into a WebAssembly binary
 #[wasm_bindgen]
 pub fn penrose_inverse(x: f64) -> f64 {
-    1. / (x + 10e-6)
+    1. / x
 }
 
+// this function has a quirky implementation for historical reasons predating our switch to
+// WebAssembly and Rust
 #[wasm_bindgen]
 pub fn penrose_sign(x: f64) -> f64 {
     if x == 0. {

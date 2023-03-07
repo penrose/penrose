@@ -27,7 +27,6 @@ import {
   exp,
   gt,
   ifCond,
-  inverse,
   ln,
   lt,
   max,
@@ -116,12 +115,10 @@ const unarySensitivity = (z: ad.Unary): ad.Num => {
       return mul(2, v);
     }
     case "sqrt": {
-      // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
-      return div(1, mul(2, max(EPS_DENOM, z)));
+      return div(1 / 2, z);
     }
     case "inverse": {
-      // This takes care of the divide-by-zero gradient problem
-      return neg(inverse(add(squared(v), EPS_DENOM)));
+      return neg(squared(z));
     }
     case "abs": {
       return sign(v);
