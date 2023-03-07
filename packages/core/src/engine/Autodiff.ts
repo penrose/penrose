@@ -27,6 +27,7 @@ import {
   exp,
   gt,
   ifCond,
+  inverse,
   ln,
   lt,
   max,
@@ -115,7 +116,8 @@ const unarySensitivity = (z: ad.Unary): ad.Num => {
       return mul(2, v);
     }
     case "sqrt": {
-      return div(1 / 2, z);
+      // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
+      return div(1 / 2, max(EPS_DENOM, z));
     }
     case "inverse": {
       return neg(squared(z));
@@ -124,25 +126,25 @@ const unarySensitivity = (z: ad.Unary): ad.Num => {
       return sign(v);
     }
     case "acosh": {
-      return div(1, mul(sqrt(sub(v, 1)), sqrt(add(v, 1))));
+      return inverse(mul(sqrt(sub(v, 1)), sqrt(add(v, 1))));
     }
     case "acos": {
-      return neg(div(1, sqrt(sub(1, mul(v, v)))));
+      return neg(inverse(sqrt(sub(1, squared(v)))));
     }
     case "asin": {
-      return div(1, sqrt(sub(1, mul(v, v))));
+      return inverse(sqrt(sub(1, squared(v))));
     }
     case "asinh": {
-      return div(1, sqrt(add(1, mul(v, v))));
+      return inverse(sqrt(add(1, squared(v))));
     }
     case "atan": {
-      return div(1, add(1, mul(v, v)));
+      return inverse(add(1, squared(v)));
     }
     case "atanh": {
-      return div(1, sub(1, mul(v, v)));
+      return inverse(sub(1, squared(v)));
     }
     case "cbrt": {
-      return div(1, mul(3, squared(z)));
+      return div(1 / 3, squared(z));
     }
     case "ceil":
     case "floor":
@@ -164,16 +166,16 @@ const unarySensitivity = (z: ad.Unary): ad.Num => {
       return exp(v);
     }
     case "log": {
-      return div(1, v);
+      return inverse(v);
     }
     case "log2": {
-      return div(1, mul(v, 1 / Math.LOG2E));
+      return div(Math.LOG2E, v);
     }
     case "log10": {
-      return div(1, mul(v, 1 / Math.LOG10E));
+      return div(Math.LOG10E, v);
     }
     case "log1p": {
-      return div(1, add(1, v));
+      return inverse(add(1, v));
     }
     case "sin": {
       return cos(v);
@@ -182,10 +184,10 @@ const unarySensitivity = (z: ad.Unary): ad.Num => {
       return cosh(v);
     }
     case "tan": {
-      return squared(div(1, cos(v)));
+      return squared(inverse(cos(v)));
     }
     case "tanh": {
-      return squared(div(1, cosh(v)));
+      return squared(inverse(cosh(v)));
     }
   }
 };
@@ -203,7 +205,7 @@ const binarySensitivities = (z: ad.Binary): { left: ad.Num; right: ad.Num } => {
       return { left: 1, right: -1 };
     }
     case "/": {
-      return { left: div(1, w), right: neg(div(v, squared(w))) };
+      return { left: inverse(w), right: neg(div(v, squared(w))) };
     }
     case "max": {
       const cond = gt(v, w);
