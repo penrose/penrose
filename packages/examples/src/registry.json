@@ -201,6 +201,12 @@
       "variation": ""
     },
     {
+      "substance": "complete-bipartite-graphs",
+      "style": "graph",
+      "domain": "graph",
+      "variation": ""
+    },
+    {
       "substance": "jobs-trained-matching-graph",
       "style": "graph",
       "domain": "graph",
@@ -911,6 +917,10 @@
     "cube-graphs": {
       "domain": "graph",
       "URI": "graph-domain/textbook/sec2/fig6.substance"
+    },
+    "complete-bipartite-graphs": {
+      "domain": "graph",
+      "URI": "graph-domain/textbook/sec2/fig9.substance"
     },
     "jobs-trained-matching-graph": {
       "domain": "graph",
