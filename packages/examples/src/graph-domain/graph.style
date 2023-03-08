@@ -76,8 +76,6 @@ forall Vertex u; Vertex v; Link e where e := Edge(u, v) {
 
   encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
   encourage minimal(sqr(e.offset)) in dots
-  encourage maximal(min(num.labelDist, rectLineDist(u.bottomLeft, u.topRight, a, b))) in text
-  encourage maximal(min(num.labelDist, rectLineDist(v.bottomLeft, v.topRight, a, b))) in text
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(u, v); e2 := Edge(u, v) {
@@ -88,7 +86,15 @@ forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Edge(u, v); e2 := Edge(v
   ensure abs(e1.offset + e2.offset) > 2 * num.offset in dots
 }
 
-forall Vertex u; Vertex v; Vertex w; Link e where e := Edge(u, v) {
+forall Vertex u; Vertex v; Link e where e := Edge(u, v); u has label {
+  encourage maximal(min(num.labelDist, rectLineDist(u.bottomLeft, u.topRight, e.start, e.end))) in text
+}
+
+forall Vertex u; Vertex v; Link e where e := Edge(u, v); v has label {
+  encourage maximal(min(num.labelDist, rectLineDist(v.bottomLeft, v.topRight, e.start, e.end))) in text
+}
+
+forall Vertex u; Vertex v; Vertex w; Link e where e := Edge(u, v); w has label {
   encourage maximal(min(num.labelDist, rectLineDist(w.bottomLeft, w.topRight, e.start, e.end))) in text
 }
 
@@ -149,8 +155,6 @@ forall Vertex u; Vertex v; Link e where e := Arc(u, v) {
 
   encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
   encourage minimal(sqr(e.offset)) in dots
-  encourage maximal(min(num.labelDist, rectLineDist(u.bottomLeft, u.topRight, a, b))) in text
-  encourage maximal(min(num.labelDist, rectLineDist(v.bottomLeft, v.topRight, a, b))) in text
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(u, v) {
@@ -161,7 +165,15 @@ forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(v, 
   ensure abs(e1.offset + e2.offset) > 2 * num.offset in dots
 }
 
-forall Vertex u; Vertex v; Vertex w; Link e where e := Arc(u, v) {
+forall Vertex u; Vertex v; Link e where e := Arc(u, v); u has label {
+  encourage maximal(min(num.labelDist, rectLineDist(u.bottomLeft, u.topRight, e.start, e.end))) in text
+}
+
+forall Vertex u; Vertex v; Link e where e := Arc(u, v); v has label {
+  encourage maximal(min(num.labelDist, rectLineDist(v.bottomLeft, v.topRight, e.start, e.end))) in text
+}
+
+forall Vertex u; Vertex v; Vertex w; Link e where e := Arc(u, v); w has label {
   encourage maximal(min(num.labelDist, rectLineDist(w.bottomLeft, w.topRight, e.start, e.end))) in text
 }
 
