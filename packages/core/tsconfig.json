@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "dist",
     "module": "es2022",
     "target": "es2017",

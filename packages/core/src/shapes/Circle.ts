@@ -1,6 +1,6 @@
 import * as ad from "../types/ad";
 import { Center, Fill, Named, Shape, Stroke } from "../types/shapes";
-import { FloatV } from "../types/value";
+import { FloatV, Value } from "../types/value";
 import { boolV, floatV, noPaint, strV } from "../utils/Util";
 import {
   Canvas,
@@ -47,3 +47,9 @@ export const makeCircle = (
   ...properties,
   shapeType: "Circle",
 });
+
+export const constructCircleFromProps = (properties: {
+  [k: string]: Value<ad.Num>;
+}): Circle<ad.Num> => {
+  type x = keyof Circle<ad.Num>;
+};

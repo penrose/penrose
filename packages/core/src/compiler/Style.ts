@@ -23,7 +23,13 @@ import {
   makeCanvas,
   uniform,
 } from "../shapes/Samplers";
-import { isShapeType, ShapeDef, shapedefs, ShapeType } from "../shapes/Shapes";
+import {
+  isShapeType,
+  Shape,
+  ShapeDef,
+  shapedefs,
+  ShapeType,
+} from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A, C, Identifier, SourceRange } from "../types/ast";
 import { Env } from "../types/domain";
@@ -38,7 +44,6 @@ import {
   StyleWarning,
   SubstanceError,
 } from "../types/errors";
-import { ShapeAD } from "../types/shape";
 import {
   Fn,
   OptPipeline,
@@ -2241,7 +2246,7 @@ export const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 //#region third pass
 
-const internalMissingPathError = (path: string) =>
+export const internalMissingPathError = (path: string) =>
   Error(`Style internal error: could not find path ${path}`);
 
 const evalExprs = (
@@ -3208,7 +3213,7 @@ const evalGPI = (
   path: string,
   shapeType: ShapeType,
   trans: Translation
-): GPI<ad.Num> => {
+): Shape<ad.Num> => {
   const shapedef: ShapeDef = shapedefs[shapeType];
   return {
     tag: "GPI",

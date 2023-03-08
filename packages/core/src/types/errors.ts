@@ -202,6 +202,7 @@ export type StyleError =
   | OutOfBoundsError
   | PropertyMemberError
   | UOpTypeError
+  | BadShapeParamTypeError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -444,6 +445,12 @@ export interface UOpTypeError {
   tag: "UOpTypeError";
   expr: UOp<C>;
   arg: Value<ad.Num>["tag"];
+}
+
+export interface BadShapeParamTypeError {
+  tag: "BadShapeParamTypeError";
+  path: string;
+  value: Value<ad.Num>;
 }
 
 //#endregion

@@ -1,6 +1,7 @@
 import { Result } from "true-myth";
 import { isConcrete } from "../engine/EngineUtils";
 import { shapedefs } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import {
   A,
   AbstractNode,
@@ -13,6 +14,7 @@ import {
 import { Arg, Type, TypeConstructor } from "../types/domain";
 import {
   ArgLengthMismatch,
+  BadShapeParamTypeError,
   CyclicSubtypes,
   DeconstructNonconstructor,
   DomainError,
@@ -38,6 +40,7 @@ import {
 import { State } from "../types/state";
 import { BindingForm, ColorLit } from "../types/style";
 import { Deconstructor, SubExpr } from "../types/substance";
+import { Value } from "../types/value";
 import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
@@ -624,6 +627,15 @@ export const invalidColorLiteral = (
 ): InvalidColorLiteral => ({
   tag: "InvalidColorLiteral",
   color,
+});
+
+export const badShapeParamTypeError = (
+  path: string,
+  value: Value<ad.Num>
+): BadShapeParamTypeError => ({
+  tag: "BadShapeParamTypeError",
+  path,
+  value,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

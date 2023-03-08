@@ -40,7 +40,11 @@ export type ShapeType = Shape<ad.Num>["shapeType"];
 
 export interface ShapeDef {
   sampler: (context: Context, canvas: Canvas) => Properties;
-  constr: (context: Context, canvas: Canvas, properties: Properties) => Shape;
+  constr: (
+    context: Context,
+    canvas: Canvas,
+    properties: Properties
+  ) => Shape<ad.Num>;
 
   // TODO: maybe get rid of this?
   propTags: { [prop: string]: Value<ad.Num>["tag"] };
@@ -56,7 +60,11 @@ export interface ShapeDef {
 // hack to satisfy the typechecker
 export const ShapeDef = (shapedef: {
   sampler: (context: Context, canvas: Canvas) => unknown;
-  constr: (context: Context, canvas: Canvas, properties: Properties) => Shape;
+  constr: (
+    context: Context,
+    canvas: Canvas,
+    properties: Properties
+  ) => Shape<ad.Num>;
   bbox: (properties: any) => BBox.BBox;
   isLinelike?: boolean;
   isRectlike?: boolean;
@@ -250,11 +258,11 @@ const bboxFromGroup = ({
 const makeGroup = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<GroupProps>
-): Group => {
+  properties: Partial<GroupProps<ad.Num>>
+): Group<ad.Num> => {
   // Need to "make" each sub-shape to!
 
-  const group: Group = {
+  const group: Group<ad.Num> = {
     ...sampleGroup(context, canvas),
     ...properties,
     shapeType: "Group",
@@ -262,7 +270,7 @@ const makeGroup = (
 
   const shapes = group.shapes.contents;
   for (const shape of shapes) {
-    const constrShape: Shape = shapedefs[shape.shapeType].constr(
+    const constrShape: Shape<ad.Num> = shapedefs[shape.shapeType].constr(
       context,
       canvas,
       shape.properties
