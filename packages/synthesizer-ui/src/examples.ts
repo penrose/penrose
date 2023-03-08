@@ -1,5 +1,6 @@
 import { SynthesizerSetting } from "@penrose/core";
 import geometryDomain from "@penrose/examples/dist/geometry-domain";
+import graphDomain from "@penrose/examples/dist/graph-domain";
 
 export interface Preset {
   displayName: string;
@@ -26,6 +27,41 @@ const defaultParams: SynthesizerSetting = {
     add: 0.01,
     delete: 0.2,
     edit: 0.8,
+  },
+  // TODO: need weights for the three ops
+  add: {
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
+  },
+  delete: {
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
+  },
+  edit: {
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
+  },
+};
+
+const graphParams: SynthesizerSetting = {
+  mutationCount: [1, 4],
+  argOption: "existing",
+  argReuse: "distinct",
+  weights: {
+    type: 0.1,
+    predicate: 0.3,
+    constructor: 0.2,
+  },
+  opWeights: {
+    add: 0.5,
+    delete: 0.4,
+    edit: 0.1,
   },
   // TODO: need weights for the three ops
   add: {
@@ -308,6 +344,16 @@ forall Point \`D\`, \`E\`, \`A\` {
     style: geometryDomain["euclidean.style"] + ``,
     setting: {
       ...defaultParams,
+    },
+  },
+  graph_0: {
+    displayName: "Bipartite graph 1",
+    prompt: "Which of the following diagrams are bipartite graphs?",
+    substance: graphDomain.textbook.sec2["ex22.substance"],
+    domain: graphDomain["graph.domain"],
+    style: graphDomain["graph.style"],
+    setting: {
+      ...graphParams,
     },
   },
 };
