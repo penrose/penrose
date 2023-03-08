@@ -15,565 +15,568 @@ const {
 
 -- generated element list
 
+
 forall Hydrogen x {
-  override x.symbol = "H"
-  override x.id = 1
+  x.symbol = "H"
+  x.id = 1
 }
 
 forall Helium x {
-  override x.symbol = "He"
-  override x.id = 2
+  x.symbol = "He"
+  x.id = 2
 }
 
 forall Lithium x {
-  override x.symbol = "Li"
-  override x.id = 3
+  x.symbol = "Li"
+  x.id = 3
 }
 
 forall Beryllium x {
-  override x.symbol = "Be"
-  override x.id = 4
+  x.symbol = "Be"
+  x.id = 4
 }
 
 forall Boron x {
-  override x.symbol = "B"
-  override x.id = 5
+  x.symbol = "B"
+  x.id = 5
 }
 
 forall Carbon x {
-  override x.symbol = "C"
-  override x.id = 6
+  x.symbol = "C"
+  x.id = 6
 }
 
 forall Nitrogen x {
-  override x.symbol = "N"
-  override x.id = 7
+  x.symbol = "N"
+  x.id = 7
 }
 
 forall Oxygen x {
-  override x.symbol = "O"
-  override x.id = 8
+  x.symbol = "O"
+  x.id = 8
 }
 
 forall Fluorine x {
-  override x.symbol = "F"
-  override x.id = 9
+  x.symbol = "F"
+  x.id = 9
 }
 
 forall Neon x {
-  override x.symbol = "Ne"
-  override x.id = 10
+  x.symbol = "Ne"
+  x.id = 10
 }
 
 forall Sodium x {
-  override x.symbol = "Na"
-  override x.id = 11
+  x.symbol = "Na"
+  x.id = 11
 }
 
 forall Magnesium x {
-  override x.symbol = "Mg"
-  override x.id = 12
+  x.symbol = "Mg"
+  x.id = 12
 }
 
 forall Aluminium x {
-  override x.symbol = "Al"
-  override x.id = 13
+  x.symbol = "Al"
+  x.id = 13
 }
 
 forall Silicon x {
-  override x.symbol = "Si"
-  override x.id = 14
+  x.symbol = "Si"
+  x.id = 14
 }
 
 forall Phosphorus x {
-  override x.symbol = "P"
-  override x.id = 15
+  x.symbol = "P"
+  x.id = 15
 }
 
 forall Sulfur x {
-  override x.symbol = "S"
-  override x.id = 16
+  x.symbol = "S"
+  x.id = 16
 }
 
 forall Chlorine x {
-  override x.symbol = "Cl"
-  override x.id = 17
+  x.symbol = "Cl"
+  x.id = 17
 }
 
 forall Argon x {
-  override x.symbol = "Ar"
-  override x.id = 18
+  x.symbol = "Ar"
+  x.id = 18
 }
 
 forall Potassium x {
-  override x.symbol = "K"
-  override x.id = 19
+  x.symbol = "K"
+  x.id = 19
 }
 
 forall Calcium x {
-  override x.symbol = "Ca"
-  override x.id = 20
+  x.symbol = "Ca"
+  x.id = 20
 }
 
 forall Scandium x {
-  override x.symbol = "Sc"
-  override x.id = 21
+  x.symbol = "Sc"
+  x.id = 21
 }
 
 forall Titanium x {
-  override x.symbol = "Ti"
-  override x.id = 22
+  x.symbol = "Ti"
+  x.id = 22
 }
 
 forall Vanadium x {
-  override x.symbol = "V"
-  override x.id = 23
+  x.symbol = "V"
+  x.id = 23
 }
 
 forall Chromium x {
-  override x.symbol = "Cr"
-  override x.id = 24
+  x.symbol = "Cr"
+  x.id = 24
 }
 
 forall Manganese x {
-  override x.symbol = "Mn"
-  override x.id = 25
+  x.symbol = "Mn"
+  x.id = 25
 }
 
 forall Iron x {
-  override x.symbol = "Fe"
-  override x.id = 26
+  x.symbol = "Fe"
+  x.id = 26
 }
 
 forall Cobalt x {
-  override x.symbol = "Co"
-  override x.id = 27
+  x.symbol = "Co"
+  x.id = 27
 }
 
 forall Nickel x {
-  override x.symbol = "Ni"
-  override x.id = 28
+  x.symbol = "Ni"
+  x.id = 28
 }
 
 forall Copper x {
-  override x.symbol = "Cu"
-  override x.id = 29
+  x.symbol = "Cu"
+  x.id = 29
 }
 
 forall Zinc x {
-  override x.symbol = "Zn"
-  override x.id = 30
+  x.symbol = "Zn"
+  x.id = 30
 }
 
 forall Gallium x {
-  override x.symbol = "Ga"
-  override x.id = 31
+  x.symbol = "Ga"
+  x.id = 31
 }
 
 forall Germanium x {
-  override x.symbol = "Ge"
-  override x.id = 32
+  x.symbol = "Ge"
+  x.id = 32
 }
 
 forall Arsenic x {
-  override x.symbol = "As"
-  override x.id = 33
+  x.symbol = "As"
+  x.id = 33
 }
 
 forall Selenium x {
-  override x.symbol = "Se"
-  override x.id = 34
+  x.symbol = "Se"
+  x.id = 34
 }
 
 forall Bromine x {
-  override x.symbol = "Br"
-  override x.id = 35
+  x.symbol = "Br"
+  x.id = 35
 }
 
 forall Krypton x {
-  override x.symbol = "Kr"
-  override x.id = 36
+  x.symbol = "Kr"
+  x.id = 36
 }
 
 forall Rubidium x {
-  override x.symbol = "Rb"
-  override x.id = 37
+  x.symbol = "Rb"
+  x.id = 37
 }
 
 forall Strontium x {
-  override x.symbol = "Sr"
-  override x.id = 38
+  x.symbol = "Sr"
+  x.id = 38
 }
 
 forall Yttrium x {
-  override x.symbol = "Y"
-  override x.id = 39
+  x.symbol = "Y"
+  x.id = 39
 }
 
 forall Zirconium x {
-  override x.symbol = "Zr"
-  override x.id = 40
+  x.symbol = "Zr"
+  x.id = 40
 }
 
 forall Niobium x {
-  override x.symbol = "Nb"
-  override x.id = 41
+  x.symbol = "Nb"
+  x.id = 41
 }
 
 forall Molybdenum x {
-  override x.symbol = "Mo"
-  override x.id = 42
+  x.symbol = "Mo"
+  x.id = 42
 }
 
 forall Technetium x {
-  override x.symbol = "Tc"
-  override x.id = 43
+  x.symbol = "Tc"
+  x.id = 43
 }
 
 forall Ruthenium x {
-  override x.symbol = "Ru"
-  override x.id = 44
+  x.symbol = "Ru"
+  x.id = 44
 }
 
 forall Rhodium x {
-  override x.symbol = "Rh"
-  override x.id = 45
+  x.symbol = "Rh"
+  x.id = 45
 }
 
 forall Palladium x {
-  override x.symbol = "Pd"
-  override x.id = 46
+  x.symbol = "Pd"
+  x.id = 46
 }
 
 forall Silver x {
-  override x.symbol = "Ag"
-  override x.id = 47
+  x.symbol = "Ag"
+  x.id = 47
 }
 
 forall Cadmium x {
-  override x.symbol = "Cd"
-  override x.id = 48
+  x.symbol = "Cd"
+  x.id = 48
 }
 
 forall Indium x {
-  override x.symbol = "In"
-  override x.id = 49
+  x.symbol = "In"
+  x.id = 49
 }
 
 forall Tin x {
-  override x.symbol = "Sn"
-  override x.id = 50
+  x.symbol = "Sn"
+  x.id = 50
 }
 
 forall Antimony x {
-  override x.symbol = "Sb"
-  override x.id = 51
+  x.symbol = "Sb"
+  x.id = 51
 }
 
 forall Tellurium x {
-  override x.symbol = "Te"
-  override x.id = 52
+  x.symbol = "Te"
+  x.id = 52
 }
 
 forall Iodine x {
-  override x.symbol = "I"
-  override x.id = 53
+  x.symbol = "I"
+  x.id = 53
 }
 
 forall Xenon x {
-  override x.symbol = "Xe"
-  override x.id = 54
+  x.symbol = "Xe"
+  x.id = 54
 }
 
 forall Cesium x {
-  override x.symbol = "Cs"
-  override x.id = 55
+  x.symbol = "Cs"
+  x.id = 55
 }
 
 forall Barium x {
-  override x.symbol = "Ba"
-  override x.id = 56
+  x.symbol = "Ba"
+  x.id = 56
 }
 
 forall Lanthanum x {
-  override x.symbol = "La"
-  override x.id = 57
+  x.symbol = "La"
+  x.id = 57
 }
 
 forall Cerium x {
-  override x.symbol = "Ce"
-  override x.id = 58
+  x.symbol = "Ce"
+  x.id = 58
 }
 
 forall Praseodymium x {
-  override x.symbol = "Pr"
-  override x.id = 59
+  x.symbol = "Pr"
+  x.id = 59
 }
 
 forall Neodymium x {
-  override x.symbol = "Nd"
-  override x.id = 60
+  x.symbol = "Nd"
+  x.id = 60
 }
 
 forall Promethium x {
-  override x.symbol = "Pm"
-  override x.id = 61
+  x.symbol = "Pm"
+  x.id = 61
 }
 
 forall Samarium x {
-  override x.symbol = "Sm"
-  override x.id = 62
+  x.symbol = "Sm"
+  x.id = 62
 }
 
 forall Europium x {
-  override x.symbol = "Eu"
-  override x.id = 63
+  x.symbol = "Eu"
+  x.id = 63
 }
 
 forall Gadolinium x {
-  override x.symbol = "Gd"
-  override x.id = 64
+  x.symbol = "Gd"
+  x.id = 64
 }
 
 forall Terbium x {
-  override x.symbol = "Tb"
-  override x.id = 65
+  x.symbol = "Tb"
+  x.id = 65
 }
 
 forall Dysprosium x {
-  override x.symbol = "Dy"
-  override x.id = 66
+  x.symbol = "Dy"
+  x.id = 66
 }
 
 forall Holmium x {
-  override x.symbol = "Ho"
-  override x.id = 67
+  x.symbol = "Ho"
+  x.id = 67
 }
 
 forall Erbium x {
-  override x.symbol = "Er"
-  override x.id = 68
+  x.symbol = "Er"
+  x.id = 68
 }
 
 forall Thulium x {
-  override x.symbol = "Tm"
-  override x.id = 69
+  x.symbol = "Tm"
+  x.id = 69
 }
 
 forall Ytterbium x {
-  override x.symbol = "Yb"
-  override x.id = 70
+  x.symbol = "Yb"
+  x.id = 70
 }
 
 forall Lutetium x {
-  override x.symbol = "Lu"
-  override x.id = 71
+  x.symbol = "Lu"
+  x.id = 71
 }
 
 forall Hafnium x {
-  override x.symbol = "Hf"
-  override x.id = 72
+  x.symbol = "Hf"
+  x.id = 72
 }
 
 forall Tantalum x {
-  override x.symbol = "Ta"
-  override x.id = 73
+  x.symbol = "Ta"
+  x.id = 73
 }
 
 forall Tungsten x {
-  override x.symbol = "W"
-  override x.id = 74
+  x.symbol = "W"
+  x.id = 74
 }
 
 forall Rhenium x {
-  override x.symbol = "Re"
-  override x.id = 75
+  x.symbol = "Re"
+  x.id = 75
 }
 
 forall Osmium x {
-  override x.symbol = "Os"
-  override x.id = 76
+  x.symbol = "Os"
+  x.id = 76
 }
 
 forall Iridium x {
-  override x.symbol = "Ir"
-  override x.id = 77
+  x.symbol = "Ir"
+  x.id = 77
 }
 
 forall Platinum x {
-  override x.symbol = "Pt"
-  override x.id = 78
+  x.symbol = "Pt"
+  x.id = 78
 }
 
 forall Gold x {
-  override x.symbol = "Au"
-  override x.id = 79
+  x.symbol = "Au"
+  x.id = 79
 }
 
 forall Mercury x {
-  override x.symbol = "Hg"
-  override x.id = 80
+  x.symbol = "Hg"
+  x.id = 80
 }
 
 forall Thallium x {
-  override x.symbol = "Tl"
-  override x.id = 81
+  x.symbol = "Tl"
+  x.id = 81
 }
 
 forall Lead x {
-  override x.symbol = "Pb"
-  override x.id = 82
+  x.symbol = "Pb"
+  x.id = 82
 }
 
 forall Bismuth x {
-  override x.symbol = "Bi"
-  override x.id = 83
+  x.symbol = "Bi"
+  x.id = 83
 }
 
 forall Polonium x {
-  override x.symbol = "Po"
-  override x.id = 84
+  x.symbol = "Po"
+  x.id = 84
 }
 
 forall Astatine x {
-  override x.symbol = "At"
-  override x.id = 85
+  x.symbol = "At"
+  x.id = 85
 }
 
 forall Radon x {
-  override x.symbol = "Rn"
-  override x.id = 86
+  x.symbol = "Rn"
+  x.id = 86
 }
 
 forall Francium x {
-  override x.symbol = "Fr"
-  override x.id = 87
+  x.symbol = "Fr"
+  x.id = 87
 }
 
 forall Radium x {
-  override x.symbol = "Ra"
-  override x.id = 88
+  x.symbol = "Ra"
+  x.id = 88
 }
 
 forall Actinium x {
-  override x.symbol = "Ac"
-  override x.id = 89
+  x.symbol = "Ac"
+  x.id = 89
 }
 
 forall Thorium x {
-  override x.symbol = "Th"
-  override x.id = 90
+  x.symbol = "Th"
+  x.id = 90
 }
 
 forall Protactinium x {
-  override x.symbol = "Pa"
-  override x.id = 91
+  x.symbol = "Pa"
+  x.id = 91
 }
 
 forall Uranium x {
-  override x.symbol = "U"
-  override x.id = 92
+  x.symbol = "U"
+  x.id = 92
 }
 
 forall Neptunium x {
-  override x.symbol = "Np"
-  override x.id = 93
+  x.symbol = "Np"
+  x.id = 93
 }
 
 forall Plutonium x {
-  override x.symbol = "Pu"
-  override x.id = 94
+  x.symbol = "Pu"
+  x.id = 94
 }
 
 forall Americium x {
-  override x.symbol = "Am"
-  override x.id = 95
+  x.symbol = "Am"
+  x.id = 95
 }
 
 forall Curium x {
-  override x.symbol = "Cm"
-  override x.id = 96
+  x.symbol = "Cm"
+  x.id = 96
 }
 
 forall Berkelium x {
-  override x.symbol = "Bk"
-  override x.id = 97
+  x.symbol = "Bk"
+  x.id = 97
 }
 
 forall Californium x {
-  override x.symbol = "Cf"
-  override x.id = 98
+  x.symbol = "Cf"
+  x.id = 98
 }
 
 forall Einsteinium x {
-  override x.symbol = "Es"
-  override x.id = 99
+  x.symbol = "Es"
+  x.id = 99
 }
 
 forall Fermium x {
-  override x.symbol = "Fm"
-  override x.id = 100
+  x.symbol = "Fm"
+  x.id = 100
 }
 
 forall Mendelevium x {
-  override x.symbol = "Md"
-  override x.id = 101
+  x.symbol = "Md"
+  x.id = 101
 }
 
 forall Nobelium x {
-  override x.symbol = "No"
-  override x.id = 102
+  x.symbol = "No"
+  x.id = 102
 }
 
 forall Lawrencium x {
-  override x.symbol = "Lr"
-  override x.id = 103
+  x.symbol = "Lr"
+  x.id = 103
 }
 
 forall Rutherfordium x {
-  override x.symbol = "Rf"
-  override x.id = 104
+  x.symbol = "Rf"
+  x.id = 104
 }
 
 forall Dubnium x {
-  override x.symbol = "Db"
-  override x.id = 105
+  x.symbol = "Db"
+  x.id = 105
 }
 
 forall Seaborgium x {
-  override x.symbol = "Sg"
-  override x.id = 106
+  x.symbol = "Sg"
+  x.id = 106
 }
 
 forall Bohrium x {
-  override x.symbol = "Bh"
-  override x.id = 107
+  x.symbol = "Bh"
+  x.id = 107
 }
 
 forall Hassium x {
-  override x.symbol = "Hs"
-  override x.id = 108
+  x.symbol = "Hs"
+  x.id = 108
 }
 
 forall Meitnerium x {
-  override x.symbol = "Mt"
-  override x.id = 109
+  x.symbol = "Mt"
+  x.id = 109
 }
 
 forall Darmstadtium x {
-  override x.symbol = "Ds"
-  override x.id = 110
+  x.symbol = "Ds"
+  x.id = 110
 }
 
 forall Roentgenium x {
-  override x.symbol = "Rg"
-  override x.id = 111
+  x.symbol = "Rg"
+  x.id = 111
 }
 
 forall Copernicium x {
-  override x.symbol = "Cn"
-  override x.id = 112
+  x.symbol = "Cn"
+  x.id = 112
 }
+
+
 
 -- Atoms
 
