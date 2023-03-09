@@ -56,7 +56,7 @@ const lewisParams: SynthesizerSetting = {
   weights: {
     type: 0.1,
     predicate: 0.3,
-    constructor: 0.2,
+    constructor: 0.3,
   },
   opWeights: {
     add: 0.01,
@@ -386,6 +386,36 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "lewis_3: Xenon Tetroxide",
     prompt: "Choose the correct Lewis structure for $\\mathrm{XeO_4}$.",
     substance: molecules["xenontetroxide.substance"],
+    domain: molecules["molecules.domain"],
+    style: molecules["lewis.style"],
+    setting: {
+      ...lewisParams,
+    },
+  },
+  lewis_4: {
+    displayName: "lewis_4: Phosgene",
+    prompt: "Choose the correct Lewis structure for $\\mathrm{COCl_2}$.",
+    substance: molecules["phosgene.substance"],
+    domain: molecules["molecules.domain"],
+    style: molecules["lewis.style"],
+    setting: {
+      ...lewisParams,
+    },
+  },
+  lewis_5: {
+    displayName: "lewis_5: Nitrogen",
+    prompt: "Choose the correct Lewis structure for $\\mathrm{N_2}$.",
+    substance: molecules["nitrogen.substance"],
+    domain: molecules["molecules.domain"],
+    style: molecules["lewis.style"],
+    setting: {
+      ...lewisParams,
+    },
+  },
+  lewis_6: {
+    displayName: "lewis_5: Hydrazine",
+    prompt: "Choose the correct Lewis structure for $\\mathrm{N_2H_4}$.",
+    substance: molecules["hydrazine.substance"],
     domain: molecules["molecules.domain"],
     style: molecules["lewis.style"],
     setting: {
