@@ -173,9 +173,12 @@ Now we look at an objective that makes two circles repel, encouraging the two ci
 
 ```typescript
 repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+  const epsDenom = 10e-6;
   const repelWeight = 10e6;
-  let res = inverse(ops.vdistsq(s1.center.contents, s2.center.contents));
-  return mul(res, constOf(repelWeight));
+  let res = inverse(
+    add(ops.vdistsq(s1.center.contents, s2.center.contents), epsDenom)
+  );
+  return mul(res, repelWeight);
 };
 ```
 
