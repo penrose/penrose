@@ -1,69 +1,115 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g
-    transform="rotate(0, 456.20293047801016, 361.0529384866286)translate(456.20293047801016, 361.0529384866286)"
-    font-size="13.5px"
-    string="G"
-  >
-    <title>`G`.text</title>
-    <svg
-      style="font-size: 13.5px"
-      xmlns="http://www.w3.org/2000/svg"
-      width="15.05976"
-      height="19.16"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 786 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D43A"
-                    d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q492 659 471 656T418 643T357 615T294 567T236 496T189 394T158 260Q156 242 156 221Q156 173 170 136T206 79T256 45T308 28T353 24Q407 24 452 47T514 106Q517 114 529 161T541 214Q541 222 528 224T468 227H431Q425 233 425 235T427 254Q431 267 437 273H454Q494 271 594 271Q634 271 659 271T695 272T707 272Q721 272 721 263Q721 261 719 249Q714 230 709 228Q706 227 694 227Q674 227 653 224Q646 221 643 215T629 164Q620 131 614 108Q589 6 586 3Q584 1 581 1Q571 1 553 21T530 52Q530 53 528 52T522 47Q448 -22 322 -22Q201 -22 126 55T50 252Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
-    <filter id="`DEF`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
+  <g style="solid">
     <path
-      stroke="none"
-      fill="none"
-      d="M 250.5430974865351 440.965635424592 L 686.2571276249098 413.12987752274915 L 259.28627840932984 281.13910088395113 Z "
+      d="M 380.6828186324526 153.3519598863886 L 110.9276795723664 72.8304704964155"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
     ></path>
-    <title>`DEF`.icon</title>
+    <title>`aGFJ`.side1</title>
   </g>
+  <g style="solid">
+    <path
+      d="M 380.6828186324526 153.3519598863886 L 309.56772569848283 272.9264386033538"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`GJF`.PQ</title>
+  </g>
+  <g style="solid">
+    <path
+      d="M 110.9276795723664 72.8304704964155 L 380.6828186324526 153.3519598863886"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`GJF`.RP</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="380.6828186324526"
+    cy="153.3519598863886"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`G`.icon</title>
+  </circle>
+  <g style="solid">
+    <path
+      d="M 110.9276795723664 72.8304704964155 L 309.56772569848283 272.9264386033538"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aGFJ`.side2</title>
+  </g>
+  <g style="solid">
+    <path
+      d="M 309.56772569848283 272.9264386033538 L 110.9276795723664 72.8304704964155"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`GJF`.QR</title>
+  </g>
+  <g style="solid">
+    <path
+      d="M 650.4379576925388 233.87344927636173 L 110.9276795723664 72.8304704964155"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`DEF`.QR</title>
+  </g>
+  <g style="solid">
+    <path
+      d="M 110.9276795723664 72.8304704964155 L 508.2077718245993 473.0224067102921"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`DEF`.RP</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="110.9276795723664"
+    cy="72.8304704964155"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`F`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="309.56772569848283"
+    cy="272.9264386033538"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`J`.icon</title>
+  </circle>
   <g
-    transform="rotate(0, 227.9154619786727, 409.547588142603)translate(227.9154619786727, 409.547588142603)"
+    transform="rotate(0, 494.9324414157327, 487.02240772084315)translate(494.9324414157327, 487.02240772084315)"
     string="D"
     font-size="13.5px"
   >
@@ -102,7 +148,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 700.256641986261, 393.8530418769039)translate(700.256641986261, 393.8530418769039)"
+    transform="rotate(0, 664.3611836244037, 213.24927405463566)translate(664.3611836244037, 213.24927405463566)"
     font-size="13.5px"
     string="E"
   >
@@ -141,7 +187,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 235.8164456301501, 291.7618998638539)translate(235.8164456301501, 291.7618998638539)"
+    transform="rotate(0, 85.70662725596165, 44.84785137707466)translate(85.70662725596165, 44.84785137707466)"
     font-size="13.5px"
     string="F"
   >
@@ -179,129 +225,20 @@
       </g>
     </svg>
   </g>
-  <g style="solid">
-    <path
-      d="M 250.5430974865351 440.965635424592 L 686.2571276249098 413.12987752274915"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`DEF`.PQ</title>
-  </g>
-  <g style="solid">
-    <path
-      d="M 259.28627840932984 281.13910088395113 L 250.5430974865351 440.965635424592"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`DEF`.RP</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="250.5430974865351"
-    cy="440.965635424592"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>`D`.icon</title>
-  </circle>
-  <g style="solid">
-    <path
-      d="M 686.2571276249098 413.12987752274915 L 259.28627840932984 281.13910088395113"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`DEF`.QR</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="686.2571276249098"
-    cy="413.12987752274915"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>`E`.icon</title>
-  </circle>
-  <g style="solid">
-    <path
-      d="M 254.91468794793246 361.05236815427156 L 259.28627840932984 281.13910088395113"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`GJF`.QR</title>
-  </g>
-  <g style="solid">
-    <path
-      d="M 259.28627840932984 281.13910088395113 L 472.7717030171198 347.13448920335014"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`GJF`.RP</title>
-  </g>
-  <g style="solid">
-    <path
-      d="M 472.7717030171198 347.13448920335014 L 259.28627840932984 281.13910088395113"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`aGFJ`.side1</title>
-  </g>
-  <g style="solid">
-    <path
-      d="M 259.28627840932984 281.13910088395113 L 254.91468794793246 361.05236815427156"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`aGFJ`.side2</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="259.28627840932984"
-    cy="281.13910088395113"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>`F`.icon</title>
-  </circle>
   <g
-    transform="rotate(0, 336.986814621437, 321.333034355775)translate(336.986814621437, 321.333034355775)"
+    transform="rotate(0, 394.4630522403811, 131.72107205189323)translate(394.4630522403811, 131.72107205189323)"
     font-size="13.5px"
-    string="K"
+    string="G"
   >
-    <title>`K`.text</title>
+    <title>`G`.text</title>
     <svg
       style="font-size: 13.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="17.03324"
+      width="15.05976"
       height="19.16"
       role="img"
       focusable="false"
-      viewBox="0 -750 889 1000"
+      viewBox="0 -750 786 1000"
     >
       <g
         stroke="none"
@@ -316,8 +253,8 @@
               <g data-mml-node="mtd">
                 <g data-mml-node="mi">
                   <path
-                    data-c="1D43E"
-                    d="M285 628Q285 635 228 637Q205 637 198 638T191 647Q191 649 193 661Q199 681 203 682Q205 683 214 683H219Q260 681 355 681Q389 681 418 681T463 682T483 682Q500 682 500 674Q500 669 497 660Q496 658 496 654T495 648T493 644T490 641T486 639T479 638T470 637T456 637Q416 636 405 634T387 623L306 305Q307 305 490 449T678 597Q692 611 692 620Q692 635 667 637Q651 637 651 648Q651 650 654 662T659 677Q662 682 676 682Q680 682 711 681T791 680Q814 680 839 681T869 682Q889 682 889 672Q889 650 881 642Q878 637 862 637Q787 632 726 586Q710 576 656 534T556 455L509 418L518 396Q527 374 546 329T581 244Q656 67 661 61Q663 59 666 57Q680 47 717 46H738Q744 38 744 37T741 19Q737 6 731 0H720Q680 3 625 3Q503 3 488 0H478Q472 6 472 9T474 27Q478 40 480 43T491 46H494Q544 46 544 71Q544 75 517 141T485 216L427 354L359 301L291 248L268 155Q245 63 245 58Q245 51 253 49T303 46H334Q340 37 340 35Q340 19 333 5Q328 0 317 0Q314 0 280 1T180 2Q118 2 85 2T49 1Q31 1 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Z"
+                    data-c="1D43A"
+                    d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q492 659 471 656T418 643T357 615T294 567T236 496T189 394T158 260Q156 242 156 221Q156 173 170 136T206 79T256 45T308 28T353 24Q407 24 452 47T514 106Q517 114 529 161T541 214Q541 222 528 224T468 227H431Q425 233 425 235T427 254Q431 267 437 273H454Q494 271 594 271Q634 271 659 271T695 272T707 272Q721 272 721 263Q721 261 719 249Q714 230 709 228Q706 227 694 227Q674 227 653 224Q646 221 643 215T629 164Q620 131 614 108Q589 6 586 3Q584 1 581 1Q571 1 553 21T530 52Q530 53 528 52T522 47Q448 -22 322 -22Q201 -22 126 55T50 252Z"
                   ></path>
                 </g>
               </g>
@@ -328,106 +265,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 256.03306231813707, 375.0076244022111)translate(256.03306231813707, 375.0076244022111)"
-    font-size="13.5px"
-    string="J"
-  >
-    <title>`J`.text</title>
-    <svg
-      style="font-size: 13.5px"
-      xmlns="http://www.w3.org/2000/svg"
-      width="12.12828"
-      height="19.16"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 633 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D43D"
-                    d="M447 625Q447 637 354 637H329Q323 642 323 645T325 664Q329 677 335 683H352Q393 681 498 681Q541 681 568 681T605 682T619 682Q633 682 633 672Q633 670 630 658Q626 642 623 640T604 637Q552 637 545 623Q541 610 483 376Q420 128 419 127Q397 64 333 21T195 -22Q137 -22 97 8T57 88Q57 130 80 152T132 174Q177 174 182 130Q182 98 164 80T123 56Q115 54 115 53T122 44Q148 15 197 15Q235 15 271 47T324 130Q328 142 387 380T447 625Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
-    <filter id="`GJF`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
-    <path
-      stroke="none"
-      fill="none"
-      d="M 472.7717030171198 347.13448920335014 L 254.91468794793246 361.05236815427156 L 259.28627840932984 281.13910088395113 Z "
-    ></path>
-    <title>`GJF`.icon</title>
-  </g>
-  <g style="solid">
-    <path
-      d="M 472.7717030171198 347.13448920335014 L 254.91468794793246 361.05236815427156"
-      stroke-opacity="1"
-      stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`GJF`.PQ</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="472.7717030171198"
-    cy="347.13448920335014"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>`G`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="254.91468794793246"
-    cy="361.05236815427156"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="0"
-    stroke-linecap="butt"
-    r="4"
-  >
-    <title>`J`.icon</title>
-  </circle>
-  <g
-    transform="rotate(0, 228.94075145190266, 329.5677126630847)translate(228.94075145190266, 329.5677126630847)"
+    transform="rotate(0, 183.29625650541, 182.73994255736204)translate(183.29625650541, 182.73994255736204)"
     font-size="13.5px"
     string="H"
   >
@@ -465,9 +303,171 @@
       </g>
     </svg>
   </g>
+  <g
+    transform="rotate(0, 312.7232867574623, 286.5661800289272)translate(312.7232867574623, 286.5661800289272)"
+    font-size="13.5px"
+    string="J"
+  >
+    <title>`J`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.12828"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 633 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43D"
+                    d="M447 625Q447 637 354 637H329Q323 642 323 645T325 664Q329 677 335 683H352Q393 681 498 681Q541 681 568 681T605 682T619 682Q633 682 633 672Q633 670 630 658Q626 642 623 640T604 637Q552 637 545 623Q541 610 483 376Q420 128 419 127Q397 64 333 21T195 -22Q137 -22 97 8T57 88Q57 130 80 152T132 174Q177 174 182 130Q182 98 164 80T123 56Q115 54 115 53T122 44Q148 15 197 15Q235 15 271 47T324 130Q328 142 387 380T447 625Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 250.5058464735257, 80.74392716582331)translate(250.5058464735257, 80.74392716582331)"
+    font-size="13.5px"
+    string="K"
+  >
+    <title>`K`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.03324"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 889 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43E"
+                    d="M285 628Q285 635 228 637Q205 637 198 638T191 647Q191 649 193 661Q199 681 203 682Q205 683 214 683H219Q260 681 355 681Q389 681 418 681T463 682T483 682Q500 682 500 674Q500 669 497 660Q496 658 496 654T495 648T493 644T490 641T486 639T479 638T470 637T456 637Q416 636 405 634T387 623L306 305Q307 305 490 449T678 597Q692 611 692 620Q692 635 667 637Q651 637 651 648Q651 650 654 662T659 677Q662 682 676 682Q680 682 711 681T791 680Q814 680 839 681T869 682Q889 682 889 672Q889 650 881 642Q878 637 862 637Q787 632 726 586Q710 576 656 534T556 455L509 418L518 396Q527 374 546 329T581 244Q656 67 661 61Q663 59 666 57Q680 47 717 46H738Q744 38 744 37T741 19Q737 6 731 0H720Q680 3 625 3Q503 3 488 0H478Q472 6 472 9T474 27Q478 40 480 43T491 46H494Q544 46 544 71Q544 75 517 141T485 216L427 354L359 301L291 248L268 155Q245 63 245 58Q245 51 253 49T303 46H334Q340 37 340 35Q340 19 333 5Q328 0 317 0Q314 0 280 1T180 2Q118 2 85 2T49 1Q31 1 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+    <filter id="`GJF`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="none"
+      d="M 380.6828186324526 153.3519598863886 L 309.56772569848283 272.9264386033538 L 110.9276795723664 72.8304704964155 Z "
+    ></path>
+    <title>`GJF`.icon</title>
+  </g>
+  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+    <filter id="`DEF`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="none"
+      d="M 508.2077718245993 473.0224067102921 L 650.4379576925388 233.87344927636173 L 110.9276795723664 72.8304704964155 Z "
+    ></path>
+    <title>`DEF`.icon</title>
+  </g>
   <g style="solid">
     <path
-      d="M 472.7717030171198 347.13448920335014 L 254.91468794793246 361.05236815427156"
+      d="M 508.2077718245993 473.0224067102921 L 650.4379576925388 233.87344927636173"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`DEF`.PQ</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="508.2077718245993"
+    cy="473.0224067102921"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`D`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="650.4379576925388"
+    cy="233.87344927636173"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`E`.icon</title>
+  </circle>
+  <g style="solid">
+    <path
+      d="M 380.6828186324526 153.3519598863886 L 309.56772569848283 272.9264386033538"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -477,7 +477,7 @@
   </g>
   <g style="solid">
     <path
-      d="M 257.1004831786312 321.0957345191114 L 366.02899071322486 314.13679504365064"
+      d="M 210.24770263542462 172.87845454988465 L 245.8052491024095 113.09121519140206"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
@@ -488,8 +488,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="257.1004831786312"
-    cy="321.0957345191114"
+    cx="210.24770263542462"
+    cy="172.87845454988465"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -501,8 +501,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="366.02899071322486"
-    cy="314.13679504365064"
+    cx="245.8052491024095"
+    cy="113.09121519140206"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
