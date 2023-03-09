@@ -825,6 +825,7 @@ with Circle c; Point p, q {
   q.icon above c.icon
   ensure norm(p.vec - c.vec) == c.radius
   ensure norm(q.vec - c.vec) == c.radius
+  ensure norm(q.vec - p.vec) > const.minSegmentLength
 }
 
 forall Segment s
