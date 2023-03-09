@@ -1,216 +1,26 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g>
     <path
-      d="M 387.4339093352423 271.26427187921587 L 405.89229999664144 176.45125447665873"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C4C5`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 551.3260649135616 381.1707782621796 L 635.8626156757573 354.5304386413836"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C2H3`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 551.3260649135616 381.1707782621796 L 560.353673537523 295.0868609442142"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C2H4`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 603.8331313670133 564.1964127349447 L 547.6249329037267 628.2363610653188"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`N1H1`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 603.8331313670133 564.1964127349447 L 668.0794756194068 621.1337412302106"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`N1H2`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 405.89229999664144 176.45125447665873 L 481.4776687687198 136.6066801681086"
+      d="M 248.679688168129 432.7541678960879 L 165.4898771719319 409.26458995875277"
       stroke-opacity="1"
       stroke-width="6"
       stroke="#000000"
       stroke-linecap="butt"
     ></path>
-    <title>`C5O2`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 405.89229999664144 176.45125447665873 L 481.4776687687198 136.6066801681086"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#ffffff"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C5O2`.line2</title>
-  </g>
-  <g>
-    <path
-      d="M 600.8071659223556 469.9774583737671 L 603.8331313670133 564.1964127349447"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C1N1`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 447.82326495569237 357.475262870573 L 387.4339093352423 271.26427187921587"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C3C4`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 447.82326495569237 357.475262870573 L 447.2915031198076 444.7016722118402"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C3H6`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 600.8071659223556 469.9774583737671 L 551.3260649135616 381.1707782621796"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C1C2`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 291.34359598296146 269.2420689189662 L 227.59133779623113 211.50857703974242"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`N2H7`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 405.89229999664144 176.45125447665873 L 369.54563434528507 94.41845596454604"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C5O3`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 551.3260649135616 381.1707782621796 L 447.82326495569237 357.475262870573"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C2C3`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 387.4339093352423 271.26427187921587 L 291.34359598296146 269.2420689189662"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C4N2`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 369.54563434528507 94.41845596454604 L 344.0034112066529 15.00004195617197"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`O3H9`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 291.34359598296146 269.2420689189662 L 225.87786209614984 325.3921893600404"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`N2H8`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 447.82326495569237 357.475262870573 L 368.05456729193895 392.7759988993947"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C3H5`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 600.8071659223556 469.9774583737671 L 687.291140757527 470.6427147578743"
-      stroke-opacity="1"
-      stroke-width="6"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C1O1`.line1</title>
-  </g>
-  <g>
-    <path
-      d="M 600.8071659223556 469.9774583737671 L 687.291140757527 470.6427147578743"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#ffffff"
-      stroke-linecap="butt"
-    ></path>
-    <title>`C1O1`.line2</title>
+    <title>`C1O1`.icon</title>
   </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="687.291140757527"
-    cy="470.6427147578743"
+    cx="165.4898771719319"
+    cy="409.26458995875277"
     stroke="none"
     r="15"
   >
     <title>`O1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 680.553850757527, 461.8127147578743)translate(680.553850757527, 461.8127147578743)"
+    transform="rotate(0, 158.7525871719319, 400.4345899587528)translate(158.7525871719319, 400.4345899587528)"
     font-size="12pt"
     string="O"
   >
@@ -248,18 +58,48 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 248.679688168129 432.7541678960879 L 222.4092704229342 523.1862960639278"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C1N1`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 222.4092704229342 523.1862960639278 L 146.2214809417918 562.5989232336624"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`N1H2`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 222.4092704229342 523.1862960639278 L 262.28810309015773 598.4742660510177"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`N1H1`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="603.8331313670133"
-    cy="564.1964127349447"
+    cx="222.4092704229342"
+    cy="523.1862960639278"
     stroke="none"
     r="15"
   >
     <title>`N1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 595.9920913670132, 555.3664127349447)translate(595.9920913670132, 555.3664127349447)"
+    transform="rotate(0, 214.56823042293422, 514.3562960639277)translate(214.56823042293422, 514.3562960639277)"
     font-size="12pt"
     string="N"
   >
@@ -297,18 +137,28 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 570.9993282551864 216.27463699161245 L 556.1842612103102 131.51727998732662"
+      stroke-opacity="1"
+      stroke-width="6"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C5O2`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="481.4776687687198"
-    cy="136.6066801681086"
+    cx="556.1842612103102"
+    cy="131.51727998732662"
     stroke="none"
     r="15"
   >
     <title>`O2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 474.74037876871984, 127.7766801681086)translate(474.74037876871984, 127.7766801681086)"
+    transform="rotate(0, 549.4469712103102, 122.68727998732662)translate(549.4469712103102, 122.68727998732662)"
     font-size="12pt"
     string="O"
   >
@@ -346,18 +196,48 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 565.9070905847949 363.81430271722246 L 650.7757806702703 377.30148277319296"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`N2H7`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 565.9070905847949 363.81430271722246 L 562.0581833671604 449.23499612548846"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`N2H8`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 506.7049347960122 290.09160327033567 L 565.9070905847949 363.81430271722246"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C4N2`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="291.34359598296146"
-    cy="269.2420689189662"
+    cx="565.9070905847949"
+    cy="363.81430271722246"
     stroke="none"
     r="15"
   >
     <title>`N2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 283.50255598296144, 260.4120689189662)translate(283.50255598296144, 260.4120689189662)"
+    transform="rotate(0, 558.0660505847949, 354.9843027172225)translate(558.0660505847949, 354.9843027172225)"
     font-size="12pt"
     string="N"
   >
@@ -395,18 +275,38 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 570.9993282551864 216.27463699161245 L 657.7854096350579 192.98494179927863"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C5O3`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 657.7854096350579 192.98494179927863 L 735.0244540033741 161.26687706015247"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`O3H9`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="369.54563434528507"
-    cy="94.41845596454604"
+    cx="657.7854096350579"
+    cy="192.98494179927863"
     stroke="none"
     r="15"
   >
     <title>`O3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 362.8083443452851, 85.58845596454604)translate(362.8083443452851, 85.58845596454604)"
+    transform="rotate(0, 651.0481196350579, 184.15494179927862)translate(651.0481196350579, 184.15494179927862)"
     font-size="12pt"
     string="O"
   >
@@ -447,15 +347,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="547.6249329037267"
-    cy="628.2363610653188"
+    cx="262.28810309015773"
+    cy="598.4742660510177"
     stroke="none"
     r="15"
   >
     <title>`H1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 539.7838929037267, 619.4063610653187)translate(539.7838929037267, 619.4063610653187)"
+    transform="rotate(0, 254.44706309015774, 589.6442660510177)translate(254.44706309015774, 589.6442660510177)"
     font-size="12pt"
     string="H"
   >
@@ -496,15 +396,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="668.0794756194068"
-    cy="621.1337412302106"
+    cx="146.2214809417918"
+    cy="562.5989232336624"
     stroke="none"
     r="15"
   >
     <title>`H2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 660.2384356194068, 612.3037412302106)translate(660.2384356194068, 612.3037412302106)"
+    transform="rotate(0, 138.38044094179182, 553.7689232336623)translate(138.38044094179182, 553.7689232336623)"
     font-size="12pt"
     string="H"
   >
@@ -542,18 +442,28 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 322.6465234859397 362.3079873203621 L 373.9498682212716 429.75217662311843"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C2H3`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="635.8626156757573"
-    cy="354.5304386413836"
+    cx="373.9498682212716"
+    cy="429.75217662311843"
     stroke="none"
     r="15"
   >
     <title>`H3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 628.0215756757573, 345.70043864138364)translate(628.0215756757573, 345.70043864138364)"
+    transform="rotate(0, 366.10882822127155, 420.92217662311845)translate(366.10882822127155, 420.92217662311845)"
     font-size="12pt"
     string="H"
   >
@@ -591,18 +501,28 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 322.6465234859397 362.3079873203621 L 252.9373274338918 311.3800274911427"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C2H4`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="560.353673537523"
-    cy="295.0868609442142"
+    cx="252.9373274338918"
+    cy="311.3800274911427"
     stroke="none"
     r="15"
   >
     <title>`H4`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 552.512633537523, 286.2568609442142)translate(552.512633537523, 286.2568609442142)"
+    transform="rotate(0, 245.0962874338918, 302.5500274911427)translate(245.0962874338918, 302.5500274911427)"
     font-size="12pt"
     string="H"
   >
@@ -640,18 +560,28 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 401.61759587515 289.88244055691086 L 335.0630198042003 231.5079110491092"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3H5`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="368.05456729193895"
-    cy="392.7759988993947"
+    cx="335.0630198042003"
+    cy="231.5079110491092"
     stroke="none"
     r="15"
   >
     <title>`H5`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 360.21352729193893, 383.94599889939474)translate(360.21352729193893, 383.94599889939474)"
+    transform="rotate(0, 327.22197980420026, 222.67791104910918)translate(327.22197980420026, 222.67791104910918)"
     font-size="12pt"
     string="H"
   >
@@ -689,18 +619,28 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 248.679688168129 432.7541678960879 L 322.6465234859397 362.3079873203621"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C1C2`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="600.8071659223556"
-    cy="469.9774583737671"
+    cx="248.679688168129"
+    cy="432.7541678960879"
     stroke="none"
     r="15"
   >
     <title>`C1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 594.0963659223556, 461.1474583737671)translate(594.0963659223556, 461.1474583737671)"
+    transform="rotate(0, 241.96888816812898, 423.9241678960879)translate(241.96888816812898, 423.9241678960879)"
     font-size="12pt"
     string="C"
   >
@@ -738,18 +678,28 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 401.61759587515 289.88244055691086 L 423.2572158384747 205.43241386385242"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3H6`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="447.2915031198076"
-    cy="444.7016722118402"
+    cx="423.2572158384747"
+    cy="205.43241386385242"
     stroke="none"
     r="15"
   >
     <title>`H6`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 439.4504631198076, 435.87167221184023)translate(439.4504631198076, 435.87167221184023)"
+    transform="rotate(0, 415.41617583847466, 196.6024138638524)translate(415.41617583847466, 196.6024138638524)"
     font-size="12pt"
     string="H"
   >
@@ -787,18 +737,28 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 322.6465234859397 362.3079873203621 L 401.61759587515 289.88244055691086"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C2C3`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="551.3260649135616"
-    cy="381.1707782621796"
+    cx="322.6465234859397"
+    cy="362.3079873203621"
     stroke="none"
     r="15"
   >
     <title>`C2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 544.6152649135616, 372.34077826217964)translate(544.6152649135616, 372.34077826217964)"
+    transform="rotate(0, 315.9357234859397, 353.4779873203621)translate(315.9357234859397, 353.4779873203621)"
     font-size="12pt"
     string="C"
   >
@@ -839,15 +799,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="227.59133779623113"
-    cy="211.50857703974242"
+    cx="650.7757806702703"
+    cy="377.30148277319296"
     stroke="none"
     r="15"
   >
     <title>`H7`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 219.75029779623114, 202.6785770397424)translate(219.75029779623114, 202.6785770397424)"
+    transform="rotate(0, 642.9347406702702, 368.471482773193)translate(642.9347406702702, 368.471482773193)"
     font-size="12pt"
     string="H"
   >
@@ -885,18 +845,28 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 401.61759587515 289.88244055691086 L 506.7049347960122 290.09160327033567"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C3C4`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="447.82326495569237"
-    cy="357.475262870573"
+    cx="401.61759587515"
+    cy="289.88244055691086"
     stroke="none"
     r="15"
   >
     <title>`C3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 441.11246495569236, 348.645262870573)translate(441.11246495569236, 348.645262870573)"
+    transform="rotate(0, 394.90679587515, 281.0524405569109)translate(394.90679587515, 281.0524405569109)"
     font-size="12pt"
     string="C"
   >
@@ -937,15 +907,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="225.87786209614984"
-    cy="325.3921893600404"
+    cx="562.0581833671604"
+    cy="449.23499612548846"
     stroke="none"
     r="15"
   >
     <title>`H8`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 218.03682209614985, 316.5621893600404)translate(218.03682209614985, 316.5621893600404)"
+    transform="rotate(0, 554.2171433671604, 440.4049961254885)translate(554.2171433671604, 440.4049961254885)"
     font-size="12pt"
     string="H"
   >
@@ -983,18 +953,38 @@
       </g>
     </svg>
   </g>
+  <g>
+    <path
+      d="M 248.679688168129 432.7541678960879 L 165.4898771719319 409.26458995875277"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#ffffff"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C1O1`.line2</title>
+  </g>
+  <g>
+    <path
+      d="M 506.7049347960122 290.09160327033567 L 570.9993282551864 216.27463699161245"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C4C5`.icon</title>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="387.4339093352423"
-    cy="271.26427187921587"
+    cx="506.7049347960122"
+    cy="290.09160327033567"
     stroke="none"
     r="15"
   >
     <title>`C4`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 380.72310933524227, 262.4342718792159)translate(380.72310933524227, 262.4342718792159)"
+    transform="rotate(0, 499.9941347960122, 281.2616032703357)translate(499.9941347960122, 281.2616032703357)"
     font-size="12pt"
     string="C"
   >
@@ -1035,15 +1025,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="344.0034112066529"
-    cy="15.00004195617197"
+    cx="735.0244540033741"
+    cy="161.26687706015247"
     stroke="none"
     r="15"
   >
     <title>`H9`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 336.1623712066529, 6.1700419561719695)translate(336.1623712066529, 6.1700419561719695)"
+    transform="rotate(0, 727.1834140033741, 152.43687706015245)translate(727.1834140033741, 152.43687706015245)"
     font-size="12pt"
     string="H"
   >
@@ -1084,15 +1074,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="405.89229999664144"
-    cy="176.45125447665873"
+    cx="570.9993282551864"
+    cy="216.27463699161245"
     stroke="none"
     r="15"
   >
     <title>`C5`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 399.18149999664143, 167.62125447665872)translate(399.18149999664143, 167.62125447665872)"
+    transform="rotate(0, 564.2885282551864, 207.44463699161244)translate(564.2885282551864, 207.44463699161244)"
     font-size="12pt"
     string="C"
   >
@@ -1129,5 +1119,15 @@
         </g>
       </g>
     </svg>
+  </g>
+  <g>
+    <path
+      d="M 570.9993282551864 216.27463699161245 L 556.1842612103102 131.51727998732662"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#ffffff"
+      stroke-linecap="butt"
+    ></path>
+    <title>`C5O2`.line2</title>
   </g>
 </svg>
