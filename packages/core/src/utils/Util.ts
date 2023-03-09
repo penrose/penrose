@@ -1,11 +1,10 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
 import { LineProps } from "../shapes/Line";
-import { ShapeType } from "../shapes/Shapes";
+import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A } from "../types/ast";
 import { Either, Left, Right } from "../types/common";
-import { GenericShape, Properties } from "../types/shape";
 import { Fn } from "../types/state";
 import { BindingForm, Expr, Path } from "../types/style";
 import {
@@ -20,8 +19,6 @@ import {
   Color,
   ColorV,
   FloatV,
-  GPI,
-  GPIListV,
   ListV,
   LListV,
   MatrixV,
@@ -483,42 +480,27 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
 //#region geometry
 
 // calculates bounding box dimensions of a shape - used in inspector views
-export const bBoxDims = (
-  properties: Properties<number>,
-  shapeType: ShapeType
-): [number, number] => {
+export const bBoxDims = (shape: Shape<number>): [number, number] => {
   let [w, h] = [0, 0];
-  if (shapeType === "Circle") {
-    [w, h] = [
-      (properties.r.contents as number) * 2,
-      (properties.r.contents as number) * 2,
-    ];
-  } else if (shapeType === "Ellipse") {
-    [w, h] = [
-      (properties.rx.contents as number) * 2,
-      (properties.ry.contents as number) * 2,
-    ];
-  } else if (shapeType === "Line") {
-    const [[sx, sy], [ex, ey]] = [
-      properties.start.contents as [number, number],
-      properties.end.contents as [number, number],
-    ];
+  if (shape.shapeType === "Circle") {
+    [w, h] = [shape.r.contents * 2, shape.r.contents * 2];
+  } else if (shape.shapeType === "Ellipse") {
+    [w, h] = [shape.rx.contents * 2, shape.ry.contents * 2];
+  } else if (shape.shapeType === "Line") {
+    const [[sx, sy], [ex, ey]] = [shape.start.contents, shape.end.contents];
     const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
     [w, h] = [
       Math.max(Math.abs(ex - sx), padding),
       Math.max(Math.abs(ey - sy), padding),
     ];
-  } else if (shapeType === "Path") {
+  } else if (shape.shapeType === "Path") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (shapeType === "Polygon") {
+  } else if (shape.shapeType === "Polygon") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (shapeType === "Polyline") {
+  } else if (shape.shapeType === "Polyline") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if ("width" in properties && "height" in properties) {
-    [w, h] = [
-      properties.width.contents as number,
-      properties.height.contents as number,
-    ];
+  } else if ("width" in shape && "height" in shape) {
+    [w, h] = [shape.width.contents, shape.height.contents];
   } else {
     [w, h] = [20, 20];
   }
@@ -626,14 +608,7 @@ export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
   contents,
 });
 
-export const gpiListV = (contents: GPI<ad.Num>[]): GPIListV<ad.Num> => ({
-  tag: "GPIListV",
-  contents,
-});
-
-export const shapeListV = (
-  contents: GenericShape<ad.Num>[]
-): ShapeListV<ad.Num> => ({
+export const shapeListV = (contents: Shape<ad.Num>[]): ShapeListV<ad.Num> => ({
   tag: "ShapeListV",
   contents,
 });
@@ -835,14 +810,15 @@ export const val = (v: Value<ad.Num>): Val<ad.Num> => ({
   contents: v,
 });
 
-export const linePts = ({ start, end }: LineProps): [ad.Num[], ad.Num[]] => [
-  start.contents,
-  end.contents,
-];
+export const linePts = ({
+  start,
+  end,
+}: LineProps<ad.Num>): [ad.Num[], ad.Num[]] => [start.contents, end.contents];
 
-export const getStart = ({ start }: LineProps): ad.Num[] => start.contents;
+export const getStart = ({ start }: LineProps<ad.Num>): ad.Num[] =>
+  start.contents;
 
-export const getEnd = ({ end }: LineProps): ad.Num[] => end.contents;
+export const getEnd = ({ end }: LineProps<ad.Num>): ad.Num[] => end.contents;
 
 //#endregion
 
@@ -919,19 +895,10 @@ export const getAdValueAsString = (
 };
 
 /**
- * Gets the contents of a value as a list of GPIs.
- * If unable, throw an exception.
- */
-export const getAdValueAsGPIList = (val: Value<ad.Num>): GPI<ad.Num>[] => {
-  if (val.tag === "GPIListV") return val.contents;
-  throw new Error("Not a list of shapes");
-};
-
-/**
  * Gets the contents of a value as a list of ShapeADs.
  * If unable, throw an exception.
  */
-export const getValueAsShapeList = <T>(val: Value<T>): GenericShape<T>[] => {
+export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
   if (val.tag === "ShapeListV") return val.contents;
   throw new Error("Not a list of shapes");
 };

@@ -6,7 +6,6 @@ import {
   BoolV,
   ColorV,
   FloatV,
-  GPIListV,
   ListV,
   LListV,
   MatrixV,
@@ -125,16 +124,6 @@ export const checkLListV = (
   value: Value<ad.Num>
 ): Result<LListV<ad.Num>, StyleError> => {
   if (value.tag === "LListV") {
-    return ok(value);
-  }
-  return err(badShapeParamTypeError(path, value));
-};
-
-export const checkGPIListV = (
-  path: string,
-  value: Value<ad.Num>
-): Result<GPIListV<ad.Num>, StyleError> => {
-  if (value.tag === "GPIListV") {
     return ok(value);
   }
   return err(badShapeParamTypeError(path, value));

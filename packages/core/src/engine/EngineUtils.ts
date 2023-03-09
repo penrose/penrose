@@ -1,9 +1,19 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 import { Gradient } from "@penrose/optimizer";
-import _ from "lodash";
+import { Circle } from "../shapes/Circle";
+import { Ellipse } from "../shapes/Ellipse";
+import { Equation } from "../shapes/Equation";
+import { Group } from "../shapes/Group";
+import { Image } from "../shapes/Image";
+import { Line } from "../shapes/Line";
+import { Path as PathShape } from "../shapes/Path";
+import { Polygon } from "../shapes/Polygon";
+import { Polyline } from "../shapes/Polyline";
+import { Rectangle } from "../shapes/Rectangle";
 import { InputMeta } from "../shapes/Samplers";
-import { ShapeDef, shapedefs } from "../shapes/Shapes";
+import { Shape } from "../shapes/Shapes";
+import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
 import {
   A,
@@ -14,7 +24,19 @@ import {
   SourceLoc,
 } from "../types/ast";
 import { StyleError } from "../types/errors";
-import { GenericShape, Shape, ShapeAD } from "../types/shape";
+import {
+  Arrow,
+  Center,
+  Corner,
+  Fill,
+  Named,
+  Poly,
+  Rect,
+  Rotate,
+  Scale,
+  String as StringProps,
+  Stroke,
+} from "../types/shapes";
 import { ShapeFn } from "../types/state";
 import { Expr, Path } from "../types/style";
 import {
@@ -26,10 +48,8 @@ import {
   MatrixV,
   PathCmd,
   PathDataV,
-  PropID,
   PtListV,
   ShapeListV,
-  ShapeTypeStr,
   SubPath,
   TupV,
   Value,
@@ -163,19 +183,31 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
-function mapShape<T, S>(f: (arg: T) => S, v: GenericShape<T>): GenericShape<S> {
-  const shapeType = v.shapeType;
-  const shapeProps = v.properties;
-  const mappedShapeProps = Object.fromEntries(
-    Object.entries(shapeProps).map(([prop, propVal]) => {
-      return [prop, mapValueNumeric(f, propVal)];
-    })
-  );
-
-  return {
-    shapeType,
-    properties: mappedShapeProps,
-  };
+function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
+  switch (v.shapeType) {
+    case "Circle":
+      return mapCircle(f, v);
+    case "Ellipse":
+      return mapEllipse(f, v);
+    case "Equation":
+      return mapEquation(f, v);
+    case "Image":
+      return mapImage(f, v);
+    case "Line":
+      return mapLine(f, v);
+    case "Path":
+      return mapPath(f, v);
+    case "Polygon":
+      return mapPolygon(f, v);
+    case "Polyline":
+      return mapPolyline(f, v);
+    case "Rectangle":
+      return mapRectangle(f, v);
+    case "Text":
+      return mapText(f, v);
+    case "Group":
+      return mapGroup(f, v);
+  }
 }
 
 function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
@@ -186,6 +218,195 @@ function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
     }),
   };
 }
+
+const mapCircle = <T, S>(f: (arg: T) => S, v: Circle<T>): Circle<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    r: mapFloat(f, v.r),
+  };
+};
+
+const mapEllipse = <T, S>(f: (arg: T) => S, v: Ellipse<T>): Ellipse<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    rx: mapFloat(f, v.rx),
+    ry: mapFloat(f, v.ry),
+  };
+};
+
+const mapEquation = <T, S>(f: (arg: T) => S, v: Equation<T>): Equation<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    ...mapRect(f, v),
+    ...mapRotate(f, v),
+    ...mapString(f, v),
+  };
+};
+
+const mapGroup = <T, S>(f: (arg: T) => S, v: Group<T>): Group<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    shapes: mapShapeList(f, v.shapes),
+  };
+};
+
+const mapImage = <T, S>(f: (arg: T) => S, v: Image<T>): Image<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapCenter(f, v),
+    ...mapRect(f, v),
+    ...mapRotate(f, v),
+    href: v.href,
+  };
+};
+
+const mapLine = <T, S>(f: (arg: T) => S, v: Line<T>): Line<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapArrow(f, v),
+    start: mapVector(f, v.start),
+    end: mapVector(f, v.end),
+    strokeLinecap: v.strokeLinecap,
+  };
+};
+
+const mapPath = <T, S>(f: (arg: T) => S, v: PathShape<T>): PathShape<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapArrow(f, v),
+    d: mapPathData(f, v.d),
+  };
+};
+
+const mapPolygon = <T, S>(f: (arg: T) => S, v: Polygon<T>): Polygon<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapScale(f, v),
+    ...mapPoly(f, v),
+  };
+};
+
+const mapPolyline = <T, S>(f: (arg: T) => S, v: Polyline<T>): Polyline<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapScale(f, v),
+    ...mapPoly(f, v),
+  };
+};
+
+const mapRectangle = <T, S>(
+  f: (arg: T) => S,
+  v: Rectangle<T>
+): Rectangle<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    ...mapRotate(f, v),
+    ...mapRect(f, v),
+    ...mapCorner(f, v),
+  };
+};
+
+const mapText = <T, S>(f: (arg: T) => S, v: Text<T>): Text<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    ...mapRotate(f, v),
+    ...mapRect(f, v),
+    ...mapString(f, v),
+    ascent: mapFloat(f, v.ascent),
+    descent: mapFloat(f, v.descent),
+  };
+};
+
+const mapNamed = <T, S>(f: (arg: T) => S, v: Named<T>): Named<S> => {
+  // Cannot use "spread" operator since `v` might have more things than just Named.
+  return { name: v.name, style: v.style, ensureOnCanvas: v.ensureOnCanvas };
+};
+
+const mapStroke = <T, S>(f: (arg: T) => S, v: Stroke<T>): Stroke<S> => {
+  return {
+    strokeStyle: v.strokeStyle,
+    strokeDasharray: v.strokeDasharray,
+    strokeWidth: mapFloat(f, v.strokeWidth),
+    strokeColor: mapColor(f, v.strokeColor),
+  };
+};
+
+const mapFill = <T, S>(f: (arg: T) => S, v: Fill<T>): Fill<S> => {
+  return { fillColor: mapColor(f, v.fillColor) };
+};
+
+const mapCenter = <T, S>(f: (arg: T) => S, v: Center<T>): Center<S> => {
+  return { center: mapVector(f, v.center) };
+};
+
+const mapRect = <T, S>(f: (arg: T) => S, v: Rect<T>): Rect<S> => {
+  return { width: mapFloat(f, v.width), height: mapFloat(f, v.height) };
+};
+
+const mapArrow = <T, S>(f: (arg: T) => S, v: Arrow<T>): Arrow<S> => {
+  return {
+    startArrowhead: v.startArrowhead,
+    endArrowhead: v.endArrowhead,
+    flipStartArrowhead: v.flipStartArrowhead,
+    startArrowheadSize: mapFloat(f, v.startArrowheadSize),
+    endArrowheadSize: mapFloat(f, v.endArrowheadSize),
+  };
+};
+
+const mapCorner = <T, S>(f: (arg: T) => S, v: Corner<T>): Corner<S> => {
+  return { cornerRadius: mapFloat(f, v.cornerRadius) };
+};
+
+const mapRotate = <T, S>(f: (arg: T) => S, v: Rotate<T>): Rotate<S> => {
+  return { rotation: mapFloat(f, v.rotation) };
+};
+
+const mapScale = <T, S>(f: (arg: T) => S, v: Scale<T>): Scale<S> => {
+  return { scale: mapFloat(f, v.scale) };
+};
+
+const mapPoly = <T, S>(f: (arg: T) => S, v: Poly<T>): Poly<S> => {
+  return { points: mapPtList(f, v.points) };
+};
+
+const mapString = <T, S>(
+  f: (arg: T) => S,
+  v: StringProps<T>
+): StringProps<S> => {
+  return { string: v.string, fontSize: v.fontSize };
+};
 
 // Utils for converting types of values
 
@@ -214,43 +435,36 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     case "ShapeListV":
       return mapShapeList(f, v);
     // non-numeric Value types
-    case "GPIListV":
-      // since all GPIListV have been converted to ShapeListV
-      // this should never happen
-      throw Error("There should not be a GPIListV");
     case "BoolV":
     case "StrV":
       return v;
   }
 }
 
-export const compileCompGraph = async (shapes: ShapeAD[]): Promise<ShapeFn> => {
+export const compileCompGraph = async (
+  shapes: Shape<ad.Num>[]
+): Promise<ShapeFn> => {
   const vars = [];
   for (const s of shapes) {
-    for (const v of Object.values(s.properties)) {
+    for (const v of Object.values(s)) {
       vars.push(...valueADNums(v));
     }
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
   const evalFn = await genCode(compGraph);
-  return (xs: number[]): Shape[] => {
+  return (xs: number[]): Shape<number>[] => {
     const numbers = evalFn.call(xs).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
-    return shapes.map((s: ShapeAD) => ({
-      ...s,
-      properties: _.mapValues(s.properties, (p: Value<ad.Num>) =>
-        mapValueNumeric(
-          (x) =>
-            safe(
-              m.get(
-                safe(compGraph.nodes.get(x), `missing node for value ${p.tag}`)
-              ),
-              "missing output"
-            ),
-          p
-        )
-      ),
-    }));
+    return shapes.map((s: Shape<ad.Num>) =>
+      mapShape(
+        (x) =>
+          safe(
+            m.get(safe(compGraph.nodes.get(x), `missing node`)),
+            "missing output"
+          ),
+        s
+      )
+    );
   };
 };
 
@@ -263,14 +477,11 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
     case "StrV": {
       return [];
     }
-    case "GPIListV": {
-      throw Error("There should not be a GPIListV");
-    }
     case "ShapeListV": {
       const vars = [];
       const shapes = v.contents;
       for (const s of shapes) {
-        for (const v of Object.values(s.properties)) {
+        for (const v of Object.values(s)) {
           vars.push(...valueADNums(v));
         }
       }
@@ -375,35 +586,6 @@ export const dummyIdentifier = (
     value: name,
     tag: "Identifier",
   };
-};
-
-// Given 'propType' and 'shapeType', return all props of that ValueType
-// COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
-export const propertiesOf = (
-  propType: string,
-  shapeType: ShapeTypeStr
-): PropID[] => {
-  const shapedef: ShapeDef = shapedefs[shapeType];
-  const shapeInfo: [string, Value<ad.Num>["tag"]][] = Object.entries(
-    shapedef.propTags
-  );
-  return shapeInfo
-    .filter(([, tag]) => tag === propType)
-    .map(([pName]) => pName);
-};
-
-// Given 'propType' and 'shapeType', return all props NOT of that ValueType
-export const propertiesNotOf = (
-  propType: string,
-  shapeType: ShapeTypeStr
-): PropID[] => {
-  const shapedef: ShapeDef = shapedefs[shapeType];
-  const shapeInfo: [string, Value<ad.Num>["tag"]][] = Object.entries(
-    shapedef.propTags
-  );
-  return shapeInfo
-    .filter(([, tag]) => tag !== propType)
-    .map(([pName]) => pName);
 };
 
 //#endregion
