@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { EPS_DENOM, ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
@@ -56,14 +56,14 @@ export const objDictSimple = {
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
   repelPt: (weight: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
-    mul(weight, inverse(ops.vdistsq(a, b))),
+    mul(weight, inverse(add(ops.vdistsq(a, b), EPS_DENOM))),
 
   /**
    * Repel scalar `c` from another scalar `d`.
    */
   repelScalar: (c: ad.Num, d: ad.Num): ad.Num => {
     // 1/(c-d)^2
-    return inverse(squared(sub(c, d)));
+    return inverse(add(squared(sub(c, d)), EPS_DENOM));
   },
 };
 
@@ -150,7 +150,12 @@ export const objDictGeneral = {
     } else {
       // Repel any two shapes with a center.
       // 1 / (d^2(cx, cy) + eps)
-      res = inverse(ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])));
+      res = inverse(
+        add(
+          ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])),
+          EPS_DENOM
+        )
+      );
     }
 
     return mul(res, repelWeight);
