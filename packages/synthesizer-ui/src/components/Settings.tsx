@@ -24,6 +24,7 @@ import {
 } from "@penrose/core";
 import examples from "@penrose/examples/dist/index";
 import React from "react";
+import Latex from "react-latex-next";
 import { Preset, presets } from "../examples";
 import { wildcardType } from "../util";
 import { MultiselectDropdown } from "./MultiselectDropdown";
@@ -371,7 +372,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               {this.presets()}
             </Select>
             <SettingLabel>Prompt:</SettingLabel>
-            <div>{this.state.prompt}</div>
+            <div>
+              <Latex>{this.state.prompt}</Latex>
+            </div>
           </SettingDiv>
           <br />
           <Accordion key="substance" elevation={0}>
