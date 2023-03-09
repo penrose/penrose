@@ -38,22 +38,23 @@ forall Nitrogen x {
 
 -- Bonds
 
-forall SingleBond b
+forall Bond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
-    shape b.line1 = Line {
+    shape b.icon = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 2.0
     }
     encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
+    b.icon below x.icon, y.icon
 }
 
-forall DoubleBond b
+forall Bond b
 where b := MakeDoubleBond(x, y)
 with Atom x; Atom y {
-    shape b.line1 = Line {
+    shape b.icon = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
@@ -65,14 +66,14 @@ with Atom x; Atom y {
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth: 2.0
     }
-    b.layering = b.line2 above b.line1
+    b.icon below x.icon, y.icon
     encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
-forall TripleBond b
+forall Bond b
 where b := MakeTripleBond(x, y)
 with Atom x; Atom y {
-    shape b.line1 = Line {
+    shape b.icon = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
@@ -90,8 +91,9 @@ with Atom x; Atom y {
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth: 2.0
     }
-    b.layering1 = b.line2 above b.line1
-    b.layering2 = b.line3 above b.line2
+    b.line3 above b.line2
+    b.line2 above b.icon
+    b.icon below x.icon, y.icon
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
@@ -101,14 +103,3 @@ forall Atom x; Atom y {
     encourage notTooClose(x.icon, y.icon)
 }
 
-forall Atom a; Bond b {
-    a.icon above b.line1
-}
-
-forall Atom a; DoubleBond b {
-    a.icon above b.line2
-}
-
-forall Atom a; TripleBond b {
-    a.icon above b.line3
-}

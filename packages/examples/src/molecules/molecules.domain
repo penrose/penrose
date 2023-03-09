@@ -2,19 +2,134 @@
 
 type Atom
 
-type Carbon <: Atom
 type Hydrogen <: Atom
-type Oxygen <: Atom
+type Helium <: Atom
+type Lithium <: Atom
+type Beryllium <: Atom
+type Boron <: Atom
+type Carbon <: Atom
 type Nitrogen <: Atom
+type Oxygen <: Atom
+type Fluorine <: Atom
+type Neon <: Atom
+type Sodium <: Atom
+type Magnesium <: Atom
+type Aluminium <: Atom
+type Silicon <: Atom
+type Phosphorus <: Atom
+type Sulfur <: Atom
+type Chlorine <: Atom
+type Argon <: Atom
+type Potassium <: Atom
+type Calcium <: Atom
+type Scandium <: Atom
+type Titanium <: Atom
+type Vanadium <: Atom
+type Chromium <: Atom
+type Manganese <: Atom
+type Iron <: Atom
+type Cobalt <: Atom
+type Nickel <: Atom
+type Copper <: Atom
+type Zinc <: Atom
+type Gallium <: Atom
+type Germanium <: Atom
+type Arsenic <: Atom
+type Selenium <: Atom
+type Bromine <: Atom
+type Krypton <: Atom
+type Rubidium <: Atom
+type Strontium <: Atom
+type Yttrium <: Atom
+type Zirconium <: Atom
+type Niobium <: Atom
+type Molybdenum <: Atom
+type Technetium <: Atom
+type Ruthenium <: Atom
+type Rhodium <: Atom
+type Palladium <: Atom
+type Silver <: Atom
+type Cadmium <: Atom
+type Indium <: Atom
+type Tin <: Atom
+type Antimony <: Atom
+type Tellurium <: Atom
+type Iodine <: Atom
+type Xenon <: Atom
+type Cesium <: Atom
+type Barium <: Atom
+type Lanthanum <: Atom
+type Cerium <: Atom
+type Praseodymium <: Atom
+type Neodymium <: Atom
+type Promethium <: Atom
+type Samarium <: Atom
+type Europium <: Atom
+type Gadolinium <: Atom
+type Terbium <: Atom
+type Dysprosium <: Atom
+type Holmium <: Atom
+type Erbium <: Atom
+type Thulium <: Atom
+type Ytterbium <: Atom
+type Lutetium <: Atom
+type Hafnium <: Atom
+type Tantalum <: Atom
+type Tungsten <: Atom
+type Rhenium <: Atom
+type Osmium <: Atom
+type Iridium <: Atom
+type Platinum <: Atom
+type Gold <: Atom
+type Mercury <: Atom
+type Thallium <: Atom
+type Lead <: Atom
+type Bismuth <: Atom
+type Polonium <: Atom
+type Astatine <: Atom
+type Radon <: Atom
+type Francium <: Atom
+type Radium <: Atom
+type Actinium <: Atom
+type Thorium <: Atom
+type Protactinium <: Atom
+type Uranium <: Atom
+type Neptunium <: Atom
+type Plutonium <: Atom
+type Americium <: Atom
+type Curium <: Atom
+type Berkelium <: Atom
+type Californium <: Atom
+type Einsteinium <: Atom
+type Fermium <: Atom
+type Mendelevium <: Atom
+type Nobelium <: Atom
+type Lawrencium <: Atom
+type Rutherfordium <: Atom
+type Dubnium <: Atom
+type Seaborgium <: Atom
+type Bohrium <: Atom
+type Hassium <: Atom
+type Meitnerium <: Atom
+type Darmstadtium <: Atom
+type Roentgenium <: Atom
+type Copernicium <: Atom
 
 -- Bonds
 
 type Bond
 
-type SingleBond <: Bond
-type DoubleBond <: Bond
-type TripleBond <: Bond
+constructor MakeSingleBond(Atom a, Atom b) -> Bond
+constructor MakeDoubleBond(Atom a, Atom b) -> Bond
+constructor MakeTripleBond(Atom a, Atom b) -> Bond
 
-constructor MakeSingleBond(Atom a, Atom b) -> SingleBond
-constructor MakeDoubleBond(Atom a, Atom b) -> DoubleBond
-constructor MakeTripleBond(Atom a, Atom b) -> TripleBond
+-- Electrons 
+
+type ElectronPair
+
+constructor ValenceElectronPair(Atom a) -> ElectronPair
+
+-- layout
+predicate Collinear(Atom, Atom, Atom)
+predicate VerticalAlign(Atom, Atom)
+predicate HorizontalAlign(Atom, Atom)
