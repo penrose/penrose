@@ -277,7 +277,6 @@ const makeGroup = (
 const Group = ShapeDef({
   sampler: sampleGroup,
   constr: makeGroup,
-
   bbox: bboxFromGroup,
 });
 

@@ -75,6 +75,14 @@
       "gallery": true
     },
     {
+      "name": "Lewis Structure of Nitric Acid",
+      "substance": "nitricacid",
+      "style": "lewis",
+      "domain": "molecules",
+      "variation": "KilimanjaroSpider637",
+      "gallery": true
+    },
+    {
       "substance": "vector-wedge",
       "style": "exterior-algebra",
       "domain": "exterior-algebra",
@@ -668,6 +676,10 @@
       "domain": "molecules",
       "URI": "molecules/molecules-basic.style"
     },
+    "lewis": {
+      "domain": "molecules",
+      "URI": "molecules/lewis.style"
+    },
     "matrix-ops": {
       "domain": "matrix-ops",
       "URI": "matrix-ops/matrix-ops.style"
@@ -837,6 +849,10 @@
     "glutamine": {
       "domain": "molecules",
       "URI": "molecules/glutamine.substance"
+    },
+    "nitricacid": {
+      "domain": "molecules",
+      "URI": "molecules/nitricacid.substance"
     },
     "matrix-matrix-addition": {
       "domain": "matrix-ops",
