@@ -368,7 +368,9 @@ with Point p; Point q; Point r {
   }
   
   theta.radius = const.thetaRadius
-  encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
+  -- encourage the angle to be bigger than 10
+  angle = angleBetween(theta.q - theta.p, theta.q - theta.r) 
+  ensure angle > 10/180 * MathPI()
   theta.side1 below p.icon, q.icon
   theta.side2 below q.icon, r.icon
 }
@@ -761,11 +763,13 @@ with Linelike l {
 forall Linelike s
 where AngleBisector(a, s)
 with Angle a; Point p {
-  weight = 10000
+  weight = 100
   angleA = angleBetween(a.p - a.q, s.end - a.q) * weight
   angleB = angleBetween(s.end - a.q, a.r - a.q) * weight
+  bigAngle = angleBetween(a.q - a.p, a.q - a.r) * weight
   ensure angleA == angleB 
-  ensure angleA > 10 
+  -- HACK: make sure the angle itself is not zero
+  ensure bigAngle > 15/180 * MathPI() * weight 
   -- HACK: make sure the bisector end point is between angle end points. Might be too specific
   ensure inRange(s.end[0], a.p[0], a.r[0])
   ensure inRange(s.end[1], a.p[1], a.r[1])
@@ -891,4 +895,9 @@ forall Point p
 where CircleCenter(c, p)
 with Circle c {
   override p.vec = c.vec
+}
+
+forall Shape s1, s2
+where s1 has label; s2 has label {
+  encourage notTooClose(s1.text, s2.text)
 }
