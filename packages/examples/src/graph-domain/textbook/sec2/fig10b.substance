@@ -1,0 +1,13 @@
+Vertex Washington, Xuan, Ybarra, Ziegler
+Vertex requirements, architecture, implementation, testing
+
+Link e1 := Edge(Washington, architecture)
+Link e2 := Edge(Xuan, requirements)
+Link e3 := Edge(Xuan, implementation)
+Link e4 := Edge(Xuan, testing)
+Link e5 := Edge(Ybarra, architecture)
+Link e6 := Edge(Ziegler, requirements)
+Link e7 := Edge(Ziegler, architecture)
+Link e8 := Edge(Ziegler, testing)
+
+AutoLabel All

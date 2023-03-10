@@ -130,6 +130,6 @@ type ElectronPair
 constructor ValenceElectronPair(Atom a) -> ElectronPair
 
 -- layout
-predicate Collinear(Atom, Atom, Atom)
-predicate VerticalAlign(Atom, Atom)
-predicate HorizontalAlign(Atom, Atom)
+-- predicate Collinear(Atom, Atom, Atom)
+-- predicate VerticalAlign(Atom, Atom)
+-- predicate HorizontalAlign(Atom, Atom)

@@ -34,6 +34,8 @@ const {
     minLineLength = 200.0
 }
 
+layout = [shape, label, tidy]
+
 --Plane
 forall Plane p {
   width = canvas.width * .8
@@ -61,8 +63,8 @@ forall Plane p {
 
 --Point
 forall Point p {
-  p.x = ?
-  p.y = ?
+  p.x = ? except label
+  p.y = ? except label
   p.vec = (p.x, p.y)
   p.color = Colors.black
 
@@ -78,15 +80,18 @@ forall Point p {
     string : p.label
     fillColor : Colors.black
     fontSize : const.fontSize
+    center: (? in label, ? in label)
+    ensureOnCanvas: false
   }
-  ensure signedDistance(p.text, p.vec) == const.textPadding + const.pointRadius
+  ensure onCanvas(p.text, canvas.width, canvas.height) in label
+  ensure signedDistance(p.text, p.vec) == const.textPadding + const.pointRadius in label
 }
 
 -- default: if `Point` is not on a `Plane`, the point should be below the plane to stay hidden
 forall Point p
 with Plane P {
   p.iconOnPlane = ensure disjoint(p.icon, P.icon)
-  p.textOnPlane = ensure disjoint(p.text, P.icon)
+  p.textOnPlane = ensure disjoint(p.text, P.icon) in label
 }
 
 forall Point p
@@ -95,7 +100,7 @@ where In(p, P) {
   -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
   -- There's a choice of whether to put padding on the point or the text for containment
   p.iconOnPlane = ensure contains(P.icon, p.icon, const.containPadding)
-  p.textOnPlane = ensure contains(P.icon, p.text, 0.0)
+  p.textOnPlane = ensure contains(P.icon, p.text) in label
 
   p.icon above P.icon
   p.text above P.icon
@@ -103,12 +108,8 @@ where In(p, P) {
 
 forall Point p, q, r
 where Collinear(p, q, r) {
-  ensure collinear(p.icon.center, q.icon.center, r.icon.center)
-  ensure inRange(q.icon.center[0], p.icon.center[0], r.icon.center[0])
-  ensure inRange(q.icon.center[1], p.icon.center[1], r.icon.center[1])
-
-  encourage notTooClose(p.icon, q.icon, const.repelWeight)
-  encourage notTooClose(q.icon, r.icon, const.repelWeight)
+  ensure collinearOrdered(p.icon.center, q.icon.center, r.icon.center) 
+  encourage notTooClose(p.icon, r.icon, const.repelWeight)
 }
 
 forall Point p
@@ -120,7 +121,7 @@ where On(p, l) {
 forall Point p
 with Linelike l
 where On(p, l); p has label {
-  ensure disjoint(l.icon, p.text)
+  ensure disjoint(l.icon, p.text) in label
 }
 
 --Linelike
@@ -153,8 +154,8 @@ with Point base; Point direction {
     endArrowheadSize: const.arrowheadSize
   }
   -- labeling
-  ensure disjoint(r.icon, base.text)
-  ensure disjoint(r.icon, direction.text)
+  ensure disjoint(r.icon, base.text) in label
+  ensure disjoint(r.icon, direction.text) in label
 }
 
 forall Ray r {
@@ -202,8 +203,8 @@ with Point p; Point q {
   ensure norm(l.vec) > const.minLineLength
 
   -- labeling
-  ensure disjoint(l.icon, p.text)
-  ensure disjoint(l.icon, q.text)
+  ensure disjoint(l.icon, p.text) in label
+  ensure disjoint(l.icon, q.text) in label
 }
 
 forall Linelike l1, l2 -- should this work with rays and lines?
@@ -251,8 +252,8 @@ with Point p; Point q {
   ensure norm(e.vec) > const.minSegmentLength
 
   -- labeling
-  ensure disjoint(p.text, e.icon)
-  ensure disjoint(q.text, e.icon)
+  ensure disjoint(p.text, e.icon) in label
+  ensure disjoint(q.text, e.icon) in label
 }
 
 forall Segment e; Plane p {
@@ -367,7 +368,9 @@ with Point p; Point q; Point r {
   }
   
   theta.radius = const.thetaRadius
-  encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
+  -- encourage the angle to be bigger than 10
+  angle = angleBetween(theta.q - theta.p, theta.q - theta.r) 
+  ensure angle > 10/180 * MathPI()
   theta.side1 below p.icon, q.icon
   theta.side2 below q.icon, r.icon
 }
@@ -506,9 +509,10 @@ with Point p; Point q; Point r {
   ensure norm(p.vec - q.vec) > const.minSegmentLength
   ensure norm(q.vec - r.vec) > const.minSegmentLength
   ensure norm(r.vec - p.vec) > const.minSegmentLength
-  ensure disjoint(t.icon, p.text)
-  ensure disjoint(t.icon, q.text)
-  ensure disjoint(t.icon, r.text)
+  ensure disjoint(t.icon, p.text) in label
+  ensure disjoint(t.icon, q.text) in label
+  ensure disjoint(t.icon, r.text) in label
+
   t.PQ below p.icon
   t.PQ below q.icon
   t.QR below q.icon
@@ -708,10 +712,10 @@ with Point p; Point q; Point r; Point s {
     fillColor: none()
   }
   -- TODO: check if the points actually have labels
-  ensure disjoint(p.text, Q.labelContainer)
-  ensure disjoint(q.text, Q.labelContainer)
-  ensure disjoint(r.text, Q.labelContainer)
-  ensure disjoint(s.text, Q.labelContainer)
+  ensure disjoint(p.text, Q.labelContainer) in label
+  ensure disjoint(q.text, Q.labelContainer) in label
+  ensure disjoint(r.text, Q.labelContainer) in label
+  ensure disjoint(s.text, Q.labelContainer) in label
   -- ensure all sides are visible
   ensure norm(Q.p - Q.q) > const.minSegmentLength
   ensure norm(Q.q - Q.r) > const.minSegmentLength
@@ -752,27 +756,23 @@ forall Point p
 where Midpoint(l, p); p has label
 with Linelike l {
   override p.vec = midpoint(l.icon.start, l.icon.end)
-  ensure disjoint(p.text, l.icon)
+  ensure disjoint(p.text, l.icon) in label
 }
 
 -- TODO sometimes bisector becomes a scaled version of either side length PQ or QR of angle PQR
 forall Linelike s
 where AngleBisector(a, s)
 with Angle a; Point p {
-  weight = 10000
+  weight = 100
   angleA = angleBetween(a.p - a.q, s.end - a.q) * weight
   angleB = angleBetween(s.end - a.q, a.r - a.q) * weight
+  bigAngle = angleBetween(a.q - a.p, a.q - a.r) * weight
   ensure angleA == angleB 
+  -- HACK: make sure the angle itself is not zero
+  ensure bigAngle > 15/180 * MathPI() * weight 
   -- HACK: make sure the bisector end point is between angle end points. Might be too specific
   ensure inRange(s.end[0], a.p[0], a.r[0])
   ensure inRange(s.end[1], a.p[1], a.r[1])
-  -- FIXME: NaN when using the following
-  -- v1 = normalize(a.p - a.q) 
-  -- v2 = normalize(s.end - a.q)
-  -- v3 = normalize(a.r - a.q)
-  -- angleA = angleFrom(v1, v2) * weight
-  -- angleB = angleFrom(v2, v3) * weight
-
 }
 
 forall Circle c {
@@ -825,13 +825,14 @@ with Circle c; Point p, q {
   q.icon above c.icon
   ensure norm(p.vec - c.vec) == c.radius
   ensure norm(q.vec - c.vec) == c.radius
+  ensure norm(q.vec - p.vec) > const.minSegmentLength
 }
 
 forall Segment s
 where s := Chord(c, p, q); p has label; q has label 
 with Circle c; Point p, q {
-  ensure disjoint(c.icon, p.text)
-  ensure disjoint(c.icon, q.text)
+  ensure disjoint(c.icon, p.text) in label
+  ensure disjoint(c.icon, q.text) in label
 }
 
 forall Segment s
@@ -852,13 +853,13 @@ with Circle c; Point p {
 forall Segment s
 where s := Radius(c, p); p has label 
 with Circle c; Point p {
-  ensure disjoint(p.text, s.icon)
+  ensure disjoint(p.text, s.icon) in label
 }
 
 forall Segment s
 where s := Radius(c, p); p has label
 with Circle c; Point p {
-  ensure disjoint(p.text, c.icon)
+  ensure disjoint(p.text, c.icon) in label
 }
 
 forall Segment s
@@ -888,11 +889,16 @@ with Circle c {
 forall Point p
 where OnCircle(c, p); p has label
 with Circle c {
-  ensure disjoint(p.text, c.icon)
+  ensure disjoint(p.text, c.icon) in label
 }
 
 forall Point p
 where CircleCenter(c, p)
 with Circle c {
   override p.vec = c.vec
+}
+
+forall Shape s1, s2
+where s1 has label; s2 has label {
+  encourage notTooClose(s1.text, s2.text)
 }
