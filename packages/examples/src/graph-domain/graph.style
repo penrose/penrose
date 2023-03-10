@@ -3,7 +3,7 @@ canvas {
   height = 700
 }
 
-layout = [dots, loops, text]
+layout = [dots, loops, arrows, text]
 
 color {
   black = #000000
@@ -140,7 +140,9 @@ forall Vertex u; Vertex v; Link e where e := Arc(u, v) {
     strokeColor: color.black
   }
 
-  p = m + (e.offset / 2) * n
+  e.step = ? in arrows
+  e.pointerCenter = m + (e.offset / 2) * n + e.step * t
+  p = e.pointerCenter
   x = num.pointerX
   y = num.pointerY
   e.pointer = Path {
@@ -155,6 +157,7 @@ forall Vertex u; Vertex v; Link e where e := Arc(u, v) {
 
   encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
   encourage minimal(sqr(e.offset)) in dots
+  encourage minimal(sqr(e.step)) in dots
 }
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(u, v) {
@@ -210,4 +213,11 @@ forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(u, v); e2 := Arc(v, 
 
 forall Vertex u; Vertex v; Link e1; Link e2 where e1 := Arc(v, u); e2 := Arc(v, v) {
   encourage minimal(cos(e2.theta - e1.theta)) in loops
+}
+
+forall Link e1, e2
+where e1 := Arc(a, b); e2 := Arc(c, d)
+with Vertex a, b, c, d {
+  ensure norm(e2.pointerCenter - e1.pointerCenter) > max(num.pointerX, num.pointerY)*3 in arrows
+  encourage e1.step == e2.step
 }
