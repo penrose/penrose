@@ -347,9 +347,19 @@ forall Point \`D\`, \`E\`, \`A\` {
     },
   },
   graph_0: {
-    displayName: "Bipartite graph 1",
+    displayName: "graph_0: Bipartite Graph",
     prompt: "Which of the following diagrams are bipartite graphs?",
     substance: graphDomain.textbook.sec2["ex22.substance"],
+    domain: graphDomain["graph.domain"],
+    style: graphDomain["graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_1: {
+    displayName: "graph_1: Isomorphic Graph",
+    prompt: "Which diagram contains a pair of isomorphic graphs?",
+    substance: graphDomain.textbook.sec3["ex38.substance"],
     domain: graphDomain["graph.domain"],
     style: graphDomain["graph.style"],
     setting: {
