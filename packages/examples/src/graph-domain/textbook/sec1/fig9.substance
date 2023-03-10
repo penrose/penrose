@@ -1,0 +1,15 @@
+Vertex main
+Vertex display, parser, protocol
+Vertex AST, page, network
+
+Link e1 := Arc(main, display)
+Link e2 := Arc(main, parser)
+Link e3 := Arc(main, protocol)
+Link e4 := Arc(main, AST)
+Link e5 := Arc(display, AST)
+Link e6 := Arc(parser, AST)
+Link e7 := Arc(parser, page)
+Link e8 := Arc(protocol, page)
+Link e9 := Arc(protocol, network)
+
+AutoLabel All
