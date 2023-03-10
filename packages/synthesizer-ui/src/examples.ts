@@ -366,4 +366,24 @@ forall Point \`D\`, \`E\`, \`A\` {
       ...graphParams,
     },
   },
+  graph_2: {
+    displayName: "graph_2: Euler Circuit 1",
+    prompt: "Which diagram has an Euler circuit?",
+    substance: graphDomain.textbook.sec5["ex21.substance"],
+    domain: graphDomain["graph.domain"],
+    style: graphDomain["graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_3: {
+    displayName: "graph_3: Euler Circuit 2",
+    prompt: "Which diagram has an Euler circuit?",
+    substance: graphDomain.textbook.sec5["ex18.substance"],
+    domain: graphDomain["graph.domain"],
+    style: graphDomain["graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
 };

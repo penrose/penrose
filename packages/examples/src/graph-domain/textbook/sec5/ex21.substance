@@ -1,0 +1,15 @@
+Vertex a, b, c, d, e
+Link ba := Arc(b, a)
+Link ae := Arc(a, e)
+Link ad := Arc(a, d)
+Link db := Arc(d, b)
+Link bc := Arc(b, c)
+Link cb := Arc(c, b)
+Link be := Arc(b, e)
+Link eb := Arc(e, b)
+Link ce := Arc(c, e)
+Link ec := Arc(e, c)
+Link de := Arc(d, e)
+Link ed := Arc(e, d)
+
+AutoLabel All
