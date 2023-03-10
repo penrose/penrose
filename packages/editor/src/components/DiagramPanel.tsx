@@ -1,11 +1,4 @@
-import {
-  PenroseState,
-  RenderInteractive,
-  RenderStatic,
-  showError,
-  stateConverged,
-  stepStateSafe,
-} from "@penrose/core";
+import { RenderStatic, showError } from "@penrose/core";
 import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -277,31 +270,29 @@ export default function DiagramPanel() {
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
 
-  const requestRef = useRef<number>();
-
   useEffect(() => {
     const cur = canvasRef.current;
     if (state !== null && cur !== null) {
       (async () => {
         // render the current frame
-        const rendered = interactive
-          ? await RenderInteractive(
-              state,
-              (newState: PenroseState) => {
-                setDiagram({
-                  ...diagram,
-                  state: newState,
-                });
-                step();
-              },
-              (path) => pathResolver(path, rogerState, workspace),
-              "diagramPanel"
-            )
-          : await RenderStatic(
-              state,
-              (path) => pathResolver(path, rogerState, workspace),
-              "diagramPanel"
-            );
+        // const rendered = interactive
+        //   ? await RenderInteractive(
+        //       state,
+        //       (newState: PenroseState) => {
+        //         setDiagram({
+        //           ...diagram,
+        //           state: newState,
+        //         });
+        //         step();
+        //       },
+        //       (path) => pathResolver(path, rogerState, workspace),
+        //       "diagramPanel"
+        //     )
+        const rendered = await RenderStatic(
+          state,
+          (path) => pathResolver(path, rogerState, workspace),
+          "diagramPanel"
+        );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
@@ -315,32 +306,32 @@ export default function DiagramPanel() {
     }
   }, [diagram.state]);
 
-  useEffect(() => {
-    // request the next frame if the diagram state updates
-    requestRef.current = requestAnimationFrame(step);
-    // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
-    return () => cancelAnimationFrame(requestRef.current!);
-  }, [diagram.state]);
+  // useEffect(() => {
+  //   // request the next frame if the diagram state updates
+  //   requestRef.current = requestAnimationFrame(step);
+  //   // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
+  //   return () => cancelAnimationFrame(requestRef.current!);
+  // }, [diagram.state]);
 
-  const step = () => {
-    if (state) {
-      if (!stateConverged(state) && metadata.autostep) {
-        const stepResult = stepStateSafe(state, metadata.stepSize);
-        if (stepResult.isErr()) {
-          setDiagram({
-            ...diagram,
-            error: stepResult.error,
-          });
-        } else {
-          setDiagram({
-            ...diagram,
-            error: null,
-            state: stepResult.value,
-          });
-        }
-      }
-    }
-  };
+  // const step = () => {
+  //   if (state) {
+  //     if (!stateConverged(state) && metadata.autostep) {
+  //       const stepResult = stepStateSafe(state, metadata.stepSize);
+  //       if (stepResult.isErr()) {
+  //         setDiagram({
+  //           ...diagram,
+  //           error: stepResult.error,
+  //         });
+  //       } else {
+  //         setDiagram({
+  //           ...diagram,
+  //           error: null,
+  //           state: stepResult.value,
+  //         });
+  //       }
+  //     }
+  //   }
+  // };
 
   const downloadSvg = useRecoilCallback(({ snapshot }) => () => {
     if (canvasRef.current !== null) {

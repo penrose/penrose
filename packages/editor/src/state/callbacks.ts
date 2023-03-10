@@ -1,6 +1,8 @@
 import {
   compileDomain,
   compileTrio,
+  PenroseError,
+  PenroseState,
   prepareState,
   resample,
   stepNextStage,
@@ -23,6 +25,7 @@ import {
   GistMetadata,
   localFilesState,
   LocalGithubUser,
+  optimizer,
   Settings,
   settingsState,
   Workspace,
@@ -117,19 +120,44 @@ export const useStepStage = () =>
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
+    // Get workspace and diagram state
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    const domainFile = workspace.files.domain.contents;
-    const substanceFile = workspace.files.substance.contents;
-    const styleFile = workspace.files.style.contents;
-    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
-    await _compileDiagram(
-      substanceFile,
-      styleFile,
-      domainFile,
-      diagram.metadata.variation,
-      set
-    );
+    const domain = workspace.files.domain.contents;
+    const substance = workspace.files.substance.contents;
+    const style = workspace.files.style.contents;
+    const variation = (snapshot.getLoadable(diagramState).contents as Diagram)
+      .metadata.variation;
+
+    const onError = (error: PenroseError) => {
+      set(diagramState, (state: Diagram) => ({
+        ...state,
+        error,
+      }));
+    };
+
+    const onUpdate = (state: PenroseState) => {
+      set(
+        diagramState,
+        (diagramState: Diagram): Diagram => ({
+          ...diagramState,
+          error: null,
+          metadata: {
+            ...diagramState.metadata,
+            variation,
+            source: {
+              domain,
+              substance,
+              style,
+            },
+          },
+          state,
+        })
+      );
+      requestAnimationFrame(() => optimizer.askForUpdate(onUpdate, onError));
+    };
+
+    optimizer.run(domain, style, substance, variation, onUpdate, onError);
   });
 
 export const useResampleDiagram = () =>

@@ -1,3 +1,4 @@
+import OptimizerWorker from "@penrose/components/src/worker/OptimizerWorker";
 import {
   compileDomain,
   Env,
@@ -21,6 +22,8 @@ import {
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App";
 import { generateVariation } from "./variation";
+
+export const optimizer = new OptimizerWorker();
 
 export const EDITOR_VERSION = 0.1;
 
