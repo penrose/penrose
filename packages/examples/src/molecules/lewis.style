@@ -610,6 +610,10 @@ forall Atom x {
 
 -- Bonds
 
+forall Bond b {
+  b.icon = Circle { fillColor: #0000 }
+}
+
 forall Bond b
 where b := MakeSingleBond(x, y)
 with Atom x; Atom y {
@@ -838,15 +842,15 @@ with Atom x, y {
   encourage sin( MathPI() + k*theta ) * weight == -1 * weight in symmetry
 }
 
-forall Atom a, b, c
-where Collinear(a, b, c) {
-  ensure collinear(a.icon.center, b.icon.center, c.icon.center)
-}
-forall Atom a, b
-where VerticalAlign(a, b) {
-  ensure a.icon.center[0] == b.icon.center[0]
-}
-forall Atom a, b
-where HorizontalAlign(a, b) {
-  ensure a.icon.center[1] == b.icon.center[1]
-}
+-- forall Atom a, b, c
+-- where Collinear(a, b, c) {
+--   ensure collinear(a.icon.center, b.icon.center, c.icon.center)
+-- }
+-- forall Atom a, b
+-- where VerticalAlign(a, b) {
+--   ensure a.icon.center[0] == b.icon.center[0]
+-- }
+-- forall Atom a, b
+-- where HorizontalAlign(a, b) {
+--   ensure a.icon.center[1] == b.icon.center[1]
+-- }

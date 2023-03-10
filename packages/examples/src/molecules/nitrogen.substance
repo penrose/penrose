@@ -1,0 +1,4 @@
+Nitrogen n1, n2
+Bond b := MakeTripleBond(n1, n2)
+ElectronPair e1 := ValenceElectronPair(n1)
+ElectronPair e2 := ValenceElectronPair(n2)
