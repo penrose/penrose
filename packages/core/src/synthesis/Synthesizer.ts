@@ -83,7 +83,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -481,6 +481,7 @@ export class Synthesizer {
     const deleteCtx = filterContext(ctx, this.setting.delete, this.template);
     const deleteOps = this.enumerateDelete(deleteCtx);
     // NOTE: filter edits by the template Substance program too
+    // TODO: This behavior is not always desirable, especially when the
     // const editCtx = filterContext(ctx, this.setting.edit, this.template);
     const editCtx = filterContext(ctx, this.setting.edit);
     const editOps = this.enumerateUpdate(editCtx);
@@ -634,7 +635,6 @@ export class Synthesizer {
         ctx,
         (oldStmt: Bind<A>, oldExpr: ArgExpr<A>, ctx: SynthesisContext) => {
           const options = argMatches(oldStmt, ctx.env);
-          log.debug(`matched args with`, options);
           if (options.length > 0) {
             const pick = this.choice(options);
             const { res, stmts, ctx: newCtx } = generateArgStmt(
@@ -678,19 +678,8 @@ export class Synthesizer {
    */
   enumerateUpdate = (ctx: SynthesisContext): MutationGroup[] => {
     log.debug(`Picking a statement to edit...`);
-    // // pick a kind of statement to edit
-    // const chosenType = this.choice(nonEmptyDecls(ctx));
-    // // get all possible types within this kind
-    // const candidates = [...getDecls(ctx, chosenType).keys()];
-    // // choose a name
-    // const chosenName = this.choice(candidates);
-    // log.debug(
-    //   `Chosen name is ${chosenName}, candidates ${candidates}, chosen type ${chosenType}`,
-    //   ctx
-    // );
-    // const stmt = this.findStmt(chosenType, chosenName);
-    // if (stmt !== undefined) {
-    // find all available edit mutations for the given statement
+    // enumerate all available edit mutations for all statements
+    // NOTE: this implementation actually ignores the configuration. Need to clarify the semantics of configration first.
     const mutations = this.currentProg.statements.map((stmt) => {
       const mutations = this.findMutations(stmt, ctx);
       log.debug(
@@ -701,7 +690,6 @@ export class Synthesizer {
       return mutations;
     });
     return this.choice(mutations) ?? [];
-    // } else return [];
   };
 
   /**
