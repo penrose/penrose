@@ -1,17 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <g>
     <path
-      d="M 110.57185238781943 284.6624400575786 L 157.0676613074209 261.5089400887616"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
-    ></path>
-    <title>`b1`.icon</title>
-  </g>
-  <g>
-    <path
-      d="M 183.9559937509996 248.2043704611807 L 233.38592911309266 223.90190154270758"
+      d="M 127.94112678326084 262.1555495999866 L 182.96896223695015 264.2852094264767"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#000000"
@@ -19,10 +9,20 @@
     ></path>
     <title>`b2`.icon</title>
   </g>
+  <g>
+    <path
+      d="M 46.077019214056406 258.858966069531 L 97.96471108422024 260.96665919334646"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`b1`.icon</title>
+  </g>
   <circle
     fill="none"
-    cx="170.49495484903724"
-    cy="254.82255592164913"
+    cx="112.95234948801226"
+    cy="261.5754614211455"
     stroke="none"
     r="15"
   >
@@ -32,8 +32,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="172.97111777827573"
-      cy="268.8158416252094"
+      cx="108.41461594881459"
+      cy="275.0421760802752"
       stroke="none"
       r="1.5"
     >
@@ -42,8 +42,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="180.13784501905238"
-      cy="265.2608554384585"
+      cx="116.40831416980315"
+      cy="275.3595006514072"
       stroke="none"
       r="1.5"
     >
@@ -51,12 +51,44 @@
     </circle>
     <title>`e1`.icon</title>
   </g>
+  <circle
+    fill="none"
+    cx="243.65859071400874"
+    cy="342.3987428742946"
+    stroke="none"
+    r="15"
+  >
+    <title>`o2`.icon</title>
+  </circle>
   <g>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="168.01902155823097"
-      cy="240.82922958148114"
+      cx="257.86000103072183"
+      cy="342.91194926355115"
+      stroke="none"
+      r="1.5"
+    >
+      <title>`e4`.circle1</title>
+    </circle>
+    <circle
+      fill="#000000"
+      fill-opacity="1"
+      cx="255.88687722787367"
+      cy="335.1590989109186"
+      stroke="none"
+      r="1.5"
+    >
+      <title>`e4`.circle2</title>
+    </circle>
+    <title>`e4`.icon</title>
+  </g>
+  <g>
+    <circle
+      fill="#000000"
+      fill-opacity="1"
+      cx="117.48973071209099"
+      cy="248.1086280551466"
       stroke="none"
       r="1.5"
     >
@@ -65,8 +97,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="160.8522359786225"
-      cy="244.3840981567727"
+      cx="109.49602419205794"
+      cy="247.79151261361034"
       stroke="none"
       r="1.5"
     >
@@ -76,7 +108,7 @@
   </g>
   <g>
     <path
-      d="M 306.6784274687077 250.34044660422242 L 259.9763347578231 224.53765811044883"
+      d="M 239.16044546348976 210.3481879986823 L 207.001911638296 252.8985563230437"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#000000"
@@ -86,8 +118,8 @@
   </g>
   <circle
     fill="none"
-    cx="319.80779421147577"
-    cy="257.5943886324321"
+    cx="248.20461756958704"
+    cy="198.38144671640822"
     stroke="none"
     r="15"
   >
@@ -97,8 +129,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="308.58185849424194"
-      cy="248.8810788954763"
+      cx="235.96462867218443"
+      cy="205.60128628654033"
       stroke="none"
       r="1.5"
     >
@@ -107,8 +139,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="305.65383558185533"
-      cy="256.32598238418666"
+      cx="241.80429715552077"
+      cy="211.06920893928546"
       stroke="none"
       r="1.5"
     >
@@ -120,8 +152,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="333.1174628134389"
-      cy="252.6148143983187"
+      cx="260.60190615541853"
+      cy="205.327717625519"
       stroke="none"
       r="1.5"
     >
@@ -130,8 +162,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="328.3184730167883"
-      cy="246.21406420296464"
+      cx="262.3897713114426"
+      cy="197.53006129072466"
       stroke="none"
       r="1.5"
     >
@@ -143,8 +175,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="318.0741662273414"
-      cy="271.6989259363582"
+      cx="248.60779741775133"
+      cy="184.176486667806"
       stroke="none"
       r="1.5"
     >
@@ -153,8 +185,8 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="325.9680742161879"
-      cy="270.40041802521273"
+      cx="240.87046446695774"
+      cy="186.20960863666264"
       stroke="none"
       r="1.5"
     >
@@ -162,64 +194,9 @@
     </circle>
     <title>`e6`.icon</title>
   </g>
-  <circle
-    fill="none"
-    cx="257.1873209574289"
-    cy="127.87968911820563"
-    stroke="none"
-    r="15"
-  >
-    <title>`o2`.icon</title>
-  </circle>
-  <g>
-    <circle
-      fill="#000000"
-      fill-opacity="1"
-      cx="246.15264021933928"
-      cy="118.92540195602422"
-      stroke="none"
-      r="1.5"
-    >
-      <title>`e3`.circle1</title>
-    </circle>
-    <circle
-      fill="#000000"
-      fill-opacity="1"
-      cx="243.0641363713842"
-      cy="126.30517499541023"
-      stroke="none"
-      r="1.5"
-    >
-      <title>`e3`.circle2</title>
-    </circle>
-    <title>`e3`.icon</title>
-  </g>
-  <g>
-    <circle
-      fill="#000000"
-      fill-opacity="1"
-      cx="271.2933582909525"
-      cy="129.60106881798035"
-      stroke="none"
-      r="1.5"
-    >
-      <title>`e4`.circle1</title>
-    </circle>
-    <circle
-      fill="#000000"
-      fill-opacity="1"
-      cx="269.98799621501894"
-      cy="121.70829136119139"
-      stroke="none"
-      r="1.5"
-    >
-      <title>`e4`.circle2</title>
-    </circle>
-    <title>`e4`.icon</title>
-  </g>
   <g>
     <path
-      d="M 248.5703596682531 202.38304927804194 L 255.46392930423076 142.78035592240283"
+      d="M 205.57454583669133 277.78753470730055 L 236.0417844095161 329.47650577231195"
       stroke-opacity="1"
       stroke-width="6"
       stroke="#000000"
@@ -229,8 +206,8 @@
   </g>
   <circle
     fill="none"
-    cx="246.846968015055"
-    cy="217.28371608223915"
+    cx="197.95773953219873"
+    cy="264.8652976053178"
     stroke="none"
     r="15"
   >
@@ -238,7 +215,7 @@
   </circle>
   <g>
     <path
-      d="M 248.5703596682531 202.38304927804194 L 255.46392930423076 142.78035592240283"
+      d="M 205.57454583669133 277.78753470730055 L 236.0417844095161 329.47650577231195"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#ffffff"
@@ -246,14 +223,37 @@
     ></path>
     <title>`b3`.line2</title>
   </g>
+  <g>
+    <circle
+      fill="#000000"
+      fill-opacity="1"
+      cx="231.35291400920747"
+      cy="349.50604591815045"
+      stroke="none"
+      r="1.5"
+    >
+      <title>`e3`.circle1</title>
+    </circle>
+    <circle
+      fill="#000000"
+      fill-opacity="1"
+      cx="237.14219929352936"
+      cy="355.02728509322844"
+      stroke="none"
+      r="1.5"
+    >
+      <title>`e3`.circle2</title>
+    </circle>
+    <title>`e3`.icon</title>
+  </g>
   <text
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 162.49495484903724, 247.82255592164913)"
+    transform="rotate(0, 104.95234948801226, 254.57546142114552)"
     style="font: 15pt sans-serif"
-    x="170.49495484903724"
-    y="261.82255592164915"
+    x="112.95234948801226"
+    y="268.5754614211455"
     width="16"
     height="14"
     descent="0"
@@ -269,10 +269,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 249.18732095742888, 120.87968911820563)"
+    transform="rotate(0, 235.65859071400874, 335.3987428742946)"
     style="font: 15pt sans-serif"
-    x="257.1873209574289"
-    y="134.87968911820565"
+    x="243.65859071400874"
+    y="349.3987428742946"
     width="16"
     height="14"
     descent="0"
@@ -288,10 +288,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 311.80779421147577, 250.59438863243213)"
+    transform="rotate(0, 240.20461756958704, 191.38144671640822)"
     style="font: 15pt sans-serif"
-    x="319.80779421147577"
-    y="264.5943886324321"
+    x="248.20461756958704"
+    y="205.38144671640822"
     width="16"
     height="14"
     ascent="14"
@@ -305,8 +305,8 @@
   </text>
   <circle
     fill="none"
-    cx="97.14455884620311"
-    cy="291.34882422469104"
+    cx="31.089380810264373"
+    cy="258.25016384173193"
     stroke="none"
     r="15"
   >
@@ -316,10 +316,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 89.64455884620311, 284.34882422469104)"
+    transform="rotate(0, 23.589380810264373, 251.25016384173193)"
     style="font: 15pt sans-serif"
-    x="97.14455884620311"
-    y="298.34882422469104"
+    x="31.089380810264373"
+    y="265.25016384173193"
     width="15"
     height="14"
     ascent="14"
@@ -335,10 +335,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 239.846968015055, 210.28371608223915)"
+    transform="rotate(0, 190.95773953219873, 257.8652976053178)"
     style="font: 15pt sans-serif"
-    x="246.846968015055"
-    y="224.28371608223915"
+    x="197.95773953219873"
+    y="271.8652976053178"
     width="14"
     height="14"
     alignment-baseline="alphabetic"
