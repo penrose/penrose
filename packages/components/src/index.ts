@@ -9,6 +9,7 @@ import { Grid } from "./Grid";
 import Listing from "./Listing";
 import { Simple } from "./Simple";
 import penroseBlue from "./themes/penroseBlue";
+import OptimizerWorker from "./worker/OptimizerWorker";
 export {
   Simple,
   Embed,
@@ -21,4 +22,5 @@ export {
   SetupStyleMonaco,
   fetchResolver,
   penroseBlue,
+  OptimizerWorker,
 };

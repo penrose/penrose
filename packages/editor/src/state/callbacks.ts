@@ -136,7 +136,10 @@ export const useCompileDiagram = () =>
       }));
     };
 
+    console.log("hi");
+
     const onUpdate = (state: PenroseState) => {
+      console.log("updated");
       set(
         diagramState,
         (diagramState: Diagram): Diagram => ({

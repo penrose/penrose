@@ -6,7 +6,23 @@ import topLevelAwait from "vite-plugin-top-level-await";
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "/try/",
-  plugins: [react({ jsxRuntime: "classic" }), topLevelAwait()],
+  plugins: [
+    react({ jsxRuntime: "classic" }),
+    topLevelAwait(),
+    {
+      name: "configure-response-headers",
+      configureServer: (server) => {
+        server.middlewares.use((_req, res, next) => {
+          res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+          res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+          next();
+        });
+      },
+    },
+  ],
+  worker: {
+    format: "es",
+  },
   build: { target: "esnext" },
   server: {
     port: 3000,

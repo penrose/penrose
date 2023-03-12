@@ -74,11 +74,13 @@ export default class OptimizerWorker {
     this.style = style;
     this.substance = substance;
     this.variation = variation;
+    console.log("hey");
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
     } else {
+      console.log("blah");
       this.running = true;
       this.request({
         tag: "Compile",

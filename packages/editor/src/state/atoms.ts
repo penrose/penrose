@@ -1,4 +1,4 @@
-import OptimizerWorker from "@penrose/components/src/worker/OptimizerWorker";
+import { OptimizerWorker } from "@penrose/components";
 import {
   compileDomain,
   Env,

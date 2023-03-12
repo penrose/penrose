@@ -57,6 +57,7 @@ const optimize = (state: PenroseState) => {
 };
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
+  console.log("worker received message");
   switch (data.tag) {
     case "Init": {
       sharedMemory = new Int8Array(data.sharedMemory);
