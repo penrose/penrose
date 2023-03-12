@@ -2266,7 +2266,7 @@ const argValues = (
   evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
     argVals.map((arg) => {
       switch (arg.tag) {
-        case "Shape": // strip the `GPI` tag
+        case "ShapeVal": // strip the `GPI` tag
           return arg.contents;
         case "Val": // strip both `Val` and type annotation like `FloatV`
           return arg.contents;
@@ -2287,7 +2287,7 @@ const evalVals = (
       argVals.map(
         (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
           switch (argVal.tag) {
-            case "Shape": {
+            case "ShapeVal": {
               return err(oneErr({ tag: "NotValueError", expr: args[i] }));
             }
             case "Val": {
@@ -2665,7 +2665,7 @@ const evalShapeList = (
 ): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
   const elems = [first];
   for (const v of rest) {
-    if (v.tag === "Shape") {
+    if (v.tag === "ShapeVal") {
       elems.push(v.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
@@ -2695,7 +2695,7 @@ const evalListOrVector = (
         }
       }
       const [first, ...rest] = argVals;
-      if (first.tag === "Shape") {
+      if (first.tag === "ShapeVal") {
         return evalShapeList(coll, first.contents, rest);
       } else {
         switch (first.contents.tag) {
@@ -2909,7 +2909,7 @@ const evalExpr = (
         return err(oneErr({ tag: "MissingPathError", path: resolvedPath }));
       }
 
-      if (resolved.tag === "Shape") {
+      if (resolved.tag === "ShapeVal") {
         // Can evaluate a path to a GPI - just return the GPI
         // Need to incorporate the "name" information:
         resolved.contents.name = strV(path);
@@ -2927,7 +2927,7 @@ const evalExpr = (
             { context, expr: e },
             trans
           ).andThen<number>((i) => {
-            if (i.tag === "Shape") {
+            if (i.tag === "ShapeVal") {
               return err(oneErr({ tag: "NotValueError", expr: e }));
             } else if (
               i.contents.tag === "FloatV" &&
@@ -2978,7 +2978,7 @@ const evalExpr = (
         { context, expr: expr.arg },
         trans
       ).andThen((argVal) => {
-        if (argVal.tag === "Shape") {
+        if (argVal.tag === "ShapeVal") {
           return err(oneErr({ tag: "NotValueError", expr }));
         }
         switch (expr.op) {
@@ -3278,7 +3278,7 @@ export const translate = (
         trans.diagnostics.errors = trans.diagnostics.errors.push(shape.error);
       } else {
         trans.symbols = trans.symbols.set(path, {
-          tag: "Shape",
+          tag: "ShapeVal",
           contents: shape.value,
         });
       }
@@ -3512,7 +3512,7 @@ const getShapesList = (
 
   return shapeOrdering.map((path) => {
     const shape = symbols.get(path);
-    if (!shape || shape.tag !== "Shape") {
+    if (!shape || shape.tag !== "ShapeVal") {
       throw internalMissingPathError(path);
     }
     return shape.contents;
@@ -3532,11 +3532,7 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
   for (const shape of shapes) {
     const name = shape.name.contents;
     if (shape.ensureOnCanvas.contents) {
-      const output = constrDict.onCanvas(
-        [shape.shapeType, shape],
-        canvas.width,
-        canvas.height
-      );
+      const output = constrDict.onCanvas(shape, canvas.width, canvas.height);
       fns.push({
         ast: {
           context: {

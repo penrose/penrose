@@ -15,7 +15,7 @@ import * as BBox from "../engine/BBox";
 import { Circle } from "../shapes/Circle";
 import { Ellipse } from "../shapes/Ellipse";
 import { Line } from "../shapes/Line";
-import { Shape, shapedefs } from "../shapes/Shapes";
+import { computeShapeBbox, Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { msign } from "./Functions";
 import {
@@ -25,25 +25,31 @@ import {
   rectangleDifference,
   rectangleSignedDistance,
 } from "./Minkowski";
-import { isPolygonlike, isRectlike, Polygonlike, Rectlike } from "./Utils";
+import {
+  isLinelike,
+  isPolygonlike,
+  isRectlike,
+  Polygonlike,
+  Rectlike,
+} from "./Utils";
 
 /**
  * Return bounding box from any provided shape.
  */
-export const bboxFromShape = ([t, s]: [string, any]): BBox.BBox => {
-  return shapedefs[t].bbox(s);
+export const bboxFromShape = (shape: Shape<ad.Num>): BBox.BBox => {
+  return computeShapeBbox(shape);
 };
 
 /**
  * Return center of the shape `shape`.
  * For shapes without the property `center`, the center of their bounding box is returned.
  */
-export const shapeCenter = ([t, s]: [string, any]): ad.Pt2 => {
+export const shapeCenter = (s: Shape<ad.Num>): ad.Pt2 => {
   if ("center" in s) {
-    return s.center.contents;
+    return [s.center.contents[0], s.center.contents[1]];
   } else {
     // Return center of bounding box
-    const bbox = bboxFromShape([t, s]);
+    const bbox = bboxFromShape(s);
     return bbox.center;
   }
 };
@@ -53,11 +59,11 @@ export const shapeCenter = ([t, s]: [string, any]): ad.Pt2 => {
  * - `radius` for circles.
  * - `sqrt( w * h )`, where `w` and `h` are the width and height of the bounding box, for all other shapes.
  */
-export const shapeSize = ([t, s]: [string, any]): ad.Num => {
-  if (t === "Circle") {
+export const shapeSize = (s: Shape<ad.Num>): ad.Num => {
+  if (s.shapeType === "Circle") {
     return mul(2, s.r.contents);
   } else {
-    const bbox = bboxFromShape([t, s]);
+    const bbox = bboxFromShape(s);
     return sqrt(mul(bbox.width, bbox.height));
   }
 };
@@ -65,12 +71,18 @@ export const shapeSize = ([t, s]: [string, any]): ad.Num => {
 /**
  * Return vertices of polygon-like shapes.
  */
-export const polygonLikePoints = ([t, s]: [string, any]): ad.Pt2[] => {
-  if (t === "Polygon") return s.points.contents;
-  else if (shapedefs[t].isLinelike) return [s.start.contents, s.end.contents];
-  else if (shapedefs[t].isRectlike) {
+export const polygonLikePoints = (s: Shape<ad.Num>): ad.Pt2[] => {
+  const t = s.shapeType;
+  if (t === "Polygon")
+    return s.points.contents.map((point) => [point[0], point[1]]);
+  else if (isLinelike(s))
+    return [
+      [s.start.contents[0], s.start.contents[1]],
+      [s.end.contents[0], s.end.contents[1]],
+    ];
+  else if (isRectlike(s)) {
     // TODO: add support for rotated rectangles
-    const bbox = bboxFromShape([t, s]);
+    const bbox = bboxFromShape(s);
     const corners = BBox.corners(bbox);
     return [
       corners.topRight,
@@ -99,7 +111,7 @@ export const outwardUnitNormal = (
   return ops.vmul(neg(msign(insideValue)), normal);
 };
 
-export const shapeDistance = (s1: Shape, s2: Shape): ad.Num => {
+export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
   // Same shapes
@@ -132,19 +144,24 @@ export const shapeDistance = (s1: Shape, s2: Shape): ad.Num => {
   else return shapeDistanceAABBs(s1, s2);
 };
 
-const shapeDistanceCircles = (s1: Circle, s2: Circle): ad.Num =>
+const shapeDistanceCircles = (s1: Circle<ad.Num>, s2: Circle<ad.Num>): ad.Num =>
   sub(
     ops.vdist(s1.center.contents, s2.center.contents),
     add(s1.r.contents, s2.r.contents)
   );
 
-const shapeDistanceRectlikes = (s1: Rectlike, s2: Rectlike): ad.Num =>
-  shapeDistanceAABBs(s1, s2);
+const shapeDistanceRectlikes = (
+  s1: Rectlike<ad.Num>,
+  s2: Rectlike<ad.Num>
+): ad.Num => shapeDistanceAABBs(s1, s2);
 
-const shapeDistanceRectlikeLine = (s1: Rectlike, s2: Line): ad.Num => {
+const shapeDistanceRectlikeLine = (
+  s1: Rectlike<ad.Num>,
+  s2: Line<ad.Num>
+): ad.Num => {
   // TODO: temporary bounding circle based solution
   // collect constants
-  const rect = bboxFromShape([s1.shapeType, s1]);
+  const rect = bboxFromShape(s1);
   const c = s1.center.contents;
   const a = s2.start.contents;
   const b = s2.end.contents;
@@ -170,16 +187,15 @@ const shapeDistanceRectlikeLine = (s1: Rectlike, s2: Line): ad.Num => {
 };
 
 export const shapeDistancePolygonlikes = (
-  s1: Polygonlike,
-  s2: Polygonlike
+  s1: Polygonlike<ad.Num>,
+  s2: Polygonlike<ad.Num>
 ): ad.Num =>
-  overlappingPolygonPoints(
-    polygonLikePoints([s1.shapeType, s1]),
-    polygonLikePoints([s2.shapeType, s2]),
-    0
-  );
+  overlappingPolygonPoints(polygonLikePoints(s1), polygonLikePoints(s2), 0);
 
-const shapeDistanceRectlikeCircle = (s1: Rectlike, s2: Circle): ad.Num => {
+const shapeDistanceRectlikeCircle = (
+  s1: Rectlike<ad.Num>,
+  s2: Circle<ad.Num>
+): ad.Num => {
   const halfW = div(s1.width.contents, 2);
   const halfH = div(s1.height.contents, 2);
   const [cx1, cy1] = s1.center.contents;
@@ -192,15 +208,18 @@ const shapeDistanceRectlikeCircle = (s1: Rectlike, s2: Circle): ad.Num => {
 };
 
 const shapeDistancePolygonlikeEllipse = (
-  s1: Polygonlike,
-  s2: Ellipse
+  s1: Polygonlike<ad.Num>,
+  s2: Ellipse<ad.Num>
 ): ad.Num => {
-  const points = polygonLikePoints([s1.shapeType, s1]);
+  const points = polygonLikePoints(s1);
   const cp = convexPartitions(points);
   return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, 0)));
 };
 
-const shapeDistanceCircleLine = (s1: Circle, s2: Line): ad.Num => {
+const shapeDistanceCircleLine = (
+  s1: Circle<ad.Num>,
+  s2: Line<ad.Num>
+): ad.Num => {
   // collect constants
   const c = s1.center.contents;
   const r = s1.r.contents;
@@ -224,10 +243,13 @@ const shapeDistanceCircleLine = (s1: Circle, s2: Line): ad.Num => {
   return sub(d, r);
 };
 
-export const shapeDistanceAABBs = (s1: Shape, s2: Shape): ad.Num => {
+export const shapeDistanceAABBs = (
+  s1: Shape<ad.Num>,
+  s2: Shape<ad.Num>
+): ad.Num => {
   // Prepare axis-aligned bounding boxes
-  const box1 = bboxFromShape([s1.shapeType, s1]);
-  const box2 = bboxFromShape([s2.shapeType, s2]);
+  const box1 = bboxFromShape(s1);
+  const box2 = bboxFromShape(s2);
   // Get the Minkowski difference rectangle
   const [bottomLeft, topRight] = rectangleDifference(box1, box2, 0);
   // Return the signed distance

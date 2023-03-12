@@ -43,48 +43,6 @@ export type ShapeProps<T> =
   | TextProps<T>
   | GroupProps<T>;
 
-export const isRectlike: { [k in ShapeType]: boolean } = {
-  Circle: false,
-  Ellipse: false,
-  Equation: true,
-  Image: true,
-  Line: false,
-  Path: false,
-  Polygon: false,
-  Polyline: false,
-  Rectangle: true,
-  Text: true,
-  Group: false,
-};
-
-export const isLinelike: { [k in ShapeType]: boolean } = {
-  Circle: false,
-  Ellipse: false,
-  Equation: false,
-  Image: false,
-  Line: true,
-  Path: false,
-  Polygon: false,
-  Polyline: false,
-  Rectangle: false,
-  Text: false,
-  Group: false,
-};
-
-export const isPolygonlike: { [k in ShapeType]: boolean } = {
-  Circle: false,
-  Ellipse: false,
-  Equation: true,
-  Image: true,
-  Line: true,
-  Path: false,
-  Polygon: true,
-  Polyline: false,
-  Rectangle: true,
-  Text: true,
-  Group: false,
-};
-
 export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
   switch (shape.shapeType) {
     case "Circle":
@@ -142,6 +100,6 @@ const bboxFromGroup = ({ shapes }: GroupProps<ad.Num>): BBox.BBox => {
 
 // TODO: don't use a type predicate for this
 export const isShapeType = (shapeType: string): shapeType is ShapeType =>
-  shapeType in isRectlike;
+  shapeType in shapeSampler;
 
 //#endregion

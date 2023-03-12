@@ -54,7 +54,7 @@ import { Ellipse } from "../shapes/Ellipse";
 import { Line } from "../shapes/Line";
 import { Polyline } from "../shapes/Polyline";
 import { Context, uniform } from "../shapes/Samplers";
-import { shapedefs } from "../shapes/Shapes";
+import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import {
   ArgVal,
@@ -79,7 +79,7 @@ import {
   turningNumber,
 } from "./CurveConstraints";
 import { bboxFromShape, shapeDistance } from "./Queries";
-import { clamp, inRange, numOf, ShapeTuple, shapeTupleToShape } from "./Utils";
+import { clamp, inRange, isLinelike, isRectlike, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -492,11 +492,11 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  length: (_context: Context, [t, props]: [string, any]): FloatV<ad.Num> => {
-    if (!shapedefs[t].isLinelike) {
+  length: (_context: Context, shape: Shape<ad.Num>): FloatV<ad.Num> => {
+    if (!isLinelike(shape)) {
       throw Error("length expects a line-like shape");
     } else {
-      const [p1, p2] = linePts(props);
+      const [p1, p2] = linePts(shape);
       return {
         tag: "FloatV",
         contents: ops.vdist(p1, p2),
@@ -611,12 +611,15 @@ export const compDict = {
    */
   unitMark: (
     _context: Context,
-    [, s1]: [string, any],
-    [, s2]: [string, any],
+    s1: Shape<ad.Num>,
+    s2: Shape<ad.Num>,
     t: string,
     padding: ad.Num,
     barSize: ad.Num
   ): PtListV<ad.Num> => {
+    if (!isLinelike(s1) || !isLinelike(s2)) {
+      throw "unitMark expects line-like shapes";
+    }
     const [start1, end1] = linePts(s1);
     const [start2, end2] = linePts(s2);
 
@@ -864,10 +867,10 @@ export const compDict = {
    */
   midpointOffset: (
     _context: Context,
-    [t1, s1]: [string, any],
+    s1: Shape<ad.Num>,
     padding: ad.Num
   ): TupV<ad.Num> => {
-    if (t1 === "Arrow" || t1 === "Line") {
+    if (isLinelike(s1)) {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
       const normalDir = ops.rot90(ops.vnormalize(ops.vsub(end, start)));
@@ -878,17 +881,18 @@ export const compDict = {
         contents: toPt(midpointOffsetLoc),
       };
     } else {
-      throw Error(`unsupported shape ${t1} in midpointOffset`);
+      throw Error(`unsupported shape ${s1.shapeType} in midpointOffset`);
     }
   },
   chevron: (
     _context: Context,
     // TODO reimplement with variable tick marks when #629 is merged
-    [t1, s1]: [string, any],
+    s1: Shape<ad.Num>,
     padding: ad.Num,
     ticks: ad.Num
   ): PtListV<ad.Num> => {
-    if (t1 === "Arrow" || t1 === "Line") {
+    const t1 = s1.shapeType;
+    if (t1 === "Line") {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
@@ -982,15 +986,14 @@ export const compDict = {
    */
   orientedSquare: (
     _context: Context,
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
+    s1: Shape<ad.Num>,
+    s2: Shape<ad.Num>,
     intersection: ad.Pt2,
     len: ad.Num
   ): PathDataV<ad.Num> => {
-    if (
-      (t1 === "Arrow" || t1 === "Line") &&
-      (t2 === "Arrow" || t2 === "Line")
-    ) {
+    const t1 = s1.shapeType,
+      t2 = s2.shapeType;
+    if (t1 === "Line" && t2 === "Line") {
       const [seg1, seg2] = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
       const path = new PathBuilder();
@@ -1015,15 +1018,15 @@ export const compDict = {
     _context: Context,
     start: ad.Num[],
     end: ad.Num[],
-    [t1, s1]: [string, any]
+    s1: Shape<ad.Num>
   ): FloatV<ad.Num> => {
     // if (s1.rotation.contents) { throw Error("assumed AABB"); }
-    if (!shapedefs[t1].isRectlike) {
+    if (!isRectlike(s1)) {
       throw Error("expected rect-like shape");
     }
 
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bboxFromShape([t1, s1]);
+    const rect = bboxFromShape(s1);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true
@@ -1488,7 +1491,7 @@ export const compDict = {
 
   signedDistance: (
     _context: Context,
-    [t, s]: [string, any],
+    s: Shape<ad.Num>,
     p: ad.Num[]
   ): FloatV<ad.Num> => {
     /*  
@@ -1502,12 +1505,7 @@ export const compDict = {
       return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
     } 
     */
-    if (
-      t === "Rectangle" ||
-      t === "Text" ||
-      t === "Equation" ||
-      t === "Image"
-    ) {
+    if (isRectlike(s)) {
       const absp = ops.vabs(ops.vsub(p, s.center.contents));
       const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
       const d = ops.vsub(absp, b);
@@ -1519,7 +1517,7 @@ export const compDict = {
         tag: "FloatV",
         contents: result,
       };
-    } else if (t === "Circle") {
+    } else if (s.shapeType === "Circle") {
       /*     
       float sdCircle( vec2 p, float r )
       {
@@ -1532,7 +1530,7 @@ export const compDict = {
         tag: "FloatV",
         contents: result,
       };
-    } else if (t === "Polygon") {
+    } else if (s.shapeType === "Polygon") {
       /*
       float sdPolygon( in vec2[N] v, in vec2 p )
       {
@@ -1578,26 +1576,26 @@ export const compDict = {
         tag: "FloatV",
         contents: result,
       };
-    } else if (t === "Line") {
+    } else if (s.shapeType === "Line") {
       return {
         tag: "FloatV",
         contents: sdLine(s, p),
       };
-    } else if (t === "Polyline") {
+    } else if (s.shapeType === "Polyline") {
       return {
         tag: "FloatV",
         contents: sdPolyline(s, p),
       };
-    } else if (t === "Ellipse") {
-      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+    } else if (s.shapeType === "Ellipse") {
+      throw Error(`unsupported shape ${s.shapeType} in distanceShapeToPoint`);
       // return {
       //   tag: "FloatV",
       //   contents: sdEllipse(s, p),
       // };
-    } else if (t === "Path") {
-      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+    } else if (s.shapeType === "Path") {
+      throw Error(`unsupported shape ${s.shapeType} in distanceShapeToPoint`);
     } else {
-      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
+      throw Error(`unsupported shape ${s.shapeType} in distanceShapeToPoint`);
     }
   },
 
@@ -1611,9 +1609,10 @@ export const compDict = {
 
   closestPoint: (
     _context: Context,
-    [t, s]: [string, any],
+    s: Shape<ad.Num>,
     p: ad.Num[]
   ): VectorV<ad.Num> => {
+    const t = s.shapeType;
     if (t === "Circle") {
       /**
        * Implementing formula
@@ -1714,10 +1713,9 @@ export const compDict = {
 
   shapeDistance: (
     _context: Context,
-    s1: ShapeTuple,
-    s2: ShapeTuple
-  ): FloatV<ad.Num> =>
-    floatV(shapeDistance(shapeTupleToShape(s1), shapeTupleToShape(s2))),
+    s1: Shape<ad.Num>,
+    s2: Shape<ad.Num>
+  ): FloatV<ad.Num> => floatV(shapeDistance(s1, s2)),
 
   /**
    * Returns the signed area enclosed by a polygonal chain given its nodes
@@ -1798,7 +1796,7 @@ export const compDict = {
     return length( pa - ba*h );
   }
 */
-const sdLine = (s: Line, p: ad.Num[]): ad.Num => {
+const sdLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num => {
   return sdLineAsNums(s.start.contents, s.end.contents, p);
 };
 
@@ -1809,7 +1807,7 @@ const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
   return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
 };
 
-const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
+const sdPolyline = (s: Polyline<ad.Num>, p: ad.Num[]): ad.Num => {
   const dists: ad.Num[] = [];
   for (let i = 0; i < s.points.contents.length - 1; i++) {
     const start = s.points.contents[i];
@@ -1819,7 +1817,7 @@ const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
   return minN(dists);
 };
 
-export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
+export const sdEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num => {
   return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
 };
 
@@ -1965,7 +1963,7 @@ const closestPointLine = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[] => {
   return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
 };
 
-const closestPointEllipse = (s: Ellipse, p: ad.Num[]): ad.Num[] => {
+const closestPointEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num[] => {
   return closestPointEllipseCoords(
     s.rx.contents,
     s.ry.contents,
