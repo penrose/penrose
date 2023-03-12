@@ -10,8 +10,13 @@ type Bool = i32; // 0 or 1 (`wasm-bindgen` doesn't support `bool` well)
 type Vector = nalgebra::DVector<f64>;
 type Matrix = nalgebra::DMatrix<f64>;
 
-type Compiled =
-    fn(inputs: *const f64, mask: *const Bool, gradient: *mut f64, secondary: *mut f64) -> f64;
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export)]
+struct Outputs<T> {
+    gradient: Vec<T>,
+    primary: T,
+    secondary: Vec<T>,
+}
 
 // the ts-rs crate defines a `TS` trait and `ts` macro which generate Rust tests that, when run,
 // generate TypeScript definitions in the `bindings/` directory of this package; that's why the
@@ -103,7 +108,7 @@ struct Params {
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
 #[derive(Clone)]
 struct FnCached<'a> {
-    f: Compiled,
+    f: &'a js_sys::Function,
     grad_mask: &'a [bool],
     obj_mask: &'a [bool],
     constr_mask: &'a [bool],
@@ -210,7 +215,6 @@ fn unconstrained_converged(norm_grad: f64) -> bool {
 fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
     let len_inputs = xs.len();
     let len_gradient = len_inputs + 1;
-    let len_secondary = f.obj_mask.len() + f.constr_mask.len();
 
     let mut inputs = vec![0.; len_gradient];
     inputs[..len_inputs].copy_from_slice(xs);
@@ -221,15 +225,20 @@ fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
         .chain(f.constr_mask)
         .map(|&b| if b { 1 } else { 0 })
         .collect();
-    let mut gradient = vec![0.; len_gradient];
-    let mut secondary = vec![0.; len_secondary];
 
-    let energy = (f.f)(
-        inputs.as_ptr(),
-        mask.as_ptr(),
-        gradient.as_mut_ptr(),
-        secondary.as_mut_ptr(),
-    );
+    let Outputs {
+        mut gradient,
+        primary: energy,
+        secondary,
+    } = serde_wasm_bindgen::from_value(
+        f.f.call2(
+            &JsValue::NULL,
+            &to_js_value(&inputs).unwrap(),
+            &to_js_value(&mask).unwrap(),
+        )
+        .unwrap(),
+    )
+    .unwrap();
 
     gradient.pop();
 
@@ -264,7 +273,7 @@ fn ep_converged(xs0: &[f64], xs1: &[f64], fxs0: f64, fxs1: f64) -> bool {
 // 2) fix initial value of the penalty parameter so that the magnitude of the penalty term is not much smaller than the magnitude of objective function
 
 /// Given a `State`, take n steps by evaluating the overall objective function
-fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
+fn step(state: OptState, f: &js_sys::Function, steps: i32) -> OptState {
     let mut opt_params = state.params.clone();
     let Params {
         opt_status, weight, ..
@@ -918,23 +927,6 @@ pub fn penrose_init() {
 }
 
 #[wasm_bindgen]
-pub fn penrose_call(
-    p: usize,
-    inputs: &[f64],
-    mask: &[Bool],
-    gradient: &mut [f64],
-    secondary: &mut [f64],
-) -> f64 {
-    let f = unsafe { std::mem::transmute::<usize, Compiled>(p) };
-    f(
-        inputs.as_ptr(),
-        mask.as_ptr(),
-        gradient.as_mut_ptr(),
-        secondary.as_mut_ptr(),
-    )
-}
-
-#[wasm_bindgen]
 pub fn penrose_gen_opt_problem(
     grad_mask: Vec<Bool>,
     obj_mask: Vec<Bool>,
@@ -945,12 +937,8 @@ pub fn penrose_gen_opt_problem(
 }
 
 #[wasm_bindgen]
-pub fn penrose_step(state: JsValue, p: usize, steps: i32) -> JsValue {
+pub fn penrose_step(state: JsValue, f: &js_sys::Function, steps: i32) -> JsValue {
     let unstepped: OptState = serde_wasm_bindgen::from_value(state).unwrap();
-    let stepped: OptState = step(
-        unstepped,
-        unsafe { std::mem::transmute::<usize, Compiled>(p) },
-        steps,
-    );
+    let stepped: OptState = step(unstepped, f, steps);
     to_js_value(&stepped).unwrap()
 }

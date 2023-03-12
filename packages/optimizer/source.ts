@@ -1,10 +1,10 @@
 import { LbfgsParams } from "./bindings/LbfgsParams";
 import { OptState } from "./bindings/OptState";
 import { OptStatus } from "./bindings/OptStatus";
+import { Outputs } from "./bindings/Outputs";
 import { Params } from "./bindings/Params";
 import {
   InitOutput,
-  penrose_call,
   penrose_gen_opt_problem,
   penrose_init,
   penrose_step,
@@ -12,11 +12,6 @@ import {
 import optimizer from "./instance";
 
 penrose_init();
-// we pass `--keep-lld-exports` to `wasm-bindgen` because we need access to
-// this `__indirect_function_table` to allow us to swap in different gradient
-// functions at runtime
-const index = optimizer.__indirect_function_table.length;
-optimizer.__indirect_function_table.grow(1);
 
 const bools = (a: boolean[]) => new Int32Array(a.map((x) => (x ? 1 : 0)));
 
@@ -90,20 +85,6 @@ const builtinsTyped: Map<keyof InitOutput, BuiltinType> = new Map([
  * determine the name of each individual import.
  */
 export const builtins: Map<string, BuiltinType> = builtinsTyped;
-
-/**
- * A structure used to collect the various outputs of a `Gradient` function.
- * This is generic in the concrete number type, because it can also be useful in
- * situations where the elements are, for instance, computation graph nodes.
- */
-export interface Outputs<T> {
-  /** Derivatives of primary output with respect to inputs. */
-  gradient: T[];
-  /** Primary output. */
-  primary: T;
-  /** Secondary outputs. */
-  secondary: T[];
-}
 
 const makeImports = () => ({
   [importModule]: {
@@ -190,10 +171,6 @@ export class Gradient {
     );
   }
 
-  private link(): void {
-    optimizer.__indirect_function_table.set(index, this.f);
-  }
-
   /**
    * @param inputs to the function
    * @param mask which addends to include
@@ -244,4 +221,4 @@ export const genOptProblem = (
 ): Params =>
   penrose_gen_opt_problem(bools(gradMask), bools(objMask), bools(constrMask));
 
-export type { LbfgsParams, OptState, OptStatus, Params };
+export type { LbfgsParams, OptState, OptStatus, Outputs, Params };
