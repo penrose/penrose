@@ -24,6 +24,7 @@ import {
 } from "@penrose/core";
 import examples from "@penrose/examples/dist/index";
 import React from "react";
+import Latex from "react-latex-next";
 import { Preset, presets } from "../examples";
 import { wildcardType } from "../util";
 import { MultiselectDropdown } from "./MultiselectDropdown";
@@ -346,7 +347,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   };
 
   componentDidMount = () => {
-    this.handlePreset("c04p01");
+    // this.handlePreset("c04p01");
+    this.handlePreset("lewis_0");
   };
 
   render() {
@@ -363,13 +365,16 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               labelId="preset-select-label"
               id="preset-select"
               label="preset"
-              defaultValue={"c04p01"}
+              // defaultValue={"c04p01"}
+              defaultValue={"lewis_0"}
               onChange={(e) => this.handlePreset(e.target.value as string)}
             >
               {this.presets()}
             </Select>
             <SettingLabel>Prompt:</SettingLabel>
-            <div>{this.state.prompt}</div>
+            <div>
+              <Latex>{this.state.prompt}</Latex>
+            </div>
           </SettingDiv>
           <br />
           <Accordion key="substance" elevation={0}>

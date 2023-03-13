@@ -1,0 +1,23 @@
+Bromine br
+Oxygen o1, o2, o3
+-- bromine 
+ElectronPair e
+e := ValenceElectronPair(br)
+-- single bond
+Bond b1 := MakeSingleBond(o1, br)
+ElectronPair e1, e2, e3
+e1 := ValenceElectronPair(o1)
+e2 := ValenceElectronPair(o1)
+e3 := ValenceElectronPair(o1)
+-- double bond 1
+Bond b2 := MakeSingleBond(o2, br)
+ElectronPair e21, e22, e23
+e21 := ValenceElectronPair(o2)
+e22 := ValenceElectronPair(o2)
+e23 := ValenceElectronPair(o2)
+-- double bond 2
+Bond b3 := MakeSingleBond(o3, br)
+ElectronPair e31, e32, e33
+e31 := ValenceElectronPair(o3)
+e32 := ValenceElectronPair(o3)
+e33 := ValenceElectronPair(o3)
