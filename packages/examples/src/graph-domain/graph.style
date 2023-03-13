@@ -1,6 +1,6 @@
 canvas {
-  width = 800
-  height = 700
+  width = 400
+  height = 400
 }
 
 layout = [dots, loops, arrows, text]

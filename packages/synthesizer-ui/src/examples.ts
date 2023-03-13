@@ -29,7 +29,6 @@ const lewisParams: SynthesizerSetting = {
     delete: 0.01,
     edit: 0.8,
   },
-  // TODO: need weights for the three ops
   add: {
     type: "*",
     function: "*",
