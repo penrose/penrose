@@ -63,6 +63,7 @@ export interface String<T> {
 
 export interface Shape<T> {
   shapeType: string;
+  passthrough: Map<string, string>;
 }
 
 //#endregion

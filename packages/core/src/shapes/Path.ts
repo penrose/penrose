@@ -38,4 +38,5 @@ export const makePath = (
   ...samplePath(context, canvas),
   ...properties,
   shapeType: "Path",
+  passthrough: new Map(),
 });

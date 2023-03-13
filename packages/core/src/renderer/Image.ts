@@ -2,6 +2,7 @@ import { Image } from "../shapes/Image";
 import {
   attrAutoFillSvg,
   attrRotation,
+  attrTitle,
   attrTransformCoords,
   attrWH,
 } from "./AttrHelper";
@@ -33,7 +34,7 @@ const RenderImage = async (
   attrToNotAutoMap.push(...attrWH(shape, svg));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
-
+  attrToNotAutoMap.push(...attrTitle(shape, elem));
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 

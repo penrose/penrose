@@ -196,14 +196,14 @@ const RenderLine = (
   pathElem.setAttribute("stroke", color);
 
   // factor out an AttrHelper
-  if ("strokeDasharray" in shape && shape.strokeDasharray.contents !== "") {
+  if (shape.strokeDasharray.contents !== "") {
     pathElem.setAttribute("stroke-dasharray", shape.strokeDasharray.contents);
   } else if (shape.strokeStyle.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
   attrToNotAutoMap.push("strokeDasharray", "strokeStyle");
 
-  if ("strokeLinecap" in shape && shape.strokeLinecap.contents !== "") {
+  if (shape.strokeLinecap.contents !== "") {
     pathElem.setAttribute("stroke-linecap", shape.strokeLinecap.contents);
   } else {
     pathElem.setAttribute("stroke-linecap", "butt"); // same default as SVG

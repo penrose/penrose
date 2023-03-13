@@ -41,4 +41,5 @@ export const makeLine = (
   ...sampleLine(context, canvas),
   ...properties,
   shapeType: "Line",
+  passthrough: new Map(),
 });

@@ -47,4 +47,5 @@ export const makeEllipse = (
   ...sampleEllipse(context, canvas),
   ...properties,
   shapeType: "Ellipse",
+  passthrough: new Map(),
 });

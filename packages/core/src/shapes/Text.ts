@@ -110,4 +110,5 @@ export const makeText = (
   ...sampleText(context, canvas),
   ...properties,
   shapeType: "Text",
+  passthrough: new Map(),
 });

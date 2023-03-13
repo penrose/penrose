@@ -46,4 +46,5 @@ export const makeCircle = (
   ...sampleCircle(context, canvas),
   ...properties,
   shapeType: "Circle",
+  passthrough: new Map(),
 });

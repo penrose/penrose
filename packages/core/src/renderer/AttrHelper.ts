@@ -45,7 +45,6 @@ export const attrAutoFillSvg = (
   elem: SVGElement,
   attrAlreadyMapped: string[]
 ): void => {
-  /*
   // Internal properties to never auto-map to SVG
   const attrToNeverAutoMap: string[] = [
     "strokeStyle",
@@ -90,7 +89,6 @@ export const attrAutoFillSvg = (
       }
     }
   }
-  */
 };
 
 /**

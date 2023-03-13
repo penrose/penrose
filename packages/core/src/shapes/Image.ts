@@ -41,4 +41,5 @@ export const makeImage = (
   ...sampleImage(context, canvas),
   ...properties,
   shapeType: "Image",
+  passthrough: new Map(),
 });

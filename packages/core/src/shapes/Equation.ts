@@ -66,4 +66,5 @@ export const makeEquation = (
   ...sampleEquation(context, canvas),
   ...properties,
   shapeType: "Equation",
+  passthrough: new Map(),
 });

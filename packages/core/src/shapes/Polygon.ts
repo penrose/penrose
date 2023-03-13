@@ -40,4 +40,5 @@ export const makePolygon = (
   ...samplePolygon(context, canvas),
   ...properties,
   shapeType: "Polygon",
+  passthrough: new Map(),
 });

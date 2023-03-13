@@ -59,4 +59,5 @@ export const makeRectangle = (
   ...sampleRectangle(context, canvas),
   ...properties,
   shapeType: "Rectangle",
+  passthrough: new Map(),
 });

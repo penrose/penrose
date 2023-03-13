@@ -42,4 +42,5 @@ export const makePolyline = (
   ...samplePolyline(context, canvas),
   ...properties,
   shapeType: "Polyline",
+  passthrough: new Map(),
 });

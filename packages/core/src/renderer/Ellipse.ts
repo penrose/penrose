@@ -26,6 +26,12 @@ const RenderEllipse = (
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
+  elem.setAttribute("rx", shape.rx.contents.toString());
+  attrToNotAutoMap.push("rx");
+
+  elem.setAttribute("ry", shape.rx.contents.toString());
+  attrToNotAutoMap.push("ry");
+
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
