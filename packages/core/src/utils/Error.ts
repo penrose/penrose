@@ -1,6 +1,6 @@
 import { Result } from "true-myth";
 import { isConcrete } from "../engine/EngineUtils";
-import { shapedefs } from "../shapes/Shapes";
+import { shapeSampler } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import {
   A,
@@ -263,7 +263,7 @@ export const showError = (
     // --- BEGIN BLOCK STATIC ERRORS
 
     case "InvalidGPITypeError": {
-      const shapeNames: string[] = Object.keys(shapedefs);
+      const shapeNames: string[] = Object.keys(shapeSampler);
       return `Got invalid GPI type ${error.givenType.value}. Available shape types: ${shapeNames}`;
     }
 
@@ -426,6 +426,10 @@ canvas {
       return `Unsupported unary operation ${error.expr.op} on type ${
         error.arg
       } (at ${loc(error.expr)}).`;
+    }
+
+    case "BadShapeParamTypeError": {
+      return `Shape property ${error.path} does not accept type ${error.value.tag}`;
     }
 
     // --- END COMPILATION ERRORS

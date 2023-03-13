@@ -1,5 +1,4 @@
 import { Result } from "true-myth";
-import { err, ok } from "true-myth/result";
 import * as ad from "../../types/ad";
 import { StyleError } from "../../types/errors";
 import {
@@ -18,7 +17,7 @@ import {
   VectorV,
 } from "../../types/value";
 import { badShapeParamTypeError } from "../Error";
-
+const { err, ok } = Result;
 export const checkFloatV = (
   path: string,
   value: Value<ad.Num>

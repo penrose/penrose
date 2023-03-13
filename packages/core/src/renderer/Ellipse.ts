@@ -1,3 +1,4 @@
+import { Ellipse } from "../shapes/Ellipse";
 import {
   attrAutoFillSvg,
   attrCenter,
@@ -5,9 +6,12 @@ import {
   attrStroke,
   attrTitle,
 } from "./AttrHelper";
-import { ShapeProps } from "./Renderer";
+import { RenderProps } from "./Renderer";
 
-const Ellipse = ({ shape, canvasSize }: ShapeProps): SVGEllipseElement => {
+const RenderEllipse = (
+  shape: Ellipse<number>,
+  { canvasSize }: RenderProps
+): SVGEllipseElement => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "ellipse"
@@ -27,4 +31,4 @@ const Ellipse = ({ shape, canvasSize }: ShapeProps): SVGEllipseElement => {
 
   return elem;
 };
-export default Ellipse;
+export default RenderEllipse;

@@ -3,15 +3,27 @@
  * output SVG properties using the optimized shape properties as input.
  */
 
-import { Shape } from "../types/shape";
-import { ColorV, FloatV, PtListV, StrV, VectorV } from "../types/value";
+import { Line } from "../shapes/Line";
+import { Shape } from "../shapes/Shapes";
+import { Text } from "../shapes/Text";
+import {
+  Center,
+  Corner,
+  Fill,
+  Named,
+  Poly,
+  Rect,
+  Rotate,
+  Scale,
+  String as StringProps,
+  Stroke,
+} from "../types/shapes";
 import { toFontRule } from "../utils/CollectLabels";
 import {
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
 } from "../utils/Util";
-import { attrMapSvg } from "./AttrMapSvg";
 
 /**
  * Auto-map to SVG any input properties for which we lack specific logic.
@@ -29,10 +41,11 @@ import { attrMapSvg } from "./AttrMapSvg";
  * Note: SVG property names are case sensitive.
  */
 export const attrAutoFillSvg = (
-  { properties }: Shape,
+  properties: Shape<number>,
   elem: SVGElement,
   attrAlreadyMapped: string[]
 ): void => {
+  /*
   // Internal properties to never auto-map to SVG
   const attrToNeverAutoMap: string[] = [
     "strokeStyle",
@@ -77,13 +90,17 @@ export const attrAutoFillSvg = (
       }
     }
   }
+  */
 };
 
 /**
  * Maps fillColor --> fill, fill-opacity
  */
-export const attrFill = ({ properties }: Shape, elem: SVGElement): string[] => {
-  const color = properties.fillColor as ColorV<number>;
+export const attrFill = (
+  properties: Fill<number>,
+  elem: SVGElement
+): string[] => {
+  const color = properties.fillColor;
   const alpha = toSvgOpacityProperty(color.contents);
 
   elem.setAttribute("fill", toSvgPaintProperty(color.contents));
@@ -100,12 +117,12 @@ export const attrFill = ({ properties }: Shape, elem: SVGElement): string[] => {
  * Maps center --> cx, cy
  */
 export const attrCenter = (
-  { properties }: Shape,
+  properties: Center<number>,
   canvasSize: [number, number],
   elem: SVGElement
 ): string[] => {
-  const center = properties.center as VectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const center = properties.center;
+  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
   elem.setAttribute("cx", x.toString());
   elem.setAttribute("cy", y.toString());
   return ["center"]; // Return array of input properties programatically mapped
@@ -115,7 +132,7 @@ export const attrCenter = (
  * Maps scale --> transform
  */
 export const attrScale = (
-  { properties }: Shape,
+  properties: Scale<number>,
   elem: SVGElement
 ): string[] => {
   let scale = properties.scale.contents;
@@ -132,14 +149,14 @@ export const attrScale = (
  * Maps center, width, height --> transform
  */
 export const attrTransformCoords = (
-  { properties }: Shape,
+  properties: Center<number> & Rect<number>,
   canvasSize: [number, number],
   elem: SVGElement
 ): string[] => {
-  const center = properties.center as VectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  const w = properties.width as FloatV<number>;
-  const h = properties.height as FloatV<number>;
+  const center = properties.center;
+  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
+  const w = properties.width;
+  const h = properties.height;
   let transform = elem.getAttribute("transform");
   transform =
     transform === null
@@ -154,14 +171,14 @@ export const attrTransformCoords = (
  * Maps center, width, height --> x, y
  */
 export const attrXY = (
-  { properties }: Shape,
+  properties: Center<number> & Rect<number>,
   canvasSize: [number, number],
   elem: SVGElement
 ): string[] => {
-  const center = properties.center as VectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  const w = properties.width as FloatV<number>;
-  const h = properties.height as FloatV<number>;
+  const center = properties.center;
+  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
+  const w = properties.width;
+  const h = properties.height;
   elem.setAttribute("x", (x - w.contents / 2).toString());
   elem.setAttribute("y", (y - h.contents / 2).toString());
 
@@ -177,15 +194,15 @@ export const attrXY = (
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
  */
 export const attrRotation = (
-  { properties }: Shape,
+  properties: Rotate<number> & Center<number> & Rect<number>,
   canvasSize: [number, number],
   elem: SVGElement
 ): string[] => {
-  const w = properties.width as FloatV<number>;
-  const h = properties.height as FloatV<number>;
+  const w = properties.width;
+  const h = properties.height;
   const center = properties.center;
-  const rotation = (properties.rotation as FloatV<number>).contents;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const rotation = properties.rotation.contents;
+  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
   let transform = elem.getAttribute("transform");
   transform =
     transform === null
@@ -201,11 +218,11 @@ export const attrRotation = (
  * Maps width, height --> width, height
  */
 export const attrWH = (
-  { properties }: Shape,
+  properties: Rect<number>,
   elem: SVGElement | HTMLElement
 ): string[] => {
-  const w = properties.width as FloatV<number>;
-  const h = properties.height as FloatV<number>;
+  const w = properties.width;
+  const h = properties.height;
   elem.setAttribute("width", w.contents.toString());
   elem.setAttribute("height", h.contents.toString());
 
@@ -216,36 +233,23 @@ export const attrWH = (
  * Maps cornerRadius --> rx
  */
 export const attrCornerRadius = (
-  { properties }: Shape,
+  properties: Corner<number>,
   elem: SVGElement
 ): string[] => {
-  const rx = properties.cornerRadius as FloatV<number>;
+  const rx = properties.cornerRadius;
   elem.setAttribute("rx", rx.contents.toString());
 
   return ["cornerRadius"]; // Return array of input properties programatically mapped
 };
 
 /**
- * Maps data --> d
- */
-export const attrPathData = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const d = properties.data as StrV;
-  elem.setAttribute("d", d.contents.toString());
-
-  return ["data"]; // Return array of input properties programatically mapped
-};
-
-/**
  * Maps string --> new TextNode
  */
 export const attrString = (
-  { properties }: Shape,
+  properties: StringProps<number>,
   elem: SVGElement
 ): string[] => {
-  const str = properties.string as StrV;
+  const str = properties.string;
   const text = document.createTextNode(str.contents.toString());
   elem.appendChild(text);
 
@@ -261,13 +265,13 @@ export const DASH_ARRAY = "7,5";
  *      strokeLinecap --> stroke-linecap
  */
 export const attrStroke = (
-  { properties }: Shape,
+  properties: Stroke<number> | Line<number>,
   elem: SVGElement
 ): string[] => {
   // Keep a list of which input properties we programatically mapped
   const attrMapped: string[] = [];
 
-  const strokeColor = properties.strokeColor as ColorV<number>;
+  const strokeColor = properties.strokeColor;
   const strokeAlpha = toSvgOpacityProperty(strokeColor.contents);
   const thickness = properties.strokeWidth.contents;
   elem.setAttribute("stroke", toSvgPaintProperty(strokeColor.contents));
@@ -284,7 +288,7 @@ export const attrStroke = (
     ) {
       elem.setAttribute(
         "stroke-dasharray",
-        (properties.strokeDasharray as StrV).contents
+        properties.strokeDasharray.contents
       );
     } else if (
       "strokeStyle" in properties &&
@@ -298,10 +302,7 @@ export const attrStroke = (
       "strokeLinecap" in properties &&
       properties.strokeLinecap.contents !== ""
     ) {
-      elem.setAttribute(
-        "stroke-linecap",
-        (properties.strokeLinecap as StrV).contents
-      );
+      elem.setAttribute("stroke-linecap", properties.strokeLinecap.contents);
     } else {
       elem.setAttribute("stroke-linecap", "butt");
     }
@@ -315,10 +316,10 @@ export const attrStroke = (
  * Maps name --> new Title
  */
 export const attrTitle = (
-  { properties }: Shape,
+  properties: Named<number>,
   elem: SVGElement
 ): string[] => {
-  const name = properties.name as StrV;
+  const name = properties.name;
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
   title.textContent = name.contents;
   elem.appendChild(title);
@@ -329,7 +330,7 @@ export const attrTitle = (
 /**
  * Maps fontFamily, fontSize, fontStretch, fontStyle, fontVariant, fontWeight, lineHeight -> font
  */
-export const attrFont = (shape: Shape, elem: SVGElement): string[] => {
+export const attrFont = (shape: Text<number>, elem: SVGElement): string[] => {
   const fontString: string = toFontRule(shape);
   const existingStyle: string | null = elem.getAttribute("style");
 
@@ -355,13 +356,13 @@ export const attrFont = (shape: Shape, elem: SVGElement): string[] => {
  * Maps points -> points
  */
 export const attrPolyPoints = (
-  shape: Shape,
+  shape: Poly<number>,
   canvasSize: [number, number],
   elem: SVGElement
 ): string[] => {
-  const points = shape.properties.points as PtListV<number>;
+  const points = shape.points;
   const pointsTransformed = points.contents.map((p: number[]) =>
-    toScreen(p as [number, number], canvasSize)
+    toScreen([p[0], p[1]], canvasSize)
   );
   elem.setAttribute("points", pointsTransformed.toString());
   return ["points"];

@@ -1,5 +1,4 @@
 import { Result } from "true-myth";
-import { err, ok } from "true-myth/result";
 import { internalMissingPathError } from "../../compiler/Style";
 import * as ad from "../../types/ad";
 import { StyleError } from "../../types/errors";
@@ -26,7 +25,7 @@ import {
   checkStrV,
   checkVectorV,
 } from "./CheckValues";
-
+const { err, ok } = Result;
 const getTransProp = (path: string, trans: Translation): Value<ad.Num> => {
   const v = trans.symbols.get(path);
   if (v === undefined || v.tag !== "Val") {

@@ -1,5 +1,7 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import im from "immutable";
+import { Text } from "../shapes/Text";
+import * as ad from "../types/ad";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
@@ -1075,8 +1077,8 @@ delete x.z.p }`,
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(
         state.shapes.every((shape) => {
-          const val = shape.properties["string"];
-          return val.tag === "FloatV" && val.contents === 3;
+          const val = (shape as Text<ad.Num>).string;
+          return val.tag === "StrV" && val.contents === "3";
         })
       ).toEqual(true);
     });
@@ -1098,15 +1100,15 @@ delete x.z.p }`,
       expect(
         im.Set(
           state.shapes.map((shape) => {
-            const val = shape.properties["string"];
-            if (val.tag === "FloatV") {
+            const val = (shape as Text<ad.Num>).string;
+            if (val.tag === "StrV") {
               return val.contents;
             } else {
-              throw Error("Should be a number");
+              throw Error("Should be a string");
             }
           })
         )
-      ).toEqual(im.Set([1, 2, 3]));
+      ).toEqual(im.Set(["1", "2", "3"]));
     });
   });
 

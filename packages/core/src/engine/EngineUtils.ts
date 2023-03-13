@@ -447,7 +447,10 @@ export const compileCompGraph = async (
   const vars = [];
   for (const s of shapes) {
     for (const v of Object.values(s)) {
-      vars.push(...valueADNums(v));
+      // remove shapeType
+      if (typeof v !== "string") {
+        vars.push(...valueADNums(v));
+      }
     }
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
@@ -482,7 +485,10 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
       const shapes = v.contents;
       for (const s of shapes) {
         for (const v of Object.values(s)) {
-          vars.push(...valueADNums(v));
+          // remove shapeType
+          if (typeof v !== "string") {
+            vars.push(...valueADNums(v));
+          }
         }
       }
       return vars;

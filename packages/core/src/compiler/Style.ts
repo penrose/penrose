@@ -113,6 +113,7 @@ import {
   MatrixV,
   PropID,
   ShapeListV,
+  ShapeVal,
   Value,
   VectorV,
 } from "../types/value";
@@ -2262,14 +2263,14 @@ const argValues = (
   context: Context,
   args: Expr<C>[],
   trans: Translation
-): Result<(Shape<ad.Num> | Value<ad.Num>)[], StyleDiagnostics> =>
+): Result<(ShapeVal<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
   evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
     argVals.map((arg) => {
       switch (arg.tag) {
         case "ShapeVal": // strip the `GPI` tag
           return arg.contents;
         case "Val": // strip both `Val` and type annotation like `FloatV`
-          return arg.contents;
+          return arg.contents.contents;
       }
     })
   );
@@ -3122,6 +3123,8 @@ const translateExpr = (
           trans
         );
       }
+      console.log(fname);
+      console.log(args.value);
       const output: ad.Num = constrDict[fname](...args.value);
       const optStages: OptStages = stageExpr(
         layoutStages,
@@ -3515,6 +3518,7 @@ const getShapesList = (
     if (!shape || shape.tag !== "ShapeVal") {
       throw internalMissingPathError(path);
     }
+    shape.contents.name = strV(path);
     return shape.contents;
   });
 };

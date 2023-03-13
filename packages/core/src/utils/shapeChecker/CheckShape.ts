@@ -1,5 +1,4 @@
 import { Result } from "true-myth";
-import { err, ok } from "true-myth/result";
 import { dummyIdentifier } from "../../engine/EngineUtils";
 import { Circle } from "../../shapes/Circle";
 import { Ellipse } from "../../shapes/Ellipse";
@@ -37,6 +36,8 @@ import {
   checkStrV,
   checkVectorV,
 } from "./CheckValues";
+
+const { err, ok } = Result;
 
 export const checkShape = (
   shapeType: string,

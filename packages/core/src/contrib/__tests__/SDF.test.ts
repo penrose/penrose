@@ -6,8 +6,8 @@ import { makeLine } from "../../shapes/Line";
 import { makePolygon } from "../../shapes/Polygon";
 import { makeRectangle } from "../../shapes/Rectangle";
 import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";
+import { Shape } from "../../shapes/Shapes";
 import * as ad from "../../types/ad";
-import { Shape } from "../../types/shapes";
 import { FloatV } from "../../types/value";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict, sdEllipse } from "../Functions";
@@ -42,11 +42,11 @@ export const makeContext = (
 const compareDistance = (
   context: Context,
   shapeType: string,
-  shape: Shape,
+  shape: Shape<ad.Num>,
   p: ad.Input[],
   expected: number
 ) => {
-  const result = getResult(context, shapeType, shape, p);
+  const result = getResult(context, shape, p);
   const g = primaryGraph(result.contents);
   //const g = secondaryGraph([result.contents]);
   const f = genCodeSync(g);
@@ -69,17 +69,16 @@ const compareDistance = (
 
 const getResult = (
   context: Context,
-  shapeType: string,
-  s: any,
+  s: Shape<ad.Num>,
   p: ad.Input[]
 ): FloatV<ad.Num> => {
-  if (shapeType === "Ellipse") {
+  if (s.shapeType === "Ellipse") {
     return {
       tag: "FloatV",
       contents: sdEllipse(s, p),
     };
   } else {
-    const result = compDict.signedDistance(context, [shapeType, s], p);
+    const result = compDict.signedDistance(context, s, p);
     return result;
   }
 };
