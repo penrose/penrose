@@ -6,10 +6,20 @@ import { Params } from "./bindings/Params";
 import {
   penrose_gen_opt_problem,
   penrose_init,
+  penrose_poly_roots,
   penrose_step,
 } from "./build/penrose_optimizer";
+import "./instance";
 
 penrose_init();
+
+/**
+ * Replaces the contents of the input vector with the roots of the monic
+ * polynomial whose degree is the length of the vector and whose coefficient
+ * with a given degree is the element of the vector at that index. Any root with
+ * a nonzero imaginary component is replaced with `NaN`.
+ */
+export const polyRoots = penrose_poly_roots;
 
 const bools = (a: boolean[]) => new Int32Array(a.map((x) => (x ? 1 : 0)));
 

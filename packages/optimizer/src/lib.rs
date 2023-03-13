@@ -1,5 +1,3 @@
-pub mod builtins;
-
 use log::Level;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -924,6 +922,29 @@ pub fn penrose_init() {
 
     // https://docs.rs/console_log/0.2.0/console_log/#example
     console_log::init_with_level(Level::Warn).unwrap();
+}
+
+#[wasm_bindgen]
+pub fn penrose_poly_roots(v: &mut [f64]) {
+    let n = v.len();
+    // https://en.wikipedia.org/wiki/Companion_matrix
+    let mut m = nalgebra::DMatrix::<f64>::zeros(n, n);
+    for i in 0..(n - 1) {
+        m[(i + 1, i)] = 1.;
+        m[(i, n - 1)] = -v[i];
+    }
+    m[(n - 1, n - 1)] = -v[n - 1];
+
+    // the characteristic polynomial of the companion matrix is equal to the original polynomial, so
+    // by finding the eigenvalues of the companion matrix, we get the roots of its characteristic
+    // polynomial and thus of the original polynomial
+    let r = m.complex_eigenvalues();
+    for i in 0..n {
+        let z = r[i];
+        // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`, we discard any
+        // non-real root and replace with `NaN`
+        v[i] = if z.im == 0. { z.re } else { f64::NAN };
+    }
 }
 
 #[wasm_bindgen]
