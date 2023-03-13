@@ -1,14 +1,14 @@
 Vertex a, b, c, d, e, f
 
-Link e1 := Edge(a, b)
-Link e2 := Edge(a, d)
-Link e3 := Edge(b, c)
-Link e4 := Edge(b, d)
-Link e5 := Edge(b, e)
-Link e6 := Edge(b, f)
-Link e7 := Edge(c, e)
-Link e8 := Edge(c, f)
-Link e9 := Edge(d, e)
+Edge(a, b)
+Edge(a, d)
+Edge(b, c)
+Edge(b, d)
+Edge(b, e)
+Edge(b, f)
+Edge(c, e)
+Edge(c, f)
+Edge(d, e)
 
 Label a "𝑎"
 Label b "𝑏"

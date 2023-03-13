@@ -1,10 +1,15 @@
 Vertex a, b, c, d
-Link ab := Arc(a, b)
-Link ad := Arc(a, d)
-Link bd := Arc(b, d)
-Link bc := Arc(b, c)
-Link ca := Arc(c, a)
-Link cd := Arc(c, d)
-Link db := Arc(d, b)
-Link dc := Arc(d, c)
-AutoLabel All
+
+Arc(a, b)
+Arc(a, d)
+Arc(b, d)
+Arc(b, c)
+Arc(c, a)
+Arc(c, d)
+Arc(d, b)
+Arc(d, c)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"

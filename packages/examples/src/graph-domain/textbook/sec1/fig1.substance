@@ -1,14 +1,14 @@
 Vertex Chicago, Denver, Detroit, LA, NYC, SF, Washington
 
-Link e1 := Edge(Chicago, Denver)
-Link e2 := Edge(Chicago, Detroit)
-Link e3 := Edge(Chicago, NYC)
-Link e4 := Edge(Chicago, Washington)
-Link e5 := Edge(Denver, LA)
-Link e6 := Edge(Denver, SF)
-Link e7 := Edge(Detroit, NYC)
-Link e8 := Edge(LA, SF)
-Link e9 := Edge(NYC, Washington)
+Edge(Chicago, Denver)
+Edge(Chicago, Detroit)
+Edge(Chicago, NYC)
+Edge(Chicago, Washington)
+Edge(Denver, LA)
+Edge(Denver, SF)
+Edge(Detroit, NYC)
+Edge(LA, SF)
+Edge(NYC, Washington)
 
 AutoLabel Chicago, Denver, Detroit, Washington
 Label LA "Los Angeles"
