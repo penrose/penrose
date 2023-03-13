@@ -448,7 +448,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     },
   },
   lewis_6: {
-    displayName: "lewis_5: Hydrazine",
+    displayName: "lewis_6: Hydrazine",
     prompt: "Choose the correct Lewis structure for $\\mathrm{N_2H_4}$.",
     substance: molecules["hydrazine.substance"],
     domain: molecules["molecules.domain"],
@@ -491,6 +491,16 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "graph_3: Euler Circuit 2",
     prompt: "Which diagram has an Euler circuit?",
     substance: graphDomain.textbook.sec5["ex18.substance"],
+    domain: graphDomain["graph.domain"],
+    style: graphDomain["graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_4: {
+    displayName: "graph_4: Bipartite Graph 2",
+    prompt: "Which of the following diagrams are bipartite graphs?",
+    substance: graphDomain.textbook.sec2["ex22.substance"],
     domain: graphDomain["graph.domain"],
     style: graphDomain["graph.style"],
     setting: {

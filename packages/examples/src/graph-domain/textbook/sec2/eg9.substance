@@ -1,0 +1,10 @@
+Vertex a, b, c, d, e, f
+
+Link e61 := Edge(a, b)
+Link e62 := Edge(b, c)
+Link e63 := Edge(c, d)
+Link e64 := Edge(d, e)
+Link e65 := Edge(e, f)
+Link e66 := Edge(f, a)
+
+AutoLabel All

@@ -1,0 +1,20 @@
+Graph graph
+
+Vertex a, b, c, d, e, f, g, h
+
+Link e1 := Edge(a, b)
+Link e2 := Edge(a, c)
+Link e3 := Edge(a, e)
+Link e4 := Edge(b, d)
+Link e5 := Edge(b, f)
+Link e6 := Edge(c, d)
+Link e7 := Edge(c, g)
+Link e8 := Edge(d, h)
+Link e9 := Edge(e, f)
+Link e10 := Edge(h, f)
+Link e11 := Edge(h, g)
+Link e12 := Edge(e, g)
+
+Planar(graph)
+
+AutoLabel All

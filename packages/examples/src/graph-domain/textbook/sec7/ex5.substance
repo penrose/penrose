@@ -1,0 +1,16 @@
+Vertex a, b, c, d, e, f
+Link e1 := Edge(a, c)
+Link e2 := Edge(a, d)
+Link e3 := Edge(a, e)
+Link e4 := Edge(a, f)
+Link e5 := Edge(b, c)
+Link e6 := Edge(b, d)
+Link e7 := Edge(b, f)
+Link e8 := Edge(c, e)
+Link e9 := Edge(c, f)
+Link e10 := Edge(d, f)
+Link e11 := Edge(e, f)
+
+Planar()
+
+AutoLabel All
