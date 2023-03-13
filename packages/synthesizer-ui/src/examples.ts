@@ -500,7 +500,7 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_4: {
     displayName: "graph_4: Bipartite Graph 2",
     prompt: "Which of the following diagrams are bipartite graphs?",
-    substance: graphDomain.textbook.sec2["ex22.substance"],
+    substance: graphDomain.textbook.sec2["eg9.substance"],
     domain: graphDomain["graph.domain"],
     style: graphDomain["graph.style"],
     setting: {
