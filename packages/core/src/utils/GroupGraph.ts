@@ -82,8 +82,8 @@ export const buildRenderGraphNode = (
   // If shape is group, recursively handle all the sub-shapes.
   // And convert GPIListV to ShapeListV.
 
-  const subGPIs = getValueAsShapeList(shape.shapes);
-  const childrenNames = subGPIs.map((subShape) =>
+  const subShapes = getValueAsShapeList(shape.shapes);
+  const childrenNames = subShapes.map((subShape) =>
     getAdValueAsString(subShape.name)
   );
 

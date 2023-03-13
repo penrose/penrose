@@ -2241,7 +2241,7 @@ export const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 //#region third pass
 
-export const internalMissingPathError = (path: string) =>
+export const internalMissingPathError = (path: string): Error =>
   Error(`Style internal error: could not find path ${path}`);
 
 const evalExprs = (
@@ -3205,23 +3205,6 @@ const evalGPI = (
   trans: Translation
 ): Result<Shape<ad.Num>, StyleError> => {
   return checkShape(shapeType, path, trans);
-  // const shapedef: ShapeDef = shapedefs[shapeType];
-  // return {
-  //   tag: "GPI",
-  //   contents: [
-  //     shapeType,
-  //     Object.fromEntries(
-  //       Object.keys(shapedef.propTags).map((prop) => {
-  //         const p = `${path}.${prop}`;
-  //         const v = trans.symbols.get(p);
-  //         if (v === undefined || v.tag !== "Val") {
-  //           throw internalMissingPathError(p);
-  //         }
-  //         return [prop, v.contents];
-  //       })
-  //     ),
-  //   ],
-  // };
 };
 
 export const translate = (
@@ -3288,18 +3271,6 @@ export const translate = (
     }
   }
   return trans;
-  // return graph.topsort().reduce((trans, path) => {
-  //   const e = graph.node(path);
-  //   if (e === undefined) {
-  //     return trans;
-  //   } else if (typeof e === "string") {
-  //     return {
-  //       ...trans,
-  //       symbols: trans.symbols.set(path, evalGPI(path, e, trans)),
-  //     };
-  //   }
-  //   return translateExpr(mut, canvas, stages, path, e, trans);
-  // }, trans);
 };
 
 //#endregion

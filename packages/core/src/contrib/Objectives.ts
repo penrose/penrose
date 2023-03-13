@@ -146,10 +146,7 @@ export const objDictGeneral = {
       // Repel any two shapes with a center.
       // 1 / (d^2(cx, cy) + eps)
       res = inverse(
-        add(
-          ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])),
-          EPS_DENOM
-        )
+        add(ops.vdistsq(shapeCenter(s1), shapeCenter(s2)), EPS_DENOM)
       );
     }
 
