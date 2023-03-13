@@ -213,6 +213,12 @@ export interface Graph extends Outputs<Id> {
 
 //#endregion
 
+//#region Type for compiled autodiff function
+
+export type Compiled = (inputs: number[], mask?: boolean[]) => Outputs<number>;
+
+//#endregion
+
 //#region Types for generalizing our system autodiff
 
 export type Pt2 = [Num, Num];

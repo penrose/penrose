@@ -1,6 +1,5 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { Gradient } from "@penrose/optimizer";
 import _ from "lodash";
 import { InputMeta } from "../shapes/Samplers";
 import { ShapeDef, shapedefs } from "../shapes/Shapes";
@@ -234,7 +233,7 @@ export const compileCompGraph = async (shapes: ShapeAD[]): Promise<ShapeFn> => {
   const compGraph: ad.Graph = secondaryGraph(vars);
   const evalFn = await genCode(compGraph);
   return (xs: number[]): Shape[] => {
-    const numbers = evalFn.call(xs).secondary;
+    const numbers = evalFn(xs).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
     return shapes.map((s: ShapeAD) => ({
       ...s,
@@ -320,7 +319,7 @@ export const genGradient = async (
   inputs: InputMeta[],
   objEngs: ad.Num[],
   constrEngs: ad.Num[]
-): Promise<Gradient> => {
+): Promise<ad.Compiled> => {
   // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
   // Compile objective and gradient
 

@@ -1,13 +1,5 @@
 import { Queue } from "@datastructures-js/queue";
-import {
-  alignStackPointer,
-  builtins,
-  exportFunctionName,
-  Gradient,
-  importMemoryName,
-  importModule,
-  Outputs,
-} from "@penrose/optimizer";
+import { Gradient, Outputs } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "../types/ad";
@@ -1755,7 +1747,7 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
  * @param graphs an array of graphs to compile
  * @returns a compiled/instantiated WebAssembly function
  */
-export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
+export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Compiled> =>
   await Gradient.make(
     await WebAssembly.compile(genBytes(graphs)),
     graphs.length,
@@ -1767,7 +1759,7 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> =>
  * this will fail if the generated module is larger than 4 kilobytes, but
  * currently is used in convex partitioning for convenience.
  */
-export const genCodeSync = (...graphs: ad.Graph[]): Gradient =>
+export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled =>
   Gradient.makeSync(
     new WebAssembly.Module(genBytes(graphs)),
     graphs.length,

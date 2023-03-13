@@ -99,7 +99,7 @@ describe("simple queries", () => {
     const bbox = bboxFromShape([shapeType, shape]);
     const [x, y, w, h] = genCodeSync(
       secondaryGraph([bbox.center[0], bbox.center[1], bbox.width, bbox.height])
-    ).call([]).secondary;
+    )([]).secondary;
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
     expect(w).toBeCloseTo(44, precisionDigits);
@@ -108,7 +108,7 @@ describe("simple queries", () => {
 
   it.each(shapes)("shapeCenter for %p", (shapeType: string, shape: any) => {
     const center = shapeCenter([shapeType, shape]);
-    const [x, y] = genCodeSync(secondaryGraph([center[0], center[1]])).call(
+    const [x, y] = genCodeSync(secondaryGraph([center[0], center[1]]))(
       []
     ).secondary;
     expect(x).toBeCloseTo(11, precisionDigits);
@@ -117,7 +117,7 @@ describe("simple queries", () => {
 
   it.each(shapes)("shapeSize for %p", (shapeType: string, shape: any) => {
     const size = shapeSize([shapeType, shape]);
-    const [sizeNum] = genCodeSync(secondaryGraph([size])).call([]).secondary;
+    const [sizeNum] = genCodeSync(secondaryGraph([size]))([]).secondary;
     expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
@@ -130,7 +130,7 @@ describe("polygonLikePoints", () => {
     }
     const g = secondaryGraph(outputs);
     const f = genCodeSync(g);
-    const nums = f.call([]).secondary; // no inputs, so, empty array
+    const nums = f([]).secondary; // no inputs, so, empty array
     const pts: [number, number][] = [];
     for (let i = 0; i < nums.length; i += 2) {
       pts.push([nums[i], nums[i + 1]]);
@@ -186,7 +186,7 @@ describe("outwardUnitNormal", () => {
         ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
         sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
       ])
-    ).call([]).secondary;
+    )([]).secondary;
 
     // It is unit
     expect(norm).toBeCloseTo(1, 4);
@@ -205,7 +205,7 @@ describe("outwardUnitNormal", () => {
         ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
         sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
       ])
-    ).call([]).secondary;
+    )([]).secondary;
 
     // It is unit
     expect(norm).toBeCloseTo(1, 4);
@@ -276,7 +276,7 @@ describe("shapeDistanceAABBs should return the same value as shapeDistancePolygo
 
       const [result1num, result2num] = genCodeSync(
         secondaryGraph([result1, result2])
-      ).call([]).secondary;
+      )([]).secondary;
 
       expect(result1num).toBeCloseTo(result2num, 4);
     }
