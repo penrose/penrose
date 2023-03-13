@@ -1,20 +1,21 @@
 import { Result } from "true-myth";
 import { dummyIdentifier } from "../../engine/EngineUtils";
-import { Circle } from "../../shapes/Circle";
-import { Ellipse } from "../../shapes/Ellipse";
-import { Equation } from "../../shapes/Equation";
-import { Group } from "../../shapes/Group";
-import { Image } from "../../shapes/Image";
-import { Line } from "../../shapes/Line";
-import { Path } from "../../shapes/Path";
-import { Polygon } from "../../shapes/Polygon";
-import { Polyline } from "../../shapes/Polyline";
-import { Rectangle } from "../../shapes/Rectangle";
+import { Circle, CircleProps } from "../../shapes/Circle";
+import { Ellipse, EllipseProps } from "../../shapes/Ellipse";
+import { Equation, EquationProps } from "../../shapes/Equation";
+import { Group, GroupProps } from "../../shapes/Group";
+import { Image, ImageProps } from "../../shapes/Image";
+import { Line, LineProps } from "../../shapes/Line";
+import { Path, PathProps } from "../../shapes/Path";
+import { Polygon, PolygonProps } from "../../shapes/Polygon";
+import { Polyline, PolylineProps } from "../../shapes/Polyline";
+import { Rectangle, RectangleProps } from "../../shapes/Rectangle";
 import { Shape } from "../../shapes/Shapes";
-import { Text } from "../../shapes/Text";
+import { Text, TextProps } from "../../shapes/Text";
 import * as ad from "../../types/ad";
 import { StyleError } from "../../types/errors";
 import { Translation } from "../../types/styleSemantics";
+import { badShapeParamTypeError } from "../Error";
 import {
   checkArrow,
   checkCenter,
@@ -38,6 +39,34 @@ import {
 } from "./CheckValues";
 
 const { err, ok } = Result;
+
+export const checkPassthrough = (
+  path: string,
+  trans: Translation,
+  used: Set<string>
+): Result<Map<string, string>, StyleError> => {
+  const m = new Map<string, string>();
+  for (const [key, value] of trans.symbols) {
+    if (key.startsWith(`${path}.`)) {
+      const i = key.lastIndexOf(".");
+      const propName = key.slice(i + 1);
+      if (used.has(propName)) {
+        continue;
+      }
+      if (value.tag === "Val") {
+        const checkedStrV = checkStrV(key, value.contents);
+        if (checkedStrV.isErr()) {
+          return err(checkedStrV.error);
+        } else {
+          m.set(propName, checkedStrV.value.contents);
+        }
+      } else {
+        return err(badShapeParamTypeError(key, value));
+      }
+    }
+  }
+  return ok(m);
+};
 
 export const checkShape = (
   shapeType: string,
@@ -94,12 +123,24 @@ export const checkCircle = (
   const r = checkProp(path, "r", trans, checkFloatV);
   if (r.isErr()) return err(r.error);
 
-  return ok({
+  const partial: CircleProps<ad.Num> = {
     ...named.value,
     ...stroke.value,
     ...fill.value,
     ...center.value,
     r: r.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Circle",
   });
 };
@@ -126,13 +167,25 @@ export const checkEllipse = (
   const ry = checkProp(path, "ry", trans, checkFloatV);
   if (ry.isErr()) return err(ry.error);
 
-  return ok({
+  const partial: EllipseProps<ad.Num> = {
     ...named.value,
     ...stroke.value,
     ...fill.value,
     ...center.value,
     rx: rx.value,
     ry: ry.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Ellipse",
   });
 };
@@ -159,13 +212,25 @@ export const checkEquation = (
   const string = checkString(path, trans);
   if (string.isErr()) return err(string.error);
 
-  return ok({
+  const partial: EquationProps<ad.Num> = {
     ...named.value,
     ...fill.value,
     ...center.value,
     ...rect.value,
     ...rotate.value,
     ...string.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Equation",
   });
 };
@@ -180,9 +245,18 @@ export const checkGroup = (
   const shapes = checkProp(path, "shapes", trans, checkShapeListV);
   if (shapes.isErr()) return err(shapes.error);
 
+  const partial: GroupProps<ad.Num> = { ...named.value, shapes: shapes.value };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
   return ok({
-    ...named.value,
-    shapes: shapes.value,
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Group",
   });
 };
@@ -206,12 +280,24 @@ export const checkImage = (
   const href = checkProp(path, "href", trans, checkStrV);
   if (href.isErr()) return err(href.error);
 
-  return ok({
+  const partial: ImageProps<ad.Num> = {
     ...named.value,
     ...center.value,
     ...rect.value,
     ...rotate.value,
     href: href.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Image",
   });
 };
@@ -238,13 +324,25 @@ export const checkLine = (
   const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
   if (strokeLinecap.isErr()) return err(strokeLinecap.error);
 
-  return ok({
+  const partial: LineProps<ad.Num> = {
     ...named.value,
     ...stroke.value,
     ...arrow.value,
     start: start.value,
     end: end.value,
     strokeLinecap: strokeLinecap.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Line",
   });
 };
@@ -268,12 +366,24 @@ export const checkPath = (
   const d = checkProp(path, "d", trans, checkPathDataV);
   if (d.isErr()) return err(d.error);
 
-  return ok({
+  const partial: PathProps<ad.Num> = {
     ...named.value,
     ...stroke.value,
     ...fill.value,
     ...arrow.value,
     d: d.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Path",
   });
 };
@@ -297,12 +407,24 @@ export const checkPolygon = (
   const poly = checkPoly(path, trans);
   if (poly.isErr()) return err(poly.error);
 
-  return ok({
+  const partial: PolygonProps<ad.Num> = {
     ...named.value,
     ...stroke.value,
     ...fill.value,
     ...scale.value,
     ...poly.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Polygon",
   });
 };
@@ -326,12 +448,24 @@ export const checkPolyline = (
   const poly = checkPoly(path, trans);
   if (poly.isErr()) return err(poly.error);
 
-  return ok({
+  const partial: PolylineProps<ad.Num> = {
     ...named.value,
     ...stroke.value,
     ...fill.value,
     ...scale.value,
     ...poly.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Polyline",
   });
 };
@@ -361,7 +495,7 @@ export const checkRectangle = (
   const corner = checkCorner(path, trans);
   if (corner.isErr()) return err(corner.error);
 
-  return ok({
+  const partial: RectangleProps<ad.Num> = {
     ...named.value,
     ...stroke.value,
     ...fill.value,
@@ -369,6 +503,18 @@ export const checkRectangle = (
     ...rotate.value,
     ...rect.value,
     ...corner.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Rectangle",
   });
 };
@@ -447,7 +593,7 @@ export const checkText = (
   const descent = checkProp(path, "descent", trans, checkFloatV);
   if (descent.isErr()) return err(descent.error);
 
-  return ok({
+  const partial: TextProps<ad.Num> = {
     ...named.value,
     ...stroke.value,
     ...fill.value,
@@ -468,6 +614,18 @@ export const checkText = (
     dominantBaseline: dominantBaseline.value,
     ascent: ascent.value,
     descent: descent.value,
+  };
+
+  const passthrough = checkPassthrough(
+    path,
+    trans,
+    new Set(Object.keys(partial))
+  );
+  if (passthrough.isErr()) return err(passthrough.error);
+
+  return ok({
+    ...partial,
+    passthrough: passthrough.value,
     shapeType: "Text",
   });
 };

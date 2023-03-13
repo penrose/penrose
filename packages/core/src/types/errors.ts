@@ -15,7 +15,7 @@ import {
 } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
-import { Value } from "./value";
+import { ShapeVal, Val, Value } from "./value";
 
 //#region ErrorTypes
 
@@ -450,7 +450,7 @@ export interface UOpTypeError {
 export interface BadShapeParamTypeError {
   tag: "BadShapeParamTypeError";
   path: string;
-  value: Value<ad.Num>;
+  value: Val<ad.Num> | ShapeVal<ad.Num>;
 }
 
 //#endregion

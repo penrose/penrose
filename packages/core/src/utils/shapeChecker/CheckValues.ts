@@ -17,6 +17,7 @@ import {
   VectorV,
 } from "../../types/value";
 import { badShapeParamTypeError } from "../Error";
+import { val } from "../Util";
 const { err, ok } = Result;
 export const checkFloatV = (
   path: string,
@@ -25,7 +26,7 @@ export const checkFloatV = (
   if (value.tag === "FloatV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkBoolV = (
@@ -35,7 +36,7 @@ export const checkBoolV = (
   if (value.tag === "BoolV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkStrV = (
@@ -45,7 +46,7 @@ export const checkStrV = (
   if (value.tag === "StrV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkPathDataV = (
@@ -55,7 +56,7 @@ export const checkPathDataV = (
   if (value.tag === "PathDataV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkPtListV = (
@@ -65,7 +66,7 @@ export const checkPtListV = (
   if (value.tag === "PtListV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkColorV = (
@@ -75,7 +76,7 @@ export const checkColorV = (
   if (value.tag === "ColorV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkListV = (
@@ -85,7 +86,7 @@ export const checkListV = (
   if (value.tag === "ListV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkVectorV = (
@@ -95,7 +96,7 @@ export const checkVectorV = (
   if (value.tag === "VectorV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkMatrixV = (
@@ -105,7 +106,7 @@ export const checkMatrixV = (
   if (value.tag === "MatrixV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkTupV = (
@@ -115,7 +116,7 @@ export const checkTupV = (
   if (value.tag === "TupV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkLListV = (
@@ -125,7 +126,7 @@ export const checkLListV = (
   if (value.tag === "LListV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };
 
 export const checkShapeListV = (
@@ -135,5 +136,5 @@ export const checkShapeListV = (
   if (value.tag === "ShapeListV") {
     return ok(value);
   }
-  return err(badShapeParamTypeError(path, value));
+  return err(badShapeParamTypeError(path, val(value)));
 };

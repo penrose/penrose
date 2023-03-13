@@ -40,7 +40,7 @@ import {
 import { State } from "../types/state";
 import { BindingForm, ColorLit } from "../types/style";
 import { Deconstructor, SubExpr } from "../types/substance";
-import { Value } from "../types/value";
+import { ShapeVal, Val } from "../types/value";
 import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
@@ -429,7 +429,11 @@ canvas {
     }
 
     case "BadShapeParamTypeError": {
-      return `Shape property ${error.path} does not accept type ${error.value.tag}`;
+      if (error.value.tag === "Val") {
+        return `Shape property ${error.path} does not accept type ${error.value.contents.tag}.`;
+      } else {
+        return `Shape property ${error.path} does not accept shape type ${error.value.contents.shapeType} as a value`;
+      }
     }
 
     // --- END COMPILATION ERRORS
@@ -635,7 +639,7 @@ export const invalidColorLiteral = (
 
 export const badShapeParamTypeError = (
   path: string,
-  value: Value<ad.Num>
+  value: Val<ad.Num> | ShapeVal<ad.Num>
 ): BadShapeParamTypeError => ({
   tag: "BadShapeParamTypeError",
   path,

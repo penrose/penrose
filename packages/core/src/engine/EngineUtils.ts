@@ -446,10 +446,10 @@ export const compileCompGraph = async (
 ): Promise<ShapeFn> => {
   const vars = [];
   for (const s of shapes) {
-    for (const v of Object.values(s)) {
-      // remove shapeType
-      if (typeof v !== "string") {
-        vars.push(...valueADNums(v));
+    for (const k of Object.keys(s)) {
+      // remove shapeType and passthrough
+      if (k !== "shapeType" && k !== "passthrough") {
+        vars.push(...valueADNums(s[k]));
       }
     }
   }
@@ -484,10 +484,10 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
       const vars = [];
       const shapes = v.contents;
       for (const s of shapes) {
-        for (const v of Object.values(s)) {
-          // remove shapeType
-          if (typeof v !== "string") {
-            vars.push(...valueADNums(v));
+        for (const k of Object.keys(s)) {
+          // remove shapeType and passthrough
+          if (k !== "shapeType" && k !== "passthrough") {
+            vars.push(...valueADNums(s[k]));
           }
         }
       }

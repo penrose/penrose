@@ -24,6 +24,7 @@ import {
   toSvgOpacityProperty,
   toSvgPaintProperty,
 } from "../utils/Util";
+import { attrMapSvg } from "./AttrMapSvg";
 
 /**
  * Auto-map to SVG any input properties for which we lack specific logic.
@@ -41,7 +42,7 @@ import {
  * Note: SVG property names are case sensitive.
  */
 export const attrAutoFillSvg = (
-  properties: Shape<number>,
+  shape: Shape<number>,
   elem: SVGElement,
   attrAlreadyMapped: string[]
 ): void => {
@@ -64,27 +65,24 @@ export const attrAutoFillSvg = (
   // the built-in properties will write to it __and__ the user
   // should be able to append to it. Therefore, we check if there's
   // an existing value in `style` and append to it if true.
-  for (const propName in properties) {
-    const propValue: string = properties[propName].contents.toString();
 
-    // Only map properties with values and that we have not previously mapped
-    if (propValue !== "" && !attrToNotAutoMap.has(propName)) {
-      // If a mapping rule exists, apply it; otherwise, map straight across
-      if (propName in attrMapSvg) {
-        const mappedPropName: string = attrMapSvg[propName];
-        if (!elem.hasAttribute(mappedPropName)) {
-          elem.setAttribute(mappedPropName, propValue);
-        }
-      } else if (propName === "style" && propValue !== "") {
-        const style = elem.getAttribute(propName);
+  for (const [propKey, propVal] of shape.passthrough) {
+    if (propVal === "" || attrToNotAutoMap.has(propKey)) continue;
+
+    if (propKey in attrMapSvg) {
+      const mappedPropKey: string = attrMapSvg[propKey];
+      if (!elem.hasAttribute(mappedPropKey)) {
+        elem.setAttribute(mappedPropKey, propVal);
+      } else if (propKey === "style") {
+        const style = elem.getAttribute(propKey);
         if (style === null) {
-          elem.setAttribute(propName, propValue);
+          elem.setAttribute(propKey, propVal);
         } else {
-          elem.setAttribute(propName, `${style}${propValue}`);
+          elem.setAttribute(propKey, `${style}${propVal}`);
         }
       } else {
-        if (!elem.hasAttribute(propName)) {
-          elem.setAttribute(propName, propValue);
+        if (!elem.hasAttribute(propKey)) {
+          elem.setAttribute(propKey, propVal);
         }
       }
     }

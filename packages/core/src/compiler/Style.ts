@@ -3123,8 +3123,6 @@ const translateExpr = (
           trans
         );
       }
-      console.log(fname);
-      console.log(args.value);
       const output: ad.Num = constrDict[fname](...args.value);
       const optStages: OptStages = stageExpr(
         layoutStages,

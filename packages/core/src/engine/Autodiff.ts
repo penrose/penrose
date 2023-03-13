@@ -388,7 +388,6 @@ export const makeGraph = (
     if (name === undefined) {
       name = newNode(makeNode(x));
       nodes.set(x, name);
-      console.log(x);
       children(x).forEach((edge, index) => {
         edges.enqueue([edge, index, x]);
         queue.enqueue(edge.child);

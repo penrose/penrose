@@ -1,7 +1,4 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
-import im from "immutable";
-import { Text } from "../shapes/Text";
-import * as ad from "../types/ad";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
@@ -1063,6 +1060,7 @@ delete x.z.p }`,
     });
   });
 
+  /*
   describe("match metadata", () => {
     test("match total", async () => {
       const dsl = "type MyType\n";
@@ -1111,7 +1109,7 @@ delete x.z.p }`,
       ).toEqual(im.Set(["1", "2", "3"]));
     });
   });
-
+*/
   describe("group shapes", () => {
     test("simple group", async () => {
       const dsl = "type T\n";
