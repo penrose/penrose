@@ -9,4 +9,4 @@ In(E,R)
 Ray BE := MkRay(B, E)
 Line BA := MkLine(B, A)
 Collinear(B,D,E)
-AutoLabel All
+AutoLabel A, B, C, D, E, R

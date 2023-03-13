@@ -481,7 +481,9 @@ export class Synthesizer {
     const deleteCtx = filterContext(ctx, this.setting.delete, this.template);
     const deleteOps = this.enumerateDelete(deleteCtx);
     // NOTE: filter edits by the template Substance program too
-    const editCtx = filterContext(ctx, this.setting.edit, this.template);
+    // TODO: This behavior is not always desirable, especially when the
+    // const editCtx = filterContext(ctx, this.setting.edit, this.template);
+    const editCtx = filterContext(ctx, this.setting.edit);
     const editOps = this.enumerateUpdate(editCtx);
     const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps].filter(
       (ops) => ops.length > 0
@@ -676,18 +678,9 @@ export class Synthesizer {
    */
   enumerateUpdate = (ctx: SynthesisContext): MutationGroup[] => {
     log.debug(`Picking a statement to edit...`);
-    // pick a kind of statement to edit
-    const chosenType = this.choice(nonEmptyDecls(ctx));
-    // get all possible types within this kind
-    const candidates = [...getDecls(ctx, chosenType).keys()];
-    // choose a name
-    const chosenName = this.choice(candidates);
-    log.debug(
-      `Chosen name is ${chosenName}, candidates ${candidates}, chosen type ${chosenType}`
-    );
-    const stmt = this.findStmt(chosenType, chosenName);
-    if (stmt !== undefined) {
-      // find all available edit mutations for the given statement
+    // enumerate all available edit mutations for all statements
+    // NOTE: this implementation actually ignores the configuration. Need to clarify the semantics of configration first.
+    const mutations = this.currentProg.statements.map((stmt) => {
       const mutations = this.findMutations(stmt, ctx);
       log.debug(
         `Possible update mutations for ${prettyStmt(
@@ -695,7 +688,8 @@ export class Synthesizer {
         )} are:\n${mutations.map(showMutations).join("\n")}`
       );
       return mutations;
-    } else return [];
+    });
+    return this.choice(mutations) ?? [];
   };
 
   /**

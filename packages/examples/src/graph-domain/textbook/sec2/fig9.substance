@@ -1,0 +1,63 @@
+Vertex k23t1, k23t2
+Vertex k23b1, k23b2, k23b3
+
+Link e2311 := Edge(k23t1, k23b1)
+Link e2312 := Edge(k23t1, k23b2)
+Link e2313 := Edge(k23t1, k23b3)
+
+Link e2321 := Edge(k23t2, k23b1)
+Link e2322 := Edge(k23t2, k23b2)
+Link e2323 := Edge(k23t2, k23b3)
+
+Vertex k33t1, k33t2, k33t3
+Vertex k33b1, k33b2, k33b3
+
+Link e3311 := Edge(k33t1, k33b1)
+Link e3312 := Edge(k33t1, k33b2)
+Link e3313 := Edge(k33t1, k33b3)
+
+Link e3321 := Edge(k33t2, k33b1)
+Link e3322 := Edge(k33t2, k33b2)
+Link e3323 := Edge(k33t2, k33b3)
+
+Link e3331 := Edge(k33t3, k33b1)
+Link e3332 := Edge(k33t3, k33b2)
+Link e3333 := Edge(k33t3, k33b3)
+
+Vertex k35t1, k35t2, k35t3
+Vertex k35b1, k35b2, k35b3, k35b4, k35b5
+
+Link e3511 := Edge(k35t1, k35b1)
+Link e3512 := Edge(k35t1, k35b2)
+Link e3513 := Edge(k35t1, k35b3)
+Link e3514 := Edge(k35t1, k35b4)
+Link e3515 := Edge(k35t1, k35b5)
+
+Link e3521 := Edge(k35t2, k35b1)
+Link e3522 := Edge(k35t2, k35b2)
+Link e3523 := Edge(k35t2, k35b3)
+Link e3524 := Edge(k35t2, k35b4)
+Link e3525 := Edge(k35t2, k35b5)
+
+Link e3531 := Edge(k35t3, k35b1)
+Link e3532 := Edge(k35t3, k35b2)
+Link e3533 := Edge(k35t3, k35b3)
+Link e3534 := Edge(k35t3, k35b4)
+Link e3535 := Edge(k35t3, k35b5)
+
+Vertex k26t1, k26t2
+Vertex k26b1, k26b2, k26b3, k26b4, k26b5, k26b6
+
+Link e2611 := Edge(k26t1, k26b1)
+Link e2612 := Edge(k26t1, k26b2)
+Link e2613 := Edge(k26t1, k26b3)
+Link e2614 := Edge(k26t1, k26b4)
+Link e2615 := Edge(k26t1, k26b5)
+Link e2616 := Edge(k26t1, k26b6)
+
+Link e2621 := Edge(k26t2, k26b1)
+Link e2622 := Edge(k26t2, k26b2)
+Link e2623 := Edge(k26t2, k26b3)
+Link e2624 := Edge(k26t2, k26b4)
+Link e2625 := Edge(k26t2, k26b5)
+Link e2626 := Edge(k26t2, k26b6)
