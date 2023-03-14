@@ -1,9 +1,9 @@
 Vertex u1, u2, u3, u4
 
-Link g1 := Edge(u1, u2)
-Link g2 := Edge(u1, u3)
-Link g3 := Edge(u2, u4)
-Link g4 := Edge(u3, u4)
+Edge(u1, u2)
+Edge(u1, u3)
+Edge(u2, u4)
+Edge(u3, u4)
 
 Label u1 "𝑢₁"
 Label u2 "𝑢₂"
@@ -12,10 +12,10 @@ Label u4 "𝑢₄"
 
 Vertex v1, v2, v3, v4
 
-Link h1 := Edge(v1, v3)
-Link h2 := Edge(v1, v4)
-Link h3 := Edge(v2, v3)
-Link h4 := Edge(v2, v4)
+Edge(v1, v3)
+Edge(v1, v4)
+Edge(v2, v3)
+Edge(v2, v4)
 
 Label v1 "𝑣₁"
 Label v2 "𝑣₂"

@@ -1,14 +1,14 @@
 Vertex Alvarez, Berkowitz, Chen, Davis
 Vertex requirements, architecture, implementation, testing
 
-Link e1 := Edge(Alvarez, requirements)
-Link e2 := Edge(Alvarez, testing)
-Link e3 := Edge(Berkowitz, architecture)
-Link e4 := Edge(Berkowitz, implementation)
-Link e5 := Edge(Berkowitz, testing)
-Link e6 := Edge(Chen, requirements)
-Link e7 := Edge(Chen, architecture)
-Link e8 := Edge(Chen, implementation)
-Link e9 := Edge(Davis, requirements)
+Edge(Alvarez, requirements)
+Edge(Alvarez, testing)
+Edge(Berkowitz, architecture)
+Edge(Berkowitz, implementation)
+Edge(Berkowitz, testing)
+Edge(Chen, requirements)
+Edge(Chen, architecture)
+Edge(Chen, implementation)
+Edge(Davis, requirements)
 
 AutoLabel All

@@ -1,14 +1,14 @@
 Vertex u1, u2, u3, u4, u5, u6
 
-Link eu1 := Arc(u1, u4)
-Link eu2 := Arc(u2, u5)
-Link eu3 := Arc(u3, u4)
-Link eu4 := Arc(u3, u6)
-Link eu5 := Arc(u4, u2)
-Link eu6 := Arc(u5, u1)
-Link eu7 := Arc(u5, u3)
-Link eu8 := Arc(u6, u1)
-Link eu9 := Arc(u6, u2)
+Arc(u1, u4)
+Arc(u2, u5)
+Arc(u3, u4)
+Arc(u3, u6)
+Arc(u4, u2)
+Arc(u5, u1)
+Arc(u5, u3)
+Arc(u6, u1)
+Arc(u6, u2)
 
 Label u1 "𝑢₁"
 Label u2 "𝑢₂"
@@ -19,15 +19,15 @@ Label u6 "𝑢₆"
 
 Vertex v1, v2, v3, v4, v5, v6
 
-Link ev1 := Arc(v1, v2)
-Link ev2 := Arc(v1, v6)
-Link ev3 := Arc(v2, v5)
-Link ev4 := Arc(v3, v2)
-Link ev5 := Arc(v3, v4)
-Link ev6 := Arc(v4, v1)
-Link ev7 := Arc(v5, v4)
-Link ev8 := Arc(v6, v3)
-Link ev9 := Arc(v6, v5)
+Arc(v1, v2)
+Arc(v1, v6)
+Arc(v2, v5)
+Arc(v3, v2)
+Arc(v3, v4)
+Arc(v4, v1)
+Arc(v5, v4)
+Arc(v6, v3)
+Arc(v6, v5)
 
 Label v1 "𝑣₁"
 Label v2 "𝑣₂"

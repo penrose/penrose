@@ -1,17 +1,17 @@
 Vertex p0, p1, p2, p3, p4, p5, p6, p7
 
-Link e00_ := Edge(p0, p1)
-Link e0_0 := Edge(p0, p2)
-Link e_00 := Edge(p0, p4)
-Link e0_1 := Edge(p1, p3)
-Link e_01 := Edge(p1, p5)
-Link e01_ := Edge(p2, p3)
-Link e_10 := Edge(p2, p6)
-Link e_11 := Edge(p3, p7)
-Link e10_ := Edge(p4, p5)
-Link e1_0 := Edge(p4, p6)
-Link e1_1 := Edge(p5, p7)
-Link e11_ := Edge(p6, p7)
+Edge(p0, p1)
+Edge(p0, p2)
+Edge(p0, p4)
+Edge(p1, p3)
+Edge(p1, p5)
+Edge(p2, p3)
+Edge(p2, p6)
+Edge(p3, p7)
+Edge(p4, p5)
+Edge(p4, p6)
+Edge(p5, p7)
+Edge(p6, p7)
 
 Label p0 "𝑃₀"
 Label p1 "𝑃₁"

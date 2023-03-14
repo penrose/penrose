@@ -1,12 +1,12 @@
 Vertex u1, u2, u3, u4, u5, u6, u7
 
-Link eu1 := Edge(u1, u2)
-Link eu2 := Edge(u2, u3)
-Link eu3 := Edge(u3, u4)
-Link eu4 := Edge(u4, u5)
-Link eu5 := Edge(u5, u6)
-Link eu6 := Edge(u6, u7)
-Link eu7 := Edge(u7, u1)
+Edge(u1, u2)
+Edge(u2, u3)
+Edge(u3, u4)
+Edge(u4, u5)
+Edge(u5, u6)
+Edge(u6, u7)
+Edge(u7, u1)
 
 Label u1 "𝑢₁"
 Label u2 "𝑢₂"
@@ -18,13 +18,13 @@ Label u7 "𝑢₇"
 
 Vertex v1, v2, v3, v4, v5, v6, v7
 
-Link ev1 := Edge(v1, v3)
-Link ev2 := Edge(v1, v6)
-Link ev3 := Edge(v2, v4)
-Link ev4 := Edge(v2, v7)
-Link ev5 := Edge(v3, v5)
-Link ev6 := Edge(v4, v6)
-Link ev7 := Edge(v5, v7)
+Edge(v1, v3)
+Edge(v1, v6)
+Edge(v2, v4)
+Edge(v2, v7)
+Edge(v3, v5)
+Edge(v4, v6)
+Edge(v5, v7)
 
 Label v1 "𝑣₁"
 Label v2 "𝑣₂"
