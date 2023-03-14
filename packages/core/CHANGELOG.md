@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v2.3.0](https://github.com/penrose/penrose/compare/v2.2.0...v2.3.0) (2023-03-14)
+
+### :rocket: New Feature
+
+- Add a function to compute closest points ([#1039](https://github.com/penrose/penrose/issues/1039)) ([c2c8fc6](https://github.com/penrose/penrose/commit/c2c8fc68804943abe3c62ac0d3738bac0e77a870))
+- Lewis structures Style ([#1320](https://github.com/penrose/penrose/issues/1320)) ([5411f35](https://github.com/penrose/penrose/commit/5411f35d06039b82a0e77786c24edec7117d7cdf))
+- basic group shape ([#1294](https://github.com/penrose/penrose/issues/1294)) ([cf77bff](https://github.com/penrose/penrose/commit/cf77bffa38273368c489d26ef981975c5d07bf80))
+- compute rect-line distance exactly ([#1332](https://github.com/penrose/penrose/issues/1332)) ([b86be31](https://github.com/penrose/penrose/commit/b86be314de09725447707de56039069a92a99f20))
+- matrix and vector operations in Style ([#1310](https://github.com/penrose/penrose/issues/1310)) ([70d190e](https://github.com/penrose/penrose/commit/70d190eeab2cac3f1c0afb4e760d067bceeb04bf))
+- provide a `shapeDistance` function ([#1328](https://github.com/penrose/penrose/issues/1328)) ([76a91e5](https://github.com/penrose/penrose/commit/76a91e5186c7ae4628417e4e9d6f9df289412ede))
+- show multiple diagram instances on a grid in `editor` ([#1287](https://github.com/penrose/penrose/issues/1287)) ([fbaf03c](https://github.com/penrose/penrose/commit/fbaf03c7b6c4f87cc628111ee080af76c65ef55e))
+
+### :bug: Bug Fix
+
+- `inRange` implemented incorrectly ([#1297](https://github.com/penrose/penrose/issues/1297)) ([f692a44](https://github.com/penrose/penrose/commit/f692a44b9f55df419db8e0e19998e79cf19ac88c))
+- avoid `EPS_DENOM` in core autodiff ([#1333](https://github.com/penrose/penrose/issues/1333)) ([db9f38b](https://github.com/penrose/penrose/commit/db9f38becbcb628eb9864b3ba7d0a7018e304c64))
+- improve performance of pseudoTopsort ([#1302](https://github.com/penrose/penrose/issues/1302)) ([60bc4b5](https://github.com/penrose/penrose/commit/60bc4b5505dec71bb52ff787e0696797748af057))
+- nondeterminism in renderer ([#1316](https://github.com/penrose/penrose/issues/1316)) ([9795420](https://github.com/penrose/penrose/commit/97954202c60c2aab6a11af1694f652f8a3bb8e4d))
+- render shapes in order for determinism ([#1323](https://github.com/penrose/penrose/issues/1323)) ([c479eec](https://github.com/penrose/penrose/commit/c479eecdf4c4cbaa97c075bfd3608073dd576279))
+
+### :house: Internal
+
+- add Lewis structures examples to `synthesizer-ui` ([#1334](https://github.com/penrose/penrose/issues/1334)) ([2f1f624](https://github.com/penrose/penrose/commit/2f1f624118d2c48433c6f888075c8b279ff3e387))
+- expand presets in `synthesizer-ui` ([#1149](https://github.com/penrose/penrose/issues/1149)) ([58c288a](https://github.com/penrose/penrose/commit/58c288a2ec5b124f008222e8c3807dfa550dcd6f))
+
 ## [v2.2.0](https://github.com/penrose/penrose/compare/v2.1.1...v2.2.0) (2023-02-02)
 
 ### :rocket: New Feature
