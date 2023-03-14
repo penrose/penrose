@@ -1825,7 +1825,7 @@ const makeCompiled = (
 
     const gradientOffset = maskOffset + Math.ceil(graphs.length / 2) * bytesF64;
     const grad = new Float64Array(memory.buffer, gradientOffset, inputs.length);
-    gradient.fill(0);
+    grad.fill(0);
 
     const secondaryOffset = gradientOffset + inputs.length * bytesF64;
     const second = new Float64Array(
@@ -1833,7 +1833,7 @@ const makeCompiled = (
       secondaryOffset,
       numSecondary
     );
-    secondary.fill(0);
+    second.fill(0);
 
     const stackPointer = secondaryOffset + numSecondary * bytesF64;
 
