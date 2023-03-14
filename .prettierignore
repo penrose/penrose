@@ -9,12 +9,14 @@
 /packages/core/src/parser/StyleParser.ts
 /packages/core/src/parser/SubstanceParser.ts
 /packages/core/src/renderer/not_found.json
+/packages/docs-site/.vitepress/cache/
 /packages/docs-site/build/
 /packages/docs-site/public/try/
 /packages/docs-site/src/shapedefs.json
 /packages/optimizer/bindings/
 /packages/optimizer/build/
 /packages/optimizer/index.js
+/packages/optimizer/source.d.ts
 /packages/optimizer/target/
 /packages/roger/oclif.manifest.json
 /README.md
