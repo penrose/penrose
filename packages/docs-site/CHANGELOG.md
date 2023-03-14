@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v2.3.0](https://github.com/penrose/penrose/compare/v2.2.0...v2.3.0) (2023-03-14)
+
+### :rocket: New Feature
+
+- basic group shape ([#1294](https://github.com/penrose/penrose/issues/1294)) ([cf77bff](https://github.com/penrose/penrose/commit/cf77bffa38273368c489d26ef981975c5d07bf80))
+
+### :bug: Bug Fix
+
+- avoid `EPS_DENOM` in core autodiff ([#1333](https://github.com/penrose/penrose/issues/1333)) ([db9f38b](https://github.com/penrose/penrose/commit/db9f38becbcb628eb9864b3ba7d0a7018e304c64))
+
+### :memo: Documentation
+
+- move wiki ([#1331](https://github.com/penrose/penrose/issues/1331)) ([062e8ed](https://github.com/penrose/penrose/commit/062e8edad60249db71238d5a72ff99d9e1cc8239))
+- update Team page ([#1324](https://github.com/penrose/penrose/issues/1324)) ([e61e0ca](https://github.com/penrose/penrose/commit/e61e0ca86546185717cf4b5aff6215c6dc782da8))
+
 ## [v2.2.0](https://github.com/penrose/penrose/compare/v2.1.1...v2.2.0) (2023-02-02)
 
 ### :rocket: New Feature
