@@ -468,9 +468,9 @@ forall Point \`D\`, \`E\`, \`A\` {
     },
   },
   graph_1: {
-    displayName: "graph_1: Isomorphic Graph",
-    prompt: "Which diagram contains a pair of isomorphic graphs?",
-    substance: graphDomain.textbook.sec3["ex38.substance"],
+    displayName: "graph_1: Self-complementary Graph",
+    prompt: "Which of the following diagrams are self-complementary graphs?",
+    substance: graphDomain.textbook.sec3["ex50.substance"],
     domain: graphDomain["simple-graph.domain"],
     style: graphDomain["simple-graph.style"],
     setting: {
@@ -501,6 +501,26 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "graph_4: Bipartite Graph 2",
     prompt: "Which of the following diagrams are bipartite graphs?",
     substance: graphDomain.textbook.sec2["eg9.substance"],
+    domain: graphDomain["simple-graph.domain"],
+    style: graphDomain["simple-graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_5: {
+    displayName: "graph_5: Strongly Connected Graph",
+    prompt: "Which of the following diagrams are strongly connected graphs?",
+    substance: graphDomain.textbook.sec4["ex12b.substance"],
+    domain: graphDomain["simple-directed-graph.domain"],
+    style: graphDomain["simple-directed-graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_6: {
+    displayName: "graph_6: Hamilton Circuit",
+    prompt: "Which diagram has a Hamilton circuit?",
+    substance: graphDomain.textbook.sec5["ex46.substance"],
     domain: graphDomain["simple-graph.domain"],
     style: graphDomain["simple-graph.style"],
     setting: {
