@@ -172,7 +172,6 @@ version = "2.2.0"
 dependencies = [
  "console_error_panic_hook",
  "console_log",
- "js-sys",
  "log",
  "nalgebra",
  "serde",

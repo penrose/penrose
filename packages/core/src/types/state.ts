@@ -1,4 +1,4 @@
-import { OptState } from "@penrose/optimizer";
+import { Gradient, OptState } from "@penrose/optimizer";
 import { Canvas, InputMeta } from "../shapes/Samplers";
 import * as ad from "./ad";
 import { A } from "./ast";
@@ -34,7 +34,7 @@ export interface State extends OptState {
   labelCache: LabelCache;
   shapes: ShapeAD[];
   canvas: Canvas;
-  gradient: ad.Compiled;
+  gradient: Gradient;
   currentStageIndex: number;
   optStages: string[];
   computeShapes: ShapeFn;

@@ -1,5 +1,5 @@
 import { Queue } from "@datastructures-js/queue";
-import { Outputs, polyRoots } from "@penrose/optimizer";
+import { Gradient, Outputs, polyRoots } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "../types/ad";
@@ -1801,7 +1801,7 @@ const makeCompiled = (
   graphs: ad.Graph[],
   memory: WebAssembly.Memory,
   instance: WebAssembly.Instance
-): ad.Compiled => {
+): Gradient => {
   const numSecondary = Math.max(0, ...graphs.map((g) => g.secondary.length));
 
   const f = instance.exports[exportFunctionName] as (
@@ -1812,24 +1812,23 @@ const makeCompiled = (
     stackPointer: number
   ) => number;
 
-  return (inputs: number[], mask?: boolean[]): Outputs<number> => {
+  const wrapped = (
+    inputs: Float64Array,
+    mask: Int32Array,
+    gradient: Float64Array,
+    secondary: Float64Array
+  ): number => {
     new Float64Array(memory.buffer, 0, inputs.length).set(inputs);
 
     const maskOffset = inputs.length * bytesF64;
-    const maskNums = new Int32Array(memory.buffer, maskOffset, graphs.length);
-    for (let i = 0; i < graphs.length; i++)
-      maskNums[i] = mask !== undefined && i in mask && !mask[i] ? 0 : 1;
+    new Int32Array(memory.buffer, maskOffset, graphs.length).set(mask);
 
     const gradientOffset = maskOffset + Math.ceil(graphs.length / 2) * bytesF64;
-    const gradient = new Float64Array(
-      memory.buffer,
-      gradientOffset,
-      inputs.length
-    );
+    const grad = new Float64Array(memory.buffer, gradientOffset, inputs.length);
     gradient.fill(0);
 
     const secondaryOffset = gradientOffset + inputs.length * bytesF64;
-    const secondary = new Float64Array(
+    const second = new Float64Array(
       memory.buffer,
       secondaryOffset,
       numSecondary
@@ -1846,12 +1845,12 @@ const makeCompiled = (
       stackPointer
     );
 
-    return {
-      gradient: Array.from(gradient),
-      primary,
-      secondary: Array.from(secondary),
-    };
+    gradient.set(grad);
+    secondary.set(second);
+    return primary;
   };
+
+  return new Gradient(wrapped, graphs.length, numSecondary);
 };
 
 /**
@@ -1862,7 +1861,7 @@ const makeCompiled = (
  * @param graphs an array of graphs to compile
  * @returns a compiled/instantiated WebAssembly function
  */
-export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Compiled> => {
+export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> => {
   const memory = makeMemory();
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
@@ -1876,7 +1875,7 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Compiled> => {
  * this will fail if the generated module is larger than 4 kilobytes, but
  * currently is used in convex partitioning for convenience.
  */
-export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled => {
+export const genCodeSync = (...graphs: ad.Graph[]): Gradient => {
   const memory = makeMemory();
   const instance = new WebAssembly.Instance(
     new WebAssembly.Module(genBytes(graphs)),

@@ -63,7 +63,7 @@ export const resample = (state: State): State => {
 export const stepState = (state: State, numSteps = 10000): State => {
   const steppedState: State = {
     ...state,
-    ...step(state, state.gradient, numSteps),
+    ...step(state, state.gradient.f, numSteps),
   };
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
     const nextInitState = nextStage(steppedState);
@@ -99,7 +99,7 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
   ) {
     currentState = {
       ...currentState,
-      ...step(currentState, currentState.gradient, numSteps),
+      ...step(currentState, currentState.gradient.f, numSteps),
     };
   }
   return nextStage(currentState);
@@ -352,7 +352,7 @@ export const readRegistry = (
  */
 export const evalEnergy = (s: State): number => {
   // TODO: maybe don't also compute the gradient, just to throw it away
-  return s.gradient([...s.varyingValues, s.params.weight]).primary;
+  return s.gradient.call([...s.varyingValues, s.params.weight]).primary;
 };
 
 /**
@@ -371,7 +371,10 @@ export const evalFns = (
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
   let { lastObjEnergies, lastConstrEnergies } = s.params;
   if (lastObjEnergies === null || lastConstrEnergies === null) {
-    const { secondary } = s.gradient([...s.varyingValues, s.params.weight]);
+    const { secondary } = s.gradient.call([
+      ...s.varyingValues,
+      s.params.weight,
+    ]);
     lastObjEnergies = secondary.slice(0, s.params.objMask.length);
     lastConstrEnergies = secondary.slice(s.params.objMask.length);
   }

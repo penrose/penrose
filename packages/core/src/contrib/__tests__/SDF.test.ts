@@ -57,7 +57,7 @@ const compareDistance = (
   } = f([]); // no inputs, so, empty array
   const code = stmts.join("\n");
   console.log(code); */
-  const { primary: dist, gradient } = f([p[0].val, p[1].val]);
+  const { primary: dist, gradient } = f.call([p[0].val, p[1].val]);
   //TODO: debug gradient for ellipse
   // the commented code in the next three lines is useful for debugging
   // gradients

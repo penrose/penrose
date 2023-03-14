@@ -246,7 +246,7 @@ describe("Run individual functions", () => {
       // console.log("# objectives", stateEvaled.objFns.length);
       // console.log("# constraints", stateEvaled.constrFns.length);
 
-      const initialEnergies = stateEvaled.gradient([
+      const initialEnergies = stateEvaled.gradient.call([
         ...stateEvaled.varyingValues,
         stateEvaled.params.weight,
       ]);
