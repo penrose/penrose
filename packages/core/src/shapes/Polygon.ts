@@ -1,5 +1,5 @@
 import * as ad from "../types/ad";
-import { Fill, Named, Poly, Scale, Shape, Stroke } from "../types/shapes";
+import { Fill, Named, Poly, Scale, ShapeCommon, Stroke } from "../types/shapes";
 import { boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
 import { Canvas, Context, sampleColor } from "./Samplers";
 
@@ -30,7 +30,9 @@ export const samplePolygon = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Polygon<T> = Shape<T> & { shapeType: "Polygon" } & PolygonProps<T>;
+export type Polygon<T> = ShapeCommon<T> & {
+  shapeType: "Polygon";
+} & PolygonProps<T>;
 
 export const makePolygon = (
   context: Context,

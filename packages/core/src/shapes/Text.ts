@@ -5,7 +5,7 @@ import {
   Named,
   Rect,
   Rotate,
-  Shape,
+  ShapeCommon,
   String,
   Stroke,
 } from "../types/shapes";
@@ -100,7 +100,7 @@ export const sampleText = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Text<T> = Shape<T> & { shapeType: "Text" } & TextProps<T>;
+export type Text<T> = ShapeCommon<T> & { shapeType: "Text" } & TextProps<T>;
 
 export const makeText = (
   context: Context,

@@ -61,7 +61,7 @@ export interface String<T> {
   fontSize: StrV;
 }
 
-export interface Shape<T> {
+export interface ShapeCommon<T> {
   shapeType: string;
   passthrough: Map<string, CanPassthrough<T>>;
 }

@@ -5,7 +5,7 @@ import {
   Named,
   Rect,
   Rotate,
-  Shape,
+  ShapeCommon,
   String,
 } from "../types/shapes";
 import { black, boolV, floatV, strV, vectorV } from "../utils/Util";
@@ -54,7 +54,7 @@ export const sampleEquation = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Equation<T> = Shape<T> & {
+export type Equation<T> = ShapeCommon<T> & {
   shapeType: "Equation";
 } & EquationProps<T>;
 

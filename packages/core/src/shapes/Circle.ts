@@ -1,5 +1,5 @@
 import * as ad from "../types/ad";
-import { Center, Fill, Named, Shape, Stroke } from "../types/shapes";
+import { Center, Fill, Named, ShapeCommon, Stroke } from "../types/shapes";
 import { FloatV } from "../types/value";
 import { boolV, floatV, noPaint, strV } from "../utils/Util";
 import {
@@ -36,7 +36,9 @@ export const sampleCircle = (
   };
 };
 
-export type Circle<T> = Shape<T> & { shapeType: "Circle" } & CircleProps<T>;
+export type Circle<T> = ShapeCommon<T> & {
+  shapeType: "Circle";
+} & CircleProps<T>;
 
 export const makeCircle = (
   context: Context,

@@ -1,5 +1,5 @@
 import * as ad from "../types/ad";
-import { Center, Fill, Named, Shape, Stroke } from "../types/shapes";
+import { Center, Fill, Named, ShapeCommon, Stroke } from "../types/shapes";
 import { FloatV } from "../types/value";
 import { boolV, floatV, noPaint, strV } from "../utils/Util";
 import {
@@ -37,7 +37,9 @@ export const sampleEllipse = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Ellipse<T> = Shape<T> & { shapeType: "Ellipse" } & EllipseProps<T>;
+export type Ellipse<T> = ShapeCommon<T> & {
+  shapeType: "Ellipse";
+} & EllipseProps<T>;
 
 export const makeEllipse = (
   context: Context,

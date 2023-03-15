@@ -1,5 +1,5 @@
 import * as ad from "../types/ad";
-import { Arrow, Fill, Named, Shape, Stroke } from "../types/shapes";
+import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes";
 import { PathDataV } from "../types/value";
 import { boolV, floatV, noPaint, pathDataV, strV } from "../utils/Util";
 import { Canvas, Context, sampleColor } from "./Samplers";
@@ -28,7 +28,7 @@ export const samplePath = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Path<T> = Shape<T> & { shapeType: "Path" } & PathProps<T>;
+export type Path<T> = ShapeCommon<T> & { shapeType: "Path" } & PathProps<T>;
 
 export const makePath = (
   context: Context,

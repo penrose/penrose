@@ -1,5 +1,5 @@
 import * as ad from "../types/ad";
-import { Arrow, Named, Shape, Stroke } from "../types/shapes";
+import { Arrow, Named, ShapeCommon, Stroke } from "../types/shapes";
 import { StrV, VectorV } from "../types/value";
 import { boolV, floatV, strV } from "../utils/Util";
 import { Canvas, Context, sampleColor, sampleVector } from "./Samplers";
@@ -31,7 +31,7 @@ export const sampleLine = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Line<T> = Shape<T> & { shapeType: "Line" } & LineProps<T>;
+export type Line<T> = ShapeCommon<T> & { shapeType: "Line" } & LineProps<T>;
 
 export const makeLine = (
   context: Context,

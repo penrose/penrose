@@ -6,7 +6,7 @@ import {
   Named,
   Rect,
   Rotate,
-  Shape,
+  ShapeCommon,
   Stroke,
 } from "../types/shapes";
 import { boolV, floatV, noPaint, strV } from "../utils/Util";
@@ -47,7 +47,7 @@ export const sampleRectangle = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Rectangle<T> = Shape<T> & {
+export type Rectangle<T> = ShapeCommon<T> & {
   shapeType: "Rectangle";
 } & RectangleProps<T>;
 

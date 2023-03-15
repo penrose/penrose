@@ -1,5 +1,5 @@
 import * as ad from "../types/ad";
-import { Named, Shape } from "../types/shapes";
+import { Named, ShapeCommon } from "../types/shapes";
 import { ShapeListV } from "../types/value";
 import { boolV, shapeListV, strV } from "../utils/Util";
 import { Canvas, Context } from "./Samplers";
@@ -20,4 +20,4 @@ export const sampleGroup = (
   };
 };
 
-export type Group<T> = Shape<T> & { shapeType: "Group" } & GroupProps<T>;
+export type Group<T> = ShapeCommon<T> & { shapeType: "Group" } & GroupProps<T>;

@@ -1,5 +1,5 @@
 import * as ad from "../types/ad";
-import { Center, Named, Rect, Rotate, Shape } from "../types/shapes";
+import { Center, Named, Rect, Rotate, ShapeCommon } from "../types/shapes";
 import { StrV } from "../types/value";
 import { boolV, floatV, strV } from "../utils/Util";
 import {
@@ -31,7 +31,7 @@ export const sampleImage = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Image<T> = Shape<T> & { shapeType: "Image" } & ImageProps<T>;
+export type Image<T> = ShapeCommon<T> & { shapeType: "Image" } & ImageProps<T>;
 
 export const makeImage = (
   context: Context,

@@ -1,5 +1,5 @@
 import * as ad from "../types/ad";
-import { Fill, Named, Poly, Scale, Shape, Stroke } from "../types/shapes";
+import { Fill, Named, Poly, Scale, ShapeCommon, Stroke } from "../types/shapes";
 import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
 import { Canvas, Context } from "./Samplers";
 
@@ -30,7 +30,7 @@ export const samplePolyline = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Polyline<T> = Shape<T> & {
+export type Polyline<T> = ShapeCommon<T> & {
   shapeType: "Polyline";
 } & PolylineProps<T>;
 
