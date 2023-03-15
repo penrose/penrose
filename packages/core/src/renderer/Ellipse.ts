@@ -29,7 +29,7 @@ const RenderEllipse = (
   elem.setAttribute("rx", shape.rx.contents.toString());
   attrToNotAutoMap.push("rx");
 
-  elem.setAttribute("ry", shape.rx.contents.toString());
+  elem.setAttribute("ry", shape.ry.contents.toString());
   attrToNotAutoMap.push("ry");
 
   // Directly Map across any "unknown" SVG properties
