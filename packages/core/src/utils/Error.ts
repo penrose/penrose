@@ -40,7 +40,7 @@ import {
 import { State } from "../types/state";
 import { BindingForm, ColorLit } from "../types/style";
 import { Deconstructor, SubExpr } from "../types/substance";
-import { ShapeVal, Val } from "../types/value";
+import { ShapeVal, Val, Value } from "../types/value";
 import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
@@ -639,11 +639,15 @@ export const invalidColorLiteral = (
 
 export const badShapeParamTypeError = (
   path: string,
-  value: Val<ad.Num> | ShapeVal<ad.Num>
+  value: Val<ad.Num> | ShapeVal<ad.Num>,
+  expectedType: Value<ad.Num>["tag"],
+  passthrough: boolean
 ): BadShapeParamTypeError => ({
   tag: "BadShapeParamTypeError",
   path,
   value,
+  expectedType,
+  passthrough,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

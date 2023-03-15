@@ -120,6 +120,7 @@ import {
 import {
   all,
   andThen,
+  badShapeParamTypeError,
   err,
   invalidColorLiteral,
   isErr,
@@ -140,6 +141,7 @@ import {
 } from "../utils/GroupGraph";
 import Heap from "../utils/Heap";
 import { checkShape } from "../utils/shapeChecker/CheckShape";
+import { checkStrV } from "../utils/shapeChecker/CheckValues";
 import {
   boolV,
   cartesianProduct,
@@ -3563,6 +3565,33 @@ export const stageConstraints = (
     ])
   );
 
+const processPassthrough = (
+  { symbols }: Translation,
+  nameShapeMap: Map<string, Shape<ad.Num>>
+): Result<void, StyleError> => {
+  for (const [key, value] of symbols) {
+    const i = key.lastIndexOf(".");
+    if (i === -1) continue;
+    const shapeName = key.slice(0, i);
+    const propName = key.slice(i + 1);
+    const shape = nameShapeMap.get(shapeName);
+    if (shape) {
+      if (propName in Object.keys(shape)) continue;
+      if (value.tag === "Val") {
+        const checkedStrV = checkStrV(key, value.contents);
+        if (checkedStrV.isErr()) {
+          return err({ ...checkedStrV.error, passthrough: true });
+        } else {
+          shape.passthrough.set(propName, checkedStrV.value.contents);
+        }
+      } else {
+        return err(badShapeParamTypeError(key, value, "StrV", true));
+      }
+    }
+  }
+  return ok(undefined);
+};
+
 export const compileStyleHelper = async (
   variation: string,
   stySource: string,
@@ -3670,6 +3699,12 @@ export const compileStyleHelper = async (
   for (const shape of shapes) {
     const shapeName = getAdValueAsString(shape.name);
     nameShapeMap.set(shapeName, shape);
+  }
+
+  // fill in passthrough properties
+  const passthroughResult = processPassthrough(translation, nameShapeMap);
+  if (passthroughResult.isErr()) {
+    return err({ errorType: "StyleError", ...passthroughResult.error });
   }
 
   const renderGraph = buildRenderGraph(

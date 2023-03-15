@@ -6,11 +6,12 @@ import {
   makeCanvas,
   prepareState,
   RenderStatic,
-  shapedefs,
+  shapeTypes,
   showError,
   simpleContext,
   stepUntilConvergence,
 } from "@penrose/core";
+import { shapeSampler } from "@penrose/core/dist/shapes/Shapes";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";
@@ -336,13 +337,12 @@ const getShapeDefs = (outFile?: string): void => {
   const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
 
   // Loop over the shapes
-  for (const shapeName in shapedefs) {
-    const thisShapeDef = shapedefs[shapeName];
-    const shapeSample1 = thisShapeDef.sampler(
+  for (const shapeName of shapeTypes) {
+    const shapeSample1 = shapeSampler[shapeName](
       simpleContext("ShapeProps sample 1"),
       makeCanvas(size, size)
     );
-    const shapeSample2 = thisShapeDef.sampler(
+    const shapeSample2 = shapeSampler[shapeName](
       simpleContext("ShapeProps sample 2"),
       makeCanvas(size, size)
     );
