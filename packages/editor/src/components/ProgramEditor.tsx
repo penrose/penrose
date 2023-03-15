@@ -8,7 +8,7 @@ import {
   settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms";
-import { useCompileDiagram } from "../state/callbacks";
+import { useCompileDiagram, useResampleDiagram } from "../state/callbacks";
 export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const [programState, setProgramState] = useRecoilState(
     fileContentsSelector(kind)
@@ -16,6 +16,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const domainCache = useRecoilValue(domainCacheState);
   const compileDiagram = useCompileDiagram();
+  const resampleDiagram = useResampleDiagram();
   const settings = useRecoilValueLoadable(settingsState);
   const onChange = useCallback(
     (v: string) => {
@@ -26,15 +27,21 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;
   }
+
+  const penroseCalls = {
+    onWrite: compileDiagram,
+    onChange: onChange,
+    resampleDiagram: resampleDiagram,
+  };
+
   return (
     <EditorPane
       value={programState.contents}
       vimMode={settings.contents.vimMode}
       languageType={kind}
       domainCache={domainCache}
-      onChange={onChange}
       readOnly={workspaceMetadata.location.kind === "roger"}
-      onWrite={compileDiagram}
+      penroseCalls={penroseCalls}
     />
   );
 }

@@ -20,32 +20,42 @@ const monacoOptions = (
   cursorStyle: vimMode ? "block" : "line",
 });
 
+interface PenroseCalls {
+  /// In vim mode, this is called when the user calls :w
+  onWrite?: () => void;
+  onChange(value: string): void;
+  resampleDiagram: () => Promise<void>;
+}
+
 export default function EditorPane({
   value,
-  onChange,
   vimMode,
   languageType,
   domainCache,
   readOnly,
-  onWrite,
+  penroseCalls,
 }: {
   value: string;
   vimMode: boolean;
-  onChange(value: string): void;
   languageType: "substance" | "style" | "domain";
   domainCache: Env | null;
   readOnly?: boolean;
-  /// In vim mode, this is called when the user calls :w
-  onWrite?: () => void;
+  penroseCalls: PenroseCalls;
 }) {
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
+  const onWrite = penroseCalls.onWrite;
 
   if (monaco !== null && onWrite !== undefined) {
     editorRef.current?.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
       onWrite
+    );
+
+    editorRef.current?.addCommand(
+      monaco.KeyMod.Shift | monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+      penroseCalls.resampleDiagram
     );
   }
 
@@ -89,7 +99,7 @@ export default function EditorPane({
       <MonacoEditor
         width="100%"
         value={value}
-        onChange={(v) => onChange(v ?? "")}
+        onChange={(v) => penroseCalls.onChange(v ?? "")}
         defaultLanguage={languageType}
         // HACK
         options={{ ...(monacoOptions(vimMode) as any), readOnly }}
