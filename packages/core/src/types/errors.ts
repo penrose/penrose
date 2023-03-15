@@ -451,7 +451,7 @@ export interface BadShapeParamTypeError {
   tag: "BadShapeParamTypeError";
   path: string;
   value: Val<ad.Num> | ShapeVal<ad.Num>;
-  expectedType: Value<ad.Num>["tag"];
+  expectedType: string;
   passthrough: boolean;
 }
 

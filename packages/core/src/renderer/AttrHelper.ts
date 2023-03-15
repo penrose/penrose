@@ -67,24 +67,30 @@ export const attrAutoFillSvg = (
   // an existing value in `style` and append to it if true.
 
   for (const [propKey, propVal] of shape.passthrough) {
-    if (propVal === "" || attrToNotAutoMap.has(propKey)) continue;
+    if (
+      (propVal.tag === "StrV" && propVal.contents === "") ||
+      attrToNotAutoMap.has(propKey)
+    )
+      continue;
 
     if (propKey in attrMapSvg) {
       const mappedPropKey: string = attrMapSvg[propKey];
       if (!elem.hasAttribute(mappedPropKey)) {
-        elem.setAttribute(mappedPropKey, propVal);
+        elem.setAttribute(mappedPropKey, propVal.contents.toString());
       } else if (propKey === "style") {
         const style = elem.getAttribute(propKey);
         if (style === null) {
-          elem.setAttribute(propKey, propVal);
+          elem.setAttribute(propKey, propVal.contents.toString());
         } else {
-          elem.setAttribute(propKey, `${style}${propVal}`);
+          elem.setAttribute(propKey, `${style}${propVal.contents.toString()}`);
         }
       } else {
         if (!elem.hasAttribute(propKey)) {
-          elem.setAttribute(propKey, propVal);
+          elem.setAttribute(propKey, propVal.contents.toString());
         }
       }
+    } else {
+      elem.setAttribute(propKey, propVal.contents.toString());
     }
   }
 };

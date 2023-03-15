@@ -26,6 +26,7 @@ import {
 import { StyleError } from "../types/errors";
 import {
   Arrow,
+  CanPassthrough,
   Center,
   Corner,
   Fill,
@@ -227,6 +228,7 @@ const mapCircle = <T, S>(f: (arg: T) => S, v: Circle<T>): Circle<S> => {
     ...mapFill(f, v),
     ...mapCenter(f, v),
     r: mapFloat(f, v.r),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -239,6 +241,7 @@ const mapEllipse = <T, S>(f: (arg: T) => S, v: Ellipse<T>): Ellipse<S> => {
     ...mapCenter(f, v),
     rx: mapFloat(f, v.rx),
     ry: mapFloat(f, v.ry),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -251,6 +254,7 @@ const mapEquation = <T, S>(f: (arg: T) => S, v: Equation<T>): Equation<S> => {
     ...mapRect(f, v),
     ...mapRotate(f, v),
     ...mapString(f, v),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -259,6 +263,7 @@ const mapGroup = <T, S>(f: (arg: T) => S, v: Group<T>): Group<S> => {
     ...v,
     ...mapNamed(f, v),
     shapes: mapShapeList(f, v.shapes),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -270,6 +275,7 @@ const mapImage = <T, S>(f: (arg: T) => S, v: Image<T>): Image<S> => {
     ...mapRect(f, v),
     ...mapRotate(f, v),
     href: v.href,
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -282,6 +288,7 @@ const mapLine = <T, S>(f: (arg: T) => S, v: Line<T>): Line<S> => {
     start: mapVector(f, v.start),
     end: mapVector(f, v.end),
     strokeLinecap: v.strokeLinecap,
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -293,6 +300,7 @@ const mapPath = <T, S>(f: (arg: T) => S, v: PathShape<T>): PathShape<S> => {
     ...mapFill(f, v),
     ...mapArrow(f, v),
     d: mapPathData(f, v.d),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -304,6 +312,7 @@ const mapPolygon = <T, S>(f: (arg: T) => S, v: Polygon<T>): Polygon<S> => {
     ...mapFill(f, v),
     ...mapScale(f, v),
     ...mapPoly(f, v),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -315,6 +324,7 @@ const mapPolyline = <T, S>(f: (arg: T) => S, v: Polyline<T>): Polyline<S> => {
     ...mapFill(f, v),
     ...mapScale(f, v),
     ...mapPoly(f, v),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -331,6 +341,7 @@ const mapRectangle = <T, S>(
     ...mapRotate(f, v),
     ...mapRect(f, v),
     ...mapCorner(f, v),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
 };
 
@@ -346,7 +357,23 @@ const mapText = <T, S>(f: (arg: T) => S, v: Text<T>): Text<S> => {
     ...mapString(f, v),
     ascent: mapFloat(f, v.ascent),
     descent: mapFloat(f, v.descent),
+    passthrough: mapPassthrough(f, v.passthrough),
   };
+};
+
+const mapPassthrough = <T, S>(
+  f: (arg: T) => S,
+  v: Map<string, CanPassthrough<T>>
+): Map<string, CanPassthrough<S>> => {
+  const vMapped = new Map<string, CanPassthrough<S>>();
+  for (const [key, value] of v.entries()) {
+    if (value.tag === "StrV") {
+      vMapped.set(key, value);
+    } else {
+      vMapped.set(key, mapFloat(f, value));
+    }
+  }
+  return vMapped;
 };
 
 const mapNamed = <T, S>(f: (arg: T) => S, v: Named<T>): Named<S> => {
@@ -447,8 +474,14 @@ export const compileCompGraph = async (
   const vars = [];
   for (const s of shapes) {
     for (const k of Object.keys(s)) {
-      // remove shapeType and passthrough
-      if (k !== "shapeType" && k !== "passthrough") {
+      // remove shapeType
+      if (k === "shapeType") continue;
+      // get all values from passthrough
+      else if (k === "passthrough") {
+        for (const ptVal of s.passthrough.values()) {
+          vars.push(...valueADNums(ptVal));
+        }
+      } else {
         vars.push(...valueADNums(s[k]));
       }
     }
@@ -485,8 +518,14 @@ const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
       const shapes = v.contents;
       for (const s of shapes) {
         for (const k of Object.keys(s)) {
-          // remove shapeType and passthrough
-          if (k !== "shapeType" && k !== "passthrough") {
+          // remove shapeType
+          if (k === "shapeType") continue;
+          // get all values from passthrough
+          else if (k === "passthrough") {
+            for (const ptVal of s.passthrough.values()) {
+              vars.push(...valueADNums(ptVal));
+            }
+          } else {
             vars.push(...valueADNums(s[k]));
           }
         }

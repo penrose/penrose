@@ -63,7 +63,9 @@ export interface String<T> {
 
 export interface Shape<T> {
   shapeType: string;
-  passthrough: Map<string, string>;
+  passthrough: Map<string, CanPassthrough<T>>;
 }
+
+export type CanPassthrough<T> = StrV | FloatV<T>;
 
 //#endregion

@@ -141,7 +141,6 @@ import {
 } from "../utils/GroupGraph";
 import Heap from "../utils/Heap";
 import { checkShape } from "../utils/shapeChecker/CheckShape";
-import { checkStrV } from "../utils/shapeChecker/CheckValues";
 import {
   boolV,
   cartesianProduct,
@@ -3578,14 +3577,15 @@ const processPassthrough = (
     if (shape) {
       if (Object.keys(shape).includes(propName)) continue;
       if (value.tag === "Val") {
-        const checkedStrV = checkStrV(key, value.contents);
-        if (checkedStrV.isErr()) {
-          return err({ ...checkedStrV.error, passthrough: true });
+        if (value.contents.tag === "FloatV" || value.contents.tag === "StrV") {
+          shape.passthrough.set(propName, value.contents);
         } else {
-          shape.passthrough.set(propName, checkedStrV.value.contents);
+          return err(
+            badShapeParamTypeError(key, value, "StrV or FloatV", true)
+          );
         }
       } else {
-        return err(badShapeParamTypeError(key, value, "StrV", true));
+        return err(badShapeParamTypeError(key, value, "StrV or FloatV", true));
       }
     }
   }
