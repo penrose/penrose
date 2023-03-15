@@ -50,6 +50,22 @@ const RenderText = (
     elem.setAttribute("y", y.toString());
   }
 
+  elem.setAttribute("font-size-adjust", shape.fontSizeAdjust.contents);
+  elem.setAttribute("alignment-baseline", shape.alignmentBaseline.contents);
+  elem.setAttribute("dominant-baseline", shape.dominantBaseline.contents);
+  elem.setAttribute("ascent", shape.ascent.contents.toString());
+  elem.setAttribute("descent", shape.descent.contents.toString());
+  elem.setAttribute("text-anchor", shape.textAnchor.contents.toString());
+  elem.setAttribute("visibility", shape.visibility.contents);
+  attrToNotAutoMap.push(
+    "fontSizeAdjust",
+    "alignmentBaseline",
+    "dominantBaseline",
+    "ascent",
+    "descent",
+    "textAnchor",
+    "visibility"
+  );
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 

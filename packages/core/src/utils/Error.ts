@@ -429,11 +429,16 @@ canvas {
     }
 
     case "BadShapeParamTypeError": {
-      if (error.value.tag === "Val") {
-        return `Shape property ${error.path} does not accept type ${error.value.contents.tag}.`;
-      } else {
-        return `Shape property ${error.path} does not accept shape type ${error.value.contents.shapeType} as a value`;
-      }
+      const expectedType = error.expectedType;
+      const expectedClause = `expects type ${expectedType}`;
+      const doesNotAcceptClause =
+        error.value.tag === "Val"
+          ? `does not accept type ${error.value.contents.tag}`
+          : `does not accept shape ${error.value.contents.shapeType}`;
+      const propertyClause = error.passthrough
+        ? "Passthrough shape property"
+        : "Shape property";
+      return `${propertyClause} ${expectedClause} and ${doesNotAcceptClause}.`;
     }
 
     // --- END COMPILATION ERRORS

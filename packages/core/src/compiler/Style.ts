@@ -3576,7 +3576,7 @@ const processPassthrough = (
     const propName = key.slice(i + 1);
     const shape = nameShapeMap.get(shapeName);
     if (shape) {
-      if (propName in Object.keys(shape)) continue;
+      if (Object.keys(shape).includes(propName)) continue;
       if (value.tag === "Val") {
         const checkedStrV = checkStrV(key, value.contents);
         if (checkedStrV.isErr()) {
