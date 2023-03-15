@@ -140,7 +140,7 @@ const RenderLine = (
   const thickness = shape.strokeWidth.contents;
   const opacity = toSvgOpacityProperty(shape.strokeColor.contents);
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  
+
   // an unique id for this instance is determined by the variation and namespace
   const unique = `${namespace}-${variation}-${shape.name.contents}`;
   const startArrowId = unique + "-startArrowId";
