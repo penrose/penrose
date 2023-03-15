@@ -3678,7 +3678,7 @@ export const compileStyleHelper = async (
   // fill in passthrough properties
   const passthroughResult = processPassthrough(translation, nameShapeMap);
   if (passthroughResult.isErr()) {
-    return err({ errorType: "StyleError", ...passthroughResult.error });
+    return err(toStyleErrors([passthroughResult.error]));
   }
 
   const renderGraph = buildRenderGraph(

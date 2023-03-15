@@ -1,4 +1,5 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
+import * as im from "immutable";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
@@ -957,6 +958,18 @@ delete x.z.p }`,
         `forall Set a; Set b
         where IsSubset(a, b) as IsSubset {}`,
       ],
+      BadShapeParamTypeError: [
+        `forall Set a {
+          a.sh = Circle {
+            r: "a string"
+          }
+        }`,
+        `forall Set a {
+          a.sh = Circle {
+            ptProp: (1, 2, 3)
+          }
+        }`,
+      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {
@@ -1059,24 +1072,27 @@ delete x.z.p }`,
       expect(state.shapes.length).toEqual(1);
     });
   });
-
-  /*
   describe("match metadata", () => {
     test("match total", async () => {
       const dsl = "type MyType\n";
       const sty =
         canvasPreamble +
         `forall MyType t {
-  t.shape = Text {
-    string: match_total
+  t.shape = Circle {
+    ptProp: match_total
   }
 }`;
       const sub = "MyType t1, t2, t3\n";
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(
         state.shapes.every((shape) => {
-          const val = (shape as Text<ad.Num>).string;
-          return val.tag === "StrV" && val.contents === "3";
+          const val = shape.passthrough.get("ptProp");
+          if (val && val.tag === "FloatV") {
+            const v = val.contents;
+            return v === 3;
+          } else {
+            return false;
+          }
         })
       ).toEqual(true);
     });
@@ -1086,8 +1102,8 @@ delete x.z.p }`,
       const sty =
         canvasPreamble +
         `forall MyType t {
-  t.shape = Text {
-    string: match_id
+  t.shape = Circle {
+    ptProp: match_id
   }
 }`;
       const sub = "MyType t1, t2, t3\n";
@@ -1098,18 +1114,17 @@ delete x.z.p }`,
       expect(
         im.Set(
           state.shapes.map((shape) => {
-            const val = (shape as Text<ad.Num>).string;
-            if (val.tag === "StrV") {
-              return val.contents;
+            const v = shape.passthrough.get("ptProp");
+            if (v && v.tag === "FloatV") {
+              return v.contents;
             } else {
-              throw Error("Should be a string");
+              throw Error("Should be a FloatV");
             }
           })
         )
-      ).toEqual(im.Set(["1", "2", "3"]));
+      ).toEqual(im.Set([1, 2, 3]));
     });
   });
-*/
   describe("group shapes", () => {
     test("simple group", async () => {
       const dsl = "type T\n";
