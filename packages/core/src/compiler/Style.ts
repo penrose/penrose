@@ -3457,32 +3457,6 @@ const getShapesList = (
   { symbols }: Translation,
   shapeOrdering: string[]
 ): Shape<ad.Num>[] => {
-  // const props = new Map<string, Shape<ad.Num>>();
-  // for (const [path, argVal] of symbols) {
-  //   const i = path.lastIndexOf(".");
-  //   const start = path.slice(0, i);
-  //   if (graph.hasNode(start)) {
-  //     const shapeType = graph.node(start);
-  //     if (typeof shapeType === "string") {
-  //       if (argVal.tag !== "Val") {
-  //         throw internalMissingPathError(path);
-  //       }
-  //       const shape = props.get(start) ?? { shapeType, properties: {} };
-  //       shape.properties[path.slice(i + 1)] = argVal.contents;
-  //       props.set(start, shape);
-  //     }
-  //   }
-  // }
-  //
-  // return shapeOrdering.map((path) => {
-  //   const shape = props.get(path);
-  //   if (shape === undefined) {
-  //     throw internalMissingPathError(path);
-  //   }
-  //   shape.properties.name = strV(path);
-  //   return shape;
-  // });
-
   return shapeOrdering.map((path) => {
     const shape = symbols.get(path);
     if (!shape || shape.tag !== "ShapeVal") {
