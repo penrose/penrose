@@ -1,7 +1,9 @@
 import { Shape as RealShape } from "../shapes/Shapes";
 
 /**
- * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`GPI`) or a value (`Val`).
+ * The input parameters to computations/objectives/constraints in Style.
+ * It can be either an entire shape (wrapped in `ShapeVal`)
+ * or a value (wrapped in `Val`).
  */
 export type ArgVal<T> = ShapeVal<T> | Val<T>;
 

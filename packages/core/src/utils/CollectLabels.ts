@@ -143,8 +143,8 @@ const equationData = (
 });
 
 /**
- * Get the CSS string for the font setting of a `Text` GPI.
- * @param shape A text GPI
+ * Get the CSS string for the font setting of a `Text` shape.
+ * @param shape A text shape
  *
  * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
  *

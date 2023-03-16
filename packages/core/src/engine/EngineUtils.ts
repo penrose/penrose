@@ -214,8 +214,8 @@ function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
 function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
   return {
     tag: "ShapeListV",
-    contents: v.contents.map((gpi) => {
-      return mapShape(f, gpi);
+    contents: v.contents.map((shape) => {
+      return mapShape(f, shape);
     }),
   };
 }

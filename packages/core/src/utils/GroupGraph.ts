@@ -19,8 +19,8 @@ export const makeGroupGraph = (shapes: Shape<ad.Num>[]): GroupGraph => {
   // then populate the edges
   for (const [name, shape] of nameShapeMap.entries()) {
     if (shape.shapeType === "Group") {
-      const subGPIs = getValueAsShapeList(shape.shapes);
-      const subNames = subGPIs.map((subShape) => {
+      const subShapes = getValueAsShapeList(shape.shapes);
+      const subNames = subShapes.map((subShape) => {
         return getAdValueAsString(subShape.name);
       });
 
@@ -80,7 +80,6 @@ export const buildRenderGraphNode = (
   }
 
   // If shape is group, recursively handle all the sub-shapes.
-  // And convert GPIListV to ShapeListV.
 
   const subShapes = getValueAsShapeList(shape.shapes);
   const childrenNames = subShapes.map((subShape) =>
