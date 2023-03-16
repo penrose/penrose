@@ -204,6 +204,10 @@ export default defineConfig({
                   link: "/docs/ref/style/usage",
                 },
                 {
+                  text: "Value Types",
+                  link: "/docs/ref/style/value-types",
+                },
+                {
                   text: "Shapes",
                   link: "/docs/ref/style/shapes-overview",
                   items: [
