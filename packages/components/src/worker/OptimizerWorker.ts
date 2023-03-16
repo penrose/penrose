@@ -45,10 +45,12 @@ export default class OptimizerWorker {
 
     const sab = new SharedArrayBuffer(2);
     this.sharedMemory = new Int8Array(sab);
+
     console.log("requesting init");
-    this.request({
+    this.worker.postMessage({
       tag: "Init",
       sharedMemory: sab,
+      canvas: document.createElement("canvas").transferControlToOffscreen(),
     });
     console.log("wo");
   }

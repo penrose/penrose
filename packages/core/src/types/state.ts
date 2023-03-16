@@ -40,6 +40,22 @@ export interface State extends OptState {
   computeShapes: ShapeFn;
 }
 
+export interface OptimizerState extends OptState {
+  warnings: StyleWarning[];
+  variation: string;
+  constraintSets: StagedConstraints;
+  objFns: Fn[];
+  constrFns: Fn[];
+  inputs: InputMeta[]; // same length as `varyingValues`
+  labelCache: LabelCache;
+  shapes: ShapeAD[];
+  canvas: Canvas;
+  gradient: Gradient;
+  currentStageIndex: number;
+  optStages: string[];
+  computeShapes: string;
+}
+
 /**
  * Output of label generation.
  */

@@ -1,4 +1,4 @@
-import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
+import { liteAdaptor } from "mathjax-full/js/adaptors/liteAdaptor";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
@@ -14,28 +14,6 @@ import { FloatV } from "../types/value";
 import { err, ok, Result } from "./Error";
 import { getAdValueAsString, getValueAsShapeList } from "./Util";
 
-// https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-// const adaptor = chooseAdaptor();
-const adaptor = browserAdaptor();
-RegisterHTMLHandler(adaptor);
-const tex = new TeX({
-  packages: AllPackages,
-  macros: {
-    textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
-  },
-  inlineMath: [
-    ["$", "$"],
-    ["\\(", "\\)"],
-  ],
-  processEscapes: true,
-  // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
-  formatError: (jax: unknown, err: Error) => {
-    throw Error(err.message);
-  },
-});
-const svg = new SVG({ fontCache: "none" });
-const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
-
 // to re-scale baseline
 const EX_CONSTANT = 10;
 
@@ -43,6 +21,27 @@ const convert = (
   input: string,
   fontSize: string
 ): Result<HTMLElement, string> => {
+  // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
+  // const adaptor = chooseAdaptor();
+  const adaptor = liteAdaptor(); // Used so Mathjax works in worker
+  RegisterHTMLHandler(adaptor);
+  const tex = new TeX({
+    packages: AllPackages,
+    macros: {
+      textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
+    },
+    inlineMath: [
+      ["$", "$"],
+      ["\\(", "\\)"],
+    ],
+    processEscapes: true,
+    // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
+    formatError: (jax: unknown, err: Error) => {
+      throw Error(err.message);
+    },
+  });
+  const svg = new SVG({ fontCache: "none" });
+  const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
   // HACK: workaround for newlines
   // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
   const newline_escaped = `\\displaylines{${input}}`;
@@ -175,7 +174,8 @@ export const toFontRule = ({ properties }: ShapeAD): string => {
 
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
-  allShapes: ShapeAD[]
+  allShapes: ShapeAD[],
+  canvas: OffscreenCanvas,
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
@@ -208,7 +208,8 @@ export const collectLabels = async (
       // Use canvas to measure text data
       const measure: TextMeasurement = measureText(
         getAdValueAsString(properties.string),
-        toFontRule(s)
+        toFontRule(s),
+        canvas
       );
 
       // If the width and height are defined, the renderer will render the text. `actualDescent` is currently not used in rendering.
@@ -225,7 +226,7 @@ export const collectLabels = async (
       labels.set(shapeName, label);
     } else if (shapeType === "Group") {
       const subShapes = getValueAsShapeList(properties["shapes"]);
-      const subLabels = await collectLabels(subShapes);
+      const subLabels = await collectLabels(subShapes, canvas);
       if (subLabels.isErr()) {
         return subLabels;
       }
@@ -245,9 +246,6 @@ export type TextMeasurement = {
   actualAscent: number;
 };
 
-const measureTextElement = document.createElement("canvas");
-const measureTextContext = measureTextElement.getContext("2d")!;
-
 /**
  *
  * @param text the content of the text
@@ -256,7 +254,9 @@ const measureTextContext = measureTextElement.getContext("2d")!;
  * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
  * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
  */
-export function measureText(text: string, font: string): TextMeasurement {
+export function measureText(text: string, font: string, canvas: OffscreenCanvas): TextMeasurement {
+  // TODO: Shouldn't need to cast, submit Typescript issue
+  const measureTextContext = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
   measureTextContext.textBaseline = "alphabetic";
   measureTextContext.font = font;
   const measurements = measureTextContext.measureText(text);

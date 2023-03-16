@@ -7,6 +7,7 @@ export type Req = Init | Compile;
 export type Init = {
   tag: "Init";
   sharedMemory: SharedArrayBuffer;
+  offscreenCanvas: OffscreenCanvas;
 };
 
 export type Compile = {

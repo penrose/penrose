@@ -269,9 +269,13 @@ export const compileTrio = async (prog: {
  * Collect labels and images (if applicable).
  * @param state an initial diagram state
  */
-export const prepareState = async (state: State): Promise<State> => {
+export const prepareState = async (
+  state: State, 
+  canvas: OffscreenCanvas = document.createElement("canvas").transferControlToOffscreen()
+): Promise<State> => {
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
-    state.shapes
+    state.shapes,
+    canvas
   );
 
   if (labelCache.isErr()) {
@@ -385,6 +389,7 @@ export const evalFns = (
 };
 
 export type PenroseState = State;
+export type { OptimizerState } from "./types/state";
 export type PenroseFn = Fn;
 
 export type { SubStmtKind } from "./analysis/SubstanceAnalysis";
