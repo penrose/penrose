@@ -1,0 +1,28 @@
+Vertex a, b, c, d, e, f, g, h, i, j
+
+Edge(a, b)
+Edge(a, e)
+Edge(a, f)
+Edge(b, c)
+Edge(b, g)
+Edge(c, d)
+Edge(c, h)
+Edge(c, e)
+Edge(d, i)
+Edge(e, j)
+Edge(f, h)
+Edge(f, i)
+Edge(g, i)
+Edge(g, j)
+Edge(h, j)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"
+Label e "𝑒"
+Label f "𝑓"
+Label g "𝑔"
+Label h "ℎ"
+Label i "𝑖"
+Label j "𝑗"
