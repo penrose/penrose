@@ -134,7 +134,7 @@
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-global.xAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -155,7 +155,7 @@
       stroke-width="0.65"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-global.xAxis-endArrowId)"
     ></path>
     <title>global.xAxis</title>
   </g>
@@ -171,7 +171,7 @@
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-global.yAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -192,7 +192,7 @@
       stroke-width="0.65"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-global.yAxis-endArrowId)"
     ></path>
     <title>global.yAxis</title>
   </g>
@@ -278,7 +278,7 @@
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-`A`.row1-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -299,13 +299,13 @@
       stroke-width="1"
       stroke="#ff0000"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-`A`.row1-endArrowId)"
     ></path>
     <title>`A`.row1</title>
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-`A`.row2-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -326,7 +326,7 @@
       stroke-width="1"
       stroke="#ff0000"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-`A`.row2-endArrowId)"
     ></path>
     <title>`A`.row2</title>
   </g>
@@ -421,7 +421,7 @@
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-`u`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -442,13 +442,13 @@
       stroke-width="1"
       stroke="#00aa00"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-`u`.icon-endArrowId)"
     ></path>
     <title>`u`.icon</title>
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-`uA`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -469,7 +469,7 @@
       stroke-width="1"
       stroke="#ff6600"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-`uA`.icon-endArrowId)"
     ></path>
     <title>`uA`.icon</title>
   </g>

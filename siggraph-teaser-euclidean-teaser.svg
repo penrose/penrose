@@ -17,7 +17,7 @@
   </rect>
   <g>
     <marker
-      id="automator-StromboliCat61816-startArrowId"
+      id="automator-StromboliCat61816-`h`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.47"
       markerHeight="5.28"
@@ -38,7 +38,7 @@
       stroke-width="1.75"
       stroke="#8c90c1"
       stroke-linecap="butt"
-      marker-start="url(#automator-StromboliCat61816-startArrowId)"
+      marker-start="url(#automator-StromboliCat61816-`h`.icon-startArrowId)"
     ></path>
     <title>`h`.icon</title>
   </g>
@@ -132,7 +132,7 @@
   </g>
   <g>
     <marker
-      id="automator-StromboliCat61816-endArrowId"
+      id="automator-StromboliCat61816-`w`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.47"
       markerHeight="5.28"
@@ -153,7 +153,7 @@
       stroke-width="1.75"
       stroke="#8c90c1"
       stroke-linecap="butt"
-      marker-end="url(#automator-StromboliCat61816-endArrowId)"
+      marker-end="url(#automator-StromboliCat61816-`w`.icon-endArrowId)"
     ></path>
     <title>`w`.icon</title>
   </g>

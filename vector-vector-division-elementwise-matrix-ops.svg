@@ -134,7 +134,7 @@
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-global.xAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -155,7 +155,7 @@
       stroke-width="0.65"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-global.xAxis-endArrowId)"
     ></path>
     <title>global.xAxis</title>
   </g>
@@ -171,7 +171,7 @@
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-global.yAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -192,7 +192,7 @@
       stroke-width="0.65"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-global.yAxis-endArrowId)"
     ></path>
     <title>global.yAxis</title>
   </g>
@@ -228,7 +228,7 @@
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-`a`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -249,13 +249,13 @@
       stroke-width="1"
       stroke="#aaaaaa"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-`a`.icon-endArrowId)"
     ></path>
     <title>`a`.icon</title>
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-`u`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -276,13 +276,13 @@
       stroke-width="1"
       stroke="#00aa00"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-`u`.icon-endArrowId)"
     ></path>
     <title>`u`.icon</title>
   </g>
   <g>
     <marker
-      id="automator-DoesNotMatter-endArrowId"
+      id="automator-DoesNotMatter-`v`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -303,7 +303,7 @@
       stroke-width="1"
       stroke="#0000aa"
       stroke-linecap="butt"
-      marker-end="url(#automator-DoesNotMatter-endArrowId)"
+      marker-end="url(#automator-DoesNotMatter-`v`.icon-endArrowId)"
     ></path>
     <title>`v`.icon</title>
   </g>

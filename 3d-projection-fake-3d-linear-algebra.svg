@@ -1,7 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5">
   <g>
     <marker
-      id="automator-PurpletiniSeahorse9761-endArrowId"
+      id="automator-PurpletiniSeahorse9761-`u`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -22,7 +22,7 @@
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#automator-PurpletiniSeahorse9761-endArrowId)"
+      marker-end="url(#automator-PurpletiniSeahorse9761-`u`.shape-endArrowId)"
     ></path>
     <title>`u`.shape</title>
   </g>
@@ -38,7 +38,7 @@
   </circle>
   <g>
     <marker
-      id="automator-PurpletiniSeahorse9761-endArrowId"
+      id="automator-PurpletiniSeahorse9761-`v`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -59,7 +59,7 @@
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#automator-PurpletiniSeahorse9761-endArrowId)"
+      marker-end="url(#automator-PurpletiniSeahorse9761-`v`.shape-endArrowId)"
     ></path>
     <title>`v`.shape</title>
   </g>
@@ -77,7 +77,7 @@
   </polygon>
   <g>
     <marker
-      id="automator-PurpletiniSeahorse9761-endArrowId"
+      id="automator-PurpletiniSeahorse9761-`w`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -98,7 +98,7 @@
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#automator-PurpletiniSeahorse9761-endArrowId)"
+      marker-end="url(#automator-PurpletiniSeahorse9761-`w`.shape-endArrowId)"
     ></path>
     <title>`w`.shape</title>
   </g>

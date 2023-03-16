@@ -40,7 +40,7 @@
   </g>
   <g>
     <marker
-      id="automator--endArrowId"
+      id="automator--`u`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -62,13 +62,13 @@
       stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
       stroke-linecap="butt"
-      marker-end="url(#automator--endArrowId)"
+      marker-end="url(#automator--`u`.arrow-endArrowId)"
     ></path>
     <title>`u`.arrow</title>
   </g>
   <g style="solid">
     <marker
-      id="automator--startArrowId"
+      id="automator--`V`.xAxis-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -84,7 +84,7 @@
       ></path>
     </marker>
     <marker
-      id="automator--endArrowId"
+      id="automator--`V`.xAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -105,14 +105,14 @@
       stroke-width="1"
       stroke="#999999"
       stroke-linecap="butt"
-      marker-start="url(#automator--startArrowId)"
-      marker-end="url(#automator--endArrowId)"
+      marker-start="url(#automator--`V`.xAxis-startArrowId)"
+      marker-end="url(#automator--`V`.xAxis-endArrowId)"
     ></path>
     <title>`V`.xAxis</title>
   </g>
   <g style="solid">
     <marker
-      id="automator--startArrowId"
+      id="automator--`V`.yAxis-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -128,7 +128,7 @@
       ></path>
     </marker>
     <marker
-      id="automator--endArrowId"
+      id="automator--`V`.yAxis-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="13.93"
       markerHeight="11.37"
@@ -149,8 +149,8 @@
       stroke-width="1"
       stroke="#999999"
       stroke-linecap="butt"
-      marker-start="url(#automator--startArrowId)"
-      marker-end="url(#automator--endArrowId)"
+      marker-start="url(#automator--`V`.yAxis-startArrowId)"
+      marker-end="url(#automator--`V`.yAxis-endArrowId)"
     ></path>
     <title>`V`.yAxis</title>
   </g>
@@ -195,7 +195,7 @@
   </g>
   <g>
     <marker
-      id="automator--endArrowId"
+      id="automator--`v`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.97"
       markerHeight="5.68"
@@ -217,7 +217,7 @@
       stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
       stroke-linecap="butt"
-      marker-end="url(#automator--endArrowId)"
+      marker-end="url(#automator--`v`.arrow-endArrowId)"
     ></path>
     <title>`v`.arrow</title>
   </g>
