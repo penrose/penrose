@@ -181,7 +181,7 @@ export const diagram = async (
 ): Promise<void> => {
   const res = await compileTrio(prog);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value);
+    const state: State = await prepareState(res.value, document.createElement("canvas").transferControlToOffscreen());
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
     node.appendChild(rendered);
@@ -223,7 +223,7 @@ export const interactiveDiagram = async (
   };
   const res = await compileTrio(prog);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value);
+    const state: State = await prepareState(res.value, document.createElement("canvas").transferControlToOffscreen());
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendering = await RenderInteractive(
       optimized,
@@ -271,7 +271,7 @@ export const compileTrio = async (prog: {
  */
 export const prepareState = async (
   state: State, 
-  canvas: OffscreenCanvas = document.createElement("canvas").transferControlToOffscreen()
+  canvas: OffscreenCanvas
 ): Promise<State> => {
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
     state.shapes,

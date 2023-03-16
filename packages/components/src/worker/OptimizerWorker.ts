@@ -2,7 +2,7 @@ import { PenroseError, PenroseState } from "@penrose/core";
 import { Req, Resp } from "./message";
 import RawWorker from "./worker?worker";
 
-export type OnUpdate = (state: PenroseState) => void;
+export type OnUpdate = (state: SVGSVGElement) => void;
 export type OnError = (error: PenroseError) => void;
 
 export default class OptimizerWorker {
@@ -21,7 +21,7 @@ export default class OptimizerWorker {
       switch (data.tag) {
         case "Update":
           console.log("received update");
-          this.onUpdate(JSON.parse(data.state));
+          this.onUpdate(data.state);
           break;
         case "Error":
           this.onError(data.error);
@@ -45,13 +45,14 @@ export default class OptimizerWorker {
 
     const sab = new SharedArrayBuffer(2);
     this.sharedMemory = new Int8Array(sab);
+    const offscreenCanvas = document.createElement("canvas").transferControlToOffscreen();
 
     console.log("requesting init");
     this.worker.postMessage({
       tag: "Init",
       sharedMemory: sab,
-      canvas: document.createElement("canvas").transferControlToOffscreen(),
-    });
+      offscreenCanvas,
+    }, [offscreenCanvas]);
     console.log("wo");
   }
 

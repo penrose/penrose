@@ -91,6 +91,7 @@ const tex2svg = async (
       return;
     }
     const body = output.value;
+    console.log(body);
     const viewBox = body.getAttribute("viewBox");
     if (viewBox === null) {
       resolve(err(`No ViewBox found for MathJax output $${contents}$`));

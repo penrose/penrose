@@ -23,7 +23,7 @@ export type Resp = Update | Error | ReadyForNewTrio | Finished;
 
 export type Update = {
   tag: "Update";
-  state: string;
+  state: SVGSVGElement;
 };
 
 export type Finished = {

@@ -138,25 +138,26 @@ export const useCompileDiagram = () =>
 
     console.log("hi");
 
-    const onUpdate = (state: PenroseState) => {
+    const onUpdate = (state: SVGSVGElement) => {
       console.log("updated");
-      set(
-        diagramState,
-        (diagramState: Diagram): Diagram => ({
-          ...diagramState,
-          error: null,
-          metadata: {
-            ...diagramState.metadata,
-            variation,
-            source: {
-              domain,
-              substance,
-              style,
-            },
-          },
-          state,
-        })
-      );
+      // set(
+      //   diagramState,
+      //   (diagramState: Diagram): Diagram => ({
+      //     ...diagramState,
+      //     error: null,
+      //     metadata: {
+      //       ...diagramState.metadata,
+      //       variation,
+      //       source: {
+      //         domain,
+      //         substance,
+      //         style,
+      //       },
+      //     },
+      //     state,
+      //   })
+      //);
+      console.log(state);
       requestAnimationFrame(() => optimizer.askForUpdate(onUpdate, onError));
     };
 

@@ -5,6 +5,7 @@ import {
   prepareState,
   stateConverged,
   stepStateSafe,
+  RenderStatic
 } from "@penrose/core";
 import { Req } from "./message";
 
@@ -13,10 +14,11 @@ import { Req } from "./message";
 let sharedMemory: Int8Array;
 let canvas: OffscreenCanvas;
 
-const sendUpdate = (state: PenroseState) => {
+const sendUpdate = async (state: PenroseState) => {
+  const svg = await RenderStatic(state, path => new Promise(res => res("")), "");
   postMessage({
     tag: "Update",
-    state
+    svg
   });
 }
 
