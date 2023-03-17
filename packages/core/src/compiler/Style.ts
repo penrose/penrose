@@ -23,7 +23,7 @@ import {
   makeCanvas,
   uniform,
 } from "../shapes/Samplers";
-import { isShapeType, Shape, shapeSampler, ShapeType } from "../shapes/Shapes";
+import { isShapeType, sampleShape, Shape, ShapeType } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A, C, Identifier, SourceRange } from "../types/ast";
 import { Env } from "../types/domain";
@@ -3219,7 +3219,7 @@ export const translate = (
   for (const path of graph.nodes()) {
     const shapeType = graph.node(path);
     if (typeof shapeType === "string") {
-      const props = shapeSampler[shapeType](mut, canvas);
+      const props = sampleShape(shapeType, mut, canvas);
       for (const [prop, value] of Object.entries(props)) {
         symbols = symbols.set(`${path}.${prop}`, val(value));
       }

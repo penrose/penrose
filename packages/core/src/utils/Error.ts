@@ -1,6 +1,6 @@
 import { Result } from "true-myth";
 import { isConcrete } from "../engine/EngineUtils";
-import { shapeSampler } from "../shapes/Shapes";
+import { shapeTypes } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import {
   A,
@@ -263,7 +263,7 @@ export const showError = (
     // --- BEGIN BLOCK STATIC ERRORS
 
     case "InvalidGPITypeError": {
-      const shapeNames: string[] = Object.keys(shapeSampler);
+      const shapeNames: string[] = shapeTypes;
       return `Got invalid GPI type ${error.givenType.value}. Available shape types: ${shapeNames}`;
     }
 

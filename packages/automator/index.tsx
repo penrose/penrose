@@ -11,7 +11,7 @@ import {
   simpleContext,
   stepUntilConvergence,
 } from "@penrose/core";
-import { shapeSampler } from "@penrose/core/dist/shapes/Shapes";
+import { sampleShape, ShapeType } from "@penrose/core/dist/shapes/Shapes";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";
@@ -338,11 +338,13 @@ const getShapeDefs = (outFile?: string): void => {
 
   // Loop over the shapes
   for (const shapeName of shapeTypes) {
-    const shapeSample1 = shapeSampler[shapeName](
+    const shapeSample1 = sampleShape(
+      shapeName as ShapeType,
       simpleContext("ShapeProps sample 1"),
       makeCanvas(size, size)
     );
-    const shapeSample2 = shapeSampler[shapeName](
+    const shapeSample2 = sampleShape(
+      shapeName as ShapeType,
       simpleContext("ShapeProps sample 2"),
       makeCanvas(size, size)
     );

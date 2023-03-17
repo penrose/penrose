@@ -68,7 +68,7 @@ export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
   }
 };
 
-export const shapeSampler: {
+const shapeSampler: {
   [k in ShapeType]: (context: Context, canvas: Canvas) => ShapeProps<ad.Num>;
 } = {
   Circle: sampleCircle,
@@ -92,7 +92,8 @@ export const pendingProps = (shapeType: ShapeType): string[] => {
     metas.push(meta);
     return x;
   };
-  const ideal: ShapeProps<ad.Num> = shapeSampler[shapeType](
+  const ideal: ShapeProps<ad.Num> = sampleShape(
+    shapeType,
     { makeInput },
     makeCanvas(0, 0)
   );
@@ -127,6 +128,14 @@ const bboxFromGroup = ({ shapes }: GroupProps<ad.Num>): BBox.BBox => {
 };
 
 export const shapeTypes = Object.keys(shapeSampler);
+
+export const sampleShape = (
+  shapeType: ShapeType,
+  context: Context,
+  canvas: Canvas
+): ShapeProps<ad.Num> => {
+  return shapeSampler[shapeType](context, canvas);
+};
 
 // TODO: don't use a type predicate for this
 export const isShapeType = (shapeType: string): shapeType is ShapeType =>
