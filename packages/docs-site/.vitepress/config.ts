@@ -260,6 +260,15 @@ export default defineConfig({
             },
           ],
         },
+        {
+          text: "March 2023",
+          items: [
+            {
+              text: "Binary Symmetric Predicates",
+              link: "/blog/2023/03/17/binary-symmetry",
+            },
+          ],
+        },
       ],
     },
 
