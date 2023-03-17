@@ -136,6 +136,7 @@ export default defineConfig({
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Try Penrose", link: "pathname:///try/index.html" },
       { text: "Team", link: "/docs/team" },
+      { text: "Blog", link: "/blog", activeMatch: "/blog" },
       {
         text: "News",
         items: [
@@ -246,6 +247,17 @@ export default defineConfig({
             {
               text: "Writing Constraints & Objectives",
               link: "/docs/ref/constraints",
+            },
+          ],
+        },
+      ],
+      "/blog": [
+        {
+          text: "February 2023",
+          items: [
+            {
+              text: "Rust Wasm 10x faster than JS",
+              link: "/blog/2023/02/27/wasm",
             },
           ],
         },
