@@ -1,10 +1,20 @@
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Content } from "./components/Content";
+import Chemistry from "./problems/chemistry";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Content />,
+  },
+  {
+    path: "chemistry",
+    element: <Chemistry />,
+  },
+]);
+
 function App() {
-  return (
-    <div>
-      <Content />
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
