@@ -268,6 +268,10 @@ export default defineConfig({
               text: "Binary Symmetric Predicates",
               link: "/blog/2023/03/17/binary-symmetry",
             },
+            {
+              text: "Predicate Aliasing",
+              link: "/blog/2023/03/17/predicate-aliasing",
+            },
           ],
         },
       ],
