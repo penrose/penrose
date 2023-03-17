@@ -1,5 +1,4 @@
 import { Result } from "true-myth";
-import { internalMissingPathError } from "../../compiler/Style";
 import * as ad from "../../types/ad";
 import { StyleError } from "../../types/errors";
 import {
@@ -17,6 +16,7 @@ import {
 } from "../../types/shapes";
 import { Translation } from "../../types/styleSemantics";
 import { Value } from "../../types/value";
+import { internalMissingPathError } from "../Style";
 import {
   checkBoolV,
   checkColorV,

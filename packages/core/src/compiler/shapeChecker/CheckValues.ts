@@ -16,8 +16,8 @@ import {
   Value,
   VectorV,
 } from "../../types/value";
-import { badShapeParamTypeError } from "../Error";
-import { val } from "../Util";
+import { badShapeParamTypeError } from "../../utils/Error";
+import { val } from "../../utils/Util";
 const { err, ok } = Result;
 
 export const checkFloatV = (

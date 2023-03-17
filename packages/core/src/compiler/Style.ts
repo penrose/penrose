@@ -140,7 +140,6 @@ import {
   traverseUp,
 } from "../utils/GroupGraph";
 import Heap from "../utils/Heap";
-import { checkShape } from "../utils/shapeChecker/CheckShape";
 import {
   boolV,
   cartesianProduct,
@@ -162,6 +161,7 @@ import {
   zip2,
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
+import { checkShape } from "./shapeChecker/CheckShape";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
