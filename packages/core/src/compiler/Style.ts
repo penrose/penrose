@@ -2268,7 +2268,7 @@ const argValues = (
   evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
     argVals.map((arg) => {
       switch (arg.tag) {
-        case "ShapeVal": // strip the `GPI` tag
+        case "ShapeVal": // strip the `ShapeVal` tag
           return arg.contents;
         case "Val": // strip both `Val` and type annotation like `FloatV`
           return arg.contents.contents;
