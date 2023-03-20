@@ -265,12 +265,8 @@ export default defineConfig({
           text: "March 2023",
           items: [
             {
-              text: "Binary Symmetric Predicates",
-              link: "/blog/2023/03/17/binary-symmetry",
-            },
-            {
-              text: "Predicate Aliasing",
-              link: "/blog/2023/03/17/predicate-aliasing",
+              text: "What Have We Done to the Languages?",
+              link: "/blog/2023/03/17/new-language-features",
             },
           ],
         },
