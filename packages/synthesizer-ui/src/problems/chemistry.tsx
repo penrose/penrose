@@ -99,7 +99,7 @@ export default function () {
   const problems = [
     assembleProblem(presets["lewis_0"], "test0", 10, {
       correct: [0],
-      incorrect: [1, 4, 5],
+      incorrect: [1, 6, 8],
     }),
     assembleProblem(presets["lewis_1"], "test0", 10, {
       correct: [0],
@@ -107,11 +107,11 @@ export default function () {
     }),
     assembleProblem(presets["lewis_2"], "test0", 10, {
       correct: [0],
-      incorrect: [1, 2, 3],
+      incorrect: [1, 3, 7],
     }),
     assembleProblem(presets["lewis_3"], "test0", 10, {
       correct: [0],
-      incorrect: [1, 2, 3],
+      incorrect: [3, 6, 7],
     }),
     assembleProblem(presets["lewis_4"], "test0", 10, {
       correct: [0],
@@ -119,11 +119,11 @@ export default function () {
     }),
     assembleProblem(presets["lewis_5"], "test0", 10, {
       correct: [0],
-      incorrect: [1, 2, 3],
+      incorrect: [2, 3, 4],
     }),
     assembleProblem(presets["lewis_6"], "test0", 10, {
       correct: [0],
-      incorrect: [1, 2, 3],
+      incorrect: [1, 6, 10],
     }),
   ];
   return <div>{problems}</div>;

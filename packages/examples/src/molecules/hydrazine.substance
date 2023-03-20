@@ -1,5 +1,5 @@
-Hydrogen h1, h2, h3, h4
 Nitrogen n1, n2
+Hydrogen h1, h2, h3, h4
 -- bonds
 Bond b1 := MakeSingleBond(n1, n2)
 Bond b2 := MakeSingleBond(n1, h1)
