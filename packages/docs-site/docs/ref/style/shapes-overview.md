@@ -64,4 +64,4 @@ For convenience, types which are similar can be casted into each other, implicit
 - `MatrixV`, `LListV`, and `PtListV` are implicitly casted into each other.
 - `TupV` can be casted into `ListV` and `VectorV`, but _not_ vice versa.
 
-Unfortunately, conversion of types into strings (typed `StrV`) are not yet supported.
+Conversion of types into strings (typed `StrV`) is not currently supported.

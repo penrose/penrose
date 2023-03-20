@@ -1,12 +1,12 @@
 # Value Types
 
-A _value_ in Penrose have the following categories:
+A _value_ in Penrose can have any of the following categories:
 
 - Numbers (type `FloatV`), constructed as either a numerical value or `?` signifying the unknown value to be determined during optimization (see [here](usage#unknown-scalar)).
 - Booleans (type `BoolV`), constructed as either `true` or `false`.
 - Strings (type `StrV`), constructed as text written in between double-quotes (like `"hello world"`), and concatenations (like `"\text{" + x.label + "}"`)
 - Path data (type `PathDataV`), constructed as in [here](shapes/path#defining-an-svg-path-using-d).
-- List of points (type `PtListV`), constructed using implicit casting from matrices or nested lists.
+- List of points (type `PtListV`), constructed as a matrix or a list of lists.
 - Colors (type `ColorV`), constructed as in [here](usage#colors).
 - List of numbers (type `ListV`), constructed as comma-separated numbers surrounded between square brackets, like `[1, 2, ?, 4, 5]`.
 - Vectors (type `VectorV`), constructed as comma-separated numbers surrounded by parentheses, like `(1, 2, 3, ?, 5)`.
