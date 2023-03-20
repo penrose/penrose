@@ -27,6 +27,10 @@ const Content = styled.div`
   border-radius: 5px;
   border-style: solid;
   width: 44rem;
+  margin: 0.5rem;
+  @media print {
+    page-break-after: always;
+  }
 `;
 
 const OptionContainer = styled.div<{
@@ -67,6 +71,11 @@ const Submit = styled.button`
   border-radius: 5px;
   margin: 1em;
   padding: 0.25em 1em;
+  @media print {
+    visibility: hidden;
+    height: 0;
+    margin: 0;
+  }
 `;
 
 const ProblemChoice = ({
