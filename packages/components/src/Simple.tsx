@@ -49,7 +49,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     this.setState({ error: undefined });
     const compilerResult = await compileTrio(this.props);
     if (compilerResult.isOk()) {
-      this.penroseState = await prepareState(compilerResult.value);
+      this.penroseState = await prepareState(compilerResult.value, document.createElement("canvas").transferControlToOffscreen());
       this.setState({ error: undefined }); // clear out errors
     } else {
       this.setState({ error: compilerResult.error });

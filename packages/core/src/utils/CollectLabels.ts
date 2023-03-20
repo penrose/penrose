@@ -1,5 +1,7 @@
 import { liteAdaptor } from "mathjax-full/js/adaptors/liteAdaptor";
+import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor"
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
+import { LiteElement } from "mathjax-full/js/adaptors/lite/Element";
 import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
@@ -20,7 +22,7 @@ const EX_CONSTANT = 10;
 const convert = (
   input: string,
   fontSize: string
-): Result<HTMLElement, string> => {
+): Result<LiteElement, string> => {
   // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
   // const adaptor = chooseAdaptor();
   const adaptor = liteAdaptor(); // Used so Mathjax works in worker
@@ -52,14 +54,15 @@ const convert = (
     // Not sure if this call does anything:
     // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
     adaptor.setStyle(node, "font-size", fontSize);
-    return ok(node.firstChild);
+    const child = adaptor.firstChild(node) as LiteElement;
+    return ok(child);
   } catch (error: any) {
     return err(error.message);
   }
 };
 
 type Output = {
-  body: HTMLElement;
+  body: LiteElement;
   width: number;
   height: number;
 };
@@ -91,8 +94,8 @@ const tex2svg = async (
       return;
     }
     const body = output.value;
-    console.log(body);
-    const viewBox = body.getAttribute("viewBox");
+    const adaptor = liteAdaptor();
+    const viewBox = adaptor.getAttribute(body, "viewBox");
     if (viewBox === null) {
       resolve(err(`No ViewBox found for MathJax output $${contents}$`));
       return;
@@ -105,7 +108,7 @@ const tex2svg = async (
 
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-    const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
+    const vAlignFloat = parseFloat(adaptor.getStyle(body, "verticalAlign")) * EX_CONSTANT;
     const constHeight = parseFloat(fontSize) - vAlignFloat;
     const scaledWidth = (constHeight / height) * width;
 
@@ -133,7 +136,7 @@ const textData = (
 const equationData = (
   width: number,
   height: number,
-  rendered: HTMLElement
+  rendered: string
 ): EquationData => ({
   tag: "EquationData",
   width: floatV(width),
@@ -194,14 +197,16 @@ export const collectLabels = async (
       }
 
       const { body, width, height } = svg.value;
+      const adaptor = liteAdaptor();
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
       const label: EquationData = equationData(
         width === Infinity ? 0 : width,
         height === Infinity ? 0 : height,
-        body
+        adaptor.innerHTML(body)
       );
+      console.log(label);
       labels.set(shapeName, label);
     } else if (shapeType === "Text") {
       const shapeName: string = getAdValueAsString(properties.name);

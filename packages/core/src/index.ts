@@ -389,7 +389,6 @@ export const evalFns = (
 };
 
 export type PenroseState = State;
-export type { OptimizerState } from "./types/state";
 export type PenroseFn = Fn;
 
 export type { SubStmtKind } from "./analysis/SubstanceAnalysis";

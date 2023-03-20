@@ -40,20 +40,11 @@ export interface State extends OptState {
   computeShapes: ShapeFn;
 }
 
-export interface OptimizerState extends OptState {
-  warnings: StyleWarning[];
+export interface RenderState extends OptState {
   variation: string;
-  constraintSets: StagedConstraints;
-  objFns: Fn[];
-  constrFns: Fn[];
-  inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
-  shapes: ShapeAD[];
   canvas: Canvas;
-  gradient: Gradient;
-  currentStageIndex: number;
-  optStages: string[];
-  computeShapes: string;
+  shapes: Shape[]
 }
 
 /**
@@ -65,7 +56,7 @@ export interface EquationData {
   tag: "EquationData";
   width: FloatV<number>;
   height: FloatV<number>;
-  rendered: HTMLElement;
+  rendered: string; // To be converted to an HTMLElement on the main thread
 }
 
 export interface TextData {
