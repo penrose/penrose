@@ -262,3 +262,41 @@ For each Style block, we _augment_ the Style block body with two artificial AST 
 - The other visualizes to `match_id = <the current ordinal of the matching>`.
 
 Then we process the Style block as usual. Notice that now, `match_total` and `match_id` are assigned to the correct values and can be used later in the Style block as local variables.
+
+## Inline Comparison Operators
+
+We add syntactic sugars of `<`, `==`, and `>` to correspond to function calls `lessThan`, `equal`, and `greaterThan`. This makes Style-writing more convenient as it allows the users to write, for example,
+
+```
+ensure circle1.r < circle2.r
+```
+
+and have it be treated as equivalent to
+
+```
+ensure lessThan(circle1.r, circle2.r)
+```
+
+### How have we done it?
+
+We modified the grammar for constraint and objective declarations with
+
+```
+<constr> ::= ensure <body> <staged layout>+
+   <obj> ::= encourage <body> <staged layout>+
+
+  <body> ::= <identifier> ( <expr_list> )  // Function Call
+          |  <expr> <op> <expr>            // Inline Comparison
+
+    <op> ::= ==                            // Equal
+          |  <                             // Less Than
+          |  >                             // Greater Than
+```
+
+In other words, the `<body>` of a constraint or objective now can either be a "Function Call" or an "Inline Comparison."
+
+In the Style compiler where we handle constraints and objectives, we proceed as before when we encounter a "Function Call." When we encounter an "Inline Comparison," on the other hand, we handle it as if it is a "Function Call," with the corresponding function name (`lessThan`, `greaterThan`, or `equal`) and the two operands as parameters to the function.
+
+### Caveats
+
+Originally we wanted to implement operators `<=` and `>=`. However, there are no corresponding functions to these operators in the Penrose system. From an optimizer's perspective, in fact, `<=` and `<` are treated the same, and `>=` and `>` are treated the same.
