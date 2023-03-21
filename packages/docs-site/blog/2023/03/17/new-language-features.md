@@ -6,7 +6,7 @@ import BlogMeta from "../../../../src/components/BlogMeta.vue";
 
 <BlogMeta github="liangyiliang" date="2023-03-17" />
 
-I joined the Penrose team in July 2022, and was in charge of a few language-related improvements to Penrose which have the potential of making Penrose more flexible.
+I joined the Penrose team in July 2022, and worked on of a few language-related improvements to Penrose which have the potential of making Penrose more flexible.
 
 ## Binary Symmetric Predicates
 
@@ -14,7 +14,7 @@ In July 2022, we implemented support for binary symmetric predicates which allow
 
 ### Why did we need this?
 
-The necessity of this feature was pointed out in Professor Keenan Crane's [GitHub issue](https://github.com/penrose/penrose/issues/744) using an interesting example. Consider the Domain program
+The necessity of this feature was pointed out in [Professor Keenan Crane](https://www.cs.cmu.edu/~kmcrane/)'s [GitHub issue](https://github.com/penrose/penrose/issues/744) using an interesting example. Consider the Domain program
 
 ```
 type Atom
@@ -218,3 +218,47 @@ where `Bond_X_Y` is the "predicate instance name" of the matched `Bond(X, Y)`.
 Since `bond -> Bond_X_Y` is present in the mapping, we are then allowed to refer to its children, such as assigning `bond.bondLine` to a shape.
 
 ## Match Metadata
+
+A Style block can be matched multiple times. We add two "reserved variables" for each Style block that exposes to the Style writer how many times this Style block is matched, and the index of the current matching.
+
+### Why did we need this?
+
+In January 2022, [Professor Keenan Crane](https://www.cs.cmu.edu/~kmcrane/) pointed out the need for each Style block to have access to:
+
+- The total number of times the Style block is matched (the _cardinal_ of the Style block). This can be useful in, for example, using the total number of tick marks to determine the spacing needed between tick marks.
+- The index (or the _ordinal_) of the _current_ match of this Style block. This can be useful in, for example, determining the number of tick marks to draw on a marked angle.
+
+(For concrete examples see Professor Keenan Crane's [GitHub issue](https://github.com/penrose/penrose/issues/785)).
+
+### What have we done?
+
+We [added](https://github.com/penrose/penrose/pull/1074) two reserved variables in each Style block:
+
+- `match_total` records how many times, in total, the Style block is matched, and
+- `match_id` records the `1`-indexed ordinal of the current matching.
+
+As an example,
+
+```
+-- dsl
+type MyType
+
+-- sub
+MyType T1, T2, T3, T4
+
+-- sty, canvas specifications omitted
+forall MyType t {
+  // can use `match_id` and `match_total`
+}
+```
+
+Since the Style block is matched four times, `match_total` equals to 4 within the Style block. Furthermore, `match_id` is one of 1, 2, 3, or 4, depending on which matching it represents currently.
+
+### How have we done it?
+
+For each Style block, we _augment_ the Style block body with two artificial AST nodes, as if they were parts of the original Style program:
+
+- One node visualizes to `match_total = <the total number of matches>`, and
+- The other visualizes to `match_id = <the current ordinal of the matching>`.
+
+Then we process the Style block as usual. Notice that now, `match_total` and `match_id` are assigned to the correct values and can be used later in the Style block as local variables.
