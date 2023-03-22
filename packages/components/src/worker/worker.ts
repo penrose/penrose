@@ -51,7 +51,7 @@ const sendFinished = (state: PenroseState) => {
 
 const optimize = (state: PenroseState) => {
   while (!stateConverged(state)) {
-    const steppedState = stepStateSafe(state, 250);
+    const steppedState = stepStateSafe(state, 25);
     if (steppedState.isErr()) {
       sendError(steppedState.error);
       return;

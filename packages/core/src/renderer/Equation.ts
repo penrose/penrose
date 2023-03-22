@@ -31,6 +31,7 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
   if (retrievedLabel && retrievedLabel.tag === "EquationData") {
     const renderedLabel = document.createElement("svg");
     renderedLabel.innerHTML = retrievedLabel.rendered;
+    console.log(renderedLabel);
 
     const g = renderedLabel.getElementsByTagName("g")[0];
 

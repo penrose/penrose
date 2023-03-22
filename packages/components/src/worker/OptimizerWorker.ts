@@ -7,7 +7,8 @@ export type OnError = (error: PenroseError) => void;
 
 export default class OptimizerWorker {
   private worker: Worker = new RawWorker();
-  private sharedMemory: Int8Array;
+  private workerInitialized: boolean = false;
+  private sharedMemory: Int8Array = new Int8Array();
   private running: boolean = false;
   private onUpdate: OnUpdate = () => {};
   private onError: OnError = () => {};
@@ -42,17 +43,6 @@ export default class OptimizerWorker {
           break;
       }
     }
-
-    const sab = new SharedArrayBuffer(2);
-    this.sharedMemory = new Int8Array(sab);
-    const offscreenCanvas = document.createElement("canvas").transferControlToOffscreen();
-
-    console.log("requesting init");
-    this.worker.postMessage({
-      tag: "Init",
-      sharedMemory: sab,
-      offscreenCanvas,
-    }, [offscreenCanvas]);
   }
 
   private request(req: Req) {
@@ -80,13 +70,25 @@ export default class OptimizerWorker {
     this.style = style;
     this.substance = substance;
     this.variation = variation;
-    console.log("hey");
+
+    // For some reason worker would not receive init message if this is in constructor
+    if (!this.workerInitialized) {
+      const sab = new SharedArrayBuffer(2);
+      this.sharedMemory = new Int8Array(sab);
+      const offscreenCanvas = document.createElement("canvas").transferControlToOffscreen();
+      this.worker.postMessage({
+        tag: "Init",
+        sharedMemory: sab,
+        offscreenCanvas,
+      }, [offscreenCanvas]);
+      this.workerInitialized = true;
+    }
+
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
     } else {
-      console.log("blah");
       this.running = true;
       this.request({
         tag: "Compile",
