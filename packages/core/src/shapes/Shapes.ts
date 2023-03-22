@@ -68,21 +68,24 @@ export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
   }
 };
 
-const shapeSampler: {
-  [k in ShapeType]: (context: Context, canvas: Canvas) => ShapeProps<ad.Num>;
-} = {
-  Circle: sampleCircle,
-  Ellipse: sampleEllipse,
-  Equation: sampleEquation,
-  Image: sampleImage,
-  Line: sampleLine,
-  Path: samplePath,
-  Polygon: samplePolygon,
-  Polyline: samplePolyline,
-  Rectangle: sampleRectangle,
-  Text: sampleText,
-  Group: sampleGroup,
-};
+const shapeSampler: Map<
+  string,
+  (context: Context, canvas: Canvas) => ShapeProps<ad.Num>
+> = new Map(
+  Object.entries({
+    Circle: sampleCircle,
+    Ellipse: sampleEllipse,
+    Equation: sampleEquation,
+    Image: sampleImage,
+    Line: sampleLine,
+    Path: samplePath,
+    Polygon: samplePolygon,
+    Polyline: samplePolyline,
+    Rectangle: sampleRectangle,
+    Text: sampleText,
+    Group: sampleGroup,
+  })
+);
 
 export const pendingProps = (shapeType: ShapeType): string[] => {
   const props = [];
@@ -127,18 +130,34 @@ const bboxFromGroup = ({ shapes }: GroupProps<ad.Num>): BBox.BBox => {
   return BBox.bbox(width, height, [centerX, centerY]);
 };
 
-export const shapeTypes = Object.keys(shapeSampler);
+export const shapeTypes = [
+  "Circle",
+  "Ellipse",
+  "Equation",
+  "Image",
+  "Line",
+  "Path",
+  "Polygon",
+  "Polyline",
+  "Rectangle",
+  "Text",
+  "Group",
+];
 
 export const sampleShape = (
   shapeType: ShapeType,
   context: Context,
   canvas: Canvas
 ): ShapeProps<ad.Num> => {
-  return shapeSampler[shapeType](context, canvas);
+  const sampler = shapeSampler.get(shapeType);
+  if (sampler) {
+    return sampler(context, canvas);
+  }
+  throw new Error("shapeType not in sampler");
 };
 
 // TODO: don't use a type predicate for this
 export const isShapeType = (shapeType: string): shapeType is ShapeType =>
-  shapeType in shapeSampler;
+  shapeType in shapeTypes;
 
 //#endregion
