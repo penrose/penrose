@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v2.3.0](https://github.com/penrose/penrose/compare/v2.2.0...v2.3.0) (2023-03-14)
+
+### :rocket: New Feature
+
+- added "ctrl+enter" binding for recompiling ([#1306](https://github.com/penrose/penrose/issues/1306)) ([d0472d1](https://github.com/penrose/penrose/commit/d0472d1306959f6244ebb64a64894cc0a3fd376b))
+- show multiple diagram instances on a grid in `editor` ([#1287](https://github.com/penrose/penrose/issues/1287)) ([fbaf03c](https://github.com/penrose/penrose/commit/fbaf03c7b6c4f87cc628111ee080af76c65ef55e))
+
+### :bug: Bug Fix
+
+- SVG overflow in `Simple` component ([#1321](https://github.com/penrose/penrose/issues/1321)) ([df119ac](https://github.com/penrose/penrose/commit/df119acad87250d0097eeda4f019238bf0d07743))
+- nondeterminism in renderer ([#1316](https://github.com/penrose/penrose/issues/1316)) ([9795420](https://github.com/penrose/penrose/commit/97954202c60c2aab6a11af1694f652f8a3bb8e4d))
+
+### :house: Internal
+
+- expand presets in `synthesizer-ui` ([#1149](https://github.com/penrose/penrose/issues/1149)) ([58c288a](https://github.com/penrose/penrose/commit/58c288a2ec5b124f008222e8c3807dfa550dcd6f))
+
 ## [v2.2.0](https://github.com/penrose/penrose/compare/v2.1.1...v2.2.0) (2023-02-02)
 
 ### :rocket: New Feature
