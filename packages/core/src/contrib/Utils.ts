@@ -31,9 +31,6 @@ import { Shape } from "../shapes/Shapes";
 import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
 
-// these are redundant with the `isRectlike` and `isPolygonlike` fields on
-// `ShapeDef`, which we want to remove as part of a larger consolidation effort:
-// https://github.com/penrose/penrose/issues/1282
 export type Rectlike<T> = Equation<T> | Image<T> | Rectangle<T> | Text<T>;
 export type Polygonlike<T> = Rectlike<T> | Line<T> | Polygon<T> | Polyline<T>;
 export type Linelike<T> = Line<T>;

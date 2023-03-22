@@ -60,8 +60,6 @@ const RenderEquation = (
     // Map the attributes we have
     attrToNotAutoMap.push(...attrFill(shape, elem));
     attrToNotAutoMap.push(...attrWH(shape, elem));
-    // attrToNotAutoMap.push(...attrStroke(shape, elem));
-    // attrToNotAutoMap.push(...attrFont(shape, elem));
   }
 
   // Directly Map across any "unknown" SVG properties

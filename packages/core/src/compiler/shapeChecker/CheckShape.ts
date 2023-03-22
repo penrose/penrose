@@ -10,7 +10,7 @@ import { Path } from "../../shapes/Path";
 import { Polygon } from "../../shapes/Polygon";
 import { Polyline } from "../../shapes/Polyline";
 import { Rectangle } from "../../shapes/Rectangle";
-import { Shape } from "../../shapes/Shapes";
+import { Shape, ShapeType } from "../../shapes/Shapes";
 import { Text } from "../../shapes/Text";
 import * as ad from "../../types/ad";
 import { StyleError } from "../../types/errors";
@@ -40,7 +40,7 @@ import {
 const { err, ok } = Result;
 
 export const checkShape = (
-  shapeType: string,
+  shapeType: ShapeType,
   path: string,
   trans: Translation
 ): Result<Shape<ad.Num>, StyleError> => {
