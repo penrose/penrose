@@ -158,6 +158,6 @@ export const sampleShape = (
 
 // TODO: don't use a type predicate for this
 export const isShapeType = (shapeType: string): shapeType is ShapeType =>
-  shapeType in shapeTypes;
+  shapeSampler.has(shapeType);
 
 //#endregion
