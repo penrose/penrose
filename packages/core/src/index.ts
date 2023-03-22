@@ -15,6 +15,7 @@ import {
   RenderStatic,
 } from "./renderer/Renderer";
 import { Canvas } from "./shapes/Samplers";
+import { shapeTypes } from "./shapes/Shapes";
 import { showMutations } from "./synthesis/Mutation";
 import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
@@ -394,7 +395,6 @@ export { objDict } from "./contrib/Objectives";
 export { secondaryGraph } from "./engine/Autodiff";
 export type { PathResolver } from "./renderer/Renderer";
 export { makeCanvas, simpleContext } from "./shapes/Samplers";
-export { shapedefs } from "./shapes/Shapes";
 export type {
   DeclTypes,
   MatchSetting,
@@ -402,7 +402,6 @@ export type {
   SynthesizerSetting,
 } from "./synthesis/Synthesizer";
 export type { PenroseError } from "./types/errors";
-export type { Shape } from "./types/shape";
 export * as Value from "./types/value";
 export type { Result } from "./utils/Error";
 export { hexToRgba, rgbaToHex, zip2 } from "./utils/Util";
@@ -426,6 +425,7 @@ export {
   prettyPrintExpr,
   normList,
   toSvgPaintProperty,
+  shapeTypes,
 };
 export type { Registry, Trio };
 export type { Env };

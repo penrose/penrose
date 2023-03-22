@@ -287,7 +287,7 @@ const pointCandidates = (
  */
 export const halfPlaneEllipseSDF = (
   lineSegment: ad.Num[][],
-  ellipse: Ellipse,
+  ellipse: Ellipse<ad.Num>,
   insidePoint: ad.Num[],
   padding: ad.Num
 ): ad.Num => {
@@ -322,7 +322,7 @@ export const halfPlaneEllipseSDF = (
  */
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: ad.Num[][],
-  ellipse: Ellipse,
+  ellipse: Ellipse<ad.Num>,
   padding: ad.Num
 ): ad.Num => {
   const center = ops.vdiv(polygonPoints.reduce(ops.vadd), polygonPoints.length);

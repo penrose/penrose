@@ -1,14 +1,14 @@
 import { Gradient, OptState } from "@penrose/optimizer";
 import { Canvas, InputMeta } from "../shapes/Samplers";
+import { Shape } from "../shapes/Shapes";
 import * as ad from "./ad";
 import { A } from "./ast";
 import { StyleWarning } from "./errors";
-import { Shape, ShapeAD } from "./shape";
 import { ConstrFn, ObjFn } from "./style";
 import { WithContext } from "./styleSemantics";
 import { FloatV } from "./value";
 
-export type ShapeFn = (xs: number[]) => Shape[];
+export type ShapeFn = (xs: number[]) => Shape<number>[];
 
 export type OptPipeline = string[];
 
@@ -32,7 +32,7 @@ export interface State extends OptState {
   constrFns: Fn[];
   inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
-  shapes: ShapeAD[];
+  shapes: Shape<ad.Num>[];
   canvas: Canvas;
   gradient: Gradient;
   currentStageIndex: number;

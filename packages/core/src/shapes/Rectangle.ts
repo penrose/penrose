@@ -1,3 +1,4 @@
+import * as ad from "../types/ad";
 import {
   Center,
   Corner,
@@ -5,7 +6,7 @@ import {
   Named,
   Rect,
   Rotate,
-  Shape,
+  ShapeCommon,
   Stroke,
 } from "../types/shapes";
 import { boolV, floatV, noPaint, strV } from "../utils/Util";
@@ -18,19 +19,19 @@ import {
   sampleWidth,
 } from "./Samplers";
 
-export interface RectangleProps
-  extends Named,
-    Stroke,
-    Fill,
-    Center,
-    Rotate,
-    Rect,
-    Corner {}
+export interface RectangleProps<T>
+  extends Named<T>,
+    Stroke<T>,
+    Fill<T>,
+    Center<T>,
+    Rotate<T>,
+    Rect<T>,
+    Corner<T> {}
 
 export const sampleRectangle = (
   context: Context,
   canvas: Canvas
-): RectangleProps => ({
+): RectangleProps<ad.Num> => ({
   name: strV("defaultRectangle"),
   style: strV(""),
   strokeWidth: floatV(0),
@@ -46,14 +47,17 @@ export const sampleRectangle = (
   ensureOnCanvas: boolV(true),
 });
 
-export type Rectangle = Shape & { shapeType: "Rectangle" } & RectangleProps;
+export type Rectangle<T> = ShapeCommon<T> & {
+  shapeType: "Rectangle";
+} & RectangleProps<T>;
 
 export const makeRectangle = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<RectangleProps>
-): Rectangle => ({
+  properties: Partial<RectangleProps<ad.Num>>
+): Rectangle<ad.Num> => ({
   ...sampleRectangle(context, canvas),
   ...properties,
   shapeType: "Rectangle",
+  passthrough: new Map(),
 });

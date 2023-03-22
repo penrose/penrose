@@ -14,6 +14,7 @@ import {
 import { Path } from "../shapes/Path";
 import { Polygon } from "../shapes/Polygon";
 import { Polyline } from "../shapes/Polyline";
+import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import {
   consecutiveTriples,
@@ -131,9 +132,9 @@ export const constrDictCurves = {
   /**
    * The shape should be locally convex (all angles between consecutive edges would have the same sign)
    */
-  isLocallyConvex: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
-    const points = extractPoints([t, s]);
-    const triples = consecutiveTriples(points, isClosed([t, s]));
+  isLocallyConvex: (s: Shape<ad.Num>): ad.Num => {
+    const points = extractPoints(s);
+    const triples = consecutiveTriples(points, isClosed(s));
     const angles = triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
     );
@@ -149,10 +150,10 @@ export const constrDictCurves = {
    * The enclosed area should be convex
    * Implemented using local convexity penalty (`localPenalty`) and global turning number penalty (`globalPenalty`)
    */
-  isConvex: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
-    const localPenalty = constrDictCurves.isLocallyConvex([t, s]);
-    const points = extractPoints([t, s]);
-    const tn = turningNumber(points, isClosed([t, s]));
+  isConvex: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+    const localPenalty = constrDictCurves.isLocallyConvex(s);
+    const points = extractPoints(s);
+    const tn = turningNumber(points, isClosed(s));
     const globalPenalty = squared(sub(absVal(tn), 1));
     return add(localPenalty, globalPenalty);
   },
@@ -160,18 +161,22 @@ export const constrDictCurves = {
   /**
    * All edges should have the same length
    */
-  isEquilateral: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
-    const points = extractPoints([t, s]);
-    const hs = consecutiveTuples(points, isClosed([t, s]));
+  isEquilateral: (
+    s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>
+  ): ad.Num => {
+    const points = extractPoints(s);
+    const hs = consecutiveTuples(points, isClosed(s));
     return equivalued(hs.map(([p1, p2]: ad.Num[][]) => ops.vdist(p1, p2)));
   },
 
   /**
    * All angles between consecutive edges should be equal
    */
-  isEquiangular: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
-    const points = extractPoints([t, s]);
-    const hs = consecutiveTriples(points, isClosed([t, s]));
+  isEquiangular: (
+    s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>
+  ): ad.Num => {
+    const points = extractPoints(s);
+    const hs = consecutiveTriples(points, isClosed(s));
     return equivalued(
       hs.map(([p1, p2, p3]: ad.Num[][]) =>
         ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))

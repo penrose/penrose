@@ -211,7 +211,7 @@ export const bboxFromCircle = ({
   r,
   center,
   strokeWidth,
-}: CircleProps): BBox => {
+}: CircleProps<ad.Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
@@ -228,7 +228,7 @@ export const bboxFromEllipse = ({
   ry,
   center,
   strokeWidth,
-}: EllipseProps): BBox => {
+}: EllipseProps<ad.Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
@@ -250,7 +250,7 @@ export const bboxFromRect = ({
   height,
   center,
   strokeWidth,
-}: RectangleProps): BBox => {
+}: RectangleProps<ad.Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
@@ -271,7 +271,7 @@ export const bboxFromRectlike = ({
   width,
   height,
   rotation,
-}: Center & Rect & Rotate): BBox => {
+}: Center<ad.Num> & Rect<ad.Num> & Rotate<ad.Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
@@ -288,7 +288,10 @@ export const bboxFromRectlike = ({
   );
 };
 
-export const bboxFromPolygon = ({ points, scale }: Poly & Scale): BBox => {
+export const bboxFromPolygon = ({
+  points,
+  scale,
+}: Poly<ad.Num> & Scale<ad.Num>): BBox => {
   return bboxFromPoints(
     points.contents.map((point) => {
       const pt = ops.vmul(scale.contents, point);
@@ -307,7 +310,7 @@ export const bboxFromLinelike = ({
   start,
   end,
   strokeWidth,
-}: LineProps): BBox => {
+}: LineProps<ad.Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(start.contents)) {
     throw new Error(
@@ -340,7 +343,7 @@ export const bboxFromLinelike = ({
   );
 };
 
-export const bboxFromPath = ({ d }: PathProps): BBox => {
+export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
   const p = d.contents;
   if (p.length < 1) {
     throw new Error("bboxFromPath expected pathData to be nonempty");

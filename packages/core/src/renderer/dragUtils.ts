@@ -1,6 +1,6 @@
 import { genOptProblem } from "@penrose/optimizer";
+import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
-import { Properties, ShapeAD } from "../types/shape";
 import { State } from "../types/state";
 
 /**
@@ -17,7 +17,7 @@ export const dragUpdate = (
   const { inputMask, objMask, constrMask } = constraintSets.get(optStages[0])!;
   const gradMask = [...inputMask];
   for (const shape of state.shapes) {
-    if (shape.properties.name.contents === id) {
+    if (shape.name.contents === id) {
       for (const id of dragShape(shape, [dx, dy], xs)) {
         gradMask[id] = false;
       }
@@ -34,12 +34,11 @@ export const dragUpdate = (
 // TODO: factor out position props in shapedef
 // return: a list of updated ids
 const dragShape = (
-  shape: ShapeAD,
+  shape: Shape<ad.Num>,
   offset: [number, number],
   xs: number[]
 ): number[] => {
-  const { shapeType, properties } = shape;
-  switch (shapeType) {
+  switch (shape.shapeType) {
     case "Path":
       console.log("Path drag unimplemented", shape); // Just to prevent crashing on accidental drag
       return [];
@@ -50,9 +49,9 @@ const dragShape = (
       console.log("Polyline drag unimplemented", shape); // Just to prevent crashing on accidental drag
       return [];
     case "Line":
-      return moveProperties(properties, ["start", "end"], offset, xs);
+      return moveProperties(shape, ["start", "end"], offset, xs);
     default:
-      return moveProperties(properties, ["center"], offset, xs);
+      return moveProperties(shape, ["center"], offset, xs);
   }
 };
 
@@ -60,7 +59,7 @@ const dragShape = (
  * For each of the specified properties listed in `propPairs`, subtract a number from the original value.
  */
 const moveProperties = (
-  properties: Properties<ad.Num>,
+  properties: Shape<ad.Num>,
   propsToMove: string[],
   [dx, dy]: [number, number],
   xs: number[]
