@@ -249,11 +249,13 @@
     y="191.4642843028493"
     width="12"
     height="13"
-    ascent="13"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="13"
     descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`A`.icon</title>
     A
@@ -268,11 +270,13 @@
     y="292.9860675335449"
     width="13"
     height="13"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="0"
     ascent="13"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`B`.icon</title>
     B
@@ -287,11 +291,13 @@
     y="304.98457187585086"
     width="12"
     height="13"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="0"
     ascent="13"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`C`.icon</title>
     C
@@ -306,11 +312,13 @@
     y="383.1386342502842"
     width="13"
     height="13"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="0"
     ascent="13"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`D`.icon</title>
     D
@@ -325,11 +333,13 @@
     y="419.7019046957304"
     width="13"
     height="13"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    descent="0"
     ascent="13"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`E`.icon</title>
     E
@@ -344,11 +354,13 @@
     y="444.6020811087217"
     width="12"
     height="13"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    descent="0"
+    dominant-baseline="alphabetic"
     ascent="13"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`F`.icon</title>
     F
@@ -363,11 +375,13 @@
     y="392.88288573023146"
     width="12"
     height="13"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    descent="0"
+    dominant-baseline="alphabetic"
     ascent="13"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`G`.icon</title>
     G

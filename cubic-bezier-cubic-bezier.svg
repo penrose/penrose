@@ -1,9 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
   <g
     transform="rotate(0, 54.52432362377348, 273.80566998852026)translate(54.52432362377348, 273.80566998852026)"
-    strokeColor="[object Object]"
-    font-size="12pt"
-    string="P_{12}"
   >
     <title>`p12`.text</title>
     <svg
@@ -80,9 +77,6 @@
   </g>
   <g
     transform="rotate(0, 231.1714509031517, 309.45803567239756)translate(231.1714509031517, 309.45803567239756)"
-    font-size="12pt"
-    string="P_{123}"
-    strokeColor="[object Object]"
   >
     <title>`p123`.text</title>
     <svg
@@ -144,9 +138,6 @@
   </g>
   <g
     transform="rotate(0, 299.83507020463963, 376.17578648226055)translate(299.83507020463963, 376.17578648226055)"
-    strokeColor="[object Object]"
-    font-size="12pt"
-    string="P_{23}"
   >
     <title>`p23`.text</title>
     <svg
@@ -203,9 +194,6 @@
   </g>
   <g
     transform="rotate(0, 488.16325726763023, 371.2322011728041)translate(488.16325726763023, 371.2322011728041)"
-    font-size="12pt"
-    string="P_3"
-    strokeColor="[object Object]"
   >
     <title>`p3`.text</title>
     <svg
@@ -274,9 +262,6 @@
   </g>
   <g
     transform="rotate(0, 365.8568998660992, 299.89460439230686)translate(365.8568998660992, 299.89460439230686)"
-    strokeColor="[object Object]"
-    font-size="12pt"
-    string="P_{1234}"
   >
     <title>`p1234`.text</title>
     <svg
@@ -343,9 +328,6 @@
   </g>
   <g
     transform="rotate(0, 441.08785986260614, 270.82238362253617)translate(441.08785986260614, 270.82238362253617)"
-    font-size="12pt"
-    string="P_{234}"
-    strokeColor="[object Object]"
   >
     <title>`p234`.text</title>
     <svg
@@ -417,9 +399,6 @@
   </g>
   <g
     transform="rotate(0, 534.6719427860784, 228.05583953646266)translate(534.6719427860784, 228.05583953646266)"
-    strokeColor="[object Object]"
-    font-size="12pt"
-    string="P_{34}"
   >
     <title>`p34`.text</title>
     <svg
@@ -476,9 +455,6 @@
   </g>
   <g
     transform="rotate(0, 564.7291198441881, 158.02674580416894)translate(564.7291198441881, 158.02674580416894)"
-    string="P_4"
-    strokeColor="[object Object]"
-    font-size="12pt"
   >
     <title>`p4`.text</title>
     <svg
@@ -527,9 +503,6 @@
   </g>
   <g
     transform="rotate(0, 122.62259689833171, 376.7909160295757)translate(122.62259689833171, 376.7909160295757)"
-    font-size="12pt"
-    string="P_2"
-    strokeColor="[object Object]"
   >
     <title>`p2`.text</title>
     <svg
@@ -598,9 +571,6 @@
   </g>
   <g
     transform="rotate(0, 0.9684884956230544, 122.17868678041445)translate(0.9684884956230544, 122.17868678041445)"
-    font-size="12pt"
-    string="P_1"
-    strokeColor="[object Object]"
   >
     <title>`p1`.text</title>
     <svg
@@ -737,7 +707,7 @@
   >
     <title>`p123`.point</title>
   </circle>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="2:0:curve-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

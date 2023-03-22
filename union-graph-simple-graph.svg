@@ -52,11 +52,13 @@
     y="302.5119231138059"
     width="10"
     height="10"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="10"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`e`.text</title>
@@ -105,11 +107,13 @@
     y="376.4518035520497"
     width="12"
     height="18"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="4"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`f`.text</title>
@@ -168,12 +172,14 @@
     y="290.8173022403604"
     width="11"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`b`.text</title>
     𝑏
@@ -201,12 +207,14 @@
     y="388.2870168265042"
     width="10"
     height="10"
-    paint-order="stroke"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="10"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`c`.text</title>
     𝑐
@@ -244,11 +252,13 @@
     y="209.9264583196924"
     width="11"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`d`.text</title>
@@ -277,12 +287,14 @@
     y="176.87607500566847"
     width="10"
     height="10"
-    paint-order="stroke"
-    descent="0"
-    ascent="10"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="10"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`a`.text</title>
     𝑎

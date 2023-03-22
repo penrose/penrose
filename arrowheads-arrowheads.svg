@@ -42,11 +42,7 @@
     ></path>
     <title>`none`.icon</title>
   </g>
-  <g
-    transform="rotate(0, 257.8146, 61.17)translate(257.8146, 61.17)"
-    font-size="12pt"
-    string="\textbf{none}"
-  >
+  <g transform="rotate(0, 257.8146, 61.17)translate(257.8146, 61.17)">
     <title>`none`.text</title>
     <svg
       style="font-size: 12pt"
@@ -142,8 +138,6 @@
   </g>
   <g
     transform="rotate(0, 244.13692999999998, 131.17)translate(244.13692999999998, 131.17)"
-    font-size="12pt"
-    string="\textbf{concave}"
   >
     <title>`concave`.text</title>
     <svg
@@ -255,8 +249,6 @@
   </g>
   <g
     transform="rotate(0, 244.26937999999998, 201.17)translate(244.26937999999998, 201.17)"
-    font-size="12pt"
-    string="\textbf{straight}"
   >
     <title>`straight`.text</title>
     <svg
@@ -377,8 +369,6 @@
   </g>
   <g
     transform="rotate(0, 262.90067999999997, 271.17)translate(262.90067999999997, 271.17)"
-    font-size="12pt"
-    string="\textbf{line}"
   >
     <title>`line`.text</title>
     <svg
@@ -479,8 +469,6 @@
   </g>
   <g
     transform="rotate(0, 230.13254999999998, 341.17)translate(230.13254999999998, 341.17)"
-    font-size="12pt"
-    string="\textbf{doubleLine}"
   >
     <title>`doubleLine`.text</title>
     <svg
@@ -603,8 +591,6 @@
   </g>
   <g
     transform="rotate(0, 248.93161999999998, 411.17)translate(248.93161999999998, 411.17)"
-    font-size="12pt"
-    string="\textbf{loopup}"
   >
     <title>`loopup`.text</title>
     <svg
@@ -705,11 +691,7 @@
     ></path>
     <title>`loopdown`.icon</title>
   </g>
-  <g
-    transform="rotate(0, 236.51664, 481.17)translate(236.51664, 481.17)"
-    font-size="12pt"
-    string="\textbf{loopdown}"
-  >
+  <g transform="rotate(0, 236.51664, 481.17)translate(236.51664, 481.17)">
     <title>`loopdown`.text</title>
     <svg
       style="font-size: 12pt"
@@ -827,11 +809,7 @@
     ></path>
     <title>`loop`.icon</title>
   </g>
-  <g
-    transform="rotate(0, 260.21636, 551.17)translate(260.21636, 551.17)"
-    string="\textbf{loop}"
-    font-size="12pt"
-  >
+  <g transform="rotate(0, 260.21636, 551.17)translate(260.21636, 551.17)">
     <title>`loop`.text</title>
     <svg
       style="font-size: 12pt"

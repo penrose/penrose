@@ -44,8 +44,6 @@
   </g>
   <g
     transform="rotate(0, 368.445638252766, 341.7004345768324)translate(368.445638252766, 341.7004345768324)"
-    font-size="22pt"
-    string="m"
   >
     <title>`m`.text</title>
     <svg
@@ -83,8 +81,6 @@
   </g>
   <g
     transform="rotate(0, 397.95468758580193, 570.3562339406964)translate(397.95468758580193, 570.3562339406964)"
-    font-size="22pt"
-    string="s"
   >
     <title>`s`.text</title>
     <svg
@@ -120,7 +116,7 @@
       </g>
     </svg>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 596.9450475590031 180.34842181350743 L 478.13697390089607 625.6698318242256"
       stroke-opacity="1"
@@ -157,7 +153,7 @@
     ></path>
     <title>`w`.icon</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="`theta`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -183,7 +179,7 @@
     ></path>
     <title>`theta`.mark</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 182.36208585169007 580.3379571307868 L 596.9450475590031 180.34842181350743"
       stroke-opacity="1"
@@ -193,7 +189,7 @@
     ></path>
     <title>`theta`.side1</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 596.9450475590031 180.34842181350743 L 478.13697390089607 625.6698318242256"
       stroke-opacity="1"
@@ -203,7 +199,7 @@
     ></path>
     <title>`theta`.side2</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 596.9450475590031 180.34842181350743 L 182.36208585169007 580.3379571307868"
       stroke-opacity="1"
@@ -271,8 +267,6 @@
   </circle>
   <g
     transform="rotate(0, 572.4927670405978, 149.48577065002652)translate(572.4927670405978, 149.48577065002652)"
-    font-size="22pt"
-    string="p"
   >
     <title>`p`.text</title>
     <svg
@@ -310,8 +304,6 @@
   </g>
   <g
     transform="rotate(0, 489.16190392081256, 626.5160261851232)translate(489.16190392081256, 626.5160261851232)"
-    font-size="22pt"
-    string="r"
   >
     <title>`r`.text</title>
     <svg
@@ -349,8 +341,6 @@
   </g>
   <g
     transform="rotate(0, 708.897203016139, 10.415)translate(708.897203016139, 10.415)"
-    font-size="22pt"
-    string="E^2"
   >
     <title>`P`.text</title>
     <svg
@@ -397,7 +387,7 @@
       </g>
     </svg>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="`t`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -452,8 +442,6 @@
   </circle>
   <g
     transform="rotate(0, 163.6995054711543, 543.3999497023132)translate(163.6995054711543, 543.3999497023132)"
-    font-size="22pt"
-    string="q"
   >
     <title>`q`.text</title>
     <svg
@@ -502,7 +490,7 @@
   >
     <title>`m`.icon</title>
   </circle>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`h`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

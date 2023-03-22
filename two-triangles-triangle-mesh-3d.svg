@@ -114,8 +114,6 @@
   </polygon>
   <g
     transform="rotate(0, 151.75639196194314, 148.04410077441096)translate(151.75639196194314, 148.04410077441096)"
-    font-size="4.5px"
-    string="\mathbf{f}_i"
   >
     <title>`s`.labelI</title>
     <svg
@@ -166,8 +164,6 @@
   </g>
   <g
     transform="rotate(0, 128.3218790481609, 95.27534408243811)translate(128.3218790481609, 95.27534408243811)"
-    font-size="4.5px"
-    string="\mathbf{f}_j"
   >
     <title>`s`.labelJ</title>
     <svg
@@ -218,8 +214,6 @@
   </g>
   <g
     transform="rotate(0, 85.92826004665648, 124.46537715475911)translate(85.92826004665648, 124.46537715475911)"
-    font-size="4.5px"
-    string="\mathbf{f}_k"
   >
     <title>`s`.labelK</title>
     <svg
@@ -281,8 +275,6 @@
   </polygon>
   <g
     transform="rotate(0, 55.315056067039556, 31.402610863841968)translate(55.315056067039556, 31.402610863841968)"
-    font-size="4.5px"
-    string="\widetilde{\mathbf{f}}_i"
   >
     <title>`t`.labelI</title>
     <svg
@@ -346,8 +338,6 @@
   </g>
   <g
     transform="rotate(0, 55.86947444031383, 91.74130941818304)translate(55.86947444031383, 91.74130941818304)"
-    font-size="4.5px"
-    string="\widetilde{\mathbf{f}}_j"
   >
     <title>`t`.labelJ</title>
     <svg
@@ -411,8 +401,6 @@
   </g>
   <g
     transform="rotate(0, 125.69231209883786, 55.985942181218405)translate(125.69231209883786, 55.985942181218405)"
-    font-size="4.5px"
-    string="\widetilde{\mathbf{f}}_k"
   >
     <title>`t`.labelK</title>
     <svg

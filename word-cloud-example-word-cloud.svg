@@ -152,11 +152,13 @@
     y="82.57567943576726"
     width="94"
     height="9"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    descent="2"
+    dominant-baseline="alphabetic"
     ascent="7"
+    descent="2"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`BCs`.text</title>
     boundary conditions
@@ -187,11 +189,13 @@
     y="64.07568394767276"
     width="90"
     height="7"
-    descent="0"
-    ascent="7"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="7"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Exact`.text</title>
     exact discretization
@@ -238,11 +242,13 @@
     y="103.07567342524534"
     width="94"
     height="9"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="2"
     ascent="7"
+    descent="2"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Minkowski`.text</title>
     Minkowski penalties
@@ -257,11 +263,13 @@
     y="144.07565432448453"
     width="72"
     height="9"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="7"
     descent="2"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
   >
     <title>`Shells`.text</title>
     repulsive shells
@@ -276,11 +284,13 @@
     y="25.07569192271157"
     width="112"
     height="9"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="7"
     descent="2"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Riemannian`.text</title>
     shape space formulation
@@ -295,11 +305,13 @@
     y="123.57566084335215"
     width="127"
     height="9"
-    descent="2"
-    ascent="7"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="7"
+    descent="2"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`CurveSurface`.text</title>
     repulsive curves + surfaces
@@ -314,11 +326,13 @@
     y="144.07565633039303"
     width="97"
     height="9"
-    ascent="7"
-    text-anchor="middle"
-    descent="2"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="7"
+    descent="2"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Software`.text</title>
     open-source software
@@ -333,11 +347,13 @@
     y="164.57565024259225"
     width="53"
     height="7"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="7"
-    text-anchor="middle"
     descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Videos`.text</title>
     K-12 videos
@@ -352,11 +368,13 @@
     y="45.575689705830975"
     width="65"
     height="7"
-    descent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="7"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="7"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Tools`.text</title>
     end-user tools
@@ -371,11 +389,13 @@
     y="164.57565406676665"
     width="113"
     height="7"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="7"
-    text-anchor="middle"
     descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Courses`.text</title>
     local &amp; outreach courses
@@ -390,11 +410,13 @@
     y="82.57567989875298"
     width="62"
     height="9"
-    descent="2"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="7"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="7"
+    descent="2"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Survey`.text</title>
     survey article

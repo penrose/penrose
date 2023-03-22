@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team5_team2`.pointer-shadow"
       x="0"
@@ -30,7 +30,7 @@
     ></path>
     <title>`Arc_team5_team2`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team5_team2`.arrow-shadow"
       x="0"
@@ -62,7 +62,7 @@
     ></path>
     <title>`Arc_team5_team2`.arrow</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team5_team3`.pointer-shadow"
       x="0"
@@ -93,7 +93,7 @@
     ></path>
     <title>`Arc_team5_team3`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team5_team3`.arrow-shadow"
       x="0"
@@ -125,7 +125,7 @@
     ></path>
     <title>`Arc_team5_team3`.arrow</title>
   </g>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team5_team6`.pointer-shadow"
       x="0"
@@ -156,7 +156,7 @@
     ></path>
     <title>`Arc_team5_team6`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team5_team6`.arrow-shadow"
       x="0"
@@ -188,7 +188,7 @@
     ></path>
     <title>`Arc_team5_team6`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_team1_team5`.pointer-shadow"
       x="0"
@@ -219,7 +219,7 @@
     ></path>
     <title>`Arc_team1_team5`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team1_team5`.arrow-shadow"
       x="0"
@@ -251,7 +251,7 @@
     ></path>
     <title>`Arc_team1_team5`.arrow</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team5_team4`.pointer-shadow"
       x="0"
@@ -282,7 +282,7 @@
     ></path>
     <title>`Arc_team5_team4`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team5_team4`.arrow-shadow"
       x="0"
@@ -337,17 +337,19 @@
     y="199.40402590316864"
     width="67"
     height="14"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
-    text-anchor="middle"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`team5`.text</title>
     Team 5
   </text>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team6_team3`.pointer-shadow"
       x="0"
@@ -378,7 +380,7 @@
     ></path>
     <title>`Arc_team6_team3`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team6_team3`.arrow-shadow"
       x="0"
@@ -410,7 +412,7 @@
     ></path>
     <title>`Arc_team6_team3`.arrow</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team6_team4`.pointer-shadow"
       x="0"
@@ -441,7 +443,7 @@
     ></path>
     <title>`Arc_team6_team4`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team6_team4`.arrow-shadow"
       x="0"
@@ -473,7 +475,7 @@
     ></path>
     <title>`Arc_team6_team4`.arrow</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team6_team2`.pointer-shadow"
       x="0"
@@ -504,7 +506,7 @@
     ></path>
     <title>`Arc_team6_team2`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team6_team2`.arrow-shadow"
       x="0"
@@ -536,7 +538,7 @@
     ></path>
     <title>`Arc_team6_team2`.arrow</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team1_team6`.pointer-shadow"
       x="0"
@@ -567,7 +569,7 @@
     ></path>
     <title>`Arc_team1_team6`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team1_team6`.arrow-shadow"
       x="0"
@@ -622,17 +624,19 @@
     y="98.45103733034495"
     width="67"
     height="14"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`team6`.text</title>
     Team 6
   </text>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_team1_team2`.pointer-shadow"
       x="0"
@@ -663,7 +667,7 @@
     ></path>
     <title>`Arc_team1_team2`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team1_team2`.arrow-shadow"
       x="0"
@@ -695,7 +699,7 @@
     ></path>
     <title>`Arc_team1_team2`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_team2_team4`.pointer-shadow"
       x="0"
@@ -726,7 +730,7 @@
     ></path>
     <title>`Arc_team2_team4`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team2_team4`.arrow-shadow"
       x="0"
@@ -758,7 +762,7 @@
     ></path>
     <title>`Arc_team2_team4`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_team2_team3`.pointer-shadow"
       x="0"
@@ -789,7 +793,7 @@
     ></path>
     <title>`Arc_team2_team3`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team2_team3`.arrow-shadow"
       x="0"
@@ -844,17 +848,19 @@
     y="268.9980719777753"
     width="66"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`team2`.text</title>
     Team 2
   </text>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team4_team3`.pointer-shadow"
       x="0"
@@ -885,7 +891,7 @@
     ></path>
     <title>`Arc_team4_team3`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team4_team3`.arrow-shadow"
       x="0"
@@ -917,7 +923,7 @@
     ></path>
     <title>`Arc_team4_team3`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_team1_team3`.pointer-shadow"
       x="0"
@@ -948,7 +954,7 @@
     ></path>
     <title>`Arc_team1_team3`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team1_team3`.arrow-shadow"
       x="0"
@@ -1003,17 +1009,19 @@
     y="281.98154274106014"
     width="67"
     height="14"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`team3`.text</title>
     Team 3
   </text>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_team1_team4`.pointer-shadow"
       x="0"
@@ -1044,7 +1052,7 @@
     ></path>
     <title>`Arc_team1_team4`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_team1_team4`.arrow-shadow"
       x="0"
@@ -1099,12 +1107,14 @@
     y="170.35722660574254"
     width="67"
     height="14"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`team4`.text</title>
     Team 4
@@ -1132,12 +1142,14 @@
     y="160.01813872690457"
     width="65"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`team1`.text</title>
     Team 1

@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_s4_s5`.pointer-shadow"
       x="0"
@@ -30,7 +30,7 @@
     ></path>
     <title>`Arc_s4_s5`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s4_s5`.arrow-shadow"
       x="0"
@@ -62,7 +62,7 @@
     ></path>
     <title>`Arc_s4_s5`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s2_s5`.pointer-shadow"
       x="0"
@@ -93,7 +93,7 @@
     ></path>
     <title>`Arc_s2_s5`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s2_s5`.arrow-shadow"
       x="0"
@@ -148,17 +148,19 @@
     y="346.67644220321665"
     width="19"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`s5`.text</title>
     𝑆₅
   </text>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s4_s6`.pointer-shadow"
       x="0"
@@ -189,7 +191,7 @@
     ></path>
     <title>`Arc_s4_s6`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s4_s6`.arrow-shadow"
       x="0"
@@ -221,7 +223,7 @@
     ></path>
     <title>`Arc_s4_s6`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s3_s6`.pointer-shadow"
       x="0"
@@ -252,7 +254,7 @@
     ></path>
     <title>`Arc_s3_s6`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s3_s6`.arrow-shadow"
       x="0"
@@ -284,7 +286,7 @@
     ></path>
     <title>`Arc_s3_s6`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s2_s6`.pointer-shadow"
       x="0"
@@ -315,7 +317,7 @@
     ></path>
     <title>`Arc_s2_s6`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s2_s6`.arrow-shadow"
       x="0"
@@ -347,7 +349,7 @@
     ></path>
     <title>`Arc_s2_s6`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s1_s6`.pointer-shadow"
       x="0"
@@ -378,7 +380,7 @@
     ></path>
     <title>`Arc_s1_s6`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s1_s6`.arrow-shadow"
       x="0"
@@ -433,17 +435,19 @@
     y="124.62527887695528"
     width="19"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`s6`.text</title>
     𝑆₆
   </text>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s2_s4`.pointer-shadow"
       x="0"
@@ -474,7 +478,7 @@
     ></path>
     <title>`Arc_s2_s4`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s2_s4`.arrow-shadow"
       x="0"
@@ -529,17 +533,19 @@
     y="220.11392393712623"
     width="19"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`s2`.text</title>
     𝑆₂
   </text>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_s1_s3`.pointer-shadow"
       x="0"
@@ -570,7 +576,7 @@
     ></path>
     <title>`Arc_s1_s3`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s1_s3`.arrow-shadow"
       x="0"
@@ -625,17 +631,19 @@
     y="45.563573268414814"
     width="19"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`s3`.text</title>
     𝑆₃
   </text>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s1_s4`.pointer-shadow"
       x="0"
@@ -666,7 +674,7 @@
     ></path>
     <title>`Arc_s1_s4`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_s1_s4`.arrow-shadow"
       x="0"
@@ -721,12 +729,14 @@
     y="231.530174278483"
     width="19"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`s4`.text</title>
     𝑆₄
@@ -754,12 +764,14 @@
     y="170.40365067555666"
     width="18"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`s1`.text</title>
     𝑆₁

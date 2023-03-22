@@ -32,12 +32,14 @@
     y="388.0112276695793"
     width="65"
     height="14"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Ybarra`.text</title>
     Ybarra
@@ -85,12 +87,14 @@
     y="302.470796954205"
     width="126"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`requirements`.text</title>
     requirements
@@ -138,12 +142,14 @@
     y="171.58006921406405"
     width="48"
     height="14"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Xuan`.text</title>
     Xuan
@@ -191,12 +197,14 @@
     y="279.4703627395441"
     width="68"
     height="18"
-    ascent="14"
-    text-anchor="middle"
-    descent="4"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Ziegler`.text</title>
     Ziegler
@@ -224,12 +232,14 @@
     y="182.2792128249884"
     width="146"
     height="18"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
+    dominant-baseline="alphabetic"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`implementation`.text</title>
     implementation
@@ -257,12 +267,14 @@
     y="317.20088530526976"
     width="63"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`testing`.text</title>
     testing
@@ -300,12 +312,14 @@
     y="209.41921754440503"
     width="109"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Washington`.text</title>
     Washington
@@ -333,12 +347,14 @@
     y="163.2788019740869"
     width="114"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
+    dominant-baseline="alphabetic"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`architecture`.text</title>
     architecture

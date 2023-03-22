@@ -14,11 +14,7 @@
   >
     <title>`R`.icon</title>
   </rect>
-  <g
-    transform="rotate(0, 687.72878, 85.42)translate(687.72878, 85.42)"
-    font-size="13.5px"
-    string="R"
-  >
+  <g transform="rotate(0, 687.72878, 85.42)translate(687.72878, 85.42)">
     <title>`R`.text</title>
     <svg
       style="font-size: 13.5px"
@@ -55,8 +51,6 @@
   </g>
   <g
     transform="rotate(0, 539.771712574196, 102.16763540649852)translate(539.771712574196, 102.16763540649852)"
-    font-size="13.5px"
-    string="A"
   >
     <title>`A`.text</title>
     <svg
@@ -94,8 +88,6 @@
   </g>
   <g
     transform="rotate(0, 139.6874687090105, 538.1014707104041)translate(139.6874687090105, 538.1014707104041)"
-    font-size="13.5px"
-    string="B"
   >
     <title>`B`.text</title>
     <svg
@@ -133,8 +125,6 @@
   </g>
   <g
     transform="rotate(0, 240.68253821271452, 92.06796035749393)translate(240.68253821271452, 92.06796035749393)"
-    font-size="13.5px"
-    string="E"
   >
     <title>`E`.text</title>
     <svg
@@ -172,8 +162,6 @@
   </g>
   <g
     transform="rotate(0, 198.01320916839276, 306.2226120184)translate(198.01320916839276, 306.2226120184)"
-    string="D"
-    font-size="13.5px"
   >
     <title>`D`.text</title>
     <svg
@@ -237,8 +225,6 @@
   </circle>
   <g
     transform="rotate(0, 669.0823303594186, 225.32666336236937)translate(669.0823303594186, 225.32666336236937)"
-    font-size="13.5px"
-    string="C"
   >
     <title>`C`.text</title>
     <svg
@@ -274,7 +260,7 @@
       </g>
     </svg>
   </g>
-  <g style="solid">
+  <g>
     <marker
       id="automator-HighlighterChicken10318-`BE`.icon-endArrowId"
       markerUnits="strokeWidth"
@@ -327,7 +313,7 @@
   >
     <title>`E`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <marker
       id="automator-HighlighterChicken10318-`BA`.icon-startArrowId"
       markerUnits="strokeWidth"

@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid">
+  <g>
     <path
       d="M 369.76323515627496 488.4912595891788 L 492.4793604326596 230.95379506887684"
       stroke-opacity="1"
@@ -9,7 +9,7 @@
     ></path>
     <title>`aTUS`.side1</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 208.08730090031818 253.4472543449255 L 369.76323515627496 488.4912595891788"
       stroke-opacity="1"
@@ -19,7 +19,7 @@
     ></path>
     <title>`ST`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 208.08730090031818 253.4472543449255 L 369.76323515627496 488.4912595891788"
       stroke-opacity="1"
@@ -29,7 +29,7 @@
     ></path>
     <title>`aUST`.side2</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 492.4793604326596 230.95379506887684 L 369.76323515627496 488.4912595891788"
       stroke-opacity="1"
@@ -39,7 +39,7 @@
     ></path>
     <title>`UT`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 492.4793604326596 230.95379506887684 L 369.76323515627496 488.4912595891788"
       stroke-opacity="1"
@@ -49,7 +49,7 @@
     ></path>
     <title>`UTS`.PQ</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 369.76323515627496 488.4912595891788 L 208.08730090031818 253.4472543449255"
       stroke-opacity="1"
@@ -59,7 +59,7 @@
     ></path>
     <title>`UTS`.QR</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 492.4793604326596 230.95379506887684 L 369.76323515627496 488.4912595891788"
       stroke-opacity="1"
@@ -69,7 +69,7 @@
     ></path>
     <title>`aUTS`.side1</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 369.76323515627496 488.4912595891788 L 208.08730090031818 253.4472543449255"
       stroke-opacity="1"
@@ -92,7 +92,7 @@
   >
     <title>`T`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 492.4793604326596 230.95379506887684 L 208.08730090031818 253.4472543449255"
       stroke-opacity="1"
@@ -102,7 +102,7 @@
     ></path>
     <title>`aTUS`.side2</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 492.4793604326596 230.95379506887684 L 208.08730090031818 253.4472543449255"
       stroke-opacity="1"
@@ -112,7 +112,7 @@
     ></path>
     <title>`aUST`.side1</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 208.08730090031818 253.4472543449255 L 492.4793604326596 230.95379506887684"
       stroke-opacity="1"
@@ -122,7 +122,7 @@
     ></path>
     <title>`UTS`.RP</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 492.4793604326596 230.95379506887684 L 208.08730090031818 253.4472543449255"
       stroke-opacity="1"
@@ -158,7 +158,7 @@
   >
     <title>`S`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 688.0891168693375 605.8500667391103 L 656.8083831808842 322.29001303364737"
       stroke-opacity="1"
@@ -168,7 +168,7 @@
     ></path>
     <title>`aXYZ`.side1</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 426.8785247656616 491.15994386287514 L 688.0891168693375 605.8500667391103"
       stroke-opacity="1"
@@ -178,7 +178,7 @@
     ></path>
     <title>`aZXY`.side1</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 688.0891168693375 605.8500667391103 L 656.8083831808842 322.29001303364737"
       stroke-opacity="1"
@@ -188,7 +188,7 @@
     ></path>
     <title>`aZXY`.side2</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 688.0891168693375 605.8500667391103 L 656.8083831808842 322.29001303364737"
       stroke-opacity="1"
@@ -198,7 +198,7 @@
     ></path>
     <title>`XY`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 688.0891168693375 605.8500667391103 L 656.8083831808842 322.29001303364737"
       stroke-opacity="1"
@@ -208,7 +208,7 @@
     ></path>
     <title>`XYZ`.PQ</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 426.8785247656616 491.15994386287514 L 688.0891168693375 605.8500667391103"
       stroke-opacity="1"
@@ -218,7 +218,7 @@
     ></path>
     <title>`XYZ`.RP</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 688.0891168693375 605.8500667391103 L 426.8785247656616 491.15994386287514"
       stroke-opacity="1"
@@ -228,7 +228,7 @@
     ></path>
     <title>`XZ`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 426.8785247656616 491.15994386287514 L 688.0891168693375 605.8500667391103"
       stroke-opacity="1"
@@ -251,7 +251,7 @@
   >
     <title>`X`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 656.8083831808842 322.29001303364737 L 426.8785247656616 491.15994386287514"
       stroke-opacity="1"
@@ -261,7 +261,7 @@
     ></path>
     <title>`aXYZ`.side2</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 656.8083831808842 322.29001303364737 L 426.8785247656616 491.15994386287514"
       stroke-opacity="1"
@@ -271,7 +271,7 @@
     ></path>
     <title>`XYZ`.QR</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 426.8785247656616 491.15994386287514 L 656.8083831808842 322.29001303364737"
       stroke-opacity="1"
@@ -281,7 +281,7 @@
     ></path>
     <title>`ZY`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 656.8083831808842 322.29001303364737 L 426.8785247656616 491.15994386287514"
       stroke-opacity="1"
@@ -319,8 +319,6 @@
   </circle>
   <g
     transform="rotate(0, 475.6900661373743, 197.95121269625398)translate(475.6900661373743, 197.95121269625398)"
-    font-size="13.5px"
-    string="U"
   >
     <title>`U`.text</title>
     <svg
@@ -358,8 +356,6 @@
   </g>
   <g
     transform="rotate(0, 206.126772318866, 216.04054099069916)translate(206.126772318866, 216.04054099069916)"
-    font-size="13.5px"
-    string="S"
   >
     <title>`S`.text</title>
     <svg
@@ -397,8 +393,6 @@
   </g>
   <g
     transform="rotate(0, 342.2745198285804, 488.4914156628049)translate(342.2745198285804, 488.4914156628049)"
-    font-size="13.5px"
-    string="T"
   >
     <title>`T`.text</title>
     <svg
@@ -436,8 +430,6 @@
   </g>
   <g
     transform="rotate(0, 413.0255111689617, 505.15996252533165)translate(413.0255111689617, 505.15996252533165)"
-    font-size="13.5px"
-    string="Z"
   >
     <title>`Z`.text</title>
     <svg
@@ -475,8 +467,6 @@
   </g>
   <g
     transform="rotate(0, 667.046301859233, 619.0309558549308)translate(667.046301859233, 619.0309558549308)"
-    font-size="13.5px"
-    string="X"
   >
     <title>`X`.text</title>
     <svg
@@ -514,8 +504,6 @@
   </g>
   <g
     transform="rotate(0, 628.4636568429178, 300.37202912556364)translate(628.4636568429178, 300.37202912556364)"
-    font-size="13.5px"
-    string="Y"
   >
     <title>`Y`.text</title>
     <svg
@@ -551,7 +539,7 @@
       </g>
     </svg>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`XZ`.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -577,7 +565,7 @@
     ></path>
     <title>`XZ`.tick</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`US`.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -603,7 +591,7 @@
     ></path>
     <title>`US`.tick</title>
   </g>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`XYZ`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -627,7 +615,7 @@
     ></path>
     <title>`XYZ`.icon</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter id="`UTS`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -651,7 +639,7 @@
     ></path>
     <title>`UTS`.icon</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`ZY`.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -677,7 +665,7 @@
     ></path>
     <title>`ZY`.tick</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`UT`.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -703,7 +691,7 @@
     ></path>
     <title>`UT`.tick</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`ST`.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -729,7 +717,7 @@
     ></path>
     <title>`ST`.tick</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`XY`.tick-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -755,7 +743,7 @@
     ></path>
     <title>`XY`.tick</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`aTUS`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -781,7 +769,7 @@
     ></path>
     <title>`aTUS`.mark</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`aUTS`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -807,7 +795,7 @@
     ></path>
     <title>`aUTS`.mark</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`aUST`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -833,7 +821,7 @@
     ></path>
     <title>`aUST`.mark</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`aYZX`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -859,7 +847,7 @@
     ></path>
     <title>`aYZX`.mark</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`aXYZ`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -885,7 +873,7 @@
     ></path>
     <title>`aXYZ`.mark</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`aZXY`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

@@ -401,8 +401,6 @@
   </circle>
   <g
     transform="rotate(0, 159.92010872062764, 447.8430479813955)translate(159.92010872062764, 447.8430479813955)"
-    font-size="12pt"
-    string="IN2"
   >
     <title>`IN2`.symbol</title>
     <svg
@@ -465,8 +463,6 @@
   </circle>
   <g
     transform="rotate(0, 159.9201088419726, 330.596561748667)translate(159.9201088419726, 330.596561748667)"
-    font-size="12pt"
-    string="IN1"
   >
     <title>`IN1`.symbol</title>
     <svg
@@ -529,8 +525,6 @@
   </circle>
   <g
     transform="rotate(0, 663.687979433639, 327.9606048463436)translate(663.687979433639, 327.9606048463436)"
-    font-size="12pt"
-    string="CAR"
   >
     <title>`CAR`.symbol</title>
     <svg
@@ -635,8 +629,6 @@
   </circle>
   <g
     transform="rotate(0, 661.9749593250397, 432.8591820759568)translate(661.9749593250397, 432.8591820759568)"
-    font-size="12pt"
-    string="SUM"
   >
     <title>`SUM`.symbol</title>
     <svg

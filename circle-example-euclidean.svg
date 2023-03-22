@@ -1,8 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g
     transform="rotate(0, 513.3026428461995, 320.08056876634254)translate(513.3026428461995, 320.08056876634254)"
-    font-size="13.5px"
-    string="E"
   >
     <title>`E`.text</title>
     <svg
@@ -40,8 +38,6 @@
   </g>
   <g
     transform="rotate(0, 398.06251220967744, 145.54179783056804)translate(398.06251220967744, 145.54179783056804)"
-    font-size="13.5px"
-    string="b"
   >
     <title>`b`.text</title>
     <svg
@@ -79,8 +75,6 @@
   </g>
   <g
     transform="rotate(0, 361.75696920251505, 246.27775839693604)translate(361.75696920251505, 246.27775839693604)"
-    font-size="13.5px"
-    string="F"
   >
     <title>`F`.text</title>
     <svg
@@ -118,8 +112,6 @@
   </g>
   <g
     transform="rotate(0, 485.3714079563341, 238.35128947756533)translate(485.3714079563341, 238.35128947756533)"
-    string="d"
-    font-size="13.5px"
   >
     <title>`d`.text</title>
     <svg
@@ -157,8 +149,6 @@
   </g>
   <g
     transform="rotate(0, 363.4331815552671, 60.381267889193495)translate(363.4331815552671, 60.381267889193495)"
-    font-size="13.5px"
-    string="B"
   >
     <title>`B`.text</title>
     <svg
@@ -196,8 +186,6 @@
   </g>
   <g
     transform="rotate(0, 511.18780175295683, 128.02108364644093)translate(511.18780175295683, 128.02108364644093)"
-    font-size="13.5px"
-    string="C"
   >
     <title>`C`.text</title>
     <svg
@@ -235,8 +223,6 @@
   </g>
   <g
     transform="rotate(0, 232.59656836939232, 164.68809659741615)translate(232.59656836939232, 164.68809659741615)"
-    font-size="13.5px"
-    string="A"
   >
     <title>`A`.text</title>
     <svg
@@ -272,7 +258,7 @@
       </g>
     </svg>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 385.3900076813109 235.79724179441337 L 528.494839435298 233.19042194189677"
       stroke-opacity="1"
@@ -309,8 +295,6 @@
   </circle>
   <g
     transform="rotate(0, 542.32342247191, 211.84603712556796)translate(542.32342247191, 211.84603712556796)"
-    string="D"
-    font-size="13.5px"
   >
     <title>`D`.text</title>
     <svg
@@ -385,7 +369,7 @@
   >
     <title>`F`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 385.3900076813109 235.79724179441337 L 382.77765034192873 92.69197341432465"
       stroke-opacity="1"
@@ -408,7 +392,7 @@
   >
     <title>`C`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 385.3900076813109 235.79724179441337 L 507.1584533070304 160.58873033005358"
       stroke-opacity="1"
@@ -431,7 +415,7 @@
   >
     <title>`B`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 260.96657624866316 165.06758488877406 L 507.1584533070304 160.58873033005358"
       stroke-opacity="1"
@@ -467,7 +451,7 @@
   >
     <title>`d`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 509.81648499433555 306.5215342782023 L 260.96657624866316 165.06758488877406"
       stroke-opacity="1"
@@ -477,7 +461,7 @@
     ></path>
     <title>`EA`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 385.3900076813109 235.79724179441337 L 384.0625147778468 162.82815760941384"
       stroke-opacity="1"
@@ -487,7 +471,7 @@
     ></path>
     <title>`Fb`.icon</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="`Fb`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -513,7 +497,7 @@
     ></path>
     <title>`Fb`.mark</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 509.81648499433555 306.5215342782023 L 507.1584533070304 160.58873033005358"
       stroke-opacity="1"
@@ -523,7 +507,7 @@
     ></path>
     <title>`EC`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 385.3900076813109 235.79724179441337 L 508.48746915068295 233.55513230412794"
       stroke-opacity="1"
@@ -533,7 +517,7 @@
     ></path>
     <title>`Fd`.icon</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="`Fd`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

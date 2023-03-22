@@ -52,12 +52,14 @@
     y="191.17916909227915"
     width="50"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Chen`.text</title>
     Chen
@@ -105,12 +107,14 @@
     y="168.1776509800135"
     width="126"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`requirements`.text</title>
     requirements
@@ -168,11 +172,13 @@
     y="149.1791929406376"
     width="93"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Berkowitz`.text</title>
@@ -201,12 +207,14 @@
     y="157.55211886611988"
     width="51"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Davis`.text</title>
     Davis
@@ -234,12 +242,14 @@
     y="168.1791835990912"
     width="146"
     height="18"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
+    dominant-baseline="alphabetic"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`implementation`.text</title>
     implementation
@@ -277,12 +287,14 @@
     y="229.17916286044527"
     width="63"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`testing`.text</title>
     testing
@@ -310,12 +322,14 @@
     y="130.17919703649846"
     width="70"
     height="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Alvarez`.text</title>
     Alvarez
@@ -343,12 +357,14 @@
     y="210.17914058496186"
     width="114"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
+    dominant-baseline="alphabetic"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`architecture`.text</title>
     architecture

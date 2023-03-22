@@ -22,8 +22,6 @@
     </circle>
     <g
       transform="rotate(0, 594.50136731909, 155.57251011610444)translate(594.50136731909, 155.57251011610444)"
-      font-size="12pt"
-      string="H"
     >
       <title>`H2`.symbol</title>
       <svg
@@ -84,8 +82,6 @@
     </circle>
     <g
       transform="rotate(0, 506.0548918658288, 200.07820811302722)translate(506.0548918658288, 200.07820811302722)"
-      font-size="12pt"
-      string="O"
     >
       <title>`O1`.symbol</title>
       <svg
@@ -136,8 +132,6 @@
     </circle>
     <g
       transform="rotate(0, 439.4414811326633, 124.52369618582536)translate(439.4414811326633, 124.52369618582536)"
-      font-size="12pt"
-      string="H"
     >
       <title>`H1`.symbol</title>
       <svg

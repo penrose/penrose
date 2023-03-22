@@ -42,12 +42,14 @@
     y="15.003908376788985"
     width="60"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p00`.text</title>
     𝑃(0, 0)
@@ -95,12 +97,14 @@
     y="312.97685015494227"
     width="60"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p33`.text</title>
     𝑃(3, 3)
@@ -168,12 +172,14 @@
     y="287.9595727629273"
     width="60"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p12`.text</title>
     𝑃(1, 2)
@@ -221,11 +227,13 @@
     y="111.62331371925298"
     width="60"
     height="18"
-    ascent="15"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="15"
     descent="3"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`p30`.text</title>
@@ -274,12 +282,14 @@
     y="151.32460350090295"
     width="60"
     height="18"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
+    dominant-baseline="alphabetic"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p02`.text</title>
     𝑃(0, 2)
@@ -327,12 +337,14 @@
     y="215.95014236306676"
     width="60"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="3"
-    paint-order="stroke"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p31`.text</title>
     𝑃(3, 1)
@@ -370,12 +382,14 @@
     y="174.32476164964848"
     width="60"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p32`.text</title>
     𝑃(3, 2)
@@ -423,12 +437,14 @@
     y="88.96319749145194"
     width="60"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="3"
-    paint-order="stroke"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p20`.text</title>
     𝑃(2, 0)
@@ -476,12 +492,14 @@
     y="193.71245221749746"
     width="60"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p22`.text</title>
     𝑃(2, 2)
@@ -519,12 +537,14 @@
     y="65.96311716130694"
     width="60"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p01`.text</title>
     𝑃(0, 1)
@@ -572,12 +592,14 @@
     y="381.22665255553625"
     width="60"
     height="18"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
+    dominant-baseline="alphabetic"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p13`.text</title>
     𝑃(1, 3)
@@ -615,12 +637,14 @@
     y="128.6269872912959"
     width="60"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p10`.text</title>
     𝑃(1, 0)
@@ -648,12 +672,14 @@
     y="263.82679495222106"
     width="60"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p23`.text</title>
     𝑃(2, 3)
@@ -681,12 +707,14 @@
     y="388.23403633707085"
     width="60"
     height="18"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
+    dominant-baseline="alphabetic"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p03`.text</title>
     𝑃(0, 3)
@@ -724,12 +752,14 @@
     y="197.3252402321568"
     width="60"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p21`.text</title>
     𝑃(2, 1)
@@ -757,12 +787,14 @@
     y="229.02986475526268"
     width="60"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="3"
     ascent="15"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p11`.text</title>
     𝑃(1, 1)

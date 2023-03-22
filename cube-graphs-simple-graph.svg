@@ -32,12 +32,14 @@
     y="310.93101335547067"
     width="11"
     height="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q11`.text</title>
     1
@@ -85,12 +87,14 @@
     y="29.099038647493217"
     width="21"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q201`.text</title>
     01
@@ -148,11 +152,13 @@
     y="143.72212491655498"
     width="34"
     height="14"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`q3010`.text</title>
@@ -211,12 +217,14 @@
     y="182.40019677393445"
     width="33"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q3111`.text</title>
     111
@@ -274,12 +282,14 @@
     y="295.6689888146846"
     width="32"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q3001`.text</title>
     001
@@ -307,12 +317,14 @@
     y="396.45987490278253"
     width="12"
     height="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q10`.text</title>
     0
@@ -370,12 +382,14 @@
     y="162.72212978593808"
     width="35"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q3100`.text</title>
     100
@@ -403,12 +417,14 @@
     y="310.3990299195386"
     width="32"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q3011`.text</title>
     011
@@ -446,12 +462,14 @@
     y="29.332267484714947"
     width="22"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q211`.text</title>
     11
@@ -479,12 +497,14 @@
     y="273.07429938717473"
     width="33"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q3101`.text</title>
     101
@@ -522,12 +542,14 @@
     y="129.8550997101869"
     width="24"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q210`.text</title>
     10
@@ -555,12 +577,14 @@
     y="201.40015380008862"
     width="34"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q3000`.text</title>
     000
@@ -588,12 +612,14 @@
     y="129.27394619737737"
     width="23"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q200`.text</title>
     00
@@ -621,12 +647,14 @@
     y="100.75184496957138"
     width="35"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`q3110`.text</title>
     110

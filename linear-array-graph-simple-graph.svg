@@ -42,11 +42,13 @@
     y="200.4110896543849"
     width="20"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`p5`.text</title>
@@ -75,11 +77,13 @@
     y="316.49559839083344"
     width="20"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`p6`.text</title>
@@ -128,12 +132,14 @@
     y="153.09259747881663"
     width="20"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p2`.text</title>
     𝑃₂
@@ -171,12 +177,14 @@
     y="267.46616641549906"
     width="20"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p3`.text</title>
     𝑃₃
@@ -204,11 +212,13 @@
     y="200.97473874968108"
     width="20"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`p4`.text</title>
@@ -237,12 +247,14 @@
     y="47.10679740169326"
     width="19"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`p1`.text</title>
     𝑃₁

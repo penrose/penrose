@@ -42,12 +42,14 @@
     y="222.520127364843"
     width="0"
     height="0"
-    paint-order="stroke"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`c`.text</title>
   </text>
@@ -94,11 +96,13 @@
     y="225.9311951939802"
     width="0"
     height="0"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`e`.text</title>
@@ -136,12 +140,14 @@
     y="164.53166621483913"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`b`.text</title>
   </text>
@@ -168,11 +174,13 @@
     y="275.20578080196935"
     width="0"
     height="0"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`d`.text</title>
@@ -220,12 +228,14 @@
     y="33.51943240620233"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`g`.text</title>
   </text>
@@ -262,12 +272,14 @@
     y="16.758822305542395"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`h`.text</title>
   </text>
@@ -294,12 +306,14 @@
     y="57.242197436977875"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`a`.text</title>
   </text>
@@ -326,11 +340,13 @@
     y="139.26726339330247"
     width="0"
     height="0"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`f`.text</title>

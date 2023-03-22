@@ -21,8 +21,6 @@
   </circle>
   <g
     transform="rotate(0, 158.7525871719319, 400.4345899587528)translate(158.7525871719319, 400.4345899587528)"
-    font-size="12pt"
-    string="O"
   >
     <title>`O1`.symbol</title>
     <svg
@@ -100,8 +98,6 @@
   </circle>
   <g
     transform="rotate(0, 214.56823042293422, 514.3562960639277)translate(214.56823042293422, 514.3562960639277)"
-    font-size="12pt"
-    string="N"
   >
     <title>`N1`.symbol</title>
     <svg
@@ -159,8 +155,6 @@
   </circle>
   <g
     transform="rotate(0, 549.4469712103102, 122.68727998732662)translate(549.4469712103102, 122.68727998732662)"
-    font-size="12pt"
-    string="O"
   >
     <title>`O2`.symbol</title>
     <svg
@@ -238,8 +232,6 @@
   </circle>
   <g
     transform="rotate(0, 558.0660505847949, 354.9843027172225)translate(558.0660505847949, 354.9843027172225)"
-    font-size="12pt"
-    string="N"
   >
     <title>`N2`.symbol</title>
     <svg
@@ -307,8 +299,6 @@
   </circle>
   <g
     transform="rotate(0, 651.0481196350579, 184.15494179927862)translate(651.0481196350579, 184.15494179927862)"
-    font-size="12pt"
-    string="O"
   >
     <title>`O3`.symbol</title>
     <svg
@@ -356,8 +346,6 @@
   </circle>
   <g
     transform="rotate(0, 254.44706309015774, 589.6442660510177)translate(254.44706309015774, 589.6442660510177)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H1`.symbol</title>
     <svg
@@ -405,8 +393,6 @@
   </circle>
   <g
     transform="rotate(0, 138.38044094179182, 553.7689232336623)translate(138.38044094179182, 553.7689232336623)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H2`.symbol</title>
     <svg
@@ -464,8 +450,6 @@
   </circle>
   <g
     transform="rotate(0, 366.10882822127155, 420.92217662311845)translate(366.10882822127155, 420.92217662311845)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H3`.symbol</title>
     <svg
@@ -523,8 +507,6 @@
   </circle>
   <g
     transform="rotate(0, 245.0962874338918, 302.5500274911427)translate(245.0962874338918, 302.5500274911427)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H4`.symbol</title>
     <svg
@@ -582,8 +564,6 @@
   </circle>
   <g
     transform="rotate(0, 327.22197980420026, 222.67791104910918)translate(327.22197980420026, 222.67791104910918)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H5`.symbol</title>
     <svg
@@ -641,8 +621,6 @@
   </circle>
   <g
     transform="rotate(0, 241.96888816812898, 423.9241678960879)translate(241.96888816812898, 423.9241678960879)"
-    font-size="12pt"
-    string="C"
   >
     <title>`C1`.symbol</title>
     <svg
@@ -700,8 +678,6 @@
   </circle>
   <g
     transform="rotate(0, 415.41617583847466, 196.6024138638524)translate(415.41617583847466, 196.6024138638524)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H6`.symbol</title>
     <svg
@@ -759,8 +735,6 @@
   </circle>
   <g
     transform="rotate(0, 315.9357234859397, 353.4779873203621)translate(315.9357234859397, 353.4779873203621)"
-    font-size="12pt"
-    string="C"
   >
     <title>`C2`.symbol</title>
     <svg
@@ -808,8 +782,6 @@
   </circle>
   <g
     transform="rotate(0, 642.9347406702702, 368.471482773193)translate(642.9347406702702, 368.471482773193)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H7`.symbol</title>
     <svg
@@ -867,8 +839,6 @@
   </circle>
   <g
     transform="rotate(0, 394.90679587515, 281.0524405569109)translate(394.90679587515, 281.0524405569109)"
-    font-size="12pt"
-    string="C"
   >
     <title>`C3`.symbol</title>
     <svg
@@ -916,8 +886,6 @@
   </circle>
   <g
     transform="rotate(0, 554.2171433671604, 440.4049961254885)translate(554.2171433671604, 440.4049961254885)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H8`.symbol</title>
     <svg
@@ -985,8 +953,6 @@
   </circle>
   <g
     transform="rotate(0, 499.9941347960122, 281.2616032703357)translate(499.9941347960122, 281.2616032703357)"
-    font-size="12pt"
-    string="C"
   >
     <title>`C4`.symbol</title>
     <svg
@@ -1034,8 +1000,6 @@
   </circle>
   <g
     transform="rotate(0, 727.1834140033741, 152.43687706015245)translate(727.1834140033741, 152.43687706015245)"
-    font-size="12pt"
-    string="H"
   >
     <title>`H9`.symbol</title>
     <svg
@@ -1083,8 +1047,6 @@
   </circle>
   <g
     transform="rotate(0, 564.2885282551864, 207.44463699161244)translate(564.2885282551864, 207.44463699161244)"
-    font-size="12pt"
-    string="C"
   >
     <title>`C5`.symbol</title>
     <svg

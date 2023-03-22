@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Deborah_Brian`.pointer-shadow"
       x="0"
@@ -30,7 +30,7 @@
     ></path>
     <title>`Arc_Deborah_Brian`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Deborah_Brian`.arrow-shadow"
       x="0"
@@ -62,7 +62,7 @@
     ></path>
     <title>`Arc_Deborah_Brian`.arrow</title>
   </g>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Deborah_Linda`.pointer-shadow"
       x="0"
@@ -93,7 +93,7 @@
     ></path>
     <title>`Arc_Deborah_Linda`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Deborah_Linda`.arrow-shadow"
       x="0"
@@ -125,7 +125,7 @@
     ></path>
     <title>`Arc_Deborah_Linda`.arrow</title>
   </g>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Deborah_Fred`.pointer-shadow"
       x="0"
@@ -156,7 +156,7 @@
     ></path>
     <title>`Arc_Deborah_Fred`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Deborah_Fred`.arrow-shadow"
       x="0"
@@ -211,17 +211,19 @@
     y="231.33759975303548"
     width="81"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Deborah`.text</title>
     Deborah
   </text>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Yvonne_Fred`.pointer-shadow"
       x="0"
@@ -252,7 +254,7 @@
     ></path>
     <title>`Arc_Yvonne_Fred`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Yvonne_Fred`.arrow-shadow"
       x="0"
@@ -284,7 +286,7 @@
     ></path>
     <title>`Arc_Yvonne_Fred`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_Fred_Brian`.pointer-shadow"
       x="0"
@@ -315,7 +317,7 @@
     ></path>
     <title>`Arc_Fred_Brian`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Fred_Brian`.arrow-shadow"
       x="0"
@@ -370,17 +372,19 @@
     y="126.5145860855622"
     width="44"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Fred`.text</title>
     Fred
   </text>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Yvonne_Brian`.pointer-shadow"
       x="0"
@@ -411,7 +415,7 @@
     ></path>
     <title>`Arc_Yvonne_Brian`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Yvonne_Brian`.arrow-shadow"
       x="0"
@@ -443,7 +447,7 @@
     ></path>
     <title>`Arc_Yvonne_Brian`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_Brian_Yvonne`.pointer-shadow"
       x="0"
@@ -474,7 +478,7 @@
     ></path>
     <title>`Arc_Brian_Yvonne`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Brian_Yvonne`.arrow-shadow"
       x="0"
@@ -529,17 +533,19 @@
     y="124.52041077811602"
     width="68"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Yvonne`.text</title>
     Yvonne
   </text>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Brian_Linda`.pointer-shadow"
       x="0"
@@ -570,7 +576,7 @@
     ></path>
     <title>`Arc_Brian_Linda`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_Brian_Linda`.arrow-shadow"
       x="0"
@@ -625,12 +631,14 @@
     y="310.5727680427531"
     width="54"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Linda`.text</title>
     Linda
@@ -658,11 +666,13 @@
     y="196.62781715468847"
     width="52"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Brian`.text</title>

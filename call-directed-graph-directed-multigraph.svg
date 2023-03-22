@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`e5`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -24,7 +24,7 @@
     ></path>
     <title>`e5`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e5`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -73,17 +73,19 @@
     y="213.720696920358"
     width="123"
     height="14"
-    paint-order="stroke"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`c`.text</title>
     732-555-4444
   </text>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter id="`e9m1`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -108,7 +110,7 @@
     ></path>
     <title>`e9m1`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e9m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -134,7 +136,7 @@
     ></path>
     <title>`e9m1`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`e9m2`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -159,7 +161,7 @@
     ></path>
     <title>`e9m2`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e9m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -185,7 +187,7 @@
     ></path>
     <title>`e9m2`.arrow</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`e7`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -210,7 +212,7 @@
     ></path>
     <title>`e7`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e7`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -236,7 +238,7 @@
     ></path>
     <title>`e7`.arrow</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`e3m1`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -261,7 +263,7 @@
     ></path>
     <title>`e3m1`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e3m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -287,7 +289,7 @@
     ></path>
     <title>`e3m1`.arrow</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter id="`e10`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -312,7 +314,7 @@
     ></path>
     <title>`e10`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="`e10`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -338,7 +340,7 @@
     ></path>
     <title>`e10`.arrow</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`e3m2`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -363,7 +365,7 @@
     ></path>
     <title>`e3m2`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e3m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -412,17 +414,19 @@
     y="175.72014284395962"
     width="123"
     height="14"
-    ascent="14"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`g`.text</title>
     732-555-6666
   </text>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter id="`e8m2`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -447,7 +451,7 @@
     ></path>
     <title>`e8m2`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e8m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -473,7 +477,7 @@
     ></path>
     <title>`e8m2`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter id="`e8m1`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -498,7 +502,7 @@
     ></path>
     <title>`e8m1`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e8m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -524,7 +528,7 @@
     ></path>
     <title>`e8m1`.arrow</title>
   </g>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e1`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -549,7 +553,7 @@
     ></path>
     <title>`e1`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -575,7 +579,7 @@
     ></path>
     <title>`e1`.arrow</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`e4m2`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -600,7 +604,7 @@
     ></path>
     <title>`e4m2`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e4m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -626,7 +630,7 @@
     ></path>
     <title>`e4m2`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter id="`e4m3`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -651,7 +655,7 @@
     ></path>
     <title>`e4m3`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e4m3`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -677,7 +681,7 @@
     ></path>
     <title>`e4m3`.arrow</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`e4m1`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -702,7 +706,7 @@
     ></path>
     <title>`e4m1`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e4m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -751,17 +755,19 @@
     y="235.45112053808322"
     width="123"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`b`.text</title>
     732-555-1234
   </text>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter id="`e6m1`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -786,7 +792,7 @@
     ></path>
     <title>`e6m1`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e6m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -812,7 +818,7 @@
     ></path>
     <title>`e6m1`.arrow</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter id="`e2m1`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -837,7 +843,7 @@
     ></path>
     <title>`e2m1`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e2m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -863,7 +869,7 @@
     ></path>
     <title>`e2m1`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter id="`e6m2`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -888,7 +894,7 @@
     ></path>
     <title>`e6m2`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e6m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -914,7 +920,7 @@
     ></path>
     <title>`e6m2`.arrow</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`e2m2`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -939,7 +945,7 @@
     ></path>
     <title>`e2m2`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e2m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -988,11 +994,13 @@
     y="194.72040799531368"
     width="123"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`d`.text</title>
@@ -1021,11 +1029,13 @@
     y="309.2657867735883"
     width="121"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`f`.text</title>
@@ -1054,11 +1064,13 @@
     y="216.45010268518527"
     width="123"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`e`.text</title>
@@ -1087,12 +1099,14 @@
     y="132.10304739072927"
     width="121"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`a`.text</title>
     732-555-1001

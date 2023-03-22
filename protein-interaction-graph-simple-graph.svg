@@ -62,12 +62,14 @@
     y="270.6868080224263"
     width="63"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`b`.text</title>
     RRP43
@@ -125,12 +127,14 @@
     y="253.37447065297164"
     width="75"
     height="16"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="2"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="2"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`i`.text</title>
     PM/Sci2
@@ -188,12 +192,14 @@
     y="185.58323448842663"
     width="74"
     height="17"
-    paint-order="stroke"
-    descent="3"
-    ascent="14"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`a`.text</title>
     Q9Y3A5
@@ -261,11 +267,13 @@
     y="208.89719818867187"
     width="52"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`d`.text</title>
@@ -304,12 +312,14 @@
     y="166.58183201724742"
     width="62"
     height="14"
-    paint-order="stroke"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`c`.text</title>
     RRP42
@@ -357,12 +367,14 @@
     y="377.6480564623761"
     width="63"
     height="14"
-    ascent="14"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`g`.text</title>
     RRP40
@@ -410,11 +422,13 @@
     y="289.70444700792876"
     width="61"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`e`.text</title>
@@ -443,12 +457,14 @@
     y="234.37345739666011"
     width="63"
     height="14"
-    ascent="14"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`h`.text</title>
     RRP46
@@ -476,11 +492,13 @@
     y="232.3044442497355"
     width="63"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`f`.text</title>

@@ -52,11 +52,13 @@
     y="281.3622518836711"
     width="55"
     height="14"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Hawk`.text</title>
@@ -115,12 +117,14 @@
     y="153.94268147455415"
     width="115"
     height="18"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
-    text-anchor="middle"
     descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Woodpecker`.text</title>
     Woodpecker
@@ -168,12 +172,14 @@
     y="201.5988164542765"
     width="80"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Raccoon`.text</title>
     Raccoon
@@ -221,11 +227,13 @@
     y="14.00089262833933"
     width="86"
     height="18"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="4"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Opossum`.text</title>
@@ -264,11 +272,13 @@
     y="194.50664584766213"
     width="37"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Owl`.text</title>
@@ -307,12 +317,14 @@
     y="84.53283045373382"
     width="61"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Shrew`.text</title>
     Shrew
@@ -350,12 +362,14 @@
     y="83.46656168805593"
     width="78"
     height="18"
-    descent="4"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Squirrel`.text</title>
     Squirrel
@@ -383,11 +397,13 @@
     y="189.5033567488702"
     width="60"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Mouse`.text</title>
@@ -416,12 +432,14 @@
     y="135.72086449167415"
     width="51"
     height="14"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
-    text-anchor="middle"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Crow`.text</title>
     Crow

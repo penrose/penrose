@@ -11,7 +11,7 @@
   >
     <title>`V`.background</title>
   </rect>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="6:0:perpMark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -66,7 +66,7 @@
     ></path>
     <title>`u`.arrow</title>
   </g>
-  <g style="solid">
+  <g>
     <marker
       id="automator--`V`.xAxis-startArrowId"
       markerUnits="strokeWidth"
@@ -110,7 +110,7 @@
     ></path>
     <title>`V`.xAxis</title>
   </g>
-  <g style="solid">
+  <g>
     <marker
       id="automator--`V`.yAxis-startArrowId"
       markerUnits="strokeWidth"
@@ -156,8 +156,6 @@
   </g>
   <g
     transform="rotate(0, 376.6028222508242, 280.5023953104912)translate(376.6028222508242, 280.5023953104912)"
-    font-size="12pt"
-    string="u"
   >
     <title>`u`.text</title>
     <svg
@@ -223,8 +221,6 @@
   </g>
   <g
     transform="rotate(0, 457.80252194271884, 349.8101683750588)translate(457.80252194271884, 349.8101683750588)"
-    font-size="12pt"
-    string="v"
   >
     <title>`v`.text</title>
     <svg
@@ -260,11 +256,7 @@
       </g>
     </svg>
   </g>
-  <g
-    transform="rotate(0, 218.20973, 166.17)translate(218.20973, 166.17)"
-    font-size="12pt"
-    string="V"
-  >
+  <g transform="rotate(0, 218.20973, 166.17)translate(218.20973, 166.17)">
     <title>`V`.text</title>
     <svg
       style="font-size: 12pt"

@@ -1,8 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200">
   <g
     transform="rotate(0, 502.04864333333336, 661.17)translate(502.04864333333336, 661.17)"
-    font-size="12pt"
-    string="\text{Polyline}"
   >
     <title>`Polyline`.text</title>
     <svg
@@ -98,8 +96,6 @@
   </polyline>
   <g
     transform="rotate(0, 514.5607533333334, 261.17)translate(514.5607533333334, 261.17)"
-    font-size="12pt"
-    string="\text{Path}"
   >
     <title>`Path`.text</title>
     <svg
@@ -162,7 +158,7 @@
   >
     <title>`Path`.container</title>
   </rect>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`Path`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -190,8 +186,6 @@
   </g>
   <g
     transform="rotate(0, 498.11929333333336, 861.17)translate(498.11929333333336, 861.17)"
-    font-size="12pt"
-    string="\text{Equation}"
   >
     <title>`Equation`.text</title>
     <svg
@@ -276,8 +270,6 @@
   </rect>
   <g
     transform="rotate(0, 500.83021709733373, 790.415)translate(500.83021709733373, 790.415)"
-    font-size="12pt"
-    string="E = mc^2"
   >
     <title>`Equation`.icon</title>
     <svg
@@ -344,8 +336,6 @@
   </g>
   <g
     transform="rotate(0, 514.9404433333334, 1061.17)translate(514.9404433333334, 1061.17)"
-    font-size="12pt"
-    string="\text{Text}"
   >
     <title>`Text`.text</title>
     <svg
@@ -418,19 +408,19 @@
     y="1003.5"
     width="129"
     height="13"
-    descent="3"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="10"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="10"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`Text`.icon</title>
     Diagrams, not words
   </text>
   <g
     transform="rotate(0, 228.77713666666665, 461.17)translate(228.77713666666665, 461.17)"
-    font-size="12pt"
-    string="\text{Rectangle}"
   >
     <title>`Rectangle`.text</title>
     <svg
@@ -533,8 +523,6 @@
   </rect>
   <g
     transform="rotate(0, 244.07952666666662, 261.17)translate(244.07952666666662, 261.17)"
-    font-size="12pt"
-    string="\text{Circle}"
   >
     <title>`Circle`.text</title>
     <svg
@@ -619,8 +607,6 @@
   </circle>
   <g
     transform="rotate(0, 516.5298433333334, 461.17)translate(516.5298433333334, 461.17)"
-    font-size="12pt"
-    string="\text{Line}"
   >
     <title>`Line`.text</title>
     <svg
@@ -695,8 +681,6 @@
   </g>
   <g
     transform="rotate(0, 235.38197666666662, 861.17)translate(235.38197666666662, 861.17)"
-    font-size="12pt"
-    string="\text{Polygon}"
   >
     <title>`Polygon`.text</title>
     <svg
@@ -785,8 +769,6 @@
   </polygon>
   <g
     transform="rotate(0, 243.37312666666662, 1061.17)translate(243.37312666666662, 1061.17)"
-    font-size="12pt"
-    string="\text{Image}"
   >
     <title>`Image`.text</title>
     <svg
@@ -895,11 +877,10 @@
         overflow="visible"
       ></path>
     </svg>
+    <title>`Image`.icon</title>
   </g>
   <g
     transform="rotate(0, 240.98019666666664, 661.17)translate(240.98019666666664, 661.17)"
-    font-size="12pt"
-    string="\text{Ellipse}"
   >
     <title>`Ellipse`.text</title>
     <svg

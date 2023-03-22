@@ -32,12 +32,14 @@
     y="314.9088914296019"
     width="80"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
+    dominant-baseline="alphabetic"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Eduardo`.text</title>
     Eduardo
@@ -85,12 +87,14 @@
     y="118.89217872175193"
     width="86"
     height="18"
-    ascent="14"
-    text-anchor="middle"
-    descent="4"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Shaquira`.text</title>
     Shaquira
@@ -158,11 +162,13 @@
     y="333.9092525794604"
     width="42"
     height="18"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="4"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Amy`.text</title>
@@ -201,12 +207,14 @@
     y="163.93956432416823"
     width="38"
     height="14"
-    descent="0"
-    paint-order="stroke"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Gail`.text</title>
     Gail
@@ -284,12 +292,14 @@
     y="309.80686715108305"
     width="52"
     height="14"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Paula`.text</title>
     Paula
@@ -327,12 +337,14 @@
     y="141.892392972464"
     width="46"
     height="14"
-    ascent="14"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Koko`.text</title>
     Koko
@@ -370,11 +382,13 @@
     y="331.13711562120955"
     width="40"
     height="14"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Kari`.text</title>
@@ -433,12 +447,14 @@
     y="225.5183563131593"
     width="36"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
+    dominant-baseline="alphabetic"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Lila`.text</title>
     Lila
@@ -486,12 +502,14 @@
     y="356.90988729968456"
     width="51"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
-    descent="0"
+    dominant-baseline="alphabetic"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Steve`.text</title>
     Steve
@@ -539,12 +557,14 @@
     y="153.72356950970013"
     width="32"
     height="18"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="4"
     text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Jan`.text</title>
     Jan
@@ -582,12 +602,14 @@
     y="205.81121601082668"
     width="56"
     height="18"
-    descent="4"
-    paint-order="stroke"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Ching`.text</title>
     Ching
@@ -625,11 +647,13 @@
     y="342.83128341539884"
     width="80"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Kamlesh`.text</title>
@@ -658,11 +682,13 @@
     y="286.23563878016955"
     width="37"
     height="18"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="4"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Joel`.text</title>
@@ -691,12 +717,14 @@
     y="351.58091740495956"
     width="45"
     height="14"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Todd`.text</title>
     Todd
@@ -724,12 +752,14 @@
     y="282.19494250006176"
     width="28"
     height="14"
-    descent="0"
-    paint-order="stroke"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Liz`.text</title>
     Liz
@@ -757,11 +787,13 @@
     y="63.75754542375887"
     width="66"
     height="14"
-    ascent="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`Kamini`.text</title>

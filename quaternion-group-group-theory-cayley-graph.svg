@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="9:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -25,7 +25,7 @@
     ></path>
     <title>9:1:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="9:1:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -68,7 +68,7 @@
     ></path>
     <title>9:1:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -94,7 +94,7 @@
     ></path>
     <title>7:1:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:1:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -137,7 +137,7 @@
     ></path>
     <title>7:1:orientedPath</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="7:9:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -163,7 +163,7 @@
     ></path>
     <title>7:9:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:9:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -206,7 +206,7 @@
     ></path>
     <title>7:9:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:2:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -232,7 +232,7 @@
     ></path>
     <title>7:2:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:2:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -275,7 +275,7 @@
     ></path>
     <title>7:2:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="8:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -301,7 +301,7 @@
     ></path>
     <title>8:1:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="8:1:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -344,7 +344,7 @@
     ></path>
     <title>8:1:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="9:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -370,7 +370,7 @@
     ></path>
     <title>9:0:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="9:0:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -413,7 +413,7 @@
     ></path>
     <title>9:0:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -439,7 +439,7 @@
     ></path>
     <title>7:0:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:0:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -482,7 +482,7 @@
     ></path>
     <title>7:0:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:4:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -508,7 +508,7 @@
     ></path>
     <title>7:4:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:4:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -551,7 +551,7 @@
     ></path>
     <title>7:4:orientedPath</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="7:7:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -577,7 +577,7 @@
     ></path>
     <title>7:7:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:7:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -620,7 +620,7 @@
     ></path>
     <title>7:7:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:10:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -646,7 +646,7 @@
     ></path>
     <title>7:10:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:10:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -695,7 +695,7 @@
     ></path>
     <title>7:10:orientedPath</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter id="7:8:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -721,7 +721,7 @@
     ></path>
     <title>7:8:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:8:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -764,7 +764,7 @@
     ></path>
     <title>7:8:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:5:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -790,7 +790,7 @@
     ></path>
     <title>7:5:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:5:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -833,7 +833,7 @@
     ></path>
     <title>7:5:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:11:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -859,7 +859,7 @@
     ></path>
     <title>7:11:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:11:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -908,7 +908,7 @@
     ></path>
     <title>7:11:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="8:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -934,7 +934,7 @@
     ></path>
     <title>8:0:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="8:0:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -977,7 +977,7 @@
     ></path>
     <title>8:0:orientedPath</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:3:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1003,7 +1003,7 @@
     ></path>
     <title>7:3:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:3:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -1056,7 +1056,7 @@
   >
     <title>4:0:identityMarker</title>
   </circle>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="7:6:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -1082,7 +1082,7 @@
     ></path>
     <title>7:6:pathOutline</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="0.75">
+  <g>
     <marker
       id="7:6:orientedPath-endArrowId"
       markerUnits="strokeWidth"
@@ -1140,8 +1140,6 @@
   </circle>
   <g
     transform="rotate(0, 126.58191993235397, 97.60355661765841)translate(126.58191993235397, 97.60355661765841)"
-    font-size="0.35px"
-    string="1"
   >
     <title>`g1`.labelText</title>
     <svg
@@ -1192,8 +1190,6 @@
   </circle>
   <g
     transform="rotate(0, 140.6742847614951, 53.69358151980438)translate(140.6742847614951, 53.69358151980438)"
-    font-size="0.35px"
-    string="i"
   >
     <title>`g2`.labelText</title>
     <svg
@@ -1244,8 +1240,6 @@
   </circle>
   <g
     transform="rotate(0, 184.48065229845318, 156.488362666127)translate(184.48065229845318, 156.488362666127)"
-    font-size="0.35px"
-    string="j"
   >
     <title>`g3`.labelText</title>
     <svg
@@ -1296,8 +1290,6 @@
   </circle>
   <g
     transform="rotate(0, 154.19336175867986, 125.87833438844373)translate(154.19336175867986, 125.87833438844373)"
-    font-size="0.35px"
-    string="k"
   >
     <title>`g4`.labelText</title>
     <svg
@@ -1348,8 +1340,6 @@
   </circle>
   <g
     transform="rotate(0, 168.90614691714046, 85.57219999947746)translate(168.90614691714046, 85.57219999947746)"
-    font-size="0.35px"
-    string="-1"
   >
     <title>`g5`.labelText</title>
     <svg
@@ -1406,8 +1396,6 @@
   </circle>
   <g
     transform="rotate(0, 80.5175677528768, 110.28493162675557)translate(80.5175677528768, 110.28493162675557)"
-    font-size="0.35px"
-    string="-i"
   >
     <title>`g6`.labelText</title>
     <svg
@@ -1464,8 +1452,6 @@
   </circle>
   <g
     transform="rotate(0, 93.48935431867277, 65.91164674611821)translate(93.48935431867277, 65.91164674611821)"
-    font-size="0.35px"
-    string="-j"
   >
     <title>`g7`.labelText</title>
     <svg
@@ -1522,8 +1508,6 @@
   </circle>
   <g
     transform="rotate(0, 111.19408036667389, 141.9972623663758)translate(111.19408036667389, 141.9972623663758)"
-    font-size="0.35px"
-    string="-k"
   >
     <title>`g8`.labelText</title>
     <svg

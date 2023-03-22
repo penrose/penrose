@@ -42,12 +42,14 @@
     y="217.00456296697573"
     width="67"
     height="14"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Detroit`.text</title>
     Detroit
@@ -95,12 +97,14 @@
     y="376.2400386087255"
     width="109"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Washington`.text</title>
     Washington
@@ -158,12 +162,14 @@
     y="312.4881071969598"
     width="68"
     height="14"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Denver`.text</title>
     Denver
@@ -201,12 +207,14 @@
     y="388.2747358863934"
     width="113"
     height="18"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`LA`.text</title>
     Los Angeles
@@ -234,12 +242,14 @@
     y="241.12113701322016"
     width="131"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`SF`.text</title>
     San Francisco
@@ -277,12 +287,14 @@
     y="281.0210532067939"
     width="90"
     height="14"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
-    text-anchor="middle"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`NYC`.text</title>
     New York
@@ -310,12 +322,14 @@
     y="335.43908758549486"
     width="76"
     height="18"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="4"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Chicago`.text</title>
     Chicago

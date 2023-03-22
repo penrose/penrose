@@ -145,6 +145,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P3`.shade1</title>
   </g>
   <circle
     fill="#ff3333"
@@ -292,6 +293,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P3`.shade2</title>
   </g>
   <circle
     fill="#3333ff"
@@ -439,6 +441,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P3`.shade3</title>
   </g>
   <g
     transform="rotate(0, 101.66833184396128, 382.3455475064389)translate(101.66833184396128, 382.3455475064389)"
@@ -486,6 +489,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P1`.shade1</title>
   </g>
   <g
     transform="rotate(0, 356.7274001561946, 361.49829918155757)translate(356.7274001561946, 361.49829918155757)"
@@ -533,6 +537,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P1`.shade2</title>
   </g>
   <g
     transform="rotate(0, 624.9624375483969, 339.65340503925773)translate(624.9624375483969, 339.65340503925773)"
@@ -580,6 +585,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P1`.shade3</title>
   </g>
   <g>
     <path
@@ -637,6 +643,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P8`.shade1</title>
   </g>
   <g
     transform="rotate(0, 321.6793319773836, 466.4460074677364)translate(321.6793319773836, 466.4460074677364)"
@@ -684,6 +691,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P8`.shade2</title>
   </g>
   <g
     transform="rotate(0, 589.7196673017337, 444.53599317446685)translate(589.7196673017337, 444.53599317446685)"
@@ -731,6 +739,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P8`.shade3</title>
   </g>
   <g
     transform="rotate(0, -0.015427463095376126, 486.5534976912765)translate(-0.015427463095376126, 486.5534976912765)"
@@ -778,6 +787,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P9`.shade1</title>
   </g>
   <g
     transform="rotate(0, 255.26128650008516, 465.93954299570214)translate(255.26128650008516, 465.93954299570214)"
@@ -825,6 +835,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P9`.shade2</title>
   </g>
   <g
     transform="rotate(0, 523.1882649750295, 443.63077600585154)translate(523.1882649750295, 443.63077600585154)"
@@ -872,6 +883,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P9`.shade3</title>
   </g>
   <g>
     <path
@@ -929,6 +941,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P10`.shade1</title>
   </g>
   <g
     transform="rotate(0, 263.4690264934723, 372.00991987657557)translate(263.4690264934723, 372.00991987657557)"
@@ -976,6 +989,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P10`.shade2</title>
   </g>
   <g
     transform="rotate(0, 531.6705353023397, 350.093345541852)translate(531.6705353023397, 350.093345541852)"
@@ -1023,6 +1037,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P10`.shade3</title>
   </g>
   <g>
     <path
@@ -1110,6 +1125,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P7`.shade1</title>
   </g>
   <g
     transform="rotate(0, 255.1687813034823, 532.4936037780922)translate(255.1687813034823, 532.4936037780922)"
@@ -1157,6 +1173,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P7`.shade2</title>
   </g>
   <g
     transform="rotate(0, 523.3209277231922, 510.4930511509415)translate(523.3209277231922, 510.4930511509415)"
@@ -1204,6 +1221,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P7`.shade3</title>
   </g>
   <g>
     <path
@@ -1351,6 +1369,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P2`.shade1</title>
   </g>
   <g
     transform="rotate(0, 405.7971468127557, 359.758246628682)translate(405.7971468127557, 359.758246628682)"
@@ -1398,6 +1417,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P2`.shade2</title>
   </g>
   <g
     transform="rotate(0, 674.0426187786047, 337.88520174318097)translate(674.0426187786047, 337.88520174318097)"
@@ -1445,6 +1465,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P2`.shade3</title>
   </g>
   <g>
     <path
@@ -1562,6 +1583,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P5`.shade1</title>
   </g>
   <g
     transform="rotate(0, 415.35477943355784, 523.8320663845641)translate(415.35477943355784, 523.8320663845641)"
@@ -1609,6 +1631,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P5`.shade2</title>
   </g>
   <g
     transform="rotate(0, 683.6227913494957, 501.99451821686455)translate(683.6227913494957, 501.99451821686455)"
@@ -1656,6 +1679,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P5`.shade3</title>
   </g>
   <g
     transform="rotate(0, 66.69531535626976, 553.3922068971092)translate(66.69531535626976, 553.3922068971092)"
@@ -1703,6 +1727,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P6`.shade1</title>
   </g>
   <g
     transform="rotate(0, 321.9611804437021, 532.7517921306714)translate(321.9611804437021, 532.7517921306714)"
@@ -1750,6 +1775,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P6`.shade2</title>
   </g>
   <g
     transform="rotate(0, 589.7778617074814, 510.4956764297193)translate(589.7778617074814, 510.4956764297193)"
@@ -1797,6 +1823,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P6`.shade3</title>
   </g>
   <g>
     <path
@@ -1864,6 +1891,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P4`.shade1</title>
   </g>
   <g
     transform="rotate(0, 431.00336592591646, 476.2229149345478)translate(431.00336592591646, 476.2229149345478)"
@@ -1911,6 +1939,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P4`.shade2</title>
   </g>
   <g
     transform="rotate(0, 699.4074485797569, 454.45365694141566)translate(699.4074485797569, 454.45365694141566)"
@@ -1958,6 +1987,7 @@
       </radialGradient>
       <circle class="st0" cx="46.4" cy="46.4" r="46.4"></circle>
     </svg>
+    <title>`P4`.shade3</title>
   </g>
   <g>
     <path
@@ -2218,8 +2248,6 @@
   </g>
   <g
     transform="rotate(0, 78.40759622133058, 231.3436244192519)translate(78.40759622133058, 231.3436244192519)"
-    font-size="24p"
-    string="X \oplus B_{\varepsilon_{1}}"
   >
     <title>`F`.lab1</title>
     <svg
@@ -2297,8 +2325,6 @@
   </g>
   <g
     transform="rotate(0, 354.31390652453945, 231.3436244192519)translate(354.31390652453945, 231.3436244192519)"
-    font-size="24p"
-    string="X \oplus B_{\varepsilon_{2}}"
   >
     <title>`F`.lab2</title>
     <svg
@@ -2376,8 +2402,6 @@
   </g>
   <g
     transform="rotate(0, 644.7730220424191, 231.27862441925188)translate(644.7730220424191, 231.27862441925188)"
-    font-size="24p"
-    string="X \oplus B_{\varepsilon_{3}}"
   >
     <title>`F`.lab3</title>
     <svg
@@ -2465,8 +2489,6 @@
   </circle>
   <g
     transform="rotate(0, 1.4181460533078143, 632.1984033252812)translate(1.4181460533078143, 632.1984033252812)"
-    font-size="24p"
-    string="0"
   >
     <title>`F`.eps0</title>
     <svg
@@ -2514,8 +2536,6 @@
   </circle>
   <g
     transform="rotate(0, 784.2560739466921, 632.1984033252812)translate(784.2560739466921, 632.1984033252812)"
-    font-size="24p"
-    string="\varepsilon"
   >
     <title>`F`.eps</title>
     <svg
@@ -2553,8 +2573,6 @@
   </g>
   <g
     transform="rotate(0, 137.5231375156353, 652.1984033252812)translate(137.5231375156353, 652.1984033252812)"
-    font-size="24p"
-    string="\varepsilon_1"
   >
     <title>`F`.eps1</title>
     <svg
@@ -2613,8 +2631,6 @@
   </circle>
   <g
     transform="rotate(0, 413.4294478188442, 652.1984033252812)translate(413.4294478188442, 652.1984033252812)"
-    font-size="24p"
-    string="\varepsilon_2"
   >
     <title>`F`.eps2</title>
     <svg
@@ -2673,8 +2689,6 @@
   </circle>
   <g
     transform="rotate(0, 703.5479251573538, 652.1984033252812)translate(703.5479251573538, 652.1984033252812)"
-    string="\varepsilon_3"
-    font-size="24p"
   >
     <title>`F`.eps3</title>
     <svg

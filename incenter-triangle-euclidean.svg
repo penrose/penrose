@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid">
+  <g>
     <path
       d="M 456.26240248936494 393.6542389569247 L 575.4540240217325 330.9552189112409"
       stroke-opacity="1"
@@ -9,7 +9,7 @@
     ></path>
     <title>`PML`.side1</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 456.26240248936494 393.6542389569247 L 695.5518044394596 559.2626020244533"
       stroke-opacity="1"
@@ -19,7 +19,7 @@
     ></path>
     <title>`PLM`.PQ</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 575.4540240217325 330.9552189112409 L 456.26240248936494 393.6542389569247"
       stroke-opacity="1"
@@ -42,7 +42,7 @@
   >
     <title>`P`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 575.4540240217325 330.9552189112409 L 695.5518044394596 559.2626020244533"
       stroke-opacity="1"
@@ -52,7 +52,7 @@
     ></path>
     <title>`PML`.side2</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 695.5518044394596 559.2626020244533 L 575.4540240217325 330.9552189112409"
       stroke-opacity="1"
@@ -88,7 +88,7 @@
   >
     <title>`JKL`.incenterIcon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 477.86987707065776 148.99451804596876 L 695.5518044394596 559.2626020244533"
       stroke-opacity="1"
@@ -98,7 +98,7 @@
     ></path>
     <title>`JKL`.QR</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 695.5518044394596 559.2626020244533 L 206.0506281951868 496.3588477857866"
       stroke-opacity="1"
@@ -108,7 +108,7 @@
     ></path>
     <title>`JKL`.RP</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 477.86987707065776 148.99451804596876 L 695.5518044394596 559.2626020244533"
       stroke-opacity="1"
@@ -133,8 +133,6 @@
   </circle>
   <g
     transform="rotate(0, 179.92234118149636, 496.1919694803783)translate(179.92234118149636, 496.1919694803783)"
-    font-size="13.5px"
-    string="J"
   >
     <title>`J`.text</title>
     <svg
@@ -172,8 +170,6 @@
   </g>
   <g
     transform="rotate(0, 455.6158054141409, 116.84439577109826)translate(455.6158054141409, 116.84439577109826)"
-    font-size="13.5px"
-    string="K"
   >
     <title>`K`.text</title>
     <svg
@@ -211,8 +207,6 @@
   </g>
   <g
     transform="rotate(0, 430.7142132843027, 402.1086151312894)translate(430.7142132843027, 402.1086151312894)"
-    font-size="13.5px"
-    string="P"
   >
     <title>`P`.text</title>
     <svg
@@ -250,8 +244,6 @@
   </g>
   <g
     transform="rotate(0, 705.9680926948396, 568.6168077602736)translate(705.9680926948396, 568.6168077602736)"
-    font-size="13.5px"
-    string="L"
   >
     <title>`L`.text</title>
     <svg
@@ -287,7 +279,7 @@
       </g>
     </svg>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 206.0506281951868 496.3588477857866 L 477.86987707065776 148.99451804596876"
       stroke-opacity="1"
@@ -325,8 +317,6 @@
   </circle>
   <g
     transform="rotate(0, 588.4019160659996, 306.47050284370596)translate(588.4019160659996, 306.47050284370596)"
-    font-size="13.5px"
-    string="m"
   >
     <title>`m`.text</title>
     <svg
@@ -362,7 +352,7 @@
       </g>
     </svg>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter id="`PLM`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -386,7 +376,7 @@
     ></path>
     <title>`PLM`.icon</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`JKL`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -410,7 +400,7 @@
     ></path>
     <title>`JKL`.icon</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`PML`.mark-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

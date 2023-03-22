@@ -36,6 +36,7 @@
         </g>
       </g>
     </svg>
+    <title>`A`.shadow</title>
   </g>
   <g
     transform="rotate(0, 59.93758873802989, 3.895415998473311)translate(59.93758873802989, 3.895415998473311)"
@@ -79,6 +80,7 @@
         </g>
       </g>
     </svg>
+    <title>`A`.shading</title>
   </g>
   <circle
     fill="#cac87e"
@@ -127,6 +129,7 @@
         </g>
       </g>
     </svg>
+    <title>`C`.shadow</title>
   </g>
   <g
     transform="rotate(0, 411.5403629706903, 286.0670443695925)translate(411.5403629706903, 286.0670443695925)"
@@ -170,11 +173,10 @@
         </g>
       </g>
     </svg>
+    <title>`C`.shading</title>
   </g>
   <g
     transform="rotate(0, 294.1514119615102, 238.2048488170571)translate(294.1514119615102, 238.2048488170571)"
-    font-size="12pt"
-    string="A"
   >
     <title>`A`.text</title>
     <svg
@@ -257,6 +259,7 @@
         </g>
       </g>
     </svg>
+    <title>`F`.shadow</title>
   </g>
   <g
     transform="rotate(0, 479.4704672916583, 322.94832361883147)translate(479.4704672916583, 322.94832361883147)"
@@ -300,11 +303,10 @@
         </g>
       </g>
     </svg>
+    <title>`F`.shading</title>
   </g>
   <g
     transform="rotate(0, 493.5048753467808, 367.9568222156721)translate(493.5048753467808, 367.9568222156721)"
-    font-size="12pt"
-    string="C"
   >
     <title>`C`.text</title>
     <svg
@@ -352,8 +354,6 @@
   </circle>
   <g
     transform="rotate(0, 495.4253366188592, 338.86745779125454)translate(495.4253366188592, 338.86745779125454)"
-    font-size="12pt"
-    string="F"
   >
     <title>`F`.text</title>
     <svg
@@ -426,6 +426,7 @@
         </g>
       </g>
     </svg>
+    <title>`B`.shadow</title>
   </g>
   <g
     transform="rotate(0, 233.005089023633, 432.109549627)translate(233.005089023633, 432.109549627)"
@@ -469,6 +470,7 @@
         </g>
       </g>
     </svg>
+    <title>`B`.shading</title>
   </g>
   <circle
     fill="#ce62d8"
@@ -482,8 +484,6 @@
   </circle>
   <g
     transform="rotate(0, 291.0902442307531, 490.01877153019973)translate(291.0902442307531, 490.01877153019973)"
-    font-size="12pt"
-    string="B"
   >
     <title>`B`.text</title>
     <svg
@@ -556,6 +556,7 @@
         </g>
       </g>
     </svg>
+    <title>`D`.shadow</title>
   </g>
   <g
     transform="rotate(0, 310.8692206559228, 521.9841198064388)translate(310.8692206559228, 521.9841198064388)"
@@ -599,6 +600,7 @@
         </g>
       </g>
     </svg>
+    <title>`D`.shading</title>
   </g>
   <circle
     fill="#60a543"
@@ -612,8 +614,6 @@
   </circle>
   <g
     transform="rotate(0, 327.2480537517521, 538.45594734453)translate(327.2480537517521, 538.45594734453)"
-    string="D"
-    font-size="12pt"
   >
     <title>`D`.text</title>
     <svg
@@ -686,6 +686,7 @@
         </g>
       </g>
     </svg>
+    <title>`E`.shadow</title>
   </g>
   <g
     transform="rotate(0, 318.4255466489542, 453.0320402944294)translate(318.4255466489542, 453.0320402944294)"
@@ -729,6 +730,7 @@
         </g>
       </g>
     </svg>
+    <title>`E`.shading</title>
   </g>
   <circle
     fill="#9acb40"
@@ -742,8 +744,6 @@
   </circle>
   <g
     transform="rotate(0, 334.4170091983452, 469.0367346167146)translate(334.4170091983452, 469.0367346167146)"
-    font-size="12pt"
-    string="E"
   >
     <title>`E`.text</title>
     <svg
@@ -816,6 +816,7 @@
         </g>
       </g>
     </svg>
+    <title>`G`.shadow</title>
   </g>
   <g
     transform="rotate(0, 440.6346558744206, 312.3920345695381)translate(440.6346558744206, 312.3920345695381)"
@@ -859,6 +860,7 @@
         </g>
       </g>
     </svg>
+    <title>`G`.shading</title>
   </g>
   <circle
     fill="#5487c2"
@@ -872,8 +874,6 @@
   </circle>
   <g
     transform="rotate(0, 456.8224614551077, 328.26997869711136)translate(456.8224614551077, 328.26997869711136)"
-    font-size="12pt"
-    string="G"
   >
     <title>`G`.text</title>
     <svg

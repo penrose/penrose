@@ -32,12 +32,14 @@
     y="361.5221435669267"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`b`.text</title>
   </text>
@@ -74,12 +76,14 @@
     y="265.4134057566304"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`i`.text</title>
   </text>
@@ -116,12 +120,14 @@
     y="160.99934098017567"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`a`.text</title>
   </text>
@@ -158,11 +164,13 @@
     y="376.8933110161745"
     width="0"
     height="0"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`d`.text</title>
@@ -200,12 +208,14 @@
     y="328.20233140186747"
     width="0"
     height="0"
-    paint-order="stroke"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`c`.text</title>
   </text>
@@ -242,12 +252,14 @@
     y="180.34210591472083"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`g`.text</title>
   </text>
@@ -294,11 +306,13 @@
     y="255.58692259473744"
     width="0"
     height="0"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`e`.text</title>
@@ -326,12 +340,14 @@
     y="122.80070205531686"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`h`.text</title>
   </text>
@@ -358,11 +374,13 @@
     y="246.12379496668518"
     width="0"
     height="0"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
     paint-order="stroke"
   >
     <title>`f`.text</title>

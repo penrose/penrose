@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_parser_page`.pointer-shadow"
       x="0"
@@ -30,7 +30,7 @@
     ></path>
     <title>`Arc_parser_page`.pointer</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_parser_page`.arrow-shadow"
       x="0"
@@ -62,7 +62,7 @@
     ></path>
     <title>`Arc_parser_page`.arrow</title>
   </g>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_parser_AST`.pointer-shadow"
       x="0"
@@ -93,7 +93,7 @@
     ></path>
     <title>`Arc_parser_AST`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_parser_AST`.arrow-shadow"
       x="0"
@@ -125,7 +125,7 @@
     ></path>
     <title>`Arc_parser_AST`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_main_parser`.pointer-shadow"
       x="0"
@@ -156,7 +156,7 @@
     ></path>
     <title>`Arc_main_parser`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_main_parser`.arrow-shadow"
       x="0"
@@ -211,17 +211,19 @@
     y="243.8383012911978"
     width="61"
     height="14"
-    paint-order="stroke"
-    descent="4"
-    ascent="10"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="10"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`parser`.text</title>
     parser
   </text>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter
       id="`Arc_protocol_network`.pointer-shadow"
       x="0"
@@ -252,7 +254,7 @@
     ></path>
     <title>`Arc_protocol_network`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_protocol_network`.arrow-shadow"
       x="0"
@@ -307,17 +309,19 @@
     y="51.609511936418556"
     width="77"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`network`.text</title>
     network
   </text>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_main_display`.pointer-shadow"
       x="0"
@@ -348,7 +352,7 @@
     ></path>
     <title>`Arc_main_display`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_main_display`.arrow-shadow"
       x="0"
@@ -380,7 +384,7 @@
     ></path>
     <title>`Arc_main_display`.arrow</title>
   </g>
-  <g endArrowheadSize="1" stroke-width="1" startArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_display_AST`.pointer-shadow"
       x="0"
@@ -411,7 +415,7 @@
     ></path>
     <title>`Arc_display_AST`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_display_AST`.arrow-shadow"
       x="0"
@@ -466,17 +470,19 @@
     y="110.82747317368731"
     width="67"
     height="18"
-    paint-order="stroke"
-    descent="4"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`display`.text</title>
     display
   </text>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_protocol_page`.pointer-shadow"
       x="0"
@@ -507,7 +513,7 @@
     ></path>
     <title>`Arc_protocol_page`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_protocol_page`.arrow-shadow"
       x="0"
@@ -539,7 +545,7 @@
     ></path>
     <title>`Arc_protocol_page`.arrow</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_main_protocol`.pointer-shadow"
       x="0"
@@ -570,7 +576,7 @@
     ></path>
     <title>`Arc_main_protocol`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_main_protocol`.arrow-shadow"
       x="0"
@@ -625,12 +631,14 @@
     y="224.76522777755517"
     width="77"
     height="18"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
-    text-anchor="middle"
     descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`protocol`.text</title>
     protocol
@@ -658,17 +666,19 @@
     y="201.76474897654953"
     width="45"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
     ascent="10"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`page`.text</title>
     page
   </text>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_main_AST`.pointer-shadow"
       x="0"
@@ -699,7 +709,7 @@
     ></path>
     <title>`Arc_main_AST`.pointer</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter
       id="`Arc_main_AST`.arrow-shadow"
       x="0"
@@ -754,12 +764,14 @@
     y="91.82745872926421"
     width="38"
     height="14"
-    paint-order="stroke"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`AST`.text</title>
     AST
@@ -787,12 +799,14 @@
     y="91.82319636604872"
     width="46"
     height="14"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`main`.text</title>
     main

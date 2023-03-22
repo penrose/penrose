@@ -43,8 +43,6 @@
   </g>
   <g
     transform="rotate(0, 54.50130526318235, 96.90362150953625)translate(54.50130526318235, 96.90362150953625)"
-    font-size="4.5px"
-    string="c"
     font-family="Linux Libertine"
   >
     <title>`c`.labelText</title>
@@ -108,7 +106,7 @@
     ></path>
     <title>`b`.icon</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`v`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -160,7 +158,7 @@
     ></path>
     <title>`a`.icon</title>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="1" stroke-width="1">
+  <g>
     <filter id="`u`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -187,8 +185,6 @@
   </g>
   <g
     transform="rotate(0, 110.24883800969135, 163.04410040799863)translate(110.24883800969135, 163.04410040799863)"
-    font-size="4.5px"
-    string="b"
     font-family="Linux Libertine"
   >
     <title>`b`.labelText</title>
@@ -227,8 +223,6 @@
   </g>
   <g
     transform="rotate(0, 186.21391542947563, 17.44340568154196)translate(186.21391542947563, 17.44340568154196)"
-    font-size="4.5px"
-    string="a"
     font-family="Linux Libertine"
   >
     <title>`a`.labelText</title>
@@ -265,7 +259,7 @@
       </g>
     </svg>
   </g>
-  <g endArrowheadSize="1" startArrowheadSize="0.5">
+  <g>
     <marker
       id="`u`.marker-startArrowId"
       markerUnits="strokeWidth"
@@ -310,8 +304,6 @@
   </g>
   <g
     transform="rotate(0, 138.9161732915605, 89.65244505496784)translate(138.9161732915605, 89.65244505496784)"
-    font-size="4.5px"
-    string="a \wedge b"
     font-family="Linux Libertine"
   >
     <title>`u`.labelText</title>
@@ -360,7 +352,7 @@
       </g>
     </svg>
   </g>
-  <g startArrowheadSize="0.5" endArrowheadSize="1">
+  <g>
     <marker
       id="`v`.marker-startArrowId"
       markerUnits="strokeWidth"
@@ -405,8 +397,6 @@
   </g>
   <g
     transform="rotate(0, 76.69771100709421, 127.6111623975654)translate(76.69771100709421, 127.6111623975654)"
-    font-size="4.5px"
-    string="b \wedge c"
     font-family="Linux Libertine"
   >
     <title>`v`.labelText</title>

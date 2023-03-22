@@ -62,6 +62,7 @@
       </radialGradient>
       <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
     </svg>
+    <title>`x0`.shading</title>
   </g>
   <circle
     fill="#33cc33"
@@ -147,6 +148,7 @@
       </radialGradient>
       <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
     </svg>
+    <title>`x1`.shading</title>
   </g>
   <circle
     fill="#33cc33"
@@ -219,6 +221,7 @@
       </radialGradient>
       <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
     </svg>
+    <title>`x2`.shading</title>
   </g>
   <circle
     fill="#33cc33"
@@ -291,6 +294,7 @@
       </radialGradient>
       <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
     </svg>
+    <title>`x3`.shading</title>
   </g>
   <circle
     fill="#33cc33"
@@ -322,11 +326,13 @@
     y="113.05009265851722"
     width="10"
     height="10"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="10"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
   >
     <title>`U`.labelText</title>
     Ω
@@ -344,13 +350,15 @@
     y="95.35830785537753"
     width="11"
     height="7"
-    paint-order="stroke"
-    descent="0"
-    stroke-linejoin="round"
-    ascent="7"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="7"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
   >
     <title>`x1`.labelText</title>
     x₁
@@ -378,13 +386,15 @@
     y="155.98840913430655"
     width="12"
     height="2"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="2"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
     stroke-linejoin="round"
-    ascent="2"
-    alignment-baseline="alphabetic"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
   >
     <title>`x2`.labelText</title>
     …
@@ -425,13 +435,15 @@
     y="119.74621548418733"
     width="13"
     height="10"
-    paint-order="stroke"
-    stroke-linejoin="round"
-    descent="3"
-    ascent="7"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="7"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
   >
     <title>`y0`.labelText</title>
     y₀
@@ -449,13 +461,15 @@
     y="118.09796464914186"
     width="12"
     height="7"
-    paint-order="stroke"
-    descent="0"
-    stroke-linejoin="round"
-    ascent="7"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="7"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
   >
     <title>`x0`.labelText</title>
     x₀
@@ -496,13 +510,15 @@
     y="84.53988865635088"
     width="12"
     height="10"
-    paint-order="stroke"
-    descent="3"
-    stroke-linejoin="round"
-    ascent="7"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="7"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
   >
     <title>`y1`.labelText</title>
     y₁
@@ -545,13 +561,15 @@
     y="191.74150386681714"
     width="12"
     height="7"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="7"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
     stroke-linejoin="round"
-    ascent="7"
-    alignment-baseline="alphabetic"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
   >
     <title>`x3`.labelText</title>
     xₖ

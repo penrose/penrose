@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid">
+  <g>
     <path
       d="M 380.6828186324526 153.3519598863886 L 110.9276795723664 72.8304704964155"
       stroke-opacity="1"
@@ -9,7 +9,7 @@
     ></path>
     <title>`aGFJ`.side1</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 380.6828186324526 153.3519598863886 L 309.56772569848283 272.9264386033538"
       stroke-opacity="1"
@@ -19,7 +19,7 @@
     ></path>
     <title>`GJF`.PQ</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 110.9276795723664 72.8304704964155 L 380.6828186324526 153.3519598863886"
       stroke-opacity="1"
@@ -42,7 +42,7 @@
   >
     <title>`G`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 110.9276795723664 72.8304704964155 L 309.56772569848283 272.9264386033538"
       stroke-opacity="1"
@@ -52,7 +52,7 @@
     ></path>
     <title>`aGFJ`.side2</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 309.56772569848283 272.9264386033538 L 110.9276795723664 72.8304704964155"
       stroke-opacity="1"
@@ -62,7 +62,7 @@
     ></path>
     <title>`GJF`.QR</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 650.4379576925388 233.87344927636173 L 110.9276795723664 72.8304704964155"
       stroke-opacity="1"
@@ -72,7 +72,7 @@
     ></path>
     <title>`DEF`.QR</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 110.9276795723664 72.8304704964155 L 508.2077718245993 473.0224067102921"
       stroke-opacity="1"
@@ -110,8 +110,6 @@
   </circle>
   <g
     transform="rotate(0, 494.9324414157327, 487.02240772084315)translate(494.9324414157327, 487.02240772084315)"
-    string="D"
-    font-size="13.5px"
   >
     <title>`D`.text</title>
     <svg
@@ -149,8 +147,6 @@
   </g>
   <g
     transform="rotate(0, 664.3611836244037, 213.24927405463566)translate(664.3611836244037, 213.24927405463566)"
-    font-size="13.5px"
-    string="E"
   >
     <title>`E`.text</title>
     <svg
@@ -188,8 +184,6 @@
   </g>
   <g
     transform="rotate(0, 85.70662725596165, 44.84785137707466)translate(85.70662725596165, 44.84785137707466)"
-    font-size="13.5px"
-    string="F"
   >
     <title>`F`.text</title>
     <svg
@@ -227,8 +221,6 @@
   </g>
   <g
     transform="rotate(0, 394.4630522403811, 131.72107205189323)translate(394.4630522403811, 131.72107205189323)"
-    font-size="13.5px"
-    string="G"
   >
     <title>`G`.text</title>
     <svg
@@ -266,8 +258,6 @@
   </g>
   <g
     transform="rotate(0, 183.29625650541, 182.73994255736204)translate(183.29625650541, 182.73994255736204)"
-    font-size="13.5px"
-    string="H"
   >
     <title>`H`.text</title>
     <svg
@@ -305,8 +295,6 @@
   </g>
   <g
     transform="rotate(0, 312.7232867574623, 286.5661800289272)translate(312.7232867574623, 286.5661800289272)"
-    font-size="13.5px"
-    string="J"
   >
     <title>`J`.text</title>
     <svg
@@ -344,8 +332,6 @@
   </g>
   <g
     transform="rotate(0, 250.5058464735257, 80.74392716582331)translate(250.5058464735257, 80.74392716582331)"
-    font-size="13.5px"
-    string="K"
   >
     <title>`K`.text</title>
     <svg
@@ -381,7 +367,7 @@
       </g>
     </svg>
   </g>
-  <g stroke-width="1" startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`GJF`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -405,7 +391,7 @@
     ></path>
     <title>`GJF`.icon</title>
   </g>
-  <g startArrowheadSize="1" stroke-width="1" endArrowheadSize="1">
+  <g>
     <filter id="`DEF`.icon-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -429,7 +415,7 @@
     ></path>
     <title>`DEF`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 508.2077718245993 473.0224067102921 L 650.4379576925388 233.87344927636173"
       stroke-opacity="1"
@@ -465,7 +451,7 @@
   >
     <title>`E`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 380.6828186324526 153.3519598863886 L 309.56772569848283 272.9264386033538"
       stroke-opacity="1"
@@ -475,7 +461,7 @@
     ></path>
     <title>`GJ`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <path
       d="M 210.24770263542462 172.87845454988465 L 245.8052491024095 113.09121519140206"
       stroke-opacity="1"

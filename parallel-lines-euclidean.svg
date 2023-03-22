@@ -1,5 +1,5 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
-  <g style="solid">
+  <g>
     <path
       d="M 752.5606378337291 81.42985754463672 L 102.63059138154256 319.33184978718054"
       stroke-opacity="1"
@@ -22,7 +22,7 @@
   >
     <title>`J`.icon</title>
   </circle>
-  <g style="solid">
+  <g>
     <path
       d="M 102.63059138154256 319.33184978718054 L 430.000605230027 444.6634096723561"
       stroke-opacity="1"
@@ -60,8 +60,6 @@
   </circle>
   <g
     transform="rotate(0, 726.4440849771231, 61.696960797578)translate(726.4440849771231, 61.696960797578)"
-    font-size="13.5px"
-    string="J"
   >
     <title>`J`.text</title>
     <svg
@@ -99,8 +97,6 @@
   </g>
   <g
     transform="rotate(0, 112.17768551605631, 289.932073327851)translate(112.17768551605631, 289.932073327851)"
-    font-size="13.5px"
-    string="K"
   >
     <title>`K`.text</title>
     <svg
@@ -138,8 +134,6 @@
   </g>
   <g
     transform="rotate(0, 441.4472374675851, 417.44272894910875)translate(441.4472374675851, 417.44272894910875)"
-    font-size="13.5px"
-    string="M"
   >
     <title>`M`.text</title>
     <svg
@@ -177,8 +171,6 @@
   </g>
   <g
     transform="rotate(0, 49.87177516958729, 595.1510619592841)translate(49.87177516958729, 595.1510619592841)"
-    font-size="13.5px"
-    string="L"
   >
     <title>`L`.text</title>
     <svg
@@ -216,8 +208,6 @@
   </g>
   <g
     transform="rotate(0, 735.7949155764993, 293.0701956378936)translate(735.7949155764993, 293.0701956378936)"
-    font-size="13.5px"
-    string="N"
   >
     <title>`N`.text</title>
     <svg
@@ -253,7 +243,7 @@
       </g>
     </svg>
   </g>
-  <g style="solid">
+  <g>
     <marker
       id="automator-LemongrassOyster4884-`KM`.icon-startArrowId"
       markerUnits="strokeWidth"
@@ -297,7 +287,7 @@
     ></path>
     <title>`KM`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <marker
       id="automator-LemongrassOyster4884-`JK`.icon-startArrowId"
       markerUnits="strokeWidth"
@@ -341,7 +331,7 @@
     ></path>
     <title>`JK`.icon</title>
   </g>
-  <g style="solid">
+  <g>
     <marker
       id="automator-LemongrassOyster4884-`NL`.icon-startArrowId"
       markerUnits="strokeWidth"
@@ -411,7 +401,7 @@
   >
     <title>`N`.icon</title>
   </circle>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`JK`.tick1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -437,7 +427,7 @@
     ></path>
     <title>`JK`.tick1</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`NL`.tick1-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur

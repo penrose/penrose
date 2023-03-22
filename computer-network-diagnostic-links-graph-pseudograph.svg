@@ -11,7 +11,7 @@
   >
     <title>`e12`.arrow</title>
   </circle>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -37,7 +37,7 @@
     ></path>
     <title>`e2`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e7`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -86,12 +86,14 @@
     y="267.7895890265107"
     width="67"
     height="14"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="14"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Detroit`.text</title>
     Detroit
@@ -108,7 +110,7 @@
   >
     <title>`e16`.arrow</title>
   </circle>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e9m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -134,7 +136,7 @@
     ></path>
     <title>`e9m2`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e9m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -160,7 +162,7 @@
     ></path>
     <title>`e9m1`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e4`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -209,17 +211,19 @@
     y="221.1978392863261"
     width="109"
     height="18"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    paint-order="stroke"
-    descent="4"
     ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Washington`.text</title>
     Washington
   </text>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e5m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -245,7 +249,7 @@
     ></path>
     <title>`e5m2`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e6`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -271,7 +275,7 @@
     ></path>
     <title>`e6`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e1m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -309,7 +313,7 @@
   >
     <title>`e11`.arrow</title>
   </circle>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e5m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -335,7 +339,7 @@
     ></path>
     <title>`e5m1`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e1m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -361,7 +365,7 @@
     ></path>
     <title>`e1m2`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e1m3`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -410,12 +414,14 @@
     y="143.41121323407103"
     width="68"
     height="14"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Denver`.text</title>
     Denver
@@ -432,7 +438,7 @@
   >
     <title>`e13`.arrow</title>
   </circle>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e8`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -481,12 +487,14 @@
     y="196.96221791091023"
     width="113"
     height="18"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`LA`.text</title>
     Los Angeles
@@ -526,12 +534,14 @@
     y="50.11816510773821"
     width="131"
     height="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    paint-order="stroke"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`SF`.text</title>
     San Francisco
@@ -548,7 +558,7 @@
   >
     <title>`e14`.arrow</title>
   </circle>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e3m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -574,7 +584,7 @@
     ></path>
     <title>`e3m2`.arrow</title>
   </g>
-  <g startArrowheadSize="1" endArrowheadSize="1">
+  <g>
     <filter id="`e3m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
       <feGaussianBlur
@@ -623,12 +633,14 @@
     y="98.5212404652162"
     width="90"
     height="14"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
-    text-anchor="middle"
     descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`NYC`.text</title>
     New York
@@ -668,12 +680,14 @@
     y="137.4384031922351"
     width="76"
     height="18"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="4"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`Chicago`.text</title>
     Chicago

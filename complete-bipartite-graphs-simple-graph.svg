@@ -82,11 +82,13 @@
     y="38.794388639942184"
     width="0"
     height="0"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`k26t1`.text</title>
@@ -124,12 +126,14 @@
     y="91.83258954801191"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k26b1`.text</title>
   </text>
@@ -206,11 +210,13 @@
     y="322.77696964038563"
     width="0"
     height="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="0"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`k35t2`.text</title>
@@ -258,12 +264,14 @@
     y="387.8995942996809"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k35b4`.text</title>
   </text>
@@ -320,12 +328,14 @@
     y="238.94982039437784"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k33t2`.text</title>
   </text>
@@ -372,12 +382,14 @@
     y="385.65322520507596"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="0"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k33b1`.text</title>
   </text>
@@ -444,12 +456,14 @@
     y="268.43713232950876"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k35t1`.text</title>
   </text>
@@ -486,12 +500,14 @@
     y="14.051310852704233"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k26b2`.text</title>
   </text>
@@ -528,12 +544,14 @@
     y="309.3813736618296"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="0"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k35b1`.text</title>
   </text>
@@ -580,12 +598,14 @@
     y="385.0089804744411"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k33t1`.text</title>
   </text>
@@ -642,12 +662,14 @@
     y="124.40218561127244"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k23t1`.text</title>
   </text>
@@ -684,12 +706,14 @@
     y="296.88930772817133"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k35b2`.text</title>
   </text>
@@ -726,12 +750,14 @@
     y="202.38011181082587"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="0"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k23b2`.text</title>
   </text>
@@ -768,12 +794,14 @@
     y="241.3721696346896"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="0"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k33b2`.text</title>
   </text>
@@ -810,12 +838,14 @@
     y="319.87335546797317"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k33t3`.text</title>
   </text>
@@ -862,12 +892,14 @@
     y="100.7050767045667"
     width="0"
     height="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k23t2`.text</title>
   </text>
@@ -904,12 +936,14 @@
     y="15.000102764906416"
     width="0"
     height="0"
-    paint-order="stroke"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="0"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k26b6`.text</title>
   </text>
@@ -946,12 +980,14 @@
     y="386.6716929983402"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k35b3`.text</title>
   </text>
@@ -978,12 +1014,14 @@
     y="319.75194355008745"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k33b3`.text</title>
   </text>
@@ -1040,11 +1078,13 @@
     y="100.74579776185595"
     width="0"
     height="0"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`k26t2`.text</title>
@@ -1072,12 +1112,14 @@
     y="154.12942710919063"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k26b5`.text</title>
   </text>
@@ -1104,12 +1146,14 @@
     y="12.063229560384656"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    ascent="0"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k23b1`.text</title>
   </text>
@@ -1136,12 +1180,14 @@
     y="13.754891806699277"
     width="0"
     height="0"
-    descent="0"
-    paint-order="stroke"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k23b3`.text</title>
   </text>
@@ -1178,11 +1224,13 @@
     y="386.3919446532316"
     width="0"
     height="0"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
     descent="0"
+    text-anchor="middle"
+    visibility=""
     paint-order="stroke"
   >
     <title>`k35t3`.text</title>
@@ -1210,12 +1258,14 @@
     y="101.4867878187269"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k26b4`.text</title>
   </text>
@@ -1242,12 +1292,14 @@
     y="222.09341402631225"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k35b5`.text</title>
   </text>
@@ -1274,12 +1326,14 @@
     y="154.6581420923701"
     width="0"
     height="0"
-    paint-order="stroke"
-    descent="0"
-    ascent="0"
-    text-anchor="middle"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
+    ascent="0"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
   >
     <title>`k26b3`.text</title>
   </text>

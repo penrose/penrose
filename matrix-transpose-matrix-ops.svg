@@ -228,8 +228,6 @@
   </g>
   <g
     transform="rotate(0, 112.488822, 118.66993000069999)translate(112.488822, 118.66993000069999)"
-    font-size="7px"
-    string="A_2"
   >
     <title>`A`.r2Label</title>
     <svg
@@ -332,8 +330,6 @@
   </g>
   <g
     transform="rotate(0, 89.53910953144668, 70.72028753144669)translate(89.53910953144668, 70.72028753144669)"
-    font-size="7px"
-    string="A_1"
   >
     <title>`A`.r1Label</title>
     <svg
@@ -382,8 +378,6 @@
   </g>
   <g
     transform="rotate(0, 134.74480816233321, 115.77471246855332)translate(134.74480816233321, 115.77471246855332)"
-    font-size="7px"
-    string="A^\mathsf{T}_2"
   >
     <title>`AT`.r2Label</title>
     <svg
@@ -498,8 +492,6 @@
   </g>
   <g
     transform="rotate(0, 86.79516569307991, 92.825)translate(86.79516569307991, 92.825)"
-    font-size="7px"
-    string="A^\mathsf{T}_1"
   >
     <title>`AT`.r1Label</title>
     <svg

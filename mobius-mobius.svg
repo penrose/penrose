@@ -51,8 +51,6 @@
   </circle>
   <g
     transform="rotate(0, 301.6365817334776, 462.59817324298604)translate(301.6365817334776, 462.59817324298604)"
-    font-size="15"
-    string="c_1"
   >
     <title>`c1`.eq</title>
     <svg
@@ -101,8 +99,6 @@
   </g>
   <g
     transform="rotate(0, 388.4648335594657, 339.346434210335)translate(388.4648335594657, 339.346434210335)"
-    font-size="15"
-    string="c'_2"
   >
     <title>`ic2`.eq</title>
     <svg
@@ -160,8 +156,6 @@
   </g>
   <g
     transform="rotate(0, 439.1572291214632, 502.77404237114234)translate(439.1572291214632, 502.77404237114234)"
-    font-size="15"
-    string="c_2"
   >
     <title>`c2`.eq</title>
     <svg
@@ -210,8 +204,6 @@
   </g>
   <g
     transform="rotate(0, 330.11458719190136, 409.62831922419116)translate(330.11458719190136, 409.62831922419116)"
-    font-size="15"
-    string="c_3"
   >
     <title>`c3`.eq</title>
     <svg
@@ -284,8 +276,6 @@
   </circle>
   <g
     transform="rotate(0, 136.36687766691026, 461.87407448656285)translate(136.36687766691026, 461.87407448656285)"
-    font-size="15"
-    string="c'_1"
   >
     <title>`ic1`.eq</title>
     <svg
@@ -343,8 +333,6 @@
   </g>
   <g
     transform="rotate(0, 571.3819278467162, 317.9615947152161)translate(571.3819278467162, 317.9615947152161)"
-    font-size="15"
-    string="S^1"
   >
     <title>`r`.eq</title>
     <svg
@@ -403,8 +391,6 @@
   </circle>
   <g
     transform="rotate(0, 133.1369296729433, 300.4465978482393)translate(133.1369296729433, 300.4465978482393)"
-    font-size="15"
-    string="c'_3"
   >
     <title>`ic3`.eq</title>
     <svg

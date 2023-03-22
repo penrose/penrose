@@ -44,8 +44,6 @@
   </circle>
   <g
     transform="rotate(0, 521.9207763627837, 346.7163291292895)translate(521.9207763627837, 346.7163291292895)"
-    font-size="12pt"
-    string="V"
   >
     <title>`V`.text</title>
     <svg
@@ -99,8 +97,6 @@
   </rect>
   <g
     transform="rotate(0, 208.6663017272743, 226.98338700573348)translate(208.6663017272743, 226.98338700573348)"
-    font-size="12pt"
-    string="\mathbb{R}^n"
   >
     <title>`Rn`.text</title>
     <svg
@@ -178,8 +174,6 @@
   </circle>
   <g
     transform="rotate(0, 113.08805762604776, 341.6935769777705)translate(113.08805762604776, 341.6935769777705)"
-    font-size="12pt"
-    string="f^{-1}(V)"
   >
     <title>`U`.text</title>
     <svg
@@ -255,8 +249,6 @@
   </g>
   <g
     transform="rotate(0, 176.64940526772477, 396.89654957233756)translate(176.64940526772477, 396.89654957233756)"
-    font-size="12pt"
-    string="A"
   >
     <title>`A`.text</title>
     <svg
@@ -294,8 +286,6 @@
   </g>
   <g
     transform="rotate(0, 561.6285719286915, 324.12048776660396)translate(561.6285719286915, 324.12048776660396)"
-    font-size="12pt"
-    string="B"
   >
     <title>`B`.text</title>
     <svg
@@ -360,8 +350,6 @@
   </g>
   <g
     transform="rotate(0, 317.9976629368071, 304.22159282923997)translate(317.9976629368071, 304.22159282923997)"
-    font-size="12pt"
-    string="f"
   >
     <title>`f`.text</title>
     <svg
@@ -399,8 +387,6 @@
   </g>
   <g
     transform="rotate(0, 606.9312067272742, 226.98338700573348)translate(606.9312067272742, 226.98338700573348)"
-    font-size="12pt"
-    string="\mathbb{R}^m"
   >
     <title>`Rm`.text</title>
     <svg

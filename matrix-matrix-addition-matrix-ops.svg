@@ -228,8 +228,6 @@
   </g>
   <g
     transform="rotate(0, 111.995082, 136.66996500017498)translate(111.995082, 136.66996500017498)"
-    font-size="7px"
-    string="X_2"
   >
     <title>`X`.r2Label</title>
     <svg
@@ -332,8 +330,6 @@
   </g>
   <g
     transform="rotate(0, 90.86460083143768, 51.40903766287537)translate(90.86460083143768, 51.40903766287537)"
-    font-size="7px"
-    string="X_1"
   >
     <title>`X`.r1Label</title>
     <svg
@@ -382,8 +378,6 @@
   </g>
   <g
     transform="rotate(0, 134.68907316856232, 51.40903766287537)translate(134.68907316856232, 51.40903766287537)"
-    font-size="7px"
-    string="Y_2"
   >
     <title>`Y`.r2Label</title>
     <svg
@@ -486,8 +480,6 @@
   </g>
   <g
     transform="rotate(0, 155.81955433712463, 72.53951883143769)translate(155.81955433712463, 72.53951883143769)"
-    font-size="7px"
-    string="Y_1"
   >
     <title>`Y`.r1Label</title>
     <svg
@@ -536,8 +528,6 @@
   </g>
   <g
     transform="rotate(0, 119.35077000070001, 93.67)translate(119.35077000070001, 93.67)"
-    font-size="7px"
-    string="(X+Y)_2"
   >
     <title>`Z`.r2Label</title>
     <svg
@@ -664,8 +654,6 @@
   </g>
   <g
     transform="rotate(0, 114.56442736214001, 33.02923791358)translate(114.56442736214001, 33.02923791358)"
-    font-size="7px"
-    string="(X+Y)_1"
   >
     <title>`Z`.r1Label</title>
     <svg

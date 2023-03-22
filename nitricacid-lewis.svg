@@ -256,11 +256,13 @@
     y="268.5754614211455"
     width="16"
     height="14"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`o1`.text</title>
     O
@@ -275,11 +277,13 @@
     y="349.3987428742946"
     width="16"
     height="14"
-    descent="0"
-    ascent="14"
-    text-anchor="middle"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`o2`.text</title>
     O
@@ -294,11 +298,13 @@
     y="205.38144671640822"
     width="16"
     height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
     ascent="14"
     descent="0"
     text-anchor="middle"
-    dominant-baseline="alphabetic"
-    alignment-baseline="alphabetic"
+    visibility=""
   >
     <title>`o3`.text</title>
     O
@@ -322,11 +328,13 @@
     y="265.25016384173193"
     width="15"
     height="14"
-    ascent="14"
-    text-anchor="middle"
-    descent="0"
-    dominant-baseline="alphabetic"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`h`.text</title>
     H
@@ -341,11 +349,13 @@
     y="271.8652976053178"
     width="14"
     height="14"
+    font-size-adjust=""
     alignment-baseline="alphabetic"
-    text-anchor="middle"
     dominant-baseline="alphabetic"
-    descent="0"
     ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
   >
     <title>`n`.text</title>
     N
