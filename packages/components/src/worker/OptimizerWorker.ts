@@ -1,8 +1,8 @@
-import { PenroseError, PenroseState } from "@penrose/core";
+import { PenroseError, RenderState } from "@penrose/core";
 import { Req, Resp } from "./message";
 import RawWorker from "./worker?worker";
 
-export type OnUpdate = (state: SVGSVGElement) => void;
+export type OnUpdate = (state: RenderState ) => void;
 export type OnError = (error: PenroseError) => void;
 
 export default class OptimizerWorker {
@@ -38,7 +38,7 @@ export default class OptimizerWorker {
           break;
         case "Finished":
           this.running = false;
-          this.onUpdate(JSON.parse(data.state));
+          this.onUpdate(data.state);
           break;
       }
     }
@@ -53,7 +53,6 @@ export default class OptimizerWorker {
       sharedMemory: sab,
       offscreenCanvas,
     }, [offscreenCanvas]);
-    console.log("wo");
   }
 
   private request(req: Req) {

@@ -2,10 +2,10 @@ import {
   compileTrio,
   PenroseError,
   PenroseState,
+  RenderState,
   prepareState,
   stateConverged,
   stepStateSafe,
-  RenderStatic
 } from "@penrose/core";
 import { Req } from "./message";
 
@@ -14,11 +14,21 @@ import { Req } from "./message";
 let sharedMemory: Int8Array;
 let canvas: OffscreenCanvas;
 
+const renderStateFromState = (state: PenroseState) : RenderState => {
+  return {
+    variation: state.variation,
+    labelCache: state.labelCache,
+    canvas: state.canvas,
+    shapes: state.computeShapes(state.varyingValues),
+  }
+}
+
+
+
 const sendUpdate = async (state: PenroseState) => {
-  const svg = await RenderStatic(state, path => new Promise(res => res("")), "");
   postMessage({
     tag: "Update",
-    svg
+    state: renderStateFromState(state),
   });
 }
 
@@ -35,27 +45,29 @@ const sendReadyForNewTrio = () => {
 const sendFinished = (state: PenroseState) => {
   postMessage({
     tag: "Finished",
-    state,
+    state: renderStateFromState(state),
   });
 };
 
 const optimize = (state: PenroseState) => {
   while (!stateConverged(state)) {
-    const steppedState = stepStateSafe(state, 1000);
-    if (steppedState.isErr()) {
-      sendError(steppedState.error);
-      return;
-    }
-    // Main thread wants an update
-    if (Atomics.exchange(sharedMemory, 0, 0)) {
-      sendUpdate(state);
-    }
-    // Main thread wants to compile something else
-    if (Atomics.exchange(sharedMemory, 1, 0)) {
-      sendReadyForNewTrio();
-      return;
-    }
+    const steppedState = stepStateSafe(state, 2000);
+    console.log("stepped");
+    // if (steppedState.isErr()) {
+    //   sendError(steppedState.error);
+    //   return;
+    // }
+    // // Main thread wants an update
+    // if (Atomics.exchange(sharedMemory, 0, 0)) {
+    //   sendUpdate(state);
+    // }
+    // // Main thread wants to compile something else
+    // if (Atomics.exchange(sharedMemory, 1, 0)) {
+    //   sendReadyForNewTrio();
+    //   return;
+    // }
   }
+  console.log("Worker finished optimizing");
   sendFinished(state);
 };
 

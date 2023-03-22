@@ -206,7 +206,6 @@ export const collectLabels = async (
         height === Infinity ? 0 : height,
         adaptor.innerHTML(body)
       );
-      console.log(label);
       labels.set(shapeName, label);
     } else if (shapeType === "Text") {
       const shapeName: string = getAdValueAsString(properties.name);

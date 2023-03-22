@@ -390,6 +390,7 @@ export const evalFns = (
 
 export type PenroseState = State;
 export type PenroseFn = Fn;
+export type { RenderState } from "./types/state"
 
 export type { SubStmtKind } from "./analysis/SubstanceAnalysis";
 export { constrDict } from "./contrib/Constraints";

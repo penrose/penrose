@@ -29,10 +29,9 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
   const retrievedLabel = labels.get(getAdValueAsString(shape.properties.name));
 
   if (retrievedLabel && retrievedLabel.tag === "EquationData") {
-    // Clone the retrieved node first to avoid mutating existing labels
-    const renderedLabel = retrievedLabel.rendered.cloneNode(
-      true
-    ) as HTMLElement;
+    const renderedLabel = document.createElement("svg");
+    renderedLabel.innerHTML = retrievedLabel.rendered;
+
     const g = renderedLabel.getElementsByTagName("g")[0];
 
     attrToNotAutoMap.push(...attrFill(shape, g));

@@ -1,5 +1,4 @@
-import { PenroseError, PenroseState } from "@penrose/core";
-import { StyleWarning } from "@penrose/core/dist/types/errors";
+import { PenroseError, RenderState } from "@penrose/core";
 
 /** request */
 export type Req = Init | Compile;
@@ -23,12 +22,12 @@ export type Resp = Update | Error | ReadyForNewTrio | Finished;
 
 export type Update = {
   tag: "Update";
-  state: SVGSVGElement;
+  state: RenderState;
 };
 
 export type Finished = {
   tag: "Finished";
-  state: string;
+  state: RenderState;
 };
 
 export type Error = {

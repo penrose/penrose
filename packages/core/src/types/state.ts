@@ -40,7 +40,7 @@ export interface State extends OptState {
   computeShapes: ShapeFn;
 }
 
-export interface RenderState extends OptState {
+export interface RenderState {
   variation: string;
   labelCache: LabelCache;
   canvas: Canvas;

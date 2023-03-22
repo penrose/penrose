@@ -3,6 +3,7 @@ import {
   compileTrio,
   PenroseError,
   PenroseState,
+  RenderState,
   prepareState,
   resample,
   stepNextStage,
@@ -63,7 +64,7 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const initialState = await prepareState(compileResult.value);
+  const initialState = await prepareState(compileResult.value, document.createElement("canvas").transferControlToOffscreen());
   set(
     diagramState,
     (state: Diagram): Diagram => ({
@@ -136,10 +137,7 @@ export const useCompileDiagram = () =>
       }));
     };
 
-    console.log("hi");
-
-    const onUpdate = (state: SVGSVGElement) => {
-      console.log("updated");
+    const onUpdate = (state: RenderState) => {
       // set(
       //   diagramState,
       //   (diagramState: Diagram): Diagram => ({
