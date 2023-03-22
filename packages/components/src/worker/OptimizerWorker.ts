@@ -1,4 +1,5 @@
-import { PenroseError, RenderState } from "@penrose/core";
+import { PenroseError, RenderState, showError } from "@penrose/core";
+import { collectLabels } from "@penrose/core/dist/utils/CollectLabels";
 import { Req, Resp } from "./message";
 import RawWorker from "./worker?worker";
 
@@ -18,29 +19,36 @@ export default class OptimizerWorker {
   private variation: string = "";
 
   constructor() {
-    this.worker.onmessage = ({ data }: MessageEvent<Resp>) => {
-      switch (data.tag) {
-        case "Update":
-          console.log("received update");
-          this.onUpdate(data.state);
-          break;
-        case "Error":
-          this.onError(data.error);
-          break;
-        case "ReadyForNewTrio":
-          this.running = true;
-          this.request({
-            tag: "Compile",
-            domain: this.domain,
-            style: this.style,
-            substance: this.substance,
-            variation: this.variation,
-          });
-          break;
-        case "Finished":
-          this.running = false;
-          this.onUpdate(data.state);
-          break;
+    this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
+      if (data.tag === "Update") {
+        console.log("received update");
+        this.onUpdate(data.state);
+      } else if (data.tag === "Error") {
+        this.onError(data.error);
+      } else if (data.tag === "ReadyForNewTrio") {
+        this.running = true;
+        this.request({
+          tag: "Compile",
+          domain: this.domain,
+          style: this.style,
+          substance: this.substance,
+          variation: this.variation,
+        });
+      } else if (data.tag === "Finished") {
+        this.running = false;
+        this.onUpdate(data.state);
+      } else if (data.tag === "ReqLabelCache") {
+        const labelCache = await collectLabels(data.shapes);
+        if (labelCache.isErr()) {
+          throw Error(showError(labelCache.error));
+        }
+        this.request({
+          tag: "RespLabelCache",
+          labelCache: labelCache.value,
+        });
+      } else {
+        // Shouldn't Happen
+        console.error(`Unknown Response: ${data}`);
       }
     }
   }
@@ -75,12 +83,10 @@ export default class OptimizerWorker {
     if (!this.workerInitialized) {
       const sab = new SharedArrayBuffer(2);
       this.sharedMemory = new Int8Array(sab);
-      const offscreenCanvas = document.createElement("canvas").transferControlToOffscreen();
-      this.worker.postMessage({
+      this.request({
         tag: "Init",
         sharedMemory: sab,
-        offscreenCanvas,
-      }, [offscreenCanvas]);
+      });
       this.workerInitialized = true;
     }
 

@@ -3,16 +3,16 @@ import {
   PenroseError,
   PenroseState,
   RenderState,
-  prepareState,
+  insertPending,
   stateConverged,
   stepStateSafe,
 } from "@penrose/core";
-import { Req } from "./message";
+import { Req, Resp } from "./message";
 
 // Array of size two. First index is set if main thread wants an update,
 // second bit is set if user wants to send a new trio.
 let sharedMemory: Int8Array;
-let canvas: OffscreenCanvas;
+let initialState: PenroseState;
 
 const renderStateFromState = (state: PenroseState) : RenderState => {
   return {
@@ -23,60 +23,66 @@ const renderStateFromState = (state: PenroseState) : RenderState => {
   }
 }
 
+const respondReqLabelCache = (state: PenroseState) => {
+  respond({
+    tag: "ReqLabelCache",
+    shapes: state.shapes,
+  })
+}
 
-
-const sendUpdate = async (state: PenroseState) => {
-  postMessage({
+const respondUpdate = async (state: PenroseState) => {
+  respond({
     tag: "Update",
     state: renderStateFromState(state),
   });
 }
 
-const sendError = (error: PenroseError) =>
-  postMessage({
+const respondError = (error: PenroseError) =>
+  respond({
     tag: "Error",
     error,
   });
 
-const sendReadyForNewTrio = () => {
-  postMessage({ tag: "ReadyForNewTrio" });
+const respondReadyForNewTrio = () => {
+  respond({ tag: "ReadyForNewTrio" });
 };
 
-const sendFinished = (state: PenroseState) => {
-  postMessage({
+const respondFinished = (state: PenroseState) => {
+  respond({
     tag: "Finished",
     state: renderStateFromState(state),
   });
 };
 
+// Wrapper function for postMessage to ensure type safety
+const respond = (response: Resp) => {
+  postMessage(response)
+}
+
 const optimize = (state: PenroseState) => {
   while (!stateConverged(state)) {
     const steppedState = stepStateSafe(state, 25);
     if (steppedState.isErr()) {
-      sendError(steppedState.error);
+      respondError(steppedState.error);
       return;
     }
     // Main thread wants an update
     if (Atomics.exchange(sharedMemory, 0, 0)) {
-      sendUpdate(state);
+      respondUpdate(state);
     }
     // Main thread wants to compile something else
     if (Atomics.exchange(sharedMemory, 1, 0)) {
-      sendReadyForNewTrio();
+      respondReadyForNewTrio();
       return;
     }
     state = steppedState.value;
   }
-  sendFinished(state);
+  respondFinished(state);
 };
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
-  console.log(`worker received message with data: ${data}`);
-
   if (data.tag === "Init") {
-    data.offscreenCanvas.getContext("2d");
     sharedMemory = new Int8Array(data.sharedMemory);
-    canvas = data.offscreenCanvas;
   } else if (data.tag === "Compile") {
     const { domain, substance, style, variation } = data;
     const compileResult = await compileTrio({
@@ -86,13 +92,15 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       variation,
     });
     if (compileResult.isErr()) {
-      sendError(compileResult.error);
+      respondError(compileResult.error);
     } else {
-      const initialState = await prepareState(compileResult.value, canvas);
-      sendUpdate(initialState);
-      optimize(initialState);
+      initialState = compileResult.value;
+      respondReqLabelCache(compileResult.value);
     }
+  } else if (data.tag === "RespLabelCache") {
+    optimize(insertPending({ ...initialState, labelCache: data.labelCache }));
   } else {
+    // Shouldn't ever happen
     console.error(`Unknown request: `, data);
   }
 };

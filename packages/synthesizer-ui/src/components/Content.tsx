@@ -19,6 +19,7 @@ import {
   SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
+  renderStateFromState,
 } from "@penrose/core";
 import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
@@ -159,7 +160,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       const state = this.state.states[idx];
       const { prog, ops } = this.state.progs[idx];
       const svg = await RenderStatic(
-        state,
+        renderStateFromState(state),
         async (path: string) => {
           const response = await fetch(path);
           if (!response.ok) {

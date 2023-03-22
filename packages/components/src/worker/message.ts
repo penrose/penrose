@@ -1,13 +1,24 @@
 import { PenroseError, RenderState } from "@penrose/core";
+import { ShapeAD } from "@penrose/core/dist/types/shape";
+import { LabelCache } from "@penrose/core/dist/types/state";
 
 /** request */
-export type Req = Init | Compile;
+export type Req = Init | Compile | RespLabelCache;
 
 export type Init = {
   tag: "Init";
   sharedMemory: SharedArrayBuffer;
-  offscreenCanvas: OffscreenCanvas;
 };
+
+export type RespLabelCache = {
+  tag: "RespLabelCache"
+  labelCache: LabelCache
+}
+
+export type ReqLabelCache = {
+  tag: "ReqLabelCache";
+  shapes: ShapeAD[];
+}
 
 export type Compile = {
   tag: "Compile";
@@ -18,7 +29,7 @@ export type Compile = {
 };
 
 /** response */
-export type Resp = Update | Error | ReadyForNewTrio | Finished;
+export type Resp = Update | Error | ReadyForNewTrio | Finished | ReqLabelCache;
 
 export type Update = {
   tag: "Update";

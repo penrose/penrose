@@ -29,10 +29,7 @@ const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
   const retrievedLabel = labels.get(getAdValueAsString(shape.properties.name));
 
   if (retrievedLabel && retrievedLabel.tag === "EquationData") {
-    const renderedLabel = document.createElement("svg");
-    renderedLabel.innerHTML = retrievedLabel.rendered;
-    console.log(renderedLabel);
-
+    const renderedLabel = retrievedLabel.rendered;
     const g = renderedLabel.getElementsByTagName("g")[0];
 
     attrToNotAutoMap.push(...attrFill(shape, g));

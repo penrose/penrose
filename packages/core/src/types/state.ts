@@ -56,7 +56,7 @@ export interface EquationData {
   tag: "EquationData";
   width: FloatV<number>;
   height: FloatV<number>;
-  rendered: string; // To be converted to an HTMLElement on the main thread
+  rendered: HTMLElement; // To be converted to an HTMLElement on the main thread
 }
 
 export interface TextData {

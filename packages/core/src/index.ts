@@ -20,7 +20,7 @@ import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
-import { Fn, LabelCache, State } from "./types/state";
+import { Fn, LabelCache, RenderState, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
@@ -33,6 +33,8 @@ import {
   safe,
   toSvgPaintProperty,
 } from "./utils/Util";
+
+export { insertPending, collectLabels };
 
 /**
  * Use the current resample seed to sample all shapes in the State.
@@ -181,7 +183,7 @@ export const diagram = async (
 ): Promise<void> => {
   const res = await compileTrio(prog);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value, document.createElement("canvas").transferControlToOffscreen());
+    const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
     // const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
     // node.appendChild(rendered);
@@ -223,7 +225,7 @@ export const interactiveDiagram = async (
   };
   const res = await compileTrio(prog);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value, document.createElement("canvas").transferControlToOffscreen());
+    const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendering = await RenderInteractive(
       optimized,
@@ -271,17 +273,12 @@ export const compileTrio = async (prog: {
  */
 export const prepareState = async (
   state: State, 
-  canvas: OffscreenCanvas
 ): Promise<State> => {
-  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
-    state.shapes,
-    canvas
-  );
+  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(state.shapes);
 
   if (labelCache.isErr()) {
     throw Error(showError(labelCache.error));
   }
-
   return insertPending({ ...state, labelCache: labelCache.value });
 };
 
@@ -387,6 +384,15 @@ export const evalFns = (
     objEngs: lastObjEnergies,
   };
 };
+
+export const renderStateFromState = (state: PenroseState) : RenderState => {
+  return {
+    variation: state.variation,
+    labelCache: state.labelCache,
+    canvas: state.canvas,
+    shapes: state.computeShapes(state.varyingValues),
+  }
+}
 
 export type PenroseFn = Fn;
 export type PenroseState = State;

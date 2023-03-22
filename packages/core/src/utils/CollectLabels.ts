@@ -1,7 +1,5 @@
-import { liteAdaptor } from "mathjax-full/js/adaptors/liteAdaptor";
-import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor"
+import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
-import { LiteElement } from "mathjax-full/js/adaptors/lite/Element";
 import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
@@ -16,34 +14,35 @@ import { FloatV } from "../types/value";
 import { err, ok, Result } from "./Error";
 import { getAdValueAsString, getValueAsShapeList } from "./Util";
 
+// https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
+// const adaptor = chooseAdaptor();
+const adaptor = browserAdaptor();
+RegisterHTMLHandler(adaptor);
+const tex = new TeX({
+  packages: AllPackages,
+  macros: {
+    textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
+  },
+  inlineMath: [
+    ["$", "$"],
+    ["\\(", "\\)"],
+  ],
+  processEscapes: true,
+  // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
+  formatError: (jax: unknown, err: Error) => {
+    throw Error(err.message);
+  },
+});
+const svg = new SVG({ fontCache: "none" });
+const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
+
 // to re-scale baseline
 const EX_CONSTANT = 10;
 
 const convert = (
   input: string,
   fontSize: string
-): Result<LiteElement, string> => {
-  // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-  // const adaptor = chooseAdaptor();
-  const adaptor = liteAdaptor(); // Used so Mathjax works in worker
-  RegisterHTMLHandler(adaptor);
-  const tex = new TeX({
-    packages: AllPackages,
-    macros: {
-      textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
-    },
-    inlineMath: [
-      ["$", "$"],
-      ["\\(", "\\)"],
-    ],
-    processEscapes: true,
-    // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
-    formatError: (jax: unknown, err: Error) => {
-      throw Error(err.message);
-    },
-  });
-  const svg = new SVG({ fontCache: "none" });
-  const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
+): Result<HTMLElement, string> => {
   // HACK: workaround for newlines
   // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
   const newline_escaped = `\\displaylines{${input}}`;
@@ -54,15 +53,14 @@ const convert = (
     // Not sure if this call does anything:
     // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
     adaptor.setStyle(node, "font-size", fontSize);
-    const child = adaptor.firstChild(node) as LiteElement;
-    return ok(child);
+    return ok(node.firstChild);
   } catch (error: any) {
     return err(error.message);
   }
 };
 
 type Output = {
-  body: LiteElement;
+  body: HTMLElement;
   width: number;
   height: number;
 };
@@ -94,8 +92,7 @@ const tex2svg = async (
       return;
     }
     const body = output.value;
-    const adaptor = liteAdaptor();
-    const viewBox = adaptor.getAttribute(body, "viewBox");
+    const viewBox = body.getAttribute("viewBox");
     if (viewBox === null) {
       resolve(err(`No ViewBox found for MathJax output $${contents}$`));
       return;
@@ -108,7 +105,7 @@ const tex2svg = async (
 
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-    const vAlignFloat = parseFloat(adaptor.getStyle(body, "verticalAlign")) * EX_CONSTANT;
+    const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
     const constHeight = parseFloat(fontSize) - vAlignFloat;
     const scaledWidth = (constHeight / height) * width;
 
@@ -136,7 +133,7 @@ const textData = (
 const equationData = (
   width: number,
   height: number,
-  rendered: string
+  rendered: HTMLElement
 ): EquationData => ({
   tag: "EquationData",
   width: floatV(width),
@@ -178,8 +175,7 @@ export const toFontRule = ({ properties }: ShapeAD): string => {
 
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
-  allShapes: ShapeAD[],
-  canvas: OffscreenCanvas,
+  allShapes: ShapeAD[]
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
@@ -197,14 +193,13 @@ export const collectLabels = async (
       }
 
       const { body, width, height } = svg.value;
-      const adaptor = liteAdaptor();
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
       const label: EquationData = equationData(
         width === Infinity ? 0 : width,
         height === Infinity ? 0 : height,
-        adaptor.innerHTML(body)
+        body
       );
       labels.set(shapeName, label);
     } else if (shapeType === "Text") {
@@ -213,8 +208,7 @@ export const collectLabels = async (
       // Use canvas to measure text data
       const measure: TextMeasurement = measureText(
         getAdValueAsString(properties.string),
-        toFontRule(s),
-        canvas
+        toFontRule(s)
       );
 
       // If the width and height are defined, the renderer will render the text. `actualDescent` is currently not used in rendering.
@@ -231,7 +225,7 @@ export const collectLabels = async (
       labels.set(shapeName, label);
     } else if (shapeType === "Group") {
       const subShapes = getValueAsShapeList(properties["shapes"]);
-      const subLabels = await collectLabels(subShapes, canvas);
+      const subLabels = await collectLabels(subShapes);
       if (subLabels.isErr()) {
         return subLabels;
       }
@@ -251,6 +245,9 @@ export type TextMeasurement = {
   actualAscent: number;
 };
 
+const measureTextElement = document.createElement("canvas");
+const measureTextContext = measureTextElement.getContext("2d")!;
+
 /**
  *
  * @param text the content of the text
@@ -259,9 +256,7 @@ export type TextMeasurement = {
  * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
  * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
  */
-export function measureText(text: string, font: string, canvas: OffscreenCanvas): TextMeasurement {
-  // TODO: Shouldn't need to cast, submit Typescript issue
-  const measureTextContext = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+export function measureText(text: string, font: string): TextMeasurement {
   measureTextContext.textBaseline = "alphabetic";
   measureTextContext.font = font;
   const measurements = measureTextContext.measureText(text);
