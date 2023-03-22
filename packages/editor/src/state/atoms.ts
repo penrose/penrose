@@ -3,8 +3,8 @@ import {
   compileDomain,
   Env,
   PenroseError,
-  PenroseState,
   readRegistry,
+  RenderState,
   Trio,
 } from "@penrose/core";
 import { registry } from "@penrose/examples";
@@ -277,7 +277,7 @@ export type DiagramMetadata = {
 };
 
 export type Diagram = {
-  state: PenroseState | null;
+  state: RenderState | null;
   error: PenroseError | null;
   metadata: DiagramMetadata;
 };

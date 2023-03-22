@@ -183,8 +183,8 @@ export const diagram = async (
   if (res.isOk()) {
     const state: State = await prepareState(res.value, document.createElement("canvas").transferControlToOffscreen());
     const optimized = stepUntilConvergenceOrThrow(state);
-    const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
-    node.appendChild(rendered);
+    // const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
+    // node.appendChild(rendered);
   } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
@@ -388,8 +388,8 @@ export const evalFns = (
   };
 };
 
-export type PenroseState = State;
 export type PenroseFn = Fn;
+export type PenroseState = State;
 export type { RenderState } from "./types/state"
 
 export type { SubStmtKind } from "./analysis/SubstanceAnalysis";

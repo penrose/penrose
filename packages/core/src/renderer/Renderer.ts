@@ -6,7 +6,7 @@
 
 import { shapedefs } from "../shapes/Shapes";
 import { Shape } from "../types/shape";
-import { LabelCache, State } from "../types/state";
+import { LabelCache, RenderState, State } from "../types/state";
 import { StrV } from "../types/value";
 import { getValueAsShapeList } from "../utils/Util";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
@@ -101,13 +101,12 @@ export const RenderInteractive = async (
  * @param pathResolver Resolves paths to static strings
  */
 export const RenderStatic = async (
-  state: State,
+  state: RenderState,
   pathResolver: PathResolver,
   namespace: string
 ): Promise<SVGSVGElement> => {
   const {
-    varyingValues,
-    computeShapes,
+    shapes,
     labelCache: labels,
     canvas,
     variation,
@@ -117,7 +116,6 @@ export const RenderStatic = async (
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
 
-  const shapes = computeShapes(varyingValues);
   await RenderShapes(
     shapes,
     svg,

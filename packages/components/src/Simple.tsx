@@ -133,43 +133,43 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   renderCanvas = async () => {
     if (this.canvasRef.current === null) {
       return <div>rendering...</div>;
-    } else {
-      const node = this.canvasRef.current;
-      if (this.penroseState) {
-        const renderedState: SVGSVGElement = await (this.props.interactive ===
-        false
-          ? RenderStatic(
-              this.penroseState,
-              this.props.imageResolver ?? fetchResolver,
-              this.props.name ?? ""
-            )
-          : RenderInteractive(
-              this.penroseState,
-              async (newState: PenroseState) => {
-                this.penroseState = newState;
-                if (!this.props.animate) {
-                  await this.converge();
-                }
-                this.renderCanvas();
-              },
-              this.props.imageResolver ?? fetchResolver,
-              this.props.name ?? ""
-            ));
-        // to avoid overflowing the parent div, force the height and width to be 100%
-        renderedState.setAttribute("height", "100%");
-        renderedState.setAttribute("width", "100%");
-        if (node.firstChild !== null) {
-          node.replaceChild(renderedState, node.firstChild);
-        } else {
-          node.appendChild(renderedState);
-        }
-        // propagate state update
-        if (this.props.onFrame) {
-          this.props.onFrame(this.penroseState);
-        }
-      } else {
-        return <div>rendering...</div>;
-      }
+    // } else {
+    //   const node = this.canvasRef.current;
+    //   if (this.penroseState) {
+    //     const renderedState: SVGSVGElement = await (this.props.interactive ===
+    //     false
+    //       ? RenderStatic(
+    //           this.penroseState,
+    //           this.props.imageResolver ?? fetchResolver,
+    //           this.props.name ?? ""
+    //         )
+    //       : RenderInteractive(
+    //           this.penroseState,
+    //           async (newState: PenroseState) => {
+    //             this.penroseState = newState;
+    //             if (!this.props.animate) {
+    //               await this.converge();
+    //             }
+    //             this.renderCanvas();
+    //           },
+    //           this.props.imageResolver ?? fetchResolver,
+    //           this.props.name ?? ""
+    //         ));
+    //     // to avoid overflowing the parent div, force the height and width to be 100%
+    //     renderedState.setAttribute("height", "100%");
+    //     renderedState.setAttribute("width", "100%");
+    //     if (node.firstChild !== null) {
+    //       node.replaceChild(renderedState, node.firstChild);
+    //     } else {
+    //       node.appendChild(renderedState);
+    //     }
+    //     // propagate state update
+    //     if (this.props.onFrame) {
+    //       this.props.onFrame(this.penroseState);
+    //     }
+    //   } else {
+    //     return <div>rendering...</div>;
+    //   }
     }
   };
 

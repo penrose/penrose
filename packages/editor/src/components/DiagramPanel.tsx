@@ -263,7 +263,7 @@ export const DownloadPNG = (
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [diagram, setDiagram] = useRecoilState(diagramState);
+  const [ diagram ] = useRecoilState(diagramState);
   const { state, error, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const { interactive } = useRecoilValue(diagramMetadataSelector);

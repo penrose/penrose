@@ -51,23 +51,22 @@ const sendFinished = (state: PenroseState) => {
 
 const optimize = (state: PenroseState) => {
   while (!stateConverged(state)) {
-    const steppedState = stepStateSafe(state, 2000);
-    console.log("stepped");
-    // if (steppedState.isErr()) {
-    //   sendError(steppedState.error);
-    //   return;
-    // }
-    // // Main thread wants an update
-    // if (Atomics.exchange(sharedMemory, 0, 0)) {
-    //   sendUpdate(state);
-    // }
-    // // Main thread wants to compile something else
-    // if (Atomics.exchange(sharedMemory, 1, 0)) {
-    //   sendReadyForNewTrio();
-    //   return;
-    // }
+    const steppedState = stepStateSafe(state, 250);
+    if (steppedState.isErr()) {
+      sendError(steppedState.error);
+      return;
+    }
+    // Main thread wants an update
+    if (Atomics.exchange(sharedMemory, 0, 0)) {
+      sendUpdate(state);
+    }
+    // Main thread wants to compile something else
+    if (Atomics.exchange(sharedMemory, 1, 0)) {
+      sendReadyForNewTrio();
+      return;
+    }
+    state = steppedState.value;
   }
-  console.log("Worker finished optimizing");
   sendFinished(state);
 };
 
