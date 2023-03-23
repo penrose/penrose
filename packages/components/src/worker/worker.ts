@@ -2,10 +2,10 @@ import {
   compileTrio,
   PenroseError,
   PenroseState,
-  RenderState,
   insertPending,
   stateConverged,
   stepStateSafe,
+  stateToOptRenderState,
 } from "@penrose/core";
 import { Req, Resp } from "./message";
 
@@ -13,15 +13,6 @@ import { Req, Resp } from "./message";
 // second bit is set if user wants to send a new trio.
 let sharedMemory: Int8Array;
 let initialState: PenroseState;
-
-const renderStateFromState = (state: PenroseState) : RenderState => {
-  return {
-    variation: state.variation,
-    labelCache: state.labelCache,
-    canvas: state.canvas,
-    shapes: state.computeShapes(state.varyingValues),
-  }
-}
 
 const respondReqLabelCache = (state: PenroseState) => {
   respond({
@@ -33,7 +24,7 @@ const respondReqLabelCache = (state: PenroseState) => {
 const respondUpdate = async (state: PenroseState) => {
   respond({
     tag: "Update",
-    state: renderStateFromState(state),
+    state: stateToOptRenderState(state),
   });
 }
 
@@ -50,7 +41,7 @@ const respondReadyForNewTrio = () => {
 const respondFinished = (state: PenroseState) => {
   respond({
     tag: "Finished",
-    state: renderStateFromState(state),
+    state: stateToOptRenderState(state),
   });
 };
 

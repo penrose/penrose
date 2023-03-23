@@ -182,7 +182,7 @@ function App() {
         case "stateInspector":
           return <StateInspector />;
         case "optInspector":
-          return <Opt />;
+          return <div/>;
         case "rogerPanel":
           return <RogerPanel rogerState={rogerState} ws={ws.current} />;
       }

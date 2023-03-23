@@ -20,7 +20,7 @@ import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
-import { Fn, LabelCache, RenderState, State } from "./types/state";
+import { Fn, LabelCache, OptLabelCache, RenderState, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
@@ -279,7 +279,8 @@ export const prepareState = async (
   if (labelCache.isErr()) {
     throw Error(showError(labelCache.error));
   }
-  return insertPending({ ...state, labelCache: labelCache.value });
+  // return insertPending({ ...state, labelCache: labelCache.value });
+  return state;
 };
 
 /**
@@ -385,18 +386,10 @@ export const evalFns = (
   };
 };
 
-export const renderStateFromState = (state: PenroseState) : RenderState => {
-  return {
-    variation: state.variation,
-    labelCache: state.labelCache,
-    canvas: state.canvas,
-    shapes: state.computeShapes(state.varyingValues),
-  }
-}
-
 export type PenroseFn = Fn;
 export type PenroseState = State;
-export type { RenderState } from "./types/state"
+export type { RenderState } from "./types/state";
+export { stateToOptRenderState, labelCacheToOptLabelCache, optRenderStateToState } from "./types/state";
 
 export type { SubStmtKind } from "./analysis/SubstanceAnalysis";
 export { constrDict } from "./contrib/Constraints";

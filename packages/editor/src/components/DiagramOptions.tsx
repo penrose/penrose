@@ -44,7 +44,7 @@ export default function DiagramOptions() {
           autostep ({diagramMetadata.autostep ? "on" : "off"})
         </BlueButton>
         <div>
-          <BlueButton onClick={stepDiagram}>step</BlueButton>
+          <BlueButton onClick={() => {}}>step</BlueButton>
           <label>
             step size:{" "}
             <input
@@ -61,7 +61,7 @@ export default function DiagramOptions() {
         </div>
       </div>
       <div>
-        <BlueButton onClick={stepStage} disabled={diagramMetadata.autostep}>
+        <BlueButton onClick={() => {}} disabled={diagramMetadata.autostep}>
           next stage
         </BlueButton>
       </div>

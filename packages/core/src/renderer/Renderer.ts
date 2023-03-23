@@ -81,7 +81,7 @@ export const RenderInteractive = async (
     shapes,
     svg,
     {
-      labels: state.labelCache,
+      labels: new Map(),
       canvasSize: state.canvas.size,
       variation: state.variation,
       namespace,

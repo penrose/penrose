@@ -1,6 +1,6 @@
 import { PenroseError, RenderState } from "@penrose/core";
 import { ShapeAD } from "@penrose/core/dist/types/shape";
-import { LabelCache } from "@penrose/core/dist/types/state";
+import { OptLabelCache, OptRenderState } from "@penrose/core/dist/types/state";
 
 /** request */
 export type Req = Init | Compile | RespLabelCache;
@@ -12,7 +12,7 @@ export type Init = {
 
 export type RespLabelCache = {
   tag: "RespLabelCache"
-  labelCache: LabelCache
+  labelCache: OptLabelCache
 }
 
 export type ReqLabelCache = {
@@ -33,12 +33,12 @@ export type Resp = Update | Error | ReadyForNewTrio | Finished | ReqLabelCache;
 
 export type Update = {
   tag: "Update";
-  state: RenderState;
+  state: OptRenderState;
 };
 
 export type Finished = {
   tag: "Finished";
-  state: RenderState;
+  state: OptRenderState;
 };
 
 export type Error = {

@@ -1,13 +1,13 @@
-import { PenroseError, RenderState, showError } from "@penrose/core";
-import { collectLabels } from "@penrose/core/dist/utils/CollectLabels";
+import { PenroseError, RenderState, showError, collectLabels, labelCacheToOptLabelCache, optRenderStateToState }from "@penrose/core";
 import { Req, Resp } from "./message";
 import RawWorker from "./worker?worker";
 
-export type OnUpdate = (state: RenderState ) => void;
+export type OnUpdate = (state: RenderState) => void;
 export type OnError = (error: PenroseError) => void;
 
 export default class OptimizerWorker {
   private worker: Worker = new RawWorker();
+  private svgCache: Map<string, HTMLElement> = new Map();
   private workerInitialized: boolean = false;
   private sharedMemory: Int8Array = new Int8Array();
   private running: boolean = false;
@@ -22,7 +22,7 @@ export default class OptimizerWorker {
     this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       if (data.tag === "Update") {
         console.log("received update");
-        this.onUpdate(data.state);
+        this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "Error") {
         this.onError(data.error);
       } else if (data.tag === "ReadyForNewTrio") {
@@ -36,15 +36,17 @@ export default class OptimizerWorker {
         });
       } else if (data.tag === "Finished") {
         this.running = false;
-        this.onUpdate(data.state);
+        this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "ReqLabelCache") {
         const labelCache = await collectLabels(data.shapes);
         if (labelCache.isErr()) {
           throw Error(showError(labelCache.error));
         }
+        const { optLabelCache, svgCache } = labelCacheToOptLabelCache(labelCache.value);
+        this.svgCache = svgCache;
         this.request({
           tag: "RespLabelCache",
-          labelCache: labelCache.value,
+          labelCache: optLabelCache,
         });
       } else {
         // Shouldn't Happen
