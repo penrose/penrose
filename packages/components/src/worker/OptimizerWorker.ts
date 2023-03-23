@@ -21,7 +21,6 @@ export default class OptimizerWorker {
   constructor() {
     this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       if (data.tag === "Update") {
-        console.log("received update");
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "Error") {
         this.onError(data.error);
@@ -60,7 +59,6 @@ export default class OptimizerWorker {
   }
 
   askForUpdate(onUpdate: OnUpdate, onError: OnError) {
-    console.log("asking for update");
     this.onUpdate = onUpdate;
     this.onError = onError;
     Atomics.store(this.sharedMemory, 0, 1);

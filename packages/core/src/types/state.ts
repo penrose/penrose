@@ -147,7 +147,7 @@ export const optLabelCacheToLabelCache = (optLabelCache: OptLabelCache, svgCache
         tag: "EquationData",
         width: value.width,
         height: value.height,
-        rendered: svgCache.get("rendered")!,
+        rendered: svgCache.get(key)!,
       })
     }
   });
