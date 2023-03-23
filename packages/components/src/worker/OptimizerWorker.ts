@@ -1,4 +1,4 @@
-import { PenroseError, RenderState, showError, collectLabels, labelCacheToOptLabelCache, optRenderStateToState }from "@penrose/core";
+import { PenroseError, RenderState, showError, collectLabels, labelCacheToOptLabelCache, optRenderStateToState } from "@penrose/core";
 import { Req, Resp } from "./message";
 import RawWorker from "./worker?worker";
 
