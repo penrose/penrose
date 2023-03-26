@@ -71,6 +71,7 @@ export interface SettingsProps {
     prompt: string,
     sty: string
   ) => void;
+  onPrompt: (prompt: string) => void;
   defaultDomain: string;
   defaultStyle: string;
 }
@@ -344,6 +345,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   handlePreset = (key: string) => {
     this.setState({ ...this.state, ...presets[key] });
     this.updateDomainEnv(presets[key].domain);
+    this.props.onPrompt(presets[key].prompt);
   };
 
   componentDidMount = () => {

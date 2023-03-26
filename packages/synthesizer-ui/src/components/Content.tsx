@@ -41,6 +41,7 @@ export interface ContentState {
   domain: string;
   style: string;
   showProblem: boolean;
+  prompt: string;
 }
 
 const ContentSection = styled(Box)({
@@ -81,8 +82,6 @@ const StagedText = styled(Typography)(({ theme }) => ({
 }));
 
 export class Content extends React.Component<ContentProps, ContentState> {
-  private settingRef = React.createRef();
-
   constructor(props: ContentProps) {
     super(props);
     this.state = {
@@ -91,6 +90,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       staged: [],
       domain: "",
       style: "",
+      prompt: "",
       showProblem: false,
     };
   }
@@ -113,6 +113,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
       states: newStates,
     });
   };
+
+  onPrompt = (prompt: string) => this.setState({ prompt });
 
   generateProgs = () => (
     setting: SynthesizerSetting,
@@ -205,7 +207,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
         ]}
         gridBoxProps={{
           stateful: true,
-          animate: false,
+          animate: true,
+          stepSize: 20,
         }}
         onSelected={this.addStaged}
         onStateUpdate={this.onStateUpdate}
@@ -214,8 +217,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
   );
 
   problem = (answer: { correct: number[]; incorrect: number[] }) => {
-    const { progs, domain, style } = this.state;
-    const prompt = "this is a problem";
+    const { progs, domain, style, prompt } = this.state;
     const options = progs.reduce(
       (
         problems: {
@@ -312,6 +314,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           <>
             <Settings
               generateCallback={this.generateProgs()}
+              onPrompt={(prompt) => this.setState({ prompt })}
               defaultDomain={this.state.domain}
               defaultStyle={this.state.style}
             />
