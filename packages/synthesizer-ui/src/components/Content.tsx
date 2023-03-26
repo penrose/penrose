@@ -6,7 +6,7 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import { Grid } from "@penrose/components";
+import { Grid, MultipleChoiceProblem } from "@penrose/components";
 import {
   compileDomain,
   compileSubstance,
@@ -23,7 +23,7 @@ import {
 import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
-import { range } from "lodash";
+import { range, shuffle } from "lodash";
 import React from "react";
 import * as sc from "styled-components";
 import { Settings } from "./Settings";
@@ -40,6 +40,7 @@ export interface ContentState {
   staged: number[];
   domain: string;
   style: string;
+  showProblem: boolean;
 }
 
 const ContentSection = styled(Box)({
@@ -80,6 +81,8 @@ const StagedText = styled(Typography)(({ theme }) => ({
 }));
 
 export class Content extends React.Component<ContentProps, ContentState> {
+  private settingRef = React.createRef();
+
   constructor(props: ContentProps) {
     super(props);
     this.state = {
@@ -88,6 +91,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       staged: [],
       domain: "",
       style: "",
+      showProblem: false,
     };
   }
   // callback function to indicate that a svg will be exported
@@ -115,7 +119,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
     seed: string,
     numPrograms: number,
     dsl: string,
-    prompt: string,
+    sub: string,
     sty: string
   ) => {
     const envOrError = compileDomain(dsl);
@@ -124,8 +128,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
     if (envOrError.isOk()) {
       const env = envOrError.value;
       let subResult;
-      if (prompt.length > 0) {
-        const subRes = compileSubstance(prompt, env);
+      if (sub.length > 0) {
+        const subRes = compileSubstance(sub, env);
         if (subRes.isOk()) {
           subResult = subRes.value;
         } else {
@@ -179,6 +183,89 @@ export class Content extends React.Component<ContentProps, ContentState> {
     });
   };
 
+  grid = (progs: SynthesizedSubstance[]) => (
+    <sc.ThemeProvider theme={edgeworthPurple}>
+      <Grid
+        diagrams={progs.map(({ prog }, i) => ({
+          substance: prettySubstance(prog),
+          style: this.state.style,
+          domain: this.state.domain,
+          variation: `${i}`,
+        }))}
+        header={(i) => (i === 0 ? "Original diagram" : `Mutated diagram #${i}`)}
+        metadata={(i) => [
+          {
+            name: "Substance program",
+            data: prettySubstance(progs[i].prog),
+          },
+          {
+            name: "Mutations",
+            data: showMutations(progs[i].ops),
+          },
+        ]}
+        gridBoxProps={{
+          stateful: true,
+          animate: false,
+        }}
+        onSelected={this.addStaged}
+        onStateUpdate={this.onStateUpdate}
+      />
+    </sc.ThemeProvider>
+  );
+
+  problem = (answer: { correct: number[]; incorrect: number[] }) => {
+    const { progs, domain, style } = this.state;
+    const prompt = "this is a problem";
+    const options = progs.reduce(
+      (
+        problems: {
+          style: string;
+          domain: string;
+          substance: string;
+          variation: string;
+          answer: boolean;
+        }[],
+        p: SynthesizedSubstance,
+        i: number
+      ) => {
+        const substance = prettySubstance(p.prog);
+        if (answer.correct.includes(i)) {
+          return [
+            ...problems,
+            { substance, style, domain, variation: `${i}`, answer: true },
+          ];
+        } else if (answer.incorrect.includes(i)) {
+          return [
+            ...problems,
+            {
+              substance,
+              style,
+              domain,
+              variation: `${i}`,
+              answer: false,
+            },
+          ];
+        } else return problems;
+      },
+      []
+    );
+    return (
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          justifyContent: "center",
+        }}
+      >
+        <MultipleChoiceProblem
+          diagrams={shuffle(options)}
+          correctIndices={answer.correct}
+          prompt={prompt}
+        ></MultipleChoiceProblem>
+      </div>
+    );
+  };
+
   render() {
     return (
       <div>
@@ -205,47 +292,33 @@ export class Content extends React.Component<ContentProps, ContentState> {
               >
                 Export All
               </Button>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() =>
+                  this.setState(({ showProblem }) => ({
+                    showProblem: !showProblem,
+                  }))
+                }
+              >
+                {this.state.showProblem ? "Show Diagrams" : "Show Problem"}
+              </Button>
             </ButtonBox>
           </HeaderContent>
         </AppBar>
         {/* NOTE: the Toolbar is used exclusively to space the content underneath the header of the page */}
         <Toolbar />
         <ContentSection>
-          <Settings
-            generateCallback={this.generateProgs()}
-            defaultDomain={this.state.domain}
-            defaultStyle={this.state.style}
-          />
-          <sc.ThemeProvider theme={edgeworthPurple}>
-            <Grid
-              diagrams={this.state.progs.map(({ prog }, i) => ({
-                substance: prettySubstance(prog),
-                style: this.state.style,
-                domain: this.state.domain,
-                variation: `${i}`,
-              }))}
-              header={(i) =>
-                i === 0 ? "Original diagram" : `Mutated diagram #${i}`
-              }
-              metadata={(i) => [
-                {
-                  name: "Substance program",
-                  data: prettySubstance(this.state.progs[i].prog),
-                },
-                {
-                  name: "Mutations",
-                  data: showMutations(this.state.progs[i].ops),
-                },
-              ]}
-              gridBoxProps={{
-                stepSize: 20,
-                stateful: true,
-                animate: true,
-              }}
-              onSelected={this.addStaged}
-              onStateUpdate={this.onStateUpdate}
+          <>
+            <Settings
+              generateCallback={this.generateProgs()}
+              defaultDomain={this.state.domain}
+              defaultStyle={this.state.style}
             />
-          </sc.ThemeProvider>
+            {this.state.showProblem
+              ? this.problem({ correct: this.state.staged, incorrect: [] })
+              : this.grid(this.state.progs)}
+          </>
         </ContentSection>
       </div>
     );
