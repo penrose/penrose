@@ -302,7 +302,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
               >
                 Export
               </Button>
-              <Button
+              {/* <Button
                 variant="outlined"
                 color="inherit"
                 onClick={() =>
@@ -310,7 +310,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
                 }
               >
                 Export All
-              </Button>
+              </Button> */}
               <Button
                 variant="outlined"
                 color="inherit"
@@ -320,7 +320,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
                   }))
                 }
               >
-                {this.state.showProblem ? "Show Diagrams" : "Show Problem"}
+                {this.state.showProblem ? "Hide Problem" : "Show Problem"}
               </Button>
             </ButtonBox>
           </HeaderContent>
