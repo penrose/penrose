@@ -1,20 +1,22 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
   <rect
-    x="80"
-    y="70"
-    width="640"
-    height="560"
+    x="50"
+    y="50"
+    width="400"
+    height="400"
     fill="none"
     stroke="#8ea0c4"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 80, 70)"
+    transform="rotate(0, 50, 50)"
   >
     <title>`R`.icon</title>
   </rect>
-  <g transform="rotate(0, 687.72878, 85.42)translate(687.72878, 85.42)">
+  <g
+    transform="rotate(0, 417.72878000000003, 65.42)translate(417.72878000000003, 65.42)"
+  >
     <title>`R`.text</title>
     <svg
       style="font-size: 13.5px"
@@ -50,7 +52,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 539.771712574196, 102.16763540649852)translate(539.771712574196, 102.16763540649852)"
+    transform="rotate(0, 407.01608713113353, 268.5628007173473)translate(407.01608713113353, 268.5628007173473)"
   >
     <title>`A`.text</title>
     <svg
@@ -87,7 +89,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 139.6874687090105, 538.1014707104041)translate(139.6874687090105, 538.1014707104041)"
+    transform="rotate(0, 84.22396335475617, 72.01715398435469)translate(84.22396335475617, 72.01715398435469)"
   >
     <title>`B`.text</title>
     <svg
@@ -124,7 +126,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 240.68253821271452, 92.06796035749393)translate(240.68253821271452, 92.06796035749393)"
+    transform="rotate(0, 350.8382867445307, 410.0000759805835)translate(350.8382867445307, 410.0000759805835)"
   >
     <title>`E`.text</title>
     <svg
@@ -161,7 +163,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 198.01320916839276, 306.2226120184)translate(198.01320916839276, 306.2226120184)"
+    transform="rotate(0, 204.56663729136167, 218.39227167137452)translate(204.56663729136167, 218.39227167137452)"
   >
     <title>`D`.text</title>
     <svg
@@ -200,8 +202,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="134.00150687722765"
-    cy="572.1833608805244"
+    cx="104.05573703741183"
+    cy="104.13957160573437"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -213,8 +215,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="665.8843764888022"
-    cy="211.69677131801961"
+    cx="206.84611458133764"
+    cy="394.8244438184221"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -224,7 +226,7 @@
     <title>`C`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 669.0823303594186, 225.32666336236937)translate(669.0823303594186, 225.32666336236937)"
+    transform="rotate(0, 181.09458909783314, 403.23787708601054)translate(181.09458909783314, 403.23787708601054)"
   >
     <title>`C`.text</title>
     <svg
@@ -262,7 +264,7 @@
   </g>
   <g>
     <marker
-      id="automator-HighlighterChicken10318-`BE`.icon-endArrowId"
+      id="automator-GoldbrownFly7869-`BE`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.47"
       markerHeight="5.28"
@@ -278,20 +280,20 @@
       ></path>
     </marker>
     <path
-      d="M 134.00150687722765 572.1833608805244 L 269.41774244386767 93.89994983761682"
+      d="M 104.05573703741183 104.13957160573437 L 373.8897312348581 419.84372873571067"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#automator-HighlighterChicken10318-`BE`.icon-endArrowId)"
+      marker-end="url(#automator-GoldbrownFly7869-`BE`.icon-endArrowId)"
     ></path>
     <title>`BE`.icon</title>
   </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="567.6672443458426"
-    cy="124.9415917022973"
+    cx="394.4885533819586"
+    cy="293.9726931906046"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -303,8 +305,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="260.8728801869689"
-    cy="124.0799784731797"
+    cx="353.5102981720753"
+    cy="395.9999141080966"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
@@ -315,7 +317,7 @@
   </circle>
   <g>
     <marker
-      id="automator-HighlighterChicken10318-`BA`.icon-startArrowId"
+      id="automator-GoldbrownFly7869-`BA`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.47"
       markerHeight="5.28"
@@ -331,7 +333,7 @@
       ></path>
     </marker>
     <marker
-      id="automator-HighlighterChicken10318-`BA`.icon-endArrowId"
+      id="automator-GoldbrownFly7869-`BA`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6.47"
       markerHeight="5.28"
@@ -347,21 +349,21 @@
       ></path>
     </marker>
     <path
-      d="M 112.16653932596103 594.701878424891 L 589.5022049358435 102.423081337121"
+      d="M 77.80033343637115 86.978476359034 L 420.74394861244207 311.1337829661291"
       stroke-opacity="1"
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#automator-HighlighterChicken10318-`BA`.icon-startArrowId)"
-      marker-end="url(#automator-HighlighterChicken10318-`BA`.icon-endArrowId)"
+      marker-start="url(#automator-GoldbrownFly7869-`BA`.icon-startArrowId)"
+      marker-end="url(#automator-GoldbrownFly7869-`BA`.icon-endArrowId)"
     ></path>
     <title>`BA`.icon</title>
   </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="213.27654567927289"
-    cy="292.22260972871004"
+    cx="228.0290609574939"
+    cy="249.31115582796207"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
