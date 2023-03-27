@@ -153,14 +153,12 @@ function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
     contents: v.contents.map((pathCmd: PathCmd<T>) => {
       return {
         cmd: pathCmd.cmd,
-        contents: pathCmd.contents.map(
-          (subCmd: SubPath<T>): SubPath<S> => {
-            return {
-              tag: subCmd.tag,
-              contents: mapTuple(f, subCmd.contents),
-            };
-          }
-        ),
+        contents: pathCmd.contents.map((subCmd: SubPath<T>): SubPath<S> => {
+          return {
+            tag: subCmd.tag,
+            contents: mapTuple(f, subCmd.contents),
+          };
+        }),
       };
     }),
   };
