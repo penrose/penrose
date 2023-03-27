@@ -128,8 +128,10 @@ const RenderLine = (
 ): SVGGElement => {
   const startArrowhead = getArrowhead(shape.startArrowhead.contents);
   const endArrowhead = getArrowhead(shape.endArrowhead.contents);
-  const [[[arrowSX, arrowSY], [arrowEX, arrowEY]], attrToNotAutoMap] =
-    makeRoomForArrows(shape, startArrowhead, endArrowhead);
+  const [
+    [[arrowSX, arrowSY], [arrowEX, arrowEY]],
+    attrToNotAutoMap,
+  ] = makeRoomForArrows(shape, startArrowhead, endArrowhead);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
 

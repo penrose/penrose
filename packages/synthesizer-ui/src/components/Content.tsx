@@ -23,7 +23,7 @@ import {
 import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
-import { range, shuffle } from "lodash";
+import { shuffle } from "lodash";
 import React, { memo } from "react";
 import * as sc from "styled-components";
 import { Settings } from "./Settings";
@@ -116,48 +116,46 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   onPrompt = (prompt: string) => this.setState({ prompt });
 
-  generateProgs =
-    () =>
-    (
-      setting: SynthesizerSetting,
-      seed: string,
-      numPrograms: number,
-      dsl: string,
-      sub: string,
-      sty: string
-    ) => {
-      const envOrError = compileDomain(dsl);
+  generateProgs = () => (
+    setting: SynthesizerSetting,
+    seed: string,
+    numPrograms: number,
+    dsl: string,
+    sub: string,
+    sty: string
+  ) => {
+    const envOrError = compileDomain(dsl);
 
-      // initialize synthesizer
-      if (envOrError.isOk()) {
-        const env = envOrError.value;
-        let subResult;
-        if (sub.length > 0) {
-          const subRes = compileSubstance(sub, env);
-          if (subRes.isOk()) {
-            subResult = subRes.value;
-          } else {
-            console.log(
-              `Error when compiling the template Substance program: ${showError(
-                subRes.error
-              )}`
-            );
-          }
-        }
-        const synth = new Synthesizer(env, setting, subResult, seed);
-        let progs = synth.generateSubstances(numPrograms);
-        const template: SubProg<A> | undefined = synth.getTemplate();
-
-        if (template) {
-          this.setState({
-            progs: [{ prog: template, ops: [] }, ...progs],
-            staged: [],
-            domain: dsl,
-            style: sty,
-          });
+    // initialize synthesizer
+    if (envOrError.isOk()) {
+      const env = envOrError.value;
+      let subResult;
+      if (sub.length > 0) {
+        const subRes = compileSubstance(sub, env);
+        if (subRes.isOk()) {
+          subResult = subRes.value;
+        } else {
+          console.log(
+            `Error when compiling the template Substance program: ${showError(
+              subRes.error
+            )}`
+          );
         }
       }
-    };
+      const synth = new Synthesizer(env, setting, subResult, seed);
+      let progs = synth.generateSubstances(numPrograms);
+      const template: SubProg<A> | undefined = synth.getTemplate();
+
+      if (template) {
+        this.setState({
+          progs: [{ prog: template, ops: [] }, ...progs],
+          staged: [],
+          domain: dsl,
+          style: sty,
+        });
+      }
+    }
+  };
 
   exportDiagrams = async (indices: number[]) => {
     const zip = JSZip();

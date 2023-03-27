@@ -15,8 +15,13 @@ export default function Opt() {
     );
   }
 
-  const { constraintSets, optStages, currentStageIndex, constrFns, objFns } =
-    state;
+  const {
+    constraintSets,
+    optStages,
+    currentStageIndex,
+    constrFns,
+    objFns,
+  } = state;
   const { objMask, constrMask } = constraintSets.get(
     optStages[currentStageIndex]
   )!;

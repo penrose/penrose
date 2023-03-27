@@ -1528,8 +1528,9 @@ const makeListRSubstsForStyleRels = (
   subProg: SubProg<A>
 ): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
-  const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
-    im.List();
+  const initListRSubsts: im.List<
+    im.List<[Subst, im.Set<SubStmt<A>>]>
+  > = im.List();
 
   const [newUsedStyVars, newListRSubsts] = rels.reduce(
     ([usedStyVars, listRSubsts], rel) => {
@@ -2025,12 +2026,17 @@ const processBlock = (
       .concat(hb.block.statements);
 
     // Translate each statement in the block
-    const { diagnostics, globals, unnamed, substances, locals } =
-      augmentedStatements.reduce(
-        (assignment, stmt, stmtIndex) =>
-          processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals
-      );
+    const {
+      diagnostics,
+      globals,
+      unnamed,
+      substances,
+      locals,
+    } = augmentedStatements.reduce(
+      (assignment, stmt, stmtIndex) =>
+        processStmt({ block, subst }, stmtIndex, stmt, assignment),
+      withLocals
+    );
 
     switch (block.tag) {
       case "LocalVarId": {
@@ -2280,16 +2286,18 @@ const evalVals = (
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
   evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
     all(
-      argVals.map((argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
-        switch (argVal.tag) {
-          case "ShapeVal": {
-            return err(oneErr({ tag: "NotValueError", expr: args[i] }));
-          }
-          case "Val": {
-            return ok(argVal.contents);
+      argVals.map(
+        (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
+          switch (argVal.tag) {
+            case "ShapeVal": {
+              return err(oneErr({ tag: "NotValueError", expr: args[i] }));
+            }
+            case "Val": {
+              return ok(argVal.contents);
+            }
           }
         }
-      })
+      )
     ).mapErr(flatErrs)
   );
 
@@ -3644,12 +3652,14 @@ export const compileStyleHelper = async (
 
   const groupWarnings = checkGroupGraph(groupGraph);
 
-  const { shapeOrdering: layerOrdering, warning: layeringWarning } =
-    computeLayerOrdering(
-      [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
-      [...translation.layering],
-      groupGraph
-    );
+  const {
+    shapeOrdering: layerOrdering,
+    warning: layeringWarning,
+  } = computeLayerOrdering(
+    [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
+    [...translation.layering],
+    groupGraph
+  );
 
   // Fix the ordering between nodes of the group graph
   for (let i = 0; i < layerOrdering.length; i++) {

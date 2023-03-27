@@ -13,7 +13,9 @@ type DiagramSource = {
 
 export interface GridProps {
   diagrams: DiagramSource[];
-  metadata: (i: number) => {
+  metadata: (
+    i: number
+  ) => {
     name: string;
     data: string;
   }[];
