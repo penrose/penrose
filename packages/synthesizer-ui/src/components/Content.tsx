@@ -255,7 +255,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
     return (
       <div
         style={{
-          position: "absolute",
+          position: "fixed",
           height: "100%",
           width: "100%",
           display: "block",
