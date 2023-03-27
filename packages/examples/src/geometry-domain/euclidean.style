@@ -1,6 +1,6 @@
 canvas {
-  width = 800
-  height = 700
+  width = 500
+  height = 500
 }
 
 Colors {

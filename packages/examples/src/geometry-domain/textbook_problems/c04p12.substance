@@ -1,10 +1,4 @@
-Plane P
 Point A, B, C, D, E
-In(A, P)
-In(B, P)
-In(C, P)
-In(D, P)
-In(E, P)
 Collinear(A, C, E)
 Collinear(B, C, D)
 Segment BC := MkSegment(B, C)
@@ -22,5 +16,5 @@ EqualAngle(aABC, aBAC)
 EqualAngleMarker(aABC, aBAC)
 EqualAngle(aDCE, aDEC)
 EqualAngleMarker(aDCE, aDEC)
-AutoLabel A, B, C, D, E, P
+AutoLabel A, B, C, D, E
 Label aCDE $x$

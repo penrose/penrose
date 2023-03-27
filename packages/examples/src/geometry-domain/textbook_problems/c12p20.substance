@@ -12,4 +12,4 @@ EqualLengthMarker(AB, BC)
 EqualLengthMarker(BC, DC)
 Parallel(AC, BD)
 EqualLength(AC, BD)
-AutoLabel All
+AutoLabel A, B, C, D
