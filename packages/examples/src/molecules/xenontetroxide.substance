@@ -6,6 +6,7 @@ Bond b2 := MakeDoubleBond(xe, o2)
 Bond b3 := MakeDoubleBond(xe, o3)
 Bond b4 := MakeDoubleBond(xe, o4)
 -- electrons
+ZeroValenceElectrons(xe)
 FourValenceElectrons(o1)
 FourValenceElectrons(o2)
 FourValenceElectrons(o3)
