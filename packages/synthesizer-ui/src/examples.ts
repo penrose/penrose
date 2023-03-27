@@ -20,14 +20,14 @@ const lewisParams: SynthesizerSetting = {
   argOption: "existing",
   argReuse: "distinct",
   weights: {
-    type: 0.1,
-    predicate: 0.3,
-    constructor: 0.3,
+    type: 0.15,
+    predicate: 0.5,
+    constructor: 0.35,
   },
   opWeights: {
-    add: 0.01,
-    delete: 0.01,
-    edit: 0.8,
+    add: 0,
+    delete: 0,
+    edit: 1,
   },
   add: {
     type: "*",
@@ -54,12 +54,12 @@ const geometryParams: SynthesizerSetting = {
   argOption: "existing",
   argReuse: "distinct",
   weights: {
-    type: 0.1,
-    predicate: 0.3,
-    constructor: 0.2,
+    type: 0.15,
+    predicate: 0.5,
+    constructor: 0.35,
   },
   opWeights: {
-    add: 0.01,
+    add: 0,
     delete: 0.2,
     edit: 0.8,
   },
@@ -89,9 +89,9 @@ const graphParams: SynthesizerSetting = {
   argOption: "existing",
   argReuse: "distinct",
   weights: {
-    type: 0.1,
-    predicate: 0.3,
-    constructor: 0.2,
+    type: 0.15,
+    predicate: 0.5,
+    constructor: 0.35,
   },
   opWeights: {
     add: 0.5,

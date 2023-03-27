@@ -5,6 +5,8 @@ import { makePolygon } from "../shapes/Polygon";
 import { makePolyline } from "../shapes/Polyline";
 import { makeRectangle } from "../shapes/Rectangle";
 import { Context, makeCanvas, simpleContext } from "../shapes/Samplers";
+import { Shape } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import { black, floatV, ptListV, vectorV } from "../utils/Util";
 import { compDict } from "./Functions";
 import { numOf } from "./Utils";
@@ -23,12 +25,11 @@ const canvas = makeCanvas(800, 700);
  */
 const compareClosestPoint = async (
   context: Context,
-  shapeType: string,
-  shape: any,
+  shape: Shape<ad.Num>,
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const result = compDict.closestPoint(context, [shapeType, shape], pt);
+  const result = compDict.closestPoint(context, shape, pt);
   const [x, y] = result.contents;
   expect(numOf(x)).toBeCloseTo(expected[0]);
   expect(numOf(y)).toBeCloseTo(expected[1]);
@@ -56,7 +57,7 @@ const testCircle = (
     strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
-  compareClosestPoint(context, "Circle", shape, pt, expected);
+  compareClosestPoint(context, shape, pt, expected);
 };
 
 /**
@@ -84,7 +85,7 @@ const testRectangle = (
     strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
-  compareClosestPoint(context, "Rectangle", shape, pt, expected);
+  compareClosestPoint(context, shape, pt, expected);
 };
 
 /**
@@ -109,7 +110,7 @@ const testLine = (
     strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
-  compareClosestPoint(context, "Line", shape, pt, expected);
+  compareClosestPoint(context, shape, pt, expected);
 };
 
 /**
@@ -131,7 +132,7 @@ const testPolyline = (
     points: ptListV(points),
     strokeColor: black(),
   });
-  compareClosestPoint(context, "Polyline", shape, pt, expected);
+  compareClosestPoint(context, shape, pt, expected);
 };
 
 /**
@@ -153,7 +154,7 @@ const testPolygon = (
     strokeColor: black(),
     points: ptListV(points),
   });
-  compareClosestPoint(context, "Polygon", shape, pt, expected);
+  compareClosestPoint(context, shape, pt, expected);
 };
 
 /**
@@ -178,7 +179,7 @@ const testEllipse = (
     ry: floatV(ry),
     strokeColor: black(),
   });
-  compareClosestPoint(context, "Ellipse", shape, pt, expected);
+  compareClosestPoint(context, shape, pt, expected);
 };
 
 // This test suite directly checks the output of `closestPoint` on a few shapes

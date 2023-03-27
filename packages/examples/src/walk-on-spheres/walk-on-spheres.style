@@ -30,7 +30,7 @@ Global {
       width: canvas.width
       height: canvas.height
       fillColor: none()
-      stroke: none()
+      strokeColor: none()
    }
 
    -- draw the domain as a polygon with some random variation, by

@@ -15,7 +15,7 @@ import {
 } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
-import { Value } from "./value";
+import { ShapeVal, Val, Value } from "./value";
 
 //#region ErrorTypes
 
@@ -202,6 +202,7 @@ export type StyleError =
   | OutOfBoundsError
   | PropertyMemberError
   | UOpTypeError
+  | BadShapeParamTypeError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -444,6 +445,14 @@ export interface UOpTypeError {
   tag: "UOpTypeError";
   expr: UOp<C>;
   arg: Value<ad.Num>["tag"];
+}
+
+export interface BadShapeParamTypeError {
+  tag: "BadShapeParamTypeError";
+  path: string;
+  value: Val<ad.Num> | ShapeVal<ad.Num>;
+  expectedType: string;
+  passthrough: boolean;
 }
 
 //#endregion

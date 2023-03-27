@@ -23,7 +23,7 @@ import {
   makeCanvas,
   uniform,
 } from "../shapes/Samplers";
-import { isShapeType, ShapeDef, shapedefs, ShapeType } from "../shapes/Shapes";
+import { isShapeType, sampleShape, Shape, ShapeType } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A, C, Identifier, SourceRange } from "../types/ast";
 import { Env } from "../types/domain";
@@ -38,7 +38,6 @@ import {
   StyleWarning,
   SubstanceError,
 } from "../types/errors";
-import { ShapeAD } from "../types/shape";
 import {
   Fn,
   OptPipeline,
@@ -109,18 +108,19 @@ import {
   ArgVal,
   Field,
   FloatV,
-  GPI,
-  GPIListV,
   ListV,
   LListV,
   MatrixV,
   PropID,
+  ShapeListV,
+  ShapeVal,
   Value,
   VectorV,
 } from "../types/value";
 import {
   all,
   andThen,
+  badShapeParamTypeError,
   err,
   invalidColorLiteral,
   isErr,
@@ -146,7 +146,6 @@ import {
   colorV,
   floatV,
   getAdValueAsString,
-  gpiListV,
   hexToRgba,
   listV,
   llistV,
@@ -154,6 +153,7 @@ import {
   prettyPrintResolvedPath,
   resolveRhsName,
   safe,
+  shapeListV,
   strV,
   tupV,
   val,
@@ -161,6 +161,7 @@ import {
   zip2,
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
+import { checkShape } from "./shapeChecker/CheckShape";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
@@ -2241,7 +2242,7 @@ export const gatherDependencies = (assignment: Assignment): DepGraph => {
 
 //#region third pass
 
-const internalMissingPathError = (path: string) =>
+export const internalMissingPathError = (path: string): Error =>
   Error(`Style internal error: could not find path ${path}`);
 
 const evalExprs = (
@@ -2263,11 +2264,11 @@ const argValues = (
   context: Context,
   args: Expr<C>[],
   trans: Translation
-): Result<(GPI<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
+): Result<(ShapeVal<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
   evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
     argVals.map((arg) => {
       switch (arg.tag) {
-        case "GPI": // strip the `GPI` tag
+        case "ShapeVal": // strip the `ShapeVal` tag
           return arg.contents;
         case "Val": // strip both `Val` and type annotation like `FloatV`
           return arg.contents.contents;
@@ -2288,7 +2289,7 @@ const evalVals = (
       argVals.map(
         (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
           switch (argVal.tag) {
-            case "GPI": {
+            case "ShapeVal": {
               return err(oneErr({ tag: "NotValueError", expr: args[i] }));
             }
             case "Val": {
@@ -2661,19 +2662,18 @@ const eval2D = (
 
 const evalShapeList = (
   coll: List<C> | Vector<C>,
-  first: GPI<ad.Num>,
+  first: Shape<ad.Num>,
   rest: ArgVal<ad.Num>[]
-): Result<GPIListV<ad.Num>, StyleDiagnostics> => {
+): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
   const elems = [first];
   for (const v of rest) {
-    if (v.tag === "GPI") {
-      elems.push(v);
+    if (v.tag === "ShapeVal") {
+      elems.push(v.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
     }
   }
-  gpiListV(elems);
-  return ok(gpiListV(elems));
+  return ok(shapeListV(elems));
 };
 
 const evalListOrVector = (
@@ -2697,8 +2697,8 @@ const evalListOrVector = (
         }
       }
       const [first, ...rest] = argVals;
-      if (first.tag === "GPI") {
-        return evalShapeList(coll, first, rest);
+      if (first.tag === "ShapeVal") {
+        return evalShapeList(coll, first.contents, rest);
       } else {
         switch (first.contents.tag) {
           case "FloatV": {
@@ -2716,7 +2716,6 @@ const evalListOrVector = (
           case "PtListV":
           case "StrV":
           case "TupV":
-          case "GPIListV":
           case "ShapeListV": {
             return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
           }
@@ -2763,7 +2762,6 @@ const evalAccess = (
       }
       return ok(floatV(row[j]));
     }
-    case "GPIListV":
     case "ShapeListV": {
       return err({ tag: "IndexIntoShapeListError", expr });
     }
@@ -2798,7 +2796,6 @@ const evalUMinus = (
     case "PtListV":
     case "StrV":
     case "TupV":
-    case "GPIListV":
     case "ShapeListV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
@@ -2822,7 +2819,6 @@ const evalUTranspose = (
     case "PathDataV":
     case "PtListV":
     case "StrV":
-    case "GPIListV":
     case "ShapeListV":
     case "TupV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
@@ -2915,10 +2911,10 @@ const evalExpr = (
         return err(oneErr({ tag: "MissingPathError", path: resolvedPath }));
       }
 
-      if (resolved.tag === "GPI") {
+      if (resolved.tag === "ShapeVal") {
         // Can evaluate a path to a GPI - just return the GPI
         // Need to incorporate the "name" information:
-        resolved.contents[1]["name"] = strV(path);
+        resolved.contents.name = strV(path);
         return ok(resolved);
       }
       if (expr.indices.length === 0) {
@@ -2933,7 +2929,7 @@ const evalExpr = (
             { context, expr: e },
             trans
           ).andThen<number>((i) => {
-            if (i.tag === "GPI") {
+            if (i.tag === "ShapeVal") {
               return err(oneErr({ tag: "NotValueError", expr: e }));
             } else if (
               i.contents.tag === "FloatV" &&
@@ -2984,7 +2980,7 @@ const evalExpr = (
         { context, expr: expr.arg },
         trans
       ).andThen((argVal) => {
-        if (argVal.tag === "GPI") {
+        if (argVal.tag === "ShapeVal") {
           return err(oneErr({ tag: "NotValueError", expr }));
         }
         switch (expr.op) {
@@ -3208,24 +3204,8 @@ const evalGPI = (
   path: string,
   shapeType: ShapeType,
   trans: Translation
-): GPI<ad.Num> => {
-  const shapedef: ShapeDef = shapedefs[shapeType];
-  return {
-    tag: "GPI",
-    contents: [
-      shapeType,
-      Object.fromEntries(
-        Object.keys(shapedef.propTags).map((prop) => {
-          const p = `${path}.${prop}`;
-          const v = trans.symbols.get(p);
-          if (v === undefined || v.tag !== "Val") {
-            throw internalMissingPathError(p);
-          }
-          return [prop, v.contents];
-        })
-      ),
-    ],
-  };
+): Result<Shape<ad.Num>, StyleError> => {
+  return checkShape(shapeType, path, trans);
 };
 
 export const translate = (
@@ -3239,15 +3219,14 @@ export const translate = (
   for (const path of graph.nodes()) {
     const shapeType = graph.node(path);
     if (typeof shapeType === "string") {
-      const shapedef: ShapeDef = shapedefs[shapeType];
-      const properties = shapedef.sampler(mut, canvas);
-      for (const [prop, value] of Object.entries(properties)) {
+      const props = sampleShape(shapeType, mut, canvas);
+      for (const [prop, value] of Object.entries(props)) {
         symbols = symbols.set(`${path}.${prop}`, val(value));
       }
     }
   }
 
-  const trans: Translation = {
+  let trans: Translation = {
     diagnostics: { errors: im.List(), warnings },
     symbols,
     objectives: im.List(),
@@ -3274,18 +3253,25 @@ export const translate = (
     };
   }
 
-  return graph.topsort().reduce((trans, path) => {
+  for (const path of graph.topsort()) {
     const e = graph.node(path);
     if (e === undefined) {
-      return trans;
+      // nothing
     } else if (typeof e === "string") {
-      return {
-        ...trans,
-        symbols: trans.symbols.set(path, evalGPI(path, e, trans)),
-      };
+      const shape = evalGPI(path, e, trans);
+      if (shape.isErr()) {
+        trans.diagnostics.errors = trans.diagnostics.errors.push(shape.error);
+      } else {
+        trans.symbols = trans.symbols.set(path, {
+          tag: "ShapeVal",
+          contents: shape.value,
+        });
+      }
+    } else {
+      trans = translateExpr(mut, canvas, stages, path, e, trans);
     }
-    return translateExpr(mut, canvas, stages, path, e, trans);
-  }, trans);
+  }
+  return trans;
 };
 
 //#endregion
@@ -3468,33 +3454,16 @@ export const getLayoutStages = (
 };
 
 const getShapesList = (
-  graph: DepGraph,
   { symbols }: Translation,
   shapeOrdering: string[]
-): ShapeAD[] => {
-  const props = new Map<string, ShapeAD>();
-  for (const [path, argVal] of symbols) {
-    const i = path.lastIndexOf(".");
-    const start = path.slice(0, i);
-    if (graph.hasNode(start)) {
-      const shapeType = graph.node(start);
-      if (typeof shapeType === "string") {
-        if (argVal.tag !== "Val") {
-          throw internalMissingPathError(path);
-        }
-        const shape = props.get(start) ?? { shapeType, properties: {} };
-        shape.properties[path.slice(i + 1)] = argVal.contents;
-        props.set(start, shape);
-      }
-    }
-  }
+): Shape<ad.Num>[] => {
   return shapeOrdering.map((path) => {
-    const shape = props.get(path);
-    if (shape === undefined) {
+    const shape = symbols.get(path);
+    if (!shape || shape.tag !== "ShapeVal") {
       throw internalMissingPathError(path);
     }
-    shape.properties.name = strV(path);
-    return shape;
+    shape.contents.name = strV(path);
+    return shape.contents;
   });
 };
 
@@ -3506,19 +3475,12 @@ const fakePath = (name: string, members: string[]): Path<A> => ({
   indices: [],
 });
 
-const onCanvases = (canvas: Canvas, shapes: ShapeAD[]): Fn[] => {
+const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
   const fns: Fn[] = [];
   for (const shape of shapes) {
-    const name = shape.properties.name.contents;
-    if (
-      typeof name === "string" &&
-      shape.properties.ensureOnCanvas.contents === true
-    ) {
-      const output = constrDict.onCanvas(
-        [shape.shapeType, shape.properties],
-        canvas.width,
-        canvas.height
-      );
+    const name = shape.name.contents;
+    if (shape.ensureOnCanvas.contents) {
+      const output = constrDict.onCanvas(shape, canvas.width, canvas.height);
       fns.push({
         ast: {
           context: {
@@ -3575,6 +3537,34 @@ export const stageConstraints = (
       },
     ])
   );
+
+const processPassthrough = (
+  { symbols }: Translation,
+  nameShapeMap: Map<string, Shape<ad.Num>>
+): Result<void, StyleError> => {
+  for (const [key, value] of symbols) {
+    const i = key.lastIndexOf(".");
+    if (i === -1) continue;
+    const shapeName = key.slice(0, i);
+    const propName = key.slice(i + 1);
+    const shape = nameShapeMap.get(shapeName);
+    if (shape) {
+      if (Object.keys(shape).includes(propName)) continue;
+      if (value.tag === "Val") {
+        if (value.contents.tag === "FloatV" || value.contents.tag === "StrV") {
+          shape.passthrough.set(propName, value.contents);
+        } else {
+          return err(
+            badShapeParamTypeError(key, value, "StrV or FloatV", true)
+          );
+        }
+      } else {
+        return err(badShapeParamTypeError(key, value, "StrV or FloatV", true));
+      }
+    }
+  }
+  return ok(undefined);
+};
 
 export const compileStyleHelper = async (
   variation: string,
@@ -3655,7 +3645,7 @@ export const compileStyleHelper = async (
   }
 
   const groupGraph: GroupGraph = makeGroupGraph(
-    getShapesList(graph, translation, [
+    getShapesList(translation, [
       ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
     ])
   );
@@ -3676,13 +3666,19 @@ export const compileStyleHelper = async (
     groupGraph.setNode(layerOrdering[i], i);
   }
 
-  const shapes = getShapesList(graph, translation, layerOrdering);
+  const shapes = getShapesList(translation, layerOrdering);
 
-  const nameShapeMap = new Map<string, ShapeAD>();
+  const nameShapeMap = new Map<string, Shape<ad.Num>>();
 
   for (const shape of shapes) {
-    const shapeName = getAdValueAsString(shape.properties["name"]);
+    const shapeName = getAdValueAsString(shape.name);
     nameShapeMap.set(shapeName, shape);
+  }
+
+  // fill in passthrough properties
+  const passthroughResult = processPassthrough(translation, nameShapeMap);
+  if (passthroughResult.isErr()) {
+    return err(toStyleErrors([passthroughResult.error]));
   }
 
   const renderGraph = buildRenderGraph(
