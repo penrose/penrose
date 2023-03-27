@@ -7,6 +7,8 @@ Bond b2 := MakeSingleBond(o1, n)
 Bond b3 := MakeDoubleBond(n, o2)
 Bond b4 := MakeSingleBond(o3, n)
 -- electrons
+ZeroValenceElectrons(h)
+ZeroValenceElectrons(n)
 FourValenceElectrons(o1)
 FourValenceElectrons(o2)
 SixValenceElectrons(o3)
