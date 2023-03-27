@@ -10,4 +10,4 @@ Segment AD := MkSegment(A, D)
 Segment CB := MkSegment(C, B)
 EqualLengthMarker(AB, CD)
 EqualLength(AB, CD)
-AutoLabel All
+AutoLabel A, B, C, D, E
