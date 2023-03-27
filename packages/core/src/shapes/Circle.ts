@@ -1,7 +1,14 @@
 import * as ad from "../types/ad";
-import { Center, Fill, Named, ShapeCommon, Stroke } from "../types/shapes";
+import {
+  Center,
+  Fill,
+  Named,
+  ShapeCommon,
+  Stroke,
+  Transform,
+} from "../types/shapes";
 import { FloatV } from "../types/value";
-import { boolV, floatV, noPaint, strV } from "../utils/Util";
+import { boolV, floatV, id3x3, noPaint, strV } from "../utils/Util";
 import {
   Canvas,
   Context,
@@ -14,7 +21,8 @@ export interface CircleProps<T>
   extends Named<T>,
     Stroke<T>,
     Fill<T>,
-    Center<T> {
+    Center<T>,
+    Transform<T> {
   r: FloatV<T>;
 }
 
@@ -31,6 +39,7 @@ export const sampleCircle = (
     strokeDasharray: strV(""),
     fillColor: sampleColor(context),
     center: sampleVector(context, canvas),
+    transform: id3x3(),
     r: sampleWidth(context, canvas),
     ensureOnCanvas: boolV(true),
   };

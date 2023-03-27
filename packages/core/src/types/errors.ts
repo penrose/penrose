@@ -203,6 +203,7 @@ export type StyleError =
   | PropertyMemberError
   | UOpTypeError
   | BadShapeParamTypeError
+  | TransformMatrixDimensionError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -453,6 +454,11 @@ export interface BadShapeParamTypeError {
   value: Val<ad.Num> | ShapeVal<ad.Num>;
   expectedType: string;
   passthrough: boolean;
+}
+
+export interface TransformMatrixDimensionError {
+  tag: "TransformMatrixDimensionError";
+  path: string;
 }
 
 //#endregion

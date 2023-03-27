@@ -4,13 +4,13 @@ import {
   Fill,
   Named,
   Rect,
-  Rotate,
   ShapeCommon,
   String,
   Stroke,
+  Transform,
 } from "../types/shapes";
 import { FloatV, StrV } from "../types/value";
-import { boolV, floatV, noPaint, strV, vectorV } from "../utils/Util";
+import { boolV, floatV, id3x3, noPaint, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, sampleColor, uniform } from "./Samplers";
 
 export interface TextProps<T>
@@ -19,8 +19,8 @@ export interface TextProps<T>
     Fill<T>,
     Center<T>, // the center of the bounding box of the text
     Rect<T>,
-    Rotate<T>,
-    String<T> {
+    String<T>,
+    Transform<T> {
   // TODO; pare down this set of attributes
   visibility: StrV;
   fontFamily: StrV;
@@ -82,7 +82,6 @@ export const sampleText = (
       stages: new Set(),
     })
   ),
-  rotation: floatV(0),
   string: strV("defaultText"),
   visibility: strV(""),
   fontFamily: strV("sans-serif"),
@@ -97,6 +96,7 @@ export const sampleText = (
   // NOTE: both `alignmentBaseline` and `dominantBaseline` are necessary for browser support. For instance, Firefox only respects the latter.
   alignmentBaseline: strV("alphabetic"),
   dominantBaseline: strV("alphabetic"),
+  transform: id3x3(),
   ensureOnCanvas: boolV(true),
 });
 

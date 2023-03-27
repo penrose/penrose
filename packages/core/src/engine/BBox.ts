@@ -4,7 +4,7 @@ import { LineProps } from "../shapes/Line";
 import { PathProps } from "../shapes/Path";
 import { RectangleProps } from "../shapes/Rectangle";
 import * as ad from "../types/ad";
-import { Center, Poly, Rect, Rotate, Scale } from "../types/shapes";
+import { Center, Poly, Rect } from "../types/shapes";
 import { ops } from "./Autodiff";
 import {
   absVal,

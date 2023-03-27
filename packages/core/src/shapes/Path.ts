@@ -1,10 +1,22 @@
 import * as ad from "../types/ad";
-import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes";
+import {
+  Arrow,
+  Fill,
+  Named,
+  ShapeCommon,
+  Stroke,
+  Transform,
+} from "../types/shapes";
 import { PathDataV } from "../types/value";
-import { boolV, floatV, noPaint, pathDataV, strV } from "../utils/Util";
+import { boolV, floatV, id3x3, noPaint, pathDataV, strV } from "../utils/Util";
 import { Canvas, Context, sampleColor } from "./Samplers";
 
-export interface PathProps<T> extends Named<T>, Stroke<T>, Fill<T>, Arrow<T> {
+export interface PathProps<T>
+  extends Named<T>,
+    Stroke<T>,
+    Fill<T>,
+    Arrow<T>,
+    Transform<T> {
   d: PathDataV<T>;
 }
 
@@ -24,6 +36,7 @@ export const samplePath = (
   flipStartArrowhead: boolV(false),
   endArrowheadSize: floatV(1),
   endArrowhead: strV("none"),
+  transform: id3x3(),
   d: pathDataV([]),
   ensureOnCanvas: boolV(true),
 });

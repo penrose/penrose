@@ -24,10 +24,9 @@ import {
   checkPoly,
   checkProp,
   checkRect,
-  checkRotate,
-  checkScale,
   checkString,
   checkStroke,
+  checkTransform,
 } from "./CheckShapeHierarchyProps";
 import {
   checkFloatV,
@@ -91,6 +90,9 @@ export const checkCircle = (
   const center = checkCenter(path, trans);
   if (center.isErr()) return err(center.error);
 
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
+
   const r = checkProp(path, "r", trans, checkFloatV);
   if (r.isErr()) return err(r.error);
 
@@ -99,6 +101,7 @@ export const checkCircle = (
     ...stroke.value,
     ...fill.value,
     ...center.value,
+    ...transform.value,
     r: r.value,
     passthrough: new Map(),
     shapeType: "Circle",
@@ -155,19 +158,19 @@ export const checkEquation = (
   const rect = checkRect(path, trans);
   if (rect.isErr()) return err(rect.error);
 
-  const rotate = checkRotate(path, trans);
-  if (rotate.isErr()) return err(rotate.error);
-
   const string = checkString(path, trans);
   if (string.isErr()) return err(string.error);
+
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
 
   return ok({
     ...named.value,
     ...fill.value,
     ...center.value,
     ...rect.value,
-    ...rotate.value,
     ...string.value,
+    ...transform.value,
     passthrough: new Map(),
     shapeType: "Equation",
   });
@@ -180,11 +183,15 @@ export const checkGroup = (
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
 
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
+
   const shapes = checkProp(path, "shapes", trans, checkShapeListV);
   if (shapes.isErr()) return err(shapes.error);
 
   return ok({
     ...named.value,
+    ...transform.value,
     shapes: shapes.value,
     passthrough: new Map(),
     shapeType: "Group",
@@ -204,8 +211,8 @@ export const checkImage = (
   const rect = checkRect(path, trans);
   if (rect.isErr()) return err(rect.error);
 
-  const rotate = checkRotate(path, trans);
-  if (rotate.isErr()) return err(rotate.error);
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
 
   const href = checkProp(path, "href", trans, checkStrV);
   if (href.isErr()) return err(href.error);
@@ -214,7 +221,7 @@ export const checkImage = (
     ...named.value,
     ...center.value,
     ...rect.value,
-    ...rotate.value,
+    ...transform.value,
     href: href.value,
     passthrough: new Map(),
     shapeType: "Image",
@@ -234,6 +241,9 @@ export const checkLine = (
   const arrow = checkArrow(path, trans);
   if (arrow.isErr()) return err(arrow.error);
 
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
+
   const start = checkProp(path, "start", trans, checkVectorV);
   if (start.isErr()) return err(start.error);
 
@@ -247,6 +257,7 @@ export const checkLine = (
     ...named.value,
     ...stroke.value,
     ...arrow.value,
+    ...transform.value,
     start: start.value,
     end: end.value,
     strokeLinecap: strokeLinecap.value,
@@ -271,6 +282,9 @@ export const checkPath = (
   const arrow = checkArrow(path, trans);
   if (arrow.isErr()) return err(arrow.error);
 
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
+
   const d = checkProp(path, "d", trans, checkPathDataV);
   if (d.isErr()) return err(d.error);
 
@@ -279,6 +293,7 @@ export const checkPath = (
     ...stroke.value,
     ...fill.value,
     ...arrow.value,
+    ...transform.value,
     d: d.value,
     passthrough: new Map(),
     shapeType: "Path",
@@ -298,18 +313,18 @@ export const checkPolygon = (
   const fill = checkFill(path, trans);
   if (fill.isErr()) return err(fill.error);
 
-  const scale = checkScale(path, trans);
-  if (scale.isErr()) return err(scale.error);
-
   const poly = checkPoly(path, trans);
   if (poly.isErr()) return err(poly.error);
+
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
 
   return ok({
     ...named.value,
     ...stroke.value,
     ...fill.value,
-    ...scale.value,
     ...poly.value,
+    ...transform.value,
     passthrough: new Map(),
     shapeType: "Polygon",
   });
@@ -328,18 +343,18 @@ export const checkPolyline = (
   const fill = checkFill(path, trans);
   if (fill.isErr()) return err(fill.error);
 
-  const scale = checkScale(path, trans);
-  if (scale.isErr()) return err(scale.error);
-
   const poly = checkPoly(path, trans);
   if (poly.isErr()) return err(poly.error);
+
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
 
   return ok({
     ...named.value,
     ...stroke.value,
     ...fill.value,
-    ...scale.value,
     ...poly.value,
+    ...transform.value,
     passthrough: new Map(),
     shapeType: "Polyline",
   });
@@ -361,23 +376,23 @@ export const checkRectangle = (
   const center = checkCenter(path, trans);
   if (center.isErr()) return err(center.error);
 
-  const rotate = checkRotate(path, trans);
-  if (rotate.isErr()) return err(rotate.error);
-
   const rect = checkRect(path, trans);
   if (rect.isErr()) return err(rect.error);
 
   const corner = checkCorner(path, trans);
   if (corner.isErr()) return err(corner.error);
 
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
+
   return ok({
     ...named.value,
     ...stroke.value,
     ...fill.value,
     ...center.value,
-    ...rotate.value,
     ...rect.value,
     ...corner.value,
+    ...transform.value,
     passthrough: new Map(),
     shapeType: "Rectangle",
   });
@@ -402,11 +417,11 @@ export const checkText = (
   const rect = checkRect(path, trans);
   if (rect.isErr()) return err(rect.error);
 
-  const rotate = checkRotate(path, trans);
-  if (rotate.isErr()) return err(rotate.error);
-
   const string = checkString(path, trans);
   if (string.isErr()) return err(string.error);
+
+  const transform = checkTransform(path, trans);
+  if (transform.isErr()) return err(transform.error);
 
   const visibility = checkProp(path, "visibility", trans, checkStrV);
   if (visibility.isErr()) return err(visibility.error);
@@ -462,9 +477,9 @@ export const checkText = (
     ...stroke.value,
     ...fill.value,
     ...center.value,
-    ...rotate.value,
     ...rect.value,
     ...string.value,
+    ...transform.value,
     visibility: visibility.value,
     fontFamily: fontFamily.value,
     fontSizeAdjust: fontSizeAdjust.value,

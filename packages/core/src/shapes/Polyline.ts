@@ -1,14 +1,29 @@
 import * as ad from "../types/ad";
-import { Fill, Named, Poly, Scale, ShapeCommon, Stroke } from "../types/shapes";
-import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
+import {
+  Fill,
+  Named,
+  Poly,
+  ShapeCommon,
+  Stroke,
+  Transform,
+} from "../types/shapes";
+import {
+  black,
+  boolV,
+  floatV,
+  id3x3,
+  noPaint,
+  ptListV,
+  strV,
+} from "../utils/Util";
 import { Canvas, Context } from "./Samplers";
 
 export interface PolylineProps<T>
   extends Named<T>,
     Stroke<T>,
     Fill<T>,
-    Scale<T>,
-    Poly<T> {}
+    Poly<T>,
+    Transform<T> {}
 
 export const samplePolyline = (
   _context: Context,
@@ -21,12 +36,12 @@ export const samplePolyline = (
   strokeColor: black(),
   strokeDasharray: strV(""),
   fillColor: noPaint(),
-  scale: floatV(1),
   points: ptListV([
     [0, 0],
     [0, 10],
     [10, 0],
   ]),
+  transform: id3x3(),
   ensureOnCanvas: boolV(true),
 });
 

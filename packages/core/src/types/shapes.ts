@@ -1,4 +1,12 @@
-import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value";
+import {
+  BoolV,
+  ColorV,
+  FloatV,
+  MatrixV,
+  PtListV,
+  StrV,
+  VectorV,
+} from "./value";
 
 //#region shape hierarchy interfaces
 export interface Named<T> {
@@ -39,12 +47,16 @@ export interface Corner<T> {
   cornerRadius: FloatV<T>; // note: corresponds to rx in SVG
 }
 
-// TODO: don't use these
-export interface Rotate<T> {
-  rotation: FloatV<T>; // about the top-left corner
-}
-export interface Scale<T> {
-  scale: FloatV<T>; // doesn't work correctly
+// // TODO: don't use these
+// export interface Rotate<T> {
+//   rotation: FloatV<T>; // about the top-left corner
+// }
+// export interface Scale<T> {
+//   scale: FloatV<T>; // doesn't work correctly
+// }
+
+export interface Transform<T> {
+  transform: MatrixV<T>;
 }
 
 // // TODO: use this: https://github.com/penrose/penrose/issues/713

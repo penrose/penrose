@@ -1,10 +1,14 @@
 import * as ad from "../types/ad";
-import { Arrow, Named, ShapeCommon, Stroke } from "../types/shapes";
+import { Arrow, Named, ShapeCommon, Stroke, Transform } from "../types/shapes";
 import { StrV, VectorV } from "../types/value";
-import { boolV, floatV, strV } from "../utils/Util";
+import { boolV, floatV, id3x3, strV } from "../utils/Util";
 import { Canvas, Context, sampleColor, sampleVector } from "./Samplers";
 
-export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T> {
+export interface LineProps<T>
+  extends Named<T>,
+    Stroke<T>,
+    Arrow<T>,
+    Transform<T> {
   start: VectorV<T>;
   end: VectorV<T>;
   strokeLinecap: StrV;
@@ -25,6 +29,7 @@ export const sampleLine = (
   flipStartArrowhead: boolV(false),
   endArrowheadSize: floatV(1),
   endArrowhead: strV("none"),
+  transform: id3x3(),
   start: sampleVector(context, canvas),
   end: sampleVector(context, canvas),
   strokeLinecap: strV(""),

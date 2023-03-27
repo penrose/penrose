@@ -1,10 +1,10 @@
 import * as ad from "../types/ad";
-import { Named, ShapeCommon } from "../types/shapes";
+import { Named, ShapeCommon, Transform } from "../types/shapes";
 import { ShapeListV } from "../types/value";
-import { boolV, shapeListV, strV } from "../utils/Util";
+import { boolV, id3x3, shapeListV, strV } from "../utils/Util";
 import { Canvas, Context } from "./Samplers";
 
-export interface GroupProps<T> extends Named<T> {
+export interface GroupProps<T> extends Named<T>, Transform<T> {
   shapes: ShapeListV<T>;
 }
 
@@ -17,6 +17,7 @@ export const sampleGroup = (
     style: strV(""),
     ensureOnCanvas: boolV(true),
     shapes: shapeListV([]),
+    transform: id3x3(),
   };
 };
 

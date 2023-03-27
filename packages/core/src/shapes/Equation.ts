@@ -4,11 +4,11 @@ import {
   Fill,
   Named,
   Rect,
-  Rotate,
   ShapeCommon,
   String,
+  Transform,
 } from "../types/shapes";
-import { black, boolV, floatV, strV, vectorV } from "../utils/Util";
+import { black, boolV, floatV, id3x3, strV, vectorV } from "../utils/Util";
 import { Canvas, Context, uniform } from "./Samplers";
 
 export interface EquationProps<T>
@@ -16,8 +16,8 @@ export interface EquationProps<T>
     Fill<T>,
     Center<T>,
     Rect<T>,
-    Rotate<T>,
-    String<T> {}
+    String<T>,
+    Transform<T> {}
 
 export const sampleEquation = (
   context: Context,
@@ -48,9 +48,9 @@ export const sampleEquation = (
       stages: new Set(),
     })
   ),
-  rotation: floatV(0),
   string: strV("defaultLabelText"),
   fontSize: strV("12pt"),
+  transform: id3x3(),
   ensureOnCanvas: boolV(true),
 });
 

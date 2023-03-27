@@ -598,6 +598,13 @@ export const matrixV = (contents: ad.Num[][]): MatrixV<ad.Num> => ({
   contents,
 });
 
+export const id3x3 = (): MatrixV<ad.Num> =>
+  matrixV([
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+  ]);
+
 export const tupV = (contents: ad.Num[]): TupV<ad.Num> => ({
   tag: "TupV",
   contents,

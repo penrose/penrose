@@ -1,7 +1,7 @@
 import * as ad from "../types/ad";
-import { Center, Named, Rect, Rotate, ShapeCommon } from "../types/shapes";
+import { Center, Named, Rect, ShapeCommon, Transform } from "../types/shapes";
 import { StrV } from "../types/value";
-import { boolV, floatV, strV } from "../utils/Util";
+import { boolV, id3x3, strV } from "../utils/Util";
 import {
   Canvas,
   Context,
@@ -10,7 +10,11 @@ import {
   sampleWidth,
 } from "./Samplers";
 
-export interface ImageProps<T> extends Named<T>, Center<T>, Rect<T>, Rotate<T> {
+export interface ImageProps<T>
+  extends Named<T>,
+    Center<T>,
+    Rect<T>,
+    Transform<T> {
   href: StrV;
   // note, SVG also has these two attributes:
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/crossorigin
@@ -26,8 +30,8 @@ export const sampleImage = (
   center: sampleVector(context, canvas),
   width: sampleWidth(context, canvas),
   height: sampleHeight(context, canvas),
-  rotation: floatV(0),
   href: strV("defaultImage"),
+  transform: id3x3(),
   ensureOnCanvas: boolV(true),
 });
 

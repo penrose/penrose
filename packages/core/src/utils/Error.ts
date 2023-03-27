@@ -31,6 +31,7 @@ import {
   SubstanceError,
   SymmetricArgLengthMismatch,
   SymmetricTypeMismatch,
+  TransformMatrixDimensionError,
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
@@ -441,6 +442,10 @@ canvas {
       return `${propertyClause} ${expectedClause} and ${doesNotAcceptClause}.`;
     }
 
+    case "TransformMatrixDimensionError": {
+      return `Matrix ${error.path} is not a 3x3 matrix.`;
+    }
+
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -653,6 +658,13 @@ export const badShapeParamTypeError = (
   value,
   expectedType,
   passthrough,
+});
+
+export const transformMatrixDimensionError = (
+  path: string
+): TransformMatrixDimensionError => ({
+  tag: "TransformMatrixDimensionError",
+  path,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

@@ -5,11 +5,11 @@ import {
   Fill,
   Named,
   Rect,
-  Rotate,
   ShapeCommon,
   Stroke,
+  Transform,
 } from "../types/shapes";
-import { boolV, floatV, noPaint, strV } from "../utils/Util";
+import { boolV, floatV, id3x3, noPaint, strV } from "../utils/Util";
 import {
   Canvas,
   Context,
@@ -24,9 +24,9 @@ export interface RectangleProps<T>
     Stroke<T>,
     Fill<T>,
     Center<T>,
-    Rotate<T>,
     Rect<T>,
-    Corner<T> {}
+    Corner<T>,
+    Transform<T> {}
 
 export const sampleRectangle = (
   context: Context,
@@ -43,7 +43,7 @@ export const sampleRectangle = (
   width: sampleWidth(context, canvas),
   height: sampleHeight(context, canvas),
   cornerRadius: floatV(0),
-  rotation: floatV(0),
+  transform: id3x3(),
   ensureOnCanvas: boolV(true),
 });
 

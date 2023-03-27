@@ -9,18 +9,19 @@ import {
   Named,
   Poly,
   Rect,
-  Rotate,
-  Scale,
   String as StringProps,
   Stroke,
+  Transform,
 } from "../../types/shapes";
 import { Translation } from "../../types/styleSemantics";
 import { Value } from "../../types/value";
+import { transformMatrixDimensionError } from "../../utils/Error";
 import { internalMissingPathError } from "../Style";
 import {
   checkBoolV,
   checkColorV,
   checkFloatV,
+  checkMatrixV,
   checkPtListV,
   checkStrV,
   checkVectorV,
@@ -175,24 +176,28 @@ export const checkCorner = (
   return ok({ cornerRadius: cornerRadius.value });
 };
 
-export const checkRotate = (
+export const checkTransform = (
   path: string,
   trans: Translation
-): Result<Rotate<ad.Num>, StyleError> => {
-  const rotation = checkProp(path, "rotation", trans, checkFloatV);
-  if (rotation.isErr()) return err(rotation.error);
+): Result<Transform<ad.Num>, StyleError> => {
+  const matrix = checkProp(path, "transform", trans, checkMatrixV);
+  if (matrix.isErr()) return err(matrix.error);
 
-  return ok({ rotation: rotation.value });
-};
+  // check that transformation matrices are 3x3
 
-export const checkScale = (
-  path: string,
-  trans: Translation
-): Result<Scale<ad.Num>, StyleError> => {
-  const scale = checkProp(path, "scale", trans, checkFloatV);
-  if (scale.isErr()) return err(scale.error);
+  const { value: mat } = matrix;
 
-  return ok({ scale: scale.value });
+  if (mat.contents.length !== 3) {
+    return err(transformMatrixDimensionError(path));
+  }
+
+  for (const row of mat.contents) {
+    if (row.length !== 3) {
+      return err(transformMatrixDimensionError(path));
+    }
+  }
+
+  return ok({ matrix: matrix.value });
 };
 
 export const checkPoly = (

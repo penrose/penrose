@@ -1,14 +1,21 @@
 import * as ad from "../types/ad";
-import { Fill, Named, Poly, Scale, ShapeCommon, Stroke } from "../types/shapes";
-import { boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
+import {
+  Fill,
+  Named,
+  Poly,
+  ShapeCommon,
+  Stroke,
+  Transform,
+} from "../types/shapes";
+import { boolV, floatV, id3x3, noPaint, ptListV, strV } from "../utils/Util";
 import { Canvas, Context, sampleColor } from "./Samplers";
 
 export interface PolygonProps<T>
   extends Named<T>,
     Stroke<T>,
     Fill<T>,
-    Scale<T>,
-    Poly<T> {}
+    Poly<T>,
+    Transform<T> {}
 
 export const samplePolygon = (
   context: Context,
@@ -21,12 +28,12 @@ export const samplePolygon = (
   strokeColor: noPaint(),
   strokeDasharray: strV(""),
   fillColor: sampleColor(context),
-  scale: floatV(1),
   points: ptListV([
     [0, 0],
     [0, 10],
     [10, 0],
   ]),
+  transform: id3x3(),
   ensureOnCanvas: boolV(true),
 });
 
