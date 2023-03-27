@@ -42,6 +42,7 @@ export interface ContentState {
   style: string;
   showProblem: boolean;
   prompt: string;
+  layoutDone: boolean;
 }
 
 const ContentSection = styled(Box)({
@@ -59,6 +60,13 @@ const HeaderContent = styled(Toolbar)({
   justifyContent: "space-between",
   background:
     "linear-gradient(162deg, rgba(63,81,181,1) 33%, rgba(10,21,83,1) 100%)",
+});
+
+const OutlineButton = styled(Button)({
+  "&.MuiButton-outlined.Mui-disabled": {
+    color: "#b7babf7e",
+    borderColor: "#b7babf7e",
+  },
 });
 
 const ButtonBox = styled(Box)({
@@ -91,6 +99,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       domain: "",
       style: "",
       prompt: "",
+      layoutDone: false,
       showProblem: false,
     };
   }
@@ -152,6 +161,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           staged: [],
           domain: dsl,
           style: sty,
+          layoutDone: false,
         });
       }
     }
@@ -213,6 +223,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
         selected={this.state.staged}
         onSelected={this.addStaged}
         onStateUpdate={this.onStateUpdate}
+        onComplete={() => this.setState({ layoutDone: true })}
       />
     </sc.ThemeProvider>
   );
@@ -295,13 +306,13 @@ export class Content extends React.Component<ContentProps, ContentState> {
             </Title>
             <ButtonBox>
               <StagedText>{`${this.state.staged.length} diagrams selected`}</StagedText>
-              <Button
+              <OutlineButton
                 variant="outlined"
                 color="inherit"
                 onClick={() => this.exportDiagrams(this.state.staged)}
               >
                 Export
-              </Button>
+              </OutlineButton>
               {/* <Button
                 variant="outlined"
                 color="inherit"
@@ -311,7 +322,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
               >
                 Export All
               </Button> */}
-              <Button
+              <OutlineButton
+                disabled={!this.state.layoutDone}
                 variant="outlined"
                 color="inherit"
                 onClick={() =>
@@ -321,7 +333,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
                 }
               >
                 {this.state.showProblem ? "Hide Problem" : "Show Problem"}
-              </Button>
+              </OutlineButton>
             </ButtonBox>
           </HeaderContent>
         </AppBar>
