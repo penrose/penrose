@@ -268,10 +268,6 @@ export default defineConfig({
               text: "What Have We Done to the Languages?",
               link: "/blog/2023/03/17/new-language-features",
             },
-            {
-              text: "Making Style-Substance Matching Faster",
-              link: "/blog/2023/03/21/faster-matching",
-            },
           ],
         },
       ],
