@@ -298,8 +298,9 @@ export class Content extends React.Component<ContentProps, ContentState> {
                 variant="outlined"
                 color="inherit"
                 onClick={() =>
-                  this.setState(({ showProblem }) => ({
+                  this.setState(({ showProblem, staged }) => ({
                     showProblem: !showProblem,
+                    staged: showProblem ? [] : staged,
                   }))
                 }
               >
