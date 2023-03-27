@@ -24,6 +24,7 @@ export interface GridProps {
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
   gridBoxProps?: Partial<GridboxProps>;
+  selected?: number[];
 }
 
 const GridContainer = styled.main`
@@ -73,6 +74,7 @@ export class Grid extends React.Component<GridProps> {
           onSelected={this.props.onSelected}
           onStateUpdate={this.props.onStateUpdate}
           imageResolver={this.props.imageResolver}
+          selected={this.props.selected && this.props.selected.includes(i)}
         />
       )
     );

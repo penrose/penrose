@@ -24,7 +24,7 @@ import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { range, shuffle } from "lodash";
-import React from "react";
+import React, { memo } from "react";
 import * as sc from "styled-components";
 import { Settings } from "./Settings";
 
@@ -210,6 +210,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           animate: true,
           stepSize: 20,
         }}
+        selected={this.state.staged}
         onSelected={this.addStaged}
         onStateUpdate={this.onStateUpdate}
       />
@@ -254,21 +255,37 @@ export class Content extends React.Component<ContentProps, ContentState> {
     return (
       <div
         style={{
-          display: "flex",
+          position: "absolute",
+          height: "100%",
           width: "100%",
-          justifyContent: "center",
+          display: "block",
+          zIndex: "1201",
+          visibility: this.state.showProblem ? "visible" : "hidden",
+          backgroundColor: "#0000007d",
         }}
       >
-        <MultipleChoiceProblem
-          diagrams={shuffle(options)}
-          correctIndices={answer.correct}
-          prompt={prompt}
-        ></MultipleChoiceProblem>
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            justifyContent: "center",
+          }}
+        >
+          <MultipleChoiceProblem
+            diagrams={shuffle(options)}
+            correctIndices={answer.correct}
+            prompt={prompt}
+          ></MultipleChoiceProblem>
+        </div>
       </div>
     );
   };
 
   render() {
+    const Problem = memo(
+      ({ correct, incorrect }: { correct: number[]; incorrect: number[] }) =>
+        this.problem({ correct, incorrect })
+    );
     return (
       <div>
         <AppBar position="fixed">
@@ -298,9 +315,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
                 variant="outlined"
                 color="inherit"
                 onClick={() =>
-                  this.setState(({ showProblem, staged }) => ({
+                  this.setState(({ showProblem }) => ({
                     showProblem: !showProblem,
-                    staged: showProblem ? [] : staged,
                   }))
                 }
               >
@@ -319,9 +335,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
               defaultDomain={this.state.domain}
               defaultStyle={this.state.style}
             />
-            {this.state.showProblem
-              ? this.problem({ correct: this.state.staged, incorrect: [] })
-              : this.grid(this.state.progs)}
+            <Problem correct={this.state.staged} incorrect={[]}></Problem>
+            {this.grid(this.state.progs)}
           </>
         </ContentSection>
       </div>

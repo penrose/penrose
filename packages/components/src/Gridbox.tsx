@@ -8,6 +8,7 @@ export type GridboxProps = SimpleProps & {
   header: string;
   gridIndex: number;
   stateful?: boolean;
+  selected?: boolean;
   metadata: {
     name: string;
     data: string;
@@ -111,10 +112,19 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       style: props.style,
       domain: props.domain,
       showDiagramInfo: false,
-      isSelected: false,
+      isSelected: this.props.selected ?? false,
       currentState: undefined,
       variation: props.variation,
     };
+  }
+
+  componentDidUpdate(
+    prevProps: Readonly<GridboxProps>,
+    prevState: Readonly<GridboxState>
+  ): void {
+    if (this.props.selected !== prevState.isSelected) {
+      this.setState({ isSelected: this.props.selected ?? false });
+    }
   }
 
   toggleView = () => {
