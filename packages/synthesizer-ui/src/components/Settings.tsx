@@ -361,7 +361,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <Toolbar />
         <SettingContainer>
           <SettingDiv>
-            <SettingLabel>Diagrams to generate:</SettingLabel>
+            <SettingLabel>Number of variations:</SettingLabel>
             <Select
               key="preset"
               labelId="preset-select-label"
@@ -391,46 +391,13 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
                   })
                 }
                 width={"100%"}
-                height={"500px"}
+                height={"300px"}
                 monacoOptions={{ theme: "vs" }}
                 readOnly={false}
               />
             </AccordionBodyStyled>
           </Accordion>
-          <Accordion key="domain" elevation={0}>
-            <AccordionHeaderStyled>{`Domain Program`}</AccordionHeaderStyled>
-            <AccordionBodyStyled style={{ padding: 0 }}>
-              <TextField
-                rows={20}
-                name="dsl"
-                multiline
-                variant="outlined"
-                fullWidth
-                inputProps={{ style: { fontSize: ".8rem" } }}
-                style={{ padding: 0 }}
-                onChange={this.onTextAreaChange}
-                value={this.state.domain}
-              />
-            </AccordionBodyStyled>
-          </Accordion>
-          <Accordion key="style" elevation={0}>
-            <AccordionHeaderStyled>Style Program</AccordionHeaderStyled>
-            <AccordionBodyStyled style={{ padding: 0 }}>
-              <TextField
-                rows={20}
-                name="sty"
-                multiline
-                fullWidth
-                variant="outlined"
-                style={{ padding: 0 }}
-                inputProps={{
-                  style: { fontSize: ".8rem", overflow: "scroll" },
-                }}
-                onChange={this.onTextAreaChange}
-                value={this.state.style}
-              />
-            </AccordionBodyStyled>
-          </Accordion>
+
           <SettingDiv>
             <TextField
               id="standard-basic"
@@ -457,7 +424,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             />
           </SettingDiv>
           <SettingDiv>
-            <SettingLabel>Mutations/program:</SettingLabel>
+            <SettingLabel>Mutations per variation:</SettingLabel>
             <Slider
               valueLabelDisplay="auto"
               step={1}
@@ -477,16 +444,59 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           </SettingDiv>
         </SettingContainer>
         <br />
-        <SettingContainer>{this.inputElements()}</SettingContainer>
         <ButtonContainer>
           <Button
             onClick={this.onGenerateClick}
             color="primary"
             variant="contained"
           >
-            Generate Diagrams
+            Generate Variations
           </Button>
         </ButtonContainer>
+        <SettingDiv>
+          <Accordion key="advanced" elevation={0}>
+            <AccordionHeaderStyled>{`Advanced options`}</AccordionHeaderStyled>
+            <AccordionBodyStyled style={{ padding: 0 }}>
+              <SettingContainer>
+                <Accordion key="domain" elevation={0}>
+                  <AccordionHeaderStyled>{`Domain Program`}</AccordionHeaderStyled>
+                  <AccordionBodyStyled style={{ padding: 0 }}>
+                    <TextField
+                      rows={20}
+                      name="dsl"
+                      multiline
+                      variant="outlined"
+                      fullWidth
+                      inputProps={{ style: { fontSize: ".8rem" } }}
+                      style={{ padding: 0 }}
+                      onChange={this.onTextAreaChange}
+                      value={this.state.domain}
+                    />
+                  </AccordionBodyStyled>
+                </Accordion>
+                <Accordion key="style" elevation={0}>
+                  <AccordionHeaderStyled>Style Program</AccordionHeaderStyled>
+                  <AccordionBodyStyled style={{ padding: 0 }}>
+                    <TextField
+                      rows={20}
+                      name="sty"
+                      multiline
+                      fullWidth
+                      variant="outlined"
+                      style={{ padding: 0 }}
+                      inputProps={{
+                        style: { fontSize: ".8rem", overflow: "scroll" },
+                      }}
+                      onChange={this.onTextAreaChange}
+                      value={this.state.style}
+                    />
+                  </AccordionBodyStyled>
+                </Accordion>
+                {this.inputElements()}
+              </SettingContainer>
+            </AccordionBodyStyled>
+          </Accordion>
+        </SettingDiv>
       </SettingsDrawer>
     );
   }
