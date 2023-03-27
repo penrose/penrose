@@ -1,7 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <g>
     <path
-      d="M 127.94112678326084 262.1555495999866 L 182.96896223695015 264.2852094264767"
+      d="M 143.94820555268745 230.07198929481766 L 198.53631084578413 237.64447578256664"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#000000"
@@ -11,7 +11,7 @@
   </g>
   <g>
     <path
-      d="M 46.077019214056406 258.858966069531 L 97.96471108422024 260.96665919334646"
+      d="M 62.757044414083 219.1141840148641 L 114.22360506357211 226.01695248619765"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#000000"
@@ -21,8 +21,8 @@
   </g>
   <circle
     fill="none"
-    cx="112.95234948801226"
-    cy="261.5754614211455"
+    cx="129.0904823941419"
+    cy="228.01091926403515"
     stroke="none"
     r="15"
   >
@@ -32,83 +32,51 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="108.41461594881459"
-      cy="275.0421760802752"
+      cx="134.89126286321485"
+      cy="215.03808715019346"
       stroke="none"
       r="1.5"
     >
-      <title>`e1`.circle1</title>
+      <title>`FourValenceElectrons_o1`.circle11</title>
     </circle>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="116.40831416980315"
-      cy="275.3595006514072"
+      cx="126.96421497166492"
+      cy="213.96021060032663"
       stroke="none"
       r="1.5"
     >
-      <title>`e1`.circle2</title>
+      <title>`FourValenceElectrons_o1`.circle12</title>
     </circle>
-    <title>`e1`.icon</title>
-  </g>
-  <circle
-    fill="none"
-    cx="243.65859071400874"
-    cy="342.3987428742946"
-    stroke="none"
-    r="15"
-  >
-    <title>`o2`.icon</title>
-  </circle>
-  <g>
-    <circle
-      fill="#000000"
-      fill-opacity="1"
-      cx="257.86000103072183"
-      cy="342.91194926355115"
-      stroke="none"
-      r="1.5"
-    >
-      <title>`e4`.circle1</title>
-    </circle>
-    <circle
-      fill="#000000"
-      fill-opacity="1"
-      cx="255.88687722787367"
-      cy="335.1590989109186"
-      stroke="none"
-      r="1.5"
-    >
-      <title>`e4`.circle2</title>
-    </circle>
-    <title>`e4`.icon</title>
+    <title>`FourValenceElectrons_o1`.icon1</title>
   </g>
   <g>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="117.48973071209099"
-      cy="248.1086280551466"
+      cx="123.28924529382792"
+      cy="240.98354724993948"
       stroke="none"
       r="1.5"
     >
-      <title>`e2`.circle1</title>
+      <title>`FourValenceElectrons_o1`.circle21</title>
     </circle>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="109.49602419205794"
-      cy="247.79151261361034"
+      cx="131.2162552406262"
+      cy="242.06170282082934"
       stroke="none"
       r="1.5"
     >
-      <title>`e2`.circle2</title>
+      <title>`FourValenceElectrons_o1`.circle22</title>
     </circle>
-    <title>`e2`.icon</title>
+    <title>`FourValenceElectrons_o1`.icon2</title>
   </g>
   <g>
     <path
-      d="M 239.16044546348976 210.3481879986823 L 207.001911638296 252.8985563230437"
+      d="M 260.0276022956453 189.75843238777523 L 223.63071423568766 228.7414989400117"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#000000"
@@ -118,8 +86,8 @@
   </g>
   <circle
     fill="none"
-    cx="248.20461756958704"
-    cy="198.38144671640822"
+    cx="270.2642825270033"
+    cy="178.79438551443778"
     stroke="none"
     r="15"
   >
@@ -129,74 +97,74 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="235.96462867218443"
-      cy="205.60128628654033"
+      cx="268.628440256898"
+      cy="164.67817304224167"
       stroke="none"
       r="1.5"
     >
-      <title>`e5`.circle1</title>
+      <title>`SixValenceElectrons_o3`.circle21</title>
     </circle>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="241.80429715552077"
-      cy="211.06920893928546"
+      cx="261.26215152475544"
+      cy="167.79870127419076"
       stroke="none"
       r="1.5"
     >
-      <title>`e5`.circle2</title>
+      <title>`SixValenceElectrons_o3`.circle22</title>
     </circle>
-    <title>`e5`.icon</title>
+    <title>`SixValenceElectrons_o3`.icon2</title>
   </g>
   <g>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="260.60190615541853"
-      cy="205.327717625519"
+      cx="258.8612391727982"
+      cy="187.27459771553052"
       stroke="none"
       r="1.5"
     >
-      <title>`e7`.circle1</title>
+      <title>`SixValenceElectrons_o3`.circle31</title>
     </circle>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="262.3897713114426"
-      cy="197.53006129072466"
+      cx="265.24913230256493"
+      cy="192.09068819374525"
       stroke="none"
       r="1.5"
     >
-      <title>`e7`.circle2</title>
+      <title>`SixValenceElectrons_o3`.circle32</title>
     </circle>
-    <title>`e7`.icon</title>
+    <title>`SixValenceElectrons_o3`.icon3</title>
   </g>
   <g>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="248.60779741775133"
-      cy="184.176486667806"
+      cx="283.52548086639797"
+      cy="183.90164163465153"
       stroke="none"
       r="1.5"
     >
-      <title>`e6`.circle1</title>
+      <title>`SixValenceElectrons_o3`.circle11</title>
     </circle>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="240.87046446695774"
-      cy="186.20960863666264"
+      cx="284.183024749944"
+      cy="175.9287160628871"
       stroke="none"
       r="1.5"
     >
-      <title>`e6`.circle2</title>
+      <title>`SixValenceElectrons_o3`.circle12</title>
     </circle>
-    <title>`e6`.icon</title>
+    <title>`SixValenceElectrons_o3`.icon1</title>
   </g>
   <g>
     <path
-      d="M 205.57454583669133 277.78753470730055 L 236.0417844095161 329.47650577231195"
+      d="M 219.57490583596237 253.37290742417025 L 244.29840400421858 308.04237784106004"
       stroke-opacity="1"
       stroke-width="6"
       stroke="#000000"
@@ -206,16 +174,25 @@
   </g>
   <circle
     fill="none"
-    cx="197.95773953219873"
-    cy="264.8652976053178"
+    cx="213.39403400432968"
+    cy="239.70554581334915"
     stroke="none"
     r="15"
   >
     <title>`n`.icon</title>
   </circle>
+  <circle
+    fill="none"
+    cx="250.47927583585127"
+    cy="321.70973945188115"
+    stroke="none"
+    r="15"
+  >
+    <title>`o2`.icon</title>
+  </circle>
   <g>
     <path
-      d="M 205.57454583669133 277.78753470730055 L 236.0417844095161 329.47650577231195"
+      d="M 219.57490583596237 253.37290742417025 L 244.29840400421858 308.04237784106004"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#ffffff"
@@ -227,33 +204,56 @@
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="231.35291400920747"
-      cy="349.50604591815045"
+      cx="237.48303624047392"
+      cy="327.4578863925305"
       stroke="none"
       r="1.5"
     >
-      <title>`e3`.circle1</title>
+      <title>`FourValenceElectrons_o2`.circle11</title>
     </circle>
     <circle
       fill="#000000"
       fill-opacity="1"
-      cx="237.14219929352936"
-      cy="355.02728509322844"
+      cx="242.64753905969914"
+      cy="333.56753587199296"
       stroke="none"
       r="1.5"
     >
-      <title>`e3`.circle2</title>
+      <title>`FourValenceElectrons_o2`.circle12</title>
     </circle>
-    <title>`e3`.icon</title>
+    <title>`FourValenceElectrons_o2`.icon1</title>
+  </g>
+  <g>
+    <circle
+      fill="#000000"
+      fill-opacity="1"
+      cx="264.5435053811266"
+      cy="323.7446557229009"
+      stroke="none"
+      r="1.5"
+    >
+      <title>`FourValenceElectrons_o2`.circle21</title>
+    </circle>
+    <circle
+      fill="#000000"
+      fill-opacity="1"
+      cx="263.41413898068936"
+      cy="315.8247796086397"
+      stroke="none"
+      r="1.5"
+    >
+      <title>`FourValenceElectrons_o2`.circle22</title>
+    </circle>
+    <title>`FourValenceElectrons_o2`.icon2</title>
   </g>
   <text
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 104.95234948801226, 254.57546142114552)"
+    transform="rotate(0, 121.0904823941419, 221.01091926403515)"
     style="font: 15pt sans-serif"
-    x="112.95234948801226"
-    y="268.5754614211455"
+    x="129.0904823941419"
+    y="235.01091926403515"
     width="16"
     height="14"
     font-size-adjust=""
@@ -271,10 +271,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 235.65859071400874, 335.3987428742946)"
+    transform="rotate(0, 242.47927583585127, 314.70973945188115)"
     style="font: 15pt sans-serif"
-    x="243.65859071400874"
-    y="349.3987428742946"
+    x="250.47927583585127"
+    y="328.70973945188115"
     width="16"
     height="14"
     font-size-adjust=""
@@ -292,10 +292,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 240.20461756958704, 191.38144671640822)"
+    transform="rotate(0, 262.2642825270033, 171.79438551443778)"
     style="font: 15pt sans-serif"
-    x="248.20461756958704"
-    y="205.38144671640822"
+    x="270.2642825270033"
+    y="185.79438551443778"
     width="16"
     height="14"
     font-size-adjust=""
@@ -311,8 +311,8 @@
   </text>
   <circle
     fill="none"
-    cx="31.089380810264373"
-    cy="258.25016384173193"
+    cx="47.890167083513205"
+    cy="217.1202172370266"
     stroke="none"
     r="15"
   >
@@ -322,10 +322,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 23.589380810264373, 251.25016384173193)"
+    transform="rotate(0, 40.390167083513205, 210.1202172370266)"
     style="font: 15pt sans-serif"
-    x="31.089380810264373"
-    y="265.25016384173193"
+    x="47.890167083513205"
+    y="224.1202172370266"
     width="15"
     height="14"
     font-size-adjust=""
@@ -343,10 +343,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 190.95773953219873, 257.8652976053178)"
+    transform="rotate(0, 206.39403400432968, 232.70554581334915)"
     style="font: 15pt sans-serif"
-    x="197.95773953219873"
-    y="271.8652976053178"
+    x="213.39403400432968"
+    y="246.70554581334915"
     width="14"
     height="14"
     font-size-adjust=""
