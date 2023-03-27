@@ -6,11 +6,6 @@ Bond b1 := MakeSingleBond(h, o1)
 Bond b2 := MakeSingleBond(o1, n)
 Bond b3 := MakeDoubleBond(n, o2)
 -- electrons
-ElectronPair e1, e2
-e1 := ValenceElectronPair(o1)
-e2 := ValenceElectronPair(o1)
-ElectronPair e3
-e3 := ValenceElectronPair(n)
-ElectronPair e4, e5
-e4 := ValenceElectronPair(o2)
-e5 := ValenceElectronPair(o2)
+FourValenceElectrons(o1)
+TwoValenceElectrons(n)
+FourValenceElectrons(o2)

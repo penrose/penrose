@@ -3,5 +3,5 @@ Hydrogen h1, h2, h3
 Bond b1 := MakeSingleBond(n, h1)
 Bond b2 := MakeSingleBond(n, h2)
 Bond b3 := MakeSingleBond(n, h3)
-ElectronPair e1 := ValenceElectronPair(n)
+TwoValenceElectrons(n)
 AutoLabel All
