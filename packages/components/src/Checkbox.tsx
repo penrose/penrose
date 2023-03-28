@@ -32,7 +32,7 @@ const Indicator = styled.div`
   position: absolute;
   top: 0em;
   left: -1.6em;
-  // border: 1px solid #757575;
+  border: 1px solid ${(props) => props.theme.primary};
   border-radius: 0.2em;
 
   ${Input}:not(:disabled):checked & {
