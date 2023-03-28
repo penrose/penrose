@@ -154,13 +154,18 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             {this.props.stateful && (
               <ResampleBtn onClick={this.resample}>Resample</ResampleBtn>
             )}
-            {onSelected && (
-              <Checkbox
-                checked={this.state.isSelected}
-                onChange={this.checkboxClick}
-              />
-            )}
           </div>
+          {onSelected && (
+            <Checkbox
+              checked={this.state.isSelected}
+              value={""}
+              name={""}
+              label={""}
+              id={`checkbox-${this.props.gridIndex}`}
+              disabled={false}
+              onChange={this.checkboxClick}
+            />
+          )}
         </Header>
 
         <div
