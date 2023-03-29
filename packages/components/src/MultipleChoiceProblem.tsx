@@ -158,7 +158,7 @@ export default function (props: MultiChoiceProblemProps) {
     )
   );
   return (
-    <Content>
+    <Content onClick={(e) => e.stopPropagation()}>
       <Prompt>
         <Latex delimiters={[{ right: "$", left: "$", display: false }]}>
           {props.prompt}

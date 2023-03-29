@@ -274,6 +274,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           visibility: this.state.showProblem ? "visible" : "hidden",
           backgroundColor: "#0000007d",
         }}
+        onClick={() => this.setState({ showProblem: false })}
       >
         <div
           style={{
