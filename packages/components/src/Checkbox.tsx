@@ -5,13 +5,15 @@ const Input = styled.input`
   width: 0;
   opacity: 0;
   z-index: -1;
+  position: absolute;
 `;
 
 const Label = styled.label<{ disabled: boolean }>`
   position: relative;
   display: inline-block;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  // margin: 0.6em 1em;
+  margin-right: 0.3rem;
+  margin-left: 0.3rem;
 `;
 
 const rotate = keyframes`
@@ -29,7 +31,6 @@ const Indicator = styled.div`
   width: 1.2em;
   height: 1.2em;
   background: #e6e6e6;
-  position: absolute;
   top: 0em;
   left: -1.6em;
   border: 1px solid ${(props) => props.theme.primary};
@@ -85,18 +86,20 @@ export default function Checkbox({
   disabled: boolean;
 }) {
   return (
-    <Label htmlFor={id} disabled={disabled}>
-      {/* {label} */}
-      <Input
-        id={id}
-        type="checkbox"
-        name={name}
-        value={value}
-        disabled={disabled}
-        checked={checked}
-        onChange={onChange}
-      />
-      <Indicator />
-    </Label>
+    <div>
+      <Label htmlFor={id} disabled={disabled}>
+        {/* {label} */}
+        <Input
+          id={id}
+          type="checkbox"
+          name={name}
+          value={value}
+          disabled={disabled}
+          checked={checked}
+          onChange={onChange}
+        />
+        <Indicator />
+      </Label>
+    </div>
   );
 }
