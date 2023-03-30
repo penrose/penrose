@@ -1,0 +1,44 @@
+Vertex a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q
+
+Edge(a, b)
+Edge(a, d)
+Edge(b, c)
+Edge(b, j)
+Edge(c, h)
+Edge(d, e)
+Edge(d, o)
+Edge(e, f)
+Edge(f, g)
+Edge(f, m)
+Edge(g, h)
+Edge(h, q)
+Edge(i, j)
+Edge(i, o)
+Edge(j, k)
+Edge(j, p)
+Edge(k, q)
+Edge(l, m)
+Edge(l, q)
+Edge(m, n)
+Edge(m, p)
+Edge(n, o)
+Edge(o, p)
+Edge(p, q)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"
+Label e "𝑒"
+Label f "𝑓"
+Label g "𝑔"
+Label h "ℎ"
+Label i "𝑖"
+Label j "𝑗"
+Label k "𝑘"
+Label l "𝑙"
+Label m "𝑚"
+Label n "𝑛"
+Label o "𝑜"
+Label p "𝑝"
+Label q "𝑞"
