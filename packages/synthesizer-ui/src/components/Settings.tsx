@@ -361,7 +361,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <Toolbar />
         <SettingContainer>
           <SettingDiv>
-            <SettingLabel>Number of variations:</SettingLabel>
             <Select
               key="preset"
               labelId="preset-select-label"
@@ -380,7 +379,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           </SettingDiv>
           <br />
           <Accordion key="substance" elevation={0}>
-            <AccordionHeaderStyled>{`Substance Program`}</AccordionHeaderStyled>
+            <AccordionHeaderStyled>{`Input Scenario`}</AccordionHeaderStyled>
             <AccordionBodyStyled style={{ padding: 0 }}>
               <Listing
                 domain={this.state.domain}
@@ -399,16 +398,17 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           </Accordion>
 
           <SettingDiv>
+            <SettingLabel>Mutator seed:</SettingLabel>
             <TextField
               id="standard-basic"
-              label="Mutator seed"
+              // label="Mutator seed"
               variant="standard"
               value={this.state.seed}
               onChange={({ target }) => this.setState({ seed: target.value })}
             />
           </SettingDiv>
           <SettingDiv>
-            <SettingLabel>Diagrams to generate:</SettingLabel>
+            <SettingLabel>Number of variations to generate:</SettingLabel>
             <Slider
               valueLabelDisplay="auto"
               step={1}
