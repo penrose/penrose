@@ -520,7 +520,7 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_6: {
     displayName: "graph_6: Hamilton Circuit",
     prompt: "Which diagram has a Hamilton circuit?",
-    substance: graphDomain.textbook.sec5["ex46.substance"],
+    substance: graphDomain.textbook.sec5["ex47d.substance"],
     domain: graphDomain["simple-graph.domain"],
     style: graphDomain["simple-graph.style"],
     setting: {
