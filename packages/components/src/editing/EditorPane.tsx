@@ -7,6 +7,8 @@ import { SetupDomainMonaco } from "./languages/DomainConfig";
 import { SetupStyleMonaco } from "./languages/StyleConfig";
 import { SetupSubstanceMonaco } from "./languages/SubstanceConfig";
 
+import {addKeybinds, addVimCommands, PenroseCalls } from "./EditorConfig";
+
 const monacoOptions = (
   vimMode: boolean
 ): editor.IEditorConstructionOptions => ({
@@ -20,12 +22,6 @@ const monacoOptions = (
   cursorStyle: vimMode ? "block" : "line",
 });
 
-interface PenroseCalls {
-  /// In vim mode, this is called when the user calls :w
-  onWrite?: () => void;
-  onChange(value: string): void;
-  resampleDiagram: () => Promise<void>;
-}
 
 export default function EditorPane({
   value,
@@ -47,17 +43,11 @@ export default function EditorPane({
   const statusBarRef = useRef<HTMLDivElement>(null);
   const onWrite = penroseCalls.onWrite;
 
-  if (monaco !== null && onWrite !== undefined) {
-    editorRef.current?.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      onWrite
-    );
+  addKeybinds(editorRef, penroseCalls);
 
-    editorRef.current?.addCommand(
-      monaco.KeyMod.Shift | monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      penroseCalls.resampleDiagram
-    );
-  }
+  // if(monaco && editorRef.current){
+  //   addHoverProvider(monaco, editorRef.current);
+  // }
 
   useEffect(() => {
     if (monaco) {
@@ -73,12 +63,18 @@ export default function EditorPane({
     }
   }, [monaco, vimMode, languageType, domainCache]);
 
+
+
   useEffect(() => {
-    if (onWrite && !VimMode.Vim.SET_WRITE) {
-      // HACK to prevent multiple definitions of :w
-      VimMode.Vim.SET_WRITE = true;
-      VimMode.Vim.defineEx("write", "w", onWrite);
+    if (monaco) {
+      // TODO: change model language
+      // monaco.editor.setModelLanguage(monaco.editor.getModel(), "penrose-style")
     }
+  }, [languageType])
+
+  useEffect(() => {
+    addVimCommands(penroseCalls)
+
   }, [onWrite]);
 
   useEffect(() => {
