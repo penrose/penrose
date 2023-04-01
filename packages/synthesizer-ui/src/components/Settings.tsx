@@ -28,6 +28,7 @@ import Latex from "react-latex-next";
 import { Preset, presets } from "../examples";
 import { wildcardType } from "../util";
 import { MultiselectDropdown } from "./MultiselectDropdown";
+import WeightSlider from "./WeightSlider";
 
 const DEFAULT_MUTATION_COUNT = [1, 4];
 
@@ -390,7 +391,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
                   })
                 }
                 width={"100%"}
-                height={"300px"}
+                height={"400px"}
                 monacoOptions={{ theme: "vs" }}
                 readOnly={false}
               />
@@ -423,25 +424,41 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               onChange={this.onProgCountChange}
             />
           </SettingDiv>
-          <SettingDiv>
-            <SettingLabel>Mutations per variation:</SettingLabel>
-            <Slider
-              valueLabelDisplay="auto"
-              step={1}
-              marks={[
-                { value: 1, label: "1" },
-                { value: 5, label: "5" },
+          {this.state.setting && (
+            <WeightSlider
+              divisions={[
+                {
+                  text: "Add",
+                  percentage: this.state.setting!.opWeights.add * 100,
+                  color: "#3f51b5",
+                },
+                {
+                  text: "Delete",
+                  percentage: this.state.setting!.opWeights.delete * 100,
+                  color: "#3f51b5",
+                },
+                {
+                  text: "Edit",
+                  percentage: this.state.setting!.opWeights.edit * 100,
+                  color: "#3f51b5",
+                },
               ]}
-              value={
-                this.state.setting
-                  ? this.state.setting.mutationCount
-                  : DEFAULT_MUTATION_COUNT
-              }
-              min={1}
-              max={5}
-              onChange={this.onMutationCountChange}
+              setDivisions={(divisions: any) => {
+                if (this.state.setting) {
+                  this.setState({
+                    setting: {
+                      ...this.state.setting,
+                      opWeights: {
+                        add: divisions[0].percentage / 100,
+                        delete: divisions[1].percentage / 100,
+                        edit: divisions[2].percentage / 100,
+                      },
+                    },
+                  });
+                }
+              }}
             />
-          </SettingDiv>
+          )}
         </SettingContainer>
         <br />
         <ButtonContainer>
@@ -493,6 +510,23 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
                   </AccordionBodyStyled>
                 </Accordion>
                 {this.inputElements()}
+                <SettingLabel>Mutations per variation:</SettingLabel>
+                <Slider
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks={[
+                    { value: 1, label: "1" },
+                    { value: 5, label: "5" },
+                  ]}
+                  value={
+                    this.state.setting
+                      ? this.state.setting.mutationCount
+                      : DEFAULT_MUTATION_COUNT
+                  }
+                  min={1}
+                  max={5}
+                  onChange={this.onMutationCountChange}
+                />
               </SettingContainer>
             </AccordionBodyStyled>
           </Accordion>
