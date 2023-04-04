@@ -1054,22 +1054,17 @@ export const compDict = {
    */
   triangle: (
     _context: Context,
-    [t1, l1]: any,
-    [t2, l2]: any,
-    [t3, l3]: any
+    l1: Line<ad.Num>,
+    l2: Line<ad.Num>,
+    l3: Line<ad.Num>
   ): PathDataV<ad.Num> => {
-    if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
-      const path = new PathBuilder();
-      return path
-        .moveTo(toPt(getStart(l1)))
-        .lineTo(toPt(getStart(l2)))
-        .lineTo(toPt(getStart(l3)))
-        .closePath()
-        .getPath();
-    } else {
-      console.error([t1, l1], [t2, l2], [t3, l3]);
-      throw Error("Triangle function expected three lines");
-    }
+    const path = new PathBuilder();
+    return path
+      .moveTo(toPt(getStart(l1)))
+      .lineTo(toPt(getStart(l2)))
+      .lineTo(toPt(getStart(l3)))
+      .closePath()
+      .getPath();
   },
 
   /**
