@@ -334,6 +334,8 @@ export function StyleHelpResolver(hoveredWord: string | undefined) {
   };
 
   let help, type;
+  console.log({hoveredWord, styleCustoms});
+
 
   switch (flattenedStyleCustoms[hoveredWord]) {
     case 'shapes':
@@ -352,19 +354,22 @@ export function StyleHelpResolver(hoveredWord: string | undefined) {
 
     case 'constraints':
       type = 'constraint'
+      help = functionHelp(hoveredWord)
       break;
 
     case 'objectives':
       type = 'objective'
+      help = functionHelp(hoveredWord)
       break;
 
     case 'computations':
       type = 'computation'
+      help = functionHelp(hoveredWord)
       break;
 
     case 'properties':
       type = `property of type ${propertyTypes[hoveredWord]}`
-      help = typeUsage[propertyTypes[hoveredWord]]
+      help = `usage: ${typeUsage[propertyTypes[hoveredWord]]}`
       break;
 
     default:
@@ -393,6 +398,11 @@ function propsToMarkDown(props: Object) {
   }
 
   return retStr;
+}
+
+// will likely extend but this will suffice for now
+function functionHelp(functionName:string) {
+  return `[documentation](https://penrose.cs.cmu.edu/docs/ref/style/functions#${functionName.toLowerCase()})`
 }
 
 
