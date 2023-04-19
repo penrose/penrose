@@ -15,6 +15,13 @@ import * as BBox from "../engine/BBox";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import {
+  constrFunc as constr,
+  ConstrFunc,
+  real2Arg as real2,
+  realArg as real,
+  realNArg as realN,
+} from "../types/functions";
+import {
   atDistLabel,
   containsAABBs,
   containsCirclePolygon,
@@ -32,83 +39,112 @@ import { inRange, isLinelike, isRectlike, overlap1D } from "./Utils";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
-const constrDictSimple = {
+const constrDictSimple: { [k: string]: ConstrFunc } = {
   /**
    * Require that the value `x` is equal to the value `y`
    */
-  equal: (x: ad.Num, y: ad.Num) => {
+  equal: constr("equal", [real("x"), real("y")], (x: ad.Num, y: ad.Num) => {
     return absVal(sub(x, y));
-  },
+  }),
 
   /**
    * Require that the value `x` is less than the value `y` with optional padding `padding`
    */
-  lessThan: (x: ad.Num, y: ad.Num, padding = 0) => {
-    return add(sub(x, y), padding);
-  },
+  lessThan: constr(
+    "lessThan",
+    [real("x"), real("y"), real("padding", 0)],
+    (x: ad.Num, y: ad.Num, padding = 0) => {
+      return add(sub(x, y), padding);
+    }
+  ),
 
   /**
    * Require that the value `x` is greater than the value `y` with optional padding `padding`
    */
-  greaterThan: (x: ad.Num, y: ad.Num, padding = 0) => {
-    return add(sub(y, x), padding);
-  },
+  greaterThan: constr(
+    "greaterThan",
+    [real("x"), real("y"), real("padding", 0)],
+    (x: ad.Num, y: ad.Num, padding = 0) => {
+      return add(sub(y, x), padding);
+    }
+  ),
 
   /**
    * Require that the value `x` is less than the value `y`, with steeper penalty
    */
-  lessThanSq: (x: ad.Num, y: ad.Num) => {
-    // if x < y then 0 else (x - y)^2
-    return ifCond(lt(x, y), 0, squared(sub(x, y)));
-  },
+  lessThanSq: constr(
+    "lessThanSq",
+    [real("x"), real("y")],
+    (x: ad.Num, y: ad.Num) => {
+      // if x < y then 0 else (x - y)^2
+      return ifCond(lt(x, y), 0, squared(sub(x, y)));
+    }
+  ),
 
   /**
    * Require that the value `x` is greater than the value `y`, with steeper penalty
    */
-  greaterThanSq: (x: ad.Num, y: ad.Num) => {
-    return ifCond(lt(y, x), 0, squared(sub(y, x)));
-  },
+  greaterThanSq: constr(
+    "greaterThanSq",
+    [real("x"), real("y")],
+    (x: ad.Num, y: ad.Num) => {
+      return ifCond(lt(y, x), 0, squared(sub(y, x)));
+    }
+  ),
 
   /**
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
-  inRange: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
-    return add(
-      ifCond(lt(x, x1), 0, sub(x, x1)),
-      ifCond(lt(x0, x), 0, sub(x0, x))
-    );
-  },
+  inRange: constr(
+    "inRange",
+    [real("x"), real("x0"), real("x1")],
+    (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
+      return add(
+        ifCond(lt(x, x1), 0, sub(x, x1)),
+        ifCond(lt(x0, x), 0, sub(x0, x))
+      );
+    }
+  ),
 
   /**
    * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
    */
-  contains1D: (
-    [l1, r1]: [ad.Num, ad.Num],
-    [l2, r2]: [ad.Num, ad.Num]
-  ): ad.Num => {
-    // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
-    return add(max(0, sub(l1, l2)), max(0, sub(r2, r1)));
-  },
+  contains1D: constr(
+    "inRange",
+    [real2("int1"), real2("int2")],
+    ([l1, r1]: [ad.Num, ad.Num], [l2, r2]: [ad.Num, ad.Num]): ad.Num => {
+      // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
+      return add(max(0, sub(l1, l2)), max(0, sub(r2, r1)));
+    }
+  ),
 
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
-  disjointScalar: (c: ad.Num, left: ad.Num, right: ad.Num) => {
-    const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
+  disjointScalar: constr(
+    "disjointScalar",
+    [real("c"), real("left"), real("right")],
+    (c: ad.Num, left: ad.Num, right: ad.Num) => {
+      const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
 
-    // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
-    return ifCond(inRange(c, left, right), min(d(c, left), d(c, right)), 0);
-  },
+      // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
+      return ifCond(inRange(c, left, right), min(d(c, left), d(c, right)), 0);
+    }
+  ),
 
   /**
    * Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.
    */
-  perpendicular: (q: ad.Num[], p: ad.Num[], r: ad.Num[]): ad.Num => {
-    const v1 = ops.vsub(q, p);
-    const v2 = ops.vsub(r, p);
-    const dotProd = ops.vdot(v1, v2);
-    return absVal(dotProd);
-  },
+  perpendicular: constr(
+    "perpendicular",
+    [realN("q"), realN("p"), realN("r")],
+    (q: ad.Num[], p: ad.Num[], r: ad.Num[]): ad.Num => {
+      const v1 = ops.vsub(q, p);
+      const v2 = ops.vsub(r, p);
+      const dotProd = ops.vdot(v1, v2);
+      return absVal(dotProd);
+    }
+  ),
 
   /**
    * Require that three points be collinear.

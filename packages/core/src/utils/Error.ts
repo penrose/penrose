@@ -14,6 +14,7 @@ import {
 import { Arg, Type, TypeConstructor } from "../types/domain";
 import {
   ArgLengthMismatch,
+  BadArgumentError,
   BadShapeParamTypeError,
   CyclicSubtypes,
   DeconstructNonconstructor,
@@ -37,10 +38,11 @@ import {
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors";
+import { FuncArg } from "../types/functions";
 import { State } from "../types/state";
 import { BindingForm, ColorLit } from "../types/style";
 import { Deconstructor, SubExpr } from "../types/substance";
-import { ShapeVal, Val } from "../types/value";
+import { ArgVal, ShapeVal, Val } from "../types/value";
 import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
@@ -653,6 +655,21 @@ export const badShapeParamTypeError = (
   value,
   expectedType,
   passthrough,
+});
+
+export const badArgumentError = (
+  funcName: string,
+  funcArg: FuncArg,
+  funcLocation: SourceRange,
+  provided?: ArgVal<ad.Num>,
+  providedLocation?: SourceRange
+): BadArgumentError => ({
+  tag: "BadArgumentError",
+  funcName,
+  funcArg,
+  funcLocation,
+  provided,
+  providedLocation,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

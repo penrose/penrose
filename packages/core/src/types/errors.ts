@@ -2,6 +2,7 @@ import im from "immutable";
 import * as ad from "./ad";
 import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
+import { FuncArg } from "./functions";
 import { State } from "./state";
 import {
   BindingForm,
@@ -15,7 +16,7 @@ import {
 } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
-import { ShapeVal, Val, Value } from "./value";
+import { ArgVal, ShapeVal, Val, Value } from "./value";
 
 //#region ErrorTypes
 
@@ -203,6 +204,7 @@ export type StyleError =
   | PropertyMemberError
   | UOpTypeError
   | BadShapeParamTypeError
+  | BadArgumentError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -453,6 +455,15 @@ export interface BadShapeParamTypeError {
   value: Val<ad.Num> | ShapeVal<ad.Num>;
   expectedType: string;
   passthrough: boolean;
+}
+
+export interface BadArgumentError {
+  tag: "BadArgumentError";
+  funcName: string;
+  funcArg: FuncArg;
+  funcLocation: SourceRange;
+  provided?: ArgVal<ad.Num>;
+  providedLocation?: SourceRange;
 }
 
 //#endregion

@@ -38,6 +38,7 @@ import {
   StyleWarning,
   SubstanceError,
 } from "../types/errors";
+import { callCompFunc } from "../types/functions";
 import {
   Fn,
   OptPipeline,
@@ -106,6 +107,7 @@ import {
 } from "../types/substance";
 import {
   ArgVal,
+  ArgValWithSourceLoc,
   Field,
   FloatV,
   ListV,
@@ -113,7 +115,6 @@ import {
   MatrixV,
   PropID,
   ShapeListV,
-  ShapeVal,
   Value,
   VectorV,
 } from "../types/value";
@@ -2254,27 +2255,29 @@ const evalExprs = (
   trans: Translation
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
-    args.map((expr) => evalExpr(mut, canvas, stages, { context, expr }, trans))
+    args.map((expr) => {
+      return evalExpr(mut, canvas, stages, { context, expr }, trans);
+    })
   ).mapErr(flatErrs);
 
-const argValues = (
-  mut: MutableContext,
-  canvas: Canvas,
-  stages: OptPipeline,
-  context: Context,
-  args: Expr<C>[],
-  trans: Translation
-): Result<(ShapeVal<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
-  evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
-    argVals.map((arg) => {
-      switch (arg.tag) {
-        case "ShapeVal": // strip the `ShapeVal` tag
-          return arg.contents;
-        case "Val": // strip both `Val` and type annotation like `FloatV`
-          return arg.contents.contents;
-      }
-    })
-  );
+// const argValues = (
+//   mut: MutableContext,
+//   canvas: Canvas,
+//   stages: OptPipeline,
+//   context: Context,
+//   args: Expr<C>[],
+//   trans: Translation
+// ): Result<(ShapeVal<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
+//   evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
+//     argVals.map((arg) => {
+//       switch (arg.tag) {
+//         case "ShapeVal": // strip the `ShapeVal` tag
+//           return arg.contents;
+//         case "Val": // strip both `Val` and type annotation like `FloatV`
+//           return arg.contents.contents;
+//       }
+//     })
+//   );
 
 const evalVals = (
   mut: MutableContext,
@@ -2863,7 +2866,7 @@ const evalExpr = (
       }
     }
     case "CompApp": {
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -2874,14 +2877,27 @@ const evalExpr = (
       if (args.isErr()) {
         return err(args.error);
       }
-      const { name } = expr;
+
+      const argsWithSourceLoc: ArgValWithSourceLoc<ad.Num>[] = [];
+      for (let i = 0; i < args.value.length; i++) {
+        const { start, end } = expr.args[i];
+        argsWithSourceLoc.push({
+          ...args.value[i],
+          start,
+          end,
+        });
+      }
+
+      const { name, start, end } = expr;
       if (!(name.value in compDict)) {
         return err(
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
       }
-      const x: Value<ad.Num> = compDict[name.value](mut, ...args.value);
-      return ok(val(x));
+      const f = compDict[name.value];
+      const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
+      if (x.isErr()) return err(oneErr(x.error));
+      return ok(val(x.value));
     }
     case "ConstrFn":
     case "Layering":

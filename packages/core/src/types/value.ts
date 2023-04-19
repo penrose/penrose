@@ -1,4 +1,5 @@
-import { Shape as RealShape } from "../shapes/Shapes";
+import { Shape as RealShape, ShapeType } from "../shapes/Shapes";
+import { SourceRange } from "./ast";
 
 /**
  * The input parameters to computations/objectives/constraints in Style.
@@ -16,6 +17,8 @@ export interface ShapeVal<T> {
   tag: "ShapeVal";
   contents: RealShape<T>;
 }
+
+export type ArgValWithSourceLoc<T> = ArgVal<T> & SourceRange;
 
 export type Field = string;
 export type Name = string;
@@ -144,3 +147,39 @@ export interface ShapeListV<T> {
   tag: "ShapeListV";
   contents: RealShape<T>[];
 }
+
+export type ValueType =
+  | "Real"
+  | "Unit"
+  | "PosInt"
+  | "Nat"
+  | "Real2"
+  | "RealN"
+  | "Real2N"
+  | "RealNM"
+  | "Color"
+  | "String"
+  | "ColorType"
+  | "PathType"
+  | "ShapeList"
+  | "PathCmd"
+  | "Boolean";
+
+export interface ValueT {
+  tag: "ValueT";
+  type: ValueType;
+}
+
+export interface ShapeT {
+  tag: "ShapeT";
+  type: ShapeType | "AnyShape";
+}
+
+export interface UnionT {
+  tag: "UnionT";
+  types: ValueShapeT[];
+}
+
+export type ValueShapeT = ValueT | ShapeT | UnionT;
+
+// Add documentation later
