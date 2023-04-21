@@ -2,7 +2,11 @@ import { Result } from "true-myth";
 import { Context } from "../shapes/Samplers";
 import { Shape, ShapeType } from "../shapes/Shapes";
 import * as ad from "../types/ad";
-import { badArgumentError } from "../utils/Error";
+import {
+  badArgumentTypeError,
+  missingArgumentError,
+  tooManyArgumentsError,
+} from "../utils/Error";
 import { SourceRange } from "./ast";
 import { StyleError } from "./errors";
 import {
@@ -21,10 +25,28 @@ type CompFuncBody = (context: Context, ...args: any[]) => Value<ad.Num>;
 type ObjFuncBody = (...args: any[]) => ad.Num;
 type ConstrFuncBody = (...args: any[]) => ad.Num;
 
+interface NoDefault {
+  tag: "NoDefault";
+}
+const noDefault = (): NoDefault => ({
+  tag: "NoDefault",
+});
+const hasDefault = (v: Value<ad.Num>["contents"]): HasDefault => ({
+  tag: "HasDefault",
+  default: v,
+});
+
+interface HasDefault {
+  tag: "HasDefault";
+  default: Value<ad.Num>["contents"];
+}
+
+type DefaultArg = NoDefault | HasDefault;
+
 export interface FuncArg {
   name: string;
   type: ValueShapeT;
-  default?: Value<ad.Num>["contents"];
+  default: DefaultArg;
 }
 
 export interface CompFunc {
@@ -68,6 +90,9 @@ export const callObjConstrFunc = (
   range: SourceRange,
   args: ArgValWithSourceLoc<ad.Num>[]
 ): Result<ad.Num, StyleError> => {
+  if (args.length > func.funcArgs.length) {
+    return err(tooManyArgumentsError(func, range, args.length));
+  }
   const vals: (Shape<ad.Num> | Value<ad.Num>["contents"])[] = [];
   for (let i = 0; i < func.funcArgs.length; i++) {
     const funcArg = func.funcArgs[i];
@@ -88,56 +113,17 @@ export const checkArg = (
   // If the argument is not provided
   if (!arg) {
     // But if the argument has a default value
-    if (funcArg.default) {
+    if (funcArg.default.tag === "HasDefault") {
       // Use the default value.
-      return ok(funcArg.default);
+      return ok(funcArg.default.default);
     } else {
       // Otherwise report error.
-      return err(badArgumentError(funcName, funcArg, location));
+      return err(missingArgumentError(funcName, funcArg, location));
     }
   }
 
   // The argument is provided.
   return checkType(funcName, location, funcArg, funcArg.type, arg);
-  /*
-  const expectedType = funcArg.type;
-  if (expectedType.tag === "UnionT") {
-    return ok(1);
-  }
-
-  // If the argument expects any generic shape (not a specific shape)
-  if (funcArg.type === "AnyShape") {
-    // Check the provided argument is any shape
-    if (arg.tag === "ShapeVal") {
-      return ok(arg.contents);
-    } else {
-      return err(badArgumentError(funcName, funcArg, location, arg));
-    }
-  }
-  // If the argument expects a specific type of shape
-  if (isShapeType(funcArg.type)) {
-    // Check the provided argument is also a shape and has the same shape type
-    if (arg.tag === "ShapeVal" && arg.contents.shapeType === funcArg.type) {
-      return ok(arg.contents);
-    } else {
-      return err(badArgumentError(funcName, funcArg, location, arg));
-    }
-  }
-
-  // The argument now expects a value.
-
-  // If the provided argument is a shape
-  if (arg.tag === "ShapeVal") {
-    return err(badArgumentError(funcName, funcArg, location, arg));
-  }
-
-  // Now the expected and provided arguments are both values.
-  // Check the types of the values.
-  return checkValue(funcName, location, funcArg, arg.contents, {
-    start: arg.start,
-    end: arg.end,
-  });
-  */
 };
 
 export const checkType = (
@@ -153,35 +139,17 @@ export const checkType = (
       if (result.isOk()) return ok(result.value);
     }
   } else if (expectedType.tag === "ShapeT") {
-    const shape = checkShape(
-      funcName,
-      location,
-      funcArg,
-      expectedType.type,
-      arg
-    );
+    const shape = checkShape(funcName, funcArg, expectedType.type, arg);
     if (shape.isOk()) return ok(shape.value);
   } else {
-    const value = checkValue(
-      funcName,
-      location,
-      funcArg,
-      expectedType.type,
-      arg
-    );
+    const value = checkValue(funcName, funcArg, expectedType.type, arg);
     if (value.isOk()) return ok(value.value);
   }
-  return err(
-    badArgumentError(funcName, funcArg, location, arg, {
-      start: arg.start,
-      end: arg.end,
-    })
-  );
+  return err(badArgumentTypeError(funcName, funcArg, arg));
 };
 
 const checkShape = (
   funcName: string,
-  location: SourceRange,
   funcArg: FuncArg,
   expectedType: ShapeType | "AnyShape",
   arg: ArgValWithSourceLoc<ad.Num>
@@ -196,17 +164,11 @@ const checkShape = (
     }
   }
 
-  return err(
-    badArgumentError(funcName, funcArg, location, arg, {
-      start: arg.start,
-      end: arg.end,
-    })
-  );
+  return err(badArgumentTypeError(funcName, funcArg, arg));
 };
 
-export const checkValue = (
+const checkValue = (
   funcName: string,
-  location: SourceRange,
   funcArg: FuncArg,
   type: ValueType,
   arg: ArgValWithSourceLoc<ad.Num>
@@ -254,12 +216,7 @@ export const checkValue = (
     }
   }
 
-  return err(
-    badArgumentError(funcName, funcArg, location, arg, {
-      start: arg.start,
-      end: arg.end,
-    })
-  );
+  return err(badArgumentTypeError(funcName, funcArg, arg));
 };
 
 export const valueT = (type: ValueType): ValueT => ({
@@ -287,67 +244,82 @@ export const rectlikeT = (): UnionT =>
 export const realArg = (name: string, def?: ad.Num): FuncArg => ({
   name,
   type: valueT("Real"),
-  default: def,
+  default: def !== undefined ? hasDefault(def) : noDefault(),
 });
 export const unitArg = (name: string): FuncArg => ({
   name,
   type: valueT("Unit"),
+  default: noDefault(),
 });
 export const posIntArg = (name: string): FuncArg => ({
   name,
   type: valueT("PosInt"),
+  default: noDefault(),
 });
 export const natArg = (name: string): FuncArg => ({
   name,
   type: valueT("Nat"),
+  default: noDefault(),
 });
 export const real2Arg = (name: string): FuncArg => ({
   name,
   type: valueT("Real2"),
+  default: noDefault(),
 });
 export const realNArg = (name: string): FuncArg => ({
   name,
   type: valueT("RealN"),
+  default: noDefault(),
 });
 export const real2NArg = (name: string): FuncArg => ({
   name,
   type: valueT("Real2N"),
+  default: noDefault(),
 });
 export const realNMArg = (name: string): FuncArg => ({
   name,
   type: valueT("RealNM"),
+  default: noDefault(),
 });
 export const colorArg = (name: string): FuncArg => ({
   name,
   type: valueT("Color"),
+  default: noDefault(),
 });
 export const stringArg = (name: string): FuncArg => ({
   name,
   type: valueT("String"),
+  default: noDefault(),
 });
 export const colorTypeArg = (name: string): FuncArg => ({
   name,
   type: valueT("ColorType"),
+  default: noDefault(),
 });
 export const pathTypeArg = (name: string): FuncArg => ({
   name,
   type: valueT("PathType"),
+  default: noDefault(),
 });
 export const booleanArg = (name: string): FuncArg => ({
   name,
   type: valueT("Boolean"),
+  default: noDefault(),
 });
 export const shapeArg = (name: string, type?: ShapeType): FuncArg => ({
   name,
   type: shapeT(type ? type : "AnyShape"),
+  default: noDefault(),
 });
 export const unionArg = (name: string, ...types: ValueShapeT[]): FuncArg => ({
   name,
   type: unionT(...types),
+  default: noDefault(),
 });
 export const rectlikeArg = (name: string): FuncArg => ({
   name,
   type: rectlikeT(),
+  default: noDefault(),
 });
 
 export const compFunc = (

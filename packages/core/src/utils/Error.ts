@@ -14,7 +14,7 @@ import {
 import { Arg, Type, TypeConstructor } from "../types/domain";
 import {
   ArgLengthMismatch,
-  BadArgumentError,
+  BadArgumentTypeError,
   BadShapeParamTypeError,
   CyclicSubtypes,
   DeconstructNonconstructor,
@@ -22,6 +22,7 @@ import {
   DuplicateName,
   FatalError,
   InvalidColorLiteral,
+  MissingArgumentError,
   NaNError,
   ParseError,
   PenroseError,
@@ -32,17 +33,25 @@ import {
   SubstanceError,
   SymmetricArgLengthMismatch,
   SymmetricTypeMismatch,
+  TooManyArgumentsError,
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors";
-import { FuncArg } from "../types/functions";
+import { CompFunc, ConstrFunc, FuncArg, ObjFunc } from "../types/functions";
 import { State } from "../types/state";
 import { BindingForm, ColorLit } from "../types/style";
 import { Deconstructor, SubExpr } from "../types/substance";
-import { ArgVal, ShapeVal, Val } from "../types/value";
+import {
+  ArgVal,
+  ArgValWithSourceLoc,
+  ShapeVal,
+  UnionT,
+  Val,
+  ValueShapeT,
+} from "../types/value";
 import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
@@ -58,6 +67,33 @@ const {
 } = Result;
 
 // #region error rendering and construction
+
+const showArgType = (t: ValueShapeT): string => {
+  if (t.tag === "ValueT") {
+    return ` - ${t.type} value`;
+  } else if (t.tag === "ShapeT") {
+    if (t.type === "AnyShape") {
+      return ` - any shape`;
+    } else {
+      return ` - ${t.type} shape`;
+    }
+  } else {
+    return showUnionType(t);
+  }
+};
+
+const showUnionType = (t: UnionT): string => {
+  const substrs = t.types.map(showArgType);
+  return substrs.join("\n");
+};
+
+const showArgValType = (v: ArgVal<ad.Num>): string => {
+  if (v.tag === "ShapeVal") {
+    return `${v.contents.shapeType} shape`;
+  } else {
+    return `${v.contents.tag} value`;
+  }
+};
 
 /**
  * Type pretty printing function.
@@ -443,6 +479,34 @@ canvas {
       return `${propertyClause} ${expectedClause} and ${doesNotAcceptClause}.`;
     }
 
+    case "BadArgumentTypeError": {
+      const { funcName, funcArg, provided } = error;
+
+      const { name: argName, type: expectedType } = funcArg;
+      const locStr = locc("Style", provided);
+      const strExpectedType = showArgType(expectedType);
+      const strActualType = showArgValType(provided);
+
+      return `Argument \`${argName}\` (at ${locStr}) of function \`${funcName}\` expects one of:\n${strExpectedType}\nbut is given incompatible ${strActualType}.\n`;
+    }
+
+    case "MissingArgumentError": {
+      const { funcName, funcArg, funcLocation } = error;
+      const locStr = locc("Style", funcLocation);
+
+      const { name } = funcArg;
+
+      return `Argument \`${name}\` of function \`${funcName}\` (at ${locStr}) is missing without default value.`;
+    }
+
+    case "TooManyArgumentsError": {
+      const { func, funcLocation, numProvided } = error;
+      const locStr = locc("Style", funcLocation);
+
+      const expNum = func.funcArgs.length;
+
+      return `Function \`${func.name}\` (at ${locStr}) expects ${expNum} arguments but is provided with ${numProvided} arguments`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -657,19 +721,37 @@ export const badShapeParamTypeError = (
   passthrough,
 });
 
-export const badArgumentError = (
+export const badArgumentTypeError = (
   funcName: string,
   funcArg: FuncArg,
-  funcLocation: SourceRange,
-  provided?: ArgVal<ad.Num>,
-  providedLocation?: SourceRange
-): BadArgumentError => ({
-  tag: "BadArgumentError",
+  provided: ArgValWithSourceLoc<ad.Num>
+): BadArgumentTypeError => ({
+  tag: "BadArgumentTypeError",
+  funcName,
+  funcArg,
+  provided,
+});
+
+export const missingArgumentError = (
+  funcName: string,
+  funcArg: FuncArg,
+  funcLocation: SourceRange
+): MissingArgumentError => ({
+  tag: "MissingArgumentError",
   funcName,
   funcArg,
   funcLocation,
-  provided,
-  providedLocation,
+});
+
+export const tooManyArgumentsError = (
+  func: CompFunc | ObjFunc | ConstrFunc,
+  funcLocation: SourceRange,
+  numProvided: number
+): TooManyArgumentsError => ({
+  tag: "TooManyArgumentsError",
+  func,
+  funcLocation,
+  numProvided,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

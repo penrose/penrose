@@ -164,14 +164,14 @@ describe("isLocallyConvex", () => {
     [_polylines[8]],
     [_polygons[8]],
   ])("locally convex %p", (shape: Shape<ad.Num>) => {
-    const result = constrDictCurves.isLocallyConvex(shape);
+    const result = constrDictCurves.isLocallyConvex.body(shape);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
   it.each([[_polygons[5]], [_polylines[10]], [_polygons[10]]])(
     "not locally convex %p",
     (shape: Shape<ad.Num>) => {
-      const result = constrDictCurves.isLocallyConvex(shape);
+      const result = constrDictCurves.isLocallyConvex.body(shape);
       expect(numOf(result)).toBeGreaterThan(0.01);
     }
   );
@@ -181,7 +181,7 @@ describe("isConvex", () => {
   it.each([[_polygons[0]], [_polygons[2]], [_polygons[6]], [_polygons[7]]])(
     "convex %p",
     (shape: Polygon<ad.Num>) => {
-      const result = constrDictCurves.isConvex(shape);
+      const result = constrDictCurves.isConvex.body(shape);
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
     }
   );
@@ -189,7 +189,7 @@ describe("isConvex", () => {
   it.each([[_polygons[5]], [_polygons[8]]])(
     "non-convex %p",
     (shape: Polygon<ad.Num>) => {
-      const result = constrDictCurves.isConvex(shape);
+      const result = constrDictCurves.isConvex.body(shape);
       expect(numOf(result)).toBeGreaterThan(0.01);
     }
   );
@@ -203,7 +203,7 @@ describe("isEquidistant", () => {
     [_polygons[9]],
     [_polylines[10]],
   ])("equidistant %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
-    const result = constrDictCurves.isEquilateral(shape);
+    const result = constrDictCurves.isEquilateral.body(shape);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
@@ -214,7 +214,7 @@ describe("isEquidistant", () => {
     [_polygons[8]],
     [_polygons[10]],
   ])("non-equidistant %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
-    const result = constrDictCurves.isEquilateral(shape);
+    const result = constrDictCurves.isEquilateral.body(shape);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });
@@ -228,7 +228,7 @@ describe("isEquiangular", () => {
     [_polylines[8]],
     [_polygons[8]],
   ])("equiangular %p", (shape: Polygon<ad.Num> | Polyline<ad.Num>) => {
-    const result = constrDictCurves.isEquiangular(shape);
+    const result = constrDictCurves.isEquiangular.body(shape);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
@@ -240,7 +240,7 @@ describe("isEquiangular", () => {
     [_polylines[9]],
     [_polygons[9]],
   ])("non-equiangular %p", (shape: Polygon<ad.Num> | Polyline<ad.Num>) => {
-    const result = constrDictCurves.isEquiangular(shape);
+    const result = constrDictCurves.isEquiangular.body(shape);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });

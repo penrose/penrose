@@ -38,7 +38,7 @@ import {
   StyleWarning,
   SubstanceError,
 } from "../types/errors";
-import { callCompFunc } from "../types/functions";
+import { callCompFunc, callObjConstrFunc } from "../types/functions";
 import {
   Fn,
   OptPipeline,
@@ -3121,7 +3121,7 @@ const translateExpr = (
     }
     case "ConstrFn": {
       const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -3132,6 +3132,15 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
+      const argsWithSourceLoc: ArgValWithSourceLoc<ad.Num>[] = [];
+      for (let i = 0; i < args.value.length; i++) {
+        const { start, end } = argExprs[i];
+        argsWithSourceLoc.push({
+          ...args.value[i],
+          start,
+          end,
+        });
+      }
       const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
@@ -3140,7 +3149,15 @@ const translateExpr = (
           trans
         );
       }
-      const output: ad.Num = constrDict[fname](...args.value);
+      const output = callObjConstrFunc(
+        constrDict[fname],
+        { start: e.expr.start, end: e.expr.end },
+        argsWithSourceLoc
+      );
+      if (output.isErr()) {
+        return addDiags(oneErr(output.error), trans);
+      }
+
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,
@@ -3151,13 +3168,13 @@ const translateExpr = (
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output,
+          output: output.value,
         }),
       };
     }
     case "ObjFn": {
       const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -3167,6 +3184,15 @@ const translateExpr = (
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
+      }
+      const argsWithSourceLoc: ArgValWithSourceLoc<ad.Num>[] = [];
+      for (let i = 0; i < args.value.length; i++) {
+        const { start, end } = argExprs[i];
+        argsWithSourceLoc.push({
+          ...args.value[i],
+          start,
+          end,
+        });
       }
       const { stages, exclude } = e.expr;
       const fname = name.value;
@@ -3182,13 +3208,20 @@ const translateExpr = (
         exclude,
         stages.map((s) => s.value)
       );
-      const output: ad.Num = objDict[fname](...args.value);
+      const output = callObjConstrFunc(
+        objDict[fname],
+        { start: e.expr.start, end: e.expr.end },
+        argsWithSourceLoc
+      );
+      if (output.isErr()) {
+        return addDiags(oneErr(output.error), trans);
+      }
       return {
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output,
+          output: output.value,
         }),
       };
     }
@@ -3496,7 +3529,11 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
   for (const shape of shapes) {
     const name = shape.name.contents;
     if (shape.ensureOnCanvas.contents) {
-      const output = constrDict.onCanvas(shape, canvas.width, canvas.height);
+      const output = constrDict.onCanvas.body(
+        shape,
+        canvas.width,
+        canvas.height
+      );
       fns.push({
         ast: {
           context: {

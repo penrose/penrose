@@ -7,6 +7,7 @@ import { makeRectangle } from "../shapes/Rectangle";
 import { Context, makeCanvas, simpleContext } from "../shapes/Samplers";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
+import { VectorV } from "../types/value";
 import { black, floatV, ptListV, vectorV } from "../utils/Util";
 import { compDict } from "./Functions";
 import { numOf } from "./Utils";
@@ -29,7 +30,11 @@ const compareClosestPoint = async (
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const result = compDict.closestPoint(context, shape, pt);
+  const result = compDict.closestPoint.body(
+    context,
+    shape,
+    pt
+  ) as VectorV<ad.Num>;
   const [x, y] = result.contents;
   expect(numOf(x)).toBeCloseTo(expected[0]);
   expect(numOf(y)).toBeCloseTo(expected[1]);

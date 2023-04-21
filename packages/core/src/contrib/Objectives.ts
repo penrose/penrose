@@ -347,8 +347,8 @@ export const objDictSpecific: { [k: string]: ObjFunc } = {
     "isRegular",
     [union("s", shapeT("Polyline"), shapeT("Polygon"), shapeT("Path"))],
     (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      const equilater = constrDictCurves.isEquilateral(s);
-      const equiangular = constrDictCurves.isEquiangular(s);
+      const equilater = constrDictCurves.isEquilateral.body(s);
+      const equiangular = constrDictCurves.isEquiangular.body(s);
       return add(equilater, equiangular);
     }
   ),

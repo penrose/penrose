@@ -15,7 +15,7 @@ describe("simple objective", () => {
   ])(
     "equal(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = objDict.equal(x, y);
+      const result = objDict.equal.body(x, y);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -29,7 +29,7 @@ describe("simple objective", () => {
   ])(
     "repelPt(%p, %p, %p) should return %p",
     (weight: number, a: number[], b: number[], expected: number) => {
-      const result = objDict.repelPt(weight, a, b);
+      const result = objDict.repelPt.body(weight, a, b);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -43,7 +43,7 @@ describe("simple objective", () => {
   ])(
     "repelScalar(%p, %p) should return %p",
     (c: number, d: number, expected: number) => {
-      const result = objDict.repelScalar(c, d);
+      const result = objDict.repelScalar.body(c, d);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -53,7 +53,7 @@ describe("isRegular", () => {
   it.each([[_polylines[6]], [_polygons[6]]])(
     "convex %p",
     (shape: Shape<ad.Num>) => {
-      const result = objDictSpecific.isRegular(shape);
+      const result = objDictSpecific.isRegular.body(shape);
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
     }
   );
@@ -66,7 +66,7 @@ describe("isRegular", () => {
     [_polylines[9]],
     [_polygons[9]],
   ])("non-convex %p", (shape: Shape<ad.Num>) => {
-    const result = objDictSpecific.isRegular(shape);
+    const result = objDictSpecific.isRegular.body(shape);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });

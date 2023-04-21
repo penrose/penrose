@@ -78,8 +78,12 @@ const getResult = (
       contents: sdEllipse(s, p),
     };
   } else {
-    const result = compDict.signedDistance(context, s, p);
-    return result;
+    const result = compDict.signedDistance.body(context, s, p);
+    if (result.tag === "FloatV") {
+      return result;
+    } else {
+      return floatV(0);
+    }
   }
 };
 

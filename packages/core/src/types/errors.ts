@@ -2,7 +2,7 @@ import im from "immutable";
 import * as ad from "./ad";
 import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
-import { FuncArg } from "./functions";
+import { CompFunc, ConstrFunc, FuncArg, ObjFunc } from "./functions";
 import { State } from "./state";
 import {
   BindingForm,
@@ -16,7 +16,7 @@ import {
 } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
-import { ArgVal, ShapeVal, Val, Value } from "./value";
+import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value";
 
 //#region ErrorTypes
 
@@ -204,7 +204,9 @@ export type StyleError =
   | PropertyMemberError
   | UOpTypeError
   | BadShapeParamTypeError
-  | BadArgumentError
+  | BadArgumentTypeError
+  | MissingArgumentError
+  | TooManyArgumentsError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -457,13 +459,25 @@ export interface BadShapeParamTypeError {
   passthrough: boolean;
 }
 
-export interface BadArgumentError {
-  tag: "BadArgumentError";
+export interface BadArgumentTypeError {
+  tag: "BadArgumentTypeError";
+  funcName: string;
+  funcArg: FuncArg;
+  provided: ArgValWithSourceLoc<ad.Num>;
+}
+
+export interface MissingArgumentError {
+  tag: "MissingArgumentError";
   funcName: string;
   funcArg: FuncArg;
   funcLocation: SourceRange;
-  provided?: ArgVal<ad.Num>;
-  providedLocation?: SourceRange;
+}
+
+export interface TooManyArgumentsError {
+  tag: "TooManyArgumentsError";
+  func: CompFunc | ObjFunc | ConstrFunc;
+  funcLocation: SourceRange;
+  numProvided: number;
 }
 
 //#endregion
