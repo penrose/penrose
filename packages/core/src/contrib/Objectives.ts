@@ -19,19 +19,16 @@ import { Polygon } from "../shapes/Polygon";
 import { Polyline } from "../shapes/Polyline";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
+import { ObjFunc } from "../types/functions";
 import {
-  objFunc as obj,
-  ObjFunc,
-  real2Arg as real2,
-  realArg as real,
-  realNArg as realN,
-  rectlikeArg as rectlike,
+  linePts,
+  real2T,
+  realNT,
+  realT,
   rectlikeT,
-  shapeArg as shape,
   shapeT,
-  unionArg as union,
-} from "../types/functions";
-import { linePts } from "../utils/Util";
+  unionT,
+} from "../utils/Util";
 import { constrDictCurves } from "./CurveConstraints";
 import { inDirection } from "./ObjectivesUtils";
 import { bboxFromShape, shapeCenter } from "./Queries";
@@ -50,61 +47,85 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
   /**
    * Encourage the input value to be close to negative infinity
    */
-  minimal: obj("minimal", [real("x")], (x: ad.Num): ad.Num => x),
+  minimal: {
+    name: "minimal",
+    params: [{ name: "x", description: "Value", type: realT() }],
+    body: (x: ad.Num): ad.Num => x,
+  },
 
   /**
    * Encourage the input value to be close to infinity
    */
-  maximal: obj("maximal", [real("x")], (x: ad.Num): ad.Num => neg(x)),
+  maximal: {
+    name: "maximal",
+    params: [{ name: "x", description: "Value", type: realT() }],
+    body: (x: ad.Num): ad.Num => neg(x),
+  },
 
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
-  equal: obj(
-    "equal",
-    [real("x"), real("y")],
-    (x: ad.Num, y: ad.Num): ad.Num => squared(sub(x, y))
-  ),
+  equal: {
+    name: "equal",
+    params: [
+      { name: "x", description: "First value", type: realT() },
+      { name: "y", description: "Second value", type: realT() },
+    ],
+    body: (x: ad.Num, y: ad.Num): ad.Num => squared(sub(x, y)),
+  },
 
   /**
    * Encourage x to be greater than or equal to y: `max(0,y - x)^2`
    */
-  greaterThan: obj(
-    "greaterThan",
-    [real("x"), real("y")],
-    (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(y, x)))
-  ),
+  greaterThan: {
+    name: "greaterThan",
+    params: [
+      { name: "x", description: "First value", type: realT() },
+      { name: "y", description: "Second value", type: realT() },
+    ],
+    body: (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(y, x))),
+  },
 
   /**
    * Encourage x to be less than or equal to y: `max(0,x - y)^2`
    */
-  lessThan: obj(
-    "lessThan",
-    [real("x"), real("y")],
-    (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(x, y)))
-  ),
+  lessThan: {
+    name: "lessThan",
+    params: [
+      { name: "x", description: "First value", type: realT() },
+      { name: "y", description: "Second value", type: realT() },
+    ],
+    body: (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(x, y))),
+  },
 
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
-  repelPt: obj(
-    "repelPt",
-    [real("weight"), realN("a"), realN("b")],
-    (weight: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
-      mul(weight, inverse(add(ops.vdistsq(a, b), EPS_DENOM)))
-  ),
+  repelPt: {
+    name: "repelPt",
+    params: [
+      { name: "weight", description: "Weight", type: realT() },
+      { name: "a", description: "First point", type: realNT() },
+      { name: "b", description: "Second point", type: realNT() },
+    ],
+    body: (weight: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
+      mul(weight, inverse(add(ops.vdistsq(a, b), EPS_DENOM))),
+  },
 
   /**
    * Repel scalar `c` from another scalar `d`.
    */
-  repelScalar: obj(
-    "repelScalar",
-    [real("a"), real("b")],
-    (c: ad.Num, d: ad.Num): ad.Num => {
+  repelScalar: {
+    name: "repelScalar",
+    params: [
+      { name: "c", description: "First scalar", type: realT() },
+      { name: "d", description: "Second scalar", type: realT() },
+    ],
+    body: (c: ad.Num, d: ad.Num): ad.Num => {
       // 1/(c-d)^2
       return inverse(add(squared(sub(c, d)), EPS_DENOM));
-    }
-  ),
+    },
+  },
 };
 
 // -------- General objective functions
@@ -114,67 +135,127 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    * Encourage the center of `sTop` to be above the center of `sBottom`.
    * Only works for shapes with property `center`.
    */
-  below: obj(
-    "below",
-    [shape("bottom"), shape("top"), real("offset", 100)],
-    (bottom: Shape<ad.Num>, top: Shape<ad.Num>, offset = 100): ad.Num => {
+  below: {
+    name: "below",
+    params: [
+      {
+        name: "bottom",
+        type: shapeT("AnyShape"),
+        description: "shape on the bottom",
+      },
+      {
+        name: "top",
+        type: shapeT("AnyShape"),
+        description: "shape on the top",
+      },
+      { name: "offset", type: realT(), description: "offset", default: 100 },
+    ],
+    body: (bottom: Shape<ad.Num>, top: Shape<ad.Num>, offset = 100): ad.Num => {
       return inDirection(bottom, top, [0, 1], offset);
-    }
-  ),
+    },
+  },
 
   /**
    * Encourage the center of `sBottom` to be below the center of `sTop`.
    */
-  above: obj(
-    "above",
-    [shape("top"), shape("bottom"), real("offset", 100)],
-    (top: Shape<ad.Num>, bottom: Shape<ad.Num>, offset = 100): ad.Num => {
+  above: {
+    name: "above",
+    params: [
+      {
+        name: "top",
+        type: shapeT("AnyShape"),
+        description: "shape on the top",
+      },
+      {
+        name: "bottom",
+        type: shapeT("AnyShape"),
+        description: "shape on the bottom",
+      },
+      { name: "offset", type: realT(), description: "offset", default: 100 },
+    ],
+    body: (top: Shape<ad.Num>, bottom: Shape<ad.Num>, offset = 100): ad.Num => {
       return inDirection(top, bottom, [0, 1], offset);
-    }
-  ),
+    },
+  },
 
   /**
    * Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
    */
-  leftwards: obj(
-    "leftwards",
-    [shape("left"), shape("right"), real("offset", 100)],
-    (left: Shape<ad.Num>, right: Shape<ad.Num>, offset = 100): ad.Num => {
+  leftwards: {
+    name: "leftwards",
+    params: [
+      {
+        name: "left",
+        type: shapeT("AnyShape"),
+        description: "shape on the left",
+      },
+      {
+        name: "right",
+        type: shapeT("AnyShape"),
+        description: "shape on the right",
+      },
+      { name: "offset", type: realT(), description: "offset", default: 100 },
+    ],
+    body: (left: Shape<ad.Num>, right: Shape<ad.Num>, offset = 100): ad.Num => {
       return inDirection(left, right, [1, 0], offset);
-    }
-  ),
+    },
+  },
 
   /**
    * Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
    */
-  rightwards: obj(
-    "rightwards",
-    [shape("right"), shape("left"), real("offset", 100)],
-    (right: Shape<ad.Num>, left: Shape<ad.Num>, offset = 100): ad.Num => {
+  rightwards: {
+    name: "rightwards",
+    params: [
+      {
+        name: "right",
+        type: shapeT("AnyShape"),
+        description: "shape on the right",
+      },
+      {
+        name: "left",
+        type: shapeT("AnyShape"),
+        description: "shape on the left",
+      },
+      { name: "offset", type: realT(), description: "offset", default: 100 },
+    ],
+    body: (right: Shape<ad.Num>, left: Shape<ad.Num>, offset = 100): ad.Num => {
       return inDirection(right, left, [1, 0], offset);
-    }
-  ),
+    },
+  },
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`.
    */
-  sameCenter: obj(
-    "sameCenter",
-    [shape("s1"), shape("s2")],
-    (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
+  sameCenter: {
+    name: "sameCenter",
+    params: [
+      { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
+    ],
+    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
       const center1 = shapeCenter(s1);
       const center2 = shapeCenter(s2);
       return ops.vdistsq(center1, center2);
-    }
-  ),
+    },
+  },
 
   /**
    * Try to repel shapes `s1` and `s2` with some weight.
    */
-  notTooClose: obj(
-    "notTooClose",
-    [shape("s1"), shape("s2"), real("weight", 10.0)],
-    (s1: Shape<ad.Num>, s2: Shape<ad.Num>, weight = 10.0): ad.Num => {
+  notTooClose: {
+    name: "notTooClose",
+    params: [
+      { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
+      {
+        name: "weight",
+        type: realT(),
+        description: "weight of repel",
+        default: 10.0,
+      },
+    ],
+    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, weight = 10.0): ad.Num => {
       // HACK: `notTooClose` typically needs to have a weight multiplied since its magnitude is small
       // TODO: find this out programmatically
       const repelWeight = 10e6;
@@ -199,46 +280,59 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
       }
 
       return mul(res, repelWeight);
-    }
-  ),
+    },
+  },
 
   /**
    * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
    */
-  near: obj(
-    "near",
-    [shape("s1"), shape("s2"), real("offset", 10.0)],
-    (s1: Shape<ad.Num>, s2: Shape<ad.Num>, offset = 10.0): ad.Num => {
+  near: {
+    name: "near",
+    params: [
+      { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
+      {
+        name: "offset",
+        type: realT(),
+        description: "offset",
+        default: 10.0,
+      },
+    ],
+    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, offset = 10.0): ad.Num => {
       const res = absVal(ops.vdistsq(shapeCenter(s1), shapeCenter(s2)));
       return sub(res, squared(offset));
-    }
-  ),
+    },
+  },
 
   /**
    * Try to place shape `s1` near a location `(x, y)`.
    */
-  nearPt: obj(
-    "nearPt",
-    [shape("s1"), real("x"), real("y")],
-    (s1: Shape<ad.Num>, x: ad.Num, y: ad.Num): ad.Num => {
+  nearPt: {
+    name: "nearPt",
+    params: [
+      { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "x", type: realT(), description: "`x`" },
+      { name: "y", type: realT(), description: "`y`" },
+    ],
+    body: (s1: Shape<ad.Num>, x: ad.Num, y: ad.Num): ad.Num => {
       return ops.vdistsq(shapeCenter(s1), [x, y]);
-    }
-  ),
+    },
+  },
 
   /**
    * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
    * NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
    */
-  nonDegenerateAngle: obj(
-    "nonDegenerateAngle",
-    [
-      shape("s0"),
-      shape("s1"),
-      shape("s2"),
-      real("strength", 20),
-      real("range", 10),
+  nonDegenerateAngle: {
+    name: "nonDegenerateAngle",
+    params: [
+      { name: "s0", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "strength", type: realT(), description: "strength", default: 10 },
+      { name: "range", type: realT(), description: "range", default: 20 },
     ],
-    (
+    body: (
       s0: Shape<ad.Num>,
       s1: Shape<ad.Num>,
       s2: Shape<ad.Num>,
@@ -258,17 +352,21 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
         0,
         mul(strength, cosine)
       );
-    }
-  ),
+    },
+  },
 };
 
 // -------- Specific objective functions
 // Defined only for specific use-case or specific shapes.
 export const objDictSpecific: { [k: string]: ObjFunc } = {
-  centerLabelAbove: obj(
-    "centerLabelAbove",
-    [shape("s1", "Line"), rectlike("s2"), real("w")],
-    (s1: Line<ad.Num>, s2: Rectlike<ad.Num>, w: ad.Num): ad.Num => {
+  centerLabelAbove: {
+    name: "centerLabelAbove",
+    params: [
+      { name: "s1", type: shapeT("Line") },
+      { name: "s2", type: rectlikeT() },
+      { name: "w", type: realT() },
+    ],
+    body: (s1: Line<ad.Num>, s2: Rectlike<ad.Num>, w: ad.Num): ad.Num => {
       const [arr, text] = [s1, s2];
       const mx = div(add(arr.start.contents[0], arr.end.contents[0]), 2);
       const my = div(add(arr.start.contents[1], arr.end.contents[1]), 2);
@@ -280,21 +378,21 @@ export const objDictSpecific: { [k: string]: ObjFunc } = {
         sub(add(my, mul(textBB.height, 1.1)), textBB.center[1])
       );
       return mul(add(lh, rh), w);
-    }
-  ),
+    },
+  },
 
   /**
    * Try to center a label `s2` with respect to some shape `s1`.
    */
-  centerLabel: obj(
-    "centerLabel",
-    [
-      union("s1", shapeT("Line"), rectlikeT()),
-      rectlike("s2"),
-      real("w"),
-      real("padding", 10),
+  centerLabel: {
+    name: "centerLabel",
+    params: [
+      { name: "s1", type: unionT(shapeT("Line"), rectlikeT()) },
+      { name: "s2", type: rectlikeT() },
+      { name: "w", type: realT() },
+      { name: "padding", type: realT(), default: 10 },
     ],
-    (
+    body: (
       s1: Linelike<ad.Num> | Rectlike<ad.Num>,
       s2: Rectlike<ad.Num>,
       w: number,
@@ -318,16 +416,20 @@ export const objDictSpecific: { [k: string]: ObjFunc } = {
         // TODO: This should be applied generically on any two GPIs with a center
         return objDict.sameCenter.body(s1, s2);
       }
-    }
-  ),
+    },
+  },
 
   /**
    * try to make distance between a point and a segment `s1` = padding.
    */
-  pointLineDist: obj(
-    "pointLineDist",
-    [real2("point"), shape("s1", "Line"), real("padding")],
-    (point: ad.Num[], s1: Line<ad.Num>, padding: ad.Num): ad.Num => {
+  pointLineDist: {
+    name: "pointLineDist",
+    params: [
+      { name: "point", type: real2T() },
+      { name: "s1", type: shapeT("Line") },
+      { name: "padding", type: realT() },
+    ],
+    body: (point: ad.Num[], s1: Line<ad.Num>, padding: ad.Num): ad.Num => {
       return squared(
         sub(
           ops.vdist(
@@ -337,21 +439,26 @@ export const objDictSpecific: { [k: string]: ObjFunc } = {
           padding
         )
       );
-    }
-  ),
+    },
+  },
 
   /**
    * The shape should be regular (equiangular and equilateral)
    */
-  isRegular: obj(
-    "isRegular",
-    [union("s", shapeT("Polyline"), shapeT("Polygon"), shapeT("Path"))],
-    (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+  isRegular: {
+    name: "isRegular",
+    params: [
+      {
+        name: "s",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
       const equilater = constrDictCurves.isEquilateral.body(s);
       const equiangular = constrDictCurves.isEquiangular.body(s);
       return add(equilater, equiangular);
-    }
-  ),
+    },
+  },
 };
 
 export const objDict = {

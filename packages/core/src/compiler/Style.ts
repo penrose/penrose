@@ -38,7 +38,7 @@ import {
   StyleWarning,
   SubstanceError,
 } from "../types/errors";
-import { callCompFunc, callObjConstrFunc } from "../types/functions";
+import { callCompFunc, callObjConstrFunc } from "./styleFunctionCaller/StyleFunctionCaller";
 import {
   Fn,
   OptPipeline,

@@ -15,12 +15,8 @@ import { Path } from "../shapes/Path";
 import { Polygon } from "../shapes/Polygon";
 import { Polyline } from "../shapes/Polyline";
 import * as ad from "../types/ad";
-import {
-  constrFunc as constr,
-  ConstrFunc,
-  shapeT,
-  unionArg as union,
-} from "../types/functions";
+import { ConstrFunc } from "../types/functions";
+import { shapeT, unionT } from "../utils/Util";
 import {
   consecutiveTriples,
   consecutiveTuples,
@@ -137,10 +133,16 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
   /**
    * The shape should be locally convex (all angles between consecutive edges would have the same sign)
    */
-  isLocallyConvex: constr(
-    "isLocallyConvex",
-    [union("s", shapeT("Polyline"), shapeT("Polygon"), shapeT("Path"))],
-    (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+  isLocallyConvex: {
+    name: "isLocallyConvex",
+    params: [
+      {
+        name: "s",
+        description: "a shape",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
       const points = extractPoints(s);
       const triples = consecutiveTriples(points, isClosed(s));
       const angles = triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
@@ -152,45 +154,63 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
           ifCond(lte(mul(meanSign, angle), 0), squared(angle), 0)
         )
       );
-    }
-  ),
+    },
+  },
 
   /**
    * The enclosed area should be convex
    * Implemented using local convexity penalty (`localPenalty`) and global turning number penalty (`globalPenalty`)
    */
-  isConvex: constr(
-    "isConvex",
-    [union("s", shapeT("Polyline"), shapeT("Polygon"), shapeT("Path"))],
-    (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+  isConvex: {
+    name: "isConvex",
+    params: [
+      {
+        name: "s",
+        description: "a shape",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
       const localPenalty = constrDictCurves.isLocallyConvex.body(s);
       const points = extractPoints(s);
       const tn = turningNumber(points, isClosed(s));
       const globalPenalty = squared(sub(absVal(tn), 1));
       return add(localPenalty, globalPenalty);
-    }
-  ),
+    },
+  },
 
   /**
    * All edges should have the same length
    */
-  isEquilateral: constr(
-    "isEquilateral",
-    [union("s", shapeT("Polyline"), shapeT("Polygon"), shapeT("Path"))],
-    (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+  isEquilateral: {
+    name: "isEquilateral",
+    params: [
+      {
+        name: "s",
+        description: "a shape",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
       const points = extractPoints(s);
       const hs = consecutiveTuples(points, isClosed(s));
       return equivalued(hs.map(([p1, p2]: ad.Num[][]) => ops.vdist(p1, p2)));
-    }
-  ),
+    },
+  },
 
   /**
    * All angles between consecutive edges should be equal
    */
-  isEquiangular: constr(
-    "isEquiangular",
-    [union("s", shapeT("Polyline"), shapeT("Polygon"), shapeT("Path"))],
-    (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+  isEquiangular: {
+    name: "isEquiangular",
+    params: [
+      {
+        name: "s",
+        description: "a shape",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
       const points = extractPoints(s);
       const hs = consecutiveTriples(points, isClosed(s));
       return equivalued(
@@ -198,6 +218,6 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
           ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
         )
       );
-    }
-  ),
+    },
+  },
 };

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
 import { LineProps } from "../shapes/Line";
-import { Shape } from "../shapes/Shapes";
+import { Shape, ShapeType } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A } from "../types/ast";
 import { Either, Left, Right } from "../types/common";
@@ -14,6 +14,15 @@ import {
   ResolvedPath,
   WithContext,
 } from "../types/styleSemantics";
+import {
+  ShapeT,
+  TypeDesc,
+  UnionT,
+  ValueShapeT,
+  ValueT,
+  ValueType,
+  valueTypeDesc,
+} from "../types/types";
 import {
   BoolV,
   Color,
@@ -619,6 +628,72 @@ export const white = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [1, 1, 1, 1] });
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
+
+//#endregion
+
+//#region Type
+
+export const describeType = (t: ValueShapeT): TypeDesc => {
+  if (t.tag === "ValueT") {
+    return valueTypeDesc[t.type];
+  } else if (t.tag === "ShapeT") {
+    if (t.type === "AnyShape") {
+      return {
+        description: "Any Shape",
+        symbol: "Shape",
+      };
+    } else {
+      return { description: t.type + " Shape", symbol: t.type + "Shape" };
+    }
+  } else {
+    const descs = t.types.map(describeType);
+    const descriptions = descs.map((d) => d.description);
+    const symbols = descs.map((d) => d.symbol);
+
+    return {
+      description: "any of: " + descriptions.join(", or "),
+      symbol: symbols.join(" | "),
+    };
+  }
+};
+
+export const valueT = (type: ValueType): ValueT => ({
+  tag: "ValueT",
+  type,
+});
+
+export const real2T = (): ValueT => valueT("Real2");
+export const realT = (): ValueT => valueT("Real");
+export const unitT = (): ValueT => valueT("Unit");
+export const realNT = (): ValueT => valueT("RealN");
+export const natT = (): ValueT => valueT("Nat");
+export const pathCmdT = (): ValueT => valueT("PathCmd");
+export const colorT = (): ValueT => valueT("Color");
+export const pathTypeT = (): ValueT => valueT("PathType");
+export const colorTypeT = (): ValueT => valueT("ColorType");
+export const real2NT = (): ValueT => valueT("Real2N");
+export const stringT = (): ValueT => valueT("String");
+export const posIntT = (): ValueT => valueT("PosInt");
+export const booleanT = (): ValueT => valueT("Boolean");
+export const realNMT = (): ValueT => valueT("RealNM");
+
+export const shapeT = (type: ShapeType | "AnyShape"): ShapeT => ({
+  tag: "ShapeT",
+  type,
+});
+
+export const unionT = (...types: ValueShapeT[]): UnionT => ({
+  tag: "UnionT",
+  types,
+});
+
+export const rectlikeT = (): UnionT =>
+  unionT(
+    shapeT("Equation"),
+    shapeT("Image"),
+    shapeT("Rectangle"),
+    shapeT("Text")
+  );
 
 //#endregion
 

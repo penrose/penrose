@@ -40,19 +40,12 @@ import {
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors";
-import { CompFunc, ConstrFunc, FuncArg, ObjFunc } from "../types/functions";
+import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "../types/functions";
 import { State } from "../types/state";
 import { BindingForm, ColorLit } from "../types/style";
 import { Deconstructor, SubExpr } from "../types/substance";
-import {
-  ArgVal,
-  ArgValWithSourceLoc,
-  ShapeVal,
-  UnionT,
-  Val,
-  ValueShapeT,
-} from "../types/value";
-import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
+import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value";
+import { describeType, prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
   and,
@@ -68,28 +61,9 @@ const {
 
 // #region error rendering and construction
 
-const showArgType = (t: ValueShapeT): string => {
-  if (t.tag === "ValueT") {
-    return ` - ${t.type} value`;
-  } else if (t.tag === "ShapeT") {
-    if (t.type === "AnyShape") {
-      return ` - any shape`;
-    } else {
-      return ` - ${t.type} shape`;
-    }
-  } else {
-    return showUnionType(t);
-  }
-};
-
-const showUnionType = (t: UnionT): string => {
-  const substrs = t.types.map(showArgType);
-  return substrs.join("\n");
-};
-
 const showArgValType = (v: ArgVal<ad.Num>): string => {
   if (v.tag === "ShapeVal") {
-    return `${v.contents.shapeType} shape`;
+    return `${v.contents.shapeType}Shape`;
   } else {
     return `${v.contents.tag} value`;
   }
@@ -484,10 +458,10 @@ canvas {
 
       const { name: argName, type: expectedType } = funcArg;
       const locStr = locc("Style", provided);
-      const strExpectedType = showArgType(expectedType);
+      const strExpectedType = describeType(expectedType).symbol;
       const strActualType = showArgValType(provided);
 
-      return `Argument \`${argName}\` (at ${locStr}) of function \`${funcName}\` expects one of:\n${strExpectedType}\nbut is given incompatible ${strActualType}.\n`;
+      return `Parameter \`${argName}\` (at ${locStr}) of function \`${funcName}\` expects ${strExpectedType} but is given incompatible ${strActualType}.`;
     }
 
     case "MissingArgumentError": {
@@ -496,16 +470,16 @@ canvas {
 
       const { name } = funcArg;
 
-      return `Argument \`${name}\` of function \`${funcName}\` (at ${locStr}) is missing without default value.`;
+      return `Parameter \`${name}\` of function \`${funcName}\` (at ${locStr}) is missing without default value.`;
     }
 
     case "TooManyArgumentsError": {
       const { func, funcLocation, numProvided } = error;
       const locStr = locc("Style", funcLocation);
 
-      const expNum = func.funcArgs.length;
+      const expNum = func.params.length;
 
-      return `Function \`${func.name}\` (at ${locStr}) expects ${expNum} arguments but is provided with ${numProvided} arguments`;
+      return `Function \`${func.name}\` (at ${locStr}) takes at most ${expNum} arguments but is provided with ${numProvided} arguments`;
     }
     // --- END COMPILATION ERRORS
 
@@ -723,7 +697,7 @@ export const badShapeParamTypeError = (
 
 export const badArgumentTypeError = (
   funcName: string,
-  funcArg: FuncArg,
+  funcArg: FuncParam,
   provided: ArgValWithSourceLoc<ad.Num>
 ): BadArgumentTypeError => ({
   tag: "BadArgumentTypeError",
@@ -734,7 +708,7 @@ export const badArgumentTypeError = (
 
 export const missingArgumentError = (
   funcName: string,
-  funcArg: FuncArg,
+  funcArg: FuncParam,
   funcLocation: SourceRange
 ): MissingArgumentError => ({
   tag: "MissingArgumentError",

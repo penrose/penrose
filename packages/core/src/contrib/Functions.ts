@@ -48,7 +48,6 @@ import {
   tanh,
   trunc,
 } from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
 import { PathBuilder } from "../renderer/PathBuilder";
 import { Circle } from "../shapes/Circle";
 import { Ellipse } from "../shapes/Ellipse";
@@ -58,29 +57,7 @@ import { Polyline } from "../shapes/Polyline";
 import { Context, uniform } from "../shapes/Samplers";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
-import {
-  booleanArg as boolean,
-  colorArg as color,
-  colorTypeArg as colorType,
-  compFunc as comp,
-  CompFunc,
-  natArg as nat,
-  pathTypeArg as pathType,
-  posIntArg as posInt,
-  real2Arg as real2,
-  real2NArg as real2N,
-  realArg as real,
-  realNArg as realN,
-  realNMArg as realNM,
-  rectlikeArg as rectlike,
-  rectlikeT,
-  shapeArg as shape,
-  shapeT,
-  stringArg as string,
-  unionArg as union,
-  unitArg as unit,
-  valueT,
-} from "../types/functions";
+import { CompFunc } from "../types/functions";
 import {
   ArgVal,
   Color,
@@ -92,7 +69,29 @@ import {
   TupV,
   VectorV,
 } from "../types/value";
-import { floatV, getStart, linePts } from "../utils/Util";
+import {
+  booleanT,
+  colorT,
+  colorTypeT,
+  floatV,
+  getStart,
+  linePts,
+  natT,
+  pathCmdT,
+  pathTypeT,
+  posIntT,
+  real2NT,
+  real2T,
+  realNMT,
+  realNT,
+  realT,
+  rectlikeT,
+  shapeT,
+  stringT,
+  unionT,
+  unitT,
+  valueT,
+} from "../utils/Util";
 import {
   elasticEnergy,
   isoperimetricRatio,
@@ -101,8 +100,8 @@ import {
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints";
-import { bboxFromShape, rectLineDist, shapeDistance } from "./Queries";
-import { clamp, inRange, isRectlike, numOf, Rectlike } from "./Utils";
+import { rectLineDist, shapeDistance } from "./Queries";
+import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -115,10 +114,23 @@ import { clamp, inRange, isRectlike, numOf, Rectlike } from "./Utils";
 export const compDict: { [k: string]: CompFunc } = {
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
 
-  makePath: comp(
-    "makePath",
-    [real2("start"), real2("end"), real("curveHeight"), real("padding")],
-    (
+  makePath: {
+    name: "makePath",
+    params: [
+      { name: "start", description: "Start point of the path", type: real2T() },
+      { name: "end", description: "End point of the path", type: real2T() },
+      {
+        name: "curveHeight",
+        description: "Height of the curve",
+        type: realT(),
+      },
+      {
+        name: "padding",
+        description: "Padding between the curve and the labels",
+        type: realT(),
+      },
+    ],
+    body: (
       _context: Context,
       start: [ad.Num, ad.Num],
       end: [ad.Num, ad.Num],
@@ -143,32 +155,44 @@ export const compDict: { [k: string]: CompFunc } = {
         .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
         .getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: pathCmdT(),
+  },
 
   /**
    * Return `i`th element of list `xs, assuming lists only hold floats.
    */
-  get: comp(
-    "get",
-    [realN("xs"), nat("i")],
-    (_context: Context, xs: ad.Num[], i: number): FloatV<ad.Num> => {
+  get: {
+    name: "get",
+    params: [
+      { name: "xs", description: "List of floats", type: realNT() },
+      {
+        name: "i",
+        description: "Index of the element to return",
+        type: natT(),
+      },
+    ],
+    body: (_context: Context, xs: ad.Num[], i: number): FloatV<ad.Num> => {
       const res = xs[i];
       return {
         tag: "FloatV",
         contents: res,
       };
     },
-    valueT("Real")
-  ),
+    returns: realT(),
+  },
 
   /**
    * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
    */
-  rgba: comp(
-    "rgba",
-    [unit("r"), unit("g"), unit("b"), unit("a")],
-    (
+  rgba: {
+    name: "rgba",
+    params: [
+      { name: "r", description: "Red", type: unitT() },
+      { name: "g", description: "Green", type: unitT() },
+      { name: "b", description: "Blue", type: unitT() },
+      { name: "a", description: "Opacity", type: unitT() },
+    ],
+    body: (
       _context: Context,
       r: ad.Num,
       g: ad.Num,
@@ -183,13 +207,17 @@ export const compDict: { [k: string]: CompFunc } = {
         },
       };
     },
-    valueT("Color")
-  ),
+    returns: valueT("Color"),
+  },
 
-  selectColor: comp(
-    "selectColor",
-    [color("color1"), color("color2"), real("level")],
-    (
+  selectColor: {
+    name: "selectColor",
+    params: [
+      { name: "color1", description: "First color", type: colorT() },
+      { name: "color2", description: "Second color", type: colorT() },
+      { name: "level", description: "Level", type: realT() },
+    ],
+    body: (
       _context: Context,
       color1: Color<ad.Num>,
       color2: Color<ad.Num>,
@@ -214,16 +242,21 @@ export const compDict: { [k: string]: CompFunc } = {
         },
       };
     },
-    valueT("Color")
-  ),
+    returns: colorT(),
+  },
 
   /**
    * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
    */
-  hsva: comp(
-    "hsva",
-    [unit("h"), unit("s"), unit("v"), unit("a")],
-    (
+  hsva: {
+    name: "hsva",
+    params: [
+      { name: "h", description: "Hue", type: unitT() },
+      { name: "s", description: "Saturation", type: unitT() },
+      { name: "v", description: "Value", type: unitT() },
+      { name: "a", description: "Opacity", type: unitT() },
+    ],
+    body: (
       _context: Context,
       h: ad.Num,
       s: ad.Num,
@@ -238,16 +271,16 @@ export const compDict: { [k: string]: CompFunc } = {
         },
       };
     },
-    valueT("Color")
-  ),
+    returns: colorT(),
+  },
 
   /**
    * Return a paint of none (no paint)
    */
-  none: comp(
-    "none",
-    [],
-    (_context: Context): ColorV<ad.Num> => {
+  none: {
+    name: "none",
+    params: [],
+    body: (_context: Context): ColorV<ad.Num> => {
       return {
         tag: "ColorV",
         contents: {
@@ -255,466 +288,485 @@ export const compDict: { [k: string]: CompFunc } = {
         },
       };
     },
-    valueT("Color")
-  ),
+    returns: valueT("Color"),
+  },
 
   /**
    * Return `acosh(x)`.
    */
-  acosh: comp(
-    "acosh",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  acosh: {
+    name: "acosh",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: acosh(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `acos(x)`.
    */
-  acos: comp(
-    "acos",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  acos: {
+    name: "acos",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: acos(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `asin(x)`.
    */
-  asin: comp(
-    "asin",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  asin: {
+    name: "asin",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: asin(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `asinh(x)`.
    */
-  asinh: comp(
-    "asinh",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  asinh: {
+    name: "asinh",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: asinh(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `atan(x)`.
    */
-  atan: comp(
-    "atan",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  atan: {
+    name: "atan",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: atan(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `atan2(y,x)`.
    */
-  atan2: comp(
-    "atan2",
-    [real("x"), real("y")],
-    (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+  atan2: {
+    name: "atan2",
+    params: [
+      { name: "x", description: "`x`", type: realT() },
+      { name: "y", description: "`y`", type: realT() },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: atan2(y, x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `atanh(x)`.
    */
-  atanh: comp(
-    "atanh",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  atanh: {
+    name: "atanh",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: atanh(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `cbrt(x)`.
    */
-  cbrt: comp(
-    "cbrt",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  cbrt: {
+    name: "cbrt",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: cbrt(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `ceil(x)`.
    */
-  ceil: comp(
-    "ceil",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  ceil: {
+    name: "ceil",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: ceil(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `cos(x)`.
    */
-  cos: comp(
-    "cos",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  cos: {
+    name: "cos",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: cos(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `cosh(x)`.
    */
-  cosh: comp(
-    "cosh",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  cosh: {
+    name: "cosh",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: cosh(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `exp(x)`.
    */
-  exp: comp(
-    "exp",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  exp: {
+    name: "exp",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: exp(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `expm1(x)`.
    */
-  expm1: comp(
-    "expm1",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  expm1: {
+    name: "expm1",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: expm1(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `floor(x)`.
    */
-  floor: comp(
-    "floor",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  floor: {
+    name: "floor",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: floor(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `log(x)`.
    */
-  log: comp(
-    "log",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  log: {
+    name: "log",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: ln(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `log2(x)`.
    */
-  log2: comp(
-    "log2",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  log2: {
+    name: "log2",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: log2(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `log10(x)`.
    */
-  log10: comp(
-    "log10",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  log10: {
+    name: "log10",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: log10(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `log1p(x)`.
    */
-  log1p: comp(
-    "log1p",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  log1p: {
+    name: "log1p",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: log1p(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `pow(x,y)`.
    */
-  pow: comp(
-    "pow",
-    [real("x"), real("y")],
-    (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+  pow: {
+    name: "pow",
+    params: [
+      { name: "x", description: "`x`", type: realT() },
+      { name: "y", description: "`y`", type: realT() },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: pow(x, y),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `round(x)`.
    */
-  round: comp(
-    "round",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  round: {
+    name: "round",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: round(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `sign(x)`.
    */
-  sign: comp(
-    "sign",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  sign: {
+    name: "sign",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: sign(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `sin(x)`.
    */
-  sin: comp(
-    "sin",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  sin: {
+    name: "sin",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: sin(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `sinh(x)`.
    */
-  sinh: comp(
-    "sinh",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  sinh: {
+    name: "sinh",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: sinh(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `tan(x)`.
    */
-  tan: comp(
-    "tan",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  tan: {
+    name: "tan",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: tan(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `tanh(x)`.
    */
-  tanh: comp(
-    "tanh",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  tanh: {
+    name: "tanh",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: tanh(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return `trunc(x)`.
    */
-  trunc: comp(
-    "trunc",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  trunc: {
+    name: "trunc",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: trunc(x),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the dot product of `v` and `w`.
    */
-  dot: comp(
-    "dot",
-    [realN("v"), realN("w")],
-    (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
+  dot: {
+    name: "dot",
+    params: [
+      { name: "v", description: "Vector `v`", type: realNT() },
+      { name: "w", description: "Vector `w`", type: realNT() },
+    ],
+    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: ops.vdot(v, w),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the outer product of `u` and `v`.
    */
-  outerProduct: comp(
-    "outerProduct",
-    [realN("u"), realN("v")],
-    (_context: Context, u: ad.Num[], v: ad.Num[]): MatrixV<ad.Num> => {
+  outerProduct: {
+    name: "outerProduct",
+    params: [
+      { name: "v", description: "Vector `v`", type: realNT() },
+      { name: "w", description: "Vector `w`", type: realNT() },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): MatrixV<ad.Num> => {
       return {
         tag: "MatrixV",
         contents: ops.vouter(u, v),
       };
     },
-    valueT("RealNM")
-  ),
+    returns: valueT("RealNM"),
+  },
 
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  length: comp(
-    "length",
-    [shape("shape", "Line")],
-    (_context: Context, shape: Line<ad.Num>): FloatV<ad.Num> => {
+  length: {
+    name: "length",
+    params: [{ name: "l", description: "A line", type: shapeT("Line") }],
+    body: (_context: Context, shape: Line<ad.Num>): FloatV<ad.Num> => {
       const [p1, p2] = linePts(shape);
       return {
         tag: "FloatV",
         contents: ops.vdist(p1, p2),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
   /**
    * Return the normalized version of vector `v`.
    */
-  normalize: comp(
-    "normalize",
-    [realN("v")],
-    (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+  normalize: {
+    name: "normalize",
+    params: [{ type: realNT(), name: "v", description: "Vector `v`" }],
+    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
       return {
         tag: "VectorV",
         contents: ops.vnormalize(v),
       };
     },
-    valueT("RealN")
-  ),
+    returns: valueT("RealN"),
+  },
 
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  pathFromPoints: comp(
-    "pathFromPoints",
-    [pathType("pathType"), real2N("pts")],
-    (_context: Context, pathType: string, pts: ad.Pt2[]): PathDataV<ad.Num> => {
+  pathFromPoints: {
+    name: "pathFromPoints",
+    params: [
+      { name: "pathType", type: pathTypeT(), description: "Path Type" },
+      { name: "pts", type: real2NT(), description: "List of points" },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      pts: ad.Pt2[]
+    ): PathDataV<ad.Num> => {
       const path = new PathBuilder();
       const [start, ...tailpts] = pts;
       path.moveTo(start);
@@ -722,16 +774,23 @@ export const compDict: { [k: string]: CompFunc } = {
       if (pathType === "closed") path.closePath();
       return path.getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
 
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  quadraticCurveFromPoints: comp(
-    "quadraticCurveFromPoints",
-    [pathType("pathType"), real2N("pts")],
-    (_context: Context, pathType: string, pts: ad.Pt2[]): PathDataV<ad.Num> => {
+  quadraticCurveFromPoints: {
+    name: "quadraticCurveFromPoints",
+    params: [
+      { name: "pathType", type: pathTypeT(), description: "Path Type" },
+      { name: "pts", type: real2NT(), description: "List of points" },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      pts: ad.Pt2[]
+    ): PathDataV<ad.Num> => {
       const path = new PathBuilder();
       const [start, cp, second, ...tailpts] = pts;
       path.moveTo(start);
@@ -740,8 +799,8 @@ export const compDict: { [k: string]: CompFunc } = {
       if (pathType === "closed") path.closePath();
       return path.getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
 
   /**
    * Draw a curve interpolating three given points.
@@ -750,10 +809,15 @@ export const compDict: { [k: string]: CompFunc } = {
    * since a Bézier does not interpolate the middle
    * control point.)
    */
-  interpolateQuadraticFromPoints: comp(
-    "interpolateQuadraticFromPoints",
-    [pathType("pathType"), real2("p0"), real2("p1"), real2("p2")],
-    (
+  interpolateQuadraticFromPoints: {
+    name: "interpolateQuadraticFromPoints",
+    params: [
+      { name: "pathType", type: pathTypeT(), description: "Path Type" },
+      { name: "p0", type: real2T(), description: "First point" },
+      { name: "p1", type: real2T(), description: "Second point" },
+      { name: "p2", type: real2T(), description: "Third point" },
+    ],
+    body: (
       _context: Context,
       pathType: string,
       p0: ad.Pt2,
@@ -777,16 +841,23 @@ export const compDict: { [k: string]: CompFunc } = {
       if (pathType === "closed") path.closePath();
       return path.getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
 
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  cubicCurveFromPoints: comp(
-    "cubicCurveFromPoints",
-    [pathType("pathType"), real2N("pts")],
-    (_context: Context, pathType: string, pts: ad.Pt2[]): PathDataV<ad.Num> => {
+  cubicCurveFromPoints: {
+    name: "cubicCurveFromPoints",
+    params: [
+      { type: pathTypeT(), name: "pathType", description: "Path type" },
+      { type: real2NT(), name: "pts", description: "List of points" },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      pts: ad.Pt2[]
+    ): PathDataV<ad.Num> => {
       const path = new PathBuilder();
       const [start, cp1, cp2, second, ...tailpts] = pts;
       path.moveTo(start);
@@ -795,28 +866,24 @@ export const compDict: { [k: string]: CompFunc } = {
       if (pathType === "closed") path.closePath();
       return path.getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
 
   /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
-  unitMark: comp(
-    "unitMark",
-    [
-      shape("s1", "Line"),
-      shape("s2", "Line"),
-      string("t"),
-      real("padding"),
-      real("barSize"),
+  unitMark: {
+    name: "unitMark",
+    params: [
+      { name: "s1", type: shapeT("Line") },
+      { name: "s2", type: shapeT("Line") },
+      { name: "padding", type: realT() },
     ],
-    (
+    body: (
       _context: Context,
       s1: Line<ad.Num>,
       s2: Line<ad.Num>,
-      t: string,
-      padding: ad.Num,
-      barSize: ad.Num
+      padding: ad.Num
     ): PtListV<ad.Num> => {
       const [start1, end1] = linePts(s1);
       const [start2, end2] = linePts(s2);
@@ -831,20 +898,23 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: [markStart, markEnd].map(toPt),
       };
     },
-    valueT("Real2N")
-  ),
+    returns: valueT("Real2N"),
+  },
 
   /**
    * Return two points to "cap off" the line made in `unitMark`.
    */
-  unitMark2: comp(
-    "unitMark2",
-    [real2N("startAndEnd"), string("t"), real("padding"), real("size")],
-    (
+  unitMark2: {
+    name: "unitMark2",
+    params: [
+      { name: "[start, end]", type: real2NT() },
+      { name: "t", type: stringT() },
+      { name: "size", type: realT() },
+    ],
+    body: (
       _context: Context,
       [start, end]: [ad.Pt2, ad.Pt2],
       t: string,
-      padding: ad.Num,
       size: ad.Num
     ): PtListV<ad.Num> => {
       const dir = ops.vnormalize(ops.vsub(end, start));
@@ -859,8 +929,8 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: [markStart, markEnd].map(toPt),
       };
     },
-    valueT("Real2N")
-  ),
+    returns: valueT("Real2N"),
+  },
 
   /**
    * Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
@@ -873,18 +943,46 @@ export const compDict: { [k: string]: CompFunc } = {
    * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
-  arc: comp(
-    "arc",
-    [
-      pathType("pathType"),
-      real2("start"),
-      real2("end"),
-      real2("radius"),
-      real("rotation"),
-      real("largeArc"),
-      real("arcSweep"),
+  arc: {
+    name: "arc",
+    params: [
+      {
+        name: "pathType",
+        type: pathTypeT(),
+        description: `The path type: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point`,
+      },
+      {
+        name: "start",
+        type: real2T(),
+        description: "coordinate to start drawing the arc",
+      },
+      {
+        name: "end",
+        type: real2T(),
+        description: "coordinate to finish drawing the arc",
+      },
+      {
+        name: "[width, height]",
+        type: real2T(),
+        description: "width and height of the ellipse to draw the arc along",
+      },
+      {
+        name: "rotation",
+        type: realT(),
+        description: "angle in degrees to rotate ellipse about its center",
+      },
+      {
+        name: "largeArc",
+        type: realT(),
+        description: "0 to draw shorter of 2 arcs, 1 to draw longer",
+      },
+      {
+        name: "arcSweep",
+        type: realT(),
+        description: "0 to rotate CCW, 1 to rotate CW",
+      },
     ],
-    (
+    body: (
       _context: Context,
       pathType: string,
       start: ad.Pt2,
@@ -899,22 +997,55 @@ export const compDict: { [k: string]: CompFunc } = {
       if (pathType === "closed") path.closePath();
       return path.getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
 
-  repeatedArcs: comp(
-    "repeatedArcs",
-    [
-      real2("innerStart"),
-      real2("innerEnd"),
-      real2("outerStart"),
-      real2("outerEnd"),
-      real2("innerRadius"),
-      posInt("repeat"),
-      real("spacing"),
-      real("arcSweep"),
+  repeatedArcs: {
+    name: "repeatedArcs",
+    params: [
+      {
+        name: "innerStart",
+        type: real2T(),
+        description: "coordinate to start drawing the inner arc",
+      },
+      {
+        name: "innerEnd",
+        type: real2T(),
+        description: "coordinate to end the inner arc",
+      },
+      {
+        name: "outerStart",
+        type: real2T(),
+        description: "coordinate to start drawing the outer arc",
+      },
+      {
+        name: "outerEnd",
+        type: real2T(),
+        description: "coordinate to end the outer arc",
+      },
+      {
+        name: "innerRadius",
+        type: real2T(),
+        description:
+          "radii of the ellipse to draw the inner arc along (width, height)",
+      },
+      {
+        name: "repeat",
+        type: posIntT(),
+        description: "number of times to repeat the arc",
+      },
+      {
+        name: "spacing",
+        type: realT(),
+        description: "spacing between arcs",
+      },
+      {
+        name: "arcSweep",
+        type: realT(),
+        description: "arc length to sweep",
+      },
     ],
-    (
+    body: (
       _context: Context,
       innerStart: ad.Pt2,
       innerEnd: ad.Pt2,
@@ -940,8 +1071,8 @@ export const compDict: { [k: string]: CompFunc } = {
       }
       return path.getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
 
   /**
    * Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled
@@ -954,18 +1085,47 @@ export const compDict: { [k: string]: CompFunc } = {
    * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
-  wedge: comp(
-    "wedge",
-    [
-      real2("center"),
-      real2("start"),
-      real2("end"),
-      real2("radius"),
-      real("rotation"),
-      real("largeArc"),
-      real("arcSweep"),
+  wedge: {
+    name: "wedge",
+    params: [
+      {
+        name: "center",
+        type: real2T(),
+        description: "center of the circle on which the arc sits",
+      },
+      {
+        name: "start",
+        type: real2T(),
+        description: "coordinate to start drawing the arc",
+      },
+      {
+        name: "end",
+        type: real2T(),
+        description: "coordinate to finish drawing the arc",
+      },
+      {
+        name: "radius",
+        type: real2T(),
+        description:
+          "width and height of the ellipse to draw the arc along (i.e. [width, height])",
+      },
+      {
+        name: "rotation",
+        type: realT(),
+        description: "angle in degrees to rotate ellipse about its center",
+      },
+      {
+        name: "largeArc",
+        type: realT(),
+        description: "0 to draw shorter of 2 arcs, 1 to draw longer",
+      },
+      {
+        name: "arcSweep",
+        type: realT(),
+        description: "0 to rotate CCW, 1 to rotate CW",
+      },
     ],
-    (
+    body: (
       _context: Context,
       center: ad.Pt2,
       start: ad.Pt2,
@@ -983,8 +1143,8 @@ export const compDict: { [k: string]: CompFunc } = {
       path.closePath();
       return path.getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
   /**
    * Find the point that is located at dist r along a line between p1 and p2.
    * @param p1: start point of line segment
@@ -992,10 +1152,22 @@ export const compDict: { [k: string]: CompFunc } = {
    * @param r: distance from p1 to travel along the line
    * @returns: vector representation of the point of intersection
    */
-  ptOnLine: comp(
-    "ptOnLine",
-    [realN("p1"), realN("p2"), real("r")],
-    (
+  ptOnLine: {
+    name: "ptOnLine",
+    params: [
+      {
+        name: "p1",
+        type: real2NT(),
+        description: "start point of line segment",
+      },
+      { name: "p2", type: real2NT(), description: "endpoint of line segment" },
+      {
+        name: "r",
+        type: realT(),
+        description: "distance from p1 to travel along the line",
+      },
+    ],
+    body: (
       _context: Context,
       p1: ad.Num[],
       p2: ad.Num[],
@@ -1005,8 +1177,8 @@ export const compDict: { [k: string]: CompFunc } = {
       const unit = ops.vnormalize(ops.vsub(p2, p1));
       return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
     },
-    valueT("RealN")
-  ),
+    returns: valueT("RealN"),
+  },
   /**
    * Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
    * @param x1, y1: x, y coordinates of the circle/ellipse that the arc is drawn on
@@ -1014,10 +1186,19 @@ export const compDict: { [k: string]: CompFunc } = {
    * @param end: end point of the arc
    * @returns: 0 or 1 depending on CCW or CW rotation
    */
-  arcSweepFlag: comp(
-    "arcSweepFlag",
-    [real2("arcCenter"), real2("start"), real2("end")],
-    (
+  arcSweepFlag: {
+    name: "arcSweepFlag",
+    params: [
+      {
+        name: "p1",
+        type: real2T(),
+        description:
+          "x, y coordinates of the circle/ellipse that the arc is drawn on",
+      },
+      { name: "start", type: real2T(), description: "start point of the arc" },
+      { name: "end", type: real2T(), description: "end point of the arc" },
+    ],
+    body: (
       _context: Context,
       [x1, y1]: ad.Num[],
       start: ad.Pt2,
@@ -1031,80 +1212,101 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: ifCond(gt(cross, 0), 0, 1),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
   /**
    * Return the unsigned angle between vectors `u, v`, in radians.
    * Assumes that both u and v have nonzero magnitude.
    * The returned value will be in the range [0,pi].
    */
-  angleBetween: comp(
-    "angleBetween",
-    [realN("u"), realN("v")],
-    (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+  angleBetween: {
+    name: "angleBetween",
+    params: [
+      { name: "u", type: real2NT(), description: "A vector" },
+      { name: "v", type: real2NT(), description: "A vector" },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
       const theta = ops.angleBetween(u, v);
       return {
         tag: "FloatV",
         contents: theta,
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
   /**
    * Return the signed angle from vector `u` to vector `v`, in radians.
    * Assumes that both u and v are 2D vectors and have nonzero magnitude.
    * The returned value will be in the range [-pi,pi].
    */
-  angleFrom: comp(
-    "angleFrom",
-    [realN("u"), realN("v")],
-    (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+  angleFrom: {
+    name: "angleFrom",
+    params: [
+      { name: "u", type: real2NT(), description: "A vector" },
+      { name: "v", type: real2NT(), description: "A vector" },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
       const theta = ops.angleFrom(u, v);
       return {
         tag: "FloatV",
         contents: theta,
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
   /**
    * Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
    */
-  cross2D: comp(
-    "cross2D",
-    [realN("u"), realN("v")],
-    (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+  cross2D: {
+    name: "cross2D",
+    params: [
+      { name: "u", type: real2NT(), description: "A vector" },
+      { name: "v", type: real2NT(), description: "A vector" },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
       const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
       return {
         tag: "FloatV",
         contents: det,
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
   /**
    * Return the 3D cross product of `u` and `v`.
    */
-  cross: comp(
-    "cross",
-    [realN("u"), realN("v")],
-    (_context: Context, u: ad.Num[], v: ad.Num[]): VectorV<ad.Num> => {
+  cross: {
+    name: "cross",
+    params: [
+      { name: "u", type: real2NT(), description: "A vector" },
+      { name: "v", type: real2NT(), description: "A vector" },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): VectorV<ad.Num> => {
       const result = ops.cross3(u, v);
       return {
         tag: "VectorV",
         contents: result,
       };
     },
-    valueT("RealN")
-  ),
+    returns: valueT("RealN"),
+  },
   /**
    * Return the intersection of a line passing through
    * `a0` and `a1` with a line passing through `b0` and `b1`
    */
-  lineLineIntersection: comp(
-    "lineLineIntersection",
-    [real2("a0"), real2("a1"), real2("b0"), real2("b1")],
-    (
+  lineLineIntersection: {
+    name: "lineLineIntersection",
+    params: [
+      { name: "a0", type: real2T(), description: "First point of first line" },
+      { name: "a1", type: real2T(), description: "Second point of first line" },
+      { name: "b0", type: real2T(), description: "First point of second line" },
+      {
+        name: "b1",
+        type: real2T(),
+        description: "Second point of second line",
+      },
+    ],
+    body: (
       _context: Context,
       a0: ad.Num[],
       a1: ad.Num[],
@@ -1122,30 +1324,48 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: toPt(x),
       };
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
   /**
    * Return a point located at the midpoint between pts `start` and `end`
    */
-  midpoint: comp(
-    "midpoint",
-    [realN("start"), realN("end")],
-    (_context: Context, start: ad.Num[], end: ad.Num[]): VectorV<ad.Num> => {
+  midpoint: {
+    name: "midpoint",
+    params: [
+      { name: "start", type: realNT(), description: "First point" },
+      { name: "end", type: realNT(), description: "Second point" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Num[],
+      end: ad.Num[]
+    ): VectorV<ad.Num> => {
       const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
       return {
         tag: "VectorV",
         contents: midpointLoc,
       };
     },
-    valueT("RealN")
-  ),
+    returns: valueT("RealN"),
+  },
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
-  midpointOffset: comp(
-    "midpointOffset",
-    [shape("s1", "Line"), real("padding")],
-    (_context: Context, s1: Line<ad.Num>, padding: ad.Num): TupV<ad.Num> => {
+  midpointOffset: {
+    name: "midpointOffset",
+    params: [
+      { name: "s1", type: shapeT("Line"), description: "A line" },
+      {
+        name: "padding",
+        type: realT(),
+        description: "Padding between midpoint and label",
+      },
+    ],
+    body: (
+      _context: Context,
+      s1: Line<ad.Num>,
+      padding: ad.Num
+    ): TupV<ad.Num> => {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
       const normalDir = ops.rot90(ops.vnormalize(ops.vsub(end, start)));
@@ -1156,17 +1376,23 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: toPt(midpointOffsetLoc),
       };
     },
-    valueT("Real2")
-  ),
-  chevron: comp(
-    "chevron",
-    [shape("s1", "Line"), real("padding"), real("ticks")],
-    (
+    returns: valueT("Real2"),
+  },
+  chevron: {
+    name: "chevron",
+    params: [
+      { name: "s1", type: shapeT("Line"), description: "A line" },
+      {
+        name: "padding",
+        type: realT(),
+        description: "Length of each line segment",
+      },
+    ],
+    body: (
       _context: Context,
       // TODO reimplement with variable tick marks when #629 is merged
       s1: Line<ad.Num>,
-      padding: ad.Num,
-      ticks: ad.Num
+      padding: ad.Num
     ): PtListV<ad.Num> => {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
@@ -1184,15 +1410,24 @@ export const compDict: { [k: string]: CompFunc } = {
         ].map(toPt),
       };
     },
-    valueT("Real2N")
-  ),
+    returns: valueT("Real2N"),
+  },
   /**
    * Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).
    */
-  innerPointOffset: comp(
-    "innerPointOffset",
-    [real2("pt1"), real2("pt2"), real2("pt3"), real("padding")],
-    (
+  innerPointOffset: {
+    name: "innerPointOffset",
+    params: [
+      { name: "pt1", type: real2T(), description: "First point" },
+      { name: "pt2", type: real2T(), description: "Second point" },
+      { name: "pt3", type: real2T(), description: "Third point" },
+      {
+        name: "padding",
+        type: realT(),
+        description: "Offset from line to returned point",
+      },
+    ],
+    body: (
       _context: Context,
       pt1: ad.Num[],
       pt2: ad.Num[],
@@ -1221,8 +1456,8 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
       };
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
   /**
    * Create equally spaced tick marks centered at the midpoint of a line
    * @param pt1: starting point of a line
@@ -1231,16 +1466,28 @@ export const compDict: { [k: string]: CompFunc } = {
    * @param numTicks: number of tick marks to create
    * @param tickLength: 1/2 length of each tick
    */
-  ticksOnLine: comp(
-    "ticksOnLine",
-    [
-      real2("pt1"),
-      real2("pt2"),
-      real("spacing"),
-      posInt("numTicks"),
-      real("tickLength"),
+  ticksOnLine: {
+    name: "ticksOnLine",
+    params: [
+      { name: "pt1", type: real2T(), description: "starting point of a line" },
+      { name: "pt2", type: real2T(), description: "ending point of a line" },
+      {
+        name: "spacing",
+        type: realT(),
+        description: "space in px between each tick",
+      },
+      {
+        name: "numTicks",
+        type: posIntT(),
+        description: "number of tick marks to create",
+      },
+      {
+        name: "tickLength",
+        type: realT(),
+        description: "1/2 length of each tick",
+      },
     ],
-    (
+    body: (
       _context: Context,
       pt1: ad.Num[],
       pt2: ad.Num[],
@@ -1268,21 +1515,29 @@ export const compDict: { [k: string]: CompFunc } = {
       });
       return path.getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
   /**
    * Given two orthogonal segments that intersect at `intersection`, and a size `len`
    * return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.
    */
-  orientedSquare: comp(
-    "orientedSquare",
-    [
-      shape("s1", "Line"),
-      shape("s2", "Line"),
-      real2("intersection"),
-      real("len"),
+  orientedSquare: {
+    name: "orientedSquare",
+    params: [
+      { name: "s1", type: shapeT("Line"), description: "First line segment" },
+      { name: "s2", type: shapeT("Line"), description: "Second line segment" },
+      {
+        name: "intersection",
+        type: real2T(),
+        description: "Point of intersection",
+      },
+      {
+        name: "len",
+        type: realT(),
+        description: "Side length of square marker",
+      },
     ],
-    (
+    body: (
       _context: Context,
       s1: Line<ad.Num>,
       s2: Line<ad.Num>,
@@ -1300,58 +1555,62 @@ export const compDict: { [k: string]: CompFunc } = {
         .closePath()
         .getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
 
-  /**
-           * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-
-       @deprecated Don't use this function, it does not fully work
-           */
-  intersectingSideSize: comp(
-    "intersectingSideSize",
-    [real2("start"), real2("end"), rectlike("s1")],
-    (
-      _context: Context,
-      start: ad.Num[],
-      end: ad.Num[],
-      s1: Rectlike<ad.Num>
-    ): FloatV<ad.Num> => {
-      // if (s1.rotation.contents) { throw Error("assumed AABB"); }
-
-      // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-      const rect = bboxFromShape(s1);
-
-      // Intersects top or bottom => return w
-      // i.e. endX \in [minX, maxX] -- if not this, the other must be true
-
-      // Intersects right or left => return h
-      // i.e. endY \in [minY, maxY]
-
-      // Return the OTHER side, which is needed for arrow placement
-
-      // TODO <
-      // this function is wrong -- the `end` doesn't have to lie in any range, and the start always does
-      // Find some other way to calculate what side intersects the ray between the points
-      // Check if this works better WRT new disjoint rectangles, rect-line etc.
-
-      const dim = ifCond(
-        inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
-        rect.height,
-        rect.width
-      );
-      return { tag: "FloatV", contents: dim };
-    },
-    valueT("Real")
-  ),
+  //  /**
+  //           * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
+  //
+  //       @deprecated Don't use this function, it does not fully work
+  //           */
+  //  intersectingSideSize: {
+  //    name: "intersectingSideSize",
+  //    params: [real2("start"), real2("end"), rectlike("s1")],
+  //    body: (
+  //      _context: Context,
+  //      start: ad.Num[],
+  //      end: ad.Num[],
+  //      s1: Rectlike<ad.Num>
+  //    ): FloatV<ad.Num> => {
+  //      // if (s1.rotation.contents) { throw Error("assumed AABB"); }
+  //
+  //      // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
+  //      const rect = bboxFromShape(s1);
+  //
+  //      // Intersects top or bottom => return w
+  //      // i.e. endX \in [minX, maxX] -- if not this, the other must be true
+  //
+  //      // Intersects right or left => return h
+  //      // i.e. endY \in [minY, maxY]
+  //
+  //      // Return the OTHER side, which is needed for arrow placement
+  //
+  //      // TODO <
+  //      // this function is wrong -- the `end` doesn't have to lie in any range, and the start always does
+  //      // Find some other way to calculate what side intersects the ray between the points
+  //      // Check if this works better WRT new disjoint rectangles, rect-line etc.
+  //
+  //      const dim = ifCond(
+  //        inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
+  //        rect.height,
+  //        rect.width
+  //      );
+  //      return { tag: "FloatV", contents: dim };
+  //    },
+  //    returns: valueT("Real"),
+  //  },
 
   /**
    * Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).
    */
-  triangle: comp(
-    "triangle",
-    [shape("l1", "Line"), shape("l2", "Line"), shape("l3", "Line")],
-    (
+  triangle: {
+    name: "triangle",
+    params: [
+      { name: "l1", type: shapeT("Line"), description: "First line" },
+      { name: "l2", type: shapeT("Line"), description: "Second line" },
+      { name: "l3", type: shapeT("Line"), description: "Third line" },
+    ],
+    body: (
       _context: Context,
       l1: Line<ad.Num>,
       l2: Line<ad.Num>,
@@ -1365,62 +1624,68 @@ export const compDict: { [k: string]: CompFunc } = {
         .closePath()
         .getPath();
     },
-    valueT("PathCmd")
-  ),
+    returns: valueT("PathCmd"),
+  },
 
   /**
    * Return the average of floats `x` and `y`.
    */
-  average2: comp(
-    "average2",
-    [real("x"), real("y")],
-    (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+  average2: {
+    name: "average2",
+    params: [
+      { name: "x", type: realT(), description: "`x`" },
+      { name: "y", type: realT(), description: "`y`" },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: div(add(x, y), 2),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the average of the floats in the list `xs`.
    */
-  average: comp(
-    "average",
-    [realN("xs")],
-    (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
+  average: {
+    name: "average",
+    params: [{ name: "xs", type: realNT(), description: "`xs`" }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: div(addN(xs), max(1, xs.length)),
         // To avoid divide-by-0
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the normalized version of vector `v`.
    */
-  unit: comp(
-    "unit",
-    [realN("v")],
-    (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+  unit: {
+    name: "unit",
+    params: [{ name: "v", type: realNT(), description: "`v`" }],
+    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
       return {
         tag: "VectorV",
         contents: ops.vnormalize(v),
       };
     },
-    valueT("RealN")
-  ),
+    returns: valueT("RealN"),
+  },
 
   /**
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
-  sampleColor: comp(
-    "sampleColor",
-    [unit("alpha"), colorType("colorType")],
-    (
+  sampleColor: {
+    name: "sampleColor",
+    params: [
+      { name: "alpha", type: unitT(), description: "Opacity" },
+      { name: "colorType", type: colorTypeT(), description: "Color model" },
+    ],
+    body: (
       { makeInput }: Context,
       alpha: ad.Num,
       colorType: string
@@ -1454,16 +1719,23 @@ export const compDict: { [k: string]: CompFunc } = {
         };
       } else throw new Error("unknown color type");
     },
-    valueT("Color")
-  ),
+    returns: valueT("Color"),
+  },
 
   /**
    * Set the opacity of a color `color` to `frac`.
    */
-  setOpacity: comp(
-    "setOpacity",
-    [color("color"), unit("frac")],
-    (_context: Context, color: Color<ad.Num>, frac: ad.Num): ColorV<ad.Num> => {
+  setOpacity: {
+    name: "setOpacity",
+    params: [
+      { name: "color", type: colorT(), description: "Color" },
+      { name: "frac", type: unitT(), description: "Opacity" },
+    ],
+    body: (
+      _context: Context,
+      color: Color<ad.Num>,
+      frac: ad.Num
+    ): ColorV<ad.Num> => {
       // If paint=none, opacity is irreelevant
       if (color.tag === "NONE") {
         return {
@@ -1482,16 +1754,19 @@ export const compDict: { [k: string]: CompFunc } = {
         };
       }
     },
-    valueT("Color")
-  ),
+    returns: valueT("Color"),
+  },
 
   /**
    * Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).
    */
-  mul: comp(
-    "mul",
-    [realNM("m"), realN("v")],
-    (_context: Context, m: ad.Num[][], v: ad.Num[]): VectorV<ad.Num> => {
+  mul: {
+    name: "mul",
+    params: [
+      { name: "m", type: realNMT(), description: "A matrix" },
+      { name: "v", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, m: ad.Num[][], v: ad.Num[]): VectorV<ad.Num> => {
       if (!m.length) {
         throw Error("empty matrix");
       }
@@ -1504,18 +1779,22 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: m.map((row) => ops.vdot(row, v)),
       };
     },
-    valueT("RealN")
-  ),
+    returns: valueT("RealN"),
+  },
 
   // ------ Triangle centers
 
   /**
    * Return the barycenter of the triangle with vertices `a`, `b`, `c`.
    */
-  barycenter: comp(
-    "barycenter",
-    [real2("a"), real2("b"), real2("c")],
-    (
+  barycenter: {
+    name: "barycenter",
+    params: [
+      { name: "a", type: real2T(), description: "First vertex" },
+      { name: "b", type: real2T(), description: "Second vertex" },
+      { name: "c", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
       _context: Context,
       a: ad.Num[],
       b: ad.Num[],
@@ -1527,16 +1806,20 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: toPt(x),
       };
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
 
   /**
    * Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
    */
-  circumcenter: comp(
-    "circumcenter",
-    [real2("p"), real2("q"), real2("r")],
-    (
+  circumcenter: {
+    name: "circumcenter",
+    params: [
+      { name: "p", type: real2T(), description: "First vertex" },
+      { name: "q", type: real2T(), description: "Second vertex" },
+      { name: "r", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
       _context: Context,
       p: ad.Num[],
       q: ad.Num[],
@@ -1574,16 +1857,20 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: toPt(x),
       };
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
 
   /**
    * Return the circumradius of the triangle with vertices `p`, `q`, `r`.
    */
-  circumradius: comp(
-    "circumradius",
-    [real2("p"), real2("q"), real2("r")],
-    (
+  circumradius: {
+    name: "circumradius",
+    params: [
+      { name: "p", type: real2T(), description: "First vertex" },
+      { name: "q", type: real2T(), description: "Second vertex" },
+      { name: "r", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
       _context: Context,
       p: ad.Num[],
       q: ad.Num[],
@@ -1617,16 +1904,20 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: R,
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the incenter of the triangle with vertices `p`, `q`, `r`.
    */
-  incenter: comp(
-    "incenter",
-    [real2("p"), real2("q"), real2("r")],
-    (
+  incenter: {
+    name: "incenter",
+    params: [
+      { name: "p", type: real2T(), description: "First vertex" },
+      { name: "q", type: real2T(), description: "Second vertex" },
+      { name: "r", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
       _context: Context,
       p: ad.Num[],
       q: ad.Num[],
@@ -1654,16 +1945,20 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: toPt(x),
       };
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
 
   /**
    * Return the inradius of the triangle with vertices `p`, `q`, `r`.
    */
-  inradius: comp(
-    "inradius",
-    [real2("p"), real2("q"), real2("r")],
-    (
+  inradius: {
+    name: "inradius",
+    params: [
+      { name: "p", type: real2T(), description: "First vertex" },
+      { name: "q", type: real2T(), description: "Second vertex" },
+      { name: "r", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
       _context: Context,
       p: ad.Num[],
       q: ad.Num[],
@@ -1685,227 +1980,249 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: R,
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   // ------ Utility functions
 
   /**
    * Return the square of the number `x`.
    */
-  sqr: comp(
-    "sqr",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  sqr: {
+    name: "sqr",
+    params: [{ name: "x", type: realT(), description: "`x`" }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: squared(x) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
    */
-  sqrt: comp(
-    "sqrt",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  sqrt: {
+    name: "sqrt",
+    params: [{ name: "x", type: realT(), description: "`x`" }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: sqrt(x) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the max of the numbers `x`, `y`.
    */
-  max: comp(
-    "max",
-    [real("x"), real("y")],
-    (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+  max: {
+    name: "max",
+    params: [
+      { name: "x", type: realT(), description: "`x`" },
+      { name: "y", type: realT(), description: "`y`" },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: max(x, y) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the min of the numbers `x`, `y`.
    */
-  min: comp(
-    "min",
-    [real("x"), real("y")],
-    (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+  min: {
+    name: "min",
+    params: [
+      { name: "x", type: realT(), description: "`x`" },
+      { name: "y", type: realT(), description: "`y`" },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: min(x, y) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the absolute value of the number `x`.
    */
-  abs: comp(
-    "abs",
-    [real("x")],
-    (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+  abs: {
+    name: "abs",
+    params: [{ name: "x", type: realT(), description: "`x`" }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: absVal(x) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Convert the angle `theta` from degrees to radians.
    */
-  toRadians: comp(
-    "toRadians",
-    [real("theta")],
-    (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
+  toRadians: {
+    name: "toRadians",
+    params: [{ name: "theta", type: realT(), description: "`theta`" }],
+    body: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: mul(Math.PI / 180, theta),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Convert the angle `theta` from radians to degrees.
    */
-  toDegrees: comp(
-    "toDegrees",
-    [real("theta")],
-    (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
+  toDegrees: {
+    name: "toDegrees",
+    params: [{ name: "theta", type: realT(), description: "`theta`" }],
+    body: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: mul(180 / Math.PI, theta),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the Euclidean norm of the vector `v`.
    */
-  norm: comp(
-    "norm",
-    [realN("v")],
-    (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
+  norm: {
+    name: "norm",
+    params: [{ name: "v", type: realNT(), description: "A vector" }],
+    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: ops.vnorm(v) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the Euclidean norm squared of the vector `v`.
    */
-  normsq: comp(
-    "normsq",
-    [realN("v")],
-    (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
+  normsq: {
+    name: "normsq",
+    params: [{ name: "v", type: realNT(), description: "A vector" }],
+    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: ops.vnormsq(v) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the Euclidean distance between the vectors `v` and `w`.
    */
-  vdist: comp(
-    "vdist",
-    [realN("v"), realN("w")],
-    (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
+  vdist: {
+    name: "vdist",
+    params: [
+      { name: "v", type: realNT(), description: "A vector" },
+      { name: "w", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: ops.vdist(v, w) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
-  vmul: comp(
-    "vmul",
-    [real("s"), realN("v")],
-    (_context: Context, s: ad.Num, v: ad.Num[]): VectorV<ad.Num> => {
+  vmul: {
+    name: "vmul",
+    params: [
+      { name: "s", type: realT(), description: "A scalar" },
+      { name: "v", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, s: ad.Num, v: ad.Num[]): VectorV<ad.Num> => {
       return { tag: "VectorV", contents: ops.vmul(s, v) };
     },
-    valueT("RealN")
-  ),
+    returns: valueT("RealN"),
+  },
 
   /**
    * Return the Euclidean distance squared between the vectors `v` and `w`.
    */
-  vdistsq: comp(
-    "vdistsq",
-    [realN("v"), realN("w")],
-    (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
+  vdistsq: {
+    name: "vdistsq",
+    params: [
+      { name: "v", type: realNT(), description: "A vector" },
+      { name: "w", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: ops.vdistsq(v, w) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Return the angle made by the vector `v` with the positive x-axis.
    */
-  angleOf: comp(
-    "angleOf",
-    [real2("v")],
-    (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
+  angleOf: {
+    name: "angleOf",
+    params: [{ name: "v", type: realNT(), description: "A vector" }],
+    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: atan2(v[1], v[0]) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   // ------ Mathematical constants
 
   /**
    * Base e of the natural logarithm.
    */
-  MathE: comp(
-    "MathE",
-    [],
-    (_context: Context): FloatV<ad.Num> => {
+  MathE: {
+    name: "MathE",
+    params: [],
+    body: (_context: Context): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: Math.E,
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Ratio of the circumference of a circle to its diameter.
    */
-  MathPI: comp(
-    "MathPI",
-    [],
-    (_context: Context): FloatV<ad.Num> => {
+  MathPI: {
+    name: "MathPI",
+    params: [],
+    body: (_context: Context): FloatV<ad.Num> => {
       return {
         tag: "FloatV",
         contents: Math.PI,
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   // ------ Geometry/graphics utils
 
   /**
    * Rotate a 2D vector `v` by 90 degrees counterclockwise.
    */
-  rot90: comp(
-    "rot90",
-    [real2("v")],
-    (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+  rot90: {
+    name: "rot90",
+    params: [{ name: "v", type: real2T(), description: "A vector" }],
+    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
       if (v.length !== 2) {
         throw Error("expected 2D vector in `rot90`");
       }
       const [x, y] = v;
       return { tag: "VectorV", contents: [neg(y), x] };
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
 
   /**
    * Rotate a 2D vector `v` by theta degrees counterclockwise.
    */
-  rotateBy: comp(
-    "rotateBy",
-    [real2("v"), real("theta")],
-    (_context: Context, v: ad.Num[], theta: ad.Num): VectorV<ad.Num> => {
+  rotateBy: {
+    name: "rotateBy",
+    params: [
+      { name: "v", type: real2T(), description: "A vector" },
+      {
+        name: "theta",
+        type: realT(),
+        description: "degrees to rotate counterclockwise",
+      },
+    ],
+    body: (_context: Context, v: ad.Num[], theta: ad.Num): VectorV<ad.Num> => {
       if (v.length !== 2) {
         throw Error("expected 2D vector in `rotateBy`");
       }
@@ -1914,23 +2231,26 @@ export const compDict: { [k: string]: CompFunc } = {
       const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
       return { tag: "VectorV", contents: [X, Y] };
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
 
-  signedDistance: comp(
-    "signedDistance",
-    [
-      union(
-        "s",
-        rectlikeT(),
-        shapeT("Circle"),
-        shapeT("Polygon"),
-        shapeT("Line"),
-        shapeT("Polyline")
-      ),
-      real2("p"),
+  signedDistance: {
+    name: "signedDistance",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A vector" },
     ],
-    (
+    body: (
       _context: Context,
       s:
         | Rectlike<ad.Num>
@@ -2034,37 +2354,40 @@ export const compDict: { [k: string]: CompFunc } = {
         };
       }
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Construct a unit vector u in the direction of the
    * given angle theta (in radians).
    */
-  unitVector: comp(
-    "unitVector",
-    [real("theta")],
-    (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
+  unitVector: {
+    name: "unitVector",
+    params: [{ name: "theta", type: realT(), description: "direction" }],
+    body: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
       return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
 
-  closestPoint: comp(
-    "closestPoint",
-    [
-      union(
-        "s",
-        shapeT("Circle"),
-        rectlikeT(),
-        shapeT("Line"),
-        shapeT("Polyline"),
-        shapeT("Polygon"),
-        shapeT("Ellipse")
-      ),
-      real2("p"),
+  closestPoint: {
+    name: "closestPoint",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A vector" },
     ],
-    (
+    body: (
       _context: Context,
       s:
         | Circle<ad.Num>
@@ -2173,13 +2496,26 @@ export const compDict: { [k: string]: CompFunc } = {
         return { tag: "VectorV", contents: closestPointEllipse(s, p) };
       }
     },
-    valueT("Real2")
-  ),
+    returns: valueT("Real2"),
+  },
 
-  rectLineDist: comp(
-    "rectLineDist",
-    [real2("bottomLeft"), real2("topRight"), real2("start"), real2("end")],
-    (
+  rectLineDist: {
+    name: "rectLineDist",
+    params: [
+      {
+        name: "bottomLeft",
+        type: real2T(),
+        description: "bottom-left point of rectangle",
+      },
+      {
+        name: "topRight",
+        type: real2T(),
+        description: "top-right point of rectangle",
+      },
+      { name: "start", type: real2T(), description: "start point of line" },
+      { name: "end", type: real2T(), description: "end point of line" },
+    ],
+    body: (
       _context: Context,
       bottomLeft: ad.Pt2,
       topRight: ad.Pt2,
@@ -2187,40 +2523,68 @@ export const compDict: { [k: string]: CompFunc } = {
       end: ad.Pt2
     ): FloatV<ad.Num> =>
       floatV(rectLineDist({ bottomLeft, topRight }, { start, end })),
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
-  shapeDistance: comp(
-    "shapeDistance",
-    [shape("s1"), shape("s2")],
-    (_context: Context, s1: Shape<ad.Num>, s2: Shape<ad.Num>): FloatV<ad.Num> =>
-      floatV(shapeDistance(s1, s2)),
-    valueT("Real")
-  ),
+  shapeDistance: {
+    name: "shapeDistance",
+    params: [
+      { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
+    ],
+    body: (
+      _context: Context,
+      s1: Shape<ad.Num>,
+      s2: Shape<ad.Num>
+    ): FloatV<ad.Num> => floatV(shapeDistance(s1, s2)),
+    returns: valueT("Real"),
+  },
 
   /**
    * Returns the signed area enclosed by a polygonal chain given its nodes
    */
-  signedArea: comp(
-    "signedArea",
-    [real2N("points"), boolean("closed")],
-    (
+  signedArea: {
+    name: "signedArea",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
+      },
+    ],
+    body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: signedArea(points, closed) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Returns the turning number of polygonal chain given its nodes
    */
-  turningNumber: comp(
-    "turningNumber",
-    [real2N("points"), boolean("closed")],
-    (
+  turningNumber: {
+    name: "turningNumber",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
+      },
+    ],
+    body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
       closed: boolean
@@ -2230,72 +2594,116 @@ export const compDict: { [k: string]: CompFunc } = {
         contents: turningNumber(points, closed),
       };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Returns the total length of polygonal chain given its nodes
    */
-  perimeter: comp(
-    "perimeter",
-    [real2N("points"), boolean("closed")],
-    (
+  perimeter: {
+    name: "perimeter",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
+      },
+    ],
+    body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: perimeter(points, closed) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
    */
-  isoperimetricRatio: comp(
-    "isoperimetricRatio",
-    [real2N("points"), boolean("closed")],
-    (
+  isoperimetricRatio: {
+    name: "isoperimetricRatio",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the curve is closed",
+      },
+    ],
+    body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Returns integral of curvature squared along the curve
    */
-  elasticEnergy: comp(
-    "elasticEnergy",
-    [real2N("points"), boolean("closed")],
-    (
+  elasticEnergy: {
+    name: "elasticEnergy",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: elasticEnergy(points, closed) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 
   /**
    * Returns integral of curvature along the curve
    */
-  totalCurvature: comp(
-    "totalCurvature",
-    [real2N("points"), boolean("closed")],
-    (
+  totalCurvature: {
+    name: "totalCurvature",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: totalCurvature(points, closed) };
     },
-    valueT("Real")
-  ),
+    returns: valueT("Real"),
+  },
 };
 
 /*

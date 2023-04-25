@@ -2,7 +2,7 @@ import im from "immutable";
 import * as ad from "./ad";
 import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
-import { CompFunc, ConstrFunc, FuncArg, ObjFunc } from "./functions";
+import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions";
 import { State } from "./state";
 import {
   BindingForm,
@@ -462,14 +462,14 @@ export interface BadShapeParamTypeError {
 export interface BadArgumentTypeError {
   tag: "BadArgumentTypeError";
   funcName: string;
-  funcArg: FuncArg;
+  funcArg: FuncParam;
   provided: ArgValWithSourceLoc<ad.Num>;
 }
 
 export interface MissingArgumentError {
   tag: "MissingArgumentError";
   funcName: string;
-  funcArg: FuncArg;
+  funcArg: FuncParam;
   funcLocation: SourceRange;
 }
 
