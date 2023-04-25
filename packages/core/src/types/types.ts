@@ -20,7 +20,7 @@ export const valueTypeDesc = {
   PathType: { description: "Path Type", symbol: `"open" | "closed"` },
   ShapeList: { description: "List of shapes", symbol: "Shape[]" },
   PathCmd: { description: "Path Command", symbol: "PathCmd" },
-  Boolean: { description: "Boolean Value", symbol: `"true" | "false"` },
+  Boolean: { description: "Boolean Value", symbol: `true | false` },
 };
 
 export type ValueType = keyof typeof valueTypeDesc;

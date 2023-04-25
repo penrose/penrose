@@ -1157,10 +1157,10 @@ export const compDict: { [k: string]: CompFunc } = {
     params: [
       {
         name: "p1",
-        type: real2NT(),
+        type: realNT(),
         description: "start point of line segment",
       },
-      { name: "p2", type: real2NT(), description: "endpoint of line segment" },
+      { name: "p2", type: realNT(), description: "endpoint of line segment" },
       {
         name: "r",
         type: realT(),
@@ -1222,8 +1222,8 @@ export const compDict: { [k: string]: CompFunc } = {
   angleBetween: {
     name: "angleBetween",
     params: [
-      { name: "u", type: real2NT(), description: "A vector" },
-      { name: "v", type: real2NT(), description: "A vector" },
+      { name: "u", type: realNT(), description: "A vector" },
+      { name: "v", type: realNT(), description: "A vector" },
     ],
     body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
       const theta = ops.angleBetween(u, v);
@@ -1242,8 +1242,8 @@ export const compDict: { [k: string]: CompFunc } = {
   angleFrom: {
     name: "angleFrom",
     params: [
-      { name: "u", type: real2NT(), description: "A vector" },
-      { name: "v", type: real2NT(), description: "A vector" },
+      { name: "u", type: realNT(), description: "A vector" },
+      { name: "v", type: realNT(), description: "A vector" },
     ],
     body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
       const theta = ops.angleFrom(u, v);
@@ -1260,8 +1260,8 @@ export const compDict: { [k: string]: CompFunc } = {
   cross2D: {
     name: "cross2D",
     params: [
-      { name: "u", type: real2NT(), description: "A vector" },
-      { name: "v", type: real2NT(), description: "A vector" },
+      { name: "u", type: real2T(), description: "A vector" },
+      { name: "v", type: real2T(), description: "A vector" },
     ],
     body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
       const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
