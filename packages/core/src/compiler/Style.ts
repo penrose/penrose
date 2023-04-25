@@ -38,7 +38,6 @@ import {
   StyleWarning,
   SubstanceError,
 } from "../types/errors";
-import { callCompFunc, callObjConstrFunc } from "./styleFunctionCaller/StyleFunctionCaller";
 import {
   Fn,
   OptPipeline,
@@ -163,6 +162,10 @@ import {
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 import { checkShape } from "./shapeChecker/CheckShape";
+import {
+  callCompFunc,
+  callObjConstrFunc,
+} from "./styleFunctionCaller/StyleFunctionCaller";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
