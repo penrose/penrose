@@ -1688,7 +1688,7 @@ export const compDict: { [k: string]: CompFunc } = {
     body: (
       { makeInput }: Context,
       alpha: ad.Num,
-      colorType: string
+      colorType: "rgb" | "hsv"
     ): ColorV<ad.Num> => {
       if (colorType === "rgb") {
         const rgb = _.range(3).map(() =>
@@ -1705,7 +1705,7 @@ export const compDict: { [k: string]: CompFunc } = {
             contents: [rgb[0], rgb[1], rgb[2], alpha],
           },
         };
-      } else if (colorType === "hsv") {
+      } else {
         const h = makeInput({
           init: { tag: "Sampled", sampler: uniform(0, 360) },
           stages: new Set(),
@@ -1717,7 +1717,7 @@ export const compDict: { [k: string]: CompFunc } = {
             contents: [h, 100, 80, alpha], // HACK: for the color to look good
           },
         };
-      } else throw new Error("unknown color type");
+      }
     },
     returns: valueT("Color"),
   },
