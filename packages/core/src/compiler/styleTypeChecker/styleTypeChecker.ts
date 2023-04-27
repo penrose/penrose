@@ -65,6 +65,9 @@ export const checkValueAgainstValueType = (
   } else if (expected === "Real2") {
     if (tag === "ListV" || tag === "VectorV" || tag === "TupV")
       if (contents.length === 2) return contents;
+  } else if (expected === "Real3") {
+    if (tag === "ListV" || tag === "VectorV" || tag === "TupV")
+      if (contents.length === 3) return contents;
   } else if (expected === "RealN") {
     if (tag === "ListV" || tag === "VectorV" || tag === "TupV") return contents;
   } else if (expected === "Real2N") {

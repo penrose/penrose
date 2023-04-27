@@ -14,6 +14,7 @@ import { StyleError } from "../../types/errors";
 import { ArgValWithSourceLoc, Value } from "../../types/value";
 import {
   badArgumentTypeError,
+  functionInternalError,
   missingArgumentError,
   tooManyArgumentsError,
 } from "../../utils/Error";
@@ -26,6 +27,9 @@ export const callCompFunc = (
   context: Context,
   args: ArgValWithSourceLoc<ad.Num>[]
 ): Result<Value<ad.Num>, StyleError> => {
+  if (args.length > func.params.length) {
+    return err(tooManyArgumentsError(func, range, args.length));
+  }
   const vals: (Shape<ad.Num> | Value<ad.Num>["contents"])[] = [];
   for (let i = 0; i < func.params.length; i++) {
     const funcArg = func.params[i];
@@ -34,7 +38,15 @@ export const callCompFunc = (
     if (v.isErr()) return err(v.error);
     vals.push(v.value);
   }
-  return ok(func.body(context, ...vals));
+  try {
+    return ok(func.body(context, ...vals));
+  } catch (e) {
+    if (e instanceof Error) {
+      return err(functionInternalError(func, range, e.message));
+    } else {
+      throw new Error("Function call resulted in exception not of Error type");
+    }
+  }
 };
 
 export const callObjConstrFunc = (
@@ -53,7 +65,15 @@ export const callObjConstrFunc = (
     if (v.isErr()) return err(v.error);
     vals.push(v.value);
   }
-  return ok(func.body(...vals));
+  try {
+    return ok(func.body(...vals));
+  } catch (e) {
+    if (e instanceof Error) {
+      return err(functionInternalError(func, range, e.message));
+    } else {
+      throw new Error("Function call resulted in exception not of Error type");
+    }
+  }
 };
 
 export const checkArg = (

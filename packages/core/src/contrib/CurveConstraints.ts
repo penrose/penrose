@@ -135,6 +135,8 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
    */
   isLocallyConvex: {
     name: "isLocallyConvex",
+    description:
+      "The shape should be locally convex (all angles between consecutive edges would have the same sign)",
     params: [
       {
         name: "s",
@@ -163,6 +165,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
    */
   isConvex: {
     name: "isConvex",
+    description: "The enclosed area should be convex",
     params: [
       {
         name: "s",
@@ -184,6 +187,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
    */
   isEquilateral: {
     name: "isEquilateral",
+    description: "All edges should have the same length",
     params: [
       {
         name: "s",
@@ -203,6 +207,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
    */
   isEquiangular: {
     name: "isEquiangular",
+    description: "All angles between consecutive edges should be equal",
     params: [
       {
         name: "s",

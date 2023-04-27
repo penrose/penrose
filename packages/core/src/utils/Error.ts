@@ -21,6 +21,7 @@ import {
   DomainError,
   DuplicateName,
   FatalError,
+  FunctionInternalError,
   InvalidColorLiteral,
   MissingArgumentError,
   NaNError,
@@ -65,7 +66,28 @@ const showArgValType = (v: ArgVal<ad.Num>): string => {
   if (v.tag === "ShapeVal") {
     return `${v.contents.shapeType}Shape`;
   } else {
-    return `${v.contents.tag} value`;
+    const start = `${v.contents.tag} value`;
+    if (
+      v.contents.tag === "ListV" ||
+      v.contents.tag === "VectorV" ||
+      v.contents.tag === "TupV"
+    ) {
+      return start + ` with ${v.contents.contents.length} elements`;
+    } else if (
+      v.contents.tag === "PtListV" ||
+      v.contents.tag === "MatrixV" ||
+      v.contents.tag === "LListV"
+    ) {
+      const { contents } = v.contents;
+      const rowLengths = contents.map((row) => row.length);
+      if (rowLengths.every((l) => l === rowLengths[0])) {
+        return start + ` of shape ${contents.length}-by-${rowLengths[0]}`;
+      } else {
+        return start + ` of nonrectangular shape`;
+      }
+    } else {
+      return `${v.contents.tag} value`;
+    }
   }
 };
 
@@ -481,6 +503,12 @@ canvas {
 
       return `Function \`${func.name}\` (at ${locStr}) takes at most ${expNum} arguments but is provided with ${numProvided} arguments`;
     }
+
+    case "FunctionInternalError": {
+      const { func, location, message } = error;
+      const locStr = locc("Style", location);
+      return `Function \`${func.name}\` (at ${locStr}) failed with message: ${message}`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -726,6 +754,17 @@ export const tooManyArgumentsError = (
   func,
   funcLocation,
   numProvided,
+});
+
+export const functionInternalError = (
+  func: CompFunc | ObjFunc | ConstrFunc,
+  location: SourceRange,
+  message: string
+): FunctionInternalError => ({
+  tag: "FunctionInternalError",
+  func,
+  location,
+  message,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

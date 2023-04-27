@@ -663,6 +663,7 @@ export const valueT = (type: ValueType): ValueT => ({
 });
 
 export const real2T = (): ValueT => valueT("Real2");
+export const real3T = (): ValueT => valueT("Real3");
 export const realT = (): ValueT => valueT("Real");
 export const unitT = (): ValueT => valueT("Unit");
 export const realNT = (): ValueT => valueT("RealN");

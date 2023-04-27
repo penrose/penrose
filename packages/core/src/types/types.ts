@@ -11,6 +11,7 @@ export const valueTypeDesc = {
   PosInt: { description: "Positive Integer", symbol: "ℤ⁺" },
   Nat: { description: "Natural Number", symbol: "ℕ" },
   Real2: { description: "2d Vector of Reals", symbol: "ℝ²" },
+  Real3: { description: "3d Vector of Reals", symbol: "ℝ³" },
   RealN: { description: "Vector of Reals", symbol: "ℝⁿ" },
   Real2N: { description: "List of 2d Real Vectors", symbol: "(ℝ²)ⁿ" },
   RealNM: { description: "List of Real Vectors", symbol: "(ℝⁿ)ᵐ" },

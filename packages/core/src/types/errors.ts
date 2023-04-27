@@ -207,6 +207,7 @@ export type StyleError =
   | BadArgumentTypeError
   | MissingArgumentError
   | TooManyArgumentsError
+  | FunctionInternalError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -478,6 +479,13 @@ export interface TooManyArgumentsError {
   func: CompFunc | ObjFunc | ConstrFunc;
   funcLocation: SourceRange;
   numProvided: number;
+}
+
+export interface FunctionInternalError {
+  tag: "FunctionInternalError";
+  func: CompFunc | ObjFunc | ConstrFunc;
+  location: SourceRange;
+  message: string;
 }
 
 //#endregion

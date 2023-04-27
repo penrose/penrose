@@ -41,6 +41,7 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   equal: {
     name: "equal",
+    description: "Require that the value `x` is equal to the value `y`",
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
@@ -55,6 +56,9 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   lessThan: {
     name: "lessThan",
+    description:
+      "Require that the value `x` is less than the value `y` with optional padding `padding`",
+
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
@@ -70,6 +74,9 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   greaterThan: {
     name: "greaterThan",
+    description:
+      "Require that the value `x` is greater than the value `y` with optional padding `padding`",
+
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
@@ -85,6 +92,8 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   lessThanSq: {
     name: "lessThanSq",
+    description:
+      "Require that the value `x` is less than the value `y`, with steeper penalty",
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
@@ -100,6 +109,8 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   greaterThanSq: {
     name: "greaterThanSq",
+    description:
+      "Require that the value `x` is greater than the value `y`, with steeper penalty",
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
@@ -114,6 +125,8 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   inRange: {
     name: "inRange",
+    description:
+      "Require that the value `x` is in the range defined by `[x0, x1]`.",
     params: [
       { name: "x", description: "Value", type: realT() },
       { name: "x0", description: "Lower bound", type: realT() },
@@ -132,6 +145,9 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   contains1D: {
     name: "inRange",
+    description:
+      "Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.",
+
     params: [
       {
         name: "[l1, r1]",
@@ -155,6 +171,7 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   disjointScalar: {
     name: "disjointScalar",
+    description: "Make scalar `c` disjoint from a range `left, right`.",
     params: [
       { name: "c", description: "Scalar", type: realT() },
       { name: "left", description: "Left bound", type: realT() },
@@ -173,6 +190,8 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   perpendicular: {
     name: "perpendicular",
+    description:
+      "Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.",
     params: [
       { name: "q", description: "First point", type: realNT() },
       { name: "p", description: "Second point", type: realNT() },
@@ -192,6 +211,7 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   collinear: {
     name: "collinear",
+    description: `Require that three points be collinear. This does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.`,
     params: [
       { name: "c1", description: "First point", type: realNT() },
       { name: "c2", description: "Second point", type: realNT() },
@@ -210,6 +230,8 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    */
   collinearOrdered: {
     name: "collinearOrdered",
+    description: `Require that three points be collinear and enforces the order of these points as provided.`,
+
     params: [
       { name: "c1", description: "First point", type: realNT() },
       { name: "c2", description: "Second point", type: realNT() },
@@ -232,6 +254,7 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
   /** Require that `shape` is on the canvas */
   onCanvas: {
     name: "onCanvas",
+    description: "Require that `shape` is on the canvas",
     params: [
       { name: "shape", description: "Shape", type: shapeT("AnyShape") },
       { name: "canvasWidth", description: "Width of canvas", type: realT() },
@@ -258,6 +281,9 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
    */
   minSize: {
     name: "minSize",
+    description:
+      "Require that a shape have a size greater than some constant minimum, based on the type of the shape.",
+
     params: [
       { name: "shape", description: "Shape", type: shapeT("AnyShape") },
       {
@@ -277,6 +303,9 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
    */
   maxSize: {
     name: "maxSize",
+    description:
+      "Require that a shape have a size less than some constant maximum, based on the type of the shape.",
+
     params: [
       { name: "shape", description: "Shape", type: shapeT("AnyShape") },
       { name: "limit", description: "Maximum size", type: realT() },
@@ -293,6 +322,9 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
    */
   overlapping: {
     name: "overlapping",
+    description: `Require that shape \`s1\` overlaps shape \`s2\` with some overlap \`overlap\`.
+   based on the type of the shape, and with an optional \`overlap\` between them
+   (e.g. if \`s1\` should be overlapping \`s2\` with margin \`overlap\`).`,
     params: [
       { name: "s1", description: "Shape 1", type: shapeT("AnyShape") },
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
@@ -321,6 +353,7 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
    */
   disjoint: {
     name: "disjoint",
+    description: `Require that a shape \`s1\` is disjoint from shape \`s2\`, based on the type of the shape, and with an optional \`padding\` between them (e.g. if \`s1\` should be disjoint from \`s2\` with margin \`padding\`).`,
     params: [
       { name: "s1", description: "Shape 1", type: shapeT("AnyShape") },
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
@@ -337,6 +370,7 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
    */
   touching: {
     name: "touching",
+    description: `Require that shape \`s1\` is touching shape \`s2\` based on the type of the shape, and with an optional \`padding\` between them (e.g. if \`s1\` should be touching \`s2\` with margin \`padding\`).`,
     params: [
       { name: "s1", description: "Shape 1", type: shapeT("AnyShape") },
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
@@ -353,6 +387,7 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
    */
   contains: {
     name: "contains",
+    description: `Require that a shape \`s1\` contains another shape \`s2\`, based on the type of the shape, and with an optional \`padding\` between the sizes of the shapes (e.g. if \`s1\` should contain \`s2\` with margin \`padding\`).`,
     params: [
       { name: "s1", description: "Shape 1", type: shapeT("AnyShape") },
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
@@ -382,6 +417,8 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
    */
   atDist: {
     name: "atDist",
+    description:
+      "Require that shape `s1` is at a distance of `distance` from shape `s2`.",
     params: [
       { name: "s1", description: "Shape 1", type: shapeT("AnyShape") },
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
@@ -398,6 +435,9 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
    */
   smallerThan: {
     name: "smallerThan",
+    description:
+      "Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.",
+
     params: [
       { name: "s1", description: "Shape 1", type: shapeT("AnyShape") },
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
@@ -426,6 +466,9 @@ const constrDictSpecific: { [k: string]: ConstrFunc } = {
    */
   disjointIntervals: {
     name: "disjointIntervals",
+    description:
+      "Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.",
+
     params: [
       { name: "s1", description: "Line 1", type: shapeT("Line") },
       { name: "s2", description: "Line 2", type: shapeT("Line") },
@@ -445,9 +488,3 @@ export const constrDict = {
   ...constrDictSpecific, // Defined only for specific use-case or specific shapes.
   ...constrDictCurves, // Curve-specific constraints.
 };
-
-// `_constrDictVals` causes TypeScript to enforce that every function in
-// `constrDict` returns an `ad.Num`
-// const _constrDictVals: ((...rest: never[]) => ad.Num)[] = Object.values(
-//   constrDict
-// );

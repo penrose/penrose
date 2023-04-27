@@ -49,6 +49,7 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
    */
   minimal: {
     name: "minimal",
+    description: "Encourage the input value to be close to negative infinity",
     params: [{ name: "x", description: "Value", type: realT() }],
     body: (x: ad.Num): ad.Num => x,
   },
@@ -58,6 +59,7 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
    */
   maximal: {
     name: "maximal",
+    description: "Encourage the input value to be close to infinity",
     params: [{ name: "x", description: "Value", type: realT() }],
     body: (x: ad.Num): ad.Num => neg(x),
   },
@@ -67,6 +69,7 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
    */
   equal: {
     name: "equal",
+    description: "Encourage the inputs to have the same value: `(x - y)^2`",
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
@@ -79,6 +82,8 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
    */
   greaterThan: {
     name: "greaterThan",
+    description:
+      "Encourage x to be greater than or equal to y: `max(0,y - x)^2`",
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
@@ -91,6 +96,7 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
    */
   lessThan: {
     name: "lessThan",
+    description: "Encourage x to be less than or equal to y: `max(0,x - y)^2`",
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
@@ -103,6 +109,8 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
    */
   repelPt: {
     name: "repelPt",
+    description:
+      "Repel point `a` from another scalar `b` with weight `weight`.",
     params: [
       { name: "weight", description: "Weight", type: realT() },
       { name: "a", description: "First point", type: realNT() },
@@ -117,6 +125,7 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
    */
   repelScalar: {
     name: "repelScalar",
+    description: "Repel scalar `c` from another scalar `d`.",
     params: [
       { name: "c", description: "First scalar", type: realT() },
       { name: "d", description: "Second scalar", type: realT() },
@@ -137,6 +146,8 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   below: {
     name: "below",
+    description:
+      "Encourage the center of `bottom` to be below the center of `top`.",
     params: [
       {
         name: "bottom",
@@ -160,6 +171,8 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   above: {
     name: "above",
+    description:
+      "Encourage the center of `top` to be above the center of `bottom`.",
     params: [
       {
         name: "top",
@@ -183,6 +196,8 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   leftwards: {
     name: "leftwards",
+    description:
+      "Encourage the center of `left` to be leftwards to the center of `right`.",
     params: [
       {
         name: "left",
@@ -206,6 +221,8 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   rightwards: {
     name: "rightwards",
+    description:
+      "Encourage the center of `right` to be rightwards to the center of `left`.",
     params: [
       {
         name: "right",
@@ -229,6 +246,8 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   sameCenter: {
     name: "sameCenter",
+    description:
+      "Encourage shape `s1` to have the same center position as shape `s2`.",
     params: [
       { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
@@ -245,6 +264,7 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   notTooClose: {
     name: "notTooClose",
+    description: "Try to repel shapes `s1` and `s2` with some weight.",
     params: [
       { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
@@ -288,6 +308,8 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   near: {
     name: "near",
+    description:
+      "Try to place shape `s1` near shape `s2` (putting their centers at the same place).",
     params: [
       { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
@@ -309,6 +331,7 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   nearPt: {
     name: "nearPt",
+    description: "Try to place shape `s1` near a location `(x, y)`.",
     params: [
       { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
       { name: "x", type: realT(), description: "`x`" },
@@ -325,6 +348,7 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
    */
   nonDegenerateAngle: {
     name: "nonDegenerateAngle",
+    description: "Try to place shape `s1` near a location `(x, y)`.",
     params: [
       { name: "s0", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
@@ -386,6 +410,7 @@ export const objDictSpecific: { [k: string]: ObjFunc } = {
    */
   centerLabel: {
     name: "centerLabel",
+    description: "Try to center a label `s2` with respect to some shape `s1`.",
     params: [
       { name: "s1", type: unionT(shapeT("Line"), rectlikeT()) },
       { name: "s2", type: rectlikeT() },
@@ -424,6 +449,8 @@ export const objDictSpecific: { [k: string]: ObjFunc } = {
    */
   pointLineDist: {
     name: "pointLineDist",
+    description:
+      "Try to make distance between a point and a segment `s1` equal to padding.",
     params: [
       { name: "point", type: real2T() },
       { name: "s1", type: shapeT("Line") },
@@ -447,6 +474,7 @@ export const objDictSpecific: { [k: string]: ObjFunc } = {
    */
   isRegular: {
     name: "isRegular",
+    description: "Try to make the shape regular",
     params: [
       {
         name: "s",
