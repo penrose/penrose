@@ -1,9 +1,9 @@
 Vertex a, b, c, d, e
 
-Link e1 := Edge(a, e)
-Link e2 := Edge(b, e)
-Link e3 := Edge(c, e)
-Link e4 := Edge(d, e)
+Edge(a, e)
+Edge(b, e)
+Edge(c, e)
+Edge(d, e)
 
 Label a "𝑎"
 Label b "𝑏"

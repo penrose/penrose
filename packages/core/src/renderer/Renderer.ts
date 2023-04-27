@@ -4,14 +4,23 @@
  *
  */
 
-import { shapedefs } from "../shapes/Shapes";
-import { Shape } from "../types/shape";
+import { isLinelike, isRectlike } from "../contrib/Utils";
+import { Group } from "../shapes/Group";
+import { Shape } from "../shapes/Shapes";
 import { LabelCache, State } from "../types/state";
-import { StrV } from "../types/value";
 import { getValueAsShapeList } from "../utils/Util";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
+import RenderCircle from "./Circle";
 import { dragUpdate } from "./dragUtils";
-import shapeMap from "./shapeMap";
+import RenderEllipse from "./Ellipse";
+import RenderEquation from "./Equation";
+import RenderImage from "./Image";
+import RenderLine from "./Line";
+import RenderPath from "./Path";
+import RenderPolygon from "./Polygon";
+import RenderPolyline from "./Polyline";
+import RenderRectangle from "./Rectangle";
+import RenderText from "./Text";
 
 /**
  * Resolves path references into static strings. Implemented by client
@@ -20,10 +29,9 @@ import shapeMap from "./shapeMap";
  */
 export type PathResolver = (path: string) => Promise<string | undefined>;
 
-export interface ShapeProps {
+export interface RenderProps {
   namespace: string;
   variation: string;
-  shape: Shape;
   labels: LabelCache;
   canvasSize: [number, number];
   pathResolver: PathResolver;
@@ -134,7 +142,7 @@ export const RenderStatic = async (
 };
 
 const RenderGroup = async (
-  groupShape: Shape,
+  groupShape: Group<number>,
   shapeProps: {
     labels: LabelCache;
     canvasSize: [number, number];
@@ -145,7 +153,7 @@ const RenderGroup = async (
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const subShapes = getValueAsShapeList(groupShape.properties["shapes"]);
+  const subShapes = getValueAsShapeList(groupShape.shapes);
   for (const shape of subShapes) {
     const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
     elem.appendChild(childSvg);
@@ -154,33 +162,51 @@ const RenderGroup = async (
   return elem;
 };
 
+const RenderShapeSvg = async (
+  shape: Exclude<Shape<number>, Group<number>>,
+  renderProps: RenderProps
+): Promise<SVGElement> => {
+  switch (shape.shapeType) {
+    case "Circle":
+      return RenderCircle(shape, renderProps);
+    case "Ellipse":
+      return RenderEllipse(shape, renderProps);
+    case "Equation":
+      return RenderEquation(shape, renderProps);
+    case "Image":
+      return RenderImage(shape, renderProps);
+    case "Line":
+      return RenderLine(shape, renderProps);
+    case "Path":
+      return RenderPath(shape, renderProps);
+    case "Polygon":
+      return RenderPolygon(shape, renderProps);
+    case "Polyline":
+      return RenderPolyline(shape, renderProps);
+    case "Rectangle":
+      return RenderRectangle(shape, renderProps);
+    case "Text":
+      return RenderText(shape, renderProps);
+  }
+};
+
 export const RenderShape = async (
-  shape: Shape,
-  shapeProps: {
-    labels: LabelCache;
-    canvasSize: [number, number];
-    variation: string;
-    namespace: string;
-    pathResolver: PathResolver;
-  },
+  shape: Shape<number>,
+  renderProps: RenderProps,
   interactiveProp?: InteractiveProps
 ): Promise<SVGElement> => {
   if (shape.shapeType === "Group") {
-    const outSvg = await RenderGroup(shape, shapeProps, interactiveProp);
+    const outSvg = await RenderGroup(shape, renderProps, interactiveProp);
     return outSvg;
   } else {
-    const elem = await shapeMap[shape.shapeType]({
-      ...shapeProps,
-      shape,
-    });
+    const elem = await RenderShapeSvg(shape, renderProps);
     if (!interactiveProp) {
       return elem;
     } else {
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      const { shapeType } = shape;
-      if (shapedefs[shapeType].isLinelike) {
+      if (isLinelike(shape)) {
         g.setAttribute("pointer-events", "visibleStroke");
-      } else if (shapedefs[shapeType].isRectlike) {
+      } else if (isRectlike(shape)) {
         g.setAttribute("pointer-events", "bounding-box");
       } else {
         g.setAttribute("pointer-events", "auto");
@@ -199,9 +225,9 @@ export const RenderShape = async (
           y: bboxY,
         } = (e.target as SVGSVGElement).getBBox({ stroke: true });
         const minX = tempX - bboxX;
-        const maxX = shapeProps.canvasSize[0] - bboxW + (tempX - bboxX);
+        const maxX = renderProps.canvasSize[0] - bboxW + (tempX - bboxX);
         const minY = tempY - bboxY;
-        const maxY = shapeProps.canvasSize[1] - bboxH + (tempY - bboxY);
+        const maxY = renderProps.canvasSize[1] - bboxH + (tempY - bboxY);
 
         g.setAttribute("opacity", "0.5");
         let dx = 0,
@@ -218,11 +244,7 @@ export const RenderShape = async (
           g.setAttribute("opacity", "1");
           document.removeEventListener("mouseup", onMouseUp);
           document.removeEventListener("mousemove", onMouseMove);
-          interactiveProp.onDrag(
-            (shape.properties.name as StrV).contents,
-            dx,
-            dy
-          );
+          interactiveProp.onDrag(shape.name.contents, dx, dy);
         };
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);
@@ -234,19 +256,13 @@ export const RenderShape = async (
 };
 
 const RenderShapes = async (
-  shapes: Shape[],
+  shapes: Shape<number>[],
   svg: SVGSVGElement,
-  shapeProps: {
-    labels: LabelCache;
-    canvasSize: [number, number];
-    variation: string;
-    namespace: string;
-    pathResolver: PathResolver;
-  },
+  renderProps: RenderProps,
   interactiveProp?: InteractiveProps
 ) => {
   for (const shape of shapes) {
-    const elem = await RenderShape(shape, shapeProps, interactiveProp);
+    const elem = await RenderShape(shape, renderProps, interactiveProp);
     svg.appendChild(elem);
   }
 };

@@ -1,15 +1,15 @@
 Vertex a, b, c, d, e, f, g, h
 
-Link g1 := Edge(a, b)
-Link g2 := Edge(a, d)
-Link g3 := Edge(b, c)
-Link g4 := Edge(b, f)
-Link g5 := Edge(c, d)
-Link g6 := Edge(d, h)
-Link g7 := Edge(e, f)
-Link g8 := Edge(e, h)
-Link g9 := Edge(f, g)
-Link g10 := Edge(g, h)
+Edge(a, b)
+Edge(a, d)
+Edge(b, c)
+Edge(b, f)
+Edge(c, d)
+Edge(d, h)
+Edge(e, f)
+Edge(e, h)
+Edge(f, g)
+Edge(g, h)
 
 Label a "𝑎"
 Label b "𝑏"
@@ -22,16 +22,16 @@ Label h "ℎ"
 
 Vertex s, t, u, v, w, x, y, z
 
-Link h1 := Edge(s, t)
-Link h2 := Edge(s, v)
-Link h3 := Edge(s, w)
-Link h4 := Edge(t, u)
-Link h5 := Edge(u, v)
-Link h6 := Edge(v, z)
-Link h7 := Edge(w, x)
-Link h8 := Edge(w, z)
-Link h9 := Edge(x, y)
-Link h10 := Edge(y, z)
+Edge(s, t)
+Edge(s, v)
+Edge(s, w)
+Edge(t, u)
+Edge(u, v)
+Edge(v, z)
+Edge(w, x)
+Edge(w, z)
+Edge(x, y)
+Edge(y, z)
 
 Label s "𝑠"
 Label t "𝑡"

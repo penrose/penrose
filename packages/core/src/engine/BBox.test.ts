@@ -8,6 +8,7 @@ import { makePolygon } from "../shapes/Polygon";
 import { makePolyline } from "../shapes/Polyline";
 import { makeRectangle } from "../shapes/Rectangle";
 import { makeCanvas, simpleContext } from "../shapes/Samplers";
+import * as ad from "../types/ad";
 import { Poly, Scale } from "../types/shapes";
 import { black, floatV, ptListV, vectorV } from "../utils/Util";
 import { genCodeSync, secondaryGraph } from "./Autodiff";
@@ -42,7 +43,7 @@ const expectBbox = (
   expect(y).toBeCloseTo(expected.center[1]);
 };
 
-const polyProps = (): Poly & Scale => ({
+const polyProps = (): Poly<ad.Num> & Scale<ad.Num> => ({
   points: ptListV(
     // https://en.wikipedia.org/wiki/Polygon#/media/File:Assorted_polygons.svg
     [

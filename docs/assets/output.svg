@@ -21,8 +21,6 @@
   </circle>
   <g
     transform="rotate(0, 278.5380337730517, 440.4547177952158)translate(278.5380337730517, 440.4547177952158)"
-    font-size="25px"
-    string="C"
   >
     <title>`C`.text</title>
     <svg
@@ -70,8 +68,6 @@
   </circle>
   <g
     transform="rotate(0, 490.5480756665174, 280.4509291663695)translate(490.5480756665174, 280.4509291663695)"
-    font-size="25px"
-    string="B"
   >
     <title>`B`.text</title>
     <svg
@@ -119,8 +115,6 @@
   </circle>
   <g
     transform="rotate(0, 276.48157837846566, 363.15237432058024)translate(276.48157837846566, 363.15237432058024)"
-    font-size="25px"
-    string="F"
   >
     <title>`F`.text</title>
     <svg
@@ -168,8 +162,6 @@
   </circle>
   <g
     transform="rotate(0, 421.5729786403807, 308.58675237776146)translate(421.5729786403807, 308.58675237776146)"
-    string="D"
-    font-size="25px"
   >
     <title>`D`.text</title>
     <svg
@@ -217,8 +209,6 @@
   </circle>
   <g
     transform="rotate(0, 430.61961757427264, 217.31679695252137)translate(430.61961757427264, 217.31679695252137)"
-    font-size="25px"
-    string="E"
   >
     <title>`E`.text</title>
     <svg
@@ -256,8 +246,6 @@
   </g>
   <g
     transform="rotate(0, 321.4993903684922, 286.1405379511344)translate(321.4993903684922, 286.1405379511344)"
-    font-size="25px"
-    string="A"
   >
     <title>`A`.text</title>
     <svg
@@ -305,8 +293,6 @@
   </circle>
   <g
     transform="rotate(0, 187.87425179498047, 418.3565328497265)translate(187.87425179498047, 418.3565328497265)"
-    font-size="25px"
-    string="G"
   >
     <title>`G`.text</title>
     <svg

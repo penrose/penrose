@@ -4,11 +4,12 @@ import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
+import { Equation } from "../shapes/Equation";
 import { InputMeta } from "../shapes/Samplers";
-import { ShapeDef, shapedefs } from "../shapes/Shapes";
+import { pendingProps, Shape } from "../shapes/Shapes";
+import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
 import { PenroseError } from "../types/errors";
-import { Properties, ShapeAD } from "../types/shape";
 import { EquationData, LabelCache, State, TextData } from "../types/state";
 import { FloatV } from "../types/value";
 import { err, ok, Result } from "./Error";
@@ -69,7 +70,7 @@ type Output = {
  * Call MathJax to render __non-empty__ labels.
  */
 const tex2svg = async (
-  properties: Properties<ad.Num>
+  properties: Equation<ad.Num>
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
     const contents = getAdValueAsString(properties.string, "");
@@ -142,14 +143,14 @@ const equationData = (
 });
 
 /**
- * Get the CSS string for the font setting of a `Text` GPI.
- * @param shape A text GPI
+ * Get the CSS string for the font setting of a `Text` shape.
+ * @param shape A text shape
  *
  * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
  *
  * @returns a CSS rule string of its font settings
  */
-export const toFontRule = ({ properties }: ShapeAD): string => {
+export const toFontRule = <T>(properties: Text<T>): string => {
   const fontFamily = getAdValueAsString(properties.fontFamily);
   const fontSize = getAdValueAsString(properties.fontSize);
   const fontStretch = getAdValueAsString(properties.fontStretch);
@@ -175,14 +176,13 @@ export const toFontRule = ({ properties }: ShapeAD): string => {
 
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
-  allShapes: ShapeAD[]
+  allShapes: Shape<ad.Num>[]
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
-    const { shapeType, properties } = s;
-    if (shapeType === "Equation" || shapeType === "EquationTransform") {
-      const shapeName = getAdValueAsString(properties.name);
-      const svg = await tex2svg(properties);
+    if (s.shapeType === "Equation") {
+      const shapeName = getAdValueAsString(s.name);
+      const svg = await tex2svg(s);
 
       if (svg.isErr()) {
         return err({
@@ -202,12 +202,12 @@ export const collectLabels = async (
         body
       );
       labels.set(shapeName, label);
-    } else if (shapeType === "Text") {
-      const shapeName: string = getAdValueAsString(properties.name);
+    } else if (s.shapeType === "Text") {
+      const shapeName: string = getAdValueAsString(s.name);
       let label: TextData;
       // Use canvas to measure text data
       const measure: TextMeasurement = measureText(
-        getAdValueAsString(properties.string),
+        getAdValueAsString(s.string),
         toFontRule(s)
       );
 
@@ -223,8 +223,8 @@ export const collectLabels = async (
         label = textData(0, 0, 0, 0);
       }
       labels.set(shapeName, label);
-    } else if (shapeType === "Group") {
-      const subShapes = getValueAsShapeList(properties["shapes"]);
+    } else if (s.shapeType === "Group") {
+      const subShapes = getValueAsShapeList(s.shapes);
       const subLabels = await collectLabels(subShapes);
       if (subLabels.isErr()) {
         return subLabels;
@@ -275,7 +275,7 @@ export function measureText(text: string, font: string): TextMeasurement {
 //#endregion
 
 const setPendingProperty = (
-  properties: Properties<ad.Num>,
+  properties: Shape<ad.Num>,
   propertyID: string,
   newValue: FloatV<number>,
   xs: number[],
@@ -295,28 +295,25 @@ const setPendingProperty = (
 };
 
 const insertPendingHelper = (
-  shapes: ShapeAD[],
+  shapes: Shape<ad.Num>[],
   xs: number[],
   state: State
 ): void => {
-  for (const { shapeType, properties } of shapes) {
-    if (shapeType === "Group") {
-      const subShapes = getValueAsShapeList(properties["shapes"]);
+  for (const s of shapes) {
+    if (s.shapeType === "Group") {
+      const subShapes = getValueAsShapeList(s.shapes);
       insertPendingHelper(subShapes, xs, state);
     } else {
-      const shapedef: ShapeDef = shapedefs[shapeType];
-      if (properties.name.tag === "StrV") {
-        const labelData = state.labelCache.get(properties.name.contents);
-        if (labelData !== undefined) {
-          for (const propertyID of shapedef.pendingProps) {
-            setPendingProperty(
-              properties,
-              propertyID,
-              labelData[propertyID],
-              xs,
-              state.inputs
-            );
-          }
+      const labelData = state.labelCache.get(s.name.contents);
+      if (labelData !== undefined) {
+        for (const propertyID of pendingProps(s.shapeType)) {
+          setPendingProperty(
+            s,
+            propertyID,
+            labelData[propertyID],
+            xs,
+            state.inputs
+          );
         }
       }
     }

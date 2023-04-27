@@ -1,14 +1,14 @@
 Vertex s1, s2, s3, s4, s5, s6
 
-Link e1 := Arc(s1, s3)
-Link e2 := Arc(s1, s4)
-Link e3 := Arc(s1, s6)
-Link e4 := Arc(s2, s4)
-Link e5 := Arc(s2, s5)
-Link e6 := Arc(s2, s6)
-Link e7 := Arc(s3, s6)
-Link e8 := Arc(s4, s5)
-Link e9 := Arc(s4, s6)
+Arc(s1, s3)
+Arc(s1, s4)
+Arc(s1, s6)
+Arc(s2, s4)
+Arc(s2, s5)
+Arc(s2, s6)
+Arc(s3, s6)
+Arc(s4, s5)
+Arc(s4, s6)
 
 Label s1 "𝑆₁"
 Label s2 "𝑆₂"

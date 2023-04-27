@@ -1,5 +1,6 @@
 import { SynthesizerSetting } from "@penrose/core";
 import geometryDomain from "@penrose/examples/dist/geometry-domain";
+import graphDomain from "@penrose/examples/dist/graph-domain";
 import molecules from "@penrose/examples/dist/molecules";
 
 export interface Preset {
@@ -14,17 +15,51 @@ interface PresetCollection {
   [s: string]: Preset;
 }
 
+const lewisParams: SynthesizerSetting = {
+  mutationCount: [1, 4],
+  argOption: "existing",
+  argReuse: "distinct",
+  weights: {
+    type: 0.15,
+    predicate: 0.5,
+    constructor: 0.35,
+  },
+  opWeights: {
+    add: 0,
+    delete: 0,
+    edit: 1,
+  },
+  add: {
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
+  },
+  delete: {
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
+  },
+  edit: {
+    type: "*",
+    function: "*",
+    constructor: "*",
+    predicate: "*",
+  },
+};
+
 const geometryParams: SynthesizerSetting = {
   mutationCount: [1, 4],
   argOption: "existing",
   argReuse: "distinct",
   weights: {
-    type: 0.1,
-    predicate: 0.3,
-    constructor: 0.2,
+    type: 0.15,
+    predicate: 0.5,
+    constructor: 0.35,
   },
   opWeights: {
-    add: 0.01,
+    add: 0,
     delete: 0.2,
     edit: 0.8,
   },
@@ -49,19 +84,19 @@ const geometryParams: SynthesizerSetting = {
   },
 };
 
-const lewisParams: SynthesizerSetting = {
+const graphParams: SynthesizerSetting = {
   mutationCount: [1, 4],
   argOption: "existing",
   argReuse: "distinct",
   weights: {
-    type: 0.1,
-    predicate: 0.3,
-    constructor: 0.3,
+    type: 0.15,
+    predicate: 0.5,
+    constructor: 0.35,
   },
   opWeights: {
-    add: 0.01,
-    delete: 0.01,
-    edit: 0.8,
+    add: 0.5,
+    delete: 0.4,
+    edit: 0.1,
   },
   // TODO: need weights for the three ops
   add: {
@@ -413,13 +448,83 @@ forall Point \`D\`, \`E\`, \`A\` {
     },
   },
   lewis_6: {
-    displayName: "lewis_5: Hydrazine",
+    displayName: "lewis_6: Hydrazine",
     prompt: "Choose the correct Lewis structure for $\\mathrm{N_2H_4}$.",
     substance: molecules["hydrazine.substance"],
     domain: molecules["molecules.domain"],
     style: molecules["lewis.style"],
     setting: {
       ...lewisParams,
+    },
+  },
+  graph_0: {
+    displayName: "graph_0: Bipartite Graph",
+    prompt: "Which of the following diagrams are bipartite graphs?",
+    substance: graphDomain.textbook.sec2["ex22.substance"],
+    domain: graphDomain["simple-graph.domain"],
+    style: graphDomain["simple-graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_1: {
+    displayName: "graph_1: Self-complementary Graph",
+    prompt: "Which of the following diagrams are self-complementary graphs?",
+    substance: graphDomain.textbook.sec3["ex50.substance"],
+    domain: graphDomain["simple-graph.domain"],
+    style: graphDomain["simple-graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_2: {
+    displayName: "graph_2: Euler Circuit 1",
+    prompt: "Which diagram has an Euler circuit?",
+    substance: graphDomain.textbook.sec5["ex21.substance"],
+    domain: graphDomain["simple-directed-graph.domain"],
+    style: graphDomain["simple-directed-graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_3: {
+    displayName: "graph_3: Euler Circuit 2",
+    prompt: "Which diagram has an Euler circuit?",
+    substance: graphDomain.textbook.sec5["ex18.substance"],
+    domain: graphDomain["simple-directed-graph.domain"],
+    style: graphDomain["simple-directed-graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_4: {
+    displayName: "graph_4: Bipartite Graph 2",
+    prompt: "Which of the following diagrams are bipartite graphs?",
+    substance: graphDomain.textbook.sec2["eg9.substance"],
+    domain: graphDomain["simple-graph.domain"],
+    style: graphDomain["simple-graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_5: {
+    displayName: "graph_5: Strongly Connected Graph",
+    prompt: "Which of the following diagrams are strongly connected graphs?",
+    substance: graphDomain.textbook.sec4["ex12b.substance"],
+    domain: graphDomain["simple-directed-graph.domain"],
+    style: graphDomain["simple-directed-graph.style"],
+    setting: {
+      ...graphParams,
+    },
+  },
+  graph_6: {
+    displayName: "graph_6: Hamilton Circuit",
+    prompt: "Which diagram has a Hamilton circuit?",
+    substance: graphDomain.textbook.sec5["ex47d.substance"],
+    domain: graphDomain["simple-graph.domain"],
+    style: graphDomain["simple-graph.style"],
+    setting: {
+      ...graphParams,
     },
   },
 };

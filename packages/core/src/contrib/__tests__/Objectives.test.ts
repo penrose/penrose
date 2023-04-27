@@ -1,3 +1,5 @@
+import { Shape } from "../../shapes/Shapes";
+import * as ad from "../../types/ad";
 import { objDict, objDictSpecific } from "../Objectives";
 import { numOf } from "../Utils";
 import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
@@ -48,24 +50,22 @@ describe("simple objective", () => {
 });
 
 describe("isRegular", () => {
-  it.each([
-    ["Polyline", _polylines[6]],
-    ["Polygon", _polygons[6]],
-  ])("convex %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = objDictSpecific.isRegular(shape);
-    expect(numOf(result)).toBeLessThanOrEqual(1e-5);
-  });
+  it.each([[_polylines[6]], [_polygons[6]]])(
+    "convex %p",
+    (shape: Shape<ad.Num>) => {
+      const result = objDictSpecific.isRegular(shape);
+      expect(numOf(result)).toBeLessThanOrEqual(1e-5);
+    }
+  );
 
   it.each([
-    ["Polyline", _polylines[7]],
-    ["Polygon", _polygons[7]],
-    ["Polyline", _polylines[8]],
-    ["Polygon", _polygons[8]],
-    ["Polyline", _polylines[9]],
-    ["Polygon", _polygons[9]],
-  ])("non-convex %p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
+    [_polylines[7]],
+    [_polygons[7]],
+    [_polylines[8]],
+    [_polygons[8]],
+    [_polylines[9]],
+    [_polygons[9]],
+  ])("non-convex %p", (shape: Shape<ad.Num>) => {
     const result = objDictSpecific.isRegular(shape);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });

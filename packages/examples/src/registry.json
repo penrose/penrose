@@ -102,170 +102,170 @@
     },
     {
       "substance": "computer-network-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": ""
     },
     {
       "substance": "computer-network-multiple-links-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "pseudograph",
+      "domain": "pseudograph",
       "variation": ""
     },
     {
       "substance": "computer-network-diagnostic-links-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "pseudograph",
+      "domain": "pseudograph",
       "variation": ""
     },
     {
       "substance": "communications-network-one-way-links-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
       "variation": ""
     },
     {
       "substance": "computer-network-multiple-one-way-links-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "directed-multigraph",
+      "domain": "directed-multigraph",
       "variation": "ColumbineMosquito92625"
     },
     {
       "substance": "acquaintanceship-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": ""
     },
     {
       "substance": "influence-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
       "variation": "BurdockWallaby5484"
     },
     {
       "substance": "call-directed-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "directed-multigraph",
+      "domain": "directed-multigraph",
       "variation": ""
     },
     {
       "substance": "call-undirected-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "pseudograph",
+      "domain": "pseudograph",
       "variation": ""
     },
     {
       "substance": "module-dependency-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
       "variation": "TurquishMongoose642"
     },
     {
       "substance": "precedence-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
       "variation": "WineberryGull921"
     },
     {
       "substance": "niche-overlap-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "RustiqueOpossum386"
     },
     {
       "substance": "protein-interaction-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "AtmosphereBear54663"
     },
     {
       "substance": "round-robin-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
       "variation": "MetalShrew80769"
     },
     {
       "substance": "complete-graphs",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "PerfectionPorcupine953"
     },
     {
       "substance": "cycle-graphs",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "AutonomousPigeon86039"
     },
     {
       "substance": "wheel-graphs",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "IonianElephant37708"
     },
     {
       "substance": "cube-graphs",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": ""
     },
     {
       "substance": "complete-bipartite-graphs",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": ""
     },
     {
       "substance": "jobs-trained-matching-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": ""
     },
     {
       "substance": "jobs-trained-no-matching-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": ""
     },
     {
       "substance": "star-topology-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "IonianElephant37708"
     },
     {
       "substance": "ring-topology-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "IonianElephant37708"
     },
     {
       "substance": "hybrid-topology-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "IonianElephant37708"
     },
     {
       "substance": "linear-array-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "MelodySalmon16237"
     },
     {
       "substance": "mesh-network-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "MelodySalmon16237"
     },
     {
       "substance": "hypercube-network-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "TanagerTarsier789"
     },
     {
       "substance": "union-graph",
-      "style": "graph",
-      "domain": "graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": "WickerworkCrane44939"
     },
     {
@@ -281,7 +281,7 @@
       "substance": "collinear",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "HighlighterChicken10318",
+      "variation": "GoldbrownFly7869",
       "gallery": true
     },
     {
@@ -622,8 +622,17 @@
     "shape-spec": {
       "URI": "shape-spec/all-shapes.domain"
     },
-    "graph": {
-      "URI": "graph-domain/graph.domain"
+    "simple-graph": {
+      "URI": "graph-domain/simple-graph.domain"
+    },
+    "pseudograph": {
+      "URI": "graph-domain/pseudograph.domain"
+    },
+    "simple-directed-graph": {
+      "URI": "graph-domain/simple-directed-graph.domain"
+    },
+    "directed-multigraph": {
+      "URI": "graph-domain/directed-multigraph.domain"
     },
     "geometry": {
       "URI": "geometry-domain/geometry.domain"
@@ -728,9 +737,21 @@
       "domain": "linear-algebra",
       "URI": "exterior-algebra/exterior-algebra.style"
     },
-    "graph": {
-      "domain": "graph",
-      "URI": "graph-domain/graph.style"
+    "simple-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/simple-graph.style"
+    },
+    "pseudograph": {
+      "domain": "pseudograph",
+      "URI": "graph-domain/pseudograph.style"
+    },
+    "simple-directed-graph": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/simple-directed-graph.style"
+    },
+    "directed-multigraph": {
+      "domain": "directed-multigraph",
+      "URI": "graph-domain/directed-multigraph.style"
     },
     "euclidean": {
       "domain": "geometry",
@@ -859,115 +880,115 @@
       "URI": "shape-spec/arrows.substance"
     },
     "computer-network-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec1/fig1.substance"
     },
     "computer-network-multiple-links-graph": {
-      "domain": "graph",
+      "domain": "pseudograph",
       "URI": "graph-domain/textbook/sec1/fig2.substance"
     },
     "computer-network-diagnostic-links-graph": {
-      "domain": "graph",
+      "domain": "pseudograph",
       "URI": "graph-domain/textbook/sec1/fig3.substance"
     },
     "communications-network-one-way-links-graph": {
-      "domain": "graph",
+      "domain": "simple-directed-graph",
       "URI": "graph-domain/textbook/sec1/fig4.substance"
     },
     "computer-network-multiple-one-way-links-graph": {
-      "domain": "graph",
-      "URI": "graph-domain/textbook/sec1/fig4.substance"
+      "domain": "directed-multigraph",
+      "URI": "graph-domain/textbook/sec1/fig5.substance"
     },
     "acquaintanceship-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec1/fig6.substance"
     },
     "influence-graph": {
-      "domain": "graph",
+      "domain": "simple-directed-graph",
       "URI": "graph-domain/textbook/sec1/fig7.substance"
     },
     "call-directed-graph": {
-      "domain": "graph",
+      "domain": "directed-multigraph",
       "URI": "graph-domain/textbook/sec1/fig8a.substance"
     },
     "call-undirected-graph": {
-      "domain": "graph",
+      "domain": "pseudograph",
       "URI": "graph-domain/textbook/sec1/fig8b.substance"
     },
     "module-dependency-graph": {
-      "domain": "graph",
+      "domain": "simple-directed-graph",
       "URI": "graph-domain/textbook/sec1/fig9.substance"
     },
     "precedence-graph": {
-      "domain": "graph",
+      "domain": "simple-directed-graph",
       "URI": "graph-domain/textbook/sec1/fig10.substance"
     },
     "niche-overlap-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec1/fig11.substance"
     },
     "protein-interaction-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec1/fig12.substance"
     },
     "round-robin-graph": {
-      "domain": "graph",
+      "domain": "simple-directed-graph",
       "URI": "graph-domain/textbook/sec1/fig13.substance"
     },
     "complete-graphs": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig3.substance"
     },
     "cycle-graphs": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig4.substance"
     },
     "wheel-graphs": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig5.substance"
     },
     "cube-graphs": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig6.substance"
     },
     "complete-bipartite-graphs": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig9.substance"
     },
     "jobs-trained-matching-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig10a.substance"
     },
     "jobs-trained-no-matching-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig10b.substance"
     },
     "star-topology-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig11a.substance"
     },
     "ring-topology-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig11b.substance"
     },
     "hybrid-topology-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig11c.substance"
     },
     "linear-array-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig12.substance"
     },
     "mesh-network-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig13.substance"
     },
     "hypercube-network-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig14.substance"
     },
     "union-graph": {
-      "domain": "graph",
+      "domain": "simple-graph",
       "URI": "graph-domain/textbook/sec2/fig16b.substance"
     },
     "siggraph-teaser": {

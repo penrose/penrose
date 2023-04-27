@@ -1,0 +1,11 @@
+Vertex a, b, c, d, e, f
+
+Edge(a, b)
+Edge(a, c)
+Edge(a, e)
+Edge(b, c)
+Edge(b, f)
+Edge(c, d)
+Edge(d, e)
+Edge(d, f)
+Edge(e, f)

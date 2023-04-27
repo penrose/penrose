@@ -1,6 +1,7 @@
 import { Result } from "true-myth";
 import { isConcrete } from "../engine/EngineUtils";
-import { shapedefs } from "../shapes/Shapes";
+import { shapeTypes } from "../shapes/Shapes";
+import * as ad from "../types/ad";
 import {
   A,
   AbstractNode,
@@ -13,6 +14,7 @@ import {
 import { Arg, Type, TypeConstructor } from "../types/domain";
 import {
   ArgLengthMismatch,
+  BadShapeParamTypeError,
   CyclicSubtypes,
   DeconstructNonconstructor,
   DomainError,
@@ -38,6 +40,7 @@ import {
 import { State } from "../types/state";
 import { BindingForm, ColorLit } from "../types/style";
 import { Deconstructor, SubExpr } from "../types/substance";
+import { ShapeVal, Val } from "../types/value";
 import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
 const {
   or,
@@ -260,7 +263,7 @@ export const showError = (
     // --- BEGIN BLOCK STATIC ERRORS
 
     case "InvalidGPITypeError": {
-      const shapeNames: string[] = Object.keys(shapedefs);
+      const shapeNames: string[] = shapeTypes;
       return `Got invalid GPI type ${error.givenType.value}. Available shape types: ${shapeNames}`;
     }
 
@@ -423,6 +426,19 @@ canvas {
       return `Unsupported unary operation ${error.expr.op} on type ${
         error.arg
       } (at ${loc(error.expr)}).`;
+    }
+
+    case "BadShapeParamTypeError": {
+      const expectedType = error.expectedType;
+      const expectedClause = `expects type ${expectedType}`;
+      const doesNotAcceptClause =
+        error.value.tag === "Val"
+          ? `does not accept type ${error.value.contents.tag}`
+          : `does not accept shape ${error.value.contents.shapeType}`;
+      const propertyClause = error.passthrough
+        ? `Passthrough shape property ${error.path}`
+        : `Shape property ${error.path}`;
+      return `${propertyClause} ${expectedClause} and ${doesNotAcceptClause}.`;
     }
 
     // --- END COMPILATION ERRORS
@@ -624,6 +640,19 @@ export const invalidColorLiteral = (
 ): InvalidColorLiteral => ({
   tag: "InvalidColorLiteral",
   color,
+});
+
+export const badShapeParamTypeError = (
+  path: string,
+  value: Val<ad.Num> | ShapeVal<ad.Num>,
+  expectedType: string,
+  passthrough: boolean
+): BadShapeParamTypeError => ({
+  tag: "BadShapeParamTypeError",
+  path,
+  value,
+  expectedType,
+  passthrough,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

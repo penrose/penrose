@@ -168,7 +168,7 @@ checksum = "b1de2e551fb905ac83f73f7aedf2f0cb4a0da7e35efa24a202a936269f1f18e1"
 
 [[package]]
 name = "penrose-optimizer"
-version = "2.2.0"
+version = "2.3.0"
 dependencies = [
  "console_error_panic_hook",
  "console_log",

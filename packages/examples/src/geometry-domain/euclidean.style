@@ -1,6 +1,6 @@
 canvas {
-  width = 800
-  height = 700
+  width = 500
+  height = 500
 }
 
 Colors {
@@ -34,7 +34,7 @@ const {
     minLineLength = 200.0
 }
 
-layout = [shape, label, tidy]
+layout = [shape, label]
 
 --Plane
 forall Plane p {
