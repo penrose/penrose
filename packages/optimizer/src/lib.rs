@@ -593,7 +593,6 @@ fn lbfgs_inner(grad_fx_k: &Vector, ss: &[Vector], ys: &[Vector]) -> Vector {
     let gamma_k = s_km1.dot(y_km1) / (y_km1.dot(y_km1) + EPSD); // according to Nocedal p226, eqn 9.6
 
     // FORWARD: for i = k-m .. k-1
-    // below: [nxn matrix * nx1 (col) vec] -> nx1 (col) vec
     let r_k_minus_m = gamma_k * q_k_minus_m;
 
     // Note that rhos, alphas, ss, and ys are all in order from `k-1` to `k-m` so we just reverse all of them together to go from `k-m` to `k-1`
