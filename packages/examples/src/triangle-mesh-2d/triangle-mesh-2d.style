@@ -1,3 +1,5 @@
+layout = [shapes, labels]
+
 canvas {
    width = 480
    height = 360
@@ -55,8 +57,8 @@ forall Vertex v {
 forall Vertex v
 where v has label {
 
-   v.labelAngle = ?
-   v.labelRadius = ?
+   v.labelAngle = ? in labels
+   v.labelRadius = ? in labels
 
    -- label
    shape v.text = Text {
@@ -69,7 +71,7 @@ where v has label {
    }
 
    -- make sure label doesn't get too far from the dot
-   ensure inRange( v.labelRadius, 1.02*Global.labelBoundRadius, 1.1*Global.labelBoundRadius )
+   ensure inRange( v.labelRadius, 1.02*Global.labelBoundRadius, 1.1*Global.labelBoundRadius ) in labels
 
    -- invisible circle around label
    -- (used to prevent overlap)
@@ -81,16 +83,16 @@ where v has label {
    }
 
    -- make sure the label is on the canvas
-   ensure contains( Global.box, v.bounds )
+   ensure contains( Global.box, v.bounds ) in labels
 
    -- keep the label near the dot
-   encourage equal( norm(v.text.center - v.icon.center), Global.labelBoundRadius )
+   encourage equal( norm(v.text.center - v.icon.center), Global.labelBoundRadius ) in labels
 }
 
 -- make sure vertex labels don't overlap
 forall Vertex u; Vertex v
 where u has label; v has label { -- requires #774 to replace with "where u has label; v has label"; currently hacked-in using predicate in Domain program
-   ensure disjoint( u.bounds, v.bounds )
+   ensure disjoint( u.bounds, v.bounds ) in labels
 }
 
 forall Edge e; Vertex i; Vertex j
@@ -125,8 +127,8 @@ forall Edge e; Vertex i; Vertex j
 where e := MakeEdge(i,j); i has label; j has label {
    -- make sure edge doesn't cover the
    -- labels of its two endpoints
-   ensure disjoint( i.bounds, e.segment, 1. )
-   ensure disjoint( j.bounds, e.segment, 1. )
+   ensure disjoint( i.bounds, e.segment, 1. ) in labels
+   ensure disjoint( j.bounds, e.segment, 1. ) in labels
 }
 
 forall Edge e
@@ -139,7 +141,7 @@ where IsBoundaryEdge( e ) {
 forall Edge e; Vertex i; Vertex j; Vertex k
 where e := MakeEdge(i,j); k has label {
    
-   ensure disjoint( k.bounds, e.segment, 1. )
+   ensure disjoint( k.bounds, e.segment, 1. ) in labels
 }
 
 forall Triangle t; Vertex i; Vertex j; Vertex k
@@ -178,8 +180,8 @@ where t := MakeTriangle(i,j,k)
    -- (the third will of course make the sum equal to 180)
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
-   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(40.), toRadians(80.) )
-   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(40.), toRadians(80.) )
+   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(40.), toRadians(80.) ) in labels
+   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(40.), toRadians(80.) ) in labels
 }
 
 forall Corner c; Vertex i; Vertex j; Vertex k
@@ -254,13 +256,13 @@ where c := MakeCorner(i,j,k); c has text label {
    vec2 w = (c.u+c.v)/2.
    vec2 z = c.center - i.center
    ensure lessThan( angleBetween(w,z), c.wedgeAngle/4. )
-   encourage near( c.textBounds, i.icon )
-   ensure disjoint( c.textBounds, c.arcBall )
+   encourage near( c.textBounds, i.icon ) in labels
+   ensure disjoint( c.textBounds, c.arcBall ) in labels
 }
 
 forall Corner c1; Corner c2
 where c1 has text label; c2 has text label {
-   ensure disjoint( c1.textBounds, c2.textBounds )
+   ensure disjoint( c1.textBounds, c2.textBounds ) in labels
 }
 
 forall Point p {
@@ -382,7 +384,7 @@ forall Circle C {
       fillColor: Colors.semiBlue
    }
 
-   constraint C.validRadius = ensure inRange( C.icon.r, 100, 200 )
+   -- constraint C.validRadius = ensure inRange( C.icon.r, 100, 200 )
    constraint C.onCanvas = ensure contains(Global.box, C.icon)
 }
 
