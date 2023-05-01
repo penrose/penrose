@@ -85,6 +85,8 @@ const showArgValType = (v: ArgVal<ad.Num>): string => {
       } else {
         return start + ` of nonrectangular shape`;
       }
+    } else if (v.contents.tag === "StrV") {
+      return start + ` with content "${v.contents.contents}"`;
     } else {
       return `${v.contents.tag} value`;
     }
