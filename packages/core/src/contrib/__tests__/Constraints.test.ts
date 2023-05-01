@@ -12,6 +12,14 @@ import {
 
 const digitPrecision = 10;
 
+describe("key-name equality", () => {
+  test("each function's key and name should be equal", () => {
+    for (const [name, func] of Object.entries(constrDict)) {
+      expect(name).toEqual(func.name);
+    }
+  });
+});
+
 describe("simple constraint", () => {
   it.each([
     [1, 1, 0],

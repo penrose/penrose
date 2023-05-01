@@ -144,7 +144,7 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
    * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
    */
   contains1D: {
-    name: "inRange",
+    name: "contains1D",
     description:
       "Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.",
 

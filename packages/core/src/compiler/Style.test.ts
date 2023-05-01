@@ -970,6 +970,41 @@ delete x.z.p }`,
           }
         }`,
       ],
+      BadArgumentTypeError: [
+        `forall Set a {
+          x = circumradius([1, 2, 3], [4, 5, 6], [7, 8, 9])
+        }`,
+        `forall Set a {
+          x = cubicCurveFromPoints("hello", [(1, 2), (3, 4), (5, 6)])
+        }`,
+        `forall Set a {
+          x = cubicCurveFromPoints("closed", [(1, 2, 3), (3, 4, 5), (5, 6, 7), (6, 7, 8)])
+        }`,
+        `forall Set a {
+          c = Circle {}
+          encourage isRegular(c)
+        }`,
+      ],
+      MissingArgumentError: [
+        `forall Set a {
+          a.s = Circle {}
+          ensure contains(a.s)
+        }`,
+        `forall Set a {
+          ensure disjoint()
+        }`,
+      ],
+      TooManyArgumentsError: [
+        `forall Set a {
+          a.s = Circle {}
+          ensure contains(a.s, a.s, 1, 2, 3)
+        }`,
+      ],
+      FunctionInternalError: [
+        `forall Set a {
+          x = dot([1, 2, 3], [4, 5])
+        }`,
+      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {

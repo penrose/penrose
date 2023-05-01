@@ -16,6 +16,14 @@ import {
 import { extractPoints, isClosed, numOf } from "../Utils";
 import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
 
+describe("key-name equality", () => {
+  test("each function's key and name should be equal", () => {
+    for (const [name, func] of Object.entries(constrDictCurves)) {
+      expect(name).toEqual(func.name);
+    }
+  });
+});
+
 describe("equivalued", () => {
   it.each([[[2]], [[3, 3, 3, 3, 3]], [[-5, -5, -5]], [[-5, -5, -5]]])(
     "same numbers",

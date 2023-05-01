@@ -6,6 +6,14 @@ import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
 
 const digitPrecision = 4;
 
+describe("key-name equality", () => {
+  test("each function's key and name should be equal", () => {
+    for (const [name, func] of Object.entries(objDict)) {
+      expect(name).toEqual(func.name);
+    }
+  });
+});
+
 describe("simple objective", () => {
   it.each([
     [1, 1, 0],
