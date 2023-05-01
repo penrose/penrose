@@ -1229,6 +1229,10 @@
       "domain": "curve-examples",
       "URI": "curve-examples/cubic-bezier.substance"
     },
+    "concyclic-pair": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/concyclic-pair.substance"
+    },
     "cotan-formula": {
       "domain": "triangle-mesh-2d",
       "URI": "triangle-mesh-2d/diagrams/cotan-formula.substance"
