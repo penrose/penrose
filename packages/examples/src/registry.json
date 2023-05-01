@@ -633,6 +633,13 @@
       "style": "triangle-mesh-2d",
       "domain": "triangle-mesh-2d",
       "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Rigid Conformal Mapping of a 2D Mesh",
+      "substance": "angle-equivalence",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "ClamshellKookabura228"
     }
   ],
   "domains": {

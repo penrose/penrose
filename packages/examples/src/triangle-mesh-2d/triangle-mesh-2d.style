@@ -622,37 +622,44 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 -- Specific to diagrams/angle-equivalence.substance
 -- TODO requires #776 to import these rules from an example-specific Style module
 
---- angle-equivalence --- -- Don't draw vertices as dots in this
---- angle-equivalence --- -- example (but still keep the icons, for
---- angle-equivalence --- -- other purposes).
---- angle-equivalence --- forall Vertex v {
---- angle-equivalence ---    override v.icon.r = 0.
---- angle-equivalence --- }
---- angle-equivalence --- 
---- angle-equivalence --- similarityMap {
---- angle-equivalence ---    scalar scale = .5
---- angle-equivalence ---    scalar angle = ?
---- angle-equivalence ---    vec2 shift = (canvas.width/3.,0.)
---- angle-equivalence --- }
---- angle-equivalence --- 
---- angle-equivalence --- forall Vertex v; Vertex v0
---- angle-equivalence --- where v := similarity(v0) {
---- angle-equivalence --- 
---- angle-equivalence ---    scalar s = similarityMap.scale
---- angle-equivalence ---    scalar theta = similarityMap.angle
---- angle-equivalence ---    vec2 u = similarityMap.shift
---- angle-equivalence --- 
---- angle-equivalence ---    override v.center = s*rotateBy(v0.center,theta) + u
---- angle-equivalence ---    delete v.onCanvas
---- angle-equivalence --- }
---- angle-equivalence --- 
---- angle-equivalence --- -- don't constrain triangle geometry so much
---- angle-equivalence --- forall Triangle t; Vertex i; Vertex j; Vertex k; Vertex i0
---- angle-equivalence --- where t := MakeTriangle(i,j,k); i := similarity(i0) {
---- angle-equivalence ---    delete t.positiveArea
---- angle-equivalence ---    delete t.goodAngleA
---- angle-equivalence ---    delete t.goodAngleB
---- angle-equivalence --- }
+-- Don't draw vertices as dots in this
+-- example (but still keep the icons, for
+-- other purposes).
+-- forall Vertex v {
+--    override v.icon.r = 0.
+-- }
+
+-- similarityMap {
+--    scalar scale = .5
+--    scalar angle = ?
+--    vec2 shift = (canvas.width/3.,0.)
+-- }
+
+-- forall Vertex v; Vertex v0
+-- where v := similarity(v0) {
+
+--    scalar s = similarityMap.scale
+--    scalar theta = similarityMap.angle
+--    vec2 u = similarityMap.shift
+
+--    override v.center = s*rotateBy(v0.center,theta) + u
+--    delete v.onCanvas
+-- }
+
+-- -- don't constrain triangle geometry so much
+-- forall Triangle t; Vertex i; Vertex j; Vertex k; Vertex i0
+-- where t := MakeTriangle(i,j,k); i := similarity(i0) {
+--    delete t.positiveArea
+--    delete t.goodAngleA
+--    delete t.goodAngleB
+-- }
+
+-- -- make sure triangles are disjoint if they are made similar
+-- forall Triangle t1, t2
+-- where t1 := MakeTriangle(i, j, k); t2 := MakeTriangle(I, J, K); i := similarity(i); j := similarity(j); k := similarity(k);
+-- with Vertex i, j, k, I, J, K {
+--    ensure disjoint(t1.icon, t2.icon)
+-- }
 
 -- Specific to diagrams/concyclic-pair.substance
 -- TODO requires #776 to import these rules from an example-specific Style module
