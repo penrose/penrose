@@ -2263,25 +2263,6 @@ const evalExprs = (
     })
   ).mapErr(flatErrs);
 
-// const argValues = (
-//   mut: MutableContext,
-//   canvas: Canvas,
-//   stages: OptPipeline,
-//   context: Context,
-//   args: Expr<C>[],
-//   trans: Translation
-// ): Result<(ShapeVal<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
-//   evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
-//     argVals.map((arg) => {
-//       switch (arg.tag) {
-//         case "ShapeVal": // strip the `ShapeVal` tag
-//           return arg.contents;
-//         case "Val": // strip both `Val` and type annotation like `FloatV`
-//           return arg.contents.contents;
-//       }
-//     })
-//   );
-
 const evalVals = (
   mut: MutableContext,
   canvas: Canvas,
