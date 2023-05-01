@@ -1752,8 +1752,66 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
   return mod.bytes;
 };
 
-const makeMemory = (): WebAssembly.Memory =>
-  new WebAssembly.Memory({ initial: 1 });
+interface Metadata {
+  numInputs: number;
+  numSecondary: number;
+
+  offsetInputs: number;
+  offsetMask: number;
+  offsetGradient: number;
+  offsetSecondary: number;
+  offsetStack: number;
+
+  memory: WebAssembly.Memory;
+
+  arrInputs: Float64Array;
+  arrMask: Int32Array;
+  arrGrad: Float64Array;
+  arrSecondary: Float64Array;
+}
+
+const makeMeta = (graphs: ad.Graph[]): Metadata => {
+  const offsetInputs = 0;
+  const numInputs = Math.max(
+    0,
+    ...graphs.flatMap(({ graph }) =>
+      getInputs(graph).map(({ label: { key } }) => key + 1)
+    )
+  );
+
+  const offsetMask = offsetInputs + numInputs * bytesF64;
+
+  const offsetGradient = offsetMask + Math.ceil(graphs.length / 2) * bytesF64;
+
+  const offsetSecondary = offsetGradient + numInputs * bytesF64;
+  const numSecondary = Math.max(0, ...graphs.map((g) => g.secondary.length));
+
+  const offsetStack = offsetSecondary + numSecondary * bytesF64;
+
+  // each WebAssembly memory page is 64 KiB, and we add one more for the stack
+  const memory = new WebAssembly.Memory({
+    initial: Math.ceil(offsetStack / (64 * 1024)) + 1,
+  });
+  const { buffer } = memory;
+
+  return {
+    numInputs,
+    numSecondary,
+
+    offsetInputs,
+    offsetMask,
+    offsetGradient,
+    offsetSecondary,
+    offsetStack,
+
+    memory,
+
+    arrInputs: new Float64Array(buffer, offsetInputs, numInputs),
+    arrMask: new Int32Array(buffer, offsetMask, graphs.length),
+    arrGrad: new Float64Array(buffer, offsetGradient, numInputs),
+    arrSecondary: new Float64Array(buffer, offsetSecondary, numSecondary),
+  };
+};
 
 const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
   [importModule]: {
@@ -1799,11 +1857,9 @@ const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
 
 const makeCompiled = (
   graphs: ad.Graph[],
-  memory: WebAssembly.Memory,
+  meta: Metadata,
   instance: WebAssembly.Instance
 ): Gradient => {
-  const numSecondary = Math.max(0, ...graphs.map((g) => g.secondary.length));
-
   const f = instance.exports[exportFunctionName] as (
     input: number,
     mask: number,
@@ -1818,39 +1874,25 @@ const makeCompiled = (
     gradient: Float64Array,
     secondary: Float64Array
   ): number => {
-    new Float64Array(memory.buffer, 0, inputs.length).set(inputs);
-
-    const maskOffset = inputs.length * bytesF64;
-    new Int32Array(memory.buffer, maskOffset, graphs.length).set(mask);
-
-    const gradientOffset = maskOffset + Math.ceil(graphs.length / 2) * bytesF64;
-    const grad = new Float64Array(memory.buffer, gradientOffset, inputs.length);
-    grad.fill(0);
-
-    const secondaryOffset = gradientOffset + inputs.length * bytesF64;
-    const second = new Float64Array(
-      memory.buffer,
-      secondaryOffset,
-      numSecondary
-    );
-    second.fill(0);
-
-    const stackPointer = secondaryOffset + numSecondary * bytesF64;
-
+    // the computation graph might not use all the inputs, so we truncate the
+    // inputs we're given, to avoid a `RangeError`
+    meta.arrInputs.set(inputs.subarray(0, meta.numInputs));
+    meta.arrMask.set(mask);
+    meta.arrGrad.fill(0);
+    meta.arrSecondary.fill(0);
     const primary = f(
-      0,
-      maskOffset,
-      gradientOffset,
-      secondaryOffset,
-      stackPointer
+      meta.offsetInputs,
+      meta.offsetMask,
+      meta.offsetGradient,
+      meta.offsetSecondary,
+      meta.offsetStack
     );
-
-    gradient.set(grad);
-    secondary.set(second);
+    gradient.set(meta.arrGrad);
+    secondary.set(meta.arrSecondary);
     return primary;
   };
 
-  return new Gradient(wrapped, graphs.length, numSecondary);
+  return new Gradient(wrapped, graphs.length, meta.numSecondary);
 };
 
 /**
@@ -1862,12 +1904,12 @@ const makeCompiled = (
  * @returns a compiled/instantiated WebAssembly function
  */
 export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> => {
-  const memory = makeMemory();
+  const meta = makeMeta(graphs);
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
-    makeImports(memory)
+    makeImports(meta.memory)
   );
-  return makeCompiled(graphs, memory, instance);
+  return makeCompiled(graphs, meta, instance);
 };
 
 /**
@@ -1876,10 +1918,10 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> => {
  * currently is used in convex partitioning for convenience.
  */
 export const genCodeSync = (...graphs: ad.Graph[]): Gradient => {
-  const memory = makeMemory();
+  const meta = makeMeta(graphs);
   const instance = new WebAssembly.Instance(
     new WebAssembly.Module(genBytes(graphs)),
-    makeImports(memory)
+    makeImports(meta.memory)
   );
-  return makeCompiled(graphs, memory, instance);
+  return makeCompiled(graphs, meta, instance);
 };
