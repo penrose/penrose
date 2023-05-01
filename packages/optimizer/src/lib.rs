@@ -17,7 +17,6 @@ extern "C" {
 }
 
 type Vector = nalgebra::DVector<f64>;
-type Matrix = nalgebra::DMatrix<f64>;
 
 // the ts-rs crate defines a `TS` trait and `ts` macro which generate Rust tests that, when run,
 // generate TypeScript definitions in the `bindings/` directory of this package; that's why the
@@ -564,15 +563,11 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
 // Approximate the inverse of the Hessian times the gradient
 // Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
 
+// "Nocedal" refers to the 1999 edition of "Numerical Optimization" by Nocedal and Wright
+// https://www.ime.unicamp.br/~pulino/MT404/TextosOnline/NocedalJ.pdf
+
 fn lbfgs_inner(grad_fx_k: &Vector, ss: &[Vector], ys: &[Vector]) -> Vector {
     // TODO: See if rewriting outside the functional style yields speedup (e.g. less copying of matrix objects -> less garbage collection)
-
-    // takes two column vectors (nx1), returns a square matrix (nxn)
-    fn estimate_hess(y_km1: &Vector, s_km1: &Vector) -> Matrix {
-        let gamma_k = s_km1.dot(y_km1) / (y_km1.dot(y_km1) + EPSD);
-        let n = y_km1.len();
-        Matrix::identity(n, n) * gamma_k
-    }
 
     // BACKWARD: for i = k-1 ... k-m
     // The length of any list should be the number of stored vectors
@@ -594,11 +589,12 @@ fn lbfgs_inner(grad_fx_k: &Vector, ss: &[Vector], ys: &[Vector]) -> Vector {
     }
     let q_k_minus_m = q_i;
 
-    let h_0_k = estimate_hess(&ys[0], &ss[0]); // nxn matrix, according to Nocedal p226, eqn 9.6
+    let y_km1 = &ys[0];
+    let s_km1 = &ss[0];
+    let gamma_k = s_km1.dot(y_km1) / (y_km1.dot(y_km1) + EPSD); // according to Nocedal p226, eqn 9.6
 
     // FORWARD: for i = k-m .. k-1
-    // below: [nxn matrix * nx1 (col) vec] -> nx1 (col) vec
-    let r_k_minus_m = h_0_k * q_k_minus_m;
+    let r_k_minus_m = gamma_k * q_k_minus_m;
 
     // Note that rhos, alphas, ss, and ys are all in order from `k-1` to `k-m` so we just reverse all of them together to go from `k-m` to `k-1`
     let mut r_i = r_k_minus_m;
