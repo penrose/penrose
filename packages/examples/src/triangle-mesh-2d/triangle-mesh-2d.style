@@ -19,7 +19,7 @@ Global {
    scalar vertexRadius = 2.5
    scalar pointRadius = 2.0
    scalar lineThickness = 1.
-   scalar labelBoundRadius = 10.
+   scalar labelBoundRadius = 8.
    scalar lineOffset = 8.0
    scalar wedgeSize = 30.0
 
@@ -247,7 +247,7 @@ where c := MakeCorner(i,j,k); c has text label {
 
    shape c.textBounds = Circle {
       center: c.text.center
-      r: 1.1*Global.labelBoundRadius
+      r: 1.1 * .5 * max(c.text.width, c.text.height)
       fillColor: none()
    }
 
@@ -321,11 +321,11 @@ where h := MakeHalfedge(k,i); t := MakeTriangle(i,j,k)
    h.end = i.center
    h.opposite = j.center
 }
-forall Halfedge h {
+forall Halfedge e {
 
-   vec2 p0 = h.start
-   vec2 p1 = h.end
-   vec2 p2 = h.opposite
+   vec2 p0 = e.start
+   vec2 p1 = e.end
+   vec2 p2 = e.opposite
 
    -- unit vectors along the three edges
    vec2 t01 = unit(p1-p0)
@@ -356,16 +356,16 @@ forall Halfedge h {
    vec2 n = rot90(t01)
    vec2 Q2 = Q0 + h*(n-t01)
 
-   h.icon = Path {
+   e.icon = Path {
       strokeWidth: 2.*Global.lineThickness
       strokeColor: Colors.black
       fillColor: none()
       d: pathFromPoints("open", [Q2,Q0,Q1])
    }
 
-   h.labelText = Text {
+   e.labelText = Text {
       center: m + h*n
-      string: h.label
+      string: e.label
       fontFamily: "Courier"
       fontSize: "6.75px"
       fillColor: Colors.black
@@ -526,7 +526,6 @@ where IsPositivelyOriented(t) {
       strokeColor: Colors.black
       d: arc( "open", p0, p1, (R,R), 0., 1, 0 )
       strokeWidth: 2.*Global.lineThickness
-      startArrowhead: false
       endArrowhead: "straight"
       endArrowheadSize: .5
    }
@@ -658,14 +657,13 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 
 --- concyclic-pair --- -- make vertex dots bigger
 --- concyclic-pair --- forall Vertex v {
---- concyclic-pair ---    override v.icon.r = 1.5*Global.vertexRadius
+--- concyclic-pair ---    override v.icon.r = 1.75*Global.vertexRadius
 --- concyclic-pair --- }
 --- concyclic-pair --- 
 --- concyclic-pair --- -- make corner labels larger and dark blue
 --- concyclic-pair --- forall Corner c; Vertex i; Vertex j; Vertex k
 --- concyclic-pair --- where c := MakeCorner(i,j,k); c has text label {
---- concyclic-pair ---    override c.text.fontSize = "13.5px"
---- concyclic-pair ---    override c.textBounds.r = Global.labelBoundRadius
+--- concyclic-pair ---    override c.text.fontSize = "25px"
 --- concyclic-pair ---    override c.text.fillColor = Colors.darkBlue
 --- concyclic-pair --- }
 --- concyclic-pair --- 
@@ -677,7 +675,7 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 --- concyclic-pair --- 
 --- concyclic-pair --- -- make edges thicker
 --- concyclic-pair --- forall Edge e {
---- concyclic-pair ---    override e.segment.strokeWidth = 2.25*Global.lineThickness
+--- concyclic-pair ---    override e.segment.strokeWidth = 2*Global.lineThickness
 --- concyclic-pair --- }
 --- concyclic-pair --- 
 --- concyclic-pair --- -- make boundary edges thicker
@@ -695,4 +693,3 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 --- concyclic-pair --- where c := MakeCorner(i,j,k); e := MakeEdge(i,l) {
 --- concyclic-pair ---    ensure disjoint( c.textBounds, e.segment )
 --- concyclic-pair --- }
-
