@@ -21,25 +21,17 @@ import {
 import { checkType } from "../styleTypeChecker/styleTypeChecker";
 
 const { ok, err } = Result;
+
 export const callCompFunc = (
   func: CompFunc,
   range: SourceRange,
   context: Context,
   args: ArgValWithSourceLoc<ad.Num>[]
 ): Result<Value<ad.Num>, StyleError> => {
-  if (args.length > func.params.length) {
-    return err(tooManyArgumentsError(func, range, args.length));
-  }
-  const vals: (Shape<ad.Num> | Value<ad.Num>["contents"])[] = [];
-  for (let i = 0; i < func.params.length; i++) {
-    const funcArg = func.params[i];
-    const arg: ArgValWithSourceLoc<ad.Num> | undefined = args[i];
-    const v = checkArg(func.name, range, funcArg, arg);
-    if (v.isErr()) return err(v.error);
-    vals.push(v.value);
-  }
+  const checkedArgs = checkArgs(func, range, args);
+  if (checkedArgs.isErr()) return err(checkedArgs.error);
   try {
-    return ok(func.body(context, ...vals));
+    return ok(func.body(context, ...checkedArgs.value));
   } catch (e) {
     if (e instanceof Error) {
       return err(functionInternalError(func, range, e.message));
@@ -54,6 +46,24 @@ export const callObjConstrFunc = (
   range: SourceRange,
   args: ArgValWithSourceLoc<ad.Num>[]
 ): Result<ad.Num, StyleError> => {
+  const checkedArgs = checkArgs(func, range, args);
+  if (checkedArgs.isErr()) return err(checkedArgs.error);
+  try {
+    return ok(func.body(...checkedArgs.value));
+  } catch (e) {
+    if (e instanceof Error) {
+      return err(functionInternalError(func, range, e.message));
+    } else {
+      throw new Error("Function call resulted in exception not of Error type");
+    }
+  }
+};
+
+export const checkArgs = (
+  func: ObjFunc | ConstrFunc | CompFunc,
+  range: SourceRange,
+  args: ArgValWithSourceLoc<ad.Num>[]
+): Result<(Shape<ad.Num> | Value<ad.Num>["contents"])[], StyleError> => {
   if (args.length > func.params.length) {
     return err(tooManyArgumentsError(func, range, args.length));
   }
@@ -65,15 +75,7 @@ export const callObjConstrFunc = (
     if (v.isErr()) return err(v.error);
     vals.push(v.value);
   }
-  try {
-    return ok(func.body(...vals));
-  } catch (e) {
-    if (e instanceof Error) {
-      return err(functionInternalError(func, range, e.message));
-    } else {
-      throw new Error("Function call resulted in exception not of Error type");
-    }
-  }
+  return ok(vals);
 };
 
 export const checkArg = (
