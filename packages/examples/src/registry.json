@@ -598,6 +598,41 @@
       "style": "cubic-bezier",
       "domain": "curve-examples",
       "variation": "CauliflowerDeer97138"
+    },
+    {
+      "name": "Cotan Formula",
+      "substance": "cotan-formula",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "GingkoCattle9777",
+      "gallery": true
+    },
+    {
+      "substance": "concyclic-pair",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "DamaskWeasel66717"
+    },
+    {
+      "name": "Half Edge Mesh",
+      "substance": "halfedge-mesh",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "BlackadderDogfish563",
+      "gallery": true
+    },
+    {
+      "substance": "relative-orientation",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "SylvanDolphin4902"
+    },
+    {
+      "name": "Triangle Centers",
+      "substance": "triangle-centers",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "ClamshellKookabura228"
     }
   ],
   "domains": {
@@ -642,6 +677,9 @@
     },
     "triangle-mesh-3d": {
       "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
+    },
+    "triangle-mesh-2d": {
+      "URI": "triangle-mesh-2d/triangle-mesh-2d.domain"
     },
     "word-cloud": {
       "URI": "word-cloud/word-cloud.domain"
@@ -760,6 +798,10 @@
     "closest-point": {
       "domain": "closest-point",
       "URI": "closest-point/closest-point.style"
+    },
+    "triangle-mesh-2d": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/triangle-mesh-2d.style"
     },
     "triangle-mesh-3d": {
       "domain": "triangle-mesh-3d",
@@ -1186,6 +1228,22 @@
     "cubic-bezier": {
       "domain": "curve-examples",
       "URI": "curve-examples/cubic-bezier.substance"
+    },
+    "cotan-formula": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/cotan-formula.substance"
+    },
+    "halfedge-mesh": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/halfedge-mesh.substance"
+    },
+    "relative-orientation": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/relative-orientation.substance"
+    },
+    "triangle-centers": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/triangleCenters.substance"
     }
   }
 }
