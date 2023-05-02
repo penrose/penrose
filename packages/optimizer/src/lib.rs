@@ -411,7 +411,6 @@ fn minimize(
         {
             grad[i] = if b { x } else { 0. };
         }
-        grad.copy_from_slice(&gradient[..len_inputs]);
         energy
     };
 
