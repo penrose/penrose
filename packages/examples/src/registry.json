@@ -604,7 +604,7 @@
       "substance": "cotan-formula",
       "style": "triangle-mesh-2d",
       "domain": "triangle-mesh-2d",
-      "variation": "GlisteningDogfish62132",
+      "variation": "RamonaFly25691",
       "gallery": true
     },
     {
@@ -1255,6 +1255,10 @@
     "triangle-centers": {
       "domain": "triangle-mesh-2d",
       "URI": "triangle-mesh-2d/diagrams/triangleCenters.substance"
+    },
+    "angle-equivalence": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
     }
   }
 }
