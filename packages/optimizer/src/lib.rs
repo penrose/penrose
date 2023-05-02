@@ -208,6 +208,7 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
                     uo_round: 0,
                     ep_round: 0,
                     opt_status: OptStatus::UnconstrainedRunning,
+                    lbfgs_info: DEFAULT_LBFGS_PARAMS,
                     ..state.params
                 },
                 ..state
