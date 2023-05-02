@@ -353,8 +353,8 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
       { name: "s0", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
-      { name: "strength", type: realT(), description: "strength", default: 10 },
-      { name: "range", type: realT(), description: "range", default: 20 },
+      { name: "strength", type: realT(), description: "strength", default: 20 },
+      { name: "range", type: realT(), description: "range", default: 10 },
     ],
     body: (
       s0: Shape<ad.Num>,
