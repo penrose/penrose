@@ -1,4 +1,4 @@
-import { genOptProblem } from "@penrose/optimizer";
+import { genOptProblem, step } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -64,7 +64,7 @@ export const resample = (state: State): State => {
 export const stepState = (state: State, numSteps = 10000): State => {
   const steppedState: State = {
     ...state,
-    ...state.gradient.step(state, numSteps),
+    ...step(state, state.gradient.f, numSteps),
   };
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
     const nextInitState = nextStage(steppedState);
@@ -100,7 +100,7 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
   ) {
     currentState = {
       ...currentState,
-      ...currentState.gradient.step(currentState, numSteps),
+      ...step(currentState, currentState.gradient.f, numSteps),
     };
   }
   return nextStage(currentState);
