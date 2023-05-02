@@ -1,5 +1,3 @@
-pub mod builtins;
-
 use log::Level;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -7,10 +5,24 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 type Bool = i32; // 0 or 1 (`wasm-bindgen` doesn't support `bool` well)
 
-type Vector = nalgebra::DVector<f64>;
+// we take in a `JsValue` which holds a function living in JavaScript-land that takes four
+// parameters, but the `js-sys` crate only defines `call0` through `call3` functions and no `call4`
+// function, so the easiest way to call this function with four parameters is to define our own
+// `call_grad` function in JavaScript and then use `wasm-bindgen` to import it into Rust here; as
+// far as I know, the `extern "C"` syntax is historical and in this case we're not actually doing
+// anything related to C, but if you try to write `extern` without "C" then `rustfmt` adds it back
+#[wasm_bindgen(module = "/call.js")]
+extern "C" {
+    fn call_grad(
+        f: JsValue,
+        inputs: &[f64],
+        mask: &[Bool],
+        gradient: &mut [f64],
+        secondary: &mut [f64],
+    ) -> f64;
+}
 
-type Compiled =
-    fn(inputs: *const f64, mask: *const Bool, gradient: *mut f64, secondary: *mut f64) -> f64;
+type Vector = nalgebra::DVector<f64>;
 
 // the ts-rs crate defines a `TS` trait and `ts` macro which generate Rust tests that, when run,
 // generate TypeScript definitions in the `bindings/` directory of this package; that's why the
@@ -102,7 +114,7 @@ struct Params {
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
 #[derive(Clone)]
 struct FnCached<'a> {
-    f: Compiled,
+    f: JsValue,
     grad_mask: &'a [bool],
     obj_mask: &'a [bool],
     constr_mask: &'a [bool],
@@ -223,12 +235,7 @@ fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
     let mut gradient = vec![0.; len_gradient];
     let mut secondary = vec![0.; len_secondary];
 
-    let energy = (f.f)(
-        inputs.as_ptr(),
-        mask.as_ptr(),
-        gradient.as_mut_ptr(),
-        secondary.as_mut_ptr(),
-    );
+    let energy = call_grad(f.f, &inputs, &mask, &mut gradient, &mut secondary);
 
     gradient.pop();
 
@@ -263,7 +270,7 @@ fn ep_converged(xs0: &[f64], xs1: &[f64], fxs0: f64, fxs1: f64) -> bool {
 // 2) fix initial value of the penalty parameter so that the magnitude of the penalty term is not much smaller than the magnitude of objective function
 
 /// Given a `State`, take n steps by evaluating the overall objective function
-fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
+fn step(state: OptState, f: JsValue, steps: i32) -> OptState {
     let mut opt_params = state.params.clone();
     let Params {
         opt_status, weight, ..
@@ -914,20 +921,26 @@ pub fn penrose_init() {
 }
 
 #[wasm_bindgen]
-pub fn penrose_call(
-    p: usize,
-    inputs: &[f64],
-    mask: &[Bool],
-    gradient: &mut [f64],
-    secondary: &mut [f64],
-) -> f64 {
-    let f = unsafe { std::mem::transmute::<usize, Compiled>(p) };
-    f(
-        inputs.as_ptr(),
-        mask.as_ptr(),
-        gradient.as_mut_ptr(),
-        secondary.as_mut_ptr(),
-    )
+pub fn penrose_poly_roots(v: &mut [f64]) {
+    let n = v.len();
+    // https://en.wikipedia.org/wiki/Companion_matrix
+    let mut m = nalgebra::DMatrix::<f64>::zeros(n, n);
+    for i in 0..(n - 1) {
+        m[(i + 1, i)] = 1.;
+        m[(i, n - 1)] = -v[i];
+    }
+    m[(n - 1, n - 1)] = -v[n - 1];
+
+    // the characteristic polynomial of the companion matrix is equal to the original polynomial, so
+    // by finding the eigenvalues of the companion matrix, we get the roots of its characteristic
+    // polynomial and thus of the original polynomial
+    let r = m.complex_eigenvalues();
+    for i in 0..n {
+        let z = r[i];
+        // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`, we discard any
+        // non-real root and replace with `NaN`
+        v[i] = if z.im == 0. { z.re } else { f64::NAN };
+    }
 }
 
 #[wasm_bindgen]
@@ -941,12 +954,8 @@ pub fn penrose_gen_opt_problem(
 }
 
 #[wasm_bindgen]
-pub fn penrose_step(state: JsValue, p: usize, steps: i32) -> JsValue {
+pub fn penrose_step(state: JsValue, f: JsValue, steps: i32) -> JsValue {
     let unstepped: OptState = serde_wasm_bindgen::from_value(state).unwrap();
-    let stepped: OptState = step(
-        unstepped,
-        unsafe { std::mem::transmute::<usize, Compiled>(p) },
-        steps,
-    );
+    let stepped: OptState = step(unstepped, f, steps);
     to_js_value(&stepped).unwrap()
 }
