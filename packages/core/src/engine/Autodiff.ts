@@ -1860,6 +1860,8 @@ const makeCompiled = (
   meta: Metadata,
   instance: WebAssembly.Instance
 ): Gradient => {
+  // we generated a WebAssembly function which exports a function that takes in
+  // integers representing pointers to the various arrays it deals with
   const f = instance.exports[exportFunctionName] as (
     input: number,
     mask: number,
@@ -1868,6 +1870,8 @@ const makeCompiled = (
     stackPointer: number
   ) => number;
 
+  // we wrap said function in a JavaScript function which instead thinks in
+  // terms of arrays, using the `meta` data to translate between the two
   const wrapped = (
     inputs: Float64Array,
     mask: Int32Array,

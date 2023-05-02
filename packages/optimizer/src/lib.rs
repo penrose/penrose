@@ -5,6 +5,12 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 type Bool = i32; // 0 or 1 (`wasm-bindgen` doesn't support `bool` well)
 
+// we take in a `JsValue` which holds a function living in JavaScript-land that takes four
+// parameters, but the `js-sys` crate only defines `call0` through `call3` functions and no `call4`
+// function, so the easiest way to call this function with four parameters is to define our own
+// `call_grad` function in JavaScript and then use `wasm-bindgen` to import it into Rust here; as
+// far as I know, the `extern "C"` syntax is historical and in this case we're not actually doing
+// anything related to C, but if you try to write `extern` without "C" then `rustfmt` adds it back
 #[wasm_bindgen(module = "/call.js")]
 extern "C" {
     fn call_grad(
