@@ -1,7 +1,7 @@
-import { Shape, ShapeType } from "../../shapes/Shapes";
-import * as ad from "../../types/ad";
-import { ValueShapeT, ValueType } from "../../types/types";
-import { ArgVal, Value } from "../../types/value";
+import { Shape, ShapeType } from "../shapes/Shapes";
+import * as ad from "../types/ad";
+import { ValueShapeT, ValueType } from "../types/types";
+import { ArgVal, Value } from "../types/value";
 
 export const checkType = (
   expectedType: ValueShapeT,

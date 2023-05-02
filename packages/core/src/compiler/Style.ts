@@ -162,10 +162,7 @@ import {
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 import { checkShape } from "./shapeChecker/CheckShape";
-import {
-  callCompFunc,
-  callObjConstrFunc,
-} from "./styleFunctionCaller/StyleFunctionCaller";
+import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
