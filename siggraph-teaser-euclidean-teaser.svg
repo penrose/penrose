@@ -11,7 +11,7 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 50, 0)"
+    transform="rotate(0, 400, 350)"
   >
     <title>`P`.icon</title>
   </rect>
@@ -43,7 +43,7 @@
     <title>`h`.icon</title>
   </g>
   <g
-    transform="rotate(0, 368.445638252766, 341.7004345768324)translate(368.445638252766, 341.7004345768324)"
+    transform="rotate(0, 380.588378252766, 355.53043457683236)translate(368.445638252766, 341.7004345768324)"
   >
     <title>`m`.text</title>
     <svg
@@ -80,7 +80,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 397.95468758580193, 570.3562339406964)translate(397.95468758580193, 570.3562339406964)"
+    transform="rotate(0, 404.4409575858019, 584.1862339406964)translate(397.95468758580193, 570.3562339406964)"
   >
     <title>`s`.text</title>
     <svg
@@ -266,7 +266,7 @@
     <title>`r`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 572.4927670405978, 149.48577065002652)translate(572.4927670405978, 149.48577065002652)"
+    transform="rotate(0, 579.4492570405978, 163.31577065002654)translate(572.4927670405978, 149.48577065002652)"
   >
     <title>`p`.text</title>
     <svg
@@ -303,7 +303,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 489.16190392081256, 626.5160261851232)translate(489.16190392081256, 626.5160261851232)"
+    transform="rotate(0, 495.39923392081255, 640.3460261851233)translate(489.16190392081256, 626.5160261851232)"
   >
     <title>`r`.text</title>
     <svg
@@ -339,9 +339,7 @@
       </g>
     </svg>
   </g>
-  <g
-    transform="rotate(0, 708.897203016139, 10.415)translate(708.897203016139, 10.415)"
-  >
+  <g transform="rotate(0, 725, 25)translate(708.897203016139, 10.415)">
     <title>`P`.text</title>
     <svg
       style="font-size: 22pt"
@@ -441,7 +439,7 @@
     <title>`q`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 163.6995054711543, 543.3999497023132)translate(163.6995054711543, 543.3999497023132)"
+    transform="rotate(0, 170.0613054711543, 557.2299497023132)translate(163.6995054711543, 543.3999497023132)"
   >
     <title>`q`.text</title>
     <svg

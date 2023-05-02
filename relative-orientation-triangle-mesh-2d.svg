@@ -1,0 +1,375 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360">
+  <rect
+    x="0"
+    y="0"
+    width="480"
+    height="360"
+    fill="none"
+    stroke="#cccccc"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    rx="0"
+    transform="rotate(0, 240, 180)"
+  >
+    <title>Global.box</title>
+  </rect>
+  <circle
+    fill="none"
+    cx="269.1560635118029"
+    cy="343.92679159343606"
+    stroke="none"
+    r="8"
+  >
+    <title>`k`.bounds</title>
+  </circle>
+  <g>
+    <path
+      d="M 249.80136916836176 93.17274314606347 L 380.53724099395924 106.92352075102379"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="round"
+    ></path>
+    <title>`li`.segment</title>
+  </g>
+  <circle
+    fill="none"
+    cx="251.2775215121078"
+    cy="102.1978056548584"
+    stroke="none"
+    r="8"
+  >
+    <title>`l`.bounds</title>
+  </circle>
+  <g>
+    <path
+      d="M 380.53724099395924 106.92352075102379 L 137.53586940725302 144.53328510967623"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="round"
+    ></path>
+    <title>`ij`.segment</title>
+  </g>
+  <circle
+    fill="none"
+    cx="389.3388296659873"
+    cy="108.5466602422632"
+    stroke="none"
+    r="8"
+  >
+    <title>`i`.bounds</title>
+  </circle>
+  <g>
+    <path
+      d="M 137.53586940725302 144.53328510967623 L 249.80136916836176 93.17274314606347"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="round"
+    ></path>
+    <title>`jl`.segment</title>
+  </g>
+  <circle
+    fill="none"
+    cx="130.1931913192849"
+    cy="149.65065939980875"
+    stroke="none"
+    r="8"
+  >
+    <title>`j`.bounds</title>
+  </circle>
+  <g>
+    <path
+      d="M 137.53586940725302 144.53328510967623 L 274.5621615033423 336.81493759756734"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="round"
+    ></path>
+    <title>`jk`.segment</title>
+  </g>
+  <g>
+    <path
+      d="M 274.5621615033423 336.81493759756734 L 380.53724099395924 106.92352075102379"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#000000"
+      stroke-linecap="round"
+    ></path>
+    <title>`ki`.segment</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="380.53724099395924"
+    cy="106.92352075102379"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`i`.icon</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 389.3388296659873, 108.5466602422632)"
+    style="font: italic 14px Palatino"
+    x="389.3388296659873"
+    y="114.0466602422632"
+    width="4"
+    height="11"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="11"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+  >
+    <title>`i`.text</title>
+    i
+  </text>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="137.53586940725302"
+    cy="144.53328510967623"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`j`.icon</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 130.1931913192849, 149.65065939980875)"
+    style="font: italic 14px Palatino"
+    x="130.1931913192849"
+    y="153.65065939980875"
+    width="8"
+    height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="11"
+    descent="3"
+    text-anchor="middle"
+    visibility=""
+  >
+    <title>`j`.text</title>
+    j
+  </text>
+  <g>
+    <marker
+      id="`ijk`.orientationArc-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter
+      id="`ijk`.orientationArc-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 279.0569909871515 227.3260221584117 A 35.28423303553195 35.28423303553195 0 1 0 243.77275795161955 227.3260221584117"
+      marker-end="url(#`ijk`.orientationArc-endArrowId)"
+    ></path>
+    <title>`ijk`.orientationArc</title>
+  </g>
+  <g>
+    <filter id="`ijk`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#1b1f8a"
+      fill-opacity="0.2"
+      d="M 380.53724099395924 106.92352075102379 L 137.53586940725302 144.53328510967623 L 274.5621615033423 336.81493759756734 Z "
+    ></path>
+    <title>`ijk`.icon</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="274.5621615033423"
+    cy="336.81493759756734"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`k`.icon</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 269.1560635118029, 343.92679159343606)"
+    style="font: italic 14px Palatino"
+    x="269.1560635118029"
+    y="349.42679159343606"
+    width="8"
+    height="11"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="11"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+  >
+    <title>`k`.text</title>
+    k
+  </text>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="249.80136916836176"
+    cy="93.17274314606347"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`l`.icon</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 251.2775215121078, 102.1978056548584)"
+    style="font: italic 14px Palatino"
+    x="251.2775215121078"
+    y="107.6978056548584"
+    width="4"
+    height="11"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="11"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+  >
+    <title>`l`.text</title>
+    l
+  </text>
+  <g>
+    <marker
+      id="`jil`.orientationArc-startArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <filter
+      id="`jil`.orientationArc-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 256.68359399008204 117.1845796480675 A 8.245080636297875 8.245080636297875 0 1 0 248.43851335378417 117.1845796480675"
+      marker-start="url(#`jil`.orientationArc-startArrowId)"
+    ></path>
+    <title>`jil`.orientationArc</title>
+  </g>
+  <g>
+    <filter id="`jil`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#1b1f8a"
+      fill-opacity="0.2"
+      d="M 137.53586940725302 144.53328510967623 L 380.53724099395924 106.92352075102379 L 249.80136916836176 93.17274314606347 Z "
+    ></path>
+    <title>`jil`.icon</title>
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200">
   <g
-    transform="rotate(0, 502.04864333333336, 661.17)translate(502.04864333333336, 661.17)"
+    transform="rotate(0, 533.3333333333334, 670)translate(502.04864333333336, 661.17)"
   >
     <title>`Polyline`.text</title>
     <svg
@@ -79,7 +79,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 443.33333333333337, 510)"
+    transform="rotate(0, 533.3333333333334, 600)"
   >
     <title>`Polyline`.container</title>
   </rect>
@@ -95,7 +95,7 @@
     <title>`Polyline`.icon</title>
   </polyline>
   <g
-    transform="rotate(0, 514.5607533333334, 261.17)translate(514.5607533333334, 261.17)"
+    transform="rotate(0, 533.3333333333334, 270)translate(514.5607533333334, 261.17)"
   >
     <title>`Path`.text</title>
     <svg
@@ -154,7 +154,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 443.33333333333337, 110)"
+    transform="rotate(0, 533.3333333333334, 200)"
   >
     <title>`Path`.container</title>
   </rect>
@@ -185,7 +185,7 @@
     <title>`Path`.icon</title>
   </g>
   <g
-    transform="rotate(0, 498.11929333333336, 861.17)translate(498.11929333333336, 861.17)"
+    transform="rotate(0, 533.3333333333334, 870)translate(498.11929333333336, 861.17)"
   >
     <title>`Equation`.text</title>
     <svg
@@ -264,12 +264,12 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 443.33333333333337, 710)"
+    transform="rotate(0, 533.3333333333334, 800)"
   >
     <title>`Equation`.container</title>
   </rect>
   <g
-    transform="rotate(0, 500.83021709733373, 790.415)translate(500.83021709733373, 790.415)"
+    transform="rotate(0, 533.3333333333334, 800)translate(500.83021709733373, 790.415)"
   >
     <title>`Equation`.icon</title>
     <svg
@@ -335,7 +335,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 514.9404433333334, 1061.17)translate(514.9404433333334, 1061.17)"
+    transform="rotate(0, 533.3333333333334, 1070)translate(514.9404433333334, 1061.17)"
   >
     <title>`Text`.text</title>
     <svg
@@ -394,7 +394,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 443.33333333333337, 910)"
+    transform="rotate(0, 533.3333333333334, 1000)"
   >
     <title>`Text`.container</title>
   </rect>
@@ -402,7 +402,7 @@
     fill="#7b4087"
     fill-opacity="0.5"
     stroke="none"
-    transform="rotate(0, 468.83333333333337, 993.5)"
+    transform="rotate(0, 533.3333333333334, 1000)"
     style="font: italic 12px Palatino"
     x="533.3333333333334"
     y="1003.5"
@@ -420,7 +420,7 @@
     Diagrams, not words
   </text>
   <g
-    transform="rotate(0, 228.77713666666665, 461.17)translate(228.77713666666665, 461.17)"
+    transform="rotate(0, 266.66666666666663, 470)translate(228.77713666666665, 461.17)"
   >
     <title>`Rectangle`.text</title>
     <svg
@@ -504,7 +504,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 176.66666666666663, 310)"
+    transform="rotate(0, 266.66666666666663, 400)"
   >
     <title>`Rectangle`.container</title>
   </rect>
@@ -517,12 +517,12 @@
     fill-opacity="0.5"
     stroke="none"
     rx="0"
-    transform="rotate(0, 166.66666666666663, 350)"
+    transform="rotate(0, 266.66666666666663, 400)"
   >
     <title>`Rectangle`.icon</title>
   </rect>
   <g
-    transform="rotate(0, 244.07952666666662, 261.17)translate(244.07952666666662, 261.17)"
+    transform="rotate(0, 266.66666666666663, 270)translate(244.07952666666662, 261.17)"
   >
     <title>`Circle`.text</title>
     <svg
@@ -591,7 +591,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 176.66666666666663, 110)"
+    transform="rotate(0, 266.66666666666663, 200)"
   >
     <title>`Circle`.container</title>
   </rect>
@@ -606,7 +606,7 @@
     <title>`Circle`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 516.5298433333334, 461.17)translate(516.5298433333334, 461.17)"
+    transform="rotate(0, 533.3333333333334, 470)translate(516.5298433333334, 461.17)"
   >
     <title>`Line`.text</title>
     <svg
@@ -665,7 +665,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 443.33333333333337, 310)"
+    transform="rotate(0, 533.3333333333334, 400)"
   >
     <title>`Line`.container</title>
   </rect>
@@ -680,7 +680,7 @@
     <title>`Line`.icon</title>
   </g>
   <g
-    transform="rotate(0, 235.38197666666662, 861.17)translate(235.38197666666662, 861.17)"
+    transform="rotate(0, 266.66666666666663, 870)translate(235.38197666666662, 861.17)"
   >
     <title>`Polygon`.text</title>
     <svg
@@ -754,7 +754,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 176.66666666666663, 710)"
+    transform="rotate(0, 266.66666666666663, 800)"
   >
     <title>`Polygon`.container</title>
   </rect>
@@ -768,7 +768,7 @@
     <title>`Polygon`.icon</title>
   </polygon>
   <g
-    transform="rotate(0, 243.37312666666662, 1061.17)translate(243.37312666666662, 1061.17)"
+    transform="rotate(0, 266.66666666666663, 1070)translate(243.37312666666662, 1061.17)"
   >
     <title>`Image`.text</title>
     <svg
@@ -832,12 +832,12 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 176.66666666666663, 910)"
+    transform="rotate(0, 266.66666666666663, 1000)"
   >
     <title>`Image`.container</title>
   </rect>
   <g
-    transform="rotate(0, 216.66666666666663, 950)translate(216.66666666666663, 950)"
+    transform="rotate(0, 266.66666666666663, 1000)translate(216.66666666666663, 950)"
   >
     <svg
       xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -880,7 +880,7 @@
     <title>`Image`.icon</title>
   </g>
   <g
-    transform="rotate(0, 240.98019666666664, 661.17)translate(240.98019666666664, 661.17)"
+    transform="rotate(0, 266.66666666666663, 670)translate(240.98019666666664, 661.17)"
   >
     <title>`Ellipse`.text</title>
     <svg
@@ -954,7 +954,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 176.66666666666663, 510)"
+    transform="rotate(0, 266.66666666666663, 600)"
   >
     <title>`Ellipse`.container</title>
   </rect>

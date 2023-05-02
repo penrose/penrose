@@ -7,7 +7,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 0, 0)"
+    transform="rotate(0, 160, 120)"
   >
     <title>Global.box</title>
   </rect>
@@ -24,7 +24,7 @@
     <title>Global.domain</title>
   </polygon>
   <g
-    transform="rotate(0, 1.248932379902783, 27.54493066238075)translate(1.248932379902783, 27.54493066238075)"
+    transform="rotate(0, 93.69754351989636, 119.99354180237432)translate(1.248932379902783, 27.54493066238075)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -110,7 +110,7 @@
     <title>9:0:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 125.75371882418558, 42.57675163977234)translate(125.75371882418558, 42.57675163977234)"
+    transform="rotate(0, 184.1503281130123, 100.97336092859906)translate(125.75371882418558, 42.57675163977234)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -183,7 +183,7 @@
     <title>9:1:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 148.98688209376292, 127.25241552044793)translate(148.98688209376292, 127.25241552044793)"
+    transform="rotate(0, 184.06630273214526, 162.33183615883027)translate(148.98688209376292, 127.25241552044793)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -256,7 +256,7 @@
     <title>9:2:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 134.70498332693586, 161.10527239920478)translate(134.70498332693586, 161.10527239920478)"
+    transform="rotate(0, 154.00380257413843, 180.40409164640735)translate(134.70498332693586, 161.10527239920478)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -320,7 +320,7 @@
     fill="#808080"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 259.9431342335367, 103.05009265851722)"
+    transform="rotate(0, 264.9431342335367, 108.05009265851722)"
     style="font: 12px Palatino"
     x="264.9431342335367"
     y="113.05009265851722"
@@ -344,7 +344,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 173.47472851341684, 88.35830785537753)"
+    transform="rotate(0, 178.97472851341684, 91.85830785537753)"
     style="font: italic 12px Palatino"
     x="178.97472851341684"
     y="95.35830785537753"
@@ -380,7 +380,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 176.02888730565158, 153.98840913430655)"
+    transform="rotate(0, 182.02888730565158, 154.98840913430655)"
     style="font: italic 12px Palatino"
     x="182.02888730565158"
     y="155.98840913430655"
@@ -429,7 +429,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 74.7988637249595, 112.74621548418733)"
+    transform="rotate(0, 81.2988637249595, 117.74621548418733)"
     style="font: italic 12px Palatino"
     x="81.2988637249595"
     y="119.74621548418733"
@@ -455,7 +455,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 97.9813586383369, 111.09796464914186)"
+    transform="rotate(0, 103.9813586383369, 114.59796464914186)"
     style="font: italic 12px Palatino"
     x="103.9813586383369"
     y="118.09796464914186"
@@ -504,7 +504,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 168.0832441975284, 77.53988865635088)"
+    transform="rotate(0, 174.0832441975284, 82.53988865635088)"
     style="font: italic 12px Palatino"
     x="174.0832441975284"
     y="84.53988865635088"
@@ -555,7 +555,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 138.08597423601543, 184.74150386681714)"
+    transform="rotate(0, 144.08597423601543, 188.24150386681714)"
     style="font: italic 12px Palatino"
     x="144.08597423601543"
     y="191.74150386681714"

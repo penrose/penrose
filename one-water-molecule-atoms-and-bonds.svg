@@ -21,7 +21,7 @@
       <title>`H2`.background</title>
     </circle>
     <g
-      transform="rotate(0, 594.50136731909, 155.57251011610444)translate(594.50136731909, 155.57251011610444)"
+      transform="rotate(0, 602.3424073190901, 164.40251011610445)translate(594.50136731909, 155.57251011610444)"
     >
       <title>`H2`.symbol</title>
       <svg
@@ -81,7 +81,7 @@
       <title>`O1`.background</title>
     </circle>
     <g
-      transform="rotate(0, 506.0548918658288, 200.07820811302722)translate(506.0548918658288, 200.07820811302722)"
+      transform="rotate(0, 512.7921818658288, 208.90820811302723)translate(506.0548918658288, 200.07820811302722)"
     >
       <title>`O1`.symbol</title>
       <svg
@@ -131,7 +131,7 @@
       <title>`H1`.background</title>
     </circle>
     <g
-      transform="rotate(0, 439.4414811326633, 124.52369618582536)translate(439.4414811326633, 124.52369618582536)"
+      transform="rotate(0, 447.2825211326633, 133.35369618582536)translate(439.4414811326633, 124.52369618582536)"
     >
       <title>`H1`.symbol</title>
       <svg

@@ -10,13 +10,11 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 50, 50)"
+    transform="rotate(0, 250, 250)"
   >
     <title>`R`.icon</title>
   </rect>
-  <g
-    transform="rotate(0, 417.72878000000003, 65.42)translate(417.72878000000003, 65.42)"
-  >
+  <g transform="rotate(0, 425, 75)translate(417.72878000000003, 65.42)">
     <title>`R`.text</title>
     <svg
       style="font-size: 13.5px"
@@ -52,7 +50,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 407.01608713113353, 268.5628007173473)translate(407.01608713113353, 268.5628007173473)"
+    transform="rotate(0, 414.20108713113353, 278.14280071734726)translate(407.01608713113353, 268.5628007173473)"
   >
     <title>`A`.text</title>
     <svg
@@ -89,7 +87,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 84.22396335475617, 72.01715398435469)translate(84.22396335475617, 72.01715398435469)"
+    transform="rotate(0, 91.49518335475616, 81.59715398435469)translate(84.22396335475617, 72.01715398435469)"
   >
     <title>`B`.text</title>
     <svg
@@ -126,7 +124,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 350.8382867445307, 410.0000759805835)translate(350.8382867445307, 410.0000759805835)"
+    transform="rotate(0, 358.1574067445307, 419.5800759805835)translate(350.8382867445307, 410.0000759805835)"
   >
     <title>`E`.text</title>
     <svg
@@ -163,7 +161,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 204.56663729136167, 218.39227167137452)translate(204.56663729136167, 218.39227167137452)"
+    transform="rotate(0, 212.49887729136168, 227.97227167137453)translate(204.56663729136167, 218.39227167137452)"
   >
     <title>`D`.text</title>
     <svg
@@ -226,7 +224,7 @@
     <title>`C`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 181.09458909783314, 403.23787708601054)translate(181.09458909783314, 403.23787708601054)"
+    transform="rotate(0, 188.37538909783314, 412.8178770860105)translate(181.09458909783314, 403.23787708601054)"
   >
     <title>`C`.text</title>
     <svg

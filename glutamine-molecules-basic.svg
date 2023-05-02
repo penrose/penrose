@@ -20,7 +20,7 @@
     <title>`O1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 158.7525871719319, 400.4345899587528)translate(158.7525871719319, 400.4345899587528)"
+    transform="rotate(0, 165.4898771719319, 409.26458995875277)translate(158.7525871719319, 400.4345899587528)"
   >
     <title>`O1`.symbol</title>
     <svg
@@ -97,7 +97,7 @@
     <title>`N1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 214.56823042293422, 514.3562960639277)translate(214.56823042293422, 514.3562960639277)"
+    transform="rotate(0, 222.4092704229342, 523.1862960639278)translate(214.56823042293422, 514.3562960639277)"
   >
     <title>`N1`.symbol</title>
     <svg
@@ -154,7 +154,7 @@
     <title>`O2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 549.4469712103102, 122.68727998732662)translate(549.4469712103102, 122.68727998732662)"
+    transform="rotate(0, 556.1842612103102, 131.51727998732662)translate(549.4469712103102, 122.68727998732662)"
   >
     <title>`O2`.symbol</title>
     <svg
@@ -231,7 +231,7 @@
     <title>`N2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 558.0660505847949, 354.9843027172225)translate(558.0660505847949, 354.9843027172225)"
+    transform="rotate(0, 565.9070905847949, 363.81430271722246)translate(558.0660505847949, 354.9843027172225)"
   >
     <title>`N2`.symbol</title>
     <svg
@@ -298,7 +298,7 @@
     <title>`O3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 651.0481196350579, 184.15494179927862)translate(651.0481196350579, 184.15494179927862)"
+    transform="rotate(0, 657.7854096350579, 192.98494179927863)translate(651.0481196350579, 184.15494179927862)"
   >
     <title>`O3`.symbol</title>
     <svg
@@ -345,7 +345,7 @@
     <title>`H1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 254.44706309015774, 589.6442660510177)translate(254.44706309015774, 589.6442660510177)"
+    transform="rotate(0, 262.28810309015773, 598.4742660510177)translate(254.44706309015774, 589.6442660510177)"
   >
     <title>`H1`.symbol</title>
     <svg
@@ -392,7 +392,7 @@
     <title>`H2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 138.38044094179182, 553.7689232336623)translate(138.38044094179182, 553.7689232336623)"
+    transform="rotate(0, 146.2214809417918, 562.5989232336624)translate(138.38044094179182, 553.7689232336623)"
   >
     <title>`H2`.symbol</title>
     <svg
@@ -449,7 +449,7 @@
     <title>`H3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 366.10882822127155, 420.92217662311845)translate(366.10882822127155, 420.92217662311845)"
+    transform="rotate(0, 373.9498682212716, 429.75217662311843)translate(366.10882822127155, 420.92217662311845)"
   >
     <title>`H3`.symbol</title>
     <svg
@@ -506,7 +506,7 @@
     <title>`H4`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 245.0962874338918, 302.5500274911427)translate(245.0962874338918, 302.5500274911427)"
+    transform="rotate(0, 252.9373274338918, 311.3800274911427)translate(245.0962874338918, 302.5500274911427)"
   >
     <title>`H4`.symbol</title>
     <svg
@@ -563,7 +563,7 @@
     <title>`H5`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 327.22197980420026, 222.67791104910918)translate(327.22197980420026, 222.67791104910918)"
+    transform="rotate(0, 335.0630198042003, 231.5079110491092)translate(327.22197980420026, 222.67791104910918)"
   >
     <title>`H5`.symbol</title>
     <svg
@@ -620,7 +620,7 @@
     <title>`C1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 241.96888816812898, 423.9241678960879)translate(241.96888816812898, 423.9241678960879)"
+    transform="rotate(0, 248.679688168129, 432.7541678960879)translate(241.96888816812898, 423.9241678960879)"
   >
     <title>`C1`.symbol</title>
     <svg
@@ -677,7 +677,7 @@
     <title>`H6`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 415.41617583847466, 196.6024138638524)translate(415.41617583847466, 196.6024138638524)"
+    transform="rotate(0, 423.2572158384747, 205.43241386385242)translate(415.41617583847466, 196.6024138638524)"
   >
     <title>`H6`.symbol</title>
     <svg
@@ -734,7 +734,7 @@
     <title>`C2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 315.9357234859397, 353.4779873203621)translate(315.9357234859397, 353.4779873203621)"
+    transform="rotate(0, 322.6465234859397, 362.3079873203621)translate(315.9357234859397, 353.4779873203621)"
   >
     <title>`C2`.symbol</title>
     <svg
@@ -781,7 +781,7 @@
     <title>`H7`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 642.9347406702702, 368.471482773193)translate(642.9347406702702, 368.471482773193)"
+    transform="rotate(0, 650.7757806702703, 377.30148277319296)translate(642.9347406702702, 368.471482773193)"
   >
     <title>`H7`.symbol</title>
     <svg
@@ -838,7 +838,7 @@
     <title>`C3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 394.90679587515, 281.0524405569109)translate(394.90679587515, 281.0524405569109)"
+    transform="rotate(0, 401.61759587515, 289.88244055691086)translate(394.90679587515, 281.0524405569109)"
   >
     <title>`C3`.symbol</title>
     <svg
@@ -885,7 +885,7 @@
     <title>`H8`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 554.2171433671604, 440.4049961254885)translate(554.2171433671604, 440.4049961254885)"
+    transform="rotate(0, 562.0581833671604, 449.23499612548846)translate(554.2171433671604, 440.4049961254885)"
   >
     <title>`H8`.symbol</title>
     <svg
@@ -952,7 +952,7 @@
     <title>`C4`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 499.9941347960122, 281.2616032703357)translate(499.9941347960122, 281.2616032703357)"
+    transform="rotate(0, 506.7049347960122, 290.09160327033567)translate(499.9941347960122, 281.2616032703357)"
   >
     <title>`C4`.symbol</title>
     <svg
@@ -999,7 +999,7 @@
     <title>`H9`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 727.1834140033741, 152.43687706015245)translate(727.1834140033741, 152.43687706015245)"
+    transform="rotate(0, 735.0244540033741, 161.26687706015247)translate(727.1834140033741, 152.43687706015245)"
   >
     <title>`H9`.symbol</title>
     <svg
@@ -1046,7 +1046,7 @@
     <title>`C5`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 564.2885282551864, 207.44463699161244)translate(564.2885282551864, 207.44463699161244)"
+    transform="rotate(0, 570.9993282551864, 216.27463699161245)translate(564.2885282551864, 207.44463699161244)"
   >
     <title>`C5`.symbol</title>
     <svg

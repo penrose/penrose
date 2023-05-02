@@ -7,7 +7,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 0, 0)"
+    transform="rotate(0, 160, 120)"
   >
     <title>Global.box</title>
   </rect>
@@ -27,7 +27,7 @@
     fill="#808080"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 41.97016497960675, 178.8050858379577)"
+    transform="rotate(0, 46.97016497960675, 183.8050858379577)"
     style="font: 12px Palatino"
     x="46.97016497960675"
     y="188.8050858379577"
@@ -45,7 +45,7 @@
     Ω
   </text>
   <g
-    transform="rotate(0, 134.64253923739938, 27.91962783121346)translate(134.64253923739938, 27.91962783121346)"
+    transform="rotate(0, 226.70887429429132, 119.98596288810539)translate(134.64253923739938, 27.91962783121346)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -118,7 +118,7 @@
     <title>9:0:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 78.66389783778547, 80.97584958148292)translate(78.66389783778547, 80.97584958148292)"
+    transform="rotate(0, 136.70730231906575, 139.0192540627632)translate(78.66389783778547, 80.97584958148292)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -181,7 +181,7 @@
     <title>`x1`.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 127.97909818825502, 179.66486447317047)translate(127.97909818825502, 179.66486447317047)"
+    transform="rotate(0, 136.6786020698201, 188.36436835473555)translate(127.97909818825502, 179.66486447317047)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -254,7 +254,7 @@
     <title>9:5:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 122.30202948897788, 184.94557964236995)translate(122.30202948897788, 184.94557964236995)"
+    transform="rotate(0, 128.38796625420838, 191.03151640760046)translate(122.30202948897788, 184.94557964236995)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -327,7 +327,7 @@
     <title>9:6:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 118.31513777667921, 188.60857690651306)translate(118.31513777667921, 188.60857690651306)"
+    transform="rotate(0, 122.58831681041906, 192.8817559402529)translate(118.31513777667921, 188.60857690651306)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -400,7 +400,7 @@
     <title>9:1:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 101.96845275276152, 42.946114043679536)translate(101.96845275276152, 42.946114043679536)"
+    transform="rotate(0, 136.95175223214767, 77.92941352306568)translate(101.96845275276152, 42.946114043679536)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -473,7 +473,7 @@
     <title>9:2:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 86.56689816116179, 42.748343545347794)translate(86.56689816116179, 42.748343545347794)"
+    transform="rotate(0, 105.81117413142988, 61.992619515615885)translate(86.56689816116179, 42.748343545347794)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -534,7 +534,7 @@
     <title>`x3`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 291.11531672613546, 105.19618300436619)translate(291.11531672613546, 105.19618300436619)"
+    transform="rotate(0, 304.94526303864455, 119.02612931687527)translate(291.11531672613546, 105.19618300436619)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -607,7 +607,7 @@
     <title>9:3:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 299.4184470693728, 96.13200946905502)translate(299.4184470693728, 96.13200946905502)"
+    transform="rotate(0, 309.09682821005936, 105.81039060974159)translate(299.4184470693728, 96.13200946905502)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -680,7 +680,7 @@
     <title>9:4:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 305.2677815969025, 89.85001767878921)translate(305.2677815969025, 89.85001767878921)"
+    transform="rotate(0, 312.0214954736822, 96.6037315555689)translate(305.2677815969025, 89.85001767878921)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -759,7 +759,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 123.11141518121198, 128.4031006080086)"
+    transform="rotate(0, 128.61141518121198, 131.9031006080086)"
     style="font: italic 12px Palatino"
     x="128.61141518121198"
     y="135.4031006080086"
@@ -795,7 +795,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 123.3852108374166, 82.66763663804862)"
+    transform="rotate(0, 129.3852108374166, 83.66763663804862)"
     style="font: italic 12px Palatino"
     x="129.3852108374166"
     y="84.66763663804862"
@@ -841,7 +841,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 210.11355888426516, 119.09317089974175)"
+    transform="rotate(0, 216.11355888426516, 122.59317089974175)"
     style="font: italic 12px Palatino"
     x="216.11355888426516"
     y="126.09317089974175"
@@ -897,7 +897,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 290.82264109171126, 123.38055194255924)"
+    transform="rotate(0, 297.32264109171126, 128.38055194255924)"
     style="font: italic 12px Palatino"
     x="297.32264109171126"
     y="130.38055194255924"
@@ -943,7 +943,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 116.74050130440871, 175.79868140779996)"
+    transform="rotate(0, 122.74050130440871, 180.79868140779996)"
     style="font: italic 12px Palatino"
     x="122.74050130440871"
     y="182.79868140779996"
@@ -981,7 +981,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 94.94545131043715, 66.6992502879686)"
+    transform="rotate(0, 100.94545131043715, 70.1992502879686)"
     style="font: italic 12px Palatino"
     x="100.94545131043715"
     y="73.6992502879686"

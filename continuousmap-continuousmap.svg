@@ -11,7 +11,7 @@
     stroke-width="1"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 406.18768739394096, 215.8133870057335)"
+    transform="rotate(0, 522.8543540606076, 332.4800536724002)"
   >
     <title>`Rm`.icon</title>
   </rect>
@@ -43,7 +43,7 @@
     <title>`V`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 521.9207763627837, 346.7163291292895)translate(521.9207763627837, 346.7163291292895)"
+    transform="rotate(0, 528.7110463627837, 355.54632912928946)translate(521.9207763627837, 346.7163291292895)"
   >
     <title>`V`.text</title>
     <svg
@@ -91,12 +91,12 @@
     stroke-width="1.5"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 6.187687393940919, 215.8133870057335)"
+    transform="rotate(0, 122.85435406060759, 332.4800536724002)"
   >
     <title>`Rn`.icon</title>
   </rect>
   <g
-    transform="rotate(0, 208.6663017272743, 226.98338700573348)translate(208.6663017272743, 226.98338700573348)"
+    transform="rotate(0, 219.52102072727428, 235.8133870057335)translate(208.6663017272743, 226.98338700573348)"
   >
     <title>`Rn`.text</title>
     <svg
@@ -173,7 +173,7 @@
     <title>`U`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 113.08805762604776, 341.6935769777705)translate(113.08805762604776, 341.6935769777705)"
+    transform="rotate(0, 139.60297913588107, 351.27857697777046)translate(113.08805762604776, 341.6935769777705)"
   >
     <title>`U`.text</title>
     <svg
@@ -248,7 +248,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 176.64940526772477, 396.89654957233756)translate(176.64940526772477, 396.89654957233756)"
+    transform="rotate(0, 183.27190526772478, 405.72654957233755)translate(176.64940526772477, 396.89654957233756)"
   >
     <title>`A`.text</title>
     <svg
@@ -285,7 +285,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 561.6285719286915, 324.12048776660396)translate(561.6285719286915, 324.12048776660396)"
+    transform="rotate(0, 568.3305419286914, 332.95048776660394)translate(561.6285719286915, 324.12048776660396)"
   >
     <title>`B`.text</title>
     <svg
@@ -349,7 +349,7 @@
     <title>`f`.icon</title>
   </g>
   <g
-    transform="rotate(0, 317.9976629368071, 304.22159282923997)translate(317.9976629368071, 304.22159282923997)"
+    transform="rotate(0, 322.8541629368071, 313.05159282923995)translate(317.9976629368071, 304.22159282923997)"
   >
     <title>`f`.text</title>
     <svg
@@ -386,7 +386,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 606.9312067272742, 226.98338700573348)translate(606.9312067272742, 226.98338700573348)"
+    transform="rotate(0, 619.5210207272743, 235.8133870057335)translate(606.9312067272742, 226.98338700573348)"
   >
     <title>`Rm`.text</title>
     <svg

@@ -58,7 +58,7 @@
     fill-opacity="0.06666666666666667"
     stroke="none"
     rx="0"
-    transform="rotate(0, 30, 10)"
+    transform="rotate(0, 120, 100)"
   >
     <title>global.box</title>
   </rect>
@@ -227,7 +227,7 @@
     <title>global.gridY2</title>
   </g>
   <g
-    transform="rotate(0, 111.995082, 136.66996500017498)translate(111.995082, 136.66996500017498)"
+    transform="rotate(0, 120, 142.999965000175)translate(111.995082, 136.66996500017498)"
   >
     <title>`X`.r2Label</title>
     <svg
@@ -329,7 +329,7 @@
     <title>`X`.row2</title>
   </g>
   <g
-    transform="rotate(0, 90.86460083143768, 51.40903766287537)translate(90.86460083143768, 51.40903766287537)"
+    transform="rotate(0, 98.86951883143769, 57.73903766287537)translate(90.86460083143768, 51.40903766287537)"
   >
     <title>`X`.r1Label</title>
     <svg
@@ -377,7 +377,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 134.68907316856232, 51.40903766287537)translate(134.68907316856232, 51.40903766287537)"
+    transform="rotate(0, 141.1304811685623, 57.73903766287537)translate(134.68907316856232, 51.40903766287537)"
   >
     <title>`Y`.r2Label</title>
     <svg
@@ -479,7 +479,7 @@
     <title>`Y`.row2</title>
   </g>
   <g
-    transform="rotate(0, 155.81955433712463, 72.53951883143769)translate(155.81955433712463, 72.53951883143769)"
+    transform="rotate(0, 162.26096233712462, 78.86951883143769)translate(155.81955433712463, 72.53951883143769)"
   >
     <title>`Y`.r1Label</title>
     <svg
@@ -527,7 +527,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 94.35084, 118.66993000069999)translate(94.35084, 118.66993000069999)"
+    transform="rotate(0, 120, 124.99993000069999)translate(94.35084, 118.66993000069999)"
   >
     <title>`Z`.r2Label</title>
     <svg
@@ -653,7 +653,7 @@
     <title>`Z`.row2</title>
   </g>
   <g
-    transform="rotate(0, 83.65309885999984, 50.87903543999936)translate(83.65309885999984, 50.87903543999936)"
+    transform="rotate(0, 109.30225885999984, 57.20903543999936)translate(83.65309885999984, 50.87903543999936)"
   >
     <title>`Z`.r1Label</title>
     <svg

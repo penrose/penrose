@@ -7,7 +7,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 225, 175)"
+    transform="rotate(0, 400, 350)"
   >
     <title>`V`.background</title>
   </rect>
@@ -155,7 +155,7 @@
     <title>`V`.yAxis</title>
   </g>
   <g
-    transform="rotate(0, 376.6028222508242, 280.5023953104912)translate(376.6028222508242, 280.5023953104912)"
+    transform="rotate(0, 381.65358225082423, 289.33239531049117)translate(376.6028222508242, 280.5023953104912)"
   >
     <title>`u`.text</title>
     <svg
@@ -220,7 +220,7 @@
     <title>`v`.arrow</title>
   </g>
   <g
-    transform="rotate(0, 457.80252194271884, 349.8101683750588)translate(457.80252194271884, 349.8101683750588)"
+    transform="rotate(0, 462.08507194271886, 358.6401683750588)translate(457.80252194271884, 349.8101683750588)"
   >
     <title>`v`.text</title>
     <svg
@@ -256,7 +256,7 @@
       </g>
     </svg>
   </g>
-  <g transform="rotate(0, 218.20973, 166.17)translate(218.20973, 166.17)">
+  <g transform="rotate(0, 225, 175)translate(218.20973, 166.17)">
     <title>`V`.text</title>
     <svg
       style="font-size: 12pt"

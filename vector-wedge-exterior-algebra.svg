@@ -10,7 +10,7 @@
     stroke-width="1"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 0, 0)"
+    transform="rotate(0, 120, 90)"
   >
     <title>Global.box</title>
   </rect>
@@ -42,7 +42,7 @@
     <title>`c`.icon</title>
   </g>
   <g
-    transform="rotate(0, 54.50130526318235, 96.90362150953625)translate(54.50130526318235, 96.90362150953625)"
+    transform="rotate(0, 56.700945263182355, 101.98362150953625)translate(54.50130526318235, 96.90362150953625)"
     font-family="Linux Libertine"
   >
     <title>`c`.labelText</title>
@@ -184,7 +184,7 @@
     <title>`u`.icon</title>
   </g>
   <g
-    transform="rotate(0, 110.24883800969135, 163.04410040799863)translate(110.24883800969135, 163.04410040799863)"
+    transform="rotate(0, 112.42815800969136, 168.12410040799864)translate(110.24883800969135, 163.04410040799863)"
     font-family="Linux Libertine"
   >
     <title>`b`.labelText</title>
@@ -222,7 +222,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 186.21391542947563, 17.44340568154196)translate(186.21391542947563, 17.44340568154196)"
+    transform="rotate(0, 188.90123542947563, 22.52340568154196)translate(186.21391542947563, 17.44340568154196)"
     font-family="Linux Libertine"
   >
     <title>`a`.labelText</title>
@@ -303,7 +303,7 @@
     <title>`u`.marker</title>
   </g>
   <g
-    transform="rotate(0, 138.9161732915605, 89.65244505496784)translate(138.9161732915605, 89.65244505496784)"
+    transform="rotate(0, 149.4287252915605, 94.73244505496784)translate(138.9161732915605, 89.65244505496784)"
     font-family="Linux Libertine"
   >
     <title>`u`.labelText</title>
@@ -396,7 +396,7 @@
     <title>`v`.marker</title>
   </g>
   <g
-    transform="rotate(0, 76.69771100709421, 127.6111623975654)translate(76.69771100709421, 127.6111623975654)"
+    transform="rotate(0, 86.72258300709422, 132.6911623975654)translate(76.69771100709421, 127.6111623975654)"
     font-family="Linux Libertine"
   >
     <title>`v`.labelText</title>

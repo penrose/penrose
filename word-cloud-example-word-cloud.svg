@@ -10,7 +10,7 @@
     stroke-width="1"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 0, 0)"
+    transform="rotate(0, 120, 90)"
   >
     <title>Global.box</title>
   </rect>
@@ -26,7 +26,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 125.9048806161129, 71.57567989875298)"
+    transform="rotate(0, 160.9048806161129, 80.07567989875298)"
   >
     <title>`Survey`.box</title>
   </rect>
@@ -42,7 +42,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 2.8100468364334503, 153.57565406676665)"
+    transform="rotate(0, 63.31004683643345, 161.07565406676665)"
   >
     <title>`Courses`.box</title>
   </rect>
@@ -58,7 +58,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 115.83509304115839, 133.07565432448453)"
+    transform="rotate(0, 155.8350930411584, 141.57565432448453)"
   >
     <title>`Shells`.box</title>
   </rect>
@@ -74,7 +74,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 7.33509216004564, 133.07565633039303)"
+    transform="rotate(0, 59.83509216004564, 141.57565633039303)"
   >
     <title>`Software`.box</title>
   </rect>
@@ -90,7 +90,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 127.31004764700754, 153.57565024259225)"
+    transform="rotate(0, 157.81004764700754, 161.07565024259225)"
   >
     <title>`Videos`.box</title>
   </rect>
@@ -106,7 +106,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 53.6455449889759, 14.07569192271157)"
+    transform="rotate(0, 113.6455449889759, 22.57569192271157)"
   >
     <title>`Riemannian`.box</title>
   </rect>
@@ -122,7 +122,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 73.92903059454306, 34.575689705830975)"
+    transform="rotate(0, 110.42903059454306, 42.075689705830975)"
   >
     <title>`Tools`.box</title>
   </rect>
@@ -138,7 +138,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 20.404879736956204, 71.57567943576726)"
+    transform="rotate(0, 71.4048797369562, 80.07567943576726)"
   >
     <title>`BCs`.box</title>
   </rect>
@@ -146,7 +146,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 24.404879736956204, 75.57567943576726)"
+    transform="rotate(0, 71.4048797369562, 80.07567943576726)"
     style="font: 9px Palatino"
     x="71.4048797369562"
     y="82.57567943576726"
@@ -175,7 +175,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 64.65460638737373, 53.07568394767276)"
+    transform="rotate(0, 113.65460638737373, 60.57568394767276)"
   >
     <title>`Exact`.box</title>
   </rect>
@@ -183,7 +183,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 68.65460638737373, 57.07568394767276)"
+    transform="rotate(0, 113.65460638737373, 60.57568394767276)"
     style="font: 9px Palatino"
     x="113.65460638737373"
     y="64.07568394767276"
@@ -212,7 +212,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 46.20076031478848, 112.57566084335215)"
+    transform="rotate(0, 113.70076031478848, 121.07566084335215)"
   >
     <title>`CurveSurface`.box</title>
   </rect>
@@ -228,7 +228,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 62.673768426426605, 92.07567342524534)"
+    transform="rotate(0, 113.6737684264266, 100.57567342524534)"
   >
     <title>`Minkowski`.box</title>
   </rect>
@@ -236,7 +236,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 66.6737684264266, 96.07567342524534)"
+    transform="rotate(0, 113.6737684264266, 100.57567342524534)"
     style="font: 9px Palatino"
     x="113.6737684264266"
     y="103.07567342524534"
@@ -257,7 +257,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 119.83509304115839, 137.07565432448453)"
+    transform="rotate(0, 155.8350930411584, 141.57565432448453)"
     style="font: 9px Palatino"
     x="155.8350930411584"
     y="144.07565432448453"
@@ -278,7 +278,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 57.6455449889759, 18.07569192271157)"
+    transform="rotate(0, 113.6455449889759, 22.57569192271157)"
     style="font: 9px Palatino"
     x="113.6455449889759"
     y="25.07569192271157"
@@ -299,7 +299,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 50.20076031478848, 116.57566084335215)"
+    transform="rotate(0, 113.70076031478848, 121.07566084335215)"
     style="font: 9px Palatino"
     x="113.70076031478848"
     y="123.57566084335215"
@@ -320,7 +320,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 11.33509216004564, 137.07565633039303)"
+    transform="rotate(0, 59.83509216004564, 141.57565633039303)"
     style="font: 9px Palatino"
     x="59.83509216004564"
     y="144.07565633039303"
@@ -341,7 +341,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 131.31004764700754, 157.57565024259225)"
+    transform="rotate(0, 157.81004764700754, 161.07565024259225)"
     style="font: 9px Palatino"
     x="157.81004764700754"
     y="164.57565024259225"
@@ -362,7 +362,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 77.92903059454306, 38.575689705830975)"
+    transform="rotate(0, 110.42903059454306, 42.075689705830975)"
     style="font: 9px Palatino"
     x="110.42903059454306"
     y="45.575689705830975"
@@ -383,7 +383,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 6.81004683643345, 157.57565406676665)"
+    transform="rotate(0, 63.31004683643345, 161.07565406676665)"
     style="font: 9px Palatino"
     x="63.31004683643345"
     y="164.57565406676665"
@@ -404,7 +404,7 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 129.9048806161129, 75.57567989875298)"
+    transform="rotate(0, 160.9048806161129, 80.07567989875298)"
     style="font: 9px Palatino"
     x="160.9048806161129"
     y="82.57567989875298"

@@ -8,7 +8,7 @@
     fill-opacity="1"
     stroke="none"
     rx="0"
-    transform="rotate(0, 0, 0)"
+    transform="rotate(0, 200, 300)"
   >
     <title>const.bg</title>
   </rect>
@@ -42,7 +42,7 @@
     ></path>
     <title>`none`.icon</title>
   </g>
-  <g transform="rotate(0, 257.8146, 61.17)translate(257.8146, 61.17)">
+  <g transform="rotate(0, 278.83, 70)translate(257.8146, 61.17)">
     <title>`none`.text</title>
     <svg
       style="font-size: 12pt"
@@ -136,9 +136,7 @@
     ></path>
     <title>`concave`.icon</title>
   </g>
-  <g
-    transform="rotate(0, 244.13692999999998, 131.17)translate(244.13692999999998, 131.17)"
-  >
+  <g transform="rotate(0, 278.83, 140)translate(244.13692999999998, 131.17)">
     <title>`concave`.text</title>
     <svg
       style="font-size: 12pt"
@@ -247,9 +245,7 @@
     ></path>
     <title>`straight`.icon</title>
   </g>
-  <g
-    transform="rotate(0, 244.26937999999998, 201.17)translate(244.26937999999998, 201.17)"
-  >
+  <g transform="rotate(0, 278.83, 210)translate(244.26937999999998, 201.17)">
     <title>`straight`.text</title>
     <svg
       style="font-size: 12pt"
@@ -367,9 +363,7 @@
     ></path>
     <title>`line`.icon</title>
   </g>
-  <g
-    transform="rotate(0, 262.90067999999997, 271.17)translate(262.90067999999997, 271.17)"
-  >
+  <g transform="rotate(0, 278.83, 280)translate(262.90067999999997, 271.17)">
     <title>`line`.text</title>
     <svg
       style="font-size: 12pt"
@@ -467,9 +461,7 @@
     ></path>
     <title>`doubleLine`.icon</title>
   </g>
-  <g
-    transform="rotate(0, 230.13254999999998, 341.17)translate(230.13254999999998, 341.17)"
-  >
+  <g transform="rotate(0, 278.83, 350)translate(230.13254999999998, 341.17)">
     <title>`doubleLine`.text</title>
     <svg
       style="font-size: 12pt"
@@ -589,9 +581,7 @@
     ></path>
     <title>`loopup`.icon</title>
   </g>
-  <g
-    transform="rotate(0, 248.93161999999998, 411.17)translate(248.93161999999998, 411.17)"
-  >
+  <g transform="rotate(0, 278.83, 420)translate(248.93161999999998, 411.17)">
     <title>`loopup`.text</title>
     <svg
       style="font-size: 12pt"
@@ -691,7 +681,7 @@
     ></path>
     <title>`loopdown`.icon</title>
   </g>
-  <g transform="rotate(0, 236.51664, 481.17)translate(236.51664, 481.17)">
+  <g transform="rotate(0, 278.83, 490)translate(236.51664, 481.17)">
     <title>`loopdown`.text</title>
     <svg
       style="font-size: 12pt"
@@ -809,7 +799,7 @@
     ></path>
     <title>`loop`.icon</title>
   </g>
-  <g transform="rotate(0, 260.21636, 551.17)translate(260.21636, 551.17)">
+  <g transform="rotate(0, 278.83, 560)translate(260.21636, 551.17)">
     <title>`loop`.text</title>
     <svg
       style="font-size: 12pt"

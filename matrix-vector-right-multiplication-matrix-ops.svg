@@ -58,7 +58,7 @@
     fill-opacity="0.06666666666666667"
     stroke="none"
     rx="0"
-    transform="rotate(0, 30, 10)"
+    transform="rotate(0, 120, 100)"
   >
     <title>global.box</title>
   </rect>
@@ -227,7 +227,7 @@
     <title>global.gridY2</title>
   </g>
   <g
-    transform="rotate(0, 112.488822, 118.66993000069999)translate(112.488822, 118.66993000069999)"
+    transform="rotate(0, 120, 124.99993000069999)translate(112.488822, 118.66993000069999)"
   >
     <title>`A`.r2Label</title>
     <svg
@@ -329,7 +329,7 @@
     <title>`A`.row2</title>
   </g>
   <g
-    transform="rotate(0, 89.53910953144668, 70.72028753144669)translate(89.53910953144668, 70.72028753144669)"
+    transform="rotate(0, 97.05028753144668, 77.05028753144668)translate(89.53910953144668, 70.72028753144669)"
   >
     <title>`A`.r1Label</title>
     <svg
@@ -377,7 +377,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 56.55490409343645, 53.7871093956243)translate(56.55490409343645, 53.7871093956243)"
+    transform="rotate(0, 60.175664093436446, 60.1171093956243)translate(56.55490409343645, 53.7871093956243)"
   >
     <title>`u`.labelText</title>
     <svg
@@ -468,7 +468,7 @@
     <title>`uA`.icon</title>
   </g>
   <g
-    transform="rotate(0, 165.82622487708292, 188.8274401858878)translate(165.82622487708292, 188.8274401858878)"
+    transform="rotate(0, 177.6014641115327, 196.00244018588782)translate(165.82622487708292, 188.8274401858878)"
   >
     <title>`uA`.labelText</title>
     <svg

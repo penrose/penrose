@@ -7,7 +7,7 @@
     fill="none"
     stroke="none"
     rx="0"
-    transform="rotate(0, 0, 0)"
+    transform="rotate(0, 160, 120)"
   >
     <title>Global.box</title>
   </rect>
@@ -24,7 +24,7 @@
     <title>Global.domain</title>
   </polygon>
   <g
-    transform="rotate(0, 76.50584614182517, 54.70754471594941)translate(76.50584614182517, 54.70754471594941)"
+    transform="rotate(0, 165.5187772881225, 143.72047586224673)translate(76.50584614182517, 54.70754471594941)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -97,7 +97,7 @@
     <title>9:0:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 146.32126252800677, 10.87255747141051)translate(146.32126252800677, 10.87255747141051)"
+    transform="rotate(0, 195.2783659814406, 59.82966092484435)translate(146.32126252800677, 10.87255747141051)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -170,7 +170,7 @@
     <title>9:1:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 211.86715658088394, 10.47054324039279)translate(211.86715658088394, 10.47054324039279)"
+    transform="rotate(0, 238.7935469291948, 37.39693358870366)translate(211.86715658088394, 10.47054324039279)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -243,7 +243,7 @@
     <title>9:2:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 250.36573916122845, 27.975920375806965)translate(250.36573916122845, 27.975920375806965)"
+    transform="rotate(0, 265.1752458683198, 42.78542708289831)translate(250.36573916122845, 27.975920375806965)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -307,7 +307,7 @@
     fill="#808080"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 260.3554306297488, 220.78157714319735)"
+    transform="rotate(0, 265.3554306297488, 225.78157714319735)"
     style="font: 12px Palatino"
     x="265.3554306297488"
     y="230.78157714319735"
@@ -331,7 +331,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 190.13073739715026, 64.32974405035904)"
+    transform="rotate(0, 195.63073739715026, 67.82974405035904)"
     style="font: italic 12px Palatino"
     x="195.63073739715026"
     y="71.32974405035904"
@@ -367,7 +367,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 222.29354933238216, 33.23736073236823)"
+    transform="rotate(0, 228.29354933238216, 36.73736073236823)"
     style="font: italic 12px Palatino"
     x="228.29354933238216"
     y="40.23736073236823"
@@ -403,7 +403,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 159.63788190257884, 132.22041646910583)"
+    transform="rotate(0, 165.63788190257884, 135.72041646910583)"
     style="font: italic 12px Palatino"
     x="165.63788190257884"
     y="139.22041646910583"
@@ -455,7 +455,7 @@
     <title>9:3:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 263.6477316736, 47.88886523197363)translate(263.6477316736, 47.88886523197363)"
+    transform="rotate(0, 271.792967801463, 56.034101359836654)translate(263.6477316736, 47.88886523197363)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
@@ -524,7 +524,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 265.1563114715109, 44.53404204508112)"
+    transform="rotate(0, 271.1563114715109, 48.03404204508112)"
     style="font: italic 12px Palatino"
     x="271.1563114715109"
     y="51.53404204508112"
@@ -560,7 +560,7 @@
     stroke-opacity="1"
     stroke-width="2.5"
     stroke-linecap="butt"
-    transform="rotate(0, 258.66304132070195, 47.28545607299883)"
+    transform="rotate(0, 264.66304132070195, 48.28545607299883)"
     style="font: italic 12px Palatino"
     x="264.66304132070195"
     y="49.28545607299883"

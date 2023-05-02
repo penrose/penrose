@@ -1139,7 +1139,7 @@
     <title>`g1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 126.58191993235397, 97.60355661765841)translate(126.58191993235397, 97.60355661765841)"
+    transform="rotate(0, 128.08441993235397, 100.60855661765841)translate(126.58191993235397, 97.60355661765841)"
   >
     <title>`g1`.labelText</title>
     <svg
@@ -1189,7 +1189,7 @@
     <title>`g2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 140.6742847614951, 53.69358151980438)translate(140.6742847614951, 53.69358151980438)"
+    transform="rotate(0, 141.7110097614951, 56.698581519804385)translate(140.6742847614951, 53.69358151980438)"
   >
     <title>`g2`.labelText</title>
     <svg
@@ -1239,7 +1239,7 @@
     <title>`g3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 184.48065229845318, 156.488362666127)translate(184.48065229845318, 156.488362666127)"
+    transform="rotate(0, 185.71871229845317, 159.49336266612698)translate(184.48065229845318, 156.488362666127)"
   >
     <title>`g3`.labelText</title>
     <svg
@@ -1289,7 +1289,7 @@
     <title>`g4`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 154.19336175867986, 125.87833438844373)translate(154.19336175867986, 125.87833438844373)"
+    transform="rotate(0, 155.75896675867986, 128.88333438844373)translate(154.19336175867986, 125.87833438844373)"
   >
     <title>`g4`.labelText</title>
     <svg
@@ -1339,7 +1339,7 @@
     <title>`g5`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 168.90614691714046, 85.57219999947746)translate(168.90614691714046, 85.57219999947746)"
+    transform="rotate(0, 172.74653691714045, 88.57719999947746)translate(168.90614691714046, 85.57219999947746)"
   >
     <title>`g5`.labelText</title>
     <svg
@@ -1395,7 +1395,7 @@
     <title>`g6`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 80.5175677528768, 110.28493162675557)translate(80.5175677528768, 110.28493162675557)"
+    transform="rotate(0, 83.8921827528768, 113.28993162675556)translate(80.5175677528768, 110.28493162675557)"
   >
     <title>`g6`.labelText</title>
     <svg
@@ -1451,7 +1451,7 @@
     <title>`g7`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 93.48935431867277, 65.91164674611821)translate(93.48935431867277, 65.91164674611821)"
+    transform="rotate(0, 97.06530431867277, 68.9166467461182)translate(93.48935431867277, 65.91164674611821)"
   >
     <title>`g7`.labelText</title>
     <svg
@@ -1507,7 +1507,7 @@
     <title>`g8`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 111.19408036667389, 141.9972623663758)translate(111.19408036667389, 141.9972623663758)"
+    transform="rotate(0, 115.09757536667388, 145.0022623663758)translate(111.19408036667389, 141.9972623663758)"
   >
     <title>`g8`.labelText</title>
     <svg
