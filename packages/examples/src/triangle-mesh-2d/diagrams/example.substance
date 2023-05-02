@@ -20,6 +20,5 @@ Corner clji := MakeCorner( l, j, i )
 --Point x := Circumcenter(ijk)
 --Point y := Circumcenter(jil)
 
-AutoLabel All
 Label ckij "α"
 Label clji "β"
