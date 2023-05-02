@@ -608,6 +608,8 @@
       "gallery": true
     },
     {
+      "gallery": true,
+      "name": "Concyclic Euclidean Edge Flip",
       "substance": "concyclic-pair",
       "style": "triangle-mesh-2d",
       "domain": "triangle-mesh-2d",
