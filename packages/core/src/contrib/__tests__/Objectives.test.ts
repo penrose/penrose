@@ -1,4 +1,5 @@
-import { Shape } from "../../shapes/Shapes";
+import { Polygon } from "../../shapes/Polygon";
+import { Polyline } from "../../shapes/Polyline";
 import * as ad from "../../types/ad";
 import { objDict, objDictSpecific } from "../Objectives";
 import { numOf } from "../Utils";
@@ -60,7 +61,7 @@ describe("simple objective", () => {
 describe("isRegular", () => {
   it.each([[_polylines[6]], [_polygons[6]]])(
     "convex %p",
-    (shape: Shape<ad.Num>) => {
+    (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
       const result = objDictSpecific.isRegular.body(shape);
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
     }
@@ -73,7 +74,7 @@ describe("isRegular", () => {
     [_polygons[8]],
     [_polylines[9]],
     [_polygons[9]],
-  ])("non-convex %p", (shape: Shape<ad.Num>) => {
+  ])("non-convex %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
     const result = objDictSpecific.isRegular.body(shape);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });

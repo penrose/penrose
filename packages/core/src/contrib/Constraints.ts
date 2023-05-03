@@ -35,7 +35,7 @@ import { inRange, isRectlike, overlap1D } from "./Utils";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
-const constrDictSimple: { [k: string]: ConstrFunc } = {
+const constrDictSimple = {
   /**
    * Require that the value `x` is equal to the value `y`
    */
@@ -250,7 +250,7 @@ const constrDictSimple: { [k: string]: ConstrFunc } = {
 
 // -------- General constraints
 // Defined for all shapes, generally require shape queries or call multiple specific constraints.
-const constrDictGeneral: { [k: string]: ConstrFunc } = {
+const constrDictGeneral = {
   /** Require that `shape` is on the canvas */
   onCanvas: {
     name: "onCanvas",
@@ -460,7 +460,7 @@ const constrDictGeneral: { [k: string]: ConstrFunc } = {
 
 // -------- Specific constraints
 // Defined only for specific use-case or specific shapes.
-const constrDictSpecific: { [k: string]: ConstrFunc } = {
+const constrDictSpecific = {
   /**
    * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
    */
@@ -488,3 +488,5 @@ export const constrDict = {
   ...constrDictSpecific, // Defined only for specific use-case or specific shapes.
   ...constrDictCurves, // Curve-specific constraints.
 };
+
+const _constrDictVals: ConstrFunc[] = Object.values(constrDict);

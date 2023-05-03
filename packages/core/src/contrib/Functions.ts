@@ -112,7 +112,7 @@ import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
 
 // NOTE: These all need to be written in terms of autodiff types
 // These all return a Value<ad.Num>
-export const compDict: { [k: string]: CompFunc } = {
+export const compDict = {
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
 
   makePath: {
@@ -2807,6 +2807,8 @@ export const compDict: { [k: string]: CompFunc } = {
   },
 };
 
+const _compDictVals: CompFunc[] = Object.values(compDict);
+
 /*
   Computes the signed distance for a line 
   float sdSegment( in vec2 p, in vec2 a, in vec2 b )
@@ -3039,13 +3041,6 @@ const closestPointEllipseCoords = (
   y = add(y, center[1]);
   return [x, y];
 };
-
-// `_compDictVals` causes TypeScript to enforce that every function in
-// `compDict` takes a `Context` as its first parameter and returns a `Value`
-// const _compDictVals: ((
-//   context: Context,
-//   ...rest: never[]
-// ) => Value<ad.Num>)[] = Object.values(compDict);
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {

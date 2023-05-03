@@ -43,7 +43,7 @@ import {
 
 // -------- Simple objective functions
 // Do not require shape queries, operate directly with `ad.Num` parameters.
-export const objDictSimple: { [k: string]: ObjFunc } = {
+export const objDictSimple = {
   /**
    * Encourage the input value to be close to negative infinity
    */
@@ -139,7 +139,7 @@ export const objDictSimple: { [k: string]: ObjFunc } = {
 
 // -------- General objective functions
 // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
-export const objDictGeneral: { [k: string]: ObjFunc } = {
+export const objDictGeneral = {
   /**
    * Encourage the center of `sTop` to be above the center of `sBottom`.
    * Only works for shapes with property `center`.
@@ -382,7 +382,7 @@ export const objDictGeneral: { [k: string]: ObjFunc } = {
 
 // -------- Specific objective functions
 // Defined only for specific use-case or specific shapes.
-export const objDictSpecific: { [k: string]: ObjFunc } = {
+export const objDictSpecific = {
   centerLabelAbove: {
     name: "centerLabelAbove",
     params: [
@@ -497,4 +497,4 @@ export const objDict = {
 
 // `_objDictVals` causes TypeScript to enforce that every function in
 // `objDict` returns an `ad.Num`
-// const _objDictVals: ((...rest: never[]) => ad.Num)[] = Object.values(objDict);
+const _objDictVals: ObjFunc[] = Object.values(objDict);

@@ -10,7 +10,6 @@ import { makeCanvas, simpleContext } from "../../shapes/Samplers";
 import { Shape } from "../../shapes/Shapes";
 import * as ad from "../../types/ad";
 import { Pt2 } from "../../types/ad";
-import { PathDataV } from "../../types/value";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict } from "../Functions";
 import {
@@ -60,7 +59,7 @@ const shapes: Shape<ad.Num>[] = [
       [-11, 0],
       [33, 0],
       [33, 44],
-    ]) as PathDataV<ad.Num>,
+    ]),
   }),
   // shapes[4]
   makeLine(context, canvas, {
