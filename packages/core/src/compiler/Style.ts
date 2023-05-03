@@ -106,7 +106,6 @@ import {
 } from "../types/substance";
 import {
   ArgVal,
-  ArgValWithSourceLoc,
   Field,
   FloatV,
   ListV,
@@ -2859,15 +2858,11 @@ const evalExpr = (
         return err(args.error);
       }
 
-      const argsWithSourceLoc: ArgValWithSourceLoc<ad.Num>[] = [];
-      for (let i = 0; i < args.value.length; i++) {
-        const { start, end } = expr.args[i];
-        argsWithSourceLoc.push({
-          ...args.value[i],
-          start,
-          end,
-        });
-      }
+      const argsWithSourceLoc = zip2(args.value, expr.args).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
 
       const { name, start, end } = expr;
       if (!(name.value in compDict)) {
@@ -3113,15 +3108,11 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const argsWithSourceLoc: ArgValWithSourceLoc<ad.Num>[] = [];
-      for (let i = 0; i < args.value.length; i++) {
-        const { start, end } = argExprs[i];
-        argsWithSourceLoc.push({
-          ...args.value[i],
-          start,
-          end,
-        });
-      }
+      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
@@ -3166,15 +3157,11 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const argsWithSourceLoc: ArgValWithSourceLoc<ad.Num>[] = [];
-      for (let i = 0; i < args.value.length; i++) {
-        const { start, end } = argExprs[i];
-        argsWithSourceLoc.push({
-          ...args.value[i],
-          start,
-          end,
-        });
-      }
+      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
