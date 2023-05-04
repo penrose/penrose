@@ -1,15 +1,14 @@
-import { makeCircle } from "../shapes/Circle";
-import { makeEllipse } from "../shapes/Ellipse";
-import { makeLine } from "../shapes/Line";
-import { makePolygon } from "../shapes/Polygon";
-import { makePolyline } from "../shapes/Polyline";
+import { Circle, makeCircle } from "../shapes/Circle";
+import { Ellipse, makeEllipse } from "../shapes/Ellipse";
+import { Line, makeLine } from "../shapes/Line";
+import { makePolygon, Polygon } from "../shapes/Polygon";
+import { makePolyline, Polyline } from "../shapes/Polyline";
 import { makeRectangle } from "../shapes/Rectangle";
 import { Context, makeCanvas, simpleContext } from "../shapes/Samplers";
-import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { black, floatV, ptListV, vectorV } from "../utils/Util";
 import { compDict } from "./Functions";
-import { numOf } from "./Utils";
+import { numOf, Rectlike } from "./Utils";
 
 const canvas = makeCanvas(800, 700);
 
@@ -25,11 +24,17 @@ const canvas = makeCanvas(800, 700);
  */
 const compareClosestPoint = async (
   context: Context,
-  shape: Shape<ad.Num>,
+  shape:
+    | Circle<ad.Num>
+    | Ellipse<ad.Num>
+    | Line<ad.Num>
+    | Polygon<ad.Num>
+    | Polyline<ad.Num>
+    | Rectlike<ad.Num>,
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const result = compDict.closestPoint(context, shape, pt);
+  const result = compDict.closestPoint.body(context, shape, pt);
   const [x, y] = result.contents;
   expect(numOf(x)).toBeCloseTo(expected[0]);
   expect(numOf(y)).toBeCloseTo(expected[1]);

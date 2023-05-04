@@ -1,16 +1,17 @@
 import seedrandom from "seedrandom";
 import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
-import { makeCircle } from "../../shapes/Circle";
-import { makeEllipse } from "../../shapes/Ellipse";
-import { makeLine } from "../../shapes/Line";
-import { makePolygon } from "../../shapes/Polygon";
+import { Circle, makeCircle } from "../../shapes/Circle";
+import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
+import { Line, makeLine } from "../../shapes/Line";
+import { makePolygon, Polygon } from "../../shapes/Polygon";
+import { Polyline } from "../../shapes/Polyline";
 import { makeRectangle } from "../../shapes/Rectangle";
 import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";
-import { Shape } from "../../shapes/Shapes";
 import * as ad from "../../types/ad";
 import { FloatV } from "../../types/value";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict, sdEllipse } from "../Functions";
+import { Rectlike } from "../Utils";
 
 const canvas = makeCanvas(800, 700);
 
@@ -42,7 +43,13 @@ export const makeContext = (
 const compareDistance = (
   context: Context,
   shapeType: string,
-  shape: Shape<ad.Num>,
+  shape:
+    | Ellipse<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Line<ad.Num>
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>,
   p: ad.Input[],
   expected: number
 ) => {
@@ -69,7 +76,13 @@ const compareDistance = (
 
 const getResult = (
   context: Context,
-  s: Shape<ad.Num>,
+  s:
+    | Ellipse<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Line<ad.Num>
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>,
   p: ad.Input[]
 ): FloatV<ad.Num> => {
   if (s.shapeType === "Ellipse") {
@@ -78,8 +91,12 @@ const getResult = (
       contents: sdEllipse(s, p),
     };
   } else {
-    const result = compDict.signedDistance(context, s, p);
-    return result;
+    const result = compDict.signedDistance.body(context, s, p);
+    if (result.tag === "FloatV") {
+      return result;
+    } else {
+      return floatV(0);
+    }
   }
 };
 

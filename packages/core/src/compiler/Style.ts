@@ -113,7 +113,6 @@ import {
   MatrixV,
   PropID,
   ShapeListV,
-  ShapeVal,
   Value,
   VectorV,
 } from "../types/value";
@@ -162,6 +161,7 @@ import {
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 import { checkShape } from "./shapeChecker/CheckShape";
+import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
@@ -2254,27 +2254,10 @@ const evalExprs = (
   trans: Translation
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
-    args.map((expr) => evalExpr(mut, canvas, stages, { context, expr }, trans))
-  ).mapErr(flatErrs);
-
-const argValues = (
-  mut: MutableContext,
-  canvas: Canvas,
-  stages: OptPipeline,
-  context: Context,
-  args: Expr<C>[],
-  trans: Translation
-): Result<(ShapeVal<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
-  evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
-    argVals.map((arg) => {
-      switch (arg.tag) {
-        case "ShapeVal": // strip the `ShapeVal` tag
-          return arg.contents;
-        case "Val": // strip both `Val` and type annotation like `FloatV`
-          return arg.contents.contents;
-      }
+    args.map((expr) => {
+      return evalExpr(mut, canvas, stages, { context, expr }, trans);
     })
-  );
+  ).mapErr(flatErrs);
 
 const evalVals = (
   mut: MutableContext,
@@ -2863,7 +2846,7 @@ const evalExpr = (
       }
     }
     case "CompApp": {
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -2874,14 +2857,23 @@ const evalExpr = (
       if (args.isErr()) {
         return err(args.error);
       }
-      const { name } = expr;
+
+      const argsWithSourceLoc = zip2(args.value, expr.args).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
+
+      const { name, start, end } = expr;
       if (!(name.value in compDict)) {
         return err(
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
       }
-      const x: Value<ad.Num> = compDict[name.value](mut, ...args.value);
-      return ok(val(x));
+      const f = compDict[name.value];
+      const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
+      if (x.isErr()) return err(oneErr(x.error));
+      return ok(val(x.value));
     }
     case "ConstrFn":
     case "Layering":
@@ -3105,7 +3097,7 @@ const translateExpr = (
     }
     case "ConstrFn": {
       const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -3116,6 +3108,11 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
+      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
@@ -3124,7 +3121,15 @@ const translateExpr = (
           trans
         );
       }
-      const output: ad.Num = constrDict[fname](...args.value);
+      const output = callObjConstrFunc(
+        constrDict[fname],
+        { start: e.expr.start, end: e.expr.end },
+        argsWithSourceLoc
+      );
+      if (output.isErr()) {
+        return addDiags(oneErr(output.error), trans);
+      }
+
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,
@@ -3135,13 +3140,13 @@ const translateExpr = (
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output,
+          output: output.value,
         }),
       };
     }
     case "ObjFn": {
       const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -3152,6 +3157,11 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
+      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
@@ -3166,13 +3176,20 @@ const translateExpr = (
         exclude,
         stages.map((s) => s.value)
       );
-      const output: ad.Num = objDict[fname](...args.value);
+      const output = callObjConstrFunc(
+        objDict[fname],
+        { start: e.expr.start, end: e.expr.end },
+        argsWithSourceLoc
+      );
+      if (output.isErr()) {
+        return addDiags(oneErr(output.error), trans);
+      }
       return {
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output,
+          output: output.value,
         }),
       };
     }
@@ -3480,7 +3497,11 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
   for (const shape of shapes) {
     const name = shape.name.contents;
     if (shape.ensureOnCanvas.contents) {
-      const output = constrDict.onCanvas(shape, canvas.width, canvas.height);
+      const output = constrDict.onCanvas.body(
+        shape,
+        canvas.width,
+        canvas.height
+      );
       fns.push({
         ast: {
           context: {

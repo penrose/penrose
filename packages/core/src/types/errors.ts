@@ -2,6 +2,7 @@ import im from "immutable";
 import * as ad from "./ad";
 import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
+import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions";
 import { State } from "./state";
 import {
   BindingForm,
@@ -15,7 +16,7 @@ import {
 } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
-import { ShapeVal, Val, Value } from "./value";
+import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value";
 
 //#region ErrorTypes
 
@@ -203,6 +204,10 @@ export type StyleError =
   | PropertyMemberError
   | UOpTypeError
   | BadShapeParamTypeError
+  | BadArgumentTypeError
+  | MissingArgumentError
+  | TooManyArgumentsError
+  | FunctionInternalError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -453,6 +458,34 @@ export interface BadShapeParamTypeError {
   value: Val<ad.Num> | ShapeVal<ad.Num>;
   expectedType: string;
   passthrough: boolean;
+}
+
+export interface BadArgumentTypeError {
+  tag: "BadArgumentTypeError";
+  funcName: string;
+  funcArg: FuncParam;
+  provided: ArgValWithSourceLoc<ad.Num>;
+}
+
+export interface MissingArgumentError {
+  tag: "MissingArgumentError";
+  funcName: string;
+  funcArg: FuncParam;
+  funcLocation: SourceRange;
+}
+
+export interface TooManyArgumentsError {
+  tag: "TooManyArgumentsError";
+  func: CompFunc | ObjFunc | ConstrFunc;
+  funcLocation: SourceRange;
+  numProvided: number;
+}
+
+export interface FunctionInternalError {
+  tag: "FunctionInternalError";
+  func: CompFunc | ObjFunc | ConstrFunc;
+  location: SourceRange;
+  message: string;
 }
 
 //#endregion
