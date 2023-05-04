@@ -46,7 +46,7 @@ Be sure you have these tools installed:
     rustup target add wasm32-unknown-unknown
     ```
 
-  - [`wasm-bindgen` CLI][] v0.2.84+
+  - [`wasm-bindgen` CLI][] v0.2.84
 
 Depending on your platform, here are some extra instructions:
 

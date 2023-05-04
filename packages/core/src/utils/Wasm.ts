@@ -62,7 +62,7 @@ export const OP = {
     or: 0x72,
     xor: 0x73,
   },
-  local: { get: 0x20, set: 0x21, tee: 0x22 },
+  local: { get: 0x20, set: 0x21 },
 };
 
 /** `end` opcode. */

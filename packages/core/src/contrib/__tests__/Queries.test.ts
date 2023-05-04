@@ -55,7 +55,7 @@ const shapes: Shape<ad.Num>[] = [
   }),
   // shapes[3]
   makePath(context, canvas, {
-    d: compDict.pathFromPoints(context, "open", [
+    d: compDict.pathFromPoints.body(context, "open", [
       [-11, 0],
       [33, 0],
       [33, 44],
