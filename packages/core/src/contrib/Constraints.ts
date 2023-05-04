@@ -489,4 +489,6 @@ export const constrDict = {
   ...constrDictCurves, // Curve-specific constraints.
 };
 
+// `_constrDictVals` causes TypeScript to enforce that every function in
+// `constrDict` actually has type `ConstrFunc` with the right function signature, etc.
 const _constrDictVals: ConstrFunc[] = Object.values(constrDict);

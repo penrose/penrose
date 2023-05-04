@@ -496,5 +496,5 @@ export const objDict = {
 };
 
 // `_objDictVals` causes TypeScript to enforce that every function in
-// `objDict` returns an `ad.Num`
+// `objDict` actually has type `ObjFunc` with the right function signature, etc.
 const _objDictVals: ObjFunc[] = Object.values(objDict);

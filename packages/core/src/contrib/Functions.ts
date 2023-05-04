@@ -2807,6 +2807,8 @@ export const compDict = {
   },
 };
 
+// `_compDictVals` causes TypeScript to enforce that every function in
+// `compDict` actually has type `CompFunc` with the right function signature, etc.
 const _compDictVals: CompFunc[] = Object.values(compDict);
 
 /*
