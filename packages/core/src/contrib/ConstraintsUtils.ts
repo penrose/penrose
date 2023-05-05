@@ -214,7 +214,7 @@ export const containsPolygonCircle = (
   return containsPolygonPoints(
     s1.points.contents,
     s2.center.contents,
-    sub(padding, s2.r.contents)
+    add(padding, s2.r.contents)
   );
 };
 
