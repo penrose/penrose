@@ -239,7 +239,7 @@ export const containsConvexPolygonPoints = (
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
   const sdfs = sides.map((s: ad.Num[][]) =>
-    halfPlaneSDF(s, [ops.vneg(p2)], center, neg(padding))
+    halfPlaneSDF(s, [ops.vneg(p2)], center, padding)
   );
   return maxN(sdfs);
 };
