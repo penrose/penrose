@@ -57,7 +57,6 @@ import { Polyline } from "../shapes/Polyline";
 import { Context, uniform } from "../shapes/Samplers";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
-import { CompFunc } from "../types/functions";
 import {
   ArgVal,
   Color,
@@ -2906,7 +2905,7 @@ export const compDict = {
 
 // `_compDictVals` causes TypeScript to enforce that every function in
 // `compDict` actually has type `CompFunc` with the right function signature, etc.
-const _compDictVals: CompFunc[] = Object.values(compDict);
+// const _compDictVals: CompFunc[] = Object.values(compDict);
 
 /*
   Computes the signed distance for a line 

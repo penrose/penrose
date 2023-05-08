@@ -491,13 +491,18 @@ export const objDictSpecific = {
   /**
    * The shape should be regular (equiangular and equilateral)
    */
-  isEquilateral: ([t, s]: [string, Polyline | Polygon | Path]): ad.Num => {
-    if (t !== "Polyline" && t !== "Polygon" && t !== "Path") {
-      throw new Error(
-        `isRegular: expected a polygon, polyline or path, got ${t}`
-      );
-    }
-    return constrDictCurves.isEquilateral([t, s]);
+  isEquilateral: {
+    name: "isEquilateral",
+    description: "...",
+    params: [
+      {
+        name: "s",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+      return constrDictCurves.isEquilateral.body(s);
+    },
   },
 };
 
