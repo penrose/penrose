@@ -334,16 +334,6 @@ forall Point \`D\`, \`E\`, \`A\` {
       ...geometryParams,
     },
   },
-  c11p12: {
-    displayName: "c11p12: Circle with Chords, Radii, Diameters",
-    prompt: "Which of the line segments is NOT a chord of F? (TODO: reword)",
-    substance: geometryDomain.textbook_problems["c11p12.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
-    setting: {
-      ...geometryParams,
-    },
-  },
   // NOTE: deprecated due to lack of conceptual prompt
   // c11p21: {
   //   displayName: "c11p21: Chord Intersection",
