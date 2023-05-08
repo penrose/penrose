@@ -46,6 +46,25 @@ export const equivalued = (x: ad.Num[]): ad.Num => {
 /**
  * Returns discrete curvature approximation given three consecutive points
  */
+export const newCurvature = (
+  p1: [ad.Num, ad.Num],
+  p2: [ad.Num, ad.Num],
+  p3: [ad.Num, ad.Num]
+): ad.Num => {
+  const v12 = ops.vsub(p2, p1);
+  const v23 = ops.vsub(p3, p2);
+  const t12 = ops.vnormalize(v12);
+  const t23 = ops.vnormalize(v23);
+
+  const p12 = ops.vmul(0.5, ops.vadd(p1, p2));
+  const p23 = ops.vmul(0.5, ops.vadd(p2, p3));
+  const l123 = ops.vdist(p12, p23);
+  return div(ops.vdist(t23, t12), l123);
+};
+
+/**
+ * Returns discrete curvature approximation given three consecutive points
+ */
 export const curvature = (
   p1: [ad.Num, ad.Num],
   p2: [ad.Num, ad.Num],
@@ -450,7 +469,7 @@ export const maxCurvature = (
   const triples = consecutiveTriples(points, closed);
   return maxN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
-      absVal(curvature(p1, p2, p3))
+      absVal(newCurvature(p1, p2, p3))
     )
   );
 };
