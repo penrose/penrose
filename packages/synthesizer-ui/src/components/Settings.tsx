@@ -28,6 +28,7 @@ import Latex from "react-latex-next";
 import { Preset, presets } from "../examples";
 import { wildcardType } from "../util";
 import { MultiselectDropdown } from "./MultiselectDropdown";
+import WeightSlider from "./WeightSlider";
 
 const DEFAULT_MUTATION_COUNT = [1, 4];
 
@@ -71,6 +72,7 @@ export interface SettingsProps {
     prompt: string,
     sty: string
   ) => void;
+  onPrompt: (prompt: string) => void;
   defaultDomain: string;
   defaultStyle: string;
 }
@@ -344,6 +346,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   handlePreset = (key: string) => {
     this.setState({ ...this.state, ...presets[key] });
     this.updateDomainEnv(presets[key].domain);
+    this.props.onPrompt(presets[key].prompt);
   };
 
   componentDidMount = () => {
@@ -359,7 +362,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <Toolbar />
         <SettingContainer>
           <SettingDiv>
-            <SettingLabel>Diagrams to generate:</SettingLabel>
             <Select
               key="preset"
               labelId="preset-select-label"
@@ -378,7 +380,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           </SettingDiv>
           <br />
           <Accordion key="substance" elevation={0}>
-            <AccordionHeaderStyled>{`Substance Program`}</AccordionHeaderStyled>
+            <AccordionHeaderStyled>{`Input Scenario`}</AccordionHeaderStyled>
             <AccordionBodyStyled style={{ padding: 0 }}>
               <Listing
                 domain={this.state.domain}
@@ -389,57 +391,25 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
                   })
                 }
                 width={"100%"}
-                height={"500px"}
+                height={"400px"}
                 monacoOptions={{ theme: "vs" }}
                 readOnly={false}
               />
             </AccordionBodyStyled>
           </Accordion>
-          <Accordion key="domain" elevation={0}>
-            <AccordionHeaderStyled>{`Domain Program`}</AccordionHeaderStyled>
-            <AccordionBodyStyled style={{ padding: 0 }}>
-              <TextField
-                rows={20}
-                name="dsl"
-                multiline
-                variant="outlined"
-                fullWidth
-                inputProps={{ style: { fontSize: ".8rem" } }}
-                style={{ padding: 0 }}
-                onChange={this.onTextAreaChange}
-                value={this.state.domain}
-              />
-            </AccordionBodyStyled>
-          </Accordion>
-          <Accordion key="style" elevation={0}>
-            <AccordionHeaderStyled>Style Program</AccordionHeaderStyled>
-            <AccordionBodyStyled style={{ padding: 0 }}>
-              <TextField
-                rows={20}
-                name="sty"
-                multiline
-                fullWidth
-                variant="outlined"
-                style={{ padding: 0 }}
-                inputProps={{
-                  style: { fontSize: ".8rem", overflow: "scroll" },
-                }}
-                onChange={this.onTextAreaChange}
-                value={this.state.style}
-              />
-            </AccordionBodyStyled>
-          </Accordion>
+
           <SettingDiv>
+            <SettingLabel>Mutator seed:</SettingLabel>
             <TextField
               id="standard-basic"
-              label="Mutator seed"
+              // label="Mutator seed"
               variant="standard"
               value={this.state.seed}
               onChange={({ target }) => this.setState({ seed: target.value })}
             />
           </SettingDiv>
           <SettingDiv>
-            <SettingLabel>Diagrams to generate:</SettingLabel>
+            <SettingLabel>Number of variations to generate:</SettingLabel>
             <Slider
               valueLabelDisplay="auto"
               step={1}
@@ -447,44 +417,123 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
                 { value: 1, label: "1" },
                 { value: 10, label: "10" },
                 { value: 20, label: "20" },
+                { value: 30, label: "30" },
+                { value: 40, label: "40" },
+                { value: 50, label: "50" },
               ]}
               value={this.state.numPrograms}
               min={1}
-              max={20}
+              max={50}
               onChange={this.onProgCountChange}
             />
           </SettingDiv>
-          <SettingDiv>
-            <SettingLabel>Mutations/program:</SettingLabel>
-            <Slider
-              valueLabelDisplay="auto"
-              step={1}
-              marks={[
-                { value: 1, label: "1" },
-                { value: 5, label: "5" },
+          {this.state.setting && (
+            <WeightSlider
+              divisions={[
+                {
+                  text: "Add",
+                  percentage: this.state.setting!.opWeights.add * 100,
+                  color: "#3f51b5",
+                },
+                {
+                  text: "Delete",
+                  percentage: this.state.setting!.opWeights.delete * 100,
+                  color: "#3f51b5",
+                },
+                {
+                  text: "Edit",
+                  percentage: this.state.setting!.opWeights.edit * 100,
+                  color: "#3f51b5",
+                },
               ]}
-              value={
-                this.state.setting
-                  ? this.state.setting.mutationCount
-                  : DEFAULT_MUTATION_COUNT
-              }
-              min={1}
-              max={5}
-              onChange={this.onMutationCountChange}
+              setDivisions={(divisions: any) => {
+                if (this.state.setting) {
+                  this.setState({
+                    setting: {
+                      ...this.state.setting,
+                      opWeights: {
+                        add: divisions[0].percentage / 100,
+                        delete: divisions[1].percentage / 100,
+                        edit: divisions[2].percentage / 100,
+                      },
+                    },
+                  });
+                }
+              }}
             />
-          </SettingDiv>
+          )}
         </SettingContainer>
         <br />
-        <SettingContainer>{this.inputElements()}</SettingContainer>
         <ButtonContainer>
           <Button
             onClick={this.onGenerateClick}
             color="primary"
             variant="contained"
           >
-            Generate Diagrams
+            Generate Variations
           </Button>
         </ButtonContainer>
+        <SettingDiv>
+          <Accordion key="advanced" elevation={0}>
+            <AccordionHeaderStyled>{`Advanced options`}</AccordionHeaderStyled>
+            <AccordionBodyStyled style={{ padding: 0 }}>
+              <SettingContainer>
+                <Accordion key="domain" elevation={0}>
+                  <AccordionHeaderStyled>{`Domain Program`}</AccordionHeaderStyled>
+                  <AccordionBodyStyled style={{ padding: 0 }}>
+                    <TextField
+                      rows={20}
+                      name="dsl"
+                      multiline
+                      variant="outlined"
+                      fullWidth
+                      inputProps={{ style: { fontSize: ".8rem" } }}
+                      style={{ padding: 0 }}
+                      onChange={this.onTextAreaChange}
+                      value={this.state.domain}
+                    />
+                  </AccordionBodyStyled>
+                </Accordion>
+                <Accordion key="style" elevation={0}>
+                  <AccordionHeaderStyled>Style Program</AccordionHeaderStyled>
+                  <AccordionBodyStyled style={{ padding: 0 }}>
+                    <TextField
+                      rows={20}
+                      name="sty"
+                      multiline
+                      fullWidth
+                      variant="outlined"
+                      style={{ padding: 0 }}
+                      inputProps={{
+                        style: { fontSize: ".8rem", overflow: "scroll" },
+                      }}
+                      onChange={this.onTextAreaChange}
+                      value={this.state.style}
+                    />
+                  </AccordionBodyStyled>
+                </Accordion>
+                {this.inputElements()}
+                <SettingLabel>Mutations per variation:</SettingLabel>
+                <Slider
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks={[
+                    { value: 1, label: "1" },
+                    { value: 5, label: "5" },
+                  ]}
+                  value={
+                    this.state.setting
+                      ? this.state.setting.mutationCount
+                      : DEFAULT_MUTATION_COUNT
+                  }
+                  min={1}
+                  max={5}
+                  onChange={this.onMutationCountChange}
+                />
+              </SettingContainer>
+            </AccordionBodyStyled>
+          </Accordion>
+        </SettingDiv>
       </SettingsDrawer>
     );
   }
