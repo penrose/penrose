@@ -2786,11 +2786,11 @@ export const compDict = {
   },
 
   /**
-   * Returns integral of curvature squared along the curve
+   * ...
    */
   maxCurvature: {
-    name: "elasticEnergy",
-    description: "Returns integral of curvature squared along the curve",
+    name: "maxCurvature",
+    description: "...",
     params: [
       {
         name: "points",
@@ -2809,14 +2809,16 @@ export const compDict = {
       closed: boolean
     ): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: maxCurvature(points, closed) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
-   * Returns integral of curvature squared along the curve
+   * ...
    */
   maxCurvatureSin: {
-    name: "elasticEnergy",
-    description: "Returns integral of curvature squared along the curve",
+    name: "maxCurvatureSin",
+    description: "...",
     params: [
       {
         name: "points",
@@ -2835,14 +2837,16 @@ export const compDict = {
       closed: boolean
     ): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: maxCurvatureSin(points, closed) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Returns integral of curvature squared along the curve
    */
   maxCurvatureTan: {
-    name: "elasticEnergy",
-    description: "Returns integral of curvature squared along the curve",
+    name: "maxCurvatureTan",
+    description: "...",
     params: [
       {
         name: "points",
