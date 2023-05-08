@@ -2,29 +2,31 @@
 
 <!-- toc -->
 
-- [Prerequisites](#prerequisites)
-  - [Apple Silicon](#apple-silicon)
-  - [Windows WSL](#windows-wsl)
-  - [Linux](#linux)
-- [Setup](#setup)
-- [Editor](#editor)
-- [Development](#development)
-  - [Run](#run)
-  - [Production build](#production-build)
-  - [Typecheck](#typecheck)
-  - [Registry](#registry)
-  - [Refresh build](#refresh-build)
-  - [Roger](#roger)
-  - [Test](#test)
-  - [Dependencies](#dependencies)
-  - [Scripts](#scripts)
-  - [Import from core](#import-from-core)
-- [Contributing](#contributing)
-  - [Creating your fork](#creating-your-fork)
-  - [Finding an issue to work on](#finding-an-issue-to-work-on)
-  - [Merging new changes from upstream](#merging-new-changes-from-upstream)
-  - [Opening a pull request (PR)](#opening-a-pull-request-pr)
-- [Release](#release)
+- [Contributing to Penrose](#contributing-to-penrose)
+  - [Prerequisites](#prerequisites)
+    - [Apple Silicon](#apple-silicon)
+    - [Windows WSL](#windows-wsl)
+    - [Linux](#linux)
+  - [Setup](#setup)
+  - [Editor](#editor)
+  - [Development](#development)
+    - [Run](#run)
+    - [Production build](#production-build)
+    - [Typecheck](#typecheck)
+    - [Registry](#registry)
+    - [Refresh build](#refresh-build)
+    - [Roger](#roger)
+    - [Test](#test)
+    - [README Image](#readme-image)
+    - [Dependencies](#dependencies)
+    - [Scripts](#scripts)
+    - [Import from core](#import-from-core)
+  - [Contributing](#contributing)
+    - [Creating your fork](#creating-your-fork)
+    - [Finding an issue to work on](#finding-an-issue-to-work-on)
+    - [Merging new changes from upstream](#merging-new-changes-from-upstream)
+    - [Opening a pull request (PR)](#opening-a-pull-request-pr)
+  - [Release](#release)
 
 <!-- tocstop -->
 
@@ -161,10 +163,12 @@ Type in the drop-down boxes to search for any Penrose trio in
 
 ![Building and running interface](docs/assets/roger-loaded.png)
 
-If you run `yarn start`, open the browser, and see a blank page with a browser console error message along the lines of `The requested module  ... penrose_optimizer.js ... does not provide an export named ...`, this appears to be a dependency re-optimization issue. Try running with 
+If you run `yarn start`, open the browser, and see a blank page with a browser console error message along the lines of `The requested module ... penrose_optimizer.js ... does not provide an export named ...`, this appears to be a dependency re-optimization issue. Try running with
+
 ```sh
 yarn start --force
 ```
+
 in this case.
 
 ### Production build
@@ -301,8 +305,8 @@ npx nx run core:test-watch
 
 The CI process runs a test that checks whether the set-venn-diagram example generates the same image that goes onto the `README` page. If you made changes to Penrose, it might generate something different from the image on the README page. If this is expected, update the `README` image by doing the following:
 
-* Build `@penrose/automator`
-* Run `.github/gen_readme.js`
+- Build `@penrose/automator`
+- Run `.github/gen_readme.js`
 
 This should update the image that is placed onto the `README` page.
 
