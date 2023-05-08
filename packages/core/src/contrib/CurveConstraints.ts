@@ -9,6 +9,7 @@ import {
   lt,
   lte,
   max,
+  maxN,
   min,
   mul,
   or,
@@ -396,6 +397,45 @@ export const elasticEnergy = (
         mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
       )
     )
+  );
+};
+
+/**
+ * todo
+ */
+export const maxCurvature = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  return maxN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+  );
+};
+
+/**
+ * todo
+ */
+export const maxCurvatureSin = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  return maxN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvatureSin(p1, p2, p3))
+  );
+};
+
+/**
+ * todo
+ */
+export const maxCurvatureTan = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  return maxN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvatureTan(p1, p2, p3))
   );
 };
 
