@@ -429,6 +429,20 @@ export const newElasticEnergy = (
 /**
  * todo
  */
+export const lengthK = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean,
+  k: number
+): ad.Num => {
+  const tuples = consecutiveTuples(points, closed);
+  return addN(
+    tuples.map(([p1, p2]: [ad.Num, ad.Num][]) => pow(ops.vdist(p1, p2), k))
+  );
+};
+
+/**
+ * todo
+ */
 export const maxCurvature = (
   points: [ad.Num, ad.Num][],
   closed: boolean

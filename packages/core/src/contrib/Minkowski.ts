@@ -3,6 +3,7 @@ import { ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
+  addN,
   div,
   eq,
   ifCond,

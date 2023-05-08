@@ -95,6 +95,7 @@ import {
 import {
   elasticEnergy,
   isoperimetricRatio,
+  lengthK,
   maxCurvature,
   maxCurvatureSin,
   maxCurvatureTan,
@@ -2838,6 +2839,40 @@ export const compDict = {
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: maxCurvature(points, closed) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * ...
+   */
+  lengthK: {
+    name: "lengthK",
+    description: "...",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "k",
+        type: posIntT(),
+        description: "K",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean,
+      k: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: lengthK(points, closed, k) };
     },
     returns: valueT("Real"),
   },
