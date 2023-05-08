@@ -159,6 +159,17 @@ describe("bbox", () => {
       height: 387.629,
       center: [-100, 25],
     });
+
+    const s2 = makeLine(simpleContext("bbox Line"), canvas, {
+      start: vectorV([100, 300]),
+      end: vectorV([400, 300]),
+      strokeWidth: floatV(0)
+    });
+    expectBbox(bboxFromLinelike(s2), {
+      center: [250, 300],
+      width: 300,
+      height: 0
+    });
   });
 
   test("Path (lines)", () => {

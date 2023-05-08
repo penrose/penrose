@@ -2,6 +2,7 @@ import { ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
+  addN,
   ifCond,
   lt,
   max,
@@ -594,21 +595,21 @@ const constrDictGeneral = {
     body: (c: ad.Pt2, r: ad.Num, rect: ad.Pt2[], padding: ad.Num) => {
       // Bad implementation
       // Treats the rectangle as a circle
-      /*
+      // Does not take into account padding
       if (rect.length !== 2) {
         throw new Error("`rect` should be a list of two 2d-points.");
       }
       const bbox = BBox.bboxFromPoints(rect);
-      const rectr = mul(0.5, max(bbox.width, bbox.height));
+      const rectr = max(bbox.width, bbox.height);
       const rectc = bbox.center;
       return constrDict.containsCircles.body(
         c,
         r,
         [rectc[0], rectc[1]],
         rectr,
-        padding
+        0
       );
-      */
+      /*
       if (rect.length !== 2) {
         throw new Error("`rect` should be a list of two 2d-points.");
       }
@@ -620,6 +621,7 @@ const constrDictGeneral = {
         [topLeft, topRight, bottomRight, bottomLeft],
         padding
       );
+      */
     },
   },
 
@@ -643,7 +645,6 @@ const constrDictGeneral = {
       },
     ],
     body: (rect: ad.Pt2[], c: ad.Pt2, r: ad.Num, padding: ad.Num) => {
-      /*
       if (rect.length !== 2) {
         throw new Error("`rect` should be a list of two 2d-points.");
       }
@@ -664,18 +665,6 @@ const constrDictGeneral = {
       return max(
         sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
         sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
-      );
-      */
-      if (rect.length !== 2) {
-        throw new Error("`rect` should be a list of two 2d-points.");
-      }
-      const bbox = BBox.bboxFromPoints(rect);
-      const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(bbox);
-      return constrDict.containsPolygonCircle.body(
-        [topLeft, topRight, bottomRight, bottomLeft],
-        c,
-        r,
-        padding
       );
     },
   },
@@ -704,12 +693,12 @@ const constrDictGeneral = {
       },
     ],
     body: (rect1: ad.Pt2[], rect2: ad.Pt2[], padding: ad.Num) => {
-      /*
-      // TODO: padding?
-
+      // TODO: add padding.
+      if (rect1.length !== 2 || rect2.length !== 2) {
+        throw new Error("Inputs should be lists of two 2d-points.");
+      }
       const box1 = BBox.bboxFromPoints(rect1);
       const box2 = BBox.bboxFromPoints(rect2);
-
       const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
       const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
       return addN([
@@ -718,30 +707,6 @@ const constrDictGeneral = {
         ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
         ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
       ]);
-      */
-      if (rect1.length !== 2 || rect2.length !== 2) {
-        throw new Error("Inputs should be lists of two 2d-points.");
-      }
-      const box1 = BBox.bboxFromPoints(rect1);
-      const box2 = BBox.bboxFromPoints(rect2);
-      const {
-        topLeft: topLeft1,
-        topRight: topRight1,
-        bottomLeft: bottomLeft1,
-        bottomRight: bottomRight1,
-      } = BBox.corners(box1);
-      const {
-        topLeft: topLeft2,
-        topRight: topRight2,
-        bottomLeft: bottomLeft2,
-        bottomRight: bottomRight2,
-      } = BBox.corners(box2);
-
-      return constrDict.containsPolygons.body(
-        [topLeft1, topRight1, bottomRight1, bottomLeft1],
-        [topLeft2, topRight2, bottomRight2, bottomLeft2],
-        padding
-      );
     },
   },
 
