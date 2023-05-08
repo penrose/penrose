@@ -2788,33 +2788,78 @@ export const compDict = {
   /**
    * Returns integral of curvature squared along the curve
    */
-  maxCurvature: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
+  maxCurvature: {
+    name: "elasticEnergy",
+    description: "Returns integral of curvature squared along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: maxCurvature(points, closed) };
   },
 
   /**
    * Returns integral of curvature squared along the curve
    */
-  maxCurvatureSin: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
+  maxCurvatureSin: {
+    name: "elasticEnergy",
+    description: "Returns integral of curvature squared along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: maxCurvatureSin(points, closed) };
   },
 
   /**
    * Returns integral of curvature squared along the curve
    */
-  maxCurvatureTan: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
+  maxCurvatureTan: {
+    name: "elasticEnergy",
+    description: "Returns integral of curvature squared along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
     return { tag: "FloatV", contents: maxCurvatureTan(points, closed) };
   },
 
