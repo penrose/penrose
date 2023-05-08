@@ -46,6 +46,11 @@ export const bboxFromShape = (shape: Shape<ad.Num>): BBox.BBox => {
   return computeShapeBbox(shape);
 };
 
+export const bboxPts = (bbox: BBox.BBox): ad.Pt2[] => {
+  const { topLeft, bottomRight } = BBox.corners(bbox);
+  return [topLeft, bottomRight];
+};
+
 /**
  * Return center of the shape `shape`.
  * For shapes without the property `center`, the center of their bounding box is returned.

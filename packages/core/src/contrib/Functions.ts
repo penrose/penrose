@@ -101,7 +101,7 @@ import {
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints";
-import { rectLineDist, shapeDistance } from "./Queries";
+import { bboxFromShape, bboxPts, rectLineDist, shapeDistance } from "./Queries";
 import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
 
 /**
@@ -2804,6 +2804,17 @@ export const compDict = {
       return { tag: "FloatV", contents: totalCurvature(points, closed) };
     },
     returns: valueT("Real"),
+  },
+
+  bboxPts: {
+    name: "bboxPts",
+    description:
+      "Returns the top-left and bottom-right points of the axis-aligned bounding box of a shape",
+    params: [{ name: "s", type: shapeT("AnyShape"), description: "a shape" }],
+    body: (_context: Context, s: Shape<ad.Num>): PtListV<ad.Num> => {
+      return { tag: "PtListV", contents: bboxPts(bboxFromShape(s)) };
+    },
+    returns: valueT("Real2N"),
   },
 };
 

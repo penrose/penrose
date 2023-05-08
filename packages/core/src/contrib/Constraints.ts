@@ -5,6 +5,7 @@ import {
   ifCond,
   lt,
   max,
+  maxN,
   min,
   mul,
   neg,
@@ -16,21 +17,15 @@ import { Line } from "../shapes/Line";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { ConstrFunc } from "../types/functions";
-import { real2T, realNT, realT, shapeT } from "../utils/Util";
+import { real2NT, real2T, realNT, realT, shapeT } from "../utils/Util";
 import {
   atDistLabel,
-  containsAABBs,
-  containsCirclePolygon,
-  containsCircleRectlike,
-  containsCircles,
-  containsPolygonCircle,
-  containsPolygonPolygon,
-  containsRectlikeCircle,
   overlappingCircleEllipse,
   overlappingEllipse,
 } from "./ConstraintsUtils";
 import { constrDictCurves } from "./CurveConstraints";
-import { bboxFromShape, shapeDistance, shapeSize } from "./Queries";
+import { containsConvexPolygonPoints, convexPartitions } from "./Minkowski";
+import { bboxFromShape, bboxPts, shapeDistance, shapeSize } from "./Queries";
 import { inRange, isRectlike, overlap1D } from "./Utils";
 
 // -------- Simple constraints
@@ -397,18 +392,356 @@ const constrDictGeneral = {
       const t1 = s1.shapeType,
         t2 = s2.shapeType;
       if (t1 === "Circle" && t2 === "Circle")
-        return containsCircles(s1, s2, padding);
-      else if (t1 === "Polygon" && t2 === "Polygon")
-        return containsPolygonPolygon(s1, s2, padding);
-      else if (t1 === "Polygon" && t2 === "Circle")
-        return containsPolygonCircle(s1, s2, padding);
-      else if (t1 === "Circle" && t2 === "Polygon")
-        return containsCirclePolygon(s1, s2, padding);
-      else if (t1 === "Circle" && isRectlike(s2))
-        return containsCircleRectlike(s1, s2, padding);
-      else if (isRectlike(s1) && t2 === "Circle")
-        return containsRectlikeCircle(s1, s2, padding);
-      else return containsAABBs(s1, s2, padding);
+        return constrDict.containsCircles.body(
+          [s1.center.contents[0], s1.center.contents[1]],
+          s1.r.contents,
+          [s2.center.contents[0], s2.center.contents[1]],
+          s2.r.contents,
+          padding
+        );
+      else if (t1 === "Polygon" && t2 === "Polygon") {
+        return constrDict.containsPolygons.body(
+          s1.points.contents.map((p) => [p[0], p[1]]),
+          s2.points.contents.map((p) => [p[0], p[1]]),
+          padding
+        );
+      } else if (t1 === "Polygon" && t2 === "Circle") {
+        return constrDict.containsPolygonCircle.body(
+          s1.points.contents.map((p) => [p[0], p[1]]),
+          [s2.center.contents[0], s2.center.contents[1]],
+          s2.r.contents,
+          padding
+        );
+      } else if (t1 === "Circle" && t2 === "Polygon") {
+        return constrDict.containsCirclePolygon.body(
+          [s1.center.contents[0], s1.center.contents[1]],
+          s1.r.contents,
+          s2.points.contents.map((p) => [p[0], p[1]]),
+          padding
+        );
+      } else if (t1 === "Circle" && isRectlike(s2)) {
+        const rectPts = bboxPts(bboxFromShape(s2));
+        return constrDict.containsCircleRect.body(
+          [s1.center.contents[0], s1.center.contents[1]],
+          s1.r.contents,
+          rectPts,
+          padding
+        );
+      } else if (isRectlike(s1) && t2 === "Circle") {
+        const rectPts = bboxPts(bboxFromShape(s1));
+        return constrDict.containsRectCircle.body(
+          rectPts,
+          [s2.center.contents[0], s2.center.contents[1]],
+          s2.r.contents,
+          padding
+        );
+      } else {
+        const s1BboxPts = bboxPts(bboxFromShape(s1));
+        const s2BboxPts = bboxPts(bboxFromShape(s2));
+        return constrDict.containsRects.body(s1BboxPts, s2BboxPts, padding);
+      }
+    },
+  },
+
+  containsCircles: {
+    name: "containsCircles",
+    description: `Require that a circle \`c1\` contains another circle \`c2\` with optional margin \`padding\`.`,
+    params: [
+      { name: "c1", description: "Center of `c1`", type: real2T() },
+      { name: "r1", description: "Radius of `c1`", type: realT() },
+      { name: "c2", description: "Center of `c2`", type: real2T() },
+      { name: "r2", description: "Radius of `c2`", type: realT() },
+      {
+        name: "padding",
+        description: "Margin between the circles",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (c1: ad.Pt2, r1: ad.Num, c2: ad.Pt2, r2: ad.Num, padding: ad.Num) => {
+      const d = ops.vdist(c1, c2);
+      const o = padding ? sub(sub(r1, r2), padding) : sub(r1, r2);
+      return sub(d, o);
+    },
+  },
+
+  containsPolygons: {
+    name: "containsPolygons",
+    description: `Require that a polygon \`p1\` contains another polygon \`p2\` with optional margin \`padding\`.`,
+    params: [
+      { name: "pts1", description: "List of points for `p1`", type: real2NT() },
+      { name: "pts2", description: "List of points for `p2`", type: real2NT() },
+      {
+        name: "padding",
+        description: "Margin between the polygons",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (pts1: ad.Pt2[], pts2: ad.Pt2[], padding: ad.Num) => {
+      return maxN(
+        pts2.map((x) => constrDict.containsPolygonPoint.body(pts1, x, padding))
+      );
+    },
+  },
+
+  containsPolygonCircle: {
+    name: "containsPolygonCircle",
+    description: `Require that a polygon \`p\` contains circle \`c\` with optional margin \`padding\`.`,
+    params: [
+      { name: "pts", description: "List of points for `p`", type: real2NT() },
+      { name: "c", description: "Center of `c`", type: real2T() },
+      { name: "r", description: "Radius of `c`", type: realT() },
+      {
+        name: "padding",
+        description: "Margin between the polygon and the circle",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (pts: ad.Pt2[], c: ad.Pt2, r: ad.Num, padding: ad.Num) => {
+      return constrDict.containsPolygonPoint.body(pts, c, add(padding, r));
+    },
+  },
+
+  containsPolygonPoint: {
+    name: "containsPolygonPoint",
+    description: `Require that a polygon \`p\` contains point \`pt\` with optional margin \`padding\`.`,
+    params: [
+      {
+        name: "pts",
+        description: "List of points for polygon `p`",
+        type: real2NT(),
+      },
+      { name: "pt", description: "Location of point `pt`", type: real2T() },
+      {
+        name: "padding",
+        description: "Margin between the polygon and the point",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (pts: ad.Pt2[], pt: ad.Pt2, padding: ad.Num) => {
+      const cp1 = convexPartitions(pts);
+      return maxN(
+        cp1.map((p1) => containsConvexPolygonPoints(p1, pt, padding))
+      );
+    },
+  },
+
+  containsCirclePoint: {
+    name: "containsCirclePoint",
+    description: `Require that a circle \`c\` contains point \`pt\` with optional margin \`padding\`.`,
+    params: [
+      { name: "c", description: "Center of `c`", type: real2T() },
+      { name: "r", description: "Radius of `c`", type: realT() },
+      { name: "pt", description: "Location of point `pt`", type: real2T() },
+      {
+        name: "padding",
+        description: "Margin between the polygon and the point",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (c: ad.Pt2, r: ad.Num, pt: ad.Pt2, padding: ad.Num) => {
+      return sub(add(ops.vdist(pt, c), padding), r);
+    },
+  },
+
+  containsCirclePolygon: {
+    name: "containsCirclePolygon",
+    description: `Require that a circle \`c\` contains polygon \`p\` with optional margin \`padding\`.`,
+    params: [
+      { name: "c", description: "Center of `c`", type: real2T() },
+      { name: "r", description: "Radius of `c`", type: realT() },
+      {
+        name: "pts",
+        description: "List of points for polygon `p`",
+        type: real2NT(),
+      },
+      {
+        name: "padding",
+        description: "Margin between the polygon and the point",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (c: ad.Pt2, r: ad.Num, pts: ad.Pt2[], padding: ad.Num) => {
+      return maxN(
+        pts.map((pt) => constrDict.containsCirclePoint.body(c, r, pt, padding))
+      );
+    },
+  },
+
+  containsCircleRect: {
+    name: "containsCircleRect",
+    description: `Require that a circle \`c\` contains rectangle \`r\` with optional padding \`padding\`.`,
+    params: [
+      { name: "c", description: "Center of `c`", type: real2T() },
+      { name: "r", description: "Radius of `c`", type: realT() },
+      {
+        name: "rect",
+        description: "The top-left and bottom-right points of rectangle `rect`",
+        type: real2NT(),
+      },
+      {
+        name: "padding",
+        description: "Margin between the polygon and the point",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (c: ad.Pt2, r: ad.Num, rect: ad.Pt2[], padding: ad.Num) => {
+      // Bad implementation
+      // Treats the rectangle as a circle
+      /*
+      if (rect.length !== 2) {
+        throw new Error("`rect` should be a list of two 2d-points.");
+      }
+      const bbox = BBox.bboxFromPoints(rect);
+      const rectr = mul(0.5, max(bbox.width, bbox.height));
+      const rectc = bbox.center;
+      return constrDict.containsCircles.body(
+        c,
+        r,
+        [rectc[0], rectc[1]],
+        rectr,
+        padding
+      );
+      */
+      if (rect.length !== 2) {
+        throw new Error("`rect` should be a list of two 2d-points.");
+      }
+      const bbox = BBox.bboxFromPoints(rect);
+      const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(bbox);
+      return constrDict.containsCirclePolygon.body(
+        c,
+        r,
+        [topLeft, topRight, bottomRight, bottomLeft],
+        padding
+      );
+    },
+  },
+
+  containsRectCircle: {
+    name: "containsRectCircle",
+    description: `Require that a rectangle \`r\` contains a circle \`c\` with optional margin \`padding\`.`,
+    params: [
+      {
+        name: "rect",
+        description: "The top-left and bottom-right points of rectangle `rect`",
+        type: real2NT(),
+      },
+      { name: "c", description: "Center of `c`", type: real2T() },
+      { name: "r", description: "Radius of `c`", type: realT() },
+
+      {
+        name: "padding",
+        description: "Margin between the polygon and the point",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (rect: ad.Pt2[], c: ad.Pt2, r: ad.Num, padding: ad.Num) => {
+      /*
+      if (rect.length !== 2) {
+        throw new Error("`rect` should be a list of two 2d-points.");
+      }
+      const [tl, br] = rect;
+      const w = sub(br[0], tl[0]);
+      const h = sub(tl[1], br[1]);
+      const halfW = mul(0.5, w);
+      const halfH = mul(0.5, h);
+      const [rx, ry] = ops.vdiv(ops.vadd(tl, br), 2); // rectangle center
+      const [cx, cy] = c; // circle center
+      // Return maximum violation in either the x- or y-direction.
+      // In each direction, the distance from the circle center (cx,cy) to
+      // the rectangle center (rx,ry) must be no greater than the size of
+      // the rectangle (w/h), minus the radius of the circle (r) and the
+      // padding (o).  We can compute this violation via the function
+      //    max( |cx-rx| - (w/2-r-o),
+      //         |cy-ry| - (h/2-r-o) )
+      return max(
+        sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
+        sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
+      );
+      */
+      if (rect.length !== 2) {
+        throw new Error("`rect` should be a list of two 2d-points.");
+      }
+      const bbox = BBox.bboxFromPoints(rect);
+      const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(bbox);
+      return constrDict.containsPolygonCircle.body(
+        [topLeft, topRight, bottomRight, bottomLeft],
+        c,
+        r,
+        padding
+      );
+    },
+  },
+
+  containsRects: {
+    name: "containsRects",
+    description: `Requires that \`rect1\` contains \`rect2\` with some optional margin \`padding\`.`,
+    params: [
+      {
+        name: "rect1",
+        description:
+          "The top-left and bottom-right points of rectangle `rect1`",
+        type: real2NT(),
+      },
+      {
+        name: "rect2",
+        description:
+          "The top-left and bottom-right points of rectangle `rect2`",
+        type: real2NT(),
+      },
+      {
+        name: "padding",
+        description: "Margin between the polygon and the point",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (rect1: ad.Pt2[], rect2: ad.Pt2[], padding: ad.Num) => {
+      /*
+      // TODO: padding?
+
+      const box1 = BBox.bboxFromPoints(rect1);
+      const box2 = BBox.bboxFromPoints(rect2);
+
+      const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
+      const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
+      return addN([
+        ifCond(lt(xl1, xl2), 0, squared(sub(xl1, xl2))),
+        ifCond(lt(xr2, xr1), 0, squared(sub(xr2, xr1))),
+        ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
+        ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
+      ]);
+      */
+      if (rect1.length !== 2 || rect2.length !== 2) {
+        throw new Error("Inputs should be lists of two 2d-points.");
+      }
+      const box1 = BBox.bboxFromPoints(rect1);
+      const box2 = BBox.bboxFromPoints(rect2);
+      const {
+        topLeft: topLeft1,
+        topRight: topRight1,
+        bottomLeft: bottomLeft1,
+        bottomRight: bottomRight1,
+      } = BBox.corners(box1);
+      const {
+        topLeft: topLeft2,
+        topRight: topRight2,
+        bottomLeft: bottomLeft2,
+        bottomRight: bottomRight2,
+      } = BBox.corners(box2);
+
+      return constrDict.containsPolygons.body(
+        [topLeft1, topRight1, bottomRight1, bottomLeft1],
+        [topLeft2, topRight2, bottomRight2, bottomLeft2],
+        padding
+      );
     },
   },
 

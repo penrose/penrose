@@ -228,7 +228,7 @@ export const rectangleSignedDistance = (
  * @param point Testing point.
  * @param padding Padding applied to the polygon.
  */
-const containsConvexPolygonPoints = (
+export const containsConvexPolygonPoints = (
   p1: ad.Num[][],
   p2: ad.Num[],
   padding: ad.Num
@@ -240,24 +240,9 @@ const containsConvexPolygonPoints = (
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
   const sdfs = sides.map((s: ad.Num[][]) =>
-    halfPlaneSDF(s, [ops.vneg(p2)], center, padding)
+    halfPlaneSDF(s, [ops.vneg(p2)], center, neg(padding))
   );
   return maxN(sdfs);
-};
-
-/**
- * Constraint checking whether `point` is inside a polygon with vertices `polygonPoints`.
- * @param polygonPoints Sequence of points defining a polygon.
- * @param point Testing point.
- * @param padding Padding applied to the polygon.
- */
-export const containsPolygonPoints = (
-  polygonPoints: ad.Num[][],
-  point: ad.Num[],
-  padding: ad.Num = 0
-): ad.Num => {
-  const cp1 = convexPartitions(polygonPoints);
-  return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
 };
 
 /**
