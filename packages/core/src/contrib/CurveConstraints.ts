@@ -409,7 +409,9 @@ export const maxCurvature = (
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return maxN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      absVal(curvature(p1, p2, p3))
+    )
   );
 };
 
@@ -422,7 +424,9 @@ export const maxCurvatureSin = (
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return maxN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvatureSin(p1, p2, p3))
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      absVal(curvatureSin(p1, p2, p3))
+    )
   );
 };
 
@@ -435,7 +439,9 @@ export const maxCurvatureTan = (
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return maxN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvatureTan(p1, p2, p3))
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      absVal(curvatureTan(p1, p2, p3))
+    )
   );
 };
 
