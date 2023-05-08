@@ -27,6 +27,7 @@ import * as ad from "../types/ad";
 import { ConstrFunc } from "../types/functions";
 import { shapeT, unionT } from "../utils/Util";
 import {
+  consecutiveQuadruples,
   consecutiveTriples,
   consecutiveTuples,
   consecutiveTuples3D,
@@ -397,6 +398,26 @@ export const elasticEnergy = (
       mul(
         squared(curvatureSin(p1, p2, p3)),
         mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
+      )
+    )
+  );
+};
+
+/**
+ * todo
+ */
+export const newElasticEnergy = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const triples = consecutiveQuadruples(points, closed);
+  return maxN(
+    triples.map(([p1, p2, p3, p4]: [ad.Num, ad.Num][]) =>
+      squared(
+        div(
+          sub(curvature(p1, p2, p3), curvature(p2, p3, p4)),
+          add(1e-5, ops.vdist(p2, p3))
+        )
       )
     )
   );

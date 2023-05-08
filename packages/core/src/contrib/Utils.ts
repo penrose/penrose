@@ -265,6 +265,23 @@ export const consecutiveTriples = (
 };
 
 /**
+ * Return list of quadruples of consecutive points
+ */
+export const consecutiveQuadruples = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): [ad.Num, ad.Num][][] => {
+  const resLength = closed ? points.length : points.length - 3;
+  if (resLength <= 0) return [];
+  return Array.from({ length: resLength }, (_, key) => key).map((i) => [
+    points[i],
+    points[(i + 1) % points.length],
+    points[(i + 2) % points.length],
+    points[(i + 3) % points.length],
+  ]);
+};
+
+/**
  * Return indicator of closed Polyline, Polygon or Path shape
  */
 export const isClosed = (s: Shape<ad.Num>): boolean => {

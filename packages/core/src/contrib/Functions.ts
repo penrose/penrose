@@ -98,6 +98,7 @@ import {
   maxCurvature,
   maxCurvatureSin,
   maxCurvatureTan,
+  newElasticEnergy,
   pElasticEnergy,
   perimeter,
   repulsiveEnergy,
@@ -2788,6 +2789,34 @@ export const compDict = {
   /**
    * ...
    */
+  newElasticEnergy: {
+    name: "newElasticEnergy",
+    description: "...",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: newElasticEnergy(points, closed) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * ...
+   */
   maxCurvature: {
     name: "maxCurvature",
     description: "...",
@@ -2808,7 +2837,7 @@ export const compDict = {
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: maxCurvature(points, closed) };
+      return { tag: "FloatV", contents: maxCurvature(points, closed) };
     },
     returns: valueT("Real"),
   },
@@ -2836,7 +2865,7 @@ export const compDict = {
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: maxCurvatureSin(points, closed) };
+      return { tag: "FloatV", contents: maxCurvatureSin(points, closed) };
     },
     returns: valueT("Real"),
   },
@@ -2864,7 +2893,9 @@ export const compDict = {
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: maxCurvatureTan(points, closed) };
+      return { tag: "FloatV", contents: maxCurvatureTan(points, closed) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
