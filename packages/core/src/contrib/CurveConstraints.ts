@@ -411,13 +411,16 @@ export const newElasticEnergy = (
   closed: boolean
 ): ad.Num => {
   const triples = consecutiveQuadruples(points, closed);
-  return maxN(
+  return addN(
     triples.map(([p1, p2, p3, p4]: [ad.Num, ad.Num][]) =>
-      squared(
-        div(
-          sub(curvature(p1, p2, p3), curvature(p2, p3, p4)),
-          add(1e-5, ops.vdist(p2, p3))
-        )
+      mul(
+        squared(
+          div(
+            sub(curvature(p1, p2, p3), curvature(p2, p3, p4)),
+            add(1e-5, ops.vdist(p2, p3))
+          )
+        ),
+        ops.vdist(p2, p3)
       )
     )
   );
