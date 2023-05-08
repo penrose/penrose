@@ -6,6 +6,24 @@ Within any Style program, you may specify SVG properties directly as shape prope
 
 You can find all SVG properties on [W3C's SVG website](https://www.w3.org/Graphics/SVG/).
 
+## Strict Typing
+
+All passthrough values must either be a string or a numerical value, or an error will be reported and the diagram generation will fail.
+
+For example,
+
+```
+myShape = Circle {
+    colorInterpolation : true
+}
+```
+
+generates the error
+
+```
+Passthrough shape property 1:6:myShape.colorInterpolation expects type StrV or FloatV and does not accept type BoolV.
+```
+
 ## CAUTION
 
 - Passthrough values are passed through as-is: Penrose does not optimize or consider their values. This means your passthrough property could interact unfavorably with (or violate) the constraints in your Style program. If you have problems with a rendered diagram, commenting out any SVG passthrough properties is a good troubleshooting step.

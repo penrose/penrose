@@ -456,7 +456,9 @@ export default function DiagramPanel() {
             >
               error ({error.errorType})
             </span>
-            <pre>{showError(error).toString()}</pre>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {showError(error).toString()}
+            </pre>
           </div>
         )}
         <div

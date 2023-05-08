@@ -114,7 +114,7 @@ export const halfPlaneToImplicit = (
  * @param factor Multiplication factor for the implicit function (the function is not uniquely given).
  */
 export const ellipseToImplicit = (
-  ellipse: Ellipse,
+  ellipse: Ellipse<ad.Num>,
   padding: ad.Num,
   factor: ad.Num = 1
 ): ImplicitEllipse => {
@@ -134,7 +134,7 @@ export const ellipseToImplicit = (
  * @param circle Explicit circle shape.
  */
 export const circleToImplicitEllipse = (
-  circle: Circle,
+  circle: Circle<ad.Num>,
   padding: ad.Num,
   factor: ad.Num = 1
 ): ImplicitEllipse => {

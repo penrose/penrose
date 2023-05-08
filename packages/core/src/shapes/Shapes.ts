@@ -1,207 +1,163 @@
 import { input } from "../engine/Autodiff";
+import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
 import * as ad from "../types/ad";
 import { Value } from "../types/value";
-import { Circle, makeCircle, sampleCircle } from "./Circle";
-import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
-import { Equation, makeEquation, sampleEquation } from "./Equation";
-import { Image, makeImage, sampleImage } from "./Image";
-import { Line, makeLine, sampleLine } from "./Line";
-import { makePath, Path, samplePath } from "./Path";
-import { makePolygon, Polygon, samplePolygon } from "./Polygon";
-import { makePolyline, Polyline, samplePolyline } from "./Polyline";
-import { makeRectangle, Rectangle, sampleRectangle } from "./Rectangle";
+import { Circle, CircleProps, sampleCircle } from "./Circle";
+import { Ellipse, EllipseProps, sampleEllipse } from "./Ellipse";
+import { Equation, EquationProps, sampleEquation } from "./Equation";
+import { Group, GroupProps, sampleGroup } from "./Group";
+import { Image, ImageProps, sampleImage } from "./Image";
+import { Line, LineProps, sampleLine } from "./Line";
+import { Path, PathProps, samplePath } from "./Path";
+import { Polygon, PolygonProps, samplePolygon } from "./Polygon";
+import { Polyline, PolylineProps, samplePolyline } from "./Polyline";
+import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle";
 import { Canvas, Context, InputMeta, makeCanvas } from "./Samplers";
-import { makeText, sampleText, Text } from "./Text";
-
+import { sampleText, Text, TextProps } from "./Text";
 //#region other shape types/globals
 
-// TODO: fix this type, it's too restrictive
-export interface Properties {
-  [k: string]: Value<ad.Num>;
-}
+export type Shape<T> =
+  | Circle<T>
+  | Ellipse<T>
+  | Equation<T>
+  | Image<T>
+  | Line<T>
+  | Path<T>
+  | Polygon<T>
+  | Polyline<T>
+  | Rectangle<T>
+  | Text<T>
+  | Group<T>;
 
-export type Shape =
-  | Circle
-  | Ellipse
-  | Equation
-  | Image
-  | Line
-  | Path
-  | Polygon
-  | Polyline
-  | Rectangle
-  | Text;
+export type ShapeType = Shape<ad.Num>["shapeType"];
+export type ShapeProps<T> =
+  | CircleProps<T>
+  | EllipseProps<T>
+  | EquationProps<T>
+  | ImageProps<T>
+  | LineProps<T>
+  | PathProps<T>
+  | PolygonProps<T>
+  | PolylineProps<T>
+  | RectangleProps<T>
+  | TextProps<T>
+  | GroupProps<T>;
 
-export type ShapeType = Shape["shapeType"];
+export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
+  switch (shape.shapeType) {
+    case "Circle":
+      return BBox.bboxFromCircle(shape);
+    case "Ellipse":
+      return BBox.bboxFromEllipse(shape);
+    case "Equation":
+    case "Image":
+    case "Text":
+      return BBox.bboxFromRectlike(shape);
+    case "Line":
+      return BBox.bboxFromLinelike(shape);
+    case "Path":
+      return BBox.bboxFromPath(shape);
+    case "Polygon":
+    case "Polyline":
+      return BBox.bboxFromPolygon(shape);
+    case "Rectangle":
+      return BBox.bboxFromRect(shape);
+    case "Group":
+      return bboxFromGroup(shape);
+  }
+};
 
-export interface ShapeDef {
-  sampler: (context: Context, canvas: Canvas) => Properties;
-  constr: (context: Context, canvas: Canvas, properties: Properties) => Shape;
+const shapeSampler: Map<
+  string,
+  (context: Context, canvas: Canvas) => ShapeProps<ad.Num>
+> = new Map(
+  Object.entries({
+    Circle: sampleCircle,
+    Ellipse: sampleEllipse,
+    Equation: sampleEquation,
+    Image: sampleImage,
+    Line: sampleLine,
+    Path: samplePath,
+    Polygon: samplePolygon,
+    Polyline: samplePolyline,
+    Rectangle: sampleRectangle,
+    Text: sampleText,
+    Group: sampleGroup,
+  })
+);
 
-  // TODO: maybe get rid of this?
-  propTags: { [prop: string]: Value<ad.Num>["tag"] };
-
-  // TODO: make these methods
-  bbox: (properties: Properties) => BBox.BBox;
-  isLinelike: boolean; // TODO: use type predicate instead
-  isRectlike: boolean; // TODO: remove this
-  isPolygonlike: boolean; // TODO: remove this
-  pendingProps: string[];
-}
-
-// hack to satisfy the typechecker
-export const ShapeDef = (shapedef: {
-  sampler: (context: Context, canvas: Canvas) => unknown;
-  constr: (context: Context, canvas: Canvas, properties: Properties) => Shape;
-  bbox: (properties: any) => BBox.BBox;
-  isLinelike?: boolean;
-  isRectlike?: boolean;
-  isPolygonlike?: boolean;
-}): ShapeDef => {
-  const sampler = (context: Context, canvas: Canvas) =>
-    shapedef.sampler(context, canvas) as Properties;
-
+export const pendingProps = (shapeType: ShapeType): string[] => {
+  const props = [];
   const metas: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
     const x = input({ key: metas.length, val: 0 });
     metas.push(meta);
     return x;
   };
-
-  const ideal = sampler({ makeInput }, makeCanvas(0, 0));
-
-  const propTags = Object.fromEntries(
-    Object.entries(ideal).map(([x, y]) => [x, y.tag])
+  const ideal: ShapeProps<ad.Num> = sampleShape(
+    shapeType,
+    { makeInput },
+    makeCanvas(0, 0)
   );
 
-  const pendingProps = [];
-  for (const [key, value] of Object.entries(ideal)) {
+  for (const key of Object.keys(ideal)) {
+    const value: Value<ad.Num> = ideal[key];
     if (
       value.tag === "FloatV" &&
       typeof value.contents !== "number" &&
       value.contents.tag === "Input" &&
       metas[value.contents.key].init.tag === "Pending"
     ) {
-      pendingProps.push(key);
+      props.push(key);
     }
   }
-
-  return {
-    sampler,
-    constr: shapedef.constr,
-
-    propTags,
-
-    bbox: shapedef.bbox,
-    isLinelike: shapedef.isLinelike ?? false,
-    isRectlike: shapedef.isRectlike ?? false,
-    isPolygonlike: shapedef.isPolygonlike ?? false,
-    pendingProps,
-  };
+  return props;
 };
 
-//#endregion
+const bboxFromGroup = ({ shapes }: GroupProps<ad.Num>): BBox.BBox => {
+  const bboxes = shapes.contents.map((shape) => computeShapeBbox(shape));
+  const xRanges = bboxes.map(BBox.xRange);
+  const yRanges = bboxes.map(BBox.yRange);
+  const minX = minN(xRanges.map((xRange) => xRange[0]));
+  const maxX = maxN(xRanges.map((xRange) => xRange[1]));
+  const minY = minN(yRanges.map((yRange) => yRange[0]));
+  const maxY = maxN(yRanges.map((yRange) => yRange[1]));
+  const width = sub(maxX, minX);
+  const height = sub(maxY, minY);
+  const centerX = div(add(minX, maxX), 2);
+  const centerY = div(add(minY, maxY), 2);
+  return BBox.bbox(width, height, [centerX, centerY]);
+};
 
-//#region shape defs
-const Circle = ShapeDef({
-  sampler: sampleCircle,
-  constr: makeCircle,
+export const shapeTypes = [
+  "Circle",
+  "Ellipse",
+  "Equation",
+  "Image",
+  "Line",
+  "Path",
+  "Polygon",
+  "Polyline",
+  "Rectangle",
+  "Text",
+  "Group",
+];
 
-  bbox: BBox.bboxFromCircle,
-});
-
-const Ellipse = ShapeDef({
-  sampler: sampleEllipse,
-  constr: makeEllipse,
-
-  bbox: BBox.bboxFromEllipse,
-});
-
-const Equation = ShapeDef({
-  sampler: sampleEquation,
-  constr: makeEquation,
-
-  bbox: BBox.bboxFromRectlike,
-  isRectlike: true,
-  isPolygonlike: true,
-});
-
-const Image = ShapeDef({
-  sampler: sampleImage,
-  constr: makeImage,
-
-  bbox: BBox.bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
-  isRectlike: true,
-  isPolygonlike: true,
-});
-
-const Line = ShapeDef({
-  sampler: sampleLine,
-  constr: makeLine,
-
-  bbox: BBox.bboxFromLinelike,
-  isLinelike: true,
-  isPolygonlike: true,
-});
-
-const Path = ShapeDef({
-  sampler: samplePath,
-  constr: makePath,
-
-  bbox: BBox.bboxFromPath,
-});
-
-const Polygon = ShapeDef({
-  sampler: samplePolygon,
-  constr: makePolygon,
-
-  bbox: BBox.bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
-  isPolygonlike: true,
-});
-
-const Polyline = ShapeDef({
-  sampler: samplePolyline,
-  constr: makePolyline,
-
-  bbox: BBox.bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
-});
-
-const Rectangle = ShapeDef({
-  sampler: sampleRectangle,
-  constr: makeRectangle,
-
-  bbox: BBox.bboxFromRect,
-  isRectlike: true,
-  isPolygonlike: true,
-});
-
-const Text = ShapeDef({
-  sampler: sampleText,
-  constr: makeText,
-
-  bbox: BBox.bboxFromRectlike, // assumes w and h correspond to string
-  isRectlike: true,
-  isPolygonlike: true,
-});
-
-// TODO: figure out how to not have the result be type `any` when indexing into
-// this object using a string key
-export const shapedefs: { [k in ShapeType]: ShapeDef } = {
-  Circle,
-  Ellipse,
-  Equation,
-  Image,
-  Line,
-  Path,
-  Polygon,
-  Polyline,
-  Rectangle,
-  Text,
+export const sampleShape = (
+  shapeType: ShapeType,
+  context: Context,
+  canvas: Canvas
+): ShapeProps<ad.Num> => {
+  const sampler = shapeSampler.get(shapeType);
+  if (sampler) {
+    return sampler(context, canvas);
+  }
+  throw new Error("shapeType not in sampler");
 };
 
 // TODO: don't use a type predicate for this
 export const isShapeType = (shapeType: string): shapeType is ShapeType =>
-  shapeType in shapedefs;
+  shapeSampler.has(shapeType);
 
 //#endregion

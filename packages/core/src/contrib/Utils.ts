@@ -21,7 +21,34 @@ import {
   sub,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
+import { Equation } from "../shapes/Equation";
+import { Image } from "../shapes/Image";
+import { Line } from "../shapes/Line";
+import { Polygon } from "../shapes/Polygon";
+import { Polyline } from "../shapes/Polyline";
+import { Rectangle } from "../shapes/Rectangle";
+import { Shape } from "../shapes/Shapes";
+import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
+
+export type Rectlike<T> = Equation<T> | Image<T> | Rectangle<T> | Text<T>;
+export type Polygonlike<T> = Rectlike<T> | Line<T> | Polygon<T> | Polyline<T>;
+export type Linelike<T> = Line<T>;
+
+export const isRectlike = <T>(s: Shape<T>): s is Rectlike<T> => {
+  const t = s.shapeType;
+  return t === "Equation" || t === "Image" || t === "Rectangle" || t === "Text";
+};
+
+export const isPolygonlike = <T>(s: Shape<T>): s is Polygonlike<T> => {
+  const t = s.shapeType;
+  return t === "Polygon" || t === "Polyline";
+};
+
+export const isLinelike = <T>(s: Shape<T>): s is Linelike<T> => {
+  const t = s.shapeType;
+  return t === "Line";
+};
 
 /**
  * Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2` with optional padding `padding`. (For a non-circle shape, its radius should be half of the shape's general "width")
@@ -240,18 +267,26 @@ export const consecutiveTriples = (
 /**
  * Return indicator of closed Polyline, Polygon or Path shape
  */
-export const isClosed = ([t, s]: [string, any]): boolean => {
-  if (t === "Polyline") return false;
-  else if (t === "Polygon") return true;
-  else if (t === "Path") return s.shapeType === "closed";
-  else throw new Error(`Function isClosed not defined for shape ${t}.`);
+export const isClosed = (s: Shape<ad.Num>): boolean => {
+  if (s.shapeType === "Polyline") return false;
+  else if (s.shapeType === "Polygon") return true;
+  else if (s.shapeType === "Path") {
+    if (s.d.contents.length === 0) {
+      return false;
+    }
+    return s.d.contents[s.d.contents.length - 1].cmd === "Z";
+  } else
+    throw new Error(`Function isClosed not defined for shape ${s.shapeType}.`);
 };
 
 /**
  * Return list of points from Polyline, Polygon or Path shape
  */
-export const extractPoints = ([t, s]: [string, any]): [ad.Num, ad.Num][] => {
-  if (t === "Polyline" || t === "Polygon") return s.points.contents;
-  else if (t === "Path") return s.d.contents;
-  else throw new Error(`Point extraction not defined for shape ${t}.`);
+export const extractPoints = (s: Shape<ad.Num>): [ad.Num, ad.Num][] => {
+  if (s.shapeType === "Polyline" || s.shapeType === "Polygon")
+    return s.points.contents.map((arr) => [arr[0], arr[1]]);
+  else if (s.shapeType === "Path")
+    return s.d.contents.map((arr) => [arr[0], arr[1]]);
+  else
+    throw new Error(`Point extraction not defined for shape ${s.shapeType}.`);
 };

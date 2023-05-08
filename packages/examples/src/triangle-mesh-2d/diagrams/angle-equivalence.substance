@@ -79,13 +79,12 @@ Corner cILJ := MakeCorner( I, L, J )
 Corner cLJI := MakeCorner( L, J, I )
 
 
-AutoLabel All
-Label cjil $α$
-Label cilj $β$
-Label clji $γ$
-Label cJIL $α$
-Label cILJ $β$
-Label cLJI $γ$
+Label cjil "α"
+Label cilj "β"
+Label clji "γ"
+Label cJIL "α"
+Label cILJ "β"
+Label cLJI "γ"
 -- HasLabel( i )
 -- HasLabel( j )
 -- HasLabel( k )

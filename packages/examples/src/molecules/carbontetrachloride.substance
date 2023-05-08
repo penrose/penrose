@@ -1,0 +1,12 @@
+Carbon c
+Chlorine cl1, cl2, cl3, cl4
+Bond b1 := MakeSingleBond(c, cl1)
+Bond b2 := MakeSingleBond(c, cl2)
+Bond b3 := MakeSingleBond(c, cl3)
+Bond b4 := MakeSingleBond(c, cl4)
+ZeroValenceElectrons(c)
+SixValenceElectrons(cl1)
+SixValenceElectrons(cl2)
+SixValenceElectrons(cl3)
+SixValenceElectrons(cl4)
+AutoLabel All

@@ -1,0 +1,13 @@
+Phosphorus p
+Chlorine cl1, cl2, cl3
+-- bromine 
+TwoValenceElectrons(p)
+-- single bond
+Bond b1 := MakeSingleBond(cl1, p)
+SixValenceElectrons(cl1)
+-- double bond 1
+Bond b2 := MakeSingleBond(cl2, p)
+SixValenceElectrons(cl2)
+-- double bond 2
+Bond b3 := MakeSingleBond(cl3, p)
+SixValenceElectrons(cl3)

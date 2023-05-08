@@ -1,4 +1,4 @@
-import { genOptProblem } from "@penrose/optimizer";
+import { genOptProblem, step } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -15,6 +15,7 @@ import {
   RenderStatic,
 } from "./renderer/Renderer";
 import { Canvas } from "./shapes/Samplers";
+import { shapeTypes } from "./shapes/Shapes";
 import { showMutations } from "./synthesis/Mutation";
 import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
@@ -63,7 +64,7 @@ export const resample = (state: State): State => {
 export const stepState = (state: State, numSteps = 10000): State => {
   const steppedState: State = {
     ...state,
-    ...state.gradient.step(state, numSteps),
+    ...step(state, state.gradient.f, numSteps),
   };
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
     const nextInitState = nextStage(steppedState);
@@ -99,7 +100,7 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
   ) {
     currentState = {
       ...currentState,
-      ...currentState.gradient.step(currentState, numSteps),
+      ...step(currentState, currentState.gradient.f, numSteps),
     };
   }
   return nextStage(currentState);
@@ -394,7 +395,6 @@ export { objDict } from "./contrib/Objectives";
 export { secondaryGraph } from "./engine/Autodiff";
 export type { PathResolver } from "./renderer/Renderer";
 export { makeCanvas, simpleContext } from "./shapes/Samplers";
-export { shapedefs } from "./shapes/Shapes";
 export type {
   DeclTypes,
   MatchSetting,
@@ -402,7 +402,6 @@ export type {
   SynthesizerSetting,
 } from "./synthesis/Synthesizer";
 export type { PenroseError } from "./types/errors";
-export type { Shape } from "./types/shape";
 export * as Value from "./types/value";
 export type { Result } from "./utils/Error";
 export { hexToRgba, rgbaToHex, zip2 } from "./utils/Util";
@@ -426,6 +425,7 @@ export {
   prettyPrintExpr,
   normList,
   toSvgPaintProperty,
+  shapeTypes,
 };
 export type { Registry, Trio };
 export type { Env };

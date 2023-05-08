@@ -75,6 +75,14 @@
       "gallery": true
     },
     {
+      "name": "Lewis Structure of Nitric Acid",
+      "substance": "nitricacid",
+      "style": "lewis",
+      "domain": "molecules",
+      "variation": "KilimanjaroSpider637",
+      "gallery": true
+    },
+    {
       "substance": "vector-wedge",
       "style": "exterior-algebra",
       "domain": "exterior-algebra",
@@ -93,28 +101,172 @@
       "variation": ""
     },
     {
-      "substance": "small-graph",
-      "style": "disjoint-rects",
-      "domain": "graph-theory",
+      "substance": "computer-network-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
       "variation": ""
     },
     {
-      "substance": "small-graph",
-      "style": "disjoint-rect-line-horiz",
-      "domain": "graph-theory",
-      "variation": "BriocheChamois5430"
-    },
-    {
-      "substance": "small-graph",
-      "style": "disjoint-rects-small-canvas",
-      "domain": "graph-theory",
+      "substance": "computer-network-multiple-links-graph",
+      "style": "pseudograph",
+      "domain": "pseudograph",
       "variation": ""
     },
     {
-      "substance": "small-graph",
-      "style": "disjoint-rects-large-canvas",
-      "domain": "graph-theory",
+      "substance": "computer-network-diagnostic-links-graph",
+      "style": "pseudograph",
+      "domain": "pseudograph",
       "variation": ""
+    },
+    {
+      "substance": "communications-network-one-way-links-graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
+      "variation": ""
+    },
+    {
+      "substance": "computer-network-multiple-one-way-links-graph",
+      "style": "directed-multigraph",
+      "domain": "directed-multigraph",
+      "variation": "ColumbineMosquito92625"
+    },
+    {
+      "substance": "acquaintanceship-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": ""
+    },
+    {
+      "substance": "influence-graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
+      "variation": "BurdockWallaby5484"
+    },
+    {
+      "substance": "call-directed-graph",
+      "style": "directed-multigraph",
+      "domain": "directed-multigraph",
+      "variation": ""
+    },
+    {
+      "substance": "call-undirected-graph",
+      "style": "pseudograph",
+      "domain": "pseudograph",
+      "variation": ""
+    },
+    {
+      "substance": "module-dependency-graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
+      "variation": "TurquishMongoose642"
+    },
+    {
+      "substance": "precedence-graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
+      "variation": "WineberryGull921"
+    },
+    {
+      "substance": "niche-overlap-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "RustiqueOpossum386"
+    },
+    {
+      "substance": "protein-interaction-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "AtmosphereBear54663"
+    },
+    {
+      "substance": "round-robin-graph",
+      "style": "simple-directed-graph",
+      "domain": "simple-directed-graph",
+      "variation": "MetalShrew80769"
+    },
+    {
+      "substance": "complete-graphs",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "PerfectionPorcupine953"
+    },
+    {
+      "substance": "cycle-graphs",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "AutonomousPigeon86039"
+    },
+    {
+      "substance": "wheel-graphs",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "IonianElephant37708"
+    },
+    {
+      "substance": "cube-graphs",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": ""
+    },
+    {
+      "substance": "complete-bipartite-graphs",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": ""
+    },
+    {
+      "substance": "jobs-trained-matching-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": ""
+    },
+    {
+      "substance": "jobs-trained-no-matching-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": ""
+    },
+    {
+      "substance": "star-topology-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "IonianElephant37708"
+    },
+    {
+      "substance": "ring-topology-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "IonianElephant37708"
+    },
+    {
+      "substance": "hybrid-topology-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "IonianElephant37708"
+    },
+    {
+      "substance": "linear-array-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "MelodySalmon16237"
+    },
+    {
+      "substance": "mesh-network-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "MelodySalmon16237"
+    },
+    {
+      "substance": "hypercube-network-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "TanagerTarsier789"
+    },
+    {
+      "substance": "union-graph",
+      "style": "simple-graph",
+      "domain": "simple-graph",
+      "variation": "WickerworkCrane44939"
     },
     {
       "name": "Triangle Incenter",
@@ -129,14 +281,14 @@
       "substance": "collinear",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "HighlighterChicken10318",
+      "variation": "GoldbrownFly7869",
       "gallery": true
     },
     {
       "substance": "parallel-lines",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "SuluHippopotamus665"
+      "variation": "LemongrassOyster4884"
     },
     {
       "substance": "midsegment-triangles",
@@ -148,21 +300,21 @@
       "substance": "congruent-triangles",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "OspreySkunk922"
+      "variation": "WaterspoutFish94072"
     },
     {
       "name": "Two 3D Triangles",
       "substance": "two-triangles",
       "style": "triangle-mesh-3d",
       "domain": "triangle-mesh-3d",
-      "variation": "EpiphanyRam6491",
+      "variation": "LightheartedCormorant8083",
       "gallery": true
     },
     {
       "substance": "circle-example",
       "style": "euclidean",
       "domain": "geometry",
-      "variation": "PathwayJellyfish159"
+      "variation": "CosmopolitanBeaver4985"
     },
     {
       "name": "Word Cloud",
@@ -256,6 +408,12 @@
       "variation": "GalapagosLocust418"
     },
     {
+      "substance": "lines-around-rect",
+      "style": "rect-line-dist",
+      "domain": "shape-distance",
+      "variation": ""
+    },
+    {
       "name": "Closest point test",
       "substance": "closest-point-test",
       "style": "closest-point",
@@ -293,7 +451,7 @@
       "substance": "mobius",
       "style": "mobius",
       "domain": "mobius",
-      "variation": "PlumeAnt46950"
+      "variation": "BrimstoneAntelope3300"
     },
     {
       "substance": "glutamine",
@@ -440,6 +598,50 @@
       "style": "cubic-bezier",
       "domain": "curve-examples",
       "variation": "CauliflowerDeer97138"
+    },
+    {
+      "name": "Cotan Formula",
+      "substance": "cotan-formula",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "RamonaFly25691",
+      "gallery": true
+    },
+    {
+      "gallery": true,
+      "name": "Concyclic Euclidean Edge Flip",
+      "substance": "concyclic-pair",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "DamaskWeasel66717"
+    },
+    {
+      "name": "Half Edge Mesh",
+      "substance": "halfedge-mesh",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "BlackadderDogfish563",
+      "gallery": true
+    },
+    {
+      "substance": "relative-orientation",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "SylvanDolphin4902"
+    },
+    {
+      "name": "Triangle Centers",
+      "substance": "triangle-centers",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Rigid Conformal Mapping of a 2D Mesh",
+      "substance": "angle-equivalence",
+      "style": "triangle-mesh-2d",
+      "domain": "triangle-mesh-2d",
+      "variation": "ClamshellKookabura228"
     }
   ],
   "domains": {
@@ -464,8 +666,17 @@
     "shape-spec": {
       "URI": "shape-spec/all-shapes.domain"
     },
-    "graph-theory": {
-      "URI": "graph-domain/graph-theory.domain"
+    "simple-graph": {
+      "URI": "graph-domain/simple-graph.domain"
+    },
+    "pseudograph": {
+      "URI": "graph-domain/pseudograph.domain"
+    },
+    "simple-directed-graph": {
+      "URI": "graph-domain/simple-directed-graph.domain"
+    },
+    "directed-multigraph": {
+      "URI": "graph-domain/directed-multigraph.domain"
     },
     "geometry": {
       "URI": "geometry-domain/geometry.domain"
@@ -475,6 +686,9 @@
     },
     "triangle-mesh-3d": {
       "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
+    },
+    "triangle-mesh-2d": {
+      "URI": "triangle-mesh-2d/triangle-mesh-2d.domain"
     },
     "word-cloud": {
       "URI": "word-cloud/word-cloud.domain"
@@ -570,21 +784,21 @@
       "domain": "linear-algebra",
       "URI": "exterior-algebra/exterior-algebra.style"
     },
-    "disjoint-rects": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects.style"
+    "simple-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/simple-graph.style"
     },
-    "disjoint-rect-line-horiz": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rect-line-horiz.style"
+    "pseudograph": {
+      "domain": "pseudograph",
+      "URI": "graph-domain/pseudograph.style"
     },
-    "disjoint-rects-small-canvas": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects-small-canvas.style"
+    "simple-directed-graph": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/simple-directed-graph.style"
     },
-    "disjoint-rects-large-canvas": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/disjoint-rects-large-canvas.style"
+    "directed-multigraph": {
+      "domain": "directed-multigraph",
+      "URI": "graph-domain/directed-multigraph.style"
     },
     "euclidean": {
       "domain": "geometry",
@@ -593,6 +807,10 @@
     "closest-point": {
       "domain": "closest-point",
       "URI": "closest-point/closest-point.style"
+    },
+    "triangle-mesh-2d": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/triangle-mesh-2d.style"
     },
     "triangle-mesh-3d": {
       "domain": "triangle-mesh-3d",
@@ -630,6 +848,10 @@
       "domain": "shape-distance",
       "URI": "shape-distance/shape-distance.style"
     },
+    "rect-line-dist": {
+      "domain": "shape-distance",
+      "URI": "shape-distance/rect-line-dist.style"
+    },
     "fake-3d-linear-algebra": {
       "domain": "fake-3d-linear-algebra",
       "URI": "fake-3d-linear-algebra/fake3d.style"
@@ -657,6 +879,10 @@
     "molecules-basic": {
       "domain": "molecules",
       "URI": "molecules/molecules-basic.style"
+    },
+    "lewis": {
+      "domain": "molecules",
+      "URI": "molecules/lewis.style"
     },
     "matrix-ops": {
       "domain": "matrix-ops",
@@ -704,9 +930,117 @@
       "domain": "shape-spec",
       "URI": "shape-spec/arrows.substance"
     },
-    "small-graph": {
-      "domain": "graph-theory",
-      "URI": "graph-domain/small-graph.substance"
+    "computer-network-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec1/fig1.substance"
+    },
+    "computer-network-multiple-links-graph": {
+      "domain": "pseudograph",
+      "URI": "graph-domain/textbook/sec1/fig2.substance"
+    },
+    "computer-network-diagnostic-links-graph": {
+      "domain": "pseudograph",
+      "URI": "graph-domain/textbook/sec1/fig3.substance"
+    },
+    "communications-network-one-way-links-graph": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec1/fig4.substance"
+    },
+    "computer-network-multiple-one-way-links-graph": {
+      "domain": "directed-multigraph",
+      "URI": "graph-domain/textbook/sec1/fig5.substance"
+    },
+    "acquaintanceship-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec1/fig6.substance"
+    },
+    "influence-graph": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec1/fig7.substance"
+    },
+    "call-directed-graph": {
+      "domain": "directed-multigraph",
+      "URI": "graph-domain/textbook/sec1/fig8a.substance"
+    },
+    "call-undirected-graph": {
+      "domain": "pseudograph",
+      "URI": "graph-domain/textbook/sec1/fig8b.substance"
+    },
+    "module-dependency-graph": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec1/fig9.substance"
+    },
+    "precedence-graph": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec1/fig10.substance"
+    },
+    "niche-overlap-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec1/fig11.substance"
+    },
+    "protein-interaction-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec1/fig12.substance"
+    },
+    "round-robin-graph": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec1/fig13.substance"
+    },
+    "complete-graphs": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig3.substance"
+    },
+    "cycle-graphs": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig4.substance"
+    },
+    "wheel-graphs": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig5.substance"
+    },
+    "cube-graphs": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig6.substance"
+    },
+    "complete-bipartite-graphs": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig9.substance"
+    },
+    "jobs-trained-matching-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig10a.substance"
+    },
+    "jobs-trained-no-matching-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig10b.substance"
+    },
+    "star-topology-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig11a.substance"
+    },
+    "ring-topology-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig11b.substance"
+    },
+    "hybrid-topology-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig11c.substance"
+    },
+    "linear-array-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig12.substance"
+    },
+    "mesh-network-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig13.substance"
+    },
+    "hypercube-network-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig14.substance"
+    },
+    "union-graph": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/textbook/sec2/fig16b.substance"
     },
     "siggraph-teaser": {
       "domain": "geometry",
@@ -792,6 +1126,10 @@
       "domain": "shape-distance",
       "URI": "shape-distance/hundred-points-around-line.substance"
     },
+    "lines-around-rect": {
+      "domain": "shape-distance",
+      "URI": "shape-distance/lines-around-rect.substance"
+    },
     "3d-projection": {
       "domain": "fake-3d-linear-algebra",
       "URI": "fake-3d-linear-algebra/projection.substance"
@@ -823,6 +1161,10 @@
     "glutamine": {
       "domain": "molecules",
       "URI": "molecules/glutamine.substance"
+    },
+    "nitricacid": {
+      "domain": "molecules",
+      "URI": "molecules/nitricacid.substance"
     },
     "matrix-matrix-addition": {
       "domain": "matrix-ops",
@@ -895,6 +1237,30 @@
     "cubic-bezier": {
       "domain": "curve-examples",
       "URI": "curve-examples/cubic-bezier.substance"
+    },
+    "concyclic-pair": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/concyclic-pair.substance"
+    },
+    "cotan-formula": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/cotan-formula.substance"
+    },
+    "halfedge-mesh": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/halfedge-mesh.substance"
+    },
+    "relative-orientation": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/relative-orientation.substance"
+    },
+    "triangle-centers": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/triangleCenters.substance"
+    },
+    "angle-equivalence": {
+      "domain": "triangle-mesh-2d",
+      "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
     }
   }
 }

@@ -297,6 +297,11 @@ export const and = logic("&&");
  */
 export const or = logic("||");
 
+/**
+ * Return a boolean `v !== w`
+ */
+export const xor = logic("!==");
+
 export const not = (v: ad.Bool): ad.Not => ({ tag: "Not", param: v });
 
 /**

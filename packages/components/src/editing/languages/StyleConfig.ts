@@ -5,7 +5,7 @@ import {
   hexToRgba,
   objDict,
   rgbaToHex,
-  shapedefs,
+  shapeTypes,
 } from "@penrose/core";
 import { editor, IRange, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
@@ -82,7 +82,7 @@ const styleCustoms = {
     "objective",
     "constraint",
   ],
-  shapes: Object.keys(shapedefs),
+  shapes: shapeTypes,
   constraints: Object.keys(constrDict),
   objectives: Object.keys(objDict),
   computations: Object.keys(compDict),

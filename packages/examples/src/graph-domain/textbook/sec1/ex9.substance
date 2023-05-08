@@ -1,0 +1,20 @@
+Vertex a, b, c, d, e, f
+
+Link e1 := Arc(a, b)
+Link e2 := Arc(b, a)
+Link e3m1 := Arc(b, c)
+Link e3m2 := Arc(b, c)
+Link e4 := Arc(c, d)
+Link e5 := Arc(d, d)
+Link e6m1 := Arc(e, d)
+Link e6m2 := Arc(e, d)
+Link e7 := Arc(f, a)
+Link e8 := Arc(f, e)
+Link e9 := Arc(f, f)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"
+Label e "𝑒"
+Label f "𝑓"

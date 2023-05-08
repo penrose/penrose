@@ -36,7 +36,6 @@ forall Point p {
     shape p.text = Equation {
         string: p.label
         center: (?, ?)
-        strokeColor: rgba(0, 0, 0, 1)
     }
 
     encourage near(p.text, p.point)

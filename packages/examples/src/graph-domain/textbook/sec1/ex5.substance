@@ -1,0 +1,18 @@
+Vertex a, b, c, d
+
+Link e1m1 := Edge(a, b)
+Link e1m2 := Edge(a, b)
+Link e2 := Edge(a, c)
+Link e3m1 := Edge(b, d)
+Link e3m2 := Edge(b, d)
+Link e4m1 := Edge(c, d)
+Link e4m2 := Edge(c, d)
+
+Link e5 := Edge(a, a)
+Link e6 := Edge(b, b)
+Link e7 := Edge(d, d)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"

@@ -13,4 +13,4 @@ Segment AC := Diameter(c, A, C)
 Quadrilateral ABCD := MkQuadrilateral(A, B, C, D)
 ParallelMarker1(AB, DC)
 Parallel(AB, DC)
-AutoLabel All
+AutoLabel A, B, C, D, O

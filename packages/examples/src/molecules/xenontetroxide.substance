@@ -1,0 +1,13 @@
+Xenon xe
+Oxygen o1, o2, o3, o4
+-- bonds
+Bond b1 := MakeDoubleBond(xe, o1)
+Bond b2 := MakeDoubleBond(xe, o2)
+Bond b3 := MakeDoubleBond(xe, o3)
+Bond b4 := MakeDoubleBond(xe, o4)
+-- electrons
+ZeroValenceElectrons(xe)
+FourValenceElectrons(o1)
+FourValenceElectrons(o2)
+FourValenceElectrons(o3)
+FourValenceElectrons(o4)

@@ -1,0 +1,9 @@
+Hydrogen h1, h2
+Oxygen o
+Bond b1 := MakeSingleBond(h1, o)
+Bond b2 := MakeSingleBond(h2, o)
+ZeroValenceElectrons(h1)
+ZeroValenceElectrons(h2)
+FourValenceElectrons(o)
+
+AutoLabel All

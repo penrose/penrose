@@ -1,16 +1,17 @@
 import seedrandom from "seedrandom";
 import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
-import { makeCircle } from "../../shapes/Circle";
-import { makeEllipse } from "../../shapes/Ellipse";
-import { makeLine } from "../../shapes/Line";
-import { makePolygon } from "../../shapes/Polygon";
+import { Circle, makeCircle } from "../../shapes/Circle";
+import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
+import { Line, makeLine } from "../../shapes/Line";
+import { makePolygon, Polygon } from "../../shapes/Polygon";
+import { Polyline } from "../../shapes/Polyline";
 import { makeRectangle } from "../../shapes/Rectangle";
 import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";
 import * as ad from "../../types/ad";
-import { Shape } from "../../types/shapes";
 import { FloatV } from "../../types/value";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict, sdEllipse } from "../Functions";
+import { Rectlike } from "../Utils";
 
 const canvas = makeCanvas(800, 700);
 
@@ -42,11 +43,17 @@ export const makeContext = (
 const compareDistance = (
   context: Context,
   shapeType: string,
-  shape: Shape,
+  shape:
+    | Ellipse<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Line<ad.Num>
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>,
   p: ad.Input[],
   expected: number
 ) => {
-  const result = getResult(context, shapeType, shape, p);
+  const result = getResult(context, shape, p);
   const g = primaryGraph(result.contents);
   //const g = secondaryGraph([result.contents]);
   const f = genCodeSync(g);
@@ -69,18 +76,27 @@ const compareDistance = (
 
 const getResult = (
   context: Context,
-  shapeType: string,
-  s: any,
+  s:
+    | Ellipse<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Line<ad.Num>
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>,
   p: ad.Input[]
 ): FloatV<ad.Num> => {
-  if (shapeType === "Ellipse") {
+  if (s.shapeType === "Ellipse") {
     return {
       tag: "FloatV",
       contents: sdEllipse(s, p),
     };
   } else {
-    const result = compDict.signedDistance(context, [shapeType, s], p);
-    return result;
+    const result = compDict.signedDistance.body(context, s, p);
+    if (result.tag === "FloatV") {
+      return result;
+    } else {
+      return floatV(0);
+    }
   }
 };
 

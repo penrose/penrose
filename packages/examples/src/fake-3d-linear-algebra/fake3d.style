@@ -83,14 +83,12 @@ where w := addV(u, v); VectorInAmbientSpace(u, S); VectorInAmbientSpace(v, S); V
   w.dashed_u = Line {
     start: v.shape.end
     end: w.shape.end
-    endArrowhead : false
     strokeStyle : "dashed"
     strokeWidth : .01
   }
   w.dashed_v = Line {
     start: u.shape.end
     end: w.shape.end
-    endArrowhead : false
     strokeStyle : "dashed"
     strokeWidth : .01
   }

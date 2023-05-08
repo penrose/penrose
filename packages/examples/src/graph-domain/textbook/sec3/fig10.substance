@@ -1,0 +1,43 @@
+Vertex a, b, c, d, e, f, g, h
+
+Edge(a, b)
+Edge(a, d)
+Edge(b, c)
+Edge(b, f)
+Edge(c, d)
+Edge(d, h)
+Edge(e, f)
+Edge(e, h)
+Edge(f, g)
+Edge(g, h)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"
+Label e "𝑒"
+Label f "𝑓"
+Label g "𝑔"
+Label h "ℎ"
+
+Vertex s, t, u, v, w, x, y, z
+
+Edge(s, t)
+Edge(s, v)
+Edge(s, w)
+Edge(t, u)
+Edge(u, v)
+Edge(v, z)
+Edge(w, x)
+Edge(w, z)
+Edge(x, y)
+Edge(y, z)
+
+Label s "𝑠"
+Label t "𝑡"
+Label u "𝑢"
+Label v "𝑣"
+Label w "𝑤"
+Label x "𝑥"
+Label y "𝑦"
+Label z "𝑧"

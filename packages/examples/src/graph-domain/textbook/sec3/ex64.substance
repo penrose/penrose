@@ -1,0 +1,37 @@
+Vertex u1, u2, u3, u4, u5, u6
+
+Arc(u1, u4)
+Arc(u2, u5)
+Arc(u3, u4)
+Arc(u3, u6)
+Arc(u4, u2)
+Arc(u5, u1)
+Arc(u5, u3)
+Arc(u6, u1)
+Arc(u6, u2)
+
+Label u1 "𝑢₁"
+Label u2 "𝑢₂"
+Label u3 "𝑢₃"
+Label u4 "𝑢₄"
+Label u5 "𝑢₅"
+Label u6 "𝑢₆"
+
+Vertex v1, v2, v3, v4, v5, v6
+
+Arc(v1, v2)
+Arc(v1, v6)
+Arc(v2, v5)
+Arc(v3, v2)
+Arc(v3, v4)
+Arc(v4, v1)
+Arc(v5, v4)
+Arc(v6, v3)
+Arc(v6, v5)
+
+Label v1 "𝑣₁"
+Label v2 "𝑣₂"
+Label v3 "𝑣₃"
+Label v4 "𝑣₄"
+Label v5 "𝑣₅"
+Label v6 "𝑣₆"
