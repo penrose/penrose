@@ -53,6 +53,7 @@ export const multipleChoiceProblem = (
 ) => {
   const { prompt, substance, style, domain, setting } = preset;
   const progs = generateProgs(setting, seed, numPrograms, domain, substance)!;
+  // `answer` include indices into some of the generated diagrams (i.e. `progs`). `options` are these diagrams with the correctness flag attached.
   const options = progs.reduce(
     (
       problems: {
