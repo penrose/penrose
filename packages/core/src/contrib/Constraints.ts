@@ -26,7 +26,13 @@ import {
 } from "./ConstraintsUtils";
 import { constrDictCurves } from "./CurveConstraints";
 import { containsConvexPolygonPoints, convexPartitions } from "./Minkowski";
-import { bboxFromShape, bboxPts, shapeDistance, shapeSize } from "./Queries";
+import {
+  bboxFromShape,
+  bboxPts,
+  polygonLikePoints,
+  shapeDistance,
+  shapeSize,
+} from "./Queries";
 import { inRange, isRectlike, overlap1D } from "./Utils";
 
 // -------- Simple constraints
@@ -402,13 +408,13 @@ const constrDictGeneral = {
         );
       else if (t1 === "Polygon" && t2 === "Polygon") {
         return constrDict.containsPolygons.body(
-          s1.points.contents.map((p) => [p[0], p[1]]),
-          s2.points.contents.map((p) => [p[0], p[1]]),
+          polygonLikePoints(s1),
+          polygonLikePoints(s2),
           padding
         );
       } else if (t1 === "Polygon" && t2 === "Circle") {
         return constrDict.containsPolygonCircle.body(
-          s1.points.contents.map((p) => [p[0], p[1]]),
+          polygonLikePoints(s1),
           [s2.center.contents[0], s2.center.contents[1]],
           s2.r.contents,
           padding
@@ -417,7 +423,7 @@ const constrDictGeneral = {
         return constrDict.containsCirclePolygon.body(
           [s1.center.contents[0], s1.center.contents[1]],
           s1.r.contents,
-          s2.points.contents.map((p) => [p[0], p[1]]),
+          polygonLikePoints(s2),
           padding
         );
       } else if (t1 === "Circle" && isRectlike(s2)) {
@@ -697,10 +703,19 @@ const constrDictGeneral = {
       if (rect1.length !== 2 || rect2.length !== 2) {
         throw new Error("Inputs should be lists of two 2d-points.");
       }
-      const box1 = BBox.bboxFromPoints(rect1);
-      const box2 = BBox.bboxFromPoints(rect2);
-      const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
-      const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
+      // const box1 = BBox.bboxFromPoints(rect1);
+      // const box2 = BBox.bboxFromPoints(rect2);
+      // const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
+      // const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
+
+      const xl1 = rect1[0][0],
+        xr1 = rect1[1][0];
+      const yl1 = rect1[1][1],
+        yr1 = rect1[0][1];
+      const xl2 = rect2[0][0],
+        xr2 = rect2[1][0];
+      const yl2 = rect2[1][1],
+        yr2 = rect2[0][1];
       return addN([
         ifCond(lt(xl1, xl2), 0, squared(sub(xl1, xl2))),
         ifCond(lt(xr2, xr1), 0, squared(sub(xr2, xr1))),
