@@ -1,3 +1,5 @@
+// https://github.com/tzinas/react-percentages-slider
+
 import * as _ from "lodash";
 import React, { useRef } from "react";
 import styled from "styled-components";
