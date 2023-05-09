@@ -50,6 +50,13 @@ export const isLinelike = <T>(s: Shape<T>): s is Linelike<T> => {
   return t === "Line";
 };
 
+export const toPt = (v: ad.Num[]): ad.Pt2 => {
+  if (v.length !== 2) {
+    throw Error("expected vector of length 2");
+  }
+  return [v[0], v[1]];
+};
+
 /**
  * Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2` with optional padding `padding`. (For a non-circle shape, its radius should be half of the shape's general "width")
  */

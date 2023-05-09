@@ -1,11 +1,6 @@
-import { ops } from "../engine/Autodiff";
-import { add, div, ifCond, mul, neg } from "../engine/AutodiffFunctions";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
+import { ifCond } from "../engine/AutodiffFunctions";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
-import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
-import { overlappingImplicitEllipses } from "./Minkowski";
 import { bboxFromShape, shapeCenter } from "./Queries";
 import {
   atDistOutside,
@@ -15,46 +10,6 @@ import {
 } from "./Utils";
 
 // -------- Ovelapping helpers
-
-/**
- * Require that ellipse `s1` overlaps ellipse `s2` with some overlap `overlap`.
- */
-export const overlappingEllipse = (
-  s1: Ellipse<ad.Num>,
-  s2: Ellipse<ad.Num>,
-  overlap: ad.Num
-): ad.Num => {
-  // HACK: An arbitrary factor `Math.PI / 3` has been added
-  // to minimize the probability of obtaining a lower degree
-  // polynomial in the Minkowski penalty for implicit shapes.
-  const d = ops.vdist(s1.center.contents, s2.center.contents);
-  const factor = div(1, add(1, d));
-  const ei1 = ellipseToImplicit(s1, neg(overlap), mul(Math.PI / 3, factor));
-  const ei2 = ellipseToImplicit(s2, 0, factor);
-  return overlappingImplicitEllipses(ei1, ei2);
-};
-
-/**
- * Require that circle `s1` overlaps ellipse `s2` with some overlap `overlap`.
- */
-export const overlappingCircleEllipse = (
-  s1: Circle<ad.Num>,
-  s2: Ellipse<ad.Num>,
-  overlap: ad.Num = 0
-): ad.Num => {
-  // HACK: An arbitrary factor `Math.PI / 3` has been added
-  // to minimize the probability of obtaining a lower degree
-  // polynomial in the Minkowski penalty for implicit shapes.
-  const d = ops.vdist(s1.center.contents, s2.center.contents);
-  const factor = div(1, add(1, d));
-  const ei1 = circleToImplicitEllipse(
-    s1,
-    neg(overlap),
-    mul(Math.PI / 3, factor)
-  );
-  const ei2 = ellipseToImplicit(s2, 0, factor);
-  return overlappingImplicitEllipses(ei1, ei2);
-};
 
 /**
  * Require that shape `s1` is at a distance of `distance` from shape `s2`.

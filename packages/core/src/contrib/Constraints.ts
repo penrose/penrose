@@ -3,6 +3,7 @@ import {
   absVal,
   add,
   addN,
+  div,
   ifCond,
   lt,
   max,
@@ -19,13 +20,17 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { ConstrFunc } from "../types/functions";
 import { real2NT, real2T, realNT, realT, shapeT } from "../utils/Util";
-import {
-  atDistLabel,
-  overlappingCircleEllipse,
-  overlappingEllipse,
-} from "./ConstraintsUtils";
+import { atDistLabel } from "./ConstraintsUtils";
 import { constrDictCurves } from "./CurveConstraints";
-import { containsConvexPolygonPoints, convexPartitions } from "./Minkowski";
+import {
+  absCircleToImplicitEllipse,
+  absEllipseToImplicit,
+} from "./ImplicitShapes";
+import {
+  containsConvexPolygonPoints,
+  convexPartitions,
+  overlappingImplicitEllipses,
+} from "./Minkowski";
 import {
   bboxFromShape,
   bboxPts,
@@ -34,7 +39,7 @@ import {
   shapeSize,
 } from "./Queries";
 import * as utils from "./Utils";
-import { isRectlike, overlap1D } from "./Utils";
+import { isRectlike, overlap1D, toPt } from "./Utils";
 
 //#region Individual constriants
 /**
@@ -192,14 +197,78 @@ export const overlapping = (
   const t2 = s2.shapeType;
   // for some cases with ellipses, we can't easily compute the distance
   if (t1 === "Ellipse" && t2 === "Ellipse")
-    return overlappingEllipse(s1, s2, overlap);
+    return overlappingEllipses(
+      toPt(s1.center.contents),
+      s1.rx.contents,
+      s1.ry.contents,
+      toPt(s2.center.contents),
+      s2.rx.contents,
+      s2.ry.contents,
+      overlap
+    );
   // Circle x Ellipse
   else if (t1 === "Circle" && t2 === "Ellipse")
-    return overlappingCircleEllipse(s1, s2, overlap);
+    return overlappingCircleEllipse(
+      toPt(s1.center.contents),
+      s1.r.contents,
+      toPt(s2.center.contents),
+      s2.rx.contents,
+      s2.ry.contents,
+      overlap
+    );
   else if (t1 === "Ellipse" && t2 === "Circle")
-    return overlappingCircleEllipse(s2, s1, overlap);
+    return overlappingCircleEllipse(
+      toPt(s2.center.contents),
+      s2.r.contents,
+      toPt(s1.center.contents),
+      s1.rx.contents,
+      s1.ry.contents,
+      overlap
+    );
   // for other cases, we know how to compute the distance, so we just use that
   else return add(shapeDistance(s1, s2), overlap);
+};
+
+export const overlappingEllipses = (
+  c1: ad.Pt2,
+  rx1: ad.Num,
+  ry1: ad.Num,
+  c2: ad.Pt2,
+  rx2: ad.Num,
+  ry2: ad.Num,
+  overlap: ad.Num
+): ad.Num => {
+  const d = ops.vdist(c1, c2);
+  const factor = div(1, add(1, d));
+  const ei1 = absEllipseToImplicit(
+    c1,
+    rx1,
+    ry1,
+    neg(overlap),
+    mul(Math.PI / 3, factor)
+  );
+  const ei2 = absEllipseToImplicit(c2, rx2, ry2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
+};
+
+export const overlappingCircleEllipse = (
+  c1: ad.Pt2,
+  r1: ad.Num,
+  c2: ad.Pt2,
+  rx2: ad.Num,
+  ry2: ad.Num,
+  overlap: ad.Num
+): ad.Num => {
+  const d = ops.vdist(c1, c2);
+  const factor = div(1, add(1, d));
+  const ei1 = absCircleToImplicitEllipse(
+    c1,
+    r1,
+    neg(overlap),
+    mul(Math.PI / 3, factor)
+  );
+  const ei2 = absEllipseToImplicit(c2, rx2, ry2, 0, factor);
+  return overlappingImplicitEllipses(ei1, ei2);
 };
 
 export const disjoint = (
@@ -223,9 +292,9 @@ export const contains = (
     t2 = s2.shapeType;
   if (t1 === "Circle" && t2 === "Circle")
     return containsCircles(
-      [s1.center.contents[0], s1.center.contents[1]],
+      toPt(s1.center.contents),
       s1.r.contents,
-      [s2.center.contents[0], s2.center.contents[1]],
+      toPt(s2.center.contents),
       s2.r.contents,
       padding
     );
@@ -238,13 +307,13 @@ export const contains = (
   } else if (t1 === "Polygon" && t2 === "Circle") {
     return containsPolygonCircle(
       polygonLikePoints(s1),
-      [s2.center.contents[0], s2.center.contents[1]],
+      toPt(s2.center.contents),
       s2.r.contents,
       padding
     );
   } else if (t1 === "Circle" && t2 === "Polygon") {
     return containsCirclePolygon(
-      [s1.center.contents[0], s1.center.contents[1]],
+      toPt(s1.center.contents),
       s1.r.contents,
       polygonLikePoints(s2),
       padding
@@ -252,7 +321,7 @@ export const contains = (
   } else if (t1 === "Circle" && isRectlike(s2)) {
     const rectPts = bboxPts(bboxFromShape(s2));
     return containsCircleRect(
-      [s1.center.contents[0], s1.center.contents[1]],
+      toPt(s1.center.contents),
       s1.r.contents,
       rectPts,
       padding
@@ -261,7 +330,7 @@ export const contains = (
     const rectPts = bboxPts(bboxFromShape(s1));
     return containsRectCircle(
       rectPts,
-      [s2.center.contents[0], s2.center.contents[1]],
+      toPt(s2.center.contents),
       s2.r.contents,
       padding
     );
@@ -649,6 +718,45 @@ const constrDictGeneral = {
       { name: "overlap", description: "Overlap", type: realT(), default: 0 },
     ],
     body: overlapping,
+  },
+
+  overlappingEllipses: {
+    name: "overlappingEllipses",
+    description: `Require that ellipse \`e1\` overlaps with ellipse \`e2\` with some overlap \`overlap\`.`,
+    params: [
+      { name: "c1", description: "Center of `e1`", type: real2T() },
+      { name: "rx1", description: "Horizontal radius of `e1`", type: realT() },
+      { name: "ry1", description: "Vertical radius of `e1`", type: realT() },
+      { name: "c2", description: "Center of `e2`", type: real2T() },
+      { name: "rx2", description: "Horizontal radius of `e2`", type: realT() },
+      { name: "ry2", description: "Vertical radius of `e2`", type: realT() },
+      {
+        name: "overlap",
+        description: "the least amount of overlap",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: overlappingEllipses,
+  },
+
+  overlappingCircleEllipse: {
+    name: "overlappingCircleEllipse",
+    description: `Require that circle \`c\` overlaps with ellipse \`e\` with some overlap \`overlap\`.`,
+    params: [
+      { name: "c1", description: "Center of `c`", type: real2T() },
+      { name: "r1", description: "Radius of `c`", type: realT() },
+      { name: "c2", description: "Center of `e`", type: real2T() },
+      { name: "rx2", description: "Horizontal radius of `e`", type: realT() },
+      { name: "ry2", description: "Vertical radius of `e`", type: realT() },
+      {
+        name: "overlap",
+        description: "the least amount of overlap",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: overlappingCircleEllipse,
   },
 
   /**

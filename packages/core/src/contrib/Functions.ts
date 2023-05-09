@@ -102,7 +102,7 @@ import {
   turningNumber,
 } from "./CurveConstraints";
 import { bboxFromShape, bboxPts, rectLineDist, shapeDistance } from "./Queries";
-import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
+import { clamp, isRectlike, numOf, Rectlike, toPt } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -3058,13 +3058,6 @@ const closestPointEllipseCoords = (
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
-};
-
-const toPt = (v: ad.Num[]): ad.Pt2 => {
-  if (v.length !== 2) {
-    throw Error("expected vector of length 2");
-  }
-  return [v[0], v[1]];
 };
 
 /**
