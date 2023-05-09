@@ -3644,7 +3644,7 @@ export const compileStyleHelper = async (
   const makeInput = (meta: InputMeta) => {
     const val =
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending;
-    const x = input({ key: varyingValues.length, val });
+    const x = input(val);
     varyingValues.push(val);
     inputs.push(meta);
     return x;

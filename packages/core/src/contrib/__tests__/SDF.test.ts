@@ -21,13 +21,9 @@ export const makeContext = (
   const rng = seedrandom("sdf");
   const inputs: ad.Input[] = [];
   const makeInput: InputFactory = (meta) => {
-    const x = input({
-      key: inputs.length,
-      val:
-        meta.init.tag === "Sampled"
-          ? meta.init.sampler(rng)
-          : meta.init.pending,
-    });
+    const x = input(
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
+    );
     inputs.push(x);
     return x;
   };

@@ -42,57 +42,51 @@ export const logAD = consola
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
-export const input = ({ key, val }: Omit<ad.Input, "tag">): ad.Input => ({
-  tag: "Input",
-  key,
-  val,
-});
+export const input = (val: number): ad.Input => ({ tag: "Input", val });
 
-// every ad.Num is already an ad.Node, but this function returns a new object
+// most `ad.Num`s are already `ad.Node`s, but this function returns a new object
 // with all the children removed
-const makeNode = (x: ad.Expr): ad.Node => {
+const makeNode = (makeInput: () => ad.InputNode, x: ad.Expr): ad.Node => {
   if (typeof x === "number") {
     return x;
   }
-  const node: ad.Node = x; // get some typechecking by not using x after this
-  const { tag } = node;
+  const { tag } = x;
   switch (tag) {
     case "Input": {
-      const { key } = node;
-      return { tag, key };
+      return makeInput();
     }
     case "Not": {
       return { tag };
     }
     case "Unary": {
-      const { unop } = node;
+      const { unop } = x;
       return { tag, unop };
     }
     case "Binary": {
-      const { binop } = node;
+      const { binop } = x;
       return { tag, binop };
     }
     case "Comp": {
-      const { binop } = node;
+      const { binop } = x;
       return { tag, binop };
     }
     case "Logic": {
-      const { binop } = node;
+      const { binop } = x;
       return { tag, binop };
     }
     case "Ternary": {
       return { tag };
     }
     case "Nary": {
-      const { op } = node;
+      const { op } = x;
       return { tag, op };
     }
     case "PolyRoots": {
-      const { degree } = node;
+      const { degree } = x;
       return { tag, degree };
     }
     case "Index": {
-      const { index } = node;
+      const { index } = x;
       return { tag, index };
     }
   }
@@ -349,6 +343,7 @@ export const makeGraph = (
 ): ad.Graph => {
   const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
+  const inputs: ad.Input[] = [];
 
   // we use this queue to essentially do a breadth-first search by following
   // `ad.Expr` child pointers; it gets reused a few times because we add nodes
@@ -377,7 +372,12 @@ export const makeGraph = (
   const addNode = (x: ad.Expr): ad.Id => {
     let name = nodes.get(x);
     if (name === undefined) {
-      name = newNode(makeNode(x));
+      name = newNode(
+        makeNode(() => {
+          const key = inputs.length;
+          return { tag: "Input", key };
+        }, x)
+      );
       nodes.set(x, name);
       children(x).forEach((edge, index) => {
         edges.enqueue([edge, index, x]);
@@ -514,20 +514,10 @@ export const makeGraph = (
   // outputs instead of the primary output; really, the gradients for all those
   // inputs are just zero, so the caller needs to substitute zero whenever the
   // gradient is missing a key
-  const gradient: ad.Id[] = [];
-  for (const {
-    id,
-    label: { key },
-  } of getInputs(graph)) {
-    if (key in gradient) {
-      throw Error(`duplicate Input key: ${key}`);
-    }
-    // note that it's very easy for the set of Input indices to not be
-    // contiguous, e.g. if some inputs end up not being used in any of the
-    // computations in the graph; but even if that happens, it's actually OK
-    // (see the comment in the implementation of genCode below)
-    gradient[key] = safe(gradNodes.get(id), "missing gradient")[0];
-  }
+  const gradient: ad.Id[] = inputs.map((x) => {
+    const id = safe(nodes.get(x), "missing node");
+    return safe(gradNodes.get(id), "missing gradient")[0];
+  });
 
   // easiest case: final stage, just add all the nodes and edges for the
   // secondary outputs
