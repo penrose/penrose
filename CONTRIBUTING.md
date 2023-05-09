@@ -47,7 +47,11 @@ Be sure you have these tools installed:
     rustup target add wasm32-unknown-unknown
     ```
 
-  - [`wasm-bindgen` CLI][] v0.2.84
+  - `wasm-bindgen` v0.2.84
+
+    ```sh
+    cargo install --version=0.2.84 wasm-bindgen-cli
+    ```
 
 Depending on your platform, here are some extra instructions:
 
@@ -441,7 +445,6 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 - Create a new [GitHub release][].
 - CI will run after the new release is created, automatically publishing packages to npm.
 
-[`wasm-bindgen` cli]: https://rustwasm.github.io/wasm-bindgen/reference/cli.html#installation
 [branch]: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 [ci]: https://docs.github.com/en/actions
 [clone]: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
