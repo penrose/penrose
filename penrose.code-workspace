@@ -48,8 +48,8 @@
       "path": "packages/roger"
     },
     {
-      "name": "📦 @penrose/synthesizer-ui",
-      "path": "packages/synthesizer-ui"
+      "name": "📦 @penrose/edgeworth",
+      "path": "packages/edgeworth"
     },
     {
       "name": "📦 penrose-vs",

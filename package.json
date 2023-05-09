@@ -48,7 +48,7 @@
       "packages/examples",
       "packages/optimizer",
       "packages/roger",
-      "packages/synthesizer-ui",
+      "packages/edgeworth",
       "packages/vscode"
     ],
     "nohoist": [
