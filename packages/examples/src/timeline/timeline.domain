@@ -1,0 +1,8 @@
+type Category
+type Quarter 
+type Event
+type Year
+
+constructor MkEvent (Quarter start, Quarter end, Category c) -> Event
+constructor MkQuarter(Year y) -> Quarter
+predicate Before (Quarter q1, Quarter q2)

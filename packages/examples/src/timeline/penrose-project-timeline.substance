@@ -1,0 +1,23 @@
+Event e1, e2, e3
+Year y2023
+Quarter q1_2023, q2_2023, q3_2023
+Quarter q4_2023
+
+q1_2023 := MkQuarter(y2023)
+q2_2023 := MkQuarter(y2023)
+q3_2023 := MkQuarter(y2023)
+q4_2023 := MkQuarter(y2023)
+
+Category blue, red
+Before(q1_2023, q2_2023)
+Before(q2_2023, q3_2023)
+Before(q3_2023, q4_2023)
+
+e1 := MkEvent(q1_2023, q3_2023, red)
+e2 := MkEvent(q1_2023, q2_2023, blue)
+e3 := MkEvent(q2_2023, q4_2023, blue)
+
+Label q1_2023 "Q1"
+Label q2_2023 "Q2"
+Label q3_2023 "Q3"
+Label q4_2023 "Q4"

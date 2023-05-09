@@ -1,0 +1,83 @@
+canvas {
+    width = 800
+    height = 700
+}
+
+colors {
+    darkgray = rgba(0, 0, 0, .7)
+    lightgray = rgba(0, 0, 0, .2)
+}
+
+global {
+    eventHeight = 50
+    eventLabelFontSize = "14pt"
+    quarterFontSize =
+    lineY = (canvas.height / 2) - 75
+    topGridY = (canvas.height / 2) - 25
+    bottomGridY = -(canvas.height / 2) + 25
+    startX =- (canvas.width / 2) + 50
+    endX = (canvas.width / 2) - 50
+    lineLength = endX - startX
+    startLine = (startX, lineY)
+    endLine = (endX, lineY)
+    shape baseline = Line {
+        start : startLine
+        end : endLine
+        strokeWidth : 3
+        strokeColor: colors.darkgray
+    }
+
+}
+
+forall Quarter q {
+    denominator = (match_total * 2)
+    index = (match_id - 1) * 2
+    startRatio = index / denominator
+    middleRatio = (index + 1) / denominator
+    endRatio = (index + 2) / denominator
+    ratioX = ((match_id * 2) - 1) / (match_total * 2)
+    totalSlotX = global.lineLength
+    q.startSlotX = global.startX + startRatio * totalSlotX
+    q.middleSlotX = global.startX + middleRatio * totalSlotX
+    q.endSlotX = global.startX +endRatio * totalSlotX
+    q.x = q.middleSlotX
+    q.y = global.lineY + 25
+    q.icon = Text {
+        center : (q.x, q.y)
+        string : q.label
+        fillColor : colors.darkgray
+        fontSize : "18pt"
+    }
+    q.slotBegin = Line {
+        start : (q.startSlotX,global.bottomGridY)
+        end : (q.startSlotX,global.topGridY)
+        strokeWidth : 3
+        strokeColor: colors.lightgray
+    }
+    q.slotEnd = Line {
+        start : (q.endSlotX,global.bottomGridY)
+        end : (q.endSlotX,global.topGridY)
+        strokeWidth : 3
+        strokeColor: colors.lightgray
+    }
+}
+
+
+forall Event e
+where e := MkEvent(start, end, c)
+with Quarter start; Quarter end; Category c {
+    centerY = ?
+    topBox = centerY + global.eventHeight/2
+    centerX = ((end.endSlotX - start.startSlotX) / 2) + start.startSlotX
+    e.icon = Rectangle {
+        height : global.eventHeight
+        width : end.endSlotX - start.startSlotX
+        center: (centerX, centerY) 
+    }
+
+    ensure lessThan(topBox, global.lineY)
+}
+
+forall Event e1, e2 {
+    ensure disjoint(e1.icon, e2.icon)
+}
