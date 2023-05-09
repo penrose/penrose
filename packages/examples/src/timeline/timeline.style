@@ -5,7 +5,8 @@ canvas {
 
 colors {
     darkgray = #333333
-    lightgray = #D3D3D3
+    gray = #D3D3D3
+    lightgray = #F5F5F5
     green = #B6DDBF
     purple = #D4CEE8
     blue = #d5e3ff
@@ -99,6 +100,8 @@ forall Quarter q {
         strokeColor: colors.lightgray
     }
     layer q.slotEnd above q.slotBegin
+    layer q.slotEnd below global.baseline
+    layer q.slotBegin below global.baseline
 }
 
 forall Quarter q1; Quarter q2
@@ -130,7 +133,9 @@ with Quarter start; Quarter end; Category c {
         height : global.eventHeight
         width : end.endSlotX - start.startSlotX
         center: (centerX, centerY)
-
+        cornerRadius : 8
+        strokeWidth : 1
+        strokeColor: colors.darkgray
     }
 
     e.text = Text {
