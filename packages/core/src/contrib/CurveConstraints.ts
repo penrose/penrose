@@ -134,7 +134,9 @@ export const totalCurvature = (
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return addN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      curvature(p1, p2, p3, "angle")
+    )
   );
 };
 

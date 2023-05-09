@@ -2899,16 +2899,39 @@ export const compDict = {
   /**
    * Returns integral of curvature squared along the curve
    */
-  pElasticEnergy: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    p: number,
-    closed: boolean,
-    curvatureApproximation: string
-  ): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: pElasticEnergy(points, closed, p, curvatureApproximation),
+  pElasticEnergy: {
+    name: "pElasticEnergy",
+    description: "Returns integral of curvature along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "p",
+        type: posIntT(),
+        description: "...",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "curvatureApproximation",
+        type: stringT(),
+        description: "...",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      p: number,
+      closed: boolean,
+      curvatureApproximation: string
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: pElasticEnergy(points, closed, p, curvatureApproximation),
     };
   },
 
