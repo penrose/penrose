@@ -1,13 +1,13 @@
-import { cascadingDelete } from "../analysis/SubstanceAnalysis";
-import { compileDomain } from "../compiler/Domain";
+import { cascadingDelete } from "@penrose/core/dist/analysis/SubstanceAnalysis";
+import { compileDomain } from "@penrose/core/dist/compiler/Domain";
 import {
   compileSubstance,
   prettyStmt,
   prettySubstance,
-} from "../compiler/Substance";
-import { A } from "../types/ast";
-import { Env } from "../types/domain";
-import { Decl, SubStmt } from "../types/substance";
+} from "@penrose/core/dist/compiler/Substance";
+import { A } from "@penrose/core/dist/types/ast";
+import { Env } from "@penrose/core/dist/types/domain";
+import { Decl, SubStmt } from "@penrose/core/dist/types/substance";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation";
 import { initContext, Synthesizer, SynthesizerSetting } from "./Synthesizer";
 

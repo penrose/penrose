@@ -1,7 +1,10 @@
-import { compileDomain } from "../compiler/Domain";
-import { compileSubstance, prettyStmt } from "../compiler/Substance";
-import { SubRes } from "../types/substance";
-import { showError } from "../utils/Error";
+import { compileDomain } from "@penrose/core/dist/compiler/Domain";
+import {
+  compileSubstance,
+  prettyStmt,
+} from "@penrose/core/dist/compiler/Substance";
+import { SubRes } from "@penrose/core/dist/types/substance";
+import { showError } from "@penrose/core/dist/utils/Error";
 import { enumerateStmtMutations } from "./Mutation";
 import { initContext } from "./Synthesizer";
 

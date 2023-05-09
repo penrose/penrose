@@ -14,18 +14,16 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Listing } from "@penrose/components";
-import {
-  compileDomain,
-  DeclTypes,
-  Env,
-  MatchSetting,
-  showError,
-  SynthesizerSetting,
-} from "@penrose/core";
+import { compileDomain, Env, showError } from "@penrose/core";
 import examples from "@penrose/examples/dist/index";
 import React from "react";
 import Latex from "react-latex-next";
 import { Preset, presets } from "../examples";
+import {
+  DeclTypes,
+  MatchSetting,
+  SynthesizerSetting,
+} from "../synthesis/Synthesizer";
 import { wildcardType } from "../util";
 import { MultiselectDropdown } from "./MultiselectDropdown";
 import WeightSlider from "./WeightSlider";

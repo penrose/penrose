@@ -14,11 +14,7 @@ import {
   prettySubstance,
   RenderStatic,
   showError,
-  showMutations,
   SubProg,
-  SynthesizedSubstance,
-  Synthesizer,
-  SynthesizerSetting,
 } from "@penrose/core";
 import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
@@ -26,6 +22,12 @@ import JSZip from "jszip";
 import { shuffle } from "lodash";
 import React, { memo } from "react";
 import * as sc from "styled-components";
+import { showMutations } from "../synthesis/Mutation";
+import {
+  SynthesizedSubstance,
+  Synthesizer,
+  SynthesizerSetting,
+} from "../synthesis/Synthesizer";
 import { Settings } from "./Settings";
 
 const edgeworthPurple = {

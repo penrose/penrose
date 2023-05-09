@@ -16,8 +16,6 @@ import {
 } from "./renderer/Renderer";
 import { Canvas } from "./shapes/Samplers";
 import { shapeTypes } from "./shapes/Shapes";
-import { showMutations } from "./synthesis/Mutation";
-import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
@@ -393,12 +391,6 @@ export { compDict } from "./contrib/Functions";
 export { objDict } from "./contrib/Objectives";
 export type { PathResolver } from "./renderer/Renderer";
 export { makeCanvas, simpleContext } from "./shapes/Samplers";
-export type {
-  DeclTypes,
-  MatchSetting,
-  SynthesizedSubstance,
-  SynthesizerSetting,
-} from "./synthesis/Synthesizer";
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";
 export type { Result } from "./utils/Error";
@@ -410,8 +402,6 @@ export {
   checkSubstance,
   parseSubstance,
   parseDomain,
-  Synthesizer,
-  showMutations,
   RenderShape,
   RenderInteractive,
   RenderStatic,

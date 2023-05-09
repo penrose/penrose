@@ -1,15 +1,15 @@
-import _ from "lodash";
-import { compileDomain } from "../compiler/Domain";
+import { compileDomain } from "@penrose/core/dist/compiler/Domain";
 import {
   compileSubstance,
   prettyStmt,
   prettySubstance,
-} from "../compiler/Substance";
-import { dummyIdentifier } from "../engine/EngineUtils";
+} from "@penrose/core/dist/compiler/Substance";
+import { dummyIdentifier } from "@penrose/core/dist/engine/EngineUtils";
+import { A } from "@penrose/core/dist/types/ast";
+import { Env } from "@penrose/core/dist/types/domain";
+import { SubProg, SubStmt } from "@penrose/core/dist/types/substance";
+import _ from "lodash";
 import { similarMappings, similarNodes, SubNode } from "../synthesis/Search";
-import { A } from "../types/ast";
-import { Env } from "../types/domain";
-import { SubProg, SubStmt } from "../types/substance";
 import {
   appendStmt,
   intersection,

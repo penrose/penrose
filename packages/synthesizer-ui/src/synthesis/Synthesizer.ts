@@ -1,3 +1,35 @@
+import { subTypesOf } from "@penrose/core/dist/compiler/Domain";
+import {
+  prettyStmt,
+  prettySubstance,
+} from "@penrose/core/dist/compiler/Substance";
+import { dummyIdentifier } from "@penrose/core/dist/engine/EngineUtils";
+import { A, Identifier } from "@penrose/core/dist/types/ast";
+import {
+  Arg,
+  ConstructorDecl,
+  DomainStmt,
+  Env,
+  FunctionDecl,
+  PredicateDecl,
+  Type,
+  TypeConstructor,
+  TypeDecl,
+} from "@penrose/core/dist/types/domain";
+import {
+  ApplyConstructor,
+  ApplyFunction,
+  ApplyPredicate,
+  Bind,
+  Decl,
+  SubExpr,
+  SubPredArg,
+  SubProg,
+  SubRes,
+  SubStmt,
+  TypeConsApp,
+} from "@penrose/core/dist/types/substance";
+import { combinations2 } from "@penrose/core/dist/utils/Util";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
@@ -28,35 +60,6 @@ import {
   sortStmts,
   SubStmtKind,
 } from "../analysis/SubstanceAnalysis";
-import { subTypesOf } from "../compiler/Domain";
-import { prettyStmt, prettySubstance } from "../compiler/Substance";
-import { dummyIdentifier } from "../engine/EngineUtils";
-import { A, Identifier } from "../types/ast";
-import {
-  Arg,
-  ConstructorDecl,
-  DomainStmt,
-  Env,
-  FunctionDecl,
-  PredicateDecl,
-  Type,
-  TypeConstructor,
-  TypeDecl,
-} from "../types/domain";
-import {
-  ApplyConstructor,
-  ApplyFunction,
-  ApplyPredicate,
-  Bind,
-  Decl,
-  SubExpr,
-  SubPredArg,
-  SubProg,
-  SubRes,
-  SubStmt,
-  TypeConsApp,
-} from "../types/substance";
-import { combinations2 } from "../utils/Util";
 import {
   Add,
   addMutation,
