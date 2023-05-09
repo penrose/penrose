@@ -111,6 +111,8 @@ import {
 import { rectLineDist, shapeDistance } from "./Queries";
 import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
 
+import { CompFunc } from "../types/functions";
+
 /**
  * Static dictionary of computation functions
  * TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
@@ -2931,8 +2933,12 @@ export const compDict = {
       closed: boolean,
       curvatureApproximation: string
     ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: pElasticEnergy(points, closed, p, curvatureApproximation),
-    };
+      return {
+        tag: "FloatV",
+        contents: pElasticEnergy(points, closed, p, curvatureApproximation),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
@@ -3010,7 +3016,7 @@ export const compDict = {
 
 // `_compDictVals` causes TypeScript to enforce that every function in
 // `compDict` actually has type `CompFunc` with the right function signature, etc.
-// const _compDictVals: CompFunc[] = Object.values(compDict);
+const _compDictVals: CompFunc[] = Object.values(compDict);
 
 /*
   Computes the signed distance for a line 
@@ -3299,3 +3305,83 @@ const tickPlacement = (
   }
   return pts;
 };
+function toPt(unit: ad.Num[]): ad.Num[] {
+  throw new Error("Function not implemented.");
+}
+
+function tickPlacement(spacing: ad.Num, arg1: number) {
+  throw new Error("Function not implemented.");
+}
+
+function perpPathFlat(
+  len: ad.Num,
+  seg1: [ad.Num[], ad.Num[]],
+  seg2: [ad.Num[], ad.Num[]]
+): [any, any, any] {
+  throw new Error("Function not implemented.");
+}
+
+function sdLine(s: Line<ad.Num>, p: ad.Num[]): ad.Num {
+  throw new Error("Function not implemented.");
+}
+
+function sdPolyline(s: Polyline<ad.Num>, p: ad.Num[]): ad.Num {
+  throw new Error("Function not implemented.");
+}
+
+function closestPointRect(
+  arg0: ad.Binary,
+  arg1: ad.Binary,
+  contents: ad.Num,
+  contents1: ad.Num,
+  arg4: ad.Num,
+  arg5: ad.Num
+): ad.Num[] {
+  throw new Error("Function not implemented.");
+}
+
+function closestPointLine(
+  p: ad.Num[],
+  contents: ad.Num[],
+  contents1: ad.Num[]
+): ad.Num[] {
+  throw new Error("Function not implemented.");
+}
+
+function closestPointEllipse(s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num[] {
+  throw new Error("Function not implemented.");
+}
+
+function sdLineAsNums(
+  contents: ad.Num[],
+  contents1: ad.Num[],
+  p: ad.Num[]
+): ad.Num {
+  throw new Error("Function not implemented.");
+}
+
+function sdEllipseAsNums(
+  contents: ad.Num,
+  contents1: ad.Num,
+  contents2: ad.Num[],
+  p: ad.Num[]
+): ad.Num {
+  throw new Error("Function not implemented.");
+}
+
+function msign(arg0: ad.Binary): ad.Num {
+  throw new Error("Function not implemented.");
+}
+
+function closestPointEllipseCoords(
+  contents: ad.Num,
+  contents1: ad.Num,
+  contents2: ad.Num[],
+  p: ad.Num[]
+): ad.Num[] {
+  throw new Error("Function not implemented.");
+}
+
+function toPt(curveEnd: ad.Num[]): [ad.Num, ad.Num] {
+  throw new Error("Function not implemented.");
+}

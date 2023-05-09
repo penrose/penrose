@@ -50,7 +50,7 @@ export const curvature = (
   p1: [ad.Num, ad.Num],
   p2: [ad.Num, ad.Num],
   p3: [ad.Num, ad.Num],
-  curvatureApproximation = "angle"
+  curvatureApproximation: string
 ): ad.Num => {
   if (curvatureApproximation === "fdiff") {
     const v12 = ops.vsub(p2, p1);
