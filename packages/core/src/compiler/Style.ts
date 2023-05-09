@@ -1,4 +1,4 @@
-import { genOptProblem } from "@penrose/optimizer";
+import { start as genOptProblem } from "@penrose/optimizer";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
@@ -151,7 +151,6 @@ import {
   matrixV,
   prettyPrintResolvedPath,
   resolveRhsName,
-  safe,
   shapeListV,
   strV,
   tupV,
@@ -3730,12 +3729,7 @@ export const compileStyleHelper = async (
     constrFns.map(({ output }) => output)
   );
 
-  const { inputMask, objMask, constrMask } = safe(
-    constraintSets.get(optimizationStages.value[0]),
-    "missing first stage"
-  );
-
-  const params = genOptProblem(inputMask, objMask, constrMask);
+  const params = genOptProblem(varyingValues.length);
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
