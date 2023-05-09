@@ -1,4 +1,3 @@
-import { cascadingDelete } from "@penrose/core/dist/analysis/SubstanceAnalysis";
 import { compileDomain } from "@penrose/core/dist/compiler/Domain";
 import {
   compileSubstance,
@@ -8,6 +7,7 @@ import {
 import { A } from "@penrose/core/dist/types/ast";
 import { Env } from "@penrose/core/dist/types/domain";
 import { Decl, SubStmt } from "@penrose/core/dist/types/substance";
+import { cascadingDelete } from "../analysis/SubstanceAnalysis";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation";
 import { initContext, Synthesizer, SynthesizerSetting } from "./Synthesizer";
 
