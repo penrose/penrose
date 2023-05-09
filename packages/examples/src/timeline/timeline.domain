@@ -5,4 +5,10 @@ type Year
 
 constructor MkEvent (Quarter start, Quarter end, Category c) -> Event
 constructor MkQuarter(Year y) -> Quarter
-predicate Before (Quarter q1, Quarter q2)
+
+--declares the immediate prior quarter
+predicate Before(Quarter q1, Quarter q2)
+-- declares the first quarter of the year
+predicate First(Quarter q, Year y)
+-- declares the last quarter of the year
+predicate Last(Quarter q, Year y)
