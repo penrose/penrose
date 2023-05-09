@@ -1,16 +1,4 @@
 import {
-  appendStmt,
-  ArgExpr,
-  argMatches,
-  ArgStmtDecl,
-  cascadingDelete,
-  identicalTypeDecls,
-  matchSignatures,
-  removeStmt,
-  replaceStmt,
-  stmtExists,
-} from "@penrose/core/dist/analysis/SubstanceAnalysis";
-import {
   prettyStmt,
   prettySubNode,
 } from "@penrose/core/dist/compiler/Substance";
@@ -24,6 +12,18 @@ import {
 } from "@penrose/core/dist/types/substance";
 import consola from "consola";
 import _ from "lodash";
+import {
+  appendStmt,
+  ArgExpr,
+  argMatches,
+  ArgStmtDecl,
+  cascadingDelete,
+  identicalTypeDecls,
+  matchSignatures,
+  removeStmt,
+  replaceStmt,
+  stmtExists,
+} from "../analysis/SubstanceAnalysis";
 import {
   addID,
   generateArgStmt,
