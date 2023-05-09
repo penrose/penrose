@@ -1,12 +1,11 @@
 import { LbfgsParams } from "./bindings/LbfgsParams";
-import { OptState } from "./bindings/OptState";
 import { OptStatus } from "./bindings/OptStatus";
 import { Params } from "./bindings/Params";
 import {
-  penrose_gen_opt_problem,
   penrose_init,
   penrose_poly_roots,
-  penrose_step,
+  penrose_start,
+  penrose_step_until,
 } from "./build/penrose_optimizer";
 import "./instance";
 
@@ -20,88 +19,45 @@ penrose_init();
  */
 export const polyRoots = penrose_poly_roots;
 
-const bools = (a: boolean[]) => new Int32Array(a.map((x) => (x ? 1 : 0)));
-
+// see page 443 of Engineering Optimization, Fourth Edition
 /**
- * A structure used to collect the various outputs of a `Gradient` function.
- * This is generic in the concrete number type, because it can also be useful in
- * situations where the elements are, for instance, computation graph nodes.
+ * Given an objective function `f` and some constraint functions `g_j`, where we
+ * want to minimize `f` subject to `g_j(x) \leq 0` for all `j`, this function
+ * computes the following, where `\lambda` is `weight`:
+ *
+ * `\phi(x, \lambda) = f(x) + \lambda * \sum_j \max(g_j(x), 0)^2`
+ *
+ * The gradient with respect to `x` is stored in `grad`.
+ *
+ * @param x input vector
+ * @param weight `\lambda`, the weight of the constraint term
+ * @param grad mutable array to store gradient in
+ * @returns the augmented objective value `\phi(x, \lambda)`
  */
-export interface Outputs<T> {
-  /** Derivatives of primary output with respect to inputs. */
-  gradient: T[];
-  /** Primary output. */
-  primary: T;
-  /** Secondary outputs. */
-  secondary: T[];
-}
-
-/**
- * Computes the sum of several functions on `inputs`, where the corresponding
- * element of `mask` determines whether that function contributes to the sum.
- */
-export type GradFn = (
-  inputs: Float64Array,
-  mask: Int32Array,
-  gradient: Float64Array,
-  secondary: Float64Array
+export type Fn = (
+  x: Float64Array,
+  weight: number,
+  grad: Float64Array
 ) => number;
 
-export class Gradient {
-  f: GradFn;
-  numAddends: number;
-  numSecondary: number;
-
-  constructor(f: GradFn, numAddends: number, numSecondary: number) {
-    this.f = f;
-    this.numAddends = numAddends;
-    this.numSecondary = numSecondary;
-  }
-
-  /**
-   * @param inputs to the function
-   * @param mask which addends to include
-   * @returns the `primary` output, its `gradient`, and any `secondary` outputs
-   */
-  call(inputs: number[], mask?: boolean[]): Outputs<number> {
-    const maskNums = new Int32Array(this.numAddends);
-    for (let i = 0; i < this.numAddends; i++)
-      maskNums[i] = mask !== undefined && i in mask && !mask[i] ? 0 : 1;
-    const gradient = new Float64Array(inputs.length);
-    const secondary = new Float64Array(this.numSecondary);
-    const primary = this.f(
-      new Float64Array(inputs),
-      maskNums,
-      gradient,
-      secondary
-    );
-    return {
-      gradient: Array.from(gradient),
-      primary,
-      secondary: Array.from(secondary),
-    };
-  }
-}
+/**
+ * @returns an initial state for optimizing in `n` dimensions
+ */
+export const start = (n: number): Params => penrose_start(n);
 
 /**
- * @param state current state
- * @param steps how many to take
- * @returns updated state
+ * Steps the optimizer until either convergence or `stop` returns `true`.
+ * @param f to compute objective, constraints, and gradient
+ * @param x mutable array to update at each step
+ * @param state initial optimizer state
+ * @param stop early stopping criterion
+ * @returns optimizer state after stepping
  */
-export const step = (state: OptState, f: GradFn, steps: number): OptState =>
-  penrose_step(state, f, steps);
+export const stepUntil = (
+  f: Fn,
+  x: Float64Array,
+  state: Params,
+  stop: () => boolean
+): Params => penrose_step_until(f, x, state, stop);
 
-/**
- * @param gradMask whether each varying value index should be optimized
- * @param objMask whether each objective should be optimized
- * @param constrMask whether each constraint should be optimized
- * @returns initial optimization parameters
- */
-export const genOptProblem = (
-  gradMask: boolean[],
-  objMask: boolean[],
-  constrMask: boolean[]
-): Params =>
-  penrose_gen_opt_problem(bools(gradMask), bools(objMask), bools(constrMask));
-
-export type { LbfgsParams, OptState, OptStatus, Params };
+export type { LbfgsParams, OptStatus, Params };
