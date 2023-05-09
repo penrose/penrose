@@ -33,29 +33,436 @@ import {
   shapeDistance,
   shapeSize,
 } from "./Queries";
-import { inRange, isRectlike, overlap1D } from "./Utils";
+import * as utils from "./Utils";
+import { isRectlike, overlap1D } from "./Utils";
+
+//#region Individual constriants
+/**
+ * Require that the value `x` is equal to the value `y`
+ */
+export const equal = (x: ad.Num, y: ad.Num): ad.Num => {
+  return absVal(sub(x, y));
+};
+
+/**
+ * Require that the value `x` is less than the value `y` with optional padding `padding`
+ */
+export const lessThan = (x: ad.Num, y: ad.Num, padding = 0): ad.Num => {
+  return add(sub(x, y), padding);
+};
+
+/**
+ * Require that the value `x` is greater than the value `y` with optional padding `padding`
+ */
+export const greaterThan = (x: ad.Num, y: ad.Num, padding = 0): ad.Num => {
+  return add(sub(y, x), padding);
+};
+/**
+ * Require that the value `x` is less than the value `y`, with steeper penalty
+ */
+export const lessThanSq = (x: ad.Num, y: ad.Num): ad.Num => {
+  // if x < y then 0 else (x - y)^2
+  return ifCond(lt(x, y), 0, squared(sub(x, y)));
+};
+
+/**
+ * Require that the value `x` is greater than the value `y`, with steeper penalty
+ */
+export const greaterThanSq = (x: ad.Num, y: ad.Num): ad.Num => {
+  return ifCond(lt(y, x), 0, squared(sub(y, x)));
+};
+
+/**
+ * Require that the value `x` is in the range defined by `[x0, x1]`.
+ */
+export const inRange = (x: ad.Num, x0: ad.Num, x1: ad.Num): ad.Num => {
+  return add(
+    ifCond(lt(x, x1), 0, sub(x, x1)),
+    ifCond(lt(x0, x), 0, sub(x0, x))
+  );
+};
+
+/**
+ * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
+ */
+export const contains1D = (
+  [l1, r1]: [ad.Num, ad.Num],
+  [l2, r2]: [ad.Num, ad.Num]
+): ad.Num => {
+  // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
+  return add(max(0, sub(l1, l2)), max(0, sub(r2, r1)));
+};
+
+/**
+ * Make scalar `c` disjoint from a range `left, right`.
+ */
+export const disjointScalar = (
+  c: ad.Num,
+  left: ad.Num,
+  right: ad.Num
+): ad.Num => {
+  const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
+
+  // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
+  return ifCond(utils.inRange(c, left, right), min(d(c, left), d(c, right)), 0);
+};
+
+/**
+ * Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.
+ */
+export const perpendicular = (
+  q: ad.Num[],
+  p: ad.Num[],
+  r: ad.Num[]
+): ad.Num => {
+  const v1 = ops.vsub(q, p);
+  const v2 = ops.vsub(r, p);
+  const dotProd = ops.vdot(v1, v2);
+  return absVal(dotProd);
+};
+
+/**
+ * Require that three points be collinear.
+ * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
+ */
+export const collinear = (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]): ad.Num => {
+  const v1 = ops.vsub(c2, c1);
+  const v2 = ops.vsub(c2, c3);
+  return absVal(ops.cross2(v1, v2));
+};
+
+/**
+ * Require that three points be collinear.
+ * Depends on the specific ordering of points.
+ */
+export const collinearOrdered = (
+  c1: ad.Num[],
+  c2: ad.Num[],
+  c3: ad.Num[]
+): ad.Num => {
+  const v1 = ops.vnorm(ops.vsub(c1, c2));
+  const v2 = ops.vnorm(ops.vsub(c2, c3));
+  const v3 = ops.vnorm(ops.vsub(c1, c3));
+
+  // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
+  return max(0, sub(add(v1, v2), v3));
+};
+
+/** Require that `shape` is on the canvas */
+export const onCanvas = (
+  shape: Shape<ad.Num>,
+  canvasWidth: ad.Num,
+  canvasHeight: ad.Num
+): ad.Num => {
+  const box = bboxFromShape(shape);
+  const canvasXRange: [ad.Num, ad.Num] = [
+    mul(canvasWidth, -0.5),
+    mul(canvasWidth, 0.5),
+  ];
+  const canvasYRange: [ad.Num, ad.Num] = [
+    mul(canvasHeight, -0.5),
+    mul(canvasHeight, 0.5),
+  ];
+  return add(
+    contains1D(canvasXRange, BBox.xRange(box)),
+    contains1D(canvasYRange, BBox.yRange(box))
+  );
+};
+
+/**
+ * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
+ */
+export const minSize = (shape: Shape<ad.Num>, limit = 50): ad.Num => {
+  return sub(limit, shapeSize(shape));
+};
+
+/**
+ * Require that a shape have a size less than some constant maximum, based on the type of the shape.
+ */
+export const maxSize = (shape: Shape<ad.Num>, limit: ad.Num): ad.Num => {
+  return sub(shapeSize(shape), limit);
+};
+
+export const overlapping = (
+  s1: Shape<ad.Num>,
+  s2: Shape<ad.Num>,
+  overlap: ad.Num = 0
+): ad.Num => {
+  const t1 = s1.shapeType;
+  const t2 = s2.shapeType;
+  // for some cases with ellipses, we can't easily compute the distance
+  if (t1 === "Ellipse" && t2 === "Ellipse")
+    return overlappingEllipse(s1, s2, overlap);
+  // Circle x Ellipse
+  else if (t1 === "Circle" && t2 === "Ellipse")
+    return overlappingCircleEllipse(s1, s2, overlap);
+  else if (t1 === "Ellipse" && t2 === "Circle")
+    return overlappingCircleEllipse(s2, s1, overlap);
+  // for other cases, we know how to compute the distance, so we just use that
+  else return add(shapeDistance(s1, s2), overlap);
+};
+
+export const disjoint = (
+  s1: Shape<ad.Num>,
+  s2: Shape<ad.Num>,
+  padding: ad.Num = 0
+): ad.Num => neg(overlapping(s1, s2, neg(padding)));
+
+export const touching = (
+  s1: Shape<ad.Num>,
+  s2: Shape<ad.Num>,
+  padding: ad.Num = 0
+): ad.Num => absVal(overlapping(s1, s2, neg(padding)));
+
+export const contains = (
+  s1: Shape<ad.Num>,
+  s2: Shape<ad.Num>,
+  padding = 0.0
+): ad.Num => {
+  const t1 = s1.shapeType,
+    t2 = s2.shapeType;
+  if (t1 === "Circle" && t2 === "Circle")
+    return constrDict.containsCircles.body(
+      [s1.center.contents[0], s1.center.contents[1]],
+      s1.r.contents,
+      [s2.center.contents[0], s2.center.contents[1]],
+      s2.r.contents,
+      padding
+    );
+  else if (t1 === "Polygon" && t2 === "Polygon") {
+    return constrDict.containsPolygons.body(
+      polygonLikePoints(s1),
+      polygonLikePoints(s2),
+      padding
+    );
+  } else if (t1 === "Polygon" && t2 === "Circle") {
+    return constrDict.containsPolygonCircle.body(
+      polygonLikePoints(s1),
+      [s2.center.contents[0], s2.center.contents[1]],
+      s2.r.contents,
+      padding
+    );
+  } else if (t1 === "Circle" && t2 === "Polygon") {
+    return constrDict.containsCirclePolygon.body(
+      [s1.center.contents[0], s1.center.contents[1]],
+      s1.r.contents,
+      polygonLikePoints(s2),
+      padding
+    );
+  } else if (t1 === "Circle" && isRectlike(s2)) {
+    const rectPts = bboxPts(bboxFromShape(s2));
+    return constrDict.containsCircleRect.body(
+      [s1.center.contents[0], s1.center.contents[1]],
+      s1.r.contents,
+      rectPts,
+      padding
+    );
+  } else if (isRectlike(s1) && t2 === "Circle") {
+    const rectPts = bboxPts(bboxFromShape(s1));
+    return constrDict.containsRectCircle.body(
+      rectPts,
+      [s2.center.contents[0], s2.center.contents[1]],
+      s2.r.contents,
+      padding
+    );
+  } else {
+    const s1BboxPts = bboxPts(bboxFromShape(s1));
+    const s2BboxPts = bboxPts(bboxFromShape(s2));
+    return constrDict.containsRects.body(s1BboxPts, s2BboxPts, padding);
+  }
+};
+
+export const containsCircles = (
+  c1: ad.Pt2,
+  r1: ad.Num,
+  c2: ad.Pt2,
+  r2: ad.Num,
+  padding: ad.Num
+): ad.Num => {
+  const d = ops.vdist(c1, c2);
+  const o = padding ? sub(sub(r1, r2), padding) : sub(r1, r2);
+  return sub(d, o);
+};
+
+export const containsPolygons = (
+  pts1: ad.Pt2[],
+  pts2: ad.Pt2[],
+  padding: ad.Num
+): ad.Num => {
+  return maxN(
+    pts2.map((x) => constrDict.containsPolygonPoint.body(pts1, x, padding))
+  );
+};
+
+export const containsPolygonCircle = (
+  pts: ad.Pt2[],
+  c: ad.Pt2,
+  r: ad.Num,
+  padding: ad.Num
+): ad.Num => {
+  return constrDict.containsPolygonPoint.body(pts, c, add(padding, r));
+};
+
+export const containsPolygonPoint = (
+  pts: ad.Pt2[],
+  pt: ad.Pt2,
+  padding: ad.Num
+): ad.Num => {
+  const cp1 = convexPartitions(pts);
+  return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, pt, padding)));
+};
+
+export const containsCirclePoint = (
+  c: ad.Pt2,
+  r: ad.Num,
+  pt: ad.Pt2,
+  padding: ad.Num
+): ad.Num => {
+  return sub(add(ops.vdist(pt, c), padding), r);
+};
+
+export const containsCirclePolygon = (
+  c: ad.Pt2,
+  r: ad.Num,
+  pts: ad.Pt2[],
+  padding: ad.Num
+): ad.Num => {
+  return maxN(
+    pts.map((pt) => constrDict.containsCirclePoint.body(c, r, pt, padding))
+  );
+};
+
+export const containsCircleRect = (
+  c: ad.Pt2,
+  r: ad.Num,
+  rect: ad.Pt2[],
+  padding: ad.Num
+): ad.Num => {
+  // Bad implementation
+  // Treats the rectangle as a circle
+  // Does not take into account padding
+  if (rect.length !== 2) {
+    throw new Error("`rect` should be a list of two 2d-points.");
+  }
+  const bbox = BBox.bboxFromPoints(rect);
+  const rectr = max(bbox.width, bbox.height);
+  const rectc = bbox.center;
+  return constrDict.containsCircles.body(c, r, [rectc[0], rectc[1]], rectr, 0);
+};
+
+//#region Individual constriants (Leo)
+export const containsRectCircle = (
+  rect: ad.Pt2[],
+  c: ad.Pt2,
+  r: ad.Num,
+  padding: ad.Num
+): ad.Num => {
+  if (rect.length !== 2) {
+    throw new Error("`rect` should be a list of two 2d-points.");
+  }
+  const [tl, br] = rect;
+  const w = sub(br[0], tl[0]);
+  const h = sub(tl[1], br[1]);
+  const halfW = mul(0.5, w);
+  const halfH = mul(0.5, h);
+  const [rx, ry] = ops.vdiv(ops.vadd(tl, br), 2); // rectangle center
+  const [cx, cy] = c; // circle center
+  // Return maximum violation in either the x- or y-direction.
+  // In each direction, the distance from the circle center (cx,cy) to
+  // the rectangle center (rx,ry) must be no greater than the size of
+  // the rectangle (w/h), minus the radius of the circle (r) and the
+  // padding (o).  We can compute this violation via the function
+  //    max( |cx-rx| - (w/2-r-o),
+  //         |cy-ry| - (h/2-r-o) )
+  return max(
+    sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
+    sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
+  );
+};
+export const containsRects = (
+  rect1: ad.Pt2[],
+  rect2: ad.Pt2[],
+  padding: ad.Num
+): ad.Num => {
+  // TODO: add padding.
+  if (rect1.length !== 2 || rect2.length !== 2) {
+    throw new Error("Inputs should be lists of two 2d-points.");
+  }
+  // const box1 = BBox.bboxFromPoints(rect1);
+  // const box2 = BBox.bboxFromPoints(rect2);
+  // const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
+  // const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
+
+  const xl1 = rect1[0][0],
+    xr1 = rect1[1][0];
+  const yl1 = rect1[1][1],
+    yr1 = rect1[0][1];
+  const xl2 = rect2[0][0],
+    xr2 = rect2[1][0];
+  const yl2 = rect2[1][1],
+    yr2 = rect2[0][1];
+  return addN([
+    ifCond(lt(xl1, xl2), 0, squared(sub(xl1, xl2))),
+    ifCond(lt(xr2, xr1), 0, squared(sub(xr2, xr1))),
+    ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
+    ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
+  ]);
+};
+
+/**
+ * Require that shape `s1` is at a distance of `distance` from shape `s2`.
+ */
+export const atDist = (
+  s1: Shape<ad.Num>,
+  s2: Shape<ad.Num>,
+  distance: ad.Num
+): ad.Num => {
+  if (isRectlike(s2)) return atDistLabel(s1, s2, distance);
+  else return touching(s1, s2, distance);
+};
+
+/**
+ * Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.
+ */
+export const smallerThan = (
+  s1: Shape<ad.Num>,
+  s2: Shape<ad.Num>,
+  relativePadding = 0.4
+): ad.Num => {
+  // s1 is smaller than s2
+  const size1 = shapeSize(s1);
+  const size2 = shapeSize(s2);
+  const padding = mul(relativePadding, size2);
+  return sub(sub(size1, size2), padding);
+};
+
+/**
+ * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
+ */
+export const disjointIntervals = (
+  s1: Line<ad.Num>,
+  s2: Line<ad.Num>
+): ad.Num => {
+  return overlap1D(
+    [s1.start.contents[0], s1.end.contents[0]],
+    [s2.start.contents[0], s2.end.contents[0]]
+  );
+};
+
+//#endregion
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
 const constrDictSimple = {
-  /**
-   * Require that the value `x` is equal to the value `y`
-   */
   equal: {
     name: "equal",
-    description: "Require that the value `x` is equal to the value `y`",
     params: [
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
     ],
-    body: (x: ad.Num, y: ad.Num) => {
-      return absVal(sub(x, y));
-    },
+    body: equal,
   },
 
-  /**
-   * Require that the value `x` is less than the value `y` with optional padding `padding`
-   */
   lessThan: {
     name: "lessThan",
     description:
@@ -66,14 +473,9 @@ const constrDictSimple = {
       { name: "y", description: "Second value", type: realT() },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: (x: ad.Num, y: ad.Num, padding = 0) => {
-      return add(sub(x, y), padding);
-    },
+    body: lessThan,
   },
 
-  /**
-   * Require that the value `x` is greater than the value `y` with optional padding `padding`
-   */
   greaterThan: {
     name: "greaterThan",
     description:
@@ -84,14 +486,9 @@ const constrDictSimple = {
       { name: "y", description: "Second value", type: realT() },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: (x: ad.Num, y: ad.Num, padding = 0) => {
-      return add(sub(y, x), padding);
-    },
+    body: greaterThan,
   },
 
-  /**
-   * Require that the value `x` is less than the value `y`, with steeper penalty
-   */
   lessThanSq: {
     name: "lessThanSq",
     description:
@@ -100,15 +497,9 @@ const constrDictSimple = {
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
     ],
-    body: (x: ad.Num, y: ad.Num) => {
-      // if x < y then 0 else (x - y)^2
-      return ifCond(lt(x, y), 0, squared(sub(x, y)));
-    },
+    body: lessThanSq,
   },
 
-  /**
-   * Require that the value `x` is greater than the value `y`, with steeper penalty
-   */
   greaterThanSq: {
     name: "greaterThanSq",
     description:
@@ -117,14 +508,9 @@ const constrDictSimple = {
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
     ],
-    body: (x: ad.Num, y: ad.Num) => {
-      return ifCond(lt(y, x), 0, squared(sub(y, x)));
-    },
+    body: greaterThanSq,
   },
 
-  /**
-   * Require that the value `x` is in the range defined by `[x0, x1]`.
-   */
   inRange: {
     name: "inRange",
     description:
@@ -134,17 +520,9 @@ const constrDictSimple = {
       { name: "x0", description: "Lower bound", type: realT() },
       { name: "x1", description: "Upper bound", type: realT() },
     ],
-    body: (x: ad.Num, x0: ad.Num, x1: ad.Num) => {
-      return add(
-        ifCond(lt(x, x1), 0, sub(x, x1)),
-        ifCond(lt(x0, x), 0, sub(x0, x))
-      );
-    },
+    body: inRange,
   },
 
-  /**
-   * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
-   */
   contains1D: {
     name: "contains1D",
     description:
@@ -162,15 +540,9 @@ const constrDictSimple = {
         type: real2T(),
       },
     ],
-    body: ([l1, r1]: [ad.Num, ad.Num], [l2, r2]: [ad.Num, ad.Num]): ad.Num => {
-      // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
-      return add(max(0, sub(l1, l2)), max(0, sub(r2, r1)));
-    },
+    body: contains1D,
   },
 
-  /**
-   * Make scalar `c` disjoint from a range `left, right`.
-   */
   disjointScalar: {
     name: "disjointScalar",
     description: "Make scalar `c` disjoint from a range `left, right`.",
@@ -179,17 +551,9 @@ const constrDictSimple = {
       { name: "left", description: "Left bound", type: realT() },
       { name: "right", description: "Right bound", type: realT() },
     ],
-    body: (c: ad.Num, left: ad.Num, right: ad.Num) => {
-      const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
-
-      // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
-      return ifCond(inRange(c, left, right), min(d(c, left), d(c, right)), 0);
-    },
+    body: disjointScalar,
   },
 
-  /**
-   * Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.
-   */
   perpendicular: {
     name: "perpendicular",
     description:
@@ -199,18 +563,9 @@ const constrDictSimple = {
       { name: "p", description: "Second point", type: realNT() },
       { name: "r", description: "Third point", type: realNT() },
     ],
-    body: (q: ad.Num[], p: ad.Num[], r: ad.Num[]): ad.Num => {
-      const v1 = ops.vsub(q, p);
-      const v2 = ops.vsub(r, p);
-      const dotProd = ops.vdot(v1, v2);
-      return absVal(dotProd);
-    },
+    body: perpendicular,
   },
 
-  /**
-   * Require that three points be collinear.
-   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
-   */
   collinear: {
     name: "collinear",
     description: `Require that three points be collinear. This does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.`,
@@ -219,17 +574,9 @@ const constrDictSimple = {
       { name: "c2", description: "Second point", type: realNT() },
       { name: "c3", description: "Third point", type: realNT() },
     ],
-    body: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
-      const v1 = ops.vsub(c2, c1);
-      const v2 = ops.vsub(c2, c3);
-      return absVal(ops.cross2(v1, v2));
-    },
+    body: collinear,
   },
 
-  /**
-   * Require that three points be collinear.
-   * Depends on the specific ordering of points.
-   */
   collinearOrdered: {
     name: "collinearOrdered",
     description: `Require that three points be collinear and enforces the order of these points as provided.`,
@@ -239,21 +586,13 @@ const constrDictSimple = {
       { name: "c2", description: "Second point", type: realNT() },
       { name: "c3", description: "Third point", type: realNT() },
     ],
-    body: (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]) => {
-      const v1 = ops.vnorm(ops.vsub(c1, c2));
-      const v2 = ops.vnorm(ops.vsub(c2, c3));
-      const v3 = ops.vnorm(ops.vsub(c1, c3));
-
-      // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-      return max(0, sub(add(v1, v2), v3));
-    },
+    body: collinearOrdered,
   },
 };
 
 // -------- General constraints
 // Defined for all shapes, generally require shape queries or call multiple specific constraints.
 const constrDictGeneral = {
-  /** Require that `shape` is on the canvas */
   onCanvas: {
     name: "onCanvas",
     description: "Require that `shape` is on the canvas",
@@ -262,25 +601,9 @@ const constrDictGeneral = {
       { name: "canvasWidth", description: "Width of canvas", type: realT() },
       { name: "canvasHeight", description: "Height of canvas", type: realT() },
     ],
-    body: (shape: Shape<ad.Num>, canvasWidth: ad.Num, canvasHeight: ad.Num) => {
-      const box = bboxFromShape(shape);
-      const canvasXRange: [ad.Num, ad.Num] = [
-        mul(canvasWidth, -0.5),
-        mul(canvasWidth, 0.5),
-      ];
-      const canvasYRange: [ad.Num, ad.Num] = [
-        mul(canvasHeight, -0.5),
-        mul(canvasHeight, 0.5),
-      ];
-      return add(
-        constrDict.contains1D.body(canvasXRange, BBox.xRange(box)),
-        constrDict.contains1D.body(canvasYRange, BBox.yRange(box))
-      );
-    },
+    body: onCanvas,
   },
-  /**
-   * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
-   */
+
   minSize: {
     name: "minSize",
     description:
@@ -295,14 +618,9 @@ const constrDictGeneral = {
         default: 50,
       },
     ],
-    body: (shape: Shape<ad.Num>, limit = 50) => {
-      return sub(limit, shapeSize(shape));
-    },
+    body: minSize,
   },
 
-  /**
-   * Require that a shape have a size less than some constant maximum, based on the type of the shape.
-   */
   maxSize: {
     name: "maxSize",
     description:
@@ -312,9 +630,7 @@ const constrDictGeneral = {
       { name: "shape", description: "Shape", type: shapeT("AnyShape") },
       { name: "limit", description: "Maximum size", type: realT() },
     ],
-    body: (shape: Shape<ad.Num>, limit: ad.Num) => {
-      return sub(shapeSize(shape), limit);
-    },
+    body: maxSize,
   },
 
   /**
@@ -332,20 +648,7 @@ const constrDictGeneral = {
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
       { name: "overlap", description: "Overlap", type: realT(), default: 0 },
     ],
-    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, overlap: ad.Num = 0) => {
-      const t1 = s1.shapeType;
-      const t2 = s2.shapeType;
-      // for some cases with ellipses, we can't easily compute the distance
-      if (t1 === "Ellipse" && t2 === "Ellipse")
-        return overlappingEllipse(s1, s2, overlap);
-      // Circle x Ellipse
-      else if (t1 === "Circle" && t2 === "Ellipse")
-        return overlappingCircleEllipse(s1, s2, overlap);
-      else if (t1 === "Ellipse" && t2 === "Circle")
-        return overlappingCircleEllipse(s2, s1, overlap);
-      // for other cases, we know how to compute the distance, so we just use that
-      else return add(shapeDistance(s1, s2), overlap);
-    },
+    body: overlapping,
   },
 
   /**
@@ -361,8 +664,7 @@ const constrDictGeneral = {
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, padding: ad.Num = 0) =>
-      neg(constrDictGeneral.overlapping.body(s1, s2, neg(padding))),
+    body: disjoint,
   },
 
   /**
@@ -378,8 +680,7 @@ const constrDictGeneral = {
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, padding: ad.Num = 0) =>
-      absVal(constrDictGeneral.overlapping.body(s1, s2, neg(padding))),
+    body: touching,
   },
 
   /**
@@ -395,59 +696,7 @@ const constrDictGeneral = {
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, padding = 0.0) => {
-      const t1 = s1.shapeType,
-        t2 = s2.shapeType;
-      if (t1 === "Circle" && t2 === "Circle")
-        return constrDict.containsCircles.body(
-          [s1.center.contents[0], s1.center.contents[1]],
-          s1.r.contents,
-          [s2.center.contents[0], s2.center.contents[1]],
-          s2.r.contents,
-          padding
-        );
-      else if (t1 === "Polygon" && t2 === "Polygon") {
-        return constrDict.containsPolygons.body(
-          polygonLikePoints(s1),
-          polygonLikePoints(s2),
-          padding
-        );
-      } else if (t1 === "Polygon" && t2 === "Circle") {
-        return constrDict.containsPolygonCircle.body(
-          polygonLikePoints(s1),
-          [s2.center.contents[0], s2.center.contents[1]],
-          s2.r.contents,
-          padding
-        );
-      } else if (t1 === "Circle" && t2 === "Polygon") {
-        return constrDict.containsCirclePolygon.body(
-          [s1.center.contents[0], s1.center.contents[1]],
-          s1.r.contents,
-          polygonLikePoints(s2),
-          padding
-        );
-      } else if (t1 === "Circle" && isRectlike(s2)) {
-        const rectPts = bboxPts(bboxFromShape(s2));
-        return constrDict.containsCircleRect.body(
-          [s1.center.contents[0], s1.center.contents[1]],
-          s1.r.contents,
-          rectPts,
-          padding
-        );
-      } else if (isRectlike(s1) && t2 === "Circle") {
-        const rectPts = bboxPts(bboxFromShape(s1));
-        return constrDict.containsRectCircle.body(
-          rectPts,
-          [s2.center.contents[0], s2.center.contents[1]],
-          s2.r.contents,
-          padding
-        );
-      } else {
-        const s1BboxPts = bboxPts(bboxFromShape(s1));
-        const s2BboxPts = bboxPts(bboxFromShape(s2));
-        return constrDict.containsRects.body(s1BboxPts, s2BboxPts, padding);
-      }
-    },
+    body: contains,
   },
 
   containsCircles: {
@@ -465,11 +714,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (c1: ad.Pt2, r1: ad.Num, c2: ad.Pt2, r2: ad.Num, padding: ad.Num) => {
-      const d = ops.vdist(c1, c2);
-      const o = padding ? sub(sub(r1, r2), padding) : sub(r1, r2);
-      return sub(d, o);
-    },
+    body: containsCircles,
   },
 
   containsPolygons: {
@@ -485,11 +730,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (pts1: ad.Pt2[], pts2: ad.Pt2[], padding: ad.Num) => {
-      return maxN(
-        pts2.map((x) => constrDict.containsPolygonPoint.body(pts1, x, padding))
-      );
-    },
+    body: containsPolygons,
   },
 
   containsPolygonCircle: {
@@ -506,9 +747,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (pts: ad.Pt2[], c: ad.Pt2, r: ad.Num, padding: ad.Num) => {
-      return constrDict.containsPolygonPoint.body(pts, c, add(padding, r));
-    },
+    body: containsPolygonCircle,
   },
 
   containsPolygonPoint: {
@@ -528,12 +767,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (pts: ad.Pt2[], pt: ad.Pt2, padding: ad.Num) => {
-      const cp1 = convexPartitions(pts);
-      return maxN(
-        cp1.map((p1) => containsConvexPolygonPoints(p1, pt, padding))
-      );
-    },
+    body: containsPolygonPoint,
   },
 
   containsCirclePoint: {
@@ -550,9 +784,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (c: ad.Pt2, r: ad.Num, pt: ad.Pt2, padding: ad.Num) => {
-      return sub(add(ops.vdist(pt, c), padding), r);
-    },
+    body: containsCirclePoint,
   },
 
   containsCirclePolygon: {
@@ -573,11 +805,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (c: ad.Pt2, r: ad.Num, pts: ad.Pt2[], padding: ad.Num) => {
-      return maxN(
-        pts.map((pt) => constrDict.containsCirclePoint.body(c, r, pt, padding))
-      );
-    },
+    body: containsCirclePolygon,
   },
 
   containsCircleRect: {
@@ -598,37 +826,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (c: ad.Pt2, r: ad.Num, rect: ad.Pt2[], padding: ad.Num) => {
-      // Bad implementation
-      // Treats the rectangle as a circle
-      // Does not take into account padding
-      if (rect.length !== 2) {
-        throw new Error("`rect` should be a list of two 2d-points.");
-      }
-      const bbox = BBox.bboxFromPoints(rect);
-      const rectr = max(bbox.width, bbox.height);
-      const rectc = bbox.center;
-      return constrDict.containsCircles.body(
-        c,
-        r,
-        [rectc[0], rectc[1]],
-        rectr,
-        0
-      );
-      /*
-      if (rect.length !== 2) {
-        throw new Error("`rect` should be a list of two 2d-points.");
-      }
-      const bbox = BBox.bboxFromPoints(rect);
-      const { topLeft, topRight, bottomLeft, bottomRight } = BBox.corners(bbox);
-      return constrDict.containsCirclePolygon.body(
-        c,
-        r,
-        [topLeft, topRight, bottomRight, bottomLeft],
-        padding
-      );
-      */
-    },
+    body: containsCircleRect,
   },
 
   containsRectCircle: {
@@ -650,29 +848,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (rect: ad.Pt2[], c: ad.Pt2, r: ad.Num, padding: ad.Num) => {
-      if (rect.length !== 2) {
-        throw new Error("`rect` should be a list of two 2d-points.");
-      }
-      const [tl, br] = rect;
-      const w = sub(br[0], tl[0]);
-      const h = sub(tl[1], br[1]);
-      const halfW = mul(0.5, w);
-      const halfH = mul(0.5, h);
-      const [rx, ry] = ops.vdiv(ops.vadd(tl, br), 2); // rectangle center
-      const [cx, cy] = c; // circle center
-      // Return maximum violation in either the x- or y-direction.
-      // In each direction, the distance from the circle center (cx,cy) to
-      // the rectangle center (rx,ry) must be no greater than the size of
-      // the rectangle (w/h), minus the radius of the circle (r) and the
-      // padding (o).  We can compute this violation via the function
-      //    max( |cx-rx| - (w/2-r-o),
-      //         |cy-ry| - (h/2-r-o) )
-      return max(
-        sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
-        sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
-      );
-    },
+    body: containsRectCircle,
   },
 
   containsRects: {
@@ -698,36 +874,9 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: (rect1: ad.Pt2[], rect2: ad.Pt2[], padding: ad.Num) => {
-      // TODO: add padding.
-      if (rect1.length !== 2 || rect2.length !== 2) {
-        throw new Error("Inputs should be lists of two 2d-points.");
-      }
-      // const box1 = BBox.bboxFromPoints(rect1);
-      // const box2 = BBox.bboxFromPoints(rect2);
-      // const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
-      // const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
-
-      const xl1 = rect1[0][0],
-        xr1 = rect1[1][0];
-      const yl1 = rect1[1][1],
-        yr1 = rect1[0][1];
-      const xl2 = rect2[0][0],
-        xr2 = rect2[1][0];
-      const yl2 = rect2[1][1],
-        yr2 = rect2[0][1];
-      return addN([
-        ifCond(lt(xl1, xl2), 0, squared(sub(xl1, xl2))),
-        ifCond(lt(xr2, xr1), 0, squared(sub(xr2, xr1))),
-        ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
-        ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
-      ]);
-    },
+    body: containsRects,
   },
 
-  /**
-   * Require that shape `s1` is at a distance of `distance` from shape `s2`.
-   */
   atDist: {
     name: "atDist",
     description:
@@ -737,15 +886,9 @@ const constrDictGeneral = {
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
       { name: "distance", description: "Distance", type: realT() },
     ],
-    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, distance: ad.Num) => {
-      if (isRectlike(s2)) return atDistLabel(s1, s2, distance);
-      else return constrDictGeneral.touching.body(s1, s2, distance);
-    },
+    body: atDist,
   },
 
-  /**
-   * Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.
-   */
   smallerThan: {
     name: "smallerThan",
     description:
@@ -761,22 +904,13 @@ const constrDictGeneral = {
         default: 0.4,
       },
     ],
-    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, relativePadding = 0.4) => {
-      // s1 is smaller than s2
-      const size1 = shapeSize(s1);
-      const size2 = shapeSize(s2);
-      const padding = mul(relativePadding, size2);
-      return sub(sub(size1, size2), padding);
-    },
+    body: smallerThan,
   },
 };
 
 // -------- Specific constraints
 // Defined only for specific use-case or specific shapes.
 const constrDictSpecific = {
-  /**
-   * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
-   */
   disjointIntervals: {
     name: "disjointIntervals",
     description:
@@ -786,12 +920,7 @@ const constrDictSpecific = {
       { name: "s1", description: "Line 1", type: shapeT("Line") },
       { name: "s2", description: "Line 2", type: shapeT("Line") },
     ],
-    body: (s1: Line<ad.Num>, s2: Line<ad.Num>) => {
-      return overlap1D(
-        [s1.start.contents[0], s1.end.contents[0]],
-        [s2.start.contents[0], s2.end.contents[0]]
-      );
-    },
+    body: disjointIntervals,
   },
 };
 
