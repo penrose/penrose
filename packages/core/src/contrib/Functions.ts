@@ -97,8 +97,6 @@ import {
   isoperimetricRatio,
   lengthK,
   maxCurvature,
-  maxCurvatureSin,
-  maxCurvatureTan,
   newElasticEnergy,
   pElasticEnergy,
   perimeter,
@@ -2776,20 +2774,26 @@ export const compDict = {
         type: booleanT(),
         description: "whether curve is closed",
       },
+      {
+        name: "curvatureApproximation",
+        type: stringT(),
+        description: "...",
+      },
     ],
     body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
-      closed: boolean
+      closed: boolean,
+      curvatureApproximation: string
     ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: elasticEnergy(points, closed) };
+      return {
+        tag: "FloatV",
+        contents: elasticEnergy(points, closed, curvatureApproximation),
+      };
     },
     returns: valueT("Real"),
   },
 
-  /**
-   * ...
-   */
   newElasticEnergy: {
     name: "newElasticEnergy",
     description: "...",
@@ -2804,13 +2808,22 @@ export const compDict = {
         type: booleanT(),
         description: "whether curve is closed",
       },
+      {
+        name: "curvatureApproximation",
+        type: stringT(),
+        description: "...",
+      },
     ],
     body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
-      closed: boolean
+      closed: boolean,
+      curvatureApproximation: string
     ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: newElasticEnergy(points, closed) };
+      return {
+        tag: "FloatV",
+        contents: newElasticEnergy(points, closed, curvatureApproximation),
+      };
     },
     returns: valueT("Real"),
   },
@@ -2832,20 +2845,26 @@ export const compDict = {
         type: booleanT(),
         description: "whether curve is closed",
       },
+      {
+        name: "curvatureApproximation",
+        type: stringT(),
+        description: "...",
+      },
     ],
     body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
-      closed: boolean
+      closed: boolean,
+      curvatureApproximation: string
     ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: maxCurvature(points, closed) };
+      return {
+        tag: "FloatV",
+        contents: maxCurvature(points, closed, curvatureApproximation),
+      };
     },
     returns: valueT("Real"),
   },
 
-  /**
-   * ...
-   */
   lengthK: {
     name: "lengthK",
     description: "...",
@@ -2878,71 +2897,19 @@ export const compDict = {
   },
 
   /**
-   * ...
-   */
-  maxCurvatureSin: {
-    name: "maxCurvatureSin",
-    description: "...",
-    params: [
-      {
-        name: "points",
-        type: real2NT(),
-        description: "points of curve",
-      },
-      {
-        name: "closed",
-        type: booleanT(),
-        description: "whether curve is closed",
-      },
-    ],
-    body: (
-      _context: Context,
-      points: [ad.Num, ad.Num][],
-      closed: boolean
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: maxCurvatureSin(points, closed) };
-    },
-    returns: valueT("Real"),
-  },
-
-  /**
-   * Returns integral of curvature squared along the curve
-   */
-  maxCurvatureTan: {
-    name: "maxCurvatureTan",
-    description: "...",
-    params: [
-      {
-        name: "points",
-        type: real2NT(),
-        description: "points of curve",
-      },
-      {
-        name: "closed",
-        type: booleanT(),
-        description: "whether curve is closed",
-      },
-    ],
-    body: (
-      _context: Context,
-      points: [ad.Num, ad.Num][],
-      closed: boolean
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: maxCurvatureTan(points, closed) };
-    },
-    returns: valueT("Real"),
-  },
-
-  /**
    * Returns integral of curvature squared along the curve
    */
   pElasticEnergy: (
     _context: Context,
     points: [ad.Num, ad.Num][],
     p: number,
-    closed: boolean
+    closed: boolean,
+    curvatureApproximation: string
   ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: pElasticEnergy(points, closed, p) };
+    return {
+      tag: "FloatV",
+      contents: pElasticEnergy(points, closed, p, curvatureApproximation),
+    };
   },
 
   /**

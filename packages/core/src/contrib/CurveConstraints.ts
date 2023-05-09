@@ -46,71 +46,34 @@ export const equivalued = (x: ad.Num[]): ad.Num => {
 /**
  * Returns discrete curvature approximation given three consecutive points
  */
-export const newCurvature = (
-  p1: [ad.Num, ad.Num],
-  p2: [ad.Num, ad.Num],
-  p3: [ad.Num, ad.Num]
-): ad.Num => {
-  const v12 = ops.vsub(p2, p1);
-  const v23 = ops.vsub(p3, p2);
-  const t12 = ops.vnormalize(v12);
-  const t23 = ops.vnormalize(v23);
-
-  const p12 = ops.vmul(0.5, ops.vadd(p1, p2));
-  const p23 = ops.vmul(0.5, ops.vadd(p2, p3));
-  const l123 = ops.vdist(p12, p23);
-  return div(ops.vdist(t23, t12), l123);
-};
-
-/**
- * Returns discrete curvature approximation given three consecutive points
- */
 export const curvature = (
   p1: [ad.Num, ad.Num],
   p2: [ad.Num, ad.Num],
-  p3: [ad.Num, ad.Num]
+  p3: [ad.Num, ad.Num],
+  curvatureApproximation = "angle"
 ): ad.Num => {
+  if (curvatureApproximation === "fdiff") {
+    const v12 = ops.vsub(p2, p1);
+    const v23 = ops.vsub(p3, p2);
+    const t12 = ops.vnormalize(v12);
+    const t23 = ops.vnormalize(v23);
+
+    const p12 = ops.vmul(0.5, ops.vadd(p1, p2));
+    const p23 = ops.vmul(0.5, ops.vadd(p2, p3));
+    const l123 = ops.vdist(p12, p23);
+    return div(ops.vdist(t23, t12), l123);
+  }
   const v1 = ops.vsub(p2, p1);
   const v2 = ops.vsub(p3, p2);
   const angle = ops.angleFrom(v1, v2);
+
+  if (curvatureApproximation === "sin") {
+    return mul(2, sin(div(angle, 2)));
+  }
+  if (curvatureApproximation === "tan") {
+    return mul(2, tan(div(angle, 2)));
+  }
   return angle;
-  // Alternative discrete curvature definition
-  // return mul(2, sin(div(angle, 2)));
-  // return mul(2, tan(div(angle, 2)));
-};
-
-/**
- * Returns discrete curvature approximation given three consecutive points
- */
-export const curvatureSin = (
-  p1: [ad.Num, ad.Num],
-  p2: [ad.Num, ad.Num],
-  p3: [ad.Num, ad.Num]
-): ad.Num => {
-  const v1 = ops.vsub(p2, p1);
-  const v2 = ops.vsub(p3, p2);
-  const angle = ops.angleFrom(v1, v2);
-  // return angle;
-  // Alternative discrete curvature definition
-  return mul(2, sin(div(angle, 2)));
-  // return mul(2, tan(div(angle, 2)));
-};
-
-/**
- * Returns discrete curvature approximation given three consecutive points
- */
-export const curvatureTan = (
-  p1: [ad.Num, ad.Num],
-  p2: [ad.Num, ad.Num],
-  p3: [ad.Num, ad.Num]
-): ad.Num => {
-  const v1 = ops.vsub(p2, p1);
-  const v2 = ops.vsub(p3, p2);
-  const angle = ops.angleFrom(v1, v2);
-  // return angle;
-  // Alternative discrete curvature definition
-  // return mul(2, sin(div(angle, 2)));
-  return mul(2, tan(div(angle, 2)));
 };
 
 /**
@@ -409,13 +372,14 @@ export const repulsiveEnergyMultiple = (
  */
 export const elasticEnergy = (
   points: [ad.Num, ad.Num][],
-  closed: boolean
+  closed: boolean,
+  curvatureApproximation: string
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return addN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       mul(
-        squared(curvatureSin(p1, p2, p3)),
+        squared(curvature(p1, p2, p3, curvatureApproximation)),
         mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
       )
     )
@@ -427,7 +391,8 @@ export const elasticEnergy = (
  */
 export const newElasticEnergy = (
   points: [ad.Num, ad.Num][],
-  closed: boolean
+  closed: boolean,
+  curvatureApproximation: string
 ): ad.Num => {
   const triples = consecutiveQuadruples(points, closed);
   return addN(
@@ -435,7 +400,10 @@ export const newElasticEnergy = (
       mul(
         squared(
           div(
-            sub(curvature(p1, p2, p3), curvature(p2, p3, p4)),
+            sub(
+              curvature(p1, p2, p3, curvatureApproximation),
+              curvature(p2, p3, p4, curvatureApproximation)
+            ),
             add(1e-5, ops.vdist(p2, p3))
           )
         ),
@@ -464,42 +432,13 @@ export const lengthK = (
  */
 export const maxCurvature = (
   points: [ad.Num, ad.Num][],
-  closed: boolean
+  closed: boolean,
+  curvatureApproximation: string
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return maxN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
-      absVal(newCurvature(p1, p2, p3))
-    )
-  );
-};
-
-/**
- * todo
- */
-export const maxCurvatureSin = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
-  const triples = consecutiveTriples(points, closed);
-  return maxN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
-      absVal(curvatureSin(p1, p2, p3))
-    )
-  );
-};
-
-/**
- * todo
- */
-export const maxCurvatureTan = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
-  const triples = consecutiveTriples(points, closed);
-  return maxN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
-      absVal(curvatureTan(p1, p2, p3))
+      absVal(curvature(p1, p2, p3, curvatureApproximation))
     )
   );
 };
@@ -510,13 +449,14 @@ export const maxCurvatureTan = (
 export const pElasticEnergy = (
   points: [ad.Num, ad.Num][],
   closed: boolean,
-  p = 2
+  p = 2,
+  curvatureApproximation: string
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return addN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       mul(
-        pow(curvatureSin(p1, p2, p3), p),
+        pow(curvature(p1, p2, p3, curvatureApproximation), p),
         mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
       )
     )
