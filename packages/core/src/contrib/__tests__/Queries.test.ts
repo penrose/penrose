@@ -14,12 +14,13 @@ import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict } from "../Functions";
 import {
   bboxFromShape,
+  bboxPts,
   convexPolygonOriginSignedDistance,
   outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
-  shapeDistanceAABBs,
-  shapeDistancePolygonlikes,
+  shapeDistancePolys,
+  shapeDistanceRects,
   shapeSize,
 } from "../Queries";
 import { numOf } from "../Utils";
@@ -255,8 +256,14 @@ describe("shapeDistanceAABBs should return the same value as shapeDistancePolygo
     for (const j in _rectangles) {
       const r2 = _rectangles[j];
 
-      const result1 = shapeDistanceAABBs(r1, r2);
-      const result2 = shapeDistancePolygonlikes(r1, r2);
+      const result1 = shapeDistanceRects(
+        bboxPts(bboxFromShape(r1)),
+        bboxPts(bboxFromShape(r2))
+      );
+      const result2 = shapeDistancePolys(
+        polygonLikePoints(r1),
+        polygonLikePoints(r2)
+      );
 
       const [result1num, result2num] = genCodeSync(
         secondaryGraph([result1, result2])

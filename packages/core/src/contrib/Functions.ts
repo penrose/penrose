@@ -101,7 +101,19 @@ import {
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints";
-import { bboxFromShape, bboxPts, rectLineDist, shapeDistance } from "./Queries";
+import {
+  bboxFromShape,
+  bboxPts,
+  rectLineDist,
+  shapeDistance,
+  shapeDistanceCircleLine,
+  shapeDistanceCircles,
+  shapeDistancePolyEllipse,
+  shapeDistancePolys,
+  shapeDistanceRectCircle,
+  shapeDistanceRectLine,
+  shapeDistanceRects,
+} from "./Queries";
 import { clamp, isRectlike, numOf, Rectlike, toPt } from "./Utils";
 
 /**
@@ -2632,6 +2644,163 @@ export const compDict = {
     returns: valueT("Real"),
   },
 
+  shapeDistanceCircles: {
+    name: "shapeDistanceCircles",
+    description: "Return the distance between two circles.",
+    params: [
+      { name: "c1", type: real2T(), description: "center of first circle" },
+      { name: "r1", type: realT(), description: "radius of first circle" },
+      { name: "c2", type: real2T(), description: "center of second circle" },
+      { name: "r2", type: realT(), description: "radius of second circle" },
+    ],
+    body: (
+      _context: Context,
+      c1: ad.Pt2,
+      r1: ad.Num,
+      c2: ad.Pt2,
+      r2: ad.Num
+    ): FloatV<ad.Num> => floatV(shapeDistanceCircles(c1, r1, c2, r2)),
+    returns: realT(),
+  },
+
+  shapeDistanceRects: {
+    name: "shapeDistanceRects",
+    description: "Return the distance between two rectangles.",
+    params: [
+      {
+        name: "rect1",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the first rectangle.",
+      },
+      {
+        name: "rect2",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the second rectangle.",
+      },
+    ],
+    body: (
+      _context: Context,
+      rect1: ad.Pt2[],
+      rect2: ad.Pt2[]
+    ): FloatV<ad.Num> => floatV(shapeDistanceRects(rect1, rect2)),
+    returns: realT(),
+  },
+
+  shapeDistanceRectLine: {
+    name: "shapeDistanceRectLine",
+    description: "Returns the distance between a rectangle and a line.",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.",
+      },
+      {
+        name: "start",
+        type: real2T(),
+        description: "The start point of the line",
+      },
+      { name: "end", type: real2T(), description: "The end point of the line" },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      start: ad.Pt2,
+      end: ad.Pt2
+    ): FloatV<ad.Num> => floatV(shapeDistanceRectLine(rect, start, end)),
+    returns: realT(),
+  },
+
+  shapeDistancePolys: {
+    name: "shapeDistancePolys",
+    description: "Returns the distance between two polygons.",
+    params: [
+      {
+        name: "pts1",
+        type: real2NT(),
+        description: "The list of points for the first polygon",
+      },
+      {
+        name: "pts2",
+        type: real2NT(),
+        description: "The list of points for the second polygon",
+      },
+    ],
+    body: (_context: Context, pts1: ad.Pt2[], pts2: ad.Pt2[]): FloatV<ad.Num> =>
+      floatV(shapeDistancePolys(pts1, pts2)),
+    returns: realT(),
+  },
+
+  shapeDistanceRectCircle: {
+    name: "shapeDistanceRectCircle",
+    description: "Returns the distance between a rectangle and a circle.",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.",
+      },
+      { name: "c", type: realT(), description: "center of the circle" },
+      { name: "r", type: realT(), description: "radius of the circle" },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      c: ad.Pt2,
+      r: ad.Num
+    ): FloatV<ad.Num> => floatV(shapeDistanceRectCircle(rect, c, r)),
+    returns: realT(),
+  },
+
+  shapeDistancePolyEllipse: {
+    name: "shapeDistancePolyEllipse",
+    description: "Returns the distance between a polygon and an ellipse.",
+    params: [
+      {
+        name: "pts",
+        type: real2NT(),
+        description: "The list of points for the polygon",
+      },
+      { name: "c", type: real2T(), description: "center of the ellipse" },
+      {
+        name: "rx",
+        type: realT(),
+        description: "horizontal radius of ellipse",
+      },
+      { name: "ry", type: realT(), description: "vertical radius of ellipse" },
+    ],
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      c: ad.Pt2,
+      rx: ad.Num,
+      ry: ad.Num
+    ): FloatV<ad.Num> => floatV(shapeDistancePolyEllipse(pts, c, rx, ry)),
+    returns: realT(),
+  },
+
+  shapeDistanceCircleLine: {
+    name: "shapeDistanceCircleLine",
+    description: "Returns the distance between a circle and a line.",
+    params: [
+      { name: "c", type: real2T(), description: "center of the circle" },
+      { name: "r", type: realT(), description: "radius of the circle" },
+      { name: "start", type: real2T(), description: "start point of line" },
+      { name: "end", type: real2T(), description: "end point of line" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      r: ad.Num,
+      start: ad.Pt2,
+      end: ad.Pt2
+    ): FloatV<ad.Num> => floatV(shapeDistanceCircleLine(c, r, start, end)),
+    returns: realT(),
+  },
   /**
    * Returns the signed area enclosed by a polygonal chain given its nodes
    */
@@ -2809,7 +2978,7 @@ export const compDict = {
   bboxPts: {
     name: "bboxPts",
     description:
-      "Returns the top-left and bottom-right points of the axis-aligned bounding box of a shape",
+      "Returns the top-left, top-right, bottom-right, bottom-left points (in that order) of the axis-aligned bounding box of a shape",
     params: [{ name: "s", type: shapeT("AnyShape"), description: "a shape" }],
     body: (_context: Context, s: Shape<ad.Num>): PtListV<ad.Num> => {
       return { tag: "PtListV", contents: bboxPts(bboxFromShape(s)) };

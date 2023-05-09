@@ -410,8 +410,8 @@ export const containsCircleRect = (
   // Bad implementation
   // Treats the rectangle as a circle
   // Does not take into account padding
-  if (rect.length !== 2) {
-    throw new Error("`rect` should be a list of two 2d-points.");
+  if (rect.length !== 4) {
+    throw new Error("`rect` should be a list of four 2d-points.");
   }
   const bbox = BBox.bboxFromPoints(rect);
   const rectr = max(bbox.width, bbox.height);
@@ -426,10 +426,10 @@ export const containsRectCircle = (
   r: ad.Num,
   padding: ad.Num
 ): ad.Num => {
-  if (rect.length !== 2) {
-    throw new Error("`rect` should be a list of two 2d-points.");
+  if (rect.length !== 4) {
+    throw new Error("`rect` should be a list of four 2d-points.");
   }
-  const [tl, br] = rect;
+  const [, tl, , br] = rect;
   const w = sub(br[0], tl[0]);
   const h = sub(tl[1], br[1]);
   const halfW = mul(0.5, w);
@@ -454,22 +454,16 @@ export const containsRects = (
   padding: ad.Num
 ): ad.Num => {
   // TODO: add padding.
-  if (rect1.length !== 2 || rect2.length !== 2) {
-    throw new Error("Inputs should be lists of two 2d-points.");
+  if (rect1.length !== 4 || rect2.length !== 4) {
+    throw new Error("Inputs should be lists of four 2d-points.");
   }
-  // const box1 = BBox.bboxFromPoints(rect1);
-  // const box2 = BBox.bboxFromPoints(rect2);
-  // const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
-  // const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
+  const [, tl1, , br1] = rect1;
+  const [, tl2, , br2] = rect2;
 
-  const xl1 = rect1[0][0],
-    xr1 = rect1[1][0];
-  const yl1 = rect1[1][1],
-    yr1 = rect1[0][1];
-  const xl2 = rect2[0][0],
-    xr2 = rect2[1][0];
-  const yl2 = rect2[1][1],
-    yr2 = rect2[0][1];
+  const [xl1, xr1] = [tl1[0], br1[0]];
+  const [yl1, yr1] = [br1[1], tl1[1]];
+  const [xl2, xr2] = [tl2[0], br2[0]];
+  const [yl2, yr2] = [br2[1], tl2[1]];
   return addN([
     ifCond(lt(xl1, xl2), 0, squared(sub(xl1, xl2))),
     ifCond(lt(xr2, xr1), 0, squared(sub(xr2, xr1))),
@@ -924,7 +918,8 @@ const constrDictGeneral = {
       { name: "r", description: "Radius of `c`", type: realT() },
       {
         name: "rect",
-        description: "The top-left and bottom-right points of rectangle `rect`",
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of rectangle `rect`",
         type: real2NT(),
       },
       {
@@ -943,7 +938,8 @@ const constrDictGeneral = {
     params: [
       {
         name: "rect",
-        description: "The top-left and bottom-right points of rectangle `rect`",
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of rectangle `rect`",
         type: real2NT(),
       },
       { name: "c", description: "Center of `c`", type: real2T() },
@@ -966,13 +962,13 @@ const constrDictGeneral = {
       {
         name: "rect1",
         description:
-          "The top-left and bottom-right points of rectangle `rect1`",
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of rectangle `rect1`",
         type: real2NT(),
       },
       {
         name: "rect2",
         description:
-          "The top-left and bottom-right points of rectangle `rect2`",
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) points of rectangle `rect2`",
         type: real2NT(),
       },
       {
