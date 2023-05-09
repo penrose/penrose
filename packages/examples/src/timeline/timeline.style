@@ -33,8 +33,8 @@ global {
     shape baseline = Line {
         start : startLine
         end : endLine
-        strokeWidth : 3
-        strokeColor: colors.lightgray
+        strokeWidth : 2
+        strokeColor: colors.gray
     }
 
 }
@@ -55,14 +55,14 @@ forall Year y {
     y.slotBegin = Line {
         start : (y.minX,global.topQuarterY)
         end : (y.minX,global.topGridY)
-        strokeWidth : 3
-        strokeColor: colors.lightgray
+        strokeWidth : 2
+        strokeColor: colors.gray
     }
     y.slotEnd = Line {
         start : (y.maxX,global.topQuarterY)
         end : (y.maxX,global.topGridY)
-        strokeWidth : 3
-        strokeColor: colors.lightgray
+        strokeWidth : 2
+        strokeColor: colors.gray
     }
 }
 
@@ -90,14 +90,14 @@ forall Quarter q {
     q.slotBegin = Line {
         start : (q.startSlotX,global.bottomGridY)
         end : (q.startSlotX,global.topQuarterY)
-        strokeWidth : 3
-        strokeColor: colors.lightgray
+        strokeWidth : 2
+        strokeColor: colors.gray
     }
     q.slotEnd = Line {
         start : (q.endSlotX,global.bottomGridY)
         end : (q.endSlotX,global.topQuarterY)
-        strokeWidth : 3
-        strokeColor: colors.lightgray
+        strokeWidth : 2
+        strokeColor: colors.gray
     }
     layer q.slotEnd above q.slotBegin
     layer q.slotEnd below global.baseline
@@ -125,14 +125,14 @@ with Year y {
 forall Event e
 where e := MkEvent(start, end, c)
 with Quarter start; Quarter end; Category c {
-    centerY = ?
-    topBox = centerY + global.eventHeight/2
-    bottomBox = centerY - global.eventHeight/2
+    e.centerY = ?
+    topBox = e.centerY + global.eventHeight/2
+    bottomBox = e.centerY - global.eventHeight/2
     centerX = ((end.endSlotX - start.startSlotX) / 2) + start.startSlotX
     e.icon = Rectangle {
         height : global.eventHeight
         width : end.endSlotX - start.startSlotX
-        center: (centerX, centerY)
+        center: (centerX, e.centerY)
         cornerRadius : 8
         strokeWidth : 1
         strokeColor: colors.darkgray
@@ -142,7 +142,7 @@ with Quarter start; Quarter end; Category c {
         string : e.label
         fontSize : global.eventLabelFontSize
         fillColor : colors.darkgray
-        center : (centerX, centerY)
+        center : (centerX, e.centerY)
         fontStyle: global.eventFontStyle
         fontFamily: global.fontFamily
     }
@@ -170,6 +170,24 @@ forall Event e
 where e:= MkEvent(start, end, `outcome`)
 with Quarter start; Quarter end; Category `outcome` {
    e.icon.fillColor = colors.blue
+}
+
+forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `outcome`; Category `access`
+where e1:= MkEvent(start1, end1, `outcome`); e2:= MkEvent(start2, end2, `access`);
+{
+  ensure (e1.centerY-5) > e2.centerY
+}
+
+forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `access`; Category `milestone`
+where e1:= MkEvent(start1, end1, `access`); e2:= MkEvent(start2, end2, `milestone`);
+{
+  ensure (e1.centerY-5) > e2.centerY
+}
+
+forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `outcome`; Category `milestone`
+where e1:= MkEvent(start1, end1, `outcome`); e2:= MkEvent(start2, end2, `milestone`);
+{
+  ensure (e1.centerY-5) > e2.centerY
 }
 
 
