@@ -48,7 +48,6 @@
       "packages/examples",
       "packages/optimizer",
       "packages/roger",
-      "packages/synthesizer",
       "packages/synthesizer-ui",
       "packages/vscode"
     ],

@@ -48,10 +48,6 @@
       "path": "packages/roger"
     },
     {
-      "name": "📦 @penrose/synthesizer",
-      "path": "packages/synthesizer"
-    },
-    {
       "name": "📦 @penrose/synthesizer-ui",
       "path": "packages/synthesizer-ui"
     },
