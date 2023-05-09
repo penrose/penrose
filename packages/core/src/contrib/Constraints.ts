@@ -222,7 +222,7 @@ export const contains = (
   const t1 = s1.shapeType,
     t2 = s2.shapeType;
   if (t1 === "Circle" && t2 === "Circle")
-    return constrDict.containsCircles.body(
+    return containsCircles(
       [s1.center.contents[0], s1.center.contents[1]],
       s1.r.contents,
       [s2.center.contents[0], s2.center.contents[1]],
@@ -230,20 +230,20 @@ export const contains = (
       padding
     );
   else if (t1 === "Polygon" && t2 === "Polygon") {
-    return constrDict.containsPolygons.body(
+    return containsPolygons(
       polygonLikePoints(s1),
       polygonLikePoints(s2),
       padding
     );
   } else if (t1 === "Polygon" && t2 === "Circle") {
-    return constrDict.containsPolygonCircle.body(
+    return containsPolygonCircle(
       polygonLikePoints(s1),
       [s2.center.contents[0], s2.center.contents[1]],
       s2.r.contents,
       padding
     );
   } else if (t1 === "Circle" && t2 === "Polygon") {
-    return constrDict.containsCirclePolygon.body(
+    return containsCirclePolygon(
       [s1.center.contents[0], s1.center.contents[1]],
       s1.r.contents,
       polygonLikePoints(s2),
@@ -251,7 +251,7 @@ export const contains = (
     );
   } else if (t1 === "Circle" && isRectlike(s2)) {
     const rectPts = bboxPts(bboxFromShape(s2));
-    return constrDict.containsCircleRect.body(
+    return containsCircleRect(
       [s1.center.contents[0], s1.center.contents[1]],
       s1.r.contents,
       rectPts,
@@ -259,7 +259,7 @@ export const contains = (
     );
   } else if (isRectlike(s1) && t2 === "Circle") {
     const rectPts = bboxPts(bboxFromShape(s1));
-    return constrDict.containsRectCircle.body(
+    return containsRectCircle(
       rectPts,
       [s2.center.contents[0], s2.center.contents[1]],
       s2.r.contents,
@@ -268,7 +268,7 @@ export const contains = (
   } else {
     const s1BboxPts = bboxPts(bboxFromShape(s1));
     const s2BboxPts = bboxPts(bboxFromShape(s2));
-    return constrDict.containsRects.body(s1BboxPts, s2BboxPts, padding);
+    return containsRects(s1BboxPts, s2BboxPts, padding);
   }
 };
 
