@@ -2,6 +2,7 @@ Point A, B, C, D, E
 Line AB := MkLine(A, B)
 Line CD := MkLine(C, D)
 Parallel(AB, CD)
+ParallelMarker1(AB, CD)
 Line AC := MkLine(A, C)
 Line BD := MkLine(B, D)
 Collinear(A, E, D)
