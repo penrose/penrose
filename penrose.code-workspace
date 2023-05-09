@@ -32,6 +32,10 @@
       "path": "packages/docs-site"
     },
     {
+      "name": "📦 @penrose/edgeworth",
+      "path": "packages/edgeworth"
+    },
+    {
       "name": "📦 @penrose/editor",
       "path": "packages/editor"
     },
@@ -46,10 +50,6 @@
     {
       "name": "📦 @penrose/roger",
       "path": "packages/roger"
-    },
-    {
-      "name": "📦 @penrose/edgeworth",
-      "path": "packages/edgeworth"
     },
     {
       "name": "📦 penrose-vs",
