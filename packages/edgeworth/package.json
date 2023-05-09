@@ -38,6 +38,12 @@
         "dependsOn": [
           "^build"
         ]
+      },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "^build-decls"
+        ]
       }
     }
   },
