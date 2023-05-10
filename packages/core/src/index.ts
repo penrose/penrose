@@ -339,17 +339,16 @@ const evalGrad = (s: State): ad.OptOutputs => {
 };
 
 /**
- * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objectiveAndGradient` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
- * @param s a state with or without an optimization problem initialized
+ * Evaluate the overall energy of a `State`.
+ * @param s a state
  * @returns a scalar value of the current energy
  */
 export const evalEnergy = (s: State): number => evalGrad(s).phi;
 // TODO: maybe don't also compute the gradient, just to throw it away
 
 /**
- * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. This function assumes that the state already has the objectives and constraints compiled.
- * @param fns a list of constraints/objectives
- * @param s a state with its opt functions cached
+ * Evaluate a list of constraints/objectives.
+ * @param s a state
  * @returns a list of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
  */
 export const evalFns = (
