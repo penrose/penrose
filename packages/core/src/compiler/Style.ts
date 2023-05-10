@@ -2035,7 +2035,7 @@ const processBlock = (
     const block = blockId(blockIndex, substIndex, hb.header);
     const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
     if (block.tag === "NamespaceId") {
-      if (withLocals.globals.get(block.contents)) {
+      if (withLocals.globals.has(block.contents)) {
         // if the namespace exists, throw an error
         withLocals.diagnostics.errors = errors.push(
           redeclareNamespaceError(block.contents, {

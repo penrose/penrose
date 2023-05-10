@@ -66,7 +66,7 @@ export const loadProgs = async ({
   ).unwrapOrElse(throwErr);
 };
 
-const canvasPreamble = `canvas {
+const canvasPreamble = ` canvas {
   width = 800
   height = 700
 }
@@ -500,10 +500,6 @@ describe("Compiler", () => {
        o.f = (?, ?)
        -- o.f[0] = 0.
        o.shape = Circle {}
-}`,
-      `canvas {
-  width = 500.0
-  height = 400.0
 }`,
       `forall Object o {
         o.a = ?
