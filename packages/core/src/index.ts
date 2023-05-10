@@ -1,39 +1,21 @@
 import { start, stepUntil } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
-import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
+import { compileDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
-import {
-  checkSubstance,
-  compileSubstance,
-  parseSubstance,
-  prettySubstance,
-} from "./compiler/Substance";
+import { compileSubstance } from "./compiler/Substance";
 import {
   PathResolver,
   RenderInteractive,
-  RenderShape,
   RenderStatic,
 } from "./renderer/Renderer";
-import { Canvas } from "./shapes/Samplers";
-import { shapeTypes } from "./shapes/Shapes";
-import { showMutations } from "./synthesis/Mutation";
-import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
 import { Fn, LabelCache, State } from "./types/state";
-import { SubProg, SubstanceEnv } from "./types/substance";
+import { SubstanceEnv } from "./types/substance";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
-import {
-  bBoxDims,
-  normList,
-  prettyPrintExpr,
-  prettyPrintFn,
-  prettyPrintPath,
-  safe,
-  toSvgPaintProperty,
-} from "./utils/Util";
+import { safe } from "./utils/Util";
 
 /**
  * Use the current resample seed to sample all shapes in the State.
@@ -384,46 +366,34 @@ export const evalFns = (
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
-export type { SubStmtKind } from "./analysis/SubstanceAnalysis";
+export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
+export {
+  checkSubstance,
+  compileSubstance,
+  parseSubstance,
+  prettySubstance,
+} from "./compiler/Substance";
 export { constrDict } from "./contrib/Constraints";
 export { compDict } from "./contrib/Functions";
 export { objDict } from "./contrib/Objectives";
-export { secondaryGraph } from "./engine/Autodiff";
+export { RenderInteractive, RenderStatic } from "./renderer/Renderer";
 export type { PathResolver } from "./renderer/Renderer";
 export { makeCanvas, simpleContext } from "./shapes/Samplers";
-export type {
-  DeclTypes,
-  MatchSetting,
-  SynthesizedSubstance,
-  SynthesizerSetting,
-} from "./synthesis/Synthesizer";
+export type { Canvas } from "./shapes/Samplers";
+export { sampleShape, shapeTypes } from "./shapes/Shapes";
+export type { ShapeType } from "./shapes/Shapes";
+export type { Env } from "./types/domain";
 export type { PenroseError } from "./types/errors";
+export type { Trio } from "./types/io";
+export type { SubProg } from "./types/substance";
 export * as Value from "./types/value";
+export { showError } from "./utils/Error";
 export type { Result } from "./utils/Error";
-export { hexToRgba, rgbaToHex, zip2 } from "./utils/Util";
 export {
-  compileDomain,
-  compileSubstance,
-  checkDomain,
-  checkSubstance,
-  parseSubstance,
-  parseDomain,
-  Synthesizer,
-  showMutations,
-  RenderShape,
-  RenderInteractive,
-  RenderStatic,
-  bBoxDims,
-  prettySubstance,
-  showError,
+  hexToRgba,
+  prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
-  prettyPrintExpr,
-  normList,
-  toSvgPaintProperty,
-  shapeTypes,
-};
-export type { Registry, Trio };
-export type { Env };
-export type { SubProg };
-export type { Canvas };
+  rgbaToHex,
+  zip2,
+} from "./utils/Util";

@@ -44,12 +44,11 @@
       "packages/components",
       "packages/core",
       "packages/docs-site",
+      "packages/edgeworth",
       "packages/editor",
       "packages/examples",
       "packages/optimizer",
       "packages/roger",
-      "packages/synthesizer",
-      "packages/synthesizer-ui",
       "packages/vscode"
     ],
     "nohoist": [
