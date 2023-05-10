@@ -1,0 +1,34 @@
+
+type Function
+
+type SinFunction <: Function
+type ExpFunction <: Function
+type LinearFunction <: Function
+type ConstantFunction <: Function
+type QuadraticFunction <: Function
+type CubicFunction <: Function
+
+type Point
+type Tangent
+
+type Coord
+type xCoord <: Coord
+type yCoord <: Coord
+
+predicate isMonotone(Function)
+predicate isDecreasing(Function)
+predicate isIncreasing(Function)
+predicate isNonDecreasing(Function)
+predicate isNonIncreasing(Function)
+predicate hasSolution(Function)
+
+predicate isNegative(Function)
+predicate isPositive(Function)
+
+predicate isGreater(Function, Function)
+predicate isSmaller(Function, Function)
+
+predicate isConvex(Function)
+predicate isConcave(Function)
+
+predicate hasCoord(Point, Coord)
