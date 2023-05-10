@@ -214,9 +214,9 @@ jobs:
         uses: ./.github/actions/setup
       - name: Run all tests other than core
         run: npx nx run-many --target=test --all --exclude=core
-        working-directory: packages/core/
       - name: Make test report dir
         run: mkdir -p reports/junit/
+        working-directory: packages/core/
       - name: Run core tests and generate test data
         run: npx nx run core:coverage
       - name: Move test report
