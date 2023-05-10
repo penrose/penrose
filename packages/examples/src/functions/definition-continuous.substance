@@ -17,6 +17,10 @@ hasCoord(p2, y2)
 isGreaterCoord(x, x1)
 isGreaterCoord(x2, x)
 
+hasPoint(f, p)
+hasPoint(f, p1)
+hasPoint(f, p2)
+
 Label p "$p$"
 Label x "$x$"
 Label y "$y$"

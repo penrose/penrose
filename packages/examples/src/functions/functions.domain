@@ -40,3 +40,4 @@ predicate isConvex(Function)
 predicate isConcave(Function)
 
 predicate hasCoord(Point, Coord)
+predicate hasPoint(Function, Point)

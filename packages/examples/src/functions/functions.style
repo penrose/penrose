@@ -11,8 +11,8 @@ colors {
 }
 
 constants {
-  pointRadius = 3
-  lineThickness = 3
+  pointRadius = 4
+  lineThickness = 4
 }
 
 coordSystem {
@@ -79,4 +79,48 @@ forall Point p; CoordX c where hasCoord(p, c) {
     thickness: constants.lineThickness
     strokeColor: p.dot.fillColor
   }
+}
+
+forall Coord c1; Coord c2 where isGreaterCoord(c1, c2) {
+  ensure lessThan(c1.value, c2.value - 5)
+}
+
+forall Function f {
+
+  vec2 pStart = (coordSystem.xAxis.start[0], ?)
+  vec2 p0 = (?, ?)
+  vec2 p1 = (?, ?)
+  vec2 p2 = (?, ?)
+  vec2 p3 = (?, ?)
+  vec2 p4 = (?, ?)
+  vec2 p5 = (?, ?)
+  vec2 p6 = (?, ?)
+  vec2 p7 = (?, ?)
+  vec2 p8 = (?, ?)
+  vec2 p9 = (?, ?)
+  vec2 p10 = (?, ?)
+  vec2 p11 = (?, ?)
+  vec2 p12 = (?, ?)
+  vec2 p13 = (?, ?)
+  vec2 p14 = (?, ?)
+  vec2 p15 = (?, ?)
+  vec2 p16 = (?, ?)
+  vec2 p17 = (?, ?)
+  vec2 p18 = (?, ?)
+  vec2 p19 = (?, ?)
+  vec2 pEnd = (coordSystem.xAxis.end[0], ?)
+
+  shape f.poly = Polyline {
+    points: [pStart, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, pEnd]
+    strokeWidth: 2
+  }
+
+    encourage equal(perimeter(f.poly.points, false), 1.05 * vdist(pStart, pEnd))
+  encourage minimal(elasticEnergy(f.poly.points, false))
+  encourage isEquilateral(f.poly)
+  --   ensure isFunction(f.poly)
+}
+
+forall Function f; Point p where hasPoint(f, p) {
+  ensure overlapping(p.dot, f.poly). -- todo: improve
 }
