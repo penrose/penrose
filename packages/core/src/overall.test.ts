@@ -1,6 +1,6 @@
 import setTHeory from "@penrose/examples/dist/set-theory-domain";
 import { genOptProblem } from "@penrose/optimizer";
-import { genGradient } from "../engine/EngineUtils";
+import { genGradient } from "./engine/EngineUtils";
 import {
   compileTrio,
   evalEnergy,
@@ -10,9 +10,9 @@ import {
   resample,
   showError,
   stepUntilConvergence,
-} from "../index";
-import { State } from "../types/state";
-import { safe } from "../utils/Util";
+} from "./index";
+import { State } from "./types/state";
+import { safe } from "./utils/Util";
 
 const vennStyle = setTHeory["venn.style"];
 const setDomain = setTHeory["setTheory.domain"];
