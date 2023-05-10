@@ -562,47 +562,91 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
     },
   },
 
-  // noUTurn: ([t, s]: [string, Polyline]): ad.Num => {
-  //   const points = extractPoints([t, s]);
-  //   const hs = consecutiveTuples(points, isClosed([t, s]));
-  //   const direction = ops.vnormalize(ops.vsub(hs[0][0], hs[0][1]));
-  //   return addN(
-  //     hs.map(([p1, p2]: ad.Num[][]) =>
-  //       max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
-  //     )
-  //   );
-  // },
+  noUTurn: {
+    name: "noUTurn",
+    description: "...",
+    params: [
+      {
+        name: "s",
+        description: "a shape",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+      const points = extractPoints(s);
+      const hs = consecutiveTriples(points, isClosed(s));
+      const direction = ops.vnormalize(ops.vsub(hs[0][0], hs[0][1]));
+      return addN(
+        hs.map(([p1, p2]: ad.Num[][]) =>
+          max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
+        )
+      );
+    },
+  },
 
-  // isFunction: ([t, s]: [string, Polyline]): ad.Num => {
-  //   const points = extractPoints([t, s]);
-  //   const hs = consecutiveTuples(points, isClosed([t, s]));
-  //   const direction = [1, 0];
-  //   return addN(
-  //     hs.map(([p1, p2]: ad.Num[][]) =>
-  //       max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
-  //     )
-  //   );
-  // },
+  isFunction: {
+    name: "isFunction",
+    description: "...",
+    params: [
+      {
+        name: "s",
+        description: "a shape",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+      const points = extractPoints(s);
+      const hs = consecutiveTriples(points, isClosed(s));
+      const direction = [1, 0];
+      return addN(
+        hs.map(([p1, p2]: ad.Num[][]) =>
+          max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
+        )
+      );
+    },
+  },
 
-  // isDescreasing: ([t, s]: [string, Polyline]): ad.Num => {
-  //   const points = extractPoints([t, s]);
-  //   const hs = consecutiveTuples(points, isClosed([t, s]));
-  //   const direction = [0, 1];
-  //   return addN(
-  //     hs.map(([p1, p2]: ad.Num[][]) =>
-  //       max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
-  //     )
-  //   );
-  // },
+  isDescreasing: {
+    name: "isDescreasing",
+    description: "...",
+    params: [
+      {
+        name: "s",
+        description: "a shape",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+      const points = extractPoints(s);
+      const hs = consecutiveTriples(points, isClosed(s));
+      const direction = [0, 1];
+      return addN(
+        hs.map(([p1, p2]: ad.Num[][]) =>
+          max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
+        )
+      );
+    },
+  },
 
-  // isIncreasing: ([t, s]: [string, Polyline]): ad.Num => {
-  //   const points = extractPoints([t, s]);
-  //   const hs = consecutiveTuples(points, isClosed([t, s]));
-  //   const direction = [0, -1];
-  //   return addN(
-  //     hs.map(([p1, p2]: ad.Num[][]) =>
-  //       max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
-  //     )
-  //   );
-  // },
+  isIncreasing: {
+    name: "isIncreasing",
+    description: "...",
+    params: [
+      {
+        name: "s",
+        description: "a shape",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+      const points = extractPoints(s);
+      const hs = consecutiveTriples(points, isClosed(s));
+      const direction = [0, -1];
+      return addN(
+        hs.map(([p1, p2]: ad.Num[][]) =>
+          max(ops.vdot(direction, ops.vsub(p2, p1)), 0)
+        )
+      );
+    },
+  },
 };
