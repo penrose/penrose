@@ -1,3 +1,15 @@
+import {
+  prettyStmt,
+  prettySubNode,
+} from "@penrose/core/dist/compiler/Substance";
+import { dummyIdentifier } from "@penrose/core/dist/engine/EngineUtils";
+import { A, Identifier } from "@penrose/core/dist/types/ast";
+import {
+  ApplyPredicate,
+  Bind,
+  SubProg,
+  SubStmt,
+} from "@penrose/core/dist/types/substance";
 import consola from "consola";
 import _ from "lodash";
 import {
@@ -12,10 +24,6 @@ import {
   replaceStmt,
   stmtExists,
 } from "../analysis/SubstanceAnalysis";
-import { prettyStmt, prettySubNode } from "../compiler/Substance";
-import { dummyIdentifier } from "../engine/EngineUtils";
-import { A, Identifier } from "../types/ast";
-import { ApplyPredicate, Bind, SubProg, SubStmt } from "../types/substance";
 import {
   addID,
   generateArgStmt,

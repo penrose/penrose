@@ -1,8 +1,5 @@
-import consola from "consola";
-import im from "immutable";
-import _ from "lodash";
-import { prettyStmt } from "../compiler/Substance";
-import { dummyIdentifier } from "../engine/EngineUtils";
+import { prettyStmt } from "@penrose/core/dist/compiler/Substance";
+import { dummyIdentifier } from "@penrose/core/dist/engine/EngineUtils";
 import {
   A,
   AbstractNode,
@@ -10,7 +7,7 @@ import {
   Identifier,
   metaProps,
   StringLit,
-} from "../types/ast";
+} from "@penrose/core/dist/types/ast";
 import {
   ConstructorDecl,
   DomainStmt,
@@ -18,7 +15,7 @@ import {
   FunctionDecl,
   PredicateDecl,
   TypeDecl,
-} from "../types/domain";
+} from "@penrose/core/dist/types/domain";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -33,7 +30,10 @@ import {
   SubProg,
   SubStmt,
   TypeConsApp,
-} from "../types/substance";
+} from "@penrose/core/dist/types/substance";
+import consola from "consola";
+import im from "immutable";
+import _ from "lodash";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Info })

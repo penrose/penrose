@@ -1,17 +1,17 @@
+import { compileDomain } from "@penrose/core/dist/compiler/Domain";
+import {
+  compileSubstance,
+  prettyStmt,
+  prettySubstance,
+} from "@penrose/core/dist/compiler/Substance";
+import { A } from "@penrose/core/dist/types/ast";
+import { SubProg, SubRes } from "@penrose/core/dist/types/substance";
+import { showError } from "@penrose/core/dist/utils/Error";
 import _ from "lodash";
 import pc from "pandemonium/choice";
 import rdiff from "recursive-diff";
 import seedrandom from "seedrandom";
 import { sortStmts, typeOf } from "../analysis/SubstanceAnalysis";
-import { prettyStmt } from "../compiler/Substance";
-import {
-  compileDomain,
-  compileSubstance,
-  prettySubstance,
-  showError,
-} from "../index";
-import { A } from "../types/ast";
-import { SubProg, SubRes } from "../types/substance";
 import {
   enumerateStmtMutations,
   executeMutation,

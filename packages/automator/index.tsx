@@ -6,12 +6,13 @@ import {
   makeCanvas,
   prepareState,
   RenderStatic,
+  sampleShape,
+  ShapeType,
   shapeTypes,
   showError,
   simpleContext,
   stepUntilConvergence,
 } from "@penrose/core";
-import { sampleShape, ShapeType } from "@penrose/core/dist/shapes/Shapes";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";

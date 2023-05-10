@@ -4,12 +4,14 @@ import {
   compileSubstance,
   prettySubstance,
   showError,
-  SynthesizedSubstance,
-  Synthesizer,
-  SynthesizerSetting,
 } from "@penrose/core";
 import { shuffle } from "lodash";
 import { Preset } from "../examples";
+import {
+  SynthesizedSubstance,
+  Synthesizer,
+  SynthesizerSetting,
+} from "../synthesis/Synthesizer";
 
 const generateProgs = (
   setting: SynthesizerSetting,

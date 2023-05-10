@@ -1,3 +1,20 @@
+import {
+  prettyStmt,
+  prettySubstance,
+} from "@penrose/core/dist/compiler/Substance";
+import {
+  A,
+  AbstractNode,
+  Identifier,
+  metaProps,
+} from "@penrose/core/dist/types/ast";
+import { Env, Type } from "@penrose/core/dist/types/domain";
+import {
+  LabelOption,
+  SubExpr,
+  SubProg,
+  SubStmt,
+} from "@penrose/core/dist/types/substance";
 import _ from "lodash";
 import rdiff from "recursive-diff";
 import {
@@ -10,10 +27,6 @@ import {
   sortStmts,
   subProg,
 } from "../analysis/SubstanceAnalysis";
-import { prettyStmt, prettySubstance } from "../compiler/Substance";
-import { A, AbstractNode, Identifier, metaProps } from "../types/ast";
-import { Env, Type } from "../types/domain";
-import { LabelOption, SubExpr, SubProg, SubStmt } from "../types/substance";
 import {
   Add,
   addMutation,
