@@ -51,7 +51,7 @@ export const resample = (state: State): State => {
   });
 };
 
-const bareStep = (state: State, numSteps: number): State => {
+const step = (state: State, numSteps: number): State => {
   const { constraintSets, optStages, currentStageIndex } = state;
   const stage = optStages[currentStageIndex];
   const masks = safe(constraintSets.get(stage), "missing stage");
@@ -73,7 +73,7 @@ const bareStep = (state: State, numSteps: number): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  const steppedState = bareStep(state, numSteps);
+  const steppedState = step(state, numSteps);
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
     const nextInitState = nextStage(steppedState);
     return nextInitState;
@@ -100,7 +100,7 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
     !(currentState.params.optStatus === "Error") &&
     !stateConverged(currentState)
   ) {
-    currentState = bareStep(currentState, numSteps);
+    currentState = step(currentState, numSteps);
   }
   return nextStage(currentState);
 };
