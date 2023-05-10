@@ -3,6 +3,8 @@ canvas {
     height = 700
 }
 
+layout = [sort, disjoint]
+
 colors {
     darkgray = #333333
     gray = #D3D3D3
@@ -138,8 +140,8 @@ with Year y {
 
 
 forall Event e
-where e := MkEvent(start, end, c)
-with Quarter start; Quarter end; Category c {
+where e := MkEvent(start, end)
+with Quarter start; Quarter end;{
     e.centerY = ?
     topBox = e.centerY + global.eventHeight/2
     bottomBox = e.centerY - global.eventHeight/2
@@ -170,41 +172,44 @@ with Quarter start; Quarter end; Category c {
 }
 
 forall Event e
-where e:= MkEvent(start, end, `access`)
-with Quarter start; Quarter end; Category `access` {
+where In(e, `access`)
+with Category `access` {
    e.icon.fillColor = colors.green
 }
 
 forall Event e
-where e:= MkEvent(start, end, `milestone`)
-with Quarter start; Quarter end; Category `milestone` {
+where In (e, `milestone`)
+with  Category `milestone` {
    e.icon.fillColor = colors.purple
 }
 
 forall Event e
-where e:= MkEvent(start, end, `outcome`)
-with Quarter start; Quarter end; Category `outcome` {
+where In(e, `outcome`)
+with Category `outcome` {
    e.icon.fillColor = colors.blue
 }
 
-forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `outcome`; Category `access`
-where e1:= MkEvent(start1, end1, `outcome`); e2:= MkEvent(start2, end2, `access`);
+forall Event e1; Event e2
+where In(e1, `outcome`); In(e2, `access`)
+with Category `outcome`; Category `access`
 {
-  ensure e1.centerY > e2.centerY
+  ensure e1.centerY > e2.centerY in [sort,disjoint]
 }
 
-forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `access`; Category `milestone`
-where e1:= MkEvent(start1, end1, `access`); e2:= MkEvent(start2, end2, `milestone`);
+forall Event e1; Event e2;
+where In(e1, `access`); In(e2, `milestone`)
+with Category `access`; Category `milestone`
 {
-  ensure e1.centerY > e2.centerY
+  ensure e1.centerY > e2.centerY in [sort,disjoint]
 }
 
-forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `outcome`; Category `milestone`
-where e1:= MkEvent(start1, end1, `outcome`); e2:= MkEvent(start2, end2, `milestone`);
+forall Event e1; Event e2;
+where In(e1, `outcome`); In(e2, `milestone`)
+with Category `outcome`; Category `milestone`
 {
-  ensure e1.centerY > e2.centerY
+  ensure e1.centerY > e2.centerY in [sort,disjoint]
 }
 
 forall Event e1, e2 {
-    ensure disjoint(e1.icon, e2.icon, global.eventPadding)
+    ensure disjoint(e1.icon, e2.icon, global.eventPadding) in disjoint
 }

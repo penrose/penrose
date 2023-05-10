@@ -3,8 +3,11 @@ type Quarter
 type Event
 type Year
 
-constructor MkEvent (Quarter start, Quarter end, Category c) -> Event
+constructor MkEvent (Quarter start, Quarter end) -> Event
 constructor MkQuarter(Year y) -> Quarter
+
+--seperated category into events to avoid match de-deuplication
+predicate In(Event e, Category c)
 
 --declares the immediate prior quarter
 predicate Before(Quarter q1, Quarter q2)
