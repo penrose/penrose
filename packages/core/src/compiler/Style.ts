@@ -1,4 +1,4 @@
-import { genOptProblem } from "@penrose/optimizer";
+import { start as genOptProblem } from "@penrose/optimizer";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
@@ -7,13 +7,9 @@ import seedrandom from "seedrandom";
 import { constrDict } from "../contrib/Constraints";
 import { compDict } from "../contrib/Functions";
 import { objDict } from "../contrib/Objectives";
-import { input, ops } from "../engine/Autodiff";
+import { genGradient, input, ops } from "../engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions";
-import {
-  compileCompGraph,
-  dummyIdentifier,
-  genGradient,
-} from "../engine/EngineUtils";
+import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils";
 import { lastLocation, prettyParseError } from "../parser/ParserUtil";
 import styleGrammar from "../parser/StyleParser";
 import {
@@ -151,7 +147,6 @@ import {
   matrixV,
   prettyPrintResolvedPath,
   resolveRhsName,
-  safe,
   shapeListV,
   strV,
   tupV,
@@ -3725,17 +3720,12 @@ export const compileStyleHelper = async (
   const computeShapes = await compileCompGraph(renderGraph);
 
   const gradient = await genGradient(
-    inputs,
+    varyingValues.length,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
   );
 
-  const { inputMask, objMask, constrMask } = safe(
-    constraintSets.get(optimizationStages.value[0]),
-    "missing first stage"
-  );
-
-  const params = genOptProblem(inputMask, objMask, constrMask);
+  const params = genOptProblem(varyingValues.length);
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]

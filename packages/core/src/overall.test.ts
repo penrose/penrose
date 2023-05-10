@@ -1,6 +1,6 @@
 import setTHeory from "@penrose/examples/dist/set-theory-domain";
-import { genOptProblem } from "@penrose/optimizer";
-import { genGradient } from "./engine/EngineUtils";
+import { start } from "@penrose/optimizer";
+import { genGradient } from "./engine/Autodiff";
 import {
   compileTrio,
   evalEnergy,
@@ -11,8 +11,8 @@ import {
   showError,
   stepUntilConvergence,
 } from "./index";
+import * as ad from "./types/ad";
 import { State } from "./types/state";
-import { safe } from "./utils/Util";
 
 const vennStyle = setTHeory["venn.style"];
 const setDomain = setTHeory["setTheory.domain"];
@@ -159,19 +159,20 @@ describe("Energy API", () => {
           c.ast.expr.body.name.value === "smallerThan"
         );
       });
-      const { inputMask, objMask, constrMask } = safe(
-        state.constraintSets.get(state.optStages[0]),
-        "missing first stage"
-      );
+      const masks: ad.Masks = {
+        ...state.constraintSets.get("")!,
+        constrMask: smallerThanFns.map(() => true),
+      };
       const stateFiltered = {
         ...state,
+        constraintSets: new Map([["", masks]]),
         constrFns: smallerThanFns,
         gradient: await genGradient(
-          state.inputs,
+          state.varyingValues.length,
           state.objFns.map(({ output }) => output),
           smallerThanFns.map(({ output }) => output)
         ),
-        params: genOptProblem(inputMask, objMask, constrMask),
+        params: start(state.varyingValues.length),
       };
       expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
     } else {
@@ -245,18 +246,6 @@ describe("Run individual functions", () => {
 
       // console.log("# objectives", stateEvaled.objFns.length);
       // console.log("# constraints", stateEvaled.constrFns.length);
-
-      const initialEnergies = stateEvaled.gradient.call([
-        ...stateEvaled.varyingValues,
-        stateEvaled.params.weight,
-      ]);
-      stateEvaled.params.lastObjEnergies = initialEnergies.secondary.slice(
-        0,
-        stateEvaled.params.objMask.length
-      );
-      stateEvaled.params.lastConstrEnergies = initialEnergies.secondary.slice(
-        stateEvaled.params.objMask.length
-      );
 
       // Test objectives
       const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
