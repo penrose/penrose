@@ -1,0 +1,46 @@
+canvas {
+  width = 600
+  height = 400
+}
+
+-- layout = []
+
+colors {
+  black = #000000
+  white = #ffffff
+}
+
+constants {
+  pointRadius = 3
+  lineThickness = 3
+}
+
+coordSystem {
+  center = ( ?, ? )
+  xAxis = Line {
+    start: ( - 0.4 * canvas.width, center[1] )
+    end: ( 0.4 * canvas.width, center[1] )
+    thickness: constants.lineThickness
+    strokeColor: colors.black
+  }
+  yAxis = Line {
+    start: ( center[0], - 0.4 * canvas.height )
+    end: ( center[0],  0.4 * canvas.height )
+    thickness: constants.lineThickness
+    strokeColor: colors.black
+  }
+  ensure lessThan(xAxis.start[0], center[0])
+  ensure lessThan(center[0], xAxis.end[0])
+  ensure lessThan(yAxis.start[1], center[1])
+  ensure lessThan(center[1], yAxis.end[1])
+}
+
+forall Point p {
+  p.coords = (?, ?)
+  p.dot = Circle {
+    center: p.coords
+    r: constants.pointRadius
+    fillColor : colors.black
+  }
+}
+
