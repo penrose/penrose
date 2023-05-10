@@ -18,21 +18,17 @@ constants {
 coordSystem {
   center = ( ?, ? )
   xAxis = Line {
-    start: ( - 0.4 * canvas.width, center[1] )
-    end: ( 0.4 * canvas.width, center[1] )
+    start: ( - 0.5 * canvas.width, center[1] )
+    end: ( 0.5 * canvas.width, center[1] )
     thickness: constants.lineThickness
     strokeColor: colors.black
   }
   yAxis = Line {
-    start: ( center[0], - 0.4 * canvas.height )
-    end: ( center[0],  0.4 * canvas.height )
+    start: ( center[0], - 0.5 * canvas.height )
+    end: ( center[0],  0.5 * canvas.height )
     thickness: constants.lineThickness
     strokeColor: colors.black
   }
-  ensure lessThan(xAxis.start[0], center[0])
-  ensure lessThan(center[0], xAxis.end[0])
-  ensure lessThan(yAxis.start[1], center[1])
-  ensure lessThan(center[1], yAxis.end[1])
 }
 
 forall Point p {
@@ -40,7 +36,47 @@ forall Point p {
   p.dot = Circle {
     center: p.coords
     r: constants.pointRadius
-    fillColor : colors.black
   }
 }
 
+forall Coord c {
+  c.value = ?
+}
+
+forall CoordX c {
+  c.dot = Circle {
+    center: (c.value, coordSystem.center[1])
+    r: constants.pointRadius
+  }
+}
+
+forall CoordY c {
+  c.dot = Circle {
+    center: (coordSystem.center[0], c.value)
+    r: constants.pointRadius
+  }
+}
+
+forall Point p; CoordY c where hasCoord(p, c) {
+  c.dot.fillColor = p.dot.fillColor
+  c.value = p.coords[1]
+  c.line = Line {
+    start: c.dot.center
+    end: p.dot.center
+    strokeStyle: "dashed"
+    thickness: constants.lineThickness
+    strokeColor: p.dot.fillColor
+  }
+}
+
+forall Point p; CoordX c where hasCoord(p, c) {
+  c.dot.fillColor = p.dot.fillColor
+  c.value = p.coords[0]
+  c.line = Line {
+    start: c.dot.center
+    end: p.dot.center
+    strokeStyle: "dashed"
+    thickness: constants.lineThickness
+    strokeColor: p.dot.fillColor
+  }
+}
