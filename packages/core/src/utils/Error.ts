@@ -27,6 +27,7 @@ import {
   NaNError,
   ParseError,
   PenroseError,
+  RedeclareNamespaceError,
   RuntimeError,
   SelectorFieldNotSupported,
   StyleError,
@@ -511,6 +512,12 @@ canvas {
       const locStr = locc("Style", location);
       return `Function \`${func.name}\` (at ${locStr}) failed with message: ${message}`;
     }
+    case "RedeclareNamespaceError": {
+      return `Namespace ${
+        error.existingNamespace
+      } already exists and is redeclared in ${locc("Style", error.location)}.`;
+    }
+
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -767,6 +774,15 @@ export const functionInternalError = (
   func,
   location,
   message,
+});
+
+export const redeclareNamespaceError = (
+  existingNamespace: string,
+  location: SourceRange
+): RedeclareNamespaceError => ({
+  tag: "RedeclareNamespaceError",
+  existingNamespace,
+  location,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

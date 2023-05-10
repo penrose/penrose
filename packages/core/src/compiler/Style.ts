@@ -121,6 +121,7 @@ import {
   isErr,
   ok,
   parseError,
+  redeclareNamespaceError,
   Result,
   safeChain,
   selectorFieldNotSupported,
@@ -2034,10 +2035,18 @@ const processBlock = (
     const block = blockId(blockIndex, substIndex, hb.header);
     const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
     if (block.tag === "NamespaceId") {
-      // prepopulate with an empty namespace, to give a better error message
-      // when someone tries to assign to a global by its absolute path
-      // (`AssignGlobalError` instead of `MissingShapeError`)
-      withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+      if (withLocals.globals.get(block.contents)) {
+        // if the namespace exists, throw an error
+        withLocals.diagnostics.errors = errors.push(
+          redeclareNamespaceError(block.contents, {
+            start: hb.header.start,
+            end: hb.header.end,
+          })
+        );
+      } else {
+        // prepopulate with an empty namespace if it doesn't exist
+        withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+      }
     }
 
     // Augment the block to include the metadata
