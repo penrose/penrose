@@ -415,6 +415,7 @@ anonymous_expr
   |  objective {% id %}
   |  constraint {% id %}
   |  gpi_decl {% id %}
+  |  computation_function {% id %}
 
 # NOTE: inline computations on expr_literal (including expr_literal)
 expr -> arithmeticExpr {% id %}

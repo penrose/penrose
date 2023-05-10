@@ -511,6 +511,12 @@ canvas {
       const locStr = locc("Style", location);
       return `Function \`${func.name}\` (at ${locStr}) failed with message: ${message}`;
     }
+
+    case "InvalidTopLevelFunctionError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `Function \`${name}\` (at ${locStr}) cannot be called in top-level. Either the function does not exist, or the return value must be assigned to another variable.`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here

@@ -208,6 +208,7 @@ export type StyleError =
   | MissingArgumentError
   | TooManyArgumentsError
   | FunctionInternalError
+  | InvalidTopLevelFunctionError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -486,6 +487,12 @@ export interface FunctionInternalError {
   func: CompFunc | ObjFunc | ConstrFunc;
   location: SourceRange;
   message: string;
+}
+
+export interface InvalidTopLevelFunctionError {
+  tag: "InvalidTopLevelFunctionError";
+  name: string;
+  location: SourceRange;
 }
 
 //#endregion

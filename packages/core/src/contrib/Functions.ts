@@ -2807,29 +2807,6 @@ export const compDict = {
     },
     returns: valueT("Real"),
   },
-
-  appendShape: {
-    name: "appendShape",
-    description:
-      "Appends a shape into a list of shapes in-place and returns the resultant list",
-    params: [
-      {
-        name: "shapes",
-        type: valueT("ShapeList"),
-        description: "A list of shapes",
-      },
-      { name: "shape", type: shapeT("AnyShape"), description: "A shape" },
-    ],
-    body: (
-      _context: Context,
-      shapes: Shape<ad.Num>[],
-      shape: Shape<ad.Num>
-    ): ShapeListV<ad.Num> => {
-      shapes.push(shape);
-      return shapeListV(shapes);
-    },
-    returns: valueT("ShapeList"),
-  },
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in

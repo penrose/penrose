@@ -6,6 +6,7 @@ import nearley from "nearley";
 import seedrandom from "seedrandom";
 import { constrDict } from "../contrib/Constraints";
 import { compDict } from "../contrib/Functions";
+import { impDict } from "../contrib/ImpFunctions";
 import { objDict } from "../contrib/Objectives";
 import { input, ops } from "../engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions";
@@ -1909,6 +1910,19 @@ const processStmt = (
       // act as if the synthetic name we create is from the beginning of the
       // anonymous assignment statement
       const range: SourceRange = { start, end: start };
+      if (stmt.contents.tag === "CompApp") {
+        const fname = stmt.contents.name.value;
+        if (!(fname in impDict)) {
+          return addDiags(
+            oneErr({
+              tag: "InvalidTopLevelFunctionError",
+              name: fname,
+              location: range,
+            }),
+            assignment
+          );
+        }
+      }
       return insertExpr(
         block,
         {
@@ -2865,12 +2879,12 @@ const evalExpr = (
       }));
 
       const { name, start, end } = expr;
-      if (!(name.value in compDict)) {
+      if (!(name.value in compDict) && !(name.value in impDict)) {
         return err(
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
       }
-      const f = compDict[name.value];
+      const f = compDict[name.value] ? compDict[name.value] : impDict[name.value];
       const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
       if (x.isErr()) return err(oneErr(x.error));
       return ok(val(x.value));
