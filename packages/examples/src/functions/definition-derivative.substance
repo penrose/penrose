@@ -1,0 +1,14 @@
+Function f
+
+Point p, pe
+CoordX x, xe
+
+Label p "$p$"
+Label pe "$p'$"
+Label x "$x$"
+Label xe "$x + \varepsilon$"
+
+hasCoord(p, x)
+hasCoord(pe, xe)
+
+isGreaterCoord(xe, x)

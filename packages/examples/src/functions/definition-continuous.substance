@@ -1,0 +1,28 @@
+Function f
+
+Point p, p1, p2
+CoordX x, x1, x2
+CoordY y, y1, y2
+
+isNonDecreasingAtPoint(f, p)
+isPositiveAtPoint(f, p)
+
+hasCoord(p, x)
+hasCoord(p, y)
+hasCoord(p1, x1)
+hasCoord(p1, y1)
+hasCoord(p2, x2)
+hasCoord(p2, y2)
+
+isGreaterCoord(x, x1)
+isGreaterCoord(x2, x)
+
+Label p "$p$"
+Label x "$x$"
+Label y "$y$"
+Label p1 "$p_1$"
+Label x1 "$x_1$"
+Label y1 "$y_1$"
+Label p2 "$p_2$"
+Label x2 "$x_2$"
+Label y2 "$y_2$"
