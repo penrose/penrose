@@ -92,7 +92,6 @@
   "devDependencies": {
     "@penrose/examples": "^2.3.0",
     "@types/jest": "^27.4.1",
-    "@types/jscodeshift": "^0.11.0",
     "@types/lodash": "^4.14.149",
     "@types/moo": "^0.5.3",
     "@types/nearley": "^2.11.1",
