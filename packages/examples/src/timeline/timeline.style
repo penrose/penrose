@@ -13,6 +13,7 @@ colors {
 }
 
 global {
+    --- parameters that user may want to tweek
     eventHeight = 35
     eventLabelFontSize = "14pt"
     eventFontStyle = "italic"
@@ -20,20 +21,34 @@ global {
     periodFontStyle = "bold"
 
     fontFamily = "Garamond"
-    
-    topGridY = (canvas.height / 2) - 25
-    topQuarterY = (canvas.height / 2) - 65
-    lineY = (canvas.height / 2) - 105
-    bottomGridY = -(canvas.height / 2) + 25
-    startX =- (canvas.width / 2) + 50
-    endX = (canvas.width / 2) - 50
+
+    marginTop = 25
+    marginBottom = 25
+    marginLeft = 25
+    marginRight = 25
+
+    yearHeight = 40
+    quarterHeight = 40
+
+    gridLineWeight = 2
+    eventStrokeWeight = 1
+    eventCornerRadius = 8
+    eventPadding = 10
+
+    --- parameters that are calculated
+    topGridY = (canvas.height / 2) - marginTop
+    topQuarterY = topGridY - yearHeight
+    lineY = topQuarterY - quarterHeight
+    bottomGridY = -(canvas.height / 2) + marginBottom
+    startX =- (canvas.width / 2) + marginLeft
+    endX = (canvas.width / 2) - marginRight
     lineLength = endX - startX
     startLine = (startX, lineY)
     endLine = (endX, lineY)
     shape baseline = Line {
         start : startLine
         end : endLine
-        strokeWidth : 2
+        strokeWidth : global.gridLineWeight
         strokeColor: colors.gray
     }
 
@@ -43,7 +58,7 @@ forall Year y {
     y.minX = ?
     y.maxX = ?
     y.centerX = average2(y.minX, y.maxX)
-    y.centerY = global.topGridY - 15
+    y.centerY = global.topGridY - (global.yearHeight / 2)
     y.icon = Text {
         center : (y.centerX, y.centerY)
         string : y.label
@@ -55,13 +70,13 @@ forall Year y {
     y.slotBegin = Line {
         start : (y.minX,global.topQuarterY)
         end : (y.minX,global.topGridY)
-        strokeWidth : 2
+        strokeWidth : global.gridLineWeight
         strokeColor: colors.gray
     }
     y.slotEnd = Line {
         start : (y.maxX,global.topQuarterY)
         end : (y.maxX,global.topGridY)
-        strokeWidth : 2
+        strokeWidth : global.gridLineWeight
         strokeColor: colors.gray
     }
 }
@@ -78,7 +93,7 @@ forall Quarter q {
     q.middleSlotX = global.startX + middleRatio * totalSlotX
     q.endSlotX = global.startX +endRatio * totalSlotX
     q.x = q.middleSlotX
-    q.y = global.lineY + 25
+    q.y = global.lineY + (global.quarterHeight / 2)
     q.icon = Text {
         center : (q.x, q.y)
         string : q.label
@@ -90,13 +105,13 @@ forall Quarter q {
     q.slotBegin = Line {
         start : (q.startSlotX,global.bottomGridY)
         end : (q.startSlotX,global.topQuarterY)
-        strokeWidth : 2
+        strokeWidth : global.gridLineWeight
         strokeColor: colors.gray
     }
     q.slotEnd = Line {
         start : (q.endSlotX,global.bottomGridY)
         end : (q.endSlotX,global.topQuarterY)
-        strokeWidth : 2
+        strokeWidth : global.gridLineWeight
         strokeColor: colors.gray
     }
     layer q.slotEnd above q.slotBegin
@@ -133,8 +148,8 @@ with Quarter start; Quarter end; Category c {
         height : global.eventHeight
         width : end.endSlotX - start.startSlotX
         center: (centerX, e.centerY)
-        cornerRadius : 8
-        strokeWidth : 1
+        cornerRadius : global.eventCornerRadius
+        strokeWidth : global.eventStrokeWeight
         strokeColor: colors.darkgray
     }
 
@@ -146,9 +161,9 @@ with Quarter start; Quarter end; Category c {
         fontStyle: global.eventFontStyle
         fontFamily: global.fontFamily
     }
-    topWithPadding = global.lineY - 10
+    topWithPadding = global.lineY - global.eventPadding
     ensure lessThan(topBox, topWithPadding)
-    bottomWithPadding = global.bottomGridY + 10
+    bottomWithPadding = global.bottomGridY + global.eventPadding
     ensure greaterThan(bottomBox, bottomWithPadding)
     layer e.icon above end.slotEnd
     layer e.text above e.icon
@@ -175,22 +190,21 @@ with Quarter start; Quarter end; Category `outcome` {
 forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `outcome`; Category `access`
 where e1:= MkEvent(start1, end1, `outcome`); e2:= MkEvent(start2, end2, `access`);
 {
-  ensure (e1.centerY-5) > e2.centerY
+  ensure e1.centerY > e2.centerY
 }
 
 forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `access`; Category `milestone`
 where e1:= MkEvent(start1, end1, `access`); e2:= MkEvent(start2, end2, `milestone`);
 {
-  ensure (e1.centerY-5) > e2.centerY
+  ensure e1.centerY > e2.centerY
 }
 
 forall Event e1; Event e2; Quarter start1; Quarter start2; Quarter end1; Quarter end2; Category `outcome`; Category `milestone`
 where e1:= MkEvent(start1, end1, `outcome`); e2:= MkEvent(start2, end2, `milestone`);
 {
-  ensure (e1.centerY-5) > e2.centerY
+  ensure e1.centerY > e2.centerY
 }
 
-
 forall Event e1, e2 {
-    ensure disjoint(e1.icon, e2.icon, 10.0)
+    ensure disjoint(e1.icon, e2.icon, global.eventPadding)
 }
