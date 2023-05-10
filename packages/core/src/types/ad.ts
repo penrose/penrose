@@ -245,6 +245,8 @@ export interface Masks {
   constrMask: boolean[];
 }
 
+// you can think of the `Fn` type from `@penrose/optimizer` as this type
+// partially applied with `masks` and projecting out the `phi` field
 export type Gradient = (
   masks: Masks,
   inputs: Float64Array,
