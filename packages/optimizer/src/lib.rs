@@ -826,6 +826,8 @@ pub fn penrose_start(n: usize) -> JsValue {
 #[wasm_bindgen]
 pub fn penrose_step_until(f: JsValue, x: &mut [f64], state: JsValue, stop: JsValue) -> JsValue {
     let unstepped: Params = serde_wasm_bindgen::from_value(state).unwrap();
+    // a `JsValue` is basically just an integer representing an index into an array that
+    // `wasm-bindgen` maintains on the JavaScript side, so they're pretty much free to `.clone()`
     let stepped: Params = step_until(
         |x, weight, grad| call_grad(f.clone(), x, weight, grad),
         x,
