@@ -11,6 +11,7 @@ import {
   showError,
   stepUntilConvergence,
 } from "./index";
+import * as ad from "./types/ad";
 import { State } from "./types/state";
 
 const vennStyle = setTHeory["venn.style"];
@@ -158,8 +159,13 @@ describe("Energy API", () => {
           c.ast.expr.body.name.value === "smallerThan"
         );
       });
+      const masks: ad.Masks = {
+        ...state.constraintSets.get("")!,
+        constrMask: smallerThanFns.map(() => true),
+      };
       const stateFiltered = {
         ...state,
+        constraintSets: new Map([["", masks]]),
         constrFns: smallerThanFns,
         gradient: await genGradient(
           state.varyingValues.length,
