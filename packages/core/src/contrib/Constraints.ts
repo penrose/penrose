@@ -299,20 +299,16 @@ export const contains = (
       padding
     );
   else if (t1 === "Polygon" && t2 === "Polygon") {
-    return containsPolygons(
-      polygonLikePoints(s1),
-      polygonLikePoints(s2),
-      padding
-    );
+    return containsPolys(polygonLikePoints(s1), polygonLikePoints(s2), padding);
   } else if (t1 === "Polygon" && t2 === "Circle") {
-    return containsPolygonCircle(
+    return containsPolyCircle(
       polygonLikePoints(s1),
       toPt(s2.center.contents),
       s2.r.contents,
       padding
     );
   } else if (t1 === "Circle" && t2 === "Polygon") {
-    return containsCirclePolygon(
+    return containsCirclePoly(
       toPt(s1.center.contents),
       s1.r.contents,
       polygonLikePoints(s2),
@@ -353,26 +349,24 @@ export const containsCircles = (
   return sub(d, o);
 };
 
-export const containsPolygons = (
+export const containsPolys = (
   pts1: ad.Pt2[],
   pts2: ad.Pt2[],
   padding: ad.Num
 ): ad.Num => {
-  return maxN(
-    pts2.map((x) => constrDict.containsPolygonPoint.body(pts1, x, padding))
-  );
+  return maxN(pts2.map((x) => containsPolyPoint(pts1, x, padding)));
 };
 
-export const containsPolygonCircle = (
+export const containsPolyCircle = (
   pts: ad.Pt2[],
   c: ad.Pt2,
   r: ad.Num,
   padding: ad.Num
 ): ad.Num => {
-  return constrDict.containsPolygonPoint.body(pts, c, add(padding, r));
+  return containsPolyPoint(pts, c, add(padding, r));
 };
 
-export const containsPolygonPoint = (
+export const containsPolyPoint = (
   pts: ad.Pt2[],
   pt: ad.Pt2,
   padding: ad.Num
@@ -390,7 +384,7 @@ export const containsCirclePoint = (
   return sub(add(ops.vdist(pt, c), padding), r);
 };
 
-export const containsCirclePolygon = (
+export const containsCirclePoly = (
   c: ad.Pt2,
   r: ad.Num,
   pts: ad.Pt2[],
@@ -819,8 +813,8 @@ const constrDictGeneral = {
     body: containsCircles,
   },
 
-  containsPolygons: {
-    name: "containsPolygons",
+  containsPolys: {
+    name: "containsPolys",
     description: `Require that a polygon \`p1\` contains another polygon \`p2\` with optional margin \`padding\`.`,
     params: [
       { name: "pts1", description: "List of points for `p1`", type: real2NT() },
@@ -832,11 +826,11 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsPolygons,
+    body: containsPolys,
   },
 
-  containsPolygonCircle: {
-    name: "containsPolygonCircle",
+  containsPolyCircle: {
+    name: "containsPolyCircle",
     description: `Require that a polygon \`p\` contains circle \`c\` with optional margin \`padding\`.`,
     params: [
       { name: "pts", description: "List of points for `p`", type: real2NT() },
@@ -849,11 +843,11 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsPolygonCircle,
+    body: containsPolyCircle,
   },
 
-  containsPolygonPoint: {
-    name: "containsPolygonPoint",
+  containsPolyPoint: {
+    name: "containsPolyPoint",
     description: `Require that a polygon \`p\` contains point \`pt\` with optional margin \`padding\`.`,
     params: [
       {
@@ -869,7 +863,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsPolygonPoint,
+    body: containsPolyPoint,
   },
 
   containsCirclePoint: {
@@ -889,8 +883,8 @@ const constrDictGeneral = {
     body: containsCirclePoint,
   },
 
-  containsCirclePolygon: {
-    name: "containsCirclePolygon",
+  containsCirclePoly: {
+    name: "containsCirclePoly",
     description: `Require that a circle \`c\` contains polygon \`p\` with optional margin \`padding\`.`,
     params: [
       { name: "c", description: "Center of `c`", type: real2T() },
@@ -907,7 +901,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsCirclePolygon,
+    body: containsCirclePoly,
   },
 
   containsCircleRect: {
