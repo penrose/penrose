@@ -9,4 +9,5 @@ Midpoint(KM, N)
 ParallelMarker1(JK, ML)
 Parallel(JK, ML)
 EqualLength(JK, ML)
+EqualLengthMarker(JK, ML)
 AutoLabel J, K, L, M, N

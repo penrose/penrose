@@ -1,6 +1,6 @@
 # `@penrose/components`: a React component library for Penrose
 
-`@penrose/components` includes a collection of React components for building Penrose clients (e.g. `@penrose/editor` and `@penrose/synthesizer-ui`).
+`@penrose/components` includes a collection of React components for building Penrose clients (e.g. `@penrose/editor` and `@penrose/edgeworth`).
 
 ## Getting started
 

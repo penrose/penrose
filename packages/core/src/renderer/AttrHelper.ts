@@ -208,9 +208,8 @@ export const attrRotation = (
   let transform = elem.getAttribute("transform");
   transform =
     transform === null
-      ? `rotate(${rotation}, ${x - w.contents / 2}, ${y - h.contents / 2})`
-      : transform +
-        `rotate(${rotation}, ${x - w.contents / 2}, ${y - h.contents / 2})`;
+      ? `rotate(${rotation}, ${x}, ${y})`
+      : transform + `rotate(${rotation}, ${x}, ${y})`;
   elem.setAttribute("transform", transform);
 
   return ["rotation", "center", "width", "height"]; // Return array of input properties programatically mapped

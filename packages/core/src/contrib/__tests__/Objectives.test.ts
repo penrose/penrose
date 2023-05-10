@@ -1,10 +1,19 @@
-import { Shape } from "../../shapes/Shapes";
+import { Polygon } from "../../shapes/Polygon";
+import { Polyline } from "../../shapes/Polyline";
 import * as ad from "../../types/ad";
 import { objDict, objDictSpecific } from "../Objectives";
 import { numOf } from "../Utils";
 import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
 
 const digitPrecision = 4;
+
+describe("key-name equality", () => {
+  test("each function's key and name should be equal", () => {
+    for (const [name, func] of Object.entries(objDict)) {
+      expect(name).toEqual(func.name);
+    }
+  });
+});
 
 describe("simple objective", () => {
   it.each([
@@ -15,7 +24,7 @@ describe("simple objective", () => {
   ])(
     "equal(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = objDict.equal(x, y);
+      const result = objDict.equal.body(x, y);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -29,7 +38,7 @@ describe("simple objective", () => {
   ])(
     "repelPt(%p, %p, %p) should return %p",
     (weight: number, a: number[], b: number[], expected: number) => {
-      const result = objDict.repelPt(weight, a, b);
+      const result = objDict.repelPt.body(weight, a, b);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -43,7 +52,7 @@ describe("simple objective", () => {
   ])(
     "repelScalar(%p, %p) should return %p",
     (c: number, d: number, expected: number) => {
-      const result = objDict.repelScalar(c, d);
+      const result = objDict.repelScalar.body(c, d);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -52,8 +61,8 @@ describe("simple objective", () => {
 describe("isRegular", () => {
   it.each([[_polylines[6]], [_polygons[6]]])(
     "convex %p",
-    (shape: Shape<ad.Num>) => {
-      const result = objDictSpecific.isRegular(shape);
+    (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
+      const result = objDictSpecific.isRegular.body(shape);
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
     }
   );
@@ -65,8 +74,8 @@ describe("isRegular", () => {
     [_polygons[8]],
     [_polylines[9]],
     [_polygons[9]],
-  ])("non-convex %p", (shape: Shape<ad.Num>) => {
-    const result = objDictSpecific.isRegular(shape);
+  ])("non-convex %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
+    const result = objDictSpecific.isRegular.body(shape);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });

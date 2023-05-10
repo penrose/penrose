@@ -1,4 +1,4 @@
-import { genOptProblem } from "@penrose/optimizer";
+import { start as genOptProblem } from "@penrose/optimizer";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
@@ -7,13 +7,9 @@ import seedrandom from "seedrandom";
 import { constrDict } from "../contrib/Constraints";
 import { compDict } from "../contrib/Functions";
 import { objDict } from "../contrib/Objectives";
-import { input, ops } from "../engine/Autodiff";
+import { genGradient, input, ops } from "../engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions";
-import {
-  compileCompGraph,
-  dummyIdentifier,
-  genGradient,
-} from "../engine/EngineUtils";
+import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils";
 import { lastLocation, prettyParseError } from "../parser/ParserUtil";
 import styleGrammar from "../parser/StyleParser";
 import {
@@ -113,7 +109,6 @@ import {
   MatrixV,
   PropID,
   ShapeListV,
-  ShapeVal,
   Value,
   VectorV,
 } from "../types/value";
@@ -152,7 +147,6 @@ import {
   matrixV,
   prettyPrintResolvedPath,
   resolveRhsName,
-  safe,
   shapeListV,
   strV,
   tupV,
@@ -162,6 +156,7 @@ import {
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 import { checkShape } from "./shapeChecker/CheckShape";
+import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
 
 const log = consola
@@ -1674,15 +1669,13 @@ type FieldedRes = Result<{ dict: Fielded; warns: StyleWarning[] }, StyleError>;
 const updateExpr = (
   path: ResolvedPath<C>,
   assignment: BlockAssignment,
-  errTagPrefix: "Assign" | "Delete",
+  errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
+  errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
   f: (field: Field, prop: PropID | undefined, fielded: Fielded) => FieldedRes
 ): BlockAssignment => {
   switch (path.tag) {
     case "Global": {
-      return addDiags(
-        oneErr({ tag: `${errTagPrefix}GlobalError`, path }),
-        assignment
-      );
+      return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
     }
     case "Local": {
       if (path.members.length > 1) {
@@ -1703,10 +1696,7 @@ const updateExpr = (
     }
     case "Substance": {
       if (path.members.length < 1) {
-        return addDiags(
-          oneErr({ tag: `${errTagPrefix}SubstanceError`, path }),
-          assignment
-        );
+        return addDiags(oneErr({ tag: errTagSubstance, path }), assignment);
       } else if (path.members.length > 2) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
@@ -1760,71 +1750,86 @@ const insertExpr = (
   expr: Expr<C>,
   assignment: BlockAssignment
 ): BlockAssignment =>
-  updateExpr(path, assignment, "Assign", (field, prop, fielded) => {
-    const warns: StyleWarning[] = [];
-    if (prop === undefined) {
-      const source = processExpr({ ...block, locals: assignment.locals }, expr);
-      if (source.isErr()) {
-        return err(source.error);
-      }
-      if (fielded.has(field)) {
-        warns.push({ tag: "ImplicitOverrideWarning", path });
-      }
-      return ok({ dict: fielded.set(field, source.value), warns });
-    } else {
-      if (expr.tag === "GPIDecl") {
-        return err({ tag: "NestedShapeError", expr });
-      }
-      const shape = fielded.get(field);
-      if (shape === undefined) {
-        return err({ tag: "MissingShapeError", path });
-      }
-      if (shape.tag !== "ShapeSource") {
-        return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
-      }
-      if (shape.props.has(prop)) {
-        warns.push({ tag: "ImplicitOverrideWarning", path });
-      }
-      return ok({
-        dict: fielded.set(field, {
-          ...shape,
-          props: shape.props.set(prop, {
-            context: { ...block, locals: assignment.locals },
-            expr,
+  updateExpr(
+    path,
+    assignment,
+    "AssignGlobalError",
+    "AssignSubstanceError",
+    (field, prop, fielded) => {
+      const warns: StyleWarning[] = [];
+      if (prop === undefined) {
+        const source = processExpr(
+          { ...block, locals: assignment.locals },
+          expr
+        );
+        if (source.isErr()) {
+          return err(source.error);
+        }
+        if (fielded.has(field)) {
+          warns.push({ tag: "ImplicitOverrideWarning", path });
+        }
+        return ok({ dict: fielded.set(field, source.value), warns });
+      } else {
+        if (expr.tag === "GPIDecl") {
+          return err({ tag: "NestedShapeError", expr });
+        }
+        const shape = fielded.get(field);
+        if (shape === undefined) {
+          return err({ tag: "MissingShapeError", path });
+        }
+        if (shape.tag !== "ShapeSource") {
+          return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
+        }
+        if (shape.props.has(prop)) {
+          warns.push({ tag: "ImplicitOverrideWarning", path });
+        }
+        return ok({
+          dict: fielded.set(field, {
+            ...shape,
+            props: shape.props.set(prop, {
+              context: { ...block, locals: assignment.locals },
+              expr,
+            }),
           }),
-        }),
-        warns,
-      });
+          warns,
+        });
+      }
     }
-  });
+  );
 
 const deleteExpr = (
   path: ResolvedPath<C>,
   assignment: BlockAssignment
 ): BlockAssignment =>
-  updateExpr(path, assignment, "Delete", (field, prop, fielded) => {
-    if (prop === undefined) {
-      return ok({
-        dict: fielded.remove(field),
-        warns: fielded.has(field) ? [] : [{ tag: "NoopDeleteWarning", path }],
-      });
-    } else {
-      const shape = fielded.get(field);
-      if (shape === undefined) {
-        return err({ tag: "MissingShapeError", path });
+  updateExpr(
+    path,
+    assignment,
+    "DeleteGlobalError",
+    "DeleteSubstanceError",
+    (field, prop, fielded) => {
+      if (prop === undefined) {
+        return ok({
+          dict: fielded.remove(field),
+          warns: fielded.has(field) ? [] : [{ tag: "NoopDeleteWarning", path }],
+        });
+      } else {
+        const shape = fielded.get(field);
+        if (shape === undefined) {
+          return err({ tag: "MissingShapeError", path });
+        }
+        if (shape.tag !== "ShapeSource") {
+          return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
+        }
+        return ok({
+          dict: fielded.set(field, {
+            ...shape,
+            props: shape.props.remove(prop),
+          }),
+          warns: [],
+        });
       }
-      if (shape.tag !== "ShapeSource") {
-        return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
-      }
-      return ok({
-        dict: fielded.set(field, {
-          ...shape,
-          props: shape.props.remove(prop),
-        }),
-        warns: [],
-      });
     }
-  });
+  );
 
 const resolveLhsName = (
   { block, subst }: BlockInfo,
@@ -2254,27 +2259,10 @@ const evalExprs = (
   trans: Translation
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
-    args.map((expr) => evalExpr(mut, canvas, stages, { context, expr }, trans))
-  ).mapErr(flatErrs);
-
-const argValues = (
-  mut: MutableContext,
-  canvas: Canvas,
-  stages: OptPipeline,
-  context: Context,
-  args: Expr<C>[],
-  trans: Translation
-): Result<(ShapeVal<ad.Num> | Value<ad.Num>)["contents"][], StyleDiagnostics> =>
-  evalExprs(mut, canvas, stages, context, args, trans).map((argVals) =>
-    argVals.map((arg) => {
-      switch (arg.tag) {
-        case "ShapeVal": // strip the `ShapeVal` tag
-          return arg.contents;
-        case "Val": // strip both `Val` and type annotation like `FloatV`
-          return arg.contents.contents;
-      }
+    args.map((expr) => {
+      return evalExpr(mut, canvas, stages, { context, expr }, trans);
     })
-  );
+  ).mapErr(flatErrs);
 
 const evalVals = (
   mut: MutableContext,
@@ -2863,7 +2851,7 @@ const evalExpr = (
       }
     }
     case "CompApp": {
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -2874,14 +2862,23 @@ const evalExpr = (
       if (args.isErr()) {
         return err(args.error);
       }
-      const { name } = expr;
+
+      const argsWithSourceLoc = zip2(args.value, expr.args).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
+
+      const { name, start, end } = expr;
       if (!(name.value in compDict)) {
         return err(
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
       }
-      const x: Value<ad.Num> = compDict[name.value](mut, ...args.value);
-      return ok(val(x));
+      const f = compDict[name.value];
+      const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
+      if (x.isErr()) return err(oneErr(x.error));
+      return ok(val(x.value));
     }
     case "ConstrFn":
     case "Layering":
@@ -3105,7 +3102,7 @@ const translateExpr = (
     }
     case "ConstrFn": {
       const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -3116,6 +3113,11 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
+      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in constrDict)) {
@@ -3124,7 +3126,15 @@ const translateExpr = (
           trans
         );
       }
-      const output: ad.Num = constrDict[fname](...args.value);
+      const output = callObjConstrFunc(
+        constrDict[fname],
+        { start: e.expr.start, end: e.expr.end },
+        argsWithSourceLoc
+      );
+      if (output.isErr()) {
+        return addDiags(oneErr(output.error), trans);
+      }
+
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,
@@ -3135,13 +3145,13 @@ const translateExpr = (
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output,
+          output: output.value,
         }),
       };
     }
     case "ObjFn": {
       const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = argValues(
+      const args = evalExprs(
         mut,
         canvas,
         layoutStages,
@@ -3152,6 +3162,11 @@ const translateExpr = (
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
+      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+        ...v,
+        start: e.start,
+        end: e.end,
+      }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
       if (!(fname in objDict)) {
@@ -3166,13 +3181,20 @@ const translateExpr = (
         exclude,
         stages.map((s) => s.value)
       );
-      const output: ad.Num = objDict[fname](...args.value);
+      const output = callObjConstrFunc(
+        objDict[fname],
+        { start: e.expr.start, end: e.expr.end },
+        argsWithSourceLoc
+      );
+      if (output.isErr()) {
+        return addDiags(oneErr(output.error), trans);
+      }
       return {
         ...trans,
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output,
+          output: output.value,
         }),
       };
     }
@@ -3480,7 +3502,11 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
   for (const shape of shapes) {
     const name = shape.name.contents;
     if (shape.ensureOnCanvas.contents) {
-      const output = constrDict.onCanvas(shape, canvas.width, canvas.height);
+      const output = constrDict.onCanvas.body(
+        shape,
+        canvas.width,
+        canvas.height
+      );
       fns.push({
         ast: {
           context: {
@@ -3704,17 +3730,12 @@ export const compileStyleHelper = async (
   const computeShapes = await compileCompGraph(renderGraph);
 
   const gradient = await genGradient(
-    inputs,
+    varyingValues.length,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
   );
 
-  const { inputMask, objMask, constrMask } = safe(
-    constraintSets.get(optimizationStages.value[0]),
-    "missing first stage"
-  );
-
-  const params = genOptProblem(inputMask, objMask, constrMask);
+  const params = genOptProblem(varyingValues.length);
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
