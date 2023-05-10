@@ -2884,7 +2884,9 @@ const evalExpr = (
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
       }
-      const f = compDict[name.value] ? compDict[name.value] : impDict[name.value];
+      const f = compDict[name.value]
+        ? compDict[name.value]
+        : impDict[name.value];
       const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
       if (x.isErr()) return err(oneErr(x.error));
       return ok(val(x.value));

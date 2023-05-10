@@ -66,7 +66,6 @@ import {
   MatrixV,
   PathDataV,
   PtListV,
-  ShapeListV,
   TupV,
   VectorV,
 } from "../types/value";
@@ -88,7 +87,6 @@ import {
   realNT,
   realT,
   rectlikeT,
-  shapeListV,
   shapeT,
   stringT,
   unionT,
