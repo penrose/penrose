@@ -8,6 +8,7 @@ import {
   RenderInteractive,
   RenderStatic,
 } from "./renderer/Renderer";
+import * as ad from "./types/ad";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
@@ -46,7 +47,13 @@ const step = (state: State, numSteps: number): State => {
     state.params,
     (): boolean => i++ >= numSteps
   );
-  return { ...state, varyingValues: Array.from(xs), params };
+  const s: State = { ...state, varyingValues: Array.from(xs), params };
+  // TODO: maybe don't call the gradient an extra time after every single step
+  const outputs = evalGrad(s);
+  // TODO: maybe don't also compute the gradient, just to throw it away
+  s.lastObjEnergies = outputs.objectives;
+  s.lastConstrEnergies = outputs.constraints;
+  return s;
 };
 
 /**
@@ -327,21 +334,23 @@ export const readRegistry = (
   return res;
 };
 
-/**
- * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objectiveAndGradient` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
- * @param s a state with or without an optimization problem initialized
- * @returns a scalar value of the current energy
- */
-export const evalEnergy = (s: State): number => {
+const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
   const stage = optStages[currentStageIndex];
   const masks = safe(constraintSets.get(stage), "missing stage");
   const x = new Float64Array(s.varyingValues);
   // we constructed `x` to throw away, so it's OK to update it in-place with the
   // gradient after computing the energy
-  return s.gradient(masks, x, s.params.weight, x).phi;
-  // TODO: maybe don't also compute the gradient, just to throw it away
+  return s.gradient(masks, x, s.params.weight, x);
 };
+
+/**
+ * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objectiveAndGradient` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
+ * @param s a state with or without an optimization problem initialized
+ * @returns a scalar value of the current energy
+ */
+export const evalEnergy = (s: State): number => evalGrad(s).phi;
+// TODO: maybe don't also compute the gradient, just to throw it away
 
 /**
  * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. This function assumes that the state already has the objectives and constraints compiled.
@@ -351,16 +360,22 @@ export const evalEnergy = (s: State): number => {
  */
 export const evalFns = (
   s: State
-): { constrEngs: number[]; objEngs: number[] } => {
-  const { constraintSets, optStages, currentStageIndex } = s;
-  const stage = optStages[currentStageIndex];
-  const masks = safe(constraintSets.get(stage), "missing stage");
-  const x = new Float64Array(s.varyingValues);
-  // we constructed `x` to throw away, so it's OK to update it in-place with the
-  // gradient after computing the energy
-  const outputs = s.gradient(masks, x, s.params.weight, x);
-  // TODO: cache objectives/constraints in the `State` instead of recomputing
-  return { constrEngs: outputs.constraints, objEngs: outputs.objectives };
+): {
+  constrEngs: number[];
+  objEngs: number[];
+} => {
+  // Evaluate the energy of each requested function (of the given type) on the varying values in the state
+  let { lastObjEnergies, lastConstrEnergies } = s;
+  if (lastObjEnergies === undefined || lastConstrEnergies === undefined) {
+    const outputs = evalGrad(s);
+    // TODO: maybe don't also compute the gradient, just to throw it away
+    lastObjEnergies = outputs.objectives;
+    lastConstrEnergies = outputs.constraints;
+  }
+  return {
+    constrEngs: lastConstrEnergies,
+    objEngs: lastObjEnergies,
+  };
 };
 
 export type PenroseState = State;

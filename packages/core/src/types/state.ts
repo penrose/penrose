@@ -33,6 +33,8 @@ export interface State {
   optStages: string[];
   computeShapes: ShapeFn;
   params: Params;
+  lastObjEnergies: number[] | undefined;
+  lastConstrEnergies: number[] | undefined;
 }
 
 /**
