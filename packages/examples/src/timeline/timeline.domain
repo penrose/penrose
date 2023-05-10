@@ -1,13 +1,13 @@
 type Category
 type Quarter 
-type Event
+type Task
 type Year
 
-constructor MkEvent (Quarter start, Quarter end) -> Event
+constructor MkTask (Quarter start, Quarter end) -> Task
 constructor MkQuarter(Year y) -> Quarter
 
---seperated category into events to avoid match de-deuplication
-predicate In(Event e, Category c)
+--seperated category into new predicate to avoid match de-deuplication
+predicate In(Task t, Category c)
 
 
 -- The following predicates (Before, First, and Last) are neccesary to get around Style language

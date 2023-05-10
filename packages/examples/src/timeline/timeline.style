@@ -16,9 +16,9 @@ colors {
 
 global {
     --- parameters that user may want to tweek
-    eventHeight = 35
-    eventLabelFontSize = "14pt"
-    eventFontStyle = "italic"
+    taskHeight = 35
+    taskLabelFontSize = "14pt"
+    taskFontStyle = "italic"
     periodFontSize = "16pt"
     periodFontStyle = "bold"
 
@@ -33,9 +33,9 @@ global {
     quarterHeight = 40
 
     gridLineWeight = 2
-    eventStrokeWeight = 1
-    eventCornerRadius = 8
-    eventPadding = 10
+    taskStrokeWeight = 1
+    taskCornerRadius = 8
+    taskPadding = 10
 
     --- parameters that are calculated
     topGridY = (canvas.height / 2) - marginTop
@@ -139,77 +139,77 @@ with Year y {
 }
 
 
-forall Event e
-where e := MkEvent(start, end)
+forall Task e
+where e := MkTask(start, end)
 with Quarter start; Quarter end;{
     e.centerY = ?
-    topBox = e.centerY + global.eventHeight/2
-    bottomBox = e.centerY - global.eventHeight/2
+    topBox = e.centerY + global.taskHeight/2
+    bottomBox = e.centerY - global.taskHeight/2
     centerX = ((end.endSlotX - start.startSlotX) / 2) + start.startSlotX
     e.icon = Rectangle {
-        height : global.eventHeight
+        height : global.taskHeight
         width : end.endSlotX - start.startSlotX
         center: (centerX, e.centerY)
-        cornerRadius : global.eventCornerRadius
-        strokeWidth : global.eventStrokeWeight
+        cornerRadius : global.taskCornerRadius
+        strokeWidth : global.taskStrokeWeight
         strokeColor: colors.darkgray
     }
 
     e.text = Text {
         string : e.label
-        fontSize : global.eventLabelFontSize
+        fontSize : global.taskLabelFontSize
         fillColor : colors.darkgray
         center : (centerX, e.centerY)
-        fontStyle: global.eventFontStyle
+        fontStyle: global.taskFontStyle
         fontFamily: global.fontFamily
     }
-    topWithPadding = global.lineY - global.eventPadding
+    topWithPadding = global.lineY - global.taskPadding
     ensure lessThan(topBox, topWithPadding)
-    bottomWithPadding = global.bottomGridY + global.eventPadding
+    bottomWithPadding = global.bottomGridY + global.taskPadding
     ensure greaterThan(bottomBox, bottomWithPadding)
     layer e.icon above end.slotEnd
     layer e.text above e.icon
 }
 
-forall Event e
+forall Task e
 where In(e, `access`)
 with Category `access` {
    e.icon.fillColor = colors.green
 }
 
-forall Event e
+forall Task e
 where In (e, `milestone`)
 with  Category `milestone` {
    e.icon.fillColor = colors.blue
 }
 
-forall Event e
+forall Task e
 where In(e, `outcome`)
 with Category `outcome` {
    e.icon.fillColor = colors.purple
 }
 
-forall Event e1; Event e2
+forall Task e1; Task e2
 where In(e1, `outcome`); In(e2, `access`)
 with Category `outcome`; Category `access`
 {
-  ensure e1.centerY > (e2.centerY + global.eventPadding + global.eventHeight) in [sort,disjoint]
+  ensure e1.centerY > (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
 }
 
-forall Event e1; Event e2;
+forall Task e1; Task e2;
 where In(e1, `access`); In(e2, `milestone`)
 with Category `access`; Category `milestone`
 {
-  ensure e1.centerY >  (e2.centerY + global.eventPadding + global.eventHeight) in [sort,disjoint]
+  ensure e1.centerY >  (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
 }
 
-forall Event e1; Event e2;
+forall Task e1; Task e2;
 where In(e1, `outcome`); In(e2, `milestone`)
 with Category `outcome`; Category `milestone`
 {
-  ensure e1.centerY >  (e2.centerY + global.eventPadding + global.eventHeight) in [sort,disjoint]
+  ensure e1.centerY >  (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
 }
 
-forall Event e1, e2 {
-    ensure disjoint(e1.icon, e2.icon, global.eventPadding) in disjoint
+forall Task e1, e2 {
+    ensure disjoint(e1.icon, e2.icon, global.taskPadding) in disjoint
 }
