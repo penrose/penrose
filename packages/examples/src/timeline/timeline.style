@@ -180,34 +180,34 @@ with Category `access` {
 forall Event e
 where In (e, `milestone`)
 with  Category `milestone` {
-   e.icon.fillColor = colors.purple
+   e.icon.fillColor = colors.blue
 }
 
 forall Event e
 where In(e, `outcome`)
 with Category `outcome` {
-   e.icon.fillColor = colors.blue
+   e.icon.fillColor = colors.purple
 }
 
 forall Event e1; Event e2
 where In(e1, `outcome`); In(e2, `access`)
 with Category `outcome`; Category `access`
 {
-  ensure e1.centerY > e2.centerY in [sort,disjoint]
+  ensure e1.centerY > (e2.centerY + global.eventPadding + global.eventHeight) in [sort,disjoint]
 }
 
 forall Event e1; Event e2;
 where In(e1, `access`); In(e2, `milestone`)
 with Category `access`; Category `milestone`
 {
-  ensure e1.centerY > e2.centerY in [sort,disjoint]
+  ensure e1.centerY >  (e2.centerY + global.eventPadding + global.eventHeight) in [sort,disjoint]
 }
 
 forall Event e1; Event e2;
 where In(e1, `outcome`); In(e2, `milestone`)
 with Category `outcome`; Category `milestone`
 {
-  ensure e1.centerY > e2.centerY in [sort,disjoint]
+  ensure e1.centerY >  (e2.centerY + global.eventPadding + global.eventHeight) in [sort,disjoint]
 }
 
 forall Event e1, e2 {

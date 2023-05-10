@@ -1,20 +1,8 @@
 Event e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13
 
-Year y2023
-Year y2024
-Year y2025
+Year y2023, y2024, y2025
 
-Quarter q1_2023
-Quarter q2_2023
-Quarter q3_2023
-Quarter q4_2023
-Quarter q1_2024
-Quarter q2_2024
-Quarter q3_2024
-Quarter q4_2024
-Quarter q1_2025
-Quarter q2_2025
-Quarter q3_2025
+Quarter q1_2023, q2_2023, q3_2023, q4_2023, q1_2024, q2_2024, q3_2024, q4_2024, q1_2025, q2_2025
 
 q1_2023 := MkQuarter(y2023)
 q2_2023 := MkQuarter(y2023)
@@ -44,6 +32,7 @@ Last(q4_2023, y2023)
 First(q1_2024, y2024)
 Last(q4_2024, y2024)
 First(q1_2025, y2025)
+Last(q2_2025, y2025)
 
 Category outcome, access, milestone
 
