@@ -122,5 +122,18 @@ forall Function f {
 }
 
 forall Function f; Point p where hasPoint(f, p) {
-  ensure overlapping(p.dot, f.poly). -- todo: improve
+  ensure overlapping(p.dot, f.poly) -- todo: improve
+}
+
+forall LineSegment ls {
+  ls.line = Line {
+    start: (?, ?) 
+    end: (?, ?)
+    strokeColor: colors.black
+  }
+}
+
+forall LineSegment ls; Point p1; Point p2 where ls := lineSegmentBetween(p1, p2) {
+  ls.line.start = p1.coords 
+  ls.line.end = p2.coords
 }

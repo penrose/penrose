@@ -9,7 +9,7 @@ type QuadraticFunction <: Function
 type CubicFunction <: Function
 
 type Point
-type Tangent
+type LineSegment
 
 type Coord
 type CoordX <: Coord
@@ -41,3 +41,5 @@ predicate isConcave(Function)
 
 predicate hasCoord(Point, Coord)
 predicate hasPoint(Function, Point)
+
+constructor lineSegmentBetween(Point p1, Point p2) -> LineSegment

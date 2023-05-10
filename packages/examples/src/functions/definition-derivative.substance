@@ -12,3 +12,5 @@ hasCoord(p, x)
 hasCoord(pe, xe)
 
 isGreaterCoord(xe, x)
+
+LineSegment ls := lineSegmentBetween(p, pe) 
