@@ -11,4 +11,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: Delete branches
-        run: git push --delete origin "$(git for-each-ref --format='%(refname:lstrip=3)' 'refs/remotes/origin/ci/refs/pull/*/merge')"
+        # we use a colon instead of `--delete`, in case there are zero
+        run: git push origin "$(git for-each-ref --format=':%(refname:lstrip=3)' 'refs/remotes/origin/ci/refs/pull/*/merge')"
