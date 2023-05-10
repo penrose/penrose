@@ -1101,6 +1101,9 @@ const builtins = new Map<string, BuiltinType>([
   ["polyRoots", "polyRoots"],
 ]);
 
+const bytesI32 = Int32Array.BYTES_PER_ELEMENT;
+const logAlignI32 = Math.log2(bytesI32);
+
 const bytesF64 = Float64Array.BYTES_PER_ELEMENT;
 const logAlignF64 = Math.log2(bytesF64);
 
@@ -1119,9 +1122,19 @@ const funcTypes = {
     param: { pointer: wasm.TYPE.i32, size: wasm.TYPE.i32 },
     result: [],
   },
-  grad: {
+  addend: {
     param: {
       input: wasm.TYPE.i32,
+      gradient: wasm.TYPE.i32,
+      secondary: wasm.TYPE.i32,
+      stackPointer: wasm.TYPE.i32,
+    },
+    result: [wasm.TYPE.f64],
+  },
+  sum: {
+    param: {
+      input: wasm.TYPE.i32,
+      mask: wasm.TYPE.i32,
       gradient: wasm.TYPE.i32,
       secondary: wasm.TYPE.i32,
       stackPointer: wasm.TYPE.i32,
@@ -1172,24 +1185,25 @@ const importSection = (t: wasm.Target): void => {
   });
 };
 
-const functionSection = (t: wasm.Target): void => {
-  const numFunctions = 1;
-  t.int(numFunctions);
-  t.int(getTypeIndex("grad"));
+const functionSection = (t: wasm.Target, numAddends: number): void => {
+  t.int(numAddends + 1);
+  for (let i = 0; i < numAddends; i++) t.int(getTypeIndex("addend"));
+  t.int(getTypeIndex("sum"));
 };
 
-const exportSection = (t: wasm.Target): void => {
+const exportSection = (t: wasm.Target, numAddends: number): void => {
   const numExports = 1;
   t.int(numExports);
 
-  const funcIndex = builtins.size;
+  const funcIndex = builtins.size + numAddends;
   t.ascii(exportFunctionName);
   t.byte(wasm.EXPORT.FUNCTION);
   t.int(funcIndex);
 };
 
-const modulePrefix = (functionSize: number): wasm.Module => {
+const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
   const numSections = 5;
+  const numAddends = gradientFunctionSizes.length - 1;
 
   const typeSectionCount = new wasm.Count();
   typeSection(typeSectionCount);
@@ -1200,15 +1214,16 @@ const modulePrefix = (functionSize: number): wasm.Module => {
   const importSectionSize = importSectionCount.size;
 
   const functionSectionCount = new wasm.Count();
-  functionSection(functionSectionCount);
+  functionSection(functionSectionCount, numAddends);
   const functionSectionSize = functionSectionCount.size;
 
   const exportSectionCount = new wasm.Count();
-  exportSection(exportSectionCount);
+  exportSection(exportSectionCount, numAddends);
   const exportSectionSize = exportSectionCount.size;
 
-  const codeSectionSize =
-    wasm.intSize(1) + wasm.intSize(functionSize) + functionSize;
+  const codeSectionSize = gradientFunctionSizes
+    .map((n) => wasm.intSize(n) + n)
+    .reduce((a, b) => a + b, wasm.intSize(gradientFunctionSizes.length));
 
   const sumSectionSizes =
     numSections +
@@ -1235,15 +1250,15 @@ const modulePrefix = (functionSize: number): wasm.Module => {
 
   mod.byte(wasm.SECTION.FUNCTION);
   mod.int(functionSectionSize);
-  functionSection(mod);
+  functionSection(mod, numAddends);
 
   mod.byte(wasm.SECTION.EXPORT);
   mod.int(exportSectionSize);
-  exportSection(mod);
+  exportSection(mod, numAddends);
 
   mod.byte(wasm.SECTION.CODE);
   mod.int(codeSectionSize);
-  mod.int(1);
+  mod.int(gradientFunctionSizes.length);
 
   return mod;
 };
@@ -1475,7 +1490,7 @@ const compileNode = (
     case "PolyRoots": {
       preds.forEach((index, i) => {
         t.byte(wasm.OP.local.get);
-        t.int(getParamIndex(funcTypes.grad, "stackPointer"));
+        t.int(getParamIndex(funcTypes.addend, "stackPointer"));
 
         t.byte(wasm.OP.local.get);
         t.int(index);
@@ -1486,7 +1501,7 @@ const compileNode = (
       });
 
       t.byte(wasm.OP.local.get);
-      t.int(getParamIndex(funcTypes.grad, "stackPointer"));
+      t.int(getParamIndex(funcTypes.addend, "stackPointer"));
 
       t.byte(wasm.OP.i32.const);
       t.int(node.degree);
@@ -1496,7 +1511,7 @@ const compileNode = (
 
       for (let i = 0; i < node.degree; i++) {
         t.byte(wasm.OP.local.get);
-        t.int(getParamIndex(funcTypes.grad, "stackPointer"));
+        t.int(getParamIndex(funcTypes.addend, "stackPointer"));
 
         t.byte(wasm.OP.f64.load);
         t.int(logAlignF64);
@@ -1553,7 +1568,7 @@ interface Locals {
   indices: Map<ad.Id, Local>;
 }
 
-const numAddendParams = Object.keys(funcTypes.grad.param).length;
+const numAddendParams = Object.keys(funcTypes.addend.param).length;
 
 const getIndex = (locals: Locals, id: ad.Id): number => {
   const local = safe(locals.indices.get(id), "missing local");
@@ -1591,7 +1606,7 @@ const compileGraph = (
     label: { key },
   } of getInputs(graph)) {
     t.byte(wasm.OP.local.get);
-    t.int(getParamIndex(funcTypes.grad, "input"));
+    t.int(getParamIndex(funcTypes.addend, "input"));
 
     t.byte(wasm.OP.f64.load);
     t.int(logAlignF64);
@@ -1622,10 +1637,10 @@ const compileGraph = (
 
   gradient.forEach((id, i) => {
     t.byte(wasm.OP.local.get);
-    t.int(getParamIndex(funcTypes.grad, "gradient"));
+    t.int(getParamIndex(funcTypes.addend, "gradient"));
 
     t.byte(wasm.OP.local.get);
-    t.int(getParamIndex(funcTypes.grad, "gradient"));
+    t.int(getParamIndex(funcTypes.addend, "gradient"));
 
     t.byte(wasm.OP.f64.load);
     t.int(logAlignF64);
@@ -1643,7 +1658,7 @@ const compileGraph = (
 
   secondary.forEach((id, i) => {
     t.byte(wasm.OP.local.get);
-    t.int(getParamIndex(funcTypes.grad, "secondary"));
+    t.int(getParamIndex(funcTypes.addend, "secondary"));
 
     t.byte(wasm.OP.local.get);
     t.int(getIndex(locals, id));
@@ -1659,13 +1674,76 @@ const compileGraph = (
   t.byte(wasm.END);
 };
 
-const genBytes = (g: ad.Graph): Uint8Array => {
-  const count = new wasm.Count();
-  compileGraph(count, g);
+// assume the gradient and secondary outputs are already initialized to zero
+// before this code is run
+const compileSum = (t: wasm.Target, numAddends: number): void => {
+  const numLocals = 0;
+  t.int(numLocals);
 
-  const mod = modulePrefix(count.size);
-  mod.int(count.size);
-  compileGraph(mod, g);
+  t.byte(wasm.OP.f64.const);
+  t.f64(0);
+
+  for (let i = 0; i < numAddends; i++) {
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "mask"));
+
+    t.byte(wasm.OP.i32.load);
+    t.int(logAlignI32);
+    t.int(i * bytesI32);
+
+    t.byte(wasm.OP.if);
+    t.int(getTypeIndex("unary"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "input"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "gradient"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "secondary"));
+
+    t.byte(wasm.OP.local.get);
+    t.int(getParamIndex(funcTypes.sum, "stackPointer"));
+
+    t.byte(wasm.OP.call);
+    t.int(builtins.size + i);
+
+    t.byte(wasm.OP.f64.add);
+
+    t.byte(wasm.END);
+  }
+
+  t.byte(wasm.END);
+};
+
+const genBytes = (graphs: ad.Graph[]): Uint8Array => {
+  const secondaryKeys = new Map<number, number>();
+  for (const { secondary } of graphs) {
+    // `forEach` ignores holes
+    secondary.forEach((id, i) => {
+      secondaryKeys.set(i, (secondaryKeys.get(i) ?? 0) + 1);
+    });
+  }
+  for (const [k, n] of secondaryKeys) {
+    if (n > 1) throw Error(`secondary output ${k} is present in ${n} graphs`);
+  }
+
+  const sizes = graphs.map((g) => {
+    const count = new wasm.Count();
+    compileGraph(count, g);
+    return count.size;
+  });
+  const mainCount = new wasm.Count();
+  compileSum(mainCount, graphs.length);
+
+  const mod = modulePrefix([...sizes, mainCount.size]);
+  for (const [g, size] of zip2(graphs, sizes)) {
+    mod.int(size);
+    compileGraph(mod, g);
+  }
+  mod.int(mainCount.size);
+  compileSum(mod, graphs.length);
 
   if (mod.count.size !== mod.bytes.length)
     throw Error(
@@ -1679,6 +1757,7 @@ interface Metadata {
   numSecondary: number;
 
   offsetInputs: number;
+  offsetMask: number;
   offsetGradient: number;
   offsetSecondary: number;
   offsetStack: number;
@@ -1686,6 +1765,7 @@ interface Metadata {
   memory: WebAssembly.Memory;
 
   arrInputs: Float64Array;
+  arrMask: Int32Array;
   arrGrad: Float64Array;
   arrSecondary: Float64Array;
 }
@@ -1699,7 +1779,9 @@ const makeMeta = (graphs: ad.Graph[]): Metadata => {
     )
   );
 
-  const offsetGradient = offsetInputs + Math.ceil(graphs.length / 2) * bytesF64;
+  const offsetMask = offsetInputs + numInputs * bytesF64;
+
+  const offsetGradient = offsetMask + Math.ceil(graphs.length / 2) * bytesF64;
 
   const offsetSecondary = offsetGradient + numInputs * bytesF64;
   const numSecondary = Math.max(0, ...graphs.map((g) => g.secondary.length));
@@ -1717,6 +1799,7 @@ const makeMeta = (graphs: ad.Graph[]): Metadata => {
     numSecondary,
 
     offsetInputs,
+    offsetMask,
     offsetGradient,
     offsetSecondary,
     offsetStack,
@@ -1724,6 +1807,7 @@ const makeMeta = (graphs: ad.Graph[]): Metadata => {
     memory,
 
     arrInputs: new Float64Array(buffer, offsetInputs, numInputs),
+    arrMask: new Int32Array(buffer, offsetMask, graphs.length),
     arrGrad: new Float64Array(buffer, offsetGradient, numInputs),
     arrSecondary: new Float64Array(buffer, offsetSecondary, numSecondary),
   };
@@ -1771,47 +1855,52 @@ const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
   },
 });
 
-const makeCompiled = (
-  graphs: ad.Graph[],
+const getExport = (
   meta: Metadata,
   instance: WebAssembly.Instance
-): ad.Gradient => {
+): (() => number) => {
   // we generated a WebAssembly function which exports a function that takes in
   // integers representing pointers to the various arrays it deals with
   const f = instance.exports[exportFunctionName] as (
     input: number,
+    mask: number,
     gradient: number,
     secondary: number,
     stackPointer: number
   ) => number;
-
-  // we wrap said function in a JavaScript function which instead thinks in
-  // terms of arrays, using the `meta` data to translate between the two
-  const wrapped = (
-    inputs: Float64Array,
-    mask: Int32Array,
-    gradient: Float64Array,
-    secondary: Float64Array
-  ): number => {
-    // the computation graph might not use all the inputs, so we truncate the
-    // inputs we're given, to avoid a `RangeError`
-    meta.arrInputs.set(inputs.subarray(0, meta.numInputs));
-    meta.arrMask.set(mask);
-    meta.arrGrad.fill(0);
-    meta.arrSecondary.fill(0);
-    const primary = f(
+  return () =>
+    f(
       meta.offsetInputs,
       meta.offsetMask,
       meta.offsetGradient,
       meta.offsetSecondary,
       meta.offsetStack
     );
-    gradient.set(meta.arrGrad);
-    secondary.set(meta.arrSecondary);
-    return primary;
-  };
+};
 
-  return new Gradient(wrapped, graphs.length, meta.numSecondary);
+const makeCompiled = (
+  graphs: ad.Graph[],
+  meta: Metadata,
+  instance: WebAssembly.Instance
+): ad.Compiled => {
+  const f = getExport(meta, instance);
+  // we wrap our Wasm function in a JavaScript function which instead thinks in
+  // terms of arrays, using the `meta` data to translate between the two
+  return (inputs: number[], mask?: boolean[]): ad.Outputs<number> => {
+    // the computation graph might not use all the inputs, so we truncate the
+    // inputs we're given, to avoid a `RangeError`
+    meta.arrInputs.set(inputs.slice(0, meta.numInputs));
+    for (let i = 0; i < graphs.length; i++)
+      meta.arrMask[i] = mask !== undefined && i in mask && !mask[i] ? 0 : 1;
+    meta.arrGrad.fill(0);
+    meta.arrSecondary.fill(0);
+    const primary = f();
+    return {
+      gradient: Array.from(meta.arrGrad),
+      primary,
+      secondary: Array.from(meta.arrSecondary),
+    };
+  };
 };
 
 /**
@@ -1822,7 +1911,7 @@ const makeCompiled = (
  * @param graphs an array of graphs to compile
  * @returns a compiled/instantiated WebAssembly function
  */
-export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Gradient> => {
+export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Compiled> => {
   const meta = makeMeta(graphs);
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
@@ -1836,11 +1925,88 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Gradient> => {
  * this will fail if the generated module is larger than 4 kilobytes, but
  * currently is used in convex partitioning for convenience.
  */
-export const genCodeSync = (...graphs: ad.Graph[]): ad.Gradient => {
+export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled => {
   const meta = makeMeta(graphs);
   const instance = new WebAssembly.Instance(
     new WebAssembly.Module(genBytes(graphs)),
     makeImports(meta.memory)
   );
   return makeCompiled(graphs, meta, instance);
+};
+
+/** Generate an energy function from the current state (using `ad.Num`s only) */
+export const genGradient = async (
+  n: number,
+  objectives: ad.Num[],
+  constraints: ad.Num[]
+): Promise<ad.Gradient> => {
+  // This changes with the EP round, gets bigger to weight the constraints.
+  // Therefore it's marked as an input to the generated objective function,
+  // which can be partially applied with the ep weight. But its initial `val`
+  // gets compiled away, so we just set it to zero here.
+  const lambda = input({ val: 0, key: n });
+
+  const objs = objectives.map((x, i) => {
+    const secondary = [];
+    secondary[i] = x;
+    return makeGraph({ primary: x, secondary });
+  });
+  const constrs = constraints.map((x, i) => {
+    const secondary = [];
+    secondary[objectives.length + i] = x;
+    return makeGraph({ primary: mul(lambda, fns.toPenalty(x)), secondary });
+  });
+
+  const graphs = [...objs, ...constrs];
+  const meta = makeMeta(graphs);
+  const instance = await WebAssembly.instantiate(
+    await WebAssembly.compile(genBytes(graphs)),
+    makeImports(meta.memory)
+  );
+  const f = getExport(meta, instance);
+
+  return (
+    { inputMask, objMask, constrMask }: ad.Masks,
+    inputs: Float64Array,
+    weight: number,
+    grad: Float64Array
+  ): ad.OptOutputs => {
+    if (inputMask.length !== n)
+      throw Error(
+        `expected ${n} inputs, got input mask with length ${inputMask.length}`
+      );
+    if (objMask.length !== objectives.length)
+      throw Error(
+        `expected ${objectives.length} objectives, got objective mask with length ${objMask.length}`
+      );
+    if (constrMask.length !== constraints.length)
+      throw Error(
+        `expected ${constraints.length} constraints, got constraint mask with length ${constrMask.length}`
+      );
+    if (inputs.length !== n)
+      throw Error(`expected ${n} inputs, got ${inputs.length}`);
+    if (grad.length !== n)
+      throw Error(
+        `expected ${n} inputs, got gradient with length ${grad.length}`
+      );
+
+    // the computation graph might not use all the inputs, so we truncate the
+    // inputs we're given, to avoid a `RangeError`
+    meta.arrInputs.set(inputs.subarray(0, meta.numInputs));
+    meta.arrInputs[n] = weight;
+    for (let j = 0; j < objectives.length; j++)
+      meta.arrMask[j] = objMask[j] ? 1 : 0;
+    for (let k = 0; k < constraints.length; k++)
+      meta.arrMask[objectives.length + k] = constrMask[k] ? 1 : 0;
+    meta.arrGrad.fill(0);
+    meta.arrSecondary.fill(0);
+    const phi = f();
+    for (let i = 0; i < n; i++)
+      grad[i] = i < meta.numInputs && !inputMask[i] ? 0 : meta.arrGrad[i];
+    return {
+      phi,
+      objectives: Array.from(meta.arrSecondary.subarray(0, objectives.length)),
+      constraints: Array.from(meta.arrSecondary.subarray(objectives.length)),
+    };
+  };
 };

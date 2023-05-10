@@ -99,7 +99,7 @@ struct OptInfo {
 }
 
 // Intial weight for constraints
-const INIT_CONSTRAINT_WEIGHT: f64 = 10e-3;
+const INIT_CONSTRAINT_WEIGHT: f64 = 1e3;
 
 const DEFAULT_LBFGS_MEM_SIZE: usize = 17;
 

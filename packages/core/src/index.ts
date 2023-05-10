@@ -1,4 +1,4 @@
-import { genOptProblem, step } from "@penrose/optimizer";
+import { start, stepUntil } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
@@ -41,19 +41,33 @@ import {
  */
 export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
-  const { constraintSets, optStages } = state;
-  const { inputMask, objMask, constrMask } = safe(
-    constraintSets.get(optStages[0]),
-    "missing first stage"
-  );
   return insertPending({
     ...state,
     varyingValues: state.inputs.map((meta) =>
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
     ),
     currentStageIndex: 0,
-    params: genOptProblem(inputMask, objMask, constrMask),
+    params: start(state.varyingValues.length),
   });
+};
+
+const bareStep = (state: State, numSteps: number): State => {
+  const { constraintSets, optStages, currentStageIndex } = state;
+  const stage = optStages[currentStageIndex];
+  const masks = safe(constraintSets.get(stage), "missing stage");
+  const xs = new Float64Array(state.varyingValues);
+  let i = 0;
+  return {
+    ...state,
+    varyingValues: Array.from(xs),
+    params: stepUntil(
+      (x: Float64Array, weight: number, grad: Float64Array): number =>
+        state.gradient(masks, x, weight, grad).phi,
+      xs,
+      state.params,
+      (): boolean => i++ < numSteps
+    ),
+  };
 };
 
 /**
@@ -62,10 +76,7 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  const steppedState: State = {
-    ...state,
-    ...step(state, state.gradient.f, numSteps),
-  };
+  const steppedState = bareStep(state, numSteps);
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
     const nextInitState = nextStage(steppedState);
     return nextInitState;
@@ -78,16 +89,10 @@ export const nextStage = (state: State): State => {
   if (finalStage(state)) {
     return state;
   } else {
-    const { constraintSets, optStages, currentStageIndex } = state;
-    const nextStage = optStages[currentStageIndex + 1];
-    const { inputMask, objMask, constrMask } = safe(
-      constraintSets.get(nextStage),
-      "missing next stage"
-    );
     return {
       ...state,
-      currentStageIndex: currentStageIndex + 1,
-      params: genOptProblem(inputMask, objMask, constrMask),
+      currentStageIndex: state.currentStageIndex + 1,
+      params: start(state.varyingValues.length),
     };
   }
 };
@@ -98,10 +103,7 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
     !(currentState.params.optStatus === "Error") &&
     !stateConverged(currentState)
   ) {
-    currentState = {
-      ...currentState,
-      ...step(currentState, currentState.gradient.f, numSteps),
-    };
+    currentState = bareStep(currentState, numSteps);
   }
   return nextStage(currentState);
 };
@@ -352,8 +354,14 @@ export const readRegistry = (
  * @returns a scalar value of the current energy
  */
 export const evalEnergy = (s: State): number => {
+  const { constraintSets, optStages, currentStageIndex } = s;
+  const stage = optStages[currentStageIndex];
+  const masks = safe(constraintSets.get(stage), "missing stage");
+  const x = new Float64Array(s.varyingValues);
+  // we constructed `x` to throw away, so it's OK to update it in-place with the
+  // gradient after computing the energy
+  return s.gradient(masks, x, s.params.weight, x).phi;
   // TODO: maybe don't also compute the gradient, just to throw it away
-  return s.gradient.call([...s.varyingValues, s.params.weight]).primary;
 };
 
 /**
@@ -364,25 +372,16 @@ export const evalEnergy = (s: State): number => {
  */
 export const evalFns = (
   s: State
-): {
-  constrEngs: number[];
-  objEngs: number[];
-} => {
-  const { constrFns, objFns } = s;
-  // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  let { lastObjEnergies, lastConstrEnergies } = s.params;
-  if (lastObjEnergies === null || lastConstrEnergies === null) {
-    const { secondary } = s.gradient.call([
-      ...s.varyingValues,
-      s.params.weight,
-    ]);
-    lastObjEnergies = secondary.slice(0, s.params.objMask.length);
-    lastConstrEnergies = secondary.slice(s.params.objMask.length);
-  }
-  return {
-    constrEngs: lastConstrEnergies,
-    objEngs: lastObjEnergies,
-  };
+): { constrEngs: number[]; objEngs: number[] } => {
+  const { constraintSets, optStages, currentStageIndex } = s;
+  const stage = optStages[currentStageIndex];
+  const masks = safe(constraintSets.get(stage), "missing stage");
+  const x = new Float64Array(s.varyingValues);
+  // we constructed `x` to throw away, so it's OK to update it in-place with the
+  // gradient after computing the energy
+  const outputs = s.gradient(masks, x, s.params.weight, x);
+  // TODO: cache objectives/constraints in the `State` instead of recomputing
+  return { constrEngs: outputs.constraints, objEngs: outputs.objectives };
 };
 
 export type PenroseState = State;

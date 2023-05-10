@@ -211,7 +211,7 @@ export const numsOf = (xs: ad.Num[]): number[] => {
     }
   }
   const f = genCodeSync(g);
-  return f.call(inputs).secondary;
+  return f(inputs).secondary;
 };
 
 export const numOf = (x: ad.Num): number => {

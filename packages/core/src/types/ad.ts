@@ -231,13 +231,22 @@ export interface Outputs<T> {
   secondary: T[];
 }
 
+export type Compiled = (inputs: number[], mask?: boolean[]) => Outputs<number>;
+
 export interface OptOutputs {
   phi: number; // see `Fn` from `@penrose/optimizer`
   objectives: number[];
   constraints: number[];
 }
 
+export interface Masks {
+  inputMask: boolean[];
+  objMask: boolean[];
+  constrMask: boolean[];
+}
+
 export type Gradient = (
+  masks: Masks,
   inputs: Float64Array,
   weight: number,
   grad: Float64Array

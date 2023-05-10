@@ -1,6 +1,5 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { Gradient } from "@penrose/optimizer";
 import { Circle } from "../shapes/Circle";
 import { Ellipse } from "../shapes/Ellipse";
 import { Equation } from "../shapes/Equation";
@@ -11,7 +10,6 @@ import { Path as PathShape } from "../shapes/Path";
 import { Polygon } from "../shapes/Polygon";
 import { Polyline } from "../shapes/Polyline";
 import { Rectangle } from "../shapes/Rectangle";
-import { InputMeta } from "../shapes/Samplers";
 import { Shape } from "../shapes/Shapes";
 import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
@@ -57,8 +55,7 @@ import {
   VectorV,
 } from "../types/value";
 import { safe } from "../utils/Util";
-import { fns, genCode, input, makeGraph, secondaryGraph } from "./Autodiff";
-import { mul } from "./AutodiffFunctions";
+import { genCode, secondaryGraph } from "./Autodiff";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -489,7 +486,7 @@ export const compileCompGraph = async (
   const compGraph: ad.Graph = secondaryGraph(vars);
   const evalFn = await genCode(compGraph);
   return (xs: number[]): Shape<number>[] => {
-    const numbers = evalFn.call(xs).secondary;
+    const numbers = evalFn(xs).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
     return shapes.map((s: Shape<ad.Num>) =>
       mapShape(
@@ -563,50 +560,6 @@ const colorADNums = (c: Color<ad.Num>): ad.Num[] => {
       return [];
     }
   }
-};
-
-// weight for constraints
-const constraintWeight = 10e4; // HACK: constant constraint weight
-// const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
-
-/**
- * Generate an energy function from the current state (using `ad.Num`s only)
- */
-export const genGradient = async (
-  inputs: InputMeta[],
-  objEngs: ad.Num[],
-  constrEngs: ad.Num[]
-): Promise<Gradient> => {
-  // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
-  // Compile objective and gradient
-
-  // This changes with the EP round, gets bigger to weight the constraints
-  // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
-  // But its initial `val` gets compiled away, so we just set it to zero here
-  const epWeightNode = input({ val: 0, key: inputs.length });
-
-  // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
-  // The energies are in the val field of the results (w/o grads)
-
-  // This is fixed during the whole optimization
-  const constrWeightNode: ad.Num = constraintWeight;
-
-  // F(x) = o(x) + c0 * penalty * c(x)
-  const objs = objEngs.map((x, i) => {
-    const secondary = [];
-    secondary[i] = x;
-    return makeGraph({ primary: x, secondary });
-  });
-  const constrs = constrEngs.map((x, i) => {
-    const secondary = [];
-    secondary[objEngs.length + i] = x;
-    return makeGraph({
-      primary: mul(fns.toPenalty(x), mul(constrWeightNode, epWeightNode)),
-      secondary,
-    });
-  });
-
-  return await genCode(...objs, ...constrs);
 };
 
 //#region translation operations

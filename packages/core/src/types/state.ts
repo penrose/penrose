@@ -12,14 +12,7 @@ export type ShapeFn = (xs: number[]) => Shape<number>[];
 
 export type OptPipeline = string[];
 
-export type StagedConstraints = Map<
-  string,
-  {
-    inputMask: boolean[];
-    objMask: boolean[];
-    constrMask: boolean[];
-  }
->;
+export type StagedConstraints = Map<string, ad.Masks>;
 
 /**
  * The diagram state
