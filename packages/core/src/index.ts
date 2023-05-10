@@ -47,13 +47,7 @@ const step = (state: State, numSteps: number): State => {
     state.params,
     (): boolean => i++ >= numSteps
   );
-  const s: State = { ...state, varyingValues: Array.from(xs), params };
-  // TODO: maybe don't call the gradient an extra time after every single step
-  const outputs = evalGrad(s);
-  // TODO: maybe don't also compute the gradient, just to throw it away
-  s.lastObjEnergies = outputs.objectives;
-  s.lastConstrEnergies = outputs.constraints;
-  return s;
+  return { ...state, varyingValues: Array.from(xs), params };
 };
 
 /**
@@ -365,17 +359,9 @@ export const evalFns = (
   objEngs: number[];
 } => {
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  let { lastObjEnergies, lastConstrEnergies } = s;
-  if (lastObjEnergies === undefined || lastConstrEnergies === undefined) {
-    const outputs = evalGrad(s);
-    // TODO: maybe don't also compute the gradient, just to throw it away
-    lastObjEnergies = outputs.objectives;
-    lastConstrEnergies = outputs.constraints;
-  }
-  return {
-    constrEngs: lastConstrEnergies,
-    objEngs: lastObjEnergies,
-  };
+  const outputs = evalGrad(s);
+  // TODO: maybe don't also compute the gradient, just to throw it away
+  return { constrEngs: outputs.constraints, objEngs: outputs.objectives };
 };
 
 export type PenroseState = State;
