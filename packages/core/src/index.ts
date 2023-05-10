@@ -57,17 +57,14 @@ const bareStep = (state: State, numSteps: number): State => {
   const masks = safe(constraintSets.get(stage), "missing stage");
   const xs = new Float64Array(state.varyingValues);
   let i = 0;
-  return {
-    ...state,
-    varyingValues: Array.from(xs),
-    params: stepUntil(
-      (x: Float64Array, weight: number, grad: Float64Array): number =>
-        state.gradient(masks, x, weight, grad).phi,
-      xs,
-      state.params,
-      (): boolean => i++ < numSteps
-    ),
-  };
+  const params = stepUntil(
+    (x: Float64Array, weight: number, grad: Float64Array): number =>
+      state.gradient(masks, x, weight, grad).phi,
+    xs,
+    state.params,
+    (): boolean => i++ >= numSteps
+  );
+  return { ...state, varyingValues: Array.from(xs), params };
 };
 
 /**
