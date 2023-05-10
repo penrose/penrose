@@ -3255,3 +3255,53 @@ const closestPointEllipseCoords = (
 export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
+
+const toPt = (v: ad.Num[]): ad.Pt2 => {
+  if (v.length !== 2) {
+    throw Error("expected vector of length 2");
+  }
+  return [v[0], v[1]];
+};
+
+/**
+ * Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a path that describes a perpendicular mark between them.
+ */
+const perpPathFlat = (
+  len: ad.Num,
+  [startR, endR]: [ad.Num[], ad.Num[]],
+  [startL, endL]: [ad.Num[], ad.Num[]]
+): [ad.Num[], ad.Num[], ad.Num[]] => {
+  // perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
+  // perpPathFlat size (startR, endR) (startL, endL) =
+  //   let dirR = normalize' $ endR -: startR
+  //       dirL = normalize' $ endL -: startL
+  //       ptL = startR +: (size *: dirL)
+  //       ptR = startR +: (size *: dirR)
+  //       ptLR = startR +: (size *: dirL) +: (size *: dirR)
+  //   in (ptL, ptLR, ptR)
+  const dirR = ops.vnormalize(ops.vsub(endR, startR));
+  const dirL = ops.vnormalize(ops.vsub(endL, startL));
+  const ptL = ops.vmove(startR, len, dirL); // ops.vadd(startR, ops.vmul(len, dirL));
+  const ptR = ops.vmove(startR, len, dirR); // ops.vadd(startR, ops.vmul(len, dirR));
+  const ptLR = ops.vadd(ptL, ops.vmul(len, dirR));
+  return [ptL, ptLR, ptR];
+};
+
+const tickPlacement = (
+  padding: ad.Num,
+  numPts: number,
+  multiplier: ad.Num = 1
+): ad.Num[] => {
+  if (numPts <= 0) throw Error(`number of ticks must be greater than 0`);
+  const even = numPts % 2 === 0;
+  const pts: ad.Num[] = even ? [div(padding, 2)] : [0];
+  for (let i = 1; i < numPts; i++) {
+    if (even && i === 1) multiplier = neg(multiplier);
+    const shift =
+      i % 2 === 0
+        ? mul(padding, mul(neg(i), multiplier))
+        : mul(padding, mul(i, multiplier));
+    pts.push(add(pts[i - 1], shift));
+  }
+  return pts;
+};
