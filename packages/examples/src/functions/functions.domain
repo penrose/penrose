@@ -12,8 +12,8 @@ type Point
 type Tangent
 
 type Coord
-type xCoord <: Coord
-type yCoord <: Coord
+type CoordX <: Coord
+type CoordY <: Coord
 
 predicate isMonotone(Function)
 predicate isDecreasing(Function)
@@ -21,12 +21,18 @@ predicate isIncreasing(Function)
 predicate isNonDecreasing(Function)
 predicate isNonIncreasing(Function)
 predicate hasSolution(Function)
-
 predicate isNegative(Function)
 predicate isPositive(Function)
 
 predicate isGreater(Function, Function)
-predicate isSmaller(Function, Function)
+predicate isGreaterCoord(Coord, Coord)
+
+predicate isMonotoneAtPoint(Function)
+predicate isDecreasingAtPoint(Function)
+predicate isIncreasingAtPoint(Function)
+predicate isNonDecreasingAtPoint(Function)
+predicate isNonIncreasingAtPoint(Function)
+predicate hasSolutionAtPoint(Function)
 
 predicate isConvex(Function)
 predicate isConcave(Function)
