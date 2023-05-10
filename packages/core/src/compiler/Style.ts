@@ -3742,8 +3742,6 @@ export const compileStyleHelper = async (
     gradient,
     computeShapes,
     params,
-    lastObjEnergies: undefined,
-    lastConstrEnergies: undefined,
     currentStageIndex: 0,
     optStages: optimizationStages.value,
   };
