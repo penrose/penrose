@@ -1,0 +1,61 @@
+-- Nodes
+
+Node Bear  -- 🐻
+Node Fish  -- 🐠
+Node Bird  -- 🐦
+Node Monkey -- 🐒
+Node Whale -- 🐋
+Node Eagle -- 🦅
+Node Frog -- 🐸
+
+-- Labels
+
+Label Bear "🐻"
+Label Fish "🐠"
+Label Bird "🐦"
+Label Monkey "🐒"
+Label Whale "🐋"
+Label Eagle "🦅"
+Label Frog "🐸"
+
+-- Hyperedges (Habitats)
+
+Hyperedge Forest -- Forest
+
+isIn(Bear, Forest)
+isIn(Bird, Forest)
+isIn(Monkey, Forest)
+isIn(Frog, Forest)
+notIn(Fish, Forest)
+notIn(Whale, Forest)
+notIn(Eagle, Forest)
+
+Hyperedge Ocean -- Ocean
+
+isIn(Fish, Ocean)
+isIn(Whale, Ocean)
+notIn(Bear, Ocean)
+notIn(Bird, Ocean)
+notIn(Monkey, Ocean)
+notIn(Eagle, Ocean)
+notIn(Frog, Ocean)
+
+Hyperedge Sky -- Sky
+
+isIn(Bird, Sky)
+isIn(Eagle, Sky)
+notIn(Bear, Sky)
+notIn(Fish, Sky)
+notIn(Monkey, Sky)
+notIn(Whale, Sky)
+notIn(Frog, Sky)
+
+Hyperedge Wetlands -- Wetlands
+
+isIn(Fish, Wetlands)
+isIn(Frog, Wetlands)
+notIn(Bear, Wetlands)
+notIn(Bird, Wetlands)
+notIn(Monkey, Wetlands)
+notIn(Whale, Wetlands)
+notIn(Eagle, Wetlands)
