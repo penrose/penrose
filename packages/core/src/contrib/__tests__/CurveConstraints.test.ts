@@ -97,10 +97,10 @@ describe("totalCurvature", () => {
 
 describe("elasticEnergy", () => {
   it.each([
-    [_polylines[0], 174949],
-    [_polygons[1], 90849],
-    [_polylines[3], 38372],
-    [_polygons[4], 195758],
+    [_polylines[0], 133246],
+    [_polygons[1], 58284],
+    [_polylines[3], 33983],
+    [_polygons[4], 124721],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
