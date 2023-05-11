@@ -654,7 +654,7 @@
       "name": "Open elastic curve example",
       "substance": "cubic-bezier",
       "style": "open-elastic-curve",
-      "domain": "triangle-mesh-2d",
+      "domain": "curve-examples",
       "variation": "ClamshellKookabura228"
     },
     {
