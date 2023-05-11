@@ -208,6 +208,7 @@ export type StyleError =
   | MissingArgumentError
   | TooManyArgumentsError
   | FunctionInternalError
+  | RedeclareNamespaceError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -486,6 +487,12 @@ export interface FunctionInternalError {
   func: CompFunc | ObjFunc | ConstrFunc;
   location: SourceRange;
   message: string;
+}
+
+export interface RedeclareNamespaceError {
+  tag: "RedeclareNamespaceError";
+  existingNamespace: string;
+  location: SourceRange; // location of the duplicated declaration
 }
 
 //#endregion
