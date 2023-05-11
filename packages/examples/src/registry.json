@@ -642,6 +642,12 @@
       "style": "triangle-mesh-2d",
       "domain": "triangle-mesh-2d",
       "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Penrose project timeline",
+      "substance": "penrose-timeline",
+      "style": "timeline",
+      "domain": "timeline"
     }
   ],
   "domains": {
@@ -737,6 +743,9 @@
     },
     "curve-examples": {
       "URI": "curve-examples/curves.domain"
+    },
+    "timeline": {
+      "URI": "timeline/penrose-timeline.domain"
     }
   },
   "styles": {
@@ -895,6 +904,10 @@
     "cubic-bezier": {
       "domain": "curve-examples",
       "URI": "curve-examples/cubic-bezier.style"
+    },
+    "timeline": {
+      "domain": "timeline",
+      "URI": "timeline/timeline.style"
     }
   },
   "substances": {
@@ -1261,6 +1274,10 @@
     "angle-equivalence": {
       "domain": "triangle-mesh-2d",
       "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
+    },
+    "penrose-timeline": {
+      "domain": "timeline",
+      "URI": "timeline/penrose-project-timeline.substance"
     }
   }
 }
