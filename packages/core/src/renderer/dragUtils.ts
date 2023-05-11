@@ -1,4 +1,4 @@
-import { genOptProblem } from "@penrose/optimizer";
+import { start } from "@penrose/optimizer";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { State } from "../types/state";
@@ -13,19 +13,10 @@ export const dragUpdate = (
   dy: number
 ): State => {
   const xs = [...state.varyingValues];
-  const { constraintSets, optStages } = state;
-  const { inputMask, objMask, constrMask } = constraintSets.get(optStages[0])!;
-  const gradMask = [...inputMask];
-  for (const shape of state.shapes) {
-    if (shape.name.contents === id) {
-      for (const id of dragShape(shape, [dx, dy], xs)) {
-        gradMask[id] = false;
-      }
-    }
-  }
+  // TODO: fix dragging
   const updated: State = {
     ...state,
-    params: genOptProblem(gradMask, objMask, constrMask),
+    params: start(xs.length),
     varyingValues: xs,
   };
   return updated;

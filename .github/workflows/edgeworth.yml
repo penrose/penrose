@@ -13,21 +13,21 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
       - name: Build edgeworth
-        run: npx nx run synthesizer-ui:build
+        run: npx nx run edgeworth:build
       - name: Deploy edgeworth under the current commit SHA
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          folder: packages/synthesizer-ui/dist
+          folder: packages/edgeworth/dist
           target-folder: edgeworth/${{ github.sha }}/
       - name: Add .nojekyll
         run: |
           mkdir extra/
           touch extra/.nojekyll
-        working-directory: packages/synthesizer-ui/
+        working-directory: packages/edgeworth/
       - name: Deploy .nojekyll
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          folder: packages/synthesizer-ui/extra/
+          folder: packages/edgeworth/extra/
           clean: false

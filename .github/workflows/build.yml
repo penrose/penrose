@@ -212,6 +212,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
+      - name: Run all tests other than core
+        run: npx nx run-many --target=test --all --exclude=core
       - name: Make test report dir
         run: mkdir -p reports/junit/
         working-directory: packages/core/

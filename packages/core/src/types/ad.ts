@@ -1,7 +1,6 @@
-import { Outputs } from "@penrose/optimizer";
 import GenericGraph from "../utils/Graph";
 
-// The following two regions define the core types for our symbolic
+// The following three regions define the core types for our automatic
 // differentiation engine.
 //
 // - The "implicit" representation is used essentially as a DSL to construct
@@ -20,6 +19,9 @@ import GenericGraph from "../utils/Graph";
 //   can call an off-the-shelf topological sort function on it, which is useful
 //   both while constructing the derivatives within it and also while compiling
 //   it to the final representation.
+//
+// - The "compiled" representation is a WebAssembly module which exports a
+//   function that computes a function and its gradient.
 //
 // We only need to compute the gradient of the energy, but we also need to to
 // compute other values that may not even be intermediate computations for the
@@ -210,6 +212,47 @@ export interface Graph extends Outputs<Id> {
   graph: GenericGraph<Id, Node, Edge>; // edges point from children to parents
   nodes: Map<Expr, Id>;
 }
+
+//#endregion
+
+//#region Types for compiled autodiff graph
+
+/**
+ * A structure used to collect the various outputs of a `Gradient` function.
+ * This is generic in the concrete number type, because it can also be useful in
+ * situations where the elements are, for instance, computation graph nodes.
+ */
+export interface Outputs<T> {
+  /** Derivatives of primary output with respect to inputs. */
+  gradient: T[];
+  /** Primary output. */
+  primary: T;
+  /** Secondary outputs. */
+  secondary: T[];
+}
+
+export type Compiled = (inputs: number[], mask?: boolean[]) => Outputs<number>;
+
+export interface OptOutputs {
+  phi: number; // see `Fn` from `@penrose/optimizer`
+  objectives: number[];
+  constraints: number[];
+}
+
+export interface Masks {
+  inputMask: boolean[];
+  objMask: boolean[];
+  constrMask: boolean[];
+}
+
+// you can think of the `Fn` type from `@penrose/optimizer` as this type
+// partially applied with `masks` and projecting out the `phi` field
+export type Gradient = (
+  masks: Masks,
+  inputs: Float64Array,
+  weight: number,
+  grad: Float64Array
+) => OptOutputs;
 
 //#endregion
 

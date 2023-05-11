@@ -16,6 +16,7 @@
   - [Refresh build](#refresh-build)
   - [Roger](#roger)
   - [Test](#test)
+  - [README Image](#readme-image)
   - [Dependencies](#dependencies)
   - [Scripts](#scripts)
   - [Import from core](#import-from-core)
@@ -46,7 +47,11 @@ Be sure you have these tools installed:
     rustup target add wasm32-unknown-unknown
     ```
 
-  - [`wasm-bindgen` CLI][] v0.2.84
+  - `wasm-bindgen` CLI v0.2.84:
+
+    ```sh
+    cargo install --version=0.2.84 wasm-bindgen-cli
+    ```
 
 Depending on your platform, here are some extra instructions:
 
@@ -160,6 +165,14 @@ Type in the drop-down boxes to search for any Penrose trio in
 ... and voilà! ✨ See the results in your browser:
 
 ![Building and running interface](docs/assets/roger-loaded.png)
+
+If you run `yarn start`, open the browser, and see a blank page with a browser console error message along the lines of `The requested module ... penrose_optimizer.js ... does not provide an export named ...`, this appears to be a dependency re-optimization issue. Try running with
+
+```sh
+yarn start --force
+```
+
+in this case.
 
 ### Production build
 
@@ -290,6 +303,15 @@ To automatically re-run tests as you make changes to `core`:
 ```sh
 npx nx run core:test-watch
 ```
+
+### README Image
+
+The CI process runs a test that checks whether the set-venn-diagram example generates the same image that goes onto the `README` page. If you made changes to Penrose, it might generate something different from the image on the README page. If this is expected, update the `README` image by doing the following:
+
+- Build `@penrose/automator`
+- Run `.github/gen_readme.js`
+
+This should update the image that is placed onto the `README` page.
 
 ### Dependencies
 
@@ -423,7 +445,6 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 - Create a new [GitHub release][].
 - CI will run after the new release is created, automatically publishing packages to npm.
 
-[`wasm-bindgen` cli]: https://rustwasm.github.io/wasm-bindgen/reference/cli.html#installation
 [branch]: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 [ci]: https://docs.github.com/en/actions
 [clone]: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository

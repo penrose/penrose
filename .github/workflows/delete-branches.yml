@@ -1,0 +1,15 @@
+name: Delete branches
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: Delete branches
+        # we use a colon instead of `--delete`, in case there are zero
+        run: git push origin "$(git for-each-ref --format=':%(refname:lstrip=3)' 'refs/remotes/origin/ci/refs/pull/*/merge')"

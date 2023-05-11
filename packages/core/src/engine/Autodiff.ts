@@ -1,5 +1,5 @@
 import { Queue } from "@datastructures-js/queue";
-import { Gradient, Outputs, polyRoots } from "@penrose/optimizer";
+import { polyRoots } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "../types/ad";
@@ -345,7 +345,7 @@ const getInputs = (
  * to any given gradient node are added up according to that total order.
  */
 export const makeGraph = (
-  outputs: Omit<Outputs<ad.Num>, "gradient">
+  outputs: Omit<ad.Outputs<ad.Num>, "gradient">
 ): ad.Graph => {
   const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
@@ -1855,11 +1855,10 @@ const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
   },
 });
 
-const makeCompiled = (
-  graphs: ad.Graph[],
+const getExport = (
   meta: Metadata,
   instance: WebAssembly.Instance
-): Gradient => {
+): (() => number) => {
   // we generated a WebAssembly function which exports a function that takes in
   // integers representing pointers to the various arrays it deals with
   const f = instance.exports[exportFunctionName] as (
@@ -1869,34 +1868,39 @@ const makeCompiled = (
     secondary: number,
     stackPointer: number
   ) => number;
-
-  // we wrap said function in a JavaScript function which instead thinks in
-  // terms of arrays, using the `meta` data to translate between the two
-  const wrapped = (
-    inputs: Float64Array,
-    mask: Int32Array,
-    gradient: Float64Array,
-    secondary: Float64Array
-  ): number => {
-    // the computation graph might not use all the inputs, so we truncate the
-    // inputs we're given, to avoid a `RangeError`
-    meta.arrInputs.set(inputs.subarray(0, meta.numInputs));
-    meta.arrMask.set(mask);
-    meta.arrGrad.fill(0);
-    meta.arrSecondary.fill(0);
-    const primary = f(
+  return () =>
+    f(
       meta.offsetInputs,
       meta.offsetMask,
       meta.offsetGradient,
       meta.offsetSecondary,
       meta.offsetStack
     );
-    gradient.set(meta.arrGrad);
-    secondary.set(meta.arrSecondary);
-    return primary;
-  };
+};
 
-  return new Gradient(wrapped, graphs.length, meta.numSecondary);
+const makeCompiled = (
+  graphs: ad.Graph[],
+  meta: Metadata,
+  instance: WebAssembly.Instance
+): ad.Compiled => {
+  const f = getExport(meta, instance);
+  // we wrap our Wasm function in a JavaScript function which instead thinks in
+  // terms of arrays, using the `meta` data to translate between the two
+  return (inputs: number[], mask?: boolean[]): ad.Outputs<number> => {
+    // the computation graph might not use all the inputs, so we truncate the
+    // inputs we're given, to avoid a `RangeError`
+    meta.arrInputs.set(inputs.slice(0, meta.numInputs));
+    for (let i = 0; i < graphs.length; i++)
+      meta.arrMask[i] = mask !== undefined && i in mask && !mask[i] ? 0 : 1;
+    meta.arrGrad.fill(0);
+    meta.arrSecondary.fill(0);
+    const primary = f();
+    return {
+      gradient: Array.from(meta.arrGrad),
+      primary,
+      secondary: Array.from(meta.arrSecondary),
+    };
+  };
 };
 
 /**
@@ -1907,7 +1911,7 @@ const makeCompiled = (
  * @param graphs an array of graphs to compile
  * @returns a compiled/instantiated WebAssembly function
  */
-export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> => {
+export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Compiled> => {
   const meta = makeMeta(graphs);
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
@@ -1921,11 +1925,88 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<Gradient> => {
  * this will fail if the generated module is larger than 4 kilobytes, but
  * currently is used in convex partitioning for convenience.
  */
-export const genCodeSync = (...graphs: ad.Graph[]): Gradient => {
+export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled => {
   const meta = makeMeta(graphs);
   const instance = new WebAssembly.Instance(
     new WebAssembly.Module(genBytes(graphs)),
     makeImports(meta.memory)
   );
   return makeCompiled(graphs, meta, instance);
+};
+
+/** Generate an energy function from the current state (using `ad.Num`s only) */
+export const genGradient = async (
+  n: number,
+  objectives: ad.Num[],
+  constraints: ad.Num[]
+): Promise<ad.Gradient> => {
+  // This changes with the EP round, gets bigger to weight the constraints.
+  // Therefore it's marked as an input to the generated objective function,
+  // which can be partially applied with the ep weight. But its initial `val`
+  // gets compiled away, so we just set it to zero here.
+  const lambda = input({ val: 0, key: n });
+
+  const objs = objectives.map((x, i) => {
+    const secondary = [];
+    secondary[i] = x;
+    return makeGraph({ primary: x, secondary });
+  });
+  const constrs = constraints.map((x, i) => {
+    const secondary = [];
+    secondary[objectives.length + i] = x;
+    return makeGraph({ primary: mul(lambda, fns.toPenalty(x)), secondary });
+  });
+
+  const graphs = [...objs, ...constrs];
+  const meta = makeMeta(graphs);
+  const instance = await WebAssembly.instantiate(
+    await WebAssembly.compile(genBytes(graphs)),
+    makeImports(meta.memory)
+  );
+  const f = getExport(meta, instance);
+
+  return (
+    { inputMask, objMask, constrMask }: ad.Masks,
+    inputs: Float64Array,
+    weight: number,
+    grad: Float64Array
+  ): ad.OptOutputs => {
+    if (inputMask.length !== n)
+      throw Error(
+        `expected ${n} inputs, got input mask with length ${inputMask.length}`
+      );
+    if (objMask.length !== objectives.length)
+      throw Error(
+        `expected ${objectives.length} objectives, got objective mask with length ${objMask.length}`
+      );
+    if (constrMask.length !== constraints.length)
+      throw Error(
+        `expected ${constraints.length} constraints, got constraint mask with length ${constrMask.length}`
+      );
+    if (inputs.length !== n)
+      throw Error(`expected ${n} inputs, got ${inputs.length}`);
+    if (grad.length !== n)
+      throw Error(
+        `expected ${n} inputs, got gradient with length ${grad.length}`
+      );
+
+    // the computation graph might not use all the inputs, so we truncate the
+    // inputs we're given, to avoid a `RangeError`
+    meta.arrInputs.set(inputs.subarray(0, meta.numInputs));
+    meta.arrInputs[n] = weight;
+    for (let j = 0; j < objectives.length; j++)
+      meta.arrMask[j] = objMask[j] ? 1 : 0;
+    for (let k = 0; k < constraints.length; k++)
+      meta.arrMask[objectives.length + k] = constrMask[k] ? 1 : 0;
+    meta.arrGrad.fill(0);
+    meta.arrSecondary.fill(0);
+    const phi = f();
+    for (let i = 0; i < n; i++)
+      grad[i] = i < meta.numInputs && !inputMask[i] ? 0 : meta.arrGrad[i];
+    return {
+      phi,
+      objectives: Array.from(meta.arrSecondary.subarray(0, objectives.length)),
+      constraints: Array.from(meta.arrSecondary.subarray(objectives.length)),
+    };
+  };
 };

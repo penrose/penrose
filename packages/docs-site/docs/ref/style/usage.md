@@ -238,7 +238,7 @@ Then, only one of mappings `x -> A; y -> B` and `x -> B; y -> A` triggers the St
 
 Within a _style_ block body, some variable names are reserved for metadata purposes:
 
-- `match_count` is an integer that refers to the number of times that this _style_ blocks will be triggered (or matched) in total; and
+- `match_total` is an integer that refers to the number of times that this _style_ blocks will be triggered (or matched) in total; and
 - `match_id` is the 1-indexed ordinal of this current matching.
 
 These values can directly be read or overwritten within the style block body if needed.
