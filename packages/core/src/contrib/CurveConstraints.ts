@@ -181,7 +181,7 @@ export const elasticEnergy = (
 };
 
 /**
- * Returns the sum of all line segment lengths raised to `p`
+ * Returns the sum of all line segment lengths raised to `k`
  */
 export const lengthK = (
   points: [ad.Num, ad.Num][],
