@@ -74,7 +74,7 @@ import {
   BlockInfo,
   Context,
   DepGraph,
-  Fielded,
+  FieldDict,
   FieldSource,
   Layer,
   LocalVarSubst,
@@ -121,6 +121,7 @@ import {
   isErr,
   ok,
   parseError,
+  redeclareNamespaceError,
   Result,
   safeChain,
   selectorFieldNotSupported,
@@ -1664,20 +1665,44 @@ const findSubstsSel = (
 
 //#region first pass
 
-type FieldedRes = Result<{ dict: Fielded; warns: StyleWarning[] }, StyleError>;
+type FieldedRes = Result<
+  { dict: FieldDict; warns: StyleWarning[] },
+  StyleError
+>;
 
 const updateExpr = (
   path: ResolvedPath<C>,
   assignment: BlockAssignment,
   errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
   errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
-  f: (field: Field, prop: PropID | undefined, fielded: Fielded) => FieldedRes
+  // this function performs the actual dictionary updates. `updateExpr` only needs to extract the path to pass to `f`.
+  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes
 ): BlockAssignment => {
   switch (path.tag) {
     case "Global": {
-      return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
+      if (path.members.length < 1) {
+        return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
+      } else if (path.members.length > 2) {
+        return addDiags(
+          oneErr({ tag: "PropertyMemberError", path }),
+          assignment
+        );
+      }
+      const field = path.members[0].value;
+      const prop = path.members.length > 1 ? path.members[1].value : undefined;
+      const namespaceFields = assignment.globals.get(path.name) ?? im.Map();
+      const res = f(field, prop, namespaceFields);
+      if (res.isErr()) {
+        return addDiags(oneErr(res.error), assignment);
+      }
+      const { dict, warns } = res.value;
+      return addDiags(warnings(warns), {
+        ...assignment,
+        globals: assignment.globals.set(path.name, dict),
+      });
     }
     case "Local": {
+      // a local variable can only have 0 or 1 members (`x = 1` or `icon = { x: 1 }`)
       if (path.members.length > 1) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
@@ -2010,10 +2035,18 @@ const processBlock = (
     const block = blockId(blockIndex, substIndex, hb.header);
     const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
     if (block.tag === "NamespaceId") {
-      // prepopulate with an empty namespace, to give a better error message
-      // when someone tries to assign to a global by its absolute path
-      // (`AssignGlobalError` instead of `MissingShapeError`)
-      withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+      if (withLocals.globals.has(block.contents)) {
+        // if the namespace exists, throw an error
+        withLocals.diagnostics.errors = errors.push(
+          redeclareNamespaceError(block.contents, {
+            start: hb.header.start,
+            end: hb.header.end,
+          })
+        );
+      } else {
+        // prepopulate with an empty namespace if it doesn't exist
+        withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+      }
     }
 
     // Augment the block to include the metadata

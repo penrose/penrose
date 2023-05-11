@@ -102,8 +102,8 @@ with Plane P
 where In(p, P) {
   -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
   -- There's a choice of whether to put padding on the point or the text for containment
-  p.iconOnPlane = ensure contains(P.icon, p.icon, const.containPadding)
-  p.textOnPlane = ensure contains(P.icon, p.text, 0.0)
+  override p.iconOnPlane = ensure contains(P.icon, p.icon, const.containPadding)
+  override p.textOnPlane = ensure contains(P.icon, p.text, 0.0)
 
   p.icon above P.icon
   p.text above P.icon
@@ -241,7 +241,7 @@ where Parallel(l1, l2) {
 forall Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
-  override e.vec = [q.x - p.x, q.y - p.y]
+  e.vec = [q.x - p.x, q.y - p.y]
   e.start = p.vec
   e.end = q.vec
 
@@ -897,7 +897,7 @@ forall Plane p {
   dim = 700.0
   override p.text.center = ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
   -- inner: 
-  p.icon = Rectangle {
+  override p.icon = Rectangle {
     fillColor : #f3f4f9
     strokeColor : #8e93c4
     strokeWidth : 2.0
@@ -913,22 +913,22 @@ forall Triangle t
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
   t.strokeWidth = 0.0
-  t.PQ = Line {
+  override t.PQ = Line {
     start : p.icon.center
     end : q.icon.center
     strokeWidth : t.strokeWidth
   }
-  t.QR = Line {
+  override t.QR = Line {
     start : q.icon.center
     end : r.icon.center
     strokeWidth : t.strokeWidth
   }
-  t.RP = Line {
+  override t.RP = Line {
     start : r.icon.center
     end : p.icon.center
     strokeWidth : t.strokeWidth
   }
-  t.icon = Path {
+  override t.icon = Path {
     d : pathFromPoints("closed", [p.icon.center, r.icon.center, q.icon.center])
     fillColor: Colors.purple2
     strokeWidth: 0
@@ -951,16 +951,16 @@ with Point p; Point q; Point r {
 forall Angle theta
 where theta := InteriorAngle(p, q, r)
 with Point p; Point q; Point r {
-  theta.p = p.vec
-  theta.q = q.vec
-  theta.r = r.vec
+  override theta.p = p.vec
+  override theta.q = q.vec
+  override theta.r = r.vec
 
-  theta.radius = const.thetaRadius
+  override theta.radius = const.thetaRadius
   encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
   startA = ptOnLine(theta.q, theta.p, theta.radius)
   endA = ptOnLine(theta.q, theta.r, theta.radius)
   sweepA = arcSweepFlag(theta.q, startA, endA)
-  override theta.mark = Path {
+  theta.mark = Path {
     d : arc("open", startA, endA, (theta.radius, theta.radius), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.darkpurple
@@ -984,7 +984,7 @@ with Segment s2; Point p {
   sweepA = arcSweepFlag(s.icon.end, startA, endA)
 
   markSize = 10
-  s.mark = Path {
+  override s.mark = Path {
     d : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, markSize), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, markSize), ptOnLine(s.icon.end, s2.icon.end, markSize)])
     strokeWidth : 2.0
     strokeColor : Colors.black
