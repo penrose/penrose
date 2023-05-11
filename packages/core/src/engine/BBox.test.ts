@@ -36,7 +36,7 @@ const expectBbox = (
     actual.center[1],
   ]);
   const f = genCodeSync(g);
-  const [width, height, x, y] = f.call([]).secondary; // no inputs, so, empty array
+  const [width, height, x, y] = f([]).secondary; // no inputs, so, empty array
   expect(width).toBeCloseTo(expected.width);
   expect(height).toBeCloseTo(expected.height);
   expect(x).toBeCloseTo(expected.center[0]);

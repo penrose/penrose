@@ -1,2 +1,2 @@
-export const call_grad = (f, inputs, mask, gradient, secondary) =>
-  f(inputs, mask, gradient, secondary);
+export const call_grad = (f, x, weight, grad) => f(x, weight, grad);
+export const call_stop = (stop) => stop();
