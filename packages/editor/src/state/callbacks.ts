@@ -61,11 +61,13 @@ const _compileDiagram = async (
     return;
   }
   const initialState = await prepareState(compileResult.value);
+
   set(
     diagramState,
     (state: Diagram): Diagram => ({
       ...state,
       error: null,
+      warnings: initialState.warnings,
       metadata: {
         ...state.metadata,
         variation,
