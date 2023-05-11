@@ -38,7 +38,7 @@ export interface NaNError {
   lastState: State;
 }
 
-export type Warning = StyleError;
+export type Warning = StyleWarning;
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 export type SubstanceError =

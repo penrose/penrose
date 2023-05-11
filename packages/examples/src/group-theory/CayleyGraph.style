@@ -1,7 +1,7 @@
 -- Draws a Cayley graph for a group G, assuming that
 --   (i) all elements g of G have been declared as an Element,
 --   (ii) all generator s of G have been tagged, via IsGenerator(), and
---   (iii) the group multiplication table has been s7pecified, via IsProduct.
+--   (iii) the group multiplication table has been specified, via IsProduct.
 -- For drawing the Cayley graph, it is not strictly necessary to specify the
 -- entire multiplication table: one can instead just specify the subset of
 -- the table corresponding to right-multiplication by any generator.  However,
