@@ -221,8 +221,8 @@ export const pElasticEnergy = (
   return addN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       mul(
-        squared(curvature(p1, p2, p3)),
-        pow(curvature(p1, p2, p3, CurvatureApproximationMode.SteinerCorner), p)
+        pow(curvature(p1, p2, p3, CurvatureApproximationMode.SteinerCorner), p),
+        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
       )
     )
   );

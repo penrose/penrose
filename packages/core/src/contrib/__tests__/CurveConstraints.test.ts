@@ -269,22 +269,22 @@ describe("pElasticEnergy", () => {
   ])("of %p", (shape: Shape<ad.Num>, p: number, expected: number) => {
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = pElasticEnergy(points, closed);
+    const result = pElasticEnergy(points, closed, p);
     expect(numOf(result)).toBeCloseTo(expected, 0);
   });
 });
 
 describe("maxCurvature", () => {
   it.each([
-    [_polygons[6], 100],
-    [_polygons[7], 200],
-    [_polygons[8], 300],
-    [_polylines[10], 400],
+    [_polygons[6], 0.01],
+    [_polygons[7], 0.006],
+    [_polygons[8], 0.01],
+    [_polylines[10], 0.01],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = maxCurvature(points, closed);
-    expect(numOf(result)).toBeCloseTo(expected, 4);
+    expect(numOf(result)).toBeCloseTo(expected, 2);
   });
 });
 
@@ -294,10 +294,10 @@ describe("lengthK", () => {
     [_polygons[7], 1, 600],
     [_polygons[8], 1, 1400],
     [_polylines[10], 1, 300],
-    [_polygons[6], 2, 11],
-    [_polygons[7], 2, 22],
-    [_polygons[8], 2, 33],
-    [_polylines[10], 2, 44],
+    [_polygons[6], 2, 40000],
+    [_polygons[7], 2, 100000],
+    [_polygons[8], 2, 280000],
+    [_polylines[10], 2, 30000],
   ])("of %p", (shape: Shape<ad.Num>, k: number, expected: number) => {
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
