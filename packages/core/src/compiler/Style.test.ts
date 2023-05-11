@@ -66,7 +66,7 @@ export const loadProgs = async ({
   ).unwrapOrElse(throwErr);
 };
 
-const canvasPreamble = ` canvas {
+const canvasPreamble = `canvas {
   width = 800
   height = 700
 }
@@ -192,17 +192,18 @@ describe("Layering computation", () => {
   });
 });
 
+const colorValMatches = (
+  colorPath: string,
+  expected: [number, number, number, number],
+  translation: Translation
+) => {
+  const val = translation.symbols.get(colorPath);
+  const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
+    .contents;
+  zip2(rgba, expected).map(([a, b]) => expect(a).toBeCloseTo(b, 1));
+};
+
 describe("Color literals", () => {
-  const colorValMatches = (
-    colorPath: string,
-    expected: [number, number, number, number],
-    translation: Translation
-  ) => {
-    const val = translation.symbols.get(colorPath);
-    const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
-      .contents;
-    zip2(rgba, expected).map(([a, b]) => expect(a).toBeCloseTo(b, 1));
-  };
   test("color literal values", async () => {
     const { translation } = await loadProgs({
       dsl: "type T",
@@ -1001,6 +1002,15 @@ delete x.z.p }`,
           x = dot([1, 2, 3], [4, 5])
         }`,
       ],
+      RedeclareNamespaceError: [
+        `Colors {
+          red = #f00
+        }
+        Colors {
+          red = #e00
+        }
+        `,
+      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {
@@ -1204,6 +1214,31 @@ delete x.z.p }`,
       const warnings = S.checkGroupGraph(groupGraph);
       expect(warnings.length).toEqual(1);
       expect(warnings[0].tag).toEqual("ShapeBelongsToMultipleGroups");
+    });
+  });
+
+  describe("Global namespace", () => {
+    test("namespace override", async () => {
+      const { translation } = await loadProgs({
+        dsl: ``,
+        sub: ``,
+        sty:
+          canvasPreamble +
+          `
+          Colors {
+            color red = #e00
+            color green = #0e0
+          }
+          OverrideColors {
+            override Colors.red = #f00
+            override Colors.green = #0f0
+            Colors.blue = #00f
+          }
+          `,
+      });
+      colorValMatches(`Colors.red`, [1, 0, 0, 1], translation);
+      colorValMatches(`Colors.green`, [0, 1, 0, 1], translation);
+      colorValMatches(`Colors.blue`, [0, 0, 1, 1], translation);
     });
   });
 });
