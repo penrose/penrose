@@ -20,10 +20,6 @@ import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value";
 
 //#region ErrorTypes
 
-// type PenroseError = LanguageError | RuntimeError;
-// type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
-// type RuntimeError = OptimizerError | EvaluatorError;
-// type StyleError = StyleParseError | StyleCheckError | TranslationError;
 export type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
