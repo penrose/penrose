@@ -262,10 +262,10 @@ describe("pElasticEnergy", () => {
     [_polygons[1], 2, 58284],
     [_polylines[3], 2, 33983],
     [_polygons[4], 2, 124721],
-    [_polylines[0], 3, 111],
-    [_polygons[1], 3, 222],
-    [_polylines[3], 3, 333],
-    [_polygons[4], 3, 444],
+    [_polylines[0], 3, 205775],
+    [_polygons[1], 3, 103360],
+    [_polylines[3], 3, 38283],
+    [_polygons[4], 3, 210899],
   ])("of %p", (shape: Shape<ad.Num>, p: number, expected: number) => {
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);

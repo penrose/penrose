@@ -645,10 +645,10 @@
     },
     {
       "name": "Curved graph example",
-      "substance": "sec5-ex46",
+      "substance": "sec5-ex32",
       "style": "simple-curved-graph",
       "domain": "simple-graph",
-      "variation": "HawkesburyShark8517"
+      "variation": "CascaraKudu41689"
     },
     {
       "name": "Open elastic curve example",
@@ -1295,9 +1295,9 @@
       "domain": "triangle-mesh-2d",
       "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
     },
-    "sec5-ex46": {
+    "sec5-ex32": {
       "domain": "simple-directed-graph",
-      "URI": "graph-domain/textbook/sec5/ex46.substance"
+      "URI": "graph-domain/textbook/sec5/ex32.substance"
     }
   }
 }
