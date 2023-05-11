@@ -8,6 +8,9 @@ import {
   elasticEnergy,
   equivalued,
   isoperimetricRatio,
+  lengthK,
+  maxCurvature,
+  pElasticEnergy,
   perimeter,
   signedArea,
   totalCurvature,
@@ -250,5 +253,55 @@ describe("isEquiangular", () => {
   ])("non-equiangular %p", (shape: Polygon<ad.Num> | Polyline<ad.Num>) => {
     const result = constrDictCurves.isEquiangular.body(shape);
     expect(numOf(result)).toBeGreaterThan(0.01);
+  });
+});
+
+describe("pElasticEnergy", () => {
+  it.each([
+    [_polylines[0], 2, 133246],
+    [_polygons[1], 2, 58284],
+    [_polylines[3], 2, 33983],
+    [_polygons[4], 2, 124721],
+    [_polylines[0], 3, 111],
+    [_polygons[1], 3, 222],
+    [_polylines[3], 3, 333],
+    [_polygons[4], 3, 444],
+  ])("of %p", (shape: Shape<ad.Num>, p: number, expected: number) => {
+    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = pElasticEnergy(points, closed);
+    expect(numOf(result)).toBeCloseTo(expected, 0);
+  });
+});
+
+describe("maxCurvature", () => {
+  it.each([
+    [_polygons[6], 100],
+    [_polygons[7], 200],
+    [_polygons[8], 300],
+    [_polylines[10], 400],
+  ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
+    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = maxCurvature(points, closed);
+    expect(numOf(result)).toBeCloseTo(expected, 4);
+  });
+});
+
+describe("lengthK", () => {
+  it.each([
+    [_polygons[6], 1, 400],
+    [_polygons[7], 1, 600],
+    [_polygons[8], 1, 1400],
+    [_polylines[10], 1, 300],
+    [_polygons[6], 2, 11],
+    [_polygons[7], 2, 22],
+    [_polygons[8], 2, 33],
+    [_polylines[10], 2, 44],
+  ])("of %p", (shape: Shape<ad.Num>, k: number, expected: number) => {
+    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = lengthK(points, closed, k);
+    expect(numOf(result)).toBeCloseTo(expected, 4);
   });
 });
