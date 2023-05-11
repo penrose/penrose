@@ -85,10 +85,9 @@ export const curvature = (
   // $\kappa^C$ from [1]
   if (mode === CurvatureApproximationMode.SteinerCorner)
     return mul(2, tan(div(angle, 2)));
-  return mul(2, sin(div(angle, 2)));
   // $\kappa^D$ from [1]
-  // const w = ops.vdist(p1, p3);
-  // return div(mul(2, sin(div(angle, 2))), w);
+  const w = ops.vdist(p1, p3);
+  return div(mul(2, sin(div(angle, 2))), w);
 };
 
 /**
@@ -223,10 +222,7 @@ export const pElasticEnergy = (
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       mul(
         squared(curvature(p1, p2, p3)),
-        pow(
-          curvature(p1, p2, p3, CurvatureApproximationMode.OsculatingCircle),
-          p
-        )
+        pow(curvature(p1, p2, p3, CurvatureApproximationMode.SteinerCorner), p)
       )
     )
   );
