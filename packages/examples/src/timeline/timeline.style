@@ -1,6 +1,6 @@
 canvas {
     width = 1200
-    height = 700
+    height = 550
 }
 
 layout = [sort, disjoint]
