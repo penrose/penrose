@@ -3,7 +3,7 @@ canvas {
   height = 400
 }
 
-layout = [dots, text, adjust, dots, text, adjust, dots, text, adjust, text, adjust]
+layout = [dots, text, adjust, dots, text, adjust, text, adjust]
 
 color {
   black = #000000
