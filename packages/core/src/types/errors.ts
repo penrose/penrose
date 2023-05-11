@@ -20,10 +20,6 @@ import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value";
 
 //#region ErrorTypes
 
-// type PenroseError = LanguageError | RuntimeError;
-// type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
-// type RuntimeError = OptimizerError | EvaluatorError;
-// type StyleError = StyleParseError | StyleCheckError | TranslationError;
 export type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
@@ -42,7 +38,7 @@ export interface NaNError {
   lastState: State;
 }
 
-export type Warning = StyleError;
+export type Warning = StyleWarning;
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 export type SubstanceError =
