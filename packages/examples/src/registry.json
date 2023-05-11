@@ -642,6 +642,13 @@
       "style": "triangle-mesh-2d",
       "domain": "triangle-mesh-2d",
       "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Curved graph example",
+      "substance": "sec5-ex46",
+      "style": "simple-curved-graph",
+      "domain": "simple-graph",
+      "variation": "AquaverdeHeron34328"
     }
   ],
   "domains": {
@@ -895,6 +902,10 @@
     "cubic-bezier": {
       "domain": "curve-examples",
       "URI": "curve-examples/cubic-bezier.style"
+    },
+    "simple-curved-graph": {
+      "domain": "simple-curved-graph",
+      "URI": "graph-domain/simple-curved-graph.style"
     }
   },
   "substances": {
@@ -1261,6 +1272,10 @@
     "angle-equivalence": {
       "domain": "triangle-mesh-2d",
       "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
+    },
+    "sec5-ex46": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec5/ex46.substance"
     }
   }
 }
