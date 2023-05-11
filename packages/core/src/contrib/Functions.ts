@@ -2795,13 +2795,22 @@ export const compDict = {
         type: booleanT(),
         description: "whether curve is closed",
       },
+      {
+        name: "signed",
+        type: booleanT(),
+        description: "whether curvature is signed",
+      },
     ],
     body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
-      closed: boolean
+      closed: boolean,
+      signed = true
     ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: totalCurvature(points, closed) };
+      return {
+        tag: "FloatV",
+        contents: totalCurvature(points, closed, signed),
+      };
     },
     returns: valueT("Real"),
   },

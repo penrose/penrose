@@ -83,9 +83,10 @@ export const curvature = (
   // $\kappa^C$ from [1]
   if (mode === CurvatureApproximationMode.SteinerCorner)
     return mul(2, tan(div(angle, 2)));
+  return mul(2, sin(div(angle, 2)));
   // $\kappa^D$ from [1]
-  const w = ops.vdist(p1, p3);
-  return div(mul(2, sin(div(angle, 2))), w);
+  // const w = ops.vdist(p1, p3);
+  // return div(mul(2, sin(div(angle, 2))), w);
 };
 
 /**
@@ -142,11 +143,19 @@ export const isoperimetricRatio = (
  */
 export const totalCurvature = (
   points: [ad.Num, ad.Num][],
-  closed: boolean
+  closed: boolean,
+  signed = true
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
+  if (signed) {
+    return addN(
+      triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+    );
+  }
   return addN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      absVal(curvature(p1, p2, p3))
+    )
   );
 };
 
