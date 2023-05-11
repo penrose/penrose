@@ -6,7 +6,9 @@ import {
   div,
   ifCond,
   lte,
+  maxN,
   mul,
+  pow,
   sign,
   sin,
   squared,
@@ -174,6 +176,57 @@ export const elasticEnergy = (
           curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment)
         ),
         mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
+      )
+    )
+  );
+};
+
+/**
+ * Returns the sum of all line segment lengths raised to `p`
+ */
+export const lengthK = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean,
+  k: number
+): ad.Num => {
+  const tuples = consecutiveTuples(points, closed);
+  return addN(
+    tuples.map(([p1, p2]: [ad.Num, ad.Num][]) => pow(ops.vdist(p1, p2), k))
+  );
+};
+
+/**
+ * Returns the maximum value of curvature along the curve
+ */
+export const maxCurvature = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  return maxN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      absVal(curvature(p1, p2, p3, CurvatureApproximationMode.OsculatingCircle))
+    )
+  );
+};
+
+/**
+ * Returns integral of curvature raised to `p` along the curve
+ */
+export const pElasticEnergy = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean,
+  p = 2
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  return addN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      mul(
+        squared(curvature(p1, p2, p3)),
+        pow(
+          curvature(p1, p2, p3, CurvatureApproximationMode.OsculatingCircle),
+          p
+        )
       )
     )
   );
