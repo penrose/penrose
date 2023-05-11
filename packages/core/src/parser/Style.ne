@@ -8,7 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
 } from "../types/style";
 
 const styleTypes: string[] =
@@ -64,15 +64,15 @@ const lexer = moo.compile({
 const nodeData = { nodeType: "Style" as const };
 
 // Node constructors
+const decl = (t: StyT<C>, i: BindingForm<C>): DeclPattern<C> => ({
+  ...nodeData,
+  ...rangeFrom([t, i]),
+  tag: "DeclPattern",
+  type: t,
+  id: i 
+});
 
 const declList = (type: StyT<C>, ids: BindingForm<C>[]): DeclPattern<C>[] => {
-  const decl = (t: StyT<C>, i: BindingForm<C>): DeclPattern<C> => ({
-    ...nodeData,
-    ...rangeFrom([t, i]),
-    tag: "DeclPattern",
-    type: t,
-    id: i 
-  });
   return ids.map((i: BindingForm<C>) => decl(type, i));
 }
 
@@ -90,6 +90,25 @@ const selector = (
     head: hd,
     with: wth,
     where: whr,
+  };
+}
+
+const collector = (
+  hd: DeclPattern<C>,
+  it: Identifier<C>,
+  whr?: RelationPatterns<C>,
+  wth?: DeclPatterns<C>,
+  gb?: DeclPatterns<C>
+): Collector<C> => {
+  return {
+    ...nodeData,
+    ...rangeFrom(_.compact([hd, it, whr, wth, gb])),
+    tag: "Collector",
+    head: hd,
+    into: it,
+    where: whr,
+    with: wth,
+    groupby: gb
   };
 }
 
@@ -150,6 +169,7 @@ item
 
 header 
   -> selector  {% id %}
+  |  collector {% id %}
   |  namespace {% id %}
 
 selector -> 
@@ -162,11 +182,21 @@ selector ->
   | forall decl_patterns _ml select_where select_with 
     {% (d) => selector(d[1], d[4], d[3]) %} 
   | forall decl_patterns _ml select_with select_where 
-    {% (d) => selector(d[1], d[3], d[4]) %} 
+    {% (d) => selector(d[1], d[3], d[4]) %}
+
+collector ->
+    collect decl _ml into _ml select_where select_with groupby
+    {% (d) => collector(d[1], d[3], d[5], d[6], d[7]) %}
+
+into -> "into" __ binding_form {% nth(2) %}
 
 forall -> "forall" __ {% nth(0) %}
 
+collect -> "collect" __ {% nth(0) %}
+
 select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
+
+groupby -> "groupby" __ decl_patterns _ml {% d => d[2] %}
 
 decl_patterns -> sepBy1[decl_list, ";"] {% 
   ([d]): DeclPatterns<C> => {
@@ -182,6 +212,13 @@ decl_patterns -> sepBy1[decl_list, ";"] {%
 decl_list -> identifier __ sepBy1[binding_form, ","] {% 
   ([type, , ids]): DeclPattern<C>[] => {
     return declList(type, ids);
+  }
+%}
+
+
+decl -> identifier __ binding_form {%
+  ([type, , id]): DeclPattern<C> => {
+    return decl(type, id);
   }
 %}
 

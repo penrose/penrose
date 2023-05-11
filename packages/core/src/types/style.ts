@@ -39,6 +39,15 @@ export type Selector<T> = ASTNode<T> & {
   where?: RelationPatterns<T>;
 };
 
+export type Collector<T> = ASTNode<T> & {
+  tag: "Collector";
+  head: DeclPattern<T>;
+  into: Identifier<T>;
+  where?: RelationPatterns<T>;
+  with?: DeclPatterns<T>;
+  groupby?: DeclPatterns<T>;
+};
+
 // TODO: consider dropping the suffix pattern. It's a bit confusing, and DeclList would have been clearer.
 export type DeclPatterns<T> = ASTNode<T> & {
   tag: "DeclPatterns";
