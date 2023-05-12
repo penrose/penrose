@@ -280,11 +280,11 @@ const setPendingProperty = (
   newValue: FloatV<number>
 ) => {
   if (
-    typeof oldValue.contents === "number" ||
-    oldValue.contents.tag !== "Input"
+    typeof oldValue.contents !== "number" &&
+    oldValue.contents.tag === "Input"
   )
-    throw Error("expected property to be an input");
-  xs[safe(inputs.get(oldValue.contents), "missing input")] = newValue.contents;
+    xs[safe(inputs.get(oldValue.contents), "missing input")] =
+      newValue.contents;
 };
 
 const insertPendingHelper = (
