@@ -30,6 +30,8 @@
     "strict": true
   },
   "ts-node": {
-    "swc": true
+    "swc": true,
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   }
 }
