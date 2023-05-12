@@ -329,6 +329,13 @@ const getInputNodes = (
   return inputs;
 };
 
+const getInputKey = (graph: ad.Graph["graph"], id: ad.Id): number => {
+  const node = graph.node(id);
+  if (typeof node === "number" || node.tag !== "Input")
+    throw Error(`expected node ${id} to be input, got ${JSON.stringify(node)}`);
+  return node.key;
+};
+
 /**
  * Construct an explicit graph from a primary output and array of secondary
  * outputs. All out-edges relevant to computing the gradient can be considered
@@ -513,14 +520,8 @@ export const makeGraph = (
   // gradient is missing a key
   const gradient = new Map<ad.Input, ad.Id>();
   for (const [x, id] of nodes) {
-    if (typeof x !== "number" && x.tag === "Input") {
-      const node = graph.node(id);
-      if (typeof node === "number" || node.tag !== "Input")
-        throw Error(
-          `expected node ${id} to be input, got ${JSON.stringify(node)}`
-        );
+    if (typeof x !== "number" && x.tag === "Input")
       gradient.set(x, safe(gradNodes.get(id), "missing gradient")[0]);
-    }
   }
 
   // easiest case: final stage, just add all the nodes and edges for the
@@ -1635,13 +1636,7 @@ const compileGraph = (
   }
 
   for (const [x, id] of gradient) {
-    const inputId = safe(nodes.get(x), "input not found");
-    const node = graph.node(inputId);
-    if (typeof node === "number" || node.tag !== "Input")
-      throw Error(
-        `expected node ${id} to be input, got ${JSON.stringify(node)}`
-      );
-    const i = node.key;
+    const i = getInputKey(graph, safe(nodes.get(x), "input not found"));
 
     t.byte(wasm.OP.local.get);
     t.int(getParamIndex(funcTypes.addend, "gradient"));
@@ -1894,13 +1889,8 @@ const makeCompiled = (
   for (const { graph, nodes } of graphs) {
     for (const [x, id] of nodes) {
       if (typeof x !== "number" && x.tag === "Input") {
-        const node = graph.node(id);
-        if (typeof node === "number" || node.tag !== "Input")
-          throw Error(
-            `expected node ${id} to be input, got ${JSON.stringify(node)}`
-          );
         const prev = indices.get(x);
-        const { key } = node;
+        const key = getInputKey(graph, id);
         if (prev !== undefined && prev !== key)
           throw Error(`input with multiple keys: ${prev} and ${key}`);
         indices.set(x, key);
