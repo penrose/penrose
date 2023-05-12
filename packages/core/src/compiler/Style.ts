@@ -3732,7 +3732,7 @@ export const compileStyleHelper = async (
   const computeShapes = await compileCompGraph(inputs, renderGraph);
 
   const gradient = await genGradient(
-    varyingValues.length,
+    inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
   );
@@ -3747,6 +3747,7 @@ export const compileStyleHelper = async (
     constraintSets,
     constrFns,
     objFns,
+    inputHandles: inputs,
     inputs: metas,
     labelCache: new Map(),
     shapes: renderGraph,

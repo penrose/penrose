@@ -168,7 +168,7 @@ describe("Energy API", () => {
         constraintSets: new Map([["", masks]]),
         constrFns: smallerThanFns,
         gradient: await genGradient(
-          state.varyingValues.length,
+          state.inputHandles,
           state.objFns.map(({ output }) => output),
           smallerThanFns.map(({ output }) => output)
         ),

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import { numsOf } from "src/contrib/Utils";
+import { numsOf } from "../contrib/Utils";
 import * as ad from "../types/ad";
 import { eqList, randList } from "../utils/Util";
 import {

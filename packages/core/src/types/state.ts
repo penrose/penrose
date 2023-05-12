@@ -24,6 +24,7 @@ export interface State {
   objFns: Fn[];
   constrFns: Fn[];
   varyingValues: number[];
+  inputHandles: ad.Input[];
   inputs: InputMeta[]; // same length as `varyingValues`
   labelCache: LabelCache;
   shapes: Shape<ad.Num>[];

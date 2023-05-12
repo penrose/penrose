@@ -46,14 +46,14 @@ export const input = (val: number): ad.Input => ({ tag: "Input", val });
 
 // most `ad.Num`s are already `ad.Node`s, but this function returns a new object
 // with all the children removed
-const makeNode = (makeInput: () => ad.InputNode, x: ad.Expr): ad.Node => {
+const makeNode = (getKey: (x: ad.Input) => number, x: ad.Expr): ad.Node => {
   if (typeof x === "number") {
     return x;
   }
   const { tag } = x;
   switch (tag) {
     case "Input": {
-      return makeInput();
+      return { tag, key: getKey(x) };
     }
     case "Not": {
       return { tag };
@@ -339,11 +339,11 @@ const getInputs = (
  * to any given gradient node are added up according to that total order.
  */
 export const makeGraph = (
-  outputs: Omit<ad.Outputs<ad.Num>, "gradient">
+  outputs: Omit<ad.Outputs<ad.Num>, "gradient">,
+  getKey?: (x: ad.Input) => number
 ): ad.Graph => {
   const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
-  const inputs: ad.Input[] = [];
 
   // we use this queue to essentially do a breadth-first search by following
   // `ad.Expr` child pointers; it gets reused a few times because we add nodes
@@ -366,18 +366,15 @@ export const makeGraph = (
     return id;
   };
 
+  let numInputs = 0; // only used if `getKey === undefined`
+
   // ensure that x is represented in the graph we're building, and if it wasn't
   // already there, enqueue its children and in-edges (so queue and edges,
   // respectively, should both be emptied after calling this)
   const addNode = (x: ad.Expr): ad.Id => {
     let name = nodes.get(x);
     if (name === undefined) {
-      name = newNode(
-        makeNode(() => {
-          const key = inputs.length;
-          return { tag: "Input", key };
-        }, x)
-      );
+      name = newNode(makeNode(getKey ?? (() => numInputs++), x));
       nodes.set(x, name);
       children(x).forEach((edge, index) => {
         edges.enqueue([edge, index, x]);
@@ -514,10 +511,20 @@ export const makeGraph = (
   // outputs instead of the primary output; really, the gradients for all those
   // inputs are just zero, so the caller needs to substitute zero whenever the
   // gradient is missing a key
-  const gradient: ad.Id[] = inputs.map((x) => {
-    const id = safe(nodes.get(x), "missing node");
-    return safe(gradNodes.get(id), "missing gradient")[0];
-  });
+  const gradient: ad.Id[] = [];
+  for (const {
+    id,
+    label: { key },
+  } of getInputs(graph)) {
+    if (key in gradient) {
+      throw Error(`duplicate Input key: ${key}`);
+    }
+    // note that it's very easy for the set of Input indices to not be
+    // contiguous, e.g. if some inputs end up not being used in any of the
+    // computations in the graph; but even if that happens, it's actually OK
+    // (see the comment in the implementation of genCode below)
+    gradient[key] = safe(gradNodes.get(id), "missing gradient")[0];
+  }
 
   // easiest case: final stage, just add all the nodes and edges for the
   // secondary outputs
@@ -536,18 +543,23 @@ export const makeGraph = (
 /**
  * Construct a graph with a primary output but no secondary outputs.
  */
-export const primaryGraph = (output: ad.Num): ad.Graph =>
-  makeGraph({ primary: output, secondary: [] });
+export const primaryGraph = (
+  output: ad.Num,
+  getKey?: (x: ad.Input) => number
+): ad.Graph => makeGraph({ primary: output, secondary: [] }, getKey);
 
 /**
  * Construct a graph from an array of only secondary outputs, for which we don't
  * care about the gradient. The primary output is just the constant 1.
  */
-export const secondaryGraph = (outputs: ad.Num[]): ad.Graph =>
+export const secondaryGraph = (
+  outputs: ad.Num[],
+  getKey?: (x: ad.Input) => number
+): ad.Graph =>
   // use 1 because makeGraph always constructs a constant gradient node 1 for
   // the primary output, and so if that's already present in the graph then we
   // have one fewer node total
-  makeGraph({ primary: 1, secondary: outputs });
+  makeGraph({ primary: 1, secondary: outputs }, getKey);
 
 // ------------ Meta / debug ops
 
@@ -1873,15 +1885,30 @@ const makeCompiled = (
   meta: Metadata,
   instance: WebAssembly.Instance
 ): ad.Compiled => {
+  const indices = new Map<ad.Input, number>();
+  for (const { graph, nodes } of graphs) {
+    for (const [x, id] of nodes) {
+      if (typeof x !== "number" && x.tag === "Input") {
+        const node = graph.node(id);
+        if (typeof node === "number" || node.tag !== "Input")
+          throw Error(
+            `expected node ${id} to be input, got ${JSON.stringify(node)}`
+          );
+        const prev = indices.get(x);
+        const { key } = node;
+        if (prev !== undefined && prev !== key)
+          throw Error(`input with multiple keys: ${prev} and ${key}`);
+        indices.set(x, key);
+      }
+    }
+  }
+
   const f = getExport(meta, instance);
   // we wrap our Wasm function in a JavaScript function which instead thinks in
   // terms of arrays, using the `meta` data to translate between the two
-  return (inputs: number[], mask?: boolean[]): ad.Outputs<number> => {
-    // the computation graph might not use all the inputs, so we truncate the
-    // inputs we're given, to avoid a `RangeError`
-    meta.arrInputs.set(inputs.slice(0, meta.numInputs));
-    for (let i = 0; i < graphs.length; i++)
-      meta.arrMask[i] = mask !== undefined && i in mask && !mask[i] ? 0 : 1;
+  return (inputs: (x: ad.Input) => number): ad.Outputs<number> => {
+    for (const [x, i] of indices) meta.arrInputs[i] = inputs(x);
+    meta.arrMask.fill(1);
     meta.arrGrad.fill(0);
     meta.arrSecondary.fill(0);
     const primary = f();
@@ -1926,25 +1953,32 @@ export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled => {
 
 /** Generate an energy function from the current state (using `ad.Num`s only) */
 export const genGradient = async (
-  n: number,
+  inputs: ad.Input[],
   objectives: ad.Num[],
   constraints: ad.Num[]
 ): Promise<ad.Gradient> => {
+  const n = inputs.length;
+  const indices = new Map(inputs.map((x, i) => [x, i]));
+  const getKey = (x: ad.Input): number => safe(indices.get(x), "missing input");
+
   // This changes with the EP round, gets bigger to weight the constraints.
   // Therefore it's marked as an input to the generated objective function,
   // which can be partially applied with the ep weight. But its initial `val`
   // gets compiled away, so we just set it to zero here.
-  const lambda = input({ val: 0, key: n });
+  const lambda = input(0);
 
   const objs = objectives.map((x, i) => {
     const secondary = [];
     secondary[i] = x;
-    return makeGraph({ primary: x, secondary });
+    return makeGraph({ primary: x, secondary }, getKey);
   });
   const constrs = constraints.map((x, i) => {
     const secondary = [];
     secondary[objectives.length + i] = x;
-    return makeGraph({ primary: mul(lambda, fns.toPenalty(x)), secondary });
+    return makeGraph(
+      { primary: mul(lambda, fns.toPenalty(x)), secondary },
+      getKey
+    );
   });
 
   const graphs = [...objs, ...constrs];

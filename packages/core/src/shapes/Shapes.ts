@@ -89,10 +89,10 @@ const shapeSampler: Map<
 
 export const pendingProps = (shapeType: ShapeType): string[] => {
   const props = [];
-  const metas: InputMeta[] = [];
+  const pendingInputs = new Set<ad.Num>();
   const makeInput = (meta: InputMeta) => {
-    const x = input({ key: metas.length, val: 0 });
-    metas.push(meta);
+    const x = input(0);
+    if (meta.init.tag === "Pending") pendingInputs.add(x);
     return x;
   };
   const ideal: ShapeProps<ad.Num> = sampleShape(
@@ -103,12 +103,7 @@ export const pendingProps = (shapeType: ShapeType): string[] => {
 
   for (const key of Object.keys(ideal)) {
     const value: Value<ad.Num> = ideal[key];
-    if (
-      value.tag === "FloatV" &&
-      typeof value.contents !== "number" &&
-      value.contents.tag === "Input" &&
-      metas[value.contents.key].init.tag === "Pending"
-    ) {
+    if (value.tag === "FloatV" && pendingInputs.has(value.contents)) {
       props.push(key);
     }
   }
