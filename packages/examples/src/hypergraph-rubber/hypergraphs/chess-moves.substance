@@ -1,0 +1,46 @@
+-- Nodes
+
+Node King  -- ♔
+Node Queen  -- ♕
+Node Rook  -- ♖
+Node Bishop  -- ♗
+Node Knight  -- ♘
+Node Pawn  -- ♙
+
+-- Labels
+
+Label King "♔"
+Label Queen "♕"
+Label Rook "♖"
+Label Bishop "♗"
+Label Knight "♘"
+Label Pawn "♙"
+
+-- Hyperedges (Moves)
+
+Hyperedge StraightMove -- Straight Move
+
+isIn(King, StraightMove)
+isIn(Queen, StraightMove)
+isIn(Rook, StraightMove)
+isIn(Pawn, StraightMove)
+notIn(Bishop, StraightMove)
+notIn(Knight, StraightMove)
+
+Hyperedge DiagonalMove -- Diagonal Move
+
+isIn(King, DiagonalMove)
+isIn(Queen, DiagonalMove)
+isIn(Bishop, DiagonalMove)
+isIn(Pawn, DiagonalMove)
+notIn(Rook, DiagonalMove)
+notIn(Knight, DiagonalMove)
+
+Hyperedge LShapeMove -- L-shape Move
+
+isIn(Knight, LShapeMove)
+notIn(King, LShapeMove)
+notIn(Queen, LShapeMove)
+notIn(Rook, LShapeMove)
+notIn(Bishop, LShapeMove)
+notIn(Pawn, LShapeMove)

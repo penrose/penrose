@@ -1,0 +1,85 @@
+-- Nodes
+
+Node Sun  -- ☉
+Node Mercury  -- ☿
+Node Venus  -- ♀︎
+Node Earth  -- 🜨
+Node Mars  -- ♂︎
+Node Jupiter  -- ♃
+Node Saturn  -- ♄
+Node Uranus  -- ♅
+Node Neptune  -- ♆
+Node Pluto  -- ♇
+Node Ceres  -- ⚳
+
+-- Labels
+
+Label Sun "☉"
+Label Mercury "☿"
+Label Venus "♀︎"
+Label Earth "🜨"
+Label Mars "♂︎"
+Label Jupiter "♃"
+Label Saturn "♄"
+Label Uranus "♅"
+Label Neptune "♆"
+Label Pluto "♇"
+Label Ceres "⚳"
+
+-- Hyperedges (Classifications)
+
+Hyperedge InnerSolarSystem -- Inner Solar System
+
+isIn(Sun, InnerSolarSystem)
+isIn(Mercury, InnerSolarSystem)
+isIn(Venus, InnerSolarSystem)
+isIn(Earth, InnerSolarSystem)
+isIn(Mars, InnerSolarSystem)
+notIn(Jupiter, InnerSolarSystem)
+notIn(Saturn, InnerSolarSystem)
+notIn(Uranus, InnerSolarSystem)
+notIn(Neptune, InnerSolarSystem)
+isIn(Pluto, InnerSolarSystem)
+isIn(Ceres, InnerSolarSystem)
+
+Hyperedge OuterSolarSystem -- Outer Solar System
+
+notIn(Sun, OuterSolarSystem)
+notIn(Mercury, OuterSolarSystem)
+notIn(Venus, OuterSolarSystem)
+notIn(Earth, OuterSolarSystem)
+notIn(Mars, OuterSolarSystem)
+isIn(Jupiter, OuterSolarSystem)
+isIn(Saturn, OuterSolarSystem)
+isIn(Uranus, OuterSolarSystem)
+isIn(Neptune, OuterSolarSystem)
+isIn(Pluto, OuterSolarSystem)
+notIn(Ceres, OuterSolarSystem)
+
+Hyperedge RockyPlanets -- Rocky Planets
+
+notIn(Sun, RockyPlanets)
+isIn(Mercury, RockyPlanets)
+isIn(Venus, RockyPlanets)
+isIn(Earth, RockyPlanets)
+isIn(Mars, RockyPlanets)
+notIn(Jupiter, RockyPlanets)
+notIn(Saturn, RockyPlanets)
+notIn(Uranus, RockyPlanets)
+notIn(Neptune, RockyPlanets)
+isIn(Pluto, RockyPlanets)
+isIn(Ceres, RockyPlanets)
+
+Hyperedge GasGiants -- Gas Giants
+
+notIn(Sun, GasGiants)
+notIn(Mercury, GasGiants)
+notIn(Venus, GasGiants)
+notIn(Earth, GasGiants)
+notIn(Mars, GasGiants)
+isIn(Jupiter, GasGiants)
+isIn(Saturn, GasGiants)
+isIn(Uranus, GasGiants)
+isIn(Neptune, GasGiants)
+notIn(Pluto, GasGiants)
+notIn(Ceres, GasGiants)
