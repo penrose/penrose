@@ -1,0 +1,66 @@
+-- Nodes
+
+Node H  -- H
+Node He  -- He
+Node Li  -- Li
+Node Be  -- Be
+Node Ne  -- Ne
+Node Na  -- Na
+Node Mg  -- Mg
+Node Ar  -- Ar
+Node K  -- K
+Node Ca  -- Ca
+
+-- Labels
+
+Label H "H"
+Label He "He"
+Label Li "Li"
+Label Be "Be"
+Label Ne "Ne"
+Label Na "Na"
+Label Mg "Mg"
+Label Ar "Ar"
+Label K "K"
+Label Ca "Ca"
+
+-- Hyperedges (Groups)
+
+Hyperedge AlkaliMetals -- Alkali Metals
+
+isIn(H, AlkaliMetals)
+isIn(Li, AlkaliMetals)
+isIn(Na, AlkaliMetals)
+isIn(K, AlkaliMetals)
+notIn(He, AlkaliMetals)
+notIn(Be, AlkaliMetals)
+notIn(Ne, AlkaliMetals)
+notIn(Mg, AlkaliMetals)
+notIn(Ar, AlkaliMetals)
+notIn(Ca, AlkaliMetals)
+
+Hyperedge NobleGases -- Noble Gases
+
+isIn(He, NobleGases)
+isIn(Ne, NobleGases)
+isIn(Ar, NobleGases)
+notIn(H, NobleGases)
+notIn(Li, NobleGases)
+notIn(Be, NobleGases)
+notIn(Na, NobleGases)
+notIn(Mg, NobleGases)
+notIn(K, NobleGases)
+notIn(Ca, NobleGases)
+
+Hyperedge AlkalineEarthMetals -- Alkaline Earth Metals
+
+isIn(Be, AlkalineEarthMetals)
+isIn(Mg, AlkalineEarthMetals)
+isIn(Ca, AlkalineEarthMetals)
+notIn(H, AlkalineEarthMetals)
+notIn(He, AlkalineEarthMetals)
+notIn(Li, AlkalineEarthMetals)
+notIn(Na, AlkalineEarthMetals)
+notIn(Ne, AlkalineEarthMetals)
+notIn(Ar, AlkalineEarthMetals)
+notIn(K, AlkalineEarthMetals)
