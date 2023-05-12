@@ -1911,9 +1911,13 @@ const makeCompiled = (
   const f = getExport(meta, instance);
   // we wrap our Wasm function in a JavaScript function which instead thinks in
   // terms of arrays, using the `meta` data to translate between the two
-  return (inputs: (x: ad.Input) => number): ad.Outputs<number> => {
+  return (
+    inputs: (x: ad.Input) => number,
+    mask?: boolean[]
+  ): ad.Outputs<number> => {
     for (const [x, i] of indices) meta.arrInputs[i] = inputs(x);
-    meta.arrMask.fill(1);
+    for (let i = 0; i < graphs.length; i++)
+      meta.arrMask[i] = mask !== undefined && i in mask && !mask[i] ? 0 : 1;
     meta.arrGrad.fill(0);
     meta.arrSecondary.fill(0);
     const primary = f();

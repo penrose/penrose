@@ -207,7 +207,10 @@ export interface Outputs<T> {
   secondary: T[];
 }
 
-export type Compiled = (inputs: (x: Input) => number) => Outputs<number>;
+export type Compiled = (
+  inputs: (x: Input) => number,
+  mask?: boolean[]
+) => Outputs<number>;
 
 export interface OptOutputs {
   phi: number; // see `Fn` from `@penrose/optimizer`
