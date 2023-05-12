@@ -666,8 +666,15 @@
     },
     {
       "name": "Curved graph example with dots",
-      "substance": "sec5-ex32",
-      "style": "simple-curved-dots-graph",
+      "substance": "arpanet",
+      "style": "simple-curved-graph-dots",
+      "domain": "simple-graph",
+      "variation": "CascaraKudu41689"
+    },
+    {
+      "name": "Curved graph example with boxes",
+      "substance": "nyc-subway",
+      "style": "simple-curved-graph-boxes",
       "domain": "simple-graph",
       "variation": "CascaraKudu41689"
     }
@@ -928,9 +935,13 @@
       "domain": "simple-curved-graph",
       "URI": "graph-domain/simple-curved-graph.style"
     },
-    "simple-curved-dots-graph": {
+    "simple-curved-graph-dots": {
       "domain": "simple-curved-graph",
-      "URI": "graph-domain/simple-curved-dots-graph.style"
+      "URI": "graph-domain/simple-curved-graph-dots.style"
+    },
+    "simple-curved-graph-boxes": {
+      "domain": "simple-curved-graph",
+      "URI": "graph-domain/simple-curved-graph-boxes.style"
     },
     "open-elastic-curve": {
       "domain": "curve-examples",
@@ -1309,6 +1320,14 @@
     "sec5-ex32": {
       "domain": "simple-directed-graph",
       "URI": "graph-domain/textbook/sec5/ex32.substance"
+    },
+    "arpanet": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/other-examples/arpanet.substance"
+    },
+    "nyc-subway": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/other-examples/nyc-subway.substance"
     }
   }
 }
