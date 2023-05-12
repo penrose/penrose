@@ -23,6 +23,7 @@ import { dirname, join, parse, resolve } from "path";
 import prettier from "prettier";
 import uniqid from "uniqid";
 import { printTextChart, renderArtifacts } from "./artifacts";
+import draw from "./draw";
 import { AggregateData, InstanceData } from "./types";
 
 const USAGE = `
@@ -34,6 +35,7 @@ Usage:
   automator textchart ARTIFACTSFOLDER OUTFILE
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
   automator shapedefs [SHAPEFILE]
+  automator draw-trio TRIOFILE 
 
 Options:
   -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
@@ -426,6 +428,8 @@ const getShapeDefs = (outFile?: string): void => {
     );
   } else if (args.shapedefs) {
     getShapeDefs(args["SHAPEFILE"]);
+  } else if (args["draw-trio"]) {
+    draw(args.TRIOFILE);
   } else {
     throw new Error("Invalid command line argument");
   }
