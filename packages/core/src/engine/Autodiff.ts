@@ -1441,13 +1441,13 @@ const compileNode = (
   node: Exclude<ad.Node, ad.InputNode>,
   preds: number[]
 ): void => {
-  if (typeof node === "number") {
-    t.byte(wasm.OP.f64.const);
-    t.f64(node);
-
-    return;
-  }
   switch (node.tag) {
+    case "Const": {
+      t.byte(wasm.OP.f64.const);
+      t.f64(node.val);
+
+      return;
+    }
     case "Not": {
       const [child] = preds;
 
