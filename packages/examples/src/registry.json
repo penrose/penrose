@@ -745,7 +745,7 @@
       "URI": "curve-examples/curves.domain"
     },
     "timeline": {
-      "URI": "timeline/penrose-timeline.domain"
+      "URI": "timeline/timeline.domain"
     }
   },
   "styles": {
