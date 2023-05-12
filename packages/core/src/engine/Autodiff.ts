@@ -344,6 +344,9 @@ const getInputKey = (graph: ad.Graph["graph"], id: ad.Id): number => {
  * `children` function) and then by the name of the edge (again according to the
  * order given by the `children` function). The partial derivatives contributing
  * to any given gradient node are added up according to that total order.
+ *
+ * If present, the `getKey` function should return a unique index for each
+ * input. If absent, indices will be assigned via breadth-first search order.
  */
 export const makeGraph = (
   outputs: Omit<ad.Outputs<ad.Num>, "gradient">,
