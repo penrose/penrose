@@ -663,6 +663,13 @@
       "style": "closed-elastic-curve",
       "domain": "curve-examples",
       "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Curved graph example with dots",
+      "substance": "sec5-ex32",
+      "style": "simple-curved-dots-graph",
+      "domain": "simple-graph",
+      "variation": "CascaraKudu41689"
     }
   ],
   "domains": {
@@ -920,6 +927,10 @@
     "simple-curved-graph": {
       "domain": "simple-curved-graph",
       "URI": "graph-domain/simple-curved-graph.style"
+    },
+    "simple-curved-dots-graph": {
+      "domain": "simple-curved-graph",
+      "URI": "graph-domain/simple-curved-dots-graph.style"
     },
     "open-elastic-curve": {
       "domain": "curve-examples",
