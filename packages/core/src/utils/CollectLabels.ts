@@ -274,14 +274,17 @@ export function measureText(text: string, font: string): TextMeasurement {
 
 //#endregion
 
-interface InputInfo {
-  index: number;
-  meta: InputMeta;
-}
+type InputMap = Map<
+  ad.Input,
+  {
+    index: number;
+    meta: InputMeta;
+  }
+>;
 
 const setPendingProperty = (
   xs: number[],
-  inputs: Map<ad.Input, InputInfo>,
+  inputs: InputMap,
   before: FloatV<ad.Num>,
   after: FloatV<number>
 ) => {
@@ -295,7 +298,7 @@ const insertPendingHelper = (
   shapes: Shape<ad.Num>[],
   xs: number[],
   labelCache: LabelCache,
-  inputs: Map<ad.Input, InputInfo>
+  inputs: InputMap
 ): void => {
   for (const s of shapes) {
     if (s.shapeType === "Group") {
