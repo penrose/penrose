@@ -1,4 +1,5 @@
 import { compDict } from "../contrib/Functions";
+import { numsOf } from "../contrib/Utils";
 import { makeCircle } from "../shapes/Circle";
 import { makeEllipse } from "../shapes/Ellipse";
 import { makeImage } from "../shapes/Image";
@@ -11,7 +12,6 @@ import { makeCanvas, simpleContext } from "../shapes/Samplers";
 import * as ad from "../types/ad";
 import { Poly, Scale } from "../types/shapes";
 import { black, floatV, ptListV, vectorV } from "../utils/Util";
-import { genCodeSync, secondaryGraph } from "./Autodiff";
 import {
   BBox,
   bboxFromCircle,
@@ -29,14 +29,12 @@ const expectBbox = (
   actual: BBox,
   expected: { width: number; height: number; center: [number, number] }
 ) => {
-  const g = secondaryGraph([
+  const [width, height, x, y] = numsOf([
     actual.width,
     actual.height,
     actual.center[0],
     actual.center[1],
   ]);
-  const f = genCodeSync(g);
-  const [width, height, x, y] = f.call([]).secondary; // no inputs, so, empty array
   expect(width).toBeCloseTo(expected.width);
   expect(height).toBeCloseTo(expected.height);
   expect(x).toBeCloseTo(expected.center[0]);

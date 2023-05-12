@@ -202,17 +202,8 @@ export const closestPt_PtSeg = (
  * @param xs nodes in the computation graph
  * @returns a list of `number`s corresponding to nodes in `xs`
  */
-export const numsOf = (xs: ad.Num[]): number[] => {
-  const g = secondaryGraph(xs);
-  const inputs = [];
-  for (const v of g.nodes.keys()) {
-    if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.key] = v.val;
-    }
-  }
-  const f = genCodeSync(g);
-  return f.call(inputs).secondary;
-};
+export const numsOf = (xs: ad.Num[]): number[] =>
+  genCodeSync(secondaryGraph(xs))((x) => x.val).secondary;
 
 export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];

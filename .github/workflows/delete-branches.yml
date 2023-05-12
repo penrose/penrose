@@ -1,0 +1,21 @@
+name: Delete branches
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      # https://stackoverflow.com/a/27393574
+      - name: Track CI branches
+        run: git remote set-branches origin 'ci/refs/pull/*/merge'
+      - name: Checkout CI branches
+        run: git fetch --depth=1
+      # https://stackoverflow.com/q/3670355
+      - name: Delete CI branches
+        # we use a colon instead of `--delete`, in case there are zero
+        run: git for-each-ref --format=':%(refname:lstrip=3)' 'refs/remotes/origin/ci/refs/pull/*/merge' | xargs -d '\n' git push origin

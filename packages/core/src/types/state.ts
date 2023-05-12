@@ -1,4 +1,4 @@
-import { Gradient, OptState } from "@penrose/optimizer";
+import { Params } from "@penrose/optimizer";
 import { Canvas, InputMeta } from "../shapes/Samplers";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "./ad";
@@ -12,32 +12,32 @@ export type ShapeFn = (xs: number[]) => Shape<number>[];
 
 export type OptPipeline = string[];
 
-export type StagedConstraints = Map<
-  string,
-  {
-    inputMask: boolean[];
-    objMask: boolean[];
-    constrMask: boolean[];
-  }
->;
+export type StagedConstraints = Map<string, ad.Masks>;
+
+export interface InputInfo {
+  handle: ad.Input;
+  meta: InputMeta;
+}
 
 /**
  * The diagram state
  */
-export interface State extends OptState {
+export interface State {
   warnings: StyleWarning[];
   variation: string;
   constraintSets: StagedConstraints;
   objFns: Fn[];
   constrFns: Fn[];
-  inputs: InputMeta[]; // same length as `varyingValues`
+  varyingValues: number[];
+  inputs: InputInfo[]; // same length as `varyingValues`
   labelCache: LabelCache;
   shapes: Shape<ad.Num>[];
   canvas: Canvas;
-  gradient: Gradient;
+  gradient: ad.Gradient;
   currentStageIndex: number;
   optStages: string[];
   computeShapes: ShapeFn;
+  params: Params;
 }
 
 /**

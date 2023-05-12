@@ -1,5 +1,6 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
+import { numsOf } from "../contrib/Utils";
 import * as ad from "../types/ad";
 import { eqList, randList } from "../utils/Util";
 import {
@@ -33,8 +34,8 @@ import {
 describe("makeGraph tests", () => {
   test("secondary outputs", () => {
     // the values 0 don't matter for this test
-    const x = input({ key: 0, val: 0 });
-    const y = input({ key: 1, val: 0 });
+    const x = input(0);
+    const y = input(0);
     const sum = add(x, y);
     const product = mul(x, y);
     const difference = sub(x, y);
@@ -45,7 +46,7 @@ describe("makeGraph tests", () => {
       difference,
     ]);
 
-    expect(gradient.length).toBe(0); // no inputs reachable from primary output
+    expect(gradient.size).toBe(0); // no inputs reachable from primary output
     expect(secondary.length).toBe(3);
 
     const nodes: ad.Node[] = secondary.map((id) => graph.node(id));
@@ -56,7 +57,7 @@ describe("makeGraph tests", () => {
 
   test("no expression swell", () => {
     // https://arxiv.org/pdf/1904.02990.pdf Figure 2
-    const x1 = input({ key: 0, val: 0 }); // 0, doesn't matter for this test
+    const x1 = input(0); // 0, doesn't matter for this test
     const t1 = mul(x1, x1);
     const t2 = mul(t1, t1);
     const f = mul(t2, t2);
@@ -71,19 +72,31 @@ describe("makeGraph tests", () => {
 describe("genCode tests", () => {
   test("zero addends", async () => {
     const f = await genCode();
-    expect(f.call([])).toEqual({ gradient: [], primary: 0, secondary: [] });
+    expect(f((x) => x.val)).toEqual({
+      gradient: new Map(),
+      primary: 0,
+      secondary: [],
+    });
   });
 
   test("zero addends sync", () => {
     const f = genCodeSync();
-    expect(f.call([])).toEqual({ gradient: [], primary: 0, secondary: [] });
+    expect(f((x) => x.val)).toEqual({
+      gradient: new Map(),
+      primary: 0,
+      secondary: [],
+    });
   });
 
   test("multiple addends", () => {
-    const x = input({ key: 0, val: 0 });
+    const x = input(2);
     const g = primaryGraph(x);
     const f = genCodeSync(g, g, g);
-    expect(f.call([2])).toEqual({ gradient: [3], primary: 6, secondary: [] });
+    expect(f((x) => x.val)).toEqual({
+      gradient: new Map([[x, 3]]),
+      primary: 6,
+      secondary: [],
+    });
   });
 
   test("multiple graphs with secondary outputs", () => {
@@ -91,7 +104,7 @@ describe("genCode tests", () => {
     const v2 = [];
     v2[1] = 8;
     const f = genCodeSync(secondaryGraph(v1), secondaryGraph(v2));
-    expect(f.call([]).secondary).toEqual([5, 8]);
+    expect(f((x) => x.val).secondary).toEqual([5, 8]);
   });
 
   test("secondary outputs must not conflict", () => {
@@ -103,15 +116,16 @@ describe("genCode tests", () => {
   });
 
   test("mask", () => {
+    const primary = input(13);
     const v1 = [5];
     const v2 = [];
     v2[1] = 8;
     const f = genCodeSync(
-      makeGraph({ primary: input({ key: 0, val: 0 }), secondary: v2 }),
-      makeGraph({ primary: input({ key: 0, val: 0 }), secondary: v1 })
+      makeGraph({ primary, secondary: v2 }),
+      makeGraph({ primary, secondary: v1 })
     );
-    expect(f.call([13], [true, false])).toEqual({
-      gradient: [1],
+    expect(f((x) => x.val, [true, false])).toEqual({
+      gradient: new Map([[primary, 1]]),
       primary: 13,
       secondary: [0, 8],
     });
@@ -209,111 +223,129 @@ const testGradFiniteDiff = () => {
   });
 };
 
-const gradGraph1 = (): ad.Graph => {
+interface GradGraph {
+  inputs: ad.Input[];
+  output: ad.Num;
+}
+
+const gradGraph1 = (): GradGraph => {
   // Build energy/gradient graph
-  const x0 = input({ val: -5, key: 0 });
-  const x1 = input({ val: 6, key: 1 });
+  const x0 = input(-5);
+  const x1 = input(6);
   const a = sub(x0, x1);
   const b = squared(a);
   const c = sin(a);
   const z = mul(b, c);
-  return primaryGraph(z);
+  return { inputs: [x0, x1], output: z };
 };
 
 // Test addition of consts to graph (`c`)
-const gradGraph2 = (): ad.Graph => {
+const gradGraph2 = (): GradGraph => {
   // Build energy/gradient graph
-  const x0 = input({ val: -5, key: 0 });
-  const x1 = input({ val: 6, key: 1 });
+  const x0 = input(-5);
+  const x1 = input(6);
   const a = sub(x0, x1);
   const b = squared(a);
   const c = add(a, 3);
   const z = mul(b, c);
-  return primaryGraph(z);
+  return { inputs: [x0, x1], output: z };
 };
 
 // Test vars w/ no grad
-const gradGraph3 = (): ad.Graph => {
+const gradGraph3 = (): GradGraph => {
   // Build energy/gradient graph
-  const x0 = input({ val: 100, key: 0 });
-  const x1 = input({ val: -100, key: 1 });
+  const x0 = input(100);
+  const x1 = input(-100);
   const head = squared(x0);
-  return primaryGraph(head);
+  return { inputs: [x0, x1], output: head };
 };
 
 // Test toPenalty
-const gradGraph4 = (): ad.Graph => {
+const gradGraph4 = (): GradGraph => {
   // Build energy/gradient graph
-  const x0 = input({ val: 100, key: 0 });
+  const x0 = input(100);
   const head = fns.toPenalty(x0);
-  return primaryGraph(head);
+  return { inputs: [x0], output: head };
 };
 
 // Test ifCond
-const gradGraph5 = (): ad.Graph => {
+const gradGraph5 = (): GradGraph => {
   logAD.info("test ifCond");
 
   // Build energy/gradient graph
-  const x0 = input({ val: 100, key: 0 });
-  const x1 = input({ val: -100, key: 1 });
+  const x0 = input(100);
+  const x1 = input(-100);
   const head = ifCond(lt(x0, 33), squared(x1), squared(x0));
-  return primaryGraph(head);
+  return { inputs: [x0, x1], output: head };
 };
 
 // Test max
-const gradGraph6 = (): ad.Graph => {
+const gradGraph6 = (): GradGraph => {
   logAD.info("test max");
 
   // Build energy/gradient graph
-  const x0 = input({ val: 100, key: 0 });
+  const x0 = input(100);
   const head = max(squared(x0), 0);
-  return primaryGraph(head);
+  return { inputs: [x0], output: head };
 };
 
 // Test div
 // TODO < Test all ops automatically
-const gradGraph7 = (): ad.Graph => {
+const gradGraph7 = (): GradGraph => {
   logAD.info("test div");
 
   // Build energy graph
-  const x0 = input({ val: 100, key: 0 });
-  const x1 = input({ val: -100, key: 1 });
+  const x0 = input(100);
+  const x1 = input(-100);
   const head = div(x0, x1);
-  return primaryGraph(head);
+  return { inputs: [x0, x1], output: head };
 };
 
 // Test polyRoots
-const gradGraph8 = (): ad.Graph => {
+const gradGraph8 = (): GradGraph => {
   logAD.info("test polyRoots");
 
   // Build energy/gradient graph
-  const x0 = input({ val: 0, key: 0 });
-  const x1 = input({ val: 0, key: 1 });
-  const x2 = input({ val: 0, key: 2 });
-  const x3 = input({ val: 0, key: 3 });
-  const x4 = input({ val: 0, key: 4 });
+  const x0 = input(0);
+  const x1 = input(0);
+  const x2 = input(0);
+  const x3 = input(0);
+  const x4 = input(0);
   const roots = polyRoots([x0, x1, x2, x3, x4]);
   const head = addN(roots.map((r) => ifCond(eq(r, r), r, 0)));
-  return primaryGraph(head);
+  return { inputs: [x0, x1, x2, x3, x4], output: head };
+};
+
+const makeFunc = (
+  g: GradGraph
+): ((xs: number[]) => { output: number; gradient: number[] }) => {
+  const indices = new Map(g.inputs.map((x, i) => [x, i]));
+  const f = genCodeSync(primaryGraph(g.output));
+  return (xs: number[]) => {
+    const outputs = f((x) => xs[indices.get(x)!]);
+    const gradient = xs.map(() => 0);
+    for (const [v, x] of outputs.gradient) gradient[indices.get(v)!] = x;
+    return { output: outputs.primary, gradient };
+  };
 };
 
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
-const testGradSymbolic = (testNum: number, graph: ad.Graph): void => {
+const testGradSymbolic = (testNum: number, graph: GradGraph): void => {
   const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
 
   // Synthesize energy and gradient code
-  const f0 = genCodeSync(graph);
+  const f0 = makeFunc(graph);
 
-  const f = (xs: number[]) => f0.call(xs).primary;
-  const gradGen = (xs: number[]) => f0.call(xs).gradient;
+  const f = (xs: number[]) => f0(xs).output;
+  const gradGen = (xs: number[]) => f0(xs).gradient;
 
   // Test the gradient at several points via evaluation
   const gradEst = _gradFiniteDiff(f);
   const testResults = [];
 
   for (let i = 0; i < NUM_SAMPLES; i++) {
-    const xsTest = randList(rng, graph.gradient.length);
+    const xsTest = randList(rng, graph.inputs.length);
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
@@ -326,14 +358,13 @@ const testGradSymbolic = (testNum: number, graph: ad.Graph): void => {
   });
 };
 
-const gradGraph0 = (): ad.Graph => {
+const gradGraph0 = (): GradGraph => {
   // Build energy/gradient graph
 
   // f(x) = x^2, where x is 100
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-  const ref = input({ val: 100, key: 0 });
+  const ref = input(100);
   const head = squared(ref);
-  const graph = primaryGraph(head);
 
   // Print results
   logAD.trace(
@@ -342,18 +373,23 @@ const gradGraph0 = (): ad.Graph => {
     head
   );
 
-  return graph;
+  return { inputs: [ref], output: head };
 };
 
 //#endregion
 
 describe("polyRoots tests", () => {
   test("degree 1", () => {
-    const [z] = polyRoots([input({ key: 0, val: 0 })]);
+    const x = 42;
+    const v = input(x);
+    const [z] = polyRoots([v]);
     const g = primaryGraph(z);
     const f = genCodeSync(g);
-    const x = 42;
-    expect(f.call([x])).toEqual({ gradient: [-1], primary: -x, secondary: [] });
+    expect(f((v) => v.val)).toEqual({
+      gradient: new Map([[v, -1]]),
+      primary: -x,
+      secondary: [],
+    });
   });
 
   type F = (v: ad.Num, w: ad.Num) => ad.Num;
@@ -361,9 +397,12 @@ describe("polyRoots tests", () => {
   // check that `polyRoots` gives the same answer as just doing symbolic
   // differentiation on the quadratic formula
   const testQuadratic = (f1: F, f2: F) => {
+    const x1 = Math.PI;
+    const x2 = Math.E;
+
     const a = 1;
-    const b = input({ key: 1, val: 0 });
-    const c = input({ key: 0, val: 0 });
+    const b = input(-(x1 + x2));
+    const c = input(x1 * x2);
 
     const closedForm = genCodeSync(
       primaryGraph(
@@ -375,16 +414,16 @@ describe("polyRoots tests", () => {
     const [r1, r2] = polyRoots([c, b]); // c + bx + x²; recall that a = 1
     const implicit = genCodeSync(primaryGraph(f2(r1, r2)));
 
-    const x1 = Math.PI;
-    const x2 = Math.E;
-    const inputs = [x1 * x2, -(x1 + x2)];
-
-    const received = implicit.call(inputs);
-    const expected = closedForm.call(inputs);
+    const received = implicit((x) => x.val);
+    const expected = closedForm((x) => x.val);
 
     expect(received.primary).toBeCloseTo(expected.primary);
-    expect(received.gradient[0]).toBeCloseTo(expected.gradient[0]);
-    expect(received.gradient[1]).toBeCloseTo(expected.gradient[1]);
+
+    const inputs = new Set([b, c]);
+    expect(new Set(received.gradient.keys())).toEqual(inputs);
+    expect(new Set(expected.gradient.keys())).toEqual(inputs);
+    expect(received.gradient.get(b)).toBeCloseTo(expected.gradient.get(b)!);
+    expect(received.gradient.get(c)).toBeCloseTo(expected.gradient.get(c)!);
   };
 
   test("quadratic formula min root", () => {
@@ -396,7 +435,7 @@ describe("polyRoots tests", () => {
   });
 
   test("cubic with only one real root", () => {
-    const [c0, c1, c2] = _.range(3).map((key) => input({ key, val: 0 }));
+    const [c0, c1, c2] = [input(8), input(0), input(0)];
     const [r1, r2, r3] = polyRoots([c0, c1, c2]);
 
     // get the first real root we can find
@@ -404,7 +443,7 @@ describe("polyRoots tests", () => {
 
     const f = genCodeSync(makeGraph({ primary: z, secondary: [r1, r2, r3] }));
 
-    const { gradient, primary, secondary } = f.call([8, 0, 0]);
+    const { gradient, primary, secondary } = f((v) => v.val);
 
     expect(secondary.filter(Number.isNaN).length).toBe(2);
     const realRoots = secondary.filter((x) => !Number.isNaN(x));
@@ -414,18 +453,22 @@ describe("polyRoots tests", () => {
 
     expect(primary).toBeCloseTo(-2);
 
-    expect(gradient[0]).toBeCloseTo(-1 / 12);
-    expect(gradient[1]).toBeCloseTo(1 / 6);
-    expect(gradient[2]).toBeCloseTo(-1 / 3);
+    expect(new Set(gradient.keys())).toEqual(new Set([c0, c1, c2]));
+    expect(gradient.get(c0)).toBeCloseTo(-1 / 12);
+    expect(gradient.get(c1)).toBeCloseTo(1 / 6);
+    expect(gradient.get(c2)).toBeCloseTo(-1 / 3);
   });
 
   test("quintic", () => {
-    const [c0, c1, c2, c3, c4] = _.range(5).map((key) =>
-      input({ key, val: 0 })
-    );
-    const f = genCodeSync(secondaryGraph(polyRoots([c0, c1, c2, c3, c4])));
-    const { secondary } = f.call([-120, 274, -225, 85, -15]);
-    const roots = [...secondary].sort((a, b) => a - b);
+    const [c0, c1, c2, c3, c4] = [
+      input(-120),
+      input(274),
+      input(-225),
+      input(85),
+      input(-15),
+    ];
+    const roots = numsOf(polyRoots([c0, c1, c2, c3, c4]));
+    roots.sort((a, b) => a - b);
     expect(roots[0]).toBeCloseTo(1);
     expect(roots[1]).toBeCloseTo(2);
     expect(roots[2]).toBeCloseTo(3);

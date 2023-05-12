@@ -54,21 +54,15 @@ export interface Context {
 /**
  * Return a simple `Context` which starts with a `seedrandom` PRNG seeded with
  * `variation`, and for each `makeInput` invocation, sets `val` by calling the
- * using the given `sampler` or placeholder `pending` value, then increments a
- * counter for the `key` field.
+ * using the given `sampler` or placeholder `pending` value.
  */
 export const simpleContext = (variation: string): Context => {
   const rng = seedrandom(variation);
-  let i = 0;
   return {
     makeInput: (meta) =>
-      input({
-        key: i++,
-        val:
-          meta.init.tag === "Sampled"
-            ? meta.init.sampler(rng)
-            : meta.init.pending,
-      }),
+      input(
+        meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
+      ),
   };
 };
 

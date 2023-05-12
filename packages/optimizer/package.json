@@ -16,9 +16,9 @@
   },
   "scripts": {
     "build": "esbuild ./source.ts --outfile=index.js --platform=neutral --bundle --loader:.wasm=binary --define:import.meta.url=null --sourcemap",
-    "build-decls": "cargo test && tsc",
+    "build-decls": "rimraf bindings && cargo test && tsc",
     "build-wasm": "cargo build --target=wasm32-unknown-unknown --release",
-    "build-wasm-bindgen": "wasm-bindgen --target=web --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
+    "build-wasm-bindgen": "rimraf build && wasm-bindgen --target=web --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
     "format": "cargo fmt",
     "format:check": "cargo fmt --check",
     "typecheck": ":"

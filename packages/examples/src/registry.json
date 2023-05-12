@@ -649,6 +649,27 @@
       "style": "timeline",
       "domain": "timeline",
       "variation": ""
+    },
+    {
+      "name": "Curved graph example",
+      "substance": "sec5-ex32",
+      "style": "simple-curved-graph",
+      "domain": "simple-graph",
+      "variation": "CascaraKudu41689"
+    },
+    {
+      "name": "Open elastic curve example",
+      "substance": "cubic-bezier",
+      "style": "open-elastic-curve",
+      "domain": "curve-examples",
+      "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Closed elastic curve example",
+      "substance": "cubic-bezier",
+      "style": "closed-elastic-curve",
+      "domain": "curve-examples",
+      "variation": "ClamshellKookabura228"
     }
   ],
   "domains": {
@@ -909,6 +930,18 @@
     "timeline": {
       "domain": "timeline",
       "URI": "timeline/timeline.style"
+    },
+    "simple-curved-graph": {
+      "domain": "simple-curved-graph",
+      "URI": "graph-domain/simple-curved-graph.style"
+    },
+    "open-elastic-curve": {
+      "domain": "curve-examples",
+      "URI": "curve-examples/open-elastic-curve.style"
+    },
+    "closed-elastic-curve": {
+      "domain": "curve-examples",
+      "URI": "curve-examples/closed-elastic-curve.style"
     }
   },
   "substances": {
@@ -1279,6 +1312,10 @@
     "penrose-timeline": {
       "domain": "timeline",
       "URI": "timeline/penrose-project-timeline.substance"
+    },
+    "sec5-ex32": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec5/ex32.substance"
     }
   }
 }
