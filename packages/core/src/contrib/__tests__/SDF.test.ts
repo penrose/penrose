@@ -21,13 +21,9 @@ export const makeContext = (
   const rng = seedrandom("sdf");
   const inputs: ad.Input[] = [];
   const makeInput: InputFactory = (meta) => {
-    const x = input({
-      key: inputs.length,
-      val:
-        meta.init.tag === "Sampled"
-          ? meta.init.sampler(rng)
-          : meta.init.pending,
-    });
+    const x = input(
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
+    );
     inputs.push(x);
     return x;
   };
@@ -64,7 +60,7 @@ const compareDistance = (
   } = f([]); // no inputs, so, empty array
   const code = stmts.join("\n");
   console.log(code); */
-  const { primary: dist, gradient } = f([p[0].val, p[1].val]);
+  const { primary: dist, gradient } = f((x) => x.val);
   //TODO: debug gradient for ellipse
   // the commented code in the next three lines is useful for debugging
   // gradients

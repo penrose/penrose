@@ -1,8 +1,6 @@
-import { input } from "../engine/Autodiff";
 import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
 import * as ad from "../types/ad";
-import { Value } from "../types/value";
 import { Circle, CircleProps, sampleCircle } from "./Circle";
 import { Ellipse, EllipseProps, sampleEllipse } from "./Ellipse";
 import { Equation, EquationProps, sampleEquation } from "./Equation";
@@ -13,7 +11,7 @@ import { Path, PathProps, samplePath } from "./Path";
 import { Polygon, PolygonProps, samplePolygon } from "./Polygon";
 import { Polyline, PolylineProps, samplePolyline } from "./Polyline";
 import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle";
-import { Canvas, Context, InputMeta, makeCanvas } from "./Samplers";
+import { Canvas, Context } from "./Samplers";
 import { sampleText, Text, TextProps } from "./Text";
 //#region other shape types/globals
 
@@ -86,34 +84,6 @@ const shapeSampler: Map<
     Group: sampleGroup,
   })
 );
-
-export const pendingProps = (shapeType: ShapeType): string[] => {
-  const props = [];
-  const metas: InputMeta[] = [];
-  const makeInput = (meta: InputMeta) => {
-    const x = input({ key: metas.length, val: 0 });
-    metas.push(meta);
-    return x;
-  };
-  const ideal: ShapeProps<ad.Num> = sampleShape(
-    shapeType,
-    { makeInput },
-    makeCanvas(0, 0)
-  );
-
-  for (const key of Object.keys(ideal)) {
-    const value: Value<ad.Num> = ideal[key];
-    if (
-      value.tag === "FloatV" &&
-      typeof value.contents !== "number" &&
-      value.contents.tag === "Input" &&
-      metas[value.contents.key].init.tag === "Pending"
-    ) {
-      props.push(key);
-    }
-  }
-  return props;
-};
 
 const bboxFromGroup = ({ shapes }: GroupProps<ad.Num>): BBox.BBox => {
   const bboxes = shapes.contents.map((shape) => computeShapeBbox(shape));
