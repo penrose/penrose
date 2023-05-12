@@ -314,7 +314,7 @@ const children = (x: ad.Expr): Child[] => {
   }
 };
 
-const getInputs = (
+const getInputNodes = (
   graph: ad.Graph["graph"]
 ): { id: ad.Id; label: ad.InputNode }[] => {
   const inputs = [];
@@ -511,19 +511,16 @@ export const makeGraph = (
   // outputs instead of the primary output; really, the gradients for all those
   // inputs are just zero, so the caller needs to substitute zero whenever the
   // gradient is missing a key
-  const gradient: ad.Id[] = [];
-  for (const {
-    id,
-    label: { key },
-  } of getInputs(graph)) {
-    if (key in gradient) {
-      throw Error(`duplicate Input key: ${key}`);
+  const gradient = new Map<ad.Input, ad.Id>();
+  for (const [x, id] of nodes) {
+    if (typeof x !== "number" && x.tag === "Input") {
+      const node = graph.node(id);
+      if (typeof node === "number" || node.tag !== "Input")
+        throw Error(
+          `expected node ${id} to be input, got ${JSON.stringify(node)}`
+        );
+      gradient.set(x, safe(gradNodes.get(id), "missing gradient")[0]);
     }
-    // note that it's very easy for the set of Input indices to not be
-    // contiguous, e.g. if some inputs end up not being used in any of the
-    // computations in the graph; but even if that happens, it's actually OK
-    // (see the comment in the implementation of genCode below)
-    gradient[key] = safe(gradNodes.get(id), "missing gradient")[0];
   }
 
   // easiest case: final stage, just add all the nodes and edges for the
@@ -1583,7 +1580,7 @@ const getIndex = (locals: Locals, id: ad.Id): number => {
 
 const compileGraph = (
   t: wasm.Target,
-  { graph, gradient, primary, secondary }: ad.Graph
+  { graph, nodes, gradient, primary, secondary }: ad.Graph
 ): void => {
   const counts = { i32: 0, f64: 0 };
   const indices = new Map<ad.Id, Local>();
@@ -1606,7 +1603,7 @@ const compileGraph = (
   for (const {
     id,
     label: { key },
-  } of getInputs(graph)) {
+  } of getInputNodes(graph)) {
     t.byte(wasm.OP.local.get);
     t.int(getParamIndex(funcTypes.addend, "input"));
 
@@ -1637,7 +1634,15 @@ const compileGraph = (
     }
   }
 
-  gradient.forEach((id, i) => {
+  for (const [x, id] of gradient) {
+    const inputId = safe(nodes.get(x), "input not found");
+    const node = graph.node(inputId);
+    if (typeof node === "number" || node.tag !== "Input")
+      throw Error(
+        `expected node ${id} to be input, got ${JSON.stringify(node)}`
+      );
+    const i = node.key;
+
     t.byte(wasm.OP.local.get);
     t.int(getParamIndex(funcTypes.addend, "gradient"));
 
@@ -1656,7 +1661,7 @@ const compileGraph = (
     t.byte(wasm.OP.f64.store);
     t.int(logAlignF64);
     t.int(i * bytesF64);
-  });
+  }
 
   secondary.forEach((id, i) => {
     t.byte(wasm.OP.local.get);
@@ -1777,7 +1782,7 @@ const makeMeta = (graphs: ad.Graph[]): Metadata => {
   const numInputs = Math.max(
     0,
     ...graphs.flatMap(({ graph }) =>
-      getInputs(graph).map(({ label: { key } }) => key + 1)
+      getInputNodes(graph).map(({ label: { key } }) => key + 1)
     )
   );
 
@@ -1912,8 +1917,10 @@ const makeCompiled = (
     meta.arrGrad.fill(0);
     meta.arrSecondary.fill(0);
     const primary = f();
+    const gradient = new Map<ad.Input, number>();
+    for (const [x, i] of indices) gradient.set(x, meta.arrGrad[i]);
     return {
-      gradient: Array.from(meta.arrGrad),
+      gradient,
       primary,
       secondary: Array.from(meta.arrSecondary),
     };
@@ -1958,14 +1965,16 @@ export const genGradient = async (
   constraints: ad.Num[]
 ): Promise<ad.Gradient> => {
   const n = inputs.length;
-  const indices = new Map(inputs.map((x, i) => [x, i]));
-  const getKey = (x: ad.Input): number => safe(indices.get(x), "missing input");
 
   // This changes with the EP round, gets bigger to weight the constraints.
   // Therefore it's marked as an input to the generated objective function,
   // which can be partially applied with the ep weight. But its initial `val`
   // gets compiled away, so we just set it to zero here.
   const lambda = input(0);
+
+  const indices = new Map(inputs.map((x, i) => [x, i]));
+  indices.set(lambda, n);
+  const getKey = (x: ad.Input): number => safe(indices.get(x), "missing input");
 
   const objs = objectives.map((x, i) => {
     const secondary = [];

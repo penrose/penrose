@@ -46,7 +46,7 @@ describe("makeGraph tests", () => {
       difference,
     ]);
 
-    expect(gradient.length).toBe(0); // no inputs reachable from primary output
+    expect(gradient.size).toBe(0); // no inputs reachable from primary output
     expect(secondary.length).toBe(3);
 
     const nodes: ad.Node[] = secondary.map((id) => graph.node(id));
@@ -73,7 +73,7 @@ describe("genCode tests", () => {
   test("zero addends", async () => {
     const f = await genCode();
     expect(f((x) => x.val)).toEqual({
-      gradient: [],
+      gradient: new Map(),
       primary: 0,
       secondary: [],
     });
@@ -82,7 +82,7 @@ describe("genCode tests", () => {
   test("zero addends sync", () => {
     const f = genCodeSync();
     expect(f((x) => x.val)).toEqual({
-      gradient: [],
+      gradient: new Map(),
       primary: 0,
       secondary: [],
     });
@@ -93,7 +93,7 @@ describe("genCode tests", () => {
     const g = primaryGraph(x);
     const f = genCodeSync(g, g, g);
     expect(f((x) => x.val)).toEqual({
-      gradient: [3],
+      gradient: new Map([[x, 3]]),
       primary: 6,
       secondary: [],
     });
@@ -306,8 +306,10 @@ const makeFunc = (
   const indices = new Map(g.inputs.map((x, i) => [x, i]));
   const f = genCodeSync(primaryGraph(g.output));
   return (xs: number[]) => {
-    const { primary, gradient } = f((x) => xs[indices.get(x)!]);
-    return { output: primary, gradient };
+    const outputs = f((x) => xs[indices.get(x)!]);
+    const gradient = xs.map(() => 0);
+    for (const [v, x] of outputs.gradient) gradient[indices.get(v)!] = x;
+    return { output: outputs.primary, gradient };
   };
 };
 
@@ -363,11 +365,12 @@ const gradGraph0 = (): GradGraph => {
 describe("polyRoots tests", () => {
   test("degree 1", () => {
     const x = 42;
-    const [z] = polyRoots([input(x)]);
+    const v = input(x);
+    const [z] = polyRoots([v]);
     const g = primaryGraph(z);
     const f = genCodeSync(g);
     expect(f((v) => v.val)).toEqual({
-      gradient: [-1],
+      gradient: new Map([[v, -1]]),
       primary: -x,
       secondary: [],
     });
@@ -399,8 +402,12 @@ describe("polyRoots tests", () => {
     const expected = closedForm((x) => x.val);
 
     expect(received.primary).toBeCloseTo(expected.primary);
-    expect(received.gradient[0]).toBeCloseTo(expected.gradient[0]);
-    expect(received.gradient[1]).toBeCloseTo(expected.gradient[1]);
+
+    const inputs = new Set([b, c]);
+    expect(new Set(received.gradient.keys())).toEqual(inputs);
+    expect(new Set(expected.gradient.keys())).toEqual(inputs);
+    expect(received.gradient.get(b)).toBeCloseTo(expected.gradient.get(b)!);
+    expect(received.gradient.get(c)).toBeCloseTo(expected.gradient.get(c)!);
   };
 
   test("quadratic formula min root", () => {
@@ -430,9 +437,10 @@ describe("polyRoots tests", () => {
 
     expect(primary).toBeCloseTo(-2);
 
-    expect(gradient[0]).toBeCloseTo(-1 / 12);
-    expect(gradient[1]).toBeCloseTo(1 / 6);
-    expect(gradient[2]).toBeCloseTo(-1 / 3);
+    expect(new Set(gradient.keys())).toEqual(new Set([c0, c1, c2]));
+    expect(gradient.get(c0)).toBeCloseTo(-1 / 12);
+    expect(gradient.get(c1)).toBeCloseTo(1 / 6);
+    expect(gradient.get(c2)).toBeCloseTo(-1 / 3);
   });
 
   test("quintic", () => {

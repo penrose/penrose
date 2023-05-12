@@ -200,7 +200,7 @@ export interface Graph extends Outputs<Id> {
  */
 export interface Outputs<T> {
   /** Derivatives of primary output with respect to inputs. */
-  gradient: T[];
+  gradient: Map<Input, T>;
   /** Primary output. */
   primary: T;
   /** Secondary outputs. */

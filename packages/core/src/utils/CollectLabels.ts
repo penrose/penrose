@@ -5,15 +5,14 @@ import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
 import { Equation } from "../shapes/Equation";
-import { InputMeta } from "../shapes/Samplers";
-import { pendingProps, Shape } from "../shapes/Shapes";
+import { Shape } from "../shapes/Shapes";
 import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
 import { PenroseError } from "../types/errors";
 import { EquationData, LabelCache, State, TextData } from "../types/state";
 import { FloatV } from "../types/value";
 import { err, ok, Result } from "./Error";
-import { getAdValueAsString, getValueAsShapeList } from "./Util";
+import { getAdValueAsString, getValueAsShapeList, safe } from "./Util";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -275,53 +274,54 @@ export function measureText(text: string, font: string): TextMeasurement {
 //#endregion
 
 const setPendingProperty = (
-  properties: Shape<ad.Num>,
-  propertyID: string,
-  newValue: FloatV<number>,
   xs: number[],
-  meta: InputMeta[]
+  inputs: Map<ad.Input, number>,
+  oldValue: FloatV<ad.Num>,
+  newValue: FloatV<number>
 ) => {
-  const value = properties[propertyID];
-  if (value.tag === "FloatV") {
-    const x = value.contents;
-    if (
-      typeof x !== "number" &&
-      x.tag === "Input" &&
-      meta[x.key].init.tag === "Pending"
-    ) {
-      xs[x.key] = newValue.contents;
-    }
-  }
+  if (
+    typeof oldValue.contents === "number" ||
+    oldValue.contents.tag !== "Input"
+  )
+    throw Error("expected property to be an input");
+  xs[safe(inputs.get(oldValue.contents), "missing input")] = newValue.contents;
 };
 
 const insertPendingHelper = (
   shapes: Shape<ad.Num>[],
   xs: number[],
-  state: State
+  labelCache: LabelCache,
+  inputs: Map<ad.Input, number>
 ): void => {
   for (const s of shapes) {
     if (s.shapeType === "Group") {
       const subShapes = getValueAsShapeList(s.shapes);
-      insertPendingHelper(subShapes, xs, state);
-    } else {
-      const labelData = state.labelCache.get(s.name.contents);
-      if (labelData !== undefined) {
-        for (const propertyID of pendingProps(s.shapeType)) {
-          setPendingProperty(
-            s,
-            propertyID,
-            labelData[propertyID],
-            xs,
-            state.inputs
-          );
-        }
-      }
+      insertPendingHelper(subShapes, xs, labelCache, inputs);
+    } else if (s.shapeType === "Equation") {
+      const labelData = safe(labelCache.get(s.name.contents), "missing label");
+      if (labelData.tag !== "EquationData")
+        throw Error(
+          `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`
+        );
+      setPendingProperty(xs, inputs, s.width, labelData.width);
+      setPendingProperty(xs, inputs, s.height, labelData.height);
+    } else if (s.shapeType === "Text") {
+      const labelData = safe(labelCache.get(s.name.contents), "missing label");
+      if (labelData.tag !== "TextData")
+        throw Error(
+          `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`
+        );
+      setPendingProperty(xs, inputs, s.width, labelData.width);
+      setPendingProperty(xs, inputs, s.height, labelData.height);
+      setPendingProperty(xs, inputs, s.ascent, labelData.ascent);
+      setPendingProperty(xs, inputs, s.descent, labelData.descent);
     }
   }
 };
 
 export const insertPending = (state: State): State => {
   const varyingValues = [...state.varyingValues];
-  insertPendingHelper(state.shapes, varyingValues, state);
+  const inputs = new Map(state.inputHandles.map((x, i) => [x, i]));
+  insertPendingHelper(state.shapes, varyingValues, state.labelCache, inputs);
   return { ...state, varyingValues };
 };
