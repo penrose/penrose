@@ -14,6 +14,11 @@ export type OptPipeline = string[];
 
 export type StagedConstraints = Map<string, ad.Masks>;
 
+export interface Input {
+  handle: ad.Input;
+  meta: InputMeta;
+}
+
 /**
  * The diagram state
  */
@@ -24,8 +29,7 @@ export interface State {
   objFns: Fn[];
   constrFns: Fn[];
   varyingValues: number[];
-  inputHandles: ad.Input[];
-  inputs: InputMeta[]; // same length as `varyingValues`
+  inputs: Input[]; // same length as `varyingValues`
   labelCache: LabelCache;
   shapes: Shape<ad.Num>[];
   canvas: Canvas;

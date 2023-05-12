@@ -5,6 +5,7 @@ import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
 import { Equation } from "../shapes/Equation";
+import { InputMeta } from "../shapes/Samplers";
 import { Shape } from "../shapes/Shapes";
 import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
@@ -273,25 +274,28 @@ export function measureText(text: string, font: string): TextMeasurement {
 
 //#endregion
 
+interface InputInfo {
+  index: number;
+  meta: InputMeta;
+}
+
 const setPendingProperty = (
   xs: number[],
-  inputs: Map<ad.Input, number>,
-  oldValue: FloatV<ad.Num>,
-  newValue: FloatV<number>
+  inputs: Map<ad.Input, InputInfo>,
+  before: FloatV<ad.Num>,
+  after: FloatV<number>
 ) => {
-  if (
-    typeof oldValue.contents !== "number" &&
-    oldValue.contents.tag === "Input"
-  )
-    xs[safe(inputs.get(oldValue.contents), "missing input")] =
-      newValue.contents;
+  if (typeof before.contents !== "number" && before.contents.tag === "Input") {
+    const { index, meta } = safe(inputs.get(before.contents), "missing input");
+    if (meta.init.tag === "Pending") xs[index] = after.contents;
+  }
 };
 
 const insertPendingHelper = (
   shapes: Shape<ad.Num>[],
   xs: number[],
   labelCache: LabelCache,
-  inputs: Map<ad.Input, number>
+  inputs: Map<ad.Input, InputInfo>
 ): void => {
   for (const s of shapes) {
     if (s.shapeType === "Group") {
@@ -321,7 +325,9 @@ const insertPendingHelper = (
 
 export const insertPending = (state: State): State => {
   const varyingValues = [...state.varyingValues];
-  const inputs = new Map(state.inputHandles.map((x, i) => [x, i]));
+  const inputs = new Map(
+    state.inputs.map(({ handle, meta }, index) => [handle, { index, meta }])
+  );
   insertPendingHelper(state.shapes, varyingValues, state.labelCache, inputs);
   return { ...state, varyingValues };
 };

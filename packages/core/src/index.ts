@@ -26,7 +26,7 @@ export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
   return insertPending({
     ...state,
-    varyingValues: state.inputs.map((meta) =>
+    varyingValues: state.inputs.map(({ meta }) =>
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
     ),
     currentStageIndex: 0,
