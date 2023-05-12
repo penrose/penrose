@@ -48,7 +48,7 @@ export const input = (val: number): ad.Input => ({ tag: "Input", val });
 // with all the children removed
 const makeNode = (getKey: (x: ad.Input) => number, x: ad.Expr): ad.Node => {
   if (typeof x === "number") {
-    return x;
+    return { tag: "Const", val: x };
   }
   const { tag } = x;
   switch (tag) {
@@ -322,7 +322,7 @@ const getInputNodes = (
   for (const id of graph.sources()) {
     const label: ad.Node = graph.node(id);
     // other non-const sources include n-ary nodes with an empty params array
-    if (typeof label !== "number" && label.tag === "Input") {
+    if (label.tag === "Input") {
       inputs.push({ id, label });
     }
   }
@@ -331,7 +331,7 @@ const getInputNodes = (
 
 const getInputKey = (graph: ad.Graph["graph"], id: ad.Id): number => {
   const node = graph.node(id);
-  if (typeof node === "number" || node.tag !== "Input")
+  if (node.tag !== "Input")
     throw Error(`expected node ${id} to be input, got ${JSON.stringify(node)}`);
   return node.key;
 };
@@ -1537,26 +1537,23 @@ const compileNode = (
 type Typename = "i32" | "f64";
 
 const getLayout = (node: ad.Node): { typename: Typename; count: number } => {
-  if (typeof node === "number") {
-    return { typename: "f64", count: 1 };
-  } else {
-    switch (node.tag) {
-      case "Comp":
-      case "Logic":
-      case "Not": {
-        return { typename: "i32", count: 1 };
-      }
-      case "Input":
-      case "Unary":
-      case "Binary":
-      case "Ternary":
-      case "Nary":
-      case "Index": {
-        return { typename: "f64", count: 1 };
-      }
-      case "PolyRoots": {
-        return { typename: "f64", count: node.degree };
-      }
+  switch (node.tag) {
+    case "Comp":
+    case "Logic":
+    case "Not": {
+      return { typename: "i32", count: 1 };
+    }
+    case "Const":
+    case "Input":
+    case "Unary":
+    case "Binary":
+    case "Ternary":
+    case "Nary":
+    case "Index": {
+      return { typename: "f64", count: 1 };
+    }
+    case "PolyRoots": {
+      return { typename: "f64", count: node.degree };
     }
   }
 };
@@ -1622,7 +1619,7 @@ const compileGraph = (
   for (const id of graph.topsort()) {
     const node = graph.node(id);
     // we already generated code for the inputs
-    if (typeof node === "number" || node.tag !== "Input") {
+    if (node.tag !== "Input") {
       const preds: number[] = [];
       for (const { i: v, e } of graph.inEdges(id)) {
         preds[e] = getIndex(locals, v);

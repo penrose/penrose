@@ -91,7 +91,7 @@ export interface Index extends IndexNode {
 //#region Types for explicit autodiff graph
 
 export type Node =
-  | number
+  | ConstNode
   | InputNode
   | UnaryNode
   | BinaryNode
@@ -102,6 +102,11 @@ export type Node =
   | PolyRootsNode
   | IndexNode
   | NotNode;
+
+export interface ConstNode {
+  tag: "Const";
+  val: number;
+}
 
 export interface InputNode {
   tag: "Input";
