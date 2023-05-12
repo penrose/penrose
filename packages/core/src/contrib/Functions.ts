@@ -96,6 +96,9 @@ import {
 import {
   elasticEnergy,
   isoperimetricRatio,
+  lengthK,
+  maxCurvature,
+  pElasticEnergy,
   perimeter,
   signedArea,
   totalCurvature,
@@ -2795,13 +2798,118 @@ export const compDict = {
         type: booleanT(),
         description: "whether curve is closed",
       },
+      {
+        name: "signed",
+        type: booleanT(),
+        description: "whether curvature is signed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean,
+      signed = true
+    ): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: totalCurvature(points, closed, signed),
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns the sum of all line segment lengths raised to `k`
+   */
+  lengthK: {
+    name: "lengthK",
+    description: "Returns the sum of all line segment lengths raised to `k`",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "k",
+        type: realT(),
+        description: "exponent for line segments",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean,
+      k: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: lengthK(points, closed, k) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns the maximum value of curvature along the curve
+   */
+  maxCurvature: {
+    name: "maxCurvature",
+    description: "Returns the maximum value of curvature along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
     ],
     body: (
       _context: Context,
       points: [ad.Num, ad.Num][],
       closed: boolean
     ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: totalCurvature(points, closed) };
+      return { tag: "FloatV", contents: maxCurvature(points, closed) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns integral of curvature raised to `p` along the curve
+   */
+  pElasticEnergy: {
+    name: "pElasticEnergy",
+    description: "Returns integral of curvature raised to `p` along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "p",
+        type: realT(),
+        description: "exponent for curvature",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean,
+      p: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: pElasticEnergy(points, closed, p) };
     },
     returns: valueT("Real"),
   },
