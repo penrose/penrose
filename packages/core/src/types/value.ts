@@ -1,21 +1,24 @@
+import { Shape as RealShape } from "../shapes/Shapes";
+import { SourceRange } from "./ast";
+
 /**
- * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`GPI`) or a value (`Val`).
+ * The input parameters to computations/objectives/constraints in Style.
+ * It can be either an entire shape (wrapped in `ShapeVal`)
+ * or a value (wrapped in `Val`).
  */
-export type ArgVal<T> = GPI<T> | Val<T>;
-
-export interface GPI<T> {
-  tag: "GPI";
-
-  /**
-   * A shape (Graphical Primitive Instance, aka GPI) in penrose has a type (_e.g._ `Circle`) and a set of properties (_e.g._ `center`). Each property this a value tagged with its type.
-   */
-  contents: [string, { [k: string]: Value<T> }];
-}
+export type ArgVal<T> = ShapeVal<T> | Val<T>;
 
 export interface Val<T> {
   tag: "Val";
   contents: Value<T>;
 }
+
+export interface ShapeVal<T> {
+  tag: "ShapeVal";
+  contents: RealShape<T>;
+}
+
+export type ArgValWithSourceLoc<T> = ArgVal<T> & SourceRange;
 
 export type Field = string;
 export type Name = string;
@@ -37,7 +40,8 @@ export type Value<T> =
   | VectorV<T>
   | MatrixV<T>
   | TupV<T>
-  | LListV<T>;
+  | LListV<T>
+  | ShapeListV<T>;
 
 /** A floating point number **/
 export interface FloatV<T> {
@@ -137,4 +141,9 @@ export interface ValueV<T> {
 export interface CoordV<T> {
   tag: "CoordV";
   contents: T[];
+}
+
+export interface ShapeListV<T> {
+  tag: "ShapeListV";
+  contents: RealShape<T>[];
 }

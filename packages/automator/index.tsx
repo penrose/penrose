@@ -6,7 +6,9 @@ import {
   makeCanvas,
   prepareState,
   RenderStatic,
-  shapedefs,
+  sampleShape,
+  ShapeType,
+  shapeTypes,
   showError,
   simpleContext,
   stepUntilConvergence,
@@ -138,7 +140,8 @@ const singleProcess = async (
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
   };
-  const canvas = (await RenderStatic(optimizedState, resolvePath)).outerHTML;
+  const canvas = (await RenderStatic(optimizedState, resolvePath, "automator"))
+    .outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
@@ -335,13 +338,14 @@ const getShapeDefs = (outFile?: string): void => {
   const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
 
   // Loop over the shapes
-  for (const shapeName in shapedefs) {
-    const thisShapeDef = shapedefs[shapeName];
-    const shapeSample1 = thisShapeDef.sampler(
+  for (const shapeName of shapeTypes) {
+    const shapeSample1 = sampleShape(
+      shapeName as ShapeType,
       simpleContext("ShapeProps sample 1"),
       makeCanvas(size, size)
     );
-    const shapeSample2 = thisShapeDef.sampler(
+    const shapeSample2 = sampleShape(
+      shapeName as ShapeType,
       simpleContext("ShapeProps sample 2"),
       makeCanvas(size, size)
     );

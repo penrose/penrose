@@ -1,38 +1,22 @@
-import { genOptProblem } from "@penrose/optimizer";
+import { start, stepUntil } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
-import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
+import { compileDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
-import {
-  checkSubstance,
-  compileSubstance,
-  parseSubstance,
-  prettySubstance,
-} from "./compiler/Substance";
+import { compileSubstance } from "./compiler/Substance";
 import {
   PathResolver,
   RenderInteractive,
-  RenderShape,
   RenderStatic,
 } from "./renderer/Renderer";
-import { Canvas } from "./shapes/Samplers";
-import { showMutations } from "./synthesis/Mutation";
-import { Synthesizer } from "./synthesis/Synthesizer";
+import * as ad from "./types/ad";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
 import { Fn, LabelCache, State } from "./types/state";
-import { SubProg, SubstanceEnv } from "./types/substance";
+import { SubstanceEnv } from "./types/substance";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
-import {
-  bBoxDims,
-  normList,
-  prettyPrintExpr,
-  prettyPrintFn,
-  prettyPrintPath,
-  safe,
-  toSvgPaintProperty,
-} from "./utils/Util";
+import { safe } from "./utils/Util";
 
 /**
  * Use the current resample seed to sample all shapes in the State.
@@ -40,19 +24,30 @@ import {
  */
 export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
-  const { constraintSets, optStages } = state;
-  const { inputMask, objMask, constrMask } = safe(
-    constraintSets.get(optStages[0]),
-    "missing first stage"
-  );
   return insertPending({
     ...state,
-    varyingValues: state.inputs.map((meta) =>
+    varyingValues: state.inputs.map(({ meta }) =>
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
     ),
     currentStageIndex: 0,
-    params: genOptProblem(inputMask, objMask, constrMask),
+    params: start(state.varyingValues.length),
   });
+};
+
+const step = (state: State, numSteps: number): State => {
+  const { constraintSets, optStages, currentStageIndex } = state;
+  const stage = optStages[currentStageIndex];
+  const masks = safe(constraintSets.get(stage), "missing stage");
+  const xs = new Float64Array(state.varyingValues);
+  let i = 0;
+  const params = stepUntil(
+    (x: Float64Array, weight: number, grad: Float64Array): number =>
+      state.gradient(masks, x, weight, grad).phi,
+    xs,
+    state.params,
+    (): boolean => i++ >= numSteps
+  );
+  return { ...state, varyingValues: Array.from(xs), params };
 };
 
 /**
@@ -61,10 +56,7 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  const steppedState: State = {
-    ...state,
-    ...state.gradient.step(state, numSteps),
-  };
+  const steppedState = step(state, numSteps);
   if (stateConverged(steppedState) && !finalStage(steppedState)) {
     const nextInitState = nextStage(steppedState);
     return nextInitState;
@@ -77,16 +69,10 @@ export const nextStage = (state: State): State => {
   if (finalStage(state)) {
     return state;
   } else {
-    const { constraintSets, optStages, currentStageIndex } = state;
-    const nextStage = optStages[currentStageIndex + 1];
-    const { inputMask, objMask, constrMask } = safe(
-      constraintSets.get(nextStage),
-      "missing next stage"
-    );
     return {
       ...state,
-      currentStageIndex: currentStageIndex + 1,
-      params: genOptProblem(inputMask, objMask, constrMask),
+      currentStageIndex: state.currentStageIndex + 1,
+      params: start(state.varyingValues.length),
     };
   }
 };
@@ -97,10 +83,7 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
     !(currentState.params.optStatus === "Error") &&
     !stateConverged(currentState)
   ) {
-    currentState = {
-      ...currentState,
-      ...currentState.gradient.step(currentState, numSteps),
-    };
+    currentState = step(currentState, numSteps);
   }
   return nextStage(currentState);
 };
@@ -163,10 +146,10 @@ const stepUntilConvergenceOrThrow = (state: State): State => {
 /**
  * Embed a static Penrose diagram in a DOM node.
  *
- * @param domainProg a Domain program string
- * @param subProg a Substance program string
- * @param styProg a Style program string
+ * @param prog a Penrose trio and variation
  * @param node a node in the DOM tree
+ * @param pathResolver a resolver function for fetching Style imports
+ * @param name the name of the diagram
  */
 export const diagram = async (
   prog: {
@@ -176,13 +159,14 @@ export const diagram = async (
     variation: string;
   },
   node: HTMLElement,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  name?: string
 ): Promise<void> => {
   const res = await compileTrio(prog);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
-    const rendered = await RenderStatic(optimized, pathResolver);
+    const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
     node.appendChild(rendered);
   } else {
     throw Error(
@@ -194,10 +178,10 @@ export const diagram = async (
 /**
  * Embed an interactive Penrose diagram in a DOM node.
  *
- * @param domainProg a Domain program string
- * @param subProg a Substance program string
- * @param styProg a Style program string
+ * @param prog a Penrose trio and variation
+ * @param pathResolver a resolver function for fetching Style imports
  * @param node a node in the DOM tree
+ * @param name the name of the diagram
  */
 export const interactiveDiagram = async (
   prog: {
@@ -207,14 +191,16 @@ export const interactiveDiagram = async (
     variation: string;
   },
   node: HTMLElement,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  name?: string
 ): Promise<void> => {
   const updateData = async (state: State) => {
     const stepped = stepUntilConvergenceOrThrow(state);
     const rendering = await RenderInteractive(
       stepped,
       updateData,
-      pathResolver
+      pathResolver,
+      name ?? ""
     );
     node.replaceChild(rendering, node.firstChild!);
   };
@@ -225,7 +211,8 @@ export const interactiveDiagram = async (
     const rendering = await RenderInteractive(
       optimized,
       updateData,
-      pathResolver
+      pathResolver,
+      name ?? ""
     );
     node.appendChild(rendering);
   } else {
@@ -341,20 +328,27 @@ export const readRegistry = (
   return res;
 };
 
-/**
- * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objectiveAndGradient` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
- * @param s a state with or without an optimization problem initialized
- * @returns a scalar value of the current energy
- */
-export const evalEnergy = (s: State): number => {
-  // TODO: maybe don't also compute the gradient, just to throw it away
-  return s.gradient.call([...s.varyingValues, s.params.weight]).primary;
+const evalGrad = (s: State): ad.OptOutputs => {
+  const { constraintSets, optStages, currentStageIndex } = s;
+  const stage = optStages[currentStageIndex];
+  const masks = safe(constraintSets.get(stage), "missing stage");
+  const x = new Float64Array(s.varyingValues);
+  // we constructed `x` to throw away, so it's OK to update it in-place with the
+  // gradient after computing the energy
+  return s.gradient(masks, x, s.params.weight, x);
 };
 
 /**
- * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. This function assumes that the state already has the objectives and constraints compiled.
- * @param fns a list of constraints/objectives
- * @param s a state with its opt functions cached
+ * Evaluate the overall energy of a `State`.
+ * @param s a state
+ * @returns a scalar value of the current energy
+ */
+export const evalEnergy = (s: State): number => evalGrad(s).phi;
+// TODO: maybe don't also compute the gradient, just to throw it away
+
+/**
+ * Evaluate a list of constraints/objectives.
+ * @param s a state
  * @returns a list of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
  */
 export const evalFns = (
@@ -363,67 +357,43 @@ export const evalFns = (
   constrEngs: number[];
   objEngs: number[];
 } => {
-  const { constrFns, objFns } = s;
   // Evaluate the energy of each requested function (of the given type) on the varying values in the state
-  let { lastObjEnergies, lastConstrEnergies } = s.params;
-  if (lastObjEnergies === null || lastConstrEnergies === null) {
-    const { secondary } = s.gradient.call([
-      ...s.varyingValues,
-      s.params.weight,
-    ]);
-    lastObjEnergies = secondary.slice(0, s.params.objMask.length);
-    lastConstrEnergies = secondary.slice(s.params.objMask.length);
-  }
-  return {
-    constrEngs: lastConstrEnergies,
-    objEngs: lastObjEnergies,
-  };
+  const outputs = evalGrad(s);
+  // TODO: maybe don't also compute the gradient, just to throw it away
+  return { constrEngs: outputs.constraints, objEngs: outputs.objectives };
 };
 
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
-export type { SubStmtKind } from "./analysis/SubstanceAnalysis";
+export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
+export {
+  checkSubstance,
+  compileSubstance,
+  parseSubstance,
+  prettySubstance,
+} from "./compiler/Substance";
 export { constrDict } from "./contrib/Constraints";
 export { compDict } from "./contrib/Functions";
 export { objDict } from "./contrib/Objectives";
-export { secondaryGraph } from "./engine/Autodiff";
+export { RenderInteractive, RenderStatic } from "./renderer/Renderer";
 export type { PathResolver } from "./renderer/Renderer";
 export { makeCanvas, simpleContext } from "./shapes/Samplers";
-export { shapedefs } from "./shapes/Shapes";
-export type {
-  DeclTypes,
-  MatchSetting,
-  SynthesizedSubstance,
-  SynthesizerSetting,
-} from "./synthesis/Synthesizer";
-export type { PenroseError } from "./types/errors";
-export type { Shape } from "./types/shape";
+export type { Canvas } from "./shapes/Samplers";
+export { sampleShape, shapeTypes } from "./shapes/Shapes";
+export type { ShapeType } from "./shapes/Shapes";
+export type { Env } from "./types/domain";
+export type { PenroseError, Warning as PenroseWarning } from "./types/errors";
+export type { Trio } from "./types/io";
+export type { SubProg } from "./types/substance";
 export * as Value from "./types/value";
+export { showError } from "./utils/Error";
 export type { Result } from "./utils/Error";
-export { hexToRgba, rgbaToHex, zip2 } from "./utils/Util";
 export {
-  compileDomain,
-  compileSubstance,
-  checkDomain,
-  checkSubstance,
-  parseSubstance,
-  parseDomain,
-  Synthesizer,
-  showMutations,
-  RenderShape,
-  RenderInteractive,
-  RenderStatic,
-  bBoxDims,
-  prettySubstance,
-  showError,
+  hexToRgba,
+  prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
-  prettyPrintExpr,
-  normList,
-  toSvgPaintProperty,
-};
-export type { Registry, Trio };
-export type { Env };
-export type { SubProg };
-export type { Canvas };
+  rgbaToHex,
+  zip2,
+} from "./utils/Util";

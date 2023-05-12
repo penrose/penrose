@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
       - name: Typecheck all packages
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
       - name: Format
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
       - name: Lint
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
       - name: Regenerate CONTRIBUTING.md table of contents
@@ -85,7 +85,7 @@ jobs:
         working-directory: packages/automator/
         run: yarn start batch registry.json out/ --src-prefix=../examples/src/ --folders
       - name: Upload generated diagrams and metadata
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: diagrams
           path: packages/automator/out/
@@ -180,7 +180,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
       - name: Build storybook
@@ -209,9 +209,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
+      - name: Run all tests other than core
+        run: npx nx run-many --target=test --all --exclude=core
       - name: Make test report dir
         run: mkdir -p reports/junit/
         working-directory: packages/core/
@@ -224,11 +226,11 @@ jobs:
         uses: codecov/codecov-action@v3
       # TODO: some equivalent of CircleCI's store_test_results
       # with path: packages/core/reports/junit/
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: junit
           path: packages/core/reports/junit/
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: coverage
           path: packages/core/coverage/
@@ -237,7 +239,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
       - name: Build docs

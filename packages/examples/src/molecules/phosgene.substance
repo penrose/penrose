@@ -1,0 +1,12 @@
+Carbon c
+Oxygen o
+Chlorine cl1, cl2
+-- bonds
+Bond b1 := MakeSingleBond(c, cl1)
+Bond b2 := MakeSingleBond(c, cl2)
+Bond b3 := MakeDoubleBond(c, o)
+-- electrons
+ZeroValenceElectrons(c)
+FourValenceElectrons(o)
+SixValenceElectrons(cl1)
+SixValenceElectrons(cl2)

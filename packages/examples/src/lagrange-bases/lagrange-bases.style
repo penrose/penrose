@@ -16,7 +16,7 @@ Global {
    scalar dotSize = 2.5
    scalar smallDotSize = 2.
    scalar edgeWidth = 1.5
-   scalar labelSize = 6.
+   string labelSize = "6."
 }
 
 Colors {

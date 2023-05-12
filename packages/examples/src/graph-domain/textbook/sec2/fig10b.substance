@@ -1,0 +1,13 @@
+Vertex Washington, Xuan, Ybarra, Ziegler
+Vertex requirements, architecture, implementation, testing
+
+Edge(Washington, architecture)
+Edge(Xuan, requirements)
+Edge(Xuan, implementation)
+Edge(Xuan, testing)
+Edge(Ybarra, architecture)
+Edge(Ziegler, requirements)
+Edge(Ziegler, architecture)
+Edge(Ziegler, testing)
+
+AutoLabel All

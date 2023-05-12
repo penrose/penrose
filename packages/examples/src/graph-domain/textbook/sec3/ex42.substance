@@ -1,0 +1,45 @@
+Vertex u1, u2, u3, u4, u5, u6, u7, u8, u9, u10
+
+Edge(u1, u2)
+Edge(u2, u3)
+Edge(u2, u6)
+Edge(u2, u8)
+Edge(u3, u4)
+Edge(u3, u7)
+Edge(u3, u9)
+Edge(u4, u5)
+Edge(u4, u10)
+
+Label u1 "𝑢₁"
+Label u2 "𝑢₂"
+Label u3 "𝑢₃"
+Label u4 "𝑢₄"
+Label u5 "𝑢₅"
+Label u6 "𝑢₆"
+Label u7 "𝑢₇"
+Label u8 "𝑢₈"
+Label u9 "𝑢₉"
+Label u10 "𝑢₁₀"
+
+Vertex v1, v2, v3, v4, v5, v6, v7, v8, v9, v10
+
+Edge(v1, v2)
+Edge(v2, v3)
+Edge(v2, v6)
+Edge(v2, v8)
+Edge(v3, v4)
+Edge(v3, v9)
+Edge(v4, v5)
+Edge(v4, v7)
+Edge(v4, v10)
+
+Label v1 "𝑣₁"
+Label v2 "𝑣₂"
+Label v3 "𝑣₃"
+Label v4 "𝑣₄"
+Label v5 "𝑣₅"
+Label v6 "𝑣₆"
+Label v7 "𝑣₇"
+Label v8 "𝑣₈"
+Label v9 "𝑣₉"
+Label v10 "𝑣₁₀"

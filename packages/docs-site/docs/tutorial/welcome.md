@@ -6,7 +6,7 @@ Ready to make some beautiful diagrams? Penrose is accessible to people coming fr
 
 ## Table of Contents
 
-In this section, we will cover installation instructions, introduce Penrose's general approach and system, talk about how to approach diagramming, and explain what makes up a Penrose diagram.
+In this section, we will introduce Penrose's general approach and system, talk about how to approach diagramming, and explain what makes up a Penrose diagram.
 
 The real fun begins when you dive into the series of tutorials we have prepared for you. You can navigate through tutorials using the navigation bar on the left, and jump between sections of a single page using the navigation bar on the right.
 

@@ -1,18 +1,19 @@
 -- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
-type Point
-type Linelike
+type Shape
+type Point <: Shape
+type Linelike <: Shape
 type Ray <: Linelike
 type Line <: Linelike
 type Segment <: Linelike
 
-type Angle
+type Angle <: Shape
 
-type Triangle
-type Quadrilateral
+type Triangle <: Shape
+type Quadrilateral <: Shape
 type Rectangle <: Quadrilateral
-type Circle
+type Circle <: Shape
 
-type Plane
+type Plane <: Shape
 
 -- ~~~~~~~~~~~~~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~
 -- Lines and Points

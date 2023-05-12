@@ -3,7 +3,6 @@ import { ops } from "../engine/Autodiff";
 import {
   absVal,
   add,
-  addN,
   div,
   eq,
   ifCond,
@@ -87,7 +86,7 @@ export const halfPlaneSDF = (
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   const alpha = ops.vdot(normal, lineSegment[0]);
   const alphaOther = maxN(otherPoints.map((p) => ops.vdot(normal, p)));
-  return neg(addN([alpha, alphaOther, padding]));
+  return add(neg(add(alpha, alphaOther)), padding);
 };
 
 /**
@@ -228,7 +227,7 @@ export const rectangleSignedDistance = (
  * @param point Testing point.
  * @param padding Padding applied to the polygon.
  */
-const containsConvexPolygonPoints = (
+export const containsConvexPolygonPoints = (
   p1: ad.Num[][],
   p2: ad.Num[],
   padding: ad.Num
@@ -287,7 +286,7 @@ const pointCandidates = (
  */
 export const halfPlaneEllipseSDF = (
   lineSegment: ad.Num[][],
-  ellipse: Ellipse,
+  ellipse: Ellipse<ad.Num>,
   insidePoint: ad.Num[],
   padding: ad.Num
 ): ad.Num => {
@@ -322,7 +321,7 @@ export const halfPlaneEllipseSDF = (
  */
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: ad.Num[][],
-  ellipse: Ellipse,
+  ellipse: Ellipse<ad.Num>,
   padding: ad.Num
 ): ad.Num => {
   const center = ops.vdiv(polygonPoints.reduce(ops.vadd), polygonPoints.length);

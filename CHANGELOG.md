@@ -3,6 +3,50 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v2.3.0](https://github.com/penrose/penrose/compare/v2.2.0...v2.3.0) (2023-03-14)
+
+### :rocket: New Feature
+
+- Add a function to compute closest points ([#1039](https://github.com/penrose/penrose/issues/1039)) ([c2c8fc6](https://github.com/penrose/penrose/commit/c2c8fc68804943abe3c62ac0d3738bac0e77a870))
+- Add group-theory example to registry ([#1301](https://github.com/penrose/penrose/issues/1301)) ([115a609](https://github.com/penrose/penrose/commit/115a6094025347e525ebe33a2207a944df8aa837))
+- Lewis structures Style ([#1320](https://github.com/penrose/penrose/issues/1320)) ([5411f35](https://github.com/penrose/penrose/commit/5411f35d06039b82a0e77786c24edec7117d7cdf))
+- added "ctrl+enter" binding for recompiling ([#1306](https://github.com/penrose/penrose/issues/1306)) ([d0472d1](https://github.com/penrose/penrose/commit/d0472d1306959f6244ebb64a64894cc0a3fd376b))
+- basic group shape ([#1294](https://github.com/penrose/penrose/issues/1294)) ([cf77bff](https://github.com/penrose/penrose/commit/cf77bffa38273368c489d26ef981975c5d07bf80))
+- compile diagrams in `editor` after detected changes in `roger` ([#1264](https://github.com/penrose/penrose/issues/1264)) ([5ec39dd](https://github.com/penrose/penrose/commit/5ec39ddf92859d653768ddaa088f36f1b522e1af))
+- compute rect-line distance exactly ([#1332](https://github.com/penrose/penrose/issues/1332)) ([b86be31](https://github.com/penrose/penrose/commit/b86be314de09725447707de56039069a92a99f20))
+- experimental example emulating 3D diagramming ([#1299](https://github.com/penrose/penrose/issues/1299)) ([171a1d7](https://github.com/penrose/penrose/commit/171a1d7f3823a268a5c974ebf695a98569d45684))
+- matrix and vector operations in Style ([#1310](https://github.com/penrose/penrose/issues/1310)) ([70d190e](https://github.com/penrose/penrose/commit/70d190eeab2cac3f1c0afb4e760d067bceeb04bf))
+- provide a `shapeDistance` function ([#1328](https://github.com/penrose/penrose/issues/1328)) ([76a91e5](https://github.com/penrose/penrose/commit/76a91e5186c7ae4628417e4e9d6f9df289412ede))
+- show multiple diagram instances on a grid in `editor` ([#1287](https://github.com/penrose/penrose/issues/1287)) ([fbaf03c](https://github.com/penrose/penrose/commit/fbaf03c7b6c4f87cc628111ee080af76c65ef55e))
+- triangle-mesh-3d example improvements ([#1300](https://github.com/penrose/penrose/issues/1300)) ([b308c36](https://github.com/penrose/penrose/commit/b308c368a3c18700e91b9e5af60d5eb488617bab))
+
+### :bug: Bug Fix
+
+- SVG overflow in `Simple` component ([#1321](https://github.com/penrose/penrose/issues/1321)) ([df119ac](https://github.com/penrose/penrose/commit/df119acad87250d0097eeda4f019238bf0d07743))
+- `inRange` implemented incorrectly ([#1297](https://github.com/penrose/penrose/issues/1297)) ([f692a44](https://github.com/penrose/penrose/commit/f692a44b9f55df419db8e0e19998e79cf19ac88c))
+- avoid `EPS_DENOM` in core autodiff ([#1333](https://github.com/penrose/penrose/issues/1333)) ([db9f38b](https://github.com/penrose/penrose/commit/db9f38becbcb628eb9864b3ba7d0a7018e304c64))
+- github action node version ([#1318](https://github.com/penrose/penrose/issues/1318)) ([0d52677](https://github.com/penrose/penrose/commit/0d5267723665816019b84f5bbbe8088f613c2c35))
+- improve performance of pseudoTopsort ([#1302](https://github.com/penrose/penrose/issues/1302)) ([60bc4b5](https://github.com/penrose/penrose/commit/60bc4b5505dec71bb52ff787e0696797748af057))
+- nondeterminism in renderer ([#1316](https://github.com/penrose/penrose/issues/1316)) ([9795420](https://github.com/penrose/penrose/commit/97954202c60c2aab6a11af1694f652f8a3bb8e4d))
+- render shapes in order for determinism ([#1323](https://github.com/penrose/penrose/issues/1323)) ([c479eec](https://github.com/penrose/penrose/commit/c479eecdf4c4cbaa97c075bfd3608073dd576279))
+
+### :memo: Documentation
+
+- guide for creating new releases ([#1304](https://github.com/penrose/penrose/issues/1304)) ([1895d8f](https://github.com/penrose/penrose/commit/1895d8febdf4ced698bd1a478c3f3eaf1452b511))
+- move wiki ([#1331](https://github.com/penrose/penrose/issues/1331)) ([062e8ed](https://github.com/penrose/penrose/commit/062e8edad60249db71238d5a72ff99d9e1cc8239))
+- update Team page ([#1324](https://github.com/penrose/penrose/issues/1324)) ([e61e0ca](https://github.com/penrose/penrose/commit/e61e0ca86546185717cf4b5aff6215c6dc782da8))
+
+### :house: Internal
+
+- add Lewis structures examples to `synthesizer-ui` ([#1334](https://github.com/penrose/penrose/issues/1334)) ([2f1f624](https://github.com/penrose/penrose/commit/2f1f624118d2c48433c6f888075c8b279ff3e387))
+- add graph examples to `synthesizer-ui` ([#1336](https://github.com/penrose/penrose/issues/1336)) ([3b5f964](https://github.com/penrose/penrose/commit/3b5f964f2d9ca0d619ce7291844c36dd181e4345))
+- add more stuff to `.prettierignore` ([#1339](https://github.com/penrose/penrose/issues/1339)) ([e3a3f34](https://github.com/penrose/penrose/commit/e3a3f34f7e9e3a387393e068767232fa36a24a1a))
+- add optimizer `build/` to `.prettierignore` ([#1315](https://github.com/penrose/penrose/issues/1315)) ([3c8b424](https://github.com/penrose/penrose/commit/3c8b424f9042800be68f8ad21404a66c846af2d5))
+- diagram some graphs ([#1317](https://github.com/penrose/penrose/issues/1317)) ([37acb1b](https://github.com/penrose/penrose/commit/37acb1bb78ad5bbdf4b8b8188e09b975a7838113))
+- expand presets in `synthesizer-ui` ([#1149](https://github.com/penrose/penrose/issues/1149)) ([58c288a](https://github.com/penrose/penrose/commit/58c288a2ec5b124f008222e8c3807dfa550dcd6f))
+- layout tweaks in `euclidean.style` ([#1335](https://github.com/penrose/penrose/issues/1335)) ([12363c9](https://github.com/penrose/penrose/commit/12363c94c1325ef6e47da157f1e82d77d05d73fd))
+- remove ESLint from PR template checklist ([#1330](https://github.com/penrose/penrose/issues/1330)) ([ef74877](https://github.com/penrose/penrose/commit/ef748779359f8da04a2baf95036d67274c44929a))
+
 ## [v2.2.0](https://github.com/penrose/penrose/compare/v2.1.1...v2.2.0) (2023-02-02)
 
 ### :rocket: New Feature

@@ -23,6 +23,8 @@ import {
 import { SubstanceEnv } from "../types/substance";
 import { ColorV, RGBA } from "../types/value";
 import { andThen, err, Result, showError } from "../utils/Error";
+import Graph from "../utils/Graph";
+import { GroupGraph } from "../utils/GroupGraph";
 import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
 import * as S from "./Style";
@@ -72,14 +74,19 @@ const canvasPreamble = `canvas {
 
 describe("Layering computation", () => {
   // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
+  const simpleGroupGraph: GroupGraph = new Graph();
+  ["A", "B", "C", "D", "E", "F"].map((x) => {
+    simpleGroupGraph.setNode(x, 0);
+  });
   test("simple layering: A -> B -> C", () => {
     const partials: Layer[] = [
       { below: "A", above: "B" },
       { below: "B", above: "C" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeUndefined();
@@ -90,9 +97,10 @@ describe("Layering computation", () => {
       { below: "B", above: "C" },
       { below: "C", above: "A" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeDefined();
@@ -107,9 +115,10 @@ describe("Layering computation", () => {
       { below: "E", above: "B" },
       { below: "C", above: "F" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "C", "F", "B", "D", "E"]);
     expect(warning).toBeDefined();
@@ -124,27 +133,77 @@ describe("Layering computation", () => {
       { below: "E", above: "C" },
       { below: "C", above: "F" },
     ];
-    const { shapeOrdering, warning } = S.computeShapeOrdering(
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
-      partials
+      partials,
+      simpleGroupGraph
     );
     expect(shapeOrdering).toEqual(["A", "B", "D", "E", "C", "F"]);
     expect(warning).toBeDefined();
     expect(warning?.cycles.length).toEqual(1);
   });
+  test("good group layering", () => {
+    const partials: Layer[] = [
+      { below: "G1", above: "G2" },
+      { below: "A", above: "D" },
+      { below: "B", above: "C" },
+    ];
+    const groupGraph: GroupGraph = new Graph();
+    ["A", "B", "C", "D", "G1", "G2"].map((x) => groupGraph.setNode(x, 0));
+    groupGraph.setEdge({ i: "G1", j: "A", e: undefined });
+    groupGraph.setEdge({ i: "G1", j: "D", e: undefined });
+    groupGraph.setEdge({ i: "G2", j: "B", e: undefined });
+    groupGraph.setEdge({ i: "G2", j: "C", e: undefined });
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
+      ["G1", "B", "D", "A", "G2", "C"],
+      partials,
+      groupGraph
+    );
+    // Order is A, D, B, C
+    // But, position of G1 and G2 are undetermined
+    const aPos = shapeOrdering.indexOf("A");
+    const dPos = shapeOrdering.indexOf("D");
+    const bPos = shapeOrdering.indexOf("B");
+    const cPos = shapeOrdering.indexOf("C");
+    expect(aPos < dPos).toBe(true);
+    expect(dPos < bPos).toBe(true);
+    expect(bPos < cPos).toBe(true);
+    expect(warning).toBeUndefined();
+  });
+  test("bad group layering", () => {
+    const partials: Layer[] = [
+      { below: "s2", above: "s1" },
+      { below: "s2", above: "s3" },
+      { below: "s3", above: "s1" },
+    ];
+    const groupGraph: GroupGraph = new Graph();
+    ["s1", "s2", "s3", "g"].map((x) => {
+      groupGraph.setNode(x, 0);
+    });
+    groupGraph.setEdge({ i: "g", j: "s1", e: undefined });
+    groupGraph.setEdge({ i: "g", j: "s2", e: undefined });
+    const { shapeOrdering, warning } = S.computeLayerOrdering(
+      ["g", "s3", "s1", "s2"],
+      partials,
+      groupGraph
+    );
+    expect(warning).toBeDefined();
+    expect(warning!.cycles.length).toEqual(1);
+  });
 });
 
+const colorValMatches = (
+  colorPath: string,
+  expected: [number, number, number, number],
+  translation: Translation
+) => {
+  const val = translation.symbols.get(colorPath);
+  const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
+    .contents;
+  zip2(rgba, expected).map(([a, b]) => expect(a).toBeCloseTo(b, 1));
+};
+
 describe("Color literals", () => {
-  const colorValMatches = (
-    colorPath: string,
-    expected: [number, number, number, number],
-    translation: Translation
-  ) => {
-    const val = translation.symbols.get(colorPath);
-    const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
-      .contents;
-    zip2(rgba, expected).map(([a, b]) => expect(a).toBeCloseTo(b, 1));
-  };
   test("color literal values", async () => {
     const { translation } = await loadProgs({
       dsl: "type T",
@@ -443,16 +502,19 @@ describe("Compiler", () => {
        -- o.f[0] = 0.
        o.shape = Circle {}
 }`,
-      `canvas {
-  width = 500.0
-  height = 400.0
-}`,
       `forall Object o {
         o.a = ?
         o.b = ?
         ensure o.a > o.b
         ensure o.a < o.b
         ensure o.a == o.b
+      }`,
+      `forall Object o {
+        o.a = Circle {}
+        o.b = Circle {}
+        o.g = Group {
+          shapes: [o.a, o.b]
+        }
       }`,
     ];
     stys.forEach((sty: string) =>
@@ -893,6 +955,62 @@ delete x.z.p }`,
         `forall Set a; Set b
         where IsSubset(a, b) as IsSubset {}`,
       ],
+      BadShapeParamTypeError: [
+        `forall Set a {
+          a.sh = Circle {
+            r: "a string"
+          }
+        }`,
+        `forall Set a {
+          a.sh = Circle {
+            ptProp: (1, 2, 3)
+          }
+        }`,
+      ],
+      BadArgumentTypeError: [
+        `forall Set a {
+          x = circumradius([1, 2, 3], [4, 5, 6], [7, 8, 9])
+        }`,
+        `forall Set a {
+          x = cubicCurveFromPoints("hello", [(1, 2), (3, 4), (5, 6)])
+        }`,
+        `forall Set a {
+          x = cubicCurveFromPoints("closed", [(1, 2, 3), (3, 4, 5), (5, 6, 7), (6, 7, 8)])
+        }`,
+        `forall Set a {
+          c = Circle {}
+          encourage isRegular(c)
+        }`,
+      ],
+      MissingArgumentError: [
+        `forall Set a {
+          a.s = Circle {}
+          ensure contains(a.s)
+        }`,
+        `forall Set a {
+          ensure disjoint()
+        }`,
+      ],
+      TooManyArgumentsError: [
+        `forall Set a {
+          a.s = Circle {}
+          ensure contains(a.s, a.s, 1, 2, 3)
+        }`,
+      ],
+      FunctionInternalError: [
+        `forall Set a {
+          x = dot([1, 2, 3], [4, 5])
+        }`,
+      ],
+      RedeclareNamespaceError: [
+        `Colors {
+          red = #f00
+        }
+        Colors {
+          red = #e00
+        }
+        `,
+      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {
@@ -995,23 +1113,27 @@ delete x.z.p }`,
       expect(state.shapes.length).toEqual(1);
     });
   });
-
   describe("match metadata", () => {
     test("match total", async () => {
       const dsl = "type MyType\n";
       const sty =
         canvasPreamble +
         `forall MyType t {
-  t.shape = Text {
-    string: match_total
+  t.shape = Circle {
+    ptProp: match_total
   }
 }`;
       const sub = "MyType t1, t2, t3\n";
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(
         state.shapes.every((shape) => {
-          const val = shape.properties["string"];
-          return val.tag === "FloatV" && val.contents === 3;
+          const val = shape.passthrough.get("ptProp");
+          if (val && val.tag === "FloatV") {
+            const v = val.contents;
+            return v === 3;
+          } else {
+            return false;
+          }
         })
       ).toEqual(true);
     });
@@ -1021,8 +1143,8 @@ delete x.z.p }`,
       const sty =
         canvasPreamble +
         `forall MyType t {
-  t.shape = Text {
-    string: match_id
+  t.shape = Circle {
+    ptProp: match_id
   }
 }`;
       const sub = "MyType t1, t2, t3\n";
@@ -1033,15 +1155,90 @@ delete x.z.p }`,
       expect(
         im.Set(
           state.shapes.map((shape) => {
-            const val = shape.properties["string"];
-            if (val.tag === "FloatV") {
-              return val.contents;
+            const v = shape.passthrough.get("ptProp");
+            if (v && v.tag === "FloatV") {
+              return v.contents;
             } else {
-              throw Error("Should be a number");
+              throw Error("Should be a FloatV");
             }
           })
         )
       ).toEqual(im.Set([1, 2, 3]));
+    });
+  });
+  describe("group shapes", () => {
+    test("simple group", async () => {
+      const dsl = "type T\n";
+      const sty =
+        canvasPreamble +
+        `
+      forall T t {
+        t.s1 = Circle {}
+        t.s2 = Rectangle {}
+        t.g = Group {
+          shapes: [t.s1, t.s2]
+        }
+        t.s3 = Text {}
+        t.g2 = Group {
+          shapes: [t.s3, t.g]
+        }
+      }\n
+      `;
+      const sub = "T t\n";
+      const { state } = await loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(1);
+    });
+  });
+
+  describe("group graph", () => {
+    test("cyclic group graph", () => {
+      const groupGraph: GroupGraph = new Graph();
+      ["A", "B", "C"].map((x) => {
+        groupGraph.setNode(x, 0);
+      });
+      groupGraph.setEdge({ i: "A", j: "B", e: undefined });
+      groupGraph.setEdge({ i: "B", j: "C", e: undefined });
+      groupGraph.setEdge({ i: "C", j: "A", e: undefined });
+
+      const warnings = S.checkGroupGraph(groupGraph);
+      expect(warnings.length).toEqual(1);
+      expect(warnings[0].tag).toEqual("GroupCycleWarning");
+    });
+    test("shape belongs to multiple groups", () => {
+      const groupGraph: GroupGraph = new Graph();
+      ["X", "A", "B"].map((x) => {
+        groupGraph.setNode(x, 0);
+      });
+      groupGraph.setEdge({ i: "A", j: "X", e: undefined });
+      groupGraph.setEdge({ i: "B", j: "X", e: undefined });
+      const warnings = S.checkGroupGraph(groupGraph);
+      expect(warnings.length).toEqual(1);
+      expect(warnings[0].tag).toEqual("ShapeBelongsToMultipleGroups");
+    });
+  });
+
+  describe("Global namespace", () => {
+    test("namespace override", async () => {
+      const { translation } = await loadProgs({
+        dsl: ``,
+        sub: ``,
+        sty:
+          canvasPreamble +
+          `
+          Colors {
+            color red = #e00
+            color green = #0e0
+          }
+          OverrideColors {
+            override Colors.red = #f00
+            override Colors.green = #0f0
+            Colors.blue = #00f
+          }
+          `,
+      });
+      colorValMatches(`Colors.red`, [1, 0, 0, 1], translation);
+      colorValMatches(`Colors.green`, [0, 1, 0, 1], translation);
+      colorValMatches(`Colors.blue`, [0, 0, 1, 1], translation);
     });
   });
 });

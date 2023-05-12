@@ -1,0 +1,11 @@
+Vertex a, b, c, d
+
+Edge(a, b)
+Edge(a, c)
+Edge(b, c)
+Edge(b, d)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"

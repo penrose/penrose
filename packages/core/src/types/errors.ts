@@ -2,6 +2,7 @@ import im from "immutable";
 import * as ad from "./ad";
 import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
 import { Arg, TypeConstructor, TypeVar } from "./domain";
+import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions";
 import { State } from "./state";
 import {
   BindingForm,
@@ -15,14 +16,10 @@ import {
 } from "./style";
 import { ResolvedPath } from "./styleSemantics";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
-import { Value } from "./value";
+import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value";
 
 //#region ErrorTypes
 
-// type PenroseError = LanguageError | RuntimeError;
-// type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
-// type RuntimeError = OptimizerError | EvaluatorError;
-// type StyleError = StyleParseError | StyleCheckError | TranslationError;
 export type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
@@ -41,7 +38,7 @@ export interface NaNError {
   lastState: State;
 }
 
-export type Warning = StyleError;
+export type Warning = StyleWarning;
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 export type SubstanceError =
@@ -196,11 +193,18 @@ export type StyleError =
   | MissingShapeError
   | NestedShapeError
   | NotCollError
+  | IndexIntoShapeListError
   | NotShapeError
   | NotValueError
   | OutOfBoundsError
   | PropertyMemberError
   | UOpTypeError
+  | BadShapeParamTypeError
+  | BadArgumentTypeError
+  | MissingArgumentError
+  | TooManyArgumentsError
+  | FunctionInternalError
+  | RedeclareNamespaceError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -208,7 +212,9 @@ export type StyleError =
 export type StyleWarning =
   | ImplicitOverrideWarning
   | NoopDeleteWarning
-  | LayerCycleWarning;
+  | LayerCycleWarning
+  | ShapeBelongsToMultipleGroupsWarning
+  | GroupCycleWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -230,6 +236,15 @@ export interface LayerCycleWarning {
   tag: "LayerCycleWarning";
   cycles: string[][];
   approxOrdering: string[];
+}
+export interface ShapeBelongsToMultipleGroupsWarning {
+  tag: "ShapeBelongsToMultipleGroups";
+  shape: string;
+  groups: string[];
+}
+export interface GroupCycleWarning {
+  tag: "GroupCycleWarning";
+  cycles: string[][];
 }
 
 //#endregion
@@ -400,6 +415,11 @@ export interface NotCollError {
   expr: Expr<C>;
 }
 
+export interface IndexIntoShapeListError {
+  tag: "IndexIntoShapeListError";
+  expr: Expr<C>;
+}
+
 export interface NotShapeError {
   tag: "NotShapeError";
   path: ResolvedPath<C>;
@@ -427,6 +447,48 @@ export interface UOpTypeError {
   tag: "UOpTypeError";
   expr: UOp<C>;
   arg: Value<ad.Num>["tag"];
+}
+
+export interface BadShapeParamTypeError {
+  tag: "BadShapeParamTypeError";
+  path: string;
+  value: Val<ad.Num> | ShapeVal<ad.Num>;
+  expectedType: string;
+  passthrough: boolean;
+}
+
+export interface BadArgumentTypeError {
+  tag: "BadArgumentTypeError";
+  funcName: string;
+  funcArg: FuncParam;
+  provided: ArgValWithSourceLoc<ad.Num>;
+}
+
+export interface MissingArgumentError {
+  tag: "MissingArgumentError";
+  funcName: string;
+  funcArg: FuncParam;
+  funcLocation: SourceRange;
+}
+
+export interface TooManyArgumentsError {
+  tag: "TooManyArgumentsError";
+  func: CompFunc | ObjFunc | ConstrFunc;
+  funcLocation: SourceRange;
+  numProvided: number;
+}
+
+export interface FunctionInternalError {
+  tag: "FunctionInternalError";
+  func: CompFunc | ObjFunc | ConstrFunc;
+  location: SourceRange;
+  message: string;
+}
+
+export interface RedeclareNamespaceError {
+  tag: "RedeclareNamespaceError";
+  existingNamespace: string;
+  location: SourceRange; // location of the duplicated declaration
 }
 
 //#endregion

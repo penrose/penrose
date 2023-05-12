@@ -67,9 +67,9 @@ where IsIdentity(e)
     ensure inRange(g,.25,1.0)
     ensure inRange(b,.25,1.0)
 
-    s.icon.fillColor = rgba(r,g,b,1.0)
-    s.icon.strokeColor = rgba(.7*r,.7*g,.7*b,1.0)
-    s.labelText.fillColor = s.icon.strokeColor
+    override s.icon.fillColor = rgba(r,g,b,1.0)
+    override s.icon.strokeColor = rgba(.7*r,.7*g,.7*b,1.0)
+    override s.labelText.fillColor = s.icon.strokeColor
  }
 
 -- encourage all nodes to avoid each other
@@ -117,7 +117,6 @@ where IsGenerator(s); IsProduct( g2, g1, s )
 
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = g1.icon.center
-   vec2 x2 = g2.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
    scalar L = global.targetEdgeLength -- rest length
@@ -155,7 +154,6 @@ where IsGenerator(s); IsProduct( s, e, s )
 
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = e.icon.center
-   vec2 x2 = s.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
    scalar L = global.targetEdgeLength -- rest length
@@ -193,7 +191,6 @@ where IsGenerator(s); IsProduct( g, s, s )
 
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = s.icon.center
-   vec2 x2 = g.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
    scalar L = global.targetEdgeLength -- rest length

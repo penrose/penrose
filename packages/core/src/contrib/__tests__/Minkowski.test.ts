@@ -1,11 +1,36 @@
 import * as BBox from "../../engine/BBox";
 import * as ad from "../../types/ad";
 import {
+  containsConvexPolygonPoints,
   convexPartitions,
   halfPlaneSDF,
   rectangleDifference,
 } from "../Minkowski";
 import { numsOf } from "../Utils";
+
+describe("containsConvexPolygonPoints", () => {
+  test("test", () => {
+    const poly = [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, 1],
+    ];
+    const pt = [0.25, 0.25];
+
+    expect(
+      numsOf([containsConvexPolygonPoints(poly, pt, 0)])[0]
+    ).toBeLessThanOrEqual(0);
+
+    expect(
+      numsOf([containsConvexPolygonPoints(poly, pt, 0.1)])[0]
+    ).toBeLessThanOrEqual(0);
+
+    expect(
+      numsOf([containsConvexPolygonPoints(poly, pt, 0.26)])[0]
+    ).toBeGreaterThan(0);
+  });
+});
 
 describe("rectangleDifference", () => {
   const expectRectDiff = (
@@ -74,7 +99,7 @@ describe("halfPlaneSDF", () => {
 
   test("with padding", async () => {
     let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
-    expect(numsOf([result])[0]).toBeCloseTo(-13, 4);
+    expect(numsOf([result])[0]).toBeCloseTo(7, 4);
   });
 
   test("zero outside", async () => {

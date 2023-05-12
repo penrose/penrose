@@ -4,12 +4,23 @@
  *
  */
 
-import { shapedefs } from "../shapes/Shapes";
-import { Shape } from "../types/shape";
+import { isLinelike, isRectlike } from "../contrib/Utils";
+import { Group } from "../shapes/Group";
+import { Shape } from "../shapes/Shapes";
 import { LabelCache, State } from "../types/state";
-import { StrV } from "../types/value";
+import { getValueAsShapeList } from "../utils/Util";
+import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
+import RenderCircle from "./Circle";
 import { dragUpdate } from "./dragUtils";
-import shapeMap from "./shapeMap";
+import RenderEllipse from "./Ellipse";
+import RenderEquation from "./Equation";
+import RenderImage from "./Image";
+import RenderLine from "./Line";
+import RenderPath from "./Path";
+import RenderPolygon from "./Polygon";
+import RenderPolyline from "./Polyline";
+import RenderRectangle from "./Rectangle";
+import RenderText from "./Text";
 
 /**
  * Resolves path references into static strings. Implemented by client
@@ -18,38 +29,18 @@ import shapeMap from "./shapeMap";
  */
 export type PathResolver = (path: string) => Promise<string | undefined>;
 
-export interface ShapeProps {
+export interface RenderProps {
+  namespace: string;
   variation: string;
-  shape: Shape;
   labels: LabelCache;
   canvasSize: [number, number];
   pathResolver: PathResolver;
 }
-
-/**
- * Turns Shape GPI data into a corresponding SVG element
- */
-export const RenderShape = async ({
-  shape,
-  labels,
-  canvasSize,
-  variation,
-  pathResolver,
-}: ShapeProps): Promise<SVGElement> => {
-  if (!(shape.shapeType in shapeMap)) {
-    console.error(`${shape.shapeType} shape doesn't exist in shapeMap`);
-    return document.createElementNS("http://www.w3.org/2000/svg", "g");
-  }
-
-  return await shapeMap[shape.shapeType]({
-    shape,
-    labels,
-    variation,
-    canvasSize,
-    pathResolver,
-  });
+export type InteractiveProps = {
+  updateState: (newState: State) => void;
+  onDrag: (id: string, dx: number, dy: number) => void;
+  parentSVG: SVGSVGElement;
 };
-
 /**
  * Converts screen to relative SVG coords
  * Thanks to
@@ -69,72 +60,6 @@ const getPosition = (
 };
 
 /**
- * Makes a shape draggable. Browser only.
- * @param onDrag callback when drag complete
- * @param parentSVG
- * @param canvasSizeCustom
- */
-export const DraggableShape = async (
-  shapeProps: ShapeProps,
-  onDrag: (id: string, dx: number, dy: number) => void,
-  parentSVG: SVGSVGElement,
-  canvasSizeCustom?: [number, number]
-): Promise<SVGGElement> => {
-  const canvas = shapeProps.canvasSize;
-  const elem = await RenderShape({
-    ...shapeProps,
-    canvasSize: canvasSizeCustom ? canvasSizeCustom : canvas,
-  });
-  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const { shapeType } = shapeProps.shape;
-  if (shapedefs[shapeType].isLinelike) {
-    g.setAttribute("pointer-events", "visibleStroke");
-  } else if (shapedefs[shapeType].isRectlike) {
-    g.setAttribute("pointer-events", "bounding-box");
-  } else {
-    g.setAttribute("pointer-events", "auto");
-  }
-  g.appendChild(elem);
-
-  const onMouseDown = (e: MouseEvent) => {
-    const { clientX, clientY } = e;
-    const { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parentSVG);
-    const {
-      width: bboxW,
-      height: bboxH,
-      x: bboxX,
-      y: bboxY,
-    } = (e.target as SVGSVGElement).getBBox({ stroke: true });
-    const minX = tempX - bboxX;
-    const maxX = canvas[0] - bboxW + (tempX - bboxX);
-    const minY = tempY - bboxY;
-    const maxY = canvas[1] - bboxH + (tempY - bboxY);
-
-    g.setAttribute("opacity", "0.5");
-    let dx = 0,
-      dy = 0;
-    const onMouseMove = (e: MouseEvent) => {
-      const { x, y } = getPosition(e, parentSVG);
-      const constrainedX = clamp(x, minX, maxX);
-      const constrainedY = clamp(y, minY, maxY);
-      dx = constrainedX - tempX;
-      dy = tempY - constrainedY;
-      g.setAttribute(`transform`, `translate(${dx},${-dy})`);
-    };
-    const onMouseUp = () => {
-      g.setAttribute("opacity", "1");
-      document.removeEventListener("mouseup", onMouseUp);
-      document.removeEventListener("mousemove", onMouseMove);
-      onDrag((shapeProps.shape.properties.name as StrV).contents, dx, dy);
-    };
-    document.addEventListener("mouseup", onMouseUp);
-    document.addEventListener("mousemove", onMouseMove);
-  };
-  g.addEventListener("mousedown", onMouseDown);
-  return g;
-};
-
-/**
  *
  * @param state
  * @param updateState Callback for drag-updated state
@@ -144,7 +69,8 @@ export const DraggableShape = async (
 export const RenderInteractive = async (
   state: State,
   updateState: (newState: State) => void,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  namespace: string
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -158,21 +84,23 @@ export const RenderInteractive = async (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  for (const shape of state.computeShapes(state.varyingValues)) {
-    svg.appendChild(
-      await DraggableShape(
-        {
-          shape,
-          labels: state.labelCache,
-          canvasSize: state.canvas.size,
-          variation: state.variation,
-          pathResolver,
-        },
-        onDrag,
-        svg
-      )
-    );
-  }
+  const shapes = state.computeShapes(state.varyingValues);
+  await RenderShapes(
+    shapes,
+    svg,
+    {
+      labels: state.labelCache,
+      canvasSize: state.canvas.size,
+      variation: state.variation,
+      namespace,
+      pathResolver,
+    },
+    {
+      updateState,
+      onDrag,
+      parentSVG: svg,
+    }
+  );
   return svg;
 };
 
@@ -182,30 +110,161 @@ export const RenderInteractive = async (
  */
 export const RenderStatic = async (
   state: State,
-  pathResolver: PathResolver
+  pathResolver: PathResolver,
+  namespace: string
 ): Promise<SVGSVGElement> => {
-  const { varyingValues, computeShapes, labelCache: labels, canvas } = state;
+  const {
+    varyingValues,
+    computeShapes,
+    labelCache: labels,
+    canvas,
+    variation,
+  } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
 
-  return Promise.all(
-    computeShapes(varyingValues).map((shape) =>
-      RenderShape({
-        shape,
-        labels,
-        canvasSize: canvas.size,
-        variation: state.variation,
-        pathResolver,
-      })
-    )
-  ).then((renderedShapes) => {
-    for (const shape of renderedShapes) {
-      svg.appendChild(shape);
+  const shapes = computeShapes(varyingValues);
+  await RenderShapes(
+    shapes,
+    svg,
+    {
+      labels,
+      canvasSize: canvas.size,
+      variation,
+      namespace,
+      pathResolver,
+    },
+    undefined
+  );
+  return svg;
+};
+
+const RenderGroup = async (
+  groupShape: Group<number>,
+  shapeProps: {
+    labels: LabelCache;
+    canvasSize: [number, number];
+    variation: string;
+    namespace: string;
+    pathResolver: PathResolver;
+  },
+  interactiveProp?: InteractiveProps
+): Promise<SVGGElement> => {
+  const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const subShapes = getValueAsShapeList(groupShape.shapes);
+  for (const shape of subShapes) {
+    const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+    elem.appendChild(childSvg);
+  }
+  attrAutoFillSvg(groupShape, elem, [...attrTitle(groupShape, elem), "shapes"]);
+  return elem;
+};
+
+const RenderShapeSvg = async (
+  shape: Exclude<Shape<number>, Group<number>>,
+  renderProps: RenderProps
+): Promise<SVGElement> => {
+  switch (shape.shapeType) {
+    case "Circle":
+      return RenderCircle(shape, renderProps);
+    case "Ellipse":
+      return RenderEllipse(shape, renderProps);
+    case "Equation":
+      return RenderEquation(shape, renderProps);
+    case "Image":
+      return RenderImage(shape, renderProps);
+    case "Line":
+      return RenderLine(shape, renderProps);
+    case "Path":
+      return RenderPath(shape, renderProps);
+    case "Polygon":
+      return RenderPolygon(shape, renderProps);
+    case "Polyline":
+      return RenderPolyline(shape, renderProps);
+    case "Rectangle":
+      return RenderRectangle(shape, renderProps);
+    case "Text":
+      return RenderText(shape, renderProps);
+  }
+};
+
+export const RenderShape = async (
+  shape: Shape<number>,
+  renderProps: RenderProps,
+  interactiveProp?: InteractiveProps
+): Promise<SVGElement> => {
+  if (shape.shapeType === "Group") {
+    const outSvg = await RenderGroup(shape, renderProps, interactiveProp);
+    return outSvg;
+  } else {
+    const elem = await RenderShapeSvg(shape, renderProps);
+    if (!interactiveProp) {
+      return elem;
+    } else {
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      if (isLinelike(shape)) {
+        g.setAttribute("pointer-events", "visibleStroke");
+      } else if (isRectlike(shape)) {
+        g.setAttribute("pointer-events", "bounding-box");
+      } else {
+        g.setAttribute("pointer-events", "auto");
+      }
+      g.appendChild(elem);
+      const onMouseDown = (e: MouseEvent) => {
+        const { clientX, clientY } = e;
+        const { x: tempX, y: tempY } = getPosition(
+          { clientX, clientY },
+          interactiveProp.parentSVG
+        );
+        const {
+          width: bboxW,
+          height: bboxH,
+          x: bboxX,
+          y: bboxY,
+        } = (e.target as SVGSVGElement).getBBox({ stroke: true });
+        const minX = tempX - bboxX;
+        const maxX = renderProps.canvasSize[0] - bboxW + (tempX - bboxX);
+        const minY = tempY - bboxY;
+        const maxY = renderProps.canvasSize[1] - bboxH + (tempY - bboxY);
+
+        g.setAttribute("opacity", "0.5");
+        let dx = 0,
+          dy = 0;
+        const onMouseMove = (e: MouseEvent) => {
+          const { x, y } = getPosition(e, interactiveProp.parentSVG);
+          const constrainedX = clamp(x, minX, maxX);
+          const constrainedY = clamp(y, minY, maxY);
+          dx = constrainedX - tempX;
+          dy = tempY - constrainedY;
+          g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+        };
+        const onMouseUp = () => {
+          g.setAttribute("opacity", "1");
+          document.removeEventListener("mouseup", onMouseUp);
+          document.removeEventListener("mousemove", onMouseMove);
+          interactiveProp.onDrag(shape.name.contents, dx, dy);
+        };
+        document.addEventListener("mouseup", onMouseUp);
+        document.addEventListener("mousemove", onMouseMove);
+      };
+      g.addEventListener("mousedown", onMouseDown);
+      return g;
     }
-    return svg;
-  });
+  }
+};
+
+const RenderShapes = async (
+  shapes: Shape<number>[],
+  svg: SVGSVGElement,
+  renderProps: RenderProps,
+  interactiveProp?: InteractiveProps
+) => {
+  for (const shape of shapes) {
+    const elem = await RenderShape(shape, renderProps, interactiveProp);
+    svg.appendChild(elem);
+  }
 };
 
 const clamp = (x: number, min: number, max: number): number =>

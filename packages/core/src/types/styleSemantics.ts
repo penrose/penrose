@@ -109,13 +109,13 @@ export interface OtherSource {
 
 export type FieldSource = ShapeSource | OtherSource;
 
-export type Fielded = im.Map<Field, FieldSource>;
+export type FieldDict = im.Map<Field, FieldSource>;
 
 export interface Assignment {
   diagnostics: StyleDiagnostics;
-  globals: im.Map<StyleName, Fielded>;
-  unnamed: im.Map<im.List<number>, Fielded>; // indexed by block/subst indices
-  substances: im.Map<SubstanceName, Fielded>;
+  globals: im.Map<StyleName, FieldDict>;
+  unnamed: im.Map<im.List<number>, FieldDict>; // indexed by block/subst indices
+  substances: im.Map<SubstanceName, FieldDict>;
 }
 
 export interface Locals {

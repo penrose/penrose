@@ -1,0 +1,18 @@
+Vertex a, b, c, d, e, f
+
+Arc(a, b)
+Arc(b, c)
+Arc(c, a)
+Arc(c, d)
+Arc(d, e)
+Arc(e, b)
+Arc(e, f)
+Arc(f, a)
+Arc(f, d)
+
+Label a "𝑎"
+Label b "𝑏"
+Label c "𝑐"
+Label d "𝑑"
+Label e "𝑒"
+Label f "𝑓"

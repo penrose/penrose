@@ -1,3 +1,4 @@
+import { Polyline } from "../shapes/Polyline";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -6,9 +7,12 @@ import {
   attrStroke,
   attrTitle,
 } from "./AttrHelper";
-import { ShapeProps } from "./Renderer";
+import { RenderProps } from "./Renderer";
 
-const Polyline = ({ shape, canvasSize }: ShapeProps): SVGPolylineElement => {
+const RenderPolyline = (
+  shape: Polyline<number>,
+  { canvasSize }: RenderProps
+): SVGPolylineElement => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "polyline"
@@ -29,4 +33,4 @@ const Polyline = ({ shape, canvasSize }: ShapeProps): SVGPolylineElement => {
 
   return elem;
 };
-export default Polyline;
+export default RenderPolyline;

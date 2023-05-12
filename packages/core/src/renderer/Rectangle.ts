@@ -1,3 +1,4 @@
+import { Rectangle } from "../shapes/Rectangle";
 import {
   attrAutoFillSvg,
   attrCornerRadius,
@@ -8,9 +9,12 @@ import {
   attrWH,
   attrXY,
 } from "./AttrHelper";
-import { ShapeProps } from "./Renderer";
+import { RenderProps } from "./Renderer";
 
-const Rectangle = ({ shape, canvasSize }: ShapeProps): SVGRectElement => {
+const RenderRectangle = (
+  shape: Rectangle<number>,
+  { canvasSize }: RenderProps
+): SVGRectElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 
   // Keep track of which input properties we programatically mapped
@@ -30,4 +34,4 @@ const Rectangle = ({ shape, canvasSize }: ShapeProps): SVGRectElement => {
 
   return elem;
 };
-export default Rectangle;
+export default RenderRectangle;

@@ -1,0 +1,13 @@
+Vertex Linda, Brian
+Vertex Deborah, Fred, Yvonne
+
+Arc(Brian, Linda)
+Arc(Brian, Yvonne)
+Arc(Deborah, Linda)
+Arc(Deborah, Brian)
+Arc(Deborah, Fred)
+Arc(Fred, Brian)
+Arc(Yvonne, Brian)
+Arc(Yvonne, Fred)
+
+AutoLabel All

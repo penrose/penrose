@@ -1,0 +1,15 @@
+Nitrogen n1, n2
+Hydrogen h1, h2, h3, h4
+-- bonds
+Bond b1 := MakeSingleBond(n1, n2)
+Bond b2 := MakeSingleBond(n1, h1)
+Bond b3 := MakeSingleBond(n1, h2)
+Bond b4 := MakeSingleBond(n2, h3)
+Bond b5 := MakeSingleBond(n2, h4)
+-- electrons
+ZeroValenceElectrons(h1)
+ZeroValenceElectrons(h2)
+ZeroValenceElectrons(h3)
+ZeroValenceElectrons(h4)
+TwoValenceElectrons(n1)
+TwoValenceElectrons(n2)

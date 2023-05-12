@@ -1,11 +1,10 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
 import { LineProps } from "../shapes/Line";
-import { ShapeType } from "../shapes/Shapes";
+import { Shape, ShapeType } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A } from "../types/ast";
 import { Either, Left, Right } from "../types/common";
-import { Properties } from "../types/shape";
 import { Fn } from "../types/state";
 import { BindingForm, Expr, Path } from "../types/style";
 import {
@@ -15,6 +14,15 @@ import {
   ResolvedPath,
   WithContext,
 } from "../types/styleSemantics";
+import {
+  ShapeT,
+  TypeDesc,
+  UnionT,
+  ValueShapeT,
+  ValueT,
+  ValueType,
+  valueTypeDesc,
+} from "../types/types";
 import {
   BoolV,
   Color,
@@ -26,6 +34,7 @@ import {
   PathCmd,
   PathDataV,
   PtListV,
+  ShapeListV,
   StrV,
   TupV,
   Val,
@@ -480,42 +489,27 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
 //#region geometry
 
 // calculates bounding box dimensions of a shape - used in inspector views
-export const bBoxDims = (
-  properties: Properties<number>,
-  shapeType: ShapeType
-): [number, number] => {
+export const bBoxDims = (shape: Shape<number>): [number, number] => {
   let [w, h] = [0, 0];
-  if (shapeType === "Circle") {
-    [w, h] = [
-      (properties.r.contents as number) * 2,
-      (properties.r.contents as number) * 2,
-    ];
-  } else if (shapeType === "Ellipse") {
-    [w, h] = [
-      (properties.rx.contents as number) * 2,
-      (properties.ry.contents as number) * 2,
-    ];
-  } else if (shapeType === "Line") {
-    const [[sx, sy], [ex, ey]] = [
-      properties.start.contents as [number, number],
-      properties.end.contents as [number, number],
-    ];
+  if (shape.shapeType === "Circle") {
+    [w, h] = [shape.r.contents * 2, shape.r.contents * 2];
+  } else if (shape.shapeType === "Ellipse") {
+    [w, h] = [shape.rx.contents * 2, shape.ry.contents * 2];
+  } else if (shape.shapeType === "Line") {
+    const [[sx, sy], [ex, ey]] = [shape.start.contents, shape.end.contents];
     const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
     [w, h] = [
       Math.max(Math.abs(ex - sx), padding),
       Math.max(Math.abs(ey - sy), padding),
     ];
-  } else if (shapeType === "Path") {
+  } else if (shape.shapeType === "Path") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (shapeType === "Polygon") {
+  } else if (shape.shapeType === "Polygon") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (shapeType === "Polyline") {
+  } else if (shape.shapeType === "Polyline") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if ("width" in properties && "height" in properties) {
-    [w, h] = [
-      properties.width.contents as number,
-      properties.height.contents as number,
-    ];
+  } else if ("width" in shape && "height" in shape) {
+    [w, h] = [shape.width.contents, shape.height.contents];
   } else {
     [w, h] = [20, 20];
   }
@@ -623,12 +617,84 @@ export const llistV = (contents: ad.Num[][]): LListV<ad.Num> => ({
   contents,
 });
 
+export const shapeListV = (contents: Shape<ad.Num>[]): ShapeListV<ad.Num> => ({
+  tag: "ShapeListV",
+  contents,
+});
+
 export const black = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
 export const white = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [1, 1, 1, 1] });
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
+
+//#endregion
+
+//#region Type
+
+export const describeType = (t: ValueShapeT): TypeDesc => {
+  if (t.tag === "ValueT") {
+    return valueTypeDesc[t.type];
+  } else if (t.tag === "ShapeT") {
+    if (t.type === "AnyShape") {
+      return {
+        description: "Any Shape",
+        symbol: "Shape",
+      };
+    } else {
+      return { description: t.type + " Shape", symbol: t.type + "Shape" };
+    }
+  } else {
+    const descs = t.types.map(describeType);
+    const descriptions = descs.map((d) => d.description);
+    const symbols = descs.map((d) => d.symbol);
+
+    return {
+      description: "any of: " + descriptions.join(", or "),
+      symbol: symbols.join(" | "),
+    };
+  }
+};
+
+export const valueT = (type: ValueType): ValueT => ({
+  tag: "ValueT",
+  type,
+});
+
+export const real2T = (): ValueT => valueT("Real2");
+export const real3T = (): ValueT => valueT("Real3");
+export const realT = (): ValueT => valueT("Real");
+export const unitT = (): ValueT => valueT("Unit");
+export const realNT = (): ValueT => valueT("RealN");
+export const natT = (): ValueT => valueT("Nat");
+export const pathCmdT = (): ValueT => valueT("PathCmd");
+export const colorT = (): ValueT => valueT("Color");
+export const pathTypeT = (): ValueT => valueT("PathType");
+export const colorTypeT = (): ValueT => valueT("ColorType");
+export const real2NT = (): ValueT => valueT("Real2N");
+export const stringT = (): ValueT => valueT("String");
+export const posIntT = (): ValueT => valueT("PosInt");
+export const booleanT = (): ValueT => valueT("Boolean");
+export const realNMT = (): ValueT => valueT("RealNM");
+
+export const shapeT = (type: ShapeType | "AnyShape"): ShapeT => ({
+  tag: "ShapeT",
+  type,
+});
+
+export const unionT = (...types: ValueShapeT[]): UnionT => ({
+  tag: "UnionT",
+  types,
+});
+
+export const rectlikeT = (): UnionT =>
+  unionT(
+    shapeT("Equation"),
+    shapeT("Image"),
+    shapeT("Rectangle"),
+    shapeT("Text")
+  );
 
 //#endregion
 
@@ -820,14 +886,15 @@ export const val = (v: Value<ad.Num>): Val<ad.Num> => ({
   contents: v,
 });
 
-export const linePts = ({ start, end }: LineProps): [ad.Num[], ad.Num[]] => [
-  start.contents,
-  end.contents,
-];
+export const linePts = ({
+  start,
+  end,
+}: LineProps<ad.Num>): [ad.Num[], ad.Num[]] => [start.contents, end.contents];
 
-export const getStart = ({ start }: LineProps): ad.Num[] => start.contents;
+export const getStart = ({ start }: LineProps<ad.Num>): ad.Num[] =>
+  start.contents;
 
-export const getEnd = ({ end }: LineProps): ad.Num[] => end.contents;
+export const getEnd = ({ end }: LineProps<ad.Num>): ad.Num[] => end.contents;
 
 //#endregion
 
@@ -901,6 +968,15 @@ export const getAdValueAsString = (
       prop.contents
     )}`
   );
+};
+
+/**
+ * Gets the contents of a value as a list of ShapeADs.
+ * If unable, throw an exception.
+ */
+export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
+  if (val.tag === "ShapeListV") return val.contents;
+  throw new Error("Not a list of shapes");
 };
 
 //#endregion
