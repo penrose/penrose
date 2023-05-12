@@ -647,7 +647,8 @@
       "name": "Penrose project timeline",
       "substance": "penrose-timeline",
       "style": "timeline",
-      "domain": "timeline"
+      "domain": "timeline",
+      "variation": ""
     }
   ],
   "domains": {
