@@ -28,6 +28,7 @@
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "dependencies": {
+    "@happy-dom/global-registrator": "^9.18.3",
     "@penrose/core": "^3.0.0-alpha.0",
     "canvas": "^2.11.2",
     "chalk": "^3.0.0",
@@ -35,17 +36,14 @@
     "convert-hrtime": "^3.0.0",
     "global-jsdom": "^8.8.0",
     "jsdom": "^22.0.0",
-    "mathjax-node": "^2.1.1",
     "neodoc": "^2.0.2",
     "prettier": "2.2.1",
     "regenerator-runtime": "^0.13.11",
     "true-myth": "^4.1.1",
-    "tslib": "^2.5.0",
     "tsx": "^3.12.7",
     "uniqid": "^5.4.0"
   },
   "devDependencies": {
-    "@types/node": "^12.12.68",
-    "@types/react": "^18.0.26"
+    "@types/node": "^12.12.68"
   }
 }

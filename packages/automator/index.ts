@@ -2,7 +2,6 @@ import "global-jsdom/register"; // must be first
 
 import {
   compileTrio,
-  evalEnergy,
   makeCanvas,
   prepareState,
   RenderStatic,
@@ -22,6 +21,7 @@ import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
 import prettier from "prettier";
 import uniqid from "uniqid";
+import { printTextChart } from "./artifacts";
 import draw from "./draw";
 import { AggregateData, InstanceData } from "./types";
 
@@ -29,9 +29,9 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
+  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] 
   automator textchart ARTIFACTSFOLDER OUTFILE
-  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] 
   automator shapedefs [SHAPEFILE]
   automator draw-trio TRIOFILE 
 
@@ -40,27 +40,8 @@ Options:
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances
-  --cross-energy Compute the cross-instance energy
-  --variation The variation to use
+  --variation VARIATION The variation to use
 `;
-
-const nonZeroConstraints = (
-  state: any,
-  constrVals: [number],
-  threshold: number
-) => {
-  const constrFns = state.constrFns;
-  const fnsWithVals = constrFns.map((f: any, i: string | number) => [
-    f,
-    constrVals[i],
-  ]);
-  const nonzeroConstr = fnsWithVals.filter(
-    (c: (string | number)[]) => +c[1] > threshold
-  );
-  return nonzeroConstr;
-};
-
-const toMs = (hr: any) => hr[1] / 1000000;
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
@@ -76,11 +57,7 @@ const singleProcess = async (
     styleName: sty,
     domainName: dsl,
     id: uniqid("instance-"),
-  },
-  reference?,
-  referenceState?,
-  extrameta?,
-  ciee?
+  }
 ) => {
   // Fetch Substance, Style, and Domain files
   const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
@@ -146,47 +123,8 @@ const singleProcess = async (
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
 
-  // cross-instance energy evaluation
-
   if (folders) {
-    // TODO: check for non-zero constraints
-    // const energies = JSON.parse(
-    //   await runPenrose(Packets.EnergyValues(optimizedState))
-    // );
-    // const constrs = nonZeroConstraints(optimizedState, energies.contents[1], 1);
-    // if (constrs.length > 0) {
-    //   console.log("This instance has non-zero constraints: ");
-    //   // return;
-    // }
-    let crossEnergy: number = Infinity;
-    if (ciee) {
-      console.log(chalk.yellow(`Computing cross energy...`));
-      if (referenceState) {
-        const crossState = {
-          ...optimizedState,
-          constrFns: referenceState.constrFns,
-          objFns: referenceState.objFns,
-        };
-        try {
-          crossEnergy = evalEnergy(await prepareState(crossState));
-        } catch (e) {
-          console.warn(
-            chalk.yellow(
-              `Cross-instance energy failed. Returning infinity instead. \n${e}`
-            )
-          );
-        }
-      }
-    }
-
     // fetch metadata if available
-    let extraMetadata;
-    if (extrameta) {
-      extraMetadata = JSON.parse(
-        fs.readFileSync(join(prefix, extrameta), "utf8").toString()
-      );
-    }
-
     const metadata: InstanceData = {
       ...meta,
       renderedOn: Date.now(),
@@ -198,17 +136,11 @@ const singleProcess = async (
         optimization: convertHrtime(convergeEnd).milliseconds,
         rendering: convertHrtime(reactRenderEnd).milliseconds,
       },
-      // violatingConstraints: constrs,
-      // nonzeroConstraints: constrs.length > 0,
-      // selectorMatches: optimizedState.selectorMatches,
       selectorMatches: [],
       optProblem: {
         constraintCount: optimizedState.constrFns.length,
         objectiveCount: optimizedState.objFns.length,
       },
-      reference,
-      ciee: crossEnergy,
-      extra: extraMetadata,
     };
     if (!fs.existsSync(out)) {
       fs.mkdirSync(out, { recursive: true });
@@ -255,10 +187,6 @@ const batchProcess = async (
   const trioLibrary = registry["trios"];
   console.log(`Processing ${trioLibrary.length} substance files...`);
 
-  let referenceFlag = true;
-  let reference = trioLibrary[0];
-  let referenceState = undefined;
-
   const finalMetadata: AggregateData = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
@@ -270,15 +198,6 @@ const batchProcess = async (
       const { name: subName, URI: subURI } = substanceLibrary[substance];
       const { name: styName, URI: styURI, plugin } = styleLibrary[style];
       const { name: dslName, URI: dslURI } = domainLibrary[domain];
-
-      if (plugin) {
-        console.log(
-          chalk.red(
-            `Skipping "${name}" (${subURI}) for now; this domain requires a plugin or has known issues.`
-          )
-        );
-        continue;
-      }
 
       // Warning: will face id conflicts if parallelism used
       const res = await singleProcess(
@@ -294,18 +213,10 @@ const batchProcess = async (
           styleName: styName,
           domainName: dslName,
           id,
-        },
-        reference,
-        referenceState,
-        meta
+        }
       );
       if (folders && res !== undefined) {
-        const { metadata, state } = res;
-        if (referenceFlag) {
-          referenceState = state;
-          referenceFlag = false;
-        }
-        finalMetadata[id] = metadata;
+        finalMetadata[id] = res.metadata;
       }
     } catch (e) {
       process.exitCode = 1;
@@ -354,8 +265,6 @@ const getShapeDefs = (outFile?: string): void => {
 
     // Loop over the properties
     for (const propName in shapeSample1) {
-      const outThisShapeProp = {};
-
       const sample1Str = JSON.stringify(shapeSample1[propName].contents);
       const sample2Str = JSON.stringify(shapeSample2[propName].contents);
 
@@ -385,7 +294,6 @@ const getShapeDefs = (outFile?: string): void => {
 
   // Determine the output file path
   const folders = args["--folders"] || false;
-  const ciee = args["--cross-energy"] || false;
   const outFile =
     args["--outFile"] || join(args.OUTFOLDER || "./", "output.svg");
   const times = args["--repeat"] || 1;
@@ -410,12 +318,10 @@ const getShapeDefs = (outFile?: string): void => {
         styleName: args.STYLE,
         domainName: args.DOMAIN,
         id: uniqid("instance-"),
-      },
-      undefined, // reference
-      undefined, // referenceState
-      undefined, // extraMetadata
-      ciee
+      }
     );
+  } else if (args.textchart) {
+    printTextChart(args.ARTIFACTSFOLDER, args.OUTFILE);
   } else if (args.shapedefs) {
     getShapeDefs(args["SHAPEFILE"]);
   } else if (args["draw-trio"]) {
