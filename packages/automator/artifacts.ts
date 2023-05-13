@@ -8,8 +8,8 @@ const PAGELEN = 5;
 const gridLink = "grid.html";
 const statLink = "vis.html";
 
-const mainTemplate = pug.compileFile("template.pug");
-const statTemplate = pug.compileFile("stat.pug");
+const mainTemplate = pug.compileFile("./template.pug");
+const statTemplate = pug.compileFile("./stat.pug");
 
 interface Artifact {
   substance: string;

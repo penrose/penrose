@@ -22,7 +22,6 @@ import fetch from "node-fetch";
 import { dirname, join, parse, resolve } from "path";
 import prettier from "prettier";
 import uniqid from "uniqid";
-import { printTextChart, renderArtifacts } from "./artifacts";
 import draw from "./draw";
 import { AggregateData, InstanceData } from "./types";
 
@@ -31,7 +30,6 @@ Penrose Automator.
 
 Usage:
   automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
-  automator render ARTIFACTSFOLDER OUTFOLDER
   automator textchart ARTIFACTSFOLDER OUTFILE
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
   automator shapedefs [SHAPEFILE]
@@ -388,7 +386,6 @@ const getShapeDefs = (outFile?: string): void => {
   // Determine the output file path
   const folders = args["--folders"] || false;
   const ciee = args["--cross-energy"] || false;
-  const browserFolder = args["--render"];
   const outFile =
     args["--outFile"] || join(args.OUTFOLDER || "./", "output.svg");
   const times = args["--repeat"] || 1;
@@ -399,13 +396,6 @@ const getShapeDefs = (outFile?: string): void => {
     for (let i = 0; i < times; i++) {
       await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
     }
-    if (browserFolder) {
-      renderArtifacts(args.OUTFOLDER, browserFolder);
-    }
-  } else if (args.render) {
-    renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
-  } else if (args.textchart) {
-    printTextChart(args.ARTIFACTSFOLDER, args.OUTFILE);
   } else if (args.draw) {
     await singleProcess(
       variation,

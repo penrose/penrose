@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "bin": {
-    "penrose": "./bin/run.js"
+    "automator": "./bin/run.js"
   },
   "nx": {
     "targets": {
