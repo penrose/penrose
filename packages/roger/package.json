@@ -8,8 +8,6 @@
     "build": "tsc",
     "build-decls": ":",
     "start": "tsx ./index.ts",
-    "generate-site": "yarn clean && yarn start batch registry.json artifacts --render=browser --src-prefix=progs --folders --cross-energy",
-    "clean": "rimraf artifacts browser",
     "typecheck": "tsc --noEmit"
   },
   "bin": {
@@ -37,6 +35,7 @@
     "neodoc": "^2.0.2",
     "prettier": "2.2.1",
     "regenerator-runtime": "^0.13.11",
+    "@penrose/core": "^3.0.0-alpha.0",
     "true-myth": "^4.1.1",
     "tsx": "^3.12.7",
     "uniqid": "^5.4.0",
