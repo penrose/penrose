@@ -15,10 +15,7 @@
       "name": "✨ penrose",
       "path": "."
     },
-    {
-      "name": "📦 @penrose/automator",
-      "path": "packages/automator"
-    },
+
     {
       "name": "📦 @penrose/components",
       "path": "packages/components"

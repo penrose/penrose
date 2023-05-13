@@ -63,7 +63,7 @@ export default async function (name: string, variation?: string) {
     const joined = path.resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
   };
-  const canvas = (await RenderStatic(optimizedState, resolvePath, "automator"))
+  const canvas = (await RenderStatic(optimizedState, resolvePath, "roger"))
     .outerHTML;
 
   // write to file

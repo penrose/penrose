@@ -1,16 +1,28 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "importHelpers": true,
+    "module": "es2022",
+    "allowJs": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "commonjs",
+    "target": "es2017",
+    "moduleResolution": "Node",
+    "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "jsx": "react",
+    "typeRoots": ["./node_modules/@types"],
+    "lib": ["es5", "es6", "es7", "esnext", "dom"],
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "noUnusedLocals": false,
     "skipLibCheck": true,
-    "strict": true,
-    "target": "es2019",
-    "noImplicitAny": false
-  },
-  "include": ["src/**/*"]
+    "downlevelIteration": true,
+    "types": ["jest", "node", "tslib"],
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true
+  }
 }

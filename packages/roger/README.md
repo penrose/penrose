@@ -1,51 +1,46 @@
-# @penrose/roger
+# `@penrose/roger`: a headless renderer for Penrose
 
-`roger` is the command-line interface for the Penrose platform. Currently, it is mostly used for local development. `roger` serves and watches changes to Domain, Substance, and Style files in the local file system.
+This package is a command-line application that depends on `@penrose/core` and batch-processes multiple Penrose diagrams.
 
-<!-- toc -->
-* [@penrose/roger](#penroseroger)
-* [Usage](#usage)
-* [Commands](#commands)
-<!-- tocstop -->
-
-# Usage
-
-<!-- usage -->
-```sh-session
-$ npm install -g @penrose/roger
-$ roger COMMAND
-running command...
-$ roger (--version)
-@penrose/roger/3.0.0-alpha.0 linux-x64 node-v18.12.1
-$ roger --help [COMMAND]
-USAGE
-  $ roger COMMAND
-...
-```
-<!-- usagestop -->
-
-# Commands
-
-<!-- commands -->
-* [`roger watch`](#roger-watch)
-
-## `roger watch`
-
-Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)
+Usage:
 
 ```
-USAGE
-  $ roger watch [-p <value>]
+Penrose roger.
 
-FLAGS
-  -p, --port=<value>  [default: 9160] websocket port to serve to frontend
+Usage:
+  roger batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
+  roger render ARTIFACTSFOLDER OUTFOLDER
+  roger textchart ARTIFACTSFOLDER OUTFILE
+  roger draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
+  roger shapedefs [SHAPEFILE]
 
-DESCRIPTION
-  Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)
-
-EXAMPLES
-  $ roger watch
+Options:
+  -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
+  --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
+  --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
+  --repeat TIMES the number of instances
+  --cross-energy Compute the cross-instance energy
+  --variation The variation to use
 ```
 
-_See code: [dist/commands/watch.js](https://github.com/penrose/penrose/blob/v3.0.0-alpha.0/dist/commands/watch.js)_
-<!-- commandsstop -->
+## Getting started
+
+- Follow the instruction in the [wiki page](https://github.com/penrose/penrose/wiki/Building-and-running) to install Penrose.
+- Run `yarn start batch registry.json out/ --src-prefix=../examples/src/` in this directory. The output SVGs will appear in `out`.
+
+## Using `roger` for local development
+
+- If you are developing a module in `core` (e.g. `Synthesizer`), you can run `yarn start` in the project root direcory, which will continuously watch your changes in `core` and update your build.
+- Check the console before you run `roger` to make sure your changes in `core` are not causing any errors.
+- If the build is successful, `roger` will now be using the most recent version of `core` when batch-processing Penrose programs.
+
+## Static site generation
+
+In addition to batch-processing Penrose programs, you can also use `roger` to generate a static site for viewing the diagrams and metadata (e.g. performance statistics). Here's an example:
+
+- Run `yarn start batch registry.json out --src-prefix=../examples/src/ --folders` in this directory.
+  - Different from the example above, the `--folders` option asks `roger` to output metadata along with SVGs. `roger render` requires the output to have associated metadata.
+- Run `yarn start render out browser` to generate a static site.
+- Open `browser/index.html` to view the result.
+
+![](docs/penrose-artifacts.png)

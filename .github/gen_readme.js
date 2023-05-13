@@ -39,7 +39,7 @@ execFileSync(
     "--variation",
     variation,
   ],
-  { cwd: "packages/automator", stdio: "inherit" }
+  { cwd: "packages/roger", stdio: "inherit" }
 );
 
 for (const name of ["domain", "substance", "style"])

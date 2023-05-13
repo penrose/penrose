@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nx run-many --target=build --verbose",
     "typecheck": "nx run-many --target=typecheck --verbose",
-    "build:automator": "nx run automator:build",
+    "build:roger": "nx run roger:build",
     "build:docs-site": "nx run docs-site:build",
     "start:docs-site": "nx run docs-site:dev",
     "start": "nx run editor:watch",
@@ -40,7 +40,6 @@
   },
   "workspaces": {
     "packages": [
-      "packages/automator",
       "packages/components",
       "packages/core",
       "packages/docs-site",

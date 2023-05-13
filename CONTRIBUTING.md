@@ -308,7 +308,7 @@ npx nx run core:test-watch
 
 The CI process runs a test that checks whether the set-venn-diagram example generates the same image that goes onto the `README` page. If you made changes to Penrose, it might generate something different from the image on the README page. If this is expected, update the `README` image by doing the following:
 
-- Build `@penrose/automator`
+- Build `@penrose/roger`
 - Run `.github/gen_readme.js`
 
 This should update the image that is placed onto the `README` page.

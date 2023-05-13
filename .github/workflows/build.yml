@@ -61,8 +61,8 @@ jobs:
         uses: ./.github/actions/setup
       - name: Regenerate CONTRIBUTING.md table of contents
         run: yarn toc
-      - name: Build @penrose/automator
-        run: yarn build:automator
+      - name: Build @penrose/roger
+        run: yarn build:roger
       - name: Regenerate example diagram and README.md
         run: .github/gen_readme.js
       - name: Check whether anything changed
@@ -79,16 +79,16 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
-      - name: Build @penrose/automator
-        run: yarn build:automator
+      - name: Build @penrose/roger
+        run: yarn build:roger
       - name: Generate diagrams and metadata
-        working-directory: packages/automator/
+        working-directory: packages/roger/
         run: yarn start batch registry.json out/ --src-prefix=../examples/src/ --folders
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
           name: diagrams
-          path: packages/automator/out/
+          path: packages/roger/out/
       - name: Checkout target
         uses: actions/checkout@v3
         with:
@@ -104,8 +104,8 @@ jobs:
       - name: Copy diagrams to target
         run: |
           set -x
-          for filename in packages/automator/out/*/output.svg; do
-            dir=${filename#packages/automator/out/}
+          for filename in packages/roger/out/*/output.svg; do
+            dir=${filename#packages/roger/out/}
             name=${dir%/output.svg}
             cp "$filename" "diagrams/$name.svg"
           done
@@ -137,7 +137,7 @@ jobs:
 
           rm diff.md
       - name: Generate performance summary
-        working-directory: packages/automator/
+        working-directory: packages/roger/
         run: |
           set -x
 
