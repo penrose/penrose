@@ -1,7 +1,6 @@
 {
   "name": "@penrose/automator",
   "version": "2.3.0",
-  "private": true,
   "description": "",
   "type": "module",
   "main": "index.tsx",
@@ -39,6 +38,7 @@
     "jsdom": "^16.4.0",
     "mathjax-node": "^2.1.1",
     "neodoc": "^2.0.2",
+    "prettier": "2.2.1",
     "pug": ">=3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -46,13 +46,13 @@
     "true-myth": "^4.1.1",
     "tslib": "^2.0.3",
     "uniqid": "^5.2.0",
-    "vega-lite": "^4.0.2"
-  },
-  "devDependencies": {
+    "vega-lite": "^4.0.2",
     "@swc/core": "^1.3.21",
     "@swc/helpers": "^0.4.14",
-    "@types/node": "^12.12.68",
-    "regenerator-runtime": "^0.13.11",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "regenerator-runtime": "^0.13.11"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.68"
   }
 }

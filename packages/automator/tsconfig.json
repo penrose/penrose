@@ -24,14 +24,5 @@
     "declarationMap": true,
     "noImplicitThis": true,
     "strictNullChecks": true
-  },
-  "COMBAK-leftOffForNowDueToErrors": {
-    "noImplicitAny": true,
-    "strict": true
-  },
-  "ts-node": {
-    "swc": true,
-    "esm": true,
-    "experimentalSpecifierResolution": "node"
   }
 }
