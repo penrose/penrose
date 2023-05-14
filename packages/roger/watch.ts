@@ -3,19 +3,6 @@ import { promises as fs } from "fs";
 import { parse, resolve } from "path";
 import WS, { WebSocketServer } from "ws";
 
-// static description =
-//   "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)";
-
-// static examples = ["<%= config.bin %> <%= command.id %>"];
-
-// static flags = {
-//   port: Flags.integer({
-//     char: "p",
-//     description: "websocket port to serve to frontend",
-//     default: 9160,
-//   }),
-// };
-
 let wss: WS.Server | null = null;
 
 const files: { substance: string[]; style: string[]; domain: string[] } = {

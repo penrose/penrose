@@ -8,16 +8,16 @@ Usage:
 Penrose roger.
 
 Usage:
-  roger batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
+  roger batch LIB OUTFOLDER [--folders] [--path=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
   roger render ARTIFACTSFOLDER OUTFOLDER
   roger textchart ARTIFACTSFOLDER OUTFILE
-  roger draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
+  roger draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--path=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
   roger shapedefs [SHAPEFILE]
 
 Options:
   -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
-  --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
+  --path PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances
   --cross-energy Compute the cross-instance energy
   --variation The variation to use
@@ -26,7 +26,7 @@ Options:
 ## Getting started
 
 - Follow the instruction in the [wiki page](https://github.com/penrose/penrose/wiki/Building-and-running) to install Penrose.
-- Run `yarn start batch registry.json out/ --src-prefix=../examples/src/` in this directory. The output SVGs will appear in `out`.
+- Run `yarn start batch registry.json out/ --path=../examples/src/` in this directory. The output SVGs will appear in `out`.
 
 ## Using `roger` for local development
 
@@ -38,7 +38,7 @@ Options:
 
 In addition to batch-processing Penrose programs, you can also use `roger` to generate a static site for viewing the diagrams and metadata (e.g. performance statistics). Here's an example:
 
-- Run `yarn start batch registry.json out --src-prefix=../examples/src/ --folders` in this directory.
+- Run `yarn start batch registry.json out --path=../examples/src/ --folders` in this directory.
   - Different from the example above, the `--folders` option asks `roger` to output metadata along with SVGs. `roger render` requires the output to have associated metadata.
 - Run `yarn start render out browser` to generate a static site.
 - Open `browser/index.html` to view the result.

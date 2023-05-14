@@ -35,7 +35,7 @@ execFileSync(
     styURI,
     dslURI,
     "../../docs/assets",
-    "--src-prefix=../examples/src",
+    "--path=../examples/src",
     "--variation",
     variation,
   ],

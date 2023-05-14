@@ -83,7 +83,7 @@ jobs:
         run: yarn build:roger
       - name: Generate diagrams and metadata
         working-directory: packages/roger/
-        run: yarn start batch registry.json out/ --src-prefix=../examples/src/ --folders
+        run: yarn start batch registry.json out/ --path=../examples/src/ --folders
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:

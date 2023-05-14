@@ -30,9 +30,9 @@ const USAGE = `
 Penrose roger.
 
 Usage:
-  roger batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] 
+  roger batch LIB OUTFOLDER [--folders] [--path=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] 
   roger textchart ARTIFACTSFOLDER OUTFILE
-  roger draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--variation=VARIATION] [--folders] 
+  roger draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--path=PREFIX] [--variation=VARIATION] [--folders] 
   roger shapedefs [SHAPEFILE]
   roger draw-trio TRIOFILE 
   roger watch
@@ -40,7 +40,7 @@ Usage:
 Options:
   -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
-  --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
+  --path PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances
   --variation VARIATION The variation to use
 `;
@@ -297,7 +297,7 @@ const args = neodoc.run(USAGE, { smartOptions: true });
 const folders = args["--folders"] || false;
 const outFile = args["--outFile"] || join(args.OUTFOLDER || "./", "output.svg");
 const times = args["--repeat"] || 1;
-const prefix = args["--src-prefix"];
+const prefix = args["--path"];
 const variation = args["--variation"] || randomBytes(20).toString("hex");
 
 if (args.batch) {
