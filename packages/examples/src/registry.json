@@ -663,6 +663,13 @@
       "style": "closed-elastic-curve",
       "domain": "curve-examples",
       "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Blobs",
+      "substance": "blobs",
+      "style": "blobs",
+      "domain": "blobs",
+      "variation": "ClamshellKookabura228"
     }
   ],
   "domains": {
@@ -758,6 +765,9 @@
     },
     "curve-examples": {
       "URI": "curve-examples/curves.domain"
+    },
+    "blobs": {
+      "URI": "curve-examples/blobs.domain"
     }
   },
   "styles": {
@@ -928,6 +938,10 @@
     "closed-elastic-curve": {
       "domain": "curve-examples",
       "URI": "curve-examples/closed-elastic-curve.style"
+    },
+    "blobs": {
+      "domain": "blobs",
+      "URI": "curve-examples/blobs.style"
     }
   },
   "substances": {
@@ -1298,6 +1312,10 @@
     "sec5-ex32": {
       "domain": "simple-directed-graph",
       "URI": "graph-domain/textbook/sec5/ex32.substance"
+    },
+    "blobs": {
+      "domain": "blobs",
+      "URI": "curve-examples/blobs.substance"
     }
   }
 }
