@@ -1,0 +1,16 @@
+
+Vertex Glu, Glu6P, Fru6P, Fru16BP, GAP, DHAP, BPG13, PG3, PG2, PEP, Pyr
+
+Edge(Glu, Glu6P)
+Edge(Glu6P, Fru6P)
+Edge(Fru6P, Fru16BP)
+Edge(Fru16BP, GAP)
+Edge(Fru16BP, DHAP)
+Edge(GAP, BPG13)
+Edge(DHAP, GAP)
+Edge(BPG13, PG3)
+Edge(PG3, PG2)
+Edge(PG2, PEP)
+Edge(PEP, Pyr)
+
+AutoLabel All
