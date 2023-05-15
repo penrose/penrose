@@ -30,6 +30,7 @@ import {
   log2,
   lt,
   max,
+  maxN,
   min,
   minN,
   mul,
@@ -720,6 +721,52 @@ export const compDict = {
       };
     },
     returns: valueT("Real"),
+  },
+
+  sum: {
+    name: "sum",
+    description: "Return the sum of elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: addN(xs),
+      };
+    },
+    returns: realT(),
+  },
+
+  maxN: {
+    name: "maxN",
+    description: "Return the maximum of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: maxN(xs),
+    }),
+    returns: realT(),
+  },
+
+  minN: {
+    name: "minN",
+    description: "Return the minimum of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: minN(xs),
+    }),
+    returns: realT(),
+  },
+
+  count: {
+    name: "count",
+    description: "Return the number of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: xs.length,
+    }),
+    returns: realT(),
   },
 
   /**

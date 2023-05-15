@@ -209,6 +209,8 @@ export type StyleError =
   | TooManyArgumentsError
   | FunctionInternalError
   | RedeclareNamespaceError
+  | UnexpectedCollectionAccessError
+  | IncompatibleCollectionAccessError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -493,6 +495,19 @@ export interface RedeclareNamespaceError {
   tag: "RedeclareNamespaceError";
   existingNamespace: string;
   location: SourceRange; // location of the duplicated declaration
+}
+
+export interface UnexpectedCollectionAccessError {
+  tag: "UnexpectedCollectionAccessError";
+  name: string;
+  location: SourceRange;
+}
+
+export interface IncompatibleCollectionAccessError {
+  tag: "IncompatibleCollectionAccessError";
+  name: string;
+  field: string;
+  location: SourceRange;
 }
 
 //#endregion

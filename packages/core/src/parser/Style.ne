@@ -8,7 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
 import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
 } from "../types/style";
 
 const styleTypes: string[] =
@@ -45,8 +45,10 @@ const lexer = moo.compile({
       // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
       // "type-keyword": styleTypes, 
       forall: "forall",
+      collect: "collect",
       where: "where",
       with: "with",
+      groupby: "groupby",
       delete: "delete",
       as: "as",
       true: "true",
@@ -95,7 +97,7 @@ const selector = (
 
 const collector = (
   hd: DeclPattern<C>,
-  it: Identifier<C>,
+  it: BindingForm<C>,
   whr?: RelationPatterns<C>,
   wth?: DeclPatterns<C>,
   gb?: DeclPatterns<C>
@@ -184,9 +186,25 @@ selector ->
   | forall decl_patterns _ml select_with select_where 
     {% (d) => selector(d[1], d[3], d[4]) %}
 
+# only allowing order of 
+# collect __ into __ where __ with __ groupby __
 collector ->
-    collect decl _ml into _ml select_where select_with groupby
+    collect decl _ml into _ml
+    {% (d) => collector(d[1], d[3], undefined, undefined, undefined) %}
+  | collect decl _ml into _ml select_where
+    {% (d) => collector(d[1], d[3], d[5], undefined, undefined) %}
+  | collect decl _ml into _ml select_where select_with
+    {% (d) => collector(d[1], d[3], d[5], d[6], undefined) %}
+  | collect decl _ml into _ml select_where select_with groupby
     {% (d) => collector(d[1], d[3], d[5], d[6], d[7]) %}
+  | collect decl _ml into _ml select_where groupby
+    {% (d) => collector(d[1], d[3], d[5], undefined, d[6]) %}
+  | collect decl _ml into _ml select_with
+    {% (d) => collector(d[1], d[3], undefined, d[5], undefined) %}
+  | collect decl _ml into _ml select_with groupby
+    {% (d) => collector(d[1], d[3], undefined, d[5], d[6]) %}
+  | collect decl _ml into _ml groupby
+    {% (d) => collector(d[1], d[3], undefined, undefined, d[5]) %}
 
 into -> "into" __ binding_form {% nth(2) %}
 
@@ -462,7 +480,15 @@ expr -> arithmeticExpr {% id %}
 parenthesized 
   -> "(" _ arithmeticExpr _ ")" {% nth(2) %}
   |  expr_literal               {% id %}
+  |  collection_access          {% id %}
 
+collection_access
+  -> identifier _ "$" _ identifier {% ([name, , , , field]): CollectionAccess<C> => ({
+    ...nodeData,
+    ...rangeBetween(name, field),
+    tag: "CollectionAccess",
+    name, field
+  })%}
 # Unary ops 
 unary 
   -> "-" _ parenthesized  {% (d): UOp<C> => 

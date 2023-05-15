@@ -22,6 +22,7 @@ import {
   DuplicateName,
   FatalError,
   FunctionInternalError,
+  IncompatibleCollectionAccessError,
   InvalidColorLiteral,
   MissingArgumentError,
   NaNError,
@@ -39,6 +40,7 @@ import {
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
+  UnexpectedCollectionAccessError,
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors";
@@ -518,6 +520,17 @@ canvas {
       } already exists and is redeclared in ${locc("Style", error.location)}.`;
     }
 
+    case "UnexpectedCollectionAccessError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
+    }
+
+    case "IncompatibleCollectionAccessError": {
+      const { name, field, location } = error;
+      const locStr = locc("Style", location);
+      return `Cannot index into the \`${field}\` field of collection \`${name}\` (at ${locStr}) because the fields have incompatible types.`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -782,6 +795,26 @@ export const redeclareNamespaceError = (
 ): RedeclareNamespaceError => ({
   tag: "RedeclareNamespaceError",
   existingNamespace,
+  location,
+});
+
+export const unexpectedCollectionAccessError = (
+  name: string,
+  location: SourceRange
+): UnexpectedCollectionAccessError => ({
+  tag: "UnexpectedCollectionAccessError",
+  name,
+  location,
+});
+
+export const incompatibleCollectionAccessError = (
+  name: string,
+  field: string,
+  location: SourceRange
+): IncompatibleCollectionAccessError => ({
+  tag: "IncompatibleCollectionAccessError",
+  name,
+  field,
   location,
 });
 
