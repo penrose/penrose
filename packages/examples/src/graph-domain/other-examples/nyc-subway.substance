@@ -1,0 +1,16 @@
+
+Vertex TimesSquare, GrandCentral, WallStreet, UnionSquare, CentralPark, Broadway, FultonStreet, ConeyIsland, BarclaysCenter, JFKAirport
+
+Edge(TimesSquare, GrandCentral)
+Edge(TimesSquare, UnionSquare)
+Edge(GrandCentral, UnionSquare)
+Edge(GrandCentral, WallStreet)
+Edge(WallStreet, FultonStreet)
+Edge(UnionSquare, Broadway)
+Edge(Broadway, CentralPark)
+Edge(CentralPark, TimesSquare)
+Edge(FultonStreet, BarclaysCenter)
+Edge(BarclaysCenter, ConeyIsland)
+Edge(JFKAirport, FultonStreet)
+
+AutoLabel All
