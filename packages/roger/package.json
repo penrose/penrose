@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.tsx",
   "scripts": {
-    "build": "tsc",
+    "build": ":",
     "build-decls": ":",
     "start": "tsx ./index.ts",
     "typecheck": "tsc --noEmit"
