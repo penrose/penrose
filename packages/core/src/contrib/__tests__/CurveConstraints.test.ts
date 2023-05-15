@@ -328,10 +328,10 @@ describe("inflectionEnergy", () => {
 
 describe("centerOfMass", () => {
   it.each([
-    [_polygons[6], [250, 2]],
-    [_polygons[7], [250, 4]],
-    [_polygons[8], [150, 6]],
-    [_polylines[10], [50, 8]],
+    [_polygons[6], [250, 50]],
+    [_polygons[7], [250, 100]],
+    [_polygons[8], [150, 125]],
+    [_polylines[10], [50, 100]],
   ])("of %p", (shape: Shape<ad.Num>, expected: number[]) => {
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const result = centerOfMass(points);
