@@ -108,7 +108,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Bug Fixes
 
 - errors for undefined terms in Style selectors ([#660](https://github.com/penrose/penrose/issues/660)) ([e7f1f5f](https://github.com/penrose/penrose/commit/e7f1f5f0d4ca1873875986d1400a6884e52f9c44))
-- `draw` command in `@penrose/roger` ([#937](https://github.com/penrose/penrose/issues/937)) ([261fd4c](https://github.com/penrose/penrose/commit/261fd4cb12f342555572aa40cfc48ffee58dbbfd))
+- `draw` command in `@penrose/automator` ([#937](https://github.com/penrose/penrose/issues/937)) ([261fd4c](https://github.com/penrose/penrose/commit/261fd4cb12f342555572aa40cfc48ffee58dbbfd))
 - `ReferenceError` in storybook ([#1228](https://github.com/penrose/penrose/issues/1228)) ([74a0440](https://github.com/penrose/penrose/commit/74a0440be73053a8fb1105b810308254b2957663))
 - Absolute imports for panels ([#685](https://github.com/penrose/penrose/issues/685)) ([bb0737e](https://github.com/penrose/penrose/commit/bb0737ef3942c1cace308b75bc8aef2a813d0ca1))
 - account for descent in `Text` center computation ([#842](https://github.com/penrose/penrose/issues/842)) ([d9999eb](https://github.com/penrose/penrose/commit/d9999eb7ffa538b20d264f255782c53d52ffe004))
@@ -118,7 +118,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - add labels to unmatched Substance objects in the translation ([#666](https://github.com/penrose/penrose/issues/666)) ([15462a6](https://github.com/penrose/penrose/commit/15462a6d3c56ad4cf2d37369c49eef664f5b4e88))
 - Add Support for images with absolute URLs ([#1033](https://github.com/penrose/penrose/issues/1033)) ([03a9b03](https://github.com/penrose/penrose/commit/03a9b035b0ead1a28dd6980f58a6c42ceea165c5))
 - Allow Docusaurus and IDE co-existence ([#916](https://github.com/penrose/penrose/issues/916)) ([d8aa65f](https://github.com/penrose/penrose/commit/d8aa65f6e681f9e1fdca33417c06cb6fc1b0e978))
-- roger NPE in staged mode. Fixed [#887](https://github.com/penrose/penrose/issues/887) ([#946](https://github.com/penrose/penrose/issues/946)) ([dc50785](https://github.com/penrose/penrose/commit/dc507855ac6d18fc7033c1df7f75efcc181e20c4))
+- Automator NPE in staged mode. Fixed [#887](https://github.com/penrose/penrose/issues/887) ([#946](https://github.com/penrose/penrose/issues/946)) ([dc50785](https://github.com/penrose/penrose/commit/dc507855ac6d18fc7033c1df7f75efcc181e20c4))
 - avoid 404 in homepage try link ([#1187](https://github.com/penrose/penrose/issues/1187)) ([9da7193](https://github.com/penrose/penrose/commit/9da7193e795313980dd1505805909d553c9a4bac))
 - base url ([#997](https://github.com/penrose/penrose/issues/997)) ([d329dd0](https://github.com/penrose/penrose/commit/d329dd067b82b182c2eab1a6436fc8b3657b1975))
 - build `@penrose/core` before deploying storybook ([a87cc23](https://github.com/penrose/penrose/commit/a87cc23b1eea5f30f53a7489223ecd5447a9075a))
@@ -140,7 +140,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - docs site mkdir ([#995](https://github.com/penrose/penrose/issues/995)) ([c149e59](https://github.com/penrose/penrose/commit/c149e596298230e252418f15d0d20edebf27f29b))
 - Docs-site Shape Property page errors and crashes ([#1045](https://github.com/penrose/penrose/issues/1045)) ([880d197](https://github.com/penrose/penrose/commit/880d197aa37290a43cccad9966f313f2d521b32f))
 - empty label check in Style selector ([#789](https://github.com/penrose/penrose/issues/789)) ([f28c1ba](https://github.com/penrose/penrose/commit/f28c1ba80665e36fc0f10a23383e21b2ad28520d))
-- Fix [#935](https://github.com/penrose/penrose/issues/935) roger fails in draw mode ([#936](https://github.com/penrose/penrose/issues/936)) ([5b3d464](https://github.com/penrose/penrose/commit/5b3d46459c95f9ed68c7f80e3f9219a6171c5008))
+- Fix [#935](https://github.com/penrose/penrose/issues/935) Automator fails in draw mode ([#936](https://github.com/penrose/penrose/issues/936)) ([5b3d464](https://github.com/penrose/penrose/commit/5b3d46459c95f9ed68c7f80e3f9219a6171c5008))
 - GitHub Actions canary release ([#778](https://github.com/penrose/penrose/issues/778)) ([7f8f093](https://github.com/penrose/penrose/commit/7f8f093078694b720acaf3de8f5f78bb4656a097))
 - GitHub Actions canary release ([#780](https://github.com/penrose/penrose/issues/780)) ([00681d5](https://github.com/penrose/penrose/commit/00681d50ee44421e49943f6d0b93ca1975336f13))
 - Give Vite 8 GiB in editor ([#1090](https://github.com/penrose/penrose/issues/1090)) ([3e328c8](https://github.com/penrose/penrose/commit/3e328c81f1843866aac89ebc947b463c08207b80))
@@ -153,7 +153,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - make website routing work ([#1195](https://github.com/penrose/penrose/issues/1195)) ([08f4f61](https://github.com/penrose/penrose/commit/08f4f615bab43c70516548cc275d9ef53b2b5ac6))
 - map `Option::None` to `null`, not `undefined` ([#1191](https://github.com/penrose/penrose/issues/1191)) ([cd195e9](https://github.com/penrose/penrose/commit/cd195e9284c9624573aa88afa98b98ad0fd344f0))
 - multiple matching ([#1063](https://github.com/penrose/penrose/issues/1063)) ([eb0991b](https://github.com/penrose/penrose/commit/eb0991b87145a3547a1a3697e29b5a54619c4a96)), closes [#1064](https://github.com/penrose/penrose/issues/1064) [/github.com/penrose/penrose/issues/1064#issuecomment-1189228125](https://github.com//github.com/penrose/penrose/issues/1064/issues/issuecomment-1189228125)
-- path resolution in `roger` ([#836](https://github.com/penrose/penrose/issues/836)) ([52972af](https://github.com/penrose/penrose/commit/52972af9550fdb4ca4e2ffc6f19f99a10e0a231a))
+- path resolution in `automator` ([#836](https://github.com/penrose/penrose/issues/836)) ([52972af](https://github.com/penrose/penrose/commit/52972af9550fdb4ca4e2ffc6f19f99a10e0a231a))
 - PointcareDisk.sty missing canvas def ([#851](https://github.com/penrose/penrose/issues/851)) ([b20400a](https://github.com/penrose/penrose/commit/b20400ad9a6d6b46d9e00ef1f84281f6755b01c8))
 - Reaction example Style ([#1125](https://github.com/penrose/penrose/issues/1125)) ([6b76d1e](https://github.com/penrose/penrose/commit/6b76d1e5eb96813ede1189f0dfdae82bc801871c))
 - Remove duplicate 'pow' conditional ([#880](https://github.com/penrose/penrose/issues/880)) ([033a259](https://github.com/penrose/penrose/commit/033a2592c38132c2b479c70f76a9f909a9b31a9e))
@@ -269,7 +269,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - resolve paths for included SVGs ([#825](https://github.com/penrose/penrose/issues/825)) ([cedbf1b](https://github.com/penrose/penrose/commit/cedbf1b0f219f013a0c825e08007a2edc3b2c3bc))
 - Signed distance functions for Penrose shapes ([#979](https://github.com/penrose/penrose/issues/979)) ([1a00e4c](https://github.com/penrose/penrose/commit/1a00e4c113c8e1e308612e41528af50665d7b194))
 - Split Optimization Status Tab Into Constraints and Objectives ([#611](https://github.com/penrose/penrose/issues/611)) ([ab9eee9](https://github.com/penrose/penrose/commit/ab9eee988df39ff2afee1c8dfc11ab45b75bc7e3))
-- staged diagram generation in roger ([#610](https://github.com/penrose/penrose/issues/610)) ([3de4a31](https://github.com/penrose/penrose/commit/3de4a31543ddac80ed24274fde66d9e84304daa1))
+- staged diagram generation in automator ([#610](https://github.com/penrose/penrose/issues/610)) ([3de4a31](https://github.com/penrose/penrose/commit/3de4a31543ddac80ed24274fde66d9e84304daa1))
 - Structural formula example ([#734](https://github.com/penrose/penrose/issues/734)) ([bb18a6f](https://github.com/penrose/penrose/commit/bb18a6f56c6881ef6aa7cc9395ecee43670e2655))
 - Style inline color widgets ([#1094](https://github.com/penrose/penrose/issues/1094)) ([3ffdbbe](https://github.com/penrose/penrose/commit/3ffdbbe8aef0a2588962bf242de85d39fa4792c7))
 - Substance mutations as data + refactored program generator ([#601](https://github.com/penrose/penrose/issues/601)) ([da8f9e5](https://github.com/penrose/penrose/commit/da8f9e5cd53043095826f67d095c5cade1ea71fe))
@@ -287,7 +287,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - improve performance of Autodiff ([#796](https://github.com/penrose/penrose/issues/796)) ([8bca6db](https://github.com/penrose/penrose/commit/8bca6dbee81e7bebd6fffa071b683658f04367da))
 - improve performance of symbolic differentiation ([#840](https://github.com/penrose/penrose/issues/840)) ([7b5dd6a](https://github.com/penrose/penrose/commit/7b5dd6a3103268d11b70d6908f0e855484903225))
 - port the optimizer to WebAssembly ([#1092](https://github.com/penrose/penrose/issues/1092)) ([768895a](https://github.com/penrose/penrose/commit/768895a3aac643095f0d139052fa8a139ce28cfb))
-- speed up `roger` using SWC ([#1163](https://github.com/penrose/penrose/issues/1163)) ([516f57e](https://github.com/penrose/penrose/commit/516f57eeddba6110964623c0f88de24cef9d2ccd))
+- speed up `automator` using SWC ([#1163](https://github.com/penrose/penrose/issues/1163)) ([516f57e](https://github.com/penrose/penrose/commit/516f57eeddba6110964623c0f88de24cef9d2ccd))
 
 ### Reverts
 

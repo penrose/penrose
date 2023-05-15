@@ -15,7 +15,6 @@
       "name": "✨ penrose",
       "path": "."
     },
-
     {
       "name": "📦 @penrose/components",
       "path": "packages/components"
