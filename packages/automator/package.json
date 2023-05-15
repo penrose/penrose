@@ -4,11 +4,11 @@
   "private": true,
   "description": "",
   "type": "module",
-  "main": "index.tsx",
+  "main": "index.ts",
   "scripts": {
     "build": ":",
     "build-decls": ":",
-    "start": "ts-node --esm --experimentalSpecifierResolution=node ./index.tsx",
+    "start": "ts-node --esm --experimentalSpecifierResolution=node ./index.ts",
     "generate-site": "yarn clean && yarn start batch registry.json artifacts --render=browser --src-prefix=progs --folders --cross-energy",
     "clean": "rimraf artifacts browser",
     "typecheck": "tsc --noEmit"

@@ -677,6 +677,13 @@
       "style": "simple-curved-graph-boxes",
       "domain": "simple-graph",
       "variation": "BasilTapir4665"
+    },
+    {
+      "name": "Blobs",
+      "substance": "blobs",
+      "style": "blobs",
+      "domain": "blobs",
+      "variation": "LavendaireWombat86913"
     }
   ],
   "domains": {
@@ -772,6 +779,9 @@
     },
     "curve-examples": {
       "URI": "curve-examples/curves.domain"
+    },
+    "blobs": {
+      "URI": "curve-examples/blobs.domain"
     }
   },
   "styles": {
@@ -950,6 +960,10 @@
     "closed-elastic-curve": {
       "domain": "curve-examples",
       "URI": "curve-examples/closed-elastic-curve.style"
+    },
+    "blobs": {
+      "domain": "blobs",
+      "URI": "curve-examples/blobs.style"
     }
   },
   "substances": {
@@ -1328,6 +1342,10 @@
     "nyc-subway": {
       "domain": "simple-graph",
       "URI": "graph-domain/other-examples/nyc-subway.substance"
+    },
+    "blobs": {
+      "domain": "blobs",
+      "URI": "curve-examples/blobs.substance"
     }
   }
 }
