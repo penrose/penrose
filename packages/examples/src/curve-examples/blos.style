@@ -24,9 +24,9 @@ forall Manifold m {
 
   ensure isEquilateral(m.poly) in manifolds
 
-  radius = 80
-  length = 2 * 3.14 * radius
-  area = settings.blobbiness * 3.14 * radius * radius
+  scalar radius = 80
+  scalar length = 2 * settings.pi * radius
+  scalar area = settings.blobbiness * settings.pi * radius * radius
 
   ensure equal(perimeter(m.poly.points, true), length) in manifolds
   ensure equal(signedArea(m.poly.points, true), area) in manifolds
@@ -512,9 +512,6 @@ forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
     endArrowhead: "straight"
   }
 
-  ca = centerOfMass(a.poly.points)
-  cb = centerOfMass(b.poly.points)
-
   pa = closestPoint(a.poly, p0)
   ensure equal(vdist(pa, p0), 15) in maps
 
@@ -534,6 +531,9 @@ forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
   }
 
   ensure equal(vdist(m.eq.center, p24), 20) in maps
+
+  ca = centerOfMass(a.poly.points)
+  cb = centerOfMass(b.poly.points)
   ensure equal(vdist(m.eq.center, ca), vdist(m.eq.center, cb)) in maps
 
 }
