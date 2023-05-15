@@ -669,7 +669,7 @@
       "substance": "blobs",
       "style": "blobs",
       "domain": "blobs",
-      "variation": "InsideMagpie063"
+      "variation": "LavendaireWombat86913"
     }
   ],
   "domains": {
@@ -1315,7 +1315,7 @@
     },
     "blobs": {
       "domain": "blobs",
-      "URI": "curve-examples/3blobs.substance"
+      "URI": "curve-examples/blobs.substance"
     }
   }
 }

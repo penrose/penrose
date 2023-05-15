@@ -1,2 +1,8 @@
 Manifold a, b
+
 Map m := MakeMap(a, b)
+
+Label a "M_1"
+Label b "M_2"
+
+Label m "\phi"
