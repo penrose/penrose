@@ -26,7 +26,7 @@ export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
   return insertPending({
     ...state,
-    varyingValues: state.inputs.map((meta) =>
+    varyingValues: state.inputs.map(({ meta }) =>
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
     ),
     currentStageIndex: 0,
@@ -383,7 +383,7 @@ export type { Canvas } from "./shapes/Samplers";
 export { sampleShape, shapeTypes } from "./shapes/Shapes";
 export type { ShapeType } from "./shapes/Shapes";
 export type { Env } from "./types/domain";
-export type { PenroseError } from "./types/errors";
+export type { PenroseError, Warning as PenroseWarning } from "./types/errors";
 export type { Trio } from "./types/io";
 export type { SubProg } from "./types/substance";
 export * as Value from "./types/value";

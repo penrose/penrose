@@ -3,6 +3,7 @@ import {
   Env,
   PenroseError,
   PenroseState,
+  PenroseWarning,
   readRegistry,
   Trio,
 } from "@penrose/core";
@@ -276,6 +277,7 @@ export type DiagramMetadata = {
 export type Diagram = {
   state: PenroseState | null;
   error: PenroseError | null;
+  warnings: PenroseWarning[];
   metadata: DiagramMetadata;
 };
 
@@ -284,6 +286,7 @@ export const diagramState = atom<Diagram>({
   default: {
     state: null,
     error: null,
+    warnings: [],
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,

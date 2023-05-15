@@ -6,10 +6,14 @@ import {
   div,
   ifCond,
   lte,
+  maxN,
   mul,
+  pow,
   sign,
+  sin,
   squared,
   sub,
+  tan,
 } from "../engine/AutodiffFunctions";
 import { Path } from "../shapes/Path";
 import { Polygon } from "../shapes/Polygon";
@@ -32,21 +36,58 @@ export const equivalued = (x: ad.Num[]): ad.Num => {
   return addN(x.map((y: ad.Num) => squared(sub(y, mean))));
 };
 
+enum CurvatureApproximationMode {
+  FiniteDifferences = "FiniteDifferences",
+  Angle = "Angle",
+  SteinerLineSegment = "SteinerLineSegment",
+  SteinerCorner = "SteinerCorner",
+  OsculatingCircle = "OsculatingCircle",
+}
+
 /**
  * Returns discrete curvature approximation given three consecutive points
  */
 export const curvature = (
   p1: [ad.Num, ad.Num],
   p2: [ad.Num, ad.Num],
-  p3: [ad.Num, ad.Num]
+  p3: [ad.Num, ad.Num],
+  mode: CurvatureApproximationMode = CurvatureApproximationMode.Angle
 ): ad.Num => {
+  // Finite difference approximation of the $\partial_s T = \kappa N$
+  if (mode === CurvatureApproximationMode.FiniteDifferences) {
+    const v12 = ops.vsub(p2, p1);
+    const v23 = ops.vsub(p3, p2);
+    // Tangent vectors corresponding to the 2 edges
+    const t12 = ops.vnormalize(v12);
+    const t23 = ops.vnormalize(v23);
+    // Centers of the 2 edges
+    const p12 = ops.vmul(0.5, ops.vadd(p1, p2));
+    const p23 = ops.vmul(0.5, ops.vadd(p2, p3));
+    // Distance between the edge centers
+    const l123 = ops.vdist(p12, p23);
+    return div(ops.vdist(t23, t12), l123);
+  }
+
+  // Curvature approximation schemes using angle adapted from [1].
+  // [1] K. Crane, M. Wardetzky and J. Hass,
+  //     "A Glimpse into Discrete Differential Geometry",
+  //     Notices of the American Mathematical Society 64(10):1153-1159
+  //     DOI: 10.1090/noti1578
   const v1 = ops.vsub(p2, p1);
   const v2 = ops.vsub(p3, p2);
   const angle = ops.angleFrom(v1, v2);
-  return angle;
-  // Alternative discrete curvature definition
-  // return mul(2, sin(div(angle, 2)));
-  // return mul(2, tan(div(angle, 2)));
+
+  // $\kappa^A$ from [1]
+  if (mode === CurvatureApproximationMode.Angle) return angle;
+  // $\kappa^B$ from [1]
+  if (mode === CurvatureApproximationMode.SteinerLineSegment)
+    return mul(2, sin(div(angle, 2)));
+  // $\kappa^C$ from [1]
+  if (mode === CurvatureApproximationMode.SteinerCorner)
+    return mul(2, tan(div(angle, 2)));
+  // $\kappa^D$ from [1]
+  const w = ops.vdist(p1, p3);
+  return div(mul(2, sin(div(angle, 2))), w);
 };
 
 /**
@@ -103,11 +144,19 @@ export const isoperimetricRatio = (
  */
 export const totalCurvature = (
   points: [ad.Num, ad.Num][],
-  closed: boolean
+  closed: boolean,
+  signed = true
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
+  if (signed) {
+    return addN(
+      triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+    );
+  }
   return addN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      absVal(curvature(p1, p2, p3))
+    )
   );
 };
 
@@ -122,7 +171,60 @@ export const elasticEnergy = (
   return addN(
     triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
       mul(
-        squared(curvature(p1, p2, p3)),
+        squared(
+          curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment)
+        ),
+        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
+      )
+    )
+  );
+};
+
+/**
+ * Returns the sum of all line segment lengths raised to `k`
+ */
+export const lengthK = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean,
+  k: number
+): ad.Num => {
+  const tuples = consecutiveTuples(points, closed);
+  return addN(
+    tuples.map(([p1, p2]: [ad.Num, ad.Num][]) => pow(ops.vdist(p1, p2), k))
+  );
+};
+
+/**
+ * Returns the maximum value of curvature along the curve
+ */
+export const maxCurvature = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  return maxN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      absVal(curvature(p1, p2, p3, CurvatureApproximationMode.OsculatingCircle))
+    )
+  );
+};
+
+/**
+ * Returns integral of curvature raised to `p` along the curve
+ */
+export const pElasticEnergy = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean,
+  p = 2
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  return addN(
+    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+      mul(
+        pow(
+          curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment),
+          p
+        ),
         mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
       )
     )

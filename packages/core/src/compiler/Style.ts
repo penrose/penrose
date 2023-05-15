@@ -3890,13 +3890,15 @@ export const compileStyleHelper = async (
 
   const rng = seedrandom(variation);
   const varyingValues: number[] = [];
-  const inputs: InputMeta[] = [];
+  const inputs: ad.Input[] = [];
+  const metas: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
     const val =
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending;
-    const x = input({ key: varyingValues.length, val });
+    const x = input(val);
     varyingValues.push(val);
-    inputs.push(meta);
+    inputs.push(x);
+    metas.push(meta);
     return x;
   };
 
@@ -3966,16 +3968,16 @@ export const compileStyleHelper = async (
   ];
 
   const constraintSets = stageConstraints(
-    inputs,
+    metas,
     constrFns,
     objFns,
     optimizationStages.value
   );
 
-  const computeShapes = await compileCompGraph(renderGraph);
+  const computeShapes = await compileCompGraph(inputs, renderGraph);
 
   const gradient = await genGradient(
-    varyingValues.length,
+    inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output)
   );
@@ -3990,7 +3992,7 @@ export const compileStyleHelper = async (
     constraintSets,
     constrFns,
     objFns,
-    inputs,
+    inputs: zip2(inputs, metas).map(([handle, meta]) => ({ handle, meta })),
     labelCache: new Map(),
     shapes: renderGraph,
     canvas: canvas.value,

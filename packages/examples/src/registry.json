@@ -642,6 +642,27 @@
       "style": "triangle-mesh-2d",
       "domain": "triangle-mesh-2d",
       "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Curved graph example",
+      "substance": "sec5-ex32",
+      "style": "simple-curved-graph",
+      "domain": "simple-graph",
+      "variation": "CascaraKudu41689"
+    },
+    {
+      "name": "Open elastic curve example",
+      "substance": "cubic-bezier",
+      "style": "open-elastic-curve",
+      "domain": "curve-examples",
+      "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Closed elastic curve example",
+      "substance": "cubic-bezier",
+      "style": "closed-elastic-curve",
+      "domain": "curve-examples",
+      "variation": "ClamshellKookabura228"
     }
   ],
   "domains": {
@@ -895,6 +916,18 @@
     "cubic-bezier": {
       "domain": "curve-examples",
       "URI": "curve-examples/cubic-bezier.style"
+    },
+    "simple-curved-graph": {
+      "domain": "simple-curved-graph",
+      "URI": "graph-domain/simple-curved-graph.style"
+    },
+    "open-elastic-curve": {
+      "domain": "curve-examples",
+      "URI": "curve-examples/open-elastic-curve.style"
+    },
+    "closed-elastic-curve": {
+      "domain": "curve-examples",
+      "URI": "curve-examples/closed-elastic-curve.style"
     }
   },
   "substances": {
@@ -1261,6 +1294,10 @@
     "angle-equivalence": {
       "domain": "triangle-mesh-2d",
       "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
+    },
+    "sec5-ex32": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec5/ex32.substance"
     }
   }
 }

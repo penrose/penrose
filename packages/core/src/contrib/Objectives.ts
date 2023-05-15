@@ -487,6 +487,40 @@ export const objDictSpecific = {
       return add(equilater, equiangular);
     },
   },
+
+  /**
+   * The shape should be equilateral
+   */
+  isEquilateral: {
+    name: "isEquilateral",
+    description: "Try to make the shape equilateral",
+    params: [
+      {
+        name: "s",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+      return constrDictCurves.isEquilateral.body(s);
+    },
+  },
+
+  /**
+   * The shape should be equiangular
+   */
+  isEquiangular: {
+    name: "isEquiangular",
+    description: "Try to make the shape equiangular",
+    params: [
+      {
+        name: "s",
+        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+      },
+    ],
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+      return constrDictCurves.isEquiangular.body(s);
+    },
+  },
 };
 
 export const objDict = {

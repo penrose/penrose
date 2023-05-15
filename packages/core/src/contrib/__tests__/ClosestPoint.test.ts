@@ -1,14 +1,14 @@
-import { Circle, makeCircle } from "../shapes/Circle";
-import { Ellipse, makeEllipse } from "../shapes/Ellipse";
-import { Line, makeLine } from "../shapes/Line";
-import { makePolygon, Polygon } from "../shapes/Polygon";
-import { makePolyline, Polyline } from "../shapes/Polyline";
-import { makeRectangle } from "../shapes/Rectangle";
-import { Context, makeCanvas, simpleContext } from "../shapes/Samplers";
-import * as ad from "../types/ad";
-import { black, floatV, ptListV, vectorV } from "../utils/Util";
-import { compDict } from "./Functions";
-import { numOf, Rectlike } from "./Utils";
+import { Circle, makeCircle } from "../../shapes/Circle";
+import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
+import { Line, makeLine } from "../../shapes/Line";
+import { makePolygon, Polygon } from "../../shapes/Polygon";
+import { makePolyline, Polyline } from "../../shapes/Polyline";
+import { makeRectangle } from "../../shapes/Rectangle";
+import { Context, makeCanvas, simpleContext } from "../../shapes/Samplers";
+import * as ad from "../../types/ad";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util";
+import { compDict } from "../Functions";
+import { numOf, Rectlike } from "../Utils";
 
 const canvas = makeCanvas(800, 700);
 
