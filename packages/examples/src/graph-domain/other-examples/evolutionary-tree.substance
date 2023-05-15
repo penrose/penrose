@@ -1,0 +1,31 @@
+
+Vertex Life, Eucaryote, Bacteria, Archaea, Plantae, Animalia, Fungi, Protista, Cyanobacteria, Proteobacteria, Firmicutes, Actinobacteria, Chlorophyta, Bryophyta, Angiospermae, Porifera, Cnidaria, Mollusca, Arthropoda, Chordata, Ascomycota, Basidiomycota
+
+Edge(Life, Eucaryote)
+Edge(Life, Bacteria)
+Edge(Life, Archaea)
+
+Edge(Eucaryote, Plantae)
+Edge(Eucaryote, Animalia)
+Edge(Eucaryote, Fungi)
+Edge(Eucaryote, Protista)
+
+Edge(Bacteria, Cyanobacteria)
+Edge(Bacteria, Proteobacteria)
+Edge(Bacteria, Firmicutes)
+Edge(Bacteria, Actinobacteria)
+
+Edge(Plantae, Chlorophyta)
+Edge(Plantae, Bryophyta)
+Edge(Plantae, Angiospermae)
+
+Edge(Animalia, Porifera)
+Edge(Animalia, Cnidaria)
+Edge(Animalia, Mollusca)
+Edge(Animalia, Arthropoda)
+Edge(Animalia, Chordata)
+
+Edge(Fungi, Ascomycota)
+Edge(Fungi, Basidiomycota)
+
+AutoLabel All

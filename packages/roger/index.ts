@@ -458,16 +458,4 @@ yargs(hideBin(process.argv))
   )
   .help().argv;
 
-// roger
-//   .command("")
-//   .description("")
-//   .argument("<substance>", "The Substance program")
-//   .argument("<style>", "The Style program")
-//   .argument("<domain>", "The Domain program")
-//   .option("-o, --out <out>", "", "diagram.svg")
-//   .option("-p, --path <path>", "", "")
-//   .option("-v, --variation", "Variation string for the diagram.", "")
-//   .action();
-
-// roger.parse();
 //#endregion

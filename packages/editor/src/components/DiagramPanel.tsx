@@ -109,6 +109,8 @@ export const pathResolver = async (
             })
           );
         });
+      } else {
+        return undefined;
       }
     }
     // TODO: publish images in the gist
