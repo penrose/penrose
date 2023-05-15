@@ -1,0 +1,11 @@
+Manifold a, b, c
+
+Map m := MakeMap(a, b)
+Map n := MakeMap(b, c)
+
+Label a "M_1"
+Label b "M_2"
+Label c "M_3"
+
+Label m "\phi"
+Label n "\psi"

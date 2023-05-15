@@ -1,6 +1,6 @@
 canvas {
-    width = 600
-    height = 600
+  width = 800
+  height = 800
 }
 
 layout = [manifolds, maps]
@@ -9,10 +9,18 @@ settings {
   lineThickness = 2
   arrowThickness = 1.5
   blobbiness = 0.93
-  pi = 3.14
+  pi = 3.14159
+  fontSize = "15px"
+  blobDistance = 300
 }
 
 forall Manifold m {
+
+  shape m.eq = Equation {
+    center: centerOfMass(m.poly.points)
+    string: m.label
+    fontSize: settings.fontSize
+  }
 
   ensure isEquilateral(m.poly) in manifolds
 
@@ -131,6 +139,14 @@ forall Manifold m {
     strokeColor: #000
   }
   
+}
+
+forall Manifold a; Manifold b {
+
+  ca = centerOfMass(a.poly.points)
+  cb = centerOfMass(b.poly.points)
+  ensure lessThan(settings.blobDistance, vdist(ca, cb)) in manifolds
+
 }
 
 forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
@@ -498,7 +514,6 @@ forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
 
   ca = centerOfMass(a.poly.points)
   cb = centerOfMass(b.poly.points)
-  ensure lessThan(300, vdist(ca, cb)) in manifolds
 
   pa = closestPoint(a.poly, p0)
   ensure equal(vdist(pa, p0), 15) in maps
@@ -512,5 +527,13 @@ forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
 
   ensure equal(vdist(pa, p0) + vdist(p0, p1), vdist(pa, p1))
   ensure equal(vdist(pb, p49) + vdist(p48, p49), vdist(pb, p48))
+
+  shape m.eq = Equation {
+    string: m.label
+    fontSize: settings.fontSize
+  }
+
+  ensure equal(vdist(m.eq.center, p24), 20) in maps
+  ensure equal(vdist(m.eq.center, ca), vdist(m.eq.center, cb)) in maps
 
 }
