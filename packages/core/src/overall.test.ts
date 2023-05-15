@@ -1,13 +1,16 @@
 import setTHeory from "@penrose/examples/dist/set-theory-domain";
 import { start } from "@penrose/optimizer";
 import { genGradient } from "./engine/Autodiff";
+import { pow, sub } from "./engine/AutodiffFunctions";
 import {
   compileTrio,
   evalEnergy,
   evalFns,
   prepareState,
+  problem,
   RenderStatic,
   resample,
+  scalar,
   showError,
   stepUntilConvergence,
 } from "./index";
@@ -16,6 +19,14 @@ import { State } from "./types/state";
 
 const vennStyle = setTHeory["venn.style"];
 const setDomain = setTHeory["setTheory.domain"];
+
+describe("API", () => {
+  test("simple constraints", async () => {
+    const x = scalar(10);
+    (await problem(0, [pow(sub(x, 5), 2)])).minimize();
+    expect(x.val).toBeCloseTo(5, 1);
+  });
+});
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>

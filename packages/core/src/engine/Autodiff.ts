@@ -1719,7 +1719,7 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
   t.byte(wasm.END);
 };
 
-const genBytes = (graphs: ad.Graph[]): Uint8Array => {
+export const genBytes = (graphs: ad.Graph[]): Uint8Array => {
   const secondaryKeys = new Map<number, number>();
   for (const { secondary } of graphs) {
     // `forEach` ignores holes
@@ -1772,7 +1772,7 @@ interface Metadata {
   arrSecondary: Float64Array;
 }
 
-const makeMeta = (graphs: ad.Graph[]): Metadata => {
+export const makeMeta = (graphs: ad.Graph[]): Metadata => {
   const offsetInputs = 0;
   const numInputs = Math.max(
     0,
@@ -1815,7 +1815,9 @@ const makeMeta = (graphs: ad.Graph[]): Metadata => {
   };
 };
 
-const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
+export const makeImports = (
+  memory: WebAssembly.Memory
+): WebAssembly.Imports => ({
   [importModule]: {
     [importMemoryName]: memory,
     ...Object.fromEntries(
@@ -1857,7 +1859,7 @@ const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
   },
 });
 
-const getExport = (
+export const getExport = (
   meta: Metadata,
   instance: WebAssembly.Instance
 ): (() => number) => {
