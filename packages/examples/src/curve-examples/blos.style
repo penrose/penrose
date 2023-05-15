@@ -242,17 +242,320 @@ forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
 --   vec2 p98 = (?, ?)
 --   vec2 p99 = (?, ?)
 
+  col = rgba(0, 0, 0, 1)
   shape m.poly = Polyline {
     points: [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49] --, p50, p51, p52, p53, p54, p55, p56, p57, p58, p59, p60, p61, p62, p63, p64, p65, p66, p67, p68, p69, p70, p71, p72, p73, p74, p75,  p76, p77, p78, p79, p80, p81, p82, p83, p84, p85, p86, p87, p88, p89, p90, p91, p92, p93, p94, p95, p96, p97, p98, p99]
     strokeWidth: 2
-    strokeColor: #000
+    strokeColor: #0000
     endArrowhead: "straight"
   }
+
+shape m.s0 = Line {
+  start: p0
+  strokeWidth: 2
+  end: p1
+  strokeColor: rgba(0,0,0,1.0)
+}
+ shape m.s1 = Line {
+  start: p1
+  strokeWidth: 2
+  end: p2
+  strokeColor: rgba(0,0,0,0.98)
+}
+ shape m.s2 = Line {
+  start: p2
+  strokeWidth: 2
+  end: p3
+  strokeColor: rgba(0,0,0,0.96)
+}
+ shape m.s3 = Line {
+  start: p3
+  strokeWidth: 2
+  end: p4
+  strokeColor: rgba(0,0,0,0.94)
+}
+ shape m.s4 = Line {
+  start: p4
+  strokeWidth: 2
+  end: p5
+  strokeColor: rgba(0,0,0,0.92)
+}
+ shape m.s5 = Line {
+  start: p5
+  strokeWidth: 2
+  end: p6
+  strokeColor: rgba(0,0,0,0.9)
+}
+ shape m.s6 = Line {
+  start: p6
+  strokeWidth: 2
+  end: p7
+  strokeColor: rgba(0,0,0,0.88)
+}
+ shape m.s7 = Line {
+  start: p7
+  strokeWidth: 2
+  end: p8
+  strokeColor: rgba(0,0,0,0.86)
+}
+ shape m.s8 = Line {
+  start: p8
+  strokeWidth: 2
+  end: p9
+  strokeColor: rgba(0,0,0,0.84)
+}
+ shape m.s9 = Line {
+  start: p9
+  strokeWidth: 2
+  end: p10
+  strokeColor: rgba(0,0,0,0.8200000000000001)
+}
+ shape m.s10 = Line {
+  start: p10
+  strokeWidth: 2
+  end: p11
+  strokeColor: rgba(0,0,0,0.8)
+}
+ shape m.s11 = Line {
+  start: p11
+  strokeWidth: 2
+  end: p12
+  strokeColor: rgba(0,0,0,0.78)
+}
+ shape m.s12 = Line {
+  start: p12
+  strokeWidth: 2
+  end: p13
+  strokeColor: rgba(0,0,0,0.76)
+}
+ shape m.s13 = Line {
+  start: p13
+  strokeWidth: 2
+  end: p14
+  strokeColor: rgba(0,0,0,0.74)
+}
+ shape m.s14 = Line {
+  start: p14
+  strokeWidth: 2
+  end: p15
+  strokeColor: rgba(0,0,0,0.72)
+}
+ shape m.s15 = Line {
+  start: p15
+  strokeWidth: 2
+  end: p16
+  strokeColor: rgba(0,0,0,0.7)
+}
+ shape m.s16 = Line {
+  start: p16
+  strokeWidth: 2
+  end: p17
+  strokeColor: rgba(0,0,0,0.6799999999999999)
+}
+ shape m.s17 = Line {
+  start: p17
+  strokeWidth: 2
+  end: p18
+  strokeColor: rgba(0,0,0,0.6599999999999999)
+}
+ shape m.s18 = Line {
+  start: p18
+  strokeWidth: 2
+  end: p19
+  strokeColor: rgba(0,0,0,0.64)
+}
+ shape m.s19 = Line {
+  start: p19
+  strokeWidth: 2
+  end: p20
+  strokeColor: rgba(0,0,0,0.62)
+}
+ shape m.s20 = Line {
+  start: p20
+  strokeWidth: 2
+  end: p21
+  strokeColor: rgba(0,0,0,0.6)
+}
+ shape m.s21 = Line {
+  start: p21
+  strokeWidth: 2
+  end: p22
+  strokeColor: rgba(0,0,0,0.5800000000000001)
+}
+ shape m.s22 = Line {
+  start: p22
+  strokeWidth: 2
+  end: p23
+  strokeColor: rgba(0,0,0,0.56)
+}
+ shape m.s23 = Line {
+  start: p23
+  strokeWidth: 2
+  end: p24
+  strokeColor: rgba(0,0,0,0.54)
+}
+ shape m.s24 = Line {
+  start: p24
+  strokeWidth: 2
+  end: p25
+  strokeColor: rgba(0,0,0,0.52)
+}
+ shape m.s25 = Line {
+  start: p25
+  strokeWidth: 2
+  end: p26
+  strokeColor: rgba(0,0,0,0.5)
+}
+ shape m.s26 = Line {
+  start: p26
+  strokeWidth: 2
+  end: p27
+  strokeColor: rgba(0,0,0,0.48)
+}
+ shape m.s27 = Line {
+  start: p27
+  strokeWidth: 2
+  end: p28
+  strokeColor: rgba(0,0,0,0.45999999999999996)
+}
+ shape m.s28 = Line {
+  start: p28
+  strokeWidth: 2
+  end: p29
+  strokeColor: rgba(0,0,0,0.43999999999999995)
+}
+ shape m.s29 = Line {
+  start: p29
+  strokeWidth: 2
+  end: p30
+  strokeColor: rgba(0,0,0,0.42000000000000004)
+}
+ shape m.s30 = Line {
+  start: p30
+  strokeWidth: 2
+  end: p31
+  strokeColor: rgba(0,0,0,0.4)
+}
+ shape m.s31 = Line {
+  start: p31
+  strokeWidth: 2
+  end: p32
+  strokeColor: rgba(0,0,0,0.38)
+}
+ shape m.s32 = Line {
+  start: p32
+  strokeWidth: 2
+  end: p33
+  strokeColor: rgba(0,0,0,0.36)
+}
+ shape m.s33 = Line {
+  start: p33
+  strokeWidth: 2
+  end: p34
+  strokeColor: rgba(0,0,0,0.33999999999999997)
+}
+ shape m.s34 = Line {
+  start: p34
+  strokeWidth: 2
+  end: p35
+  strokeColor: rgba(0,0,0,0.31999999999999995)
+}
+ shape m.s35 = Line {
+  start: p35
+  strokeWidth: 2
+  end: p36
+  strokeColor: rgba(0,0,0,0.30000000000000004)
+}
+ shape m.s36 = Line {
+  start: p36
+  strokeWidth: 2
+  end: p37
+  strokeColor: rgba(0,0,0,0.28)
+}
+ shape m.s37 = Line {
+  start: p37
+  strokeWidth: 2
+  end: p38
+  strokeColor: rgba(0,0,0,0.26)
+}
+ shape m.s38 = Line {
+  start: p38
+  strokeWidth: 2
+  end: p39
+  strokeColor: rgba(0,0,0,0.24)
+}
+ shape m.s39 = Line {
+  start: p39
+  strokeWidth: 2
+  end: p40
+  strokeColor: rgba(0,0,0,0.21999999999999997)
+}
+ shape m.s40 = Line {
+  start: p40
+  strokeWidth: 2
+  end: p41
+  strokeColor: rgba(0,0,0,0.19999999999999996)
+}
+ shape m.s41 = Line {
+  start: p41
+  strokeWidth: 2
+  end: p42
+  strokeColor: rgba(0,0,0,0.18000000000000005)
+}
+ shape m.s42 = Line {
+  start: p42
+  strokeWidth: 2
+  end: p43
+  strokeColor: rgba(0,0,0,0.16000000000000003)
+}
+ shape m.s43 = Line {
+  start: p43
+  strokeWidth: 2
+  end: p44
+  strokeColor: rgba(0,0,0,0.14)
+}
+ shape m.s44 = Line {
+  start: p44
+  strokeWidth: 2
+  end: p45
+  strokeColor: rgba(0,0,0,0.12)
+}
+ shape m.s45 = Line {
+  start: p45
+  strokeWidth: 2
+  end: p46
+  strokeColor: rgba(0,0,0,0.09999999999999998)
+}
+ shape m.s46 = Line {
+  start: p46
+  strokeWidth: 2
+  end: p47
+  strokeColor: rgba(0,0,0,0.07999999999999996)
+}
+ shape m.s47 = Line {
+  start: p47
+  strokeWidth: 2
+  end: p48
+  strokeColor: rgba(0,0,0,0.06000000000000005)
+}
+ shape m.s48 = Line {
+  start: p48
+  strokeWidth: 2
+  end: p49
+  strokeColor: rgba(0,0,0,0.040000000000000036)
+}
+
+
+
+
+
+
+
   shape m.arrow2 = Line {
-    start: p0 + 15 * normalize(p1 - p0)
+    start: p0 + 10 * normalize(p1 - p0)
     end: p1 + 15 * normalize(p1 - p0)
     strokeWidth: 1.5
-    strokeColor: #000000ff
+    strokeColor: col
     endArrowhead: "straight"
   }
   -- shape m.arrow1 = Line {
@@ -262,24 +565,26 @@ forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
   --   strokeColor: #22a34da8
   --   endArrowhead: "straight"
   -- }
-  
+
   ca = centerOfMass(a.poly.points)
   cb = centerOfMass(b.poly.points)
   ensure lessThan(350, vdist(ca, cb)) in manifolds
 
   pa = closestPoint(a.poly, p0)
-  ensure equal(vdist(pa, p0), 5) in maps
+  ensure equal(vdist(pa, p0), 15) in maps
 
   pb = closestPoint(b.poly, p49)
-  ensure equal(vdist(pb, p49), 5) in maps
+  ensure equal(vdist(pb, p49), 15) in maps
 
-  ensure isEquilateral(m.poly) in maps
+  ensure isEquilateral(m.poly) --in maps
 
-  -- encourage equal(perimeter(m.poly.points, false), 1 * vdist(pa, pb)) in maps
+  -- encourage equal(perimeter(m.poly.points, false), 1.05 * vdist(pa, pb)) in maps
   -- encourage equal(perimeter(m.poly.points, false), 100) in maps
 
   -- encourage minimal(perimeter(m.poly.points, false)) in maps
-  encourage equal(elasticEnergy(m.poly.points, false), 0) in maps
+  ensure equal(elasticEnergy(m.poly.points, false), 0) in maps
+  ensure equal(perimeter(m.poly.points, false), 20) in manifolds
+
     -- encourage equal(pElasticEnergy(m.poly.points, false, 3), 0) in maps
     -- ensure lessThan(3.14, totalCurvature(m.poly.points, false, true)) in maps
 
