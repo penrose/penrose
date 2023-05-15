@@ -45,7 +45,7 @@ export type Collector<T> = ASTNode<T> & {
   into: BindingForm<T>;
   where?: RelationPatterns<T>;
   with?: DeclPatterns<T>;
-  groupby?: DeclPatterns<T>;
+  foreach?: DeclPatterns<T>;
 };
 
 // TODO: consider dropping the suffix pattern. It's a bit confusing, and DeclList would have been clearer.

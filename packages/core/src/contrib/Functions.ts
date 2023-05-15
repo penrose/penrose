@@ -93,6 +93,7 @@ import {
   unionT,
   unitT,
   valueT,
+  vectorV,
 } from "../utils/Util";
 import {
   elasticEnergy,
@@ -739,8 +740,23 @@ export const compDict = {
     returns: realT(),
   },
 
-  maxN: {
-    name: "maxN",
+  sumVectors: {
+    name: "sumVectors",
+    description: "Return the sum of vectors in a list of vectors.",
+    params: [{ name: "vecs", description: "vectors", type: realNMT() }],
+    body: (_context: Context, vecs: ad.Num[][]): VectorV<ad.Num> => {
+      if (vecs.length === 0) {
+        throw new Error("Expect a non-empty list of vectors");
+      }
+      const vlen = vecs[0].length;
+      const zeros: ad.Num[] = new Array(vlen).fill(0);
+      return vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros));
+    },
+    returns: realNT(),
+  },
+
+  maxList: {
+    name: "maxList",
     description: "Return the maximum of the elements in a vector.",
     params: [{ name: "xs", description: "elements", type: realNT() }],
     body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
@@ -750,8 +766,8 @@ export const compDict = {
     returns: realT(),
   },
 
-  minN: {
-    name: "minN",
+  minList: {
+    name: "minList",
     description: "Return the minimum of the elements in a vector.",
     params: [{ name: "xs", description: "elements", type: realNT() }],
     body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({

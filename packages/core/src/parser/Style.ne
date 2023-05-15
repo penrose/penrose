@@ -45,10 +45,13 @@ const lexer = moo.compile({
       // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
       // "type-keyword": styleTypes, 
       forall: "forall",
+      foreach: "foreach",
       collect: "collect",
       where: "where",
       with: "with",
       groupby: "groupby",
+      from: "from",
+      listof: "listof",
       delete: "delete",
       as: "as",
       true: "true",
@@ -100,17 +103,17 @@ const collector = (
   it: BindingForm<C>,
   whr?: RelationPatterns<C>,
   wth?: DeclPatterns<C>,
-  gb?: DeclPatterns<C>
+  fe?: DeclPatterns<C>
 ): Collector<C> => {
   return {
     ...nodeData,
-    ...rangeFrom(_.compact([hd, it, whr, wth, gb])),
+    ...rangeFrom(_.compact([hd, it, whr, wth, fe])),
     tag: "Collector",
     head: hd,
     into: it,
     where: whr,
     with: wth,
-    groupby: gb
+    foreach: fe
   };
 }
 
@@ -195,15 +198,15 @@ collector ->
     {% (d) => collector(d[1], d[3], d[5], undefined, undefined) %}
   | collect decl _ml into _ml select_where select_with
     {% (d) => collector(d[1], d[3], d[5], d[6], undefined) %}
-  | collect decl _ml into _ml select_where select_with groupby
+  | collect decl _ml into _ml select_where select_with foreach
     {% (d) => collector(d[1], d[3], d[5], d[6], d[7]) %}
-  | collect decl _ml into _ml select_where groupby
+  | collect decl _ml into _ml select_where foreach
     {% (d) => collector(d[1], d[3], d[5], undefined, d[6]) %}
   | collect decl _ml into _ml select_with
     {% (d) => collector(d[1], d[3], undefined, d[5], undefined) %}
-  | collect decl _ml into _ml select_with groupby
+  | collect decl _ml into _ml select_with foreach
     {% (d) => collector(d[1], d[3], undefined, d[5], d[6]) %}
-  | collect decl _ml into _ml groupby
+  | collect decl _ml into _ml foreach
     {% (d) => collector(d[1], d[3], undefined, undefined, d[5]) %}
 
 into -> "into" __ binding_form {% nth(2) %}
@@ -214,7 +217,7 @@ collect -> "collect" __ {% nth(0) %}
 
 select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
 
-groupby -> "groupby" __ decl_patterns _ml {% d => d[2] %}
+foreach -> "foreach" __ decl_patterns _ml {% d => d[2] %}
 
 decl_patterns -> sepBy1[decl_list, ";"] {% 
   ([d]): DeclPatterns<C> => {
@@ -483,9 +486,9 @@ parenthesized
   |  collection_access          {% id %}
 
 collection_access
-  -> identifier _ "$" _ identifier {% ([name, , , , field]): CollectionAccess<C> => ({
+  -> "listof" _ identifier _ "from" _ identifier {% ([, , field, , , , name]): CollectionAccess<C> => ({
     ...nodeData,
-    ...rangeBetween(name, field),
+    ...rangeBetween(field, name),
     tag: "CollectionAccess",
     name, field
   })%}

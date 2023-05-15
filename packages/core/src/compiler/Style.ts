@@ -648,7 +648,7 @@ const checkCollector = (varEnv: Env, col: Collector<A>): SelEnv => {
   const selEnv_afterGroupby = checkDeclPatternsAndMakeEnv(
     varEnv,
     selEnv_afterWith,
-    safeContentsList(col.groupby)
+    safeContentsList(col.foreach)
   );
   const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
   const relErrs = checkRelPatterns(
@@ -1656,7 +1656,7 @@ const getDecls = (header: Collector<A> | Selector<A>): DeclPattern<A>[] => {
     // Put `collect`, `with`, and `groupby` together
     return safeContentsList(header.with)
       .concat(header.head)
-      .concat(safeContentsList(header.groupby));
+      .concat(safeContentsList(header.foreach));
   }
 };
 
@@ -1745,8 +1745,8 @@ const findSubstsSel = (
     const substs = getSubsts(varEnv, subEnv, selEnv, subProg, header);
     const toCollect = header.head.id.contents.value;
     const collectInto = header.into.contents.value;
-    const groupbys = header.groupby
-      ? header.groupby.contents.map((decl) => decl.id.contents.value)
+    const groupbys = header.foreach
+      ? header.foreach.contents.map((decl) => decl.id.contents.value)
       : [];
     return collectSubsts(substs, toCollect, collectInto, groupbys);
   } else {
