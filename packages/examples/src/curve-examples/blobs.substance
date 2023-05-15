@@ -1,0 +1,2 @@
+Manifold a, b
+Map m := MakeMap(a, b)
