@@ -30,11 +30,11 @@ execFileSync(
   "yarn",
   [
     "start",
-    "draw",
+    "trio",
     subURI,
     styURI,
     dslURI,
-    "../../docs/assets",
+    "../../docs/assets/diagram.svg",
     "--path=../examples/src",
     "--variation",
     variation,
