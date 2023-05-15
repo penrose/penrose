@@ -354,6 +354,7 @@ yargs(hideBin(process.argv))
     "Generate a JSON file that contains all shape definitions in the Penrose system.",
     (yargs) =>
       yargs.option("out", {
+        alias: "o",
         desc: "Output JSON file.",
         type: "string",
       }),
