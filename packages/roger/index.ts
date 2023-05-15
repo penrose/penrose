@@ -189,6 +189,7 @@ const renderTrio = async (
     fs.writeFileSync(join(out, "style.style"), style);
     fs.writeFileSync(join(out, "domain.domain"), domain);
     fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata, null, 2));
+    fs.writeFileSync(join(out, "output.svg"), diagram);
     console.log(
       chalk.green(`The diagram and metadata has been saved to ${out}`)
     );
