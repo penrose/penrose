@@ -310,14 +310,14 @@ describe("lengthK", () => {
 
 describe("inflectionEnergy", () => {
   it.each([
-    [_polygons[6], 1, 11],
-    [_polygons[7], 1, 22],
-    [_polygons[8], 1, 33],
-    [_polylines[10], 1, 44],
-    [_polygons[6], 2, 55],
-    [_polygons[7], 2, 66],
-    [_polygons[8], 2, 77],
-    [_polylines[10], 2, 88],
+    [_polygons[6], 1, 0.0],
+    [_polygons[7], 1, 0.0],
+    [_polygons[8], 1, 0.0],
+    [_polylines[10], 1, 2.83],
+    [_polygons[6], 2, 0.0],
+    [_polygons[7], 2, 0.0],
+    [_polygons[8], 2, 0.0],
+    [_polylines[10], 2, 8.0],
   ])("of %p", (shape: Shape<ad.Num>, p: number, expected: number) => {
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
@@ -328,10 +328,10 @@ describe("inflectionEnergy", () => {
 
 describe("centerOfMass", () => {
   it.each([
-    [_polygons[6], [1, 2]],
-    [_polygons[7], [3, 4]],
-    [_polygons[8], [5, 6]],
-    [_polylines[10], [7, 8]],
+    [_polygons[6], [250, 2]],
+    [_polygons[7], [250, 4]],
+    [_polygons[8], [150, 6]],
+    [_polylines[10], [50, 8]],
   ])("of %p", (shape: Shape<ad.Num>, expected: number[]) => {
     const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const result = centerOfMass(points);
