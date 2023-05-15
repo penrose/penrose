@@ -96,7 +96,9 @@ import {
   vectorV,
 } from "../utils/Util";
 import {
+  centerOfMass,
   elasticEnergy,
+  inflectionEnergy,
   isoperimetricRatio,
   lengthK,
   maxCurvature,
@@ -2975,6 +2977,60 @@ export const compDict = {
       return { tag: "FloatV", contents: pElasticEnergy(points, closed, p) };
     },
     returns: valueT("Real"),
+  },
+
+  /**
+   * Returns integral of curvature derivative raised to `p` along the curve
+   */
+  inflectionEnergy: {
+    name: "inflectionEnergy",
+    description:
+      "Returns integral of curvature derivative raised to `p` along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "p",
+        type: realT(),
+        description: "exponent for curvature derivative",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean,
+      p: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: inflectionEnergy(points, closed, p) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns center of mass for a 2D point cloud
+   */
+  centerOfMass: {
+    name: "centerOfMass",
+    description: "Returns center of mass for a 2D point cloud",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+    ],
+    body: (_context: Context, points: [ad.Num, ad.Num][]): VectorV<ad.Num> => {
+      return { tag: "VectorV", contents: centerOfMass(points) };
+    },
+    returns: valueT("Real2"),
   },
 };
 
