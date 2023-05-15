@@ -1241,4 +1241,56 @@ delete x.z.p }`,
       colorValMatches(`Colors.blue`, [0, 0, 1, 1], translation);
     });
   });
+
+  describe("collector", () => {
+    const dsl = "type T \n type U \n predicate P(T, U)";
+    const sub =
+      "T t1, t2, t3 \n U u1, u2 \n P(t1, u1) \n P(t2, u1) \n P(t3, u2) \n AutoLabel All";
+    test("pure collection", async () => {
+      const sty =
+        canvasPreamble +
+        `
+        forall T t {
+          t.value = 1
+        }
+        collect T t into ts {
+          Circle {
+            r: count(listof value from ts)
+          }
+        }
+      `;
+      const { state } = await loadProgs({ dsl, sub, sty });
+      const sh = state.shapes[0];
+      if (sh.shapeType === "Circle") {
+        expect(sh.r.contents).toBeCloseTo(3);
+      } else {
+        throw new Error("Bad shape type");
+      }
+    });
+    test("pure collection with foreach", async () => {
+      const sty =
+        canvasPreamble +
+        `
+        forall T t {
+          t.value = 1
+        }
+        collect T t into ts
+        where P(t, u)
+        foreach U u {
+          Circle {
+            r: count(listof value from ts)
+          }
+        }
+      `;
+      const { state } = await loadProgs({ dsl, sub, sty });
+      const sh0 = state.shapes[0],
+        sh1 = state.shapes[1];
+      if (sh0.shapeType === "Circle" && sh1.shapeType === "Circle") {
+        const counts = [sh0.r.contents, sh1.r.contents];
+        expect(counts.sort()).toEqual([1, 2]);
+      } else {
+        throw new Error("Bad shape type");
+      }
+    });
+  });
 });

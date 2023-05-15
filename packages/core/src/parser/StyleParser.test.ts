@@ -160,13 +160,13 @@ as Const
     sameASTs(r2.results);
 
     const p3 = `collect Element e
-    into es where In(e, s) groupby Set s {}`;
+    into es where In(e, s) foreach Set s {}`;
     const r3 = parser.feed(p3);
     sameASTs(r3.results);
 
     const p4 = `collect Element e
     into es where In(e, s) with Set s
-    groupby OtherThing o {}`;
+    foreach OtherThing o {}`;
     const r4 = parser.feed(p4);
     sameASTs(r4.results);
   });
