@@ -30,7 +30,6 @@
     "canvas": "^2.8.0",
     "chalk": "^3.0.0",
     "chokidar": "^3.5.3",
-    "commander": "^10.0.1",
     "convert-hrtime": "^3.0.0",
     "global-jsdom": "^8.8.0",
     "jsdom": "^22.0.0",
@@ -39,10 +38,12 @@
     "true-myth": "^4.1.1",
     "tsx": "^3.12.7",
     "uniqid": "^5.4.0",
-    "ws": "^8.6.0"
+    "ws": "^8.6.0",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/node": "^12.12.68",
-    "@types/ws": "^8.5.4"
+    "@types/ws": "^8.5.4",
+    "@types/yargs": "^17.0.24"
   }
 }

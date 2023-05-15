@@ -1,4 +1,6 @@
 import "global-jsdom/register"; // must be first
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
 import {
   compileTrio,
@@ -14,7 +16,6 @@ import {
   stepUntilConvergence,
 } from "@penrose/core";
 import chalk from "chalk";
-import { Command } from "commander";
 import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
 import { dirname, join, parse, resolve } from "path";
@@ -32,6 +33,7 @@ const render = async (
   style: string,
   domain: string,
   resolvePath: (string) => Promise<string | undefined>,
+  verbose: boolean,
   meta: {
     substanceName: string;
     styleName: string;
@@ -47,7 +49,7 @@ const render = async (
   const { substanceName, styleName, domainName } = meta;
   const id = `${domainName}-${styleName}-${substanceName}`;
   // Compilation
-  console.log(`Compiling ${id} ...`);
+  if (verbose) console.debug(`Compiling ${id} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
   const compilerOutput = await compileTrio({
@@ -67,7 +69,7 @@ const render = async (
   const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
 
-  console.log(`Stepping for ${id} ...`);
+  if (verbose) console.debug(`Stepping for ${id} ...`);
 
   const convergeStart = process.hrtime();
   let optimizedState;
@@ -114,23 +116,9 @@ const render = async (
   };
 };
 
-const renderTrio = async (
-  variation: string,
-  sub: string,
-  sty: string,
-  dsl: string,
-  folder: boolean,
-  out: string,
-  prefix: string,
-  meta: {
-    substanceName: string;
-    styleName: string;
-    domainName: string;
-    id: string;
-  }
-) => {
+const readTrio = (sub: string, sty: string, dsl: string, prefix: string) => {
   // Fetch Substance, Style, and Domain files
-  const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
+  const [substance, style, domain] = [sub, sty, dsl].map((arg) =>
     fs.readFileSync(join(prefix, arg), "utf8").toString()
   );
   // set up path resolution
@@ -151,14 +139,43 @@ const renderTrio = async (
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
   };
+  return {
+    substance,
+    style,
+    domain,
+    resolvePath,
+  };
+};
 
+const renderTrio = async (
+  variation: string,
+  sub: string,
+  sty: string,
+  dsl: string,
+  folder: boolean,
+  out: string,
+  prefix: string,
+  meta: {
+    substanceName: string;
+    styleName: string;
+    domainName: string;
+    id: string;
+  }
+) => {
+  const { substance, style, domain, resolvePath } = readTrio(
+    sub,
+    sty,
+    dsl,
+    prefix
+  );
   // draw diagram and get metadata
   const { diagram, metadata } = await render(
     variation,
-    subIn,
-    styIn,
-    dslIn,
+    substance,
+    style,
+    domain,
     resolvePath,
+    true,
     meta
   );
 
@@ -168,9 +185,9 @@ const renderTrio = async (
     fs.mkdirSync(parentFolder, { recursive: true });
   }
   if (folder) {
-    fs.writeFileSync(join(out, "substance.substance"), subIn);
-    fs.writeFileSync(join(out, "style.style"), styIn);
-    fs.writeFileSync(join(out, "domain.domain"), dslIn);
+    fs.writeFileSync(join(out, "substance.substance"), substance);
+    fs.writeFileSync(join(out, "style.style"), style);
+    fs.writeFileSync(join(out, "domain.domain"), domain);
     fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata, null, 2));
     console.log(
       chalk.green(`The diagram and metadata has been saved to ${out}`)
@@ -185,16 +202,12 @@ const renderTrio = async (
 
 // Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
 const renderRegistry = async (
-  lib: any,
+  lib: string,
   folders: boolean,
   out: string,
   prefix: string
 ) => {
-  console.log(process.cwd());
-
-  const registry = JSON.parse(
-    fs.readFileSync(join("./", prefix, lib)).toString()
-  );
+  const registry = JSON.parse(fs.readFileSync(join(prefix, lib)).toString());
   const substanceLibrary = registry["substances"];
   const styleLibrary = registry["styles"];
   const domainLibrary = registry["domains"];
@@ -301,81 +314,160 @@ const getShapeDefs = (outFile?: string): void => {
 
 //#region command-line interface
 
-const roger = new Command();
-
-roger
-  .name("roger")
-  .description("Command-line interface for Penrose.")
-  .version(version);
-roger
-  .command("draw")
-  .description("Generate one diagram from a JSON file.")
-  .argument(
-    "<diagram-json>",
-    "A JSON file that links to Domain, Substance, and Style programs."
+yargs(hideBin(process.argv))
+  .scriptName("roger")
+  // .description("Command-line interface for Penrose.")
+  .version(version)
+  .command(
+    "draw <json>",
+    "Generate one diagram from a JSON file.",
+    (yargs) =>
+      yargs
+        .positional("json", {
+          type: "string",
+          desc:
+            "A JSON file that links to Domain, Substance, and Style programs.",
+          demandOption: true,
+        })
+        .option("variation", {
+          alias: "v",
+          desc: "Variation for the Penrose diagram",
+          default: "",
+        })
+        .requiresArg("json"),
+    (argv) => draw(argv.json, argv.variation)
   )
-  .option("-v, --variation", "Variation string for the diagram.", "")
-  .action((trioJSON) => draw(trioJSON, ""));
-roger
-  .command("watch")
-  .description(
-    "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)"
+  .command(
+    "watch",
+    "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)",
+    (yargs) =>
+      yargs.option("port", {
+        desc: "Port number for the WebSocket connection.",
+        default: 9160,
+        alias: "p",
+      }),
+    (options) => watch(+options.port)
   )
-  .option("-p, --port", "Port number for the WebSocket connection.", "9160")
-  .action((options) => watch(+options.port));
-roger
-  .command("shapedefs")
-  .description(
-    "Generate a JSON file that contains all shape definitions in the Penrose system."
+  .command(
+    "shapedefs",
+    "Generate a JSON file that contains all shape definitions in the Penrose system.",
+    (yargs) =>
+      yargs.option("out", {
+        desc: "Output JSON file.",
+        type: "string",
+      }),
+    (options) => getShapeDefs(options.out)
   )
-  .option("-o, --out <file>", "Output JSON file.")
-  .action((options) => getShapeDefs(options.out));
-
-roger
-  .command("trio")
-  .description("Generate a diagram from a Penrose trio.")
-  .argument("<substance>", "The Substance program")
-  .argument("<style>", "The Style program")
-  .argument("<domain>", "The Domain program")
-  .option("-o, --out <out>", "Name of the output SVG file.", "diagram.svg")
-  .option("-p, --path <path>", "A common path prefix for the trio files", "")
-  .option("-v, --variation", "Variation string for the diagram.", "")
-  .action(async (substance, style, domain, options) => {
-    await renderTrio(
-      options.variation,
-      substance,
-      style,
-      domain,
-      false,
-      options.out,
-      options.path,
-      {
-        substanceName: substance,
-        styleName: style,
-        domainName: domain,
-        id: uniqid("instance-"),
+  .command(
+    "batch <registry> <out>",
+    "Generate diagrams from a registry of Penrose trios.",
+    (yargs) =>
+      yargs
+        .positional("registry", {
+          desc: "A JSON registry of Penrose trios.",
+          demandOption: true,
+          type: "string",
+        })
+        .positional("out", {
+          desc: "A folder containing all generated diagrams.",
+          demandOption: true,
+          default: ".",
+        })
+        .option("folders", {
+          desc: "Generate each diagram as a folder that includes metadata.",
+          default: false,
+        })
+        .option("path", {
+          alias: "p",
+          desc:
+            "Path prefix for both the registry file itself and all paths to trios in the registry.",
+          default: ".",
+        }),
+    async (options) => {
+      await renderRegistry(
+        options.registry,
+        options.folders,
+        options.out,
+        options.path
+      );
+    }
+  )
+  .command(
+    "trio <substance> <style> <domain>",
+    "Generate a diagram from a Penrose trio.",
+    (yargs) =>
+      yargs
+        .positional("substance", {
+          desc: "The Substance program.",
+          type: "string",
+          demandOption: true,
+        })
+        .positional("style", {
+          desc: "The Style program.",
+          type: "string",
+          demandOption: true,
+        })
+        .positional("domain", {
+          desc: "The Domain program.",
+          type: "string",
+          demandOption: true,
+        })
+        .option("out", {
+          desc: "Name of the output SVG file.",
+          alias: "o",
+          type: "string",
+        })
+        .option("path", {
+          alias: "p",
+          desc: "A common path prefix for the trio files",
+          default: ".",
+        })
+        .option("variation", {
+          alias: "v",
+          desc: "Variation for the Penrose diagram",
+          default: "",
+        }),
+    async (options) => {
+      const { substance, style, domain, resolvePath } = readTrio(
+        options.substance,
+        options.style,
+        options.domain,
+        options.path
+      );
+      // draw diagram and get metadata
+      const { diagram } = await render(
+        options.variation,
+        substance,
+        style,
+        domain,
+        resolvePath,
+        false,
+        {
+          substanceName: substance,
+          styleName: style,
+          domainName: domain,
+          id: uniqid("instance-"),
+        }
+      );
+      if (options.out) {
+        fs.writeFileSync(options.out, diagram);
+      } else {
+        console.log(diagram);
       }
-    );
-  });
-
-roger
-  .command("batch")
-  .description("Generate diagrams from a registry of Penrose trios.")
-  .argument("<registry>", "A JSON registry of Penrose trios.")
-  .argument("<out>", "A folder containing all generated diagrams.")
-  .option(
-    "--folders",
-    "Generate each diagram as a folder that includes metadata.",
-    false
+    }
   )
-  .option(
-    "-p, --path <path>",
-    "Path prefix for both the registry file itself and all paths to trios in the registry.",
-    ""
-  )
-  .action(async (registry, out, options) => {
-    await renderRegistry(registry, options.folders, out, options.path);
-  });
+  .help().argv;
 
-roger.parse();
+// roger
+//   .command("")
+//   .description("")
+//   .argument("<substance>", "The Substance program")
+//   .argument("<style>", "The Style program")
+//   .argument("<domain>", "The Domain program")
+//   .option("-o, --out <out>", "", "diagram.svg")
+//   .option("-p, --path <path>", "", "")
+//   .option("-v, --variation", "Variation string for the diagram.", "")
+//   .action();
+
+// roger.parse();
 //#endregion
