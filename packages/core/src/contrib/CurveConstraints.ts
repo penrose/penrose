@@ -231,6 +231,26 @@ export const pElasticEnergy = (
   );
 };
 
+/**
+ * Inflection energy of an order p
+ */
+export const inflectionEnergy = (
+  points: [ad.Num, ad.Num][],
+  closed: boolean,
+  p: number
+): ad.Num => {
+  const triples = consecutiveTriples(points, closed);
+  const curvatures = triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+    curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment)
+  );
+  const tuples = consecutiveTuples(curvatures, closed);
+  return addN(
+    tuples.map(([kappa1, kappa2]: [ad.Num, ad.Num]) =>
+      pow(absVal(sub(kappa2, kappa1)), p)
+    )
+  );
+};
+
 export const constrDictCurves: { [k: string]: ConstrFunc } = {
   /**
    * The shape should be locally convex (all angles between consecutive edges would have the same sign)
