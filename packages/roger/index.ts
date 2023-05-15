@@ -18,7 +18,7 @@ import {
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
-import { dirname, join, parse, resolve } from "path";
+import { join, parse, resolve } from "path";
 import prettier from "prettier";
 import uniqid from "uniqid";
 import draw from "./draw";
@@ -180,11 +180,10 @@ const renderTrio = async (
   );
 
   // write to files
-  const parentFolder = dirname(out);
-  if (!fs.existsSync(parentFolder)) {
-    fs.mkdirSync(parentFolder, { recursive: true });
-  }
   if (folder) {
+    if (!fs.existsSync(out)) {
+      fs.mkdirSync(out, { recursive: true });
+    }
     fs.writeFileSync(join(out, "substance.substance"), substance);
     fs.writeFileSync(join(out, "style.style"), style);
     fs.writeFileSync(join(out, "domain.domain"), domain);
@@ -380,6 +379,7 @@ yargs(hideBin(process.argv))
         .option("folders", {
           desc: "Generate each diagram as a folder that includes metadata.",
           default: false,
+          type: "boolean",
         })
         .option("path", {
           alias: "p",
