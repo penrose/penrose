@@ -251,6 +251,15 @@ export const inflectionEnergy = (
   );
 };
 
+/**
+ * Center of mass of a list of vertices
+ */
+export const centerOfMass = (points: [ad.Num, ad.Num][]): [ad.Num, ad.Num] => {
+  const averageX = div(addN(points.map((point) => point[0])), points.length);
+  const averageY = div(addN(points.map((point) => point[1])), points.length);
+  return [averageX, averageY];
+};
+
 export const constrDictCurves: { [k: string]: ConstrFunc } = {
   /**
    * The shape should be locally convex (all angles between consecutive edges would have the same sign)
