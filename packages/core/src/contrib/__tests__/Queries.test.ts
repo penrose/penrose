@@ -1,4 +1,4 @@
-import { genCodeSync, ops, secondaryGraph } from "../../engine/Autodiff";
+import { ops } from "../../engine/Autodiff";
 import { sub } from "../../engine/AutodiffFunctions";
 import { makeCircle } from "../../shapes/Circle";
 import { makeEllipse } from "../../shapes/Ellipse";
@@ -22,7 +22,7 @@ import {
   shapeDistancePolygonlikes,
   shapeSize,
 } from "../Queries";
-import { numOf } from "../Utils";
+import { numOf, numsOf } from "../Utils";
 import { _rectangles } from "../__testfixtures__/TestShapes.input";
 
 const context = simpleContext("Queries");
@@ -81,9 +81,12 @@ const shapes: Shape<ad.Num>[] = [
 describe("simple queries", () => {
   it.each(shapes)("bboxFromShape for %p", (shape: Shape<ad.Num>) => {
     const bbox = bboxFromShape(shape);
-    const [x, y, w, h] = genCodeSync(
-      secondaryGraph([bbox.center[0], bbox.center[1], bbox.width, bbox.height])
-    )([]).secondary;
+    const [x, y, w, h] = numsOf([
+      bbox.center[0],
+      bbox.center[1],
+      bbox.width,
+      bbox.height,
+    ]);
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
     expect(w).toBeCloseTo(44, precisionDigits);
@@ -92,16 +95,14 @@ describe("simple queries", () => {
 
   it.each(shapes)("shapeCenter for %p", (shape: Shape<ad.Num>) => {
     const center = shapeCenter(shape);
-    const [x, y] = genCodeSync(secondaryGraph([center[0], center[1]]))(
-      []
-    ).secondary;
+    const [x, y] = numsOf([center[0], center[1]]);
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
   });
 
   it.each(shapes)("shapeSize for %p", (shape: Shape<ad.Num>) => {
     const size = shapeSize(shape);
-    const [sizeNum] = genCodeSync(secondaryGraph([size]))([]).secondary;
+    const sizeNum = numOf(size);
     expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
@@ -112,9 +113,7 @@ describe("polygonLikePoints", () => {
     for (const pt of result) {
       outputs.push(...pt);
     }
-    const g = secondaryGraph(outputs);
-    const f = genCodeSync(g);
-    const nums = f([]).secondary; // no inputs, so, empty array
+    const nums = numsOf(outputs);
     const pts: [number, number][] = [];
     for (let i = 0; i < nums.length; i += 2) {
       pts.push([nums[i], nums[i + 1]]);
@@ -164,13 +163,11 @@ describe("outwardUnitNormal", () => {
   test("inside point above", async () => {
     let result = outwardUnitNormal(lineSegment, point1);
 
-    const [norm, dot, diff] = genCodeSync(
-      secondaryGraph([
-        ops.vnorm(result),
-        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
-        sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
-      ])
-    )([]).secondary;
+    const [norm, dot, diff] = numsOf([
+      ops.vnorm(result),
+      ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+      sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
+    ]);
 
     // It is unit
     expect(norm).toBeCloseTo(1, 4);
@@ -183,13 +180,11 @@ describe("outwardUnitNormal", () => {
   test("inside point below", async () => {
     let result = outwardUnitNormal(lineSegment, point2);
 
-    const [norm, dot, diff] = genCodeSync(
-      secondaryGraph([
-        ops.vnorm(result),
-        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
-        sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
-      ])
-    )([]).secondary;
+    const [norm, dot, diff] = numsOf([
+      ops.vnorm(result),
+      ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+      sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
+    ]);
 
     // It is unit
     expect(norm).toBeCloseTo(1, 4);
@@ -258,9 +253,7 @@ describe("shapeDistanceAABBs should return the same value as shapeDistancePolygo
       const result1 = shapeDistanceAABBs(r1, r2);
       const result2 = shapeDistancePolygonlikes(r1, r2);
 
-      const [result1num, result2num] = genCodeSync(
-        secondaryGraph([result1, result2])
-      )([]).secondary;
+      const [result1num, result2num] = numsOf([result1, result2]);
 
       expect(result1num).toBeCloseTo(result2num, 4);
     }

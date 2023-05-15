@@ -1,0 +1,22 @@
+
+Vertex UCLA, SRI, UCSB, Utah, BBN, MIT, RAND, SDC, HARV, LL, CWRU, CMU, NASA
+
+Edge(UCLA, SRI)
+Edge(UCLA, UCSB)
+Edge(SRI, UCSB)
+Edge(SRI, Utah)
+Edge(UCSB, Utah)
+Edge(SRI, BBN)
+Edge(BBN, MIT)
+Edge(BBN, RAND)
+Edge(RAND, SDC)
+Edge(SDC, UCSB)
+Edge(BBN, HARV)
+Edge(HARV, MIT)
+Edge(MIT, LL)
+Edge(LL, NASA)
+Edge(NASA, UCSB)
+Edge(BBN, CWRU)
+Edge(CWRU, CMU)
+
+AutoLabel All
