@@ -1011,6 +1011,29 @@ delete x.z.p }`,
         }
         `,
       ],
+      UnexpectedCollectionAccessError: [
+        `forall Set a {
+          a.c = 10
+          x = listof c from a
+        }`,
+        `collect Set a into aa foreach Set b {
+          x = listof c from b
+        }`,
+        `collect Set a into aa foreach Set b {
+          x = listof c from x
+        }`,
+      ],
+      IncompatibleCollectionAccessError: [
+        `forall Set a {
+          a.c = 10
+        }
+        forall Set \`B\` {
+          override \`B\`.c = "hello"
+        }
+        collect Set a into aa {
+          x = listof c from aa
+        }`,
+      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {
