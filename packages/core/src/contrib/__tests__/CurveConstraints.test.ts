@@ -3,10 +3,12 @@ import { Polyline } from "../../shapes/Polyline";
 import { Shape } from "../../shapes/Shapes";
 import * as ad from "../../types/ad";
 import {
+  centerOfMass,
   constrDictCurves,
   curvature,
   elasticEnergy,
   equivalued,
+  inflectionEnergy,
   isoperimetricRatio,
   lengthK,
   maxCurvature,
@@ -303,5 +305,37 @@ describe("lengthK", () => {
     const closed: boolean = isClosed(shape);
     const result = lengthK(points, closed, k);
     expect(numOf(result)).toBeCloseTo(expected, 4);
+  });
+});
+
+describe("inflectionEnergy", () => {
+  it.each([
+    [_polygons[6], 1, 11],
+    [_polygons[7], 1, 22],
+    [_polygons[8], 1, 33],
+    [_polylines[10], 1, 44],
+    [_polygons[6], 2, 55],
+    [_polygons[7], 2, 66],
+    [_polygons[8], 2, 77],
+    [_polylines[10], 2, 88],
+  ])("of %p", (shape: Shape<ad.Num>, p: number, expected: number) => {
+    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = inflectionEnergy(points, closed, p);
+    expect(numOf(result)).toBeCloseTo(expected, 2);
+  });
+});
+
+describe("centerOfMass", () => {
+  it.each([
+    [_polygons[6], [1, 2]],
+    [_polygons[7], [3, 4]],
+    [_polygons[8], [5, 6]],
+    [_polylines[10], [7, 8]],
+  ])("of %p", (shape: Shape<ad.Num>, expected: number[]) => {
+    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const result = centerOfMass(points);
+    expect(numOf(result[0])).toBeCloseTo(expected[0], 2);
+    expect(numOf(result[1])).toBeCloseTo(expected[1], 2);
   });
 });
