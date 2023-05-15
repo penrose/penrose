@@ -21,6 +21,7 @@ import * as fs from "fs";
 import { join, parse, resolve } from "path";
 import prettier from "prettier";
 import uniqid from "uniqid";
+import { printTextChart } from "./artifacts";
 import draw from "./draw";
 import { version } from "./package.json";
 import { AggregateData, InstanceData } from "./types";
@@ -462,6 +463,23 @@ yargs(hideBin(process.argv))
         console.log(diagram);
       }
     }
+  )
+  .command(
+    "textchart <artifacts> <out>",
+    "Generate an ASCII chart that shows the performance data.",
+    (yargs) =>
+      yargs
+        .positional("artifacts", {
+          desc: "A folder that contains roger outputs and metadata.",
+          demandOption: true,
+          type: "string",
+        })
+        .positional("out", {
+          desc: "An output markdown file.",
+          demandOption: true,
+          type: "string",
+        }),
+    (options) => printTextChart(options.artifacts, options.out)
   )
   .help().argv;
 
