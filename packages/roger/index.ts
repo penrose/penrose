@@ -191,13 +191,13 @@ const renderTrio = async (
     fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata, null, 2));
     fs.writeFileSync(join(out, "output.svg"), diagram);
     console.log(
-      chalk.green(`The diagram and metadata has been saved to ${out}`)
+      chalk.green(`The diagram and metadata has been saved to ${resolve(out)}`)
     );
     // returning metadata for aggregation
     return metadata;
   } else {
     fs.writeFileSync(out, diagram);
-    console.log(chalk.green(`The diagram has been saved as ${out}`));
+    console.log(chalk.green(`The diagram has been saved as ${resolve(out)}`));
   }
 };
 
@@ -261,7 +261,9 @@ const renderRegistry = async (
       join(out, "aggregateData.json"),
       JSON.stringify(finalMetadata, null, 2)
     );
-    console.log(`The Aggregate metadata has been saved to ${out}.`);
+    console.log(
+      chalk.green(`The Aggregate metadata has been saved to ${out}.`)
+    );
   }
   console.log("done.");
 };
@@ -453,6 +455,9 @@ yargs(hideBin(process.argv))
       );
       if (options.out) {
         fs.writeFileSync(options.out, diagram);
+        console.log(
+          chalk.green(`The diagram has been saved as ${resolve(options.out)}`)
+        );
       } else {
         console.log(diagram);
       }
