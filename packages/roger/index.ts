@@ -125,26 +125,25 @@ const render = async (
 };
 
 // set up path resolution
-const resolvePath = (prefix: string, stylePath: string) => async (
-  filePath: string
-) => {
-  // Handle absolute URLs
-  if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
-    const fileURL = new URL(filePath).href;
-    try {
-      const fileReq = await fetch(fileURL);
-      return fileReq.text();
-    } catch (e) {
-      console.error(`Failed to resolve path: ${e}`);
-      return undefined;
+const resolvePath =
+  (prefix: string, stylePath: string) => async (filePath: string) => {
+    // Handle absolute URLs
+    if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
+      const fileURL = new URL(filePath).href;
+      try {
+        const fileReq = await fetch(fileURL);
+        return fileReq.text();
+      } catch (e) {
+        console.error(`Failed to resolve path: ${e}`);
+        return undefined;
+      }
     }
-  }
 
-  // Relative paths
-  const parentDir = parse(join(prefix, stylePath)).dir;
-  const joined = resolve(parentDir, filePath);
-  return fs.readFileSync(joined, "utf8").toString();
-};
+    // Relative paths
+    const parentDir = parse(join(prefix, stylePath)).dir;
+    const joined = resolve(parentDir, filePath);
+    return fs.readFileSync(joined, "utf8").toString();
+  };
 
 const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
   // Fetch Substance, Style, and Domain files
@@ -367,8 +366,7 @@ yargs(hideBin(process.argv))
     (yargs) =>
       yargs
         .options("trio", {
-          desc:
-            "Three files pointing to a Penrose trio or a JSON file that links to them.",
+          desc: "Three files pointing to a Penrose trio or a JSON file that links to them.",
           type: "array",
           demandOption: true,
         })
@@ -457,8 +455,7 @@ yargs(hideBin(process.argv))
         })
         .option("path", {
           alias: "p",
-          desc:
-            "Path prefix for both the registry file itself and all paths to trios in the registry.",
+          desc: "Path prefix for both the registry file itself and all paths to trios in the registry.",
           default: ".",
         }),
     async (options) => {
