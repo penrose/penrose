@@ -30,16 +30,18 @@ execFileSync(
   "yarn",
   [
     "start",
-    "draw",
+    "trio",
     subURI,
     styURI,
     dslURI,
-    "../../docs/assets",
-    "--src-prefix=../examples/src",
+    "--out",
+    "../../docs/assets/output.svg",
+    "--path",
+    "../examples/src",
     "--variation",
     variation,
   ],
-  { cwd: "packages/automator", stdio: "inherit" }
+  { cwd: "packages/roger", stdio: "inherit" }
 );
 
 for (const name of ["domain", "substance", "style"])

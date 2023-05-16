@@ -27,9 +27,6 @@ export interface InstanceData {
   timeTaken: TimeTaken;
   selectorMatches: [];
   optProblem: OptProblem;
-  reference: Reference;
-  ciee: number | null; // JSON turns Infinity into null
-  extra?: unknown;
 }
 
 export interface AggregateData {
