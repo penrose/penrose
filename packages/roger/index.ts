@@ -18,14 +18,19 @@ import {
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
-import { join, parse, resolve } from "path";
+import { extname, join, parse, resolve } from "path";
 import prettier from "prettier";
 import uniqid from "uniqid";
 import { printTextChart } from "./artifacts";
-import draw from "./draw";
 import { version } from "./package.json";
 import { AggregateData, InstanceData } from "./types";
 import watch from "./watch";
+
+interface StyledTrio {
+  substance: string;
+  style: string[];
+  domain: string;
+}
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const render = async (
@@ -117,32 +122,38 @@ const render = async (
   };
 };
 
-const readTrio = (sub: string, sty: string, dsl: string, prefix: string) => {
+// set up path resolution
+const resolvePath = (prefix: string, stylePath: string) => async (
+  filePath: string
+) => {
+  // Handle absolute URLs
+  if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
+    const fileURL = new URL(filePath).href;
+    try {
+      const fileReq = await fetch(fileURL);
+      return fileReq.text();
+    } catch (e) {
+      return undefined;
+    }
+  }
+
+  // Relative paths
+  const parentDir = parse(join(prefix, stylePath)).dir;
+  const joined = resolve(parentDir, filePath);
+  return fs.readFileSync(joined, "utf8").toString();
+};
+
+const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
   // Fetch Substance, Style, and Domain files
-  const [substance, style, domain] = [sub, sty, dsl].map((arg) =>
+  const [substance, domain] = [sub, dsl].map((arg) =>
     fs.readFileSync(join(prefix, arg), "utf8").toString()
   );
-  // set up path resolution
-  const resolvePath = async (filePath: string) => {
-    // Handle absolute URLs
-    if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
-      const fileURL = new URL(filePath).href;
-      try {
-        const fileReq = await fetch(fileURL);
-        return fileReq.text();
-      } catch (e) {
-        return undefined;
-      }
-    }
-
-    // Relative paths
-    const parentDir = parse(join(prefix, sty)).dir;
-    const joined = resolve(parentDir, filePath);
-    return fs.readFileSync(joined, "utf8").toString();
-  };
+  const styles = sty.map((arg) =>
+    fs.readFileSync(join(prefix, arg), "utf8").toString()
+  );
   return {
     substance,
-    style,
+    style: styles.join("\n"),
     domain,
     resolvePath,
   };
@@ -165,7 +176,7 @@ const renderTrio = async (
 ) => {
   const { substance, style, domain, resolvePath } = readTrio(
     sub,
-    sty,
+    [sty],
     dsl,
     prefix
   );
@@ -175,7 +186,7 @@ const renderTrio = async (
     substance,
     style,
     domain,
-    resolvePath,
+    resolvePath(prefix, sty),
     true,
     meta
   );
@@ -315,6 +326,38 @@ const getShapeDefs = (outFile?: string): void => {
   }
 };
 
+const orderTrio = (unordered: string[]): string[] => {
+  const ordered: { [k: string]: string } = {};
+  for (const fakeType in unordered) {
+    const filename = unordered[fakeType];
+    const type = {
+      ".sub": "substance",
+      ".sty": "style",
+      ".dsl": "domain",
+      ".substance": "substance",
+      ".style": "style",
+      ".domain": "domain",
+    }[extname(filename)];
+    if (!type) {
+      console.error(`Unrecognized file extension: ${filename}`);
+      process.exit(1);
+    }
+    if (type in ordered) {
+      console.error(
+        `Duplicate ${type} files: ${ordered[type]} and ${filename}`
+      );
+      process.exit(1);
+    }
+    ordered[type] = filename;
+  }
+  if ("substance" in ordered && "style" in ordered && "domain" in ordered) {
+    return [ordered.substance, ordered.style, ordered.domain];
+  } else {
+    console.error(`Invalid trio: ${unordered.join(", ")}`);
+    process.exit(1);
+  }
+};
+
 //#region command-line interface
 
 yargs(hideBin(process.argv))
@@ -322,45 +365,78 @@ yargs(hideBin(process.argv))
   // .description("Command-line interface for Penrose.")
   .version(version)
   .command(
-    "draw <json>",
-    "Generate one diagram from a JSON file.",
+    "trio [trio..]",
+    "Generate a diagram from a Penrose trio.",
     (yargs) =>
       yargs
-        .positional("json", {
-          type: "string",
+        .options("trio", {
           desc:
-            "A JSON file that links to Domain, Substance, and Style programs.",
+            "Three files pointing to a Penrose trio or a JSON file that links to them.",
+          type: "array",
           demandOption: true,
+        })
+        .option("out", {
+          desc: "Name of the output SVG file.",
+          alias: "o",
+          type: "string",
+        })
+        .option("path", {
+          alias: "p",
+          desc: "A common path prefix for the trio files",
+          default: ".",
         })
         .option("variation", {
           alias: "v",
           desc: "Variation for the Penrose diagram",
           default: "",
-        })
-        .requiresArg("json"),
-    (argv) => draw(argv.json, argv.variation)
-  )
-  .command(
-    "watch",
-    "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)",
-    (yargs) =>
-      yargs.option("port", {
-        desc: "Port number for the WebSocket connection.",
-        default: 9160,
-        alias: "p",
-      }),
-    (options) => watch(+options.port)
-  )
-  .command(
-    "shapedefs",
-    "Generate a JSON file that contains all shape definitions in the Penrose system.",
-    (yargs) =>
-      yargs.option("out", {
-        alias: "o",
-        desc: "Output JSON file.",
-        type: "string",
-      }),
-    (options) => getShapeDefs(options.out)
+        }),
+    async (options) => {
+      let sub, sty, dom;
+      if (options.trio.length === 1) {
+        console.log();
+
+        // read trio from a JSON file
+        const paths = JSON.parse(
+          await fs.readFileSync(resolve(options.trio[0] as string)).toString()
+        ) as StyledTrio;
+        dom = paths.domain;
+        sub = paths.substance;
+        sty = paths.style;
+      } else {
+        // load all three files
+        const trio = orderTrio(options.trio as string[]);
+        [sub, sty, dom] = [trio[0], [trio[1]], trio[2]];
+      }
+      const { substance, style, domain, resolvePath } = readTrio(
+        sub,
+        sty,
+        dom,
+        options.path
+      );
+      // draw diagram and get metadata
+      const { diagram } = await render(
+        options.variation,
+        substance,
+        style,
+        domain,
+        resolvePath[sty[0]], // HACK: assume all images are co-located with the first Style module
+        false,
+        {
+          substanceName: substance,
+          styleName: style,
+          domainName: domain,
+          id: uniqid("instance-"),
+        }
+      );
+      if (options.out) {
+        fs.writeFileSync(options.out, diagram);
+        console.log(
+          chalk.green(`The diagram has been saved as ${resolve(options.out)}`)
+        );
+      } else {
+        console.log(diagram);
+      }
+    }
   )
   .command(
     "batch <registry> <out>",
@@ -398,72 +474,28 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    "trio <substance> <style> <domain>",
-    "Generate a diagram from a Penrose trio.",
+    "watch",
+    "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)",
     (yargs) =>
-      yargs
-        .positional("substance", {
-          desc: "The Substance program.",
-          type: "string",
-          demandOption: true,
-        })
-        .positional("style", {
-          desc: "The Style program.",
-          type: "string",
-          demandOption: true,
-        })
-        .positional("domain", {
-          desc: "The Domain program.",
-          type: "string",
-          demandOption: true,
-        })
-        .option("out", {
-          desc: "Name of the output SVG file.",
-          alias: "o",
-          type: "string",
-        })
-        .option("path", {
-          alias: "p",
-          desc: "A common path prefix for the trio files",
-          default: ".",
-        })
-        .option("variation", {
-          alias: "v",
-          desc: "Variation for the Penrose diagram",
-          default: "",
-        }),
-    async (options) => {
-      const { substance, style, domain, resolvePath } = readTrio(
-        options.substance,
-        options.style,
-        options.domain,
-        options.path
-      );
-      // draw diagram and get metadata
-      const { diagram } = await render(
-        options.variation,
-        substance,
-        style,
-        domain,
-        resolvePath,
-        false,
-        {
-          substanceName: substance,
-          styleName: style,
-          domainName: domain,
-          id: uniqid("instance-"),
-        }
-      );
-      if (options.out) {
-        fs.writeFileSync(options.out, diagram);
-        console.log(
-          chalk.green(`The diagram has been saved as ${resolve(options.out)}`)
-        );
-      } else {
-        console.log(diagram);
-      }
-    }
+      yargs.option("port", {
+        desc: "Port number for the WebSocket connection.",
+        default: 9160,
+        alias: "p",
+      }),
+    (options) => watch(+options.port)
   )
+  .command(
+    "shapedefs",
+    "Generate a JSON file that contains all shape definitions in the Penrose system.",
+    (yargs) =>
+      yargs.option("out", {
+        alias: "o",
+        desc: "Output JSON file.",
+        type: "string",
+      }),
+    (options) => getShapeDefs(options.out)
+  )
+
   .command(
     "textchart <artifacts> <out>",
     "Generate an ASCII chart that shows the performance data.",

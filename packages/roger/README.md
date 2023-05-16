@@ -5,22 +5,27 @@ This package is a command-line application that depends on `@penrose/core` and b
 Usage:
 
 ```
-Penrose roger.
+roger [command]
 
-Usage:
-  roger batch LIB OUTFOLDER [--folders] [--path=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--cross-energy]
-  roger render ARTIFACTSFOLDER OUTFOLDER
-  roger textchart ARTIFACTSFOLDER OUTFILE
-  roger draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--path=PREFIX] [--variation=VARIATION] [--folders] [--cross-energy]
-  roger shapedefs [SHAPEFILE]
+Commands:
+  roger trio [trio..]                Generate a diagram from a Penros
+                                     e trio.
+  roger batch <registry> <out>       Generate diagrams from a registr
+                                     y of Penrose trios.
+  roger watch                        Watch the current folder for fil
+                                     es & changes (must end in .sub,.
+                                     substance,.sty,.style,.dsl,.doma
+                                     in)
+  roger shapedefs                    Generate a JSON file that contai
+                                     ns all shape definitions in the
+                                     Penrose system.
+  roger textchart <artifacts> <out>  Generate an ASCII chart that sho
+                                     ws the performance data.
 
 Options:
-  -o, --outFile PATH Path to either a file or a folder, depending on the value of --folders. [default: output.svg]
-  --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
-  --path PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
-  --repeat TIMES the number of instances
-  --cross-energy Compute the cross-instance energy
-  --variation The variation to use
+  --version  Show version number                            [boolean]
+  --help     Show help                                      [boolean]
+
 ```
 
 ## Getting started
