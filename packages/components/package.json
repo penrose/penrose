@@ -1,6 +1,6 @@
 {
   "name": "@penrose/components",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.0",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -49,11 +49,11 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.0.11",
-    "@penrose/core": "^2.3.0",
+    "@penrose/core": "^3.0.0-alpha.0",
     "monaco-editor": "^0.31.0",
     "monaco-vim": "^0.3.4",
-    "styled-components": "^5.3.5",
-    "react-latex-next": "^2.2.0"
+    "react-latex-next": "^2.2.0",
+    "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.18.0",

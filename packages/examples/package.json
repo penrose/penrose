@@ -1,6 +1,6 @@
 {
   "name": "@penrose/examples",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.0",
   "private": true,
   "type": "module",
   "devDependencies": {
