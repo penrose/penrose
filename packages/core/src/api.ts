@@ -127,14 +127,8 @@ export const onCanvasRect = (
   [canvasWidth, canvasHeight]: [ad.Num, ad.Num],
   { center: [x, y], width, height }: Rect
 ): ad.Num => {
-  const canvasXRange: [ad.Num, ad.Num] = [
-    mul(canvasWidth, -0.5),
-    mul(canvasWidth, 0.5),
-  ];
-  const canvasYRange: [ad.Num, ad.Num] = [
-    mul(canvasHeight, -0.5),
-    mul(canvasHeight, 0.5),
-  ];
+  const canvasXRange: [ad.Num, ad.Num] = [0, canvasWidth];
+  const canvasYRange: [ad.Num, ad.Num] = [0, canvasHeight];
   const hw = div(width, 2);
   const hh = div(height, 2);
   return add(
