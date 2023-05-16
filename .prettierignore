@@ -1,6 +1,4 @@
 *.hbs
-/packages/automator/out/
-/packages/automator/progs/
 /packages/browser-ui/tsconfig.json
 /packages/components/storybook-static/
 /packages/core/docs/
@@ -18,7 +16,6 @@
 /packages/optimizer/index.js
 /packages/optimizer/source.d.ts
 /packages/optimizer/target/
-/packages/roger/oclif.manifest.json
 /README.md
 coverage/
 dist/
