@@ -33,10 +33,10 @@ import { constrDictCurves } from "./CurveConstraints";
 import { inDirection } from "./ObjectivesUtils";
 import { bboxFromShape, shapeCenter } from "./Queries";
 import {
-  closestPt_PtSeg,
-  isLinelike,
   Linelike,
   Rectlike,
+  closestPt_PtSeg,
+  isLinelike,
   repelPoint,
   sampleSeg,
 } from "./Utils";

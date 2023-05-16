@@ -29,11 +29,12 @@ import {
   SubPredArg,
   SubProg,
   SubRes,
-  SubstanceEnv,
   SubStmt,
+  SubstanceEnv,
   TypeConsApp,
 } from "../types/substance";
 import {
+  Result,
   and,
   andThen,
   argLengthMismatch,
@@ -43,7 +44,6 @@ import {
   every,
   ok,
   parseError,
-  Result,
   safeChain,
   typeArgLengthMismatch,
   typeMismatch,

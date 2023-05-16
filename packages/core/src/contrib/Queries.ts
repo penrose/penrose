@@ -21,7 +21,7 @@ import * as BBox from "../engine/BBox";
 import { Circle } from "../shapes/Circle";
 import { Ellipse } from "../shapes/Ellipse";
 import { Line } from "../shapes/Line";
-import { computeShapeBbox, Shape } from "../shapes/Shapes";
+import { Shape, computeShapeBbox } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { msign } from "./Functions";
 import {
@@ -32,11 +32,11 @@ import {
   rectangleSignedDistance,
 } from "./Minkowski";
 import {
+  Polygonlike,
+  Rectlike,
   isLinelike,
   isPolygonlike,
   isRectlike,
-  Polygonlike,
-  Rectlike,
 } from "./Utils";
 
 /**

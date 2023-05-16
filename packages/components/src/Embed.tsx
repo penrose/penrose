@@ -1,7 +1,7 @@
 import React, { CSSProperties } from "react";
+import { Simple, SimpleProps } from "./Simple";
 import Logo from "./icons/Logo";
 import Resample from "./icons/Resample";
-import { Simple, SimpleProps } from "./Simple";
 
 const footerStyle: CSSProperties = {
   display: "flex",

@@ -29,20 +29,20 @@ import {
 } from "../analysis/SubstanceAnalysis";
 import {
   Add,
-  addMutation,
   Delete,
+  Mutation,
+  MutationGroup,
+  addMutation,
   deleteMutation,
   enumerateProgMutations,
   enumerateStmtMutations,
   executeMutation,
-  Mutation,
-  MutationGroup,
 } from "./Mutation";
 import {
-  filterContext,
-  initContext,
   SynthesisContext,
   WithContext,
+  filterContext,
+  initContext,
 } from "./Synthesizer";
 
 //#region Fine-grained diffs
