@@ -127,7 +127,7 @@ if not, you can now find them listed in the **Extensions** tab.
 Open a separate terminal (to the same directory), and run these commands:
 
 ```sh
-cd packages/examples/src/
+cd packages/examples/
 roger watch
 ```
 
@@ -156,11 +156,11 @@ should see something like this:
 ![Roger watch start](docs/assets/roger-startup.png)
 
 Type in the drop-down boxes to search for any Penrose trio in
-`packages/examples/src/`; for example:
+`packages/examples/`; for example:
 
-- Substance: `set-theory-domain/tree.substance`
-- Style: `set-theory-domain/venn.style`
-- Domain: `set-theory-domain/setTheory.domain`
+- Substance: `src/set-theory-domain/tree.substance`
+- Style: `src/set-theory-domain/venn.style`
+- Domain: `src/set-theory-domain/setTheory.domain`
 
 ... and voilà! ✨ See the results in your browser:
 
