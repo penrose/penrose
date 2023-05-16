@@ -92,6 +92,7 @@ import {
   unionT,
   unitT,
   valueT,
+  vectorV,
 } from "../utils/Util";
 import {
   centerOfMass,
@@ -109,6 +110,7 @@ import {
 import {
   bboxFromShape,
   bboxPts,
+  polygonLikePoints,
   rectLineDist,
   shapeDistance,
   shapeDistanceCircleLine,
@@ -2506,20 +2508,14 @@ export const compDict = {
     ): VectorV<ad.Num> => {
       const t = s.shapeType;
       if (t === "Circle") {
-        /**
-         * Implementing formula
-         * V = P - C
-         * return C + (V/|V|)*r
-         */
-        const pOffset = ops.vsub(p, s.center.contents);
-        const normOffset = ops.vnorm(pOffset);
-        const unitVector = ops.vdiv(pOffset, normOffset);
-        const pOnCircumferenceOffset = ops.vmul(s.r.contents, unitVector);
-        const pOnCircumference = ops.vadd(
-          s.center.contents,
-          pOnCircumferenceOffset
-        );
-        return { tag: "VectorV", contents: pOnCircumference };
+        return {
+          tag: "VectorV",
+          contents: closestPointCircle(
+            toPt(s.center.contents),
+            s.r.contents,
+            toPt(p)
+          ),
+        };
       } else if (
         t === "Rectangle" ||
         t === "Text" ||
@@ -2528,80 +2524,129 @@ export const compDict = {
       ) {
         return {
           tag: "VectorV",
-          contents: closestPointRect(
-            sub(s.center.contents[0], div(s.width.contents, 2)),
-            sub(s.center.contents[1], div(s.height.contents, 2)),
-            s.width.contents,
-            s.height.contents,
-            p[0],
-            p[1]
-          ),
+          contents: closestPointRect(bboxPts(bboxFromShape(s)), toPt(p)),
         };
       } else if (t === "Line") {
         return {
           tag: "VectorV",
-          contents: closestPointLine(p, s.start.contents, s.end.contents),
+          contents: closestPointLine(
+            toPt(s.start.contents),
+            toPt(s.end.contents),
+            toPt(p)
+          ),
         };
       } else if (t === "Polyline") {
-        const closestPoints: ad.Num[][] = [];
-        const dist: ad.Num[] = [];
-        for (let i = 0; i < s.points.contents.length - 1; i++) {
-          const start = s.points.contents[i];
-          const end = s.points.contents[i + 1];
-          closestPoints[i] = closestPointLine(p, start, end);
-          dist[i] = sqrt(
-            add(
-              squared(sub(p[0], closestPoints[i][0])),
-              squared(sub(p[1], closestPoints[i][1]))
-            )
-          );
-        }
-        let retX: ad.Num = closestPoints[0][0];
-        let retY: ad.Num = closestPoints[0][1];
-        let retCond: ad.Num = dist[0];
-        for (let i = 0; i < s.points.contents.length - 1; i++) {
-          retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
-          retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-          retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
-        }
-        return { tag: "VectorV", contents: [retX, retY] };
+        return {
+          tag: "VectorV",
+          contents: closestPointPoly(polygonLikePoints(s), false, toPt(p)),
+        };
       } else if (t === "Polygon") {
-        const closestPoints: ad.Num[][] = [];
-        const dist: ad.Num[] = [];
-        let i = 0;
-        for (; i < s.points.contents.length - 1; i++) {
-          const start = s.points.contents[i];
-          const end = s.points.contents[i + 1];
-          closestPoints[i] = closestPointLine(p, start, end);
-          dist[i] = sqrt(
-            add(
-              squared(sub(p[0], closestPoints[i][0])),
-              squared(sub(p[1], closestPoints[i][1]))
-            )
-          );
-        }
-        const start = s.points.contents[i];
-        const end = s.points.contents[0];
-        closestPoints[i] = closestPointLine(p, start, end);
-        dist[i] = sqrt(
-          add(
-            squared(sub(p[0], closestPoints[i][0])),
-            squared(sub(p[1], closestPoints[i][1]))
-          )
-        );
-        let retX: ad.Num = closestPoints[0][0];
-        let retY: ad.Num = closestPoints[0][1];
-        let retCond: ad.Num = dist[0];
-        for (let i = 0; i < s.points.contents.length; i++) {
-          retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
-          retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-          retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
-        }
-        return { tag: "VectorV", contents: [retX, retY] };
+        return {
+          tag: "VectorV",
+          contents: closestPointPoly(polygonLikePoints(s), true, toPt(p)),
+        };
       } else {
-        return { tag: "VectorV", contents: closestPointEllipse(s, p) };
+        return {
+          tag: "VectorV",
+          contents: closestPointEllipse(
+            toPt(s.center.contents),
+            s.rx.contents,
+            s.ry.contents,
+            toPt(p)
+          ),
+        };
       }
     },
+    returns: valueT("Real2"),
+  },
+
+  closestPointCircle: {
+    name: "closestPointCircle",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      r: ad.Num,
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointCircle(c, r, pt)),
+    returns: valueT("Real2"),
+  },
+
+  closestPointRect: {
+    name: "closestPointRect",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle",
+      },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (_context: Context, rect: ad.Pt2[], pt: ad.Pt2): VectorV<ad.Num> =>
+      vectorV(closestPointRect(rect, pt)),
+    returns: valueT("Real2"),
+  },
+
+  closestPointLine: {
+    name: "closestPointLine",
+    params: [
+      { name: "start", type: real2T(), description: "start point of line" },
+      { name: "end", type: real2T(), description: "end point of line" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Pt2,
+      end: ad.Pt2,
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointLine(start, end, pt)),
+    returns: valueT("Real2"),
+  },
+
+  closestPointEllipse: {
+    name: "closestPointEllipse",
+    params: [
+      { name: "c", type: real2T(), description: "center of ellipse" },
+      {
+        name: "rx",
+        type: realT(),
+        description: "horizontal radius of ellipse",
+      },
+      { name: "ry", type: realT(), description: "vertical radius of ellipse" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      rx: ad.Num,
+      ry: ad.Num,
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointEllipse(c, rx, ry, pt)),
+    returns: valueT("Real2"),
+  },
+
+  closestPointPoly: {
+    name: "closestPointPoly",
+    params: [
+      { name: "pts", type: real2NT(), description: "points of the polygon" },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether or not the polygon is closed",
+      },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      closed: boolean,
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointPoly(pts, closed, pt)),
     returns: valueT("Real2"),
   },
 
@@ -3298,14 +3343,31 @@ export const sdEllipseAsNums = (
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
-const closestPointRect = (
-  l: ad.Num,
-  t: ad.Num,
-  w: ad.Num,
-  h: ad.Num,
-  x: ad.Num,
-  y: ad.Num
-): ad.Num[] => {
+const closestPointCircle = (c: ad.Pt2, r: ad.Num, pt: ad.Pt2): ad.Pt2 => {
+  /**
+   * Implementing formula
+   * V = P - C
+   * return C + (V/|V|)*r
+   */
+  const pOffset = ops.vsub(pt, c);
+  const normOffset = ops.vnorm(pOffset);
+  const unitVector = ops.vdiv(pOffset, normOffset);
+  const pOnCircumferenceOffset = ops.vmul(r, unitVector);
+  const pOnCircumference = ops.vadd(c, pOnCircumferenceOffset);
+
+  return [pOnCircumference[0], pOnCircumference[1]];
+};
+
+const closestPointRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Pt2 => {
+  if (rect.length !== 4) {
+    throw new Error("Expects rect to have four points");
+  }
+  const [tr, tl, bl] = rect;
+  const l = tl[0],
+    t = tl[1];
+  const w = sub(tr[0], tl[0]);
+  const h = sub(tl[1], bl[1]);
+  let [x, y] = pt;
   const r = add(l, w);
   const b = add(t, h);
   x = clamp([l, r], x);
@@ -3322,32 +3384,23 @@ const closestPointRect = (
   return [retX, retY];
 };
 
-const closestPointLine = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[] => {
-  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
-  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
+const closestPointLine = (start: ad.Pt2, end: ad.Pt2, pt: ad.Pt2): ad.Pt2 => {
+  const a_to_p = [sub(pt[0], start[0]), sub(pt[1], start[1])];
+  const a_to_b = [sub(end[0], start[0]), sub(end[1], start[1])];
   const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
   const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
   const t = clamp([0, 1], div(atp_dot_atb, atb2));
-  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
+  return [add(start[0], mul(a_to_b[0], t)), add(start[1], mul(a_to_b[1], t))];
 };
 
-const closestPointEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num[] => {
-  return closestPointEllipseCoords(
-    s.rx.contents,
-    s.ry.contents,
-    s.center.contents,
-    p
-  );
-};
-
-const closestPointEllipseCoords = (
+const closestPointEllipse = (
   // Note: this is an approximation function!
-  radiusx: ad.Num,
-  radiusy: ad.Num,
-  center: ad.Num[],
-  pInput: ad.Num[]
-): ad.Num[] => {
-  const pOffset = ops.vsub(pInput, center);
+  c: ad.Pt2,
+  rx: ad.Num,
+  ry: ad.Num,
+  pt: ad.Pt2
+): ad.Pt2 => {
+  const pOffset = ops.vsub(pt, c);
   const px = absVal(pOffset[0]);
   const py = absVal(pOffset[1]);
 
@@ -3355,8 +3408,8 @@ const closestPointEllipseCoords = (
   let x: ad.Num = 0;
   let y: ad.Num = 0;
 
-  const a = radiusx;
-  const b = radiusy;
+  const a = rx;
+  const b = ry;
   for (let i = 0; i < 100; i++) {
     x = mul(a, cos(t));
     y = mul(b, sin(t));
@@ -3381,11 +3434,40 @@ const closestPointEllipseCoords = (
     t = add(t, delta_t);
     t = min(div(Math.PI, 2), max(0, t));
   }
-  x = mul(msign(pInput[0]), absVal(x));
-  y = mul(msign(pInput[1]), absVal(y));
-  x = add(x, center[0]);
-  y = add(y, center[1]);
+  x = mul(msign(pt[0]), absVal(x));
+  y = mul(msign(pt[1]), absVal(y));
+  x = add(x, c[0]);
+  y = add(y, c[1]);
   return [x, y];
+};
+
+const closestPointPoly = (
+  pts: ad.Pt2[],
+  closed: boolean,
+  pt: ad.Pt2
+): ad.Pt2 => {
+  const closestPoints: ad.Pt2[] = [];
+  const dist: ad.Num[] = [];
+
+  pts = closed ? [...pts, pts[0]] : pts;
+
+  for (let i = 0; i < pts.length - 1; i++) {
+    const start = pts[i],
+      end = pts[i + 1];
+    closestPoints[i] = closestPointLine(pt, toPt(start), toPt(end));
+    dist[i] = ops.vdist(closestPoints[i], pt);
+  }
+
+  let [retX, retY] = closestPoints[0];
+  let retCond = dist[0];
+
+  for (let i = 0; i < closestPoints.length; i++) {
+    retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
+    retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
+    retY = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retY);
+  }
+
+  return [retX, retY];
 };
 
 // Ignore this
