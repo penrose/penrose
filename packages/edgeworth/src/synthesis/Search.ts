@@ -361,7 +361,7 @@ export const toStmtDiff = (
  */
 const diffType = (node: AbstractNode, diff: rdiff.rdiffResult): DiffType => {
   let tag = undefined;
-  let currNode: AbstractNode = node;
+  let currNode: any = node;
   for (const prop of diff.path) {
     currNode = currNode[prop];
     if (currNode.tag) {
