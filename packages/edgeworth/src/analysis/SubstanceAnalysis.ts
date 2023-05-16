@@ -327,7 +327,7 @@ export const cascadingDelete = <T>(
     const toDelete = prog.statements.filter((s): boolean => {
       switch (s.tag) {
         case "Bind": {
-          const expr = (s.expr as unknown) as ApplyPredicate<T>;
+          const expr = s.expr as unknown as ApplyPredicate<T>;
           const willDelete = findArg(expr, id);
           // push its return value IF bind will be deleted
           if (willDelete) ids.push(s.variable);

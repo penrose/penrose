@@ -248,12 +248,10 @@ describe("Run individual functions", () => {
       // console.log("# constraints", stateEvaled.constrFns.length);
 
       // Test objectives
-      const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
-        stateEvaled
-      );
-      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } = evalFns(
-        stateOptimizedValue
-      );
+      const { constrEngs: initEngsConstr, objEngs: initEngsObj } =
+        evalFns(stateEvaled);
+      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } =
+        evalFns(stateOptimizedValue);
 
       for (let i = 0; i < initEngsObj.length; i++) {
         expect(initEngsObj[i]).toBeGreaterThanOrEqual(optedEngsObj[i]);
