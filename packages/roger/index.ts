@@ -155,7 +155,6 @@ const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
     substance,
     style: styles.join("\n"),
     domain,
-    resolvePath,
   };
 };
 
@@ -174,12 +173,7 @@ const renderTrio = async (
     id: string;
   }
 ) => {
-  const { substance, style, domain, resolvePath } = readTrio(
-    sub,
-    [sty],
-    dsl,
-    prefix
-  );
+  const { substance, style, domain } = readTrio(sub, [sty], dsl, prefix);
   // draw diagram and get metadata
   const { diagram, metadata } = await render(
     variation,
@@ -407,7 +401,7 @@ yargs(hideBin(process.argv))
         const trio = orderTrio(options.trio as string[]);
         [sub, sty, dom] = [trio[0], [trio[1]], trio[2]];
       }
-      const { substance, style, domain, resolvePath } = readTrio(
+      const { substance, style, domain } = readTrio(
         sub,
         sty,
         dom,
@@ -419,7 +413,7 @@ yargs(hideBin(process.argv))
         substance,
         style,
         domain,
-        resolvePath[sty[0]], // HACK: assume all images are co-located with the first Style module
+        resolvePath(options.path, sty[0]), // HACK: assume all images are co-located with the first Style module
         false,
         {
           substanceName: substance,
@@ -513,6 +507,8 @@ yargs(hideBin(process.argv))
         }),
     (options) => printTextChart(options.artifacts, options.out)
   )
+  .demandCommand()
+  .strict()
   .help().argv;
 
 //#endregion

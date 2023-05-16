@@ -35,17 +35,6 @@ Options:
 
 ## Using `roger` for local development
 
-- If you are developing a module in `core` (e.g. `Synthesizer`), you can run `yarn start` in the project root direcory, which will continuously watch your changes in `core` and update your build.
+- If you are developing a module in `core`, you can run `yarn start` in the project root direcory, which will continuously watch your changes in `core` and update your build.
 - Check the console before you run `roger` to make sure your changes in `core` are not causing any errors.
 - If the build is successful, `roger` will now be using the most recent version of `core` when batch-processing Penrose programs.
-
-## Static site generation
-
-In addition to batch-processing Penrose programs, you can also use `roger` to generate a static site for viewing the diagrams and metadata (e.g. performance statistics). Here's an example:
-
-- Run `yarn start batch registry.json out --path=../examples/src/ --folders` in this directory.
-  - Different from the example above, the `--folders` option asks `roger` to output metadata along with SVGs. `roger render` requires the output to have associated metadata.
-- Run `yarn start render out browser` to generate a static site.
-- Open `browser/index.html` to view the result.
-
-![](docs/penrose-artifacts.png)
