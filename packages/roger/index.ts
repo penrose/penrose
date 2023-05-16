@@ -1,4 +1,5 @@
 import "global-jsdom/register"; // must be first
+
 import fetch from "node-fetch";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
