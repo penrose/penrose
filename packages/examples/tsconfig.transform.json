@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": { "module": "CommonJS" },
+  "include": ["transform.ts"]
+}

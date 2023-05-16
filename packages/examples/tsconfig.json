@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    // keep in sync with `./transform.ts`
+    "outDir": "dist",
+    "plugins": [{ "transform": "./transform.cjs" }],
+    "rootDir": "src",
+
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["index.d.ts", "src"],
+  "exclude": ["transform.ts"]
+}

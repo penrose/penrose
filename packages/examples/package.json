@@ -2,22 +2,20 @@
   "name": "@penrose/examples",
   "version": "2.3.0",
   "private": true,
+  "type": "module",
+  "devDependencies": {
+    "ttypescript": "^1"
+  },
   "scripts": {
-    "build": ":",
+    "build": "tsc -p tsconfig.transform.json && mv transform.js transform.cjs && rimraf dist && ttsc",
     "build-decls": ":",
-    "build-examples": "node build.js",
     "typecheck": ":"
   },
   "nx": {
     "targets": {
       "build-decls": {
         "dependsOn": [
-          "build-examples"
-        ]
-      },
-      "build": {
-        "dependsOn": [
-          "build-examples"
+          "build"
         ]
       }
     }
