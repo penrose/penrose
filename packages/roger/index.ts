@@ -1,4 +1,5 @@
 import "global-jsdom/register"; // must be first
+import fetch from "node-fetch";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -133,6 +134,7 @@ const resolvePath = (prefix: string, stylePath: string) => async (
       const fileReq = await fetch(fileURL);
       return fileReq.text();
     } catch (e) {
+      console.error(`Failed to resolve path: ${e}`);
       return undefined;
     }
   }

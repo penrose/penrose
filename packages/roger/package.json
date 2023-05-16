@@ -33,6 +33,7 @@
     "convert-hrtime": "^3.0.0",
     "global-jsdom": "^8.8.0",
     "jsdom": "^22.0.0",
+    "node-fetch": "^3.3.1",
     "prettier": "2.2.1",
     "regenerator-runtime": "^0.13.11",
     "true-myth": "^4.1.1",
