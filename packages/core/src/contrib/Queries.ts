@@ -75,7 +75,7 @@ export const shapeSize = (s: Shape<ad.Num>): ad.Num => {
  */
 export const polygonLikePoints = (s: Shape<ad.Num>): ad.Pt2[] => {
   const t = s.shapeType;
-  if (t === "Polygon")
+  if (t === "Polygon" || t === "Polyline")
     return s.points.contents.map((point) => [point[0], point[1]]);
   else if (isLinelike(s))
     return [

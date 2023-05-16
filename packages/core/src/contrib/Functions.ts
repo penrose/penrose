@@ -3368,7 +3368,7 @@ const closestPointRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Pt2 => {
   }
   const [tr, tl, bl] = rect;
   const l = tl[0],
-    t = tl[1];
+    t = bl[1];
   const w = sub(tr[0], tl[0]);
   const h = sub(tl[1], bl[1]);
   let [x, y] = pt;
@@ -3462,7 +3462,7 @@ export const closestPointPoly = (
   for (let i = 0; i < pts.length - 1; i++) {
     const start = pts[i],
       end = pts[i + 1];
-    closestPoints[i] = closestPointLine(pt, toPt(start), toPt(end));
+    closestPoints[i] = closestPointLine(toPt(start), toPt(end), pt);
     dist[i] = ops.vdist(closestPoints[i], pt);
   }
 
@@ -3472,9 +3472,8 @@ export const closestPointPoly = (
   for (let i = 0; i < closestPoints.length; i++) {
     retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
     retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-    retY = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retY);
+    retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
   }
-
   return [retX, retY];
 };
 
