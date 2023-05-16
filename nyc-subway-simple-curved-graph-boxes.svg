@@ -141,9 +141,9 @@
     <title>`Edge_TimesSquare_GrandCentral`.poly</title>
   </polyline>
   <rect
-    x="518.8319035863291"
+    x="519.8406926488291"
     y="557.502533733779"
-    width="119"
+    width="116.982421875"
     height="19"
     fill="#ffffff"
     fill-opacity="1"
@@ -167,7 +167,7 @@
     style="font: 18px serif"
     x="578.3319035863291"
     y="574.002533733779"
-    width="114"
+    width="111.982421875"
     height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -182,9 +182,9 @@
     CentralPark
   </text>
   <rect
-    x="518.8319035863291"
+    x="519.8406926488291"
     y="557.502533733779"
-    width="119"
+    width="116.982421875"
     height="19"
     fill="#000000"
     fill-opacity="0"
@@ -268,9 +268,9 @@
     <title>`Edge_GrandCentral_WallStreet`.arrow</title>
   </g>
   <rect
-    x="309.67934104024954"
+    x="310.97084494649954"
     y="449.3489683761519"
-    width="134"
+    width="131.4169921875"
     height="19"
     fill="#ffffff"
     fill-opacity="1"
@@ -294,7 +294,7 @@
     style="font: 18px serif"
     x="376.67934104024954"
     y="465.8489683761519"
-    width="129"
+    width="126.4169921875"
     height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -319,9 +319,9 @@
     <title>`Edge_GrandCentral_UnionSquare`.arrow</title>
   </g>
   <rect
-    x="309.67934104024954"
+    x="310.97084494649954"
     y="449.3489683761519"
-    width="134"
+    width="131.4169921875"
     height="19"
     fill="#000000"
     fill-opacity="0"
@@ -345,9 +345,9 @@
     <title>`Edge_BarclaysCenter_ConeyIsland`.arrow</title>
   </g>
   <rect
-    x="241.2421197456086"
+    x="242.0160455268586"
     y="182.32415315322248"
-    width="120"
+    width="118.4521484375"
     height="23"
     fill="#ffffff"
     fill-opacity="1"
@@ -371,7 +371,7 @@
     style="font: 18px serif"
     x="301.2421197456086"
     y="198.82415315322248"
-    width="115"
+    width="113.4521484375"
     height="18"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -386,9 +386,9 @@
     ConeyIsland
   </text>
   <rect
-    x="241.2421197456086"
+    x="242.0160455268586"
     y="182.32415315322248"
-    width="120"
+    width="118.4521484375"
     height="23"
     fill="#000000"
     fill-opacity="0"
@@ -412,9 +412,9 @@
     <title>`Edge_TimesSquare_UnionSquare`.arrow</title>
   </g>
   <rect
-    x="402.8829277459306"
+    x="403.6314629021806"
     y="503.3485237162257"
-    width="126"
+    width="124.5029296875"
     height="23"
     fill="#ffffff"
     fill-opacity="1"
@@ -438,7 +438,7 @@
     style="font: 18px serif"
     x="465.8829277459306"
     y="519.8485237162257"
-    width="121"
+    width="119.5029296875"
     height="18"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -453,9 +453,9 @@
     TimesSquare
   </text>
   <rect
-    x="402.8829277459306"
+    x="403.6314629021806"
     y="503.3485237162257"
-    width="126"
+    width="124.5029296875"
     height="23"
     fill="#000000"
     fill-opacity="0"
@@ -529,9 +529,9 @@
     <title>`Edge_FultonStreet_BarclaysCenter`.arrow</title>
   </g>
   <rect
-    x="172.8792955254951"
+    x="173.3915025567451"
     y="376.19292014376254"
-    width="124"
+    width="122.9755859375"
     height="19"
     fill="#ffffff"
     fill-opacity="1"
@@ -555,7 +555,7 @@
     style="font: 18px serif"
     x="234.8792955254951"
     y="392.69292014376254"
-    width="119"
+    width="117.9755859375"
     height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -590,9 +590,9 @@
     <title>`Edge_WallStreet_FultonStreet`.arrow</title>
   </g>
   <rect
-    x="172.8792955254951"
+    x="173.3915025567451"
     y="376.19292014376254"
-    width="124"
+    width="122.9755859375"
     height="19"
     fill="#000000"
     fill-opacity="0"
@@ -606,9 +606,9 @@
     <title>`FultonStreet`.box</title>
   </rect>
   <rect
-    x="137.46248195220332"
+    x="138.24129054595332"
     y="253.1229013797572"
-    width="149"
+    width="147.4423828125"
     height="23"
     fill="#ffffff"
     fill-opacity="1"
@@ -632,7 +632,7 @@
     style="font: 18px serif"
     x="211.96248195220332"
     y="269.6229013797572"
-    width="144"
+    width="142.4423828125"
     height="18"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -647,9 +647,9 @@
     BarclaysCenter
   </text>
   <rect
-    x="137.46248195220332"
+    x="138.24129054595332"
     y="253.1229013797572"
-    width="149"
+    width="147.4423828125"
     height="23"
     fill="#000000"
     fill-opacity="0"
@@ -663,9 +663,9 @@
     <title>`BarclaysCenter`.box</title>
   </rect>
   <rect
-    x="292.8545523502857"
+    x="293.5269156315357"
     y="322.9975726413941"
-    width="103"
+    width="101.6552734375"
     height="19"
     fill="#ffffff"
     fill-opacity="1"
@@ -689,7 +689,7 @@
     style="font: 18px serif"
     x="344.3545523502857"
     y="339.4975726413941"
-    width="98"
+    width="96.6552734375"
     height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -704,9 +704,9 @@
     WallStreet
   </text>
   <rect
-    x="292.8545523502857"
+    x="293.5269156315357"
     y="322.9975726413941"
-    width="103"
+    width="101.6552734375"
     height="19"
     fill="#000000"
     fill-opacity="0"
@@ -770,9 +770,9 @@
     <title>`Edge_Broadway_CentralPark`.c7</title>
   </circle>
   <rect
-    x="418.12375197805187"
+    x="419.25802932180187"
     y="385.0664791028276"
-    width="127"
+    width="124.7314453125"
     height="23"
     fill="#ffffff"
     fill-opacity="1"
@@ -796,7 +796,7 @@
     style="font: 18px serif"
     x="481.62375197805187"
     y="401.5664791028276"
-    width="122"
+    width="119.7314453125"
     height="18"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -821,9 +821,9 @@
     <title>`Edge_UnionSquare_Broadway`.arrow</title>
   </g>
   <rect
-    x="418.12375197805187"
+    x="419.25802932180187"
     y="385.0664791028276"
-    width="127"
+    width="124.7314453125"
     height="23"
     fill="#000000"
     fill-opacity="0"
@@ -887,9 +887,9 @@
     <title>`Edge_TimesSquare_GrandCentral`.c7</title>
   </circle>
   <rect
-    x="117.90560710192838"
+    x="118.53207194567838"
     y="459.8571571205907"
-    width="107"
+    width="105.7470703125"
     height="23"
     fill="#ffffff"
     fill-opacity="1"
@@ -913,7 +913,7 @@
     style="font: 18px serif"
     x="171.40560710192838"
     y="476.3571571205907"
-    width="102"
+    width="100.7470703125"
     height="18"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -928,9 +928,9 @@
     JFKAirport
   </text>
   <rect
-    x="117.90560710192838"
+    x="118.53207194567838"
     y="459.8571571205907"
-    width="107"
+    width="105.7470703125"
     height="23"
     fill="#000000"
     fill-opacity="0"
@@ -1044,9 +1044,9 @@
     <title>`Edge_GrandCentral_WallStreet`.c7</title>
   </circle>
   <rect
-    x="545.5495436841173"
+    x="546.0187819653673"
     y="443.2760604624117"
-    width="99"
+    width="98.0615234375"
     height="23"
     fill="#ffffff"
     fill-opacity="1"
@@ -1070,7 +1070,7 @@
     style="font: 18px serif"
     x="595.0495436841173"
     y="459.7760604624117"
-    width="94"
+    width="93.0615234375"
     height="18"
     font-size-adjust=""
     alignment-baseline="alphabetic"
@@ -1085,9 +1085,9 @@
     Broadway
   </text>
   <rect
-    x="545.5495436841173"
+    x="546.0187819653673"
     y="443.2760604624117"
-    width="99"
+    width="98.0615234375"
     height="23"
     fill="#000000"
     fill-opacity="0"
