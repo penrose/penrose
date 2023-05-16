@@ -3343,7 +3343,11 @@ export const sdEllipseAsNums = (
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
-const closestPointCircle = (c: ad.Pt2, r: ad.Num, pt: ad.Pt2): ad.Pt2 => {
+export const closestPointCircle = (
+  c: ad.Pt2,
+  r: ad.Num,
+  pt: ad.Pt2
+): ad.Pt2 => {
   /**
    * Implementing formula
    * V = P - C
@@ -3384,7 +3388,11 @@ const closestPointRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Pt2 => {
   return [retX, retY];
 };
 
-const closestPointLine = (start: ad.Pt2, end: ad.Pt2, pt: ad.Pt2): ad.Pt2 => {
+export const closestPointLine = (
+  start: ad.Pt2,
+  end: ad.Pt2,
+  pt: ad.Pt2
+): ad.Pt2 => {
   const a_to_p = [sub(pt[0], start[0]), sub(pt[1], start[1])];
   const a_to_b = [sub(end[0], start[0]), sub(end[1], start[1])];
   const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
@@ -3393,7 +3401,7 @@ const closestPointLine = (start: ad.Pt2, end: ad.Pt2, pt: ad.Pt2): ad.Pt2 => {
   return [add(start[0], mul(a_to_b[0], t)), add(start[1], mul(a_to_b[1], t))];
 };
 
-const closestPointEllipse = (
+export const closestPointEllipse = (
   // Note: this is an approximation function!
   c: ad.Pt2,
   rx: ad.Num,
@@ -3441,7 +3449,7 @@ const closestPointEllipse = (
   return [x, y];
 };
 
-const closestPointPoly = (
+export const closestPointPoly = (
   pts: ad.Pt2[],
   closed: boolean,
   pt: ad.Pt2
