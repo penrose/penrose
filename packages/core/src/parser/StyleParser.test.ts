@@ -161,7 +161,8 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
     sameASTs(results);
   });
   test("alias general test", () => {
-    const prog = "\
+    const prog =
+      "\
   forall Atom a1; Atom a2 \
   where Bond(a1, a2) as b {}";
     const { results } = parser.feed(prog);

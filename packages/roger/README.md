@@ -1,56 +1,40 @@
-# @penrose/roger
+# `@penrose/roger`: a headless renderer for Penrose
 
-`roger` is the command-line interface for the Penrose platform. Currently, it is mostly used for local development. `roger` serves and watches changes to Domain, Substance, and Style files in the local file system.
+This package is a command-line application that depends on `@penrose/core` and batch-processes multiple Penrose diagrams.
 
-<!-- toc -->
-
-- [@penrose/roger](#penroseroger)
-- [Usage](#usage)
-- [Commands](#commands)
-<!-- tocstop -->
-
-# Usage
-
-<!-- usage -->
-
-```sh-session
-$ npm install -g @penrose/roger
-$ roger COMMAND
-running command...
-$ roger (--version)
-@penrose/roger/2.3.0 darwin-arm64 node-v16.19.1
-$ roger --help [COMMAND]
-USAGE
-  $ roger COMMAND
-...
-```
-
-<!-- usagestop -->
-
-# Commands
-
-<!-- commands -->
-
-- [`roger watch`](#roger-watch)
-
-## `roger watch`
-
-Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)
+Usage:
 
 ```
-USAGE
-  $ roger watch [-p <value>]
+roger [command]
 
-FLAGS
-  -p, --port=<value>  [default: 9160] websocket port to serve to frontend
+Commands:
+  roger trio [trio..]                Generate a diagram from a Penros
+                                     e trio.
+  roger batch <registry> <out>       Generate diagrams from a registr
+                                     y of Penrose trios.
+  roger watch                        Watch the current folder for fil
+                                     es & changes (must end in .sub,.
+                                     substance,.sty,.style,.dsl,.doma
+                                     in)
+  roger shapedefs                    Generate a JSON file that contai
+                                     ns all shape definitions in the
+                                     Penrose system.
+  roger textchart <artifacts> <out>  Generate an ASCII chart that sho
+                                     ws the performance data.
 
-DESCRIPTION
-  Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)
+Options:
+  --version  Show version number                            [boolean]
+  --help     Show help                                      [boolean]
 
-EXAMPLES
-  $ roger watch
 ```
 
-_See code: [dist/commands/watch.js](https://github.com/penrose/penrose/blob/v2.3.0/dist/commands/watch.js)_
+## Getting started
 
-<!-- commandsstop -->
+- Follow the instruction in the [wiki page](https://github.com/penrose/penrose/wiki/Building-and-running) to install Penrose.
+- Run `yarn start batch registry.json out/ --path=../examples/src/` in this directory. The output SVGs will appear in `out`.
+
+## Using `roger` for local development
+
+- If you are developing a module in `core`, you can run `yarn start` in the project root direcory, which will continuously watch your changes in `core` and update your build.
+- Check the console before you run `roger` to make sure your changes in `core` are not causing any errors.
+- If the build is successful, `roger` will now be using the most recent version of `core` when batch-processing Penrose programs.

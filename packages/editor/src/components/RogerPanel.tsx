@@ -14,52 +14,53 @@ export default function RogerPanel({
   const workspace = useRecoilValue(currentWorkspaceState);
   const { substance, style, domain } = workspace.files;
   const onSelection = useRecoilCallback(
-    ({ set }) => (val: string, key: ProgramType) => {
-      set(currentWorkspaceState, (state) => {
-        const files = {
-          ...state.files,
-          [key]: { ...state.files[key], name: val },
-        };
-        localforage.setItem("selected_roger_files", {
-          substance: files.substance.name,
-          style: files.style.name,
-          domain: files.domain.name,
-        });
-        const { location } = state.metadata;
+    ({ set }) =>
+      (val: string, key: ProgramType) => {
+        set(currentWorkspaceState, (state) => {
+          const files = {
+            ...state.files,
+            [key]: { ...state.files[key], name: val },
+          };
+          localforage.setItem("selected_roger_files", {
+            substance: files.substance.name,
+            style: files.style.name,
+            domain: files.domain.name,
+          });
+          const { location } = state.metadata;
 
-        const fileLocations =
-          location.kind === "roger"
-            ? { ...location, [key]: val }
-            : {
-                substance: undefined,
-                style: undefined,
-                domain: undefined,
-              };
+          const fileLocations =
+            location.kind === "roger"
+              ? { ...location, [key]: val }
+              : {
+                  substance: undefined,
+                  style: undefined,
+                  domain: undefined,
+                };
 
-        return {
-          ...state,
-          metadata: {
-            ...state.metadata,
-            location: {
-              kind: "roger" as const,
-              // TODO: only set the root of the location if a style file is selected
-              // TODO: do path processing in a more principled way
-              ...fileLocations,
+          return {
+            ...state,
+            metadata: {
+              ...state.metadata,
+              location: {
+                kind: "roger" as const,
+                // TODO: only set the root of the location if a style file is selected
+                // TODO: do path processing in a more principled way
+                ...fileLocations,
+              },
+              id: uuid(),
             },
-            id: uuid(),
-          },
-          files,
-        };
-      });
-      if (ws !== null) {
-        ws.send(
-          JSON.stringify({
-            kind: "retrieve_file",
-            fileName: val,
-          })
-        );
+            files,
+          };
+        });
+        if (ws !== null) {
+          ws.send(
+            JSON.stringify({
+              kind: "retrieve_file",
+              fileName: val,
+            })
+          );
+        }
       }
-    }
   );
   useEffect(() => {
     if (rogerState.kind === "connected") {

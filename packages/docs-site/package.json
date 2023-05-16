@@ -1,11 +1,11 @@
 {
   "name": "@penrose/docs-site",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.1",
   "private": true,
   "scripts": {
     "build": "vitepress build",
     "build-decls": ":",
-    "build-shapedefs": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try && shx rm -f ./src/shapedefs.json && cd ../automator && yarn start shapedefs ../docs-site/src/shapedefs.json",
+    "build-shapedefs": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try && shx rm -f ./src/shapedefs.json && cd ../roger && yarn start shapedefs -o ../docs-site/src/shapedefs.json",
     "dev": "vitepress dev",
     "preview": "vitepress preview",
     "typecheck": ":"
@@ -37,13 +37,13 @@
     }
   },
   "dependencies": {
-    "@penrose/components": "^2.3.0",
-    "@penrose/examples": "^2.3.0",
+    "@penrose/components": "^3.0.0-alpha.0",
+    "@penrose/examples": "^3.0.0-alpha.0",
     "veaury": "^2.3.11"
   },
   "devDependencies": {
-    "@penrose/automator": "^2.3.0",
-    "@penrose/editor": "^2.3.0",
+    "@penrose/roger": "^3.0.0-alpha.1",
+    "@penrose/editor": "^3.0.0-alpha.0",
     "markdown-it-katex": "^2.0.3",
     "shx": "^0.3.3",
     "vitepress": "^1.0.0-alpha.35"

@@ -12,7 +12,7 @@ forall Set x {
         center : x.shape.center 
         width : x.shape.r * 2.0
         height : x.shape.r * 2.0
-        href : "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/set-theory-domain/shading.svg"
+        href : "shading.svg"
     }
 
     x.shadow = Image {
