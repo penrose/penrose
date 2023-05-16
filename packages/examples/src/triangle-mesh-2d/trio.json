@@ -1,0 +1,8 @@
+{
+  "substance": "../examples/src/triangle-mesh-2d/diagrams/concyclic-pair.substance",
+  "domain": "../examples/src/triangle-mesh-2d/triangle-mesh-2d.domain",
+  "style": [
+    "../examples/src/triangle-mesh-2d/triangle-mesh-2d.style",
+    "../examples/src/triangle-mesh-2d/concyclic.style"
+  ]
+}

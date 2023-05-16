@@ -1,6 +1,6 @@
 {
   "name": "@penrose/core",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.0",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "@datastructures-js/queue": "^4.1.3",
-    "@penrose/optimizer": "^2.3.0",
+    "@penrose/optimizer": "^3.0.0-alpha.0",
     "consola": "^2.15.2",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.15",
@@ -90,7 +90,7 @@
     "true-myth": "^4.1.0"
   },
   "devDependencies": {
-    "@penrose/examples": "^2.3.0",
+    "@penrose/examples": "^3.0.0-alpha.0",
     "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.149",
     "@types/moo": "^0.5.3",
