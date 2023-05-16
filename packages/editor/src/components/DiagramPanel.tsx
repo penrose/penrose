@@ -109,6 +109,8 @@ export const pathResolver = async (
             })
           );
         });
+      } else {
+        return undefined;
       }
     }
     // TODO: publish images in the gist
@@ -271,7 +273,7 @@ export const DownloadPNG = (
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [diagram, setDiagram] = useRecoilState(diagramState);
-  const { state, error, metadata } = diagram;
+  const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const { interactive } = useRecoilValue(diagramMetadataSelector);
   const workspace = useRecoilValue(workspaceMetadataSelector);
@@ -458,6 +460,29 @@ export default function DiagramPanel() {
             </span>
             <pre style={{ whiteSpace: "pre-wrap" }}>
               {showError(error).toString()}
+            </pre>
+          </div>
+        )}
+        {warnings.length > 0 && (
+          <div
+            style={{
+              bottom: 0,
+              backgroundColor: "#FFF2C5",
+              maxHeight: "100%",
+              maxWidth: "100%",
+              minHeight: "100px",
+              overflow: "auto",
+              padding: "10px",
+              boxSizing: "border-box",
+            }}
+          >
+            <span
+              style={{ fontWeight: "bold", color: "#F0C324", fontSize: 14 }}
+            >
+              warnings
+            </span>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {warnings.map((w) => showError(w).toString()).join("\n")}
             </pre>
           </div>
         )}

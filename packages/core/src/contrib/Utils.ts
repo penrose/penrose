@@ -209,50 +209,38 @@ export const closestPt_PtSeg = (
  * @param xs nodes in the computation graph
  * @returns a list of `number`s corresponding to nodes in `xs`
  */
-export const numsOf = (xs: ad.Num[]): number[] => {
-  const g = secondaryGraph(xs);
-  const inputs = [];
-  for (const v of g.nodes.keys()) {
-    if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.key] = v.val;
-    }
-  }
-  const f = genCodeSync(g);
-  return f.call(inputs).secondary;
-};
+export const numsOf = (xs: ad.Num[]): number[] =>
+  genCodeSync(secondaryGraph(xs))((x) => x.val).secondary;
 
 export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];
 };
 
 /**
- * Return list of tuples of consecutive points
+ * Return list of tuples of consecutive items
  */
-export const consecutiveTuples = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): [ad.Num, ad.Num][][] => {
-  const resLength = closed ? points.length : points.length - 1;
+export const consecutiveTuples = <T>(items: T[], closed: boolean): [T, T][] => {
+  const resLength = closed ? items.length : items.length - 1;
   if (resLength <= 0) return [];
   return Array.from({ length: resLength }, (_, key) => key).map((i) => [
-    points[i],
-    points[(i + 1) % points.length],
+    items[i],
+    items[(i + 1) % items.length],
   ]);
 };
 
 /**
- * Return list of triples of consecutive points
+ * Return list of triples of consecutive items
  */
-export const consecutiveTriples = (
-  points: [ad.Num, ad.Num][],
+export const consecutiveTriples = <T>(
+  items: T[],
   closed: boolean
-): [ad.Num, ad.Num][][] => {
-  const resLength = closed ? points.length : points.length - 2;
+): [T, T, T][] => {
+  const resLength = closed ? items.length : items.length - 2;
   if (resLength <= 0) return [];
   return Array.from({ length: resLength }, (_, key) => key).map((i) => [
-    points[i],
-    points[(i + 1) % points.length],
-    points[(i + 2) % points.length],
+    items[i],
+    items[(i + 1) % items.length],
+    items[(i + 2) % items.length],
   ]);
 };
 

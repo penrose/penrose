@@ -642,6 +642,48 @@
       "style": "triangle-mesh-2d",
       "domain": "triangle-mesh-2d",
       "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Curved graph example",
+      "substance": "sec5-ex32",
+      "style": "simple-curved-graph",
+      "domain": "simple-graph",
+      "variation": "CascaraKudu41689"
+    },
+    {
+      "name": "Open elastic curve example",
+      "substance": "cubic-bezier",
+      "style": "open-elastic-curve",
+      "domain": "curve-examples",
+      "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Closed elastic curve example",
+      "substance": "cubic-bezier",
+      "style": "closed-elastic-curve",
+      "domain": "curve-examples",
+      "variation": "ClamshellKookabura228"
+    },
+    {
+      "name": "Curved graph example with dots",
+      "substance": "arpanet",
+      "style": "simple-curved-graph-dots",
+      "domain": "simple-graph",
+      "variation": "CascaraKudu41689"
+    },
+    {
+      "name": "Curved graph example with boxes",
+      "substance": "nyc-subway",
+      "style": "simple-curved-graph-boxes",
+      "domain": "simple-graph",
+      "variation": "BasilTapir4665"
+    },
+    {
+      "name": "Blobs",
+      "substance": "blobs",
+      "style": "blobs",
+      "domain": "blobs",
+      "variation": "LavendaireWombat86913"
     }
   ],
   "domains": {
@@ -737,6 +779,9 @@
     },
     "curve-examples": {
       "URI": "curve-examples/curves.domain"
+    },
+    "blobs": {
+      "URI": "curve-examples/blobs.domain"
     }
   },
   "styles": {
@@ -895,6 +940,30 @@
     "cubic-bezier": {
       "domain": "curve-examples",
       "URI": "curve-examples/cubic-bezier.style"
+    },
+    "simple-curved-graph": {
+      "domain": "simple-curved-graph",
+      "URI": "graph-domain/simple-curved-graph.style"
+    },
+    "simple-curved-graph-dots": {
+      "domain": "simple-curved-graph",
+      "URI": "graph-domain/simple-curved-graph-dots.style"
+    },
+    "simple-curved-graph-boxes": {
+      "domain": "simple-curved-graph",
+      "URI": "graph-domain/simple-curved-graph-boxes.style"
+    },
+    "open-elastic-curve": {
+      "domain": "curve-examples",
+      "URI": "curve-examples/open-elastic-curve.style"
+    },
+    "closed-elastic-curve": {
+      "domain": "curve-examples",
+      "URI": "curve-examples/closed-elastic-curve.style"
+    },
+    "blobs": {
+      "domain": "blobs",
+      "URI": "curve-examples/blobs.style"
     }
   },
   "substances": {
@@ -1261,6 +1330,22 @@
     "angle-equivalence": {
       "domain": "triangle-mesh-2d",
       "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
+    },
+    "sec5-ex32": {
+      "domain": "simple-directed-graph",
+      "URI": "graph-domain/textbook/sec5/ex32.substance"
+    },
+    "arpanet": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/other-examples/arpanet.substance"
+    },
+    "nyc-subway": {
+      "domain": "simple-graph",
+      "URI": "graph-domain/other-examples/nyc-subway.substance"
+    },
+    "blobs": {
+      "domain": "blobs",
+      "URI": "curve-examples/blobs.substance"
     }
   }
 }

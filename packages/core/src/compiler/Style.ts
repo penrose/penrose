@@ -1,4 +1,4 @@
-import { genOptProblem } from "@penrose/optimizer";
+import { start as genOptProblem } from "@penrose/optimizer";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
@@ -7,13 +7,9 @@ import seedrandom from "seedrandom";
 import { constrDict } from "../contrib/Constraints";
 import { compDict } from "../contrib/Functions";
 import { objDict } from "../contrib/Objectives";
-import { input, ops } from "../engine/Autodiff";
+import { genGradient, input, ops } from "../engine/Autodiff";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions";
-import {
-  compileCompGraph,
-  dummyIdentifier,
-  genGradient,
-} from "../engine/EngineUtils";
+import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils";
 import { lastLocation, prettyParseError } from "../parser/ParserUtil";
 import styleGrammar from "../parser/StyleParser";
 import {
@@ -78,7 +74,7 @@ import {
   BlockInfo,
   Context,
   DepGraph,
-  Fielded,
+  FieldDict,
   FieldSource,
   Layer,
   LocalVarSubst,
@@ -125,6 +121,7 @@ import {
   isErr,
   ok,
   parseError,
+  redeclareNamespaceError,
   Result,
   safeChain,
   selectorFieldNotSupported,
@@ -151,7 +148,6 @@ import {
   matrixV,
   prettyPrintResolvedPath,
   resolveRhsName,
-  safe,
   shapeListV,
   strV,
   tupV,
@@ -1669,22 +1665,44 @@ const findSubstsSel = (
 
 //#region first pass
 
-type FieldedRes = Result<{ dict: Fielded; warns: StyleWarning[] }, StyleError>;
+type FieldedRes = Result<
+  { dict: FieldDict; warns: StyleWarning[] },
+  StyleError
+>;
 
 const updateExpr = (
   path: ResolvedPath<C>,
   assignment: BlockAssignment,
-  errTagPrefix: "Assign" | "Delete",
-  f: (field: Field, prop: PropID | undefined, fielded: Fielded) => FieldedRes
+  errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
+  errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
+  // this function performs the actual dictionary updates. `updateExpr` only needs to extract the path to pass to `f`.
+  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes
 ): BlockAssignment => {
   switch (path.tag) {
     case "Global": {
-      return addDiags(
-        oneErr({ tag: `${errTagPrefix}GlobalError`, path }),
-        assignment
-      );
+      if (path.members.length < 1) {
+        return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
+      } else if (path.members.length > 2) {
+        return addDiags(
+          oneErr({ tag: "PropertyMemberError", path }),
+          assignment
+        );
+      }
+      const field = path.members[0].value;
+      const prop = path.members.length > 1 ? path.members[1].value : undefined;
+      const namespaceFields = assignment.globals.get(path.name) ?? im.Map();
+      const res = f(field, prop, namespaceFields);
+      if (res.isErr()) {
+        return addDiags(oneErr(res.error), assignment);
+      }
+      const { dict, warns } = res.value;
+      return addDiags(warnings(warns), {
+        ...assignment,
+        globals: assignment.globals.set(path.name, dict),
+      });
     }
     case "Local": {
+      // a local variable can only have 0 or 1 members (`x = 1` or `icon = { x: 1 }`)
       if (path.members.length > 1) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
@@ -1703,10 +1721,7 @@ const updateExpr = (
     }
     case "Substance": {
       if (path.members.length < 1) {
-        return addDiags(
-          oneErr({ tag: `${errTagPrefix}SubstanceError`, path }),
-          assignment
-        );
+        return addDiags(oneErr({ tag: errTagSubstance, path }), assignment);
       } else if (path.members.length > 2) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
@@ -1760,71 +1775,86 @@ const insertExpr = (
   expr: Expr<C>,
   assignment: BlockAssignment
 ): BlockAssignment =>
-  updateExpr(path, assignment, "Assign", (field, prop, fielded) => {
-    const warns: StyleWarning[] = [];
-    if (prop === undefined) {
-      const source = processExpr({ ...block, locals: assignment.locals }, expr);
-      if (source.isErr()) {
-        return err(source.error);
-      }
-      if (fielded.has(field)) {
-        warns.push({ tag: "ImplicitOverrideWarning", path });
-      }
-      return ok({ dict: fielded.set(field, source.value), warns });
-    } else {
-      if (expr.tag === "GPIDecl") {
-        return err({ tag: "NestedShapeError", expr });
-      }
-      const shape = fielded.get(field);
-      if (shape === undefined) {
-        return err({ tag: "MissingShapeError", path });
-      }
-      if (shape.tag !== "ShapeSource") {
-        return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
-      }
-      if (shape.props.has(prop)) {
-        warns.push({ tag: "ImplicitOverrideWarning", path });
-      }
-      return ok({
-        dict: fielded.set(field, {
-          ...shape,
-          props: shape.props.set(prop, {
-            context: { ...block, locals: assignment.locals },
-            expr,
+  updateExpr(
+    path,
+    assignment,
+    "AssignGlobalError",
+    "AssignSubstanceError",
+    (field, prop, fielded) => {
+      const warns: StyleWarning[] = [];
+      if (prop === undefined) {
+        const source = processExpr(
+          { ...block, locals: assignment.locals },
+          expr
+        );
+        if (source.isErr()) {
+          return err(source.error);
+        }
+        if (fielded.has(field)) {
+          warns.push({ tag: "ImplicitOverrideWarning", path });
+        }
+        return ok({ dict: fielded.set(field, source.value), warns });
+      } else {
+        if (expr.tag === "GPIDecl") {
+          return err({ tag: "NestedShapeError", expr });
+        }
+        const shape = fielded.get(field);
+        if (shape === undefined) {
+          return err({ tag: "MissingShapeError", path });
+        }
+        if (shape.tag !== "ShapeSource") {
+          return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
+        }
+        if (shape.props.has(prop)) {
+          warns.push({ tag: "ImplicitOverrideWarning", path });
+        }
+        return ok({
+          dict: fielded.set(field, {
+            ...shape,
+            props: shape.props.set(prop, {
+              context: { ...block, locals: assignment.locals },
+              expr,
+            }),
           }),
-        }),
-        warns,
-      });
+          warns,
+        });
+      }
     }
-  });
+  );
 
 const deleteExpr = (
   path: ResolvedPath<C>,
   assignment: BlockAssignment
 ): BlockAssignment =>
-  updateExpr(path, assignment, "Delete", (field, prop, fielded) => {
-    if (prop === undefined) {
-      return ok({
-        dict: fielded.remove(field),
-        warns: fielded.has(field) ? [] : [{ tag: "NoopDeleteWarning", path }],
-      });
-    } else {
-      const shape = fielded.get(field);
-      if (shape === undefined) {
-        return err({ tag: "MissingShapeError", path });
+  updateExpr(
+    path,
+    assignment,
+    "DeleteGlobalError",
+    "DeleteSubstanceError",
+    (field, prop, fielded) => {
+      if (prop === undefined) {
+        return ok({
+          dict: fielded.remove(field),
+          warns: fielded.has(field) ? [] : [{ tag: "NoopDeleteWarning", path }],
+        });
+      } else {
+        const shape = fielded.get(field);
+        if (shape === undefined) {
+          return err({ tag: "MissingShapeError", path });
+        }
+        if (shape.tag !== "ShapeSource") {
+          return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
+        }
+        return ok({
+          dict: fielded.set(field, {
+            ...shape,
+            props: shape.props.remove(prop),
+          }),
+          warns: [],
+        });
       }
-      if (shape.tag !== "ShapeSource") {
-        return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
-      }
-      return ok({
-        dict: fielded.set(field, {
-          ...shape,
-          props: shape.props.remove(prop),
-        }),
-        warns: [],
-      });
     }
-  });
+  );
 
 const resolveLhsName = (
   { block, subst }: BlockInfo,
@@ -2005,10 +2035,18 @@ const processBlock = (
     const block = blockId(blockIndex, substIndex, hb.header);
     const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
     if (block.tag === "NamespaceId") {
-      // prepopulate with an empty namespace, to give a better error message
-      // when someone tries to assign to a global by its absolute path
-      // (`AssignGlobalError` instead of `MissingShapeError`)
-      withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+      if (withLocals.globals.has(block.contents)) {
+        // if the namespace exists, throw an error
+        withLocals.diagnostics.errors = errors.push(
+          redeclareNamespaceError(block.contents, {
+            start: hb.header.start,
+            end: hb.header.end,
+          })
+        );
+      } else {
+        // prepopulate with an empty namespace if it doesn't exist
+        withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+      }
     }
 
     // Augment the block to include the metadata
@@ -3640,13 +3678,15 @@ export const compileStyleHelper = async (
 
   const rng = seedrandom(variation);
   const varyingValues: number[] = [];
-  const inputs: InputMeta[] = [];
+  const inputs: ad.Input[] = [];
+  const metas: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
     const val =
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending;
-    const x = input({ key: varyingValues.length, val });
+    const x = input(val);
     varyingValues.push(val);
-    inputs.push(meta);
+    inputs.push(x);
+    metas.push(meta);
     return x;
   };
 
@@ -3716,13 +3756,13 @@ export const compileStyleHelper = async (
   ];
 
   const constraintSets = stageConstraints(
-    inputs,
+    metas,
     constrFns,
     objFns,
     optimizationStages.value
   );
 
-  const computeShapes = await compileCompGraph(renderGraph);
+  const computeShapes = await compileCompGraph(inputs, renderGraph);
 
   const gradient = await genGradient(
     inputs,
@@ -3730,12 +3770,7 @@ export const compileStyleHelper = async (
     constrFns.map(({ output }) => output)
   );
 
-  const { inputMask, objMask, constrMask } = safe(
-    constraintSets.get(optimizationStages.value[0]),
-    "missing first stage"
-  );
-
-  const params = genOptProblem(inputMask, objMask, constrMask);
+  const params = genOptProblem(varyingValues.length);
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
@@ -3745,7 +3780,7 @@ export const compileStyleHelper = async (
     constraintSets,
     constrFns,
     objFns,
-    inputs,
+    inputs: zip2(inputs, metas).map(([handle, meta]) => ({ handle, meta })),
     labelCache: new Map(),
     shapes: renderGraph,
     canvas: canvas.value,
