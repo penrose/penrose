@@ -8,6 +8,7 @@ import { Env } from "../types/domain";
 import { PenroseError } from "../types/errors";
 import { ApplyPredicate, SubRes, SubstanceEnv } from "../types/substance";
 import { Result, showError, showType } from "../utils/Error";
+import { isKeyOf } from "../utils/Util";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
 
@@ -536,6 +537,8 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach(([domainPath, examplePath]) => {
+    if (!isKeyOf(domainPath, setTheory)) throw Error(domainPath);
+    if (!isKeyOf(examplePath, setTheory)) throw Error(examplePath);
     const domProg = setTheory[domainPath];
     const subProg = setTheory[examplePath];
     test(examplePath, () => {

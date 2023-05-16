@@ -6,7 +6,6 @@
     "lib": ["es5", "es6", "es7", "esnext", "dom"],
     "sourceMap": true,
     "rootDir": "src",
-    "suppressImplicitAnyIndexErrors": true,
     "declaration": true,
     "declarationMap": true
   },

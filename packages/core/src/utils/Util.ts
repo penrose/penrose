@@ -139,6 +139,13 @@ export const zip3 = <T1, T2, T3>(
   return a;
 };
 
+// https://stackoverflow.com/a/70811091
+/** returns whether `key` is in `obj`, in a way that informs TypeScript */
+export const isKeyOf = <T extends Record<string, unknown>>(
+  key: string | number | symbol,
+  obj: T
+): key is keyof T => key in obj;
+
 //#endregion
 
 //#region random

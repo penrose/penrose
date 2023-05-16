@@ -59,7 +59,6 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { CompFunc } from "../types/functions";
 import {
-  ArgVal,
   Color,
   ColorV,
   FloatV,
@@ -3206,11 +3205,6 @@ const closestPointEllipseCoords = (
   x = add(x, center[0]);
   y = add(y, center[1]);
   return [x, y];
-};
-
-// Ignore this
-export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
-  if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {
