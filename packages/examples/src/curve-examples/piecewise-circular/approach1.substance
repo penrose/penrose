@@ -1,0 +1,8 @@
+Arc a1, a2, a3, a4, a5, a6
+
+connected(a1, a2)
+connected(a2, a3)
+connected(a3, a4)
+connected(a4, a5)
+connected(a5, a6)
+-- connected(a6, a1)

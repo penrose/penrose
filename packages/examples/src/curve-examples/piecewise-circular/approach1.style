@@ -1,0 +1,56 @@
+canvas {
+  width = 600
+  height = 400
+}
+
+layout = [first, second]
+
+forall Arc c {
+  vec2 c.c = (?, ?)
+  vec2 c.p1 = (?, ?)
+  scalar c.r = ?
+  vec2 c.p2 = (?, ?)
+  encourage equal(vdist(c.p1, c.c), c.r)
+  encourage equal(vdist(c.p2, c.c), c.r)
+  encourage lessThan(50, vdist(c.p2, c.p1)) in second
+  shape c.arc = Path {
+    fillColor: none()
+    -- strokeColor: #000
+    d: arc( "open", c.p1, c.p2, (c.r, c.r), 0, 0, 0 )
+    strokeWidth: 2
+  }
+  shape c.line = Line {
+    start: c.p1
+    end: c.p2
+    -- fillColor: c.arc.strokeColor
+    strokeColor: #00000021
+    arrowStyle: "linear"
+    strokeWidth: 1
+  }
+  shape c.pt = Circle {
+    center: c.c
+    r: 4
+    fillColor: c.arc.strokeColor
+  }
+  scalar angle1 = angleFrom(c.p1 - c.c, c.p2 - c.c)
+  scalar angle2 = angleFrom(c.p2 - c.c, c.p1 - c.c)
+  ensure lessThan(0, angle1)
+  -- ensure lessThan(angle2, 0)
+}
+
+forall Arc a1; Arc a2 where connected(a1, a2) {
+  encourage equal(vdist(a1.p2, a2.p1), 0) in second
+
+  -- scalar d1 = vdist(a1.p1, a1.p2)
+  -- vec2 angle1 = acos((a1.p2[1] - a1.p1[1]) / d1) + acos(d1 / (2 * a1.r))
+
+  -- scalar d2 = vdist(a2.p1, a2.p2)
+  -- vec2 angle2 = acos((a2.p2[1] - a2.p1[1]) / d2) - acos(d2 / (2 * a2.r))
+
+  -- encourage equal(angle1, angle2)
+
+  encourage equal(dot(a1.p2 - a1.c, a2.p1 - a2.c), vdist(a1.p2, a1.c) * vdist(a2.p1, a2.c)) in second
+  
+  -- equal(vdist(a1.p2, a1.c) + vdist(a2.p2, a.c), vdist())
+
+}

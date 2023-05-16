@@ -1,0 +1,2 @@
+type Arc
+predicate connected(Arc, Arc)
