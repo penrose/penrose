@@ -63,6 +63,9 @@ jobs:
         run: yarn toc
       - name: Build @penrose/roger
         run: yarn build:roger
+      - name: Link @penrose/roger
+        working-directory: packages/roger/
+        run: npm link
       - name: Regenerate example diagram and README.md
         run: .github/gen_readme.js
       - name: Check whether anything changed
