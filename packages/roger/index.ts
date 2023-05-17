@@ -32,6 +32,7 @@ interface StyledTrio {
   substance: string;
   style: string[];
   domain: string;
+  variation: string;
 }
 
 // In an async context, communicate with the backend to compile and optimize the diagram
@@ -383,34 +384,33 @@ yargs(hideBin(process.argv))
         .option("variation", {
           alias: "v",
           desc: "Variation for the Penrose diagram",
-          default: "",
         }),
     async (options) => {
       let sub, sty, dom;
+      let prefix = options.path;
+      let variation = options.variation as string | undefined;
       if (options.trio.length === 1) {
         console.log();
 
+        const trioPath = options.trio[0] as string;
+        prefix = join(trioPath, "..");
         // read trio from a JSON file
         const paths = JSON.parse(
-          await fs.readFileSync(resolve(options.trio[0] as string)).toString()
+          await fs.readFileSync(resolve(trioPath)).toString()
         ) as StyledTrio;
         dom = paths.domain;
         sub = paths.substance;
         sty = paths.style;
+        variation ??= paths.variation;
       } else {
         // load all three files
         const trio = orderTrio(options.trio as string[]);
         [sub, sty, dom] = [trio[0], [trio[1]], trio[2]];
       }
-      const { substance, style, domain } = readTrio(
-        sub,
-        sty,
-        dom,
-        options.path
-      );
+      const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
       // draw diagram and get metadata
       const { diagram } = await render(
-        options.variation,
+        variation ?? "",
         substance,
         style,
         domain,
