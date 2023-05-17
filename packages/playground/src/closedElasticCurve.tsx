@@ -28,7 +28,6 @@ export default async function Curve(
     ),
   ]);
 
-  p.minimize();
   return {
     problem: p,
     points,
