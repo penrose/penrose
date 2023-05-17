@@ -1,0 +1,6 @@
+{
+  "substance": "./hundred-points-around-star.substance",
+  "styles": ["./shape-distance.style"],
+  "domain": "./shapes.domain",
+  "variation": "ReformLapwing68793"
+}

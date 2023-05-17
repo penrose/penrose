@@ -1,0 +1,6 @@
+{
+  "substance": "./hypergraph.substance",
+  "styles": ["./hypergraph.style"],
+  "domain": "./hypergraph.domain",
+  "variation": "ConceptualMeerkat694"
+}

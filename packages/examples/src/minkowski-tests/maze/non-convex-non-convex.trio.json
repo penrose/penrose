@@ -1,0 +1,6 @@
+{
+  "substance": "./maze.substance",
+  "styles": ["./maze.style"],
+  "domain": "./maze.domain",
+  "variation": ""
+}

@@ -1,0 +1,6 @@
+{
+  "substance": "./vector-vector-outerproduct.substance",
+  "styles": ["./matrix-ops.style"],
+  "domain": "./matrix-ops.domain",
+  "variation": "DoesNotMatter"
+}

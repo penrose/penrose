@@ -1,0 +1,6 @@
+{
+  "substance": "./Poisson.substance",
+  "styles": ["./walk-on-spheres.style"],
+  "domain": "./walk-on-spheres.domain",
+  "variation": "CoraletteStingray87534"
+}

@@ -1,0 +1,6 @@
+{
+  "substance": "./glutamine.substance",
+  "styles": ["./molecules-basic.style"],
+  "domain": "./molecules.domain",
+  "variation": "MemoriesDeer750"
+}

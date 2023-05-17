@@ -1,0 +1,6 @@
+{
+  "substance": "./halfedge-mesh.substance",
+  "styles": ["./triangle-mesh-2d.style"],
+  "domain": "./triangle-mesh-2d.domain",
+  "variation": "BlackadderDogfish563"
+}

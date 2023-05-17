@@ -7,12 +7,18 @@
     "ttypescript": "^1"
   },
   "scripts": {
-    "build": "node registry.js > src/registry.ts && tsc -p tsconfig.transform.json && mv transform.js transform.cjs && rimraf dist && ttsc",
+    "build": "rimraf dist && tsc",
     "build-decls": ":",
+    "codegen": "node codegen.js",
     "typecheck": ":"
   },
   "nx": {
     "targets": {
+      "build": {
+        "dependsOn": [
+          "codegen"
+        ]
+      },
       "build-decls": {
         "dependsOn": [
           "build"

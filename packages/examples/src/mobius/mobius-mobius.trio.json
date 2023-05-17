@@ -1,0 +1,6 @@
+{
+  "substance": "./mobius.substance",
+  "styles": ["./mobius.style"],
+  "domain": "./mobius.domain",
+  "variation": "BrimstoneAntelope3300"
+}

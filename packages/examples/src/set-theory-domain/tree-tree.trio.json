@@ -1,0 +1,6 @@
+{
+  "substance": "./tree.substance",
+  "styles": ["./tree.style"],
+  "domain": "./setTheory.domain",
+  "variation": ""
+}

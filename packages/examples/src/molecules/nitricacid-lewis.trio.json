@@ -1,0 +1,6 @@
+{
+  "substance": "./nitricacid.substance",
+  "styles": ["./lewis.style"],
+  "domain": "./molecules.domain",
+  "variation": "DeadlockWren0150"
+}

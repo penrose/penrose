@@ -12,8 +12,7 @@
 /packages/docs-site/build/
 /packages/docs-site/public/try/
 /packages/docs-site/src/shapedefs.json
-/packages/examples/src/registry.ts
-/packages/examples/transform.cjs
+/packages/examples/ts/
 /packages/optimizer/bindings/
 /packages/optimizer/build/
 /packages/optimizer/index.js

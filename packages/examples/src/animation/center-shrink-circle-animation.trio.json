@@ -1,0 +1,6 @@
+{
+  "substance": "./center-shrink-circle.substance",
+  "styles": ["./animation.style"],
+  "domain": "./animation.domain",
+  "variation": ""
+}

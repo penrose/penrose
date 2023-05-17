@@ -1,0 +1,6 @@
+{
+  "substance": "./vector-vector-multiplication-elementwise.substance",
+  "styles": ["./matrix-ops.style"],
+  "domain": "./matrix-ops.domain",
+  "variation": "DoesNotMatter"
+}
