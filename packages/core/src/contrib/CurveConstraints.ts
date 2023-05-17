@@ -15,7 +15,6 @@ import {
   sub,
   tan,
 } from "../engine/AutodiffFunctions";
-import { Path } from "../shapes/Path";
 import { Polygon } from "../shapes/Polygon";
 import { Polyline } from "../shapes/Polyline";
 import * as ad from "../types/ad";
@@ -256,7 +255,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
         type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num>): ad.Num => {
       const points = extractPoints(s);
       const triples = consecutiveTriples(points, isClosed(s));
       const angles = triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
@@ -285,7 +284,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
         type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
+    body: (s: Polyline<ad.Num> | Polygon<ad.Num>): ad.Num => {
       const localPenalty = constrDictCurves.isLocallyConvex.body(s);
       const points = extractPoints(s);
       const tn = turningNumber(points, isClosed(s));

@@ -22,12 +22,12 @@ import { Ellipse } from "../shapes/Ellipse";
 import * as ad from "../types/ad";
 import { safe } from "../utils/Util";
 import {
+  ImplicitEllipse,
+  ImplicitHalfPlane,
   ellipsePolynomial,
   ellipseToImplicit,
   halfPlaneToImplicit,
-  ImplicitEllipse,
   implicitEllipseFunc,
-  ImplicitHalfPlane,
   implicitHalfPlaneFunc,
   implicitIntersectionOfEllipsesFunc,
 } from "./ImplicitShapes";

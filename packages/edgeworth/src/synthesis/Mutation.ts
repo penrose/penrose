@@ -13,10 +13,10 @@ import {
 import consola from "consola";
 import _ from "lodash";
 import {
-  appendStmt,
   ArgExpr,
-  argMatches,
   ArgStmtDecl,
+  appendStmt,
+  argMatches,
   cascadingDelete,
   identicalTypeDecls,
   matchSignatures,
@@ -25,11 +25,11 @@ import {
   stmtExists,
 } from "../analysis/SubstanceAnalysis";
 import {
+  SynthesisContext,
+  WithContext,
   addID,
   generateArgStmt,
   removeID,
-  SynthesisContext,
-  WithContext,
 } from "./Synthesizer";
 
 const log = consola

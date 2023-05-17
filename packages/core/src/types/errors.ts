@@ -5,8 +5,8 @@ import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions";
 import { State } from "./state";
 import {
-  BindingForm,
   BinOp,
+  BindingForm,
   ColorLit,
   Expr,
   GPIDecl,

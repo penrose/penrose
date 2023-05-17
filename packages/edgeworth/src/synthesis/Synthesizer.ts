@@ -38,15 +38,16 @@ import pr from "pandemonium/random";
 import pwc from "pandemonium/weighted-choice";
 import seedrandom from "seedrandom";
 import {
+  ArgExpr,
+  ArgStmtDecl,
+  SubStmtKind,
   appendStmt,
   applyBind,
   applyConstructor,
   applyFunction,
   applyPredicate,
   applyTypeDecl,
-  ArgExpr,
   argMatches,
-  ArgStmtDecl,
   autoLabelStmt,
   cascadingDelete,
   dedupStmts,
@@ -58,10 +59,13 @@ import {
   matchSignatures,
   nullaryTypeCons,
   sortStmts,
-  SubStmtKind,
 } from "../analysis/SubstanceAnalysis";
 import {
   Add,
+  Delete,
+  Mutation,
+  MutationGroup,
+  MutationType,
   addMutation,
   checkAddStmt,
   checkAddStmts,
@@ -74,12 +78,8 @@ import {
   checkSwapInExprArgs,
   checkSwapInStmtArgs,
   checkSwapStmtArgs,
-  Delete,
   deleteMutation,
   executeMutations,
-  Mutation,
-  MutationGroup,
-  MutationType,
   showMutations,
 } from "./Mutation";
 
