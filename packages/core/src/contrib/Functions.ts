@@ -1728,12 +1728,12 @@ export const compDict = {
   },
 
   /**
-   * Return a random value between minVal and maxValue.
+   * Return a uniform random value between minVal and maxValue.
    */
   random: {
     name: "random",
     description:
-      'Sample a random value once, in the range from `minVal` to `maxVal`.',
+      'Uniformly sample a random value in the range from `minVal` to `maxVal`.',
     params: [
       { name: "minVal", type: realT(), description: "minimum value" },
       { name: "maxVal", type: realT(), description: "maximum value" },
@@ -1751,6 +1751,60 @@ export const compDict = {
       return {
         tag: "FloatV",
         contents: val,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a uniform random value between 0 and 1
+   */
+  unitRandom: {
+    name: "unitRandom",
+    description:
+      'Uniformly sample a random value in the range [0,1].',
+    params: [],
+    body: (
+      { makeInput }: Context
+    ): FloatV<ad.Num> => {
+      const val = makeInput({
+          init: { tag: "Sampled", sampler: uniform(0, 1) },
+          stages: new Set(),
+        })
+      
+      return {
+        tag: "FloatV",
+        contents: val,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a random value sampled from a normal distribution with mean 0 and standard deviation 1.
+   */
+  normalRandom: {
+    name: "normalRandom",
+    description:
+      'Sample a normal distribution with mean 0 and standard deviation 1.',
+    params: [],
+    body: (
+      { makeInput }: Context
+    ): FloatV<ad.Num> => {
+      const u1 = makeInput({
+          init: { tag: "Sampled", sampler: uniform(0, 1) },
+          stages: new Set(),
+        })
+      const u2 = makeInput({
+          init: { tag: "Sampled", sampler: uniform(0, 1) },
+          stages: new Set(),
+        })
+
+      const Z = mul(sqrt(mul(-2.,ln(u1))),cos(mul(2.*Math.PI,u2)));
+      
+      return {
+        tag: "FloatV",
+        contents: Z,
       };
     },
     returns: valueT("Real"),
