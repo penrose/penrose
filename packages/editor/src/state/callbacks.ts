@@ -5,8 +5,8 @@ import {
   resample,
   stepNextStage,
   stepState,
-  Trio,
 } from "@penrose/core";
+import { Meta } from "@penrose/examples/dist";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -226,7 +226,7 @@ export const useLoadLocalWorkspace = () =>
   });
 
 export const useLoadExampleWorkspace = () =>
-  useRecoilCallback(({ set, reset, snapshot }) => async (trio: Trio) => {
+  useRecoilCallback(({ set, reset, snapshot }) => async (meta: Meta) => {
     const currentWorkspace = snapshot.getLoadable(
       currentWorkspaceState
     ).contents;
@@ -234,21 +234,13 @@ export const useLoadExampleWorkspace = () =>
       return;
     }
     const id = toast.loading("Loading example...");
-    const domainReq = await fetch(trio.domainURI);
-    const styleReq = await fetch(trio.styleURI);
-    const substanceReq = await fetch(trio.substanceURI);
+    const { domain, style, substance, variation } = await meta.get();
     toast.dismiss(id);
-    const domain = await domainReq.text();
-    const style = await styleReq.text();
-    const substance = await substanceReq.text();
-    const styleParentURI = trio.styleURI.substring(
-      0,
-      trio.styleURI.lastIndexOf("/") + 1
-    );
+    const styleParentURI = ""; // TODO
     set(currentWorkspaceState, {
       metadata: {
         id: uuid(),
-        name: trio.name,
+        name: meta.name!,
         lastModified: new Date().toISOString(),
         editorVersion: EDITOR_VERSION,
         location: {
@@ -260,20 +252,20 @@ export const useLoadExampleWorkspace = () =>
       files: {
         domain: {
           contents: domain,
-          name: `${trio.domainID}.domain`,
+          name: `.domain`,
         },
         style: {
           contents: style,
-          name: `${trio.styleID}.style`,
+          name: `.style`,
         },
         substance: {
           contents: substance,
-          name: `${trio.substanceID}.substance`,
+          name: `.substance`,
         },
       },
     });
     reset(diagramState);
-    await _compileDiagram(substance, style, domain, trio.variation, set);
+    await _compileDiagram(substance, style, domain, variation, set);
   });
 
 export const useCheckURL = () =>
