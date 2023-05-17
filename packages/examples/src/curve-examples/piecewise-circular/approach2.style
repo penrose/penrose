@@ -1,9 +1,7 @@
 canvas {
-  width = 600
-  height = 400
+    width = 800
+    height = 800
 }
-
-layout = [first, second]
 
 forall Arc c {
 
@@ -12,23 +10,39 @@ forall Arc c {
   scalar DAngle3 = ?
   scalar DAngle4 = ?
   scalar DAngle5 = ?
+  scalar DAngle6 = ?
+  scalar DAngle7 = ?
+  scalar DAngle8 = ?
+  scalar DAngle9 = ?
 
   scalar dAngle1 = max(0.1, min(3.0, DAngle1))
   scalar dAngle2 = max(0.1, min(3.0, DAngle2))
   scalar dAngle3 = max(0.1, min(3.0, DAngle3))
   scalar dAngle4 = max(0.1, min(3.0, DAngle4))
   scalar dAngle5 = max(0.1, min(3.0, DAngle5))
+  scalar dAngle6 = max(0.1, min(3.0, DAngle6))
+  scalar dAngle7 = max(0.1, min(3.0, DAngle7))
+  scalar dAngle8 = max(0.1, min(3.0, DAngle8))
+  scalar dAngle9 = max(0.1, min(3.0, DAngle9))
 
-  ensure lessThan(0.2, DAngle1) in second
-  ensure lessThan(DAngle1, 2.5) in second
-  ensure lessThan(0.2, DAngle2) in second
-  ensure lessThan(DAngle2, 2.5) in second
-  ensure lessThan(0.2, DAngle3) in second
-  ensure lessThan(DAngle3, 2.5) in second
-  ensure lessThan(0.2, DAngle4) in second
-  ensure lessThan(DAngle4, 2.5) in second
-  ensure lessThan(0.2, DAngle5) in second
-  ensure lessThan(DAngle5, 2.5) in second
+  ensure lessThan(0.2, DAngle1)
+  ensure lessThan(DAngle1, 2.5)
+  ensure lessThan(0.2, DAngle2)
+  ensure lessThan(DAngle2, 2.5)
+  ensure lessThan(0.2, DAngle3)
+  ensure lessThan(DAngle3, 2.5)
+  ensure lessThan(0.2, DAngle4)
+  ensure lessThan(DAngle4, 2.5)
+  ensure lessThan(0.2, DAngle5)
+  ensure lessThan(DAngle5, 2.5)
+  ensure lessThan(0.2, DAngle6)
+  ensure lessThan(DAngle6, 2.5)
+  ensure lessThan(0.2, DAngle7)
+  ensure lessThan(DAngle7, 2.5)
+  ensure lessThan(0.2, DAngle8)
+  ensure lessThan(DAngle8, 2.5)
+  ensure lessThan(0.2, DAngle9)
+  ensure lessThan(DAngle9, 2.5)
 
   scalar angle0 = ?
   scalar angle1 = angle0 + dAngle1
@@ -36,6 +50,10 @@ forall Arc c {
   scalar angle3 = angle2 + dAngle3
   scalar angle4 = angle3 + dAngle4
   scalar angle5 = angle4 + dAngle5
+  scalar angle6 = angle5 + dAngle6
+  scalar angle7 = angle6 + dAngle7
+  scalar angle8 = angle7 + dAngle8
+  scalar angle9 = angle8 + dAngle9
 
   vec2 t0 = (cos(angle0), sin(angle0))
   vec2 t1 = (cos(angle1), sin(angle1))
@@ -43,12 +61,10 @@ forall Arc c {
   vec2 t3 = (cos(angle3), sin(angle3))
   vec2 t4 = (cos(angle4), sin(angle4))
   vec2 t5 = (cos(angle5), sin(angle5))
-
-  -- encourage equal(dAngle1, dAngle2) in second
-  -- encourage equal(dAngle2, dAngle3) in second
-  -- encourage equal(dAngle3, dAngle4) in second
-  -- encourage equal(dAngle4, dAngle5) in second
-  -- encourage equal(dAngle5, dAngle1) in second
+  vec2 t6 = (cos(angle6), sin(angle6))
+  vec2 t7 = (cos(angle7), sin(angle7))
+  vec2 t8 = (cos(angle8), sin(angle8))
+  vec2 t9 = (cos(angle9), sin(angle9))
 
   vec2 n0 = (t0[1], -t0[0])
   vec2 n1 = (t1[1], -t1[0])
@@ -56,54 +72,67 @@ forall Arc c {
   vec2 n3 = (t3[1], -t3[0])
   vec2 n4 = (t4[1], -t4[0])
   vec2 n5 = (t5[1], -t5[0])
+  vec2 n6 = (t6[1], -t6[0])
+  vec2 n7 = (t7[1], -t7[0])
+  vec2 n8 = (t8[1], -t8[0])
+  vec2 n9 = (t9[1], -t9[0])
 
   scalar R1 = ?
   scalar R2 = ?
   scalar R3 = ?
   scalar R4 = ?
   scalar R5 = ?
+  scalar R6 = ?
+  scalar R7 = ?
+  scalar R8 = ?
+  scalar R9 = ?
 
-  ensure lessThan(40, R1) in second
-  ensure lessThan(R1, 150) in second
-  ensure lessThan(40, R2) in second
-  ensure lessThan(R2, 150) in second
-  ensure lessThan(40, R3) in second
-  ensure lessThan(R3, 150) in second
-  ensure lessThan(40, R4) in second
-  ensure lessThan(R4, 150) in second
-  ensure lessThan(40, R5) in second
-  ensure lessThan(R5, 150) in second
+  ensure lessThan(30, R1)
+  ensure lessThan(R1, 120)
+  ensure lessThan(30, R2)
+  ensure lessThan(R2, 120)
+  ensure lessThan(30, R3)
+  ensure lessThan(R3, 120)
+  ensure lessThan(30, R4)
+  ensure lessThan(R4, 120)
+  ensure lessThan(30, R5)
+  ensure lessThan(R5, 120)
+  ensure lessThan(30, R6)
+  ensure lessThan(R6, 120)
+  ensure lessThan(30, R7)
+  ensure lessThan(R7, 120)
+  ensure lessThan(30, R8)
+  ensure lessThan(R8, 120)
+  ensure lessThan(30, R9)
+  ensure lessThan(R9, 120)
 
   scalar r1 = max(20, min(200, R1))
   scalar r2 = max(20, min(200, R2))
   scalar r3 = max(20, min(200, R3))
   scalar r4 = max(20, min(200, R4))
   scalar r5 = max(20, min(200, R5))
-
-  -- encourage equal(r1, r2) in second
-  -- encourage equal(r2, r3) in second
-  -- encourage equal(r3, r4) in second
-  -- encourage equal(r4, r5) in second
-  -- encourage equal(r5, r1) in second
+  scalar r6 = max(20, min(200, R6))
+  scalar r7 = max(20, min(200, R7))
+  scalar r8 = max(20, min(200, R8))
+  scalar r9 = max(20, min(200, R9))
 
   scalar l1 = abs(2 * 3.14 * r1 / dAngle1)
   scalar l2 = abs(2 * 3.14 * r2 / dAngle2)
   scalar l3 = abs(2 * 3.14 * r3 / dAngle3)
   scalar l4 = abs(2 * 3.14 * r4 / dAngle4)
   scalar l5 = abs(2 * 3.14 * r5 / dAngle5)
+  scalar l6 = abs(2 * 3.14 * r6 / dAngle6)
+  scalar l7 = abs(2 * 3.14 * r7 / dAngle7)
+  scalar l8 = abs(2 * 3.14 * r8 / dAngle8)
+  scalar l9 = abs(2 * 3.14 * r9 / dAngle9)
 
-  -- ensure lessThan(10, l1) in second
-  -- ensure lessThan(l1, 300) in second
-  -- ensure lessThan(10, l2) in second
-  -- ensure lessThan(l2, 300) in second
-  -- ensure lessThan(10, l3) in second
-  -- ensure lessThan(l3, 300) in second
-  -- ensure lessThan(10, l4) in second
-  -- ensure lessThan(l4, 300) in second
-  -- ensure lessThan(10, l5) in second
-  -- ensure lessThan(l5, 300) in second
-  
   vec2 p0 = (?, ?)
+
+  ensure lessThan(- canvas.width / 2 + 100, p0[0])
+  ensure lessThan(p0[0], canvas.width / 2 - 100)
+  ensure lessThan(-canvas.height / 2 + 100, p0[1])
+  ensure lessThan(p0[1], canvas.height / 2 - 100)
+
   vec2 c1 = p0 - r1 * n0
   vec2 p1 = c1 + r1 * n1
   vec2 c2 = p1 - r2 * n1
@@ -115,52 +144,113 @@ forall Arc c {
   vec2 c5 = p4 - r5 * n4
   vec2 p5 = c5 + r5 * n5
 
-  -- ensure equal(DAngle1, 2 * 3.14 / 5) in first
-  -- ensure equal(DAngle2, 2 * 3.14 / 5) in first
-  -- ensure equal(DAngle3, 2 * 3.14 / 5) in first
-  -- ensure equal(DAngle4, 2 * 3.14 / 5) in first
-  -- ensure equal(DAngle5, 2 * 3.14 / 5) in first
+  vec2 c6 = p5 - r6 * n5
+  vec2 p6 = c6 + r6 * n6
+  vec2 c7 = p6 - r7 * n6
+  vec2 p7 = c7 + r7 * n7
+  vec2 c8 = p7 - r8 * n7
+  vec2 p8 = c8 + r8 * n8
+  vec2 c9 = p8 - r9 * n8
+  vec2 p9 = c9 + r9 * n9
 
-  -- ensure equal(r1, 50) in first
-  -- ensure equal(r2, 50) in first
-  -- ensure equal(r3, 50) in first
-  -- ensure equal(r4, 50) in first
-  -- ensure equal(r5, 50) in first
-
-  ensure equal(vdist(t0, t5), 0) in second
-  ensure equal(vdist(p0, p5), 0) in second
-
-  ensure equal(DAngle1 + DAngle2 + DAngle3 + DAngle4 + DAngle5, 2 * 3.14)
+  scalar c.totalKappa = DAngle1 + DAngle2 + DAngle3 + DAngle4 + DAngle5 + DAngle6 + DAngle7 + DAngle8 + DAngle9
+  points = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9]
+  vec2 c.cm = centerOfMass(points)
+  scalar c.maxY = max(max(max(max(p0[1], p1[1]), max(p2[1], p3[1])), max(max(p4[1], p5[1]), max(p6[1], p7[1]))), max(p8[1], p9[1]))
+  scalar c.minX = min(min(min(max(p0[0], p1[0]), min(p2[0], p3[0])), min(min(p4[0], p5[0]), min(p6[0], p7[0]))), min(p8[0], p9[0]))
+  vec2 c.p0 = p0
+  
+--   ensure equal(vdist(t0, t9), 0)
+  ensure equal(vdist(p0, p9), 0)
 
   shape c.arc1 = Path {
     fillColor: none()
-    -- strokeColor: #000
     d: arc( "open", p0, p1, (r1, r1), 0, 0, 0 )
-    strokeWidth: 2
+    strokeWidth: 3
   }
   shape c.arc2 = Path {
     fillColor: none()
-    -- strokeColor: #000
     d: arc( "open", p1, p2, (r2, r2), 0, 0, 0 )
-    strokeWidth: 2
+    strokeWidth: 3
   }
   shape c.arc3 = Path {
     fillColor: none()
-    -- strokeColor: #000
     d: arc( "open", p2, p3, (r3, r3), 0, 0, 0 )
-    strokeWidth: 2
+    strokeWidth: 3
   }
   shape c.arc4 = Path {
     fillColor: none()
-    -- strokeColor: #000
     d: arc( "open", p3, p4, (r4, r4), 0, 0, 0 )
-    strokeWidth: 2
+    strokeWidth: 3
   }
   shape c.arc5 = Path {
     fillColor: none()
-    -- strokeColor: #000
     d: arc( "open", p4, p5, (r5, r5), 0, 0, 0 )
-    strokeWidth: 2
+    strokeWidth: 3
   }
+  shape c.arc6 = Path {
+    fillColor: none()
+    -- strokeColor: #000
+    d: arc( "open", p5, p6, (r6, r6), 0, 0, 0 )
+    strokeWidth: 3
+  }
+  shape c.arc7 = Path {
+    fillColor: none()
+    d: arc( "open", p6, p7, (r7, r7), 0, 0, 0 )
+    strokeWidth: 3
+  }
+  shape c.arc8 = Path {
+    fillColor: none()
+    d: arc( "open", p7, p8, (r8, r8), 0, 0, 0 )
+    strokeWidth: 3
+  }
+  shape c.arc9 = Path {
+    fillColor: none()
+    d: arc( "open", p8, p9, (r9, r9), 0, 0, 0 )
+    strokeWidth: 3
+  }
+}
 
+forall Arc a where turning1(a) {
+  ensure equal(a.totalKappa, 2 * 3.14)
+  a.eq = Text {
+    string: "1"
+    fontSize: "20pt"
+    fillColor: #000
+    center: (a.minX - 20, a.maxY + 20)
+  }
+} 
+
+forall Arc a where turning2(a) {
+  ensure equal(a.totalKappa, 4 * 3.14)
+  a.eq = Text {
+    string: "2"
+    fontSize: "20pt"
+    fillColor: #000
+    center: (a.minX - 20, a.maxY + 20)
+  }
+} 
+
+forall Arc a where turning3(a) {
+  ensure equal(a.totalKappa, 6 * 3.14)
+  a.eq = Text {
+    string: "3"
+    fontSize: "20pt"
+    fillColor: #000
+    center: (a.minX - 20, a.maxY + 20)
+  }
+} 
+
+forall Arc a where turning4(a) {
+  ensure equal(a.totalKappa, 8 * 3.14)
+  a.eq = Text {
+    string: "4"
+    fontSize: "20pt"
+    fillColor: #000
+    center: (a.minX - 20, a.maxY + 20)
+  }
+} 
+
+forall Arc a1; Arc a2 {
+  ensure lessThan(300, vdist(a1.p0, a2.p0))
 }

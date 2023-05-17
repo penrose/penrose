@@ -1,1 +1,6 @@
-Arc a
+Arc a1, a2, a3, a4
+
+turning1(a1)
+turning2(a2)
+turning3(a3)
+turning4(a4)

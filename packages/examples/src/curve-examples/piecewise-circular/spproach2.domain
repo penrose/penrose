@@ -1,1 +1,6 @@
 type Arc
+
+predicate turning1(Arc)
+predicate turning2(Arc)
+predicate turning3(Arc)
+predicate turning4(Arc)
