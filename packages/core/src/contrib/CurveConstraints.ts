@@ -48,9 +48,9 @@ enum CurvatureApproximationMode {
  * Returns discrete curvature approximation given three consecutive points
  */
 export const curvature = (
-  p1: [ad.Num, ad.Num],
-  p2: [ad.Num, ad.Num],
-  p3: [ad.Num, ad.Num],
+  p1: ad.Num[],
+  p2: ad.Num[],
+  p3: ad.Num[],
   mode: CurvatureApproximationMode = CurvatureApproximationMode.Angle
 ): ad.Num => {
   // Finite difference approximation of the $\partial_s T = \kappa N$
@@ -93,26 +93,20 @@ export const curvature = (
 /**
  * Returns the total length of polygonal chain given its nodes
  */
-export const perimeter = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
+export const perimeter = (points: ad.Num[][], closed: boolean): ad.Num => {
   const sides = consecutiveTuples(points, closed);
-  return addN(sides.map(([p1, p2]: [ad.Num, ad.Num][]) => ops.vdist(p1, p2)));
+  return addN(sides.map(([p1, p2]: ad.Num[][]) => ops.vdist(p1, p2)));
 };
 
 /**
  * Returns the signed area enclosed by a polygonal chain given its nodes
  */
-export const signedArea = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
+export const signedArea = (points: ad.Num[][], closed: boolean): ad.Num => {
   const sides = consecutiveTuples(points, closed);
   return mul(
     0.5,
     addN(
-      sides.map(([p1, p2]: [ad.Num, ad.Num][]) =>
+      sides.map(([p1, p2]: ad.Num[][]) =>
         sub(mul(p1[0], p2[1]), mul(p1[1], p2[0]))
       )
     )
@@ -122,10 +116,7 @@ export const signedArea = (
 /**
  * Returns the turning number of polygonal chain given its nodes
  */
-export const turningNumber = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
+export const turningNumber = (points: ad.Num[][], closed: boolean): ad.Num => {
   return div(totalCurvature(points, closed), 2 * Math.PI);
 };
 
@@ -133,7 +124,7 @@ export const turningNumber = (
  * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
  */
 export const isoperimetricRatio = (
-  points: [ad.Num, ad.Num][],
+  points: ad.Num[][],
   closed: boolean
 ): ad.Num => {
   return div(squared(perimeter(points, closed)), signedArea(points, closed));
@@ -143,33 +134,28 @@ export const isoperimetricRatio = (
  * Returns integral of curvature along the curve
  */
 export const totalCurvature = (
-  points: [ad.Num, ad.Num][],
+  points: ad.Num[][],
   closed: boolean,
   signed = true
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   if (signed) {
     return addN(
-      triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) => curvature(p1, p2, p3))
+      triples.map(([p1, p2, p3]: ad.Num[][]) => curvature(p1, p2, p3))
     );
   }
   return addN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
-      absVal(curvature(p1, p2, p3))
-    )
+    triples.map(([p1, p2, p3]: ad.Num[][]) => absVal(curvature(p1, p2, p3)))
   );
 };
 
 /**
  * Returns integral of curvature squared along the curve
  */
-export const elasticEnergy = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
+export const elasticEnergy = (points: ad.Num[][], closed: boolean): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return addN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+    triples.map(([p1, p2, p3]: ad.Num[][]) =>
       mul(
         squared(
           curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment)
@@ -184,26 +170,21 @@ export const elasticEnergy = (
  * Returns the sum of all line segment lengths raised to `k`
  */
 export const lengthK = (
-  points: [ad.Num, ad.Num][],
+  points: ad.Num[][],
   closed: boolean,
   k: number
 ): ad.Num => {
   const tuples = consecutiveTuples(points, closed);
-  return addN(
-    tuples.map(([p1, p2]: [ad.Num, ad.Num][]) => pow(ops.vdist(p1, p2), k))
-  );
+  return addN(tuples.map(([p1, p2]: ad.Num[][]) => pow(ops.vdist(p1, p2), k)));
 };
 
 /**
  * Returns the maximum value of curvature along the curve
  */
-export const maxCurvature = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): ad.Num => {
+export const maxCurvature = (points: ad.Num[][], closed: boolean): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return maxN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+    triples.map(([p1, p2, p3]: ad.Num[][]) =>
       absVal(curvature(p1, p2, p3, CurvatureApproximationMode.OsculatingCircle))
     )
   );
@@ -213,13 +194,13 @@ export const maxCurvature = (
  * Returns integral of curvature raised to `p` along the curve
  */
 export const pElasticEnergy = (
-  points: [ad.Num, ad.Num][],
+  points: ad.Num[][],
   closed: boolean,
   p = 2
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return addN(
-    triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+    triples.map(([p1, p2, p3]: ad.Num[][]) =>
       mul(
         pow(
           curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment),
@@ -235,12 +216,12 @@ export const pElasticEnergy = (
  * Inflection energy of an order p
  */
 export const inflectionEnergy = (
-  points: [ad.Num, ad.Num][],
+  points: ad.Num[][],
   closed: boolean,
   p: number
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
-  const curvatures = triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+  const curvatures = triples.map(([p1, p2, p3]: ad.Num[][]) =>
     curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment)
   );
   const tuples = consecutiveTuples(curvatures, closed);
