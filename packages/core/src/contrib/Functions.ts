@@ -1728,6 +1728,35 @@ export const compDict = {
   },
 
   /**
+   * Return a random value between minVal and maxValue.
+   */
+  random: {
+    name: "random",
+    description:
+      'Sample a random value once, in the range from `minVal` to `maxVal`.',
+    params: [
+      { name: "minVal", type: realT(), description: "minimum value" },
+      { name: "maxVal", type: realT(), description: "maximum value" },
+    ],
+    body: (
+      { makeInput }: Context,
+      minVal: ad.Num,
+      maxVal: ad.Num
+    ): FloatV<ad.Num> => {
+      const val = makeInput({
+          init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
+          stages: new Set(),
+        })
+      
+      return {
+        tag: "FloatV",
+        contents: val,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
   sampleColor: {
