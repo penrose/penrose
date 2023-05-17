@@ -979,4 +979,3 @@ export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
 };
 
 //#endregion
-
