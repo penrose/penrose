@@ -1743,15 +1743,21 @@ export const compDict = {
       minVal: ad.Num,
       maxVal: ad.Num
     ): FloatV<ad.Num> => {
-      const val = makeInput({
-        init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
-        stages: new Set(),
-      });
+      if (typeof minVal === "number" && typeof maxVal === "number") {
+        const val = makeInput({
+          init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
+          stages: new Set(),
+        });
 
-      return {
-        tag: "FloatV",
-        contents: val,
-      };
+        return {
+          tag: "FloatV",
+          contents: val,
+        };
+      } else {
+        throw new Error(
+          "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead."
+        );
+      }
     },
     returns: valueT("Real"),
   },
