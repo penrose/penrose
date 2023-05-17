@@ -2647,7 +2647,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -2676,7 +2676,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -2707,7 +2707,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -2736,7 +2736,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -2764,7 +2764,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -2792,7 +2792,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -2829,7 +2829,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -2863,7 +2863,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -2891,7 +2891,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -2926,7 +2926,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
