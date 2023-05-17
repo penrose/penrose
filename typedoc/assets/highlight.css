@@ -17,13 +17,13 @@
     --dark-hl-7: #808080;
     --light-hl-8: #800000;
     --dark-hl-8: #569CD6;
-    --light-hl-9: #FF0000;
+    --light-hl-9: #E50000;
     --dark-hl-9: #9CDCFE;
     --light-hl-10: #0000FF;
     --dark-hl-10: #CE9178;
     --light-hl-11: #000000FF;
     --dark-hl-11: #D4D4D4;
-    --light-code-background: #F5F5F5;
+    --light-code-background: #FFFFFF;
     --dark-code-background: #1E1E1E;
 }
 
@@ -59,7 +59,7 @@
     --code-background: var(--dark-code-background);
 } }
 
-body.light {
+:root[data-theme='light'] {
     --hl-0: var(--light-hl-0);
     --hl-1: var(--light-hl-1);
     --hl-2: var(--light-hl-2);
@@ -75,7 +75,7 @@ body.light {
     --code-background: var(--light-code-background);
 }
 
-body.dark {
+:root[data-theme='dark'] {
     --hl-0: var(--dark-hl-0);
     --hl-1: var(--dark-hl-1);
     --hl-2: var(--dark-hl-2);
