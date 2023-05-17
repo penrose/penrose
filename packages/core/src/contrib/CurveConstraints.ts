@@ -20,7 +20,7 @@ import { Polygon } from "../shapes/Polygon";
 import { Polyline } from "../shapes/Polyline";
 import * as ad from "../types/ad";
 import { ConstrFunc } from "../types/functions";
-import { shapeT, unionT } from "../utils/Util";
+import { booleanT, realNMT, shapeT, unionT } from "../utils/Util";
 import {
   consecutiveTriples,
   consecutiveTuples,
@@ -302,14 +302,18 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
     description: "All edges should have the same length",
     params: [
       {
-        name: "s",
-        description: "a shape",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      const points = extractPoints(s);
-      const hs = consecutiveTuples(points, isClosed(s));
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      const hs = consecutiveTuples(points, closed);
       return equivalued(hs.map(([p1, p2]: ad.Num[][]) => ops.vdist(p1, p2)));
     },
   },
@@ -322,14 +326,18 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
     description: "All angles between consecutive edges should be equal",
     params: [
       {
-        name: "s",
-        description: "a shape",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      const points = extractPoints(s);
-      const hs = consecutiveTriples(points, isClosed(s));
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      const hs = consecutiveTriples(points, closed);
       return equivalued(
         hs.map(([p1, p2, p3]: ad.Num[][]) =>
           ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
