@@ -5,7 +5,7 @@ import {
   PenroseState,
   PenroseWarning,
 } from "@penrose/core";
-import { registry, Trio } from "@penrose/examples/dist";
+import { registry, Trio } from "@penrose/examples/dist/registry";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
@@ -360,6 +360,7 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
 });
 
 interface TrioWithPreview {
+  id: string;
   get: () => Promise<Trio>;
   name?: string;
   preview?: string;
@@ -371,22 +372,20 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
     key: "exampleTrios/default",
     get: async () => {
       try {
-        const trios = registry
-          .filter(({ gallery }) => gallery)
-          .map(async (meta) => {
+        const trios = [...registry.entries()]
+          .filter(([, { gallery }]) => gallery)
+          .map(async ([id, { get, name }]) => {
             const svg = await fetch(
               encodeURI(
-                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${meta.name}.svg`
+                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
               )
             );
+            const trio: TrioWithPreview = { id, get, name };
             if (!svg.ok) {
-              console.error(`could not fetch preview for ${meta.name}`);
-              return meta;
+              console.error(`could not fetch preview for ${id}`);
+              return trio;
             }
-            return {
-              ...meta,
-              preview: await svg.text(),
-            };
+            return { ...trio, preview: await svg.text() };
           });
         return Promise.all(trios);
       } catch (err) {

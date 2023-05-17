@@ -7,7 +7,7 @@
     "ttypescript": "^1"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.transform.json && mv transform.js transform.cjs && rimraf dist && ttsc",
+    "build": "node registry.js > src/registry.ts && tsc -p tsconfig.transform.json && mv transform.js transform.cjs && rimraf dist && ttsc",
     "build-decls": ":",
     "typecheck": ":"
   },

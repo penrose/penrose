@@ -6,7 +6,7 @@ import {
   stepNextStage,
   stepState,
 } from "@penrose/core";
-import { Meta } from "@penrose/examples/dist";
+import { Meta } from "@penrose/examples/dist/registry";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
