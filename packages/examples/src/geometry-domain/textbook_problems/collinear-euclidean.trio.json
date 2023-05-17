@@ -1,6 +1,6 @@
 {
   "substance": "./c01p01.substance",
-  "styles": ["../euclidean.style"],
+  "style": ["../euclidean.style"],
   "domain": "../geometry.domain",
   "variation": "GoldbrownFly7869"
 }

@@ -1,6 +1,6 @@
 {
   "substance": "./ninety-points-around-polyline.substance",
-  "styles": ["./shape-distance.style"],
+  "style": ["./shape-distance.style"],
   "domain": "./shapes.domain",
   "variation": "SharkskinWalrus24396"
 }

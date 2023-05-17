@@ -28,15 +28,15 @@ const codegen = (dir) => {
             `${path.join(dstDir, path.basename(child, ".json"))}.ts`,
             [
               `import substance from "${trio.substance}";`,
-              ...trio.styles.map(
+              ...trio.style.map(
                 (style, i) =>
                   `import style${i}, { resolver as resolver${i} } from "${style}";`
               ),
               `import domain from "${trio.domain}";`,
               "export default {",
               "  substance,",
-              "  styles: [",
-              ...trio.styles.map(
+              "  style: [",
+              ...trio.style.map(
                 (style, i) =>
                   `    { contents: style${i}, resolver: resolver${i} },`
               ),

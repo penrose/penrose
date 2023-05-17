@@ -1,6 +1,6 @@
 {
   "substance": "./teaser.substance",
-  "styles": ["./euclidean-teaser.style"],
+  "style": ["./euclidean-teaser.style"],
   "domain": "./geometry.domain",
   "variation": "StromboliCat61816"
 }

@@ -1,6 +1,6 @@
 {
   "substance": "./example.substance",
-  "styles": ["./lagrange-bases.style"],
+  "style": ["./lagrange-bases.style"],
   "domain": "./lagrange-bases.domain",
   "variation": "RainmakerMarten88256"
 }

@@ -1,6 +1,6 @@
 {
   "substance": "./one-water-molecule.substance",
-  "styles": ["./atoms-and-bonds.style"],
+  "style": ["./atoms-and-bonds.style"],
   "domain": "./atoms-and-bonds.domain",
   "variation": "PorcellanaFlamingo3169"
 }

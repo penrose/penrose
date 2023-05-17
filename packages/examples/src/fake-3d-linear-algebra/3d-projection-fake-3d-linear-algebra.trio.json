@@ -1,6 +1,6 @@
 {
   "substance": "./projection.substance",
-  "styles": ["./fake3d.style"],
+  "style": ["./fake3d.style"],
   "domain": "./fake3d.domain",
   "variation": "PurpletiniSeahorse9761"
 }

@@ -14,20 +14,20 @@ import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
-  currentWorkspaceState,
   Diagram,
   DiagramGrid,
-  diagramGridState,
-  diagramState,
   EDITOR_VERSION,
   GistMetadata,
-  localFilesState,
   LocalGithubUser,
   Settings,
-  settingsState,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
+  currentWorkspaceState,
+  diagramGridState,
+  diagramState,
+  localFilesState,
+  settingsState,
   workspaceMetadataSelector,
 } from "./atoms";
 import { generateVariation } from "./variation";
@@ -234,8 +234,9 @@ export const useLoadExampleWorkspace = () =>
       return;
     }
     const id = toast.loading("Loading example...");
-    const { domain, styles, substance, variation } = await meta.get();
+    const { domain, style, substance, variation } = await meta.get();
     toast.dismiss(id);
+    const styleJoined = style.map(({ contents }) => contents).join("\n");
     const styleParentURI = ""; // TODO
     set(currentWorkspaceState, {
       metadata: {
@@ -255,7 +256,7 @@ export const useLoadExampleWorkspace = () =>
           name: `.domain`,
         },
         style: {
-          contents: styles.join("\n"),
+          contents: styleJoined,
           name: `.style`,
         },
         substance: {
@@ -265,7 +266,7 @@ export const useLoadExampleWorkspace = () =>
       },
     });
     reset(diagramState);
-    await _compileDiagram(substance, styles.join("\n"), domain, variation, set);
+    await _compileDiagram(substance, styleJoined, domain, variation, set);
   });
 
 export const useCheckURL = () =>

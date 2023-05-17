@@ -1,6 +1,6 @@
 {
   "substance": "./Nested.substance",
-  "styles": ["./walk-on-spheres.style"],
+  "style": ["./walk-on-spheres.style"],
   "domain": "./walk-on-spheres.domain",
   "variation": "ElmCrane34650"
 }

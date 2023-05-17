@@ -1,6 +1,6 @@
 {
   "substance": "./cubic-bezier.substance",
-  "styles": ["./cubic-bezier.style"],
+  "style": ["./cubic-bezier.style"],
   "domain": "./curves.domain",
   "variation": "CauliflowerDeer97138"
 }

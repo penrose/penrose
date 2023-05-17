@@ -1,6 +1,6 @@
 {
   "substance": "./nyc-subway.substance",
-  "styles": ["../simple-curved-graph-boxes.style"],
+  "style": ["../simple-curved-graph-boxes.style"],
   "domain": "../simple-graph.domain",
   "variation": "BasilTapir4665"
 }

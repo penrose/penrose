@@ -1,6 +1,6 @@
 {
   "substance": "./relative-orientation.substance",
-  "styles": ["../triangle-mesh-2d.style"],
+  "style": ["../triangle-mesh-2d.style"],
   "domain": "../triangle-mesh-2d.domain",
   "variation": "SylvanDolphin4902"
 }

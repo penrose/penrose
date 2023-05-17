@@ -1,6 +1,6 @@
 {
   "substance": "./tree.substance",
-  "styles": ["./venn-3d.style"],
+  "style": ["./venn-3d.style"],
   "domain": "./setTheory.domain",
   "variation": ""
 }

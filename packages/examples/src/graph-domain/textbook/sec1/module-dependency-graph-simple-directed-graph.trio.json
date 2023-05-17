@@ -1,6 +1,6 @@
 {
   "substance": "./fig9.substance",
-  "styles": ["../../simple-directed-graph.style"],
+  "style": ["../../simple-directed-graph.style"],
   "domain": "../../simple-directed-graph.domain",
   "variation": "TurquishMongoose642"
 }

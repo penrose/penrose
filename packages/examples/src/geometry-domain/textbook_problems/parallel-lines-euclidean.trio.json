@@ -1,6 +1,6 @@
 {
   "substance": "./c03p01.substance",
-  "styles": ["../euclidean.style"],
+  "style": ["../euclidean.style"],
   "domain": "../geometry.domain",
   "variation": "LemongrassOyster4884"
 }

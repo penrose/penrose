@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import siggraphTeaser from "@penrose/examples/dist/geometry-domain/siggraph-teaser-euclidean-teaser";
-import treeVenn from "@penrose/examples/dist/set-theory-domain/tree-venn";
+import siggraphTeaser from "@penrose/examples/dist/geometry-domain/siggraph-teaser-euclidean-teaser.trio";
+import treeVenn from "@penrose/examples/dist/set-theory-domain/tree-venn.trio";
 
 const demo = [
   {
     sub: siggraphTeaser.substance,
-    sty: siggraphTeaser.style,
+    sty: siggraphTeaser.style.map(({ contents }) => contents).join("\n"),
     dsl: siggraphTeaser.domain,
     variation: siggraphTeaser.variation,
   },
   {
     sub: treeVenn.substance,
-    sty: treeVenn.style,
+    sty: treeVenn.style.map(({ contents }) => contents).join("\n"),
     dsl: treeVenn.domain,
     variation: "PlumvilleCapybara104",
   },

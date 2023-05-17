@@ -7,7 +7,7 @@ export interface Style {
 
 export interface Trio {
   substance: string;
-  styles: Style[];
+  style: Style[];
   domain: string;
   variation: string;
 }

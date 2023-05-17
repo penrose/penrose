@@ -1,6 +1,6 @@
 {
   "substance": "./scalar-vector-left-multiplication.substance",
-  "styles": ["../matrix-ops.style"],
+  "style": ["../matrix-ops.style"],
   "domain": "../matrix-ops.domain",
   "variation": "DoesNotMatter"
 }

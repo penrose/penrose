@@ -1,6 +1,6 @@
 {
   "substance": "./fig16b.substance",
-  "styles": ["../../simple-graph.style"],
+  "style": ["../../simple-graph.style"],
   "domain": "../../simple-graph.domain",
   "variation": "WickerworkCrane44939"
 }

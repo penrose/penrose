@@ -1,6 +1,6 @@
 {
   "substance": "./cubic-bezier.substance",
-  "styles": ["./open-elastic-curve.style"],
+  "style": ["./open-elastic-curve.style"],
   "domain": "./curves.domain",
   "variation": "ClamshellKookabura228"
 }

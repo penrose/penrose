@@ -1,6 +1,6 @@
 {
   "substance": "./tree.substance",
-  "styles": ["./venn.style"],
+  "style": ["./venn.style"],
   "domain": "./setTheory.domain",
   "variation": "PlumvilleCapybara104"
 }

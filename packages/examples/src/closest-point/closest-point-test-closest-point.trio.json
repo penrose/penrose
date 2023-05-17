@@ -1,6 +1,6 @@
 {
   "substance": "./test.substance",
-  "styles": ["./closest-point.style"],
+  "style": ["./closest-point.style"],
   "domain": "./closest-point.domain",
   "variation": "MobileCalder1939"
 }

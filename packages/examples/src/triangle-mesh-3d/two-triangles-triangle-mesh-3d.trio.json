@@ -1,6 +1,6 @@
 {
   "substance": "./two-triangles.substance",
-  "styles": ["./triangle-mesh-3d.style"],
+  "style": ["./triangle-mesh-3d.style"],
   "domain": "./triangle-mesh-3d.domain",
   "variation": "LightheartedCormorant8083"
 }
