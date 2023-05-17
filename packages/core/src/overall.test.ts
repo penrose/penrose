@@ -3,12 +3,12 @@ import { start } from "@penrose/optimizer";
 import { genGradient } from "./engine/Autodiff";
 import { pow, sub } from "./engine/AutodiffFunctions";
 import {
+  RenderStatic,
   compileTrio,
   evalEnergy,
   evalFns,
   prepareState,
   problem,
-  RenderStatic,
   resample,
   scalar,
   showError,

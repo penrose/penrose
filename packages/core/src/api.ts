@@ -27,7 +27,7 @@ import {
   sub,
 } from "./engine/AutodiffFunctions";
 import * as ad from "./types/ad";
-import { measureText, TextMeasurement } from "./utils/CollectLabels";
+import { TextMeasurement, measureText } from "./utils/CollectLabels";
 
 //#region Variable-level API
 
@@ -114,7 +114,7 @@ export const problem = async (
     minimize: () => stepUntilWrapper(() => false),
     step: (x: number) => {
       let i = 0;
-      return stepUntilWrapper(() => ++i == x);
+      return stepUntilWrapper(() => ++i === x);
     },
     stepUntil: (stop) => stepUntilWrapper(stop),
   };
