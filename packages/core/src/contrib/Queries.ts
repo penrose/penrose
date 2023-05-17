@@ -18,7 +18,7 @@ import {
   xor,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
-import { computeShapeBbox, Shape } from "../shapes/Shapes";
+import { Shape, computeShapeBbox } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { msign } from "./Functions";
 import {

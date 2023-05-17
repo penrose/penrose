@@ -120,7 +120,7 @@ import {
   shapeDistanceRectLine,
   shapeDistanceRects,
 } from "./Queries";
-import { clamp, isRectlike, numOf, Rectlike, toPt } from "./Utils";
+import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils";
 
 /**
  * Static dictionary of computation functions
