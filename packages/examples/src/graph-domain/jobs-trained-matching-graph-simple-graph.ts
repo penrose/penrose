@@ -1,9 +1,4 @@
 import domain from "./simple-graph.domain";
 import style from "./simple-graph.style";
 import substance from "./textbook/sec2/fig10a.substance";
-export default {
-  substance,
-  style,
-  domain,
-  variation: "",
-};
+export default { substance, style, domain, variation: "" };
