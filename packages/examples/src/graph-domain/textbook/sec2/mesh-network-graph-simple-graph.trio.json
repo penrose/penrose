@@ -1,6 +1,6 @@
 {
   "substance": "./fig13.substance",
-  "styles": ["./simple-graph.style"],
-  "domain": "./simple-graph.domain",
+  "styles": ["../../simple-graph.style"],
+  "domain": "../../simple-graph.domain",
   "variation": "MelodySalmon16237"
 }

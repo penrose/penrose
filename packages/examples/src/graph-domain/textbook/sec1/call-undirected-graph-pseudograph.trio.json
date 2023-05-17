@@ -1,6 +1,6 @@
 {
   "substance": "./fig8b.substance",
-  "styles": ["./pseudograph.style"],
-  "domain": "./pseudograph.domain",
+  "styles": ["../../pseudograph.style"],
+  "domain": "../../pseudograph.domain",
   "variation": ""
 }

@@ -1,6 +1,6 @@
 {
   "substance": "./scalar-vector-division.substance",
-  "styles": ["./matrix-ops.style"],
-  "domain": "./matrix-ops.domain",
+  "styles": ["../matrix-ops.style"],
+  "domain": "../matrix-ops.domain",
   "variation": "DoesNotMatter"
 }

@@ -11,11 +11,11 @@
     "name": "Sets as Venn Diagram in 2.5D",
     "gallery": true
   },
-  "group-theory/quaternion-group-group-theory-multiplication-table": {
+  "group-theory/groups/quaternion-group-group-theory-multiplication-table": {
     "name": "Quaternions as table",
     "gallery": true
   },
-  "group-theory/quaternion-group-group-theory-cayley-graph": {
+  "group-theory/groups/quaternion-group-group-theory-cayley-graph": {
     "name": "Quaternions as Cayley graph",
     "gallery": true
   },
@@ -42,50 +42,50 @@
   "exterior-algebra/vector-wedge-exterior-algebra": {},
   "shape-spec/allShapes-allShapes": {},
   "shape-spec/arrowheads-arrowheads": {},
-  "graph-domain/computer-network-graph-simple-graph": {},
-  "graph-domain/computer-network-multiple-links-graph-pseudograph": {},
-  "graph-domain/computer-network-diagnostic-links-graph-pseudograph": {},
-  "graph-domain/communications-network-one-way-links-graph-simple-directed-graph": {},
-  "graph-domain/computer-network-multiple-one-way-links-graph-directed-multigraph": {},
-  "graph-domain/acquaintanceship-graph-simple-graph": {},
-  "graph-domain/influence-graph-simple-directed-graph": {},
-  "graph-domain/call-directed-graph-directed-multigraph": {},
-  "graph-domain/call-undirected-graph-pseudograph": {},
-  "graph-domain/module-dependency-graph-simple-directed-graph": {},
-  "graph-domain/precedence-graph-simple-directed-graph": {},
-  "graph-domain/niche-overlap-graph-simple-graph": {},
-  "graph-domain/protein-interaction-graph-simple-graph": {},
-  "graph-domain/round-robin-graph-simple-directed-graph": {},
-  "graph-domain/complete-graphs-simple-graph": {},
-  "graph-domain/cycle-graphs-simple-graph": {},
-  "graph-domain/wheel-graphs-simple-graph": {},
-  "graph-domain/cube-graphs-simple-graph": {},
-  "graph-domain/complete-bipartite-graphs-simple-graph": {},
-  "graph-domain/jobs-trained-matching-graph-simple-graph": {},
-  "graph-domain/jobs-trained-no-matching-graph-simple-graph": {},
-  "graph-domain/star-topology-graph-simple-graph": {},
-  "graph-domain/ring-topology-graph-simple-graph": {},
-  "graph-domain/hybrid-topology-graph-simple-graph": {},
-  "graph-domain/linear-array-graph-simple-graph": {},
-  "graph-domain/mesh-network-graph-simple-graph": {},
-  "graph-domain/hypercube-network-graph-simple-graph": {},
-  "graph-domain/union-graph-simple-graph": {},
-  "geometry-domain/incenter-triangle-euclidean": {
+  "graph-domain/textbook/sec1/computer-network-graph-simple-graph": {},
+  "graph-domain/textbook/sec1/computer-network-multiple-links-graph-pseudograph": {},
+  "graph-domain/textbook/sec1/computer-network-diagnostic-links-graph-pseudograph": {},
+  "graph-domain/textbook/sec1/communications-network-one-way-links-graph-simple-directed-graph": {},
+  "graph-domain/textbook/sec1/computer-network-multiple-one-way-links-graph-directed-multigraph": {},
+  "graph-domain/textbook/sec1/acquaintanceship-graph-simple-graph": {},
+  "graph-domain/textbook/sec1/influence-graph-simple-directed-graph": {},
+  "graph-domain/textbook/sec1/call-directed-graph-directed-multigraph": {},
+  "graph-domain/textbook/sec1/call-undirected-graph-pseudograph": {},
+  "graph-domain/textbook/sec1/module-dependency-graph-simple-directed-graph": {},
+  "graph-domain/textbook/sec1/precedence-graph-simple-directed-graph": {},
+  "graph-domain/textbook/sec1/niche-overlap-graph-simple-graph": {},
+  "graph-domain/textbook/sec1/protein-interaction-graph-simple-graph": {},
+  "graph-domain/textbook/sec1/round-robin-graph-simple-directed-graph": {},
+  "graph-domain/textbook/sec2/complete-graphs-simple-graph": {},
+  "graph-domain/textbook/sec2/cycle-graphs-simple-graph": {},
+  "graph-domain/textbook/sec2/wheel-graphs-simple-graph": {},
+  "graph-domain/textbook/sec2/cube-graphs-simple-graph": {},
+  "graph-domain/textbook/sec2/complete-bipartite-graphs-simple-graph": {},
+  "graph-domain/textbook/sec2/jobs-trained-matching-graph-simple-graph": {},
+  "graph-domain/textbook/sec2/jobs-trained-no-matching-graph-simple-graph": {},
+  "graph-domain/textbook/sec2/star-topology-graph-simple-graph": {},
+  "graph-domain/textbook/sec2/ring-topology-graph-simple-graph": {},
+  "graph-domain/textbook/sec2/hybrid-topology-graph-simple-graph": {},
+  "graph-domain/textbook/sec2/linear-array-graph-simple-graph": {},
+  "graph-domain/textbook/sec2/mesh-network-graph-simple-graph": {},
+  "graph-domain/textbook/sec2/hypercube-network-graph-simple-graph": {},
+  "graph-domain/textbook/sec2/union-graph-simple-graph": {},
+  "geometry-domain/textbook_problems/incenter-triangle-euclidean": {
     "name": "Triangle Incenter",
     "gallery": true
   },
-  "geometry-domain/collinear-euclidean": {
+  "geometry-domain/textbook_problems/collinear-euclidean": {
     "name": "Collinear Points",
     "gallery": true
   },
-  "geometry-domain/parallel-lines-euclidean": {},
-  "geometry-domain/midsegment-triangles-euclidean": {},
-  "geometry-domain/congruent-triangles-euclidean": {},
+  "geometry-domain/textbook_problems/parallel-lines-euclidean": {},
+  "geometry-domain/textbook_problems/midsegment-triangles-euclidean": {},
+  "geometry-domain/textbook_problems/congruent-triangles-euclidean": {},
   "triangle-mesh-3d/two-triangles-triangle-mesh-3d": {
     "name": "Two 3D Triangles",
     "gallery": true
   },
-  "geometry-domain/circle-example-euclidean": {},
+  "geometry-domain/textbook_problems/circle-example-euclidean": {},
   "word-cloud/word-cloud-example-word-cloud": {
     "name": "Word Cloud",
     "gallery": true
@@ -127,98 +127,98 @@
   },
   "fake-3d-linear-algebra/3d-projection-fake-3d-linear-algebra": {},
   "animation/center-shrink-circle-animation": {},
-  "structural-formula/caffeine-structural-formula": {
+  "structural-formula/molecules/caffeine-structural-formula": {
     "name": "A Caffeine Molecule",
     "gallery": true
   },
   "mobius/mobius-mobius": {},
   "molecules/glutamine-molecules-basic": {},
-  "matrix-ops/matrix-matrix-addition-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-addition-matrix-ops": {
     "name": "Matrix-matrix addition",
     "gallery": false
   },
-  "matrix-ops/matrix-matrix-division-elementwise-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-division-elementwise-matrix-ops": {
     "name": "Matrix-matrix division (elementwise)",
     "gallery": false
   },
-  "matrix-ops/matrix-matrix-multiplication-elementwise-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-multiplication-elementwise-matrix-ops": {
     "name": "Matrix-matrix multiplication (elementwise)",
     "gallery": false
   },
-  "matrix-ops/matrix-matrix-multiplication-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-multiplication-matrix-ops": {
     "name": "Matrix-matrix multiplication",
     "gallery": false
   },
-  "matrix-ops/matrix-matrix-subtraction-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-subtraction-matrix-ops": {
     "name": "Matrix-matrix subtraction",
     "gallery": false
   },
-  "matrix-ops/matrix-transpose-matrix-ops": {
+  "matrix-ops/tests/matrix-transpose-matrix-ops": {
     "name": "Matrix transpose",
     "gallery": false
   },
-  "matrix-ops/matrix-vector-left-multiplication-matrix-ops": {
+  "matrix-ops/tests/matrix-vector-left-multiplication-matrix-ops": {
     "name": "Matrix-vector left multiplication",
     "gallery": false
   },
-  "matrix-ops/matrix-vector-right-multiplication-matrix-ops": {
+  "matrix-ops/tests/matrix-vector-right-multiplication-matrix-ops": {
     "name": "Matrix-vector right multiplication",
     "gallery": false
   },
-  "matrix-ops/scalar-vector-division-matrix-ops": {
+  "matrix-ops/tests/scalar-vector-division-matrix-ops": {
     "name": "Scalar-vector division",
     "gallery": false
   },
-  "matrix-ops/scalar-vector-left-multiplication-matrix-ops": {
+  "matrix-ops/tests/scalar-vector-left-multiplication-matrix-ops": {
     "name": "Scalar-vector left multiplication",
     "gallery": false
   },
-  "matrix-ops/scalar-vector-right-multiplication-matrix-ops": {
+  "matrix-ops/tests/scalar-vector-right-multiplication-matrix-ops": {
     "name": "Scalar-vector right multiplication",
     "gallery": false
   },
-  "matrix-ops/vector-vector-addition-matrix-ops": {
+  "matrix-ops/tests/vector-vector-addition-matrix-ops": {
     "name": "Vector-vector addition",
     "gallery": false
   },
-  "matrix-ops/vector-vector-division-elementwise-matrix-ops": {
+  "matrix-ops/tests/vector-vector-division-elementwise-matrix-ops": {
     "name": "Vector-vector division elementwise",
     "gallery": false
   },
-  "matrix-ops/vector-vector-multiplication-elementwise-matrix-ops": {
+  "matrix-ops/tests/vector-vector-multiplication-elementwise-matrix-ops": {
     "name": "Vector-vector multiplication elementwise",
     "gallery": false
   },
-  "matrix-ops/vector-vector-outerproduct-matrix-ops": {
+  "matrix-ops/tests/vector-vector-outerproduct-matrix-ops": {
     "name": "Vector-vector outerproduct",
     "gallery": false
   },
-  "matrix-ops/vector-vector-subtraction-matrix-ops": {
+  "matrix-ops/tests/vector-vector-subtraction-matrix-ops": {
     "name": "Vector-vector subtraction",
     "gallery": false
   },
   "logic-circuit-domain/half-adder-distinctive-shape": {},
   "curve-examples/cubic-bezier-cubic-bezier": {},
-  "triangle-mesh-2d/cotan-formula-triangle-mesh-2d": {
+  "triangle-mesh-2d/diagrams/cotan-formula-triangle-mesh-2d": {
     "name": "Cotan Formula",
     "gallery": true
   },
-  "triangle-mesh-2d/concyclic-pair-triangle-mesh-2d": {
+  "triangle-mesh-2d/diagrams/concyclic-pair-triangle-mesh-2d": {
     "name": "Concyclic Euclidean Edge Flip",
     "gallery": true
   },
-  "triangle-mesh-2d/halfedge-mesh-triangle-mesh-2d": {
+  "triangle-mesh-2d/diagrams/halfedge-mesh-triangle-mesh-2d": {
     "name": "Half Edge Mesh",
     "gallery": true
   },
-  "triangle-mesh-2d/relative-orientation-triangle-mesh-2d": {},
-  "triangle-mesh-2d/triangle-centers-triangle-mesh-2d": {
+  "triangle-mesh-2d/diagrams/relative-orientation-triangle-mesh-2d": {},
+  "triangle-mesh-2d/diagrams/triangle-centers-triangle-mesh-2d": {
     "name": "Triangle Centers"
   },
-  "triangle-mesh-2d/angle-equivalence-triangle-mesh-2d": {
+  "triangle-mesh-2d/diagrams/angle-equivalence-triangle-mesh-2d": {
     "name": "Rigid Conformal Mapping of a 2D Mesh"
   },
-  "graph-domain/sec5-ex32-simple-curved-graph": {
+  "graph-domain/textbook/sec5/sec5-ex32-simple-curved-graph": {
     "name": "Curved graph example"
   },
   "curve-examples/cubic-bezier-open-elastic-curve": {
@@ -227,10 +227,10 @@
   "curve-examples/cubic-bezier-closed-elastic-curve": {
     "name": "Closed elastic curve example"
   },
-  "graph-domain/arpanet-simple-curved-graph-dots": {
+  "graph-domain/other-examples/arpanet-simple-curved-graph-dots": {
     "name": "Curved graph example with dots"
   },
-  "graph-domain/nyc-subway-simple-curved-graph-boxes": {
+  "graph-domain/other-examples/nyc-subway-simple-curved-graph-boxes": {
     "name": "Curved graph example with boxes"
   },
   "curve-examples/blobs-blobs": {

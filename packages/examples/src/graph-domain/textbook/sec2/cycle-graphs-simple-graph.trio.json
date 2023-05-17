@@ -1,6 +1,6 @@
 {
   "substance": "./fig4.substance",
-  "styles": ["./simple-graph.style"],
-  "domain": "./simple-graph.domain",
+  "styles": ["../../simple-graph.style"],
+  "domain": "../../simple-graph.domain",
   "variation": "AutonomousPigeon86039"
 }

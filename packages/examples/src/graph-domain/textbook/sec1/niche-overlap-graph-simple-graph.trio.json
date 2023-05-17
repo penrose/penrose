@@ -1,6 +1,6 @@
 {
   "substance": "./fig11.substance",
-  "styles": ["./simple-graph.style"],
-  "domain": "./simple-graph.domain",
+  "styles": ["../../simple-graph.style"],
+  "domain": "../../simple-graph.domain",
   "variation": "RustiqueOpossum386"
 }

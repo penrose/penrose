@@ -1,6 +1,6 @@
 {
   "substance": "./concyclic-pair.substance",
-  "styles": ["./triangle-mesh-2d.style"],
-  "domain": "./triangle-mesh-2d.domain",
+  "styles": ["../triangle-mesh-2d.style"],
+  "domain": "../triangle-mesh-2d.domain",
   "variation": "DamaskWeasel66717"
 }

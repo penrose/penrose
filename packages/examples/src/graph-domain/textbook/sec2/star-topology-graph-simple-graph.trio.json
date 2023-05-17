@@ -1,6 +1,6 @@
 {
   "substance": "./fig11a.substance",
-  "styles": ["./simple-graph.style"],
-  "domain": "./simple-graph.domain",
+  "styles": ["../../simple-graph.style"],
+  "domain": "../../simple-graph.domain",
   "variation": "IonianElephant37708"
 }

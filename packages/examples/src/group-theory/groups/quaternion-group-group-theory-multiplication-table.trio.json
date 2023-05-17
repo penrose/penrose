@@ -1,6 +1,6 @@
 {
   "substance": "./quaternions.substance",
-  "styles": ["./MultiplicationTable.style"],
-  "domain": "./Group.domain",
+  "styles": ["../MultiplicationTable.style"],
+  "domain": "../Group.domain",
   "variation": "MeadowbrookChimpanzee02726"
 }
