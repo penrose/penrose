@@ -20,6 +20,7 @@ import {
 } from "../types/shapes";
 import { toFontRule } from "../utils/CollectLabels";
 import {
+  isKeyOf,
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
@@ -73,7 +74,7 @@ export const attrAutoFillSvg = (
     )
       continue;
 
-    if (propKey in attrMapSvg) {
+    if (isKeyOf(propKey, attrMapSvg)) {
       const mappedPropKey: string = attrMapSvg[propKey];
       if (!elem.hasAttribute(mappedPropKey)) {
         elem.setAttribute(mappedPropKey, propVal.contents.toString());

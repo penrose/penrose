@@ -1596,10 +1596,11 @@ const compileGraph = (
   const numLocalDecls = Object.keys(counts).length;
   t.int(numLocalDecls);
 
-  for (const [typename, count] of Object.entries(counts)) {
-    t.int(count);
-    t.byte(wasm.TYPE[typename]);
-  }
+  t.int(counts.i32);
+  t.byte(wasm.TYPE.i32);
+
+  t.int(counts.f64);
+  t.byte(wasm.TYPE.f64);
 
   for (const {
     id,

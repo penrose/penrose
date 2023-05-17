@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "suppressImplicitAnyIndexErrors": true,
     "noEmit": true,
     "jsx": "react-jsx"
   },
