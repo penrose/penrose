@@ -26,11 +26,11 @@ import {
 } from "./Minkowski";
 import { bboxFromShape, shapeCenter } from "./Queries";
 import {
+  Rectlike,
   atDistOutside,
   isLinelike,
   noIntersectCircles,
   pointInBox,
-  Rectlike,
 } from "./Utils";
 
 // -------- Ovelapping helpers

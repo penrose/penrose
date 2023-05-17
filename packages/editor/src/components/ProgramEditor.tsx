@@ -2,9 +2,9 @@ import { EditorPane } from "@penrose/components";
 import { useCallback } from "react";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import {
+  ProgramType,
   domainCacheState,
   fileContentsSelector,
-  ProgramType,
   settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms";

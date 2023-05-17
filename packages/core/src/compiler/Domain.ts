@@ -26,6 +26,7 @@ import {
 } from "../types/errors";
 import { ApplyConstructor, TypeConsApp } from "../types/substance";
 import {
+  Result,
   and,
   andThen,
   cyclicSubtypes,
@@ -34,7 +35,6 @@ import {
   every as everyResult,
   ok,
   parseError,
-  Result,
   safeChain,
   symmetricArgLengthMismatch,
   symmetricTypeMismatch,

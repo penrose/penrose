@@ -2,8 +2,8 @@ import { useCallback, useState } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
-  settingsState,
   WorkspaceMetadata,
+  settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms";
 import {
