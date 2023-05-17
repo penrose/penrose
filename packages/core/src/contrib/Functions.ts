@@ -59,7 +59,6 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { CompFunc } from "../types/functions";
 import {
-  ArgVal,
   Color,
   ColorV,
   FloatV,
@@ -94,7 +93,9 @@ import {
   valueT,
 } from "../utils/Util";
 import {
+  centerOfMass,
   elasticEnergy,
+  inflectionEnergy,
   isoperimetricRatio,
   lengthK,
   maxCurvature,
@@ -105,7 +106,7 @@ import {
   turningNumber,
 } from "./CurveConstraints";
 import { rectLineDist, shapeDistance } from "./Queries";
-import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
+import { Rectlike, clamp, isRectlike, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -2905,6 +2906,60 @@ export const compDict = {
     },
     returns: valueT("Real"),
   },
+
+  /**
+   * Returns integral of curvature derivative raised to `p` along the curve
+   */
+  inflectionEnergy: {
+    name: "inflectionEnergy",
+    description:
+      "Returns integral of curvature derivative raised to `p` along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "p",
+        type: realT(),
+        description: "exponent for curvature derivative",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean,
+      p: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: inflectionEnergy(points, closed, p) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns center of mass for a 2D point cloud
+   */
+  centerOfMass: {
+    name: "centerOfMass",
+    description: "Returns center of mass for a 2D point cloud",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+    ],
+    body: (_context: Context, points: [ad.Num, ad.Num][]): VectorV<ad.Num> => {
+      return { tag: "VectorV", contents: centerOfMass(points) };
+    },
+    returns: valueT("Real2"),
+  },
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in
@@ -3142,11 +3197,6 @@ const closestPointEllipseCoords = (
   x = add(x, center[0]);
   y = add(y, center[1]);
   return [x, y];
-};
-
-// Ignore this
-export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
-  if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {

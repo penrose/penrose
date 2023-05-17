@@ -27,11 +27,11 @@ import StateInspector from "./components/StateInspector";
 import SvgUploader from "./components/SvgUploader";
 import TopBar from "./components/TopBar";
 import {
+  RogerState,
   currentRogerState,
   currentWorkspaceState,
   fileContentsSelector,
   localFilesState,
-  RogerState,
   settingsState,
 } from "./state/atoms";
 import { useCheckURL, useCompileDiagram } from "./state/callbacks";
@@ -156,9 +156,8 @@ function App() {
   const compileDiagram = useCompileDiagram();
 
   const ws = useRef<WebSocket | null>(null);
-  const [rogerState, setRogerState] = useRecoilState<RogerState>(
-    currentRogerState
-  );
+  const [rogerState, setRogerState] =
+    useRecoilState<RogerState>(currentRogerState);
 
   const panelFactory = useCallback(
     (node: TabNode) => {
@@ -191,43 +190,46 @@ function App() {
     [rogerState]
   );
   const onAction = useRecoilCallback(
-    ({ set, snapshot }) => (action: Action) => {
-      if (action.type === Actions.RENAME_TAB) {
-        const node = layoutModel.getNodeById(action.data.node) as TabNode;
-        const { kind } = node.getConfig();
-        const program = snapshot.getLoadable(fileContentsSelector(kind))
-          .contents;
-        set(fileContentsSelector(kind), {
-          ...program,
-          name: action.data.text,
-        });
-      }
-      return action;
-    },
+    ({ set, snapshot }) =>
+      (action: Action) => {
+        if (action.type === Actions.RENAME_TAB) {
+          const node = layoutModel.getNodeById(action.data.node) as TabNode;
+          const { kind } = node.getConfig();
+          const program = snapshot.getLoadable(
+            fileContentsSelector(kind)
+          ).contents;
+          set(fileContentsSelector(kind), {
+            ...program,
+            name: action.data.text,
+          });
+        }
+        return action;
+      },
     []
   );
   const updatedFile = useRecoilCallback(
-    ({ snapshot, set }) => async (fileName: string, contents: string) => {
-      const workspace = await snapshot.getPromise(currentWorkspaceState);
-      if (fileName === workspace.files.domain.name) {
-        set(fileContentsSelector("domain"), (file) => {
-          return {
+    ({ snapshot, set }) =>
+      async (fileName: string, contents: string) => {
+        const workspace = await snapshot.getPromise(currentWorkspaceState);
+        if (fileName === workspace.files.domain.name) {
+          set(fileContentsSelector("domain"), (file) => {
+            return {
+              ...file,
+              contents,
+            };
+          });
+          await compileDiagram();
+        } else if (fileName === workspace.files.style.name) {
+          set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
+          await compileDiagram();
+        } else if (fileName === workspace.files.substance.name) {
+          set(fileContentsSelector("substance"), (file) => ({
             ...file,
             contents,
-          };
-        });
-        await compileDiagram();
-      } else if (fileName === workspace.files.style.name) {
-        set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
-        await compileDiagram();
-      } else if (fileName === workspace.files.substance.name) {
-        set(fileContentsSelector("substance"), (file) => ({
-          ...file,
-          contents,
-        }));
-        await compileDiagram();
-      }
-    },
+          }));
+          await compileDiagram();
+        }
+      },
     []
   );
 

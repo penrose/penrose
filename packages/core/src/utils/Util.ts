@@ -28,8 +28,8 @@ import {
   Color,
   ColorV,
   FloatV,
-  ListV,
   LListV,
+  ListV,
   MatrixV,
   PathCmd,
   PathDataV,
@@ -139,6 +139,13 @@ export const zip3 = <T1, T2, T3>(
   return a;
 };
 
+// https://stackoverflow.com/a/70811091
+/** returns whether `key` is in `obj`, in a way that informs TypeScript */
+export const isKeyOf = <T extends Record<string, unknown>>(
+  key: string | number | symbol,
+  obj: T
+): key is keyof T => key in obj;
+
 //#endregion
 
 //#region random
@@ -233,8 +240,7 @@ export const arrowheads: ArrowheadMap = {
     viewbox: "0 0 12.5 14",
     refX: 5,
     refY: 7,
-    path:
-      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
+    path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
     style: {
       "stroke-linecap": "round",

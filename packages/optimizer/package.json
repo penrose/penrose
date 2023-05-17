@@ -1,9 +1,10 @@
 {
   "name": "@penrose/optimizer",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.1",
   "type": "module",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
+  "main": "index.js",
   "files": [
     "bindings/*.d.ts",
     "index.d.ts",
@@ -11,8 +12,7 @@
     "source.d.ts"
   ],
   "devDependencies": {
-    "esbuild": "^0.16",
-    "typescript": "^4"
+    "esbuild": "^0.16"
   },
   "scripts": {
     "build": "esbuild ./source.ts --outfile=index.js --platform=neutral --bundle --loader:.wasm=binary --define:import.meta.url=null --sourcemap",

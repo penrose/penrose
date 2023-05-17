@@ -15,7 +15,7 @@ import { Registry, Trio } from "./types/io";
 import { Fn, LabelCache, State } from "./types/state";
 import { SubstanceEnv } from "./types/substance";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
-import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
+import { Result, andThen, err, nanError, ok, showError } from "./utils/Error";
 import { safe } from "./utils/Util";
 
 /**
