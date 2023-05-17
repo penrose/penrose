@@ -1,6 +1,12 @@
-import { start, stepUntil } from "@penrose/optimizer";
+import { Params, start, stepUntil } from "@penrose/optimizer";
 import { constrDict } from "./contrib/Constraints";
+import {
+  elasticEnergy,
+  equivalued,
+  perimeter,
+} from "./contrib/CurveConstraints";
 import { sdfRect } from "./contrib/Functions";
+import { consecutiveTuples } from "./contrib/Utils";
 import {
   fns,
   genBytes,
@@ -11,14 +17,24 @@ import {
   ops,
   primaryGraph,
 } from "./engine/Autodiff";
-import { add, div, mul, neg, sub } from "./engine/AutodiffFunctions";
+import {
+  absVal,
+  add,
+  div,
+  mul,
+  neg,
+  pow,
+  sub,
+} from "./engine/AutodiffFunctions";
 import * as ad from "./types/ad";
 import { measureText, TextMeasurement } from "./utils/CollectLabels";
 
 //#region Variable-level API
 
 export interface Problem {
-  minimize: () => void;
+  minimize: () => Params;
+  stepUntil: (stop: () => boolean) => Params;
+  step: (x: number) => Params;
 }
 
 export const problem = async (
@@ -52,48 +68,55 @@ export const problem = async (
   const f = getExport(meta, instance);
   const n = inputs.size;
   const params = start(n);
+  const stepUntilWrapper = (stop: () => boolean) => {
+    // allocate a new array to store inputs
+    const xs = new Float64Array(n);
+    // populate inputs with initial values from `val`
+    for (const [input, index] of inputs) {
+      // skip the weight input
+      xs[index - 1] = input.val;
+    }
+    // call the optimizer
+    const nextParams = stepUntil(
+      (
+        inputs: Float64Array /*read-only*/,
+        weight: number,
+        grad: Float64Array /*write-only*/
+      ): number => {
+        if (inputs.length !== n)
+          throw Error(`expected ${n} inputs, got ${inputs.length}`);
+        if (grad.length !== n)
+          throw Error(
+            `expected ${n} inputs, got gradient with length ${grad.length}`
+          );
+        meta.arrInputs.set(inputs.subarray(0, n), 1);
+        // the last input is the weight
+        meta.arrInputs[0] = weight;
+        // we don't use masks, so they are set to 1
+        meta.arrMask.fill(1);
+        meta.arrGrad.fill(0);
+        meta.arrSecondary.fill(0);
+        const phi = f();
+        grad.set(meta.arrGrad.subarray(1, meta.numInputs));
+        return phi;
+      },
+      xs,
+      params,
+      stop
+    );
+    // put the optimized values back to the inputs
+    for (const [input, index] of inputs) {
+      input.val = xs[index - 1];
+    }
+    return nextParams;
+  };
   return {
-    minimize: () => {
-      // allocate a new array to store inputs
-      const xs = new Float64Array(n);
-      // populate inputs with initial values from `val`
-      for (const [input, index] of inputs) {
-        // skip the weight input
-        xs[index - 1] = input.val;
-      }
-      // call the optimizer
-      stepUntil(
-        (
-          inputs: Float64Array /*read-only*/,
-          weight: number,
-          grad: Float64Array /*write-only*/
-        ): number => {
-          if (inputs.length !== n)
-            throw Error(`expected ${n} inputs, got ${inputs.length}`);
-          if (grad.length !== n)
-            throw Error(
-              `expected ${n} inputs, got gradient with length ${grad.length}`
-            );
-          meta.arrInputs.set(inputs.subarray(0, n), 1);
-          // the last input is the weight
-          meta.arrInputs[0] = weight;
-          // we don't use masks, so they are set to 1
-          meta.arrMask.fill(1);
-          meta.arrGrad.fill(0);
-          meta.arrSecondary.fill(0);
-          const phi = f();
-          grad.set(meta.arrGrad.subarray(1, meta.numInputs));
-          return phi;
-        },
-        xs,
-        params,
-        (): boolean => false
-      );
-      // put the optimized values back to the inputs
-      for (const [input, index] of inputs) {
-        input.val = xs[index - 1];
-      }
+    minimize: () => stepUntilWrapper(() => false),
+    step: (x: number) => {
+      let i = 0;
+      return stepUntilWrapper(() => ++i == x);
     },
+    stepUntil: (stop) => stepUntilWrapper(stop),
   };
 };
 
@@ -119,9 +142,8 @@ export const textBBox = (
   };
 };
 
-export const eq = (a: ad.Num, b: ad.Num): ad.Num => sub(a, b);
-export const dist = (a: ad.Num[], b: ad.Num[]): ad.Num =>
-  ops.vnorm(ops.vsub(a, b));
+export const eq = (a: ad.Num, b: ad.Num): ad.Num => absVal(sub(a, b));
+export const dist = (a: ad.Num[], b: ad.Num[]): ad.Num => ops.vdist(a, b);
 
 export const onCanvasRect = (
   [canvasWidth, canvasHeight]: [ad.Num, ad.Num],
@@ -144,4 +166,14 @@ export const onCanvasPoint = ([x, y]: ad.Num[], canvas: [ad.Num, ad.Num]) => {
   return add(xInRange, yInRange);
 };
 
-export { measureText, input as scalar, sdfRect };
+export {
+  measureText,
+  input as scalar,
+  sdfRect,
+  perimeter,
+  consecutiveTuples,
+  equivalued,
+  elasticEnergy,
+  sub,
+  pow,
+};
