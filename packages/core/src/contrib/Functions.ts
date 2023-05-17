@@ -2942,7 +2942,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       p: number
     ): FloatV<ad.Num> => {
