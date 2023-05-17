@@ -60,7 +60,6 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { CompFunc } from "../types/functions";
 import {
-  ArgVal,
   Color,
   ColorV,
   FloatV,
@@ -109,7 +108,7 @@ import {
   turningNumber,
 } from "./CurveConstraints";
 import { rectLineDist, shapeDistance } from "./Queries";
-import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
+import { Rectlike, clamp, isRectlike, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -3269,11 +3268,6 @@ const closestPointEllipseCoords = (
   x = add(x, center[0]);
   y = add(y, center[1]);
   return [x, y];
-};
-
-// Ignore this
-export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
-  if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {

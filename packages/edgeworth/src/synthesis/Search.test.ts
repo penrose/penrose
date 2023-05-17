@@ -19,15 +19,15 @@ import {
   showMutations,
 } from "./Mutation";
 import {
-  applyStmtDiffs,
   DiffSet,
+  StmtDiff,
+  applyStmtDiffs,
   diffSubProgs,
   diffSubStmts,
   enumerateMutationPaths,
   findMutationPaths,
   showStmtDiff,
   showSubDiff,
-  StmtDiff,
   subProgDiffs,
   swapDiffID,
 } from "./Search";

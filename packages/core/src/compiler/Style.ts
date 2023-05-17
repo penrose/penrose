@@ -150,6 +150,7 @@ import {
   floatV,
   getAdValueAsString,
   hexToRgba,
+  isKeyOf,
   listV,
   llistV,
   matrixV,
@@ -700,14 +701,10 @@ export const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
 export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
   const vals = Object.values(subst);
-  const valsSet = {};
-
-  for (let i = 0; i < vals.length; i++) {
-    valsSet[vals[i]] = 0; // This 0 means nothing, we just want to create a set of values
-  }
+  const valsSet = new Set(vals);
 
   // All entries were unique if length didn't change (ie the nub didn't change)
-  return Object.keys(valsSet).length === vals.length;
+  return valsSet.size === vals.length;
 };
 
 /**
@@ -1107,7 +1104,7 @@ const matchBvar = (
 ): Subst | undefined => {
   switch (bf.tag) {
     case "StyVar": {
-      const newSubst = {};
+      const newSubst: Subst = {};
       newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
       return newSubst;
     }
@@ -1184,7 +1181,7 @@ const matchStyArgToSubArg = (
       const styArgType = styTypeMap[styArgName];
       const subArgType = subTypeMap[subArgName];
       if (typesMatched(varEnv, subArgType, styArgType)) {
-        const rSubst = {};
+        const rSubst: Subst = {};
         rSubst[styArgName] = subArgName;
         return [rSubst];
       } else {
@@ -1600,7 +1597,7 @@ const makePotentialSubsts = (
   decls: DeclPattern<A>[],
   rels: RelationPattern<A>[]
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
-  const subTypeMap: { [k: string]: TypeConsApp<A> } = subProg.statements.reduce(
+  const subTypeMap = subProg.statements.reduce<{ [k: string]: TypeConsApp<A> }>(
     (result, statement) => {
       if (statement.tag === "Decl") {
         result[statement.name.value] = statement.type;
@@ -3053,7 +3050,7 @@ const evalExpr = (
       }));
 
       const { name, start, end } = expr;
-      if (!(name.value in compDict)) {
+      if (!isKeyOf(name.value, compDict)) {
         return err(
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
@@ -3377,7 +3374,7 @@ const translateExpr = (
       }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
-      if (!(fname in constrDict)) {
+      if (!isKeyOf(fname, constrDict)) {
         return addDiags(
           oneErr({ tag: "InvalidConstraintNameError", givenName: name }),
           trans
@@ -3426,7 +3423,7 @@ const translateExpr = (
       }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
-      if (!(fname in objDict)) {
+      if (!isKeyOf(fname, objDict)) {
         return addDiags(
           oneErr({ tag: "InvalidObjectiveNameError", givenName: name }),
           trans
