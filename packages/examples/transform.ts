@@ -33,17 +33,19 @@ export default () => {
               // don't waste time JSON-ifying a file we've seen already
               if (!paths.has(p)) {
                 paths.add(p);
-                const q = path.join(dist, `${p}.json`);
+                const q = path.join(dist, `${p}.js`);
                 fs.mkdirSync(path.dirname(q), { recursive: true });
                 fs.writeFileSync(
                   q,
-                  JSON.stringify(fs.readFileSync(path.join(src, p), "utf8"))
+                  `export default ${JSON.stringify(
+                    fs.readFileSync(path.join(src, p), "utf8")
+                  )};`
                 );
               }
               return factory.createImportDeclaration(
                 node.modifiers,
                 node.importClause,
-                factory.createStringLiteral(`${text}.json`)
+                factory.createStringLiteral(`${text}.js`)
               );
             }
           }
