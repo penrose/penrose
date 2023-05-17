@@ -27,11 +27,11 @@ import StateInspector from "./components/StateInspector";
 import SvgUploader from "./components/SvgUploader";
 import TopBar from "./components/TopBar";
 import {
+  RogerState,
   currentRogerState,
   currentWorkspaceState,
   fileContentsSelector,
   localFilesState,
-  RogerState,
   settingsState,
 } from "./state/atoms";
 import { useCheckURL, useCompileDiagram } from "./state/callbacks";

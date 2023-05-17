@@ -265,8 +265,6 @@ export const isClosed = (s: Shape<ad.Num>): boolean => {
 export const extractPoints = (s: Shape<ad.Num>): [ad.Num, ad.Num][] => {
   if (s.shapeType === "Polyline" || s.shapeType === "Polygon")
     return s.points.contents.map((arr) => [arr[0], arr[1]]);
-  else if (s.shapeType === "Path")
-    return s.d.contents.map((arr) => [arr[0], arr[1]]);
   else
     throw new Error(`Point extraction not defined for shape ${s.shapeType}.`);
 };

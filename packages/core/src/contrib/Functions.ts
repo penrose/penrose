@@ -59,7 +59,6 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { CompFunc } from "../types/functions";
 import {
-  ArgVal,
   Color,
   ColorV,
   FloatV,
@@ -3475,11 +3474,6 @@ export const closestPointPoly = (
     retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
   }
   return [retX, retY];
-};
-
-// Ignore this
-export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
-  if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
 
 /**

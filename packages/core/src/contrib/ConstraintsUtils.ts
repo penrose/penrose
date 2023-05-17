@@ -3,6 +3,7 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { bboxFromShape, shapeCenter } from "./Queries";
 import {
+  Rectlike,
   atDistOutside,
   isLinelike,
   noIntersectCircles,

@@ -12,7 +12,7 @@ import { Polygon, PolygonProps, samplePolygon } from "./Polygon";
 import { Polyline, PolylineProps, samplePolyline } from "./Polyline";
 import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle";
 import { Canvas, Context } from "./Samplers";
-import { sampleText, Text, TextProps } from "./Text";
+import { Text, TextProps, sampleText } from "./Text";
 //#region other shape types/globals
 
 export type Shape<T> =

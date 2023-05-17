@@ -2,6 +2,7 @@ import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
+import { isKeyOf } from "../utils/Util";
 import grammar from "./SubstanceParser";
 
 const outputDir = "/tmp/asts";
@@ -180,6 +181,7 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach((examplePath) => {
+    if (!isKeyOf(examplePath, setTheory)) throw Error(examplePath);
     const prog = setTheory[examplePath];
     test(examplePath, () => {
       const { results } = parser.feed(prog);

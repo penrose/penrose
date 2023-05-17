@@ -42,8 +42,8 @@ import {
   Color,
   ColorV,
   FloatV,
-  ListV,
   LListV,
+  ListV,
   MatrixV,
   PathCmd,
   PathDataV,
@@ -468,20 +468,14 @@ export const compileCompGraph = async (
   shapes: Shape<ad.Num>[]
 ): Promise<ShapeFn> => {
   const indices = new Map(inputs.map((x, i) => [x, i]));
-  const vars = [];
+  const vars: ad.Num[] = [];
   for (const s of shapes) {
-    for (const k of Object.keys(s)) {
-      // remove shapeType
-      if (k === "shapeType") continue;
-      // get all values from passthrough
-      else if (k === "passthrough") {
-        for (const ptVal of s.passthrough.values()) {
-          vars.push(...valueADNums(ptVal));
-        }
-      } else {
-        vars.push(...valueADNums(s[k]));
-      }
-    }
+    // a bit weird since it feels somewhat wasteful to reconstruct the new
+    // shape, but this reduces some code duplication since this way we don't
+    // have to write a separate function to collect all the `ad.Num`s
+    mapShape((x) => {
+      vars.push(x);
+    }, s);
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
   const evalFn = await genCode(compGraph);
@@ -501,67 +495,6 @@ export const compileCompGraph = async (
       )
     );
   };
-};
-
-const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
-  switch (v.tag) {
-    case "FloatV": {
-      return [v.contents];
-    }
-    case "BoolV":
-    case "StrV": {
-      return [];
-    }
-    case "ShapeListV": {
-      const vars = [];
-      const shapes = v.contents;
-      for (const s of shapes) {
-        for (const k of Object.keys(s)) {
-          // remove shapeType
-          if (k === "shapeType") continue;
-          // get all values from passthrough
-          else if (k === "passthrough") {
-            for (const ptVal of s.passthrough.values()) {
-              vars.push(...valueADNums(ptVal));
-            }
-          } else {
-            vars.push(...valueADNums(s[k]));
-          }
-        }
-      }
-      return vars;
-    }
-    case "ListV":
-    case "VectorV":
-    case "TupV": {
-      return v.contents;
-    }
-    case "PathDataV": {
-      return v.contents.flatMap((pathCmd) =>
-        pathCmd.contents.flatMap((subPath) => subPath.contents)
-      );
-    }
-    case "PtListV":
-    case "MatrixV":
-    case "LListV": {
-      return v.contents.flat();
-    }
-    case "ColorV": {
-      return colorADNums(v.contents);
-    }
-  }
-};
-
-const colorADNums = (c: Color<ad.Num>): ad.Num[] => {
-  switch (c.tag) {
-    case "RGBA":
-    case "HSVA": {
-      return c.contents;
-    }
-    case "NONE": {
-      return [];
-    }
-  }
 };
 
 //#region translation operations
