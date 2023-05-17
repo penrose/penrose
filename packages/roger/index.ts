@@ -417,9 +417,9 @@ yargs(hideBin(process.argv))
         resolvePath(options.path, sty[0]), // HACK: assume all images are co-located with the first Style module
         false,
         {
-          substanceName: substance,
-          styleName: style,
-          domainName: domain,
+          substanceName: sub,
+          styleName: sty,
+          domainName: dom,
           id: uniqid("instance-"),
         }
       );
