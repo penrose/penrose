@@ -1,43 +1,14 @@
-import geometryDomain from "@penrose/examples/dist/geometry-domain";
-import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain";
-import setTheoryDomain from "@penrose/examples/dist/set-theory-domain";
-import * as fs from "fs";
 import nearley from "nearley";
 import { parseStyle } from "../compiler/Style";
 import { C } from "../types/ast";
 import { StyProg } from "../types/style";
 import grammar from "./StyleParser";
 
-const outputDir = "/tmp/asts";
-const saveASTs = false;
-
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
   for (const p of results) expect(results[0]).toEqual(p);
   expect(results.length).toEqual(1);
 };
-
-// USAGE:
-// printAST(results[0])
-const printAST = (ast: any) => {
-  console.log(JSON.stringify(ast));
-};
-
-const stys = [
-  [
-    "linear-algebra-domain/linear-algebra-paper-simple.style",
-    linearAlgebraDomain["linear-algebra-paper-simple.style"],
-  ],
-  ["set-theory-domain/venn.style", setTheoryDomain["venn.style"]],
-  ["set-theory-domain/venn-3d.style", setTheoryDomain["venn-3d.style"]],
-  ["set-theory-domain/venn-small.style", setTheoryDomain["venn-small.style"]],
-  ["set-theory-domain/tree.style", setTheoryDomain["tree.style"]],
-  [
-    "set-theory-domain/continuousmap.style",
-    setTheoryDomain["continuousmap.style"],
-  ],
-  ["geometry-domain/euclidean.style", geometryDomain["euclidean.style"]],
-];
 
 beforeEach(() => {
   // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
@@ -554,19 +525,5 @@ testing {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-  });
-});
-
-describe("Real Programs", () => {
-  // create output folder
-  if (saveASTs && !fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
-  }
-
-  stys.forEach(([examplePath, prog]) => {
-    test(examplePath, () => {
-      const { results } = parser.feed(prog);
-      sameASTs(results);
-    });
   });
 });

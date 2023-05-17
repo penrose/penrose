@@ -1,4 +1,6 @@
-import examples from "@penrose/examples/dist/index";
+import vectorWedge from "@penrose/examples/dist/exterior-algebra/vector-wedge-exterior-algebra";
+import vectorsPerp from "@penrose/examples/dist/linear-algebra-domain/two-vectors-perp-vectors-dashed";
+import continuousMap from "@penrose/examples/dist/set-theory-domain/continuousmap-continuousmap";
 
 export const error = {
   domain: `typeppp Set`,
@@ -32,24 +34,4 @@ forall Set X {
   variation: "",
 };
 
-export const continuousMap = {
-  substance: examples["set-theory-domain"]["continuousmap.substance"],
-  style: examples["set-theory-domain"]["continuousmap.style"],
-  domain: examples["set-theory-domain"]["functions.domain"],
-  variation: "",
-};
-
-export const vectorWedge = {
-  variation: "ArtemisCrane740",
-  domain: examples["exterior-algebra"]["exterior-algebra.domain"],
-  substance: examples["exterior-algebra"]["vector-wedge.substance"],
-  style: examples["exterior-algebra"]["exterior-algebra.style"],
-};
-
-export const vectorsPerp = {
-  variation: "MyrtleApe55311",
-  domain: examples["linear-algebra-domain"]["linear-algebra.domain"],
-  substance:
-    examples["linear-algebra-domain"]["twoVectorsPerp-unsugared.substance"],
-  style: examples["linear-algebra-domain"]["linear-algebra-paper-simple.style"],
-};
+export { continuousMap, vectorWedge, vectorsPerp };

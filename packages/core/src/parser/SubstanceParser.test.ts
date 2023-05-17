@@ -1,22 +1,10 @@
-import setTheory from "@penrose/examples/dist/set-theory-domain";
-import * as fs from "fs";
 import nearley from "nearley";
-import * as path from "path";
 import grammar from "./SubstanceParser";
-
-const outputDir = "/tmp/asts";
-const saveASTs = false;
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
   for (const p of results) expect(results[0]).toEqual(p);
   expect(results.length).toEqual(1);
-};
-
-// USAGE:
-// printAST(results[0])
-const printAST = (ast: any) => {
-  console.log(JSON.stringify(ast));
 };
 
 const subPaths = [
@@ -170,26 +158,5 @@ CreateSubset(A, B) = CreateSubset(B, C)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-  });
-});
-
-describe("Real Programs", () => {
-  // create output folder
-  if (saveASTs && !fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
-  }
-
-  subPaths.forEach((examplePath) => {
-    const prog = setTheory[examplePath];
-    test(examplePath, () => {
-      const { results } = parser.feed(prog);
-      sameASTs(results);
-      // write to output folder
-      if (saveASTs) {
-        const exampleName = path.basename(examplePath, ".substance");
-        const astPath = path.join(outputDir, exampleName + ".ast.json");
-        fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
-      }
-    });
   });
 });

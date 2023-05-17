@@ -90,7 +90,6 @@
     "true-myth": "^4.1.0"
   },
   "devDependencies": {
-    "@penrose/examples": "^3.0.0-alpha.0",
     "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.149",
     "@types/moo": "^0.5.3",

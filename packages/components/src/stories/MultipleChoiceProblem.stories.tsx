@@ -1,4 +1,4 @@
-import molecules from "@penrose/examples/dist/molecules";
+import hydrogencyanide from "@penrose/examples/dist/molecules/hydrogencyanide";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ThemeProvider } from "styled-components";
 import MultipleChoiceProblem from "../MultipleChoiceProblem";
@@ -27,30 +27,22 @@ Props.args = {
   prompt: "Choose the correct Lewis structure for $\\mathrm{HCN}$.",
   diagrams: [
     {
-      substance: molecules["hydrogencyanide.substance"],
-      domain: molecules["molecules.domain"],
-      style: molecules["lewis.style"],
+      ...hydrogencyanide,
       variation: "1",
       answer: true,
     },
     {
-      substance: molecules["hydrogencyanide.substance"],
-      domain: molecules["molecules.domain"],
-      style: molecules["lewis.style"],
+      ...hydrogencyanide,
       variation: "2",
       answer: true,
     },
     {
-      substance: molecules["hydrogencyanide.substance"],
-      domain: molecules["molecules.domain"],
-      style: molecules["lewis.style"],
+      ...hydrogencyanide,
       variation: "3",
       answer: false,
     },
     {
-      substance: molecules["hydrogencyanide.substance"],
-      domain: molecules["molecules.domain"],
-      style: molecules["lewis.style"],
+      ...hydrogencyanide,
       variation: "4",
       answer: false,
     },

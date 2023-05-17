@@ -1,7 +1,4 @@
-import setTheory from "@penrose/examples/dist/set-theory-domain";
-import * as fs from "fs";
 import nearley from "nearley";
-import * as path from "path";
 import grammar from "../parser/SubstanceParser";
 import { A } from "../types/ast";
 import { Env } from "../types/domain";
@@ -12,20 +9,6 @@ import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
 
 const printError = false;
-const saveContexts = false;
-const outputDir = "/tmp/contexts";
-
-const subPaths = [
-  // "linear-algebra-domain/twoVectorsPerp.substance",
-  ["setTheory.domain", "tree.substance"],
-  ["functions.domain", "continuousmap.substance"],
-  ["setTheory.domain", "twosets-simple.substance"],
-  ["setTheory.domain", "multisets.substance"],
-  ["setTheory.domain", "nested.substance"],
-  // "hyperbolic-domain/hyperbolic-example.substance",
-  // "geometry-domain/pythagorean-theorem-sugared.substance",
-  // "mesh-set-domain/DomainInterop.substance",
-];
 
 const hasVars = (env: Env, vars: [string, string][]) => {
   vars.forEach(([name, type]: [string, string]) => {
@@ -526,33 +509,6 @@ Empty(AddPoint(p, A))`;
     expect((subEnv.ast.statements[5] as ApplyPredicate<A>).args[0].tag).toEqual(
       "ApplyFunction"
     );
-  });
-});
-
-describe("Real Programs", () => {
-  // create output folder
-  if (saveContexts && !fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
-  }
-
-  subPaths.forEach(([domainPath, examplePath]) => {
-    const domProg = setTheory[domainPath];
-    const subProg = setTheory[examplePath];
-    test(examplePath, () => {
-      // do testing
-      const env = envOrError(domProg);
-      const res = compileSubstance(subProg, env);
-      expect(res.isOk()).toBe(true);
-      // write to output folder
-      if (res.isOk() && saveContexts) {
-        const domainName = path.basename(domainPath, ".domain");
-        const exampleName = path.basename(examplePath, ".substance");
-        const envPath = path.join(outputDir, domainName + ".env.json");
-        const subenvPath = path.join(outputDir, exampleName + ".env.json");
-        fs.writeFileSync(subenvPath, JSON.stringify(res.value[0]), "utf8");
-        fs.writeFileSync(envPath, JSON.stringify(res.value[1]), "utf8");
-      }
-    });
   });
 });
 

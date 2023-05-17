@@ -8,7 +8,7 @@
     "build": ":",
     "build-decls": ":",
     "start": "tsx ./index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc"
   },
   "bin": {
     "roger": "./bin/run.js"
