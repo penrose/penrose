@@ -6,7 +6,7 @@ import {
   stepNextStage,
   stepState,
 } from "@penrose/core";
-import { Meta } from "@penrose/examples/dist/registry";
+import { Meta } from "@penrose/examples/dist";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -234,7 +234,7 @@ export const useLoadExampleWorkspace = () =>
       return;
     }
     const id = toast.loading("Loading example...");
-    const { domain, style, substance, variation } = await meta.get();
+    const { domain, styles, substance, variation } = await meta.get();
     toast.dismiss(id);
     const styleParentURI = ""; // TODO
     set(currentWorkspaceState, {
@@ -255,7 +255,7 @@ export const useLoadExampleWorkspace = () =>
           name: `.domain`,
         },
         style: {
-          contents: style,
+          contents: styles.join("\n"),
           name: `.style`,
         },
         substance: {
@@ -265,7 +265,7 @@ export const useLoadExampleWorkspace = () =>
       },
     });
     reset(diagramState);
-    await _compileDiagram(substance, style, domain, variation, set);
+    await _compileDiagram(substance, styles.join("\n"), domain, variation, set);
   });
 
 export const useCheckURL = () =>

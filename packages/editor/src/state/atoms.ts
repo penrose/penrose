@@ -5,7 +5,8 @@ import {
   PenroseState,
   PenroseWarning,
 } from "@penrose/core";
-import { registry, Trio } from "@penrose/examples/dist/registry";
+import { Trio } from "@penrose/examples/dist";
+import { registry } from "@penrose/examples/dist/registry";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
