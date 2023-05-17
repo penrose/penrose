@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "es2022",
     "noEmit": true,
     "noImplicitThis": true,
     "resolveJsonModule": true,

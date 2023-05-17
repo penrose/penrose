@@ -15,7 +15,7 @@ import {
 } from "@material-ui/core";
 import { Listing } from "@penrose/components";
 import { compileDomain, Env, showError } from "@penrose/core";
-import examples from "@penrose/examples/dist/index";
+import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01";
 import React from "react";
 import Latex from "react-latex-next";
 import { Preset, presets } from "../examples";
@@ -138,8 +138,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
     this.state = {
-      substance:
-        examples["geometry-domain"].textbook_problems["c04p01.substance"],
+      substance: c04p01.substance,
       setting: undefined,
       numPrograms: 10,
       seed: "test0", // default seed

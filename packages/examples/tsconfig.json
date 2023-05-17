@@ -8,7 +8,6 @@
 
     "declaration": true,
     "declarationMap": true,
-    "module": "ES2020",
     "sourceMap": true
   },
   "include": ["index.d.ts", "src"],
