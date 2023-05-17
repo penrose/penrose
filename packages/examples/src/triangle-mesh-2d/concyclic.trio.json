@@ -1,0 +1,5 @@
+{
+  "substance": "./diagrams/concyclic-pair.substance",
+  "domain": "./triangle-mesh-2d.domain",
+  "style": ["./triangle-mesh-2d.style", "./concyclic.style"]
+}
