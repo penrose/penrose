@@ -22,7 +22,6 @@ import {
   DuplicateName,
   FatalError,
   FunctionInternalError,
-  IncompatibleCollectionAccessError,
   InvalidColorLiteral,
   MissingArgumentError,
   NaNError,
@@ -355,9 +354,27 @@ export const showError = (
     }
 
     case "BadElementError": {
-      return `Wrong element type at index ${error.index} in ${
-        error.coll.tag
-      } (at ${loc(error.coll)}).`;
+      if (error.coll.tag === "CollectionAccess") {
+        const preamble = `The collection access (at ${locc(
+          "Style",
+          error.coll
+        )}) failed`;
+        if (error.index === 0) {
+          return (
+            preamble +
+            ` because the collection contains elements that cannot be collected`
+          );
+        } else {
+          return (
+            preamble +
+            ` because some elements of the collection (in particular, index ${error.index}) have different type from other elements.`
+          );
+        }
+      } else {
+        return `Wrong element type at index ${error.index} in ${
+          error.coll.tag
+        } (at ${loc(error.coll)}).`;
+      }
     }
 
     case "BadIndexError": {
@@ -524,12 +541,6 @@ canvas {
       const { name, location } = error;
       const locStr = locc("Style", location);
       return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
-    }
-
-    case "IncompatibleCollectionAccessError": {
-      const { name, field, location } = error;
-      const locStr = locc("Style", location);
-      return `Cannot index into the \`${field}\` field of collection \`${name}\` (at ${locStr}) because the fields have incompatible types.`;
     }
     // --- END COMPILATION ERRORS
 
@@ -804,17 +815,6 @@ export const unexpectedCollectionAccessError = (
 ): UnexpectedCollectionAccessError => ({
   tag: "UnexpectedCollectionAccessError",
   name,
-  location,
-});
-
-export const incompatibleCollectionAccessError = (
-  name: string,
-  field: string,
-  location: SourceRange
-): IncompatibleCollectionAccessError => ({
-  tag: "IncompatibleCollectionAccessError",
-  name,
-  field,
   location,
 });
 

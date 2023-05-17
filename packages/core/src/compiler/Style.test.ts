@@ -1023,7 +1023,7 @@ delete x.z.p }`,
           x = listof c from x
         }`,
       ],
-      IncompatibleCollectionAccessError: [
+      BadElementError: [
         `forall Set a {
           a.c = 10
         }

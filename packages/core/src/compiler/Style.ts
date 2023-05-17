@@ -45,6 +45,7 @@ import {
   BinaryOp,
   BindingForm,
   BinOp,
+  CollectionAccess,
   Collector,
   DeclPattern,
   Expr,
@@ -111,10 +112,9 @@ import {
   LListV,
   MatrixV,
   PropID,
+  PtListV,
   ShapeListV,
-  ShapeVal,
   TupV,
-  Val,
   Value,
   VectorV,
 } from "../types/value";
@@ -123,7 +123,6 @@ import {
   andThen,
   badShapeParamTypeError,
   err,
-  incompatibleCollectionAccessError,
   invalidColorLiteral,
   isErr,
   ok,
@@ -1568,8 +1567,9 @@ const makeListRSubstsForStyleRels = (
   subProg: SubProg<A>
 ): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
-  const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
-    im.List();
+  const initListRSubsts: im.List<
+    im.List<[Subst, im.Set<SubStmt<A>>]>
+  > = im.List();
 
   const [newUsedStyVars, newListRSubsts] = rels.reduce(
     ([usedStyVars, listRSubsts], rel) => {
@@ -2159,12 +2159,17 @@ const processBlock = (
       .concat(hb.block.statements);
 
     // Translate each statement in the block
-    const { diagnostics, globals, unnamed, substances, locals } =
-      augmentedStatements.reduce(
-        (assignment, stmt, stmtIndex) =>
-          processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals
-      );
+    const {
+      diagnostics,
+      globals,
+      unnamed,
+      substances,
+      locals,
+    } = augmentedStatements.reduce(
+      (assignment, stmt, stmtIndex) =>
+        processStmt({ block, subst }, stmtIndex, stmt, assignment),
+      withLocals
+    );
 
     switch (block.tag) {
       case "LocalVarId": {
@@ -2436,16 +2441,18 @@ const evalVals = (
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
   evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
     all(
-      argVals.map((argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
-        switch (argVal.tag) {
-          case "ShapeVal": {
-            return err(oneErr({ tag: "NotValueError", expr: args[i] }));
-          }
-          case "Val": {
-            return ok(argVal.contents);
+      argVals.map(
+        (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
+          switch (argVal.tag) {
+            case "ShapeVal": {
+              return err(oneErr({ tag: "NotValueError", expr: args[i] }));
+            }
+            case "Val": {
+              return ok(argVal.contents);
+            }
           }
         }
-      })
+      )
     ).mapErr(flatErrs)
   );
 
@@ -2763,7 +2770,7 @@ const evalBinOp = (
 };
 
 const eval1D = (
-  coll: List<C> | Vector<C>,
+  coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: FloatV<ad.Num>,
   rest: ArgVal<ad.Num>[]
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
@@ -2782,17 +2789,28 @@ const eval1D = (
     case "Vector": {
       return ok(vectorV(elems));
     }
+    case "CollectionAccess": {
+      return ok(vectorV(elems));
+    }
   }
 };
 
 const eval2D = (
-  coll: List<C> | Vector<C>,
-  first: VectorV<ad.Num>,
+  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  first: VectorV<ad.Num> | ListV<ad.Num> | TupV<ad.Num>,
   rest: ArgVal<ad.Num>[]
-): Result<LListV<ad.Num> | MatrixV<ad.Num>, StyleDiagnostics> => {
+): Result<
+  LListV<ad.Num> | MatrixV<ad.Num> | PtListV<ad.Num>,
+  StyleDiagnostics
+> => {
   const elems = [first.contents];
   for (const v of rest) {
-    if (v.tag === "Val" && v.contents.tag === "VectorV") {
+    if (
+      v.tag === "Val" &&
+      (v.contents.tag === "VectorV" ||
+        v.contents.tag === "ListV" ||
+        v.contents.tag === "TupV")
+    ) {
       elems.push(v.contents.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
@@ -2805,11 +2823,16 @@ const eval2D = (
     case "Vector": {
       return ok(matrixV(elems));
     }
+    case "CollectionAccess": {
+      if (first.tag === "ListV") return ok(llistV(elems));
+      else if (first.tag === "TupV") return ok(ptListV(elems));
+      else return ok(matrixV(elems));
+    }
   }
 };
 
 const evalShapeList = (
-  coll: List<C> | Vector<C>,
+  coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: Shape<ad.Num>,
   rest: ArgVal<ad.Num>[]
 ): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
@@ -3190,19 +3213,12 @@ const evalExpr = (
             result.push(value);
           }
         }
-        const collected = collectIntoVal(result);
-        if (collected === undefined) {
-          return err(
-            oneErr(
-              incompatibleCollectionAccessError(name.value, field.value, {
-                start: expr.start,
-                end: expr.end,
-              })
-            )
-          );
+        const collected = collectIntoVal(result, expr);
+        if (collected.isErr()) {
+          return err(collected.error);
+        } else {
+          return ok(val(collected.value));
         }
-
-        return ok(collected);
       } else {
         return err(
           oneErr(
@@ -3217,42 +3233,46 @@ const evalExpr = (
   }
 };
 
+type CollectionType<T> =
+  | VectorV<T>
+  | ListV<T>
+  | TupV<T>
+  | MatrixV<T>
+  | LListV<T>
+  | PtListV<T>
+  | ShapeListV<T>;
+
 const collectIntoVal = (
-  collection: ArgVal<ad.Num>[]
-): Val<ad.Num> | undefined => {
-  if (collection.every((v) => v.tag === "Val" && v.contents.tag === "FloatV")) {
-    return val(
-      vectorV(collection.map((v) => (v.contents as FloatV<ad.Num>).contents))
-    );
+  coll: ArgVal<ad.Num>[],
+  expr: CollectionAccess<C>
+): Result<CollectionType<ad.Num>, StyleDiagnostics> => {
+  if (coll.length === 0) {
+    return ok(vectorV([]));
   }
 
-  if (
-    collection.every((v) => v.tag === "Val" && v.contents.tag === "VectorV")
-  ) {
-    return val(
-      matrixV(collection.map((v) => (v.contents as VectorV<ad.Num>).contents))
-    );
-  }
+  const [first, ...rest] = coll;
 
-  if (collection.every((v) => v.tag === "Val" && v.contents.tag === "ListV")) {
-    return val(
-      llistV(collection.map((v) => (v.contents as ListV<ad.Num>).contents))
-    );
+  if (first.tag === "ShapeVal") {
+    return evalShapeList(expr, first.contents, rest);
+  } else {
+    if (first.contents.tag === "FloatV") {
+      return eval1D(expr, first.contents, rest);
+    } else if (
+      first.contents.tag === "VectorV" ||
+      first.contents.tag === "ListV" ||
+      first.contents.tag === "TupV"
+    ) {
+      return eval2D(expr, first.contents, rest);
+    } else {
+      return err(
+        oneErr({
+          tag: "BadElementError",
+          coll: expr,
+          index: 0,
+        })
+      );
+    }
   }
-
-  if (collection.every((v) => v.tag === "Val" && v.contents.tag === "TupV")) {
-    return val(
-      ptListV(collection.map((v) => (v.contents as TupV<ad.Num>).contents))
-    );
-  }
-
-  if (collection.every((v) => v.tag === "ShapeVal")) {
-    return val(
-      shapeListV(collection.map((v) => (v as ShapeVal<ad.Num>).contents))
-    );
-  }
-
-  return undefined;
 };
 
 const stageExpr = (
@@ -3917,12 +3937,14 @@ export const compileStyleHelper = async (
 
   const groupWarnings = checkGroupGraph(groupGraph);
 
-  const { shapeOrdering: layerOrdering, warning: layeringWarning } =
-    computeLayerOrdering(
-      [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
-      [...translation.layering],
-      groupGraph
-    );
+  const {
+    shapeOrdering: layerOrdering,
+    warning: layeringWarning,
+  } = computeLayerOrdering(
+    [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
+    [...translation.layering],
+    groupGraph
+  );
 
   // Fix the ordering between nodes of the group graph
   for (let i = 0; i < layerOrdering.length; i++) {

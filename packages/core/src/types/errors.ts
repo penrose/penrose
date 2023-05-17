@@ -206,7 +206,6 @@ export type StyleError =
   | FunctionInternalError
   | RedeclareNamespaceError
   | UnexpectedCollectionAccessError
-  | IncompatibleCollectionAccessError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -496,13 +495,6 @@ export interface RedeclareNamespaceError {
 export interface UnexpectedCollectionAccessError {
   tag: "UnexpectedCollectionAccessError";
   name: string;
-  location: SourceRange;
-}
-
-export interface IncompatibleCollectionAccessError {
-  tag: "IncompatibleCollectionAccessError";
-  name: string;
-  field: string;
   location: SourceRange;
 }
 
