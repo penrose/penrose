@@ -1,0 +1,122 @@
+canvas {
+   width: 240
+   height: 200
+}
+
+colors {
+   color black = #000000
+   color blue = #1b1f8a33
+}
+
+global {
+   scalar lineWidth = 1.0
+   scalar overlapPadding = 5.0
+}
+
+forall Point p {
+   -- location
+   vec2 p.x = (?,?)
+
+   -- draw as a small dot
+   shape p.icon = Circle {
+      center: p.x
+      r: 5.0
+      fillColor: colors.black
+   }
+}
+
+forall Segment s {
+   -- location of endpoints
+   vec2 s.x0 = (?,?)
+   vec2 s.x1 = (?,?)
+
+   -- draw as a line segment
+   shape s.icon = Line {
+      start: s.x0
+      end: s.x1
+      strokeWidth: global.lineWidth
+      strokeColor: colors.black
+   }
+}
+
+forall Circle c {
+   -- center and radius
+   vec2 c.center = (?,?)
+   scalar c.r = ?
+
+   -- draw as an empty circle
+   shape c.icon = Circle {
+      center: c.center
+      r: c.r
+      fillColor: none()
+      strokeWidth: global.lineWidth
+      strokeColor: colors.black
+   }
+}
+
+forall Disk d {
+   -- center and radius
+   vec2 d.center = (?,?)
+   scalar d.r = ?
+
+   -- draw as a filled circle
+   shape d.icon = Circle {
+      center: d.center
+      r: d.r
+      fillColor: colors.blue
+   }
+}
+
+forall Triangle t {
+   -- vertices
+   vec2 t.p0 = (?,?)
+   vec2 t.p1 = (?,?)
+   vec2 t.p2 = (?,?)
+
+   -- draw as a filled polygon
+   shape d.icon = Polygon {
+      points: [t.p0, t.p1, t.p2]
+      fillColor: colors.blue
+   }
+}
+
+forall Sphere s {
+   -- center and radius
+   vec2 center = (?,?)
+   scalar r = ?
+
+   -- draw as a filled and outlined circle
+   shape s.icon = Circle {
+      center: s.center
+      r: s.r
+      fillColor: colors.blue
+      strokeWidth: global.lineWidth
+      strokeColor: colors.black
+   }
+
+   -- draw an equator
+   shape equator = Path {
+      points: arcTo( [s.r,s.r/4], [-1,0], [0,0,0] )
+      strokeWidth: global.lineWidth/2
+      strokeColor: colors.blue
+   }
+
+   -- draw a shadow
+   shape shadow = Ellipse {
+      center: s.center - (0,1.5*s.r)
+      rx: s.r
+      ry: s.r/3
+      fillColor: rgba(0,0,0,.1)
+   }
+}
+
+-- draw points above shapes
+forall Point p; Shape s {
+   layer p.icon above s.icon
+}
+
+-- ensure that no two shapes overlap
+forall Shape s1; Shape s2 {
+   ensure disjoint( s1.icon, s2.icon, global.overlapPadding )
+}
+

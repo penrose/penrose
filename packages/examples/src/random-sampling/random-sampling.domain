@@ -1,0 +1,8 @@
+type Point
+
+type Shape
+type Segment <: Shape
+type Circle <: Shape
+type Disk <: Shape
+type Triangle <: Shape
+type Sphere <: Shape
