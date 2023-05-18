@@ -684,6 +684,13 @@
       "style": "blobs",
       "domain": "blobs",
       "variation": "LavendaireWombat86913"
+    },
+    {
+      "name": "Space curves",
+      "substance": "space-curves",
+      "style": "space-curves",
+      "domain": "space-curves",
+      "variation": "SkywardLobster2569"
     }
   ],
   "domains": {
@@ -782,6 +789,9 @@
     },
     "blobs": {
       "URI": "curve-examples/blobs/blobs.domain"
+    },
+    "space-curves": {
+      "URI": "curve-examples/space-curves/space-curves.domain"
     }
   },
   "styles": {
@@ -964,6 +974,10 @@
     "blobs": {
       "domain": "blobs",
       "URI": "curve-examples/blobs/blobs.style"
+    },
+    "space-curves": {
+      "domain": "space-curves",
+      "URI": "curve-examples/space-curves/space-curves.style"
     }
   },
   "substances": {
@@ -1346,6 +1360,10 @@
     "blobs": {
       "domain": "blobs",
       "URI": "curve-examples/blobs/blobs.substance"
+    },
+    "space-curves": {
+      "domain": "space-curves",
+      "URI": "curve-examples/space-curves/space-curves.substance"
     }
   }
 }
