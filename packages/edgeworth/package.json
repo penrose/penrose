@@ -45,6 +45,12 @@
           "^build",
           "^build-decls"
         ]
+      },
+      "coverage": {
+        "dependsOn": [
+          "^build",
+          "^build-decls"
+        ]
       }
     }
   },
