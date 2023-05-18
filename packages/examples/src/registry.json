@@ -311,6 +311,14 @@
       "gallery": true
     },
     {
+      "name": "Random Sampling",
+      "substance": "test-random-sampling",
+      "style": "random-sampling",
+      "domain": "random-sampling",
+      "variation": "CocoaMagpie2612",
+      "gallery": true
+    },
+    {
       "substance": "circle-example",
       "style": "euclidean",
       "domain": "geometry",
@@ -726,6 +734,9 @@
     "closest-point": {
       "URI": "closest-point/closest-point.domain"
     },
+    "random-sampling": {
+      "URI": "random-sampling/random-sampling.domain"
+    },
     "triangle-mesh-3d": {
       "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
     },
@@ -860,6 +871,10 @@
     "triangle-mesh-3d": {
       "domain": "triangle-mesh-3d",
       "URI": "triangle-mesh-3d/triangle-mesh-3d.style"
+    },
+    "random-sampling": {
+      "domain": "random-sampling",
+      "URI": "random-sampling/random-sampling.style"
     },
     "word-cloud": {
       "domain": "word-cloud",
@@ -1154,6 +1169,10 @@
     "two-triangles": {
       "domain": "triangle-mesh-3d",
       "URI": "triangle-mesh-3d/two-triangles.substance"
+    },
+    "test-random-sampling": {
+      "domain": "random-sampling",
+      "URI": "random-sampling/test-random-sampling.substance"
     },
     "lagrange-bases": {
       "domain": "lagrange-bases",
