@@ -1,0 +1,6 @@
+{
+  "substance": "./groups/quaternions.substance",
+  "style": ["./CayleyGraph.style"],
+  "domain": "./Group.domain",
+  "variation": "MeadowbrookChimpanzee02726"
+}

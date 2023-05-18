@@ -11,27 +11,24 @@
     "name": "Sets as Venn Diagram in 2.5D",
     "gallery": true
   },
-  "group-theory/groups/quaternion-group-group-theory-multiplication-table": {
+  "group-theory/quaternion-multiplication-table": {
     "name": "Quaternions as table",
     "gallery": true
   },
-  "group-theory/groups/quaternion-group-group-theory-cayley-graph": {
+  "group-theory/quaternion-cayley-graph": {
     "name": "Quaternions as Cayley graph",
     "gallery": true
   },
-  "atoms-and-bonds/wet-floor-atoms-and-bonds": {
-    "name": "Wet Floor",
-    "gallery": true
-  },
-  "atoms-and-bonds/one-water-molecule-atoms-and-bonds": {
+  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true },
+  "atoms-and-bonds/one-water-molecule": {
     "name": "A Water Molecule",
     "gallery": true
   },
-  "set-theory-domain/continuousmap-continuousmap": {
+  "set-theory-domain/continuousmap": {
     "name": "Continous Map",
     "gallery": true
   },
-  "linear-algebra-domain/two-vectors-perp-vectors-dashed": {
+  "linear-algebra-domain/two-vectors-perp": {
     "name": "Two Perpendicular Vectors",
     "gallery": true
   },
@@ -39,201 +36,217 @@
     "name": "Lewis Structure of Nitric Acid",
     "gallery": true
   },
-  "exterior-algebra/vector-wedge-exterior-algebra": {},
-  "shape-spec/allShapes-allShapes": {},
-  "shape-spec/arrowheads-arrowheads": {},
-  "graph-domain/textbook/sec1/computer-network-graph-simple-graph": {},
-  "graph-domain/textbook/sec1/computer-network-multiple-links-graph-pseudograph": {},
-  "graph-domain/textbook/sec1/computer-network-diagnostic-links-graph-pseudograph": {},
-  "graph-domain/textbook/sec1/communications-network-one-way-links-graph-simple-directed-graph": {},
-  "graph-domain/textbook/sec1/computer-network-multiple-one-way-links-graph-directed-multigraph": {},
-  "graph-domain/textbook/sec1/acquaintanceship-graph-simple-graph": {},
-  "graph-domain/textbook/sec1/influence-graph-simple-directed-graph": {},
-  "graph-domain/textbook/sec1/call-directed-graph-directed-multigraph": {},
-  "graph-domain/textbook/sec1/call-undirected-graph-pseudograph": {},
-  "graph-domain/textbook/sec1/module-dependency-graph-simple-directed-graph": {},
-  "graph-domain/textbook/sec1/precedence-graph-simple-directed-graph": {},
-  "graph-domain/textbook/sec1/niche-overlap-graph-simple-graph": {},
-  "graph-domain/textbook/sec1/protein-interaction-graph-simple-graph": {},
-  "graph-domain/textbook/sec1/round-robin-graph-simple-directed-graph": {},
-  "graph-domain/textbook/sec2/complete-graphs-simple-graph": {},
-  "graph-domain/textbook/sec2/cycle-graphs-simple-graph": {},
-  "graph-domain/textbook/sec2/wheel-graphs-simple-graph": {},
-  "graph-domain/textbook/sec2/cube-graphs-simple-graph": {},
-  "graph-domain/textbook/sec2/complete-bipartite-graphs-simple-graph": {},
-  "graph-domain/textbook/sec2/jobs-trained-matching-graph-simple-graph": {},
-  "graph-domain/textbook/sec2/jobs-trained-no-matching-graph-simple-graph": {},
-  "graph-domain/textbook/sec2/star-topology-graph-simple-graph": {},
-  "graph-domain/textbook/sec2/ring-topology-graph-simple-graph": {},
-  "graph-domain/textbook/sec2/hybrid-topology-graph-simple-graph": {},
-  "graph-domain/textbook/sec2/linear-array-graph-simple-graph": {},
-  "graph-domain/textbook/sec2/mesh-network-graph-simple-graph": {},
-  "graph-domain/textbook/sec2/hypercube-network-graph-simple-graph": {},
-  "graph-domain/textbook/sec2/union-graph-simple-graph": {},
-  "geometry-domain/textbook_problems/incenter-triangle-euclidean": {
+  "exterior-algebra/vector-wedge": {},
+  "shape-spec/all-shapes": {},
+  "shape-spec/arrowheads": {},
+  "graph-domain/textbook/sec1/fig1": { "name": "Computer Network" },
+  "graph-domain/textbook/sec1/fig2": {
+    "name": "Computer Network with Multiple Links between Data Centers"
+  },
+  "graph-domain/textbook/sec1/fig3": {
+    "name": "Computer Network with Diagnostic Links"
+  },
+  "graph-domain/textbook/sec1/fig4": {
+    "name": "Communications Network with One-Way Communications Links"
+  },
+  "graph-domain/textbook/sec1/fig5": {
+    "name": "Computer Network with Multiple One-Way Links"
+  },
+  "graph-domain/textbook/sec1/fig6": { "name": "Acquaintanceship Graph" },
+  "graph-domain/textbook/sec1/fig7": { "name": "Influence Graph" },
+  "graph-domain/textbook/sec1/fig8a": { "name": "Call Graph" },
+  "graph-domain/textbook/sec1/fig8b": { "name": "Call Graph" },
+  "graph-domain/textbook/sec1/fig9": { "name": "Module Dependency Graph" },
+  "graph-domain/textbook/sec1/fig10": { "name": "Precedence Graph" },
+  "graph-domain/textbook/sec1/fig11": { "name": "Niche Overlap Graph" },
+  "graph-domain/textbook/sec1/fig12": {
+    "name": "Module of a Protein Interaction Graph"
+  },
+  "graph-domain/textbook/sec1/fig13": {
+    "name": "Graph Model of a Round-Robin Tournament"
+  },
+  "graph-domain/textbook/sec2/fig3": { "name": "Complete Graphs" },
+  "graph-domain/textbook/sec2/fig4": { "name": "Cycle Graphs" },
+  "graph-domain/textbook/sec2/fig5": { "name": "Wheel Graphs" },
+  "graph-domain/textbook/sec2/fig6": { "name": "Cube Graphs" },
+  "graph-domain/textbook/sec2/fig9": { "name": "Complete Bipartite Graphs" },
+  "graph-domain/textbook/sec2/fig10a": {
+    "name": "Modeling the Jobs for Which Employees Have Been Trained"
+  },
+  "graph-domain/textbook/sec2/fig10b": {
+    "name": "Modeling the Jobs for Which Employees Have Been Trained"
+  },
+  "graph-domain/textbook/sec2/fig11a": {
+    "name": "Star Topology for Local Area Network"
+  },
+  "graph-domain/textbook/sec2/fig11b": {
+    "name": "Ring Topology for Local Area Network"
+  },
+  "graph-domain/textbook/sec2/fig11c": {
+    "name": "Hybrid Topology for Local Area Network"
+  },
+  "graph-domain/textbook/sec2/fig12": {
+    "name": "Linear Array for Six Processors"
+  },
+  "graph-domain/textbook/sec2/fig13": {
+    "name": "Mesh Network for 16 Processors"
+  },
+  "graph-domain/textbook/sec2/fig14": {
+    "name": "Hypercube Network for Eight Processors"
+  },
+  "graph-domain/textbook/sec2/fig16b": {},
+  "geometry-domain/textbook_problems/c05p13": {
     "name": "Triangle Incenter",
     "gallery": true
   },
-  "geometry-domain/textbook_problems/collinear-euclidean": {
+  "geometry-domain/textbook_problems/c01p01": {
     "name": "Collinear Points",
     "gallery": true
   },
-  "geometry-domain/textbook_problems/parallel-lines-euclidean": {},
-  "geometry-domain/textbook_problems/midsegment-triangles-euclidean": {},
-  "geometry-domain/textbook_problems/congruent-triangles-euclidean": {},
-  "triangle-mesh-3d/two-triangles-triangle-mesh-3d": {
+  "geometry-domain/textbook_problems/c03p01": { "name": "Parallel Lines" },
+  "geometry-domain/textbook_problems/c05p01": {
+    "name": "Midsegment Triangles"
+  },
+  "geometry-domain/textbook_problems/ex": { "name": "Congruent Triangles" },
+  "triangle-mesh-3d/two-triangles": {
     "name": "Two 3D Triangles",
     "gallery": true
   },
-  "geometry-domain/textbook_problems/circle-example-euclidean": {},
-  "word-cloud/word-cloud-example-word-cloud": {
-    "name": "Word Cloud",
-    "gallery": true
-  },
-  "geometry-domain/siggraph-teaser-euclidean-teaser": {
+  "geometry-domain/textbook_problems/c11p12": { "name": "Circle Example" },
+  "word-cloud/example": { "name": "Word Cloud", "gallery": true },
+  "geometry-domain/siggraph-teaser": {
     "name": "SIGGRAPH teaser - Euclidean Geometry",
     "gallery": true
   },
-  "minkowski-tests/maze/non-convex-non-convex": {},
-  "lagrange-bases/lagrange-bases-lagrange-bases": {
+  "minkowski-tests/maze/non-convex": {},
+  "lagrange-bases/lagrange-bases": {
     "name": "Lagrange Bases",
     "gallery": true
   },
-  "hypergraph/hypergraph-hypergraph": {},
-  "persistent-homology/persistent-homology-persistent-homology": {
+  "hypergraph/hypergraph": {},
+  "persistent-homology/persistent-homology": {
     "name": "Persistent Homology",
     "gallery": true
   },
-  "walk-on-spheres/wos-laplace-estimator-walk-on-spheres": {
+  "walk-on-spheres/laplace-estimator": {
     "name": "Walk on Spheres - Laplace Estimator",
     "gallery": true
   },
-  "walk-on-spheres/wos-poisson-estimator-walk-on-spheres": {
+  "walk-on-spheres/poisson-estimator": {
     "name": "Walk on Spheres - Poisson Estimator"
   },
-  "walk-on-spheres/wos-nested-estimator-walk-on-spheres": {
+  "walk-on-spheres/nested-estimator": {
     "name": "Walk on Spheres - Nested Estimator"
   },
-  "walk-on-spheres/wos-offcenter-estimator-walk-on-spheres": {
+  "walk-on-spheres/offcenter-estimator": {
     "name": "Walk on Spheres - Off-Center Estimator"
   },
-  "shape-distance/points-around-star-shape-distance": {},
-  "shape-distance/points-around-polyline-shape-distance": {},
-  "shape-distance/points-around-line-shape-distance": {},
-  "shape-distance/lines-around-rect-rect-line-dist": {},
-  "closest-point/closest-point-test-closest-point": {
-    "name": "Closest point test",
-    "gallery": false
-  },
-  "fake-3d-linear-algebra/3d-projection-fake-3d-linear-algebra": {},
-  "animation/center-shrink-circle-animation": {},
-  "structural-formula/molecules/caffeine-structural-formula": {
+  "shape-distance/points-around-star": {},
+  "shape-distance/points-around-polyline": {},
+  "shape-distance/points-around-line": {},
+  "shape-distance/lines-around-rect": {},
+  "closest-point/test": { "name": "Closest point test", "gallery": false },
+  "fake-3d-linear-algebra/projection": {},
+  "animation/center-shrink-circle": {},
+  "structural-formula/molecules/caffeine": {
     "name": "A Caffeine Molecule",
     "gallery": true
   },
-  "mobius/mobius-mobius": {},
-  "molecules/glutamine-molecules-basic": {},
-  "matrix-ops/tests/matrix-matrix-addition-matrix-ops": {
+  "mobius/mobius": {},
+  "molecules/glutamine": {},
+  "matrix-ops/tests/matrix-matrix-addition": {
     "name": "Matrix-matrix addition",
     "gallery": false
   },
-  "matrix-ops/tests/matrix-matrix-division-elementwise-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-division-elementwise": {
     "name": "Matrix-matrix division (elementwise)",
     "gallery": false
   },
-  "matrix-ops/tests/matrix-matrix-multiplication-elementwise-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-multiplication-elementwise": {
     "name": "Matrix-matrix multiplication (elementwise)",
     "gallery": false
   },
-  "matrix-ops/tests/matrix-matrix-multiplication-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-multiplication": {
     "name": "Matrix-matrix multiplication",
     "gallery": false
   },
-  "matrix-ops/tests/matrix-matrix-subtraction-matrix-ops": {
+  "matrix-ops/tests/matrix-matrix-subtraction": {
     "name": "Matrix-matrix subtraction",
     "gallery": false
   },
-  "matrix-ops/tests/matrix-transpose-matrix-ops": {
+  "matrix-ops/tests/matrix-transpose": {
     "name": "Matrix transpose",
     "gallery": false
   },
-  "matrix-ops/tests/matrix-vector-left-multiplication-matrix-ops": {
+  "matrix-ops/tests/matrix-vector-left-multiplication": {
     "name": "Matrix-vector left multiplication",
     "gallery": false
   },
-  "matrix-ops/tests/matrix-vector-right-multiplication-matrix-ops": {
+  "matrix-ops/tests/matrix-vector-right-multiplication": {
     "name": "Matrix-vector right multiplication",
     "gallery": false
   },
-  "matrix-ops/tests/scalar-vector-division-matrix-ops": {
+  "matrix-ops/tests/scalar-vector-division": {
     "name": "Scalar-vector division",
     "gallery": false
   },
-  "matrix-ops/tests/scalar-vector-left-multiplication-matrix-ops": {
+  "matrix-ops/tests/scalar-vector-left-multiplication": {
     "name": "Scalar-vector left multiplication",
     "gallery": false
   },
-  "matrix-ops/tests/scalar-vector-right-multiplication-matrix-ops": {
+  "matrix-ops/tests/scalar-vector-right-multiplication": {
     "name": "Scalar-vector right multiplication",
     "gallery": false
   },
-  "matrix-ops/tests/vector-vector-addition-matrix-ops": {
+  "matrix-ops/tests/vector-vector-addition": {
     "name": "Vector-vector addition",
     "gallery": false
   },
-  "matrix-ops/tests/vector-vector-division-elementwise-matrix-ops": {
+  "matrix-ops/tests/vector-vector-division-elementwise": {
     "name": "Vector-vector division elementwise",
     "gallery": false
   },
-  "matrix-ops/tests/vector-vector-multiplication-elementwise-matrix-ops": {
+  "matrix-ops/tests/vector-vector-multiplication-elementwise": {
     "name": "Vector-vector multiplication elementwise",
     "gallery": false
   },
-  "matrix-ops/tests/vector-vector-outerproduct-matrix-ops": {
+  "matrix-ops/tests/vector-vector-outerproduct": {
     "name": "Vector-vector outerproduct",
     "gallery": false
   },
-  "matrix-ops/tests/vector-vector-subtraction-matrix-ops": {
+  "matrix-ops/tests/vector-vector-subtraction": {
     "name": "Vector-vector subtraction",
     "gallery": false
   },
-  "logic-circuit-domain/half-adder-distinctive-shape": {},
-  "curve-examples/cubic-bezier-cubic-bezier": {},
-  "triangle-mesh-2d/diagrams/cotan-formula-triangle-mesh-2d": {
+  "logic-circuit-domain/half-adder": {},
+  "curve-examples/cubic-bezier": {},
+  "triangle-mesh-2d/diagrams/cotan-formula": {
     "name": "Cotan Formula",
     "gallery": true
   },
-  "triangle-mesh-2d/diagrams/concyclic-pair-triangle-mesh-2d": {
+  "triangle-mesh-2d/diagrams/concyclic-pair": {
     "name": "Concyclic Euclidean Edge Flip",
     "gallery": true
   },
-  "triangle-mesh-2d/diagrams/halfedge-mesh-triangle-mesh-2d": {
+  "triangle-mesh-2d/diagrams/halfedge-mesh": {
     "name": "Half Edge Mesh",
     "gallery": true
   },
-  "triangle-mesh-2d/diagrams/relative-orientation-triangle-mesh-2d": {},
-  "triangle-mesh-2d/diagrams/triangle-centers-triangle-mesh-2d": {
-    "name": "Triangle Centers"
-  },
-  "triangle-mesh-2d/diagrams/angle-equivalence-triangle-mesh-2d": {
+  "triangle-mesh-2d/diagrams/relative-orientation": {},
+  "triangle-mesh-2d/diagrams/triangle-centers": { "name": "Triangle Centers" },
+  "triangle-mesh-2d/diagrams/angle-equivalence": {
     "name": "Rigid Conformal Mapping of a 2D Mesh"
   },
-  "graph-domain/textbook/sec5/sec5-ex32-simple-curved-graph": {
-    "name": "Curved graph example"
-  },
-  "curve-examples/cubic-bezier-open-elastic-curve": {
-    "name": "Open elastic curve example"
-  },
-  "curve-examples/cubic-bezier-closed-elastic-curve": {
+  "graph-domain/textbook/sec5/ex32": { "name": "Curved graph example" },
+  "curve-examples/open-elastic-curve": { "name": "Open elastic curve example" },
+  "curve-examples/closed-elastic-curve": {
     "name": "Closed elastic curve example"
   },
-  "graph-domain/other-examples/arpanet-simple-curved-graph-dots": {
+  "graph-domain/other-examples/arpanet": {
     "name": "Curved graph example with dots"
   },
-  "graph-domain/other-examples/nyc-subway-simple-curved-graph-boxes": {
+  "graph-domain/other-examples/nyc-subway": {
     "name": "Curved graph example with boxes"
   },
-  "curve-examples/blobs-blobs": {
-    "name": "Blobs"
-  }
+  "curve-examples/blobs": { "name": "Blobs" }
 }
