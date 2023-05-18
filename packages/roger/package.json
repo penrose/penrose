@@ -38,7 +38,6 @@
     "regenerator-runtime": "^0.13.11",
     "true-myth": "^4.1.1",
     "tsx": "^3.12.7",
-    "uniqid": "^5.4.0",
     "ws": "^8.6.0",
     "yargs": "^17.7.2"
   },

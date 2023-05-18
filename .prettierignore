@@ -1,5 +1,5 @@
 *.hbs
-/packages/roger/out/
+/diagrams/
 /packages/browser-ui/tsconfig.json
 /packages/components/storybook-static/
 /packages/core/docs/

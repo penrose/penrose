@@ -84,37 +84,41 @@ jobs:
         uses: ./.github/actions/setup
       - name: Build @penrose/roger
         run: yarn build:roger
-      - name: Generate diagrams and metadata
+      - name: Link @penrose/roger
         working-directory: packages/roger/
-        run: yarn start batch registry.json out/ --path=../examples/src/ --folders
+        run: npm link
+      - name: Generate diagrams and metadata
+        run: roger batch --folders packages/examples/src/registry.json diagrams/meta
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
           name: diagrams
-          path: packages/roger/out/
+          path: diagrams/meta/
       - name: Checkout target
         uses: actions/checkout@v3
         with:
-          path: diagrams/
+          path: diagrams/raw/
           ref: ci/refs/heads/main
       - if: github.event_name == 'pull_request'
         name: Checkout target branch
-        working-directory: diagrams/
+        working-directory: diagrams/raw/
         run: git checkout -b ci/${{ github.ref }}
       - name: Clean target working tree
-        working-directory: diagrams/
+        working-directory: diagrams/raw/
         run: git rm -rf .
       - name: Copy diagrams to target
         run: |
           set -x
-          for filename in packages/roger/out/*/output.svg; do
-            dir=${filename#packages/roger/out/}
-            name=${dir%/output.svg}
-            cp "$filename" "diagrams/$name.svg"
+          find diagrams/meta -name output.svg -type f | while read -r file; do
+            suffix=${file#diagrams/meta/}
+            id=${suffix%/output.svg}
+            parent=diagrams/raw/$(dirname "$id")
+            mkdir -p "$parent"
+            cp "$file" "$parent/$(basename "$id").svg"
           done
       - name: Commit diagrams and generate diff summary
         id: commit
-        working-directory: diagrams/
+        working-directory: diagrams/raw/
         run: |
           set -x
 
@@ -140,21 +144,20 @@ jobs:
 
           rm diff.md
       - name: Generate performance summary
-        working-directory: packages/roger/
         run: |
           set -x
 
-          yarn start textchart out stats.md
+          roger textchart diagrams/meta diagrams/stats.md
 
           echo '# 📊 Performance' >> $GITHUB_STEP_SUMMARY
           echo >> $GITHUB_STEP_SUMMARY
-          cat stats.md >> $GITHUB_STEP_SUMMARY
+          cat diagrams/stats.md >> $GITHUB_STEP_SUMMARY
 
           echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
-          cat stats.md >> $GITHUB_ENV
+          cat diagrams/stats.md >> $GITHUB_ENV
           echo EOF >> $GITHUB_ENV
 
-          rm stats.md
+          rm diagrams/stats.md
       - name: Check for write permissions
         id: check
         uses: scherermichael-oss/action-has-permission@17f29510f1bf987b916c8cbb451566a56eed23f1
@@ -164,7 +167,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - if: steps.check.outputs.has-permission
         name: Push to target
-        working-directory: diagrams/
+        working-directory: diagrams/raw/
         run: git push -f origin HEAD
       - if: github.event_name == 'pull_request' && steps.check.outputs.has-permission
         name: Comment on PR

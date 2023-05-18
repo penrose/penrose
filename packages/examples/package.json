@@ -3,9 +3,6 @@
   "version": "3.0.0-alpha.0",
   "private": true,
   "type": "module",
-  "devDependencies": {
-    "ttypescript": "^1"
-  },
   "scripts": {
     "build": "rimraf dist && tsc",
     "build-decls": ":",
