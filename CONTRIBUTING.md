@@ -102,7 +102,7 @@ back to this directory:
 
 ```sh
 pushd packages/roger/
-yarn link
+npm link
 popd
 ```
 
