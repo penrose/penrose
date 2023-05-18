@@ -349,7 +349,7 @@ describe("centerOfMass", () => {
     [_polygons[8], [150, 125]],
     [_polylines[10], [50, 100]],
   ])("of %p", (shape: Shape<ad.Num>, expected: number[]) => {
-    const points: ad.Num[][] = extractPoints(shape);
+    const points: [ad.Num, ad.Num][] = extractPoints(shape);
     const result = centerOfMass(points);
     expect(numOf(result[0])).toBeCloseTo(expected[0], 2);
     expect(numOf(result[1])).toBeCloseTo(expected[1], 2);
