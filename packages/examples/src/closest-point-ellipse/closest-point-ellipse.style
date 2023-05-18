@@ -109,7 +109,7 @@ where In(u,U) {
 
   ensure contains(U.background, u.shape)
   ensure contains(U.background, u.text)
-  ensure atDist(u.shape, u.text, 15.0)
+  ensure signedDistanceRect(bboxPts(u.text), u.shape.end) == 15.0
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis

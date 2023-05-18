@@ -20,7 +20,6 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { ConstrFunc } from "../types/functions";
 import { real2NT, real2T, realNT, realT, shapeT } from "../utils/Util";
-import { atDistLabel } from "./ConstraintsUtils";
 import { constrDictCurves } from "./CurveConstraints";
 import {
   absCircleToImplicitEllipse,
@@ -448,18 +447,6 @@ export const containsRects = (
     ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
     ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
   ]);
-};
-
-/**
- * Require that shape `s1` is at a distance of `distance` from shape `s2`.
- */
-export const atDist = (
-  s1: Shape<ad.Num>,
-  s2: Shape<ad.Num>,
-  distance: ad.Num
-): ad.Num => {
-  if (isRectlike(s2)) return atDistLabel(s1, s2, distance);
-  else return touching(s1, s2, distance);
 };
 
 /**
@@ -913,18 +900,6 @@ const constrDictGeneral = {
       },
     ],
     body: containsRects,
-  },
-
-  atDist: {
-    name: "atDist",
-    description:
-      "Require that shape `s1` is at a distance of `distance` from shape `s2`.",
-    params: [
-      { name: "s1", description: "Shape 1", type: shapeT("AnyShape") },
-      { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
-      { name: "distance", description: "Distance", type: realT() },
-    ],
-    body: atDist,
   },
 };
 

@@ -2600,6 +2600,18 @@ export const compDict = {
     returns: valueT("Real"),
   },
 
+  signedDistanceRect: {
+    name: "signedDistanceRect",
+    description: "Returns the distance between a rect and a point",
+    params: [
+      { name: "rect", type: real2NT() },
+      { name: "pt", type: real2T() },
+    ],
+    body: (_context: Context, rect: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
+      floatV(signedDistanceRect(rect, pt)),
+    returns: realT(),
+  },
+
   signedDistanceCircle: {
     name: "signedDistanceCircle",
     description: "Returns the distance between a circle and a point",
