@@ -18,15 +18,15 @@ import { compileDomain, Env, showError } from "@penrose/core";
 import examples from "@penrose/examples/dist/index";
 import React from "react";
 import Latex from "react-latex-next";
-import { Preset, presets } from "../examples";
+import { Preset, presets } from "../examples.js";
 import {
   DeclTypes,
   MatchSetting,
   SynthesizerSetting,
-} from "../synthesis/Synthesizer";
-import { wildcardType } from "../util";
-import { MultiselectDropdown } from "./MultiselectDropdown";
-import WeightSlider from "./WeightSlider";
+} from "../synthesis/Synthesizer.js";
+import { wildcardType } from "../util.js";
+import { MultiselectDropdown } from "./MultiselectDropdown.js";
+import WeightSlider from "./WeightSlider.js";
 
 const DEFAULT_MUTATION_COUNT = [1, 4];
 
@@ -238,57 +238,58 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     this.setState({ numPrograms: newValue as number });
   };
 
-  onChangeMultiselect =
-    (op: string, stmtType: string) => (selected: string[]) => {
-      const typeSelect = (
-        stmtType: string,
-        op: DeclTypes,
-        arr: string[]
-      ): DeclTypes => {
-        let newMatchSetting: MatchSetting = "*";
-        if (!arr.includes(wildcardType)) {
-          newMatchSetting = arr;
-        }
-        switch (stmtType) {
-          case "Type":
-            return { ...op, type: newMatchSetting };
-          case "Constructor":
-            return { ...op, constructor: newMatchSetting };
-          case "Function":
-            return { ...op, function: newMatchSetting };
-          case "Predicate":
-            return { ...op, predicate: newMatchSetting };
-          default:
-            return op;
-        }
-      };
-      let newSetting = this.state.setting;
-      if (newSetting) {
-        switch (op) {
-          case "Add":
-            newSetting = {
-              ...newSetting,
-              add: typeSelect(stmtType, newSetting.add, selected),
-            };
-            break;
-          case "Delete":
-            newSetting = {
-              ...newSetting,
-              delete: typeSelect(stmtType, newSetting.delete, selected),
-            };
-            break;
-          case "Edit":
-            newSetting = {
-              ...newSetting,
-              edit: typeSelect(stmtType, newSetting.edit, selected),
-            };
-            break;
-          default:
-            break;
-        }
-        this.setState({ setting: newSetting });
+  onChangeMultiselect = (op: string, stmtType: string) => (
+    selected: string[]
+  ) => {
+    const typeSelect = (
+      stmtType: string,
+      op: DeclTypes,
+      arr: string[]
+    ): DeclTypes => {
+      let newMatchSetting: MatchSetting = "*";
+      if (!arr.includes(wildcardType)) {
+        newMatchSetting = arr;
+      }
+      switch (stmtType) {
+        case "Type":
+          return { ...op, type: newMatchSetting };
+        case "Constructor":
+          return { ...op, constructor: newMatchSetting };
+        case "Function":
+          return { ...op, function: newMatchSetting };
+        case "Predicate":
+          return { ...op, predicate: newMatchSetting };
+        default:
+          return op;
       }
     };
+    let newSetting = this.state.setting;
+    if (newSetting) {
+      switch (op) {
+        case "Add":
+          newSetting = {
+            ...newSetting,
+            add: typeSelect(stmtType, newSetting.add, selected),
+          };
+          break;
+        case "Delete":
+          newSetting = {
+            ...newSetting,
+            delete: typeSelect(stmtType, newSetting.delete, selected),
+          };
+          break;
+        case "Edit":
+          newSetting = {
+            ...newSetting,
+            edit: typeSelect(stmtType, newSetting.edit, selected),
+          };
+          break;
+        default:
+          break;
+      }
+      this.setState({ setting: newSetting });
+    }
+  };
 
   getDefaults = (mutationType: string, stmtType: string): string[] => {
     let defaults: string[] = [];

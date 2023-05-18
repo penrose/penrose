@@ -2,21 +2,20 @@ import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { compileDomain } from "@penrose/core";
 import { editor } from "monaco-editor";
 import { useEffect } from "react";
-import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig";
+import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
 
-export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions =
-  {
-    automaticLayout: true,
-    minimap: { enabled: false },
-    wordWrap: "on",
-    lineNumbers: "off",
-    fontSize: 16,
-    scrollbar: {
-      handleMouseWheel: true,
-    },
-    scrollBeyondLastLine: false,
-    renderLineHighlight: "none",
-  };
+export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions = {
+  automaticLayout: true,
+  minimap: { enabled: false },
+  wordWrap: "on",
+  lineNumbers: "off",
+  fontSize: 16,
+  scrollbar: {
+    handleMouseWheel: true,
+  },
+  scrollBeyondLastLine: false,
+  renderLineHighlight: "none",
+};
 
 const Listing = ({
   domain,

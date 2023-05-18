@@ -1,7 +1,7 @@
 import geometryDomain from "@penrose/examples/dist/geometry-domain";
 import graphDomain from "@penrose/examples/dist/graph-domain";
 import molecules from "@penrose/examples/dist/molecules";
-import { SynthesizerSetting } from "./synthesis/Synthesizer";
+import { SynthesizerSetting } from "./synthesis/Synthesizer.js";
 
 export interface Preset {
   displayName: string;

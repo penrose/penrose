@@ -12,17 +12,17 @@ import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
-  DiagramMetadata,
-  ProgramFile,
-  RogerState,
-  WorkspaceMetadata,
   currentRogerState,
+  DiagramMetadata,
   diagramMetadataSelector,
   diagramState,
   fileContentsSelector,
+  ProgramFile,
+  RogerState,
+  WorkspaceMetadata,
   workspaceMetadataSelector,
-} from "../state/atoms";
-import BlueButton from "./BlueButton";
+} from "../state/atoms.js";
+import BlueButton from "./BlueButton.js";
 
 /**
  * Fetch url, but try local storage first using a name.
@@ -389,33 +389,32 @@ export default function DiagramPanel() {
   });
 
   const downloadPdf = useRecoilCallback(
-    ({ snapshot }) =>
-      () => {
-        if (canvasRef.current !== null) {
-          const svg = canvasRef.current.firstElementChild as SVGSVGElement;
-          if (svg !== null && state) {
-            const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-              .contents as WorkspaceMetadata;
-            const openedWindow = window.open(
-              "",
-              "PRINT",
-              `height=${state.canvas.height},width=${state.canvas.width}`
-            );
-            if (openedWindow === null) {
-              toast.error("Couldn't open popup to print");
-              return;
-            }
-            openedWindow.document.write(
-              `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
-            );
-            openedWindow.document.write(svg.outerHTML);
-            openedWindow.document.write("</body></html>");
-            openedWindow.document.close();
-            openedWindow.focus();
-            openedWindow.print();
+    ({ snapshot }) => () => {
+      if (canvasRef.current !== null) {
+        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+        if (svg !== null && state) {
+          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+            .contents as WorkspaceMetadata;
+          const openedWindow = window.open(
+            "",
+            "PRINT",
+            `height=${state.canvas.height},width=${state.canvas.width}`
+          );
+          if (openedWindow === null) {
+            toast.error("Couldn't open popup to print");
+            return;
           }
+          openedWindow.document.write(
+            `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+          );
+          openedWindow.document.write(svg.outerHTML);
+          openedWindow.document.write("</body></html>");
+          openedWindow.document.close();
+          openedWindow.focus();
+          openedWindow.print();
         }
-      },
+      }
+    },
     [state]
   );
 

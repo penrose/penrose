@@ -3,19 +3,19 @@
 import setTHeory from "@penrose/examples/dist/set-theory-domain";
 import { start } from "@penrose/optimizer";
 import { describe, expect, test } from "vitest";
-import { genGradient } from "./engine/Autodiff";
+import { genGradient } from "./engine/Autodiff.js";
 import {
-  RenderStatic,
   compileTrio,
   evalEnergy,
   evalFns,
   prepareState,
+  RenderStatic,
   resample,
   showError,
   stepUntilConvergence,
-} from "./index";
-import * as ad from "./types/ad";
-import { State } from "./types/state";
+} from "./index.js";
+import * as ad from "./types/ad.js";
+import { State } from "./types/state.js";
 
 const vennStyle = setTHeory["venn.style"];
 const setDomain = setTHeory["setTheory.domain"];
@@ -251,10 +251,12 @@ describe("Run individual functions", () => {
       // console.log("# constraints", stateEvaled.constrFns.length);
 
       // Test objectives
-      const { constrEngs: initEngsConstr, objEngs: initEngsObj } =
-        evalFns(stateEvaled);
-      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } =
-        evalFns(stateOptimizedValue);
+      const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
+        stateEvaled
+      );
+      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } = evalFns(
+        stateOptimizedValue
+      );
 
       for (let i = 0; i < initEngsObj.length; i++) {
         expect(initEngsObj[i]).toBeGreaterThanOrEqual(optedEngsObj[i]);

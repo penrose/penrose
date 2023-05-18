@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import Graph from "./Graph";
-import { GroupGraph, traverseUp } from "./GroupGraph";
+import Graph from "./Graph.js";
+import { GroupGraph, traverseUp } from "./GroupGraph.js";
 
 describe("Group graph", () => {
   test("traverse up", () => {

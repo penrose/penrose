@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { makeCircle } from "../../shapes/Circle";
-import { makeRectangle } from "../../shapes/Rectangle";
-import { makeCanvas, simpleContext } from "../../shapes/Samplers";
-import { inDirection } from "../ObjectivesUtils";
-import { numOf } from "../Utils";
+import { makeCircle } from "../../shapes/Circle.js";
+import { makeRectangle } from "../../shapes/Rectangle.js";
+import { makeCanvas, simpleContext } from "../../shapes/Samplers.js";
+import { inDirection } from "../ObjectivesUtils.js";
+import { numOf } from "../Utils.js";
 
 describe("inDirection", () => {
   const context = simpleContext("ObjectivesUtils.test");

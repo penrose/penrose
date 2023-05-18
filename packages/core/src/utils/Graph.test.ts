@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import Graph from "./Graph";
+import Graph from "./Graph.js";
 
 describe("Graph", () => {
   test("setNode after edge added", () => {

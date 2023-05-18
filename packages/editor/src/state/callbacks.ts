@@ -29,8 +29,8 @@ import {
   WorkspaceLocation,
   WorkspaceMetadata,
   workspaceMetadataSelector,
-} from "./atoms";
-import { generateVariation } from "./variation";
+} from "./atoms.js";
+import { generateVariation } from "./variation.js";
 
 const _compileDiagram = async (
   substance: string,
@@ -90,35 +90,31 @@ const _compileDiagram = async (
 };
 
 export const useStepDiagram = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      () =>
-        set(diagramState, (diagram: Diagram) => {
-          if (diagram.state === null) {
-            toast.error(`No diagram`);
-            return diagram;
-          }
-          return {
-            ...diagram,
-            state: stepState(diagram.state, diagram.metadata.stepSize),
-          };
-        })
+  useRecoilCallback(({ set }) => () =>
+    set(diagramState, (diagram: Diagram) => {
+      if (diagram.state === null) {
+        toast.error(`No diagram`);
+        return diagram;
+      }
+      return {
+        ...diagram,
+        state: stepState(diagram.state, diagram.metadata.stepSize),
+      };
+    })
   );
 
 export const useStepStage = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      () =>
-        set(diagramState, (diagram: Diagram) => {
-          if (diagram.state === null) {
-            toast.error(`No diagram`);
-            return diagram;
-          }
-          return {
-            ...diagram,
-            state: stepNextStage(diagram.state, diagram.metadata.stepSize),
-          };
-        })
+  useRecoilCallback(({ set }) => () =>
+    set(diagramState, (diagram: Diagram) => {
+      if (diagram.state === null) {
+        toast.error(`No diagram`);
+        return diagram;
+      }
+      return {
+        ...diagram,
+        state: stepNextStage(diagram.state, diagram.metadata.stepSize),
+      };
+    })
   );
 
 export const useCompileDiagram = () =>
@@ -227,9 +223,8 @@ export const useLoadLocalWorkspace = () =>
 
 export const useLoadExampleWorkspace = () =>
   useRecoilCallback(({ set, reset, snapshot }) => async (trio: Trio) => {
-    const currentWorkspace = snapshot.getLoadable(
-      currentWorkspaceState
-    ).contents;
+    const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents;
     if (!_confirmDirtyWorkspace(currentWorkspace)) {
       return;
     }
@@ -464,25 +459,25 @@ export const useSignIn = () =>
 
 export const useDeleteLocalFile = () =>
   useRecoilCallback(
-    ({ set, snapshot, reset }) =>
-      async (workspaceMetadata: WorkspaceMetadata) => {
-        const { id, name } = workspaceMetadata;
-        const shouldDelete = confirm(`Delete ${name}?`);
-        if (!shouldDelete) {
-          return;
-        }
-        const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState
-        ).contents;
-        // removes from index
-        set(localFilesState, (localFiles) => {
-          const { [id]: removedFile, ...newFiles } = localFiles;
-          return newFiles;
-        });
-        await localforage.removeItem(id);
-        if (currentWorkspace.metadata.id === id) {
-          reset(currentWorkspaceState);
-        }
-        toast.success(`Removed ${name}`);
+    ({ set, snapshot, reset }) => async (
+      workspaceMetadata: WorkspaceMetadata
+    ) => {
+      const { id, name } = workspaceMetadata;
+      const shouldDelete = confirm(`Delete ${name}?`);
+      if (!shouldDelete) {
+        return;
       }
+      const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
+        .contents;
+      // removes from index
+      set(localFilesState, (localFiles) => {
+        const { [id]: removedFile, ...newFiles } = localFiles;
+        return newFiles;
+      });
+      await localforage.removeItem(id);
+      if (currentWorkspace.metadata.id === id) {
+        reset(currentWorkspaceState);
+      }
+      toast.success(`Removed ${name}`);
+    }
   );

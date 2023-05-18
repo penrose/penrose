@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { InstanceData } from "./types";
+import { InstanceData } from "./types.js";
 interface Artifact {
   substance: string;
   style: string;

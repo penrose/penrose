@@ -1,11 +1,11 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import im from "immutable";
 import { describe, expect, test } from "vitest";
-import { C } from "../types/ast";
-import { Either } from "../types/common";
-import { Env } from "../types/domain";
-import { PenroseError } from "../types/errors";
-import { State } from "../types/state";
+import { C } from "../types/ast.js";
+import { Either } from "../types/common.js";
+import { Env } from "../types/domain.js";
+import { PenroseError } from "../types/errors.js";
+import { State } from "../types/state.js";
 import {
   AnonAssign,
   ConstrFn,
@@ -14,22 +14,22 @@ import {
   PathAssign,
   StyProg,
   Vector,
-} from "../types/style";
+} from "../types/style.js";
 import {
   Assignment,
   DepGraph,
   Layer,
   Translation,
-} from "../types/styleSemantics";
-import { SubstanceEnv } from "../types/substance";
-import { ColorV, RGBA } from "../types/value";
-import { Result, andThen, err, showError } from "../utils/Error";
-import Graph from "../utils/Graph";
-import { GroupGraph } from "../utils/GroupGraph";
-import { ToRight, foldM, toLeft, zip2 } from "../utils/Util";
-import { compileDomain } from "./Domain";
-import * as S from "./Style";
-import { compileSubstance } from "./Substance";
+} from "../types/styleSemantics.js";
+import { SubstanceEnv } from "../types/substance.js";
+import { ColorV, RGBA } from "../types/value.js";
+import { andThen, err, Result, showError } from "../utils/Error.js";
+import Graph from "../utils/Graph.js";
+import { GroupGraph } from "../utils/GroupGraph.js";
+import { foldM, toLeft, ToRight, zip2 } from "../utils/Util.js";
+import { compileDomain } from "./Domain.js";
+import * as S from "./Style.js";
+import { compileSubstance } from "./Substance.js";
 
 // TODO: Reorganize and name tests by compiler stage
 

@@ -2,9 +2,9 @@ import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import nearley from "nearley";
 import { beforeEach, describe, expect, test } from "vitest";
-import { SourceRange } from "../types/ast";
-import { DomainProg, PredicateDecl } from "../types/domain";
-import grammar from "./DomainParser";
+import { SourceRange } from "../types/ast.js";
+import { DomainProg, PredicateDecl } from "../types/domain.js";
+import grammar from "./DomainParser.js";
 
 const outputDir = "/tmp/asts";
 

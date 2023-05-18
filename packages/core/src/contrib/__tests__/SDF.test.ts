@@ -1,18 +1,18 @@
 import seedrandom from "seedrandom";
 import { describe, expect, test } from "vitest";
-import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
-import { Circle, makeCircle } from "../../shapes/Circle";
-import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
-import { Line, makeLine } from "../../shapes/Line";
-import { Polygon, makePolygon } from "../../shapes/Polygon";
-import { Polyline } from "../../shapes/Polyline";
-import { makeRectangle } from "../../shapes/Rectangle";
-import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";
-import * as ad from "../../types/ad";
-import { FloatV } from "../../types/value";
-import { black, floatV, ptListV, vectorV } from "../../utils/Util";
-import { compDict, sdEllipse } from "../Functions";
-import { Rectlike } from "../Utils";
+import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff.js";
+import { Circle, makeCircle } from "../../shapes/Circle.js";
+import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
+import { Line, makeLine } from "../../shapes/Line.js";
+import { makePolygon, Polygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import { makeRectangle } from "../../shapes/Rectangle.js";
+import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers.js";
+import * as ad from "../../types/ad.js";
+import { FloatV } from "../../types/value.js";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import { compDict, sdEllipse } from "../Functions.js";
+import { Rectlike } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 

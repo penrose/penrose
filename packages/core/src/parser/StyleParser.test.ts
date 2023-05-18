@@ -4,10 +4,10 @@ import setTheoryDomain from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
 import nearley from "nearley";
 import { beforeEach, describe, expect, test } from "vitest";
-import { parseStyle } from "../compiler/Style";
-import { C } from "../types/ast";
-import { StyProg } from "../types/style";
-import grammar from "./StyleParser";
+import { parseStyle } from "../compiler/Style.js";
+import { C } from "../types/ast.js";
+import { StyProg } from "../types/style.js";
+import grammar from "./StyleParser.js";
 
 const outputDir = "/tmp/asts";
 const saveASTs = false;
@@ -162,8 +162,7 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
     sameASTs(results);
   });
   test("alias general test", () => {
-    const prog =
-      "\
+    const prog = "\
   forall Atom a1; Atom a2 \
   where Bond(a1, a2) as b {}";
     const { results } = parser.feed(prog);

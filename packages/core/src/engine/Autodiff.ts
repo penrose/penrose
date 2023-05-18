@@ -2,10 +2,10 @@ import { Queue } from "@datastructures-js/queue";
 import { polyRoots } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
-import * as ad from "../types/ad";
-import Graph from "../utils/Graph";
-import { safe, zip2 } from "../utils/Util";
-import * as wasm from "../utils/Wasm";
+import * as ad from "../types/ad.js";
+import Graph from "../utils/Graph.js";
+import { safe, zip2 } from "../utils/Util.js";
+import * as wasm from "../utils/Wasm.js";
 import {
   absVal,
   acos,
@@ -32,7 +32,7 @@ import {
   sqrt,
   squared,
   sub,
-} from "./AutodiffFunctions";
+} from "./AutodiffFunctions.js";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");

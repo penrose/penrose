@@ -1,14 +1,14 @@
-import { Image } from "../shapes/Image";
+import { Image } from "../shapes/Image.js";
 import {
   attrAutoFillSvg,
   attrRotation,
   attrTitle,
   attrTransformCoords,
   attrWH,
-} from "./AttrHelper";
-import * as notFound from "./not_found";
-import { RenderProps } from "./Renderer";
-import { makeIdsUnique } from "./util";
+} from "./AttrHelper.js";
+import * as notFound from "./not_found.js";
+import { RenderProps } from "./Renderer.js";
+import { makeIdsUnique } from "./util.js";
 
 const RenderImage = async (
   shape: Image<number>,

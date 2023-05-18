@@ -4,16 +4,16 @@ import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
-import { Equation } from "../shapes/Equation";
-import { InputMeta } from "../shapes/Samplers";
-import { Shape } from "../shapes/Shapes";
-import { Text } from "../shapes/Text";
-import * as ad from "../types/ad";
-import { PenroseError } from "../types/errors";
-import { EquationData, LabelCache, State, TextData } from "../types/state";
-import { FloatV } from "../types/value";
-import { Result, err, ok } from "./Error";
-import { getAdValueAsString, getValueAsShapeList, safe } from "./Util";
+import { Equation } from "../shapes/Equation.js";
+import { InputMeta } from "../shapes/Samplers.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
+import { PenroseError } from "../types/errors.js";
+import { EquationData, LabelCache, State, TextData } from "../types/state.js";
+import { FloatV } from "../types/value.js";
+import { err, ok, Result } from "./Error.js";
+import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();

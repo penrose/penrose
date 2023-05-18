@@ -1,19 +1,19 @@
 import { describe, expect, test } from "vitest";
-import { addN, mul, polyRoots, sub } from "../../engine/AutodiffFunctions";
-import { makeCircle } from "../../shapes/Circle";
-import { makeEllipse } from "../../shapes/Ellipse";
-import { makeCanvas, simpleContext } from "../../shapes/Samplers";
-import * as ad from "../../types/ad";
-import { black, floatV, vectorV, zip2 } from "../../utils/Util";
+import { addN, mul, polyRoots, sub } from "../../engine/AutodiffFunctions.js";
+import { makeCircle } from "../../shapes/Circle.js";
+import { makeEllipse } from "../../shapes/Ellipse.js";
+import { makeCanvas, simpleContext } from "../../shapes/Samplers.js";
+import * as ad from "../../types/ad.js";
+import { black, floatV, vectorV, zip2 } from "../../utils/Util.js";
 import {
   circleToImplicitEllipse,
   ellipsePolynomial,
   ellipseToImplicit,
   halfPlaneToImplicit,
   implicitEllipseFunc,
-} from "../ImplicitShapes";
-import { pointCandidatesEllipse } from "../Minkowski";
-import { numOf, numsOf } from "../Utils";
+} from "../ImplicitShapes.js";
+import { pointCandidatesEllipse } from "../Minkowski.js";
+import { numOf, numsOf } from "../Utils.js";
 
 describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {

@@ -1,6 +1,6 @@
 import moo from "moo";
 import { describe, expect, test } from "vitest";
-import * as ParserUtil from "./ParserUtil";
+import * as ParserUtil from "./ParserUtil.js";
 
 describe("ParserUtil", () => {
   test("rangeOf", () => {

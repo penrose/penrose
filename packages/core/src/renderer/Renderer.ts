@@ -4,23 +4,23 @@
  *
  */
 
-import { isLinelike, isRectlike } from "../contrib/Utils";
-import { Group } from "../shapes/Group";
-import { Shape } from "../shapes/Shapes";
-import { LabelCache, State } from "../types/state";
-import { getValueAsShapeList } from "../utils/Util";
-import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
-import RenderCircle from "./Circle";
-import { dragUpdate } from "./dragUtils";
-import RenderEllipse from "./Ellipse";
-import RenderEquation from "./Equation";
-import RenderImage from "./Image";
-import RenderLine from "./Line";
-import RenderPath from "./Path";
-import RenderPolygon from "./Polygon";
-import RenderPolyline from "./Polyline";
-import RenderRectangle from "./Rectangle";
-import RenderText from "./Text";
+import { isLinelike, isRectlike } from "../contrib/Utils.js";
+import { Group } from "../shapes/Group.js";
+import { Shape } from "../shapes/Shapes.js";
+import { LabelCache, State } from "../types/state.js";
+import { getValueAsShapeList } from "../utils/Util.js";
+import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
+import RenderCircle from "./Circle.js";
+import { dragUpdate } from "./dragUtils.js";
+import RenderEllipse from "./Ellipse.js";
+import RenderEquation from "./Equation.js";
+import RenderImage from "./Image.js";
+import RenderLine from "./Line.js";
+import RenderPath from "./Path.js";
+import RenderPolygon from "./Polygon.js";
+import RenderPolyline from "./Polyline.js";
+import RenderRectangle from "./Rectangle.js";
+import RenderText from "./Text.js";
 
 /**
  * Resolves path references into static strings. Implemented by client

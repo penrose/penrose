@@ -3,8 +3,8 @@ import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
 import { beforeEach, describe, expect, test } from "vitest";
-import { isKeyOf } from "../utils/Util";
-import grammar from "./SubstanceParser";
+import { isKeyOf } from "../utils/Util.js";
+import grammar from "./SubstanceParser.js";
 
 const outputDir = "/tmp/asts";
 const saveASTs = false;

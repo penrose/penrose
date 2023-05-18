@@ -1,7 +1,7 @@
 import { Result } from "true-myth";
-import { isConcrete } from "../engine/EngineUtils";
-import { shapeTypes } from "../shapes/Shapes";
-import * as ad from "../types/ad";
+import { isConcrete } from "../engine/EngineUtils.js";
+import { shapeTypes } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import {
   A,
   AbstractNode,
@@ -10,8 +10,8 @@ import {
   NodeType,
   SourceLoc,
   SourceRange,
-} from "../types/ast";
-import { Arg, Type, TypeConstructor } from "../types/domain";
+} from "../types/ast.js";
+import { Arg, Type, TypeConstructor } from "../types/domain.js";
 import {
   ArgLengthMismatch,
   BadArgumentTypeError,
@@ -41,13 +41,22 @@ import {
   TypeNotFound,
   UnexpectedExprForNestedPred,
   VarNotFound,
-} from "../types/errors";
-import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "../types/functions";
-import { State } from "../types/state";
-import { BindingForm, ColorLit } from "../types/style";
-import { Deconstructor, SubExpr } from "../types/substance";
-import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value";
-import { describeType, prettyPrintPath, prettyPrintResolvedPath } from "./Util";
+} from "../types/errors.js";
+import {
+  CompFunc,
+  ConstrFunc,
+  FuncParam,
+  ObjFunc,
+} from "../types/functions.js";
+import { State } from "../types/state.js";
+import { BindingForm, ColorLit } from "../types/style.js";
+import { Deconstructor, SubExpr } from "../types/substance.js";
+import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
+import {
+  describeType,
+  prettyPrintPath,
+  prettyPrintResolvedPath,
+} from "./Util.js";
 const {
   or,
   and,

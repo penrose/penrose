@@ -1,4 +1,4 @@
-import { Polygon } from "../shapes/Polygon";
+import { Polygon } from "../shapes/Polygon.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -6,8 +6,8 @@ import {
   attrScale,
   attrStroke,
   attrTitle,
-} from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 const RenderPolygon = (
   shape: Polygon<number>,

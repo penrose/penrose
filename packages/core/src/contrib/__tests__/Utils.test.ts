@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { Polygon } from "../../shapes/Polygon";
-import { Polyline } from "../../shapes/Polyline";
-import { Shape } from "../../shapes/Shapes";
-import * as ad from "../../types/ad";
+import { Polygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import { Shape } from "../../shapes/Shapes.js";
+import * as ad from "../../types/ad.js";
 import {
   consecutiveTriples,
   consecutiveTuples,
   extractPoints,
   isClosed,
-} from "../Utils";
-import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
+} from "../Utils.js";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
 describe("consecutiveTuples", () => {
   const a: [ad.Num, ad.Num] = [1, 2];

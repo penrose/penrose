@@ -1,7 +1,7 @@
 import molecules from "@penrose/examples/dist/molecules";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ThemeProvider } from "styled-components";
-import MultipleChoiceProblem from "../MultipleChoiceProblem";
+import MultipleChoiceProblem from "../MultipleChoiceProblem.js";
 
 // const diagram = await getDiagram();
 

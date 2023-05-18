@@ -20,8 +20,8 @@ import {
   selectorFamily,
 } from "recoil";
 import { v4 as uuid } from "uuid";
-import { layoutModel } from "../App";
-import { generateVariation } from "./variation";
+import { layoutModel } from "../App.js";
+import { generateVariation } from "./variation.js";
 
 export const EDITOR_VERSION = 0.1;
 
@@ -214,19 +214,15 @@ export const currentRogerState = atom<RogerState>({
  */
 export const fileContentsSelector = selectorFamily<ProgramFile, ProgramType>({
   key: "fileContents",
-  get:
-    (programType: ProgramType) =>
-    ({ get }) => {
-      return get(currentWorkspaceState).files[programType];
-    },
-  set:
-    (programType: ProgramType) =>
-    ({ set }, newValue) => {
-      set(currentWorkspaceState, (state) => ({
-        ...state,
-        files: { ...state.files, [programType]: newValue },
-      }));
-    },
+  get: (programType: ProgramType) => ({ get }) => {
+    return get(currentWorkspaceState).files[programType];
+  },
+  set: (programType: ProgramType) => ({ set }, newValue) => {
+    set(currentWorkspaceState, (state) => ({
+      ...state,
+      files: { ...state.files, [programType]: newValue },
+    }));
+  },
 });
 
 /**

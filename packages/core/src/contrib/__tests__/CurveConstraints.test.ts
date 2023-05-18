@@ -1,8 +1,8 @@
 import { describe, expect, it, test } from "vitest";
-import { Polygon } from "../../shapes/Polygon";
-import { Polyline } from "../../shapes/Polyline";
-import { Shape } from "../../shapes/Shapes";
-import * as ad from "../../types/ad";
+import { Polygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import { Shape } from "../../shapes/Shapes.js";
+import * as ad from "../../types/ad.js";
 import {
   centerOfMass,
   constrDictCurves,
@@ -18,9 +18,9 @@ import {
   signedArea,
   totalCurvature,
   turningNumber,
-} from "../CurveConstraints";
-import { extractPoints, isClosed, numOf } from "../Utils";
-import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
+} from "../CurveConstraints.js";
+import { extractPoints, isClosed, numOf } from "../Utils.js";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
 describe("key-name equality", () => {
   test("each function's key and name should be equal", () => {

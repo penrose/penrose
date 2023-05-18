@@ -1,8 +1,8 @@
 import { PenroseState } from "@penrose/core";
 import React, { SVGProps } from "react";
 import styled from "styled-components";
-import Checkbox from "./Checkbox";
-import { Simple, SimpleProps } from "./Simple";
+import Checkbox from "./Checkbox.js";
+import { Simple, SimpleProps } from "./Simple.js";
 
 export type GridboxProps = SimpleProps & {
   header: string;

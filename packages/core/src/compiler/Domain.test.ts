@@ -4,11 +4,11 @@ import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
 import { beforeEach, describe, expect, test } from "vitest";
-import grammar from "../parser/DomainParser";
-import { Env } from "../types/domain";
-import { PenroseError } from "../types/errors";
-import { Result, showError } from "../utils/Error";
-import { compileDomain, isSubtype } from "./Domain";
+import grammar from "../parser/DomainParser.js";
+import { Env } from "../types/domain.js";
+import { PenroseError } from "../types/errors.js";
+import { Result, showError } from "../utils/Error.js";
+import { compileDomain, isSubtype } from "./Domain.js";
 
 const outputDir = "/tmp/contexts";
 const saveContexts = false;

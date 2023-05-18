@@ -1,4 +1,4 @@
-import { Rectangle } from "../shapes/Rectangle";
+import { Rectangle } from "../shapes/Rectangle.js";
 import {
   attrAutoFillSvg,
   attrCornerRadius,
@@ -8,8 +8,8 @@ import {
   attrTitle,
   attrWH,
   attrXY,
-} from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 const RenderRectangle = (
   shape: Rectangle<number>,
