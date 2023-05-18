@@ -414,7 +414,7 @@ git push
 
 ### Adding tests
 
-For some PRs, it can be helpful to add tests that help verify the correctness of new features, and which ensure features don't break in future versions.  Tests can be created as example diagrams in `packages/examples/src` and added to the [registry](#registry).
+For some PRs, it can be helpful to add tests that help verify the correctness of new features, and which ensure features don't break in future versions. Tests can be created as example diagrams in `packages/examples/src` and added to the [registry](#registry).
 
 ### Opening a pull request (PR)
 
