@@ -112,6 +112,7 @@
     "name": "Two 3D Triangles",
     "gallery": true
   },
+  "random-sampling/test": { "name": "Random Sampling", "gallery": true },
   "geometry-domain/textbook_problems/c11p12": { "name": "Circle Example" },
   "word-cloud/example": { "name": "Word Cloud", "gallery": true },
   "geometry-domain/siggraph-teaser": {

@@ -231,6 +231,10 @@ export default defineConfig({
                     { text: "Text", link: "/docs/ref/style/shapes/text" },
                   ],
                 },
+                {
+                  text: "Random Sampling",
+                  link: "/docs/ref/style/random-sampling",
+                },
                 { text: "Function Library", link: "/docs/ref/style/functions" },
                 {
                   text: "Passthrough SVG",

@@ -1,0 +1,15 @@
+type Point
+
+type Shape
+type Interval <: Shape
+type Circle <: Shape
+type Disk <: Shape
+type Triangle <: Shape
+type Sphere <: Shape
+
+constructor sampleInterval( Interval I ) -> Point p
+constructor   sampleCircle(   Circle C ) -> Point p
+constructor     sampleDisk(     Disk D ) -> Point p
+constructor sampleTriangle( Triangle T ) -> Point p
+constructor   sampleSphere(   Sphere S ) -> Point p
+

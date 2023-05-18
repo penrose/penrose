@@ -24,6 +24,7 @@
   - [Creating your fork](#creating-your-fork)
   - [Finding an issue to work on](#finding-an-issue-to-work-on)
   - [Merging new changes from upstream](#merging-new-changes-from-upstream)
+  - [Adding tests](#adding-tests)
   - [Opening a pull request (PR)](#opening-a-pull-request-pr)
 - [Release](#release)
 
@@ -410,6 +411,10 @@ branch, and then [push][] to your fork:
 ```sh
 git push
 ```
+
+### Adding tests
+
+For some PRs, it can be helpful to add tests that help verify the correctness of new features, and which ensure features don't break in future versions. Tests can be created as example diagrams in `packages/examples/src` and added to the [registry](#registry).
 
 ### Opening a pull request (PR)
 
