@@ -67,8 +67,7 @@ export const curvature = (
   //     DOI: 10.1090/noti1578
   const v1 = ops.vsub(p2, p1);
   const v2 = ops.vsub(p3, p2);
-  const angle =
-    p1.length === 2 ? ops.angleFrom(v1, v2) : ops.angleBetween(v1, v2);
+  const angle = p1.length === 2 ? ops.angleFrom(v1, v2) : ops.angleBetween(v1, v2);
 
   // $\kappa^A$ from [1]
   if (mode === CurvatureApproximationMode.Angle) return angle;
