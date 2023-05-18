@@ -22,7 +22,7 @@ forall Manifold m {
     fontSize: settings.fontSize
   }
 
-  ensure isEquilateral(m.poly) in manifolds
+  ensure isEquilateral(m.poly.points, true) in manifolds
 
   scalar radius = 80
   scalar length = 2 * settings.pi * radius
@@ -517,7 +517,7 @@ forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
 
   pb = closestPoint(b.poly, p49)
   ensure equal(vdist(pb, p49), 15) in maps
-  ensure isEquilateral(m.poly)
+  ensure isEquilateral(m.poly.points, false)
 
   ensure equal(elasticEnergy(m.poly.points, false), 0) in maps
   ensure equal(perimeter(m.poly.points, false), 5) in manifolds
