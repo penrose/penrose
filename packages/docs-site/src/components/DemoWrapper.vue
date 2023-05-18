@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import siggraphTeaser from "@penrose/examples/dist/geometry-domain/siggraph-teaser-euclidean-teaser.trio";
+import siggraphTeaser from "@penrose/examples/dist/geometry-domain/siggraph-teaser.trio";
 import treeVenn from "@penrose/examples/dist/set-theory-domain/tree-venn.trio";
 
 const demo = [
