@@ -1,0 +1,356 @@
+canvas {
+  width = 800
+  height = 1000
+}
+
+layout = [manifolds, maps]
+
+settings {
+  lineThickness = 2
+  arrowThickness = 1.5
+  blobbiness = 0.1
+  pi = 3.14159
+  fontSize = "15px"
+  blobDistance = 300
+}
+
+global {
+
+   -- Ground plane coordinates in 3D
+   scalar planeSize = 300 -- plane size
+   scalar planeHeight = -250 -- plane height
+
+   -- Use a simple pinhole camera model, where the
+   -- only camera parameter is the distance along Z
+   scalar cZ_ = -800--? -- -1000 --? -- camera z coordinate
+
+	-- ensure -1200 < cZ_
+	-- ensure cZ_ < -800
+
+	scalar cZ = min(-600, max(cZ_, -1400)) --? -- camera z 
+
+   -- Corner coordinates of the global ground plane
+   vec3 Kq00 = ( -planeSize, planeHeight, -planeSize )
+   vec3 Kq10 = (  planeSize, planeHeight, -planeSize )
+   vec3 Kq01 = ( -planeSize, planeHeight,  planeSize )
+   vec3 Kq11 = (  planeSize, planeHeight,  planeSize )
+
+   -- Apply a random rotation to the ground plane
+   -- (Note that we could also apply this rotation to the triangle
+   -- vertices, but since they're sampled randomly, it wouldn't
+   -- really change the appearance of the kinds of diagrams we sample).
+   scalar θ = ?
+--    encourage equal(θ, 0)
+--    encourage equal(θ, 100)
+   vec3 KQ00 = ( Kq00[0]*cos(θ) + Kq00[2]*sin(θ), Kq00[1], Kq00[2]*cos(θ) - Kq00[0]*sin(θ) )
+   vec3 KQ10 = ( Kq10[0]*cos(θ) + Kq10[2]*sin(θ), Kq10[1], Kq10[2]*cos(θ) - Kq10[0]*sin(θ) )
+   vec3 KQ01 = ( Kq01[0]*cos(θ) + Kq01[2]*sin(θ), Kq01[1], Kq01[2]*cos(θ) - Kq01[0]*sin(θ) )
+   vec3 KQ11 = ( Kq11[0]*cos(θ) + Kq11[2]*sin(θ), Kq11[1], Kq11[2]*cos(θ) - Kq11[0]*sin(θ) )
+
+   -- Perform perspective projection on 3D coordinates to get 2D coordinates p
+   vec2 Kp00 = canvas.width * (KQ00[0],KQ00[1] - 100)/(KQ00[2] - cZ)
+   vec2 Kp10 = canvas.width * (KQ10[0],KQ10[1] - 100)/(KQ10[2] - cZ)
+   vec2 Kp01 = canvas.width * (KQ01[0],KQ01[1] - 100)/(KQ01[2] - cZ)
+   vec2 Kp11 = canvas.width * (KQ11[0],KQ11[1] - 100)/(KQ11[2] - cZ)
+
+   -- Draw polygon using projected 2D coordinates p
+   shape groundPlane = Polygon {
+      points: ( Kp00, Kp10, Kp11, Kp01 )
+      width: canvas.width
+      height: canvas.height
+      fillColor: rgba(0.5,0.5,.9,0.2)
+      strokeColor: rgba(.7,0.7,1,0)
+      strokeWidth: .5
+      ensureOnCanvas: false
+   }
+}
+
+
+forall Curve c {
+  vec3 c.p0 = (?, ?, ?)
+  vec3 c.p1 = (?, ?, ?)
+  vec3 c.p2 = (?, ?, ?)
+  vec3 c.p3 = (?, ?, ?)
+  vec3 c.p4 = (?, ?, ?)
+  vec3 c.p5 = (?, ?, ?)
+  vec3 c.p6 = (?, ?, ?)
+  vec3 c.p7 = (?, ?, ?)
+  vec3 c.p8 = (?, ?, ?)
+  vec3 c.p9 = (?, ?, ?)
+  vec3 c.p10 = (?, ?, ?)
+  vec3 c.p11 = (?, ?, ?)
+  vec3 c.p12 = (?, ?, ?)
+  vec3 c.p13 = (?, ?, ?)
+  vec3 c.p14 = (?, ?, ?)
+  vec3 c.p15 = (?, ?, ?)
+  vec3 c.p16 = (?, ?, ?)
+  vec3 c.p17 = (?, ?, ?)
+  vec3 c.p18 = (?, ?, ?)
+  vec3 c.p19 = (?, ?, ?)
+  vec3 c.p20 = (?, ?, ?)
+  vec3 c.p21 = (?, ?, ?)
+  vec3 c.p22 = (?, ?, ?)
+  vec3 c.p23 = (?, ?, ?)
+  vec3 c.p24 = (?, ?, ?)
+  vec3 c.p25 = (?, ?, ?)
+  vec3 c.p26 = (?, ?, ?)
+  vec3 c.p27 = (?, ?, ?)
+  vec3 c.p28 = (?, ?, ?)
+  vec3 c.p29 = (?, ?, ?)
+  vec3 c.p30 = (?, ?, ?)
+  vec3 c.p31 = (?, ?, ?)
+  vec3 c.p32 = (?, ?, ?)
+  vec3 c.p33 = (?, ?, ?)
+  vec3 c.p34 = (?, ?, ?)
+  vec3 c.p35 = (?, ?, ?)
+  vec3 c.p36 = (?, ?, ?)
+  vec3 c.p37 = (?, ?, ?)
+  vec3 c.p38 = (?, ?, ?)
+  vec3 c.p39 = (?, ?, ?)
+  vec3 c.p40 = (?, ?, ?)
+  vec3 c.p41 = (?, ?, ?)
+  vec3 c.p42 = (?, ?, ?)
+  vec3 c.p43 = (?, ?, ?)
+  vec3 c.p44 = (?, ?, ?)
+  vec3 c.p45 = (?, ?, ?)
+  vec3 c.p46 = (?, ?, ?)
+  vec3 c.p47 = (?, ?, ?)
+  vec3 c.p48 = (?, ?, ?)
+  vec3 c.p49 = (?, ?, ?)
+  
+  vec3 q0 = ( c.p0[0] * cos(global.θ) + c.p0[2]*sin(global.θ), c.p0[1], c.p0[2] * cos(global.θ) - c.p0[0] * sin(global.θ) )
+  vec3 q1 = ( c.p1[0] * cos(global.θ) + c.p1[2]*sin(global.θ), c.p1[1], c.p1[2] * cos(global.θ) - c.p1[0] * sin(global.θ) )
+  vec3 q2 = ( c.p2[0] * cos(global.θ) + c.p2[2]*sin(global.θ), c.p2[1], c.p2[2] * cos(global.θ) - c.p2[0] * sin(global.θ) )
+  vec3 q3 = ( c.p3[0] * cos(global.θ) + c.p3[2]*sin(global.θ), c.p3[1], c.p3[2] * cos(global.θ) - c.p3[0] * sin(global.θ) )
+  vec3 q4 = ( c.p4[0] * cos(global.θ) + c.p4[2]*sin(global.θ), c.p4[1], c.p4[2] * cos(global.θ) - c.p4[0] * sin(global.θ) )
+  vec3 q5 = ( c.p5[0] * cos(global.θ) + c.p5[2]*sin(global.θ), c.p5[1], c.p5[2] * cos(global.θ) - c.p5[0] * sin(global.θ) )
+  vec3 q6 = ( c.p6[0] * cos(global.θ) + c.p6[2]*sin(global.θ), c.p6[1], c.p6[2] * cos(global.θ) - c.p6[0] * sin(global.θ) )
+  vec3 q7 = ( c.p7[0] * cos(global.θ) + c.p7[2]*sin(global.θ), c.p7[1], c.p7[2] * cos(global.θ) - c.p7[0] * sin(global.θ) )
+  vec3 q8 = ( c.p8[0] * cos(global.θ) + c.p8[2]*sin(global.θ), c.p8[1], c.p8[2] * cos(global.θ) - c.p8[0] * sin(global.θ) )
+  vec3 q9 = ( c.p9[0] * cos(global.θ) + c.p9[2]*sin(global.θ), c.p9[1], c.p9[2] * cos(global.θ) - c.p9[0] * sin(global.θ) )
+  vec3 q10 = ( c.p10[0] * cos(global.θ) + c.p10[2]*sin(global.θ), c.p10[1], c.p10[2] * cos(global.θ) - c.p10[0] * sin(global.θ) )
+  vec3 q11 = ( c.p11[0] * cos(global.θ) + c.p11[2]*sin(global.θ), c.p11[1], c.p11[2] * cos(global.θ) - c.p11[0] * sin(global.θ) )
+  vec3 q12 = ( c.p12[0] * cos(global.θ) + c.p12[2]*sin(global.θ), c.p12[1], c.p12[2] * cos(global.θ) - c.p12[0] * sin(global.θ) )
+  vec3 q13 = ( c.p13[0] * cos(global.θ) + c.p13[2]*sin(global.θ), c.p13[1], c.p13[2] * cos(global.θ) - c.p13[0] * sin(global.θ) )
+  vec3 q14 = ( c.p14[0] * cos(global.θ) + c.p14[2]*sin(global.θ), c.p14[1], c.p14[2] * cos(global.θ) - c.p14[0] * sin(global.θ) )
+  vec3 q15 = ( c.p15[0] * cos(global.θ) + c.p15[2]*sin(global.θ), c.p15[1], c.p15[2] * cos(global.θ) - c.p15[0] * sin(global.θ) )
+  vec3 q16 = ( c.p16[0] * cos(global.θ) + c.p16[2]*sin(global.θ), c.p16[1], c.p16[2] * cos(global.θ) - c.p16[0] * sin(global.θ) )
+  vec3 q17 = ( c.p17[0] * cos(global.θ) + c.p17[2]*sin(global.θ), c.p17[1], c.p17[2] * cos(global.θ) - c.p17[0] * sin(global.θ) )
+  vec3 q18 = ( c.p18[0] * cos(global.θ) + c.p18[2]*sin(global.θ), c.p18[1], c.p18[2] * cos(global.θ) - c.p18[0] * sin(global.θ) )
+  vec3 q19 = ( c.p19[0] * cos(global.θ) + c.p19[2]*sin(global.θ), c.p19[1], c.p19[2] * cos(global.θ) - c.p19[0] * sin(global.θ) )
+  vec3 q20 = ( c.p20[0] * cos(global.θ) + c.p20[2]*sin(global.θ), c.p20[1], c.p20[2] * cos(global.θ) - c.p20[0] * sin(global.θ) )
+  vec3 q21 = ( c.p21[0] * cos(global.θ) + c.p21[2]*sin(global.θ), c.p21[1], c.p21[2] * cos(global.θ) - c.p21[0] * sin(global.θ) )
+  vec3 q22 = ( c.p22[0] * cos(global.θ) + c.p22[2]*sin(global.θ), c.p22[1], c.p22[2] * cos(global.θ) - c.p22[0] * sin(global.θ) )
+  vec3 q23 = ( c.p23[0] * cos(global.θ) + c.p23[2]*sin(global.θ), c.p23[1], c.p23[2] * cos(global.θ) - c.p23[0] * sin(global.θ) )
+  vec3 q24 = ( c.p24[0] * cos(global.θ) + c.p24[2]*sin(global.θ), c.p24[1], c.p24[2] * cos(global.θ) - c.p24[0] * sin(global.θ) )
+  vec3 q25 = ( c.p25[0] * cos(global.θ) + c.p25[2]*sin(global.θ), c.p25[1], c.p25[2] * cos(global.θ) - c.p25[0] * sin(global.θ) )
+  vec3 q26 = ( c.p26[0] * cos(global.θ) + c.p26[2]*sin(global.θ), c.p26[1], c.p26[2] * cos(global.θ) - c.p26[0] * sin(global.θ) )
+  vec3 q27 = ( c.p27[0] * cos(global.θ) + c.p27[2]*sin(global.θ), c.p27[1], c.p27[2] * cos(global.θ) - c.p27[0] * sin(global.θ) )
+  vec3 q28 = ( c.p28[0] * cos(global.θ) + c.p28[2]*sin(global.θ), c.p28[1], c.p28[2] * cos(global.θ) - c.p28[0] * sin(global.θ) )
+  vec3 q29 = ( c.p29[0] * cos(global.θ) + c.p29[2]*sin(global.θ), c.p29[1], c.p29[2] * cos(global.θ) - c.p29[0] * sin(global.θ) )
+  vec3 q30 = ( c.p30[0] * cos(global.θ) + c.p30[2]*sin(global.θ), c.p30[1], c.p30[2] * cos(global.θ) - c.p30[0] * sin(global.θ) )
+  vec3 q31 = ( c.p31[0] * cos(global.θ) + c.p31[2]*sin(global.θ), c.p31[1], c.p31[2] * cos(global.θ) - c.p31[0] * sin(global.θ) )
+  vec3 q32 = ( c.p32[0] * cos(global.θ) + c.p32[2]*sin(global.θ), c.p32[1], c.p32[2] * cos(global.θ) - c.p32[0] * sin(global.θ) )
+  vec3 q33 = ( c.p33[0] * cos(global.θ) + c.p33[2]*sin(global.θ), c.p33[1], c.p33[2] * cos(global.θ) - c.p33[0] * sin(global.θ) )
+  vec3 q34 = ( c.p34[0] * cos(global.θ) + c.p34[2]*sin(global.θ), c.p34[1], c.p34[2] * cos(global.θ) - c.p34[0] * sin(global.θ) )
+  vec3 q35 = ( c.p35[0] * cos(global.θ) + c.p35[2]*sin(global.θ), c.p35[1], c.p35[2] * cos(global.θ) - c.p35[0] * sin(global.θ) )
+  vec3 q36 = ( c.p36[0] * cos(global.θ) + c.p36[2]*sin(global.θ), c.p36[1], c.p36[2] * cos(global.θ) - c.p36[0] * sin(global.θ) )
+  vec3 q37 = ( c.p37[0] * cos(global.θ) + c.p37[2]*sin(global.θ), c.p37[1], c.p37[2] * cos(global.θ) - c.p37[0] * sin(global.θ) )
+  vec3 q38 = ( c.p38[0] * cos(global.θ) + c.p38[2]*sin(global.θ), c.p38[1], c.p38[2] * cos(global.θ) - c.p38[0] * sin(global.θ) )
+  vec3 q39 = ( c.p39[0] * cos(global.θ) + c.p39[2]*sin(global.θ), c.p39[1], c.p39[2] * cos(global.θ) - c.p39[0] * sin(global.θ) )
+  vec3 q40 = ( c.p40[0] * cos(global.θ) + c.p40[2]*sin(global.θ), c.p40[1], c.p40[2] * cos(global.θ) - c.p40[0] * sin(global.θ) )
+  vec3 q41 = ( c.p41[0] * cos(global.θ) + c.p41[2]*sin(global.θ), c.p41[1], c.p41[2] * cos(global.θ) - c.p41[0] * sin(global.θ) )
+  vec3 q42 = ( c.p42[0] * cos(global.θ) + c.p42[2]*sin(global.θ), c.p42[1], c.p42[2] * cos(global.θ) - c.p42[0] * sin(global.θ) )
+  vec3 q43 = ( c.p43[0] * cos(global.θ) + c.p43[2]*sin(global.θ), c.p43[1], c.p43[2] * cos(global.θ) - c.p43[0] * sin(global.θ) )
+  vec3 q44 = ( c.p44[0] * cos(global.θ) + c.p44[2]*sin(global.θ), c.p44[1], c.p44[2] * cos(global.θ) - c.p44[0] * sin(global.θ) )
+  vec3 q45 = ( c.p45[0] * cos(global.θ) + c.p45[2]*sin(global.θ), c.p45[1], c.p45[2] * cos(global.θ) - c.p45[0] * sin(global.θ) )
+  vec3 q46 = ( c.p46[0] * cos(global.θ) + c.p46[2]*sin(global.θ), c.p46[1], c.p46[2] * cos(global.θ) - c.p46[0] * sin(global.θ) )
+  vec3 q47 = ( c.p47[0] * cos(global.θ) + c.p47[2]*sin(global.θ), c.p47[1], c.p47[2] * cos(global.θ) - c.p47[0] * sin(global.θ) )
+  vec3 q48 = ( c.p48[0] * cos(global.θ) + c.p48[2]*sin(global.θ), c.p48[1], c.p48[2] * cos(global.θ) - c.p48[0] * sin(global.θ) )
+  vec3 q49 = ( c.p49[0] * cos(global.θ) + c.p49[2]*sin(global.θ), c.p49[1], c.p49[2] * cos(global.θ) - c.p49[0] * sin(global.θ) )
+
+  vec2 r0 = canvas.width * (q0[0], q0[1]) / (q0[1] - global.cZ)
+  vec2 r1 = canvas.width * (q1[0], q1[1]) / (q1[1] - global.cZ)
+  vec2 r2 = canvas.width * (q2[0], q2[1]) / (q2[1] - global.cZ)
+  vec2 r3 = canvas.width * (q3[0], q3[1]) / (q3[1] - global.cZ)
+  vec2 r4 = canvas.width * (q4[0], q4[1]) / (q4[1] - global.cZ)
+  vec2 r5 = canvas.width * (q5[0], q5[1]) / (q5[1] - global.cZ)
+  vec2 r6 = canvas.width * (q6[0], q6[1]) / (q6[1] - global.cZ)
+  vec2 r7 = canvas.width * (q7[0], q7[1]) / (q7[1] - global.cZ)
+  vec2 r8 = canvas.width * (q8[0], q8[1]) / (q8[1] - global.cZ)
+  vec2 r9 = canvas.width * (q9[0], q9[1]) / (q9[1] - global.cZ)
+  vec2 r10 = canvas.width * (q10[0], q10[1]) / (q10[1] - global.cZ)
+  vec2 r11 = canvas.width * (q11[0], q11[1]) / (q11[1] - global.cZ)
+  vec2 r12 = canvas.width * (q12[0], q12[1]) / (q12[1] - global.cZ)
+  vec2 r13 = canvas.width * (q13[0], q13[1]) / (q13[1] - global.cZ)
+  vec2 r14 = canvas.width * (q14[0], q14[1]) / (q14[1] - global.cZ)
+  vec2 r15 = canvas.width * (q15[0], q15[1]) / (q15[1] - global.cZ)
+  vec2 r16 = canvas.width * (q16[0], q16[1]) / (q16[1] - global.cZ)
+  vec2 r17 = canvas.width * (q17[0], q17[1]) / (q17[1] - global.cZ)
+  vec2 r18 = canvas.width * (q18[0], q18[1]) / (q18[1] - global.cZ)
+  vec2 r19 = canvas.width * (q19[0], q19[1]) / (q19[1] - global.cZ)
+  vec2 r20 = canvas.width * (q20[0], q20[1]) / (q20[1] - global.cZ)
+  vec2 r21 = canvas.width * (q21[0], q21[1]) / (q21[1] - global.cZ)
+  vec2 r22 = canvas.width * (q22[0], q22[1]) / (q22[1] - global.cZ)
+  vec2 r23 = canvas.width * (q23[0], q23[1]) / (q23[1] - global.cZ)
+  vec2 r24 = canvas.width * (q24[0], q24[1]) / (q24[1] - global.cZ)
+  vec2 r25 = canvas.width * (q25[0], q25[1]) / (q25[1] - global.cZ)
+  vec2 r26 = canvas.width * (q26[0], q26[1]) / (q26[1] - global.cZ)
+  vec2 r27 = canvas.width * (q27[0], q27[1]) / (q27[1] - global.cZ)
+  vec2 r28 = canvas.width * (q28[0], q28[1]) / (q28[1] - global.cZ)
+  vec2 r29 = canvas.width * (q29[0], q29[1]) / (q29[1] - global.cZ)
+  vec2 r30 = canvas.width * (q30[0], q30[1]) / (q30[1] - global.cZ)
+  vec2 r31 = canvas.width * (q31[0], q31[1]) / (q31[1] - global.cZ)
+  vec2 r32 = canvas.width * (q32[0], q32[1]) / (q32[1] - global.cZ)
+  vec2 r33 = canvas.width * (q33[0], q33[1]) / (q33[1] - global.cZ)
+  vec2 r34 = canvas.width * (q34[0], q34[1]) / (q34[1] - global.cZ)
+  vec2 r35 = canvas.width * (q35[0], q35[1]) / (q35[1] - global.cZ)
+  vec2 r36 = canvas.width * (q36[0], q36[1]) / (q36[1] - global.cZ)
+  vec2 r37 = canvas.width * (q37[0], q37[1]) / (q37[1] - global.cZ)
+  vec2 r38 = canvas.width * (q38[0], q38[1]) / (q38[1] - global.cZ)
+  vec2 r39 = canvas.width * (q39[0], q39[1]) / (q39[1] - global.cZ)
+  vec2 r40 = canvas.width * (q40[0], q40[1]) / (q40[1] - global.cZ)
+  vec2 r41 = canvas.width * (q41[0], q41[1]) / (q41[1] - global.cZ)
+  vec2 r42 = canvas.width * (q42[0], q42[1]) / (q42[1] - global.cZ)
+  vec2 r43 = canvas.width * (q43[0], q43[1]) / (q43[1] - global.cZ)
+  vec2 r44 = canvas.width * (q44[0], q44[1]) / (q44[1] - global.cZ)
+  vec2 r45 = canvas.width * (q45[0], q45[1]) / (q45[1] - global.cZ)
+  vec2 r46 = canvas.width * (q46[0], q46[1]) / (q46[1] - global.cZ)
+  vec2 r47 = canvas.width * (q47[0], q47[1]) / (q47[1] - global.cZ)
+  vec2 r48 = canvas.width * (q48[0], q48[1]) / (q48[1] - global.cZ)
+  vec2 r49 = canvas.width * (q49[0], q49[1]) / (q49[1] - global.cZ)
+
+  points = [c.p0, c.p1, c.p2, c.p3, c.p4, c.p5, c.p6, c.p7, c.p8, c.p9, c.p10, c.p11, c.p12, c.p13, c.p14, c.p15, c.p16, c.p17, c.p18, c.p19, c.p20, c.p21, c.p22, c.p23, c.p24, c.p25, c.p26, c.p27, c.p28, c.p29, c.p30, c.p31, c.p32, c.p33, c.p34, c.p35, c.p36, c.p37, c.p38, c.p39, c.p40, c.p41, c.p42, c.p43, c.p44, c.p45, c.p46, c.p47, c.p48, c.p49]
+
+  ensure isEquilateral(points, true)
+
+  scalar length = 3000
+  -- scalar area = settings.blobbiness * settings.pi * radius * radius
+
+  ensure perimeter(points, true) == length
+  -- encourage maximal(signedArea(c.poly.points, true))
+  encourage elasticEnergy(points, true) == 0
+--   ensure totalCurvature(points, true, true) > 8 * 3.14
+
+  shape c.poly = Polygon {
+    points: [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31, r32, r33, r34, r35, r36, r37, r38, r39, r40, r41, r42, r43, r44, r45, r46, r47, r48, r49]
+    strokeWidth: settings.lineThickness
+    strokeColor: #000
+    fillColor: #0000
+  }
+
+  -- shape c.sphere = Circle {
+  --   r: 1.1 * radiusContain
+  --   center: (0, -50)
+  --   fillColor: #9c2c2c80
+  -- }
+
+}
+
+forall Curve c where inSphere(c) {
+  scalar radius = 200
+  ensure norm(c.p0) < radius
+  ensure norm(c.p1) < radius
+  ensure norm(c.p2) < radius
+  ensure norm(c.p3) < radius
+  ensure norm(c.p4) < radius
+  ensure norm(c.p5) < radius
+  ensure norm(c.p6) < radius
+  ensure norm(c.p7) < radius
+  ensure norm(c.p8) < radius
+  ensure norm(c.p9) < radius
+  ensure norm(c.p10) < radius
+  ensure norm(c.p11) < radius
+  ensure norm(c.p12) < radius
+  ensure norm(c.p13) < radius
+  ensure norm(c.p14) < radius
+  ensure norm(c.p15) < radius
+  ensure norm(c.p16) < radius
+  ensure norm(c.p17) < radius
+  ensure norm(c.p18) < radius
+  ensure norm(c.p19) < radius
+  ensure norm(c.p20) < radius
+  ensure norm(c.p21) < radius
+  ensure norm(c.p22) < radius
+  ensure norm(c.p23) < radius
+  ensure norm(c.p24) < radius
+  ensure norm(c.p25) < radius
+  ensure norm(c.p26) < radius
+  ensure norm(c.p27) < radius
+  ensure norm(c.p28) < radius
+  ensure norm(c.p29) < radius
+  ensure norm(c.p30) < radius
+  ensure norm(c.p31) < radius
+  ensure norm(c.p32) < radius
+  ensure norm(c.p33) < radius
+  ensure norm(c.p34) < radius
+  ensure norm(c.p35) < radius
+  ensure norm(c.p36) < radius
+  ensure norm(c.p37) < radius
+  ensure norm(c.p38) < radius
+  ensure norm(c.p39) < radius
+  ensure norm(c.p40) < radius
+  ensure norm(c.p41) < radius
+  ensure norm(c.p42) < radius
+  ensure norm(c.p43) < radius
+  ensure norm(c.p44) < radius
+  ensure norm(c.p45) < radius
+  ensure norm(c.p46) < radius
+  ensure norm(c.p47) < radius
+  ensure norm(c.p48) < radius
+  ensure norm(c.p49) < radius
+}
+
+forall Curve c where onSphere(c) {
+  scalar radius = 200
+  ensure norm(c.p0) == radius
+  ensure norm(c.p1) == radius
+  ensure norm(c.p2) == radius
+  ensure norm(c.p3) == radius
+  ensure norm(c.p4) == radius
+  ensure norm(c.p5) == radius
+  ensure norm(c.p6) == radius
+  ensure norm(c.p7) == radius
+  ensure norm(c.p8) == radius
+  ensure norm(c.p9) == radius
+  ensure norm(c.p10) == radius
+  ensure norm(c.p11) == radius
+  ensure norm(c.p12) == radius
+  ensure norm(c.p13) == radius
+  ensure norm(c.p14) == radius
+  ensure norm(c.p15) == radius
+  ensure norm(c.p16) == radius
+  ensure norm(c.p17) == radius
+  ensure norm(c.p18) == radius
+  ensure norm(c.p19) == radius
+  ensure norm(c.p20) == radius
+  ensure norm(c.p21) == radius
+  ensure norm(c.p22) == radius
+  ensure norm(c.p23) == radius
+  ensure norm(c.p24) == radius
+  ensure norm(c.p25) == radius
+  ensure norm(c.p26) == radius
+  ensure norm(c.p27) == radius
+  ensure norm(c.p28) == radius
+  ensure norm(c.p29) == radius
+  ensure norm(c.p30) == radius
+  ensure norm(c.p31) == radius
+  ensure norm(c.p32) == radius
+  ensure norm(c.p33) == radius
+  ensure norm(c.p34) == radius
+  ensure norm(c.p35) == radius
+  ensure norm(c.p36) == radius
+  ensure norm(c.p37) == radius
+  ensure norm(c.p38) == radius
+  ensure norm(c.p39) == radius
+  ensure norm(c.p40) == radius
+  ensure norm(c.p41) == radius
+  ensure norm(c.p42) == radius
+  ensure norm(c.p43) == radius
+  ensure norm(c.p44) == radius
+  ensure norm(c.p45) == radius
+  ensure norm(c.p46) == radius
+  ensure norm(c.p47) == radius
+  ensure norm(c.p48) == radius
+  ensure norm(c.p49) == radius
+}
