@@ -120,7 +120,7 @@ import {
   shapeDistanceRectLine,
   shapeDistanceRects,
 } from "./Queries";
-import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils";
+import { clamp, isRectlike, numOf, Rectlike, toPt } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -2365,101 +2365,108 @@ export const compDict = {
         | Polyline<ad.Num>,
       p: ad.Num[]
     ): FloatV<ad.Num> => {
-      /*  
-    All math borrowed from:
-    https://iquilezles.org/articles/distfunctions2d/
-    
-    axis-aligned rectangle:
-    float sdBox( in vec2 p, in vec2 b )
-    {
-      vec2 d = abs(p)-b;
-      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
-    } 
-    */
       if (isRectlike(s)) {
-        const absp = ops.vabs(ops.vsub(p, s.center.contents));
-        const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
-        const d = ops.vsub(absp, b);
-        const result = add(
-          ops.vnorm(ops.vmax(d, [0.0, 0.0])),
-          min(max(d[0], d[1]), 0.0)
-        );
-        return {
-          tag: "FloatV",
-          contents: result,
-        };
+        return floatV(signedDistanceRect(bboxPts(bboxFromShape(s)), toPt(p)));
       } else if (s.shapeType === "Circle") {
-        /*     
-      float sdCircle( vec2 p, float r )
-      {
-        return length(p) - r;
-      } 
-      */
-        const pOffset = ops.vsub(p, s.center.contents);
-        const result = sub(ops.vnorm(pOffset), s.r.contents);
-        return {
-          tag: "FloatV",
-          contents: result,
-        };
+        return floatV(
+          signedDistanceCircle(toPt(s.center.contents), s.r.contents, toPt(p))
+        );
       } else if (s.shapeType === "Polygon") {
-        /*
-      float sdPolygon( in vec2[N] v, in vec2 p )
-      {
-          float d = dot(p-v[0],p-v[0]);
-          float s = 1.0;
-          for( int i=0, j=N-1; i<N; j=i, i++ )
-          {
-              vec2 e = v[j] - v[i];
-              vec2 w =    p - v[i];
-              vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
-              d = min( d, dot(b,b) );
-              bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
-              if( all(c) || all(not(c)) ) s*=-1.0;  
-          }
-          return s*sqrt(d);
-      }
-      */
-        const v = s.points.contents;
-        let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
-        let ess: ad.Num = 1.0;
-        let j = v.length - 1;
-        for (let i = 0; i < v.length; i++) {
-          const e = ops.vsub(v[j], v[i]);
-          const w = ops.vsub(p, v[i]);
-          const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
-          const b = ops.vsub(w, ops.vmul(clampedVal, e));
-          d = min(d, ops.vdot(b, b));
-          const c1 = gte(p[1], v[i][1]);
-          const c2 = lt(p[1], v[j][1]);
-          const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
-          const c4 = and(and(c1, c2), c3);
-          const c5 = not(c1);
-          const c6 = not(c2);
-          const c7 = not(c3);
-          const c8 = and(and(c5, c6), c7);
-          const negEss = mul(-1, ess);
-          ess = ifCond(or(c4, c8), negEss, ess);
-          // last line to match for loop in code we are borrowing from
-          j = i;
-        }
-        const result = mul(ess, sqrt(d));
-        return {
-          tag: "FloatV",
-          contents: result,
-        };
+        return floatV(signedDistancePolygon(polygonLikePoints(s), toPt(p)));
       } else if (s.shapeType === "Line") {
-        return {
-          tag: "FloatV",
-          contents: sdLine(s, p),
-        };
+        return floatV(
+          signedDistanceLine(
+            toPt(s.start.contents),
+            toPt(s.end.contents),
+            toPt(p)
+          )
+        );
       } else {
-        return {
-          tag: "FloatV",
-          contents: sdPolyline(s, p),
-        };
+        return floatV(signedDistancePolyline(polygonLikePoints(s), toPt(p)));
       }
     },
     returns: valueT("Real"),
+  },
+
+  signedDistanceCircle: {
+    name: "signedDistanceCircle",
+    description: "Returns the distance between a circle and a point",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      r: ad.Num,
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistanceCircle(c, r, pt)),
+    returns: realT(),
+  },
+
+  signedDistancePolygon: {
+    name: "signedDistancePolygon",
+    description: "Returns the distance between a polygon and a point",
+    params: [
+      { name: "pts", type: real2NT(), description: "points of the polygon" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (_context: Context, pts: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
+      floatV(signedDistancePolygon(pts, pt)),
+    returns: realT(),
+  },
+
+  signedDistanceEllipse: {
+    name: "signedDistanceEllipse",
+    description: "Returns the distance between an ellipse and a point",
+    params: [
+      { name: "c", type: real2T(), description: "center of ellipse" },
+      {
+        name: "rx",
+        type: realT(),
+        description: "horizontal radius of ellipse",
+      },
+      { name: "ry", type: realT(), description: "vertical radius of ellipse" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      rx: ad.Num,
+      ry: ad.Num,
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistanceEllipse(c, rx, ry, pt)),
+    returns: realT(),
+  },
+
+  signedDistanceLine: {
+    name: "signedDistanceLine",
+    description: "Returns the distance between a line and a point",
+    params: [
+      { name: "start", type: real2T(), description: "start of line" },
+      { name: "end", type: real2T(), description: "end of line" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Pt2,
+      end: ad.Pt2,
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistanceLine(start, end, pt)),
+    returns: realT(),
+  },
+
+  signedDistancePolyline: {
+    name: "signedDistancePolyline",
+    description: "Returns the distance between a line and a polyline",
+    params: [
+      { name: "pts", type: real2NT(), description: "points of the polyline" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (_context: Context, pts: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
+      floatV(signedDistancePolyline(pts, pt)),
+    returns: realT(),
   },
 
   /**
@@ -3200,55 +3207,109 @@ export const compDict = {
 const _compDictVals: CompFunc[] = Object.values(compDict);
 
 /*
-  Computes the signed distance for a line 
-  float sdSegment( in vec2 p, in vec2 a, in vec2 b )
-  {
-    vec2 pa = p-a, ba = b-a;
-    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
-    return length( pa - ba*h );
-  }
-*/
-const sdLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num => {
-  return sdLineAsNums(s.start.contents, s.end.contents, p);
-};
-
-const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
-  const pa = ops.vsub(p, a);
-  const ba = ops.vsub(b, a);
-  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
-  return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
-};
-
-const sdPolyline = (s: Polyline<ad.Num>, p: ad.Num[]): ad.Num => {
-  const dists: ad.Num[] = [];
-  for (let i = 0; i < s.points.contents.length - 1; i++) {
-    const start = s.points.contents[i];
-    const end = s.points.contents[i + 1];
-    dists[i] = sdLineAsNums(start, end, p);
-  }
-  return minN(dists);
-};
-
-export const sdEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num => {
-  return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
-};
-
-/*
   float msign(in float x) { return (x<0.0)?-1.0:1.0; }
 */
 export const msign = (x: ad.Num): ad.Num => {
   return ifCond(lt(x, 0), -1, 1);
 };
 
-/*
-  Ported code is here: https://www.shadertoy.com/view/4sS3zz
-*/
-export const sdEllipseAsNums = (
+//#region Signed Distance Functions
+
+// All math borrowed from:
+// https://iquilezles.org/articles/distfunctions2d/
+
+export const signedDistanceRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Num => {
+  /*  
+    
+    axis-aligned rectangle:
+    float sdBox( in vec2 p, in vec2 b )
+    {
+      vec2 d = abs(p)-b;
+      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    } 
+    */
+  if (rect.length !== 4) {
+    throw new Error("Expects rect to have four points");
+  }
+  const [tr, tl, bl] = rect;
+  const center = ops.vmul(0.5, ops.vadd(tr, bl));
+  const width = sub(tr[0], tl[0]);
+  const height = sub(tl[1], bl[1]);
+
+  const absp = ops.vabs(ops.vsub(pt, center));
+  const b = [div(width, 2), div(height, 2)];
+  const d = ops.vsub(absp, b);
+  return add(ops.vnorm(ops.vmax(d, [0.0, 0.0])), min(max(d[0], d[1]), 0.0));
+};
+
+export const signedDistanceCircle = (
+  c: ad.Pt2,
+  r: ad.Num,
+  pt: ad.Pt2
+): ad.Num => {
+  /*     
+      float sdCircle( vec2 p, float r )
+      {
+        return length(p) - r;
+      } 
+  */
+  const pOffset = ops.vsub(pt, c);
+  return sub(ops.vnorm(pOffset), r);
+};
+
+export const signedDistancePolygon = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
+  /*
+      float sdPolygon( in vec2[N] v, in vec2 p )
+      {
+          float d = dot(p-v[0],p-v[0]);
+          float s = 1.0;
+          for( int i=0, j=N-1; i<N; j=i, i++ )
+          {
+              vec2 e = v[j] - v[i];
+              vec2 w =    p - v[i];
+              vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
+              d = min( d, dot(b,b) );
+              bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
+              if( all(c) || all(not(c)) ) s*=-1.0;  
+          }
+          return s*sqrt(d);
+      }
+  */
+  const v = pts;
+  let d = ops.vdot(ops.vsub(pt, v[0]), ops.vsub(pt, v[0]));
+  let ess: ad.Num = 1.0;
+  let j = v.length - 1;
+  for (let i = 0; i < v.length; i++) {
+    const e = ops.vsub(v[j], v[i]);
+    const w = ops.vsub(pt, v[i]);
+    const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
+    const b = ops.vsub(w, ops.vmul(clampedVal, e));
+    d = min(d, ops.vdot(b, b));
+    const c1 = gte(pt[1], v[i][1]);
+    const c2 = lt(pt[1], v[j][1]);
+    const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
+    const c4 = and(and(c1, c2), c3);
+    const c5 = not(c1);
+    const c6 = not(c2);
+    const c7 = not(c3);
+    const c8 = and(and(c5, c6), c7);
+    const negEss = mul(-1, ess);
+    ess = ifCond(or(c4, c8), negEss, ess);
+    // last line to match for loop in code we are borrowing from
+    j = i;
+  }
+  return mul(ess, sqrt(d));
+};
+
+export const signedDistanceEllipse = (
+  center: ad.Pt2,
   radiusx: ad.Num,
   radiusy: ad.Num,
-  center: ad.Num[],
-  pInput: ad.Num[]
-): ad.Num => {
+  pInput: ad.Pt2
+) => {
+  /*
+    Ported code is here: https://www.shadertoy.com/view/4sS3zz
+  */
   // if = abs( p );
   // if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
   const pOffset = ops.vsub(pInput, center);
@@ -3342,6 +3403,38 @@ export const sdEllipseAsNums = (
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
+export const signedDistanceLine = (
+  start: ad.Pt2,
+  end: ad.Pt2,
+  pt: ad.Pt2
+): ad.Num => {
+  /*
+  Computes the signed distance for a line 
+    float sdSegment( in vec2 p, in vec2 a, in vec2 b )
+    {
+      vec2 pa = p-a, ba = b-a;
+      float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+      return length( pa - ba*h );
+    }
+  */
+  const pa = ops.vsub(pt, start);
+  const ba = ops.vsub(end, start);
+  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
+  return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
+};
+
+export const signedDistancePolyline = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
+  const dists: ad.Num[] = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const start = pts[i];
+    const end = pts[i + 1];
+    dists[i] = signedDistanceLine(start, end, pt);
+  }
+  return minN(dists);
+};
+
+//#endregion
+
 export const closestPointCircle = (
   c: ad.Pt2,
   r: ad.Num,
@@ -3361,7 +3454,7 @@ export const closestPointCircle = (
   return [pOnCircumference[0], pOnCircumference[1]];
 };
 
-const closestPointRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Pt2 => {
+export const closestPointRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Pt2 => {
   if (rect.length !== 4) {
     throw new Error("Expects rect to have four points");
   }

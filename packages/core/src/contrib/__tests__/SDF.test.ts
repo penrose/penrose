@@ -3,15 +3,15 @@ import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
 import { Circle, makeCircle } from "../../shapes/Circle";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
 import { Line, makeLine } from "../../shapes/Line";
-import { Polygon, makePolygon } from "../../shapes/Polygon";
+import { makePolygon, Polygon } from "../../shapes/Polygon";
 import { Polyline } from "../../shapes/Polyline";
 import { makeRectangle } from "../../shapes/Rectangle";
 import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";
 import * as ad from "../../types/ad";
 import { FloatV } from "../../types/value";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util";
-import { compDict, sdEllipse } from "../Functions";
-import { Rectlike } from "../Utils";
+import { compDict, signedDistanceEllipse } from "../Functions";
+import { Rectlike, toPt } from "../Utils";
 
 const canvas = makeCanvas(800, 700);
 
@@ -84,7 +84,12 @@ const getResult = (
   if (s.shapeType === "Ellipse") {
     return {
       tag: "FloatV",
-      contents: sdEllipse(s, p),
+      contents: signedDistanceEllipse(
+        toPt(s.center.contents),
+        s.rx.contents,
+        s.ry.contents,
+        toPt(p)
+      ),
     };
   } else {
     const result = compDict.signedDistance.body(context, s, p);
