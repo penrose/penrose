@@ -1,14 +1,15 @@
+import { describe, expect, test } from "vitest";
 import { Circle, makeCircle } from "../../shapes/Circle";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
 import { Line, makeLine } from "../../shapes/Line";
-import { Polygon, makePolygon } from "../../shapes/Polygon";
-import { Polyline, makePolyline } from "../../shapes/Polyline";
+import { makePolygon, Polygon } from "../../shapes/Polygon";
+import { makePolyline, Polyline } from "../../shapes/Polyline";
 import { makeRectangle } from "../../shapes/Rectangle";
 import { Context, makeCanvas, simpleContext } from "../../shapes/Samplers";
 import * as ad from "../../types/ad";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util";
 import { compDict } from "../Functions";
-import { Rectlike, numOf } from "../Utils";
+import { numOf, Rectlike } from "../Utils";
 
 const canvas = makeCanvas(800, 700);
 

@@ -1,5 +1,8 @@
+// @vitest-environment jsdom
+
 import setTHeory from "@penrose/examples/dist/set-theory-domain";
 import { start } from "@penrose/optimizer";
+import { describe, expect, test } from "vitest";
 import { genGradient } from "./engine/Autodiff";
 import {
   compileTrio,
@@ -248,10 +251,12 @@ describe("Run individual functions", () => {
       // console.log("# constraints", stateEvaled.constrFns.length);
 
       // Test objectives
-      const { constrEngs: initEngsConstr, objEngs: initEngsObj } =
-        evalFns(stateEvaled);
-      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } =
-        evalFns(stateOptimizedValue);
+      const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
+        stateEvaled
+      );
+      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } = evalFns(
+        stateOptimizedValue
+      );
 
       for (let i = 0; i < initEngsObj.length; i++) {
         expect(initEngsObj[i]).toBeGreaterThanOrEqual(optedEngsObj[i]);

@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import { compDict } from "../Functions";
 
 describe("key-name equality", () => {

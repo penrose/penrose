@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import * as BBox from "../../engine/BBox";
 import * as ad from "../../types/ad";
 import {

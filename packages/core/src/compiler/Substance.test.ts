@@ -2,6 +2,7 @@ import setTheory from "@penrose/examples/dist/set-theory-domain";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
+import { beforeEach, describe, expect, test } from "vitest";
 import grammar from "../parser/SubstanceParser";
 import { A } from "../types/ast";
 import { Env } from "../types/domain";

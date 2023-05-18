@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import { makeCircle } from "../../shapes/Circle";
 import { makeRectangle } from "../../shapes/Rectangle";
 import { makeCanvas, simpleContext } from "../../shapes/Samplers";

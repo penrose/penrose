@@ -1,3 +1,4 @@
+import { describe, expect, it, test } from "vitest";
 import { ops } from "../../engine/Autodiff";
 import { sub } from "../../engine/AutodiffFunctions";
 import { makeCircle } from "../../shapes/Circle";
@@ -243,7 +244,7 @@ describe("convexPolygonOriginSignedDistance", () => {
   });
 });
 
-describe("shapeDistanceAABBs should return the same value as shapeDistancePolygonlikes", () => {
+test("shapeDistanceAABBs should return the same value as shapeDistancePolygonlikes", () => {
   for (const i in _rectangles) {
     const r1 = _rectangles[i];
 

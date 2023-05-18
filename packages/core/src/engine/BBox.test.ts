@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import { compDict } from "../contrib/Functions";
 import { numsOf } from "../contrib/Utils";
 import { makeCircle } from "../shapes/Circle";

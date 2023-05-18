@@ -1,9 +1,10 @@
 import seedrandom from "seedrandom";
+import { describe, expect, test } from "vitest";
 import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
 import { Circle, makeCircle } from "../../shapes/Circle";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
 import { Line, makeLine } from "../../shapes/Line";
-import { Polygon, makePolygon } from "../../shapes/Polygon";
+import { makePolygon, Polygon } from "../../shapes/Polygon";
 import { Polyline } from "../../shapes/Polyline";
 import { makeRectangle } from "../../shapes/Rectangle";
 import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";

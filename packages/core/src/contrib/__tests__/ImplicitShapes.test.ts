@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import { addN, mul, polyRoots, sub } from "../../engine/AutodiffFunctions";
 import { makeCircle } from "../../shapes/Circle";
 import { makeEllipse } from "../../shapes/Ellipse";

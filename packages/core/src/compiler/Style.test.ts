@@ -1,5 +1,6 @@
 import setTheory from "@penrose/examples/dist/set-theory-domain";
 import im from "immutable";
+import { describe, expect, test } from "vitest";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
 import { Env } from "../types/domain";
@@ -22,10 +23,10 @@ import {
 } from "../types/styleSemantics";
 import { SubstanceEnv } from "../types/substance";
 import { ColorV, RGBA } from "../types/value";
-import { Result, andThen, err, showError } from "../utils/Error";
+import { andThen, err, Result, showError } from "../utils/Error";
 import Graph from "../utils/Graph";
 import { GroupGraph } from "../utils/GroupGraph";
-import { ToRight, foldM, toLeft, zip2 } from "../utils/Util";
+import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
 import * as S from "./Style";
 import { compileSubstance } from "./Substance";
@@ -465,7 +466,7 @@ describe("Compiler", () => {
     ]);
   });
 
-  describe("Correct Style programs", () => {
+  test("Correct Style programs", () => {
     const dsl = "type Object";
     const sub = "Object o";
     // TODO: Name these programs
@@ -517,9 +518,11 @@ describe("Compiler", () => {
         }
       }`,
     ];
-    stys.forEach((sty: string) =>
-      loadProgs({ dsl, sub, sty: canvasPreamble + sty })
-    );
+    stys.forEach((sty: string) => {
+      expect(
+        async () => await loadProgs({ dsl, sub, sty: canvasPreamble + sty })
+      ).not.toThrowError();
+    });
   });
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?

@@ -1,3 +1,4 @@
+import { describe, expect, it, test } from "vitest";
 import { Shape } from "../../shapes/Shapes";
 import * as ad from "../../types/ad";
 import { constrDict } from "../Constraints";
