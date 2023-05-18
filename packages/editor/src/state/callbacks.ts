@@ -237,7 +237,7 @@ export const useLoadExampleWorkspace = () =>
     const { domain, style, substance, variation } = await meta.get();
     toast.dismiss(id);
     const styleJoined = style.map(({ contents }) => contents).join("\n");
-    // HACK: we should really each Style's individual `resolver`
+    // HACK: we should really use each Style's individual `resolver`
     const { resolver } = style[0];
     set(currentWorkspaceState, {
       metadata: {
