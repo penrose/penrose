@@ -1818,7 +1818,7 @@ export const compDict = {
    * Return a random value sampled from the uniform distribution on the unit circle.
    */
   circleRandom: {
-    name: "sphereRandom",
+    name: "circleRandom",
     description: "Sample the uniform distribution on the unit circle.",
     params: [],
     body: ({ makeInput }: Context): VectorV<ad.Num> => {
