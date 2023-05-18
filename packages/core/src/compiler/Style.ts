@@ -14,12 +14,12 @@ import { lastLocation, prettyParseError } from "../parser/ParserUtil";
 import styleGrammar from "../parser/StyleParser";
 import {
   Canvas,
-  Context as MutableContext,
   InputMeta,
+  Context as MutableContext,
   makeCanvas,
   uniform,
 } from "../shapes/Samplers";
-import { isShapeType, sampleShape, Shape, ShapeType } from "../shapes/Shapes";
+import { Shape, ShapeType, isShapeType, sampleShape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A, C, Identifier, SourceRange } from "../types/ast";
 import { Env } from "../types/domain";
@@ -42,9 +42,9 @@ import {
   State,
 } from "../types/state";
 import {
+  BinOp,
   BinaryOp,
   BindingForm,
-  BinOp,
   DeclPattern,
   Expr,
   FunctionCall,
@@ -56,12 +56,12 @@ import {
   Path,
   PathAssign,
   PredArg,
-  RelationPattern,
   RelBind,
   RelField,
   RelPred,
-  Selector,
+  RelationPattern,
   SelExpr,
+  Selector,
   Stmt,
   StyProg,
   StyT,
@@ -96,16 +96,16 @@ import {
   SubExpr,
   SubPredArg,
   SubProg,
-  SubstanceEnv,
   SubStmt,
+  SubstanceEnv,
   TypeConsApp,
 } from "../types/substance";
 import {
   ArgVal,
   Field,
   FloatV,
-  ListV,
   LListV,
+  ListV,
   MatrixV,
   PropID,
   ShapeListV,
@@ -113,6 +113,7 @@ import {
   VectorV,
 } from "../types/value";
 import {
+  Result,
   all,
   andThen,
   badShapeParamTypeError,
@@ -122,16 +123,15 @@ import {
   ok,
   parseError,
   redeclareNamespaceError,
-  Result,
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
 import {
+  GroupGraph,
   buildRenderGraph,
   findOrderedRoots,
-  GroupGraph,
   makeGroupGraph,
   traverseUp,
 } from "../utils/GroupGraph";
@@ -143,6 +143,7 @@ import {
   floatV,
   getAdValueAsString,
   hexToRgba,
+  isKeyOf,
   listV,
   llistV,
   matrixV,
@@ -156,9 +157,9 @@ import {
   zip2,
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
-import { checkShape } from "./shapeChecker/CheckShape";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
+import { checkShape } from "./shapeChecker/CheckShape";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Warn })
@@ -657,14 +658,10 @@ export const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
 export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
   const vals = Object.values(subst);
-  const valsSet = {};
-
-  for (let i = 0; i < vals.length; i++) {
-    valsSet[vals[i]] = 0; // This 0 means nothing, we just want to create a set of values
-  }
+  const valsSet = new Set(vals);
 
   // All entries were unique if length didn't change (ie the nub didn't change)
-  return Object.keys(valsSet).length === vals.length;
+  return valsSet.size === vals.length;
 };
 
 /**
@@ -1064,7 +1061,7 @@ const matchBvar = (
 ): Subst | undefined => {
   switch (bf.tag) {
     case "StyVar": {
-      const newSubst = {};
+      const newSubst: Subst = {};
       newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
       return newSubst;
     }
@@ -1141,7 +1138,7 @@ const matchStyArgToSubArg = (
       const styArgType = styTypeMap[styArgName];
       const subArgType = subTypeMap[subArgName];
       if (typesMatched(varEnv, subArgType, styArgType)) {
-        const rSubst = {};
+        const rSubst: Subst = {};
         rSubst[styArgName] = subArgName;
         return [rSubst];
       } else {
@@ -1556,7 +1553,7 @@ const makePotentialSubsts = (
   decls: DeclPattern<A>[],
   rels: RelationPattern<A>[]
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
-  const subTypeMap: { [k: string]: TypeConsApp<A> } = subProg.statements.reduce(
+  const subTypeMap = subProg.statements.reduce<{ [k: string]: TypeConsApp<A> }>(
     (result, statement) => {
       if (statement.tag === "Decl") {
         result[statement.name.value] = statement.type;
@@ -2895,7 +2892,7 @@ const evalExpr = (
       }));
 
       const { name, start, end } = expr;
-      if (!(name.value in compDict)) {
+      if (!isKeyOf(name.value, compDict)) {
         return err(
           oneErr({ tag: "InvalidFunctionNameError", givenName: name })
         );
@@ -3145,7 +3142,7 @@ const translateExpr = (
       }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
-      if (!(fname in constrDict)) {
+      if (!isKeyOf(fname, constrDict)) {
         return addDiags(
           oneErr({ tag: "InvalidConstraintNameError", givenName: name }),
           trans
@@ -3194,7 +3191,7 @@ const translateExpr = (
       }));
       const { stages, exclude } = e.expr;
       const fname = name.value;
-      if (!(fname in objDict)) {
+      if (!isKeyOf(fname, objDict)) {
         return addDiags(
           oneErr({ tag: "InvalidObjectiveNameError", givenName: name }),
           trans

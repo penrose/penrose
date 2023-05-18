@@ -3,7 +3,7 @@ import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
 import { Circle, makeCircle } from "../../shapes/Circle";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
 import { Line, makeLine } from "../../shapes/Line";
-import { makePolygon, Polygon } from "../../shapes/Polygon";
+import { Polygon, makePolygon } from "../../shapes/Polygon";
 import { Polyline } from "../../shapes/Polyline";
 import { makeRectangle } from "../../shapes/Rectangle";
 import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";

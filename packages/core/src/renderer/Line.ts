@@ -7,7 +7,7 @@ import {
   toSvgOpacityProperty,
   toSvgPaintProperty,
 } from "../utils/Util";
-import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
+import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper";
 import { RenderProps } from "./Renderer";
 
 export const arrowHead = (
