@@ -1,15 +1,15 @@
-import { compileDomain } from "@penrose/core/dist/compiler/Domain";
+import { compileDomain, compileSubstance } from "@penrose/core";
 import {
-  compileSubstance,
   prettyStmt,
   prettySubstance,
 } from "@penrose/core/dist/compiler/Substance";
 import { A } from "@penrose/core/dist/types/ast";
 import { Env } from "@penrose/core/dist/types/domain";
 import { Decl, SubStmt } from "@penrose/core/dist/types/substance";
+import { describe, expect, test } from "vitest";
 import { cascadingDelete } from "../analysis/SubstanceAnalysis";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation";
-import { Synthesizer, SynthesizerSetting, initContext } from "./Synthesizer";
+import { initContext, Synthesizer, SynthesizerSetting } from "./Synthesizer";
 
 const defaultSetting: SynthesizerSetting = {
   mutationCount: [1, 1],

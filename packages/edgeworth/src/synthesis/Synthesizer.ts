@@ -38,16 +38,15 @@ import pr from "pandemonium/random";
 import pwc from "pandemonium/weighted-choice";
 import seedrandom from "seedrandom";
 import {
-  ArgExpr,
-  ArgStmtDecl,
-  SubStmtKind,
   appendStmt,
   applyBind,
   applyConstructor,
   applyFunction,
   applyPredicate,
   applyTypeDecl,
+  ArgExpr,
   argMatches,
+  ArgStmtDecl,
   autoLabelStmt,
   cascadingDelete,
   dedupStmts,
@@ -59,13 +58,10 @@ import {
   matchSignatures,
   nullaryTypeCons,
   sortStmts,
+  SubStmtKind,
 } from "../analysis/SubstanceAnalysis";
 import {
   Add,
-  Delete,
-  Mutation,
-  MutationGroup,
-  MutationType,
   addMutation,
   checkAddStmt,
   checkAddStmts,
@@ -78,8 +74,12 @@ import {
   checkSwapInExprArgs,
   checkSwapInStmtArgs,
   checkSwapStmtArgs,
+  Delete,
   deleteMutation,
   executeMutations,
+  Mutation,
+  MutationGroup,
+  MutationType,
   showMutations,
 } from "./Mutation";
 
@@ -619,11 +619,11 @@ export class Synthesizer {
           const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            const {
-              res,
-              stmts,
-              ctx: newCtx,
-            } = generateArgStmt(pick, ctx, oldStmt.args);
+            const { res, stmts, ctx: newCtx } = generateArgStmt(
+              pick,
+              ctx,
+              oldStmt.args
+            );
             const deleteOp: Delete = deleteMutation(oldStmt, newCtx);
             const addOps: Add[] = stmts.map((s) => addMutation(s, newCtx));
             return {
@@ -640,11 +640,11 @@ export class Synthesizer {
           const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            const {
-              res,
-              stmts,
-              ctx: newCtx,
-            } = generateArgStmt(pick, ctx, oldExpr.args);
+            const { res, stmts, ctx: newCtx } = generateArgStmt(
+              pick,
+              ctx,
+              oldExpr.args
+            );
             let toDelete: SubStmt<A>[];
             // remove old statement if (1) the new stmt becomes a predicate OR (2) the return type of the new stmt is different from the old stmt
             if (
@@ -686,9 +686,9 @@ export class Synthesizer {
     const mutations = this.currentProg.statements.map((stmt) => {
       const mutations = this.findMutations(stmt, ctx);
       log.debug(
-        `Possible update mutations for ${prettyStmt(stmt)} are:\n${mutations
-          .map(showMutations)
-          .join("\n")}`
+        `Possible update mutations for ${prettyStmt(
+          stmt
+        )} are:\n${mutations.map(showMutations).join("\n")}`
       );
       return mutations;
     });

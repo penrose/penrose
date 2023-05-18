@@ -1,4 +1,4 @@
-import { compileDomain } from "@penrose/core/dist/compiler/Domain";
+import { compileDomain } from "@penrose/core";
 import {
   compileSubstance,
   prettyStmt,
@@ -11,6 +11,7 @@ import _ from "lodash";
 import pc from "pandemonium/choice";
 import rdiff from "recursive-diff";
 import seedrandom from "seedrandom";
+import { describe, expect, test } from "vitest";
 import { sortStmts, typeOf } from "../analysis/SubstanceAnalysis";
 import {
   enumerateStmtMutations,
@@ -19,15 +20,15 @@ import {
   showMutations,
 } from "./Mutation";
 import {
-  DiffSet,
-  StmtDiff,
   applyStmtDiffs,
+  DiffSet,
   diffSubProgs,
   diffSubStmts,
   enumerateMutationPaths,
   findMutationPaths,
   showStmtDiff,
   showSubDiff,
+  StmtDiff,
   subProgDiffs,
   swapDiffID,
 } from "./Search";

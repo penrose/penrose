@@ -15,10 +15,8 @@
     "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "build": "tsc",
     "watch": "yarn build --watch",
-    "test": "vitest",
-    "test:preview": "vitest --ui",
+    "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "coverage:preview": "vitest --coverage --ui",
     "build-decls": ":",
     "typecheck": ":",
     "docs": "typedoc --out docs",
@@ -100,8 +98,6 @@
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/eslint-plugin-tslint": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
-    "@vitest/coverage-c8": "^0.31.1",
-    "@vitest/ui": "^0.31.1",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.13.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
@@ -109,7 +105,6 @@
     "eslint-plugin-jsdoc": "^30.7.3",
     "tslib": "^2.1.0",
     "typedoc": "^0.24.7",
-    "typedoc-plugin-markdown": "^3.11.13",
-    "vitest": "^0.31.1"
+    "typedoc-plugin-markdown": "^3.11.13"
   }
 }
