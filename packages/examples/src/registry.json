@@ -781,7 +781,7 @@
       "URI": "curve-examples/curves.domain"
     },
     "blobs": {
-      "URI": "curve-examples/blobs.domain"
+      "URI": "curve-examples/blobs/blobs.domain"
     }
   },
   "styles": {
@@ -963,7 +963,7 @@
     },
     "blobs": {
       "domain": "blobs",
-      "URI": "curve-examples/blobs.style"
+      "URI": "curve-examples/blobs/blobs.style"
     }
   },
   "substances": {
@@ -1345,7 +1345,7 @@
     },
     "blobs": {
       "domain": "blobs",
-      "URI": "curve-examples/blobs.substance"
+      "URI": "curve-examples/blobs/blobs.substance"
     }
   }
 }
