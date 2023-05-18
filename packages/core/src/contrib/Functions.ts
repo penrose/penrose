@@ -1815,6 +1815,29 @@ export const compDict = {
   },
 
   /**
+   * Return a random value sampled from the uniform distribution on the unit circle.
+   */
+  circleRandom: {
+    name: "sphereRandom",
+    description: "Sample the uniform distribution on the unit circle.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 2.*Math.PI) },
+        stages: new Set(),
+      });
+
+      const x = [cos(u),sin(u)];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
    * Return a random value sampled from the uniform distribution on the unit sphere.
    */
   sphereRandom: {
