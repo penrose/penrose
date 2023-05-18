@@ -15,17 +15,10 @@ import {
   sub,
   tan,
 } from "../engine/AutodiffFunctions";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
 import * as ad from "../types/ad";
 import { ConstrFunc } from "../types/functions";
-import { booleanT, realNMT, shapeT, unionT } from "../utils/Util";
-import {
-  consecutiveTriples,
-  consecutiveTuples,
-  extractPoints,
-  isClosed,
-} from "./Utils";
+import { booleanT, realNMT } from "../utils/Util";
+import { consecutiveTriples, consecutiveTuples } from "./Utils";
 
 /**
  * All values in the list should be equal
@@ -250,15 +243,19 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
       "The shape should be locally convex (all angles between consecutive edges would have the same sign)",
     params: [
       {
-        name: "s",
-        description: "a shape",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num>): ad.Num => {
-      const points = extractPoints(s);
-      const triples = consecutiveTriples(points, isClosed(s));
-      const angles = triples.map(([p1, p2, p3]: [ad.Num, ad.Num][]) =>
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      const triples = consecutiveTriples(points, closed);
+      const angles = triples.map(([p1, p2, p3]: ad.Num[][]) =>
         ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
       );
       const meanSign = sign(addN(angles));
@@ -279,15 +276,22 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
     description: "The enclosed area should be convex",
     params: [
       {
-        name: "s",
-        description: "a shape",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num>): ad.Num => {
-      const localPenalty = constrDictCurves.isLocallyConvex.body(s);
-      const points = extractPoints(s);
-      const tn = turningNumber(points, isClosed(s));
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      const localPenalty = constrDictCurves.isLocallyConvex.body(
+        points,
+        closed
+      );
+      const tn = turningNumber(points, closed);
       const globalPenalty = squared(sub(absVal(tn), 1));
       return add(localPenalty, globalPenalty);
     },
