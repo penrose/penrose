@@ -10,7 +10,7 @@ import { Env } from "@penrose/core/dist/types/domain";
 import { SubProg, SubStmt } from "@penrose/core/dist/types/substance";
 import _ from "lodash";
 import { describe, expect, test } from "vitest";
-import { similarMappings, similarNodes, SubNode } from "../synthesis/Search";
+import { SubNode, similarMappings, similarNodes } from "../synthesis/Search";
 import {
   appendStmt,
   intersection,

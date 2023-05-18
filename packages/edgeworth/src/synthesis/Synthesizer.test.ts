@@ -9,7 +9,7 @@ import { Decl, SubStmt } from "@penrose/core/dist/types/substance";
 import { describe, expect, test } from "vitest";
 import { cascadingDelete } from "../analysis/SubstanceAnalysis";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation";
-import { initContext, Synthesizer, SynthesizerSetting } from "./Synthesizer";
+import { Synthesizer, SynthesizerSetting, initContext } from "./Synthesizer";
 
 const defaultSetting: SynthesizerSetting = {
   mutationCount: [1, 1],
