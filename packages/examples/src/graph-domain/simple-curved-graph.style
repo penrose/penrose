@@ -127,9 +127,9 @@ forall Vertex u; Vertex v where Edge(u, v) as e {
     strokeColor: #000
   }
 
-  ensure lessThan(perimeter(e.poly.points, false), 1.5 * vdist(a, b))
-  encourage equal(perimeter(e.poly.points, false), vdist(a, b))
-  encourage equal(elasticEnergy(e.poly.points, false), 0)
+  ensure perimeter(e.poly.points, false) < 1.5 * vdist(a, b)
+  encourage perimeter(e.poly.points, false) == vdist(a, b)
+  encourage elasticEnergy(e.poly.points, false) == 0
   encourage isEquilateral(e.poly.points, false)
 
   e.start = a
