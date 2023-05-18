@@ -13,7 +13,7 @@
     "start:docs-site": "nx run docs-site:dev",
     "start": "nx run editor:watch",
     "build:ide": "nx run editor:build",
-    "test": "nx run core:test",
+    "test": "nx run-many --target=test",
     "docs": "nx run core:docs",
     "lint": "nx run core:lint",
     "lint:fix": "nx run core:lint --fix",
