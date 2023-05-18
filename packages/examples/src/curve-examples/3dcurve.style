@@ -6,13 +6,14 @@ canvas {
 layout = [manifolds, maps]
 
 settings {
-  lineThickness = 2
+  lineThickness = 2.5
   arrowThickness = 1.5
   blobbiness = 0.1
   pi = 3.14159
   fontSize = "15px"
   blobDistance = 300
-  sphereRadius = 200
+  sphereRadius = 100
+  curveLength = 900
 }
 
 global {
@@ -23,12 +24,12 @@ global {
 
   -- Use a simple pinhole camera model, where the
   -- only camera parameter is the distance along Z
-  --  scalar cZ_ = 0--? -- -1000 --? -- camera z coordinate
+  scalar cZ_ = ? -- camera z coordinate
 
-	-- ensure -1200 < cZ_
-	-- ensure cZ_ < -800
+  ensure -1900 < cZ_
+  ensure cZ_ < -1100
 
-	scalar cZ = -1200--min(-1000, max(cZ_, -1400)) --? -- camera z 
+  scalar cZ = min(-1000, max(cZ_, -2000))
 
   -- Corner coordinates of the global ground plane
   vec3 Kq00 = ( -planeSize, planeHeight, -planeSize )
@@ -41,8 +42,6 @@ global {
   -- vertices, but since they're sampled randomly, it wouldn't
   -- really change the appearance of the kinds of diagrams we sample).
   scalar θ = ?
-  --    encourage equal(θ, 0)
-  --    encourage equal(θ, 100)
   vec3 KQ00 = ( Kq00[0]*cos(θ) + Kq00[2]*sin(θ), Kq00[1], Kq00[2]*cos(θ) - Kq00[0]*sin(θ) )
   vec3 KQ10 = ( Kq10[0]*cos(θ) + Kq10[2]*sin(θ), Kq10[1], Kq10[2]*cos(θ) - Kq10[0]*sin(θ) )
   vec3 KQ01 = ( Kq01[0]*cos(θ) + Kq01[2]*sin(θ), Kq01[1], Kq01[2]*cos(θ) - Kq01[0]*sin(θ) )
@@ -70,7 +69,7 @@ global {
 
   shape sphere = Circle {
     center: scenter
-    r: -canvas.width * settings.sphereRadius / global.cZ
+    r: -1.01 * canvas.width * settings.sphereRadius / global.cZ
     fillColor: #ac2b2b33
   }
 
@@ -231,24 +230,370 @@ forall Curve c {
   vec2 r48 = canvas.width * (q48[0], q48[1]) / (q48[2] - global.cZ)
   vec2 r49 = canvas.width * (q49[0], q49[1]) / (q49[2] - global.cZ)
 
-  points = [c.p0, c.p1, c.p2, c.p3, c.p4, c.p5, c.p6, c.p7, c.p8, c.p9, c.p10, c.p11, c.p12, c.p13, c.p14, c.p15, c.p16, c.p17, c.p18, c.p19, c.p20, c.p21, c.p22, c.p23, c.p24, c.p25, c.p26, c.p27, c.p28, c.p29, c.p30, c.p31, c.p32, c.p33, c.p34, c.p35, c.p36, c.p37, c.p38, c.p39, c.p40, c.p41, c.p42, c.p43, c.p44, c.p45, c.p46, c.p47, c.p48, c.p49]
+  c.points = [c.p0, c.p1, c.p2, c.p3, c.p4, c.p5, c.p6, c.p7, c.p8, c.p9, c.p10, c.p11, c.p12, c.p13, c.p14, c.p15, c.p16, c.p17, c.p18, c.p19, c.p20, c.p21, c.p22, c.p23, c.p24, c.p25, c.p26, c.p27, c.p28, c.p29, c.p30, c.p31, c.p32, c.p33, c.p34, c.p35, c.p36, c.p37, c.p38, c.p39, c.p40, c.p41, c.p42, c.p43, c.p44, c.p45, c.p46, c.p47, c.p48, c.p49]
 
-  ensure isEquilateral(points, true)
+  c.points2d = [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31, r32, r33, r34, r35, r36, r37, r38, r39, r40, r41, r42, r43, r44, r45, r46, r47, r48, r49]
+  
+  ensure isEquilateral(c.points, true)
 
-  scalar length = 800
-  -- scalar area = settings.blobbiness * settings.pi * radius * radius
+  ensure perimeter(c.points, true) == settings.curveLength
+  encourage maximal(signedArea(c.points2d, true))
+  encourage elasticEnergy(c.points, true) == 0
 
-  ensure perimeter(points, true) == length
-  encourage maximal(signedArea(c.poly.points, true))
-  encourage elasticEnergy(points, true) == 0
---   ensure totalCurvature(points, true, true) > 8 * 3.14
+  a = 0.4
+  b = -0.002
 
-  shape c.poly = Polygon {
-    points: [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31, r32, r33, r34, r35, r36, r37, r38, r39, r40, r41, r42, r43, r44, r45, r46, r47, r48, r49]
-    strokeWidth: settings.lineThickness
-    strokeColor: #000
-    fillColor: #0000
+  shape c.oline0 = Line{
+	start: (r0[0], r0[1])
+	end: (r1[0], r1[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q0[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
   }
+  shape c.oline1 = Line{
+	start: (r1[0], r1[1])
+	end: (r2[0], r2[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q1[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline2 = Line{
+	start: (r2[0], r2[1])
+	end: (r3[0], r3[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q2[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline3 = Line{
+	start: (r3[0], r3[1])
+	end: (r4[0], r4[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q3[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline4 = Line{
+	start: (r4[0], r4[1])
+	end: (r5[0], r5[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q4[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline5 = Line{
+	start: (r5[0], r5[1])
+	end: (r6[0], r6[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q5[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline6 = Line{
+	start: (r6[0], r6[1])
+	end: (r7[0], r7[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q6[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline7 = Line{
+	start: (r7[0], r7[1])
+	end: (r8[0], r8[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q7[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline8 = Line{
+	start: (r8[0], r8[1])
+	end: (r9[0], r9[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q8[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline9 = Line{
+	start: (r9[0], r9[1])
+	end: (r10[0], r10[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q9[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline10 = Line{
+	start: (r10[0], r10[1])
+	end: (r11[0], r11[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q10[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline11 = Line{
+	start: (r11[0], r11[1])
+	end: (r12[0], r12[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q11[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline12 = Line{
+	start: (r12[0], r12[1])
+	end: (r13[0], r13[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q12[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline13 = Line{
+	start: (r13[0], r13[1])
+	end: (r14[0], r14[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q13[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline14 = Line{
+	start: (r14[0], r14[1])
+	end: (r15[0], r15[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q14[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline15 = Line{
+	start: (r15[0], r15[1])
+	end: (r16[0], r16[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q15[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline16 = Line{
+	start: (r16[0], r16[1])
+	end: (r17[0], r17[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q16[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline17 = Line{
+	start: (r17[0], r17[1])
+	end: (r18[0], r18[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q17[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline18 = Line{
+	start: (r18[0], r18[1])
+	end: (r19[0], r19[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q18[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline19 = Line{
+	start: (r19[0], r19[1])
+	end: (r20[0], r20[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q19[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline20 = Line{
+	start: (r20[0], r20[1])
+	end: (r21[0], r21[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q20[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline21 = Line{
+	start: (r21[0], r21[1])
+	end: (r22[0], r22[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q21[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline22 = Line{
+	start: (r22[0], r22[1])
+	end: (r23[0], r23[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q22[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline23 = Line{
+	start: (r23[0], r23[1])
+	end: (r24[0], r24[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q23[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline24 = Line{
+	start: (r24[0], r24[1])
+	end: (r25[0], r25[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q24[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline25 = Line{
+	start: (r25[0], r25[1])
+	end: (r26[0], r26[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q25[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline26 = Line{
+	start: (r26[0], r26[1])
+	end: (r27[0], r27[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q26[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline27 = Line{
+	start: (r27[0], r27[1])
+	end: (r28[0], r28[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q27[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline28 = Line{
+	start: (r28[0], r28[1])
+	end: (r29[0], r29[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q28[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline29 = Line{
+	start: (r29[0], r29[1])
+	end: (r30[0], r30[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q29[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline30 = Line{
+	start: (r30[0], r30[1])
+	end: (r31[0], r31[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q30[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline31 = Line{
+	start: (r31[0], r31[1])
+	end: (r32[0], r32[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q31[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline32 = Line{
+	start: (r32[0], r32[1])
+	end: (r33[0], r33[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q32[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline33 = Line{
+	start: (r33[0], r33[1])
+	end: (r34[0], r34[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q33[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline34 = Line{
+	start: (r34[0], r34[1])
+	end: (r35[0], r35[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q34[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline35 = Line{
+	start: (r35[0], r35[1])
+	end: (r36[0], r36[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q35[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline36 = Line{
+	start: (r36[0], r36[1])
+	end: (r37[0], r37[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q36[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline37 = Line{
+	start: (r37[0], r37[1])
+	end: (r38[0], r38[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q37[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline38 = Line{
+	start: (r38[0], r38[1])
+	end: (r39[0], r39[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q38[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline39 = Line{
+	start: (r39[0], r39[1])
+	end: (r40[0], r40[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q39[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline40 = Line{
+	start: (r40[0], r40[1])
+	end: (r41[0], r41[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q40[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline41 = Line{
+	start: (r41[0], r41[1])
+	end: (r42[0], r42[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q41[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline42 = Line{
+	start: (r42[0], r42[1])
+	end: (r43[0], r43[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q42[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline43 = Line{
+	start: (r43[0], r43[1])
+	end: (r44[0], r44[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q43[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline44 = Line{
+	start: (r44[0], r44[1])
+	end: (r45[0], r45[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q44[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline45 = Line{
+	start: (r45[0], r45[1])
+	end: (r46[0], r46[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q45[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline46 = Line{
+	start: (r46[0], r46[1])
+	end: (r47[0], r47[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q46[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline47 = Line{
+	start: (r47[0], r47[1])
+	end: (r48[0], r48[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q47[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline48 = Line{
+	start: (r48[0], r48[1])
+	end: (r49[0], r49[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q48[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.oline49 = Line{
+	start: (r49[0], r49[1])
+	end: (r0[0], r0[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * q49[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+
 
 }
 
@@ -413,7 +758,7 @@ forall Curve c where hasShadow(c) {
   vec3 sq48 = ( c.p48[0] * cos(global.θ) + c.p48[2]*sin(global.θ), global.planeHeight, c.p48[2] * cos(global.θ) - c.p48[0] * sin(global.θ) )
   vec3 sq49 = ( c.p49[0] * cos(global.θ) + c.p49[2]*sin(global.θ), global.planeHeight, c.p49[2] * cos(global.θ) - c.p49[0] * sin(global.θ) )
 
-    vec2 sr0 = canvas.width * (sq0[0], sq0[1]) / (sq0[2] - global.cZ)
+  vec2 sr0 = canvas.width * (sq0[0], sq0[1]) / (sq0[2] - global.cZ)
   vec2 sr1 = canvas.width * (sq1[0], sq1[1]) / (sq1[2] - global.cZ)
   vec2 sr2 = canvas.width * (sq2[0], sq2[1]) / (sq2[2] - global.cZ)
   vec2 sr3 = canvas.width * (sq3[0], sq3[1]) / (sq3[2] - global.cZ)
@@ -464,10 +809,364 @@ forall Curve c where hasShadow(c) {
   vec2 sr48 = canvas.width * (sq48[0], sq48[1]) / (sq48[2] - global.cZ)
   vec2 sr49 = canvas.width * (sq49[0], sq49[1]) / (sq49[2] - global.cZ)
 
-  shape c.shadow = Polygon {
-    points: [sr0, sr1, sr2, sr3, sr4, sr5, sr6, sr7, sr8, sr9, sr10, sr11, sr12, sr13, sr14, sr15, sr16, sr17, sr18, sr19, sr20, sr21, sr22, sr23, sr24, sr25, sr26, sr27, sr28, sr29, sr30, sr31, sr32, sr33, sr34, sr35, sr36, sr37, sr38, sr39, sr40, sr41, sr42, sr43, sr44, sr45, sr46, sr47, sr48, sr49]
-    strokeWidth: settings.lineThickness
-    strokeColor: #0000006c
-    fillColor: #0000
+  a = 0.2
+  b = -0.001
+
+  shape c.line0 = Line{
+	start: (sr0[0], sr0[1])
+	end: (sr1[0], sr1[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq0[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
   }
+  shape c.line1 = Line{
+	start: (sr1[0], sr1[1])
+	end: (sr2[0], sr2[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq1[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line2 = Line{
+	start: (sr2[0], sr2[1])
+	end: (sr3[0], sr3[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq2[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line3 = Line{
+	start: (sr3[0], sr3[1])
+	end: (sr4[0], sr4[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq3[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line4 = Line{
+	start: (sr4[0], sr4[1])
+	end: (sr5[0], sr5[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq4[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line5 = Line{
+	start: (sr5[0], sr5[1])
+	end: (sr6[0], sr6[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq5[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line6 = Line{
+	start: (sr6[0], sr6[1])
+	end: (sr7[0], sr7[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq6[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line7 = Line{
+	start: (sr7[0], sr7[1])
+	end: (sr8[0], sr8[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq7[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line8 = Line{
+	start: (sr8[0], sr8[1])
+	end: (sr9[0], sr9[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq8[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line9 = Line{
+	start: (sr9[0], sr9[1])
+	end: (sr10[0], sr10[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq9[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line10 = Line{
+	start: (sr10[0], sr10[1])
+	end: (sr11[0], sr11[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq10[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line11 = Line{
+	start: (sr11[0], sr11[1])
+	end: (sr12[0], sr12[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq11[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line12 = Line{
+	start: (sr12[0], sr12[1])
+	end: (sr13[0], sr13[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq12[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line13 = Line{
+	start: (sr13[0], sr13[1])
+	end: (sr14[0], sr14[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq13[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line14 = Line{
+	start: (sr14[0], sr14[1])
+	end: (sr15[0], sr15[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq14[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line15 = Line{
+	start: (sr15[0], sr15[1])
+	end: (sr16[0], sr16[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq15[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line16 = Line{
+	start: (sr16[0], sr16[1])
+	end: (sr17[0], sr17[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq16[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line17 = Line{
+	start: (sr17[0], sr17[1])
+	end: (sr18[0], sr18[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq17[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line18 = Line{
+	start: (sr18[0], sr18[1])
+	end: (sr19[0], sr19[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq18[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line19 = Line{
+	start: (sr19[0], sr19[1])
+	end: (sr20[0], sr20[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq19[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line20 = Line{
+	start: (sr20[0], sr20[1])
+	end: (sr21[0], sr21[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq20[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line21 = Line{
+	start: (sr21[0], sr21[1])
+	end: (sr22[0], sr22[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq21[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line22 = Line{
+	start: (sr22[0], sr22[1])
+	end: (sr23[0], sr23[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq22[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line23 = Line{
+	start: (sr23[0], sr23[1])
+	end: (sr24[0], sr24[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq23[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line24 = Line{
+	start: (sr24[0], sr24[1])
+	end: (sr25[0], sr25[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq24[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line25 = Line{
+	start: (sr25[0], sr25[1])
+	end: (sr26[0], sr26[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq25[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line26 = Line{
+	start: (sr26[0], sr26[1])
+	end: (sr27[0], sr27[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq26[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line27 = Line{
+	start: (sr27[0], sr27[1])
+	end: (sr28[0], sr28[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq27[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line28 = Line{
+	start: (sr28[0], sr28[1])
+	end: (sr29[0], sr29[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq28[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line29 = Line{
+	start: (sr29[0], sr29[1])
+	end: (sr30[0], sr30[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq29[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line30 = Line{
+	start: (sr30[0], sr30[1])
+	end: (sr31[0], sr31[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq30[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line31 = Line{
+	start: (sr31[0], sr31[1])
+	end: (sr32[0], sr32[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq31[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line32 = Line{
+	start: (sr32[0], sr32[1])
+	end: (sr33[0], sr33[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq32[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line33 = Line{
+	start: (sr33[0], sr33[1])
+	end: (sr34[0], sr34[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq33[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line34 = Line{
+	start: (sr34[0], sr34[1])
+	end: (sr35[0], sr35[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq34[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line35 = Line{
+	start: (sr35[0], sr35[1])
+	end: (sr36[0], sr36[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq35[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line36 = Line{
+	start: (sr36[0], sr36[1])
+	end: (sr37[0], sr37[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq36[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line37 = Line{
+	start: (sr37[0], sr37[1])
+	end: (sr38[0], sr38[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq37[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line38 = Line{
+	start: (sr38[0], sr38[1])
+	end: (sr39[0], sr39[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq38[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line39 = Line{
+	start: (sr39[0], sr39[1])
+	end: (sr40[0], sr40[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq39[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line40 = Line{
+	start: (sr40[0], sr40[1])
+	end: (sr41[0], sr41[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq40[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line41 = Line{
+	start: (sr41[0], sr41[1])
+	end: (sr42[0], sr42[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq41[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line42 = Line{
+	start: (sr42[0], sr42[1])
+	end: (sr43[0], sr43[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq42[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line43 = Line{
+	start: (sr43[0], sr43[1])
+	end: (sr44[0], sr44[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq43[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line44 = Line{
+	start: (sr44[0], sr44[1])
+	end: (sr45[0], sr45[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq44[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line45 = Line{
+	start: (sr45[0], sr45[1])
+	end: (sr46[0], sr46[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq45[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line46 = Line{
+	start: (sr46[0], sr46[1])
+	end: (sr47[0], sr47[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq46[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line47 = Line{
+	start: (sr47[0], sr47[1])
+	end: (sr48[0], sr48[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq47[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line48 = Line{
+	start: (sr48[0], sr48[1])
+	end: (sr49[0], sr49[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq48[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+  shape c.line49 = Line{
+	start: (sr49[0], sr49[1])
+	end: (sr0[0], sr0[1])
+	strokeColor: rgba(0, 0, 0, min(1.0, max(0.0, a + b * sq49[2])))
+	strokeWidth: settings.lineThickness
+	ensureOnCanvas: false
+  }
+
+}
+
+forall Curve c1; Curve c2 {
+  cm1 = centerOfMass(c1.points2d)
+  cm2 = centerOfMass(c2.points2d)
+  encourage 200 < vdist(cm1, cm2)
 }
