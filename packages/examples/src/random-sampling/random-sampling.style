@@ -1,3 +1,7 @@
+----------------------------------------
+-- Global parameters -------------------
+----------------------------------------
+
 canvas {
    width: 240
    height: 200
@@ -13,6 +17,10 @@ global {
    scalar overlapPadding = 5.0
 }
 
+----------------------------------------
+-- Rules for drawing shapes ------------
+----------------------------------------
+
 forall Point p {
    -- location
    vec2 p.x = (?,?)
@@ -25,70 +33,71 @@ forall Point p {
    }
 }
 
-forall Segment s {
+forall Interval I {
    -- location of endpoints
-   vec2 s.x0 = (?,?)
-   vec2 s.x1 = (?,?)
+   scalar h = ?
+   vec2 I.x0 = (?,h)
+   vec2 I.x1 = (?,h)
 
-   -- draw as a line segment
-   shape s.icon = Line {
-      start: s.x0
-      end: s.x1
+   -- draw as a horizontal line segment
+   shape I.icon = Line {
+      start: I.x0
+      end: I.x1
       strokeWidth: global.lineWidth
       strokeColor: colors.black
    }
 }
 
-forall Circle c {
+forall Circle C {
    -- center and radius
-   vec2 c.center = (?,?)
-   scalar c.r = ?
+   vec2 C.center = (?,?)
+   scalar C.r = ?
 
    -- draw as an empty circle
-   shape c.icon = Circle {
-      center: c.center
-      r: c.r
+   shape C.icon = Circle {
+      center: C.center
+      r: C.r
       fillColor: none()
       strokeWidth: global.lineWidth
       strokeColor: colors.black
    }
 }
 
-forall Disk d {
+forall Disk D {
    -- center and radius
-   vec2 d.center = (?,?)
-   scalar d.r = ?
+   vec2 D.center = (?,?)
+   scalar D.r = ?
 
    -- draw as a filled circle
-   shape d.icon = Circle {
-      center: d.center
-      r: d.r
+   shape D.icon = Circle {
+      center: D.center
+      r: D.r
       fillColor: colors.blue
    }
 }
 
-forall Triangle t {
+forall Triangle T {
    -- vertices
-   vec2 t.p0 = (?,?)
-   vec2 t.p1 = (?,?)
-   vec2 t.p2 = (?,?)
+   vec2 T.p0 = (?,?)
+   vec2 T.p1 = (?,?)
+   vec2 T.p2 = (?,?)
 
    -- draw as a filled polygon
-   shape d.icon = Polygon {
-      points: [t.p0, t.p1, t.p2]
+   shape T.icon = Polygon {
+      points: [T.p0, T.p1, T.p2]
       fillColor: colors.blue
    }
 }
 
-forall Sphere s {
+forall Sphere S {
    -- center and radius
    vec2 center = (?,?)
    scalar r = ?
 
    -- draw as a filled and outlined circle
-   shape s.icon = Circle {
-      center: s.center
-      r: s.r
+   shape S.icon = Circle {
+      center: S.center
+      r: S.r
       fillColor: colors.blue
       strokeWidth: global.lineWidth
       strokeColor: colors.black
@@ -96,27 +105,61 @@ forall Sphere s {
 
    -- draw an equator
    shape equator = Path {
-      points: arcTo( [s.r,s.r/4], [-1,0], [0,0,0] )
+      points: arcTo( [S.r,S.r/4], [-1,0], [0,0,0] )
       strokeWidth: global.lineWidth/2
       strokeColor: colors.blue
    }
 
    -- draw a shadow
    shape shadow = Ellipse {
-      center: s.center - (0,1.5*s.r)
-      rx: s.r
-      ry: s.r/3
+      center: S.center - (0,1.5*S.r)
+      rx: S.r
+      ry: S.r/3
       fillColor: rgba(0,0,0,.1)
    }
 }
 
 -- draw points above shapes
-forall Point p; Shape s {
-   layer p.icon above s.icon
+forall Point p; Shape S {
+   layer S.icon above S.icon
 }
 
 -- ensure that no two shapes overlap
-forall Shape s1; Shape s2 {
-   ensure disjoint( s1.icon, s2.icon, global.overlapPadding )
+forall Shape S1; Shape S2 {
+   ensure disjoint( S1.icon, S2.icon, global.overlapPadding )
+}
+
+----------------------------------------
+-- Rules for sampling shapes -----------
+----------------------------------------
+
+forall Point p; Interval I
+where p := sampleInterval( I ) {
+   scalar t = unitRandom()
+   override p.x = (1-t)*I.x0 + t*I.x1
+}
+
+forall Point p; Circle C
+where p := sampleCircle( C ) {
+   vec2 y = sampleCircle()
+   override p.x = C.r*y + C.center
+}
+
+forall Point p; Disk D
+where p := sampleDisk( D ) {
+   vec2 y = sampleDisk()
+   override p.x = D.r*y + D.center
+}
+
+forall Point p; Triangle T
+where p := sampleTriangle( T ) {
+   vec2 y = sampleTriangle()
+   override p.x = y
+}
+
+forall Point p; Sphere S
+where p := sampleSphere( S ) {
+   vec2 y = sampleSphere()
+   override p.x = S.r*y + S.center
 }
 
