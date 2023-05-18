@@ -28,9 +28,9 @@ forall Manifold m {
   scalar length = 2 * settings.pi * radius
   scalar area = settings.blobbiness * settings.pi * radius * radius
 
-  ensure equal(perimeter(m.poly.points, true), length) in manifolds
-  ensure equal(signedArea(m.poly.points, true), area) in manifolds
-  encourage equal(elasticEnergy(m.poly.points, true), 0) in manifolds
+  ensure perimeter(m.poly.points, true) == length in manifolds
+  ensure signedArea(m.poly.points, true) == area in manifolds
+  encourage elasticEnergy(m.poly.points, true) == 0 in manifolds
 
   vec2 p0 = (? in manifolds, ? in manifolds)
   vec2 p1 = (? in manifolds, ? in manifolds)
@@ -513,27 +513,27 @@ forall Manifold a; Manifold b; Map m where m := MakeMap(a, b) {
   }
 
   pa = closestPoint(a.poly, p0)
-  ensure equal(vdist(pa, p0), 15) in maps
+  ensure vdist(pa, p0) == 15 in maps
 
   pb = closestPoint(b.poly, p49)
-  ensure equal(vdist(pb, p49), 15) in maps
+  ensure vdist(pb, p49) == 15 in maps
   ensure isEquilateral(m.poly.points, false)
 
-  ensure equal(elasticEnergy(m.poly.points, false), 0) in maps
-  ensure equal(perimeter(m.poly.points, false), 5) in manifolds
+  ensure elasticEnergy(m.poly.points, false) == 0 in maps
+  ensure perimeter(m.poly.points, false) == 5 in manifolds
 
-  ensure equal(vdist(pa, p0) + vdist(p0, p1), vdist(pa, p1))
-  ensure equal(vdist(pb, p49) + vdist(p48, p49), vdist(pb, p48))
+  ensure vdist(pa, p0) + vdist(p0, p1) == vdist(pa, p1)
+  ensure vdist(pb, p49) + vdist(p48, p49) == vdist(pb, p48)
 
   shape m.eq = Equation {
     string: m.label
     fontSize: settings.fontSize
   }
 
-  ensure equal(vdist(m.eq.center, p24), 20) in maps
+  ensure vdist(m.eq.center, p24) == 20 in maps
 
   ca = centerOfMass(a.poly.points)
   cb = centerOfMass(b.poly.points)
-  ensure equal(vdist(m.eq.center, ca), vdist(m.eq.center, cb)) in maps
+  ensure vdist(m.eq.center, ca) == vdist(m.eq.center, cb) in maps
 
 }
