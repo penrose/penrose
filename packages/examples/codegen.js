@@ -4,6 +4,8 @@ import * as path from "path";
 const src = "src";
 const dst = "ts";
 
+const svgs = [];
+
 const codegen = (dir) => {
   const srcDir = path.join(src, dir);
   const dstDir = path.join(dst, dir);
@@ -47,15 +49,6 @@ const codegen = (dir) => {
               "",
             ].join("\n")
           );
-        } else if (
-          ext === ".domain" ||
-          ext === ".substance" ||
-          ext === ".svg"
-        ) {
-          fs.writeFileSync(
-            `${dstDirChild}.ts`,
-            `export default ${JSON.stringify(contents)};`
-          );
         } else if (ext === ".style") {
           fs.writeFileSync(
             `${dstDirChild}.ts`,
@@ -68,6 +61,17 @@ const codegen = (dir) => {
               `export default ${JSON.stringify(contents)};`,
               "",
             ].join("\n")
+          );
+        } else if (ext === ".domain" || ext === ".substance") {
+          fs.writeFileSync(
+            `${dstDirChild}.ts`,
+            `export default ${JSON.stringify(contents)};`
+          );
+        } else if (ext === ".svg") {
+          svgs.push(dirChild);
+          fs.writeFileSync(
+            `${dstDirChild}.ts`,
+            `export default ${JSON.stringify(contents)};`
           );
         }
       }
@@ -103,7 +107,18 @@ fs.writeFileSync(`${dst}/registry.ts`, lines.join("\n"));
 fs.writeFileSync(
   `${dst}/resolver.ts`,
   [
-    "export const makeResolver = (dir: string) => async (path: string) => undefined;",
+    'import { PathResolver, join } from ".";',
+    "",
+    "export const makeResolver = (dir: string): PathResolver => async (path: string): Promise<string | undefined> => {",
+    "  switch (join(dir, path)) {",
+    ...svgs.flatMap((svg) => [
+      `    case ${JSON.stringify(svg)}:`,
+      `      return (await import(${JSON.stringify(`./${svg}.js`)})).default;`,
+    ]),
+    "    default:",
+    "      return undefined;",
+    "  }",
+    "};",
     "",
   ].join("\n")
 );

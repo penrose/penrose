@@ -83,11 +83,7 @@ export const pathResolver = async (
   // Handle relative paths
   switch (location.kind) {
     case "example": {
-      return fetchResource(
-        relativePath,
-        workspace,
-        new URL(relativePath, location.root).href
-      );
+      return location.resolver(relativePath);
     }
     case "roger": {
       if (rogerState.kind === "connected") {

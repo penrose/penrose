@@ -237,7 +237,8 @@ export const useLoadExampleWorkspace = () =>
     const { domain, style, substance, variation } = await meta.get();
     toast.dismiss(id);
     const styleJoined = style.map(({ contents }) => contents).join("\n");
-    const styleParentURI = ""; // TODO
+    // HACK: we should really each Style's individual `resolver`
+    const { resolver } = style[0];
     set(currentWorkspaceState, {
       metadata: {
         id: uuid(),
@@ -246,7 +247,7 @@ export const useLoadExampleWorkspace = () =>
         editorVersion: EDITOR_VERSION,
         location: {
           kind: "example",
-          root: styleParentURI,
+          resolver,
         },
         forkedFromGist: null,
       },
@@ -340,47 +341,8 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
-    } else if ("example_trio" in parsed) {
-      const root = `https://raw.githubusercontent.com/${parsed["example_trio"]}`;
-      const trioRes = await fetch(`${root}/trio.json`);
-      const trioJson = await trioRes.json();
-      const id = toast.loading("Loading example...");
-      const domainReq = await fetch(`${root}/${trioJson.domain}`);
-      const styleReq = await fetch(`${root}/${trioJson.style}`);
-      const substanceReq = await fetch(`${root}/${trioJson.substance}`);
-      toast.dismiss(id);
-      const domain = await domainReq.text();
-      const style = await styleReq.text();
-      const substance = await substanceReq.text();
-      const workspace: Workspace = {
-        metadata: {
-          id: uuid(),
-          name: trioJson.name,
-          editorVersion: EDITOR_VERSION,
-          lastModified: new Date().toISOString(),
-          location: {
-            kind: "example",
-            root,
-          },
-          forkedFromGist: null,
-        },
-        files: {
-          domain: {
-            contents: domain,
-            name: trioJson.domain,
-          },
-          style: {
-            contents: style,
-            name: trioJson.style,
-          },
-          substance: {
-            contents: substance,
-            name: trioJson.substance,
-          },
-        },
-      };
-      set(currentWorkspaceState, workspace);
     }
+    // TODO: implementing loading individual registry examples by URL
   });
 
 export const usePublishGist = () =>

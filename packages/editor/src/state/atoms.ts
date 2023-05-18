@@ -5,7 +5,7 @@ import {
   PenroseState,
   PenroseWarning,
 } from "@penrose/core";
-import { Trio } from "@penrose/examples/dist";
+import { PathResolver, Trio } from "@penrose/examples/dist";
 import { registry } from "@penrose/examples/dist/registry";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
@@ -44,7 +44,7 @@ export type WorkspaceLocation =
   | GistLocation
   | {
       kind: "example";
-      root: string; // URL to the parent folder of the Style file
+      resolver: PathResolver;
     }
   | {
       kind: "roger";
