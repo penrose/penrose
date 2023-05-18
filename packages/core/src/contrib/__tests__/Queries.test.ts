@@ -21,7 +21,6 @@ import {
   shapeCenter,
   shapeDistancePolys,
   shapeDistanceRects,
-  shapeSize,
 } from "../Queries";
 import { numOf, numsOf } from "../Utils";
 import { _rectangles } from "../__testfixtures__/TestShapes.input";
@@ -99,12 +98,6 @@ describe("simple queries", () => {
     const [x, y] = numsOf([center[0], center[1]]);
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
-  });
-
-  it.each(shapes)("shapeSize for %p", (shape: Shape<ad.Num>) => {
-    const size = shapeSize(shape);
-    const sizeNum = numOf(size);
-    expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
 

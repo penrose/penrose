@@ -18,7 +18,7 @@ import {
   xor,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
-import { Shape, computeShapeBbox } from "../shapes/Shapes";
+import { computeShapeBbox, Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { msign } from "./Functions";
 import {
@@ -53,20 +53,6 @@ export const shapeCenter = (s: Shape<ad.Num>): ad.Pt2 => {
     // Return center of bounding box
     const bbox = bboxFromShape(s);
     return bbox.center;
-  }
-};
-
-/**
- * Return size of the shape `shape`.
- * - `radius` for circles.
- * - `sqrt( w * h )`, where `w` and `h` are the width and height of the bounding box, for all other shapes.
- */
-export const shapeSize = (s: Shape<ad.Num>): ad.Num => {
-  if (s.shapeType === "Circle") {
-    return mul(2, s.r.contents);
-  } else {
-    const bbox = bboxFromShape(s);
-    return sqrt(mul(bbox.width, bbox.height));
   }
 };
 

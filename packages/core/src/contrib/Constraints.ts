@@ -36,7 +36,6 @@ import {
   bboxPts,
   polygonLikePoints,
   shapeDistance,
-  shapeSize,
 } from "./Queries";
 import * as utils from "./Utils";
 import { isRectlike, overlap1D, toPt } from "./Utils";
@@ -172,20 +171,6 @@ export const onCanvas = (
     contains1D(canvasXRange, BBox.xRange(box)),
     contains1D(canvasYRange, BBox.yRange(box))
   );
-};
-
-/**
- * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
- */
-export const minSize = (shape: Shape<ad.Num>, limit = 50): ad.Num => {
-  return sub(limit, shapeSize(shape));
-};
-
-/**
- * Require that a shape have a size less than some constant maximum, based on the type of the shape.
- */
-export const maxSize = (shape: Shape<ad.Num>, limit: ad.Num): ad.Num => {
-  return sub(shapeSize(shape), limit);
 };
 
 export const overlapping = (
@@ -413,7 +398,6 @@ export const containsCircleRect = (
   return constrDict.containsCircles.body(c, r, [rectc[0], rectc[1]], rectr, 0);
 };
 
-//#region Individual constriants (Leo)
 export const containsRectCircle = (
   rect: ad.Pt2[],
   c: ad.Pt2,
@@ -476,21 +460,6 @@ export const atDist = (
 ): ad.Num => {
   if (isRectlike(s2)) return atDistLabel(s1, s2, distance);
   else return touching(s1, s2, distance);
-};
-
-/**
- * Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.
- */
-export const smallerThan = (
-  s1: Shape<ad.Num>,
-  s2: Shape<ad.Num>,
-  relativePadding = 0.4
-): ad.Num => {
-  // s1 is smaller than s2
-  const size1 = shapeSize(s1);
-  const size2 = shapeSize(s2);
-  const padding = mul(relativePadding, size2);
-  return sub(sub(size1, size2), padding);
 };
 
 /**
@@ -659,35 +628,6 @@ const constrDictGeneral = {
       { name: "canvasHeight", description: "Height of canvas", type: realT() },
     ],
     body: onCanvas,
-  },
-
-  minSize: {
-    name: "minSize",
-    description:
-      "Require that a shape have a size greater than some constant minimum, based on the type of the shape.",
-
-    params: [
-      { name: "shape", description: "Shape", type: shapeT("AnyShape") },
-      {
-        name: "limit",
-        description: "Minimum size",
-        type: realT(),
-        default: 50,
-      },
-    ],
-    body: minSize,
-  },
-
-  maxSize: {
-    name: "maxSize",
-    description:
-      "Require that a shape have a size less than some constant maximum, based on the type of the shape.",
-
-    params: [
-      { name: "shape", description: "Shape", type: shapeT("AnyShape") },
-      { name: "limit", description: "Maximum size", type: realT() },
-    ],
-    body: maxSize,
   },
 
   /**
@@ -985,24 +925,6 @@ const constrDictGeneral = {
       { name: "distance", description: "Distance", type: realT() },
     ],
     body: atDist,
-  },
-
-  smallerThan: {
-    name: "smallerThan",
-    description:
-      "Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.",
-
-    params: [
-      { name: "s1", description: "Shape 1", type: shapeT("AnyShape") },
-      { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
-      {
-        name: "relativePadding",
-        description: "Relative padding",
-        type: realT(),
-        default: 0.4,
-      },
-    ],
-    body: smallerThan,
   },
 };
 
