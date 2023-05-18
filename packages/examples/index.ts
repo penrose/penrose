@@ -1,3 +1,3 @@
-import registry from "./src/registry.json.js";
+import registry from "./src/registry.json";
 
 export { registry };

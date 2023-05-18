@@ -24,7 +24,7 @@ import { extname, join, parse, resolve } from "path";
 import prettier from "prettier";
 import uniqid from "uniqid";
 import { printTextChart } from "./artifacts.js";
-import { version } from "./package.json.js";
+import { version } from "./package.json";
 import { AggregateData, InstanceData } from "./types.js";
 import watch from "./watch.js";
 
