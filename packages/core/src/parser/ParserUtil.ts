@@ -32,7 +32,8 @@ export const basicSymbols: moo.Rules = {
     match: /"(?:[^\n"]|\\["\\ntbfr])*"/,
     value: (s: string): string => s.slice(1, -1),
   },
-  float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
+  float_literal:
+    /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
   comment: /--.*?$/,
   multiline_comment: {
     match: /\/\*(?:[\s\S]*?)\*\//,

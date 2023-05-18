@@ -7,7 +7,7 @@ import {
   toSvgOpacityProperty,
   toSvgPaintProperty,
 } from "../utils/Util.js";
-import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper.js";
+import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
 import { RenderProps } from "./Renderer.js";
 
 export const arrowHead = (
@@ -128,10 +128,8 @@ const RenderLine = (
 ): SVGGElement => {
   const startArrowhead = getArrowhead(shape.startArrowhead.contents);
   const endArrowhead = getArrowhead(shape.endArrowhead.contents);
-  const [
-    [[arrowSX, arrowSY], [arrowEX, arrowEY]],
-    attrToNotAutoMap,
-  ] = makeRoomForArrows(shape, startArrowhead, endArrowhead);
+  const [[[arrowSX, arrowSY], [arrowEX, arrowEY]], attrToNotAutoMap] =
+    makeRoomForArrows(shape, startArrowhead, endArrowhead);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
 

@@ -22,12 +22,12 @@ import { Ellipse } from "../shapes/Ellipse.js";
 import * as ad from "../types/ad.js";
 import { safe } from "../utils/Util.js";
 import {
+  ImplicitEllipse,
+  ImplicitHalfPlane,
   ellipsePolynomial,
   ellipseToImplicit,
   halfPlaneToImplicit,
-  ImplicitEllipse,
   implicitEllipseFunc,
-  ImplicitHalfPlane,
   implicitHalfPlaneFunc,
   implicitIntersectionOfEllipsesFunc,
 } from "./ImplicitShapes.js";

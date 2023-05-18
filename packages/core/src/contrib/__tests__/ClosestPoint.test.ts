@@ -2,14 +2,14 @@ import { describe, expect, test } from "vitest";
 import { Circle, makeCircle } from "../../shapes/Circle.js";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
 import { Line, makeLine } from "../../shapes/Line.js";
-import { makePolygon, Polygon } from "../../shapes/Polygon.js";
-import { makePolyline, Polyline } from "../../shapes/Polyline.js";
+import { Polygon, makePolygon } from "../../shapes/Polygon.js";
+import { Polyline, makePolyline } from "../../shapes/Polyline.js";
 import { makeRectangle } from "../../shapes/Rectangle.js";
 import { Context, makeCanvas, simpleContext } from "../../shapes/Samplers.js";
 import * as ad from "../../types/ad.js";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
 import { compDict } from "../Functions.js";
-import { numOf, Rectlike } from "../Utils.js";
+import { Rectlike, numOf } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 

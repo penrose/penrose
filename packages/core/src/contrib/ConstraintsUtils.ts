@@ -29,11 +29,11 @@ import {
 } from "./Minkowski.js";
 import { bboxFromShape, shapeCenter } from "./Queries.js";
 import {
+  Rectlike,
   atDistOutside,
   isLinelike,
   noIntersectCircles,
   pointInBox,
-  Rectlike,
 } from "./Utils.js";
 
 // -------- Ovelapping helpers

@@ -7,7 +7,7 @@ import {
   toSvgOpacityProperty,
   toSvgPaintProperty,
 } from "../utils/Util.js";
-import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper.js";
+import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
 import { arrowHead } from "./Line.js";
 import { RenderProps } from "./Renderer.js";
 

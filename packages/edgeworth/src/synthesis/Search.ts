@@ -29,20 +29,20 @@ import {
 } from "../analysis/SubstanceAnalysis.js";
 import {
   Add,
-  addMutation,
   Delete,
+  Mutation,
+  MutationGroup,
+  addMutation,
   deleteMutation,
   enumerateProgMutations,
   enumerateStmtMutations,
   executeMutation,
-  Mutation,
-  MutationGroup,
 } from "./Mutation.js";
 import {
-  filterContext,
-  initContext,
   SynthesisContext,
   WithContext,
+  filterContext,
+  initContext,
 } from "./Synthesizer.js";
 
 //#region Fine-grained diffs
@@ -575,10 +575,8 @@ export const enumerateMutationPaths = (
             cxt
           );
           // execute all mutations and get resulting programs
-          const resultProgs: WithContext<
-            SubProg<A>
-          >[] = possibleMutations.map((m) =>
-            executeMutation(m, progToGrow, cxt)
+          const resultProgs: WithContext<SubProg<A>>[] = possibleMutations.map(
+            (m) => executeMutation(m, progToGrow, cxt)
           );
           // pack the resulting programs with their updated mutation path
           return _.zipWith(

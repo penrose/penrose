@@ -4,7 +4,7 @@ import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff.js";
 import { Circle, makeCircle } from "../../shapes/Circle.js";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
 import { Line, makeLine } from "../../shapes/Line.js";
-import { makePolygon, Polygon } from "../../shapes/Polygon.js";
+import { Polygon, makePolygon } from "../../shapes/Polygon.js";
 import { Polyline } from "../../shapes/Polyline.js";
 import { makeRectangle } from "../../shapes/Rectangle.js";
 import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers.js";

@@ -23,10 +23,10 @@ import {
 } from "../types/styleSemantics.js";
 import { SubstanceEnv } from "../types/substance.js";
 import { ColorV, RGBA } from "../types/value.js";
-import { andThen, err, Result, showError } from "../utils/Error.js";
+import { Result, andThen, err, showError } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import { GroupGraph } from "../utils/GroupGraph.js";
-import { foldM, toLeft, ToRight, zip2 } from "../utils/Util.js";
+import { ToRight, foldM, toLeft, zip2 } from "../utils/Util.js";
 import { compileDomain } from "./Domain.js";
 import * as S from "./Style.js";
 import { compileSubstance } from "./Substance.js";

@@ -11,7 +11,7 @@ import { Decl, SubStmt } from "@penrose/core/dist/types/substance";
 import { describe, expect, test } from "vitest";
 import { cascadingDelete } from "../analysis/SubstanceAnalysis.js";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation.js";
-import { initContext, Synthesizer, SynthesizerSetting } from "./Synthesizer.js";
+import { Synthesizer, SynthesizerSetting, initContext } from "./Synthesizer.js";
 
 const defaultSetting: SynthesizerSetting = {
   mutationCount: [1, 1],

@@ -16,11 +16,11 @@ import { Fn, LabelCache, State } from "./types/state.js";
 import { SubstanceEnv } from "./types/substance.js";
 import { collectLabels, insertPending } from "./utils/CollectLabels.js";
 import {
+  Result,
   andThen,
   err,
   nanError,
   ok,
-  Result,
   showError,
 } from "./utils/Error.js";
 import { safe } from "./utils/Util.js";

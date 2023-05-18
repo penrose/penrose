@@ -22,15 +22,15 @@ import {
   showMutations,
 } from "./Mutation.js";
 import {
-  applyStmtDiffs,
   DiffSet,
+  StmtDiff,
+  applyStmtDiffs,
   diffSubProgs,
   diffSubStmts,
   enumerateMutationPaths,
   findMutationPaths,
   showStmtDiff,
   showSubDiff,
-  StmtDiff,
   subProgDiffs,
   swapDiffID,
 } from "./Search.js";

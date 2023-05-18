@@ -33,10 +33,10 @@ import { constrDictCurves } from "./CurveConstraints.js";
 import { inDirection } from "./ObjectivesUtils.js";
 import { bboxFromShape, shapeCenter } from "./Queries.js";
 import {
-  closestPt_PtSeg,
-  isLinelike,
   Linelike,
   Rectlike,
+  closestPt_PtSeg,
+  isLinelike,
   repelPoint,
   sampleSeg,
 } from "./Utils.js";

@@ -12,8 +12,8 @@ import { Arg, TypeConstructor, TypeVar } from "./domain.js";
 import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions.js";
 import { State } from "./state.js";
 import {
-  BindingForm,
   BinOp,
+  BindingForm,
   ColorLit,
   Expr,
   GPIDecl,

@@ -12,7 +12,7 @@ import * as ad from "../types/ad.js";
 import { PenroseError } from "../types/errors.js";
 import { EquationData, LabelCache, State, TextData } from "../types/state.js";
 import { FloatV } from "../types/value.js";
-import { err, ok, Result } from "./Error.js";
+import { Result, err, ok } from "./Error.js";
 import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg

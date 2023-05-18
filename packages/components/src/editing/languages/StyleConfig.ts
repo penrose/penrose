@@ -7,7 +7,7 @@ import {
   rgbaToHex,
   shapeTypes,
 } from "@penrose/core";
-import { editor, IRange, languages } from "monaco-editor";
+import { IRange, editor, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common.js";
 
 export const StyleConfig: languages.LanguageConfiguration = {

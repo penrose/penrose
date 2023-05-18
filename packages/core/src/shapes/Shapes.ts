@@ -12,7 +12,7 @@ import { Polygon, PolygonProps, samplePolygon } from "./Polygon.js";
 import { Polyline, PolylineProps, samplePolyline } from "./Polyline.js";
 import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle.js";
 import { Canvas, Context } from "./Samplers.js";
-import { sampleText, Text, TextProps } from "./Text.js";
+import { Text, TextProps, sampleText } from "./Text.js";
 //#region other shape types/globals
 
 export type Shape<T> =

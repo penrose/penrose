@@ -13,10 +13,10 @@ import {
 import consola from "consola";
 import _ from "lodash";
 import {
-  appendStmt,
   ArgExpr,
-  argMatches,
   ArgStmtDecl,
+  appendStmt,
+  argMatches,
   cascadingDelete,
   identicalTypeDecls,
   matchSignatures,
@@ -25,11 +25,11 @@ import {
   stmtExists,
 } from "../analysis/SubstanceAnalysis.js";
 import {
+  SynthesisContext,
+  WithContext,
   addID,
   generateArgStmt,
   removeID,
-  SynthesisContext,
-  WithContext,
 } from "./Synthesizer.js";
 
 const log = consola
@@ -763,11 +763,11 @@ export const enumChangeExprType = (
     ) {
       const options = argMatches(stmt, cxt.env);
       return options.map((decl: ArgStmtDecl<A>) => {
-        const { res, stmts, ctx: newCtx } = generateArgStmt(
-          decl,
-          cxt,
-          expr.args
-        );
+        const {
+          res,
+          stmts,
+          ctx: newCtx,
+        } = generateArgStmt(decl, cxt, expr.args);
         let toDelete: SubStmt<A>[];
         // remove old statement
         if (res.tag === "Bind" && res.variable.type !== stmt.variable.type) {
