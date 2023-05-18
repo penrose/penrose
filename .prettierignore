@@ -1,4 +1,9 @@
+*.domain.ts
 *.hbs
+*.style.ts
+*.substance.ts
+*.svg.ts
+*.trio.ts
 /diagrams/
 /packages/browser-ui/tsconfig.json
 /packages/components/storybook-static/
@@ -12,7 +17,8 @@
 /packages/docs-site/build/
 /packages/docs-site/public/try/
 /packages/docs-site/src/shapedefs.json
-/packages/examples/ts/
+/packages/examples/src/registry.ts
+/packages/examples/src/resolver.ts
 /packages/optimizer/bindings/
 /packages/optimizer/build/
 /packages/optimizer/index.js

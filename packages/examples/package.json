@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "build-decls": ":",
-    "codegen": "node codegen.js",
+    "codegen": "git clean -dfqx src && node codegen.js",
     "typecheck": ":"
   },
   "nx": {

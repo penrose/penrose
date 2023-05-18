@@ -1,1 +1,7 @@
-/ts/
+*.domain.ts
+*.style.ts
+*.substance.ts
+*.svg.ts
+*.trio.ts
+/src/registry.ts
+/src/resolver.ts

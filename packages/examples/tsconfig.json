@@ -4,9 +4,7 @@
     "declaration": true,
     "declarationMap": true,
     "outDir": "dist",
-    "rootDir": "ts",
+    "rootDir": "src",
     "sourceMap": true
-  },
-  "include": ["ts"],
-  "exclude": ["src"]
+  }
 }

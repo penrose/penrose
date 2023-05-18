@@ -2,84 +2,74 @@ import * as fs from "fs";
 import * as path from "path";
 
 const src = "src";
-const dst = "ts";
+const trioSuffix = ".trio.json";
 
 const svgs = [];
 
 const codegen = (dir) => {
   const srcDir = path.join(src, dir);
-  const dstDir = path.join(dst, dir);
-  fs.mkdirSync(dstDir);
-
   for (const child of fs.readdirSync(srcDir)) {
     const dirChild = path.join(dir, child);
     const srcDirChild = path.join(src, dirChild);
     if (fs.statSync(srcDirChild).isDirectory()) {
       codegen(dirChild);
     } else {
-      const dstDirChild = path.join(dst, dirChild);
       const ext = path.extname(child);
-      if (ext === ".ts") {
-        fs.copyFileSync(srcDirChild, dstDirChild);
-      } else {
-        const contents = fs.readFileSync(srcDirChild, "utf8");
-        const trioSuffix = ".trio.json";
-        if (child.endsWith(trioSuffix) && child !== trioSuffix) {
-          const trio = JSON.parse(contents);
-          fs.writeFileSync(
-            `${path.join(dstDir, path.basename(child, ".json"))}.ts`,
-            [
-              `import substance from "${trio.substance}";`,
-              ...trio.style.map(
-                (style, i) =>
-                  `import style${i}, { resolver as resolver${i} } from "${style}";`
-              ),
-              `import domain from "${trio.domain}";`,
-              "export default {",
-              "  substance,",
-              "  style: [",
-              ...trio.style.map(
-                (style, i) =>
-                  `    { contents: style${i}, resolver: resolver${i} },`
-              ),
-              "  ],",
-              "  domain,",
-              `  variation: ${JSON.stringify(trio.variation)}`,
-              "};",
-              "",
-            ].join("\n")
-          );
-        } else if (ext === ".style") {
-          fs.writeFileSync(
-            `${dstDirChild}.ts`,
-            [
-              `import { makeResolver } from "${dir
-                .split(path.sep)
-                .map(() => "..")
-                .join("/")}/resolver";`,
-              `export const resolver = makeResolver(${JSON.stringify(dir)});`,
-              `export default ${JSON.stringify(contents)};`,
-              "",
-            ].join("\n")
-          );
-        } else if (ext === ".domain" || ext === ".substance") {
-          fs.writeFileSync(
-            `${dstDirChild}.ts`,
-            `export default ${JSON.stringify(contents)};`
-          );
-        } else if (ext === ".svg") {
-          svgs.push(dirChild);
-          fs.writeFileSync(
-            `${dstDirChild}.ts`,
-            `export default ${JSON.stringify(contents)};`
-          );
-        }
+      const contents = fs.readFileSync(srcDirChild, "utf8");
+      if (child.endsWith(trioSuffix) && child !== trioSuffix) {
+        const trio = JSON.parse(contents);
+        fs.writeFileSync(
+          path.join(srcDir, `${path.basename(child, ".json")}.ts`),
+          [
+            `import substance from "${trio.substance}";`,
+            ...trio.style.map(
+              (style, i) =>
+                `import style${i}, { resolver as resolver${i} } from "${style}";`
+            ),
+            `import domain from "${trio.domain}";`,
+            "export default {",
+            "  substance,",
+            "  style: [",
+            ...trio.style.map(
+              (style, i) =>
+                `    { contents: style${i}, resolver: resolver${i} },`
+            ),
+            "  ],",
+            "  domain,",
+            `  variation: ${JSON.stringify(trio.variation)}`,
+            "};",
+            "",
+          ].join("\n")
+        );
+      } else if (ext === ".style") {
+        fs.writeFileSync(
+          `${srcDirChild}.ts`,
+          [
+            `import { makeResolver } from "${dir
+              .split(path.sep)
+              .map(() => "..")
+              .join("/")}/resolver";`,
+            `export const resolver = makeResolver(${JSON.stringify(dir)});`,
+            `export default ${JSON.stringify(contents)};`,
+            "",
+          ].join("\n")
+        );
+      } else if (ext === ".domain" || ext === ".substance") {
+        fs.writeFileSync(
+          `${srcDirChild}.ts`,
+          `export default ${JSON.stringify(contents)};`
+        );
+      } else if (ext === ".svg") {
+        svgs.push(dirChild);
+        fs.writeFileSync(
+          `${srcDirChild}.ts`,
+          `export default ${JSON.stringify(contents)};`
+        );
       }
     }
   }
 };
 
-fs.rmSync(dst, { force: true, recursive: true });
 codegen("");
 
 const registry = JSON.parse(fs.readFileSync(`${src}/registry.json`, "utf8"));
@@ -102,10 +92,10 @@ for (const [k, v] of Object.entries(registry)) {
 }
 lines.push("]);");
 lines.push("");
-fs.writeFileSync(`${dst}/registry.ts`, lines.join("\n"));
+fs.writeFileSync(`${src}/registry.ts`, lines.join("\n"));
 
 fs.writeFileSync(
-  `${dst}/resolver.ts`,
+  `${src}/resolver.ts`,
   [
     'import { PathResolver, join } from ".";',
     "",
