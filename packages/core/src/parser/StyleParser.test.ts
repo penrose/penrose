@@ -1,14 +1,44 @@
+import euclideanStyle from "@penrose/examples/dist/geometry-domain/euclidean.style";
+import linearAlgebraStyle from "@penrose/examples/dist/linear-algebra-domain/linear-algebra-paper-simple.style";
+import continuousmapStyle from "@penrose/examples/dist/set-theory-domain/continuousmap.style";
+import treeStyle from "@penrose/examples/dist/set-theory-domain/tree.style";
+import venn3dStyle from "@penrose/examples/dist/set-theory-domain/venn-3d.style";
+import vennSmallStyle from "@penrose/examples/dist/set-theory-domain/venn-small.style";
+import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style";
+import * as fs from "fs";
 import nearley from "nearley";
 import { parseStyle } from "../compiler/Style";
 import { C } from "../types/ast";
 import { StyProg } from "../types/style";
 import grammar from "./StyleParser";
 
+const outputDir = "/tmp/asts";
+const saveASTs = false;
+
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
   for (const p of results) expect(results[0]).toEqual(p);
   expect(results.length).toEqual(1);
 };
+
+// USAGE:
+// printAST(results[0])
+const printAST = (ast: any) => {
+  console.log(JSON.stringify(ast));
+};
+
+const stys = [
+  [
+    "linear-algebra-domain/linear-algebra-paper-simple.style",
+    linearAlgebraStyle,
+  ],
+  ["set-theory-domain/venn.style", vennStyle],
+  ["set-theory-domain/venn-3d.style", venn3dStyle],
+  ["set-theory-domain/venn-small.style", vennSmallStyle],
+  ["set-theory-domain/tree.style", treeStyle],
+  ["set-theory-domain/continuousmap.style", continuousmapStyle],
+  ["geometry-domain/euclidean.style", euclideanStyle],
+];
 
 beforeEach(() => {
   // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
@@ -525,5 +555,19 @@ testing {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
+  });
+});
+
+describe("Real Programs", () => {
+  // create output folder
+  if (saveASTs && !fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+
+  stys.forEach(([examplePath, prog]) => {
+    test(examplePath, () => {
+      const { results } = parser.feed(prog);
+      sameASTs(results);
+    });
   });
 });

@@ -1,13 +1,28 @@
+import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/linear-algebra.domain";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
 import nearley from "nearley";
 import { SourceRange } from "../types/ast";
 import { DomainProg, PredicateDecl } from "../types/domain";
 import grammar from "./DomainParser";
+
+const outputDir = "/tmp/asts";
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
   for (const p of results) expect(results[0]).toEqual(p);
   expect(results.length).toEqual(1);
 };
+
+// USAGE:
+// printAST(results[0])
+const printAST = (ast: any) => {
+  console.log(JSON.stringify(ast));
+};
+
+const domains = [
+  ["linear-algebra.domain", linearAlgebraDomain],
+  ["setTheory.domain", setTheoryDomain],
+];
 
 beforeEach(() => {
   // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
@@ -214,5 +229,14 @@ List('T) <: List('U)
       `;
     const { results } = parser.feed(prog);
     sameASTs(results);
+  });
+});
+
+describe("Real Programs", () => {
+  domains.forEach(([examplePath, prog]) => {
+    test(examplePath, () => {
+      const { results } = parser.feed(prog);
+      sameASTs(results);
+    });
   });
 });
