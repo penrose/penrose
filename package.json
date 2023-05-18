@@ -14,7 +14,7 @@
     "start": "nx run editor:watch",
     "build:ide": "nx run editor:build",
     "test": "nx run-many --target=test --verbose",
-    "coverage": "nx run-many --target=coverage --verbose",
+    "coverage": "nx run core:coverage",
     "docs": "nx run core:docs",
     "lint": "nx run core:lint",
     "lint:fix": "nx run core:lint --fix",
