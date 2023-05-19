@@ -6,7 +6,7 @@
     "dev": "vite",
     "watch": "vite",
     "start": "vite",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc",
     "build-decls": ":",
     "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview",

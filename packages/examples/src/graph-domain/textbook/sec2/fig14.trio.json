@@ -1,0 +1,6 @@
+{
+  "substance": "./fig14.substance",
+  "style": ["../../simple-graph.style"],
+  "domain": "../../simple-graph.domain",
+  "variation": "TanagerTarsier789"
+}

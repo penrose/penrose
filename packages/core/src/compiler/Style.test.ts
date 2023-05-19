@@ -1,4 +1,5 @@
-import setTheory from "@penrose/examples/dist/set-theory-domain";
+import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain";
+import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance";
 import im from "immutable";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
@@ -764,8 +765,8 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = setTheory["twosets-simple.substance"];
-    const domainProg = setTheory["functions.domain"];
+    const subProg = twosetsSimpleSubstance;
+    const domainProg = functionsDomain;
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.style";
 

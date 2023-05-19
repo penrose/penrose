@@ -1,0 +1,6 @@
+{
+  "substance": "./vector-vector-division-elementwise.substance",
+  "style": ["../matrix-ops.style"],
+  "domain": "../matrix-ops.domain",
+  "variation": "DoesNotMatter"
+}

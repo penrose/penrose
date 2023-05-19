@@ -1,40 +1,12 @@
 import * as fs from "fs";
 import { InstanceData } from "./types";
-interface Artifact {
-  substance: string;
-  style: string;
-  domain: string;
-  rendered: string;
-  metadata: InstanceData;
-}
 
-const getArtifacts = (artifactsDir: string): Map<string, Artifact> => {
-  const dirs = fs
-    .readdirSync(artifactsDir, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map(({ name }) => name);
-
-  return new Map(
-    dirs.map((dir) => {
-      const prefixString = `${artifactsDir}/${dir}/`;
-      return [
-        dir,
-        {
-          substance: fs.readFileSync(
-            `${prefixString}substance.substance`,
-            "utf8"
-          ),
-          style: fs.readFileSync(`${prefixString}style.style`, "utf8"),
-          domain: fs.readFileSync(`${prefixString}domain.domain`, "utf8"),
-          rendered: fs.readFileSync(`${prefixString}output.svg`, "utf8"),
-          metadata: JSON.parse(
-            fs.readFileSync(`${prefixString}meta.json`, "utf8")
-          ),
-        },
-      ];
-    })
+const getArtifacts = (artifactsDir: string): Map<string, InstanceData> =>
+  new Map(
+    Object.entries(
+      JSON.parse(fs.readFileSync(`${artifactsDir}/aggregateData.json`, "utf8"))
+    )
   );
-};
 
 const MAX_NAME_LENGTH = 100;
 const MAX_SECONDS = 60;
@@ -122,7 +94,7 @@ export const printTextChart = (artifactsDir: string, outFile: string) => {
     Math.max(...[...artifacts.keys()].map((k) => k.length))
   );
   const longestTime = Math.max(
-    ...[...artifacts.values()].map((v) => v.metadata.timeTaken.overall)
+    ...[...artifacts.values()].map((v) => v.timeTaken.overall)
   );
   const numSeconds = Math.min(
     MAX_SECONDS,
@@ -137,12 +109,7 @@ export const printTextChart = (artifactsDir: string, outFile: string) => {
   lines.push(labelParts.join(""));
   lines.push(tickParts.join(""));
 
-  for (const [
-    key,
-    {
-      metadata: { timeTaken },
-    },
-  ] of artifacts) {
+  for (const [key, { timeTaken }] of artifacts) {
     lines.push(
       `${trimName(key).padEnd(longestName)} ${makeContinuousBar([
         timeTaken.compilation,
