@@ -2,9 +2,9 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+    "module": "ES2022",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
-    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2022"

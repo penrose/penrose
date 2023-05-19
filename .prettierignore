@@ -1,5 +1,10 @@
+*.domain.ts
 *.hbs
-/packages/roger/out/
+*.style.ts
+*.substance.ts
+*.svg.ts
+*.trio.ts
+/diagrams/
 /packages/browser-ui/tsconfig.json
 /packages/components/storybook-static/
 /packages/core/docs/
@@ -12,6 +17,8 @@
 /packages/docs-site/build/
 /packages/docs-site/public/try/
 /packages/docs-site/src/shapedefs.json
+/packages/examples/src/registry.ts
+/packages/examples/src/resolver.ts
 /packages/optimizer/bindings/
 /packages/optimizer/build/
 /packages/optimizer/index.js

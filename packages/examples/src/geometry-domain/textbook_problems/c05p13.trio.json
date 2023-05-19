@@ -1,0 +1,6 @@
+{
+  "substance": "./c05p13.substance",
+  "style": ["../euclidean.style"],
+  "domain": "../geometry.domain",
+  "variation": "RationalityZebra567"
+}

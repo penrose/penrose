@@ -20,7 +20,7 @@ export interface Reference {
 
 export interface InstanceData {
   substanceName: string;
-  styleName: string;
+  styleNames: string[];
   domainName: string;
   id: string;
   renderedOn: number;

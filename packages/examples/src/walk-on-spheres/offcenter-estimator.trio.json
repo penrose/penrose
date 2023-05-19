@@ -1,0 +1,6 @@
+{
+  "substance": "./OffCenter.substance",
+  "style": ["./walk-on-spheres.style"],
+  "domain": "./walk-on-spheres.domain",
+  "variation": "PlumburnPartridge8506"
+}

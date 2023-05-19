@@ -1,6 +1,42 @@
-import geometryDomain from "@penrose/examples/dist/geometry-domain";
-import graphDomain from "@penrose/examples/dist/graph-domain";
-import molecules from "@penrose/examples/dist/molecules";
+import euclideanStyle from "@penrose/examples/dist/geometry-domain/euclidean.style";
+import geometryDomain from "@penrose/examples/dist/geometry-domain/geometry.domain";
+import c01p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c01p01.substance";
+import c01p10 from "@penrose/examples/dist/geometry-domain/textbook_problems/c01p10.substance";
+import c02p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c02p01.substance";
+import c03p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c03p01.substance";
+import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
+import c04p12 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p12.substance";
+import c05p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c05p01.substance";
+import c05p13 from "@penrose/examples/dist/geometry-domain/textbook_problems/c05p13.substance";
+import c06p06 from "@penrose/examples/dist/geometry-domain/textbook_problems/c06p06.substance";
+import c07p06 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p06.substance";
+import c07p10 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p10.substance";
+import c07p22 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p22.substance";
+import c08p08 from "@penrose/examples/dist/geometry-domain/textbook_problems/c08p08.substance";
+import c10p08 from "@penrose/examples/dist/geometry-domain/textbook_problems/c10p08.substance";
+import c11p07 from "@penrose/examples/dist/geometry-domain/textbook_problems/c11p07.substance";
+import c11p25 from "@penrose/examples/dist/geometry-domain/textbook_problems/c11p25.substance";
+import c12p20 from "@penrose/examples/dist/geometry-domain/textbook_problems/c12p20.substance";
+import simpleDirectedGraphDomain from "@penrose/examples/dist/graph-domain/simple-directed-graph.domain";
+import simpleDirectedGraphStyle from "@penrose/examples/dist/graph-domain/simple-directed-graph.style";
+import simpleGraphDomain from "@penrose/examples/dist/graph-domain/simple-graph.domain";
+import simpleGraphStyle from "@penrose/examples/dist/graph-domain/simple-graph.style";
+import sec2eg9 from "@penrose/examples/dist/graph-domain/textbook/sec2/eg9.substance";
+import sec2ex22 from "@penrose/examples/dist/graph-domain/textbook/sec2/ex22.substance";
+import sec3ex50 from "@penrose/examples/dist/graph-domain/textbook/sec3/ex50.substance";
+import sec4ex12b from "@penrose/examples/dist/graph-domain/textbook/sec4/ex12b.substance";
+import sec5ex18 from "@penrose/examples/dist/graph-domain/textbook/sec5/ex18.substance";
+import sec5ex21 from "@penrose/examples/dist/graph-domain/textbook/sec5/ex21.substance";
+import sec5ex47d from "@penrose/examples/dist/graph-domain/textbook/sec5/ex47d.substance";
+import hydrazine from "@penrose/examples/dist/molecules/hydrazine.substance";
+import hydrogencyanide from "@penrose/examples/dist/molecules/hydrogencyanide.substance";
+import lewisStyle from "@penrose/examples/dist/molecules/lewis.style";
+import methane from "@penrose/examples/dist/molecules/methane.substance";
+import moleculesDomain from "@penrose/examples/dist/molecules/molecules.domain";
+import nitrogen from "@penrose/examples/dist/molecules/nitrogen.substance";
+import phosgene from "@penrose/examples/dist/molecules/phosgene.substance";
+import phosphorustrichloride from "@penrose/examples/dist/molecules/phosphorustrichloride.substance";
+import xenontetroxide from "@penrose/examples/dist/molecules/xenontetroxide.substance";
 import { SynthesizerSetting } from "./synthesis/Synthesizer";
 
 export interface Preset {
@@ -124,9 +160,9 @@ export const presets: PresetCollection = {
     displayName: "c01p01: Collinear Points",
     prompt:
       "In which of the following diagrams are points $B$, $D$, $E$ collinear?",
-    substance: geometryDomain.textbook_problems["c01p01.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"],
+    substance: c01p01,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -135,9 +171,9 @@ export const presets: PresetCollection = {
     displayName: "c01p10: Complementary angles",
     prompt:
       "Which of the following diagrams contains exactly 2 pairs of complementary angles?",
-    substance: geometryDomain.textbook_problems["c01p10.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"],
+    substance: c01p10,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -146,10 +182,10 @@ export const presets: PresetCollection = {
     displayName: "c02p01: Angle bisector",
     prompt:
       "In which of the following diagrams is the statement $\\angle ADC=2(m \\angle ADB)$ true?",
-    substance: geometryDomain.textbook_problems["c02p01.substance"],
-    domain: geometryDomain["geometry.domain"],
+    substance: c02p01,
+    domain: geometryDomain,
     style:
-      geometryDomain["euclidean.style"] +
+      euclideanStyle +
       `
   forall Angle a {
     override a.radius = 50
@@ -163,10 +199,10 @@ export const presets: PresetCollection = {
     displayName: "c03p01: Alternate interior angles",
     prompt:
       "Which diagram illustrates $\\angle JKM$ and $\\angle KML$ as alternate interior angles?",
-    substance: geometryDomain.textbook_problems["c03p01.substance"],
-    domain: geometryDomain["geometry.domain"],
+    substance: c03p01,
+    domain: geometryDomain,
     style:
-      geometryDomain["euclidean.style"] +
+      euclideanStyle +
       `
 forall Angle a
 with Point p, q, r
@@ -182,10 +218,10 @@ where a := InteriorAngle(p, q, r) {
     displayName: "c04p01: Congruent triangles",
     prompt:
       "In which of the following diagrams are triangles $\\triangle DEC$ an $\\triangle DEA$ congruent?",
-    substance: geometryDomain.textbook_problems["c04p01.substance"],
-    domain: geometryDomain["geometry.domain"],
+    substance: c04p01,
+    domain: geometryDomain,
     style:
-      geometryDomain["euclidean.style"] +
+      euclideanStyle +
       `
 forall Point \`D\`, \`E\`, \`C\` {
   Path {
@@ -208,9 +244,9 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c04p12: Complementary angles",
     prompt:
       "In which of these diagrams, can you find the value of $\\angle BCE$ given the value of $x$?",
-    substance: geometryDomain.textbook_problems["c04p12.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c04p12,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -219,9 +255,9 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c05p01: Mid-segement",
     prompt:
       "Which diagram shows that $HK$ is a midsegment of $\\triangle GJF$?",
-    substance: geometryDomain.textbook_problems["c05p01.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c05p01,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -229,9 +265,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c05p13: {
     displayName: "c05p13: Incenter",
     prompt: "Which diagram shows $P$ as the incenter of $\\triangle JKL$?",
-    substance: geometryDomain.textbook_problems["c05p13.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c05p13,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -240,9 +276,9 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c06p06: Parallelogram",
     prompt:
       "Which of the following diagrams shows that $JKLM$ is a parallelogram?",
-    substance: geometryDomain.textbook_problems["c06p06.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c06p06,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -250,9 +286,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c07p06: {
     displayName: "c07p06: Parallelogram 2",
     prompt: "In which of the following diagrams is $ABCD$ a parallelogram?",
-    substance: geometryDomain.textbook_problems["c07p06.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c07p06,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -261,9 +297,9 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c07p10: Orthocenter",
     prompt:
       "In which of the following diagrams is $G$ the orthocenter of $\\triangle FGH$?",
-    substance: geometryDomain.textbook_problems["c07p10.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c07p10,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -271,9 +307,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   c07p22: {
     displayName: "c07p22: Similar triangles",
     prompt: "In which of the following diagrams are the two triangles similar?",
-    substance: geometryDomain.textbook_problems["c07p22.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c07p22,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -282,43 +318,20 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c08p08: Nested Right Angle Triangles",
     prompt:
       "In which of the following diagrams is $\\triangle PQR$ similar to $\\triangle TSR$?",
-    substance: geometryDomain.textbook_problems["c08p08.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c08p08,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
   },
-  // NOTE: deprecated due to lack of conceptual prompt
-  // c08p18: {
-  //   displayName: "c08p18: Measures of Triangle",
-  //   prompt: "TODO",
-  //   substance: geometryDomain.textbook_problems["c08p18.substance"],
-  //   domain: geometryDomain["geometry.domain"],
-  //   style: geometryDomain["euclidean.style"] + ``,
-  //   setting: {
-  //     ...defaultParams,
-  //   },
-  // },
-
-  // NOTE: deprecated due to lack of conceptual prompt
-  // c09p02: {
-  //   displayName: "c09p02: Perpendicular Bisector of Triangle",
-  //   prompt: "TODO",
-  //   substance: geometryDomain.textbook_problems["c09p02.substance"],
-  //   domain: geometryDomain["geometry.domain"],
-  //   style: geometryDomain["euclidean.style"] + ``,
-  //   setting: {
-  //     ...defaultParams,
-  //   },
-  // },
   c10p08: {
     displayName: "c10p08: Triangle Congruency",
     prompt:
       "In which of the following diagrams is $\\triangle DEF$ congruent to $\\triangle ABC$?",
-    substance: geometryDomain.textbook_problems["c10p08.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c10p08,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -327,52 +340,30 @@ forall Point \`D\`, \`E\`, \`A\` {
     displayName: "c11p07: Circle with Secant",
     prompt:
       "Which of the following diagrams is the length of $PS$ represented by $\\frac{PQ \\times PR}{PU}$?",
-    substance: geometryDomain.textbook_problems["c11p07.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c11p07,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
   },
-  // NOTE: deprecated due to lack of conceptual prompt
-  // c11p21: {
-  //   displayName: "c11p21: Chord Intersection",
-  //   prompt: "TODO",
-  //   substance: geometryDomain.textbook_problems["c11p21.substance"],
-  //   domain: geometryDomain["geometry.domain"],
-  //   style: geometryDomain["euclidean.style"] + ``,
-  //   setting: {
-  //     ...defaultParams,
-  //   },
-  // },
   c11p25: {
     displayName: "c11p25: Trapezoid inside Circle",
     prompt: "In which of the following diagrams are $AD = BC$?",
-    substance: geometryDomain.textbook_problems["c11p25.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c11p25,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
   },
-  // NOTE: deprecated due to lack of conceptual prompt
-  // c12p12: {
-  //   displayName: "c12p12: Circle with Chords, Radii",
-  //   prompt: "TODO",
-  //   substance: geometryDomain.textbook_problems["c12p12.substance"],
-  //   domain: geometryDomain["geometry.domain"],
-  //   style: geometryDomain["euclidean.style"] + ``,
-  //   setting: {
-  //     ...defaultParams,
-  //   },
-  // },
   c12p20: {
     displayName: "c12p20: Triangle Congruency",
     prompt:
       "In which of the following diagrams is $\\triangle ABC$ congruent to $\\triangle BCD$?",
-    substance: geometryDomain.textbook_problems["c12p20.substance"],
-    domain: geometryDomain["geometry.domain"],
-    style: geometryDomain["euclidean.style"] + ``,
+    substance: c12p20,
+    domain: geometryDomain,
+    style: euclideanStyle,
     setting: {
       ...geometryParams,
     },
@@ -380,9 +371,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   lewis_0: {
     displayName: "lewis_0: Hydrogen Cyanide",
     prompt: "Choose the correct Lewis structure for $\\mathrm{HCN}$.",
-    substance: molecules["hydrogencyanide.substance"],
-    domain: molecules["molecules.domain"],
-    style: molecules["lewis.style"],
+    substance: hydrogencyanide,
+    domain: moleculesDomain,
+    style: lewisStyle,
     setting: {
       ...lewisParams,
     },
@@ -390,9 +381,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   lewis_1: {
     displayName: "lewis_1: Methane",
     prompt: "Choose the correct Lewis structure for $\\mathrm{CH_4}$.",
-    substance: molecules["methane.substance"],
-    domain: molecules["molecules.domain"],
-    style: molecules["lewis.style"],
+    substance: methane,
+    domain: moleculesDomain,
+    style: lewisStyle,
     setting: {
       ...lewisParams,
     },
@@ -400,9 +391,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   lewis_2: {
     displayName: "lewis_2: Phosphorus Trichoride",
     prompt: "Choose the correct Lewis structure for $\\mathrm{PCl_3}$.",
-    substance: molecules["phosphorustrichloride.substance"],
-    domain: molecules["molecules.domain"],
-    style: molecules["lewis.style"],
+    substance: phosphorustrichloride,
+    domain: moleculesDomain,
+    style: lewisStyle,
     setting: {
       ...lewisParams,
     },
@@ -410,9 +401,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   lewis_3: {
     displayName: "lewis_3: Xenon Tetroxide",
     prompt: "Choose the correct Lewis structure for $\\mathrm{XeO_4}$.",
-    substance: molecules["xenontetroxide.substance"],
-    domain: molecules["molecules.domain"],
-    style: molecules["lewis.style"],
+    substance: xenontetroxide,
+    domain: moleculesDomain,
+    style: lewisStyle,
     setting: {
       ...lewisParams,
     },
@@ -420,9 +411,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   lewis_4: {
     displayName: "lewis_4: Phosgene",
     prompt: "Choose the correct Lewis structure for $\\mathrm{COCl_2}$.",
-    substance: molecules["phosgene.substance"],
-    domain: molecules["molecules.domain"],
-    style: molecules["lewis.style"],
+    substance: phosgene,
+    domain: moleculesDomain,
+    style: lewisStyle,
     setting: {
       ...lewisParams,
     },
@@ -430,9 +421,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   lewis_5: {
     displayName: "lewis_5: Nitrogen",
     prompt: "Choose the correct Lewis structure for $\\mathrm{N_2}$.",
-    substance: molecules["nitrogen.substance"],
-    domain: molecules["molecules.domain"],
-    style: molecules["lewis.style"],
+    substance: nitrogen,
+    domain: moleculesDomain,
+    style: lewisStyle,
     setting: {
       ...lewisParams,
     },
@@ -440,9 +431,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   lewis_6: {
     displayName: "lewis_6: Hydrazine",
     prompt: "Choose the correct Lewis structure for $\\mathrm{N_2H_4}$.",
-    substance: molecules["hydrazine.substance"],
-    domain: molecules["molecules.domain"],
-    style: molecules["lewis.style"],
+    substance: hydrazine,
+    domain: moleculesDomain,
+    style: lewisStyle,
     setting: {
       ...lewisParams,
     },
@@ -450,9 +441,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_0: {
     displayName: "graph_0: Bipartite Graph",
     prompt: "Which of the following diagrams are bipartite graphs?",
-    substance: graphDomain.textbook.sec2["ex22.substance"],
-    domain: graphDomain["simple-graph.domain"],
-    style: graphDomain["simple-graph.style"],
+    substance: sec2ex22,
+    domain: simpleGraphDomain,
+    style: simpleGraphStyle,
     setting: {
       ...graphParams,
     },
@@ -460,9 +451,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_1: {
     displayName: "graph_1: Self-complementary Graph",
     prompt: "Which of the following diagrams are self-complementary graphs?",
-    substance: graphDomain.textbook.sec3["ex50.substance"],
-    domain: graphDomain["simple-graph.domain"],
-    style: graphDomain["simple-graph.style"],
+    substance: sec3ex50,
+    domain: simpleGraphDomain,
+    style: simpleGraphStyle,
     setting: {
       ...graphParams,
     },
@@ -470,9 +461,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_2: {
     displayName: "graph_2: Euler Circuit 1",
     prompt: "Which diagram has an Euler circuit?",
-    substance: graphDomain.textbook.sec5["ex21.substance"],
-    domain: graphDomain["simple-directed-graph.domain"],
-    style: graphDomain["simple-directed-graph.style"],
+    substance: sec5ex21,
+    domain: simpleDirectedGraphDomain,
+    style: simpleDirectedGraphStyle,
     setting: {
       ...graphParams,
     },
@@ -480,9 +471,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_3: {
     displayName: "graph_3: Euler Circuit 2",
     prompt: "Which diagram has an Euler circuit?",
-    substance: graphDomain.textbook.sec5["ex18.substance"],
-    domain: graphDomain["simple-directed-graph.domain"],
-    style: graphDomain["simple-directed-graph.style"],
+    substance: sec5ex18,
+    domain: simpleDirectedGraphDomain,
+    style: simpleDirectedGraphStyle,
     setting: {
       ...graphParams,
     },
@@ -490,9 +481,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_4: {
     displayName: "graph_4: Bipartite Graph 2",
     prompt: "Which of the following diagrams are bipartite graphs?",
-    substance: graphDomain.textbook.sec2["eg9.substance"],
-    domain: graphDomain["simple-graph.domain"],
-    style: graphDomain["simple-graph.style"],
+    substance: sec2eg9,
+    domain: simpleGraphDomain,
+    style: simpleGraphStyle,
     setting: {
       ...graphParams,
     },
@@ -500,9 +491,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_5: {
     displayName: "graph_5: Strongly Connected Graph",
     prompt: "Which of the following diagrams are strongly connected graphs?",
-    substance: graphDomain.textbook.sec4["ex12b.substance"],
-    domain: graphDomain["simple-directed-graph.domain"],
-    style: graphDomain["simple-directed-graph.style"],
+    substance: sec4ex12b,
+    domain: simpleDirectedGraphDomain,
+    style: simpleDirectedGraphStyle,
     setting: {
       ...graphParams,
     },
@@ -510,9 +501,9 @@ forall Point \`D\`, \`E\`, \`A\` {
   graph_6: {
     displayName: "graph_6: Hamilton Circuit",
     prompt: "Which diagram has a Hamilton circuit?",
-    substance: graphDomain.textbook.sec5["ex47d.substance"],
-    domain: graphDomain["simple-graph.domain"],
-    style: graphDomain["simple-graph.style"],
+    substance: sec5ex47d,
+    domain: simpleGraphDomain,
+    style: simpleGraphStyle,
     setting: {
       ...graphParams,
     },

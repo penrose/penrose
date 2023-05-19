@@ -1,8 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "jsx": "react-jsx",
     "noEmit": true,
-    "jsx": "react-jsx"
+    "resolveJsonModule": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
