@@ -4,10 +4,9 @@ import {
   PenroseError,
   PenroseState,
   PenroseWarning,
-  readRegistry,
-  Trio,
 } from "@penrose/core";
-import { registry } from "@penrose/examples";
+import { PathResolver, Trio } from "@penrose/examples/dist";
+import { registry } from "@penrose/examples/dist/registry";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
@@ -45,7 +44,7 @@ export type WorkspaceLocation =
   | GistLocation
   | {
       kind: "example";
-      root: string; // URL to the parent folder of the Style file
+      resolver: PathResolver;
     }
   | {
       kind: "roger";
@@ -361,7 +360,10 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
   },
 });
 
-interface TrioWithPreview extends Trio {
+interface TrioWithPreview {
+  id: string;
+  get: () => Promise<Trio>;
+  name?: string;
   preview?: string;
 }
 
@@ -371,19 +373,21 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
     key: "exampleTrios/default",
     get: async () => {
       try {
-        const trios = readRegistry(registry, true).map(async (t: Trio) => {
-          const svg = await fetch(
-            `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${t.id}.svg`
-          );
-          if (!svg.ok) {
-            console.error(`could not fetch preview for ${t.id}`);
-            return t;
-          }
-          return {
-            ...t,
-            preview: await svg.text(),
-          };
-        });
+        const trios = [...registry.entries()]
+          .filter(([, { gallery }]) => gallery)
+          .map(async ([id, { get, name }]) => {
+            const svg = await fetch(
+              encodeURI(
+                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
+              )
+            );
+            const trio: TrioWithPreview = { id, get, name };
+            if (!svg.ok) {
+              console.error(`could not fetch preview for ${id}`);
+              return trio;
+            }
+            return { ...trio, preview: await svg.text() };
+          });
         return Promise.all(trios);
       } catch (err) {
         toast.error(`Could not retrieve examples: ${err}`);

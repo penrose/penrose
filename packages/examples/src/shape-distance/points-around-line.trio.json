@@ -1,0 +1,6 @@
+{
+  "substance": "./hundred-points-around-line.substance",
+  "style": ["./shape-distance.style"],
+  "domain": "./shapes.domain",
+  "variation": "GalapagosLocust418"
+}

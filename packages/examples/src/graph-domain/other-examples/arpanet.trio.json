@@ -1,0 +1,6 @@
+{
+  "substance": "./arpanet.substance",
+  "style": ["../simple-curved-graph-dots.style"],
+  "domain": "../simple-graph.domain",
+  "variation": "CascaraKudu41689"
+}
