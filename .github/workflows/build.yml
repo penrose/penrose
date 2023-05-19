@@ -129,17 +129,17 @@ jobs:
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
           echo "CI_COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
-          echo '```' > diagrams/diff.md
-          git --no-pager diff --name-status ci/refs/heads/main HEAD >> diagrams/diff.md
-          echo '```' >> diagrams/diff.md
+          echo '```' > ../diff.md
+          git --no-pager diff --name-status ci/refs/heads/main HEAD >> ../diff.md
+          echo '```' >> ../diff.md
 
           echo '# ± Registry diff' >> $GITHUB_STEP_SUMMARY
           echo >> $GITHUB_STEP_SUMMARY
-          cat diagrams/diff.md >> $GITHUB_STEP_SUMMARY
+          cat ../diff.md >> $GITHUB_STEP_SUMMARY
           echo >> $GITHUB_STEP_SUMMARY
 
           echo 'REGISTRY_DIFF<<EOF' >> $GITHUB_ENV
-          cat diagrams/diff.md >> $GITHUB_ENV
+          cat ../diff.md >> $GITHUB_ENV
           echo EOF >> $GITHUB_ENV
       - name: Generate performance summary
         run: |
