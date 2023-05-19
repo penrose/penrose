@@ -137,6 +137,9 @@ export const DownloadSVG = (
   variationStr: string
 ): void => {
   SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
+  // remove `width` and `height` for tool compatibility
+  svg.setAttribute("width", "");
+  svg.setAttribute("height", "");
   const blob = new Blob([svg.outerHTML], {
     type: "image/svg+xml;charset=utf-8",
   });
