@@ -2686,7 +2686,8 @@ export const compDict = {
           shapeT("Polygon"),
           shapeT("Line"),
           shapeT("Polyline"),
-          shapeT("Ellipse")
+          shapeT("Ellipse"),
+          shapeT("Group")
         ),
         description: "A shape",
       },
@@ -2700,28 +2701,11 @@ export const compDict = {
         | Line<ad.Num>
         | Polyline<ad.Num>
         | Polygon<ad.Num>
-        | Ellipse<ad.Num>,
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
       p: ad.Num[]
-    ): VectorV<ad.Num> => {
-      const t = s.shapeType;
-      if (t === "Circle") {
-         return closestPointCircle( s, p );
-      } else if (
-        t === "Rectangle" ||
-        t === "Text" ||
-        t === "Equation" ||
-        t === "Image"
-      ) {
-         return closestPointRect(s,p);
-      } else if (t === "Line") {
-         return closestPointLine(s,p);
-      } else if (t === "Polyline") {
-         return closestPointPolyline(s,p);
-      } else if (t === "Polygon") {
-         return closestPointPolygon(s,p);
-      } else {
-         return closestPointEllipse(s,p);
-      }
+    ): VectorV<ad.Num> => {;
+       return closestPointShape(s,p);
     },
     returns: valueT("Real2"),
   },
@@ -3250,6 +3234,51 @@ export const sdEllipseAsNums = (
   // return length(r-p) * msign(p.y-r.y);
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
+
+const closestPointShape = (
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[]
+): VectorV<ad.Num> => {
+   const t = s.shapeType;
+   if (t === "Circle") {
+      return closestPointCircle( s, p );
+   } else if (
+      t === "Rectangle" ||
+      t === "Text" ||
+      t === "Equation" ||
+      t === "Image"
+   ) {
+      return closestPointRect(s,p);
+   } else if (t === "Line") {
+      return closestPointLine(s,p);
+   } else if (t === "Polyline") {
+      return closestPointPolyline(s,p);
+   } else if (t === "Polygon") {
+      return closestPointPolygon(s,p);
+   } else if (t === "Ellipse") {
+      return closestPointEllipse(s,p);
+   } else { // t === "Group"
+      const closestPoints = s.shapes.contents.map((shape) => closestPointShape(shape,p).contents);
+      const dist = closestPoints.map((point) => ops.vdist(point,p));
+      let closestX: ad.Num = closestPoints[0][0];
+      let closestY: ad.Num = closestPoints[0][1];
+      let closestDist: ad.Num = dist[0];
+      for (let i = 0; i < s.shapes.contents.length; i++) {
+         closestDist = ifCond(lt(closestDist, dist[i]), closestDist, dist[i]);
+         closestX = ifCond(eq(closestDist, dist[i]), closestPoints[i][0], closestX);
+         closestY = ifCond(eq(closestDist, dist[i]), closestPoints[i][1], closestY);
+      }
+      return { tag: "VectorV", contents: [closestX, closestY] };
+   }
+}
+
 
 const closestPointCircle = (
    s: Circle<ad.Num>,
