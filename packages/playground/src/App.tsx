@@ -1,80 +1,112 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  dist,
+  elasticEnergy,
+  eq,
+  equivalued,
+  perimeter,
+  pow,
+  problem,
+  scalar,
+  sub,
+} from "@penrose/core";
+import { Input } from "@penrose/core/dist/types/ad";
 import seedrandom from "seedrandom";
-import curve from "./closedElasticCurve";
-import texts from "./texts";
+import { createEffect, createSignal, on, onCleanup } from "solid-js";
 
-const seed = seedrandom(Math.random().toString());
-const textsExample = await texts(
-  seed,
-  [500, 500],
-  ["Melchior", "Balthasar", "Casper"]
-);
+const App = () => {
+  const [ready, setReady] = createSignal<boolean>(false);
+  const [step, setStep] = createSignal<number>(0);
+  const [status, setStatus] = createSignal<string>("");
+  const [length, setLength] = createSignal<number>(1000);
+  const [numPoints, setNumPoints] = createSignal<number>(100);
+  const [w, h] = [500, 500];
+  const rng = seedrandom("test");
 
-const { problem, points } = await curve(seed, [500, 500], 100, 1000);
+  const [pts, rerun] = createSignal<Input[][]>([], { equals: false });
+  let p: any;
 
-function App() {
-  // Use useRef for mutable variables that we want to persist
-  // without triggering a re-render on their change
-  const requestRef = useRef<number>();
+  createEffect(
+    on([length, numPoints], async () => {
+      rerun(
+        Array.from({ length: numPoints() }, () => [
+          scalar(rng() * w),
+          scalar(rng() * h),
+        ])
+      );
+      p = problem(pow(sub(elasticEnergy(pts() as any, true), 0), 2), [
+        eq(perimeter(pts() as any, true), length()),
+        equivalued(
+          pts().map((_, i) => dist(pts()[i], pts()[(i + 1) % numPoints()]))
+        ),
+      ]);
+      p.then(setReady);
+    })
+  );
 
-  const [count, setCount] = useState(0);
-  const [params, setParams] = useState(problem.step(1));
+  createEffect(async () => {
+    if (ready()) {
+      let frame = requestAnimationFrame(loop);
+      const problem = await p;
+      function loop(t: number) {
+        const { optStatus } = problem.step(50);
+        setStatus(optStatus);
+        setStep((i) => i + 1);
+        rerun(pts());
+        if (optStatus !== "UnconstrainedConverged") {
+          frame = requestAnimationFrame(loop);
+          setReady(false);
+        }
+      }
 
-  const previousTimeRef = useRef<number>();
-
-  const animate = (time: number) => {
-    setParams(problem.step(100));
-    if (previousTimeRef.current != undefined) {
-      const deltaTime = time - previousTimeRef.current;
-      setCount((prevCount) => prevCount + deltaTime * 0.01);
+      onCleanup(() => cancelAnimationFrame(frame));
     }
-    previousTimeRef.current = time;
-    if (params.optStatus !== "EPConverged")
-      requestRef.current = requestAnimationFrame(animate);
-  };
-
-  useEffect(() => {
-    requestRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(requestRef.current!);
-  }, []); // Make sure the effect runs only once
+  });
 
   return (
     <>
-      Frame #: {Math.floor(count)}
-      <br />
-      Status: {params.optStatus}
-      <div
-        style={{
-          width: "500px",
-          height: "500px",
-          border: "1px solid #000",
-        }}
-      >
-        <svg
-          version="1.2"
-          xmlns="http://www.ws.org/2000/svg"
-          width={500}
-          height={500}
-        >
-          <polygon
-            points={points.map(([x, y]) => `${x.val},${y.val}`).join(" ")}
-            strokeWidth={2}
-            stroke="#000"
-            fill="#92d53e70"
-          />
-        </svg>
+      <p>Step {step()}</p>
+      <p>Status: {status()}</p>
+      <div>
+        Length:
+        <input
+          type="range"
+          min="100"
+          max="3000"
+          value="1000"
+          class="slider"
+          onChange={(n) => setLength(+n.target.value)}
+        />
+        {length()}
       </div>
-      <div
-        style={{
-          width: "500px",
-          height: "500px",
-          border: "1px solid #000",
-        }}
-      >
-        {textsExample}
+      <div>
+        Number of points:
+        <input
+          type="range"
+          min="10"
+          max="200"
+          value="100"
+          class="slider"
+          onChange={(n) => setNumPoints(+n.target.value)}
+        />
+        {numPoints()}
       </div>
+      <svg
+        version="1.2"
+        xmlns="http://www.ws.org/2000/svg"
+        width={w}
+        height={h}
+      >
+        <polygon
+          points={pts()
+            .map(([x, y]) => `${x.val},${y.val}`)
+            .join(" ")}
+          stroke-width={2}
+          stroke="#000"
+          fill="#92d53e70"
+        />
+      </svg>
     </>
   );
-}
+};
 
 export default App;

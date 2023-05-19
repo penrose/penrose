@@ -10,12 +10,13 @@ import {
   textBBox,
 } from "@penrose/core";
 import seedrandom from "seedrandom";
+import { JSX } from "solid-js/jsx-runtime";
 
 export default async function Text(
   rng: seedrandom.prng,
   canvas: [number, number],
   names: string[]
-) {
+): Promise<JSX.Element> {
   const [w, h] = canvas;
   const n = names.length;
 
@@ -29,9 +30,10 @@ export default async function Text(
     })
   ).then((p) => p.minimize());
 
-  const text = names.map((name) => {
+  const texts = names.map((name) => {
     const [x, y] = [scalar(rng() * w), scalar(rng() * h)];
     return {
+      name,
       x,
       y,
       rect: textBBox(
@@ -41,16 +43,18 @@ export default async function Text(
       ),
     };
   });
-  await problem(
-    0,
-    text.flatMap(({ rect }, i) => {
-      const [x, y] = points[i];
-      return [
-        onCanvasRect(canvas, rect),
-        eq(sdfRect(rect.center, rect.width, rect.height, [x.val, y.val]), 10),
-      ];
-    })
-  ).then((p) => p.minimize());
+  (
+    await problem(
+      0,
+      texts.flatMap(({ rect }, i) => {
+        const [x, y] = points[i];
+        return [
+          onCanvasRect(canvas, rect),
+          eq(sdfRect(rect.center, rect.width, rect.height, [x.val, y.val]), 10),
+        ];
+      })
+    )
+  ).minimize();
 
   const font = `15px "Courier"`;
   return (
@@ -59,27 +63,18 @@ export default async function Text(
         fill="#f0f7"
         points={points.map(([x, y]) => `${x.val},${y.val}`).join(" ")}
       />
-      {names.map((name, i) => {
-        const { x, y } = text[i];
+      {texts.map(({ x, y, name }, i) => {
         const measure = measureText(name, font);
         return (
           <g>
             <text
               x={x.val - measure.width / 2}
               y={y.val + measure.height / 2}
-              fontSize={"15px"}
-              fontFamily={"Courier"}
+              font-size={"15px"}
+              font-family={"Courier"}
             >
               {name}
             </text>
-            <circle r={1} fill="#f00" cx={x.val} cy={y.val} />
-            <rect
-              fill="#f007"
-              x={x.val - measure.width / 2}
-              y={y.val + measure.height / 2 - measure.actualAscent}
-              width={measure.width}
-              height={measure.height}
-            />
           </g>
         );
       })}
