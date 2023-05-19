@@ -1,5 +1,8 @@
 Point x
-Rectangle R
+Line L
+Polyline M
 Polygon P
+Rectangle R
 Circle C
 Ellipse E
+

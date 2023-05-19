@@ -15,6 +15,14 @@ forall Point x {
    } 
 }
 
+forall Line L {
+   shape L.icon = Line {
+      start: (?,?)
+      end: (?,?)
+      strokeWidth: 5
+   }
+}
+
 forall Rectangle R {
    shape R.icon = Rectangle {
       center: (?, ?)
@@ -27,6 +35,41 @@ forall Rectangle R {
    ensure R.icon.height > 50
 }
 
+forall Polyline P {
+   vec2 p0 = (?,?)
+   vec2 p1 = (?,?)
+   vec2 p2 = (?,?)
+   vec2 p3 = (?,?)
+   vec2 p4 = (?,?)
+   
+   shape P.icon = Polyline {
+      points: [ p0, p1, p2, p3, p4 ]
+      strokeWidth: 5.0
+      strokeLinejoin: "round"
+      strokeColor: sampleColor(1.0,"rgb")
+   }
+
+   scalar L0 = norm(p1-p0)
+   scalar L1 = norm(p2-p1)
+   scalar L2 = norm(p3-p2)
+   scalar L3 = norm(p4-p3)
+   ensure L0 > 30
+   ensure L1 > 30
+   ensure L2 > 30
+   ensure L3 > 30
+   ensure L0 < 80
+   ensure L1 < 80
+   ensure L2 < 80
+   ensure L3 < 80
+
+   scalar theta0 = angleBetween(p1-p0,p2-p1)
+   scalar theta1 = angleBetween(p2-p1,p3-p2)
+   scalar theta2 = angleBetween(p3-p2,p4-p3)
+   ensure theta0 > MathPI()/6
+   ensure theta1 > MathPI()/6
+   ensure theta2 > MathPI()/6
+}
+
 forall Polygon P {
    vec2 p0 = (?,?)
    vec2 p1 = (?,?)
@@ -35,7 +78,6 @@ forall Polygon P {
    shape P.icon = Polygon {
       points: [ p0, p1, p2 ]
    }
-
 
    vec2 e01 = p1-p0
    vec2 e12 = p2-p1
@@ -67,43 +109,11 @@ forall Ellipse E {
    ensure E.icon.ry > 50
 }
 
--- Keep shapes from overlapping
-
-forall Rectangle R; Polygon P
-{
-   ensure disjoint( R.icon, P.icon )
-}
-
-forall Rectangle R; Circle C
-{
-   ensure disjoint( R.icon, C.icon )
-}
-
-forall Rectangle R; Ellipse E
-{
-   ensure disjoint( R.icon, E.icon )
-}
-
-forall Polygon P; Circle C
-{
-   ensure disjoint( P.icon, C.icon )
-}
-
-forall Polygon P; Ellipse E
-{
-   ensure disjoint( P.icon, E.icon )
-}
-
-forall Circle C; Ellipse E
-{
-   ensure disjoint( C.icon, E.icon )
-}
-
 -- Rules for drawing closest points
 
-forall Point x; Rectangle R
+forall Point x; Shape S
 {
-   vec2 p = closestPoint( R.icon, x.pos )
+   vec2 p = closestPoint( S.icon, x.pos )
 
    shape closestSegment = Line {
       start: x.pos
@@ -121,9 +131,9 @@ forall Point x; Rectangle R
    }
 }
 
-forall Point x; Polygon P
+forall Point x; Polyline L
 {
-   vec2 p = closestPoint( P.icon, x.pos )
+   vec2 p = closestPoint( L.icon, x.pos )
 
    shape closestSegment = Line {
       start: x.pos
@@ -141,43 +151,9 @@ forall Point x; Polygon P
    }
 }
 
-forall Point x; Circle C
+-- Keep shapes from overlapping
+forall Shape S1; Shape S2
 {
-   vec2 p = closestPoint( C.icon, x.pos )
-
-   shape closestSegment = Line {
-      start: x.pos
-      end: p
-      strokeColor: #000000ff
-      strokeWidth: 2
-   }
-
-   shape closestDot = Circle {
-      r: x.icon.r
-      center: p
-      fillColor: #ffffffff
-      strokeColor: #000000ff
-      strokeWidth: 2
-   }
-}
-
-forall Point x; Ellipse E
-{
-   vec2 p = closestPoint( E.icon, x.pos )
-
-   shape closestSegment = Line {
-      start: x.pos
-      end: p
-      strokeColor: #000000ff
-      strokeWidth: 2
-   }
-
-   shape closestDot = Circle {
-      r: x.icon.r
-      center: p
-      fillColor: #ffffffff
-      strokeColor: #000000ff
-      strokeWidth: 2
-   }
+   ensure disjoint( S1.icon, S2.icon )
 }
 

@@ -1,5 +1,9 @@
 type Point
-type Rectangle
-type Polygon
-type Circle
-type Ellipse
+
+type Shape
+type Line <: Shape
+type Polyline
+type Polygon <: Shape
+type Rectangle <: Shape
+type Circle <: Shape
+type Ellipse <: Shape
