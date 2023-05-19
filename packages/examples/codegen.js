@@ -48,7 +48,7 @@ const codegen = (dir) => {
             `import { makeResolver } from "${dir
               .split(path.sep)
               .map(() => "..")
-              .join("/")}/resolver";`,
+              .join("/")}/resolver.js";`,
             `export const resolver = makeResolver(${JSON.stringify(dir)});`,
             `export default ${JSON.stringify(contents)};`,
             "",
@@ -74,7 +74,7 @@ codegen("");
 
 const registry = JSON.parse(fs.readFileSync(`${src}/registry.json`, "utf8"));
 const lines = [
-  'import { Meta, Trio } from ".";',
+  'import { Meta, Trio } from "./index.js";',
   "",
   "const trio = async (x: Promise<{ default: Trio }>): Promise<Trio> =>",
   "  (await x).default;",
@@ -97,7 +97,7 @@ fs.writeFileSync(`${src}/registry.ts`, lines.join("\n"));
 fs.writeFileSync(
   `${src}/resolver.ts`,
   [
-    'import { PathResolver, join } from ".";',
+    'import { PathResolver, join } from "./index.js";',
     "",
     "export const makeResolver = (dir: string): PathResolver => async (path: string): Promise<string | undefined> => {",
     "  switch (join(dir, path)) {",
