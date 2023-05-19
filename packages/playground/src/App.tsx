@@ -172,6 +172,7 @@ const App = () => {
 
   return (
     <>
+      <h1>Daily worship of the TRIANGLE.</h1>
       <div>
         {slider(theta.val, [0, 10], "Camera rotation: ", (n) => {
           theta.val = n;
