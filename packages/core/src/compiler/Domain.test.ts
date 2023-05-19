@@ -1,5 +1,5 @@
-import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
-import setTheory from "@penrose/examples/dist/set-theory-domain";
+import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/linear-algebra.domain";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
@@ -14,11 +14,8 @@ const saveContexts = false;
 const printError = false;
 
 const domains = [
-  [
-    "linear-algebra-domain/linear-algebra.domain",
-    linearAlgebra["linear-algebra.domain"],
-  ],
-  ["set-theory-domain/setTheory.domain", setTheory["setTheory.domain"]],
+  ["linear-algebra-domain/linear-algebra.domain", linearAlgebraDomain],
+  ["set-theory-domain/setTheory.domain", setTheoryDomain],
 ];
 
 const contextHas = (

@@ -1,0 +1,6 @@
+{
+  "substance": "./angle-equivalence.substance",
+  "style": ["../triangle-mesh-2d.style"],
+  "domain": "../triangle-mesh-2d.domain",
+  "variation": "ClamshellKookabura228"
+}

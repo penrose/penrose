@@ -1,4 +1,5 @@
-import setTHeory from "@penrose/examples/dist/set-theory-domain";
+import setDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
+import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style";
 import { start } from "@penrose/optimizer";
 import { genGradient } from "./engine/Autodiff";
 import {
@@ -13,9 +14,6 @@ import {
 } from "./index";
 import * as ad from "./types/ad";
 import { State } from "./types/state";
-
-const vennStyle = setTHeory["venn.style"];
-const setDomain = setTHeory["setTheory.domain"];
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
