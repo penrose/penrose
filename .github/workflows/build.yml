@@ -129,20 +129,18 @@ jobs:
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
           echo "CI_COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
-          echo '```' > diff.md
-          git --no-pager diff --name-status ci/refs/heads/main HEAD >> diff.md
-          echo '```' >> diff.md
+          echo '```' > diagrams/diff.md
+          git --no-pager diff --name-status ci/refs/heads/main HEAD >> diagrams/diff.md
+          echo '```' >> diagrams/diff.md
 
           echo '# ± Registry diff' >> $GITHUB_STEP_SUMMARY
           echo >> $GITHUB_STEP_SUMMARY
-          cat diff.md >> $GITHUB_STEP_SUMMARY
+          cat diagrams/diff.md >> $GITHUB_STEP_SUMMARY
           echo >> $GITHUB_STEP_SUMMARY
 
           echo 'REGISTRY_DIFF<<EOF' >> $GITHUB_ENV
-          cat diff.md >> $GITHUB_ENV
+          cat diagrams/diff.md >> $GITHUB_ENV
           echo EOF >> $GITHUB_ENV
-
-          rm diff.md
       - name: Generate performance summary
         run: |
           set -x
@@ -156,8 +154,6 @@ jobs:
           echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
           cat diagrams/stats.md >> $GITHUB_ENV
           echo EOF >> $GITHUB_ENV
-
-          rm diagrams/stats.md
       - name: Check for write permissions
         id: check
         uses: scherermichael-oss/action-has-permission@17f29510f1bf987b916c8cbb451566a56eed23f1
