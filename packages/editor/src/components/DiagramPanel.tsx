@@ -137,9 +137,6 @@ export const DownloadSVG = (
   variationStr: string
 ): void => {
   SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
-  // remove `width` and `height` for tool compatibility
-  svg.setAttribute("width", "");
-  svg.setAttribute("height", "");
   const blob = new Blob([svg.outerHTML], {
     type: "image/svg+xml;charset=utf-8",
   });
@@ -307,8 +304,6 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             );
-        rendered.setAttribute("width", "100%");
-        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
