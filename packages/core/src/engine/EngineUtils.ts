@@ -39,11 +39,13 @@ import {
 import { ShapeFn } from "../types/state";
 import { Expr, Path } from "../types/style";
 import {
+  ClipData,
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
-  LListV,
   ListV,
+  LListV,
   MatrixV,
   PathCmd,
   PathDataV,
@@ -150,12 +152,14 @@ function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
     contents: v.contents.map((pathCmd: PathCmd<T>) => {
       return {
         cmd: pathCmd.cmd,
-        contents: pathCmd.contents.map((subCmd: SubPath<T>): SubPath<S> => {
-          return {
-            tag: subCmd.tag,
-            contents: mapTuple(f, subCmd.contents),
-          };
-        }),
+        contents: pathCmd.contents.map(
+          (subCmd: SubPath<T>): SubPath<S> => {
+            return {
+              tag: subCmd.tag,
+              contents: mapTuple(f, subCmd.contents),
+            };
+          }
+        ),
       };
     }),
   };
@@ -215,6 +219,21 @@ function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
   };
 }
 
+function mapClipData<T, S>(f: (arg: T) => S, v: ClipDataV<T>): ClipDataV<S> {
+  return {
+    tag: "ClipDataV",
+    contents: mapClipDataInner(f, v.contents),
+  };
+}
+
+function mapClipDataInner<T, S>(f: (arg: T) => S, v: ClipData<T>): ClipData<S> {
+  if (v.tag === "NoClip") {
+    return { tag: "NoClip" };
+  } else {
+    return { tag: "Clip", contents: mapShape(f, v.contents) };
+  }
+}
+
 const mapCircle = <T, S>(f: (arg: T) => S, v: Circle<T>): Circle<S> => {
   return {
     ...v,
@@ -258,6 +277,7 @@ const mapGroup = <T, S>(f: (arg: T) => S, v: Group<T>): Group<S> => {
     ...v,
     ...mapNamed(f, v),
     shapes: mapShapeList(f, v.shapes),
+    clipPath: mapClipData(f, v.clipPath),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -456,6 +476,8 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapPathData(f, v);
     case "ShapeListV":
       return mapShapeList(f, v);
+    case "ClipDataV":
+      return mapClipData(f, v);
     // non-numeric Value types
     case "BoolV":
     case "StrV":
@@ -480,9 +502,8 @@ export const compileCompGraph = async (
   const compGraph: ad.Graph = secondaryGraph(vars);
   const evalFn = await genCode(compGraph);
   return (xs: number[]): Shape<number>[] => {
-    const numbers = evalFn(
-      (x) => xs[safe(indices.get(x), "input not found")]
-    ).secondary;
+    const numbers = evalFn((x) => xs[safe(indices.get(x), "input not found")])
+      .secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
     return shapes.map((s: Shape<ad.Num>) =>
       mapShape(

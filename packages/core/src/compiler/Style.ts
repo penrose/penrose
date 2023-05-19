@@ -14,12 +14,12 @@ import { lastLocation, prettyParseError } from "../parser/ParserUtil";
 import styleGrammar from "../parser/StyleParser";
 import {
   Canvas,
-  InputMeta,
   Context as MutableContext,
+  InputMeta,
   makeCanvas,
   uniform,
 } from "../shapes/Samplers";
-import { Shape, ShapeType, isShapeType, sampleShape } from "../shapes/Shapes";
+import { isShapeType, sampleShape, Shape, ShapeType } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { A, C, Identifier, SourceRange } from "../types/ast";
 import { Env } from "../types/domain";
@@ -42,9 +42,9 @@ import {
   State,
 } from "../types/state";
 import {
-  BinOp,
   BinaryOp,
   BindingForm,
+  BinOp,
   DeclPattern,
   Expr,
   FunctionCall,
@@ -56,12 +56,12 @@ import {
   Path,
   PathAssign,
   PredArg,
+  RelationPattern,
   RelBind,
   RelField,
   RelPred,
-  RelationPattern,
-  SelExpr,
   Selector,
+  SelExpr,
   Stmt,
   StyProg,
   StyT,
@@ -96,16 +96,16 @@ import {
   SubExpr,
   SubPredArg,
   SubProg,
-  SubStmt,
   SubstanceEnv,
+  SubStmt,
   TypeConsApp,
 } from "../types/substance";
 import {
   ArgVal,
   Field,
   FloatV,
-  LListV,
   ListV,
+  LListV,
   MatrixV,
   PropID,
   ShapeListV,
@@ -113,7 +113,6 @@ import {
   VectorV,
 } from "../types/value";
 import {
-  Result,
   all,
   andThen,
   badShapeParamTypeError,
@@ -123,15 +122,16 @@ import {
   ok,
   parseError,
   redeclareNamespaceError,
+  Result,
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
 } from "../utils/Error";
 import Graph from "../utils/Graph";
 import {
-  GroupGraph,
   buildRenderGraph,
   findOrderedRoots,
+  GroupGraph,
   makeGroupGraph,
   traverseUp,
 } from "../utils/GroupGraph";
@@ -157,9 +157,9 @@ import {
   zip2,
 } from "../utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
+import { checkShape } from "./shapeChecker/CheckShape";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller";
 import { checkExpr, checkPredicate, checkVar } from "./Substance";
-import { checkShape } from "./shapeChecker/CheckShape";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Warn })
@@ -1521,8 +1521,9 @@ const makeListRSubstsForStyleRels = (
   subProg: SubProg<A>
 ): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
-  const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
-    im.List();
+  const initListRSubsts: im.List<
+    im.List<[Subst, im.Set<SubStmt<A>>]>
+  > = im.List();
 
   const [newUsedStyVars, newListRSubsts] = rels.reduce(
     ([usedStyVars, listRSubsts], rel) => {
@@ -2060,12 +2061,17 @@ const processBlock = (
       .concat(hb.block.statements);
 
     // Translate each statement in the block
-    const { diagnostics, globals, unnamed, substances, locals } =
-      augmentedStatements.reduce(
-        (assignment, stmt, stmtIndex) =>
-          processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals
-      );
+    const {
+      diagnostics,
+      globals,
+      unnamed,
+      substances,
+      locals,
+    } = augmentedStatements.reduce(
+      (assignment, stmt, stmtIndex) =>
+        processStmt({ block, subst }, stmtIndex, stmt, assignment),
+      withLocals
+    );
 
     switch (block.tag) {
       case "LocalVarId": {
@@ -2298,16 +2304,18 @@ const evalVals = (
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
   evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
     all(
-      argVals.map((argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
-        switch (argVal.tag) {
-          case "ShapeVal": {
-            return err(oneErr({ tag: "NotValueError", expr: args[i] }));
-          }
-          case "Val": {
-            return ok(argVal.contents);
+      argVals.map(
+        (argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
+          switch (argVal.tag) {
+            case "ShapeVal": {
+              return err(oneErr({ tag: "NotValueError", expr: args[i] }));
+            }
+            case "Val": {
+              return ok(argVal.contents);
+            }
           }
         }
-      })
+      )
     ).mapErr(flatErrs)
   );
 
@@ -2726,7 +2734,8 @@ const evalListOrVector = (
           case "PtListV":
           case "StrV":
           case "TupV":
-          case "ShapeListV": {
+          case "ShapeListV":
+          case "ClipDataV": {
             return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
           }
         }
@@ -2779,7 +2788,8 @@ const evalAccess = (
     case "ColorV":
     case "FloatV":
     case "PathDataV":
-    case "StrV": {
+    case "StrV":
+    case "ClipDataV": {
       // Not allowing indexing into a shape list for now
       return err({ tag: "NotCollError", expr });
     }
@@ -2806,7 +2816,8 @@ const evalUMinus = (
     case "PtListV":
     case "StrV":
     case "TupV":
-    case "ShapeListV": {
+    case "ShapeListV":
+    case "ClipDataV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
   }
@@ -2830,6 +2841,7 @@ const evalUTranspose = (
     case "PtListV":
     case "StrV":
     case "ShapeListV":
+    case "ClipDataV":
     case "TupV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
@@ -3702,12 +3714,14 @@ export const compileStyleHelper = async (
 
   const groupWarnings = checkGroupGraph(groupGraph);
 
-  const { shapeOrdering: layerOrdering, warning: layeringWarning } =
-    computeLayerOrdering(
-      [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
-      [...translation.layering],
-      groupGraph
-    );
+  const {
+    shapeOrdering: layerOrdering,
+    warning: layeringWarning,
+  } = computeLayerOrdering(
+    [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
+    [...translation.layering],
+    groupGraph
+  );
 
   // Fix the ordering between nodes of the group graph
   for (let i = 0; i < layerOrdering.length; i++) {

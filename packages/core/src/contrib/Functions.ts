@@ -59,6 +59,7 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { CompFunc } from "../types/functions";
 import {
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
@@ -70,12 +71,15 @@ import {
 } from "../types/value";
 import {
   booleanT,
+  clipDataV,
+  clipShape,
   colorT,
   colorTypeT,
   floatV,
   getStart,
   linePts,
   natT,
+  noClip,
   pathCmdT,
   pathTypeT,
   posIntT,
@@ -106,7 +110,7 @@ import {
   turningNumber,
 } from "./CurveConstraints";
 import { rectLineDist, shapeDistance } from "./Queries";
-import { Rectlike, clamp, isRectlike, numOf } from "./Utils";
+import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -3179,6 +3183,23 @@ export const compDict = {
       return { tag: "VectorV", contents: centerOfMass(points) };
     },
     returns: valueT("Real2"),
+  },
+
+  noClip: {
+    name: "noClip",
+    description: "Describes no shape clipping",
+    params: [],
+    body: (_context: Context): ClipDataV<ad.Num> => clipDataV(noClip()),
+    returns: valueT("ClipData"),
+  },
+
+  clip: {
+    name: "clip",
+    description: "Describes clipping to a shape",
+    params: [{ name: "shape", type: shapeT("AnyShape") }],
+    body: (_context: Context, shape: Shape<ad.Num>): ClipDataV<ad.Num> =>
+      clipDataV(clipShape(shape)),
+    returns: valueT("ClipData"),
   },
 };
 

@@ -25,12 +25,16 @@ import {
 } from "../types/types";
 import {
   BoolV,
+  Clip,
+  ClipData,
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
-  LListV,
   ListV,
+  LListV,
   MatrixV,
+  NoClip,
   PathCmd,
   PathDataV,
   PtListV,
@@ -240,7 +244,8 @@ export const arrowheads: ArrowheadMap = {
     viewbox: "0 0 12.5 14",
     refX: 5,
     refY: 7,
-    path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
+    path:
+      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
     style: {
       "stroke-linecap": "round",
@@ -634,6 +639,20 @@ export const white = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [1, 1, 1, 1] });
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
+
+export const clipDataV = (contents: ClipData<ad.Num>): ClipDataV<ad.Num> => ({
+  tag: "ClipDataV",
+  contents,
+});
+
+export const noClip = (): NoClip => ({
+  tag: "NoClip",
+});
+
+export const clipShape = (contents: Shape<ad.Num>): Clip<ad.Num> => ({
+  tag: "Clip",
+  contents,
+});
 
 //#endregion
 

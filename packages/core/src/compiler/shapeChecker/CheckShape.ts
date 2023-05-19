@@ -30,6 +30,7 @@ import {
   checkStroke,
 } from "./CheckShapeHierarchyProps";
 import {
+  checkClipDataV,
   checkFloatV,
   checkPathDataV,
   checkShapeListV,
@@ -183,9 +184,13 @@ export const checkGroup = (
   const shapes = checkProp(path, "shapes", trans, checkShapeListV);
   if (shapes.isErr()) return err(shapes.error);
 
+  const clipPath = checkProp(path, "clipPath", trans, checkClipDataV);
+  if (clipPath.isErr()) return err(clipPath.error);
+
   return ok({
     ...named.value,
     shapes: shapes.value,
+    clipPath: clipPath.value,
     passthrough: new Map(),
     shapeType: "Group",
   });

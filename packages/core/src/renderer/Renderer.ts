@@ -8,7 +8,6 @@ import { isLinelike, isRectlike } from "../contrib/Utils";
 import { Group } from "../shapes/Group";
 import { Shape } from "../shapes/Shapes";
 import { LabelCache, State } from "../types/state";
-import { getValueAsShapeList } from "../utils/Util";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
 import RenderCircle from "./Circle";
 import { dragUpdate } from "./dragUtils";
@@ -153,12 +152,48 @@ const RenderGroup = async (
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const subShapes = getValueAsShapeList(groupShape.shapes);
-  for (const shape of subShapes) {
-    const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
-    elem.appendChild(childSvg);
+
+  const clip = groupShape.clipPath.contents;
+
+  let clipShapeName: string | undefined = undefined;
+  let clipPathSvgId: string | undefined = undefined;
+
+  if (clip.tag === "Clip") {
+    const clipShape = clip.contents;
+    clipShapeName = clipShape.name.contents;
+    const clipShapeSvg = await RenderShape(
+      clipShape,
+      shapeProps,
+      interactiveProp
+    );
+
+    const clipPathSvg = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "clipPath"
+    );
+    // Okay if used only once
+    clipPathSvgId = clipShapeName + "_clip";
+    clipPathSvg.setAttribute("id", clipPathSvgId);
+    clipPathSvg.appendChild(clipShapeSvg);
+
+    elem.appendChild(clipPathSvg);
   }
-  attrAutoFillSvg(groupShape, elem, [...attrTitle(groupShape, elem), "shapes"]);
+
+  const subShapes = groupShape.shapes.contents;
+  for (const shape of subShapes) {
+    const name = shape.name.contents;
+    if (name !== clipShapeName) {
+      const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+      childSvg.setAttribute("clip-path", `url(#${clipPathSvgId})`);
+      elem.appendChild(childSvg);
+    }
+  }
+
+  attrAutoFillSvg(groupShape, elem, [
+    ...attrTitle(groupShape, elem),
+    "shapes",
+    "clipPath",
+  ]);
   return elem;
 };
 

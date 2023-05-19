@@ -19,13 +19,19 @@ export const makeGroupGraph = (shapes: Shape<ad.Num>[]): GroupGraph => {
   // then populate the edges
   for (const [name, shape] of nameShapeMap.entries()) {
     if (shape.shapeType === "Group") {
-      const subShapes = getValueAsShapeList(shape.shapes);
+      const subShapes = shape.shapes.contents;
       const subNames = subShapes.map((subShape) => {
-        return getAdValueAsString(subShape.name);
+        return subShape.name.contents;
       });
 
       for (const subName of subNames) {
         graph.setEdge({ i: name, j: subName, e: undefined });
+      }
+
+      const clip = shape.clipPath.contents;
+      if (clip.tag === "Clip") {
+        const clipName = clip.contents.name.contents;
+        graph.setEdge({ i: name, j: clipName, e: undefined });
       }
     }
   }
