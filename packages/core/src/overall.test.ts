@@ -1,4 +1,5 @@
-import setTHeory from "@penrose/examples/dist/set-theory-domain";
+import setDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
+import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style";
 import { start } from "@penrose/optimizer";
 import { genGradient } from "./engine/Autodiff";
 import {
@@ -13,9 +14,6 @@ import {
 } from "./index";
 import * as ad from "./types/ad";
 import { State } from "./types/state";
-
-const vennStyle = setTHeory["venn.style"];
-const setDomain = setTHeory["setTheory.domain"];
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
@@ -248,12 +246,10 @@ describe("Run individual functions", () => {
       // console.log("# constraints", stateEvaled.constrFns.length);
 
       // Test objectives
-      const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
-        stateEvaled
-      );
-      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } = evalFns(
-        stateOptimizedValue
-      );
+      const { constrEngs: initEngsConstr, objEngs: initEngsObj } =
+        evalFns(stateEvaled);
+      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } =
+        evalFns(stateOptimizedValue);
 
       for (let i = 0; i < initEngsObj.length; i++) {
         expect(initEngsObj[i]).toBeGreaterThanOrEqual(optedEngsObj[i]);

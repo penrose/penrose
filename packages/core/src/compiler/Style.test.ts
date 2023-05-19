@@ -1,4 +1,5 @@
-import setTheory from "@penrose/examples/dist/set-theory-domain";
+import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain";
+import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance";
 import im from "immutable";
 import { C } from "../types/ast";
 import { Either } from "../types/common";
@@ -22,10 +23,10 @@ import {
 } from "../types/styleSemantics";
 import { SubstanceEnv } from "../types/substance";
 import { ColorV, RGBA } from "../types/value";
-import { andThen, err, Result, showError } from "../utils/Error";
+import { Result, andThen, err, showError } from "../utils/Error";
 import Graph from "../utils/Graph";
 import { GroupGraph } from "../utils/GroupGraph";
-import { foldM, toLeft, ToRight, zip2 } from "../utils/Util";
+import { ToRight, foldM, toLeft, zip2 } from "../utils/Util";
 import { compileDomain } from "./Domain";
 import * as S from "./Style";
 import { compileSubstance } from "./Substance";
@@ -764,8 +765,8 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = setTheory["twosets-simple.substance"];
-    const domainProg = setTheory["functions.domain"];
+    const subProg = twosetsSimpleSubstance;
+    const domainProg = functionsDomain;
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.style";
 

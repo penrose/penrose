@@ -59,7 +59,6 @@ import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
 import { CompFunc } from "../types/functions";
 import {
-  ArgVal,
   Color,
   ColorV,
   FloatV,
@@ -94,7 +93,9 @@ import {
   valueT,
 } from "../utils/Util";
 import {
+  centerOfMass,
   elasticEnergy,
+  inflectionEnergy,
   isoperimetricRatio,
   lengthK,
   maxCurvature,
@@ -105,7 +106,7 @@ import {
   turningNumber,
 } from "./CurveConstraints";
 import { rectLineDist, shapeDistance } from "./Queries";
-import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
+import { Rectlike, clamp, isRectlike, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -1726,6 +1727,218 @@ export const compDict = {
   },
 
   /**
+   * Return a uniform random value between minVal and maxValue.
+   */
+  random: {
+    name: "random",
+    description:
+      "Uniformly sample a random value in the range from `minVal` to `maxVal`.",
+    params: [
+      { name: "minVal", type: realT(), description: "minimum value" },
+      { name: "maxVal", type: realT(), description: "maximum value" },
+    ],
+    body: (
+      { makeInput }: Context,
+      minVal: ad.Num,
+      maxVal: ad.Num
+    ): FloatV<ad.Num> => {
+      if (typeof minVal === "number" && typeof maxVal === "number") {
+        const val = makeInput({
+          init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
+          stages: new Set(),
+        });
+
+        return {
+          tag: "FloatV",
+          contents: val,
+        };
+      } else {
+        throw new Error(
+          "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead."
+        );
+      }
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a uniform random value between 0 and 1
+   */
+  unitRandom: {
+    name: "unitRandom",
+    description: "Uniformly sample a random value in the range [0,1].",
+    params: [],
+    body: ({ makeInput }: Context): FloatV<ad.Num> => {
+      const val = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      return {
+        tag: "FloatV",
+        contents: val,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit disk.
+   */
+  diskRandom: {
+    name: "diskRandom",
+    description: "Sample the uniform distribution on the unit disk.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // From the section "Sampling the Unit Disk" in Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const x = [
+        mul(sqrt(u1), cos(mul(2 * Math.PI, u2))),
+        mul(sqrt(u1), sin(mul(2 * Math.PI, u2))),
+      ];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit circle.
+   */
+  circleRandom: {
+    name: "circleRandom",
+    description: "Sample the uniform distribution on the unit circle.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 2 * Math.PI) },
+        stages: new Set(),
+      });
+
+      const x = [cos(u), sin(u)];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit sphere.
+   */
+  sphereRandom: {
+    name: "sphereRandom",
+    description: "Sample the uniform distribution on the unit sphere.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // Adapted from the section "Sampling the Unit Hemisphere" in Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const z = sub(1, mul(2, u1));
+      const r = sqrt(clamp([0, 1], sub(1, mul(z, z))));
+      const phi = mul(2 * Math.PI, u2);
+      const x = [mul(r, cos(phi)), mul(r, sin(phi)), z];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from a normal distribution with mean 0 and standard deviation 1.
+   */
+  normalRandom: {
+    name: "normalRandom",
+    description:
+      "Sample a normal distribution with mean 0 and standard deviation 1.",
+    params: [],
+    body: ({ makeInput }: Context): FloatV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      const Z = mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
+
+      return {
+        tag: "FloatV",
+        contents: Z,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a random point sampled from the uniform distribution on a triangle with vertices a, b, c.
+   */
+  triangleRandom: {
+    name: "triangleRandom",
+    description:
+      "Sample a point from the uniform distribution over a triangle with vertices `a`, `b`, and `c`.",
+    params: [
+      { name: "a", type: real2T(), description: "First vertex" },
+      { name: "b", type: real2T(), description: "Second vertex" },
+      { name: "c", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
+      { makeInput }: Context,
+      a: ad.Num[],
+      b: ad.Num[],
+      c: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // Following method SamplePlanarTriangle from Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const s = sqrt(u1);
+      const t = u2;
+      const x = ops.vadd(
+        ops.vadd(ops.vmul(sub(1, s), a), ops.vmul(mul(s, sub(1, t)), b)),
+        ops.vmul(mul(s, t), c)
+      );
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
   sampleColor: {
@@ -2913,6 +3126,60 @@ export const compDict = {
     },
     returns: valueT("Real"),
   },
+
+  /**
+   * Returns integral of curvature derivative raised to `p` along the curve
+   */
+  inflectionEnergy: {
+    name: "inflectionEnergy",
+    description:
+      "Returns integral of curvature derivative raised to `p` along the curve",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "p",
+        type: realT(),
+        description: "exponent for curvature derivative",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][],
+      closed: boolean,
+      p: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: inflectionEnergy(points, closed, p) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns center of mass for a 2D point cloud
+   */
+  centerOfMass: {
+    name: "centerOfMass",
+    description: "Returns center of mass for a 2D point cloud",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+    ],
+    body: (_context: Context, points: [ad.Num, ad.Num][]): VectorV<ad.Num> => {
+      return { tag: "VectorV", contents: centerOfMass(points) };
+    },
+    returns: valueT("Real2"),
+  },
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in
@@ -3150,11 +3417,6 @@ const closestPointEllipseCoords = (
   x = add(x, center[0]);
   y = add(y, center[1]);
   return [x, y];
-};
-
-// Ignore this
-export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
-  if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {

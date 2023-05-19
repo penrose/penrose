@@ -7,5 +7,6 @@
 *#
 *~
 /.vscode/
+/diagrams/
 dist/
 node_modules/

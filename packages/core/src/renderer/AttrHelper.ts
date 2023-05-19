@@ -20,6 +20,7 @@ import {
 } from "../types/shapes";
 import { toFontRule } from "../utils/CollectLabels";
 import {
+  isKeyOf,
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
@@ -73,24 +74,22 @@ export const attrAutoFillSvg = (
     )
       continue;
 
-    if (propKey in attrMapSvg) {
+    if (isKeyOf(propKey, attrMapSvg)) {
       const mappedPropKey: string = attrMapSvg[propKey];
       if (!elem.hasAttribute(mappedPropKey)) {
         elem.setAttribute(mappedPropKey, propVal.contents.toString());
-      } else if (propKey === "style") {
-        const style = elem.getAttribute(propKey);
-        if (style === null) {
-          elem.setAttribute(propKey, propVal.contents.toString());
-        } else {
-          elem.setAttribute(propKey, `${style}${propVal.contents.toString()}`);
-        }
+      }
+    } else if (propKey === "style" && propVal.contents !== "") {
+      const style = elem.getAttribute(propKey);
+      if (style === null) {
+        elem.setAttribute(propKey, propVal.contents.toString());
       } else {
-        if (!elem.hasAttribute(propKey)) {
-          elem.setAttribute(propKey, propVal.contents.toString());
-        }
+        elem.setAttribute(propKey, `${style}${propVal.contents.toString()}`);
       }
     } else {
-      elem.setAttribute(propKey, propVal.contents.toString());
+      if (!elem.hasAttribute(propKey)) {
+        elem.setAttribute(propKey, propVal.contents.toString());
+      }
     }
   }
 };

@@ -1,0 +1,210 @@
+----------------------------------------
+-- Global parameters -------------------
+----------------------------------------
+
+canvas {
+   width = 240
+   height = 200
+}
+
+colors {
+   color black = #000
+   color blue = #1b1f8a33
+   color darkBlue = #9ea6dd
+   color shadow = rgba(0,0,0,.1)
+}
+
+global {
+   scalar lineWidth = 0.65
+   scalar overlapPadding = 5.0
+   scalar shadowScaleX = 0.8
+   scalar shadowScaleY = 0.25
+}
+
+----------------------------------------
+-- Rules for drawing shapes ------------
+----------------------------------------
+
+forall Point p {
+   -- location
+   vec2 p.x = (?,?)
+
+   -- draw as a small dot
+   shape p.icon = Circle {
+      center: p.x
+      r: 0.8
+      fillColor: colors.black
+   }
+}
+
+forall Interval I {
+   -- location of endpoints
+   scalar x = ?
+   scalar y = ?
+   scalar w = random(50,150)
+   vec2 I.x0 = (x-w/2,y)
+   vec2 I.x1 = (x+w/2,y)
+
+   -- draw as a horizontal line segment
+   shape I.icon = Line {
+      start: I.x0
+      end: I.x1
+      strokeWidth: global.lineWidth
+      strokeColor: colors.black
+   }
+}
+
+forall Circle C {
+   -- center and radius
+   vec2 C.center = (?,?)
+   scalar C.r = random(10,35)
+
+   -- draw as an empty circle
+   shape C.icon = Circle {
+      center: C.center
+      r: C.r
+      fillColor: none()
+      strokeWidth: global.lineWidth
+      strokeColor: colors.black
+   }
+}
+
+forall Disk D {
+   -- center and radius
+   vec2 D.center = (?,?)
+   scalar D.r = random(10,35)
+
+   -- draw as a filled circle
+   shape D.icon = Circle {
+      center: D.center
+      r: D.r
+      fillColor: colors.blue
+   }
+}
+
+forall Triangle T {
+   -- vertices
+   vec2 T.p0 = (?,?)
+   vec2 T.p1 = (?,?)
+   vec2 T.p2 = (?,?)
+
+   -- make sure angles are reasonable
+   scalar minAngle = MathPI()/6
+   vec2 u = T.p1 - T.p0
+   vec2 v = T.p2 - T.p1
+   vec2 w = T.p0 - T.p2
+   ensure angleBetween( -u, v ) > minAngle
+   ensure angleBetween( -v, w ) > minAngle
+   ensure angleBetween( -w, u ) > minAngle
+
+   -- draw as a filled polygon
+   shape T.icon = Polygon {
+      points: [T.p0, T.p1, T.p2]
+      fillColor: colors.blue
+   }
+}
+
+forall Sphere S {
+   -- center and radius
+   vec2 S.center = (?,?)
+   scalar S.r = random(10,35)
+
+   -- draw as a filled circle
+   shape S.icon = Circle {
+      center: S.center
+      r: S.r
+      fillColor: colors.blue
+      strokeColor: colors.darkBlue
+      strokeWidth: global.lineWidth
+   }
+
+   -- draw an equator
+   shape S.equator = Ellipse {
+      center: S.center
+      rx: S.r
+      ry: S.r/4.
+      fillColor: none()
+      strokeColor: colors.darkBlue
+      strokeWidth: global.lineWidth
+   }
+
+   -- draw a shadow
+   shape S.shadow = Ellipse {
+      center: S.center - (0,1.1*S.r)
+      rx: S.r * global.shadowScaleX
+      ry: S.r * global.shadowScaleY
+      fillColor: colors.shadow
+   }
+
+   layer S.equator above S.icon
+   layer S.shadow below S.icon
+}
+
+-- draw points above shapes
+forall Point p; Shape S {
+   layer p.icon above S.icon
+}
+
+forall Point p; Sphere S {
+   layer p.icon above S.equator
+}
+
+-- ensure that no two shapes overlap
+forall Shape S1; Shape S2 {
+   ensure disjoint( S1.icon, S2.icon, global.overlapPadding )
+}
+
+----------------------------------------
+-- Rules for sampling shapes -----------
+----------------------------------------
+
+forall Point p; Interval I
+where p := sampleInterval( I ) {
+   scalar t = unitRandom()
+   override p.x = (1-t)*I.x0 + t*I.x1
+}
+
+forall Point p; Circle C
+where p := sampleCircle( C ) {
+   vec2 y = circleRandom()
+   override p.x = C.r*y + C.center
+}
+
+forall Point p; Disk D
+where p := sampleDisk( D ) {
+   vec2 y = diskRandom()
+   override p.x = D.r*y + D.center
+}
+
+forall Point p; Triangle T
+where p := sampleTriangle( T ) {
+   vec2 y = triangleRandom( T.p0, T.p1, T.p2 )
+   override p.x = y
+}
+
+forall Point p; Sphere S
+where p := sampleSphere( S ) {
+
+   -- sample a 3D point and project to 2D
+   scalar cameraZ = 2
+   vec3 Y = sphereRandom()
+   vec2 y = (Y[0],Y[1])/(Y[2]+cameraZ)
+   override p.x = 1.7*S.r*y + S.center
+
+   -- set point scale and opacity based
+   -- on distance from camera
+   scalar R = .05*S.r/(Y[2]+cameraZ)
+   scalar alpha = 1./(Y[2]+cameraZ)
+   override p.icon.r = R
+   override p.icon.fillColor = rgba(0,0,0,alpha)
+
+   -- draw a shadow for the point
+   vec2 y0 = ( S.r*global.shadowScaleX*y[0], S.r*global.shadowScaleY*y[1] )
+
+   shape p.shadow = Circle {
+      center: y0 + S.center - (0,1.1*S.r)
+      r: R
+      fillColor: colors.shadow
+   }
+}
+

@@ -1,4 +1,10 @@
-import setTheory from "@penrose/examples/dist/set-theory-domain";
+import continuousmapSubstance from "@penrose/examples/dist/set-theory-domain/continuousmap.substance";
+import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain";
+import multisetsSubstance from "@penrose/examples/dist/set-theory-domain/multisets.substance";
+import nestedSubstance from "@penrose/examples/dist/set-theory-domain/nested.substance";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
+import treeSubstance from "@penrose/examples/dist/set-theory-domain/tree.substance";
+import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
@@ -15,6 +21,17 @@ const printError = false;
 const saveContexts = false;
 const outputDir = "/tmp/contexts";
 
+const domains = new Map([
+  ["functions.domain", functionsDomain],
+  ["setTheory.domain", setTheoryDomain],
+]);
+const substances = new Map([
+  ["continuousmap.substance", continuousmapSubstance],
+  ["multisets.substance", multisetsSubstance],
+  ["nested.substance", nestedSubstance],
+  ["tree.substance", treeSubstance],
+  ["twosets-simple.substance", twosetsSimpleSubstance],
+]);
 const subPaths = [
   // "linear-algebra-domain/twoVectorsPerp.substance",
   ["setTheory.domain", "tree.substance"],
@@ -536,8 +553,8 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach(([domainPath, examplePath]) => {
-    const domProg = setTheory[domainPath];
-    const subProg = setTheory[examplePath];
+    const domProg = domains.get(domainPath)!;
+    const subProg = substances.get(examplePath)!;
     test(examplePath, () => {
       // do testing
       const env = envOrError(domProg);

@@ -11,11 +11,10 @@ import {
 import * as ad from "./types/ad";
 import { Env } from "./types/domain";
 import { PenroseError } from "./types/errors";
-import { Registry, Trio } from "./types/io";
 import { Fn, LabelCache, State } from "./types/state";
 import { SubstanceEnv } from "./types/substance";
 import { collectLabels, insertPending } from "./utils/CollectLabels";
-import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
+import { Result, andThen, err, nanError, ok, showError } from "./utils/Error";
 import { safe } from "./utils/Util";
 
 /**
@@ -285,49 +284,6 @@ export const finalStage = (state: State): boolean =>
 export const stateInitial = (state: State): boolean =>
   state.params.optStatus === "NewIter";
 
-/**
- * Read and flatten the registry file for Penrose examples into a list of program trios.
- *
- * @param registry JSON file of the registry
- * @param galleryOnly Only return trios where `gallery === true`
- */
-export const readRegistry = (
-  registry: Registry,
-  galleryOnly: boolean
-): Trio[] => {
-  const { substances, styles, domains, trios } = registry;
-  const res = [];
-  for (const trioEntry of trios) {
-    const {
-      domain: dslID,
-      style: styID,
-      substance: subID,
-      variation,
-      gallery,
-      name,
-    } = trioEntry;
-    const domain = domains[dslID];
-    const substance = substances[subID];
-    const style = styles[styID];
-    const trio: Trio = {
-      substanceURI: registry.root + substance.URI,
-      styleURI: registry.root + style.URI,
-      domainURI: registry.root + domain.URI,
-      substanceID: subID,
-      domainID: dslID,
-      styleID: styID,
-      variation,
-      name: name ?? `${subID}-${styID}`,
-      id: `${subID}-${styID}`,
-      gallery: gallery ?? false,
-    };
-    if (!galleryOnly || trioEntry.gallery) {
-      res.push(trio);
-    }
-  }
-  return res;
-};
-
 const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
   const stage = optStages[currentStageIndex];
@@ -384,7 +340,6 @@ export { sampleShape, shapeTypes } from "./shapes/Shapes";
 export type { ShapeType } from "./shapes/Shapes";
 export type { Env } from "./types/domain";
 export type { PenroseError, Warning as PenroseWarning } from "./types/errors";
-export type { Trio } from "./types/io";
 export type { SubProg } from "./types/substance";
 export * as Value from "./types/value";
 export { showError } from "./utils/Error";

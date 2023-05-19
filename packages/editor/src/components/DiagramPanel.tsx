@@ -12,14 +12,14 @@ import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
-  currentRogerState,
   DiagramMetadata,
-  diagramMetadataSelector,
-  diagramState,
-  fileContentsSelector,
   ProgramFile,
   RogerState,
   WorkspaceMetadata,
+  currentRogerState,
+  diagramMetadataSelector,
+  diagramState,
+  fileContentsSelector,
   workspaceMetadataSelector,
 } from "../state/atoms";
 import BlueButton from "./BlueButton";
@@ -83,11 +83,7 @@ export const pathResolver = async (
   // Handle relative paths
   switch (location.kind) {
     case "example": {
-      return fetchResource(
-        relativePath,
-        workspace,
-        new URL(relativePath, location.root).href
-      );
+      return location.resolver(relativePath);
     }
     case "roger": {
       if (rogerState.kind === "connected") {
@@ -109,6 +105,8 @@ export const pathResolver = async (
             })
           );
         });
+      } else {
+        return undefined;
       }
     }
     // TODO: publish images in the gist
@@ -387,32 +385,33 @@ export default function DiagramPanel() {
   });
 
   const downloadPdf = useRecoilCallback(
-    ({ snapshot }) => () => {
-      if (canvasRef.current !== null) {
-        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
-        if (svg !== null && state) {
-          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-            .contents as WorkspaceMetadata;
-          const openedWindow = window.open(
-            "",
-            "PRINT",
-            `height=${state.canvas.height},width=${state.canvas.width}`
-          );
-          if (openedWindow === null) {
-            toast.error("Couldn't open popup to print");
-            return;
+    ({ snapshot }) =>
+      () => {
+        if (canvasRef.current !== null) {
+          const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+          if (svg !== null && state) {
+            const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+              .contents as WorkspaceMetadata;
+            const openedWindow = window.open(
+              "",
+              "PRINT",
+              `height=${state.canvas.height},width=${state.canvas.width}`
+            );
+            if (openedWindow === null) {
+              toast.error("Couldn't open popup to print");
+              return;
+            }
+            openedWindow.document.write(
+              `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+            );
+            openedWindow.document.write(svg.outerHTML);
+            openedWindow.document.write("</body></html>");
+            openedWindow.document.close();
+            openedWindow.focus();
+            openedWindow.print();
           }
-          openedWindow.document.write(
-            `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
-          );
-          openedWindow.document.write(svg.outerHTML);
-          openedWindow.document.write("</body></html>");
-          openedWindow.document.close();
-          openedWindow.focus();
-          openedWindow.print();
         }
-      }
-    },
+      },
     [state]
   );
 

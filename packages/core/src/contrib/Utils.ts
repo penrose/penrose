@@ -210,33 +210,30 @@ export const numOf = (x: ad.Num): number => {
 };
 
 /**
- * Return list of tuples of consecutive points
+ * Return list of tuples of consecutive items
  */
-export const consecutiveTuples = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): [ad.Num, ad.Num][][] => {
-  const resLength = closed ? points.length : points.length - 1;
+export const consecutiveTuples = <T>(items: T[], closed: boolean): [T, T][] => {
+  const resLength = closed ? items.length : items.length - 1;
   if (resLength <= 0) return [];
   return Array.from({ length: resLength }, (_, key) => key).map((i) => [
-    points[i],
-    points[(i + 1) % points.length],
+    items[i],
+    items[(i + 1) % items.length],
   ]);
 };
 
 /**
- * Return list of triples of consecutive points
+ * Return list of triples of consecutive items
  */
-export const consecutiveTriples = (
-  points: [ad.Num, ad.Num][],
+export const consecutiveTriples = <T>(
+  items: T[],
   closed: boolean
-): [ad.Num, ad.Num][][] => {
-  const resLength = closed ? points.length : points.length - 2;
+): [T, T, T][] => {
+  const resLength = closed ? items.length : items.length - 2;
   if (resLength <= 0) return [];
   return Array.from({ length: resLength }, (_, key) => key).map((i) => [
-    points[i],
-    points[(i + 1) % points.length],
-    points[(i + 2) % points.length],
+    items[i],
+    items[(i + 1) % items.length],
+    items[(i + 2) % items.length],
   ]);
 };
 
@@ -261,8 +258,6 @@ export const isClosed = (s: Shape<ad.Num>): boolean => {
 export const extractPoints = (s: Shape<ad.Num>): [ad.Num, ad.Num][] => {
   if (s.shapeType === "Polyline" || s.shapeType === "Polygon")
     return s.points.contents.map((arr) => [arr[0], arr[1]]);
-  else if (s.shapeType === "Path")
-    return s.d.contents.map((arr) => [arr[0], arr[1]]);
   else
     throw new Error(`Point extraction not defined for shape ${s.shapeType}.`);
 };
