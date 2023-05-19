@@ -110,7 +110,7 @@ import {
   turningNumber,
 } from "./CurveConstraints";
 import { rectLineDist, shapeDistance } from "./Queries";
-import { clamp, isRectlike, numOf, Rectlike } from "./Utils";
+import { Rectlike, clamp, isRectlike, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions

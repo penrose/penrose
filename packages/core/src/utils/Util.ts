@@ -31,8 +31,8 @@ import {
   Color,
   ColorV,
   FloatV,
-  ListV,
   LListV,
+  ListV,
   MatrixV,
   NoClip,
   PathCmd,
@@ -244,8 +244,7 @@ export const arrowheads: ArrowheadMap = {
     viewbox: "0 0 12.5 14",
     refX: 5,
     refY: 7,
-    path:
-      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
+    path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
     style: {
       "stroke-linecap": "round",
