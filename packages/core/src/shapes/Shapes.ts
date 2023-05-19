@@ -12,7 +12,7 @@ import { Polygon, PolygonProps, samplePolygon } from "./Polygon";
 import { Polyline, PolylineProps, samplePolyline } from "./Polyline";
 import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle";
 import { Canvas, Context } from "./Samplers";
-import { Text, TextProps, sampleText } from "./Text";
+import { sampleText, Text, TextProps } from "./Text";
 //#region other shape types/globals
 
 export type Shape<T> =
@@ -85,7 +85,7 @@ const shapeSampler: Map<
   })
 );
 
-const bboxFromGroup = ({ shapes }: GroupProps<ad.Num>): BBox.BBox => {
+const bboxFromGroup = ({ shapes, clipPath }: GroupProps<ad.Num>): BBox.BBox => {
   const bboxes = shapes.contents.map((shape) => computeShapeBbox(shape));
   const xRanges = bboxes.map(BBox.xRange);
   const yRanges = bboxes.map(BBox.yRange);
@@ -97,7 +97,16 @@ const bboxFromGroup = ({ shapes }: GroupProps<ad.Num>): BBox.BBox => {
   const height = sub(maxY, minY);
   const centerX = div(add(minX, maxX), 2);
   const centerY = div(add(minY, maxY), 2);
-  return BBox.bbox(width, height, [centerX, centerY]);
+
+  const bboxAllMembers = BBox.bbox(width, height, [centerX, centerY]);
+
+  if (clipPath.contents.tag === "NoClip") {
+    return bboxAllMembers;
+  }
+
+  const bboxClipPath = computeShapeBbox(clipPath.contents.contents);
+
+  return BBox.intersectBbox(bboxAllMembers, bboxClipPath);
 };
 
 export const shapeTypes = [
