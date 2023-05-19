@@ -109,6 +109,49 @@ forall Ellipse E {
    ensure E.icon.ry > 50
 }
 
+forall Group G {
+
+   vec2 p0 = (?,?)
+   vec2 p1 = (?,?)
+   vec2 p2 = (?,?)
+
+   shape s1 = Circle {
+      r: random(30,70)
+   }
+   shape s2 = Rectangle {
+      width: random(50,150)
+      height: random(50,150)
+   }
+   shape s3 = Polygon {
+      points: [p0,p1,p2]
+   }
+
+   vec2 u = p1-p0
+   vec2 v = p2-p1
+   vec2 w = p0-p2
+   ensure angleBetween(-u,v) > MathPI()/6
+   ensure angleBetween(-v,w) > MathPI()/6
+   ensure angleBetween(-w,u) > MathPI()/6
+
+   shape G.icon = Group {
+      shapes: [s1,s2,s3]
+   }
+
+   shape bbox = Rectangle {
+      fillColor: none()
+      strokeColor: #ddd
+      strokeDasharray: "10 8"
+      strokeWidth: 2.0
+      center: (0,0)
+      width: random(300,500)
+      height: random(300,500)
+   }
+   ensure contains( bbox, s1 )
+   ensure contains( bbox, s2 )
+   ensure contains( bbox, s3 )
+
+}
+
 -- Rules for drawing closest points
 
 forall Point x; Shape S

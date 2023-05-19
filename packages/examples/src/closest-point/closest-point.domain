@@ -7,3 +7,5 @@ type Polygon <: Shape
 type Rectangle <: Shape
 type Circle <: Shape
 type Ellipse <: Shape
+
+type Group <: Shape
