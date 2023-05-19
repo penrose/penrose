@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
-import setTHeory from "@penrose/examples/dist/set-theory-domain";
+import setDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
+import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style";
 import { start } from "@penrose/optimizer";
 import { describe, expect, test } from "vitest";
 import { genGradient } from "./engine/Autodiff.js";
@@ -16,9 +17,6 @@ import {
 } from "./index.js";
 import * as ad from "./types/ad.js";
 import { State } from "./types/state.js";
-
-const vennStyle = setTHeory["venn.style"];
-const setDomain = setTHeory["setTheory.domain"];
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>

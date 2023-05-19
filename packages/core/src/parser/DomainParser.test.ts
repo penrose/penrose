@@ -1,5 +1,5 @@
-import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
-import setTheory from "@penrose/examples/dist/set-theory-domain";
+import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/linear-algebra.domain";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
 import nearley from "nearley";
 import { beforeEach, describe, expect, test } from "vitest";
 import { SourceRange } from "../types/ast.js";
@@ -21,8 +21,8 @@ const printAST = (ast: any) => {
 };
 
 const domains = [
-  ["linear-algebra.domain", linearAlgebra["linear-algebra.domain"]],
-  ["setTheory.domain", setTheory["setTheory.domain"]],
+  ["linear-algebra.domain", linearAlgebraDomain],
+  ["setTheory.domain", setTheoryDomain],
 ];
 
 beforeEach(() => {

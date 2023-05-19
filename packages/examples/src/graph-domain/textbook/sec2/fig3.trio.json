@@ -1,0 +1,6 @@
+{
+  "substance": "./fig3.substance",
+  "style": ["../../simple-graph.style"],
+  "domain": "../../simple-graph.domain",
+  "variation": "PerfectionPorcupine953"
+}

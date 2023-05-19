@@ -1,6 +1,10 @@
-import geometryDomain from "@penrose/examples/dist/geometry-domain";
-import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain";
-import setTheoryDomain from "@penrose/examples/dist/set-theory-domain";
+import euclideanStyle from "@penrose/examples/dist/geometry-domain/euclidean.style";
+import linearAlgebraStyle from "@penrose/examples/dist/linear-algebra-domain/linear-algebra-paper-simple.style";
+import continuousmapStyle from "@penrose/examples/dist/set-theory-domain/continuousmap.style";
+import treeStyle from "@penrose/examples/dist/set-theory-domain/tree.style";
+import venn3dStyle from "@penrose/examples/dist/set-theory-domain/venn-3d.style";
+import vennSmallStyle from "@penrose/examples/dist/set-theory-domain/venn-small.style";
+import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style";
 import * as fs from "fs";
 import nearley from "nearley";
 import { beforeEach, describe, expect, test } from "vitest";
@@ -27,17 +31,14 @@ const printAST = (ast: any) => {
 const stys = [
   [
     "linear-algebra-domain/linear-algebra-paper-simple.style",
-    linearAlgebraDomain["linear-algebra-paper-simple.style"],
+    linearAlgebraStyle,
   ],
-  ["set-theory-domain/venn.style", setTheoryDomain["venn.style"]],
-  ["set-theory-domain/venn-3d.style", setTheoryDomain["venn-3d.style"]],
-  ["set-theory-domain/venn-small.style", setTheoryDomain["venn-small.style"]],
-  ["set-theory-domain/tree.style", setTheoryDomain["tree.style"]],
-  [
-    "set-theory-domain/continuousmap.style",
-    setTheoryDomain["continuousmap.style"],
-  ],
-  ["geometry-domain/euclidean.style", geometryDomain["euclidean.style"]],
+  ["set-theory-domain/venn.style", vennStyle],
+  ["set-theory-domain/venn-3d.style", venn3dStyle],
+  ["set-theory-domain/venn-small.style", vennSmallStyle],
+  ["set-theory-domain/tree.style", treeStyle],
+  ["set-theory-domain/continuousmap.style", continuousmapStyle],
+  ["geometry-domain/euclidean.style", euclideanStyle],
 ];
 
 beforeEach(() => {

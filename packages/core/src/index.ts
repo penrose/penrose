@@ -11,7 +11,6 @@ import {
 import * as ad from "./types/ad.js";
 import { Env } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
-import { Registry, Trio } from "./types/io.js";
 import { Fn, LabelCache, State } from "./types/state.js";
 import { SubstanceEnv } from "./types/substance.js";
 import { collectLabels, insertPending } from "./utils/CollectLabels.js";
@@ -292,49 +291,6 @@ export const finalStage = (state: State): boolean =>
 export const stateInitial = (state: State): boolean =>
   state.params.optStatus === "NewIter";
 
-/**
- * Read and flatten the registry file for Penrose examples into a list of program trios.
- *
- * @param registry JSON file of the registry
- * @param galleryOnly Only return trios where `gallery === true`
- */
-export const readRegistry = (
-  registry: Registry,
-  galleryOnly: boolean
-): Trio[] => {
-  const { substances, styles, domains, trios } = registry;
-  const res = [];
-  for (const trioEntry of trios) {
-    const {
-      domain: dslID,
-      style: styID,
-      substance: subID,
-      variation,
-      gallery,
-      name,
-    } = trioEntry;
-    const domain = domains[dslID];
-    const substance = substances[subID];
-    const style = styles[styID];
-    const trio: Trio = {
-      substanceURI: registry.root + substance.URI,
-      styleURI: registry.root + style.URI,
-      domainURI: registry.root + domain.URI,
-      substanceID: subID,
-      domainID: dslID,
-      styleID: styID,
-      variation,
-      name: name ?? `${subID}-${styID}`,
-      id: `${subID}-${styID}`,
-      gallery: gallery ?? false,
-    };
-    if (!galleryOnly || trioEntry.gallery) {
-      res.push(trio);
-    }
-  }
-  return res;
-};
-
 const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
   const stage = optStages[currentStageIndex];
@@ -394,7 +350,6 @@ export type {
   PenroseError,
   Warning as PenroseWarning,
 } from "./types/errors.js";
-export type { Trio } from "./types/io.js";
 export type { SubProg } from "./types/substance.js";
 export * as Value from "./types/value.js";
 export { showError } from "./utils/Error.js";

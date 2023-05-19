@@ -2,22 +2,23 @@
   "name": "@penrose/examples",
   "version": "3.0.0-alpha.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": ":",
+    "build": "rimraf dist && tsc",
     "build-decls": ":",
-    "build-examples": "node build.js",
+    "codegen": "git clean -dfqx src && node codegen.js",
     "typecheck": ":"
   },
   "nx": {
     "targets": {
-      "build-decls": {
-        "dependsOn": [
-          "build-examples"
-        ]
-      },
       "build": {
         "dependsOn": [
-          "build-examples"
+          "codegen"
+        ]
+      },
+      "build-decls": {
+        "dependsOn": [
+          "build"
         ]
       }
     }

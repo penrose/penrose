@@ -1,0 +1,6 @@
+{
+  "substance": "./fig8a.substance",
+  "style": ["../../directed-multigraph.style"],
+  "domain": "../../directed-multigraph.domain",
+  "variation": ""
+}

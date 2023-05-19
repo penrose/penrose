@@ -24,6 +24,7 @@
   - [Creating your fork](#creating-your-fork)
   - [Finding an issue to work on](#finding-an-issue-to-work-on)
   - [Merging new changes from upstream](#merging-new-changes-from-upstream)
+  - [Adding tests](#adding-tests)
   - [Opening a pull request (PR)](#opening-a-pull-request-pr)
 - [Release](#release)
 
@@ -193,7 +194,7 @@ yarn typecheck
 ### Registry
 
 We have a `packages/examples/src/registry.json` file which lists several
-diagrams from the `packages/examples/src/` directory. All the "trios" listed in
+diagrams from the `packages/examples/src/` directory. All the trios listed in
 this file are automatically run in GitHub Actions to produce the SVG files in
 the `ci/*` branches.
 
@@ -204,48 +205,31 @@ under `packages/examples/src/`:
 
 ```
 packages/examples/src/foo-domain/
-├── mydomain.domain
+├── foo.domain
 ├── bar.style
 └── baz.substance
 ```
 
-The first step in adding this to the registry is to add the domain under
-`"domains"`:
-
-```json
-"foo": {
-  "URI": "foo-domain/mydomain.domain"
-}
-```
-
-Next you can add the style under `"styles"` referring to that domain:
-
-```json
-"mystyle": {
-  "domain": "foo",
-  "URI": "foo-domain/bar.style"
-}
-```
-
-And similarly the substance would go under `"substances"`:
-
-```json
-"mysubstance": {
-  "domain": "foo",
-  "URI": "foo-domain/baz.substance"
-}
-```
-
-Then, if you find that these give a nice diagram using variation
-`CedarEagle308`, you can add the following under `"trios"`. By default, examples in `trios` won't show up in `@penrose/editor`. Setting `gallery: true` will add your example to the example gallery in `editor`:
+The first step in adding this to the registry is to create a trio JSON file; if
+you find that these give a nice diagram using variation `CedarEagle308`, put
+this in `packages/examples/src/foo-domain/example.trio.json`:
 
 ```json
 {
+  "domain": "./foo.domain",
+  "style": ["./bar.style"],
+  "substance": "./baz.substance",
+  "variation": "CedarEagle308"
+}
+```
+
+The add the following to `packages/examples/src/registry.json`. By default,
+examples won't show up in `@penrose/editor`. Setting `"gallery": true` will add
+your example to the example gallery in `editor`:
+
+```json
+"foo-domain/example": {
   "name": "My Trio",
-  "substance": "mysubstance",
-  "style": "mystyle",
-  "domain": "foo",
-  "variation": "CedarEagle308",
   "gallery": true
 }
 ```
@@ -410,6 +394,10 @@ branch, and then [push][] to your fork:
 ```sh
 git push
 ```
+
+### Adding tests
+
+For some PRs, it can be helpful to add tests that help verify the correctness of new features, and which ensure features don't break in future versions. Tests can be created as example diagrams in `packages/examples/src` and added to the [registry](#registry).
 
 ### Opening a pull request (PR)
 
