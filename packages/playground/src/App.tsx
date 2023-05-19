@@ -40,6 +40,7 @@ const App = () => {
         ),
       ]);
       p.then(setReady);
+      p.then(setStep(0));
     })
   );
 
