@@ -159,13 +159,21 @@ export const onCanvasRect = (
   );
 };
 
-export const onCanvasPoint = ([x, y]: ad.Num[], canvas: [ad.Num, ad.Num]) => {
+export const onCanvasPoint = (
+  [x, y]: ad.Num[],
+  canvas: [ad.Num, ad.Num]
+): ad.Num => {
   const [hcw, hch] = [div(canvas[0], 2), div(canvas[1], 2)];
   const xInRange = add(sub(x, neg(hcw)), sub(hcw, x));
   const yInRange = add(sub(y, neg(hch)), sub(hch, y));
   return add(xInRange, yInRange);
 };
 
+export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
+
+export { numOf, numsOf } from "./contrib/Utils";
+export { ops } from "./engine/Autodiff";
+export * from "./engine/AutodiffFunctions";
 export {
   measureText,
   input as scalar,
