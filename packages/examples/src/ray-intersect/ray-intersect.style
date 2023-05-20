@@ -33,6 +33,7 @@ forall Ray x {
    }
 
    layer x.arrow above x.line
+   layer x.icon above x.arrow
 }
 
 forall Line L {
@@ -173,6 +174,8 @@ forall Ray x; Shape S
    }
 
    layer intersectDot above x.arrow
+   layer intersectDot below x.icon
+   layer intersectDot above S.icon
 }
 
 forall Ray x; Polyline L
