@@ -2711,7 +2711,10 @@ export const compDict = {
       p: ad.Num[],
       v: ad.Num[]
     ): VectorV<ad.Num> => {;
-       return rayIntersectShape(s,p,v);
+       const y = rayIntersectShape(s,p,v).contents;
+       const y0 = ifCond( eq(absVal(y[0]),Infinity), p[0], y[0] );
+       const y1 = ifCond( eq(absVal(y[1]),Infinity), p[1], y[1] );
+       return { tag: "VectorV", contents: [y0,y1] };
     },
     returns: valueT("Real2"),
   },
@@ -3333,8 +3336,8 @@ const rayIntersectCircle = (
    const B = neg(ops.vdot(u,w));
    const C = sub(ops.vdot(u,u),mul(r,r));
    const D = sub(mul(B,B),C);
-   const t1 = ifCond( lt(D,0), 0, sub(B,sqrt(D)) );
-   const t2 = ifCond( lt(D,0), 0, add(B,sqrt(D)) );
+   const t1 = ifCond( lt(D,0), Infinity, sub(B,sqrt(D)) );
+   const t2 = ifCond( lt(D,0), Infinity, add(B,sqrt(D)) );
    const t = ifCond( gt(t1,0), t1, ifCond( gt(t2,0), t2, 0 ));
    const y = ops.vadd(p,ops.vmul(t,w));
    return { tag: "VectorV", contents: y };
