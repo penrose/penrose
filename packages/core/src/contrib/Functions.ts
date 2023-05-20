@@ -3343,6 +3343,23 @@ const rayIntersectCircle = (
    return { tag: "VectorV", contents: y };
 }
 
+const rayIntersectLine = (
+   S: Line<ad.Num>,
+   p: ad.Num[],
+   v: ad.Num[],
+): VectorV<ad.Num> => {
+   const a = S.start.contents;
+   const b = S.end.contents;
+   const u = ops.vsub(b,a);
+   const w = ops.vsub(p,a);
+   const d = ops.cross2(v,u);
+   const s = div(ops.cross2(v,w),d);
+   const t = div(ops.cross2(u,w),d);
+   const T = ifCond( lt(t,0), Infinity, ifCond( lt(s,0), Infinity, ifCond( gt(s,1), Infinity, t )));
+   const y = ops.vadd(p,ops.vmul(T,v));
+   return { tag: "VectorV", contents: y };
+}
+
 const closestPointShape = (
       s:
         | Circle<ad.Num>
