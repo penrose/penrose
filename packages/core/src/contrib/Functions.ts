@@ -2675,6 +2675,47 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
+  /**
+   * Given a point p and vector v, find the first point where the ray r(t)=p+tv
+   * intersects the given shape.  If there are no intersections, returns p.
+   */
+  rayIntersect: {
+    name: "rayIntersect",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => {;
+       return rayIntersectShape(s,p,v);
+    },
+    returns: valueT("Real2"),
+  },
+
   closestPoint: {
     name: "closestPoint",
     params: [
@@ -2691,7 +2732,7 @@ export const compDict = {
         ),
         description: "A shape",
       },
-      { name: "p", type: real2T(), description: "A vector" },
+      { name: "p", type: real2T(), description: "A point" },
     ],
     body: (
       _context: Context,
@@ -3234,6 +3275,70 @@ export const sdEllipseAsNums = (
   // return length(r-p) * msign(p.y-r.y);
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
+
+const rayIntersectShape = (
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+): VectorV<ad.Num> => {
+   const t = s.shapeType;
+   if (t === "Circle") {
+      return rayIntersectCircle(s,p,v);
+   } else if (
+      t === "Rectangle" ||
+      t === "Text" ||
+      t === "Equation" ||
+      t === "Image"
+   ) {
+      return rayIntersectRect(s,p,v);
+   } else if (t === "Line") {
+      return rayIntersectLine(s,p,v);
+   } else if (t === "Polyline") {
+      return rayIntersectPolyline(s,p,v);
+   } else if (t === "Polygon") {
+      return rayIntersectPolygon(s,p,v);
+   } else if (t === "Ellipse") {
+      return rayIntersectEllipse(s,p,v);
+   } else { // t === "Group"
+      const firstHits = s.shapes.contents.map((shape) => rayIntersectShape(shape,p,v).contents);
+      const dist = firstHits.map((point) => ops.vdist(point,p));
+      let firstX: ad.Num = firstHits[0][0];
+      let firstY: ad.Num = firstHits[0][1];
+      let firstDist: ad.Num = dist[0];
+      for (let i = 0; i < s.shapes.contents.length; i++) {
+         firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+         firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
+         firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
+      }
+      return { tag: "VectorV", contents: [firstX, firstY] };
+   }
+}
+
+const rayIntersectCircle = (
+   s: Circle<ad.Num>,
+   p: ad.Num[],
+   v: ad.Num[],
+): VectorV<ad.Num> => {
+   const w = ops.vnormalize(v);
+   const c = s.center.contents;
+   const r = s.r.contents;
+   const u = ops.vsub(p,c);
+   const B = neg(ops.vdot(u,w));
+   const C = sub(ops.vdot(u,u),mul(r,r));
+   const D = sub(mul(B,B),C);
+   const t1 = ifCond( lt(D,0), 0, sub(B,sqrt(D)) );
+   const t2 = ifCond( lt(D,0), 0, add(B,sqrt(D)) );
+   const t = ifCond( gt(t1,0), t1, ifCond( gt(t2,0), t2, 0 ));
+   const y = ops.vadd(p,ops.vmul(t,w));
+   return { tag: "VectorV", contents: y };
+}
 
 const closestPointShape = (
       s:
