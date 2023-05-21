@@ -1,9 +1,9 @@
 import seedrandom from "seedrandom";
-import { input } from "../engine/Autodiff";
-import * as ad from "../types/ad";
-import { OptStages } from "../types/state";
-import { ColorV, FloatV, VectorV } from "../types/value";
-import { colorV, floatV, randFloat, vectorV } from "../utils/Util";
+import { input } from "../engine/Autodiff.js";
+import * as ad from "../types/ad.js";
+import { OptStages } from "../types/state.js";
+import { ColorV, FloatV, VectorV } from "../types/value.js";
+import { colorV, floatV, randFloat, vectorV } from "../utils/Util.js";
 
 type Range = [number, number];
 

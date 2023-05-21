@@ -1,4 +1,4 @@
-import * as ad from "../types/ad";
+import * as ad from "../types/ad.js";
 import {
   Center,
   Fill,
@@ -7,9 +7,9 @@ import {
   Rotate,
   ShapeCommon,
   String,
-} from "../types/shapes";
-import { black, boolV, floatV, strV, vectorV } from "../utils/Util";
-import { Canvas, Context, uniform } from "./Samplers";
+} from "../types/shapes.js";
+import { black, boolV, floatV, strV, vectorV } from "../utils/Util.js";
+import { Canvas, Context, uniform } from "./Samplers.js";
 
 export interface EquationProps<T>
   extends Named<T>,

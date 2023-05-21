@@ -13,7 +13,7 @@ import {
   stepUntilConvergence,
 } from "@penrose/core";
 import React from "react";
-import fetchResolver from "./fetchPathResolver";
+import fetchResolver from "./fetchPathResolver.js";
 
 export interface SimpleProps {
   domain: string;

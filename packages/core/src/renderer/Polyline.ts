@@ -1,4 +1,4 @@
-import { Polyline } from "../shapes/Polyline";
+import { Polyline } from "../shapes/Polyline.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -6,8 +6,8 @@ import {
   attrScale,
   attrStroke,
   attrTitle,
-} from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 const RenderPolyline = (
   shape: Polyline<number>,

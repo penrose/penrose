@@ -1,7 +1,7 @@
 import { evalFns, prettyPrintFn, zip2 } from "@penrose/core";
 import DataTable from "react-data-table-component";
 import { useRecoilValue } from "recoil";
-import { diagramState } from "../state/atoms";
+import { diagramState } from "../state/atoms.js";
 
 export const EPS = 10e-3;
 

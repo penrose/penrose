@@ -3,7 +3,7 @@ import style from "@penrose/examples/dist/molecules/lewis.style";
 import domain from "@penrose/examples/dist/molecules/molecules.domain";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ThemeProvider } from "styled-components";
-import MultipleChoiceProblem from "../MultipleChoiceProblem";
+import MultipleChoiceProblem from "../MultipleChoiceProblem.js";
 
 // const diagram = await getDiagram();
 

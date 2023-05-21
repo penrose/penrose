@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { InstanceData } from "./types";
+import { InstanceData } from "./types.js";
 
 const getArtifacts = (artifactsDir: string): Map<string, InstanceData> =>
   new Map(

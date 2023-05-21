@@ -1,8 +1,8 @@
-import { ops } from "../engine/Autodiff";
-import { squared, sub } from "../engine/AutodiffFunctions";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { shapeCenter } from "./Queries";
+import { ops } from "../engine/Autodiff.js";
+import { squared, sub } from "../engine/AutodiffFunctions.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { shapeCenter } from "./Queries.js";
 
 /**
  * Encourage the center of the shape `shape` to be in the direction `direction` with respect to shape `shapeRef`.
