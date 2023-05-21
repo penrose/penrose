@@ -1,20 +1,30 @@
 Ray r1
 Ray r2
 Ray r3
-Line L1
-Line L2
-Line L3
-Line L4
-Line L5
-Group G1
-Group G2
-Group G3
-Group G4
-Group G5
-Group G10
-Circle C1
-Circle C2
-Circle C3
-Circle C4
-Circle C5
+-- Line L1
+-- Line L2
+-- Line L3
+-- Line L4
+-- Line L5
+-- Group G1
+-- Group G2
+-- Group G3
+-- Group G4
+-- Group G5
+-- Group G10
+-- Circle C1
+-- Circle C2
+-- Circle C3
+-- Circle C4
+-- Circle C5
+Polygon P1
+Polygon P2
+Polygon P3
+Polygon P4
+Polygon P5
+Polygon P6
+Polygon P7
+Polygon P8
+Polygon P9
+Polygon P10
 

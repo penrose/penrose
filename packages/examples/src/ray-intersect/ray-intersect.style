@@ -5,26 +5,26 @@ canvas {
 
 -- Rules for drawing each type of shape
 
-forall Ray x {
-   vec2 x.pos = (?,?)
-   vec2 x.vec = (?,?)
+forall Ray r {
+   vec2 r.pos = (?,?)
+   vec2 r.vec = (?,?)
 
-   shape x.icon = Circle {
-      center: x.pos
+   shape r.icon = Circle {
+      center: r.pos
       r: 5
       fillColor: #000000ff
    } 
-   shape x.arrow = Line {
-      start: x.pos
-      end: x.pos + 75*unit(x.vec)
+   shape r.arrow = Line {
+      start: r.pos
+      end: r.pos + 75*unit(r.vec)
       strokeWidth: 3
       strokeColor: #000
       endArrowhead: "straight"
       endArrowheadSize: .5
    } 
-   shape x.line = Line {
-      start: x.pos
-      end: x.pos + norm((canvas.width,canvas.height))*unit(x.vec)
+   shape r.line = Line {
+      start: r.pos
+      end: r.pos + norm((canvas.width,canvas.height))*unit(r.vec)
       strokeColor: #000
       strokeWidth: 1.5
       style: "dashed"
@@ -32,8 +32,8 @@ forall Ray x {
       ensureOnCanvas: false
    }
 
-   layer x.arrow above x.line
-   layer x.icon above x.arrow
+   layer r.arrow above r.line
+   layer r.icon above r.arrow
 }
 
 forall Line L {
@@ -86,9 +86,9 @@ forall Polyline P {
    scalar theta0 = angleBetween(p1-p0,p2-p1)
    scalar theta1 = angleBetween(p2-p1,p3-p2)
    scalar theta2 = angleBetween(p3-p2,p4-p3)
-   ensure theta0 > MathPI()/6
-   ensure theta1 > MathPI()/6
-   ensure theta2 > MathPI()/6
+   ensure theta0 > MathPI()/3
+   ensure theta1 > MathPI()/3
+   ensure theta2 > MathPI()/3
 }
 
 forall Polygon P {
@@ -160,12 +160,12 @@ forall Group G {
 
 -- Rules for drawing ray intersections
 
-forall Ray x; Shape S
+forall Ray r; Shape S
 {
-   vec2 p = rayIntersect( S.icon, x.pos, x.vec )
+   vec2 p = rayIntersect( S.icon, r.pos, r.vec )
 
    shape intersectDot = Circle {
-      r: x.icon.r
+      r: r.icon.r
       center: p
       fillColor: #ffffffff
       strokeColor: #000000ff
@@ -173,22 +173,26 @@ forall Ray x; Shape S
       ensureOnCanvas: false
    }
 
-   layer intersectDot above x.arrow
-   layer intersectDot below x.icon
+   layer intersectDot above r.arrow
+   layer intersectDot below r.icon
    layer intersectDot above S.icon
 }
 
-forall Ray x; Polyline L
+forall Ray r; Polyline L
 {
-   vec2 p = rayIntersect( L.icon, x.pos, x.vec )
+   vec2 p = rayIntersect( L.icon, r.pos, r.vec )
 
    shape intersectDot = Circle {
-      r: x.icon.r
+      r: r.icon.r
       center: p
       fillColor: #ffffffff
       strokeColor: #000000ff
       strokeWidth: 2
    }
+
+   layer intersectDot above r.arrow
+   layer intersectDot below r.icon
+   layer intersectDot above L.icon
 }
 
 forall Shape S; Ray r
