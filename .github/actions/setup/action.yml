@@ -25,12 +25,11 @@ runs:
           node_modules
           packages/*/node_modules
         # obviously we need to hash `yarn.lock` because that specifies all our
-        # external dependencies, but we also need to hash `package.json` because
-        # Yarn creates symlinks under `node_modules/@penrose/` for each of our
-        # packages, so we need to update those if any packages are added; note
-        # that this strategy means we cannot use wildcards in the `"packages"`
-        # list in `package.json`, and must instead list them all explicitly
-        key: ${{ runner.os }}-${{ hashFiles('package.json', 'yarn.lock') }}
+        # external dependencies, but we also need to hash all of our
+        # `package.json` files because Yarn creates symlinks under
+        # `node_modules/@penrose/` for each of our packages, so we need to
+        # update those if any packages are added
+        key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock', '**/package.json') }}
     - if: steps.cache.outputs.cache-hit != 'true'
       name: Install packages
       run: yarn
