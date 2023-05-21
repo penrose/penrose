@@ -40,15 +40,7 @@
   },
   "workspaces": {
     "packages": [
-      "packages/components",
-      "packages/core",
-      "packages/docs-site",
-      "packages/edgeworth",
-      "packages/editor",
-      "packages/examples",
-      "packages/optimizer",
-      "packages/roger",
-      "packages/vscode"
+      "packages/*"
     ],
     "nohoist": [
       "**/@types/jest",
