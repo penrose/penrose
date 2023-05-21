@@ -21,12 +21,12 @@ const codegen = (dir) => {
         fs.writeFileSync(
           path.join(srcDir, `${path.basename(child, ".json")}.ts`),
           [
-            `import substance from "${trio.substance}";`,
+            `import substance from "${trio.substance}.js";`,
             ...trio.style.map(
               (style, i) =>
-                `import style${i}, { resolver as resolver${i} } from "${style}";`
+                `import style${i}, { resolver as resolver${i} } from "${style}.js";`
             ),
-            `import domain from "${trio.domain}";`,
+            `import domain from "${trio.domain}.js";`,
             "export default {",
             "  substance,",
             "  style: [",

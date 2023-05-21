@@ -1,5 +1,5 @@
-import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/linear-algebra.domain";
-import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
+import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/linear-algebra.domain.js";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain.js";
 import nearley from "nearley";
 import { beforeEach, describe, expect, test } from "vitest";
 import { SourceRange } from "../types/ast.js";
@@ -39,7 +39,7 @@ describe("Common", () => {
     const prog = `
 -- comments
 type Set -- inline comments\r
--- type Point 
+-- type Point
 type ParametrizedSet ('T, 'U)\r\n
 predicate From(Map f, Set domain, Set codomain)\n
 /* Multi-line comments
@@ -55,7 +55,7 @@ predicate From(Map f, Set domain, Set codomain)
     const prog = `
 -- comments
 type Set -- inline comments
--- type Point 
+-- type Point
 type ParametrizedSet ('T, 'U)
 predicate From(Map f, Set domain, Set codomain)
 /* Multi-line comments
@@ -97,8 +97,8 @@ describe("Statement types", () => {
   test("type decls", () => {
     const prog = `
 -- comments
-type Set 
-type Point 
+type Set
+type Point
 -- type ParametrizedSet1 () -- this is not okay
 type ParametrizedSet2 ('T)
 type ParametrizedSet3 ( 'T,    'V)

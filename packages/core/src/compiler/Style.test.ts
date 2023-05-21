@@ -1,5 +1,5 @@
-import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain";
-import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance";
+import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain.js";
+import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance.js";
 import im from "immutable";
 import { describe, expect, test } from "vitest";
 import { C } from "../types/ast.js";
@@ -795,7 +795,7 @@ Bond(O, H2)`;
     const errorStyProgs = {
       // ------ Generic errors
       InvalidColorLiteral: [
-        `forall Set x { 
+        `forall Set x {
           x.color = #12777733aa
        }`,
       ],
@@ -863,21 +863,21 @@ delete x.z.p }`,
 
       NoopDeleteWarning: [`forall Set x { delete x.z }`],
       AssignAccessError: [
-        `forall Set x {  
-         x.icon = Circle { 
-           center: (0.0, 0.0) 
+        `forall Set x {
+         x.icon = Circle {
+           center: (0.0, 0.0)
          }
          delete x.icon[0] }`,
       ],
 
       ImplicitOverrideWarning: [
-        `forall Set x { 
-           x.z = 1.0 
+        `forall Set x {
+           x.z = 1.0
            x.z = 2.0
 }`,
-        `forall Set x { 
-         x.icon = Circle { 
-           center: (0.0, 0.0) 
+        `forall Set x {
+         x.icon = Circle {
+           center: (0.0, 0.0)
          }
            x.icon.center = (2.0, 0.0)
 }`,
@@ -902,25 +902,25 @@ delete x.z.p }`,
 
       MissingPathError: [
         `forall Set x { x.icon = Circle { r: x.r } }`,
-        `forall Set x {  
+        `forall Set x {
          x.z = x.c.p
        }`,
-        `forall Set x {  
-          x.icon = Circle { 
+        `forall Set x {
+          x.icon = Circle {
            r: 9.
            center: (x.icon.z, 0.0)
-         } 
+         }
        }`,
-        `forall Set x { 
-           x.z = 1.0 
+        `forall Set x {
+           x.z = 1.0
            x.y = x.z.p
 }`,
       ],
       CanvasNonexistentDimsError: [
-        `foo { 
+        `foo {
   bar = 1.0
 }`,
-        `canvas { 
+        `canvas {
   height = 100
 }`,
         `canvas {
@@ -935,7 +935,7 @@ delete x.z.p }`,
   width = (1.0, 1.0)
   height = 100
 }`,
-        `canvas { 
+        `canvas {
   width = 100
 }`,
         `canvas {
@@ -1070,13 +1070,13 @@ delete x.z.p }`,
       const sub = `
       MySet X, Y
  OtherType Z
- 
+
  MyPred(Z, X, Y)
  MyOtherPred(X, Y)`;
       const dsl = `
      type MySet
  type OtherType
- 
+
  predicate MyPred(OtherType, MySet, MySet)
  predicate MyOtherPred(MySet, MySet)`;
 

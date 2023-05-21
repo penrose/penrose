@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import setDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
-import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style";
+import setDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain.js";
+import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style.js";
 import { start } from "@penrose/optimizer";
 import { describe, expect, test } from "vitest";
 import { genGradient } from "./engine/Autodiff.js";

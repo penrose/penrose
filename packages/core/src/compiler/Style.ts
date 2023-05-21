@@ -166,7 +166,7 @@ import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
 import { checkExpr, checkPredicate, checkVar } from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
 
-const log = consola
+const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Style Compiler");
 

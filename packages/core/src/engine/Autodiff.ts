@@ -36,7 +36,7 @@ import {
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
-export const logAD = consola
+export const logAD = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Optimizer");
 
