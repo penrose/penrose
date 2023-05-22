@@ -2869,18 +2869,18 @@ const evalListOrVector = (
           case "FloatV": {
             return eval1D(coll, first.contents, rest);
           }
-          case "VectorV": {
+          case "VectorV":
+          case "ListV":
+          case "TupV": {
             return eval2D(coll, first.contents, rest);
           }
           case "BoolV":
           case "ColorV":
-          case "ListV":
           case "LListV":
           case "MatrixV":
           case "PathDataV":
           case "PtListV":
           case "StrV":
-          case "TupV":
           case "ShapeListV": {
             return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
           }

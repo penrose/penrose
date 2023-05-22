@@ -190,7 +190,7 @@ selector ->
     {% (d) => selector(d[1], d[3], d[4]) %}
 
 # only allowing order of 
-# collect __ into __ where __ with __ groupby __
+# collect __ into __ where __ with __ foreach __
 collector ->
     collect decl _ml into _ml
     {% (d) => collector(d[1], d[3], undefined, undefined, undefined) %}
