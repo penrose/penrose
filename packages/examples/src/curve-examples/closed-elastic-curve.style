@@ -116,7 +116,7 @@ forall Curve c {
   }
 
   ensure equal(perimeter(c.poly.points, true), length)
-  ensure isEquilateral(c.poly)
+  ensure isEquilateral(c.poly.points, true)
   encourage equal(elasticEnergy(c.poly.points, true), 0)  -- works better than `minimal` in this case
 
 }
