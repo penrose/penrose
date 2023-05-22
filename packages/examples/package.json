@@ -17,7 +17,7 @@
     "build": "rimraf dist && tsc",
     "build-decls": ":",
     "codegen": "git clean -dfqX src && node codegen.js",
-    "test": "vitest run",
+    "test": "vitest run --reporter=verbose",
     "typecheck": ":"
   },
   "nx": {
@@ -32,6 +32,13 @@
       "build-decls": {
         "dependsOn": [
           "build"
+        ]
+      },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "^build-decls",
+          "codegen"
         ]
       }
     }

@@ -95,8 +95,7 @@ jobs:
         working-directory: packages/examples/diagrams/
         run: git rm -rf .
       - name: Generate diagrams and metadata
-        working-directory: packages/examples/
-        run: yarn test
+        run: yarn registry
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
