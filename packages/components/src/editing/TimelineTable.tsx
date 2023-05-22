@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { range, drop, take } from "lodash";
 import { dateColumn } from "react-datasheet-grid";
-import {
-  DataSheetGrid,
-  checkboxColumn,
-  textColumn,
-  keyColumn,
-} from "react-datasheet-grid";
+import { DataSheetGrid, textColumn, keyColumn } from "react-datasheet-grid";
 import timelineStyle from "@penrose/examples/dist/timeline/timeline.style";
 import timelineDomain from "@penrose/examples/dist/timeline/timeline.domain";
 
@@ -107,13 +102,12 @@ export default function (props: Data): React.ReactElement {
   ): Event => {
     const validDate = (date: Date | undefined): Date | undefined => {
       if (date && !isNaN(date.getTime())) {
-        if (date < start) return start;
-        if (date > end) return end;
+        return date;
       } else return undefined;
     };
     return {
-      start: validDate(d.start) ?? new Date("2023-01-01"),
-      end: validDate(d.end) ?? new Date("2025-08-31"),
+      start: validDate(d.start) ?? start,
+      end: validDate(d.end) ?? end,
       category: categories.includes(d.category) ? d.category : categories[0],
       task: d.task ?? "New Task",
     };
