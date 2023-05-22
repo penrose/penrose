@@ -771,6 +771,9 @@ IsSubset(B, A)
 AutoLabel All `;
 
     const domainProg = `type Set
+type Point
+
+function Union(Set a, Set b) -> Set
 
 predicate IsSubset(Set s1, Set s2)
 `;
