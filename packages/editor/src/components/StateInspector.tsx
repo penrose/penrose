@@ -1,6 +1,6 @@
 import { ObjectInspector } from "react-inspector";
 import { useRecoilValue } from "recoil";
-import { diagramState } from "../state/atoms";
+import { diagramState } from "../state/atoms.js";
 
 // https://goessner.net/articles/JsonPath/
 export default function StateInspector() {

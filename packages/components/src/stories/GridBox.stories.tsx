@@ -1,8 +1,8 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ThemeProvider } from "styled-components";
-import { Gridbox } from "../Gridbox";
-import penroseBlue from "../themes/penroseBlue";
-import { continuousMap, error, oneSet } from "./PenrosePrograms";
+import { Gridbox } from "../Gridbox.js";
+import penroseBlue from "../themes/penroseBlue.js";
+import { continuousMap, error, oneSet } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
 

@@ -1,12 +1,13 @@
-import continuousmapSubstance from "@penrose/examples/dist/set-theory-domain/continuousmap.substance";
-import multisetsSubstance from "@penrose/examples/dist/set-theory-domain/multisets.substance";
-import nestedSubstance from "@penrose/examples/dist/set-theory-domain/nested.substance";
-import treeSubstance from "@penrose/examples/dist/set-theory-domain/tree.substance";
-import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance";
+import continuousmapSubstance from "@penrose/examples/dist/set-theory-domain/continuousmap.substance.js";
+import multisetsSubstance from "@penrose/examples/dist/set-theory-domain/multisets.substance.js";
+import nestedSubstance from "@penrose/examples/dist/set-theory-domain/nested.substance.js";
+import treeSubstance from "@penrose/examples/dist/set-theory-domain/tree.substance.js";
+import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance.js";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
-import grammar from "./SubstanceParser";
+import { beforeEach, describe, expect, test } from "vitest";
+import grammar from "./SubstanceParser.js";
 
 const outputDir = "/tmp/asts";
 const saveASTs = false;

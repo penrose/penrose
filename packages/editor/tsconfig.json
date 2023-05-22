@@ -3,6 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "noEmit": true,
+    "moduleResolution": "node", // `react-hot-toast` breaks with ESM module resolution
     "resolveJsonModule": true
   },
   "include": ["src"],

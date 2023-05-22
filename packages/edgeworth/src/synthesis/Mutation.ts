@@ -23,14 +23,14 @@ import {
   removeStmt,
   replaceStmt,
   stmtExists,
-} from "../analysis/SubstanceAnalysis";
+} from "../analysis/SubstanceAnalysis.js";
 import {
   SynthesisContext,
   WithContext,
   addID,
   generateArgStmt,
   removeID,
-} from "./Synthesizer";
+} from "./Synthesizer.js";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Warn })

@@ -1,5 +1,5 @@
-import { Shape as RealShape } from "../shapes/Shapes";
-import { SourceRange } from "./ast";
+import { Shape as RealShape } from "../shapes/Shapes.js";
+import { SourceRange } from "./ast.js";
 
 /**
  * The input parameters to computations/objectives/constraints in Style.

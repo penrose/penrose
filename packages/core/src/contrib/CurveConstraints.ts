@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -14,11 +14,11 @@ import {
   squared,
   sub,
   tan,
-} from "../engine/AutodiffFunctions";
-import * as ad from "../types/ad";
-import { ConstrFunc } from "../types/functions";
-import { booleanT, realNMT } from "../utils/Util";
-import { consecutiveTriples, consecutiveTuples } from "./Utils";
+} from "../engine/AutodiffFunctions.js";
+import * as ad from "../types/ad.js";
+import { ConstrFunc } from "../types/functions.js";
+import { booleanT, realNMT } from "../utils/Util.js";
+import { consecutiveTriples, consecutiveTuples } from "./Utils.js";
 
 /**
  * All values in the list should be equal

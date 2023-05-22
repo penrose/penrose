@@ -7,7 +7,6 @@
   - [Windows WSL](#windows-wsl)
   - [Linux](#linux)
 - [Setup](#setup)
-- [Editor](#editor)
 - [Development](#development)
   - [Run](#run)
   - [Production build](#production-build)
@@ -106,20 +105,6 @@ pushd packages/roger/
 yarn link
 popd
 ```
-
-## Editor
-
-For [VS Code][] users, we provide a [VS Code workspace][] file called
-`penrose.code-workspace` which automatically configures many settings (and
-recommends several [extensions][]) that we strongly encourage using. From your
-terminal, you can open VS Code to the workspace via this command:
-
-```sh
-code penrose.code-workspace
-```
-
-You should be automatically prompted to install the extensions we recommend, but
-if not, you can now find them listed in the **Extensions** tab.
 
 ## Development
 
@@ -439,7 +424,6 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [commit]: https://github.com/git-guides/git-commit
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
-[extensions]: https://code.visualstudio.com/docs/editor/extension-marketplace
 [git]: https://git-scm.com/downloads
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
@@ -460,8 +444,6 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [rustfmt]: https://github.com/rust-lang/rustfmt
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
-[vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces
-[vs code]: https://code.visualstudio.com/download
 [yaml]: https://yaml.org/
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/
 [semantic versioning]: https://semver.org

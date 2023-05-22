@@ -4,25 +4,30 @@ import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
 import seedrandom from "seedrandom";
-import { constrDict } from "../contrib/Constraints";
-import { compDict } from "../contrib/Functions";
-import { objDict } from "../contrib/Objectives";
-import { genGradient, input, ops } from "../engine/Autodiff";
-import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions";
-import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils";
-import { lastLocation, prettyParseError } from "../parser/ParserUtil";
-import styleGrammar from "../parser/StyleParser";
+import { constrDict } from "../contrib/Constraints.js";
+import { compDict } from "../contrib/Functions.js";
+import { objDict } from "../contrib/Objectives.js";
+import { genGradient, input, ops } from "../engine/Autodiff.js";
+import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
+import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
+import { lastLocation, prettyParseError } from "../parser/ParserUtil.js";
+import styleGrammar from "../parser/StyleParser.js";
 import {
   Canvas,
   InputMeta,
   Context as MutableContext,
   makeCanvas,
   uniform,
-} from "../shapes/Samplers";
-import { Shape, ShapeType, isShapeType, sampleShape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { A, C, Identifier, SourceRange } from "../types/ast";
-import { Env } from "../types/domain";
+} from "../shapes/Samplers.js";
+import {
+  Shape,
+  ShapeType,
+  isShapeType,
+  sampleShape,
+} from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { A, C, Identifier, SourceRange } from "../types/ast.js";
+import { Env } from "../types/domain.js";
 import {
   BinOpTypeError,
   LayerCycleWarning,
@@ -33,14 +38,14 @@ import {
   StyleError,
   StyleWarning,
   SubstanceError,
-} from "../types/errors";
+} from "../types/errors.js";
 import {
   Fn,
   OptPipeline,
   OptStages,
   StagedConstraints,
   State,
-} from "../types/state";
+} from "../types/state.js";
 import {
   BinOp,
   BinaryOp,
@@ -67,7 +72,7 @@ import {
   StyT,
   UOp,
   Vector,
-} from "../types/style";
+} from "../types/style.js";
 import {
   Assignment,
   BlockAssignment,
@@ -87,7 +92,7 @@ import {
   Subst,
   Translation,
   WithContext,
-} from "../types/styleSemantics";
+} from "../types/styleSemantics.js";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -99,7 +104,7 @@ import {
   SubStmt,
   SubstanceEnv,
   TypeConsApp,
-} from "../types/substance";
+} from "../types/substance.js";
 import {
   ArgVal,
   Field,
@@ -111,7 +116,7 @@ import {
   ShapeListV,
   Value,
   VectorV,
-} from "../types/value";
+} from "../types/value.js";
 import {
   Result,
   all,
@@ -126,16 +131,16 @@ import {
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-} from "../utils/Error";
-import Graph from "../utils/Graph";
+} from "../utils/Error.js";
+import Graph from "../utils/Graph.js";
 import {
   GroupGraph,
   buildRenderGraph,
   findOrderedRoots,
   makeGroupGraph,
   traverseUp,
-} from "../utils/GroupGraph";
-import Heap from "../utils/Heap";
+} from "../utils/GroupGraph.js";
+import Heap from "../utils/Heap.js";
 import {
   boolV,
   cartesianProduct,
@@ -155,13 +160,13 @@ import {
   val,
   vectorV,
   zip2,
-} from "../utils/Util";
-import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
-import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller";
-import { checkExpr, checkPredicate, checkVar } from "./Substance";
-import { checkShape } from "./shapeChecker/CheckShape";
+} from "../utils/Util.js";
+import { checkTypeConstructor, isDeclaredSubtype } from "./Domain.js";
+import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
+import { checkExpr, checkPredicate, checkVar } from "./Substance.js";
+import { checkShape } from "./shapeChecker/CheckShape.js";
 
-const log = consola
+const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Style Compiler");
 

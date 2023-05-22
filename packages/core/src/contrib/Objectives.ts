@@ -1,4 +1,4 @@
-import { EPS_DENOM, ops } from "../engine/Autodiff";
+import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -12,11 +12,11 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import { Line } from "../shapes/Line";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { ObjFunc } from "../types/functions";
+} from "../engine/AutodiffFunctions.js";
+import { Line } from "../shapes/Line.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { ObjFunc } from "../types/functions.js";
 import {
   booleanT,
   linePts,
@@ -27,10 +27,10 @@ import {
   rectlikeT,
   shapeT,
   unionT,
-} from "../utils/Util";
-import { constrDictCurves } from "./CurveConstraints";
-import { inDirection } from "./ObjectivesUtils";
-import { bboxFromShape, shapeCenter } from "./Queries";
+} from "../utils/Util.js";
+import { constrDictCurves } from "./CurveConstraints.js";
+import { inDirection } from "./ObjectivesUtils.js";
+import { bboxFromShape, shapeCenter } from "./Queries.js";
 import {
   Linelike,
   Rectlike,
@@ -38,7 +38,7 @@ import {
   isLinelike,
   repelPoint,
   sampleSeg,
-} from "./Utils";
+} from "./Utils.js";
 
 // -------- Simple objective functions
 // Do not require shape queries, operate directly with `ad.Num` parameters.

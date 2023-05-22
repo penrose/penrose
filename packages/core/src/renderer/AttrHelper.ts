@@ -3,9 +3,9 @@
  * output SVG properties using the optimized shape properties as input.
  */
 
-import { Line } from "../shapes/Line";
-import { Shape } from "../shapes/Shapes";
-import { Text } from "../shapes/Text";
+import { Line } from "../shapes/Line.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
 import {
   Center,
   Corner,
@@ -17,15 +17,15 @@ import {
   Scale,
   String as StringProps,
   Stroke,
-} from "../types/shapes";
-import { toFontRule } from "../utils/CollectLabels";
+} from "../types/shapes.js";
+import { toFontRule } from "../utils/CollectLabels.js";
 import {
   isKeyOf,
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
-} from "../utils/Util";
-import { attrMapSvg } from "./AttrMapSvg";
+} from "../utils/Util.js";
+import { attrMapSvg } from "./AttrMapSvg.js";
 
 /**
  * Auto-map to SVG any input properties for which we lack specific logic.
