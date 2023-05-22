@@ -102,8 +102,8 @@ forall Circle C {
 
 forall Ellipse E {
    shape E.icon = Ellipse {
-      rx: random(20,80)
-      ry: random(20,80)
+      rx: random(5,80)
+      ry: random(5,80)
    }
 }
 
@@ -142,24 +142,37 @@ forall Group G {
 forall Ray r; Shape S
 {
    vec2 p = rayIntersect( S.icon, r.pos, r.vec )
+   vec2 n = rayIntersectNormal( S.icon, r.pos, r.vec )
 
    shape intersectDot = Circle {
-      r: r.icon.r
+      r: r.icon.r * norm(n)
       center: p
       fillColor: #ffffffff
-      strokeColor: #000000ff
+      strokeColor: #000
       strokeWidth: 2
+      ensureOnCanvas: false
+   }
+
+   shape intersectNormal = Line {
+      start: p
+      end: p + 30*n
+      strokeColor: #888
+      strokeWidth: 2
+      endArrowhead: "straight"
+      endArrowheadSize: .5 * norm(n)
       ensureOnCanvas: false
    }
 
    layer intersectDot above r.arrow
    layer intersectDot below r.icon
    layer intersectDot above S.icon
+   layer intersectNormal below intersectDot
 }
 
-forall Ray r; Polyline L
+forall Ray r; Polyline M
 {
-   vec2 p = rayIntersect( L.icon, r.pos, r.vec )
+   vec2 p = rayIntersect( M.icon, r.pos, r.vec )
+   vec2 n = rayIntersectNormal( M.icon, r.pos, r.vec )
 
    shape intersectDot = Circle {
       r: r.icon.r
@@ -170,9 +183,20 @@ forall Ray r; Polyline L
       ensureOnCanvas: false
    }
 
+   shape intersectNormal = Line {
+      start: p
+      end: p + 30*n
+      strokeColor: #888
+      strokeWidth: 2
+      endArrowhead: "straight"
+      endArrowheadSize: .5
+      ensureOnCanvas: false
+   }
+
    layer intersectDot above r.arrow
    layer intersectDot below r.icon
-   layer intersectDot above L.icon
+   layer intersectDot above M.icon
+   layer intersectNormal below intersectDot
 }
 
 forall Shape S; Ray r
