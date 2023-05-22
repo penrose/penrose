@@ -52,6 +52,7 @@
     "@penrose/core": "^3.0.0-alpha.0",
     "monaco-editor": "^0.31.0",
     "monaco-vim": "^0.3.4",
+    "react-datasheet-grid": "^4.11.0",
     "react-latex-next": "^2.2.0",
     "styled-components": "^5.3.5"
   },
