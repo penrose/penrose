@@ -3312,15 +3312,15 @@ const rayIntersectShape = (
    } else { // t === "Group"
       const firstHits = s.shapes.contents.map((shape) => rayIntersectShape(shape,p,v));
       const dist = firstHits.map((point) => ops.vdist(point,p));
-      let firstX: ad.Num = firstHits[0][0];
-      let firstY: ad.Num = firstHits[0][1];
-      let firstDist: ad.Num = dist[0];
+      let hitX: ad.Num = Infinity;
+      let hitY: ad.Num = Infinity;
+      let firstDist: ad.Num = Infinity;
       for (let i = 0; i < s.shapes.contents.length; i++) {
          firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
-         firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
-         firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
+         hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], hitX);
+         hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], hitY);
       }
-      return [firstX, firstY];
+      return [hitX, hitY];
    }
 }
 
@@ -3396,15 +3396,15 @@ const rayIntersectRect = (
       dist[i] = ops.vdist( p, firstHits[i] );
    }
 
-   let firstX: ad.Num = firstHits[0][0];
-   let firstY: ad.Num = firstHits[0][1];
-   let firstDist: ad.Num = dist[0];
-   for (let i = 1; i < 4; i++) {
+   let hitX: ad.Num = Infinity;
+   let hitY: ad.Num = Infinity;
+   let firstDist: ad.Num = Infinity;
+   for (let i = 0; i < 4; i++) {
       firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
-      firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
-      firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
+      hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], hitX);
+      hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], hitY);
    }
-   return [firstX, firstY];
+   return [hitX, hitY];
 }
 
 const rayIntersectPolyline = (
@@ -3420,15 +3420,15 @@ const rayIntersectPolyline = (
       firstHits[i] = rayIntersectLineCoords( p, v, a, b );
       dist[i] = ops.vdist( p, firstHits[i] );
    }
-   let firstX: ad.Num = firstHits[0][0];
-   let firstY: ad.Num = firstHits[0][1];
-   let firstDist: ad.Num = dist[0];
-   for (let i = 1; i < s.points.contents.length - 1; i++) {
+   let hitX: ad.Num = Infinity;
+   let hitY: ad.Num = Infinity;
+   let firstDist: ad.Num = Infinity;
+   for (let i = 0; i < s.points.contents.length - 1; i++) {
       firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
-      firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
-      firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
+      hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], hitX);
+      hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], hitY);
    }
-   return [firstX, firstY];
+   return [hitX, hitY];
 }
 
 const rayIntersectPolygon = (
@@ -3451,15 +3451,15 @@ const rayIntersectPolygon = (
    firstHits[i] = rayIntersectLineCoords( p, v, a, b );
    dist[i] = ops.vdist( p, firstHits[i] );
 
-   let firstX: ad.Num = firstHits[0][0];
-   let firstY: ad.Num = firstHits[0][1];
-   let firstDist: ad.Num = dist[0];
+   let hitX: ad.Num = Infinity;
+   let hitY: ad.Num = Infinity;
+   let firstDist: ad.Num = Infinity;
    for (let i = 0; i < s.points.contents.length; i++) {
       firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
-      firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
-      firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
+      hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], hitX);
+      hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], hitY);
    }
-   return [firstX, firstY];
+   return [hitX, hitY];
 }
 
 const rayIntersectLineCoords = (
