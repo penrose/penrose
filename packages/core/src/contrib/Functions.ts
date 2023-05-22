@@ -3286,7 +3286,7 @@ const rayIntersectShape = (
         | Line<ad.Num>
         | Polyline<ad.Num>
         | Polygon<ad.Num>
-        | Ellipse<ad.Num>
+        | Ellipse<ad.Num> // TODO
         | Group<ad.Num>,
       p: ad.Num[],
       v: ad.Num[]
@@ -3367,6 +3367,40 @@ const rayIntersectLine = (
    return { tag: "VectorV", contents: y };
 }
 
+const rayIntersectRect = (
+   S: Line<ad.Num>,
+   p: ad.Num[],
+   v: ad.Num[],
+): VectorV<ad.Num> => {
+   const c = S.center.contents;
+   const w = S.width.contents;
+   const h = S.height.contents;
+   const x0 = sub( c[0], div(w,2.) );
+   const x1 = add( c[0], div(w,2.) );
+   const y0 = sub( c[1], div(h,2.) );
+   const y1 = add( c[1], div(h,2.) );
+
+   const points = [ [x0,y0], [x1,y0], [x1,y1], [x0,y1], [x0,y0] ];
+   const firstHits: ad.Num[][] = [];
+   const dist: ad.Num[] = [];
+   for (let i = 0; i < 4; i++) {
+      const a = points[i];
+      const b = points[i+1];
+      firstHits[i] = rayIntersectLineCoords( p, v, a, b );
+      dist[i] = ops.vdist( p, firstHits[i] );
+   }
+
+   let firstX: ad.Num = firstHits[0][0];
+   let firstY: ad.Num = firstHits[0][1];
+   let firstDist: ad.Num = dist[0];
+   for (let i = 1; i < 4; i++) {
+      firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+      firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
+      firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
+   }
+   return { tag: "VectorV", contents: [firstX, firstY] };
+}
+
 const rayIntersectPolyline = (
    s: Polyline<ad.Num>,
    p: ad.Num[],
@@ -3375,15 +3409,10 @@ const rayIntersectPolyline = (
    const firstHits: ad.Num[][] = [];
    const dist: ad.Num[] = [];
    for (let i = 0; i < s.points.contents.length - 1; i++) {
-      const start = s.points.contents[i];
-      const end = s.points.contents[i + 1];
-      firstHits[i] = rayIntersectLineCoords(p, v, start, end);
-      dist[i] = sqrt(
-         add(
-            squared(sub(p[0], firstHits[i][0])),
-            squared(sub(p[1], firstHits[i][1]))
-         )
-      );
+      const a = s.points.contents[i];
+      const b = s.points.contents[i + 1];
+      firstHits[i] = rayIntersectLineCoords( p, v, a, b );
+      dist[i] = ops.vdist( p, firstHits[i] );
    }
    let firstX: ad.Num = firstHits[0][0];
    let firstY: ad.Num = firstHits[0][1];
@@ -3405,25 +3434,17 @@ const rayIntersectPolygon = (
    const dist: ad.Num[] = [];
    let i = 0;
    for (; i < s.points.contents.length - 1; i++) {
-      const start = s.points.contents[i];
-      const end = s.points.contents[i + 1];
-      firstHits[i] = rayIntersectLineCoords(p, v, start, end);
-      dist[i] = sqrt(
-         add(
-            squared(sub(p[0], firstHits[i][0])),
-            squared(sub(p[1], firstHits[i][1]))
-         )
-      );
+      const a = s.points.contents[i];
+      const b = s.points.contents[i + 1];
+      firstHits[i] = rayIntersectLineCoords( p, v, a, b );
+      dist[i] = ops.vdist( p, firstHits[i] );
    }
-   const start = s.points.contents[i];
-   const end = s.points.contents[0];
-   firstHits[i] = rayIntersectLineCoords(p, v, start, end);
-   dist[i] = sqrt(
-      add(
-         squared(sub(p[0], firstHits[i][0])),
-         squared(sub(p[1], firstHits[i][1]))
-      )
-   );
+
+   const a = s.points.contents[i];
+   const b = s.points.contents[0];
+   firstHits[i] = rayIntersectLineCoords( p, v, a, b );
+   dist[i] = ops.vdist( p, firstHits[i] );
+
    let firstX: ad.Num = firstHits[0][0];
    let firstY: ad.Num = firstHits[0][1];
    let firstDist: ad.Num = dist[0];
