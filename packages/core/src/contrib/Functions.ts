@@ -3286,7 +3286,7 @@ const rayIntersectShape = (
         | Line<ad.Num>
         | Polyline<ad.Num>
         | Polygon<ad.Num>
-        | Ellipse<ad.Num> // TODO
+        | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[],
       v: ad.Num[]
