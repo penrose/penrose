@@ -4,17 +4,11 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "solid-js": "^1"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7",
-    "@babel/core": "^7",
-    "@babel/preset-typescript": "^7",
-    "babel-preset-solid": "^1"
+    "@penrose/solids": "^3.0.0-alpha.0"
   },
   "scripts": {
-    "build": "babel --extensions=.ts,.tsx src --out-dir=dist",
-    "build-decls": "tsc",
+    "build": "rimraf dist && tsc",
+    "build-decls": ":",
     "codegen": "git clean -dfqX src && node codegen.js",
     "typecheck": ":"
   },
@@ -22,12 +16,14 @@
     "targets": {
       "build": {
         "dependsOn": [
+          "^build",
+          "^build-decls",
           "codegen"
         ]
       },
       "build-decls": {
         "dependsOn": [
-          "codegen"
+          "build"
         ]
       }
     }
