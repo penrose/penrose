@@ -3329,9 +3329,33 @@ const rayIntersectCircle = (
    p: ad.Num[],
    v: ad.Num[],
 ): VectorV<ad.Num> => {
-   const w = ops.vnormalize(v);
    const c = s.center.contents;
    const r = s.r.contents;
+   return { tag: "VectorV", contents: rayIntersectCircleCoords( p, v, c, r ) };
+}
+
+const rayIntersectEllipse = (
+   s: Ellipse<ad.Num>,
+   p0: ad.Num[],
+   v0: ad.Num[],
+): VectorV<ad.Num> => {
+   const r = [ s.rx.contents, s.ry.contents ];
+   const c0 = s.center.contents;
+   const p = ops.ewvvdiv( p0, r );
+   const v = ops.ewvvdiv( v0, r );
+   const c = ops.ewvvdiv( c0, r );
+   const q = rayIntersectCircleCoords( p, v, c, 1 );
+   const q0 = ops.ewvvmul( q, r );
+   return { tag: "VectorV", contents: q0 };
+}
+
+const rayIntersectCircleCoords = (
+   p: ad.Num[],
+   v: ad.Num[],
+   c: ad.Num[],
+   r: ad.Num
+): VectorV<ad.Num> => {
+   const w = ops.vnormalize(v);
    const u = ops.vsub(p,c);
    const B = neg(ops.vdot(u,w));
    const C = sub(ops.vdot(u,u),mul(r,r));
@@ -3339,8 +3363,7 @@ const rayIntersectCircle = (
    const t1 = ifCond( lt(D,0), Infinity, sub(B,sqrt(D)) );
    const t2 = ifCond( lt(D,0), Infinity, add(B,sqrt(D)) );
    const t = ifCond( gt(t1,0), t1, ifCond( gt(t2,0), t2, 0 ));
-   const y = ops.vadd(p,ops.vmul(t,w));
-   return { tag: "VectorV", contents: y };
+   return ops.vadd(p,ops.vmul(t,w));
 }
 
 const rayIntersectLineCoords = (
