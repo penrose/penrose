@@ -1,21 +1,23 @@
+import timelineDomain from "@penrose/examples/dist/timeline/timeline.domain";
+import timelineStyle from "@penrose/examples/dist/timeline/timeline.style";
+import { drop, range, take } from "lodash";
 import { useLayoutEffect, useRef, useState } from "react";
-import { range, drop, take } from "lodash";
 import {
   CellProps,
   Column,
+  DataSheetGrid,
   DynamicDataSheetGrid,
   dateColumn,
+  keyColumn,
+  textColumn,
 } from "react-datasheet-grid";
-import { DataSheetGrid, textColumn, keyColumn } from "react-datasheet-grid";
-import timelineStyle from "@penrose/examples/dist/timeline/timeline.style";
-import timelineDomain from "@penrose/examples/dist/timeline/timeline.domain";
 import "react-datasheet-grid/dist/style.css";
 
 // Import the style only once in your app!
-import { Simple } from "../Simple";
 import { zip2 } from "@penrose/core";
-import Select, { GroupBase, SelectInstance } from "react-select";
 import React from "react";
+import Select, { GroupBase, SelectInstance } from "react-select";
+import { Simple } from "../Simple";
 
 type Choice = {
   label: string;
