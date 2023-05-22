@@ -1,4 +1,5 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
+import "react-datasheet-grid/dist/style.css";
 import TimelineTable from "../editing/TimelineTable";
 
 export default {

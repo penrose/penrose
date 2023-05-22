@@ -1,14 +1,108 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { range, drop, take } from "lodash";
-import { dateColumn } from "react-datasheet-grid";
+import {
+  CellProps,
+  Column,
+  DynamicDataSheetGrid,
+  dateColumn,
+} from "react-datasheet-grid";
 import { DataSheetGrid, textColumn, keyColumn } from "react-datasheet-grid";
 import timelineStyle from "@penrose/examples/dist/timeline/timeline.style";
 import timelineDomain from "@penrose/examples/dist/timeline/timeline.domain";
+import "react-datasheet-grid/dist/style.css";
 
 // Import the style only once in your app!
-import "react-datasheet-grid/dist/style.css";
 import { Simple } from "../Simple";
 import { zip2 } from "@penrose/core";
+import Select, { GroupBase, SelectInstance } from "react-select";
+import React from "react";
+
+type Choice = {
+  label: string;
+  value: string;
+};
+
+type SelectOptions = {
+  choices: Choice[];
+  disabled?: boolean;
+};
+
+const SelectComponent = ({
+  active,
+  rowData,
+  setRowData,
+  focus,
+  stopEditing,
+  columnData,
+}: CellProps<string | null, SelectOptions>) => {
+  const ref = useRef<SelectInstance<Choice, false, GroupBase<Choice>>>(null);
+  useLayoutEffect(() => {
+    if (focus) {
+      ref.current?.focus();
+    } else {
+      ref.current?.blur();
+    }
+  }, [focus]);
+
+  return (
+    <Select
+      ref={ref}
+      styles={{
+        container: (provided) => ({
+          ...provided,
+          flex: 1,
+          alignSelf: "stretch",
+          pointerEvents: focus ? undefined : "none",
+        }),
+        control: (provided) => ({
+          ...provided,
+          height: "100%",
+          border: "none",
+          boxShadow: "none",
+          background: "none",
+        }),
+        indicatorSeparator: (provided) => ({
+          ...provided,
+          opacity: 0,
+        }),
+        indicatorsContainer: (provided) => ({
+          ...provided,
+          opacity: active ? 1 : 0,
+        }),
+        placeholder: (provided) => ({
+          ...provided,
+          opacity: active ? 1 : 0,
+        }),
+      }}
+      isDisabled={columnData.disabled}
+      value={columnData.choices.find(({ value }) => value === rowData) ?? null}
+      menuPortalTarget={document.body}
+      menuIsOpen={focus}
+      onChange={(choice) => {
+        if (choice === null) return;
+        setRowData(choice.value);
+        setTimeout(stopEditing, 0);
+      }}
+      onMenuClose={() => stopEditing({ nextRow: false })}
+      options={columnData.choices}
+    />
+  );
+};
+
+const selectColumn = (
+  options: SelectOptions
+): Column<string | null, SelectOptions> => ({
+  component: SelectComponent,
+  columnData: options,
+  // disableKeys: true,
+  keepFocus: true,
+  disabled: options.disabled,
+  deleteValue: () => null,
+  copyValue: ({ rowData }) =>
+    options.choices.find((choice) => choice.value === rowData)?.label ?? null,
+  pasteValue: ({ value }) =>
+    options.choices.find((choice) => choice.label === value)?.value ?? null,
+});
 
 interface Data {
   start: Date;
@@ -68,7 +162,6 @@ ${zip2(take(qts, qts.length - 1), drop(qts))
 Category ${categories.join(", ")}
   `;
 
-  console.log(preamble);
   let prog = preamble;
   for (let i = 0; i < events.length; i++) {
     const e = events[i];
@@ -89,6 +182,7 @@ const toYearQuarter = (d: Date): string => {
 
 export default function (props: Data): React.ReactElement {
   const [events, setEvents] = useState<Event[]>(props.events);
+  const [categories, setCategories] = useState<string[]>(props.categories);
   const [bounds, setBounds] = useState({
     start: props.start,
     end: props.end,
@@ -112,61 +206,93 @@ export default function (props: Data): React.ReactElement {
       task: d.task ?? "New Task",
     };
   };
-
-  const columns = [
-    { ...keyColumn("task", textColumn), title: "Task" },
-    { ...keyColumn("category", textColumn), title: "Category" },
-    { ...keyColumn("start", dateColumn), title: "Start date" },
-    { ...keyColumn("end", dateColumn), title: "End date" },
-  ];
-
   return (
-    <div style={{ display: "flex" }}>
-      <div style={{ width: "50%" }}>
-        <DataSheetGrid
-          value={[bounds]}
-          onChange={(d) => {
-            setBounds({
-              start: d[0].start,
-              end: d[0].end,
-            });
-          }}
-          columns={[
-            {
-              ...keyColumn("start", dateColumn),
-              title: "Timeline Start Date",
-            },
-            {
-              ...keyColumn("end", dateColumn),
-              title: "Timeline End Date",
-            },
-          ]}
-          lockRows
-        />
-        <DataSheetGrid
-          value={events}
-          onChange={(d) =>
-            setEvents(
-              d.map((e) =>
-                validate(e, bounds.start, bounds.end, props.categories)
-              ) as Event[]
-            )
-          }
-          columns={columns}
-        />
-      </div>
-      <div style={{ width: "50%" }}>
-        <Simple
-          substance={substance(
-            bounds.start,
-            bounds.end,
-            props.categories,
-            events.filter((e) => e.start >= bounds.start && e.end <= bounds.end)
-          )}
-          style={timelineStyle}
-          domain={timelineDomain}
-          variation=""
-        ></Simple>
+    <div
+      style={{ display: "flex", fontFamily: "Arial", flexDirection: "column" }}
+    >
+      <DataSheetGrid
+        value={categories.map((c) => ({ name: c }))}
+        onChange={(d) => {
+          setCategories(d.map((d) => d.name));
+        }}
+        columns={[
+          {
+            ...keyColumn("name", textColumn),
+            title: "Category Name",
+          },
+        ]}
+      />
+      <DataSheetGrid
+        value={[bounds]}
+        onChange={(d) => {
+          setBounds({
+            start: d[0].start,
+            end: d[0].end,
+          });
+        }}
+        columns={[
+          {
+            ...keyColumn("start", dateColumn),
+            title: "Timeline Start Date",
+          },
+          {
+            ...keyColumn("end", dateColumn),
+            title: "Timeline End Date",
+          },
+        ]}
+        lockRows
+      />
+
+      <div
+        style={{ display: "flex", fontFamily: "Arial", flexDirection: "row" }}
+      >
+        <div style={{ width: "50%" }}>
+          <DynamicDataSheetGrid
+            value={events}
+            onChange={(d) =>
+              setEvents(
+                d.map((e) =>
+                  validate(e, bounds.start, bounds.end, categories)
+                ) as Event[]
+              )
+            }
+            columns={[
+              {
+                ...keyColumn("task", textColumn),
+                title: "Task",
+              },
+              {
+                ...keyColumn(
+                  "category",
+                  selectColumn({
+                    choices: categories.map((c) => ({ value: c, label: c })),
+                  })
+                ),
+                title: "Category",
+              },
+              {
+                ...keyColumn("start", dateColumn),
+                title: "Start date",
+              },
+              { ...keyColumn("end", dateColumn), title: "End date" },
+            ]}
+          />
+        </div>
+        <div style={{ width: "50%" }}>
+          <Simple
+            substance={substance(
+              bounds.start,
+              bounds.end,
+              categories,
+              events.filter(
+                (e) => e.start >= bounds.start && e.end <= bounds.end
+              )
+            )}
+            style={timelineStyle}
+            domain={timelineDomain}
+            variation=""
+          ></Simple>
+        </div>
       </div>
     </div>
   );
