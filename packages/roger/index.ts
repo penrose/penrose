@@ -1,8 +1,6 @@
 import "global-jsdom/register"; // must be first
 
 import fetch from "node-fetch";
-import { JSXElement } from "solid-js";
-import { renderToString } from "solid-js/web";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -24,43 +22,16 @@ import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
 import { extname, join, resolve } from "path";
 import prettier from "prettier";
-import { printTextChart } from "./artifacts.js";
 import { version } from "./package.json";
-import { AggregateData, InstanceData } from "./types.js";
+import { InstanceData } from "./types.js";
 import watch from "./watch.js";
-
-type PathResolver = (path: string) => Promise<string | undefined>;
-
-interface Style {
-  contents: string;
-  resolver: PathResolver;
-}
 
 interface Trio {
   substance: string;
-  style: Style[];
+  style: string[];
   domain: string;
   variation: string;
 }
-
-interface BaseMeta {
-  name?: string;
-}
-
-interface TrioMeta extends BaseMeta {
-  kind: "trio";
-  get: () => Promise<Trio>;
-  gallery?: boolean;
-}
-
-interface SolidMeta extends BaseMeta {
-  kind: "solid";
-  f: () => JSXElement;
-}
-
-export type Meta = TrioMeta | SolidMeta;
-
-type Registry = Map<string, Meta>;
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const render = async (
@@ -71,9 +42,9 @@ const render = async (
   resolvePath: (filePath: string) => Promise<string | undefined>,
   verbose: boolean,
   meta: {
-    substanceName?: string;
-    styleNames?: string[];
-    domainName?: string;
+    substanceName: string;
+    styleNames: string[];
+    domainName: string;
     id: string;
   }
 ): Promise<{
@@ -191,142 +162,6 @@ const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
     style: styles.join("\n"),
     domain,
   };
-};
-
-const renderTrio = async (
-  variation: string,
-  substance: string,
-  style: Style[],
-  domain: string,
-  folder: boolean,
-  out: string,
-  prefix: string,
-  meta: {
-    substanceName?: string;
-    styleNames?: string[];
-    domainName?: string;
-    id: string;
-  }
-) => {
-  // draw diagram and get metadata
-  const { diagram, metadata } = await render(
-    variation,
-    substance,
-    style.map(({ contents }) => contents).join("\n"),
-    domain,
-    async (filePath: string) => {
-      // Handle absolute URLs
-      if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
-        const fileURL = new URL(filePath).href;
-        try {
-          const fileReq = await fetch(fileURL);
-          return fileReq.text();
-        } catch (e) {
-          console.error(`Failed to resolve path: ${e}`);
-          return undefined;
-        }
-      }
-
-      return await style[0].resolver(filePath);
-    },
-    true,
-    meta
-  );
-
-  // write to files
-  if (folder) {
-    if (!fs.existsSync(out)) {
-      fs.mkdirSync(out, { recursive: true });
-    }
-    if (substance)
-      fs.writeFileSync(join(out, "substance.substance"), substance);
-    if (style[0])
-      fs.writeFileSync(
-        join(out, "style.style"),
-        style.map(({ contents }) => contents).join("\n")
-      );
-    if (domain) fs.writeFileSync(join(out, "domain.domain"), domain);
-    fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata, null, 2));
-    fs.writeFileSync(join(out, "output.svg"), diagram);
-    console.log(
-      chalk.green(`The diagram and metadata has been saved to ${resolve(out)}`)
-    );
-    // returning metadata for aggregation
-    return metadata;
-  } else {
-    const dir = join(out, "..");
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(out, diagram);
-    console.log(chalk.green(`The diagram has been saved as ${resolve(out)}`));
-  }
-};
-
-// Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
-const renderRegistry = async (lib: string, folders: boolean, out: string) => {
-  const prefix = join(lib, "..");
-  const registry: Registry = (await import(lib)).default;
-  console.log(`Processing ${registry.size} trios...`);
-
-  const finalMetadata: AggregateData = {};
-  for (const [id, meta] of registry.entries()) {
-    try {
-      switch (meta.kind) {
-        case "trio": {
-          // try to render the diagram
-          const trioPath = join(prefix, `${id}.trio.json`);
-          const trioPrefix = join(trioPath, "..");
-          const { substance, style, domain, variation }: Trio =
-            await meta.get();
-
-          // Warning: will face id conflicts if parallelism used
-          const metadata = await renderTrio(
-            variation,
-            substance,
-            style,
-            domain,
-            folders,
-            join(out, `${id}${folders ? "" : ".svg"}`),
-            trioPrefix,
-            {
-              id,
-            }
-          );
-          if (folders && metadata) {
-            finalMetadata[id] = metadata;
-          }
-          break;
-        }
-        case "solid": {
-          const p = join(out, `${id}${folders ? "/output.svg" : ".svg"}`);
-          const d = join(p, "..");
-          fs.mkdirSync(d, { recursive: true });
-          fs.writeFileSync(
-            p,
-            prettier.format(renderToString(meta.f), { parser: "html" })
-          );
-          break;
-        }
-      }
-    } catch (e) {
-      process.exitCode = 1;
-      console.trace(
-        chalk.red(
-          `${id} exited with an error. The error message is:\n${e.stack}`
-        )
-      );
-    }
-  }
-
-  if (folders) {
-    const aggregatePath = join(out, "aggregateData.json");
-    fs.writeFileSync(aggregatePath, JSON.stringify(finalMetadata, null, 2));
-    console.log(
-      chalk.green(`The Aggregate metadata has been saved to ${aggregatePath}`)
-    );
-  }
-  console.log("Done.");
 };
 
 /**
@@ -449,12 +284,9 @@ yargs(hideBin(process.argv))
         const trioPath = options.trio[0] as string;
         prefix = join(trioPath, "..");
         // read trio from a JSON file
-        const paths: {
-          substance: string;
-          style: string[];
-          domain: string;
-          variation: string;
-        } = JSON.parse(fs.readFileSync(resolve(trioPath), "utf8"));
+        const paths: Trio = JSON.parse(
+          fs.readFileSync(resolve(trioPath), "utf8")
+        );
         dom = paths.domain;
         sub = paths.substance;
         sty = paths.style;
@@ -491,30 +323,6 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    "batch <registry> <out>",
-    "Generate diagrams from a registry of Penrose trios.",
-    (yargs) =>
-      yargs
-        .positional("registry", {
-          desc: "A JSON registry of Penrose trios.",
-          demandOption: true,
-          type: "string",
-        })
-        .positional("out", {
-          desc: "A folder containing all generated diagrams.",
-          demandOption: true,
-          type: "string",
-        })
-        .option("folders", {
-          desc: "Generate each diagram as a folder that includes metadata.",
-          default: false,
-          type: "boolean",
-        }),
-    async (options) => {
-      await renderRegistry(options.registry, options.folders, options.out);
-    }
-  )
-  .command(
     "watch",
     "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)",
     (yargs) =>
@@ -537,23 +345,6 @@ yargs(hideBin(process.argv))
     (options) => getShapeDefs(options.out)
   )
 
-  .command(
-    "textchart <artifacts> <out>",
-    "Generate an ASCII chart that shows the performance data.",
-    (yargs) =>
-      yargs
-        .positional("artifacts", {
-          desc: "A folder that contains roger outputs and metadata.",
-          demandOption: true,
-          type: "string",
-        })
-        .positional("out", {
-          desc: "An output markdown file.",
-          demandOption: true,
-          type: "string",
-        }),
-    (options) => printTextChart(options.artifacts, options.out)
-  )
   .demandCommand()
   .strict()
   .help().argv;

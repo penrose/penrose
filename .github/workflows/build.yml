@@ -82,45 +82,43 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
-      - name: Build @penrose/roger
-        run: yarn build:roger
-      - name: Link @penrose/roger
-        working-directory: packages/roger/
-        run: npm link
-      - name: Build @penrose/examples
-        run: npx nx run examples:build
+      - name: Checkout target
+        uses: actions/checkout@v3
+        with:
+          path: packages/examples/diagrams/
+          ref: ci/refs/heads/main
+      - if: github.event_name == 'pull_request'
+        name: Checkout target branch
+        working-directory: packages/examples/diagrams/
+        run: git checkout -b ci/${{ github.ref }}
+      - name: Clean target working tree
+        working-directory: packages/examples/diagrams/
+        run: git rm -rf .
       - name: Generate diagrams and metadata
-        run: roger batch --folders $PWD/packages/examples/dist/registry.js diagrams/meta
+        working-directory: packages/examples/
+        run: yarn test
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
           name: diagrams
-          path: diagrams/meta/
-      - name: Checkout target
-        uses: actions/checkout@v3
-        with:
-          path: diagrams/raw/
-          ref: ci/refs/heads/main
-      - if: github.event_name == 'pull_request'
-        name: Checkout target branch
-        working-directory: diagrams/raw/
-        run: git checkout -b ci/${{ github.ref }}
-      - name: Clean target working tree
-        working-directory: diagrams/raw/
-        run: git rm -rf .
-      - name: Copy diagrams to target
+          path: packages/examples/diagrams/
+      - name: Record performance summary
+        working-directory: packages/examples/diagrams/
         run: |
           set -x
-          find diagrams/meta -name output.svg -type f | while read -r file; do
-            suffix=${file#diagrams/meta/}
-            id=${suffix%/output.svg}
-            parent=diagrams/raw/$(dirname "$id")
-            mkdir -p "$parent"
-            cp "$file" "$parent/$(basename "$id").svg"
-          done
+
+          echo '# 📊 Performance' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          cat stats.md >> $GITHUB_STEP_SUMMARY
+
+          echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
+          cat stats.md >> $GITHUB_ENV
+          echo EOF >> $GITHUB_ENV
+
+          rm data.json stats.md
       - name: Commit diagrams and generate diff summary
         id: commit
-        working-directory: diagrams/raw/
+        working-directory: packages/examples/diagrams/
         run: |
           set -x
 
@@ -131,31 +129,20 @@ jobs:
           git commit --allow-empty -m 'CI for ${{ github.event.pull_request.head.sha || github.sha }}'
           echo "CI_COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
-          echo '```' > ../diff.md
-          git --no-pager diff --name-status ci/refs/heads/main HEAD >> ../diff.md
-          echo '```' >> ../diff.md
+          echo '```' > diff.md
+          git --no-pager diff --name-status ci/refs/heads/main HEAD >> diff.md
+          echo '```' >> diff.md
 
           echo '# ± Registry diff' >> $GITHUB_STEP_SUMMARY
           echo >> $GITHUB_STEP_SUMMARY
-          cat ../diff.md >> $GITHUB_STEP_SUMMARY
+          cat diff.md >> $GITHUB_STEP_SUMMARY
           echo >> $GITHUB_STEP_SUMMARY
 
           echo 'REGISTRY_DIFF<<EOF' >> $GITHUB_ENV
-          cat ../diff.md >> $GITHUB_ENV
+          cat diff.md >> $GITHUB_ENV
           echo EOF >> $GITHUB_ENV
-      - name: Generate performance summary
-        run: |
-          set -x
 
-          roger textchart diagrams/meta diagrams/stats.md
-
-          echo '# 📊 Performance' >> $GITHUB_STEP_SUMMARY
-          echo >> $GITHUB_STEP_SUMMARY
-          cat diagrams/stats.md >> $GITHUB_STEP_SUMMARY
-
-          echo 'REGISTRY_STATS<<EOF' >> $GITHUB_ENV
-          cat diagrams/stats.md >> $GITHUB_ENV
-          echo EOF >> $GITHUB_ENV
+          rm diff.md
       - name: Check for write permissions
         id: check
         uses: scherermichael-oss/action-has-permission@17f29510f1bf987b916c8cbb451566a56eed23f1

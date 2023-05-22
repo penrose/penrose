@@ -6,10 +6,18 @@
   "dependencies": {
     "@penrose/solids": "^3.0.0-alpha.0"
   },
+  "devDependencies": {
+    "@penrose/core": "^3.0.0-alpha.0",
+    "@types/prettier": "^2",
+    "prettier": "^2",
+    "solid-js": "^1",
+    "vitest": "^0.31"
+  },
   "scripts": {
     "build": "rimraf dist && tsc",
     "build-decls": ":",
     "codegen": "git clean -dfqX src && node codegen.js",
+    "test": "vitest run",
     "typecheck": ":"
   },
   "nx": {

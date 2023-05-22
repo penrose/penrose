@@ -1,5 +1,3 @@
-import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain.js";
-import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance.js";
 import im from "immutable";
 import { describe, expect, test } from "vitest";
 import { C } from "../types/ast.js";
@@ -768,8 +766,15 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = twosetsSimpleSubstance;
-    const domainProg = functionsDomain;
+    const subProg = `Set A, B
+IsSubset(B, A)
+AutoLabel All `;
+
+    const domainProg = `type Set
+
+predicate IsSubset(Set s1, Set s2)
+`;
+
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.style";
 
