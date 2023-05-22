@@ -23,7 +23,7 @@ t.g2 = Group {
 
 and get something like,
 
-```svg
+```
 <svg ...>
   <g>
     <circle ... />
