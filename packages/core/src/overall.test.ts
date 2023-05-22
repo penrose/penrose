@@ -3,9 +3,9 @@
 import setDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain.js";
 import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style.js";
 import { start } from "@penrose/optimizer";
-import { pow, sub } from "./engine/AutodiffFunctions.js";
 import { describe, expect, test } from "vitest";
 import { genGradient } from "./engine/Autodiff.js";
+import { pow, sub } from "./engine/AutodiffFunctions.js";
 import {
   RenderStatic,
   compileTrio,
