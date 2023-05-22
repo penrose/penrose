@@ -1,4 +1,3 @@
-import { Params, start, stepUntil } from "@penrose/optimizer";
 import { constrDict } from "./contrib/Constraints.js";
 import {
   elasticEnergy,
@@ -7,120 +6,10 @@ import {
 } from "./contrib/CurveConstraints.js";
 import { sdfRect } from "./contrib/Functions.js";
 import { consecutiveTuples } from "./contrib/Utils.js";
-import {
-  fns,
-  genBytes,
-  getExport,
-  input,
-  makeImports,
-  makeMeta,
-  ops,
-  primaryGraph,
-} from "./engine/Autodiff.js";
-import {
-  absVal,
-  add,
-  div,
-  mul,
-  neg,
-  pow,
-  sub,
-} from "./engine/AutodiffFunctions.js";
+import { input, ops } from "./engine/Autodiff.js";
+import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
 import * as ad from "./types/ad.js";
 import { TextMeasurement, measureText } from "./utils/CollectLabels.js";
-
-//#region Variable-level API
-
-export interface Problem {
-  minimize: () => Params;
-  stepUntil: (stop: () => boolean) => Params;
-  step: (x: number) => Params;
-}
-
-export const problem = async (
-  objective: ad.Num,
-  constraints: ad.Num[]
-): Promise<Problem> => {
-  // `inputs` keep track of all the inputs across all constraints and objective, and the weight
-  const inputs = new Map<ad.Input, number>();
-  // add in the weight
-  const lambda = input(42);
-  // make the comp graphs for obj and constrs
-  const getKey = (x: ad.Input): number => {
-    if (x === lambda) return 0;
-    else if (inputs.has(x)) return inputs.get(x)!;
-    else {
-      const idx = inputs.size + 1;
-      inputs.set(x, idx);
-      return idx;
-    }
-  };
-  const obj = primaryGraph(objective, getKey);
-  const constrs = constraints.map((x) =>
-    primaryGraph(mul(lambda, fns.toPenalty(x)), getKey)
-  );
-  const graphs = [obj, ...constrs];
-  const meta = makeMeta(graphs);
-  const instance = await WebAssembly.instantiate(
-    await WebAssembly.compile(genBytes(graphs)),
-    makeImports(meta.memory)
-  );
-  const f = getExport(meta, instance);
-  const n = inputs.size;
-  const params = start(n);
-  const stepUntilWrapper = (stop: () => boolean) => {
-    // allocate a new array to store inputs
-    const xs = new Float64Array(n);
-    // populate inputs with initial values from `val`
-    for (const [input, index] of inputs) {
-      // skip the weight input
-      xs[index - 1] = input.val;
-    }
-    // call the optimizer
-    const nextParams = stepUntil(
-      (
-        inputs: Float64Array /*read-only*/,
-        weight: number,
-        grad: Float64Array /*write-only*/
-      ): number => {
-        if (inputs.length !== n)
-          throw Error(`expected ${n} inputs, got ${inputs.length}`);
-        if (grad.length !== n)
-          throw Error(
-            `expected ${n} inputs, got gradient with length ${grad.length}`
-          );
-        meta.arrInputs.set(inputs.subarray(0, n), 1);
-        // the last input is the weight
-        meta.arrInputs[0] = weight;
-        // we don't use masks, so they are set to 1
-        meta.arrMask.fill(1);
-        meta.arrGrad.fill(0);
-        meta.arrSecondary.fill(0);
-        const phi = f();
-        grad.set(meta.arrGrad.subarray(1, meta.numInputs));
-        return phi;
-      },
-      xs,
-      params,
-      stop
-    );
-    // put the optimized values back to the inputs
-    for (const [input, index] of inputs) {
-      input.val = xs[index - 1];
-    }
-    return nextParams;
-  };
-  return {
-    minimize: () => stepUntilWrapper(() => false),
-    step: (x: number) => {
-      let i = 0;
-      return stepUntilWrapper(() => ++i === x);
-    },
-    stepUntil: (stop) => stepUntilWrapper(stop),
-  };
-};
-
-//#endregion
 
 interface Rect {
   center: ad.Num[];
@@ -172,8 +61,9 @@ export const onCanvasPoint = (
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
 export { numOf, numsOf } from "./contrib/Utils.js";
-export { ops } from "./engine/Autodiff.js";
+export { ops, problem } from "./engine/Autodiff.js";
 export * from "./engine/AutodiffFunctions.js";
+export { Problem } from "./types/ad.js";
 export {
   measureText,
   input as scalar,

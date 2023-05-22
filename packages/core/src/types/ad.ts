@@ -1,3 +1,4 @@
+import { Params } from "@penrose/optimizer";
 import GenericGraph from "../utils/Graph.js";
 
 // The following three regions define the core types for our automatic
@@ -237,6 +238,12 @@ export type Gradient = (
   weight: number,
   grad: Float64Array
 ) => OptOutputs;
+
+export interface Problem {
+  minimize: () => Params;
+  stepUntil: (stop: () => boolean) => Params;
+  step: (x: number) => Params;
+}
 
 //#endregion
 

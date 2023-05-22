@@ -1,5 +1,5 @@
 import { Queue } from "@datastructures-js/queue";
-import { polyRoots } from "@penrose/optimizer";
+import { polyRoots, start, stepUntil } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "../types/ad.js";
@@ -1720,7 +1720,7 @@ const compileSum = (t: wasm.Target, numAddends: number): void => {
   t.byte(wasm.END);
 };
 
-export const genBytes = (graphs: ad.Graph[]): Uint8Array => {
+const genBytes = (graphs: ad.Graph[]): Uint8Array => {
   const secondaryKeys = new Map<number, number>();
   for (const { secondary } of graphs) {
     // `forEach` ignores holes
@@ -1773,7 +1773,7 @@ interface Metadata {
   arrSecondary: Float64Array;
 }
 
-export const makeMeta = (graphs: ad.Graph[]): Metadata => {
+const makeMeta = (graphs: ad.Graph[]): Metadata => {
   const offsetInputs = 0;
   const numInputs = Math.max(
     0,
@@ -1816,9 +1816,7 @@ export const makeMeta = (graphs: ad.Graph[]): Metadata => {
   };
 };
 
-export const makeImports = (
-  memory: WebAssembly.Memory
-): WebAssembly.Imports => ({
+const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
   [importModule]: {
     [importMemoryName]: memory,
     ...Object.fromEntries(
@@ -1860,7 +1858,7 @@ export const makeImports = (
   },
 });
 
-export const getExport = (
+const getExport = (
   meta: Metadata,
   instance: WebAssembly.Instance
 ): (() => number) => {
@@ -2038,5 +2036,88 @@ export const genGradient = async (
       objectives: Array.from(meta.arrSecondary.subarray(0, objectives.length)),
       constraints: Array.from(meta.arrSecondary.subarray(objectives.length)),
     };
+  };
+};
+
+export const problem = async (
+  objective: ad.Num,
+  constraints: ad.Num[]
+): Promise<ad.Problem> => {
+  // `inputs` keep track of all the inputs across all constraints and objective, and the weight
+  const inputs = new Map<ad.Input, number>();
+  // add in the weight
+  const lambda = input(42);
+  // make the comp graphs for obj and constrs
+  const getKey = (x: ad.Input): number => {
+    if (x === lambda) return 0;
+    else if (inputs.has(x)) return inputs.get(x)!;
+    else {
+      const idx = inputs.size + 1;
+      inputs.set(x, idx);
+      return idx;
+    }
+  };
+  const obj = primaryGraph(objective, getKey);
+  const constrs = constraints.map((x) =>
+    primaryGraph(mul(lambda, fns.toPenalty(x)), getKey)
+  );
+  const graphs = [obj, ...constrs];
+  const meta = makeMeta(graphs);
+  const instance = await WebAssembly.instantiate(
+    await WebAssembly.compile(genBytes(graphs)),
+    makeImports(meta.memory)
+  );
+  const f = getExport(meta, instance);
+  const n = inputs.size;
+  const params = start(n);
+  const stepUntilWrapper = (stop: () => boolean) => {
+    // allocate a new array to store inputs
+    const xs = new Float64Array(n);
+    // populate inputs with initial values from `val`
+    for (const [input, index] of inputs) {
+      // skip the weight input
+      xs[index - 1] = input.val;
+    }
+    // call the optimizer
+    const nextParams = stepUntil(
+      (
+        inputs: Float64Array /*read-only*/,
+        weight: number,
+        grad: Float64Array /*write-only*/
+      ): number => {
+        if (inputs.length !== n)
+          throw Error(`expected ${n} inputs, got ${inputs.length}`);
+        if (grad.length !== n)
+          throw Error(
+            `expected ${n} inputs, got gradient with length ${grad.length}`
+          );
+        meta.arrInputs.set(inputs.subarray(0, n), 1);
+        // the last input is the weight
+        meta.arrInputs[0] = weight;
+        // we don't use masks, so they are set to 1
+        meta.arrMask.fill(1);
+        meta.arrGrad.fill(0);
+        meta.arrSecondary.fill(0);
+        const phi = f();
+        grad.set(meta.arrGrad.subarray(1, meta.numInputs));
+        return phi;
+      },
+      xs,
+      params,
+      stop
+    );
+    // put the optimized values back to the inputs
+    for (const [input, index] of inputs) {
+      input.val = xs[index - 1];
+    }
+    return nextParams;
+  };
+  return {
+    minimize: () => stepUntilWrapper(() => false),
+    step: (x: number) => {
+      let i = 0;
+      return stepUntilWrapper(() => ++i === x);
+    },
+    stepUntil: (stop) => stepUntilWrapper(stop),
   };
 };
