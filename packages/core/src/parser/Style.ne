@@ -189,8 +189,6 @@ selector ->
   | forall decl_patterns _ml select_with select_where 
     {% (d) => selector(d[1], d[3], d[4]) %}
 
-# only allowing order of 
-# collect __ into __ where __ with __ foreach __
 collector ->
     collect decl _ml into _ml
     {% (d) => collector(d[1], d[3], undefined, undefined, undefined) %}
@@ -202,12 +200,28 @@ collector ->
     {% (d) => collector(d[1], d[3], d[5], d[6], d[7]) %}
   | collect decl _ml into _ml select_where foreach
     {% (d) => collector(d[1], d[3], d[5], undefined, d[6]) %}
+  | collect decl _ml into _ml select_where foreach select_with
+    {% (d) => collector(d[1], d[3], d[5], d[7], d[6]) %}
   | collect decl _ml into _ml select_with
     {% (d) => collector(d[1], d[3], undefined, d[5], undefined) %}
+  | collect decl _ml into _ml select_with select_where
+    {% (d) => collector(d[1], d[3], d[6], d[5], undefined) %}
+  | collect decl _ml into _ml select_with select_where foreach
+    {% (d) => collector(d[1], d[3], d[6], d[5], d[7]) %}
   | collect decl _ml into _ml select_with foreach
     {% (d) => collector(d[1], d[3], undefined, d[5], d[6]) %}
+  | collect decl _ml into _ml select_with foreach select_where
+    {% (d) => collector(d[1], d[3], d[7], d[5], d[6]) %}
   | collect decl _ml into _ml foreach
     {% (d) => collector(d[1], d[3], undefined, undefined, d[5]) %}
+  | collect decl _ml into _ml foreach select_where
+    {% (d) => collector(d[1], d[3], d[6], undefined, d[5]) %}
+  | collect decl _ml into _ml foreach select_where select_with
+    {% (d) => collector(d[1], d[3], d[6], d[7], d[5]) %}
+  | collect decl _ml into _ml foreach select_with
+    {% (d) => collector(d[1], d[3], undefined, d[6], d[5]) %}
+  | collect decl _ml into _ml foreach select_with select_where
+    {% (d) => collector(d[1], d[3], d[7], d[6], d[5]) %}
 
 into -> "into" __ binding_form {% nth(2) %}
 
@@ -483,15 +497,7 @@ expr -> arithmeticExpr {% id %}
 parenthesized 
   -> "(" _ arithmeticExpr _ ")" {% nth(2) %}
   |  expr_literal               {% id %}
-  |  collection_access          {% id %}
 
-collection_access
-  -> "listof" _ identifier _ "from" _ identifier {% ([, , field, , , , name]): CollectionAccess<C> => ({
-    ...nodeData,
-    ...rangeBetween(field, name),
-    tag: "CollectionAccess",
-    name, field
-  })%}
 # Unary ops 
 unary 
   -> "-" _ parenthesized  {% (d): UOp<C> => 
@@ -530,6 +536,7 @@ expr_literal
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
+  |  collection_access {% id %}
   |  path {% id %}
   |  list {% id %}
   |  tuple {% id %}
@@ -627,6 +634,15 @@ computation_function -> identifier _ "(" expr_list ")" {%
     name, args
   }) 
 %}
+
+
+collection_access
+  -> "listof" _ identifier _ "from" _ identifier {% ([, , field, , , , name]): CollectionAccess<C> => ({
+    ...nodeData,
+    ...rangeBetween(field, name),
+    tag: "CollectionAccess",
+    name, field
+  })%}
 
 stage_list 
   -> identifier {% (d) => d %}

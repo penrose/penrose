@@ -171,6 +171,18 @@ as Const
     foreach OtherThing o {}`;
     const r4 = parser.feed(p4);
     sameASTs(r4.results);
+
+    const p5 = `collect Element e
+    into es foreach OtherThing o where In(e, s) 
+    with Set s {}`;
+    const r5 = parser.feed(p5);
+    sameASTs(r5.results);
+
+    const p6 = `collect Element e
+    into es 
+    with Set s foreach OtherThing o where In(e, s) {} `;
+    const r6 = parser.feed(p6);
+    sameASTs(r6.results);
   });
   test("multiple as clauses for predicates", () => {
     const prog = `
