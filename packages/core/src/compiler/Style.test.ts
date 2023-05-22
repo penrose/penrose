@@ -514,9 +514,12 @@ describe("Compiler", () => {
       `forall Object o {
         o.a = Circle {}
         o.b = Circle {}
+        o.c = Rectangle {}
         o.g = Group {
           shapes: [o.a, o.b]
+          clipPath: noClip()
         }
+        override o.g.clipPath = clip(o.c)
       }`,
     ];
     stys.forEach((sty: string) => {
@@ -970,6 +973,13 @@ delete x.z.p }`,
             ptProp: (1, 2, 3)
           }
         }`,
+        `forall Set a {
+          a.sh = Group {
+            shapes: []
+            clipPath: 12345
+          }
+        }
+        `,
       ],
       BadArgumentTypeError: [
         `forall Set a {
@@ -985,6 +995,10 @@ delete x.z.p }`,
           c = Circle {}
           encourage isRegular(c)
         }`,
+        `forall Set a {
+          x = clip(123)
+        }
+        `,
       ],
       MissingArgumentError: [
         `forall Set a {
@@ -994,11 +1008,20 @@ delete x.z.p }`,
         `forall Set a {
           ensure disjoint()
         }`,
+        `
+        forall Set a {
+          x = clip()
+        }
+        `,
       ],
       TooManyArgumentsError: [
         `forall Set a {
           a.s = Circle {}
           ensure contains(a.s, a.s, 1, 2, 3)
+        }`,
+        `forall Set a {
+          a.s = Circle {}
+          x = noClip(a.s)
         }`,
       ],
       FunctionInternalError: [
