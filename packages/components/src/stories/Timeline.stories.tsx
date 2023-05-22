@@ -1,5 +1,4 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import "react-datasheet-grid/dist/style.css";
 import TimelineTable from "../editing/TimelineTable";
 
 export default {
@@ -41,12 +40,6 @@ PenroseTimeline.args = {
       end: new Date("2024-01-01"),
       category: "outcome",
     },
-    // {
-    //   task: "Tutorial Videos",
-    //   start: new Date(""),
-    //   end: new Date(),
-    //   category: "milestone",
-    // },
     {
       task: "Spatially localize alt text",
       start: new Date("2023-09-01"),
