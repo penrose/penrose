@@ -37,7 +37,7 @@ import nitrogen from "@penrose/examples/dist/molecules/nitrogen.substance";
 import phosgene from "@penrose/examples/dist/molecules/phosgene.substance";
 import phosphorustrichloride from "@penrose/examples/dist/molecules/phosphorustrichloride.substance";
 import xenontetroxide from "@penrose/examples/dist/molecules/xenontetroxide.substance";
-import { SynthesizerSetting } from "./synthesis/Synthesizer";
+import { SynthesizerSetting } from "./synthesis/Synthesizer.js";
 
 export interface Preset {
   displayName: string;

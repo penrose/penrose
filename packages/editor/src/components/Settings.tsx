@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { useRecoilStateLoadable } from "recoil";
-import { settingsState } from "../state/atoms";
-import { useSignIn } from "../state/callbacks";
-import BlueButton from "./BlueButton";
+import { settingsState } from "../state/atoms.js";
+import { useSignIn } from "../state/callbacks.js";
+import BlueButton from "./BlueButton.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);

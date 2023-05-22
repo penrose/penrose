@@ -1,9 +1,9 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { range } from "lodash";
 import { ThemeProvider } from "styled-components";
-import { Grid } from "../Grid";
-import penroseBlue from "../themes/penroseBlue";
-import { continuousMap } from "./PenrosePrograms";
+import { Grid } from "../Grid.js";
+import penroseBlue from "../themes/penroseBlue.js";
+import { continuousMap } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
 

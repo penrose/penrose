@@ -7,7 +7,7 @@ import {
   styled,
 } from "@material-ui/core";
 import React from "react";
-import { wildcardType } from "../util";
+import { wildcardType } from "../util.js";
 
 export interface MultiselectDropdownProps {
   onChange: (selected: string[]) => void;

@@ -1,18 +1,18 @@
-import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import * as ad from "../types/ad";
-import { Circle, CircleProps, sampleCircle } from "./Circle";
-import { Ellipse, EllipseProps, sampleEllipse } from "./Ellipse";
-import { Equation, EquationProps, sampleEquation } from "./Equation";
-import { Group, GroupProps, sampleGroup } from "./Group";
-import { Image, ImageProps, sampleImage } from "./Image";
-import { Line, LineProps, sampleLine } from "./Line";
-import { Path, PathProps, samplePath } from "./Path";
-import { Polygon, PolygonProps, samplePolygon } from "./Polygon";
-import { Polyline, PolylineProps, samplePolyline } from "./Polyline";
-import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle";
-import { Canvas, Context } from "./Samplers";
-import { Text, TextProps, sampleText } from "./Text";
+import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import * as ad from "../types/ad.js";
+import { Circle, CircleProps, sampleCircle } from "./Circle.js";
+import { Ellipse, EllipseProps, sampleEllipse } from "./Ellipse.js";
+import { Equation, EquationProps, sampleEquation } from "./Equation.js";
+import { Group, GroupProps, sampleGroup } from "./Group.js";
+import { Image, ImageProps, sampleImage } from "./Image.js";
+import { Line, LineProps, sampleLine } from "./Line.js";
+import { Path, PathProps, samplePath } from "./Path.js";
+import { Polygon, PolygonProps, samplePolygon } from "./Polygon.js";
+import { Polyline, PolylineProps, samplePolyline } from "./Polyline.js";
+import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle.js";
+import { Canvas, Context } from "./Samplers.js";
+import { Text, TextProps, sampleText } from "./Text.js";
 //#region other shape types/globals
 
 export type Shape<T> =

@@ -1,8 +1,11 @@
-import setDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
-import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style";
+// @vitest-environment jsdom
+
+import setDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain.js";
+import vennStyle from "@penrose/examples/dist/set-theory-domain/venn.style.js";
 import { start } from "@penrose/optimizer";
-import { genGradient } from "./engine/Autodiff";
-import { pow, sub } from "./engine/AutodiffFunctions";
+import { pow, sub } from "./engine/AutodiffFunctions.js";
+import { describe, expect, test } from "vitest";
+import { genGradient } from "./engine/Autodiff.js";
 import {
   RenderStatic,
   compileTrio,
@@ -14,9 +17,9 @@ import {
   scalar,
   showError,
   stepUntilConvergence,
-} from "./index";
-import * as ad from "./types/ad";
-import { State } from "./types/state";
+} from "./index.js";
+import * as ad from "./types/ad.js";
+import { State } from "./types/state.js";
 
 describe("API", () => {
   test("simple constraints", async () => {

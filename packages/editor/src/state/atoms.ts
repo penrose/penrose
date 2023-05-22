@@ -19,8 +19,8 @@ import {
   selectorFamily,
 } from "recoil";
 import { v4 as uuid } from "uuid";
-import { layoutModel } from "../App";
-import { generateVariation } from "./variation";
+import { layoutModel } from "../App.js";
+import { generateVariation } from "./variation.js";
 
 export const EDITOR_VERSION = 0.1;
 

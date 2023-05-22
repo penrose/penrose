@@ -3,6 +3,8 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "moduleResolution": "node", // `ts-rs` doesn't emit `.js` in imports
+    "outDir": "dist"
   }
 }

@@ -1,12 +1,12 @@
 import { Params, start, stepUntil } from "@penrose/optimizer";
-import { constrDict } from "./contrib/Constraints";
+import { constrDict } from "./contrib/Constraints.js";
 import {
   elasticEnergy,
   equivalued,
   perimeter,
-} from "./contrib/CurveConstraints";
-import { sdfRect } from "./contrib/Functions";
-import { consecutiveTuples } from "./contrib/Utils";
+} from "./contrib/CurveConstraints.js";
+import { sdfRect } from "./contrib/Functions.js";
+import { consecutiveTuples } from "./contrib/Utils.js";
 import {
   fns,
   genBytes,
@@ -16,7 +16,7 @@ import {
   makeMeta,
   ops,
   primaryGraph,
-} from "./engine/Autodiff";
+} from "./engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -25,9 +25,9 @@ import {
   neg,
   pow,
   sub,
-} from "./engine/AutodiffFunctions";
-import * as ad from "./types/ad";
-import { TextMeasurement, measureText } from "./utils/CollectLabels";
+} from "./engine/AutodiffFunctions.js";
+import * as ad from "./types/ad.js";
+import { TextMeasurement, measureText } from "./utils/CollectLabels.js";
 
 //#region Variable-level API
 
@@ -171,9 +171,9 @@ export const onCanvasPoint = (
 
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
-export { numOf, numsOf } from "./contrib/Utils";
-export { ops } from "./engine/Autodiff";
-export * from "./engine/AutodiffFunctions";
+export { numOf, numsOf } from "./contrib/Utils.js";
+export { ops } from "./engine/Autodiff.js";
+export * from "./engine/AutodiffFunctions.js";
 export {
   measureText,
   input as scalar,

@@ -1,4 +1,4 @@
-import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value";
+import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value.js";
 
 //#region shape hierarchy interfaces
 export interface Named<T> {

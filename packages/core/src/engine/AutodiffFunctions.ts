@@ -1,4 +1,4 @@
-import * as ad from "../types/ad";
+import * as ad from "../types/ad.js";
 
 const binary =
   (binop: ad.Binary["binop"]) =>

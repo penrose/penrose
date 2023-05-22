@@ -1,4 +1,4 @@
-import { InitOutput } from "./build/penrose_optimizer";
+import { InitOutput } from "./build/penrose_optimizer.js";
 
 declare const instance: InitOutput;
 

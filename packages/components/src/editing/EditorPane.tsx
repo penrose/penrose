@@ -3,9 +3,9 @@ import { Env } from "@penrose/core";
 import { editor } from "monaco-editor";
 import { initVimMode, VimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
-import { SetupDomainMonaco } from "./languages/DomainConfig";
-import { SetupStyleMonaco } from "./languages/StyleConfig";
-import { SetupSubstanceMonaco } from "./languages/SubstanceConfig";
+import { SetupDomainMonaco } from "./languages/DomainConfig.js";
+import { SetupStyleMonaco } from "./languages/StyleConfig.js";
+import { SetupSubstanceMonaco } from "./languages/SubstanceConfig.js";
 
 const monacoOptions = (
   vimMode: boolean

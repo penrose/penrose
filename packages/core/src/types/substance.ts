@@ -1,6 +1,6 @@
 import im from "immutable";
-import { A, ASTNode, Identifier, StringLit } from "./ast";
-import { Env, TypeConstructor } from "./domain";
+import { A, ASTNode, Identifier, StringLit } from "./ast.js";
+import { Env, TypeConstructor } from "./domain.js";
 
 export type SubRes = [SubstanceEnv, Env];
 export type LabelMap = im.Map<string, LabelValue>;

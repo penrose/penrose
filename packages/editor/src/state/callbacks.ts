@@ -29,8 +29,8 @@ import {
   localFilesState,
   settingsState,
   workspaceMetadataSelector,
-} from "./atoms";
-import { generateVariation } from "./variation";
+} from "./atoms.js";
+import { generateVariation } from "./variation.js";
 
 const _compileDiagram = async (
   substance: string,

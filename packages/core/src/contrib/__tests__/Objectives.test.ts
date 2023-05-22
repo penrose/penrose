@@ -1,9 +1,10 @@
-import { Polygon } from "../../shapes/Polygon";
-import { Polyline } from "../../shapes/Polyline";
-import * as ad from "../../types/ad";
-import { objDict, objDictSpecific } from "../Objectives";
-import { numOf } from "../Utils";
-import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
+import { describe, expect, it, test } from "vitest";
+import { Polygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import * as ad from "../../types/ad.js";
+import { objDict, objDictSpecific } from "../Objectives.js";
+import { numOf } from "../Utils.js";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
 const digitPrecision = 4;
 

@@ -59,7 +59,7 @@ import {
   matchSignatures,
   nullaryTypeCons,
   sortStmts,
-} from "../analysis/SubstanceAnalysis";
+} from "../analysis/SubstanceAnalysis.js";
 import {
   Add,
   Delete,
@@ -81,7 +81,7 @@ import {
   deleteMutation,
   executeMutations,
   showMutations,
-} from "./Mutation";
+} from "./Mutation.js";
 
 type RandomFunction = (min: number, max: number) => number;
 
