@@ -269,3 +269,7 @@ export const extractPoints = (s: Shape<ad.Num>): [ad.Num, ad.Num][] => {
   else
     throw new Error(`Point extraction not defined for shape ${s.shapeType}.`);
 };
+
+export const relu = (x: ad.Num): ad.Num => {
+  return ifCond(lt(x, 0), 0, x);
+};

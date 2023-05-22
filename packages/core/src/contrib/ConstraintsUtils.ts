@@ -3,9 +3,7 @@ import {
   absVal,
   add,
   addN,
-  and,
   div,
-  gte,
   ifCond,
   lt,
   max,
@@ -40,6 +38,7 @@ import {
   isLinelike,
   noIntersectCircles,
   pointInBox,
+  relu,
 } from "./Utils.js";
 
 // -------- Ovelapping helpers
@@ -260,13 +259,7 @@ export const containsCirclePolygon = (
   );
 };
 
-export const andConstraint = (x: ad.Num, y: ad.Num): ad.Num =>
-  ifCond(
-    and(gte(x, 0), gte(y, 0)),
-    sqrt(add(squared(x), squared(y))),
-    ifCond(
-      and(lt(x, 0), gte(y, 0)),
-      absVal(y),
-      ifCond(and(gte(x, 0), lt(y, 0)), absVal(x), 0)
-    )
-  );
+export const andConstraint = (...xs: ad.Num[]): ad.Num => {
+  const relusqs = xs.map(relu).map(squared);
+  return sqrt(addN(relusqs));
+};

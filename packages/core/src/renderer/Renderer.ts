@@ -180,9 +180,15 @@ const RenderGroup = async (
   const subShapes = groupShape.shapes.contents;
   for (const shape of subShapes) {
     const name = shape.name.contents;
-    if (name !== clipShapeName) {
+    if (clip.tag === "Clip") {
+      if (name !== clipShapeName) {
+        const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+        childSvg.setAttribute("clip-path", `url(#${clipPathSvgId})`);
+        elem.appendChild(childSvg);
+      }
+      // If already rendered as clip shape, don't render it here.
+    } else {
       const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
-      childSvg.setAttribute("clip-path", `url(#${clipPathSvgId})`);
       elem.appendChild(childSvg);
     }
   }
