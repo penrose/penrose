@@ -11,6 +11,7 @@
     "@penrose/core": "^3.0.0-alpha.0",
     "@types/prettier": "^2",
     "prettier": "^2",
+    "vite": "^4",
     "vitest": "^0.31"
   },
   "scripts": {

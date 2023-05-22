@@ -11,7 +11,7 @@ import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
 import prettier from "prettier";
-import { renderToString } from "solid-js/web";
+import { render } from "solid-js/web";
 import { afterAll, describe, test } from "vitest";
 import { Meta, Trio } from "./index.js";
 import registry from "./registry.js";
@@ -115,13 +115,15 @@ const renderTrio = async ({
   };
 };
 
-const render = async (meta: Meta): Promise<Rendered> => {
+const renderExample = async (meta: Meta): Promise<Rendered> => {
   switch (meta.kind) {
     case "trio": {
       return await renderTrio(await meta.get());
     }
     case "solid": {
-      return { svg: renderToString(meta.f), data: {} };
+      const elem = document.createElement("div");
+      render(meta.f, elem);
+      return { svg: elem.innerHTML, data: {} };
     }
   }
 };
@@ -279,7 +281,7 @@ describe("registry", () => {
       key,
       async () => {
         const before = process.hrtime.bigint();
-        const { svg, data } = await render(meta);
+        const { svg, data } = await renderExample(meta);
         const after = process.hrtime.bigint();
         datas.set(key, {
           totalSeconds: nanoToSeconds(after - before),

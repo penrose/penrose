@@ -1,7 +1,0 @@
-{
-  "presets": [
-    "@babel/preset-typescript",
-    ["solid", { "generate": "ssr", "hydratable": true }]
-  ],
-  "sourceMaps": true
-}
