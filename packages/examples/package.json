@@ -17,7 +17,7 @@
     "build": "rimraf dist && tsc",
     "build-decls": ":",
     "codegen": "git clean -dfqX src && node codegen.js",
-    "test": "vitest run --test-timeout=60000 --reporter=verbose",
+    "test": "vitest run --reporter=verbose",
     "typecheck": ":"
   },
   "nx": {

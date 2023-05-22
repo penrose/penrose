@@ -275,19 +275,23 @@ describe("registry", () => {
   const datas = new Map<string, AllData>();
 
   for (const [key, meta] of registry.entries()) {
-    test(key, async () => {
-      const before = process.hrtime.bigint();
-      const { svg, data } = await render(meta);
-      const after = process.hrtime.bigint();
-      datas.set(key, {
-        totalSeconds: nanoToSeconds(after - before),
-        ...data,
-      });
-      const filePath = path.join(out, `${key}.svg`);
-      const fileDir = path.dirname(filePath);
-      await fs.mkdir(fileDir, { recursive: true });
-      await fs.writeFile(filePath, prettier.format(svg, { parser: "html" }));
-    });
+    test(
+      key,
+      async () => {
+        const before = process.hrtime.bigint();
+        const { svg, data } = await render(meta);
+        const after = process.hrtime.bigint();
+        datas.set(key, {
+          totalSeconds: nanoToSeconds(after - before),
+          ...data,
+        });
+        const filePath = path.join(out, `${key}.svg`);
+        const fileDir = path.dirname(filePath);
+        await fs.mkdir(fileDir, { recursive: true });
+        await fs.writeFile(filePath, prettier.format(svg, { parser: "html" }));
+      },
+      { timeout: MAX_SECONDS * 1000 }
+    );
   }
 
   afterAll(async () => {
