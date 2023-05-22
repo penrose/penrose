@@ -151,7 +151,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - if: steps.check.outputs.has-permission
         name: Push to target
-        working-directory: diagrams/raw/
+        working-directory: packages/examples/diagrams/
         run: git push -f origin HEAD
       - if: github.event_name == 'pull_request' && steps.check.outputs.has-permission
         name: Comment on PR
