@@ -7,7 +7,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "outDir": "dist",
+    "outDir": "dist/types",
     "rootDir": "src"
   }
 }
