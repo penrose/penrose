@@ -47,12 +47,17 @@ const SelectComponent = ({
   return (
     <Select
       ref={ref}
+      className="select"
       styles={{
         container: (provided) => ({
           ...provided,
           flex: 1,
           alignSelf: "stretch",
           pointerEvents: focus ? undefined : "none",
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          fontFamily: "Arial",
         }),
         control: (provided) => ({
           ...provided,
@@ -210,6 +215,7 @@ export default function (props: Data): React.ReactElement {
     <div
       style={{ display: "flex", fontFamily: "Arial", flexDirection: "column" }}
     >
+      <h2>Step 1: Define categories of tasks</h2>
       <DataSheetGrid
         value={categories.map((c) => ({ name: c }))}
         onChange={(d) => {
@@ -222,6 +228,7 @@ export default function (props: Data): React.ReactElement {
           },
         ]}
       />
+      <h2>Step 2: Define start and end dates of the timeline</h2>
       <DataSheetGrid
         value={[bounds]}
         onChange={(d) => {
@@ -243,6 +250,7 @@ export default function (props: Data): React.ReactElement {
         lockRows
       />
 
+      <h2>Step 3: Add tasks to the timeline</h2>
       <div
         style={{ display: "flex", fontFamily: "Arial", flexDirection: "row" }}
       >
