@@ -170,7 +170,7 @@ const RenderGroup = async (
       "clipPath"
     );
     // Okay if used only once
-    clipPathSvgId = clipShapeName + "_clip";
+    clipPathSvgId = clipShapeName + "-clip";
     clipPathSvg.setAttribute("id", clipPathSvgId);
     clipPathSvg.appendChild(clipShapeSvg);
 
