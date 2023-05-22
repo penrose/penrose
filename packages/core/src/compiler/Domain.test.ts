@@ -1,24 +1,22 @@
-import linearAlgebra from "@penrose/examples/dist/linear-algebra-domain";
-import setTheory from "@penrose/examples/dist/set-theory-domain";
+import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/linear-algebra.domain.js";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain.js";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
-import grammar from "../parser/DomainParser";
-import { Env } from "../types/domain";
-import { PenroseError } from "../types/errors";
-import { Result, showError } from "../utils/Error";
-import { compileDomain, isSubtype } from "./Domain";
+import { beforeEach, describe, expect, test } from "vitest";
+import grammar from "../parser/DomainParser.js";
+import { Env } from "../types/domain.js";
+import { PenroseError } from "../types/errors.js";
+import { Result, showError } from "../utils/Error.js";
+import { compileDomain, isSubtype } from "./Domain.js";
 
 const outputDir = "/tmp/contexts";
 const saveContexts = false;
 const printError = false;
 
 const domains = [
-  [
-    "linear-algebra-domain/linear-algebra.domain",
-    linearAlgebra["linear-algebra.domain"],
-  ],
-  ["set-theory-domain/setTheory.domain", setTheory["setTheory.domain"]],
+  ["linear-algebra-domain/linear-algebra.domain", linearAlgebraDomain],
+  ["set-theory-domain/setTheory.domain", setTheoryDomain],
 ];
 
 const contextHas = (
@@ -191,8 +189,8 @@ type Set somethingthatshouldn'tparse
   });
   test("Duplicate names", () => {
     const prog = `
-type Set 
-type Point 
+type Set
+type Point
 type Set
     `;
     expectErrorOf(prog, "DuplicateName");

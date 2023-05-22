@@ -6,12 +6,12 @@ import {
   showError,
 } from "@penrose/core";
 import { shuffle } from "lodash";
-import { Preset } from "../examples";
+import { Preset } from "../examples.js";
 import {
   SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
-} from "../synthesis/Synthesizer";
+} from "../synthesis/Synthesizer.js";
 
 const generateProgs = (
   setting: SynthesizerSetting,

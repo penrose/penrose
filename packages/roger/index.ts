@@ -20,18 +20,27 @@ import {
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
-import { extname, join, parse, resolve } from "path";
+import { extname, join, resolve } from "path";
 import prettier from "prettier";
-import uniqid from "uniqid";
-import { printTextChart } from "./artifacts";
+import { printTextChart } from "./artifacts.js";
 import { version } from "./package.json";
-import { AggregateData, InstanceData } from "./types";
-import watch from "./watch";
+import { AggregateData, InstanceData } from "./types.js";
+import watch from "./watch.js";
 
-interface StyledTrio {
+interface Trio {
   substance: string;
   style: string[];
   domain: string;
+  variation: string;
+}
+
+interface Meta {
+  name?: string;
+  gallery?: boolean;
+}
+
+interface Registry {
+  [id: string]: Meta;
 }
 
 // In an async context, communicate with the backend to compile and optimize the diagram
@@ -40,11 +49,11 @@ const render = async (
   substance: string,
   style: string,
   domain: string,
-  resolvePath: (string) => Promise<string | undefined>,
+  resolvePath: (filePath: string) => Promise<string | undefined>,
   verbose: boolean,
   meta: {
     substanceName: string;
-    styleName: string;
+    styleNames: string[];
     domainName: string;
     id: string;
   }
@@ -54,10 +63,8 @@ const render = async (
   state: PenroseState;
 }> => {
   // create id for reporting
-  const { substanceName, styleName, domainName } = meta;
-  const id = `${domainName}-${styleName}-${substanceName}`;
   // Compilation
-  if (verbose) console.debug(`Compiling ${id} ...`);
+  if (verbose) console.debug(`Compiling ${meta.id} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
   const compilerOutput = await compileTrio({
@@ -77,7 +84,7 @@ const render = async (
   const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
 
-  if (verbose) console.debug(`Stepping for ${id} ...`);
+  if (verbose) console.debug(`Stepping for ${meta.id} ...`);
 
   const convergeStart = process.hrtime();
   let optimizedState;
@@ -125,8 +132,17 @@ const render = async (
 };
 
 // set up path resolution
-const resolvePath =
-  (prefix: string, stylePath: string) => async (filePath: string) => {
+const resolvePath = (prefix: string, stylePaths: string[]) => {
+  const stylePrefixes = stylePaths.map((sty) => join(prefix, sty, ".."));
+  if (new Set(stylePrefixes).size > 1) {
+    console.warn(
+      chalk.yellow(
+        "Warning: the styles in this trio are not co-located. The first style will be used for image resolution."
+      )
+    );
+  }
+  const stylePrefix = stylePrefixes[0];
+  return async (filePath: string) => {
     // Handle absolute URLs
     if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
       const fileURL = new URL(filePath).href;
@@ -140,19 +156,17 @@ const resolvePath =
     }
 
     // Relative paths
-    const parentDir = parse(join(prefix, stylePath)).dir;
-    const joined = resolve(parentDir, filePath);
-    return fs.readFileSync(joined, "utf8").toString();
+    const joined = resolve(stylePrefix, filePath);
+    return fs.readFileSync(joined, "utf8");
   };
+};
 
 const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
   // Fetch Substance, Style, and Domain files
   const [substance, domain] = [sub, dsl].map((arg) =>
-    fs.readFileSync(join(prefix, arg), "utf8").toString()
+    fs.readFileSync(join(prefix, arg), "utf8")
   );
-  const styles = sty.map((arg) =>
-    fs.readFileSync(join(prefix, arg), "utf8").toString()
-  );
+  const styles = sty.map((arg) => fs.readFileSync(join(prefix, arg), "utf8"));
   return {
     substance,
     style: styles.join("\n"),
@@ -163,19 +177,19 @@ const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
 const renderTrio = async (
   variation: string,
   sub: string,
-  sty: string,
+  sty: string[],
   dsl: string,
   folder: boolean,
   out: string,
   prefix: string,
   meta: {
     substanceName: string;
-    styleName: string;
+    styleNames: string[];
     domainName: string;
     id: string;
   }
 ) => {
-  const { substance, style, domain } = readTrio(sub, [sty], dsl, prefix);
+  const { substance, style, domain } = readTrio(sub, sty, dsl, prefix);
   // draw diagram and get metadata
   const { diagram, metadata } = await render(
     variation,
@@ -203,49 +217,44 @@ const renderTrio = async (
     // returning metadata for aggregation
     return metadata;
   } else {
+    const dir = join(out, "..");
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     fs.writeFileSync(out, diagram);
     console.log(chalk.green(`The diagram has been saved as ${resolve(out)}`));
   }
 };
 
 // Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
-const renderRegistry = async (
-  lib: string,
-  folders: boolean,
-  out: string,
-  prefix: string
-) => {
-  const registry = JSON.parse(fs.readFileSync(join(prefix, lib)).toString());
-  const substanceLibrary = registry["substances"];
-  const styleLibrary = registry["styles"];
-  const domainLibrary = registry["domains"];
-  const trioLibrary = registry["trios"];
-  console.log(`Processing ${trioLibrary.length} substance files...`);
+const renderRegistry = async (lib: string, folders: boolean, out: string) => {
+  const prefix = join(lib, "..");
+  const registry: Registry = JSON.parse(fs.readFileSync(lib, "utf8"));
+  const trioLibrary = Object.keys(registry);
+  console.log(`Processing ${trioLibrary.length} trios...`);
 
   const finalMetadata: AggregateData = {};
-  // NOTE: for parallelism, use forEach.
-  // But beware the console gets messy and it's hard to track what failed
-  for (const { domain, style, substance, variation } of trioLibrary) {
+  for (const id of trioLibrary) {
     // try to render the diagram
-    const id = uniqid("instance-");
-    const name = `${substance}-${style}`;
     try {
-      const { URI: subURI } = substanceLibrary[substance];
-      const { URI: styURI } = styleLibrary[style];
-      const { URI: dslURI } = domainLibrary[domain];
+      const trioPath = join(prefix, `${id}.trio.json`);
+      const trioPrefix = join(trioPath, "..");
+      const { substance, style, domain, variation }: Trio = JSON.parse(
+        fs.readFileSync(trioPath, "utf8")
+      );
 
       // Warning: will face id conflicts if parallelism used
       const metadata = await renderTrio(
         variation,
-        subURI,
-        styURI,
-        dslURI,
+        substance,
+        style,
+        domain,
         folders,
-        join(out, `${name}${folders ? "" : ".svg"}`),
-        prefix,
+        join(out, `${id}${folders ? "" : ".svg"}`),
+        trioPrefix,
         {
           substanceName: substance,
-          styleName: style,
+          styleNames: style,
           domainName: domain,
           id,
         }
@@ -257,22 +266,20 @@ const renderRegistry = async (
       process.exitCode = 1;
       console.trace(
         chalk.red(
-          `${name} exited with an error. The Substance program ID is ${substance}. The error message is:\n${e}`
+          `${id} exited with an error. The error message is:\n${e.stack}`
         )
       );
     }
   }
 
   if (folders) {
-    fs.writeFileSync(
-      join(out, "aggregateData.json"),
-      JSON.stringify(finalMetadata, null, 2)
-    );
+    const aggregatePath = join(out, "aggregateData.json");
+    fs.writeFileSync(aggregatePath, JSON.stringify(finalMetadata, null, 2));
     console.log(
-      chalk.green(`The Aggregate metadata has been saved to ${out}.`)
+      chalk.green(`The Aggregate metadata has been saved to ${aggregatePath}`)
     );
   }
-  console.log("done.");
+  console.log("Done.");
 };
 
 /**
@@ -383,44 +390,44 @@ yargs(hideBin(process.argv))
         .option("variation", {
           alias: "v",
           desc: "Variation for the Penrose diagram",
-          default: "",
+          type: "string",
         }),
     async (options) => {
-      let sub, sty, dom;
+      let sub: string, sty: string[], dom: string;
+      let prefix = options.path;
+      let variation = options.variation as string | undefined;
       if (options.trio.length === 1) {
         console.log();
 
+        const trioPath = options.trio[0] as string;
+        prefix = join(trioPath, "..");
         // read trio from a JSON file
-        const paths = JSON.parse(
-          await fs.readFileSync(resolve(options.trio[0] as string)).toString()
-        ) as StyledTrio;
+        const paths: Trio = JSON.parse(
+          fs.readFileSync(resolve(trioPath), "utf8")
+        );
         dom = paths.domain;
         sub = paths.substance;
         sty = paths.style;
+        variation ??= paths.variation;
       } else {
         // load all three files
         const trio = orderTrio(options.trio as string[]);
         [sub, sty, dom] = [trio[0], [trio[1]], trio[2]];
       }
-      const { substance, style, domain } = readTrio(
-        sub,
-        sty,
-        dom,
-        options.path
-      );
+      const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
       // draw diagram and get metadata
       const { diagram } = await render(
-        options.variation,
+        variation ?? "",
         substance,
         style,
         domain,
-        resolvePath(options.path, sty[0]), // HACK: assume all images are co-located with the first Style module
+        resolvePath(prefix, sty),
         false,
         {
-          substanceName: substance,
-          styleName: style,
-          domainName: domain,
-          id: uniqid("instance-"),
+          substanceName: sub,
+          styleNames: sty,
+          domainName: dom,
+          id: options.trio.join(", "),
         }
       );
       if (options.out) {
@@ -446,25 +453,15 @@ yargs(hideBin(process.argv))
         .positional("out", {
           desc: "A folder containing all generated diagrams.",
           demandOption: true,
-          default: ".",
+          type: "string",
         })
         .option("folders", {
           desc: "Generate each diagram as a folder that includes metadata.",
           default: false,
           type: "boolean",
-        })
-        .option("path", {
-          alias: "p",
-          desc: "Path prefix for both the registry file itself and all paths to trios in the registry.",
-          default: ".",
         }),
     async (options) => {
-      await renderRegistry(
-        options.registry,
-        options.folders,
-        options.out,
-        options.path
-      );
+      await renderRegistry(options.registry, options.folders, options.out);
     }
   )
   .command(

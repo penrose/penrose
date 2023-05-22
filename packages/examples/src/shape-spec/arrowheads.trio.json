@@ -1,0 +1,6 @@
+{
+  "substance": "./arrows.substance",
+  "style": ["./arrows.style"],
+  "domain": "./all-shapes.domain",
+  "variation": ""
+}

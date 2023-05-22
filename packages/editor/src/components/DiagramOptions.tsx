@@ -1,11 +1,11 @@
 import { useRecoilState } from "recoil";
-import { diagramGridState, diagramMetadataSelector } from "../state/atoms";
+import { diagramGridState, diagramMetadataSelector } from "../state/atoms.js";
 import {
   useCompileDiagram,
   useStepDiagram,
   useStepStage,
-} from "../state/callbacks";
-import BlueButton from "./BlueButton";
+} from "../state/callbacks.js";
+import BlueButton from "./BlueButton.js";
 
 export default function DiagramOptions() {
   const [diagramMetadata, setDiagramMetadata] = useRecoilState(

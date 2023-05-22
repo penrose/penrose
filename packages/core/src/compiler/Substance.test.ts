@@ -1,21 +1,38 @@
-import setTheory from "@penrose/examples/dist/set-theory-domain";
+import continuousmapSubstance from "@penrose/examples/dist/set-theory-domain/continuousmap.substance.js";
+import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain.js";
+import multisetsSubstance from "@penrose/examples/dist/set-theory-domain/multisets.substance.js";
+import nestedSubstance from "@penrose/examples/dist/set-theory-domain/nested.substance.js";
+import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain.js";
+import treeSubstance from "@penrose/examples/dist/set-theory-domain/tree.substance.js";
+import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance.js";
 import * as fs from "fs";
 import nearley from "nearley";
 import * as path from "path";
-import grammar from "../parser/SubstanceParser";
-import { A } from "../types/ast";
-import { Env } from "../types/domain";
-import { PenroseError } from "../types/errors";
-import { ApplyPredicate, SubRes, SubstanceEnv } from "../types/substance";
-import { Result, showError, showType } from "../utils/Error";
-import { isKeyOf } from "../utils/Util";
-import { compileDomain } from "./Domain";
-import { compileSubstance, prettySubstance } from "./Substance";
+import { beforeEach, describe, expect, test } from "vitest";
+import grammar from "../parser/SubstanceParser.js";
+import { A } from "../types/ast.js";
+import { Env } from "../types/domain.js";
+import { PenroseError } from "../types/errors.js";
+import { ApplyPredicate, SubRes, SubstanceEnv } from "../types/substance.js";
+import { Result, showError, showType } from "../utils/Error.js";
+import { compileDomain } from "./Domain.js";
+import { compileSubstance, prettySubstance } from "./Substance.js";
 
 const printError = false;
 const saveContexts = false;
 const outputDir = "/tmp/contexts";
 
+const domains = new Map([
+  ["functions.domain", functionsDomain],
+  ["setTheory.domain", setTheoryDomain],
+]);
+const substances = new Map([
+  ["continuousmap.substance", continuousmapSubstance],
+  ["multisets.substance", multisetsSubstance],
+  ["nested.substance", nestedSubstance],
+  ["tree.substance", treeSubstance],
+  ["twosets-simple.substance", twosetsSimpleSubstance],
+]);
 const subPaths = [
   // "linear-algebra-domain/twoVectorsPerp.substance",
   ["setTheory.domain", "tree.substance"],
@@ -446,10 +463,10 @@ B := A.field
   test("unbound field access of a function", () => {
     const env = envOrError(domainProg);
     const prog = `
-Set A, B, 
+Set A, B,
 Point p, q
 B := AddPoint(p, A)
-q := B.p1 -- although the function has named args, one still cannot deconstruct functions. Only constructors are okay. 
+q := B.p1 -- although the function has named args, one still cannot deconstruct functions. Only constructors are okay.
         `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DeconstructNonconstructor");
@@ -537,10 +554,8 @@ describe("Real Programs", () => {
   }
 
   subPaths.forEach(([domainPath, examplePath]) => {
-    if (!isKeyOf(domainPath, setTheory)) throw Error(domainPath);
-    if (!isKeyOf(examplePath, setTheory)) throw Error(examplePath);
-    const domProg = setTheory[domainPath];
-    const subProg = setTheory[examplePath];
+    const domProg = domains.get(domainPath)!;
+    const subProg = substances.get(examplePath)!;
     test(examplePath, () => {
       // do testing
       const env = envOrError(domProg);

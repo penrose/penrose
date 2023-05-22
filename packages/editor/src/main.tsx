@@ -3,7 +3,7 @@ import React, { Component, ReactElement } from "react";
 import ReactDOM from "react-dom/client";
 import toast, { Toaster } from "react-hot-toast";
 import { RecoilRoot } from "recoil";
-import App from "./App";
+import App from "./App.js";
 import "./index.css";
 
 class ErrorBoundary extends Component<{ children: ReactElement }> {

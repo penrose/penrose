@@ -1,0 +1,6 @@
+{
+  "substance": "./example.substance",
+  "style": ["./word-cloud.style"],
+  "domain": "./word-cloud.domain",
+  "variation": "JazlynMouse32496"
+}

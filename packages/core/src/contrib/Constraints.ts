@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -10,13 +10,13 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Line } from "../shapes/Line";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { ConstrFunc } from "../types/functions";
-import { real2T, realNT, realT, shapeT } from "../utils/Util";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Line } from "../shapes/Line.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { ConstrFunc } from "../types/functions.js";
+import { real2T, realNT, realT, shapeT } from "../utils/Util.js";
 import {
   atDistLabel,
   containsAABBs,
@@ -28,10 +28,10 @@ import {
   containsRectlikeCircle,
   overlappingCircleEllipse,
   overlappingEllipse,
-} from "./ConstraintsUtils";
-import { constrDictCurves } from "./CurveConstraints";
-import { bboxFromShape, shapeDistance, shapeSize } from "./Queries";
-import { inRange, isRectlike, overlap1D } from "./Utils";
+} from "./ConstraintsUtils.js";
+import { constrDictCurves } from "./CurveConstraints.js";
+import { bboxFromShape, shapeDistance, shapeSize } from "./Queries.js";
+import { inRange, isRectlike, overlap1D } from "./Utils.js";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.

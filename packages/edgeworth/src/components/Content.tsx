@@ -22,13 +22,13 @@ import JSZip from "jszip";
 import { shuffle } from "lodash";
 import React, { memo } from "react";
 import * as sc from "styled-components";
-import { showMutations } from "../synthesis/Mutation";
+import { showMutations } from "../synthesis/Mutation.js";
 import {
   SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
-} from "../synthesis/Synthesizer";
-import { Settings } from "./Settings";
+} from "../synthesis/Synthesizer.js";
+import { Settings } from "./Settings.js";
 
 const edgeworthPurple = {
   primary: "#3f51b5",

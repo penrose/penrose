@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -14,18 +14,18 @@ import {
   squared,
   sub,
   tan,
-} from "../engine/AutodiffFunctions";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import * as ad from "../types/ad";
-import { ConstrFunc } from "../types/functions";
-import { shapeT, unionT } from "../utils/Util";
+} from "../engine/AutodiffFunctions.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import * as ad from "../types/ad.js";
+import { ConstrFunc } from "../types/functions.js";
+import { shapeT, unionT } from "../utils/Util.js";
 import {
   consecutiveTriples,
   consecutiveTuples,
   extractPoints,
   isClosed,
-} from "./Utils";
+} from "./Utils.js";
 
 /**
  * All values in the list should be equal

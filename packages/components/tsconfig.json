@@ -5,7 +5,8 @@
     "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "moduleResolution": "node" // Monaco and styled-components break with ESM module resolution
   },
   "include": ["src"],
   "exclude": ["node_modules"]

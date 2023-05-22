@@ -13,7 +13,8 @@
     "start:docs-site": "nx run docs-site:dev",
     "start": "nx run editor:watch",
     "build:ide": "nx run editor:build",
-    "test": "nx run core:test",
+    "test": "nx run-many --target=test --verbose",
+    "coverage": "nx run core:coverage",
     "docs": "nx run core:docs",
     "lint": "nx run core:lint",
     "lint:fix": "nx run core:lint --fix",
@@ -36,19 +37,14 @@
     "prettier-plugin-organize-imports": "^3.2.1",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.1",
+    "@vitest/coverage-c8": "^0.31.1",
+    "@vitest/ui": "^0.31.1"
   },
   "workspaces": {
     "packages": [
-      "packages/components",
-      "packages/core",
-      "packages/docs-site",
-      "packages/edgeworth",
-      "packages/editor",
-      "packages/examples",
-      "packages/optimizer",
-      "packages/roger",
-      "packages/vscode"
+      "packages/*"
     ],
     "nohoist": [
       "**/@types/jest",

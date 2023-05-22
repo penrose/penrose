@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   acos,
@@ -48,17 +48,17 @@ import {
   tan,
   tanh,
   trunc,
-} from "../engine/AutodiffFunctions";
-import { PathBuilder } from "../renderer/PathBuilder";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import { Line } from "../shapes/Line";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Context, uniform } from "../shapes/Samplers";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { CompFunc } from "../types/functions";
+} from "../engine/AutodiffFunctions.js";
+import { PathBuilder } from "../renderer/PathBuilder.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Line } from "../shapes/Line.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Context, uniform } from "../shapes/Samplers.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { CompFunc } from "../types/functions.js";
 import {
   Color,
   ColorV,
@@ -68,7 +68,7 @@ import {
   PtListV,
   TupV,
   VectorV,
-} from "../types/value";
+} from "../types/value.js";
 import {
   booleanT,
   colorT,
@@ -93,7 +93,7 @@ import {
   unitT,
   valueT,
   vectorV,
-} from "../utils/Util";
+} from "../utils/Util.js";
 import {
   centerOfMass,
   elasticEnergy,
@@ -106,9 +106,9 @@ import {
   signedArea,
   totalCurvature,
   turningNumber,
-} from "./CurveConstraints";
-import { rectLineDist, shapeDistance } from "./Queries";
-import { Rectlike, clamp, isRectlike, numOf } from "./Utils";
+} from "./CurveConstraints.js";
+import { rectLineDist, shapeDistance } from "./Queries.js";
+import { Rectlike, clamp, isRectlike, numOf } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
@@ -1784,6 +1784,218 @@ export const compDict = {
       return {
         tag: "VectorV",
         contents: ops.vnormalize(v),
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a uniform random value between minVal and maxValue.
+   */
+  random: {
+    name: "random",
+    description:
+      "Uniformly sample a random value in the range from `minVal` to `maxVal`.",
+    params: [
+      { name: "minVal", type: realT(), description: "minimum value" },
+      { name: "maxVal", type: realT(), description: "maximum value" },
+    ],
+    body: (
+      { makeInput }: Context,
+      minVal: ad.Num,
+      maxVal: ad.Num
+    ): FloatV<ad.Num> => {
+      if (typeof minVal === "number" && typeof maxVal === "number") {
+        const val = makeInput({
+          init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
+          stages: new Set(),
+        });
+
+        return {
+          tag: "FloatV",
+          contents: val,
+        };
+      } else {
+        throw new Error(
+          "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead."
+        );
+      }
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a uniform random value between 0 and 1
+   */
+  unitRandom: {
+    name: "unitRandom",
+    description: "Uniformly sample a random value in the range [0,1].",
+    params: [],
+    body: ({ makeInput }: Context): FloatV<ad.Num> => {
+      const val = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      return {
+        tag: "FloatV",
+        contents: val,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit disk.
+   */
+  diskRandom: {
+    name: "diskRandom",
+    description: "Sample the uniform distribution on the unit disk.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // From the section "Sampling the Unit Disk" in Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const x = [
+        mul(sqrt(u1), cos(mul(2 * Math.PI, u2))),
+        mul(sqrt(u1), sin(mul(2 * Math.PI, u2))),
+      ];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit circle.
+   */
+  circleRandom: {
+    name: "circleRandom",
+    description: "Sample the uniform distribution on the unit circle.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 2 * Math.PI) },
+        stages: new Set(),
+      });
+
+      const x = [cos(u), sin(u)];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit sphere.
+   */
+  sphereRandom: {
+    name: "sphereRandom",
+    description: "Sample the uniform distribution on the unit sphere.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // Adapted from the section "Sampling the Unit Hemisphere" in Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const z = sub(1, mul(2, u1));
+      const r = sqrt(clamp([0, 1], sub(1, mul(z, z))));
+      const phi = mul(2 * Math.PI, u2);
+      const x = [mul(r, cos(phi)), mul(r, sin(phi)), z];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from a normal distribution with mean 0 and standard deviation 1.
+   */
+  normalRandom: {
+    name: "normalRandom",
+    description:
+      "Sample a normal distribution with mean 0 and standard deviation 1.",
+    params: [],
+    body: ({ makeInput }: Context): FloatV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      const Z = mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
+
+      return {
+        tag: "FloatV",
+        contents: Z,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a random point sampled from the uniform distribution on a triangle with vertices a, b, c.
+   */
+  triangleRandom: {
+    name: "triangleRandom",
+    description:
+      "Sample a point from the uniform distribution over a triangle with vertices `a`, `b`, and `c`.",
+    params: [
+      { name: "a", type: real2T(), description: "First vertex" },
+      { name: "b", type: real2T(), description: "Second vertex" },
+      { name: "c", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
+      { makeInput }: Context,
+      a: ad.Num[],
+      b: ad.Num[],
+      c: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // Following method SamplePlanarTriangle from Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const s = sqrt(u1);
+      const t = u2;
+      const x = ops.vadd(
+        ops.vadd(ops.vmul(sub(1, s), a), ops.vmul(mul(s, sub(1, t)), b)),
+        ops.vmul(mul(s, t), c)
+      );
+
+      return {
+        tag: "VectorV",
+        contents: x,
       };
     },
     returns: valueT("RealN"),

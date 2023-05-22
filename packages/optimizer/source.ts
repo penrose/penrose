@@ -1,12 +1,12 @@
-import { LbfgsParams } from "./bindings/LbfgsParams";
-import { OptStatus } from "./bindings/OptStatus";
-import { Params } from "./bindings/Params";
+import { LbfgsParams } from "./bindings/LbfgsParams.js";
+import { OptStatus } from "./bindings/OptStatus.js";
+import { Params } from "./bindings/Params.js";
 import {
   penrose_init,
   penrose_poly_roots,
   penrose_start,
   penrose_step_until,
-} from "./build/penrose_optimizer";
+} from "./build/penrose_optimizer.js";
 import "./instance";
 
 penrose_init();

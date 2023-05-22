@@ -1,4 +1,4 @@
-import { Line } from "../shapes/Line";
+import { Line } from "../shapes/Line.js";
 import {
   ArrowheadSpec,
   getArrowhead,
@@ -6,9 +6,9 @@ import {
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
-} from "../utils/Util";
-import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "../utils/Util.js";
+import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 export const arrowHead = (
   id: string,

@@ -1,22 +1,28 @@
 import { start, stepUntil } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
-import { compileDomain } from "./compiler/Domain";
-import { compileStyle } from "./compiler/Style";
-import { compileSubstance } from "./compiler/Substance";
+import { compileDomain } from "./compiler/Domain.js";
+import { compileStyle } from "./compiler/Style.js";
+import { compileSubstance } from "./compiler/Substance.js";
 import {
   PathResolver,
   RenderInteractive,
   RenderStatic,
-} from "./renderer/Renderer";
-import * as ad from "./types/ad";
-import { Env } from "./types/domain";
-import { PenroseError } from "./types/errors";
-import { Registry, Trio } from "./types/io";
-import { Fn, LabelCache, State } from "./types/state";
-import { SubstanceEnv } from "./types/substance";
-import { collectLabels, insertPending } from "./utils/CollectLabels";
-import { Result, andThen, err, nanError, ok, showError } from "./utils/Error";
-import { safe } from "./utils/Util";
+} from "./renderer/Renderer.js";
+import * as ad from "./types/ad.js";
+import { Env } from "./types/domain.js";
+import { PenroseError } from "./types/errors.js";
+import { Fn, LabelCache, State } from "./types/state.js";
+import { SubstanceEnv } from "./types/substance.js";
+import { collectLabels, insertPending } from "./utils/CollectLabels.js";
+import {
+  Result,
+  andThen,
+  err,
+  nanError,
+  ok,
+  showError,
+} from "./utils/Error.js";
+import { safe } from "./utils/Util.js";
 
 /**
  * Use the current resample seed to sample all shapes in the State.
@@ -285,49 +291,6 @@ export const finalStage = (state: State): boolean =>
 export const stateInitial = (state: State): boolean =>
   state.params.optStatus === "NewIter";
 
-/**
- * Read and flatten the registry file for Penrose examples into a list of program trios.
- *
- * @param registry JSON file of the registry
- * @param galleryOnly Only return trios where `gallery === true`
- */
-export const readRegistry = (
-  registry: Registry,
-  galleryOnly: boolean
-): Trio[] => {
-  const { substances, styles, domains, trios } = registry;
-  const res = [];
-  for (const trioEntry of trios) {
-    const {
-      domain: dslID,
-      style: styID,
-      substance: subID,
-      variation,
-      gallery,
-      name,
-    } = trioEntry;
-    const domain = domains[dslID];
-    const substance = substances[subID];
-    const style = styles[styID];
-    const trio: Trio = {
-      substanceURI: registry.root + substance.URI,
-      styleURI: registry.root + style.URI,
-      domainURI: registry.root + domain.URI,
-      substanceID: subID,
-      domainID: dslID,
-      styleID: styID,
-      variation,
-      name: name ?? `${subID}-${styID}`,
-      id: `${subID}-${styID}`,
-      gallery: gallery ?? false,
-    };
-    if (!galleryOnly || trioEntry.gallery) {
-      res.push(trio);
-    }
-  }
-  return res;
-};
-
 const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
   const stage = optStages[currentStageIndex];
@@ -366,29 +329,31 @@ export const evalFns = (
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
-export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
+export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain.js";
 export {
   checkSubstance,
   compileSubstance,
   parseSubstance,
   prettySubstance,
-} from "./compiler/Substance";
-export { constrDict } from "./contrib/Constraints";
-export { compDict } from "./contrib/Functions";
-export { objDict } from "./contrib/Objectives";
-export { RenderInteractive, RenderStatic } from "./renderer/Renderer";
-export type { PathResolver } from "./renderer/Renderer";
-export { makeCanvas, simpleContext } from "./shapes/Samplers";
-export type { Canvas } from "./shapes/Samplers";
-export { sampleShape, shapeTypes } from "./shapes/Shapes";
-export type { ShapeType } from "./shapes/Shapes";
-export type { Env } from "./types/domain";
-export type { PenroseError, Warning as PenroseWarning } from "./types/errors";
-export type { Trio } from "./types/io";
-export type { SubProg } from "./types/substance";
-export * as Value from "./types/value";
-export { showError } from "./utils/Error";
-export type { Result } from "./utils/Error";
+} from "./compiler/Substance.js";
+export { constrDict } from "./contrib/Constraints.js";
+export { compDict } from "./contrib/Functions.js";
+export { objDict } from "./contrib/Objectives.js";
+export { RenderInteractive, RenderStatic } from "./renderer/Renderer.js";
+export type { PathResolver } from "./renderer/Renderer.js";
+export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
+export type { Canvas } from "./shapes/Samplers.js";
+export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
+export type { ShapeType } from "./shapes/Shapes.js";
+export type { Env } from "./types/domain.js";
+export type {
+  PenroseError,
+  Warning as PenroseWarning,
+} from "./types/errors.js";
+export type { SubProg } from "./types/substance.js";
+export * as Value from "./types/value.js";
+export { showError } from "./utils/Error.js";
+export type { Result } from "./utils/Error.js";
 export {
   hexToRgba,
   prettyPrintExpr,
@@ -396,4 +361,4 @@ export {
   prettyPrintPath,
   rgbaToHex,
   zip2,
-} from "./utils/Util";
+} from "./utils/Util.js";

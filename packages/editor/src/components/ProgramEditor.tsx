@@ -7,8 +7,8 @@ import {
   fileContentsSelector,
   settingsState,
   workspaceMetadataSelector,
-} from "../state/atoms";
-import { useCompileDiagram } from "../state/callbacks";
+} from "../state/atoms.js";
+import { useCompileDiagram } from "../state/callbacks.js";
 export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const [programState, setProgramState] = useRecoilState(
     fileContentsSelector(kind)

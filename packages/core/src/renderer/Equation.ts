@@ -1,5 +1,5 @@
-import { Equation } from "../shapes/Equation";
-import { getAdValueAsString } from "../utils/Util";
+import { Equation } from "../shapes/Equation.js";
+import { getAdValueAsString } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -7,8 +7,8 @@ import {
   attrTitle,
   attrTransformCoords,
   attrWH,
-} from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 const RenderEquation = (
   shape: Equation<number>,

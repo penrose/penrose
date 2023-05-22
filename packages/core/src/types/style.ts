@@ -1,5 +1,5 @@
-import { ASTNode, Identifier, StringLit } from "./ast";
-import { LabelType } from "./substance";
+import { ASTNode, Identifier, StringLit } from "./ast.js";
+import { LabelType } from "./substance.js";
 
 export type Staged<T> = {
   stages: Identifier<T>[];

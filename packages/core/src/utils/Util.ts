@@ -1,19 +1,19 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import { LineProps } from "../shapes/Line";
-import { Shape, ShapeType } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { A } from "../types/ast";
-import { Either, Left, Right } from "../types/common";
-import { Fn } from "../types/state";
-import { BindingForm, Expr, Path } from "../types/style";
+import { LineProps } from "../shapes/Line.js";
+import { Shape, ShapeType } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { A } from "../types/ast.js";
+import { Either, Left, Right } from "../types/common.js";
+import { Fn } from "../types/state.js";
+import { BindingForm, Expr, Path } from "../types/style.js";
 import {
   Context,
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
   WithContext,
-} from "../types/styleSemantics";
+} from "../types/styleSemantics.js";
 import {
   ShapeT,
   TypeDesc,
@@ -22,7 +22,7 @@ import {
   ValueT,
   ValueType,
   valueTypeDesc,
-} from "../types/types";
+} from "../types/types.js";
 import {
   BoolV,
   Color,
@@ -40,7 +40,7 @@ import {
   Val,
   Value,
   VectorV,
-} from "../types/value";
+} from "../types/value.js";
 
 //#region general
 

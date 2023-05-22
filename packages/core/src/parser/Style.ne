@@ -6,10 +6,10 @@
 /* eslint-disable */
 import moo from "moo";
 import _ from 'lodash'
-import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
-import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast";
+import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
+import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast.js";
 import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
-} from "../types/style";
+} from "../types/style.js";
 
 const styleTypes: string[] =
   [ "scalar"

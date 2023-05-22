@@ -1,0 +1,6 @@
+{
+  "substance": "./fig3.substance",
+  "style": ["../../pseudograph.style"],
+  "domain": "../../pseudograph.domain",
+  "variation": ""
+}
