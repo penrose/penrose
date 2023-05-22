@@ -22,10 +22,10 @@ import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
 import { extname, join, resolve } from "path";
 import prettier from "prettier";
-import { printTextChart } from "./artifacts";
+import { printTextChart } from "./artifacts.js";
 import { version } from "./package.json";
-import { AggregateData, InstanceData } from "./types";
-import watch from "./watch";
+import { AggregateData, InstanceData } from "./types.js";
+import watch from "./watch.js";
 
 interface Trio {
   substance: string;

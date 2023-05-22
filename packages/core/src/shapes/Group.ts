@@ -1,8 +1,8 @@
-import * as ad from "../types/ad";
-import { Named, ShapeCommon } from "../types/shapes";
-import { ClipDataV, ShapeListV } from "../types/value";
-import { boolV, clipDataV, noClip, shapeListV, strV } from "../utils/Util";
-import { Canvas, Context } from "./Samplers";
+import * as ad from "../types/ad.js";
+import { Named, ShapeCommon } from "../types/shapes.js";
+import { ClipDataV, ShapeListV } from "../types/value.js";
+import { boolV, clipDataV, noClip, shapeListV, strV } from "../utils/Util.js";
+import { Canvas, Context } from "./Samplers.js";
 
 export interface GroupProps<T> extends Named<T> {
   shapes: ShapeListV<T>;

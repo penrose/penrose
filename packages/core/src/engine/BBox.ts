@@ -1,11 +1,11 @@
-import { CircleProps } from "../shapes/Circle";
-import { EllipseProps } from "../shapes/Ellipse";
-import { LineProps } from "../shapes/Line";
-import { PathProps } from "../shapes/Path";
-import { RectangleProps } from "../shapes/Rectangle";
-import * as ad from "../types/ad";
-import { Center, Poly, Rect, Rotate, Scale } from "../types/shapes";
-import { ops } from "./Autodiff";
+import { CircleProps } from "../shapes/Circle.js";
+import { EllipseProps } from "../shapes/Ellipse.js";
+import { LineProps } from "../shapes/Line.js";
+import { PathProps } from "../shapes/Path.js";
+import { RectangleProps } from "../shapes/Rectangle.js";
+import * as ad from "../types/ad.js";
+import { Center, Poly, Rect, Rotate, Scale } from "../types/shapes.js";
+import { ops } from "./Autodiff.js";
 import {
   absVal,
   add,
@@ -22,7 +22,7 @@ import {
   sqrt,
   squared,
   sub,
-} from "./AutodiffFunctions";
+} from "./AutodiffFunctions.js";
 
 export interface BBox {
   width: ad.Num;

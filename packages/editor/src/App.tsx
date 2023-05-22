@@ -14,18 +14,18 @@ import {
   useRecoilState,
   useRecoilValueLoadable,
 } from "recoil";
-import DiagramOptions from "./components/DiagramOptions";
-import DiagramPanel from "./components/DiagramPanel";
-import ExamplesBrowser from "./components/ExamplesBrowser";
-import GridPanel from "./components/GridPanel";
-import Opt from "./components/Opt";
-import ProgramEditor from "./components/ProgramEditor";
-import RogerPanel from "./components/RogerPanel";
-import SavedFilesBrowser from "./components/SavedBrowser";
-import Settings from "./components/Settings";
-import StateInspector from "./components/StateInspector";
-import SvgUploader from "./components/SvgUploader";
-import TopBar from "./components/TopBar";
+import DiagramOptions from "./components/DiagramOptions.js";
+import DiagramPanel from "./components/DiagramPanel.js";
+import ExamplesBrowser from "./components/ExamplesBrowser.js";
+import GridPanel from "./components/GridPanel.js";
+import Opt from "./components/Opt.js";
+import ProgramEditor from "./components/ProgramEditor.js";
+import RogerPanel from "./components/RogerPanel.js";
+import SavedFilesBrowser from "./components/SavedBrowser.js";
+import Settings from "./components/Settings.js";
+import StateInspector from "./components/StateInspector.js";
+import SvgUploader from "./components/SvgUploader.js";
+import TopBar from "./components/TopBar.js";
 import {
   RogerState,
   currentRogerState,
@@ -33,8 +33,8 @@ import {
   fileContentsSelector,
   localFilesState,
   settingsState,
-} from "./state/atoms";
-import { useCheckURL, useCompileDiagram } from "./state/callbacks";
+} from "./state/atoms.js";
+import { useCheckURL, useCompileDiagram } from "./state/callbacks.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",

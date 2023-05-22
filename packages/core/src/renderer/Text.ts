@@ -1,5 +1,5 @@
-import { Text } from "../shapes/Text";
-import { toScreen } from "../utils/Util";
+import { Text } from "../shapes/Text.js";
+import { toScreen } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -9,8 +9,8 @@ import {
   attrStroke,
   attrTitle,
   attrWH,
-} from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 const RenderText = (
   shape: Text<number>,

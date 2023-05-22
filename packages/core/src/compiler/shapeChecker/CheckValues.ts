@@ -1,6 +1,6 @@
 import { Result } from "true-myth";
-import * as ad from "../../types/ad";
-import { BadShapeParamTypeError } from "../../types/errors";
+import * as ad from "../../types/ad.js";
+import { BadShapeParamTypeError } from "../../types/errors.js";
 import {
   BoolV,
   ClipDataV,
@@ -16,9 +16,9 @@ import {
   TupV,
   Value,
   VectorV,
-} from "../../types/value";
-import { badShapeParamTypeError } from "../../utils/Error";
-import { val } from "../../utils/Util";
+} from "../../types/value.js";
+import { badShapeParamTypeError } from "../../utils/Error.js";
+import { val } from "../../utils/Util.js";
 const { err, ok } = Result;
 
 export const checkFloatV = (

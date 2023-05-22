@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   acos,
@@ -47,17 +47,17 @@ import {
   tan,
   tanh,
   trunc,
-} from "../engine/AutodiffFunctions";
-import { PathBuilder } from "../renderer/PathBuilder";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import { Line } from "../shapes/Line";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Context, uniform } from "../shapes/Samplers";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { CompFunc } from "../types/functions";
+} from "../engine/AutodiffFunctions.js";
+import { PathBuilder } from "../renderer/PathBuilder.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Line } from "../shapes/Line.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Context, uniform } from "../shapes/Samplers.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { CompFunc } from "../types/functions.js";
 import {
   ClipDataV,
   Color,
@@ -68,7 +68,7 @@ import {
   PtListV,
   TupV,
   VectorV,
-} from "../types/value";
+} from "../types/value.js";
 import {
   booleanT,
   clipDataV,
@@ -96,7 +96,7 @@ import {
   unionT,
   unitT,
   valueT,
-} from "../utils/Util";
+} from "../utils/Util.js";
 import {
   centerOfMass,
   elasticEnergy,
@@ -109,9 +109,9 @@ import {
   signedArea,
   totalCurvature,
   turningNumber,
-} from "./CurveConstraints";
-import { rectLineDist, shapeDistance } from "./Queries";
-import { Rectlike, bboxPts, clamp, isRectlike, numOf } from "./Utils";
+} from "./CurveConstraints.js";
+import { rectLineDist, shapeDistance } from "./Queries.js";
+import { Rectlike, bboxPts, clamp, isRectlike, numOf } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions

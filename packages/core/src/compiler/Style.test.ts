@@ -1,11 +1,12 @@
-import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain";
-import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance";
+import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain.js";
+import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance.js";
 import im from "immutable";
-import { C } from "../types/ast";
-import { Either } from "../types/common";
-import { Env } from "../types/domain";
-import { PenroseError } from "../types/errors";
-import { State } from "../types/state";
+import { describe, expect, test } from "vitest";
+import { C } from "../types/ast.js";
+import { Either } from "../types/common.js";
+import { Env } from "../types/domain.js";
+import { PenroseError } from "../types/errors.js";
+import { State } from "../types/state.js";
 import {
   AnonAssign,
   ConstrFn,
@@ -14,22 +15,22 @@ import {
   PathAssign,
   StyProg,
   Vector,
-} from "../types/style";
+} from "../types/style.js";
 import {
   Assignment,
   DepGraph,
   Layer,
   Translation,
-} from "../types/styleSemantics";
-import { SubstanceEnv } from "../types/substance";
-import { ColorV, RGBA } from "../types/value";
-import { Result, andThen, err, showError } from "../utils/Error";
-import Graph from "../utils/Graph";
-import { GroupGraph } from "../utils/GroupGraph";
-import { ToRight, foldM, toLeft, zip2 } from "../utils/Util";
-import { compileDomain } from "./Domain";
-import * as S from "./Style";
-import { compileSubstance } from "./Substance";
+} from "../types/styleSemantics.js";
+import { SubstanceEnv } from "../types/substance.js";
+import { ColorV, RGBA } from "../types/value.js";
+import { Result, andThen, err, showError } from "../utils/Error.js";
+import Graph from "../utils/Graph.js";
+import { GroupGraph } from "../utils/GroupGraph.js";
+import { ToRight, foldM, toLeft, zip2 } from "../utils/Util.js";
+import { compileDomain } from "./Domain.js";
+import * as S from "./Style.js";
+import { compileSubstance } from "./Substance.js";
 
 // TODO: Reorganize and name tests by compiler stage
 
@@ -466,7 +467,7 @@ describe("Compiler", () => {
     ]);
   });
 
-  describe("Correct Style programs", () => {
+  test("Correct Style programs", () => {
     const dsl = "type Object";
     const sub = "Object o";
     // TODO: Name these programs
@@ -518,9 +519,11 @@ describe("Compiler", () => {
         }
       }`,
     ];
-    stys.forEach((sty: string) =>
-      loadProgs({ dsl, sub, sty: canvasPreamble + sty })
-    );
+    stys.forEach((sty: string) => {
+      expect(
+        async () => await loadProgs({ dsl, sub, sty: canvasPreamble + sty })
+      ).not.toThrowError();
+    });
   });
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
@@ -792,7 +795,7 @@ Bond(O, H2)`;
     const errorStyProgs = {
       // ------ Generic errors
       InvalidColorLiteral: [
-        `forall Set x { 
+        `forall Set x {
           x.color = #12777733aa
        }`,
       ],
@@ -860,21 +863,21 @@ delete x.z.p }`,
 
       NoopDeleteWarning: [`forall Set x { delete x.z }`],
       AssignAccessError: [
-        `forall Set x {  
-         x.icon = Circle { 
-           center: (0.0, 0.0) 
+        `forall Set x {
+         x.icon = Circle {
+           center: (0.0, 0.0)
          }
          delete x.icon[0] }`,
       ],
 
       ImplicitOverrideWarning: [
-        `forall Set x { 
-           x.z = 1.0 
+        `forall Set x {
+           x.z = 1.0
            x.z = 2.0
 }`,
-        `forall Set x { 
-         x.icon = Circle { 
-           center: (0.0, 0.0) 
+        `forall Set x {
+         x.icon = Circle {
+           center: (0.0, 0.0)
          }
            x.icon.center = (2.0, 0.0)
 }`,
@@ -899,25 +902,25 @@ delete x.z.p }`,
 
       MissingPathError: [
         `forall Set x { x.icon = Circle { r: x.r } }`,
-        `forall Set x {  
+        `forall Set x {
          x.z = x.c.p
        }`,
-        `forall Set x {  
-          x.icon = Circle { 
+        `forall Set x {
+          x.icon = Circle {
            r: 9.
            center: (x.icon.z, 0.0)
-         } 
+         }
        }`,
-        `forall Set x { 
-           x.z = 1.0 
+        `forall Set x {
+           x.z = 1.0
            x.y = x.z.p
 }`,
       ],
       CanvasNonexistentDimsError: [
-        `foo { 
+        `foo {
   bar = 1.0
 }`,
-        `canvas { 
+        `canvas {
   height = 100
 }`,
         `canvas {
@@ -932,7 +935,7 @@ delete x.z.p }`,
   width = (1.0, 1.0)
   height = 100
 }`,
-        `canvas { 
+        `canvas {
   width = 100
 }`,
         `canvas {
@@ -1067,13 +1070,13 @@ delete x.z.p }`,
       const sub = `
       MySet X, Y
  OtherType Z
- 
+
  MyPred(Z, X, Y)
  MyOtherPred(X, Y)`;
       const dsl = `
      type MySet
  type OtherType
- 
+
  predicate MyPred(OtherType, MySet, MySet)
  predicate MyOtherPred(MySet, MySet)`;
 

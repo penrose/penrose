@@ -1,5 +1,5 @@
-import { presets } from "../examples";
-import { multipleChoiceProblem } from "./util";
+import { presets } from "../examples.js";
+import { multipleChoiceProblem } from "./util.js";
 
 const problems = [
   multipleChoiceProblem(presets["lewis_0"], "test0", 10, {

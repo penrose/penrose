@@ -1,8 +1,11 @@
 import { FileUploader } from "react-drag-drop-files";
 import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
-import { diagramMetadataSelector, fileContentsSelector } from "../state/atoms";
-import { useCompileDiagram } from "../state/callbacks";
+import {
+  diagramMetadataSelector,
+  fileContentsSelector,
+} from "../state/atoms.js";
+import { useCompileDiagram } from "../state/callbacks.js";
 
 export default function SvgUploader() {
   const setDomain = useRecoilState(fileContentsSelector("domain"))[1];

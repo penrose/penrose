@@ -1,7 +1,7 @@
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import Graph from "./Graph";
-import { getAdValueAsString, getValueAsShapeList, shapeListV } from "./Util";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import Graph from "./Graph.js";
+import { getAdValueAsString, getValueAsShapeList, shapeListV } from "./Util.js";
 
 export type GroupGraph = Graph<string, number>; // shape name and index
 

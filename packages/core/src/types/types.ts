@@ -1,4 +1,4 @@
-import { ShapeType } from "../shapes/Shapes";
+import { ShapeType } from "../shapes/Shapes.js";
 
 export interface TypeDesc {
   description: string;
