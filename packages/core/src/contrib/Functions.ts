@@ -2711,7 +2711,7 @@ export const compDict = {
       p: ad.Num[],
       v: ad.Num[]
     ): VectorV<ad.Num> => {;
-       const y = rayIntersectShape(s,p,v).contents;
+       const y = rayIntersectShape(s,p,v);
        const y0 = ifCond( eq(absVal(y[0]),Infinity), p[0], y[0] );
        const y1 = ifCond( eq(absVal(y[1]),Infinity), p[1], y[1] );
        return { tag: "VectorV", contents: [y0,y1] };
@@ -3290,7 +3290,7 @@ const rayIntersectShape = (
         | Group<ad.Num>,
       p: ad.Num[],
       v: ad.Num[]
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const t = s.shapeType;
    if (t === "Circle") {
       return rayIntersectCircle(s,p,v);
@@ -3310,7 +3310,7 @@ const rayIntersectShape = (
    } else if (t === "Ellipse") {
       return rayIntersectEllipse(s,p,v);
    } else { // t === "Group"
-      const firstHits = s.shapes.contents.map((shape) => rayIntersectShape(shape,p,v).contents);
+      const firstHits = s.shapes.contents.map((shape) => rayIntersectShape(shape,p,v));
       const dist = firstHits.map((point) => ops.vdist(point,p));
       let firstX: ad.Num = firstHits[0][0];
       let firstY: ad.Num = firstHits[0][1];
@@ -3320,7 +3320,7 @@ const rayIntersectShape = (
          firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
          firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
       }
-      return { tag: "VectorV", contents: [firstX, firstY] };
+      return [firstX, firstY];
    }
 }
 
@@ -3328,25 +3328,24 @@ const rayIntersectCircle = (
    s: Circle<ad.Num>,
    p: ad.Num[],
    v: ad.Num[],
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const c = s.center.contents;
    const r = s.r.contents;
-   return { tag: "VectorV", contents: rayIntersectCircleCoords( p, v, c, r ) };
+   return rayIntersectCircleCoords( p, v, c, r );
 }
 
 const rayIntersectEllipse = (
    s: Ellipse<ad.Num>,
    p0: ad.Num[],
    v0: ad.Num[],
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const r = [ s.rx.contents, s.ry.contents ];
    const c0 = s.center.contents;
    const p = ops.ewvvdiv( p0, r );
    const v = ops.ewvvdiv( v0, r );
    const c = ops.ewvvdiv( c0, r );
    const q = rayIntersectCircleCoords( p, v, c, 1 );
-   const q0 = ops.ewvvmul( q, r );
-   return { tag: "VectorV", contents: q0 };
+   return ops.ewvvmul( q, r );
 }
 
 const rayIntersectCircleCoords = (
@@ -3366,35 +3365,19 @@ const rayIntersectCircleCoords = (
    return ops.vadd(p,ops.vmul(t,w));
 }
 
-const rayIntersectLineCoords = (
-   p: ad.Num[],
-   v: ad.Num[],
-   a: ad.Num[],
-   b: ad.Num[],
-): ad.Num[] => {
-   const u = ops.vsub(b,a);
-   const w = ops.vsub(p,a);
-   const d = ops.cross2(v,u);
-   const s = div(ops.cross2(v,w),d);
-   const t = div(ops.cross2(u,w),d);
-   const T = ifCond( lt(t,0), Infinity, ifCond( lt(s,0), Infinity, ifCond( gt(s,1), Infinity, t )));
-   return ops.vadd(p,ops.vmul(T,v));
-}
-
 const rayIntersectLine = (
    S: Line<ad.Num>,
    p: ad.Num[],
    v: ad.Num[],
-): VectorV<ad.Num> => {
-   const y = rayIntersectLineCoords( p, v, S.start.contents, S.end.contents );
-   return { tag: "VectorV", contents: y };
+): ad.Num[] => {
+   return rayIntersectLineCoords( p, v, S.start.contents, S.end.contents );
 }
 
 const rayIntersectRect = (
    S: Line<ad.Num>,
    p: ad.Num[],
    v: ad.Num[],
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const c = S.center.contents;
    const w = S.width.contents;
    const h = S.height.contents;
@@ -3421,14 +3404,14 @@ const rayIntersectRect = (
       firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
       firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
    }
-   return { tag: "VectorV", contents: [firstX, firstY] };
+   return [firstX, firstY];
 }
 
 const rayIntersectPolyline = (
    s: Polyline<ad.Num>,
    p: ad.Num[],
    v: ad.Num[]
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const firstHits: ad.Num[][] = [];
    const dist: ad.Num[] = [];
    for (let i = 0; i < s.points.contents.length - 1; i++) {
@@ -3445,14 +3428,14 @@ const rayIntersectPolyline = (
       firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
       firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
    }
-   return { tag: "VectorV", contents: [firstX, firstY] };
+   return [firstX, firstY];
 }
 
 const rayIntersectPolygon = (
    s: Polyline<ad.Num>,
    p: ad.Num[],
    v: ad.Num[]
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const firstHits: ad.Num[][] = [];
    const dist: ad.Num[] = [];
    let i = 0;
@@ -3476,8 +3459,24 @@ const rayIntersectPolygon = (
       firstX = ifCond(eq(firstDist, dist[i]), firstHits[i][0], firstX);
       firstY = ifCond(eq(firstDist, dist[i]), firstHits[i][1], firstY);
    }
-   return { tag: "VectorV", contents: [firstX, firstY] };
+   return [firstX, firstY];
 }
+
+const rayIntersectLineCoords = (
+   p: ad.Num[],
+   v: ad.Num[],
+   a: ad.Num[],
+   b: ad.Num[],
+): ad.Num[] => {
+   const u = ops.vsub(b,a);
+   const w = ops.vsub(p,a);
+   const d = ops.cross2(v,u);
+   const s = div(ops.cross2(v,w),d);
+   const t = div(ops.cross2(u,w),d);
+   const T = ifCond( lt(t,0), Infinity, ifCond( lt(s,0), Infinity, ifCond( gt(s,1), Infinity, t )));
+   return ops.vadd(p,ops.vmul(T,v));
+}
+
 
 
 const closestPointShape = (
