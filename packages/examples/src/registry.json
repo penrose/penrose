@@ -249,5 +249,6 @@
   "graph-domain/other-examples/nyc-subway": {
     "name": "Curved graph example with boxes"
   },
-  "curve-examples/blobs": { "name": "Blobs" }
+  "curve-examples/blobs": { "name": "Blobs" },
+  "solid/example": { "kind": "solid" }
 }

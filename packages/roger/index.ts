@@ -1,6 +1,8 @@
 import "global-jsdom/register"; // must be first
 
 import fetch from "node-fetch";
+import { JSXElement } from "solid-js";
+import { renderToString } from "solid-js/web";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -27,21 +29,38 @@ import { version } from "./package.json";
 import { AggregateData, InstanceData } from "./types.js";
 import watch from "./watch.js";
 
+type PathResolver = (path: string) => Promise<string | undefined>;
+
+interface Style {
+  contents: string;
+  resolver: PathResolver;
+}
+
 interface Trio {
   substance: string;
-  style: string[];
+  style: Style[];
   domain: string;
   variation: string;
 }
 
-interface Meta {
+interface BaseMeta {
   name?: string;
+}
+
+interface TrioMeta extends BaseMeta {
+  kind: "trio";
+  get: () => Promise<Trio>;
   gallery?: boolean;
 }
 
-interface Registry {
-  [id: string]: Meta;
+interface SolidMeta extends BaseMeta {
+  kind: "solid";
+  f: () => JSXElement;
 }
+
+export type Meta = TrioMeta | SolidMeta;
+
+type Registry = Map<string, Meta>;
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const render = async (
@@ -52,9 +71,9 @@ const render = async (
   resolvePath: (filePath: string) => Promise<string | undefined>,
   verbose: boolean,
   meta: {
-    substanceName: string;
-    styleNames: string[];
-    domainName: string;
+    substanceName?: string;
+    styleNames?: string[];
+    domainName?: string;
     id: string;
   }
 ): Promise<{
@@ -176,27 +195,40 @@ const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
 
 const renderTrio = async (
   variation: string,
-  sub: string,
-  sty: string[],
-  dsl: string,
+  substance: string,
+  style: Style[],
+  domain: string,
   folder: boolean,
   out: string,
   prefix: string,
   meta: {
-    substanceName: string;
-    styleNames: string[];
-    domainName: string;
+    substanceName?: string;
+    styleNames?: string[];
+    domainName?: string;
     id: string;
   }
 ) => {
-  const { substance, style, domain } = readTrio(sub, sty, dsl, prefix);
   // draw diagram and get metadata
   const { diagram, metadata } = await render(
     variation,
     substance,
-    style,
+    style.map(({ contents }) => contents).join("\n"),
     domain,
-    resolvePath(prefix, sty),
+    async (filePath: string) => {
+      // Handle absolute URLs
+      if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
+        const fileURL = new URL(filePath).href;
+        try {
+          const fileReq = await fetch(fileURL);
+          return fileReq.text();
+        } catch (e) {
+          console.error(`Failed to resolve path: ${e}`);
+          return undefined;
+        }
+      }
+
+      return await style[0].resolver(filePath);
+    },
     true,
     meta
   );
@@ -206,9 +238,14 @@ const renderTrio = async (
     if (!fs.existsSync(out)) {
       fs.mkdirSync(out, { recursive: true });
     }
-    fs.writeFileSync(join(out, "substance.substance"), substance);
-    fs.writeFileSync(join(out, "style.style"), style);
-    fs.writeFileSync(join(out, "domain.domain"), domain);
+    if (substance)
+      fs.writeFileSync(join(out, "substance.substance"), substance);
+    if (style[0])
+      fs.writeFileSync(
+        join(out, "style.style"),
+        style.map(({ contents }) => contents).join("\n")
+      );
+    if (domain) fs.writeFileSync(join(out, "domain.domain"), domain);
     fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata, null, 2));
     fs.writeFileSync(join(out, "output.svg"), diagram);
     console.log(
@@ -229,38 +266,48 @@ const renderTrio = async (
 // Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
 const renderRegistry = async (lib: string, folders: boolean, out: string) => {
   const prefix = join(lib, "..");
-  const registry: Registry = JSON.parse(fs.readFileSync(lib, "utf8"));
-  const trioLibrary = Object.keys(registry);
-  console.log(`Processing ${trioLibrary.length} trios...`);
+  const registry: Registry = (await import(lib)).default;
+  console.log(`Processing ${registry.size} trios...`);
 
   const finalMetadata: AggregateData = {};
-  for (const id of trioLibrary) {
-    // try to render the diagram
+  for (const [id, meta] of registry.entries()) {
     try {
-      const trioPath = join(prefix, `${id}.trio.json`);
-      const trioPrefix = join(trioPath, "..");
-      const { substance, style, domain, variation }: Trio = JSON.parse(
-        fs.readFileSync(trioPath, "utf8")
-      );
+      switch (meta.kind) {
+        case "trio": {
+          // try to render the diagram
+          const trioPath = join(prefix, `${id}.trio.json`);
+          const trioPrefix = join(trioPath, "..");
+          const { substance, style, domain, variation }: Trio =
+            await meta.get();
 
-      // Warning: will face id conflicts if parallelism used
-      const metadata = await renderTrio(
-        variation,
-        substance,
-        style,
-        domain,
-        folders,
-        join(out, `${id}${folders ? "" : ".svg"}`),
-        trioPrefix,
-        {
-          substanceName: substance,
-          styleNames: style,
-          domainName: domain,
-          id,
+          // Warning: will face id conflicts if parallelism used
+          const metadata = await renderTrio(
+            variation,
+            substance,
+            style,
+            domain,
+            folders,
+            join(out, `${id}${folders ? "" : ".svg"}`),
+            trioPrefix,
+            {
+              id,
+            }
+          );
+          if (folders && metadata) {
+            finalMetadata[id] = metadata;
+          }
+          break;
         }
-      );
-      if (folders && metadata) {
-        finalMetadata[id] = metadata;
+        case "solid": {
+          const p = join(out, `${id}${folders ? "/output.svg" : ".svg"}`);
+          const d = join(p, "..");
+          fs.mkdirSync(d, { recursive: true });
+          fs.writeFileSync(
+            p,
+            prettier.format(renderToString(meta.f), { parser: "html" })
+          );
+          break;
+        }
       }
     } catch (e) {
       process.exitCode = 1;
@@ -402,9 +449,12 @@ yargs(hideBin(process.argv))
         const trioPath = options.trio[0] as string;
         prefix = join(trioPath, "..");
         // read trio from a JSON file
-        const paths: Trio = JSON.parse(
-          fs.readFileSync(resolve(trioPath), "utf8")
-        );
+        const paths: {
+          substance: string;
+          style: string[];
+          domain: string;
+          variation: string;
+        } = JSON.parse(fs.readFileSync(resolve(trioPath), "utf8"));
         dom = paths.domain;
         sub = paths.substance;
         sty = paths.style;

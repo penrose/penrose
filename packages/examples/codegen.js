@@ -79,18 +79,33 @@ const lines = [
   "const trio = async (x: Promise<{ default: Trio }>): Promise<Trio> =>",
   "  (await x).default;",
   "",
-  "export const registry = new Map<string, Meta>([",
+  "const entries: [string, Meta][] = [",
 ];
 for (const [k, v] of Object.entries(registry)) {
   lines.push(`  [${JSON.stringify(k)}, {`);
-  lines.push(
-    `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`
-  );
+  switch (v.kind ?? "trio") {
+    case "trio": {
+      lines.push(`    kind: "trio",`);
+      lines.push(
+        `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`
+      );
+      if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
+      break;
+    }
+    case "solid": {
+      lines.push(`    kind: "solid",`);
+      lines.push(
+        `    f: (await import(${JSON.stringify(`./${k}.js`)})).default,`
+      );
+      break;
+    }
+  }
   if ("name" in v) lines.push(`    name: ${JSON.stringify(v.name)},`);
-  if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
   lines.push(`  }],`);
 }
-lines.push("]);");
+lines.push("];");
+lines.push("");
+lines.push("export default new Map<string, Meta>(entries);");
 lines.push("");
 fs.writeFileSync(`${src}/registry.ts`, lines.join("\n"));
 

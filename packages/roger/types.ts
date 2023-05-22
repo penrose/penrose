@@ -19,9 +19,9 @@ export interface Reference {
 }
 
 export interface InstanceData {
-  substanceName: string;
-  styleNames: string[];
-  domainName: string;
+  substanceName?: string;
+  styleNames?: string[];
+  domainName?: string;
   id: string;
   renderedOn: number;
   timeTaken: TimeTaken;

@@ -3,9 +3,18 @@
   "version": "3.0.0-alpha.0",
   "private": true,
   "type": "module",
+  "dependencies": {
+    "solid-js": "^1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7",
+    "@babel/core": "^7",
+    "@babel/preset-typescript": "^7",
+    "babel-preset-solid": "^1"
+  },
   "scripts": {
-    "build": "rimraf dist && tsc",
-    "build-decls": ":",
+    "build": "babel --extensions=.ts,.tsx src --out-dir=dist",
+    "build-decls": "tsc",
     "codegen": "git clean -dfqX src && node codegen.js",
     "typecheck": ":"
   },
@@ -18,7 +27,7 @@
       },
       "build-decls": {
         "dependsOn": [
-          "build"
+          "codegen"
         ]
       }
     }

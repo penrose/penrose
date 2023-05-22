@@ -1,3 +1,5 @@
+import { JSXElement } from "solid-js";
+
 export type PathResolver = (path: string) => Promise<string | undefined>;
 
 export const join = (dir: string, path: string): string => {
@@ -22,8 +24,19 @@ export interface Trio {
   variation: string;
 }
 
-export interface Meta {
-  get: () => Promise<Trio>;
+export interface BaseMeta {
   name?: string;
+}
+
+export interface TrioMeta extends BaseMeta {
+  kind: "trio";
+  get: () => Promise<Trio>;
   gallery?: boolean;
 }
+
+export interface SolidMeta extends BaseMeta {
+  kind: "solid";
+  f: () => JSXElement;
+}
+
+export type Meta = TrioMeta | SolidMeta;

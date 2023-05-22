@@ -87,8 +87,10 @@ jobs:
       - name: Link @penrose/roger
         working-directory: packages/roger/
         run: npm link
+      - name: Build @penrose/examples
+        run: npx nx run examples:build
       - name: Generate diagrams and metadata
-        run: roger batch --folders packages/examples/src/registry.json diagrams/meta
+        run: roger batch --folders $PWD/packages/examples/dist/registry.js diagrams/meta
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
