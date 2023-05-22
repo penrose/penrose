@@ -83,6 +83,7 @@ import {
   pathCmdT,
   pathTypeT,
   posIntT,
+  ptListV,
   real2NT,
   real2T,
   real3T,
@@ -110,7 +111,7 @@ import {
   turningNumber,
 } from "./CurveConstraints";
 import { rectLineDist, shapeDistance } from "./Queries";
-import { Rectlike, clamp, isRectlike, numOf } from "./Utils";
+import { Rectlike, bboxPts, clamp, isRectlike, numOf } from "./Utils";
 
 /**
  * Static dictionary of computation functions
@@ -3200,6 +3201,16 @@ export const compDict = {
     body: (_context: Context, shape: Shape<ad.Num>): ClipDataV<ad.Num> =>
       clipDataV(clipShape(shape)),
     returns: valueT("ClipData"),
+  },
+
+  bboxPts: {
+    name: "bboxPts",
+    description:
+      "Return the top-right, top-left, bottom-left, bottom-right points (in that order) of the axis-aligned bounding box of the shape",
+    params: [{ name: "shape", type: shapeT("AnyShape") }],
+    body: (_context: Context, shape: Shape<ad.Num>): PtListV<ad.Num> =>
+      ptListV(bboxPts(shape)),
+    returns: valueT("Real2N"),
   },
 };
 

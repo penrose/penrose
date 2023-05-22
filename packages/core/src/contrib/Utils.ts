@@ -30,6 +30,7 @@ import { Rectangle } from "../shapes/Rectangle";
 import { Shape } from "../shapes/Shapes";
 import { Text } from "../shapes/Text";
 import * as ad from "../types/ad";
+import { bboxFromShape } from "./Queries";
 
 export type Rectlike<T> = Equation<T> | Image<T> | Rectangle<T> | Text<T>;
 export type Polygonlike<T> = Rectlike<T> | Line<T> | Polygon<T> | Polyline<T>;
@@ -48,6 +49,13 @@ export const isPolygonlike = <T>(s: Shape<T>): s is Polygonlike<T> => {
 export const isLinelike = <T>(s: Shape<T>): s is Linelike<T> => {
   const t = s.shapeType;
   return t === "Line";
+};
+
+export const bboxPts = (s: Shape<ad.Num>): [ad.Pt2, ad.Pt2, ad.Pt2, ad.Pt2] => {
+  const { topRight, topLeft, bottomLeft, bottomRight } = BBox.corners(
+    bboxFromShape(s)
+  );
+  return [topRight, topLeft, bottomLeft, bottomRight];
 };
 
 /**

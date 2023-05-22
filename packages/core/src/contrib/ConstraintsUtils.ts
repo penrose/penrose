@@ -3,22 +3,28 @@ import {
   absVal,
   add,
   addN,
+  and,
   div,
+  gte,
   ifCond,
   lt,
   max,
   maxN,
+  minN,
   mul,
   neg,
+  sqrt,
   squared,
   sub,
 } from "../engine/AutodiffFunctions";
 import * as BBox from "../engine/BBox";
 import { Circle } from "../shapes/Circle";
 import { Ellipse } from "../shapes/Ellipse";
+import { Group } from "../shapes/Group";
 import { Polygon } from "../shapes/Polygon";
 import { Shape } from "../shapes/Shapes";
 import * as ad from "../types/ad";
+import { constrDict } from "./Constraints";
 import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
 import {
   containsPolygonPoints,
@@ -167,6 +173,24 @@ export const containsRectlikeCircle = (
   );
 };
 
+export const containsGroupShape = (
+  s1: Group<ad.Num>,
+  s2: Shape<ad.Num>,
+  padding: ad.Num
+): ad.Num => {
+  const vals = s1.shapes.contents.map((s) =>
+    constrDict.contains.body(s, s2, padding)
+  );
+  if (s1.clipPath.contents.tag === "NoClip") {
+    return minN(vals);
+  } else {
+    return andConstraint(
+      minN(vals),
+      constrDict.contains.body(s1.clipPath.contents.contents, s2)
+    );
+  }
+};
+
 /**
  * Require that a shape `s1` contains another shape `s2`.
  */
@@ -232,3 +256,14 @@ export const containsCirclePolygon = (
     )
   );
 };
+
+export const andConstraint = (x: ad.Num, y: ad.Num): ad.Num =>
+  ifCond(
+    and(gte(x, 0), gte(y, 0)),
+    sqrt(add(squared(x), squared(y))),
+    ifCond(
+      and(lt(x, 0), gte(y, 0)),
+      absVal(y),
+      ifCond(and(gte(x, 0), lt(y, 0)), absVal(x), 0)
+    )
+  );

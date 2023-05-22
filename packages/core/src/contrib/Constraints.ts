@@ -23,6 +23,7 @@ import {
   containsCirclePolygon,
   containsCircleRectlike,
   containsCircles,
+  containsGroupShape,
   containsPolygonCircle,
   containsPolygonPolygon,
   containsRectlikeCircle,
@@ -393,7 +394,7 @@ const constrDictGeneral = {
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, padding = 0.0) => {
+    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, padding: ad.Num = 0.0) => {
       const t1 = s1.shapeType,
         t2 = s2.shapeType;
       if (t1 === "Circle" && t2 === "Circle")
@@ -408,7 +409,9 @@ const constrDictGeneral = {
         return containsCircleRectlike(s1, s2, padding);
       else if (isRectlike(s1) && t2 === "Circle")
         return containsRectlikeCircle(s1, s2, padding);
-      else return containsAABBs(s1, s2, padding);
+      else if (t1 === "Group") {
+        return containsGroupShape(s1, s2, padding);
+      } else return containsAABBs(s1, s2, padding);
     },
   },
 
