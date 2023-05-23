@@ -2121,3 +2121,30 @@ export const problem = async (
     stepUntil: (stop) => stepUntilWrapper(stop),
   };
 };
+
+export const compile = async (
+  xs: ad.Num[]
+): Promise<(inputs: (x: ad.Input) => number) => number[]> => {
+  const indices = new Map<ad.Input, number>();
+  const graph = secondaryGraph(xs, (x: ad.Input): number => {
+    let i = indices.get(x);
+    if (i === undefined) {
+      i = indices.size;
+      indices.set(x, i);
+    }
+    return i;
+  });
+  const graphs = [graph];
+  const meta = makeMeta(graphs);
+  meta.arrMask[0] = 1; // only one graph, always run it
+  const instance = await WebAssembly.instantiate(
+    await WebAssembly.compile(genBytes(graphs)),
+    makeImports(meta.memory)
+  );
+  const f = getExport(meta, instance);
+  return (inputs: (x: ad.Input) => number): number[] => {
+    for (const [x, i] of indices) meta.arrInputs[i] = inputs(x);
+    f();
+    return Array.from(meta.arrSecondary);
+  };
+};

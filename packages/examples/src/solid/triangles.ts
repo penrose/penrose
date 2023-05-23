@@ -4,6 +4,11 @@ import { render } from "solid-js/web";
 
 export default async () => {
   const elem = document.createElement("div");
-  render(() => Triangles({ seed: "", theta: scalar(0) }), elem);
+  await new Promise((f) => {
+    const onFinish = () => {
+      f(undefined);
+    };
+    render(() => Triangles({ seed: "", theta: scalar(0), onFinish }), elem);
+  });
   return elem.innerHTML;
 };

@@ -5,6 +5,7 @@ import { numsOf } from "../contrib/Utils.js";
 import * as ad from "../types/ad.js";
 import { eqList, randList } from "../utils/Util.js";
 import {
+  compile,
   fns,
   genCode,
   genCodeSync,
@@ -130,6 +131,22 @@ describe("genCode tests", () => {
       primary: 13,
       secondary: [0, 8],
     });
+  });
+});
+
+describe("compile tests", () => {
+  test("no outputs", async () => {
+    const f = await compile([]);
+    const v = f((x) => x.val);
+    expect(v).toEqual([]);
+  });
+
+  test("simple", async () => {
+    const x = input(3);
+    const y = input(4);
+    const f = await compile([add(x, y), mul(x, y)]);
+    const v = f((x) => x.val);
+    expect(v).toEqual([7, 12]);
   });
 });
 

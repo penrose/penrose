@@ -60,8 +60,7 @@ export const onCanvasPoint = (
 
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
-export { numOf, numsOf } from "./contrib/Utils.js";
-export { ops, problem } from "./engine/Autodiff.js";
+export { compile, ops, problem } from "./engine/Autodiff.js";
 export * from "./engine/AutodiffFunctions.js";
 export { Input, Num, Problem } from "./types/ad.js";
 export {

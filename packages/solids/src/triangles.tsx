@@ -2,23 +2,45 @@ import {
   Input,
   Num,
   add,
+  compile,
   cos,
   div,
   mul,
-  numsOf,
   scalar,
   sin,
   sub,
 } from "@penrose/core";
 import seedrandom from "seedrandom";
+import { Show, createEffect, createResource } from "solid-js";
 import { createMutable } from "solid-js/store";
+
+const pairs = <T,>(a: T[]): [T, T][] => {
+  const b: [T, T][] = [];
+  for (let i = 0; i < a.length; i += 2) b.push([a[i], a[i + 1]]);
+  return b;
+};
 
 export interface TriangleProps {
   seed?: string;
   theta: Input;
+  onFinish?: () => void;
 }
 
 export const Triangles = (props: TriangleProps) => {
+  const waiting: Promise<void>[] = [];
+
+  const compilePoints = (
+    points: [Num, Num][]
+  ): (() => [number, number][] | undefined) => {
+    const p = compile(points.flat()).then((f) => () => f((x) => x.val));
+    waiting.push(p.then(() => {}));
+    const [f] = createResource(() => p);
+    return () => {
+      const g = f();
+      if (g !== undefined) return pairs(g());
+    };
+  };
+
   const [w, h] = [500, 500];
   const planeSize = 50;
   const planeHeight = -40;
@@ -30,68 +52,84 @@ export const Triangles = (props: TriangleProps) => {
     vec[1],
     sub(mul(vec[2], cos(theta)), mul(vec[0], sin(theta))),
   ];
-  const perspective = (vec: Num[]) =>
-    [vec[0], vec[1]].map((v) => mul(div(w, sub(vec[2], cZ)), v));
+  const perspective = (vec: Num[]): [Num, Num] => {
+    const f = (v: Num) => mul(div(w, sub(vec[2], cZ)), v);
+    return [f(vec[0]), f(vec[1])];
+  };
   const toCanvas = (p: number[]): number[] => [p[0] + w / 2, -p[1] + h / 2];
 
   // plane
-  const plane = (theta: Input) => {
-    const q00 = [-planeSize, planeHeight, -planeSize];
-    const q10 = [planeSize, planeHeight, -planeSize];
-    const q01 = [-planeSize, planeHeight, planeSize];
-    const q11 = [planeSize, planeHeight, planeSize];
+  const q00 = [-planeSize, planeHeight, -planeSize];
+  const q10 = [planeSize, planeHeight, -planeSize];
+  const q01 = [-planeSize, planeHeight, planeSize];
+  const q11 = [planeSize, planeHeight, planeSize];
 
-    const Qs = [q00, q10, q11, q01].map((v) => rotate(v, theta));
+  const Qs = [q00, q10, q11, q01].map((v) => rotate(v, props.theta));
+  const ps = compilePoints(Qs.map(perspective));
 
-    const ps = Qs.map(perspective);
-    const points = ps.map((p) => numsOf(p)).map(toCanvas);
-    return (
-      <polygon
-        points={points.join(" ")}
-        fill={"#0003"}
-        stroke={"#aaa"}
-        stroke-width={0.5}
-      ></polygon>
-    );
-  };
-
-  // triangles
-  const triangleWithShadow = (
-    qs: Input[][],
-    theta: Input,
-    fillColor: string
-  ) => {
-    // triangle
-    const [qi, qj, qk] = qs.map((p) => rotate(p, theta));
-    const ps = [qi, qj, qk].map(perspective);
-    const triangle = ps.map((p) => numsOf(p)).map(toCanvas);
-    const rs = [qi, qj, qk].map((p) => [p[0], planeHeight, p[2]]);
-    const ss = rs.map(perspective);
-    const shadow = ss.map((p) => numsOf(p)).map(toCanvas);
-    return (
-      <g>
+  const plane = (
+    <Show when={ps()}>
+      {(points) => (
         <polygon
-          points={triangle.join(" ")}
-          fill={fillColor}
-          stroke={"#1b1f8a"}
+          points={points().map(toCanvas).join(" ")}
+          fill={"#0003"}
+          stroke={"#aaa"}
           stroke-width={0.5}
         ></polygon>
-        <polygon points={shadow.join(" ")} fill={"#0002"}></polygon>
-      </g>
+      )}
+    </Show>
+  );
+
+  // triangles
+  const triangleWithShadow = (qs: Input[][], fillColor: string) => {
+    // triangle
+    const [qi, qj, qk] = qs.map((p) => rotate(p, props.theta));
+    const ps = compilePoints([qi, qj, qk].map(perspective));
+    const rs = [qi, qj, qk].map((p) => [p[0], planeHeight, p[2]]);
+    const ss = compilePoints(rs.map(perspective));
+    return (
+      <>
+        <Show when={ps()}>
+          {(triangle) => (
+            <polygon
+              points={triangle().map(toCanvas).join(" ")}
+              fill={fillColor}
+              stroke={"#1b1f8a"}
+              stroke-width={0.5}
+            ></polygon>
+          )}
+        </Show>
+        <Show when={ss()}>
+          {(shadow) => (
+            <polygon
+              points={shadow().map(toCanvas).join(" ")}
+              fill={"#0002"}
+            ></polygon>
+          )}
+        </Show>
+      </>
     );
   };
 
   const c = 0.9 * Math.min(planeSize, Math.abs(planeHeight));
   const inputs = (n: number) =>
     Array.from({ length: n }, () => scalar(-c + rng() * 2 * c));
-  const tri1 = [inputs(3), inputs(3), inputs(3)];
-  const tri2 = [inputs(3), inputs(3), inputs(3)];
+  const tri1 = triangleWithShadow([inputs(3), inputs(3), inputs(3)], "#34379a");
+  const tri2 = triangleWithShadow([inputs(3), inputs(3), inputs(3)], "#340000");
+
+  createEffect(async () => {
+    const f = props.onFinish;
+    if (f) {
+      await Promise.all(waiting);
+      f();
+    }
+  });
 
   return (
     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
-      {plane(props.theta)}
-      {triangleWithShadow(tri1, props.theta, "#34379a")}
-      {triangleWithShadow(tri2, props.theta, "#340000")}
+      {plane}
+      {tri1}
+      {tri2}
     </svg>
   );
 };
