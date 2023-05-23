@@ -2858,7 +2858,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -2869,7 +2869,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: signedArea(points, closed) };
@@ -2887,7 +2887,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -2898,7 +2898,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return {
@@ -2918,7 +2918,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -2929,7 +2929,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: perimeter(points, closed) };
@@ -2947,7 +2947,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -2958,7 +2958,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
@@ -2975,7 +2975,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -2986,7 +2986,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: elasticEnergy(points, closed) };
@@ -3003,7 +3003,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3019,7 +3019,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       signed = true
     ): FloatV<ad.Num> => {
@@ -3040,7 +3040,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3056,7 +3056,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       k: number
     ): FloatV<ad.Num> => {
@@ -3074,7 +3074,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3085,7 +3085,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: maxCurvature(points, closed) };
@@ -3102,7 +3102,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3118,7 +3118,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       p: number
     ): FloatV<ad.Num> => {
@@ -3137,7 +3137,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3153,7 +3153,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       p: number
     ): FloatV<ad.Num> => {

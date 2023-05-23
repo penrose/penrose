@@ -1,0 +1,4 @@
+Curve c1
+
+inSphere(c1)
+hasShadow(c1)
