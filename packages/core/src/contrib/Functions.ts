@@ -3594,13 +3594,13 @@ const closestPointShape = (
    } else { // t === "Group"
       const closestPoints = s.shapes.contents.map((shape) => closestPointShape(shape,p));
       const dist = closestPoints.map((point) => ops.vdist(point,p));
-      let closestX: ad.Num = closestPoints[0][0];
-      let closestY: ad.Num = closestPoints[0][1];
-      let closestDist: ad.Num = dist[0];
+      let closestX: ad.Num = Infinity;
+      let closestY: ad.Num = Infinity;
+      let minDist: ad.Num = Infinity;
       for (let i = 0; i < s.shapes.contents.length; i++) {
-         closestDist = ifCond(lt(closestDist, dist[i]), closestDist, dist[i]);
-         closestX = ifCond(eq(closestDist, dist[i]), closestPoints[i][0], closestX);
-         closestY = ifCond(eq(closestDist, dist[i]), closestPoints[i][1], closestY);
+         minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+         closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+         closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
       }
       return [closestX, closestY];
    }
@@ -3640,25 +3640,20 @@ const closestPointPolyline = (
    const closestPoints: ad.Num[][] = [];
    const dist: ad.Num[] = [];
    for (let i = 0; i < s.points.contents.length - 1; i++) {
-      const start = s.points.contents[i];
-      const end = s.points.contents[i + 1];
-      closestPoints[i] = closestPointLineCoords(p, start, end);
-      dist[i] = sqrt(
-         add(
-            squared(sub(p[0], closestPoints[i][0])),
-            squared(sub(p[1], closestPoints[i][1]))
-         )
-      );
+      const a = s.points.contents[i];
+      const b = s.points.contents[i + 1];
+      closestPoints[i] = closestPointLineCoords(p, a, b);
+      dist[i] = ops.vdist(p, closestPoints[i]);
    }
-   let retX: ad.Num = closestPoints[0][0];
-   let retY: ad.Num = closestPoints[0][1];
-   let retCond: ad.Num = dist[0];
-   for (let i = 1; i < s.points.contents.length - 1; i++) {
-      retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
-      retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-      retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
+   let closestX: ad.Num = Infinity;
+   let closestY: ad.Num = Infinity;
+   let minDist: ad.Num = Infinity;
+   for (let i = 0; i < s.points.contents.length - 1; i++) {
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+      closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
    }
-   return [retX, retY];
+   return [closestX, closestY];
 }
 
 const closestPointPolygon = (
@@ -3669,34 +3664,24 @@ const closestPointPolygon = (
    const dist: ad.Num[] = [];
    let i = 0;
    for (; i < s.points.contents.length - 1; i++) {
-      const start = s.points.contents[i];
-      const end = s.points.contents[i + 1];
-      closestPoints[i] = closestPointLineCoords(p, start, end);
-      dist[i] = sqrt(
-         add(
-            squared(sub(p[0], closestPoints[i][0])),
-            squared(sub(p[1], closestPoints[i][1]))
-         )
-      );
+      const a = s.points.contents[i];
+      const b = s.points.contents[i + 1];
+      closestPoints[i] = closestPointLineCoords(p, a, b);
+      dist[i] = ops.vdist(p, closestPoints[i]);
    }
-   const start = s.points.contents[i];
-   const end = s.points.contents[0];
-   closestPoints[i] = closestPointLineCoords(p, start, end);
-   dist[i] = sqrt(
-      add(
-         squared(sub(p[0], closestPoints[i][0])),
-         squared(sub(p[1], closestPoints[i][1]))
-      )
-   );
-   let retX: ad.Num = closestPoints[0][0];
-   let retY: ad.Num = closestPoints[0][1];
-   let retCond: ad.Num = dist[0];
+   const a = s.points.contents[i];
+   const b = s.points.contents[0];
+   closestPoints[i] = closestPointLineCoords(p, a, b);
+   dist[i] = ops.vdist(p, closestPoints[i]);
+   let closestX: ad.Num = Infinity;
+   let closestY: ad.Num = Infinity;
+   let minDist: ad.Num = Infinity;
    for (let i = 0; i < s.points.contents.length; i++) {
-      retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
-      retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-      retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+      closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
    }
-   return [retX, retY];
+   return [closestX, closestY];
 }
 
 const closestPointRect = (
