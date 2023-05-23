@@ -394,7 +394,7 @@ The `where`, `with`, and `foreach` clauses are optional, and if they are empty, 
 - `<INTO>` is the name assigned to the collection. The collection includes all the Substance objects that `<COLLECT>` matches to. Within the Style block, `<INTO>` conceptually represents a list of Substance objects.
 - The `<WHERE>` clause has the same meaning as in standard `forall` Style selectors.
 - `<WITH>` is a semicolon-separated list of object declarations. Objects in the `<WITH>` clause aren't collected, but may be used in `<WHERE>`.
-- `<FOREACH>` is a semicolon-separated list of object declarations. Objects in the `<FOREACH>` clause are also not collected, but they arrange the `<COLLECT>` objects into groups. The entire `Collector` block runs once for each distinct realization of the `<FOREACH>` clause. The `<FOREACH>` list can contain multiple declarations.
+- `<FOREACH>` is a semicolon-separated list of object declarations. Objects in the `<FOREACH>` clause are also not collected, but they arrange the `<COLLECT>` objects into groups. The entire `Collector` block runs once for each distinct match of the `<FOREACH>` clause. The `<FOREACH>` list can contain multiple declarations.
 
 For example, suppose we have the Substance program that defines one set `s1` that contains elements `e1, e2`, and another set `s2` that contains elements `e3, e4, e5`, as follows:
 
