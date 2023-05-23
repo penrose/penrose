@@ -16,7 +16,7 @@
   </rect>
   <g>
     <marker
-      id="roger-ArtemisCrane740-`c`.icon-endArrowId"
+      id="registry-ArtemisCrane740-`c`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -37,7 +37,7 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#roger-ArtemisCrane740-`c`.icon-endArrowId)"
+      marker-end="url(#registry-ArtemisCrane740-`c`.icon-endArrowId)"
     ></path>
     <title>`c`.icon</title>
   </g>
@@ -81,7 +81,7 @@
   </g>
   <g>
     <marker
-      id="roger-ArtemisCrane740-`b`.icon-endArrowId"
+      id="registry-ArtemisCrane740-`b`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -102,7 +102,7 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#roger-ArtemisCrane740-`b`.icon-endArrowId)"
+      marker-end="url(#registry-ArtemisCrane740-`b`.icon-endArrowId)"
     ></path>
     <title>`b`.icon</title>
   </g>
@@ -133,7 +133,7 @@
   </g>
   <g>
     <marker
-      id="roger-ArtemisCrane740-`a`.icon-endArrowId"
+      id="registry-ArtemisCrane740-`a`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -154,7 +154,7 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#roger-ArtemisCrane740-`a`.icon-endArrowId)"
+      marker-end="url(#registry-ArtemisCrane740-`a`.icon-endArrowId)"
     ></path>
     <title>`a`.icon</title>
   </g>

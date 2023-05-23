@@ -12,7 +12,7 @@
   </polyline>
   <g>
     <marker
-      id="roger-ClamshellKookabura228-`c`.arrow1-endArrowId"
+      id="registry-ClamshellKookabura228-`c`.arrow1-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -33,13 +33,13 @@
       stroke-width="1.5"
       stroke="#22a34d"
       stroke-linecap="butt"
-      marker-end="url(#roger-ClamshellKookabura228-`c`.arrow1-endArrowId)"
+      marker-end="url(#registry-ClamshellKookabura228-`c`.arrow1-endArrowId)"
     ></path>
     <title>`c`.arrow1</title>
   </g>
   <g>
     <marker
-      id="roger-ClamshellKookabura228-`c`.arrow2-endArrowId"
+      id="registry-ClamshellKookabura228-`c`.arrow2-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -60,7 +60,7 @@
       stroke-width="1.5"
       stroke="#22a34d"
       stroke-linecap="butt"
-      marker-end="url(#roger-ClamshellKookabura228-`c`.arrow2-endArrowId)"
+      marker-end="url(#registry-ClamshellKookabura228-`c`.arrow2-endArrowId)"
     ></path>
     <title>`c`.arrow2</title>
   </g>
