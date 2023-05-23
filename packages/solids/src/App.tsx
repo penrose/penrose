@@ -15,7 +15,7 @@ import {
   sin,
   sub,
 } from "@penrose/core";
-import { Input, Num } from "@penrose/core/dist/types/ad";
+import { Input, Num } from "@penrose/core/dist/types/ad.js";
 import seedrandom from "seedrandom";
 import { createEffect, createSignal, on, onCleanup } from "solid-js";
 
