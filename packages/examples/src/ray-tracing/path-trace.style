@@ -6,9 +6,18 @@ canvas {
 }
 
 global {
-   scalar eps = 0.0001
-   scalar arrowScale = 15.0
+   scalar eps = 0.1
+
+   scalar pointSize = 2 -- 1
+
+   scalar arrowScale = 15.0 -- 0
    scalar arrowThickness = 1.0
+   string arrowShape = "straight"
+   string arrowSize = .5 -- 0
+
+   string rayLineDashing = "4,3" -- ""
+   color rayLineColor = #000 -- #ff660044
+   scalar rayLineWidth = 0.65 -- 1
 }
 
 colors {
@@ -27,18 +36,47 @@ forall Scene S {
    --    ensureOnCanvas: false
    -- }
 
-   scalar maxPerturbation = 15
-   vec2 p0 = maxPerturbation*diskRandom()
-   vec2 p1 = maxPerturbation*diskRandom()
-   vec2 p2 = maxPerturbation*diskRandom()
-   vec2 p3 = maxPerturbation*diskRandom()
-   vec2 p4 = maxPerturbation*diskRandom()
-   vec2 p5 = maxPerturbation*diskRandom()
-   scalar w = .8*canvas.width/2
-   scalar h = .8*canvas.height/2
+   -- shape S.g1 = Ellipse {
+   --    center: (0,0)
+   --    rx: canvas.width/2.
+   --    ry: canvas.height/2.
+   --    fillColor: #ddd
+   --    strokeColor: #aaa
+   --    strokeWidth: 1
+   --    ensureOnCanvas: false
+   -- }
+   -- shape S.g2 = Circle {
+   --    center: (canvas.width/4,0)
+   --    r: canvas.width/8.
+   --    fillColor: #fff
+   --    strokeColor: #aaa
+   --    strokeWidth: 1
+   --    ensureOnCanvas: false
+   -- }
+   -- shape S.g3 = Circle {
+   --    center: (-canvas.width/4,0)
+   --    r: canvas.width/8.
+   --    fillColor: #fff
+   --    strokeColor: #aaa
+   --    strokeWidth: 1
+   --    ensureOnCanvas: false
+   -- }
+   -- shape S.geometry = Group {
+   --    shapes: [S.g1,S.g2]
+   -- }
+
+   -- scalar maxPerturbation = 15
+   -- vec2 p0 = maxPerturbation*diskRandom()
+   -- vec2 p1 = maxPerturbation*diskRandom()
+   -- vec2 p2 = maxPerturbation*diskRandom()
+   -- vec2 p3 = maxPerturbation*diskRandom()
+   -- vec2 p4 = maxPerturbation*diskRandom()
+   -- vec2 p5 = maxPerturbation*diskRandom()
+   -- scalar w = .8*canvas.width/2
+   -- scalar h = .8*canvas.height/2
    shape S.geometry = Polygon {
-      --points: [(-97,75.3), (-110.5,28.8), (-89.2,-93.1), (104.7,-84.1), (104.7,75.3), (43.8,95.7), (2.9,18.6), (28.5,-18.4), (-4.9,-44.8), (-41.2,6.9), (4.4,42.3), (-36.1,90.9)]
-      points: ( (w,-h)+p0, (0,-h)+p1, (-w,-h)+p2, (-w,h)+p3, (0,h)+p4, (w,h)+p5)
+      points: [(-97,75.3), (-110.5,28.8), (-89.2,-93.1), (104.7,-84.1), (104.7,75.3), (43.8,95.7), (2.9,18.6), (28.5,-18.4), (-4.9,-44.8), (-41.2,6.9), (4.4,42.3), (-36.1,90.9)]
+      --points: ( (w,-h)+p0, (0,-h)+p1, (-w,-h)+p2, (-w,h)+p3, (0,h)+p4, (w,h)+p5)
       fillColor: #ddd
       strokeColor: #aaa
       strokeWidth: 1
@@ -52,7 +90,7 @@ forall Point p; Scene S {
 
    shape p.icon = Circle {
       center: p.x
-      r: 2
+      r: global.pointSize
       fillColor: #000
       ensureOnCanvas: false
    }
@@ -87,8 +125,8 @@ forall Ray r {
       end: r.o + global.arrowScale*r.d
       strokeColor: #000
       strokeWidth: global.arrowThickness
-      endArrowhead: "straight"
-      endArrowheadSize: .5
+      endArrowhead: global.arrowShape
+      endArrowheadSize: global.arrowSize
       ensureOnCanvas: false
    }
 }
@@ -206,10 +244,10 @@ where p := intersect(r,S) {
    shape r.rayLine = Line {
       start: r.o
       end: p.x
-      strokeColor: #000
-      strokeWidth: .65
+      strokeColor: global.rayLineColor
+      strokeWidth: global.rayLineWidth
       style: "dashed"
-      strokeDasharray: "4,3"
+      strokeDasharray: global.rayLineDashing
       ensureOnCanvas: false
    }
 
@@ -218,8 +256,8 @@ where p := intersect(r,S) {
       end: p.x + global.arrowScale*p.n
       strokeColor: #888
       strokeWidth: global.arrowThickness
-      endArrowhead: "straight"
-      endArrowheadSize: .5
+      endArrowhead: global.arrowShape
+      endArrowheadSize: global.arrowSize
       ensureOnCanvas: false
    }
 
@@ -235,10 +273,9 @@ where r := rayBetween(p,q) {
    shape r.rayLine = Line {
       start: p.x
       end: q.x
-      strokeColor: #000
-      strokeWidth: .65
-      style: "dashed"
-      strokeDasharray: "4,3"
+      strokeColor: global.rayLineColor
+      strokeWidth: global.rayLineWidth
+      strokeDasharray: global.rayLineDashing
       ensureOnCanvas: false
    }
 }
