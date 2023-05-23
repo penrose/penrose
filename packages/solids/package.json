@@ -31,16 +31,6 @@
           "build-dom",
           "build-ssr"
         ]
-      },
-      "build-node": {
-        "dependsOn": [
-          "codegen"
-        ]
-      },
-      "build-web": {
-        "dependsOn": [
-          "build"
-        ]
       }
     }
   }
