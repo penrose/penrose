@@ -16014,7 +16014,7 @@ socks@~2.3.2:
     ip "1.1.5"
     smart-buffer "^4.1.0"
 
-solid-js@^1, solid-js@^1.6.10:
+solid-js@^1:
   version "1.7.5"
   resolved "https://registry.yarnpkg.com/solid-js/-/solid-js-1.7.5.tgz#2ef7834c6c8eef9d1b46c25b1c51da4c67492a13"
   integrity sha512-GfJ8na1e9FG1oAF5xC24BM+ATLym0sfH+ZblkbBFpueYdq3fWAoA5Ve+jGeIeLI7jmMGfa0rUaKruszNm2sH8w==
@@ -17170,11 +17170,6 @@ typedoc@^0.24.7:
     minimatch "^9.0.0"
     shiki "^0.14.1"
 
-typescript@^4.9.5:
-  version "4.9.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
-  integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
-
 typescript@^5.0.4:
   version "5.0.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.0.4.tgz#b217fd20119bd61a94d4011274e0ab369058da3b"
@@ -17623,7 +17618,7 @@ vite-node@0.31.1:
     picocolors "^1.0.0"
     vite "^3.0.0 || ^4.0.0"
 
-vite-plugin-solid@^2.5.0:
+vite-plugin-solid@^2:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/vite-plugin-solid/-/vite-plugin-solid-2.7.0.tgz#44de91335f30dfddd7f5f59a7019020860fcba2e"
   integrity sha512-avp/Jl5zOp/Itfo67xtDB2O61U7idviaIp4mLsjhCa13PjKNasz+IID0jYTyqUp9SFx6/PmBr6v4KgDppqompg==
@@ -17644,7 +17639,7 @@ vite-plugin-top-level-await@^1.2.3:
     "@swc/core" "^1.3.10"
     uuid "^9.0.0"
 
-"vite@^3.0.0 || ^4.0.0", vite@^4, vite@^4.1.1:
+"vite@^3.0.0 || ^4.0.0", vite@^4:
   version "4.3.8"
   resolved "https://registry.yarnpkg.com/vite/-/vite-4.3.8.tgz#70cd6a294ab52d7fb8f37f5bc63d117dd19e9918"
   integrity sha512-uYB8PwN7hbMrf4j1xzGDk/lqjsZvCDbt/JC5dyfxc19Pg8kRm14LinK/uq+HSLNswZEoKmweGdtpbnxRtrAXiQ==
