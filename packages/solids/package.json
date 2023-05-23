@@ -36,14 +36,9 @@
           "build-ssr"
         ]
       },
-      "build-node": {
+      "build-decls": {
         "dependsOn": [
-          "codegen"
-        ]
-      },
-      "build-web": {
-        "dependsOn": [
-          "build"
+          "^build-decls"
         ]
       },
       "dev": {
