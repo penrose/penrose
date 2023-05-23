@@ -2798,7 +2798,7 @@ export const compDict = {
         | Group<ad.Num>,
       p: ad.Num[]
     ): VectorV<ad.Num> => {;
-       return closestPointShape(s,p);
+       return { tag: "VectorV", contents: closestPointShape(s,p) };
     },
     returns: valueT("Real2"),
   },
@@ -3572,7 +3572,7 @@ const closestPointShape = (
         | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[]
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const t = s.shapeType;
    if (t === "Circle") {
       return closestPointCircle( s, p );
@@ -3592,7 +3592,7 @@ const closestPointShape = (
    } else if (t === "Ellipse") {
       return closestPointEllipse(s,p);
    } else { // t === "Group"
-      const closestPoints = s.shapes.contents.map((shape) => closestPointShape(shape,p).contents);
+      const closestPoints = s.shapes.contents.map((shape) => closestPointShape(shape,p));
       const dist = closestPoints.map((point) => ops.vdist(point,p));
       let closestX: ad.Num = closestPoints[0][0];
       let closestY: ad.Num = closestPoints[0][1];
@@ -3602,15 +3602,14 @@ const closestPointShape = (
          closestX = ifCond(eq(closestDist, dist[i]), closestPoints[i][0], closestX);
          closestY = ifCond(eq(closestDist, dist[i]), closestPoints[i][1], closestY);
       }
-      return { tag: "VectorV", contents: [closestX, closestY] };
+      return [closestX, closestY];
    }
 }
-
 
 const closestPointCircle = (
    s: Circle<ad.Num>,
    p: ad.Num[]
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    /**
     * Implementing formula
     * V = P - C
@@ -3624,23 +3623,20 @@ const closestPointCircle = (
       s.center.contents,
       pOnCircumferenceOffset
    );
-   return { tag: "VectorV", contents: pOnCircumference };
+   return pOnCircumference;
 }
 
 const closestPointLine = (
    s: Line<ad.Num>,
    p: ad.Num[]
-): VectorV<ad.Num> => {
-   return {
-      tag: "VectorV",
-      contents: closestPointLineCoords(p, s.start.contents, s.end.contents),
-   };
+): ad.Num[] => {
+   return closestPointLineCoords(p, s.start.contents, s.end.contents);
 }
 
 const closestPointPolyline = (
    s: Polyline<ad.Num>,
    p: ad.Num[]
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const closestPoints: ad.Num[][] = [];
    const dist: ad.Num[] = [];
    for (let i = 0; i < s.points.contents.length - 1; i++) {
@@ -3662,13 +3658,13 @@ const closestPointPolyline = (
       retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
       retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
    }
-   return { tag: "VectorV", contents: [retX, retY] };
+   return [retX, retY];
 }
 
 const closestPointPolygon = (
    s: Polyline<ad.Num>,
    p: ad.Num[]
-): VectorV<ad.Num> => {
+): ad.Num[] => {
    const closestPoints: ad.Num[][] = [];
    const dist: ad.Num[] = [];
    let i = 0;
@@ -3700,7 +3696,7 @@ const closestPointPolygon = (
       retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
       retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
    }
-   return { tag: "VectorV", contents: [retX, retY] };
+   return [retX, retY];
 }
 
 const closestPointRect = (
@@ -3725,17 +3721,14 @@ const closestPointRect = (
   let retY: ad.Num = ifCond(or(eq(m, dl), eq(m, dr)), y, t);
   retY = ifCond(eq(m, db), b, retY);
 
-  return {
-    tag: "VectorV",
-    contents: [retX, retY]
-  };
+  return [retX, retY];
 };
 
 const closestPointEllipse = (
    s: Ellipse<ad.Num>,
    p: ad.Num[]
 ): ad.Num[] => {
-   return { tag: "VectorV", contents: closestPointEllipseCoords( s.rx.contents, s.ry.contents, s.center.contents, p) };
+   return closestPointEllipseCoords( s.rx.contents, s.ry.contents, s.center.contents, p );
 };
 
 const closestPointLineCoords = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[] => {
