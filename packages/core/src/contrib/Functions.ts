@@ -3874,6 +3874,19 @@ const closestSilhouettePointEllipse = (
    return ops.vadd(y,c);
 }
 
+const closestSilhouettePointLine = (
+   s: Line<ad.Num>,
+   p: ad.Num[]
+): ad.Num[] => {
+   const a = s.start.contents;
+   const b = s.end.contents;
+   const da = ops.vdistsq(p,a);
+   const db = ops.vdistsq(p,b);
+   const y0 = ifCond(lt(da,db), a[0], b[0] );
+   const y1 = ifCond(lt(da,db), a[1], b[1] );
+   return [y0,y1];
+}
+
 /* Computes the closest silhouette on an ellipse with radii a0,b0 relative to a
  * point p0, assuming the ellipse has already been translated to the origin and
  * rotated to be axis-aligned. */
@@ -3893,15 +3906,15 @@ const closestSilhouettePointEllipseCoords = (
    const e = add( mul(mul(b2,sub(x2,1)),y2), mul(y2,y2) );
    const f = mul(b2,x);
    const g = mul(b2,y2);
-   const u1 = ifCond(lt(e,0), Infinity, mul(a0,div(sub(f,sqrt(e)),d)));
-   const u2 = ifCond(lt(e,0), Infinity, mul(a0,div(add(g,mul(mul(x,b2),sqrt(e))),mul(d,y))));
-   const v1 = ifCond(lt(e,0), Infinity, mul(a0,div(add(f,sqrt(e)),d)));
-   const v2 = ifCond(lt(e,0), Infinity, mul(a0,div(sub(g,mul(mul(x,b2),sqrt(e))),mul(d,y))));
-   const du = ops.vdist([u1,u2], p0);
-   const dv = ops.vdist([v1,v2], p0);
+   const u0 = ifCond(lt(e,0), Infinity, mul(a0,div(sub(f,sqrt(e)),d)));
+   const u1 = ifCond(lt(e,0), Infinity, mul(a0,div(add(g,mul(mul(x,b2),sqrt(e))),mul(d,y))));
+   const v0 = ifCond(lt(e,0), Infinity, mul(a0,div(add(f,sqrt(e)),d)));
+   const v1 = ifCond(lt(e,0), Infinity, mul(a0,div(sub(g,mul(mul(x,b2),sqrt(e))),mul(d,y))));
+   const du = ops.vdist([u0,u1], p0);
+   const dv = ops.vdist([v0,v1], p0);
+   const z0 = ifCond(lt(du,dv), u0, v0);
    const z1 = ifCond(lt(du,dv), u1, v1);
-   const z2 = ifCond(lt(du,dv), u2, v2);
-   return [z1,z2];
+   return [z0,z1];
 }
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {
