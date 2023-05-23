@@ -1,8 +1,4 @@
-import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/linear-algebra.domain.js";
-import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain.js";
-import * as fs from "fs";
 import nearley from "nearley";
-import * as path from "path";
 import { beforeEach, describe, expect, test } from "vitest";
 import grammar from "../parser/DomainParser.js";
 import { Env } from "../types/domain.js";
@@ -10,14 +6,7 @@ import { PenroseError } from "../types/errors.js";
 import { Result, showError } from "../utils/Error.js";
 import { compileDomain, isSubtype } from "./Domain.js";
 
-const outputDir = "/tmp/contexts";
-const saveContexts = false;
 const printError = false;
-
-const domains = [
-  ["linear-algebra-domain/linear-algebra.domain", linearAlgebraDomain],
-  ["set-theory-domain/setTheory.domain", setTheoryDomain],
-];
 
 const contextHas = (
   res: Result<Env, PenroseError>,
@@ -261,25 +250,5 @@ type MyType
 symmetric predicate MyBadPredicate(MyType, MyType, MyType)
     `;
     expectErrorOf(prog, "SymmetricArgLengthMismatch");
-  });
-});
-
-describe("Real Programs", () => {
-  // create output folder
-  if (saveContexts && !fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
-  }
-
-  domains.map(([examplePath, prog]) => {
-    test(examplePath, () => {
-      const res = compileDomain(prog);
-      expect(res.isOk()).toBe(true);
-      // write to output folder
-      if (res.isOk() && saveContexts) {
-        const exampleName = path.basename(examplePath, ".domain");
-        const astPath = path.join(outputDir, exampleName + ".env.json");
-        fs.writeFileSync(astPath, JSON.stringify(res.value), "utf8");
-      }
-    });
   });
 });

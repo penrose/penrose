@@ -15,6 +15,7 @@
     "build:ide": "nx run editor:build",
     "test": "nx run-many --target=test --verbose",
     "coverage": "nx run core:coverage",
+    "registry": "nx run examples:test --output-style=stream-without-prefix",
     "docs": "nx run core:docs",
     "lint": "nx run core:lint",
     "lint:fix": "nx run core:lint --fix",
