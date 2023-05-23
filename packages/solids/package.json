@@ -6,7 +6,7 @@
   "exports": {
     "types": "./dist/types/index.d.ts",
     "browser": "./dist/dom/index.js",
-    "node": "./dist/ssr/index.js"
+    "default": "./dist/ssr/index.js"
   },
   "dependencies": {
     "solid-js": "^1"
