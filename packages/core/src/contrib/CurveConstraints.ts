@@ -37,7 +37,8 @@ enum CurvatureApproximationMode {
 }
 
 /**
- * Returns discrete curvature approximation given three consecutive points
+ * Returns discrete curvature approximation given three consecutive points.
+ * For 2D points, all angle-based curvatures are signed. The result is non-negative in all other cases.
  */
 export const curvature = (
   p1: ad.Num[],
@@ -67,6 +68,8 @@ export const curvature = (
   //     DOI: 10.1090/noti1578
   const v1 = ops.vsub(p2, p1);
   const v2 = ops.vsub(p3, p2);
+
+  // Compute signed angle for 2D and positive angle otherwise
   const angle =
     p1.length === 2 ? ops.angleFrom(v1, v2) : ops.angleBetween(v1, v2);
 
