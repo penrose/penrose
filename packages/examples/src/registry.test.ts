@@ -95,8 +95,7 @@ const renderTrio = async ({
     return await resolver(filePath);
   };
 
-  // TODO: change "roger" to "registry"
-  const svg = (await RenderStatic(optimizedState, resolvePath, "roger"))
+  const svg = (await RenderStatic(optimizedState, resolvePath, "registry"))
     .outerHTML;
 
   const done = process.hrtime.bigint();
