@@ -377,7 +377,7 @@ We have special handling of layering statements for `Group` shapes, found [here]
 
 ## Collector Blocks
 
-Selector Blocks run once _for each instance_ of the matching of the Style variables against the Substance variables. Each run is independent from another and has no knowledge about any other runs. This characteristic makes it difficult to implement features that require aggregations aside from the trivial `match_total`. For example, we can't compute the sum of `center` field of _all_ Substance variables that satisfy some predicates.
+Selector blocks match _style_ variables against _substance_ variables to produce multiple matches. Each match is independent from another. This characteristic makes it difficult to implement features that require aggregations over multiple matches. For example, we can't compute the sum of `center` fields of _all_ Substance variables that a selector matches on.
 
 Collector Blocks enables these types of aggregations by introducing collections of _substance_ variables. The syntax is as follows:
 
