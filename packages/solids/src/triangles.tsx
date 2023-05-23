@@ -88,12 +88,7 @@ export const Triangles = (props: TriangleProps) => {
   const tri2 = [inputs(3), inputs(3), inputs(3)];
 
   return (
-    <svg
-      version="1.2"
-      xmlns="http://www.w3.org/2000/svg"
-      width={800}
-      height={800}
-    >
+    <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
       {plane(props.theta)}
       {triangleWithShadow(tri1, props.theta, "#34379a")}
       {triangleWithShadow(tri2, props.theta, "#340000")}
