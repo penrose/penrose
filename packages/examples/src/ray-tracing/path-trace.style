@@ -1,3 +1,4 @@
+layout = [ tracing, labeling ]
 
 canvas {
    width = 240
@@ -16,6 +17,16 @@ colors {
 
 forall Scene S {
 
+   -- shape S.geometry = Rectangle {
+   --    center: (0,0)
+   --    width: canvas.width - 30
+   --    height: canvas.height - 30
+   --    fillColor: #ddd
+   --    strokeColor: #aaa
+   --    strokeWidth: 1
+   --    ensureOnCanvas: false
+   -- }
+
    scalar maxPerturbation = 15
    vec2 p0 = maxPerturbation*diskRandom()
    vec2 p1 = maxPerturbation*diskRandom()
@@ -25,7 +36,6 @@ forall Scene S {
    vec2 p5 = maxPerturbation*diskRandom()
    scalar w = .8*canvas.width/2
    scalar h = .8*canvas.height/2
-
    shape S.geometry = Polygon {
       --points: [(-97,75.3), (-110.5,28.8), (-89.2,-93.1), (104.7,-84.1), (104.7,75.3), (43.8,95.7), (2.9,18.6), (28.5,-18.4), (-4.9,-44.8), (-41.2,6.9), (4.4,42.3), (-36.1,90.9)]
       points: ( (w,-h)+p0, (0,-h)+p1, (-w,-h)+p2, (-w,h)+p3, (0,h)+p4, (w,h)+p5)
@@ -38,6 +48,7 @@ forall Scene S {
 
 forall Point p; Scene S {
    vec2 p.x = (?,?) -- location
+   vec2 p.n = (0,0) -- normal
 
    shape p.icon = Circle {
       center: p.x
@@ -62,9 +73,7 @@ where p has math label {
       strokeLinejoin: "round"
    }
 
-   scalar theta = ?
-   p.labelText.center = p.x + 10.*(cos(theta),sin(theta))
-   ensure disjoint( p.labelText, p.icon )
+   encourage norm( p.labelText.center - p.x ) == 10 in labeling
 
    layer p.labelText above p.icon
 }
@@ -87,18 +96,10 @@ forall Ray r {
 forall Light L {
    vec2 L.x = (?,?) -- location
 
-   -- shape L.icon = Circle {
-   --    center: L.x
-   --    r: 8
-   --    fillColor: #ffaa00
-   --    strokeColor: #ff6600
-   --    strokeWidth: 1
-   -- }
-
    shape L.icon = Image {
       center: L.x
-      width: 23
-      height: 35
+      width: 27
+      height: 41
       href: "lightbulb.svg"
       ensureOnCanvas: false
    }
@@ -167,17 +168,23 @@ forall Camera C {
 
    shape C.icon = Group {
       shapes: [viewfinder,body,outerLens,C.innerLens,flash,shutterRelease]
+      ensureOnCanvas: false
    }
 }
 
 forall Scene S; Camera C {
    layer C.icon above S.geometry
+   ensure signedDistance( S.geometry, C.x ) < -20
 }
 
-forall Camera C; Ray r {
-   layer r.icon above C.icon
+forall Scene S; Light L {
+   layer L.icon above S.geometry
+   ensure signedDistance( S.geometry, L.x ) < -20
 }
 
+forall Camera C; Light L {
+   ensure disjoint( C.icon, L.icon, 20 )
+}
 
 forall Ray r; Point p
 where r := rayFrom(p) {
@@ -194,7 +201,7 @@ forall Point p; Ray r; Scene S
 where p := intersect(r,S) {
    vec2 o = r.o + global.eps*r.d
    override p.x = rayIntersect(S.geometry, o, r.d)
-   p.n = rayIntersectNormal(S.geometry, o, r.d)
+   override p.n = rayIntersectNormal(S.geometry, o, r.d)
 
    shape r.rayLine = Line {
       start: r.o
@@ -221,14 +228,29 @@ where p := intersect(r,S) {
    layer p.icon above normalArrow
 }
 
+forall Ray r; Point p; Point q
+where r := rayBetween(p,q) {
+   override r.o = p.x
+   override r.d = unit(q.x-p.x)
+   shape r.rayLine = Line {
+      start: p.x
+      end: q.x
+      strokeColor: #000
+      strokeWidth: .65
+      style: "dashed"
+      strokeDasharray: "4,3"
+      ensureOnCanvas: false
+   }
+}
+
 forall Point p; Ray r
 where p has math label {
-   ensure disjoint( p.labelText, r.icon )
+   --ensure disjoint( p.labelText, r.icon )
 }
 
 forall Point p; Point q
 where p has math label; q has math label {
-   ensure disjoint( p.labelText, q.labelText )
+   --ensure disjoint( p.labelText, q.labelText )
 }
 
 forall Point p; Camera C
@@ -238,30 +260,43 @@ where p has math label {
 
 forall Point p; Camera C
 where onCamera(p,C) {
-   override p.x = C.x + C.innerLens.r*diskRandom()
-   layer p.icon above C.icon
+   override p.x = C.x
+   layer p.icon below C.icon
+}
 
+forall Point p; Camera C
+where onCamera(p,C); p has label {
    override p.labelText.center = (?,?)
-   encourage norm( p.labelText.center - C.x ) == 0
+   encourage norm( p.labelText.center - C.x ) == 0 in labeling
    ensure disjoint( p.labelText, C.icon )
 }
 
 forall Point p; Light L
 where onLight(p,L) {
-   override p.x = L.x + 10*diskRandom()
+   override p.x = L.x
    override p.n = (0,0)
-   layer p.icon above L.icon
+   layer p.icon below L.icon
+}
 
+forall Point p; Light L
+where onLight(p,L); p has label {
    override p.labelText.center = (?,?)
-   encourage norm( p.labelText.center - L.x ) == 0
+   encourage norm( p.labelText.center - L.x ) == 0 in labeling
    ensure disjoint( p.labelText, L.icon )
 }
 
 forall Ray r; Camera C {
-   layer r.rayLine above C.icon
+   layer r.icon below C.icon
+   layer r.rayLine below C.icon
 }
 
 forall Ray r; Light L {
-   layer r.rayLine above L.icon
+   layer r.icon below L.icon
+   layer r.rayLine below L.icon
+}
+
+forall Scene S; Point p; Ray r
+where p := intersect(r,S); p has label {
+   override p.labelText.center = p.x - 8*p.n
 }
 

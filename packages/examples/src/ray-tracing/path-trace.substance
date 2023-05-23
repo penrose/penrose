@@ -10,9 +10,9 @@ Ray r1 := rayFrom(x1)
 Point x2 := intersect(r1,S)
 Ray r2 := rayFrom(x2)
 Point x3 := intersect(r2,S)
-Ray r3 := rayFrom(x3)
-Point x4 := intersect(r3,S)
+Point x4
 onLight(x4,L)
+Ray r3 := rayBetween(x3,x4)
 
 Label x0 $E$
 Label x1 $x_1$

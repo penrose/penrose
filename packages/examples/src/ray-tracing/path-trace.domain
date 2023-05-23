@@ -5,6 +5,7 @@ type Point
 type Ray
 
 constructor rayFrom(Point p) -> Ray
+constructor rayBetween(Point p, Point q) -> Ray
 constructor intersect(Ray r, Scene S) -> Point
 
 predicate onLight(Point p, Light L)
