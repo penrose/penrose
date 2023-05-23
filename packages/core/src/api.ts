@@ -63,7 +63,7 @@ export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 export { numOf, numsOf } from "./contrib/Utils.js";
 export { ops, problem } from "./engine/Autodiff.js";
 export * from "./engine/AutodiffFunctions.js";
-export { Problem } from "./types/ad.js";
+export { Input, Num, Problem } from "./types/ad.js";
 export {
   measureText,
   input as scalar,
