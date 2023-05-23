@@ -390,7 +390,7 @@ foreach <FOREACH> { ... }
 
 The `where`, `with`, and `foreach` clauses are optional, and if they are empty, they must be omitted.
 
-- `<COLLECT>` is a semicolon-separated list of object declarations. **For now, only allow one declaration**. The `<COLLECT> ` objects are accessible, via the name given in the `<INTO>` clause, in the Style block body.
+- `<COLLECT>` is an object declaration. The `<COLLECT> ` object is accessible, via the name given in the `<INTO>` clause, in the _style_ block body.
 - `<INTO>` is the name assigned to the collection. The collection includes all the Substance objects that `<COLLECT>` matches to. Within the Style block, `<INTO>` conceptually represents a list of Substance objects.
 - The `<WHERE>` clause has the same meaning as in standard `forall` Style selectors.
 - `<WITH>` is a semicolon-separated list of object declarations. Objects in the `<WITH>` clause aren't collected, but may be used in `<WHERE>`.
