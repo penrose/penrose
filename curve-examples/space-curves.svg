@@ -1,0 +1,1026 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <circle
+    fill="#ac2b2b"
+    fill-opacity="0.2"
+    cx="400"
+    cy="500"
+    stroke="none"
+    r="73.45447554676234"
+  >
+    <title>global.sphere</title>
+  </circle>
+  <polygon
+    fill="#8080e6"
+    fill-opacity="0.2"
+    stroke="#b3b3ff"
+    stroke-opacity="0"
+    stroke-width="0.5"
+    stroke-linecap="butt"
+    transform="scale(1)"
+    points="155.5172992090682,877.7249231978678,728.5503635466684,820.5629743205852,524.2390202387392,691.9488545653236,183.66505577404823,711.0756245159304"
+    width="800"
+    height="1000"
+  >
+    <title>global.groundPlane</title>
+  </polygon>
+  <g>
+    <path
+      d="M 331.70984380354867 524.8218617981502 L 335.2045566230554 527.0319382627742"
+      stroke-opacity="0.4378938576245572"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline30</title>
+  </g>
+  <g>
+    <path
+      d="M 421.43276264267445 569.8119437422156 L 423.52149712708746 567.9809229624183"
+      stroke-opacity="0.4187569963915374"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline41</title>
+  </g>
+  <g>
+    <path
+      d="M 469.19282945532575 754.8730476012504 L 468.0726735810583 758.9865764497788"
+      stroke-opacity="0.20141489729157092"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line4</title>
+  </g>
+  <g>
+    <path
+      d="M 371.2232029501068 452.1315932181209 L 367.92406325150193 462.1181998111349"
+      stroke-opacity="0.2824456820775051"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline20</title>
+  </g>
+  <g>
+    <path
+      d="M 335.2045566230554 527.0319382627742 L 341.4358576832033 529.7587764603006"
+      stroke-opacity="0.47143331455066084"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline31</title>
+  </g>
+  <g>
+    <path
+      d="M 423.52149712708746 567.9809229624183 L 425.1704221242364 563.9399902854407"
+      stroke-opacity="0.38344444315443077"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline42</title>
+  </g>
+  <g>
+    <path
+      d="M 468.0726735810583 758.9865764497788 L 464.3890691447519 763.0188967572303"
+      stroke-opacity="0.21886393222189005"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line5</title>
+  </g>
+  <g>
+    <path
+      d="M 425.3917062687796 453.5420143005782 L 413.0524567695747 447.1150759610015"
+      stroke-opacity="0.5467475231169419"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline10</title>
+  </g>
+  <g>
+    <path
+      d="M 367.92406325150193 462.1181998111349 L 363.487848693577 472.9910507711206"
+      stroke-opacity="0.2623024128566784"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline21</title>
+  </g>
+  <g>
+    <path
+      d="M 341.4358576832033 529.7587764603006 L 350.32736229301076 533.4431056994237"
+      stroke-opacity="0.5015271218999733"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline32</title>
+  </g>
+  <g>
+    <path
+      d="M 425.1704221242364 563.9399902854407 L 426.96449795104144 557.7415879022602"
+      stroke-opacity="0.34890317281634575"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline43</title>
+  </g>
+  <g>
+    <path
+      d="M 464.3890691447519 763.0188967572303 L 457.9794525777064 766.7226430522207"
+      stroke-opacity="0.23543875325700797"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line6</title>
+  </g>
+  <g>
+    <path
+      d="M 413.0524567695747 447.1150759610015 L 401.9336534781618 440.93885664774166"
+      stroke-opacity="0.5427508469817361"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline11</title>
+  </g>
+  <g>
+    <path
+      d="M 363.487848693577 472.9910507711206 L 358.0421500057634 483.9630442440765"
+      stroke-opacity="0.250954961284311"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline22</title>
+  </g>
+  <g>
+    <path
+      d="M 350.32736229301076 533.4431056994237 L 361.39922241462955 538.3065376093025"
+      stroke-opacity="0.5261007334747617"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline33</title>
+  </g>
+  <g>
+    <path
+      d="M 426.96449795104144 557.7415879022602 L 429.3925932879647 549.568336004813"
+      stroke-opacity="0.316813096833362"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline44</title>
+  </g>
+  <g>
+    <path
+      d="M 457.9794525777064 766.7226430522207 L 448.93975563222864 769.7908716585773"
+      stroke-opacity="0.25022140764922585"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line7</title>
+  </g>
+  <g>
+    <path
+      d="M 401.9336534781618 440.93885664774166 L 392.8488894090418 435.7070195986686"
+      stroke-opacity="0.5288160276526923"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline12</title>
+  </g>
+  <g>
+    <path
+      d="M 358.0421500057634 483.9630442440765 L 351.95908343225574 494.22941606096276"
+      stroke-opacity="0.24971660704403564"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline23</title>
+  </g>
+  <g>
+    <path
+      d="M 361.39922241462955 538.3065376093025 L 373.7279580831996 544.2383558734675"
+      stroke-opacity="0.5429927527661484"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline34</title>
+  </g>
+  <g>
+    <path
+      d="M 429.3925932879647 549.568336004813 L 432.7925068101295 539.7999507157613"
+      stroke-opacity="0.28913957249401334"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline45</title>
+  </g>
+  <g>
+    <path
+      d="M 448.93975563222864 769.7908716585773 L 437.7638508839723 771.8892757699532"
+      stroke-opacity="0.2621601507937941"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line8</title>
+  </g>
+  <g>
+    <path
+      d="M 392.8488894090418 435.7070195986686 L 386.0843696923307 431.9709558191573"
+      stroke-opacity="0.5065002552922957"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline13</title>
+  </g>
+  <g>
+    <path
+      d="M 351.95908343225574 494.22941606096276 L 345.76792896662846 503.1431306223344"
+      stroke-opacity="0.2587638733386346"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline24</title>
+  </g>
+  <g>
+    <path
+      d="M 373.7279580831996 544.2383558734675 L 386.0918484738105 550.777994295588"
+      stroke-opacity="0.5504107500655819"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline35</title>
+  </g>
+  <g>
+    <path
+      d="M 432.7925068101295 539.7999507157613 L 437.284040209017 529.0395840453539"
+      stroke-opacity="0.26807746943550004"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline46</title>
+  </g>
+  <g>
+    <path
+      d="M 437.7638508839723 771.8892757699532 L 425.3917062687796 772.7377345229058"
+      stroke-opacity="0.27017006437773194"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line9</title>
+  </g>
+  <g>
+    <path
+      d="M 386.0843696923307 431.9709558191573 L 381.46149791123815 430.09032041411166"
+      stroke-opacity="0.47793669850810494"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline14</title>
+  </g>
+  <g>
+    <path
+      d="M 345.76792896662846 503.1431306223344 L 340.04695601363716 510.34756735962895"
+      stroke-opacity="0.27704362373000035"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline25</title>
+  </g>
+  <g>
+    <path
+      d="M 386.0918484738105 550.777994295588 L 397.3002598904961 557.2303845600644"
+      stroke-opacity="0.5474916540452566"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline36</title>
+  </g>
+  <g>
+    <path
+      d="M 437.284040209017 529.0395840453539 L 442.731992200056 518.0610221324262"
+      stroke-opacity="0.25570504377975123"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline47</title>
+  </g>
+  <g>
+    <path
+      d="M 381.46149791123815 430.09032041411166 L 378.50606338885166 430.26315287937643"
+      stroke-opacity="0.4452993910075881"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline15</title>
+  </g>
+  <g>
+    <path
+      d="M 340.04695601363716 510.34756735962895 L 335.33750988641094 515.8059991192976"
+      stroke-opacity="0.3026605986962583"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline26</title>
+  </g>
+  <g>
+    <path
+      d="M 397.3002598904961 557.2303845600644 L 406.526187665153 562.8634742258622"
+      stroke-opacity="0.5346096922455021"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline37</title>
+  </g>
+  <g>
+    <path
+      d="M 442.731992200056 518.0610221324262 L 448.76573737133117 507.666104092959"
+      stroke-opacity="0.25343127592427295"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline48</title>
+  </g>
+  <g>
+    <path
+      d="M 378.50606338885166 430.26315287937643 L 376.6101660911403 432.5805643111345"
+      stroke-opacity="0.4105063564106169"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline16</title>
+  </g>
+  <g>
+    <path
+      d="M 335.33750988641094 515.8059991192976 L 332.1115963061826 519.7471550393669"
+      stroke-opacity="0.33343881540456094"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline27</title>
+  </g>
+  <g>
+    <path
+      d="M 406.526187665153 562.8634742258622 L 413.4648350813274 567.0761066000189"
+      stroke-opacity="0.5132310266238069"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline38</title>
+  </g>
+  <g>
+    <path
+      d="M 448.76573737133117 507.666104092959 L 454.8606924904186 498.5092100509691"
+      stroke-opacity="0.2615161875127616"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline49</title>
+  </g>
+  <g>
+    <path
+      d="M 376.6101660911403 432.5805643111345 L 375.14331688455485 437.06522760094356"
+      stroke-opacity="0.3752045133501953"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline17</title>
+  </g>
+  <g>
+    <path
+      d="M 332.1115963061826 519.7471550393669 L 330.7808210038696 522.5806522679167"
+      stroke-opacity="0.3673555192373564"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline28</title>
+  </g>
+  <g>
+    <path
+      d="M 413.4648350813274 567.0761066000189 L 418.28044269950465 569.4723812364616"
+      stroke-opacity="0.48541332846892615"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline39</title>
+  </g>
+  <g>
+    <path
+      d="M 375.14331688455485 437.06522760094356 L 373.5134365676622 443.64816052575674"
+      stroke-opacity="0.34093752647071524"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline18</title>
+  </g>
+  <g>
+    <path
+      d="M 330.7808210038696 522.5806522679167 L 331.70984380354867 524.8218617981502"
+      stroke-opacity="0.4026838287051193"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline29</title>
+  </g>
+  <g>
+    <path
+      d="M 373.5134365676622 443.64816052575674 L 371.2232029501068 452.1315932181209"
+      stroke-opacity="0.3093714803288893"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline19</title>
+  </g>
+  <g>
+    <path
+      d="M 454.8606924904186 498.5092100509691 L 460.4500109137081 490.9628159269772"
+      stroke-opacity="0.2789784054889558"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline0</title>
+  </g>
+  <g>
+    <path
+      d="M 460.4500109137081 490.9628159269772 L 464.9995137298177 485.08505961111194"
+      stroke-opacity="0.3039484250991421"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline1</title>
+  </g>
+  <g>
+    <path
+      d="M 464.9995137298177 485.08505961111194 L 468.0495916659216 480.66921843396074"
+      stroke-opacity="0.3342470153071893"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline2</title>
+  </g>
+  <g>
+    <path
+      d="M 418.28044269950465 760.8645490493341 L 421.43276264267445 756.7341013954966"
+      stroke-opacity="0.22664707441236098"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line40</title>
+  </g>
+  <g>
+    <path
+      d="M 468.0495916659216 480.66921843396074 L 469.19282945532575 477.3286823278327"
+      stroke-opacity="0.36780321993630677"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline3</title>
+  </g>
+  <g>
+    <path
+      d="M 331.70984380354867 759.0064598232773 L 335.2045566230554 763.0875757766889"
+      stroke-opacity="0.2189469288122786"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line30</title>
+  </g>
+  <g>
+    <path
+      d="M 421.43276264267445 756.7341013954966 L 423.52149712708746 752.6440040227654"
+      stroke-opacity="0.2093784981957687"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line41</title>
+  </g>
+  <g>
+    <path
+      d="M 469.19282945532575 477.3286823278327 L 468.0726735810583 474.569983270996"
+      stroke-opacity="0.40282979458314183"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline4</title>
+  </g>
+  <g>
+    <path
+      d="M 371.2232029501068 741.6338161925901 L 367.92406325150193 739.5517288089312"
+      stroke-opacity="0.14122284103875254"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line20</title>
+  </g>
+  <g>
+    <path
+      d="M 335.2045566230554 763.0875757766889 L 341.4358576832033 766.8604617665314"
+      stroke-opacity="0.23571665727533042"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line31</title>
+  </g>
+  <g>
+    <path
+      d="M 423.52149712708746 752.6440040227654 L 425.1704221242364 748.7673885790819"
+      stroke-opacity="0.19172222157721538"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line42</title>
+  </g>
+  <g>
+    <path
+      d="M 468.0726735810583 474.569983270996 L 464.3890691447519 471.8587980358269"
+      stroke-opacity="0.4377278644437801"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline5</title>
+  </g>
+  <g>
+    <path
+      d="M 425.3917062687796 772.7377345229058 L 413.0524567695747 772.2078797487566"
+      stroke-opacity="0.27337376155847093"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line10</title>
+  </g>
+  <g>
+    <path
+      d="M 367.92406325150193 739.5517288089312 L 363.487848693577 738.3945354924845"
+      stroke-opacity="0.1311512064283392"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line21</title>
+  </g>
+  <g>
+    <path
+      d="M 341.4358576832033 766.8604617665314 L 350.32736229301076 770.0224855048114"
+      stroke-opacity="0.25076356094998664"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line32</title>
+  </g>
+  <g>
+    <path
+      d="M 425.1704221242364 748.7673885790819 L 426.96449795104144 745.2709787714464"
+      stroke-opacity="0.17445158640817288"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line43</title>
+  </g>
+  <g>
+    <path
+      d="M 464.3890691447519 471.8587980358269 L 457.9794525777064 468.68104018369894"
+      stroke-opacity="0.47087750651401594"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline6</title>
+  </g>
+  <g>
+    <path
+      d="M 413.0524567695747 772.2078797487566 L 401.9336534781618 770.3764809737817"
+      stroke-opacity="0.2713754234908681"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line11</title>
+  </g>
+  <g>
+    <path
+      d="M 363.487848693577 738.3945354924845 L 358.0421500057634 738.2689265460172"
+      stroke-opacity="0.1254774806421555"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line22</title>
+  </g>
+  <g>
+    <path
+      d="M 350.32736229301076 770.0224855048114 L 361.39922241462955 772.2398915920483"
+      stroke-opacity="0.26305036673738086"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line33</title>
+  </g>
+  <g>
+    <path
+      d="M 426.96449795104144 745.2709787714464 L 429.3925932879647 742.3337584313088"
+      stroke-opacity="0.158406548416681"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line44</title>
+  </g>
+  <g>
+    <path
+      d="M 457.9794525777064 468.68104018369894 L 448.93975563222864 464.63372549458376"
+      stroke-opacity="0.5004428152984517"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline7</title>
+  </g>
+  <g>
+    <path
+      d="M 401.9336534781618 770.3764809737817 L 392.8488894090418 767.4943913141949"
+      stroke-opacity="0.26440801382634616"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line12</title>
+  </g>
+  <g>
+    <path
+      d="M 358.0421500057634 738.2689265460172 L 351.95908343225574 739.1896711372226"
+      stroke-opacity="0.12485830352201782"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line23</title>
+  </g>
+  <g>
+    <path
+      d="M 361.39922241462955 772.2398915920483 L 373.7279580831996 773.2251976565115"
+      stroke-opacity="0.2714963763830742"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line34</title>
+  </g>
+  <g>
+    <path
+      d="M 429.3925932879647 742.3337584313088 L 432.7925068101295 740.1449833133807"
+      stroke-opacity="0.14456978624700667"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line45</title>
+  </g>
+  <g>
+    <path
+      d="M 448.93975563222864 464.63372549458376 L 437.7638508839723 459.5392867936"
+      stroke-opacity="0.5243203015875882"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline8</title>
+  </g>
+  <g>
+    <path
+      d="M 392.8488894090418 767.4943913141949 L 386.0843696923307 763.8938466501152"
+      stroke-opacity="0.25325012764614785"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line13</title>
+  </g>
+  <g>
+    <path
+      d="M 351.95908343225574 739.1896711372226 L 345.76792896662846 741.0718948364251"
+      stroke-opacity="0.1293819366693173"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line24</title>
+  </g>
+  <g>
+    <path
+      d="M 373.7279580831996 773.2251976565115 L 386.0918484738105 772.8366146940604"
+      stroke-opacity="0.27520537503279097"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line35</title>
+  </g>
+  <g>
+    <path
+      d="M 432.7925068101295 740.1449833133807 L 437.284040209017 738.8775773962627"
+      stroke-opacity="0.13403873471775002"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line46</title>
+  </g>
+  <g>
+    <path
+      d="M 437.7638508839723 459.5392867936 L 425.3917062687796 453.5420143005782"
+      stroke-opacity="0.5403401287554639"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline9</title>
+  </g>
+  <g>
+    <path
+      d="M 386.0843696923307 763.8938466501152 L 381.46149791123815 759.8966434120288"
+      stroke-opacity="0.23896834925405247"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line14</title>
+  </g>
+  <g>
+    <path
+      d="M 345.76792896662846 741.0718948364251 L 340.04695601363716 743.7600161750779"
+      stroke-opacity="0.13852181186500018"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line25</title>
+  </g>
+  <g>
+    <path
+      d="M 386.0918484738105 772.8366146940604 L 397.3002598904961 771.1349182776986"
+      stroke-opacity="0.2737458270226283"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line36</title>
+  </g>
+  <g>
+    <path
+      d="M 437.284040209017 738.8775773962627 L 442.731992200056 738.6461110570641"
+      stroke-opacity="0.12785252188987561"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line47</title>
+  </g>
+  <g>
+    <path
+      d="M 381.46149791123815 759.8966434120288 L 378.50606338885166 755.7666545969979"
+      stroke-opacity="0.22264969550379404"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line15</title>
+  </g>
+  <g>
+    <path
+      d="M 340.04695601363716 743.7600161750779 L 335.33750988641094 747.0700930100168"
+      stroke-opacity="0.15133029934812914"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line26</title>
+  </g>
+  <g>
+    <path
+      d="M 397.3002598904961 771.1349182776986 L 406.526187665153 768.3571805337406"
+      stroke-opacity="0.26730484612275107"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line37</title>
+  </g>
+  <g>
+    <path
+      d="M 442.731992200056 738.6461110570641 L 448.76573737133117 739.471188815141"
+      stroke-opacity="0.12671563796213647"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line48</title>
+  </g>
+  <g>
+    <path
+      d="M 378.50606338885166 755.7666545969979 L 376.6101660911403 751.7082924430129"
+      stroke-opacity="0.20525317820530845"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line16</title>
+  </g>
+  <g>
+    <path
+      d="M 335.33750988641094 747.0700930100168 L 332.1115963061826 750.8233978394202"
+      stroke-opacity="0.16671940770228047"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line27</title>
+  </g>
+  <g>
+    <path
+      d="M 406.526187665153 768.3571805337406 L 413.4648350813274 764.826905915686"
+      stroke-opacity="0.25661551331190346"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line38</title>
+  </g>
+  <g>
+    <path
+      d="M 448.76573737133117 739.471188815141 L 454.8606924904186 741.2728499180472"
+      stroke-opacity="0.1307580937563808"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line49</title>
+  </g>
+  <g>
+    <path
+      d="M 376.6101660911403 751.7082924430129 L 375.14331688455485 747.8902144299109"
+      stroke-opacity="0.18760225667509764"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line17</title>
+  </g>
+  <g>
+    <path
+      d="M 332.1115963061826 750.8233978394202 L 330.7808210038696 754.8561166137058"
+      stroke-opacity="0.1836777596186782"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line28</title>
+  </g>
+  <g>
+    <path
+      d="M 413.4648350813274 764.826905915686 L 418.28044269950465 760.8645490493341"
+      stroke-opacity="0.24270666423446308"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line39</title>
+  </g>
+  <g>
+    <path
+      d="M 375.14331688455485 747.8902144299109 L 373.5134365676622 744.4741621424448"
+      stroke-opacity="0.17046876323535762"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line18</title>
+  </g>
+  <g>
+    <path
+      d="M 330.7808210038696 754.8561166137058 L 331.70984380354867 759.0064598232773"
+      stroke-opacity="0.20134191435255966"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line29</title>
+  </g>
+  <g>
+    <path
+      d="M 373.5134365676622 744.4741621424448 L 371.2232029501068 741.6338161925901"
+      stroke-opacity="0.15468574016444464"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line19</title>
+  </g>
+  <g>
+    <path
+      d="M 454.8606924904186 741.2728499180472 L 460.4500109137081 743.8967379726041"
+      stroke-opacity="0.1394892027444779"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line0</title>
+  </g>
+  <g>
+    <path
+      d="M 460.4500109137081 743.8967379726041 L 464.9995137298177 747.1582234646324"
+      stroke-opacity="0.15197421254957105"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line1</title>
+  </g>
+  <g>
+    <path
+      d="M 464.9995137298177 747.1582234646324 L 468.0495916659216 750.8737042040734"
+      stroke-opacity="0.16712350765359466"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line2</title>
+  </g>
+  <g>
+    <path
+      d="M 418.28044269950465 569.4723812364616 L 421.43276264267445 569.8119437422156"
+      stroke-opacity="0.45329414882472197"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.oline40</title>
+  </g>
+  <g>
+    <path
+      d="M 468.0495916659216 750.8737042040734 L 469.19282945532575 754.8730476012504"
+      stroke-opacity="0.18390160996815338"
+      stroke-width="2.5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`c1`.line3</title>
+  </g>
+</svg>
