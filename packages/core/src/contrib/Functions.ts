@@ -2803,6 +2803,41 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
+  closestSilhouettePoint: {
+    name: "closestSilhouettePoint",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[]
+    ): VectorV<ad.Num> => {;
+       return { tag: "VectorV", contents: closestSilhouettePointShape(s,p) };
+    },
+    returns: valueT("Real2"),
+  },
+
   rectLineDist: {
     name: "rectLineDist",
     description:
@@ -3560,8 +3595,6 @@ const rayIntersectLineCoords = (
    return [x,[nX,nY]];
 }
 
-
-
 const closestPointShape = (
       s:
         | Circle<ad.Num>
@@ -3772,6 +3805,104 @@ const closestPointEllipseCoords = (
   y = add(y, center[1]);
   return [x, y];
 };
+
+/* Returns the closest point on the visibility
+ * silhouette of shape S relative to point p.
+ * If there is no silhouette, returns p. */
+const closestSilhouettePointShape = (
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[]
+): ad.Num[] => {
+   const t = s.shapeType;
+   if (t === "Circle") {
+      return closestSilhouettePointCircle( s, p );
+   } else if (
+      t === "Rectangle" ||
+      t === "Text" ||
+      t === "Equation" ||
+      t === "Image"
+   ) {
+      return closestSilhouettePointRect(s,p);
+   } else if (t === "Line") {
+      return closestSilhouettePointLine(s,p);
+   } else if (t === "Polyline") {
+      return closestSilhouettePointPolyline(s,p);
+   } else if (t === "Polygon") {
+      return closestSilhouettePointPolygon(s,p);
+   } else if (t === "Ellipse") {
+      return closestSilhouettePointEllipse(s,p);
+   } else { // t === "Group"
+      const closestSilhouettePoints = s.shapes.contents.map((shape) => closestSilhouettePointShape(shape,p));
+      const dist = closestSilhouettePoints.map((point) => ops.vdist(point,p));
+      let closestX: ad.Num = Infinity;
+      let closestY: ad.Num = Infinity;
+      let minDist: ad.Num = Infinity;
+      for (let i = 0; i < s.shapes.contents.length; i++) {
+         minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+         closestX = ifCond(eq(minDist, dist[i]), closestSilhouettePoints[i][0], closestX);
+         closestY = ifCond(eq(minDist, dist[i]), closestSilhouettePoints[i][1], closestY);
+      }
+      return [closestX, closestY];
+   }
+}
+
+const closestSilhouettePointCircle = (
+   s: Circle<ad.Num>,
+   p: ad.Num[]
+): ad.Num[] => {
+   const c = s.center.contents;
+   const r = s.r.contents;
+   const y = closestSilhouettePointEllipseCoords( ops.vsub(p,c), r, r );
+   return ops.vadd(y,c);
+}
+
+const closestSilhouettePointEllipse = (
+   s: Ellipse<ad.Num>,
+   p: ad.Num[]
+): ad.Num[] => {
+   const c = s.center.contents;
+   const rx = s.rx.contents;
+   const ry = s.ry.contents;
+   const y = closestSilhouettePointEllipseCoords( ops.vsub(p,c), rx, ry );
+   return ops.vadd(y,c);
+}
+
+/* Computes the closest silhouette on an ellipse with radii a0,b0 relative to a
+ * point p0, assuming the ellipse has already been translated to the origin and
+ * rotated to be axis-aligned. */
+const closestSilhouettePointEllipseCoords = (
+   p0: ad.Num[],
+   a0: ad.Num[],
+   b0: ad.Num[]
+): ad.Num[] => {
+   const b = div(b0,a0);
+   const b2 = mul(b,b);
+   const p = ops.vdiv(p0,a0);
+   const x = p[0];
+   const y = p[1];
+   const x2 = mul(x,x);
+   const y2 = mul(y,y);
+   const d = add( mul(b2,x2), y2 );
+   const e = add( mul(mul(b2,sub(x2,1)),y2), mul(y2,y2) );
+   const f = mul(b2,x);
+   const g = mul(b2,y2);
+   const u1 = ifCond(lt(e,0), Infinity, mul(a0,div(sub(f,sqrt(e)),d)));
+   const u2 = ifCond(lt(e,0), Infinity, mul(a0,div(add(g,mul(mul(x,b2),sqrt(e))),mul(d,y))));
+   const v1 = ifCond(lt(e,0), Infinity, mul(a0,div(add(f,sqrt(e)),d)));
+   const v2 = ifCond(lt(e,0), Infinity, mul(a0,div(sub(g,mul(mul(x,b2),sqrt(e))),mul(d,y))));
+   const du = ops.vdist([u1,u2], p0);
+   const dv = ops.vdist([v1,v2], p0);
+   const z1 = ifCond(lt(du,dv), u1, v1);
+   const z2 = ifCond(lt(du,dv), u2, v2);
+   return [z1,z2];
+}
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {
   if (v.length !== 2) {
