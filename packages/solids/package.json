@@ -4,10 +4,15 @@
   "private": true,
   "type": "module",
   "exports": {
-    "browser": "./dist/dom/index.js",
-    "node": "./dist/ssr/index.js"
+    "browser": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/dom/index.js"
+    },
+    "node": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/ssr/index.js"
+    }
   },
-  "types": "./dist/types/index.d.ts",
   "dependencies": {
     "solid-js": "^1"
   },
