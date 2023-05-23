@@ -3537,7 +3537,7 @@ const rayIntersectPolyline = (
 }
 
 const rayIntersectPolygon = (
-   s: Polyline<ad.Num>,
+   s: Polygon<ad.Num>,
    p: ad.Num[],
    v: ad.Num[]
 ): ad.Num[][] => {
@@ -3690,7 +3690,7 @@ const closestPointPolyline = (
 }
 
 const closestPointPolygon = (
-   s: Polyline<ad.Num>,
+   s: Polygon<ad.Num>,
    p: ad.Num[]
 ): ad.Num[] => {
    const closestPoints: ad.Num[][] = [];
@@ -3915,6 +3915,122 @@ const closestSilhouettePointEllipseCoords = (
    const z0 = ifCond(lt(du,dv), u0, v0);
    const z1 = ifCond(lt(du,dv), u1, v1);
    return [z0,z1];
+}
+
+const closestSilhouettePointRect = (
+   S: Line<ad.Num>,
+   p: ad.Num[],
+   v: ad.Num[],
+): ad.Num[][] => {
+   const c = S.center.contents;
+   const w = S.width.contents;
+   const h = S.height.contents;
+   const x0 = sub( c[0], div(w,2.) );
+   const x1 = add( c[0], div(w,2.) );
+   const y0 = sub( c[1], div(h,2.) );
+   const y1 = add( c[1], div(h,2.) );
+
+   const points = [ [x0,y0], [x1,y0], [x1,y1], [x0,y1] ];
+   const closestSilhouettePoints: ad.Num[][][] = [];
+   const dist: ad.Num[] = [];
+   for (let i = 0; i < 4; i++) {
+      const a = points[i];
+      const b = points[(i+1)%4];
+      const c = points[(i+2)%4];
+      closestSilhouettePoints[i] = closestSilhouettePointCorner( p, a, b, c );
+      dist[i] = ops.vdist( p, closestSilhouettePoints[i] );
+   }
+
+   let closestX: ad.Num = Infinity;
+   let closestY: ad.Num = Infinity;
+   let minDist: ad.Num = Infinity;
+   for (let i = 0; i < 4; i++) {
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(eq(minDist, dist[i]), closestSilhouettePoints[i][0], closestX);
+      closestY = ifCond(eq(minDist, dist[i]), closestSilhouettePoints[i][1], closestY);
+   }
+   return [closestX,closestY];
+}
+
+const closestSilhouettePointPolyline = (
+   s: Polyline<ad.Num>,
+   p: ad.Num[]
+): ad.Num[] => {
+   const closestSilhouettePoints: ad.Num[][] = [];
+   const dist: ad.Num[] = [];
+
+   // interior points
+   for (let i = 0; i < s.points.contents.length-2; i++) {
+      const a = s.points.contents[i];
+      const b = s.points.contents[i+1];
+      const c = s.points.contents[i+2];
+      closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+      dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
+   }
+   let closestX: ad.Num = Infinity;
+   let closestY: ad.Num = Infinity;
+   let minDist: ad.Num = Infinity;
+   for (let i = 0; i < s.points.contents.length-2; i++) {
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(eq(minDist, dist[i]), closestSilhouettePoints[i][0], closestX);
+      closestY = ifCond(eq(minDist, dist[i]), closestSilhouettePoints[i][1], closestY);
+   }
+
+   //endpoints
+   const q0 = s.points.contents[0];
+   let dist0 = ops.vdist(p, q0);
+   minDist = ifCond(lt(minDist, dist0), minDist, dist0);
+   closestX = ifCond(eq(minDist, dist0), q0[0], closestX);
+   closestY = ifCond(eq(minDist, dist0), q0[1], closestY);
+   const qN = s.points.contents[ s.points.contents.length-1 ];
+   let distN = ops.vdist(p, qN);
+   minDist = ifCond(lt(minDist, distN), minDist, distN);
+   closestX = ifCond(eq(minDist, distN), qN[0], closestX);
+   closestY = ifCond(eq(minDist, distN), qN[1], closestY);
+
+   return [closestX, closestY];
+}
+
+const closestSilhouettePointPolygon = (
+   s: Polyline<ad.Num>,
+   p: ad.Num[]
+): ad.Num[] => {
+   const closestSilhouettePoints: ad.Num[][] = [];
+   const dist: ad.Num[] = [];
+   for (let i = 0; i < s.points.contents.length; i++) {
+      const j = (i+1) % s.points.contents.length;
+      const k = (i+2) % s.points.contents.length;
+      const a = s.points.contents[i];
+      const b = s.points.contents[j];
+      const c = s.points.contents[k];
+      closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+      dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
+   }
+   let closestX: ad.Num = Infinity;
+   let closestY: ad.Num = Infinity;
+   let minDist: ad.Num = Infinity;
+   for (let i = 0; i < s.points.contents.length; i++) {
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(eq(minDist, dist[i]), closestSilhouettePoints[i][0], closestX);
+      closestY = ifCond(eq(minDist, dist[i]), closestSilhouettePoints[i][1], closestY);
+   }
+   return [closestX, closestY];
+}
+
+/* Given three points a, b, c describing a pair of line segments ab, bc and a
+ * query point p, returns b if it is a silhouette point, relative to p, and
+ * (Infinity,Infinity) otherwise. */
+const closestSilhouettePointCorner = (
+   p: ad.Num[],
+   a: ad.Num[],
+   b: ad.Num[],
+   c: ad.Num[]
+): ad.Num => {
+   const s = mul( ops.cross2( ops.vsub(b,a), ops.vsub(p,a) ),
+                  ops.cross2( ops.vsub(c,b), ops.vsub(p,b) ) );
+   const y0 = ifCond( lt(s,0), b[0], Infinity );
+   const y1 = ifCond( lt(s,0), b[1], Infinity );
+   return [y0,y1];
 }
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {
