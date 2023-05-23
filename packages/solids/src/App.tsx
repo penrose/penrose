@@ -95,7 +95,7 @@ const Curves = () => {
       </div>
       <svg
         version="1.2"
-        xmlns="http://www.ws.org/2000/svg"
+        xmlns="http://www.w3.org/2000/svg"
         width={w}
         height={h}
       >

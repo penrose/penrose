@@ -58,7 +58,7 @@ export default async function Text(
 
   const font = `15px "Courier"`;
   return (
-    <svg version="1.2" xmlns="http://www.ws.org/2000/svg" width={w} height={h}>
+    <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
       <polygon
         fill="#f0f7"
         points={points.map(([x, y]) => `${x.val},${y.val}`).join(" ")}
