@@ -32,12 +32,12 @@ export const Triangles = (props: TriangleProps) => {
   const compilePoints = (
     points: [Num, Num][]
   ): (() => [number, number][] | undefined) => {
-    const p = compile(points.flat()).then((f) => () => f((x) => x.val));
+    const p = compile(points.flat());
     waiting.push(p.then(() => {}));
     const [f] = createResource(() => p);
     return () => {
       const g = f();
-      if (g !== undefined) return pairs(g());
+      if (g !== undefined) return pairs(g((x) => x.val));
     };
   };
 
