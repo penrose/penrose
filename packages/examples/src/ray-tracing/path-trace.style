@@ -1,0 +1,267 @@
+
+canvas {
+   width = 240
+   height = 200
+}
+
+global {
+   scalar eps = 0.0001
+   scalar arrowScale = 15.0
+   scalar arrowThickness = 1.0
+}
+
+colors {
+   color white = #ffffff
+}
+
+forall Scene S {
+
+   scalar maxPerturbation = 15
+   vec2 p0 = maxPerturbation*diskRandom()
+   vec2 p1 = maxPerturbation*diskRandom()
+   vec2 p2 = maxPerturbation*diskRandom()
+   vec2 p3 = maxPerturbation*diskRandom()
+   vec2 p4 = maxPerturbation*diskRandom()
+   vec2 p5 = maxPerturbation*diskRandom()
+   scalar w = .8*canvas.width/2
+   scalar h = .8*canvas.height/2
+
+   shape S.geometry = Polygon {
+      --points: [(-97,75.3), (-110.5,28.8), (-89.2,-93.1), (104.7,-84.1), (104.7,75.3), (43.8,95.7), (2.9,18.6), (28.5,-18.4), (-4.9,-44.8), (-41.2,6.9), (4.4,42.3), (-36.1,90.9)]
+      points: ( (w,-h)+p0, (0,-h)+p1, (-w,-h)+p2, (-w,h)+p3, (0,h)+p4, (w,h)+p5)
+      fillColor: #ddd
+      strokeColor: #aaa
+      strokeWidth: 1
+      ensureOnCanvas: false
+   }
+}
+
+forall Point p; Scene S {
+   vec2 p.x = (?,?) -- location
+
+   shape p.icon = Circle {
+      center: p.x
+      r: 2
+      fillColor: #000
+      ensureOnCanvas: false
+   }
+
+   layer p.icon above S.geometry
+}
+
+forall Point p
+where p has math label {
+   shape p.labelText = Equation {
+      string: p.label
+      ensureOnCanvas: false
+      fontSize: "9px"
+      fillColor: #000
+      strokeColor: "#ffffff"
+      strokeWidth: 2.5
+      paintOrder: "stroke"
+      strokeLinejoin: "round"
+   }
+
+   scalar theta = ?
+   p.labelText.center = p.x + 10.*(cos(theta),sin(theta))
+   ensure disjoint( p.labelText, p.icon )
+
+   layer p.labelText above p.icon
+}
+
+forall Ray r {
+   vec2 r.o = (?,?) -- origin
+   vec2 r.d = circleRandom() -- direction
+
+   shape r.icon = Line {
+      start: r.o
+      end: r.o + global.arrowScale*r.d
+      strokeColor: #000
+      strokeWidth: global.arrowThickness
+      endArrowhead: "straight"
+      endArrowheadSize: .5
+      ensureOnCanvas: false
+   }
+}
+
+forall Light L {
+   vec2 L.x = (?,?) -- location
+
+   -- shape L.icon = Circle {
+   --    center: L.x
+   --    r: 8
+   --    fillColor: #ffaa00
+   --    strokeColor: #ff6600
+   --    strokeWidth: 1
+   -- }
+
+   shape L.icon = Image {
+      center: L.x
+      width: 23
+      height: 35
+      href: "lightbulb.svg"
+      ensureOnCanvas: false
+   }
+}
+
+forall Light L; Scene S {
+   layer L.icon above S.geometry
+}
+
+forall Camera C {
+
+   vec2 C.x = (?,?) -- center location
+
+   shape body = Rectangle {
+      center: C.x
+      width: 1.5*16
+      height: 1.5*11
+      fillColor: #aaa
+      strokeColor: #666
+      strokeWidth: 1
+      cornerRadius: 2
+      ensureOnCanvas: false
+   }
+   shape viewfinder = Rectangle {
+      center: C.x + (0,body.height/2)
+      width: .4*body.width
+      height: .3*body.height
+      fillColor: body.strokeColor
+      cornerRadius: 2
+      ensureOnCanvas: false
+   }
+   shape outerLens = Circle {
+      center: C.x
+      r: .38*body.height
+      fillColor: #ccc
+      strokeColor: body.strokeColor
+      strokeWidth: body.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape C.innerLens = Circle {
+      center: C.x
+      r: .25*body.height
+      fillColor: #227788
+      strokeColor: body.strokeColor
+      strokeWidth: body.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape flash = Circle {
+      center: C.x + (body.width,body.height)/2 - (3,3)
+      r: .07*body.height
+      fillColor: #fff
+      strokeColor: body.strokeColor
+      strokeWidth: .8*body.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape shutterRelease = Rectangle {
+      center: C.x + (-body.width/3,body.height/2)
+      width: .1*body.width
+      height: .15*body.height
+      fillColor: body.strokeColor
+      ensureOnCanvas: false
+   }
+
+   layer viewfinder below body
+   layer shutterRelease below body
+
+   shape C.icon = Group {
+      shapes: [viewfinder,body,outerLens,C.innerLens,flash,shutterRelease]
+   }
+}
+
+forall Scene S; Camera C {
+   layer C.icon above S.geometry
+}
+
+forall Camera C; Ray r {
+   layer r.icon above C.icon
+}
+
+
+forall Ray r; Point p
+where r := rayFrom(p) {
+   override r.o = p.x
+}
+
+forall Ray r0; Ray r1; Point p; Scene S
+where p := intersect(r0,S); r1 := rayFrom(p) {
+   scalar theta = random(-1.5707963268,1.5707963268)
+   override r1.d = rotateBy( p.n, theta )
+}
+
+forall Point p; Ray r; Scene S
+where p := intersect(r,S) {
+   vec2 o = r.o + global.eps*r.d
+   override p.x = rayIntersect(S.geometry, o, r.d)
+   p.n = rayIntersectNormal(S.geometry, o, r.d)
+
+   shape r.rayLine = Line {
+      start: r.o
+      end: p.x
+      strokeColor: #000
+      strokeWidth: .65
+      style: "dashed"
+      strokeDasharray: "4,3"
+      ensureOnCanvas: false
+   }
+
+   shape normalArrow = Line {
+      start: p.x
+      end: p.x + global.arrowScale*p.n
+      strokeColor: #888
+      strokeWidth: global.arrowThickness
+      endArrowhead: "straight"
+      endArrowheadSize: .5
+      ensureOnCanvas: false
+   }
+
+   layer r.rayLine above S.geometry
+   layer normalArrow above S.geometry
+   layer p.icon above normalArrow
+}
+
+forall Point p; Ray r
+where p has math label {
+   ensure disjoint( p.labelText, r.icon )
+}
+
+forall Point p; Point q
+where p has math label; q has math label {
+   ensure disjoint( p.labelText, q.labelText )
+}
+
+forall Point p; Camera C
+where p has math label {
+   layer p.labelText above C.icon
+}
+
+forall Point p; Camera C
+where onCamera(p,C) {
+   override p.x = C.x + C.innerLens.r*diskRandom()
+   layer p.icon above C.icon
+
+   override p.labelText.center = (?,?)
+   encourage norm( p.labelText.center - C.x ) == 0
+   ensure disjoint( p.labelText, C.icon )
+}
+
+forall Point p; Light L
+where onLight(p,L) {
+   override p.x = L.x + 10*diskRandom()
+   override p.n = (0,0)
+   layer p.icon above L.icon
+
+   override p.labelText.center = (?,?)
+   encourage norm( p.labelText.center - L.x ) == 0
+   ensure disjoint( p.labelText, L.icon )
+}
+
+forall Ray r; Camera C {
+   layer r.rayLine above C.icon
+}
+
+forall Ray r; Light L {
+   layer r.rayLine above L.icon
+}
+

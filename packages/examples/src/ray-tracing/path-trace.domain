@@ -1,0 +1,11 @@
+type Scene
+type Light
+type Camera
+type Point
+type Ray
+
+constructor rayFrom(Point p) -> Ray
+constructor intersect(Ray r, Scene S) -> Point
+
+predicate onLight(Point p, Light L)
+predicate onCamera(Point p, Camera C)
