@@ -375,7 +375,7 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
       try {
         const trios: [string, TrioMeta][] = [];
         for (const [id, meta] of registry.entries()) {
-          if (meta.kind === "trio" && meta.gallery) trios.push([id, meta]);
+          if (meta.trio && meta.gallery) trios.push([id, meta]);
         }
         return Promise.all(
           trios.map(async ([id, { get, name }]) => {

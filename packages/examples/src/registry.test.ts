@@ -11,9 +11,8 @@ import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
 import prettier from "prettier";
-import { render } from "solid-js/web";
 import { afterAll, describe, test } from "vitest";
-import { Meta, Trio } from "./index.js";
+import { Trio } from "./index.js";
 import registry from "./registry.js";
 
 // dunno why TypeScript doesn't like `node-fetch`
@@ -113,19 +112,6 @@ const renderTrio = async ({
       },
     },
   };
-};
-
-const renderExample = async (meta: Meta): Promise<Rendered> => {
-  switch (meta.kind) {
-    case "trio": {
-      return await renderTrio(await meta.get());
-    }
-    case "solid": {
-      const elem = document.createElement("div");
-      render(meta.f, elem);
-      return { svg: elem.innerHTML, data: {} };
-    }
-  }
 };
 
 interface AllData extends Data {
@@ -281,7 +267,9 @@ describe("registry", () => {
       key,
       async () => {
         const before = process.hrtime.bigint();
-        const { svg, data } = await renderExample(meta);
+        const { svg, data } = meta.trio
+          ? await renderTrio(await meta.get())
+          : { svg: await meta.f(), data: {} };
         const after = process.hrtime.bigint();
         datas.set(key, {
           totalSeconds: nanoToSeconds(after - before),

@@ -83,22 +83,17 @@ const lines = [
 ];
 for (const [k, v] of Object.entries(registry)) {
   lines.push(`  [${JSON.stringify(k)}, {`);
-  switch (v.kind ?? "trio") {
-    case "trio": {
-      lines.push(`    kind: "trio",`);
-      lines.push(
-        `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`
-      );
-      if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
-      break;
-    }
-    case "solid": {
-      lines.push(`    kind: "solid",`);
-      lines.push(
-        `    f: (await import(${JSON.stringify(`./${k}.js`)})).default,`
-      );
-      break;
-    }
+  const isTrio = v.trio ?? true;
+  lines.push(`    trio: ${isTrio},`);
+  if (isTrio) {
+    lines.push(
+      `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`
+    );
+    if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
+  } else {
+    lines.push(
+      `    f: (await import(${JSON.stringify(`./${k}.js`)})).default,`
+    );
   }
   if ("name" in v) lines.push(`    name: ${JSON.stringify(v.name)},`);
   lines.push(`  }],`);
