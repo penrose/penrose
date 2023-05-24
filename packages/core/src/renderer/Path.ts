@@ -125,8 +125,8 @@ export const RenderPath = (
   elem.appendChild(Shadow(shadowId));
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  attrToNotAutoMap.push(...attrFill(shape, elem));
-  attrToNotAutoMap.push(...attrStroke(shape, elem));
+  attrToNotAutoMap.push(...attrFill(shape, path));
+  attrToNotAutoMap.push(...attrStroke(shape, path));
 
   path.setAttribute("d", toPathString(shape.d.contents, canvasSize));
   attrToNotAutoMap.push("d");
