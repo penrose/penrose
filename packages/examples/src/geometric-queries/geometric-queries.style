@@ -174,6 +174,7 @@ forall Line L {
       end: (?,?)
       strokeWidth: 5
       strokeColor: global.shapeColor
+      fill: "none"
    }
 
    override L.boxLabel.string = "Line"
@@ -346,6 +347,7 @@ where q := rayIntersect(S,r)
    shape q.raySegment = Line {
       start: r.o
       end: y
+      fill: "none"
       strokeColor: global.rayColor
       strokeWidth: global.strokeWidth
       style: "dashed"
@@ -356,6 +358,7 @@ where q := rayIntersect(S,r)
    shape q.normalArrow = Line {
       start: y
       end: y + global.arrowSize*q.n
+      fill: "none"
       strokeColor: global.rayColor
       strokeWidth: global.arrowWidth
       endArrowhead: "straight"
@@ -369,7 +372,7 @@ where q := rayIntersect(S,r)
    shape perpMark = Polyline {
       points: [ y+u+r.h, y+u+v+r.h, y+v+r.h ]
       ensureOnCanvas: false
-      fillColor: none()
+      fill: "none"
       strokeColor: global.rayColor
       strokeWidth: global.strokeWidth
    }
