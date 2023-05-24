@@ -3761,52 +3761,32 @@ const closestPointLineCoords = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[]
   return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
 };
 
+// Note: approximates the solution via Newton's method (but in practice is quite accurate, even for one or two iterations)
 const closestPointEllipseCoords = (
-  // Note: this is an approximation function!
-  radiusx: ad.Num,
-  radiusy: ad.Num,
-  center: ad.Num[],
-  pInput: ad.Num[]
+  a: ad.Num, // horizontal radius
+  b: ad.Num, // vertical radius
+  c: ad.Num[], // center
+  p0: ad.Num[] // query point
 ): ad.Num[] => {
-  const pOffset = ops.vsub(pInput, center);
-  const px = absVal(pOffset[0]);
-  const py = absVal(pOffset[1]);
+   const nNewtonIterations = 2;
 
-  let t = div(Math.PI, 4);
-  let x: ad.Num = 0;
-  let y: ad.Num = 0;
-
-  const a = radiusx;
-  const b = radiusy;
-  for (let i = 0; i < 100; i++) {
-    x = mul(a, cos(t));
-    y = mul(b, sin(t));
-
-    const ex = div(mul(sub(squared(a), squared(b)), pow(cos(t), 3)), a);
-    const ey = div(mul(sub(squared(b), squared(a)), pow(sin(t), 3)), b);
-
-    const rx = sub(x, ex);
-    const ry = sub(y, ey);
-
-    const qx = sub(px, ex);
-    const qy = sub(py, ey);
-
-    const r = sqrt(add(squared(ry), squared(rx)));
-    const q = sqrt(add(squared(qy), squared(qx)));
-
-    const delta_c = mul(r, asin(div(sub(mul(rx, qy), mul(ry, qx)), mul(r, q))));
-    const delta_t = div(
-      delta_c,
-      sqrt(sub(sub(add(squared(a), squared(b)), squared(x)), squared(y)))
-    );
-    t = add(t, delta_t);
-    t = min(div(Math.PI, 2), max(0, t));
-  }
-  x = mul(msign(pInput[0]), absVal(x));
-  y = mul(msign(pInput[1]), absVal(y));
-  x = add(x, center[0]);
-  y = add(y, center[1]);
-  return [x, y];
+   const p = ops.vsub(p0,c);
+   let t = atan2( mul(a,p[1]), mul(b,p[0]) );
+   for (let i = 0; i < nNewtonIterations; i++) {
+      const a2 = mul(a,a);
+      const b2 = mul(b,b);
+      const n0 = mul(mul(a,p[0]),sin(t));
+      const n1 = mul(b,p[1]);
+      const n2 = mul(sub(a2,b2),sin(t));
+      const n3 = mul(cos(t),add(n1,n2));
+      const d0 = mul(a,mul(p[0],cos(t)));
+      const d1 = mul(sub(a2,b2),cos(mul(2,t)));
+      const d2 = mul(b,mul(p[1],sin(t)));
+      t = sub(t, div(sub(n3,n0),sub(sub(d1,d2),d0)));
+   }
+   let y0 = mul(a,cos(t));
+   let y1 = mul(b,sin(t));
+   return ops.vadd( [y0,y1], c );
 };
 
 /* Returns the closest point on the visibility
