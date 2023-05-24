@@ -212,6 +212,7 @@ export type StyleError =
   | TooManyArgumentsError
   | FunctionInternalError
   | RedeclareNamespaceError
+  | UnexpectedCollectionAccessError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -496,6 +497,12 @@ export interface RedeclareNamespaceError {
   tag: "RedeclareNamespaceError";
   existingNamespace: string;
   location: SourceRange; // location of the duplicated declaration
+}
+
+export interface UnexpectedCollectionAccessError {
+  tag: "UnexpectedCollectionAccessError";
+  name: string;
+  location: SourceRange;
 }
 
 //#endregion

@@ -30,6 +30,7 @@ import {
   log2,
   lt,
   max,
+  maxN,
   min,
   minN,
   mul,
@@ -91,6 +92,7 @@ import {
   unionT,
   unitT,
   valueT,
+  vectorV,
 } from "../utils/Util.js";
 import {
   centerOfMass,
@@ -724,6 +726,67 @@ export const compDict = {
       };
     },
     returns: valueT("Real"),
+  },
+
+  sum: {
+    name: "sum",
+    description: "Return the sum of elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: addN(xs),
+      };
+    },
+    returns: realT(),
+  },
+
+  sumVectors: {
+    name: "sumVectors",
+    description: "Return the sum of vectors in a list of vectors.",
+    params: [{ name: "vecs", description: "vectors", type: realNMT() }],
+    body: (_context: Context, vecs: ad.Num[][]): VectorV<ad.Num> => {
+      if (vecs.length === 0) {
+        throw new Error("Expect a non-empty list of vectors");
+      }
+      const vlen = vecs[0].length;
+      const zeros: ad.Num[] = new Array(vlen).fill(0);
+      return vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros));
+    },
+    returns: realNT(),
+  },
+
+  maxList: {
+    name: "maxList",
+    description: "Return the maximum of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: maxN(xs),
+    }),
+    returns: realT(),
+  },
+
+  minList: {
+    name: "minList",
+    description: "Return the minimum of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: minN(xs),
+    }),
+    returns: realT(),
+  },
+
+  count: {
+    name: "count",
+    description: "Return the number of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: xs.length,
+    }),
+    returns: realT(),
   },
 
   /**
