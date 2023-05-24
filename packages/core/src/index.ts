@@ -358,6 +358,7 @@ export type { Result } from "./utils/Error.js";
 export {
   hexToRgba,
   prettyPrintExpr,
+  describeType,
   prettyPrintFn,
   prettyPrintPath,
   rgbaToHex,
