@@ -97,7 +97,6 @@ export const Triangles = (props: TriangleProps) => {
 export const RotatingTriangles = () => {
   const theta = createMutable<Variable>(variable(0));
 
-  // the slider has to be defined inline so the entire slider is not re-rendered. Otherwise, the slider will allow continuous sliding because it gets re-rendered after each slide
   const onSlide = (n: number) => {
     theta.val = n;
   };
