@@ -8,6 +8,12 @@ global {
    color closestColor = #66d
    color silhouetteColor = #0a0
    color rayColor = #ff6600
+   color labelColor = #000
+   color labelStrokeColor = #fff
+   color labelStrokeWidth = 6
+   color labelFont = "monospace"
+   color labelFontSize = "24px"
+   scalar labelFontSizeS = 24
 
    scalar strokeWidth = 2
    scalar arrowSize = 40
@@ -16,6 +22,7 @@ global {
 
    scalar boxWidth = canvas.width/3
    scalar boxHeight = canvas.height/2
+   scalar boxPadding = 20
 }
 
 -- Rules for drawing each type of shape
@@ -48,6 +55,33 @@ forall Ray r {
 forall Point p; Ray r
 where r := rayFrom(p) {
    override r.o = p.x
+   layer p.icon above r.icon
+}
+
+forall Shape S {
+   shape S.box = Rectangle {
+      center: (?,?)
+      width: global.boxWidth
+      height: global.boxHeight
+      fillColor: rgba(.9,.9,.9,1)
+      strokeColor: #fff
+      strokeWidth: 4
+      ensureOnCanvas: false
+   }
+
+   shape S.boxLabel = Text {
+      string: "Shape"
+      center: ( S.box.center[0], S.box.center[1] + global.boxHeight/2 - global.labelFontSizeS/2 - global.boxPadding )
+      ensureOnCanvas: false
+      fillColor: global.labelColor
+      fontFamily: global.labelFont
+      fontSize: global.labelFontSize
+      strokeWidth: global.labelStrokeWidth
+      strokeColor: global.labelStrokeColor
+      paintOrder: "stroke"
+   }
+
+   layer S.boxLabel above S.box
 }
 
 forall Line L {
@@ -57,29 +91,40 @@ forall Line L {
       strokeWidth: 5
       strokeColor: global.shapeColor
    }
+
+   override L.boxLabel.string = "Line"
+   scalar W = canvas.width
+   scalar H = canvas.height
+   scalar w = global.boxWidth
+   scalar h = global.boxHeight
+   override L.box.center = (-W+w,-H+h)/2 + (w,h)
 }
 
 forall Rectangle R {
    shape R.icon = Rectangle {
       center: (?, ?)
-      width: ?
-      height: ?
+      width: random(40,150)
+      height: random(40,150)
       strokeWidth: 1
       fillColor: global.shapeColor
    }
 
-   ensure R.icon.width > 50
-   ensure R.icon.height > 50
+   override R.boxLabel.string = "Rectangle"
+   scalar W = canvas.width
+   scalar H = canvas.height
+   scalar w = global.boxWidth
+   scalar h = global.boxHeight
+   override R.box.center = (-W+w,-H+h)/2 + (w,0)
 }
 
-forall Polyline P {
+forall Polyline M {
    vec2 p0 = (?,?)
    vec2 p1 = (?,?)
    vec2 p2 = (?,?)
    vec2 p3 = (?,?)
    vec2 p4 = (?,?)
    
-   shape P.icon = Polyline {
+   shape M.icon = Polyline {
       points: [ p0, p1, p2, p3, p4 ]
       strokeWidth: 5.0
       strokeLinejoin: "round"
@@ -105,6 +150,13 @@ forall Polyline P {
    ensure theta0 > MathPI()/6
    ensure theta1 > MathPI()/6
    ensure theta2 > MathPI()/6
+
+   override M.boxLabel.string = "Polyline"
+   scalar W = canvas.width
+   scalar H = canvas.height
+   scalar w = global.boxWidth
+   scalar h = global.boxHeight
+   override M.box.center = (-W+w,-H+h)/2 + (2*w,h)
 }
 
 forall Polygon P {
@@ -133,6 +185,13 @@ forall Polygon P {
 
    ensure abs(cross2D( e01, -e12 )) > 50
    ensure theta0 + theta1 + theta2 + theta3 == 2*MathPI()
+
+   override P.boxLabel.string = "Polygon"
+   scalar W = canvas.width
+   scalar H = canvas.height
+   scalar w = global.boxWidth
+   scalar h = global.boxHeight
+   override P.box.center = (-W+w,-H+h)/2 + (0,h)
 }
 
 forall Circle C {
@@ -142,25 +201,33 @@ forall Circle C {
       fillColor: global.shapeColor
    }
 
-   -- shape C.box = Rectangle {
-   --    center: (-canvas.width + global.boxWidth, -canvas.height + global.boxHeight)/2
-   --    width: global.boxWidth
-   --    height: global.boxHeight
-   --    fillColor: rgba(0,0,0,.1)
-   --    strokeColor: #fff
-   --    strokeWidth: 4
-   --    ensureOnCanvas: false
-   -- }
-   -- ensure contains( C.box, C.icon )
+   override C.boxLabel.string = "Circle"
+   scalar W = canvas.width
+   scalar H = canvas.height
+   scalar w = global.boxWidth
+   scalar h = global.boxHeight
+   override C.box.center = (-W+w,-H+h)/2
+}
+
+forall Point q; Shape S; Point p
+where q := closestPoint(S,p) {
+   ensure contains( S.box, p.icon, global.boxPadding )
 }
 
 forall Ellipse E {
    shape E.icon = Ellipse {
       center: (?,?)
-      rx: random(50,150)
-      ry: random(50,150)
+      rx: random(20,100)
+      ry: random(20,100)
       fillColor: global.shapeColor
    }
+
+   override E.boxLabel.string = "Ellipse"
+   scalar W = canvas.width
+   scalar H = canvas.height
+   scalar w = global.boxWidth
+   scalar h = global.boxHeight
+   override E.box.center = (-W+w,-H+h)/2 + (2*w,0)
 }
 
 forall Group G {
@@ -207,6 +274,16 @@ forall Group G {
 
 }
 
+forall Shape S {
+   ensure contains( S.box, S.icon, global.boxPadding )
+   layer S.box below S.icon
+   layer S.boxLabel above S.icon
+}
+
+forall Shape S; Point p {
+   layer S.boxLabel above p.icon
+}
+
 -- Rules for geometric queries
 
 forall Point q; Shape S; Point p
@@ -220,7 +297,7 @@ where q := closestPoint(S,p)
    override q.icon.strokeWidth = global.strokeWidth
    override q.icon.ensureOnCanvas = false
 
-   shape querySegment = Line {
+   shape q.querySegment = Line {
       start: p.x
       end: y
       strokeColor: global.closestColor
@@ -228,7 +305,9 @@ where q := closestPoint(S,p)
       ensureOnCanvas: false
    }
 
-   layer q.icon above S.icon
+   layer q.querySegment above S.box
+   layer q.icon above q.querySegment
+   layer p.icon above q.querySegment
 }
 
 forall Point q; Shape S; Point p
@@ -242,7 +321,7 @@ where q := closestSilhouettePoint(S,p)
    override q.icon.strokeWidth = global.strokeWidth
    override q.icon.ensureOnCanvas = false
 
-   shape querySegment = Line {
+   shape q.querySegment = Line {
       start: p.x
       end: y
       strokeColor: global.silhouetteColor
@@ -250,7 +329,8 @@ where q := closestSilhouettePoint(S,p)
       ensureOnCanvas: false
    }
 
-   layer q.icon above S.icon
+   layer q.querySegment above S.icon
+   layer q.icon above q.querySegment
 }
 
 forall Point q; Shape S; Ray r

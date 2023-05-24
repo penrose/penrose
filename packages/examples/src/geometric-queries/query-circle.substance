@@ -1,10 +1,54 @@
-Circle S
-Point p
-Ray r
+-- Circle
+Circle C
+Point pC
+Ray rC
+rC := rayFrom(pC)
+Point aC := rayIntersect(C,rC)
+Point bC := closestPoint(C,pC)
+Point cC := closestSilhouettePoint(C,pC)
 
-r := rayFrom(p)
+-- Rectangle
+Rectangle R
+Point pR
+Ray rR
+rR := rayFrom(pR)
+Point aR := rayIntersect(R,rR)
+Point bR := closestPoint(R,pR)
+Point cR := closestSilhouettePoint(R,pR)
 
-Point a := rayIntersect(S,r)
-Point b := closestPoint(S,p)
-Point c := closestSilhouettePoint(S,p)
+-- Ellipse
+Ellipse E
+Point pE
+Ray rE
+rE := rayFrom(pE)
+Point aE := rayIntersect(E,rE)
+Point bE := closestPoint(E,pE)
+Point cE := closestSilhouettePoint(E,pE)
+
+-- Polygon
+Polygon P
+Point pP
+Ray rP
+rP := rayFrom(pP)
+Point aP := rayIntersect(P,rP)
+Point bP := closestPoint(P,pP)
+Point cP := closestSilhouettePoint(P,pP)
+
+-- Line
+Line L
+Point pL
+Ray rL
+rL := rayFrom(pL)
+Point aL := rayIntersect(L,rL)
+Point bL := closestPoint(L,pL)
+Point cL := closestSilhouettePoint(L,pL)
+
+-- Polyline
+Polyline M
+Point pM
+Ray rM
+rM := rayFrom(pM)
+Point aM := rayIntersect(M,rM)
+Point bM := closestPoint(M,pM)
+Point cM := closestSilhouettePoint(M,pM)
 
