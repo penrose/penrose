@@ -21,8 +21,95 @@ global {
    scalar perpSize = 14
 
    scalar boxWidth = canvas.width/3
-   scalar boxHeight = 3*canvas.height/7
+   scalar boxHeight = (canvas.height - 50)/2
    scalar boxPadding = 20
+}
+
+legend {
+   scalar H = canvas.height
+   scalar W = canvas.width
+   scalar pad = global.boxPadding
+
+   scalar x0 = -W/2+pad
+   scalar y0 = H/2 - pad
+
+   shape queryShape = Rectangle {
+      center: (x0,y0)
+      width: 30
+      height: 30
+      fillColor: global.shapeColor
+      ensureOnCanvas: false
+   }
+   shape queryShapeLabel = Text {
+      string: "shape"
+      center: queryShape.center + (25,0)
+      fontSize: "18px"
+      fillColor: #000
+      ensureOnCanvas: false
+      fontWeight: "bold"
+      fontFamily: "sans-serif"
+      textAnchor: "start"
+   }
+
+   scalar x1 = x0 + 110
+   shape closestLine = Line {
+      start: (x1,y0)
+      end: (x1 + 40,y0)
+      fill: "none"
+      strokeColor: global.closestColor
+      strokeWidth: 2*global.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape closestLineLabel = Text {
+      string: "closest point"
+      center: closestLine.end + (10,0)
+      fontSize: "18px"
+      fillColor: global.closestColor
+      ensureOnCanvas: false
+      fontWeight: "bold"
+      fontFamily: "sans-serif"
+      textAnchor: "start"
+   }
+
+   scalar x2 = x1 + 195
+   shape silhouetteLine = Line {
+      start: (x2,y0)
+      end: (x2 + 40,y0)
+      fill: "none"
+      strokeColor: global.silhouetteColor
+      strokeWidth: 2*global.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape silhouetteLineLabel = Text {
+      string: "closest silhouette point"
+      center: silhouetteLine.end + (10,0)
+      fontSize: "18px"
+      fillColor: global.silhouetteColor
+      ensureOnCanvas: false
+      fontWeight: "bold"
+      fontFamily: "sans-serif"
+      textAnchor: "start"
+   }
+
+   scalar x3 = x2 + 290
+   shape rayLine = Line {
+      start: (x3,y0)
+      end: (x3 + 40,y0)
+      fill: "none"
+      strokeColor: global.rayColor
+      strokeWidth: 2*global.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape rayLineLabel = Text {
+      string: "ray intersection"
+      center: rayLine.end + (10,0)
+      fontSize: "18px"
+      fillColor: global.rayColor
+      ensureOnCanvas: false
+      fontWeight: "bold"
+      fontFamily: "sans-serif"
+      textAnchor: "start"
+   }
 }
 
 -- Rules for drawing each type of shape
@@ -193,50 +280,6 @@ forall Ellipse E {
    scalar w = global.boxWidth
    scalar h = global.boxHeight
    override E.box.center = (-W+w,-H+h)/2 + (2*w,0)
-}
-
-forall Group G {
-
-   vec2 p0 = (?,?)
-   vec2 p1 = (?,?)
-   vec2 p2 = (?,?)
-
-   shape s1 = Circle {
-      r: random(30,70)
-   }
-   shape s2 = Rectangle {
-      width: random(50,150)
-      height: random(50,150)
-   }
-   shape s3 = Polygon {
-      points: [p0,p1,p2]
-   }
-
-   vec2 u = p1-p0
-   vec2 v = p2-p1
-   vec2 w = p0-p2
-   ensure angleBetween(-u,v) > MathPI()/6
-   ensure angleBetween(-v,w) > MathPI()/6
-   ensure angleBetween(-w,u) > MathPI()/6
-
-   shape G.icon = Group {
-      shapes: [s1,s2,s3]
-   }
-
-   shape bbox = Rectangle {
-      fillColor: none()
-      strokeColor: #ddd
-      strokeDasharray: "10 8"
-      strokeWidth: 2.0
-      center: (0,0)
-      width: random(300,500)
-      height: random(300,500)
-   }
-   ensure contains( bbox, s1 )
-   ensure contains( bbox, s2 )
-   ensure contains( bbox, s3 )
-   ensure contains( G.icon, bbox )
-
 }
 
 forall Shape S {

@@ -9,7 +9,6 @@ type Polygon <: Shape
 type Rectangle <: Shape
 type Circle <: Conic
 type Ellipse <: Conic
-type Group <: Shape
 
 function rayFrom(Point p) -> Ray r
 constructor rayIntersect(Shape S, Ray r) -> Point q
