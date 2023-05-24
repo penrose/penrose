@@ -10,11 +10,12 @@ import {
   variable,
 } from "@penrose/core";
 import seedrandom from "seedrandom";
+import { createSignal } from "solid-js";
 import { createMutable } from "solid-js/store";
 import { numSignal } from "./util.js";
 
 export interface TriangleProps {
-  seed?: string;
+  seed: string;
   theta: Num;
 }
 
@@ -95,18 +96,29 @@ export const Triangles = (props: TriangleProps) => {
 };
 
 export const RotatingTriangles = () => {
+  const [seed, setSeed] = createSignal("skadoosh");
   const theta = createMutable<Var>(variable(0));
 
   const onSlide = (n: number) => {
     theta.val = n;
   };
 
+  const triangles = (s: string) => <Triangles seed={s} theta={theta} />;
+
   return (
     <>
       <h1>Drag the slider to rotate the camera.</h1>
       <div>
         <div>
-          Camera rotation
+          Seed{" "}
+          <input
+            value={seed()}
+            onInput={(e) => setSeed(e.target.value)}
+            onChange={(e) => setSeed(e.target.value)}
+          ></input>
+        </div>
+        <div>
+          Camera rotation{" "}
           <input
             type="range"
             min={0}
@@ -120,7 +132,7 @@ export const RotatingTriangles = () => {
           {theta.val}
         </div>
       </div>
-      <Triangles theta={theta} />
+      {triangles(seed())}
     </>
   );
 };
