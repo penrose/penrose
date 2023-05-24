@@ -122,6 +122,7 @@ forall Point p {
       r: 5
       strokeWidth: 1
       fillColor: #000000ff
+      ensureOnCanvas: false
    } 
 }
 
@@ -136,6 +137,7 @@ forall Ray r {
       strokeWidth: global.arrowWidth
       endArrowhead: "straight"
       endArrowheadSize: .5
+      ensureOnCanvas: false
    }
 }
 
@@ -285,6 +287,7 @@ forall Ellipse E {
 
 forall Shape S {
    ensure contains( S.box, S.icon, global.boxPadding )
+   override S.icon.ensureOnCanvas = false
 }
 
 -- Rules for geometric queries

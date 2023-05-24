@@ -164,6 +164,7 @@ forall Point x; Shape S
       end: p
       strokeColor: #000000ff
       strokeWidth: 2
+      ensureOnCanvas: false
    }
 
    shape closestDot = Circle {
@@ -172,6 +173,7 @@ forall Point x; Shape S
       fillColor: #ffffffff
       strokeColor: #000000ff
       strokeWidth: 2
+      ensureOnCanvas: false
    }
 }
 
@@ -184,6 +186,7 @@ forall Point x; Polyline L
       end: p
       strokeColor: #000000ff
       strokeWidth: 2
+      ensureOnCanvas: false
    }
 
    shape closestDot = Circle {
@@ -192,6 +195,7 @@ forall Point x; Polyline L
       fillColor: #ffffffff
       strokeColor: #000000ff
       strokeWidth: 2
+      ensureOnCanvas: false
    }
 }
 
