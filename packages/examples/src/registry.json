@@ -347,6 +347,14 @@
       "variation": ""
     },
     {
+      "name": "Path Tracing",
+      "substance": "path-trace",
+      "style": "path-trace",
+      "domain": "path-trace",
+      "variation": "ImmortalityGerbil49958",
+      "gallery": true
+    },
+    {
       "name": "Lagrange Bases",
       "substance": "lagrange-bases",
       "style": "lagrange-bases",
@@ -420,14 +428,6 @@
       "style": "rect-line-dist",
       "domain": "shape-distance",
       "variation": ""
-    },
-    {
-      "name": "Closest point test",
-      "substance": "closest-point-test",
-      "style": "closest-point",
-      "domain": "closest-point",
-      "variation": "MobileCalder1939",
-      "gallery": false
     },
     {
       "substance": "3d-projection",
@@ -632,6 +632,54 @@
       "gallery": true
     },
     {
+      "name": "Ray Casting",
+      "substance": "test-ray-intersect-group",
+      "style": "ray-intersect-group",
+      "domain": "ray-intersect",
+      "variation": "AntiguaSalmon4454",
+      "gallery": true
+    },
+    {
+      "name": "Closest Point Queries",
+      "substance": "test-closest-point-group",
+      "style": "closest-point",
+      "domain": "closest-point",
+      "variation": "AoWoodpecker967",
+      "gallery": true
+    },
+    {
+      "name": "More Closest Point Queries",
+      "substance": "test-closest-point",
+      "style": "closest-point",
+      "domain": "closest-point",
+      "variation": "LimeadeHedgehog00321",
+      "gallery": false
+    },
+    {
+      "name": "Closest Silhouette Point Queries",
+      "substance": "test-closest-silhouette-point",
+      "style": "closest-silhouette-point",
+      "domain": "closest-silhouette-point",
+      "variation": "CatfishDonkey135",
+      "gallery": false
+    },
+    {
+      "name": "Geometric Queries",
+      "substance": "test-geometric-queries",
+      "style": "geometric-queries",
+      "domain": "geometric-queries",
+      "variation": "MettwurstCattle35745",
+      "gallery": true
+    },
+    {
+      "name": "Ray Intersection Test",
+      "substance": "test-ray-intersect",
+      "style": "ray-intersect",
+      "domain": "ray-intersect",
+      "variation": "AntiguaSalmon4454",
+      "gallery": false
+    },
+    {
       "substance": "relative-orientation",
       "style": "triangle-mesh-2d",
       "domain": "triangle-mesh-2d",
@@ -707,11 +755,26 @@
     "functions": {
       "URI": "set-theory-domain/functions.domain"
     },
+    "geometric-queries": {
+      "URI": "geometric-queries/geometric-queries.domain"
+    },
+    "closest-point": {
+      "URI": "geometric-queries/closest-point/closest-point.domain"
+    },
+    "closest-silhouette-point": {
+      "URI": "geometric-queries/closest-silhouette-point/closest-silhouette-point.domain"
+    },
     "linear-algebra": {
       "URI": "linear-algebra-domain/linear-algebra.domain"
     },
     "exterior-algebra": {
       "URI": "exterior-algebra/exterior-algebra.domain"
+    },
+    "ray-intersect": {
+      "URI": "geometric-queries/ray-intersect/ray-intersect.domain"
+    },
+    "path-trace": {
+      "URI": "ray-tracing/path-trace.domain"
     },
     "shape-spec": {
       "URI": "shape-spec/all-shapes.domain"
@@ -730,9 +793,6 @@
     },
     "geometry": {
       "URI": "geometry-domain/geometry.domain"
-    },
-    "closest-point": {
-      "URI": "closest-point/closest-point.domain"
     },
     "random-sampling": {
       "URI": "random-sampling/random-sampling.domain"
@@ -804,6 +864,18 @@
       "domain": "set-theory",
       "URI": "set-theory-domain/tree.style"
     },
+    "geometric-queries": {
+      "domain": "geometric-queries",
+      "URI": "geometric-queries/geometric-queries.style"
+    },
+    "closest-point": {
+      "domain": "closest-point",
+      "URI": "geometric-queries/closest-point/closest-point.style"
+    },
+    "closest-silhouette-point": {
+      "domain": "closest-silhouette-point",
+      "URI": "geometric-queries/closest-silhouette-point/closest-silhouette-point.style"
+    },
     "group-theory-multiplication-table": {
       "domain": "group-theory",
       "URI": "group-theory/MultiplicationTable.style"
@@ -848,6 +920,18 @@
       "domain": "pseudograph",
       "URI": "graph-domain/pseudograph.style"
     },
+    "ray-intersect": {
+      "domain": "ray-intersect",
+      "URI": "geometric-queries/ray-intersect/ray-intersect.style"
+    },
+    "ray-intersect-group": {
+      "domain": "ray-intersect",
+      "URI": "geometric-queries/ray-intersect/ray-intersect-group.style"
+    },
+    "path-trace": {
+      "domain": "path-trace",
+      "URI": "ray-tracing/path-trace.style"
+    },
     "simple-directed-graph": {
       "domain": "simple-directed-graph",
       "URI": "graph-domain/simple-directed-graph.style"
@@ -859,10 +943,6 @@
     "euclidean": {
       "domain": "geometry",
       "URI": "geometry-domain/euclidean.style"
-    },
-    "closest-point": {
-      "domain": "closest-point",
-      "URI": "closest-point/closest-point.style"
     },
     "triangle-mesh-2d": {
       "domain": "triangle-mesh-2d",
@@ -1001,6 +1081,30 @@
     "nested": {
       "domain": "set-theory",
       "URI": "set-theory-domain/nested.substance"
+    },
+    "test-closest-point": {
+      "domain": "closest-point",
+      "URI": "geometric-queries/closest-point/test-closest-point.substance"
+    },
+    "test-closest-point-group": {
+      "domain": "closest-point",
+      "URI": "geometric-queries/closest-point/test-closest-point-group.substance"
+    },
+    "test-closest-silhouette-point": {
+      "domain": "closest-silhouette-point",
+      "URI": "geometric-queries/closest-silhouette-point/test-closest-silhouette-point.substance"
+    },
+    "test-ray-intersect": {
+      "domain": "ray-intersect",
+      "URI": "geometric-queries/ray-intersect/test-ray-intersect.substance"
+    },
+    "test-ray-intersect-group": {
+      "domain": "ray-intersect",
+      "URI": "geometric-queries/ray-intersect/test-ray-intersect-group.substance"
+    },
+    "path-trace": {
+      "domain": "path-trace",
+      "URI": "ray-tracing/path-trace.substance"
     },
     "tree": {
       "domain": "set-theory",
@@ -1149,10 +1253,6 @@
     "congruent-triangles": {
       "domain": "geometry",
       "URI": "geometry-domain/textbook_problems/ex.substance"
-    },
-    "closest-point-test": {
-      "domain": "closest-point",
-      "URI": "closest-point/test.substance"
     },
     "circle-example": {
       "domain": "geometry",
@@ -1349,6 +1449,10 @@
     "angle-equivalence": {
       "domain": "triangle-mesh-2d",
       "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
+    },
+    "test-geometric-queries": {
+      "domain": "geometric-queries",
+      "URI": "geometric-queries/test-geometric-queries.substance"
     },
     "sec5-ex32": {
       "domain": "simple-directed-graph",
