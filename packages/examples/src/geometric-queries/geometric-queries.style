@@ -55,7 +55,6 @@ forall Ray r {
 forall Point p; Ray r
 where r := rayFrom(p) {
    override r.o = p.x
-   layer p.icon above r.icon
 }
 
 forall Shape S {
@@ -80,8 +79,6 @@ forall Shape S {
       strokeColor: global.labelStrokeColor
       paintOrder: "stroke"
    }
-
-   layer S.boxLabel above S.box
 }
 
 forall Line L {
@@ -276,12 +273,6 @@ forall Group G {
 
 forall Shape S {
    ensure contains( S.box, S.icon, global.boxPadding )
-   layer S.box below S.icon
-   layer S.boxLabel above S.icon
-}
-
-forall Shape S; Point p {
-   layer S.boxLabel above p.icon
 }
 
 -- Rules for geometric queries
@@ -304,10 +295,6 @@ where q := closestPoint(S,p)
       strokeWidth: global.strokeWidth
       ensureOnCanvas: false
    }
-
-   layer q.querySegment above S.box
-   layer q.icon above q.querySegment
-   layer p.icon above q.querySegment
 }
 
 forall Point q; Shape S; Point p
@@ -328,9 +315,6 @@ where q := closestSilhouettePoint(S,p)
       strokeWidth: global.strokeWidth
       ensureOnCanvas: false
    }
-
-   layer q.querySegment above S.icon
-   layer q.icon above q.querySegment
 }
 
 forall Point q; Shape S; Ray r
@@ -345,7 +329,7 @@ where q := rayIntersect(S,r)
    override q.icon.strokeWidth = global.strokeWidth
    override q.icon.ensureOnCanvas = false
 
-   shape raySegment = Line {
+   shape q.raySegment = Line {
       start: r.o
       end: y
       strokeColor: global.rayColor
@@ -355,7 +339,7 @@ where q := rayIntersect(S,r)
       ensureOnCanvas: false
    }
 
-   shape normalArrow = Line {
+   shape q.normalArrow = Line {
       start: y
       end: y + global.arrowSize*q.n
       strokeColor: global.rayColor
@@ -375,15 +359,51 @@ where q := rayIntersect(S,r)
       strokeColor: global.rayColor
       strokeWidth: global.strokeWidth
    }
-
-   layer S.icon above perpMark
-   layer normalArrow above perpMark
-   layer q.icon above normalArrow
-   layer q.icon above S.icon
 }
 
 forall Point q; Conic C; Ray r
 where q := rayIntersect(C,r) {
    override r.h = -.15*global.perpSize*q.n
+}
+
+-- Layering
+
+forall Shape S {
+   layer S.icon above S.box
+}
+
+forall Point p; Shape S {
+   layer p.icon above S.icon
+}
+
+forall Ray r; Shape S {
+   layer r.icon above S.box
+}
+
+forall Point q; Shape S; Point p
+where q := closestPoint(S,p) {
+   layer p.icon above q.querySegment
+   layer q.icon above q.querySegment
+}
+
+forall Point q; Shape S; Point p
+where q := closestSilhouettePoint(S,p) {
+   layer p.icon above q.querySegment
+   layer q.icon above q.querySegment
+}
+
+forall Point p; Ray r {
+   layer p.icon above r.icon
+}
+
+forall Point p; Point q; Ray r; Shape S
+where q := rayIntersect(S,r) {
+   layer q.icon above q.normalArrow
+   layer q.icon above q.raySegment
+}
+
+forall Point q; Ray r; Shape S
+where q := rayIntersect(S,r) {
+   layer r.icon above q.raySegment
 }
 
