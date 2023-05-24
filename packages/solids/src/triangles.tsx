@@ -10,9 +10,38 @@ import {
   variable,
 } from "@penrose/core";
 import seedrandom from "seedrandom";
-import { createSignal } from "solid-js";
-import { createMutable } from "solid-js/store";
+import { Accessor, createEffect, createSignal, on } from "solid-js";
+import { SetStoreFunction, createStore } from "solid-js/store";
 import { numSignal } from "./util.js";
+
+type Sampler = (x: number) => number;
+
+const sample = <T,>(
+  seed: Accessor<string>,
+  f: (makeVar: (sampler: Sampler) => Var) => T
+): T => {
+  const vars: { sampler: Sampler; setter: SetStoreFunction<Var> }[] = [];
+  const rng = seedrandom(seed());
+  let ok = true;
+  const res = f((sampler) => {
+    if (!ok) throw Error("can't keep sampling after scope is done");
+    const [x, setter] = createStore(variable(sampler(rng())));
+    vars.push({ sampler, setter });
+    return x;
+  });
+  ok = false;
+  createEffect(
+    on(
+      seed,
+      (s) => {
+        const rng = seedrandom(s);
+        vars.forEach(({ sampler, setter }) => setter({ val: sampler(rng()) }));
+      },
+      { defer: true }
+    )
+  );
+  return res;
+};
 
 export interface TriangleProps {
   seed: string;
@@ -24,7 +53,6 @@ export const Triangles = (props: TriangleProps) => {
   const planeSize = 50;
   const planeHeight = -40;
   const cZ = -160;
-  const rng = seedrandom(props.seed);
 
   const rotate = (vec: Num[], theta: Num) => [
     add(mul(vec[0], cos(theta)), mul(vec[2], sin(theta))),
@@ -81,10 +109,19 @@ export const Triangles = (props: TriangleProps) => {
   };
 
   const c = 0.9 * Math.min(planeSize, Math.abs(planeHeight));
-  const rand = (n: number) =>
-    Array.from({ length: n }, () => -c + rng() * 2 * c);
-  const tri1 = triangleWithShadow([rand(3), rand(3), rand(3)], "#34379a");
-  const tri2 = triangleWithShadow([rand(3), rand(3), rand(3)], "#340000");
+  const { qs1, qs2 } = sample(
+    () => props.seed,
+    (makeVar) => {
+      const corners = (n: number) =>
+        Array.from({ length: n }, () => makeVar((x) => -c + x * 2 * c));
+      return {
+        qs1: [corners(3), corners(3), corners(3)],
+        qs2: [corners(3), corners(3), corners(3)],
+      };
+    }
+  );
+  const tri1 = triangleWithShadow(qs1, "#34379a");
+  const tri2 = triangleWithShadow(qs2, "#340000");
 
   return (
     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
@@ -97,13 +134,11 @@ export const Triangles = (props: TriangleProps) => {
 
 export const RotatingTriangles = () => {
   const [seed, setSeed] = createSignal("skadoosh");
-  const theta = createMutable<Var>(variable(0));
+  const [theta, setTheta] = createStore(variable(0));
 
   const onSlide = (n: number) => {
-    theta.val = n;
+    setTheta({ val: n });
   };
-
-  const triangles = (s: string) => <Triangles seed={s} theta={theta} />;
 
   return (
     <>
@@ -132,7 +167,7 @@ export const RotatingTriangles = () => {
           {theta.val}
         </div>
       </div>
-      {triangles(seed())}
+      <Triangles seed={seed()} theta={theta} />
     </>
   );
 };
