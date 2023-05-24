@@ -267,7 +267,8 @@ export function measureText(text: string, font: string): TextMeasurement {
   measureTextContext.textBaseline = "alphabetic";
   measureTextContext.font = font;
   const measurements = measureTextContext.measureText(text);
-  document.removeChild(measureTextElement);
+  // TODO: removing the element causes issues of "NotFoundError: The node to be removed is not a child of this node."
+  // document.removeChild(measureTextElement);
   return {
     width:
       Math.abs(measurements.actualBoundingBoxLeft) +
