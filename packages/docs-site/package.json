@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@penrose/components": "^3.0.0-alpha.0",
+    "@penrose/core": "^3.0.0-alpha.0",
     "@penrose/examples": "^3.0.0-alpha.0",
     "veaury": "^2.3.11"
   },

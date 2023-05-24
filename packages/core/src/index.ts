@@ -350,6 +350,7 @@ export type {
   PenroseError,
   Warning as PenroseWarning,
 } from "./types/errors.js";
+export type { CompFunc } from "./types/functions.js";
 export type { SubProg } from "./types/substance.js";
 export * as Value from "./types/value.js";
 export { showError } from "./utils/Error.js";
