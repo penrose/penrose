@@ -49,11 +49,7 @@ import {
   trunc,
 } from "../engine/AutodiffFunctions.js";
 import { PathBuilder } from "../renderer/PathBuilder.js";
-import { Circle } from "../shapes/Circle.js";
-import { Ellipse } from "../shapes/Ellipse.js";
 import { Line } from "../shapes/Line.js";
-import { Polygon } from "../shapes/Polygon.js";
-import { Polyline } from "../shapes/Polyline.js";
 import { Context, uniform } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
@@ -120,7 +116,7 @@ import {
   shapeDistanceRectLine,
   shapeDistanceRects,
 } from "./Queries.js";
-import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils.js";
+import { clamp, isRectlike, numOf, toPt } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
@@ -2569,34 +2565,9 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      s:
-        | Rectlike<ad.Num>
-        | Circle<ad.Num>
-        | Polygon<ad.Num>
-        | Line<ad.Num>
-        | Polyline<ad.Num>,
-      p: ad.Num[]
-    ): FloatV<ad.Num> => {
-      if (isRectlike(s)) {
-        return floatV(signedDistanceRect(bboxPts(bboxFromShape(s)), toPt(p)));
-      } else if (s.shapeType === "Circle") {
-        return floatV(
-          signedDistanceCircle(toPt(s.center.contents), s.r.contents, toPt(p))
-        );
-      } else if (s.shapeType === "Polygon") {
-        return floatV(signedDistancePolygon(polygonLikePoints(s), toPt(p)));
-      } else if (s.shapeType === "Line") {
-        return floatV(
-          signedDistanceLine(
-            toPt(s.start.contents),
-            toPt(s.end.contents),
-            toPt(p)
-          )
-        );
-      } else {
-        return floatV(signedDistancePolyline(polygonLikePoints(s), toPt(p)));
-      }
-    },
+      shape: Shape<ad.Num>,
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistance(shape, pt)),
     returns: valueT("Real"),
   },
 
@@ -2719,74 +2690,15 @@ export const compDict = {
           shapeT("Polygon"),
           shapeT("Line"),
           shapeT("Polyline"),
-          shapeT("Ellipse")
+          shapeT("Ellipse"),
+          shapeT("Group")
         ),
         description: "A shape",
       },
       { name: "p", type: real2T(), description: "A vector" },
     ],
-    body: (
-      _context: Context,
-      s:
-        | Circle<ad.Num>
-        | Rectlike<ad.Num>
-        | Line<ad.Num>
-        | Polyline<ad.Num>
-        | Polygon<ad.Num>
-        | Ellipse<ad.Num>,
-      p: ad.Num[]
-    ): VectorV<ad.Num> => {
-      const t = s.shapeType;
-      if (t === "Circle") {
-        return {
-          tag: "VectorV",
-          contents: closestPointCircle(
-            toPt(s.center.contents),
-            s.r.contents,
-            toPt(p)
-          ),
-        };
-      } else if (
-        t === "Rectangle" ||
-        t === "Text" ||
-        t === "Equation" ||
-        t === "Image"
-      ) {
-        return {
-          tag: "VectorV",
-          contents: closestPointRect(bboxPts(bboxFromShape(s)), toPt(p)),
-        };
-      } else if (t === "Line") {
-        return {
-          tag: "VectorV",
-          contents: closestPointLine(
-            toPt(s.start.contents),
-            toPt(s.end.contents),
-            toPt(p)
-          ),
-        };
-      } else if (t === "Polyline") {
-        return {
-          tag: "VectorV",
-          contents: closestPointPoly(polygonLikePoints(s), false, toPt(p)),
-        };
-      } else if (t === "Polygon") {
-        return {
-          tag: "VectorV",
-          contents: closestPointPoly(polygonLikePoints(s), true, toPt(p)),
-        };
-      } else {
-        return {
-          tag: "VectorV",
-          contents: closestPointEllipse(
-            toPt(s.center.contents),
-            s.rx.contents,
-            s.ry.contents,
-            toPt(p)
-          ),
-        };
-      }
-    },
+    body: (_context: Context, shape: Shape<ad.Num>, p: ad.Pt2) =>
+      vectorV(closestPoint(shape, p)),
     returns: valueT("Real2"),
   },
 
@@ -3439,6 +3351,24 @@ export const msign = (x: ad.Num): ad.Num => {
 
 //#region Signed Distance Functions
 
+const signedDistance = (s: Shape<ad.Num>, p: ad.Pt2): ad.Num => {
+  if (isRectlike(s)) {
+    return signedDistanceRect(bboxPts(bboxFromShape(s)), p);
+  } else if (s.shapeType === "Circle") {
+    return signedDistanceCircle(toPt(s.center.contents), s.r.contents, p);
+  } else if (s.shapeType === "Polygon") {
+    return signedDistancePolygon(polygonLikePoints(s), p);
+  } else if (s.shapeType === "Line") {
+    return signedDistanceLine(toPt(s.start.contents), toPt(s.end.contents), p);
+  } else if (s.shapeType === "Polyline") {
+    return signedDistancePolyline(polygonLikePoints(s), p);
+  } else if (s.shapeType === "Group") {
+    return signedDistanceGroup(s.shapes.contents, p);
+  } else {
+    throw new Error("x");
+  }
+};
+
 // All math borrowed from:
 // https://iquilezles.org/articles/distfunctions2d/
 
@@ -3657,7 +3587,50 @@ export const signedDistancePolyline = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
   return minN(dists);
 };
 
+export const signedDistanceGroup = (
+  ss: Shape<ad.Num>[],
+  pt: ad.Pt2
+): ad.Num => {
+  const dists = ss.map((s) => signedDistance(s, pt));
+  return minN(dists);
+};
+
 //#endregion
+
+export const closestPoint = (s: Shape<ad.Num>, p: ad.Pt2): ad.Pt2 => {
+  const t = s.shapeType;
+  if (t === "Circle") {
+    return closestPointCircle(toPt(s.center.contents), s.r.contents, toPt(p));
+  } else if (
+    t === "Rectangle" ||
+    t === "Text" ||
+    t === "Equation" ||
+    t === "Image"
+  ) {
+    return closestPointRect(bboxPts(bboxFromShape(s)), toPt(p));
+  } else if (t === "Line") {
+    return closestPointLine(
+      toPt(s.start.contents),
+      toPt(s.end.contents),
+      toPt(p)
+    );
+  } else if (t === "Polyline") {
+    return closestPointPoly(polygonLikePoints(s), false, toPt(p));
+  } else if (t === "Polygon") {
+    return closestPointPoly(polygonLikePoints(s), true, toPt(p));
+  } else if (t === "Ellipse") {
+    return closestPointEllipse(
+      toPt(s.center.contents),
+      s.rx.contents,
+      s.ry.contents,
+      toPt(p)
+    );
+  } else if (t === "Group") {
+    return closestPointGroup(s.shapes.contents, p);
+  } else {
+    throw new Error(`Shape type ${t} is not supported by closestPoint`);
+  }
+};
 
 export const closestPointCircle = (
   c: ad.Pt2,
@@ -3790,6 +3763,25 @@ export const closestPointPoly = (
     retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
     retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
   }
+  return [retX, retY];
+};
+
+export const closestPointGroup = (
+  shapes: Shape<ad.Num>[],
+  pt: ad.Pt2
+): ad.Pt2 => {
+  const points = shapes.map((s) => closestPoint(s, pt));
+  const dists = points.map((p) => ops.vdist(p, pt));
+
+  let [retX, retY] = points[0];
+  let retCond = dists[0];
+
+  for (let i = 0; i < points.length; i++) {
+    retCond = ifCond(lt(retCond, dists[i]), retCond, dists[i]);
+    retX = ifCond(eq(retCond, dists[i]), points[i][0], retX);
+    retY = ifCond(eq(retCond, dists[i]), points[i][1], retY);
+  }
+
   return [retX, retY];
 };
 
