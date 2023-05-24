@@ -12,12 +12,11 @@ const {
   color lightBlue = rgba(0.2, 0.4, 0.8, 1.0)
   color lightGray = rgba(252, 252, 252, 0.015)
   color green = rgba(0., 0.8, 0., 1.)
-  color none = rgba(0., 0., 0., 0.)
 }
 forall VectorSpace U {
     scalar axisSize = const.vectorSpaceSize / 2.0
     vec2 U.origin = (0., 0.)
-    vec2 o = U.origin /* just so we don't need to type U.origin everytime */
+    vec2 o = U.origin
     U.axisColor = const.gray
 
     U.background = Rectangle {
@@ -25,7 +24,7 @@ forall VectorSpace U {
         width : const.vectorSpaceSize
         height : const.vectorSpaceSize
         fillColor : const.lightGray
-        strokeColor : const.none
+        strokeColor : none()
     }
 
     U.xAxis = Line {
@@ -34,8 +33,8 @@ forall VectorSpace U {
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
+        startArrowhead: "straight"
+        endArrowhead: "straight"
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -45,8 +44,8 @@ forall VectorSpace U {
         strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
-        startArrowhead: true
-        endArrowhead: true
+        startArrowhead: "straight"
+        endArrowhead: "straight"
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -85,7 +84,7 @@ forall Point p; Ellipse e1; Ellipse e2
     } 
     p.line = Line{
         start: p.Point
-        end: closestPoint(p.Point, e1.shape)
+        end: closestPoint(e1.shape, p.Point)
         strokeWidth: 1.0
     }
 }
@@ -95,10 +94,10 @@ where In(u,U) {
 
   u.shape = Line {
     start: p.Point - e.shape.center
-    end : U.origin + closestPoint( p.Point,e.shape)-e.shape.center
+    end : U.origin + closestPoint(e.shape, p.Point)-e.shape.center
     strokeWidth : 3.0
     strokeColor : const.lightBlue
-    endArrowhead : true
+    endArrowhead : "straight"
     arrowheadSize : const.arrowheadSize
   }
 

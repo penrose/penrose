@@ -6,3 +6,5 @@ In(w, U)
 Point p
 Ellipse e1
 Ellipse e2
+
+AutoLabel All
