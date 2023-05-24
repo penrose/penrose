@@ -1,6 +1,6 @@
 import {
   Num,
-  Variable,
+  Var,
   add,
   cos,
   div,
@@ -15,7 +15,7 @@ import { numSignal } from "./util.js";
 
 export interface TriangleProps {
   seed?: string;
-  theta: Variable;
+  theta: Var;
 }
 
 export const Triangles = (props: TriangleProps) => {
@@ -55,7 +55,7 @@ export const Triangles = (props: TriangleProps) => {
   );
 
   // triangles
-  const triangleWithShadow = (qs: Variable[][], fillColor: string) => {
+  const triangleWithShadow = (qs: Var[][], fillColor: string) => {
     // triangle
     const [qi, qj, qk] = qs.map((p) => rotate(p, props.theta));
     const ps = [qi, qj, qk].map(perspective);
@@ -95,7 +95,7 @@ export const Triangles = (props: TriangleProps) => {
 };
 
 export const RotatingTriangles = () => {
-  const theta = createMutable<Variable>(variable(0));
+  const theta = createMutable<Var>(variable(0));
 
   const onSlide = (n: number) => {
     theta.val = n;

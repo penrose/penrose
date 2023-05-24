@@ -1,5 +1,5 @@
 import {
-  Variable,
+  Var,
   dist,
   elasticEnergy,
   eq,
@@ -45,7 +45,7 @@ const Curves = () => {
   const [w, h] = [500, 500];
   const rng = seedrandom("test");
 
-  const [pts, rerun] = createSignal<Variable[][]>([], { equals: false });
+  const [pts, rerun] = createSignal<Var[][]>([], { equals: false });
   let p: any;
 
   createEffect(

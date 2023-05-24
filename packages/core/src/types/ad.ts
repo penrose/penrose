@@ -36,12 +36,12 @@ export type Expr = Bool | Num | Vec;
 
 export type Bool = Comp | Logic | Not;
 
-export type Num = number | Input | Unary | Binary | Ternary | Nary | Index;
+export type Num = number | Var | Unary | Binary | Ternary | Nary | Index;
 
 export type Vec = PolyRoots;
 
-export interface Input {
-  tag: "Input";
+export interface Var {
+  tag: "Var";
   val: number;
 }
 
@@ -110,7 +110,7 @@ export interface ConstNode {
 }
 
 export interface InputNode {
-  tag: "Input";
+  tag: "Var";
   key: number;
 }
 
@@ -206,7 +206,7 @@ export interface Graph extends Outputs<Id> {
  */
 export interface Outputs<T> {
   /** Derivatives of primary output with respect to inputs. */
-  gradient: Map<Input, T>;
+  gradient: Map<Var, T>;
   /** Primary output. */
   primary: T;
   /** Secondary outputs. */
@@ -214,7 +214,7 @@ export interface Outputs<T> {
 }
 
 export type Compiled = (
-  inputs: (x: Input) => number,
+  inputs: (x: Var) => number,
   mask?: boolean[]
 ) => Outputs<number>;
 

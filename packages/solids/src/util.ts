@@ -182,7 +182,7 @@ export const numSignal = (x: Num): Accessor<number> => {
   if (typeof x === "number") return () => x;
   if (secret in x) return x[secret] as Accessor<number>;
   switch (x.tag) {
-    case "Input": {
+    case "Var": {
       return () => x.val;
     }
     case "Unary": {

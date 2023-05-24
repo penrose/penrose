@@ -275,7 +275,7 @@ export function measureText(text: string, font: string): TextMeasurement {
 //#endregion
 
 type InputMap = Map<
-  ad.Input,
+  ad.Var,
   {
     index: number;
     meta: InputMeta;
@@ -288,7 +288,7 @@ const setPendingProperty = (
   before: FloatV<ad.Num>,
   after: FloatV<number>
 ) => {
-  if (typeof before.contents !== "number" && before.contents.tag === "Input") {
+  if (typeof before.contents !== "number" && before.contents.tag === "Var") {
     const { index, meta } = safe(inputs.get(before.contents), "missing input");
     if (meta.init.tag === "Pending") xs[index] = after.contents;
   }

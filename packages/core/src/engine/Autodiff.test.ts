@@ -9,11 +9,11 @@ import {
   fns,
   genCode,
   genCodeSync,
-  input,
   logAD,
   makeGraph,
   primaryGraph,
   secondaryGraph,
+  variable,
 } from "./Autodiff.js";
 import {
   add,
@@ -36,8 +36,8 @@ import {
 describe("makeGraph tests", () => {
   test("secondary outputs", () => {
     // the values 0 don't matter for this test
-    const x = input(0);
-    const y = input(0);
+    const x = variable(0);
+    const y = variable(0);
     const sum = add(x, y);
     const product = mul(x, y);
     const difference = sub(x, y);
@@ -59,7 +59,7 @@ describe("makeGraph tests", () => {
 
   test("no expression swell", () => {
     // https://arxiv.org/pdf/1904.02990.pdf Figure 2
-    const x1 = input(0); // 0, doesn't matter for this test
+    const x1 = variable(0); // 0, doesn't matter for this test
     const t1 = mul(x1, x1);
     const t2 = mul(t1, t1);
     const f = mul(t2, t2);
@@ -91,7 +91,7 @@ describe("genCode tests", () => {
   });
 
   test("multiple addends", () => {
-    const x = input(2);
+    const x = variable(2);
     const g = primaryGraph(x);
     const f = genCodeSync(g, g, g);
     expect(f((x) => x.val)).toEqual({
@@ -118,7 +118,7 @@ describe("genCode tests", () => {
   });
 
   test("mask", () => {
-    const primary = input(13);
+    const primary = variable(13);
     const v1 = [5];
     const v2 = [];
     v2[1] = 8;
@@ -142,8 +142,8 @@ describe("compile tests", () => {
   });
 
   test("simple", async () => {
-    const x = input(3);
-    const y = input(4);
+    const x = variable(3);
+    const y = variable(4);
     const f = await compile([add(x, y), mul(x, y)]);
     const v = f((x) => x.val);
     expect(v).toEqual([7, 12]);
@@ -242,14 +242,14 @@ const testGradFiniteDiff = () => {
 };
 
 interface GradGraph {
-  inputs: ad.Input[];
+  inputs: ad.Var[];
   output: ad.Num;
 }
 
 const gradGraph1 = (): GradGraph => {
   // Build energy/gradient graph
-  const x0 = input(-5);
-  const x1 = input(6);
+  const x0 = variable(-5);
+  const x1 = variable(6);
   const a = sub(x0, x1);
   const b = squared(a);
   const c = sin(a);
@@ -260,8 +260,8 @@ const gradGraph1 = (): GradGraph => {
 // Test addition of consts to graph (`c`)
 const gradGraph2 = (): GradGraph => {
   // Build energy/gradient graph
-  const x0 = input(-5);
-  const x1 = input(6);
+  const x0 = variable(-5);
+  const x1 = variable(6);
   const a = sub(x0, x1);
   const b = squared(a);
   const c = add(a, 3);
@@ -272,8 +272,8 @@ const gradGraph2 = (): GradGraph => {
 // Test vars w/ no grad
 const gradGraph3 = (): GradGraph => {
   // Build energy/gradient graph
-  const x0 = input(100);
-  const x1 = input(-100);
+  const x0 = variable(100);
+  const x1 = variable(-100);
   const head = squared(x0);
   return { inputs: [x0, x1], output: head };
 };
@@ -281,7 +281,7 @@ const gradGraph3 = (): GradGraph => {
 // Test toPenalty
 const gradGraph4 = (): GradGraph => {
   // Build energy/gradient graph
-  const x0 = input(100);
+  const x0 = variable(100);
   const head = fns.toPenalty(x0);
   return { inputs: [x0], output: head };
 };
@@ -291,8 +291,8 @@ const gradGraph5 = (): GradGraph => {
   logAD.info("test ifCond");
 
   // Build energy/gradient graph
-  const x0 = input(100);
-  const x1 = input(-100);
+  const x0 = variable(100);
+  const x1 = variable(-100);
   const head = ifCond(lt(x0, 33), squared(x1), squared(x0));
   return { inputs: [x0, x1], output: head };
 };
@@ -302,7 +302,7 @@ const gradGraph6 = (): GradGraph => {
   logAD.info("test max");
 
   // Build energy/gradient graph
-  const x0 = input(100);
+  const x0 = variable(100);
   const head = max(squared(x0), 0);
   return { inputs: [x0], output: head };
 };
@@ -313,8 +313,8 @@ const gradGraph7 = (): GradGraph => {
   logAD.info("test div");
 
   // Build energy graph
-  const x0 = input(100);
-  const x1 = input(-100);
+  const x0 = variable(100);
+  const x1 = variable(-100);
   const head = div(x0, x1);
   return { inputs: [x0, x1], output: head };
 };
@@ -324,11 +324,11 @@ const gradGraph8 = (): GradGraph => {
   logAD.info("test polyRoots");
 
   // Build energy/gradient graph
-  const x0 = input(0);
-  const x1 = input(0);
-  const x2 = input(0);
-  const x3 = input(0);
-  const x4 = input(0);
+  const x0 = variable(0);
+  const x1 = variable(0);
+  const x2 = variable(0);
+  const x3 = variable(0);
+  const x4 = variable(0);
   const roots = polyRoots([x0, x1, x2, x3, x4]);
   const head = addN(roots.map((r) => ifCond(eq(r, r), r, 0)));
   return { inputs: [x0, x1, x2, x3, x4], output: head };
@@ -381,7 +381,7 @@ const gradGraph0 = (): GradGraph => {
 
   // f(x) = x^2, where x is 100
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-  const ref = input(100);
+  const ref = variable(100);
   const head = squared(ref);
 
   // Print results
@@ -399,7 +399,7 @@ const gradGraph0 = (): GradGraph => {
 describe("polyRoots tests", () => {
   test("degree 1", () => {
     const x = 42;
-    const v = input(x);
+    const v = variable(x);
     const [z] = polyRoots([v]);
     const g = primaryGraph(z);
     const f = genCodeSync(g);
@@ -419,8 +419,8 @@ describe("polyRoots tests", () => {
     const x2 = Math.E;
 
     const a = 1;
-    const b = input(-(x1 + x2));
-    const c = input(x1 * x2);
+    const b = variable(-(x1 + x2));
+    const c = variable(x1 * x2);
 
     const closedForm = genCodeSync(
       primaryGraph(
@@ -453,7 +453,7 @@ describe("polyRoots tests", () => {
   });
 
   test("cubic with only one real root", () => {
-    const [c0, c1, c2] = [input(8), input(0), input(0)];
+    const [c0, c1, c2] = [variable(8), variable(0), variable(0)];
     const [r1, r2, r3] = polyRoots([c0, c1, c2]);
 
     // get the first real root we can find
@@ -479,11 +479,11 @@ describe("polyRoots tests", () => {
 
   test("quintic", () => {
     const [c0, c1, c2, c3, c4] = [
-      input(-120),
-      input(274),
-      input(-225),
-      input(85),
-      input(-15),
+      variable(-120),
+      variable(274),
+      variable(-225),
+      variable(85),
+      variable(-15),
     ];
     const roots = numsOf(polyRoots([c0, c1, c2, c3, c4]));
     roots.sort((a, b) => a - b);

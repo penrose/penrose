@@ -6,7 +6,7 @@ import {
 } from "./contrib/CurveConstraints.js";
 import { sdfRect } from "./contrib/Functions.js";
 import { consecutiveTuples } from "./contrib/Utils.js";
-import { input, ops } from "./engine/Autodiff.js";
+import { ops, variable } from "./engine/Autodiff.js";
 import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
 import * as ad from "./types/ad.js";
 import { TextMeasurement, measureText } from "./utils/CollectLabels.js";
@@ -76,12 +76,12 @@ export {
   Problem,
   Ternary,
   Unary,
-  Input as Variable,
+  Var,
   Vec,
 } from "./types/ad.js";
 export {
   measureText,
-  input as variable,
+  variable,
   sdfRect,
   perimeter,
   consecutiveTuples,
