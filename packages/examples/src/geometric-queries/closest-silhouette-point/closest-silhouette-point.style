@@ -6,7 +6,7 @@ canvas {
 -- Rules for drawing each type of shape
 
 forall Point x {
-   vec2 x.pos = (?,?)
+   vec2 x.pos = (0,canvas.height/2 - 10)
    shape x.icon = Circle {
       center: x.pos
       r: 5
@@ -35,66 +35,34 @@ forall Rectangle R {
    ensure R.icon.height > 50
 }
 
-forall Polyline P {
+forall Polyline M {
    vec2 p0 = (?,?)
-   vec2 p1 = (?,?)
-   vec2 p2 = (?,?)
-   vec2 p3 = (?,?)
-   vec2 p4 = (?,?)
+   vec2 p1 = p0 + 50*circleRandom()
+   vec2 p2 = p1 + 50*rotateBy(unit(p1-p0),random(0,1.5))
+   vec2 p3 = p2 + 50*rotateBy(unit(p2-p1),random(0,1.5))
+   vec2 p4 = p3 + 50*rotateBy(unit(p3-p2),random(-1.5,0))
    
-   shape P.icon = Polyline {
+   shape M.icon = Polyline {
       points: [ p0, p1, p2, p3, p4 ]
       strokeWidth: 5.0
       strokeLinejoin: "round"
-      strokeColor: sampleColor(1.0,"rgb")
+      strokeColor: sampleColor(1.0, "rgb")
    }
-
-   scalar L0 = norm(p1-p0)
-   scalar L1 = norm(p2-p1)
-   scalar L2 = norm(p3-p2)
-   scalar L3 = norm(p4-p3)
-   ensure L0 > 30
-   ensure L1 > 30
-   ensure L2 > 30
-   ensure L3 > 30
-   ensure L0 < 80
-   ensure L1 < 80
-   ensure L2 < 80
-   ensure L3 < 80
-
-   scalar theta0 = angleBetween(p1-p0,p2-p1)
-   scalar theta1 = angleBetween(p2-p1,p3-p2)
-   scalar theta2 = angleBetween(p3-p2,p4-p3)
-   ensure theta0 > MathPI()/6
-   ensure theta1 > MathPI()/6
-   ensure theta2 > MathPI()/6
 }
 
 forall Polygon P {
-   vec2 p0 = (?,?)
-   vec2 p1 = (?,?)
-   vec2 p2 = (?,?)
-   vec2 p3 = (?,?)
-   
+   vec2 c = (?,?)
+   scalar d = random(100,200)
+   scalar u = circleRandom()
+   scalar v = rot90(u)
+   vec2 p0 = c + d*u
+   vec2 p2 = c - d*u
+   vec2 p1 = c + random(-150,150)*u + random(60,150)*v
+   vec2 p3 = c + random(-150,150)*u - random(60,150)*v
+
    shape P.icon = Polygon {
       points: [ p0, p1, p2, p3 ]
    }
-
-   vec2 e01 = p1-p0
-   vec2 e12 = p2-p1
-   vec2 e23 = p3-p2
-   vec2 e30 = p0-p3
-   scalar theta0 = angleBetween( e01, -e12 )
-   scalar theta1 = angleBetween( e12, -e23 )
-   scalar theta2 = angleBetween( e23, -e30 )
-   scalar theta3 = angleBetween( e30, -e01 )
-   ensure theta0 > toRadians(30)
-   ensure theta1 > toRadians(30)
-   ensure theta2 > toRadians(30)
-   ensure theta3 > toRadians(30)
-
-   ensure abs(cross2D( e01, -e12 )) > 50
-   ensure theta0 + theta1 + theta2 + theta3 == 2*MathPI()
 }
 
 forall Circle C {
@@ -170,6 +138,16 @@ forall Point x; Shape S
       ensureOnCanvas: false
    }
 
+   scalar D = norm( (canvas.width, canvas.height) )
+   shape continuedSegment = Line {
+      start: p
+      end: p + D*unit(p-x.pos)
+      strokeColor: #00000033
+      strokeWidth: 2
+      ensureOnCanvas: false
+      strokeDasharray: "10 8"
+   }
+
    shape closestDot = Circle {
       r: x.icon.r
       center: p
@@ -190,6 +168,16 @@ forall Point x; Polyline L
       strokeColor: #000000ff
       strokeWidth: 2
       ensureOnCanvas: false
+   }
+
+   scalar D = norm( (canvas.width, canvas.height) )
+   shape continuedSegment = Line {
+      start: p
+      end: p + D*unit(p-x.pos)
+      strokeColor: #00000033
+      strokeWidth: 2
+      ensureOnCanvas: false
+      strokeDasharray: "10 8"
    }
 
    shape closestDot = Circle {
