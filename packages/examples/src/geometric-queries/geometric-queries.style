@@ -116,10 +116,10 @@ forall Rectangle R {
 
 forall Polyline M {
    vec2 p0 = (?,?)
-   vec2 p1 = (?,?)
-   vec2 p2 = (?,?)
-   vec2 p3 = (?,?)
-   vec2 p4 = (?,?)
+   vec2 p1 = p0 + 50*circleRandom()
+   vec2 p2 = p1 + 50*rotateBy(unit(p1-p0),random(0,1.5))
+   vec2 p3 = p2 + 50*rotateBy(unit(p2-p1),random(0,1.5))
+   vec2 p4 = p3 + 50*rotateBy(unit(p3-p2),random(-1.5,0))
    
    shape M.icon = Polyline {
       points: [ p0, p1, p2, p3, p4 ]
@@ -127,26 +127,6 @@ forall Polyline M {
       strokeLinejoin: "round"
       strokeColor: global.shapeColor
    }
-
-   scalar L0 = norm(p1-p0)
-   scalar L1 = norm(p2-p1)
-   scalar L2 = norm(p3-p2)
-   scalar L3 = norm(p4-p3)
-   ensure L0 > 30
-   ensure L1 > 30
-   ensure L2 > 30
-   ensure L3 > 30
-   ensure L0 < 80
-   ensure L1 < 80
-   ensure L2 < 80
-   ensure L3 < 80
-
-   scalar theta0 = angleBetween(p1-p0,p2-p1)
-   scalar theta1 = angleBetween(p2-p1,p3-p2)
-   scalar theta2 = angleBetween(p3-p2,p4-p3)
-   ensure theta0 > MathPI()/6
-   ensure theta1 > MathPI()/6
-   ensure theta2 > MathPI()/6
 
    override M.boxLabel.string = "Polyline"
    scalar W = canvas.width
