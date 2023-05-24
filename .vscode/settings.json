@@ -14,5 +14,6 @@
   "files.insertFinalNewline": false,
   "files.trimFinalNewlines": false,
   "files.trimTrailingWhitespace": false,
+  "rust-analyzer.check.command": "clippy",
   "search.useParentIgnoreFiles": true
 }
