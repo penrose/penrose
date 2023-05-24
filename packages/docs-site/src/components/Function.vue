@@ -9,6 +9,9 @@ export default defineComponent({
     desc() {
       return md.render(this.description ?? "");
     },
+    ret() {
+      return describeType(this.returns);
+    },
     parameters() {
       return this.params.map((p: any) => ({
         ...p,
@@ -43,5 +46,8 @@ export default defineComponent({
         </tr>
       </tbody>
     </table>
+  </div>
+  <div v-if="returns">
+    <h4>Returns: {{ ret.symbol }} ({{ ret.description }})</h4>
   </div>
 </template>

@@ -1766,7 +1766,7 @@ export const compDict = {
    */
   unitRandom: {
     name: "unitRandom",
-    description: "Uniformly sample a random value in the range [0,1].",
+    description: "Uniformly sample a random value in the range [0,1).",
     params: [],
     body: ({ makeInput }: Context): FloatV<ad.Num> => {
       const val = makeInput({
