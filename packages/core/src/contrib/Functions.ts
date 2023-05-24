@@ -2832,8 +2832,11 @@ export const compDict = {
         | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[]
-    ): VectorV<ad.Num> => {;
-       return { tag: "VectorV", contents: closestSilhouettePointShape(s,p) };
+    ): VectorV<ad.Num> => {
+       const q = closestSilhouettePointShape(s,p);
+       const qx = ifCond( eq(q[0],Infinity), p[0], q[0] );
+       const qy = ifCond( eq(q[1],Infinity), p[1], q[1] );
+       return { tag: "VectorV", contents: [qx,qy] };
     },
     returns: valueT("Real2"),
   },
