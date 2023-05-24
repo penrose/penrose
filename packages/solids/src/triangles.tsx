@@ -1,46 +1,24 @@
 import {
-  Input,
   Num,
+  Variable,
   add,
-  compile,
   cos,
   div,
   mul,
-  scalar,
   sin,
   sub,
+  variable,
 } from "@penrose/core";
 import seedrandom from "seedrandom";
-import { Show, createEffect, createResource } from "solid-js";
 import { createMutable } from "solid-js/store";
-
-const pairs = <T,>(a: T[]): [T, T][] => {
-  const b: [T, T][] = [];
-  for (let i = 0; i < a.length; i += 2) b.push([a[i], a[i + 1]]);
-  return b;
-};
+import { numSignal } from "./util.js";
 
 export interface TriangleProps {
   seed?: string;
-  theta: Input;
-  onFinish?: () => void;
+  theta: Variable;
 }
 
 export const Triangles = (props: TriangleProps) => {
-  const waiting: Promise<void>[] = [];
-
-  const compilePoints = (
-    points: [Num, Num][]
-  ): (() => [number, number][] | undefined) => {
-    const p = compile(points.flat());
-    waiting.push(p.then(() => {}));
-    const [f] = createResource(() => p);
-    return () => {
-      const g = f();
-      if (g !== undefined) return pairs(g((x) => x.val));
-    };
-  };
-
   const [w, h] = [500, 500];
   const planeSize = 50;
   const planeHeight = -40;
@@ -65,65 +43,47 @@ export const Triangles = (props: TriangleProps) => {
   const q11 = [planeSize, planeHeight, planeSize];
 
   const Qs = [q00, q10, q11, q01].map((v) => rotate(v, props.theta));
-  const ps = compilePoints(Qs.map(perspective));
-
+  const ps = Qs.map(perspective);
+  const points = ps.map((p) => p.map(numSignal));
   const plane = (
-    <Show when={ps()}>
-      {(points) => (
-        <polygon
-          points={points().map(toCanvas).join(" ")}
-          fill={"#0003"}
-          stroke={"#aaa"}
-          stroke-width={0.5}
-        ></polygon>
-      )}
-    </Show>
+    <polygon
+      points={points.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
+      fill={"#0003"}
+      stroke={"#aaa"}
+      stroke-width={0.5}
+    ></polygon>
   );
 
   // triangles
-  const triangleWithShadow = (qs: Input[][], fillColor: string) => {
+  const triangleWithShadow = (qs: Variable[][], fillColor: string) => {
     // triangle
     const [qi, qj, qk] = qs.map((p) => rotate(p, props.theta));
-    const ps = compilePoints([qi, qj, qk].map(perspective));
+    const ps = [qi, qj, qk].map(perspective);
+    const triangle = ps.map((p) => p.map(numSignal));
     const rs = [qi, qj, qk].map((p) => [p[0], planeHeight, p[2]]);
-    const ss = compilePoints(rs.map(perspective));
+    const ss = rs.map(perspective);
+    const shadow = ss.map((p) => p.map(numSignal));
     return (
       <>
-        <Show when={ps()}>
-          {(triangle) => (
-            <polygon
-              points={triangle().map(toCanvas).join(" ")}
-              fill={fillColor}
-              stroke={"#1b1f8a"}
-              stroke-width={0.5}
-            ></polygon>
-          )}
-        </Show>
-        <Show when={ss()}>
-          {(shadow) => (
-            <polygon
-              points={shadow().map(toCanvas).join(" ")}
-              fill={"#0002"}
-            ></polygon>
-          )}
-        </Show>
+        <polygon
+          points={triangle.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
+          fill={fillColor}
+          stroke={"#1b1f8a"}
+          stroke-width={0.5}
+        ></polygon>
+        <polygon
+          points={shadow.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
+          fill={"#0002"}
+        ></polygon>
       </>
     );
   };
 
   const c = 0.9 * Math.min(planeSize, Math.abs(planeHeight));
   const inputs = (n: number) =>
-    Array.from({ length: n }, () => scalar(-c + rng() * 2 * c));
+    Array.from({ length: n }, () => variable(-c + rng() * 2 * c));
   const tri1 = triangleWithShadow([inputs(3), inputs(3), inputs(3)], "#34379a");
   const tri2 = triangleWithShadow([inputs(3), inputs(3), inputs(3)], "#340000");
-
-  createEffect(async () => {
-    const f = props.onFinish;
-    if (f) {
-      await Promise.all(waiting);
-      f();
-    }
-  });
 
   return (
     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
@@ -135,7 +95,7 @@ export const Triangles = (props: TriangleProps) => {
 };
 
 export const RotatingTriangles = () => {
-  const theta = createMutable<Input>(scalar(0));
+  const theta = createMutable<Variable>(variable(0));
 
   // the slider has to be defined inline so the entire slider is not re-rendered. Otherwise, the slider will allow continuous sliding because it gets re-rendered after each slide
   const onSlide = (n: number) => {

@@ -6,8 +6,8 @@ import {
   perimeter,
   pow,
   problem,
-  scalar,
   sub,
+  variable,
 } from "@penrose/core";
 
 export default async function Curve(
@@ -17,8 +17,8 @@ export default async function Curve(
   length: number
 ) {
   const points = Array.from({ length: numPoints }, () => [
-    scalar(rng() * w),
-    scalar(rng() * h),
+    variable(rng() * w),
+    variable(rng() * h),
   ]);
 
   const p = await problem(pow(sub(elasticEnergy(points as any, true), 0), 2), [

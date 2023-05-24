@@ -5,9 +5,9 @@ import {
   onCanvasPoint,
   onCanvasRect,
   problem,
-  scalar,
   sdfRect,
   textBBox,
+  variable,
 } from "@penrose/core";
 import seedrandom from "seedrandom";
 import { JSX } from "solid-js/jsx-runtime";
@@ -20,7 +20,7 @@ export default async function Text(
   const [w, h] = canvas;
   const n = names.length;
 
-  const points = names.map(() => [scalar(rng() * w), scalar(rng() * h)]);
+  const points = names.map(() => [variable(rng() * w), variable(rng() * h)]);
   await problem(
     0,
     names.flatMap((_, i) => {
@@ -31,7 +31,7 @@ export default async function Text(
   ).then((p) => p.minimize());
 
   const texts = names.map((name) => {
-    const [x, y] = [scalar(rng() * w), scalar(rng() * h)];
+    const [x, y] = [variable(rng() * w), variable(rng() * h)];
     return {
       name,
       x,

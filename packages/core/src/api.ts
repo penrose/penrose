@@ -62,10 +62,26 @@ export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
 export { compile, ops, problem } from "./engine/Autodiff.js";
 export * from "./engine/AutodiffFunctions.js";
-export { Input, Num, Problem } from "./types/ad.js";
+export {
+  Binary,
+  Bool,
+  Comp,
+  Expr,
+  Index,
+  Logic,
+  Nary,
+  Not,
+  Num,
+  PolyRoots,
+  Problem,
+  Ternary,
+  Unary,
+  Input as Variable,
+  Vec,
+} from "./types/ad.js";
 export {
   measureText,
-  input as scalar,
+  input as variable,
   sdfRect,
   perimeter,
   consecutiveTuples,

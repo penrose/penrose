@@ -1,5 +1,5 @@
 import {
-  Input,
+  Variable,
   dist,
   elasticEnergy,
   eq,
@@ -7,8 +7,8 @@ import {
   perimeter,
   pow,
   problem,
-  scalar,
   sub,
+  variable,
 } from "@penrose/core";
 import seedrandom from "seedrandom";
 import { createEffect, createSignal, on, onCleanup } from "solid-js";
@@ -45,15 +45,15 @@ const Curves = () => {
   const [w, h] = [500, 500];
   const rng = seedrandom("test");
 
-  const [pts, rerun] = createSignal<Input[][]>([], { equals: false });
+  const [pts, rerun] = createSignal<Variable[][]>([], { equals: false });
   let p: any;
 
   createEffect(
     on([length, numPoints], async () => {
       rerun(
         Array.from({ length: numPoints() }, () => [
-          scalar(rng() * w),
-          scalar(rng() * h),
+          variable(rng() * w),
+          variable(rng() * h),
         ])
       );
       p = problem(pow(sub(elasticEnergy(pts() as any, true), 0), 2), [

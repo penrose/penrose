@@ -12,9 +12,9 @@ import {
   prepareState,
   problem,
   resample,
-  scalar,
   showError,
   stepUntilConvergence,
+  variable,
 } from "./index.js";
 import * as ad from "./types/ad.js";
 import { State } from "./types/state.js";
@@ -71,7 +71,7 @@ where Intersecting(x, y) {
 
 describe("API", () => {
   test("simple constraints", async () => {
-    const x = scalar(10);
+    const x = variable(10);
     (await problem(0, [pow(sub(x, 5), 2)])).minimize();
     expect(x.val).toBeCloseTo(5, 1);
   });
