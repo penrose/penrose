@@ -1,7 +1,6 @@
 <script setup>
 import { constrDict, compDict, objDict } from "@penrose/core"
 import Function from "../../../src/components/Function.vue"
-import markdownit from "markdown-it"
 </script>
 
 # Style Functions
@@ -12,7 +11,9 @@ import markdownit from "markdown-it"
 
 ### {{ f.name }}
 
+<ClientOnly>
 <Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+</ClientOnly>
 
 </div>
 
@@ -22,7 +23,9 @@ import markdownit from "markdown-it"
 
 ### {{ f.name }}
 
+<ClientOnly>
 <Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+</ClientOnly>
 
 </div>
 
@@ -32,6 +35,8 @@ import markdownit from "markdown-it"
 
 ### {{ f.name }}
 
+<ClientOnly>
 <Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+</ClientOnly>
 
 </div>
