@@ -52,9 +52,12 @@ import {
 import { PathBuilder } from "../renderer/PathBuilder.js";
 import { Circle } from "../shapes/Circle.js";
 import { Ellipse } from "../shapes/Ellipse.js";
+import { Group } from "../shapes/Group.js";
 import { Line } from "../shapes/Line.js";
+import { Path } from "../shapes/Path.js";
 import { Polygon } from "../shapes/Polygon.js";
 import { Polyline } from "../shapes/Polyline.js";
+import { Rectangle } from "../shapes/Rectangle.js";
 import { Context, uniform } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
@@ -3437,6 +3440,7 @@ const rayIntersectShape = (
         | Polyline<ad.Num>
         | Polygon<ad.Num>
         | Ellipse<ad.Num>
+        | Path<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[],
       v: ad.Num[]
@@ -3459,6 +3463,8 @@ const rayIntersectShape = (
       return rayIntersectPolygon(s,p,v);
    } else if (t === "Ellipse") {
       return rayIntersectEllipse(s,p,v);
+   } else if (t === "Path") {
+      throw new Error("Ray intersection not handled for Path");
    } else { // t === "Group"
       const firstHits = s.shapes.contents.map((shape) => rayIntersectShape(shape,p,v));
       const dist = firstHits.map((hit) => ops.vdist(hit[0],p));
@@ -3537,7 +3543,7 @@ const rayIntersectLine = (
 }
 
 const rayIntersectRect = (
-   S: Line<ad.Num>,
+   S: Rectlike<ad.Num>,
    p: ad.Num[],
    v: ad.Num[],
 ): ad.Num[][] => {
@@ -3669,6 +3675,7 @@ const closestPointShape = (
         | Polyline<ad.Num>
         | Polygon<ad.Num>
         | Ellipse<ad.Num>
+        | Path<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[]
 ): ad.Num[] => {
@@ -3690,6 +3697,8 @@ const closestPointShape = (
       return closestPointPolygon(s,p);
    } else if (t === "Ellipse") {
       return closestPointEllipse(s,p);
+   } else if (t === "Path") {
+      throw new Error("Closest point queries not handled for Path");
    } else { // t === "Group"
       const closestPoints = s.shapes.contents.map((shape) => closestPointShape(shape,p));
       const dist = closestPoints.map((point) => ops.vdist(point,p));
@@ -3863,6 +3872,7 @@ const closestSilhouettePointShape = (
         | Polyline<ad.Num>
         | Polygon<ad.Num>
         | Ellipse<ad.Num>
+        | Path<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[]
 ): ad.Num[] => {
@@ -3884,6 +3894,8 @@ const closestSilhouettePointShape = (
       return closestSilhouettePointPolygon(s,p);
    } else if (t === "Ellipse") {
       return closestSilhouettePointEllipse(s,p);
+   } else if (t === "Path") {
+      throw new Error("Silhouette queries not handled for Path");
    } else { // t === "Group"
       const closestSilhouettePoints = s.shapes.contents.map((shape) => closestSilhouettePointShape(shape,p));
       const dist = closestSilhouettePoints.map((point) => ops.vdist(point,p));
@@ -3938,8 +3950,8 @@ const closestSilhouettePointLine = (
  * rotated to be axis-aligned. */
 const closestSilhouettePointEllipseCoords = (
    p0: ad.Num[],
-   a0: ad.Num[],
-   b0: ad.Num[]
+   a0: ad.Num,
+   b0: ad.Num
 ): ad.Num[] => {
    const b = div(b0,a0);
    const b2 = mul(b,b);
@@ -3964,20 +3976,19 @@ const closestSilhouettePointEllipseCoords = (
 }
 
 const closestSilhouettePointRect = (
-   S: Line<ad.Num>,
-   p: ad.Num[],
-   v: ad.Num[],
-): ad.Num[][] => {
-   const c = S.center.contents;
-   const w = S.width.contents;
-   const h = S.height.contents;
+   R: Rectlike<ad.Num>,
+   p: ad.Num[]
+): ad.Num[] => {
+   const c = R.center.contents;
+   const w = R.width.contents;
+   const h = R.height.contents;
    const x0 = sub( c[0], div(w,2.) );
    const x1 = add( c[0], div(w,2.) );
    const y0 = sub( c[1], div(h,2.) );
    const y1 = add( c[1], div(h,2.) );
 
    const points = [ [x0,y0], [x1,y0], [x1,y1], [x0,y1] ];
-   const closestSilhouettePoints: ad.Num[][][] = [];
+   const closestSilhouettePoints: ad.Num[][] = [];
    const dist: ad.Num[] = [];
    for (let i = 0; i < 4; i++) {
       const a = points[i];
@@ -4038,7 +4049,7 @@ const closestSilhouettePointPolyline = (
 }
 
 const closestSilhouettePointPolygon = (
-   s: Polyline<ad.Num>,
+   s: Polygon<ad.Num>,
    p: ad.Num[]
 ): ad.Num[] => {
    const closestSilhouettePoints: ad.Num[][] = [];
@@ -4071,7 +4082,7 @@ const closestSilhouettePointCorner = (
    a: ad.Num[],
    b: ad.Num[],
    c: ad.Num[]
-): ad.Num => {
+): ad.Num[] => {
    const s = mul( ops.cross2( ops.vsub(b,a), ops.vsub(p,a) ),
                   ops.cross2( ops.vsub(c,b), ops.vsub(p,b) ) );
    const y0 = ifCond( lt(s,0), b[0], Infinity );
