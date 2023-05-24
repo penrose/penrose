@@ -1,4 +1,4 @@
-import { EPS_DENOM, ops } from "../engine/Autodiff";
+import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -10,13 +10,13 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import * as ad from "../types/ad";
-import { msign } from "./Functions";
-import { outwardUnitNormal } from "./Queries";
-import { toPt } from "./Utils";
+} from "../engine/AutodiffFunctions.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import * as ad from "../types/ad.js";
+import { msign } from "./Functions.js";
+import { outwardUnitNormal } from "./Queries.js";
+import { toPt } from "./Utils.js";
 
 /**
  * Parameters of implicitly defined ellipse:

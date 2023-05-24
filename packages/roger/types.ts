@@ -11,24 +11,13 @@ export interface OptProblem {
   objectiveCount: number;
 }
 
-export interface Reference {
-  substance: string;
-  style: string;
-  domain: string;
-  variation: string;
-}
-
 export interface InstanceData {
-  substanceName: string;
-  styleName: string;
-  domainName: string;
+  substanceName?: string;
+  styleNames?: string[];
+  domainName?: string;
   id: string;
   renderedOn: number;
   timeTaken: TimeTaken;
   selectorMatches: [];
   optProblem: OptProblem;
-}
-
-export interface AggregateData {
-  [key: string]: InstanceData;
 }

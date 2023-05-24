@@ -1,8 +1,8 @@
-import * as ad from "../types/ad";
-import { Arrow, Named, ShapeCommon, Stroke } from "../types/shapes";
-import { StrV, VectorV } from "../types/value";
-import { boolV, floatV, strV } from "../utils/Util";
-import { Canvas, Context, sampleColor, sampleVector } from "./Samplers";
+import * as ad from "../types/ad.js";
+import { Arrow, Named, ShapeCommon, Stroke } from "../types/shapes.js";
+import { StrV, VectorV } from "../types/value.js";
+import { boolV, floatV, strV } from "../utils/Util.js";
+import { Canvas, Context, sampleColor, sampleVector } from "./Samplers.js";
 
 export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T> {
   start: VectorV<T>;

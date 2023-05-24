@@ -5,7 +5,6 @@ import {
   resample,
   stepNextStage,
   stepState,
-  Trio,
 } from "@penrose/core";
 import localforage from "localforage";
 import { range } from "lodash";
@@ -14,23 +13,24 @@ import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
-  currentWorkspaceState,
   Diagram,
   DiagramGrid,
-  diagramGridState,
-  diagramState,
   EDITOR_VERSION,
   GistMetadata,
-  localFilesState,
   LocalGithubUser,
   Settings,
-  settingsState,
+  TrioWithPreview,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
+  currentWorkspaceState,
+  diagramGridState,
+  diagramState,
+  localFilesState,
+  settingsState,
   workspaceMetadataSelector,
-} from "./atoms";
-import { generateVariation } from "./variation";
+} from "./atoms.js";
+import { generateVariation } from "./variation.js";
 
 const _compileDiagram = async (
   substance: string,
@@ -226,55 +226,52 @@ export const useLoadLocalWorkspace = () =>
   });
 
 export const useLoadExampleWorkspace = () =>
-  useRecoilCallback(({ set, reset, snapshot }) => async (trio: Trio) => {
-    const currentWorkspace = snapshot.getLoadable(
-      currentWorkspaceState
-    ).contents;
-    if (!_confirmDirtyWorkspace(currentWorkspace)) {
-      return;
-    }
-    const id = toast.loading("Loading example...");
-    const domainReq = await fetch(trio.domainURI);
-    const styleReq = await fetch(trio.styleURI);
-    const substanceReq = await fetch(trio.substanceURI);
-    toast.dismiss(id);
-    const domain = await domainReq.text();
-    const style = await styleReq.text();
-    const substance = await substanceReq.text();
-    const styleParentURI = trio.styleURI.substring(
-      0,
-      trio.styleURI.lastIndexOf("/") + 1
-    );
-    set(currentWorkspaceState, {
-      metadata: {
-        id: uuid(),
-        name: trio.name,
-        lastModified: new Date().toISOString(),
-        editorVersion: EDITOR_VERSION,
-        location: {
-          kind: "example",
-          root: styleParentURI,
-        },
-        forkedFromGist: null,
-      },
-      files: {
-        domain: {
-          contents: domain,
-          name: `${trio.domainID}.domain`,
-        },
-        style: {
-          contents: style,
-          name: `${trio.styleID}.style`,
-        },
-        substance: {
-          contents: substance,
-          name: `${trio.substanceID}.substance`,
-        },
-      },
-    });
-    reset(diagramState);
-    await _compileDiagram(substance, style, domain, trio.variation, set);
-  });
+  useRecoilCallback(
+    ({ set, reset, snapshot }) =>
+      async (meta: TrioWithPreview) => {
+        const currentWorkspace = snapshot.getLoadable(
+          currentWorkspaceState
+        ).contents;
+        if (!_confirmDirtyWorkspace(currentWorkspace)) {
+          return;
+        }
+        const id = toast.loading("Loading example...");
+        const { domain, style, substance, variation } = await meta.get();
+        toast.dismiss(id);
+        const styleJoined = style.map(({ contents }) => contents).join("\n");
+        // HACK: we should really use each Style's individual `resolver`
+        const { resolver } = style[0];
+        set(currentWorkspaceState, {
+          metadata: {
+            id: uuid(),
+            name: meta.name!,
+            lastModified: new Date().toISOString(),
+            editorVersion: EDITOR_VERSION,
+            location: {
+              kind: "example",
+              resolver,
+            },
+            forkedFromGist: null,
+          },
+          files: {
+            domain: {
+              contents: domain,
+              name: `.domain`,
+            },
+            style: {
+              contents: styleJoined,
+              name: `.style`,
+            },
+            substance: {
+              contents: substance,
+              name: `.substance`,
+            },
+          },
+        });
+        reset(diagramState);
+        await _compileDiagram(substance, styleJoined, domain, variation, set);
+      }
+  );
 
 export const useCheckURL = () =>
   useRecoilCallback(({ set }) => async () => {
@@ -347,47 +344,8 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
-    } else if ("example_trio" in parsed) {
-      const root = `https://raw.githubusercontent.com/${parsed["example_trio"]}`;
-      const trioRes = await fetch(`${root}/trio.json`);
-      const trioJson = await trioRes.json();
-      const id = toast.loading("Loading example...");
-      const domainReq = await fetch(`${root}/${trioJson.domain}`);
-      const styleReq = await fetch(`${root}/${trioJson.style}`);
-      const substanceReq = await fetch(`${root}/${trioJson.substance}`);
-      toast.dismiss(id);
-      const domain = await domainReq.text();
-      const style = await styleReq.text();
-      const substance = await substanceReq.text();
-      const workspace: Workspace = {
-        metadata: {
-          id: uuid(),
-          name: trioJson.name,
-          editorVersion: EDITOR_VERSION,
-          lastModified: new Date().toISOString(),
-          location: {
-            kind: "example",
-            root,
-          },
-          forkedFromGist: null,
-        },
-        files: {
-          domain: {
-            contents: domain,
-            name: trioJson.domain,
-          },
-          style: {
-            contents: style,
-            name: trioJson.style,
-          },
-          substance: {
-            contents: substance,
-            name: trioJson.substance,
-          },
-        },
-      };
-      set(currentWorkspaceState, workspace);
     }
+    // TODO: implementing loading individual registry examples by URL
   });
 
 export const usePublishGist = () =>

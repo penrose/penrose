@@ -1,6 +1,12 @@
 import _ from "lodash";
 import moo from "moo";
-import { C, Identifier, NodeType, SourceLoc, SourceRange } from "../types/ast";
+import {
+  C,
+  Identifier,
+  NodeType,
+  SourceLoc,
+  SourceRange,
+} from "../types/ast.js";
 
 export const basicSymbols: moo.Rules = {
   ws: /[ \t]+/,

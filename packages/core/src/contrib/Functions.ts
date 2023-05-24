@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   acos,
@@ -47,17 +47,17 @@ import {
   tan,
   tanh,
   trunc,
-} from "../engine/AutodiffFunctions";
-import { PathBuilder } from "../renderer/PathBuilder";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import { Line } from "../shapes/Line";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Context, uniform } from "../shapes/Samplers";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { CompFunc } from "../types/functions";
+} from "../engine/AutodiffFunctions.js";
+import { PathBuilder } from "../renderer/PathBuilder.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Line } from "../shapes/Line.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Context, uniform } from "../shapes/Samplers.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { CompFunc } from "../types/functions.js";
 import {
   Color,
   ColorV,
@@ -67,7 +67,7 @@ import {
   PtListV,
   TupV,
   VectorV,
-} from "../types/value";
+} from "../types/value.js";
 import {
   booleanT,
   colorT,
@@ -92,7 +92,7 @@ import {
   unitT,
   valueT,
   vectorV,
-} from "../utils/Util";
+} from "../utils/Util.js";
 import {
   centerOfMass,
   elasticEnergy,
@@ -105,7 +105,7 @@ import {
   signedArea,
   totalCurvature,
   turningNumber,
-} from "./CurveConstraints";
+} from "./CurveConstraints.js";
 import {
   bboxFromShape,
   bboxPts,
@@ -119,8 +119,8 @@ import {
   shapeDistanceRectCircle,
   shapeDistanceRectLine,
   shapeDistanceRects,
-} from "./Queries";
-import { clamp, isRectlike, numOf, Rectlike, toPt } from "./Utils";
+} from "./Queries.js";
+import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
@@ -3091,7 +3091,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -3102,7 +3102,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: signedArea(points, closed) };
@@ -3120,7 +3120,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -3131,7 +3131,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return {
@@ -3151,7 +3151,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of polygonal chain",
       },
       {
@@ -3162,7 +3162,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: perimeter(points, closed) };
@@ -3180,7 +3180,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3191,7 +3191,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
@@ -3208,7 +3208,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3219,7 +3219,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: elasticEnergy(points, closed) };
@@ -3236,7 +3236,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3252,7 +3252,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       signed = true
     ): FloatV<ad.Num> => {
@@ -3273,7 +3273,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3289,7 +3289,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       k: number
     ): FloatV<ad.Num> => {
@@ -3307,7 +3307,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3318,7 +3318,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean
     ): FloatV<ad.Num> => {
       return { tag: "FloatV", contents: maxCurvature(points, closed) };
@@ -3335,7 +3335,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3351,7 +3351,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       p: number
     ): FloatV<ad.Num> => {
@@ -3370,7 +3370,7 @@ export const compDict = {
     params: [
       {
         name: "points",
-        type: real2NT(),
+        type: realNMT(),
         description: "points of curve",
       },
       {
@@ -3386,7 +3386,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][],
+      points: ad.Num[][],
       closed: boolean,
       p: number
     ): FloatV<ad.Num> => {

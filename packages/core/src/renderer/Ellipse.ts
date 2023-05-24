@@ -1,12 +1,12 @@
-import { Ellipse } from "../shapes/Ellipse";
+import { Ellipse } from "../shapes/Ellipse.js";
 import {
   attrAutoFillSvg,
   attrCenter,
   attrFill,
   attrStroke,
   attrTitle,
-} from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 const RenderEllipse = (
   shape: Ellipse<number>,

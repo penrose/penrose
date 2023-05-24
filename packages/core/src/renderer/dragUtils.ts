@@ -1,5 +1,5 @@
 import { start } from "@penrose/optimizer";
-import { State } from "../types/state";
+import { State } from "../types/state.js";
 
 /**
  * Retrieve data from drag events and update varying state accordingly

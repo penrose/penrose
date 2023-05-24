@@ -12,14 +12,14 @@ forall Graph g {
   g.xr = ?
   g.yb = ?
   g.yt = ?
-  encourage equal(g.xl, g.xr)
-  encourage equal(g.yb, g.yt)
-  ensure lessThan(100, g.x1 - g.xl)
-  ensure lessThan(100, g.x2 - g.x1)
-  ensure lessThan(100, g.x3 - g.x2)
-  ensure lessThan(100, g.xr - g.x3)
-  encourage equal(g.xl + g.xr, 0)
-  encourage equal(g.yb + g.yt, 0)
+  encourage g.xl == g.xr
+  encourage g.yb == g.yt
+  ensure 100 < g.x1 - g.xl
+  ensure 100 < g.x2 - g.x1
+  ensure 100 < g.x3 - g.x2
+  ensure 100 < g.xr - g.x3
+  encourage g.xl + g.xr == 0
+  encourage g.yb + g.yt == 0
 }
 
 forall Node n {
@@ -104,10 +104,10 @@ forall Node n {
     strokeWidth: n.w
     strokeColor: n.dotl.fillColor
   }
-  encourage equal(abs(n.y1 - n.yl), 50)
-  encourage equal(abs(n.y1 - n.y2), 50)
-  encourage equal(abs(n.y3 - n.y2), 50)
-  encourage equal(abs(n.y3 - n.yr), 50)
+  encourage abs(n.y1 - n.yl) == 50
+  encourage abs(n.y1 - n.y2) == 50
+  encourage abs(n.y3 - n.y2) == 50
+  encourage abs(n.y3 - n.yr) == 50
 }
 
 forall Layer1 l {
@@ -156,18 +156,18 @@ where GraphHasNode(g, n) {
   override n.x2 = g.x2
   override n.x3 = g.x3
   override n.xr = g.xr
-  ensure lessThan(g.yb, n.yr)
-  ensure lessThan(n.yr, g.yt)
-  ensure lessThan(g.yb, n.yl)
-  ensure lessThan(n.yl, g.yt)
+  ensure g.yb < n.yr
+  ensure n.yr < g.yt
+  ensure g.yb < n.yl
+  ensure n.yl < g.yt
 }
 
 forall Node n1; Node n2 {
-  encourage lessThan(50.0, abs(n2.yl - n1.yl))
-  encourage lessThan(50.0, abs(n2.y1 - n1.y1))
-  encourage lessThan(50.0, abs(n2.y2 - n1.y2))
-  encourage lessThan(50.0, abs(n2.y3 - n1.y3))
-  encourage lessThan(50.0, abs(n2.yr - n1.yr))
+  encourage 50.0 < abs(n2.yl - n1.yl)
+  encourage 50.0 < abs(n2.y1 - n1.y1)
+  encourage 50.0 < abs(n2.y2 - n1.y2)
+  encourage 50.0 < abs(n2.y3 - n1.y3)
+  encourage 50.0 < abs(n2.yr - n1.yr)
 }
 
 forall Edge e {
@@ -187,29 +187,29 @@ forall Edge e {
     ry: 0.5 * (e.yt - e.yb)
     fillColor: rgba(0.0, 0.0, 0.0, 0.2)
   }
-  encourage equal(e.yt, e.yb)
-  ensure equal(e.rectx, e.x)
+  encourage e.yt == e.yb
+  ensure e.rectx == e.x
 }
 
 forall Layer1 l; Edge e
 where Layer1HasEdge(l, e) {
   override e.x = l.x
-  ensure lessThan(l.yb, e.yb)
-  ensure lessThan(e.yt, l.yt)
+  ensure l.yb < e.yb
+  ensure e.yt < l.yt
 }
 
 forall Layer2 l; Edge e
 where Layer2HasEdge(l, e) {
   override e.x = l.x
-  ensure lessThan(l.yb, e.yb)
-  ensure lessThan(e.yt, l.yt)
+  ensure l.yb < e.yb
+  ensure e.yt < l.yt
 }
 
 forall Layer3 l; Edge e
 where Layer3HasEdge(l, e) {
   override e.x = l.x
-  ensure lessThan(l.yb, e.yb)
-  ensure lessThan(e.yt, l.yt)
+  ensure l.yb < e.yb
+  ensure e.yt < l.yt
 }
 
 forall Edge e; Node n
@@ -229,5 +229,5 @@ where EdgeHasNodeInLayer3(e, n) {
 
 forall Edge e1; Edge e2 {
   ensure disjoint(e1.rect, e2.rect, 20)
-  encourage lessThan(abs(e1.yt - e1.yb) + abs(e2.yt - e2.yb), abs(e1.yt + e1.yb - e2.yt - e2.yb))
+  encourage abs(e1.yt - e1.yb) + abs(e2.yt - e2.yb) < abs(e1.yt + e1.yb - e2.yt - e2.yb)
 }

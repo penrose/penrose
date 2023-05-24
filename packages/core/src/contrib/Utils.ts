@@ -4,7 +4,7 @@ import {
   genCodeSync,
   ops,
   secondaryGraph,
-} from "../engine/Autodiff";
+} from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -19,17 +19,17 @@ import {
   or,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Equation } from "../shapes/Equation";
-import { Image } from "../shapes/Image";
-import { Line } from "../shapes/Line";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Rectangle } from "../shapes/Rectangle";
-import { Shape } from "../shapes/Shapes";
-import { Text } from "../shapes/Text";
-import * as ad from "../types/ad";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Equation } from "../shapes/Equation.js";
+import { Image } from "../shapes/Image.js";
+import { Line } from "../shapes/Line.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Rectangle } from "../shapes/Rectangle.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
 
 export type Rectlike<T> = Equation<T> | Image<T> | Rectangle<T> | Text<T>;
 export type Polygonlike<T> = Rectlike<T> | Line<T> | Polygon<T> | Polyline<T>;

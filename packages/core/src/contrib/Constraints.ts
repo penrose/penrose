@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -13,31 +13,31 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Line } from "../shapes/Line";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { ConstrFunc } from "../types/functions";
-import { real2NT, real2T, realNT, realT, shapeT } from "../utils/Util";
-import { constrDictCurves } from "./CurveConstraints";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Line } from "../shapes/Line.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { ConstrFunc } from "../types/functions.js";
+import { real2NT, real2T, realNT, realT, shapeT } from "../utils/Util.js";
+import { constrDictCurves } from "./CurveConstraints.js";
 import {
   absCircleToImplicitEllipse,
   absEllipseToImplicit,
-} from "./ImplicitShapes";
+} from "./ImplicitShapes.js";
 import {
   containsConvexPolygonPoints,
   convexPartitions,
   overlappingImplicitEllipses,
-} from "./Minkowski";
+} from "./Minkowski.js";
 import {
   bboxFromShape,
   bboxPts,
   polygonLikePoints,
   shapeDistance,
-} from "./Queries";
-import * as utils from "./Utils";
-import { isRectlike, overlap1D, toPt } from "./Utils";
+} from "./Queries.js";
+import * as utils from "./Utils.js";
+import { isRectlike, overlap1D, toPt } from "./Utils.js";
 
 //#region Individual constriants
 /**

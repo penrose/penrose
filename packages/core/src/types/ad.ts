@@ -1,4 +1,4 @@
-import GenericGraph from "../utils/Graph";
+import GenericGraph from "../utils/Graph.js";
 
 // The following three regions define the core types for our automatic
 // differentiation engine.

@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   add,
   div,
@@ -16,19 +16,19 @@ import {
   squared,
   sub,
   xor,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { computeShapeBbox, Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { msign } from "./Functions";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Shape, computeShapeBbox } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { msign } from "./Functions.js";
 import {
   convexPartitions,
   overlappingPolygonPoints,
   overlappingPolygonPointsEllipse,
   rectangleDifference,
   rectangleSignedDistance,
-} from "./Minkowski";
-import { isLinelike, isPolygonlike, isRectlike, toPt } from "./Utils";
+} from "./Minkowski.js";
+import { isLinelike, isPolygonlike, isRectlike, toPt } from "./Utils.js";
 
 /**
  * Return bounding box from any provided shape.

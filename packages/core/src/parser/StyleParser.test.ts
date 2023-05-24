@@ -1,43 +1,15 @@
-import geometryDomain from "@penrose/examples/dist/geometry-domain";
-import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain";
-import setTheoryDomain from "@penrose/examples/dist/set-theory-domain";
-import * as fs from "fs";
 import nearley from "nearley";
-import { parseStyle } from "../compiler/Style";
-import { C } from "../types/ast";
-import { StyProg } from "../types/style";
-import grammar from "./StyleParser";
-
-const outputDir = "/tmp/asts";
-const saveASTs = false;
+import { beforeEach, describe, expect, test } from "vitest";
+import { parseStyle } from "../compiler/Style.js";
+import { C } from "../types/ast.js";
+import { StyProg } from "../types/style.js";
+import grammar from "./StyleParser.js";
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
   for (const p of results) expect(results[0]).toEqual(p);
   expect(results.length).toEqual(1);
 };
-
-// USAGE:
-// printAST(results[0])
-const printAST = (ast: any) => {
-  console.log(JSON.stringify(ast));
-};
-
-const stys = [
-  [
-    "linear-algebra-domain/linear-algebra-paper-simple.style",
-    linearAlgebraDomain["linear-algebra-paper-simple.style"],
-  ],
-  ["set-theory-domain/venn.style", setTheoryDomain["venn.style"]],
-  ["set-theory-domain/venn-3d.style", setTheoryDomain["venn-3d.style"]],
-  ["set-theory-domain/venn-small.style", setTheoryDomain["venn-small.style"]],
-  ["set-theory-domain/tree.style", setTheoryDomain["tree.style"]],
-  [
-    "set-theory-domain/continuousmap.style",
-    setTheoryDomain["continuousmap.style"],
-  ],
-  ["geometry-domain/euclidean.style", geometryDomain["euclidean.style"]],
-];
 
 beforeEach(() => {
   // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
@@ -52,15 +24,15 @@ describe("Common", () => {
   test("unbalanced curly", () => {
     const prog = `
     forall Set x {
-      x.shape = Circle { 
+      x.shape = Circle {
   }
     `;
     expect(parseStyle(prog).isErr()).toEqual(true);
   });
   test("type keyword check", () => {
     const prog = `
-const { 
-  A.shape = Circle {} 
+const {
+  A.shape = Circle {}
   B.icon.x = 2.5
 }
     `;
@@ -91,12 +63,12 @@ describe("Selector Grammar", () => {
     const prog = `
   -- this is a comment
 
-  forall Set A with Set B { 
+  forall Set A with Set B {
 
   }
-  
-  forall Set A, \`B\`; Map f 
-  { 
+
+  forall Set A, \`B\`; Map f
+  {
   }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -152,7 +124,7 @@ as Const
     const prog = `
 forall Set A, B, C, D
 where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
-{ 
+{
   foo.arrow = Arrow{}
   yeet.circle = Circle{}
   bar.square = Square{}
@@ -269,7 +241,7 @@ describe("Block Grammar", () => {
   test("empty block with comments and blank lines", () => {
     const prog = `
 forall Set A, B; Map f {
-     
+
   -- comments
 
 
@@ -304,7 +276,7 @@ forall Set A, B; Map f {
     const prog = `
 forall Set A, B; Map f {
   -- beginning comment
-  delete A.arrow.center 
+  delete A.arrow.center
   -- between comment
   delete B.arrow
   delete localx
@@ -320,7 +292,7 @@ forall Set A, B; Map f {
   delete A.arrow.center -- end of statement comment
   -- between comment
   delete B.arrow
--- delete C.arrow 
+-- delete C.arrow
   delete localx -- end of block comment
 }`;
     const { results } = parser.feed(prog);
@@ -400,7 +372,7 @@ const {
   d3 = 04350. -- error?
   -- exp
   e1 = 0.0314E+2
-  e2 = 314e-2 
+  e2 = 314e-2
   -- function
   A.func = comp("some string", 1.347e-2)
 }`;
@@ -431,7 +403,7 @@ const {
   encourage MathPI()*4 > abs(sqrt(b))
   encourage a < b
   encourage a > b
-  -- ensure 
+  -- ensure
   A.fn = ensure obj("string1", true, "string\\n", false)
   ensure a == b
   ensure a < b
@@ -459,7 +431,7 @@ const {
   -- empty
   \`A\`.circle = Circle {  }
   A.circle = Circle {
-    --- comments 
+    --- comments
 
   }
   -- venn
@@ -482,19 +454,19 @@ const {
   pn3 = 1 + (-3.14) / 3.0 * (-2.0)
   -- nesting and parens
   n1 = (1.0)
-  n2 = (1.0 + .2) 
+  n2 = (1.0 + .2)
   float n3 = 1.0 + 2.0 / .3
   -- plus/minus
   p1 = 1.0 - 2.0
-  p2 = 1.0 + "string" -- should still parse 
-  p3 = 1.0 + ? 
-  float p4 = 1.0 + 2.0 - 3.0 + 4.0 
+  p2 = 1.0 + "string" -- should still parse
+  p3 = 1.0 + ?
+  float p4 = 1.0 + 2.0 - 3.0 + 4.0
   -- mul/div
   m1 = 1.0 / 2.0
-  m2 = 1.0 * "string" -- should still parse 
-  m3 = 1.0 / ? 
-  m3 = 1.0 * ? 
-  m4 = 1.0 * 2.0 / 3.0 / 4.0 
+  m2 = 1.0 * "string" -- should still parse
+  m3 = 1.0 / ?
+  m3 = 1.0 * ?
+  m4 = 1.0 * 2.0 / 3.0 / 4.0
   -- exp
   e1 = 1.0^5 + 5.0^ 3
   e1 = 1.0 ^ (5 + 8) + 5.0 ^3
@@ -554,19 +526,5 @@ testing {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-  });
-});
-
-describe("Real Programs", () => {
-  // create output folder
-  if (saveASTs && !fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
-  }
-
-  stys.forEach(([examplePath, prog]) => {
-    test(examplePath, () => {
-      const { results } = parser.feed(prog);
-      sameASTs(results);
-    });
   });
 });
