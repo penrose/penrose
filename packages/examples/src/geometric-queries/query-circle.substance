@@ -1,0 +1,10 @@
+Circle S
+Point p
+Ray r
+
+r := rayFrom(p)
+
+Point a := rayIntersect(S,r)
+Point b := closestPoint(S,p)
+Point c := closestSilhouettePoint(S,p)
+
