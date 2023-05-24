@@ -8,18 +8,30 @@ import markdownit from "markdown-it"
 
 ## Constraint Functions
 
-<div v-for="f in constrDict">
-  <Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+<div v-for="(f, index) in constrDict" :key="index">
+
+### {{ f.name }}
+
+<Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+
 </div>
 
 ## Objective Functions
 
 <div v-for="f in objDict">
-  <Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+
+### {{ f.name }}
+
+<Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+
 </div>
 
 ## Computation Functions
 
 <div v-for="f in compDict">
-  <Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+
+### {{ f.name }}
+
+<Function :name="f.name" :description="f.description" :params="f.params" :returns="f.returns" />
+
 </div>

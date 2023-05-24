@@ -49,6 +49,6 @@
     "markdown-it": "^13.0.1",
     "markdown-it-katex": "^2.0.3",
     "shx": "^0.3.3",
-    "vitepress": "^1.0.0-alpha.35"
+    "vitepress": "^1.0.0-beta.1"
   }
 }

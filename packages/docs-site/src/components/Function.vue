@@ -20,10 +20,6 @@ export default defineComponent({
 </script>
 
 <template>
-  <h3>
-    {{ name }}
-    <a class="header-anchor" href="#name" aria-hidden="true">#</a>
-  </h3>
   <div v-html="desc"></div>
   <div v-if="parameters.length > 0">
     <h4>Parameters:</h4>
