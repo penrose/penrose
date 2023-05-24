@@ -15,7 +15,7 @@ import { numSignal } from "./util.js";
 
 export interface TriangleProps {
   seed?: string;
-  theta: Var;
+  theta: Num;
 }
 
 export const Triangles = (props: TriangleProps) => {
