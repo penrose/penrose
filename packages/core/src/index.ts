@@ -13,7 +13,11 @@ import { Env } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
 import { Fn, LabelCache, State } from "./types/state.js";
 import { SubstanceEnv } from "./types/substance.js";
-import { collectLabels, insertPending } from "./utils/CollectLabels.js";
+import {
+  collectLabels,
+  insertPending,
+  mathjaxInit,
+} from "./utils/CollectLabels.js";
 import {
   Result,
   andThen,
@@ -259,8 +263,10 @@ export const compileTrio = async (prog: {
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
+  const convert = mathjaxInit();
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
-    state.shapes
+    state.shapes,
+    convert
   );
 
   if (labelCache.isErr()) {
@@ -356,9 +362,9 @@ export * as Value from "./types/value.js";
 export { showError } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {
+  describeType,
   hexToRgba,
   prettyPrintExpr,
-  describeType,
   prettyPrintFn,
   prettyPrintPath,
   rgbaToHex,
