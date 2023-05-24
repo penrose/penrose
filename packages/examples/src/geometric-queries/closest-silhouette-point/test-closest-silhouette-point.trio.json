@@ -1,0 +1,6 @@
+{
+  "substance": "./test-closest-silhouette-point.substance",
+  "style": ["./closest-silhouette-point.style"],
+  "domain": "./closest-silhouette-point.domain",
+  "variation": "CatfishDonkey135"
+}

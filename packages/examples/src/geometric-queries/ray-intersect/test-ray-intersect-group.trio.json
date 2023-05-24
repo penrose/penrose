@@ -1,0 +1,6 @@
+{
+  "substance": "./test-ray-intersect-group.substance",
+  "style": ["./ray-intersect-group.style"],
+  "domain": "./ray-intersect.domain",
+  "variation": "AntiguaSalmon4454"
+}

@@ -1,0 +1,6 @@
+{
+  "substance": "./test-geometric-queries.substance",
+  "style": ["./geometric-queries.style"],
+  "domain": "./geometric-queries.domain",
+  "variation": "MettwurstCattle35745"
+}

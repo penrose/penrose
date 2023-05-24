@@ -250,5 +250,33 @@
   },
   "curve-examples/blobs": { "name": "Blobs" },
   "curve-examples/space-curves": { "name": "Space curves" },
-  "solid/example": { "trio": false }
+  "solid/example": { "trio": false },
+  "geometric-queries/ray-intersect/test-ray-intersect-group": {
+    "name": "Ray Casting",
+    "gallery": true
+  },
+  "ray-tracing/path-trace": {
+    "name": "Path Tracing",
+    "gallery": true
+  },
+  "geometric-queries/test-geometric-queries": {
+    "name": "Geometric Queries",
+    "gallery": true
+  },
+  "geometric-queries/closest-point/test-closest-point-group": {
+    "name": "Closest Point Queries",
+    "gallery": true
+  },
+  "geometric-queries/closest-point/test-closest-point": {
+    "name": "More Closest Point Queries",
+    "gallery": false
+  },
+  "geometric-queries/closest-silhouette-point/test-closest-silhouette-point": {
+    "name": "Silhouette Point Queries",
+    "gallery": false
+  },
+  "geometric-queries/ray-intersect/test-ray-intersect": {
+    "name": "Ray Intersection Tests",
+    "gallery": false
+  }
 }

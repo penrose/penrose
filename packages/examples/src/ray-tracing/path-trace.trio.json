@@ -1,0 +1,6 @@
+{
+  "substance": "./path-trace.substance",
+  "style": ["./path-trace.style"],
+  "domain": "./path-trace.domain",
+  "variation": "ImmortalityGerbil49958"
+}
