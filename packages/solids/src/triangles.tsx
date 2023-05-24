@@ -55,7 +55,7 @@ export const Triangles = (props: TriangleProps) => {
   );
 
   // triangles
-  const triangleWithShadow = (qs: Var[][], fillColor: string) => {
+  const triangleWithShadow = (qs: Num[][], fillColor: string) => {
     // triangle
     const [qi, qj, qk] = qs.map((p) => rotate(p, props.theta));
     const ps = [qi, qj, qk].map(perspective);
@@ -80,10 +80,10 @@ export const Triangles = (props: TriangleProps) => {
   };
 
   const c = 0.9 * Math.min(planeSize, Math.abs(planeHeight));
-  const inputs = (n: number) =>
-    Array.from({ length: n }, () => variable(-c + rng() * 2 * c));
-  const tri1 = triangleWithShadow([inputs(3), inputs(3), inputs(3)], "#34379a");
-  const tri2 = triangleWithShadow([inputs(3), inputs(3), inputs(3)], "#340000");
+  const rand = (n: number) =>
+    Array.from({ length: n }, () => -c + rng() * 2 * c);
+  const tri1 = triangleWithShadow([rand(3), rand(3), rand(3)], "#34379a");
+  const tri2 = triangleWithShadow([rand(3), rand(3), rand(3)], "#340000");
 
   return (
     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
