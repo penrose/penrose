@@ -15,18 +15,18 @@ import {
 } from "@material-ui/core";
 import { Listing } from "@penrose/components";
 import { compileDomain, Env, showError } from "@penrose/core";
-import examples from "@penrose/examples/dist/index";
+import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
 import React from "react";
 import Latex from "react-latex-next";
-import { Preset, presets } from "../examples";
+import { Preset, presets } from "../examples.js";
 import {
   DeclTypes,
   MatchSetting,
   SynthesizerSetting,
-} from "../synthesis/Synthesizer";
-import { wildcardType } from "../util";
-import { MultiselectDropdown } from "./MultiselectDropdown";
-import WeightSlider from "./WeightSlider";
+} from "../synthesis/Synthesizer.js";
+import { wildcardType } from "../util.js";
+import { MultiselectDropdown } from "./MultiselectDropdown.js";
+import WeightSlider from "./WeightSlider.js";
 
 const DEFAULT_MUTATION_COUNT = [1, 4];
 
@@ -138,8 +138,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
     this.state = {
-      substance:
-        examples["geometry-domain"].textbook_problems["c04p01.substance"],
+      substance: c04p01,
       setting: undefined,
       numPrograms: 10,
       seed: "test0", // default seed

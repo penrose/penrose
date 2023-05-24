@@ -1,9 +1,9 @@
 import { createHashRouter, RouterProvider } from "react-router-dom";
-import { Content } from "./components/Content";
-import All from "./problems/all";
-import Chemistry from "./problems/chemistry";
-import Geometry from "./problems/geometry";
-import Graphs from "./problems/graphs";
+import { Content } from "./components/Content.js";
+import All from "./problems/all.js";
+import Chemistry from "./problems/chemistry.js";
+import Geometry from "./problems/geometry.js";
+import Graphs from "./problems/graphs.js";
 
 const router = createHashRouter([
   {

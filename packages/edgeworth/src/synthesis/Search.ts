@@ -26,7 +26,7 @@ import {
   nodesEqual,
   sortStmts,
   subProg,
-} from "../analysis/SubstanceAnalysis";
+} from "../analysis/SubstanceAnalysis.js";
 import {
   Add,
   Delete,
@@ -37,13 +37,13 @@ import {
   enumerateProgMutations,
   enumerateStmtMutations,
   executeMutation,
-} from "./Mutation";
+} from "./Mutation.js";
 import {
   SynthesisContext,
   WithContext,
   filterContext,
   initContext,
-} from "./Synthesizer";
+} from "./Synthesizer.js";
 
 //#region Fine-grained diffs
 

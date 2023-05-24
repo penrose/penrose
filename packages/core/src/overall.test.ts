@@ -1,21 +1,70 @@
-import setTHeory from "@penrose/examples/dist/set-theory-domain";
+// @vitest-environment jsdom
+
 import { start } from "@penrose/optimizer";
-import { genGradient } from "./engine/Autodiff";
+import { describe, expect, test } from "vitest";
+import { genGradient } from "./engine/Autodiff.js";
 import {
+  RenderStatic,
   compileTrio,
   evalEnergy,
   evalFns,
   prepareState,
-  RenderStatic,
   resample,
   showError,
   stepUntilConvergence,
-} from "./index";
-import * as ad from "./types/ad";
-import { State } from "./types/state";
+} from "./index.js";
+import * as ad from "./types/ad.js";
+import { State } from "./types/state.js";
 
-const vennStyle = setTHeory["venn.style"];
-const setDomain = setTHeory["setTheory.domain"];
+// copied from `packages/examples/src/set-theory-domain/setTheory.domain`
+const setDomain = `type Set
+
+predicate Not(Prop p1)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
+`;
+
+// copied from `packages/examples/src/set-theory-domain/venn.style`
+const vennStyle = `canvas {
+  width = 800
+  height = 700
+}
+
+forall Set x {
+  x.icon = Circle {
+    strokeWidth : 0
+  }
+
+  x.text = Equation {
+    string : x.label
+    fontSize : "25px"
+  }
+
+  ensure contains(x.icon, x.text)
+  encourage sameCenter(x.text, x.icon)
+  x.textLayering = x.text above x.icon
+}
+
+forall Set x; Set y
+where IsSubset(x, y) {
+  ensure smallerThan(x.icon, y.icon)
+  ensure disjoint(y.text, x.icon, 10)
+  ensure contains(y.icon, x.icon, 5)
+  x.icon above y.icon
+}
+
+forall Set x; Set y
+where Not(Intersecting(x, y)) {
+  ensure disjoint(x.icon, y.icon)
+}
+
+forall Set x; Set y
+where Intersecting(x, y) {
+  ensure overlapping(x.icon, y.icon)
+  ensure disjoint(y.text, x.icon)
+  ensure disjoint(x.text, y.icon)
+}
+`;
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>

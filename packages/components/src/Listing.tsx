@@ -2,7 +2,7 @@ import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { compileDomain } from "@penrose/core";
 import { editor } from "monaco-editor";
 import { useEffect } from "react";
-import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig";
+import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
 
 export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions =
   {

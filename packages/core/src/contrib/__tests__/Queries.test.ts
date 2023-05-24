@@ -1,17 +1,18 @@
-import { ops } from "../../engine/Autodiff";
-import { sub } from "../../engine/AutodiffFunctions";
-import { makeCircle } from "../../shapes/Circle";
-import { makeEllipse } from "../../shapes/Ellipse";
-import { makeLine } from "../../shapes/Line";
-import { makePath } from "../../shapes/Path";
-import { makePolygon } from "../../shapes/Polygon";
-import { makeRectangle } from "../../shapes/Rectangle";
-import { makeCanvas, simpleContext } from "../../shapes/Samplers";
-import { Shape } from "../../shapes/Shapes";
-import * as ad from "../../types/ad";
-import { Pt2 } from "../../types/ad";
-import { black, floatV, ptListV, vectorV } from "../../utils/Util";
-import { compDict } from "../Functions";
+import { describe, expect, it, test } from "vitest";
+import { ops } from "../../engine/Autodiff.js";
+import { sub } from "../../engine/AutodiffFunctions.js";
+import { makeCircle } from "../../shapes/Circle.js";
+import { makeEllipse } from "../../shapes/Ellipse.js";
+import { makeLine } from "../../shapes/Line.js";
+import { makePath } from "../../shapes/Path.js";
+import { makePolygon } from "../../shapes/Polygon.js";
+import { makeRectangle } from "../../shapes/Rectangle.js";
+import { makeCanvas, simpleContext } from "../../shapes/Samplers.js";
+import { Shape } from "../../shapes/Shapes.js";
+import * as ad from "../../types/ad.js";
+import { Pt2 } from "../../types/ad.js";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import { compDict } from "../Functions.js";
 import {
   bboxFromShape,
   convexPolygonOriginSignedDistance,
@@ -21,9 +22,9 @@ import {
   shapeDistanceAABBs,
   shapeDistancePolygonlikes,
   shapeSize,
-} from "../Queries";
-import { numOf, numsOf } from "../Utils";
-import { _rectangles } from "../__testfixtures__/TestShapes.input";
+} from "../Queries.js";
+import { numOf, numsOf } from "../Utils.js";
+import { _rectangles } from "../__testfixtures__/TestShapes.input.js";
 
 const context = simpleContext("Queries");
 const canvas = makeCanvas(800, 700);
@@ -243,7 +244,7 @@ describe("convexPolygonOriginSignedDistance", () => {
   });
 });
 
-describe("shapeDistanceAABBs should return the same value as shapeDistancePolygonlikes", () => {
+test("shapeDistanceAABBs should return the same value as shapeDistancePolygonlikes", () => {
   for (const i in _rectangles) {
     const r1 = _rectangles[i];
 

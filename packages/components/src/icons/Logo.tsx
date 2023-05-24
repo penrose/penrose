@@ -1,4 +1,4 @@
-import { COLORS } from "../styles";
+import { COLORS } from "../styles.js";
 export default ({
   width,
   color = COLORS.primary,

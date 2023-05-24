@@ -1,0 +1,6 @@
+{
+  "substance": "./caffeine.substance",
+  "style": ["../structural-formula.style"],
+  "domain": "../structural-formula.domain",
+  "variation": ""
+}

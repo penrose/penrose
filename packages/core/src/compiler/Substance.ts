@@ -1,10 +1,10 @@
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
-import { dummyIdentifier } from "../engine/EngineUtils";
-import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil";
-import substanceGrammar from "../parser/SubstanceParser";
-import { A, ASTNode, C, Identifier } from "../types/ast";
+import { dummyIdentifier } from "../engine/EngineUtils.js";
+import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
+import substanceGrammar from "../parser/SubstanceParser.js";
+import { A, ASTNode, C, Identifier } from "../types/ast.js";
 import {
   Arg,
   ConstructorDecl,
@@ -12,8 +12,8 @@ import {
   FunctionDecl,
   Type,
   TypeConstructor,
-} from "../types/domain";
-import { ParseError, PenroseError, SubstanceError } from "../types/errors";
+} from "../types/domain.js";
+import { ParseError, PenroseError, SubstanceError } from "../types/errors.js";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -32,7 +32,7 @@ import {
   SubStmt,
   SubstanceEnv,
   TypeConsApp,
-} from "../types/substance";
+} from "../types/substance.js";
 import {
   Result,
   and,
@@ -50,9 +50,14 @@ import {
   typeNotFound,
   unexpectedExprForNestedPred,
   varNotFound,
-} from "../utils/Error";
-import { zip2 } from "../utils/Util";
-import { bottomType, checkTypeConstructor, isSubtype, topType } from "./Domain";
+} from "../utils/Error.js";
+import { zip2 } from "../utils/Util.js";
+import {
+  bottomType,
+  checkTypeConstructor,
+  isSubtype,
+  topType,
+} from "./Domain.js";
 
 export const parseSubstance = (
   prog: string

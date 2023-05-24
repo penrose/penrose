@@ -6,9 +6,9 @@
 /* eslint-disable */
 import moo from "moo";
 import _ from 'lodash'
-import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
-import { C, ConcreteNode, StringLit } from "../types/ast";
-import { DomainProg, TypeDecl, PredicateDecl, FunctionDecl, ConstructorDecl, PreludeDecl, NotationDecl, SubTypeDecl, TypeConstructor, Type, Arg, Prop } from "../types/domain";
+import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
+import { C, ConcreteNode, StringLit } from "../types/ast.js";
+import { DomainProg, TypeDecl, PredicateDecl, FunctionDecl, ConstructorDecl, PreludeDecl, NotationDecl, SubTypeDecl, TypeConstructor, Type, Arg, Prop } from "../types/domain.js";
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({

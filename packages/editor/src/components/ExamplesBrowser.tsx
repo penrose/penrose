@@ -1,7 +1,7 @@
 import { useRecoilValueLoadable } from "recoil";
-import { exampleTriosState } from "../state/atoms";
-import { useLoadExampleWorkspace } from "../state/callbacks";
-import FileButton from "./FileButton";
+import { exampleTriosState } from "../state/atoms.js";
+import { useLoadExampleWorkspace } from "../state/callbacks.js";
+import FileButton from "./FileButton.js";
 
 export default function ExamplesBrowser() {
   const examples = useRecoilValueLoadable(exampleTriosState);

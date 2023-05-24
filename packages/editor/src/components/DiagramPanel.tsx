@@ -21,8 +21,8 @@ import {
   diagramState,
   fileContentsSelector,
   workspaceMetadataSelector,
-} from "../state/atoms";
-import BlueButton from "./BlueButton";
+} from "../state/atoms.js";
+import BlueButton from "./BlueButton.js";
 
 /**
  * Fetch url, but try local storage first using a name.
@@ -83,11 +83,7 @@ export const pathResolver = async (
   // Handle relative paths
   switch (location.kind) {
     case "example": {
-      return fetchResource(
-        relativePath,
-        workspace,
-        new URL(relativePath, location.root).href
-      );
+      return location.resolver(relativePath);
     }
     case "roger": {
       if (rogerState.kind === "connected") {
@@ -304,8 +300,6 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             );
-        rendered.setAttribute("width", "100%");
-        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
