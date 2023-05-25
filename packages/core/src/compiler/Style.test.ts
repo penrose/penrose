@@ -1328,4 +1328,25 @@ delete x.z.p }`,
       }
     });
   });
+
+  describe("gather dependencies", () => {
+    test("indexing", async () => {
+      const dsl = "type T";
+      const sub = "T t";
+      const sty =
+        canvasPreamble +
+        `
+forall T t {
+  t.xs = [1, 2, 3, 4, 5, 6]
+  t.index = 3
+  t.v = t.xs[t.index]
+}
+      `;
+
+      const { graph } = await loadProgs({ dsl, sub, sty });
+      expect(graph.parents("`t`.v").sort()).toEqual(
+        ["`t`.xs", "`t`.index"].sort()
+      );
+    });
+  });
 });
