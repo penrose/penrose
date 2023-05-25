@@ -3695,7 +3695,7 @@ const rayIntersectLineCoords = (
   const x = ops.vadd(p, ops.vmul(T, v));
 
   // normal
-  let n = ops.vnormalize(ops.rot90(u));
+  const n = ops.vnormalize(ops.rot90(u));
   const nX = ifCond(
     lt(t, 0),
     0,
@@ -3890,8 +3890,8 @@ const closestPointEllipseCoords = (
     const d2 = mul(b, mul(p[1], sin(t)));
     t = sub(t, div(sub(n3, n0), sub(sub(d1, d2), d0)));
   }
-  let y0 = mul(a, cos(t));
-  let y1 = mul(b, sin(t));
+  const y0 = mul(a, cos(t));
+  const y1 = mul(b, sin(t));
   return ops.vadd([y0, y1], c);
 };
 
@@ -4106,12 +4106,12 @@ const closestSilhouettePointPolyline = (
 
   //endpoints
   const q0 = s.points.contents[0];
-  let dist0 = ops.vdist(p, q0);
+  const dist0 = ops.vdist(p, q0);
   minDist = ifCond(lt(minDist, dist0), minDist, dist0);
   closestX = ifCond(eq(minDist, dist0), q0[0], closestX);
   closestY = ifCond(eq(minDist, dist0), q0[1], closestY);
   const qN = s.points.contents[s.points.contents.length - 1];
-  let distN = ops.vdist(p, qN);
+  const distN = ops.vdist(p, qN);
   minDist = ifCond(lt(minDist, distN), minDist, distN);
   closestX = ifCond(eq(minDist, distN), qN[0], closestX);
   closestY = ifCond(eq(minDist, distN), qN[1], closestY);
