@@ -228,7 +228,11 @@ function mapClipDataInner<T, S>(f: (arg: T) => S, v: ClipData<T>): ClipData<S> {
   if (v.tag === "NoClip") {
     return { tag: "NoClip" };
   } else {
-    return { tag: "Clip", contents: mapShape(f, v.contents) };
+    const mapped = mapShape(f, v.contents);
+    if (mapped.shapeType === "Group") {
+      throw new Error("Got a Group shape in mapClipDataInner");
+    }
+    return { tag: "Clip", contents: mapped };
   }
 }
 

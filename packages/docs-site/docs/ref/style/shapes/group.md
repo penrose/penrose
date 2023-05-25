@@ -92,6 +92,8 @@ In Penrose, the `clipPath` property can take in two types of values:
 - `noClip()` denotes that this `Group` shape is not clipped by any other shape.
 - `clip(someShape)` denotes that this `Group` shape is clipped by `someShape`, which, just like other group members, must be declared previously and referred to by its path.
 
+Since the SVG standard does not allow `Group` shapes (`<g>` tags) to clip other shapes, we disallow this too. That is, `clip(g)` where `g` is a `Group` shape is not allowed.
+
 As an example, to define a `Group` shape with members `s1` and `s2`, clipped by `s3`, one can write,
 
 ```

@@ -648,10 +648,15 @@ export const noClip = (): NoClip => ({
   tag: "NoClip",
 });
 
-export const clipShape = (contents: Shape<ad.Num>): Clip<ad.Num> => ({
-  tag: "Clip",
-  contents,
-});
+export const clipShape = (contents: Shape<ad.Num>): Clip<ad.Num> => {
+  if (contents.shapeType === "Group") {
+    throw new Error("Cannot use a Group shape as clip path");
+  }
+  return {
+    tag: "Clip",
+    contents,
+  };
+};
 
 //#endregion
 

@@ -1,3 +1,4 @@
+import { Group } from "../shapes/Group.js";
 import { Shape as RealShape, Shape } from "../shapes/Shapes.js";
 import { SourceRange } from "./ast.js";
 
@@ -162,5 +163,5 @@ export interface NoClip {
 
 export interface Clip<T> {
   tag: "Clip";
-  contents: Shape<T>;
+  contents: Exclude<Shape<T>, Group<T>>;
 }
