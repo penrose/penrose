@@ -56,6 +56,14 @@ global {
 
 }
 
+forall Category c {
+    -- mix random RGB values with white gives slightly better colors
+    r = unitRandom() * 0.4 + 0.6
+    g = unitRandom() * 0.4 + 0.6
+    b = unitRandom() * 0.4 + 0.6
+    c.fillColor = rgba(r, g, b, 1)
+}
+
 forall Year y {
     y.minX = ?
     y.maxX = ?
@@ -116,7 +124,6 @@ forall Quarter q {
         strokeWidth : global.gridLineWeight
         strokeColor: colors.gray
     }
-    layer q.slotEnd above q.slotBegin
     layer q.slotEnd below global.baseline
     layer q.slotBegin below global.baseline
 }
@@ -128,11 +135,6 @@ foreach Year y {
     override y.minX = minList(listof startSlotX from qs)
     override y.maxX = maxList(listof   endSlotX from qs)
 }
-
--- forall Quarter q1; Quarter q2
--- where Before(q1, q2) {
---     layer q2.slotBegin above q1.slotEnd
--- }
 
 forall Task e
 where e := MkTask(start, end)
@@ -162,26 +164,32 @@ with Quarter start; Quarter end;{
     ensure lessThan(topBox, topWithPadding)
     bottomWithPadding = global.bottomGridY + global.taskPadding
     ensure greaterThan(bottomBox, bottomWithPadding)
-    layer e.icon above end.slotEnd
+    layer e.icon above global.baseline
     layer e.text above e.icon
+}
+
+forall Task e 
+where In(e, c)
+with Category c {
+   e.icon.fillColor = c.fillColor
 }
 
 forall Task e
 where In(e, `access`)
 with Category `access` {
-   e.icon.fillColor = colors.green
+   override e.icon.fillColor = colors.green
 }
 
 forall Task e
 where In (e, `milestone`)
 with  Category `milestone` {
-   e.icon.fillColor = colors.blue
+   override e.icon.fillColor = colors.blue
 }
 
 forall Task e
 where In(e, `outcome`)
 with Category `outcome` {
-   e.icon.fillColor = colors.purple
+   override e.icon.fillColor = colors.purple
 }
 
 forall Task e1; Task e2
