@@ -6,6 +6,6 @@ type Polyline
 type Polygon <: Shape
 type Rectangle <: Shape
 type Circle <: Shape
-type Ellipse <: Shape
+type Ellipse
 
 type Group <: Shape

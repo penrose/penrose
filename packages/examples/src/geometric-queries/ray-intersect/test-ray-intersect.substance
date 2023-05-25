@@ -1,3 +1,5 @@
+-- variation: CreameryPelican6729
+
 Ray r1
 Ray r2
 Ray r3
@@ -10,17 +12,25 @@ Ellipse E3
 Circle C1
 Circle C2
 Circle C3
+Circle C4
+Circle C5
 Polygon P1
 Polygon P2
 Polygon P3
 Rectangle R1
 Rectangle R2
 Rectangle R3
+Rectangle R4
+Rectangle R5
 Line L1
 Line L2
 Line L3
+Line L4
+Line L5
 Polyline M
 Group G1
 Group G2
 Group G3
+Group G4
+Group G5
 
