@@ -2280,7 +2280,14 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
       return expr.contents.flatMap((e) => findPathsExpr(e, context));
     }
     case "Path": {
-      return [expr];
+      // A `Path` (generally, `arr[index]`) expression depends on `arr` and `index` (if exists)
+      return [
+        {
+          ...expr,
+          indices: [],
+        },
+        ...expr.indices.flatMap((index) => findPathsExpr(index, context)),
+      ];
     }
     case "UOp": {
       return findPathsExpr(expr.arg, context);
