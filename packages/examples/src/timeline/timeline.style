@@ -123,11 +123,16 @@ forall Quarter q {
 
 
 collect Quarter q into qs
+where q := MkQuarter(y)
 foreach Year y {
     override y.minX = minList(listof startSlotX from qs)
     override y.maxX = maxList(listof   endSlotX from qs)
 }
 
+-- forall Quarter q1; Quarter q2
+-- where Before(q1, q2) {
+--     layer q2.slotBegin above q1.slotEnd
+-- }
 
 forall Task e
 where e := MkTask(start, end)
