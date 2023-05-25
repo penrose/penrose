@@ -1,4 +1,4 @@
--- variation: ConclaveFerret7630
+-- variation: NepalDonkey2033
 
 Scene S
 Light L
@@ -14,6 +14,8 @@ Ray r2 := rayFrom(x2)
 Point x3 := intersect(r2,S)
 Ray r3 := rayFrom(x3)
 hitsLight(r3,L)
+
+isSpecular(x2)
 
 Label x1 $x_1$
 Label x2 $x_2$

@@ -271,9 +271,33 @@ where r := rayFrom(p) {
 -- surface normal.
 forall Ray r0; Ray r1; Point p; Scene S
 where p := intersect(r0,S); r1 := rayFrom(p) {
-   scalar thetaMax = MathPI()/2
+   scalar thetaMax = .9*MathPI()/2
    scalar theta = thetaMax*random(-1,1)
    override r1.d = rotateBy( p.n, theta )
+}
+
+-- If a ray hits a specular point, set the ray direction to
+-- the normal direction, and draw a mirror icon.
+-- a mirror icon.
+forall Ray r0; Ray r1; Point p; Scene S
+where p := intersect(r0,S); r1 := rayFrom(p); isSpecular(p) {
+   override r1.d = p.n
+
+   scalar w = 15
+   scalar h = 2
+   vec2 t = rot90(p.n)
+   vec2 m00 = p.x - w*t - h*p.n
+   vec2 m01 = p.x - w*t + h*p.n
+   vec2 m10 = p.x + w*t - h*p.n
+   vec2 m11 = p.x + w*t + h*p.n
+
+   shape mirror = Polygon {
+      points: [m00,m01,m11,m10]
+      fillColor: #ccccff
+      strokeColor: #bbbbff
+      strokeWidth: 1
+      ensureOnCanvas: false
+   }
 }
 
 -- If a point p is defined by a ray-scene intersection, shoot
@@ -365,6 +389,7 @@ where r := rayBetween(p,q) {
       style: "dashed"
       strokeDasharray: global.rayLineDashing
    }
+   layer r.rayLine above S.geometry
 
    -- don't draw an outgoing ray direction for a direct connection
    override r.icon.end = r.icon.start

@@ -12,4 +12,5 @@ constructor intersect(Ray r, Scene S) -> Point
 predicate onCamera(Point p, Camera C)
 predicate onLight(Point p, Light L)
 predicate hitsLight(Ray r, Light L)
+predicate isSpecular(Point p)
 
