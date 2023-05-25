@@ -26,15 +26,15 @@ colors {
 
 forall Scene S {
 
-   -- shape S.geometry = Rectangle {
-   --    center: (0,0)
-   --    width: canvas.width - 30
-   --    height: canvas.height - 30
-   --    fillColor: #ddd
-   --    strokeColor: #aaa
-   --    strokeWidth: 1
-   --    ensureOnCanvas: false
-   -- }
+   shape S.geometry = Rectangle {
+      center: (0,0)
+      width: canvas.width - 30
+      height: canvas.height - 30
+      fillColor: #ddd
+      strokeColor: #aaa
+      strokeWidth: 1
+      ensureOnCanvas: false
+   }
 
    -- shape S.g1 = Ellipse {
    --    center: (0,0)
@@ -62,7 +62,7 @@ forall Scene S {
    --    ensureOnCanvas: false
    -- }
    -- shape S.geometry = Group {
-   --    shapes: [S.g1,S.g2]
+   --    shapes: [S.g1,S.g2,S.g3]
    -- }
 
    -- scalar maxPerturbation = 15
@@ -74,14 +74,14 @@ forall Scene S {
    -- vec2 p5 = maxPerturbation*diskRandom()
    -- scalar w = .8*canvas.width/2
    -- scalar h = .8*canvas.height/2
-   shape S.geometry = Polygon {
-      points: [(-97,75.3), (-110.5,28.8), (-89.2,-93.1), (104.7,-84.1), (104.7,75.3), (43.8,95.7), (2.9,18.6), (28.5,-18.4), (-4.9,-44.8), (-41.2,6.9), (4.4,42.3), (-36.1,90.9)]
-      --points: ( (w,-h)+p0, (0,-h)+p1, (-w,-h)+p2, (-w,h)+p3, (0,h)+p4, (w,h)+p5)
-      fillColor: #ddd
-      strokeColor: #aaa
-      strokeWidth: 1
-      ensureOnCanvas: false
-   }
+   -- shape S.geometry = Polygon {
+   --    points: [(-97,75.3), (-110.5,28.8), (-89.2,-93.1), (104.7,-84.1), (104.7,75.3), (43.8,95.7), (2.9,18.6), (28.5,-18.4), (-4.9,-44.8), (-41.2,6.9), (4.4,42.3), (-36.1,90.9)]
+   --    --points: ( (w,-h)+p0, (0,-h)+p1, (-w,-h)+p2, (-w,h)+p3, (0,h)+p4, (w,h)+p5)
+   --    fillColor: #ddd
+   --    strokeColor: #aaa
+   --    strokeWidth: 1
+   --    ensureOnCanvas: false
+   -- }
 }
 
 forall Point p; Scene S {
@@ -244,6 +244,7 @@ where p := intersect(r,S) {
    shape r.rayLine = Line {
       start: r.o
       end: p.x
+      fill: "none"
       strokeColor: global.rayLineColor
       strokeWidth: global.rayLineWidth
       ensureOnCanvas: false
@@ -276,6 +277,7 @@ where hitsLight(r,L) {
    shape r.rayLine = Line {
       start: r.o
       end: z
+      fill: "none"
       strokeColor: global.rayLineColor
       strokeWidth: global.rayLineWidth
       ensureOnCanvas: false
@@ -291,6 +293,7 @@ where r := rayBetween(p,q) {
    shape r.rayLine = Line {
       start: p.x
       end: q.x
+      fill: "none"
       strokeColor: global.rayLineColor
       strokeWidth: global.rayLineWidth
       ensureOnCanvas: false
@@ -362,6 +365,6 @@ forall Ray r; Light L {
 
 forall Scene S; Point p; Ray r
 where p := intersect(r,S); p has label {
-   override p.labelText.center = p.x - 8*p.n
+   override p.labelText.center = p.x - 10*p.n
 }
 
