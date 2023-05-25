@@ -1,5 +1,5 @@
 import { Queue } from "@datastructures-js/queue";
-import { polyRoots, start, stepUntil } from "@penrose/optimizer";
+import { Params, polyRoots, start, stepUntil } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "../types/ad.js";
@@ -2039,26 +2039,26 @@ export const genGradient = async (
   };
 };
 
-export const problem = async (
-  objective: ad.Num,
-  constraints: ad.Num[]
-): Promise<ad.Problem> => {
-  // `inputs` keep track of all the inputs across all constraints and objective, and the weight
-  const inputs = new Map<ad.Var, number>();
+export const problem = async ({
+  objective,
+  constraints,
+}: ad.Description): Promise<ad.Problem> => {
+  // `vars` keep track of all the inputs across all constraints and objective, and the weight
+  const vars = new Map<ad.Var, number>();
   // add in the weight
-  const lambda = variable(42);
+  const lambda = variable(0);
   // make the comp graphs for obj and constrs
   const getKey = (x: ad.Var): number => {
     if (x === lambda) return 0;
-    else if (inputs.has(x)) return inputs.get(x)!;
-    else {
-      const idx = inputs.size + 1;
-      inputs.set(x, idx);
-      return idx;
+    let i = vars.get(x);
+    if (i === undefined) {
+      i = vars.size + 1;
+      vars.set(x, i);
     }
+    return i;
   };
-  const obj = primaryGraph(objective, getKey);
-  const constrs = constraints.map((x) =>
+  const obj = primaryGraph(objective ?? 0, getKey);
+  const constrs = (constraints ?? []).map((x) =>
     primaryGraph(mul(lambda, fns.toPenalty(x)), getKey)
   );
   const graphs = [obj, ...constrs];
@@ -2068,57 +2068,64 @@ export const problem = async (
     makeImports(meta.memory)
   );
   const f = getExport(meta, instance);
-  const n = inputs.size;
-  const params = start(n);
-  const stepUntilWrapper = (stop: () => boolean) => {
-    // allocate a new array to store inputs
-    const xs = new Float64Array(n);
-    // populate inputs with initial values from `val`
-    for (const [input, index] of inputs) {
-      // skip the weight input
-      xs[index - 1] = input.val;
-    }
-    // call the optimizer
-    const nextParams = stepUntil(
-      (
-        inputs: Float64Array /*read-only*/,
-        weight: number,
-        grad: Float64Array /*write-only*/
-      ): number => {
-        if (inputs.length !== n)
-          throw Error(`expected ${n} inputs, got ${inputs.length}`);
-        if (grad.length !== n)
-          throw Error(
-            `expected ${n} inputs, got gradient with length ${grad.length}`
-          );
-        meta.arrInputs.set(inputs.subarray(0, n), 1);
-        // the last input is the weight
-        meta.arrInputs[0] = weight;
-        // we don't use masks, so they are set to 1
-        meta.arrMask.fill(1);
-        meta.arrGrad.fill(0);
-        meta.arrSecondary.fill(0);
-        const phi = f();
-        grad.set(meta.arrGrad.subarray(1, meta.numInputs));
-        return phi;
-      },
-      xs,
-      params,
-      stop
-    );
-    // put the optimized values back to the inputs
-    for (const [input, index] of inputs) {
-      input.val = xs[index - 1];
-    }
-    return nextParams;
-  };
+  const n = vars.size;
+
   return {
-    minimize: () => stepUntilWrapper(() => false),
-    step: (x: number) => {
-      let i = 0;
-      return stepUntilWrapper(() => ++i === x);
+    start: (conf) => {
+      const vals = conf.vals ?? ((x: ad.Var) => x.val);
+      const freeze = conf.freeze ?? (() => false);
+      const mask: boolean[] = [];
+      const init: number[] = [];
+      // populate inputs with initial values from `vals`
+      for (const [x, i] of vars) {
+        mask[i - 1] = !freeze(x);
+        init[i - 1] = vals(x); // skip the weight input
+      }
+      const wrap = (xs: number[], params: Params): ad.Run => {
+        const unfrozen = new Map<ad.Var, number>();
+        // give back the optimized values
+        for (const [x, i] of vars) if (!freeze(x)) unfrozen.set(x, xs[i - 1]);
+        return {
+          converged: params.optStatus === "EPConverged",
+          vals: unfrozen,
+          run: (opts) => {
+            // allocate a new array to store inputs
+            const arr = new Float64Array(xs);
+            const after = stepUntil(
+              (
+                inputs: Float64Array /*read-only*/,
+                weight: number,
+                grad: Float64Array /*write-only*/
+              ): number => {
+                if (inputs.length !== n)
+                  throw Error(`expected ${n} inputs, got ${inputs.length}`);
+                if (grad.length !== n)
+                  throw Error(
+                    `expected ${n} inputs, got gradient with length ${grad.length}`
+                  );
+                meta.arrInputs.set(inputs.subarray(0, n), 1);
+                // the first input is the weight
+                meta.arrInputs[0] = weight;
+                // we don't use addend masks, so they are set to 1
+                meta.arrMask.fill(1);
+                meta.arrGrad.fill(0);
+                meta.arrSecondary.fill(0);
+                const phi = f();
+                for (let i = 0; i < n; i++)
+                  grad[i] =
+                    i < meta.numInputs && !mask[i] ? 0 : meta.arrGrad[i + 1];
+                return phi;
+              },
+              arr,
+              params,
+              opts.until ?? (() => false)
+            );
+            return wrap(Array.from(arr), after);
+          },
+        };
+      };
+      return wrap(init, start(n));
     },
-    stepUntil: (stop) => stepUntilWrapper(stop),
   };
 };
 

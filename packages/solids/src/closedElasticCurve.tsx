@@ -21,12 +21,15 @@ export default async function Curve(
     variable(rng() * h),
   ]);
 
-  const p = await problem(pow(sub(elasticEnergy(points as any, true), 0), 2), [
-    eq(perimeter(points as any, true), length),
-    equivalued(
-      points.map((_, i) => dist(points[i], points[(i + 1) % numPoints]))
-    ),
-  ]);
+  const p = await problem({
+    objective: pow(sub(elasticEnergy(points as any, true), 0), 2),
+    constraints: [
+      eq(perimeter(points as any, true), length),
+      equivalued(
+        points.map((_, i) => dist(points[i], points[(i + 1) % numPoints]))
+      ),
+    ],
+  });
 
   return {
     problem: p,

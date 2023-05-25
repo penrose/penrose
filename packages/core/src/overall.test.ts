@@ -72,8 +72,10 @@ where Intersecting(x, y) {
 describe("API", () => {
   test("simple constraints", async () => {
     const x = variable(10);
-    (await problem(0, [pow(sub(x, 5), 2)])).minimize();
-    expect(x.val).toBeCloseTo(5, 1);
+    const { vals } = (await problem({ constraints: [pow(sub(x, 5), 2)] }))
+      .start({})
+      .run({});
+    expect(vals.get(x)).toBeCloseTo(5, 1);
   });
 });
 

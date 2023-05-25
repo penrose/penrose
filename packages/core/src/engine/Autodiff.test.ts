@@ -12,6 +12,7 @@ import {
   logAD,
   makeGraph,
   primaryGraph,
+  problem,
   secondaryGraph,
   variable,
 } from "./Autodiff.js";
@@ -131,6 +132,29 @@ describe("genCode tests", () => {
       primary: 13,
       secondary: [0, 8],
     });
+  });
+});
+
+describe("problem tests", () => {
+  const f = (x: ad.Num, y: ad.Num) => add(squared(sub(x, y)), squared(x));
+
+  test("no freeze", async () => {
+    const x = variable(1);
+    const y = variable(2);
+    const p = await problem({ objective: f(x, y) });
+    for (const [z, a] of p.start({}).run({}).vals) z.val = a;
+    expect(x.val).toBeCloseTo(0);
+    expect(y.val).toBeCloseTo(0);
+  });
+
+  test("freeze", async () => {
+    const x = variable(1);
+    const y = variable(2);
+    const p = await problem({ objective: f(x, y) });
+    for (const [z, a] of p.start({ freeze: (z) => z === x }).run({}).vals)
+      z.val = a;
+    expect(x.val).toBe(1);
+    expect(y.val).toBeCloseTo(1);
   });
 });
 

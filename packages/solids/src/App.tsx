@@ -1,4 +1,5 @@
 import {
+  Run,
   Var,
   dist,
   elasticEnergy,
@@ -12,7 +13,7 @@ import {
 } from "@penrose/core";
 import seedrandom from "seedrandom";
 import { createEffect, createSignal, on, onCleanup } from "solid-js";
-import { RotatingTriangles } from "./triangles.js";
+import { RotatingTriangles } from "./triangles.jsx";
 
 const slider = (
   curr: number,
@@ -39,48 +40,56 @@ const slider = (
 const Curves = () => {
   const [ready, setReady] = createSignal<boolean>(false);
   const [step, setStep] = createSignal<number>(0);
-  const [status, setStatus] = createSignal<string>("");
+  const [status, setStatus] = createSignal<boolean>(false);
   const [length, setLength] = createSignal<number>(1000);
   const [numPoints, setNumPoints] = createSignal<number>(100);
   const [w, h] = [500, 500];
   const rng = seedrandom("test");
 
   const [pts, rerun] = createSignal<Var[][]>([], { equals: false });
-  let p: any;
+  let r: Promise<Run>;
 
   createEffect(
-    on([length, numPoints], async () => {
+    on([length, numPoints], () => {
       rerun(
         Array.from({ length: numPoints() }, () => [
           variable(rng() * w),
           variable(rng() * h),
         ])
       );
-      p = problem(pow(sub(elasticEnergy(pts() as any, true), 0), 2), [
-        eq(perimeter(pts() as any, true), length()),
-        equivalued(
-          pts().map((_, i) => dist(pts()[i], pts()[(i + 1) % numPoints()]))
-        ),
-      ]);
-      p.then(setReady);
-      p.then(setStep(0));
+      r = problem({
+        objective: pow(sub(elasticEnergy(pts() as any, true), 0), 2),
+        constraints: [
+          eq(perimeter(pts() as any, true), length()),
+          equivalued(
+            pts().map((_, i) => dist(pts()[i], pts()[(i + 1) % numPoints()]))
+          ),
+        ],
+      }).then((p) => p.start({}));
+      r.then(() => {
+        setReady(true);
+        setStep(0);
+      });
     })
   );
 
   createEffect(async () => {
     if (ready()) {
-      let frame = requestAnimationFrame(loop);
-      const problem = await p;
-      function loop(t: number) {
-        const { optStatus } = problem.step(50);
-        setStatus(optStatus);
+      let run = await r;
+      const loop = () => {
+        let i = 0;
+        run = run.run({ until: () => ++i > 50 });
+        const { converged, vals } = run;
+        for (const [v, x] of vals) v.val = x;
+        setStatus(converged);
         setStep((i) => i + 1);
         rerun(pts());
-        if (optStatus !== "UnconstrainedConverged") {
+        if (!converged) {
           frame = requestAnimationFrame(loop);
           setReady(false);
         }
-      }
+      };
+      let frame = requestAnimationFrame(loop);
       onCleanup(() => cancelAnimationFrame(frame));
     }
   });
@@ -88,7 +97,7 @@ const Curves = () => {
   return (
     <>
       <p>Step {step()}</p>
-      <p>Status: {status()}</p>
+      <p>Converged? {status().toString()}</p>
       <div>{slider(length(), [100, 3000], "Length: ", setLength)}</div>
       <div>
         {slider(numPoints(), [10, 200], "Number of points: ", setNumPoints)}

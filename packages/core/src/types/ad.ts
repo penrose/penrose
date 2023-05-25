@@ -1,4 +1,3 @@
-import { Params } from "@penrose/optimizer";
 import GenericGraph from "../utils/Graph.js";
 
 // The following three regions define the core types for our automatic
@@ -239,10 +238,35 @@ export type Gradient = (
   grad: Float64Array
 ) => OptOutputs;
 
+export interface Description {
+  /** zero by default */
+  objective?: Num;
+  /** empty by default */
+  constraints?: Num[];
+}
+
+export interface Options {
+  /** always false by default */
+  until?(): boolean;
+}
+
+export interface Run {
+  converged: boolean;
+  /** doesn't include frozen */
+  vals: Map<Var, number>;
+  /** returns a new `Run`, leaving this one unchanged */
+  run(opts: Options): Run;
+}
+
+export interface Config {
+  /** uses `val` field by default */
+  vals?(x: Var): number;
+  /** always false by default */
+  freeze?(x: Var): boolean;
+}
+
 export interface Problem {
-  minimize: () => Params;
-  stepUntil: (stop: () => boolean) => Params;
-  step: (x: number) => Params;
+  start(config: Config): Run;
 }
 
 //#endregion

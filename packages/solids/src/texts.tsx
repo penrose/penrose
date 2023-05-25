@@ -21,14 +21,15 @@ export default async function Text(
   const n = names.length;
 
   const points = names.map(() => [variable(rng() * w), variable(rng() * h)]);
-  await problem(
-    0,
-    names.flatMap((_, i) => {
+  await problem({
+    constraints: names.flatMap((_, i) => {
       const p = points[i];
       const q = points[(i + 1) % n];
       return [onCanvasPoint(p, canvas), eq(dist(p, q), 100)];
-    })
-  ).then((p) => p.minimize());
+    }),
+  }).then((p) => {
+    for (const [v, x] of p.start({}).run({}).vals) v.val = x;
+  });
 
   const texts = names.map((name) => {
     const [x, y] = [variable(rng() * w), variable(rng() * h)];
@@ -43,18 +44,17 @@ export default async function Text(
       ),
     };
   });
-  (
-    await problem(
-      0,
-      texts.flatMap(({ rect }, i) => {
-        const [x, y] = points[i];
-        return [
-          onCanvasRect(canvas, rect),
-          eq(sdfRect(rect.center, rect.width, rect.height, [x.val, y.val]), 10),
-        ];
-      })
-    )
-  ).minimize();
+  await problem({
+    constraints: texts.flatMap(({ rect }, i) => {
+      const [x, y] = points[i];
+      return [
+        onCanvasRect(canvas, rect),
+        eq(sdfRect(rect.center, rect.width, rect.height, [x.val, y.val]), 10),
+      ];
+    }),
+  }).then((p) => {
+    for (const [v, x] of p.start({}).run({}).vals) v.val = x;
+  });
 
   const font = `15px "Courier"`;
   return (
