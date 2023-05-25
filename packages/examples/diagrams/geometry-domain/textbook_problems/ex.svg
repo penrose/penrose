@@ -1,0 +1,902 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <g>
+    <path
+      d="M 217.5305555856023 355.3596827448821 L 327.9584428596741 182.98907737550445"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aTUS`.side1</title>
+  </g>
+  <g>
+    <path
+      d="M 123.46718686050667 173.54099467875983 L 217.5305555856023 355.3596827448821"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`ST`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 123.46718686050667 173.54099467875983 L 217.5305555856023 355.3596827448821"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aUST`.side2</title>
+  </g>
+  <g>
+    <path
+      d="M 327.9584428596741 182.98907737550445 L 217.5305555856023 355.3596827448821"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`UT`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 327.9584428596741 182.98907737550445 L 217.5305555856023 355.3596827448821"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`UTS`.PQ</title>
+  </g>
+  <g>
+    <path
+      d="M 217.5305555856023 355.3596827448821 L 123.46718686050667 173.54099467875983"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`UTS`.QR</title>
+  </g>
+  <g>
+    <path
+      d="M 327.9584428596741 182.98907737550445 L 217.5305555856023 355.3596827448821"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aUTS`.side1</title>
+  </g>
+  <g>
+    <path
+      d="M 217.5305555856023 355.3596827448821 L 123.46718686050667 173.54099467875983"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aUTS`.side2</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="217.5305555856023"
+    cy="355.3596827448821"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`T`.icon</title>
+  </circle>
+  <g>
+    <path
+      d="M 327.9584428596741 182.98907737550445 L 123.46718686050667 173.54099467875983"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aTUS`.side2</title>
+  </g>
+  <g>
+    <path
+      d="M 327.9584428596741 182.98907737550445 L 123.46718686050667 173.54099467875983"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aUST`.side1</title>
+  </g>
+  <g>
+    <path
+      d="M 123.46718686050667 173.54099467875983 L 327.9584428596741 182.98907737550445"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`UTS`.RP</title>
+  </g>
+  <g>
+    <path
+      d="M 327.9584428596741 182.98907737550445 L 123.46718686050667 173.54099467875983"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`US`.icon</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="327.9584428596741"
+    cy="182.98907737550445"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`U`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="123.46718686050667"
+    cy="173.54099467875983"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`S`.icon</title>
+  </circle>
+  <g>
+    <path
+      d="M 427.3120263921443 430.5509014333934 L 404.3699567162629 227.13107179543357"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aXYZ`.side1</title>
+  </g>
+  <g>
+    <path
+      d="M 239.6742789975108 348.7093827570925 L 427.3120263921443 430.5509014333934"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aZXY`.side1</title>
+  </g>
+  <g>
+    <path
+      d="M 427.3120263921443 430.5509014333934 L 404.3699567162629 227.13107179543357"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aZXY`.side2</title>
+  </g>
+  <g>
+    <path
+      d="M 427.3120263921443 430.5509014333934 L 404.3699567162629 227.13107179543357"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`XY`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 427.3120263921443 430.5509014333934 L 404.3699567162629 227.13107179543357"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`XYZ`.PQ</title>
+  </g>
+  <g>
+    <path
+      d="M 239.6742789975108 348.7093827570925 L 427.3120263921443 430.5509014333934"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`XYZ`.RP</title>
+  </g>
+  <g>
+    <path
+      d="M 427.3120263921443 430.5509014333934 L 239.6742789975108 348.7093827570925"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`XZ`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 239.6742789975108 348.7093827570925 L 427.3120263921443 430.5509014333934"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aYZX`.side2</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="427.3120263921443"
+    cy="430.5509014333934"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`X`.icon</title>
+  </circle>
+  <g>
+    <path
+      d="M 404.3699567162629 227.13107179543357 L 239.6742789975108 348.7093827570925"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aXYZ`.side2</title>
+  </g>
+  <g>
+    <path
+      d="M 404.3699567162629 227.13107179543357 L 239.6742789975108 348.7093827570925"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`XYZ`.QR</title>
+  </g>
+  <g>
+    <path
+      d="M 239.6742789975108 348.7093827570925 L 404.3699567162629 227.13107179543357"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`ZY`.icon</title>
+  </g>
+  <g>
+    <path
+      d="M 404.3699567162629 227.13107179543357 L 239.6742789975108 348.7093827570925"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`aYZX`.side1</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="404.3699567162629"
+    cy="227.13107179543357"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`Y`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="239.6742789975108"
+    cy="348.7093827570925"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+  >
+    <title>`Z`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 311.795097506484, 162.53306442254654)translate(304.447237506484, 152.95306442254653)"
+  >
+    <title>`U`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="14.69572"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 767 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D448"
+                    d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 105.75691215157218, 156.02171844239032)translate(99.57781215157218, 146.4417184423903)"
+  >
+    <title>`S`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.3582"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 645 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D446"
+                    d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 203.94270340534166, 377.15310295013705)translate(197.19838340534167, 367.57310295013707)"
+  >
+    <title>`T`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.48864"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 704 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D447"
+                    d="M40 437Q21 437 21 445Q21 450 37 501T71 602L88 651Q93 669 101 677H569H659Q691 677 697 676T704 667Q704 661 687 553T668 444Q668 437 649 437Q640 437 637 437T631 442L629 445Q629 451 635 490T641 551Q641 586 628 604T573 629Q568 630 515 631Q469 631 457 630T439 622Q438 621 368 343T298 60Q298 48 386 46Q418 46 427 45T436 36Q436 31 433 22Q429 4 424 1L422 0Q419 0 415 0Q410 0 363 1T228 2Q99 2 64 0H49Q43 6 43 9T45 27Q49 40 55 46H83H94Q174 46 189 55Q190 56 191 56Q196 59 201 76T241 233Q258 301 269 344Q339 619 339 625Q339 630 310 630H279Q212 630 191 624Q146 614 121 583T67 467Q60 445 57 441T43 437H40Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 232.74772189388025, 325.1293387945332)translate(225.82138189388024, 315.54933879453324)"
+  >
+    <title>`Z`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.85268"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 723 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D44D"
+                    d="M58 8Q58 23 64 35Q64 36 329 334T596 635L586 637Q575 637 512 637H500H476Q442 637 420 635T365 624T311 598T266 548T228 469Q227 466 226 463T224 458T223 453T222 450L221 448Q218 443 202 443Q185 443 182 453L214 561Q228 606 241 651Q249 679 253 681Q256 683 487 683H718Q723 678 723 675Q723 673 717 649Q189 54 188 52L185 49H274Q369 50 377 51Q452 60 500 100T579 247Q587 272 590 277T603 282H607Q628 282 628 271Q547 5 541 2Q538 0 300 0H124Q58 0 58 8Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 445.8619450297348, 449.5167706314296)translate(437.6997850297348, 439.9367706314296)"
+  >
+    <title>`X`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16.32432"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 852 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D44B"
+                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 383.06043127300154, 217.55101065252273)translate(375.7508912730015, 207.97101065252272)"
+  >
+    <title>`Y`.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="14.61908"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 763 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D44C"
+                    d="M66 637Q54 637 49 637T39 638T32 641T30 647T33 664T42 682Q44 683 56 683Q104 680 165 680Q288 680 306 683H316Q322 677 322 674T320 656Q316 643 310 637H298Q242 637 242 624Q242 619 292 477T343 333L346 336Q350 340 358 349T379 373T411 410T454 461Q546 568 561 587T577 618Q577 634 545 637Q528 637 528 647Q528 649 530 661Q533 676 535 679T549 683Q551 683 578 682T657 680Q684 680 713 681T746 682Q763 682 763 673Q763 669 760 657T755 643Q753 637 734 637Q662 632 617 587Q608 578 477 424L348 273L322 169Q295 62 295 57Q295 46 363 46Q379 46 384 45T390 35Q390 33 388 23Q384 6 382 4T366 1Q361 1 324 1T232 2Q170 2 138 2T102 1Q84 1 84 9Q84 14 87 24Q88 27 89 30T90 35T91 39T93 42T96 44T101 45T107 45T116 46T129 46Q168 47 180 50T198 63Q201 68 227 171L252 274L129 623Q128 624 127 625T125 627T122 629T118 631T113 633T105 634T96 635T83 636T66 637Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <filter id="`XZ`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 330.6165493265285 377.46563890785575 L 322.62067857805954 395.79774222127844 M 344.3656268115955 383.46254196920745 L 336.36975606312654 401.79464528263014"
+    ></path>
+    <title>`XZ`.tick</title>
+  </g>
+  <g>
+    <filter id="`US`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 218.68234388379855 167.9295407518211 L 217.7592712691535 187.9082268414594 M 233.6663584510273 168.62184521280489 L 232.74328583638223 188.6005313024432"
+    ></path>
+    <title>`US`.tick</title>
+  </g>
+  <g>
+    <filter id="`XYZ`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="none"
+      d="M 427.3120263921443 430.5509014333934 L 404.3699567162629 227.13107179543357 L 239.6742789975108 348.7093827570925 Z "
+    ></path>
+    <title>`XYZ`.icon</title>
+  </g>
+  <g>
+    <filter id="`UTS`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="none"
+      d="M 327.9584428596741 182.98907737550445 L 217.5305555856023 355.3596827448821 L 123.46718686050667 173.54099467875983 Z "
+    ></path>
+    <title>`UTS`.icon</title>
+  </g>
+  <g>
+    <filter id="`ZY`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 327.9611849162876 295.9655658455214 L 316.0830507974861 279.8748887070047 M 340.02919277017514 287.0569652564203 L 328.15105865137366 270.96628811790356 M 315.89317706240007 304.8741664346225 L 304.0150429435986 288.7834892961058"
+    ></path>
+    <title>`ZY`.tick</title>
+  </g>
+  <g>
+    <filter id="`UT`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 264.32424173707153 263.78000761227935 L 281.16475670820483 274.5687525081072 M 256.23268306520066 276.41039384062935 L 273.07319803633396 287.1991387364572 M 272.4158004089424 251.14962138392937 L 289.25631538007576 261.9383662797572"
+    ></path>
+    <title>`UT`.tick</title>
+  </g>
+  <g>
+    <filter id="`ST`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 161.61707838202875 269.0453083699536 L 179.38066406408018 259.8553690536883"
+    ></path>
+    <title>`ST`.tick</title>
+  </g>
+  <g>
+    <filter id="`XY`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 425.7779926727444 327.72027300238943 L 405.90399043566276 329.96170022643753"
+    ></path>
+    <title>`XY`.tick</title>
+  </g>
+  <g>
+    <filter id="`aTUS`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 311.7753255159323 208.24984983220443 A 30 30 0 0 1 297.9904137252166 181.60446845353684"
+    ></path>
+    <title>`aTUS`.mark</title>
+  </g>
+  <g>
+    <filter id="`aUTS`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 233.71367292934406 330.09891028818214 A 30 30 0 0 0 203.74564661120434 328.714304221805 M 239.10804533200908 321.678652873246 A 40 40 0 0 0 199.15067699161506 319.8325114552812 M 244.5024177346741 313.2583954583099 A 50 50 0 0 0 194.55570737202578 310.95071868875743"
+    ></path>
+    <title>`aUTS`.mark</title>
+  </g>
+  <g>
+    <filter id="`aUST`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 153.43521599496415 174.9256036007274 A 30 30 0 0 1 137.2520958349046 200.18637320183697 M 163.42455895599102 175.38713990417853 A 40 40 0 0 1 141.84706545449387 209.06816596836074"
+    ></path>
+    <title>`aUST`.mark</title>
+  </g>
+  <g>
+    <filter id="`aYZX`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 263.8102947052859 330.8921815788903 A 30 30 0 0 1 267.1724339676448 360.70318887979596 M 271.85563320705864 324.95311456930744 A 40 40 0 0 1 276.3384855474698 364.7011242204951"
+    ></path>
+    <title>`aYZX`.mark</title>
+  </g>
+  <g>
+    <filter id="`aXYZ`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 407.73209755233506 256.9420751510559 A 30 30 0 0 1 380.2339410084878 244.9482729736358"
+    ></path>
+    <title>`aXYZ`.mark</title>
+  </g>
+  <g>
+    <filter id="`aZXY`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 399.81387142201027 418.55709531068993 A 30 30 0 0 1 423.9498855560721 400.73989807777104 M 390.64781984218524 414.5591599699908 A 40 40 0 0 1 422.8291719534488 390.8028970425834 M 381.4817682623602 410.56122462929164 A 50 50 0 0 1 421.7084583508255 380.8658960073958"
+    ></path>
+    <title>`aZXY`.mark</title>
+  </g>
+</svg>

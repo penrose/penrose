@@ -1,0 +1,449 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <circle
+    fill="#c53856"
+    fill-opacity="0.5"
+    cx="336.63098330509865"
+    cy="429.4158411274566"
+    stroke="none"
+    r="30.16892538308633"
+  >
+    <title>`c3`.circle</title>
+  </circle>
+  <circle
+    fill="#685477"
+    fill-opacity="0.5"
+    cx="379.11634072107523"
+    cy="349.9858320362385"
+    stroke="none"
+    r="349.98104552555293"
+  >
+    <title>`ic2`.circle</title>
+  </circle>
+  <circle
+    fill="#685477"
+    fill-opacity="0.5"
+    cx="450.7012082994849"
+    cy="509.465310461688"
+    stroke="none"
+    r="109.1864809766565"
+  >
+    <title>`c2`.circle</title>
+  </circle>
+  <circle
+    fill="#c53856"
+    fill-opacity="0.5"
+    cx="125.29854937785859"
+    cy="337.6808037398766"
+    stroke="none"
+    r="95.86506679032364"
+  >
+    <title>`ic3`.circle</title>
+  </circle>
+  <circle
+    fill="#36cdcc"
+    fill-opacity="0.5"
+    cx="147.11164230996053"
+    cy="503.76093138216225"
+    stroke="none"
+    r="71.64142286537871"
+  >
+    <title>`ic1`.circle</title>
+  </circle>
+  <g
+    transform="rotate(0, 313.67478186291316, 485.03432429796044)translate(304.69181386291314, 474.70432429796045)"
+  >
+    <title>`c1`.eq</title>
+    <svg
+      style="font-size: 15"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.965936000000003"
+      height="20.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 869.6 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D450"
+                      d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(466,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="31"
+                      d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 379.11634072107523, 349.9858320362385)translate(370.36286007896, 339.32583203623847)"
+  >
+    <title>`ic2`.eq</title>
+    <svg
+      style="font-size: 15"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.506961284230407"
+      height="21.32"
+      role="img"
+      focusable="false"
+      viewBox="0 -779.5 869.6 1059"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr" transform="translate(0,-29.5)">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msubsup">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D450"
+                      d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mo"
+                    transform="translate(466,413) scale(0.707)"
+                  >
+                    <path
+                      data-c="2032"
+                      d="M79 43Q73 43 52 49T30 61Q30 68 85 293T146 528Q161 560 198 560Q218 560 240 545T262 501Q262 496 260 486Q259 479 173 263T84 45T79 43Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(466,-247) scale(0.707)"
+                  >
+                    <path
+                      data-c="32"
+                      d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 450.7012082994849, 509.465310461688)translate(441.7182402994849, 499.135310461688)"
+  >
+    <title>`c2`.eq</title>
+    <svg
+      style="font-size: 15"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.965936000000003"
+      height="20.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 869.6 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D450"
+                      d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(466,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="32"
+                      d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 336.63098330509865, 429.4158411274566)translate(327.6480153050986, 419.0858411274566)"
+  >
+    <title>`c3`.eq</title>
+    <svg
+      style="font-size: 15"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.965936000000003"
+      height="20.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 869.6 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msub">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D450"
+                      d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(466,-150) scale(0.707)"
+                  >
+                    <path
+                      data-c="33"
+                      d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#36cdcc"
+    fill-opacity="0.5"
+    cx="313.67478186291316"
+    cy="485.03432429796044"
+    stroke="none"
+    r="30.000862847393027"
+  >
+    <title>`c1`.circle</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="0"
+    cx="433.67888130348183"
+    cy="471.542325859719"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-dasharray="7,5"
+    stroke-linecap="butt"
+    r="180.76125779160353"
+  >
+    <title>`r`.circle</title>
+  </circle>
+  <g
+    transform="rotate(0, 147.11164230996053, 503.76093138216225)translate(138.35816166784534, 493.10093138216223)"
+  >
+    <title>`ic1`.eq</title>
+    <svg
+      style="font-size: 15"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.506961284230407"
+      height="21.32"
+      role="img"
+      focusable="false"
+      viewBox="0 -779.5 869.6 1059"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr" transform="translate(0,-29.5)">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msubsup">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D450"
+                      d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mo"
+                    transform="translate(466,413) scale(0.707)"
+                  >
+                    <path
+                      data-c="2032"
+                      d="M79 43Q73 43 52 49T30 61Q30 68 85 293T146 528Q161 560 198 560Q218 560 240 545T262 501Q262 496 260 486Q259 479 173 263T84 45T79 43Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(466,-247) scale(0.707)"
+                  >
+                    <path
+                      data-c="31"
+                      d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 578.9313678308782, 331.98751305453317)translate(567.8532110269273, 320.9025130545332)"
+  >
+    <title>`r`.eq</title>
+    <svg
+      style="font-size: 15"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.156313607901932"
+      height="22.17"
+      role="img"
+      focusable="false"
+      viewBox="0 -817 1133.2 1133.9"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr" transform="translate(0,-67)">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msup">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D446"
+                      d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(729.6,413) scale(0.707)"
+                  >
+                    <path
+                      data-c="31"
+                      d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="433.67888130348183"
+    cy="471.542325859719"
+    stroke="none"
+    r="3"
+  >
+    <title>`r`.point</title>
+  </circle>
+  <g
+    transform="rotate(0, 125.29854937785859, 337.6808037398766)translate(116.586317926622, 326.94580373987657)"
+  >
+    <title>`ic3`.eq</title>
+    <svg
+      style="font-size: 15"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.42446290247317"
+      height="21.47"
+      role="img"
+      focusable="false"
+      viewBox="0 -785.8 869.6 1071.5"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr" transform="translate(0,-23.2)">
+              <g data-mml-node="mtd">
+                <g data-mml-node="msubsup">
+                  <g data-mml-node="mi">
+                    <path
+                      data-c="1D450"
+                      d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mo"
+                    transform="translate(466,413) scale(0.707)"
+                  >
+                    <path
+                      data-c="2032"
+                      d="M79 43Q73 43 52 49T30 61Q30 68 85 293T146 528Q161 560 198 560Q218 560 240 545T262 501Q262 496 260 486Q259 479 173 263T84 45T79 43Z"
+                    ></path>
+                  </g>
+                  <g
+                    data-mml-node="mn"
+                    transform="translate(466,-247) scale(0.707)"
+                  >
+                    <path
+                      data-c="33"
+                      d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+</svg>

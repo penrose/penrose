@@ -1,0 +1,582 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">
+  <rect
+    x="0"
+    y="0"
+    width="320"
+    height="240"
+    fill="none"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 160, 120)"
+  >
+    <title>Global.box</title>
+  </rect>
+  <polygon
+    fill="#e6e6e6"
+    fill-opacity="1"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    transform="scale(1)"
+    points="280.58516926991524,226.75182547890893,164.67008504790715,233.02154440608817,23.494110156861808,221.98488558070338,38.03974450075572,4.252877266156688,139.0079035644975,17.644695949163832,282.18983582750457,8.078723781669794"
+  >
+    <title>Global.domain</title>
+  </polygon>
+  <g
+    transform="rotate(0, 157.03311279715436, 142.27636922909207)translate(68.9091877989981, 54.152444230935814)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
+    <svg
+      version="1.1"
+      id="Layer_1--inject-46"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 221.7 221.7"
+      style="enable-background: new 0 0 221.7 221.7"
+      xml:space="preserve"
+      width="176.2478499963125"
+      height="176.2478499963125"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.6;
+          fill: url(#SVGID_1_--inject-46);
+          enable-background: new;
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_--inject-46"
+        cx="75.4328"
+        cy="151.0149"
+        r="157.9341"
+        gradientTransform="matrix(1 0 0 -1 0 222)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: #ffffff"></stop>
+        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
+        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+      </radialGradient>
+      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+    </svg>
+    <title>`x0`.shading</title>
+  </g>
+  <circle
+    fill="#33cc33"
+    fill-opacity="0.15"
+    cx="157.03311279715436"
+    cy="142.27636922909207"
+    stroke="none"
+    r="88.12392499815626"
+  >
+    <title>`x0`.ball</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="157.03311279715436"
+    cy="142.27636922909207"
+    stroke="#668066"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    stroke-linecap="butt"
+    r="88.12392499815626"
+  >
+    <title>`x0`.sphere</title>
+  </circle>
+  <g>
+    <path
+      d="M 157.03311279715436 142.27636922909207 L 197.62611961209524 64.05848384111415"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#0000b3"
+      stroke-linecap="butt"
+    ></path>
+    <title>9:0:walkLine</title>
+  </g>
+  <g
+    transform="rotate(0, 197.62611961209524, 64.05848384111415)translate(149.15800502007184, 15.590369249090763)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
+    <svg
+      version="1.1"
+      id="Layer_1--inject-47"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 221.7 221.7"
+      style="enable-background: new 0 0 221.7 221.7"
+      xml:space="preserve"
+      width="96.93622918404678"
+      height="96.93622918404678"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.6;
+          fill: url(#SVGID_1_--inject-47);
+          enable-background: new;
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_--inject-47"
+        cx="75.4328"
+        cy="151.0149"
+        r="157.9341"
+        gradientTransform="matrix(1 0 0 -1 0 222)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: #ffffff"></stop>
+        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
+        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+      </radialGradient>
+      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+    </svg>
+    <title>`x1`.shading</title>
+  </g>
+  <circle
+    fill="#33cc33"
+    fill-opacity="0.15"
+    cx="197.62611961209524"
+    cy="64.05848384111415"
+    stroke="none"
+    r="48.46811459202339"
+  >
+    <title>`x1`.ball</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="197.62611961209524"
+    cy="64.05848384111415"
+    stroke="#668066"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    stroke-linecap="butt"
+    r="48.46811459202339"
+  >
+    <title>`x1`.sphere</title>
+  </circle>
+  <g>
+    <path
+      d="M 197.62611961209524 64.05848384111415 L 239.35927239439764 39.41092709449221"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#0000b3"
+      stroke-linecap="butt"
+    ></path>
+    <title>9:1:walkLine</title>
+  </g>
+  <g
+    transform="rotate(0, 239.35927239439764, 39.41092709449221)translate(212.70190368579364, 12.753558385888198)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
+    <svg
+      version="1.1"
+      id="Layer_1--inject-48"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 221.7 221.7"
+      style="enable-background: new 0 0 221.7 221.7"
+      xml:space="preserve"
+      width="53.31473741720802"
+      height="53.31473741720802"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.6;
+          fill: url(#SVGID_1_--inject-48);
+          enable-background: new;
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_--inject-48"
+        cx="75.4328"
+        cy="151.0149"
+        r="157.9341"
+        gradientTransform="matrix(1 0 0 -1 0 222)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: #ffffff"></stop>
+        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
+        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+      </radialGradient>
+      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+    </svg>
+    <title>`x2`.shading</title>
+  </g>
+  <circle
+    fill="#33cc33"
+    fill-opacity="0.15"
+    cx="239.35927239439764"
+    cy="39.41092709449221"
+    stroke="none"
+    r="26.65736870860401"
+  >
+    <title>`x2`.ball</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="239.35927239439764"
+    cy="39.41092709449221"
+    stroke="#668066"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    stroke-linecap="butt"
+    r="26.65736870860401"
+  >
+    <title>`x2`.sphere</title>
+  </circle>
+  <g>
+    <path
+      d="M 239.35927239439764 39.41092709449221 L 265.5100550247843 44.58298313950219"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#0000b3"
+      stroke-linecap="butt"
+    ></path>
+    <title>9:2:walkLine</title>
+  </g>
+  <g
+    transform="rotate(0, 265.5100550247843, 44.58298313950219)translate(250.8485915775139, 29.921519692231776)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
+    <svg
+      version="1.1"
+      id="Layer_1--inject-49"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 221.7 221.7"
+      style="enable-background: new 0 0 221.7 221.7"
+      xml:space="preserve"
+      width="29.322926894540828"
+      height="29.322926894540828"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.6;
+          fill: url(#SVGID_1_--inject-49);
+          enable-background: new;
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_--inject-49"
+        cx="75.4328"
+        cy="151.0149"
+        r="157.9341"
+        gradientTransform="matrix(1 0 0 -1 0 222)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: #ffffff"></stop>
+        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
+        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+      </radialGradient>
+      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+    </svg>
+    <title>`x3`.shading</title>
+  </g>
+  <circle
+    fill="#33cc33"
+    fill-opacity="0.15"
+    cx="265.5100550247843"
+    cy="44.58298313950219"
+    stroke="none"
+    r="14.661463447270414"
+  >
+    <title>`x3`.ball</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="265.5100550247843"
+    cy="44.58298313950219"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`x3`.dot</title>
+  </circle>
+  <text
+    fill="#808080"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 257.7620678930257, 210.7355407649254)"
+    style="font: 12px Palatino"
+    x="257.7620678930257"
+    y="214.7355407649254"
+    width="10"
+    height="10"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="9"
+    descent="1"
+    text-anchor="middle"
+    visibility=""
+  >
+    <title>`U`.labelText</title>
+    Ω
+  </text>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="2.5"
+    stroke-linecap="butt"
+    transform="rotate(0, 197.80822987350797, 71.55848105560904)"
+    style="font: italic 12px Palatino"
+    x="197.80822987350797"
+    y="74.55848105560904"
+    width="10.9990234375"
+    height="6"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="6"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
+  >
+    <title>`x1`.labelText</title>
+    x₁
+  </text>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="197.62611961209524"
+    cy="64.05848384111415"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`x1`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="2.5"
+    stroke-linecap="butt"
+    transform="rotate(0, 228.8597511119124, 38.851806390868674)"
+    style="font: italic 12px Palatino"
+    x="228.8597511119124"
+    y="41.851806390868674"
+    width="11.9990234375"
+    height="6"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="6"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
+  >
+    <title>`x2`.labelText</title>
+    x₂
+  </text>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="239.35927239439764"
+    cy="39.41092709449221"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`x2`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="2.5"
+    stroke-linecap="butt"
+    transform="rotate(0, 157.00548383246078, 134.77636413137085)"
+    style="font: italic 12px Palatino"
+    x="157.00548383246078"
+    y="137.77636413137085"
+    width="11.9990234375"
+    height="6"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="6"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
+  >
+    <title>`x0`.labelText</title>
+    x₀
+  </text>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="157.03311279715436"
+    cy="142.27636922909207"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`x0`.dot</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="265.5100550247843"
+    cy="44.58298313950219"
+    stroke="#668066"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    stroke-linecap="butt"
+    r="14.661463447270414"
+  >
+    <title>`x3`.sphere</title>
+  </circle>
+  <g>
+    <path
+      d="M 265.5100550247843 44.58298313950219 L 272.0115077843835 57.724064766851924"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#0000b3"
+      stroke-linecap="butt"
+    ></path>
+    <title>9:3:walkLine</title>
+  </g>
+  <g
+    transform="rotate(0, 272.0115077843835, 57.724064766851924)translate(263.94775131996175, 49.66030830243018)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?-->
+    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
+    <svg
+      version="1.1"
+      id="Layer_1--inject-50"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 221.7 221.7"
+      style="enable-background: new 0 0 221.7 221.7"
+      xml:space="preserve"
+      width="16.127512928843494"
+      height="16.127512928843494"
+    >
+      <style type="text/css">
+        .st0 {
+          opacity: 0.6;
+          fill: url(#SVGID_1_--inject-50);
+          enable-background: new;
+        }
+      </style>
+      <radialGradient
+        id="SVGID_1_--inject-50"
+        cx="75.4328"
+        cy="151.0149"
+        r="157.9341"
+        gradientTransform="matrix(1 0 0 -1 0 222)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: #ffffff"></stop>
+        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
+        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+      </radialGradient>
+      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+    </svg>
+    <title>`x4`.shading</title>
+  </g>
+  <circle
+    fill="#33cc33"
+    fill-opacity="0.15"
+    cx="272.0115077843835"
+    cy="57.724064766851924"
+    stroke="none"
+    r="8.063756464421747"
+  >
+    <title>`x4`.ball</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="272.0115077843835"
+    cy="57.724064766851924"
+    stroke="#668066"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    stroke-linecap="butt"
+    r="8.063756464421747"
+  >
+    <title>`x4`.sphere</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="2.5"
+    stroke-linecap="butt"
+    transform="rotate(0, 271.9520063030364, 50.224007714167556)"
+    style="font: italic 12px Palatino"
+    x="271.9520063030364"
+    y="53.224007714167556"
+    width="12.19921875"
+    height="6"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="6"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
+  >
+    <title>`x4`.labelText</title>
+    xₖ
+  </text>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="272.0115077843835"
+    cy="57.724064766851924"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`x4`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="2.5"
+    stroke-linecap="butt"
+    transform="rotate(0, 265.44449038477, 50.08304808228793)"
+    style="font: italic 12px Palatino"
+    x="265.44449038477"
+    y="51.08304808228793"
+    width="12"
+    height="2"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="2"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+    stroke-linejoin="round"
+  >
+    <title>`x3`.labelText</title>
+    …
+  </text>
+</svg>

@@ -1,0 +1,2126 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <rect
+    x="292.8044538085248"
+    y="336.981547650599"
+    width="20"
+    height="21.975672721174107"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 302.8044538085248, 347.96938401118604)"
+  >
+    <title>`E11`.rect</title>
+  </rect>
+  <rect
+    x="392.8044610010433"
+    y="338.3717879772895"
+    width="20"
+    height="21.30337666097182"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 402.8044610010433, 349.0234763077754)"
+  >
+    <title>`E24`.rect</title>
+  </rect>
+  <rect
+    x="292.80445380851967"
+    y="298.9815609275216"
+    width="20"
+    height="17.999989707945332"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 302.80445380851967, 307.9815557814943)"
+  >
+    <title>`E12`.rect</title>
+  </rect>
+  <rect
+    x="292.8044538085179"
+    y="260.98154438979134"
+    width="20"
+    height="18.00001926698205"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 302.8044538085179, 269.98155402328234)"
+  >
+    <title>`E15`.rect</title>
+  </rect>
+  <rect
+    x="492.80446006812764"
+    y="403.17065979869113"
+    width="20"
+    height="26.708803173644995"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 502.80446006812764, 416.52506138551365)"
+  >
+    <title>`E31`.rect</title>
+  </rect>
+  <rect
+    x="392.80446100102506"
+    y="262.3717774525664"
+    width="20"
+    height="18.000006328458156"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 402.80446100102506, 271.3717806167955)"
+  >
+    <title>`E21`.rect</title>
+  </rect>
+  <rect
+    x="392.80446100102375"
+    y="300.37178552795746"
+    width="20"
+    height="18.000002613266656"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 402.80446100102375, 309.3717868345908)"
+  >
+    <title>`E22`.rect</title>
+  </rect>
+  <rect
+    x="492.804460068146"
+    y="271.90765782162697"
+    width="20"
+    height="36.19974985229423"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 502.804460068146, 290.00753274777406)"
+  >
+    <title>`E32`.rect</title>
+  </rect>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="287.1573446748136"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot3</title>
+  </circle>
+  <rect
+    x="292.80445380852325"
+    y="388.3575280131894"
+    width="20"
+    height="19.126791737366233"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 302.80445380852325, 397.9209238818725)"
+  >
+    <title>`E14`.rect</title>
+  </rect>
+  <rect
+    x="292.80445380853354"
+    y="427.48433550035946"
+    width="20"
+    height="18.000026891740035"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 302.80445380853354, 436.4843489462295)"
+  >
+    <title>`E13`.rect</title>
+  </rect>
+  <rect
+    x="392.80446100102927"
+    y="379.6751716350022"
+    width="20"
+    height="19.389330289534847"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 402.80446100102927, 389.3698367797696)"
+  >
+    <title>`E23`.rect</title>
+  </rect>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="309.3717877766424"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot2</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="307.98155691378884"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot1</title>
+  </circle>
+  <rect
+    x="492.80446006813804"
+    y="349.16456003166473"
+    width="20"
+    height="34.00608861946122"
+    fill="#ffffff"
+    fill-opacity="0"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 502.80446006813804, 366.16760434139536)"
+  >
+    <title>`E33`.rect</title>
+  </rect>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="347.3717856811333"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot2</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="358.1645593532963"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot3</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="280.90765703552916"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot3</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="349.8583307527897"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot1</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="269.9815532319766"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot1</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="374.16430043720914"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot3</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="436.48434702109444"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot1</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="390.0645025003498"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot2</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="388.67517051069734"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot2</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="269.98156832321575"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot1</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="309.37178397159005"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot2</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="397.35752745150194"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot1</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="345.9815453783744"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot1</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="420.879463184716"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot3</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="349.6747019538152"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot2</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="364.3487376295725"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot3</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="271.3717802431021"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot2</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="347.37178847973627"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot2</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="412.17066170636053"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot3</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="349.95722179442987"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot1</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="398.484320232421"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot1</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="350.67516527749194"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot2</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="299.1074083528574"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot3</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="374.17064489862446"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot3</title>
+  </circle>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="502.80446006812764"
+    cy="416.52506138551365"
+    stroke="none"
+    rx="10"
+    ry="13.354401586822497"
+  >
+    <title>`E31`.ellipse</title>
+  </ellipse>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="404.63338285312506"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dotl</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="412.17066170636053"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot3P</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="445.4614534526762"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dotrP</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="271.3717802431021"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot2P</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="345.9815453783744"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dot1P</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="445.4614534526762"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dotr</title>
+  </circle>
+  <circle
+    fill="#672551"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="404.63338285312506"
+    stroke="none"
+    r="5"
+  >
+    <title>`N1`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N1`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#672551"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 412.17066170636053 Q 546.4871728498821 447.7921436405623 602.8044544204394 445.4614534526762"
+    ></path>
+    <title>`N1`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N1`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#672551"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 345.9815453783744 Q 364.764387893134 324.7066351033467 402.8044620360581 271.3717802431021"
+    ></path>
+    <title>`N1`.line12</title>
+  </g>
+  <g>
+    <filter id="`N1`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#672551"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 271.3717802431021 Q 436.4985980305328 353.35218748736236 502.8044600332697 412.17066170636053"
+    ></path>
+    <title>`N1`.line23</title>
+  </g>
+  <g>
+    <filter id="`N1`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#672551"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 404.63338285312506 Q 262.9228488767838 392.5590744663593 302.8044538694885 345.9815453783744"
+    ></path>
+    <title>`N1`.linel1</title>
+  </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="402.80446100102506"
+    cy="271.3717806167955"
+    stroke="none"
+    rx="10"
+    ry="9.000003164229078"
+  >
+    <title>`E21`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="502.804460068146"
+    cy="290.00753274777406"
+    stroke="none"
+    rx="10"
+    ry="18.099874926147116"
+  >
+    <title>`E32`.ellipse</title>
+  </ellipse>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="423.19805843742716"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dotl</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="287.1573446748136"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot3P</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="261.2388709114042"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dotrP</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="309.37178397159005"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot2P</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="349.95722179442987"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dot1P</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="261.2388709114042"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dotr</title>
+  </circle>
+  <circle
+    fill="#24c4c9"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="423.19805843742716"
+    stroke="none"
+    r="5"
+  >
+    <title>`N2`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N2`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#24c4c9"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 287.1573446748136 Q 557.8223531163128 293.558393002822 602.8044544204394 261.2388709114042"
+    ></path>
+    <title>`N2`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N2`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#24c4c9"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 349.95722179442987 Q 360.32570884314936 348.1963865141067 402.8044620360581 309.37178397159005"
+    ></path>
+    <title>`N2`.line12</title>
+  </g>
+  <g>
+    <filter id="`N2`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#24c4c9"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 309.37178397159005 Q 457.14162668415935 317.78862425018986 502.8044600332697 287.1573446748136"
+    ></path>
+    <title>`N2`.line23</title>
+  </g>
+  <g>
+    <filter id="`N2`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#24c4c9"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 423.19805843742716 Q 264.62202545242167 402.71284979297826 302.8044538694885 349.95722179442987"
+    ></path>
+    <title>`N2`.linel1</title>
+  </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="302.8044538085248"
+    cy="347.96938401118604"
+    stroke="none"
+    rx="10"
+    ry="10.987836360587053"
+  >
+    <title>`E11`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="402.80446100102375"
+    cy="309.3717868345908"
+    stroke="none"
+    rx="10"
+    ry="9.000001306633328"
+  >
+    <title>`E22`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="502.80446006813804"
+    cy="366.16760434139536"
+    stroke="none"
+    rx="10"
+    ry="17.00304430973061"
+  >
+    <title>`E33`.ellipse</title>
+  </ellipse>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="390.3589651160131"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dotl</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="280.90765703552916"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot3P</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="315.27686273636965"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dotrP</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="309.3717877766424"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot2P</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="349.8583307527897"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dot1P</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="315.27686273636965"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dotr</title>
+  </circle>
+  <circle
+    fill="#6f41d4"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="390.3589651160131"
+    stroke="none"
+    r="5"
+  >
+    <title>`N3`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N3`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#6f41d4"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 280.90765703552916 Q 546.3038470048034 317.0063284880435 602.8044544204394 315.27686273636965"
+    ></path>
+    <title>`N3`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N3`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#6f41d4"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 349.8583307527897 Q 360.3099655028622 348.15332461675274 402.8044620360581 309.3717877766424"
+    ></path>
+    <title>`N3`.line12</title>
+  </g>
+  <g>
+    <filter id="`N3`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#6f41d4"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 309.3717877766424 Q 458.2798032602613 314.3756406469429 502.8044600332697 280.90765703552916"
+    ></path>
+    <title>`N3`.line23</title>
+  </g>
+  <g>
+    <filter id="`N3`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#6f41d4"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 390.3589651160131 Q 260.31220876455427 388.6460041801159 302.8044538694885 349.8583307527897"
+    ></path>
+    <title>`N3`.linel1</title>
+  </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="302.80445380851967"
+    cy="307.9815557814943"
+    stroke="none"
+    rx="10"
+    ry="8.999994853972666"
+  >
+    <title>`E12`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="402.80446100102927"
+    cy="389.3698367797696"
+    stroke="none"
+    rx="10"
+    ry="9.694665144767423"
+  >
+    <title>`E23`.ellipse</title>
+  </ellipse>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="334.1736709823501"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dotl</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="299.1074083528574"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot3P</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="347.17740110218625"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dotrP</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="388.67517051069734"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot2P</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="307.98155691378884"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dot1P</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="347.17740110218625"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dotr</title>
+  </circle>
+  <circle
+    fill="#8f997b"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="334.1736709823501"
+    stroke="none"
+    r="5"
+  >
+    <title>`N4`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N4`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8f997b"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 299.1074083528574 Q 544.1395881289345 341.16794137456225 602.8044544204394 347.17740110218625"
+    ></path>
+    <title>`N4`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N4`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8f997b"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 307.98155691378884 Q 340.24484542540677 363.892941152834 402.8044620360581 388.67517051069734"
+    ></path>
+    <title>`N4`.line12</title>
+  </g>
+  <g>
+    <filter id="`N4`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8f997b"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 388.67517051069734 Q 466.14814333307396 358.7891444158914 502.8044600332697 299.1074083528574"
+    ></path>
+    <title>`N4`.line23</title>
+  </g>
+  <g>
+    <filter id="`N4`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8f997b"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 334.1736709823501 Q 257.87194509785706 340.42497755163384 302.8044538694885 307.98155691378884"
+    ></path>
+    <title>`N4`.linel1</title>
+  </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="302.80445380853354"
+    cy="436.4843489462295"
+    stroke="none"
+    rx="10"
+    ry="9.000013445870017"
+  >
+    <title>`E13`.ellipse</title>
+  </ellipse>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="402.8044610010433"
+    cy="349.0234763077754"
+    stroke="none"
+    rx="10"
+    ry="10.65168833048591"
+  >
+    <title>`E24`.ellipse</title>
+  </ellipse>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="356.458145142196"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dotl</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="420.879463184716"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot3P</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="445.4843638774154"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dotrP</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="390.0645025003498"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot2P</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="436.48434702109444"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dot1P</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="445.4843638774154"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dotr</title>
+  </circle>
+  <circle
+    fill="#66c690"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="356.458145142196"
+    stroke="none"
+    r="5"
+  >
+    <title>`N5`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N5`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#66c690"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 420.879463184716 Q 548.026001112344 452.60268281239564 602.8044544204394 445.4843638774154"
+    ></path>
+    <title>`N5`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N5`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#66c690"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 436.48434702109444 Q 361.2253848801074 431.41520525995656 402.8044620360581 390.0645025003498"
+    ></path>
+    <title>`N5`.line12</title>
+  </g>
+  <g>
+    <filter id="`N5`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#66c690"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 390.0645025003498 Q 446.9147653177826 424.58510419698723 502.8044600332697 420.879463184716"
+    ></path>
+    <title>`N5`.line23</title>
+  </g>
+  <g>
+    <filter id="`N5`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#66c690"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 356.458145142196 Q 240.30806506220665 412.08662783279266 302.8044538694885 436.48434702109444"
+    ></path>
+    <title>`N5`.linel1</title>
+  </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="302.80445380852325"
+    cy="397.9209238818725"
+    stroke="none"
+    rx="10"
+    ry="9.563395868683116"
+  >
+    <title>`E14`.ellipse</title>
+  </ellipse>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="366.75601964342445"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dotl</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="374.17064489862446"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot3P</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="410.14363300771106"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dotrP</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="350.67516527749194"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot2P</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="398.484320232421"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dot1P</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="410.14363300771106"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dotr</title>
+  </circle>
+  <circle
+    fill="#7c88a1"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="366.75601964342445"
+    stroke="none"
+    r="5"
+  >
+    <title>`N6`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N6`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7c88a1"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 374.17064489862446 Q 546.0345732969945 410.9765065381527 602.8044544204394 410.14363300771106"
+    ></path>
+    <title>`N6`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N6`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7c88a1"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 398.484320232421 Q 361.4310845223979 392.6236126794708 402.8044620360581 350.67516527749194"
+    ></path>
+    <title>`N6`.line12</title>
+  </g>
+  <g>
+    <filter id="`N6`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7c88a1"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 350.67516527749194 Q 448.22993977675316 381.89271960647864 502.8044600332697 374.17064489862446"
+    ></path>
+    <title>`N6`.line23</title>
+  </g>
+  <g>
+    <filter id="`N6`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#7c88a1"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 366.75601964342445 Q 246.75594937807122 401.68362947534166 302.8044538694885 398.484320232421"
+    ></path>
+    <title>`N6`.linel1</title>
+  </g>
+  <ellipse
+    fill="#000000"
+    fill-opacity="0.2"
+    cx="302.8044538085179"
+    cy="269.98155402328234"
+    stroke="none"
+    rx="10"
+    ry="9.000009633491025"
+  >
+    <title>`E15`.ellipse</title>
+  </ellipse>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="445.48353255335087"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dotl</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="358.1645593532963"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot3P</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="377.5861016035674"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dotrP</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="349.6747019538152"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot2P</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="397.35752745150194"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dot1P</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="377.5861016035674"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dotr</title>
+  </circle>
+  <circle
+    fill="#8c8b1a"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="445.48353255335087"
+    stroke="none"
+    r="5"
+  >
+    <title>`N7`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N7`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8c8b1a"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 358.1645593532963 Q 548.9914018260367 387.50847923194885 602.8044544204394 377.5861016035674"
+    ></path>
+    <title>`N7`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N7`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8c8b1a"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 397.35752745150194 Q 361.41251699938425 391.56884987600955 402.8044620360581 349.6747019538152"
+    ></path>
+    <title>`N7`.line12</title>
+  </g>
+  <g>
+    <filter id="`N7`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8c8b1a"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 349.6747019538152 Q 451.1125810815398 373.84793872300844 502.8044600332697 358.1645593532963"
+    ></path>
+    <title>`N7`.line23</title>
+  </g>
+  <g>
+    <filter id="`N7`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#8c8b1a"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 445.48353255335087 Q 261.47753290625474 439.44211893218005 302.8044538694885 397.35752745150194"
+    ></path>
+    <title>`N7`.linel1</title>
+  </g>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="305.5537780952943"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dotl</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="364.3487376295725"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot3P</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="423.5836300767769"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dotrP</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="347.3717856811333"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot2P</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="269.98156832321575"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dot1P</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="423.5836300767769"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dotr</title>
+  </circle>
+  <circle
+    fill="#36baba"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="305.5537780952943"
+    stroke="none"
+    r="5"
+  >
+    <title>`N8`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N8`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#36baba"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 364.3487376295725 Q 542.6115175584547 411.17385400592093 602.8044544204394 423.5836300767769"
+    ></path>
+    <title>`N8`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N8`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#36baba"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 269.98156832321575 Q 340.56388133630196 324.4933840181596 402.8044620360581 347.3717856811333"
+    ></path>
+    <title>`N8`.line12</title>
+  </g>
+  <g>
+    <filter id="`N8`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#36baba"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 347.3717856811333 Q 449.45697336922916 375.5781278547754 502.8044600332697 364.3487376295725"
+    ></path>
+    <title>`N8`.line23</title>
+  </g>
+  <g>
+    <filter id="`N8`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#36baba"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 305.5537780952943 Q 259.5074397835304 306.61097268363665 302.8044538694885 269.98156832321575"
+    ></path>
+    <title>`N8`.linel1</title>
+  </g>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="261.019336710183"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dotl</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="502.8044600332697"
+    cy="374.16430043720914"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot3P</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="395.5188430304339"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dotrP</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="402.8044620360581"
+    cy="347.37178847973627"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot2P</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="302.8044538694885"
+    cy="269.9815532319766"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dot1P</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="602.8044544204394"
+    cy="395.5188430304339"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dotr</title>
+  </circle>
+  <circle
+    fill="#c0c263"
+    fill-opacity="0.5"
+    cx="202.8044584373423"
+    cy="261.019336710183"
+    stroke="none"
+    r="5"
+  >
+    <title>`N9`.dotlP</title>
+  </circle>
+  <g>
+    <filter id="`N9`.line3r-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#c0c263"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 502.8044600332697 374.16430043720914 Q 548.6277252065399 404.4005806911913 602.8044544204394 395.5188430304339"
+    ></path>
+    <title>`N9`.line3r</title>
+  </g>
+  <g>
+    <filter id="`N9`.line12-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#c0c263"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 302.8044538694885 269.9815532319766 Q 340.56387956662275 324.49337650228375 402.8044620360581 347.37178847973627"
+    ></path>
+    <title>`N9`.line12</title>
+  </g>
+  <g>
+    <filter id="`N9`.line23-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#c0c263"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 402.8044620360581 347.37178847973627 Q 447.6285192687344 380.08667664507453 502.8044600332697 374.16430043720914"
+    ></path>
+    <title>`N9`.line23</title>
+  </g>
+  <g>
+    <filter id="`N9`.linel1-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#c0c263"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="0.5"
+      d="M 202.8044584373423 261.019336710183 Q 251.01917342039857 285.4206027486324 302.8044538694885 269.9815532319766"
+    ></path>
+    <title>`N9`.linel1</title>
+  </g>
+</svg>

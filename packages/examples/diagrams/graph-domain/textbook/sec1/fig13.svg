@@ -1,0 +1,1157 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g>
+    <filter
+      id="`Arc_team5_team2`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 189.44394300814193 218.128907388765 L 194.8145985771576 229.58124427621996 L 183.64667198947208 223.64176810766537 Z "
+    ></path>
+    <title>`Arc_team5_team2`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team5_team2`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 152.44618780069607 185.02617126961002 Q 181.02770483777536 215.0839421161277 209.61094363012327 245.14007567555677"
+    ></path>
+    <title>`Arc_team5_team2`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team5_team3`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 132.5478067278021 230.15077412926564 L 123.31496590173131 238.79684906021967 L 125.51359360401554 226.34028461981399 Z "
+    ></path>
+    <title>`Arc_team5_team3`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team5_team3`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 152.44618780069607 185.02617126961002 Q 132.6817606131513 221.49968818894305 112.92727793971699 257.9785921311069"
+    ></path>
+    <title>`Arc_team5_team3`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team5_team6`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 141.7709880808206 135.14853947258172 L 144.15264079229095 122.72566976424966 L 149.7010404481139 134.0929571577975 Z "
+    ></path>
+    <title>`Arc_team5_team6`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team5_team6`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 152.44618780069607 185.02617126961002 Q 146.9716163710214 143.90789131562315 141.49950053024295 102.78928449415912"
+    ></path>
+    <title>`Arc_team5_team6`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team1_team5`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 119.67305305587567 174.92288747384572 L 130.7505565897616 181.02934937008055 L 118.22467662491195 182.79068197342426 Z "
+    ></path>
+    <title>`Arc_team1_team5`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team1_team5`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 70.84398506170729 170.00408252946744 Q 111.64611534250139 177.50953770152967 152.44618780069607 185.02617126961002"
+    ></path>
+    <title>`Arc_team1_team5`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team5_team4`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 195.47352641532336 159.99899612657197 L 208.02451400612588 158.42652294128376 L 198.9272078446568 167.21509404399586 Z "
+    ></path>
+    <title>`Arc_team5_team4`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team5_team4`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 152.44618780069607 185.02617126961002 Q 189.8579670077141 167.1217530925972 227.26884692273617 149.21545594115327"
+    ></path>
+    <title>`Arc_team5_team4`.arrow</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="152.44618780069607"
+    cy="185.02617126961002"
+    stroke="none"
+    r="5"
+  >
+    <title>`team5`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="4"
+    stroke-linecap="butt"
+    transform="rotate(0, 196.14189149358364, 192.39790517789095)"
+    style="font: 18px serif"
+    x="196.14189149358364"
+    y="199.39790517789095"
+    width="65.7822265625"
+    height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>`team5`.text</title>
+    Team 5
+  </text>
+  <g>
+    <filter
+      id="`Arc_team6_team3`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 129.00332156515654 192.7550279687061 L 122.89661502104452 203.83239746263214 L 121.1355585599785 191.3064779410241 Z "
+    ></path>
+    <title>`Arc_team6_team3`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team6_team3`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 141.49950053024295 102.78928449415912 Q 127.21410463323622 180.38407002607724 112.92727793971699 257.9785921311069"
+    ></path>
+    <title>`Arc_team6_team3`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team6_team4`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 192.97715406859285 126.10587457714489 L 201.62620614512744 135.3359268720352 L 189.16893310696557 133.1413162820437 Z "
+    ></path>
+    <title>`Arc_team6_team4`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team6_team4`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 141.49950053024295 102.78928449415912 Q 184.38367098605508 126.00329899806448 227.26884692273617 149.21545594115327"
+    ></path>
+    <title>`Arc_team6_team4`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team6_team2`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 182.38866398277966 178.97717367888885 L 183.95979072576387 191.52833061677683 L 175.17219516864373 182.43008111225697 Z "
+    ></path>
+    <title>`Arc_team6_team2`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team6_team2`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 141.49950053024295 102.78928449415912 Q 175.55649579799515 173.96407064140098 209.61094363012327 245.14007567555677"
+    ></path>
+    <title>`Arc_team6_team2`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team1_team6`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 108.87583116112374 128.30442656669362 L 120.3271465530847 122.93159277251618 L 114.3897945160224 134.1006490430347 Z "
+    ></path>
+    <title>`Arc_team1_team6`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team1_team6`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 70.84398506170729 170.00408252946744 Q 106.17272772812451 136.39771886252103 141.49950053024295 102.78928449415912"
+    ></path>
+    <title>`Arc_team1_team6`.arrow</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="141.49950053024295"
+    cy="102.78928449415912"
+    stroke="none"
+    r="5"
+  >
+    <title>`team6`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="4"
+    stroke-linecap="butt"
+    transform="rotate(0, 183.40857984997848, 91.46142915952721)"
+    style="font: 18px serif"
+    x="183.40857984997848"
+    y="98.46142915952721"
+    width="65.7822265625"
+    height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>`team6`.text</title>
+    Team 6
+  </text>
+  <g>
+    <filter
+      id="`Arc_team1_team2`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 163.72169479532474 215.74403474975594 L 172.36957981013322 224.97518118409246 L 159.91258393768453 222.77899504550834 Z "
+    ></path>
+    <title>`Arc_team1_team2`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team1_team2`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 70.84398506170729 170.00408252946744 Q 140.22779155279733 207.57147479155614 209.61094363012327 245.14007567555677"
+    ></path>
+    <title>`Arc_team1_team2`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team2_team4`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 215.63503815635985 190.31627434183977 L 221.7414120867128 179.23872205740346 L 223.50284431309223 191.7645882431643 Z "
+    ></path>
+    <title>`Arc_team2_team4`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team2_team4`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 209.61094363012327 245.14007567555677 Q 218.43850066952282 197.17750908767204 227.26884692273617 149.21545594115327"
+    ></path>
+    <title>`Arc_team2_team4`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team2_team3`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 156.07378977009327 256.2842007811025 L 143.65167580639257 253.8986082209176 L 155.02072251346408 248.35381389084515 Z "
+    ></path>
+    <title>`Arc_team2_team3`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team2_team3`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 209.61094363012327 245.14007567555677 Q 161.26907808912384 251.55908767944388 112.92727793971699 257.9785921311069"
+    ></path>
+    <title>`Arc_team2_team3`.arrow</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="209.61094363012327"
+    cy="245.14007567555677"
+    stroke="none"
+    r="5"
+  >
+    <title>`team2`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="4"
+    stroke-linecap="butt"
+    transform="rotate(0, 243.725524662432, 261.9919189822012)"
+    style="font: 18px serif"
+    x="243.725524662432"
+    y="268.9919189822012"
+    width="64.7822265625"
+    height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>`team2`.text</title>
+    Team 2
+  </text>
+  <g>
+    <filter
+      id="`Arc_team4_team3`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 156.2524244195559 222.2859171192396 L 144.80085372425293 227.65820790927452 L 150.73873580647435 216.4894328600648 Z "
+    ></path>
+    <title>`Arc_team4_team3`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team4_team3`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 227.26884692273617 149.21545594115327 Q 170.09622602590986 203.5950934420652 112.92727793971699 257.9785921311069"
+    ></path>
+    <title>`Arc_team4_team3`.arrow</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team1_team3`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 98.00363807503432 217.5326870896128 L 99.57355709206041 230.0839946496576 L 90.78683734241268 220.98490001183742 Z "
+    ></path>
+    <title>`Arc_team1_team3`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team1_team3`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 70.84398506170729 170.00408252946744 Q 91.86915632814465 213.99921835759284 112.92727793971699 257.9785921311069"
+    ></path>
+    <title>`Arc_team1_team3`.arrow</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="112.92727793971699"
+    cy="257.9785921311069"
+    stroke="none"
+    r="5"
+  >
+    <title>`team3`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="4"
+    stroke-linecap="butt"
+    transform="rotate(0, 132.01033816369625, 274.9790406147898)"
+    style="font: 18px serif"
+    x="132.01033816369625"
+    y="281.9790406147898"
+    width="65.7822265625"
+    height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>`team3`.text</title>
+    Team 3
+  </text>
+  <g>
+    <filter
+      id="`Arc_team1_team4`.pointer-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="none"
+      fill="#000000"
+      fill-opacity="1"
+      d="M 154.77987574750753 154.81420189498223 L 167.2022470368774 157.19845676186074 L 155.83379708525442 162.74447564197985 Z "
+    ></path>
+    <title>`Arc_team1_team4`.pointer</title>
+  </g>
+  <g>
+    <filter
+      id="`Arc_team1_team4`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 70.84398506170729 170.00408252946744 Q 149.05647891545397 159.61024270371715 227.26884692273617 149.21545594115327"
+    ></path>
+    <title>`Arc_team1_team4`.arrow</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="227.26884692273617"
+    cy="149.21545594115327"
+    stroke="none"
+    r="5"
+  >
+    <title>`team4`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="4"
+    stroke-linecap="butt"
+    transform="rotate(0, 264.64620047048584, 165.15138818312596)"
+    style="font: 18px serif"
+    x="264.64620047048584"
+    y="172.15138818312596"
+    width="65.7822265625"
+    height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>`team4`.text</title>
+    Team 4
+  </text>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="70.84398506170729"
+    cy="170.00408252946744"
+    stroke="none"
+    r="5"
+  >
+    <title>`team1`.dot</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="4"
+    stroke-linecap="butt"
+    transform="rotate(0, 39.02458264194354, 153.0028795643859)"
+    style="font: 18px serif"
+    x="39.02458264194354"
+    y="160.0028795643859"
+    width="63.7822265625"
+    height="14"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>`team1`.text</title>
+    Team 1
+  </text>
+</svg>
