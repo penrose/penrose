@@ -251,7 +251,7 @@
   "curve-examples/blobs": { "name": "Blobs" },
   "curve-examples/space-curves": { "name": "Space curves" },
   "solid/example": { "trio": false },
-  "geometric-queries/ray-intersect/test-ray-intersect-group": {
+  "geometric-queries/ray-intersect/test-group": {
     "name": "Ray Casting",
     "gallery": true
   },
@@ -267,23 +267,23 @@
     "name": "Next Event Estimation",
     "gallery": false
   },
-  "geometric-queries/test-geometric-queries": {
+  "geometric-queries/test": {
     "name": "Geometric Queries",
     "gallery": true
   },
-  "geometric-queries/closest-point/test-closest-point-group": {
+  "geometric-queries/closest-point/test-group": {
     "name": "Closest Point Queries",
     "gallery": true
   },
-  "geometric-queries/closest-point/test-closest-point": {
+  "geometric-queries/closest-point/test": {
     "name": "More Closest Point Queries",
     "gallery": false
   },
-  "geometric-queries/closest-silhouette-point/test-closest-silhouette-point": {
+  "geometric-queries/closest-silhouette-point/test": {
     "name": "Silhouette Point Queries",
     "gallery": false
   },
-  "geometric-queries/ray-intersect/test-ray-intersect": {
+  "geometric-queries/ray-intersect/test": {
     "name": "Ray Intersection Tests",
     "gallery": false
   }
