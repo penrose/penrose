@@ -121,9 +121,9 @@ forall Curve c {
       strokeColor: #000
   }
 
-  ensure equal(perimeter(c.poly.points, false), length)
-  ensure isEquilateral(c.poly)
-  encourage equal(elasticEnergy(c.poly.points, false), 0)  -- works better than `minimal` in this case
+  ensure perimeter(c.poly.points, false) == length
+  ensure isEquilateral(c.poly.points, false)
+  encourage elasticEnergy(c.poly.points, false) == 0  -- works better than `minimal` in this case
 
   shape c.arrow1 = Line {
     start: p0

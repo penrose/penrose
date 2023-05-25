@@ -22,8 +22,19 @@ export interface Trio {
   variation: string;
 }
 
-export interface Meta {
-  get: () => Promise<Trio>;
+export interface BaseMeta {
   name?: string;
+}
+
+export interface TrioMeta extends BaseMeta {
+  trio: true;
+  get: () => Promise<Trio>;
   gallery?: boolean;
 }
+
+export interface OtherMeta extends BaseMeta {
+  trio: false;
+  f: () => Promise<string>;
+}
+
+export type Meta = TrioMeta | OtherMeta;

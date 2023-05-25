@@ -3,22 +3,43 @@
   "version": "3.0.0-alpha.0",
   "private": true,
   "type": "module",
+  "dependencies": {
+    "@penrose/solids": "^3.0.0-alpha.0",
+    "solid-js": "^1"
+  },
+  "devDependencies": {
+    "@penrose/core": "^3.0.0-alpha.0",
+    "@types/prettier": "^2",
+    "prettier": "^2",
+    "vite": "^4",
+    "vitest": "^0.31"
+  },
   "scripts": {
     "build": "rimraf dist && tsc",
     "build-decls": ":",
-    "codegen": "git clean -dfqx src && node codegen.js",
+    "codegen": "git clean -dfqX src && node codegen.js",
+    "test": "vitest run --reporter=verbose",
     "typecheck": ":"
   },
   "nx": {
     "targets": {
       "build": {
         "dependsOn": [
+          "^build",
+          "^build-decls",
           "codegen"
         ]
       },
       "build-decls": {
         "dependsOn": [
           "build"
+        ]
+      },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "^build-decls",
+          "codegen"
         ]
       }
     }

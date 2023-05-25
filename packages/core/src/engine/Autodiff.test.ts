@@ -1,8 +1,9 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import { numsOf } from "../contrib/Utils";
-import * as ad from "../types/ad";
-import { eqList, randList } from "../utils/Util";
+import { describe, expect, test } from "vitest";
+import { numsOf } from "../contrib/Utils.js";
+import * as ad from "../types/ad.js";
+import { eqList, randList } from "../utils/Util.js";
 import {
   fns,
   genCode,
@@ -12,7 +13,7 @@ import {
   makeGraph,
   primaryGraph,
   secondaryGraph,
-} from "./Autodiff";
+} from "./Autodiff.js";
 import {
   add,
   addN,
@@ -29,7 +30,7 @@ import {
   sqrt,
   squared,
   sub,
-} from "./AutodiffFunctions";
+} from "./AutodiffFunctions.js";
 
 describe("makeGraph tests", () => {
   test("secondary outputs", () => {

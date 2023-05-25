@@ -1,12 +1,12 @@
 import { Params } from "@penrose/optimizer";
-import { Canvas, InputMeta } from "../shapes/Samplers";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "./ad";
-import { A } from "./ast";
-import { StyleWarning } from "./errors";
-import { ConstrFn, ObjFn } from "./style";
-import { WithContext } from "./styleSemantics";
-import { FloatV } from "./value";
+import { Canvas, InputMeta } from "../shapes/Samplers.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "./ad.js";
+import { A } from "./ast.js";
+import { StyleWarning } from "./errors.js";
+import { ConstrFn, ObjFn } from "./style.js";
+import { WithContext } from "./styleSemantics.js";
+import { FloatV } from "./value.js";
 
 export type ShapeFn = (xs: number[]) => Shape<number>[];
 

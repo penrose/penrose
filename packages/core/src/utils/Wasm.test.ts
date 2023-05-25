@@ -1,4 +1,5 @@
-import { int } from "./Wasm";
+import { describe, expect, test } from "vitest";
+import { int } from "./Wasm.js";
 
 describe("LEB128", () => {
   const leb128 = (n: number): number[] => {

@@ -1,14 +1,15 @@
-import { Circle, makeCircle } from "../../shapes/Circle";
-import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
-import { Line, makeLine } from "../../shapes/Line";
-import { Polygon, makePolygon } from "../../shapes/Polygon";
-import { Polyline, makePolyline } from "../../shapes/Polyline";
-import { makeRectangle } from "../../shapes/Rectangle";
-import { Context, makeCanvas, simpleContext } from "../../shapes/Samplers";
-import * as ad from "../../types/ad";
-import { black, floatV, ptListV, vectorV } from "../../utils/Util";
-import { compDict } from "../Functions";
-import { Rectlike, numOf } from "../Utils";
+import { describe, expect, test } from "vitest";
+import { Circle, makeCircle } from "../../shapes/Circle.js";
+import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
+import { Line, makeLine } from "../../shapes/Line.js";
+import { Polygon, makePolygon } from "../../shapes/Polygon.js";
+import { Polyline, makePolyline } from "../../shapes/Polyline.js";
+import { makeRectangle } from "../../shapes/Rectangle.js";
+import { Context, makeCanvas, simpleContext } from "../../shapes/Samplers.js";
+import * as ad from "../../types/ad.js";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import { compDict } from "../Functions.js";
+import { Rectlike, numOf } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 

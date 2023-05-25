@@ -22,25 +22,15 @@ import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
 import { extname, join, resolve } from "path";
 import prettier from "prettier";
-import { printTextChart } from "./artifacts";
 import { version } from "./package.json";
-import { AggregateData, InstanceData } from "./types";
-import watch from "./watch";
+import { InstanceData } from "./types.js";
+import watch from "./watch.js";
 
 interface Trio {
   substance: string;
   style: string[];
   domain: string;
   variation: string;
-}
-
-interface Meta {
-  name?: string;
-  gallery?: boolean;
-}
-
-interface Registry {
-  [id: string]: Meta;
 }
 
 // In an async context, communicate with the backend to compile and optimize the diagram
@@ -172,114 +162,6 @@ const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
     style: styles.join("\n"),
     domain,
   };
-};
-
-const renderTrio = async (
-  variation: string,
-  sub: string,
-  sty: string[],
-  dsl: string,
-  folder: boolean,
-  out: string,
-  prefix: string,
-  meta: {
-    substanceName: string;
-    styleNames: string[];
-    domainName: string;
-    id: string;
-  }
-) => {
-  const { substance, style, domain } = readTrio(sub, sty, dsl, prefix);
-  // draw diagram and get metadata
-  const { diagram, metadata } = await render(
-    variation,
-    substance,
-    style,
-    domain,
-    resolvePath(prefix, sty),
-    true,
-    meta
-  );
-
-  // write to files
-  if (folder) {
-    if (!fs.existsSync(out)) {
-      fs.mkdirSync(out, { recursive: true });
-    }
-    fs.writeFileSync(join(out, "substance.substance"), substance);
-    fs.writeFileSync(join(out, "style.style"), style);
-    fs.writeFileSync(join(out, "domain.domain"), domain);
-    fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata, null, 2));
-    fs.writeFileSync(join(out, "output.svg"), diagram);
-    console.log(
-      chalk.green(`The diagram and metadata has been saved to ${resolve(out)}`)
-    );
-    // returning metadata for aggregation
-    return metadata;
-  } else {
-    const dir = join(out, "..");
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(out, diagram);
-    console.log(chalk.green(`The diagram has been saved as ${resolve(out)}`));
-  }
-};
-
-// Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
-const renderRegistry = async (lib: string, folders: boolean, out: string) => {
-  const prefix = join(lib, "..");
-  const registry: Registry = JSON.parse(fs.readFileSync(lib, "utf8"));
-  const trioLibrary = Object.keys(registry);
-  console.log(`Processing ${trioLibrary.length} trios...`);
-
-  const finalMetadata: AggregateData = {};
-  for (const id of trioLibrary) {
-    // try to render the diagram
-    try {
-      const trioPath = join(prefix, `${id}.trio.json`);
-      const trioPrefix = join(trioPath, "..");
-      const { substance, style, domain, variation }: Trio = JSON.parse(
-        fs.readFileSync(trioPath, "utf8")
-      );
-
-      // Warning: will face id conflicts if parallelism used
-      const metadata = await renderTrio(
-        variation,
-        substance,
-        style,
-        domain,
-        folders,
-        join(out, `${id}${folders ? "" : ".svg"}`),
-        trioPrefix,
-        {
-          substanceName: substance,
-          styleNames: style,
-          domainName: domain,
-          id,
-        }
-      );
-      if (folders && metadata) {
-        finalMetadata[id] = metadata;
-      }
-    } catch (e) {
-      process.exitCode = 1;
-      console.trace(
-        chalk.red(
-          `${id} exited with an error. The error message is:\n${e.stack}`
-        )
-      );
-    }
-  }
-
-  if (folders) {
-    const aggregatePath = join(out, "aggregateData.json");
-    fs.writeFileSync(aggregatePath, JSON.stringify(finalMetadata, null, 2));
-    console.log(
-      chalk.green(`The Aggregate metadata has been saved to ${aggregatePath}`)
-    );
-  }
-  console.log("Done.");
 };
 
 /**
@@ -441,30 +323,6 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    "batch <registry> <out>",
-    "Generate diagrams from a registry of Penrose trios.",
-    (yargs) =>
-      yargs
-        .positional("registry", {
-          desc: "A JSON registry of Penrose trios.",
-          demandOption: true,
-          type: "string",
-        })
-        .positional("out", {
-          desc: "A folder containing all generated diagrams.",
-          demandOption: true,
-          type: "string",
-        })
-        .option("folders", {
-          desc: "Generate each diagram as a folder that includes metadata.",
-          default: false,
-          type: "boolean",
-        }),
-    async (options) => {
-      await renderRegistry(options.registry, options.folders, options.out);
-    }
-  )
-  .command(
     "watch",
     "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)",
     (yargs) =>
@@ -487,23 +345,6 @@ yargs(hideBin(process.argv))
     (options) => getShapeDefs(options.out)
   )
 
-  .command(
-    "textchart <artifacts> <out>",
-    "Generate an ASCII chart that shows the performance data.",
-    (yargs) =>
-      yargs
-        .positional("artifacts", {
-          desc: "A folder that contains roger outputs and metadata.",
-          demandOption: true,
-          type: "string",
-        })
-        .positional("out", {
-          desc: "An output markdown file.",
-          demandOption: true,
-          type: "string",
-        }),
-    (options) => printTextChart(options.artifacts, options.out)
-  )
   .demandCommand()
   .strict()
   .help().argv;

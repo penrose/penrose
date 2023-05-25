@@ -1,6 +1,6 @@
 {
-  "substance": "./blobs.substance",
-  "style": ["./blobs.style"],
-  "domain": "./blobs.domain",
+  "substance": "./blobs/blobs.substance",
+  "style": ["./blobs/blobs.style"],
+  "domain": "./blobs/blobs.domain",
   "variation": "LavendaireWombat86913"
 }

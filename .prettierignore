@@ -21,10 +21,8 @@
 /packages/examples/src/resolver.ts
 /packages/optimizer/bindings/
 /packages/optimizer/build/
-/packages/optimizer/index.js
-/packages/optimizer/source.d.ts
-/packages/optimizer/target/
 /README.md
+/target/
 coverage/
 dist/
 public/app.css

@@ -1,12 +1,12 @@
-import { Circle } from "../shapes/Circle";
+import { Circle } from "../shapes/Circle.js";
 import {
   attrAutoFillSvg,
   attrCenter,
   attrFill,
   attrStroke,
   attrTitle,
-} from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 const RenderCircle = (
   shape: Circle<number>,

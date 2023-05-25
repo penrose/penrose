@@ -3,7 +3,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ES2022",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "strict": true,

@@ -1,18 +1,18 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import { Equation } from "../shapes/Equation";
-import { Group } from "../shapes/Group";
-import { Image } from "../shapes/Image";
-import { Line } from "../shapes/Line";
-import { Path as PathShape } from "../shapes/Path";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Rectangle } from "../shapes/Rectangle";
-import { Shape } from "../shapes/Shapes";
-import { Text } from "../shapes/Text";
-import * as ad from "../types/ad";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Equation } from "../shapes/Equation.js";
+import { Group } from "../shapes/Group.js";
+import { Image } from "../shapes/Image.js";
+import { Line } from "../shapes/Line.js";
+import { Path as PathShape } from "../shapes/Path.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Rectangle } from "../shapes/Rectangle.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
 import {
   A,
   ASTNode,
@@ -20,8 +20,8 @@ import {
   Identifier,
   NodeType,
   SourceLoc,
-} from "../types/ast";
-import { StyleError } from "../types/errors";
+} from "../types/ast.js";
+import { StyleError } from "../types/errors.js";
 import {
   Arrow,
   CanPassthrough,
@@ -35,9 +35,9 @@ import {
   Scale,
   String as StringProps,
   Stroke,
-} from "../types/shapes";
-import { ShapeFn } from "../types/state";
-import { Expr, Path } from "../types/style";
+} from "../types/shapes.js";
+import { ShapeFn } from "../types/state.js";
+import { Expr, Path } from "../types/style.js";
 import {
   Color,
   ColorV,
@@ -53,9 +53,9 @@ import {
   TupV,
   Value,
   VectorV,
-} from "../types/value";
-import { safe } from "../utils/Util";
-import { genCode, secondaryGraph } from "./Autodiff";
+} from "../types/value.js";
+import { safe } from "../utils/Util.js";
+import { genCode, secondaryGraph } from "./Autodiff.js";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
