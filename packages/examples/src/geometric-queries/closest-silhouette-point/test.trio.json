@@ -1,5 +1,5 @@
 {
-  "substance": "./test-closest-silhouette-point.substance",
+  "substance": "./test.substance",
   "style": ["./closest-silhouette-point.style"],
   "domain": "./closest-silhouette-point.domain",
   "variation": "CatfishDonkey135"

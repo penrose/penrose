@@ -1,5 +1,5 @@
 {
-  "substance": "./test-closest-point-group.substance",
+  "substance": "./test-group.substance",
   "style": ["./closest-point.style"],
   "domain": "./closest-point.domain",
   "variation": "AoWoodpecker967"

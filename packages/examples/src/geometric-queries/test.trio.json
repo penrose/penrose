@@ -1,5 +1,5 @@
 {
-  "substance": "./test-geometric-queries.substance",
+  "substance": "./test.substance",
   "style": ["./geometric-queries.style"],
   "domain": "./geometric-queries.domain",
   "variation": "MettwurstCattle35745"

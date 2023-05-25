@@ -1,3 +1,5 @@
+-- For each query point xi, finds the closest point on any shape in the group G.
+
 Point x0
 Point x1
 Point x2

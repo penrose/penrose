@@ -1,4 +1,5 @@
--- variation: MettwurstCattle35745
+-- For each shape, draw the result of each geometric query (closest ray
+-- intersection, closest point, and closest silhouette point).
 
 -- Circle
 Circle C

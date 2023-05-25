@@ -1,3 +1,5 @@
+-- For each ray, draws the first intersection with any shape in the group G.
+
 Ray r1
 Ray r2
 Ray r3

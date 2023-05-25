@@ -1,3 +1,5 @@
+-- For each shape, draws the point closest to x.
+
 Point x
 Line L
 Polyline M

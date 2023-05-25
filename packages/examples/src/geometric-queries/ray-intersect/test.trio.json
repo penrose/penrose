@@ -1,5 +1,5 @@
 {
-  "substance": "./test-ray-intersect.substance",
+  "substance": "./test.substance",
   "style": ["./ray-intersect.style"],
   "domain": "./ray-intersect.domain",
   "variation": "SnowflakeQuetzal3561"
