@@ -3,6 +3,11 @@ import { render } from "solid-js/web";
 
 export default async () => {
   const elem = document.createElement("div");
-  render(() => Triangles({ seed: "skadoosh", theta: 0 }), elem);
+  await new Promise((f) => {
+    const onFinish = () => {
+      f(undefined);
+    };
+    render(() => Triangles({ seed: "wow", theta: 0, onFinish }), elem);
+  });
   return elem.innerHTML;
 };

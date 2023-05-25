@@ -4,14 +4,27 @@ import {
   add,
   cos,
   div,
+  eq,
+  measureText,
   mul,
+  neg,
+  problem,
   sin,
   sub,
+  textBBox,
   variable,
 } from "@penrose/core";
+import { convexPolygonMinkowskiSDF } from "@penrose/core/dist/contrib/Minkowski.js";
+import { BBox, corners } from "@penrose/core/dist/engine/BBox.js";
 import seedrandom from "seedrandom";
-import { Accessor, createEffect, createSignal, on } from "solid-js";
-import { SetStoreFunction, createStore } from "solid-js/store";
+import {
+  Accessor,
+  createEffect,
+  createResource,
+  createSignal,
+  on,
+} from "solid-js";
+import { SetStoreFunction, createMutable, createStore } from "solid-js/store";
 import { numSignal } from "./util.js";
 
 type Sampler = (x: number) => number;
@@ -46,6 +59,7 @@ const sample = <T,>(
 export interface TriangleProps {
   seed: string;
   theta: Num;
+  onFinish?: () => void;
 }
 
 export const Triangles = (props: TriangleProps) => {
@@ -83,8 +97,14 @@ export const Triangles = (props: TriangleProps) => {
     ></polygon>
   );
 
+  const waiting: Promise<void>[] = [];
+
   // triangles
-  const triangleWithShadow = (qs: Num[][], fillColor: string) => {
+  const triangleWithShadow = (
+    qs: Num[][],
+    fillColor: string,
+    names: string[]
+  ) => {
     // triangle
     const [qi, qj, qk] = qs.map((p) => rotate(p, props.theta));
     const ps = [qi, qj, qk].map(perspective);
@@ -92,10 +112,67 @@ export const Triangles = (props: TriangleProps) => {
     const rs = [qi, qj, qk].map((p) => [p[0], planeHeight, p[2]]);
     const ss = rs.map(perspective);
     const shadow = ss.map((p) => p.map(numSignal));
+
+    const vertices = () => triangle.map(([x, y]) => [x(), y()]);
+    const labels = vertices().map(([x, y]) => [
+      createMutable(variable(x)),
+      createMutable(variable(y)),
+    ]);
+    const bboxes = labels.map(([x, y], i) =>
+      textBBox(measureText(names[i], "italic bold Palatino"), x, y)
+    );
+    const labelSet = new Set(labels.flat());
+    const [compiling] = createResource(() => {
+      const prob = problem({
+        constraints: bboxes.map((bbox) => {
+          const textCorners = corners(bbox as BBox);
+          return eq(
+            convexPolygonMinkowskiSDF(
+              ps,
+              [
+                textCorners.bottomLeft,
+                textCorners.bottomRight,
+                textCorners.topRight,
+                textCorners.topLeft,
+              ].map(([x, y]) => [neg(x), neg(y)]),
+              0
+            ),
+            10
+          );
+        }),
+      });
+      waiting.push(prob.then(() => {}));
+      return prob;
+    });
+    createEffect(
+      on([vertices, compiling], ([ps, prob]) => {
+        ps.forEach((p, i) => {
+          labels[i][0].val = p[0];
+          labels[i][1].val = p[1];
+        });
+        if (prob !== undefined) {
+          let run = prob.start({ freeze: (x) => !labelSet.has(x) });
+          while (!run.converged) run = run.run({});
+          for (const [v, x] of run.vals) v.val = x;
+        }
+      })
+    );
+    const texts = labels.map((p) => p.map(numSignal));
+
+    createEffect(async () => {
+      const f = props.onFinish;
+      if (f) {
+        await Promise.all(waiting);
+        f();
+      }
+    });
+
     return (
       <>
         <polygon
-          points={triangle.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
+          points={vertices()
+            .map((v) => toCanvas(v))
+            .join(" ")}
           fill={fillColor}
           stroke={"#1b1f8a"}
           stroke-width={0.5}
@@ -104,6 +181,24 @@ export const Triangles = (props: TriangleProps) => {
           points={shadow.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
           fill={"#0002"}
         ></polygon>
+        {texts.map(([x0, y0], i) => {
+          const [x, y] = toCanvas([x0(), y0()]);
+          return (
+            <text
+              x={x}
+              y={y}
+              fill-color="black"
+              font-style="italic"
+              font-weight="bold"
+              font-family="Palatino"
+              stroke="white"
+              stroke-width={3}
+              paint-order="stroke"
+            >
+              {names[i]}
+            </text>
+          );
+        })}
       </>
     );
   };
@@ -120,8 +215,8 @@ export const Triangles = (props: TriangleProps) => {
       };
     }
   );
-  const tri1 = triangleWithShadow(qs1, "#34379a");
-  const tri2 = triangleWithShadow(qs2, "#340000");
+  const tri1 = triangleWithShadow(qs1, "#34379a", ["A", "B", "C"]);
+  const tri2 = triangleWithShadow(qs2, "#340000", ["D", "E", "F"]);
 
   return (
     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
@@ -133,7 +228,7 @@ export const Triangles = (props: TriangleProps) => {
 };
 
 export const RotatingTriangles = () => {
-  const [seed, setSeed] = createSignal("skadoosh");
+  const [seed, setSeed] = createSignal("wow");
   const [theta, setTheta] = createStore(variable(0));
 
   const onSlide = (n: number) => {
