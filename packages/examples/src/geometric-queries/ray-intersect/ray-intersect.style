@@ -7,9 +7,9 @@ canvas {
 
 forall Ray r {
    scalar W = canvas.width
-   scalar H = canvas.width
+   scalar H = canvas.height
    scalar x = -W/2 + 10
-   scalar y = H*random(-1,1)/2
+   scalar y = .95*H*random(-1,1)/2
    vec2 r.pos = (x,y)
    vec2 r.vec = (1000,?)
 
