@@ -146,7 +146,6 @@
   "shape-distance/points-around-polyline": {},
   "shape-distance/points-around-line": {},
   "shape-distance/lines-around-rect": {},
-  "closest-point/test": { "name": "Closest point test", "gallery": false },
   "fake-3d-linear-algebra/projection": {},
   "animation/center-shrink-circle": {},
   "structural-formula/molecules/caffeine": {
@@ -251,5 +250,41 @@
   },
   "curve-examples/blobs": { "name": "Blobs" },
   "curve-examples/space-curves": { "name": "Space curves" },
-  "solid/example": { "trio": false }
+  "solid/example": { "trio": false },
+  "geometric-queries/ray-intersect/test-group": {
+    "name": "Ray Casting",
+    "gallery": true
+  },
+  "ray-tracing/path-trace": {
+    "name": "Path Tracing",
+    "gallery": true
+  },
+  "ray-tracing/bidirectional": {
+    "name": "Bidirectional Path Tracing",
+    "gallery": true
+  },
+  "ray-tracing/next-event-estimation": {
+    "name": "Next Event Estimation",
+    "gallery": false
+  },
+  "geometric-queries/test": {
+    "name": "Geometric Queries",
+    "gallery": true
+  },
+  "geometric-queries/closest-point/test-group": {
+    "name": "Closest Point Queries",
+    "gallery": true
+  },
+  "geometric-queries/closest-point/test": {
+    "name": "More Closest Point Queries",
+    "gallery": false
+  },
+  "geometric-queries/closest-silhouette-point/test": {
+    "name": "Silhouette Point Queries",
+    "gallery": false
+  },
+  "geometric-queries/ray-intersect/test": {
+    "name": "Ray Intersection Tests",
+    "gallery": false
+  }
 }

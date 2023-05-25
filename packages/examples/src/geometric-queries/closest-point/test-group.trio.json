@@ -1,6 +1,6 @@
 {
-  "substance": "./test.substance",
+  "substance": "./test-group.substance",
   "style": ["./closest-point.style"],
   "domain": "./closest-point.domain",
-  "variation": "MobileCalder1939"
+  "variation": "AoWoodpecker967"
 }
