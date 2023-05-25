@@ -275,9 +275,12 @@ where r := rayBetween(p,q) {
       end: q.x
       strokeColor: global.rayLineColor
       strokeWidth: global.rayLineWidth
-      strokeDasharray: global.rayLineDashing
       ensureOnCanvas: false
    }
+
+   -- don't draw an outgoing ray direction for a direct connection
+   override r.icon.end = r.icon.start
+   override r.icon.endArrowhead = "none"
 
    -- check if there are any intersections along this ray,
    -- and draw a red "X" at the first intersection if so
