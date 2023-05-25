@@ -1,6 +1,6 @@
 # ray-tracing
 
-![Ray tracing examples with associated Substance code](raytracing-examples.svg)
+![Ray tracing examples with associated Substance code](ray-tracing-examples.svg)
 
 The examples in this directory show how Penrose can be used to create diagrams for rendering/light transport algorithms.  The current package is fairly simplistic, but **can easily be extended to handle a broader range of phenomena/scenarios**—take a look at the source files `ray-tracing.domain` and `ray-tracing.style`, which are not much harder to edit than CSS.  At present, there are just a few basic types:
 
