@@ -15,8 +15,8 @@ predicate In(Task t, Category c)
 -- If style aggregation is ever supported the style program should use that feature
 -- and these predicates should be removed.
 
---declares the immediate prior quarter
-predicate Before(Quarter q1, Quarter q2)
+--declares the immediate prior category
+predicate Before(Category, Category)
 -- declares the first quarter of the year
 predicate First(Quarter q, Year y)
 -- declares the last quarter of the year

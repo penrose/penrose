@@ -57,11 +57,10 @@ global {
 }
 
 forall Category c {
-    -- mix random RGB values with white gives slightly better colors
-    r = unitRandom() * 0.4 + 0.6
-    g = unitRandom() * 0.4 + 0.6
-    b = unitRandom() * 0.4 + 0.6
-    c.fillColor = rgba(r, g, b, 1)
+    -- compute an HSVA color: H is based on the category index with a random phase shift of [0, 100] degrees. S=30, H=100, and A=100%.
+    phaseShift = unitRandom() * 50 
+    hue = 360 / match_total * match_id + phaseShift
+    c.fillColor = hsva(hue, 30, 100, 1)
 }
 
 forall Year y {
@@ -174,6 +173,18 @@ with Category c {
    e.icon.fillColor = c.fillColor
 }
 
+forall Task e1; Task e2
+where In(e1, c1); In(e2, c2); Before(c2, c1)
+with Category c1, c2
+{
+  ensure e1.centerY > (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
+}
+
+forall Task e1, e2 {
+    ensure disjoint(e1.icon, e2.icon, global.taskPadding) in disjoint
+}
+
+-- `penrose-project-timeline` styling
 forall Task e
 where In(e, `access`)
 with Category `access` {
@@ -190,29 +201,4 @@ forall Task e
 where In(e, `outcome`)
 with Category `outcome` {
    override e.icon.fillColor = colors.purple
-}
-
-forall Task e1; Task e2
-where In(e1, `outcome`); In(e2, `access`)
-with Category `outcome`; Category `access`
-{
-  ensure e1.centerY > (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
-}
-
-forall Task e1; Task e2;
-where In(e1, `access`); In(e2, `milestone`)
-with Category `access`; Category `milestone`
-{
-  ensure e1.centerY >  (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
-}
-
-forall Task e1; Task e2;
-where In(e1, `outcome`); In(e2, `milestone`)
-with Category `outcome`; Category `milestone`
-{
-  ensure e1.centerY >  (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
-}
-
-forall Task e1, e2 {
-    ensure disjoint(e1.icon, e2.icon, global.taskPadding) in disjoint
 }

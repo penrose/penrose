@@ -19,6 +19,9 @@ q2_2025 := MkQuarter(y2025)
 
 Category outcome, access, milestone
 
+Before(outcome, access)
+Before(access, milestone)
+
 e1 := MkTask(q1_2023, q2_2023)
 In(e1, outcome)
 Label e1 "Web IDE"
