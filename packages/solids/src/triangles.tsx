@@ -2,9 +2,11 @@ import {
   Num,
   Var,
   add,
+  addN,
   cos,
   div,
   eq,
+  lt,
   measureText,
   mul,
   neg,
@@ -19,13 +21,14 @@ import { BBox, corners } from "@penrose/core/dist/engine/BBox.js";
 import seedrandom from "seedrandom";
 import {
   Accessor,
+  For,
   createEffect,
   createResource,
   createSignal,
   on,
 } from "solid-js";
 import { SetStoreFunction, createMutable, createStore } from "solid-js/store";
-import { numSignal } from "./util.js";
+import { boolSignal, numSignal } from "./util.js";
 
 type Sampler = (x: number) => number;
 
@@ -167,40 +170,43 @@ export const Triangles = (props: TriangleProps) => {
       }
     });
 
-    return (
-      <>
-        <polygon
-          points={vertices()
-            .map((v) => toCanvas(v))
-            .join(" ")}
-          fill={fillColor}
-          stroke={"#1b1f8a"}
-          stroke-width={0.5}
-        ></polygon>
-        <polygon
-          points={shadow.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
-          fill={"#0002"}
-        ></polygon>
-        {texts.map(([x0, y0], i) => {
-          const [x, y] = toCanvas([x0(), y0()]);
-          return (
-            <text
-              x={x}
-              y={y}
-              fill-color="black"
-              font-style="italic"
-              font-weight="bold"
-              font-family="Palatino"
-              stroke="white"
-              stroke-width={3}
-              paint-order="stroke"
-            >
-              {names[i]}
-            </text>
-          );
-        })}
-      </>
-    );
+    return {
+      z: addN([qi, qj, qk].map((q) => q[2])),
+      shapes: (
+        <>
+          <polygon
+            points={vertices()
+              .map((v) => toCanvas(v))
+              .join(" ")}
+            fill={fillColor}
+            stroke={"#1b1f8a"}
+            stroke-width={0.5}
+          ></polygon>
+          <polygon
+            points={shadow.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
+            fill={"#0002"}
+          ></polygon>
+          {texts.map(([x0, y0], i) => {
+            const [x, y] = toCanvas([x0(), y0()]);
+            return (
+              <text
+                x={x}
+                y={y}
+                fill-color="black"
+                font-style="italic"
+                font-weight="bold"
+                font-family="Palatino"
+                stroke="white"
+                stroke-width={3}
+                paint-order="stroke"
+              >
+                {names[i]}
+              </text>
+            );
+          })}
+        </>
+      ),
+    };
   };
 
   const c = 0.9 * Math.min(planeSize, Math.abs(planeHeight));
@@ -218,17 +224,22 @@ export const Triangles = (props: TriangleProps) => {
   const tri1 = triangleWithShadow(qs1, "#34379a", ["A", "B", "C"]);
   const tri2 = triangleWithShadow(qs2, "#340000", ["D", "E", "F"]);
 
+  const swap = boolSignal(lt(tri1.z, tri2.z));
+
   return (
     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
       {plane}
-      {tri1}
-      {tri2}
+      <For
+        each={swap() ? [tri2.shapes, tri1.shapes] : [tri1.shapes, tri2.shapes]}
+      >
+        {(s) => s}
+      </For>
     </svg>
   );
 };
 
 export const RotatingTriangles = () => {
-  const [seed, setSeed] = createSignal("wow");
+  const [seed, setSeed] = createSignal("skadoosh");
   const [theta, setTheta] = createStore(variable(0));
 
   const onSlide = (n: number) => {

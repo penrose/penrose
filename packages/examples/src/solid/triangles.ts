@@ -7,7 +7,7 @@ export default async () => {
     const onFinish = () => {
       f(undefined);
     };
-    render(() => Triangles({ seed: "wow", theta: 0, onFinish }), elem);
+    render(() => Triangles({ seed: "foobar", theta: 0, onFinish }), elem);
   });
   return elem.innerHTML;
 };
