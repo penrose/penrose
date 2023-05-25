@@ -121,21 +121,11 @@ forall Quarter q {
     layer q.slotBegin below global.baseline
 }
 
-forall Quarter q1; Quarter q2
-where Before(q1, q2) {
-    layer q2.slotBegin above q1.slotEnd
-}
 
-forall Quarter q
-where First(q,y)
-with Year y {
-    y.minX = q.startSlotX
-}
-
-forall Quarter q
-where Last(q,y)
-with Year y {
-    y.maxX = q.endSlotX
+collect Quarter q into qs
+foreach Year y {
+    override y.minX = minList(listof startSlotX from qs)
+    override y.maxX = maxList(listof   endSlotX from qs)
 }
 
 
