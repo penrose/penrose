@@ -1336,16 +1336,21 @@ delete x.z.p }`,
       const sty =
         canvasPreamble +
         `
-forall T t {
-  t.xs = [1, 2, 3, 4, 5, 6]
-  t.index = 3
-  t.v = t.xs[t.index]
-}
+        forall T t {
+          t.vals = [1, 2, 3, 4, 5, 6]
+          t.val = t.vals[match_id]
+        
+          Circle {
+            r: t.val
+          }
+        }
       `;
 
+      // This problem would have failed compilation when indexing is not handled correctly
+      // And this would fail:
       const { graph } = await loadProgs({ dsl, sub, sty });
-      expect(graph.parents("`t`.v").sort()).toEqual(
-        ["`t`.xs", "`t`.index"].sort()
+      expect(graph.parents("`t`.val").sort()).toEqual(
+        ["`t`.vals", "1:0:match_id"].sort()
       );
     });
   });
