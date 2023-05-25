@@ -1,4 +1,4 @@
-var f=Object.defineProperty;var s=(t,e)=>f(t,"name",{value:e,configurable:!0});import{z as l}from"./svg-56fd447a.js";import{s as a,F as y}from"./styled-components.browser.esm-e68be8f2.js";import{R as x,r as C}from"./index-74c5fbfa.js";import{G as v,p as S}from"./penroseBlue-d6adec1b.js";import{j as o}from"./jsx-runtime-9c5bc5e6.js";import{c as G}from"./PenrosePrograms-b82226b1.js";import"./es.object.get-own-property-descriptor-2f3bcc00.js";import"./web.url-1059d872.js";import"./index-b79ff3a9.js";import"./Simple-a89b01bc.js";const P=a.main`
+var f=Object.defineProperty;var s=(t,e)=>f(t,"name",{value:e,configurable:!0});import{z as l}from"./svg-56fd447a.js";import{s as a,F as y}from"./styled-components.browser.esm-e68be8f2.js";import{R as x,r as C}from"./index-74c5fbfa.js";import{G as v,p as S}from"./penroseBlue-dcc76abc.js";import{j as o}from"./jsx-runtime-9c5bc5e6.js";import{c as G}from"./PenrosePrograms-b82226b1.js";import"./es.object.get-own-property-descriptor-2f3bcc00.js";import"./web.url-1059d872.js";import"./index-b79ff3a9.js";import"./Simple-a89b01bc.js";const P=a.main`
   flex-grow: 1;
   margin-left: "4rem";
 `,b=a.div`
@@ -45,4 +45,4 @@ ContinuousMap.args = {
   })),
 };
 `,locationsMap:{"continuous-map":{startLoc:{col:46,line:17},endLoc:{col:1,line:27},startBody:{col:46,line:17},endBody:{col:1,line:27}}}}},title:"Example/Grid Component",component:n},V=s(t=>o(y,{theme:S,children:o(n,{...t,header:e=>`Diagram ${e}`,metadata:e=>[{name:"Variation",data:t.diagrams[e].variation}]})}),"Template"),q=V.bind({});q.args={diagrams:l.range(10).map(t=>({...G,variation:`${t}`}))};const L=["ContinuousMap"];export{q as ContinuousMap,L as __namedExportsOrder,I as default};
-//# sourceMappingURL=Grid.stories-6664185d.js.map
+//# sourceMappingURL=Grid.stories-09a4feaa.js.map
