@@ -1,0 +1,5 @@
+type Curve
+
+predicate onSphere(Curve)
+predicate inSphere(Curve)
+predicate hasShadow(Curve)

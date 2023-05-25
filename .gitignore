@@ -6,6 +6,6 @@
 *.log
 *#
 *~
-/diagrams/
+/target/
 dist/
 node_modules/

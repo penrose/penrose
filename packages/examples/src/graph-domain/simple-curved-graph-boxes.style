@@ -130,7 +130,7 @@ forall Vertex u; Vertex v where Edge(u, v) as e {
   }
 
   encourage minimal(elasticEnergy(e.poly.points, false))
-  encourage isEquilateral(e.poly)
+  encourage isEquilateral(e.poly.points, false)
 
   e.start = a
   e.end = b

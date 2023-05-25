@@ -14,15 +14,14 @@ import {
   sub,
 } from "../engine/AutodiffFunctions.js";
 import { Line } from "../shapes/Line.js";
-import { Path } from "../shapes/Path.js";
-import { Polygon } from "../shapes/Polygon.js";
-import { Polyline } from "../shapes/Polyline.js";
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { ObjFunc } from "../types/functions.js";
 import {
+  booleanT,
   linePts,
   real2T,
+  realNMT,
   realNT,
   realT,
   rectlikeT,
@@ -477,13 +476,19 @@ export const objDictSpecific = {
     description: "Try to make the shape regular",
     params: [
       {
-        name: "s",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      const equilater = constrDictCurves.isEquilateral.body(s);
-      const equiangular = constrDictCurves.isEquiangular.body(s);
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      const equilater = constrDictCurves.isEquilateral.body(points, closed);
+      const equiangular = constrDictCurves.isEquiangular.body(points, closed);
       return add(equilater, equiangular);
     },
   },
@@ -496,12 +501,18 @@ export const objDictSpecific = {
     description: "Try to make the shape equilateral",
     params: [
       {
-        name: "s",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      return constrDictCurves.isEquilateral.body(s);
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      return constrDictCurves.isEquilateral.body(points, closed);
     },
   },
 
@@ -513,12 +524,18 @@ export const objDictSpecific = {
     description: "Try to make the shape equiangular",
     params: [
       {
-        name: "s",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      return constrDictCurves.isEquiangular.body(s);
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      return constrDictCurves.isEquiangular.body(points, closed);
     },
   },
 };

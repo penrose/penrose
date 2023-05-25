@@ -44,8 +44,13 @@ export const StyleConfig: languages.LanguageConfiguration = {
 const styleCustoms = {
   keywords: [
     "forall",
+    "collect",
+    "into",
+    "foreach",
     "where",
     "with",
+    "listof",
+    "from",
     "delete",
     "as",
     "true",

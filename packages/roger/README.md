@@ -1,37 +1,28 @@
 # `@penrose/roger`: a headless renderer for Penrose
 
-This package is a command-line application that depends on `@penrose/core` and batch-processes multiple Penrose diagrams.
+This package is a command-line application that depends on `@penrose/core` and processes Penrose diagrams.
 
 Usage:
 
 ```
-roger [command]
+roger <command>
 
 Commands:
-  roger trio [trio..]                Generate a diagram from a Penros
-                                     e trio.
-  roger batch <registry> <out>       Generate diagrams from a registr
-                                     y of Penrose trios.
-  roger watch                        Watch the current folder for fil
-                                     es & changes (must end in .sub,.
-                                     substance,.sty,.style,.dsl,.doma
-                                     in)
-  roger shapedefs                    Generate a JSON file that contai
-                                     ns all shape definitions in the
-                                     Penrose system.
-  roger textchart <artifacts> <out>  Generate an ASCII chart that sho
-                                     ws the performance data.
+  roger trio [trio..]  Generate a diagram from a Penrose trio.
+  roger watch          Watch the current folder for files & changes (must end in
+                        .sub,.substance,.sty,.style,.dsl,.domain)
+  roger shapedefs      Generate a JSON file that contains all shape definitions
+                       in the Penrose system.
 
 Options:
-  --version  Show version number                            [boolean]
-  --help     Show help                                      [boolean]
-
+  --version  Show version number                                       [boolean]
+  --help     Show help                                                 [boolean]
 ```
 
 ## Getting started
 
-- Follow the instruction in the [wiki page](https://github.com/penrose/penrose/wiki/Building-and-running) to install Penrose.
-- Run `yarn start batch registry.json out/ --path=../examples/src/` in this directory. The output SVGs will appear in `out`.
+- Follow the instruction in [`CONTRIBUTING.md`](/CONTRIBUTING.md) to install Penrose.
+- Run `roger trio packages/examples/src/set-theory-domain/tree-venn.trio.json` from the repo root. The output SVG will appear in the console.
 
 ## Using `roger` for local development
 
