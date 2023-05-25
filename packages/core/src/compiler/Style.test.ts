@@ -1036,6 +1036,13 @@ delete x.z.p }`,
         `forall Set a {
           x = dot([1, 2, 3], [4, 5])
         }`,
+        `forall Set a {
+          x = Group {}
+          y = Group {
+            shapes: []
+            clipPath: clip(x)
+          }
+        }`,
       ],
       RedeclareNamespaceError: [
         `Colors {
