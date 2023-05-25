@@ -7,7 +7,7 @@ import { constrDict, objDict, compDict } from "@penrose/core"
 
 ## Constraint Functions
 
-<div v-for="(f, index) in constrDict" :key="index">
+<div v-for="f in constrDict">
 
 ### {{ f.name }}
 
