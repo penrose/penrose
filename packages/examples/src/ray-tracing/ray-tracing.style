@@ -1,4 +1,4 @@
-layout = [ tracing, labeling ]
+layout = [ tracingStage, labelingStage ]
 
 canvas {
    width = 240
@@ -6,8 +6,6 @@ canvas {
 }
 
 global {
-   scalar eps = 0.1
-
    scalar pointSize = 2 -- 1
 
    scalar arrowScale = 15.0 -- 0
@@ -18,6 +16,8 @@ global {
    string rayLineDashing = "4,3" -- ""
    color rayLineColor = #000 -- #ff660044
    scalar rayLineWidth = 0.65 -- 1
+
+   scalar eps = 0.1 -- offset distance (to prevent ray from intersecting origin)
 }
 
 colors {
@@ -111,7 +111,7 @@ where p has math label {
       strokeLinejoin: "round"
    }
 
-   encourage norm( p.labelText.center - p.x ) == 10 in labeling
+   encourage norm( p.labelText.center - p.x ) == 10 in labelingStage
 
    layer p.labelText above p.icon
 }
@@ -254,7 +254,7 @@ where p := intersect(r,S) {
    shape normalArrow = Line {
       start: p.x
       end: p.x + global.arrowScale*p.n
-      strokeColor: #888
+      strokeColor: #5a5
       strokeWidth: global.arrowThickness
       endArrowhead: global.arrowShape
       endArrowheadSize: global.arrowSize
@@ -266,7 +266,7 @@ where p := intersect(r,S) {
    layer p.icon above normalArrow
 }
 
-forall Ray r; Point p; Point q
+forall Ray r; Point p; Point q; Scene S
 where r := rayBetween(p,q) {
    override r.o = p.x
    override r.d = unit(q.x-p.x)
@@ -276,6 +276,24 @@ where r := rayBetween(p,q) {
       strokeColor: global.rayLineColor
       strokeWidth: global.rayLineWidth
       strokeDasharray: global.rayLineDashing
+      ensureOnCanvas: false
+   }
+
+   -- check if there are any intersections along this ray,
+   -- and draw a red "X" at the first intersection if so
+   vec2 v = unit(q.x-p.x)
+   vec2 y = rayIntersect(S.geometry, p.x + global.eps*v, v)
+   scalar dy = norm(y-p.x)
+   scalar dq = norm(q.x-p.x)
+   scalar alpha = min( max(100*(dq-dy),0), 1 ) -- TODO should just expose ifCond in Style
+   shape notVisible = Text {
+      string: "×"
+      center: y
+      fillColor: rgba(1,0,0,alpha)
+      fontSize: "18px"
+      strokeColor: rgba(1,1,1,alpha)
+      strokeWidth: 2
+      paintOrder: "stroke"
       ensureOnCanvas: false
    }
 }
@@ -304,7 +322,7 @@ where onCamera(p,C) {
 forall Point p; Camera C
 where onCamera(p,C); p has label {
    override p.labelText.center = (?,?)
-   encourage norm( p.labelText.center - C.x ) == 0 in labeling
+   encourage norm( p.labelText.center - C.x ) == 0 in labelingStage
    ensure disjoint( p.labelText, C.icon )
 }
 
@@ -318,7 +336,7 @@ where onLight(p,L) {
 forall Point p; Light L
 where onLight(p,L); p has label {
    override p.labelText.center = (?,?)
-   encourage norm( p.labelText.center - L.x ) == 0 in labeling
+   encourage norm( p.labelText.center - L.x ) == 0 in labelingStage
    ensure disjoint( p.labelText, L.icon )
 }
 
