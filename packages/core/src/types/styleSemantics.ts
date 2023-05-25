@@ -55,6 +55,20 @@ export interface SelEnv {
 // TODO: make this an `im.Map`
 export type Subst = { [k: string]: string };
 
+export type StySubSubst = {
+  tag: "StySubSubst";
+  contents: Subst;
+};
+
+export type CollectionSubst = {
+  tag: "CollectionSubst";
+  groupby: Subst;
+  collName: string;
+  collContent: string[];
+};
+
+export type StySubst = StySubSubst | CollectionSubst;
+
 export type LocalVarSubst = LocalVarId | NamespaceId;
 
 export interface LocalVarId {
@@ -126,7 +140,7 @@ export interface BlockAssignment extends Assignment, Locals {}
 
 export interface BlockInfo {
   block: LocalVarSubst;
-  subst: Subst;
+  subst: StySubst;
 }
 
 export interface Context extends BlockInfo, Locals {}
