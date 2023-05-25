@@ -259,6 +259,14 @@
     "name": "Path Tracing",
     "gallery": true
   },
+  "ray-tracing/bidirectional": {
+    "name": "Bidirectional Path Tracing",
+    "gallery": true
+  },
+  "ray-tracing/next-event-estimation": {
+    "name": "Next Event Estimation",
+    "gallery": false
+  },
   "geometric-queries/test-geometric-queries": {
     "name": "Geometric Queries",
     "gallery": true

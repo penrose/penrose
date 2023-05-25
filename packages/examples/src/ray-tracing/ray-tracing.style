@@ -6,16 +6,16 @@ canvas {
 }
 
 global {
-   scalar pointSize = 2 -- 1
+   scalar pointSize = 2
 
-   scalar arrowScale = 15.0 -- 0
+   scalar arrowScale = 15.0
    scalar arrowThickness = 1.0
    string arrowShape = "straight"
-   string arrowSize = .5 -- 0
+   string arrowSize = .5
 
-   string rayLineDashing = "4,3" -- ""
-   color rayLineColor = #000 -- #ff660044
-   scalar rayLineWidth = 0.65 -- 1
+   string rayLineDashing = "4,3"
+   color rayLineColor = #000
+   scalar rayLineWidth = 0.65
 
    scalar eps = 0.1 -- offset distance (to prevent ray from intersecting origin)
 }
@@ -217,12 +217,12 @@ forall Scene S; Camera C {
 
 forall Scene S; Light L {
    layer L.icon above S.geometry
-   ensure signedDistance( S.geometry, L.x ) < -20
+   constraint L.inScene = ensure signedDistance( S.geometry, L.x ) < -20
 }
 
-forall Camera C; Light L {
-   ensure disjoint( C.icon, L.icon, 20 )
-}
+-- forall Camera C; Light L {
+--    --ensure disjoint( C.icon, L.icon, 20 )
+-- }
 
 forall Ray r; Point p
 where r := rayFrom(p) {
@@ -246,8 +246,6 @@ where p := intersect(r,S) {
       end: p.x
       strokeColor: global.rayLineColor
       strokeWidth: global.rayLineWidth
-      style: "dashed"
-      strokeDasharray: global.rayLineDashing
       ensureOnCanvas: false
    }
 
@@ -266,7 +264,27 @@ where p := intersect(r,S) {
    layer p.icon above normalArrow
 }
 
-forall Ray r; Point p; Point q; Scene S
+forall Ray r; Light L; Scene S
+where hitsLight(r,L) {
+   vec2 o = r.o + global.eps*r.d
+   vec2 y = rayIntersect(S.geometry, o, r.d)
+   vec2 z = (y+o)/2
+
+   delete L.inScene
+   override L.x = z
+
+   shape r.rayLine = Line {
+      start: r.o
+      end: z
+      strokeColor: global.rayLineColor
+      strokeWidth: global.rayLineWidth
+      ensureOnCanvas: false
+   }
+
+   layer r.rayLine above S.geometry
+}
+
+forall Ray r; Entity p; Entity q; Scene S
 where r := rayBetween(p,q) {
    override r.o = p.x
    override r.d = unit(q.x-p.x)
@@ -276,6 +294,8 @@ where r := rayBetween(p,q) {
       strokeColor: global.rayLineColor
       strokeWidth: global.rayLineWidth
       ensureOnCanvas: false
+      style: "dashed"
+      strokeDasharray: global.rayLineDashing
    }
 
    -- don't draw an outgoing ray direction for a direct connection
@@ -299,6 +319,7 @@ where r := rayBetween(p,q) {
       paintOrder: "stroke"
       ensureOnCanvas: false
    }
+   layer notVisible above S.geometry
 }
 
 forall Point p; Ray r
@@ -322,25 +343,11 @@ where onCamera(p,C) {
    layer p.icon below C.icon
 }
 
-forall Point p; Camera C
-where onCamera(p,C); p has label {
-   override p.labelText.center = (?,?)
-   encourage norm( p.labelText.center - C.x ) == 0 in labelingStage
-   ensure disjoint( p.labelText, C.icon )
-}
-
 forall Point p; Light L
 where onLight(p,L) {
    override p.x = L.x
    override p.n = (0,0)
    layer p.icon below L.icon
-}
-
-forall Point p; Light L
-where onLight(p,L); p has label {
-   override p.labelText.center = (?,?)
-   encourage norm( p.labelText.center - L.x ) == 0 in labelingStage
-   ensure disjoint( p.labelText, L.icon )
 }
 
 forall Ray r; Camera C {

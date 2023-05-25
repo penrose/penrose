@@ -1,4 +1,4 @@
--- variation: PuppeteersMink458
+-- variation: JardinLocust329
 
 Scene S
 Light L
@@ -19,3 +19,6 @@ Label x1 $x_1$
 Label x2 $x_2$
 Label x3 $x_3$
 
+-- direct connection to light at each bounce
+Ray rL1 := rayBetween(x1,L)
+Ray rL2 := rayBetween(x2,L)

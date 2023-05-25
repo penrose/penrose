@@ -1,6 +1,6 @@
 {
-  "substance": "./path-trace.substance",
+  "substance": "./bidirectional.substance",
   "style": ["./ray-tracing.style"],
   "domain": "./ray-tracing.domain",
-  "variation": "PuppeteersMink458"
+  "variation": "SilenceRat167"
 }
