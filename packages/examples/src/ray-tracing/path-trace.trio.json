@@ -1,6 +1,6 @@
 {
   "substance": "./path-trace.substance",
-  "style": ["./path-trace.style"],
-  "domain": "./path-trace.domain",
+  "style": ["./ray-tracing.style"],
+  "domain": "./ray-tracing.domain",
   "variation": "ImmortalityGerbil49958"
 }
