@@ -86,7 +86,7 @@ where U has label {
 
 -- draw each point as a small dot
 forall Point p {
-   vec2 location = (?,?) -- location on the canvas
+   vec2 p.location = (?,?) -- location on the canvas
 
    -- The `dot` shape represents the sample point associated
    -- with the ball.  Ordinarily this point will be at the
@@ -116,7 +116,7 @@ forall Ball B {
    -- signed distance.
    vec2 B.center = (?,?)
    scalar B.radius = -signedDistance( Global.domain, B.center )
-   ensure greaterThan( radius, 0. )
+   ensure greaterThan( B.radius, 0. )
 
    -- The `ball` shape is a flat-shaded semi-transparent
    -- disk that determines the color of the ball.
@@ -258,7 +258,7 @@ where p1 := sampleBoundary( B0 ); B0 := ballAround( p0 ) {
 
 -- Adjust the drawing for consecutive steps x0, x1 along a walk on spheres,
 -- where B0, B1 are the associated spheres.
-forall Ball B0; Ball B1; Step x0; Step x1
+forall Ball B0; Ball B1; Point x0; Point x1
 where x1 := sampleBoundary( B0 ); B0 := ballAround( x0 ); B1 := ballAround( x1 ) {
    -- draw later steps of a walk as smaller balls (which is often, but
    -- not always, the behavior of the WoS algorithm)
@@ -267,10 +267,10 @@ where x1 := sampleBoundary( B0 ); B0 := ballAround( x0 ); B1 := ballAround( x1 )
    -- It's typically easier to see labels, etc., if later, smaller
    -- balls are drawn on top of earlier, bigger ones.
    layer B1.shading above B0.sphere
-
+}
 
 -- Draw a line between the consecutive points on a walk on spheres
-forall Step x0; Step x1; Ball B0; Ball B1
+forall Point x0; Point x1; Ball B0; Ball B1
 where x1 := sampleBoundary( B0 ); B0 := ballAround( x0 ); B1 := ballAround( x1 ) {
 
    shape walkLine = Line {
@@ -287,7 +287,7 @@ where x1 := sampleBoundary( B0 ); B0 := ballAround( x0 ); B1 := ballAround( x1 )
 }
 
 -- Draw a line between the consecutive points on a walk on stars
-forall Step x0; Step x1; Star St0; Star St1
+forall Point x0; Point x1; Star St0; Star St1
 where x1 := sampleBoundary( St0 ); St0 := starAround( x0 ); St1 := starAround( x1 ) {
 
    -- TODO we *might* be able to eliminate redundancy with the previous rule by
@@ -317,8 +317,8 @@ where x1 := sampleBoundary( St0 ); St0 := starAround( x0 ); St1 := starAround( x
 -- The next step in a walk might also be sampled from
 -- the ball interior (e.g., to estimate a value expressed
 -- in terms of a source term).
-forall Step y; Step x; Ball Bx; Ball By
-where y := sampleInterior( B ); Bx := ballAround( x ); By := ballAround( y ) {
+forall Point y; Point x; Ball Bx; Ball By
+where y := sampleInterior( Bx ); Bx := ballAround( x ); By := ballAround( y ) {
 
    -- Put the center of the next ball somewhere inside
    -- the current ball, between 20% and 80% of the
@@ -342,8 +342,8 @@ where y := sampleInterior( B ); Bx := ballAround( x ); By := ballAround( y ) {
 -- points are different from steps of a walk, since we never
 -- need to consider a ball around these points (and hence do not
 -- want to draw one).
-forall Sample p; Ball B
-where p := sampleInterior( B ) {
+forall Point p; Ball B
+where p := sampleInterior( B ); isSourceSample( p ) {
 
    -- Draw source samples in a different style
    override p.dot.center = (?,?)
@@ -366,7 +366,7 @@ where p := sampleInterior( B ) {
 -- in the Substance program.
 forall Point p
 where p has label {
-   shape p.labelText = Text {
+   override p.labelText = Text {
       string: p.label
       center: (?,?)
       fontSize: Global.labelSize
@@ -389,18 +389,18 @@ where p has label {
 -- If this sample was drawn from a ball around x,
 -- make sure the sample's label is drawn on top
 -- of that ball.
-forall Sample y; Ball B
-where y has label; y := sampleInterior( B ) {
-   layer y.labelText above B.sphere
+forall Point p; Ball B
+where p has label; p := sampleInterior( B ) {
+   layer p.labelText above B.sphere
 }
 
 -- Also make sure the sample point isn't covered
 -- by the next or previous shading in the walk
-forall Step x0; Step x1; Sample y0; Ball B0; Ball B1
+forall Point x0; Point x1; Point y0; Ball B0; Ball B1
 where x1 := sampleBoundary(B0); y0 := sampleInterior(B0); B0 := ballAround(x0); B1 := ballAround(x1) {
    ensure disjoint( B1.sphere, y0.dot )
 }
-forall Step x0; Step x1; Sample y1; Ball B0; Ball B1
+forall Point x0; Point x1; Point y1; Ball B0; Ball B1
 where x1 := sampleBoundary(B0); y1 := sampleInterior(B1); B0 := ballAround(x0); B1 := ballAround(x1) {
    ensure disjoint( B0.sphere, y1.dot )
 }

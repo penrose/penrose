@@ -1,8 +1,7 @@
 type Domain -- a region in ℝⁿ
 
 type Point
-type Step <: Point -- a step in a walk
-type Sample <: Point -- a point used to estimate other term
+predicate isSourceSample( Point p )
 
 type Subdomain
 type Ball <: Subdomain

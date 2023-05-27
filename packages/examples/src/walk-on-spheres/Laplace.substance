@@ -4,15 +4,15 @@
 
 Domain U
 
-Step x0
+Point x0
 Ball B0 := ballAround( x0 )
-Step x1 := sampleBoundary( B0 )
+Point x1 := sampleBoundary( B0 )
 Ball B1 := ballAround( x1 )
-Step x2 := sampleBoundary( x1 )
+Point x2 := sampleBoundary( B1 )
 Ball B2 := ballAround( x2 )
-Step x3 := sampleBoundary( x2 )
+Point x3 := sampleBoundary( B2 )
 Ball B3 := ballAround( x3 )
-Step x4 := sampleBoundary( x3 )
+Point x4 := sampleBoundary( B3 )
 Ball B4 := ballAround( x4 )
 
 Label U "Ω"
