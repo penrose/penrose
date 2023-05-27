@@ -12,6 +12,7 @@ constructor sampleInterior( Subdomain S ) -> Point p
 
 constructor ballAround( Point p ) -> Ball
 constructor starAround( Point p ) -> Star
+-- TODO can we replace both with subdomainAround( Point p ) -> Subdomain ?
 predicate isNested( Subdomain S ) -- belongs to a nested walk
 predicate isOffCenter( Ball B ) -- is not centered around p
 
