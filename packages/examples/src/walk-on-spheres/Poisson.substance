@@ -4,18 +4,22 @@
 
 Domain U
 
-Step x0
+Point x0
 Ball B0 := ballAround( x0 )
-Sample y0 := sampleInterior( B0 )
-Step x1 := sampleBoundary( B0 )
+Point y0 := sampleInterior( B0 )
+isSourceSample( y0 )
+Point x1 := sampleBoundary( B0 )
 Ball B1 := ballAround( x1 )
-Sample y1 := sampleInterior( B1 )
-Step x2 := sampleBoundary( B1 )
+Point y1 := sampleInterior( B1 )
+isSourceSample( y1 )
+Point x2 := sampleBoundary( B1 )
 Ball B2 := ballAround( x2 )
-Sample y2 := sampleInterior( B2 )
-Step x3 := sampleBoundary( B2 )
+Point y2 := sampleInterior( B2 )
+isSourceSample( y2 )
+Point x3 := sampleBoundary( B2 )
 Ball B3 := ballAround( x3 )
-Sample y3 := sampleInterior( B3 )
+Point y3 := sampleInterior( B3 )
+isSourceSample( y3 )
 
 Label U "Ω"
 Label x0 "x₀"
