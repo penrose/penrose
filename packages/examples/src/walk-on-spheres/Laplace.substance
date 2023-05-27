@@ -1,21 +1,24 @@
--- Describe a short walk used to estimate the solution to
--- a basic Laplace equation Δu = 0, which involves both
--- boundary samples x and source samples y.
+-- A short walk used to estimate the solution to
+-- a Laplace equation Δu = 0 with pure Dirichlet
+-- boundary conditions, via WoS.
 
 Domain U
-Step x0, x1, x2, x3, x4
 
-x1 := sampleBoundary( x0 )
-x2 := sampleBoundary( x1 )
-x3 := sampleBoundary( x2 )
-x4 := sampleBoundary( x3 )
+Step x0
+Ball B0 := ballAround( x0 )
+Step x1 := sampleBoundary( B0 )
+Ball B1 := ballAround( x1 )
+Step x2 := sampleBoundary( x1 )
+Ball B2 := ballAround( x2 )
+Step x3 := sampleBoundary( x2 )
+Ball B3 := ballAround( x3 )
+Step x4 := sampleBoundary( x3 )
+Ball B4 := ballAround( x4 )
 
-AutoLabel All
 Label U "Ω"
 Label x0 "x₀"
 Label x1 "x₁"
 Label x2 "x₂"
 Label x3 "…"
 Label x4 "xₖ"
-
 
